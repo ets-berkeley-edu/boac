@@ -1,0 +1,37 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>BOAC</title>
+
+    <base href="/">
+
+    <link href="static/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/css/main.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <script src="/static/lib/angular/angular.js"></script>
+    <script src="/static/lib/angular-route/angular-route.js"></script>
+
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/routes.js"></script>
+
+    <div class="container-top container">
+      <div class="container-left">
+        <a href="/">BOAC</a>
+      </div>
+      <div class="container-right">
+        Lorem ipsum ergo elk.
+      </div>
+    </div>
+
+    <div class="container page">
+      <div id="content" class="container main" data-ng-view></div>
+      <hr>
+      <footer class="footer">
+        <div class="container-left" data-ng-include="'/static/img/uc_berkeley_logo.html'"></div>
+        <div class="container-right">&copy; 2017 The Regents of the University of California</div>
+      </footer>
+    </div>
+  </body>
+</html>
