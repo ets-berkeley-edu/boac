@@ -2,7 +2,7 @@
 .idea
 
 # Front-end dependencies
-boac/static/lib
+node_modules/
 
 # Local configs
 config/*-local.py

@@ -1,0 +1,14 @@
+{
+  "name": "boac",
+  "version": "1.0.0",
+  "description": "Basically only a concept",
+  "main": "index.js",
+  "repository": "git@github.com:ets-berkeley-edu/boac.git",
+  "author": " ",
+  "license": "SEE LICENSE IN LICENSE",
+  "dependencies": {
+    "angular": "^1.6.6",
+    "angular-route": "^1.6.6",
+    "bootstrap": "^3.3.7"
+  }
+}
