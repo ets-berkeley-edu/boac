@@ -1,0 +1,13 @@
+Flask
+Flask-Login
+Flask-SQLAlchemy
+SQLAlchemy
+cx_Oracle
+psycopg2
+requests
+https://github.com/python-cas/python-cas/archive/master.zip
+# For testing
+httpretty
+pytest
+pytest-catchlog
+pytest-flask
