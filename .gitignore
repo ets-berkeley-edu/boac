@@ -2,7 +2,7 @@
 .idea
 
 # Front-end dependencies
-node_modules/
+boac/static/lib
 
 # Local configs
 config/*-local.py
@@ -27,8 +27,8 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+#lib/
+#lib64/
 parts/
 sdist/
 var/
