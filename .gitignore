@@ -1,3 +1,15 @@
+# IDE-created directories
+.idea
+
+# Front-end dependencies
+boac/static/lib
+
+# Local configs
+config/*-local.py
+
+########################################
+# GitHub boilerplate below...
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
