@@ -1,0 +1,2 @@
+# Development environment.
+DEBUG = True
