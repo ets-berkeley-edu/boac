@@ -1,0 +1,17 @@
+{
+  "id": 10002,
+  "name": "Paul Kerschen",
+  "sortable_name": "Kerschen, Paul",
+  "short_name": "Paul Kerschen",
+  "sis_user_id": "UID:242881",
+  "integration_id": null,
+  "sis_login_id": "242881",
+  "sis_import_id": 123456,
+  "login_id": "242881",
+  "avatar_url": "https://en.wikipedia.org/wiki/Daffy_Duck#/media/File:Daffy_Duck.svg",
+  "locale": null,
+  "permissions": {
+    "can_update_name": false,
+    "can_update_avatar": true
+  }
+}

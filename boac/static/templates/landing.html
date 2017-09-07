@@ -1,0 +1,8 @@
+<div class="body-text">
+  <div data-ng-if="status.authenticated_as.is_authenticated">
+    Hello, UID {{status.authenticated_as.uid}}
+  </div>
+  <div data-ng-if="status.authenticated_as.is_anonymous">
+    Would you mind logging in?
+  </div>
+</div>

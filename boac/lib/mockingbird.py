@@ -145,7 +145,7 @@ def _activate_mock(url, mock_response):
 # It would be nicer to use a MOCKS_ENABLED config value rather than a hardcoded list of environments, but tests are
 # currently set up such that this code is loaded before app config is in place.
 def _environment_supports_mocks():
-    env = os.environ.get('SNAKESKIN_ENV')
+    env = os.environ.get('BOAC_ENV')
     return (env == 'test' or env == 'demo')
 
 

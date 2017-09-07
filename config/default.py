@@ -28,6 +28,10 @@ DEVELOPER_AUTH_PASSWORD = "another secret"
 
 CAS_SERVER = 'https://auth-test.berkeley.edu/cas/'
 
+CANVAS_HTTP_SCHEME = 'https'
+CANVAS_HTTP_DOMAIN = 'wottsamatta.instructure.com'
+CANVAS_HTTP_TOKEN = 'yet another secret'
+
 # Logging
 LOGGING_FORMAT = '[%(asctime)s] - %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
 LOGGING_LOCATION = 'boac.log'

@@ -1,0 +1,55 @@
+.body-text {
+	font-size: 20px;
+	font-weight: 400;
+	line-height: 1.8em;
+}
+
+.container-left {
+	float: left;
+}
+
+.container-right {
+	float: right;
+}
+
+.container-top {
+	font-weight: 300;
+	padding-top: 10px;
+}
+
+.masthead {
+	padding: 30px 0 30px;
+	margin-bottom: 0;
+}
+
+.masthead h1 {
+	font-size: 40px;
+	line-height: 1;
+	font-weight: 400;
+}
+
+.header-section {
+	padding: 20px 0;
+	background: #222;
+	position: absolute;
+	top: 40px;
+	left: 0px;
+	width: 100%;
+	padding-left: 0;
+	margin-left: 0;
+	color: #FFF;
+}
+
+.header-push {
+	height: 180px;
+}
+
+.header-row {
+	width: 960px;
+	margin: auto;
+}
+
+.main {
+	padding-top: 20px;
+	min-height: 370px;
+}
