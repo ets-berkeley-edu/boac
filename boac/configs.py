@@ -26,8 +26,8 @@ def load_module_config(app, config_name):
 
 def load_local_config(app, config_name):
     """Load the local configuration file (if any) from a location outside the package."""
-    configs_location = os.environ.get('BOAC_LOCAL_CONFIGS') or '../config/'
-    config_path = configs_location + config_name
+    configs_location = os.environ.get('BOAC_LOCAL_CONFIGS') or '../config'
+    config_path = configs_location + '/' + config_name
     app.config.from_pyfile(config_path, silent=True)
 
 
