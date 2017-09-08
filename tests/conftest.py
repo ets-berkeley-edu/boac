@@ -8,6 +8,17 @@ import boac.db
 import boac.factory
 
 
+class FakeAuth(object):
+    def __init__(self, the_app, the_client):
+        self.app = the_app
+        self.client = the_client
+
+    def login(self, uid):
+        self.app.config['DEVELOPER_AUTH_ENABLED'] = True
+        self.client.post('/devauth/login',
+            data={'uid': uid, 'password': self.app.config['DEVELOPER_AUTH_PASSWORD']})
+
+
 # Because app and db fixtures are only created once per pytest run, individual tests
 # are not able to modify application configuration values before the app is created.
 # Per-test customizations could be supported via a fixture scope of 'function' and
@@ -15,7 +26,7 @@ import boac.factory
 
 @pytest.fixture(scope='session')
 def app(request):
-    '''Fixture application object, shared by all tests.'''
+    """Fixture application object, shared by all tests."""
     _app = boac.factory.create_app()
 
     # Create app context before running tests.
@@ -33,7 +44,7 @@ def app(request):
 # TODO Perform DB schema creation and deletion outside an app context, enabling test-specific app configurations.
 @pytest.fixture(scope='session')
 def db(app, request):
-    '''Fixture database object, shared by all tests.'''
+    """Fixture database object, shared by all tests."""
     _db = boac.db.initialize_db(app)
 
     # The psycopg2 engine doesn't handle big pg_dump files well, so shell out to load the schema. Abort the
@@ -53,10 +64,10 @@ def db(app, request):
 
 @pytest.fixture(scope='function')
 def db_session(db, request):
-    '''
+    """
     Fixture database session used for the scope of a single test. All executions are wrapped
     in a transaction and then rolled back to keep individual tests isolated.
-    '''
+    """
     connection = db.engine.connect()
     transaction = connection.begin()
     options = dict(bind=connection, binds={})
@@ -73,8 +84,16 @@ def db_session(db, request):
     return _session
 
 
+@pytest.fixture(scope='function')
+def fake_auth(app, client):
+    """
+    Shortcut to start an authenticated session.
+    """
+    return FakeAuth(app, client)
+
+
 def pytest_itemcollected(item):
-    '''Print docstrings during test runs for more readable output.'''
+    """Print docstrings during test runs for more readable output."""
     par = item.parent.obj
     node = item.obj
     pref = par.__doc__.strip() if par.__doc__ else par.__class__.__name__
