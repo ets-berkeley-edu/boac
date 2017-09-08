@@ -6,6 +6,7 @@ from flask_login import (
 )
 from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
 
+
 @app.route('/devauth/login', methods=['GET', 'POST'])
 def dev_login():
     logger = app.logger
@@ -33,6 +34,7 @@ def dev_login():
             '''
     else:
         raise ResourceNotFoundError('Unknown path')
+
 
 @app.route("/logout")
 @login_required

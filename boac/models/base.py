@@ -7,6 +7,8 @@ from boac import db
 This base model class defines common behavior inherited by all database-backed models. Here the
 only such common behavior is timestamp columns.
 """
+
+
 class Base(db.Model):
     __abstract__ = True
 

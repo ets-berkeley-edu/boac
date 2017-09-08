@@ -3,6 +3,7 @@ import flask_login
 
 from boac.models import authorized_user
 
+
 def register_routes(app):
     """Register app routes."""
 

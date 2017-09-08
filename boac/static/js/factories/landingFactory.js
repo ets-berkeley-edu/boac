@@ -9,7 +9,7 @@
 
     return {
       'getAppState': getAppState
-    }
+    };
   });
 
 }(window.angular));

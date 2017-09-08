@@ -1,6 +1,6 @@
 (function(angular) {
 
-  angular.module('boac', ['ngRoute']);
+  angular.module('boac', [ 'ngRoute' ]);
 
   var bootstrap = function() {
     angular.element(document).ready(function() {
