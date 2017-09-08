@@ -3,7 +3,7 @@ import requests
 from flask import current_app as app
 
 def request(url, headers):
-    app.logger.debug({'message': 'HTTP request', 'url': url, 'headers': headers})
+    app.logger.debug({'message': 'HTTP request', 'url': url, 'headers': sanitize_headers(headers)})
     try:
         # TODO handle methods other than GET
         response = requests.get(url, headers=headers)
@@ -13,3 +13,12 @@ def request(url, headers):
         return None
     else:
         return response
+
+def sanitize_headers(headers):
+    '''Suppress authorization token in logged headers.'''
+    if headers['Authorization']:
+        sanitized = headers.copy()
+        sanitized['Authorization'] = 'Bearer <token>'
+        return sanitized
+    else:
+        return headers
