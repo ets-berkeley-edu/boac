@@ -24,5 +24,5 @@ def build_url(canvas_instance, path):
         urllib.parse.quote(path),
         '',
         '',
-        ''
+        '',
     ])

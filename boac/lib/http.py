@@ -1,6 +1,5 @@
-import requests
-
 from flask import current_app as app
+import requests
 
 
 def request(url, headers):
@@ -17,7 +16,7 @@ def request(url, headers):
 
 
 def sanitize_headers(headers):
-    '''Suppress authorization token in logged headers.'''
+    """Suppress authorization token in logged headers."""
     if headers['Authorization']:
         sanitized = headers.copy()
         sanitized['Authorization'] = 'Bearer <token>'

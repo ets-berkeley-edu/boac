@@ -1,9 +1,8 @@
-from flask import Flask
-
 from boac.configs import load_configs
 from boac.db import initialize_db
-from boac.routes import register_routes
 from boac.logger import initialize_logger
+from boac.routes import register_routes
+from flask import Flask
 
 
 def create_app():
