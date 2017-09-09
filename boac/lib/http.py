@@ -2,6 +2,7 @@ import requests
 
 from flask import current_app as app
 
+
 def request(url, headers):
     app.logger.debug({'message': 'HTTP request', 'url': url, 'headers': sanitize_headers(headers)})
     try:
@@ -13,6 +14,7 @@ def request(url, headers):
         return None
     else:
         return response
+
 
 def sanitize_headers(headers):
     '''Suppress authorization token in logged headers.'''

@@ -15,8 +15,14 @@ class JsonableException(Exception):
 
 
 class BadRequestError(JsonableException): pass
+
+
 class UnauthorizedRequestError(JsonableException): pass
+
+
 class ForbiddenRequestError(JsonableException): pass
+
+
 class ResourceNotFoundError(JsonableException): pass
 
 
@@ -24,17 +30,21 @@ class ResourceNotFoundError(JsonableException): pass
 def handle_bad_request(error):
     return error.to_json(), 400
 
+
 @app.errorhandler(UnauthorizedRequestError)
 def handle_unauthorized(error):
     return error.to_json(), 401
+
 
 @app.errorhandler(ForbiddenRequestError)
 def handle_forbidden(error):
     return error.to_json(), 403
 
+
 @app.errorhandler(ResourceNotFoundError)
 def handle_resource_not_found(error):
     return error.to_json(), 404
+
 
 @app.errorhandler(Exception)
 def handle_unexpected_error(error):

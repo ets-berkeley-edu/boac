@@ -3,6 +3,7 @@ import urllib
 from boac.lib import http
 from boac.lib.mockingbird import fixture, mockable, mocking
 
+
 @mockable
 def get_user_for_sis_id(canvas_instance, sis_id, mock=None):
     url = build_url(canvas_instance, '/api/v1/users/sis_user_id:UID:{}'.format(sis_id))

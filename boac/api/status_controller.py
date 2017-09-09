@@ -3,6 +3,7 @@ from flask_login import current_user
 
 from boac.externals import canvas
 
+
 @app.route('/api/status')
 def app_status():
     uid = current_user.get_id()

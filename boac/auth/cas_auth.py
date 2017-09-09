@@ -8,6 +8,7 @@ import cas
 
 from boac.api.errors import ForbiddenRequestError
 
+
 @app.route('/cas/login', methods=['GET', 'POST'])
 def cas_login():
     logger = app.logger

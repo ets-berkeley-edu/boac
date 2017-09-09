@@ -11,3 +11,4 @@ httpretty
 pytest
 pytest-catchlog
 pytest-flask
+tox

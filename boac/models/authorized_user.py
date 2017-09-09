@@ -9,6 +9,7 @@ from flask_login import UserMixin
 
 MockedUser = namedtuple('MockedUser', 'uid is_admin is_director is_advisor')
 
+
 class AuthorizedUser(MockedUser, UserMixin):
     def get_id(self):
         """Override UserMixin, since our DB conventionally reserves 'id' for generated keys."""
@@ -27,6 +28,7 @@ _mocked_users_csv = """uid,is_admin,is_director,is_advisor
 """
 _csv_reader = csv.DictReader(_mocked_users_csv.splitlines())
 _mocked_users = {m['uid']: AuthorizedUser(**m) for m in _csv_reader}
+
 
 def load_user(user_id):
     return _mocked_users.get(user_id)

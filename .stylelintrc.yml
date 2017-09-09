@@ -1,0 +1,22 @@
+extends: stylelint-config-standard
+ignoreFiles:
+  - node_modules/**/*
+  - boac/static/lib
+plugins:
+  - stylelint-scss
+  - stylelint-order
+rules:
+  font-family-name-quotes: always-where-recommended
+  function-url-quotes: never
+  selector-attribute-quotes: always
+  selector-type-no-unknown: null
+  shorthand-property-no-redundant-values: null
+  string-quotes: double
+  # https://github.com/sasstools/sass-lint/blob/develop/lib/config/property-sort-orders/smacss.yml
+  order/properties-order:
+    - display
+    - position
+    - top
+    - right
+    - bottom
+    - left
