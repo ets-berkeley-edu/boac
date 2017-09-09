@@ -25,15 +25,17 @@ class TestCanvasGetUserForSisId:
         assert paul_response.json()['avatar_url'] == 'https://en.wikipedia.org/wiki/Daffy_Duck#/media/File:Daffy_Duck.svg'
 
     def test_user_not_found(self, ucb_canvas, caplog):
-        '''logs 404 for unknown user and returns empty response'''
+        '''logs 404 for unknown user and returns informative message'''
         response = canvas.get_user_for_sis_id(ucb_canvas, 9999999)
         assert 'HTTP/1.1" 404' in caplog.text
-        assert not response
+        assert response.status_code == 404
+        assert response.json()['message']
 
     def test_server_error(self, ucb_canvas, caplog):
-        '''logs unexpected server errors and returns empty response'''
+        '''logs unexpected server errors and returns informative message'''
         canvas_error = MockResponse(500, {}, '{"message": "Internal server error."}')
         with register_mock(canvas.get_user_for_sis_id, canvas_error):
             response = canvas.get_user_for_sis_id(ucb_canvas, 2040)
             assert 'HTTP/1.1" 500' in caplog.text
-            assert not response
+            assert response.status_code == 500
+            assert response.json()['message']
