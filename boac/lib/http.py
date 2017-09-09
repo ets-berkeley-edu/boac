@@ -10,9 +10,7 @@ def request(url, headers):
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         app.logger.error(e)
-        return None
-    else:
-        return response
+    return response
 
 def sanitize_headers(headers):
     '''Suppress authorization token in logged headers.'''
