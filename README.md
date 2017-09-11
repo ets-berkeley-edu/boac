@@ -38,4 +38,18 @@ mkdir /Volumes/XYZ/boac_config
 export BOAC_LOCAL_CONFIGS=/Volumes/XYZ/boac_config
 ```
 
-## Usage
+## Run tests, lint the code
+
+We use [Tox](https://tox.readthedocs.io) for continuous integration. Under the hood, you'll find [PyTest](https://docs.pytest.org), [Flake8](http://flake8.pycqa.org), [ESLint](https://eslint.org/) and [Stylelint](https://stylelint.io).
+```
+# Run all tests and linters
+tox
+
+# Pytest only
+tox -e test
+
+# Linters, à la carte
+tox -e lint-py
+tox -e lint-js
+tox -e lint-css
+```
