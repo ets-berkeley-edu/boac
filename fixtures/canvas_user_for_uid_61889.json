@@ -1,0 +1,17 @@
+{
+  "id": 9000100,
+  "name": "Oski Bear",
+  "sortable_name": "Bear, Oski",
+  "short_name": "Oski Bear",
+  "sis_user_id": "UID:61889",
+  "integration_id": null,
+  "sis_login_id": "61889",
+  "sis_import_id": 123456,
+  "login_id": "61889",
+  "avatar_url": "https://calspirit.berkeley.edu/oski/images/oskibio.jpg",
+  "locale": null,
+  "permissions": {
+    "can_update_name": false,
+    "can_update_avatar": true
+  }
+}

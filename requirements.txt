@@ -3,6 +3,7 @@ Flask-Login
 Flask-SQLAlchemy
 SQLAlchemy
 cx_Oracle
+pandas
 psycopg2
 requests
 https://github.com/python-cas/python-cas/archive/master.zip

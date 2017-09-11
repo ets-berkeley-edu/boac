@@ -1,8 +1,9 @@
 import boac.externals.canvas as canvas
 from boac.lib.mockingbird import MockResponse, register_mock
+import pytest
 
 
-class TestUserController:
+class TestUserProfile:
     """User Profile API"""
 
     def test_profile_not_authenticated(self, client):
@@ -34,3 +35,93 @@ class TestUserController:
         fake_auth.login(test_uid)
         response = client.get('/api/profile')
         assert response.json['canvas_profile']['sis_login_id'] == test_uid
+
+
+class TestUserAnalytics:
+    """User Analytics API"""
+
+    api_path = '/api/user/61889/analytics'
+
+    @pytest.fixture()
+    def authenticated_session(self, fake_auth):
+        test_uid = '1133399'
+        fake_auth.login(test_uid)
+
+    @pytest.fixture()
+    def authenticated_response(self, authenticated_session, client):
+        return client.get(TestUserAnalytics.api_path)
+
+    @staticmethod
+    def get_course_for_code(response, code):
+        return next((course for course in response.json['courses'] if course['courseCode'] == code), None)
+
+    def test_user_analytics_not_authenticated(self, client):
+        """returns 401 if not authenticated"""
+        response = client.get(TestUserAnalytics.api_path)
+        assert response.status_code == 401
+
+    def test_user_analytics_authenticated(self, authenticated_response):
+        """returns a well-formed response if authenticated"""
+        assert authenticated_response.status_code == 200
+        assert authenticated_response.json['uid'] == '61889'
+        assert authenticated_response.json['canvasProfile']['id'] == 9000100
+        assert len(authenticated_response.json['courses']) == 3
+        for course in authenticated_response.json['courses']:
+            assert course['courseCode']
+            assert course['canvasCourseId']
+            assert course['courseName']
+            assert course['analytics']
+
+    def test_course_without_enrollment(self, authenticated_response):
+        """returns a graceful error if the expected enrollment is not found"""
+        course_without_enrollment = TestUserAnalytics.get_course_for_code(authenticated_response, 'BURMESE 1A')
+        assert course_without_enrollment['analytics']['error'] == 'Unable to retrieve analytics'
+
+    def test_course_with_enrollment(self, authenticated_response):
+        """returns sensible data if the expected enrollment is found"""
+        course_with_enrollment = TestUserAnalytics.get_course_for_code(authenticated_response, 'MED ST 205')
+
+        assert course_with_enrollment['analytics']['assignmentsOnTime']['student']['raw'] == 5
+        assert course_with_enrollment['analytics']['assignmentsOnTime']['student']['percentile'] == pytest.approx(92.9, 0.1)
+        assert course_with_enrollment['analytics']['assignmentsOnTime']['student']['zscore'] == pytest.approx(1.469, 0.01)
+        assert course_with_enrollment['analytics']['assignmentsOnTime']['courseDeciles'][0] == 0.0
+        assert course_with_enrollment['analytics']['assignmentsOnTime']['courseDeciles'][9] == 5.0
+        assert course_with_enrollment['analytics']['assignmentsOnTime']['courseDeciles'][10] == 6.0
+
+        assert course_with_enrollment['analytics']['pageViews']['student']['raw'] == 768
+        assert course_with_enrollment['analytics']['pageViews']['student']['percentile'] == pytest.approx(54.3, 0.1)
+        assert course_with_enrollment['analytics']['pageViews']['student']['zscore'] == pytest.approx(0.108, 0.01)
+        assert course_with_enrollment['analytics']['pageViews']['courseDeciles'][0] == 9.0
+        assert course_with_enrollment['analytics']['pageViews']['courseDeciles'][9] == pytest.approx(917.0)
+        assert course_with_enrollment['analytics']['pageViews']['courseDeciles'][10] == 31983.0
+
+        assert course_with_enrollment['analytics']['participations']['student']['raw'] == 5
+        assert course_with_enrollment['analytics']['participations']['student']['percentile'] == pytest.approx(82.64, 0.01)
+        assert course_with_enrollment['analytics']['participations']['student']['zscore'] == pytest.approx(0.941, 0.01)
+        assert course_with_enrollment['analytics']['participations']['courseDeciles'][0] == 0.0
+        assert course_with_enrollment['analytics']['participations']['courseDeciles'][9] == 6.0
+        assert course_with_enrollment['analytics']['participations']['courseDeciles'][10] == 12.0
+
+    def test_canvas_profile_not_found(self, authenticated_session, client):
+        """returns 404 if Canvas profile not found"""
+        canvas_error = MockResponse(404, {}, '{"message": "Resource not found."}')
+        with register_mock(canvas.get_user_for_uid, canvas_error):
+            response = client.get(TestUserAnalytics.api_path)
+            assert response.status_code == 404
+            assert response.json['message'] == 'No Canvas profile found for user'
+
+    def test_canvas_course_feed_not_found(self, authenticated_session, client):
+        """returns 404 if Canvas course feed not found"""
+        canvas_error = MockResponse(404, {}, '{"message": "Resource not found."}')
+        with register_mock(canvas.get_user_courses, canvas_error):
+            response = client.get(TestUserAnalytics.api_path)
+            assert response.status_code == 404
+            assert response.json['message'] == 'No courses found for user'
+
+    def test_canvas_unreachable(self, authenticated_session, client):
+        """returns 500 if Canvas unreachable"""
+        canvas_error = MockResponse(500, {}, '{"message": "Internal server error."}')
+        with register_mock(canvas.get_user_for_uid, canvas_error):
+            response = client.get(TestUserAnalytics.api_path)
+            assert response.status_code == 500
+            assert response.json['message'] == 'Unable to reach bCourses'
