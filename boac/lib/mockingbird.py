@@ -1,9 +1,9 @@
 from contextlib import contextmanager
 from functools import partial, wraps
-import httpretty
 import os
-
 from flask import current_app
+import httpretty
+
 
 """This module wraps the httpretty package to return fake external API responses in test or demo mode.
 
@@ -23,6 +23,7 @@ class MockResponse:
     The register_mock context manager may pass in a MockResponse object, or, if dynamic behavior is required, a function
     that returns a MockResponse object.
     """
+
     def __init__(self, status, headers, body):
         self.status = status
         self.headers = headers
@@ -119,7 +120,8 @@ def fixture(fixture_file):
 @contextmanager
 def register_mock(request_function, response):
     """Context manager, intended to be used from tests, that temporarily registers a mock response for a given request.
-    A MockResponse object may be supplied, or, if dynamic behavior is required, a function that returns a MockResponse."""
+    A MockResponse object may be supplied, or, if dynamic behavior is required, a function that returns a MockResponse.
+    """
     if isinstance(response, MockResponse):
         response_function = lambda *args: response
     else:

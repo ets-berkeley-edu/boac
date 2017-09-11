@@ -1,5 +1,5 @@
-from flask import jsonify
 from flask import current_app as app
+from flask import jsonify
 
 
 class JsonableException(Exception):
@@ -14,16 +14,20 @@ class JsonableException(Exception):
             return ''
 
 
-class BadRequestError(JsonableException): pass
+class BadRequestError(JsonableException):
+    pass
 
 
-class UnauthorizedRequestError(JsonableException): pass
+class UnauthorizedRequestError(JsonableException):
+    pass
 
 
-class ForbiddenRequestError(JsonableException): pass
+class ForbiddenRequestError(JsonableException):
+    pass
 
 
-class ResourceNotFoundError(JsonableException): pass
+class ResourceNotFoundError(JsonableException):
+    pass
 
 
 @app.errorhandler(BadRequestError)

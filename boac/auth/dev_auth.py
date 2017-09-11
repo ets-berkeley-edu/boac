@@ -1,10 +1,10 @@
+from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
 from flask import (
     current_app as app, flash, redirect, request,
 )
 from flask_login import (
-    login_required, login_user, logout_user
+    login_required, login_user, logout_user,
 )
-from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
 
 
 @app.route('/devauth/login', methods=['GET', 'POST'])
@@ -25,18 +25,18 @@ def dev_login():
             flash('Logged in successfully.')
             return redirect('/')
         else:
-            return '''
+            return """
                 <form method="post">
                     <p>UID: <input type=text name=uid>
                     <p>Password: <input type=password name=password>
                     <p><input type=submit value=Login>
                 </form>
-            '''
+            """
     else:
         raise ResourceNotFoundError('Unknown path')
 
 
-@app.route("/logout")
+@app.route('/logout')
 @login_required
 def logout():
     logout_user()
