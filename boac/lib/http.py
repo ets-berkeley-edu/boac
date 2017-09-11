@@ -3,11 +3,13 @@ import requests
 
 
 class ResponseExceptionWrapper:
-    def __init__(self, exception, original_response = None):
+    def __init__(self, exception, original_response=None):
         self.exception = exception
         self.raw_response = original_response
+
     def __bool__(self):
         return False
+
 
 def request(url, headers):
     """
