@@ -15,6 +15,7 @@ def register_routes(app):
 
     # Register API routes.
     import boac.api.status_controller
+    import boac.api.user_controller
 
     # Register error handlers.
     import boac.api.errors

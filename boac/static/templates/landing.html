@@ -2,9 +2,6 @@
   <div data-ng-if="status.authenticated_as.is_authenticated">
     Hello, UID {{status.authenticated_as.uid}}.
   </div>
-  <div data-ng-if="status.canvas_profile">
-    Or, as bCourses prefers to call you, {{status.canvas_profile.short_name}}.
-  </div>
   <div data-ng-if="status.authenticated_as.is_anonymous">
     Would you mind logging in?
   </div>
