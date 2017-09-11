@@ -1,6 +1,8 @@
 from contextlib import contextmanager
 from functools import partial, wraps
 import os
+import urllib
+
 from flask import current_app
 import httpretty
 
@@ -107,7 +109,7 @@ def fixture(fixture_file):
     def external_api_mock(hostname, resource_id):
         return fixture('resource_{}_feed.json'.format(resource_id))
     """
-    path = current_app.config['BASE_DIR'] + '/../fixtures/{}'.format(fixture_file)
+    path = _get_fixtures_path() + '/' + fixture_file
     try:
         file = open(path)
     except FileNotFoundError:
@@ -115,6 +117,52 @@ def fixture(fixture_file):
     with file:
         fixture = file.read()
         return MockResponse(200, {}, fixture)
+
+
+def paged_fixture(pattern):
+    """Convenience function to generate a mock response for an API with multiple pages. Fixture files should be
+    saved in the format:
+      - some_resource_page_1.json
+      - some_resource_page_2.json
+    etc.
+    Fixtures will be returned with a 200 status, and will include a "next" link header as long as another page exists.
+    If no matching fixtures are found, return a generic 404.
+
+    Usage:
+
+    @mocking(call_external_paged_api)
+    def external_paged_api_mock(hostname, resource_id):
+        return paged_fixture('some_resource')
+    """
+    def handle_request(request, uri, headers, fixtures_path):
+        page = int(request.querystring.get('page', ['1'])[0])
+        fixture_file = fixtures_path + '/{}_page_{}.json'.format(pattern, page)
+        try:
+            file = open(fixture_file)
+        except FileNotFoundError:
+            return (404, {}, '{"message": "The requested resource was not found."}')
+        with file:
+            fixture = file.read()
+
+        headers = {}
+        next_fixture_file = fixtures_path + '/{}_page_{}.json'.format(pattern, page + 1)
+        if os.path.isfile(next_fixture_file):
+            parsed_url = urllib.parse.urlparse(uri)
+            parsed_query = urllib.parse.parse_qs(parsed_url.query)
+            parsed_query['page'] = page + 1
+            next_url = urllib.parse.urlunparse([
+                parsed_url.scheme,
+                parsed_url.netloc,
+                parsed_url.path,
+                '',
+                urllib.parse.urlencode(parsed_query, doseq=True),
+                '',
+            ])
+            headers['Link'] = '<{}>; rel="next"'.format(next_url)
+        return (200, headers, fixture)
+    # The fixtures path is based on app config and for obscure scoping reasons needs to be passed in as a partial;
+    # otherwise Flask will see it as an attempt to evaluate app config outside an application context.
+    return partial(handle_request, fixtures_path=_get_fixtures_path())
 
 
 @contextmanager
@@ -149,6 +197,10 @@ def _activate_mock(url, mock_response):
 def _environment_supports_mocks():
     env = os.environ.get('BOAC_ENV')
     return (env == 'test' or env == 'demo')
+
+
+def _get_fixtures_path():
+    return current_app.config['BASE_DIR'] + '/../fixtures'
 
 
 @contextmanager

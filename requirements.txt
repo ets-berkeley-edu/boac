@@ -7,7 +7,7 @@ psycopg2
 requests
 https://github.com/python-cas/python-cas/archive/master.zip
 # For testing
-httpretty
+https://github.com/gabrielfalcao/HTTPretty/archive/master.zip
 pytest
 pytest-catchlog
 pytest-flask
