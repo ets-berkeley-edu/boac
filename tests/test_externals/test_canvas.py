@@ -43,3 +43,35 @@ class TestCanvasGetUserForSisId:
             assert not response
             assert response.raw_response.status_code == 500
             assert response.raw_response.json()['message']
+
+
+class TestCanvasGetStudentSummariesForCourse:
+    """Canvas API query (student summaries for course)"""
+
+    def test_student_summaries(self, ucb_canvas):
+        """returns a large result set from paged Canvas API"""
+        student_summaries = canvas.get_student_summaries(ucb_canvas, 7654321)
+        assert student_summaries
+        assert len(student_summaries) == 730
+        assert student_summaries[0]['id'] == 9000000
+        assert student_summaries[0]['page_views'] == 567
+        assert student_summaries[729]['id'] == 9000729
+        assert student_summaries[729]['page_views'] == 400
+
+    def test_course_not_found(self, ucb_canvas, caplog):
+        """logs 404 for unknown course and returns wrapped exception"""
+        student_summaries = canvas.get_student_summaries(ucb_canvas, 9999999)
+        assert 'HTTP/1.1" 404' in caplog.text
+        assert not student_summaries
+        assert student_summaries.raw_response.status_code == 404
+        assert student_summaries.raw_response.json()['message']
+
+    def test_server_error(self, ucb_canvas, caplog):
+        """logs unexpected server errors and returns wrapped exception"""
+        canvas_error = MockResponse(503, {}, '{"message": "Server at capacity, go away."}')
+        with register_mock(canvas.get_student_summaries, canvas_error):
+            student_summaries = canvas.get_student_summaries(ucb_canvas, 7654321)
+            assert 'HTTP/1.1" 503' in caplog.text
+            assert not student_summaries
+            assert student_summaries.raw_response.status_code == 503
+            assert student_summaries.raw_response.json()['message']
