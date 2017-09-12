@@ -13,7 +13,7 @@ class AuthorizedUser(Base, UserMixin):
     __tablename__ = 'authorized_users'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)
-    uid = db.Column(db.String(255), nullable=False)
+    uid = db.Column(db.String(255), nullable=False, unique=True)
     is_advisor = db.Column(db.Boolean)
     is_admin = db.Column(db.Boolean)
     is_director = db.Column(db.Boolean)
