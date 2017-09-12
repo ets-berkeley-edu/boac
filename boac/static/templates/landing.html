@@ -1,8 +1,15 @@
-<div class="body-text">
-  <div data-ng-if="status.authenticated_as.is_authenticated">
-    Hello, UID {{status.authenticated_as.uid}}.
+<div class="body-text" data-ng-controller="LandingController">
+  <div data-ng-if="me.authenticated_as.is_authenticated">
+    Hello, UID {{me.authenticated_as.uid}}.
   </div>
-  <div data-ng-if="status.authenticated_as.is_anonymous">
+  <div data-ng-if="me.authenticated_as.is_anonymous">
     Would you mind logging in?
+    <div>
+      <form data-ng-submit="devAuthLogIn()">
+        <p><input data-ng-model="devAuth.uid" type="text" placeholder="UID" required></p>
+        <p><input data-ng-model="devAuth.password" autocomplete="off" name="password" type="password" placeholder="Password" required></p>
+        <p><button type="submit">Login</button></p>
+      </form>
+    </div>
   </div>
 </div>
