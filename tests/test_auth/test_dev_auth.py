@@ -6,18 +6,10 @@ class TestDevAuth:
     def test_disabled(self, app, client):
         '''blocks access unless enabled'''
         app.config['DEVELOPER_AUTH_ENABLED'] = False
-        response = client.get('/devauth/login')
+        response = client.post('/devauth/login')
         assert response.status_code == 404
         response = client.post('/devauth/login', data={'uid': self.authorized_uid, 'password': app.config['DEVELOPER_AUTH_PASSWORD']})
         assert response.status_code == 404
-
-    def test_enabled(self, app, client):
-        '''supports login forms when enabled'''
-        app.config['DEVELOPER_AUTH_ENABLED'] = True
-        response = client.get('/devauth/login')
-        assert response.status_code == 200
-        assert response.content_type.startswith('text/html')
-        assert '<form' in str(response.data)
 
     def test_password_fail(self, app, client):
         '''fails if no match on developer password'''
