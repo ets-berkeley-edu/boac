@@ -23,7 +23,7 @@ class TestUserController:
         test_uid = '1133399'
         fake_auth.login(test_uid)
         canvas_error = MockResponse(500, {}, '{"message": "Internal server error."}')
-        with register_mock(canvas.get_user_for_sis_id, canvas_error):
+        with register_mock(canvas.get_user_for_uid, canvas_error):
             response = client.get('/api/profile')
             assert response.status_code == 200
             assert response.json['uid'] == test_uid
