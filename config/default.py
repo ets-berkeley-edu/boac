@@ -32,6 +32,8 @@ CANVAS_HTTP_SCHEME = 'https'
 CANVAS_HTTP_DOMAIN = 'wottsamatta.instructure.com'
 CANVAS_HTTP_TOKEN = 'yet another secret'
 
+CANVAS_CURRENT_ENROLLMENT_TERM = 5493
+
 # Logging
 LOGGING_FORMAT = '[%(asctime)s] - %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
 LOGGING_LOCATION = 'boac.log'

@@ -11,6 +11,13 @@ class ResponseExceptionWrapper:
         return False
 
 
+def get_next_page(response):
+    if response.links and 'next' in response.links:
+        return response.links['next'].get('url')
+    else:
+        return None
+
+
 def request(url, headers):
     """
     Exception and error catching wrapper for outgoing HTTP requests.
