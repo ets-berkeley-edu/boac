@@ -5,15 +5,15 @@ from boac.lib.mockingbird import fixture, mockable, mocking, paged_fixture
 
 
 @mockable
-def get_user_for_sis_id(canvas_instance, sis_id, mock=None):
-    url = build_url(canvas_instance, '/api/v1/users/sis_user_id:UID:{}'.format(sis_id))
+def get_user_for_uid(canvas_instance, uid, mock=None):
+    url = build_url(canvas_instance, '/api/v1/users/sis_login_id:{}'.format(uid))
     with mock(url):
         return authorized_request(canvas_instance, url)
 
 
-@mocking(get_user_for_sis_id)
-def get_user_for_sis_id_fixture(canvas_instance, sis_id):
-    return fixture('canvas_user_for_sis_id_{}.json'.format(sis_id))
+@mocking(get_user_for_uid)
+def get_user_for_uid_fixture(canvas_instance, uid):
+    return fixture('canvas_user_for_uid_{}.json'.format(uid))
 
 
 @mockable
