@@ -4,32 +4,35 @@ and which privileges they have. It will probably end up as a DB table, but is
 simply mocked-out a la "demo mode" for now.
 """
 
-from collections import namedtuple
-import csv
+from boac import db
+from boac.models.base import Base
 from flask_login import UserMixin
 
-MockedUser = namedtuple('MockedUser', 'uid is_admin is_director is_advisor')
 
+class AuthorizedUser(Base, UserMixin):
+    __tablename__ = 'authorized_users'
 
-class AuthorizedUser(MockedUser, UserMixin):
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    uid = db.Column(db.String(255), nullable=False)
+    is_advisor = db.Column(db.Boolean)
+    is_admin = db.Column(db.Boolean)
+    is_director = db.Column(db.Boolean)
+
+    def __init__(self, uid, is_advisor=True, is_admin=False, is_director=False):
+        self.uid = uid
+        self.is_advisor = is_advisor
+        self.is_admin = is_admin
+        self.is_director = is_director
+
+    def __repr__(self):
+        return '<AuthorizedUser %r, is_advisor=%r, is_admin=%r, is_director=%r>' % (
+            self.uid, self.is_advisor, self.is_admin, self.is_director,
+        )
+
     def get_id(self):
         """Override UserMixin, since our DB conventionally reserves 'id' for generated keys."""
         return self.uid
 
 
-_mocked_users_csv = """uid,is_admin,is_director,is_advisor
-2040,true,false,false
-53791,true,false,false
-95509,true,false,false
-177473,true,false,false
-1133399,true,false,false
-211159,true,false,false
-242881,true,false,false
-1022796,true,false,false
-"""
-_csv_reader = csv.DictReader(_mocked_users_csv.splitlines())
-_mocked_users = {m['uid']: AuthorizedUser(**m) for m in _csv_reader}
-
-
 def load_user(user_id):
-    return _mocked_users.get(user_id)
+    return AuthorizedUser.query.filter_by(uid=user_id).first()
