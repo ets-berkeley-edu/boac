@@ -2,7 +2,7 @@ import urllib
 
 from boac.lib import http
 from boac.lib.mockingbird import fixture, mockable, mocking, paged_fixture
-from flask import current_app
+from flask import current_app as app
 
 
 @mockable
@@ -27,7 +27,7 @@ def get_user_courses(canvas_instance, uid, mock=None):
     def include_course(course):
         # For now, keep things simple by including only student enrollments for the current term as defined in app
         # config.
-        if course.get('enrollment_term_id') != current_app.config.get('CANVAS_CURRENT_ENROLLMENT_TERM'):
+        if course.get('enrollment_term_id') != app.config.get('CANVAS_CURRENT_ENROLLMENT_TERM'):
             return False
         if not course['enrollments'] or not next((e for e in course['enrollments'] if e['type'] == 'student'), None):
             return False
