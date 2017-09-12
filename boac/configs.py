@@ -14,6 +14,7 @@ def load_configs(app):
     app_env = os.environ.get('BOAC_ENV', 'development')
     load_module_config(app, app_env)
     load_local_config(app, '{}-local.py'.format(app_env))
+    app.config['BOAC_ENV'] = app_env
     app.canvas_instance = CanvasInstance(app)
 
 
