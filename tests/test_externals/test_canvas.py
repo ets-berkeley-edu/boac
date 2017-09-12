@@ -1,7 +1,6 @@
-import pytest
-
-from boac.lib.mockingbird import MockResponse, register_mock
 import boac.externals.canvas as canvas
+from boac.lib.mockingbird import MockResponse, register_mock
+import pytest
 
 
 @pytest.fixture

@@ -5,8 +5,8 @@
   angular.module('boac').factory('authFactory', function($http) {
     var devAuthLogIn = function(uid, password) {
       return $http.post('/devauth/login', {
-        'uid': uid,
-        'password': password
+        uid: uid,
+        password: password
       });
     };
 
@@ -15,8 +15,8 @@
     };
 
     return {
-      'devAuthLogIn': devAuthLogIn,
-      'status': status
+      devAuthLogIn: devAuthLogIn,
+      status: status
     };
   });
 
