@@ -45,6 +45,55 @@ class TestCanvasGetUserForUid:
             assert response.raw_response.json()['message']
 
 
+class TestCanvasGetUserCourses:
+    """Canvas API query (get courses for user)"""
+
+    def test_get_courses(self, ucb_canvas):
+        """returns a well-formed response"""
+        courses = canvas.get_user_courses(ucb_canvas, 61889)
+        assert courses
+        assert len(courses) == 3
+        assert courses[0]['id'] == 7654320
+        assert courses[0]['name'] == 'Introductory Burmese'
+        assert courses[0]['course_code'] == 'BURMESE 1A'
+        assert courses[1]['id'] == 7654321
+        assert courses[1]['name'] == 'Medieval Manuscripts as Primary Sources'
+        assert courses[1]['course_code'] == 'MED ST 205'
+        assert courses[2]['id'] == 7654323
+        assert courses[2]['name'] == 'Radioactive Waste Management'
+        assert courses[2]['course_code'] == 'NUC ENG 124'
+
+    def test_student_enrollments(self, ucb_canvas):
+        """returns only enrollments of type 'student'"""
+        courses = canvas.get_user_courses(ucb_canvas, 61889)
+        for course in courses:
+            assert course['enrollments'][0]['type'] == 'student'
+
+    def test_current_term(self, app, ucb_canvas):
+        """returns only enrollments in current term"""
+        courses = canvas.get_user_courses(ucb_canvas, 61889)
+        for course in courses:
+            assert course['enrollment_term_id'] == app.config.get('CANVAS_CURRENT_ENROLLMENT_TERM')
+
+    def test_user_not_found(self, ucb_canvas, caplog):
+        """logs 404 for unknown user and returns wrapped exception"""
+        courses = canvas.get_user_courses(ucb_canvas, 9999999)
+        assert 'HTTP/1.1" 404' in caplog.text
+        assert not courses
+        assert courses.raw_response.status_code == 404
+        assert courses.raw_response.json()['message']
+
+    def test_server_error(self, ucb_canvas, caplog):
+        """logs unexpected server errors and returns wrapped exception"""
+        canvas_error = MockResponse(503, {}, '{"message": "Server at capacity, go away."}')
+        with register_mock(canvas.get_user_courses, canvas_error):
+            courses = canvas.get_user_courses(ucb_canvas, 61889)
+            assert 'HTTP/1.1" 503' in caplog.text
+            assert not courses
+            assert courses.raw_response.status_code == 503
+            assert courses.raw_response.json()['message']
+
+
 class TestCanvasGetStudentSummariesForCourse:
     """Canvas API query (student summaries for course)"""
 

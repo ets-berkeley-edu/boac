@@ -1,0 +1,213 @@
+[
+  {
+    "id": 7654320,
+    "name": "Introductory Burmese",
+    "account_id": 2,
+    "uuid": "qwertyuiop1",
+    "start_at": "2017-08-18T18:17:59Z",
+    "grading_standard_id": null,
+    "is_public": false,
+    "course_code": "BURMESE 1A",
+    "default_view": "wiki",
+    "root_account_id": 1,
+    "enrollment_term_id": 5493,
+    "end_at": null,
+    "public_syllabus": false,
+    "public_syllabus_to_auth": false,
+    "storage_quota_mb": 2048,
+    "is_public_to_auth_users": false,
+    "apply_assignment_group_weights": true,
+    "locale": "fr",
+    "calendar": {
+      "ics": "https://ucberkeley.beta.instructure.com/feeds/calendars/course_qwertyuiop1.ics"
+    },
+    "time_zone": "America/Los_Angeles",
+    "enrollments": [
+      {
+        "type": "student",
+        "role": "StudentEnrollment",
+        "role_id": 1772,
+        "user_id": 123456,
+        "enrollment_state": "active"
+      }
+    ],
+    "hide_final_grades": false,
+    "workflow_state": "available",
+    "restrict_enrollments_to_course_dates": false
+  },
+  {
+    "id": 7654321,
+    "name": "Medieval Manuscripts as Primary Sources",
+    "account_id": 1,
+    "uuid": "qwertyuiop2",
+    "start_at": "2017-08-18T18:17:59Z",
+    "grading_standard_id": null,
+    "is_public": false,
+    "course_code": "MED ST 205",
+    "default_view": "feed",
+    "root_account_id": 1,
+    "enrollment_term_id": 5493,
+    "end_at": null,
+    "public_syllabus": false,
+    "public_syllabus_to_auth": false,
+    "storage_quota_mb": 2048,
+    "is_public_to_auth_users": false,
+    "apply_assignment_group_weights": false,
+    "calendar": {
+      "ics": "https://ucberkeley.beta.instructure.com/feeds/calendars/course_qwertyuiop2.ics"
+    },
+    "time_zone": "America/Los_Angeles",
+    "enrollments": [
+      {
+        "type": "student",
+        "role": "StudentEnrollment",
+        "role_id": 1772,
+        "user_id": 123456,
+        "enrollment_state": "active"
+      }
+    ],
+    "hide_final_grades": false,
+    "workflow_state": "available",
+    "restrict_enrollments_to_course_dates": false
+  },
+  {
+    "id": 7654322,
+    "name": "Practicum for Advanced Modern Dancers",
+    "account_id": 102643,
+    "uuid": "qwertyuiop3",
+    "start_at": "2017-08-18T18:17:59Z",
+    "grading_standard_id": 4068930,
+    "is_public": true,
+    "course_code": "THEATER 143",
+    "default_view": "modules",
+    "root_account_id": 90242,
+    "enrollment_term_id": 5493,
+    "end_at": null,
+    "public_syllabus": false,
+    "public_syllabus_to_auth": false,
+    "storage_quota_mb": 5000,
+    "is_public_to_auth_users": false,
+    "apply_assignment_group_weights": true,
+    "calendar": {
+      "ics": "https://ucberkeley.beta.instructure.com/feeds/calendars/course_qwertyuiop3.ics"
+    },
+    "time_zone": "America/Los_Angeles",
+    "enrollments": [
+      {
+        "type": "ta",
+        "role": "TaEnrollment",
+        "role_id": 1774,
+        "user_id": 123456,
+        "enrollment_state": "active"
+      }
+    ],
+    "hide_final_grades": false,
+    "workflow_state": "available",
+    "restrict_enrollments_to_course_dates": false
+  },
+  {
+    "id": 7654323,
+    "name": "Radioactive Waste Management",
+    "account_id": 1,
+    "uuid": "qwertyuiop4",
+    "start_at": "2017-08-18T18:17:59Z",
+    "grading_standard_id": null,
+    "is_public": null,
+    "course_code": "NUC ENG 124",
+    "default_view": "feed",
+    "root_account_id": 90242,
+    "enrollment_term_id": 5493,
+    "end_at": null,
+    "public_syllabus": false,
+    "public_syllabus_to_auth": false,
+    "storage_quota_mb": 2048,
+    "is_public_to_auth_users": false,
+    "apply_assignment_group_weights": false,
+    "calendar": {
+      "ics": "https://ucberkeley.beta.instructure.com/feeds/calendars/course_qwertyuiop4.ics"
+    },
+    "time_zone": "America/Los_Angeles",
+    "enrollments": [
+      {
+        "type": "student",
+        "role": "StudentEnrollment",
+        "role_id": 1772,
+        "user_id": 123456,
+        "enrollment_state": "active"
+      }
+    ],
+    "hide_final_grades": false,
+    "workflow_state": "available",
+    "restrict_enrollments_to_course_dates": false
+  },
+  {
+    "id": 7654324,
+    "name": "Fungi, History, and Society",
+    "account_id": 102643,
+    "uuid": "qwertyuiop5",
+    "start_at": "2017-08-18T18:17:59Z",
+    "grading_standard_id": 0,
+    "is_public": false,
+    "course_code": "PLANTBI 11",
+    "default_view": "syllabus",
+    "root_account_id": 90242,
+    "enrollment_term_id": 5493,
+    "end_at": null,
+    "public_syllabus": false,
+    "public_syllabus_to_auth": false,
+    "storage_quota_mb": 2048,
+    "is_public_to_auth_users": false,
+    "apply_assignment_group_weights": true,
+    "calendar": {
+      "ics": "https://ucberkeley.beta.instructure.com/feeds/calendars/course_qwertyuiop5.ics"
+    },
+    "time_zone": "America/Los_Angeles",
+    "enrollments": [
+      {
+        "type": "teacher",
+        "role": "TeacherEnrollment",
+        "role_id": 1773,
+        "user_id": 123456,
+        "enrollment_state": "active"
+      }
+    ],
+    "hide_final_grades": true,
+    "workflow_state": "available",
+    "restrict_enrollments_to_course_dates": false
+  },
+  {
+    "id": 7654325,
+    "name": "Modern Statistical Prediction and Machine Learning",
+    "account_id": 129180,
+    "uuid": "qwertyuiop6",
+    "start_at": null,
+    "grading_standard_id": null,
+    "is_public": null,
+    "course_code": "STAT 154",
+    "default_view": "feed",
+    "root_account_id": 90242,
+    "enrollment_term_id": 1818,
+    "end_at": null,
+    "public_syllabus": false,
+    "public_syllabus_to_auth": false,
+    "storage_quota_mb": 2048,
+    "is_public_to_auth_users": false,
+    "apply_assignment_group_weights": false,
+    "calendar": {
+      "ics": "https://ucberkeley.beta.instructure.com/feeds/calendars/course_qwertyuiop6.ics"
+    },
+    "time_zone": "America/Los_Angeles",
+    "enrollments": [
+      {
+        "type": "student",
+        "role": "StudentEnrollment",
+        "role_id": 1773,
+        "user_id": 123456,
+        "enrollment_state": "active"
+      }
+    ],
+    "hide_final_grades": false,
+    "workflow_state": "unpublished",
+    "restrict_enrollments_to_course_dates": false
+  }
+]
