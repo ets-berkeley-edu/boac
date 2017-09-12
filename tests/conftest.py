@@ -1,11 +1,8 @@
+import boac.factory
 import os
 import pytest
-import subprocess
 
 os.environ['BOAC_ENV'] = 'test'
-
-import boac.db
-import boac.factory
 
 
 class FakeAuth(object):
@@ -45,19 +42,12 @@ def app(request):
 @pytest.fixture(scope='session')
 def db(app, request):
     """Fixture database object, shared by all tests."""
-    _db = boac.db.initialize_db(app)
 
-    # The psycopg2 engine doesn't handle big pg_dump files well, so shell out to load the schema. Abort the
-    # transaction and test suite if the schema contains errors.
-    load_schema_cmd = 'psql -v ON_ERROR_STOP=ON --single-transaction boac_test < scripts/db/schema.sql'
-    subprocess.check_output(load_schema_cmd, shell=True)
-
-    # Drop all tables after running tests.
-    def teardown():
-        r = _db.engine.execute("SELECT tablename FROM pg_tables where schemaname='public'")
-        table_names = [row[0] for row in r]
-        _db.engine.execute('DROP TABLE IF EXISTS {} CASCADE'.format(', '.join(table_names)))
-    request.addfinalizer(teardown)
+    from boac.models import development_db
+    # Drop all tables before re-loading the schemas.
+    # If we dropped at teardown instead, an interrupted test run would block the next test run.
+    development_db.clear()
+    _db = development_db.load()
 
     return _db
 
@@ -85,7 +75,7 @@ def db_session(db, request):
 
 
 @pytest.fixture(scope='function')
-def fake_auth(app, client):
+def fake_auth(app, db, client):
     """
     Shortcut to start an authenticated session.
     """
