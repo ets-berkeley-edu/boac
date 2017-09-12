@@ -5,7 +5,7 @@ from logging.handlers import RotatingFileHandler
 def initialize_logger(app):
     # If location is configured as "STDOUT", don't create a new log file.
     location = app.config['LOGGING_LOCATION']
-    if (location == 'STDOUT'):
+    if location == 'STDOUT':
         handlers = app.logger.handlers
     else:
         file_handler = RotatingFileHandler(location, mode='a', maxBytes=1024 * 1024 * 100, backupCount=20)

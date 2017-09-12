@@ -17,7 +17,7 @@ class TestUserController:
         response = client.get('/api/profile')
         assert response.status_code == 200
         assert response.json['uid'] == test_uid
-        assert response.json['canvas_profile'] == False
+        assert response.json['canvas_profile'] is False
 
     def test_profile_includes_message_if_canvas_failure(self, client, fake_auth):
         test_uid = '1133399'

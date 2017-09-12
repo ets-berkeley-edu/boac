@@ -26,7 +26,7 @@ class AuthorizedUser(Base, UserMixin):
 
     def __repr__(self):
         return '<AuthorizedUser %r, is_advisor=%r, is_admin=%r, is_director=%r>' % (
-            self.uid, self.is_advisor, self.is_admin, self.is_director
+            self.uid, self.is_advisor, self.is_admin, self.is_director,
         )
 
     def get_id(self):

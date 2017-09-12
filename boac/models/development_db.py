@@ -1,6 +1,6 @@
+import csv
 from boac import db
 from boac.models.authorized_user import AuthorizedUser
-import csv
 
 
 def clear():
@@ -18,7 +18,6 @@ def load_schemas():
     During early development, create the test DB from Python code.
     We will convert to SQL scripts before enabling production deployments.
     """
-    #
     db.create_all()
 
 
