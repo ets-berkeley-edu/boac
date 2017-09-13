@@ -1,8 +1,13 @@
 <div class="body-text" data-ng-controller="LandingController">
   <div data-ng-if="me.authenticated_as.is_authenticated">
-    Hello, UID {{me.authenticated_as.uid}}.
+    Hello, UID {{me.authenticated_as.uid}}
+    <div>
+      <button id="log-out" data-ng-click="logOut()">
+        Log out
+      </button>
+    </div>
   </div>
-  <div data-ng-if="me.authenticated_as.is_anonymous">
+  <div data-ng-if="devAuthEnabled && me.authenticated_as.is_anonymous">
     Would you mind logging in?
     <div>
       <form data-ng-submit="devAuthLogIn()">

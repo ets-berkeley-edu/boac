@@ -2,9 +2,9 @@
 
   'use strict';
 
-  angular.module('boac').controller('LandingController', function(authFactory, me, $scope) {
+  angular.module('boac').controller('LandingController', function(authFactory, config, $scope) {
 
-    $scope.me = me;
+    $scope.devAuthEnabled = config.devAuthEnabled;
 
     $scope.devAuth = {
       uid: null,
@@ -12,20 +12,10 @@
     };
 
     $scope.devAuthLogIn = function() {
-      authFactory.devAuthLogIn($scope.devAuth.uid, $scope.devAuth.password).then(
-        function successCallback(response) {
-          if (response.status === 200) {
-            authFactory.status().then(function(results) {
-              $scope.me = results.data;
-              return;
-            });
-          } else {
-            return;
-          }
-        }
-      );
+      return authFactory.devAuthLogIn($scope.devAuth.uid, $scope.devAuth.password);
     };
 
+    $scope.logOut = authFactory.logOut;
   });
 
 }(window.angular));
