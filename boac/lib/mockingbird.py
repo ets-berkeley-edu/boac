@@ -3,7 +3,7 @@ from functools import partial, wraps
 import os
 import urllib
 
-from flask import current_app
+from flask import current_app as app
 import httpretty
 
 
@@ -200,7 +200,7 @@ def _environment_supports_mocks():
 
 
 def _get_fixtures_path():
-    return current_app.config['BASE_DIR'] + '/../fixtures'
+    return app.config['BASE_DIR'] + '/../fixtures'
 
 
 @contextmanager
