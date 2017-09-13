@@ -27,6 +27,7 @@ DEVELOPER_AUTH_ENABLED = False
 DEVELOPER_AUTH_PASSWORD = 'another secret'
 
 CAS_SERVER = 'https://auth-test.berkeley.edu/cas/'
+CAS_LOGOUT_URL = 'https://auth-test.berkeley.edu/cas/logout'
 
 CANVAS_HTTP_SCHEME = 'https'
 CANVAS_HTTP_DOMAIN = 'wottsamatta.instructure.com'

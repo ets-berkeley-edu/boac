@@ -17,6 +17,12 @@
       });
     };
 
+    var casLogIn = function() {
+      return $http.get('/cas/login_url').then(function(results) {
+        window.location = results.data.cas_login_url;
+      });
+    };
+
     var devAuthLogIn = function(uid, password) {
       var credentials = {
         uid: uid,
@@ -26,13 +32,16 @@
     };
 
     var logOut = function() {
-      return $http.get('/logout').then(refreshStatus);
+      return $http.get('/logout').then(function(results) {
+        window.location = results.data.cas_logout_url;
+      });
     };
 
     // Make current user available to templates
     $rootScope.me = me;
 
     return {
+      casLogIn: casLogIn,
       devAuthLogIn: devAuthLogIn,
       logOut: logOut
     };

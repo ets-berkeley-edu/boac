@@ -3,7 +3,7 @@ from flask import (
     current_app as app, flash, redirect, request,
 )
 from flask_login import (
-    login_required, login_user, logout_user,
+    login_user,
 )
 
 
@@ -26,10 +26,3 @@ def dev_login():
         return redirect('/')
     else:
         raise ResourceNotFoundError('Unknown path')
-
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect('/')

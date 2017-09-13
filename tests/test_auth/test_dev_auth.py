@@ -32,7 +32,7 @@ class TestDevAuth:
         assert response.status_code == 200
         assert response.json['authenticated_as']['uid'] == self.authorized_uid
         response = client.get('/logout')
-        assert response.status_code == 302
+        assert response.status_code == 200
         response = client.get('/api/status')
         assert response.status_code == 200
         assert response.json['authenticated_as']['is_anonymous']

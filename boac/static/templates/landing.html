@@ -7,8 +7,14 @@
       </button>
     </div>
   </div>
+  <div data-ng-if="me.authenticated_as.is_anonymous">
+    CalNet
+    <div>
+      <button data-ng-click="casLogIn()">Sign In</button>
+    </div>
+  </div>
   <div data-ng-if="devAuthEnabled && me.authenticated_as.is_anonymous">
-    Would you mind logging in?
+    Dev Auth (test env only)
     <div>
       <form data-ng-submit="devAuthLogIn()">
         <p><input data-ng-model="devAuth.uid" type="text" placeholder="UID" required></p>
