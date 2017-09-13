@@ -2,8 +2,8 @@ import os
 import logging
 
 
-# Base directory.
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+# Base directory for the application (one level up from this config file).
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 # Disable an expensive bit of the ORM.
 SQLALCHEMY_TRACK_MODIFICATIONS = False

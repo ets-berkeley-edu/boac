@@ -13,7 +13,7 @@ def app_config():
 
 def _get_app_version():
     try:
-        file = open(app.config['BASE_DIR'] + '/../bower.json')
+        file = open(app.config['BASE_DIR'] + '/bower.json')
         return json.load(file)['version']
     except (FileNotFoundError, KeyError, TypeError):
         return None
