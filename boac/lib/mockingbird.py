@@ -200,7 +200,7 @@ def _environment_supports_mocks():
 
 
 def _get_fixtures_path():
-    return app.config['BASE_DIR'] + '/../fixtures'
+    return app.config.get('FIXTURES_PATH') or (app.config['BASE_DIR'] + '/fixtures')
 
 
 @contextmanager
