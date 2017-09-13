@@ -11,6 +11,8 @@
       password: null
     };
 
+    $scope.casLogIn = authFactory.casLogIn;
+
     $scope.devAuthLogIn = function() {
       return authFactory.devAuthLogIn($scope.devAuth.uid, $scope.devAuth.password);
     };
