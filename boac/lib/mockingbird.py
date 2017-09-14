@@ -176,8 +176,10 @@ def register_mock(request_function, response):
         response_function = response
 
     _register_mock(request_function, response_function)
-    yield
-    _unregister_mock(request_function)
+    try:
+        yield
+    finally:
+        _unregister_mock(request_function)
 
 
 @contextmanager
