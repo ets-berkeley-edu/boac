@@ -43,9 +43,16 @@ def request(url, headers):
 
 def sanitize_headers(headers):
     """Suppress authorization token in logged headers."""
-    if headers['Authorization']:
+    if 'Authorization' in headers:
+        # Canvas style.
         sanitized = headers.copy()
         sanitized['Authorization'] = 'Bearer <token>'
+        return sanitized
+    elif 'app_id' in headers:
+        # Hub style.
+        sanitized = headers.copy()
+        sanitized['app_id'] = '<app_id>'
+        sanitized['app_key'] = '<app_key>'
         return sanitized
     else:
         return headers
