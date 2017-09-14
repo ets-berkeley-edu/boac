@@ -1,0 +1,31 @@
+<div data-ng-include="'/static/templates/header.html'"></div>
+
+<div class="container" data-ng-controller="StudentController">
+  <div class="container-left" data-ng-if="student.canvasProfile">
+     <img class="profile-summary-avatar" data-ng-src="{{student.canvasProfile.avatar_url}}" data-ng-if="student.canvasProfile.avatar_url"/>
+     <h1 data-ng-bind="student.canvasProfile.name"></h1>
+  </div>
+  <div class="container-left" data-ng-if="student">
+      <div data-ng-if="student.courses">
+        <ul>
+            <li data-ng-repeat="course in student.courses">
+              <div class="media-left media-middle">
+                <h2 data-ng-bind="course.courseCode"></h2>
+              </div>
+              <ul>
+                  <li data-ng-repeat="report in course.analytics">
+                      <div data-ng-bind="report.assignmentsOnTime.student"></div>
+                      <div data-ng-bind="report.pageViews.student"></div>
+                      <div data-ng-bind="report.participations.student"></div>
+                  </li>
+              </ul>
+            </li>
+          </ul>
+      </div>
+      <div data-ng-if="!student.courses">
+          No courses
+      </div>
+  </div>
+</div>
+
+<div data-ng-include="'/static/templates/footer.html'"></div>
