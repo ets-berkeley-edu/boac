@@ -20,7 +20,21 @@
         url: '/',
         templateUrl: '/static/templates/landing.html',
         controller: 'LandingController'
+      })
+      .state('user', {
+        url: '/student/:uid',
+        templateUrl: '/static/templates/student.html',
+        controller: 'StudentController'
       });
+
+  }).run(function($rootScope) {
+    var initInjector = angular.injector([ 'ng' ]);
+    var $http = initInjector.get('$http');
+
+    return $http.get('/api/status').then(function(results) {
+      $rootScope.me = results.data;
+    });
+
   });
 
 }(window.angular));

@@ -5,14 +5,9 @@
   var loadConstants = function() {
     var initInjector = angular.injector([ 'ng' ]);
     var $http = initInjector.get('$http');
-    var $q = initInjector.get('$q');
 
-    return $q.all({
-      status: $http.get('/api/status'),
-      config: $http.get('/api/config')
-    }).then(function(results) {
-      boac.value('me', results.status.data);
-      boac.constant('config', results.config.data);
+    return $http.get('/api/status').then(function(results) {
+      boac.constant('config', results.data);
     });
   };
 
