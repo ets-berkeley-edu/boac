@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 from functools import partial, wraps
 import inspect
+import json
 import os
 import urllib
 
@@ -119,16 +120,18 @@ def fixture(pattern):
         return response_from_fixture('resource_{}_feed'.format(resource_id))
     """
     def fixture_wrapper(func):
-        def register_fixture(*args, **kw):
-            # Get the arguments passed into the original function, evaluate the fixture pattern against them, and
-            # get the appropriate filename.
-            arg_names = inspect.getfullargspec(func)[0]
-            args_dict = dict(zip(arg_names, args))
-            args_dict.update(kw)
-            return response_from_fixture(pattern.format(**args_dict))
-        mockable_wrapper = mockable(func)
-        mocking(func)(register_fixture)
-        return mockable_wrapper
+        fixture_output_path = os.environ.get('FIXTURE_OUTPUT_PATH')
+        if fixture_output_path:
+            # We are writing a fixture.
+            return _write_fixture(func, fixture_output_path, pattern)
+        else:
+            # We are reading from fixtures.
+            def register_fixture(*args, **kw):
+                evaluated_pattern = _evaluate_fixture_pattern(func, pattern, *args, **kw)
+                return response_from_fixture(evaluated_pattern)
+            mockable_wrapper = mockable(func)
+            mocking(func)(register_fixture)
+            return mockable_wrapper
     return fixture_wrapper
 
 
@@ -236,8 +239,18 @@ def _activate_mock(url, mock_response):
 # It would be nicer to use a MOCKS_ENABLED config value rather than a hardcoded list of environments, but tests are
 # currently set up such that this code is loaded before app config is in place.
 def _environment_supports_mocks():
+    # If we are currently writing to fixtures, we definitely shouldn't be reading from them.
+    if os.environ.get('FIXTURE_OUTPUT_PATH'):
+        return False
     env = os.environ.get('BOAC_ENV')
     return (env == 'test' or env == 'demo')
+
+
+def _evaluate_fixture_pattern(func, pattern, *args, **kw):
+    arg_names = inspect.getfullargspec(func)[0]
+    args_dict = dict(zip(arg_names, args))
+    args_dict.update(kw)
+    return pattern.format(**args_dict)
 
 
 def _get_fixtures_path():
@@ -247,3 +260,22 @@ def _get_fixtures_path():
 @contextmanager
 def _noop_mock(url):
     yield None
+
+
+def _write_fixture(func, fixture_output_path, pattern):
+    @wraps(func)
+    def write_fixture_wrapper(*args, **kw):
+        kw['mock'] = _noop_mock
+        response = func(*args, **kw)
+        json_path = '{}/{}.json'.format(fixture_output_path, _evaluate_fixture_pattern(func, pattern, *args, **kw))
+
+        if not response:
+            app.logger.warn('Error response, will not write fixture to ' + json_path)
+            return response
+
+        response_body = response.json() if hasattr(response, 'json') else response
+        with open(json_path, 'w', encoding='utf-8') as outfile:
+            json.dump(response_body, outfile, indent=2)
+            app.logger.debug('Wrote fixture to ' + json_path)
+        return response
+    return write_fixture_wrapper
