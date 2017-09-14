@@ -1,0 +1,16 @@
+<div class="container-top container" data-ng-controller="AuthController">
+  <div class="container-left">
+    <a href="/">BOAC</a>
+  </div>
+  <div class="container-right" data-ng-if="me.authenticated_as.is_authenticated">
+    Welcome {{me.authenticated_as.uid}}
+    <button class="header-button" data-ng-click="logOut()">
+      Log out
+    </button>
+  </div>
+  <div class="container-right" data-ng-if="!me.authenticated_as.is_authenticated">
+    <div>
+      <button data-ng-click="casLogIn()">Sign In</button>
+    </div>
+  </div>
+</div>

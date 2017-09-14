@@ -1,26 +1,7 @@
-<div class="body-text" data-ng-controller="LandingController">
-  <div data-ng-if="me.authenticated_as.is_authenticated">
-    Hello, UID {{me.authenticated_as.uid}}
-    <div>
-      <button id="log-out" data-ng-click="logOut()">
-        Log out
-      </button>
-    </div>
-  </div>
-  <div data-ng-if="me.authenticated_as.is_anonymous">
-    CalNet
-    <div>
-      <button data-ng-click="casLogIn()">Sign In</button>
-    </div>
-  </div>
-  <div data-ng-if="devAuthEnabled && me.authenticated_as.is_anonymous">
-    Dev Auth (test env only)
-    <div>
-      <form data-ng-submit="devAuthLogIn()">
-        <p><input data-ng-model="devAuth.uid" type="text" placeholder="UID" required></p>
-        <p><input data-ng-model="devAuth.password" autocomplete="off" name="password" type="password" placeholder="Password" required></p>
-        <p><button type="submit">Login</button></p>
-      </form>
-    </div>
-  </div>
+<div data-ng-include="'/static/templates/header.html'"></div>
+
+<div class="container" data-ng-controller="LandingController">
+    <h1>Welcome to BOAC</h1>
 </div>
+
+<div data-ng-include="'/static/templates/footer.html'"></div>

@@ -1,6 +1,6 @@
 (function(angular) {
 
-  var boac = angular.module('boac', [ 'ngRoute' ]);
+  var boac = angular.module('boac', [ 'ui.router' ]);
 
   var loadConstants = function() {
     var initInjector = angular.injector([ 'ng' ]);
