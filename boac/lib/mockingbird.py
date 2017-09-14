@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 from functools import partial, wraps
+import inspect
 import os
 import urllib
 
@@ -99,27 +100,65 @@ def mocking(request_func):
     return register_mock_for_request_func
 
 
-def fixture(fixture_file):
-    """Convenience function to generate a mock response from a fixture filename. If a matching fixture is found, return
-    200 with the fixture body. If a matching fixture is not found, return a generic 404.
+def fixture(pattern):
+    """As an alternative to @mockable, @mocking, and response_from_fixture, the @fixture decorator with a template
+    pattern can be used as a shorthand. Wrapping a function like so:
+
+    @fixture('resource_{resource_id}_feed')
+    def call_external_api(hostname, resource_id, mock=None):
+        ...
+
+    is equivalent to specifying paired @mockable and @mocking functions:
+
+    @mockable
+    def call_external_api(hostname, resource_id, mock=None):
+        ...
+
+    @mocking(call_external_api)
+    def external_api_mock(hostname, resource_id):
+        return response_from_fixture('resource_{}_feed'.format(resource_id))
+    """
+    def fixture_wrapper(func):
+        def register_fixture(*args, **kw):
+            # Get the arguments passed into the original function, evaluate the fixture pattern against them, and
+            # get the appropriate filename.
+            arg_names = inspect.getfullargspec(func)[0]
+            args_dict = dict(zip(arg_names, args))
+            args_dict.update(kw)
+            return response_from_fixture(pattern.format(**args_dict))
+        mockable_wrapper = mockable(func)
+        mocking(func)(register_fixture)
+        return mockable_wrapper
+    return fixture_wrapper
+
+
+def response_from_fixture(pattern):
+    """Generate a mock response from a fixture filename.
+    If a fixture matching {pattern}.json is found, return 200 with the fixture body.
+    If a fixture matching {pattern}_page_1.json is found, delegate to response_from_paged_fixture.
+    If a matching fixture is not found, return a generic 404.
 
     Usage:
 
     @mocking(call_external_api)
     def external_api_mock(hostname, resource_id):
-        return fixture('resource_{}_feed.json'.format(resource_id))
+        return response_from_fixture('resource_{}_feed'.format(resource_id))
     """
-    path = _get_fixtures_path() + '/' + fixture_file
-    try:
-        file = open(path)
-    except FileNotFoundError:
-        return MockResponse(404, {}, '{"message": "The requested resource was not found."}')
-    with file:
-        fixture = file.read()
-        return MockResponse(200, {}, fixture)
+    fixtures_path = _get_fixtures_path()
+    unpaged_path = '{}/{}.json'.format(fixtures_path, pattern)
+    if os.path.isfile(unpaged_path):
+        with open(unpaged_path) as file:
+            fixture = file.read()
+            return MockResponse(200, {}, fixture)
+    else:
+        paged_path = '{}/{}_page_1.json'.format(fixtures_path, pattern)
+        if os.path.isfile(paged_path):
+            return response_from_paged_fixture(pattern)
+        else:
+            return MockResponse(404, {}, '{"message": "The requested resource was not found."}')
 
 
-def paged_fixture(pattern):
+def response_from_paged_fixture(pattern):
     """Convenience function to generate a mock response for an API with multiple pages. Fixture files should be
     saved in the format:
       - some_resource_page_1.json
