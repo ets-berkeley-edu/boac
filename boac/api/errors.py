@@ -30,6 +30,10 @@ class ResourceNotFoundError(JsonableException):
     pass
 
 
+class InternalServerError(JsonableException):
+    pass
+
+
 @app.errorhandler(BadRequestError)
 def handle_bad_request(error):
     return error.to_json(), 400
@@ -48,6 +52,11 @@ def handle_forbidden(error):
 @app.errorhandler(ResourceNotFoundError)
 def handle_resource_not_found(error):
     return error.to_json(), 404
+
+
+@app.errorhandler(InternalServerError)
+def handle_internal_server_error(error):
+    return error.to_json(), 500
 
 
 @app.errorhandler(Exception)
