@@ -1,0 +1,17 @@
+<div class="container-top container" data-ng-controller="AuthController">
+  <div id="content" class="container main" data-ng-view></div>
+  <hr>
+  <footer class="footer">
+    <div class="container-left">
+      <div data-ng-include="'/static/img/uc_berkeley_logo.html'"></div>
+      <div class="dev-auth-login" data-ng-if="!me.authenticated_as.is_authenticated">
+        <form data-ng-submit="devAuthLogIn()">
+          <p><input data-ng-model="devAuth.uid" type="text" placeholder="UID" required></p>
+          <p><input data-ng-model="devAuth.password" autocomplete="off" name="password" type="password" placeholder="Password" required></p>
+          <p><button type="submit">Dev Auth Login</button></p>
+        </form>
+      </div>
+    </div>
+    <div class="container-right">&copy; 2017 The Regents of the University of California</div>
+  </footer>
+</div>

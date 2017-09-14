@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "dependencies": {
     "angular": "^1.6.6",
-    "angular-route": "^1.6.6",
+    "angular-ui-router": "^0.3.2",
     "bootstrap": "^3.3.7"
   }
 }

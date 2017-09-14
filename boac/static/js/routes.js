@@ -1,15 +1,26 @@
 (function(angular) {
+
   'use strict';
 
-  angular.module('boac').config(function($locationProvider, $routeProvider) {
-    $routeProvider.when('/', {
-      templateUrl: 'static/templates/landing.html',
-      controller: 'LandingController'
-    }).otherwise({
-      redirectTo: '/'
+  angular.module('boac').config(function($locationProvider, $stateProvider, $urlRouterProvider) {
+
+    // Use the HTML5 location provider to ensure that the $location service getters
+    // and setters interact with the browser URL address through the HTML5 history API
+    $locationProvider.html5Mode({
+      enabled: true,
+      requireBase: false
     });
 
-    $locationProvider.html5Mode(true);
+    // Default route
+    $urlRouterProvider.otherwise('/');
+
+    // Routes
+    $stateProvider
+      .state('landing', {
+        url: '/',
+        templateUrl: '/static/templates/landing.html',
+        controller: 'LandingController'
+      });
   });
 
 }(window.angular));

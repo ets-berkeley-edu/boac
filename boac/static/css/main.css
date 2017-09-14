@@ -4,6 +4,14 @@
   line-height: 1.8em;
 }
 
+.dev-auth-login {
+  margin-top: 10px;
+}
+
+.header-button {
+  margin-left: 10px;
+}
+
 .container-left {
   float: left;
 }

@@ -2,22 +2,10 @@
 
   'use strict';
 
-  angular.module('boac').controller('LandingController', function(authFactory, config, $scope) {
+  angular.module('boac').controller('LandingController', function() {
 
-    $scope.devAuthEnabled = config.devAuthEnabled;
+    // TODO
 
-    $scope.devAuth = {
-      uid: null,
-      password: null
-    };
-
-    $scope.casLogIn = authFactory.casLogIn;
-
-    $scope.devAuthLogIn = function() {
-      return authFactory.devAuthLogIn($scope.devAuth.uid, $scope.devAuth.password);
-    };
-
-    $scope.logOut = authFactory.logOut;
   });
 
 }(window.angular));
