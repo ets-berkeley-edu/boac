@@ -1,0 +1,43 @@
+{
+  "apiResponse": {
+    "httpStatus": {
+      "code": "200",
+      "description": "OK"
+    },
+    "responseType": "namespaceURI=\"http://bmeta.berkeley.edu/student/athleteV0.xsd\" element=\"athletes\"",
+    "response": {
+      "athletes": {
+        "athlete": [
+          {
+            "identifier": {
+              "type": "student-id",
+              "id": "12345678",
+              "disclose": false
+            },
+            "athleteSport": [
+              {
+                "sport": {
+                  "code": "FHW",
+                  "description": "Field Hockey - Women"
+                },
+                "currentParticipant": true,
+                "enteredOnFinancialAid": false,
+                "participation": [
+                  {
+                    "type": {
+                      "code": "ACTCM",
+                      "description": "Active, Compete"
+                    },
+                    "ncaaEligible": true,
+                    "fromDate": "2017-08-09",
+                    "comments": "Eligible to Compete."
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

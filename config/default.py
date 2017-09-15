@@ -29,11 +29,17 @@ DEVELOPER_AUTH_PASSWORD = 'another secret'
 CAS_SERVER = 'https://auth-test.berkeley.edu/cas/'
 CAS_LOGOUT_URL = 'https://auth-test.berkeley.edu/cas/logout'
 
+# Canvas APIs
 CANVAS_HTTP_SCHEME = 'https'
 CANVAS_HTTP_DOMAIN = 'wottsamatta.instructure.com'
 CANVAS_HTTP_TOKEN = 'yet another secret'
 
 CANVAS_CURRENT_ENROLLMENT_TERM = 5493
+
+# SIS APIs
+ATHLETE_API_ID = 'secretid'
+ATHLETE_API_KEY = 'secretkey'
+ATHLETE_API_URL = 'https://secreturl/athletes'
 
 # Logging
 LOGGING_FORMAT = '[%(asctime)s] - %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
