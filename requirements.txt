@@ -3,6 +3,7 @@ Flask-Login
 Flask-SQLAlchemy
 SQLAlchemy
 cx_Oracle
+names
 pandas
 psycopg2
 requests

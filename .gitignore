@@ -7,6 +7,9 @@ boac/static/lib
 # Local configs
 config/*-local.py
 
+# Temporary files
+tmp/
+
 ########################################
 # GitHub boilerplate below...
 
