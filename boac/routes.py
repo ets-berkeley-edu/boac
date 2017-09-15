@@ -14,12 +14,13 @@ def register_routes(app):
     import boac.auth.cas_auth
 
     # Register API routes.
+    import boac.api.cohort_controller
+    import boac.api.config_controller
     import boac.api.status_controller
     import boac.api.user_controller
-    import boac.api.config_controller
 
     # Register error handlers.
-    import boac.api.errors
+    import boac.api.error_handlers
 
     # Unmatched API routes return a 404.
     @app.route('/api/<path:path>')
