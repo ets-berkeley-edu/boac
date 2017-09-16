@@ -2,9 +2,11 @@
 
   'use strict';
 
-  angular.module('boac').controller('LandingController', function() {
+  angular.module('boac').controller('LandingController', function(cohortFactory, $scope) {
 
-    // TODO
+    cohortFactory.getCohorts().then(function(cohorts) {
+      $scope.cohorts = cohorts.data;
+    });
 
   });
 
