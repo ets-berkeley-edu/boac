@@ -5,8 +5,9 @@ when LDAP binds and caching are in place.
 """
 
 from boac import db
+import boac.api.errors
 from boac.models.base import Base
-from sqlalchemy import UniqueConstraint
+from sqlalchemy import func, UniqueConstraint
 
 
 class Cohort(Base):
@@ -70,3 +71,34 @@ class Cohort(Base):
         'WPM': 'Water Polo - Men',
         'WPW': 'Water Polo - Women',
     }
+
+    @classmethod
+    def list_all(cls):
+        results = db.session.query(cls.code, func.count(cls.member_uid)).group_by(cls.code).all()
+
+        def translate_row(row):
+            return {
+                'code': row[0],
+                'name': cls.cohort_definitions.get(row[0]),
+                'memberCount': row[1],
+            }
+        return [translate_row(row) for row in results]
+
+    @classmethod
+    def for_code(cls, code):
+        name = cls.cohort_definitions.get(code)
+        if not name:
+            raise boac.api.errors.BadRequestError('Cohort code "{}" not found'.format(code))
+
+        members = cls.query.filter_by(code=code).all()
+        return {
+            'code': code,
+            'name': name,
+            'members': [member.to_api_json() for member in members],
+        }
+
+    def to_api_json(self):
+        return {
+            'name': self.member_name,
+            'uid': self.member_uid,
+        }

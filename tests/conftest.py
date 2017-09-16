@@ -2,6 +2,9 @@ import os
 import boac.factory
 import pytest
 
+from tests.fixtures.cohorts import fixture_cohorts # noqa
+
+
 os.environ['BOAC_ENV'] = 'test'
 
 
@@ -66,10 +69,9 @@ def db_session(db, request):
     _session = db.create_scoped_session(options=options)
     db.session = _session
 
-    # Roll back transaction and close connection when the test is complete.
+    # Roll back transaction when the test is complete.
     def teardown():
         transaction.rollback()
-        connection.close()
         _session.remove()
     request.addfinalizer(teardown)
 
