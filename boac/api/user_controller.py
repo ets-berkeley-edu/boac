@@ -1,8 +1,9 @@
 from boac.api import errors
 from boac.externals import canvas
 from boac.lib.analytics import analytics_from_summary_feed
+from boac.lib.http import tolerant_jsonify
 
-from flask import current_app as app, jsonify
+from flask import current_app as app
 from flask_login import current_user, login_required
 
 
@@ -20,7 +21,7 @@ def user_profile():
             }
     else:
         uid = False
-    return jsonify({
+    return tolerant_jsonify({
         'uid': uid,
         'canvas_profile': canvas_profile,
     })
@@ -55,7 +56,7 @@ def user_analytics(uid):
             course_analytics['analytics'] = analytics_from_summary_feed(student_summaries, canvas_id, course)
         course_analytics_feed.append(course_analytics)
 
-    return jsonify({
+    return tolerant_jsonify({
         'uid': uid,
         'canvasProfile': canvas_profile.json(),
         'courses': course_analytics_feed,

@@ -4,6 +4,7 @@
   "dependencies": {
     "angular": "^1.6.6",
     "angular-ui-router": "^0.3.2",
-    "bootstrap": "^3.3.7"
+    "bootstrap": "^3.3.7",
+    "lodash": "^4.17.4"
   }
 }

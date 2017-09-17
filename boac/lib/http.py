@@ -1,5 +1,7 @@
 from flask import current_app as app
+from flask import Response
 import requests
+import simplejson as json
 
 
 class ResponseExceptionWrapper:
@@ -56,3 +58,7 @@ def sanitize_headers(headers):
         return sanitized
     else:
         return headers
+
+
+def tolerant_jsonify(obj, **kwargs):
+    return Response(json.dumps(obj, ignore_nan=True, **kwargs), mimetype='application/json')

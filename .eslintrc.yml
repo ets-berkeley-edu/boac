@@ -44,7 +44,7 @@ rules:
     - all
   default-case: 2
   dot-notation:
-    - 2
+    - 1
     - allowKeywords: false
   eol-last: 2
   eqeqeq: 2
