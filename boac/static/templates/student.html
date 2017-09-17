@@ -1,17 +1,15 @@
 <div data-ng-include="'/static/templates/header.html'"></div>
 
 <div class="container" data-ng-controller="StudentController">
-  <div class="container-left" data-ng-if="student.canvasProfile">
+  <div class="container-left" data-ng-if="!student.isLoading && !error">
      <img class="profile-summary-avatar" data-ng-src="{{student.canvasProfile.avatar_url}}" data-ng-if="student.canvasProfile.avatar_url"/>
      <h1 data-ng-bind="student.canvasProfile.name"></h1>
   </div>
-  <div class="container-left" data-ng-if="student">
+  <div class="container-left" data-ng-if="!student.isLoading && !error">
       <div data-ng-if="student.courses">
         <ul>
             <li data-ng-repeat="course in student.courses">
-              <div class="media-left media-middle">
-                <h2 data-ng-bind="course.courseCode"></h2>
-              </div>
+              <h2 data-ng-bind="course.courseCode"></h2>
               <ul>
                   <li data-ng-repeat="report in course.analytics">
                       <div data-ng-bind="report.assignmentsOnTime.student"></div>
@@ -25,6 +23,10 @@
       <div data-ng-if="!student.courses">
           No courses
       </div>
+  </div>
+  <div class="container-left" data-ng-if="!student.isLoading && error">
+    <h1>Error</h1>
+    <div data-ng-bind="error"></div>
   </div>
 </div>
 
