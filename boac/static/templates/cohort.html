@@ -1,0 +1,16 @@
+<div data-ng-include="'/static/templates/header.html'"></div>
+
+<div class="container" data-ng-controller="CohortController">
+  <h1 data-ng-bind="cohort.name"></h1>
+  <div class="body-text">
+    <div>Choose a member:</div>
+      <ul>
+        <li data-ng-repeat="member in cohort.members">
+          <a data-ng-bind="member.name" data-ng-href="/student/{{member.uid}}"></a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div data-ng-include="'/static/templates/footer.html'"></div>

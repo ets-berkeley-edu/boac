@@ -21,6 +21,11 @@
         templateUrl: '/static/templates/landing.html',
         controller: 'LandingController'
       })
+      .state('cohort', {
+        url: '/cohort/:code',
+        templateUrl: '/static/templates/cohort.html',
+        controller: 'CohortController'
+      })
       .state('user', {
         url: '/student/:uid',
         templateUrl: '/static/templates/student.html',
