@@ -1,0 +1,30 @@
+.boxplot {
+  height: 60px;
+  width: 290px;
+}
+
+.boxplot .highcharts-container,
+svg {
+  overflow: visible !important;
+}
+
+.boxplot-container {
+  width: 300px;
+}
+
+.boxplot-container .highcharts-tooltip {
+  background-color: #000;
+  border-color: #000;
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.boxplot-container g.highcharts-tooltip {
+  display: none !important;
+}
+
+.boxplot-container .highcharts-tooltip span {
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+}
