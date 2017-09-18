@@ -2,6 +2,7 @@ from boac.api import errors
 from boac.externals import canvas
 from boac.lib.analytics import analytics_from_summary_feed
 from boac.lib.http import tolerant_jsonify
+from boac.models.cohort import Cohort
 
 from flask import current_app as app
 from flask_login import current_user, login_required
@@ -56,8 +57,13 @@ def user_analytics(uid):
             course_analytics['analytics'] = analytics_from_summary_feed(student_summaries, canvas_id, course)
         course_analytics_feed.append(course_analytics)
 
+    cohort_data = Cohort.query.filter_by(member_uid=uid).first()
+    if cohort_data:
+        cohort_data = cohort_data.to_api_json()
+
     return tolerant_jsonify({
         'uid': uid,
         'canvasProfile': canvas_profile.json(),
+        'cohortData': cohort_data,
         'courses': course_analytics_feed,
     })
