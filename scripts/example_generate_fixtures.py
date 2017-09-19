@@ -1,5 +1,5 @@
 import os
-from .scriptpath import scriptify
+from scriptpath import scriptify
 
 
 os.environ['FIXTURE_OUTPUT_PATH'] = os.path.expanduser('~/tmp')
