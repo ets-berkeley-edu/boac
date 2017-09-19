@@ -105,8 +105,8 @@
               enabled: false
             },
             lineWidth: 0,
-            maxPadding: 0,
-            minPadding: 0,
+            maxPadding: 0.001,
+            minPadding: 0.001,
             startOnTick: false,
             tickLength: 0,
             title: {
