@@ -40,7 +40,10 @@ class TestUserProfile:
 class TestUserAnalytics:
     """User Analytics API"""
 
-    api_path = '/api/user/61889/analytics'
+    api_path = '/api/user/{}/analytics'
+    field_hockey_star = api_path.format(61889)
+    non_student_uid = 2040
+    non_student = api_path.format(non_student_uid)
 
     @pytest.fixture()
     def authenticated_session(self, fake_auth):
@@ -49,7 +52,7 @@ class TestUserAnalytics:
 
     @pytest.fixture()
     def authenticated_response(self, authenticated_session, client):
-        return client.get(TestUserAnalytics.api_path)
+        return client.get(TestUserAnalytics.field_hockey_star)
 
     @staticmethod
     def get_course_for_code(response, code):
@@ -57,7 +60,7 @@ class TestUserAnalytics:
 
     def test_user_analytics_not_authenticated(self, client):
         """returns 401 if not authenticated"""
-        response = client.get(TestUserAnalytics.api_path)
+        response = client.get(TestUserAnalytics.field_hockey_star)
         assert response.status_code == 401
 
     def test_user_analytics_authenticated(self, authenticated_response):
@@ -102,26 +105,26 @@ class TestUserAnalytics:
         assert course_with_enrollment['analytics']['participations']['courseDeciles'][9] == 6.0
         assert course_with_enrollment['analytics']['participations']['courseDeciles'][10] == 12.0
 
+    def test_empty_canvas_course_feed(self, client, fake_auth):
+        """returns 200 if user is found and Canvas course feed is empty"""
+        fake_auth.login(TestUserAnalytics.non_student_uid)
+        response = client.get(TestUserAnalytics.non_student)
+        assert response.status_code == 200
+        assert int(response.json['uid']) == TestUserAnalytics.non_student_uid
+        assert not response.json['courses']
+
     def test_canvas_profile_not_found(self, authenticated_session, client):
         """returns 404 if Canvas profile not found"""
         canvas_error = MockResponse(404, {}, '{"message": "Resource not found."}')
         with register_mock(canvas.get_user_for_uid, canvas_error):
-            response = client.get(TestUserAnalytics.api_path)
+            response = client.get(TestUserAnalytics.field_hockey_star)
             assert response.status_code == 404
             assert response.json['message'] == 'No Canvas profile found for user'
-
-    def test_canvas_course_feed_not_found(self, authenticated_session, client):
-        """returns 404 if Canvas course feed not found"""
-        canvas_error = MockResponse(404, {}, '{"message": "Resource not found."}')
-        with register_mock(canvas.get_user_courses, canvas_error):
-            response = client.get(TestUserAnalytics.api_path)
-            assert response.status_code == 404
-            assert response.json['message'] == 'No courses found for user'
 
     def test_canvas_unreachable(self, authenticated_session, client):
         """returns 500 if Canvas unreachable"""
         canvas_error = MockResponse(500, {}, '{"message": "Internal server error."}')
         with register_mock(canvas.get_user_for_uid, canvas_error):
-            response = client.get(TestUserAnalytics.api_path)
+            response = client.get(TestUserAnalytics.field_hockey_star)
             assert response.status_code == 500
             assert response.json['message'] == 'Unable to reach bCourses'

@@ -1,46 +1,48 @@
 <div data-ng-include="'/static/templates/header.html'"></div>
 
-<div class="container">
+<div div class="container" data-ng-if="!me.authenticated_as.is_authenticated">
+  <div>Please sign in.</div>
+</div>
+<div class="container" data-ng-if="me.authenticated_as.is_authenticated">
   <div class="container-left" data-ng-if="!student.isLoading && !error">
-     <img class="profile-summary-avatar" data-ng-src="{{student.canvasProfile.avatar_url}}" data-ng-if="student.canvasProfile.avatar_url"/>
-     <h1 data-ng-bind="student.cohortData.name"></h1>
-      <div data-ng-if="student.courses">
-        <div data-ng-repeat="course in student.courses">
-          <h2 data-ng-bind="course.courseCode"></h2>
-          <ul>
-            <li>
-              Assignments on time:
-              <span data-ng-bind="percentile(course.analytics.assignmentsOnTime)"></span>
-              <div class="boxplot-container" data-ng-if="course.analytics.assignmentsOnTime.student.percentile">
-                <div id="boxplot-{{course.canvasCourseId}}-assignmentsOnTime"
-                     class="boxplot"
-                     data-ng-init="drawBoxplot(course.canvasCourseId, 'assignmentsOnTime')"></div>
-              </div>
-            </li>
-            <li>
-              Page views:
-              <span data-ng-bind="percentile(course.analytics.pageViews)"></span>
-              <div class="boxplot-container" data-ng-if="course.analytics.pageViews.student.percentile">
-                <div id="boxplot-{{course.canvasCourseId}}-pageViews"
-                     class="boxplot"
-                     data-ng-init="drawBoxplot(course.canvasCourseId, 'pageViews')"></div>
-              </div>
-            </li>
-            <li>
-              Participations:
-              <span data-ng-bind="percentile(course.analytics.participations)"></span>
-              <div class="boxplot-container" data-ng-if="course.analytics.participations.student.percentile">
-                <div id="boxplot-{{course.canvasCourseId}}-participations"
-                     class="boxplot"
-                     data-ng-init="drawBoxplot(course.canvasCourseId, 'participations')"></div>
-              </div>
-            </li>
-          </ul>
-        </div>
+    <img class="profile-summary-avatar" data-ng-src="{{student.canvasProfile.avatar_url}}" data-ng-if="student.canvasProfile.avatar_url"/>
+    <h1 data-ng-bind="student.cohortData.name"></h1>
+    <div data-ng-if="student.courses.length">
+      <div data-ng-repeat="course in student.courses">
+        <h2 data-ng-bind="course.courseCode"></h2>
+        <ul>
+          <li>
+            Assignments on time:
+            <span data-ng-bind="percentile(course.analytics.assignmentsOnTime)"></span>
+            <div class="boxplot-container" data-ng-if="course.analytics.assignmentsOnTime.student.percentile">
+              <div id="boxplot-{{course.canvasCourseId}}-assignmentsOnTime"
+                   class="boxplot"
+                   data-ng-init="drawBoxplot(course.canvasCourseId, 'assignmentsOnTime')"></div>
+            </div>
+          </li>
+          <li>
+            Page views:
+            <span data-ng-bind="percentile(course.analytics.pageViews)"></span>
+            <div class="boxplot-container" data-ng-if="course.analytics.pageViews.student.percentile">
+              <div id="boxplot-{{course.canvasCourseId}}-pageViews"
+                   class="boxplot"
+                   data-ng-init="drawBoxplot(course.canvasCourseId, 'pageViews')"></div>
+            </div>
+          </li>
+          <li>
+            Participations:
+            <span data-ng-bind="percentile(course.analytics.participations)"></span>
+            <div class="boxplot-container" data-ng-if="course.analytics.participations.student.percentile">
+              <div id="boxplot-{{course.canvasCourseId}}-participations"
+                   class="boxplot"
+                   data-ng-init="drawBoxplot(course.canvasCourseId, 'participations')"></div>
+            </div>
+          </li>
+        </ul>
       </div>
-      <div data-ng-if="!student.courses">
-        No courses
-      </div>
+    </div>
+    <div data-ng-if="!student.courses.length">
+      No courses
     </div>
   </div>
   <div class="container-left" data-ng-if="!student.isLoading && error">

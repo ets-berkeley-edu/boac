@@ -40,22 +40,22 @@ def user_analytics(uid):
     canvas_id = canvas_profile.json()['id']
 
     user_courses = canvas.get_user_courses(app.canvas_instance, uid)
-    if not user_courses:
-        raise errors.ResourceNotFoundError('No courses found for user')
 
     course_analytics_feed = []
-    for course in user_courses:
-        course_analytics = {
-            'canvasCourseId': course['id'],
-            'courseName': course['name'],
-            'courseCode': course['course_code'],
-        }
-        student_summaries = canvas.get_student_summaries(app.canvas_instance, course['id'])
-        if not student_summaries:
-            course_analytics['analytics'] = {'error': 'Unable to retrieve analytics'}
-        else:
-            course_analytics['analytics'] = analytics_from_summary_feed(student_summaries, canvas_id, course)
-        course_analytics_feed.append(course_analytics)
+
+    if user_courses:
+        for course in user_courses:
+            course_analytics = {
+                'canvasCourseId': course['id'],
+                'courseName': course['name'],
+                'courseCode': course['course_code'],
+            }
+            student_summaries = canvas.get_student_summaries(app.canvas_instance, course['id'])
+            if not student_summaries:
+                course_analytics['analytics'] = {'error': 'Unable to retrieve analytics'}
+            else:
+                course_analytics['analytics'] = analytics_from_summary_feed(student_summaries, canvas_id, course)
+            course_analytics_feed.append(course_analytics)
 
     cohort_data = Cohort.query.filter_by(member_uid=uid).first()
     if cohort_data:

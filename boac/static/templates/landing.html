@@ -1,15 +1,18 @@
 <div data-ng-include="'/static/templates/header.html'"></div>
 
 <div class="container">
-    <h1>Welcome to BOAC</h1>
-    <div class="body-text">
-      <div>Choose a cohort:</div>
-      <ul>
-        <li data-ng-repeat="cohort in cohorts">
-          <a data-ng-bind="cohort.name" data-ng-href="/cohort/{{cohort.code}}"></a>
-        </li>
-      </ul>
-    </div>
+  <h1>Welcome to BOAC</h1>
+  <div class="body-text" data-ng-if="me.authenticated_as.is_authenticated">
+    <div>Choose a cohort:</div>
+    <ul>
+    <li data-ng-repeat="cohort in cohorts">
+      <a data-ng-bind="cohort.name" data-ng-href="/cohort/{{cohort.code}}"></a>
+    </li>
+    </ul>
+  </div>
+  <div class="body-text" data-ng-if="!me.authenticated_as.is_authenticated">
+    <div>Please sign in.</div>
+  </div>
 </div>
 
 <div data-ng-include="'/static/templates/footer.html'"></div>
