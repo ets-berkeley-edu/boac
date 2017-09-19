@@ -52,4 +52,8 @@ tox -e test
 tox -e lint-py
 tox -e lint-js
 tox -e lint-css
+
+# Lint specific file(s)
+tox -e lint-js -- boac/static/js/controllers/cohortController.js
+tox -e lint-py -- scripts/cohort_fixtures.py
 ```
