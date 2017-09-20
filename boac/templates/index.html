@@ -4,8 +4,8 @@
     <title>BOAC</title>
 
     <link href="/static/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/css/boxplot.css" rel="stylesheet">
-    <link href="/static/css/main.css" rel="stylesheet">
+    <link href="/static/app/shared/boxplot.css" rel="stylesheet">
+    <link href="/static/app/main.css" rel="stylesheet">
   </head>
 
   <body ui-view>
@@ -18,14 +18,14 @@
     <script src="/static/lib/lodash/dist/lodash.min.js"></script>
 
     <!-- BOAC -->
-    <script src="/static/js/app.js"></script>
-    <script src="/static/js/routes.js"></script>
-    <script src="/static/js/controllers/authController.js"></script>
-    <script src="/static/js/controllers/cohortController.js"></script>
-    <script src="/static/js/controllers/landingController.js"></script>
-    <script src="/static/js/controllers/studentController.js"></script>
-    <script src="/static/js/factories/analyticsFactory.js"></script>
-    <script src="/static/js/factories/authFactory.js"></script>
-    <script src="/static/js/factories/cohortFactory.js"></script>
+    <script src="/static/app/bootstrap.js"></script>
+    <script src="/static/app/routes.js"></script>
+    <script src="/static/app/shared/analyticsFactory.js"></script>
+    <script src="/static/app/auth/authController.js"></script>
+    <script src="/static/app/auth/authFactory.js"></script>
+    <script src="/static/app/cohort/cohortController.js"></script>
+    <script src="/static/app/cohort/cohortFactory.js"></script>
+    <script src="/static/app/landing/landingController.js"></script>
+    <script src="/static/app/student/studentController.js"></script>
   </body>
 </html>
