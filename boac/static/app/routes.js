@@ -18,17 +18,17 @@
     $stateProvider
       .state('landing', {
         url: '/',
-        templateUrl: '/static/templates/landing.html',
+        templateUrl: '/static/app/landing/landing.html',
         controller: 'LandingController'
       })
       .state('cohort', {
         url: '/cohort/:code',
-        templateUrl: '/static/templates/cohort.html',
+        templateUrl: '/static/app/cohort/cohort.html',
         controller: 'CohortController'
       })
       .state('user', {
         url: '/student/:uid',
-        templateUrl: '/static/templates/student.html',
+        templateUrl: '/static/app/student/student.html',
         controller: 'StudentController'
       });
 
