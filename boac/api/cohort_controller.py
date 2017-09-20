@@ -1,4 +1,5 @@
 from boac.externals import canvas
+from boac.lib.analytics import mean_course_analytics_for_user
 from boac.lib.http import tolerant_jsonify
 from boac.models.cohort import Cohort
 
@@ -20,7 +21,5 @@ def cohort_details(cohort_code):
     for member in cohort['members']:
         canvas_profile = canvas.get_user_for_uid(app.canvas_instance, member['uid'])
         if canvas_profile:
-            pass
-            # TODO summarize analytics
-            # member['analytics'] = boac.lib.analytics.course_analytics_for_user(member['uid'], canvas_profile.json()['id'])
+            member['analytics'] = mean_course_analytics_for_user(member['uid'], canvas_profile.json()['id'])
     return tolerant_jsonify(cohort)

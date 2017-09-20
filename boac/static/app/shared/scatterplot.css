@@ -1,0 +1,52 @@
+#scatterplot {
+  width: 960px;
+  height: 546px;
+  margin-bottom: 60px;
+}
+
+rect {
+  fill: transparent;
+  shape-rendering: crispEdges;
+}
+
+text {
+  font: 15px sans-serif bold;
+}
+
+.dot {
+  cursor: pointer;
+  stroke: #000;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.1);
+  shape-rendering: crispEdges;
+}
+
+.axisLine {
+  fill: none;
+  shape-rendering: crispEdges;
+  stroke: rgba(0, 0, 0, 0.5);
+  stroke-width: 2px;
+}
+
+.label {
+  fill: #777;
+}
+
+.sample.label {
+  font: 300 30px "Helvetica Neue";
+  fill: #ddd;
+}
+
+.sample.label.active {
+  fill: #aaa;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+  cursor: ew-resize;
+}
