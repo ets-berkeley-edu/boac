@@ -24,7 +24,15 @@
         uid: uid,
         password: password
       };
-      return $http.post('/devauth/login', credentials).then(refreshStatus);
+      return $http.post('/devauth/login', credentials).then(
+        function successCallback() {
+          $rootScope.$emit('authenticationSuccess');
+          refreshStatus();
+        },
+        function errorCallback() {
+          $rootScope.$emit('authenticationFailure');
+          $rootScope.me = null;
+        });
     };
 
     var logOut = function() {
