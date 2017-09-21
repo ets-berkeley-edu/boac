@@ -11,7 +11,7 @@
     </ul>
   </div>
   <div class="body-text" data-ng-if="!me.authenticated_as.is_authenticated">
-    <div>Please sign in.</div>
+    <div data-ng-bind="alertMessage || 'Please sign in.'"></div>
   </div>
 </div>
 
