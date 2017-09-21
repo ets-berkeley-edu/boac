@@ -229,7 +229,6 @@ rules:
     - prefer:
         return: return
   valid-typeof: 2
-  vars-on-top: 2
   wrap-iife: 2
   wrap-regex: 2
   yoda:

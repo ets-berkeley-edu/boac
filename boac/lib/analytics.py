@@ -1,4 +1,5 @@
 import math
+from statistics import mean
 from boac.externals import canvas
 from flask import current_app as app
 import pandas
@@ -21,6 +22,23 @@ def course_analytics_for_user(uid, canvas_user_id):
                 course_analytics['analytics'] = analytics_from_summary_feed(student_summaries, canvas_user_id, course)
             analytics_per_course.append(course_analytics)
     return analytics_per_course
+
+
+def mean_course_analytics_for_user(uid, canvas_user_id):
+    courses = course_analytics_for_user(uid, canvas_user_id)
+    meanValues = {}
+    for metric in ['assignmentsOnTime', 'pageViews', 'participations']:
+        percentiles = []
+        for course in courses:
+            if course['analytics'].get(metric):
+                percentile = course['analytics'][metric]['student']['percentile']
+                if percentile and not math.isnan(percentile):
+                    percentiles.append(percentile)
+        if len(percentiles):
+            meanValues[metric] = mean(percentiles)
+        else:
+            meanValues[metric] = 0
+    return meanValues
 
 
 def analytics_from_summary_feed(summary_feed, canvas_user_id, canvas_course):

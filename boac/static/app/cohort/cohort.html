@@ -2,8 +2,15 @@
 
 <div class="container">
   <h1 data-ng-bind="cohort.name"></h1>
+
+  <h2>Student Performance Assessment Graph</h2>
+  <div class="container" data-ng-if="!cohort">
+    <div>Loading.... </div>
+  </div>
+  <div id="scatterplot"></div>
+
   <div class="body-text">
-    <div>Choose a member:</div>
+    <h2 data-ng-if="cohort">Students by name</h2>
       <ul>
         <li data-ng-repeat="member in cohort.members">
           <a data-ng-bind="member.name" data-ng-href="/student/{{member.uid}}"></a>
