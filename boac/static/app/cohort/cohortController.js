@@ -13,50 +13,44 @@
       function y(d) { return d.analytics.assignmentsOnTime; }
       function key(d) { return d.uid; }
 
-      var margin = {top: 19.5, right: 19.5, bottom: 25, left: 30};
-      var width = 960 - margin.right - margin.left;
-      var height = 546 - margin.top - margin.bottom;
+      var width = 910;
+      var height = 500;
 
-      var xScale = d3.scale.linear().domain([0, 100]).range([0, width]).nice();
-      var yScale = d3.scale.linear().domain([0, 100]).range([height, 0]).nice();
+      var xScale = d3.scaleLinear().domain([0, 100]).range([0, width]).nice();
+      var yScale = d3.scaleLinear().domain([0, 100]).range([height, 0]).nice();
 
-      var xAxis = d3.svg.axis()
-        .scale(xScale)
-        .orient('bottom')
+      var xAxis = d3.axisBottom(xScale)
         .ticks(10, d3.format(',d'))
         .tickSize(-height);
 
-      var yAxis = d3.svg.axis()
-        .scale(yScale)
-        .orient('left')
+      var yAxis = d3.axisLeft(yScale)
         .ticks(10, d3.format(',d'))
         .tickSize(-width);
 
-      function position(dot) {
-        dot.attr('cx', function(d) { return xScale(x(d)); })
-          .attr('cy', function(d) { return yScale(y(d)); })
-          .attr('r', '30');
-      }
-
-      function zoom() {
-        svg.select('.x.axis').call(xAxis);
-        svg.select('.y.axis').call(yAxis);
-        svg.selectAll('.dot').call(position);
-      }
-
-      var zoomScaled = d3.behavior.zoom()
-        .x(xScale)
-        .y(yScale)
+      var zoom = d3.zoom()
         .scaleExtent([1, 10])
-        .on('zoom', zoom);
+        .translateExtent([[0, 0], [width, height]])
+        .on('zoom', function() {
+          var transform = d3.event.transform;
+
+          var xNewScale = transform.rescaleX(xScale);
+          xAxis.scale(xNewScale);
+          svg.select('.x.axis').call(xAxis);
+
+          var yNewScale = transform.rescaleY(yScale);
+          yAxis.scale(yNewScale);
+          svg.select('.y.axis').call(yAxis);
+
+          svg.selectAll('.dot')
+            .attr('cx', function(d) { return transform.applyX(xScale(x(d))); })
+            .attr('cy', function(d) { return transform.applyY(yScale(y(d))); });
+        });
 
       svg = d3.select('#scatterplot')
         .append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
-        .append('g')
-        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-        .call(zoomScaled);
+        .attr('width', width)
+        .attr('height', height)
+        .call(zoom);
 
       // Add the x-axis.
       svg.append('g')
@@ -119,7 +113,6 @@
         .attr('width', width + 70)
         .attr('height', height + 70);
 
-      // Add the year label; the value is set on transition.
       svg.append('text')
         .attr('class', 'sample label')
         .attr('text-anchor', 'end')
@@ -153,7 +146,9 @@
         .style('fill', 'url(#grump_avatar)')
         .style('stroke-width', 5)
         .style('stroke', '#ccc')
-        .call(position);
+        .attr('cx', function(d) { return xScale(x(d)); })
+        .attr('cy', function(d) { return yScale(y(d)); })
+        .attr('r', '30');
 
       // Add a title.
       dot.append('title')

@@ -1,7 +1,7 @@
 #scatterplot {
-  width: 960px;
-  height: 546px;
-  margin-bottom: 60px;
+  width: 910px;
+  height: 500px;
+  margin: 45px 20px 60px 20px;
 }
 
 rect {
