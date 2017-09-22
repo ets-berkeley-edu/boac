@@ -4,10 +4,13 @@
   <h1>Welcome to BOAC</h1>
   <div class="body-text" data-ng-if="me.authenticated_as.is_authenticated">
     <div>Choose a cohort:</div>
-    <ul>
-    <li data-ng-repeat="cohort in cohorts">
-      <a data-ng-bind="cohort.name" data-ng-href="/cohort/{{cohort.code}}"></a>
-    </li>
+    <div class="container" data-ng-if="isLoading">
+      <div>Loading.... </div>
+    </div>
+    <ul data-ng-if="!isLoading">
+      <li data-ng-repeat="cohort in cohorts">
+        <a data-ng-bind="cohort.name" data-ng-href="/cohort/{{cohort.code}}"></a>
+      </li>
     </ul>
   </div>
   <div class="body-text" data-ng-if="!me.authenticated_as.is_authenticated">
