@@ -2,9 +2,7 @@
 
   'use strict';
 
-  var boac = angular.module('boac');
-
-  boac.factory('authFactory', function($http, $rootScope) {
+  angular.module('boac').factory('authFactory', function($http, $rootScope) {
 
     var refreshStatus = function() {
       return $http.get('/api/status').then(function(results) {
@@ -26,11 +24,12 @@
       };
       return $http.post('/devauth/login', credentials).then(
         function successCallback() {
-          $rootScope.$emit('authenticationSuccess');
-          refreshStatus();
+          refreshStatus().then(function() {
+            $rootScope.$broadcast('userStatusChange');
+          });
         },
         function errorCallback() {
-          $rootScope.$emit('authenticationFailure');
+          $rootScope.$broadcast('authenticationFailure');
           $rootScope.me = null;
         });
     };
