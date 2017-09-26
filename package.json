@@ -1,0 +1,14 @@
+{
+  "name": "linter-stylelint",
+  "version": "4.0.2",
+  "private": true,
+  "description": "A plugin for Atom Linter providing an interface to stylelint.",
+  "devDependencies": {
+    "eslint": "4.7.2",
+    "eslint-plugin-import": "^2.7.0",
+    "stylelint": "8.1.1",
+    "stylelint-config-standard": "^17.0.0",
+    "stylelint-order": "^0.7.0",
+    "stylelint-scss": "^2.1.0"
+  }
+}
