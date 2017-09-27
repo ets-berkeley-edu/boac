@@ -38,11 +38,13 @@ class TestCohortDetail:
         response = client.get(TestCohortDetail.valid_api_path)
         assert response.status_code == 401
 
-    def test_invalid_path(self, authenticated_session, client, fixture_cohorts):
-        """returns 400 on a nonexistent code"""
+    def test_path_without_translation(self, authenticated_session, client, fixture_cohorts):
+        """returns code as name when no code-to-name translation exists"""
         response = client.get(TestCohortDetail.invalid_api_path)
-        assert response.status_code == 400
-        assert response.json['message'] == 'Cohort code "XYZ" not found'
+        assert response.status_code == 200
+        assert response.json['code'] == 'XYZ'
+        assert response.json['name'] == 'XYZ'
+        assert len(response.json['members']) == 0
 
     def test_valid_path(self, authenticated_session, client, fixture_cohorts):
         """returns a well-formed response on a valid code if authenticated"""
