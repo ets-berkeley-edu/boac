@@ -1,0 +1,16 @@
+{
+  "name": "boac",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ets-berkeley-edu/boac.git"
+  },
+  "dependencies": {
+    "eslint": "4.7.2",
+    "eslint-plugin-import": "^2.7.0",
+    "stylelint": "8.1.1",
+    "stylelint-config-standard": "^17.0.0",
+    "stylelint-order": "^0.7.0",
+    "stylelint-scss": "^2.1.0"
+  },
+  "license": "SEE LICENSE IN LICENSE"
+}

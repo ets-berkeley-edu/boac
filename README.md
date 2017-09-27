@@ -20,6 +20,10 @@ bCourses offers analytic choices.
 
 `yarn install`
 
+### Install NPM dependencies
+
+`npm install`
+
 ### Create Postgres user and databases
 
 ```
@@ -40,7 +44,7 @@ export BOAC_LOCAL_CONFIGS=/Volumes/XYZ/boac_config
 
 ## Run tests, lint the code
 
-We use [Tox](https://tox.readthedocs.io) for continuous integration. Under the hood, you'll find [PyTest](https://docs.pytest.org), [Flake8](http://flake8.pycqa.org), [ESLint](https://eslint.org/) and [Stylelint](https://stylelint.io).
+We use [Tox](https://tox.readthedocs.io) for continuous integration. Under the hood, you'll find [PyTest](https://docs.pytest.org), [Flake8](http://flake8.pycqa.org), [ESLint](https://eslint.org/) and [Stylelint](https://stylelint.io). Please install NPM dependencies (see above) before running tests.
 ```
 # Run all tests and linters
 tox
