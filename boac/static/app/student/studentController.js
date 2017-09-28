@@ -170,10 +170,11 @@
     };
 
     $scope.percentile = function(courseData) {
-      var percentileRounded = _.round(courseData.student.percentile);
-      if (!percentileRounded) {
+      var rawPercentile = courseData.student.percentile;
+      if (!rawPercentile && rawPercentile !== 0) {
         return 'No data';
       }
+      var percentileRounded = _.round(rawPercentile);
 
       /* eslint-disable no-fallthrough */
       switch (percentileRounded % 10) {

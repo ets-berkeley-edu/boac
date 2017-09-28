@@ -8,9 +8,7 @@ bCourses offers analytic choices.
 
 ### Create your virtual environment
 
-### Install Yarn
-
-`brew install yarn`
+### Install Bower
 
 ### Install back-end
 
@@ -18,11 +16,7 @@ bCourses offers analytic choices.
 
 ### Install front-end dependencies
 
-`yarn install`
-
-### Install NPM dependencies
-
-`npm install`
+`bower install`
 
 ### Create Postgres user and databases
 
