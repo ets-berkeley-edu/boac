@@ -82,16 +82,20 @@
 
       var defs = svg.append('svg:defs');
 
-      defs.append('svg:pattern')
-        .attr('id', 'grump_avatar')
-        .attr('width', '100%')
-        .attr('height', '100%')
-        .attr('patternContentUnits', 'objectBoundingBox')
-        .append('svg:image')
-        .attr('xlink:href', '/static/app/shared/avatar-female.png')
-        .attr('width', 1)
-        .attr('height', 1)
-        .attr('preserveAspectRatio', 'none');
+      function avatar(d) {
+        var avatarId = 'avatar_' + d.uid;
+        defs.append('svg:pattern')
+          .attr('id', avatarId)
+          .attr('width', '100%')
+          .attr('height', '100%')
+          .attr('patternContentUnits', 'objectBoundingBox')
+          .append('svg:image')
+          .attr('xlink:href', d.avatar_url)
+          .attr('width', 1)
+          .attr('height', 1)
+          .attr('preserveAspectRatio', 'none');
+        return 'url(#' + avatarId + ')';
+      }
 
       svg.append('rect')
         .attr('width', width)
@@ -143,7 +147,7 @@
         .data(cohort.data.members, key)
         .enter().append('circle')
         .attr('class', 'dot')
-        .style('fill', 'url(#grump_avatar)')
+        .style('fill', function(d) { return avatar(d); })
         .style('stroke-width', 5)
         .style('stroke', '#ccc')
         .attr('cx', function(d) { return xScale(x(d)); })

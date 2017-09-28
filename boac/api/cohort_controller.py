@@ -21,5 +21,7 @@ def cohort_details(cohort_code):
     for member in cohort['members']:
         canvas_profile = canvas.get_user_for_uid(app.canvas_instance, member['uid'])
         if canvas_profile:
-            member['analytics'] = mean_course_analytics_for_user(member['uid'], canvas_profile.json()['id'])
+            profile_json = canvas_profile.json()
+            member['avatar_url'] = profile_json['avatar_url']
+            member['analytics'] = mean_course_analytics_for_user(member['uid'], profile_json['id'])
     return tolerant_jsonify(cohort)

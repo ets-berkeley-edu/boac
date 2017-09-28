@@ -55,3 +55,4 @@ class TestCohortDetail:
         assert len(response.json['members']) == 1
         assert response.json['members'][0]['name'] == 'Brigitte Lin'
         assert response.json['members'][0]['uid'] == '61889'
+        assert response.json['members'][0]['avatar_url'] == 'https://calspirit.berkeley.edu/oski/images/oskibio.jpg'
