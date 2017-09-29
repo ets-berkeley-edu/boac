@@ -48,3 +48,6 @@ ATHLETE_API_URL = 'https://secreturl/athletes'
 LOGGING_FORMAT = '[%(asctime)s] - %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
 LOGGING_LOCATION = 'boac.log'
 LOGGING_LEVEL = logging.DEBUG
+
+# Caching (number of seconds, or false to disable)
+CACHE_DEFAULT = False

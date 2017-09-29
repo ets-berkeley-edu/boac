@@ -17,11 +17,16 @@ def cohorts_list():
 @app.route('/api/cohort/<cohort_code>')
 @login_required
 def cohort_details(cohort_code):
-    cohort = Cohort.for_code(cohort_code)
-    for member in cohort['members']:
-        canvas_profile = canvas.get_user_for_uid(app.canvas_instance, member['uid'])
-        if canvas_profile:
-            profile_json = canvas_profile.json()
-            member['avatar_url'] = profile_json['avatar_url']
-            member['analytics'] = mean_course_analytics_for_user(member['uid'], profile_json['id'])
+    cache_key = f'cohort/{cohort_code}'
+    cohort = app.cache.get(cache_key) if (app.cache) else None
+    if cohort is None:
+        cohort = Cohort.for_code(cohort_code)
+        for member in cohort['members']:
+            canvas_profile = canvas.get_user_for_uid(app.canvas_instance, member['uid'])
+            if canvas_profile:
+                profile_json = canvas_profile.json()
+                member['avatar_url'] = profile_json['avatar_url']
+                member['analytics'] = mean_course_analytics_for_user(member['uid'], profile_json['id'])
+        if app.cache:
+            app.cache.set(cache_key, cohort)
     return tolerant_jsonify(cohort)

@@ -45,6 +45,8 @@ def user_analytics(uid):
     if cohort_data:
         cohort_data = cohort_data.to_api_json()
 
+    app.logger.error('User {} analytics: {}'.format(uid, repr(course_analytics_feed)))
+
     return tolerant_jsonify({
         'uid': uid,
         'canvasProfile': canvas_profile.json(),
