@@ -2,9 +2,9 @@
 
   'use strict';
 
-  angular.module('boac').controller('StudentController', function(analyticsFactory, $scope, $stateParams) {
+  angular.module('boac').controller('StudentController', function(analyticsFactory, authService, $scope, $stateParams) {
 
-    var loadAnalytics = function() {
+    var loadAnalytics = authService.authWrap(function() {
       $scope.student.isLoading = true;
       analyticsFactory.analyticsPerUser($stateParams.uid).then(function(analytics) {
         $scope.student = analytics.data;
@@ -13,7 +13,7 @@
       }).then(function() {
         $scope.student.isLoading = false;
       });
-    };
+    });
 
     $scope.student = {
       canvasProfile: null,

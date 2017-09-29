@@ -6,18 +6,14 @@
 
     $scope.isLoading = false;
 
-    var loadCohorts = function() {
-      if (authService.isAuthenticatedUser()) {
-        $scope.isLoading = true;
+    var loadCohorts = authService.authWrap(function() {
+      $scope.isLoading = true;
 
-        cohortFactory.getCohorts().then(function(cohorts) {
-          $scope.cohorts = cohorts.data;
-          $scope.isLoading = false;
-        });
-      }
-    };
-
-    $rootScope.$on('userStatusChange', loadCohorts);
+      cohortFactory.getCohorts().then(function(cohorts) {
+        $scope.cohorts = cohorts.data;
+        $scope.isLoading = false;
+      });
+    });
 
     $rootScope.$on('authenticationFailure', function() {
       $scope.alertMessage = 'Log in failed. Please try again.';

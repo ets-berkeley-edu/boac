@@ -15,9 +15,20 @@
       });
     };
 
+    var authWrap = function(controllerMain) {
+      var decoratedFunction = function() {
+        if (isAuthenticatedUser()) {
+          controllerMain();
+        }
+      };
+      $rootScope.$on('userStatusChange', decoratedFunction);
+      return decoratedFunction;
+    };
+
     init();
 
     return {
+      authWrap: authWrap,
       isAuthenticatedUser: isAuthenticatedUser
     };
   });
