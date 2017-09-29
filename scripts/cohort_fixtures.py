@@ -35,9 +35,12 @@ def main(app):
                 continue
 
             for course in user_courses:
-                student_summaries = canvas.get_student_summaries(app.canvas_instance, course['id'])
-                if not student_summaries:
-                    failures['student_summaries'].append(course['id'])
+                if os.path.isfile(f"{os.environ['FIXTURE_OUTPUT_PATH']}/canvas_student_summaries_for_course_{course['id']}.json"):
+                    print(f"Fixture already present for course {course['id']}, skipping")
+                else:
+                    student_summaries = canvas.get_student_summaries(app.canvas_instance, course['id'])
+                    if not student_summaries:
+                        failures['student_summaries'].append(course['id'])
 
     print('Complete. Failures below:')
     print(failures)
