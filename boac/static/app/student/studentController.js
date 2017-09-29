@@ -2,20 +2,18 @@
 
   'use strict';
 
-  angular.module('boac').controller('StudentController', function(analyticsFactory, authService, $rootScope, $scope, $stateParams) {
+  angular.module('boac').controller('StudentController', function(analyticsFactory, authService, $scope, $stateParams) {
 
-    var loadAnalytics = function() {
-      if (authService.isAuthenticatedUser()) {
-        $scope.student.isLoading = true;
-        analyticsFactory.analyticsPerUser($stateParams.uid).then(function(analytics) {
-          $scope.student = analytics.data;
-        }).catch(function(error) {
-          $scope.error = _.truncate(error.message, {length: 200});
-        }).then(function() {
-          $scope.student.isLoading = false;
-        });
-      }
-    };
+    var loadAnalytics = authService.authWrap(function() {
+      $scope.student.isLoading = true;
+      analyticsFactory.analyticsPerUser($stateParams.uid).then(function(analytics) {
+        $scope.student = analytics.data;
+      }).catch(function(error) {
+        $scope.error = _.truncate(error.message, {length: 200});
+      }).then(function() {
+        $scope.student.isLoading = false;
+      });
+    });
 
     $scope.student = {
       canvasProfile: null,
@@ -190,8 +188,6 @@
           return percentileRounded + 'th percentile';
       }
     };
-
-    $rootScope.$on('userStatusChange', loadAnalytics);
 
     loadAnalytics();
   });
