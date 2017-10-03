@@ -15,7 +15,8 @@ def get_user_for_uid(canvas_instance, uid, mock=None):
 @fixture('canvas_user_courses_{uid}')
 def get_user_courses(canvas_instance, uid, mock=None):
     path = '/api/v1/users/sis_login_id:{}/courses'.format(uid)
-    response = paged_request(canvas_instance, path, mock)
+    query = {'include': ['term']}
+    response = paged_request(canvas_instance, path=path, query=query, mock=mock)
     if not response:
         return response
 
@@ -33,7 +34,7 @@ def get_user_courses(canvas_instance, uid, mock=None):
 @fixture('canvas_student_summaries_for_course_{course_id}')
 def get_student_summaries(canvas_instance, course_id, mock=None):
     path = '/api/v1/courses/{}/analytics/student_summaries'.format(course_id)
-    return paged_request(canvas_instance, path, mock)
+    return paged_request(canvas_instance, path=path, mock=mock)
 
 
 def build_url(canvas_instance, path, query=None):
@@ -53,11 +54,14 @@ def authorized_request(canvas_instance, url):
     return http.request(url, auth_headers)
 
 
-def paged_request(canvas_instance, path, mock):
+def paged_request(canvas_instance, path, mock, query=None):
+    if query is None:
+        query = {}
+    query['per_page'] = 100
     url = build_url(
         canvas_instance,
         path,
-        {'per_page': 100},
+        query,
     )
     results = []
     while url:

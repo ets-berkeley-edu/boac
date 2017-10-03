@@ -16,6 +16,10 @@
     "public_syllabus_to_auth": false,
     "storage_quota_mb": 2048,
     "is_public_to_auth_users": false,
+    "term": {
+      "id": 5493,
+      "name": "Fall 2017"
+    },
     "apply_assignment_group_weights": true,
     "locale": "fr",
     "calendar": {
@@ -52,6 +56,10 @@
     "public_syllabus_to_auth": false,
     "storage_quota_mb": 2048,
     "is_public_to_auth_users": false,
+    "term": {
+      "id": 5493,
+      "name": "Fall 2017"
+    },
     "apply_assignment_group_weights": false,
     "calendar": {
       "ics": "https://ucberkeley.beta.instructure.com/feeds/calendars/course_qwertyuiop2.ics"
@@ -87,6 +95,10 @@
     "public_syllabus_to_auth": false,
     "storage_quota_mb": 5000,
     "is_public_to_auth_users": false,
+    "term": {
+      "id": 5493,
+      "name": "Fall 2017"
+    },
     "apply_assignment_group_weights": true,
     "calendar": {
       "ics": "https://ucberkeley.beta.instructure.com/feeds/calendars/course_qwertyuiop3.ics"
@@ -122,6 +134,10 @@
     "public_syllabus_to_auth": false,
     "storage_quota_mb": 2048,
     "is_public_to_auth_users": false,
+    "term": {
+      "id": 5493,
+      "name": "Fall 2017"
+    },
     "apply_assignment_group_weights": false,
     "calendar": {
       "ics": "https://ucberkeley.beta.instructure.com/feeds/calendars/course_qwertyuiop4.ics"
@@ -157,6 +173,10 @@
     "public_syllabus_to_auth": false,
     "storage_quota_mb": 2048,
     "is_public_to_auth_users": false,
+    "term": {
+      "id": 5493,
+      "name": "Fall 2017"
+    },
     "apply_assignment_group_weights": true,
     "calendar": {
       "ics": "https://ucberkeley.beta.instructure.com/feeds/calendars/course_qwertyuiop5.ics"
@@ -192,6 +212,10 @@
     "public_syllabus_to_auth": false,
     "storage_quota_mb": 2048,
     "is_public_to_auth_users": false,
+    "term": {
+      "id": 1818,
+      "name": "Default Term"
+    },
     "apply_assignment_group_weights": false,
     "calendar": {
       "ics": "https://ucberkeley.beta.instructure.com/feeds/calendars/course_qwertyuiop6.ics"
