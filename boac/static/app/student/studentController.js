@@ -176,17 +176,21 @@
       }
       var percentileRounded = _.round(rawPercentile);
 
-      /* eslint-disable no-fallthrough */
+      var ordinalSuffix = 'th';
       switch (percentileRounded % 10) {
         case 1:
-          if (percentileRounded !== 11) { return percentileRounded + 'st percentile'; }
+          if (percentileRounded !== 11) { ordinalSuffix = 'st'; }
+          break;
         case 2:
-          if (percentileRounded !== 12) { return percentileRounded + 'nd percentile'; }
+          if (percentileRounded !== 12) { ordinalSuffix = 'nd'; }
+          break;
         case 3:
-          if (percentileRounded !== 13) { return percentileRounded + 'rd percentile'; }
+          if (percentileRounded !== 13) { ordinalSuffix = 'rd'; }
+          break;
         default:
-          return percentileRounded + 'th percentile';
+          break;
       }
+      return percentileRounded + ordinalSuffix + ' percentile';
     };
 
     loadAnalytics();
