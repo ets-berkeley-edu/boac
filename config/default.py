@@ -42,7 +42,11 @@ CANVAS_CURRENT_ENROLLMENT_TERM = 5493
 # SIS APIs
 ATHLETE_API_ID = 'secretid'
 ATHLETE_API_KEY = 'secretkey'
-ATHLETE_API_URL = 'https://secreturl/athletes'
+ATHLETE_API_URL = 'https://secreturl.berkeley.edu/athletes'
+
+ENROLLMENTS_API_ID = 'secretid'
+ENROLLMENTS_API_KEY = 'secretkey'
+ENROLLMENTS_API_URL = 'https://secreturl.berkeley.edu/enrollments'
 
 # Logging
 LOGGING_FORMAT = '[%(asctime)s] - %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
