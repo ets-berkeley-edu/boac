@@ -73,6 +73,8 @@ class TestCanvasGetUserCourses:
         courses = canvas.get_user_courses(ucb_canvas, 61889)
         for course in courses:
             assert course['enrollment_term_id'] == app.config.get('CANVAS_CURRENT_ENROLLMENT_TERM')
+            assert course['term']['id'] == course['enrollment_term_id']
+            assert course['term']['name'] == 'Fall 2017'
 
     def test_user_not_found(self, ucb_canvas, caplog):
         """logs 404 for unknown user and returns wrapped exception"""
