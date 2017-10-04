@@ -5,16 +5,23 @@ from boac.lib.mockingbird import fixture
 from flask import current_app as app
 
 
+@fixture('canvas_course_sections_{course_id}')
+def get_course_sections(canvas_instance, course_id, mock=None):
+    url = build_url(canvas_instance, f'/api/v1/courses/{course_id}/sections')
+    with mock(url):
+        return authorized_request(canvas_instance, url)
+
+
 @fixture('canvas_user_for_uid_{uid}')
 def get_user_for_uid(canvas_instance, uid, mock=None):
-    url = build_url(canvas_instance, '/api/v1/users/sis_login_id:{}'.format(uid))
+    url = build_url(canvas_instance, f'/api/v1/users/sis_login_id:{uid}')
     with mock(url):
         return authorized_request(canvas_instance, url)
 
 
 @fixture('canvas_user_courses_{uid}')
 def get_user_courses(canvas_instance, uid, mock=None):
-    path = '/api/v1/users/sis_login_id:{}/courses'.format(uid)
+    path = f'/api/v1/users/sis_login_id:{uid}/courses'
     query = {'include': ['term']}
     response = paged_request(canvas_instance, path=path, query=query, mock=mock)
     if not response:
@@ -33,7 +40,7 @@ def get_user_courses(canvas_instance, uid, mock=None):
 
 @fixture('canvas_student_summaries_for_course_{course_id}')
 def get_student_summaries(canvas_instance, course_id, mock=None):
-    path = '/api/v1/courses/{}/analytics/student_summaries'.format(course_id)
+    path = f'/api/v1/courses/{course_id}/analytics/student_summaries'
     return paged_request(canvas_instance, path=path, mock=mock)
 
 
