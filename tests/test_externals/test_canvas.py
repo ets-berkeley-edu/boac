@@ -8,6 +8,47 @@ def ucb_canvas(app):
     return app.canvas_instance
 
 
+class TestCanvasGetCourseSections:
+    """Canvas API query (get course sections)"""
+
+    def test_get_course_sections(self, ucb_canvas):
+        """returns fixture data"""
+        burmese_sections = canvas.get_course_sections(ucb_canvas, 7654320)
+        assert burmese_sections.status_code == 200
+        assert len(burmese_sections.json()) == 2
+        assert burmese_sections.json()[0]['sis_section_id'] == 'SEC:2017-D-90100'
+        assert burmese_sections.json()[1]['sis_section_id'] == 'SEC:2017-D-90101'
+
+        medieval_sections = canvas.get_course_sections(ucb_canvas, 7654321)
+        assert medieval_sections.status_code == 200
+        assert len(medieval_sections.json()) == 1
+        assert medieval_sections.json()[0]['sis_section_id'] == 'SEC:2017-D-90200'
+
+        nuclear_sections = canvas.get_course_sections(ucb_canvas, 7654323)
+        assert nuclear_sections.status_code == 200
+        assert len(nuclear_sections.json()) == 2
+        assert nuclear_sections.json()[0]['sis_section_id'] == 'SEC:2017-D-90299'
+        assert nuclear_sections.json()[1]['sis_section_id'] == 'SEC:2017-D-90300'
+
+    def test_course_not_found(self, ucb_canvas, caplog):
+        """logs 404 for unknown user and returns informative message"""
+        response = canvas.get_course_sections(ucb_canvas, 9999999)
+        assert 'HTTP/1.1" 404' in caplog.text
+        assert not response
+        assert response.raw_response.status_code == 404
+        assert response.raw_response.json()['message']
+
+    def test_server_error(self, ucb_canvas, caplog):
+        """logs unexpected server errors and returns informative message"""
+        canvas_error = MockResponse(500, {}, '{"message": "Internal server error."}')
+        with register_mock(canvas.get_course_sections, canvas_error):
+            response = canvas.get_course_sections(ucb_canvas, 7654320)
+            assert 'HTTP/1.1" 500' in caplog.text
+            assert not response
+            assert response.raw_response.status_code == 500
+            assert response.raw_response.json()['message']
+
+
 class TestCanvasGetUserForUid:
     """Canvas API query (user for LDAP UID)"""
 

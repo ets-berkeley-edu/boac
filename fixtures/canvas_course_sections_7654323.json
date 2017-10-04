@@ -1,0 +1,28 @@
+[
+  {
+    "id": 5000003,
+    "course_id": 7654323,
+    "name": "NUC ENG 124 LAB 001",
+    "start_at": null,
+    "end_at": null,
+    "restrict_enrollments_to_section_dates": false,
+    "nonxlist_course_id": null,
+    "sis_section_id": "SEC:2017-D-90299",
+    "sis_course_id": "CRS:NUCENG-124-2017-D",
+    "integration_id": null,
+    "sis_import_id": 700000
+  },
+  {
+    "id": 5000004,
+    "course_id": 7654323,
+    "name": "NUC ENG 124 LAB 002",
+    "start_at": null,
+    "end_at": null,
+    "restrict_enrollments_to_section_dates": false,
+    "nonxlist_course_id": null,
+    "sis_section_id": "SEC:2017-D-90300",
+    "sis_course_id": "CRS:NUCENG-124-2017-D",
+    "integration_id": null,
+    "sis_import_id": 700000
+  }
+]
