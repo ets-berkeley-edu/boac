@@ -10,6 +10,19 @@
     <div data-ng-if="student.courses.length">
       <div data-ng-repeat="course in student.courses">
         <h2 data-ng-bind="course.courseCode"></h2>
+        <div class="student-enrollment-details" data-ng-repeat="enrolledSection in course.sisEnrollments">
+          <span data-ng-switch="enrolledSection.enrollmentStatus">
+            <span data-ng-switch-when="E">Enrolled in</span>
+            <span data-ng-switch-when="W">Waitlisted in</span>
+            <span data-ng-switch-when="D">Dropped</span>
+          </span>
+          section <span data-ng-bind="enrolledSection.sectionNumber"></span>
+          (<span data-ng-bind="enrolledSection.units"></span> units,
+          <span data-ng-bind="enrolledSection.gradingBasis"></span> grading basis)
+          <div data-ng-if="enrolledSection.grade">
+            <strong>Grade: <span data-ng-bind="enrolledSection.grade"></span></strong>
+          </div>
+        </div>
         <ul>
           <li>
             Assignments on time:
