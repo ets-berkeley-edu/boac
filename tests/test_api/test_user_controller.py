@@ -1,4 +1,5 @@
 import boac.externals.canvas as canvas
+import boac.externals.sis_enrollments_api as sis_enrollments_api
 from boac.lib.mockingbird import MockResponse, register_mock
 import pytest
 
@@ -63,7 +64,7 @@ class TestUserAnalytics:
         response = client.get(TestUserAnalytics.field_hockey_star)
         assert response.status_code == 401
 
-    def test_user_analytics_authenticated(self, authenticated_response):
+    def test_user_analytics_authenticated(self, fixture_cohorts, authenticated_response):
         """returns a well-formed response if authenticated"""
         assert authenticated_response.status_code == 200
         assert authenticated_response.json['uid'] == '61889'
@@ -74,6 +75,7 @@ class TestUserAnalytics:
             assert course['canvasCourseId']
             assert course['courseName']
             assert course['analytics']
+            assert course['sisEnrollments']
 
     def test_course_without_enrollment(self, authenticated_response):
         """returns a graceful error if the expected enrollment is not found"""
@@ -128,3 +130,45 @@ class TestUserAnalytics:
             response = client.get(TestUserAnalytics.field_hockey_star)
             assert response.status_code == 500
             assert response.json['message'] == 'Unable to reach bCourses'
+
+    def test_sis_enrollment_merge(self, fixture_cohorts, authenticated_response):
+        """merges SIS enrollment data"""
+        burmese = TestUserAnalytics.get_course_for_code(authenticated_response, 'BURMESE 1A')
+        assert len(burmese['sisEnrollments']) == 1
+        assert burmese['sisEnrollments'][0]['ccn'] == 90100
+        assert burmese['sisEnrollments'][0]['displayName'] == 'BURMESE 1A'
+        assert burmese['sisEnrollments'][0]['sectionNumber'] == '001'
+        assert burmese['sisEnrollments'][0]['enrollmentStatus'] == 'E'
+        assert burmese['sisEnrollments'][0]['units'] == 4
+        assert burmese['sisEnrollments'][0]['gradingBasis'] == 'GRD'
+        assert burmese['sisEnrollments'][0]['grade'] == 'B+'
+
+        medieval = TestUserAnalytics.get_course_for_code(authenticated_response, 'MED ST 205')
+        assert len(medieval['sisEnrollments']) == 1
+        assert medieval['sisEnrollments'][0]['ccn'] == 90200
+        assert medieval['sisEnrollments'][0]['displayName'] == 'MED ST 205'
+        assert medieval['sisEnrollments'][0]['sectionNumber'] == '001'
+        assert medieval['sisEnrollments'][0]['enrollmentStatus'] == 'D'
+        assert medieval['sisEnrollments'][0]['units'] == 5
+        assert medieval['sisEnrollments'][0]['gradingBasis'] == 'GRD'
+        assert not medieval['sisEnrollments'][0]['grade']
+
+        nuclear = TestUserAnalytics.get_course_for_code(authenticated_response, 'NUC ENG 124')
+        assert len(nuclear['sisEnrollments']) == 1
+        assert nuclear['sisEnrollments'][0]['ccn'] == 90300
+        assert nuclear['sisEnrollments'][0]['displayName'] == 'NUC ENG 124'
+        assert nuclear['sisEnrollments'][0]['sectionNumber'] == '002'
+        assert nuclear['sisEnrollments'][0]['enrollmentStatus'] == 'E'
+        assert nuclear['sisEnrollments'][0]['units'] == 3
+        assert nuclear['sisEnrollments'][0]['gradingBasis'] == 'PNP'
+        assert nuclear['sisEnrollments'][0]['grade'] == 'P'
+
+    def test_sis_enrollment_not_found(self, fixture_cohorts, authenticated_session, client):
+        """gracefully handles missing SIS data"""
+        sis_error = MockResponse(200, {}, '{"apiResponse": {"response": {"message": "Something unexpected."}}}')
+        with register_mock(sis_enrollments_api.get_enrollments, sis_error):
+            response = client.get(TestUserAnalytics.field_hockey_star)
+            assert response.status_code == 200
+            assert len(response.json['courses']) == 3
+            for course in response.json['courses']:
+                assert not course.get('sisEnrollments')

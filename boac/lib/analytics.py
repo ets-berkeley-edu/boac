@@ -5,31 +5,22 @@ from flask import current_app as app
 import pandas
 
 
-def course_analytics_for_user(uid, canvas_user_id):
-    analytics_per_course = []
-    user_courses = canvas.get_user_courses(app.canvas_instance, uid)
+def merge_analytics_for_user(user_courses, canvas_user_id):
     if user_courses:
         for course in user_courses:
-            course_analytics = {
-                'canvasCourseId': course['id'],
-                'courseName': course['name'],
-                'courseCode': course['course_code'],
-            }
-            student_summaries = canvas.get_student_summaries(app.canvas_instance, course['id'])
+            student_summaries = canvas.get_student_summaries(app.canvas_instance, course['canvasCourseId'])
             if not student_summaries:
-                course_analytics['analytics'] = {'error': 'Unable to retrieve analytics'}
+                course['analytics'] = {'error': 'Unable to retrieve analytics'}
             else:
-                course_analytics['analytics'] = analytics_from_summary_feed(student_summaries, canvas_user_id, course)
-            analytics_per_course.append(course_analytics)
-    return analytics_per_course
+                course['analytics'] = analytics_from_summary_feed(student_summaries, canvas_user_id, course)
 
 
-def mean_course_analytics_for_user(uid, canvas_user_id):
-    courses = course_analytics_for_user(uid, canvas_user_id)
+def mean_course_analytics_for_user(user_courses, canvas_user_id):
+    merge_analytics_for_user(user_courses, canvas_user_id)
     meanValues = {}
     for metric in ['assignmentsOnTime', 'pageViews', 'participations']:
         percentiles = []
-        for course in courses:
+        for course in user_courses:
             if course['analytics'].get(metric):
                 percentile = course['analytics'][metric]['student']['percentile']
                 if percentile and not math.isnan(percentile):
