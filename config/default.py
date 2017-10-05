@@ -32,6 +32,10 @@ DEVELOPER_AUTH_PASSWORD = 'another secret'
 CAS_SERVER = 'https://auth-test.berkeley.edu/cas/'
 CAS_LOGOUT_URL = 'https://auth-test.berkeley.edu/cas/logout'
 
+LDAP_HOST = 'nds-test.berkeley.edu'
+LDAP_BIND = 'mybind'
+LDAP_PASSWORD = 'secret'
+
 # Canvas APIs
 CANVAS_HTTP_SCHEME = 'https'
 CANVAS_HTTP_DOMAIN = 'wottsamatta.instructure.com'
