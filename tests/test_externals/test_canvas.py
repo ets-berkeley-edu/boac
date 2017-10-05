@@ -14,21 +14,21 @@ class TestCanvasGetCourseSections:
     def test_get_course_sections(self, ucb_canvas):
         """returns fixture data"""
         burmese_sections = canvas.get_course_sections(ucb_canvas, 7654320)
-        assert burmese_sections.status_code == 200
-        assert len(burmese_sections.json()) == 2
-        assert burmese_sections.json()[0]['sis_section_id'] == 'SEC:2017-D-90100'
-        assert burmese_sections.json()[1]['sis_section_id'] == 'SEC:2017-D-90101'
+        assert burmese_sections
+        assert len(burmese_sections) == 2
+        assert burmese_sections[0]['sis_section_id'] == 'SEC:2017-D-90100'
+        assert burmese_sections[1]['sis_section_id'] == 'SEC:2017-D-90101'
 
         medieval_sections = canvas.get_course_sections(ucb_canvas, 7654321)
-        assert medieval_sections.status_code == 200
-        assert len(medieval_sections.json()) == 1
-        assert medieval_sections.json()[0]['sis_section_id'] == 'SEC:2017-D-90200'
+        assert medieval_sections
+        assert len(medieval_sections) == 1
+        assert medieval_sections[0]['sis_section_id'] == 'SEC:2017-D-90200'
 
         nuclear_sections = canvas.get_course_sections(ucb_canvas, 7654323)
-        assert nuclear_sections.status_code == 200
-        assert len(nuclear_sections.json()) == 2
-        assert nuclear_sections.json()[0]['sis_section_id'] == 'SEC:2017-D-90299'
-        assert nuclear_sections.json()[1]['sis_section_id'] == 'SEC:2017-D-90300'
+        assert nuclear_sections
+        assert len(nuclear_sections) == 2
+        assert nuclear_sections[0]['sis_section_id'] == 'SEC:2017-D-90299'
+        assert nuclear_sections[1]['sis_section_id'] == 'SEC:2017-D-90300'
 
     def test_course_not_found(self, ucb_canvas, caplog):
         """logs 404 for unknown user and returns informative message"""

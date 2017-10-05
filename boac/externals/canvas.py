@@ -7,9 +7,8 @@ from flask import current_app as app
 
 @fixture('canvas_course_sections_{course_id}')
 def get_course_sections(canvas_instance, course_id, mock=None):
-    url = build_url(canvas_instance, f'/api/v1/courses/{course_id}/sections')
-    with mock(url):
-        return authorized_request(canvas_instance, url)
+    path = f'/api/v1/courses/{course_id}/sections'
+    return paged_request(canvas_instance, path=path, mock=mock)
 
 
 @fixture('canvas_user_for_uid_{uid}')
