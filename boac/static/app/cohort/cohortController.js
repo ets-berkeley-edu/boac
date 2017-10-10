@@ -8,10 +8,20 @@
       cohortFactory.getCohortDetails($stateParams.code).then(function(cohort) {
         $scope.cohort = cohort.data;
 
+        var partitionedMembers = _.partition(cohort.data.members, function(member) {
+          return _.isFinite(_.get(member, 'analytics.pageViews'));
+        });
+        var membersWithData = partitionedMembers[0];
+        $scope.membersWithoutData = partitionedMembers[1];
+
         var svg;
 
         function x(d) { return d.analytics.pageViews; }
-        function y(d) { return d.analytics.assignmentsOnTime; }
+        function y(d) {
+          var assignmentsOnTime = _.get(d, 'analytics.assignmentsOnTime');
+          // Points with no y-axis data are plotted below the x-axis.
+          return _.isFinite(assignmentsOnTime) ? assignmentsOnTime : -10;
+        }
         function key(d) { return d.uid; }
 
         var width = 910;
@@ -116,7 +126,7 @@
           .attr('x', -35)
           .attr('y', -35)
           .attr('width', width + 70)
-          .attr('height', height + 70);
+          .attr('height', height + 120);
 
         svg.append('text')
           .attr('class', 'sample label')
@@ -145,7 +155,7 @@
 
         var dot = dotGroup.attr('class', 'dots')
           .selectAll('.dot')
-          .data(cohort.data.members, key)
+          .data(membersWithData, key)
           .enter().append('circle')
           .attr('class', 'dot')
           .style('fill', function(d) { return avatar(d); })
@@ -156,15 +166,21 @@
           .attr('r', '30');
 
         // Add a title.
+        var displayValue = function(d, prop) {
+          var value = _.get(d, prop);
+          if (!_.isFinite(value)) {
+            return 'No data';
+          }
+          return _.round(value, 1) + ' percentile';
+        };
+
         dot.append('title')
           .text(function(d) {
             return d.name.concat(
               '\nPage views: ',
-              _.round(d.analytics.pageViews, 1),
-              ' percentile',
+              displayValue(d, 'analytics.pageViews'),
               '\nAssignments on time: ',
-              _.round(d.analytics.assignmentsOnTime, 1),
-              ' percentile'
+              displayValue(d, 'analytics.assignmentsOnTime')
             );
           });
 
