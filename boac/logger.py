@@ -1,5 +1,6 @@
 import logging
 from logging.handlers import RotatingFileHandler
+from boac.externals import calnet
 
 
 def initialize_logger(app):
@@ -15,3 +16,4 @@ def initialize_logger(app):
         handler.setLevel(app.config['LOGGING_LEVEL'])
         formatter = logging.Formatter(app.config['LOGGING_FORMAT'])
         handler.setFormatter(formatter)
+    calnet.init_logging(app)

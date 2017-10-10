@@ -1,7 +1,39 @@
 import logging
+import os
 import ssl
+
+from boac.lib import mockingbird
 import ldap3
 import ldap3.utils.log as ldap3_log
+
+SCHEMA_DICT = {
+    'berkeleyEduAffiliations': 'affiliations',
+    'berkeleyEduCSID': 'csid',
+    'berkeleyEduOfficialEmail': 'campus_email',
+    'cn': 'sortable_name',
+    'displayName': 'name',
+    'mail': 'email',
+    'givenName': 'first_name',
+    'sn': 'last_name',
+    'uid': 'uid',
+}
+
+
+def client(app):
+    if mockingbird._environment_supports_mocks():
+        c = MockClient(app)
+    else:
+        c = Client(app)
+    return c
+
+
+def init_logging(app):
+    # For more detail, specify BASIC or NETWORK.
+    ldap3_log.set_library_log_detail_level(ldap3_log.ERROR)
+    logger = logging.getLogger('ldap3')
+    logger.setLevel(logging.DEBUG)
+    for handler in app.logger.handlers:
+        logging.getLogger('ldap3').addHandler(handler)
 
 
 class Client:
@@ -18,28 +50,57 @@ class Client:
         conn = ldap3.Connection(self.server, user=self.bind, password=self.password, auto_bind=ldap3.AUTO_BIND_TLS_BEFORE_BIND)
         return conn
 
-    def cs_ids_filter(self, cs_ids):
-        clauses = ''.join(f'(berkeleyeducsid={id})' for id in cs_ids)
+    def search_csids(self, csids):
+        entries = self._search_csids(csids)
+        out = [_attributes_to_dict(entry) for entry in entries]
+        return out
+
+    def _csids_filter(self, csids):
+        clauses = ''.join(f'(berkeleyeducsid={id})' for id in csids)
         return f'(&(objectclass=person)(|{clauses}))'
 
-    def cs_ids_to_uids(self, cs_ids):
-        map = dict.fromkeys(cs_ids)
-        found = self.search_cs_ids(cs_ids)
-        for entry in found:
-            map[entry.berkeleyEduCSID.value] = entry.uid.value
-        return map
-
-    def search_cs_ids(self, cs_ids):
+    def _search_csids(self, csids):
         with self.connect() as conn:
-            conn.search('ou=people,dc=berkeley,dc=edu', self.cs_ids_filter(cs_ids), attributes=ldap3.ALL_ATTRIBUTES)
+            conn.search('ou=people,dc=berkeley,dc=edu', self._csids_filter(csids), attributes=ldap3.ALL_ATTRIBUTES)
             entries = conn.entries
         return entries
 
 
-def init_logging(app):
-    # For more detail, specify BASIC or NETWORK.
-    ldap3_log.set_library_log_detail_level(ldap3_log.ERROR)
-    logger = logging.getLogger('ldap3')
-    logger.setLevel(logging.DEBUG)
-    for handler in app.logger.handlers:
-        logging.getLogger('ldap3').addHandler(handler)
+class MockClient(Client):
+    def __init__(self, app):
+        self.app = app
+        self.host = app.config['LDAP_HOST']
+        self.bind = app.config['LDAP_BIND']
+        self.password = app.config['LDAP_PASSWORD']
+        server = ldap3.Server.from_definition(self.host, _fixture_path('server_info'), _fixture_path('server_schema'))
+        self.server = server
+
+    def connect(self):
+        conn = ldap3.Connection(self.server, user=self.bind, password=self.password, client_strategy=ldap3.MOCK_SYNC)
+        conn.strategy.entries_from_json(_fixture_path('search_entries'))
+        return conn
+
+
+def _attributes_to_dict(entry):
+    out = dict.fromkeys(SCHEMA_DICT.values(), None)
+    # ldap3's entry.entry_attributes_as_dict would work for us, except that it wraps a single value as a list.
+    for attr in SCHEMA_DICT:
+        if attr in entry.entry_attributes:
+            out[SCHEMA_DICT[attr]] = entry[attr].value
+    return out
+
+
+def _create_fixtures(app, sample_csids):
+    fixture_output = os.environ.get('FIXTURE_OUTPUT_PATH') or mockingbird._get_fixtures_path()
+    cl = Client(app)
+    cl.server.info.to_file(f'{fixture_output}/calnet_server_info.json')
+    cl.server.schema.to_file(f'{fixture_output}/calnet_server_schema.json')
+    conn = cl.connect()
+    conn.search('ou=people,dc=berkeley,dc=edu', cl._csids_filter(sample_csids), attributes=ldap3.ALL_ATTRIBUTES)
+    conn.response_to_file(f'{fixture_output}/calnet_search_entries.json', raw=True)
+    conn.unbind()
+
+
+def _fixture_path(pattern):
+    fixtures_path = mockingbird._get_fixtures_path()
+    return '{}/calnet_{}.json'.format(fixtures_path, pattern)

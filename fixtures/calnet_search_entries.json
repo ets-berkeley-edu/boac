@@ -1,0 +1,153 @@
+{
+    "entries": [
+        {
+            "attributes": {
+                "berkeleyEduAffiliations": [
+                    "AFFILIATE-TYPE-ADVCON-ATTENDEE",
+                    "AFFILIATE-TYPE-ADVCON-STUDENT",
+                    "FORMER-STUDENT"
+                ],
+                "berkeleyEduCSID": "11667051",
+                "berkeleyEduConfidentialFlag": false,
+                "berkeleyEduEmailRelFlag": false,
+                "berkeleyEduExpDate": "2018-05-23 14:16:42+00:00",
+                "berkeleyEduIsMemberOf": [
+                    "cn=edu:berkeley:app:calmessages:affiliates,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:official:all,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:app:auth-cas:auth-default,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:app:auth-cas:webapp-default:webapp-default-base-allow-not-allow,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:app:auth-cas:webapp-default:webapp-default-base-affiliations,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:app:auth-cas:webapp-default:webapp-default-base-plus-allow,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:official:students:summer,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:org:libr:exproxy:ezproxy_allow,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:app:webapp-default:auth-cas:webapp-default-base-affiliations,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:org:libr:exproxy:ezproxy_access,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:app:calmessages-mods:graduate-students:grad-student-mods,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:app:calmessages-mods:graduate-students:grad-student-mods_systemOfRecord,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:app:calmessages-mods:graduate-students:grad-student-mods_systemOfRecordAndIncludes,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:official:all-accounts,ou=campus groups,dc=berkeley,dc=edu"
+                ],
+                "berkeleyEduKerberosPrincipalStringOld": [
+                    "11667051"
+                ],
+                "berkeleyEduModDate": "2016-08-29 14:51:46+00:00",
+                "berkeleyEduOfficialEmail": [
+                    "obear@example.edu"
+                ],
+                "berkeleyEduStuID": "11667051",
+                "cn": [
+                    "Bear, Oski"
+                ],
+                "displayName": "Oski Bear",
+                "givenName": [
+                    "Oski"
+                ],
+                "mail": [
+                    "grrarrrgh@example.com"
+                ],
+                "o": [
+                    "University of California, Berkeley"
+                ],
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [
+                    "people"
+                ],
+                "sn": [
+                    "Bear"
+                ],
+                "uid": [
+                    "61889"
+                ]
+            },
+            "dn": "uid=61889,ou=people,dc=berkeley,dc=edu",
+            "raw": {
+                "berkeleyEduAffiliations": [
+                    "AFFILIATE-TYPE-ADVCON-ATTENDEE",
+                    "AFFILIATE-TYPE-ADVCON-STUDENT",
+                    "FORMER-STUDENT"
+                ],
+                "berkeleyEduCSID": [
+                    "11667051"
+                ],
+                "berkeleyEduConfidentialFlag": [
+                    "false"
+                ],
+                "berkeleyEduEmailRelFlag": [
+                    "false"
+                ],
+                "berkeleyEduExpDate": [
+                    "20180523141642Z"
+                ],
+                "berkeleyEduIsMemberOf": [
+                    "cn=edu:berkeley:app:calmessages:affiliates,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:official:all,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:app:auth-cas:auth-default,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:app:auth-cas:webapp-default:webapp-default-base-allow-not-allow,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:app:auth-cas:webapp-default:webapp-default-base-affiliations,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:app:auth-cas:webapp-default:webapp-default-base-plus-allow,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:official:students:summer,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:org:libr:exproxy:ezproxy_allow,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:app:webapp-default:auth-cas:webapp-default-base-affiliations,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:org:libr:exproxy:ezproxy_access,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:app:calmessages-mods:graduate-students:grad-student-mods,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:app:calmessages-mods:graduate-students:grad-student-mods_systemOfRecord,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:app:calmessages-mods:graduate-students:grad-student-mods_systemOfRecordAndIncludes,ou=campus groups,dc=berkeley,dc=edu",
+                    "cn=edu:berkeley:official:all-accounts,ou=campus groups,dc=berkeley,dc=edu"
+                ],
+                "berkeleyEduKerberosPrincipalStringOld": [
+                    "11667051"
+                ],
+                "berkeleyEduModDate": [
+                    "20160829145146Z"
+                ],
+                "berkeleyEduOfficialEmail": [
+                    "obear@example.edu"
+                ],
+                "berkeleyEduStuID": [
+                    "11667051"
+                ],
+                "cn": [
+                    "Bear, Oski"
+                ],
+                "displayName": [
+                    "Oski Bear"
+                ],
+                "givenName": [
+                    "Oski"
+                ],
+                "mail": [
+                    "grrarrrgh@example.com"
+                ],
+                "o": [
+                    "University of California, Berkeley"
+                ],
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [
+                    "people"
+                ],
+                "sn": [
+                    "Bear"
+                ],
+                "uid": [
+                    "61889"
+                ]
+            }
+        }
+    ]
+}
