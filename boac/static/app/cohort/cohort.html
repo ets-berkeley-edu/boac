@@ -8,6 +8,15 @@
     <div>Loading.... </div>
   </div>
   <div id="scatterplot"></div>
+  <ul data-ng-if="membersWithoutData.length">
+    <h4>Students without graphable data</h4>
+    <li data-ng-repeat="member in membersWithoutData">
+      <a data-ng-href="/student/{{member.uid}}">
+        <img class="cohort-avatar" data-ng-src="{{member.avatar_url}}">
+        <span data-ng-bind="member.name"></span>
+      </a>
+    </li>
+  </ul>
 
   <div class="body-text">
     <h2 data-ng-if="cohort">Students by name</h2>

@@ -28,7 +28,7 @@ def mean_course_analytics_for_user(user_courses, canvas_user_id):
         if len(percentiles):
             meanValues[metric] = mean(percentiles)
         else:
-            meanValues[metric] = 0
+            meanValues[metric] = None
     return meanValues
 
 
