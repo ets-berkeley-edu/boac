@@ -52,6 +52,10 @@ ENROLLMENTS_API_ID = 'secretid'
 ENROLLMENTS_API_KEY = 'secretkey'
 ENROLLMENTS_API_URL = 'https://secreturl.berkeley.edu/enrollments'
 
+STUDENT_API_ID = 'secretid'
+STUDENT_API_KEY = 'secretkey'
+STUDENT_API_URL = 'https://secreturl.berkeley.edu/students'
+
 # Logging
 LOGGING_FORMAT = '[%(asctime)s] - %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
 LOGGING_LOCATION = 'boac.log'
