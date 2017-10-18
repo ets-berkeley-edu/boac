@@ -8,7 +8,7 @@ import pandas
 def merge_analytics_for_user(user_courses, canvas_user_id):
     if user_courses:
         for course in user_courses:
-            student_summaries = canvas.get_student_summaries(app.canvas_instance, course['canvasCourseId'])
+            student_summaries = canvas.get_student_summaries(course['canvasCourseId'])
             if not student_summaries:
                 course['analytics'] = {'error': 'Unable to retrieve analytics'}
             else:

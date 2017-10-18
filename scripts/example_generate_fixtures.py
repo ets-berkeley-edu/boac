@@ -9,7 +9,7 @@ os.environ['FIXTURE_OUTPUT_PATH'] = os.path.expanduser('~/tmp')
 def main(app):
     from boac.externals import canvas
     for uid in range(1, 20):
-        canvas.get_user_for_uid(app.canvas_instance, uid)
+        canvas.get_user_for_uid(uid)
 
 
 main()

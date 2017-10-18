@@ -18,7 +18,7 @@ def user_profile():
     canvas_profile = False
     if current_user.is_active:
         uid = current_user.get_id()
-        canvas_response = canvas.get_user_for_uid(app.canvas_instance, uid)
+        canvas_response = canvas.get_user_for_uid(uid)
         if canvas_response:
             canvas_profile = canvas_response.json()
         elif (canvas_response.raw_response is None) or (canvas_response.raw_response.status_code != 404):
@@ -36,7 +36,7 @@ def user_profile():
 @app.route('/api/user/<uid>/analytics')
 @login_required
 def user_analytics(uid):
-    canvas_profile = canvas.get_user_for_uid(app.canvas_instance, uid)
+    canvas_profile = canvas.get_user_for_uid(uid)
     if not canvas_profile:
         if (canvas_profile.raw_response is not None) and (canvas_profile.raw_response.status_code == 404):
             raise errors.ResourceNotFoundError('No Canvas profile found for user')
@@ -44,7 +44,7 @@ def user_analytics(uid):
             raise errors.InternalServerError('Unable to reach bCourses')
     canvas_id = canvas_profile.json()['id']
 
-    user_courses = canvas.get_user_courses(app.canvas_instance, uid)
+    user_courses = canvas.get_user_courses(uid)
     courses_api_feed = api_util.canvas_courses_api_feed(user_courses)
 
     cohort_data = Cohort.query.filter_by(member_uid=uid).first()
@@ -76,7 +76,7 @@ def merge_sis_enrollments(canvas_course_sites, cs_id, term_id):
 
     for site in canvas_course_sites:
         site['sisEnrollments'] = []
-        sections = canvas.get_course_sections(app.canvas_instance, site['canvasCourseId'])
+        sections = canvas.get_course_sections(site['canvasCourseId'])
         if not sections:
             continue
         for section in sections:
