@@ -25,11 +25,11 @@ def main(app):
         for row in reader:
             uid = row[uid_index]
 
-            user_for_uid = canvas.get_user_for_uid(app.canvas_instance, uid)
+            user_for_uid = canvas.get_user_for_uid(uid)
             if not user_for_uid:
                 failures['user_for_uid'].append(uid)
 
-            user_courses = canvas.get_user_courses(app.canvas_instance, uid)
+            user_courses = canvas.get_user_courses(uid)
             if not user_courses:
                 failures['user_courses'].append(uid)
                 continue
@@ -38,7 +38,7 @@ def main(app):
                 if os.path.isfile(f"{os.environ['FIXTURE_OUTPUT_PATH']}/canvas_student_summaries_for_course_{course['id']}.json"):
                     print(f"Fixture already present for course {course['id']}, skipping")
                 else:
-                    student_summaries = canvas.get_student_summaries(app.canvas_instance, course['id'])
+                    student_summaries = canvas.get_student_summaries(course['id'])
                     if not student_summaries:
                         failures['student_summaries'].append(course['id'])
 

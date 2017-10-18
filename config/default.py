@@ -37,8 +37,7 @@ LDAP_BIND = 'mybind'
 LDAP_PASSWORD = 'secret'
 
 # Canvas APIs
-CANVAS_HTTP_SCHEME = 'https'
-CANVAS_HTTP_DOMAIN = 'wottsamatta.instructure.com'
+CANVAS_HTTP_URL = 'https://wottsamatta.instructure.com'
 CANVAS_HTTP_TOKEN = 'yet another secret'
 
 CANVAS_CURRENT_ENROLLMENT_TERM = 5493

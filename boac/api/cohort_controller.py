@@ -23,11 +23,11 @@ def cohort_details(cohort_code):
     if cohort is None:
         cohort = Cohort.for_code(cohort_code)
         for member in cohort['members']:
-            canvas_profile = canvas.get_user_for_uid(app.canvas_instance, member['uid'])
+            canvas_profile = canvas.get_user_for_uid(member['uid'])
             if canvas_profile:
                 profile_json = canvas_profile.json()
                 member['avatar_url'] = profile_json['avatar_url']
-                canvas_courses = canvas_courses_api_feed(canvas.get_user_courses(app.canvas_instance, member['uid']))
+                canvas_courses = canvas_courses_api_feed(canvas.get_user_courses(member['uid']))
                 if canvas_courses:
                     member['analytics'] = mean_course_analytics_for_user(canvas_courses, profile_json['id'])
         if app.cache:

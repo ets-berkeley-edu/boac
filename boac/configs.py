@@ -15,7 +15,6 @@ def load_configs(app):
     load_module_config(app, app_env)
     load_local_config(app, '{}-local.py'.format(app_env))
     app.config['BOAC_ENV'] = app_env
-    app.canvas_instance = CanvasInstance(app)
 
 
 def load_module_config(app, config_name):
@@ -30,10 +29,3 @@ def load_local_config(app, config_name):
     configs_location = os.environ.get('BOAC_LOCAL_CONFIGS') or '../config'
     config_path = configs_location + '/' + config_name
     app.config.from_pyfile(config_path, silent=True)
-
-
-class CanvasInstance(object):
-    def __init__(self, app):
-        self.scheme = app.config['CANVAS_HTTP_SCHEME']
-        self.domain = app.config['CANVAS_HTTP_DOMAIN']
-        self.token = app.config['CANVAS_HTTP_TOKEN']

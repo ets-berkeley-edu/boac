@@ -1,3 +1,5 @@
+import urllib
+
 from flask import current_app as app
 from flask import Response
 import requests
@@ -11,6 +13,19 @@ class ResponseExceptionWrapper:
 
     def __bool__(self):
         return False
+
+
+def build_url(url, query=None):
+    encoded_query = urllib.parse.urlencode(query, doseq=True) if query else ''
+    url_components = urllib.parse.urlparse(url)
+    return urllib.parse.urlunparse([
+        url_components.scheme,
+        url_components.netloc,
+        urllib.parse.quote(url_components.path),
+        '',
+        encoded_query,
+        '',
+    ])
 
 
 def get_next_page(response):

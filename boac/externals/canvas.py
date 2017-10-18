@@ -1,28 +1,26 @@
-import urllib
-
 from boac.lib import http
 from boac.lib.mockingbird import fixture
 from flask import current_app as app
 
 
 @fixture('canvas_course_sections_{course_id}')
-def get_course_sections(canvas_instance, course_id, mock=None):
+def get_course_sections(course_id, mock=None):
     path = f'/api/v1/courses/{course_id}/sections'
-    return paged_request(canvas_instance, path=path, mock=mock)
+    return paged_request(path=path, mock=mock)
 
 
 @fixture('canvas_user_for_uid_{uid}')
-def get_user_for_uid(canvas_instance, uid, mock=None):
-    url = build_url(canvas_instance, f'/api/v1/users/sis_login_id:{uid}')
+def get_user_for_uid(uid, mock=None):
+    url = build_url(f'/api/v1/users/sis_login_id:{uid}')
     with mock(url):
-        return authorized_request(canvas_instance, url)
+        return authorized_request(url)
 
 
 @fixture('canvas_user_courses_{uid}')
-def get_user_courses(canvas_instance, uid, mock=None):
+def get_user_courses(uid, mock=None):
     path = f'/api/v1/users/sis_login_id:{uid}/courses'
     query = {'include': ['term']}
-    response = paged_request(canvas_instance, path=path, query=query, mock=mock)
+    response = paged_request(path=path, query=query, mock=mock)
     if not response:
         return response
 
@@ -38,41 +36,33 @@ def get_user_courses(canvas_instance, uid, mock=None):
 
 
 @fixture('canvas_student_summaries_for_course_{course_id}')
-def get_student_summaries(canvas_instance, course_id, mock=None):
+def get_student_summaries(course_id, mock=None):
     path = f'/api/v1/courses/{course_id}/analytics/student_summaries'
-    return paged_request(canvas_instance, path=path, mock=mock)
+    return paged_request(path=path, mock=mock)
 
 
-def build_url(canvas_instance, path, query=None):
-    encoded_query = urllib.parse.urlencode(query, doseq=True) if query else ''
-    return urllib.parse.urlunparse([
-        canvas_instance.scheme,
-        canvas_instance.domain,
-        urllib.parse.quote(path),
-        '',
-        encoded_query,
-        '',
-    ])
+def build_url(path, query=None):
+    working_url = app.config['CANVAS_HTTP_URL'] + path
+    return http.build_url(working_url, query)
 
 
-def authorized_request(canvas_instance, url):
-    auth_headers = {'Authorization': 'Bearer {}'.format(canvas_instance.token)}
+def authorized_request(url):
+    auth_headers = {'Authorization': 'Bearer {}'.format(app.config['CANVAS_HTTP_TOKEN'])}
     return http.request(url, auth_headers)
 
 
-def paged_request(canvas_instance, path, mock, query=None):
+def paged_request(path, mock, query=None):
     if query is None:
         query = {}
     query['per_page'] = 100
     url = build_url(
-        canvas_instance,
         path,
         query,
     )
     results = []
     while url:
         with mock(url):
-            response = authorized_request(canvas_instance, url)
+            response = authorized_request(url)
             if not response:
                 return response
             results.extend(response.json())
