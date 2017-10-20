@@ -1,0 +1,33 @@
+version: 0.2
+
+eb_codebuild_settings:
+  CodeBuildServiceRole: arn:aws:iam::234923831700:role/service-role/codebuild-boac-service-role
+  ComputeType: BUILD_GENERAL1_MEDIUM
+  Image: aws/codebuild/python:3.6.2
+  Timeout: 60
+
+phases:
+  install:
+    commands:
+      - npm install -g bower
+  pre_build:
+    commands:
+      - echo "pre_build phase"
+  build:
+    commands:
+      - pip install -r requirements.txt
+      - bower install
+  post_build:
+    commands:
+      - echo "post_build phase"
+
+artifacts:
+  files:
+  - '.ebextensions'
+  - 'app'
+  - 'boac'
+  - 'config'
+  - 'fixtures'
+  - 'requirements.txt'
+  - 'run.py'
+  - 'scripts'
