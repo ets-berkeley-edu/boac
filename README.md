@@ -12,7 +12,7 @@ bCourses offers analytic choices.
 
 ### Install back-end
 
-`pip install -r requirements.txt`
+`pip3 install -r requirements.txt`
 
 ### Install front-end dependencies
 
