@@ -22,11 +22,11 @@ phases:
 
 artifacts:
   files:
-  - '.ebextensions'
-  - 'app'
-  - 'boac'
-  - 'config'
-  - 'fixtures'
+  - '.ebextensions/**/*'
+  - 'app/**/*'
+  - 'boac/**/*'
+  - 'config/**/*'
+  - 'fixtures/**/*'
   - 'requirements.txt'
   - 'run.py'
-  - 'scripts'
+  - 'scripts/**/*'
