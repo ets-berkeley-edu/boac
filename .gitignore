@@ -1,6 +1,11 @@
 # IDE-created directories
 .idea
 
+# Elastic Beanstalk files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
 # Front-end dependencies
 boac/static/lib
 
