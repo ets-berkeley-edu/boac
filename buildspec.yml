@@ -22,11 +22,14 @@ phases:
 
 artifacts:
   files:
+  - '.bowerrc'
   - '.ebextensions/**/*'
   - 'app/**/*'
   - 'boac/**/*'
+  - 'bower.json'
   - 'config/**/*'
   - 'fixtures/**/*'
+  - 'package.json'
   - 'requirements.txt'
   - 'run.py'
   - 'scripts/**/*'
