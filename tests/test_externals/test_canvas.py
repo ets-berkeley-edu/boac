@@ -25,22 +25,18 @@ class TestCanvasGetCourseSections:
         assert nuclear_sections[1]['sis_section_id'] == 'SEC:2017-D-90300'
 
     def test_course_not_found(self, app, caplog):
-        """logs 404 for unknown user and returns informative message"""
+        """logs 404 for unknown course"""
         response = canvas.get_course_sections(9999999)
         assert 'HTTP/1.1" 404' in caplog.text
         assert not response
-        assert response.raw_response.status_code == 404
-        assert response.raw_response.json()['message']
 
     def test_server_error(self, app, caplog):
-        """logs unexpected server errors and returns informative message"""
+        """logs unexpected server errors"""
         canvas_error = MockResponse(500, {}, '{"message": "Internal server error."}')
-        with register_mock(canvas.get_course_sections, canvas_error):
-            response = canvas.get_course_sections(7654320)
+        with register_mock(canvas._get_course_sections, canvas_error):
+            response = canvas._get_course_sections(7654320)
             assert 'HTTP/1.1" 500' in caplog.text
             assert not response
-            assert response.raw_response.status_code == 500
-            assert response.raw_response.json()['message']
 
 
 class TestCanvasGetUserForUid:
@@ -84,7 +80,7 @@ class TestCanvasGetUserCourses:
 
     def test_get_courses(self, app):
         """returns a well-formed response"""
-        courses = canvas.get_user_courses(61889)
+        courses = canvas.get_student_courses_in_term(61889)
         assert courses
         assert len(courses) == 3
         assert courses[0]['id'] == 7654320
@@ -99,35 +95,31 @@ class TestCanvasGetUserCourses:
 
     def test_student_enrollments(self, app):
         """returns only enrollments of type 'student'"""
-        courses = canvas.get_user_courses(61889)
+        courses = canvas.get_student_courses_in_term(61889)
         for course in courses:
             assert course['enrollments'][0]['type'] == 'student'
 
     def test_current_term(self, app):
         """returns only enrollments in current term"""
-        courses = canvas.get_user_courses(61889)
+        courses = canvas.get_student_courses_in_term(61889)
         for course in courses:
             assert course['enrollment_term_id'] == app.config.get('CANVAS_CURRENT_ENROLLMENT_TERM')
             assert course['term']['id'] == course['enrollment_term_id']
             assert course['term']['name'] == 'Fall 2017'
 
     def test_user_not_found(self, app, caplog):
-        """logs 404 for unknown user and returns wrapped exception"""
-        courses = canvas.get_user_courses(9999999)
+        """logs 404 for unknown user"""
+        courses = canvas.get_student_courses_in_term(9999999)
         assert 'HTTP/1.1" 404' in caplog.text
         assert not courses
-        assert courses.raw_response.status_code == 404
-        assert courses.raw_response.json()['message']
 
     def test_server_error(self, app, caplog):
-        """logs unexpected server errors and returns wrapped exception"""
+        """logs unexpected server errors"""
         canvas_error = MockResponse(503, {}, '{"message": "Server at capacity, go away."}')
-        with register_mock(canvas.get_user_courses, canvas_error):
-            courses = canvas.get_user_courses(61889)
+        with register_mock(canvas._get_all_user_courses, canvas_error):
+            courses = canvas._get_all_user_courses(61889)
             assert 'HTTP/1.1" 503' in caplog.text
             assert not courses
-            assert courses.raw_response.status_code == 503
-            assert courses.raw_response.json()['message']
 
 
 class TestCanvasGetStudentSummariesForCourse:
@@ -144,19 +136,15 @@ class TestCanvasGetStudentSummariesForCourse:
         assert student_summaries[729]['page_views'] == 400
 
     def test_course_not_found(self, app, caplog):
-        """logs 404 for unknown course and returns wrapped exception"""
+        """logs 404 for unknown course"""
         student_summaries = canvas.get_student_summaries(9999999)
         assert 'HTTP/1.1" 404' in caplog.text
         assert not student_summaries
-        assert student_summaries.raw_response.status_code == 404
-        assert student_summaries.raw_response.json()['message']
 
     def test_server_error(self, app, caplog):
-        """logs unexpected server errors and returns wrapped exception"""
+        """logs unexpected server errors"""
         canvas_error = MockResponse(503, {}, '{"message": "Server at capacity, go away."}')
-        with register_mock(canvas.get_student_summaries, canvas_error):
-            student_summaries = canvas.get_student_summaries(7654321)
+        with register_mock(canvas._get_student_summaries, canvas_error):
+            student_summaries = canvas._get_student_summaries(7654321)
             assert 'HTTP/1.1" 503' in caplog.text
             assert not student_summaries
-            assert student_summaries.raw_response.status_code == 503
-            assert student_summaries.raw_response.json()['message']

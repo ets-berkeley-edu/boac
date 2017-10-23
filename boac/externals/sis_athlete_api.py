@@ -1,20 +1,34 @@
 """Official access to team memberships"""
 
 from boac.lib import http
+from boac.models.json_cache import stow
 from flask import current_app as app
 
 
+@stow('athletes_team_{sport}')
 def get_team(sport):
     url = f"{app.config['ATHLETE_API_URL']}/sport/{sport}"
-    return authorized_request(url)
+    response = authorized_request(url)
+    if response and hasattr(response, 'json'):
+        return response.json().get('apiResponse', {}).get('response', {}).get('athletes', {}).get('athlete', [])
+    else:
+        return
 
 
+@stow('athletes_sports')
 def list_sports():
     query = {
         'field-name': 'athleteSport.sport',
     }
     url = http.build_url(f"{app.config['ATHLETE_API_URL']}/descriptors", query)
-    return authorized_request(url)
+    response = authorized_request(url)
+    if response and hasattr(response, 'json'):
+        unwrapped = response.json().get('apiResponse', {}).get('response', {}).get('fieldValueLists', {}).get('fieldValueLists', [])
+        if unwrapped:
+            unwrapped = unwrapped[0].get('fieldValues', [])
+        return unwrapped
+    else:
+        return
 
 
 def authorized_request(url):

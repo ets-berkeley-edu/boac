@@ -63,6 +63,9 @@ def db_session(db, request):
     Fixture database session used for the scope of a single test. All executions are wrapped
     in a transaction and then rolled back to keep individual tests isolated.
     """
+    # Mixing SQL-using test fixtures with SQL-using decorators can trigger not-yet-diagnosed
+    # freezes in Flask-SQLAlchemy due to DB session debris.
+    db.session.rollback()
     connection = db.engine.connect()
     transaction = connection.begin()
     options = dict(bind=connection, binds={})

@@ -8,6 +8,9 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 # Directory to search for mock fixtures, if running in "test" or "demo" mode.
 FIXTURES_PATH = None
 
+# Save DB changes at the end of a request.
+SQLALCHEMY_COMMIT_ON_TEARDOWN = True
+
 # Disable an expensive bit of the ORM.
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 

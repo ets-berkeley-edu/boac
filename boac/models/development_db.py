@@ -3,6 +3,7 @@ from boac import db
 from boac.models.authorized_user import AuthorizedUser
 # Needed for db.create_all to find the model.
 from boac.models.cohort import Cohort # noqa
+from boac.models.json_cache import JsonCache # noqa
 
 
 def clear():

@@ -44,7 +44,7 @@ def user_analytics(uid):
             raise errors.InternalServerError('Unable to reach bCourses')
     canvas_id = canvas_profile.json()['id']
 
-    user_courses = canvas.get_user_courses(uid)
+    user_courses = canvas.get_student_courses_in_term(uid)
     courses_api_feed = api_util.canvas_courses_api_feed(user_courses)
 
     cohort_data = Cohort.query.filter_by(member_uid=uid).first()
@@ -70,7 +70,7 @@ def merge_sis_enrollments(canvas_course_sites, cs_id, term_id):
     # app config. Once we start grabbing multiple terms, we'll need additional sorting logic.
     enrollments = sis_enrollments_api.get_enrollments(cs_id, term_id)
     if enrollments:
-        enrollments = enrollments.json().get('apiResponse', {}).get('response', {}).get('studentEnrollments', [])
+        enrollments = enrollments.get('studentEnrollments', [])
     else:
         return
 
