@@ -3,6 +3,7 @@ Flask-Login
 Flask-SQLAlchemy
 SQLAlchemy
 cx_Oracle
+decorator
 ldap3
 names
 pandas

@@ -21,7 +21,7 @@ def main(app):
         csid_index = headers.index('member_csid')
         for row in reader:
             csid = row[csid_index]
-            response = sis_student_api.get_student(csid)
+            response = sis_student_api._get_student(csid)
             if response:
                 success_count += 1
             else:

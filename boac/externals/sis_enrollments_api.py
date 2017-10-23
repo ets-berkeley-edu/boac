@@ -2,11 +2,21 @@
 
 from boac.lib import http
 from boac.lib.mockingbird import fixture
+from boac.models.json_cache import stow
 from flask import current_app as app
 
 
+@stow('sis_enrollments_api_{cs_id}_{term_id}', for_term=True)
+def get_enrollments(cs_id, term_id):
+    response = _get_enrollments(cs_id, term_id)
+    if response and hasattr(response, 'json'):
+        return response.json().get('apiResponse', {}).get('response', {})
+    else:
+        return
+
+
 @fixture('sis_enrollments_api_{cs_id}_{term_id}')
-def get_enrollments(cs_id, term_id, mock=None):
+def _get_enrollments(cs_id, term_id, mock=None):
     query = {
         'term-id': term_id,
         'primary-only': 'true',

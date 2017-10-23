@@ -166,7 +166,7 @@ class TestUserAnalytics:
     def test_sis_enrollment_not_found(self, fixture_cohorts, authenticated_session, client):
         """gracefully handles missing SIS data"""
         sis_error = MockResponse(200, {}, '{"apiResponse": {"response": {"message": "Something unexpected."}}}')
-        with register_mock(sis_enrollments_api.get_enrollments, sis_error):
+        with register_mock(sis_enrollments_api._get_enrollments, sis_error):
             response = client.get(TestUserAnalytics.field_hockey_star)
             assert response.status_code == 200
             assert len(response.json['courses']) == 3
