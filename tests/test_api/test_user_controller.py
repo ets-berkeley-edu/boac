@@ -1,5 +1,4 @@
-import boac.externals.canvas as canvas
-import boac.externals.sis_enrollments_api as sis_enrollments_api
+from boac.externals import canvas, sis_enrollments_api, sis_student_api
 from boac.lib.mockingbird import MockResponse, register_mock
 import pytest
 
@@ -164,7 +163,7 @@ class TestUserAnalytics:
         assert nuclear['sisEnrollments'][0]['grade'] == 'P'
 
     def test_sis_enrollment_not_found(self, fixture_cohorts, authenticated_session, client):
-        """gracefully handles missing SIS data"""
+        """gracefully handles missing SIS enrollments"""
         sis_error = MockResponse(200, {}, '{"apiResponse": {"response": {"message": "Something unexpected."}}}')
         with register_mock(sis_enrollments_api._get_enrollments, sis_error):
             response = client.get(TestUserAnalytics.field_hockey_star)
@@ -172,3 +171,40 @@ class TestUserAnalytics:
             assert len(response.json['courses']) == 3
             for course in response.json['courses']:
                 assert not course.get('sisEnrollments')
+
+    def test_sis_profile(self, fixture_cohorts, authenticated_response):
+        """provides SIS profile data"""
+        sis_profile = authenticated_response.json['sisProfile']
+        assert sis_profile['cumulativeGPA'] == 3.8
+        assert sis_profile['cumulativeUnits'] == 73
+        assert sis_profile['degreeProgress']['americanCultures'] is True
+        assert sis_profile['degreeProgress']['americanHistory'] is True
+        assert sis_profile['degreeProgress']['americanInstitutions'] is True
+        assert sis_profile['degreeProgress']['entryLevelWriting'] is True
+        assert sis_profile['degreeProgress']['foreignLanguage'] is True
+        assert sis_profile['emailAddress'] == 'oski@berkeley.edu'
+        assert sis_profile['level']['code'] == '30'
+        assert sis_profile['level']['description'] == 'Junior'
+        assert sis_profile['phoneNumber'] == '415/123-4567'
+        assert sis_profile['plan']['description'] == 'English BA'
+        assert sis_profile['plan']['fromDate'] == '2016-01-12'
+        assert sis_profile['preferredName'] == 'Osk Bear'
+        assert sis_profile['primaryName'] == 'Oski Bear'
+
+    def test_sis_profile_unexpected_payload(self, fixture_cohorts, authenticated_session, client):
+        """gracefully handles unexpected SIS profile data"""
+        sis_response = MockResponse(200, {}, '{"apiResponse": {"response": {"message": "Something wicked."}}}')
+        with register_mock(sis_student_api._get_student, sis_response):
+            response = client.get(TestUserAnalytics.field_hockey_star)
+            assert response.status_code == 200
+            assert response.json['canvasProfile']
+            assert response.json['sisProfile']['error'] == 'Unable to reach SIS Student API'
+
+    def test_sis_profile_error(self, fixture_cohorts, authenticated_session, client):
+        """gracefully handles SIS profile error"""
+        sis_error = MockResponse(500, {}, '{"message": "Internal server error."}')
+        with register_mock(sis_student_api._get_student, sis_error):
+            response = client.get(TestUserAnalytics.field_hockey_star)
+            assert response.status_code == 200
+            assert response.json['canvasProfile']
+            assert response.json['sisProfile']['error'] == 'Unable to reach SIS Student API'
