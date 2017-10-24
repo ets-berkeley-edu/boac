@@ -501,6 +501,42 @@
                 }
               },
               {
+                "type": {
+                  "code": "AHI1",
+                  "description": "Amer Hist & Inst High School"
+                },
+                "reason": {},
+                "fromDate": "2017-02-15",
+                "comments": ""
+              },
+              {
+                "type": {
+                  "code": "ELW",
+                  "description": "ELW Satisfied Pre-Matric"
+                },
+                "reason": {},
+                "fromDate": "2017-05-08",
+                "comments": ""
+              },
+              {
+                "type": {
+                  "code": "VLFL",
+                  "description": "Foreign Language - LS1"
+                },
+                "reason": {},
+                "fromDate": "2017-02-15",
+                "comments": ""
+              },
+              {
+                "type": {
+                  "code": "VAC",
+                  "description": "American Cultures"
+                },
+                "reason": {},
+                "fromDate": "2017-07-01",
+                "comments": ""
+              },
+              {
                 "comments": "",
                 "fromDate": "2017-08-08",
                 "reason": {},

@@ -1,12 +1,10 @@
-import re
-
 from boac.api import errors
 import boac.api.util as api_util
 from boac.externals import canvas
-from boac.externals import sis_enrollments_api
 from boac.lib.analytics import merge_analytics_for_user
 from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.http import tolerant_jsonify
+from boac.lib.merged import merge_sis_enrollments, merge_sis_profile
 from boac.models.cohort import Cohort
 
 from flask import current_app as app
@@ -55,38 +53,15 @@ def user_analytics(uid):
     merge_analytics_for_user(courses_api_feed, canvas_id)
 
     if cohort_data:
+        sis_profile = merge_sis_profile(cohort_data.member_csid)
         cohort_data = cohort_data.to_api_json()
+    else:
+        sis_profile = False
 
     return tolerant_jsonify({
         'uid': uid,
         'canvasProfile': canvas_profile.json(),
         'cohortData': cohort_data,
         'courses': courses_api_feed,
+        'sisProfile': sis_profile,
     })
-
-
-def merge_sis_enrollments(canvas_course_sites, cs_id, term_id):
-    # TODO For the moment, we're returning Canvas courses only for the current term as defined in
-    # app config. Once we start grabbing multiple terms, we'll need additional sorting logic.
-    enrollments = sis_enrollments_api.get_enrollments(cs_id, term_id)
-    if enrollments:
-        enrollments = enrollments.get('studentEnrollments', [])
-    else:
-        return
-
-    for site in canvas_course_sites:
-        site['sisEnrollments'] = []
-        sections = canvas.get_course_sections(site['canvasCourseId'])
-        if not sections:
-            continue
-        for section in sections:
-            ccn_match = re.match(r'\ASEC:20\d{2}-[BCD]-(\d{5})\Z', section.get('sis_section_id'))
-            if ccn_match:
-                canvas_ccn = ccn_match.group(1)
-            if not canvas_ccn:
-                continue
-            for enrollment in enrollments:
-                sis_ccn = str(enrollment.get('classSection', {}).get('id'))
-                if canvas_ccn == sis_ccn:
-                    site['sisEnrollments'].append(api_util.sis_enrollment_api_feed(enrollment))
-                    break
