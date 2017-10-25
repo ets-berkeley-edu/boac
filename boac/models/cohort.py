@@ -14,21 +14,23 @@ class Cohort(Base):
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)
     code = db.Column(db.String(255), nullable=False)
-    member_uid = db.Column(db.String(80), nullable=False)
-    member_csid = db.Column(db.String(80))
+    member_uid = db.Column(db.String(80))
+    member_csid = db.Column(db.String(80), nullable=False)
     member_name = db.Column(db.String(255))
-    UniqueConstraint('code', 'member_uid', name='cohort_membership')
-
-    def __init__(self, code, member_uid, member_csid=None, member_name=None):
-        self.code = code
-        self.member_uid = member_uid
-        self.member_csid = member_csid
-        self.member_name = member_name
+    asc_sport_code_core = db.Column(db.String(80))
+    asc_sport_code = db.Column(db.String(80))
+    asc_sport = db.Column(db.String(80))
+    asc_sport_core = db.Column(db.String(80))
+    UniqueConstraint('code', 'member_csid', name='cohort_membership')
 
     def __repr__(self):
-        return '<Cohort {} ({}), uid={}, csid={}, name={}, updated={}, created={}>'.format(
+        return '<Cohort {} ({}), asc_sport {} ({}), asc_sport_core {} ({}), uid={}, csid={}, name={}, updated={}, created={}>'.format(
             self.cohort_definitions.get(self.code),
             self.code,
+            self.asc_sport,
+            self.asc_sport_code,
+            self.asc_sport_core,
+            self.asc_sport_code_core,
             self.member_uid,
             self.member_csid,
             self.member_name,

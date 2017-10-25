@@ -10,7 +10,7 @@ class TestMerged:
         for member in members:
             member.member_uid = None
             member.member_name = None
-        subject.refresh_cohort_attributes(app, members)
+        subject.refresh_cohort_attributes_from_calnet(app, members)
         for member in members:
             assert member.member_csid in original_csids
             # For this test, assume that there are no blank attributes.

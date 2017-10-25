@@ -18,6 +18,8 @@ SCHEMA_DICT = {
     'uid': 'uid',
 }
 
+BATCH_QUERY_MAXIMUM = 500
+
 
 def client(app):
     if mockingbird._environment_supports_mocks():
@@ -51,9 +53,13 @@ class Client:
         return conn
 
     def search_csids(self, csids):
-        entries = self._search_csids(csids)
-        out = [_attributes_to_dict(entry) for entry in entries]
-        return out
+        all_out = []
+        for i in range(0, len(csids), BATCH_QUERY_MAXIMUM):
+            csids_batch = csids[i:i + BATCH_QUERY_MAXIMUM]
+            entries = self._search_csids(csids_batch)
+            out = [_attributes_to_dict(entry) for entry in entries]
+            all_out += out
+        return all_out
 
     def _csids_filter(self, csids):
         clauses = ''.join(f'(berkeleyeducsid={id})' for id in csids)

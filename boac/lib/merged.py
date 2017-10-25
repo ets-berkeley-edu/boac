@@ -1,5 +1,6 @@
 import re
 
+from boac import db
 import boac.api.util as api_util
 from boac.externals import calnet, canvas, sis_enrollments_api, sis_student_api
 from boac.models.cohort import Cohort
@@ -134,17 +135,36 @@ def merge_sis_profile_phones(sis_response, sis_profile):
     sis_profile['phoneNumber'] = phones_by_code.get('CELL') or phones_by_code.get('LOCL') or phones_by_code.get('HOME')
 
 
-def refresh_cohort_attributes(app, cohorts=None):
+def refresh_cohort_attributes_from_calnet(app, cohorts=None):
     members = cohorts or Cohort.query.all()
+    # Students who play more than one sport will have multiple cohort records.
+    member_map = {}
+    for m in members:
+        member_map.setdefault(m.member_csid, []).append(m)
+    csids = list(member_map.keys())
+
     # Search LDAP.
-    csids = [member.member_csid for member in members]
-    member_map = {member.member_csid: member for member in members}
     all_attrs = calnet.client(app).search_csids(csids)
+    if len(csids) != len(all_attrs):
+        app.logger.warning('Looked for {} CSIDS but only found {}'.format(
+            len(csids),
+            len(all_attrs),
+        ))
+
+    # Update the DB.
     for attrs in all_attrs:
-        csid = attrs.get('csid', None)
-        # If LDAP didn't find this csid, skip it.
-        if csid:
-            member = member_map[csid]
-            member.member_uid = attrs['uid']
-            member.member_name = attrs['name']
-    return cohorts
+        # Since we searched LDAP by CSID, we can be fairly sure that the results have CSIDs.
+        csid = attrs['csid']
+        for m in member_map[csid]:
+            m.member_uid = attrs['uid']
+            # A manually-entered ASC name may be more nicely formatted than a student's CalNet default.
+            # For now, don't overwrite it.
+            m.member_name = m.member_name or attrs['sortable_name']
+    return members
+
+
+def fill_cohort_uids_from_calnet(app):
+    to_update = Cohort.query.filter(Cohort.member_uid.is_(None)).all()
+    refresh_cohort_attributes_from_calnet(app, to_update)
+    db.session.commit()
+    return to_update
