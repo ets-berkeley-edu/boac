@@ -18,7 +18,7 @@ def cohorts_list():
 @app.route('/api/cohort/<cohort_code>')
 @login_required
 def cohort_details(cohort_code):
-    cache_key = f'cohort/{cohort_code}'
+    cache_key = 'cohort/{cohort_code}'.format(cohort_code=cohort_code)
     cohort = app.cache.get(cache_key) if (app.cache) else None
     if cohort is None:
         cohort = Cohort.for_code(cohort_code)

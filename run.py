@@ -14,15 +14,18 @@ Usage mode B:
 
 from boac.factory import create_app
 
-app = create_app()
+application = create_app()
 
 
-@app.cli.command()
+@application.cli.command()
 def initdb():
     from boac.models import development_db
     development_db.load()
 
 
 if __name__ == '__main__':
-    app.logger.info('BOAC server running on http://%s:%s !', app.config['HOST'], app.config['PORT'])
-    app.run(host=app.config['HOST'], port=app.config['PORT'])
+    host = application.config['HOST']
+    port = application.config['PORT']
+
+    application.logger.info('BOAC server running on http://%s:%s !', host, port)
+    application.run(host=host, port=port)

@@ -35,8 +35,8 @@ def main(app):
                 continue
 
             for course in user_courses:
-                if os.path.isfile(f"{os.environ['FIXTURE_OUTPUT_PATH']}/canvas_student_summaries_for_course_{course['id']}.json"):
-                    print(f"Fixture already present for course {course['id']}, skipping")
+                if os.path.isfile('{path}/canvas_student_summaries_for_course_{id}.json'.format(path=os.environ['FIXTURE_OUTPUT_PATH'], id=course['id'])):
+                    print('Fixture already present for course {id}, skipping'.format(id=course['id']))
                 else:
                     student_summaries = canvas._get_student_summaries(course['id'])
                     if not student_summaries:

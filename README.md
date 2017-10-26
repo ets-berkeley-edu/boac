@@ -24,7 +24,10 @@ bCourses offers analytic choices.
 createuser boac --no-createdb --no-superuser --no-createrole --pwprompt
 createdb boac --owner=boac
 createdb boac_test --owner=boac
-# TODO psql boac < scripts/db/schema.sql
+
+# Load schema
+export FLASK_APP=run.py
+flask initdb
 ```
 
 ### Create local configurations

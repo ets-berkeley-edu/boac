@@ -29,7 +29,7 @@ class JsonCache(Base):
 
 def clear(key_like):
     matches = db.session.query(JsonCache).filter(JsonCache.key.like(key_like))
-    app.logger.info(f'Will delete {matches.count()} entries matching {key_like}')
+    app.logger.info('Will delete {matches.count()} entries matching {key_like}'.format(matches=matches.count(), key_like=key_like))
     matches.delete(synchronize_session=False)
 
 
@@ -44,18 +44,18 @@ def stow(key_pattern, for_term=False):
         key = _format_from_args(func, key_pattern, *args, **kw)
         if for_term:
             term_id = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
-            key = f'term_{term_id}-{key}'
+            key = 'term_{term_id}-{key}'.format(term_id=term_id, key=key)
         stowed = JsonCache.query.filter_by(key=key).first()
         if stowed:
             return stowed.json
         else:
-            app.logger.info(f'{key} not found in DB')
+            app.logger.info('{key} not found in DB'.format(key=key))
             to_stow = func(*args, **kw)
             if to_stow is not None:
                 row = JsonCache(key=key, json=to_stow)
                 db.session.add(row)
             else:
-                app.logger.info(f'{key} not generated and will not be stowed in DB')
+                app.logger.info('{key} not generated and will not be stowed in DB'.format(key=key))
             return to_stow
     return _stow
 
