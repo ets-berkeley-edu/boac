@@ -48,24 +48,33 @@ def merge_sis_profile(csid):
 
 
 def merge_sis_profile_academic_status(sis_response, sis_profile):
-    for academic_status in sis_response.get('academicStatuses', []):
-        sis_profile['cumulativeGPA'] = academic_status.get('cumulativeGPA', {}).get('average')
-        sis_profile['level'] = academic_status.get('currentRegistration', {}).get('academicLevel', {}).get('level')
+    academic_statuses = sis_response.get('academicStatuses', [])
+    if len(academic_statuses):
+        academic_status = academic_statuses[0]
+    else:
+        return
 
-        for units in academic_status.get('cumulativeUnits', []):
-            if units.get('type', {}).get('code') == 'Total':
-                sis_profile['cumulativeUnits'] = units.get('unitsPassed')
-                break
+    sis_profile['cumulativeGPA'] = academic_status.get('cumulativeGPA', {}).get('average')
+    sis_profile['level'] = academic_status.get('currentRegistration', {}).get('academicLevel', {}).get('level')
 
-        try:
-            student_plan = next(plan for plan in academic_status.get('studentPlans', []) if plan.get('primary'))
-            plan = student_plan.get('academicPlan', {}).get('plan', {})
-            sis_profile['plan'] = {
-                'description': plan.get('description'),
-                'fromDate': plan.get('fromDate'),
-            }
-        except StopIteration:
-            pass
+    for units in academic_status.get('cumulativeUnits', []):
+        if units.get('type', {}).get('code') == 'Total':
+            sis_profile['cumulativeUnits'] = units.get('unitsPassed')
+            break
+
+    try:
+        student_plan = next(plan for plan in academic_status.get('studentPlans', []) if plan.get('primary'))
+        plan = student_plan.get('academicPlan', {}).get('plan', {})
+        sis_profile['plan'] = {
+            'description': plan.get('description'),
+        }
+        # Add program and date unless plan code indicates undeclared.
+        if plan.get('code') != '25000U':
+            sis_profile['plan']['fromDate'] = plan.get('fromDate')
+            program = student_plan.get('academicPlan', {}).get('academicProgram', {}).get('program', {})
+            sis_profile['plan']['program'] = program.get('description')
+    except StopIteration:
+        pass
 
 
 def merge_sis_profile_degree_progress(sis_response, sis_profile):
