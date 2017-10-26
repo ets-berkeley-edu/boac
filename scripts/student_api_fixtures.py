@@ -27,9 +27,9 @@ def main(app):
             else:
                 failures.append(csid)
 
-    print(f'Complete. Generated fixtures for {success_count} CSIDs.')
+    print('Complete. Generated fixtures for {success_count} CSIDs.'.format(success_count=success_count))
     if len(failures):
-        print(f'Failed to generate fixtures for {len(failures)} CSIDs:')
+        print('Failed to generate fixtures for {count} CSIDs:'.format(count=len(failures)))
         print(failures)
 
 
