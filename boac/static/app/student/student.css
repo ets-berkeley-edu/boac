@@ -1,7 +1,122 @@
-.profile-summary-avatar {
-  max-height: 200px;
+.student-profile-avatar {
+  background: #fff;
+  border-radius: 50px;
+  border: 4px solid #999;
+  height: 100px;
+  margin: 20px;
+  max-height: 100px;
+  width: 100px;
 }
 
 .student-enrollment-details {
   margin-bottom: 20px;
+}
+
+.student-profile-body {
+  display: flex;
+}
+
+.student-profile-class-title {
+  font-size: 18px;
+}
+
+.student-profile-classes {
+  flex: 1;
+  margin: 20px;
+}
+
+.student-profile-classes-header {
+  font-size: 30px;
+  font-weight: 400;
+  margin: 0 0 5px 0;
+}
+
+.student-profile-header {
+  background-color: #eee;
+  display: flex;
+  margin: 10px 0;
+}
+
+.student-profile-header-contact {
+  margin: 20px 0;
+  flex: 1;
+}
+
+.student-profile-header-name {
+  font-size: 24px;
+  margin: 0 0 5px 0;
+}
+
+.student-profile-header-name-preferred {
+  font-size: 20px;
+  font-weight: 400;
+  margin: 0 0 10px 0;
+}
+
+.student-profile-header-status-box {
+  background: #fff;
+  border: solid 1px #999;
+  border-radius: 10px;
+  font-size: 20px;
+  font-weight: 400;
+  margin: 15 10px;
+  padding: 10px 15px;
+  text-align: center;
+}
+
+.student-profile-header-status-legend {
+  color: #999;
+  font-size: 13px;
+  font-weight: 300;
+  text-transform: uppercase;
+}
+
+.student-profile-header-status-number {
+  font-size: 42px;
+  line-height: 1.2em;
+}
+
+.student-profile-sidebar {
+  margin: 20px;
+}
+
+.student-profile-sidebar-box {
+  background-color: #eee;
+  border: 1px solid #ccc;
+  margin-bottom: 20px;
+  padding: 10px;
+  width: 250px;
+}
+
+.student-profile-sidebar-details {
+  color: #999;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.student-profile-sidebar-header {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 5px 0;
+}
+
+.student-profile-sidebar-icon {
+  color: #999;
+  padding-right: 4px;
+}
+
+.student-profile-sidebar-table {
+  font-size: 12px;
+  line-height: 1.2em;
+  margin: 10px 0;
+  width: 100%;
+}
+
+.student-profile-sidebar-table td {
+  padding: 3px 0;
+  white-space: nowrap;
+}
+
+.student-profile-sidebar-table th {
+  padding: 15px 0 3px 0;
 }

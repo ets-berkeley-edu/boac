@@ -1,61 +1,151 @@
 <div data-ng-include="'/static/app/shared/header.html'"></div>
 
-<div div class="container" data-ng-if="!me.authenticated_as.is_authenticated">
+<div class="container" data-ng-if="!me.authenticated_as.is_authenticated">
   <div>Please sign in.</div>
 </div>
 <div class="container" data-ng-if="me.authenticated_as.is_authenticated">
-  <div class="container-left" data-ng-if="!student.isLoading && !error">
-    <img class="profile-summary-avatar" data-ng-src="{{student.canvasProfile.avatar_url}}" data-ng-if="student.canvasProfile.avatar_url"/>
-    <h1 data-ng-bind="student.cohortData.name"></h1>
-    <div data-ng-if="student.courses.length">
-      <div data-ng-repeat="course in student.courses">
-        <h2 data-ng-bind="course.courseCode"></h2>
-        <div class="student-enrollment-details" data-ng-repeat="enrolledSection in course.sisEnrollments">
-          <span data-ng-switch="enrolledSection.enrollmentStatus">
-            <span data-ng-switch-when="E">Enrolled in</span>
-            <span data-ng-switch-when="W">Waitlisted in</span>
-            <span data-ng-switch-when="D">Dropped</span>
-          </span>
-          section <span data-ng-bind="enrolledSection.sectionNumber"></span>
-          (<span data-ng-bind="enrolledSection.units"></span> units,
-          <span data-ng-bind="enrolledSection.gradingBasis"></span> grading basis)
-          <div data-ng-if="enrolledSection.grade">
-            <strong>Grade: <span data-ng-bind="enrolledSection.grade"></span></strong>
-          </div>
-        </div>
-        <ul>
-          <li>
-            Assignments on time:
-            <span data-ng-bind="percentile(course.analytics.assignmentsOnTime)"></span>
-            <div class="boxplot-container" data-ng-if="course.analytics.assignmentsOnTime.student.percentile">
-              <div id="boxplot-{{course.canvasCourseId}}-assignmentsOnTime"
-                   class="boxplot"
-                   data-ng-init="drawBoxplot(course.canvasCourseId, 'assignmentsOnTime')"></div>
-            </div>
-          </li>
-          <li>
-            Page views:
-            <span data-ng-bind="percentile(course.analytics.pageViews)"></span>
-            <div class="boxplot-container" data-ng-if="course.analytics.pageViews.student.percentile">
-              <div id="boxplot-{{course.canvasCourseId}}-pageViews"
-                   class="boxplot"
-                   data-ng-init="drawBoxplot(course.canvasCourseId, 'pageViews')"></div>
-            </div>
-          </li>
-          <li>
-            Participations:
-            <span data-ng-bind="percentile(course.analytics.participations)"></span>
-            <div class="boxplot-container" data-ng-if="course.analytics.participations.student.percentile">
-              <div id="boxplot-{{course.canvasCourseId}}-participations"
-                   class="boxplot"
-                   data-ng-init="drawBoxplot(course.canvasCourseId, 'participations')"></div>
-            </div>
-          </li>
-        </ul>
+  <div data-ng-if="!student.isLoading && !error">
+    <div class="student-profile-header">
+      <div class="student-profile-avatar-container">
+        <img class="student-profile-avatar" data-ng-src="{{student.canvasProfile.avatar_url}}" data-ng-if="student.canvasProfile.avatar_url"/>
+      </div>
+      <div class="student-profile-header-contact">
+        <h1 class="student-profile-header-name" data-ng-bind="student.sisProfile.primaryName"></h1>
+        <h2 class="student-profile-header-name-preferred" data-ng-bind="student.sisProfile.preferredName"></h2>
+        <a data-ng-href="mailto:{{student.sisProfile.emailAddress}}" data-ng-bind="student.sisProfile.emailAddress"></a>
+        <div data-ng-bind="student.sisProfile.phoneNumber"></div>
+      </div>
+      <div class="student-profile-header-status-box">
+        <div class="student-profile-header-status-number" data-ng-bind="student.sisProfile.cumulativeUnits"></div>
+        <div class="student-profile-header-status-legend">Total Units</div>
+      </div>
+      <div class="student-profile-header-status-box">
+        <div class="student-profile-header-status-number" data-ng-bind="student.sisProfile.cumulativeGPA || '--'"></div>
+        <div class="student-profile-header-status-legend">Cumulative GPA</div>
       </div>
     </div>
-    <div data-ng-if="!student.courses.length">
-      No courses
+    <div class="student-profile-body">
+      <div class="student-profile-sidebar">
+        <div class="student-profile-sidebar-box">
+          <h3 class="student-profile-sidebar-header" data-ng-bind="student.sisProfile.plan.description">Declared Major</h3>
+          <div class="student-profile-sidebar-details">
+            <div data-ng-bind="student.sisProfile.plan.program" data-ng-if="student.sisProfile.plan.program"></div>
+            <div data-ng-if="student.sisProfile.plan.fromDate">
+              Declared <span data-ng-bind="student.sisProfile.plan.fromDate"></span>
+            </div>
+          </div>
+          <h3 class="student-profile-sidebar-header" data-ng-bind="student.sisProfile.level.description"></h3>
+        </div>
+        <div class="student-profile-sidebar-box">
+          <h3 class="student-profile-sidebar-header">Degree Progress</h3>
+          <table class="student-profile-sidebar-table">
+            <tr>
+              <th>University Requirements</th>
+              <th>Status</th>
+            </tr>
+            <tr>
+              <td>Entry Level Writing</td>
+              <td data-ng-if="student.sisProfile.degreeProgress.entryLevelWriting">
+                <i class="fa fa-check student-profile-sidebar-icon"></i> Satisfied
+              </td>
+              <td data-ng-if="!student.sisProfile.degreeProgress.entryLevelWriting">
+                <i class="fa fa-exclamation-triangle student-profile-sidebar-icon"></i> Not Satisfied
+              </td>
+            </tr>
+            <tr>
+              <td>American History</td>
+              <td data-ng-if="student.sisProfile.degreeProgress.americanHistory">
+                <i class="fa fa-check student-profile-sidebar-icon"></i> Satisfied
+              </td>
+              <td data-ng-if="!student.sisProfile.degreeProgress.americanHistory">
+                <i class="fa fa-exclamation-triangle student-profile-sidebar-icon"></i> Not Satisfied
+              </td>
+            </tr>
+            <tr>
+              <td>American Institutions</td>
+              <td data-ng-if="student.sisProfile.degreeProgress.americanInstitutions">
+                <i class="fa fa-check student-profile-sidebar-icon"></i> Satisfied
+              </td>
+              <td data-ng-if="!student.sisProfile.degreeProgress.americanInstitutions">
+                <i class="fa fa-exclamation-triangle student-profile-sidebar-icon"></i> Not Satisfied
+              </td>
+            </tr>
+            <tr>
+              <td>American Cultures</td>
+              <td data-ng-if="student.sisProfile.degreeProgress.americanCultures">
+                <i class="fa fa-check student-profile-sidebar-icon"></i> Satisfied
+              </td>
+              <td data-ng-if="!student.sisProfile.degreeProgress.americanCultures">
+                <i class="fa fa-exclamation-triangle student-profile-sidebar-icon"></i> Not Satisfied
+              </td>
+            </tr>
+            <tr>
+              <th>Letters &amp; Sciences Requirements</th>
+              <th>Status</th>
+            </tr>
+            <tr>
+              <td>Foreign Language</td>
+              <td data-ng-if="student.sisProfile.degreeProgress.foreignLanguage">
+                <i class="fa fa-check student-profile-sidebar-icon"></i> Satisfied
+              </td>
+              <td data-ng-if="!student.sisProfile.degreeProgress.foreignLanguage">
+                <i class="fa fa-exclamation-triangle student-profile-sidebar-icon"></i> Not Satisfied
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="student-profile-classes" data-ng-if="student.courses.length">
+        <h2 class="student-profile-classes-header">Classes</h2>
+        <div data-ng-repeat="course in student.courses">
+          <h3 class="student-profile-class-title" data-ng-bind="course.courseCode"></h3>
+          <div class="student-enrollment-details" data-ng-repeat="enrolledSection in course.sisEnrollments">
+            <span data-ng-switch="enrolledSection.enrollmentStatus">
+              <span data-ng-switch-when="E">Enrolled in</span>
+              <span data-ng-switch-when="W">Waitlisted in</span>
+              <span data-ng-switch-when="D">Dropped</span>
+            </span>
+            section <span data-ng-bind="enrolledSection.sectionNumber"></span>
+            (<span data-ng-bind="enrolledSection.units"></span> units,
+            <span data-ng-bind="enrolledSection.gradingBasis"></span> grading basis)
+            <div data-ng-if="enrolledSection.grade">
+              <strong>Grade: <span data-ng-bind="enrolledSection.grade"></span></strong>
+            </div>
+          </div>
+          <ul>
+            <li>
+              Assignments on time:
+              <span data-ng-bind="percentile(course.analytics.assignmentsOnTime)"></span>
+              <div class="boxplot-container" data-ng-if="course.analytics.assignmentsOnTime.student.percentile">
+                <div id="boxplot-{{course.canvasCourseId}}-assignmentsOnTime"
+                     class="boxplot"
+                     data-ng-init="drawBoxplot(course.canvasCourseId, 'assignmentsOnTime')"></div>
+              </div>
+            </li>
+            <li>
+              Page views:
+              <span data-ng-bind="percentile(course.analytics.pageViews)"></span>
+              <div class="boxplot-container" data-ng-if="course.analytics.pageViews.student.percentile">
+                <div id="boxplot-{{course.canvasCourseId}}-pageViews"
+                     class="boxplot"
+                     data-ng-init="drawBoxplot(course.canvasCourseId, 'pageViews')"></div>
+              </div>
+            </li>
+            <li>
+              Participations:
+              <span data-ng-bind="percentile(course.analytics.participations)"></span>
+              <div class="boxplot-container" data-ng-if="course.analytics.participations.student.percentile">
+                <div id="boxplot-{{course.canvasCourseId}}-participations"
+                     class="boxplot"
+                     data-ng-init="drawBoxplot(course.canvasCourseId, 'participations')"></div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="student-profile-classes" data-ng-if="!student.courses.length">
+        No courses
+      </div>
     </div>
   </div>
   <div class="container-left" data-ng-if="!student.isLoading && error">

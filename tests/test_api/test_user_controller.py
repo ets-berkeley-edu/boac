@@ -170,6 +170,7 @@ class TestUserAnalytics:
         assert sis_profile['phoneNumber'] == '415/123-4567'
         assert sis_profile['plan']['description'] == 'English BA'
         assert sis_profile['plan']['fromDate'] == '2016-01-12'
+        assert sis_profile['plan']['program'] == 'Undergrad Letters & Science'
         assert sis_profile['preferredName'] == 'Osk Bear'
         assert sis_profile['primaryName'] == 'Oski Bear'
 
