@@ -43,7 +43,7 @@ LDAP_PASSWORD = 'secret'
 CANVAS_HTTP_URL = 'https://wottsamatta.instructure.com'
 CANVAS_HTTP_TOKEN = 'yet another secret'
 
-CANVAS_CURRENT_ENROLLMENT_TERM = 5493
+CANVAS_CURRENT_ENROLLMENT_TERM = 'Fall 2017'
 
 # SIS APIs
 ATHLETE_API_ID = 'secretid'

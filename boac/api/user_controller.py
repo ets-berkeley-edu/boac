@@ -18,8 +18,8 @@ def user_profile():
         uid = current_user.get_id()
         canvas_response = canvas.get_user_for_uid(uid)
         if canvas_response:
-            canvas_profile = canvas_response.json()
-        elif (canvas_response.raw_response is None) or (canvas_response.raw_response.status_code != 404):
+            canvas_profile = canvas_response
+        elif canvas_response is None:
             canvas_profile = {
                 'error': 'Unable to reach bCourses',
             }
@@ -35,12 +35,11 @@ def user_profile():
 @login_required
 def user_analytics(uid):
     canvas_profile = canvas.get_user_for_uid(uid)
-    if not canvas_profile:
-        if (canvas_profile.raw_response is not None) and (canvas_profile.raw_response.status_code == 404):
-            raise errors.ResourceNotFoundError('No Canvas profile found for user')
-        else:
-            raise errors.InternalServerError('Unable to reach bCourses')
-    canvas_id = canvas_profile.json()['id']
+    if canvas_profile is False:
+        raise errors.ResourceNotFoundError('No Canvas profile found for user')
+    elif not canvas_profile:
+        raise errors.InternalServerError('Unable to reach bCourses')
+    canvas_id = canvas_profile['id']
 
     user_courses = canvas.get_student_courses_in_term(uid)
     courses_api_feed = api_util.canvas_courses_api_feed(user_courses)
@@ -60,7 +59,7 @@ def user_analytics(uid):
 
     return tolerant_jsonify({
         'uid': uid,
-        'canvasProfile': canvas_profile.json(),
+        'canvasProfile': canvas_profile,
         'cohortData': cohort_data,
         'courses': courses_api_feed,
         'sisProfile': sis_profile,

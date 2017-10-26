@@ -36,10 +36,7 @@ def merge_sis_enrollments(canvas_course_sites, cs_id, term_id):
 def merge_sis_profile(csid):
     sis_response = sis_student_api.get_student(csid)
     if not sis_response:
-        if hasattr(sis_response, 'raw_response') and sis_response.raw_response.status_code == 404:
-            return {'error': 'No SIS profile found for user'}
-        else:
-            return {'error': 'Unable to reach SIS Student API'}
+        return False
 
     sis_profile = {}
     merge_sis_profile_academic_status(sis_response, sis_profile)
