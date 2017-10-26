@@ -25,11 +25,10 @@ def cohort_details(cohort_code):
         for member in cohort['members']:
             canvas_profile = canvas.get_user_for_uid(member['uid'])
             if canvas_profile:
-                profile_json = canvas_profile.json()
-                member['avatar_url'] = profile_json['avatar_url']
+                member['avatar_url'] = canvas_profile['avatar_url']
                 canvas_courses = canvas_courses_api_feed(canvas.get_student_courses_in_term(member['uid']))
                 if canvas_courses:
-                    member['analytics'] = mean_course_analytics_for_user(canvas_courses, profile_json['id'])
+                    member['analytics'] = mean_course_analytics_for_user(canvas_courses, canvas_profile['id'])
         if app.cache:
             app.cache.set(cache_key, cohort)
     return tolerant_jsonify(cohort)

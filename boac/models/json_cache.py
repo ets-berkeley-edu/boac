@@ -43,8 +43,11 @@ def stow(key_pattern, for_term=False):
     def _stow(func, *args, **kw):
         key = _format_from_args(func, key_pattern, *args, **kw)
         if for_term:
-            term_id = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
-            key = 'term_{term_id}-{key}'.format(term_id=term_id, key=key)
+            term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
+            key = 'term_{}-{}'.format(
+                term_name,
+                key,
+            )
         stowed = JsonCache.query.filter_by(key=key).first()
         if stowed:
             return stowed.json

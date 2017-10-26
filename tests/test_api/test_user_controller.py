@@ -1,4 +1,4 @@
-from boac.externals import canvas, sis_enrollments_api, sis_student_api
+from boac.externals import sis_enrollments_api, sis_student_api
 from boac.lib.mockingbird import MockResponse, register_mock
 import pytest
 
@@ -20,16 +20,6 @@ class TestUserProfile:
         assert response.json['uid'] == test_uid
         assert response.json['canvas_profile'] is False
 
-    def test_profile_includes_message_if_canvas_failure(self, client, fake_auth):
-        test_uid = '1133399'
-        fake_auth.login(test_uid)
-        canvas_error = MockResponse(500, {}, '{"message": "Internal server error."}')
-        with register_mock(canvas.get_user_for_uid, canvas_error):
-            response = client.get('/api/profile')
-            assert response.status_code == 200
-            assert response.json['uid'] == test_uid
-            assert response.json['canvas_profile']['error']
-
     def test_includes_canvas_profile_if_available(self, client, fake_auth):
         test_uid = '2040'
         fake_auth.login(test_uid)
@@ -44,6 +34,8 @@ class TestUserAnalytics:
     field_hockey_star = api_path.format(61889)
     non_student_uid = 2040
     non_student = api_path.format(non_student_uid)
+    unknown_uid = 9999999
+    unknown = api_path.format(unknown_uid)
 
     @pytest.fixture()
     def authenticated_session(self, fake_auth):
@@ -116,19 +108,9 @@ class TestUserAnalytics:
 
     def test_canvas_profile_not_found(self, authenticated_session, client):
         """returns 404 if Canvas profile not found"""
-        canvas_error = MockResponse(404, {}, '{"message": "Resource not found."}')
-        with register_mock(canvas.get_user_for_uid, canvas_error):
-            response = client.get(TestUserAnalytics.field_hockey_star)
-            assert response.status_code == 404
-            assert response.json['message'] == 'No Canvas profile found for user'
-
-    def test_canvas_unreachable(self, authenticated_session, client):
-        """returns 500 if Canvas unreachable"""
-        canvas_error = MockResponse(500, {}, '{"message": "Internal server error."}')
-        with register_mock(canvas.get_user_for_uid, canvas_error):
-            response = client.get(TestUserAnalytics.field_hockey_star)
-            assert response.status_code == 500
-            assert response.json['message'] == 'Unable to reach bCourses'
+        response = client.get(TestUserAnalytics.unknown)
+        assert response.status_code == 404
+        assert response.json['message'] == 'No Canvas profile found for user'
 
     def test_sis_enrollment_merge(self, fixture_cohorts, authenticated_response):
         """merges SIS enrollment data"""
@@ -198,7 +180,7 @@ class TestUserAnalytics:
             response = client.get(TestUserAnalytics.field_hockey_star)
             assert response.status_code == 200
             assert response.json['canvasProfile']
-            assert response.json['sisProfile']['error'] == 'Unable to reach SIS Student API'
+            assert not response.json['sisProfile']
 
     def test_sis_profile_error(self, fixture_cohorts, authenticated_session, client):
         """gracefully handles SIS profile error"""
@@ -207,4 +189,4 @@ class TestUserAnalytics:
             response = client.get(TestUserAnalytics.field_hockey_star)
             assert response.status_code == 200
             assert response.json['canvasProfile']
-            assert response.json['sisProfile']['error'] == 'Unable to reach SIS Student API'
+            assert not response.json['sisProfile']
