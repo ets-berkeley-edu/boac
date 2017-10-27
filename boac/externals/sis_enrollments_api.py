@@ -12,7 +12,10 @@ def get_enrollments(cs_id, term_id):
     if response and hasattr(response, 'json'):
         return response.json().get('apiResponse', {}).get('response', {})
     else:
-        return
+        if hasattr(response, 'raw_response') and response.raw_response.status_code == 404:
+            return False
+        else:
+            return None
 
 
 @fixture('sis_enrollments_api_{cs_id}_{term_id}')
