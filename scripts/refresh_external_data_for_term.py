@@ -48,10 +48,11 @@ def load_sis_externals(sis_term_id, csid):
             csid,
         ))
 
-    if sis_enrollments_api.get_enrollments(csid, sis_term_id):
+    enrollments = sis_enrollments_api.get_enrollments(csid, sis_term_id)
+    if enrollments:
         success_count += 1
-    else:
-        failures.append('SIS get_student failed for CSID {}, sis_term_id {}'.format(
+    elif enrollments is None:
+        failures.append('SIS get_enrollments failed for CSID {}, sis_term_id {}'.format(
             csid,
             sis_term_id,
         ))
