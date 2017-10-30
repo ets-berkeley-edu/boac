@@ -9,7 +9,7 @@ class TestCanvasGetCourseSections:
         """returns fixture data"""
         burmese_sections = canvas.get_course_sections(7654320)
         assert burmese_sections
-        assert len(burmese_sections) == 2
+        assert len(burmese_sections) == 3
         assert burmese_sections[0]['sis_section_id'] == 'SEC:2017-D-90100'
         assert burmese_sections[1]['sis_section_id'] == 'SEC:2017-D-90101'
 
