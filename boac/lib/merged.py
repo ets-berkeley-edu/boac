@@ -3,7 +3,7 @@ import re
 from boac import db
 import boac.api.util as api_util
 from boac.externals import calnet, canvas, sis_enrollments_api, sis_student_api
-from boac.models.cohort import Cohort
+from boac.models.team import Team
 
 
 def merge_sis_enrollments(canvas_course_sites, cs_id, term_id):
@@ -145,8 +145,8 @@ def merge_sis_profile_phones(sis_response, sis_profile):
 
 
 def refresh_cohort_attributes_from_calnet(app, cohorts=None):
-    members = cohorts or Cohort.query.all()
-    # Students who play more than one sport will have multiple cohort records.
+    members = cohorts or Team.query.all()
+    # Students who play more than one sport will have multiple team records.
     member_map = {}
     for m in members:
         member_map.setdefault(m.member_csid, []).append(m)
@@ -173,7 +173,7 @@ def refresh_cohort_attributes_from_calnet(app, cohorts=None):
 
 
 def fill_cohort_uids_from_calnet(app):
-    to_update = Cohort.query.filter(Cohort.member_uid.is_(None)).all()
+    to_update = Team.query.filter(Team.member_uid.is_(None)).all()
     refresh_cohort_attributes_from_calnet(app, to_update)
     db.session.commit()
     return to_update

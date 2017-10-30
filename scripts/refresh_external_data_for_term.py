@@ -62,7 +62,7 @@ def load_sis_externals(sis_term_id, csid):
 def main(app):
     from boac import db
     from boac.lib import berkeley
-    from boac.models.cohort import Cohort
+    from boac.models.team import Team
 
     global success_count, failures
 
@@ -71,7 +71,7 @@ def main(app):
 
     # Currently, all external data is loaded starting from the individuals who belong
     # to one or more Cohorts.
-    for csid, uid in db.session.query(Cohort.member_csid, Cohort.member_uid).distinct():
+    for csid, uid in db.session.query(Team.member_csid, Team.member_uid).distinct():
         load_canvas_externals(uid)
         load_sis_externals(sis_term_id, csid)
 
