@@ -50,11 +50,13 @@ def stow(key_pattern, for_term=False):
             )
         stowed = JsonCache.query.filter_by(key=key).first()
         if stowed:
+            app.logger.debug('Returning stowed JSON for key {key}'.format(key=key))
             return stowed.json
         else:
             app.logger.info('{key} not found in DB'.format(key=key))
             to_stow = func(*args, **kw)
             if to_stow is not None:
+                app.logger.debug('Will stow JSON for key {key}'.format(key=key))
                 row = JsonCache(key=key, json=to_stow)
                 db.session.add(row)
             else:
