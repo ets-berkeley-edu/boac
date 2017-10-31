@@ -1,5 +1,5 @@
 from boac.models import authorized_user
-from flask import make_response
+from flask import make_response, request
 import flask_login
 
 
@@ -33,3 +33,14 @@ def register_routes(app):
     @app.route('/<path:path>')
     def front_end_route(**kwargs):
         return make_response(open('boac/templates/index.html').read())
+
+    @app.after_request
+    def log_api_requests(response):
+        if request.full_path.startswith('/api'):
+            app.logger.debug(' '.join([
+                request.remote_addr,
+                request.method,
+                request.full_path,
+                response.status,
+            ]))
+        return response

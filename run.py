@@ -20,7 +20,7 @@ from boac.factory import create_app
 # When running under WSGI, system environment variables are not automatically made available to Python code, and
 # an app restart will result in configurations being lost. We work around this with an explicit load from the shell
 # environment, sourcing from the Elastic Beanstalk-provided /opt/python/current/env file if available.
-if os.environ.get('HOME') == '/home/wsgi':
+if __name__.startswith('_mod_wsgi'):
     command = ['bash', '-c', '{ source /opt/python/current/env || true; } && env']
     shell_environment = subprocess.Popen(command, stdout=subprocess.PIPE)
     for line in shell_environment.stdout:
@@ -36,9 +36,11 @@ def initdb():
     development_db.load()
 
 
-if __name__ == '__main__':
-    host = application.config['HOST']
-    port = application.config['PORT']
+host = application.config['HOST']
+port = application.config['PORT']
 
-    application.logger.info('BOAC server running on http://%s:%s !', host, port)
+if __name__ == '__main__':
+    application.logger.info('Starting development server on %s:%s', host, port)
     application.run(host=host, port=port)
+elif __name__.startswith('_mod_wsgi'):
+    application.logger.info('Will start WSGI server on %s:%s', host, port)

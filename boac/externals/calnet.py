@@ -1,10 +1,8 @@
-import logging
 import os
 import ssl
 
 from boac.lib import mockingbird
 import ldap3
-import ldap3.utils.log as ldap3_log
 
 SCHEMA_DICT = {
     'berkeleyEduAffiliations': 'affiliations',
@@ -27,15 +25,6 @@ def client(app):
     else:
         c = Client(app)
     return c
-
-
-def init_logging(app):
-    # For more detail, specify BASIC or NETWORK.
-    ldap3_log.set_library_log_detail_level(ldap3_log.ERROR)
-    logger = logging.getLogger('ldap3')
-    logger.setLevel(logging.DEBUG)
-    for handler in app.logger.handlers:
-        logging.getLogger('ldap3').addHandler(handler)
 
 
 class Client:
