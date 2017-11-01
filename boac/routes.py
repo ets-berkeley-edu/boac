@@ -37,10 +37,16 @@ def register_routes(app):
     @app.after_request
     def log_api_requests(response):
         if request.full_path.startswith('/api'):
-            app.logger.debug(' '.join([
+            log_message = ' '.join([
                 request.remote_addr,
                 request.method,
                 request.full_path,
                 response.status,
-            ]))
+            ])
+            if response.status_code >= 500:
+                app.logger.error(log_message)
+            elif response.status_code >= 400:
+                app.logger.warning(log_message)
+            else:
+                app.logger.debug(log_message)
         return response
