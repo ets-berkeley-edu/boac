@@ -9,7 +9,7 @@
       analyticsFactory.analyticsPerUser($stateParams.uid).then(function(analytics) {
         $scope.student = analytics.data;
       }).catch(function(error) {
-        $scope.error = _.truncate(error.message, {length: 200});
+        $scope.error = _.truncate(error.data.message, {length: 200}) || 'An unexpected server error occurred.';
       }).then(function() {
         $scope.student.isLoading = false;
       });
