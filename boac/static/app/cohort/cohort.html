@@ -4,27 +4,32 @@
   <h1 data-ng-bind="cohort.name"></h1>
 
   <h2>Student Performance Assessment Graph</h2>
-  <div class="container" data-ng-if="!cohort">
-    <div>Loading.... </div>
+  <div class="container" data-ng-if="errored">
+    There was an error retrieving cohort data.
+  </div>
+  <div class="container" data-ng-if="!errored && !cohort">
+    Loading....
   </div>
   <div id="scatterplot"></div>
-  <ul data-ng-if="membersWithoutData.length">
-    <h4>Students without graphable data</h4>
-    <li data-ng-repeat="member in membersWithoutData">
-      <a data-ng-href="/student/{{member.uid}}">
-        <img class="cohort-avatar" data-ng-src="{{member.avatar_url}}">
-        <span data-ng-bind="member.name"></span>
-      </a>
-    </li>
-  </ul>
+  <div class="container" data-ng-if="!errored && cohort">
+    <ul data-ng-if="membersWithoutData.length">
+      <h4>Students without graphable data</h4>
+      <li data-ng-repeat="member in membersWithoutData">
+        <a data-ng-href="/student/{{member.uid}}">
+          <img class="cohort-avatar" data-ng-src="{{member.avatar_url}}">
+          <span data-ng-bind="member.name"></span>
+        </a>
+      </li>
+    </ul>
 
-  <div class="body-text">
-    <h2 data-ng-if="cohort">Students by name</h2>
-      <ul>
-        <li data-ng-repeat="member in cohort.members">
-          <a data-ng-bind="member.name" data-ng-href="/student/{{member.uid}}"></a>
-        </li>
-      </ul>
+    <div class="body-text">
+      <h2 data-ng-if="cohort">Students by name</h2>
+        <ul>
+          <li data-ng-repeat="member in cohort.members">
+            <a data-ng-bind="member.name" data-ng-href="/student/{{member.uid}}"></a>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </div>
