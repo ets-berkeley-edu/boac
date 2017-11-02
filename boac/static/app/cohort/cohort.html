@@ -1,35 +1,50 @@
 <div data-ng-include="'/static/app/shared/header.html'"></div>
 
 <div class="container">
-  <h1 data-ng-bind="cohort.name"></h1>
-
-  <h2>Student Performance Assessment Graph</h2>
   <div class="container" data-ng-if="errored">
     There was an error retrieving cohort data.
   </div>
   <div class="container" data-ng-if="!errored && !cohort">
     Loading....
   </div>
-  <div id="scatterplot"></div>
-  <div class="container" data-ng-if="!errored && cohort">
-    <ul data-ng-if="membersWithoutData.length">
-      <h4>Students without graphable data</h4>
-      <li data-ng-repeat="member in membersWithoutData">
-        <a data-ng-href="/student/{{member.uid}}">
-          <img class="cohort-avatar" data-ng-src="{{member.avatar_url}}">
-          <span data-ng-bind="member.name"></span>
-        </a>
-      </li>
-    </ul>
-
-    <div class="body-text">
-      <h2 data-ng-if="cohort">Students by name</h2>
+  <div class="container" data-ng-show="!errored && cohort">
+    <h1>
+      <span data-ng-bind="cohort.members.length"></span> Results Found
+    </h1>
+    <div class="btn-group cohort-tab-selection" role="group" aria-label="Select results view">
+      <button type="button"
+              class="btn btn-secondary cohort-tab-button"
+              data-ng-class="{'cohort-tab-button-selected': selectedTab==='list'}"
+              data-ng-click="selectedTab='list'">
+        <i class="fa fa-list"></i> List
+      </button>
+      <button type="button"
+              class="btn btn-secondary cohort-tab-button"
+              data-ng-class="{'cohort-tab-button-selected': selectedTab==='matrix'}"
+              data-ng-click="selectedTab='matrix'">
+        <i class="fa fa-table"></i> Matrix
+      </button>
+    </div>
+    <div data-ng-show="selectedTab === 'list'">
+      <div class="body-text">
         <ul>
           <li data-ng-repeat="member in cohort.members">
             <a data-ng-bind="member.name" data-ng-href="/student/{{member.uid}}"></a>
           </li>
         </ul>
       </div>
+    </div>
+    <div data-ng-show="selectedTab === 'matrix'">
+      <div id="scatterplot"></div>
+      <ul data-ng-if="membersWithoutData.length">
+        <h4>Students without graphable data</h4>
+        <li data-ng-repeat="member in membersWithoutData">
+          <a data-ng-href="/student/{{member.uid}}">
+            <img class="cohort-avatar" data-ng-src="{{member.avatar_url}}">
+            <span data-ng-bind="member.name"></span>
+          </a>
+        </li>
+      </ul>
     </div>
   </div>
 </div>
