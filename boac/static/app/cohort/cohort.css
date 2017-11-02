@@ -4,3 +4,26 @@
   border-radius: 30px;
   max-height: 60px;
 }
+
+.cohort-tab-button {
+  background-color: #6bd;
+  color: #fff;
+}
+
+.cohort-tab-button:hover {
+  color: #cef;
+}
+
+.cohort-tab-button-selected {
+  background-color: #49b;
+}
+
+.cohort-tab-button-selected:active,
+.cohort-tab-button-selected:focus {
+  color: #fff;
+  outline: none !important;
+}
+
+.cohort-tab-selection {
+  margin: 20px 0;
+}
