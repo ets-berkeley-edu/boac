@@ -23,7 +23,7 @@ def merge_sis_enrollments(canvas_course_sites, cs_id, term_id):
         for section in sections:
             # Manually created site sections will have no integration ID.
             canvas_sis_section_id = section.get('sis_section_id') or ''
-            ccn_match = re.match(r'\ASEC:20\d{2}-[BCD]-(\d{5})\Z', canvas_sis_section_id)
+            ccn_match = re.match(r'\ASEC:20\d{2}-[BCD]-(\d{5})', canvas_sis_section_id)
             if not ccn_match:
                 continue
             canvas_ccn = ccn_match.group(1)

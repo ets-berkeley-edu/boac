@@ -16,7 +16,7 @@ class TestCanvasGetCourseSections:
         medieval_sections = canvas.get_course_sections(7654321)
         assert medieval_sections
         assert len(medieval_sections) == 1
-        assert medieval_sections[0]['sis_section_id'] == 'SEC:2017-D-90200'
+        assert medieval_sections[0]['sis_section_id'] == 'SEC:2017-D-90200-88CA51BE'
 
         nuclear_sections = canvas.get_course_sections(7654323)
         assert nuclear_sections
