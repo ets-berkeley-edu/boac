@@ -7,6 +7,7 @@
     var displayCohort = function(cohort) {
       $scope.cohort = cohort.data;
       $scope.selectedTab = 'list';
+      $scope.cohort.sortBy = 'name';
 
       var partitionedMembers = _.partition(cohort.data.members, function(member) {
         return _.isFinite(_.get(member, 'analytics.pageViews'));

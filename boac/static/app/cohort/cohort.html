@@ -11,28 +11,45 @@
     <h1>
       <span data-ng-bind="cohort.members.length"></span> Results Found
     </h1>
-    <div class="btn-group cohort-tab-selection" role="group" aria-label="Select results view">
-      <button type="button"
-              class="btn btn-secondary cohort-tab-button"
-              data-ng-class="{'cohort-tab-button-selected': selectedTab==='list'}"
-              data-ng-click="selectedTab='list'">
-        <i class="fa fa-list"></i> List
-      </button>
-      <button type="button"
-              class="btn btn-secondary cohort-tab-button"
-              data-ng-class="{'cohort-tab-button-selected': selectedTab==='matrix'}"
-              data-ng-click="selectedTab='matrix'">
-        <i class="fa fa-table"></i> Matrix
-      </button>
-    </div>
-    <div data-ng-show="selectedTab === 'list'">
-      <div class="body-text">
-        <ul>
-          <li data-ng-repeat="member in cohort.members">
-            <a data-ng-bind="member.name" data-ng-href="/student/{{member.uid}}"></a>
-          </li>
-        </ul>
+
+    <div class="cohort-view-options-container">
+      <div class="btn-group cohort-tab-selection" role="group" aria-label="Select results view">
+        <button type="button"
+                class="btn btn-secondary cohort-tab-button"
+                data-ng-class="{'cohort-tab-button-selected': selectedTab==='list'}"
+                data-ng-click="selectedTab='list'">
+          <i class="fa fa-list"></i> List
+        </button>
+        <button type="button"
+                class="btn btn-secondary cohort-tab-button"
+                data-ng-class="{'cohort-tab-button-selected': selectedTab==='matrix'}"
+                data-ng-click="selectedTab='matrix'">
+          <i class="fa fa-table"></i> Matrix
+        </button>
       </div>
+      <div class="cohort-sort-container" data-ng-if="selectedTab === 'list'">
+        Sort By
+        <select class="form-control cohort-sort" data-ng-model="cohort.sortBy">
+          <option value="name">Name</option>
+          <option value="uid">UID</option>
+        </select>
+      </div>
+    </div>
+
+    <div data-ng-show="selectedTab === 'list'">
+      <ul class="list-group">
+        <a class="list-group-item cohort-list-item"
+           data-ng-href="/student/{{member.uid}}"
+           data-ng-repeat="member in cohort.members | orderBy:cohort.sortBy">
+          <div class="cohort-avatar-container">
+            <img class="cohort-avatar" data-ng-src="{{member.avatar_url}}">
+          </div>
+          <div class="cohort-member-name-container">
+            <h3 class="cohort-member-name" data-ng-bind="member.name"></h3>
+            <div class="cohort-member-uid" data-ng-bind="member.uid"></div>
+          </div>
+        </a>
+      </ul>
     </div>
     <div data-ng-show="selectedTab === 'matrix'">
       <div id="scatterplot"></div>
