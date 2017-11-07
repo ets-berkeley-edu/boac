@@ -1,16 +1,12 @@
-"""Cohort definitions and memberships
-
-This table is a temporary aid for early development. It will be dropped
-when LDAP binds and caching are in place.
-"""
+"""Team definitions and memberships"""
 
 from boac import db
 from boac.models.base import Base
 from sqlalchemy import func, UniqueConstraint
 
 
-class Cohort(Base):
-    __tablename__ = 'cohorts'
+class Team(Base):
+    __tablename__ = 'teams'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)
     code = db.Column(db.String(255), nullable=False)
@@ -21,11 +17,11 @@ class Cohort(Base):
     asc_sport_code = db.Column(db.String(80))
     asc_sport = db.Column(db.String(80))
     asc_sport_core = db.Column(db.String(80))
-    UniqueConstraint('code', 'member_csid', name='cohort_membership')
+    UniqueConstraint('code', 'member_csid', name='team_membership')
 
     def __repr__(self):
-        return '<Cohort {} ({}), asc_sport {} ({}), asc_sport_core {} ({}), uid={}, csid={}, name={}, updated={}, created={}>'.format(
-            self.cohort_definitions.get(self.code),
+        return '<Team {} ({}), asc_sport {} ({}), asc_sport_core {} ({}), uid={}, csid={}, name={}, updated={}, created={}>'.format(
+            self.team_definitions.get(self.code),
             self.code,
             self.asc_sport,
             self.asc_sport_code,
@@ -38,7 +34,7 @@ class Cohort(Base):
             self.created_at,
         )
 
-    cohort_definitions = {
+    team_definitions = {
         'BAM': 'Baseball - Men',
         'BBM': 'Basketball - Men',
         'BBW': 'Basketball - Women',
@@ -80,7 +76,7 @@ class Cohort(Base):
         def translate_row(row):
             return {
                 'code': row[0],
-                'name': cls.cohort_definitions.get(row[0], row[0]),
+                'name': cls.team_definitions.get(row[0], row[0]),
                 'memberCount': row[1],
             }
         return [translate_row(row) for row in results]
@@ -90,7 +86,7 @@ class Cohort(Base):
         members = cls.query.filter_by(code=code).all()
         return {
             'code': code,
-            'name': cls.cohort_definitions.get(code, code),
+            'name': cls.team_definitions.get(code, code),
             'members': [member.to_api_json() for member in members],
         }
 

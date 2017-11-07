@@ -2,7 +2,7 @@ import csv
 
 from boac import db
 from boac.lib import merged
-from boac.models.cohort import Cohort
+from boac.models.team import Team
 
 THIS_ACAD_YR = '2017-18'
 
@@ -53,7 +53,7 @@ def load_cohort_from_csv(app, csv_file='tmp/FilteredAscStudents.csv'):
                 ))
                 continue
             sis_sport_code = SPORT_TRANSLATIONS[asc_sport_code_core]
-            record = Cohort(
+            record = Team(
                 member_csid=r['SID'],
                 member_name=r['cName'],
                 code=sis_sport_code,
@@ -63,7 +63,7 @@ def load_cohort_from_csv(app, csv_file='tmp/FilteredAscStudents.csv'):
                 asc_sport_core=r['acSportCore'],
             )
             db.session.add(record)
-    app.logger.info('Loaded {} Cohort records from {}'.format(
+    app.logger.info('Loaded {} Team records from {}'.format(
         len(db.session.new),
         csv_file,
     ))
@@ -71,7 +71,7 @@ def load_cohort_from_csv(app, csv_file='tmp/FilteredAscStudents.csv'):
 
 
 def fill_empty_uids_from_calnet(app):
-    to_update = Cohort.query.filter(Cohort.member_uid.is_(None)).all()
+    to_update = Team.query.filter(Team.member_uid.is_(None)).all()
     merged.refresh_cohort_attributes_from_calnet(app, to_update)
-    app.logger.info('Modified {} Cohort records from calnet'.format(len(db.session.dirty)))
+    app.logger.info('Modified {} Team records from calnet'.format(len(db.session.dirty)))
     db.session.commit()

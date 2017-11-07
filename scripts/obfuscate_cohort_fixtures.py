@@ -18,12 +18,12 @@ INITIAL_FAKE_UID = 9000000
 @scriptify.in_app
 def main(app):
     from boac import db
-    from boac.models.cohort import Cohort
+    from boac.models.team import Team
 
     fake_uid = INITIAL_FAKE_UID
-    for member in Cohort.query.all():
+    for member in Team.query.all():
         uid = member.member_uid
-        cohort_name = Cohort.cohort_definitions.get(member.code, member.code)
+        cohort_name = Team.team_definitions.get(member.code, member.code)
 
         # Change UID in Postgres.
         member.member_uid = fake_uid

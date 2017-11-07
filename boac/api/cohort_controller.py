@@ -2,7 +2,7 @@ from boac.api.util import canvas_courses_api_feed
 from boac.externals import canvas
 from boac.lib.analytics import mean_course_analytics_for_user
 from boac.lib.http import tolerant_jsonify
-from boac.models.cohort import Cohort
+from boac.models.team import Team
 
 from flask import current_app as app, jsonify
 from flask_login import login_required
@@ -11,7 +11,7 @@ from flask_login import login_required
 @app.route('/api/cohorts')
 @login_required
 def cohorts_list():
-    cohorts = Cohort.list_all()
+    cohorts = Team.list_all()
     return jsonify(cohorts)
 
 
@@ -21,7 +21,7 @@ def cohort_details(cohort_code):
     cache_key = 'cohort/{cohort_code}'.format(cohort_code=cohort_code)
     cohort = app.cache.get(cache_key) if (app.cache) else None
     if cohort is None:
-        cohort = Cohort.for_code(cohort_code)
+        cohort = Team.for_code(cohort_code)
         for member in cohort['members']:
             canvas_profile = canvas.get_user_for_uid(member['uid'])
             if canvas_profile:
