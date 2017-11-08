@@ -5,7 +5,7 @@ from boac.lib.analytics import merge_analytics_for_user
 from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.http import tolerant_jsonify
 from boac.lib.merged import merge_sis_enrollments, merge_sis_profile
-from boac.models.cohort import Cohort
+from boac.models.team_member import TeamMember
 from flask import current_app as app
 from flask_login import current_user, login_required
 
@@ -43,7 +43,7 @@ def user_analytics(uid):
     user_courses = canvas.get_student_courses_in_term(uid)
     courses_api_feed = api_util.canvas_courses_api_feed(user_courses)
 
-    cohort_data = Cohort.query.filter_by(member_uid=uid).first()
+    cohort_data = TeamMember.query.filter_by(member_uid=uid).first()
     if cohort_data and len(user_courses):
         term_id = sis_term_id_for_name(user_courses[0].get('term', {}).get('name'))
         merge_sis_enrollments(courses_api_feed, cohort_data.member_csid, term_id)
