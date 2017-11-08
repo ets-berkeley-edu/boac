@@ -54,6 +54,10 @@ tox -e lint-py
 tox -e lint-js
 tox -e lint-css
 
+# Run specific test(s)
+tox -e test -- tests/test_models/test_authorized_user.py
+tox -e test -- tests/test_externals/
+
 # Lint specific file(s)
 tox -e lint-js -- boac/static/js/controllers/cohortController.js
 tox -e lint-py -- scripts/cohort_fixtures.py
