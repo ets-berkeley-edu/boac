@@ -6,7 +6,6 @@ from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.http import tolerant_jsonify
 from boac.lib.merged import merge_sis_enrollments, merge_sis_profile
 from boac.models.cohort import Cohort
-
 from flask import current_app as app
 from flask_login import current_user, login_required
 

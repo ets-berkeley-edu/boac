@@ -3,7 +3,6 @@ from boac.externals import canvas
 from boac.lib.analytics import mean_course_analytics_for_user
 from boac.lib.http import tolerant_jsonify
 from boac.models.cohort import Cohort
-
 from flask import current_app as app, jsonify
 from flask_login import login_required
 
