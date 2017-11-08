@@ -28,7 +28,7 @@ class TestCohortsList:
 
 
 class TestCohortDetail:
-    """Cohort detail API"""
+    """TeamMember detail API"""
 
     valid_api_path = '/api/cohort/FHW'
     invalid_api_path = '/api/cohort/XYZ'
