@@ -6,8 +6,8 @@
 
   boac.factory('cohortFactory', function($http) {
 
-    var getCohorts = function() {
-      return $http.get('/api/cohorts');
+    var getTeams = function() {
+      return $http.get('/api/teams');
     };
 
     var getCohortDetails = function(code) {
@@ -15,7 +15,7 @@
     };
 
     return {
-      getCohorts: getCohorts,
+      getTeams: getTeams,
       getCohortDetails: getCohortDetails
     };
   });

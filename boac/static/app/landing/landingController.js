@@ -6,11 +6,11 @@
 
     $scope.isLoading = false;
 
-    var loadCohorts = authService.authWrap(function() {
+    var loadTeams = authService.authWrap(function() {
       $scope.isLoading = true;
 
-      cohortFactory.getCohorts().then(function(cohorts) {
-        $scope.cohorts = cohorts.data;
+      cohortFactory.getTeams().then(function(teams) {
+        $scope.teams = teams.data;
         $scope.isLoading = false;
       });
     });
@@ -19,7 +19,7 @@
       $scope.alertMessage = 'Log in failed. Please try again.';
     });
 
-    loadCohorts();
+    loadTeams();
   });
 
 }(window.angular));

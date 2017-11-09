@@ -72,6 +72,10 @@ def load_user(user_id):
     return AuthorizedUser.query.filter_by(uid=user_id).first()
 
 
+def cohort_filters_owned_by(user_id):
+    return CohortFilter.query.filter(CohortFilter.owners.any(uid=user_id)).all()
+
+
 def load_cohort_filter(cohort_filter_id):
     return CohortFilter.query.filter_by(id=cohort_filter_id).first()
 
