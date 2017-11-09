@@ -8,6 +8,13 @@ from boac import db
 from boac.models.base import Base
 from flask_login import UserMixin
 
+cohort_filter_owners = db.Table(
+    'cohort_filter_owners',
+    Base.metadata,
+    db.Column('cohort_filter_id', db.Integer, db.ForeignKey('cohort_filters.id'), primary_key=True),
+    db.Column('user_id', db.String(255), db.ForeignKey('authorized_users.uid'), primary_key=True),
+)
+
 
 class AuthorizedUser(Base, UserMixin):
     __tablename__ = 'authorized_users'
@@ -17,6 +24,7 @@ class AuthorizedUser(Base, UserMixin):
     is_advisor = db.Column(db.Boolean)
     is_admin = db.Column(db.Boolean)
     is_director = db.Column(db.Boolean)
+    cohort_filters = db.relationship('CohortFilter', secondary=cohort_filter_owners, back_populates='owners')
 
     def __init__(self, uid, is_advisor=True, is_admin=False, is_director=False):
         self.uid = uid
@@ -39,5 +47,49 @@ class AuthorizedUser(Base, UserMixin):
         return self.uid
 
 
+class CohortFilter(Base):
+    __tablename__ = 'cohort_filters'
+
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    label = db.Column(db.String(255), nullable=False)
+    filter_criteria = db.Column(db.Text, nullable=False)
+    owners = db.relationship('AuthorizedUser', secondary=cohort_filter_owners, back_populates='cohort_filters')
+
+    def __init__(self, label, filter_criteria):
+        self.label = label
+        self.filter_criteria = filter_criteria
+
+    def __repr__(self):
+        return '<CohortFilter {}, label={}, owners={}, filter_criteria={}>'.format(
+            self.id,
+            self.label,
+            self.owners,
+            self.filter_criteria,
+        )
+
+
 def load_user(user_id):
     return AuthorizedUser.query.filter_by(uid=user_id).first()
+
+
+def load_cohort_filter(cohort_filter_id):
+    return CohortFilter.query.filter_by(id=cohort_filter_id).first()
+
+
+def create_cohort_filter(cohort_filter, user_id):
+    user = load_user(user_id)
+    user.cohort_filters.append(cohort_filter)
+    db.session.commit()
+
+
+def share_cohort_filter(cohort_filter_id, user_id):
+    cohort_filter = CohortFilter.query.filter_by(id=cohort_filter_id).first()
+    user = load_user(user_id)
+    user.cohort_filters.append(cohort_filter)
+    db.session.commit()
+
+
+def delete_cohort_filter(cohort_filter_id):
+    cohort_filter = CohortFilter.query.filter_by(id=cohort_filter_id).first()
+    db.session.delete(cohort_filter)
+    db.session.commit()
