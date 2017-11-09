@@ -4,8 +4,8 @@ from boac.lib import merged as subject
 class TestMerged:
     """TestMerged"""
 
-    def test_refresh_cohort_attributes(self, app, fixture_cohorts):
-        members = fixture_cohorts
+    def test_refresh_cohort_attributes(self, app, fixture_team_members):
+        members = fixture_team_members
         original_csids = (m.member_csid for m in members)
         for member in members:
             member.member_uid = None

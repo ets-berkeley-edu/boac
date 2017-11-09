@@ -2,7 +2,8 @@ import os
 import boac.factory
 import pytest
 
-from tests.fixtures.cohorts import fixture_cohorts # noqa
+from tests.fixtures.cohorts import fixture_team_members # noqa
+from tests.fixtures.cohorts import fixture_custom_cohorts # noqa
 
 
 os.environ['BOAC_ENV'] = 'test'

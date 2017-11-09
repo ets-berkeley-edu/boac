@@ -5,6 +5,7 @@ from boac.lib.analytics import merge_analytics_for_user
 from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.http import tolerant_jsonify
 from boac.lib.merged import merge_sis_enrollments, merge_sis_profile
+from boac.models import authorized_user
 from boac.models.team_member import TeamMember
 from flask import current_app as app
 from flask_login import current_user, login_required
@@ -13,20 +14,22 @@ from flask_login import current_user, login_required
 @app.route('/api/profile')
 def user_profile():
     canvas_profile = False
+    cohort_filters = False
     if current_user.is_active:
         uid = current_user.get_id()
-        canvas_response = canvas.get_user_for_uid(uid)
-        if canvas_response:
-            canvas_profile = canvas_response
-        elif canvas_response is None:
-            canvas_profile = {
-                'error': 'Unable to reach bCourses',
-            }
+        canvas_profile = load_canvas_profile(uid)
+        cohort_filters = []
+        for c in authorized_user.cohort_filters_owned_by(uid):
+            cohort_filters.append({
+                'id': c.id,
+                'label': c.label,
+            })
     else:
         uid = False
     return tolerant_jsonify({
         'uid': uid,
         'canvas_profile': canvas_profile,
+        'cohort_filters': cohort_filters,
     })
 
 
@@ -63,3 +66,15 @@ def user_analytics(uid):
         'courses': courses_api_feed,
         'sisProfile': sis_profile,
     })
+
+
+def load_canvas_profile(uid):
+    canvas_profile = False
+    canvas_response = canvas.get_user_for_uid(uid)
+    if canvas_response:
+        canvas_profile = canvas_response
+    elif canvas_response is None:
+        canvas_profile = {
+            'error': 'Unable to reach bCourses',
+        }
+    return canvas_profile

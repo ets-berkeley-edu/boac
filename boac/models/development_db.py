@@ -40,15 +40,15 @@ _default_users_csv = """uid,is_admin,is_director,is_advisor
 def load_development_data():
     csv_reader = csv.DictReader(_default_users_csv.splitlines())
     cohort_filter_crew = create_cohort_filter('Men and women\'s crew', 'CRM', 'CRW')
-    cohort_filter_soccer = create_cohort_filter('Men and women\'s soccer', 'SCW', 'SCW')
+    cohort_filter_soccer = create_cohort_filter('Men and women\'s soccer', 'SCW', 'SCM')
     for row in csv_reader:
         user = AuthorizedUser(**row)
         db.session.add(user)
         uid = int(user.uid)
         # A subset of users get one or more cohort_filters
-        if uid > 60000:
+        if uid > 100000:
             # The 'crew' and 'soccer' cohort_filters are both shared by multiple users
-            choose_crew = uid < 100000
+            choose_crew = uid < 1000000
             cohort = cohort_filter_crew if choose_crew else cohort_filter_soccer
             user.cohort_filters.append(cohort)
 
@@ -58,7 +58,7 @@ def load_development_data():
 def create_cohort_filter(label, code1, code2):
     return CohortFilter(
         label=label,
-        filter_criteria='{\'teams\': [\'' + code1 + '\', \'' + code2 + '\']}',
+        filter_criteria='{"teams": ["' + code1 + '", "' + code2 + '"]}',
     )
 
 
