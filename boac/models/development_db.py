@@ -39,8 +39,8 @@ _default_users_csv = """uid,is_admin,is_director,is_advisor
 
 def load_development_data():
     csv_reader = csv.DictReader(_default_users_csv.splitlines())
-    cohort_filter_crew = create_cohort_filter('Men and women\'s crew', 'CRM', 'CRW')
-    cohort_filter_soccer = create_cohort_filter('Men and women\'s soccer', 'SCW', 'SCM')
+    cohort_filter_crew = CohortFilter.create(label='Men and women\'s crew', team_codes=['CRM', 'CRW'])
+    cohort_filter_soccer = CohortFilter.create(label='Men and women\'s soccer', team_codes=['SCW', 'SCM'])
     for row in csv_reader:
         user = AuthorizedUser(**row)
         db.session.add(user)
@@ -53,13 +53,6 @@ def load_development_data():
             user.cohort_filters.append(cohort)
 
     db.session.commit()
-
-
-def create_cohort_filter(label, code1, code2):
-    return CohortFilter(
-        label=label,
-        filter_criteria='{"teams": ["' + code1 + '", "' + code2 + '"]}',
-    )
 
 
 if __name__ == '__main__':

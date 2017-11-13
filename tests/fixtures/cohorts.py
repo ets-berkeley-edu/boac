@@ -13,14 +13,8 @@ def fixture_team_members(db_session):
 
 @pytest.fixture
 def fixture_custom_cohorts():
-    all_runners = CohortFilter(
-        label='Runners',
-        filter_criteria='{"teams": ["CCM", "CCW", "TIM", "TIW"]}',
-    )
-    male_swimmers = CohortFilter(
-        label='Punk Rockers',
-        filter_criteria='{"teams": ["WPM", "SDM"]}',
-    )
+    all_runners = CohortFilter.create(label='Runners', team_codes=['CCM', 'CCW', 'TIM', 'TIW'])
+    male_swimmers = CohortFilter.create(label='Swimmers', team_codes=['WPM', 'SDM'])
     sid = authorized_user.load_user('53791')
     nancy = authorized_user.load_user('95509')
     # Sid gets two custom cohorts

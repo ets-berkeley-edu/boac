@@ -17,7 +17,7 @@ class TestAuthorizedUser:
         assert loaded_user.is_active
         assert loaded_user.get_id() == admin_uid
         assert loaded_user.is_admin
-        assert len(loaded_user.cohort_filters) == 1
+        assert len(loaded_user.cohort_filters) > 0
 
         owners = loaded_user.cohort_filters[0].owners
         assert len(owners) > 0
@@ -28,7 +28,7 @@ class TestAuthorizedUser:
         sebastian_uid = '2040'
         aloysius_uid = '1133399'
         # Create cohort_filter
-        cohort_filter = CohortFilter(label='High-risk Badminton', filter_criteria='{\'teams\': [\'MBK\', \'WBK\']}')
+        cohort_filter = CohortFilter.create(label='High-risk Badminton', team_codes=['MBK', 'WBK'])
         subject.create_cohort_filter(cohort_filter, sebastian_uid)
         sebastian = subject.load_user(sebastian_uid)
 

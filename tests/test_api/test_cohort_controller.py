@@ -1,5 +1,8 @@
 from boac.models import authorized_user
+from boac.models.authorized_user import CohortFilter
+from flask_login import current_user
 import pytest
+import simplejson as json
 
 test_uid = '1133399'
 
@@ -65,4 +68,50 @@ class TestCohortDetail:
         cohort_filter_id = user.cohort_filters[0].id
         response = client.get('/api/cohort/{}'.format(cohort_filter_id))
         assert response.status_code == 200
-        # TODO: Verify contents of response
+        data = json.loads(response.data)
+        assert data['code'] > 0
+        assert data['name'] == 'Men and women\'s soccer'
+        assert data['team_codes'] == ['SCW', 'SCM']
+        assert isinstance(data['members'], list)
+
+    def test_create_cohort_filter(self, authenticated_session, client, fixture_team_members):
+        """creates custom cohort, owned by current user"""
+        custom_cohort = {
+            'label': 'All tennis, all the time',
+            'team_codes': ['TNW', 'TNM'],
+        }
+        response = client.post('/api/cohort/create', data=json.dumps(custom_cohort), content_type='application/json')
+        assert response.status_code == 200
+
+    def test_delete_cohort_filter_not_authenticated(self, client):
+        """custom cohort deletion requires authentication"""
+        response = client.delete('/api/cohort/delete/{}'.format('123'))
+        assert response.status_code == 401
+
+    def test_delete_cohort_filter_wrong_user(self, client, fake_auth):
+        """custom cohort deletion is only available to owners"""
+        cohort_filter = CohortFilter.create(label='Badminton teams', team_codes=['MBK', 'WBK'])
+        authorized_user.create_cohort_filter(cohort_filter, test_uid)
+        # This user does not own the custom cohort above
+        fake_auth.login('2040')
+        response = client.delete('/api/cohort/delete/{}'.format(current_user.uid))
+        assert response.status_code == 400
+        assert '2040 does not own' in str(response.data)
+
+    def test_delete_cohort_filter(self, authenticated_session, client):
+        """deletes existing custom cohort while enforcing rules of ownership"""
+        label = 'Water polo teams'
+        cohort_filter = CohortFilter.create(label=label, team_codes=['WPW', 'WPM'])
+        authorized_user.create_cohort_filter(cohort_filter, test_uid)
+        # Verify creation
+        cohort_filter = find_cohort_filter_owned_by(test_uid, label)
+        assert cohort_filter
+        # Verify deletion
+        response = client.delete('/api/cohort/delete/{}'.format(cohort_filter.id))
+        assert response.status_code == 200
+        assert not find_cohort_filter_owned_by(test_uid, label)
+
+
+def find_cohort_filter_owned_by(uid, label):
+    cohort_filters = authorized_user.cohort_filters_owned_by(uid)
+    return next((cohort for cohort in cohort_filters if cohort.label == label), None)
