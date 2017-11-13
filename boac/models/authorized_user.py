@@ -67,6 +67,11 @@ class CohortFilter(Base):
             self.filter_criteria,
         )
 
+    @classmethod
+    def create(cls, label, team_codes):
+        codes = ','.join(map('"{0}"'.format, team_codes))
+        return CohortFilter(label=label, filter_criteria='{"teams": [' + codes + ']}')
+
 
 def load_user(user_id):
     return AuthorizedUser.query.filter_by(uid=user_id).first()
