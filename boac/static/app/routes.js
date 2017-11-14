@@ -19,7 +19,8 @@
       .state('landing', {
         url: '/',
         templateUrl: '/static/app/landing/landing.html',
-        controller: 'LandingController'
+        controller: 'LandingController',
+        isPublic: true
       })
       .state('cohort', {
         url: '/cohort/:code',
