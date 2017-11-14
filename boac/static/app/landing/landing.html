@@ -1,6 +1,6 @@
-<div data-ng-include="'/static/app/shared/header.html'"></div>
-
 <div class="container">
+  <div data-ng-include="'/static/app/shared/header.html'"></div>
+
   <h1>Welcome to BOAC</h1>
   <div class="body-text" data-ng-if="me.authenticated_as.is_authenticated">
     <div>Choose a team:</div>
@@ -16,6 +16,6 @@
   <div class="body-text" data-ng-if="!me.authenticated_as.is_authenticated">
     <div data-ng-bind="alertMessage || 'Please sign in.'"></div>
   </div>
-</div>
 
-<div data-ng-include="'/static/app/shared/footer.html'"></div>
+  <div data-ng-include="'/static/app/shared/footer.html'"></div>
+</div>

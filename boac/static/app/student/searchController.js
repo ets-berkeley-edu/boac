@@ -2,7 +2,7 @@
 
   'use strict';
 
-  angular.module('boac').controller('SearchController', function(authService, cohortFactory, $rootScope, $scope) {
+  angular.module('boac').controller('SearchController', function(authService, cohortFactory, $scope) {
 
     $scope.search = {
       isLoading: true,

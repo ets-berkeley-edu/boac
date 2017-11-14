@@ -1,9 +1,6 @@
-<div data-ng-include="'/static/app/shared/header.html'"></div>
-
-<div class="container" data-ng-if="!me.authenticated_as.is_authenticated">
-  <div>Please sign in.</div>
-</div>
 <div class="container" data-ng-if="me.authenticated_as.is_authenticated">
+  <div data-ng-include="'/static/app/shared/header.html'"></div>
+
   <div data-ng-if="!student.isLoading && !error">
     <div class="student-profile-header">
       <div class="student-profile-avatar-container">
@@ -152,6 +149,6 @@
     <h1>Error</h1>
     <div data-ng-bind="error"></div>
   </div>
-</div>
 
-<div data-ng-include="'/static/app/shared/footer.html'"></div>
+  <div data-ng-include="'/static/app/shared/footer.html'"></div>
+</div>
