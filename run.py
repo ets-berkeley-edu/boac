@@ -36,6 +36,18 @@ def initdb():
     development_db.load()
 
 
+@application.cli.command()
+def load_external_data():
+    from boac.api import cache_utils
+    cache_utils.load_current_term()
+
+
+@application.cli.command()
+def refresh_external_data():
+    from boac.api import cache_utils
+    cache_utils.refresh_current_term()
+
+
 host = application.config['HOST']
 port = application.config['PORT']
 
