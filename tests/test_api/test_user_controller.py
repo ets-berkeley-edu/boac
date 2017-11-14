@@ -164,7 +164,7 @@ class TestUserAnalytics:
         """provides SIS profile data"""
         sis_profile = authenticated_response.json['sisProfile']
         assert sis_profile['cumulativeGPA'] == 3.8
-        assert sis_profile['cumulativeUnits'] == 73
+        assert sis_profile['cumulativeUnits'] == 101.3
         assert sis_profile['degreeProgress']['americanCultures'] is True
         assert sis_profile['degreeProgress']['americanHistory'] is True
         assert sis_profile['degreeProgress']['americanInstitutions'] is True

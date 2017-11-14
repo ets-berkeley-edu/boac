@@ -62,7 +62,7 @@ def merge_sis_profile_academic_status(sis_response, sis_profile):
 
     for units in academic_status.get('cumulativeUnits', []):
         if units.get('type', {}).get('code') == 'Total':
-            sis_profile['cumulativeUnits'] = units.get('unitsPassed')
+            sis_profile['cumulativeUnits'] = units.get('unitsCumulative')
             break
 
     try:

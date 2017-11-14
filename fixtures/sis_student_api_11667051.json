@@ -19,12 +19,13 @@
                     "type": {
                       "code": "Total"
                     },
+                    "unitsCumulative": 101.3,
                     "unitsOther": 0,
                     "unitsPassed": 73,
                     "unitsTaken": 8,
-                    "unitsTest": 0,
-                    "unitsTransferAccepted": 65,
-                    "unitsTransferEarned": 81
+                    "unitsTest": 3.3,
+                    "unitsTransferAccepted": 25,
+                    "unitsTransferEarned": 25
                   },
                   {
                     "type": {
