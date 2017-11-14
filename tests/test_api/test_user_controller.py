@@ -18,19 +18,19 @@ class TestUserProfile:
         response = client.get('/api/profile')
         assert response.status_code == 200
         assert response.json['uid'] == test_uid
-        assert response.json['canvas_profile'] is False
+        assert response.json['canvasProfile'] is False
 
     def test_includes_canvas_profile_if_available(self, client, fake_auth):
         test_uid = '2040'
         fake_auth.login(test_uid)
         response = client.get('/api/profile')
-        assert response.json['canvas_profile']['sis_login_id'] == test_uid
+        assert response.json['canvasProfile']['sis_login_id'] == test_uid
 
     def test_custom_cohorts(self, fixture_custom_cohorts, client, fake_auth):
         test_uid = '53791'
         fake_auth.login(test_uid)
         response = client.get('/api/profile')
-        assert len(response.json['cohort_filters']) == 2
+        assert len(response.json['cohortFilters']) == 2
 
 
 class TestUserAnalytics:

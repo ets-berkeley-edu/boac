@@ -1,0 +1,9 @@
+.header {
+  background-color: #e8e8e8;
+  overflow: hidden;
+  position: relative;
+}
+
+.header-button {
+  margin-left: 10px;
+}

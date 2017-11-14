@@ -4,11 +4,22 @@
 
   angular.module('boac').factory('authFactory', function($http, $rootScope) {
 
+    var loadUserProfile = function(results) {
+      // Refresh instance currently referenced in templates
+      var me = results.data;
+      $rootScope.me = me;
+      $rootScope.$broadcast('userStatusChange');
+      // Load user profile if authenticated
+      if (me.authenticated_as.is_authenticated) {
+        return $http.get('/api/profile').then(function(profileResults) {
+          _.extend($rootScope.me, profileResults.data);
+        });
+      }
+      return results;
+    };
+
     var refreshStatus = function() {
-      return $http.get('/api/status').then(function(results) {
-        // Refresh instance currently referenced in templates
-        $rootScope.me = results.data;
-      });
+      return $http.get('/api/status').then(loadUserProfile);
     };
 
     var casLogIn = function() {
@@ -43,6 +54,7 @@
     return {
       casLogIn: casLogIn,
       devAuthLogIn: devAuthLogIn,
+      loadUserProfile: loadUserProfile,
       logOut: logOut
     };
   });
