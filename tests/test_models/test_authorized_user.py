@@ -24,7 +24,7 @@ class TestAuthorizedUser:
         assert loaded_user in owners
 
     def test_create_and_delete_cohort_filter(self, db_session):
-        """ cohort_filter  record to Flask-Login for recognized UID"""
+        """cohort_filter record to Flask-Login for recognized UID"""
         sebastian_uid = '2040'
         aloysius_uid = '1133399'
         # Create cohort_filter

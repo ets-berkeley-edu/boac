@@ -8,8 +8,21 @@
   margin-top: 10px;
 }
 
-.header-button {
-  margin-left: 10px;
+.flex-container {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  display: flex;
+}
+
+.flex-item {
+  padding: 5px 10px 5px 10px;
+  margin: 5px;
+  vertical-align: middle;
+}
+
+.flex-space-between {
+  justify-content: space-between;
 }
 
 .container-left {
@@ -23,38 +36,6 @@
 .container-top {
   font-weight: 300;
   padding-top: 10px;
-}
-
-.masthead {
-  padding: 30px 0 30px;
-  margin-bottom: 0;
-}
-
-.masthead h1 {
-  font-size: 40px;
-  line-height: 1;
-  font-weight: 400;
-}
-
-.header-section {
-  padding: 20px 0;
-  background: #222;
-  position: absolute;
-  top: 40px;
-  left: 0;
-  width: 100%;
-  padding-left: 0;
-  margin-left: 0;
-  color: #fff;
-}
-
-.header-push {
-  height: 180px;
-}
-
-.header-row {
-  width: 960px;
-  margin: auto;
 }
 
 .main {

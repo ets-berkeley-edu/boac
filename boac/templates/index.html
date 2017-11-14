@@ -3,35 +3,39 @@
     <meta charset="utf-8">
     <title>BOAC</title>
 
-    <link href="/static/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/lib/fontawesome/css/font-awesome.css" rel="stylesheet">
+    <link href="/static/app/cohort/cohort.css" rel="stylesheet">
     <link href="/static/app/main.css" rel="stylesheet">
     <link href="/static/app/shared/boxplot.css" rel="stylesheet">
+    <link href="/static/app/shared/header.css" rel="stylesheet">
     <link href="/static/app/shared/scatterplot.css" rel="stylesheet">
-    <link href="/static/app/cohort/cohort.css" rel="stylesheet">
     <link href="/static/app/student/student.css" rel="stylesheet">
+    <link href="/static/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/lib/fontawesome/css/font-awesome.css" rel="stylesheet">
+    <link href="/static/lib/oi.select/dist/select.min.css" rel="stylesheet"/>
   </head>
 
   <body ui-view>
     <!-- Third-party -->
-    <script src="/static/lib/angular/angular.min.js"></script>
     <script src="/static/lib/angular-ui-router/release/angular-ui-router.min.js"></script>
+    <script src="/static/lib/angular/angular.min.js"></script>
     <script src="/static/lib/d3/d3.min.js"></script>
     <script src="/static/lib/highcharts-release/adapters/standalone-framework.js"></script>
-    <script src="/static/lib/highcharts-release/highcharts.js"></script>
     <script src="/static/lib/highcharts-release/highcharts-more.js"></script>
+    <script src="/static/lib/highcharts-release/highcharts.js"></script>
     <script src="/static/lib/lodash/dist/lodash.min.js"></script>
 
     <!-- BOAC -->
-    <script src="/static/app/bootstrap.js"></script>
-    <script src="/static/app/routes.js"></script>
-    <script src="/static/app/shared/analyticsFactory.js"></script>
     <script src="/static/app/auth/authController.js"></script>
     <script src="/static/app/auth/authFactory.js"></script>
     <script src="/static/app/auth/authService.js"></script>
+    <script src="/static/app/bootstrap.js"></script>
     <script src="/static/app/cohort/cohortController.js"></script>
     <script src="/static/app/cohort/cohortFactory.js"></script>
     <script src="/static/app/landing/landingController.js"></script>
+    <script src="/static/app/routes.js"></script>
+    <script src="/static/app/shared/analyticsFactory.js"></script>
+    <script src="/static/app/student/searchController.js"></script>
     <script src="/static/app/student/studentController.js"></script>
+    <script src="/static/lib/oi.select/dist/select-tpls.js"></script>
   </body>
 </html>

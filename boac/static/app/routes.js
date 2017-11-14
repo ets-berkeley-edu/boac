@@ -30,6 +30,11 @@
         url: '/student/:uid',
         templateUrl: '/static/app/student/student.html',
         controller: 'StudentController'
+      })
+      .state('search', {
+        url: '/search',
+        templateUrl: '/static/app/student/search.html',
+        controller: 'SearchController'
       });
   });
 

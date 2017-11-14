@@ -28,8 +28,8 @@ def user_profile():
         uid = False
     return tolerant_jsonify({
         'uid': uid,
-        'canvas_profile': canvas_profile,
-        'cohort_filters': cohort_filters,
+        'canvasProfile': canvas_profile,
+        'cohortFilters': cohort_filters,
     })
 
 

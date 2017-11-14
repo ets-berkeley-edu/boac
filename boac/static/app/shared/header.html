@@ -1,16 +1,26 @@
-<div class="container-top container" data-ng-controller="AuthController">
-  <div class="container-left">
-    <a href="/">BOAC</a>
-  </div>
-  <div class="container-right" data-ng-if="me.authenticated_as.is_authenticated">
-    Welcome {{me.authenticated_as.uid}}
-    <button class="header-button" data-ng-click="logOut()">
-      Log out
-    </button>
-  </div>
-  <div class="container-right" data-ng-if="!me.authenticated_as.is_authenticated">
-    <div>
+<div class="header" data-ng-controller="AuthController">
+  <ul class="flex-container flex-space-between">
+    <li class="flex-item">
+      <a href="/">Home</a>
+    </li>
+    <li class="flex-item" data-ng-if="me.authenticated_as.is_authenticated">
+      <label class="sr-only">Cohorts</label>
+      <div>Cohorts</div>
+    </li>
+    <li class="flex-item" data-ng-if="me.authenticated_as.is_authenticated">
+      <label class="sr-only">Search</label>
+      <a data-ng-href="/search">Search</a>
+    </li>
+    <li id="header-name" class="flex-item" data-ng-if="me.authenticated_as.is_authenticated">
+      <span data-ng-bind="me.canvasProfile.name"></span>
+    </li>
+    <li id="header-login" class="flex-item" data-ng-if="!me.authenticated_as.is_authenticated">
       <button data-ng-click="casLogIn()">Sign In</button>
-    </div>
-  </div>
+    </li>
+    <li id="header-log-out" class="flex-item" data-ng-if="me.authenticated_as.is_authenticated">
+      <button class="header-button" data-ng-click="logOut()">
+        Log out
+      </button>
+    </li>
+  </ul>
 </div>
