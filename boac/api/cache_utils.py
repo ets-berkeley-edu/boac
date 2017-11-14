@@ -1,13 +1,12 @@
-from scriptpath import scriptify
-
-success_count = 0
-failures = []
+from boac import db
+from flask import current_app as app
 
 
 def load_canvas_externals(uid):
     from boac.externals import canvas
 
-    global success_count, failures
+    success_count = 0
+    failures = []
 
     canvas_user_profile = canvas.get_user_for_uid(uid)
     if canvas_user_profile is None:
@@ -34,12 +33,14 @@ def load_canvas_externals(uid):
                     ))
                     continue
                 success_count += 1
+    return success_count, failures
 
 
 def load_sis_externals(sis_term_id, csid):
     from boac.externals import sis_enrollments_api, sis_student_api
 
-    global success_count, failures
+    success_count = 0
+    failures = []
 
     if sis_student_api.get_student(csid):
         success_count += 1
@@ -56,15 +57,15 @@ def load_sis_externals(sis_term_id, csid):
             csid,
             sis_term_id,
         ))
+    return success_count, failures
 
 
-@scriptify.in_session_request
-def main(app):
-    from boac import db
+def load_current_term():
     from boac.lib import berkeley
     from boac.models.team_member import TeamMember
 
-    global success_count, failures
+    success_count = 0
+    failures = []
 
     term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
     sis_term_id = berkeley.sis_term_id_for_name(term_name)
@@ -72,8 +73,14 @@ def main(app):
     # Currently, all external data is loaded starting from the individuals who belong
     # to one or more Cohorts.
     for csid, uid in db.session.query(TeamMember.member_csid, TeamMember.member_uid).distinct():
-        load_canvas_externals(uid)
-        load_sis_externals(sis_term_id, csid)
+        s, f = load_canvas_externals(uid)
+        success_count += s
+        failures += f
+        db.session.commit()
+        s, f = load_sis_externals(sis_term_id, csid)
+        success_count += s
+        failures += f
+        db.session.commit()
 
     print('Complete. Fetched {} external feeds.'.format(success_count))
     if len(failures):
@@ -81,4 +88,8 @@ def main(app):
         print(failures)
 
 
-main()
+def refresh_current_term():
+    from boac.models import json_cache
+
+    json_cache.clear_current_term()
+    load_current_term()

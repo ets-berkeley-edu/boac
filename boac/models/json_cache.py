@@ -29,8 +29,22 @@ class JsonCache(Base):
 
 def clear(key_like):
     matches = db.session.query(JsonCache).filter(JsonCache.key.like(key_like))
-    app.logger.info('Will delete {matches.count()} entries matching {key_like}'.format(matches=matches.count(), key_like=key_like))
+    app.logger.info('Will delete {count} entries matching {key_like}'.format(count=matches.count(), key_like=key_like))
     matches.delete(synchronize_session=False)
+
+
+def clear_other(key_like):
+    matches = db.session.query(JsonCache).filter(JsonCache.key.notlike(key_like))
+    app.logger.info('Will delete {count} entries not matching {key_like}'.format(count=matches.count(), key_like=key_like))
+    matches.delete(synchronize_session=False)
+
+
+def clear_current_term():
+    # Start by deleting cache which is not term-stamped, on the assumption that those feeds may have changed.
+    clear_other('term_%')
+    db.session.commit()
+    clear('term_{}%'.format(app.config['CANVAS_CURRENT_ENROLLMENT_TERM']))
+    db.session.commit()
 
 
 def stow(key_pattern, for_term=False):
