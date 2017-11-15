@@ -1,0 +1,33 @@
+<div class="container">
+  <div data-ng-include="'/static/app/shared/header.html'"></div>
+
+  <h1>Manage Cohorts</h1>
+
+  <div data-ng-if="myCohorts.isLoading">
+    <div>Loading.... </div>
+  </div>
+  <div data-ng-if="!isLoading">
+    <ul>
+      <li data-ng-repeat="cohort in myCohorts">
+        <div>
+          <input type="text" data-ng-model="cohort.label" id="cohort-{{$index}}" required aria-required="true" maxlength="255"/>
+          <button class="header-button" data-ng-click="updateCohort(cohort.id, cohort.label)">
+            Rename ({{cohort.id}})
+          </button>
+          <button class="header-button" data-ng-click="deleteCohort(cohort.id)">
+            Delete
+          </button>
+        </div>
+        <div>
+          <ul>
+            <li data-ng-repeat="team in cohort.teams" data-ng-if="cohort.teams">
+              <span data-ng-bind="team.name"></span>
+            </li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div data-ng-include="'/static/app/shared/footer.html'"></div>
+</div>

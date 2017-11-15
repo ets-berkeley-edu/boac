@@ -23,7 +23,7 @@ class TestAuthorizedUser:
         assert len(owners) > 0
         assert loaded_user in owners
 
-    def test_create_and_delete_cohort_filter(self, db_session):
+    def test_create_and_delete_cohort(self, db_session):
         """cohort_filter record to Flask-Login for recognized UID"""
         sebastian_uid = '2040'
         aloysius_uid = '1133399'
@@ -44,7 +44,7 @@ class TestAuthorizedUser:
         sebastian_count = cohort_filter_count(sebastian_uid)
         aloysius_count = cohort_filter_count(aloysius_uid)
 
-        subject.delete_cohort_filter(cohort_filter_id)
+        subject.delete_cohort(cohort_filter_id)
         assert sebastian_count - cohort_filter_count(sebastian_uid) == 1
         assert aloysius_count - cohort_filter_count(aloysius_uid) == 1
 

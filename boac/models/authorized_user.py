@@ -77,17 +77,24 @@ def load_user(user_id):
     return AuthorizedUser.query.filter_by(uid=user_id).first()
 
 
-def cohort_filters_owned_by(user_id):
+def load_cohorts_owned_by(user_id):
     return CohortFilter.query.filter(CohortFilter.owners.any(uid=user_id)).all()
 
 
-def load_cohort_filter(cohort_filter_id):
-    return CohortFilter.query.filter_by(id=cohort_filter_id).first()
+def load_cohort_by_id(cohort_id):
+    return CohortFilter.query.filter_by(id=cohort_id).first()
 
 
 def create_cohort_filter(cohort_filter, user_id):
     user = load_user(user_id)
     user.cohort_filters.append(cohort_filter)
+    db.session.commit()
+
+
+def update_cohort(cohort_id, label):
+    cohort = load_cohort_by_id(cohort_id=cohort_id)
+    cohort.label = label
+    db.session.add(cohort)
     db.session.commit()
 
 
@@ -98,7 +105,7 @@ def share_cohort_filter(cohort_filter_id, user_id):
     db.session.commit()
 
 
-def delete_cohort_filter(cohort_filter_id):
-    cohort_filter = CohortFilter.query.filter_by(id=cohort_filter_id).first()
+def delete_cohort(cohort_id):
+    cohort_filter = CohortFilter.query.filter_by(id=cohort_id).first()
     db.session.delete(cohort_filter)
     db.session.commit()
