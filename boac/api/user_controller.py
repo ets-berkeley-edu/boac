@@ -14,22 +14,22 @@ from flask_login import current_user, login_required
 @app.route('/api/profile')
 def user_profile():
     canvas_profile = False
-    cohort_filters = False
+    cohorts = False
     if current_user.is_active:
         uid = current_user.get_id()
         canvas_profile = load_canvas_profile(uid)
-        cohort_filters = []
-        for c in authorized_user.cohort_filters_owned_by(uid):
-            cohort_filters.append({
-                'id': c.id,
-                'label': c.label,
+        cohorts = []
+        for cohort in authorized_user.load_cohorts_owned_by(uid):
+            cohorts.append({
+                'id': cohort.id,
+                'label': cohort.label,
             })
     else:
         uid = False
     return tolerant_jsonify({
         'uid': uid,
         'canvasProfile': canvas_profile,
-        'cohortFilters': cohort_filters,
+        'cohortFilters': cohorts,
     })
 
 

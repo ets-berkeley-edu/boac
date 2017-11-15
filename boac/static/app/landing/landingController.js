@@ -6,20 +6,20 @@
 
     $scope.isLoading = false;
 
-    var loadTeams = authService.authWrap(function() {
+    var loadTeams = function() {
       $scope.isLoading = true;
 
       cohortFactory.getTeams().then(function(teams) {
         $scope.teams = teams.data;
         $scope.isLoading = false;
       });
-    });
+    };
 
     $rootScope.$on('authenticationFailure', function() {
       $scope.alertMessage = 'Log in failed. Please try again.';
     });
 
-    loadTeams();
+    authService.authWrap(loadTeams);
   });
 
 }(window.angular));

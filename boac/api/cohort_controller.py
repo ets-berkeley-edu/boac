@@ -1,5 +1,6 @@
 import json
 from boac.api.errors import BadRequestError
+from boac.api.errors import ForbiddenRequestError
 from boac.api.util import canvas_courses_api_feed
 from boac.externals import canvas
 from boac.lib.analytics import mean_course_analytics_for_user
@@ -17,12 +18,19 @@ def teams_list():
     return jsonify(TeamMember.list_all())
 
 
+@app.route('/api/cohorts/my')
+@login_required
+def my_cohorts():
+    uid = current_user.get_id()
+    return jsonify(get_cohorts_owned_by(uid))
+
+
 @app.route('/api/cohort/<code>')
 @login_required
-def cohort_details(code):
+def get_cohort(code):
     if code.isdigit():
         uid = current_user.get_id()
-        cohort = get_cohort_filter_owned_by(int(code), uid)
+        cohort = get_cohort_owned_by(int(code), uid)
     else:
         cohort = get_team_details(code)
 
@@ -32,55 +40,91 @@ def cohort_details(code):
 @app.route('/api/cohort/create', methods=['POST'])
 @login_required
 def create_cohort_filter():
-    form = request.get_json()
-    label = form['label']
-    team_codes = form['team_codes']
+    params = request.get_json()
+    label = params['label']
+    team_codes = params['team_codes']
     if not label or not team_codes:
         raise BadRequestError('create_cohort_filter requires \'label\' and \'teams\'')
 
     cohort_filter = CohortFilter.create(label=label, team_codes=team_codes)
     authorized_user.create_cohort_filter(cohort_filter, current_user.get_id())
-    return jsonify({'message': 'cohort_filter created (label={})'.format(label)}), 200
+    return jsonify({'message': 'Cohort created (label={})'.format(label)}), 200
 
 
-@app.route('/api/cohort/delete/<code>', methods=['DELETE'])
+@app.route('/api/cohort/update', methods=['POST'])
 @login_required
-def delete_cohort_filter(code):
-    cohort_filter_id = int(code)
+def update_cohort():
+    params = request.get_json()
     uid = current_user.get_id()
-    cohort = get_cohort_filter_owned_by(cohort_filter_id, uid)
-    if cohort:
-        authorized_user.delete_cohort_filter(cohort_filter_id)
-        if app.cache:
-            app.cache.delete(get_cache_key(code))
-        return jsonify({'message': 'cohort_filter deleted (id={})'.format(cohort_filter_id)}), 200
+    label = params['label']
+    if not label:
+        raise BadRequestError('Requested cohort label is empty or invalid')
+
+    cohort = get_cohort_owned_by(params['id'], uid)
+    if not cohort:
+        raise BadRequestError('Cohort does not exist or is not owned by {}'.format(uid))
+
+    authorized_user.update_cohort(cohort_id=cohort['id'], label=label)
+    return jsonify({'message': 'Cohort updated (label: {})'.format(label)}), 200
+
+
+@app.route('/api/cohort/delete/<cohort_id>', methods=['DELETE'])
+@login_required
+def delete_cohort(cohort_id):
+    if cohort_id.isdigit():
+        cohort_id = int(cohort_id)
+        uid = current_user.get_id()
+        cohort = get_cohort_owned_by(cohort_id, uid)
+        if cohort:
+            authorized_user.delete_cohort(cohort_id)
+            if app.cache:
+                app.cache.delete(get_cache_key(cohort_id))
+            return jsonify({'message': 'Cohort deleted (id={})'.format(cohort_id)}), 200
+        else:
+            raise BadRequestError('User {uid} does not own cohort_filter with id={id}'.format(uid=uid, id=cohort_id))
     else:
-        raise BadRequestError('User {uid} does not own cohort_filter with id={code}'.format(uid=uid, code=code))
+        raise ForbiddenRequestError('Programmatic deletion of teams is not supported (id={})'.format(cohort_id))
 
 
-def get_cohort_filter_owned_by(cohort_filter_id, uid):
-    cohort = None
+def get_cohort_owned_by(cohort_filter_id, uid):
+    result = None
     # Cohort must exist and be owned by user
-    for cohort_filter in authorized_user.cohort_filters_owned_by(uid):
-        if cohort_filter_id == cohort_filter.id:
-            members = []
-            # Extract team codes from filter_criteria
-            filter_criteria = json.loads(cohort_filter.filter_criteria)
-            team_codes = []
-            for team_code in filter_criteria['teams']:
-                team = get_team_details(team_code)
-                members += team['members']
-                team_codes.append(team_code)
-            # Prepare the response
-            cohort = {
-                'code': cohort_filter.id,
-                'name': cohort_filter.label,
-                'members': members,
-                'team_codes': team_codes,
-            }
+    for cohort in authorized_user.load_cohorts_owned_by(uid):
+        if cohort_filter_id == cohort.id:
+            result = summarize(cohort)
             break
 
-    return cohort
+    return result
+
+
+def get_cohorts_owned_by(uid):
+    cohorts = []
+    # Cohort must exist and be owned by user
+    for cohort in authorized_user.load_cohorts_owned_by(uid):
+        cohorts.append(summarize(cohort))
+    return cohorts
+
+
+def summarize(cohort):
+    members = []
+    # Extract team members per cohort team codes, etc.
+    filter_criteria = json.loads(cohort.filter_criteria)
+    teams = []
+    for code in filter_criteria['teams']:
+        team = get_team_details(code)
+        members += team['members']
+        teams.append({
+            'code': code,
+            'name': team['name'],
+            'member_count': len(team['members']),
+        })
+    # Create a serializable object
+    return {
+        'id': cohort.id,
+        'label': cohort.label,
+        'members': members,
+        'teams': teams,
+    }
 
 
 def get_team_details(team_code):

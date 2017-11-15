@@ -21,7 +21,7 @@
     $scope.$watch('search.select.teamCode', function() {
       var teamCode = $scope.search.select.teamCode;
       if (teamCode) {
-        cohortFactory.getCohortDetails(teamCode).then(function(response) {
+        cohortFactory.getCohort(teamCode).then(function(response) {
           $scope.search.results = response.data.members;
         });
       }

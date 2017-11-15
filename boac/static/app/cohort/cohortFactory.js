@@ -6,17 +6,36 @@
 
   boac.factory('cohortFactory', function($http) {
 
+    var deleteCohort = function(id) {
+      return $http.delete('/api/cohort/delete/' + id);
+    };
+
+    var getCohort = function(code) {
+      return $http.get('/api/cohort/' + code);
+    };
+
+    var getMyCohorts = function() {
+      return $http.get('/api/cohorts/my');
+    };
+
     var getTeams = function() {
       return $http.get('/api/teams');
     };
 
-    var getCohortDetails = function(code) {
-      return $http.get('/api/cohort/' + code);
+    var updateCohort = function(id, label) {
+      var args = {
+        id: id,
+        label: label
+      };
+      return $http.post('/api/cohort/update', args);
     };
 
     return {
+      deleteCohort: deleteCohort,
+      getCohort: getCohort,
+      getMyCohorts: getMyCohorts,
       getTeams: getTeams,
-      getCohortDetails: getCohortDetails
+      updateCohort: updateCohort
     };
   });
 

@@ -62,16 +62,20 @@ class TestCohortDetail:
         assert response.json['members'][0]['uid'] == '61889'
         assert response.json['members'][0]['avatar_url'] == 'https://calspirit.berkeley.edu/oski/images/oskibio.jpg'
 
-    def test_custom_cohort_details(self, authenticated_session, client, fixture_team_members):
+    def test_get_cohort(self, authenticated_session, client, fixture_team_members):
         """returns a well-formed response with custom cohort"""
         user = authorized_user.load_user(test_uid)
         cohort_filter_id = user.cohort_filters[0].id
         response = client.get('/api/cohort/{}'.format(cohort_filter_id))
         assert response.status_code == 200
         data = json.loads(response.data)
-        assert data['code'] > 0
-        assert data['name'] == 'Men and women\'s soccer'
-        assert data['team_codes'] == ['SCW', 'SCM']
+        assert data['id'] > 0
+        assert data['label'] == 'Men and women\'s soccer'
+
+        teams = data['teams']
+        assert len(teams) == 2
+        assert teams[0]['code'] == 'SCW'
+        assert teams[0]['name'] == 'Soccer - Women'
         assert isinstance(data['members'], list)
 
     def test_create_cohort_filter(self, authenticated_session, client, fixture_team_members):
@@ -83,12 +87,12 @@ class TestCohortDetail:
         response = client.post('/api/cohort/create', data=json.dumps(custom_cohort), content_type='application/json')
         assert response.status_code == 200
 
-    def test_delete_cohort_filter_not_authenticated(self, client):
+    def test_delete_cohort_not_authenticated(self, client):
         """custom cohort deletion requires authentication"""
         response = client.delete('/api/cohort/delete/{}'.format('123'))
         assert response.status_code == 401
 
-    def test_delete_cohort_filter_wrong_user(self, client, fake_auth):
+    def test_delete_cohort_wrong_user(self, client, fake_auth):
         """custom cohort deletion is only available to owners"""
         cohort_filter = CohortFilter.create(label='Badminton teams', team_codes=['MBK', 'WBK'])
         authorized_user.create_cohort_filter(cohort_filter, test_uid)
@@ -98,7 +102,7 @@ class TestCohortDetail:
         assert response.status_code == 400
         assert '2040 does not own' in str(response.data)
 
-    def test_delete_cohort_filter(self, authenticated_session, client):
+    def test_delete_cohort(self, authenticated_session, client):
         """deletes existing custom cohort while enforcing rules of ownership"""
         label = 'Water polo teams'
         cohort_filter = CohortFilter.create(label=label, team_codes=['WPW', 'WPM'])
@@ -113,5 +117,5 @@ class TestCohortDetail:
 
 
 def find_cohort_filter_owned_by(uid, label):
-    cohort_filters = authorized_user.cohort_filters_owned_by(uid)
-    return next((cohort for cohort in cohort_filters if cohort.label == label), None)
+    cohorts = authorized_user.load_cohorts_owned_by(uid)
+    return next((cohort for cohort in cohorts if cohort.label == label), None)

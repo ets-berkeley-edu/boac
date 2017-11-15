@@ -200,7 +200,7 @@
     };
 
     var loadCohort = authService.authWrap(function() {
-      cohortFactory.getCohortDetails($stateParams.code).then(
+      cohortFactory.getCohort($stateParams.code).then(
         displayCohort,
         function() {
           $scope.errored = true;
