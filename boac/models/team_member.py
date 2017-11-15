@@ -70,7 +70,7 @@ class TeamMember(Base):
     }
 
     @classmethod
-    def list_all(cls):
+    def list_all(cls, sort_by='name'):
         results = db.session.query(cls.code, func.count(cls.member_uid)).group_by(cls.code).all()
 
         def translate_row(row):
@@ -79,7 +79,8 @@ class TeamMember(Base):
                 'name': cls.team_definitions.get(row[0], row[0]),
                 'memberCount': row[1],
             }
-        return [translate_row(row) for row in results]
+        teams = [translate_row(row) for row in results]
+        return sorted(teams, key=lambda team: team[sort_by])
 
     @classmethod
     def for_code(cls, code):

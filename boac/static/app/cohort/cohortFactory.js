@@ -6,8 +6,20 @@
 
   boac.factory('cohortFactory', function($http) {
 
+    var createCohort = function(label, teamCodes) {
+      var args = {
+        label: label,
+        teamCodes: teamCodes
+      };
+      return $http.post('/api/cohort/create', args);
+    };
+
     var deleteCohort = function(id) {
       return $http.delete('/api/cohort/delete/' + id);
+    };
+
+    var getAll = function() {
+      return $http.get('/api/cohorts/all');
     };
 
     var getCohort = function(code) {
@@ -31,7 +43,9 @@
     };
 
     return {
+      createCohort: createCohort,
       deleteCohort: deleteCohort,
+      getAll: getAll,
       getCohort: getCohort,
       getMyCohorts: getMyCohorts,
       getTeams: getTeams,

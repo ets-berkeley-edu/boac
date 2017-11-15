@@ -4,13 +4,11 @@
 
   angular.module('boac').controller('LandingController', function(authService, cohortFactory, $rootScope, $scope) {
 
-    $scope.isLoading = false;
+    $scope.isLoading = true;
 
-    var loadTeams = function() {
-      $scope.isLoading = true;
-
-      cohortFactory.getTeams().then(function(teams) {
-        $scope.teams = teams.data;
+    var init = function() {
+      cohortFactory.getTeams().then(function(response) {
+        $scope.teams = response.data;
         $scope.isLoading = false;
       });
     };
@@ -19,7 +17,7 @@
       $scope.alertMessage = 'Log in failed. Please try again.';
     });
 
-    authService.authWrap(loadTeams);
+    authService.authWrap(init)();
   });
 
 }(window.angular));

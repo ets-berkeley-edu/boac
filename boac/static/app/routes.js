@@ -27,8 +27,18 @@
         templateUrl: '/static/app/cohort/cohort.html',
         controller: 'CohortController'
       })
+      .state('allCohorts', {
+        url: '/cohorts/all',
+        templateUrl: '/static/app/cohort/all.html',
+        controller: 'AllCohortsController'
+      })
       .state('manageCohorts', {
         url: '/cohorts/manage',
+        templateUrl: '/static/app/cohort/manage.html',
+        controller: 'ManageCohortsController'
+      })
+      .state('manageCohort', {
+        url: '/cohorts/manage/{cohort_id}',
         templateUrl: '/static/app/cohort/manage.html',
         controller: 'ManageCohortsController'
       })

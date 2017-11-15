@@ -6,29 +6,43 @@
 
     $scope.search = {
       isLoading: true,
-      criteria: {
-        teams: []
-      },
       options: {
-        teams: null
-      },
-      select: {
-        teamCode: null
+        teams: []
       },
       results: []
     };
 
-    $scope.$watch('search.select.teamCode', function() {
-      var teamCode = $scope.search.select.teamCode;
-      if (teamCode) {
-        cohortFactory.getCohort(teamCode).then(function(response) {
-          $scope.search.results = response.data.members;
+    $scope.selected = {
+      teams: []
+    };
+
+    $scope.watch = {
+      teamCode: null
+    };
+
+    $scope.$watch('search.watch.teamCode', function() {
+      var code = $scope.watch.teamCode;
+      if (code) {
+        cohortFactory.getTeam(code).then(function(response) {
+          var team = response.data;
+          $scope.search.results = team.members;
+          $scope.selected.teams.push(code);
         });
       }
     }, true);
 
-    var loadTeams = function() {
+    $scope.createCohort = function(label) {
       $scope.isLoading = true;
+      if ($scope.selected.teams) {
+        cohortFactory.createCohort(label, $scope.selected.teams).then(function(teams) {
+          $scope.search.teams = teams;
+          $scope.search.isLoading = false;
+        });
+      }
+    };
+
+    var init = function() {
+      $scope.search.isLoading = true;
 
       cohortFactory.getTeams().then(function(teams) {
         $scope.search.options.teams = teams.data;
@@ -36,9 +50,7 @@
       });
     };
 
-    var init = authService.authWrap(loadTeams);
-
-    init();
+    authService.authWrap(init)();
   });
 
 }(window.angular));

@@ -30,12 +30,11 @@ class TestUserProfile:
         test_uid = '53791'
         fake_auth.login(test_uid)
         response = client.get('/api/profile')
-        assert len(response.json['cohortFilters']) == 2
+        assert len(response.json['myCohorts']) >= 2
 
 
 class TestUserAnalytics:
     """User Analytics API"""
-
     api_path = '/api/user/{}/analytics'
     field_hockey_star = api_path.format(61889)
     non_student_uid = 2040

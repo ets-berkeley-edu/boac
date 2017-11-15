@@ -1,19 +1,49 @@
 <div class="container">
   <div data-ng-include="'/static/app/shared/header.html'"></div>
 
-  <h1>Welcome to BOAC</h1>
   <div class="body-text" data-ng-if="me.authenticated_as.is_authenticated">
-    <div>Choose a team:</div>
-    <div class="container" data-ng-if="isLoading">
-      <div>Loading.... </div>
+    <h1>My Dashboard</h1>
+
+    <div class="flex-container flex-space-between">
+      <div class="flex-item">
+        <h2>Teams List</h2>
+        <div class="container" data-ng-if="teamsLoading">
+          <div>Loading.... </div>
+        </div>
+        <div data-ng-if="!teamsLoading">
+          <div data-ng-if="!teams.length">
+            <div>There are zero teams in the database.</div>
+          </div>
+          <div data-ng-if="teams.length">
+            <ul data-ng-if="!teamsLoading">
+              <li data-ng-repeat="team in teams">
+                <a data-ng-bind="team.name" data-ng-href="/cohort/{{team.code}}"></a>
+                (<span data-ng-bind="team.memberCount"></span>)
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="flex-item">
+        <h2>My Saved Cohorts</h2>
+        <div>
+          <div data-ng-if="!me.myCohorts.length">
+            <div>You have no saved cohorts</div>
+          </div>
+          <div data-ng-if="me.myCohorts.length">
+            <ul>
+              <li data-ng-repeat="cohort in me.myCohorts">
+                <a data-ng-bind="cohort.label" data-ng-href="/cohort/{{cohort.id}}"></a>
+                (<span data-ng-bind="cohort.memberCount"></span>)
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
-    <ul data-ng-if="!isLoading">
-      <li data-ng-repeat="team in teams">
-        <a data-ng-bind="team.name" data-ng-href="/cohort/{{team.code}}"></a>
-      </li>
-    </ul>
   </div>
   <div class="body-text" data-ng-if="!me.authenticated_as.is_authenticated">
+    <h1>Welcome to BOAC</h1>
     <div data-ng-bind="alertMessage || 'Please sign in.'"></div>
   </div>
 
