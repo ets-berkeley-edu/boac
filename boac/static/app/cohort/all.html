@@ -1,0 +1,31 @@
+<div class="container">
+  <div data-ng-include="'/static/app/shared/header.html'"></div>
+
+  <div class="body-text" data-ng-if="me.authenticated_as.is_authenticated">
+    <h1>Everyone's Cohorts</h1>
+
+    <div class="container" data-ng-if="isLoading">
+      <div>Loading.... </div>
+    </div>
+    <div data-ng-if="!isLoading">
+      <div data-ng-if="isEmpty(allCohorts)">
+        <div>There are no saved cohorts</div>
+      </div>
+      <div data-ng-if="!isEmpty(allCohorts)">
+        <ul>
+          <li data-ng-repeat="(uid, cohorts) in allCohorts">
+            <span data-ng-bind="'Owned by UID ' + uid"></span>
+            <ul>
+              <li data-ng-repeat="cohort in cohorts">
+                <a data-ng-bind="cohort.label" data-ng-href="/cohort/{{cohort.id}}"></a>
+                (<span data-ng-bind="cohort.memberCount"></span>)
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div data-ng-include="'/static/app/shared/footer.html'"></div>
+</div>

@@ -24,7 +24,7 @@ def create_app():
 def initialize_cache(app):
     """Baby's First Cache."""
     default = app.config['CACHE_DEFAULT']
-    if (default):
+    if default:
         app.cache = SimpleCache(default_timeout=default)
     else:
         app.cache = None

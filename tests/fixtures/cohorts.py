@@ -1,5 +1,5 @@
-from boac.models import authorized_user
-from boac.models.authorized_user import CohortFilter
+from boac.models.authorized_user import AuthorizedUser
+from boac.models.cohort_filter import CohortFilter
 from boac.models.team_member import TeamMember
 import pytest
 
@@ -13,18 +13,16 @@ def fixture_team_members(db_session):
 
 @pytest.fixture
 def fixture_custom_cohorts():
-    all_runners = CohortFilter.create(label='Runners', team_codes=['CCM', 'CCW', 'TIM', 'TIW'])
-    male_swimmers = CohortFilter.create(label='Swimmers', team_codes=['WPM', 'SDM'])
-    sid = authorized_user.load_user('53791')
-    nancy = authorized_user.load_user('95509')
+    sid = AuthorizedUser.find_by_uid('53791')
+    nancy = AuthorizedUser.find_by_uid('95509')
     # Sid gets two custom cohorts
-    all_runners = create_cohort_filter(all_runners, sid.uid)
-    male_swimmers = create_cohort_filter(male_swimmers, sid.uid)
+    all_runners = create_cohort(label='Runners', team_codes=['CCM', 'CCW', 'TIM', 'TIW'], uid=sid.uid)
+    male_swimmers = create_cohort(label='Swimmers', team_codes=['WPM', 'SDM'], uid=sid.uid)
     # One is shared with Nancy
-    authorized_user.share_cohort_filter(male_swimmers.id, nancy.uid)
+    CohortFilter.share(male_swimmers.id, nancy.uid)
     return [all_runners, male_swimmers]
 
 
-def create_cohort_filter(cohort_filter, user_id):
-    authorized_user.create_cohort_filter(cohort_filter, user_id)
-    return authorized_user.load_user(user_id=user_id).cohort_filters[0]
+def create_cohort(label, team_codes, uid):
+    CohortFilter.create(label, team_codes, uid)
+    return AuthorizedUser.find_by_uid(uid).cohort_filters[0]

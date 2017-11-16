@@ -18,7 +18,7 @@
       });
     };
 
-    authService.authWrap(init);
+    authService.authWrap(init)();
   });
 
 }(window.angular));

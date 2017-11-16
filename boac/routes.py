@@ -1,4 +1,4 @@
-from boac.models import authorized_user
+from boac.models.authorized_user import AuthorizedUser
 from flask import make_response, request
 import flask_login
 
@@ -8,7 +8,7 @@ def register_routes(app):
     # Register authentication modules. This should be done before
     # any authentication-protected routes are registered.
     login_manager = flask_login.LoginManager()
-    login_manager.user_loader(authorized_user.load_user)
+    login_manager.user_loader(AuthorizedUser.find_by_uid)
     login_manager.init_app(app)
     import boac.auth.dev_auth
     import boac.auth.cas_auth
