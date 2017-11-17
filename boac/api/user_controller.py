@@ -7,7 +7,7 @@ from boac.lib.http import tolerant_jsonify
 from boac.lib.merged import merge_sis_enrollments, merge_sis_profile
 from boac.models.cohort_filter import CohortFilter
 from boac.models.team_member import TeamMember
-from flask import current_app as app
+from flask import current_app as app, request
 from flask_login import current_user, login_required
 
 
@@ -31,6 +31,12 @@ def user_profile():
         'canvasProfile': canvas_profile,
         'myCohorts': cohorts,
     })
+
+
+@app.route('/api/students/all')
+def all_students():
+    sort_by = request.args['sortBy'] if 'sortBy' in request.args else None
+    return tolerant_jsonify(TeamMember.all_athletes(sort_by=sort_by))
 
 
 @app.route('/api/user/<uid>/analytics')

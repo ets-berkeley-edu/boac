@@ -14,7 +14,7 @@ from flask_login import current_user, login_required
 @app.route('/api/teams')
 @login_required
 def teams_list():
-    return jsonify(TeamMember.list_all())
+    return jsonify(TeamMember.all_teams())
 
 
 @app.route('/api/cohorts/all')
@@ -122,14 +122,15 @@ def get_cohorts_owned_by(uid):
 
 def summarize_list_item(cohort):
     member_count = 0
-    for team_code in get_team_codes(cohort):
+    team_codes = [team['code'] for team in cohort['teams']]
+    for team_code in team_codes:
         team = TeamMember.for_code(team_code)
         member_count += len(team['members'])
     return {
-        'id': cohort.id,
-        'label': cohort.label,
+        'id': cohort['id'],
+        'label': cohort['label'],
         'memberCount': member_count,
-        'owners': [user.uid for user in cohort.owners],
+        'owners': cohort['owners'],
     }
 
 

@@ -9,6 +9,7 @@
     "d3": "4.8.0",
     "fontawesome": "4.4.0",
     "highcharts-release": "6.0.2",
-    "lodash": "^4.17.4"
+    "lodash": "^4.17.4",
+    "oi.select": "^0.2.21"
   }
 }
