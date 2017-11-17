@@ -70,7 +70,7 @@ class TeamMember(Base):
     }
 
     @classmethod
-    def list_all(cls, sort_by='name'):
+    def all_teams(cls, sort_by='name'):
         results = db.session.query(cls.code, func.count(cls.member_uid)).group_by(cls.code).all()
 
         def translate_row(row):
@@ -81,6 +81,27 @@ class TeamMember(Base):
             }
         teams = [translate_row(row) for row in results]
         return sorted(teams, key=lambda team: team[sort_by])
+
+    @classmethod
+    def all_athletes(cls, sort_by=None):
+        athletes = cls.query.order_by(cls.member_name).all()
+
+        def translate_row(athlete):
+            return {
+                'id': athlete.id,
+                'sport': athlete.asc_sport,
+                'name': athlete.member_name,
+                'sid': athlete.member_csid,
+                'uid': athlete.member_uid,
+                'teamCode': athlete.code,
+            }
+
+        athletes = [translate_row(athlete) for athlete in athletes]
+        if sort_by and len(athletes) > 0:
+            is_valid_key = sort_by in athletes[0]
+            athletes = sorted(athletes, key=lambda athlete: athlete[sort_by]) if is_valid_key else athletes
+
+        return athletes
 
     @classmethod
     def for_code(cls, code):

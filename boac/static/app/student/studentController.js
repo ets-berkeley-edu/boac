@@ -2,11 +2,11 @@
 
   'use strict';
 
-  angular.module('boac').controller('StudentController', function(analyticsFactory, authService, $scope, $stateParams) {
+  angular.module('boac').controller('StudentController', function(studentFactory, authService, $scope, $stateParams) {
 
     var loadAnalytics = authService.authWrap(function() {
       $scope.student.isLoading = true;
-      analyticsFactory.analyticsPerUser($stateParams.uid).then(function(analytics) {
+      studentFactory.analyticsPerUser($stateParams.uid).then(function(analytics) {
         $scope.student = analytics.data;
       }).catch(function(error) {
         $scope.error = _.truncate(error.data.message, {length: 200}) || 'An unexpected server error occurred.';

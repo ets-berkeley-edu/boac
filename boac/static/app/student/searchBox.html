@@ -1,0 +1,11 @@
+<label for="find-user" class="sr-only">Find a student</label>
+<oi-select id="find-user"
+           class="cleanMode"
+           size="100"
+           oi-options="student.uid as student.name group by student.sport for student in lazyLoadOptions()"
+           oi-select-options="{
+            maxlength: 255
+           }"
+           ng-model="search.uid"
+           placeholder="Search"
+           tabindex="-1"></oi-select>

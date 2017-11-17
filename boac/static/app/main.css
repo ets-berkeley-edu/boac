@@ -15,12 +15,6 @@
   display: flex;
 }
 
-.flex-item {
-  padding: 5px 10px 5px 10px;
-  margin: 5px;
-  vertical-align: middle;
-}
-
 .flex-space-between {
   justify-content: space-between;
 }

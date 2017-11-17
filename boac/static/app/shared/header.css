@@ -1,9 +1,26 @@
 .header {
   background-color: #e8e8e8;
-  overflow: hidden;
   position: relative;
 }
 
 .header-button {
   margin-left: 10px;
+}
+
+.header-column-home {
+  padding: 10px 0 0 20px;
+  vertical-align: middle;
+}
+
+.header-column-cohorts {
+  padding: 10px 0 10px 20px;
+}
+
+.header-column-search {
+  flex: 1;
+  padding: 10px 0 10px 20px;
+}
+
+.header-column-name {
+  padding: 10px 20px 10px 10px;
 }
