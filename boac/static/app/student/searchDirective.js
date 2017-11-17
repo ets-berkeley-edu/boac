@@ -11,7 +11,14 @@
       // @see https://docs.angularjs.org/guide/directive#isolating-the-scope-of-a-directive
       scope: {},
       templateUrl: '/static/app/student/searchBox.html',
-      controller: function(studentFactory, $q, $scope, $timeout) {
+      controller: function(studentFactory, $location, $q, $scope, $timeout) {
+
+        $scope.$watch('selectedUID', function() {
+          if (!_.isEmpty($scope.selectedUID)) {
+            $location.path('/student/' + $scope.selectedUID);
+            $location.replace();
+          }
+        });
 
         var loadOptions = function() {
           return studentFactory.getAllStudents('teamCode').then(function(response) {

@@ -3,12 +3,8 @@
   position: relative;
 }
 
-.header-button {
-  margin-left: 10px;
-}
-
 .header-column-home {
-  padding: 10px 0 0 20px;
+  padding: 15px 0 0 20px;
   vertical-align: middle;
 }
 
@@ -18,9 +14,13 @@
 
 .header-column-search {
   flex: 1;
-  padding: 10px 0 10px 20px;
+  padding: 10px 20px 10px 20px;
 }
 
 .header-column-name {
-  padding: 10px 20px 10px 10px;
+  padding: 17px 20px 10px 10px;
+}
+
+.header-column-login {
+  padding: 15px 20px 10px 10px;
 }
