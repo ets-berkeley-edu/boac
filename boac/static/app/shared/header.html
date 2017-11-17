@@ -12,7 +12,7 @@
     <li class="header-column-name" data-ng-if="me.authenticated_as.is_authenticated">
       <span data-ng-bind="me.authenticated_as.uid"></span>
     </li>
-    <li class="header-column-name" data-ng-controller="AuthController">
+    <li class="header-column-login" data-ng-controller="AuthController">
       <button id="header-sign-in" class="header-button" data-ng-click="casLogIn()" data-ng-if="!me.authenticated_as.is_authenticated">Sign In</button>
       <button id="header-log-out" class="header-button" data-ng-click="logOut()" data-ng-if="me.authenticated_as.is_authenticated">Log out</button>
     </li>

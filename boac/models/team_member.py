@@ -76,8 +76,8 @@ class TeamMember(Base):
         def translate_row(row):
             return {
                 'code': row[0],
-                'name': cls.team_definitions.get(row[0], row[0]),
                 'memberCount': row[1],
+                'name': cls.team_definitions.get(row[0], row[0]),
             }
         teams = [translate_row(row) for row in results]
         return sorted(teams, key=lambda team: team[sort_by])
@@ -89,11 +89,11 @@ class TeamMember(Base):
         def translate_row(athlete):
             return {
                 'id': athlete.id,
-                'sport': athlete.asc_sport,
                 'name': athlete.member_name,
                 'sid': athlete.member_csid,
-                'uid': athlete.member_uid,
+                'sport': athlete.asc_sport,
                 'teamCode': athlete.code,
+                'uid': athlete.member_uid,
             }
 
         athletes = [translate_row(athlete) for athlete in athletes]
@@ -108,8 +108,8 @@ class TeamMember(Base):
         members = cls.query.filter_by(code=code).all()
         return {
             'code': code,
-            'name': cls.team_definitions.get(code, code),
             'members': [member.to_api_json() for member in members],
+            'name': cls.team_definitions.get(code, code),
         }
 
     def to_api_json(self):
