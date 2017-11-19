@@ -11,7 +11,7 @@
       // @see https://docs.angularjs.org/guide/directive#isolating-the-scope-of-a-directive
       scope: {},
       templateUrl: '/static/app/cohort/dropdownNav.html',
-      controller: function(cohortFactory, $scope) {
+      controller: function(cohortFactory, $rootScope, $scope) {
 
         $scope.myCohorts = null;
 
@@ -20,6 +20,8 @@
             $scope.myCohorts = response.data;
           });
         };
+
+        $rootScope.$on('myCohortsUpdated', init);
 
         init();
       }

@@ -7,15 +7,15 @@
     <div class="flex-container flex-space-between">
       <div class="flex-item">
         <h2>Teams List</h2>
-        <div class="container" data-ng-if="teamsLoading">
+        <div class="container" data-ng-if="isLoading">
           <div>Loading.... </div>
         </div>
-        <div data-ng-if="!teamsLoading">
+        <div data-ng-if="!isLoading">
           <div data-ng-if="!teams.length">
             <div>There are zero teams in the database.</div>
           </div>
           <div data-ng-if="teams.length">
-            <ul data-ng-if="!teamsLoading">
+            <ul data-ng-if="!isLoading">
               <li data-ng-repeat="team in teams">
                 <a data-ng-bind="team.name" data-ng-href="/cohort/{{team.code}}"></a>
                 (<span data-ng-bind="team.memberCount"></span>)
