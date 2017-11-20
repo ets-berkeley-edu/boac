@@ -7,6 +7,9 @@
     <div>Loading.... </div>
   </div>
   <div data-ng-if="!isLoading">
+    <div data-ng-if="!myCohorts">
+      You have no saved cohorts.
+    </div>
     <div data-ng-repeat="cohort in myCohorts">
       <hr class="cohort-manage-row-separator"/>
       <div class="flex-container flex-space-between" data-ng-if="!cohort.editMode">

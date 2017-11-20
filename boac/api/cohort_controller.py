@@ -22,7 +22,7 @@ def teams_list():
 def all_cohorts():
     saved_cohorts = {}
     for cohort in CohortFilter.all():
-        summary = summarize_list_item(cohort)
+        summary = summarize(cohort, False)
         for uid in summary['owners']:
             if uid not in saved_cohorts:
                 saved_cohorts[uid] = []
@@ -34,10 +34,9 @@ def all_cohorts():
 @app.route('/api/cohorts/my')
 @login_required
 def my_cohorts():
-    uid = current_user.get_id()
     cohorts = []
-    for cohort in get_cohorts_owned_by(uid):
-        cohorts.append(summarize_list_item(cohort))
+    for cohort in CohortFilter.all_owned_by(current_user.get_id()):
+        cohorts.append(summarize(cohort, False))
 
     return jsonify(cohorts)
 
@@ -48,7 +47,7 @@ def get_cohort(code):
     if code.isdigit():
         cohort = summarize(CohortFilter.find_by_id(int(code)))
     else:
-        cohort = get_team_details(code)
+        cohort = get_team_details(code, True)
 
     return tolerant_jsonify(cohort)
 
@@ -75,7 +74,7 @@ def update_cohort():
     if not label:
         raise BadRequestError('Requested cohort label is empty or invalid')
 
-    cohort = get_cohort_owned_by(params['id'], uid)
+    cohort = get_cohort_owned_by(params['id'], uid, False)
     if not cohort:
         raise BadRequestError('Cohort does not exist or is not owned by {}'.format(uid))
 
@@ -89,7 +88,7 @@ def delete_cohort(cohort_id):
     if cohort_id.isdigit():
         cohort_id = int(cohort_id)
         uid = current_user.get_id()
-        cohort = get_cohort_owned_by(cohort_id, uid)
+        cohort = get_cohort_owned_by(cohort_id, uid, False)
         if cohort:
             CohortFilter.delete(cohort_id)
             if app.cache:
@@ -101,47 +100,22 @@ def delete_cohort(cohort_id):
         raise ForbiddenRequestError('Programmatic deletion of teams is not supported (id={})'.format(cohort_id))
 
 
-def get_cohort_owned_by(cohort_filter_id, uid):
+def get_cohort_owned_by(cohort_filter_id, uid, load_canvas_profile=False):
     result = None
     # Cohort must exist and be owned by user
     for cohort in CohortFilter.all_owned_by(uid):
         if cohort_filter_id == cohort.id:
-            result = summarize(cohort)
+            result = summarize(cohort, load_canvas_profile)
             break
 
     return result
 
 
-def get_cohorts_owned_by(uid):
-    cohorts = []
-    # Cohort must exist and be owned by user
-    for cohort in CohortFilter.all_owned_by(uid):
-        cohorts.append(summarize(cohort))
-    return cohorts
-
-
-def summarize_list_item(cohort):
-    member_count = 0
-    team_codes = [team['code'] for team in cohort['teams']]
-    teams = []
-    for team_code in team_codes:
-        team = TeamMember.for_code(team_code)
-        member_count += len(team['members'])
-        teams.append(team)
-    return {
-        'id': cohort['id'],
-        'label': cohort['label'],
-        'memberCount': member_count,
-        'owners': cohort['owners'],
-        'teams': teams,
-    }
-
-
-def summarize(cohort):
+def summarize(cohort, load_canvas_profile=False):
     members = []
     teams = []
     for code in get_team_codes(cohort):
-        team = get_team_details(code)
+        team = get_team_details(code, load_canvas_profile)
         members += team['members']
         teams.append({
             'code': code,
@@ -163,19 +137,22 @@ def get_team_codes(cohort):
     return filter_criteria['teams']
 
 
-def get_team_details(team_code):
+def get_team_details(team_code, load_canvas_profile=False):
     cache_key = get_cache_key(code=team_code)
     team = app.cache.get(cache_key) if app.cache else None
     if team is None:
         team = TeamMember.for_code(team_code)
-        for member in team['members']:
-            canvas_profile = canvas.get_user_for_uid(member['uid'])
-            if canvas_profile:
-                member['avatar_url'] = canvas_profile['avatar_url']
-                canvas_courses = canvas_courses_api_feed(canvas.get_student_courses_in_term(member['uid']))
-                if canvas_courses:
-                    member['analytics'] = mean_course_analytics_for_user(canvas_courses, canvas_profile['id'])
-        if app.cache:
+        if load_canvas_profile:
+            for member in team['members']:
+                canvas_profile = canvas.get_user_for_uid(member['uid'])
+                if canvas_profile:
+                    member['avatar_url'] = canvas_profile['avatar_url']
+                    canvas_courses = canvas_courses_api_feed(canvas.get_student_courses_in_term(member['uid']))
+                    if canvas_courses:
+                        member['analytics'] = mean_course_analytics_for_user(canvas_courses, canvas_profile['id'])
+
+        # Do not cache team data if it does not include Canvas profiles
+        if app.cache and load_canvas_profile:
             app.cache.set(cache_key, team)
 
     return team
