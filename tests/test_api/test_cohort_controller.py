@@ -62,6 +62,15 @@ class TestCohortDetail:
         assert response.json['members'][0]['uid'] == '61889'
         assert response.json['members'][0]['avatar_url'] == 'https://calspirit.berkeley.edu/oski/images/oskibio.jpg'
 
+    def test_my_cohorts(self, authenticated_session, client, fixture_custom_cohorts):
+        response = client.get('/api/cohorts/my')
+        assert response.status_code == 200
+
+        my_cohorts = response.json
+        assert len(my_cohorts) == 2
+        assert len(my_cohorts[0]['teams']) == 2
+        assert len(my_cohorts[1]['teams']) == 2
+
     def test_get_cohort(self, authenticated_session, client, fixture_team_members):
         """returns a well-formed response with custom cohort"""
         user = AuthorizedUser.find_by_uid(test_uid)

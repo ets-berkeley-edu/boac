@@ -13,11 +13,13 @@
       templateUrl: '/static/app/cohort/dropdownNav.html',
       controller: function(cohortFactory, $rootScope, $scope) {
 
+        $scope.isLoading = true;
         $scope.myCohorts = null;
 
         var init = function() {
           cohortFactory.getMyCohorts().then(function(response) {
             $scope.myCohorts = response.data;
+            $scope.isLoading = false;
           });
         };
 
