@@ -7,9 +7,13 @@
     $scope.isLoading = true;
 
     var init = function() {
-      cohortFactory.getTeams().then(function(response) {
-        $scope.teams = response.data;
-        $scope.isLoading = false;
+      cohortFactory.getTeams().then(function(teamsResponse) {
+        $scope.teams = teamsResponse.data;
+
+        cohortFactory.getMyCohorts().then(function(response) {
+          $scope.myCohorts = response.data;
+          $scope.isLoading = false;
+        });
       });
     };
 

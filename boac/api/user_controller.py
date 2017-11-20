@@ -5,7 +5,6 @@ from boac.lib.analytics import merge_analytics_for_user
 from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.http import tolerant_jsonify
 from boac.lib.merged import merge_sis_enrollments, merge_sis_profile
-from boac.models.cohort_filter import CohortFilter
 from boac.models.team_member import TeamMember
 from flask import current_app as app, request
 from flask_login import current_user, login_required
@@ -14,22 +13,14 @@ from flask_login import current_user, login_required
 @app.route('/api/profile')
 def user_profile():
     canvas_profile = False
-    cohorts = False
     if current_user.is_active:
         uid = current_user.get_id()
         canvas_profile = load_canvas_profile(uid)
-        cohorts = []
-        for cohort in CohortFilter.all_owned_by(uid):
-            cohorts.append({
-                'id': cohort.id,
-                'label': cohort.label,
-            })
     else:
         uid = False
     return tolerant_jsonify({
         'uid': uid,
         'canvasProfile': canvas_profile,
-        'myCohorts': cohorts,
     })
 
 
