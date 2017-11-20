@@ -4,6 +4,10 @@
   line-height: 1.8em;
 }
 
+.faint-text {
+  color: grey;
+}
+
 .dev-auth-login {
   margin-top: 10px;
 }

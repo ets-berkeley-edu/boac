@@ -4,18 +4,22 @@
 
   var boac = angular.module('boac');
 
-  boac.factory('cohortFactory', function($http) {
+  boac.factory('cohortFactory', function($http, $rootScope) {
 
     var createCohort = function(label, teamCodes) {
       var args = {
         label: label,
         teamCodes: teamCodes
       };
-      return $http.post('/api/cohort/create', args);
+      return $http.post('/api/cohort/create', args).then(function() {
+        $rootScope.$broadcast('myCohortsUpdated');
+      });
     };
 
-    var deleteCohort = function(id) {
-      return $http.delete('/api/cohort/delete/' + id);
+    var deleteCohort = function(cohort) {
+      return $http.delete('/api/cohort/delete/' + cohort.id).then(function() {
+        $rootScope.$broadcast('myCohortsUpdated');
+      });
     };
 
     var getAll = function() {
@@ -39,7 +43,9 @@
         id: id,
         label: label
       };
-      return $http.post('/api/cohort/update', args);
+      return $http.post('/api/cohort/update', args).then(function() {
+        $rootScope.$broadcast('myCohortsUpdated');
+      });
     };
 
     return {

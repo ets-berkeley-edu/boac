@@ -12,7 +12,55 @@
   flex: 0 0 60px;
 }
 
-.cohort-list-item {
+.cohort-filter-criteria {
+  align-items: stretch;
+  display: flex;
+  flex-direction: row;
+  padding: 10px 0 0 0;
+}
+
+.cohort-filter-criteria-label {
+  background-color: #5cb85c;
+  border-color: #5cb85c;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  color: #fff;
+  margin-right: 10px;
+  padding: 2px 10px 2px 10px;
+  white-space: nowrap;
+}
+
+.cohort-manage-btn {
+  margin: 0 0 0 5px;
+}
+
+.cohort-manage-btn-link {
+  line-height: normal;
+  padding: 0 0 0 2px;
+}
+
+.cohort-manage-row {
+  flex-flow: wrap;
+}
+
+.cohort-manage-row div:first-child {
+  margin-right: 10px;
+}
+
+.cohort-manage-row div:last-child {
+  margin-right: 150px;
+}
+
+.cohort-manage-row-separator {
+  margin: 30px 0 30px 0;
+}
+
+.cohort-manage-text-input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.cohort-member-list-item {
   border-left: none;
   border-right: none;
   display: flex;
@@ -33,12 +81,6 @@
   font-size: 11px;
   font-weight: bold;
   margin: 5px 0;
-}
-
-.cohort-sort {
-  display: inline-block;
-  margin-left: 5px;
-  width: 150px;
 }
 
 .cohort-sort-container {

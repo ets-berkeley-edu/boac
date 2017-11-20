@@ -3,30 +3,78 @@
 
   <h1>Manage Cohorts</h1>
 
-  <div data-ng-if="myCohorts.isLoading">
+  <div data-ng-if="isLoading">
     <div>Loading.... </div>
   </div>
   <div data-ng-if="!isLoading">
-    <ul>
-      <li data-ng-repeat="cohort in myCohorts">
+    <div data-ng-repeat="cohort in myCohorts">
+      <hr class="cohort-manage-row-separator"/>
+      <div class="flex-container flex-space-between" data-ng-if="!cohort.editMode">
         <div>
-          <input type="text" data-ng-model="cohort.label" id="cohort-{{$index}}" required aria-required="true" maxlength="255"/>
-          <button class="header-button" data-ng-click="updateCohort(cohort.id, cohort.label)">
-            Rename ({{cohort.id}})
-          </button>
-          <button class="header-button" data-ng-click="deleteCohort(cohort.id)">
-            <i class="fa fa-trash-o"></i> Delete
-          </button>
+          <strong><span id="cohort-label-{{$index}}" data-ng-bind="cohort.label"></span></strong>
+          <span class="faint-text">(<span id="cohort-member-count-{{$index}}" data-ng-bind="cohort.memberCount"></span>)</span>
         </div>
         <div>
-          <ul>
-            <li data-ng-repeat="team in cohort.teams" data-ng-if="cohort.teams">
-              <span data-ng-bind="team.name"></span>
-            </li>
-          </ul>
+          <span data-ng-controller="DeleteCohortController">
+            <button type="button"
+                    id="delete-cohort-btn-{{$index}}"
+                    class="btn-link cohort-manage-btn-link"
+                    data-ng-click="openDeleteCohortModal(cohort)">
+              Delete
+            </button> <span class="faint-text">|</span>
+          </span>
+          <button type="button"
+                  id="edit-cohort-btn-{{$index}}"
+                  class="btn-link cohort-manage-btn-link"
+                  data-ng-click="setEditMode(cohort, true)">
+            Rename
+          </button> <span class="faint-text">|</span>
+          <button type="button"
+                  id="cohort-details-btn-{{$index}}"
+                  class="btn-link cohort-manage-btn-link"
+                  data-ng-click="setShowDetails(cohort, !cohort.detailsShowing)">
+            <span data-ng-if="!cohort.detailsShowing">Show Details</span>
+            <span data-ng-if="cohort.detailsShowing">Hide Details</span>
+          </button>
         </div>
-      </li>
-    </ul>
+      </div>
+      <div class="flex-container flex-space-between cohort-manage-row" data-ng-show="cohort.editMode">
+        <div class="cohort-manage-text-input">
+          <input type="text"
+                 id="cohort-label-input-{{$index}}"
+                 class="form-control"
+                 data-ng-model="cohort.label"
+                 required
+                 aria-required="true"/>
+        </div>
+        <div class="flex-container flex-space-between">
+          <button type="button"
+                  id="cohort-cancel-btn-{{$index}}"
+                  class="btn btn-sm btn-default cohort-manage-btn"
+                  data-ng-click="setEditMode(cohort, false)">
+            Cancel
+          </button>
+          <button type="button"
+                  id="cohort-save-btn-{{$index}}"
+                  class="btn btn-sm btn-primary cohort-manage-btn"
+                  data-ng-click="updateCohort(cohort, cohort.label)">
+            Rename
+          </button>
+        </div>
+      </div>
+
+      <div data-ng-show="cohort.detailsShowing">
+        <div id="cohort-filter-criteria-{{$index}}"
+             class="cohort-filter-criteria"
+             data-ng-if="cohort.teams">
+          <div data-ng-repeat="team in cohort.teams">
+            <span class="cohort-filter-criteria-label"
+                  data-ng-bind="'Team : ' + team.name"></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <div data-ng-include="'/static/app/shared/footer.html'"></div>

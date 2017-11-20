@@ -123,14 +123,17 @@ def get_cohorts_owned_by(uid):
 def summarize_list_item(cohort):
     member_count = 0
     team_codes = [team['code'] for team in cohort['teams']]
+    teams = []
     for team_code in team_codes:
         team = TeamMember.for_code(team_code)
         member_count += len(team['members'])
+        teams.append(team)
     return {
         'id': cohort['id'],
         'label': cohort['label'],
         'memberCount': member_count,
         'owners': cohort['owners'],
+        'teams': teams,
     }
 
 
