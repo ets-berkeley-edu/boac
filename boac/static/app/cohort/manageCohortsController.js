@@ -37,8 +37,6 @@
     $scope.deleteCohort = cohortFactory.deleteCohort;
 
     var init = function() {
-      $scope.isLoading = true;
-
       cohortFactory.getMyCohorts().then(function(response) {
         $scope.myCohorts = response.data;
         resetPageView(angular.noop);

@@ -41,9 +41,13 @@ def load_development_data():
     csv_reader = csv.DictReader(_default_users_csv.splitlines())
     team_codes = list(TeamMember.team_definitions.keys())
     for row in csv_reader:
-        user = AuthorizedUser(**row)
-        db.session.add(user)
-        # A subset of users get saved cohorts
+        # This script can be run more than once. Do not create user if s/he exists in BOAC db.
+        user = AuthorizedUser.find_by_uid(row['uid'])
+        if not user:
+            user = AuthorizedUser(**row)
+            db.session.add(user)
+
+        # Random UIDs get test data (saved cohorts)
         if '1' in user.uid:
             create_cohort(team_codes.pop(), team_codes.pop(), user.uid)
             create_cohort(team_codes.pop(), team_codes.pop(), user.uid)
