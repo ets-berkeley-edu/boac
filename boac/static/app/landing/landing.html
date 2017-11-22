@@ -18,7 +18,7 @@
             <ul data-ng-if="!isLoading">
               <li data-ng-repeat="team in teams">
                 <a data-ng-bind="team.name" data-ng-href="/cohort/{{team.code}}"></a>
-                (<span data-ng-bind="team.memberCount"></span>)
+                (<span data-ng-bind="team.totalMemberCount"></span>)
               </li>
             </ul>
           </div>
@@ -37,7 +37,7 @@
             <ul>
               <li data-ng-repeat="cohort in myCohorts">
                 <a data-ng-bind="cohort.label" data-ng-href="/cohort/{{cohort.id}}"></a>
-                (<span data-ng-bind="cohort.memberCount"></span>)
+                (<span data-ng-bind="cohort.totalMemberCount"></span>)
               </li>
             </ul>
           </div>

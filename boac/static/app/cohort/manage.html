@@ -11,11 +11,11 @@
       You have no saved cohorts.
     </div>
     <div data-ng-repeat="cohort in myCohorts">
-      <hr class="cohort-manage-row-separator"/>
+      <hr class="flex-row-wrap-separator"/>
       <div class="flex-container flex-space-between" data-ng-if="!cohort.editMode">
         <div>
           <strong><span id="cohort-label-{{$index}}" data-ng-bind="cohort.label"></span></strong>
-          <span class="faint-text">(<span id="cohort-member-count-{{$index}}" data-ng-bind="cohort.memberCount"></span>)</span>
+          <span class="faint-text">(<span id="cohort-member-count-{{$index}}" data-ng-bind="cohort.totalMemberCount"></span>)</span>
         </div>
         <div>
           <span data-ng-controller="DeleteCohortController">
@@ -41,7 +41,7 @@
           </button>
         </div>
       </div>
-      <div class="flex-container flex-space-between cohort-manage-row" data-ng-show="cohort.editMode">
+      <div class="flex-container flex-space-between flex-row-wrap" data-ng-show="cohort.editMode">
         <div class="cohort-manage-text-input">
           <input type="text"
                  id="cohort-label-input-{{$index}}"

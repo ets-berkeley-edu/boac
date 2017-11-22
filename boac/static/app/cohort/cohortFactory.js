@@ -26,8 +26,12 @@
       return $http.get('/api/cohorts/all');
     };
 
-    var getCohort = function(code) {
-      return $http.get('/api/cohort/' + code);
+    var getCohort = function(code, orderBy, offset, limit) {
+      return $http.post('/api/cohort/' + code, {
+        offset: offset || 0,
+        limit: limit || 50,
+        orderBy: orderBy || 'member_name'
+      });
     };
 
     var getMyCohorts = function() {

@@ -4,10 +4,12 @@ and which privileges they have. It will probably end up as a DB table, but is
 simply mocked-out a la "demo mode" for now.
 """
 
+import json
 from boac import db
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.authorized_user import cohort_filter_owners
 from boac.models.base import Base
+from boac.models.team_member import TeamMember
 from flask_login import UserMixin
 
 
@@ -38,6 +40,7 @@ class CohortFilter(Base, UserMixin):
         user = AuthorizedUser.find_by_uid(uid)
         user.cohort_filters.append(cohort)
         db.session.commit()
+        return summarize(cohort)
 
     @classmethod
     def update(cls, cohort_id, label):
@@ -45,28 +48,65 @@ class CohortFilter(Base, UserMixin):
         cohort.label = label
         db.session.add(cohort)
         db.session.commit()
+        return summarize(cohort)
 
     @classmethod
     def share(cls, cohort_filter_id, user_id):
-        cohort_filter = CohortFilter.query.filter_by(id=cohort_filter_id).first()
+        cohort = CohortFilter.query.filter_by(id=cohort_filter_id).first()
         user = AuthorizedUser.find_by_uid(user_id)
-        user.cohort_filters.append(cohort_filter)
+        user.cohort_filters.append(cohort)
         db.session.commit()
+        return summarize(cohort)
 
     @classmethod
     def all(cls):
-        return CohortFilter.query.all()
+        return [summarize(cohort) for cohort in CohortFilter.query.all()]
 
     @classmethod
     def all_owned_by(cls, uid):
-        return CohortFilter.query.filter(CohortFilter.owners.any(uid=uid)).all()
+        cohorts = CohortFilter.query.filter(CohortFilter.owners.any(uid=uid)).all()
+        return [summarize(cohort) for cohort in cohorts]
 
     @classmethod
-    def find_by_id(cls, cohort_id):
-        return CohortFilter.query.filter_by(id=cohort_id).first()
+    def find_by_id(cls, cohort_id, order_by='member_name', offset=0, limit=50):
+        result = CohortFilter.query.filter_by(id=cohort_id).first()
+        cohort = result and summarize(result, order_by, offset, limit)
+        return cohort
 
     @classmethod
     def delete(cls, cohort_id):
         cohort = CohortFilter.query.filter_by(id=cohort_id).first()
         db.session.delete(cohort)
         db.session.commit()
+
+
+def summarize(cohort, order_by='member_name', offset=0, limit=50):
+    filter_criteria = json.loads(cohort.filter_criteria)
+    team_codes = filter_criteria['teams'] if 'teams' in filter_criteria else None
+    summary = {
+        'id': cohort.id,
+        'label': cohort.label,
+        'owners': [user.uid for user in cohort.owners],
+    }
+
+    if limit > 0 and len(team_codes) > 0:
+        summary['teams'] = []
+        for code in team_codes:
+            team = TeamMember.for_code(code)
+            summary['teams'].append({
+                'code': code,
+                'name': team['name'],
+            })
+        o = TeamMember.member_uid if order_by == 'member_uid' else TeamMember.member_name
+        f = TeamMember.code.in_(team_codes)
+        results = TeamMember.query.distinct(o).order_by(o).filter(f).offset(offset).limit(limit).all()
+
+        summary['members'] = []
+        for row in results:
+            summary['members'].append(TeamMember.translate_row(row))
+
+        summary['totalMemberCount'] = TeamMember.query.distinct(o).filter(f).count()
+        db.session.commit()
+
+    # Return a serializable object
+    return summary

@@ -76,7 +76,7 @@ class TeamMember(Base):
         def translate_row(row):
             return {
                 'code': row[0],
-                'memberCount': row[1],
+                'totalMemberCount': row[1],
                 'name': cls.team_definitions.get(row[0], row[0]),
             }
         teams = [translate_row(row) for row in results]
@@ -86,17 +86,7 @@ class TeamMember(Base):
     def all_athletes(cls, sort_by=None):
         athletes = cls.query.order_by(cls.member_name).all()
 
-        def translate_row(athlete):
-            return {
-                'id': athlete.id,
-                'name': athlete.member_name,
-                'sid': athlete.member_csid,
-                'sport': athlete.asc_sport,
-                'teamCode': athlete.code,
-                'uid': athlete.member_uid,
-            }
-
-        athletes = [translate_row(athlete) for athlete in athletes]
+        athletes = [TeamMember.translate_row(athlete) for athlete in athletes]
         if sort_by and len(athletes) > 0:
             is_valid_key = sort_by in athletes[0]
             athletes = sorted(athletes, key=lambda athlete: athlete[sort_by]) if is_valid_key else athletes
@@ -104,8 +94,8 @@ class TeamMember(Base):
         return athletes
 
     @classmethod
-    def for_code(cls, code):
-        members = cls.query.filter_by(code=code).all()
+    def for_code(cls, code, order_by='member_name', offset=0, limit=50):
+        members = cls.query.filter_by(code=code).order_by(order_by).offset(offset).limit(limit).all()
         return {
             'code': code,
             'members': [member.to_api_json() for member in members],
@@ -116,4 +106,15 @@ class TeamMember(Base):
         return {
             'name': self.member_name,
             'uid': self.member_uid,
+        }
+
+    @classmethod
+    def translate_row(cls, athlete):
+        return {
+            'id': athlete.id,
+            'name': athlete.member_name,
+            'sid': athlete.member_csid,
+            'sport': athlete.asc_sport,
+            'teamCode': athlete.code,
+            'uid': athlete.member_uid,
         }

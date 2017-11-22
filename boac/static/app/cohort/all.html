@@ -18,7 +18,7 @@
             <ul>
               <li data-ng-repeat="cohort in cohorts">
                 <a data-ng-bind="cohort.label" data-ng-href="/cohort/{{cohort.id}}"></a>
-                (<span data-ng-bind="cohort.memberCount"></span>)
+                (<span data-ng-bind="cohort.totalMemberCount"></span>)
               </li>
             </ul>
           </li>
