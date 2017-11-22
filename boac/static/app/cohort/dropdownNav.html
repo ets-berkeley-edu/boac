@@ -10,6 +10,7 @@
       aria-labelledby="btn-append-to-single-button"
       uib-dropdown-menu>
     <li role="menuitem" aria-disabled="true" data-ng-if="isLoading"><a>Loading....</a></li>
+    <li role="menuitem" aria-disabled="true" data-ng-if="!isLoading && !myCohorts.length"><a>No saved cohorts</a></li>
     <li role="menuitem"
         data-ng-repeat="cohort in myCohorts"
         data-ng-if="myCohorts.length && !isLoading">

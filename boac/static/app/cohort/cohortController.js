@@ -4,12 +4,19 @@
 
   angular.module('boac').controller('CohortController', function(cohortFactory, authService, $scope, $state, $stateParams) {
 
-    var displayCohort = function(cohort) {
-      $scope.cohort = cohort.data;
-      $scope.selectedTab = 'list';
-      $scope.cohort.sortBy = 'name';
+    $scope.orderBy = {
+      options: [{value: 'member_name', label: 'Name'}, {value: 'member_uid', label: 'UID'}],
+      selected: 'member_name'
+    };
 
-      var partitionedMembers = _.partition(cohort.data.members, function(member) {
+    // More info: https://angular-ui.github.io/bootstrap/
+    $scope.pagination = {
+      currentPage: 0,
+      itemsPerPage: 50
+    };
+
+    var displayCohort = function(cohort) {
+      var partitionedMembers = _.partition(cohort.members, function(member) {
         return _.isFinite(_.get(member, 'analytics.pageViews'));
       });
       var membersWithData = partitionedMembers[0];
@@ -199,15 +206,36 @@
       });
     };
 
-    var loadCohort = authService.authWrap(function() {
-      cohortFactory.getCohort($stateParams.code).then(
-        displayCohort,
-        function() {
-          $scope.errored = true;
+    var loadPage = authService.authWrap(function() {
+      var page = $scope.pagination.currentPage;
+      var offset = page === 0 ? 0 : (page - 1) * $scope.pagination.itemsPerPage;
+      cohortFactory.getCohort($stateParams.code, $scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(
+        function(response) {
+          var cohort = response.data;
+          displayCohort(cohort);
+          $scope.cohort = cohort;
+        },
+        function(err) {
+          $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
         }
       );
     });
 
-    loadCohort();
+    $scope.nextPage = function() {
+      loadPage();
+    };
+
+    $scope.$watch('orderBy.selected', function() {
+      $scope.pagination.currentPage = 0;
+      loadPage();
+    });
+
+    var init = function() {
+      $scope.selectedTab = 'list';
+      loadPage();
+    };
+
+    init();
+
   });
 }(window.angular));
