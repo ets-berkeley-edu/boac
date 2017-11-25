@@ -27,6 +27,7 @@ class TestUserProfile:
         assert response.json['canvasProfile']['sis_login_id'] == test_uid
 
 
+@pytest.mark.usefixtures('db_session')
 class TestUserAnalytics:
     """User Analytics API"""
     api_path = '/api/user/{}/analytics'
@@ -54,7 +55,7 @@ class TestUserAnalytics:
         response = client.get(TestUserAnalytics.field_hockey_star)
         assert response.status_code == 401
 
-    def test_user_analytics_authenticated(self, fixture_team_members, authenticated_response):
+    def test_user_analytics_authenticated(self, authenticated_response):
         """returns a well-formed response if authenticated"""
         assert authenticated_response.status_code == 200
         assert authenticated_response.json['uid'] == '61889'
@@ -111,7 +112,7 @@ class TestUserAnalytics:
         assert response.status_code == 404
         assert response.json['message'] == 'No Canvas profile found for user'
 
-    def test_sis_enrollment_merge(self, fixture_team_members, authenticated_response):
+    def test_sis_enrollment_merge(self, authenticated_response):
         """merges SIS enrollment data"""
         burmese = TestUserAnalytics.get_course_for_code(authenticated_response, 'BURMESE 1A')
         assert len(burmese['sisEnrollments']) == 1
@@ -143,7 +144,7 @@ class TestUserAnalytics:
         assert nuclear['sisEnrollments'][0]['gradingBasis'] == 'PNP'
         assert nuclear['sisEnrollments'][0]['grade'] == 'P'
 
-    def test_sis_enrollment_not_found(self, fixture_team_members, authenticated_session, client):
+    def test_sis_enrollment_not_found(self, authenticated_session, client):
         """gracefully handles missing SIS enrollments"""
         sis_error = MockResponse(200, {}, '{"apiResponse": {"response": {"message": "Something unexpected."}}}')
         with register_mock(sis_enrollments_api._get_enrollments, sis_error):
@@ -153,7 +154,7 @@ class TestUserAnalytics:
             for course in response.json['courses']:
                 assert not course.get('sisEnrollments')
 
-    def test_sis_profile(self, fixture_team_members, authenticated_response):
+    def test_sis_profile(self, authenticated_response):
         """provides SIS profile data"""
         sis_profile = authenticated_response.json['sisProfile']
         assert sis_profile['cumulativeGPA'] == 3.8
@@ -173,7 +174,7 @@ class TestUserAnalytics:
         assert sis_profile['preferredName'] == 'Osk Bear'
         assert sis_profile['primaryName'] == 'Oski Bear'
 
-    def test_sis_profile_unexpected_payload(self, fixture_team_members, authenticated_session, client):
+    def test_sis_profile_unexpected_payload(self, authenticated_session, client):
         """gracefully handles unexpected SIS profile data"""
         sis_response = MockResponse(200, {}, '{"apiResponse": {"response": {"message": "Something wicked."}}}')
         with register_mock(sis_student_api._get_student, sis_response):
@@ -182,7 +183,7 @@ class TestUserAnalytics:
             assert response.json['canvasProfile']
             assert not response.json['sisProfile']
 
-    def test_sis_profile_error(self, fixture_team_members, authenticated_session, client):
+    def test_sis_profile_error(self, authenticated_session, client):
         """gracefully handles SIS profile error"""
         sis_error = MockResponse(500, {}, '{"message": "Internal server error."}')
         with register_mock(sis_student_api._get_student, sis_error):

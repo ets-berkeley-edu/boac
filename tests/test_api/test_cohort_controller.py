@@ -16,12 +16,12 @@ class TestTeamsList:
 
     api_path = '/api/teams'
 
-    def test_not_authenticated(self, client, fixture_team_members):
+    def test_not_authenticated(self, client):
         """returns 401 if not authenticated"""
         response = client.get(TestTeamsList.api_path)
         assert response.status_code == 401
 
-    def test_authenticated(self, authenticated_session, client, fixture_team_members):
+    def test_authenticated(self, authenticated_session, client):
         """returns a well-formed response if authenticated"""
         response = client.get(TestTeamsList.api_path)
         assert response.status_code == 200
@@ -37,12 +37,12 @@ class TestCohortDetail:
     valid_api_path = '/api/cohort/FHW'
     invalid_api_path = '/api/cohort/XYZ'
 
-    def test_not_authenticated(self, client, fixture_team_members):
+    def test_not_authenticated(self, client):
         """returns 401 if not authenticated"""
         response = client.post(TestCohortDetail.valid_api_path)
         assert response.status_code == 401
 
-    def test_path_without_translation(self, authenticated_session, client, fixture_team_members):
+    def test_path_without_translation(self, authenticated_session, client):
         """returns code as name when no code-to-name translation exists"""
         response = client.post(TestCohortDetail.invalid_api_path)
         assert response.status_code == 200
@@ -50,7 +50,7 @@ class TestCohortDetail:
         assert response.json['name'] == 'XYZ'
         assert len(response.json['members']) == 0
 
-    def test_valid_path(self, authenticated_session, client, fixture_team_members):
+    def test_valid_path(self, authenticated_session, client):
         """returns a well-formed response on a valid code if authenticated"""
         response = client.post(TestCohortDetail.valid_api_path)
         assert response.status_code == 200
@@ -61,7 +61,7 @@ class TestCohortDetail:
         assert response.json['members'][0]['uid'] == '61889'
         assert response.json['members'][0]['avatar_url'] == 'https://calspirit.berkeley.edu/oski/images/oskibio.jpg'
 
-    def test_my_cohorts(self, authenticated_session, client, fixture_custom_cohorts):
+    def test_my_cohorts(self, authenticated_session, client):
         response = client.get('/api/cohorts/my')
         assert response.status_code == 200
 
@@ -70,7 +70,7 @@ class TestCohortDetail:
         assert len(my_cohorts[0]['teams']) == 2
         assert len(my_cohorts[1]['teams']) == 2
 
-    def test_get_cohort(self, authenticated_session, client, fixture_team_members):
+    def test_get_cohort(self, authenticated_session, client):
         """returns a well-formed response with custom cohort"""
         user = AuthorizedUser.find_by_uid(test_uid)
         cohort_id = user.cohort_filters[0].id
@@ -87,7 +87,7 @@ class TestCohortDetail:
         assert isinstance(data['members'], list)
         assert data['totalMemberCount'] == len(data['members'])
 
-    def test_offset_and_limit(self, authenticated_session, client, fixture_team_members):
+    def test_offset_and_limit(self, authenticated_session, client):
         """returns a well-formed response with custom cohort"""
         user = AuthorizedUser.find_by_uid(test_uid)
         api_path = '/api/cohort/{}'.format(user.cohort_filters[0].id)
@@ -103,7 +103,7 @@ class TestCohortDetail:
         # Verify that a different offset results in a different member
         assert data_offset_zero['members'][0]['uid'] != data_offset_one['members'][0]['uid']
 
-    def test_create_cohort(self, authenticated_session, client, fixture_team_members):
+    def test_create_cohort(self, authenticated_session, client):
         """creates custom cohort, owned by current user"""
         label = 'All tennis, all the time'
         team_codes = ['TNW', 'TNM']
