@@ -44,15 +44,14 @@ class CohortFilter(Base, UserMixin):
 
     @classmethod
     def update(cls, cohort_id, label):
-        cohort = CohortFilter.find_by_id(cohort_id=cohort_id)
+        cohort = CohortFilter.query.filter_by(id=cohort_id).first()
         cohort.label = label
-        db.session.add(cohort)
         db.session.commit()
         return summarize(cohort)
 
     @classmethod
-    def share(cls, cohort_filter_id, user_id):
-        cohort = CohortFilter.query.filter_by(id=cohort_filter_id).first()
+    def share(cls, cohort_id, user_id):
+        cohort = CohortFilter.query.filter_by(id=cohort_id).first()
         user = AuthorizedUser.find_by_uid(user_id)
         user.cohort_filters.append(cohort)
         db.session.commit()

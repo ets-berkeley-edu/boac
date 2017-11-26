@@ -1,15 +1,23 @@
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
+import pytest
 
 
+@pytest.mark.usefixtures('db_session')
 class TestCohortFilter:
     """Cohort Filter"""
 
-    def test_no_cohort(self, db_session):
+    def test_no_cohort(self):
         assert not CohortFilter.find_by_id(99999999)
         assert not CohortFilter.all_owned_by('88888888')
 
-    def test_create_and_delete_cohort(self, db_session):
+    def test_cohort_update(self):
+        cohort = CohortFilter.create(label='Football teams', team_codes=['FBM', 'FBW'], uid='2040')
+        foosball_label = 'Foosball teams'
+        cohort = CohortFilter.update(cohort['id'], foosball_label)
+        assert cohort['label'] == foosball_label
+
+    def test_create_and_delete_cohort(self):
         """cohort_filter record to Flask-Login for recognized UID"""
         owner = AuthorizedUser.find_by_uid('2040')
         shared_with = AuthorizedUser.find_by_uid('1133399')

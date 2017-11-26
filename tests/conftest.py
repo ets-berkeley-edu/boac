@@ -2,9 +2,6 @@ import os
 import boac.factory
 import pytest
 
-from tests.fixtures.cohorts import fixture_team_members # noqa
-from tests.fixtures.cohorts import fixture_custom_cohorts # noqa
-
 
 os.environ['BOAC_ENV'] = 'test'
 
@@ -69,6 +66,7 @@ def db_session(db, request):
     db.session.rollback()
     connection = db.engine.connect()
     transaction = connection.begin()
+
     options = dict(bind=connection, binds={})
     _session = db.create_scoped_session(options=options)
     db.session = _session
@@ -77,6 +75,7 @@ def db_session(db, request):
     def teardown():
         transaction.rollback()
         _session.remove()
+
     request.addfinalizer(teardown)
 
     return _session

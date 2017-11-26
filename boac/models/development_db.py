@@ -58,6 +58,8 @@ def load_development_data():
             create_cohort(next_codes[0], next_codes[1], user.uid)
             create_cohort(next_codes[2], next_codes[3], user.uid)
 
+    db.session.add(TeamMember(code='FHW', member_uid='61889', member_csid='11667051', member_name='Brigitte Lin'))
+
     db.session.commit()
 
 
