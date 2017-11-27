@@ -1,3 +1,4 @@
+import json
 import os
 import boac.factory
 import pytest
@@ -13,10 +14,11 @@ class FakeAuth(object):
 
     def login(self, uid):
         self.app.config['DEVELOPER_AUTH_ENABLED'] = True
-        self.client.post(
-            '/devauth/login',
-            data={'uid': uid, 'password': self.app.config['DEVELOPER_AUTH_PASSWORD']},
-        )
+        params = {
+            'uid': uid,
+            'password': self.app.config['DEVELOPER_AUTH_PASSWORD'],
+        }
+        self.client.post('/devauth/login', data=json.dumps(params), content_type='application/json')
 
 
 # Because app and db fixtures are only created once per pytest run, individual tests

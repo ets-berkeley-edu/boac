@@ -1,3 +1,6 @@
+import json
+
+
 class TestDevAuth:
     """DevAuth handling"""
 
@@ -8,25 +11,29 @@ class TestDevAuth:
         app.config['DEVELOPER_AUTH_ENABLED'] = False
         response = client.post('/devauth/login')
         assert response.status_code == 404
-        response = client.post('/devauth/login', data={'uid': self.authorized_uid, 'password': app.config['DEVELOPER_AUTH_PASSWORD']})
+        params = {'uid': self.authorized_uid, 'password': app.config['DEVELOPER_AUTH_PASSWORD']}
+        response = client.post('/devauth/login', data=json.dumps(params), content_type='application/json')
         assert response.status_code == 404
 
     def test_password_fail(self, app, client):
         """fails if no match on developer password"""
         app.config['DEVELOPER_AUTH_ENABLED'] = True
-        response = client.post('/devauth/login', data={'uid': self.authorized_uid, 'password': 'Born 2 Lose'})
+        params = {'uid': self.authorized_uid, 'password': 'Born 2 Lose'}
+        response = client.post('/devauth/login', data=json.dumps(params), content_type='application/json')
         assert response.status_code == 403
 
     def test_authorized_user_fail(self, app, client):
         """fails if the chosen UID does not match an authorized user"""
         app.config['DEVELOPER_AUTH_ENABLED'] = True
-        response = client.post('/devauth/login', data={'uid': 'A Bad Sort', 'password': app.config['DEVELOPER_AUTH_PASSWORD']})
+        params = {'uid': 'A Bad Sort', 'password': app.config['DEVELOPER_AUTH_PASSWORD']}
+        response = client.post('/devauth/login', data=json.dumps(params), content_type='application/json')
         assert response.status_code == 403
 
     def test_known_user_with_correct_password_logs_in(self, app, client):
         """there is a happy path"""
         app.config['DEVELOPER_AUTH_ENABLED'] = True
-        response = client.post('/devauth/login', data={'uid': self.authorized_uid, 'password': app.config['DEVELOPER_AUTH_PASSWORD']})
+        params = {'uid': self.authorized_uid, 'password': app.config['DEVELOPER_AUTH_PASSWORD']}
+        response = client.post('/devauth/login', data=json.dumps(params), content_type='application/json')
         assert response.status_code == 302
         response = client.get('/api/status')
         assert response.status_code == 200

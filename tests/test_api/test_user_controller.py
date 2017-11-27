@@ -32,7 +32,7 @@ class TestUserAnalytics:
     """User Analytics API"""
     api_path = '/api/user/{}/analytics'
     field_hockey_star = api_path.format(61889)
-    non_student_uid = 2040
+    non_student_uid = '2040'
     non_student = api_path.format(non_student_uid)
     unknown_uid = 9999999
     unknown = api_path.format(unknown_uid)
@@ -103,7 +103,7 @@ class TestUserAnalytics:
         fake_auth.login(TestUserAnalytics.non_student_uid)
         response = client.get(TestUserAnalytics.non_student)
         assert response.status_code == 200
-        assert int(response.json['uid']) == TestUserAnalytics.non_student_uid
+        assert response.json['uid'] == TestUserAnalytics.non_student_uid
         assert not response.json['courses']
 
     def test_canvas_profile_not_found(self, authenticated_session, client):
