@@ -4,10 +4,10 @@
       <a href="/">Home</a>
     </li>
     <li class="header-column-cohorts" data-ng-if="me.authenticated_as.is_authenticated">
-      <cohorts-dropdown></cohorts-dropdown>
+      <my-cohorts-dropdown></my-cohorts-dropdown>
     </li>
     <li class="header-column-search" data-ng-if="me.authenticated_as.is_authenticated">
-      <search></search>
+      <find-student></find-student>
     </li>
     <li class="header-column-name" data-ng-if="me.authenticated_as.is_authenticated">
       <span data-ng-bind="me.authenticated_as.uid"></span>

@@ -89,23 +89,7 @@ def summarize(cohort, order_by='member_name', offset=0, limit=50):
     }
 
     if limit > 0 and len(team_codes) > 0:
-        summary['teams'] = []
-        for code in team_codes:
-            team = TeamMember.for_code(code)
-            summary['teams'].append({
-                'code': code,
-                'name': team['name'],
-            })
-        o = TeamMember.member_uid if order_by == 'member_uid' else TeamMember.member_name
-        f = TeamMember.code.in_(team_codes)
-        results = TeamMember.query.distinct(o).order_by(o).filter(f).offset(offset).limit(limit).all()
-
-        summary['members'] = []
-        for row in results:
-            summary['members'].append(TeamMember.translate_row(row))
-
-        summary['totalMemberCount'] = TeamMember.query.distinct(o).filter(f).count()
-        db.session.commit()
+        summary.update(TeamMember.summarize_team_members(team_codes, order_by, offset, limit))
 
     # Return a serializable object
     return summary

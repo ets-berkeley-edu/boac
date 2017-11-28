@@ -16,6 +16,17 @@ def teams_list():
     return jsonify(TeamMember.all_teams())
 
 
+@app.route('/api/teams/members', methods=['POST'])
+@login_required
+def teams_members():
+    params = request.get_json()
+    team_codes = get_param(params, 'teamCodes', [])
+    order_by = get_param(params, 'orderBy', 'member_name')
+    offset = get_param(params, 'offset', 0)
+    limit = get_param(params, 'limit', 50)
+    return jsonify(TeamMember.summarize_team_members(team_codes, order_by, offset, limit))
+
+
 @app.route('/api/cohorts/all')
 @login_required
 def all_cohorts():
