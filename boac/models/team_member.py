@@ -100,6 +100,7 @@ class TeamMember(Base):
             'code': code,
             'members': [member.to_api_json() for member in members],
             'name': cls.team_definitions.get(code, code),
+            'totalMemberCount': TeamMember.query.filter_by(code=code).count(),
         }
 
     @classmethod

@@ -14,6 +14,9 @@
         <label for="search-teams" class="sr-only">Select team</label>
         <oi-select id="search-teams"
                    oi-options="team.code as team.name for team in search.options.teams"
+                   oi-select-options="{
+                    cleanModel: true
+                   }"
                    ng-model="search.watch.teamCode"
                    placeholder="Team"
                    tabindex="-1"></oi-select>
