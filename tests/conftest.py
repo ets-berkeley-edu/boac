@@ -61,24 +61,23 @@ def db(app, request):
 def db_session(db, request):
     """
     Fixture database session used for the scope of a single test. All executions are wrapped
-    in a transaction and then rolled back to keep individual tests isolated.
+    in a session and then rolled back to keep individual tests isolated.
     """
-    # Mixing SQL-using test fixtures with SQL-using decorators can trigger not-yet-diagnosed
-    # freezes in Flask-SQLAlchemy due to DB session debris.
+    # Mixing SQL-using test fixtures with SQL-using decorators seems to cause timing issues with pytest's
+    # fixture finalizers. Instead of using a finalizer to roll back the session and close connections,
+    # we begin by cleaning up any previous invocations.
     db.session.rollback()
-    connection = db.engine.connect()
-    transaction = connection.begin()
+    try:
+        db.session.get_bind().close()
+    # The session bind will close only if it was provided a specific connection via this fixture.
+    except AttributeError:
+        pass
+    db.session.remove()
 
+    connection = db.engine.connect()
     options = dict(bind=connection, binds={})
     _session = db.create_scoped_session(options=options)
     db.session = _session
-
-    # Roll back transaction when the test is complete.
-    def teardown():
-        transaction.rollback()
-        _session.remove()
-
-    request.addfinalizer(teardown)
 
     return _session
 
