@@ -2,7 +2,7 @@
 
   'use strict';
 
-  angular.module('boac').directive('search', function() {
+  angular.module('boac').directive('findStudent', function() {
 
     return {
       // @see https://docs.angularjs.org/guide/directive#template-expanding-directive
@@ -10,7 +10,7 @@
 
       // @see https://docs.angularjs.org/guide/directive#isolating-the-scope-of-a-directive
       scope: {},
-      templateUrl: '/static/app/student/searchBox.html',
+      templateUrl: '/static/app/student/findStudentSelect.html',
       controller: function(studentFactory, $location, $q, $scope, $timeout) {
 
         $scope.$watch('selectedUID', function() {

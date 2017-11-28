@@ -8,19 +8,48 @@
       <span class="faint-text" data-ng-if="error.message">(<span data-ng-bind="error.message"></span>)</span>
     </div>
   </div>
-  <div class="container" data-ng-if="!error && !cohort">
-    <div>Loading....</div>
-  </div>
-  <div class="flex-container cohort-manage-columns" data-ng-show="!error && cohort">
+  <div class="flex-container cohort-manage-columns">
     <div class="cohort-column-search">
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-      magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-      consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-      Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <div>
+        <label for="search-teams" class="sr-only">Select team</label>
+        <oi-select id="search-teams"
+                   oi-options="team.code as team.name for team in search.options.teams"
+                   ng-model="search.watch.teamCode"
+                   placeholder="Team"
+                   tabindex="-1"></oi-select>
+        <ul data-ng-if="search.selected.teams.length">
+          <li data-ng-repeat="team in search.selected.teams | orderBy:team.name">
+            <span data-ng-bind="team.name"></span>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <button class="header-button"
+                data-ng-click="createCohort()"
+                data-ng-if="!isLoading && !cohort">
+          Save Cohort
+        </button>
+      </div>
     </div>
-    <div class="cohort-column-results">
+    <div class="cohort-column-results" data-ng-if="!isLoading && !search.results.totalCount">
       <h1>
-        <span data-ng-bind="cohort.totalMemberCount"></span> Results
+        Create a Cohort
+      </h1>
+      <div>
+        Find a custom set of users using the search criteria on the left of page. You will then have the option to
+        save the search and revisit your custom cohort whenever you want.
+      </div>
+    </div>
+    <div class="cohort-column-results" data-ng-if="isLoading">
+      <h1>Loading....</h1>
+    </div>
+    <div class="cohort-column-results" data-ng-if="!isLoading && search.results.totalCount">
+      <h1 data-ng-if="cohort">
+        <span data-ng-bind="cohort.label || cohort.name"></span>
+        <span class="faint-text">(<span data-ng-bind="search.results.totalCount"></span> members)</span>
+      </h1>
+      <h1 data-ng-if="!cohort">
+        <span data-ng-bind="search.results.totalCount"></span> Results
       </h1>
       <div class="flex-container flex-space-between">
         <div class="btn-group cohort-btn-group" role="group" aria-label="Select results view">
@@ -46,28 +75,27 @@
           </select>
         </div>
       </div>
-
       <div data-ng-show="selectedTab === 'list'">
         <ul class="list-group">
           <a class="list-group-item cohort-member-list-item"
-             data-ng-href="/student/{{member.uid}}"
-             data-ng-repeat="member in cohort.members | orderBy:cohort.orderBy">
+             data-ng-href="/student/{{row.uid}}"
+             data-ng-repeat="row in search.results.rows">
             <div class="cohort-avatar-container">
-              <img class="cohort-avatar" data-ng-src="{{member.avatar_url}}">
+              <img class="cohort-avatar" data-ng-src="{{row.avatar_url}}">
             </div>
             <div class="cohort-member-name-container">
-              <h3 class="cohort-member-name" data-ng-bind="member.name"></h3>
-              <div class="cohort-member-uid" data-ng-bind="member.uid"></div>
+              <h3 class="cohort-member-name" data-ng-bind="row.name"></h3>
+              <div class="cohort-member-uid" data-ng-bind="row.uid"></div>
             </div>
           </a>
         </ul>
         <ul uib-pagination
             direction-links="false"
             items-per-page="pagination.itemsPerPage"
-            total-items="cohort.totalMemberCount"
+            total-items="search.results.totalCount"
             ng-model="pagination.currentPage"
             data-ng-click="nextPage()"
-            data-ng-if="cohort.totalMemberCount && cohort.totalMemberCount > pagination.itemsPerPage"></ul>
+            data-ng-if="search.results.totalCount && search.results.totalCount > pagination.itemsPerPage"></ul>
       </div>
       <div data-ng-show="selectedTab === 'matrix'">
         <div id="scatterplot"></div>

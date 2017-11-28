@@ -102,12 +102,6 @@ class TeamMember(Base):
             'name': cls.team_definitions.get(code, code),
         }
 
-    def to_api_json(self):
-        return {
-            'name': self.member_name,
-            'uid': self.member_uid,
-        }
-
     @classmethod
     def translate_row(cls, athlete):
         return {
@@ -117,4 +111,33 @@ class TeamMember(Base):
             'sport': athlete.asc_sport,
             'teamCode': athlete.code,
             'uid': athlete.member_uid,
+        }
+
+    @classmethod
+    def summarize_team_members(cls, team_codes, order_by='member_name', offset=0, limit=50):
+        summary = {
+            'teams': [],
+        }
+        for code in team_codes:
+            team = TeamMember.for_code(code)
+            summary['teams'].append({
+                'code': code,
+                'name': team['name'],
+            })
+        o = TeamMember.member_uid if order_by == 'member_uid' else TeamMember.member_name
+        f = TeamMember.code.in_(team_codes)
+        results = TeamMember.query.distinct(o).order_by(o).filter(f).offset(offset).limit(limit).all()
+
+        summary['members'] = []
+        for row in results:
+            summary['members'].append(TeamMember.translate_row(row))
+
+        summary['totalMemberCount'] = TeamMember.query.distinct(o).filter(f).count()
+        db.session.commit()
+        return summary
+
+    def to_api_json(self):
+        return {
+            'name': self.member_name,
+            'uid': self.member_uid,
         }

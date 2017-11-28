@@ -38,6 +38,15 @@
       return $http.get('/api/cohorts/my');
     };
 
+    var getTeamsMembers = function(teamCodes, orderBy, offset, limit) {
+      return $http.post('/api/teams/members', {
+        teamCodes: teamCodes,
+        offset: offset || 0,
+        limit: limit || 50,
+        orderBy: orderBy || 'member_name'
+      });
+    };
+
     var getTeams = function() {
       return $http.get('/api/teams');
     };
@@ -58,6 +67,7 @@
       getAll: getAll,
       getCohort: getCohort,
       getMyCohorts: getMyCohorts,
+      getTeamsMembers: getTeamsMembers,
       getTeams: getTeams,
       updateCohort: updateCohort
     };

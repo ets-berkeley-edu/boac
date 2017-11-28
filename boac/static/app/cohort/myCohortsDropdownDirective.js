@@ -2,7 +2,7 @@
 
   'use strict';
 
-  angular.module('boac').directive('cohortsDropdown', function() {
+  angular.module('boac').directive('myCohortsDropdown', function() {
 
     return {
       // @see https://docs.angularjs.org/guide/directive#template-expanding-directive
@@ -10,7 +10,7 @@
 
       // @see https://docs.angularjs.org/guide/directive#isolating-the-scope-of-a-directive
       scope: {},
-      templateUrl: '/static/app/cohort/dropdownNav.html',
+      templateUrl: '/static/app/cohort/myCohortsDropdown.html',
       controller: function(cohortFactory, $rootScope, $scope) {
 
         $scope.isLoading = true;
