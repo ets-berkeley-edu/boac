@@ -78,21 +78,21 @@ class TestUserAnalytics:
         course_with_enrollment = TestUserAnalytics.get_course_for_code(authenticated_response, 'MED ST 205')
 
         assert course_with_enrollment['analytics']['assignmentsOnTime']['student']['raw'] == 5
-        assert course_with_enrollment['analytics']['assignmentsOnTime']['student']['percentile'] == pytest.approx(92.9, 0.1)
+        assert course_with_enrollment['analytics']['assignmentsOnTime']['student']['percentile'] == 92.9
         assert course_with_enrollment['analytics']['assignmentsOnTime']['student']['zscore'] == pytest.approx(1.469, 0.01)
         assert course_with_enrollment['analytics']['assignmentsOnTime']['courseDeciles'][0] == 0.0
         assert course_with_enrollment['analytics']['assignmentsOnTime']['courseDeciles'][9] == 5.0
         assert course_with_enrollment['analytics']['assignmentsOnTime']['courseDeciles'][10] == 6.0
 
         assert course_with_enrollment['analytics']['pageViews']['student']['raw'] == 768
-        assert course_with_enrollment['analytics']['pageViews']['student']['percentile'] == pytest.approx(54.3, 0.1)
+        assert course_with_enrollment['analytics']['pageViews']['student']['percentile'] == 54.3
         assert course_with_enrollment['analytics']['pageViews']['student']['zscore'] == pytest.approx(0.108, 0.01)
         assert course_with_enrollment['analytics']['pageViews']['courseDeciles'][0] == 9.0
-        assert course_with_enrollment['analytics']['pageViews']['courseDeciles'][9] == pytest.approx(917.0)
+        assert course_with_enrollment['analytics']['pageViews']['courseDeciles'][9] == 917.0
         assert course_with_enrollment['analytics']['pageViews']['courseDeciles'][10] == 31983.0
 
         assert course_with_enrollment['analytics']['participations']['student']['raw'] == 5
-        assert course_with_enrollment['analytics']['participations']['student']['percentile'] == pytest.approx(82.64, 0.01)
+        assert course_with_enrollment['analytics']['participations']['student']['percentile'] == 82.6
         assert course_with_enrollment['analytics']['participations']['student']['zscore'] == pytest.approx(0.941, 0.01)
         assert course_with_enrollment['analytics']['participations']['courseDeciles'][0] == 0.0
         assert course_with_enrollment['analytics']['participations']['courseDeciles'][9] == 6.0

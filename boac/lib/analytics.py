@@ -62,14 +62,14 @@ def analytics_from_summary_feed(summary_feed, canvas_user_id, canvas_course):
     }
 
 
-def quantiles(series, count):
+def quantiles(series, count, ndigits=1):
     """Return a given number of evenly spaced quantiles for a given series"""
-    return [series.quantile(n / count) for n in range(0, count + 1)]
+    return [round(series.quantile(n / count), ndigits) for n in range(0, count + 1)]
 
 
-def zptile(z_score):
+def zptile(z_score, ndigits=1):
     """Derive percentile from zscore"""
-    return 50 * (math.erf(z_score / 2 ** .5) + 1)
+    return round(50 * (math.erf(z_score / 2 ** .5) + 1), ndigits)
 
 
 def zscore(dataframe, row, column_name):
