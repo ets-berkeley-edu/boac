@@ -60,6 +60,7 @@ class TestCohortDetail:
         assert response.json['members'][0]['name'] == 'Brigitte Lin'
         assert response.json['members'][0]['uid'] == '61889'
         assert response.json['members'][0]['avatar_url'] == 'https://calspirit.berkeley.edu/oski/images/oskibio.jpg'
+        assert response.json['totalMemberCount'] == len(response.json['members'])
 
     def test_my_cohorts(self, authenticated_session, client):
         response = client.get('/api/cohorts/my')
