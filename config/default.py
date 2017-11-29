@@ -65,3 +65,7 @@ LOGGING_LEVEL = logging.DEBUG
 
 # Caching (number of seconds, or false to disable)
 CACHE_DEFAULT = False
+
+# If the top decile of any analytics measure is below this number, treat it as zero ("no data").
+# At the beginning of a term, the bar may be lowered.
+MEANINGFUL_STATS_MINIMUM = 4

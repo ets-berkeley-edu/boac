@@ -113,7 +113,7 @@
             <li>
               Assignments on time:
               <span data-ng-bind="percentile(course.analytics.assignmentsOnTime)"></span>
-              <div class="boxplot-container" data-ng-if="course.analytics.assignmentsOnTime.student.percentile">
+              <div class="boxplot-container" data-ng-if="!course.analytics.assignmentsOnTime.insufficientData">
                 <div id="boxplot-{{course.canvasCourseId}}-assignmentsOnTime"
                      class="boxplot"
                      data-ng-init="drawBoxplot(course.canvasCourseId, 'assignmentsOnTime')"></div>
@@ -122,7 +122,7 @@
             <li>
               Page views:
               <span data-ng-bind="percentile(course.analytics.pageViews)"></span>
-              <div class="boxplot-container" data-ng-if="course.analytics.pageViews.student.percentile">
+              <div class="boxplot-container" data-ng-if="!course.analytics.pageViews.insufficientData">
                 <div id="boxplot-{{course.canvasCourseId}}-pageViews"
                      class="boxplot"
                      data-ng-init="drawBoxplot(course.canvasCourseId, 'pageViews')"></div>
@@ -131,7 +131,7 @@
             <li>
               Participations:
               <span data-ng-bind="percentile(course.analytics.participations)"></span>
-              <div class="boxplot-container" data-ng-if="course.analytics.participations.student.percentile">
+              <div class="boxplot-container" data-ng-if="!course.analytics.participations.insufficientData">
                 <div id="boxplot-{{course.canvasCourseId}}-participations"
                      class="boxplot"
                      data-ng-init="drawBoxplot(course.canvasCourseId, 'participations')"></div>

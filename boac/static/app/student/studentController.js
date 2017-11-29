@@ -170,10 +170,10 @@
     };
 
     $scope.percentile = function(courseData) {
-      var rawPercentile = courseData.student.percentile;
-      if (!rawPercentile && rawPercentile !== 0) {
+      if (courseData.insufficientData) {
         return 'No data';
       }
+      var rawPercentile = courseData.student.percentile;
       var percentileRounded = _.round(rawPercentile);
 
       var ordinalSuffix = 'th';
