@@ -1,0 +1,20 @@
+<div class="modal-header">
+  <h3 id="confirm-delete-header">Name Your Saved Cohort</h3>
+</div>
+<div class="modal-body" id="confirm-delete-body">
+  <div>Cohort Name:</div>
+  <div>
+    <input data-ng-model="cohortName" type="text" required>
+    <span class="has-error" data-ng-bind="errorMessage" data-ng-if="errorMessage"></span>
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button"
+          id="cohort-confirm-delete-btn"
+          class="btn btn btn-primary"
+          data-ng-click="create(cohort)">Save</button>
+  <button type="button"
+          id="cohort-cancel-delete-btn"
+          class="btn btn-default"
+          data-ng-click="cancel()">Cancel</button>
+</div>

@@ -51,12 +51,12 @@ def my_cohorts():
 def get_cohort(code):
     params = request.get_json()
     order_by = get_param(params, 'orderBy', 'member_name')
+    offset = get_param(params, 'offset', 0)
+    limit = get_param(params, 'limit', 50)
     if code.isdigit():
-        offset = get_param(params, 'offset', 0)
-        limit = get_param(params, 'limit', 50)
         cohort = CohortFilter.find_by_id(int(code), order_by, offset, limit)
     else:
-        cohort = TeamMember.for_code(code)
+        cohort = TeamMember.for_code(code, order_by, offset, limit)
         load_member_profiles(cohort)
         # Translate requested order_by to naming convention of TeamMember
         sort_by = 'uid' if order_by == 'member_uid' else 'name'
@@ -70,7 +70,7 @@ def get_cohort(code):
 def create_cohort():
     params = request.get_json()
     label = params['label']
-    team_codes = params['team_codes']
+    team_codes = params['teamCodes']
     if not label or not team_codes:
         raise BadRequestError('Cohort creation requires \'label\' and \'teams\'')
 

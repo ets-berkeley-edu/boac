@@ -64,6 +64,10 @@
   min-width: 350px;
 }
 
+.has-error {
+  color: #cf1715;
+}
+
 .main {
   padding-top: 20px;
   min-height: 370px;

@@ -110,7 +110,7 @@ class TestCohortDetail:
         team_codes = ['TNW', 'TNM']
         custom_cohort = {
             'label': label,
-            'team_codes': team_codes,
+            'teamCodes': team_codes,
         }
         response = client.post('/api/cohort/create', data=json.dumps(custom_cohort), content_type='application/json')
         assert response.status_code == 200

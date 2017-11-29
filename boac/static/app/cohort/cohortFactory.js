@@ -11,7 +11,10 @@
         label: label,
         teamCodes: teamCodes
       };
-      return $http.post('/api/cohort/create', args).then(function() {
+      return $http.post('/api/cohort/create', args).then(function(response) {
+        $rootScope.$broadcast('cohortCreated', {
+          cohort: response.data
+        });
         $rootScope.$broadcast('myCohortsUpdated');
       });
     };
