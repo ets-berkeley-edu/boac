@@ -92,56 +92,51 @@
           </table>
         </div>
       </div>
-      <div class="student-profile-classes" data-ng-if="student.courses.length">
-        <h2 class="student-profile-classes-header">Classes</h2>
-        <div data-ng-repeat="course in student.courses">
-          <h3 class="student-profile-class-title" data-ng-bind="course.courseCode"></h3>
-          <div class="student-enrollment-details" data-ng-repeat="enrolledSection in course.sisEnrollments">
-            <span data-ng-switch="enrolledSection.enrollmentStatus">
-              <span data-ng-switch-when="E">Enrolled in</span>
-              <span data-ng-switch-when="W">Waitlisted in</span>
-              <span data-ng-switch-when="D">Dropped</span>
-            </span>
-            section <span data-ng-bind="enrolledSection.sectionNumber"></span>
-            (<span data-ng-bind="enrolledSection.units"></span> units,
-            <span data-ng-bind="enrolledSection.gradingBasis"></span> grading basis)
-            <div data-ng-if="enrolledSection.grade">
-              <strong>Grade: <span data-ng-bind="enrolledSection.grade"></span></strong>
+      <div>
+        <div class="student-profile-terms" data-ng-repeat="term in student.enrollmentTerms">
+          <h2 class="student-profile-classes-header" data-ng-bind="term.termName"></h2>
+          <div class="student-profile-classes" data-ng-if="term.enrollments.length">
+            <div data-ng-repeat="course in term.enrollments">
+              <h3 class="student-profile-class-title" data-ng-bind="course.displayName"></h3>
+              <h4 class="student-profile-class-title" data-ng-bind="course.title"></h4>
+              <span data-ng-switch="course.enrollmentStatus">
+                <span data-ng-switch-when="E">Enrolled in</span>
+                <span data-ng-switch-when="W">Waitlisted in</span>
+                <span data-ng-switch-when="D">Dropped</span>
+              </span>
+              section <span data-ng-bind="course.sectionNumber"></span>
+              (<span data-ng-bind="course.units"></span> units,
+              <span data-ng-bind="course.gradingBasis"></span> grading basis)
+              <div data-ng-if="course.grade">
+                <strong>Grade: <span data-ng-bind="course.grade"></span></strong>
+              </div>
+              <div data-ng-repeat="canvasSite in course.canvasSites">
+                <course-site-metrics
+                  data-canvas-site="canvasSite"
+                  data-ccn="course.ccn"
+                  data-draw-boxplot="drawBoxplot"
+                  data-percentile="percentile"
+                  data-term-id="term.termId">
+                </course-site-metrics>
+              </div>
             </div>
           </div>
-          <ul>
-            <li>
-              Assignments on time:
-              <span data-ng-bind="percentile(course.analytics.assignmentsOnTime)"></span>
-              <div class="boxplot-container" data-ng-if="!course.analytics.assignmentsOnTime.insufficientData">
-                <div id="boxplot-{{course.canvasCourseId}}-assignmentsOnTime"
-                     class="boxplot"
-                     data-ng-init="drawBoxplot(course.canvasCourseId, 'assignmentsOnTime')"></div>
-              </div>
-            </li>
-            <li>
-              Page views:
-              <span data-ng-bind="percentile(course.analytics.pageViews)"></span>
-              <div class="boxplot-container" data-ng-if="!course.analytics.pageViews.insufficientData">
-                <div id="boxplot-{{course.canvasCourseId}}-pageViews"
-                     class="boxplot"
-                     data-ng-init="drawBoxplot(course.canvasCourseId, 'pageViews')"></div>
-              </div>
-            </li>
-            <li>
-              Participations:
-              <span data-ng-bind="percentile(course.analytics.participations)"></span>
-              <div class="boxplot-container" data-ng-if="!course.analytics.participations.insufficientData">
-                <div id="boxplot-{{course.canvasCourseId}}-participations"
-                     class="boxplot"
-                     data-ng-init="drawBoxplot(course.canvasCourseId, 'participations')"></div>
-              </div>
-            </li>
-          </ul>
+          <div class="student-profile-classes" data-ng-if="term.unmatchedCanvasSites.length">
+            <div data-ng-repeat="canvasSite in term.unmatchedCanvasSites">
+              <h3 class="student-profile-class-title" data-ng-bind="canvasSite.courseName"></h3>
+              <course-site-metrics
+                data-canvas-site="canvasSite"
+                data-ccn="'unmatchedCanvasSites'"
+                data-draw-boxplot="drawBoxplot"
+                data-percentile="percentile"
+                data-term-id="term.termId">
+              </course-site-metrics>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="student-profile-classes" data-ng-if="!student.courses.length">
-        No courses
+        <div class="student-profile-classes" data-ng-if="!student.enrollmentTerms.length">
+          No courses
+        </div>
       </div>
     </div>
   </div>

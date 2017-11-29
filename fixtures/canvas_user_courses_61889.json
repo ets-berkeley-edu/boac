@@ -157,6 +157,45 @@
     "restrict_enrollments_to_course_dates": false
   },
   {
+    "id": 7654330,
+    "name": "Optional Friday Night Radioactivity Group",
+    "account_id": 1,
+    "uuid": "qwertyuiop4",
+    "start_at": "2017-08-18T18:17:59Z",
+    "grading_standard_id": null,
+    "is_public": null,
+    "course_code": "NUC ENG 124",
+    "default_view": "feed",
+    "root_account_id": 90242,
+    "enrollment_term_id": 5493,
+    "end_at": null,
+    "public_syllabus": false,
+    "public_syllabus_to_auth": false,
+    "storage_quota_mb": 2048,
+    "is_public_to_auth_users": false,
+    "term": {
+      "id": 5493,
+      "name": "Fall 2017"
+    },
+    "apply_assignment_group_weights": false,
+    "calendar": {
+      "ics": "https://ucberkeley.beta.instructure.com/feeds/calendars/course_qwertyuiop4.ics"
+    },
+    "time_zone": "America/Los_Angeles",
+    "enrollments": [
+      {
+        "type": "student",
+        "role": "StudentEnrollment",
+        "role_id": 1772,
+        "user_id": 123456,
+        "enrollment_state": "active"
+      }
+    ],
+    "hide_final_grades": false,
+    "workflow_state": "available",
+    "restrict_enrollments_to_course_dates": false
+  },
+  {
     "id": 7654324,
     "name": "Fungi, History, and Society",
     "account_id": 102643,
@@ -206,15 +245,15 @@
     "course_code": "STAT 154",
     "default_view": "feed",
     "root_account_id": 90242,
-    "enrollment_term_id": 1818,
+    "enrollment_term_id": 5491,
     "end_at": null,
     "public_syllabus": false,
     "public_syllabus_to_auth": false,
     "storage_quota_mb": 2048,
     "is_public_to_auth_users": false,
     "term": {
-      "id": 1818,
-      "name": "Default Term"
+      "id": 5491,
+      "name": "Spring 2017"
     },
     "apply_assignment_group_weights": false,
     "calendar": {

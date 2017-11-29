@@ -3,37 +3,78 @@ import re
 from boac import db
 import boac.api.util as api_util
 from boac.externals import calnet, canvas, sis_enrollments_api, sis_student_api
+from boac.lib.berkeley import sis_term_id_for_name
 from boac.models.team_member import TeamMember
+from flask import current_app as app
 
 
-def merge_sis_enrollments(canvas_course_sites, cs_id, term_id):
-    # TODO For the moment, we're returning Canvas courses only for the current term as defined in
-    # app config. Once we start grabbing multiple terms, we'll need additional sorting logic.
+def merge_sis_enrollments(canvas_course_sites, cs_id, matriculation):
+    courses_by_term = []
+
+    def reverse_terms_until(stop_term):
+        term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
+        while True:
+            yield term_name
+            if (term_name == stop_term) or not stop_term:
+                break
+            if term_name.startswith('Fall'):
+                term_name = term_name.replace('Fall', 'Summer')
+            elif term_name.startswith('Summer'):
+                term_name = term_name.replace('Summer', 'Spring')
+            elif term_name.startswith('Spring'):
+                term_name = 'Fall ' + str(int(term_name[-4:]) - 1)
+
+    for term_name in reverse_terms_until(matriculation):
+        merged_enrollments = merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name)
+        if merged_enrollments and (len(merged_enrollments['enrollments']) or len(merged_enrollments['unmatchedCanvasSites'])):
+            courses_by_term.append(merged_enrollments)
+    return courses_by_term
+
+
+def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name):
+    term_id = sis_term_id_for_name(term_name)
     enrollments = sis_enrollments_api.get_enrollments(cs_id, term_id)
     if enrollments:
-        enrollments = enrollments.get('studentEnrollments', [])
+        term_feed = {
+            'termId': term_id,
+            'termName': term_name,
+            'enrollments': [api_util.sis_enrollment_api_feed(enrollment) for enrollment in enrollments.get('studentEnrollments', [])],
+            'unmatchedCanvasSites': [],
+        }
     else:
         return
 
     for site in canvas_course_sites:
-        site['sisEnrollments'] = []
-        sections = canvas.get_course_sections(site['canvasCourseId'])
-        if not sections:
+        merge_canvas_course_site(term_feed, site)
+    return term_feed
+
+
+def merge_canvas_course_site(term_feed, site):
+    if site['courseTerm'] != term_feed['termName']:
+        return
+    site_matched = False
+    sections = canvas.get_course_sections(site['canvasCourseId'], term_feed['termId'])
+    if not sections:
+        return
+    for section in sections:
+        # Manually created site sections will have no integration ID.
+        canvas_sis_section_id = section.get('sis_section_id') or ''
+        ccn_match = re.match(r'\ASEC:20\d{2}-[BCD]-(\d{5})', canvas_sis_section_id)
+        if not ccn_match:
             continue
-        for section in sections:
-            # Manually created site sections will have no integration ID.
-            canvas_sis_section_id = section.get('sis_section_id') or ''
-            ccn_match = re.match(r'\ASEC:20\d{2}-[BCD]-(\d{5})', canvas_sis_section_id)
-            if not ccn_match:
-                continue
-            canvas_ccn = ccn_match.group(1)
-            if not canvas_ccn:
-                continue
-            for enrollment in enrollments:
-                sis_ccn = str(enrollment.get('classSection', {}).get('id'))
-                if canvas_ccn == sis_ccn:
-                    site['sisEnrollments'].append(api_util.sis_enrollment_api_feed(enrollment))
-                    break
+        canvas_ccn = ccn_match.group(1)
+        if not canvas_ccn:
+            continue
+        for enrollment in term_feed['enrollments']:
+            sis_ccn = str(enrollment.get('ccn'))
+            if canvas_ccn == sis_ccn:
+                site_matched = True
+                enrollment['canvasSites'].append(site)
+                break
+        if site_matched:
+            break
+    if not site_matched:
+        term_feed['unmatchedCanvasSites'].append(site)
 
 
 def merge_sis_profile(csid):
@@ -59,6 +100,11 @@ def merge_sis_profile_academic_status(sis_response, sis_profile):
 
     sis_profile['cumulativeGPA'] = academic_status.get('cumulativeGPA', {}).get('average')
     sis_profile['level'] = academic_status.get('currentRegistration', {}).get('academicLevel', {}).get('level')
+
+    matriculation_term_name = academic_status.get('studentCareer', {}).get('matriculation', {}).get('term', {}).get('name')
+    if matriculation_term_name and re.match('\A2\d{3} (?:Spring|Summer|Fall)\Z', matriculation_term_name):
+        # "2015 Fall" to "Fall 2015"
+        sis_profile['matriculation'] = ' '.join(reversed(matriculation_term_name.split()))
 
     for units in academic_status.get('cumulativeUnits', []):
         if units.get('type', {}).get('code') == 'Total':

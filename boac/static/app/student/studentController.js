@@ -17,20 +17,30 @@
 
     $scope.student = {
       canvasProfile: null,
-      courses: null,
+      enrollmentTerms: null,
       isLoading: true
     };
 
     /**
      * Render a box plot for a given course and metric
      *
+     * @param  {String}  termId        SIS term id for the course
+     * @param  {Number}  ccn           SIS CCN for the course
      * @param  {Number}  courseId      Canvas course ID for the course
      * @param  {String}  metric        Metric to draw the boxplot for
      * @return {void}
      */
-    $scope.drawBoxplot = function(courseId, metric) {
+    $scope.drawBoxplot = function(termId, ccn, courseId, metric) {
 
-      var course = _.find($scope.student.courses, {canvasCourseId: courseId});
+      var term = _.find($scope.student.enrollmentTerms, {termId: termId});
+      var courseSites;
+      if (ccn === 'unmatchedCanvasSites') {
+        courseSites = term.unmatchedCanvasSites;
+      } else {
+        var enrollment = _.find(term.enrollments, {ccn: ccn});
+        courseSites = enrollment.canvasSites;
+      }
+      var course = _.find(courseSites, {canvasCourseId: courseId});
 
       setTimeout(function() {
         // Render the box plot using highcharts

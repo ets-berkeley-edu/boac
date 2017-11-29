@@ -1,6 +1,7 @@
 import inspect
 
 from boac import db
+from boac.lib.berkeley import term_name_for_sis_id
 from boac.models.base import Base
 from decorator import decorator
 from flask import current_app as app
@@ -50,14 +51,16 @@ def clear_current_term():
 def stow(key_pattern, for_term=False):
     """Uses the Decorator module to preserve the wrapped function's signature,
     allowing easy wrapping by other decorators.
+    If the for_term option is enabled, the wrapped function is expected to take a term_id argument.
     TODO Mockingbird does not currently preserve signatures, and so JsonCache
     cannot directly wrap a @fixture.
     """
     @decorator
     def _stow(func, *args, **kw):
-        key = _format_from_args(func, key_pattern, *args, **kw)
+        args_dict = _get_args(func, *args, **kw)
+        key = key_pattern.format(**args_dict)
         if for_term:
-            term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
+            term_name = term_name_for_sis_id(args_dict.get('term_id'))
             key = 'term_{}-{}'.format(
                 term_name,
                 key,
@@ -79,9 +82,8 @@ def stow(key_pattern, for_term=False):
     return _stow
 
 
-def _format_from_args(func, pattern, *args, **kw):
-    """Copied from mockingbird module"""
+def _get_args(func, *args, **kw):
     arg_names = inspect.getfullargspec(func)[0]
     args_dict = dict(zip(arg_names, args))
     args_dict.update(kw)
-    return pattern.format(**args_dict)
+    return args_dict

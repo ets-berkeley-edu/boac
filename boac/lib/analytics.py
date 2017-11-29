@@ -1,22 +1,24 @@
 import math
 from statistics import mean
 from boac.externals import canvas
+from boac.lib.berkeley import sis_term_id_for_name
 from flask import current_app as app
 import pandas
 
 
-def merge_analytics_for_user(user_courses, canvas_user_id):
+def merge_analytics_for_user(user_courses, canvas_user_id, term_name):
+    term_id = sis_term_id_for_name(term_name)
     if user_courses:
         for course in user_courses:
-            student_summaries = canvas.get_student_summaries(course['canvasCourseId'])
+            student_summaries = canvas.get_student_summaries(course['canvasCourseId'], term_id)
             if not student_summaries:
                 course['analytics'] = {'error': 'Unable to retrieve analytics'}
             else:
                 course['analytics'] = analytics_from_summary_feed(student_summaries, canvas_user_id, course)
 
 
-def mean_course_analytics_for_user(user_courses, canvas_user_id):
-    merge_analytics_for_user(user_courses, canvas_user_id)
+def mean_course_analytics_for_user(user_courses, canvas_user_id, term_name):
+    merge_analytics_for_user(user_courses, canvas_user_id, term_name)
     meanValues = {}
     for metric in ['assignmentsOnTime', 'pageViews', 'participations']:
         percentiles = []
