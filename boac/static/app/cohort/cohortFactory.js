@@ -4,7 +4,7 @@
 
   var boac = angular.module('boac');
 
-  boac.factory('cohortFactory', function($http, $rootScope) {
+  boac.factory('cohortFactory', function(googleAnalyticsService, $http, $rootScope) {
 
     var createCohort = function(label, teamCodes) {
       var args = {
@@ -12,10 +12,14 @@
         teamCodes: teamCodes
       };
       return $http.post('/api/cohort/create', args).then(function(response) {
+        var cohort = response.data;
+
         $rootScope.$broadcast('cohortCreated', {
-          cohort: response.data
+          cohort: cohort
         });
         $rootScope.$broadcast('myCohortsUpdated');
+        // Track the event
+        googleAnalyticsService.track('cohort', 'create', cohort.label, cohort.id);
       });
     };
 

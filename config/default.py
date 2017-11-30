@@ -35,6 +35,9 @@ DEVELOPER_AUTH_PASSWORD = 'another secret'
 CAS_SERVER = 'https://auth-test.berkeley.edu/cas/'
 CAS_LOGOUT_URL = 'https://auth-test.berkeley.edu/cas/logout'
 
+# Enable with a valid Google id. For example, 'UA-999999999-1'
+GOOGLE_ANALYTICS_ID = False
+
 LDAP_HOST = 'nds-test.berkeley.edu'
 LDAP_BIND = 'mybind'
 LDAP_PASSWORD = 'secret'

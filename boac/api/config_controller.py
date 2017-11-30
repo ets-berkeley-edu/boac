@@ -7,6 +7,7 @@ def app_config():
     return jsonify({
         'boacEnv': app.config['BOAC_ENV'],
         'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],
+        'googleAnalyticsId': app.config['GOOGLE_ANALYTICS_ID'],
         'version': _get_app_version(),
     })
 
