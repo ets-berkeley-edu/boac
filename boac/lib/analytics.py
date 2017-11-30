@@ -40,13 +40,16 @@ def analytics_from_summary_feed(summary_feed, canvas_user_id, canvas_course):
 
     student_row = df.loc[df['id'].values == canvas_user_id]
     if not len(student_row):
-        canvas_course_id = canvas_course.get('id') or '[None]'
+        canvas_course_id = canvas_course.get('canvasCourseId') or '[None]'
         app.logger.error('Canvas ID {} not found in student summaries for course site {}'.format(canvas_user_id, canvas_course_id))
         return {'error': 'Unable to retrieve analytics'}
 
     def analytics_for_column(column_name):
         column_zscore = zscore(df, student_row, column_name)
+        column_quantiles = quantiles(df[column_name], 10)
+        insufficient_data = (column_quantiles[-1] < app.config['MEANINGFUL_STATS_MINIMUM'])
         return {
+            'insufficientData': insufficient_data,
             'courseDeciles': quantiles(df[column_name], 10),
             'student': {
                 'raw': student_row[column_name].values[0].item(),
