@@ -16,7 +16,7 @@
       <span data-ng-bind="cohort.label || cohort.name"></span>
       <span class="faint-text">(<span data-ng-bind="search.results.totalCount"></span> members)</span>
     </h1>
-    <h1 data-ng-if="!cohort">
+    <h1 data-ng-if="!cohort && !isCreateCohortMode">
       <span data-ng-bind="search.results.totalCount"></span> Results
     </h1>
   </div>
