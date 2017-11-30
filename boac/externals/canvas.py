@@ -5,7 +5,7 @@ from flask import current_app as app
 
 
 @stow('canvas_course_sections_{course_id}', for_term=True)
-def get_course_sections(course_id):
+def get_course_sections(course_id, term_id):
     return _get_course_sections(course_id)
 
 
@@ -37,8 +37,7 @@ def _get_user_for_uid(uid, mock=None):
         return authorized_request(url)
 
 
-def get_student_courses_in_term(uid):
-    term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
+def get_student_courses(uid):
     all_canvas_courses = get_all_user_courses(uid)
     # The paged_request wrapper returns either a list of course sites or None to signal HTTP request failure.
     # An empty list should be handled by higher-level logic even though it's falsey.
@@ -46,7 +45,7 @@ def get_student_courses_in_term(uid):
         return None
 
     def include_course(course):
-        if course.get('term', {}).get('name') == term_name and course['enrollments']:
+        if course.get('enrollments'):
             if next((e for e in course['enrollments'] if e['type'] == 'student'), None):
                 return True
         return False
@@ -67,7 +66,7 @@ def _get_all_user_courses(uid, mock=None):
 
 
 @stow('canvas_student_summaries_for_course_{course_id}', for_term=True)
-def get_student_summaries(course_id):
+def get_student_summaries(course_id, term_id):
     return _get_student_summaries(course_id)
 
 

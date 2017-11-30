@@ -2,7 +2,7 @@ from boac import db
 from flask import current_app as app
 
 
-def load_canvas_externals(uid):
+def load_canvas_externals(uid, sis_term_id):
     from boac.externals import canvas
 
     success_count = 0
@@ -15,19 +15,19 @@ def load_canvas_externals(uid):
         ))
     elif canvas_user_profile:
         success_count += 1
-        sites = canvas.get_student_courses_in_term(uid)
+        sites = canvas.get_student_courses(uid)
         if sites:
             success_count += 1
             for site in sites:
                 site_id = site['id']
-                if not canvas.get_course_sections(site_id):
+                if not canvas.get_course_sections(site_id, sis_term_id):
                     failures.append('canvas.get_course_sections failed for UID {}, site_id {}'.format(
                         uid,
                         site_id,
                     ))
                     continue
                 success_count += 1
-                if not canvas.get_student_summaries(site_id):
+                if not canvas.get_student_summaries(site_id, sis_term_id):
                     failures.append('canvas.get_student_summaries failed for site_id {}'.format(
                         site_id,
                     ))
@@ -73,7 +73,7 @@ def load_current_term():
     # Currently, all external data is loaded starting from the individuals who belong
     # to one or more Cohorts.
     for csid, uid in db.session.query(TeamMember.member_csid, TeamMember.member_uid).distinct():
-        s, f = load_canvas_externals(uid)
+        s, f = load_canvas_externals(uid, sis_term_id)
         success_count += s
         failures += f
         db.session.commit()

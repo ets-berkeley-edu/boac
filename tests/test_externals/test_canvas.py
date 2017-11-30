@@ -7,18 +7,18 @@ class TestCanvasGetCourseSections:
 
     def test_get_course_sections(self, app):
         """returns fixture data"""
-        burmese_sections = canvas.get_course_sections(7654320)
+        burmese_sections = canvas._get_course_sections(7654320)
         assert burmese_sections
         assert len(burmese_sections) == 3
         assert burmese_sections[0]['sis_section_id'] == 'SEC:2017-D-90100'
         assert burmese_sections[1]['sis_section_id'] == 'SEC:2017-D-90101'
 
-        medieval_sections = canvas.get_course_sections(7654321)
+        medieval_sections = canvas._get_course_sections(7654321)
         assert medieval_sections
         assert len(medieval_sections) == 1
         assert medieval_sections[0]['sis_section_id'] == 'SEC:2017-D-90200-88CA51BE'
 
-        nuclear_sections = canvas.get_course_sections(7654323)
+        nuclear_sections = canvas._get_course_sections(7654323)
         assert nuclear_sections
         assert len(nuclear_sections) == 2
         assert nuclear_sections[0]['sis_section_id'] == 'SEC:2017-D-90299'
@@ -26,7 +26,7 @@ class TestCanvasGetCourseSections:
 
     def test_course_not_found(self, app, caplog):
         """logs 404 for unknown course"""
-        response = canvas.get_course_sections(9999999)
+        response = canvas._get_course_sections(9999999)
         assert 'HTTP/1.1" 404' in caplog.text
         assert not response
 
@@ -83,35 +83,40 @@ class TestCanvasGetUserCourses:
     """Canvas API query (get courses for user)"""
 
     def test_get_courses(self, app):
-        """returns a well-formed response"""
-        courses = canvas.get_student_courses_in_term(61889)
+        """returns a well-formed response from multiple terms"""
+        courses = canvas.get_student_courses(61889)
         assert courses
-        assert len(courses) == 3
+        assert len(courses) == 5
         assert courses[0]['id'] == 7654320
         assert courses[0]['name'] == 'Introductory Burmese'
         assert courses[0]['course_code'] == 'BURMESE 1A'
+        assert courses[0]['term']['name'] == 'Fall 2017'
         assert courses[1]['id'] == 7654321
         assert courses[1]['name'] == 'Medieval Manuscripts as Primary Sources'
         assert courses[1]['course_code'] == 'MED ST 205'
+        assert courses[1]['term']['name'] == 'Fall 2017'
         assert courses[2]['id'] == 7654323
         assert courses[2]['name'] == 'Radioactive Waste Management'
         assert courses[2]['course_code'] == 'NUC ENG 124'
+        assert courses[2]['term']['name'] == 'Fall 2017'
+        assert courses[3]['id'] == 7654330
+        assert courses[3]['name'] == 'Optional Friday Night Radioactivity Group'
+        assert courses[3]['course_code'] == 'NUC ENG 124'
+        assert courses[3]['term']['name'] == 'Fall 2017'
+        assert courses[4]['id'] == 7654325
+        assert courses[4]['name'] == 'Modern Statistical Prediction and Machine Learning'
+        assert courses[4]['course_code'] == 'STAT 154'
+        assert courses[4]['term']['name'] == 'Spring 2017'
 
     def test_student_enrollments(self, app):
         """returns only enrollments of type 'student'"""
-        courses = canvas.get_student_courses_in_term(61889)
+        courses = canvas.get_student_courses(61889)
         for course in courses:
             assert course['enrollments'][0]['type'] == 'student'
 
-    def test_current_term(self, app):
-        """returns only enrollments in current term"""
-        courses = canvas.get_student_courses_in_term(61889)
-        for course in courses:
-            assert course['term']['name'] == app.config.get('CANVAS_CURRENT_ENROLLMENT_TERM')
-
     def test_user_not_found(self, app, caplog):
         """logs 404 for unknown user"""
-        courses = canvas.get_student_courses_in_term(9999999)
+        courses = canvas.get_student_courses(9999999)
         assert 'HTTP/1.1" 404' in caplog.text
         assert not courses
 
@@ -129,7 +134,7 @@ class TestCanvasGetStudentSummariesForCourse:
 
     def test_student_summaries(self, app):
         """returns a large result set from paged Canvas API"""
-        student_summaries = canvas.get_student_summaries(7654321)
+        student_summaries = canvas._get_student_summaries(7654321)
         assert student_summaries
         assert len(student_summaries) == 730
         assert student_summaries[0]['id'] == 9000000
@@ -139,7 +144,7 @@ class TestCanvasGetStudentSummariesForCourse:
 
     def test_course_not_found(self, app, caplog):
         """logs 404 for unknown course"""
-        student_summaries = canvas.get_student_summaries(9999999)
+        student_summaries = canvas._get_student_summaries(9999999)
         assert 'HTTP/1.1" 404' in caplog.text
         assert not student_summaries
 

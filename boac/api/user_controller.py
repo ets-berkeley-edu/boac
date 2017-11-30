@@ -2,7 +2,6 @@ from boac.api import errors
 import boac.api.util as api_util
 from boac.externals import canvas
 from boac.lib.analytics import merge_analytics_for_user
-from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.http import tolerant_jsonify
 from boac.lib.merged import merge_sis_enrollments, merge_sis_profile
 from boac.models.team_member import TeamMember
@@ -40,28 +39,32 @@ def user_analytics(uid):
         raise errors.InternalServerError('Unable to reach bCourses')
     canvas_id = canvas_profile['id']
 
-    user_courses = canvas.get_student_courses_in_term(uid)
-    courses_api_feed = api_util.canvas_courses_api_feed(user_courses)
-
-    cohort_data = TeamMember.query.filter_by(member_uid=uid).first()
-    if cohort_data and len(user_courses):
-        term_id = sis_term_id_for_name(user_courses[0].get('term', {}).get('name'))
-        merge_sis_enrollments(courses_api_feed, cohort_data.member_csid, term_id)
-
-    merge_analytics_for_user(courses_api_feed, canvas_id)
-
-    if cohort_data:
-        sis_profile = merge_sis_profile(cohort_data.member_csid)
-        cohort_data = cohort_data.to_api_json()
+    team_member = TeamMember.query.filter_by(member_uid=uid).first()
+    if team_member:
+        sis_profile = merge_sis_profile(team_member.member_csid)
+        athletics_profile = team_member.to_api_json()
     else:
         sis_profile = False
+        athletics_profile = False
+
+    user_courses = canvas.get_student_courses(uid)
+    if team_member and sis_profile and len(user_courses):
+        canvas_courses_feed = api_util.canvas_courses_api_feed(user_courses)
+        enrollment_terms = merge_sis_enrollments(canvas_courses_feed, team_member.member_csid, sis_profile['matriculation'])
+    else:
+        enrollment_terms = []
+
+    for term in enrollment_terms:
+        for enrollment in term['enrollments']:
+            merge_analytics_for_user(enrollment['canvasSites'], canvas_id, term['termName'])
+        merge_analytics_for_user(term['unmatchedCanvasSites'], canvas_id, term['termName'])
 
     return tolerant_jsonify({
         'uid': uid,
+        'athleticsProfile': athletics_profile,
         'canvasProfile': canvas_profile,
-        'cohortData': cohort_data,
-        'courses': courses_api_feed,
         'sisProfile': sis_profile,
+        'enrollmentTerms': enrollment_terms,
     })
 
 

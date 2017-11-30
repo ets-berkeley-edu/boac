@@ -1,0 +1,29 @@
+<ul>
+  <li>
+    Assignments on time:
+    <span data-ng-bind="percentile(canvasSite.analytics.assignmentsOnTime)"></span>
+    <div class="boxplot-container" data-ng-if="!canvasSite.analytics.assignmentsOnTime.insufficientData">
+      <div id="boxplot-{{canvasSite.canvasCourseId}}-assignmentsOnTime"
+           class="boxplot"
+           data-ng-init="drawBoxplot(termId, ccn, canvasSite.canvasCourseId, 'assignmentsOnTime')"></div>
+    </div>
+  </li>
+  <li>
+    Page views:
+    <span data-ng-bind="percentile(canvasSite.analytics.pageViews)"></span>
+    <div class="boxplot-container" data-ng-if="!canvasSite.analytics.pageViews.insufficientData">
+      <div id="boxplot-{{canvasSite.canvasCourseId}}-pageViews"
+           class="boxplot"
+           data-ng-init="drawBoxplot(termId, ccn, canvasSite.canvasCourseId, 'pageViews')"></div>
+    </div>
+  </li>
+  <li>
+    Participations:
+    <span data-ng-bind="percentile(canvasSite.analytics.participations)"></span>
+    <div class="boxplot-container" data-ng-if="!canvasSite.analytics.participations.insufficientData">
+      <div id="boxplot-{{canvasSite.canvasCourseId}}-participations"
+           class="boxplot"
+           data-ng-init="drawBoxplot(termId, ccn, canvasSite.canvasCourseId, 'participations')"></div>
+    </div>
+  </li>
+</ul>

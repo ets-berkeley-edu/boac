@@ -128,9 +128,12 @@ def load_member_profiles(team):
 
         if canvas_profile:
             member['avatar_url'] = canvas_profile['avatar_url']
-            canvas_courses = canvas_courses_api_feed(canvas.get_student_courses_in_term(uid))
+            student_courses = canvas.get_student_courses(uid)
+            current_term = app.config.get('CANVAS_CURRENT_ENROLLMENT_TERM')
+            student_courses_in_current_term = [course for course in student_courses if course.get('term', {}).get('name') == current_term]
+            canvas_courses = canvas_courses_api_feed(student_courses_in_current_term)
             if canvas_courses:
-                member['analytics'] = mean_course_analytics_for_user(canvas_courses, canvas_profile['id'])
+                member['analytics'] = mean_course_analytics_for_user(canvas_courses, canvas_profile['id'], current_term)
 
 
 def get_param(params, key, default_value=None):

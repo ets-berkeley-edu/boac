@@ -14,3 +14,14 @@ def sis_term_id_for_name(term_name=None):
                 'Fall': '8',
             }
             return '2' + match.group(2) + season_codes[match.group(1)]
+
+
+def term_name_for_sis_id(sis_id=None):
+    if sis_id:
+        sis_id = str(sis_id)
+        season_codes = {
+            '2': 'Spring',
+            '5': 'Summer',
+            '8': 'Fall',
+        }
+        return season_codes[sis_id[3:4]] + ' 20' + sis_id[1:3]
