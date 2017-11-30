@@ -5,6 +5,7 @@
   angular.module('boac').controller('CohortController', function(authService, cohortFactory, cohortService, $rootScope, $scope, $state, $stateParams) {
 
     $scope.isLoading = true;
+    $scope.selectedTab = 'list';
     $scope.isMatrixLoading = false;
     $scope.isCreateCohortMode = false;
 
@@ -42,6 +43,7 @@
       } else {
         $scope.error = {message: 'Cohort not found'};
       }
+      $scope.isCreateCohortMode = false;
       return cohort;
     };
 
@@ -180,8 +182,6 @@
           refreshTeamsFilter();
           $scope.isLoading = false;
         } else {
-          $scope.selectedTab = 'list';
-
           refreshCohortView(code, function(cohort) {
             if (cohort) {
               // A team will have a single team code and a saved cohort might have multiple.
