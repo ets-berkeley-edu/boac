@@ -114,25 +114,25 @@ class TestUserAnalytics:
         analytics = course_with_enrollment['canvasSites'][0]['analytics']
 
         assert analytics['assignmentsOnTime']['student']['raw'] == 5
-        assert analytics['assignmentsOnTime']['student']['percentile'] == 92.9
+        assert analytics['assignmentsOnTime']['student']['percentile'] == 93
         assert analytics['assignmentsOnTime']['student']['zscore'] == pytest.approx(1.469, 0.01)
-        assert analytics['assignmentsOnTime']['courseDeciles'][0] == 0.0
-        assert analytics['assignmentsOnTime']['courseDeciles'][9] == 5.0
-        assert analytics['assignmentsOnTime']['courseDeciles'][10] == 6.0
+        assert analytics['assignmentsOnTime']['courseDeciles'][0] == 0
+        assert analytics['assignmentsOnTime']['courseDeciles'][9] == 5
+        assert analytics['assignmentsOnTime']['courseDeciles'][10] == 6
 
         assert analytics['pageViews']['student']['raw'] == 768
-        assert analytics['pageViews']['student']['percentile'] == 54.3
+        assert analytics['pageViews']['student']['percentile'] == 54
         assert analytics['pageViews']['student']['zscore'] == pytest.approx(0.108, 0.01)
-        assert analytics['pageViews']['courseDeciles'][0] == 9.0
-        assert analytics['pageViews']['courseDeciles'][9] == 917.0
-        assert analytics['pageViews']['courseDeciles'][10] == 31983.0
+        assert analytics['pageViews']['courseDeciles'][0] == 9
+        assert analytics['pageViews']['courseDeciles'][9] == 917
+        assert analytics['pageViews']['courseDeciles'][10] == 31983
 
         assert analytics['participations']['student']['raw'] == 5
-        assert analytics['participations']['student']['percentile'] == 82.6
+        assert analytics['participations']['student']['percentile'] == 83
         assert analytics['participations']['student']['zscore'] == pytest.approx(0.941, 0.01)
-        assert analytics['participations']['courseDeciles'][0] == 0.0
-        assert analytics['participations']['courseDeciles'][9] == 6.0
-        assert analytics['participations']['courseDeciles'][10] == 12.0
+        assert analytics['participations']['courseDeciles'][0] == 0
+        assert analytics['participations']['courseDeciles'][9] == 6
+        assert analytics['participations']['courseDeciles'][10] == 12
 
     def test_empty_canvas_course_feed(self, client, fake_auth):
         """returns 200 if user is found and Canvas course feed is empty"""

@@ -66,9 +66,9 @@ class TestAnalyticsFromSummaryFeed:
             })
 
         digested = analytics.analytics_from_summary_feed(summary_feed, self.canvas_user_id, self.canvas_course)
-        assert digested['assignmentsOnTime']['student']['percentile'] == 0.0
+        assert digested['assignmentsOnTime']['student']['percentile'] == 0
         assert digested['assignmentsOnTime']['insufficientData'] is False
-        assert digested['pageViews']['student']['percentile'] == 0.0
+        assert digested['pageViews']['student']['percentile'] == 0
         assert digested['pageViews']['insufficientData'] is False
-        assert digested['participations']['student']['percentile'] == 0.0
+        assert digested['participations']['student']['percentile'] == 0
         assert digested['participations']['insufficientData'] is False
