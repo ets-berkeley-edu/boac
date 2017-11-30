@@ -30,7 +30,8 @@
       if (_.isEmpty($scope.cohortName)) {
         $scope.errorMessage = 'Required';
       } else {
-        cohortFactory.createCohort($scope.cohortName, _.map(teams, 'code'));
+        var selectedTeams = _.filter(teams, 'selected');
+        cohortFactory.createCohort($scope.cohortName, _.map(selectedTeams, 'code'));
         $uibModalInstance.close();
       }
     };

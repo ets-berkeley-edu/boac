@@ -3,10 +3,6 @@
   position: relative;
 }
 
-.header-button {
-  white-space: nowrap;
-}
-
 .header-column-home {
   padding: 15px 0 0 20px;
   vertical-align: middle;
@@ -23,8 +19,4 @@
 
 .header-column-name {
   padding: 17px 20px 10px 10px;
-}
-
-.header-column-login {
-  padding: 15px 20px 10px 10px;
 }

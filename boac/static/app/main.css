@@ -4,6 +4,15 @@
   line-height: 1.8em;
 }
 
+.btn-group.open .dropdown-toggle {
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.btn-nowrap {
+  white-space: nowrap;
+}
+
 .container-left {
   float: left;
 }
@@ -23,6 +32,14 @@
 
 .faint-text {
   color: grey;
+}
+
+.flex-column-btn {
+  padding: 0 10px 0 10px;
+}
+
+.flex-column-right {
+  padding: 10px 10px 10px 0;
 }
 
 .flex-container {
