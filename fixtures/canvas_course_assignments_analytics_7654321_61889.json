@@ -1,0 +1,134 @@
+[
+  {
+    "assignment_id": 312119,
+    "title": "Essay #1",
+    "unlock_at": null,
+    "points_possible": 20.0,
+    "non_digital_submission": false,
+    "multiple_due_dates": false,
+    "due_at": "2017-11-08T07:59:00Z",
+    "status": "on_time",
+    "muted": false,
+    "max_score": 19.0,
+    "min_score": 15.0,
+    "first_quartile": 17.5,
+    "median": 18.0,
+    "third_quartile": 18.5,
+    "module_ids": [],
+    "excused": false,
+    "submission": {
+      "score": 15.0,
+      "submitted_at": "2017-11-08T07:49:49Z"
+    }
+  },
+  {
+    "assignment_id": 312122,
+    "title": "Essay #2",
+    "unlock_at": null,
+    "points_possible": 20.0,
+    "non_digital_submission": false,
+    "multiple_due_dates": false,
+    "due_at": "2017-12-13T07:59:00Z",
+    "status": "floating",
+    "muted": false,
+    "max_score": null,
+    "min_score": null,
+    "first_quartile": null,
+    "median": null,
+    "third_quartile": null,
+    "module_ids": [],
+    "excused": false,
+    "submission": {
+      "score": null,
+      "submitted_at": null
+    }
+  },
+  {
+    "assignment_id": 312123,
+    "title": "Group Presentation",
+    "unlock_at": null,
+    "points_possible": 15.0,
+    "non_digital_submission": true,
+    "multiple_due_dates": false,
+    "due_at": null,
+    "status": "on_time",
+    "muted": false,
+    "max_score": 15.0,
+    "min_score": 15.0,
+    "first_quartile": 15.0,
+    "median": 15.0,
+    "third_quartile": 15.0,
+    "module_ids": [],
+    "excused": false,
+    "submission": {
+      "score": 15.0,
+      "submitted_at": "2017-10-28T20:29:06Z"
+    }
+  },
+  {
+    "assignment_id": 331891,
+    "title": "Exam #1",
+    "unlock_at": null,
+    "points_possible": 15.0,
+    "non_digital_submission": true,
+    "multiple_due_dates": false,
+    "due_at": null,
+    "status": "on_time",
+    "muted": false,
+    "max_score": 15.0,
+    "min_score": 8.5,
+    "first_quartile": 13.0,
+    "median": 13.5,
+    "third_quartile": 14.0,
+    "module_ids": [],
+    "excused": false,
+    "submission": {
+      "score": 13.0,
+      "submitted_at": "2017-11-03T20:55:25Z"
+    }
+  },
+  {
+    "assignment_id": 331892,
+    "title": "Exam #2",
+    "unlock_at": null,
+    "points_possible": 15.0,
+    "non_digital_submission": true,
+    "multiple_due_dates": false,
+    "due_at": null,
+    "status": "floating",
+    "muted": false,
+    "max_score": null,
+    "min_score": null,
+    "first_quartile": null,
+    "median": null,
+    "third_quartile": null,
+    "module_ids": [],
+    "excused": false,
+    "submission": {
+      "score": null,
+      "submitted_at": null
+    }
+  },
+  {
+    "assignment_id": 331895,
+    "title": "Participation",
+    "unlock_at": null,
+    "points_possible": 15.0,
+    "non_digital_submission": true,
+    "multiple_due_dates": false,
+    "due_at": null,
+    "status": "floating",
+    "muted": false,
+    "max_score": null,
+    "min_score": null,
+    "first_quartile": null,
+    "median": null,
+    "third_quartile": null,
+    "module_ids": [],
+    "excused": false,
+    "submission": {
+      "score": null,
+      "submitted_at": null
+    }
+  }
+]

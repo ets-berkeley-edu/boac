@@ -77,6 +77,28 @@ def _get_student_summaries(course_id, mock=None):
     return paged_request(path=path, mock=mock)
 
 
+@stow('canvas_course_assignments_analytics_{course_id}_{uid}', for_term=True)
+def get_assignments_analytics(course_id, uid):
+    return _get_assignments_analytics(course_id, uid)
+
+
+@fixture('canvas_course_assignments_analytics_{course_id}_{uid}')
+def _get_assignments_analytics(course_id, uid, mock=None):
+    path = '/api/v1/courses/{course_id}/analytics/users/sis_login_id:{uid}/assignments'.format(course_id=course_id, uid=uid)
+    return paged_request(path=path, mock=mock)
+
+
+@stow('canvas_course_enrollments_{course_id}', for_term=True)
+def get_course_enrollments(course_id):
+    return _get_course_enrollments(course_id)
+
+
+@fixture('canvas_course_enrollments_{course_id}')
+def _get_course_enrollments(course_id, mock=None):
+    path = '/api/v1/courses/{course_id}/enrollments'.format(course_id=course_id)
+    return paged_request(path=path, mock=mock, query={'type[]': 'StudentEnrollment'})
+
+
 def build_url(path, query=None):
     working_url = app.config['CANVAS_HTTP_URL'] + path
     return http.build_url(working_url, query)

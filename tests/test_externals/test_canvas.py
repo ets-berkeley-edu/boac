@@ -150,3 +150,32 @@ class TestCanvasGetStudentSummariesForCourse:
             student_summaries = canvas._get_student_summaries(7654321)
             assert 'HTTP/1.1" 503' in caplog.text
             assert not student_summaries
+
+
+class TestCanvasGrades:
+    """Canvas API queries for grade data"""
+
+    def test_course_enrollments(self, app):
+        """returns course enrollments"""
+        feed = canvas.get_course_enrollments(7654321)
+        assert feed
+        assert len(feed) == 43
+        assert feed[0]['user_id'] == 9000100
+        assert feed[0]['grades']['current_score'] == 86.0
+        assert feed[42]['user_id'] == 5432100
+        assert feed[42]['grades']['current_score'] == 91.0
+
+    def test_assignments_analytics(self, app):
+        """returns course assignments analytics"""
+        feed = canvas.get_assignments_analytics(7654321, 61889)
+        assert feed
+        assert len(feed) == 6
+        assignment = feed[0]
+        assert assignment['title'] == 'Essay #1'
+        assert assignment['points_possible'] == 20.0
+        assert assignment['max_score'] == 19.0
+        assert assignment['min_score'] == 15.0
+        assert assignment['first_quartile'] == 17.5
+        assert assignment['median'] == 18.0
+        assert assignment['third_quartile'] == 18.5
+        assert assignment['submission']['score'] == 15.0
