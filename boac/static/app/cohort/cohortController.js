@@ -149,7 +149,7 @@
           var code = $scope.cohort.code || $scope.cohort.id;
           cohortFactory.getCohort(code, null, 0, $scope.pagination.noLimit).then(loadScatterplot).catch(handleError).then(done);
         } else {
-          cohortFactory.getTeamsMembers(teamCodes, null, 0, $scope.pagination.noLimit).then(loadScatterplot).catch(handleError).then(done);
+          cohortFactory.getTeamsMembers(getSelectedTeamCodes(), null, 0, $scope.pagination.noLimit).then(loadScatterplot).catch(handleError).then(done);
         }
       }
     };
@@ -165,7 +165,7 @@
     };
 
     $scope.$watch('orderBy.selected', function(value) {
-      if (value && value !== $scope.orderBy.selected) {
+      if (value && !$scope.isLoading) {
         $scope.pagination.currentPage = 0;
         refreshResults();
       }
@@ -177,7 +177,7 @@
       cohortFactory.getTeams().then(function(teams) {
         $scope.search.options.teams = teams.data;
         // if code is "0" then we offer a blank slate, the first step in creating a new cohort.
-        if ($stateParams.code === '0') {
+        if (code === '0') {
           $scope.isCreateCohortMode = true;
           refreshTeamsFilter();
           $scope.isLoading = false;
