@@ -60,10 +60,12 @@
     <div class="cohort-filters-column flex-column-btn">
       <button id="header-sign-in"
               class="btn btn-primary btn-nowrap"
-              data-ng-click="executeSearch()">Search</button>
+              data-ng-disabled="!search.count.selectedTeams"
+              data-ng-click="executeSearch()"
+              data-ng-if="selectedTab === 'list'">Search</button>
     </div>
     <div class="cohort-filters-column flex-column-btn">
-      <span data-ng-controller="CreateCohortController" data-ng-if="!isLoading && !isCreateCohortMode">
+      <span data-ng-controller="CreateCohortController" data-ng-if="!isLoading && !isCreateCohortMode && selectedTab === 'list'">
         <button type="button"
                 id="create-cohort-btn"
                 class="btn btn-default btn-nowrap"
