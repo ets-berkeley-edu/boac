@@ -16,6 +16,21 @@
   padding: 0 0 5px 0;
 }
 
+.cohort-create-form-label {
+  font-size: 16px;
+  padding: 0 10px 10px 10px;
+}
+
+.cohort-create-input-name {
+  border: 1px solid #d9d9d9;
+  border-color: #66afe9;
+  border-radius: 4px;
+  box-sizing: border-box;
+  height: 35px;
+  padding: 10px 10px 10px 10px;
+  width: 100%;
+}
+
 .cohort-filter-criteria {
   align-items: stretch;
   display: flex;
@@ -34,20 +49,27 @@
   white-space: nowrap;
 }
 
+.cohort-filter-label {
+  color: #49b;
+  font-size: 16px;
+  margin: 0;
+}
+
+.cohort-filter-list-item {
+  padding: 0 30px 0 20px;
+  white-space: nowrap;
+}
+
+.cohort-filters-column {
+  margin: 10px 0 10px 0;
+}
+
+.filters-section-separator {
+  margin: 0 0 0 0;
+}
+
 .cohort-manage-btn {
   margin: 0 0 0 5px;
-}
-
-.cohort-manage-btn-link {
-  line-height: normal;
-  padding: 0 0 0 2px;
-}
-
-.cohort-column-search {
-  flex: 0 0 30%;
-  margin: 20px 0 0 0;
-  max-width: 200px;
-  min-width: 200px;
 }
 
 .cohort-column-results {
@@ -84,8 +106,9 @@
   margin: 5px 0;
 }
 
-.cohort-sort-container {
+.cohort-sort-column {
   display: flex;
+  margin: 20px 0 10px 0;
   white-space: nowrap;
 }
 

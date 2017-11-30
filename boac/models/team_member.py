@@ -86,7 +86,7 @@ class TeamMember(Base):
     def all_athletes(cls, sort_by=None):
         athletes = cls.query.order_by(cls.member_name).all()
 
-        athletes = [TeamMember.translate_row(athlete) for athlete in athletes]
+        athletes = [athlete.to_api_json() for athlete in athletes]
         if sort_by and len(athletes) > 0:
             is_valid_key = sort_by in athletes[0]
             athletes = sorted(athletes, key=lambda athlete: athlete[sort_by]) if is_valid_key else athletes
@@ -101,17 +101,6 @@ class TeamMember(Base):
             'members': [member.to_api_json() for member in members],
             'name': cls.team_definitions.get(code, code),
             'totalMemberCount': TeamMember.query.filter_by(code=code).count(),
-        }
-
-    @classmethod
-    def translate_row(cls, athlete):
-        return {
-            'id': athlete.id,
-            'name': athlete.member_name,
-            'sid': athlete.member_csid,
-            'sport': athlete.asc_sport,
-            'teamCode': athlete.code,
-            'uid': athlete.member_uid,
         }
 
     @classmethod
@@ -131,7 +120,7 @@ class TeamMember(Base):
 
         summary['members'] = []
         for row in results:
-            summary['members'].append(TeamMember.translate_row(row))
+            summary['members'].append(row.to_api_json())
 
         summary['totalMemberCount'] = TeamMember.query.distinct(o).filter(f).count()
         db.session.commit()
@@ -139,6 +128,10 @@ class TeamMember(Base):
 
     def to_api_json(self):
         return {
+            'id': self.id,
             'name': self.member_name,
+            'sid': self.member_csid,
+            'sport': self.asc_sport,
+            'teamCode': self.code,
             'uid': self.member_uid,
         }

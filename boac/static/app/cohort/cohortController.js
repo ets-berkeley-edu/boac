@@ -6,20 +6,18 @@
 
     $scope.isLoading = true;
     $scope.isMatrixLoading = false;
+    $scope.isCreateCohortMode = false;
 
     $scope.search = {
-      options: {
-        teams: []
+      count: {
+        selectedTeams: 0
       },
-      selected: {
+      options: {
         teams: []
       },
       results: {
         rows: null,
         totalCount: null
-      },
-      watch: {
-        teamCode: null
       }
     };
 
@@ -71,25 +69,26 @@
      * @param  {String[]}    teamCodes          Array of predefined team codes
      * @return {void}
      */
-    var refreshSearchForm = function(teamCodes) {
-      $scope.search.options.teams = _.reject($scope.search.options.teams, function(team) {
-        var isSelectedTeam = _.includes(teamCodes, team.code);
-        if (isSelectedTeam) {
-          $scope.search.selected.teams.push(team);
-        }
-        return isSelectedTeam;
+    var refreshTeamsFilter = function(teamCodes) {
+      _.map($scope.search.options.teams, function(team) {
+        team.selected = _.includes(teamCodes, team.code);
       });
+    };
+
+    var getSelectedTeamCodes = function() {
+      var selectedTeams = _.filter($scope.search.options.teams, 'selected');
+      return _.map(selectedTeams, 'code');
     };
 
     var refreshResults = function() {
       if ($scope.cohort) {
         refreshCohortView($scope.cohort.code || $scope.cohort.id, angular.noop);
       } else {
-        var teamCodes = _.map($scope.search.selected.teams, 'code');
         $scope.pagination.enabled = true;
+
         var page = $scope.pagination.currentPage;
         var offset = page === 0 ? 0 : (page - 1) * $scope.pagination.itemsPerPage;
-        cohortFactory.getTeamsMembers(teamCodes, $scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(parseCohortFeed,
+        cohortFactory.getTeamsMembers(getSelectedTeamCodes(), $scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(parseCohortFeed,
           function(err) {
             $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
             return callback(null);
@@ -112,6 +111,16 @@
         membersWithoutData: partitionedMembers[1]
       };
       cohortService.displayCohort($scope.matrix.membersWithData, goToUserPage);
+    };
+
+    /**
+     * The search form must reflect the team codes of the saved cohort.
+     *
+     * @param  {Number}    delta          Add this value to count of selected teams
+     * @return {void}
+     */
+    $scope.updateSelectedTeamsCount = function(delta) {
+      $scope.search.count.selectedTeams += delta;
     };
 
     /**
@@ -143,17 +152,15 @@
       }
     };
 
-    $scope.nextPage = function() {
+    $scope.executeSearch = function() {
+      $scope.cohort = null;
+      $scope.pagination.currentPage = 0;
       refreshResults();
     };
 
-    $scope.$watch('search.watch.teamCode', function(value) {
-      if (value) {
-        $scope.cohort = null;
-        refreshSearchForm([ $scope.search.watch.teamCode ]);
-        refreshResults();
-      }
-    }, true);
+    $scope.nextPage = function() {
+      refreshResults();
+    };
 
     $scope.$watch('orderBy.selected', function(value) {
       if (value && value !== $scope.orderBy.selected) {
@@ -166,11 +173,11 @@
       var code = cohortCode || $stateParams.code;
 
       cohortFactory.getTeams().then(function(teams) {
-        // Populate search form
         $scope.search.options.teams = teams.data;
-
         // if code is "0" then we offer a blank slate, the first step in creating a new cohort.
         if ($stateParams.code === '0') {
+          $scope.isCreateCohortMode = true;
+          refreshTeamsFilter();
           $scope.isLoading = false;
         } else {
           $scope.selectedTab = 'list';
@@ -179,7 +186,8 @@
             if (cohort) {
               // A team will have a single team code and a saved cohort might have multiple.
               var teamCodes = cohort.code ? [ cohort.code ] : _.map(cohort.teams, 'code');
-              refreshSearchForm(teamCodes);
+              $scope.search.count.selectedTeams = teamCodes.length;
+              refreshTeamsFilter(teamCodes);
             }
             // Done!
             $scope.isLoading = false;
