@@ -13,7 +13,7 @@ class TestSisEnrollmentsApi:
         assert student['emails'][0]['emailAddress'] == 'oski@berkeley.edu'
 
         enrollments = oski_response['studentEnrollments']
-        assert len(enrollments) == 3
+        assert len(enrollments) == 4
 
         assert enrollments[0]['classSection']['class']['course']['displayName'] == 'BURMESE 1A'
         assert enrollments[0]['classSection']['class']['number'] == '001'
@@ -34,6 +34,13 @@ class TestSisEnrollmentsApi:
         assert enrollments[2]['enrolledUnits']['taken'] == 3
         assert enrollments[2]['gradingBasis']['code'] == 'PNP'
         assert enrollments[2]['grades'][0]['mark'] == 'P'
+
+        assert enrollments[3]['classSection']['class']['course']['displayName'] == 'PHYSED 11'
+        assert enrollments[3]['classSection']['class']['number'] == '001'
+        assert enrollments[3]['enrollmentStatus']['status']['code'] == 'E'
+        assert enrollments[3]['enrolledUnits']['taken'] == 0.5
+        assert enrollments[3]['gradingBasis']['code'] == 'PNP'
+        assert enrollments[3]['grades'][0]['mark'] == 'P'
 
     def test_inner_get_enrollments(self, app):
         """returns fixture data"""
@@ -46,7 +53,7 @@ class TestSisEnrollmentsApi:
         assert student['emails'][0]['emailAddress'] == 'oski@berkeley.edu'
 
         enrollments = oski_response.json()['apiResponse']['response']['studentEnrollments']
-        assert len(enrollments) == 3
+        assert len(enrollments) == 4
 
         assert enrollments[0]['classSection']['class']['course']['displayName'] == 'BURMESE 1A'
         assert enrollments[0]['classSection']['class']['number'] == '001'
@@ -67,6 +74,13 @@ class TestSisEnrollmentsApi:
         assert enrollments[2]['enrolledUnits']['taken'] == 3
         assert enrollments[2]['gradingBasis']['code'] == 'PNP'
         assert enrollments[2]['grades'][0]['mark'] == 'P'
+
+        assert enrollments[3]['classSection']['class']['course']['displayName'] == 'PHYSED 11'
+        assert enrollments[3]['classSection']['class']['number'] == '001'
+        assert enrollments[3]['enrollmentStatus']['status']['code'] == 'E'
+        assert enrollments[3]['enrolledUnits']['taken'] == 0.5
+        assert enrollments[3]['gradingBasis']['code'] == 'PNP'
+        assert enrollments[3]['grades'][0]['mark'] == 'P'
 
     def test_user_not_found(self, app, caplog):
         """logs 404 for unknown user and returns informative message"""

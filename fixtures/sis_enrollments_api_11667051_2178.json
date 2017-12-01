@@ -883,6 +883,222 @@
               }
             }
           }
+        },
+        {
+          "enrollmentStatus": {
+            "status": {
+              "code": "E",
+              "description": "Enrolled"
+            },
+            "reason": {
+              "code": "ENRL",
+              "description": "Enrolled"
+            },
+            "fromDate": "2017-07-11"
+          },
+          "enrolledUnits": {
+            "taken": 0.5,
+            "forAcademicProgress": 0.5,
+            "forFinancialAid": 0.5,
+            "forBilling": 0.5
+          },
+          "gradingBasis": {
+            "code": "PNP",
+            "description": "Pass/No Pass"
+          },
+          "grades": [
+            {
+              "type": {
+                "code": "OFFL",
+                "description": "Official Grade"
+              },
+              "mark": "P",
+              "status": {},
+              "uiControl": {}
+            }
+          ],
+          "classSection": {
+            "id": 50100,
+            "number": "001",
+            "component": {
+              "code": "LAB",
+              "description": "Laboratory"
+            },
+            "displayName": "2017 Fall PHYSED 11 LAB 001",
+            "association": {
+              "primary": false,
+              "primaryAssociatedComponent": {
+              }
+            },
+            "enrollmentStatus": {
+              "status": {
+              }
+            },
+            "printInScheduleOfClasses": false,
+            "addConsentRequired": {
+              "code": "N",
+              "description": "No Special Consent Required"
+            },
+            "dropConsentRequired": {
+              "code": "N",
+              "description": "No Special Consent Required"
+            },
+            "meetings": [
+              {
+                "number": 1,
+                "meetsDays": "MoTuWeThFr",
+                "meetsMonday": true,
+                "meetsTuesday": true,
+                "meetsWednesday": true,
+                "meetsThursday": true,
+                "meetsFriday": true,
+                "meetsSaturday": false,
+                "meetsSunday": false,
+                "startTime": "12:00:00",
+                "endTime": "12:59:00",
+                "location": {
+                  "code": "WHEELER999",
+                  "description": "Wheeler 999"
+                },
+                "building": {
+                  "code": "2000",
+                  "description": "Wheeler Hall"
+                },
+                "assignedInstructors": [
+                  {
+                    "assignmentNumber": 1,
+                    "instructor": {
+                      "identifiers": [
+                        {
+                          "type": "student-id",
+                          "id": "3334445550",
+                          "disclose": true
+                        },
+                        {
+                          "type": "campus-uid",
+                          "id": "1122330",
+                          "disclose": true
+                        },
+                        {
+                          "type": "Social Security Number",
+                          "id": "***-**-****",
+                          "disclose": false
+                        },
+                        {
+                          "type": "HCM System",
+                          "id": "012345670",
+                          "disclose": false
+                        }
+                      ],
+                      "names": [
+                        {
+                          "type": {
+                            "code": "PRF",
+                            "description": "Preferred"
+                          },
+                          "familyName": "Waldorf",
+                          "givenName": "Pappy",
+                          "formattedName": "Pappy Waldorf",
+                          "disclose": true,
+                          "uiControl": {
+                            "code": "U",
+                            "description": "Edit - No Delete"
+                          },
+                          "fromDate": "2003-12-03"
+                        },
+                        {
+                          "type": {
+                            "code": "PRI",
+                            "description": "Primary"
+                          },
+                          "familyName": "Waldorf",
+                          "givenName": "Pappy",
+                          "formattedName": "Pappy Waldorf",
+                          "disclose": true,
+                          "uiControl": {
+                            "code": "D",
+                            "description": "Display Only"
+                          },
+                          "fromDate": "2003-12-03"
+                        }
+                      ],
+                      "emails": [
+                        {
+                          "type": {
+                            "code": "CAMP",
+                            "description": "Campus"
+                          },
+                          "emailAddress": "pappy@berkeley.edu",
+                          "primary": true,
+                          "disclose": true,
+                          "uiControl": {
+                            "code": "D",
+                            "description": "Display Only"
+                          }
+                        }
+                      ]
+                    },
+                    "role": {
+                      "code": "PI",
+                      "description": "1-TIC",
+                      "formalDescription": "Teaching and In Charge"
+                    },
+                    "printInScheduleOfClasses": true,
+                    "gradeRosterAccess": {
+                      "code": "A",
+                      "description": "Approve",
+                      "formalDescription": "Approve"
+                    }
+                  }
+                ],
+                "startDate": "2017-08-23",
+                "endDate": "2017-12-08",
+                "meetingTopic": {
+                }
+              }
+            ],
+            "class": {
+              "course": {
+                "identifiers": [
+                  {
+                    "type": "cs-course-id",
+                    "id": "52345"
+                  }
+                ],
+                "subjectArea": {
+                  "code": "PHYSED",
+                  "description": "Physical Education"
+                },
+                "catalogNumber": {
+                  "number": "11",
+                  "suffix": "",
+                  "formatted": "11"
+                },
+                "displayName": "PHYSED 11",
+                "title": "Physical Education Activities",
+                "transcriptTitle": "PHYS ED ACT"
+              },
+              "offeringNumber": 1,
+              "session": {
+                "term": {
+                  "id": "2178",
+                  "name": "2017 Fall"
+                },
+                "id": "1",
+                "name": "Regular Academic Session"
+              },
+              "number": "001",
+              "displayName": "2017 Fall PHYSED 11 001",
+              "allowedUnits": {
+                "minimum": 0.5,
+                "maximum": 0.5,
+                "forAcademicProgress": 0.5,
+                "forFinancialAid": 0.5
+              },
+              "status": {
+              }
+            }
+          }
         }
       ]
     }
