@@ -2,7 +2,7 @@
 
   'use strict';
 
-  angular.module('boac').service('googleAnalyticsService', function(config, $rootScope, $location) {
+  angular.module('boac').service('googleAnalyticsService', function(config, $location, $rootScope, $timeout) {
 
     // Disable Google Analytics with id=False in py config file
     var id = config.googleAnalyticsId;
@@ -31,16 +31,20 @@
       }
     };
 
-    // Event fired when page is fully rendered
-    $rootScope.$on('$viewContentLoaded', function() {
+    var trackPageView = function() {
       if (id) {
         ga('send', 'pageview', $location.path());
 
-        var user = $rootScope.me.authenticated_as;
-        if (user.is_authenticated) {
+        var me = $rootScope.me && $rootScope.me.authenticated_as;
+        if (me && me.is_authenticated) {
           ga('set', 'uid', user.uid);
         }
       }
+    };
+
+    // Event fired when page is fully rendered
+    $rootScope.$on('$viewContentLoaded', function() {
+      $timeout(trackPageView, 0);
     });
 
     /**
