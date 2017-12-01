@@ -76,11 +76,9 @@ def load_current_term():
         s, f = load_canvas_externals(uid, sis_term_id)
         success_count += s
         failures += f
-        db.session.commit()
         s, f = load_sis_externals(sis_term_id, csid)
         success_count += s
         failures += f
-        db.session.commit()
 
     print('Complete. Fetched {} external feeds.'.format(success_count))
     if len(failures):

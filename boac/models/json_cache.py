@@ -66,6 +66,7 @@ def stow(key_pattern, for_term=False):
                 key,
             )
         stowed = JsonCache.query.filter_by(key=key).first()
+        # Note that the query returns a DB row rather than the value of the JSON column.
         if stowed is not None:
             app.logger.debug('Returning stowed JSON for key {key}'.format(key=key))
             return stowed.json
@@ -76,6 +77,9 @@ def stow(key_pattern, for_term=False):
                 app.logger.debug('Will stow JSON for key {key}'.format(key=key))
                 row = JsonCache(key=key, json=to_stow)
                 db.session.add(row)
+                # Give a hoot, don't pollute.
+                if not app.config['TESTING']:
+                    db.session.commit()
             else:
                 app.logger.info('{key} not generated and will not be stowed in DB'.format(key=key))
             return to_stow
