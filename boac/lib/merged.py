@@ -35,10 +35,13 @@ def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name):
     term_id = sis_term_id_for_name(term_name)
     enrollments = sis_enrollments_api.get_enrollments(cs_id, term_id)
     if enrollments:
+        enrollments_feed = [api_util.sis_enrollment_api_feed(enrollment) for enrollment in enrollments.get('studentEnrollments', [])]
+        # Run enrollments through a dictionary keyed by CCN to screen out duplicates.
+        enrollments_feed = dict((enrollment['ccn'], enrollment) for enrollment in enrollments_feed).values()
         term_feed = {
             'termId': term_id,
             'termName': term_name,
-            'enrollments': [api_util.sis_enrollment_api_feed(enrollment) for enrollment in enrollments.get('studentEnrollments', [])],
+            'enrollments': enrollments_feed,
             'unmatchedCanvasSites': [],
         }
     else:
