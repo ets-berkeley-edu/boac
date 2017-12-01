@@ -7,7 +7,7 @@
     <div>Loading.... </div>
   </div>
   <div data-ng-if="!isLoading">
-    <div data-ng-if="!myCohorts">
+    <div data-ng-if="!myCohorts.length">
       You have no saved cohorts.
     </div>
     <div data-ng-repeat="cohort in myCohorts">

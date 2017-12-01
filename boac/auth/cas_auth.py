@@ -27,7 +27,8 @@ def cas_login():
         raise ForbiddenRequestError('Unknown account')
     login_user(user)
     flash('Logged in successfully.')
-    return redirect('/')
+    # The 'casLogin' marker is used by googleAnalyticsService to track CAS login events
+    return redirect('/?casLogin=true')
 
 
 @app.route('/logout')

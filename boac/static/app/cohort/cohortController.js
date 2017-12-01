@@ -2,7 +2,7 @@
 
   'use strict';
 
-  angular.module('boac').controller('CohortController', function(authService, cohortFactory, cohortService, $rootScope, $scope, $state, $stateParams) {
+  angular.module('boac').controller('CohortController', function(authService, cohortFactory, cohortService, googleAnalyticsService, $rootScope, $scope, $state, $stateParams) {
 
     $scope.isLoading = true;
     $scope.selectedTab = 'list';
@@ -188,6 +188,12 @@
               var teamCodes = cohort.code ? [ cohort.code ] : _.map(cohort.teams, 'code');
               $scope.search.count.selectedTeams = teamCodes.length;
               refreshTeamsFilter(teamCodes);
+              // Track view event
+              if (cohort.code) {
+                googleAnalyticsService.track('team', 'view', cohort.code + ': ' + cohort.name);
+              } else {
+                googleAnalyticsService.track('cohort', 'view', cohort.label, cohort.id);
+              }
             }
             // Done!
             $scope.isLoading = false;
