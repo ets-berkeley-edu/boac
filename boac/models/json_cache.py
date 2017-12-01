@@ -66,7 +66,7 @@ def stow(key_pattern, for_term=False):
                 key,
             )
         stowed = JsonCache.query.filter_by(key=key).first()
-        if stowed:
+        if stowed is not None:
             app.logger.debug('Returning stowed JSON for key {key}'.format(key=key))
             return stowed.json
         else:
