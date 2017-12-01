@@ -94,6 +94,11 @@ class TestUserAnalytics:
         assert enrollment_with_multiple_sites['canvasSites'][0]['courseName'] == 'Radioactive Waste Management'
         assert enrollment_with_multiple_sites['canvasSites'][1]['courseName'] == 'Optional Friday Night Radioactivity Group'
 
+    def test_athletic_enrollments_removed(self, authenticated_response):
+        """removes athletic enrollments"""
+        for enrollment in authenticated_response.json['enrollmentTerms'][0]['enrollments']:
+            assert enrollment['displayName'] != 'PHYSED 11'
+
     def test_course_site_without_enrollment(self, authenticated_response):
         """returns course sites with no associated enrollments"""
         assert len(authenticated_response.json['enrollmentTerms'][0]['unmatchedCanvasSites']) == 0
