@@ -77,7 +77,7 @@ def _get_student_summaries(course_id, mock=None):
 
 
 @stow('canvas_course_assignments_analytics_{course_id}_{uid}', for_term=True)
-def get_assignments_analytics(course_id, uid):
+def get_assignments_analytics(course_id, uid, term_id):
     return _get_assignments_analytics(course_id, uid)
 
 
@@ -88,7 +88,7 @@ def _get_assignments_analytics(course_id, uid, mock=None):
 
 
 @stow('canvas_course_enrollments_{course_id}', for_term=True)
-def get_course_enrollments(course_id):
+def get_course_enrollments(course_id, term_id):
     return _get_course_enrollments(course_id)
 
 

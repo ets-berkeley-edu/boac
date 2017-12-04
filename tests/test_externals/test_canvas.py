@@ -162,7 +162,7 @@ class TestCanvasGrades:
 
     def test_course_enrollments(self, app):
         """returns course enrollments"""
-        feed = canvas.get_course_enrollments(7654321)
+        feed = canvas._get_course_enrollments(7654321)
         assert feed
         assert len(feed) == 43
         assert feed[0]['user_id'] == 9000100
@@ -172,7 +172,7 @@ class TestCanvasGrades:
 
     def test_assignments_analytics(self, app):
         """returns course assignments analytics"""
-        feed = canvas.get_assignments_analytics(7654321, 61889)
+        feed = canvas._get_assignments_analytics(7654321, 61889)
         assert feed
         assert len(feed) == 6
         assignment = feed[0]
