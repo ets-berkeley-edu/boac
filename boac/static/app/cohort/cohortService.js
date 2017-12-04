@@ -4,8 +4,7 @@
 
   angular.module('boac').service('cohortService', function() {
 
-
-    var displayCohort = function(membersWithData, goToUserPage) {
+    var drawScatterplot = function(students, goToUserPage) {
       var svg;
 
       function x(d) { return d.analytics.pageViews; }
@@ -49,7 +48,9 @@
             .attr('cy', function(d) { return transform.applyY(yScale(y(d))); });
         });
 
+      // We clear the '#scatterplot' div with `html()` in case the current search results are replacing previous results.
       svg = d3.select('#scatterplot')
+        .html('')
         .append('svg')
         .attr('width', width)
         .attr('height', height)
@@ -147,7 +148,7 @@
 
       var dot = dotGroup.attr('class', 'dots')
         .selectAll('.dot')
-        .data(membersWithData, key)
+        .data(students, key)
         .enter().append('circle')
         .attr('class', 'dot')
         .style('fill', function(d) { return avatar(d); })
@@ -191,7 +192,7 @@
     };
 
     return {
-      displayCohort: displayCohort
+      drawScatterplot: drawScatterplot
     };
 
   });

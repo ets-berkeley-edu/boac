@@ -4,6 +4,9 @@
   <div data-ng-if="isLoading">
     <h1 class="faint-text">Loading....</h1>
   </div>
+  <div data-ng-if="isSaving">
+    <h1 class="faint-text">Saving....</h1>
+  </div>
   <div data-ng-if="error">
     <h1>Error</h1>
     <div>
@@ -11,16 +14,16 @@
       <span class="faint-text" data-ng-if="error.message">(<span data-ng-bind="error.message"></span>)</span>
     </div>
   </div>
-  <div data-ng-if="!isLoading && (search.results.totalCount >= 0)">
+  <div data-ng-if="!isLoading && !error && !isSaving && (search.results.totalCount >= 0)">
     <h1 data-ng-if="cohort">
       <span data-ng-bind="cohort.label || cohort.name"></span>
       <span class="faint-text">(<span data-ng-bind="search.results.totalCount"></span> members)</span>
     </h1>
-    <h1 data-ng-if="!cohort && !isCreateCohortMode">
+    <h1 data-ng-if="!cohort && !isLoading && !isCreateCohortMode">
       <span data-ng-bind="search.results.totalCount"></span> Results
     </h1>
   </div>
-  <div class="cohort-column-results" data-ng-if="!isLoading && !error && isCreateCohortMode">
+  <div class="cohort-column-results" data-ng-if="!isLoading && !error && !isSaving && isCreateCohortMode">
     <h1>
       Create a Cohort
     </h1>
@@ -31,19 +34,35 @@
 
   <hr class="filters-section-separator" data-ng-if="!isLoading && !error && !isCreateCohortMode"/>
 
-  <div class="flex-container flex-space-between" data-ng-if="!isLoading && !error">
+  <div class="flex-container flex-space-between" data-ng-if="!error">
     <div class="cohort-filters-column flex-column-btn">
-      <div class="btn-group box-shadow-off" uib-dropdown keyboard-nav>
+      <div class="btn-group box-shadow-off"
+           uib-dropdown
+           auto-close="disabled"
+           is-open="search.dropdown.teamsOpen"
+           keyboard-nav>
         <!-- Dropdown docs at https://angular-ui.github.io/bootstrap/ -->
-        <button id="search-filter-teams" type="button" class="btn" uib-dropdown-toggle>
+        <button id="search-filter-teams"
+                type="button"
+                class="btn"
+                uib-dropdown-toggle>
           <span class="cohort-filter-label">
-            Teams (<span data-ng-bind="search.count.selectedTeams"></span>) <i class="fa fa-chevron-down"></i>
+            Teams
+            <span data-ng-if="!isLoading && !isSaving">(<span data-ng-bind="search.count.selectedTeams"></span>)</span>
+            <i class="fa fa-chevron-down"
+               data-ng-if="!isLoading && !isSaving && !search.dropdown.teamsOpen"></i>
+            <i class="fa fa-chevron-up"
+               data-ng-if="!isLoading && !isSaving && search.dropdown.teamsOpen"></i>
+            <i class="fa fa-spinner fa-spin"
+               aria-hidden="true"
+               data-ng-if="isLoading || isSaving"></i>
           </span>
         </button>
-        <ul class="dropdown-menu"
-            uib-dropdown-menu
+        <ul aria-labelledby="search-filter-teams"
+            class="dropdown-menu"
             role="menu"
-            aria-labelledby="search-filter-teams">
+            uib-dropdown-menu
+            data-ng-if="!isLoading && !isSaving">
           <li class="cohort-filter-list-item"
               role="menuitem"
               data-ng-repeat="team in search.options.teams">
@@ -51,7 +70,7 @@
                    type="checkbox"
                    data-ng-model="team.selected"
                    aria-label="{{team.name}}"
-                   data-ng-click="updateSelectedTeamsCount(team.selected ? 1 : -1)" />
+                   data-ng-click="updateSelectedTeamsCount(team.selected ? 1 : -1)"/>
             <span data-ng-bind="team.name"></span></li>
         </ul>
       </div>
@@ -60,15 +79,15 @@
     <div class="cohort-filters-column flex-column-btn">
       <button id="header-sign-in"
               class="btn btn-primary btn-nowrap"
-              data-ng-disabled="!search.count.selectedTeams"
-              data-ng-click="executeSearch()"
-              data-ng-if="selectedTab === 'list'">Search</button>
+              data-ng-disabled="!search.count.selectedTeams || isLoading || isSaving"
+              data-ng-click="executeSearch()">Search</button>
     </div>
     <div class="cohort-filters-column flex-column-btn">
-      <span data-ng-controller="CreateCohortController" data-ng-if="!isLoading && !isCreateCohortMode && selectedTab === 'list'">
+      <span data-ng-controller="CreateCohortController" data-ng-if="!isCreateCohortMode">
         <button type="button"
                 id="create-cohort-btn"
                 class="btn btn-default btn-nowrap"
+                data-ng-disabled="isLoading || isSaving"
                 data-ng-click="openCreateCohortModal(search.options.teams)">
           Save Cohort
         </button>
@@ -78,26 +97,29 @@
 
   <hr class="filters-section-separator" data-ng-if="!isLoading && !error && !isCreateCohortMode"/>
 
-  <div class="cohort-column-results" data-ng-if="!isLoading && search.results.totalCount">
-    <div class="flex-container flex-space-between">
+  <div class="cohort-column-results">
+    <div class="flex-container flex-space-between"
+         data-ng-if="!isLoading && !error && search.results.totalCount">
       <div class="cohort-sort-column">
         <div class="btn-group cohort-btn-group" role="group" aria-label="Select results view">
           <button type="button"
                   class="btn btn-secondary cohort-tab-button"
                   data-ng-class="{'cohort-tab-button-selected': selectedTab==='list'}"
-                  data-ng-click="onTab('list')">
+                  data-ng-click="onTab('list')"
+                  data-ng-disabled="isSaving">
             <i class="fa fa-list"></i> List
           </button>
           <button type="button"
                   class="btn btn-secondary cohort-tab-button"
                   data-ng-class="{'cohort-tab-button-selected': selectedTab==='matrix'}"
+                  data-ng-disabled="isSaving"
                   data-ng-click="onTab('matrix')">
             <i class="fa fa-table"></i> Matrix
           </button>
         </div>
       </div>
       <div class="cohort-sort-column" data-ng-if="selectedTab === 'list'">
-        <label class="cohort-sort-label" for="sort-by">Sort by</label>
+        <label class="cohort-sort-label" for="cohort-sort-by">Sort by</label>
         <select id="cohort-sort-by"
                 class="form-control"
                 data-ng-model="orderBy.selected"
@@ -105,7 +127,8 @@
         </select>
       </div>
     </div>
-    <div data-ng-show="selectedTab === 'list'">
+    <div data-ng-show="selectedTab === 'list'"
+         data-ng-if="!isLoading && !error && search.results.totalCount">
       <ul class="list-group">
         <a class="list-group-item cohort-member-list-item"
            data-ng-href="/student/{{row.uid}}"
@@ -127,13 +150,10 @@
           data-ng-click="nextPage()"
           data-ng-if="pagination.enabled && !isCreateCohortMode && (search.results.totalCount > pagination.itemsPerPage)"></ul>
     </div>
-    <div data-ng-show="selectedTab === 'matrix'">
-      <div data-ng-if="isMatrixLoading">
-        <h2 class="faint-text">Loading....</h2>
-      </div>
+    <div data-ng-show="selectedTab === 'matrix' && !isLoading && !error">
       <!-- IMPORTANT: We use data-ng-show because d3 must populate the div before we reveal it to the user. -->
-      <div id="scatterplot" data-ng-show="!isMatrixLoading"></div>
-      <ul data-ng-if="!isMatrixLoading && matrix.membersWithoutData.length">
+      <div id="scatterplot"></div>
+      <ul data-ng-if="matrix.membersWithoutData.length">
         <h4>Students without graphable data</h4>
         <li data-ng-repeat="member in matrix.membersWithoutData">
           <a data-ng-href="/student/{{member.uid}}">
