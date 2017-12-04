@@ -20,7 +20,7 @@
     };
   });
 
-  angular.module('boac').controller('CreateCohortModal', function(teams, cohortFactory, $scope, $uibModalInstance) {
+  angular.module('boac').controller('CreateCohortModal', function(teams, cohortFactory, $rootScope, $scope, $uibModalInstance) {
 
     $scope.cohortName = null;
     $scope.errorMessage = null;
@@ -30,8 +30,12 @@
       if (_.isEmpty($scope.cohortName)) {
         $scope.errorMessage = 'Required';
       } else {
+        $rootScope.isSaving = true;
+
         var selectedTeams = _.filter(teams, 'selected');
-        cohortFactory.createCohort($scope.cohortName, _.map(selectedTeams, 'code'));
+        cohortFactory.createCohort($scope.cohortName, _.map(selectedTeams, 'code')).then(function() {
+          $rootScope.isSaving = false;
+        });
         $uibModalInstance.close();
       }
     };

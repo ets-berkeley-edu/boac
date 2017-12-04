@@ -6,12 +6,14 @@
 
     $scope.isLoading = true;
     $scope.selectedTab = 'list';
-    $scope.isMatrixLoading = false;
     $scope.isCreateCohortMode = false;
 
     $scope.search = {
       count: {
         selectedTeams: 0
+      },
+      dropdown: {
+        teamsOpen: false
       },
       options: {
         teams: []
@@ -31,7 +33,8 @@
     $scope.pagination = {
       enabled: true,
       currentPage: 0,
-      itemsPerPage: 50
+      itemsPerPage: 50,
+      noLimit: Number.MAX_SAFE_INTEGER
     };
 
     var parseCohortFeed = function(response) {
@@ -53,9 +56,12 @@
       var page = $scope.pagination.enabled ? $scope.pagination.currentPage : 0;
       var limit = $scope.pagination.enabled ? $scope.pagination.itemsPerPage : Number.MAX_SAFE_INTEGER;
       var offset = page === 0 ? 0 : (page - 1) * limit;
+
+      $scope.isLoading = true;
       cohortFactory.getCohort(code, $scope.orderBy.selected, offset, limit).then(
         function(response) {
           $scope.cohort = parseCohortFeed(response);
+          $scope.isLoading = false;
           return callback($scope.cohort);
         },
         function(err) {
@@ -82,24 +88,7 @@
       return _.map(selectedTeams, 'code');
     };
 
-    var refreshResults = function() {
-      if ($scope.cohort) {
-        refreshCohortView($scope.cohort.code || $scope.cohort.id, angular.noop);
-      } else {
-        $scope.pagination.enabled = true;
-
-        var page = $scope.pagination.currentPage;
-        var offset = page === 0 ? 0 : (page - 1) * $scope.pagination.itemsPerPage;
-        cohortFactory.getTeamsMembers(getSelectedTeamCodes(), $scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(parseCohortFeed,
-          function(err) {
-            $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
-            return callback(null);
-          }
-        );
-      }
-    };
-
-    var loadScatterplot = function(response) {
+    var scatterplotRefresh = function(response) {
       // Plot the cohort
       var partitionedMembers = _.partition(response.data.members, function(member) {
         return _.isFinite(_.get(member, 'analytics.pageViews'));
@@ -112,7 +101,46 @@
         membersWithData: partitionedMembers[0],
         membersWithoutData: partitionedMembers[1]
       };
-      cohortService.displayCohort($scope.matrix.membersWithData, goToUserPage);
+      cohortService.drawScatterplot($scope.matrix.membersWithData, goToUserPage);
+    };
+
+    var matrixViewRefresh = function() {
+      // In case of error
+      var handleError = function(err) {
+        $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
+      };
+      // The done() function is always invoked
+      $scope.isLoading = true;
+      var done = function() {
+        $scope.isLoading = false;
+      };
+
+      if ($scope.cohort) {
+        var code = $scope.cohort.code || $scope.cohort.id;
+        cohortFactory.getCohort(code, null, 0, $scope.pagination.noLimit).then(scatterplotRefresh).catch(handleError).then(done);
+      } else {
+        cohortFactory.getTeamsMembers(getSelectedTeamCodes(), null, 0, $scope.pagination.noLimit).then(scatterplotRefresh).catch(handleError).then(done);
+      }
+    };
+
+    var listViewRefresh = function() {
+      if ($scope.cohort) {
+        refreshCohortView($scope.cohort.code || $scope.cohort.id, angular.noop);
+      } else {
+        $scope.pagination.enabled = true;
+
+        var handleError = function(err) {
+          $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
+        };
+        var page = $scope.pagination.currentPage;
+        var offset = page === 0 ? 0 : (page - 1) * $scope.pagination.itemsPerPage;
+
+        // Perform the query
+        $scope.isLoading = true;
+        cohortFactory.getTeamsMembers(getSelectedTeamCodes(), $scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(parseCohortFeed, handleError).then(function() {
+          $scope.isLoading = false;
+        });
+      }
     };
 
     /**
@@ -136,38 +164,31 @@
 
       // Lazy load matrix data
       if (tabName === 'matrix' && !$scope.matrix) {
-        $scope.isMatrixLoading = true;
-        // Functions
-        var handleError = function(err) {
-          $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
-        };
-        var done = function() {
-          $scope.isMatrixLoading = false;
-        };
-
-        if ($scope.cohort) {
-          var code = $scope.cohort.code || $scope.cohort.id;
-          cohortFactory.getCohort(code, null, 0, $scope.pagination.noLimit).then(loadScatterplot).catch(handleError).then(done);
-        } else {
-          cohortFactory.getTeamsMembers(getSelectedTeamCodes(), null, 0, $scope.pagination.noLimit).then(loadScatterplot).catch(handleError).then(done);
-        }
+        matrixViewRefresh();
       }
     };
 
     $scope.executeSearch = function() {
+      // Close dropdown menu
+      $scope.search.dropdown.teamsOpen = false;
+      // Refresh search results
       $scope.cohort = null;
       $scope.pagination.currentPage = 0;
-      refreshResults();
+      if ($scope.selectedTab === 'list') {
+        listViewRefresh();
+      } else {
+        matrixViewRefresh();
+      }
     };
 
     $scope.nextPage = function() {
-      refreshResults();
+      listViewRefresh();
     };
 
     $scope.$watch('orderBy.selected', function(value) {
       if (value && !$scope.isLoading) {
         $scope.pagination.currentPage = 0;
-        refreshResults();
+        listViewRefresh();
       }
     });
 
@@ -195,8 +216,6 @@
                 googleAnalyticsService.track('cohort', 'view', cohort.label, cohort.id);
               }
             }
-            // Done!
-            $scope.isLoading = false;
           });
         }
       });

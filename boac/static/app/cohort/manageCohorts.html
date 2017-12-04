@@ -3,9 +3,8 @@
 
   <h1>Manage Cohorts</h1>
 
-  <div data-ng-if="isLoading">
-    <div>Loading.... </div>
-  </div>
+  <h2 class="faint-text" data-ng-if="isLoading">Loading....</h2>
+
   <div data-ng-if="!isLoading">
     <div data-ng-if="!myCohorts.length">
       You have no saved cohorts.

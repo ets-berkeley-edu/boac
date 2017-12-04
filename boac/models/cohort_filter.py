@@ -69,7 +69,7 @@ class CohortFilter(Base, UserMixin):
     @classmethod
     def find_by_id(cls, cohort_id, order_by='member_name', offset=0, limit=50):
         result = CohortFilter.query.filter_by(id=cohort_id).first()
-        cohort = result and summarize(result, order_by, offset, limit)
+        cohort = result and summarize(result, True, order_by, offset, limit)
         return cohort
 
     @classmethod
@@ -79,7 +79,7 @@ class CohortFilter(Base, UserMixin):
         db.session.commit()
 
 
-def summarize(cohort, order_by='member_name', offset=0, limit=50):
+def summarize(cohort, include_canvas_profiles=False, order_by='member_name', offset=0, limit=50):
     filter_criteria = json.loads(cohort.filter_criteria)
     team_codes = filter_criteria['teams'] if 'teams' in filter_criteria else None
     summary = {
@@ -89,7 +89,7 @@ def summarize(cohort, order_by='member_name', offset=0, limit=50):
     }
 
     if limit > 0 and len(team_codes) > 0:
-        summary.update(TeamMember.summarize_team_members(team_codes, order_by, offset, limit))
+        summary.update(TeamMember.get_team_members(team_codes, include_canvas_profiles, order_by, offset, limit))
 
     # Return a serializable object
     return summary

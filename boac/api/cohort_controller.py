@@ -1,8 +1,5 @@
 from boac.api.errors import BadRequestError
 from boac.api.errors import ForbiddenRequestError
-from boac.api.util import canvas_courses_api_feed
-from boac.externals import canvas
-from boac.lib.analytics import mean_course_analytics_for_user
 from boac.lib.http import tolerant_jsonify
 from boac.models.cohort_filter import CohortFilter
 from boac.models.team_member import TeamMember
@@ -24,7 +21,7 @@ def teams_members():
     order_by = get_param(params, 'orderBy', 'member_name')
     offset = get_param(params, 'offset', 0)
     limit = get_param(params, 'limit', 50)
-    return jsonify(TeamMember.summarize_team_members(team_codes, order_by, offset, limit))
+    return jsonify(TeamMember.get_team_members(team_codes, True, order_by, offset, limit))
 
 
 @app.route('/api/cohorts/all')
@@ -57,7 +54,6 @@ def get_cohort(code):
         cohort = CohortFilter.find_by_id(int(code), order_by, offset, limit)
     else:
         cohort = TeamMember.for_code(code, order_by, offset, limit)
-        load_member_profiles(cohort)
         # Translate requested order_by to naming convention of TeamMember
         sort_by = 'uid' if order_by == 'member_uid' else 'name'
         cohort['members'].sort(key=lambda member: member[sort_by])
@@ -113,27 +109,6 @@ def delete_cohort(cohort_id):
 
 def get_cohort_owned_by(cohort_filter_id, uid):
     return next((c for c in CohortFilter.all_owned_by(uid) if c['id'] == cohort_filter_id), None)
-
-
-def load_member_profiles(team):
-    for member in team['members']:
-        uid = member['uid']
-        cache_key = 'user/{uid}'.format(uid=uid)
-        canvas_profile = app.cache.get(cache_key) if app.cache else None
-        if not canvas_profile:
-            canvas_profile = canvas.get_user_for_uid(uid)
-            # Cache Canvas profiles
-            if app.cache and canvas_profile:
-                app.cache.set(cache_key, canvas_profile)
-
-        if canvas_profile:
-            member['avatar_url'] = canvas_profile['avatar_url']
-            student_courses = canvas.get_student_courses(uid)
-            current_term = app.config.get('CANVAS_CURRENT_ENROLLMENT_TERM')
-            student_courses_in_current_term = [course for course in student_courses if course.get('term', {}).get('name') == current_term]
-            canvas_courses = canvas_courses_api_feed(student_courses_in_current_term)
-            if canvas_courses:
-                member['analytics'] = mean_course_analytics_for_user(canvas_courses, canvas_profile['id'], current_term)
 
 
 def get_param(params, key, default_value=None):

@@ -1,7 +1,11 @@
 """Team membership"""
 
 from boac import db
+from boac.api.util import canvas_courses_api_feed
+from boac.externals import canvas
+from boac.lib.analytics import mean_course_analytics_for_user
 from boac.models.base import Base
+from flask import current_app as app
 from sqlalchemy import func, UniqueConstraint
 
 
@@ -95,32 +99,55 @@ class TeamMember(Base):
 
     @classmethod
     def for_code(cls, code, order_by='member_name', offset=0, limit=50):
-        members = cls.query.filter_by(code=code).order_by(order_by).offset(offset).limit(limit).all()
-        return {
+        team = {
             'code': code,
-            'members': [member.to_api_json() for member in members],
             'name': cls.team_definitions.get(code, code),
             'totalMemberCount': TeamMember.query.filter_by(code=code).count(),
         }
+        # Update object, at the base level, with 'members' list
+        team.update(TeamMember.get_team_members([code], True, order_by, offset, limit))
+        return team
 
     @classmethod
-    def summarize_team_members(cls, team_codes, order_by='member_name', offset=0, limit=50):
+    def get_team_members(cls, team_codes, include_canvas_profiles=False, order_by='member_name', offset=0, limit=50):
         summary = {
             'teams': [],
         }
         for code in team_codes:
-            team = TeamMember.for_code(code)
             summary['teams'].append({
                 'code': code,
-                'name': team['name'],
+                'name': cls.team_definitions.get(code),
             })
         o = TeamMember.member_uid if order_by == 'member_uid' else TeamMember.member_name
         f = TeamMember.code.in_(team_codes)
         results = TeamMember.query.distinct(o).order_by(o).filter(f).offset(offset).limit(limit).all()
 
         summary['members'] = []
+
         for row in results:
-            summary['members'].append(row.to_api_json())
+            member = row.to_api_json()
+            if include_canvas_profiles:
+                uid = member['uid']
+                cache_key = 'user/{uid}'.format(uid=uid)
+                canvas_profile = app.cache.get(cache_key) if app.cache else None
+                if not canvas_profile:
+                    canvas_profile = canvas.get_user_for_uid(uid)
+                    # Cache Canvas profiles
+                    if app.cache and canvas_profile:
+                        app.cache.set(cache_key, canvas_profile)
+
+                if canvas_profile:
+                    member['avatar_url'] = canvas_profile['avatar_url']
+                    student_courses = canvas.get_student_courses(uid)
+                    current_term = app.config.get('CANVAS_CURRENT_ENROLLMENT_TERM')
+                    student_courses_in_current_term = [course for course in student_courses if
+                                                       course.get('term', {}).get('name') == current_term]
+                    canvas_courses = canvas_courses_api_feed(student_courses_in_current_term)
+                    if canvas_courses:
+                        member['analytics'] = mean_course_analytics_for_user(canvas_courses,
+                                                                             canvas_profile['id'],
+                                                                             current_term)
+            summary['members'].append(member)
 
         summary['totalMemberCount'] = TeamMember.query.distinct(o).filter(f).count()
         db.session.commit()
