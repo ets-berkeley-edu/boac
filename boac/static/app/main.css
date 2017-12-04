@@ -81,6 +81,11 @@
   min-width: 350px;
 }
 
+.form-control {
+  height: 38px;
+  padding: 8px 12px;
+}
+
 .has-error {
   color: #cf1715;
 }
@@ -90,14 +95,13 @@
   min-height: 370px;
 }
 
+oi-select .select-dropdown {
+  max-height: 250px !important;
+}
+
 select[data-value=""],
 select option[value=""] {
   color: #999;
-}
-
-.form-control {
-  height: 38px;
-  padding: 8px 12px;
 }
 
 select.form-control {
