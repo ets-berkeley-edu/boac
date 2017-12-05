@@ -11,7 +11,7 @@
       studentFactory.analyticsPerUser(uid).then(function(analytics) {
         $scope.student = analytics.data;
         // Track view event
-        var preferredName = student.sisProfile && student.sisProfile.preferredName;
+        var preferredName = $scope.student.sisProfile && $scope.student.sisProfile.preferredName;
         googleAnalyticsService.track('student', 'view-profile', preferredName, parseInt(uid, 10));
       }).catch(function(error) {
         $scope.error = _.truncate(error.data.message, {length: 200}) || 'An unexpected server error occurred.';
