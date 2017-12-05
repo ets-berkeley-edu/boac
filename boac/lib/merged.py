@@ -65,8 +65,10 @@ def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name):
     for site in canvas_course_sites:
         merge_canvas_course_site(term_feed, site)
 
-    # Screen out PHYSED 11/12 enrollments after course site merge so that associated sites are removed rather than orphaned.
+    # Screen out unwanted enrollments after course site merge so that associated sites are removed rather than orphaned.
     remove_athletic_enrollments(term_feed)
+    if term_name != app.config['CANVAS_CURRENT_ENROLLMENT_TERM']:
+        remove_dropped_enrollments(term_feed)
 
     return term_feed
 
@@ -103,6 +105,15 @@ def remove_athletic_enrollments(term_feed):
     def is_athletic_enrollment(enrollment):
         return (enrollment['displayName'] == 'PHYSED 11') or (enrollment['displayName'] == 'PHYSED 12')
     term_feed['enrollments'] = [enr for enr in term_feed['enrollments'] if not is_athletic_enrollment(enr)]
+
+
+def remove_dropped_enrollments(term_feed):
+    def is_dropped(enrollment):
+        for section in enrollment['sections']:
+            if section['enrollmentStatus'] != 'D':
+                return False
+        return True
+    term_feed['enrollments'] = [enr for enr in term_feed['enrollments'] if not is_dropped(enr)]
 
 
 def merge_sis_profile(csid):

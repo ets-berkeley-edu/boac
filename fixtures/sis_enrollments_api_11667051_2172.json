@@ -274,6 +274,211 @@
               }
             }
           }
+        },
+        {
+          "enrollmentStatus": {
+            "status": {
+              "code": "D",
+              "description": "Dropped"
+            },
+            "reason": {
+              "code": "DROP",
+              "description": "Dropped (was enrolled)"
+            },
+            "fromDate": "2016-12-11"
+          },
+          "enrolledUnits": {
+            "taken": 4,
+            "forAcademicProgress": 4,
+            "forFinancialAid": 4,
+            "forBilling": 4
+          },
+          "gradingBasis": {
+            "code": "GRD",
+            "description": "Standard Grading Basis"
+          },
+          "classSection": {
+            "id": 54321,
+            "number": "001",
+            "component": {
+              "code": "LEC",
+              "description": "Lecture"
+            },
+            "displayName": "2017 Spring MATH 136 001 LEC 001",
+            "association": {
+              "primary": false,
+              "primaryAssociatedComponent": {
+              }
+            },
+            "enrollmentStatus": {
+              "status": {
+              }
+            },
+            "printInScheduleOfClasses": false,
+            "addConsentRequired": {
+              "code": "N",
+              "description": "No Special Consent Required"
+            },
+            "dropConsentRequired": {
+              "code": "N",
+              "description": "No Special Consent Required"
+            },
+            "meetings": [
+              {
+                "number": 1,
+                "meetsDays": "Mo",
+                "meetsMonday": true,
+                "meetsTuesday": false,
+                "meetsWednesday": false,
+                "meetsThursday": false,
+                "meetsFriday": false,
+                "meetsSaturday": false,
+                "meetsSunday": false,
+                "startTime": "12:00:00",
+                "endTime": "12:59:00",
+                "location": {
+                  "code": "DWINELLE 117",
+                  "description": "Dwinelle 117"
+                },
+                "building": {
+                  "code": "9000",
+                  "description": "Dwinelle Hall"
+                },
+                "assignedInstructors": [
+                  {
+                    "assignmentNumber": 1,
+                    "instructor": {
+                      "identifiers": [
+                        {
+                          "type": "student-id",
+                          "id": "3334445550",
+                          "disclose": true
+                        },
+                        {
+                          "type": "campus-uid",
+                          "id": "1122330",
+                          "disclose": true
+                        },
+                        {
+                          "type": "Social Security Number",
+                          "id": "***-**-****",
+                          "disclose": false
+                        },
+                        {
+                          "type": "HCM System",
+                          "id": "012345670",
+                          "disclose": false
+                        }
+                      ],
+                      "names": [
+                        {
+                          "type": {
+                            "code": "PRF",
+                            "description": "Preferred"
+                          },
+                          "familyName": "Turing",
+                          "givenName": "Alan",
+                          "formattedName": "Alan Turing",
+                          "disclose": true,
+                          "uiControl": {
+                            "code": "U",
+                            "description": "Edit - No Delete"
+                          },
+                          "fromDate": "2003-12-03"
+                        },
+                        {
+                          "type": {
+                            "code": "PRI",
+                            "description": "Primary"
+                          },
+                          "familyName": "Turing",
+                          "givenName": "Alan",
+                          "formattedName": "Alan Turing",
+                          "disclose": true,
+                          "uiControl": {
+                            "code": "D",
+                            "description": "Display Only"
+                          },
+                          "fromDate": "2003-12-03"
+                        }
+                      ],
+                      "emails": [
+                        {
+                          "type": {
+                            "code": "CAMP",
+                            "description": "Campus"
+                          },
+                          "emailAddress": "haltingproblem@berkeley.edu",
+                          "primary": true,
+                          "disclose": true,
+                          "uiControl": {
+                            "code": "D",
+                            "description": "Display Only"
+                          }
+                        }
+                      ]
+                    },
+                    "role": {
+                      "code": "PI",
+                      "description": "1-TIC",
+                      "formalDescription": "Teaching and In Charge"
+                    },
+                    "printInScheduleOfClasses": true,
+                    "gradeRosterAccess": {
+                      "code": "A",
+                      "description": "Approve",
+                      "formalDescription": "Approve"
+                    }
+                  }
+                ],
+                "startDate": "2017-01-05",
+                "endDate": "2017-05-08",
+                "meetingTopic": {
+                }
+              }
+            ],
+            "class": {
+              "course": {
+                "identifiers": [
+                  {
+                    "type": "cs-course-id",
+                    "id": "32345"
+                  }
+                ],
+                "subjectArea": {
+                  "code": "MATH",
+                  "description": "Math"
+                },
+                "catalogNumber": {
+                  "number": "136",
+                  "suffix": "",
+                  "formatted": "136"
+                },
+                "displayName": "MATH 136",
+                "title": "Incompleteness and Undecidability",
+                "transcriptTitle": "INCOMP AND UNDEC"
+              },
+              "offeringNumber": 1,
+              "session": {
+                "term": {
+                  "id": "2172",
+                  "name": "2017 Spring"
+                },
+                "id": "1",
+                "name": "Regular Academic Session"
+              },
+              "number": "001",
+              "displayName": "2017 Spring MATH 136 001",
+              "allowedUnits": {
+                "minimum": 4,
+                "maximum": 4,
+                "forAcademicProgress": 4,
+                "forFinancialAid": 4
+              },
+              "status": {
+              }
+            }
+          }
         }
       ]
     }
