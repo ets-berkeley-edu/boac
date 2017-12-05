@@ -16,6 +16,10 @@
   display: flex;
 }
 
+.student-profile-class-sections {
+  margin: 10px 0;
+}
+
 .student-profile-class-title {
   font-size: 18px;
 }

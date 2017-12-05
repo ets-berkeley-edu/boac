@@ -299,7 +299,7 @@
           },
           "classSection": {
             "id": 90200,
-            "number": "205",
+            "number": "001",
             "component": {
               "code": "SEM",
               "description": "Seminar"
@@ -747,6 +747,215 @@
                   },
                   {
                     "assignmentNumber": 2,
+                    "instructor": {
+                      "identifiers": [
+                        {
+                          "type": "student-id",
+                          "id": "3334445554",
+                          "disclose": false
+                        },
+                        {
+                          "type": "campus-uid",
+                          "id": "1122334",
+                          "disclose": true
+                        },
+                        {
+                          "type": "Social Security Number",
+                          "id": "***-**-****",
+                          "disclose": false
+                        },
+                        {
+                          "type": "DB2",
+                          "id": "20000001",
+                          "disclose": false
+                        },
+                        {
+                          "type": "HCM System",
+                          "id": "012345674",
+                          "disclose": false
+                        }
+                      ],
+                      "names": [
+                        {
+                          "type": {
+                            "code": "PRF",
+                            "description": "Preferred"
+                          },
+                          "familyName": "Gell-Mann",
+                          "givenName": "Murray",
+                          "formattedName": "Murray Gell-Mann",
+                          "disclose": false,
+                          "uiControl": {
+                            "code": "U",
+                            "description": "Edit - No Delete"
+                          },
+                          "fromDate": "1902-02-01"
+                        },
+                        {
+                          "type": {
+                            "code": "PRI",
+                            "description": "Primary"
+                          },
+                          "familyName": "Gell-Mann",
+                          "givenName": "Murray",
+                          "formattedName": "Murray Gell-Mann",
+                          "disclose": false,
+                          "uiControl": {
+                            "code": "D",
+                            "description": "Display Only"
+                          },
+                          "fromDate": "2016-08-24"
+                        }
+                      ],
+                      "emails": [
+                        {
+                          "type": {
+                            "code": "CAMP",
+                            "description": "Campus"
+                          },
+                          "emailAddress": "threequarks@berkeley.edu",
+                          "primary": true,
+                          "disclose": false,
+                          "uiControl": {
+                            "code": "D",
+                            "description": "Display Only"
+                          }
+                        }
+                      ]
+                    },
+                    "role": {
+                      "code": "TNIC",
+                      "description": "2-TNIC",
+                      "formalDescription": "Teaching but Not In Charge"
+                    },
+                    "printInScheduleOfClasses": true,
+                    "gradeRosterAccess": {
+                      "code": "G",
+                      "description": "Grade",
+                      "formalDescription": "Grade"
+                    }
+                  }
+                ],
+                "startDate": "2017-08-23",
+                "endDate": "2017-12-08",
+                "meetingTopic": {
+                }
+              }
+            ],
+            "class": {
+              "course": {
+                "identifiers": [
+                  {
+                    "type": "cs-course-id",
+                    "id": "105000"
+                  }
+                ],
+                "subjectArea": {
+                  "code": "NUC ENG",
+                  "description": "Nuclear Engineering"
+                },
+                "catalogNumber": {
+                  "number": "124",
+                  "formatted": "124"
+                },
+                "displayName": "NUC ENG 124",
+                "title": "Radioactive Waste Management",
+                "transcriptTitle": "RADIO WSTE MGMT"
+              },
+              "offeringNumber": 1,
+              "session": {
+                "term": {
+                  "id": "2178",
+                  "name": "2017 Fall"
+                },
+                "id": "1",
+                "name": "Regular Academic Session"
+              },
+              "number": "002",
+              "displayName": "2017 Fall NUC ENG 124 002",
+              "allowedUnits": {
+                "minimum": 3,
+                "maximum": 3,
+                "forAcademicProgress": 3,
+                "forFinancialAid": 3
+              },
+              "status": {
+              }
+            }
+          }
+        },
+        {
+          "enrollmentStatus": {
+            "status": {
+              "code": "E",
+              "description": "Enrolled"
+            },
+            "reason": {
+              "code": "ENRL",
+              "description": "Enrolled"
+            },
+            "fromDate": "2017-08-22"
+          },
+          "enrolledUnits": {
+            "taken": 0,
+            "forAcademicProgress": 0,
+            "forFinancialAid": 0,
+            "forBilling": 0
+          },
+          "gradingBasis": {
+            "code": "NON",
+            "description": "Non-Graded Component"
+          },
+          "classSection": {
+            "id": 90301,
+            "number": "201",
+            "component": {
+              "code": "DIS",
+              "description": "Discussion"
+            },
+            "displayName": "2017 Fall NUC ENG 124 002 DIS 201",
+            "association": {
+              "primary": false,
+              "primaryAssociatedComponent": {
+              }
+            },
+            "enrollmentStatus": {
+              "status": {
+              }
+            },
+            "printInScheduleOfClasses": false,
+            "addConsentRequired": {
+              "code": "N",
+              "description": "No Special Consent Required"
+            },
+            "dropConsentRequired": {
+              "code": "N",
+              "description": "No Special Consent Required"
+            },
+            "meetings": [
+              {
+                "number": 1,
+                "meetsDays": "Fr",
+                "meetsMonday": false,
+                "meetsTuesday": false,
+                "meetsWednesday": false,
+                "meetsThursday": false,
+                "meetsFriday": true,
+                "meetsSaturday": false,
+                "meetsSunday": false,
+                "startTime": "18:00:00",
+                "endTime": "19:59:00",
+                "location": {
+                  "code": "LBL2001",
+                  "description": "Lawrence Berkeley Lab 2001"
+                },
+                "building": {
+                  "code": "123",
+                  "description": "Lawrence Berkeley Lab"
+                },
+                "assignedInstructors": [
+                  {
+                    "assignmentNumber": 1,
                     "instructor": {
                       "identifiers": [
                         {

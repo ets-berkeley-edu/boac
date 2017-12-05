@@ -7,7 +7,7 @@
       restrict: 'E',
       scope: {
         canvasSite: '=',
-        ccn: '=',
+        courseName: '=',
         drawBoxplot: '=',
         percentile: '=',
         termId: '='

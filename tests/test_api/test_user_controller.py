@@ -156,44 +156,54 @@ class TestUserAnalytics:
     def test_sis_enrollment_merge(self, authenticated_response):
         """merges SIS enrollment data"""
         burmese = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'BURMESE 1A')
-        assert burmese['ccn'] == 90100
         assert burmese['displayName'] == 'BURMESE 1A'
         assert burmese['title'] == 'Introductory Burmese'
-        assert burmese['sectionNumber'] == '001'
-        assert burmese['enrollmentStatus'] == 'E'
-        assert burmese['units'] == 4
-        assert burmese['gradingBasis'] == 'GRD'
-        assert burmese['grade'] == 'B+'
+        assert len(burmese['sections']) == 1
+        assert burmese['sections'][0]['ccn'] == 90100
+        assert burmese['sections'][0]['sectionNumber'] == '001'
+        assert burmese['sections'][0]['enrollmentStatus'] == 'E'
+        assert burmese['sections'][0]['units'] == 4
+        assert burmese['sections'][0]['gradingBasis'] == 'GRD'
+        assert burmese['sections'][0]['grade'] == 'B+'
 
         medieval = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'MED ST 205')
-        assert medieval['ccn'] == 90200
         assert medieval['displayName'] == 'MED ST 205'
         assert medieval['title'] == 'Medieval Manuscripts as Primary Sources'
-        assert medieval['sectionNumber'] == '001'
-        assert medieval['enrollmentStatus'] == 'D'
-        assert medieval['units'] == 5
-        assert medieval['gradingBasis'] == 'GRD'
-        assert not medieval['grade']
+        assert len(medieval['sections']) == 1
+        assert medieval['sections'][0]['ccn'] == 90200
+        assert medieval['sections'][0]['sectionNumber'] == '001'
+        assert medieval['sections'][0]['enrollmentStatus'] == 'D'
+        assert medieval['sections'][0]['units'] == 5
+        assert medieval['sections'][0]['gradingBasis'] == 'GRD'
+        assert not medieval['sections'][0]['grade']
 
         nuclear = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'NUC ENG 124')
-        assert nuclear['ccn'] == 90300
         assert nuclear['displayName'] == 'NUC ENG 124'
         assert nuclear['title'] == 'Radioactive Waste Management'
-        assert nuclear['sectionNumber'] == '002'
-        assert nuclear['enrollmentStatus'] == 'E'
-        assert nuclear['units'] == 3
-        assert nuclear['gradingBasis'] == 'PNP'
-        assert nuclear['grade'] == 'P'
+        assert len(nuclear['sections']) == 2
+        assert nuclear['sections'][0]['ccn'] == 90300
+        assert nuclear['sections'][0]['sectionNumber'] == '002'
+        assert nuclear['sections'][0]['enrollmentStatus'] == 'E'
+        assert nuclear['sections'][0]['units'] == 3
+        assert nuclear['sections'][0]['gradingBasis'] == 'PNP'
+        assert nuclear['sections'][0]['grade'] == 'P'
+        assert nuclear['sections'][1]['ccn'] == 90301
+        assert nuclear['sections'][1]['sectionNumber'] == '201'
+        assert nuclear['sections'][1]['enrollmentStatus'] == 'E'
+        assert nuclear['sections'][1]['units'] == 0
+        assert nuclear['sections'][1]['gradingBasis'] == 'NON'
+        assert not nuclear['sections'][1]['grade']
 
         music = TestUserAnalytics.get_course_for_code(authenticated_response, '2172', 'MUSIC 41C')
-        assert music['ccn'] == 80100
         assert music['displayName'] == 'MUSIC 41C'
         assert music['title'] == 'Private Carillon Lessons for Advanced Students'
-        assert music['sectionNumber'] == '001'
-        assert music['enrollmentStatus'] == 'E'
-        assert music['units'] == 2
-        assert music['gradingBasis'] == 'GRD'
-        assert music['grade'] == 'A-'
+        assert len(music['sections']) == 1
+        assert music['sections'][0]['ccn'] == 80100
+        assert music['sections'][0]['sectionNumber'] == '001'
+        assert music['sections'][0]['enrollmentStatus'] == 'E'
+        assert music['sections'][0]['units'] == 2
+        assert music['sections'][0]['gradingBasis'] == 'GRD'
+        assert music['sections'][0]['grade'] == 'A-'
 
     def test_sis_enrollment_not_found(self, authenticated_session, client):
         """gracefully handles missing SIS enrollments"""

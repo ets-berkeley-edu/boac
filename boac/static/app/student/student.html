@@ -99,21 +99,24 @@
             <div data-ng-repeat="course in term.enrollments">
               <h3 class="student-profile-class-title" data-ng-bind="course.displayName"></h3>
               <h4 class="student-profile-class-title" data-ng-bind="course.title"></h4>
-              <span data-ng-switch="course.enrollmentStatus">
-                <span data-ng-switch-when="E">Enrolled in</span>
-                <span data-ng-switch-when="W">Waitlisted in</span>
-                <span data-ng-switch-when="D">Dropped</span>
-              </span>
-              section <span data-ng-bind="course.sectionNumber"></span>
-              (<span data-ng-bind="course.units"></span> units,
-              <span data-ng-bind="course.gradingBasis"></span> grading basis)
-              <div data-ng-if="course.grade">
-                <strong>Grade: <span data-ng-bind="course.grade"></span></strong>
+              <div class="student-profile-class-sections">
+                <div data-ng-repeat="section in course.sections | orderBy:'units':true">
+                  <span data-ng-if="section.enrollmentStatus === 'W'">Waitlisted in</span>
+                  <span data-ng-if="section.enrollmentStatus === 'D'">Dropped</span>
+                  <span data-ng-bind="section.component"></span>
+                  <span data-ng-bind="section.sectionNumber"></span>
+                  <span data-ng-if="section.units">
+                    (<span data-ng-bind="section.units"></span> units,
+                    <span data-ng-bind="section.gradingBasis"></span>)
+                  </span>
+                  <strong data-ng-if="section.grade">Grade: <span data-ng-bind="section.grade"></span></strong>
+                </div>
               </div>
               <div data-ng-repeat="canvasSite in course.canvasSites">
+                <strong data-ng-bind="canvasSite.courseCode"></strong>
                 <course-site-metrics
                   data-canvas-site="canvasSite"
-                  data-ccn="course.ccn"
+                  data-course-name="course.displayName"
                   data-draw-boxplot="drawBoxplot"
                   data-percentile="percentile"
                   data-term-id="term.termId">
@@ -126,7 +129,7 @@
               <h3 class="student-profile-class-title" data-ng-bind="canvasSite.courseName"></h3>
               <course-site-metrics
                 data-canvas-site="canvasSite"
-                data-ccn="'unmatchedCanvasSites'"
+                data-course-name="'unmatchedCanvasSites'"
                 data-draw-boxplot="drawBoxplot"
                 data-percentile="percentile"
                 data-term-id="term.termId">

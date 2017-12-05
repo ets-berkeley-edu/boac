@@ -22,7 +22,6 @@ def get_enrollments(cs_id, term_id):
 def _get_enrollments(cs_id, term_id, mock=None):
     query = {
         'term-id': term_id,
-        'primary-only': 'true',
         'page-size': 50,
     }
     url = http.build_url(app.config['ENROLLMENTS_API_URL'] + '/' + str(cs_id), query)
