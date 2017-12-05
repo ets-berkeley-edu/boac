@@ -99,6 +99,13 @@ class TestUserAnalytics:
         for enrollment in authenticated_response.json['enrollmentTerms'][0]['enrollments']:
             assert enrollment['displayName'] != 'PHYSED 11'
 
+    def test_past_term_dropped_enrollments_removed(self, authenticated_response):
+        """removes dropped enrollments from past terms"""
+        for enrollment in authenticated_response.json['enrollmentTerms'][1]['enrollments']:
+            print(enrollment)
+            for section in enrollment['sections']:
+                assert section['enrollmentStatus'] != 'D'
+
     def test_course_site_without_enrollment(self, authenticated_response):
         """returns course sites with no associated enrollments"""
         assert len(authenticated_response.json['enrollmentTerms'][0]['unmatchedCanvasSites']) == 0
