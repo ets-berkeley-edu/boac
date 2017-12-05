@@ -34,10 +34,25 @@ def merge_sis_enrollments(canvas_course_sites, cs_id, matriculation):
 def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name):
     term_id = sis_term_id_for_name(term_name)
     enrollments = sis_enrollments_api.get_enrollments(cs_id, term_id)
+
     if enrollments:
-        enrollments_feed = [api_util.sis_enrollment_api_feed(enrollment) for enrollment in enrollments.get('studentEnrollments', [])]
-        # Run enrollments through a dictionary keyed by CCN to screen out duplicates.
-        enrollments_feed = dict((enrollment['ccn'], enrollment) for enrollment in enrollments_feed).values()
+        enrollments_by_class = {}
+        term_section_ids = {}
+        for enrollment in enrollments.get('studentEnrollments', []):
+            # Skip this class section if we've seen it already.
+            section_id = enrollment.get('classSection').get('id')
+            if section_id in term_section_ids:
+                continue
+            else:
+                term_section_ids[section_id] = True
+            # SIS class id (as distinct from section id or course id) is not surfaced by the SIS enrollments API. Our best
+            # unique identifier is the class display name.
+            class_name = enrollment.get('classSection', {}).get('class', {}).get('displayName')
+            if class_name not in enrollments_by_class:
+                enrollments_by_class[class_name] = api_util.sis_enrollment_class_feed(enrollment)
+            enrollments_by_class[class_name]['sections'].append(api_util.sis_enrollment_section_feed(enrollment))
+        enrollments_feed = enrollments_by_class.values()
+
         term_feed = {
             'termId': term_id,
             'termName': term_name,
@@ -73,8 +88,8 @@ def merge_canvas_course_site(term_feed, site):
         if not canvas_ccn:
             continue
         for enrollment in term_feed['enrollments']:
-            sis_ccn = str(enrollment.get('ccn'))
-            if canvas_ccn == sis_ccn:
+            matching_section = next((section for section in enrollment['sections'] if canvas_ccn == str(section.get('ccn'))), None)
+            if matching_section:
                 site_matched = True
                 enrollment['canvasSites'].append(site)
                 break

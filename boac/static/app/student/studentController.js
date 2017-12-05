@@ -30,19 +30,19 @@
      * Render a box plot for a given course and metric
      *
      * @param  {String}  termId        SIS term id for the course
-     * @param  {Number}  ccn           SIS CCN for the course
+     * @param  {Number}  displayName   Display name for the course
      * @param  {Number}  courseId      Canvas course ID for the course
      * @param  {String}  metric        Metric to draw the boxplot for
      * @return {void}
      */
-    $scope.drawBoxplot = function(termId, ccn, courseId, metric) {
+    $scope.drawBoxplot = function(termId, displayName, courseId, metric) {
 
       var term = _.find($scope.student.enrollmentTerms, {termId: termId});
       var courseSites;
-      if (ccn === 'unmatchedCanvasSites') {
+      if (displayName === 'unmatchedCanvasSites') {
         courseSites = term.unmatchedCanvasSites;
       } else {
-        var enrollment = _.find(term.enrollments, {ccn: ccn});
+        var enrollment = _.find(term.enrollments, {displayName: displayName});
         courseSites = enrollment.canvasSites;
       }
       var course = _.find(courseSites, {canvasCourseId: courseId});
