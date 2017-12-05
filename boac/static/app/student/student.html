@@ -126,7 +126,8 @@
           </div>
           <div class="student-profile-classes" data-ng-if="term.unmatchedCanvasSites.length">
             <div data-ng-repeat="canvasSite in term.unmatchedCanvasSites">
-              <h3 class="student-profile-class-title" data-ng-bind="canvasSite.courseName"></h3>
+              <h3 class="student-profile-class-title" data-ng-bind="canvasSite.courseCode"></h3>
+              <h4 class="student-profile-class-title" data-ng-bind="canvasSite.courseName"></h4>
               <course-site-metrics
                 data-canvas-site="canvasSite"
                 data-course-name="'unmatchedCanvasSites'"
