@@ -9,7 +9,6 @@
         canvasSite: '=',
         courseName: '=',
         drawBoxplot: '=',
-        percentile: '=',
         termId: '='
       },
       templateUrl: '/static/app/student/courseSiteMetrics.html'

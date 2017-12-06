@@ -1,8 +1,8 @@
 <ul>
   <li>
     Assignments on time:
-    <span data-ng-bind="percentile(canvasSite.analytics.assignmentsOnTime)"></span>
-    <div class="boxplot-container" data-ng-if="!canvasSite.analytics.assignmentsOnTime.insufficientData">
+    <span data-ng-bind="canvasSite.analytics.assignmentsOnTime.summary"></span>
+    <div class="boxplot-container" data-ng-if="canvasSite.analytics.assignmentsOnTime.boxPlottable">
       <div id="boxplot-{{canvasSite.canvasCourseId}}-assignmentsOnTime"
            class="boxplot"
            data-ng-init="drawBoxplot(termId, courseName, canvasSite.canvasCourseId, 'assignmentsOnTime')"></div>
@@ -10,8 +10,8 @@
   </li>
   <li>
     Page views:
-    <span data-ng-bind="percentile(canvasSite.analytics.pageViews)"></span>
-    <div class="boxplot-container" data-ng-if="!canvasSite.analytics.pageViews.insufficientData">
+    <span data-ng-bind="canvasSite.analytics.pageViews.summary"></span>
+    <div class="boxplot-container" data-ng-if="canvasSite.analytics.pageViews.boxPlottable">
       <div id="boxplot-{{canvasSite.canvasCourseId}}-pageViews"
            class="boxplot"
            data-ng-init="drawBoxplot(termId, courseName, canvasSite.canvasCourseId, 'pageViews')"></div>
@@ -19,8 +19,8 @@
   </li>
   <li>
     Participations:
-    <span data-ng-bind="percentile(canvasSite.analytics.participations)"></span>
-    <div class="boxplot-container" data-ng-if="!canvasSite.analytics.participations.insufficientData">
+    <span data-ng-bind="canvasSite.analytics.participations.summary"></span>
+    <div class="boxplot-container" data-ng-if="canvasSite.analytics.participations.boxPlottable">
       <div id="boxplot-{{canvasSite.canvasCourseId}}-participations"
            class="boxplot"
            data-ng-init="drawBoxplot(termId, courseName, canvasSite.canvasCourseId, 'participations')"></div>
