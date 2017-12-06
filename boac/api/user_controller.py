@@ -3,7 +3,8 @@ import boac.api.util as api_util
 from boac.externals import canvas
 from boac.lib.analytics import merge_analytics_for_user
 from boac.lib.http import tolerant_jsonify
-from boac.lib.merged import merge_sis_enrollments, merge_sis_profile
+from boac.merged.sis_enrollments import merge_sis_enrollments
+from boac.merged.sis_profile import merge_sis_profile
 from boac.models.team_member import TeamMember
 from flask import current_app as app, request
 from flask_login import current_user, login_required
