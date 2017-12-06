@@ -1,10 +1,10 @@
 <div class="container">
   <div data-ng-include="'/static/app/shared/header.html'"></div>
 
-  <div data-ng-if="isLoading">
+  <div data-ng-if="isLoading && !error">
     <h1 class="faint-text">Loading....</h1>
   </div>
-  <div data-ng-if="isSaving">
+  <div data-ng-if="isSaving && !error">
     <h1 class="faint-text">Saving....</h1>
   </div>
   <div data-ng-if="error">
@@ -39,7 +39,7 @@
       <div class="btn-group box-shadow-off"
            uib-dropdown
            auto-close="disabled"
-           is-open="search.dropdown.teamsOpen"
+           is-open="search.dropdown.teamGroupsOpen"
            keyboard-nav>
         <!-- Dropdown docs at https://angular-ui.github.io/bootstrap/ -->
         <button id="search-filter-teams"
@@ -48,11 +48,11 @@
                 uib-dropdown-toggle>
           <span class="cohort-filter-label">
             Teams
-            <span data-ng-if="!isLoading && !isSaving">(<span data-ng-bind="search.count.selectedTeams"></span>)</span>
+            <span data-ng-if="!isLoading && !isSaving">(<span data-ng-bind="search.count.selectedTeamGroups"></span>)</span>
             <i class="fa fa-chevron-down"
-               data-ng-if="!isLoading && !isSaving && !search.dropdown.teamsOpen"></i>
+               data-ng-if="!isLoading && !isSaving && !search.dropdown.teamGroupsOpen"></i>
             <i class="fa fa-chevron-up"
-               data-ng-if="!isLoading && !isSaving && search.dropdown.teamsOpen"></i>
+               data-ng-if="!isLoading && !isSaving && search.dropdown.teamGroupsOpen"></i>
             <i class="fa fa-spinner fa-spin"
                aria-hidden="true"
                data-ng-if="isLoading || isSaving"></i>
@@ -65,13 +65,13 @@
             data-ng-if="!isLoading && !isSaving">
           <li class="cohort-filter-list-item"
               role="menuitem"
-              data-ng-repeat="team in search.options.teams">
-            <input id="search-option-team-{{team.code}}"
+              data-ng-repeat="teamGroup in search.options.teamGroups">
+            <input id="search-option-team-{{teamGroup.teamGroupCode}}"
                    type="checkbox"
-                   data-ng-model="team.selected"
-                   aria-label="{{team.name}}"
-                   data-ng-click="updateSelectedTeamsCount(team.selected ? 1 : -1)"/>
-            <span data-ng-bind="team.name"></span></li>
+                   data-ng-model="teamGroup.selected"
+                   aria-label="{{teamGroup.teamGroupName}}"
+                   data-ng-click="updateSelectedTeamGroupsCount(teamGroup.selected ? 1 : -1)"/>
+            <span data-ng-bind="teamGroup.teamGroupName"></span></li>
         </ul>
       </div>
     </div>
@@ -79,7 +79,7 @@
     <div class="cohort-filters-column flex-column-btn">
       <button id="header-sign-in"
               class="btn btn-primary btn-nowrap"
-              data-ng-disabled="!search.count.selectedTeams || isLoading || isSaving"
+              data-ng-disabled="!search.count.selectedTeamGroups || isLoading || isSaving"
               data-ng-click="executeSearch()">Search</button>
     </div>
     <div class="cohort-filters-column flex-column-btn">
@@ -88,7 +88,7 @@
                 id="create-cohort-btn"
                 class="btn btn-default btn-nowrap"
                 data-ng-disabled="isLoading || isSaving"
-                data-ng-click="openCreateCohortModal(search.options.teams)">
+                data-ng-click="openCreateCohortModal(search.options.teamGroups)">
           Save Cohort
         </button>
       </span>

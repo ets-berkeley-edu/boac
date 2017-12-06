@@ -26,7 +26,7 @@ def user_profile():
 @app.route('/api/students/all')
 def all_students():
     sort_by = request.args['sortBy'] if 'sortBy' in request.args else None
-    return tolerant_jsonify(TeamMember.all_athletes(sort_by=sort_by))
+    return tolerant_jsonify(TeamMember.get_all_athletes(sort_by=sort_by))
 
 
 @app.route('/api/user/<uid>/analytics')
