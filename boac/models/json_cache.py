@@ -44,7 +44,14 @@ def clear_current_term():
     # Start by deleting cache which is not term-stamped, on the assumption that those feeds may have changed.
     clear_other('term_%')
     db.session.commit()
-    clear('term_{}%'.format(app.config['CANVAS_CURRENT_ENROLLMENT_TERM']))
+    # The Canvas course scores feeds are currently too time-consuming to toss aside lightly.
+    matches = db.session.query(JsonCache).filter(
+        JsonCache.key.like('term_{}%'.format(app.config['CANVAS_CURRENT_ENROLLMENT_TERM'])),
+        JsonCache.key.notlike('%canvas_course_enrollments%'),
+        JsonCache.key.notlike('%canvas_course_assignments_analytics%'),
+    )
+    app.logger.info('Will delete {} entries'.format(matches.count()))
+    matches.delete(synchronize_session=False)
     db.session.commit()
 
 

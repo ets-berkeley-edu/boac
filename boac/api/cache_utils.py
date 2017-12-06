@@ -39,6 +39,45 @@ def load_canvas_externals(uid, sis_term_id):
     return success_count, failures
 
 
+def load_canvas_scores(sis_term_id=None):
+    from boac.externals import canvas
+    from boac.lib import berkeley
+    from boac.models.team_member import TeamMember
+
+    success_count = 0
+    failures = []
+
+    if sis_term_id is None:
+        term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
+        sis_term_id = berkeley.sis_term_id_for_name(term_name)
+
+    for row in db.session.query(TeamMember.member_uid).distinct():
+        uid = row[0]
+        canvas_user_profile = canvas.get_user_for_uid(uid)
+        if canvas_user_profile is None:
+            failures.append('canvas.get_user_for_uid failed for UID {}'.format(
+                uid,
+            ))
+        elif canvas_user_profile:
+            success_count += 1
+            sites = canvas.get_student_courses(uid)
+            if sites:
+                success_count += 1
+                for site in sites:
+                    site_id = site['id']
+                    if not canvas.get_course_enrollments(site_id, sis_term_id):
+                        failures.append('canvas.get_course_enrollments failed for site_id {}'.format(
+                            site_id,
+                        ))
+                        continue
+                    success_count += 1
+
+    print('Complete. Fetched {} external feeds.'.format(success_count))
+    if len(failures):
+        print('Failed to fetch {} feeds:'.format(len(failures)))
+        print(failures)
+
+
 def load_sis_externals(sis_term_id, csid):
     from boac.externals import sis_enrollments_api, sis_student_api
 

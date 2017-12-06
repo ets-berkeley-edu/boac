@@ -43,6 +43,12 @@ def load_external_data():
 
 
 @application.cli.command()
+def load_canvas_scores():
+    from boac.api import cache_utils
+    cache_utils.load_canvas_scores()
+
+
+@application.cli.command()
 def refresh_external_data():
     from boac.api import cache_utils
     cache_utils.refresh_current_term()
