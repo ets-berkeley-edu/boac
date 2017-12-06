@@ -1,4 +1,5 @@
 from boac import db
+from boac.lib import berkeley
 from flask import current_app as app
 
 
@@ -19,6 +20,8 @@ def load_canvas_externals(uid, sis_term_id):
         if sites:
             success_count += 1
             for site in sites:
+                if site.get('term', {}).get('name') != berkeley.term_name_for_sis_id(sis_term_id):
+                    continue
                 site_id = site['id']
                 if not canvas.get_course_sections(site_id, sis_term_id):
                     failures.append('canvas.get_course_sections failed for UID {}, site_id {}'.format(
@@ -61,7 +64,6 @@ def load_sis_externals(sis_term_id, csid):
 
 
 def load_current_term():
-    from boac.lib import berkeley
     from boac.models.team_member import TeamMember
 
     success_count = 0
