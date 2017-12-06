@@ -71,7 +71,7 @@ def analytics_for_column(df, student_row, column_name):
     # and we've also seen some Canvas feeds which mix nulls and zeroes.
     # Setting non-numbers to zero works acceptably for the current analyzed feeds.
     dfcol.fillna(0, inplace=True)
-    student_row.fillna(0, inplace=True)
+    student_row = student_row.fillna(0)
 
     nunique = dfcol.nunique()
     if nunique == 0 or (nunique == 1 and dfcol.max() == 0.0):
