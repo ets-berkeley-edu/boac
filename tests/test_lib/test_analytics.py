@@ -170,7 +170,7 @@ class TestAnalyticsFromSummaryFeed:
             {
                 'id': self.canvas_user_id,
                 'max_page_views': 1218, 'max_participations': 11,
-                'page_views': 0, 'page_views_level': 3,
+                'page_views': None, 'page_views_level': 3,
                 'participations': 0, 'participations_level': 2,
                 'tardiness_breakdown': {'floating': 3, 'late': 6, 'missing': 7, 'on_time': 0, 'total': 16},
             },
