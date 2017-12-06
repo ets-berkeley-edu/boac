@@ -189,6 +189,46 @@
                         }
                       },
                       "plan": {
+                        "code": "25345U",
+                        "description": "Astrophysics BS",
+                        "fromDate": "2016-01-12"
+                      },
+                      "targetDegree": {
+                        "type": {
+                          "code": "SB",
+                          "description": "Bachelor of Science"
+                        }
+                      },
+                      "type": {
+                        "code": "MAJ",
+                        "description": "Major - Regular Acad/Prfnl"
+                      }
+                    },
+                    "primary": false,
+                    "statusInPlan": {
+                      "action": {
+                        "code": "DATA",
+                        "description": "Data Change"
+                      },
+                      "reason": {
+                        "code": "GTOI",
+                        "description": "Grad Term - Auto Opt-In"
+                      },
+                      "status": {
+                        "code": "AC",
+                        "description": "Active in Program"
+                      }
+                    }
+                  },
+                  {
+                    "academicPlan": {
+                      "academicProgram": {
+                        "program": {
+                          "code": "UCLS",
+                          "description": "Undergrad Letters & Science"
+                        }
+                      },
+                      "plan": {
                         "description": "Art History",
                         "fromDate": "2016-01-12"
                       },

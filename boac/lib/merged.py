@@ -150,19 +150,20 @@ def merge_sis_profile_academic_status(sis_response, sis_profile):
             sis_profile['cumulativeUnits'] = units.get('unitsCumulative')
             break
 
-    try:
-        student_plan = next(plan for plan in academic_status.get('studentPlans', []) if plan.get('primary'))
-        plan = student_plan.get('academicPlan', {}).get('plan', {})
-        sis_profile['plan'] = {
+    sis_profile['plans'] = []
+    for student_plan in academic_status.get('studentPlans', []):
+        academic_plan = student_plan.get('academicPlan', {})
+        if academic_plan.get('type', {}).get('code') != 'MAJ':
+            continue
+        plan = academic_plan.get('plan', {})
+        plan_feed = {
             'description': plan.get('description'),
         }
-        # Add program and date unless plan code indicates undeclared.
+        # Add program unless plan code indicates undeclared.
         if plan.get('code') != '25000U':
-            sis_profile['plan']['fromDate'] = plan.get('fromDate')
             program = student_plan.get('academicPlan', {}).get('academicProgram', {}).get('program', {})
-            sis_profile['plan']['program'] = program.get('description')
-    except StopIteration:
-        pass
+            plan_feed['program'] = program.get('description')
+        sis_profile['plans'].append(plan_feed)
 
 
 def merge_sis_profile_degree_progress(sis_response, sis_profile):

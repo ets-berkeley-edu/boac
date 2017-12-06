@@ -236,9 +236,11 @@ class TestUserAnalytics:
         assert sis_profile['level']['code'] == '30'
         assert sis_profile['level']['description'] == 'Junior'
         assert sis_profile['phoneNumber'] == '415/123-4567'
-        assert sis_profile['plan']['description'] == 'English BA'
-        assert sis_profile['plan']['fromDate'] == '2016-01-12'
-        assert sis_profile['plan']['program'] == 'Undergrad Letters & Science'
+        assert len(sis_profile['plans']) == 2
+        assert sis_profile['plans'][0]['description'] == 'English BA'
+        assert sis_profile['plans'][0]['program'] == 'Undergrad Letters & Science'
+        assert sis_profile['plans'][1]['description'] == 'Astrophysics BS'
+        assert sis_profile['plans'][1]['program'] == 'Undergrad Letters & Science'
         assert sis_profile['preferredName'] == 'Osk Bear'
         assert sis_profile['primaryName'] == 'Oski Bear'
 
