@@ -1,7 +1,7 @@
 import csv
 
 from boac import db
-from boac.lib import merged
+from boac.merged import calnet
 from boac.models.team_member import TeamMember
 
 THIS_ACAD_YR = '2017-18'
@@ -72,6 +72,6 @@ def load_cohort_from_csv(app, csv_file='tmp/FilteredAscStudents.csv'):
 
 def fill_empty_uids_from_calnet(app):
     to_update = TeamMember.query.filter(TeamMember.member_uid.is_(None)).all()
-    merged.refresh_cohort_attributes_from_calnet(app, to_update)
+    calnet.refresh_cohort_attributes(app, to_update)
     app.logger.info('Modified {} Team records from calnet'.format(len(db.session.dirty)))
     db.session.commit()
