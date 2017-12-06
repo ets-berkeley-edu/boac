@@ -24,11 +24,10 @@
     <div class="student-profile-body">
       <div class="student-profile-sidebar">
         <div class="student-profile-sidebar-box">
-          <h3 class="student-profile-sidebar-header" data-ng-bind="student.sisProfile.plan.description">Declared Major</h3>
-          <div class="student-profile-sidebar-details">
-            <div data-ng-bind="student.sisProfile.plan.program" data-ng-if="student.sisProfile.plan.program"></div>
-            <div data-ng-if="student.sisProfile.plan.fromDate">
-              Declared <span data-ng-bind="student.sisProfile.plan.fromDate"></span>
+          <div data-ng-repeat="plan in student.sisProfile.plans">
+            <h3 class="student-profile-sidebar-header" data-ng-bind="plan.description"></h3>
+            <div class="student-profile-sidebar-details">
+              <div data-ng-bind="plan.program" data-ng-if="plan.program"></div>
             </div>
           </div>
           <h3 class="student-profile-sidebar-header" data-ng-bind="student.sisProfile.level.description"></h3>
