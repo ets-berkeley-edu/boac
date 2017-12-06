@@ -11,6 +11,7 @@ from boac.models.authorized_user import cohort_filter_owners
 from boac.models.base import Base
 from boac.models.team_member import TeamMember
 from flask_login import UserMixin
+from sqlalchemy.dialects.postgresql import JSONB
 
 
 class CohortFilter(Base, UserMixin):
@@ -18,7 +19,7 @@ class CohortFilter(Base, UserMixin):
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)
     label = db.Column(db.String(255), nullable=False)
-    filter_criteria = db.Column(db.Text, nullable=False)
+    filter_criteria = db.Column(JSONB, nullable=False)
     owners = db.relationship('AuthorizedUser', secondary=cohort_filter_owners, back_populates='cohort_filters')
 
     def __init__(self, label, filter_criteria):
@@ -34,9 +35,9 @@ class CohortFilter(Base, UserMixin):
         )
 
     @classmethod
-    def create(cls, label, team_codes, uid):
-        codes = ','.join(map('"{0}"'.format, team_codes))
-        cohort = CohortFilter(label=label, filter_criteria='{"teams": [' + codes + ']}')
+    def create(cls, label, team_group_codes, uid):
+        team_group_codes = ','.join(map('"{0}"'.format, team_group_codes))
+        cohort = CohortFilter(label=label, filter_criteria='{"team_group_codes": [' + team_group_codes + ']}')
         user = AuthorizedUser.find_by_uid(uid)
         user.cohort_filters.append(cohort)
         db.session.commit()
@@ -80,16 +81,13 @@ class CohortFilter(Base, UserMixin):
 
 
 def summarize(cohort, include_canvas_profiles=False, order_by='member_name', offset=0, limit=50):
-    filter_criteria = json.loads(cohort.filter_criteria)
-    team_codes = filter_criteria['teams'] if 'teams' in filter_criteria else None
+    criteria = cohort.filter_criteria if isinstance(cohort.filter_criteria, dict) else json.loads(cohort.filter_criteria)
+    team_group_codes = criteria['team_group_codes'] if 'team_group_codes' in criteria else None
     summary = {
         'id': cohort.id,
         'label': cohort.label,
         'owners': [user.uid for user in cohort.owners],
     }
-
-    if limit > 0 and len(team_codes) > 0:
-        summary.update(TeamMember.get_team_members(team_codes, include_canvas_profiles, order_by, offset, limit))
-
-    # Return a serializable object
+    if limit > 0:
+        summary.update(TeamMember.get_athletes(team_group_codes, include_canvas_profiles, order_by, offset, limit))
     return summary

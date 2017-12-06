@@ -4,7 +4,7 @@
 
   angular.module('boac').controller('CreateCohortController', function($scope, $uibModal) {
 
-    $scope.openCreateCohortModal = function(teams) {
+    $scope.openCreateCohortModal = function(teamGroups) {
       $uibModal.open({
         animation: true,
         ariaLabelledBy: 'create-cohort-header',
@@ -12,15 +12,15 @@
         templateUrl: '/static/app/cohort/createCohortModal.html',
         controller: 'CreateCohortModal',
         resolve: {
-          teams: function() {
-            return teams;
+          teamGroups: function() {
+            return teamGroups;
           }
         }
       });
     };
   });
 
-  angular.module('boac').controller('CreateCohortModal', function(teams, cohortFactory, $rootScope, $scope, $uibModalInstance) {
+  angular.module('boac').controller('CreateCohortModal', function(teamGroups, cohortFactory, $rootScope, $scope, $uibModalInstance) {
 
     $scope.cohortName = null;
     $scope.errorMessage = null;
@@ -32,8 +32,8 @@
       } else {
         $rootScope.isSaving = true;
 
-        var selectedTeams = _.filter(teams, 'selected');
-        cohortFactory.createCohort($scope.cohortName, _.map(selectedTeams, 'code')).then(function() {
+        var selectedTeamGroups = _.filter(teamGroups, 'selected');
+        cohortFactory.createCohort($scope.cohortName, _.map(selectedTeamGroups, 'teamGroupCode')).then(function() {
           $rootScope.isSaving = false;
         });
         $uibModalInstance.close();

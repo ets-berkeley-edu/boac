@@ -1,5 +1,4 @@
-from boac.api.errors import BadRequestError
-from boac.api.errors import ForbiddenRequestError
+from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.lib.http import tolerant_jsonify
 from boac.models.cohort_filter import CohortFilter
 from boac.models.team_member import TeamMember
@@ -7,21 +6,43 @@ from flask import current_app as app, jsonify, request
 from flask_login import current_user, login_required
 
 
-@app.route('/api/teams')
+@app.route('/api/team/<code>', methods=['POST'])
 @login_required
-def teams_list():
-    return jsonify(TeamMember.all_teams())
-
-
-@app.route('/api/teams/members', methods=['POST'])
-@login_required
-def teams_members():
+def get_team(code):
     params = request.get_json()
-    team_codes = get_param(params, 'teamCodes', [])
     order_by = get_param(params, 'orderBy', 'member_name')
     offset = get_param(params, 'offset', 0)
     limit = get_param(params, 'limit', 50)
-    return jsonify(TeamMember.get_team_members(team_codes, True, order_by, offset, limit))
+    team = TeamMember.for_code(code, order_by, offset, limit)
+    if team is None:
+        raise ResourceNotFoundError('No team found with code ' + code)
+    # Translate requested order_by to naming convention of TeamMember
+    sort_by = 'uid' if order_by == 'member_uid' else 'name'
+    team['members'].sort(key=lambda member: member[sort_by])
+    return tolerant_jsonify(team)
+
+
+@app.route('/api/teams/all')
+@login_required
+def get_all_teams():
+    return jsonify(TeamMember.all_teams())
+
+
+@app.route('/api/team_groups/all')
+@login_required
+def get_all_team_groups():
+    return jsonify(TeamMember.all_team_groups())
+
+
+@app.route('/api/team_groups/members', methods=['POST'])
+@login_required
+def get_team_groups_members():
+    params = request.get_json()
+    team_group_codes = get_param(params, 'teamGroupCodes', [])
+    order_by = get_param(params, 'orderBy', 'member_name')
+    offset = get_param(params, 'offset', 0)
+    limit = get_param(params, 'limit', 50)
+    return jsonify(TeamMember.get_athletes(team_group_codes, True, order_by, offset, limit))
 
 
 @app.route('/api/cohorts/all')
@@ -33,7 +54,6 @@ def all_cohorts():
             if uid not in cohorts:
                 cohorts[uid] = []
             cohorts[uid].append(cohort)
-
     return jsonify(cohorts)
 
 
@@ -43,22 +63,15 @@ def my_cohorts():
     return jsonify(CohortFilter.all_owned_by(current_user.get_id()))
 
 
-@app.route('/api/cohort/<code>', methods=['POST'])
+@app.route('/api/cohort/<cohort_id>', methods=['POST'])
 @login_required
-def get_cohort(code):
+def get_cohort(cohort_id):
     params = request.get_json()
     order_by = get_param(params, 'orderBy', 'member_name')
     offset = get_param(params, 'offset', 0)
     limit = get_param(params, 'limit', 50)
-    if code.isdigit():
-        cohort = CohortFilter.find_by_id(int(code), order_by, offset, limit)
-    else:
-        cohort = TeamMember.for_code(code, order_by, offset, limit)
-        # Translate requested order_by to naming convention of TeamMember
-        sort_by = 'uid' if order_by == 'member_uid' else 'name'
-        cohort['members'].sort(key=lambda member: member[sort_by])
 
-    return tolerant_jsonify(cohort)
+    return tolerant_jsonify(CohortFilter.find_by_id(int(cohort_id), order_by, int(offset), int(limit)))
 
 
 @app.route('/api/cohort/create', methods=['POST'])
@@ -66,11 +79,11 @@ def get_cohort(code):
 def create_cohort():
     params = request.get_json()
     label = params['label']
-    team_codes = params['teamCodes']
-    if not label or not team_codes:
-        raise BadRequestError('Cohort creation requires \'label\' and \'teams\'')
+    team_group_codes = params['teamGroupCodes']
+    if not label or not team_group_codes:
+        raise BadRequestError('Cohort creation requires \'label\' and \'teamGroupCodes\'')
 
-    cohort = CohortFilter.create(label=label, team_codes=team_codes, uid=current_user.get_id())
+    cohort = CohortFilter.create(label=label, team_group_codes=team_group_codes, uid=current_user.get_id())
     return tolerant_jsonify(cohort)
 
 

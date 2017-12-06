@@ -10,13 +10,13 @@
 
     $scope.search = {
       count: {
-        selectedTeams: 0
+        selectedTeamGroups: 0
       },
       dropdown: {
-        teamsOpen: false
+        teamGroupsOpen: false
       },
       options: {
-        teams: []
+        teamGroups: []
       },
       results: {
         rows: null,
@@ -52,13 +52,15 @@
 
     var refreshCohortView = function(code, callback) {
       // Pagination is not used on teams because the member count is always reasonable.
-      $scope.pagination.enabled = !isNaN(code);
+      var isTeam = isNaN(code);
+      $scope.pagination.enabled = !isTeam;
       var page = $scope.pagination.enabled ? $scope.pagination.currentPage : 0;
       var limit = $scope.pagination.enabled ? $scope.pagination.itemsPerPage : Number.MAX_SAFE_INTEGER;
       var offset = page === 0 ? 0 : (page - 1) * limit;
 
       $scope.isLoading = true;
-      cohortFactory.getCohort(code, $scope.orderBy.selected, offset, limit).then(
+      var getCohort = isTeam ? cohortFactory.getTeam : cohortFactory.getCohort;
+      getCohort(code, $scope.orderBy.selected, offset, limit).then(
         function(response) {
           $scope.cohort = parseCohortFeed(response);
           $scope.isLoading = false;
@@ -74,18 +76,18 @@
     /**
      * The search form must reflect the team codes of the saved cohort.
      *
-     * @param  {String[]}    teamCodes          Array of predefined team codes
+     * @param  {String[]}    teamGroupCodes      Array of predefined codes
      * @return {void}
      */
-    var refreshTeamsFilter = function(teamCodes) {
-      _.map($scope.search.options.teams, function(team) {
-        team.selected = _.includes(teamCodes, team.code);
+    var refreshTeamGroupsFilter = function(teamGroupCodes) {
+      _.map($scope.search.options.teamGroups, function(teamGroup) {
+        teamGroup.selected = _.includes(teamGroupCodes, teamGroup.teamGroupCode);
       });
     };
 
-    var getSelectedTeamCodes = function() {
-      var selectedTeams = _.filter($scope.search.options.teams, 'selected');
-      return _.map(selectedTeams, 'code');
+    var getSelectedTeamGroupCodes = function() {
+      var selectedTeamGroups = _.filter($scope.search.options.teamGroups, 'selected');
+      return _.map(selectedTeamGroups, 'teamGroupCode');
     };
 
     var scatterplotRefresh = function(response) {
@@ -116,10 +118,13 @@
       };
 
       if ($scope.cohort) {
-        var code = $scope.cohort.code || $scope.cohort.id;
-        cohortFactory.getCohort(code, null, 0, $scope.pagination.noLimit).then(scatterplotRefresh).catch(handleError).then(done);
+        if ($scope.cohort.code) {
+          cohortFactory.getTeam($scope.cohort.code, null, 0, $scope.pagination.noLimit).then(scatterplotRefresh).catch(handleError).then(done);
+        } else {
+          cohortFactory.getCohort($scope.cohort.id, null, 0, $scope.pagination.noLimit).then(scatterplotRefresh).catch(handleError).then(done);
+        }
       } else {
-        cohortFactory.getTeamsMembers(getSelectedTeamCodes(), null, 0, $scope.pagination.noLimit).then(scatterplotRefresh).catch(handleError).then(done);
+        cohortFactory.getTeamGroupsMembers(getSelectedTeamGroupCodes(), null, 0, $scope.pagination.noLimit).then(scatterplotRefresh).catch(handleError).then(done);
       }
     };
 
@@ -137,7 +142,7 @@
 
         // Perform the query
         $scope.isLoading = true;
-        cohortFactory.getTeamsMembers(getSelectedTeamCodes(), $scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(parseCohortFeed, handleError).then(function() {
+        cohortFactory.getTeamGroupsMembers(getSelectedTeamGroupCodes(), $scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(parseCohortFeed, handleError).then(function() {
           $scope.isLoading = false;
         });
       }
@@ -149,8 +154,8 @@
      * @param  {Number}    delta          Add this value to count of selected teams
      * @return {void}
      */
-    $scope.updateSelectedTeamsCount = function(delta) {
-      $scope.search.count.selectedTeams += delta;
+    $scope.updateSelectedTeamGroupsCount = function(delta) {
+      $scope.search.count.selectedTeamGroups += delta;
     };
 
     /**
@@ -170,7 +175,7 @@
 
     $scope.executeSearch = function() {
       // Close dropdown menu
-      $scope.search.dropdown.teamsOpen = false;
+      $scope.search.dropdown.teamGroupsOpen = false;
       // Refresh search results
       $scope.cohort = null;
       $scope.pagination.currentPage = 0;
@@ -195,20 +200,20 @@
     var init = function(cohortCode) {
       var code = cohortCode || $stateParams.code;
 
-      cohortFactory.getTeams().then(function(teams) {
-        $scope.search.options.teams = teams.data;
+      cohortFactory.getAllTeamGroups().then(function(response) {
+        $scope.search.options.teamGroups = response.data;
         // if code is "0" then we offer a blank slate, the first step in creating a new cohort.
         if (code === '0') {
           $scope.isCreateCohortMode = true;
-          refreshTeamsFilter();
+          refreshTeamGroupsFilter();
           $scope.isLoading = false;
         } else {
           refreshCohortView(code, function(cohort) {
             if (cohort) {
               // A team will have a single team code and a saved cohort might have multiple.
-              var teamCodes = cohort.code ? [ cohort.code ] : _.map(cohort.teams, 'code');
-              $scope.search.count.selectedTeams = teamCodes.length;
-              refreshTeamsFilter(teamCodes);
+              var teamGroupCodes = _.map(cohort.teamGroups, 'teamGroupCode');
+              $scope.search.count.selectedTeamGroups = teamGroupCodes.length;
+              refreshTeamGroupsFilter(teamGroupCodes);
               // Track view event
               if (cohort.code) {
                 googleAnalyticsService.track('team', 'view', cohort.code + ': ' + cohort.name);
@@ -222,6 +227,7 @@
     };
 
     $rootScope.$on('cohortCreated', function(event, data) {
+      $scope.search.dropdown.teamGroupsOpen = false;
       $scope.pagination.enabled = true;
       $scope.pagination.currentPage = 0;
 

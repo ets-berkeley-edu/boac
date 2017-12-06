@@ -6,10 +6,10 @@
 
   boac.factory('cohortFactory', function(googleAnalyticsService, $http, $rootScope) {
 
-    var createCohort = function(label, teamCodes) {
+    var createCohort = function(label, teamGroupCodes) {
       var args = {
         label: label,
-        teamCodes: teamCodes
+        teamGroupCodes: teamGroupCodes
       };
       return $http.post('/api/cohort/create', args).then(function(response) {
         var cohort = response.data;
@@ -33,8 +33,8 @@
       return $http.get('/api/cohorts/all');
     };
 
-    var getCohort = function(code, orderBy, offset, limit) {
-      return $http.post('/api/cohort/' + code, {
+    var getCohort = function(id, orderBy, offset, limit) {
+      return $http.post('/api/cohort/' + id, {
         offset: offset || 0,
         limit: limit || 50,
         orderBy: orderBy || 'member_name'
@@ -45,9 +45,17 @@
       return $http.get('/api/cohorts/my');
     };
 
-    var getTeamsMembers = function(teamCodes, orderBy, offset, limit) {
-      return $http.post('/api/teams/members', {
-        teamCodes: teamCodes,
+    var getTeam = function(code, orderBy, offset, limit) {
+      return $http.post('/api/team/' + code, {
+        offset: offset || 0,
+        limit: limit || 50,
+        orderBy: orderBy || 'member_name'
+      });
+    };
+
+    var getTeamGroupsMembers = function(teamGroupCodes, orderBy, offset, limit) {
+      return $http.post('/api/team_groups/members', {
+        teamGroupCodes: teamGroupCodes,
         offset: offset || 0,
         limit: limit || 50,
         orderBy: orderBy || 'member_name'
@@ -55,7 +63,11 @@
     };
 
     var getTeams = function() {
-      return $http.get('/api/teams');
+      return $http.get('/api/teams/all');
+    };
+
+    var getAllTeamGroups = function() {
+      return $http.get('/api/team_groups/all');
     };
 
     var updateCohort = function(id, label) {
@@ -72,10 +84,12 @@
       createCohort: createCohort,
       deleteCohort: deleteCohort,
       getAll: getAll,
+      getAllTeamGroups: getAllTeamGroups,
       getCohort: getCohort,
       getMyCohorts: getMyCohorts,
-      getTeamsMembers: getTeamsMembers,
+      getTeam: getTeam,
       getTeams: getTeams,
+      getTeamGroupsMembers: getTeamGroupsMembers,
       updateCohort: updateCohort
     };
   });

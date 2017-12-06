@@ -52,7 +52,7 @@ def db(app, request):
     # Drop all tables before re-loading the schemas.
     # If we dropped at teardown instead, an interrupted test run would block the next test run.
     development_db.clear()
-    _db = development_db.load()
+    _db = development_db.load(cohort_test_data=True)
 
     return _db
 
