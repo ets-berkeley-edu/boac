@@ -200,8 +200,8 @@
                         }
                       },
                       "type": {
-                        "code": "MAJ",
-                        "description": "Major - Regular Acad/Prfnl"
+                        "code": "SP",
+                        "description": "Major - UG Specialization"
                       }
                     },
                     "primary": false,
