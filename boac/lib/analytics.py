@@ -10,11 +10,12 @@ def merge_analytics_for_user(user_courses, canvas_user_id, term_name):
     term_id = sis_term_id_for_name(term_name)
     if user_courses:
         for course in user_courses:
-            student_summaries = canvas.get_student_summaries(course['canvasCourseId'], term_id)
+            canvas_course_id = course['canvasCourseId']
+            student_summaries = canvas.get_student_summaries(canvas_course_id, term_id)
             if not student_summaries:
                 course['analytics'] = {'error': 'Unable to retrieve analytics'}
             else:
-                course['analytics'] = analytics_from_summary_feed(student_summaries, canvas_user_id, course)
+                course['analytics'] = analytics_from_summary_feed(student_summaries, canvas_user_id, canvas_course_id)
 
 
 def mean_course_analytics_for_user(user_courses, canvas_user_id, term_name):
@@ -34,44 +35,120 @@ def mean_course_analytics_for_user(user_courses, canvas_user_id, term_name):
     return meanValues
 
 
-def analytics_from_summary_feed(summary_feed, canvas_user_id, canvas_course):
+def analytics_from_summary_feed(summary_feed, canvas_user_id, canvas_course_id):
     """Given a student summary feed for a Canvas course, return analytics for a given user"""
     df = pandas.DataFrame(summary_feed, columns=['id', 'page_views', 'participations', 'tardiness_breakdown'])
-    df.fillna(0, inplace=True)
-    df['on_time'] = df['tardiness_breakdown'].map(lambda t: t['on_time'])
-
+    df['on_time'] = [row['on_time'] for row in df['tardiness_breakdown']]
     student_row = df.loc[df['id'].values == canvas_user_id]
     if not len(student_row):
-        canvas_course_id = canvas_course.get('canvasCourseId') or '[None]'
         app.logger.error('Canvas ID {} not found in student summaries for course site {}'.format(canvas_user_id, canvas_course_id))
         return {'error': 'Unable to retrieve analytics'}
+    return {
+        'assignmentsOnTime': analytics_for_column(df, student_row, 'on_time'),
+        'pageViews': analytics_for_column(df, student_row, 'page_views'),
+        'participations': analytics_for_column(df, student_row, 'participations'),
+    }
 
-    def analytics_for_column(column_name):
-        dataframe = df[column_name]
-        column_value = student_row[column_name].values[0]
-        column_zscore = zscore(dataframe, column_value)
-        column_quantiles = quantiles(dataframe, 10)
-        insufficient_data = (column_quantiles[-1] < app.config['MEANINGFUL_STATS_MINIMUM'])
+
+def analytics_from_canvas_course_enrollments(feed, canvas_user_id):
+    df = pandas.DataFrame(feed, columns=['user_id', 'grades'])
+    df['current_score'] = [row['current_score'] for row in df['grades']]
+    student_row = df.loc[df['user_id'].values == canvas_user_id]
+    if student_row.empty:
+        canvas_course_id = feed[0]['course_id']
+        app.logger.error('Canvas ID {} not found in enrollments for course site {}'.format(canvas_user_id, canvas_course_id))
+        return {'error': 'Unable to retrieve analytics'}
+    return {
+        'courseCurrentScore': analytics_for_column(df, student_row, 'current_score'),
+    }
+
+
+def analytics_for_column(df, student_row, column_name):
+    dfcol = df[column_name]
+
+    # If no data exists for a column, the Pandas 'nunique' function reports zero unique values.
+    # However, some feeds (such as Canvas student summaries) return (mostly) zero values rather than empty lists,
+    # and we've also seen some Canvas feeds which mix nulls and zeroes.
+    # Setting non-numbers to zero works acceptably for the current analyzed feeds.
+    dfcol.fillna(0, inplace=True)
+    student_row.fillna(0, inplace=True)
+
+    nunique = dfcol.nunique()
+    if nunique == 0 or (nunique == 1 and dfcol.max() == 0.0):
+        summary = 'No data'
         return {
-            'insufficientData': insufficient_data,
-            'courseDeciles': column_quantiles,
+            'boxPlottable': False,
             'student': {
-                'raw': column_value.item(),
-                'zscore': column_zscore,
-                'percentile': zptile(column_zscore),
+                'percentile': None,
+                'raw': None,
+                'roundedUpPercentile': None,
             },
+            'courseDeciles': None,
+            'summary': summary,
         }
 
+    column_value = student_row[column_name].values[0]
+    intuitive_percentile = rounded_up_percentile(dfcol, student_row)
+    raw_value = column_value.item()
+    column_quantiles = quantiles(dfcol, 10)
+    column_zscore = zscore(dfcol, column_value)
+    comparative_percentile = zptile(column_zscore)
+
+    # If only ten or fewer values are shared across the student population, the 'universal' percentile figure and the
+    # box-and-whisker graph will usually look odd. With such sparse data sets, a text summary and an (optional)
+    # histogram are more readable.
+    box_plottable = (nunique > 10)
+
+    # If all students have the same score, we have no basis for comparison.
+    if nunique == 1:
+        summary = 'Insufficient data'
+    elif nunique <= 10:
+        summary = '{} percentile : score {}, maximum {}'.format(ordinal(intuitive_percentile), raw_value, dfcol.max())
+    else:
+        summary = '{} percentile'.format(ordinal(comparative_percentile))
+
     return {
-        'assignmentsOnTime': analytics_for_column('on_time'),
-        'pageViews': analytics_for_column('page_views'),
-        'participations': analytics_for_column('participations'),
+        'boxPlottable': box_plottable,
+        'student': {
+            'percentile': comparative_percentile,
+            'raw': raw_value,
+            'roundedUpPercentile': intuitive_percentile,
+        },
+        'courseDeciles': column_quantiles,
+        'summary': summary,
     }
+
+
+def ordinal(nbr):
+    rounded = round(nbr)
+    mod_ten = rounded % 10
+    if (mod_ten == 1) and (rounded != 11):
+        suffix = 'st'
+    elif (mod_ten == 2) and (rounded != 12):
+        suffix = 'nd'
+    elif (mod_ten == 3) and (rounded != 13):
+        suffix = 'rd'
+    else:
+        suffix = 'th'
+    return '{}{}'.format(rounded, suffix)
 
 
 def quantiles(series, count):
     """Return a given number of evenly spaced quantiles for a given series"""
     return [round(series.quantile(n / count)) for n in range(0, count + 1)]
+
+
+def rounded_up_percentile(dataframe, student_row):
+    """Given a dataframe and an individual student row, return a more easily understood meaning of percentile.
+    Z-score percentile is useful in a scatterplot to spot outliers in the overall population across contexts.
+    (If 90% of the course's students received a score of '5', then one student with a '5' is not called out.)
+    Rounded-up matches what non-statisticians would expect when viewing one particular student in one
+    particular course context. (If only 10% of the course's students did better than '5', then this student
+    with a '5' is in the 90th percentile.)
+    """
+    percentile = dataframe.rank(pct=True, method='max')[student_row.index].values[0]
+    percentile = int(percentile * 100)
+    return percentile
 
 
 def zptile(z_score):

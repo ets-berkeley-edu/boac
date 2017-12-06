@@ -184,30 +184,6 @@
       }, 0);
     };
 
-    $scope.percentile = function(courseData) {
-      if (courseData.insufficientData) {
-        return 'No data';
-      }
-      var rawPercentile = courseData.student.percentile;
-      var percentileRounded = _.round(rawPercentile);
-
-      var ordinalSuffix = 'th';
-      switch (percentileRounded % 10) {
-        case 1:
-          if (percentileRounded !== 11) { ordinalSuffix = 'st'; }
-          break;
-        case 2:
-          if (percentileRounded !== 12) { ordinalSuffix = 'nd'; }
-          break;
-        case 3:
-          if (percentileRounded !== 13) { ordinalSuffix = 'rd'; }
-          break;
-        default:
-          break;
-      }
-      return percentileRounded + ordinalSuffix + ' percentile';
-    };
-
     loadAnalytics();
   });
 
