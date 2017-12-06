@@ -37,7 +37,7 @@
 
         var me = $rootScope.me && $rootScope.me.authenticated_as;
         if (me && me.is_authenticated) {
-          ga('set', 'uid', user.uid);
+          ga('set', 'uid', me.uid);
         }
       }
     };
