@@ -23,13 +23,14 @@ def merge_sis_enrollments(canvas_course_sites, cs_id, matriculation):
                 term_name = 'Fall ' + str(int(term_name[-4:]) - 1)
 
     for term_name in reverse_terms_until(matriculation):
-        merged_enrollments = merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name)
+        include_dropped_enrollments = (term_name == app.config['CANVAS_CURRENT_ENROLLMENT_TERM'])
+        merged_enrollments = merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name, include_dropped_enrollments)
         if merged_enrollments and (len(merged_enrollments['enrollments']) or len(merged_enrollments['unmatchedCanvasSites'])):
             courses_by_term.append(merged_enrollments)
     return courses_by_term
 
 
-def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name):
+def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name, include_dropped_enrollments=False):
     term_id = sis_term_id_for_name(term_name)
     enrollments = sis_enrollments_api.get_enrollments(cs_id, term_id)
 
@@ -65,7 +66,7 @@ def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name):
 
     # Screen out unwanted enrollments after course site merge so that associated sites are removed rather than orphaned.
     remove_athletic_enrollments(term_feed)
-    if term_name != app.config['CANVAS_CURRENT_ENROLLMENT_TERM']:
+    if not include_dropped_enrollments:
         remove_dropped_enrollments(term_feed)
 
     return term_feed

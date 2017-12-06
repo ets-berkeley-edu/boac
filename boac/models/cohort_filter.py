@@ -80,7 +80,7 @@ class CohortFilter(Base, UserMixin):
         db.session.commit()
 
 
-def summarize(cohort, include_canvas_profiles=False, order_by='member_name', offset=0, limit=50):
+def summarize(cohort, include_member_details=False, order_by='member_name', offset=0, limit=50):
     criteria = cohort.filter_criteria if isinstance(cohort.filter_criteria, dict) else json.loads(cohort.filter_criteria)
     team_group_codes = criteria['team_group_codes'] if 'team_group_codes' in criteria else None
     summary = {
@@ -89,5 +89,5 @@ def summarize(cohort, include_canvas_profiles=False, order_by='member_name', off
         'owners': [user.uid for user in cohort.owners],
     }
     if limit > 0:
-        summary.update(TeamMember.get_athletes(team_group_codes, include_canvas_profiles, order_by, offset, limit))
+        summary.update(TeamMember.get_athletes(team_group_codes, include_member_details, order_by, offset, limit))
     return summary

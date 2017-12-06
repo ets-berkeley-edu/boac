@@ -64,6 +64,24 @@ class TestCohortDetail:
         assert members[0]['uid'] == '61889'
         assert members[0]['avatar_url'] == 'https://calspirit.berkeley.edu/oski/images/oskibio.jpg'
 
+    def test_includes_team_member_sis_data(self, authenticated_session, client):
+        """includes SIS data for team members"""
+        response = client.post(TestCohortDetail.valid_api_path)
+        field_hockey_star = response.json['members'][0]
+        assert field_hockey_star['cumulativeGPA'] == 3.8
+        assert field_hockey_star['cumulativeUnits'] == 101.3
+        assert field_hockey_star['level'] == 'Junior'
+        assert field_hockey_star['majors'] == ['English BA', 'Astrophysics BS']
+
+    def test_includes_team_member_current_enrollments(self, authenticated_session, client):
+        """includes current-term active enrollments and analytics for team members"""
+        response = client.post(TestCohortDetail.valid_api_path)
+        field_hockey_star = response.json['members'][0]
+        assert field_hockey_star['currentTerm']['termName'] == 'Fall 2017'
+        assert len(field_hockey_star['currentTerm']['enrollments']) == 2
+        assert field_hockey_star['currentTerm']['enrollments'][0]['displayName'] == 'BURMESE 1A'
+        assert len(field_hockey_star['currentTerm']['enrollments'][0]['canvasSites']) == 1
+
     def test_my_cohorts(self, authenticated_session, client):
         response = client.get('/api/cohorts/my')
         assert response.status_code == 200
@@ -104,6 +122,28 @@ class TestCohortDetail:
         assert team_groups[0]['teamGroupName']
         assert isinstance(cohort['members'], list)
         assert cohort['totalMemberCount'] == len(cohort['members'])
+
+    def test_includes_cohort_member_sis_data(self, authenticated_session, client):
+        """includes SIS data for custom cohort members"""
+        user = AuthorizedUser.find_by_uid(test_uid)
+        cohort_id = user.cohort_filters[0].id
+        response = client.post('/api/cohort/{}'.format(cohort_id))
+        field_hockey_star = response.json['members'][0]
+        assert field_hockey_star['cumulativeGPA'] == 3.8
+        assert field_hockey_star['cumulativeUnits'] == 101.3
+        assert field_hockey_star['level'] == 'Junior'
+        assert field_hockey_star['majors'] == ['English BA', 'Astrophysics BS']
+
+    def test_includes_cohort_member_current_enrollments(self, authenticated_session, client):
+        """includes current-term active enrollments and analytics for custom cohort members"""
+        user = AuthorizedUser.find_by_uid(test_uid)
+        cohort_id = user.cohort_filters[0].id
+        response = client.post('/api/cohort/{}'.format(cohort_id))
+        field_hockey_star = response.json['members'][0]
+        assert field_hockey_star['currentTerm']['termName'] == 'Fall 2017'
+        assert len(field_hockey_star['currentTerm']['enrollments']) == 2
+        assert field_hockey_star['currentTerm']['enrollments'][0]['displayName'] == 'BURMESE 1A'
+        assert len(field_hockey_star['currentTerm']['enrollments'][0]['canvasSites']) == 1
 
     def test_offset_and_limit(self, authenticated_session, client):
         """returns a well-formed response with custom cohort"""
