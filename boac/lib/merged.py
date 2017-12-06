@@ -153,7 +153,8 @@ def merge_sis_profile_academic_status(sis_response, sis_profile):
     sis_profile['plans'] = []
     for student_plan in academic_status.get('studentPlans', []):
         academic_plan = student_plan.get('academicPlan', {})
-        if academic_plan.get('type', {}).get('code') != 'MAJ':
+        # SIS majors come in five flavors.
+        if academic_plan.get('type', {}).get('code') not in ['MAJ', 'SS', 'SP', 'HS', 'CRT']:
             continue
         plan = academic_plan.get('plan', {})
         plan_feed = {
