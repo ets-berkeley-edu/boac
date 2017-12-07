@@ -77,8 +77,10 @@ class TestUserAnalytics:
         """returns all terms with enrollment data in reverse order"""
         assert len(authenticated_response.json['enrollmentTerms']) == 2
         assert authenticated_response.json['enrollmentTerms'][0]['termName'] == 'Fall 2017'
+        assert authenticated_response.json['enrollmentTerms'][0]['enrolledUnits'] == 7.5
         assert len(authenticated_response.json['enrollmentTerms'][0]['enrollments']) == 3
         assert authenticated_response.json['enrollmentTerms'][1]['termName'] == 'Spring 2017'
+        assert authenticated_response.json['enrollmentTerms'][1]['enrolledUnits'] == 2
         assert len(authenticated_response.json['enrollmentTerms'][1]['enrollments']) == 1
 
     def test_user_analytics_term_cutoff(self, authenticated_response):
