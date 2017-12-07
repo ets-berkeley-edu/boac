@@ -57,7 +57,7 @@ def db(app, request):
     return _db
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='function', autouse=True)
 def db_session(db, request):
     """
     Fixture database session used for the scope of a single test. All executions are wrapped
@@ -66,6 +66,8 @@ def db_session(db, request):
     # Mixing SQL-using test fixtures with SQL-using decorators seems to cause timing issues with pytest's
     # fixture finalizers. Instead of using a finalizer to roll back the session and close connections,
     # we begin by cleaning up any previous invocations.
+    # This fixture is marked 'autouse' to ensure that cleanup happens at the start of every test, whether
+    # or not it has an explicit database dependency.
     db.session.rollback()
     try:
         db.session.get_bind().close()

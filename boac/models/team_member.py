@@ -4,6 +4,8 @@ from boac import db
 from boac.api.util import canvas_courses_api_feed
 from boac.externals import canvas
 from boac.lib.analytics import mean_course_analytics_for_user
+from boac.merged.sis_enrollments import merge_sis_enrollments_for_term
+from boac.merged.sis_profile import merge_sis_profile
 from boac.models.base import Base
 from flask import current_app as app
 from sqlalchemy import func, UniqueConstraint
@@ -137,7 +139,7 @@ class TeamMember(Base):
         return team
 
     @classmethod
-    def get_athletes(cls, team_group_codes, include_canvas_profiles=False, order_by='member_name', offset=0, limit=50):
+    def get_athletes(cls, team_group_codes, include_member_details=False, order_by='member_name', offset=0, limit=50):
         summary = {
             'members': [],
             'teamGroups': [],
@@ -164,37 +166,14 @@ class TeamMember(Base):
             summary['members'] = []
 
             for row in results:
-                member = row.to_api_json()
-                if include_canvas_profiles:
-                    uid = member['uid']
-                    cache_key = 'user/{uid}'.format(uid=uid)
-                    canvas_profile = app.cache.get(cache_key) if app.cache else None
-                    if not canvas_profile:
-                        canvas_profile = canvas.get_user_for_uid(uid)
-                        # Cache Canvas profiles
-                        if app.cache and canvas_profile:
-                            app.cache.set(cache_key, canvas_profile)
-
-                    if canvas_profile:
-                        member['avatar_url'] = canvas_profile['avatar_url']
-                        student_courses = canvas.get_student_courses(uid)
-                        current_term = app.config.get('CANVAS_CURRENT_ENROLLMENT_TERM')
-                        if student_courses:
-                            student_courses_in_current_term = [course for course in student_courses if
-                                                               course.get('term', {}).get('name') == current_term]
-                            canvas_courses = canvas_courses_api_feed(student_courses_in_current_term)
-                            if canvas_courses:
-                                member['analytics'] = mean_course_analytics_for_user(canvas_courses,
-                                                                                     canvas_profile['id'],
-                                                                                     current_term)
+                member = row.to_api_json(details=include_member_details)
                 summary['members'].append(member)
 
             summary['totalMemberCount'] = TeamMember.query.distinct(o).filter(f).count()
-            db.session.commit()
         return summary
 
-    def to_api_json(self):
-        return {
+    def to_api_json(self, details=False):
+        feed = {
             'id': self.id,
             'name': self.member_name,
             'sid': self.member_csid,
@@ -205,3 +184,42 @@ class TeamMember(Base):
             'teamGroupName': self.asc_sport,
             'uid': self.member_uid,
         }
+        if details:
+            self.merge_member_details(feed)
+        return feed
+
+    @staticmethod
+    def merge_member_details(feed):
+        sis_profile = merge_sis_profile(feed['sid'])
+        if sis_profile:
+            feed['cumulativeGPA'] = sis_profile.get('cumulativeGPA')
+            feed['cumulativeUnits'] = sis_profile.get('cumulativeUnits')
+            feed['level'] = sis_profile.get('level', {}).get('description')
+            feed['majors'] = [plan.get('description') for plan in sis_profile.get('plans', [])]
+
+        uid = feed['uid']
+        cache_key = 'user/{uid}'.format(uid=uid)
+        canvas_profile = app.cache.get(cache_key) if app.cache else None
+        if not canvas_profile:
+            canvas_profile = canvas.get_user_for_uid(uid)
+            # Cache Canvas profiles
+            if app.cache and canvas_profile:
+                app.cache.set(cache_key, canvas_profile)
+
+        if canvas_profile:
+            feed['avatar_url'] = canvas_profile['avatar_url']
+            student_courses = canvas.get_student_courses(uid)
+            current_term = app.config.get('CANVAS_CURRENT_ENROLLMENT_TERM')
+            if student_courses:
+                student_courses_in_current_term = [course for course in student_courses if
+                                                   course.get('term', {}).get('name') == current_term]
+                canvas_courses = canvas_courses_api_feed(student_courses_in_current_term)
+                if canvas_courses:
+                    feed['analytics'] = mean_course_analytics_for_user(canvas_courses,
+                                                                       canvas_profile['id'],
+                                                                       current_term)
+                    # The call to mean_course_analytics_for_user, above, has enriched the canvas_courses
+                    # list with per-course statistics. Next, associate those course sites with enrollments.
+                    feed['currentTerm'] = merge_sis_enrollments_for_term(canvas_courses,
+                                                                         feed['sid'],
+                                                                         current_term)
