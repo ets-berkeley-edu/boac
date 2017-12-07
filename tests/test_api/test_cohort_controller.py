@@ -78,6 +78,7 @@ class TestCohortDetail:
         response = client.post(TestCohortDetail.valid_api_path)
         field_hockey_star = response.json['members'][0]
         assert field_hockey_star['currentTerm']['termName'] == 'Fall 2017'
+        assert field_hockey_star['currentTerm']['enrolledUnits'] == 7.5
         assert len(field_hockey_star['currentTerm']['enrollments']) == 2
         assert field_hockey_star['currentTerm']['enrollments'][0]['displayName'] == 'BURMESE 1A'
         assert len(field_hockey_star['currentTerm']['enrollments'][0]['canvasSites']) == 1
@@ -141,6 +142,7 @@ class TestCohortDetail:
         response = client.post('/api/cohort/{}'.format(cohort_id))
         field_hockey_star = response.json['members'][0]
         assert field_hockey_star['currentTerm']['termName'] == 'Fall 2017'
+        assert field_hockey_star['currentTerm']['enrolledUnits'] == 7.5
         assert len(field_hockey_star['currentTerm']['enrollments']) == 2
         assert field_hockey_star['currentTerm']['enrollments'][0]['displayName'] == 'BURMESE 1A'
         assert len(field_hockey_star['currentTerm']['enrollments'][0]['canvasSites']) == 1

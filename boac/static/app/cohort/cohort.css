@@ -83,6 +83,16 @@
   min-width: 200px;
 }
 
+.cohort-member-column {
+  flex: 0.5;
+  margin-left: 20px;
+}
+
+.cohort-member-gpa {
+  font-size: 13px;
+  font-weight: bold;
+}
+
 .cohort-member-list-item {
   border-left: none;
   border-right: none;
@@ -100,10 +110,15 @@
   margin-left: 20px;
 }
 
-.cohort-member-uid {
+.cohort-member-sid {
   font-size: 11px;
   font-weight: bold;
   margin: 5px 0;
+}
+
+.cohort-member-text {
+  color: #aaa;
+  font-size: 13px;
 }
 
 .cohort-sort-column {

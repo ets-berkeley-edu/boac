@@ -37,6 +37,7 @@ def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name, includ
     if enrollments:
         enrollments_by_class = {}
         term_section_ids = {}
+        enrolled_units = 0
         for enrollment in enrollments.get('studentEnrollments', []):
             # Skip this class section if we've seen it already.
             section_id = enrollment.get('classSection').get('id')
@@ -49,13 +50,16 @@ def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name, includ
             class_name = enrollment.get('classSection', {}).get('class', {}).get('displayName')
             if class_name not in enrollments_by_class:
                 enrollments_by_class[class_name] = api_util.sis_enrollment_class_feed(enrollment)
-            enrollments_by_class[class_name]['sections'].append(api_util.sis_enrollment_section_feed(enrollment))
+            section_feed = api_util.sis_enrollment_section_feed(enrollment)
+            enrollments_by_class[class_name]['sections'].append(section_feed)
+            if section_feed['units'] and section_feed['enrollmentStatus'] == 'E':
+                enrolled_units += section_feed['units']
         enrollments_feed = enrollments_by_class.values()
-
         term_feed = {
             'termId': term_id,
             'termName': term_name,
             'enrollments': enrollments_feed,
+            'enrolledUnits': enrolled_units,
             'unmatchedCanvasSites': [],
         }
     else:

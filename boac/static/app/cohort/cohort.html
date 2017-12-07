@@ -129,7 +129,7 @@
     </div>
     <div data-ng-show="selectedTab === 'list'"
          data-ng-if="!isLoading && !error && search.results.totalCount">
-      <ul class="list-group">
+      <ul id="cohort-members-list" class="list-group">
         <a class="list-group-item cohort-member-list-item"
            data-ng-href="/student/{{row.uid}}"
            data-ng-repeat="row in search.results.rows">
@@ -138,7 +138,23 @@
           </div>
           <div class="cohort-member-name-container">
             <h3 class="cohort-member-name" data-ng-bind="row.name"></h3>
-            <div class="cohort-member-uid" data-ng-bind="row.uid"></div>
+            <div class="cohort-member-sid" data-ng-bind="row.sid"></div>
+            <div class="cohort-member-text" data-ng-bind="row.level"></div>
+            <div class="cohort-member-text" data-ng-bind="major" data-ng-repeat="major in row.majors"></div>
+          </div>
+          <div class="cohort-member-column">
+            <div class="cohort-member-gpa" data-ng-bind="row.cumulativeGPA || '--'"></div>
+            <div class="cohort-member-text">GPA (Cumulative)</div>
+          </div>
+          <div class="cohort-member-column">
+            <div class="cohort-member-gpa" data-ng-bind="row.currentTerm.enrolledUnits || '0'"></div>
+            <div class="cohort-member-text">Units (In Progress)</div>
+            <div class="cohort-member-gpa" data-ng-bind="row.cumulativeUnits || '--'"></div>
+            <div class="cohort-member-text">Total Units</div>
+          </div>
+          <div class="cohort-member-column">
+            <div class="cohort-member-text">CLASSES</div>
+            <div data-ng-bind="enrollment.displayName" data-ng-repeat="enrollment in row.currentTerm.enrollments"></div>
           </div>
         </a>
       </ul>
