@@ -23,10 +23,13 @@ class TeamMember(Base):
     asc_sport_code = db.Column(db.String(80))
     asc_sport = db.Column(db.String(80))
     asc_sport_core = db.Column(db.String(80))
+    in_intensive_cohort = db.Column(db.Boolean, nullable=False, default=False)
     UniqueConstraint('code', 'member_csid', name='team_member')
 
     def __repr__(self):
-        return '<TeamMember {} ({}), asc_sport {} ({}), asc_sport_core {} ({}), uid={}, csid={}, name={}, updated={}, created={}>'.format(
+        return """
+        <TeamMember {} ({}), asc_sport {} ({}), asc_sport_core {} ({}), uid={}, csid={}, name={}, in_intensive_cohort={}, updated={}, created={}>
+        """.format(
             self.team_definitions.get(self.code),
             self.code,
             self.asc_sport,
@@ -36,6 +39,7 @@ class TeamMember(Base):
             self.member_uid,
             self.member_csid,
             self.member_name,
+            self.in_intensive_cohort,
             self.updated_at,
             self.created_at,
         )
@@ -116,67 +120,69 @@ class TeamMember(Base):
     @classmethod
     def get_all_athletes(cls, sort_by=None):
         athletes = cls.query.order_by(cls.member_name).all()
-
         athletes = [athlete.to_api_json() for athlete in athletes]
         if sort_by and len(athletes) > 0:
             is_valid_key = sort_by in athletes[0]
             athletes = sorted(athletes, key=lambda athlete: athlete[sort_by]) if is_valid_key else athletes
-
         return athletes
 
     @classmethod
-    def for_code(cls, code, order_by='member_name', offset=0, limit=50):
+    def get_intensive_cohort(cls, include_canvas_profiles=False, order_by='member_name', offset=0, limit=50):
+        athletes = cls.query.distinct(cls.asc_sport_code).filter_by(in_intensive_cohort=True).all()
+        team_groups = [athlete.team_group_summary() for athlete in athletes]
+        order = cls.member_uid if order_by == 'member_uid' else cls.member_name
+        query_filter = cls.in_intensive_cohort.is_(True)
+        athletes = cls.query.distinct(order).order_by(order).filter(query_filter).offset(offset).limit(limit).all()
+        return cls.summarize_athletes(team_groups, athletes, include_canvas_profiles, query_filter)
+
+    @classmethod
+    def get_team(cls, code, order_by='member_name', offset=0, limit=50):
         team = None
         if cls.team_definitions.get(code):
             team = {
                 'code': code,
                 'name': cls.team_definitions.get(code, code),
             }
-            results = TeamMember.query.distinct(TeamMember.asc_sport_code).filter_by(code=code).all()
+            results = cls.query.distinct(cls.asc_sport_code).filter_by(code=code).all()
             team_group_codes = [row.asc_sport_code for row in results]
-            # Next, add 'totalMemberCount' and 'members' list to team summary
-            team.update(TeamMember.get_athletes(team_group_codes, True, order_by, offset, limit))
+            # Add athletes list to the team
+            team.update(cls.get_athletes(team_group_codes, True, order_by, offset, limit))
         return team
 
     @classmethod
     def get_athletes(cls, team_group_codes, include_member_details=False, order_by='member_name', offset=0, limit=50):
+        team_groups = cls.get_team_groups(team_group_codes)
+        order = cls.member_uid if order_by == 'member_uid' else cls.member_name
+        query_filter = cls.asc_sport_code.in_(team_group_codes)
+        athletes = cls.query.distinct(order).order_by(order).filter(query_filter).offset(offset).limit(limit).all()
+        return cls.summarize_athletes(team_groups, athletes, include_member_details, query_filter)
+
+    @classmethod
+    def summarize_athletes(cls, team_groups, athletes, include_member_details, query_filter):
         summary = {
             'members': [],
-            'teamGroups': [],
+            'teamGroups': team_groups,
             'totalMemberCount': 0,
         }
+        for athlete in athletes:
+            member = athlete.to_api_json(details=include_member_details)
+            summary['members'].append(member)
 
-        def team_group_summary(row):
-            return {
-                'sportCode': row.asc_sport_code_core,
-                'sportName': row.asc_sport_core,
-                'teamCode': row.code,
-                'teamGroupCode': row.asc_sport_code,
-                'teamGroupName': row.asc_sport,
-            }
-        if team_group_codes:
-            # Get team groups
-            team_groups = TeamMember.query.distinct(TeamMember.asc_sport_code).filter(TeamMember.asc_sport_code.in_(team_group_codes)).all()
-            summary['teamGroups'] = [team_group_summary(row) for row in team_groups]
-            # Get team athletes
-            o = TeamMember.member_uid if order_by == 'member_uid' else TeamMember.member_name
-            f = TeamMember.asc_sport_code.in_(team_group_codes)
-            results = TeamMember.query.distinct(o).order_by(o).filter(f).offset(offset).limit(limit).all()
-
-            summary['members'] = []
-
-            for row in results:
-                member = row.to_api_json(details=include_member_details)
-                summary['members'].append(member)
-
-            summary['totalMemberCount'] = TeamMember.query.distinct(o).filter(f).count()
+        summary['totalMemberCount'] = cls.query.distinct(cls.member_uid).filter(query_filter).count()
         return summary
+
+    @classmethod
+    def get_team_groups(cls, team_group_codes):
+        query_filter = cls.asc_sport_code.in_(team_group_codes)
+        athletes = cls.query.distinct(cls.asc_sport_code).filter(query_filter).all()
+        return [athlete.team_group_summary() for athlete in athletes]
 
     def to_api_json(self, details=False):
         feed = {
             'id': self.id,
             'name': self.member_name,
             'sid': self.member_csid,
+            'inAdvisorWatchGroup': self.in_intensive_cohort,
             'sportCode': self.asc_sport_code_core,
             'sportName': self.asc_sport_core,
             'teamCode': self.code,
@@ -223,3 +229,12 @@ class TeamMember(Base):
                     feed['currentTerm'] = merge_sis_enrollments_for_term(canvas_courses,
                                                                          feed['sid'],
                                                                          current_term)
+
+    def team_group_summary(self):
+        return {
+            'sportCode': self.asc_sport_code_core,
+            'sportName': self.asc_sport_core,
+            'teamCode': self.code,
+            'teamGroupCode': self.asc_sport_code,
+            'teamGroupName': self.asc_sport,
+        }
