@@ -13,7 +13,7 @@ def merge_sis_enrollments(canvas_course_sites, cs_id, matriculation):
         term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
         while True:
             yield term_name
-            if (term_name == stop_term) or not stop_term:
+            if (term_name == stop_term) or (term_name == app.config['CANVAS_EARLIEST_TERM']):
                 break
             if term_name.startswith('Fall'):
                 term_name = term_name.replace('Fall', 'Summer')
