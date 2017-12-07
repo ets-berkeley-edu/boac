@@ -58,7 +58,8 @@ def add_team_member(sport, student):
                               asc_sport=sport['asc_sport'],
                               member_uid=student['member_uid'],
                               member_csid=student['member_csid'],
-                              member_name=student['member_name']))
+                              member_name=student['member_name'],
+                              in_intensive_cohort=student['in_intensive_cohort']))
 
 
 def load_cohort_test_data():
@@ -66,21 +67,25 @@ def load_cohort_test_data():
         'member_uid': '61889',
         'member_csid': '11667051',
         'member_name': 'Brigitte Lin',
+        'in_intensive_cohort': True,
     }
     oliver = {
         'member_uid': '2040',
         'member_csid': '2345678901',
         'member_name': 'Oliver Heyer',
+        'in_intensive_cohort': False,
     }
     paul = {
         'member_uid': '242881',
         'member_csid': '3456789012',
         'member_name': 'Paul Kerschen',
+        'in_intensive_cohort': True,
     }
     sandeep = {
         'member_uid': '1133399',
         'member_csid': '5678901234',
         'member_name': 'Sandeep Jayaprakash',
+        'in_intensive_cohort': False,
     }
     football_defensive_backs = {
         'code': 'FBM',

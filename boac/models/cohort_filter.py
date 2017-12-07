@@ -37,57 +37,66 @@ class CohortFilter(Base, UserMixin):
     @classmethod
     def create(cls, label, team_group_codes, uid):
         team_group_codes = ','.join(map('"{0}"'.format, team_group_codes))
-        cohort = CohortFilter(label=label, filter_criteria='{"team_group_codes": [' + team_group_codes + ']}')
+        cf = CohortFilter(label=label, filter_criteria='{"team_group_codes": [' + team_group_codes + ']}')
         user = AuthorizedUser.find_by_uid(uid)
-        user.cohort_filters.append(cohort)
+        user.cohort_filters.append(cf)
         db.session.commit()
-        return summarize(cohort)
+        return construct_cohort(cf)
 
     @classmethod
     def update(cls, cohort_id, label):
-        cohort = CohortFilter.query.filter_by(id=cohort_id).first()
-        cohort.label = label
+        cf = CohortFilter.query.filter_by(id=cohort_id).first()
+        cf.label = label
         db.session.commit()
-        return summarize(cohort)
+        return construct_cohort(cf)
 
     @classmethod
     def share(cls, cohort_id, user_id):
-        cohort = CohortFilter.query.filter_by(id=cohort_id).first()
+        cf = CohortFilter.query.filter_by(id=cohort_id).first()
         user = AuthorizedUser.find_by_uid(user_id)
-        user.cohort_filters.append(cohort)
+        user.cohort_filters.append(cf)
         db.session.commit()
-        return summarize(cohort)
+        return construct_cohort(cf)
 
     @classmethod
     def all(cls):
-        return [summarize(cohort) for cohort in CohortFilter.query.all()]
+        return [construct_cohort(cf) for cf in CohortFilter.query.all()]
 
     @classmethod
-    def all_owned_by(cls, uid):
-        cohorts = CohortFilter.query.filter(CohortFilter.owners.any(uid=uid)).all()
-        return [summarize(cohort) for cohort in cohorts]
-
-    @classmethod
-    def find_by_id(cls, cohort_id, order_by='member_name', offset=0, limit=50):
-        result = CohortFilter.query.filter_by(id=cohort_id).first()
-        cohort = result and summarize(result, True, order_by, offset, limit)
+    def get_intensive_cohort(cls, order_by='member_name', offset=0, limit=50):
+        cohort = {
+            'id': 'intensive',
+            'label': 'Intensive',
+            'owners': None,
+        }
+        cohort.update(TeamMember.get_intensive_cohort(order_by=order_by, offset=offset, limit=limit))
         return cohort
 
     @classmethod
+    def all_owned_by(cls, uid):
+        filters = CohortFilter.query.filter(CohortFilter.owners.any(uid=uid)).all()
+        return [construct_cohort(cohort_filter) for cohort_filter in filters]
+
+    @classmethod
+    def find_by_id(cls, cohort_id, order_by='member_name', offset=0, limit=50):
+        cf = CohortFilter.query.filter_by(id=cohort_id).first()
+        return cf and construct_cohort(cf, True, order_by, offset, limit)
+
+    @classmethod
     def delete(cls, cohort_id):
-        cohort = CohortFilter.query.filter_by(id=cohort_id).first()
-        db.session.delete(cohort)
+        cohort_filter = CohortFilter.query.filter_by(id=cohort_id).first()
+        db.session.delete(cohort_filter)
         db.session.commit()
 
 
-def summarize(cohort, include_member_details=False, order_by='member_name', offset=0, limit=50):
-    criteria = cohort.filter_criteria if isinstance(cohort.filter_criteria, dict) else json.loads(cohort.filter_criteria)
+def construct_cohort(cf, include_member_details=False, order_by='member_name', offset=0, limit=50):
+    criteria = cf.filter_criteria if isinstance(cf.filter_criteria, dict) else json.loads(cf.filter_criteria)
     team_group_codes = criteria['team_group_codes'] if 'team_group_codes' in criteria else None
-    summary = {
-        'id': cohort.id,
-        'label': cohort.label,
-        'owners': [user.uid for user in cohort.owners],
+    cohort = {
+        'id': cf.id,
+        'label': cf.label,
+        'owners': [user.uid for user in cf.owners],
     }
     if limit > 0:
-        summary.update(TeamMember.get_athletes(team_group_codes, include_member_details, order_by, offset, limit))
-    return summary
+        cohort.update(TeamMember.get_athletes(team_group_codes, include_member_details, order_by, offset, limit))
+    return cohort

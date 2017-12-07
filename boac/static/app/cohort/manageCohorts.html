@@ -1,7 +1,15 @@
 <div class="container">
   <div data-ng-include="'/static/app/shared/header.html'"></div>
 
-  <h1>Manage Cohorts</h1>
+  <h1 data-ng-if="!error">Manage Cohorts</h1>
+
+  <div data-ng-if="error">
+    <h1>Error</h1>
+    <div>
+      Sorry, there was an error.
+      <span class="faint-text" data-ng-if="error.message">(<span data-ng-bind="error.message"></span>)</span>
+    </div>
+  </div>
 
   <h2 class="faint-text" data-ng-if="isLoading">Loading....</h2>
 

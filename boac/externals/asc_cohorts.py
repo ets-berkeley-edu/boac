@@ -61,6 +61,7 @@ def load_cohort_from_csv(app, csv_file='tmp/FilteredAscStudents.csv'):
                 asc_sport=r['Sport'],
                 asc_sport_code_core=asc_sport_code_core,
                 asc_sport_core=r['acSportCore'],
+                in_intensive_cohort=False,
             )
             db.session.add(record)
     app.logger.info('Loaded {} TeamMember records from {}'.format(

@@ -4,7 +4,7 @@
 
   var boac = angular.module('boac');
 
-  boac.factory('cohortFactory', function(googleAnalyticsService, $http, $rootScope) {
+  boac.factory('cohortFactory', function(googleAnalyticsService, utilService, $http, $rootScope) {
 
     var createCohort = function(label, teamGroupCodes) {
       var args = {
@@ -13,7 +13,6 @@
       };
       return $http.post('/api/cohort/create', args).then(function(response) {
         var cohort = response.data;
-
         $rootScope.$broadcast('cohortCreated', {
           cohort: cohort
         });
@@ -34,11 +33,24 @@
     };
 
     var getCohort = function(id, orderBy, offset, limit) {
-      return $http.post('/api/cohort/' + id, {
+      var params = {
+        id: id,
         offset: offset || 0,
         limit: limit || 50,
         orderBy: orderBy || 'member_name'
-      });
+      };
+      var apiPath = utilService.format('/api/cohort/${id}?offset=${offset}&limit=${limit}&orderBy=${orderBy}', params);
+      return $http.get(apiPath);
+    };
+
+    var getIntensiveCohort = function(orderBy, offset, limit) {
+      var params = {
+        offset: offset || 0,
+        limit: limit || 50,
+        orderBy: orderBy || 'member_name'
+      };
+      var apiPath = utilService.format('/api/intensive_cohort?offset=${offset}&limit=${limit}&orderBy=${orderBy}', params);
+      return $http.get(apiPath);
     };
 
     var getMyCohorts = function() {
@@ -46,20 +58,28 @@
     };
 
     var getTeam = function(code, orderBy, offset, limit) {
-      return $http.post('/api/team/' + code, {
+      var params = {
+        api: code === 'intensive' ? '/api/intensive_cohort' : '/api/team/${code}',
+        code: code,
         offset: offset || 0,
         limit: limit || 50,
         orderBy: orderBy || 'member_name'
-      });
+      };
+      var apiPath = utilService.format('${api}?offset=${offset}&limit=${limit}&orderBy=${orderBy}', params);
+      return $http.get(apiPath);
     };
 
     var getTeamGroupsMembers = function(teamGroupCodes, orderBy, offset, limit) {
-      return $http.post('/api/team_groups/members', {
-        teamGroupCodes: teamGroupCodes,
+      var params = {
         offset: offset || 0,
         limit: limit || 50,
         orderBy: orderBy || 'member_name'
+      };
+      var apiPath = utilService.format('/api/team_groups/members?offset=${offset}&limit=${limit}&orderBy=${orderBy}', params);
+      _.each(teamGroupCodes, function(teamGroupCode) {
+        apiPath += '&teamGroupCodes=' + teamGroupCode;
       });
+      return $http.get(apiPath);
     };
 
     var getTeams = function() {
@@ -86,6 +106,7 @@
       getAll: getAll,
       getAllTeamGroups: getAllTeamGroups,
       getCohort: getCohort,
+      getIntensiveCohort: getIntensiveCohort,
       getMyCohorts: getMyCohorts,
       getTeam: getTeam,
       getTeams: getTeams,
