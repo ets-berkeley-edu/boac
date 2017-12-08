@@ -479,6 +479,418 @@
               }
             }
           }
+        },
+        {
+          "classSection": {
+            "addConsentRequired": {
+              "code": "N",
+              "description": "No Special Consent Required"
+            },
+            "association": {
+              "primary": false,
+              "primaryAssociatedComponent": {}
+            },
+            "class": {
+              "allowedUnits": {
+                "forAcademicProgress": 4,
+                "forFinancialAid": 4,
+                "maximum": 4,
+                "minimum": 4
+              },
+              "course": {
+                "catalogNumber": {
+                  "formatted": "130",
+                  "number": "130"
+                },
+                "displayName": "CLASSIC 130",
+                "identifiers": [
+                  {
+                    "id": "103763",
+                    "type": "cs-course-id"
+                  }
+                ],
+                "subjectArea": {
+                  "code": "CLASSIC",
+                  "description": "Classics"
+                },
+                "title": "Topics in Ancient Greek and Roman Culture",
+                "transcriptTitle": "TOPICS"
+              },
+              "displayName": "2017 Spring CLASSIC 130 002",
+              "number": "002",
+              "offeringNumber": 1,
+              "session": {
+                "id": "1",
+                "name": "Regular Academic Session",
+                "term": {
+                  "id": "2172",
+                  "name": "2017 Spring"
+                }
+              },
+              "status": {}
+            },
+            "component": {
+              "code": "LEC",
+              "description": "Lecture"
+            },
+            "displayName": "2017 Spring CLASSIC 130 002 LEC 002",
+            "dropConsentRequired": {
+              "code": "N",
+              "description": "No Special Consent Required"
+            },
+            "enrollmentStatus": {
+              "status": {}
+            },
+            "id": 21815,
+            "meetings": [
+              {
+                "assignedInstructors": [
+                  {
+                    "assignmentNumber": 1,
+                    "gradeRosterAccess": {
+                      "code": "A",
+                      "description": "Approve",
+                      "formalDescription": "Approve"
+                    },
+                    "instructor": {
+                      "emails": [
+                        {
+                          "disclose": true,
+                          "emailAddress": "crassus@berkeley.edu",
+                          "primary": true,
+                          "type": {
+                            "code": "CAMP",
+                            "description": "Campus"
+                          },
+                          "uiControl": {
+                            "code": "D",
+                            "description": "Display Only"
+                          }
+                        }
+                      ],
+                      "identifiers": [
+                        {
+                          "disclose": true,
+                          "id": "9999888",
+                          "type": "campus-uid"
+                        },
+                        {
+                          "disclose": false,
+                          "id": "***-**-****",
+                          "type": "Social Security Number"
+                        },
+                        {
+                          "disclose": false,
+                          "id": "99999",
+                          "type": "HCM System"
+                        }
+                      ],
+                      "names": [
+                        {
+                          "disclose": true,
+                          "familyName": "Crassus",
+                          "formattedName": "Marcus Licinus Crassus",
+                          "fromDate": "1902-02-01",
+                          "givenName": "Marcus Licinus",
+                          "type": {
+                            "code": "PRF",
+                            "description": "Preferred"
+                          },
+                          "uiControl": {
+                            "code": "U",
+                            "description": "Edit - No Delete"
+                          }
+                        },
+                        {
+                          "disclose": true,
+                          "familyName": "Crassus",
+                          "formattedName": "Marcus Licinus Crassus",
+                          "fromDate": "1902-02-01",
+                          "givenName": "Marcus Licinus",
+                          "type": {
+                            "code": "PRI",
+                            "description": "Primary"
+                          },
+                          "uiControl": {
+                            "code": "D",
+                            "description": "Display Only"
+                          }
+                        }
+                      ]
+                    },
+                    "printInScheduleOfClasses": true,
+                    "role": {
+                      "code": "PI",
+                      "description": "1-TIC",
+                      "formalDescription": "Teaching and In Charge"
+                    }
+                  }
+                ],
+                "building": {
+                  "code": "1299",
+                  "description": "Moffitt"
+                },
+                "endDate": "2017-12-08",
+                "endTime": "13:59:00",
+                "location": {
+                  "code": "MOFF103",
+                  "description": "Moffitt Library 103"
+                },
+                "meetingTopic": {},
+                "meetsDays": "TuTh",
+                "meetsFriday": false,
+                "meetsMonday": false,
+                "meetsSaturday": false,
+                "meetsSunday": false,
+                "meetsThursday": true,
+                "meetsTuesday": true,
+                "meetsWednesday": false,
+                "number": 1,
+                "startDate": "2017-08-23",
+                "startTime": "12:30:00"
+              }
+            ],
+            "number": "002",
+            "printInScheduleOfClasses": false
+          },
+          "enrolledUnits": {
+            "forAcademicProgress": 4,
+            "forBilling": 4,
+            "forFinancialAid": 4,
+            "taken": 4
+          },
+          "enrollmentStatus": {
+            "fromDate": "2017-01-12",
+            "reason": {
+              "code": "ENRL",
+              "description": "Enrolled"
+            },
+            "status": {
+              "code": "E",
+              "description": "Enrolled"
+            }
+          },
+          "grades": [
+            {
+              "type": {
+                "code": "OFFL",
+                "description": "Official Grade"
+              },
+              "mark": "B-",
+              "status": {},
+              "uiControl": {}
+            }
+          ],
+          "gradingBasis": {
+            "code": "GRD",
+            "description": "Standard Grading Basis"
+          }
+        },
+        {
+          "classSection": {
+            "addConsentRequired": {
+              "code": "N",
+              "description": "No Special Consent Required"
+            },
+            "association": {
+              "primary": false,
+              "primaryAssociatedComponent": {}
+            },
+            "class": {
+              "allowedUnits": {
+                "forAcademicProgress": 4,
+                "forFinancialAid": 4,
+                "maximum": 4,
+                "minimum": 4
+              },
+              "course": {
+                "catalogNumber": {
+                  "formatted": "130",
+                  "number": "130"
+                },
+                "displayName": "CLASSIC 130",
+                "identifiers": [
+                  {
+                    "id": "103763",
+                    "type": "cs-course-id"
+                  }
+                ],
+                "subjectArea": {
+                  "code": "CLASSIC",
+                  "description": "Classics"
+                },
+                "title": "Topics in Ancient Greek and Roman Culture",
+                "transcriptTitle": "TOPICS"
+              },
+              "displayName": "2017 Fall CLASSIC 130 001",
+              "number": "001",
+              "offeringNumber": 1,
+              "session": {
+                "id": "1",
+                "name": "Regular Academic Session",
+                "term": {
+                  "id": "2178",
+                  "name": "2017 Fall"
+                }
+              },
+              "status": {}
+            },
+            "component": {
+              "code": "LEC",
+              "description": "Lecture"
+            },
+            "displayName": "2017 Fall CLASSIC 130 001 LEC 001",
+            "dropConsentRequired": {
+              "code": "N",
+              "description": "No Special Consent Required"
+            },
+            "enrollmentStatus": {
+              "status": {}
+            },
+            "id": 13437,
+            "meetings": [
+              {
+                "assignedInstructors": [
+                  {
+                    "assignmentNumber": 1,
+                    "gradeRosterAccess": {
+                      "code": "A",
+                      "description": "Approve",
+                      "formalDescription": "Approve"
+                    },
+                    "instructor": {
+                      "emails": [
+                        {
+                          "disclose": true,
+                          "emailAddress": "pompey@berkeley.edu",
+                          "primary": true,
+                          "type": {
+                            "code": "CAMP",
+                            "description": "Campus"
+                          },
+                          "uiControl": {
+                            "code": "D",
+                            "description": "Display Only"
+                          }
+                        }
+                      ],
+                      "identifiers": [
+                        {
+                          "disclose": true,
+                          "id": "87654",
+                          "type": "campus-uid"
+                        },
+                        {
+                          "disclose": false,
+                          "id": "***-**-****",
+                          "type": "Social Security Number"
+                        },
+                        {
+                          "disclose": false,
+                          "id": "99999999",
+                          "type": "HCM System"
+                        }
+                      ],
+                      "names": [
+                        {
+                          "disclose": true,
+                          "familyName": "Pompeius",
+                          "formattedName": "Gnaeus Pompeius",
+                          "fromDate": "1902-02-01",
+                          "givenName": "Gnaeus",
+                          "type": {
+                            "code": "PRF",
+                            "description": "Preferred"
+                          },
+                          "uiControl": {
+                            "code": "U",
+                            "description": "Edit - No Delete"
+                          }
+                        },
+                        {
+                          "disclose": true,
+                          "familyName": "Pompeius",
+                          "formattedName": "Gnaeus Pompeius",
+                          "fromDate": "2009-03-03",
+                          "givenName": "Gnaeus",
+                          "type": {
+                            "code": "PRI",
+                            "description": "Primary"
+                          },
+                          "uiControl": {
+                            "code": "D",
+                            "description": "Display Only"
+                          }
+                        }
+                      ]
+                    },
+                    "printInScheduleOfClasses": true,
+                    "role": {
+                      "code": "PI",
+                      "description": "1-TIC",
+                      "formalDescription": "Teaching and In Charge"
+                    }
+                  }
+                ],
+                "building": {
+                  "code": "1295",
+                  "description": "Dwinelle"
+                },
+                "endDate": "2017-05-08",
+                "endTime": "12:29:00",
+                "location": {
+                  "code": "DWIN87",
+                  "description": "Dwinelle 87"
+                },
+                "meetingTopic": {},
+                "meetsDays": "TuTh",
+                "meetsFriday": false,
+                "meetsMonday": false,
+                "meetsSaturday": false,
+                "meetsSunday": false,
+                "meetsThursday": true,
+                "meetsTuesday": true,
+                "meetsWednesday": false,
+                "number": 1,
+                "startDate": "2017-01-23",
+                "startTime": "11:00:00"
+              }
+            ],
+            "number": "001",
+            "printInScheduleOfClasses": false
+          },
+          "enrolledUnits": {
+            "forAcademicProgress": 4,
+            "forBilling": 4,
+            "forFinancialAid": 4,
+            "taken": 4
+          },
+          "enrollmentStatus": {
+            "fromDate": "2017-01-12",
+            "reason": {
+              "code": "ENRL",
+              "description": "Enrolled"
+            },
+            "status": {
+              "code": "E",
+              "description": "Enrolled"
+            }
+          },
+          "grades": [
+            {
+              "type": {
+                "code": "OFFL",
+                "description": "Official Grade"
+              },
+              "mark": "P",
+              "status": {},
+              "uiControl": {}
+            }
+          ],
+          "gradingBasis": {
+            "code": "EPN",
+            "description": "Elective Pass/No Pass"
+          }
         }
       ]
     }
