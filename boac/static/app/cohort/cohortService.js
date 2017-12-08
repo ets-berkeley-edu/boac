@@ -169,7 +169,8 @@
 
       dot.append('title')
         .text(function(d) {
-          return d.name.concat(
+          return d.first_name.concat(
+            ' ', d.last_name,
             '\nPage views: ',
             displayValue(d, 'analytics.pageViews'),
             '\nAssignments on time: ',
