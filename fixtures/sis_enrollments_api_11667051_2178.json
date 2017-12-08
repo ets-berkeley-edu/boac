@@ -84,11 +84,11 @@
           "grades": [
             {
               "type": {
-                "code": "OFFL",
-                "description": "Official Grade"
+                "code": "MID",
+                "description": "Mid-Term Grade"
               },
-              "mark": "B+",
-              "status": {},
+              "mark": "D+",
+              "status": {"code": "APPR", "description": "Approved"},
               "uiControl": {}
             }
           ],

@@ -36,4 +36,5 @@ def sis_enrollment_section_feed(enrollment):
         'units': enrollment.get('enrolledUnits', {}).get('taken'),
         'gradingBasis': enrollment.get('gradingBasis', {}).get('code'),
         'grade': next((grade.get('mark') for grade in grades if grade.get('type', {}).get('code') == 'OFFL'), None),
+        'midtermGrade': next((grade.get('mark') for grade in grades if grade.get('type', {}).get('code') == 'MID'), None),
     }
