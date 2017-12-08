@@ -27,10 +27,15 @@ class TestTeamsList:
         assert response.status_code == 200
         teams = response.json
         assert len(teams) == 4
-        assert teams[0]['code'] == 'FHW'
-        assert teams[0]['name'] == 'Field Hockey - Women'
-        assert teams[0]['totalMemberCount'] == 1
-        assert teams[1]['totalMemberCount'] == 5
+        team_codes = [team['code'] for team in teams]
+        team_names = [team['name'] for team in teams]
+        assert ['FBM', 'TNM', 'FHW', 'TNW'] == team_codes
+        assert ['Football', 'Men\'s Tennis', 'Women\'s Field Hockey', 'Women\'s Tennis'] == team_names
+        assert teams[0]['name'] == 'Football'
+        assert teams[0]['totalMemberCount'] == 3
+        assert teams[1]['totalMemberCount'] == 1
+        assert teams[2]['totalMemberCount'] == 1
+        assert teams[3]['totalMemberCount'] == 1
 
 
 class TestCohortDetail:
@@ -60,7 +65,8 @@ class TestCohortDetail:
         assert team['name'] == 'Field Hockey - Women'
         members = team['members']
         assert team['totalMemberCount'] == len(members) == 1
-        assert members[0]['name'] == 'Brigitte Lin'
+        assert members[0]['first_name'] == 'Brigitte'
+        assert members[0]['last_name'] == 'Lin'
         assert members[0]['uid'] == '61889'
         assert members[0]['avatar_url'] == 'https://calspirit.berkeley.edu/oski/images/oskibio.jpg'
 
@@ -76,12 +82,12 @@ class TestCohortDetail:
     def test_includes_team_member_current_enrollments(self, authenticated_session, client):
         """includes current-term active enrollments and analytics for team members"""
         response = client.get(TestCohortDetail.valid_api_path)
-        field_hockey_star = response.json['members'][0]
-        assert field_hockey_star['currentTerm']['termName'] == 'Fall 2017'
-        assert field_hockey_star['currentTerm']['enrolledUnits'] == 7.5
-        assert len(field_hockey_star['currentTerm']['enrollments']) == 2
-        assert field_hockey_star['currentTerm']['enrollments'][0]['displayName'] == 'BURMESE 1A'
-        assert len(field_hockey_star['currentTerm']['enrollments'][0]['canvasSites']) == 1
+        athlete = response.json['members'][0]
+        assert athlete['currentTerm']['termName'] == 'Fall 2017'
+        assert athlete['currentTerm']['enrolledUnits'] == 7.5
+        assert len(athlete['currentTerm']['enrollments']) == 2
+        assert athlete['currentTerm']['enrollments'][0]['displayName'] == 'BURMESE 1A'
+        assert len(athlete['currentTerm']['enrollments'][0]['canvasSites']) == 1
 
     def test_my_cohorts(self, authenticated_session, client):
         response = client.get('/api/cohorts/my')
@@ -140,7 +146,7 @@ class TestCohortDetail:
         """includes current-term active enrollments and analytics for custom cohort members"""
         user = AuthorizedUser.find_by_uid(test_uid)
         cohort_id = user.cohort_filters[0].id
-        response = client.get('/api/cohort/{}'.format(cohort_id))
+        response = client.get('/api/cohort/{}?orderBy=firstName'.format(cohort_id))
         assert response.status_code == 200
         athlete = response.json['members'][0]
         assert athlete['currentTerm']['termName'] == 'Fall 2017'
@@ -160,7 +166,7 @@ class TestCohortDetail:
         response = client.get('/api/intensive_cohort')
         assert response.status_code == 200
         cohort = json.loads(response.data)
-        assert cohort['id'] == 'intensive'
+        assert cohort['code'] == 'intensive'
         assert cohort['label'] == 'Intensive'
         assert cohort['totalMemberCount'] == len(cohort['members']) == 2
         assert cohort['members'][0]['uid'] == '61889'

@@ -11,10 +11,12 @@ class TestCalnet:
         athlete = TeamMember.query.filter_by(member_uid='61889').first()
         original_sid = athlete.member_csid
         athlete.member_uid = None
-        athlete.member_name = None
+        athlete.first_name = None
+        athlete.last_name = None
         subject.refresh_cohort_attributes(app, [athlete])
 
         assert athlete.member_csid == original_sid
         # For this test, assume that there are no blank attributes.
         assert athlete.member_uid
-        assert athlete.member_name
+        assert athlete.first_name == 'Oski'
+        assert athlete.last_name == 'Bear'

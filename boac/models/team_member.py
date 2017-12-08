@@ -18,7 +18,8 @@ class TeamMember(Base):
     code = db.Column(db.String(255), nullable=False)
     member_uid = db.Column(db.String(80))
     member_csid = db.Column(db.String(80), nullable=False)
-    member_name = db.Column(db.String(255))
+    first_name = db.Column(db.String(255), nullable=False)
+    last_name = db.Column(db.String(255), nullable=False)
     asc_sport_code_core = db.Column(db.String(80))
     asc_sport_code = db.Column(db.String(80))
     asc_sport = db.Column(db.String(80))
@@ -28,7 +29,8 @@ class TeamMember(Base):
 
     def __repr__(self):
         return """
-        <TeamMember {} ({}), asc_sport {} ({}), asc_sport_core {} ({}), uid={}, csid={}, name={}, in_intensive_cohort={}, updated={}, created={}>
+        <TeamMember {} ({}), asc_sport {} ({}), asc_sport_core {} ({}), uid={}, csid={}, first_name={}, last_name={},
+            in_intensive_cohort={}, updated={}, created={}>
         """.format(
             self.team_definitions.get(self.code),
             self.code,
@@ -38,7 +40,8 @@ class TeamMember(Base):
             self.asc_sport_code_core,
             self.member_uid,
             self.member_csid,
-            self.member_name,
+            self.first_name,
+            self.last_name,
             self.in_intensive_cohort,
             self.updated_at,
             self.created_at,
@@ -80,30 +83,32 @@ class TeamMember(Base):
     }
 
     @classmethod
-    def all_teams(cls, sort_by='name'):
-        results = db.session.query(cls.code, func.count(cls.member_uid)).group_by(cls.code).all()
+    def all_teams(cls):
+        results = db.session.query(cls.code,
+                                   cls.asc_sport_core,
+                                   func.count(func.distinct(cls.member_uid))).order_by(cls.asc_sport_core).group_by(cls.code,
+                                                                                                                    cls.asc_sport_core).all()
 
         def translate_row(row):
             return {
                 'code': row[0],
-                'name': cls.team_definitions.get(row[0], row[0]),
-                'totalMemberCount': row[1],
+                'name': row[1],
+                'totalMemberCount': row[2],
             }
-        teams = [translate_row(row) for row in results]
-        return sorted(teams, key=lambda team: team[sort_by])
+        return [translate_row(row) for row in results]
 
     @classmethod
-    def all_team_groups(cls, sort_by='teamGroupName'):
+    def all_team_groups(cls):
         results = db.session.query(cls.code,
                                    cls.asc_sport_code_core,
                                    cls.asc_sport_core,
                                    cls.asc_sport_code,
                                    cls.asc_sport,
-                                   func.count(cls.member_uid)).group_by(cls.asc_sport_code,
-                                                                        cls.code,
-                                                                        cls.asc_sport_code_core,
-                                                                        cls.asc_sport_core,
-                                                                        cls.asc_sport).all()
+                                   func.count(cls.member_uid)).order_by(cls.asc_sport).group_by(cls.asc_sport_code,
+                                                                                                cls.code,
+                                                                                                cls.asc_sport_code_core,
+                                                                                                cls.asc_sport_core,
+                                                                                                cls.asc_sport).all()
 
         def translate_row(row):
             return {
@@ -114,29 +119,28 @@ class TeamMember(Base):
                 'teamGroupName': row[4],
                 'totalMemberCount': row[5],
             }
-        teams = [translate_row(row) for row in results]
-        return sorted(teams, key=lambda team: team[sort_by])
+        return [translate_row(row) for row in results]
 
     @classmethod
-    def get_all_athletes(cls, sort_by=None):
-        athletes = cls.query.order_by(cls.member_name).all()
+    def get_all_athletes(cls, order_by=None):
+        athletes = cls.query.order_by(cls.first_name).all()
         athletes = [athlete.to_api_json() for athlete in athletes]
-        if sort_by and len(athletes) > 0:
-            is_valid_key = sort_by in athletes[0]
-            athletes = sorted(athletes, key=lambda athlete: athlete[sort_by]) if is_valid_key else athletes
+        if order_by and len(athletes) > 0:
+            is_valid_key = order_by in athletes[0]
+            athletes = sorted(athletes, key=lambda athlete: athlete[order_by]) if is_valid_key else athletes
         return athletes
 
     @classmethod
-    def get_intensive_cohort(cls, include_canvas_profiles=False, order_by='member_name', offset=0, limit=50):
+    def get_intensive_cohort(cls, include_canvas_profiles=False, order_by=None, offset=0, limit=50):
         athletes = cls.query.distinct(cls.asc_sport_code).filter_by(in_intensive_cohort=True).all()
         team_groups = [athlete.team_group_summary() for athlete in athletes]
-        order = cls.member_uid if order_by == 'member_uid' else cls.member_name
         query_filter = cls.in_intensive_cohort.is_(True)
-        athletes = cls.query.distinct(order).order_by(order).filter(query_filter).offset(offset).limit(limit).all()
+        o = cls.get_ordering(order_by)
+        athletes = cls.query.distinct(o, cls.member_uid).order_by(o, cls.member_uid).filter(query_filter).offset(offset).limit(limit).all()
         return cls.summarize_athletes(team_groups, athletes, include_canvas_profiles, query_filter)
 
     @classmethod
-    def get_team(cls, code, order_by='member_name', offset=0, limit=50):
+    def get_team(cls, code, order_by=None, offset=0, limit=50):
         team = None
         if cls.team_definitions.get(code):
             team = {
@@ -150,11 +154,11 @@ class TeamMember(Base):
         return team
 
     @classmethod
-    def get_athletes(cls, team_group_codes, include_member_details=False, order_by='member_name', offset=0, limit=50):
+    def get_athletes(cls, team_group_codes, include_member_details=False, order_by=None, offset=0, limit=50):
         team_groups = cls.get_team_groups(team_group_codes)
-        order = cls.member_uid if order_by == 'member_uid' else cls.member_name
         query_filter = cls.asc_sport_code.in_(team_group_codes)
-        athletes = cls.query.distinct(order).order_by(order).filter(query_filter).offset(offset).limit(limit).all()
+        o = cls.get_ordering(order_by)
+        athletes = cls.query.distinct(o, cls.member_uid).order_by(o, cls.member_uid).filter(query_filter).offset(offset).limit(limit).all()
         return cls.summarize_athletes(team_groups, athletes, include_member_details, query_filter)
 
     @classmethod
@@ -177,10 +181,15 @@ class TeamMember(Base):
         athletes = cls.query.distinct(cls.asc_sport_code).filter(query_filter).all()
         return [athlete.team_group_summary() for athlete in athletes]
 
+    @classmethod
+    def get_ordering(cls, order_by):
+        return cls.last_name if order_by == 'last_name' else cls.first_name
+
     def to_api_json(self, details=False):
         feed = {
             'id': self.id,
-            'name': self.member_name,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
             'sid': self.member_csid,
             'inAdvisorWatchGroup': self.in_intensive_cohort,
             'sportCode': self.asc_sport_code_core,

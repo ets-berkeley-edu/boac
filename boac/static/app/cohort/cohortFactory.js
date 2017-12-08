@@ -37,7 +37,7 @@
         id: id,
         offset: offset || 0,
         limit: limit || 50,
-        orderBy: orderBy || 'member_name'
+        orderBy: orderBy || 'first_name'
       };
       var apiPath = utilService.format('/api/cohort/${id}?offset=${offset}&limit=${limit}&orderBy=${orderBy}', params);
       return $http.get(apiPath);
@@ -47,7 +47,7 @@
       var params = {
         offset: offset || 0,
         limit: limit || 50,
-        orderBy: orderBy || 'member_name'
+        orderBy: orderBy || 'first_name'
       };
       var apiPath = utilService.format('/api/intensive_cohort?offset=${offset}&limit=${limit}&orderBy=${orderBy}', params);
       return $http.get(apiPath);
@@ -63,7 +63,7 @@
         code: code,
         offset: offset || 0,
         limit: limit || 50,
-        orderBy: orderBy || 'member_name'
+        orderBy: orderBy || 'first_name'
       };
       var apiPath = utilService.format('${api}?offset=${offset}&limit=${limit}&orderBy=${orderBy}', params);
       return $http.get(apiPath);
@@ -73,7 +73,7 @@
       var params = {
         offset: offset || 0,
         limit: limit || 50,
-        orderBy: orderBy || 'member_name'
+        orderBy: orderBy || 'first_name'
       };
       var apiPath = utilService.format('/api/team_groups/members?offset=${offset}&limit=${limit}&orderBy=${orderBy}', params);
       _.each(teamGroupCodes, function(teamGroupCode) {

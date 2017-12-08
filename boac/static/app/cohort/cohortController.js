@@ -25,8 +25,8 @@
     };
 
     $scope.orderBy = {
-      options: [{value: 'member_name', label: 'Name'}, {value: 'member_uid', label: 'UID'}],
-      selected: 'member_name'
+      options: [{value: 'first_name', label: 'First Name'}, {value: 'last_name', label: 'Last Name'}],
+      selected: 'first_name'
     };
 
     // More info: https://angular-ui.github.io/bootstrap/

@@ -10,11 +10,11 @@
       return $http.get('/api/user/' + uid + '/analytics');
     };
 
-    var getAllStudents = function(sortBy) {
+    var getAllStudents = function(orderBy) {
       return $http({
         url: '/api/students/all',
         method: 'GET',
-        params: sortBy ? {sortBy: sortBy} : {}
+        params: orderBy ? {orderBy: orderBy} : {}
       });
     };
 

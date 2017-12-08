@@ -53,9 +53,13 @@ def load_cohort_from_csv(app, csv_file='tmp/FilteredAscStudents.csv'):
                 ))
                 continue
             sis_sport_code = SPORT_TRANSLATIONS[asc_sport_code_core]
+            name_split = r['cName'].split(',') if 'cName' in r else ''
+            full_name = [name.strip() for name in reversed(name_split)]
+            # Construct an athlete
             record = TeamMember(
                 member_csid=r['SID'],
-                member_name=r['cName'],
+                first_name=full_name[0].strip() if len(full_name) else '',
+                last_name=full_name[1].strip() if len(full_name) > 1 else '',
                 code=sis_sport_code,
                 asc_sport_code=r['SportCode'],
                 asc_sport=r['Sport'],
