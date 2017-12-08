@@ -48,8 +48,10 @@
       var course = _.find(courseSites, {canvasCourseId: courseId});
 
       setTimeout(function() {
-        // Render the box plot using highcharts
-        // @see http://api.highcharts.com/highcharts
+        /**
+         * Render the box plot using highcharts
+         * @see http://api.highcharts.com/highcharts
+         */
         return new Highcharts.Chart({
           chart: {
             backgroundColor: 'transparent',
@@ -83,8 +85,7 @@
           tooltip: {
             hideDelay: 100,
             positioner: function(labelWidth, labelHeight) {
-              // Ensure that the tooltip does not overlap with the box plot to
-              // allow access hover access to 'my points'
+              // Ensure that the tooltip does not overlap with the box plot to allow access hover access to 'my points'
               return {
                 x: 305,
                 y: 15 - labelHeight / 2
@@ -94,13 +95,11 @@
             style: {
               color: '#FFF'
             },
-            // Ensure the tooltip is rendered as HTML to allow it
-            // to overflow the box plot container
+            // Ensure the tooltip is rendered as HTML to allow it to overflow the box plot container
             useHTML: true
           },
 
-          // Ensure that no x-axis labels or lines are shown and
-          // that the box plot takes up the maximum amount of space
+          // Ensure that no x-axis labels or lines are shown and that the box plot takes up the maximum amount of space
           xAxis: {
             endOnTick: false,
             labels: {
@@ -110,9 +109,7 @@
             startOnTick: false,
             tickLength: 0
           },
-
-          // Ensure that no y-axis labels or lines are shown and
-          // that the box plot takes up the maximum amount of space
+          // Ensure that no y-axis labels or lines are shown and that the box plot takes up the maximum amount of space
           yAxis: {
             endOnTick: false,
             gridLineWidth: 0,

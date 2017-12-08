@@ -9,15 +9,12 @@ from flask_login import current_user, login_required
 @app.route('/api/team/<code>')
 @login_required
 def get_team(code):
-    order_by = get_param(request.args, 'orderBy', 'member_name')
+    order_by = get_param(request.args, 'orderBy', None)
     offset = get_param(request.args, 'offset', 0)
     limit = get_param(request.args, 'limit', 50)
     team = TeamMember.get_team(code, order_by, offset, limit)
     if team is None:
         raise ResourceNotFoundError('No team found with code ' + code)
-    # Translate requested order_by to naming convention of TeamMember
-    sort_by = 'uid' if order_by == 'member_uid' else 'name'
-    team['members'].sort(key=lambda member: member[sort_by])
     return tolerant_jsonify(team)
 
 
@@ -37,7 +34,7 @@ def get_all_team_groups():
 @login_required
 def get_team_groups_members():
     team_group_codes = request.args.getlist('teamGroupCodes')
-    order_by = get_param(request.args, 'orderBy', 'member_name')
+    order_by = get_param(request.args, 'orderBy', None)
     offset = get_param(request.args, 'offset', 0)
     limit = get_param(request.args, 'limit', 50)
     return jsonify(TeamMember.get_athletes(team_group_codes, True, order_by, offset, limit))
@@ -64,7 +61,7 @@ def my_cohorts():
 @app.route('/api/intensive_cohort')
 @login_required
 def get_intensive_cohort():
-    order_by = get_param(request.args, 'orderBy', 'member_name')
+    order_by = get_param(request.args, 'orderBy', None)
     offset = get_param(request.args, 'offset', 0)
     limit = get_param(request.args, 'limit', 50)
     return tolerant_jsonify(CohortFilter.get_intensive_cohort(order_by=order_by, offset=offset, limit=limit))
@@ -73,7 +70,7 @@ def get_intensive_cohort():
 @app.route('/api/cohort/<cohort_id>')
 @login_required
 def get_cohort(cohort_id):
-    order_by = get_param(request.args, 'orderBy', 'member_name')
+    order_by = get_param(request.args, 'orderBy', None)
     offset = get_param(request.args, 'offset', 0)
     limit = get_param(request.args, 'limit', 50)
     cohort = CohortFilter.find_by_id(int(cohort_id), order_by, int(offset), int(limit))

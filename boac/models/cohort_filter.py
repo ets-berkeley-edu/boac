@@ -63,9 +63,9 @@ class CohortFilter(Base, UserMixin):
         return [construct_cohort(cf) for cf in CohortFilter.query.all()]
 
     @classmethod
-    def get_intensive_cohort(cls, order_by='member_name', offset=0, limit=50):
+    def get_intensive_cohort(cls, order_by=None, offset=0, limit=50):
         cohort = {
-            'id': 'intensive',
+            'code': 'intensive',
             'label': 'Intensive',
             'owners': None,
         }
@@ -78,7 +78,7 @@ class CohortFilter(Base, UserMixin):
         return [construct_cohort(cohort_filter) for cohort_filter in filters]
 
     @classmethod
-    def find_by_id(cls, cohort_id, order_by='member_name', offset=0, limit=50):
+    def find_by_id(cls, cohort_id, order_by=None, offset=0, limit=50):
         cf = CohortFilter.query.filter_by(id=cohort_id).first()
         return cf and construct_cohort(cf, True, order_by, offset, limit)
 
@@ -89,7 +89,7 @@ class CohortFilter(Base, UserMixin):
         db.session.commit()
 
 
-def construct_cohort(cf, include_member_details=False, order_by='member_name', offset=0, limit=50):
+def construct_cohort(cf, include_member_details=False, order_by=None, offset=0, limit=50):
     criteria = cf.filter_criteria if isinstance(cf.filter_criteria, dict) else json.loads(cf.filter_criteria)
     team_group_codes = criteria['team_group_codes'] if 'team_group_codes' in criteria else None
     cohort = {

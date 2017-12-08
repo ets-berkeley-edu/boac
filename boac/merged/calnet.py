@@ -23,11 +23,14 @@ def refresh_cohort_attributes(app, cohorts=None):
     for attrs in all_attrs:
         # Since we searched LDAP by CSID, we can be fairly sure that the results have CSIDs.
         csid = attrs['csid']
+        name_split = attrs['sortable_name'].split(',') if 'sortable_name' in attrs else ''
+        full_name = [name.strip() for name in reversed(name_split)]
         for m in member_map[csid]:
             m.member_uid = attrs['uid']
             # A manually-entered ASC name may be more nicely formatted than a student's CalNet default.
             # For now, don't overwrite it.
-            m.member_name = m.member_name or attrs['sortable_name']
+            m.first_name = m.first_name or (full_name[0] if len(full_name) else '')
+            m.last_name = m.last_name or (full_name[1] if len(full_name) > 1 else '')
     return members
 
 
