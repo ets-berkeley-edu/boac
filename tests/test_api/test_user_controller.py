@@ -80,8 +80,8 @@ class TestUserAnalytics:
         assert authenticated_response.json['enrollmentTerms'][0]['enrolledUnits'] == 7.5
         assert len(authenticated_response.json['enrollmentTerms'][0]['enrollments']) == 3
         assert authenticated_response.json['enrollmentTerms'][1]['termName'] == 'Spring 2017'
-        assert authenticated_response.json['enrollmentTerms'][1]['enrolledUnits'] == 2
-        assert len(authenticated_response.json['enrollmentTerms'][1]['enrollments']) == 1
+        assert authenticated_response.json['enrollmentTerms'][1]['enrolledUnits'] == 10
+        assert len(authenticated_response.json['enrollmentTerms'][1]['enrollments']) == 3
 
     def test_user_analytics_term_cutoff(self, authenticated_response):
         """ignores terms before the configured cutoff"""
@@ -100,6 +100,19 @@ class TestUserAnalytics:
         assert len(enrollment_with_multiple_sites['canvasSites']) == 2
         assert enrollment_with_multiple_sites['canvasSites'][0]['courseName'] == 'Radioactive Waste Management'
         assert enrollment_with_multiple_sites['canvasSites'][1]['courseName'] == 'Optional Friday Night Radioactivity Group'
+
+    def test_multiple_primary_section_enrollments(self, authenticated_response):
+        """disambiguates multiple primary sections under a single course display name"""
+        classics_first = TestUserAnalytics.get_course_for_code(authenticated_response, '2172', 'CLASSIC 130 LEC 001')
+        classics_second = TestUserAnalytics.get_course_for_code(authenticated_response, '2172', 'CLASSIC 130 LEC 002')
+        assert len(classics_first['sections']) == 1
+        assert classics_first['sections'][0]['units'] == 4
+        assert classics_first['sections'][0]['gradingBasis'] == 'EPN'
+        assert classics_first['sections'][0]['grade'] == 'P'
+        assert len(classics_second['sections']) == 1
+        assert classics_first['sections'][0]['units'] == 4
+        assert classics_second['sections'][0]['gradingBasis'] == 'GRD'
+        assert classics_second['sections'][0]['grade'] == 'B-'
 
     def test_athletic_enrollments_removed(self, authenticated_response):
         """removes athletic enrollments"""

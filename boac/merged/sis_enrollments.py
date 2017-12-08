@@ -43,18 +43,39 @@ def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name, includ
             section_id = enrollment.get('classSection').get('id')
             if section_id in term_section_ids:
                 continue
-            else:
-                term_section_ids[section_id] = True
-            # SIS class id (as distinct from section id or course id) is not surfaced by the SIS enrollments API, and
-            # the class display name may not remain consistent across sections. Our best unique identifier is the course
-            # display name.
+
+            term_section_ids[section_id] = True
+            section_feed = api_util.sis_enrollment_section_feed(enrollment)
+
+            # The SIS enrollments API gives us no better unique identifier than the course display name.
             class_name = enrollment.get('classSection', {}).get('class', {}).get('course', {}).get('displayName')
+            # If we haven't seen this class name before, we create a new feed entry for it.
             if class_name not in enrollments_by_class:
                 enrollments_by_class[class_name] = api_util.sis_enrollment_class_feed(enrollment)
-            section_feed = api_util.sis_enrollment_section_feed(enrollment)
+            # If we have seen this class name before, in most cases we'll just append the new section feed to the
+            # existing class feed. However, because multiple concurrent primary-section enrollments aren't distinguished by
+            # class name, we need to do an extra check for that case.
+            # TODO In the rare case of multiple-primary enrollments with associated secondary sections, secondary section
+            # handling will be unpredictable.
+            else:
+                if is_primary_section(section_feed):
+                    existing_primary = next((sec for sec in enrollments_by_class[class_name]['sections'] if is_primary_section(sec)), None)
+                    # If we do indeed have two primary sections under the same class name, disambiguate them.
+                    if existing_primary:
+                        # First, revise the existing class feed to include section number.
+                        disambiguated_class_name = '{} {} {}'.format(class_name, existing_primary['component'], existing_primary['sectionNumber'])
+                        enrollments_by_class[class_name]['displayName'] = disambiguated_class_name
+                        enrollments_by_class[disambiguated_class_name] = enrollments_by_class[class_name]
+                        del enrollments_by_class[class_name]
+                        # Now create a new class feed, also with section number, for our new primary section.
+                        class_name = '{} {} {}'.format(class_name, section_feed['component'], section_feed['sectionNumber'])
+                        enrollments_by_class[class_name] = api_util.sis_enrollment_class_feed(enrollment)
+                        enrollments_by_class[class_name]['displayName'] = class_name
+
             enrollments_by_class[class_name]['sections'].append(section_feed)
-            if section_feed['units'] and section_feed['enrollmentStatus'] == 'E':
+            if is_primary_section(section_feed):
                 enrolled_units += section_feed['units']
+
         enrollments_feed = enrollments_by_class.values()
         term_feed = {
             'termId': term_id,
@@ -75,6 +96,10 @@ def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name, includ
         remove_dropped_enrollments(term_feed)
 
     return term_feed
+
+
+def is_primary_section(section_feed):
+    return section_feed['units'] > 0 and section_feed['enrollmentStatus'] == 'E'
 
 
 def merge_canvas_course_site(term_feed, site):
@@ -107,7 +132,7 @@ def merge_canvas_course_site(term_feed, site):
 
 def remove_athletic_enrollments(term_feed):
     def is_athletic_enrollment(enrollment):
-        return (enrollment['displayName'] == 'PHYSED 11') or (enrollment['displayName'] == 'PHYSED 12')
+        return (enrollment['displayName'].startswith('PHYSED 11')) or (enrollment['displayName'].startswith('PHYSED 12'))
     term_feed['enrollments'] = [enr for enr in term_feed['enrollments'] if not is_athletic_enrollment(enr)]
 
 
