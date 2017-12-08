@@ -223,21 +223,19 @@ class TeamMember(Base):
 
         if canvas_profile:
             feed['avatar_url'] = canvas_profile['avatar_url']
-            student_courses = canvas.get_student_courses(uid)
+            student_courses = canvas.get_student_courses(uid) or []
             current_term = app.config.get('CANVAS_CURRENT_ENROLLMENT_TERM')
-            if student_courses:
-                student_courses_in_current_term = [course for course in student_courses if
-                                                   course.get('term', {}).get('name') == current_term]
-                canvas_courses = canvas_courses_api_feed(student_courses_in_current_term)
-                if canvas_courses:
-                    feed['analytics'] = mean_course_analytics_for_user(canvas_courses,
-                                                                       canvas_profile['id'],
-                                                                       current_term)
-                    # The call to mean_course_analytics_for_user, above, has enriched the canvas_courses
-                    # list with per-course statistics. Next, associate those course sites with enrollments.
-                    feed['currentTerm'] = merge_sis_enrollments_for_term(canvas_courses,
-                                                                         feed['sid'],
-                                                                         current_term)
+            student_courses_in_current_term = [course for course in student_courses if
+                                               course.get('term', {}).get('name') == current_term]
+            canvas_courses = canvas_courses_api_feed(student_courses_in_current_term)
+            feed['analytics'] = mean_course_analytics_for_user(canvas_courses,
+                                                               canvas_profile['id'],
+                                                               current_term)
+            # The call to mean_course_analytics_for_user, above, has enriched the canvas_courses
+            # list with per-course statistics. Next, associate those course sites with enrollments.
+            feed['currentTerm'] = merge_sis_enrollments_for_term(canvas_courses,
+                                                                 feed['sid'],
+                                                                 current_term)
 
     def team_group_summary(self):
         return {
