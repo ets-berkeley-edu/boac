@@ -76,7 +76,7 @@ def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name, includ
             if is_primary_section(section_feed):
                 enrolled_units += section_feed['units']
 
-        enrollments_feed = enrollments_by_class.values()
+        enrollments_feed = sorted(enrollments_by_class.values(), key=lambda x: x['displayName'])
         term_feed = {
             'termId': term_id,
             'termName': term_name,
