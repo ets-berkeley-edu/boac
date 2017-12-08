@@ -188,7 +188,8 @@ class TestUserAnalytics:
         assert burmese['sections'][0]['enrollmentStatus'] == 'E'
         assert burmese['sections'][0]['units'] == 4
         assert burmese['sections'][0]['gradingBasis'] == 'GRD'
-        assert burmese['sections'][0]['grade'] == 'B+'
+        assert burmese['sections'][0]['midtermGrade'] == 'D+'
+        assert not burmese['sections'][0]['grade']
 
         medieval = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'MED ST 205')
         assert medieval['displayName'] == 'MED ST 205'

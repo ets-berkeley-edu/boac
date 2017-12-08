@@ -20,7 +20,8 @@ class TestSisEnrollmentsApi:
         assert enrollments[0]['enrollmentStatus']['status']['code'] == 'E'
         assert enrollments[0]['enrolledUnits']['taken'] == 4
         assert enrollments[0]['gradingBasis']['code'] == 'GRD'
-        assert enrollments[0]['grades'][0]['mark'] == 'B+'
+        assert enrollments[0]['grades'][0]['type']['code'] == 'MID'
+        assert enrollments[0]['grades'][0]['mark'] == 'D+'
 
         assert enrollments[1]['classSection']['class']['course']['displayName'] == 'MED ST 205'
         assert enrollments[1]['classSection']['number'] == '001'
@@ -67,7 +68,8 @@ class TestSisEnrollmentsApi:
         assert enrollments[0]['enrollmentStatus']['status']['code'] == 'E'
         assert enrollments[0]['enrolledUnits']['taken'] == 4
         assert enrollments[0]['gradingBasis']['code'] == 'GRD'
-        assert enrollments[0]['grades'][0]['mark'] == 'B+'
+        assert enrollments[0]['grades'][0]['type']['code'] == 'MID'
+        assert enrollments[0]['grades'][0]['mark'] == 'D+'
 
         assert enrollments[1]['classSection']['class']['course']['displayName'] == 'MED ST 205'
         assert enrollments[1]['classSection']['number'] == '001'
