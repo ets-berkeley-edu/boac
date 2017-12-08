@@ -114,6 +114,13 @@ class TestUserAnalytics:
         assert classics_second['sections'][0]['gradingBasis'] == 'GRD'
         assert classics_second['sections'][0]['grade'] == 'B-'
 
+    def test_enrollments_sorted(self, authenticated_response):
+        """sorts enrollments by course display name"""
+        spring_2017_enrollments = authenticated_response.json['enrollmentTerms'][1]['enrollments']
+        assert(spring_2017_enrollments[0]['displayName'] == 'CLASSIC 130 LEC 001')
+        assert(spring_2017_enrollments[1]['displayName'] == 'CLASSIC 130 LEC 002')
+        assert(spring_2017_enrollments[2]['displayName'] == 'MUSIC 41C')
+
     def test_athletic_enrollments_removed(self, authenticated_response):
         """removes athletic enrollments"""
         for enrollment in authenticated_response.json['enrollmentTerms'][0]['enrollments']:
