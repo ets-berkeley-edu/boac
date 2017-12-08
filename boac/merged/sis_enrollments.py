@@ -45,9 +45,10 @@ def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name, includ
                 continue
             else:
                 term_section_ids[section_id] = True
-            # SIS class id (as distinct from section id or course id) is not surfaced by the SIS enrollments API. Our best
-            # unique identifier is the class display name.
-            class_name = enrollment.get('classSection', {}).get('class', {}).get('displayName')
+            # SIS class id (as distinct from section id or course id) is not surfaced by the SIS enrollments API, and
+            # the class display name may not remain consistent across sections. Our best unique identifier is the course
+            # display name.
+            class_name = enrollment.get('classSection', {}).get('class', {}).get('course', {}).get('displayName')
             if class_name not in enrollments_by_class:
                 enrollments_by_class[class_name] = api_util.sis_enrollment_class_feed(enrollment)
             section_feed = api_util.sis_enrollment_section_feed(enrollment)
