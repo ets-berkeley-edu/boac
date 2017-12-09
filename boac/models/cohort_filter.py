@@ -80,7 +80,7 @@ class CohortFilter(Base, UserMixin):
     @classmethod
     def find_by_id(cls, cohort_id, order_by=None, offset=0, limit=50):
         cf = CohortFilter.query.filter_by(id=cohort_id).first()
-        return cf and construct_cohort(cf, True, order_by, offset, limit)
+        return cf and construct_cohort(cf, order_by, offset, limit)
 
     @classmethod
     def delete(cls, cohort_id):
@@ -89,7 +89,7 @@ class CohortFilter(Base, UserMixin):
         db.session.commit()
 
 
-def construct_cohort(cf, include_member_details=False, order_by=None, offset=0, limit=50):
+def construct_cohort(cf, order_by=None, offset=0, limit=50):
     criteria = cf.filter_criteria if isinstance(cf.filter_criteria, dict) else json.loads(cf.filter_criteria)
     team_group_codes = criteria['team_group_codes'] if 'team_group_codes' in criteria else None
     cohort = {
@@ -98,5 +98,5 @@ def construct_cohort(cf, include_member_details=False, order_by=None, offset=0, 
         'owners': [user.uid for user in cf.owners],
     }
     if limit > 0:
-        cohort.update(TeamMember.get_athletes(team_group_codes, include_member_details, order_by, offset, limit))
+        cohort.update(TeamMember.get_athletes(team_group_codes, order_by, offset, limit))
     return cohort

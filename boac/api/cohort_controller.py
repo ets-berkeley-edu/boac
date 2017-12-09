@@ -1,5 +1,6 @@
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.lib.http import tolerant_jsonify
+from boac.merged import member_details
 from boac.models.cohort_filter import CohortFilter
 from boac.models.team_member import TeamMember
 from flask import current_app as app, jsonify, request
@@ -15,6 +16,7 @@ def get_team(code):
     team = TeamMember.get_team(code, order_by, offset, limit)
     if team is None:
         raise ResourceNotFoundError('No team found with code ' + code)
+    member_details.merge_all(team['members'])
     return tolerant_jsonify(team)
 
 
@@ -37,7 +39,9 @@ def get_team_groups_members():
     order_by = get_param(request.args, 'orderBy', None)
     offset = get_param(request.args, 'offset', 0)
     limit = get_param(request.args, 'limit', 50)
-    return jsonify(TeamMember.get_athletes(team_group_codes, True, order_by, offset, limit))
+    members = TeamMember.get_athletes(team_group_codes, order_by, offset, limit)
+    member_details.merge_all(members['members'])
+    return jsonify(members)
 
 
 @app.route('/api/cohorts/all')
@@ -76,6 +80,7 @@ def get_cohort(cohort_id):
     cohort = CohortFilter.find_by_id(int(cohort_id), order_by, int(offset), int(limit))
     if not cohort:
         raise ResourceNotFoundError('No cohort found with identifier: {}'.format(cohort_id))
+    member_details.merge_all(cohort['members'])
     return tolerant_jsonify(cohort)
 
 
