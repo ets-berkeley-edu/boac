@@ -1,13 +1,7 @@
 """Team membership"""
 
 from boac import db
-from boac.api.util import canvas_courses_api_feed
-from boac.externals import canvas
-from boac.lib.analytics import mean_course_analytics_for_user
-from boac.merged.sis_enrollments import merge_sis_enrollments_for_term
-from boac.merged.sis_profile import merge_sis_profile
 from boac.models.base import Base
-from flask import current_app as app
 from sqlalchemy import func, UniqueConstraint
 
 
@@ -131,13 +125,13 @@ class TeamMember(Base):
         return athletes
 
     @classmethod
-    def get_intensive_cohort(cls, include_canvas_profiles=False, order_by=None, offset=0, limit=50):
+    def get_intensive_cohort(cls, order_by=None, offset=0, limit=50):
         athletes = cls.query.distinct(cls.asc_sport_code).filter_by(in_intensive_cohort=True).all()
         team_groups = [athlete.team_group_summary() for athlete in athletes]
         query_filter = cls.in_intensive_cohort.is_(True)
         o = cls.get_ordering(order_by)
         athletes = cls.query.distinct(o, cls.member_uid).order_by(o, cls.member_uid).filter(query_filter).offset(offset).limit(limit).all()
-        return cls.summarize_athletes(team_groups, athletes, include_canvas_profiles, query_filter)
+        return cls.summarize_athletes(team_groups, athletes, query_filter)
 
     @classmethod
     def get_team(cls, code, order_by=None, offset=0, limit=50):
@@ -150,26 +144,26 @@ class TeamMember(Base):
             results = cls.query.distinct(cls.asc_sport_code).filter_by(code=code).all()
             team_group_codes = [row.asc_sport_code for row in results]
             # Add athletes list to the team
-            team.update(cls.get_athletes(team_group_codes, True, order_by, offset, limit))
+            team.update(cls.get_athletes(team_group_codes, order_by, offset, limit))
         return team
 
     @classmethod
-    def get_athletes(cls, team_group_codes, include_member_details=False, order_by=None, offset=0, limit=50):
+    def get_athletes(cls, team_group_codes, order_by=None, offset=0, limit=50):
         team_groups = cls.get_team_groups(team_group_codes)
         query_filter = cls.asc_sport_code.in_(team_group_codes)
         o = cls.get_ordering(order_by)
         athletes = cls.query.distinct(o, cls.member_uid).order_by(o, cls.member_uid).filter(query_filter).offset(offset).limit(limit).all()
-        return cls.summarize_athletes(team_groups, athletes, include_member_details, query_filter)
+        return cls.summarize_athletes(team_groups, athletes, query_filter)
 
     @classmethod
-    def summarize_athletes(cls, team_groups, athletes, include_member_details, query_filter):
+    def summarize_athletes(cls, team_groups, athletes, query_filter):
         summary = {
             'members': [],
             'teamGroups': team_groups,
             'totalMemberCount': 0,
         }
         for athlete in athletes:
-            member = athlete.to_api_json(details=include_member_details)
+            member = athlete.to_api_json()
             summary['members'].append(member)
 
         summary['totalMemberCount'] = cls.query.distinct(cls.member_uid).filter(query_filter).count()
@@ -199,43 +193,7 @@ class TeamMember(Base):
             'teamGroupName': self.asc_sport,
             'uid': self.member_uid,
         }
-        if details:
-            self.merge_member_details(feed)
         return feed
-
-    @staticmethod
-    def merge_member_details(feed):
-        sis_profile = merge_sis_profile(feed['sid'])
-        if sis_profile:
-            feed['cumulativeGPA'] = sis_profile.get('cumulativeGPA')
-            feed['cumulativeUnits'] = sis_profile.get('cumulativeUnits')
-            feed['level'] = sis_profile.get('level', {}).get('description')
-            feed['majors'] = [plan.get('description') for plan in sis_profile.get('plans', [])]
-
-        uid = feed['uid']
-        cache_key = 'user/{uid}'.format(uid=uid)
-        canvas_profile = app.cache.get(cache_key) if app.cache else None
-        if not canvas_profile:
-            canvas_profile = canvas.get_user_for_uid(uid)
-            # Cache Canvas profiles
-            if app.cache and canvas_profile:
-                app.cache.set(cache_key, canvas_profile)
-
-        if canvas_profile:
-            feed['avatar_url'] = canvas_profile['avatar_url']
-            student_courses = canvas.get_student_courses(uid) or []
-            current_term = app.config.get('CANVAS_CURRENT_ENROLLMENT_TERM')
-            student_courses_in_current_term = [course for course in student_courses if
-                                               course.get('term', {}).get('name') == current_term]
-            canvas_courses = canvas_courses_api_feed(student_courses_in_current_term)
-            feed['analytics'] = mean_course_analytics_for_user(canvas_courses,
-                                                               canvas_profile['id'],
-                                                               current_term)
-            # The call to mean_course_analytics_for_user, above, has enriched the canvas_courses
-            # list with per-course statistics. Next, associate those course sites with enrollments.
-            feed['currentTerm'] = merge_sis_enrollments_for_term(canvas_courses,
-                                                                 feed['sid'],
-                                                                 current_term)
 
     def team_group_summary(self):
         return {
