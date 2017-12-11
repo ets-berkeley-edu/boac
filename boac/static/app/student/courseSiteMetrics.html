@@ -9,6 +9,15 @@
     </div>
   </li>
   <li>
+    Total score:
+    <span data-ng-bind="canvasSite.analytics.courseCurrentScore.summary"></span>
+    <div class="boxplot-container" data-ng-if="canvasSite.analytics.courseCurrentScore.boxPlottable">
+      <div id="boxplot-{{canvasSite.canvasCourseId}}-courseCurrentScore"
+           class="boxplot"
+           data-ng-init="drawBoxplot(termId, courseName, canvasSite.canvasCourseId, 'courseCurrentScore')"></div>
+    </div>
+  </li>
+  <li>
     Page views:
     <span data-ng-bind="canvasSite.analytics.pageViews.summary"></span>
     <div class="boxplot-container" data-ng-if="canvasSite.analytics.pageViews.boxPlottable">

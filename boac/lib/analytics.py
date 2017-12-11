@@ -13,9 +13,12 @@ def merge_analytics_for_user(user_courses, canvas_user_id, term_name):
             canvas_course_id = course['canvasCourseId']
             student_summaries = canvas.get_student_summaries(canvas_course_id, term_id)
             if not student_summaries:
-                course['analytics'] = {'error': 'Unable to retrieve analytics'}
+                analytics = {'error': 'Unable to retrieve analytics'}
             else:
-                course['analytics'] = analytics_from_summary_feed(student_summaries, canvas_user_id, canvas_course_id)
+                analytics = analytics_from_summary_feed(student_summaries, canvas_user_id, canvas_course_id)
+                enrollments = canvas.get_course_enrollments(canvas_course_id, term_id)
+                analytics.update(analytics_from_canvas_course_enrollments(enrollments, canvas_user_id))
+            course['analytics'] = analytics
 
 
 def mean_course_analytics_for_user(user_courses, canvas_user_id, term_name):

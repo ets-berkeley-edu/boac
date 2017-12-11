@@ -72,10 +72,10 @@ def load_canvas_scores(sis_term_id=None):
                         continue
                     success_count += 1
 
-    print('Complete. Fetched {} external feeds.'.format(success_count))
+    app.logger.warn('Complete. Fetched {} external feeds.'.format(success_count))
     if len(failures):
-        print('Failed to fetch {} feeds:'.format(len(failures)))
-        print(failures)
+        app.logger.warn('Failed to fetch {} feeds:'.format(len(failures)))
+        app.logger.warn(failures)
 
 
 def load_sis_externals(sis_term_id, csid):
@@ -121,10 +121,10 @@ def load_current_term():
         success_count += s
         failures += f
 
-    print('Complete. Fetched {} external feeds.'.format(success_count))
+    app.logger.warn('Complete. Fetched {} external feeds.'.format(success_count))
     if len(failures):
-        print('Failed to fetch {} feeds:'.format(len(failures)))
-        print(failures)
+        app.logger.warn('Failed to fetch {} feeds:'.format(len(failures)))
+        app.logger.warn(failures)
 
 
 def refresh_current_term():
