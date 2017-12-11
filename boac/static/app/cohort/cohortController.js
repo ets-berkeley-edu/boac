@@ -8,6 +8,7 @@
     cohortFactory,
     cohortService,
     googleAnalyticsService,
+    $location,
     $rootScope,
     $scope,
     $state,
@@ -108,12 +109,14 @@
       var goToUserPage = function(uid) {
         $state.go('user', {uid: uid});
       };
+      var yAxisMeasure = $location.search().yAxis || 'analytics.assignmentsOnTime';
+
       // Render graph
       $scope.matrix = {
         membersWithData: partitionedMembers[0],
         membersWithoutData: partitionedMembers[1]
       };
-      cohortService.drawScatterplot($scope.matrix.membersWithData, goToUserPage);
+      cohortService.drawScatterplot($scope.matrix.membersWithData, goToUserPage, yAxisMeasure);
     };
 
     var matrixViewRefresh = function() {

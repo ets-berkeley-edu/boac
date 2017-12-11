@@ -22,7 +22,7 @@ def merge_analytics_for_user(user_courses, canvas_user_id, term_id):
 def mean_course_analytics_for_user(user_courses, canvas_user_id, term_id):
     merge_analytics_for_user(user_courses, canvas_user_id, term_id)
     meanValues = {}
-    for metric in ['assignmentsOnTime', 'pageViews', 'participations']:
+    for metric in ['assignmentsOnTime', 'pageViews', 'participations', 'courseCurrentScore']:
         percentiles = []
         for course in user_courses:
             if course['analytics'].get(metric):
