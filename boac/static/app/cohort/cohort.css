@@ -88,6 +88,15 @@
   margin-left: 20px;
 }
 
+.cohort-member-course-activity-row {
+  display: flex;
+}
+
+.cohort-member-course-activity-wrapper {
+  flex: 1;
+  margin-left: 0;
+}
+
 .cohort-member-gpa {
   font-size: 13px;
   font-weight: bold;

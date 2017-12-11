@@ -9,7 +9,8 @@ svg {
 }
 
 .boxplot-container {
-  width: 300px;
+  align-items: flex-end;
+  display: flex;
 }
 
 .boxplot-container .highcharts-tooltip {
@@ -27,4 +28,18 @@ svg {
   position: relative !important;
   top: 0 !important;
   left: 0 !important;
+  width: auto !important;
+}
+
+.boxplot-minified {
+  height: 18px;
+  width: 75px;
+}
+
+.boxplot-minified .highcharts-container {
+  overflow: visible !important;
+}
+
+.boxplot-minified .highcharts-tooltip {
+  width: 250px;
 }

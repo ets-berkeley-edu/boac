@@ -2,7 +2,17 @@
 
   'use strict';
 
-  angular.module('boac').controller('CohortController', function(authService, cohortFactory, cohortService, googleAnalyticsService, $rootScope, $scope, $state, $stateParams) {
+  angular.module('boac').controller('CohortController', function(
+    authService,
+    boxplotService,
+    cohortFactory,
+    cohortService,
+    googleAnalyticsService,
+    $rootScope,
+    $scope,
+    $state,
+    $stateParams
+  ) {
 
     $scope.isLoading = true;
     $scope.selectedTab = 'list';
@@ -196,6 +206,11 @@
         listViewRefresh();
       }
     });
+
+    $scope.drawActivityBoxplot = function(student, courseSite) {
+      var elementId = 'boxplot-' + courseSite.canvasCourseId + '-' + student.uid + '-activity';
+      boxplotService.drawBoxplotMinified(elementId, courseSite.analytics.pageViews);
+    };
 
     var init = function(cohortCode) {
       var code = cohortCode || $stateParams.code;
