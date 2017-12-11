@@ -2,6 +2,7 @@ from boac.api import errors
 import boac.api.util as api_util
 from boac.externals import canvas
 from boac.lib.analytics import merge_analytics_for_user
+from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.http import tolerant_jsonify
 from boac.merged.sis_enrollments import merge_sis_enrollments
 from boac.merged.sis_profile import merge_sis_profile
@@ -56,9 +57,10 @@ def user_analytics(uid):
         enrollment_terms = []
 
     for term in enrollment_terms:
+        term_id = sis_term_id_for_name(term['termName'])
         for enrollment in term['enrollments']:
-            merge_analytics_for_user(enrollment['canvasSites'], canvas_id, term['termName'])
-        merge_analytics_for_user(term['unmatchedCanvasSites'], canvas_id, term['termName'])
+            merge_analytics_for_user(enrollment['canvasSites'], canvas_id, term_id)
+        merge_analytics_for_user(term['unmatchedCanvasSites'], canvas_id, term_id)
 
     return tolerant_jsonify({
         'uid': uid,
