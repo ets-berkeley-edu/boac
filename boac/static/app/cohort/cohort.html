@@ -152,9 +152,24 @@
             <div class="cohort-member-gpa" data-ng-bind="row.cumulativeUnits || '--'"></div>
             <div class="cohort-member-text">Total Units</div>
           </div>
-          <div class="cohort-member-column">
-            <div class="cohort-member-text">CLASSES</div>
-            <div data-ng-bind="enrollment.displayName" data-ng-repeat="enrollment in row.currentTerm.enrollments"></div>
+          <div class="cohort-member-course-activity-wrapper">
+            <div class="cohort-member-course-activity-row">
+              <div class="cohort-member-column cohort-member-text">CLASSES</div>
+              <div class="cohort-member-column cohort-member-text">ACTIVITY</div>
+            </div>
+            <div class="cohort-member-course-activity-row" data-ng-repeat="enrollment in row.currentTerm.enrollments">
+              <div class="cohort-member-column">
+                <div data-ng-bind="enrollment.displayName"></div>
+              </div>
+              <div class="cohort-member-column">
+                <div class="boxplot-container" data-ng-repeat="canvasSite in enrollment.canvasSites">
+                  <div id="boxplot-{{canvasSite.canvasCourseId}}-{{row.uid}}-activity"
+                       class="boxplot-minified"
+                       data-ng-init="drawActivityBoxplot(row, canvasSite)">
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </a>
       </ul>
