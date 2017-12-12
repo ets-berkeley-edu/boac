@@ -77,6 +77,8 @@ def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name, includ
                 enrolled_units += section_feed['units']
 
         enrollments_feed = sorted(enrollments_by_class.values(), key=lambda x: x['displayName'])
+        sort_sections(enrollments_feed)
+
         term_feed = {
             'termId': term_id,
             'termName': term_name,
@@ -151,3 +153,21 @@ def sort_canvas_course_sites(term_feed):
     for enrollment in term_feed['enrollments']:
         enrollment['canvasSites'] = sorted(enrollment['canvasSites'], key=lambda x: x['canvasCourseId'])
     term_feed['unmatchedCanvasSites'] = sorted(term_feed['unmatchedCanvasSites'], key=lambda x: x['canvasCourseId'])
+
+
+def sort_sections(enrollments_feed):
+    # Sort by 1) enrollment status, 2) units descending, 3) section number.
+    def section_key(sec):
+        enrollment_status_keys = {
+            'E': 0,
+            'W': 1,
+            'D': 2,
+        }
+        units_key = -1 * sec['units']
+        return (
+            enrollment_status_keys.get(sec['enrollmentStatus']),
+            units_key,
+            sec['sectionNumber'],
+        )
+    for enrollment in enrollments_feed:
+        enrollment['sections'].sort(key=section_key)
