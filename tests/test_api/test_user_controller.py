@@ -185,7 +185,7 @@ class TestUserAnalytics:
         assert response.json['message'] == 'No Canvas profile found for user'
 
     def test_sis_enrollment_merge(self, authenticated_response):
-        """merges SIS enrollment data"""
+        """merges sorted SIS enrollment data"""
         burmese = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'BURMESE 1A')
         assert burmese['displayName'] == 'BURMESE 1A'
         assert burmese['title'] == 'Introductory Burmese'
@@ -212,7 +212,7 @@ class TestUserAnalytics:
         nuclear = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'NUC ENG 124')
         assert nuclear['displayName'] == 'NUC ENG 124'
         assert nuclear['title'] == 'Radioactive Waste Management'
-        assert len(nuclear['sections']) == 2
+        assert len(nuclear['sections']) == 3
         assert nuclear['sections'][0]['ccn'] == 90300
         assert nuclear['sections'][0]['sectionNumber'] == '002'
         assert nuclear['sections'][0]['enrollmentStatus'] == 'E'
@@ -224,6 +224,12 @@ class TestUserAnalytics:
         assert nuclear['sections'][1]['enrollmentStatus'] == 'E'
         assert nuclear['sections'][1]['units'] == 0
         assert nuclear['sections'][1]['gradingBasis'] == 'NON'
+        assert not nuclear['sections'][1]['grade']
+        assert nuclear['sections'][2]['ccn'] == 90299
+        assert nuclear['sections'][2]['sectionNumber'] == '200'
+        assert nuclear['sections'][2]['enrollmentStatus'] == 'D'
+        assert nuclear['sections'][2]['units'] == 0
+        assert nuclear['sections'][2]['gradingBasis'] == 'NON'
         assert not nuclear['sections'][1]['grade']
 
         music = TestUserAnalytics.get_course_for_code(authenticated_response, '2172', 'MUSIC 41C')

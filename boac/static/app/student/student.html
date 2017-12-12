@@ -99,7 +99,7 @@
               <h3 class="student-profile-class-title" data-ng-bind="course.displayName"></h3>
               <h4 class="student-profile-class-title" data-ng-bind="course.title"></h4>
               <div class="student-profile-class-sections">
-                <div data-ng-repeat="section in course.sections | orderBy:'units':true">
+                <div data-ng-repeat="section in course.sections">
                   <span data-ng-if="section.enrollmentStatus === 'W'">Waitlisted in</span>
                   <span data-ng-if="section.enrollmentStatus === 'D'">Dropped</span>
                   <span data-ng-bind="section.component"></span>
