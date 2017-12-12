@@ -118,8 +118,8 @@
     "restrict_enrollments_to_course_dates": false
   },
   {
-    "id": 7654323,
-    "name": "Radioactive Waste Management",
+    "id": 7654330,
+    "name": "Optional Friday Night Radioactivity Group",
     "account_id": 1,
     "uuid": "qwertyuiop4",
     "start_at": "2017-08-18T18:17:59Z",
@@ -157,8 +157,8 @@
     "restrict_enrollments_to_course_dates": false
   },
   {
-    "id": 7654330,
-    "name": "Optional Friday Night Radioactivity Group",
+    "id": 7654323,
+    "name": "Radioactive Waste Management",
     "account_id": 1,
     "uuid": "qwertyuiop4",
     "start_at": "2017-08-18T18:17:59Z",
