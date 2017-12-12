@@ -53,6 +53,8 @@
             .attr('cy', function(d) { return transform.applyY(yScale(y(d))); });
         });
 
+      var container = d3.select('#cohort-matrix-container');
+
       // We clear the '#scatterplot' div with `html()` in case the current search results are replacing previous results.
       svg = d3.select('#scatterplot')
         .html('')
@@ -163,38 +165,65 @@
         .attr('cy', function(d) { return yScale(y(d)); })
         .attr('r', '30');
 
-      // Add a title.
       var displayValue = function(d, prop) {
         var value = _.get(d, prop);
         if (!_.isFinite(value)) {
           return 'No data';
         }
-        return _.round(value, 1) + ' percentile';
+        return _.round(value, 1) + '%';
       };
-
-      dot.append('title')
-        .text(function(d) {
-          return d.first_name.concat(
-            ' ', d.last_name,
-            '\nPage views: ',
-            displayValue(d, 'analytics.pageViews'),
-            '\n', yAxisName, ': ',
-            displayValue(d, yAxisMeasure)
-          );
-        });
-
-      dot.on('mouseover', function() {
-        this.parentNode.appendChild(this);
-        d3.select(this).style('stroke', '#ada');
-      });
-
-      dot.on('mouseout', function() {
-        d3.select(this).style('stroke', '#ccc');
-      });
 
       dot.on('click', function(d) {
         goToUserPage(d.uid);
       });
+
+      var onDotSelected = function(d) {
+        // Clear any existing tooltips.
+        container.selectAll('.cohort-matrix-tooltip').remove();
+
+        // Move dot to front.
+        this.parentNode.appendChild(this);
+        // Stroke highlight.
+        var selection = d3.select(this);
+        selection.style('stroke', '#ada');
+
+        var tooltip = container.append('div')
+          .attr('class', 'cohort-matrix-tooltip')
+          .style('top', parseInt(selection.attr('cy'), 10) + 20 + 'px')
+          .style('left', parseInt(selection.attr('cx'), 10) - 100 + 'px');
+
+        // The tooltip starts out hidden while inserting data...
+        tooltip.style('opacity', 0);
+        tooltip.append('h4').attr('class', 'cohort-matrix-tooltip-header').text(d.first_name + ' ' + d.last_name);
+        var table = tooltip.append('table').attr('class', 'cohort-matrix-tooltip-table');
+        var pageViewsRow = table.append('tr');
+        pageViewsRow.append('td').text('Page views');
+        pageViewsRow.append('td').attr('class', 'cohort-matrix-tooltip-value').text(displayValue(d, 'analytics.pageViews'));
+        var yAxisRow = table.append('tr');
+        yAxisRow.append('td').text(yAxisName);
+        yAxisRow.append('td').attr('class', 'cohort-matrix-tooltip-value').text(displayValue(d, yAxisMeasure));
+
+        // ...and transitions to visible.
+        tooltip.transition(d3.transition().duration(100).ease(d3.easeLinear))
+          .on('start', function() {
+            tooltip.style('display', 'block');
+          })
+          .style('opacity', 1);
+      };
+
+      var onDotDeselected = function() {
+        d3.select(this).style('stroke', '#ccc');
+
+        container.select('.cohort-matrix-tooltip')
+          .transition(d3.transition().duration(500))
+          .on('end', function() {
+            this.remove();
+          })
+          .style('opacity', 0);
+      };
+
+      dot.on('mouseover', onDotSelected);
+      dot.on('mouseout', onDotDeselected);
     };
 
     return {

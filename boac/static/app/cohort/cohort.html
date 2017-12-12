@@ -181,7 +181,7 @@
           data-ng-click="nextPage()"
           data-ng-if="pagination.enabled && !isCreateCohortMode && (search.results.totalCount > pagination.itemsPerPage)"></ul>
     </div>
-    <div data-ng-show="selectedTab === 'matrix' && !isLoading && !error">
+    <div id="cohort-matrix-container" class="cohort-matrix-container" data-ng-show="selectedTab === 'matrix' && !isLoading && !error">
       <!-- IMPORTANT: We use data-ng-show because d3 must populate the div before we reveal it to the user. -->
       <div id="scatterplot"></div>
       <ul data-ng-if="matrix.membersWithoutData.length">

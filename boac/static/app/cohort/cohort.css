@@ -83,6 +83,39 @@
   min-width: 200px;
 }
 
+.cohort-matrix-container {
+  position: relative;
+}
+
+.cohort-matrix-tooltip {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  color: #666;
+  line-height: 1.4em;
+  opacity: 1;
+  padding: 5px 10px;
+  position: absolute;
+  text-align: left;
+  width: 200px;
+}
+
+.cohort-matrix-tooltip-header {
+  color: #49b;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0 0 5px;
+}
+
+.cohort-matrix-tooltip-table td {
+  font-size: 12px;
+  padding: 0 10px 2px 0;
+}
+
+.cohort-matrix-tooltip-value {
+  font-weight: bold;
+}
+
 .cohort-member-column {
   flex: 0.5;
   margin-left: 20px;
