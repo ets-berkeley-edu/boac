@@ -171,9 +171,7 @@ class TestCohortDetail:
         assert cohort['totalMemberCount'] == len(cohort['members']) == 2
         assert cohort['members'][0]['uid'] == '61889'
         assert cohort['members'][1]['uid'] == '242881'
-        assert cohort['teamGroups'][0]['teamGroupCode'] == 'MFB-DL'
-        assert cohort['teamGroups'][1]['teamGroupCode'] == 'WFH-AA'
-        assert cohort['teamGroups'][2]['teamGroupCode'] == 'WTE-AA'
+        assert len(cohort['teamGroups']) == 0
 
     def test_offset_and_limit(self, authenticated_session, client):
         """returns a well-formed response with custom cohort"""
