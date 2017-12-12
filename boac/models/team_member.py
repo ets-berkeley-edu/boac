@@ -182,6 +182,7 @@ class TeamMember(Base):
             'id': self.id,
             'first_name': self.first_name,
             'last_name': self.last_name,
+            'name': self.first_name + ' ' + self.last_name,
             'sid': self.member_csid,
             'inAdvisorWatchGroup': self.in_intensive_cohort,
             'sportCode': self.asc_sport_code_core,
