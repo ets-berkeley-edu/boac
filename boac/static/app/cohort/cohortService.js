@@ -4,16 +4,21 @@
 
   angular.module('boac').service('cohortService', function() {
 
-    var drawScatterplot = function(students, goToUserPage) {
+    var drawScatterplot = function(students, goToUserPage, yAxisMeasure) {
       var svg;
 
       function x(d) { return d.analytics.pageViews; }
       function y(d) {
-        var assignmentsOnTime = _.get(d, 'analytics.assignmentsOnTime');
+        var yValues = _.get(d, yAxisMeasure);
         // Points with no y-axis data are plotted below the x-axis.
-        return _.isFinite(assignmentsOnTime) ? assignmentsOnTime : -10;
+        return _.isFinite(yValues) ? yValues : -10;
       }
       function key(d) { return d.uid; }
+
+      var yAxisName = 'Assignments on time';
+      if (yAxisMeasure === 'analytics.courseCurrentScore') {
+        yAxisName = 'Assignment grades';
+      }
 
       var width = 910;
       var height = 500;
@@ -82,7 +87,7 @@
         .attr('y', 6)
         .attr('dy', '.75em')
         .attr('transform', 'rotate(-90)')
-        .text('Assignments on time');
+        .text(yAxisName);
 
       var defs = svg.append('svg:defs');
 
@@ -173,8 +178,8 @@
             ' ', d.last_name,
             '\nPage views: ',
             displayValue(d, 'analytics.pageViews'),
-            '\nAssignments on time: ',
-            displayValue(d, 'analytics.assignmentsOnTime')
+            '\n', yAxisName, ': ',
+            displayValue(d, yAxisMeasure)
           );
         });
 
