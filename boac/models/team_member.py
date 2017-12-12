@@ -126,12 +126,10 @@ class TeamMember(Base):
 
     @classmethod
     def get_intensive_cohort(cls, order_by=None, offset=0, limit=50):
-        athletes = cls.query.distinct(cls.asc_sport_code).filter_by(in_intensive_cohort=True).all()
-        team_groups = [athlete.team_group_summary() for athlete in athletes]
         query_filter = cls.in_intensive_cohort.is_(True)
         o = cls.get_ordering(order_by)
         athletes = cls.query.distinct(o, cls.member_uid).order_by(o, cls.member_uid).filter(query_filter).offset(offset).limit(limit).all()
-        return cls.summarize_athletes(team_groups, athletes, query_filter)
+        return cls.summarize_athletes([], athletes, query_filter)
 
     @classmethod
     def get_team(cls, code, order_by=None, offset=0, limit=50):
