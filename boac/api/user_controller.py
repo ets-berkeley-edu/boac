@@ -52,7 +52,7 @@ def user_analytics(uid):
     user_courses = canvas.get_student_courses(uid) or []
     if team_member and sis_profile:
         canvas_courses_feed = api_util.canvas_courses_api_feed(user_courses)
-        enrollment_terms = merge_sis_enrollments(canvas_courses_feed, team_member.member_csid, sis_profile['matriculation'])
+        enrollment_terms = merge_sis_enrollments(canvas_courses_feed, team_member.member_csid, sis_profile.get('matriculation'))
     else:
         enrollment_terms = []
 
