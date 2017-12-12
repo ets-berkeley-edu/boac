@@ -95,12 +95,12 @@ class TestCanvasGetUserCourses:
         assert courses[1]['name'] == 'Medieval Manuscripts as Primary Sources'
         assert courses[1]['course_code'] == 'MED ST 205'
         assert courses[1]['term']['name'] == 'Fall 2017'
-        assert courses[2]['id'] == 7654323
-        assert courses[2]['name'] == 'Radioactive Waste Management'
+        assert courses[2]['id'] == 7654330
+        assert courses[2]['name'] == 'Optional Friday Night Radioactivity Group'
         assert courses[2]['course_code'] == 'NUC ENG 124'
         assert courses[2]['term']['name'] == 'Fall 2017'
-        assert courses[3]['id'] == 7654330
-        assert courses[3]['name'] == 'Optional Friday Night Radioactivity Group'
+        assert courses[3]['id'] == 7654323
+        assert courses[3]['name'] == 'Radioactive Waste Management'
         assert courses[3]['course_code'] == 'NUC ENG 124'
         assert courses[3]['term']['name'] == 'Fall 2017'
         assert courses[4]['id'] == 7654325

@@ -95,6 +95,8 @@ def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name, includ
     if not include_dropped_enrollments:
         remove_dropped_enrollments(term_feed)
 
+    sort_canvas_course_sites(term_feed)
+
     return term_feed
 
 
@@ -143,3 +145,9 @@ def remove_dropped_enrollments(term_feed):
                 return False
         return True
     term_feed['enrollments'] = [enr for enr in term_feed['enrollments'] if not is_dropped(enr)]
+
+
+def sort_canvas_course_sites(term_feed):
+    for enrollment in term_feed['enrollments']:
+        enrollment['canvasSites'] = sorted(enrollment['canvasSites'], key=lambda x: x['canvasCourseId'])
+    term_feed['unmatchedCanvasSites'] = sorted(term_feed['unmatchedCanvasSites'], key=lambda x: x['canvasCourseId'])

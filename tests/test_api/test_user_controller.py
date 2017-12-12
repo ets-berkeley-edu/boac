@@ -95,7 +95,7 @@ class TestUserAnalytics:
         assert enrollment_without_site['canvasSites'] == []
 
     def test_enrollment_with_multiple_course_sites(self, authenticated_response):
-        """returns multiple course sites associated with an enrollment"""
+        """returns multiple course sites associated with an enrollment, sorted by site id"""
         enrollment_with_multiple_sites = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'NUC ENG 124')
         assert len(enrollment_with_multiple_sites['canvasSites']) == 2
         assert enrollment_with_multiple_sites['canvasSites'][0]['courseName'] == 'Radioactive Waste Management'
