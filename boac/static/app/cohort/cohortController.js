@@ -211,7 +211,7 @@
     });
 
     $scope.drawActivityBoxplot = function(student, courseSite) {
-      var elementId = 'boxplot-' + courseSite.canvasCourseId + '-' + student.uid + '-activity';
+      var elementId = 'boxplot-' + courseSite.canvasCourseId + '-' + student.uid + '-pageviews';
       boxplotService.drawBoxplotMinified(elementId, courseSite.analytics.pageViews);
     };
 

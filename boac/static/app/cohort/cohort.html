@@ -155,7 +155,7 @@
           <div class="cohort-member-course-activity-wrapper">
             <div class="cohort-member-course-activity-row">
               <div class="cohort-member-column cohort-member-text">CLASSES</div>
-              <div class="cohort-member-column cohort-member-text">ACTIVITY</div>
+              <div class="cohort-member-column cohort-member-text">PAGE VIEWS</div>
             </div>
             <div class="cohort-member-course-activity-row" data-ng-repeat="enrollment in row.currentTerm.enrollments">
               <div class="cohort-member-column">
@@ -163,7 +163,7 @@
               </div>
               <div class="cohort-member-column">
                 <div class="boxplot-container" data-ng-repeat="canvasSite in enrollment.canvasSites">
-                  <div id="boxplot-{{canvasSite.canvasCourseId}}-{{row.uid}}-activity"
+                  <div id="boxplot-{{canvasSite.canvasCourseId}}-{{row.uid}}-pageviews"
                        class="boxplot-minified"
                        data-ng-init="drawActivityBoxplot(row, canvasSite)">
                   </div>
