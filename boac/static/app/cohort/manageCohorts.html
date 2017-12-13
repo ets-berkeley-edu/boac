@@ -76,10 +76,10 @@
       <div data-ng-show="cohort.detailsShowing">
         <div id="cohort-filter-criteria-{{$index}}"
              class="cohort-filter-criteria"
-             data-ng-if="cohort.teams">
-          <div data-ng-repeat="team in cohort.teams">
+             data-ng-if="cohort.teamGroups">
+          <div data-ng-repeat="group in cohort.teamGroups">
             <span class="cohort-filter-criteria-label"
-                  data-ng-bind="'Team : ' + team.name"></span>
+                  data-ng-bind="group.teamGroupName"></span>
           </div>
         </div>
       </div>

@@ -65,8 +65,8 @@ class TestCohortDetail:
         assert team['name'] == 'Field Hockey - Women'
         members = team['members']
         assert team['totalMemberCount'] == len(members) == 1
-        assert members[0]['first_name'] == 'Brigitte'
-        assert members[0]['last_name'] == 'Lin'
+        assert members[0]['firstName'] == 'Brigitte'
+        assert members[0]['lastName'] == 'Lin'
         assert members[0]['uid'] == '61889'
         assert members[0]['avatar_url'] == 'https://calspirit.berkeley.edu/oski/images/oskibio.jpg'
 

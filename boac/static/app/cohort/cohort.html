@@ -87,7 +87,7 @@
         <button type="button"
                 id="create-cohort-btn"
                 class="btn btn-default btn-nowrap"
-                data-ng-disabled="isLoading || isSaving"
+                data-ng-disabled="isLoading || isSaving || search.count.selectedTeamGroups === 0"
                 data-ng-click="openCreateCohortModal(search.options.teamGroups)">
           Save Cohort
         </button>
