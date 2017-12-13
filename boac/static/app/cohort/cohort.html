@@ -87,7 +87,7 @@
         <button type="button"
                 id="create-cohort-btn"
                 class="btn btn-default btn-nowrap"
-                data-ng-disabled="isLoading || isSaving"
+                data-ng-disabled="isLoading || isSaving || search.count.selectedTeamGroups === 0"
                 data-ng-click="openCreateCohortModal(search.options.teamGroups)">
           Save Cohort
         </button>
@@ -137,7 +137,7 @@
             <img class="cohort-avatar" data-ng-src="{{row.avatar_url}}">
           </div>
           <div class="cohort-member-name-container">
-            <h3 class="cohort-member-name" data-ng-bind="row.first_name + ' ' + row.last_name"></h3>
+            <h3 class="cohort-member-name" data-ng-bind="row.firstName + ' ' + row.lastName"></h3>
             <div class="cohort-member-sid" data-ng-bind="row.sid"></div>
             <div class="cohort-member-text" data-ng-bind="row.level"></div>
             <div class="cohort-member-text" data-ng-bind="major" data-ng-repeat="major in row.majors"></div>

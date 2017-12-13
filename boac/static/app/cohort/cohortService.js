@@ -194,7 +194,7 @@
 
         // The tooltip starts out hidden while inserting data...
         tooltip.style('opacity', 0);
-        tooltip.append('h4').attr('class', 'cohort-matrix-tooltip-header').text(d.first_name + ' ' + d.last_name);
+        tooltip.append('h4').attr('class', 'cohort-matrix-tooltip-header').text(d.firstName + ' ' + d.lastName);
         var table = tooltip.append('table').attr('class', 'cohort-matrix-tooltip-table');
         var pageViewsRow = table.append('tr');
         pageViewsRow.append('td').text('Page views');
