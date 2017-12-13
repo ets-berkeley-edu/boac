@@ -185,11 +185,12 @@
         this.parentNode.appendChild(this);
         // Stroke highlight.
         var selection = d3.select(this);
-        selection.style('stroke', '#ada');
+        selection.attr('r', '50')
+          .style('stroke', '#ada');
 
         var tooltip = container.append('div')
           .attr('class', 'cohort-matrix-tooltip')
-          .style('top', parseInt(selection.attr('cy'), 10) + 20 + 'px')
+          .style('top', parseInt(selection.attr('cy'), 10) + 30 + 'px')
           .style('left', parseInt(selection.attr('cx'), 10) - 100 + 'px');
 
         // The tooltip starts out hidden while inserting data...
@@ -212,7 +213,8 @@
       };
 
       var onDotDeselected = function() {
-        d3.select(this).style('stroke', '#ccc');
+        d3.select(this).attr('r', '30')
+          .style('stroke', '#ccc');
 
         container.select('.cohort-matrix-tooltip')
           .transition(d3.transition().duration(500))
