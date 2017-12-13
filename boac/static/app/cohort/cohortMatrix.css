@@ -1,52 +1,52 @@
-#scatterplot {
+.cohort-matrix {
   width: 910px;
   height: 500px;
   margin: 20px 20px 100px 20px;
 }
 
-rect {
+.cohort-matrix rect {
   fill: transparent;
   shape-rendering: crispEdges;
 }
 
-text {
+.cohort-matrix text {
   font: 15px sans-serif bold;
 }
 
-.dot {
+.cohort-matrix .dot {
   cursor: pointer;
   stroke: #000;
 }
 
-.axis path,
-.axis line {
+.cohort-matrix .axis path,
+.cohort-matrix .axis line {
   fill: none;
   stroke: rgba(0, 0, 0, 0.1);
   shape-rendering: crispEdges;
 }
 
-.axisLine {
+.cohort-matrix .axisLine {
   fill: none;
   shape-rendering: crispEdges;
   stroke: rgba(0, 0, 0, 0.5);
   stroke-width: 2px;
 }
 
-.label {
+.cohort-matrix .label {
   fill: #777;
 }
 
-.sample.label {
+.cohort-matrix .overlay {
+  fill: none;
+  pointer-events: all;
+  cursor: ew-resize;
+}
+
+.cohort-matrix .sample.label {
   font: 300 30px "Helvetica Neue";
   fill: #ddd;
 }
 
-.sample.label.active {
+.cohort-matrix .sample.label.active {
   fill: #aaa;
-}
-
-.overlay {
-  fill: none;
-  pointer-events: all;
-  cursor: ew-resize;
 }

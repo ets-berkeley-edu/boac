@@ -183,7 +183,7 @@
     </div>
     <div id="cohort-matrix-container" class="cohort-matrix-container" data-ng-show="selectedTab === 'matrix' && !isLoading && !error">
       <!-- IMPORTANT: We use data-ng-show because d3 must populate the div before we reveal it to the user. -->
-      <div id="scatterplot"></div>
+      <div id="scatterplot" class="cohort-matrix"></div>
       <ul data-ng-if="matrix.membersWithoutData.length">
         <h4>Students without graphable data</h4>
         <li data-ng-repeat="member in matrix.membersWithoutData">
