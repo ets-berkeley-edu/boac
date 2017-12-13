@@ -4,16 +4,22 @@
 <div class="modal-body" id="confirm-delete-body">
   <div class="cohort-create-form-label">Cohort Name:</div>
   <div>
-    <input class="cohort-create-input-name" data-ng-model="cohortName" type="text" required>
+    <input class="cohort-create-input-name"
+           data-ng-change="error.hide = true"
+           data-ng-model="label"
+           type="text"
+           maxlength="255"
+           autofocus
+           required>
   </div>
-  <div>
-    <span class="has-error" data-ng-bind="errorMessage" data-ng-if="errorMessage"></span>
-  </div>
+  <div class="faint-text">255 character limit <span data-ng-if="label.length">({{255 - label.length}} left)</span></div>
+  <div class="has-error" data-ng-bind="error.message" data-ng-if="error.message && !error.hide"></div>
 </div>
 <div class="modal-footer">
   <button type="button"
           id="confirm-create-cohort-btn"
           class="btn btn btn-primary"
+          data-ng-disabled="!label.length"
           data-ng-click="create(cohort)">Save</button>
   <button type="button"
           id="cancel-create-cohort-btn"

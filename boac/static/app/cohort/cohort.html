@@ -14,7 +14,7 @@
       <span class="faint-text" data-ng-if="error.message">(<span data-ng-bind="error.message"></span>)</span>
     </div>
   </div>
-  <div data-ng-if="!isLoading && !error && !isSaving && (search.results.totalCount >= 0)">
+  <div class="cohort-label" data-ng-if="!isLoading && !error && !isSaving && (search.results.totalCount >= 0)">
     <h1 data-ng-if="cohort">
       <span data-ng-bind="cohort.label || cohort.name"></span>
       <span class="faint-text">(<span data-ng-bind="search.results.totalCount"></span> members)</span>

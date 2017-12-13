@@ -2,8 +2,9 @@
 
   'use strict';
 
-  angular.module('boac').controller('ManageCohortsController', function(authService, cohortFactory, $rootScope, $scope) {
+  angular.module('boac').controller('ManageCohortsController', function(authService, cohortFactory, cohortService, utilService, $rootScope, $scope) {
 
+    $scope.truncate = utilService.truncate;
     $scope.isLoading = true;
 
     var resetPageView = function(callback) {
@@ -29,8 +30,14 @@
     };
 
     $scope.updateCohort = function(cohort, label) {
-      cohortFactory.updateCohort(cohort.id, label).then(function() {
-        setEditMode(cohort, false);
+      cohort.hideError = false;
+      cohortService.validateCohortLabel({id: cohort.id, label: label}, function(error) {
+        cohort.error = error;
+        if (!cohort.error) {
+          cohortFactory.updateCohort(cohort.id, label).then(function() {
+            setEditMode(cohort, false);
+          });
+        }
       });
     };
 

@@ -2,7 +2,7 @@
 
   'use strict';
 
-  angular.module('boac').service('cohortService', function() {
+  angular.module('boac').service('cohortService', function(cohortFactory) {
 
     var drawScatterplot = function(students, goToUserPage, yAxisMeasure) {
       var svg;
@@ -228,8 +228,27 @@
       dot.on('mouseout', onDotDeselected);
     };
 
+    var validateCohortLabel = function(cohort, callback) {
+      if (cohort.label === 'Intensive') {
+        return callback('Sorry, \'Intensive\' is a reserved name. Please choose a different name.');
+      }
+      var error = null;
+      cohortFactory.getMyCohorts().then(function(response) {
+        _.each(response.data, function(next) {
+          var validate = !cohort.id || cohort.id !== next.id;
+          if (validate && cohort.label === next.label) {
+            error = 'You have a cohort with this name. Please choose a different name.';
+            return false;
+          }
+        });
+      }).then(function() {
+        return callback(error);
+      });
+    };
+
     return {
-      drawScatterplot: drawScatterplot
+      drawScatterplot: drawScatterplot,
+      validateCohortLabel: validateCohortLabel
     };
 
   });
