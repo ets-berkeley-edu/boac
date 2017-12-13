@@ -141,12 +141,9 @@ def remove_athletic_enrollments(term_feed):
 
 
 def remove_dropped_enrollments(term_feed):
-    def is_dropped(enrollment):
-        for section in enrollment['sections']:
-            if section['enrollmentStatus'] != 'D':
-                return False
-        return True
-    term_feed['enrollments'] = [enr for enr in term_feed['enrollments'] if not is_dropped(enr)]
+    for enrollment in term_feed['enrollments']:
+        enrollment['sections'] = [sec for sec in enrollment['sections'] if sec['enrollmentStatus'] != 'D']
+    term_feed['enrollments'] = [enrollment for enrollment in term_feed['enrollments'] if len(enrollment['sections'])]
 
 
 def sort_canvas_course_sites(term_feed):
