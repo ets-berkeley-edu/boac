@@ -180,11 +180,11 @@ class TeamMember(Base):
     def to_api_json(self, details=False):
         feed = {
             'id': self.id,
-            'first_name': self.first_name,
-            'last_name': self.last_name,
+            'firstName': self.first_name,
+            'lastName': self.last_name,
             'name': self.first_name + ' ' + self.last_name,
             'sid': self.member_csid,
-            'inAdvisorWatchGroup': self.in_intensive_cohort,
+            'inIntensiveCohort': self.in_intensive_cohort,
             'sportCode': self.asc_sport_code_core,
             'sportName': self.asc_sport_core,
             'teamCode': self.code,
