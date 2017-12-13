@@ -62,6 +62,211 @@
         {
           "enrollmentStatus": {
             "status": {
+              "code": "D",
+              "description": "Dropped"
+            },
+            "reason": {
+              "code": "DROP",
+              "description": "Dropped (was enrolled)"
+            },
+            "fromDate": "2016-12-11"
+          },
+          "enrolledUnits": {
+            "taken": 2,
+            "forAcademicProgress": 2,
+            "forFinancialAid": 2,
+            "forBilling": 2
+          },
+          "gradingBasis": {
+            "code": "GRD",
+            "description": "Standard Grading Basis"
+          },
+          "classSection": {
+            "id": 80101,
+            "number": "002",
+            "component": {
+              "code": "TUT",
+              "description": "Tutorial"
+            },
+            "displayName": "2017 Spring MUSIC 41C 001 TUT 002",
+            "association": {
+              "primary": false,
+              "primaryAssociatedComponent": {
+              }
+            },
+            "enrollmentStatus": {
+              "status": {
+              }
+            },
+            "printInScheduleOfClasses": false,
+            "addConsentRequired": {
+              "code": "N",
+              "description": "No Special Consent Required"
+            },
+            "dropConsentRequired": {
+              "code": "N",
+              "description": "No Special Consent Required"
+            },
+            "meetings": [
+              {
+                "number": 1,
+                "meetsDays": "Tu",
+                "meetsMonday": false,
+                "meetsTuesday": true,
+                "meetsWednesday": false,
+                "meetsThursday": false,
+                "meetsFriday": false,
+                "meetsSaturday": false,
+                "meetsSunday": false,
+                "startTime": "12:00:00",
+                "endTime": "12:59:00",
+                "location": {
+                  "code": "SATHTOWER",
+                  "description": "Sather Tower"
+                },
+                "building": {
+                  "code": "8000",
+                  "description": "Sather Tower"
+                },
+                "assignedInstructors": [
+                  {
+                    "assignmentNumber": 1,
+                    "instructor": {
+                      "identifiers": [
+                        {
+                          "type": "student-id",
+                          "id": "3334445550",
+                          "disclose": true
+                        },
+                        {
+                          "type": "campus-uid",
+                          "id": "1122330",
+                          "disclose": true
+                        },
+                        {
+                          "type": "Social Security Number",
+                          "id": "***-**-****",
+                          "disclose": false
+                        },
+                        {
+                          "type": "HCM System",
+                          "id": "012345670",
+                          "disclose": false
+                        }
+                      ],
+                      "names": [
+                        {
+                          "type": {
+                            "code": "PRF",
+                            "description": "Preferred"
+                          },
+                          "familyName": "van Eyck",
+                          "givenName": "Jakob",
+                          "formattedName": "Jakob van Eyck",
+                          "disclose": true,
+                          "uiControl": {
+                            "code": "U",
+                            "description": "Edit - No Delete"
+                          },
+                          "fromDate": "2003-12-03"
+                        },
+                        {
+                          "type": {
+                            "code": "PRI",
+                            "description": "Primary"
+                          },
+                          "familyName": "van Eyck",
+                          "givenName": "Jakob",
+                          "formattedName": "Jakob van Eyck",
+                          "disclose": true,
+                          "uiControl": {
+                            "code": "D",
+                            "description": "Display Only"
+                          },
+                          "fromDate": "2003-12-03"
+                        }
+                      ],
+                      "emails": [
+                        {
+                          "type": {
+                            "code": "CAMP",
+                            "description": "Campus"
+                          },
+                          "emailAddress": "jve@berkeley.edu",
+                          "primary": true,
+                          "disclose": true,
+                          "uiControl": {
+                            "code": "D",
+                            "description": "Display Only"
+                          }
+                        }
+                      ]
+                    },
+                    "role": {
+                      "code": "PI",
+                      "description": "1-TIC",
+                      "formalDescription": "Teaching and In Charge"
+                    },
+                    "printInScheduleOfClasses": true,
+                    "gradeRosterAccess": {
+                      "code": "A",
+                      "description": "Approve",
+                      "formalDescription": "Approve"
+                    }
+                  }
+                ],
+                "startDate": "2017-01-05",
+                "endDate": "2017-05-08",
+                "meetingTopic": {
+                }
+              }
+            ],
+            "class": {
+              "course": {
+                "identifiers": [
+                  {
+                    "type": "cs-course-id",
+                    "id": "22345"
+                  }
+                ],
+                "subjectArea": {
+                  "code": "MUSIC",
+                  "description": "Music"
+                },
+                "catalogNumber": {
+                  "number": "41",
+                  "suffix": "C",
+                  "formatted": "41C"
+                },
+                "displayName": "MUSIC 41C",
+                "title": "Private Carillon Lessons for Advanced Students",
+                "transcriptTitle": "PRIV CARILLON"
+              },
+              "offeringNumber": 1,
+              "session": {
+                "term": {
+                  "id": "2172",
+                  "name": "2017 Spring"
+                },
+                "id": "1",
+                "name": "Regular Academic Session"
+              },
+              "number": "001",
+              "displayName": "2017 Spring MUSIC 41C 001",
+              "allowedUnits": {
+                "minimum": 4,
+                "maximum": 4,
+                "forAcademicProgress": 4,
+                "forFinancialAid": 4
+              },
+              "status": {
+              }
+            }
+          }
+        },
+        {
+          "enrollmentStatus": {
+            "status": {
               "code": "E",
               "description": "Enrolled"
             },
