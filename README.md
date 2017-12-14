@@ -13,6 +13,7 @@ bCourses offers analytic choices.
 ### Install back-end
 
 `pip3 install -r requirements.txt`
+`pip3 install pandas==0.21.1`
 
 ### Install front-end dependencies
 
