@@ -1,4 +1,5 @@
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
+import boac.api.util as api_util
 from boac.lib.http import tolerant_jsonify
 from boac.merged import member_details
 from boac.models.cohort_filter import CohortFilter
@@ -10,9 +11,9 @@ from flask_login import current_user, login_required
 @app.route('/api/team/<code>')
 @login_required
 def get_team(code):
-    order_by = get_param(request.args, 'orderBy', None)
-    offset = get_param(request.args, 'offset', 0)
-    limit = get_param(request.args, 'limit', 50)
+    order_by = api_util.get(request.args, 'orderBy', None)
+    offset = api_util.get(request.args, 'offset', 0)
+    limit = api_util.get(request.args, 'limit', 50)
     team = TeamMember.get_team(code, order_by, offset, limit)
     if team is None:
         raise ResourceNotFoundError('No team found with code ' + code)
@@ -20,25 +21,13 @@ def get_team(code):
     return tolerant_jsonify(team)
 
 
-@app.route('/api/teams/all')
-@login_required
-def get_all_teams():
-    return jsonify(TeamMember.all_teams())
-
-
-@app.route('/api/team_groups/all')
-@login_required
-def get_all_team_groups():
-    return jsonify(TeamMember.all_team_groups())
-
-
 @app.route('/api/team_groups/members')
 @login_required
 def get_team_groups_members():
     team_group_codes = request.args.getlist('teamGroupCodes')
-    order_by = get_param(request.args, 'orderBy', None)
-    offset = get_param(request.args, 'offset', 0)
-    limit = get_param(request.args, 'limit', 50)
+    order_by = api_util.get(request.args, 'orderBy', None)
+    offset = api_util.get(request.args, 'offset', 0)
+    limit = api_util.get(request.args, 'limit', 50)
     members = TeamMember.get_athletes(team_group_codes, order_by, offset, limit)
     member_details.merge_all(members['members'])
     return jsonify(members)
@@ -65,18 +54,18 @@ def my_cohorts():
 @app.route('/api/intensive_cohort')
 @login_required
 def get_intensive_cohort():
-    order_by = get_param(request.args, 'orderBy', None)
-    offset = get_param(request.args, 'offset', 0)
-    limit = get_param(request.args, 'limit', 50)
+    order_by = api_util.get(request.args, 'orderBy', None)
+    offset = api_util.get(request.args, 'offset', 0)
+    limit = api_util.get(request.args, 'limit', 50)
     return tolerant_jsonify(CohortFilter.get_intensive_cohort(order_by=order_by, offset=offset, limit=limit))
 
 
 @app.route('/api/cohort/<cohort_id>')
 @login_required
 def get_cohort(cohort_id):
-    order_by = get_param(request.args, 'orderBy', None)
-    offset = get_param(request.args, 'offset', 0)
-    limit = get_param(request.args, 'limit', 50)
+    order_by = api_util.get(request.args, 'orderBy', None)
+    offset = api_util.get(request.args, 'offset', 0)
+    limit = api_util.get(request.args, 'limit', 50)
     cohort = CohortFilter.find_by_id(int(cohort_id), order_by, int(offset), int(limit))
     if not cohort:
         raise ResourceNotFoundError('No cohort found with identifier: {}'.format(cohort_id))
@@ -132,7 +121,3 @@ def delete_cohort(cohort_id):
 
 def get_cohort_owned_by(cohort_filter_id, uid):
     return next((c for c in CohortFilter.all_owned_by(uid) if c['id'] == cohort_filter_id), None)
-
-
-def get_param(params, key, default_value=None):
-    return (params and key in params and params[key]) or default_value

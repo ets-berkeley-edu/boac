@@ -48,7 +48,7 @@ def load_csv(app, csv_file='tmp/FilteredAscStudents.csv'):
                         db.session.add(team_group)
                         athletics[group_code] = team_group
 
-                    team_group.members.append(student)
+                    team_group.athletes.append(student)
                     db.session.commit()
                 else:
                     app.logger.error('Unmapped asc_sport_code_core {} has SportActiveYN for sid {}'.format(
