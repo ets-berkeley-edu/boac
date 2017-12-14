@@ -2,7 +2,7 @@
 
 from boac import db
 from boac.models.base import Base
-from sqlalchemy import func, UniqueConstraint
+from sqlalchemy import UniqueConstraint
 
 
 class TeamMember(Base):
@@ -75,45 +75,6 @@ class TeamMember(Base):
         'WPM': 'Water Polo - Men',
         'WPW': 'Water Polo - Women',
     }
-
-    @classmethod
-    def all_teams(cls):
-        results = db.session.query(cls.code,
-                                   cls.asc_sport_core,
-                                   func.count(func.distinct(cls.member_uid))).order_by(cls.asc_sport_core).group_by(cls.code,
-                                                                                                                    cls.asc_sport_core).all()
-
-        def translate_row(row):
-            return {
-                'code': row[0],
-                'name': row[1],
-                'totalMemberCount': row[2],
-            }
-        return [translate_row(row) for row in results]
-
-    @classmethod
-    def all_team_groups(cls):
-        results = db.session.query(cls.code,
-                                   cls.asc_sport_code_core,
-                                   cls.asc_sport_core,
-                                   cls.asc_sport_code,
-                                   cls.asc_sport,
-                                   func.count(cls.member_uid)).order_by(cls.asc_sport).group_by(cls.asc_sport_code,
-                                                                                                cls.code,
-                                                                                                cls.asc_sport_code_core,
-                                                                                                cls.asc_sport_core,
-                                                                                                cls.asc_sport).all()
-
-        def translate_row(row):
-            return {
-                'teamCode': row[0],
-                'sportCode': row[1],
-                'sportName': row[2],
-                'teamGroupCode': row[3],
-                'teamGroupName': row[4],
-                'totalMemberCount': row[5],
-            }
-        return [translate_row(row) for row in results]
 
     @classmethod
     def get_all_athletes(cls, order_by=None):

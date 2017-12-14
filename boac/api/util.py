@@ -16,10 +16,10 @@ def canvas_courses_api_feed(courses):
 
 
 def sis_enrollment_class_feed(enrollment):
-    classData = enrollment.get('classSection', {}).get('class', {})
+    class_data = enrollment.get('classSection', {}).get('class', {})
     return {
-        'displayName': classData.get('course', {}).get('displayName'),
-        'title': classData.get('course', {}).get('title'),
+        'displayName': class_data.get('course', {}).get('displayName'),
+        'title': class_data.get('course', {}).get('title'),
         'canvasSites': [],
         'sections': [],
     }
@@ -38,3 +38,8 @@ def sis_enrollment_section_feed(enrollment):
         'grade': next((grade.get('mark') for grade in grades if grade.get('type', {}).get('code') == 'OFFL'), None),
         'midtermGrade': next((grade.get('mark') for grade in grades if grade.get('type', {}).get('code') == 'MID'), None),
     }
+
+
+def get(_dict, key, default_value=None):
+    value = _dict and key in _dict and _dict[key]
+    return value or default_value

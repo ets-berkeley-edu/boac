@@ -1,5 +1,4 @@
 from boac import db
-from boac.models.athletics import student_athletes
 from boac.models.base import Base
 
 
@@ -11,7 +10,6 @@ class Student(Base):
     first_name = db.Column(db.String(255), nullable=False)
     last_name = db.Column(db.String(255), nullable=False)
     in_intensive_cohort = db.Column(db.Boolean, nullable=False, default=False)
-    teams = db.relationship('Athletics', secondary=student_athletes, back_populates='members')
 
     def __repr__(self):
         return '<Athlete {} {}, uid={}, sid={}, team_groups={}, in_intensive_cohort={}, updated={}, created={}>'.format(
@@ -24,3 +22,12 @@ class Student(Base):
             self.updated_at,
             self.created_at,
         )
+
+    def to_api_json(self):
+        return {
+            'sid': self.sid,
+            'uid': self.uid,
+            'firstName': self.first_name,
+            'lastName': self.last_name,
+            'inIntensiveCohort': self.in_intensive_cohort,
+        }

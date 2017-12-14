@@ -1,30 +1,12 @@
 import csv
 from boac import db
+from boac.models.athletics import Athletics
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 # Needed for db.create_all to find the model.
 from boac.models.json_cache import JsonCache # noqa
+from boac.models.student import Student
 from boac.models.team_member import TeamMember # noqa
-
-
-def clear():
-    db.drop_all()
-
-
-def load(cohort_test_data=False):
-    load_schemas()
-    load_development_data()
-    if cohort_test_data:
-        load_cohort_test_data()
-    return db
-
-
-def load_schemas():
-    """
-    During early development, create the test DB from Python code.
-    We will convert to SQL scripts before enabling production deployments.
-    """
-    db.create_all()
 
 
 _default_users_csv = """uid,is_admin,is_director,is_advisor
@@ -38,6 +20,92 @@ _default_users_csv = """uid,is_admin,is_director,is_advisor
 1022796,true,false,false
 """
 
+brigitte = {
+    'uid': '61889',
+    'sid': '11667051',
+    'first_name': 'Brigitte',
+    'last_name': 'Lin',
+    'in_intensive_cohort': True,
+}
+oliver = {
+    'uid': '2040',
+    'sid': '2345678901',
+    'first_name': 'Oliver',
+    'last_name': 'Heyer',
+    'in_intensive_cohort': False,
+}
+paul = {
+    'uid': '242881',
+    'sid': '3456789012',
+    'first_name': 'Paul',
+    'last_name': 'Kerschen',
+    'in_intensive_cohort': True,
+}
+sandeep = {
+    'uid': '1133399',
+    'sid': '5678901234',
+    'first_name': 'Sandeep',
+    'last_name': 'Jayaprakash',
+    'in_intensive_cohort': False,
+}
+football_defensive_backs = {
+    'asc_sport_code_core': 'MFB',
+    'group_code': 'MFB-DB',
+    'group_name': 'Football, Defensive Backs',
+    'team_code': 'FBM',
+    'team_name': 'Football',
+}
+football_defensive_line = {
+    'asc_sport_code_core': 'MFB',
+    'group_code': 'MFB-DL',
+    'group_name': 'Football, Defensive Line',
+    'team_code': 'FBM',
+    'team_name': 'Football',
+}
+womens_field_hockey = {
+    'asc_sport_code_core': 'WFH',
+    'group_code': 'WFH-AA',
+    'group_name': 'Women\'s Field Hockey',
+    'team_code': 'FHW',
+    'team_name': 'Women\'s Field Hockey',
+}
+mens_tennis = {
+    'asc_sport_code_core': 'MTE',
+    'group_code': 'MTE-AA',
+    'group_name': 'Men\'s Tennis',
+    'team_code': 'TNM',
+    'team_name': 'Men\'s Tennis',
+}
+womens_tennis = {
+    'asc_sport_code_core': 'WTE',
+    'group_code': 'WTE-AA',
+    'group_name': 'Women\'s Tennis',
+    'team_code': 'TNW',
+    'team_name': 'Women\'s Tennis',
+}
+
+
+def clear():
+    db.drop_all()
+
+
+def load(cohort_test_data=False):
+    load_schemas()
+    load_development_data()
+    if cohort_test_data:
+        legacy_load_team_members()
+        load_student_athletes()
+        load_cohorts()
+    return db
+
+
+def load_schemas():
+    """
+    During early development, create the test DB from Python code.
+    We will convert to SQL scripts before enabling production deployments.
+    """
+    db.create_all()
+
 
 def load_development_data():
     csv_reader = csv.DictReader(_default_users_csv.splitlines())
@@ -50,93 +118,68 @@ def load_development_data():
     db.session.commit()
 
 
-def add_team_member(sport, student):
-    db.session.add(TeamMember(code=sport['code'],
-                              asc_sport_code_core=sport['asc_sport_code_core'],
-                              asc_sport_core=sport['asc_sport_core'],
-                              asc_sport_code=sport['asc_sport_code'],
-                              asc_sport=sport['asc_sport'],
-                              member_uid=student['member_uid'],
-                              member_csid=student['member_csid'],
+def create_team_group(t):
+    athletics = Athletics(group_code=t['group_code'], group_name=t['group_name'], team_code=t['team_code'],
+                          team_name=t['team_name'])
+    db.session.add(athletics)
+    return athletics
+
+
+def assign_athletes(student, team_groups):
+    student = Student(
+        sid=student['sid'],
+        first_name=student['first_name'],
+        last_name=student['last_name'],
+        in_intensive_cohort=student['in_intensive_cohort'],
+    )
+    db.session.add(student)
+    for team_group in team_groups:
+        team_group.athletes.append(student)
+
+
+def load_student_athletes():
+    _football_defensive_backs = create_team_group(football_defensive_backs)
+    _football_defensive_line = create_team_group(football_defensive_line)
+    _men_tennis = create_team_group(mens_tennis)
+    _women_field_hockey = create_team_group(womens_field_hockey)
+    _women_tennis = create_team_group(womens_tennis)
+
+    # Assign athletes
+    assign_athletes(brigitte, [_women_field_hockey, _women_tennis])
+    assign_athletes(oliver, [_football_defensive_backs, _football_defensive_line])
+    assign_athletes(paul, [_football_defensive_line])
+    assign_athletes(sandeep, [_football_defensive_backs, _football_defensive_line, _men_tennis])
+
+    db.session.commit()
+
+
+def legacy_add_team_member(team_group, student):
+    db.session.add(TeamMember(code=team_group['team_code'],
+                              asc_sport_code_core=team_group['asc_sport_code_core'],
+                              asc_sport_core=team_group['team_name'],
+                              asc_sport_code=team_group['group_code'],
+                              asc_sport=team_group['group_name'],
+                              member_uid=student['uid'],
+                              member_csid=student['sid'],
                               first_name=student['first_name'],
                               last_name=student['last_name'],
                               in_intensive_cohort=student['in_intensive_cohort']))
+    db.session.commit()
 
 
-def load_cohort_test_data():
-    brigitte = {
-        'member_uid': '61889',
-        'member_csid': '11667051',
-        'first_name': 'Brigitte',
-        'last_name': 'Lin',
-        'in_intensive_cohort': True,
-    }
-    oliver = {
-        'member_uid': '2040',
-        'member_csid': '2345678901',
-        'first_name': 'Oliver',
-        'last_name': 'Heyer',
-        'in_intensive_cohort': False,
-    }
-    paul = {
-        'member_uid': '242881',
-        'member_csid': '3456789012',
-        'first_name': 'Paul',
-        'last_name': 'Kerschen',
-        'in_intensive_cohort': True,
-    }
-    sandeep = {
-        'member_uid': '1133399',
-        'member_csid': '5678901234',
-        'first_name': 'Sandeep',
-        'last_name': 'Jayaprakash',
-        'in_intensive_cohort': False,
-    }
-    football_defensive_backs = {
-        'code': 'FBM',
-        'asc_sport_code_core': 'MFB',
-        'asc_sport_core': 'Football',
-        'asc_sport_code': 'MFB-DB',
-        'asc_sport': 'Football, Defensive Backs',
-    }
-    football_defensive_line = {
-        'code': 'FBM',
-        'asc_sport_code_core': 'MFB',
-        'asc_sport_core': 'Football',
-        'asc_sport_code': 'MFB-DL',
-        'asc_sport': 'Football, Defensive Line',
-    }
-    womens_field_hockey = {
-        'code': 'FHW',
-        'asc_sport_code_core': 'WFH',
-        'asc_sport_core': 'Women\'s Field Hockey',
-        'asc_sport_code': 'WFH-AA',
-        'asc_sport': 'Women\'s Field Hockey',
-    }
-    mens_tennis = {
-        'code': 'TNM',
-        'asc_sport_code_core': 'MTE',
-        'asc_sport_core': 'Men\'s Tennis',
-        'asc_sport_code': 'MTE-AA',
-        'asc_sport': 'Men\'s Tennis',
-    }
-    womens_tennis = {
-        'code': 'TNW',
-        'asc_sport_code_core': 'WTE',
-        'asc_sport_core': 'Women\'s Tennis',
-        'asc_sport_code': 'WTE-AA',
-        'asc_sport': 'Women\'s Tennis',
-    }
+def legacy_load_team_members():
     # Assign athletes
-    add_team_member(womens_field_hockey, brigitte)
-    add_team_member(womens_tennis, brigitte)
-    add_team_member(football_defensive_backs, oliver)
-    add_team_member(football_defensive_line, oliver)
-    add_team_member(football_defensive_line, paul)
-    add_team_member(football_defensive_line, sandeep)
-    add_team_member(mens_tennis, sandeep)
-    add_team_member(football_defensive_line, sandeep)
+    legacy_add_team_member(womens_field_hockey, brigitte)
+    legacy_add_team_member(womens_tennis, brigitte)
+    legacy_add_team_member(football_defensive_backs, oliver)
+    legacy_add_team_member(football_defensive_line, oliver)
+    legacy_add_team_member(football_defensive_line, paul)
+    legacy_add_team_member(football_defensive_line, sandeep)
+    legacy_add_team_member(mens_tennis, sandeep)
+    legacy_add_team_member(football_defensive_line, sandeep)
 
+
+def load_cohorts():
     # Oliver's cohorts
     CohortFilter.create(label='All sports', team_group_codes=['MFB-DL', 'MFB-DL', 'WFH-AA'], uid='2040')
     CohortFilter.create(label='Football, Defense', team_group_codes=['MFB-DL', 'MFB-DL'], uid='2040')
@@ -144,7 +187,6 @@ def load_cohort_test_data():
     # Sandeep's cohorts
     CohortFilter.create(label='All sports', team_group_codes=['MFB-DL', 'MFB-DL', 'WFH-AA'], uid='1133399')
     CohortFilter.create(label='Football, Defense Backs', team_group_codes=['MFB-DB'], uid='1133399')
-
     db.session.commit()
 
 

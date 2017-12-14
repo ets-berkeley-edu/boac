@@ -11,33 +11,6 @@ def authenticated_session(fake_auth):
     fake_auth.login(test_uid)
 
 
-class TestTeamsList:
-    """Cohorts list API"""
-
-    api_path = '/api/teams/all'
-
-    def test_not_authenticated(self, client):
-        """returns 401 if not authenticated"""
-        response = client.get(TestTeamsList.api_path)
-        assert response.status_code == 401
-
-    def test_authenticated(self, authenticated_session, client):
-        """returns a well-formed response if authenticated"""
-        response = client.get(TestTeamsList.api_path)
-        assert response.status_code == 200
-        teams = response.json
-        assert len(teams) == 4
-        team_codes = [team['code'] for team in teams]
-        team_names = [team['name'] for team in teams]
-        assert ['FBM', 'TNM', 'FHW', 'TNW'] == team_codes
-        assert ['Football', 'Men\'s Tennis', 'Women\'s Field Hockey', 'Women\'s Tennis'] == team_names
-        assert teams[0]['name'] == 'Football'
-        assert teams[0]['totalMemberCount'] == 3
-        assert teams[1]['totalMemberCount'] == 1
-        assert teams[2]['totalMemberCount'] == 1
-        assert teams[3]['totalMemberCount'] == 1
-
-
 class TestCohortDetail:
     """TeamMember detail API"""
 
@@ -97,14 +70,6 @@ class TestCohortDetail:
         assert len(my_cohorts) == 2
         assert len(my_cohorts[0]['teamGroups']) == 2
         assert len(my_cohorts[1]['teamGroups']) == 1
-
-    def test_get_all_team_groups(self, authenticated_session, client):
-        response = client.get('/api/team_groups/all')
-        assert response.status_code == 200
-        team_groups = response.json
-        assert 5 == len(team_groups)
-        team_group_codes = [team_group['teamGroupCode'] for team_group in team_groups]
-        assert ['MFB-DB', 'MFB-DL', 'MTE-AA', 'WFH-AA', 'WTE-AA'] == team_group_codes
 
     def test_team_groups_members(self, authenticated_session, client):
         response = client.get('/api/team_groups/members?teamGroupCodes=MFB-DB&teamGroupCodes=MFB-DL')
