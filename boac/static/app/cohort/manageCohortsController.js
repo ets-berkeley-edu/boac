@@ -29,12 +29,18 @@
       });
     };
 
+    $scope.cancelEdit = function(cohort) {
+      cohort.label = cohort.labelOriginal;
+      setEditMode(cohort, false);
+    };
+
     $scope.updateCohort = function(cohort, label) {
-      cohort.hideError = false;
       cohortService.validateCohortLabel({id: cohort.id, label: label}, function(error) {
         cohort.error = error;
+        cohort.hideError = false;
         if (!cohort.error) {
           cohortFactory.updateCohort(cohort.id, label).then(function() {
+            cohort.labelOriginal = label;
             setEditMode(cohort, false);
           });
         }
@@ -46,6 +52,9 @@
     var init = function() {
       cohortFactory.getMyCohorts().then(function(response) {
         $scope.myCohorts = response.data;
+        _.each($scope.myCohorts, function(cohort) {
+          cohort.labelOriginal = cohort.label;
+        });
         resetPageView(angular.noop);
 
         $scope.isLoading = false;
