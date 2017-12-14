@@ -15,6 +15,7 @@
 
         $scope.isLoading = true;
         $scope.myCohorts = null;
+        $scope.truncate = _.truncate;
 
         var init = function() {
           cohortFactory.getMyCohorts().then(function(response) {

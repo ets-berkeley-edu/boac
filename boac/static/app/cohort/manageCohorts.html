@@ -20,7 +20,7 @@
     <div data-ng-repeat="cohort in myCohorts">
       <hr class="flex-row-wrap-separator"/>
       <div class="flex-container flex-space-between" data-ng-if="!cohort.editMode">
-        <div>
+        <div class="cohort-manage-label">
           <strong><span id="cohort-label-{{$index}}" data-ng-bind="cohort.label"></span></strong>
           <span class="faint-text">(<span id="cohort-member-count-{{$index}}" data-ng-bind="cohort.totalMemberCount"></span>)</span>
         </div>
@@ -50,12 +50,17 @@
       </div>
       <div class="flex-container flex-space-between flex-row-wrap" data-ng-show="cohort.editMode">
         <div class="cohort-manage-text-input">
-          <input type="text"
-                 id="cohort-label-input-{{$index}}"
+          <input aria-required="true"
                  class="form-control"
+                 data-ng-change="cohort.hideError = true"
                  data-ng-model="cohort.label"
+                 id="cohort-label-input-{{$index}}"
+                 maxlength="255"
+                 name="label"
                  required
-                 aria-required="true"/>
+                 type="text"/>
+          <div class="has-error" data-ng-bind="cohort.error" data-ng-if="cohort.error && !cohort.hideError"></div>
+          <div class="faint-text">255 character limit <span data-ng-if="cohort.label.length">({{255 - cohort.label.length}} left)</span></div>
         </div>
         <div class="flex-container flex-space-between">
           <button type="button"
@@ -67,6 +72,7 @@
           <button type="button"
                   id="cohort-save-btn-{{$index}}"
                   class="btn btn-sm btn-primary cohort-manage-btn"
+                  data-ng-disabled="!cohort.label"
                   data-ng-click="updateCohort(cohort, cohort.label)">
             Rename
           </button>

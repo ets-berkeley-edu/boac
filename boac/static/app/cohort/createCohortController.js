@@ -20,23 +20,35 @@
     };
   });
 
-  angular.module('boac').controller('CreateCohortModal', function(teamGroups, cohortFactory, $rootScope, $scope, $uibModalInstance) {
+  angular.module('boac').controller('CreateCohortModal', function(teamGroups, cohortFactory, cohortService, $rootScope, $scope, $uibModalInstance) {
 
-    $scope.cohortName = null;
-    $scope.errorMessage = null;
+    // If we use the name '$scope.cohort' then we will collide with model name of underlying /cohort view.
+    $scope.label = null;
+    $scope.error = {
+      hide: false,
+      message: null
+    };
 
     $scope.create = function() {
-      $scope.cohortName = _.trim($scope.cohortName);
-      if (_.isEmpty($scope.cohortName)) {
-        $scope.errorMessage = 'Required';
+      // The 'error.hide' flag allows us to hide validation error on-change of form input.
+      $scope.error.hide = false;
+      $scope.label = _.trim($scope.label);
+      if (_.isEmpty($scope.label)) {
+        $scope.error.message = 'Required';
+      } else if (_.size($scope.label) > 255) {
+        $scope.error.message = 'Name must be 255 characters or fewer';
       } else {
-        $rootScope.isSaving = true;
-
-        var selectedTeamGroups = _.filter(teamGroups, 'selected');
-        cohortFactory.createCohort($scope.cohortName, _.map(selectedTeamGroups, 'teamGroupCode')).then(function() {
-          $rootScope.isSaving = false;
+        cohortService.validateCohortLabel({label: $scope.label}, function(errorMessage) {
+          $scope.error.message = errorMessage;
+          if (!$scope.error.message) {
+            $rootScope.isSaving = true;
+            var selectedTeamGroups = _.filter(teamGroups, 'selected');
+            cohortFactory.createCohort($scope.label, _.map(selectedTeamGroups, 'teamGroupCode')).then(function() {
+              $rootScope.isSaving = false;
+              $uibModalInstance.close();
+            });
+          }
         });
-        $uibModalInstance.close();
       }
     };
 
