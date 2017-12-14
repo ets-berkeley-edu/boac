@@ -7,12 +7,20 @@ cx_Oracle==6.0.3
 decorator==4.1.2
 ldap3==2.4
 names==0.3.0
-pandas==0.21.0
 psycopg2==2.7.3.2
 requests==2.18.4
 simplejson==3.13.2
 https://github.com/python-cas/python-cas/archive/master.zip
+
+# Dependencies for pandas 0.21.1. Note that pandas is not included in this requirements.txt file because
+# of potential conflicts during installation; it must be separately installed once its dependencies are
+# in place.
+numpy==1.13.3
+python-dateutil==2.6.1
+pytz==2017.3
+
 # For testing
+
 https://github.com/gabrielfalcao/HTTPretty/archive/master.zip
 pytest==3.3.0
 pytest-flask==0.10.0
