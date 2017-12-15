@@ -40,6 +40,16 @@ def sis_enrollment_section_feed(enrollment):
     }
 
 
+def student_to_json(student):
+    return {
+        'sid': student.sid,
+        'uid': student.uid,
+        'firstName': student.first_name,
+        'lastName': student.last_name,
+        'inIntensiveCohort': student.in_intensive_cohort,
+    }
+
+
 def get(_dict, key, default_value=None):
     value = _dict and key in _dict and _dict[key]
     return value or default_value

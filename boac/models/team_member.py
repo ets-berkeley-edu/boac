@@ -85,60 +85,7 @@ class TeamMember(Base):
             athletes = sorted(athletes, key=lambda athlete: athlete[order_by]) if is_valid_key else athletes
         return athletes
 
-    @classmethod
-    def get_intensive_cohort(cls, order_by=None, offset=0, limit=50):
-        query_filter = cls.in_intensive_cohort.is_(True)
-        o = cls.get_ordering(order_by)
-        athletes = cls.query.distinct(o, cls.member_uid).order_by(o, cls.member_uid).filter(query_filter).offset(offset).limit(limit).all()
-        return cls.summarize_athletes([], athletes, query_filter)
-
-    @classmethod
-    def get_team(cls, code, order_by=None, offset=0, limit=50):
-        team = None
-        if cls.team_definitions.get(code):
-            team = {
-                'code': code,
-                'name': cls.team_definitions.get(code, code),
-            }
-            results = cls.query.distinct(cls.asc_sport_code).filter_by(code=code).all()
-            team_group_codes = [row.asc_sport_code for row in results]
-            # Add athletes list to the team
-            team.update(cls.get_athletes(team_group_codes, order_by, offset, limit))
-        return team
-
-    @classmethod
-    def get_athletes(cls, team_group_codes, order_by=None, offset=0, limit=50):
-        team_groups = cls.get_team_groups(team_group_codes)
-        query_filter = cls.asc_sport_code.in_(team_group_codes)
-        o = cls.get_ordering(order_by)
-        athletes = cls.query.distinct(o, cls.member_uid).order_by(o, cls.member_uid).filter(query_filter).offset(offset).limit(limit).all()
-        return cls.summarize_athletes(team_groups, athletes, query_filter)
-
-    @classmethod
-    def summarize_athletes(cls, team_groups, athletes, query_filter):
-        summary = {
-            'members': [],
-            'teamGroups': team_groups,
-            'totalMemberCount': 0,
-        }
-        for athlete in athletes:
-            member = athlete.to_api_json()
-            summary['members'].append(member)
-
-        summary['totalMemberCount'] = cls.query.distinct(cls.member_uid).filter(query_filter).count()
-        return summary
-
-    @classmethod
-    def get_team_groups(cls, team_group_codes):
-        query_filter = cls.asc_sport_code.in_(team_group_codes)
-        athletes = cls.query.distinct(cls.asc_sport_code).filter(query_filter).all()
-        return [athlete.team_group_summary() for athlete in athletes]
-
-    @classmethod
-    def get_ordering(cls, order_by):
-        return cls.last_name if order_by == 'last_name' else cls.first_name
-
-    def to_api_json(self, details=False):
+    def to_api_json(self):
         feed = {
             'id': self.id,
             'firstName': self.first_name,
@@ -154,12 +101,3 @@ class TeamMember(Base):
             'uid': self.member_uid,
         }
         return feed
-
-    def team_group_summary(self):
-        return {
-            'sportCode': self.asc_sport_code_core,
-            'sportName': self.asc_sport_core,
-            'teamCode': self.code,
-            'teamGroupCode': self.asc_sport_code,
-            'teamGroupName': self.asc_sport,
-        }

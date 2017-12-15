@@ -1,15 +1,9 @@
 from boac import db
+import boac.api.util as api_util
 from boac.models.base import Base
+from boac.models.db_relationships import student_athletes
 from boac.models.student import Student
 from sqlalchemy import func
-
-
-student_athletes = db.Table(
-    'student_athletes',
-    Base.metadata,
-    db.Column('group_code', db.String(80), db.ForeignKey('athletics.group_code'), primary_key=True),
-    db.Column('sid', db.String(80), db.ForeignKey('students.sid'), primary_key=True),
-)
 
 
 class Athletics(Base):
@@ -19,7 +13,7 @@ class Athletics(Base):
     group_name = db.Column(db.String(255))
     team_code = db.Column(db.String(80))
     team_name = db.Column(db.String(255))
-    athletes = db.relationship('Student', secondary=student_athletes)
+    athletes = db.relationship('Student', secondary=student_athletes, back_populates='athletics')
 
     def __repr__(self):
         return '<TeamGroup {} ({}), team {} ({}), updated={}, created={}>'.format(
@@ -48,6 +42,12 @@ class Athletics(Base):
         return [translate_row(row) for row in results]
 
     @classmethod
+    def get_team_groups(cls, group_codes):
+        query_filter = cls.group_code.in_(group_codes)
+        athletes = cls.query.order_by(cls.group_name).distinct(cls.group_name).filter(query_filter).all()
+        return [athlete.to_api_json() for athlete in athletes]
+
+    @classmethod
     def all_teams(cls):
         query = db.session.query(cls.team_code, cls.team_name, func.count(func.distinct(Student.sid)))
         order_by = [cls.team_name, cls.team_code]
@@ -60,3 +60,39 @@ class Athletics(Base):
                 'totalMemberCount': row[2],
             }
         return [translate_row(row) for row in results]
+
+    @classmethod
+    def get_team(cls, team_code, order_by):
+        athletics = Athletics.query.filter_by(team_code=team_code).all()
+        if len(athletics):
+            distinct_athletes = []
+            members = []
+            teamGroups = []
+            for group in athletics:
+                teamGroups.append({
+                    'teamGroupCode': group.group_code,
+                    'teamGroupName': group.group_name,
+                })
+                for athlete in group.athletes:
+                    if athlete.sid not in distinct_athletes:
+                        members.append(athlete)
+                        distinct_athletes.append(athlete.sid)
+            members = sorted(members, key=lambda m: getattr(m, order_by))
+            team = {
+                'code': athletics[0].team_code,
+                'name': athletics[0].team_name,
+                'members': [api_util.student_to_json(m) for m in members],
+                'teamGroups': teamGroups,
+                'totalMemberCount': len(members),
+            }
+        else:
+            team = None
+        return team
+
+    def to_api_json(self):
+        return {
+            'sportName': self.team_name,
+            'teamCode': self.team_code,
+            'teamGroupCode': self.group_code,
+            'teamGroupName': self.group_name,
+        }

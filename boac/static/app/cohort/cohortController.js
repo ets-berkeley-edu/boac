@@ -66,22 +66,27 @@
       var isTeam = isNaN(code);
       $scope.pagination.enabled = !isTeam;
       var page = $scope.pagination.enabled ? $scope.pagination.currentPage : 0;
+      var orderBy = $scope.orderBy.selected;
       var limit = $scope.pagination.enabled ? $scope.pagination.itemsPerPage : Number.MAX_SAFE_INTEGER;
       var offset = page === 0 ? 0 : (page - 1) * limit;
 
+      var handleSuccess = function(response) {
+        $scope.cohort = parseCohortFeed(response);
+        $scope.isLoading = false;
+        return callback($scope.cohort);
+      };
+      var handleError = function(err) {
+        $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
+        return callback(null);
+      };
       $scope.isLoading = true;
-      var getCohort = isTeam ? cohortFactory.getTeam : cohortFactory.getCohort;
-      getCohort(code, $scope.orderBy.selected, offset, limit).then(
-        function(response) {
-          $scope.cohort = parseCohortFeed(response);
-          $scope.isLoading = false;
-          return callback($scope.cohort);
-        },
-        function(err) {
-          $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
-          return callback(null);
-        }
-      );
+      if (code === 'intensive') {
+        cohortFactory.getIntensiveCohort(orderBy, offset, limit).then(handleSuccess, handleError);
+      } else if (isTeam) {
+        cohortFactory.getTeam(code, orderBy).then(handleSuccess, handleError);
+      } else {
+        cohortFactory.getCohort(code, orderBy, offset, limit).then(handleSuccess, handleError);
+      }
     };
 
     /**

@@ -6,14 +6,8 @@ simply mocked-out a la "demo mode" for now.
 
 from boac import db
 from boac.models.base import Base
+from boac.models.db_relationships import cohort_filter_owners
 from flask_login import UserMixin
-
-cohort_filter_owners = db.Table(
-    'cohort_filter_owners',
-    Base.metadata,
-    db.Column('cohort_filter_id', db.Integer, db.ForeignKey('cohort_filters.id'), primary_key=True),
-    db.Column('user_id', db.Integer, db.ForeignKey('authorized_users.id'), primary_key=True),
-)
 
 
 class AuthorizedUser(Base, UserMixin):
