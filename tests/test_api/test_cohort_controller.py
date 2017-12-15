@@ -12,55 +12,7 @@ def authenticated_session(fake_auth):
 
 
 class TestCohortDetail:
-    """TeamMember detail API"""
-
-    valid_api_path = '/api/team/FHW'
-    invalid_api_path = '/api/team/XYZ'
-
-    def test_not_authenticated(self, client):
-        """returns 401 if not authenticated"""
-        response = client.get(TestCohortDetail.valid_api_path)
-        assert response.status_code == 401
-
-    def test_path_without_translation(self, authenticated_session, client):
-        """returns code as name when no code-to-name translation exists"""
-        response = client.get(TestCohortDetail.invalid_api_path)
-        assert response.status_code == 404
-        assert 'code' not in response.json
-        assert 'No team found' in json.loads(response.data)['message']
-
-    def test_valid_path(self, authenticated_session, client):
-        """returns a well-formed response on a valid code if authenticated"""
-        response = client.get(TestCohortDetail.valid_api_path)
-        assert response.status_code == 200
-        team = response.json
-        assert team['code'] == 'FHW'
-        assert team['name'] == 'Field Hockey - Women'
-        members = team['members']
-        assert team['totalMemberCount'] == len(members) == 1
-        assert members[0]['firstName'] == 'Brigitte'
-        assert members[0]['lastName'] == 'Lin'
-        assert members[0]['uid'] == '61889'
-        assert members[0]['avatar_url'] == 'https://calspirit.berkeley.edu/oski/images/oskibio.jpg'
-
-    def test_includes_team_member_sis_data(self, authenticated_session, client):
-        """includes SIS data for team members"""
-        response = client.get(TestCohortDetail.valid_api_path)
-        field_hockey_star = response.json['members'][0]
-        assert field_hockey_star['cumulativeGPA'] == 3.8
-        assert field_hockey_star['cumulativeUnits'] == 101.3
-        assert field_hockey_star['level'] == 'Junior'
-        assert field_hockey_star['majors'] == ['English BA', 'Astrophysics BS']
-
-    def test_includes_team_member_current_enrollments(self, authenticated_session, client):
-        """includes current-term active enrollments and analytics for team members"""
-        response = client.get(TestCohortDetail.valid_api_path)
-        athlete = response.json['members'][0]
-        assert athlete['currentTerm']['termName'] == 'Fall 2017'
-        assert athlete['currentTerm']['enrolledUnits'] == 7.5
-        assert len(athlete['currentTerm']['enrollments']) == 2
-        assert athlete['currentTerm']['enrollments'][0]['displayName'] == 'BURMESE 1A'
-        assert len(athlete['currentTerm']['enrollments'][0]['canvasSites']) == 1
+    """Cohort API"""
 
     def test_my_cohorts(self, authenticated_session, client):
         response = client.get('/api/cohorts/my')
@@ -70,13 +22,6 @@ class TestCohortDetail:
         assert len(my_cohorts) == 2
         assert len(my_cohorts[0]['teamGroups']) == 2
         assert len(my_cohorts[1]['teamGroups']) == 1
-
-    def test_team_groups_members(self, authenticated_session, client):
-        response = client.get('/api/team_groups/members?teamGroupCodes=MFB-DB&teamGroupCodes=MFB-DL')
-        assert response.status_code == 200
-        assert 'members' in response.json
-        member_uid_list = [member['uid'] for member in response.json['members']]
-        assert ['2040', '242881', '1133399'] == member_uid_list
 
     def test_get_cohort(self, authenticated_session, client):
         """returns a well-formed response with custom cohort"""
@@ -136,7 +81,7 @@ class TestCohortDetail:
         assert cohort['totalMemberCount'] == len(cohort['members']) == 2
         assert cohort['members'][0]['uid'] == '61889'
         assert cohort['members'][1]['uid'] == '242881'
-        assert len(cohort['teamGroups']) == 0
+        assert 'teamGroups' not in cohort
 
     def test_offset_and_limit(self, authenticated_session, client):
         """returns a well-formed response with custom cohort"""
@@ -157,25 +102,23 @@ class TestCohortDetail:
     def test_create_cohort(self, authenticated_session, client):
         """creates custom cohort, owned by current user"""
         label = 'Tennis'
-        team_group_codes = ['WTE-AA', 'MTE-AA']
+        group_codes = ['MTE-AA', 'WTE-AA']
         custom_cohort = {
             'label': label,
-            'teamGroupCodes': team_group_codes,
+            'teamGroupCodes': group_codes,
         }
         response = client.post('/api/cohort/create', data=json.dumps(custom_cohort), content_type='application/json')
         assert response.status_code == 200
 
         cohort = json.loads(response.data)
         assert 'label' in cohort and cohort['label'] == label
-        assert 'teamGroups' in cohort and len(cohort['teamGroups']) == 2
-        assert cohort['teamGroups'][0]['teamGroupCode'] in team_group_codes
-        assert cohort['teamGroups'][1]['teamGroupCode'] in team_group_codes
+        assert 'teamGroups' in cohort
+        assert group_codes == [g['teamGroupCode'] for g in cohort['teamGroups']]
 
         same_cohort = CohortFilter.find_by_id(cohort['id'])
         assert same_cohort['label'] == label
         assert 'teamGroups' in cohort and len(cohort['teamGroups']) == 2
-        assert cohort['teamGroups'][0]['teamGroupCode'] in team_group_codes
-        assert cohort['teamGroups'][1]['teamGroupCode'] in team_group_codes
+        assert group_codes == [g['teamGroupCode'] for g in cohort['teamGroups']]
 
     def test_delete_cohort_not_authenticated(self, client):
         """custom cohort deletion requires authentication"""

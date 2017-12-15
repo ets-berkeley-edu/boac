@@ -57,15 +57,12 @@
       return $http.get('/api/cohorts/my');
     };
 
-    var getTeam = function(code, orderBy, offset, limit) {
+    var getTeam = function(code, orderBy) {
       var params = {
-        api: code === 'intensive' ? '/api/intensive_cohort' : '/api/team/${code}',
         code: code,
-        offset: offset || 0,
-        limit: limit || 50,
         orderBy: orderBy || 'first_name'
       };
-      var apiPath = utilService.format('${api}?offset=${offset}&limit=${limit}&orderBy=${orderBy}', params);
+      var apiPath = utilService.format('/api/team/${code}?orderBy=${orderBy}', params);
       return $http.get(apiPath);
     };
 

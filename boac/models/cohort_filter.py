@@ -6,9 +6,11 @@ simply mocked-out a la "demo mode" for now.
 
 import json
 from boac import db
+from boac.models.athletics import Athletics
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.authorized_user import cohort_filter_owners
 from boac.models.base import Base
+from boac.models.student import Student
 from boac.models.team_member import TeamMember
 from flask_login import UserMixin
 from sqlalchemy.dialects.postgresql import JSONB
@@ -90,13 +92,18 @@ class CohortFilter(Base, UserMixin):
 
 
 def construct_cohort(cf, order_by=None, offset=0, limit=50):
-    criteria = cf.filter_criteria if isinstance(cf.filter_criteria, dict) else json.loads(cf.filter_criteria)
-    team_group_codes = criteria['team_group_codes'] if 'team_group_codes' in criteria else None
+    criteria = cf if isinstance(cf.filter_criteria, dict) else json.loads(cf.filter_criteria)
     cohort = {
         'id': cf.id,
         'label': cf.label,
         'owners': [user.uid for user in cf.owners],
     }
-    if limit > 0:
-        cohort.update(TeamMember.get_athletes(team_group_codes, order_by, offset, limit))
+    results = Student.get_students(criteria=criteria, order_by=order_by, offset=offset, limit=limit)
+    group_codes = criteria['team_group_codes'] if 'team_group_codes' in criteria else None
+    team_groups = Athletics.get_team_groups(group_codes)
+    cohort.update({
+        'members': results['students'],
+        'teamGroups': team_groups,
+        'totalMemberCount': results['totalStudentCount'],
+    })
     return cohort

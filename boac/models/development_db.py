@@ -128,6 +128,7 @@ def create_team_group(t):
 def assign_athletes(student, team_groups):
     student = Student(
         sid=student['sid'],
+        uid=student['uid'],
         first_name=student['first_name'],
         last_name=student['last_name'],
         in_intensive_cohort=student['in_intensive_cohort'],
