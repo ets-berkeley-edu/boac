@@ -26,6 +26,7 @@ def merge_sis_profile_academic_status(sis_response, sis_profile):
 
     sis_profile['cumulativeGPA'] = academic_status.get('cumulativeGPA', {}).get('average')
     sis_profile['level'] = academic_status.get('currentRegistration', {}).get('academicLevel', {}).get('level')
+    sis_profile['termsInAttendance'] = academic_status.get('termsInAttendance')
 
     matriculation_term_name = academic_status.get('studentCareer', {}).get('matriculation', {}).get('term', {}).get('name')
     if matriculation_term_name and re.match('\A2\d{3} (?:Spring|Summer|Fall)\Z', matriculation_term_name):
