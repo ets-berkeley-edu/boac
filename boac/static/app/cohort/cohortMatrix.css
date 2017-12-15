@@ -1,39 +1,13 @@
 .cohort-matrix {
+  border: 1px solid #999;
   height: 500px;
   margin: 0;
   width: 910px;
 }
 
-.cohort-matrix rect {
-  fill: transparent;
-  shape-rendering: crispEdges;
-}
-
-.cohort-matrix text {
-  font: 15px sans-serif bold;
-}
-
 .cohort-matrix .dot {
   cursor: pointer;
   stroke: #000;
-}
-
-.cohort-matrix .axis path,
-.cohort-matrix .axis line {
-  fill: none;
-  stroke: rgba(0, 0, 0, 0.1);
-  shape-rendering: crispEdges;
-}
-
-.cohort-matrix .axisLine {
-  fill: none;
-  shape-rendering: crispEdges;
-  stroke: rgba(0, 0, 0, 0.5);
-  stroke-width: 2px;
-}
-
-.cohort-matrix .label {
-  fill: #777;
 }
 
 .cohort-matrix .overlay {
@@ -42,17 +16,27 @@
   cursor: ew-resize;
 }
 
-.cohort-matrix .sample.label {
-  font: 300 30px "Helvetica Neue";
-  fill: #ddd;
+.cohort-matrix-axis path,
+.cohort-matrix-axis line {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.1);
+  shape-rendering: crispEdges;
 }
 
-.cohort-matrix .sample.label.active {
-  fill: #aaa;
+.cohort-matrix-axis text {
+  display: none;
+}
+
+.cohort-matrix-axis-label {
+  font-size: 16px;
+  font-weight: 200;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  stroke: #999;
 }
 
 .cohort-matrix-container {
-  margin: 20px 20px 100px 20px;
+  margin-bottom: 100px;
   position: relative;
 }
 

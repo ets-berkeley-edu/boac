@@ -42,11 +42,13 @@
 
           var xNewScale = transform.rescaleX(xScale);
           xAxis.scale(xNewScale);
-          svg.select('.x.axis').call(xAxis);
+          svg.select('.x.cohort-matrix-axis').call(xAxis);
 
           var yNewScale = transform.rescaleY(yScale);
           yAxis.scale(yNewScale);
-          svg.select('.y.axis').call(yAxis);
+          svg.select('.y.cohort-matrix-axis').call(yAxis);
+
+          svg.select('.cohort-matrix-gradient-rect').attr('transform', transform);
 
           svg.selectAll('.dot')
             .attr('cx', function(d) { return transform.applyX(xScale(x(d))); })
@@ -61,37 +63,74 @@
         .append('svg')
         .attr('width', width)
         .attr('height', height)
+        .attr('stroke', 1)
         .call(zoom);
 
-      // Add the x-axis.
       svg.append('g')
-        .attr('class', 'x axis')
+        .attr('clip-path', 'url(#clip-inner)')
+        .append('rect')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('class', 'cohort-matrix-gradient-rect')
+        .attr('fill', 'url(#cohort-matrix-background-gradient)');
+
+      svg.append('g')
+        .attr('class', 'x cohort-matrix-axis')
         .attr('transform', 'translate(0,' + height + ')')
         .call(xAxis);
 
       // Add the y-axis.
       svg.append('g')
-        .attr('class', 'y axis')
+        .attr('class', 'y cohort-matrix-axis')
         .call(yAxis);
 
       // Add an x-axis label.
       svg.append('text')
-        .attr('class', 'x label')
-        .attr('text-anchor', 'end')
-        .attr('x', width)
-        .attr('y', height - 6)
+        .attr('class', 'cohort-matrix-axis-label')
+        .attr('text-anchor', 'start')
+        .attr('x', 0)
+        .attr('y', height + 30)
         .text('Page views');
 
       // Add a y-axis label.
       svg.append('text')
-        .attr('class', 'y label')
-        .attr('text-anchor', 'end')
-        .attr('y', 6)
-        .attr('dy', '.75em')
+        .attr('class', 'cohort-matrix-axis-label')
+        .attr('text-anchor', 'start')
+        .attr('x', -height)
+        .attr('y', -20)
         .attr('transform', 'rotate(-90)')
         .text(yAxisName);
 
       var defs = svg.append('svg:defs');
+
+      var linearGradient = defs.append('linearGradient')
+        .attr('id', 'cohort-matrix-background-gradient')
+        .attr('x1', '0%')
+        .attr('y1', '100%')
+        .attr('x2', '100%')
+        .attr('y2', '0%')
+        .attr('spreadMethod', 'pad');
+      linearGradient.append('stop')
+        .attr('offset', '0%')
+        .attr('stop-color', '#ffe5e5')
+        .attr('stop-opacity', '1');
+      linearGradient.append('stop')
+        .attr('offset', '50%')
+        .attr('stop-color', '#fffde5')
+        .attr('stop-opacity', '1');
+      linearGradient.append('stop')
+        .attr('offset', '100%')
+        .attr('stop-color', '#e8ffe5')
+        .attr('stop-opacity', '1');
+
+      defs.append('svg:clipPath')
+        .attr('id', 'clip-inner')
+        .append('svg:rect')
+        .attr('id', 'clip-rect-inner')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', width)
+        .attr('height', height);
 
       function avatar(d) {
         var avatarId = 'avatar_' + d.uid;
@@ -108,10 +147,6 @@
         return 'url(#' + avatarId + ')';
       }
 
-      svg.append('rect')
-        .attr('width', width)
-        .attr('height', height);
-
       var objects = svg.append('svg')
         .attr('width', width)
         .attr('height', height)
@@ -127,28 +162,6 @@
         .attr('y', -35)
         .attr('width', width + 70)
         .attr('height', height + 120);
-
-      svg.append('text')
-        .attr('class', 'sample label')
-        .attr('text-anchor', 'end')
-        .attr('y', height - 24)
-        .attr('x', width)
-        .text('Student Performance Quadrant');
-
-      objects.append('svg:line')
-        .classed('axisLine hAxisLine', true)
-        .attr('x1', 0)
-        .attr('y1', 0)
-        .attr('x2', width)
-        .attr('y2', 0)
-        .attr('transform', 'translate(0,' + height + ')');
-
-      objects.append('svg:line')
-        .classed('axisLine vAxisLine', true)
-        .attr('x1', 0)
-        .attr('y1', 0)
-        .attr('x2', 0)
-        .attr('y2', height);
 
       var dotGroup = objects.append('g')
         .attr('clip-path', 'url(#clip)');
