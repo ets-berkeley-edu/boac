@@ -56,7 +56,7 @@ class TestSisEnrollmentsApi:
 
         assert enrollments[1]['classSection']['class']['course']['displayName'] == 'MED ST 205'
         assert enrollments[1]['classSection']['number'] == '001'
-        assert enrollments[1]['enrollmentStatus']['status']['code'] == 'D'
+        assert enrollments[1]['enrollmentStatus']['status']['code'] == 'E'
         assert enrollments[1]['enrolledUnits']['taken'] == 5
         assert enrollments[1]['gradingBasis']['code'] == 'GRD'
 

@@ -75,6 +75,12 @@ def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name, includ
             enrollments_by_class[class_name]['sections'].append(section_feed)
             if is_primary_section(section_feed):
                 enrolled_units += section_feed['units']
+                # Since we allow only one primary section per class, it's safe to associate units and grade information
+                # with the class as well as the section.
+                enrollments_by_class[class_name]['grade'] = section_feed['grade']
+                enrollments_by_class[class_name]['gradingBasis'] = section_feed['gradingBasis']
+                enrollments_by_class[class_name]['midtermGrade'] = section_feed['midtermGrade']
+                enrollments_by_class[class_name]['units'] = section_feed['units']
 
         enrollments_feed = sorted(enrollments_by_class.values(), key=lambda x: x['displayName'])
         sort_sections(enrollments_feed)
@@ -94,12 +100,27 @@ def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name, includ
 
     # Screen out unwanted enrollments after course site merge so that associated sites are removed rather than orphaned.
     remove_athletic_enrollments(term_feed)
-    if not include_dropped_enrollments:
-        remove_dropped_enrollments(term_feed)
+    # If dropped enrollments are to be included, collect section data in a separate list before removal.
+    if include_dropped_enrollments:
+        term_feed['droppedSections'] = collect_dropped_sections(term_feed)
+    remove_dropped_enrollments(term_feed)
 
     sort_canvas_course_sites(term_feed)
 
     return term_feed
+
+
+def collect_dropped_sections(term_feed):
+    dropped_sections = []
+    for enrollment in term_feed['enrollments']:
+        for section in enrollment['sections']:
+            if section['enrollmentStatus'] == 'D':
+                dropped_sections.append({
+                    'displayName': enrollment['displayName'],
+                    'component': section['component'],
+                    'sectionNumber': section['sectionNumber'],
+                })
+    return dropped_sections
 
 
 def is_primary_section(section_feed):

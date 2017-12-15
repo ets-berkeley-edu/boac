@@ -16,23 +16,72 @@
   display: flex;
 }
 
+.student-profile-class {
+  border-top: 1px solid #999;
+  margin-top: 20px;
+}
+
+.student-profile-class-grade {
+  flex: 0.05;
+  font-weight: bold;
+}
+
+.student-profile-class-grading-basis {
+  color: #666;
+  flex: 0.05;
+  font-style: italic;
+}
+
+.student-profile-class-heading {
+  display: flex;
+  flex-direction: row;
+  margin-top: 15px;
+}
+
+.student-profile-class-name {
+  font-size: 16px;
+  font-weight: 400;
+  margin: 5px 0 30px;
+}
+
+.student-profile-class-notation {
+  color: #999;
+}
+
 .student-profile-class-sections {
-  margin: 10px 0;
+  flex: 0.15;
 }
 
 .student-profile-class-title {
   font-size: 18px;
+  margin: 0;
 }
 
-.student-profile-classes {
-  flex: 1;
-  margin: 20px;
+.student-profile-class-title-outer {
+  flex: 0.65;
+}
+
+.student-profile-class-units {
+  flex: 0.15;
 }
 
 .student-profile-classes-header {
   font-size: 30px;
   font-weight: 400;
   margin: 0 0 5px 0;
+  color: #999;
+}
+
+.student-profile-dropped-section {
+  margin-top: 25px;
+}
+
+.student-profile-dropped-section-icon {
+  color: #f0ad4e;
+}
+
+.student-profile-dropped-section-title {
+  font-weight: bold;
 }
 
 .student-profile-header {
@@ -123,4 +172,24 @@
 
 .student-profile-sidebar-table th {
   padding: 15px 0 3px 0;
+}
+
+.student-profile-view-previous-semesters {
+  margin: 0;
+  padding: 0;
+}
+
+.student-profile-view-previous-semesters-wrapper {
+  text-align: center;
+}
+
+.student-profile-term {
+  border-bottom: 1px solid #999;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+}
+
+.student-profile-terms {
+  flex: 1;
+  margin: 20px;
 }

@@ -49,6 +49,8 @@
       boxplotService.drawBoxplot(elementId, course.analytics[metric]);
     };
 
+    $scope.showAllTerms = false;
+
     loadAnalytics();
   });
 
