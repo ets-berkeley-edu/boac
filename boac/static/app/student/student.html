@@ -31,6 +31,11 @@
             </div>
           </div>
           <h3 class="student-profile-sidebar-header" data-ng-bind="student.sisProfile.level.description"></h3>
+          <div class="student-profile-sidebar-details" data-ng-if="student.sisProfile.termsInAttendance">
+            <span data-ng-pluralize
+                  count="student.sisProfile.termsInAttendance"
+                  when="{'one': '1 Term in Attendance', 'other': '{{student.sisProfile.termsInAttendance}} Terms in Attendance'}"></span>
+          </div>
         </div>
         <div class="student-profile-sidebar-box">
           <h3 class="student-profile-sidebar-header">Degree Progress</h3>

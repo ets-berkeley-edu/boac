@@ -274,6 +274,7 @@ class TestUserAnalytics:
         assert sis_profile['plans'][1]['program'] == 'Undergrad Letters & Science'
         assert sis_profile['preferredName'] == 'Osk Bear'
         assert sis_profile['primaryName'] == 'Oski Bear'
+        assert sis_profile['termsInAttendance'] == 5
 
     def test_sis_profile_unexpected_payload(self, authenticated_session, client):
         """gracefully handles unexpected SIS profile data"""

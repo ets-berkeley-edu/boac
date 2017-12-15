@@ -13,6 +13,7 @@ class TestSisStudentApi:
         assert student['academicStatuses'][0]['currentRegistration']['academicLevel']['level']['description'] == 'Junior'
         assert student['academicStatuses'][0]['currentRegistration']['athlete'] is True
         assert student['academicStatuses'][0]['studentPlans'][0]['academicPlan']['plan']['description'] == 'English BA'
+        assert student['academicStatuses'][0]['termsInAttendance'] == 5
         assert student['emails'][0]['emailAddress'] == 'oski@berkeley.edu'
 
     def test_inner_get_student(self, app):
