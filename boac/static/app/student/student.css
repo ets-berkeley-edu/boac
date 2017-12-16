@@ -109,6 +109,14 @@
   padding-right: 4px;
 }
 
+.student-profile-sidebar-subdetails {
+  color: #999;
+  font-size: 11px;
+  font-style: italic;
+  margin-top: 10px;
+  text-align: center;
+}
+
 .student-profile-sidebar-table {
   font-size: 12px;
   line-height: 1.2em;

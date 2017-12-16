@@ -79,17 +79,23 @@ def load_canvas_scores(sis_term_id=None):
 
 
 def load_sis_externals(sis_term_id, csid):
-    from boac.externals import sis_enrollments_api, sis_student_api
+    from boac.externals import sis_degree_progress_api, sis_enrollments_api, sis_student_api
 
     success_count = 0
     failures = []
 
-    if sis_student_api.get_student(csid):
+    sis_response = sis_student_api.get_student(csid)
+    if sis_response:
         success_count += 1
+        academic_statuses = sis_response.get('academicStatuses')
+        if academic_statuses and (len(academic_statuses) > 0):
+            if academic_statuses[0].get('currentRegistration', {}).get('academicCareer', {}).get('code') == 'UGRD':
+                if sis_degree_progress_api.get_degree_progress(csid):
+                    success_count += 1
+                else:
+                    failures.append('SIS get_degree_progresss failed for CSID {}'.format(csid))
     else:
-        failures.append('SIS get_student failed for CSID {}'.format(
-            csid,
-        ))
+        failures.append('SIS get_student failed for CSID {}'.format(csid))
 
     enrollments = sis_enrollments_api.get_enrollments(csid, sis_term_id)
     if enrollments:

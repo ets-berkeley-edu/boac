@@ -37,63 +37,29 @@
                   when="{'one': '1 Term in Attendance', 'other': '{{student.sisProfile.termsInAttendance}} Terms in Attendance'}"></span>
           </div>
         </div>
-        <div class="student-profile-sidebar-box">
+        <div class="student-profile-sidebar-box" data-ng-if="student.sisProfile.degreeProgress">
           <h3 class="student-profile-sidebar-header">Degree Progress</h3>
           <table class="student-profile-sidebar-table">
             <tr>
               <th>University Requirements</th>
               <th>Status</th>
             </tr>
-            <tr>
-              <td>Entry Level Writing</td>
-              <td data-ng-if="student.sisProfile.degreeProgress.entryLevelWriting">
-                <i class="fa fa-check student-profile-sidebar-icon"></i> Satisfied
-              </td>
-              <td data-ng-if="!student.sisProfile.degreeProgress.entryLevelWriting">
-                <i class="fa fa-exclamation-triangle student-profile-sidebar-icon"></i> Not Satisfied
-              </td>
-            </tr>
-            <tr>
-              <td>American History</td>
-              <td data-ng-if="student.sisProfile.degreeProgress.americanHistory">
-                <i class="fa fa-check student-profile-sidebar-icon"></i> Satisfied
-              </td>
-              <td data-ng-if="!student.sisProfile.degreeProgress.americanHistory">
-                <i class="fa fa-exclamation-triangle student-profile-sidebar-icon"></i> Not Satisfied
-              </td>
-            </tr>
-            <tr>
-              <td>American Institutions</td>
-              <td data-ng-if="student.sisProfile.degreeProgress.americanInstitutions">
-                <i class="fa fa-check student-profile-sidebar-icon"></i> Satisfied
-              </td>
-              <td data-ng-if="!student.sisProfile.degreeProgress.americanInstitutions">
-                <i class="fa fa-exclamation-triangle student-profile-sidebar-icon"></i> Not Satisfied
-              </td>
-            </tr>
-            <tr>
-              <td>American Cultures</td>
-              <td data-ng-if="student.sisProfile.degreeProgress.americanCultures">
-                <i class="fa fa-check student-profile-sidebar-icon"></i> Satisfied
-              </td>
-              <td data-ng-if="!student.sisProfile.degreeProgress.americanCultures">
-                <i class="fa fa-exclamation-triangle student-profile-sidebar-icon"></i> Not Satisfied
-              </td>
-            </tr>
-            <tr>
-              <th>Letters &amp; Sciences Requirements</th>
-              <th>Status</th>
-            </tr>
-            <tr>
-              <td>Foreign Language</td>
-              <td data-ng-if="student.sisProfile.degreeProgress.foreignLanguage">
-                <i class="fa fa-check student-profile-sidebar-icon"></i> Satisfied
-              </td>
-              <td data-ng-if="!student.sisProfile.degreeProgress.foreignLanguage">
-                <i class="fa fa-exclamation-triangle student-profile-sidebar-icon"></i> Not Satisfied
+            <tr data-ng-repeat="requirement in student.sisProfile.degreeProgress.requirements">
+              <td data-ng-bind="requirement.name"></td>
+              <td>
+                <i data-ng-class="{
+                        'fa fa-check student-profile-sidebar-icon': requirement.status === 'Satisfied',
+                        'fa fa-exclamation-triangle student-profile-sidebar-icon': requirement.status === 'Not Satisfied',
+                        'fa fa-clock-o student-profile-sidebar-icon': requirement.status === 'In Progress'
+                    }"></i>
+                <span data-ng-bind="requirement.status"></span>
               </td>
             </tr>
           </table>
+          <div class="student-profile-sidebar-subdetails">
+            <div>Degree Progress as of <span data-ng-bind="student.sisProfile.degreeProgress.reportDate"></span>.</div>
+            <div>Advisors can refresh this data at <a data-ng-href="{{student.studentProfileLink}}">CalCentral</a>.</div>
+          </div>
         </div>
       </div>
       <div>

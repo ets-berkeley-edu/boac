@@ -1,5 +1,6 @@
 import re
 
+from boac.externals import sis_degree_progress_api
 from boac.externals import sis_student_api
 
 
@@ -10,10 +11,11 @@ def merge_sis_profile(csid):
 
     sis_profile = {}
     merge_sis_profile_academic_status(sis_response, sis_profile)
-    merge_sis_profile_degree_progress(sis_response, sis_profile)
     merge_sis_profile_emails(sis_response, sis_profile)
     merge_sis_profile_names(sis_response, sis_profile)
     merge_sis_profile_phones(sis_response, sis_profile)
+    if sis_profile['academicCareer'] == 'UGRD':
+        sis_profile['degreeProgress'] = sis_degree_progress_api.parsed_degree_progress(csid)
     return sis_profile
 
 
@@ -27,6 +29,7 @@ def merge_sis_profile_academic_status(sis_response, sis_profile):
     sis_profile['cumulativeGPA'] = academic_status.get('cumulativeGPA', {}).get('average')
     sis_profile['level'] = academic_status.get('currentRegistration', {}).get('academicLevel', {}).get('level')
     sis_profile['termsInAttendance'] = academic_status.get('termsInAttendance')
+    sis_profile['academicCareer'] = academic_status.get('currentRegistration', {}).get('academicCareer', {}).get('code')
 
     matriculation_term_name = academic_status.get('studentCareer', {}).get('matriculation', {}).get('term', {}).get('name')
     if matriculation_term_name and re.match('\A2\d{3} (?:Spring|Summer|Fall)\Z', matriculation_term_name):
@@ -53,39 +56,6 @@ def merge_sis_profile_academic_status(sis_response, sis_profile):
             program = student_plan.get('academicPlan', {}).get('academicProgram', {}).get('program', {})
             plan_feed['program'] = program.get('description')
         sis_profile['plans'].append(plan_feed)
-
-
-def merge_sis_profile_degree_progress(sis_response, sis_profile):
-    sis_profile['degreeProgress'] = {
-        'americanCultures': False,
-        'americanInstitutions': False,
-        'americanHistory': False,
-        'entryLevelWriting': False,
-        'foreignLanguage': False,
-    }
-
-    # TODO These code translations take provided descriptions at face value. Analysis and confirmation is needed.
-    for attribute in sis_response.get('studentAttributes', []):
-        code = attribute.get('type', {}).get('code')
-        # American History completed at UCB
-        if code == 'AHC':
-            sis_profile['degreeProgress']['americanHistory'] = True
-        # American History & Institutions high school or pre-matriculation
-        elif code == 'AHI1' or code == 'AHIP':
-            sis_profile['degreeProgress']['americanHistory'] = True
-            sis_profile['degreeProgress']['americanInstitutions'] = True
-        # American Institutions completed at UCB
-        elif code == 'AIC':
-            sis_profile['degreeProgress']['americanInstitutions'] = True
-        # Entry-Level Writing satisfied pre-matriculation or completed at UCB
-        elif code == 'ELW' or code == 'VELW':
-            sis_profile['degreeProgress']['entryLevelWriting'] = True
-        # American Cultures completed at UCB
-        elif code == 'VAC':
-            sis_profile['degreeProgress']['americanCultures'] = True
-        # Foreign Language completed high school or at UCB
-        elif code == 'VFLH' or code == 'VLFL':
-            sis_profile['degreeProgress']['foreignLanguage'] = True
 
 
 def merge_sis_profile_emails(sis_response, sis_profile):

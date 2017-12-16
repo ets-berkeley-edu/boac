@@ -51,9 +51,12 @@ def user_analytics(uid):
 
     user_courses = canvas.get_student_courses(uid) or []
     if student and sis_profile:
+        # CalCentral's Student Overview page is advisors' official information source for the student.
+        student_profile_link = 'https://calcentral.berkeley.edu/user/overview/{}'.format(uid)
         canvas_courses_feed = api_util.canvas_courses_api_feed(user_courses)
         enrollment_terms = merge_sis_enrollments(canvas_courses_feed, student.sid, sis_profile.get('matriculation'))
     else:
+        student_profile_link = None
         enrollment_terms = []
 
     for term in enrollment_terms:
@@ -67,6 +70,7 @@ def user_analytics(uid):
         'athleticsProfile': athletics_profile,
         'canvasProfile': canvas_profile,
         'sisProfile': sis_profile,
+        'studentProfileLink': student_profile_link,
         'enrollmentTerms': enrollment_terms,
     })
 

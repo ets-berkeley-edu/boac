@@ -263,13 +263,13 @@ class TestUserAnalytics:
     def test_sis_profile(self, authenticated_response):
         """provides SIS profile data"""
         sis_profile = authenticated_response.json['sisProfile']
+        assert sis_profile['academicCareer'] == 'UGRD'
         assert sis_profile['cumulativeGPA'] == 3.8
         assert sis_profile['cumulativeUnits'] == 101.3
-        assert sis_profile['degreeProgress']['americanCultures'] is True
-        assert sis_profile['degreeProgress']['americanHistory'] is True
-        assert sis_profile['degreeProgress']['americanInstitutions'] is True
-        assert sis_profile['degreeProgress']['entryLevelWriting'] is True
-        assert sis_profile['degreeProgress']['foreignLanguage'] is True
+        assert sis_profile['degreeProgress']['requirements']['americanCultures']['status'] == 'In Progress'
+        assert sis_profile['degreeProgress']['requirements']['americanHistory']['status'] == 'Not Satisfied'
+        assert sis_profile['degreeProgress']['requirements']['americanInstitutions']['status'] == 'Not Satisfied'
+        assert sis_profile['degreeProgress']['requirements']['entryLevelWriting']['status'] == 'Satisfied'
         assert sis_profile['emailAddress'] == 'oski@berkeley.edu'
         assert sis_profile['level']['code'] == '30'
         assert sis_profile['level']['description'] == 'Junior'
@@ -282,6 +282,10 @@ class TestUserAnalytics:
         assert sis_profile['preferredName'] == 'Osk Bear'
         assert sis_profile['primaryName'] == 'Oski Bear'
         assert sis_profile['termsInAttendance'] == 5
+
+    def test_student_overview_link(self, authenticated_response):
+        """provides a link to official data about the student"""
+        assert authenticated_response.json['studentProfileLink']
 
     def test_sis_profile_unexpected_payload(self, authenticated_session, client):
         """gracefully handles unexpected SIS profile data"""

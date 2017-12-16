@@ -3,6 +3,7 @@ from functools import partial, wraps
 import inspect
 import json
 import os
+import re
 import urllib
 
 from flask import current_app as app
@@ -120,22 +121,32 @@ def fixture(pattern):
         return response_from_fixture('resource_{}_feed'.format(resource_id))
     """
     def fixture_wrapper(func):
+        (base_pattern, suffix) = parse_suffix(pattern)
         fixture_output_path = os.environ.get('FIXTURE_OUTPUT_PATH')
         if fixture_output_path:
             # We are writing a fixture.
-            return _write_fixture(func, fixture_output_path, pattern)
+            return _write_fixture(func, fixture_output_path, base_pattern, suffix)
         else:
             # We are reading from fixtures.
             def register_fixture(*args, **kw):
-                evaluated_pattern = _evaluate_fixture_pattern(func, pattern, *args, **kw)
-                return response_from_fixture(evaluated_pattern)
+                evaluated_pattern = _evaluate_fixture_pattern(func, base_pattern, *args, **kw)
+                return response_from_fixture(evaluated_pattern, suffix)
             mockable_wrapper = mockable(func)
             mocking(func)(register_fixture)
             return mockable_wrapper
     return fixture_wrapper
 
 
-def response_from_fixture(pattern):
+def parse_suffix(pattern):
+    """Extract base pattern and file suffix from original string"""
+    match = re.match(r'^(.+)\.([a-z]+)$', pattern)
+    if match:
+        return (match.group(1), match.group(2))
+    else:
+        return (pattern, 'json')
+
+
+def response_from_fixture(pattern, suffix):
     """Generate a mock response from a fixture filename.
     If a fixture matching {pattern}.json is found, return 200 with the fixture body.
     If a fixture matching {pattern}_page_1.json is found, delegate to response_from_paged_fixture.
@@ -148,20 +159,20 @@ def response_from_fixture(pattern):
         return response_from_fixture('resource_{}_feed'.format(resource_id))
     """
     fixtures_path = _get_fixtures_path()
-    unpaged_path = '{}/{}.json'.format(fixtures_path, pattern)
+    unpaged_path = '{}/{}.{}'.format(fixtures_path, pattern, suffix)
     if os.path.isfile(unpaged_path):
         with open(unpaged_path) as file:
             fixture = file.read()
             return MockResponse(200, {}, fixture)
     else:
-        paged_path = '{}/{}_page_1.json'.format(fixtures_path, pattern)
+        paged_path = '{}/{}_page_1.{}'.format(fixtures_path, pattern, suffix)
         if os.path.isfile(paged_path):
-            return response_from_paged_fixture(pattern)
+            return response_from_paged_fixture(pattern, suffix)
         else:
             return MockResponse(404, {}, '{"message": "The requested resource was not found."}')
 
 
-def response_from_paged_fixture(pattern):
+def response_from_paged_fixture(pattern, suffix):
     """Convenience function to generate a mock response for an API with multiple pages. Fixture files should be
     saved in the format:
       - some_resource_page_1.json
@@ -178,7 +189,7 @@ def response_from_paged_fixture(pattern):
     """
     def handle_request(request, uri, headers, fixtures_path):
         page = int(request.querystring.get('page', ['1'])[0])
-        fixture_file = fixtures_path + '/{}_page_{}.json'.format(pattern, page)
+        fixture_file = fixtures_path + '/{}_page_{}.{}'.format(pattern, page, suffix)
         try:
             file = open(fixture_file)
         except FileNotFoundError:
@@ -187,7 +198,7 @@ def response_from_paged_fixture(pattern):
             fixture = file.read()
 
         headers = {}
-        next_fixture_file = fixtures_path + '/{}_page_{}.json'.format(pattern, page + 1)
+        next_fixture_file = fixtures_path + '/{}_page_{}.{}'.format(pattern, page + 1, suffix)
         if os.path.isfile(next_fixture_file):
             parsed_url = urllib.parse.urlparse(uri)
             parsed_query = urllib.parse.parse_qs(parsed_url.query)
@@ -262,12 +273,16 @@ def _noop_mock(url):
     yield None
 
 
-def _write_fixture(func, fixture_output_path, pattern):
+def _write_fixture(func, fixture_output_path, pattern, suffix):
     @wraps(func)
     def write_fixture_wrapper(*args, **kw):
         kw['mock'] = _noop_mock
         response = func(*args, **kw)
-        json_path = '{}/{}.json'.format(fixture_output_path, _evaluate_fixture_pattern(func, pattern, *args, **kw))
+        json_path = '{}/{}.{}'.format(
+            fixture_output_path,
+            _evaluate_fixture_pattern(func, pattern, *args, **kw),
+            suffix,
+        )
 
         if not response:
             app.logger.warn('Error response, will not write fixture to ' + json_path)
