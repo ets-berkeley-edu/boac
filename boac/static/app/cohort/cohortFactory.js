@@ -6,10 +6,10 @@
 
   boac.factory('cohortFactory', function(googleAnalyticsService, utilService, $http, $rootScope) {
 
-    var createCohort = function(label, teamGroupCodes) {
+    var createCohort = function(label, groupCodes) {
       var args = {
         label: label,
-        teamGroupCodes: teamGroupCodes
+        groupCodes: groupCodes
       };
       return $http.post('/api/cohort/create', args).then(function(response) {
         var cohort = response.data;
@@ -66,15 +66,15 @@
       return $http.get(apiPath);
     };
 
-    var getTeamGroupsMembers = function(teamGroupCodes, orderBy, offset, limit) {
+    var getTeamGroupsMembers = function(groupCodes, orderBy, offset, limit) {
       var params = {
         offset: offset || 0,
         limit: limit || 50,
         orderBy: orderBy || 'first_name'
       };
       var apiPath = utilService.format('/api/team_groups/members?offset=${offset}&limit=${limit}&orderBy=${orderBy}', params);
-      _.each(teamGroupCodes, function(teamGroupCode) {
-        apiPath += '&teamGroupCodes=' + teamGroupCode;
+      _.each(groupCodes, function(groupCode) {
+        apiPath += '&groupCodes=' + groupCode;
       });
       return $http.get(apiPath);
     };

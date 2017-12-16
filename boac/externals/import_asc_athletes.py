@@ -47,9 +47,9 @@ def load_csv(app, csv_file='tmp/FilteredAscStudents.csv'):
 
         for r in csv.DictReader(f):
             if r['AcadYr'] == THIS_ACAD_YR and r['SportActiveYN'] == 'Yes':
-                asc_sport_code_core = r['cSportCodeCore']
+                asc_code = r['cSportCodeCore']
 
-                if asc_sport_code_core in SPORT_TRANSLATIONS:
+                if asc_code in SPORT_TRANSLATIONS:
                     sid = r['SID']
                     if sid in students:
                         student = students[sid]
@@ -73,7 +73,7 @@ def load_csv(app, csv_file='tmp/FilteredAscStudents.csv'):
                         team_group = Athletics(
                             group_code=group_code,
                             group_name=r['Sport'],
-                            team_code=SPORT_TRANSLATIONS[asc_sport_code_core],
+                            team_code=SPORT_TRANSLATIONS[asc_code],
                             team_name=r['acSportCore'],
                         )
                         db.session.add(team_group)
@@ -82,10 +82,7 @@ def load_csv(app, csv_file='tmp/FilteredAscStudents.csv'):
                     team_group.athletes.append(student)
                     db.session.commit()
                 else:
-                    app.logger.error('Unmapped asc_sport_code_core {} has SportActiveYN for sid {}'.format(
-                        asc_sport_code_core,
-                        r['SID'],
-                    ))
+                    app.logger.error('Unmapped asc_code {} has SportActiveYN for sid {}'.format(asc_code, r['SID']))
 
         app.logger.info('{} rows added to \'athletics\' table; {} rows added to \'students\' table; CSV file: {}'.format(
             len(athletics),

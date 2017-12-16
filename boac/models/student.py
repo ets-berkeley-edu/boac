@@ -36,10 +36,9 @@ class Student(Base):
         }
 
     @classmethod
-    def get_students(cls, criteria, order_by=None, offset=0, limit=50):
+    def get_students(cls, group_codes, order_by=None, offset=0, limit=50):
         students = []
         total_count = 0
-        group_codes = criteria['team_group_codes'] if 'team_group_codes' in criteria else []
         if group_codes:
             o = cls.get_ordering(order_by)
             _filter = student_athletes.c.group_code.in_(group_codes)
@@ -57,7 +56,7 @@ class Student(Base):
         students = Student.query.outerjoin(Student.athletics).all()
         if order_by and len(students) > 0:
             # For now, only one order_by value is supported
-            if order_by == 'teamGroupName':
+            if order_by == 'groupName':
                 students = sorted(students, key=lambda student: student.athletics and student.athletics[0].group_name)
         return [s.to_expanded_api_json() for s in students]
 
@@ -74,9 +73,9 @@ class Student(Base):
             api_json['athletics'] = {}
             for a in self.athletics:
                 api_json.update({
-                    'teamGroupCode': a.group_code,
-                    'teamGroupName': a.group_name,
-                    'teamName': a.team_name,
+                    'groupCode': a.group_code,
+                    'groupName': a.group_name,
                     'teamCode': a.team_code,
+                    'teamName': a.team_name,
                 })
         return api_json

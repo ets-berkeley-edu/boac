@@ -2,7 +2,7 @@
 <oi-select id="find-user"
            class="cleanMode"
            size="100"
-           oi-options="student.uid as student.name group by student.teamGroupName for student in lazyLoadOptions()"
+           oi-options="student.uid as student.name group by student.groupName for student in lazyLoadOptions()"
            oi-select-options="{
             maxlength: 255
            }"

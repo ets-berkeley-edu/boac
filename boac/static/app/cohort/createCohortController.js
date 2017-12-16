@@ -43,7 +43,7 @@
           if (!$scope.error.message) {
             $rootScope.isSaving = true;
             var selectedTeamGroups = _.filter(teamGroups, 'selected');
-            cohortFactory.createCohort($scope.label, _.map(selectedTeamGroups, 'teamGroupCode')).then(function() {
+            cohortFactory.createCohort($scope.label, _.map(selectedTeamGroups, 'groupCode')).then(function() {
               $rootScope.isSaving = false;
               $uibModalInstance.close();
             });

@@ -59,11 +59,11 @@ def get_cohort(cohort_id):
 def create_cohort():
     params = request.get_json()
     label = params['label']
-    team_group_codes = params['teamGroupCodes']
-    if not label or not team_group_codes:
-        raise BadRequestError('Cohort creation requires \'label\' and \'teamGroupCodes\'')
+    group_codes = params['groupCodes']
+    if not label or not group_codes:
+        raise BadRequestError('Cohort creation requires \'label\' and \'groupCodes\'')
 
-    cohort = CohortFilter.create(label=label, team_group_codes=team_group_codes, uid=current_user.get_id())
+    cohort = CohortFilter.create(label=label, group_codes=group_codes, uid=current_user.get_id())
     return tolerant_jsonify(cohort)
 
 

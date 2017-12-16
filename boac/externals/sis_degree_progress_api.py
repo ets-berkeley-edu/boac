@@ -59,7 +59,7 @@ def get_degree_progress(cs_id):
         else:
             return False
     else:
-        if hasattr(response, 'raw_response') and response.raw_response.status_code == 404:
+        if hasattr(response, 'raw_response') and response.raw_response and response.raw_response.status_code == 404:
             return False
         else:
             return None

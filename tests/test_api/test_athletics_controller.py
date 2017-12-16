@@ -9,7 +9,7 @@ def authenticated_session(fake_auth):
     fake_auth.login(test_uid)
 
 
-class TestTeams:
+class TestAthletics:
     """Athletics API"""
 
     def test_team_not_authenticated(self, client):
@@ -27,8 +27,8 @@ class TestTeams:
         response = client.get('/api/team_groups/all')
         assert response.status_code == 200
         team_groups = response.json
-        group_codes = [team_group['teamGroupCode'] for team_group in team_groups]
-        group_names = [team_group['teamGroupName'] for team_group in team_groups]
+        group_codes = [team_group['groupCode'] for team_group in team_groups]
+        group_names = [team_group['groupName'] for team_group in team_groups]
         total_member_counts = [team_group['totalMemberCount'] for team_group in team_groups]
         assert ['MFB-DB', 'MFB-DL', 'MTE-AA', 'WFH-AA', 'WTE-AA'] == group_codes
         assert ['Football, Defensive Backs', 'Football, Defensive Line', 'Men\'s Tennis', 'Women\'s Field Hockey',
@@ -67,8 +67,8 @@ class TestTeams:
         assert team['code'] == 'FBM'
         assert team['name'] == 'Football'
         assert 'teamGroups' in team
-        team_group_codes = [team_group['teamGroupCode'] for team_group in team['teamGroups']]
-        assert ['MFB-DB', 'MFB-DL'] == team_group_codes
+        group_codes = [team_group['groupCode'] for team_group in team['teamGroups']]
+        assert ['MFB-DB', 'MFB-DL'] == group_codes
         assert team['totalMemberCount'] == 3
         members = team['members']
         assert len(members) == 3
@@ -82,7 +82,7 @@ class TestTeams:
         assert athlete['avatar_url'].startswith('http')
 
     def test_team_groups_members(self, authenticated_session, client):
-        response = client.get('/api/team_groups/members?teamGroupCodes=MFB-DB&teamGroupCodes=MFB-DL')
+        response = client.get('/api/team_groups/members?groupCodes=MFB-DB&groupCodes=MFB-DL')
         assert response.status_code == 200
         assert 'members' in response.json
         uid_list = [member['uid'] for member in response.json['members']]

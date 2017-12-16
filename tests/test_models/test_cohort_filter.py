@@ -12,8 +12,8 @@ class TestCohortFilter:
         assert not CohortFilter.all_owned_by('88888888')
 
     def test_cohort_update(self):
-        team_group_codes = ['MSW-AA', 'MSW-DV', 'MSW-SW']
-        cohort = CohortFilter.create(label='Swimming, Men\'s', team_group_codes=team_group_codes, uid='2040')
+        group_codes = ['MSW-AA', 'MSW-DV', 'MSW-SW']
+        cohort = CohortFilter.create(label='Swimming, Men\'s', group_codes=group_codes, uid='2040')
         foosball_label = 'Foosball teams'
         cohort = CohortFilter.update(cohort['id'], foosball_label)
         assert cohort['label'] == foosball_label
@@ -27,8 +27,8 @@ class TestCohortFilter:
         assert shared_with
 
         # Create and share cohort
-        team_group_codes = ['MFB-DB', 'MFB-DL', 'MFB-MLB', 'MFB-OLB']
-        cohort = CohortFilter.create(label='Football, Defense', team_group_codes=team_group_codes, uid=owner.uid)
+        group_codes = ['MFB-DB', 'MFB-DL', 'MFB-MLB', 'MFB-OLB']
+        cohort = CohortFilter.create(label='Football, Defense', group_codes=group_codes, uid=owner.uid)
         cohort = CohortFilter.share(cohort['id'], shared_with.uid)
         assert len(cohort['owners']) == 2
         assert owner, shared_with in cohort['owners']

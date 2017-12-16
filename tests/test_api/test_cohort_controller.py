@@ -35,8 +35,8 @@ class TestCohortDetail:
 
         team_groups = cohort['teamGroups']
         assert len(team_groups) == 2
-        assert team_groups[0]['teamGroupCode']
-        assert team_groups[0]['teamGroupName']
+        assert team_groups[0]['groupCode']
+        assert team_groups[0]['groupName']
         assert isinstance(cohort['members'], list)
         assert cohort['totalMemberCount'] == len(cohort['members'])
 
@@ -105,7 +105,7 @@ class TestCohortDetail:
         group_codes = ['MTE-AA', 'WTE-AA']
         custom_cohort = {
             'label': label,
-            'teamGroupCodes': group_codes,
+            'groupCodes': group_codes,
         }
         response = client.post('/api/cohort/create', data=json.dumps(custom_cohort), content_type='application/json')
         assert response.status_code == 200
@@ -113,12 +113,12 @@ class TestCohortDetail:
         cohort = json.loads(response.data)
         assert 'label' in cohort and cohort['label'] == label
         assert 'teamGroups' in cohort
-        assert group_codes == [g['teamGroupCode'] for g in cohort['teamGroups']]
+        assert group_codes == [g['groupCode'] for g in cohort['teamGroups']]
 
         same_cohort = CohortFilter.find_by_id(cohort['id'])
         assert same_cohort['label'] == label
         assert 'teamGroups' in cohort and len(cohort['teamGroups']) == 2
-        assert group_codes == [g['teamGroupCode'] for g in cohort['teamGroups']]
+        assert group_codes == [g['groupCode'] for g in cohort['teamGroups']]
 
     def test_delete_cohort_not_authenticated(self, client):
         """custom cohort deletion requires authentication"""
@@ -127,7 +127,7 @@ class TestCohortDetail:
 
     def test_delete_cohort_wrong_user(self, client, fake_auth):
         """custom cohort deletion is only available to owners"""
-        cohort = CohortFilter.create(label='Badminton teams', team_group_codes=['MBK', 'WBK'], uid=test_uid)
+        cohort = CohortFilter.create(label='Badminton teams', group_codes=['MBK', 'WBK'], uid=test_uid)
         assert cohort and 'id' in cohort
 
         # This user does not own the custom cohort above
@@ -139,7 +139,7 @@ class TestCohortDetail:
     def test_delete_cohort(self, authenticated_session, client):
         """deletes existing custom cohort while enforcing rules of ownership"""
         label = 'Water polo teams'
-        cohort = CohortFilter.create(label=label, team_group_codes=['WPW', 'WPM'], uid=test_uid)
+        cohort = CohortFilter.create(label=label, group_codes=['WPW', 'WPM'], uid=test_uid)
 
         assert cohort and 'id' in cohort
         id_of_created_cohort = cohort['id']
