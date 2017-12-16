@@ -85,10 +85,10 @@ class TestTeams:
         response = client.get('/api/team_groups/members?teamGroupCodes=MFB-DB&teamGroupCodes=MFB-DL')
         assert response.status_code == 200
         assert 'members' in response.json
-        member_uid_list = [member['uid'] for member in response.json['members']]
-        assert ['2040', '242881', '1133399'] == member_uid_list
+        uid_list = [member['uid'] for member in response.json['members']]
+        assert ['2040', '242881', '1133399'] == uid_list
 
-    def test_includes_team_member_sis_data(self, authenticated_session, client):
+    def test_includes_student_sis_data(self, authenticated_session, client):
         """includes SIS data for team members"""
         response = client.get('/api/team/FHW')
         athlete = response.json['members'][0]
@@ -97,7 +97,7 @@ class TestTeams:
         assert athlete['level'] == 'Junior'
         assert athlete['majors'] == ['English BA', 'Astrophysics BS']
 
-    def test_includes_team_member_current_enrollments(self, authenticated_session, client):
+    def test_includes_student_current_enrollments(self, authenticated_session, client):
         """includes current-term active enrollments and analytics for team members"""
         response = client.get('/api/team/FHW')
         athlete = response.json['members'][0]

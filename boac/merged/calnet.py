@@ -1,14 +1,14 @@
 from boac import db
 from boac.externals import calnet
-from boac.models.team_member import TeamMember
+from boac.models.student import Student
 
 
 def refresh_cohort_attributes(app, cohorts=None):
-    members = cohorts or TeamMember.query.all()
+    members = cohorts or Student.query.all()
     # Students who play more than one sport will have multiple records.
     member_map = {}
     for m in members:
-        member_map.setdefault(m.member_csid, []).append(m)
+        member_map.setdefault(m.sid, []).append(m)
     csids = list(member_map.keys())
 
     # Search LDAP.
@@ -26,7 +26,7 @@ def refresh_cohort_attributes(app, cohorts=None):
         name_split = attrs['sortable_name'].split(',') if 'sortable_name' in attrs else ''
         full_name = [name.strip() for name in reversed(name_split)]
         for m in member_map[csid]:
-            m.member_uid = attrs['uid']
+            m.uid = attrs['uid']
             # A manually-entered ASC name may be more nicely formatted than a student's CalNet default.
             # For now, don't overwrite it.
             m.first_name = m.first_name or (full_name[0] if len(full_name) else '')
@@ -35,7 +35,7 @@ def refresh_cohort_attributes(app, cohorts=None):
 
 
 def fill_cohort_uids(app):
-    to_update = TeamMember.query.filter(TeamMember.member_uid.is_(None)).all()
+    to_update = Student.query.filter(Student.uid.is_(None)).all()
     refresh_cohort_attributes(app, to_update)
     db.session.commit()
     return to_update

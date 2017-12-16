@@ -42,7 +42,7 @@ def load_canvas_externals(uid, sis_term_id):
 def load_canvas_scores(sis_term_id=None):
     from boac.externals import canvas
     from boac.lib import berkeley
-    from boac.models.team_member import TeamMember
+    from boac.models.student import Student
 
     success_count = 0
     failures = []
@@ -51,7 +51,7 @@ def load_canvas_scores(sis_term_id=None):
         term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
         sis_term_id = berkeley.sis_term_id_for_name(term_name)
 
-    for row in db.session.query(TeamMember.member_uid).distinct():
+    for row in db.session.query(Student.uid).distinct():
         uid = row[0]
         canvas_user_profile = canvas.get_user_for_uid(uid)
         if canvas_user_profile is None:
@@ -103,7 +103,7 @@ def load_sis_externals(sis_term_id, csid):
 
 
 def load_current_term():
-    from boac.models.team_member import TeamMember
+    from boac.models.student import Student
 
     success_count = 0
     failures = []
@@ -113,7 +113,7 @@ def load_current_term():
 
     # Currently, all external data is loaded starting from the individuals who belong
     # to one or more Cohorts.
-    for csid, uid in db.session.query(TeamMember.member_csid, TeamMember.member_uid).distinct():
+    for csid, uid in db.session.query(Student.sid, Student.uid).distinct():
         s, f = load_canvas_externals(uid, sis_term_id)
         success_count += s
         failures += f

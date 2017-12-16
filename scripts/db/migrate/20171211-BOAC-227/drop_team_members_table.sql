@@ -1,0 +1,5 @@
+BEGIN;
+
+DROP TABLE team_members CASCADE;
+
+COMMIT;

@@ -18,15 +18,14 @@ INITIAL_FAKE_UID = 9000000
 @scriptify.in_app
 def main(app):
     from boac import db
-    from boac.models.team_member import TeamMember
+    from boac.models.student import Student
 
     fake_uid = INITIAL_FAKE_UID
-    for member in TeamMember.query.all():
-        uid = member.member_uid
-        cohort_name = TeamMember.team_definitions.get(member.code, member.code)
+    for student in Student.query.all():
+        uid = student.uid
 
         # Change UID in Postgres.
-        member.member_uid = fake_uid
+        student.uid = fake_uid
         db.session.commit()
 
         profile_file = '{path}/canvas_user_for_uid_{uid}.json'.format(path=app.config.get('FIXTURES_PATH'))
@@ -37,9 +36,10 @@ def main(app):
             with open(profile_file) as f:
                 profile_json = json.loads(f.read())
 
-            profile_json['name'] = member.member_name
-            profile_json['short_name'] = member.member_name
-            profile_json['sortable_name'] = ', '.join(reversed(member.member_name.split()))
+            name = student.first_name + ' ' + student.last_name
+            profile_json['name'] = name
+            profile_json['short_name'] = student.first_name
+            profile_json['sortable_name'] = ', '.join([student.last_name, student.first_name])
 
             profile_json['login_id'] = str(fake_uid)
             profile_json['sis_login_id'] = str(fake_uid)
@@ -48,10 +48,7 @@ def main(app):
             else:
                 profile_json['sis_user_id'] = str(fake_uid * 2)
 
-            if cohort_name.endswith('Men'):
-                profile_json['avatar_url'] = '/static/app/shared/avatar-male.png'
-            else:
-                profile_json['avatar_url'] = '/static/app/shared/avatar-female.png'
+            profile_json['avatar_url'] = '/static/app/shared/avatar-female.png'
 
             new_profile_file = profile_file.replace(uid, str(fake_uid))
             with open(new_profile_file, 'w') as outfile:

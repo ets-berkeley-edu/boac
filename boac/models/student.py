@@ -37,17 +37,29 @@ class Student(Base):
 
     @classmethod
     def get_students(cls, criteria, order_by=None, offset=0, limit=50):
-        group_codes = criteria['team_group_codes'] if 'team_group_codes' in criteria else None
-        o = cls.get_ordering(order_by)
-        sid_list = db.session.query(student_athletes.c.sid).filter(student_athletes.c.group_code.in_(group_codes)).all()
-        if sid_list:
-            students = cls.query.order_by(o).filter(cls.sid.in_(sid_list)).offset(offset).limit(limit).all()
-        else:
-            students = []
+        students = []
+        total_count = 0
+        group_codes = criteria['team_group_codes'] if 'team_group_codes' in criteria else []
+        if group_codes:
+            o = cls.get_ordering(order_by)
+            _filter = student_athletes.c.group_code.in_(group_codes)
+            sid_list = db.session.query(student_athletes.c.sid).filter(_filter).all()
+            total_count = len(sid_list)
+            if sid_list:
+                students = cls.query.order_by(o).filter(cls.sid.in_(sid_list)).offset(offset).limit(limit).all()
         return {
             'students': [student.to_api_json() for student in students],
-            'totalStudentCount': len(sid_list),
+            'totalStudentCount': total_count,
         }
+
+    @classmethod
+    def get_all(cls, order_by=None):
+        students = Student.query.outerjoin(Student.athletics).all()
+        if order_by and len(students) > 0:
+            # For now, only one order_by value is supported
+            if order_by == 'teamGroupName':
+                students = sorted(students, key=lambda student: student.athletics and student.athletics[0].group_name)
+        return [s.to_expanded_api_json() for s in students]
 
     @classmethod
     def get_ordering(cls, order_by):
@@ -55,3 +67,16 @@ class Student(Base):
 
     def to_api_json(self):
         return api_util.student_to_json(self)
+
+    def to_expanded_api_json(self):
+        api_json = self.to_api_json()
+        if self.athletics:
+            api_json['athletics'] = {}
+            for a in self.athletics:
+                api_json.update({
+                    'teamGroupCode': a.group_code,
+                    'teamGroupName': a.group_name,
+                    'teamName': a.team_name,
+                    'teamCode': a.team_code,
+                })
+        return api_json
