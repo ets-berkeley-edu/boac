@@ -102,7 +102,7 @@ class TestTeams:
         response = client.get('/api/team/FHW')
         athlete = response.json['members'][0]
         assert athlete['currentTerm']['termName'] == 'Fall 2017'
-        assert athlete['currentTerm']['enrolledUnits'] == 7.5
-        assert len(athlete['currentTerm']['enrollments']) == 2
+        assert athlete['currentTerm']['enrolledUnits'] == 12.5
+        assert len(athlete['currentTerm']['enrollments']) == 3
         assert athlete['currentTerm']['enrollments'][0]['displayName'] == 'BURMESE 1A'
         assert len(athlete['currentTerm']['enrollments'][0]['canvasSites']) == 1

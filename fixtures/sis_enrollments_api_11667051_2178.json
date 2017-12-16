@@ -278,12 +278,12 @@
         {
           "enrollmentStatus": {
             "status": {
-              "code": "D",
-              "description": "Dropped"
+              "code": "E",
+              "description": "Enrolled"
             },
             "reason": {
-              "code": "DROP",
-              "description": "Dropped (was enrolled)"
+              "code": "ENRL",
+              "description": "Enrolled"
             },
             "fromDate": "2017-07-11"
           },
