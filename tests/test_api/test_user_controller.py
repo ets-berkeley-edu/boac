@@ -3,14 +3,21 @@ from boac.lib.mockingbird import MockResponse, register_mock
 import pytest
 
 
-class TestUserProfile:
-    """User Profile API"""
+class TestUser:
+    """User API"""
 
     def test_profile_not_authenticated(self, client):
         """returns a well-formed response"""
         response = client.get('/api/profile')
         assert response.status_code == 200
         assert not response.json['uid']
+
+    def test_all_users(self, client):
+        """returns a list of users, including team"""
+        response = client.get('/api/students/all')
+        assert response.status_code == 200
+        # We have one student not on a team
+        assert len(response.json) == 5
 
     def test_profile_includes_lack_of_canvas_account(self, client, fake_auth):
         test_uid = '1133399'

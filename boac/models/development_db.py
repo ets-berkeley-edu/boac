@@ -6,7 +6,6 @@ from boac.models.cohort_filter import CohortFilter
 # Needed for db.create_all to find the model.
 from boac.models.json_cache import JsonCache # noqa
 from boac.models.student import Student
-from boac.models.team_member import TeamMember # noqa
 
 
 _default_users_csv = """uid,is_admin,is_director,is_advisor
@@ -26,6 +25,13 @@ brigitte = {
     'first_name': 'Brigitte',
     'last_name': 'Lin',
     'in_intensive_cohort': True,
+}
+john = {
+    'uid': '1022796',
+    'sid': '8901234567',
+    'first_name': 'John',
+    'last_name': 'Crossman',
+    'in_intensive_cohort': False,
 }
 oliver = {
     'uid': '2040',
@@ -93,7 +99,6 @@ def load(cohort_test_data=False):
     load_schemas()
     load_development_data()
     if cohort_test_data:
-        legacy_load_team_members()
         load_student_athletes()
         load_cohorts()
     return db
@@ -147,37 +152,12 @@ def load_student_athletes():
 
     # Assign athletes
     assign_athletes(brigitte, [_women_field_hockey, _women_tennis])
+    assign_athletes(john, [])
     assign_athletes(oliver, [_football_defensive_backs, _football_defensive_line])
     assign_athletes(paul, [_football_defensive_line])
     assign_athletes(sandeep, [_football_defensive_backs, _football_defensive_line, _men_tennis])
 
     db.session.commit()
-
-
-def legacy_add_team_member(team_group, student):
-    db.session.add(TeamMember(code=team_group['team_code'],
-                              asc_sport_code_core=team_group['asc_sport_code_core'],
-                              asc_sport_core=team_group['team_name'],
-                              asc_sport_code=team_group['group_code'],
-                              asc_sport=team_group['group_name'],
-                              member_uid=student['uid'],
-                              member_csid=student['sid'],
-                              first_name=student['first_name'],
-                              last_name=student['last_name'],
-                              in_intensive_cohort=student['in_intensive_cohort']))
-    db.session.commit()
-
-
-def legacy_load_team_members():
-    # Assign athletes
-    legacy_add_team_member(womens_field_hockey, brigitte)
-    legacy_add_team_member(womens_tennis, brigitte)
-    legacy_add_team_member(football_defensive_backs, oliver)
-    legacy_add_team_member(football_defensive_line, oliver)
-    legacy_add_team_member(football_defensive_line, paul)
-    legacy_add_team_member(football_defensive_line, sandeep)
-    legacy_add_team_member(mens_tennis, sandeep)
-    legacy_add_team_member(football_defensive_line, sandeep)
 
 
 def load_cohorts():

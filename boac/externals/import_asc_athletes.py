@@ -2,11 +2,42 @@ import csv
 
 from boac import db
 from boac.externals import calnet
-from boac.externals.asc_cohorts import SPORT_TRANSLATIONS
 from boac.models.athletics import Athletics
 from boac.models.student import Student
 
 THIS_ACAD_YR = '2017-18'
+
+SPORT_TRANSLATIONS = {
+    'MBB': 'BAM',
+    'MBK': 'BBM',
+    'WBK': 'BBW',
+    'MCR': 'CRM',
+    'WCR': 'CRW',
+    'MFB': 'FBM',
+    'WFH': 'FHW',
+    'MGO': 'GOM',
+    'WGO': 'GOW',
+    'MGY': 'GYM',
+    'WGY': 'GYW',
+    'WLC': 'LCW',
+    'MRU': 'RGM',
+    'WSF': 'SBW',
+    'MSC': 'SCM',
+    'WSC': 'SCW',
+    'MSW': 'SDM',
+    'WSW': 'SDW',
+    # 'Beach Volleyball' vs. 'Sand Volleyball'.
+    'WBV': 'SVW',
+    'MTE': 'TNM',
+    'WTE': 'TNW',
+    # ASC's subsets of Track do not directly match the Athlete API's subsets. In ASC's initial data transfer,
+    # all track athletes were mapped to 'TO*', 'Outdoor Track & Field'.
+    'MTR': 'TOM',
+    'WTR': 'TOW',
+    'WVB': 'VBW',
+    'MWP': 'WPM',
+    'WWP': 'WPW',
+}
 
 
 def load_csv(app, csv_file='tmp/FilteredAscStudents.csv'):

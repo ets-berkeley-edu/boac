@@ -6,7 +6,7 @@ from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.http import tolerant_jsonify
 from boac.merged.sis_enrollments import merge_sis_enrollments
 from boac.merged.sis_profile import merge_sis_profile
-from boac.models.team_member import TeamMember
+from boac.models.student import Student
 from flask import current_app as app, request
 from flask_login import current_user, login_required
 
@@ -28,7 +28,7 @@ def user_profile():
 @app.route('/api/students/all')
 def all_students():
     order_by = request.args['orderBy'] if 'orderBy' in request.args else None
-    return tolerant_jsonify(TeamMember.get_all_athletes(order_by=order_by))
+    return tolerant_jsonify(Student.get_all(order_by=order_by))
 
 
 @app.route('/api/user/<uid>/analytics')
@@ -41,18 +41,18 @@ def user_analytics(uid):
         raise errors.InternalServerError('Unable to reach bCourses')
     canvas_id = canvas_profile['id']
 
-    team_member = TeamMember.query.filter_by(member_uid=uid).first()
-    if team_member:
-        sis_profile = merge_sis_profile(team_member.member_csid)
-        athletics_profile = team_member.to_api_json()
+    student = Student.query.filter_by(uid=uid).first()
+    if student:
+        sis_profile = merge_sis_profile(student.sid)
+        athletics_profile = student.to_api_json()
     else:
         sis_profile = False
         athletics_profile = False
 
     user_courses = canvas.get_student_courses(uid) or []
-    if team_member and sis_profile:
+    if student and sis_profile:
         canvas_courses_feed = api_util.canvas_courses_api_feed(user_courses)
-        enrollment_terms = merge_sis_enrollments(canvas_courses_feed, team_member.member_csid, sis_profile.get('matriculation'))
+        enrollment_terms = merge_sis_enrollments(canvas_courses_feed, student.sid, sis_profile.get('matriculation'))
     else:
         enrollment_terms = []
 

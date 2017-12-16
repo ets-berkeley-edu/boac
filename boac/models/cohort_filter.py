@@ -11,7 +11,6 @@ from boac.models.authorized_user import AuthorizedUser
 from boac.models.authorized_user import cohort_filter_owners
 from boac.models.base import Base
 from boac.models.student import Student
-from boac.models.team_member import TeamMember
 from flask_login import UserMixin
 from sqlalchemy.dialects.postgresql import JSONB
 
@@ -65,16 +64,6 @@ class CohortFilter(Base, UserMixin):
         return [construct_cohort(cf) for cf in CohortFilter.query.all()]
 
     @classmethod
-    def get_intensive_cohort(cls, order_by=None, offset=0, limit=50):
-        cohort = {
-            'code': 'intensive',
-            'label': 'Intensive',
-            'owners': None,
-        }
-        cohort.update(TeamMember.get_intensive_cohort(order_by=order_by, offset=offset, limit=limit))
-        return cohort
-
-    @classmethod
     def all_owned_by(cls, uid):
         filters = CohortFilter.query.filter(CohortFilter.owners.any(uid=uid)).all()
         return [construct_cohort(cohort_filter) for cohort_filter in filters]
@@ -99,7 +88,7 @@ def construct_cohort(cf, order_by=None, offset=0, limit=50):
         'owners': [user.uid for user in cf.owners],
     }
     results = Student.get_students(criteria=criteria, order_by=order_by, offset=offset, limit=limit)
-    group_codes = criteria['team_group_codes'] if 'team_group_codes' in criteria else None
+    group_codes = criteria['team_group_codes'] if 'team_group_codes' in criteria else []
     team_groups = Athletics.get_team_groups(group_codes)
     cohort.update({
         'members': results['students'],
