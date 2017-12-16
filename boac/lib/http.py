@@ -35,7 +35,7 @@ def get_next_page(response):
         return None
 
 
-def request(url, headers):
+def request(url, headers={}, auth=None):
     """
     Exception and error catching wrapper for outgoing HTTP requests.
     :param url:
@@ -49,7 +49,7 @@ def request(url, headers):
     response = None
     try:
         # TODO handle methods other than GET
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, auth=auth)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         app.logger.error(e)

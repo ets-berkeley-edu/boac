@@ -10,6 +10,7 @@ names==0.3.0
 psycopg2==2.7.3.2
 requests==2.18.4
 simplejson==3.13.2
+xmltodict==0.11.0
 https://github.com/python-cas/python-cas/archive/master.zip
 
 # Dependencies for pandas 0.21.1. Note that pandas is not included in this requirements.txt file because

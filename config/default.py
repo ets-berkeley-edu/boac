@@ -62,6 +62,10 @@ STUDENT_API_ID = 'secretid'
 STUDENT_API_KEY = 'secretkey'
 STUDENT_API_URL = 'https://secreturl.berkeley.edu/students'
 
+DEGREE_PROGRESS_API_URL = 'https://secreturl.berkeley.edu/PSFT_CS'
+DEGREE_PROGRESS_API_USERNAME = 'secretuser'
+DEGREE_PROGRESS_API_PASSWORD = 'secretpassword'
+
 # Logging
 LOGGING_FORMAT = '[%(asctime)s] - %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
 LOGGING_LOCATION = 'boac.log'
