@@ -55,35 +55,30 @@ sandeep = {
     'in_intensive_cohort': False,
 }
 football_defensive_backs = {
-    'asc_sport_code_core': 'MFB',
     'group_code': 'MFB-DB',
     'group_name': 'Football, Defensive Backs',
     'team_code': 'FBM',
     'team_name': 'Football',
 }
 football_defensive_line = {
-    'asc_sport_code_core': 'MFB',
     'group_code': 'MFB-DL',
     'group_name': 'Football, Defensive Line',
     'team_code': 'FBM',
     'team_name': 'Football',
 }
 womens_field_hockey = {
-    'asc_sport_code_core': 'WFH',
     'group_code': 'WFH-AA',
     'group_name': 'Women\'s Field Hockey',
     'team_code': 'FHW',
     'team_name': 'Women\'s Field Hockey',
 }
 mens_tennis = {
-    'asc_sport_code_core': 'MTE',
     'group_code': 'MTE-AA',
     'group_name': 'Men\'s Tennis',
     'team_code': 'TNM',
     'team_name': 'Men\'s Tennis',
 }
 womens_tennis = {
-    'asc_sport_code_core': 'WTE',
     'group_code': 'WTE-AA',
     'group_name': 'Women\'s Tennis',
     'team_code': 'TNW',
@@ -144,30 +139,30 @@ def assign_athletes(student, team_groups):
 
 
 def load_student_athletes():
-    _football_defensive_backs = create_team_group(football_defensive_backs)
-    _football_defensive_line = create_team_group(football_defensive_line)
-    _men_tennis = create_team_group(mens_tennis)
-    _women_field_hockey = create_team_group(womens_field_hockey)
-    _women_tennis = create_team_group(womens_tennis)
+    fdb = create_team_group(football_defensive_backs)
+    fdl = create_team_group(football_defensive_line)
+    mt = create_team_group(mens_tennis)
+    wfh = create_team_group(womens_field_hockey)
+    wt = create_team_group(womens_tennis)
 
     # Assign athletes
-    assign_athletes(brigitte, [_women_field_hockey, _women_tennis])
+    assign_athletes(brigitte, [wfh, wt])
     assign_athletes(john, [])
-    assign_athletes(oliver, [_football_defensive_backs, _football_defensive_line])
-    assign_athletes(paul, [_football_defensive_line])
-    assign_athletes(sandeep, [_football_defensive_backs, _football_defensive_line, _men_tennis])
+    assign_athletes(oliver, [fdb, fdl])
+    assign_athletes(paul, [fdl])
+    assign_athletes(sandeep, [fdb, fdl, mt])
 
     db.session.commit()
 
 
 def load_cohorts():
     # Oliver's cohorts
-    CohortFilter.create(label='All sports', team_group_codes=['MFB-DL', 'MFB-DL', 'WFH-AA'], uid='2040')
-    CohortFilter.create(label='Football, Defense', team_group_codes=['MFB-DL', 'MFB-DL'], uid='2040')
-    CohortFilter.create(label='Field Hockey', team_group_codes=['WFH-AA'], uid='2040')
+    CohortFilter.create(label='All sports', group_codes=['MFB-DL', 'MFB-DL', 'WFH-AA'], uid='2040')
+    CohortFilter.create(label='Football, Defense', group_codes=['MFB-DL', 'MFB-DL'], uid='2040')
+    CohortFilter.create(label='Field Hockey', group_codes=['WFH-AA'], uid='2040')
     # Sandeep's cohorts
-    CohortFilter.create(label='All sports', team_group_codes=['MFB-DL', 'MFB-DL', 'WFH-AA'], uid='1133399')
-    CohortFilter.create(label='Football, Defense Backs', team_group_codes=['MFB-DB'], uid='1133399')
+    CohortFilter.create(label='All sports', group_codes=['MFB-DL', 'MFB-DL', 'WFH-AA'], uid='1133399')
+    CohortFilter.create(label='Football, Defense Backs', group_codes=['MFB-DB'], uid='1133399')
     db.session.commit()
 
 

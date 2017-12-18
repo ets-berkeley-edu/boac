@@ -36,9 +36,9 @@ class CohortFilter(Base, UserMixin):
         )
 
     @classmethod
-    def create(cls, label, team_group_codes, uid):
-        team_group_codes = ','.join(map('"{0}"'.format, team_group_codes))
-        cf = CohortFilter(label=label, filter_criteria='{"team_group_codes": [' + team_group_codes + ']}')
+    def create(cls, label, group_codes, uid):
+        filter_criteria = json.dumps(cls.compose_filter_criteria(group_codes))
+        cf = CohortFilter(label=label, filter_criteria=filter_criteria)
         user = AuthorizedUser.find_by_uid(uid)
         user.cohort_filters.append(cf)
         db.session.commit()
@@ -79,6 +79,12 @@ class CohortFilter(Base, UserMixin):
         db.session.delete(cohort_filter)
         db.session.commit()
 
+    @classmethod
+    def compose_filter_criteria(cls, group_codes):
+        return {
+            'team_group_codes': group_codes,
+        }
+
 
 def construct_cohort(cf, order_by=None, offset=0, limit=50):
     criteria = cf if isinstance(cf.filter_criteria, dict) else json.loads(cf.filter_criteria)
@@ -87,7 +93,8 @@ def construct_cohort(cf, order_by=None, offset=0, limit=50):
         'label': cf.label,
         'owners': [user.uid for user in cf.owners],
     }
-    results = Student.get_students(criteria=criteria, order_by=order_by, offset=offset, limit=limit)
+    group_codes = criteria['team_group_codes'] if 'team_group_codes' in criteria else []
+    results = Student.get_students(group_codes=group_codes, order_by=order_by, offset=offset, limit=limit)
     group_codes = criteria['team_group_codes'] if 'team_group_codes' in criteria else []
     team_groups = Athletics.get_team_groups(group_codes)
     cohort.update({

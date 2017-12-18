@@ -21,7 +21,7 @@
         });
 
         var loadOptions = function() {
-          return studentFactory.getAllStudents('teamGroupName').then(function(response) {
+          return studentFactory.getAllStudents('groupName').then(function(response) {
             return response.data;
           });
         };

@@ -66,12 +66,12 @@
           <li class="cohort-filter-list-item"
               role="menuitem"
               data-ng-repeat="teamGroup in search.options.teamGroups">
-            <input id="search-option-team-{{teamGroup.teamGroupCode}}"
+            <input id="search-option-team-{{teamGroup.groupCode}}"
                    type="checkbox"
                    data-ng-model="teamGroup.selected"
-                   aria-label="{{teamGroup.teamGroupName}}"
+                   aria-label="{{teamGroup.groupName}}"
                    data-ng-click="updateSelectedTeamGroupsCount(teamGroup.selected ? 1 : -1)"/>
-            <span data-ng-bind="teamGroup.teamGroupName"></span></li>
+            <span data-ng-bind="teamGroup.groupName"></span></li>
         </ul>
       </div>
     </div>

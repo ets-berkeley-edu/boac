@@ -33,10 +33,10 @@ class Athletics(Base):
 
         def translate_row(row):
             return {
-                'teamGroupCode': row[0],
-                'teamGroupName': row[1],
+                'groupCode': row[0],
+                'groupName': row[1],
                 'teamCode': row[2],
-                'sportName': row[3],
+                'teamName': row[3],
                 'totalMemberCount': row[4],
             }
         return [translate_row(row) for row in results]
@@ -67,11 +67,11 @@ class Athletics(Base):
         if len(athletics):
             distinct_athletes = []
             members = []
-            teamGroups = []
+            team_groups = []
             for group in athletics:
-                teamGroups.append({
-                    'teamGroupCode': group.group_code,
-                    'teamGroupName': group.group_name,
+                team_groups.append({
+                    'groupCode': group.group_code,
+                    'groupName': group.group_name,
                 })
                 for athlete in group.athletes:
                     if athlete.sid not in distinct_athletes:
@@ -82,7 +82,7 @@ class Athletics(Base):
                 'code': athletics[0].team_code,
                 'name': athletics[0].team_name,
                 'members': [api_util.student_to_json(m) for m in members],
-                'teamGroups': teamGroups,
+                'teamGroups': team_groups,
                 'totalMemberCount': len(members),
             }
         else:
@@ -91,8 +91,8 @@ class Athletics(Base):
 
     def to_api_json(self):
         return {
-            'sportName': self.team_name,
+            'groupCode': self.group_code,
+            'groupName': self.group_name,
             'teamCode': self.team_code,
-            'teamGroupCode': self.group_code,
-            'teamGroupName': self.group_name,
+            'teamName': self.team_name,
         }

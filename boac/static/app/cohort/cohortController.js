@@ -92,18 +92,18 @@
     /**
      * The search form must reflect the team codes of the saved cohort.
      *
-     * @param  {String[]}    teamGroupCodes      Array of predefined codes
+     * @param  {String[]}    groupCodes      Array of predefined codes
      * @return {void}
      */
-    var refreshTeamGroupsFilter = function(teamGroupCodes) {
+    var refreshTeamGroupsFilter = function(groupCodes) {
       _.map($scope.search.options.teamGroups, function(teamGroup) {
-        teamGroup.selected = _.includes(teamGroupCodes, teamGroup.teamGroupCode);
+        teamGroup.selected = _.includes(groupCodes, teamGroup.groupCode);
       });
     };
 
-    var getSelectedTeamGroupCodes = function() {
+    var getSelectedGroupCodes = function() {
       var selectedTeamGroups = _.filter($scope.search.options.teamGroups, 'selected');
-      return _.map(selectedTeamGroups, 'teamGroupCode');
+      return _.map(selectedTeamGroups, 'groupCode');
     };
 
     var scatterplotRefresh = function(response) {
@@ -134,15 +134,19 @@
       var done = function() {
         $scope.isLoading = false;
       };
-
+      var noLimit = $scope.pagination.noLimit;
       if ($scope.cohort) {
         if ($scope.cohort.code) {
-          cohortFactory.getTeam($scope.cohort.code, null, 0, $scope.pagination.noLimit).then(scatterplotRefresh).catch(handleError).then(done);
+          if ($scope.cohort.code === 'intensive') {
+            cohortFactory.getIntensiveCohort(null, 0, noLimit).then(scatterplotRefresh).catch(handleError).then(done);
+          } else {
+            cohortFactory.getTeam($scope.cohort.code, null, 0, noLimit).then(scatterplotRefresh).catch(handleError).then(done);
+          }
         } else {
-          cohortFactory.getCohort($scope.cohort.id, null, 0, $scope.pagination.noLimit).then(scatterplotRefresh).catch(handleError).then(done);
+          cohortFactory.getCohort($scope.cohort.id, null, 0, noLimit).then(scatterplotRefresh).catch(handleError).then(done);
         }
       } else {
-        cohortFactory.getTeamGroupsMembers(getSelectedTeamGroupCodes(), null, 0, $scope.pagination.noLimit).then(scatterplotRefresh).catch(handleError).then(done);
+        cohortFactory.getTeamGroupsMembers(getSelectedGroupCodes(), null, 0, noLimit).then(scatterplotRefresh).catch(handleError).then(done);
       }
     };
 
@@ -160,7 +164,7 @@
 
         // Perform the query
         $scope.isLoading = true;
-        cohortFactory.getTeamGroupsMembers(getSelectedTeamGroupCodes(), $scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(parseCohortFeed, handleError).then(function() {
+        cohortFactory.getTeamGroupsMembers(getSelectedGroupCodes(), $scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(parseCohortFeed, handleError).then(function() {
           $scope.isLoading = false;
         });
       }
@@ -234,9 +238,9 @@
           refreshCohortView(code, function(cohort) {
             if (cohort) {
               // A team will have a single team code and a saved cohort might have multiple.
-              var teamGroupCodes = _.map(cohort.teamGroups, 'teamGroupCode');
-              $scope.search.count.selectedTeamGroups = teamGroupCodes.length;
-              refreshTeamGroupsFilter(teamGroupCodes);
+              var groupCodes = _.map(cohort.teamGroups, 'groupCode');
+              $scope.search.count.selectedTeamGroups = groupCodes.length;
+              refreshTeamGroupsFilter(groupCodes);
               // Track view event
               if (cohort.code) {
                 googleAnalyticsService.track('team', 'view', cohort.code + ': ' + cohort.name);

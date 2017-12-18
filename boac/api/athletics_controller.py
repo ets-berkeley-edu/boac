@@ -22,11 +22,11 @@ def get_team(code):
 @app.route('/api/team_groups/members')
 @login_required
 def get_team_groups_members():
-    team_group_codes = request.args.getlist('teamGroupCodes')
+    group_codes = request.args.getlist('groupCodes')
     order_by = api_util.get(request.args, 'orderBy', None)
     offset = api_util.get(request.args, 'offset', 0)
     limit = api_util.get(request.args, 'limit', 50)
-    results = Student.get_students({'team_group_codes': team_group_codes}, order_by, offset, limit)
+    results = Student.get_students(group_codes, order_by, offset, limit)
     member_details.merge_all(results['students'])
     return jsonify({
         'members': results['students'],
