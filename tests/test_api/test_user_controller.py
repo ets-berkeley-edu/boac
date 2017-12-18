@@ -84,7 +84,7 @@ class TestUserAnalytics:
         """returns all terms with enrollment data in reverse order"""
         assert len(authenticated_response.json['enrollmentTerms']) == 2
         assert authenticated_response.json['enrollmentTerms'][0]['termName'] == 'Fall 2017'
-        assert authenticated_response.json['enrollmentTerms'][0]['enrolledUnits'] == 7.5
+        assert authenticated_response.json['enrollmentTerms'][0]['enrolledUnits'] == 12.5
         assert len(authenticated_response.json['enrollmentTerms'][0]['enrollments']) == 3
         assert authenticated_response.json['enrollmentTerms'][1]['termName'] == 'Spring 2017'
         assert authenticated_response.json['enrollmentTerms'][1]['enrolledUnits'] == 10
@@ -116,10 +116,17 @@ class TestUserAnalytics:
         assert classics_first['sections'][0]['units'] == 4
         assert classics_first['sections'][0]['gradingBasis'] == 'EPN'
         assert classics_first['sections'][0]['grade'] == 'P'
+        assert classics_first['units'] == 4
+        assert classics_first['gradingBasis'] == 'EPN'
+        assert classics_first['grade'] == 'P'
+
         assert len(classics_second['sections']) == 1
-        assert classics_first['sections'][0]['units'] == 4
+        assert classics_second['sections'][0]['units'] == 4
         assert classics_second['sections'][0]['gradingBasis'] == 'GRD'
         assert classics_second['sections'][0]['grade'] == 'B-'
+        assert classics_second['units'] == 4
+        assert classics_second['gradingBasis'] == 'GRD'
+        assert classics_second['grade'] == 'B-'
 
     def test_enrollments_sorted(self, authenticated_response):
         """sorts enrollments by course display name"""
@@ -204,6 +211,10 @@ class TestUserAnalytics:
         assert burmese['sections'][0]['gradingBasis'] == 'GRD'
         assert burmese['sections'][0]['midtermGrade'] == 'D+'
         assert not burmese['sections'][0]['grade']
+        assert burmese['units'] == 4
+        assert burmese['gradingBasis'] == 'GRD'
+        assert burmese['midtermGrade'] == 'D+'
+        assert not burmese['grade']
 
         medieval = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'MED ST 205')
         assert medieval['displayName'] == 'MED ST 205'
@@ -211,7 +222,7 @@ class TestUserAnalytics:
         assert len(medieval['sections']) == 1
         assert medieval['sections'][0]['ccn'] == 90200
         assert medieval['sections'][0]['sectionNumber'] == '001'
-        assert medieval['sections'][0]['enrollmentStatus'] == 'D'
+        assert medieval['sections'][0]['enrollmentStatus'] == 'E'
         assert medieval['sections'][0]['units'] == 5
         assert medieval['sections'][0]['gradingBasis'] == 'GRD'
         assert not medieval['sections'][0]['grade']
@@ -219,7 +230,7 @@ class TestUserAnalytics:
         nuclear = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'NUC ENG 124')
         assert nuclear['displayName'] == 'NUC ENG 124'
         assert nuclear['title'] == 'Radioactive Waste Management'
-        assert len(nuclear['sections']) == 3
+        assert len(nuclear['sections']) == 2
         assert nuclear['sections'][0]['ccn'] == 90300
         assert nuclear['sections'][0]['sectionNumber'] == '002'
         assert nuclear['sections'][0]['enrollmentStatus'] == 'E'
@@ -232,12 +243,6 @@ class TestUserAnalytics:
         assert nuclear['sections'][1]['units'] == 0
         assert nuclear['sections'][1]['gradingBasis'] == 'NON'
         assert not nuclear['sections'][1]['grade']
-        assert nuclear['sections'][2]['ccn'] == 90299
-        assert nuclear['sections'][2]['sectionNumber'] == '200'
-        assert nuclear['sections'][2]['enrollmentStatus'] == 'D'
-        assert nuclear['sections'][2]['units'] == 0
-        assert nuclear['sections'][2]['gradingBasis'] == 'NON'
-        assert not nuclear['sections'][1]['grade']
 
         music = TestUserAnalytics.get_course_for_code(authenticated_response, '2172', 'MUSIC 41C')
         assert music['displayName'] == 'MUSIC 41C'
@@ -249,6 +254,17 @@ class TestUserAnalytics:
         assert music['sections'][0]['units'] == 2
         assert music['sections'][0]['gradingBasis'] == 'GRD'
         assert music['sections'][0]['grade'] == 'A-'
+        assert music['units'] == 2
+        assert music['gradingBasis'] == 'GRD'
+        assert music['grade'] == 'A-'
+
+    def test_dropped_sections(self, authenticated_response):
+        """collects dropped sections in a separate feed"""
+        dropped_sections = authenticated_response.json['enrollmentTerms'][0]['droppedSections']
+        assert len(dropped_sections) == 1
+        assert dropped_sections[0]['displayName'] == 'NUC ENG 124'
+        assert dropped_sections[0]['component'] == 'DIS'
+        assert dropped_sections[0]['sectionNumber'] == '200'
 
     def test_sis_enrollment_not_found(self, authenticated_session, client):
         """gracefully handles missing SIS enrollments"""
