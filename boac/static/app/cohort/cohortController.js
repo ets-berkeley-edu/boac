@@ -221,7 +221,7 @@
 
     $scope.drawActivityBoxplot = function(student, courseSite) {
       var elementId = 'boxplot-' + courseSite.canvasCourseId + '-' + student.uid + '-pageviews';
-      boxplotService.drawBoxplotMinified(elementId, courseSite.analytics.pageViews);
+      boxplotService.drawBoxplotCohort(elementId, courseSite.analytics.pageViews);
     };
 
     var init = function(cohortCode) {

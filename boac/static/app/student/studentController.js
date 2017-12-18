@@ -46,7 +46,7 @@
 
       var course = _.find(courseSites, {canvasCourseId: courseId});
       var elementId = 'boxplot-' + courseId + '-' + metric;
-      boxplotService.drawBoxplot(elementId, course.analytics[metric]);
+      boxplotService.drawBoxplotStudent(elementId, course.analytics[metric]);
     };
 
     $scope.showAllTerms = false;

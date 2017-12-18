@@ -162,9 +162,9 @@
                 <div data-ng-bind="enrollment.displayName"></div>
               </div>
               <div class="cohort-member-column">
-                <div class="boxplot-container" data-ng-repeat="canvasSite in enrollment.canvasSites">
+                <div class="cohort-boxplot-container" data-ng-repeat="canvasSite in enrollment.canvasSites">
                   <div id="boxplot-{{canvasSite.canvasCourseId}}-{{row.uid}}-pageviews"
-                       class="boxplot-minified"
+                       class="cohort-boxplot"
                        data-ng-init="drawActivityBoxplot(row, canvasSite)">
                   </div>
                 </div>
