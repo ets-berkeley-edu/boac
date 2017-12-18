@@ -42,48 +42,7 @@ SPORT_TRANSLATIONS = {
 
 def load_csv(app, csv_file='tmp/FilteredAscStudents.csv'):
     with open(csv_file) as f:
-        students = {}
-        athletics = {}
-
-        for r in csv.DictReader(f):
-            if r['AcadYr'] == THIS_ACAD_YR and r['SportActiveYN'] == 'Yes':
-                asc_code = r['cSportCodeCore']
-
-                if asc_code in SPORT_TRANSLATIONS:
-                    sid = r['SID']
-                    if sid in students:
-                        student = students[sid]
-                    else:
-                        name_split = r['cName'].split(',') if 'cName' in r else ''
-                        full_name = [name.strip() for name in reversed(name_split)]
-                        student = Student(
-                            sid=sid,
-                            first_name=full_name[0].strip() if len(full_name) else '',
-                            last_name=full_name[1].strip() if len(full_name) > 1 else '',
-                            in_intensive_cohort=False,
-                        )
-                        db.session.commit()
-                        students[sid] = student
-
-                    # Load team group (e.g., 'Football, Defensive Backs')
-                    group_code = r['SportCode']
-                    if group_code in athletics:
-                        team_group = athletics[group_code]
-                    else:
-                        team_group = Athletics(
-                            group_code=group_code,
-                            group_name=r['Sport'],
-                            team_code=SPORT_TRANSLATIONS[asc_code],
-                            team_name=r['acSportCore'],
-                        )
-                        db.session.add(team_group)
-                        athletics[group_code] = team_group
-
-                    team_group.athletes.append(student)
-                    db.session.commit()
-                else:
-                    app.logger.error('Unmapped asc_code {} has SportActiveYN for sid {}'.format(asc_code, r['SID']))
-
+        athletics, students = load_student_athletes(app, csv.DictReader(f))
         app.logger.info('{} rows added to \'athletics\' table; {} rows added to \'students\' table; CSV file: {}'.format(
             len(athletics),
             len(students),
@@ -122,3 +81,55 @@ def update_student_attributes(app, students=None):
             m.first_name = m.first_name or (full_name[0] if len(full_name) else '')
             m.last_name = m.last_name or (full_name[1] if len(full_name) > 1 else '')
     return students
+
+
+def load_student_athletes(app, rows):
+    athletics = {}
+    students = {}
+    for r in rows:
+        fix_known_issues(r)
+        if r['AcadYr'] == THIS_ACAD_YR and r['SportActiveYN'] == 'Yes':
+            asc_code = r['cSportCodeCore']
+            if asc_code in SPORT_TRANSLATIONS:
+                sid = r['SID']
+                if sid in students:
+                    student = students[sid]
+                else:
+                    name_split = r['cName'].split(',') if 'cName' in r else ''
+                    full_name = [name.strip() for name in reversed(name_split)]
+                    student = Student(
+                        sid=sid,
+                        first_name=full_name[0].strip() if len(full_name) else '',
+                        last_name=full_name[1].strip() if len(full_name) > 1 else '',
+                        in_intensive_cohort=False,
+                    )
+                    db.session.commit()
+                    students[sid] = student
+                # Load team group (e.g., 'Football, Defensive Backs')
+                group_code = r['SportCode']
+                if group_code in athletics:
+                    team_group = athletics[group_code]
+                else:
+                    team_group = Athletics(
+                        group_code=group_code,
+                        group_name=r['Sport'],
+                        team_code=SPORT_TRANSLATIONS[asc_code],
+                        team_name=r['acSportCore'],
+                    )
+                    db.session.add(team_group)
+                    athletics[group_code] = team_group
+
+                team_group.athletes.append(student)
+                db.session.commit()
+            else:
+                app.logger.error('Unmapped asc_code {} has SportActiveYN for sid {}'.format(asc_code, r['SID']))
+    return athletics, students
+
+
+def fix_known_issues(asc_data):
+    # Fix bad data per BOAC-143
+    is_baseball_team = 'Men\'s Baseball' in asc_data['Sport'] and 'Men\'s Baseball' in asc_data['acSportCore']
+    if is_baseball_team and asc_data['cSportCodeCore'] == 'MFB' and asc_data['SportCode'] == 'MFB-QB':
+        # Athlete is on the baseball team; assign proper codes
+        asc_data['cSportCodeCore'] = 'MBB'
+        asc_data['SportCode'] = 'MBB-AA'
