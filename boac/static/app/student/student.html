@@ -113,14 +113,16 @@
               data-term-id="term.termId">
             </course-site-metrics>
           </div>
-          <div data-ng-repeat="droppedSection in term.droppedSections" class="student-profile-dropped-section">
-            <div class="student-profile-dropped-section-title">
-              <span data-ng-bind="droppedSection.displayName"></span> -
-              <span data-ng-bind="droppedSection.component"></span>
-              <span data-ng-bind="droppedSection.sectionNumber"></span>
-            </div>
-            <div class="student-profile-class-notation">
-              <i class="fa fa-exclamation-triangle student-profile-dropped-section-icon"></i> Dropped
+          <div class="student-profile-class">
+            <div data-ng-repeat="droppedSection in term.droppedSections" class="student-profile-dropped-section">
+              <div class="student-profile-dropped-section-title">
+                <span data-ng-bind="droppedSection.displayName"></span> -
+                <span data-ng-bind="droppedSection.component"></span>
+                <span data-ng-bind="droppedSection.sectionNumber"></span>
+              </div>
+              <div class="student-profile-class-notation">
+                <i class="fa fa-exclamation-triangle student-profile-dropped-section-icon"></i> Dropped
+              </div>
             </div>
           </div>
         </div>
