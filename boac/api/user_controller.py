@@ -1,13 +1,15 @@
 from boac.api import errors
 import boac.api.util as api_util
 from boac.externals import canvas
+from boac.lib import util
 from boac.lib.analytics import merge_analytics_for_user
 from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.http import tolerant_jsonify
+from boac.merged import member_details
 from boac.merged.sis_enrollments import merge_sis_enrollments
 from boac.merged.sis_profile import merge_sis_profile
 from boac.models.student import Student
-from flask import current_app as app, request
+from flask import current_app as app, jsonify, request
 from flask_login import current_user, login_required
 
 
@@ -29,6 +31,28 @@ def user_profile():
 def all_students():
     order_by = request.args['orderBy'] if 'orderBy' in request.args else None
     return tolerant_jsonify(Student.get_all(order_by=order_by))
+
+
+@app.route('/api/students')
+@login_required
+def get_students():
+    gpa_ranges = request.args.getlist('gpaRanges')
+    group_codes = request.args.getlist('groupCodes')
+    levels = request.args.getlist('levels')
+    majors = request.args.getlist('majors')
+    unit_ranges_eligibility = request.args.getlist('unitRangesEligibility')
+    unit_ranges_pacing = request.args.getlist('unitRangesPacing')
+    order_by = util.get(request.args, 'orderBy', None)
+    offset = util.get(request.args, 'offset', 0)
+    limit = util.get(request.args, 'limit', 50)
+    results = Student.get_students(gpa_ranges=gpa_ranges, group_codes=group_codes, levels=levels, majors=majors,
+                                   unit_ranges_eligibility=unit_ranges_eligibility,
+                                   unit_ranges_pacing=unit_ranges_pacing, order_by=order_by, offset=offset, limit=limit)
+    member_details.merge_all(results['students'])
+    return jsonify({
+        'members': results['students'],
+        'totalMemberCount': results['totalStudentCount'],
+    })
 
 
 @app.route('/api/user/<uid>/analytics')

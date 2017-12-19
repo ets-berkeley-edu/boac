@@ -157,12 +157,12 @@ def load_student_athletes():
 
 def load_cohorts():
     # Oliver's cohorts
-    CohortFilter.create(label='All sports', group_codes=['MFB-DL', 'MFB-DL', 'WFH-AA'], uid='2040')
-    CohortFilter.create(label='Football, Defense', group_codes=['MFB-DL', 'MFB-DL'], uid='2040')
-    CohortFilter.create(label='Field Hockey', group_codes=['WFH-AA'], uid='2040')
+    CohortFilter.create(uid='2040', label='All sports', group_codes=['MFB-DL', 'MFB-DL', 'WFH-AA'])
+    CohortFilter.create(uid='2040', label='Football, Defense', group_codes=['MFB-DL', 'MFB-DL'])
+    CohortFilter.create(uid='2040', label='Field Hockey', group_codes=['WFH-AA'])
     # Sandeep's cohorts
-    CohortFilter.create(label='All sports', group_codes=['MFB-DL', 'MFB-DL', 'WFH-AA'], uid='1133399')
-    CohortFilter.create(label='Football, Defense Backs', group_codes=['MFB-DB'], uid='1133399')
+    CohortFilter.create(uid='1133399', label='All sports', group_codes=['MFB-DL', 'MFB-DL', 'WFH-AA'])
+    CohortFilter.create(uid='1133399', label='Football, Defense Backs', group_codes=['MFB-DB'])
     db.session.commit()
 
 

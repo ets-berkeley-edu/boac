@@ -8,6 +8,7 @@
     cohortFactory,
     cohortService,
     googleAnalyticsService,
+    studentFactory,
     $location,
     $rootScope,
     $scope,
@@ -146,7 +147,7 @@
           cohortFactory.getCohort($scope.cohort.id, null, 0, noLimit).then(scatterplotRefresh).catch(handleError).then(done);
         }
       } else {
-        cohortFactory.getTeamGroupsMembers(getSelectedGroupCodes(), null, 0, noLimit).then(scatterplotRefresh).catch(handleError).then(done);
+        studentFactory.getStudents(getSelectedGroupCodes(), null, 0, noLimit).then(scatterplotRefresh).catch(handleError).then(done);
       }
     };
 
@@ -164,7 +165,7 @@
 
         // Perform the query
         $scope.isLoading = true;
-        cohortFactory.getTeamGroupsMembers(getSelectedGroupCodes(), $scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(parseCohortFeed, handleError).then(function() {
+        studentFactory.getStudents(getSelectedGroupCodes(), $scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(parseCohortFeed, handleError).then(function() {
           $scope.isLoading = false;
         });
       }

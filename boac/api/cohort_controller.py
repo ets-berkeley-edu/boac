@@ -1,5 +1,5 @@
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-import boac.api.util as api_util
+from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged import member_details
 from boac.models.cohort_filter import CohortFilter
@@ -29,9 +29,9 @@ def my_cohorts():
 @app.route('/api/intensive_cohort')
 @login_required
 def get_intensive_cohort():
-    order_by = api_util.get(request.args, 'orderBy', None)
-    offset = api_util.get(request.args, 'offset', 0)
-    limit = api_util.get(request.args, 'limit', 50)
+    order_by = util.get(request.args, 'orderBy', None)
+    offset = util.get(request.args, 'offset', 0)
+    limit = util.get(request.args, 'limit', 50)
     results = Student.in_intensive(order_by=order_by, offset=offset, limit=limit)
     return tolerant_jsonify({
         'code': 'intensive',
@@ -44,9 +44,9 @@ def get_intensive_cohort():
 @app.route('/api/cohort/<cohort_id>')
 @login_required
 def get_cohort(cohort_id):
-    order_by = api_util.get(request.args, 'orderBy', None)
-    offset = api_util.get(request.args, 'offset', 0)
-    limit = api_util.get(request.args, 'limit', 50)
+    order_by = util.get(request.args, 'orderBy', None)
+    offset = util.get(request.args, 'offset', 0)
+    limit = util.get(request.args, 'limit', 50)
     cohort = CohortFilter.find_by_id(int(cohort_id), order_by, int(offset), int(limit))
     if not cohort:
         raise ResourceNotFoundError('No cohort found with identifier: {}'.format(cohort_id))
@@ -58,12 +58,18 @@ def get_cohort(cohort_id):
 @login_required
 def create_cohort():
     params = request.get_json()
-    label = params['label']
-    group_codes = params['groupCodes']
-    if not label or not group_codes:
-        raise BadRequestError('Cohort creation requires \'label\' and \'groupCodes\'')
-
-    cohort = CohortFilter.create(label=label, group_codes=group_codes, uid=current_user.get_id())
+    label = util.get(params, 'label', None)
+    gpa_ranges = util.get(params, 'gpaRanges')
+    group_codes = util.get(params, 'groupCodes')
+    levels = util.get(params, 'levels')
+    majors = util.get(params, 'majors')
+    unit_ranges_eligibility = util.get(params, 'unitRangesEligibility')
+    unit_ranges_pacing = util.get(params, 'unitRangesPacing')
+    if not label:
+        raise BadRequestError('Cohort creation requires \'label\'')
+    cohort = CohortFilter.create(uid=current_user.get_id(), label=label, gpa_ranges=gpa_ranges, group_codes=group_codes,
+                                 levels=levels, majors=majors, unit_ranges_eligibility=unit_ranges_eligibility,
+                                 unit_ranges_pacing=unit_ranges_pacing)
     return tolerant_jsonify(cohort)
 
 
@@ -75,11 +81,9 @@ def update_cohort():
     label = params['label']
     if not label:
         raise BadRequestError('Requested cohort label is empty or invalid')
-
     cohort = get_cohort_owned_by(params['id'], uid)
     if not cohort:
         raise BadRequestError('Cohort does not exist or is not owned by {}'.format(uid))
-
     CohortFilter.update(cohort_id=cohort['id'], label=label)
     return jsonify({'message': 'Cohort updated (label: {})'.format(label)}), 200
 

@@ -36,7 +36,8 @@ class Student(Base):
         }
 
     @classmethod
-    def get_students(cls, group_codes, order_by=None, offset=0, limit=50):
+    def get_students(cls, gpa_ranges=None, group_codes=None, levels=None, majors=None, unit_ranges_eligibility=None,
+                     unit_ranges_pacing=None, order_by=None, offset=0, limit=50):
         students = []
         total_count = 0
         if group_codes:

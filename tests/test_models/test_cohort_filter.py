@@ -1,3 +1,4 @@
+from boac.api.errors import InternalServerError
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 import pytest
@@ -13,10 +14,49 @@ class TestCohortFilter:
 
     def test_cohort_update(self):
         group_codes = ['MSW-AA', 'MSW-DV', 'MSW-SW']
-        cohort = CohortFilter.create(label='Swimming, Men\'s', group_codes=group_codes, uid='2040')
+        cohort = CohortFilter.create(uid='2040', label='Swimming, Men\'s', group_codes=group_codes)
         foosball_label = 'Foosball teams'
         cohort = CohortFilter.update(cohort['id'], foosball_label)
         assert cohort['label'] == foosball_label
+
+    def test_filter_criteria(self):
+        gpa_ranges = [
+            'numrange(0, 2, \'[)\')',
+            'numrange(2, 2.5, \'[)\')',
+        ]
+        group_codes = ['MFB-DB', 'MFB-DL']
+        levels = ['Junior']
+        majors = ['Environmental Economics & Policy', 'Gender and Women\'s Studies']
+        unit_ranges_eligibility = [
+            'numrange(0, 5, \'[]\')',
+            'numrange(30, NULL, \'[)\')',
+        ]
+        unit_ranges_pacing = ['numrange(30, 59, \'[]\')']
+        cohort = CohortFilter.create(uid='1022796',
+                                     label='All criteria, all the time',
+                                     gpa_ranges=gpa_ranges,
+                                     group_codes=group_codes,
+                                     levels=levels,
+                                     majors=majors,
+                                     unit_ranges_eligibility=unit_ranges_eligibility,
+                                     unit_ranges_pacing=unit_ranges_pacing)
+        cohort = CohortFilter.find_by_id(cohort['id'])
+        expected = {
+            'gpaRanges': gpa_ranges,
+            'groupCodes': group_codes,
+            'levels': levels,
+            'majors': majors,
+            'unitRangesEligibility': unit_ranges_eligibility,
+            'unitRangesPacing': unit_ranges_pacing,
+        }
+        cf = cohort['filterCriteria']
+        assert expected == cf
+        assert 2 == len(cf['gpaRanges'])
+        assert 2 == len(cf['unitRangesEligibility'])
+
+    def test_invalid_create(self):
+        with pytest.raises(InternalServerError):
+            CohortFilter.create(uid='2040', label='Cohort with undefined filter criteria')
 
     def test_create_and_delete_cohort(self):
         """cohort_filter record to Flask-Login for recognized UID"""
@@ -28,7 +68,7 @@ class TestCohortFilter:
 
         # Create and share cohort
         group_codes = ['MFB-DB', 'MFB-DL', 'MFB-MLB', 'MFB-OLB']
-        cohort = CohortFilter.create(label='Football, Defense', group_codes=group_codes, uid=owner.uid)
+        cohort = CohortFilter.create(uid=owner.uid, label='Football, Defense', group_codes=group_codes)
         cohort = CohortFilter.share(cohort['id'], shared_with.uid)
         assert len(cohort['owners']) == 2
         assert owner, shared_with in cohort['owners']
