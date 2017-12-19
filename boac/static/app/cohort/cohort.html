@@ -184,15 +184,41 @@
     <div id="cohort-matrix-container" class="cohort-matrix-container" data-ng-show="selectedTab === 'matrix' && !isLoading && !error">
       <!-- IMPORTANT: We use data-ng-show because d3 must populate the div before we reveal it to the user. -->
       <div id="scatterplot" class="cohort-matrix"></div>
-      <ul data-ng-if="matrix.membersWithoutData.length">
-        <h4>Students without graphable data</h4>
-        <li data-ng-repeat="member in matrix.membersWithoutData">
-          <a data-ng-href="/student/{{member.uid}}">
-            <img class="cohort-avatar" data-ng-src="{{member.avatar_url}}">
-            <span data-ng-bind="member.name"></span>
+      <div id="cohort-missing-student-data" class="cohort-missing-student-data" data-ng-if="matrix.membersWithoutData.length">
+        <h4>Missing Student Data</h4>
+        <div>For the following students, some classes may only provide partial data or no information is available:</div>
+        <div class="cohort-missing-student-data-header">
+          <div class="cohort-avatar-container"></div>
+          <div class="cohort-member-name-container"></div>
+          <div class="cohort-member-column">Page Views</div>
+          <div class="cohort-member-column"
+               data-ng-bind="yAxisMeasure==='analytics.courseCurrentScore' ? 'Assignment Grades' : 'Assignments on Time'"></div>
+        </div>
+        <ul class="list-group">
+          <a class="list-group-item cohort-member-list-item"
+             data-ng-href="/student/{{member.uid}}"
+             data-ng-repeat="member in matrix.membersWithoutData">
+            <div class="cohort-avatar-container">
+              <img class="cohort-avatar" data-ng-src="{{member.avatar_url}}">
+            </div>
+            <div class="cohort-member-name-container">
+              <h3 class="cohort-member-name" data-ng-bind="member.firstName + ' ' + member.lastName"></h3>
+              <div class="cohort-member-sid">
+                SID: <span data-ng-bind="member.sid"></span>
+              </div>
+            </div>
+            <div class="cohort-member-column">
+              <span data-ng-bind-template="{{member.analytics.pageViews | number:1}}%" data-ng-if="member.analytics.pageViews"></span>
+            </div>
+            <div class="cohort-member-column" data-ng-if="yAxisMeasure==='analytics.courseCurrentScore'">
+              <span data-ng-bind-template="{{member.analytics.courseCurrentScore | number:1}}%" data-ng-if="member.analytics.courseCurrentScore"></span>
+            </div>
+            <div class="cohort-member-column" data-ng-if="yAxisMeasure!=='analytics.courseCurrentScore'">
+              <span data-ng-bind-template="{{member.analytics.assignmentsOnTime | number:1}}%" data-ng-if="member.analytics.assignmentsOnTime"></span>
+            </div>
           </a>
-        </li>
-      </ul>
+        </ul>
+      </div>
     </div>
   </div>
 
