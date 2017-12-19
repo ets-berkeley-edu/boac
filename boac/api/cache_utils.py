@@ -1,6 +1,27 @@
 from boac import db
 from boac.lib import berkeley
+from boac.models.json_cache import JsonCache
 from flask import current_app as app
+
+
+def clear_current_term(include_canvas_scores=False):
+    # When refreshing the current term, also delete non-term-specific cache entries which hold 'current' external
+    # data.
+    filters = [
+        JsonCache.key.notlike('term_%'),
+        JsonCache.key.like('term_{}%'.format(app.config['CANVAS_CURRENT_ENROLLMENT_TERM'])),
+    ]
+    # The Canvas course scores feeds are currently too time-consuming to toss aside lightly.
+    exclude_canvas_scores_filters = [
+        JsonCache.key.notlike('%canvas_course_enrollments%'),
+        JsonCache.key.notlike('%canvas_course_assignments_analytics%'),
+    ]
+    if not include_canvas_scores:
+        filters += exclude_canvas_scores_filters
+    matches = db.session.query(JsonCache).filter(*filters)
+    app.logger.info('Will delete {} entries'.format(matches.count()))
+    matches.delete(synchronize_session=False)
+    db.session.commit()
 
 
 def load_canvas_externals(uid, sis_term_id):
@@ -134,7 +155,5 @@ def load_current_term():
 
 
 def refresh_current_term():
-    from boac.models import json_cache
-
-    json_cache.clear_current_term()
+    clear_current_term()
     load_current_term()
