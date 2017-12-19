@@ -113,7 +113,7 @@
               data-term-id="term.termId">
             </course-site-metrics>
           </div>
-          <div class="student-profile-class">
+          <div class="student-profile-class" data-ng-if="term.droppedSections.length">
             <div data-ng-repeat="droppedSection in term.droppedSections" class="student-profile-dropped-section">
               <div class="student-profile-dropped-section-title">
                 <span data-ng-bind="droppedSection.displayName"></span> -
