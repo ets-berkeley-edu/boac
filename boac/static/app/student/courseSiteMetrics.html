@@ -1,38 +1,27 @@
-<ul>
-  <li>
-    Assignments on time:
-    <span data-ng-bind="canvasSite.analytics.assignmentsOnTime.summary"></span>
-    <div class="boxplot-container" data-ng-if="canvasSite.analytics.assignmentsOnTime.boxPlottable">
-      <div id="boxplot-{{canvasSite.canvasCourseId}}-assignmentsOnTime"
-           class="boxplot"
-           data-ng-init="drawBoxplot(termId, courseName, canvasSite.canvasCourseId, 'assignmentsOnTime')"></div>
-    </div>
-  </li>
-  <li>
-    Assignment grades:
-    <span data-ng-bind="canvasSite.analytics.courseCurrentScore.summary"></span>
-    <div class="boxplot-container" data-ng-if="canvasSite.analytics.courseCurrentScore.boxPlottable">
-      <div id="boxplot-{{canvasSite.canvasCourseId}}-courseCurrentScore"
-           class="boxplot"
-           data-ng-init="drawBoxplot(termId, courseName, canvasSite.canvasCourseId, 'courseCurrentScore')"></div>
-    </div>
-  </li>
-  <li>
-    Page views:
-    <span data-ng-bind="canvasSite.analytics.pageViews.summary"></span>
-    <div class="boxplot-container" data-ng-if="canvasSite.analytics.pageViews.boxPlottable">
-      <div id="boxplot-{{canvasSite.canvasCourseId}}-pageViews"
-           class="boxplot"
-           data-ng-init="drawBoxplot(termId, courseName, canvasSite.canvasCourseId, 'pageViews')"></div>
-    </div>
-  </li>
-  <li>
-    Participations:
-    <span data-ng-bind="canvasSite.analytics.participations.summary"></span>
-    <div class="boxplot-container" data-ng-if="canvasSite.analytics.participations.boxPlottable">
-      <div id="boxplot-{{canvasSite.canvasCourseId}}-participations"
-           class="boxplot"
-           data-ng-init="drawBoxplot(termId, courseName, canvasSite.canvasCourseId, 'participations')"></div>
-    </div>
-  </li>
-</ul>
+<table class="student-profile-course-site-metrics">
+  <tr data-ng-repeat="metric in metrics">
+    <td class="student-profile-course-site-metrics-legend" data-ng-bind="metric.label"></td>
+    <td data-ng-if="metric.dataset.displayPercentile">
+      <strong data-ng-bind="metric.dataset.displayPercentile"></strong> percentile
+    </td>
+    <td class="student-profile-course-site-metrics-no-data"
+        data-ng-bind="metric.missingLabel"
+        data-ng-if="!metric.dataset.displayPercentile"></td>
+    <td class="student-profile-boxplot-container" data-ng-if="metric.dataset.boxPlottable">
+      <div id="boxplot-{{canvasSite.canvasCourseId}}-{{metric.id}}"
+           class="student-profile-boxplot"
+           data-ng-init="drawBoxplot(termId, courseName, canvasSite.canvasCourseId, metric.id)"></div>
+    </td>
+    <td data-ng-if="!metric.dataset.boxPlottable && metric.dataset.displayPercentile">
+      Score:
+      <strong data-ng-bind="metric.dataset.student.raw"></strong>
+      <span class="student-profile-course-site-metrics-maximum">
+        (Maximum: <span data-ng-bind="metric.dataset.courseDeciles[10]"></span>)
+      </span>
+    </td>
+    <td class="student-profile-course-site-metrics-no-data"
+        data-ng-if="!metric.dataset.boxPlottable && !metric.dataset.displayPercentile">
+      No Data
+    </td>
+  </tr>
+</table>

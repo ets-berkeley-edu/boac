@@ -76,7 +76,6 @@ def analytics_for_column(df, student_row, column_name):
 
     nunique = dfcol.nunique()
     if nunique == 0 or (nunique == 1 and dfcol.max() == 0.0):
-        summary = 'No data'
         return {
             'boxPlottable': False,
             'student': {
@@ -85,7 +84,7 @@ def analytics_for_column(df, student_row, column_name):
                 'roundedUpPercentile': None,
             },
             'courseDeciles': None,
-            'summary': summary,
+            'displayPercentile': None,
         }
 
     column_value = student_row[column_name].values[0]
@@ -102,11 +101,11 @@ def analytics_for_column(df, student_row, column_name):
 
     # If all students have the same score, we have no basis for comparison.
     if nunique == 1:
-        summary = 'Insufficient data'
+        display_percentile = None
     elif nunique <= 10:
-        summary = '{} percentile : score {}, maximum {}'.format(ordinal(intuitive_percentile), raw_value, dfcol.max())
+        display_percentile = ordinal(intuitive_percentile)
     else:
-        summary = '{} percentile'.format(ordinal(comparative_percentile))
+        display_percentile = ordinal(comparative_percentile)
 
     return {
         'boxPlottable': box_plottable,
@@ -116,7 +115,7 @@ def analytics_for_column(df, student_row, column_name):
             'roundedUpPercentile': intuitive_percentile,
         },
         'courseDeciles': column_quantiles,
-        'summary': summary,
+        'displayPercentile': display_percentile,
     }
 
 

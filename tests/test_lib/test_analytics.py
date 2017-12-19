@@ -24,7 +24,7 @@ class TestAnalytics:
         digested = analytics.analytics_from_canvas_course_enrollments(feed, canvas_user_id)
         course_current_score = digested['courseCurrentScore']
         assert course_current_score['boxPlottable'] is True
-        assert course_current_score['summary'] == '8th percentile'
+        assert course_current_score['displayPercentile'] == '8th'
         assert course_current_score['student']['percentile'] == 8
         assert course_current_score['student']['raw'] == 86.0
         assert course_current_score['student']['roundedUpPercentile'] == 11
@@ -43,7 +43,7 @@ class TestAnalytics:
         digested = analytics.analytics_from_canvas_course_enrollments(feed, canvas_user_id)
         course_current_score = digested['courseCurrentScore']
         assert course_current_score['boxPlottable'] is False
-        assert course_current_score['summary'] == 'No data'
+        assert course_current_score['displayPercentile'] is None
         assert course_current_score['student']['percentile'] is None
         assert course_current_score['student']['raw'] is None
         assert course_current_score['student']['roundedUpPercentile'] is None
@@ -89,11 +89,14 @@ class TestAnalyticsFromSummaryFeed:
                 assert digested[column]['boxPlottable'] is False
                 assert digested[column]['student']['percentile'] is not None
 
-        assert worst['assignmentsOnTime']['summary'] == '0th percentile : score 1, maximum 3'
-        assert median['assignmentsOnTime']['summary'] == '99th percentile : score 2, maximum 3'
+        assert worst['assignmentsOnTime']['displayPercentile'] == '0th'
+        assert worst['assignmentsOnTime']['student']['raw'] == 1
+        assert median['assignmentsOnTime']['displayPercentile'] == '99th'
+        assert median['assignmentsOnTime']['student']['raw'] == 2
         assert median['assignmentsOnTime']['student']['roundedUpPercentile'] == 99
         assert median['assignmentsOnTime']['student']['percentile'] != 99
-        assert best['assignmentsOnTime']['summary'] == '100th percentile : score 3, maximum 3'
+        assert best['assignmentsOnTime']['displayPercentile'] == '100th'
+        assert best['assignmentsOnTime']['student']['raw'] == 3
 
     def test_insufficient_data(self, app):
         """notes insufficient data status"""
@@ -123,7 +126,7 @@ class TestAnalyticsFromSummaryFeed:
         digested = analytics.analytics_from_summary_feed(summary_feed, self.canvas_user_id, self.canvas_course_id)
         for column in ['assignmentsOnTime', 'pageViews', 'participations']:
             assert digested[column]['boxPlottable'] is False
-            assert digested[column]['summary'] == 'Insufficient data'
+            assert digested[column]['displayPercentile'] is None
             assert digested[column]['student']['percentile'] is None
 
     def test_zero_counts(self, app):
@@ -154,7 +157,7 @@ class TestAnalyticsFromSummaryFeed:
         digested = analytics.analytics_from_summary_feed(summary_feed, self.canvas_user_id, self.canvas_course_id)
         for column in ['assignmentsOnTime', 'participations']:
             assert digested[column]['boxPlottable'] is False
-            assert digested[column]['summary'] == 'No data'
+            assert digested[column]['displayPercentile'] is None
             assert digested[column]['student']['percentile'] is None
 
     def test_zeroth_percentile(self, app):
@@ -189,7 +192,11 @@ class TestAnalyticsFromSummaryFeed:
         for column in ['assignmentsOnTime', 'participations']:
             assert digested[column]['boxPlottable'] is False
             assert digested[column]['student']['percentile'] is not None
-        assert digested['assignmentsOnTime']['summary'] == '0th percentile : score 0, maximum 16'
-        assert digested['participations']['summary'] == '0th percentile : score 0, maximum 11'
-        assert digested['pageViews']['summary'] == '0th percentile'
+        assert digested['assignmentsOnTime']['displayPercentile'] == '0th'
+        assert digested['assignmentsOnTime']['student']['raw'] == 0
+        assert digested['assignmentsOnTime']['courseDeciles'][10] == 16
+        assert digested['participations']['displayPercentile'] == '0th'
+        assert digested['participations']['student']['raw'] == 0
+        assert digested['participations']['courseDeciles'][10] == 11
+        assert digested['pageViews']['displayPercentile'] == '0th'
         assert digested['pageViews']['boxPlottable'] is True

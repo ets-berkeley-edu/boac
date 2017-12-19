@@ -12,6 +12,43 @@
   flex: 0 0 60px;
 }
 
+.cohort-boxplot {
+  height: 18px;
+  width: 75px;
+}
+
+.cohort-boxplot .highcharts-container {
+  overflow: visible !important;
+}
+
+.cohort-boxplot .highcharts-tooltip {
+  width: 250px;
+}
+
+.cohort-boxplot-container {
+  align-items: flex-end;
+  display: flex;
+}
+
+.cohort-boxplot-container .highcharts-tooltip {
+  background-color: #000;
+  border-color: #000;
+  border-radius: 6px;
+  padding: 8px;
+  width: 250px;
+}
+
+.cohort-boxplot-container g.highcharts-tooltip {
+  display: none !important;
+}
+
+.cohort-boxplot-container .highcharts-tooltip span {
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: auto !important;
+}
+
 .cohort-btn-group {
   padding: 0 0 5px 0;
 }
