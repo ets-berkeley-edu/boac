@@ -181,6 +181,16 @@
   font-size: 13px;
 }
 
+.cohort-missing-student-data {
+  margin-top: 30px;
+}
+
+.cohort-missing-student-data-header {
+  display: flex;
+  font-weight: bold;
+  padding: 15px 15px 5px;
+}
+
 .cohort-sort-column {
   display: flex;
   margin: 20px 0 10px 0;

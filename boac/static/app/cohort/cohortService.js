@@ -8,11 +8,7 @@
       var svg;
 
       function x(d) { return d.analytics.pageViews; }
-      function y(d) {
-        var yValues = _.get(d, yAxisMeasure);
-        // Points with no y-axis data are plotted below the x-axis.
-        return _.isFinite(yValues) ? yValues : -10;
-      }
+      function y(d) { return _.get(d, yAxisMeasure); }
       function key(d) { return d.uid; }
 
       var yAxisName = 'Assignments on time';

@@ -108,13 +108,13 @@
 
     var scatterplotRefresh = function(response) {
       // Plot the cohort
+      var yAxisMeasure = $scope.yAxisMeasure = $location.search().yAxis || 'analytics.assignmentsOnTime';
       var partitionedMembers = _.partition(response.data.members, function(member) {
-        return _.isFinite(_.get(member, 'analytics.pageViews'));
+        return _.isFinite(_.get(member, 'analytics.pageViews')) && _.isFinite(_.get(member, yAxisMeasure));
       });
       var goToUserPage = function(uid) {
         $state.go('user', {uid: uid});
       };
-      var yAxisMeasure = $location.search().yAxis || 'analytics.assignmentsOnTime';
 
       // Render graph
       $scope.matrix = {
