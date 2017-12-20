@@ -103,11 +103,11 @@ class TestCohortDetail:
         """creates custom cohort, owned by current user"""
         label = 'Tennis'
         group_codes = ['MTE-AA', 'WTE-AA']
-        custom_cohort = {
+        data = {
             'label': label,
             'groupCodes': group_codes,
         }
-        response = client.post('/api/cohort/create', data=json.dumps(custom_cohort), content_type='application/json')
+        response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 200
 
         cohort = json.loads(response.data)
@@ -122,15 +122,42 @@ class TestCohortDetail:
 
     def test_invalid_create_cohort_params(self, authenticated_session, client):
         bad_range_syntax = 'numrange(2, BLARGH, \'[)\')'
-        custom_cohort = {
+        data = {
             'label': 'Problematic Cohort',
             'gpaRanges': [bad_range_syntax],
             'levels': ['Sophomore'],
         }
-        response = client.post('/api/cohort/create', data=json.dumps(custom_cohort), content_type='application/json')
+        response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
         assert 500 == response.status_code
         assert 'BLARGH' in str(response.data)
         assert 'does not match expected' in str(response.data)
+
+    def test_invalid_group_code(self, authenticated_session, client):
+        data = {
+            'label': 'groupCodes must be uppercase',
+            'groupCodes': ['mte-aa'],
+        }
+        response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
+        assert 500 == response.status_code and 'mte-aa' in str(response.data)
+
+    def test_invalid_level(self, authenticated_session, client):
+        data = {
+            'label': 'Levels must be capitalized',
+            'levels': ['sophomore'],
+        }
+        response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
+        assert 500 == response.status_code and 'sophomore' in str(response.data)
+
+    def test_create_cohort_with_invalid_data_structure(self, authenticated_session, client):
+        data = {
+            'label': 'Majors must be a list of strings',
+            'majors': [{
+                'label': 'American Studies',
+                'selected': True,
+            }],
+        }
+        response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
+        assert 500 == response.status_code
 
     def test_create_cohort_with_complex_filters(self, authenticated_session, client):
         """creates custom cohort, with many non-empty filter_criteria"""
@@ -142,7 +169,7 @@ class TestCohortDetail:
         group_codes = []
         levels = ['Junior']
         majors = ['Environmental Economics & Policy', 'Gender and Women\’s Studies']
-        custom_cohort = {
+        data = {
             'label': label,
             'gpaRanges': gpa_ranges,
             'groupCodes': group_codes,
@@ -151,13 +178,13 @@ class TestCohortDetail:
             'unitRangesEligibility': [],
             'unitRangesPacing': [],
         }
-        client.post('/api/cohort/create', data=json.dumps(custom_cohort), content_type='application/json')
+        client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
         response = client.get('/api/cohorts/my')
         cohort = next(x for x in response.json if x['label'] == 'Complex')
         assert cohort and 'filterCriteria' in cohort
         for key in cohort['filterCriteria']:
-            assert key in custom_cohort
-            assert custom_cohort[key] == cohort['filterCriteria'][key]
+            assert key in data
+            assert data[key] == cohort['filterCriteria'][key]
 
     def test_delete_cohort_not_authenticated(self, client):
         """custom cohort deletion requires authentication"""
@@ -166,7 +193,7 @@ class TestCohortDetail:
 
     def test_delete_cohort_wrong_user(self, client, fake_auth):
         """custom cohort deletion is only available to owners"""
-        cohort = CohortFilter.create(uid=test_uid, label='Badminton teams', group_codes=['MBK', 'WBK'])
+        cohort = CohortFilter.create(uid=test_uid, label='Badminton teams', group_codes=['WWP-AA', 'MWP-AA'])
         assert cohort and 'id' in cohort
 
         # This user does not own the custom cohort above
@@ -178,7 +205,7 @@ class TestCohortDetail:
     def test_delete_cohort(self, authenticated_session, client):
         """deletes existing custom cohort while enforcing rules of ownership"""
         label = 'Water polo teams'
-        cohort = CohortFilter.create(uid=test_uid, label=label, group_codes=['WPW', 'WPM'])
+        cohort = CohortFilter.create(uid=test_uid, label=label, group_codes=['WWP-AA', 'MWP-AA'])
 
         assert cohort and 'id' in cohort
         id_of_created_cohort = cohort['id']

@@ -90,12 +90,20 @@ class CohortFilter(Base, UserMixin):
                                 unit_ranges_eligibility=None, unit_ranges_pacing=None):
         if not gpa_ranges and not group_codes and not levels and not majors and not unit_ranges_eligibility and not unit_ranges_pacing:
             raise InternalServerError('CohortFilter creation requires one or more non-empty criteria.')
-        # Validate range syntax
-        expected_syntax = '^numrange\([0-9\.NUL]+, [0-9\.NUL]+, \'..\'\)$'
-        p = re.compile(expected_syntax)
+        # Validate
+        group_code_syntax = re.compile('^[A-Z]+\-[A-Z]+$')
+        if group_codes and any(not group_code_syntax.match(code) for code in group_codes):
+            raise InternalServerError('\'group_codes\' arg has invalid data: ' + str(group_codes))
+        level_syntax = re.compile('^[A-Z][a-z]+$')
+        if levels and any(not level_syntax.match(level) for level in levels):
+            raise InternalServerError('\'levels\' arg has invalid data: ' + str(levels))
+        if majors and any(not isinstance(m, str) for m in majors):
+            raise InternalServerError('\'majors\' arg has invalid data: ' + str(majors))
+        # The 'numrange' syntax is based on https://www.postgresql.org/docs/9.3/static/rangetypes.html
+        numrange_syntax = re.compile('^numrange\([0-9\.NUL]+, [0-9\.NUL]+, \'..\'\)$')
         for r in (gpa_ranges or []) + (unit_ranges_eligibility or []) + (unit_ranges_pacing or []):
-            if not p.match(r):
-                raise InternalServerError('Range argument \'{}\' does not match expected \'numrange\' syntax: {}'.format(r, expected_syntax))
+            if not numrange_syntax.match(r):
+                raise InternalServerError('Range argument \'{}\' does not match expected \'numrange\' syntax: {}'.format(r, numrange_syntax.pattern))
         return {
             'groupCodes': group_codes or [],
             'levels': levels or [],
