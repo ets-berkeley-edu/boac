@@ -2,6 +2,7 @@ from boac import db
 import boac.api.util as api_util
 from boac.models.base import Base
 from boac.models.db_relationships import student_athletes
+from sqlalchemy.orm import joinedload
 
 
 class Student(Base):
@@ -54,7 +55,7 @@ class Student(Base):
 
     @classmethod
     def get_all(cls, order_by=None):
-        students = Student.query.outerjoin(Student.athletics).all()
+        students = Student.query.options(joinedload('athletics')).all()
         if order_by and len(students) > 0:
             # For now, only one order_by value is supported
             if order_by == 'groupName':
