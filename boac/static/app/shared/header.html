@@ -10,7 +10,7 @@
       <find-student></find-student>
     </li>
     <li class="header-column-name" data-ng-if="me.authenticated_as.is_authenticated">
-      <span data-ng-bind="me.authenticated_as.uid"></span>
+      <span data-ng-bind="me.canvasProfile.name"></span>
     </li>
     <li class="flex-column-right" data-ng-controller="AuthController">
       <button id="header-sign-in"
