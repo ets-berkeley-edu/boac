@@ -68,7 +68,7 @@ def user_analytics(uid):
     student = Student.query.filter_by(uid=uid).first()
     if student:
         sis_profile = merge_sis_profile(student.sid)
-        athletics_profile = student.to_api_json()
+        athletics_profile = student.to_expanded_api_json()
     else:
         sis_profile = False
         athletics_profile = False
