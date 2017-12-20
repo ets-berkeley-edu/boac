@@ -5,6 +5,7 @@ from boac.models.base import Base
 from decorator import decorator
 from flask import current_app as app
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm.attributes import flag_modified
 
 
 class JsonCache(Base):
@@ -75,6 +76,14 @@ def stow(key_pattern, for_term=False):
                 app.logger.info('{key} not generated and will not be stowed in DB'.format(key=key))
             return to_stow
     return _stow
+
+
+def update_jsonb_row(stowed):
+    """Changes to a JSONB column will not be committed without some extra hoop-jumping."""
+    flag_modified(stowed, 'json')
+    db.session.merge(stowed)
+    if not app.config['TESTING']:
+        db.session.commit()
 
 
 def _get_args(func, *args, **kw):

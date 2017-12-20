@@ -1,0 +1,79 @@
+from datetime import datetime
+from boac import db
+from boac.models.json_cache import JsonCache, update_jsonb_row
+from flask import current_app as app
+
+
+class JobProgress:
+    # Key to track the progress of a very long-running job.
+    REFRESH_CURRENT_TERM = 'refresh_current_term'
+
+    def __init__(self, key=REFRESH_CURRENT_TERM):
+        self.key = key
+
+    def delete(self):
+        row = JsonCache.query.filter_by(key=self.key).first()
+        if row:
+            db.session.query(JsonCache).filter(JsonCache.key == self.key).delete()
+        return (row and row.json)
+
+    def get(self):
+        row = JsonCache.query.filter_by(key=self.key).first()
+        return (row and row.json)
+
+    def start(self):
+        start_json = {
+            'start': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'end': None,
+            'steps': [],
+        }
+        row = JsonCache.query.filter_by(key=self.key).first()
+        if row:
+            progress = row.json
+            if progress['start'] and not progress['end']:
+                app.logger.error('Cannot start job {} already in progress'.format(self.key))
+                return False
+            row.json = start_json
+            if not app.config['TESTING']:
+                db.session.commit()
+        else:
+            row = JsonCache(key=self.key, json=start_json)
+            db.session.add(row)
+            if not app.config['TESTING']:
+                db.session.commit()
+        return start_json
+
+    def update(self, step_description):
+        row = JsonCache.query.filter_by(key=self.key).first()
+        if row is None:
+            app.logger.error('No active progress record to append step "{}" to {}'.format(step_description, self.key))
+            return False
+        progress = row.json
+        if (not progress.get('start')) or progress.get('end') or (progress.get('steps') is None):
+            app.logger.error('Progress record {} not ready to append step {} to {}'.format(
+                progress,
+                step_description,
+                self.key,
+            ))
+            return False
+        step = '{} : {}'.format(
+            datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            step_description,
+        )
+        progress['steps'].append(step)
+        update_jsonb_row(row)
+        return progress
+
+    def end(self):
+        row = JsonCache.query.filter_by(key=self.key).first()
+        if row and row.json.get('start'):
+            progress = row.json
+            if progress.get('end'):
+                app.logger.error('Job {} is already ended: {}'.format(self.key, progress))
+                return False
+            progress['end'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            update_jsonb_row(row)
+            return progress
+        else:
+            app.logger.error('Job {} has not started'.format(self.key))
+            return False
