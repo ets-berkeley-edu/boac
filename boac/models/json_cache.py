@@ -1,11 +1,11 @@
 import inspect
-
 from boac import db
 from boac.lib.berkeley import term_name_for_sis_id
 from boac.models.base import Base
 from decorator import decorator
 from flask import current_app as app
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm.attributes import flag_modified
 
 
 class JsonCache(Base):
@@ -38,21 +38,6 @@ def clear_other(key_like):
     matches = db.session.query(JsonCache).filter(JsonCache.key.notlike(key_like))
     app.logger.info('Will delete {count} entries not matching {key_like}'.format(count=matches.count(), key_like=key_like))
     matches.delete(synchronize_session=False)
-
-
-def clear_current_term():
-    # Start by deleting cache which is not term-stamped, on the assumption that those feeds may have changed.
-    clear_other('term_%')
-    db.session.commit()
-    # The Canvas course scores feeds are currently too time-consuming to toss aside lightly.
-    matches = db.session.query(JsonCache).filter(
-        JsonCache.key.like('term_{}%'.format(app.config['CANVAS_CURRENT_ENROLLMENT_TERM'])),
-        JsonCache.key.notlike('%canvas_course_enrollments%'),
-        JsonCache.key.notlike('%canvas_course_assignments_analytics%'),
-    )
-    app.logger.info('Will delete {} entries'.format(matches.count()))
-    matches.delete(synchronize_session=False)
-    db.session.commit()
 
 
 def stow(key_pattern, for_term=False):
@@ -91,6 +76,14 @@ def stow(key_pattern, for_term=False):
                 app.logger.info('{key} not generated and will not be stowed in DB'.format(key=key))
             return to_stow
     return _stow
+
+
+def update_jsonb_row(stowed):
+    """Changes to a JSONB column will not be committed without some extra hoop-jumping."""
+    flag_modified(stowed, 'json')
+    db.session.merge(stowed)
+    if not app.config['TESTING']:
+        db.session.commit()
 
 
 def _get_args(func, *args, **kw):
