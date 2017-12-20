@@ -22,7 +22,17 @@
 
         var loadOptions = function() {
           return studentFactory.getAllStudents('groupName').then(function(response) {
-            return response.data;
+            var options = [];
+            _.each(response.data, function(student) {
+              _.each(student.athletics, function(a) {
+                options.push({
+                  uid: student.uid,
+                  name: student.name,
+                  groupName: a.groupName
+                });
+              });
+            });
+            return options;
           });
         };
 

@@ -3,21 +3,34 @@ from boac.lib.mockingbird import MockResponse, register_mock
 import pytest
 
 
-class TestUser:
-    """User API"""
+class TestStudents:
+    """Students API"""
+    def test_all_students(self, client):
+        """returns a list of students"""
+        response = client.get('/api/students/all')
+        assert response.status_code == 200
+        # We have one student not on a team
+        assert len(response.json) == 5
+
+    def test_multiple_teams(self, client):
+        """includes multiple team memberships"""
+        response = client.get('/api/students/all')
+        assert response.status_code == 200
+        oliver_athletics = next(user['athletics'] for user in response.json if user['uid'] == '2040')
+        assert len(oliver_athletics) == 2
+        group_codes = [a['groupCode'] for a in oliver_athletics]
+        assert 'MFB-DB' in group_codes
+        assert 'MFB-DL' in group_codes
+
+
+class TestUserProfile:
+    """User Profile API"""
 
     def test_profile_not_authenticated(self, client):
         """returns a well-formed response"""
         response = client.get('/api/profile')
         assert response.status_code == 200
         assert not response.json['uid']
-
-    def test_all_users(self, client):
-        """returns a list of users, including team"""
-        response = client.get('/api/students/all')
-        assert response.status_code == 200
-        # We have one student not on a team
-        assert len(response.json) == 5
 
     def test_profile_includes_lack_of_canvas_account(self, client, fake_auth):
         test_uid = '1133399'
@@ -302,6 +315,23 @@ class TestUserAnalytics:
     def test_student_overview_link(self, authenticated_response):
         """provides a link to official data about the student"""
         assert authenticated_response.json['studentProfileLink']
+
+    def test_athletics_profile(self, authenticated_response):
+        """includes athletics profile"""
+        athletics_profile = authenticated_response.json['athleticsProfile']
+        assert athletics_profile['name'] == 'Brigitte Lin'
+        assert athletics_profile['uid'] == '61889'
+        assert athletics_profile['sid'] == '11667051'
+        assert athletics_profile['inIntensiveCohort'] is True
+        assert len(athletics_profile['athletics']) == 2
+        hockey = next(a for a in athletics_profile['athletics'] if a['groupCode'] == 'WFH-AA')
+        assert hockey['groupName'] == 'Women\'s Field Hockey'
+        assert hockey['teamCode'] == 'FHW'
+        assert hockey['teamName'] == 'Women\'s Field Hockey'
+        tennis = next(a for a in athletics_profile['athletics'] if a['groupCode'] == 'WTE-AA')
+        assert tennis['groupName'] == 'Women\'s Tennis'
+        assert tennis['teamCode'] == 'TNW'
+        assert tennis['teamName'] == 'Women\'s Tennis'
 
     def test_sis_profile_unexpected_payload(self, authenticated_session, client):
         """gracefully handles unexpected SIS profile data"""

@@ -260,6 +260,10 @@
   margin: 0 0 5px 0;
 }
 
+.student-profile-sidebar-header-team {
+  margin-bottom: 10px;
+}
+
 .student-profile-sidebar-icon {
   color: #999;
   padding-right: 4px;

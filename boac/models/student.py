@@ -72,12 +72,5 @@ class Student(Base):
     def to_expanded_api_json(self):
         api_json = self.to_api_json()
         if self.athletics:
-            api_json['athletics'] = {}
-            for a in self.athletics:
-                api_json.update({
-                    'groupCode': a.group_code,
-                    'groupName': a.group_name,
-                    'teamCode': a.team_code,
-                    'teamName': a.team_name,
-                })
+            api_json['athletics'] = [a.to_api_json() for a in self.athletics]
         return api_json
