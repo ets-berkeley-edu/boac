@@ -1,7 +1,67 @@
+from threading import Thread
 from boac import db
 from boac.lib import berkeley
+from boac.models.job_progress import JobProgress
 from boac.models.json_cache import JsonCache
 from flask import current_app as app
+
+
+def refresh_request_handler(load_only=False):
+    """Handle a start refresh admin request, either by returning an error status or by starting the job on a
+    background thread.
+    """
+    job_state = JobProgress().get()
+    if job_state is None or (not job_state['start']) or job_state['end']:
+        job_state = JobProgress().start()
+        app.logger.warn('About to start background thread')
+        app_arg = app._get_current_object()
+        thread = Thread(target=background_thread_refresh, args=[app_arg, load_only], daemon=True)
+        thread.start()
+        return {
+            'progress': job_state,
+        }
+    else:
+        return {
+            'error': 'Cannot start a new refresh job',
+            'progress': job_state,
+        }
+
+
+def background_thread_refresh(app_arg, load_only):
+    with app_arg.app_context():
+        _background_thread_refresh(load_only)
+
+
+def _background_thread_refresh(load_only):
+    """TODO Work-in-progress mock refresh which does not actually remove any existing cache.
+    When we feel more confident about our background-job-running approach, we'll add the riskier, more
+    time-consuming logic, and refactor existing scripts.
+
+    if not load_only: ....
+    """
+    from boac.models.student import Student
+    success_count = 0
+    failures = []
+    term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
+    sis_term_id = berkeley.sis_term_id_for_name(term_name)
+
+    for csid, uid in db.session.query(Student.sid, Student.uid).distinct():
+        s, f = load_canvas_externals(uid, sis_term_id)
+        success_count += s
+        failures += f
+        s, f = load_sis_externals(sis_term_id, csid)
+        success_count += s
+        failures += f
+        s, f = load_canvas_scores(uid, sis_term_id)
+        success_count += s
+        failures += f
+        JobProgress().update(f'External data loaded for UID {uid}')
+
+    JobProgress().end()
+    app.logger.warn('Complete. Fetched {} external feeds.'.format(success_count))
+    if len(failures):
+        app.logger.warn('Failed to fetch {} feeds:'.format(len(failures)))
+        app.logger.warn(failures)
 
 
 def clear_current_term(include_canvas_scores=False):
@@ -60,8 +120,35 @@ def load_canvas_externals(uid, sis_term_id):
     return success_count, failures
 
 
-def load_canvas_scores(sis_term_id=None):
+def load_canvas_scores(uid, sis_term_id):
     from boac.externals import canvas
+
+    success_count = 0
+    failures = []
+
+    canvas_user_profile = canvas.get_user_for_uid(uid)
+    if canvas_user_profile is None:
+        failures.append('canvas.get_user_for_uid failed for UID {}'.format(
+            uid,
+        ))
+    elif canvas_user_profile:
+        success_count += 1
+        sites = canvas.get_student_courses(uid)
+        if sites:
+            success_count += 1
+            for site in sites:
+                site_id = site['id']
+                if not canvas.get_course_enrollments(site_id, sis_term_id):
+                    failures.append('canvas.get_course_enrollments failed for site_id {}'.format(
+                        site_id,
+                    ))
+                    continue
+                success_count += 1
+
+    return success_count, failures
+
+
+def load_all_canvas_scores(sis_term_id=None):
     from boac.lib import berkeley
     from boac.models.student import Student
 
@@ -74,24 +161,9 @@ def load_canvas_scores(sis_term_id=None):
 
     for row in db.session.query(Student.uid).distinct():
         uid = row[0]
-        canvas_user_profile = canvas.get_user_for_uid(uid)
-        if canvas_user_profile is None:
-            failures.append('canvas.get_user_for_uid failed for UID {}'.format(
-                uid,
-            ))
-        elif canvas_user_profile:
-            success_count += 1
-            sites = canvas.get_student_courses(uid)
-            if sites:
-                success_count += 1
-                for site in sites:
-                    site_id = site['id']
-                    if not canvas.get_course_enrollments(site_id, sis_term_id):
-                        failures.append('canvas.get_course_enrollments failed for site_id {}'.format(
-                            site_id,
-                        ))
-                        continue
-                    success_count += 1
+        s, f = load_canvas_scores(uid, sis_term_id)
+        success_count += s
+        failures += f
 
     app.logger.warn('Complete. Fetched {} external feeds.'.format(success_count))
     if len(failures):

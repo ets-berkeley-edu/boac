@@ -14,6 +14,7 @@ def register_routes(app):
     import boac.auth.cas_auth
 
     # Register API routes.
+    import boac.api.admin_controller
     import boac.api.athletics_controller
     import boac.api.cohort_controller
     import boac.api.config_controller
