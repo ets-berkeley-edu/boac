@@ -81,13 +81,6 @@ class TestAthletics:
         assert athlete['inIntensiveCohort'] is False
         assert athlete['avatar_url'].startswith('http')
 
-    def test_team_groups_members(self, authenticated_session, client):
-        response = client.get('/api/team_groups/members?groupCodes=MFB-DB&groupCodes=MFB-DL')
-        assert response.status_code == 200
-        assert 'members' in response.json
-        uid_list = [member['uid'] for member in response.json['members']]
-        assert ['2040', '242881', '1133399'] == uid_list
-
     def test_includes_student_sis_data(self, authenticated_session, client):
         """includes SIS data for team members"""
         response = client.get('/api/team/FHW')

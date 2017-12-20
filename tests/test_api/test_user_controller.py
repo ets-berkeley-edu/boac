@@ -320,3 +320,10 @@ class TestUserAnalytics:
             assert response.status_code == 200
             assert response.json['canvasProfile']
             assert not response.json['sisProfile']
+
+    def test_get_students(self, authenticated_session, client):
+        response = client.get('/api/students?groupCodes=MFB-DB&groupCodes=MFB-DL')
+        assert response.status_code == 200
+        assert 'members' in response.json
+        uid_list = [member['uid'] for member in response.json['members']]
+        assert ['2040', '242881', '1133399'] == uid_list

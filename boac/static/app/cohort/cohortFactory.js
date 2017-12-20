@@ -66,19 +66,6 @@
       return $http.get(apiPath);
     };
 
-    var getTeamGroupsMembers = function(groupCodes, orderBy, offset, limit) {
-      var params = {
-        offset: offset || 0,
-        limit: limit || 50,
-        orderBy: orderBy || 'first_name'
-      };
-      var apiPath = utilService.format('/api/team_groups/members?offset=${offset}&limit=${limit}&orderBy=${orderBy}', params);
-      _.each(groupCodes, function(groupCode) {
-        apiPath += '&groupCodes=' + groupCode;
-      });
-      return $http.get(apiPath);
-    };
-
     var getTeams = function() {
       return $http.get('/api/teams/all');
     };
@@ -107,7 +94,6 @@
       getMyCohorts: getMyCohorts,
       getTeam: getTeam,
       getTeams: getTeams,
-      getTeamGroupsMembers: getTeamGroupsMembers,
       updateCohort: updateCohort
     };
   });
