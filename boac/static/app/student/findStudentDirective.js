@@ -26,14 +26,19 @@
           });
         };
 
+        var studentOptions = null;
+
         $scope.lazyLoadOptions = function() {
-          var deferred = $q.defer();
+          if (!studentOptions) {
+            var deferred = $q.defer();
+            studentOptions = deferred.promise;
 
-          $timeout(function() {
-            loadOptions().then(deferred.resolve);
-          }, 1000);
+            $timeout(function() {
+              loadOptions().then(deferred.resolve);
+            }, 1000);
+          }
 
-          return deferred.promise;
+          return studentOptions;
         };
       }
     };
