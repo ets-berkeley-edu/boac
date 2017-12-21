@@ -3,10 +3,13 @@ from boac import db
 from boac.models.athletics import Athletics
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
-# Needed for db.create_all to find the model.
-from boac.models.json_cache import JsonCache # noqa
 from boac.models.student import Student
-
+# Models below are included so that db.create_all will find them.
+from boac.models.db_relationships import cohort_filter_owners, student_athletes # noqa
+from boac.models.job_progress import JobProgress # noqa
+from boac.models.json_cache import JsonCache # noqa
+from boac.models.normalized_cache_student import NormalizedCacheStudent # noqa
+from boac.models.normalized_cache_student_major import NormalizedCacheStudentMajor # noqa
 
 _default_users_csv = """uid,is_admin,is_director,is_advisor
 2040,true,false,false

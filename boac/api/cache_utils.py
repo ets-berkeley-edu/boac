@@ -1,6 +1,7 @@
 from threading import Thread
 from boac import db
 from boac.lib import berkeley
+from boac.merged.sis_profile import merge_sis_profile
 from boac.models.job_progress import JobProgress
 from boac.models.json_cache import JsonCache
 from flask import current_app as app
@@ -229,3 +230,20 @@ def load_current_term():
 def refresh_current_term():
     clear_current_term()
     load_current_term()
+
+
+def load_merged_sis_profiles():
+    """TODO For now, pending a general refresh strategy for merged models, this sits to the side of other
+    cache loading methods."""
+    from boac.models.student import Student
+
+    success_count = 0
+    failures = []
+
+    for (sid,) in db.session.query(Student.sid).distinct():
+        sis_profile = merge_sis_profile(sid)
+        if sis_profile:
+            success_count += 1
+        else:
+            failures.append('merge_sis_profile failed for SID {}'.format(sid))
+    return success_count, failures
