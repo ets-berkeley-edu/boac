@@ -100,6 +100,32 @@ def user_analytics(uid):
     })
 
 
+@app.route('/api/majors/relevant')
+def relevant_majors():
+    return jsonify([
+        'American Studies',
+        'Architecture',
+        'Art',
+        'Astrophysics',
+        'Biochemistry',
+        'Chemistry',
+        'Economics',
+        'English',
+        'Geography',
+        'Geology',
+        'History',
+        'Humanities',
+        'Legal Studies',
+        'Music',
+        'Philosophy',
+        'Physics',
+        'Psychology',
+        'Religious Studies',
+        'Sociology',
+        'Undeclared',
+    ])
+
+
 def load_canvas_profile(uid):
     canvas_profile = False
     canvas_response = canvas.get_user_for_uid(uid)

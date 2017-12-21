@@ -212,6 +212,12 @@ class TestUserAnalytics:
         assert response.status_code == 404
         assert response.json['message'] == 'No Canvas profile found for user'
 
+    def test_relevant_majors(self, authenticated_session, client):
+        """returns list of majors relevant to our student population"""
+        response = client.get('/api/majors/relevant')
+        assert response.status_code == 200
+        assert len(response.json) > 10
+
     def test_sis_enrollment_merge(self, authenticated_response):
         """merges sorted SIS enrollment data"""
         burmese = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'BURMESE 1A')

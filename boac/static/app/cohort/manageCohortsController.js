@@ -2,7 +2,15 @@
 
   'use strict';
 
-  angular.module('boac').controller('ManageCohortsController', function(authService, cohortFactory, cohortService, utilService, $rootScope, $scope) {
+  angular.module('boac').controller('ManageCohortsController', function(
+    authService,
+    cohortFactory,
+    cohortService,
+    studentFactory,
+    utilService,
+    $rootScope,
+    $scope
+  ) {
 
     $scope.truncate = utilService.truncate;
     $scope.isLoading = true;
@@ -14,6 +22,13 @@
         next.detailsShowing = false;
       });
       return callback();
+    };
+
+    var names = function(cohortCriteria, allOptions, propertyName) {
+      var gpaRanges = _.filter(allOptions, function(option) {
+        return _.includes(cohortCriteria, option.value);
+      });
+      return _.map(gpaRanges, propertyName);
     };
 
     var setEditMode = $scope.setEditMode = function(cohort, newValue) {
@@ -54,9 +69,23 @@
         $scope.myCohorts = response.data;
         _.each($scope.myCohorts, function(cohort) {
           cohort.labelOriginal = cohort.label;
+
+          var f = cohort.filterCriteria;
+          var gpaLabels = _.map(names(f.gpaRanges, studentFactory.getGpaRanges(), 'name'), function(name) {
+            return 'GPA: ' + name;
+          });
+          var unitRangesE = studentFactory.getUnitRangesEligibility();
+          var unitRangesP = studentFactory.getUnitRangesPacing();
+          cohort.filterCriteriaNames = _.concat(
+            gpaLabels,
+            _.map(cohort.teamGroups, 'groupName'),
+            _.map(f.levels, function(level) { return 'Level: ' + level; }),
+            _.map(f.majors, function(major) { return 'Major: ' + major; }),
+            [ 'Units eligibility: ' + _.join(names(f.unitRangesEligibility, unitRangesE, 'name'), ', ') ],
+            [ 'Units pacing: ' + _.join(names(f.unitRangesPacing, unitRangesP, 'name'), ', ') ]
+          );
         });
         resetPageView(angular.noop);
-
         $scope.isLoading = false;
       });
     };

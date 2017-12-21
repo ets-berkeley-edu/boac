@@ -20,27 +20,16 @@
 
     var getGpaRanges = function() {
       return [
-        {
-          name: '3.50 - 4.00',
-          value: 'numrange(3.5, 4, \'[]\')'
-        },
-        {
-          name: '3.00 - 3.49',
-          value: 'numrange(3, 3.5, \'[)\')'
-        },
-        {
-          name: '2.50 - 2.99',
-          value: 'numrange(2.5, 3, \'[)\')'
-        },
-        {
-          name: '2.00 - 2.49',
-          value: 'numrange(2, 2.5, \'[)\')'
-        },
-        {
-          name: 'Below 2.0',
-          value: 'numrange(0, 2, \'[)\')'
-        }
+        {name: '3.50 - 4.00', value: 'numrange(3.5, 4, \'[]\')'},
+        {name: '3.00 - 3.49', value: 'numrange(3, 3.5, \'[)\')'},
+        {name: '2.50 - 2.99', value: 'numrange(2.5, 3, \'[)\')'},
+        {name: '2.00 - 2.49', value: 'numrange(2, 2.5, \'[)\')'},
+        {name: 'Below 2.0', value: 'numrange(0, 2, \'[)\')'}
       ];
+    };
+
+    var getRelevantMajors = function() {
+      return $http.get('/api/majors/relevant');
     };
 
     var getStudentLevels = function() {
@@ -92,6 +81,7 @@
       analyticsPerUser: analyticsPerUser,
       getAllStudents: getAllStudents,
       getGpaRanges: getGpaRanges,
+      getRelevantMajors: getRelevantMajors,
       getStudentLevels: getStudentLevels,
       getStudents: getStudents,
       getUnitRangesEligibility: getUnitRangesEligibility,
