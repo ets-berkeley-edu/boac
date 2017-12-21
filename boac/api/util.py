@@ -34,7 +34,7 @@ def sis_enrollment_section_feed(enrollment):
         'sectionNumber': sectionData.get('number'),
         'enrollmentStatus': enrollment.get('enrollmentStatus', {}).get('status', {}).get('code'),
         'units': enrollment.get('enrolledUnits', {}).get('taken'),
-        'gradingBasis': enrollment.get('gradingBasis', {}).get('code'),
+        'gradingBasis': translate_grading_basis(enrollment.get('gradingBasis', {}).get('code')),
         'grade': next((grade.get('mark') for grade in grades if grade.get('type', {}).get('code') == 'OFFL'), None),
         'midtermGrade': next((grade.get('mark') for grade in grades if grade.get('type', {}).get('code') == 'MID'), None),
     }
@@ -49,3 +49,16 @@ def student_to_json(student):
         'name': student.first_name + ' ' + student.last_name,
         'inIntensiveCohort': student.in_intensive_cohort,
     }
+
+
+def translate_grading_basis(code):
+    bases = {
+        'CNC': 'C/NC',
+        'EPN': 'P/NP',
+        'ESU': 'S/U',
+        'GRD': 'Letter',
+        'LAW': 'Law',
+        'PNP': 'P/NP',
+        'SUS': 'S/U',
+    }
+    return bases.get(code) or code

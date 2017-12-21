@@ -127,18 +127,18 @@ class TestUserAnalytics:
         classics_second = TestUserAnalytics.get_course_for_code(authenticated_response, '2172', 'CLASSIC 130 LEC 002')
         assert len(classics_first['sections']) == 1
         assert classics_first['sections'][0]['units'] == 4
-        assert classics_first['sections'][0]['gradingBasis'] == 'EPN'
+        assert classics_first['sections'][0]['gradingBasis'] == 'P/NP'
         assert classics_first['sections'][0]['grade'] == 'P'
         assert classics_first['units'] == 4
-        assert classics_first['gradingBasis'] == 'EPN'
+        assert classics_first['gradingBasis'] == 'P/NP'
         assert classics_first['grade'] == 'P'
 
         assert len(classics_second['sections']) == 1
         assert classics_second['sections'][0]['units'] == 4
-        assert classics_second['sections'][0]['gradingBasis'] == 'GRD'
+        assert classics_second['sections'][0]['gradingBasis'] == 'Letter'
         assert classics_second['sections'][0]['grade'] == 'B-'
         assert classics_second['units'] == 4
-        assert classics_second['gradingBasis'] == 'GRD'
+        assert classics_second['gradingBasis'] == 'Letter'
         assert classics_second['grade'] == 'B-'
 
     def test_enrollments_sorted(self, authenticated_response):
@@ -221,11 +221,11 @@ class TestUserAnalytics:
         assert burmese['sections'][0]['sectionNumber'] == '001'
         assert burmese['sections'][0]['enrollmentStatus'] == 'E'
         assert burmese['sections'][0]['units'] == 4
-        assert burmese['sections'][0]['gradingBasis'] == 'GRD'
+        assert burmese['sections'][0]['gradingBasis'] == 'Letter'
         assert burmese['sections'][0]['midtermGrade'] == 'D+'
         assert not burmese['sections'][0]['grade']
         assert burmese['units'] == 4
-        assert burmese['gradingBasis'] == 'GRD'
+        assert burmese['gradingBasis'] == 'Letter'
         assert burmese['midtermGrade'] == 'D+'
         assert not burmese['grade']
 
@@ -237,7 +237,7 @@ class TestUserAnalytics:
         assert medieval['sections'][0]['sectionNumber'] == '001'
         assert medieval['sections'][0]['enrollmentStatus'] == 'E'
         assert medieval['sections'][0]['units'] == 5
-        assert medieval['sections'][0]['gradingBasis'] == 'GRD'
+        assert medieval['sections'][0]['gradingBasis'] == 'Letter'
         assert not medieval['sections'][0]['grade']
 
         nuclear = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'NUC ENG 124')
@@ -248,7 +248,7 @@ class TestUserAnalytics:
         assert nuclear['sections'][0]['sectionNumber'] == '002'
         assert nuclear['sections'][0]['enrollmentStatus'] == 'E'
         assert nuclear['sections'][0]['units'] == 3
-        assert nuclear['sections'][0]['gradingBasis'] == 'PNP'
+        assert nuclear['sections'][0]['gradingBasis'] == 'P/NP'
         assert nuclear['sections'][0]['grade'] == 'P'
         assert nuclear['sections'][1]['ccn'] == 90301
         assert nuclear['sections'][1]['sectionNumber'] == '201'
@@ -265,10 +265,10 @@ class TestUserAnalytics:
         assert music['sections'][0]['sectionNumber'] == '001'
         assert music['sections'][0]['enrollmentStatus'] == 'E'
         assert music['sections'][0]['units'] == 2
-        assert music['sections'][0]['gradingBasis'] == 'GRD'
+        assert music['sections'][0]['gradingBasis'] == 'Letter'
         assert music['sections'][0]['grade'] == 'A-'
         assert music['units'] == 2
-        assert music['gradingBasis'] == 'GRD'
+        assert music['gradingBasis'] == 'Letter'
         assert music['grade'] == 'A-'
 
     def test_dropped_sections(self, authenticated_response):

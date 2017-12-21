@@ -85,14 +85,18 @@
               </div>
               <div class="student-profile-class-units"
                    data-ng-pluralize count="course.units" when="{'one': '1 Unit', 'other': '{{course.units}} Units'}"></div>
-              <div class="student-profile-class-grade" data-ng-bind="course.grade" data-ng-if="course.grade"></div>
-              <div class="student-profile-class-grade" data-ng-if="course.midtermGrade && !course.grade">
-                <i class="fa fa-exclamation-triangle"></i>
-                <span data-ng-bind="course.midtermGrade"></span>
+              <div class="student-profile-class-grades">
+                <div>
+                  Final:
+                  <span class="student-profile-class-grade" data-ng-bind="course.grade" data-ng-if="course.grade"></span>
+                  <span class="student-profile-class-grading-basis" data-ng-bind="course.gradingBasis" data-ng-if="!course.grade"></span>
+                </div>
+                <div>
+                  Mid:
+                  <span class="student-profile-class-grade" data-ng-bind="course.midtermGrade" data-ng-if="course.midtermGrade"></span>
+                  <span class="student-profile-class-grade" data-ng-if="!course.midtermGrade">&mdash;</span>
+                </div>
               </div>
-              <div class="student-profile-class-grading-basis"
-                   data-ng-bind="course.gradingBasis"
-                   data-ng-if="!course.midtermGrade && !course.grade"></div>
             </div>
             <div data-ng-repeat="canvasSite in course.canvasSites">
               <strong data-ng-bind="canvasSite.courseCode"></strong>
