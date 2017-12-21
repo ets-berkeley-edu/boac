@@ -15,3 +15,10 @@ class TestStatusController:
         assert response.status_code == 200
         assert response.json['authenticated_as']['is_authenticated']
         assert response.json['authenticated_as']['uid'] == test_uid
+
+    def test_ping(self, client):
+        """answers the phone when pinged"""
+        response = client.get('/api/ping')
+        assert response.status_code == 200
+        assert response.json['app'] is True
+        assert response.json['db'] is True
