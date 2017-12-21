@@ -20,16 +20,27 @@
     $scope.selectedTab = 'list';
     $scope.isCreateCohortMode = false;
 
+    var defaultDropdownState = function() {
+      return {
+        gpaRangesOpen: false,
+        levelsOpen: false,
+        majorsOpen: false,
+        groupCodesOpen: false,
+        unitsOpen: false
+      };
+    };
+
     $scope.search = {
       count: {
-        selectedTeamGroups: 0
+        gpaRanges: 0,
+        groupCodes: 0,
+        levels: 0,
+        majors: 0,
+        unitRangesEligibility: 0,
+        unitRangesPacing: 0
       },
-      dropdown: {
-        teamGroupsOpen: false
-      },
-      options: {
-        teamGroups: []
-      },
+      dropdown: defaultDropdownState(),
+      options: {},
       results: {
         rows: null,
         totalCount: null
@@ -72,9 +83,7 @@
       var offset = page === 0 ? 0 : (page - 1) * limit;
 
       var handleSuccess = function(response) {
-        $scope.cohort = parseCohortFeed(response);
-        $scope.isLoading = false;
-        return callback($scope.cohort);
+        return callback(parseCohortFeed(response));
       };
       var handleError = function(err) {
         $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
@@ -93,18 +102,42 @@
     /**
      * The search form must reflect the team codes of the saved cohort.
      *
-     * @param  {String[]}    groupCodes      Array of predefined codes
+     * @param  {String[]}    cohort      Null if we are in create-cohort-mode
+     * @param  {Function}    callback    Follow up activity per caller
      * @return {void}
      */
-    var refreshTeamGroupsFilter = function(groupCodes) {
-      _.map($scope.search.options.teamGroups, function(teamGroup) {
-        teamGroup.selected = _.includes(groupCodes, teamGroup.groupCode);
+    var initFilters = function(cohort, callback) {
+      cohortFactory.getAllTeamGroups().then(function(response) {
+        $scope.search.options = {
+          levels: studentFactory.getStudentLevels(),
+          teamGroups: response.data
+        };
+        // Team group codes
+        var selectedGroupCodes = [];
+        if (cohort) {
+          if (cohort.teamGroups) {
+            selectedGroupCodes = _.map(cohort.teamGroups, 'groupCode');
+          } else {
+            selectedGroupCodes = _.get(cohort, 'filterCriteria.groupCodes', []);
+          }
+        }
+        $scope.search.count.groupCodes = selectedGroupCodes.length;
+        _.map($scope.search.options.teamGroups, function(teamGroup) {
+          teamGroup.selected = _.includes(selectedGroupCodes, teamGroup.groupCode);
+        });
+        // Class levels
+        var selectedLevels = _.get(cohort, 'filterCriteria.levels', []);
+        $scope.search.count.levels = selectedLevels.length;
+        _.map($scope.search.options.levels, function(level) {
+          level.selected = _.includes(selectedLevels, level.name);
+        });
+        return callback();
       });
     };
 
     var getSelectedGroupCodes = function() {
-      var selectedTeamGroups = _.filter($scope.search.options.teamGroups, 'selected');
-      return _.map(selectedTeamGroups, 'groupCode');
+      var groupCodes = _.filter($scope.search.options.teamGroups, 'selected');
+      return _.map(groupCodes, 'groupCode');
     };
 
     var scatterplotRefresh = function(response) {
@@ -153,7 +186,10 @@
 
     var listViewRefresh = function() {
       if ($scope.cohort) {
-        refreshCohortView($scope.cohort.code || $scope.cohort.id, angular.noop);
+        refreshCohortView($scope.cohort.code || $scope.cohort.id, function(cohort) {
+          $scope.cohort = cohort;
+          $scope.isLoading = false;
+        });
       } else {
         $scope.pagination.enabled = true;
 
@@ -174,11 +210,14 @@
     /**
      * The search form must reflect the team codes of the saved cohort.
      *
-     * @param  {Number}    delta          Add this value to count of selected teams
+     * @param  {String}    type     Dropdown name
+     * @param  {Number}    option   Has been selected or deselected
      * @return {void}
      */
-    $scope.updateSelectedTeamGroupsCount = function(delta) {
-      $scope.search.count.selectedTeamGroups += delta;
+    $scope.updateSelected = function(type, option) {
+      var delta = option.selected ? 1 : -1;
+      var existingValue = _.get($scope.search.count, type, 0);
+      _.set($scope.search.count, type, existingValue + delta);
     };
 
     /**
@@ -198,7 +237,7 @@
 
     $scope.executeSearch = function() {
       // Close dropdown menu
-      $scope.search.dropdown.teamGroupsOpen = false;
+      $scope.search.dropdown = defaultDropdownState();
       // Refresh search results
       $scope.cohort = null;
       $scope.pagination.currentPage = 0;
@@ -226,22 +265,19 @@
     };
 
     var init = function(cohortCode) {
+      // if code is "0" then we offer a blank slate, the first step in creating a new cohort.
       var code = cohortCode || $stateParams.code;
-
-      cohortFactory.getAllTeamGroups().then(function(response) {
-        $scope.search.options.teamGroups = response.data;
-        // if code is "0" then we offer a blank slate, the first step in creating a new cohort.
-        if (code === '0') {
-          $scope.isCreateCohortMode = true;
-          refreshTeamGroupsFilter();
+      $scope.isCreateCohortMode = code === '0';
+      if ($scope.isCreateCohortMode) {
+        initFilters(null, function() {
           $scope.isLoading = false;
-        } else {
-          refreshCohortView(code, function(cohort) {
+        });
+      } else {
+        refreshCohortView(code, function(cohort) {
+          initFilters(cohort, function() {
+            $scope.cohort = cohort;
+            $scope.isLoading = false;
             if (cohort) {
-              // A team will have a single team code and a saved cohort might have multiple.
-              var groupCodes = _.map(cohort.teamGroups, 'groupCode');
-              $scope.search.count.selectedTeamGroups = groupCodes.length;
-              refreshTeamGroupsFilter(groupCodes);
               // Track view event
               if (cohort.code) {
                 googleAnalyticsService.track('team', 'view', cohort.code + ': ' + cohort.name);
@@ -250,15 +286,14 @@
               }
             }
           });
-        }
-      });
+        });
+      }
     };
 
     $rootScope.$on('cohortCreated', function(event, data) {
-      $scope.search.dropdown.teamGroupsOpen = false;
+      $scope.search.dropdown = defaultDropdownState();
       $scope.pagination.enabled = true;
       $scope.pagination.currentPage = 0;
-
       init(data.cohort.id);
     });
 
