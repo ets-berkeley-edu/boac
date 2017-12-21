@@ -107,14 +107,16 @@
 }
 
 .student-profile-class-grade {
-  flex: 0.05;
   font-weight: bold;
 }
 
 .student-profile-class-grading-basis {
   color: #666;
-  flex: 0.05;
   font-style: italic;
+}
+
+.student-profile-class-grades {
+  flex: 0.12;
 }
 
 .student-profile-class-heading {
@@ -134,7 +136,7 @@
 }
 
 .student-profile-class-sections {
-  flex: 0.15;
+  flex: 0.12;
 }
 
 .student-profile-class-title {
@@ -143,11 +145,11 @@
 }
 
 .student-profile-class-title-outer {
-  flex: 0.65;
+  flex: 0.64;
 }
 
 .student-profile-class-units {
-  flex: 0.15;
+  flex: 0.12;
 }
 
 .student-profile-classes-header {
