@@ -33,18 +33,19 @@ def all_students():
     return tolerant_jsonify(Student.get_all(order_by=order_by))
 
 
-@app.route('/api/students')
+@app.route('/api/students', methods=['POST'])
 @login_required
 def get_students():
-    gpa_ranges = request.args.getlist('gpaRanges')
-    group_codes = request.args.getlist('groupCodes')
-    levels = request.args.getlist('levels')
-    majors = request.args.getlist('majors')
-    unit_ranges_eligibility = request.args.getlist('unitRangesEligibility')
-    unit_ranges_pacing = request.args.getlist('unitRangesPacing')
-    order_by = util.get(request.args, 'orderBy', None)
-    offset = util.get(request.args, 'offset', 0)
-    limit = util.get(request.args, 'limit', 50)
+    params = request.get_json()
+    gpa_ranges = util.get(params, 'gpaRanges')
+    group_codes = util.get(params, 'groupCodes')
+    levels = util.get(params, 'levels')
+    majors = util.get(params, 'majors')
+    unit_ranges_eligibility = util.get(params, 'unitRangesEligibility')
+    unit_ranges_pacing = util.get(params, 'unitRangesPacing')
+    order_by = util.get(params, 'orderBy', None)
+    offset = util.get(params, 'offset', 0)
+    limit = util.get(params, 'limit', 50)
     results = Student.get_students(gpa_ranges=gpa_ranges, group_codes=group_codes, levels=levels, majors=majors,
                                    unit_ranges_eligibility=unit_ranges_eligibility,
                                    unit_ranges_pacing=unit_ranges_pacing, order_by=order_by, offset=offset, limit=limit)

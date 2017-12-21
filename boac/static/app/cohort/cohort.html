@@ -34,6 +34,7 @@
 
   <hr class="filters-section-separator" data-ng-if="!isLoading && !error && !isCreateCohortMode"/>
 
+  <!-- Teams -->
   <div class="flex-container flex-space-between" data-ng-if="!error">
     <div class="cohort-filters-column flex-column-btn">
       <div class="btn-group box-shadow-off"
@@ -59,7 +60,7 @@
           </span>
         </button>
         <ul aria-labelledby="search-filter-teams"
-            class="dropdown-menu"
+            class="cohort-filter-list dropdown-menu"
             role="menu"
             uib-dropdown-menu
             data-ng-if="!isLoading && !isSaving">
@@ -75,6 +76,7 @@
         </ul>
       </div>
     </div>
+    <!-- Class levels -->
     <div class="cohort-filters-column flex-column-btn">
       <div class="btn-group box-shadow-off"
            uib-dropdown
@@ -98,7 +100,7 @@
           </span>
         </button>
         <ul aria-labelledby="search-filter-level"
-            class="dropdown-menu"
+            class="cohort-filter-list dropdown-menu"
             role="menu"
             uib-dropdown-menu
             data-ng-if="!isLoading && !isSaving">
@@ -138,14 +140,14 @@
           </span>
         </button>
         <ul aria-labelledby="search-filter-majors"
-            class="dropdown-menu"
+            class="cohort-filter-list dropdown-menu"
             role="menu"
             uib-dropdown-menu
             data-ng-if="!isLoading && !isSaving">
           <li class="cohort-filter-list-item"
               role="menuitem"
               data-ng-repeat="major in search.options.majors">
-            <input id="search-option-level-{{major.name}}"
+            <input id="search-option-major-{{major.name}}"
                    type="checkbox"
                    data-ng-model="major.selected"
                    aria-label="{{major.name}}"
@@ -178,14 +180,14 @@
           </span>
         </button>
         <ul aria-labelledby="search-filter-gpa-ranges"
-            class="dropdown-menu"
+            class="cohort-filter-list dropdown-menu"
             role="menu"
             uib-dropdown-menu
             data-ng-if="!isLoading && !isSaving">
           <li class="cohort-filter-list-item"
               role="menuitem"
               data-ng-repeat="gpaRange in search.options.gpaRanges">
-            <input id="search-option-level-{{$index}}"
+            <input id="search-option-gpa-range-{{$index}}"
                    type="checkbox"
                    data-ng-model="gpaRange.selected"
                    aria-label="{{gpaRange.name}}"
@@ -194,6 +196,61 @@
         </ul>
       </div>
     </div>
+    <!-- Units -->
+    <div class="cohort-filters-column flex-column-btn">
+      <div class="btn-group box-shadow-off"
+           uib-dropdown
+           auto-close="disabled"
+           is-open="search.dropdown.unitRangesOpen"
+           keyboard-nav>
+        <button id="search-filter-unit-ranges"
+                type="button"
+                class="btn"
+                uib-dropdown-toggle>
+          <span class="cohort-filter-label">
+            Units
+            <span data-ng-if="!isLoading && !isSaving">(<span data-ng-bind="search.count.unitRanges"></span>)</span>
+            <i class="fa fa-chevron-down"
+               data-ng-if="!isLoading && !isSaving && !search.dropdown.unitRangesOpen"></i>
+            <i class="fa fa-chevron-up"
+               data-ng-if="!isLoading && !isSaving && search.dropdown.unitRangesOpen"></i>
+            <i class="fa fa-spinner fa-spin"
+               aria-hidden="true"
+               data-ng-if="isLoading || isSaving"></i>
+          </span>
+        </button>
+        <ul aria-labelledby="search-filter-unit-ranges"
+            class="cohort-filter-list dropdown-menu"
+            role="menu"
+            uib-dropdown-menu
+            data-ng-if="!isLoading && !isSaving">
+          <!-- Pacing units -->
+          <li class="cohort-filter-list-section-label" role="menuitem">Pacing (Total)</li>
+          <li class="cohort-filter-list-item"
+            role="menuitem"
+            data-ng-repeat="unitRange in search.options.unitRangesPacing">
+          <input id="search-option-unit-range-pacing-{{$index}}"
+                 type="checkbox"
+                 data-ng-model="unitRange.selected"
+                 aria-label="{{unitRange.name}}"
+                 data-ng-click="updateSelected('unitRanges', unitRange)"/>
+          <span data-ng-bind="unitRange.name"></span></li>
+          <!-- Eligibility units -->
+          <li class="divider"></li>
+          <li class="cohort-filter-list-section-label" role="menuitem">Eligibility (Per Term/Year)</li>
+          <li class="cohort-filter-list-item"
+              role="menuitem"
+              data-ng-repeat="unitRange in search.options.unitRangesEligibility">
+            <input id="search-option-unit-range-eligibility-{{$index}}"
+                   type="checkbox"
+                   data-ng-model="unitRange.selected"
+                   aria-label="{{unitRange.name}}"
+                   data-ng-click="updateSelected('unitRanges', unitRange)"/>
+            <span data-ng-bind="unitRange.name"></span></li>
+        </ul>
+      </div>
+    </div>
+    <!-- Search and save buttons -->
     <div class="cohort-filters-column flex-column-10"></div>
     <div class="cohort-filters-column flex-column-btn">
       <button id="execute-search"
@@ -312,7 +369,7 @@
     <div id="cohort-matrix-container" class="cohort-matrix-container" data-ng-show="selectedTab === 'matrix' && !isLoading && !error">
       <!-- IMPORTANT: We use data-ng-show because d3 must populate the div before we reveal it to the user. -->
       <div id="scatterplot" class="cohort-matrix"></div>
-      <div id="cohort-missing-student-data" class="cohort-missing-student-data" data-ng-if="matrix.membersWithoutData.length">
+      <div id="cohort-missing-student-data" class="cohort-missing-student-data" data-ng-if="studentsWithoutData.length">
         <h4>Missing Student Data</h4>
         <div>For the following students, some classes may only provide partial data or no information is available:</div>
         <div class="cohort-missing-student-data-header">
@@ -324,25 +381,25 @@
         </div>
         <ul class="list-group">
           <a class="list-group-item cohort-member-list-item"
-             data-ng-href="/student/{{member.uid}}"
-             data-ng-repeat="member in matrix.membersWithoutData">
+             data-ng-href="/student/{{student.uid}}"
+             data-ng-repeat="student in studentsWithoutData">
             <div class="cohort-avatar-container">
-              <img class="cohort-avatar" data-ng-src="{{member.avatar_url}}">
+              <img class="cohort-avatar" data-ng-src="{{student.avatar_url}}">
             </div>
             <div class="cohort-member-name-container">
-              <h3 class="cohort-member-name" data-ng-bind="member.firstName + ' ' + member.lastName"></h3>
+              <h3 class="cohort-member-name" data-ng-bind="student.firstName + ' ' + student.lastName"></h3>
               <div class="cohort-member-sid">
-                SID: <span data-ng-bind="member.sid"></span>
+                SID: <span data-ng-bind="student.sid"></span>
               </div>
             </div>
             <div class="cohort-member-column">
-              <span data-ng-bind-template="{{member.analytics.pageViews | number:1}}%" data-ng-if="member.analytics.pageViews"></span>
+              <span data-ng-bind-template="{{student.analytics.pageViews | number:1}}%" data-ng-if="student.analytics.pageViews"></span>
             </div>
             <div class="cohort-member-column" data-ng-if="yAxisMeasure==='analytics.courseCurrentScore'">
-              <span data-ng-bind-template="{{member.analytics.courseCurrentScore | number:1}}%" data-ng-if="member.analytics.courseCurrentScore"></span>
+              <span data-ng-bind-template="{{student.analytics.courseCurrentScore | number:1}}%" data-ng-if="student.analytics.courseCurrentScore"></span>
             </div>
             <div class="cohort-member-column" data-ng-if="yAxisMeasure!=='analytics.courseCurrentScore'">
-              <span data-ng-bind-template="{{member.analytics.assignmentsOnTime | number:1}}%" data-ng-if="member.analytics.assignmentsOnTime"></span>
+              <span data-ng-bind-template="{{student.analytics.assignmentsOnTime | number:1}}%" data-ng-if="student.analytics.assignmentsOnTime"></span>
             </div>
           </a>
         </ul>

@@ -21,13 +21,18 @@
     $scope.selectedTab = 'list';
     $scope.isCreateCohortMode = false;
 
+    /**
+     * Used to collapse all dropdown menus (e.g., if user clicks 'Search').
+     *
+     * @return {Object}      One entry per dropdown/filter.
+     */
     var defaultDropdownState = function() {
       return {
         gpaRangesOpen: false,
         levelsOpen: false,
         majorsOpen: false,
         groupCodesOpen: false,
-        unitsOpen: false
+        unitRangesOpen: false
       };
     };
 
@@ -37,8 +42,7 @@
         groupCodes: 0,
         levels: 0,
         majors: 0,
-        unitRangesEligibility: 0,
-        unitRangesPacing: 0
+        unitRanges: 0
       },
       dropdown: defaultDropdownState(),
       options: {},
@@ -61,6 +65,12 @@
       noLimit: Number.MAX_SAFE_INTEGER
     };
 
+    /**
+     * Extract rows of data and total member count.
+     *
+     * @param  {Object}      response      Data from backend API
+     * @return {Object}                    Cohort instance
+     */
     var parseCohortFeed = function(response) {
       var cohort = response.data;
       if (cohort) {
@@ -74,6 +84,13 @@
       return cohort;
     };
 
+    /**
+     * Invoke API to get cohort, team or intensive.
+     *
+     * @param  {String}      code        Team code, cohort id or the keyword 'intensive'.
+     * @param  {Function}    callback    Follow up activity per caller
+     * @return {void}
+     */
     var refreshCohortView = function(code, callback) {
       // Pagination is not used on teams because the member count is always reasonable.
       var isTeam = isNaN(code);
@@ -113,7 +130,9 @@
           gpaRanges: studentFactory.getGpaRanges(),
           levels: studentFactory.getStudentLevels(),
           majors: majorsFactory.getAllMajors(),
-          teamGroups: response.data
+          teamGroups: response.data,
+          unitRangesEligibility: studentFactory.getUnitRangesEligibility(),
+          unitRangesPacing: studentFactory.getUnitRangesPacing()
         };
         // GPA ranges
         var selectedGpaRanges = _.get(cohort, 'filterCriteria.gpaRanges', []);
@@ -146,10 +165,30 @@
         _.map($scope.search.options.majors, function(major) {
           major.selected = _.includes(selectedMajors, major.name);
         });
+        // Units, eligibility
+        var selectedUnitRangesE = _.get(cohort, 'filterCriteria.unitRangesEligibility', []);
+        _.map($scope.search.options.unitRangesEligibility, function(unitRange) {
+          unitRange.selected = _.includes(selectedUnitRangesE, unitRange.value);
+        });
+        // Units, pacing
+        var selectedUnitRangesP = _.get(cohort, 'filterCriteria.unitRangesPacing', []);
+        _.map($scope.search.options.unitRangesPacing, function(unitRange) {
+          unitRange.selected = _.includes(selectedUnitRangesP, unitRange.value);
+        });
+        $scope.search.count.unitRanges = selectedUnitRangesE.length + selectedUnitRangesP.length;
+        // Ready for the world!
         return callback();
       });
     };
 
+    /**
+     * Use selected filter options to query students API.
+     *
+     * @param  {String}      orderBy     Requested sort order
+     * @param  {Number}      offset      As used in SQL query
+     * @param  {Number}      limit       As used in SQL query
+     * @return {List}                    Backend API results
+     */
     var getStudents = function(orderBy, offset, limit) {
       var opts = $scope.search.options;
       return studentFactory.getStudents(
@@ -164,24 +203,31 @@
         limit);
     };
 
+    /**
+     * Draw scatterplot graph.
+     *
+     * @param  {Object}      response       Data from backend API
+     * @return {void}
+     */
     var scatterplotRefresh = function(response) {
       // Plot the cohort
       var yAxisMeasure = $scope.yAxisMeasure = $location.search().yAxis || 'analytics.assignmentsOnTime';
-      var partitionedMembers = _.partition(response.data.members, function(member) {
+      var partitions = _.partition(response.data.members, function(member) {
         return _.isFinite(_.get(member, 'analytics.pageViews')) && _.isFinite(_.get(member, yAxisMeasure));
       });
-      var goToUserPage = function(uid) {
+      // Pass along a subset of students that have useful data.
+      cohortService.drawScatterplot(partitions[0], yAxisMeasure, function(uid) {
         $state.go('user', {uid: uid});
-      };
-
-      // Render graph
-      $scope.matrix = {
-        membersWithData: partitionedMembers[0],
-        membersWithoutData: partitionedMembers[1]
-      };
-      cohortService.drawScatterplot($scope.matrix.membersWithData, goToUserPage, yAxisMeasure);
+      });
+      // List of students-without-data is rendered below the scatterplot.
+      $scope.studentsWithoutData = partitions[1];
     };
 
+    /**
+     * Get ALL students of the cohort then render the scatterplot graph.
+     *
+     * @return {void}
+     */
     var matrixViewRefresh = function() {
       // In case of error
       var handleError = function(err) {
@@ -208,7 +254,12 @@
       }
     };
 
-    var listViewRefresh = function() {
+    /**
+     * Invoked when (1) user navigates to next/previous page or (2) search criteria changes.
+     *
+     * @return {void}
+     */
+    var listViewRefresh = $scope.nextPage = function() {
       if ($scope.cohort) {
         refreshCohortView($scope.cohort.code || $scope.cohort.id, function(cohort) {
           $scope.cohort = cohort;
@@ -252,15 +303,18 @@
      */
     $scope.onTab = function(tabName) {
       $scope.selectedTab = tabName;
-
       // Lazy load matrix data
       if (tabName === 'matrix' && !$scope.matrix) {
         matrixViewRefresh();
       }
     };
 
+    /**
+     * Search per filter criteria.
+     *
+     * @return {void}
+     */
     $scope.executeSearch = function() {
-      // Close dropdown menu
       $scope.search.dropdown = defaultDropdownState();
       // Refresh search results
       $scope.cohort = null;
@@ -270,10 +324,6 @@
       } else {
         matrixViewRefresh();
       }
-    };
-
-    $scope.nextPage = function() {
-      listViewRefresh();
     };
 
     $scope.$watch('orderBy.selected', function(value) {
@@ -288,6 +338,12 @@
       boxplotService.drawBoxplotCohort(elementId, courseSite.analytics.pageViews);
     };
 
+    /**
+     * Initialize page view.
+     *
+     * @param  {Object}    cohortCode    [Optional] Team code, cohort id or keyword 'intensive'
+     * @return {void}
+     */
     var init = function(cohortCode) {
       // if code is "0" then we offer a blank slate, the first step in creating a new cohort.
       var code = cohortCode || $stateParams.code;
@@ -314,6 +370,9 @@
       }
     };
 
+    /**
+     * Reload page with newly created cohort.
+     */
     $rootScope.$on('cohortCreated', function(event, data) {
       $scope.search.dropdown = defaultDropdownState();
       $scope.pagination.enabled = true;
