@@ -76,7 +76,6 @@
 }
 
 .flex-column-10 {
-  flex: 0 0 10%;
   flex-grow: 1;
 }
 

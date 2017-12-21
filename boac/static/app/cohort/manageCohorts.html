@@ -81,11 +81,9 @@
 
       <div data-ng-show="cohort.detailsShowing">
         <div id="cohort-filter-criteria-{{$index}}"
-             class="cohort-filter-criteria"
-             data-ng-if="cohort.teamGroups">
-          <div data-ng-repeat="group in cohort.teamGroups">
-            <span class="cohort-filter-criteria-label"
-                  data-ng-bind="group.groupName"></span>
+             class="cohort-filter-criteria">
+          <div data-ng-repeat="name in cohort.filterCriteriaNames track by $index">
+            <span class="cohort-filter-criteria-label" data-ng-bind="name"></span>
           </div>
         </div>
       </div>
