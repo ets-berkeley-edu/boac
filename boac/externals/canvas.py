@@ -95,7 +95,11 @@ def get_course_enrollments(course_id, term_id):
 @fixture('canvas_course_enrollments_{course_id}')
 def _get_course_enrollments(course_id, mock=None):
     path = '/api/v1/courses/{course_id}/enrollments'.format(course_id=course_id)
-    return paged_request(path=path, mock=mock, query={'type[]': 'StudentEnrollment'})
+    return paged_request(path=path, mock=mock, query={
+        'type[]': 'StudentEnrollment',
+        # By default, Canvas will not return any students at all for completed course sites.
+        'state[]': ['active', 'completed', 'inactive'],
+    })
 
 
 def build_url(path, query=None):
