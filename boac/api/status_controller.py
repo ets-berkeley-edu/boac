@@ -1,9 +1,26 @@
+from boac import db
 from flask import current_app as app, jsonify
 from flask_login import current_user
 
 
-@app.route('/api/status')
+@app.route('/api/ping')
 def app_status():
+    def db_status():
+        try:
+            db.session.execute('SELECT 1')
+            return True
+        except Exception:
+            app.logger.exception('Database connection error')
+            return False
+    resp = {
+        'app': True,
+        'db': db_status(),
+    }
+    return jsonify(resp)
+
+
+@app.route('/api/status')
+def user_status():
     uid = current_user.get_id()
     authn_state = {
         'is_authenticated': current_user.is_authenticated,
