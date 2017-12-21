@@ -39,7 +39,7 @@
       <div class="btn-group box-shadow-off"
            uib-dropdown
            auto-close="disabled"
-           is-open="search.dropdown.teamGroupsOpen"
+           is-open="search.dropdown.groupCodesOpen"
            keyboard-nav>
         <!-- Dropdown docs at https://angular-ui.github.io/bootstrap/ -->
         <button id="search-filter-teams"
@@ -48,11 +48,11 @@
                 uib-dropdown-toggle>
           <span class="cohort-filter-label">
             Teams
-            <span data-ng-if="!isLoading && !isSaving">(<span data-ng-bind="search.count.selectedTeamGroups"></span>)</span>
+            <span data-ng-if="!isLoading && !isSaving">(<span data-ng-bind="search.count.groupCodes"></span>)</span>
             <i class="fa fa-chevron-down"
-               data-ng-if="!isLoading && !isSaving && !search.dropdown.teamGroupsOpen"></i>
+               data-ng-if="!isLoading && !isSaving && !search.dropdown.groupCodesOpen"></i>
             <i class="fa fa-chevron-up"
-               data-ng-if="!isLoading && !isSaving && search.dropdown.teamGroupsOpen"></i>
+               data-ng-if="!isLoading && !isSaving && search.dropdown.groupCodesOpen"></i>
             <i class="fa fa-spinner fa-spin"
                aria-hidden="true"
                data-ng-if="isLoading || isSaving"></i>
@@ -70,8 +70,48 @@
                    type="checkbox"
                    data-ng-model="teamGroup.selected"
                    aria-label="{{teamGroup.groupName}}"
-                   data-ng-click="updateSelectedTeamGroupsCount(teamGroup.selected ? 1 : -1)"/>
+                   data-ng-click="updateSelected('groupCodes', teamGroup)"/>
             <span data-ng-bind="teamGroup.groupName"></span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="cohort-filters-column flex-column-btn">
+      <div class="btn-group box-shadow-off"
+           uib-dropdown
+           auto-close="disabled"
+           is-open="search.dropdown.levelsOpen"
+           keyboard-nav>
+        <!-- Dropdown docs at https://angular-ui.github.io/bootstrap/ -->
+        <button id="search-filter-level"
+                type="button"
+                class="btn"
+                uib-dropdown-toggle>
+          <span class="cohort-filter-label">
+            Levels
+            <span data-ng-if="!isLoading && !isSaving">(<span data-ng-bind="search.count.levels"></span>)</span>
+            <i class="fa fa-chevron-down"
+               data-ng-if="!isLoading && !isSaving && !search.dropdown.levelsOpen"></i>
+            <i class="fa fa-chevron-up"
+               data-ng-if="!isLoading && !isSaving && search.dropdown.levelsOpen"></i>
+            <i class="fa fa-spinner fa-spin"
+               aria-hidden="true"
+               data-ng-if="isLoading || isSaving"></i>
+          </span>
+        </button>
+        <ul aria-labelledby="search-filter-level"
+            class="dropdown-menu"
+            role="menu"
+            uib-dropdown-menu
+            data-ng-if="!isLoading && !isSaving">
+          <li class="cohort-filter-list-item"
+              role="menuitem"
+              data-ng-repeat="level in search.options.levels">
+            <input id="search-option-level-{{level.name}}"
+                   type="checkbox"
+                   data-ng-model="level.selected"
+                   aria-label="{{level.name}}"
+                   data-ng-click="updateSelected('levels', level)"/>
+            <span data-ng-bind="level.name"></span></li>
         </ul>
       </div>
     </div>
@@ -79,16 +119,25 @@
     <div class="cohort-filters-column flex-column-btn">
       <button id="execute-search"
               class="btn btn-primary btn-nowrap"
-              data-ng-disabled="!search.count.selectedTeamGroups || isLoading || isSaving"
+              data-ng-disabled="(!search.count.gpaRanges &&
+                                 !search.count.groupCodes &&
+                                 !search.count.levels &&
+                                 !search.count.majors &&
+                                 !search.count.unitRangesEligibility &&
+                                 !search.count.unitRangesPacing) || isLoading || isSaving"
               data-ng-click="executeSearch()">Search</button>
     </div>
     <div class="cohort-filters-column flex-column-btn">
       <span data-ng-controller="CreateCohortController" data-ng-if="!isCreateCohortMode">
-        <button type="button"
-                id="create-cohort-btn"
+        <button id="create-cohort-btn"
                 class="btn btn-default btn-nowrap"
-                data-ng-disabled="isLoading || isSaving || search.count.selectedTeamGroups === 0"
-                data-ng-click="openCreateCohortModal(search.options.teamGroups)">
+                data-ng-disabled="(!search.count.gpaRanges &&
+                                   !search.count.groupCodes &&
+                                   !search.count.levels &&
+                                   !search.count.majors &&
+                                   !search.count.unitRangesEligibility &&
+                                   !search.count.unitRangesPacing) || isLoading || isSaving"
+                data-ng-click="openCreateCohortModal(search.options)">
           Save Cohort
         </button>
       </span>

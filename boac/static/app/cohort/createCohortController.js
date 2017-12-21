@@ -4,7 +4,7 @@
 
   angular.module('boac').controller('CreateCohortController', function($scope, $uibModal) {
 
-    $scope.openCreateCohortModal = function(teamGroups) {
+    $scope.openCreateCohortModal = function(filters) {
       $uibModal.open({
         animation: true,
         ariaLabelledBy: 'create-cohort-header',
@@ -12,21 +12,25 @@
         templateUrl: '/static/app/cohort/createCohortModal.html',
         controller: 'CreateCohortModal',
         resolve: {
-          teamGroups: function() {
-            return teamGroups;
+          filters: function() {
+            return filters;
           }
         }
       });
     };
   });
 
-  angular.module('boac').controller('CreateCohortModal', function(teamGroups, cohortFactory, cohortService, $rootScope, $scope, $uibModalInstance) {
+  angular.module('boac').controller('CreateCohortModal', function(filters, cohortFactory, cohortService, $rootScope, $scope, $uibModalInstance) {
 
     // If we use the name '$scope.cohort' then we will collide with model name of underlying /cohort view.
     $scope.label = null;
     $scope.error = {
       hide: false,
       message: null
+    };
+
+    var getSelected = function(filterOptions, property) {
+      return _.map(_.filter(filterOptions, 'selected'), property);
     };
 
     $scope.create = function() {
@@ -42,11 +46,24 @@
           $scope.error.message = errorMessage;
           if (!$scope.error.message) {
             $rootScope.isSaving = true;
-            var selectedTeamGroups = _.filter(teamGroups, 'selected');
-            cohortFactory.createCohort($scope.label, _.map(selectedTeamGroups, 'groupCode')).then(function() {
-              $rootScope.isSaving = false;
-              $uibModalInstance.close();
-            });
+            cohortFactory.createCohort(
+              $scope.label,
+              getSelected(filters.gpaRanges, 'name'),
+              getSelected(filters.teamGroups, 'groupCode'),
+              getSelected(filters.levels, 'name'),
+              getSelected(filters.majors, 'name'),
+              getSelected(filters.unitRangesEligibility, 'name'),
+              getSelected(filters.unitRangesPacing, 'name')
+            ).then(
+              function() {
+                $rootScope.isSaving = false;
+                $uibModalInstance.close();
+              },
+              function(err) {
+                $scope.error.message = 'Sorry, the operation failed due to error: ' + err.data.message;
+                $rootScope.isSaving = false;
+              }
+            );
           }
         });
       }

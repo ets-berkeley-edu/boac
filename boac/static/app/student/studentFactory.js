@@ -18,6 +18,15 @@
       });
     };
 
+    var getStudentLevels = function() {
+      return [
+        {name: 'Freshman'},
+        {name: 'Sophomore'},
+        {name: 'Junior'},
+        {name: 'Senior'}
+      ];
+    };
+
     var getStudents = function(groupCodes, orderBy, offset, limit) {
       var params = {
         offset: offset || 0,
@@ -34,6 +43,7 @@
     return {
       analyticsPerUser: analyticsPerUser,
       getAllStudents: getAllStudents,
+      getStudentLevels: getStudentLevels,
       getStudents: getStudents
     };
   });
