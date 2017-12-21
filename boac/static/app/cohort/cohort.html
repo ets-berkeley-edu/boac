@@ -81,7 +81,6 @@
            auto-close="disabled"
            is-open="search.dropdown.levelsOpen"
            keyboard-nav>
-        <!-- Dropdown docs at https://angular-ui.github.io/bootstrap/ -->
         <button id="search-filter-level"
                 type="button"
                 class="btn"
@@ -115,7 +114,87 @@
         </ul>
       </div>
     </div>
-    <div class="cohort-filters-column flex-column-50"></div>
+    <!-- Majors -->
+    <div class="cohort-filters-column flex-column-btn">
+      <div class="btn-group box-shadow-off"
+           uib-dropdown
+           auto-close="disabled"
+           is-open="search.dropdown.majorsOpen"
+           keyboard-nav>
+        <button id="search-filter-majors"
+                type="button"
+                class="btn"
+                uib-dropdown-toggle>
+          <span class="cohort-filter-label">
+            Majors
+            <span data-ng-if="!isLoading && !isSaving">(<span data-ng-bind="search.count.majors"></span>)</span>
+            <i class="fa fa-chevron-down"
+               data-ng-if="!isLoading && !isSaving && !search.dropdown.majorsOpen"></i>
+            <i class="fa fa-chevron-up"
+               data-ng-if="!isLoading && !isSaving && search.dropdown.majorsOpen"></i>
+            <i class="fa fa-spinner fa-spin"
+               aria-hidden="true"
+               data-ng-if="isLoading || isSaving"></i>
+          </span>
+        </button>
+        <ul aria-labelledby="search-filter-majors"
+            class="dropdown-menu"
+            role="menu"
+            uib-dropdown-menu
+            data-ng-if="!isLoading && !isSaving">
+          <li class="cohort-filter-list-item"
+              role="menuitem"
+              data-ng-repeat="major in search.options.majors">
+            <input id="search-option-level-{{major.name}}"
+                   type="checkbox"
+                   data-ng-model="major.selected"
+                   aria-label="{{major.name}}"
+                   data-ng-click="updateSelected('majors', major)"/>
+            <span data-ng-bind="major.name"></span></li>
+        </ul>
+      </div>
+    </div>
+    <!-- GPA -->
+    <div class="cohort-filters-column flex-column-btn">
+      <div class="btn-group box-shadow-off"
+           uib-dropdown
+           auto-close="disabled"
+           is-open="search.dropdown.gpaRangesOpen"
+           keyboard-nav>
+        <button id="search-filter-gpa-ranges"
+                type="button"
+                class="btn"
+                uib-dropdown-toggle>
+          <span class="cohort-filter-label">
+            GPA
+            <span data-ng-if="!isLoading && !isSaving">(<span data-ng-bind="search.count.gpaRanges"></span>)</span>
+            <i class="fa fa-chevron-down"
+               data-ng-if="!isLoading && !isSaving && !search.dropdown.gpaRangesOpen"></i>
+            <i class="fa fa-chevron-up"
+               data-ng-if="!isLoading && !isSaving && search.dropdown.gpaRangesOpen"></i>
+            <i class="fa fa-spinner fa-spin"
+               aria-hidden="true"
+               data-ng-if="isLoading || isSaving"></i>
+          </span>
+        </button>
+        <ul aria-labelledby="search-filter-gpa-ranges"
+            class="dropdown-menu"
+            role="menu"
+            uib-dropdown-menu
+            data-ng-if="!isLoading && !isSaving">
+          <li class="cohort-filter-list-item"
+              role="menuitem"
+              data-ng-repeat="gpaRange in search.options.gpaRanges">
+            <input id="search-option-level-{{$index}}"
+                   type="checkbox"
+                   data-ng-model="gpaRange.selected"
+                   aria-label="{{gpaRange.name}}"
+                   data-ng-click="updateSelected('gpaRanges', gpaRange)"/>
+            <span data-ng-bind="gpaRange.name"></span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="cohort-filters-column flex-column-10"></div>
     <div class="cohort-filters-column flex-column-btn">
       <button id="execute-search"
               class="btn btn-primary btn-nowrap"

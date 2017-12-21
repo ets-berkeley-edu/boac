@@ -29,10 +29,6 @@
       message: null
     };
 
-    var getSelected = function(filterOptions, property) {
-      return _.map(_.filter(filterOptions, 'selected'), property);
-    };
-
     $scope.create = function() {
       // The 'error.hide' flag allows us to hide validation error on-change of form input.
       $scope.error.hide = false;
@@ -48,12 +44,12 @@
             $rootScope.isSaving = true;
             cohortFactory.createCohort(
               $scope.label,
-              getSelected(filters.gpaRanges, 'name'),
-              getSelected(filters.teamGroups, 'groupCode'),
-              getSelected(filters.levels, 'name'),
-              getSelected(filters.majors, 'name'),
-              getSelected(filters.unitRangesEligibility, 'name'),
-              getSelected(filters.unitRangesPacing, 'name')
+              cohortService.getSelected(filters.gpaRanges, 'value'),
+              cohortService.getSelected(filters.teamGroups, 'groupCode'),
+              cohortService.getSelected(filters.levels, 'name'),
+              cohortService.getSelected(filters.majors, 'name'),
+              cohortService.getSelected(filters.unitRangesEligibility, 'value'),
+              cohortService.getSelected(filters.unitRangesPacing, 'value')
             ).then(
               function() {
                 $rootScope.isSaving = false;
