@@ -7,7 +7,8 @@
         <img class="student-profile-avatar" data-ng-src="{{student.canvasProfile.avatar_url}}" data-ng-if="student.canvasProfile.avatar_url"/>
       </div>
       <div class="student-profile-header-contact">
-        <h1 class="student-profile-header-name" data-ng-bind="student.sisProfile.primaryName"></h1>
+        <h1 class="student-profile-header-name"
+            data-ng-bind="student.athleticsProfile.firstName + ' ' + student.athleticsProfile.lastName"></h1>
         <h2 class="student-profile-header-name-preferred" data-ng-bind="student.sisProfile.preferredName"></h2>
         <a data-ng-href="mailto:{{student.sisProfile.emailAddress}}" data-ng-bind="student.sisProfile.emailAddress"></a>
         <div data-ng-bind="student.sisProfile.phoneNumber"></div>
