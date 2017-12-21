@@ -4,7 +4,7 @@
 
   angular.module('boac').service('cohortService', function(cohortFactory) {
 
-    var drawScatterplot = function(students, goToUserPage, yAxisMeasure) {
+    var drawScatterplot = function(students, yAxisMeasure, goToUserPage) {
       var svg;
 
       function x(d) { return d.analytics.pageViews; }

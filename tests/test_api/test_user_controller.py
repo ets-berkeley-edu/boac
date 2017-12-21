@@ -1,6 +1,7 @@
 from boac.externals import sis_enrollments_api, sis_student_api
 from boac.lib.mockingbird import MockResponse, register_mock
 import pytest
+import simplejson as json
 
 
 class TestStudents:
@@ -352,8 +353,21 @@ class TestUserAnalytics:
             assert not response.json['sisProfile']
 
     def test_get_students(self, authenticated_session, client):
-        response = client.get('/api/students?groupCodes=MFB-DB&groupCodes=MFB-DL')
+        data = {
+            'gpaRanges': [],
+            'groupCodes': ['MFB-DB', 'MFB-DL'],
+            'levels': [],
+            'majors': [],
+            'unitRangesEligibility': [],
+            'unitRangesPacing': [],
+            'orderBy': 'last_name',
+            'offset': 1,
+            'limit': 2,
+        }
+        response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 200
         assert 'members' in response.json
-        uid_list = [member['uid'] for member in response.json['members']]
-        assert ['2040', '242881', '1133399'] == uid_list
+        students = response.json['members']
+        assert 2 == len(students)
+        # Ordered by lastName
+        assert ['1133399', '242881'] == [student['uid'] for student in students]

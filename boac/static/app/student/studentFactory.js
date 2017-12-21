@@ -52,35 +52,50 @@
       ];
     };
 
-    var appendArrayArgs = function(apiPath, paramName, values) {
-      var result = apiPath;
-      _.each(values, function(value) {
-        result += '&' + paramName + '=' + value;
-      });
-      return result;
+    var getUnitRangesEligibility = function() {
+      return [
+        {name: '0 - 5', value: 'numrange(0, 5, \'[]\')'},
+        {name: '6 - 11', value: 'numrange(6, 11, \'[]\')'},
+        {name: '12 - 17', value: 'numrange(12, 17, \'[]\')'},
+        {name: '18 - 23', value: 'numrange(18, 23, \'[]\')'},
+        {name: '24 - 29', value: 'numrange(24, 29, \'[]\')'},
+        {name: '30 +', value: 'numrange(30, NULL, \'[)\')'}
+      ];
+    };
+
+    var getUnitRangesPacing = function() {
+      return [
+        {name: '0 - 29', value: 'numrange(0, 30, \'[)\')'},
+        {name: '30 - 59', value: 'numrange(30, 60, \'[)\')'},
+        {name: '60 - 89', value: 'numrange(60, 90, \'[)\')'},
+        {name: '90 - 119', value: 'numrange(90, 120, \'[)\')'},
+        {name: '120 +', value: 'numrange(120, NULL, \'[)\')'}
+      ];
     };
 
     var getStudents = function(gpaRanges, groupCodes, levels, majors, unitRangesEligibility, unitRangesPacing, orderBy, offset, limit) {
-      var params = {
+      var args = {
+        gpaRanges: gpaRanges || [],
+        groupCodes: groupCodes || [],
+        levels: levels || [],
+        majors: majors || [],
+        unitRangesEligibility: unitRangesEligibility || [],
+        unitRangesPacing: unitRangesPacing || [],
+        orderBy: orderBy || 'first_name',
         offset: offset || 0,
-        limit: limit || 50,
-        orderBy: orderBy || 'first_name'
+        limit: limit || 50
       };
-      var apiPath = utilService.format('/api/students?offset=${offset}&limit=${limit}&orderBy=${orderBy}', params);
-      apiPath = appendArrayArgs(apiPath, 'gpaRanges', gpaRanges);
-      apiPath = appendArrayArgs(apiPath, 'groupCodes', groupCodes);
-      apiPath = appendArrayArgs(apiPath, 'levels', levels);
-      apiPath = appendArrayArgs(apiPath, 'majors', majors);
-      apiPath = appendArrayArgs(apiPath, 'unitRangesEligibility', unitRangesEligibility);
-      apiPath = appendArrayArgs(apiPath, 'unitRangesPacing', unitRangesPacing);
-      return $http.get(apiPath);
+      return $http.post('/api/students', args);
     };
+
     return {
       analyticsPerUser: analyticsPerUser,
       getAllStudents: getAllStudents,
       getGpaRanges: getGpaRanges,
       getStudentLevels: getStudentLevels,
-      getStudents: getStudents
+      getStudents: getStudents,
+      getUnitRangesEligibility: getUnitRangesEligibility,
+      getUnitRangesPacing: getUnitRangesPacing
     };
   });
 
