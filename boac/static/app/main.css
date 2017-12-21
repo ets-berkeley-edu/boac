@@ -75,6 +75,11 @@
   justify-content: space-between;
 }
 
+.flex-column-10 {
+  flex: 0 0 10%;
+  flex-grow: 1;
+}
+
 .flex-column-50 {
   flex: 0 0 50%;
   flex-grow: 1;

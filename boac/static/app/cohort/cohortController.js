@@ -8,6 +8,7 @@
     cohortFactory,
     cohortService,
     googleAnalyticsService,
+    majorsFactory,
     studentFactory,
     $location,
     $rootScope,
@@ -109,10 +110,18 @@
     var initFilters = function(cohort, callback) {
       cohortFactory.getAllTeamGroups().then(function(response) {
         $scope.search.options = {
+          gpaRanges: studentFactory.getGpaRanges(),
           levels: studentFactory.getStudentLevels(),
+          majors: majorsFactory.getAllMajors(),
           teamGroups: response.data
         };
-        // Team group codes
+        // GPA ranges
+        var selectedGpaRanges = _.get(cohort, 'filterCriteria.gpaRanges', []);
+        $scope.search.count.gpaRanges = selectedGpaRanges.length;
+        _.map($scope.search.options.gpaRanges, function(gpaRange) {
+          gpaRange.selected = _.includes(selectedGpaRanges, gpaRange.value);
+        });
+        // If we hit the cohort view with a team code then we populate filter with the team's group codes.
         var selectedGroupCodes = [];
         if (cohort) {
           if (cohort.teamGroups) {
@@ -131,13 +140,28 @@
         _.map($scope.search.options.levels, function(level) {
           level.selected = _.includes(selectedLevels, level.name);
         });
+        // Majors
+        var selectedMajors = _.get(cohort, 'filterCriteria.majors', []);
+        $scope.search.count.majors = selectedMajors.length;
+        _.map($scope.search.options.majors, function(major) {
+          major.selected = _.includes(selectedMajors, major.name);
+        });
         return callback();
       });
     };
 
-    var getSelectedGroupCodes = function() {
-      var groupCodes = _.filter($scope.search.options.teamGroups, 'selected');
-      return _.map(groupCodes, 'groupCode');
+    var getStudents = function(orderBy, offset, limit) {
+      var opts = $scope.search.options;
+      return studentFactory.getStudents(
+        cohortService.getSelected(opts.gpaRanges, 'value'),
+        cohortService.getSelected(opts.teamGroups, 'groupCode'),
+        cohortService.getSelected(opts.levels, 'name'),
+        cohortService.getSelected(opts.majors, 'name'),
+        cohortService.getSelected(opts.unitRangesEligibility, 'value'),
+        cohortService.getSelected(opts.unitRangesPacing, 'value'),
+        orderBy,
+        offset,
+        limit);
     };
 
     var scatterplotRefresh = function(response) {
@@ -180,7 +204,7 @@
           cohortFactory.getCohort($scope.cohort.id, null, 0, noLimit).then(scatterplotRefresh).catch(handleError).then(done);
         }
       } else {
-        studentFactory.getStudents(getSelectedGroupCodes(), null, 0, noLimit).then(scatterplotRefresh).catch(handleError).then(done);
+        getStudents(null, 0, noLimit).then(scatterplotRefresh).catch(handleError).then(done);
       }
     };
 
@@ -201,7 +225,7 @@
 
         // Perform the query
         $scope.isLoading = true;
-        studentFactory.getStudents(getSelectedGroupCodes(), $scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(parseCohortFeed, handleError).then(function() {
+        getStudents($scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(parseCohortFeed, handleError).then(function() {
           $scope.isLoading = false;
         });
       }
