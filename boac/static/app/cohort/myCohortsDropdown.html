@@ -9,8 +9,12 @@
       role="menu"
       aria-labelledby="btn-append-to-single-button"
       uib-dropdown-menu>
-    <li role="menuitem" aria-disabled="true" data-ng-if="isLoading"><a>Loading....</a></li>
-    <li role="menuitem" aria-disabled="true" data-ng-if="!isLoading && !myCohorts.length"><a>No saved cohorts</a></li>
+    <li role="menuitem" aria-disabled="true" data-ng-if="isLoading">
+      <span>Loading....</span>
+    </li>
+    <li role="menuitem" aria-disabled="true" data-ng-if="!isLoading && !myCohorts.length">
+      <span>No saved cohorts</span>
+    </li>
     <li role="menuitem"
         id="cohorts-dropdown-cohort-{{cohort.id}}"
         class="cohort-manage-label"
