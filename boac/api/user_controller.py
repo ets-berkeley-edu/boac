@@ -8,6 +8,7 @@ from boac.lib.http import tolerant_jsonify
 from boac.merged import member_details
 from boac.merged.sis_enrollments import merge_sis_enrollments
 from boac.merged.sis_profile import merge_sis_profile
+from boac.models.normalized_cache_student_major import NormalizedCacheStudentMajor
 from boac.models.student import Student
 from flask import current_app as app, jsonify, request
 from flask_login import current_user, login_required
@@ -102,28 +103,7 @@ def user_analytics(uid):
 
 @app.route('/api/majors/relevant')
 def relevant_majors():
-    return jsonify([
-        'American Studies',
-        'Architecture',
-        'Art',
-        'Astrophysics',
-        'Biochemistry',
-        'Chemistry',
-        'Economics',
-        'English',
-        'Geography',
-        'Geology',
-        'History',
-        'Humanities',
-        'Legal Studies',
-        'Music',
-        'Philosophy',
-        'Physics',
-        'Psychology',
-        'Religious Studies',
-        'Sociology',
-        'Undeclared',
-    ])
+    return jsonify(NormalizedCacheStudentMajor.distinct_majors())
 
 
 def load_canvas_profile(uid):

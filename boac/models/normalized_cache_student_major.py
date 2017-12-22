@@ -21,6 +21,10 @@ class NormalizedCacheStudentMajor(Base):
         )
 
     @classmethod
+    def distinct_majors(cls):
+        return [row[0] for row in db.session.query(cls.major).distinct(cls.major).all()]
+
+    @classmethod
     def update_majors(cls, sid, new_majors):
         existing_rows = cls.query.filter_by(sid=sid).all()
         existing_majors = []
