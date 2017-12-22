@@ -1,6 +1,7 @@
 from boac.api import errors
 import boac.api.util as api_util
 from boac.externals import canvas
+from boac.externals.cal1card_photo_api import get_cal1card_photo
 from boac.lib import util
 from boac.lib.analytics import merge_analytics_for_user
 from boac.lib.berkeley import sis_term_id_for_name
@@ -10,7 +11,7 @@ from boac.merged.sis_enrollments import merge_sis_enrollments
 from boac.merged.sis_profile import merge_sis_profile
 from boac.models.normalized_cache_student_major import NormalizedCacheStudentMajor
 from boac.models.student import Student
-from flask import current_app as app, jsonify, request
+from flask import current_app as app, jsonify, request, Response
 from flask_login import current_user, login_required
 
 
@@ -104,6 +105,16 @@ def user_analytics(uid):
 @app.route('/api/majors/relevant')
 def relevant_majors():
     return jsonify(NormalizedCacheStudentMajor.distinct_majors())
+
+
+@app.route('/api/user/<uid>/photo')
+@login_required
+def user_photo(uid):
+    photo = get_cal1card_photo(uid)
+    if photo:
+        return Response(photo, mimetype='image/jpeg')
+    else:
+        raise errors.ResourceNotFoundError('No photo was found for the requested id.')
 
 
 def load_canvas_profile(uid):

@@ -319,7 +319,9 @@
            data-ng-href="/student/{{row.uid}}"
            data-ng-repeat="row in search.results.rows">
           <div class="cohort-avatar-container">
-            <img class="cohort-avatar" data-ng-src="{{row.avatar_url}}">
+            <img class="cohort-avatar"
+                 data-ng-src="/api/user/{{row.uid}}/photo"
+                 data-avatar-fallback>
           </div>
           <div class="cohort-member-name-container">
             <h3 class="cohort-member-name" data-ng-bind="row.firstName + ' ' + row.lastName"></h3>
@@ -384,7 +386,9 @@
              data-ng-href="/student/{{student.uid}}"
              data-ng-repeat="student in studentsWithoutData">
             <div class="cohort-avatar-container">
-              <img class="cohort-avatar" data-ng-src="{{student.avatar_url}}">
+              <img class="cohort-avatar"
+                   data-ng-src="/api/user/{{student.uid}}/photo"
+                   data-avatar-fallback>
             </div>
             <div class="cohort-member-name-container">
               <h3 class="cohort-member-name" data-ng-bind="student.firstName + ' ' + student.lastName"></h3>

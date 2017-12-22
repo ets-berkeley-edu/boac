@@ -130,16 +130,19 @@
 
       function avatar(d) {
         var avatarId = 'avatar_' + d.uid;
-        defs.append('svg:pattern')
+        var pattern = defs.append('svg:pattern')
           .attr('id', avatarId)
           .attr('width', '100%')
           .attr('height', '100%')
-          .attr('patternContentUnits', 'objectBoundingBox')
-          .append('svg:image')
-          .attr('xlink:href', d.avatar_url)
+          .attr('patternContentUnits', 'objectBoundingBox');
+        var avatarImage = pattern.append('svg:image')
+          .attr('xlink:href', '/api/user/' + d.uid + '/photo')
           .attr('width', 1)
           .attr('height', 1)
-          .attr('preserveAspectRatio', 'none');
+          .attr('preserveAspectRatio', 'xMidYMid slice');
+        avatarImage.on('error', function() {
+          avatarImage.attr('xlink:href', '/static/app/shared/avatar-50.png');
+        });
         return 'url(#' + avatarId + ')';
       }
 
@@ -168,6 +171,8 @@
         .enter().append('circle')
         .attr('class', 'dot')
         .style('fill', function(d) { return avatar(d); })
+        .style('background-image', 'url(/static/app/shared/avatar-50.png)')
+        .style('background-size', 'cover')
         .style('stroke-width', 5)
         .style('stroke', '#ccc')
         .attr('cx', function(d) { return xScale(x(d)); })
