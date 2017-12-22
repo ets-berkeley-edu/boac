@@ -1,8 +1,9 @@
 from functools import wraps
 from boac.api import cache_utils
+from boac.lib import berkeley
 from boac.lib.http import tolerant_jsonify
 from boac.models.job_progress import JobProgress
-from flask import current_app as app
+from flask import current_app as app, request
 from flask_login import current_user
 
 
@@ -13,6 +14,11 @@ def admin_required(func):
             return app.login_manager.unauthorized()
         return func(*args, **kw)
     return _admin_required
+
+
+def term():
+    term_id = request.args.get('term') or berkeley.sis_term_id_for_name(app.config['CANVAS_CURRENT_ENROLLMENT_TERM'])
+    return term_id
 
 
 @app.route('/api/admin/refresh')
@@ -39,10 +45,11 @@ def start_load_only():
     """If a refresh has been interrupted (due to server restart, for example), this endpoint lets us continue
     to load new data without having to erase any data which was successfully cached.
     """
-    return tolerant_jsonify(cache_utils.refresh_request_handler(load_only=True))
+    job_state = cache_utils.refresh_request_handler(term(), load_only=True)
+    return tolerant_jsonify(job_state)
 
 
 @app.route('/api/admin/refresh/start')
 @admin_required
 def start_refresh():
-    return tolerant_jsonify(cache_utils.refresh_request_handler())
+    return tolerant_jsonify(cache_utils.refresh_request_handler(term()))

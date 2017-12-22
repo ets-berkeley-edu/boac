@@ -7,7 +7,7 @@ from boac.models.json_cache import JsonCache
 from flask import current_app as app
 
 
-def refresh_request_handler(load_only=False):
+def refresh_request_handler(term_id, load_only=False):
     """Handle a start refresh admin request, either by returning an error status or by starting the job on a
     background thread.
     """
@@ -16,7 +16,7 @@ def refresh_request_handler(load_only=False):
         job_state = JobProgress().start()
         app.logger.warn('About to start background thread')
         app_arg = app._get_current_object()
-        thread = Thread(target=background_thread_refresh, args=[app_arg, load_only], daemon=True)
+        thread = Thread(target=background_thread_refresh, args=[app_arg, term_id, load_only], daemon=True)
         thread.start()
         return {
             'progress': job_state,
@@ -28,32 +28,33 @@ def refresh_request_handler(load_only=False):
         }
 
 
-def background_thread_refresh(app_arg, load_only):
+def background_thread_refresh(app_arg, term_id, load_only):
     with app_arg.app_context():
-        _background_thread_refresh(load_only)
+        _background_thread_refresh(term_id, load_only)
 
 
-def _background_thread_refresh(load_only):
+def _background_thread_refresh(term_id, load_only):
     """TODO Work-in-progress mock refresh which does not actually remove any existing cache.
     When we feel more confident about our background-job-running approach, we'll add the riskier, more
     time-consuming logic, and refactor existing scripts.
+
+    NB: If any semester _other_ than the current term is specified, then the non-term-specific cache entries
+    should not be deleted.
 
     if not load_only: ....
     """
     from boac.models.student import Student
     success_count = 0
     failures = []
-    term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
-    sis_term_id = berkeley.sis_term_id_for_name(term_name)
 
     for csid, uid in db.session.query(Student.sid, Student.uid).distinct():
-        s, f = load_canvas_externals(uid, sis_term_id)
+        s, f = load_canvas_externals(uid, term_id)
         success_count += s
         failures += f
-        s, f = load_sis_externals(sis_term_id, csid)
+        s, f = load_sis_externals(term_id, csid)
         success_count += s
         failures += f
-        s, f = load_canvas_scores(uid, sis_term_id)
+        s, f = load_canvas_scores(uid, term_id)
         success_count += s
         failures += f
         JobProgress().update(f'External data loaded for UID {uid}')
@@ -101,8 +102,9 @@ def load_canvas_externals(uid, sis_term_id):
         sites = canvas.get_student_courses(uid)
         if sites:
             success_count += 1
+            term_name = berkeley.term_name_for_sis_id(sis_term_id)
             for site in sites:
-                if site.get('term', {}).get('name') != berkeley.term_name_for_sis_id(sis_term_id):
+                if site.get('term', {}).get('name') != term_name:
                     continue
                 site_id = site['id']
                 if not canvas.get_course_sections(site_id, sis_term_id):
@@ -137,7 +139,10 @@ def load_canvas_scores(uid, sis_term_id):
         sites = canvas.get_student_courses(uid)
         if sites:
             success_count += 1
+            term_name = berkeley.term_name_for_sis_id(sis_term_id)
             for site in sites:
+                if site.get('term', {}).get('name') != term_name:
+                    continue
                 site_id = site['id']
                 if not canvas.get_course_enrollments(site_id, sis_term_id):
                     failures.append('canvas.get_course_enrollments failed for site_id {}'.format(

@@ -6,9 +6,9 @@ from flask import current_app as app
 
 class JobProgress:
     # Key to track the progress of a very long-running job.
-    REFRESH_CURRENT_TERM = 'refresh_current_term'
+    REFRESH_TERM = 'refresh_term'
 
-    def __init__(self, key=REFRESH_CURRENT_TERM):
+    def __init__(self, key=REFRESH_TERM):
         self.key = key
 
     def delete(self):
