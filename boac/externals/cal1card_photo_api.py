@@ -11,7 +11,7 @@ def get_cal1card_photo(uid):
     if response:
         return response.content
     else:
-        if hasattr(response, 'raw_response') and response.raw_response.status_code == 404:
+        if hasattr(response, 'raw_response') and hasattr(response.raw_response, 'status_code') and response.raw_response.status_code == 404:
             return False
         else:
             return None

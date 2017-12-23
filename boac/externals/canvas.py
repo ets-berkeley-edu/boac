@@ -24,7 +24,7 @@ def get_user_for_uid(uid):
     if response and hasattr(response, 'json'):
         return response.json()
     else:
-        if hasattr(response, 'raw_response') and response.raw_response.status_code == 404:
+        if hasattr(response, 'raw_response') and hasattr(response.raw_response, 'status_code') and response.raw_response.status_code == 404:
             return False
         else:
             return None
