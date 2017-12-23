@@ -39,7 +39,6 @@ def merged_data(uid, csid):
         data['majors'] = [plan.get('description') for plan in sis_profile.get('plans', [])]
     canvas_profile = canvas.get_user_for_uid(uid)
     if canvas_profile:
-        data['avatar_url'] = canvas_profile['avatar_url']
         student_courses = canvas.get_student_courses(uid) or []
         current_term = app.config.get('CANVAS_CURRENT_ENROLLMENT_TERM')
         term_id = sis_term_id_for_name(current_term)

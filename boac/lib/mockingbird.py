@@ -160,8 +160,12 @@ def response_from_fixture(pattern, suffix):
     """
     fixtures_path = _get_fixtures_path()
     unpaged_path = '{}/{}.{}'.format(fixtures_path, pattern, suffix)
+    if suffix == 'jpg':
+        read_mode = 'rb'
+    else:
+        read_mode = 'r'
     if os.path.isfile(unpaged_path):
-        with open(unpaged_path) as file:
+        with open(unpaged_path, read_mode) as file:
             fixture = file.read()
             return MockResponse(200, {}, fixture)
     else:

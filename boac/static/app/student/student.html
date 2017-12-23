@@ -4,7 +4,9 @@
   <div data-ng-if="!student.isLoading && !error">
     <div class="student-profile-header">
       <div class="student-profile-avatar-container">
-        <img class="student-profile-avatar" data-ng-src="{{student.canvasProfile.avatar_url}}" data-ng-if="student.canvasProfile.avatar_url"/>
+        <img class="student-profile-avatar"
+             data-ng-src="/api/user/{{student.uid}}/photo"
+             data-avatar-fallback/>
       </div>
       <div class="student-profile-header-contact">
         <h1 class="student-profile-header-name"

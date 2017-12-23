@@ -79,7 +79,6 @@ class TestAthletics:
         assert athlete['lastName'] == 'Heyer'
         assert athlete['uid'] == '2040'
         assert athlete['inIntensiveCohort'] is False
-        assert athlete['avatar_url'].startswith('http')
 
     def test_includes_student_sis_data(self, authenticated_session, client):
         """includes SIS data for team members"""

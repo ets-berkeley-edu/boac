@@ -1,10 +1,12 @@
 .student-profile-avatar {
-  background: #fff;
+  background-image: url(/static/app/shared/avatar-50.png);
+  background-size: cover;
   border-radius: 50px;
   border: 4px solid #999;
   height: 100px;
   margin: 20px;
   max-height: 100px;
+  object-fit: cover;
   width: 100px;
 }
 

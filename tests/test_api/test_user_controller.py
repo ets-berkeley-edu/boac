@@ -48,6 +48,32 @@ class TestUserProfile:
         assert response.json['canvasProfile']['sis_login_id'] == test_uid
 
 
+class TestUserPhoto:
+    """User Photo API"""
+
+    def test_photo_not_authenticated(self, client):
+        """requires authentication"""
+        response = client.get('/api/user/61889/photo')
+        assert response.status_code == 401
+
+    def test_photo_authenticated(self, client, fake_auth):
+        """returns a photo when authenticated"""
+        test_uid = '1133399'
+        fake_auth.login(test_uid)
+        response = client.get('/api/user/61889/photo')
+        assert response.status_code == 200
+        assert response.headers.get('Content-Type') == 'image/jpeg'
+        assert response.headers.get('Content-Length') == '3559'
+
+    def test_photo_not_found(self, client, fake_auth):
+        """returns 404 when photo not found"""
+        test_uid = '1133399'
+        fake_auth.login(test_uid)
+        response = client.get('/api/user/99999999/photo')
+        assert response.status_code == 404
+        assert response.json['message'] == 'No photo was found for the requested id.'
+
+
 @pytest.mark.usefixtures('db_session')
 class TestUserAnalytics:
     """User Analytics API"""
