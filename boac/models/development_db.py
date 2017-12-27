@@ -128,9 +128,10 @@ def create_team_group(t):
     return athletics
 
 
-def assign_athletes(student, team_groups):
+def create_athlete(student, team_groups, gpa, level, units, majors):
+    sid = student['sid']
     student = Student(
-        sid=student['sid'],
+        sid=sid,
         uid=student['uid'],
         first_name=student['first_name'],
         last_name=student['last_name'],
@@ -139,6 +140,8 @@ def assign_athletes(student, team_groups):
     db.session.add(student)
     for team_group in team_groups:
         team_group.athletes.append(student)
+    NormalizedCacheStudent.update_profile(sid, gpa=gpa, level=level, units=units)
+    NormalizedCacheStudentMajor.update_majors(sid, majors)
 
 
 def load_student_athletes():
@@ -149,11 +152,36 @@ def load_student_athletes():
     wt = create_team_group(womens_tennis)
 
     # Assign athletes
-    assign_athletes(brigitte, [wfh, wt])
-    assign_athletes(john, [])
-    assign_athletes(oliver, [fdb, fdl])
-    assign_athletes(paul, [fdl])
-    assign_athletes(sandeep, [fdb, fdl, mt])
+    create_athlete(student=brigitte,
+                   team_groups=[wfh, wt],
+                   gpa=None,
+                   level=None,
+                   units=0,
+                   majors=['Economics BA'])
+    create_athlete(student=john,
+                   team_groups=[],
+                   gpa='1.85',
+                   level='Freshman',
+                   units=12,
+                   majors=['Chemistry BS'])
+    create_athlete(student=oliver,
+                   team_groups=[fdb, fdl],
+                   gpa='3.495',
+                   level='Junior',
+                   units=34,
+                   majors=['History BA'])
+    create_athlete(student=paul,
+                   team_groups=[fdl],
+                   gpa='3.005',
+                   level='Junior',
+                   units=70,
+                   majors=['English BA', 'Political Economy BA'])
+    create_athlete(student=sandeep,
+                   team_groups=[fdb, fdl, mt],
+                   gpa='3.501',
+                   level='Senior',
+                   units=102,
+                   majors=['Letters & Sci Undeclared UG'])
 
     db.session.commit()
 

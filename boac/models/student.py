@@ -2,7 +2,16 @@ from boac import db
 import boac.api.util as api_util
 from boac.models.base import Base
 from boac.models.db_relationships import student_athletes
+from sqlalchemy import text
 from sqlalchemy.orm import joinedload
+
+
+def sqlalchemy_bindings(values, column_name):
+    # In support of SQLAlchemy expression language
+    bindings = {}
+    for index, value in enumerate(values, start=1):
+        bindings[column_name + str(index)] = value
+    return bindings
 
 
 class Student(Base):
@@ -39,15 +48,46 @@ class Student(Base):
     @classmethod
     def get_students(cls, gpa_ranges=None, group_codes=None, levels=None, majors=None, unit_ranges_eligibility=None,
                      unit_ranges_pacing=None, order_by=None, offset=0, limit=50):
+        # TODO: unit ranges
         students = []
-        total_count = 0
+        sql = 'SELECT DISTINCT(s.sid) FROM students s JOIN normalized_cache_students n ON n.sid = s.sid'
         if group_codes:
+            sql += ' JOIN student_athletes sa ON sa.sid = s.sid'
+        if majors:
+            sql += ' JOIN normalized_cache_student_majors m ON m.sid = s.sid'
+        sql += ' WHERE'
+        and_operator = False
+        all_bindings = {}
+        if group_codes:
+            args = sqlalchemy_bindings(group_codes, 'group_code')
+            all_bindings.update(args)
+            sql += ' sa.group_code IN ({})'.format(':' + ', :'.join(args.keys()))
+            and_operator = True
+        if gpa_ranges:
+            # 'sqlalchemy_bindings' is not used here due to extravagant SQL syntax.
+            sql += ' AND ' if and_operator else ''
+            sql += ' n.gpa <@ ANY(ARRAY[{}])'.format(', '.join(gpa_ranges))
+            and_operator = True
+        if levels:
+            sql += ' AND ' if and_operator else ''
+            args = sqlalchemy_bindings(levels, 'level')
+            all_bindings.update(args)
+            sql += ' n.level IN ({})'.format(':' + ', :'.join(args.keys()))
+            and_operator = True
+        if majors:
+            sql += ' AND ' if and_operator else ''
+            args = sqlalchemy_bindings(majors, 'major')
+            all_bindings.update(args)
+            sql += ' m.major IN ({})'.format(':' + ', :'.join(args.keys()))
+        connection = db.engine.connect()
+        # SQLAlchemy will escape parameter values
+        result = connection.execute(text(sql), **all_bindings)
+        connection.close()
+        sid_list = [row['sid'] for row in result]
+        total_count = len(sid_list)
+        if sid_list:
             o = cls.get_ordering(order_by)
-            _filter = student_athletes.c.group_code.in_(group_codes)
-            sid_list = db.session.query(student_athletes.c.sid).filter(_filter).all()
-            total_count = len(sid_list)
-            if sid_list:
-                students = cls.query.order_by(o).filter(cls.sid.in_(sid_list)).offset(offset).limit(limit).all()
+            students = cls.query.order_by(o).filter(cls.sid.in_(sid_list)).offset(offset).limit(limit).all()
         return {
             'students': [student.to_api_json() for student in students],
             'totalStudentCount': total_count,

@@ -14,20 +14,15 @@ class TestSisProfile:
 
     def test_populates_normalized_cache(self, app):
         """populates the normalized cache"""
-        assert len(NormalizedCacheStudent.query.all()) == 0
-        assert len(NormalizedCacheStudentMajor.query.all()) == 0
-
         merge_sis_profile('11667051')
 
         student_rows = NormalizedCacheStudent.query.all()
-        assert len(student_rows) == 1
-        assert student_rows[0].sid == '11667051'
-        assert student_rows[0].level == 'Junior'
-        assert student_rows[0].units == Decimal('101.3')
-        assert student_rows[0].gpa == Decimal('3.8')
+        assert student_rows[-1].sid == '11667051'
+        assert student_rows[-1].level == 'Junior'
+        assert student_rows[-1].units == Decimal('101.3')
+        assert student_rows[-1].gpa == Decimal('3.8')
 
         student_major_rows = NormalizedCacheStudentMajor.query.all()
-        assert len(student_major_rows) == 2
         majors = [row.major for row in student_major_rows]
         assert 'English BA' in majors
         assert 'Astrophysics BS' in majors
@@ -39,8 +34,6 @@ class TestSisProfile:
         merge_sis_profile('11667051')
         json_cache.clear('merged_sis_profile_11667051')
         json_cache.clear('sis_student_api_11667051')
-        assert len(NormalizedCacheStudent.query.all()) == 1
-        assert len(NormalizedCacheStudentMajor.query.all()) == 2
 
         # Our student levels up and changes a major.
         with open(app.config['BASE_DIR'] + '/fixtures/sis_student_api_11667051.json') as file:
@@ -52,12 +45,12 @@ class TestSisProfile:
                 merge_sis_profile('11667051')
 
                 student_rows = NormalizedCacheStudent.query.all()
-                assert len(student_rows) == 1
-                assert student_rows[0].sid == '11667051'
-                assert student_rows[0].level == 'Senior'
+                assert len(student_rows) == 5
+                assert student_rows[4].sid == '11667051'
+                assert student_rows[4].level == 'Senior'
 
                 student_major_rows = NormalizedCacheStudentMajor.query.all()
-                assert len(student_major_rows) == 2
+                assert len(student_major_rows) == 7
                 majors = [row.major for row in student_major_rows]
                 assert 'English BA' in majors
                 assert 'Hungarian BA' in majors

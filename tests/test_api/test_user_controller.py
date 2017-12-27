@@ -386,20 +386,20 @@ class TestUserAnalytics:
 
     def test_get_students(self, authenticated_session, client):
         data = {
-            'gpaRanges': [],
+            'gpaRanges': ['numrange(3, 3.5, \'[)\')', 'numrange(3.5, 4, \'[]\')'],
             'groupCodes': ['MFB-DB', 'MFB-DL'],
-            'levels': [],
-            'majors': [],
+            'levels': ['Junior', 'Senior'],
+            'majors': ['English BA', 'History BA', 'Letters & Sci Undeclared UG', 'Gender and Women\'s Studies'],
             'unitRangesEligibility': [],
             'unitRangesPacing': [],
             'orderBy': 'last_name',
             'offset': 1,
-            'limit': 2,
+            'limit': 50,
         }
         response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 200
         assert 'members' in response.json
         students = response.json['members']
         assert 2 == len(students)
-        # Ordered by lastName
+        # Offset of 1, ordered by lastName
         assert ['1133399', '242881'] == [student['uid'] for student in students]
