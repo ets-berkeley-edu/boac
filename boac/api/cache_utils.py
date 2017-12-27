@@ -120,6 +120,13 @@ def load_canvas_externals(uid, sis_term_id):
                     ))
                     continue
                 success_count += 1
+                if not canvas.get_assignments_analytics(site_id, uid, sis_term_id):
+                    failures.append('canvas.get_assignments_analytics failed for UID {}, site_id {}'.format(
+                        uid,
+                        site_id,
+                    ))
+                    continue
+                success_count += 1
     return success_count, failures
 
 
