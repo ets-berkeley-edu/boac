@@ -17,7 +17,7 @@ INITIAL_FAKE_UID = 9000000
 
 @scriptify.in_app
 def main(app):
-    from boac import db
+    from boac import std_commit
     from boac.models.student import Student
 
     fake_uid = INITIAL_FAKE_UID
@@ -26,7 +26,7 @@ def main(app):
 
         # Change UID in Postgres.
         student.uid = fake_uid
-        db.session.commit()
+        std_commit()
 
         profile_file = '{path}/canvas_user_for_uid_{uid}.json'.format(path=app.config.get('FIXTURES_PATH'))
         courses_file = '{path}/canvas_user_courses_{uid}.json'.format(path=app.config.get('FIXTURES_PATH'))

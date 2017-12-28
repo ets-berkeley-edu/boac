@@ -1,6 +1,6 @@
 import csv
 
-from boac import db
+from boac import db, std_commit
 from boac.externals import calnet
 from boac.models.athletics import Athletics
 from boac.models.student import Student
@@ -69,7 +69,7 @@ def load_student_athletes(app, rows):
                         last_name=full_name[1].strip() if len(full_name) > 1 else '',
                         in_intensive_cohort=False,
                     )
-                    db.session.commit()
+                    std_commit()
                     students[sid] = student
                 # Load team group (e.g., 'Football, Defensive Backs')
                 group_code = r['SportCode']
@@ -86,7 +86,7 @@ def load_student_athletes(app, rows):
                     athletics[group_code] = team_group
 
                 team_group.athletes.append(student)
-                db.session.commit()
+                std_commit()
             else:
                 app.logger.error('Unmapped asc_code {} has SportActiveYN for sid {}'.format(asc_code, r['SID']))
     return athletics, students
@@ -96,7 +96,7 @@ def merge_in_calnet_data(app):
     students = Student.query.filter(Student.uid.is_(None)).all()
     update_student_attributes(app, students)
     app.logger.info('Modified {} Team records from calnet'.format(len(db.session.dirty)))
-    db.session.commit()
+    std_commit()
 
 
 def update_student_attributes(app, students=None):

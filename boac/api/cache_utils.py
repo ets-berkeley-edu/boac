@@ -1,5 +1,5 @@
 from threading import Thread
-from boac import db
+from boac import db, std_commit
 from boac.lib import berkeley
 from boac.merged.sis_profile import merge_sis_profile
 from boac.models.job_progress import JobProgress
@@ -83,7 +83,7 @@ def clear_current_term(include_canvas_scores=False):
     matches = db.session.query(JsonCache).filter(*filters)
     app.logger.info('Will delete {} entries'.format(matches.count()))
     matches.delete(synchronize_session=False)
-    db.session.commit()
+    std_commit()
 
 
 def load_canvas_externals(uid, sis_term_id):

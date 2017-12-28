@@ -60,18 +60,18 @@ class TestCohortFilter:
 
     def test_create_and_delete_cohort(self):
         """cohort_filter record to Flask-Login for recognized UID"""
-        owner = AuthorizedUser.find_by_uid('2040')
-        shared_with = AuthorizedUser.find_by_uid('1133399')
+        owner = AuthorizedUser.find_by_uid('2040').uid
+        shared_with = AuthorizedUser.find_by_uid('1133399').uid
         # Check validity of UIDs
         assert owner
         assert shared_with
 
         # Create and share cohort
         group_codes = ['MFB-DB', 'MFB-DL', 'MFB-MLB', 'MFB-OLB']
-        cohort = CohortFilter.create(uid=owner.uid, label='Football, Defense', group_codes=group_codes)
-        cohort = CohortFilter.share(cohort['id'], shared_with.uid)
+        cohort = CohortFilter.create(uid=owner, label='Football, Defense', group_codes=group_codes)
+        cohort = CohortFilter.share(cohort['id'], shared_with)
         assert len(cohort['owners']) == 2
-        assert owner, shared_with in cohort['owners']
+        assert owner, shared_with in [user.uid for user in cohort['owners']]
 
         # Delete cohort and verify
         previous_owner_count = cohort_count(owner)
@@ -81,5 +81,5 @@ class TestCohortFilter:
         assert cohort_count(shared_with) == previous_shared_count - 1
 
 
-def cohort_count(user):
-    return len(CohortFilter.all_owned_by(user.uid))
+def cohort_count(user_uid):
+    return len(CohortFilter.all_owned_by(user_uid))

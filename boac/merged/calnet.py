@@ -1,4 +1,4 @@
-from boac import db
+from boac import std_commit
 from boac.externals import calnet
 from boac.models.student import Student
 
@@ -37,5 +37,5 @@ def refresh_cohort_attributes(app, cohorts=None):
 def fill_cohort_uids(app):
     to_update = Student.query.filter(Student.uid.is_(None)).all()
     refresh_cohort_attributes(app, to_update)
-    db.session.commit()
+    std_commit()
     return to_update

@@ -1,7 +1,7 @@
 import csv
 from datetime import datetime
 
-from boac import db
+from boac import db, std_commit
 
 
 """
@@ -23,4 +23,4 @@ class Base(db.Model):
             for csvrow in reader:
                 record = klass(**csvrow)
                 db.session.add(record)
-        db.session.commit()
+        std_commit()

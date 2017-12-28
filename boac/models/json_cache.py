@@ -1,5 +1,5 @@
 import inspect
-from boac import db
+from boac import db, std_commit
 from boac.lib.berkeley import term_name_for_sis_id
 from boac.models.base import Base
 from decorator import decorator
@@ -71,7 +71,7 @@ def stow(key_pattern, for_term=False):
                 db.session.add(row)
                 # Give a hoot, don't pollute.
                 if not app.config['TESTING']:
-                    db.session.commit()
+                    std_commit()
             else:
                 app.logger.info('{key} not generated and will not be stowed in DB'.format(key=key))
             return to_stow
@@ -83,7 +83,7 @@ def update_jsonb_row(stowed):
     flag_modified(stowed, 'json')
     db.session.merge(stowed)
     if not app.config['TESTING']:
-        db.session.commit()
+        std_commit()
 
 
 def _get_args(func, *args, **kw):
