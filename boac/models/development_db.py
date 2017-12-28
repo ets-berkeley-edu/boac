@@ -22,41 +22,6 @@ _default_users_csv = """uid,is_admin,is_director,is_advisor
 1022796,true,false,false
 """
 
-brigitte = {
-    'uid': '61889',
-    'sid': '11667051',
-    'first_name': 'Brigitte',
-    'last_name': 'Lin',
-    'in_intensive_cohort': True,
-}
-john = {
-    'uid': '1022796',
-    'sid': '8901234567',
-    'first_name': 'John',
-    'last_name': 'Crossman',
-    'in_intensive_cohort': False,
-}
-oliver = {
-    'uid': '2040',
-    'sid': '2345678901',
-    'first_name': 'Oliver',
-    'last_name': 'Heyer',
-    'in_intensive_cohort': False,
-}
-paul = {
-    'uid': '242881',
-    'sid': '3456789012',
-    'first_name': 'Paul',
-    'last_name': 'Kerschen',
-    'in_intensive_cohort': True,
-}
-sandeep = {
-    'uid': '1133399',
-    'sid': '5678901234',
-    'first_name': 'Sandeep',
-    'last_name': 'Jayaprakash',
-    'in_intensive_cohort': False,
-}
 football_defensive_backs = {
     'group_code': 'MFB-DB',
     'group_name': 'Football, Defensive Backs',
@@ -128,14 +93,13 @@ def create_team_group(t):
     return athletics
 
 
-def create_athlete(student, team_groups, gpa, level, units, majors):
-    sid = student['sid']
+def create_student(sid, uid, first_name, last_name, team_groups, gpa, level, units, majors, in_intensive_cohort=False):
     student = Student(
         sid=sid,
-        uid=student['uid'],
-        first_name=student['first_name'],
-        last_name=student['last_name'],
-        in_intensive_cohort=student['in_intensive_cohort'],
+        uid=uid,
+        first_name=first_name,
+        last_name=last_name,
+        in_intensive_cohort=in_intensive_cohort,
     )
     db.session.add(student)
     for team_group in team_groups:
@@ -150,39 +114,60 @@ def load_student_athletes():
     mt = create_team_group(mens_tennis)
     wfh = create_team_group(womens_field_hockey)
     wt = create_team_group(womens_tennis)
-
-    # Assign athletes
-    create_athlete(student=brigitte,
-                   team_groups=[wfh, wt],
-                   gpa=None,
-                   level=None,
-                   units=0,
-                   majors=['Economics BA'])
-    create_athlete(student=john,
-                   team_groups=[],
-                   gpa='1.85',
-                   level='Freshman',
-                   units=12,
-                   majors=['Chemistry BS'])
-    create_athlete(student=oliver,
-                   team_groups=[fdb, fdl],
-                   gpa='3.495',
-                   level='Junior',
-                   units=34,
-                   majors=['History BA'])
-    create_athlete(student=paul,
-                   team_groups=[fdl],
-                   gpa='3.005',
-                   level='Junior',
-                   units=70,
-                   majors=['English BA', 'Political Economy BA'])
-    create_athlete(student=sandeep,
-                   team_groups=[fdb, fdl, mt],
-                   gpa='3.501',
-                   level='Senior',
-                   units=102,
-                   majors=['Letters & Sci Undeclared UG'])
-
+    # Some students are on teams and some are not
+    create_student(
+        uid='61889',
+        sid='11667051',
+        first_name='Brigitte',
+        last_name='Lin',
+        team_groups=[wfh, wt],
+        gpa=None,
+        level=None,
+        units=0,
+        majors=['Economics BA'],
+        in_intensive_cohort=True)
+    create_student(
+        uid='1022796',
+        sid='8901234567',
+        first_name='John',
+        last_name='Crossman',
+        team_groups=[],
+        gpa='1.85',
+        level='Freshman',
+        units=12,
+        majors=['Chemistry BS'],
+        in_intensive_cohort=True)
+    create_student(
+        uid='2040',
+        sid='2345678901',
+        first_name='Oliver',
+        last_name='Heyer',
+        team_groups=[fdb, fdl],
+        gpa='3.495',
+        level='Junior',
+        units=34,
+        majors=['History BA'])
+    create_student(
+        uid='242881',
+        sid='3456789012',
+        first_name='Paul',
+        last_name='Kerschen',
+        team_groups=[fdl],
+        gpa='3.005',
+        level='Junior',
+        units=70,
+        majors=['English BA', 'Political Economy BA'],
+        in_intensive_cohort=True)
+    create_student(
+        uid='1133399',
+        sid='5678901234',
+        first_name='Sandeep',
+        last_name='Jayaprakash',
+        team_groups=[fdb, fdl, mt],
+        gpa='3.501',
+        level='Senior',
+        units=102,
+        majors=['Letters & Sci Undeclared UG'])
     db.session.commit()
 
 

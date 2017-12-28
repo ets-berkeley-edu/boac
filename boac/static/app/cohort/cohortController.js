@@ -52,7 +52,15 @@
     };
 
     $scope.orderBy = {
-      options: [{value: 'first_name', label: 'First Name'}, {value: 'last_name', label: 'Last Name'}],
+      options: [
+        {value: 'first_name', label: 'First Name'},
+        {value: 'last_name', label: 'Last Name'},
+        {value: 'group_code', label: 'Team'},
+        {value: 'gpa', label: 'GPA'},
+        {value: 'level', label: 'Level'},
+        {value: 'major', label: 'Major'},
+        {value: 'units', label: 'Units'}
+      ],
       selected: 'first_name'
     };
 

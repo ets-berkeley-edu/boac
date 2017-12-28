@@ -1,5 +1,6 @@
 from boac import db
 import boac.api.util as api_util
+from boac.lib import util
 from boac.models.base import Base
 from boac.models.db_relationships import student_athletes
 from sqlalchemy import text
@@ -36,58 +37,64 @@ class Student(Base):
         )
 
     @classmethod
-    def in_intensive(cls, order_by=None, offset=0, limit=50):
-        o = cls.get_ordering(order_by)
-        query_filter = cls.in_intensive_cohort.is_(True)
-        students = cls.query.order_by(o).filter(query_filter).offset(offset).limit(limit).all()
-        return {
-            'students': [student.to_api_json() for student in students],
-            'totalStudentCount': cls.query.filter(query_filter).count(),
-        }
-
-    @classmethod
-    def get_students(cls, gpa_ranges=None, group_codes=None, levels=None, majors=None, unit_ranges_eligibility=None,
-                     unit_ranges_pacing=None, order_by=None, offset=0, limit=50):
+    def get_students(cls, gpa_ranges=None, group_codes=None, in_intensive_cohort=None, levels=None, majors=None,
+                     unit_ranges_eligibility=None, unit_ranges_pacing=None, order_by=None, offset=0, limit=50):
         # TODO: unit ranges
-        students = []
-        sql = 'SELECT DISTINCT(s.sid) FROM students s JOIN normalized_cache_students n ON n.sid = s.sid'
-        if group_codes:
-            sql += ' JOIN student_athletes sa ON sa.sid = s.sid'
-        if majors:
-            sql += ' JOIN normalized_cache_student_majors m ON m.sid = s.sid'
-        sql += ' WHERE'
+        query = """
+            FROM students s
+                JOIN normalized_cache_students n ON n.sid = s.sid
+                LEFT JOIN student_athletes sa ON sa.sid = s.sid
+                LEFT JOIN normalized_cache_student_majors m ON m.sid = s.sid
+            WHERE
+        """
         and_operator = False
         all_bindings = {}
         if group_codes:
             args = sqlalchemy_bindings(group_codes, 'group_code')
             all_bindings.update(args)
-            sql += ' sa.group_code IN ({})'.format(':' + ', :'.join(args.keys()))
+            query += ' sa.group_code IN ({})'.format(':' + ', :'.join(args.keys()))
             and_operator = True
         if gpa_ranges:
             # 'sqlalchemy_bindings' is not used here due to extravagant SQL syntax.
-            sql += ' AND ' if and_operator else ''
-            sql += ' n.gpa <@ ANY(ARRAY[{}])'.format(', '.join(gpa_ranges))
+            query += ' AND ' if and_operator else ''
+            query += ' n.gpa <@ ANY(ARRAY[{}])'.format(', '.join(gpa_ranges))
             and_operator = True
         if levels:
-            sql += ' AND ' if and_operator else ''
+            query += ' AND ' if and_operator else ''
             args = sqlalchemy_bindings(levels, 'level')
             all_bindings.update(args)
-            sql += ' n.level IN ({})'.format(':' + ', :'.join(args.keys()))
+            query += ' n.level IN ({})'.format(':' + ', :'.join(args.keys()))
             and_operator = True
         if majors:
-            sql += ' AND ' if and_operator else ''
+            query += ' AND ' if and_operator else ''
             args = sqlalchemy_bindings(majors, 'major')
             all_bindings.update(args)
-            sql += ' m.major IN ({})'.format(':' + ', :'.join(args.keys()))
+            query += ' m.major IN ({})'.format(':' + ', :'.join(args.keys()))
+        if in_intensive_cohort is not None:
+            query += ' s.in_intensive_cohort IS {}'.format(str(in_intensive_cohort))
+        # First, get total_count of matching students
         connection = db.engine.connect()
+        result = connection.execute(text(f'SELECT COUNT(DISTINCT(s.sid)) {query}'), **all_bindings)
+        total_count = result.fetchone()[0]
+        # Next, get matching students per order_by, offset, limit
+        o = 's.first_name'
+        if order_by in ['first_name', 'in_intensive_cohort', 'last_name']:
+            o = f's.{order_by}'
+        elif order_by in ['group_code']:
+            o = f'sa.{order_by}'
+        elif order_by in ['gpa', 'level', 'units']:
+            o = f'n.{order_by}'
+        elif order_by in ['major']:
+            o = f'm.{order_by}'
+        sql = f'SELECT DISTINCT(s.sid), {o} {query} ORDER BY {o} OFFSET {offset} LIMIT {limit}'
         # SQLAlchemy will escape parameter values
         result = connection.execute(text(sql), **all_bindings)
         connection.close()
-        sid_list = [row['sid'] for row in result]
-        total_count = len(sid_list)
-        if sid_list:
-            o = cls.get_ordering(order_by)
-            students = cls.query.order_by(o).filter(cls.sid.in_(sid_list)).offset(offset).limit(limit).all()
+        # Model query using list of SIDs
+        sid_list = util.get_distinct_with_order([row['sid'] for row in result])
+        students = cls.query.filter(cls.sid.in_(sid_list)).all() if sid_list else []
+        # Order of students from query (above) might not match order of sid_list.
+        students = [next(s for s in students if s.sid == sid) for sid in sid_list]
         return {
             'students': [student.to_api_json() for student in students],
             'totalStudentCount': total_count,
@@ -101,10 +108,6 @@ class Student(Base):
             if order_by == 'groupName':
                 students = sorted(students, key=lambda student: student.athletics and student.athletics[0].group_name)
         return [s.to_expanded_api_json() for s in students]
-
-    @classmethod
-    def get_ordering(cls, order_by):
-        return cls.last_name if order_by == 'last_name' else cls.first_name
 
     def to_api_json(self):
         return api_util.student_to_json(self)
