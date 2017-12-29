@@ -78,10 +78,27 @@ class TestCohortDetail:
         cohort = json.loads(response.data)
         assert cohort['code'] == 'intensive'
         assert cohort['label'] == 'Intensive'
-        assert cohort['totalMemberCount'] == len(cohort['members']) == 2
-        assert cohort['members'][0]['uid'] == '61889'
-        assert cohort['members'][1]['uid'] == '242881'
+        assert cohort['totalMemberCount'] == len(cohort['members']) == 3
         assert 'teamGroups' not in cohort
+
+    def test_order_by_with_intensive_cohort(self, authenticated_session, client):
+        """returns the canned 'intensive' cohort, available to all authenticated users"""
+        all_expected_order = {
+            'first_name': ['61889', '1022796', '242881'],
+            'gpa': ['1022796', '242881', '61889'],
+            'group_code': ['242881', '61889', '1022796'],
+            'last_name': ['1022796', '242881', '61889'],
+            'level': ['1022796', '242881', '61889'],
+            'major': ['1022796', '61889', '242881'],
+            'units': ['61889', '1022796', '242881'],
+        }
+        for order_by, expected_uid_list in all_expected_order.items():
+            response = client.get(f'/api/intensive_cohort?orderBy={order_by}')
+            assert response.status_code == 200, f'Non-200 response where order_by={order_by}'
+            cohort = json.loads(response.data)
+            assert cohort['totalMemberCount'] == 3, f'Wrong count where order_by={order_by}'
+            uid_list = [s['uid'] for s in cohort['members']]
+            assert uid_list == expected_uid_list, f'Unmet expectation where order_by={order_by}'
 
     def test_offset_and_limit(self, authenticated_session, client):
         """returns a well-formed response with custom cohort"""
@@ -89,15 +106,15 @@ class TestCohortDetail:
         api_path = '/api/cohort/{}'.format(user.cohort_filters[0].id)
         # First, offset is zero
         response = client.get(api_path + '?offset={}&limit={}'.format(0, 1))
-        data_offset_zero = json.loads(response.data)
-        assert data_offset_zero['totalMemberCount'] == 4
-        assert len(data_offset_zero['members']) == 1
+        data_0 = json.loads(response.data)
+        assert data_0['totalMemberCount'] == 4
+        assert len(data_0['members']) == 1
         # Now, offset is one
         response = client.get(api_path + '?offset={}&limit={}'.format(1, 1))
-        data_offset_one = json.loads(response.data)
-        assert len(data_offset_one['members']) == 1
+        data_1 = json.loads(response.data)
+        assert len(data_1['members']) == 1
         # Verify that a different offset results in a different member
-        assert data_offset_zero['members'][0]['uid'] != data_offset_one['members'][0]['uid']
+        assert data_0['members'][0]['uid'] != data_1['members'][0]['uid']
 
     def test_create_cohort(self, authenticated_session, client):
         """creates custom cohort, owned by current user"""

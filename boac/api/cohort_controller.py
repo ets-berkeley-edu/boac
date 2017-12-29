@@ -32,7 +32,8 @@ def get_intensive_cohort():
     order_by = util.get(request.args, 'orderBy', None)
     offset = util.get(request.args, 'offset', 0)
     limit = util.get(request.args, 'limit', 50)
-    results = Student.in_intensive(order_by=order_by, offset=offset, limit=limit)
+    results = Student.get_students(in_intensive_cohort=True, order_by=order_by, offset=offset, limit=limit)
+    member_details.merge_all(results['students'])
     return tolerant_jsonify({
         'code': 'intensive',
         'label': 'Intensive',
