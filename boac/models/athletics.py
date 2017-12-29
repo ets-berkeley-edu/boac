@@ -1,5 +1,4 @@
 from boac import db
-import boac.api.util as api_util
 from boac.models.base import Base
 from boac.models.db_relationships import student_athletes
 from boac.models.student import Student
@@ -63,30 +62,26 @@ class Athletics(Base):
 
     @classmethod
     def get_team(cls, team_code, order_by):
-        athletics = Athletics.query.filter_by(team_code=team_code).all()
-        if len(athletics):
-            distinct_athletes = []
-            members = []
-            team_groups = []
-            for group in athletics:
-                team_groups.append({
-                    'groupCode': group.group_code,
-                    'groupName': group.group_name,
-                })
-                for athlete in group.athletes:
-                    if athlete.sid not in distinct_athletes:
-                        members.append(athlete)
-                        distinct_athletes.append(athlete.sid)
-            members = sorted(members, key=lambda m: getattr(m, order_by))
+        results = db.session.query(cls.team_code,
+                                   cls.team_name,
+                                   cls.group_code,
+                                   cls.group_name).filter(cls.team_code == team_code).all()
+        team = None
+        if len(results):
             team = {
-                'code': athletics[0].team_code,
-                'name': athletics[0].team_name,
-                'members': [api_util.student_to_json(m) for m in members],
-                'teamGroups': team_groups,
-                'totalMemberCount': len(members),
+                'teamGroups': [],
             }
-        else:
-            team = None
+            for row in results:
+                team['code'] = row[0]
+                team['name'] = row[1]
+                team['teamGroups'].append({
+                    'groupCode': row[2],
+                    'groupName': row[3],
+                })
+            group_codes = [group['groupCode'] for group in team['teamGroups']]
+            students = Student.get_students(group_codes=group_codes, order_by=order_by, offset=0, limit=None)
+            team['members'] = students['students']
+            team['totalMemberCount'] = students['totalStudentCount']
         return team
 
     def to_api_json(self):

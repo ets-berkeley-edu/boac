@@ -86,7 +86,8 @@ class Student(Base):
             o = f'n.{order_by}'
         elif order_by in ['major']:
             o = f'm.{order_by}'
-        sql = f'SELECT DISTINCT(s.sid), {o} {query} ORDER BY {o} OFFSET {offset} LIMIT {limit}'
+        sql = f'SELECT DISTINCT(s.sid), {o} {query} ORDER BY {o} OFFSET {offset}'
+        sql += f' LIMIT {limit}' if limit else ''
         # SQLAlchemy will escape parameter values
         result = connection.execute(text(sql), **all_bindings)
         connection.close()
