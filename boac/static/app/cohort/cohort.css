@@ -136,9 +136,7 @@
 }
 
 .cohort-manage-label {
-  flex-wrap: wrap;
   width: 70%;
-  word-wrap: break-word;
 }
 
 .cohort-manage-text-input {

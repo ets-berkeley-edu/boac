@@ -108,6 +108,11 @@
   min-height: 370px;
 }
 
+.wrap-hard {
+  flex-wrap: wrap;
+  word-wrap: break-word;
+}
+
 oi-select .select-dropdown {
   max-height: 250px !important;
 }
