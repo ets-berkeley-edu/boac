@@ -23,7 +23,7 @@
     </li>
     <li role="menuitem"
         id="cohorts-dropdown-cohort-{{cohort.id}}"
-        class="cohort-manage-label"
+        class="wrap-hard"
         data-ng-repeat="cohort in myCohorts"
         data-ng-if="myCohorts.length && !isLoading">
       <a data-ng-href="/cohort/{{cohort.id}}">{{truncate(cohort.label, {length:50, omission: '...'})}}</a>

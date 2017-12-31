@@ -20,7 +20,7 @@
     <div data-ng-repeat="cohort in myCohorts">
       <hr class="flex-row-wrap-separator"/>
       <div class="flex-container flex-space-between" data-ng-if="!cohort.editMode">
-        <div class="cohort-manage-label">
+        <div class="cohort-manage-label wrap-hard">
           <strong><span id="cohort-label-{{$index}}" data-ng-bind="cohort.label"></span></strong>
           <span class="faint-text">(<span id="cohort-member-count-{{$index}}" data-ng-bind="cohort.totalMemberCount"></span>)</span>
         </div>
