@@ -98,3 +98,21 @@ class TestAthletics:
         assert len(athlete['currentTerm']['enrollments']) == 3
         assert athlete['currentTerm']['enrollments'][0]['displayName'] == 'BURMESE 1A'
         assert len(athlete['currentTerm']['enrollments'][0]['canvasSites']) == 1
+
+    def test_get_team_order_by(self, authenticated_session, client):
+        expected = {
+            'first_name': ['2345678901', '3456789012', '5678901234'],
+            'gpa': ['3456789012', '2345678901', '5678901234'],
+            'group_code': ['2345678901', '5678901234', '3456789012'],
+            'last_name': ['2345678901', '5678901234', '3456789012'],
+            'level': ['2345678901', '3456789012', '5678901234'],
+            'major': ['3456789012', '2345678901', '5678901234'],
+            'units': ['2345678901', '3456789012', '5678901234'],
+        }
+        for order_by, first_uid in expected.items():
+            response = client.get(f'/api/team/FBM?orderBy={order_by}')
+            assert response.status_code == 200, f'Non-200 response where order_by={order_by}'
+            cohort = json.loads(response.data)
+            assert cohort['totalMemberCount'] == 3, f'Wrong count where order_by={order_by}'
+            sid_list = [s['sid'] for s in cohort['members']]
+            assert sid_list == expected[order_by], f'Unmet expectation where order_by={order_by}'
