@@ -6,7 +6,7 @@ simply mocked-out a la "demo mode" for now.
 
 import json
 import re
-from boac import db
+from boac import db, std_commit
 from boac.api.errors import InternalServerError
 from boac.lib import util
 from boac.models.athletics import Athletics
@@ -47,23 +47,28 @@ class CohortFilter(Base, UserMixin):
         cf = CohortFilter(label=label, filter_criteria=json.dumps(criteria))
         user = AuthorizedUser.find_by_uid(uid)
         user.cohort_filters.append(cf)
-        db.session.commit()
-        return construct_cohort(cf)
+        # The new Cohort Filter's primary ID column is not generated until the DB session is flushed.
+        db.session.flush()
+        cohort = construct_cohort(cf)
+        std_commit()
+        return cohort
 
     @classmethod
     def update(cls, cohort_id, label):
         cf = CohortFilter.query.filter_by(id=cohort_id).first()
         cf.label = label
-        db.session.commit()
-        return construct_cohort(cf)
+        cohort = construct_cohort(cf)
+        std_commit()
+        return cohort
 
     @classmethod
     def share(cls, cohort_id, user_id):
         cf = CohortFilter.query.filter_by(id=cohort_id).first()
         user = AuthorizedUser.find_by_uid(user_id)
         user.cohort_filters.append(cf)
-        db.session.commit()
-        return construct_cohort(cf)
+        cohort = construct_cohort(cf)
+        std_commit()
+        return cohort
 
     @classmethod
     def all(cls):
@@ -83,7 +88,7 @@ class CohortFilter(Base, UserMixin):
     def delete(cls, cohort_id):
         cohort_filter = CohortFilter.query.filter_by(id=cohort_id).first()
         db.session.delete(cohort_filter)
-        db.session.commit()
+        std_commit()
 
     @classmethod
     def compose_filter_criteria(cls, gpa_ranges=None, group_codes=None, levels=None, majors=None,

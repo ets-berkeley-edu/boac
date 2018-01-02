@@ -1,5 +1,5 @@
 import csv
-from boac import db
+from boac import db, std_commit
 from boac.models.athletics import Athletics
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
@@ -83,7 +83,7 @@ def load_development_data():
         if not user:
             user = AuthorizedUser(**row)
             db.session.add(user)
-    db.session.commit()
+    std_commit()
 
 
 def create_team_group(t):
@@ -168,7 +168,7 @@ def load_student_athletes():
         level='Senior',
         units=102,
         majors=['Letters & Sci Undeclared UG'])
-    db.session.commit()
+    std_commit()
 
 
 def load_cohorts():
@@ -179,7 +179,7 @@ def load_cohorts():
     # Sandeep's cohorts
     CohortFilter.create(uid='1133399', label='All sports', group_codes=['MFB-DL', 'MFB-DL', 'WFH-AA'])
     CohortFilter.create(uid='1133399', label='Football, Defense Backs', group_codes=['MFB-DB'])
-    db.session.commit()
+    std_commit()
 
 
 if __name__ == '__main__':

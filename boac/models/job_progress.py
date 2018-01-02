@@ -1,5 +1,5 @@
 from datetime import datetime
-from boac import db
+from boac import db, std_commit
 from boac.models.json_cache import JsonCache, update_jsonb_row
 from flask import current_app as app
 
@@ -35,12 +35,12 @@ class JobProgress:
                 return False
             row.json = start_json
             if not app.config['TESTING']:
-                db.session.commit()
+                std_commit()
         else:
             row = JsonCache(key=self.key, json=start_json)
             db.session.add(row)
             if not app.config['TESTING']:
-                db.session.commit()
+                std_commit()
         return start_json
 
     def update(self, step_description):
