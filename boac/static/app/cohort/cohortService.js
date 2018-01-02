@@ -57,6 +57,7 @@
       svg = d3.select('#scatterplot')
         .html('')
         .append('svg')
+        .attr('class', 'cohort-matrix-svg')
         .attr('width', width)
         .attr('height', height)
         .attr('stroke', 1)

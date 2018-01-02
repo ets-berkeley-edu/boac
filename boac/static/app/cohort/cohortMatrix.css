@@ -1,7 +1,7 @@
 .cohort-matrix {
   border: 1px solid #999;
   height: 500px;
-  margin: 0;
+  margin-bottom: 60px;
   width: 910px;
 }
 
@@ -38,6 +38,10 @@
 .cohort-matrix-container {
   margin-bottom: 100px;
   position: relative;
+}
+
+.cohort-matrix-svg {
+  overflow: visible !important;
 }
 
 .cohort-matrix-tooltip {
