@@ -391,7 +391,9 @@
       $scope.search.dropdown = defaultDropdownState();
       $scope.pagination.enabled = true;
       $scope.pagination.currentPage = 0;
-      init(data.cohort.id);
+      var cohort = data.cohort;
+      $location.path('/cohort/' + cohort.id);
+      init(cohort.id);
     });
 
     authService.authWrap(init)();
