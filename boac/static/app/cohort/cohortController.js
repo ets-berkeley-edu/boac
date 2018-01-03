@@ -297,6 +297,25 @@
     };
 
     /**
+     * Draw boxplots for cohort members in list view.
+     *
+     * @return {void}
+     */
+    var drawBoxplots = function() {
+      // Wait until Angular has finished rendering elements within repeaters.
+      $scope.$$postDigest(function() {
+        _.each($scope.cohort.members, function(member) {
+          _.each(_.get(member, 'currentTerm.enrollments'), function(enrollment) {
+            _.each(_.get(enrollment, 'canvasSites'), function(canvasSite) {
+              var elementId = 'boxplot-' + canvasSite.canvasCourseId + '-' + member.uid + '-pageviews';
+              boxplotService.drawBoxplotCohort(elementId, _.get(canvasSite, 'analytics.pageViews'));
+            });
+          });
+        });
+      });
+    };
+
+    /**
      * The search form must reflect the team codes of the saved cohort.
      *
      * @param  {String}    type     Dropdown name
@@ -320,6 +339,8 @@
       // Lazy load matrix data
       if (tabName === 'matrix' && !$scope.matrix) {
         matrixViewRefresh();
+      } else if (tabName === 'list') {
+        drawBoxplots();
       }
     };
 
@@ -347,11 +368,6 @@
       }
     });
 
-    $scope.drawActivityBoxplot = function(student, courseSite) {
-      var elementId = 'boxplot-' + courseSite.canvasCourseId + '-' + student.uid + '-pageviews';
-      boxplotService.drawBoxplotCohort(elementId, courseSite.analytics.pageViews);
-    };
-
     /**
      * Initialize page view.
      *
@@ -372,6 +388,7 @@
             $scope.cohort = cohort;
             $scope.isLoading = false;
             if (cohort) {
+              drawBoxplots();
               // Track view event
               if (cohort.code) {
                 googleAnalyticsService.track('team', 'view', cohort.code + ': ' + cohort.name);
