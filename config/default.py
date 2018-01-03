@@ -32,6 +32,9 @@ PORT = 5000
 DEVELOPER_AUTH_ENABLED = False
 DEVELOPER_AUTH_PASSWORD = 'another secret'
 
+# Set to a nice long chaotic string to enable scripted access to APIs.
+API_KEY = None
+
 CAS_SERVER = 'https://auth-test.berkeley.edu/cas/'
 CAS_LOGOUT_URL = 'https://auth-test.berkeley.edu/cas/logout'
 
