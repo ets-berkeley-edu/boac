@@ -155,7 +155,20 @@
       _.merge(boxplotOptions, sharedBoxplotOptions);
 
       setTimeout(function() {
-        return new Highcharts.Chart(boxplotOptions, 0);
+        try {
+          return new Highcharts.Chart(boxplotOptions, 0);
+        } catch (err) {
+          /**
+           * Highcharts error 13 (rendering div not found) may occur as a result of users navigating away from the
+           * cohort list view, and should be handled silently. Unfortunately, we're stuck with a string match for
+           * detecting it.
+           * @see https://www.highcharts.com/errors/13
+           */
+          if (err.message.startsWith('Highcharts error #13')) {
+            return;
+          }
+          throw err;
+        }
       });
     };
 
