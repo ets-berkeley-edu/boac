@@ -9,9 +9,13 @@ from flask_login import current_user
 def admin_required(func):
     @wraps(func)
     def _admin_required(*args, **kw):
-        if (not current_user.is_authenticated) or (not current_user.is_admin):
+        auth_key = app.config['API_KEY']
+        login_ok = current_user.is_authenticated and current_user.is_admin
+        api_key_ok = auth_key and (request.headers['app_key'] == auth_key)
+        if login_ok or api_key_ok:
+            return func(*args, **kw)
+        else:
             return app.login_manager.unauthorized()
-        return func(*args, **kw)
     return _admin_required
 
 

@@ -20,6 +20,7 @@ _default_users_csv = """uid,is_admin,is_director,is_advisor
 211159,true,false,false
 242881,true,false,false
 1022796,true,false,false
+6446,false,true,true
 """
 
 football_defensive_backs = {
