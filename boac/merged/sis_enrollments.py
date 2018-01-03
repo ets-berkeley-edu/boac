@@ -124,7 +124,7 @@ def collect_dropped_sections(term_feed):
 
 
 def is_primary_section(section_feed):
-    return section_feed['units'] > 0 and section_feed['enrollmentStatus'] == 'E'
+    return section_feed['gradingBasis'] != 'NON' and section_feed['enrollmentStatus'] == 'E'
 
 
 def merge_canvas_course_site(term_feed, site):
