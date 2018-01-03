@@ -225,7 +225,7 @@
      */
     var scatterplotRefresh = function(response) {
       // Plot the cohort
-      var yAxisMeasure = $scope.yAxisMeasure = $location.search().yAxis || 'analytics.assignmentsOnTime';
+      var yAxisMeasure = $scope.yAxisMeasure = $location.search().yAxis || 'analytics.courseCurrentScore';
       var partitions = _.partition(response.data.members, function(member) {
         return _.isFinite(_.get(member, 'analytics.pageViews')) && _.isFinite(_.get(member, yAxisMeasure));
       });
