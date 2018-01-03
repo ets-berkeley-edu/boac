@@ -269,6 +269,25 @@
     };
 
     /**
+     * Draw boxplots for students in list view.
+     *
+     * @return {void}
+     */
+    var drawBoxplots = function() {
+      // Wait until Angular has finished rendering elements within repeaters.
+      $scope.$$postDigest(function() {
+        _.each($scope.search.results.rows, function(student) {
+          _.each(_.get(student, 'currentTerm.enrollments'), function(enrollment) {
+            _.each(_.get(enrollment, 'canvasSites'), function(canvasSite) {
+              var elementId = 'boxplot-' + canvasSite.canvasCourseId + '-' + student.uid + '-pageviews';
+              boxplotService.drawBoxplotCohort(elementId, _.get(canvasSite, 'analytics.pageViews'));
+            });
+          });
+        });
+      });
+    };
+
+    /**
      * Invoked when (1) user navigates to next/previous page or (2) search criteria changes.
      *
      * @return {void}
@@ -278,9 +297,15 @@
         refreshCohortView($scope.cohort.code || $scope.cohort.id, function(cohort) {
           $scope.cohort = cohort;
           $scope.isLoading = false;
+          drawBoxplots();
         });
       } else {
         $scope.pagination.enabled = true;
+
+        var handleSuccess = function(response) {
+          parseCohortFeed(response);
+          drawBoxplots();
+        };
 
         var handleError = function(err) {
           $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
@@ -290,29 +315,10 @@
 
         // Perform the query
         $scope.isLoading = true;
-        getStudents($scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(parseCohortFeed, handleError).then(function() {
+        getStudents($scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(handleSuccess, handleError).then(function() {
           $scope.isLoading = false;
         });
       }
-    };
-
-    /**
-     * Draw boxplots for cohort members in list view.
-     *
-     * @return {void}
-     */
-    var drawBoxplots = function() {
-      // Wait until Angular has finished rendering elements within repeaters.
-      $scope.$$postDigest(function() {
-        _.each($scope.cohort.members, function(member) {
-          _.each(_.get(member, 'currentTerm.enrollments'), function(enrollment) {
-            _.each(_.get(enrollment, 'canvasSites'), function(canvasSite) {
-              var elementId = 'boxplot-' + canvasSite.canvasCourseId + '-' + member.uid + '-pageviews';
-              boxplotService.drawBoxplotCohort(elementId, _.get(canvasSite, 'analytics.pageViews'));
-            });
-          });
-        });
-      });
     };
 
     /**
