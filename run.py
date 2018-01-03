@@ -39,19 +39,13 @@ def initdb():
 @application.cli.command()
 def load_external_data():
     from boac.api import cache_utils
-    cache_utils.load_current_term()
-
-
-@application.cli.command()
-def load_canvas_scores():
-    from boac.api import cache_utils
-    cache_utils.load_all_canvas_scores()
+    cache_utils.load_term()
 
 
 @application.cli.command()
 def refresh_external_data():
     from boac.api import cache_utils
-    cache_utils.refresh_current_term()
+    cache_utils.refresh_term()
 
 
 host = application.config['HOST']
