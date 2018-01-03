@@ -20,7 +20,7 @@
       <span class="faint-text">(<span data-ng-bind="search.results.totalCount"></span> members)</span>
     </h1>
     <h1 data-ng-if="!cohort && !isLoading && !isCreateCohortMode">
-      <span data-ng-bind="search.results.totalCount"></span> Results
+      <span data-ng-pluralize count="search.results.totalCount" when="{'one': '1 Result', 'other': '{} Results'}"></span>
     </h1>
   </div>
   <div class="cohort-column-results" data-ng-if="!isLoading && !error && !isSaving && isCreateCohortMode">
