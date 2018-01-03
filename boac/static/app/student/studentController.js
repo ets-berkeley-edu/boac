@@ -23,6 +23,10 @@
       }).catch(function(error) {
         $scope.error = _.truncate(error.data.message, {length: 200}) || 'An unexpected server error occurred.';
       }).then(function() {
+        var athleticsProfile = $scope.student.athleticsProfile;
+        if (athleticsProfile) {
+          athleticsProfile.fullName = athleticsProfile.firstName + ' ' + athleticsProfile.lastName;
+        }
         $scope.student.isLoading = false;
       });
     });
