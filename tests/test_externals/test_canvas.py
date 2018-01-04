@@ -174,7 +174,7 @@ class TestCanvasGrades:
         """returns course assignments analytics"""
         feed = canvas._get_assignments_analytics(7654321, 61889)
         assert feed
-        assert len(feed) == 6
+        assert len(feed) == 7
         assignment = feed[0]
         assert assignment['title'] == 'Essay #1'
         assert assignment['points_possible'] == 20.0

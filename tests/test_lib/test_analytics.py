@@ -17,7 +17,7 @@ class TestAnalytics:
         assert analytics.ordinal(23) == '23rd'
 
     def test_canvas_course_scores(self, app):
-        """Summarizes scored assignments in fixture"""
+        """Summarizes current course score in fixture"""
         canvas_user_id = 9000100
         canvas_course_id = 7654321
         feed = canvas.get_course_enrollments(canvas_course_id, '2178')
@@ -47,6 +47,35 @@ class TestAnalytics:
         assert course_current_score['student']['percentile'] is None
         assert course_current_score['student']['raw'] is None
         assert course_current_score['student']['roundedUpPercentile'] is None
+
+    def test_canvas_course_assignments(self, app):
+        """Summarizes the student assignment statuses from fixture"""
+        uid = '61889'
+        canvas_course_id = 7654321
+        feed = canvas.get_assignments_analytics(canvas_course_id, uid, '2178')
+        digested = analytics.analytics_from_canvas_course_assignments(feed)
+        assert digested['assignmentTotals']['floating'] == 2
+        assert digested['assignmentTotals']['missing'] == 1
+        assert digested['assignmentTotals']['onTime'] == 3
+        assert digested['assignmentTotals']['pastDue'] == 1
+        assert digested['assignmentTotals']['all'] == 7
+        assignments = digested['assignments']
+        assert len(assignments) == 7
+        score_props = ['score', 'maxScore', 'firstQuartile', 'median', 'thirdQuartile', 'minScore']
+        assert assignments[0]['name'] == 'Essay #1'
+        assert assignments[0]['dueDate']
+        assert assignments[0]['submittedDate']
+        assert assignments[0]['status'] == 'on_time'
+        assert assignments[0]['pointsPossible'] > 0
+        for prop in score_props:
+            assert assignments[0][prop] > 0
+        assert assignments[1]['name'] == 'Essay #2'
+        assert assignments[1]['dueDate']
+        assert assignments[1]['submittedDate'] is None
+        assert assignments[1]['status'] == 'floating'
+        assert assignments[1]['pointsPossible'] > 0
+        for prop in score_props:
+            assert assignments[1][prop] is None
 
 
 class TestAnalyticsFromSummaryFeed:
