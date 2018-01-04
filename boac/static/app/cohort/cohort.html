@@ -15,7 +15,7 @@
     </div>
   </div>
   <div class="cohort-label" data-ng-if="!isLoading && !error && !isSaving && (cohort.totalMemberCount >= 0)">
-    <h1 data-ng-if="cohort.code">
+    <h1 data-ng-if="!isCreateCohortMode && cohort.code">
       <span data-ng-bind="cohort.name"></span>
       <span class="faint-text">(<span data-ng-bind="cohort.totalMemberCount"></span> members)</span>
     </h1>
@@ -264,7 +264,7 @@
               data-ng-click="executeSearch()">Search</button>
     </div>
     <div class="cohort-filters-column flex-column-btn">
-      <span data-ng-controller="CreateCohortController" data-ng-if="!isCreateCohortMode">
+      <span data-ng-controller="CreateCohortController">
         <button id="create-cohort-btn"
                 class="btn btn-default btn-nowrap"
                 data-ng-disabled="(!search.count.gpaRanges &&

@@ -37,6 +37,7 @@ def get_intensive_cohort():
     return tolerant_jsonify({
         'code': 'intensive',
         'label': 'Intensive',
+        'name': 'Intensive',
         'members': results['students'],
         'totalMemberCount': results['totalStudentCount'],
     })
