@@ -26,10 +26,15 @@ def merge_sis_profile(csid):
 
 
 def merge_sis_profile_academic_status(sis_response, sis_profile):
-    academic_statuses = sis_response.get('academicStatuses', [])
-    if len(academic_statuses):
-        academic_status = academic_statuses[0]
-    else:
+    # The Hub may return multiple academic statuses. We'll select the first status with a well-formed academic
+    # career that is not a concurrent enrollment.
+    academic_status = None
+    for status in sis_response.get('academicStatuses', []):
+        career_code = status.get('currentRegistration', {}).get('academicCareer', {}).get('code')
+        if career_code and career_code != 'UCBX':
+            academic_status = status
+            break
+    if not academic_status:
         return
 
     sis_profile['cumulativeGPA'] = academic_status.get('cumulativeGPA', {}).get('average')

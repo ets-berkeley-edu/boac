@@ -9,11 +9,13 @@ class TestSisStudentApi:
     def test_get_student(self, app):
         """returns unwrapped data"""
         student = student_api.get_student(11667051)
-        assert student['academicStatuses'][0]['cumulativeGPA']['average'] == pytest.approx(3.8, 0.01)
-        assert student['academicStatuses'][0]['currentRegistration']['academicLevel']['level']['description'] == 'Junior'
-        assert student['academicStatuses'][0]['currentRegistration']['athlete'] is True
-        assert student['academicStatuses'][0]['studentPlans'][0]['academicPlan']['plan']['description'] == 'English BA'
-        assert student['academicStatuses'][0]['termsInAttendance'] == 5
+        assert len(student['academicStatuses']) == 2
+        assert student['academicStatuses'][0]['currentRegistration']['academicCareer']['code'] == 'UCBX'
+        assert student['academicStatuses'][1]['cumulativeGPA']['average'] == pytest.approx(3.8, 0.01)
+        assert student['academicStatuses'][1]['currentRegistration']['academicLevel']['level']['description'] == 'Junior'
+        assert student['academicStatuses'][1]['currentRegistration']['athlete'] is True
+        assert student['academicStatuses'][1]['studentPlans'][0]['academicPlan']['plan']['description'] == 'English BA'
+        assert student['academicStatuses'][1]['termsInAttendance'] == 5
         assert student['emails'][0]['emailAddress'] == 'oski@berkeley.edu'
 
     def test_inner_get_student(self, app):
