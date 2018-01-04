@@ -405,7 +405,7 @@
       $scope.pagination.enabled = true;
       $scope.pagination.currentPage = 0;
       $scope.cohort.code = data.cohort.id;
-      $location.path('/cohort/' + cohort.code);
+      $location.path('/cohort/' + $scope.cohort.code);
       init();
     });
 
