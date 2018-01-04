@@ -19,10 +19,13 @@ def refresh_request_handler(term_id, load_only=False):
     """
     job_state = JobProgress().get()
     if job_state is None or (not job_state['start']) or job_state['end']:
+        if not load_only:
+            # Delete the current cache _before_ adding the JsonCache row that tracks job progress.
+            clear_term(term_id)
         job_state = JobProgress().start()
         app.logger.warn('About to start background thread')
         app_arg = app._get_current_object()
-        thread = Thread(target=background_thread_refresh, args=[app_arg, term_id, load_only], daemon=True)
+        thread = Thread(target=background_thread_refresh, args=[app_arg, term_id], daemon=True)
         thread.start()
         return {
             'progress': job_state,
@@ -34,12 +37,9 @@ def refresh_request_handler(term_id, load_only=False):
         }
 
 
-def background_thread_refresh(app_arg, term_id, load_only):
+def background_thread_refresh(app_arg, term_id):
     with app_arg.app_context():
-        if load_only:
-            load_term(term_id)
-        else:
-            refresh_term(term_id)
+        load_term(term_id)
 
 
 def refresh_term(term_id=current_term_id()):
