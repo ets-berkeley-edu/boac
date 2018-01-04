@@ -110,24 +110,46 @@
     }
   },
   {
-    "assignment_id": 331895,
-    "title": "Participation",
+    "assignment_id": 331896,
+    "title": "Hard Job",
     "unlock_at": null,
-    "points_possible": 15.0,
-    "non_digital_submission": true,
+    "points_possible": 1.0,
+    "non_digital_submission": false,
     "multiple_due_dates": false,
-    "due_at": null,
-    "status": "floating",
+    "due_at": "2017-10-06T06:00:00Z",
+    "status": "late",
     "muted": false,
-    "max_score": null,
-    "min_score": null,
-    "first_quartile": null,
-    "median": null,
-    "third_quartile": null,
+    "max_score": 1.0,
+    "min_score": 0.0,
+    "first_quartile": 1.0,
+    "median": 1.0,
+    "third_quartile": 1.0,
     "module_ids": [],
     "excused": false,
     "submission": {
-      "score": null,
+      "score": 0.75,
+      "submitted_at": "2017-10-06T20:17:50Z"
+    }
+  },
+  {
+    "assignment_id": 331897,
+    "title": "Impossible Job",
+    "unlock_at": null,
+    "points_possible": 1.0,
+    "non_digital_submission": false,
+    "multiple_due_dates": false,
+    "due_at": "2017-11-03T06:59:00Z",
+    "status": "missing",
+    "muted": false,
+    "max_score": 1.0,
+    "min_score": 0.0,
+    "first_quartile": 1.0,
+    "median": 1.0,
+    "third_quartile": 1.0,
+    "module_ids": [],
+    "excused": false,
+    "submission": {
+      "score": 0.0,
       "submitted_at": null
     }
   }

@@ -5,7 +5,7 @@ from flask import current_app as app
 import pandas
 
 
-def merge_analytics_for_user(user_courses, canvas_user_id, term_id):
+def merge_analytics_for_user(user_courses, uid, canvas_user_id, term_id):
     if user_courses:
         for course in user_courses:
             canvas_course_id = course['canvasCourseId']
@@ -16,12 +16,15 @@ def merge_analytics_for_user(user_courses, canvas_user_id, term_id):
                 analytics = analytics_from_summary_feed(student_summaries, canvas_user_id, canvas_course_id)
                 enrollments = canvas.get_course_enrollments(canvas_course_id, term_id)
                 analytics.update(analytics_from_canvas_course_enrollments(enrollments, canvas_user_id))
+                assignments = canvas.get_assignments_analytics(canvas_course_id, uid, term_id)
+                analytics.update(analytics_from_canvas_course_assignments(assignments))
             course['analytics'] = analytics
 
 
-def mean_course_analytics_for_user(user_courses, canvas_user_id, term_id):
-    merge_analytics_for_user(user_courses, canvas_user_id, term_id)
+def mean_course_analytics_for_user(user_courses, uid, canvas_user_id, term_id):
+    merge_analytics_for_user(user_courses, uid, canvas_user_id, term_id)
     meanValues = {}
+    # TODO Remove misleading assignmentsOnTime metric.
     for metric in ['assignmentsOnTime', 'pageViews', 'participations', 'courseCurrentScore']:
         percentiles = []
         for course in user_courses:
@@ -38,6 +41,7 @@ def mean_course_analytics_for_user(user_courses, canvas_user_id, term_id):
 
 def analytics_from_summary_feed(summary_feed, canvas_user_id, canvas_course_id):
     """Given a student summary feed for a Canvas course, return analytics for a given user"""
+    # TODO Remove misleading tardiness_breakdown stats.
     df = pandas.DataFrame(summary_feed, columns=['id', 'page_views', 'participations', 'tardiness_breakdown'])
     df['on_time'] = [row['on_time'] for row in df['tardiness_breakdown']]
     student_row = df.loc[df['id'].values == canvas_user_id]
@@ -62,6 +66,42 @@ def analytics_from_canvas_course_enrollments(feed, canvas_user_id):
     return {
         'courseCurrentScore': analytics_for_column(df, student_row, 'current_score'),
     }
+
+
+def analytics_from_canvas_course_assignments(feed):
+    data = {
+        'assignmentTotals': {
+            'floating': 0,
+            'missing': 0,
+            'onTime': 0,
+            'pastDue': 0,
+            'all': 0,
+        },
+        'assignments': [],
+    }
+    for assignment in feed:
+        data['assignmentTotals']['all'] += 1
+        total_type = assignment['status']
+        if total_type == 'on_time':
+            total_type = 'onTime'
+        elif total_type == 'late':
+            total_type = 'pastDue'
+        data['assignmentTotals'][total_type] += 1
+        assignment_data = {
+            'name': assignment['title'],
+            'dueDate': assignment['due_at'],
+            'pointsPossible': assignment['points_possible'],
+            'status': assignment['status'],
+            'score': assignment['submission']['score'],
+            'submittedDate': assignment['submission']['submitted_at'],
+            'maxScore': assignment['max_score'],
+            'firstQuartile': assignment['first_quartile'],
+            'median': assignment['median'],
+            'thirdQuartile': assignment['third_quartile'],
+            'minScore': assignment['min_score'],
+        }
+        data['assignments'].append(assignment_data)
+    return data
 
 
 def analytics_for_column(df, student_row, column_name):

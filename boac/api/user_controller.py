@@ -89,8 +89,8 @@ def user_analytics(uid):
     for term in enrollment_terms:
         term_id = sis_term_id_for_name(term['termName'])
         for enrollment in term['enrollments']:
-            merge_analytics_for_user(enrollment['canvasSites'], canvas_id, term_id)
-        merge_analytics_for_user(term['unmatchedCanvasSites'], canvas_id, term_id)
+            merge_analytics_for_user(enrollment['canvasSites'], uid, canvas_id, term_id)
+        merge_analytics_for_user(term['unmatchedCanvasSites'], uid, canvas_id, term_id)
 
     return tolerant_jsonify({
         'uid': uid,
