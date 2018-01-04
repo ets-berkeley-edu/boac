@@ -26,10 +26,12 @@
         class="wrap-hard"
         data-ng-repeat="cohort in myCohorts"
         data-ng-if="myCohorts.length && !isLoading">
-      <a data-ng-href="/cohort/{{cohort.id}}">{{truncate(cohort.label, {length:50, omission: '...'})}}</a>
+      <a data-ui-sref="cohort({code: cohort.id})" data-ui-sref-opts="{reload: true}">
+        {{truncate(cohort.label, {length:50, omission: '...'})}}
+      </a>
     </li>
     <li role="menuitem">
-      <a data-ng-href="/cohort/intensive">Intensive</a>
+      <a data-ui-sref="cohort({code: 'intensive'})" data-ui-sref-opts="{reload: true}">Intensive</a>
     </li>
     <li class="divider"></li>
     <li role="menuitem"><a href="/cohort/0">Create New Cohort</a></li>
