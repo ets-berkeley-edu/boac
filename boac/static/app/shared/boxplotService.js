@@ -156,7 +156,12 @@
 
       setTimeout(function() {
         try {
-          return new Highcharts.Chart(boxplotOptions, 0);
+          var chart = new Highcharts.Chart(boxplotOptions, 0);
+          // This tooltip-hiding event on the container element fires more reliably than the Highcharts default.
+          document.getElementById(elementId).addEventListener('mouseleave', function() {
+            chart.tooltip.hide();
+          });
+          return chart;
         } catch (err) {
           /**
            * Highcharts error 13 (rendering div not found) may occur as a result of users navigating away from the
