@@ -11,6 +11,12 @@ def admin_required(func):
     def _admin_required(*args, **kw):
         auth_key = app.config['API_KEY']
         login_ok = current_user.is_authenticated and current_user.is_admin
+
+        # TODO This is a temporary diagnostic aid and needs to removed before deployment to QA or Production.
+        app.logger.warn(f'Got cachejob request with headers {repr(request.headers)}')
+        app.logger.warn('  app_key = {}'.format(request.headers.get('app_key')))
+        app.logger.warn('  App-Key = {}'.format(request.headers.get('App-Key')))
+
         api_key_ok = auth_key and (request.headers.get('app_key') == auth_key)
         if login_ok or api_key_ok:
             return func(*args, **kw)
