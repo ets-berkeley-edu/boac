@@ -54,3 +54,8 @@ class TestSisProfile:
                 majors = [row.major for row in student_major_rows]
                 assert 'English BA' in majors
                 assert 'Hungarian BA' in majors
+
+    def test_skips_concurrent_academic_status(self, app):
+        """skips concurrent academic status"""
+        profile = merge_sis_profile('11667051')
+        assert profile['academicCareer'] == 'UGRD'

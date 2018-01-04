@@ -8,6 +8,212 @@
             "academicStatuses": [
               {
                 "cumulativeGPA": {
+                  "average": 0,
+                  "source": "UCB",
+                  "type": {
+                    "code": "Cumulative"
+                  }
+                },
+                "cumulativeUnits": [
+                  {
+                    "type": {
+                      "code": "Total"
+                    },
+                    "unitsCumulative": 0,
+                    "unitsEnrolled": 4,
+                    "unitsIncomplete": 0,
+                    "unitsOther": 0,
+                    "unitsPassed": 0,
+                    "unitsTaken": 0,
+                    "unitsTest": 0,
+                    "unitsTransferAccepted": 0,
+                    "unitsTransferEarned": 0,
+                    "unitsWaitlisted": 0
+                  },
+                  {
+                    "type": {
+                      "code": "For GPA"
+                    },
+                    "unitsEnrolled": 4,
+                    "unitsIncomplete": 0,
+                    "unitsPassed": 0,
+                    "unitsTaken": 0,
+                    "unitsTransferAccepted": 0,
+                    "unitsTransferEarned": 0,
+                    "unitsWaitlisted": 0
+                  },
+                  {
+                    "type": {
+                      "code": "Not For GPA"
+                    },
+                    "unitsEnrolled": 0,
+                    "unitsIncomplete": 0,
+                    "unitsPassed": 0,
+                    "unitsTaken": 0,
+                    "unitsTransferAccepted": 0,
+                    "unitsTransferEarned": 0,
+                    "unitsWaitlisted": 0
+                  }
+                ],
+                "currentRegistration": {
+                  "academicCareer": {
+                    "code": "UCBX",
+                    "description": "UC Berkeley Extension"
+                  },
+                  "academicLevel": {
+                    "level": {
+                      "code": "00",
+                      "description": "Not Set"
+                    },
+                    "type": {
+                      "code": "Begining of Term"
+                    }
+                  },
+                  "athlete": true,
+                  "disabled": false,
+                  "eligibleToRegister": true,
+                  "intendsToGraduate": false,
+                  "new": true,
+                  "registered": false,
+                  "specialStudyPrograms": [],
+                  "term": {
+                    "id": "2182",
+                    "name": "2018 Spring"
+                  },
+                  "termGPA": {
+                    "average": 0,
+                    "type": {
+                      "code": "Term GPA",
+                      "description": "Term GPA"
+                    }
+                  },
+                  "termUnits": [
+                    {
+                      "type": {
+                        "code": "Total",
+                        "description": "Total"
+                      },
+                      "unitsEnrolled": 4,
+                      "unitsIncomplete": 0,
+                      "unitsMax": 0,
+                      "unitsMin": 0,
+                      "unitsOther": 0,
+                      "unitsPassed": 0,
+                      "unitsTaken": 0,
+                      "unitsTest": 0,
+                      "unitsTransferAccepted": 0,
+                      "unitsTransferEarned": 0,
+                      "unitsWaitlisted": 0
+                    },
+                    {
+                      "type": {
+                        "code": "For GPA",
+                        "description": "For GPA"
+                      },
+                      "unitsEnrolled": 4,
+                      "unitsIncomplete": 0,
+                      "unitsMax": 0,
+                      "unitsMin": 0,
+                      "unitsPassed": 0,
+                      "unitsTaken": 0,
+                      "unitsTransferEarned": 0,
+                      "unitsWaitlisted": 0
+                    },
+                    {
+                      "type": {
+                        "code": "Not For GPA",
+                        "description": "Not For GPA"
+                      },
+                      "unitsEnrolled": 0,
+                      "unitsIncomplete": 0,
+                      "unitsMax": 0,
+                      "unitsMin": 0,
+                      "unitsPassed": 0,
+                      "unitsTaken": 0,
+                      "unitsTransferEarned": 0,
+                      "unitsWaitlisted": 0
+                    }
+                  ],
+                  "withdrawalCancel": {}
+                },
+                "studentCareer": {
+                  "academicCareer": {
+                    "code": "UCBX",
+                    "description": "UCB Ext",
+                    "formalDescription": "UC Berkeley Extension",
+                    "fromDate": "2018-01-09"
+                  },
+                  "fromDate": "2018-01-09",
+                  "matriculation": {
+                    "term": {
+                      "id": "2182",
+                      "name": "2018 Spring"
+                    },
+                    "type": {
+                      "code": "NON",
+                      "description": "Non Degree/Course Work Only"
+                    }
+                  }
+                },
+                "studentPlans": [
+                  {
+                    "academicPlan": {
+                      "academicProgram": {
+                        "academicCareer": {
+                          "code": "UCBX",
+                          "description": "UCB Ext",
+                          "formalDescription": "UC Berkeley Extension",
+                          "fromDate": "2018-01-09"
+                        },
+                        "program": {
+                          "code": "XCCRT",
+                          "description": "UCBX Concurrent Enrollment"
+                        }
+                      },
+                      "cipCode": "",
+                      "hegisCode": "",
+                      "ownedBy": {
+                        "administrativeOwners": [
+                          {
+                            "organization": {
+                              "code": "UCB01",
+                              "description": "UC Berkeley"
+                            },
+                            "percentage": 100
+                          }
+                        ]
+                      },
+                      "plan": {
+                        "code": "30XCECCENX",
+                        "description": "UCBX Concurrent Enrollment",
+                        "fromDate": "2017-12-06"
+                      },
+                      "targetDegree": {},
+                      "type": {
+                        "code": "SS",
+                        "description": "Major - Self-Supporting"
+                      }
+                    },
+                    "primary": true,
+                    "statusInPlan": {
+                      "action": {
+                        "code": "MATR",
+                        "description": "Matriculation"
+                      },
+                      "reason": {
+                        "code": "NEW",
+                        "description": "New Admits"
+                      },
+                      "status": {
+                        "code": "AC",
+                        "description": "Active in Program"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "cumulativeGPA": {
                   "average": 3.7999999999999998,
                   "source": "UCB",
                   "type": {
