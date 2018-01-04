@@ -11,7 +11,7 @@ def admin_required(func):
     def _admin_required(*args, **kw):
         auth_key = app.config['API_KEY']
         login_ok = current_user.is_authenticated and current_user.is_admin
-        api_key_ok = auth_key and (request.headers['app_key'] == auth_key)
+        api_key_ok = auth_key and (request.headers.get('app_key') == auth_key)
         if login_ok or api_key_ok:
             return func(*args, **kw)
         else:
