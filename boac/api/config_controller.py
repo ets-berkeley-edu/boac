@@ -1,10 +1,11 @@
 import json
-from flask import current_app as app, jsonify
+from boac.lib.http import tolerant_jsonify
+from flask import current_app as app
 
 
 @app.route('/api/config')
 def app_config():
-    return jsonify({
+    return tolerant_jsonify({
         'boacEnv': app.config['BOAC_ENV'],
         'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],
         'googleAnalyticsId': app.config['GOOGLE_ANALYTICS_ID'],

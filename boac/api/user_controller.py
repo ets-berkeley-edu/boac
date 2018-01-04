@@ -11,7 +11,7 @@ from boac.merged.sis_enrollments import merge_sis_enrollments
 from boac.merged.sis_profile import merge_sis_profile
 from boac.models.normalized_cache_student_major import NormalizedCacheStudentMajor
 from boac.models.student import Student
-from flask import current_app as app, jsonify, request, Response
+from flask import current_app as app, request, Response
 from flask_login import current_user, login_required
 
 
@@ -52,7 +52,7 @@ def get_students():
                                    unit_ranges_eligibility=unit_ranges_eligibility,
                                    unit_ranges_pacing=unit_ranges_pacing, order_by=order_by, offset=offset, limit=limit)
     member_details.merge_all(results['students'])
-    return jsonify({
+    return tolerant_jsonify({
         'members': results['students'],
         'totalMemberCount': results['totalStudentCount'],
     })
@@ -104,7 +104,7 @@ def user_analytics(uid):
 
 @app.route('/api/majors/relevant')
 def relevant_majors():
-    return jsonify(NormalizedCacheStudentMajor.distinct_majors())
+    return tolerant_jsonify(NormalizedCacheStudentMajor.distinct_majors())
 
 
 @app.route('/api/user/<uid>/photo')

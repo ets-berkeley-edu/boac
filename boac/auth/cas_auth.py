@@ -1,7 +1,8 @@
 from boac.api.errors import ForbiddenRequestError
+from boac.lib.http import tolerant_jsonify
 import cas
 from flask import (
-    current_app as app, flash, jsonify, redirect, request, url_for,
+    current_app as app, flash, redirect, request, url_for,
 )
 from flask_login import (
     login_required, login_user, logout_user,
@@ -10,7 +11,7 @@ from flask_login import (
 
 @app.route('/cas/login_url', methods=['GET'])
 def cas_login_url():
-    return jsonify({
+    return tolerant_jsonify({
         'cas_login_url': _cas_client().get_login_url(),
     })
 
@@ -35,7 +36,7 @@ def cas_login():
 @login_required
 def logout():
     logout_user()
-    return jsonify({
+    return tolerant_jsonify({
         'cas_logout_url': _cas_client().get_logout_url(redirect_url=request.url_root),
     })
 

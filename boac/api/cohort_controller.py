@@ -4,7 +4,7 @@ from boac.lib.http import tolerant_jsonify
 from boac.merged import member_details
 from boac.models.cohort_filter import CohortFilter
 from boac.models.student import Student
-from flask import current_app as app, jsonify, request
+from flask import current_app as app, request
 from flask_login import current_user, login_required
 
 
@@ -17,13 +17,13 @@ def all_cohorts():
             if uid not in cohorts:
                 cohorts[uid] = []
             cohorts[uid].append(cohort)
-    return jsonify(cohorts)
+    return tolerant_jsonify(cohorts)
 
 
 @app.route('/api/cohorts/my')
 @login_required
 def my_cohorts():
-    return jsonify(CohortFilter.all_owned_by(current_user.get_id()))
+    return tolerant_jsonify(CohortFilter.all_owned_by(current_user.get_id()))
 
 
 @app.route('/api/intensive_cohort')
@@ -86,7 +86,7 @@ def update_cohort():
     if not cohort:
         raise BadRequestError('Cohort does not exist or is not owned by {}'.format(uid))
     CohortFilter.update(cohort_id=cohort['id'], label=label)
-    return jsonify({'message': 'Cohort updated (label: {})'.format(label)}), 200
+    return tolerant_jsonify({'message': 'Cohort updated (label: {})'.format(label)}), 200
 
 
 @app.route('/api/cohort/delete/<cohort_id>', methods=['DELETE'])
@@ -98,7 +98,7 @@ def delete_cohort(cohort_id):
         cohort = get_cohort_owned_by(cohort_id, uid)
         if cohort:
             CohortFilter.delete(cohort_id)
-            return jsonify({'message': 'Cohort deleted (id={})'.format(cohort_id)}), 200
+            return tolerant_jsonify({'message': 'Cohort deleted (id={})'.format(cohort_id)}), 200
         else:
             raise BadRequestError('User {uid} does not own cohort_filter with id={id}'.format(uid=uid, id=cohort_id))
     else:
