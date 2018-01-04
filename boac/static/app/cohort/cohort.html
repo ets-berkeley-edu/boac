@@ -14,13 +14,13 @@
       <span class="faint-text" data-ng-if="error.message">(<span data-ng-bind="error.message"></span>)</span>
     </div>
   </div>
-  <div class="cohort-label" data-ng-if="!isLoading && !error && !isSaving && (search.results.totalCount >= 0)">
+  <div class="cohort-label" data-ng-if="!isLoading && !error && !isSaving && (cohort.totalMemberCount >= 0)">
     <h1 data-ng-if="cohort">
-      <span data-ng-bind="cohort.label || cohort.name"></span>
-      <span class="faint-text">(<span data-ng-bind="search.results.totalCount"></span> members)</span>
+      <span data-ng-bind="cohort.name"></span>
+      <span class="faint-text">(<span data-ng-bind="cohort.totalMemberCount"></span> members)</span>
     </h1>
     <h1 data-ng-if="!cohort && !isLoading && !isCreateCohortMode">
-      <span data-ng-pluralize count="search.results.totalCount" when="{'one': '1 Result', 'other': '{} Results'}"></span>
+      <span data-ng-pluralize count="cohort.totalMemberCount" when="{'one': '1 Result', 'other': '{} Results'}"></span>
     </h1>
   </div>
   <div class="cohort-column-results" data-ng-if="!isLoading && !error && !isSaving && isCreateCohortMode">
@@ -280,30 +280,30 @@
     </div>
   </div>
 
-  <hr class="filters-section-separator" data-ng-if="!isLoading && !error && !isCreateCohortMode && search.results.totalCount"/>
+  <hr class="filters-section-separator" data-ng-if="!isLoading && !error && !isCreateCohortMode && cohort.totalMemberCount"/>
 
   <div class="cohort-column-results">
     <div class="flex-container flex-space-between"
-         data-ng-if="!isLoading && !error && search.results.totalCount">
+         data-ng-if="!isLoading && !error && cohort.totalMemberCount">
       <div class="cohort-sort-column">
         <div class="btn-group cohort-btn-group" role="group" aria-label="Select results view">
           <button type="button"
                   class="btn btn-secondary cohort-tab-button"
-                  data-ng-class="{'cohort-tab-button-selected': selectedTab==='list'}"
+                  data-ng-class="{'cohort-tab-button-selected': tabs.selected==='list'}"
                   data-ng-click="onTab('list')"
                   data-ng-disabled="isSaving">
             <i class="fa fa-list"></i> List
           </button>
           <button type="button"
                   class="btn btn-secondary cohort-tab-button"
-                  data-ng-class="{'cohort-tab-button-selected': selectedTab==='matrix'}"
+                  data-ng-class="{'cohort-tab-button-selected': tabs.selected==='matrix'}"
                   data-ng-disabled="isSaving"
                   data-ng-click="onTab('matrix')">
             <i class="fa fa-table"></i> Matrix
           </button>
         </div>
       </div>
-      <div class="cohort-sort-column" data-ng-if="selectedTab === 'list'">
+      <div class="cohort-sort-column" data-ng-if="tabs.selected === 'list'">
         <label class="cohort-sort-label" for="cohort-sort-by">Sort by</label>
         <select id="cohort-sort-by"
                 class="form-control"
@@ -312,31 +312,31 @@
         </select>
       </div>
     </div>
-    <div data-ng-show="selectedTab === 'list'"
-         data-ng-if="!isLoading && !error && search.results.totalCount">
+    <div data-ng-show="tabs.selected === 'list'"
+         data-ng-if="!isLoading && !error && cohort.totalMemberCount">
       <ul id="cohort-members-list" class="list-group">
         <a class="list-group-item cohort-member-list-item"
-           data-ng-href="/student/{{row.uid}}"
-           data-ng-repeat="row in search.results.rows">
+           data-ng-href="/student/{{student.uid}}"
+           data-ng-repeat="student in cohort.members">
           <div class="cohort-avatar-container">
             <img class="cohort-avatar"
-                 data-ng-src="/api/user/{{row.uid}}/photo"
+                 data-ng-src="/api/user/{{student.uid}}/photo"
                  data-avatar-fallback>
           </div>
           <div class="cohort-member-name-container">
-            <h3 class="cohort-member-name" data-ng-bind="row.firstName + ' ' + row.lastName"></h3>
-            <div class="cohort-member-sid" data-ng-bind="row.sid"></div>
-            <div class="cohort-member-text" data-ng-bind="row.level"></div>
-            <div class="cohort-member-text" data-ng-bind="major" data-ng-repeat="major in row.majors"></div>
+            <h3 class="cohort-member-name" data-ng-bind="student.firstName + ' ' + student.lastName"></h3>
+            <div class="cohort-member-sid" data-ng-bind="student.sid"></div>
+            <div class="cohort-member-text" data-ng-bind="student.level"></div>
+            <div class="cohort-member-text" data-ng-bind="major" data-ng-repeat="major in student.majors"></div>
           </div>
           <div class="cohort-member-column">
-            <div class="cohort-member-gpa" data-ng-bind="row.cumulativeGPA || '--'"></div>
+            <div class="cohort-member-gpa" data-ng-bind="student.cumulativeGPA || '--'"></div>
             <div class="cohort-member-text">GPA (Cumulative)</div>
           </div>
           <div class="cohort-member-column">
-            <div class="cohort-member-gpa" data-ng-bind="row.currentTerm.enrolledUnits || '0'"></div>
+            <div class="cohort-member-gpa" data-ng-bind="student.currentTerm.enrolledUnits || '0'"></div>
             <div class="cohort-member-text">Units (In Progress)</div>
-            <div class="cohort-member-gpa" data-ng-bind="row.cumulativeUnits || '--'"></div>
+            <div class="cohort-member-gpa" data-ng-bind="student.cumulativeUnits || '--'"></div>
             <div class="cohort-member-text">Total Units</div>
           </div>
           <div class="cohort-member-course-activity-wrapper">
@@ -344,13 +344,13 @@
               <div class="cohort-member-column cohort-member-text">CLASSES</div>
               <div class="cohort-member-column cohort-member-text">PAGE VIEWS</div>
             </div>
-            <div class="cohort-member-course-activity-row" data-ng-repeat="enrollment in row.currentTerm.enrollments">
+            <div class="cohort-member-course-activity-row" data-ng-repeat="enrollment in student.currentTerm.enrollments">
               <div class="cohort-member-column">
                 <div data-ng-bind="enrollment.displayName"></div>
               </div>
               <div class="cohort-member-column">
                 <div class="cohort-boxplot-container" data-ng-repeat="canvasSite in enrollment.canvasSites">
-                  <div id="boxplot-{{canvasSite.canvasCourseId}}-{{row.uid}}-pageviews"
+                  <div id="boxplot-{{canvasSite.canvasCourseId}}-{{student.uid}}-pageviews"
                        class="cohort-boxplot">
                   </div>
                 </div>
@@ -362,12 +362,12 @@
       <ul uib-pagination
           direction-links="false"
           items-per-page="pagination.itemsPerPage"
-          total-items="search.results.totalCount"
+          total-items="cohort.totalMemberCount"
           ng-model="pagination.currentPage"
           data-ng-click="nextPage()"
-          data-ng-if="pagination.enabled && !isCreateCohortMode && (search.results.totalCount > pagination.itemsPerPage)"></ul>
+          data-ng-if="pagination.enabled && !isCreateCohortMode && (cohort.totalMemberCount > pagination.itemsPerPage)"></ul>
     </div>
-    <div id="cohort-matrix-container" class="cohort-matrix-container" data-ng-show="selectedTab === 'matrix' && !isLoading && !error">
+    <div id="cohort-matrix-container" class="cohort-matrix-container" data-ng-show="tabs.selected === 'matrix' && !isLoading && !error">
       <!-- IMPORTANT: We use data-ng-show because d3 must populate the div before we reveal it to the user. -->
       <div id="scatterplot" class="cohort-matrix"></div>
       <div id="cohort-missing-student-data" class="cohort-missing-student-data" data-ng-if="studentsWithoutData.length">

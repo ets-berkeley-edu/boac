@@ -16,10 +16,6 @@
     $stateParams
   ) {
 
-    $scope.isLoading = true;
-    $scope.selectedTab = 'list';
-    $scope.isCreateCohortMode = false;
-
     /**
      * Used to collapse all dropdown menus (e.g., if user clicks 'Search').
      *
@@ -35,6 +31,20 @@
       };
     };
 
+    $scope.isLoading = true;
+    $scope.isCreateCohortMode = false;
+
+    $scope.tabs = {
+      all: ['list', 'matrix'],
+      selected: null
+    };
+
+    $scope.cohort = {
+      code: null,
+      members: [],
+      totalMemberCount: null
+    };
+
     $scope.search = {
       count: {
         gpaRanges: 0,
@@ -44,11 +54,7 @@
         unitRanges: 0
       },
       dropdown: defaultDropdownState(),
-      options: {},
-      results: {
-        rows: null,
-        totalCount: null
-      }
+      options: {}
     };
 
     $scope.orderBy = {
@@ -73,34 +79,22 @@
     };
 
     /**
-     * Extract rows of data and total member count.
-     *
-     * @param  {Object}      response      Data from backend API
-     * @return {Object}                    Cohort instance
+     * Extract query args as soon as $location is available.
      */
-    var parseCohortFeed = function(response) {
-      var cohort = response.data;
-      if (cohort) {
-        // Search results are member list of the cohort
-        $scope.search.results.totalCount = cohort.totalMemberCount;
-        $scope.search.results.rows = cohort.members;
-      } else {
-        $scope.error = {message: 'Cohort not found'};
-      }
-      $scope.isCreateCohortMode = false;
-      return cohort;
-    };
+    $scope.$watch('$location', function() {
+      var args = $location.search();
+      $scope.tabs.selected = _.includes($scope.tabs.all, args.t) ? args.t : 'list';
+    });
 
     /**
      * Invoke API to get cohort, team or intensive.
      *
-     * @param  {String}      code        Team code, cohort id or the keyword 'intensive'.
      * @param  {Function}    callback    Follow up activity per caller
      * @return {void}
      */
-    var refreshCohortView = function(code, callback) {
+    var listViewRefresh = function(callback) {
       // Pagination is not used on teams because the member count is always reasonable.
-      var isTeam = isNaN(code);
+      var isTeam = isNaN($scope.cohort.code);
       $scope.pagination.enabled = !isTeam;
       var page = $scope.pagination.enabled ? $scope.pagination.currentPage : 0;
       var orderBy = $scope.orderBy.selected;
@@ -108,30 +102,30 @@
       var offset = page === 0 ? 0 : (page - 1) * limit;
 
       var handleSuccess = function(response) {
-        return callback(parseCohortFeed(response));
+        $scope.cohort = response.data;
+        return callback();
       };
       var handleError = function(err) {
         $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
         return callback(null);
       };
       $scope.isLoading = true;
-      if (code === 'intensive') {
+      if ($scope.cohort.code === 'intensive') {
         cohortFactory.getIntensiveCohort(orderBy, offset, limit).then(handleSuccess, handleError);
       } else if (isTeam) {
-        cohortFactory.getTeam(code, orderBy).then(handleSuccess, handleError);
+        cohortFactory.getTeam($scope.cohort.code, orderBy).then(handleSuccess, handleError);
       } else {
-        cohortFactory.getCohort(code, orderBy, offset, limit).then(handleSuccess, handleError);
+        cohortFactory.getCohort($scope.cohort.code, orderBy, offset, limit).then(handleSuccess, handleError);
       }
     };
 
     /**
      * The search form must reflect the team codes of the saved cohort.
      *
-     * @param  {String[]}    cohort      Null if we are in create-cohort-mode
      * @param  {Function}    callback    Follow up activity per caller
      * @return {void}
      */
-    var initFilters = function(cohort, callback) {
+    var initFilters = function(callback) {
       cohortFactory.getAllTeamGroups().then(function(teamsResponse) {
         var teamGroups = teamsResponse.data;
 
@@ -148,43 +142,41 @@
             unitRangesPacing: studentFactory.getUnitRangesPacing()
           };
           // GPA ranges
-          var selectedGpaRanges = _.get(cohort, 'filterCriteria.gpaRanges', []);
+          var selectedGpaRanges = _.get($scope.cohort, 'filterCriteria.gpaRanges', []);
           $scope.search.count.gpaRanges = selectedGpaRanges.length;
           _.map($scope.search.options.gpaRanges, function(gpaRange) {
             gpaRange.selected = _.includes(selectedGpaRanges, gpaRange.value);
           });
           // If we hit the cohort view with a team code then we populate filter with the team's group codes.
           var selectedGroupCodes = [];
-          if (cohort) {
-            if (cohort.teamGroups) {
-              selectedGroupCodes = _.map(cohort.teamGroups, 'groupCode');
-            } else {
-              selectedGroupCodes = _.get(cohort, 'filterCriteria.groupCodes', []);
-            }
+          if ($scope.cohort.teamGroups) {
+            selectedGroupCodes = _.map($scope.cohort.teamGroups, 'groupCode');
+          } else {
+            selectedGroupCodes = _.get($scope.cohort, 'filterCriteria.groupCodes', []);
           }
           $scope.search.count.groupCodes = selectedGroupCodes.length;
           _.map($scope.search.options.teamGroups, function(teamGroup) {
             teamGroup.selected = _.includes(selectedGroupCodes, teamGroup.groupCode);
           });
           // Class levels
-          var selectedLevels = _.get(cohort, 'filterCriteria.levels', []);
+          var selectedLevels = _.get($scope.cohort, 'filterCriteria.levels', []);
           $scope.search.count.levels = selectedLevels.length;
           _.map($scope.search.options.levels, function(level) {
             level.selected = _.includes(selectedLevels, level.name);
           });
           // Majors
-          var selectedMajors = _.get(cohort, 'filterCriteria.majors', []);
+          var selectedMajors = _.get($scope.cohort, 'filterCriteria.majors', []);
           $scope.search.count.majors = selectedMajors.length;
           _.map($scope.search.options.majors, function(major) {
             major.selected = _.includes(selectedMajors, major.name);
           });
           // Units, eligibility
-          var selectedUnitRangesE = _.get(cohort, 'filterCriteria.unitRangesEligibility', []);
+          var selectedUnitRangesE = _.get($scope.cohort, 'filterCriteria.unitRangesEligibility', []);
           _.map($scope.search.options.unitRangesEligibility, function(unitRange) {
             unitRange.selected = _.includes(selectedUnitRangesE, unitRange.value);
           });
           // Units, pacing
-          var selectedUnitRangesP = _.get(cohort, 'filterCriteria.unitRangesPacing', []);
+          var selectedUnitRangesP = _.get($scope.cohort, 'filterCriteria.unitRangesPacing', []);
           _.map($scope.search.options.unitRangesPacing, function(unitRange) {
             unitRange.selected = _.includes(selectedUnitRangesP, unitRange.value);
           });
@@ -223,10 +215,10 @@
      * @param  {Object}      response       Data from backend API
      * @return {void}
      */
-    var scatterplotRefresh = function(response) {
+    var scatterplotRefresh = function() {
       // Plot the cohort
       var yAxisMeasure = $scope.yAxisMeasure = $location.search().yAxis || 'analytics.courseCurrentScore';
-      var partitions = _.partition(response.data.members, function(member) {
+      var partitions = _.partition($scope.cohort.members, function(member) {
         return _.isFinite(_.get(member, 'analytics.pageViews')) && _.isFinite(_.get(member, yAxisMeasure));
       });
       // Pass along a subset of students that have useful data.
@@ -240,31 +232,29 @@
     /**
      * Get ALL students of the cohort then render the scatterplot graph.
      *
+     * @param  {Function}    callback      Standard callback function
      * @return {void}
      */
-    var matrixViewRefresh = function() {
-      // In case of error
+    var matrixViewRefresh = function(callback) {
+      $scope.isLoading = true;
+      var noLimit = $scope.pagination.noLimit;
       var handleError = function(err) {
         $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
+        return callback();
       };
-      // The done() function is always invoked
-      $scope.isLoading = true;
-      var done = function() {
-        $scope.isLoading = false;
+      var handleSuccess = function(response) {
+        $scope.cohort = response.data;
+        scatterplotRefresh();
+        return callback();
       };
-      var noLimit = $scope.pagination.noLimit;
-      if ($scope.cohort) {
-        if ($scope.cohort.code) {
-          if ($scope.cohort.code === 'intensive') {
-            cohortFactory.getIntensiveCohort(null, 0, noLimit).then(scatterplotRefresh).catch(handleError).then(done);
-          } else {
-            cohortFactory.getTeam($scope.cohort.code, null, 0, noLimit).then(scatterplotRefresh).catch(handleError).then(done);
-          }
-        } else {
-          cohortFactory.getCohort($scope.cohort.id, null, 0, noLimit).then(scatterplotRefresh).catch(handleError).then(done);
-        }
+      if (_.isEmpty($scope.cohort.code)) {
+        getStudents(null, 0, noLimit).then(handleSuccess).catch(handleError).then(callback);
+      } else if ($scope.cohort.code === 'intensive') {
+        cohortFactory.getIntensiveCohort(null, 0, noLimit).then(handleSuccess).catch(handleError).then(callback);
+      } else if (isNaN($scope.cohort.code)) {
+        cohortFactory.getTeam($scope.cohort.code, null, 0, noLimit).then(handleSuccess).catch(handleError).then(callback);
       } else {
-        getStudents(null, 0, noLimit).then(scatterplotRefresh).catch(handleError).then(done);
+        cohortFactory.getCohort($scope.cohort.code, null, 0, noLimit).then(handleSuccess).catch(handleError).then(callback);
       }
     };
 
@@ -276,7 +266,7 @@
     var drawBoxplots = function() {
       // Wait until Angular has finished rendering elements within repeaters.
       $scope.$$postDigest(function() {
-        _.each($scope.search.results.rows, function(student) {
+        _.each($scope.cohort.members, function(student) {
           _.each(_.get(student, 'currentTerm.enrollments'), function(enrollment) {
             _.each(_.get(enrollment, 'canvasSites'), function(canvasSite) {
               var elementId = 'boxplot-' + canvasSite.canvasCourseId + '-' + student.uid + '-pageviews';
@@ -292,18 +282,17 @@
      *
      * @return {void}
      */
-    var listViewRefresh = $scope.nextPage = function() {
-      if ($scope.cohort) {
-        refreshCohortView($scope.cohort.code || $scope.cohort.id, function(cohort) {
-          $scope.cohort = cohort;
-          $scope.isLoading = false;
+    var nextPage = $scope.nextPage = function() {
+      if ($scope.cohort.code) {
+        listViewRefresh(function() {
           drawBoxplots();
+          $scope.isLoading = false;
         });
       } else {
         $scope.pagination.enabled = true;
 
         var handleSuccess = function(response) {
-          parseCohortFeed(response);
+          $scope.cohort = response.data;
           drawBoxplots();
         };
 
@@ -341,10 +330,12 @@
      * @return {void}
      */
     $scope.onTab = function(tabName) {
-      $scope.selectedTab = tabName;
+      $scope.tabs.selected = tabName;
       // Lazy load matrix data
       if (tabName === 'matrix' && !$scope.matrix) {
-        matrixViewRefresh();
+        matrixViewRefresh(function() {
+          $scope.isLoading = false;
+        });
       } else if (tabName === 'list') {
         drawBoxplots();
       }
@@ -358,49 +349,48 @@
     $scope.executeSearch = function() {
       $scope.search.dropdown = defaultDropdownState();
       // Refresh search results
-      $scope.cohort = null;
+      $scope.cohort.code = null;
       $scope.pagination.currentPage = 0;
-      if ($scope.selectedTab === 'list') {
-        listViewRefresh();
+      if ($scope.tabs.selected === 'list') {
+        nextPage();
       } else {
-        matrixViewRefresh();
+        matrixViewRefresh(function() {
+          $scope.isLoading = false;
+        });
       }
     };
 
     $scope.$watch('orderBy.selected', function(value) {
       if (value && !$scope.isLoading) {
         $scope.pagination.currentPage = 0;
-        listViewRefresh();
+        nextPage();
       }
     });
 
     /**
      * Initialize page view.
      *
-     * @param  {Object}    cohortCode    [Optional] Team code, cohort id or keyword 'intensive'
      * @return {void}
      */
-    var init = function(cohortCode) {
+    var init = function() {
       // if code is "0" then we offer a blank slate, the first step in creating a new cohort.
-      var code = cohortCode || $stateParams.code;
-      $scope.isCreateCohortMode = code === '0';
+      $scope.cohort.code = $scope.cohort.code || $stateParams.code;
+      $scope.isCreateCohortMode = $scope.cohort.code === '0';
       if ($scope.isCreateCohortMode) {
-        initFilters(null, function() {
+        initFilters(function() {
           $scope.isLoading = false;
         });
       } else {
-        refreshCohortView(code, function(cohort) {
-          initFilters(cohort, function() {
-            $scope.cohort = cohort;
+        var render = $scope.tabs.selected === 'list' ? listViewRefresh : matrixViewRefresh;
+        render(function() {
+          initFilters(function() {
+            drawBoxplots();
             $scope.isLoading = false;
-            if (cohort) {
-              drawBoxplots();
-              // Track view event
-              if (cohort.code) {
-                googleAnalyticsService.track('team', 'view', cohort.code + ': ' + cohort.name);
-              } else {
-                googleAnalyticsService.track('cohort', 'view', cohort.label, cohort.id);
-              }
+            // Track view event
+            if (isNaN($scope.cohort.code)) {
+              googleAnalyticsService.track('team', 'view', $scope.cohort.code + ': ' + $scope.cohort.name);
+            } else {
+              googleAnalyticsService.track('cohort', 'view', $scope.cohort.name, $scope.cohort.code);
             }
           });
         });
@@ -414,9 +404,9 @@
       $scope.search.dropdown = defaultDropdownState();
       $scope.pagination.enabled = true;
       $scope.pagination.currentPage = 0;
-      var cohort = data.cohort;
-      $location.path('/cohort/' + cohort.id);
-      init(cohort.id);
+      $scope.cohort.code = data.cohort.id;
+      $location.path('/cohort/' + cohort.code);
+      init();
     });
 
     authService.authWrap(init)();
