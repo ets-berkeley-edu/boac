@@ -15,11 +15,11 @@
     </div>
   </div>
   <div class="cohort-label" data-ng-if="!isLoading && !error && !isSaving && (cohort.totalMemberCount >= 0)">
-    <h1 data-ng-if="cohort">
+    <h1 data-ng-if="cohort.code">
       <span data-ng-bind="cohort.name"></span>
       <span class="faint-text">(<span data-ng-bind="cohort.totalMemberCount"></span> members)</span>
     </h1>
-    <h1 data-ng-if="!cohort && !isLoading && !isCreateCohortMode">
+    <h1 data-ng-if="!cohort.code && !isLoading && !isCreateCohortMode">
       <span data-ng-pluralize count="cohort.totalMemberCount" when="{'one': '1 Result', 'other': '{} Results'}"></span>
     </h1>
   </div>
