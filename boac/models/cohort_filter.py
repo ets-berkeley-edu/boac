@@ -125,7 +125,9 @@ class CohortFilter(Base, UserMixin):
 def construct_cohort(cf, order_by=None, offset=0, limit=50):
     cohort = {
         'id': cf.id,
+        'code': cf.id,
         'label': cf.label,
+        'name': cf.label,
         'owners': [user.uid for user in cf.owners],
     }
     c = cf if isinstance(cf.filter_criteria, dict) else json.loads(cf.filter_criteria)
