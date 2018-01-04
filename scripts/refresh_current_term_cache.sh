@@ -36,7 +36,9 @@ url="${BOAC_URL}/api/admin/cachejob/refresh"
 echo | tee -a ${log_file}
 echo "About to ping ${url}" | tee -a ${log_file}
 echo | tee -a ${log_file}
-response_metadata=$(curl -k --header "app_key: ${BOAC_API_KEY}" "${url}" 2>&1)
+# The more typical underscored "app_key" header will be stripped out by the AWS load balancer.
+# A hyphened "app-key" header passes through.
+response_metadata=$(curl -k --header "app-key: ${BOAC_API_KEY}" "${url}" 2>&1)
 echo "Got response:" | tee -a ${log_file}
 echo | tee -a ${log_file}
 echo "${response_metadata}" | tee -a ${log_file}
