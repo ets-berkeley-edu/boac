@@ -76,4 +76,4 @@ def sanitize_headers(headers):
 
 
 def tolerant_jsonify(obj, **kwargs):
-    return Response(json.dumps(obj, ignore_nan=True, **kwargs), mimetype='application/json')
+    return Response(json.dumps(obj, ignore_nan=True, separators=(',', ':'), **kwargs), mimetype='application/json')

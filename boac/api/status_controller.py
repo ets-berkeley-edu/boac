@@ -1,5 +1,6 @@
 from boac import db
-from flask import current_app as app, jsonify
+from boac.lib.http import tolerant_jsonify
+from flask import current_app as app
 from flask_login import current_user
 
 
@@ -16,7 +17,7 @@ def app_status():
         'app': True,
         'db': db_status(),
     }
-    return jsonify(resp)
+    return tolerant_jsonify(resp)
 
 
 @app.route('/api/status')
@@ -31,4 +32,4 @@ def user_status():
     resp = {
         'authenticated_as': authn_state,
     }
-    return jsonify(resp)
+    return tolerant_jsonify(resp)

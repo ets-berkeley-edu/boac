@@ -1,4 +1,4 @@
-from flask import jsonify
+from boac.lib.http import tolerant_jsonify
 
 
 class JsonableException(Exception):
@@ -8,7 +8,7 @@ class JsonableException(Exception):
 
     def to_json(self):
         if self.message:
-            return jsonify({'message': self.message})
+            return tolerant_jsonify({'message': self.message})
         else:
             return ''
 

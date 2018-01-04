@@ -1,5 +1,6 @@
 import boac.api.errors
-from flask import current_app as app, jsonify
+from boac.lib.http import tolerant_jsonify
+from flask import current_app as app
 
 
 @app.errorhandler(boac.api.errors.BadRequestError)
@@ -30,4 +31,4 @@ def handle_internal_server_error(error):
 @app.errorhandler(Exception)
 def handle_unexpected_error(error):
     app.logger.exception(error)
-    return jsonify({'message': 'An unexpected server error occurred.'}), 500
+    return tolerant_jsonify({'message': 'An unexpected server error occurred.'}), 500
