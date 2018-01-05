@@ -9,6 +9,9 @@
     cohortService,
     googleAnalyticsService,
     studentFactory,
+    utilService,
+    $anchorScroll,
+    $base64,
     $location,
     $rootScope,
     $scope,
@@ -318,6 +321,33 @@
     };
 
     /**
+     * Invoked when state is initializing. Preset filters and search criteria prior to cohort API call.
+     *
+     * @param  {Object}    args     See $location.search()
+     * @return {void}
+     */
+    var presetSearchFilters = function(args) {
+      if ($scope.cohort.code === 'search' && !_.isEmpty(args)) {
+        preset('gpaRanges', 'value', args.g);
+        preset('teamGroups', 'groupCode', args.t);
+        preset('levels', 'name', args.l);
+        preset('majors', 'name', args.m);
+      }
+      if (args.o && _.find($scope.orderBy.options, ['value', args.o])) {
+        $scope.orderBy.selected = args.o;
+      }
+      if (args.p && !isNaN(args.p)) {
+        $scope.pagination.currentPage = args.p;
+      }
+      if (args.v && _.includes($scope.tabs.all, args.v)) {
+        $scope.tabs.selected = args.v;
+      }
+      if (args.p && !isNaN(args.p)) {
+        $scope.pagination.currentPage = args.p;
+      }
+    };
+
+    /**
      * The search form must reflect the team codes of the saved cohort.
      *
      * @param  {String}    type     Dropdown name
@@ -358,9 +388,10 @@
       $scope.isCreateCohortMode = false;
       $scope.search.dropdown = defaultDropdownState();
       // Refresh search results
-      $location.search('c', 'search');
       $scope.cohort.code = 'search';
       $scope.pagination.currentPage = 0;
+      $location.search('c', $scope.cohort.code);
+      $location.search('p', $scope.pagination.currentPage);
       if ($scope.tabs.selected === 'list') {
         nextPage();
       } else {
@@ -378,9 +409,16 @@
       }
     });
 
-    $scope.$watch('$scope.pagination.currentPage', function() {
-      $location.search('p', $scope.pagination.currentPage);
+    $scope.$watch('pagination.currentPage', function() {
+      if (!$scope.isLoading) {
+        $location.search('p', $scope.pagination.currentPage);
+      }
     });
+
+    $scope.studentProfile = function(uid) {
+      var encodedUrl = $base64.encode($location.absUrl());
+      $location.path('/student/' + uid).search({r: encodedUrl});
+    };
 
     /**
      * Initialize page view.
@@ -408,28 +446,27 @@
             unitRangesEligibility: studentFactory.getUnitRangesEligibility(),
             unitRangesPacing: studentFactory.getUnitRangesPacing()
           };
-          if ($scope.cohort.code === 'search' && !_.isEmpty(args)) {
-            preset('gpaRanges', 'value', args.g);
-            preset('teamGroups', 'groupCode', args.t);
-            preset('levels', 'name', args.l);
-            preset('majors', 'name', args.m);
-            if (args.o) {
-              var o = _.find($scope.orderBy.options, ['value', args.o]);
-              $scope.orderBy.selected = o || $scope.orderBy.selected;
-            }
-          }
+          // Filter options to 'selected' per request args
+          presetSearchFilters(args);
+
           if ($scope.isCreateCohortMode) {
             initFilters(function() {
               $scope.isLoading = false;
             });
           } else {
-            $scope.tabs.selected = _.includes($scope.tabs.all, args.v) ? args.v : $scope.tabs.defaultTab;
-            $scope.pagination.currentPage = args.p || 0;
             var render = $scope.tabs.selected === 'list' ? listViewRefresh : matrixViewRefresh;
             render(function() {
               initFilters(function() {
                 drawBoxplots();
                 $scope.isLoading = false;
+                // Scroll to anchor
+                if (args.uid) {
+                  // Scroll 50 extra px when deep-linking to student
+                  $anchorScroll.yOffset = 50;
+                  // Angular docs: https://docs.angularjs.org/api/ng/service/$anchorScroll
+                  $location.hash('uid-' + args.uid);
+                  $anchorScroll();
+                }
                 // Track view event
                 if (isNaN($scope.cohort.code)) {
                   googleAnalyticsService.track('team', 'view', $scope.cohort.code + ': ' + $scope.cohort.name);
