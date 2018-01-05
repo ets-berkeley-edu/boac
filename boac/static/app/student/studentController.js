@@ -7,13 +7,13 @@
     boxplotService,
     googleAnalyticsService,
     studentFactory,
+    $base64,
+    $location,
     $scope,
     $stateParams
   ) {
 
-    var loadAnalytics = authService.authWrap(function() {
-      var uid = $stateParams.uid;
-
+    var loadAnalytics = function(uid) {
       $scope.student.isLoading = true;
       studentFactory.analyticsPerUser(uid).then(function(analytics) {
         $scope.student = analytics.data;
@@ -29,6 +29,19 @@
         }
         $scope.student.isLoading = false;
       });
+    };
+
+    var prepareReturnUrl = function(uid) {
+      var encodedReturnUrl = $location.search().r;
+      if (!_.isEmpty(encodedReturnUrl)) {
+        $scope.returnUrl = $base64.decode(encodedReturnUrl) + '&uid=' + uid;
+      }
+    };
+
+    var init = authService.authWrap(function() {
+      var uid = $stateParams.uid;
+      loadAnalytics(uid);
+      prepareReturnUrl(uid);
     });
 
     $scope.student = {
@@ -55,7 +68,7 @@
 
     $scope.showAllTerms = false;
 
-    loadAnalytics();
+    init();
   });
 
 }(window.angular));
