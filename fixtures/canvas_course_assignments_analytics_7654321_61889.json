@@ -103,11 +103,7 @@
     "median": null,
     "third_quartile": null,
     "module_ids": [],
-    "excused": false,
-    "submission": {
-      "score": null,
-      "submitted_at": null
-    }
+    "excused": false
   },
   {
     "assignment_id": 331896,

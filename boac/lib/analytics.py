@@ -87,13 +87,20 @@ def analytics_from_canvas_course_assignments(feed):
         elif total_type == 'late':
             total_type = 'pastDue'
         data['assignmentTotals'][total_type] += 1
+
+        # If there is no submission, the Canvas API may return a nil-valued 'submission' property or may leave it out.
+        submission = assignment.get('submission', {
+            'score': None,
+            'submitted_at': None,
+        })
+
         assignment_data = {
             'name': assignment['title'],
             'dueDate': assignment['due_at'],
             'pointsPossible': assignment['points_possible'],
             'status': assignment['status'],
-            'score': assignment['submission']['score'],
-            'submittedDate': assignment['submission']['submitted_at'],
+            'score': submission['score'],
+            'submittedDate': submission['submitted_at'],
             'maxScore': assignment['max_score'],
             'firstQuartile': assignment['first_quartile'],
             'median': assignment['median'],
