@@ -54,6 +54,7 @@
         unitRanges: 0
       },
       dropdown: defaultDropdownState(),
+      filterByUnitsFeatureEnabled: false,
       options: {}
     };
 
@@ -137,8 +138,7 @@
      */
     var listViewRefresh = function(callback) {
       // Pagination is not used on teams because the member count is always reasonable.
-      var isTeam = isNaN($scope.cohort.code);
-      $scope.pagination.enabled = !isTeam;
+      $scope.pagination.enabled = $scope.cohort.code === 'search' || !isNaN($scope.cohort.code);
       var page = $scope.pagination.enabled ? $scope.pagination.currentPage : 0;
       var orderBy = $scope.orderBy.selected;
       var limit = $scope.pagination.enabled ? $scope.pagination.itemsPerPage : Number.MAX_SAFE_INTEGER;
@@ -355,8 +355,10 @@
      * @return {void}
      */
     $scope.executeSearch = function() {
+      $scope.isCreateCohortMode = false;
       $scope.search.dropdown = defaultDropdownState();
       // Refresh search results
+      $location.search('c', 'search');
       $scope.cohort.code = 'search';
       $scope.pagination.currentPage = 0;
       if ($scope.tabs.selected === 'list') {
@@ -370,6 +372,7 @@
 
     $scope.$watch('orderBy.selected', function(value) {
       if (value && !$scope.isLoading) {
+        $location.search('o', $scope.orderBy.selected);
         $scope.pagination.currentPage = 0;
         nextPage();
       }
@@ -410,6 +413,10 @@
             preset('teamGroups', 'groupCode', args.t);
             preset('levels', 'name', args.l);
             preset('majors', 'name', args.m);
+            if (args.o) {
+              var o = _.find($scope.orderBy.options, ['value', args.o]);
+              $scope.orderBy.selected = o || $scope.orderBy.selected;
+            }
           }
           if ($scope.isCreateCohortMode) {
             initFilters(function() {
@@ -440,12 +447,11 @@
      * Reload page with newly created cohort.
      */
     $rootScope.$on('cohortCreated', function(event, data) {
-      $scope.search.dropdown = defaultDropdownState();
-      $scope.pagination.enabled = true;
-      $scope.pagination.currentPage = 0;
-      $scope.cohort.code = data.cohort.id;
-      $location.search('c', $scope.cohort.code);
-      init();
+      $scope.isCreateCohortMode = false;
+      var id = data.cohort.id;
+      $scope.cohort.code = id;
+      $scope.cohort.name = data.cohort.name;
+      $location.search('c', id);
     });
 
     $scope.$$postDigest(init);
