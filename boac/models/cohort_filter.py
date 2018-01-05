@@ -76,7 +76,7 @@ class CohortFilter(Base, UserMixin):
 
     @classmethod
     def all_owned_by(cls, uid):
-        filters = CohortFilter.query.filter(CohortFilter.owners.any(uid=uid)).all()
+        filters = CohortFilter.query.filter(CohortFilter.owners.any(uid=uid)).order_by(CohortFilter.label).all()
         return [construct_cohort(cohort_filter, include_students=False) for cohort_filter in filters]
 
     @classmethod
