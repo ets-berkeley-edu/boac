@@ -14,12 +14,12 @@
       <span class="faint-text" data-ng-if="error.message">(<span data-ng-bind="error.message"></span>)</span>
     </div>
   </div>
-  <div class="cohort-label" data-ng-if="!isLoading && !error && !isSaving && (cohort.totalMemberCount >= 0)">
-    <h1 data-ng-if="!isCreateCohortMode && cohort.code">
+  <div class="cohort-label" data-ng-if="!error && !isCreateCohortMode && !isLoading && !isSaving && (cohort.totalMemberCount >= 0)">
+    <h1 data-ng-if="cohort.name">
       <span data-ng-bind="cohort.name"></span>
       <span class="faint-text">(<span data-ng-bind="cohort.totalMemberCount"></span> members)</span>
     </h1>
-    <h1 data-ng-if="!cohort.code && !isLoading && !isCreateCohortMode">
+    <h1 data-ng-if="!cohort.name">
       <span data-ng-pluralize count="cohort.totalMemberCount" when="{'one': '1 Result', 'other': '{} Results'}"></span>
     </h1>
   </div>
@@ -49,7 +49,7 @@
                 uib-dropdown-toggle>
           <span class="cohort-filter-label">
             Teams
-            <span data-ng-if="!isLoading && !isSaving">(<span data-ng-bind="search.count.groupCodes"></span>)</span>
+            <span data-ng-if="!isLoading && !isSaving">(<span data-ng-bind="search.count.teamGroups"></span>)</span>
             <i class="fa fa-chevron-down"
                data-ng-if="!isLoading && !isSaving && !search.dropdown.groupCodesOpen"></i>
             <i class="fa fa-chevron-up"
@@ -71,7 +71,7 @@
                    type="checkbox"
                    data-ng-model="teamGroup.selected"
                    aria-label="{{teamGroup.groupName}}"
-                   data-ng-click="updateSelected('groupCodes', teamGroup)"/>
+                   data-ng-click="updateSelected('teamGroups', teamGroup)"/>
             <span data-ng-bind="teamGroup.groupName"></span></li>
         </ul>
       </div>
@@ -197,7 +197,7 @@
       </div>
     </div>
     <!-- Units -->
-    <div class="cohort-filters-column flex-column-btn">
+    <div class="cohort-filters-column flex-column-btn" data-ng-if="search.filterByUnitsFeatureEnabled">
       <div class="btn-group box-shadow-off"
            uib-dropdown
            auto-close="disabled"
@@ -256,7 +256,7 @@
       <button id="execute-search"
               class="btn btn-primary btn-nowrap"
               data-ng-disabled="(!search.count.gpaRanges &&
-                                 !search.count.groupCodes &&
+                                 !search.count.teamGroups &&
                                  !search.count.levels &&
                                  !search.count.majors &&
                                  !search.count.unitRangesEligibility &&
@@ -268,7 +268,7 @@
         <button id="create-cohort-btn"
                 class="btn btn-default btn-nowrap"
                 data-ng-disabled="(!search.count.gpaRanges &&
-                                   !search.count.groupCodes &&
+                                   !search.count.teamGroups &&
                                    !search.count.levels &&
                                    !search.count.majors &&
                                    !search.count.unitRangesEligibility &&

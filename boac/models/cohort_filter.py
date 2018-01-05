@@ -72,12 +72,12 @@ class CohortFilter(Base, UserMixin):
 
     @classmethod
     def all(cls):
-        return [construct_cohort(cf) for cf in CohortFilter.query.all()]
+        return [construct_cohort(cf, include_students=False) for cf in CohortFilter.query.all()]
 
     @classmethod
     def all_owned_by(cls, uid):
         filters = CohortFilter.query.filter(CohortFilter.owners.any(uid=uid)).all()
-        return [construct_cohort(cohort_filter) for cohort_filter in filters]
+        return [construct_cohort(cohort_filter, include_students=False) for cohort_filter in filters]
 
     @classmethod
     def find_by_id(cls, cohort_id, order_by=None, offset=0, limit=50):
@@ -122,7 +122,7 @@ class CohortFilter(Base, UserMixin):
         }
 
 
-def construct_cohort(cf, order_by=None, offset=0, limit=50):
+def construct_cohort(cf, order_by=None, offset=0, limit=50, include_students=True):
     cohort = {
         'id': cf.id,
         'code': cf.id,
@@ -140,7 +140,8 @@ def construct_cohort(cf, order_by=None, offset=0, limit=50):
     unit_ranges_pacing = util.get(c, 'unitRangesPacing', [])
     results = Student.get_students(gpa_ranges=gpa_ranges, group_codes=group_codes, levels=levels, majors=majors,
                                    unit_ranges_eligibility=unit_ranges_eligibility,
-                                   unit_ranges_pacing=unit_ranges_pacing, order_by=order_by, offset=offset, limit=limit)
+                                   unit_ranges_pacing=unit_ranges_pacing, order_by=order_by, offset=offset, limit=limit,
+                                   only_total_student_count=not include_students)
     team_groups = Athletics.get_team_groups(group_codes) if group_codes else []
     cohort.update({
         'filterCriteria': {
@@ -151,8 +152,11 @@ def construct_cohort(cf, order_by=None, offset=0, limit=50):
             'unitRangesEligibility': unit_ranges_eligibility,
             'unitRangesPacing': unit_ranges_pacing,
         },
-        'members': results['students'],
         'teamGroups': team_groups,
         'totalMemberCount': results['totalStudentCount'],
     })
+    if include_students:
+        cohort.update({
+            'members': results['students'],
+        })
     return cohort

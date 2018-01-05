@@ -38,7 +38,8 @@ class Student(Base):
 
     @classmethod
     def get_students(cls, gpa_ranges=None, group_codes=None, in_intensive_cohort=None, levels=None, majors=None,
-                     unit_ranges_eligibility=None, unit_ranges_pacing=None, order_by=None, offset=0, limit=50):
+                     unit_ranges_eligibility=None, unit_ranges_pacing=None, order_by=None, offset=0, limit=50,
+                     only_total_student_count=False):
         # TODO: unit ranges
         query = """
             FROM students s
@@ -46,60 +47,57 @@ class Student(Base):
                 LEFT JOIN student_athletes sa ON sa.sid = s.sid
                 LEFT JOIN normalized_cache_student_majors m ON m.sid = s.sid
             WHERE
+                TRUE
         """
-        and_operator = False
         all_bindings = {}
         if group_codes:
             args = sqlalchemy_bindings(group_codes, 'group_code')
             all_bindings.update(args)
-            query += ' sa.group_code IN ({})'.format(':' + ', :'.join(args.keys()))
-            and_operator = True
+            query += ' AND sa.group_code IN ({})'.format(':' + ', :'.join(args.keys()))
         if gpa_ranges:
             # 'sqlalchemy_bindings' is not used here due to extravagant SQL syntax.
-            query += ' AND ' if and_operator else ''
-            query += ' n.gpa <@ ANY(ARRAY[{}])'.format(', '.join(gpa_ranges))
-            and_operator = True
+            query += ' AND n.gpa <@ ANY(ARRAY[{}])'.format(', '.join(gpa_ranges))
         if levels:
-            query += ' AND ' if and_operator else ''
             args = sqlalchemy_bindings(levels, 'level')
             all_bindings.update(args)
-            query += ' n.level IN ({})'.format(':' + ', :'.join(args.keys()))
-            and_operator = True
+            query += ' AND n.level IN ({})'.format(':' + ', :'.join(args.keys()))
         if majors:
-            query += ' AND ' if and_operator else ''
             args = sqlalchemy_bindings(majors, 'major')
             all_bindings.update(args)
-            query += ' m.major IN ({})'.format(':' + ', :'.join(args.keys()))
+            query += ' AND m.major IN ({})'.format(':' + ', :'.join(args.keys()))
         if in_intensive_cohort is not None:
-            query += ' s.in_intensive_cohort IS {}'.format(str(in_intensive_cohort))
+            query += ' AND s.in_intensive_cohort IS {}'.format(str(in_intensive_cohort))
         # First, get total_count of matching students
         connection = db.engine.connect()
         result = connection.execute(text(f'SELECT COUNT(DISTINCT(s.sid)) {query}'), **all_bindings)
-        total_count = result.fetchone()[0]
-        # Next, get matching students per order_by, offset, limit
-        o = 's.first_name'
-        if order_by in ['first_name', 'in_intensive_cohort', 'last_name']:
-            o = f's.{order_by}'
-        elif order_by in ['group_code']:
-            o = f'sa.{order_by}'
-        elif order_by in ['gpa', 'level', 'units']:
-            o = f'n.{order_by}'
-        elif order_by in ['major']:
-            o = f'm.{order_by}'
-        sql = f'SELECT DISTINCT(s.sid), {o} {query} ORDER BY {o} OFFSET {offset}'
-        sql += f' LIMIT {limit}' if limit else ''
-        # SQLAlchemy will escape parameter values
-        result = connection.execute(text(sql), **all_bindings)
-        connection.close()
-        # Model query using list of SIDs
-        sid_list = util.get_distinct_with_order([row['sid'] for row in result])
-        students = cls.query.filter(cls.sid.in_(sid_list)).all() if sid_list else []
-        # Order of students from query (above) might not match order of sid_list.
-        students = [next(s for s in students if s.sid == sid) for sid in sid_list]
-        return {
-            'students': [student.to_api_json() for student in students],
-            'totalStudentCount': total_count,
+        summary = {
+            'totalStudentCount': result.fetchone()[0],
         }
+        if not only_total_student_count:
+            # Next, get matching students per order_by, offset, limit
+            o = 's.first_name'
+            if order_by in ['first_name', 'in_intensive_cohort', 'last_name']:
+                o = f's.{order_by}'
+            elif order_by in ['group_code']:
+                o = f'sa.{order_by}'
+            elif order_by in ['gpa', 'level', 'units']:
+                o = f'n.{order_by}'
+            elif order_by in ['major']:
+                o = f'm.{order_by}'
+            sql = f'SELECT DISTINCT(s.sid), {o} {query} ORDER BY {o} OFFSET {offset}'
+            sql += f' LIMIT {limit}' if limit else ''
+            # SQLAlchemy will escape parameter values
+            result = connection.execute(text(sql), **all_bindings)
+            connection.close()
+            # Model query using list of SIDs
+            sid_list = util.get_distinct_with_order([row['sid'] for row in result])
+            students = cls.query.filter(cls.sid.in_(sid_list)).all() if sid_list else []
+            # Order of students from query (above) might not match order of sid_list.
+            students = [next(s for s in students if s.sid == sid) for sid in sid_list]
+            summary.update({
+                'students': [student.to_api_json() for student in students],
+            })
+        return summary
 
     @classmethod
     def get_all(cls, order_by=None):
