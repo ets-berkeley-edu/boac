@@ -166,7 +166,7 @@ class TestCanvasGrades:
         assert feed
         assert len(feed) == 43
         assert feed[0]['user_id'] == 9000100
-        assert feed[0]['grades']['current_score'] == 86.0
+        assert feed[0]['grades']['current_score'] == 86.125
         assert feed[42]['user_id'] == 5432100
         assert feed[42]['grades']['current_score'] == 91.0
 
