@@ -91,6 +91,10 @@
   white-space: nowrap;
 }
 
+.cohort-filter-dropdown-toggle {
+  background: #fff;
+}
+
 .cohort-filter-label {
   color: #49b;
   font-size: 16px;
