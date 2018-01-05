@@ -316,7 +316,9 @@
          data-ng-if="!isLoading && !error && cohort.totalMemberCount">
       <ul id="cohort-members-list" class="list-group">
         <a class="list-group-item cohort-member-list-item"
-           data-ng-href="/student/{{student.uid}}"
+           id="uid-{{student.uid}}"
+           href
+           data-ng-click="studentProfile(student.uid)"
            data-ng-repeat="student in cohort.members">
           <div class="cohort-avatar-container">
             <img class="cohort-avatar"
@@ -382,7 +384,8 @@
         </div>
         <ul class="list-group">
           <a class="list-group-item cohort-member-list-item"
-             data-ng-href="/student/{{student.uid}}"
+             href
+             data-ng-click="studentProfile(student.uid)"
              data-ng-repeat="student in studentsWithoutData">
             <div class="cohort-avatar-container">
               <img class="cohort-avatar"

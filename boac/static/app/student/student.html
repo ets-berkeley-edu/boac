@@ -2,6 +2,9 @@
   <div data-ng-include="'/static/app/shared/header.html'"></div>
 
   <div data-ng-if="!student.isLoading && !error">
+    <div data-ng-if="returnUrl">
+      <a href="{{returnUrl}}">Return to cohort</a>
+    </div>
     <div class="student-profile-header">
       <div class="student-profile-avatar-container">
         <img class="student-profile-avatar"

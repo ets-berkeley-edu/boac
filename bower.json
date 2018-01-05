@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "dependencies": {
     "angular": "^1.6.6",
+    "angular-base64": "^2.0.5",
     "angular-bootstrap": "^2.5.0",
     "angular-ui-router": "0.4.2",
     "bootstrap": "^3.3.7",
