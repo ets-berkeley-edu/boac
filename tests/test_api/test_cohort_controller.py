@@ -18,10 +18,13 @@ class TestCohortDetail:
         response = client.get('/api/cohorts/my')
         assert response.status_code == 200
 
-        my_cohorts = response.json
-        assert len(my_cohorts) == 2
-        assert len(my_cohorts[0]['teamGroups']) == 2
-        assert len(my_cohorts[1]['teamGroups']) == 1
+        cohorts = response.json
+        assert len(cohorts) == 2
+        assert len(cohorts[0]['teamGroups']) == 2
+        # Student profiles are not included in this feed.
+        assert 'students' not in cohorts[0]
+        assert 'totalMemberCount' in cohorts[0]
+        assert len(cohorts[1]['teamGroups']) == 1
 
     def test_get_cohort(self, authenticated_session, client):
         """returns a well-formed response with custom cohort"""
@@ -78,6 +81,7 @@ class TestCohortDetail:
         cohort = json.loads(response.data)
         assert cohort['code'] == 'intensive'
         assert cohort['label'] == 'Intensive'
+        assert 'members' in cohort
         assert cohort['totalMemberCount'] == len(cohort['members']) == 3
         assert 'teamGroups' not in cohort
 
@@ -128,11 +132,13 @@ class TestCohortDetail:
         assert response.status_code == 200
 
         cohort = json.loads(response.data)
+        assert 'members' in cohort
         assert 'label' in cohort and cohort['label'] == label
         assert 'teamGroups' in cohort
         assert group_codes == [g['groupCode'] for g in cohort['teamGroups']]
 
         same_cohort = CohortFilter.find_by_id(cohort['id'])
+        assert 'members' in cohort
         assert same_cohort['label'] == label
         assert 'teamGroups' in cohort and len(cohort['teamGroups']) == 2
         assert group_codes == [g['groupCode'] for g in cohort['teamGroups']]

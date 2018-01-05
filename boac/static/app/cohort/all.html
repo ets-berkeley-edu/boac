@@ -17,7 +17,7 @@
             <span data-ng-bind="'Owned by UID ' + uid"></span>
             <ul>
               <li data-ng-repeat="cohort in cohorts">
-                <a data-ng-bind="cohort.label" data-ng-href="/cohort/{{cohort.id}}"></a>
+                <a data-ng-bind="cohort.label" data-ng-href="/cohort?c={{cohort.id}}"></a>
                 (<span data-ng-bind="cohort.totalMemberCount"></span>)
               </li>
             </ul>

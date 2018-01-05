@@ -25,9 +25,10 @@
         isPublic: true
       })
       .state('cohort', {
-        url: '/cohort/:code',
+        url: '/cohort?c',
         templateUrl: '/static/app/cohort/cohort.html',
-        controller: 'CohortController'
+        controller: 'CohortController',
+        reloadOnSearch: false
       })
       .state('allCohorts', {
         url: '/cohorts/all',
