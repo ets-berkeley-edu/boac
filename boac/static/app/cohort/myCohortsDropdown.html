@@ -26,15 +26,15 @@
         class="wrap-hard"
         data-ng-repeat="cohort in myCohorts"
         data-ng-if="myCohorts.length && !isLoading">
-      <a data-ui-sref="cohort({code: cohort.id})" data-ui-sref-opts="{reload: true}">
+      <a data-ui-sref="cohort({c: cohort.id})" data-ui-sref-opts="{reload: true}">
         {{truncate(cohort.label, {length:50, omission: '...'})}}
       </a>
     </li>
     <li role="menuitem">
-      <a data-ui-sref="cohort({code: 'intensive'})" data-ui-sref-opts="{reload: true}">Intensive</a>
+      <a data-ui-sref="cohort({c: 'intensive'})" data-ui-sref-opts="{reload: true}">Intensive</a>
     </li>
     <li class="divider"></li>
-    <li role="menuitem"><a href="/cohort/0">Create New Cohort</a></li>
+    <li role="menuitem"><a href="/cohort?c=new">Create New Cohort</a></li>
     <li role="menuitem"><a href="/cohorts/manage">Manage My Cohorts</a></li>
     <li role="menuitem"><a href="/cohorts/all">View Everyone's Cohorts</a></li>
   </ul>
