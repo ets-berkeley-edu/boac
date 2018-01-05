@@ -1,6 +1,5 @@
 from boac import db, std_commit
 from boac.models.base import Base
-from flask import current_app as app
 
 
 class NormalizedCacheStudent(Base):
@@ -30,5 +29,4 @@ class NormalizedCacheStudent(Base):
         else:
             row = cls(sid=sid, gpa=gpa, level=level, units=units)
             db.session.add(row)
-        if not app.config['TESTING']:
-            std_commit()
+        std_commit()

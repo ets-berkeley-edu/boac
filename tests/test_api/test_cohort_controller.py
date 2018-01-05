@@ -209,6 +209,22 @@ class TestCohortDetail:
             assert key in data
             assert data[key] == cohort['filterCriteria'][key]
 
+    def test_cohort_ordering(self, authenticated_session, client):
+        """orders custom cohorts alphabetically"""
+        z_team_data = {
+            'label': 'Zteam',
+            'groupCodes': ['MTE-AA', 'WWP-AA'],
+        }
+        client.post('/api/cohort/create', data=json.dumps(z_team_data), content_type='application/json')
+        a_team_data = {
+            'label': 'Ateam',
+            'groupCodes': ['MWP-AA', 'WTE-AA'],
+        }
+        client.post('/api/cohort/create', data=json.dumps(a_team_data), content_type='application/json')
+
+        response = client.get('/api/cohorts/my')
+        assert [cohort['label'] for cohort in response.json] == ['All sports', 'Ateam', 'Football, Defense Backs', 'Zteam']
+
     def test_delete_cohort_not_authenticated(self, client):
         """custom cohort deletion requires authentication"""
         response = client.delete('/api/cohort/delete/{}'.format('123'))

@@ -1,6 +1,5 @@
 from boac import db, std_commit
 from boac.models.base import Base
-from flask import current_app as app
 
 
 class NormalizedCacheStudentMajor(Base):
@@ -36,5 +35,4 @@ class NormalizedCacheStudentMajor(Base):
             if new_major not in existing_majors:
                 row = cls(sid=sid, major=new_major)
                 db.session.add(row)
-        if not app.config['TESTING']:
-            std_commit()
+        std_commit()

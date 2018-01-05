@@ -84,7 +84,7 @@ def load_development_data():
         if not user:
             user = AuthorizedUser(**row)
             db.session.add(user)
-    std_commit()
+    std_commit(allow_test_environment=True)
 
 
 def create_team_group(t):
@@ -169,7 +169,7 @@ def load_student_athletes():
         level='Senior',
         units=102,
         majors=['Letters & Sci Undeclared UG'])
-    std_commit()
+    std_commit(allow_test_environment=True)
 
 
 def load_cohorts():
@@ -180,7 +180,7 @@ def load_cohorts():
     # Sandeep's cohorts
     CohortFilter.create(uid='1133399', label='All sports', group_codes=['MFB-DL', 'MFB-DL', 'WFH-AA'])
     CohortFilter.create(uid='1133399', label='Football, Defense Backs', group_codes=['MFB-DB'])
-    std_commit()
+    std_commit(allow_test_environment=True)
 
 
 if __name__ == '__main__':

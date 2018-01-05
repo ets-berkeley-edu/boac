@@ -34,13 +34,11 @@ class JobProgress:
                 app.logger.error('Cannot start job {} already in progress'.format(self.key))
                 return False
             row.json = start_json
-            if not app.config['TESTING']:
-                std_commit()
+            std_commit()
         else:
             row = JsonCache(key=self.key, json=start_json)
             db.session.add(row)
-            if not app.config['TESTING']:
-                std_commit()
+            std_commit()
         return start_json
 
     def update(self, step_description):

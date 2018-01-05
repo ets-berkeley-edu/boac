@@ -69,9 +69,7 @@ def stow(key_pattern, for_term=False):
                 app.logger.debug('Will stow JSON for key {key}'.format(key=key))
                 row = JsonCache(key=key, json=to_stow)
                 db.session.add(row)
-                # Give a hoot, don't pollute.
-                if not app.config['TESTING']:
-                    std_commit()
+                std_commit()
             else:
                 app.logger.info('{key} not generated and will not be stowed in DB'.format(key=key))
             return to_stow
@@ -82,8 +80,7 @@ def update_jsonb_row(stowed):
     """Changes to a JSONB column will not be committed without some extra hoop-jumping."""
     flag_modified(stowed, 'json')
     db.session.merge(stowed)
-    if not app.config['TESTING']:
-        std_commit()
+    std_commit()
 
 
 def _get_args(func, *args, **kw):
