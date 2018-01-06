@@ -113,6 +113,7 @@ class TestCanvasGetUserCourses:
         courses = canvas.get_student_courses(61889)
         for course in courses:
             assert course['enrollments'][0]['type'] == 'student'
+            assert course['enrollments'][0]['enrollment_state'] == 'active'
 
     def test_user_not_found(self, app, caplog):
         """logs 404 for unknown user"""
