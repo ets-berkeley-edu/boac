@@ -46,7 +46,10 @@ def get_student_courses(uid):
 
     def include_course(course):
         if course.get('enrollments'):
-            if next((e for e in course['enrollments'] if e['type'] == 'student'), None):
+            if next((e for e in course['enrollments'] if
+                     e['type'] == 'student' and
+                     e['enrollment_state'] in ['active', 'completed', 'inactive']
+                     ), None):
                 return True
         return False
 

@@ -17,7 +17,8 @@ def merge_analytics_for_user(user_courses, uid, canvas_user_id, term_id):
                 enrollments = canvas.get_course_enrollments(canvas_course_id, term_id)
                 analytics.update(analytics_from_canvas_course_enrollments(enrollments, canvas_user_id))
                 assignments = canvas.get_assignments_analytics(canvas_course_id, uid, term_id)
-                analytics.update(analytics_from_canvas_course_assignments(assignments))
+                if assignments:
+                    analytics.update(analytics_from_canvas_course_assignments(assignments))
             course['analytics'] = analytics
 
 

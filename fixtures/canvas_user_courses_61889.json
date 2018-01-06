@@ -118,6 +118,45 @@
     "restrict_enrollments_to_course_dates": false
   },
   {
+    "id": 8654322,
+    "name": "Funky Funky Broadway",
+    "account_id": 102643,
+    "uuid": "qwertyuiop3",
+    "start_at": "2017-08-18T18:17:59Z",
+    "grading_standard_id": 4068930,
+    "is_public": true,
+    "course_code": "THEATER 128",
+    "default_view": "modules",
+    "root_account_id": 90242,
+    "enrollment_term_id": 5493,
+    "end_at": null,
+    "public_syllabus": false,
+    "public_syllabus_to_auth": false,
+    "storage_quota_mb": 5000,
+    "is_public_to_auth_users": false,
+    "term": {
+      "id": 5493,
+      "name": "Fall 2017"
+    },
+    "apply_assignment_group_weights": true,
+    "calendar": {
+      "ics": "https://ucberkeley.beta.instructure.com/feeds/calendars/course_qwertyuiop3.ics"
+    },
+    "time_zone": "America/Los_Angeles",
+    "enrollments": [
+      {
+        "type": "student",
+        "role": "StudentEnrollment",
+        "role_id": 1772,
+        "user_id": 123456,
+        "enrollment_state": "invited"
+      }
+    ],
+    "hide_final_grades": false,
+    "workflow_state": "available",
+    "restrict_enrollments_to_course_dates": false
+  },
+  {
     "id": 7654330,
     "name": "Optional Friday Night Radioactivity Group",
     "account_id": 1,
