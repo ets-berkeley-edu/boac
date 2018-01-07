@@ -64,6 +64,15 @@
 
     $scope.deleteCohort = cohortFactory.deleteCohort;
 
+    /**
+     * TODO: Filters per units
+     * var unitRangesE = studentFactory.getUnitRangesEligibility();
+     * var unitRangesP = studentFactory.getUnitRangesPacing();
+     *  [ 'Units eligibility: ' + _.join(names(f.unitRangesEligibility, unitRangesE, 'name'), ', ') ],
+     *  [ 'Units pacing: ' + _.join(names(f.unitRangesPacing, unitRangesP, 'name'), ', ') ]
+     *
+     * @return {void}
+     */
     var init = function() {
       cohortFactory.getMyCohorts().then(function(response) {
         $scope.myCohorts = response.data;
@@ -74,15 +83,11 @@
           var gpaLabels = _.map(names(f.gpaRanges, studentFactory.getGpaRanges(), 'name'), function(name) {
             return 'GPA: ' + name;
           });
-          var unitRangesE = studentFactory.getUnitRangesEligibility();
-          var unitRangesP = studentFactory.getUnitRangesPacing();
           cohort.filterCriteriaNames = _.concat(
             gpaLabels,
             _.map(cohort.teamGroups, 'groupName'),
             _.map(f.levels, function(level) { return 'Level: ' + level; }),
-            _.map(f.majors, function(major) { return 'Major: ' + major; }),
-            [ 'Units eligibility: ' + _.join(names(f.unitRangesEligibility, unitRangesE, 'name'), ', ') ],
-            [ 'Units pacing: ' + _.join(names(f.unitRangesPacing, unitRangesP, 'name'), ', ') ]
+            _.map(f.majors, function(major) { return 'Major: ' + major; })
           );
         });
         resetPageView(angular.noop);
@@ -90,7 +95,11 @@
       });
     };
 
-    $rootScope.$on('myCohortsUpdated', init);
+    $rootScope.$on('cohortDeleted', function(event, data) {
+      $scope.myCohorts = $scope.myCohorts = _.remove($scope.myCohorts, function(c) {
+        return c.id !== data.cohort.id;
+      });
+    });
 
     authService.authWrap(init)();
   });

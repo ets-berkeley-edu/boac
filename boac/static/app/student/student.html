@@ -1,9 +1,15 @@
 <div class="container">
   <div data-ng-include="'/static/app/shared/header.html'"></div>
 
+  <div class="loading-spinner-large" data-ng-if="student.isLoading && !error">
+    <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
+    <span class="sr-only">Loading...</span>
+  </div>
   <div data-ng-if="!student.isLoading && !error">
-    <div data-ng-if="returnUrl">
-      <a href="{{returnUrl}}">Return to cohort</a>
+    <div class="return-to-cohort" data-ng-if="returnUrl">
+      <a data-ng-href="{{returnUrl}}">
+        <i class="fa fa-arrow-left" aria-hidden="true"></i> Return to cohort
+      </a>
     </div>
     <div class="student-profile-header">
       <div class="student-profile-avatar-container">
@@ -158,5 +164,5 @@
     <div data-ng-bind="error"></div>
   </div>
 
-  <div data-ng-include="'/static/app/shared/footer.html'"></div>
+  <div data-ng-include="'/static/app/shared/footer.html'" data-ng-if="!student.isLoading"></div>
 </div>

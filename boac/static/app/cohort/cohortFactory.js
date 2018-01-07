@@ -30,6 +30,9 @@
     var deleteCohort = function(cohort) {
       return $http.delete('/api/cohort/delete/' + cohort.id).then(function() {
         $rootScope.$broadcast('myCohortsUpdated');
+        $rootScope.$broadcast('cohortDeleted', {
+          cohort: cohort
+        });
       });
     };
 

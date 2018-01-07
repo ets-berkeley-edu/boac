@@ -15,7 +15,8 @@
     $location,
     $rootScope,
     $scope,
-    $state
+    $state,
+    $timeout
   ) {
 
     /**
@@ -83,6 +84,17 @@
     };
 
     /**
+     * Update cohort in scope; insure a valid cohort.code.
+     *
+     * @param  {Object}    data        Response data with cohort/search results
+     * @return {void}
+     */
+    var updateCohort = function(data) {
+      $scope.cohort = data;
+      $scope.cohort.code = $scope.cohort.code || 'search';
+    };
+
+    /**
      * Use selected filter options to query students API.
      *
      * TODO: The search-by-unit-ranges feature is disabled and likely to change
@@ -141,7 +153,7 @@
      */
     var listViewRefresh = function(callback) {
       // Pagination is not used on teams because the member count is always reasonable.
-      $scope.pagination.enabled = $scope.cohort.code === 'search' || !isNaN($scope.cohort.code);
+      $scope.pagination.enabled = _.includes(['search', 'intensive'], $scope.cohort.code) || !isNaN($scope.cohort.code);
       var page = $scope.pagination.enabled ? $scope.pagination.currentPage : 0;
       var orderBy = $scope.orderBy.selected;
       var limit = $scope.pagination.enabled ? $scope.pagination.itemsPerPage : Number.MAX_SAFE_INTEGER;
@@ -149,7 +161,7 @@
 
       $scope.isLoading = true;
       getCohort(orderBy, offset, limit).then(function(response) {
-        $scope.cohort = response.data;
+        updateCohort(response.data);
         return callback();
       }).catch(function(err) {
         $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
@@ -244,7 +256,8 @@
       });
       // Pass along a subset of students that have useful data.
       cohortService.drawScatterplot(partitions[0], yAxisMeasure, function(uid) {
-        $state.go('user', {uid: uid});
+        var encodedAbsUrl = $base64.encode($location.absUrl());
+        $state.go('user', {uid: uid, r: encodedAbsUrl});
       });
       // List of students-without-data is rendered below the scatterplot.
       $scope.studentsWithoutData = partitions[1];
@@ -259,7 +272,7 @@
     var matrixViewRefresh = function(callback) {
       $scope.isLoading = true;
       getCohort(null, 0, $scope.pagination.noLimit).then(function(response) {
-        $scope.cohort = response.data;
+        updateCohort(response.data);
         scatterplotRefresh();
         return callback();
       }).catch(function(err) {
@@ -302,7 +315,7 @@
         $scope.pagination.enabled = true;
 
         var handleSuccess = function(response) {
-          $scope.cohort = response.data;
+          updateCohort(response.data);
           drawBoxplots();
         };
 
@@ -337,13 +350,13 @@
         $scope.orderBy.selected = args.o;
       }
       if (args.p && !isNaN(args.p)) {
-        $scope.pagination.currentPage = args.p;
+        $scope.pagination.currentPage = parseInt(args.p, 10);
       }
       if (args.v && _.includes($scope.tabs.all, args.v)) {
         $scope.tabs.selected = args.v;
       }
       if (args.p && !isNaN(args.p)) {
-        $scope.pagination.currentPage = args.p;
+        $scope.pagination.currentPage = parseInt(args.p, 10);
       }
     };
 
@@ -416,8 +429,8 @@
     });
 
     $scope.studentProfile = function(uid) {
-      var encodedUrl = $base64.encode($location.absUrl());
-      $location.path('/student/' + uid).search({r: encodedUrl});
+      var encodedAbsUrl = $base64.encode($location.absUrl());
+      $location.path('/student/' + uid).search({r: encodedAbsUrl});
     };
 
     /**
@@ -428,7 +441,8 @@
     var init = authService.authWrap(function() {
       var args = _.clone($location.search());
       // Create-new-cohort mode if code='new'. Search-mode (ie, unsaved cohort) if code='search'.
-      $scope.cohort.code = $scope.cohort.code || args.c || 'search';
+      var code = $scope.cohort.code || args.c || 'search';
+      $scope.cohort.code = isNaN(code) ? code : parseInt(code, 10);
       $scope.isCreateCohortMode = $scope.cohort.code === 'new';
 
       cohortFactory.getAllTeamGroups().then(function(teamsResponse) {
@@ -459,13 +473,14 @@
               initFilters(function() {
                 drawBoxplots();
                 $scope.isLoading = false;
-                // Scroll to anchor
-                if (args.uid) {
-                  // Scroll 50 extra px when deep-linking to student
-                  $anchorScroll.yOffset = 50;
-                  // Angular docs: https://docs.angularjs.org/api/ng/service/$anchorScroll
-                  $location.hash('uid-' + args.uid);
-                  $anchorScroll();
+                if (args.a) {
+                  $timeout(function() {
+                    // Scroll to anchor if returning from student profile page
+                    $scope.anchor = args.a;
+                    $location.search('a', null);
+                    $anchorScroll.yOffset = 50;
+                    $anchorScroll(args.a);
+                  });
                 }
                 // Track view event
                 if (isNaN($scope.cohort.code)) {
@@ -488,6 +503,7 @@
       var id = data.cohort.id;
       $scope.cohort.code = id;
       $scope.cohort.name = data.cohort.name;
+      $location.url($location.path());
       $location.search('c', id);
     });
 
