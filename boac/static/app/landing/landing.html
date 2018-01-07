@@ -50,5 +50,10 @@
     <div data-ng-bind="alertMessage || 'Please sign in.'"></div>
   </div>
 
-  <div data-ng-include="'/static/app/shared/footer.html'"></div>
+  <div class="loading-spinner-large" data-ng-if="me.authenticated_as.is_authenticated && isLoading">
+    <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
+    <span class="sr-only">Loading...</span>
+  </div>
+
+  <div data-ng-include="'/static/app/shared/footer.html'" data-ng-if="!me.authenticated_as.is_authenticated || !isLoading"></div>
 </div>

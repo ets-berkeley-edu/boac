@@ -41,9 +41,10 @@
         controller: 'ManageCohortsController'
       })
       .state('user', {
-        url: '/student/:uid',
+        url: '/student/:uid?r',
         templateUrl: '/static/app/student/student.html',
-        controller: 'StudentController'
+        controller: 'StudentController',
+        reloadOnSearch: false
       });
   });
 

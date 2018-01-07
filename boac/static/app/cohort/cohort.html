@@ -282,6 +282,11 @@
 
   <hr class="filters-section-separator" data-ng-if="!isLoading && !error && !isCreateCohortMode && cohort.totalMemberCount"/>
 
+  <div class="loading-spinner-large" data-ng-if="isLoading && !error">
+    <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
+    <span class="sr-only">Loading...</span>
+  </div>
+
   <div class="cohort-column-results">
     <div class="flex-container flex-space-between"
          data-ng-if="!isLoading && !error && cohort.totalMemberCount">
@@ -316,7 +321,8 @@
          data-ng-if="!isLoading && !error && cohort.totalMemberCount">
       <ul id="cohort-members-list" class="list-group">
         <a class="list-group-item cohort-member-list-item"
-           id="uid-{{student.uid}}"
+           data-ng-class="{'list-group-item-info': anchor===student.uid}"
+           id="{{student.uid}}"
            href
            data-ng-click="studentProfile(student.uid)"
            data-ng-repeat="student in cohort.members">
@@ -384,6 +390,7 @@
         </div>
         <ul class="list-group">
           <a class="list-group-item cohort-member-list-item"
+             data-ng-class="{'list-group-item-info': anchor===student.uid}"
              href
              data-ng-click="studentProfile(student.uid)"
              data-ng-repeat="student in studentsWithoutData">
@@ -413,5 +420,5 @@
     </div>
   </div>
 
-  <div data-ng-include="'/static/app/shared/footer.html'"></div>
+  <div data-ng-include="'/static/app/shared/footer.html'" data-ng-if="!isLoading"></div>
 </div>
