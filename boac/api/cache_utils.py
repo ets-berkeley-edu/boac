@@ -95,7 +95,9 @@ def load_canvas_externals(uid, term_id):
     elif canvas_user_profile:
         success_count += 1
         sites = canvas.get_student_courses(uid)
-        if sites:
+        if sites is None:
+            failures.append(f'canvas.get_student_courses failed for UID {uid}')
+        else:
             success_count += 1
             term_name = berkeley.term_name_for_sis_id(term_id)
             for site in sites:
@@ -122,7 +124,8 @@ def load_canvas_externals(uid, term_id):
                     ))
                     continue
                 success_count += 1
-                if not canvas.get_assignments_analytics(site_id, uid, term_id):
+                # Do not treat an empty list as a failure.
+                if canvas.get_assignments_analytics(site_id, uid, term_id) is None:
                     failures.append('canvas.get_assignments_analytics failed for UID {}, site_id {}'.format(
                         uid,
                         site_id,
