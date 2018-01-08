@@ -34,7 +34,10 @@
     var prepareReturnUrl = function(uid) {
       var encodedReturnUrl = $location.search().r;
       if (!_.isEmpty(encodedReturnUrl)) {
-        $scope.returnUrl = $base64.decode(encodedReturnUrl) + '&uid=' + uid;
+        $location.url($location.path());
+        var url = $base64.decode(encodedReturnUrl);
+        var separator = _.includes(url, '?') ? '&' : '?';
+        $scope.returnUrl = url + separator + 'a=' + uid;
       }
     };
 
