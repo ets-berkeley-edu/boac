@@ -1,6 +1,7 @@
 import re
 from boac.externals import sis_degree_progress_api
 from boac.externals import sis_student_api
+from boac.lib.util import vacuum_whitespace
 from boac.models.json_cache import stow
 from boac.models.normalized_cache_student import NormalizedCacheStudent
 from boac.models.normalized_cache_student_major import NormalizedCacheStudentMajor
@@ -85,9 +86,9 @@ def merge_sis_profile_names(sis_response, sis_profile):
     for name in sis_response.get('names', []):
         code = name.get('type', {}).get('code')
         if code == 'PRF':
-            sis_profile['preferredName'] = name.get('formattedName')
+            sis_profile['preferredName'] = vacuum_whitespace(name.get('formattedName'))
         elif code == 'PRI':
-            sis_profile['primaryName'] = name.get('formattedName')
+            sis_profile['primaryName'] = vacuum_whitespace(name.get('formattedName'))
         if 'primaryName' in sis_profile and 'preferredName' in sis_profile:
             break
 

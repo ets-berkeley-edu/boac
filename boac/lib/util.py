@@ -11,3 +11,10 @@ def get_distinct_with_order(sequence):
     seen = set()
     seen_add = seen.add
     return [x for x in sequence if not (x in seen or seen_add(x))]
+
+
+def vacuum_whitespace(str):
+    """Collapse multiple-whitespace sequences into a single space; remove leading and trailing whitespace."""
+    if not str:
+        return None
+    return ' '.join(str.split())
