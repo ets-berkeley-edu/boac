@@ -146,6 +146,29 @@
     };
 
     /**
+     * Draw boxplots for students in list view.
+     *
+     * @return {void}
+     */
+    var drawBoxplots = function() {
+      // Wait until Angular has finished rendering elements within repeaters.
+      $scope.$$postDigest(function() {
+        _.each($scope.cohort.members, function(student) {
+          _.each(_.get(student, 'currentTerm.enrollments'), function(enrollment) {
+            _.each(_.get(enrollment, 'canvasSites'), function(canvasSite) {
+              var elementId = 'boxplot-' + canvasSite.canvasCourseId + '-' + student.uid + '-pageviews';
+              var dataset = _.get(canvasSite, 'analytics.pageViews');
+              // If the course site has not yet been viewed, then there is nothing to plot.
+              if (dataset && _.get(dataset, 'courseDeciles')) {
+                boxplotService.drawBoxplotCohort(elementId, dataset);
+              }
+            });
+          });
+        });
+      });
+    };
+
+    /**
      * Invoke API to get cohort, team or intensive.
      *
      * @param  {Function}    callback    Follow up activity per caller
@@ -162,6 +185,7 @@
       $scope.isLoading = true;
       getCohort(orderBy, offset, limit).then(function(response) {
         updateCohort(response.data);
+        drawBoxplots();
         return callback();
       }).catch(function(err) {
         $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
@@ -282,29 +306,6 @@
     };
 
     /**
-     * Draw boxplots for students in list view.
-     *
-     * @return {void}
-     */
-    var drawBoxplots = function() {
-      // Wait until Angular has finished rendering elements within repeaters.
-      $scope.$$postDigest(function() {
-        _.each($scope.cohort.members, function(student) {
-          _.each(_.get(student, 'currentTerm.enrollments'), function(enrollment) {
-            _.each(_.get(enrollment, 'canvasSites'), function(canvasSite) {
-              var elementId = 'boxplot-' + canvasSite.canvasCourseId + '-' + student.uid + '-pageviews';
-              var dataset = _.get(canvasSite, 'analytics.pageViews');
-              // If the course site has not yet been viewed, then there is nothing to plot.
-              if (dataset && _.get(dataset, 'courseDeciles')) {
-                boxplotService.drawBoxplotCohort(elementId, dataset);
-              }
-            });
-          });
-        });
-      });
-    };
-
-    /**
      * Invoked when (1) user navigates to next/previous page or (2) search criteria changes.
      *
      * @return {void}
@@ -312,7 +313,6 @@
     var nextPage = $scope.nextPage = function() {
       if ($scope.cohort.code) {
         listViewRefresh(function() {
-          drawBoxplots();
           $scope.isLoading = false;
         });
       } else {
@@ -475,7 +475,6 @@
             var render = $scope.tabs.selected === 'list' ? listViewRefresh : matrixViewRefresh;
             render(function() {
               initFilters(function() {
-                drawBoxplots();
                 $scope.isLoading = false;
                 if (args.a) {
                   $timeout(function() {
