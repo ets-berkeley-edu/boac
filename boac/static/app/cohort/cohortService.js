@@ -81,23 +81,6 @@
         .attr('class', 'y cohort-matrix-axis')
         .call(yAxis);
 
-      // Add an x-axis label.
-      svg.append('text')
-        .attr('class', 'cohort-matrix-axis-label')
-        .attr('text-anchor', 'start')
-        .attr('x', 0)
-        .attr('y', height + 30)
-        .text('Page views');
-
-      // Add a y-axis label.
-      svg.append('text')
-        .attr('class', 'cohort-matrix-axis-label')
-        .attr('text-anchor', 'start')
-        .attr('x', -height)
-        .attr('y', -20)
-        .attr('transform', 'rotate(-90)')
-        .text(yAxisName);
-
       var defs = svg.append('svg:defs');
 
       var linearGradient = defs.append('linearGradient')
@@ -151,6 +134,7 @@
         .attr('width', width)
         .attr('height', height)
         .attr('fill', 'none')
+        .classed('cohort-matrix-svg', true)
         .classed('objects', true);
 
       objects.append('svg:defs')
@@ -161,7 +145,7 @@
         .attr('x', -35)
         .attr('y', -35)
         .attr('width', width + 70)
-        .attr('height', height + 120);
+        .attr('height', height + 70);
 
       var dotGroup = objects.append('g')
         .attr('clip-path', 'url(#clip)');
@@ -179,6 +163,23 @@
         .attr('cx', function(d) { return xScale(x(d)); })
         .attr('cy', function(d) { return yScale(y(d)); })
         .attr('r', '30');
+
+      // Add an x-axis label.
+      svg.append('text')
+        .attr('class', 'cohort-matrix-axis-label')
+        .attr('text-anchor', 'start')
+        .attr('x', 0)
+        .attr('y', height + 30)
+        .text('Page views');
+
+      // Add a y-axis label.
+      svg.append('text')
+        .attr('class', 'cohort-matrix-axis-label')
+        .attr('text-anchor', 'start')
+        .attr('x', -height)
+        .attr('y', -20)
+        .attr('transform', 'rotate(-90)')
+        .text(yAxisName);
 
       var displayValue = function(d, prop) {
         var value = _.get(d, prop);
