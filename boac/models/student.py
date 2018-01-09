@@ -41,32 +41,7 @@ class Student(Base):
                      unit_ranges_eligibility=None, unit_ranges_pacing=None, order_by=None, offset=0, limit=50,
                      only_total_student_count=False):
         # TODO: unit ranges
-        query = """
-            FROM students s
-                JOIN normalized_cache_students n ON n.sid = s.sid
-                LEFT JOIN student_athletes sa ON sa.sid = s.sid
-                LEFT JOIN normalized_cache_student_majors m ON m.sid = s.sid
-            WHERE
-                TRUE
-        """
-        all_bindings = {}
-        if group_codes:
-            args = sqlalchemy_bindings(group_codes, 'group_code')
-            all_bindings.update(args)
-            query += ' AND sa.group_code IN ({})'.format(':' + ', :'.join(args.keys()))
-        if gpa_ranges:
-            # 'sqlalchemy_bindings' is not used here due to extravagant SQL syntax.
-            query += ' AND n.gpa <@ ANY(ARRAY[{}])'.format(', '.join(gpa_ranges))
-        if levels:
-            args = sqlalchemy_bindings(levels, 'level')
-            all_bindings.update(args)
-            query += ' AND n.level IN ({})'.format(':' + ', :'.join(args.keys()))
-        if majors:
-            args = sqlalchemy_bindings(majors, 'major')
-            all_bindings.update(args)
-            query += ' AND m.major IN ({})'.format(':' + ', :'.join(args.keys()))
-        if in_intensive_cohort is not None:
-            query += ' AND s.in_intensive_cohort IS {}'.format(str(in_intensive_cohort))
+        query, all_bindings = cls.get_students_query(group_codes, gpa_ranges, levels, majors, in_intensive_cohort)
         # First, get total_count of matching students
         connection = db.engine.connect()
         result = connection.execute(text(f'SELECT COUNT(DISTINCT(s.sid)) {query}'), **all_bindings)
@@ -80,7 +55,9 @@ class Student(Base):
                 o = f's.{order_by}'
             elif order_by in ['group_code']:
                 o = f'sa.{order_by}'
-            elif order_by in ['gpa', 'level', 'units']:
+            elif order_by in ['level']:
+                o = 'ol.ordinal'
+            elif order_by in ['gpa', 'units']:
                 o = f'n.{order_by}'
             elif order_by in ['major']:
                 o = f'm.{order_by}'
@@ -108,6 +85,43 @@ class Student(Base):
             if order_by == 'groupName':
                 students = sorted(students, key=lambda student: student.athletics and student.athletics[0].group_name)
         return [s.to_expanded_api_json() for s in students]
+
+    @classmethod
+    def get_students_query(cls, group_codes, gpa_ranges, levels, majors, in_intensive_cohort):
+        query = """
+            FROM students s
+                JOIN normalized_cache_students n ON n.sid = s.sid
+                LEFT JOIN student_athletes sa ON sa.sid = s.sid
+                LEFT JOIN normalized_cache_student_majors m ON m.sid = s.sid
+                LEFT JOIN (VALUES
+                    (1, 'Freshman'),
+                    (2, 'Sophomore'),
+                    (3, 'Junior'),
+                    (4, 'Senior'),
+                    (5, 'Graduate')
+                ) AS ol (ordinal, level) ON n.level = ol.level
+            WHERE
+                TRUE
+        """
+        all_bindings = {}
+        if group_codes:
+            args = sqlalchemy_bindings(group_codes, 'group_code')
+            all_bindings.update(args)
+            query += ' AND sa.group_code IN ({})'.format(':' + ', :'.join(args.keys()))
+        if gpa_ranges:
+            # 'sqlalchemy_bindings' is not used here due to extravagant SQL syntax.
+            query += ' AND n.gpa <@ ANY(ARRAY[{}])'.format(', '.join(gpa_ranges))
+        if levels:
+            args = sqlalchemy_bindings(levels, 'level')
+            all_bindings.update(args)
+            query += ' AND n.level IN ({})'.format(':' + ', :'.join(args.keys()))
+        if majors:
+            args = sqlalchemy_bindings(majors, 'major')
+            all_bindings.update(args)
+            query += ' AND m.major IN ({})'.format(':' + ', :'.join(args.keys()))
+        if in_intensive_cohort is not None:
+            query += ' AND s.in_intensive_cohort IS {}'.format(str(in_intensive_cohort))
+        return query, all_bindings
 
     def to_api_json(self):
         return api_util.student_to_json(self)
