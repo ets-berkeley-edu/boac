@@ -34,7 +34,7 @@ def register_routes(app):
     @app.route('/', defaults={'path': ''})
     @app.route('/<path:path>')
     def front_end_route(**kwargs):
-        return make_response(open('boac/templates/index.html').read())
+        return make_response(open(app.config['INDEX_HTML']).read())
 
     @app.after_request
     def log_api_requests(response):
