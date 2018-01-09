@@ -9,7 +9,8 @@ eb_codebuild_settings:
 phases:
   install:
     commands:
-      - echo "install phase"
+      - chmod 755 ./scripts/*.sh
+      - ./scripts/create-build-summary.sh
   pre_build:
     commands:
       - echo "pre_build phase"

@@ -11,6 +11,7 @@ boac/static/lib
 
 # Local configs
 config/*-local.py
+config/build-summary.json
 
 # Temporary files
 tmp/
