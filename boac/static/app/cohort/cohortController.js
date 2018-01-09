@@ -293,7 +293,11 @@
           _.each(_.get(student, 'currentTerm.enrollments'), function(enrollment) {
             _.each(_.get(enrollment, 'canvasSites'), function(canvasSite) {
               var elementId = 'boxplot-' + canvasSite.canvasCourseId + '-' + student.uid + '-pageviews';
-              boxplotService.drawBoxplotCohort(elementId, _.get(canvasSite, 'analytics.pageViews'));
+              var dataset = _.get(canvasSite, 'analytics.pageViews');
+              // If the course site has not yet been viewed, then there is nothing to plot.
+              if (dataset && _.get(dataset, 'courseDeciles')) {
+                boxplotService.drawBoxplotCohort(elementId, dataset);
+              }
             });
           });
         });
