@@ -5,6 +5,7 @@ from boac.lib.util import vacuum_whitespace
 from boac.models.json_cache import stow
 from boac.models.normalized_cache_student import NormalizedCacheStudent
 from boac.models.normalized_cache_student_major import NormalizedCacheStudentMajor
+from flask import current_app as app
 
 
 @stow('merged_sis_profile_{csid}')
@@ -16,7 +17,16 @@ def merge_sis_profile(csid):
     sis_profile = {}
     merge_sis_profile_academic_status(sis_response, sis_profile)
     merge_sis_profile_emails(sis_response, sis_profile)
-    merge_sis_profile_names(sis_response, sis_profile)
+
+    # We have encountered at least one malformed Hub Student Profile feed in which the top-level
+    # 'names' key points to an embedded 'names' array rather than simply pointing to the array.
+    # See BOAC-362 for details.
+    try:
+        merge_sis_profile_names(sis_response, sis_profile)
+    except AttributeError as e:
+        app.logger.error(f'Hub Student API returned malformed response for SID {csid}')
+        app.logger.error(e)
+
     merge_sis_profile_phones(sis_response, sis_profile)
     if sis_profile['academicCareer'] == 'UGRD':
         sis_profile['degreeProgress'] = sis_degree_progress_api.parsed_degree_progress(csid)
