@@ -39,14 +39,15 @@
     <div class="cohort-filters-column flex-column-btn">
       <div class="btn-group box-shadow-off"
            uib-dropdown
-           auto-close="disabled"
+           auto-close="outsideClick"
            is-open="search.dropdown.groupCodesOpen"
            keyboard-nav>
         <!-- Dropdown docs at https://angular-ui.github.io/bootstrap/ -->
         <button id="search-filter-teams"
                 type="button"
                 class="btn cohort-filter-dropdown-toggle"
-                uib-dropdown-toggle>
+                uib-dropdown-toggle
+                data-ng-click="toggleFilter($event)">
           <span class="cohort-filter-label">
             Teams
             <span data-ng-if="!isLoading && !isSaving">(<span data-ng-bind="search.count.teamGroups"></span>)</span>
@@ -80,13 +81,14 @@
     <div class="cohort-filters-column flex-column-btn">
       <div class="btn-group box-shadow-off"
            uib-dropdown
-           auto-close="disabled"
+           auto-close="outsideClick"
            is-open="search.dropdown.levelsOpen"
            keyboard-nav>
         <button id="search-filter-level"
                 type="button"
                 class="btn cohort-filter-dropdown-toggle"
-                uib-dropdown-toggle>
+                uib-dropdown-toggle
+                data-ng-click="toggleFilter($event)">
           <span class="cohort-filter-label">
             Levels
             <span data-ng-if="!isLoading && !isSaving">(<span data-ng-bind="search.count.levels"></span>)</span>
@@ -120,13 +122,14 @@
     <div class="cohort-filters-column flex-column-btn">
       <div class="btn-group box-shadow-off"
            uib-dropdown
-           auto-close="disabled"
+           auto-close="outsideClick"
            is-open="search.dropdown.majorsOpen"
            keyboard-nav>
         <button id="search-filter-majors"
                 type="button"
                 class="btn cohort-filter-dropdown-toggle"
-                uib-dropdown-toggle>
+                uib-dropdown-toggle
+                data-ng-click="toggleFilter($event)">
           <span class="cohort-filter-label">
             Majors
             <span data-ng-if="!isLoading && !isSaving">(<span data-ng-bind="search.count.majors"></span>)</span>
@@ -160,13 +163,14 @@
     <div class="cohort-filters-column flex-column-btn">
       <div class="btn-group box-shadow-off"
            uib-dropdown
-           auto-close="disabled"
+           auto-close="outsideClick"
            is-open="search.dropdown.gpaRangesOpen"
            keyboard-nav>
         <button id="search-filter-gpa-ranges"
                 type="button"
                 class="btn cohort-filter-dropdown-toggle"
-                uib-dropdown-toggle>
+                uib-dropdown-toggle
+                data-ng-click="toggleFilter($event)">
           <span class="cohort-filter-label">
             GPA
             <span data-ng-if="!isLoading && !isSaving">(<span data-ng-bind="search.count.gpaRanges"></span>)</span>
@@ -200,13 +204,14 @@
     <div class="cohort-filters-column flex-column-btn" data-ng-if="search.filterByUnitsFeatureEnabled">
       <div class="btn-group box-shadow-off"
            uib-dropdown
-           auto-close="disabled"
+           auto-close="outsideClick"
            is-open="search.dropdown.unitRangesOpen"
            keyboard-nav>
         <button id="search-filter-unit-ranges"
                 type="button"
                 class="btn cohort-filter-dropdown-toggle"
-                uib-dropdown-toggle>
+                uib-dropdown-toggle
+                data-ng-click="toggleFilter($event)">
           <span class="cohort-filter-label">
             Units
             <span data-ng-if="!isLoading && !isSaving">(<span data-ng-bind="search.count.unitRanges"></span>)</span>

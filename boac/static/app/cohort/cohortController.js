@@ -437,6 +437,13 @@
       $location.path('/student/' + uid).search({r: encodedAbsUrl});
     };
 
+    $scope.toggleFilter = function(event) {
+      // Known issue: https://github.com/angular-ui/bootstrap/issues/6038
+      if (event) {
+        event.stopPropagation();
+      }
+    };
+
     /**
      * Initialize page view.
      *
