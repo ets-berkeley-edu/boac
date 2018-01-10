@@ -30,6 +30,7 @@ artifacts:
   - 'bower.json'
   - 'config/**/*'
   - 'fixtures/**/*'
+  - 'gulpfile.js'
   - 'package.json'
   - 'requirements.txt'
   - 'run.py'
