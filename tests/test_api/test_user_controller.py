@@ -397,9 +397,17 @@ class TestUserAnalytics:
             'limit': 50,
         }
         response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
+
         assert response.status_code == 200
         assert 'members' in response.json
         students = response.json['members']
         assert 2 == len(students)
         # Offset of 1, ordered by lastName
         assert ['1133399', '242881'] == [student['uid'] for student in students]
+        group_codes_1133399 = [a['groupCode'] for a in students[0]['athletics']]
+        assert len(group_codes_1133399) == 3
+        assert 'MFB-DB' in group_codes_1133399
+        assert 'MFB-DL' in group_codes_1133399
+        assert 'MTE-AA' in group_codes_1133399
+        group_codes_242881 = [a['groupCode'] for a in students[1]['athletics']]
+        assert group_codes_242881 == ['MFB-DL']
