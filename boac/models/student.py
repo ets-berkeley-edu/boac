@@ -73,7 +73,7 @@ class Student(Base):
             # Order of students from query (above) might not match order of sid_list.
             students = [next(s for s in students if s.sid == sid) for sid in sid_list]
             summary.update({
-                'students': [student.to_api_json() for student in students],
+                'students': [student.to_expanded_api_json() for student in students],
             })
         return summary
 
