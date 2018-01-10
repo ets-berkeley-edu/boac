@@ -276,7 +276,8 @@
       // Plot the cohort
       var yAxisMeasure = $scope.yAxisMeasure = $location.search().yAxis || 'analytics.courseCurrentScore';
       var partitions = _.partition($scope.cohort.members, function(member) {
-        return _.isFinite(_.get(member, 'analytics.pageViews')) && _.isFinite(_.get(member, yAxisMeasure));
+        return _.isFinite(_.get(member, 'analytics.pageViews.percentile')) &&
+          _.isFinite(_.get(member, yAxisMeasure + '.percentile'));
       });
       // Pass along a subset of students that have useful data.
       cohortService.drawScatterplot(partitions[0], yAxisMeasure, function(uid) {

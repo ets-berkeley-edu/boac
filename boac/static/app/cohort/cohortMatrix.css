@@ -54,7 +54,7 @@
   padding: 5px 10px;
   position: absolute;
   text-align: left;
-  width: 200px;
+  width: 240px;
 }
 
 .cohort-matrix-tooltip-header {
@@ -66,9 +66,13 @@
 
 .cohort-matrix-tooltip-table td {
   font-size: 12px;
+}
+
+.cohort-matrix-tooltip-label {
   padding: 0 10px 2px 0;
 }
 
 .cohort-matrix-tooltip-value {
   font-weight: bold;
+  padding: 0 0 2px 0;
 }
