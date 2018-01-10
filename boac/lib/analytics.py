@@ -34,7 +34,8 @@ def mean_course_analytics_for_user(user_courses, uid, canvas_user_id, term_id):
                 if percentile and not math.isnan(percentile):
                     percentiles.append(percentile)
         if len(percentiles):
-            meanValues[metric] = mean(percentiles)
+            meanPercentile = mean(percentiles)
+            meanValues[metric] = {'percentile': meanPercentile, 'displayPercentile': ordinal(meanPercentile)}
         else:
             meanValues[metric] = None
     return meanValues
