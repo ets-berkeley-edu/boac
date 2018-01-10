@@ -185,6 +185,15 @@
   margin: 5px 0;
 }
 
+.cohort-member-teams {
+  color: #000;
+  font-size: 13px;
+}
+
+.cohort-member-teams-container {
+  margin-top: 5px;
+}
+
 .cohort-member-text {
   color: #aaa;
   font-size: 13px;

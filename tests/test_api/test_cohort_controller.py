@@ -68,8 +68,24 @@ class TestCohortDetail:
         assert athlete['currentTerm']['enrollments'][0]['displayName'] == 'BURMESE 1A'
         assert len(athlete['currentTerm']['enrollments'][0]['canvasSites']) == 1
 
+    def test_includes_cohort_member_athletics(self, authenticated_session, client):
+        """includes team memberships for custom cohort members"""
+        user = AuthorizedUser.find_by_uid(test_uid)
+        cohort_id = user.cohort_filters[0].id
+        response = client.get('/api/cohort/{}'.format(cohort_id))
+        athlete = response.json['members'][0]
+        assert len(athlete['athletics']) == 2
+        tennis = next(membership for membership in athlete['athletics'] if membership['groupCode'] == 'WTE-AA')
+        field_hockey = next(membership for membership in athlete['athletics'] if membership['groupCode'] == 'WFH-AA')
+        assert tennis['groupName'] == 'Women\'s Tennis'
+        assert tennis['teamCode'] == 'TNW'
+        assert tennis['teamName'] == 'Women\'s Tennis'
+        assert field_hockey['groupName'] == 'Women\'s Field Hockey'
+        assert field_hockey['teamCode'] == 'FHW'
+        assert field_hockey['teamName'] == 'Women\'s Field Hockey'
+
     def test_get_cohort_404(self, authenticated_session, client):
-        """returns a canned cohort, available to all authenticated users"""
+        """returns a well-formed response when no cohort found"""
         response = client.get('/api/cohort/99999999')
         assert response.status_code == 404
         assert 'No cohort found' in str(response.data)
