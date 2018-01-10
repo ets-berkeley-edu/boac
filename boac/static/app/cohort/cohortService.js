@@ -142,10 +142,10 @@
         .attr('id', 'clip')
         .append('svg:rect')
         .attr('id', 'clip-rect')
-        .attr('x', -35)
-        .attr('y', -35)
-        .attr('width', width + 70)
-        .attr('height', height + 70);
+        .attr('x', -55)
+        .attr('y', -55)
+        .attr('width', width + 110)
+        .attr('height', height + 110);
 
       var dotGroup = objects.append('g')
         .attr('clip-path', 'url(#clip)');
