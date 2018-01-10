@@ -5,9 +5,6 @@ import os
 # Base directory for the application (one level up from this config file).
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
-# The 'dist' version of index.html will force browsers to pick up new JS, HTML, CSS files
-INDEX_HTML = 'dist/static/index.html'
-
 # Directory to search for mock fixtures, if running in "test" or "demo" mode.
 FIXTURES_PATH = None
 
