@@ -488,7 +488,7 @@
                   $timeout(function() {
                     // Scroll to anchor if returning from student profile page
                     $scope.anchor = args.a;
-                    $location.search('a', null);
+                    $location.search('a', null).replace();
                     $anchorScroll.yOffset = 50;
                     $anchorScroll(args.a);
                   });
