@@ -20,9 +20,9 @@
   ) {
 
     /**
-     * Used to collapse all dropdown menus (e.g., if user clicks 'Search').
+     * Control show/hide of dropdowns: true -> show, false -> hide
      *
-     * @return {Object}      One entry per dropdown/filter.
+     * @return {Object}                Each filter dropdown (unique key) has state (true/false)
      */
     var defaultDropdownState = function() {
       return {
