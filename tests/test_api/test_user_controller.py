@@ -11,7 +11,7 @@ class TestStudents:
         response = client.get('/api/students/all')
         assert response.status_code == 200
         # We have one student not on a team
-        assert len(response.json) == 5
+        assert len(response.json) == 6
 
     def test_multiple_teams(self, client):
         """includes multiple team memberships"""
