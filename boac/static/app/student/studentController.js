@@ -34,7 +34,7 @@
     var prepareReturnUrl = function(uid) {
       var encodedReturnUrl = $location.search().r;
       if (!_.isEmpty(encodedReturnUrl)) {
-        $location.url($location.path());
+        $location.search('r', null).replace();
         var url = $base64.decode(encodedReturnUrl);
         var separator = _.includes(url, '?') ? '&' : '?';
         $scope.returnUrl = url + separator + 'a=' + uid;
