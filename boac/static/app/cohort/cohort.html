@@ -64,7 +64,7 @@
             class="cohort-filter-list dropdown-menu"
             role="menu"
             uib-dropdown-menu
-            data-ng-if="!isLoading && !isSaving">
+            data-ng-show="!isLoading && !isSaving">
           <li class="cohort-filter-list-item"
               role="menuitem"
               data-ng-repeat="teamGroup in search.options.teamGroups">
@@ -105,7 +105,7 @@
             class="cohort-filter-list dropdown-menu"
             role="menu"
             uib-dropdown-menu
-            data-ng-if="!isLoading && !isSaving">
+            data-ng-show="!isLoading && !isSaving">
           <li class="cohort-filter-list-item"
               role="menuitem"
               data-ng-repeat="level in search.options.levels">
@@ -146,7 +146,7 @@
             class="cohort-filter-list dropdown-menu"
             role="menu"
             uib-dropdown-menu
-            data-ng-if="!isLoading && !isSaving">
+            data-ng-show="!isLoading && !isSaving">
           <li class="cohort-filter-list-item"
               role="menuitem"
               data-ng-repeat="major in search.options.majors">
@@ -187,7 +187,7 @@
             class="cohort-filter-list dropdown-menu"
             role="menu"
             uib-dropdown-menu
-            data-ng-if="!isLoading && !isSaving">
+            data-ng-show="!isLoading && !isSaving">
           <li class="cohort-filter-list-item"
               role="menuitem"
               data-ng-repeat="gpaRange in search.options.gpaRanges">
@@ -228,7 +228,7 @@
             class="cohort-filter-list dropdown-menu"
             role="menu"
             uib-dropdown-menu
-            data-ng-if="!isLoading && !isSaving">
+            data-ng-show="!isLoading && !isSaving">
           <!-- Pacing units -->
           <li class="cohort-filter-list-section-label" role="menuitem">Pacing (Total)</li>
           <li class="cohort-filter-list-item"
