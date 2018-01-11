@@ -3,7 +3,6 @@
   'use strict';
 
   angular.module('boac').controller('CohortController', function(
-    authService,
     boxplotService,
     cohortFactory,
     cohortService,
@@ -450,7 +449,7 @@
      *
      * @return {void}
      */
-    var init = authService.authWrap(function() {
+    var init = function() {
       var args = _.clone($location.search());
       // Create-new-cohort mode if code='new'. Search-mode (ie, unsaved cohort) if code='search'.
       var code = $scope.cohort.code || args.c || 'search';
@@ -504,7 +503,7 @@
           }
         });
       });
-    });
+    };
 
     /**
      * Reload page with newly created cohort.

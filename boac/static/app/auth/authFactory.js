@@ -2,7 +2,7 @@
 
   'use strict';
 
-  angular.module('boac').factory('authFactory', function($http, $rootScope) {
+  angular.module('boac').factory('authFactory', function($http, $rootScope, $state) {
 
     var loadUserProfile = function(results) {
       // Refresh instance currently referenced in templates
@@ -18,10 +18,6 @@
       return results;
     };
 
-    var refreshStatus = function() {
-      return $http.get('/api/status').then(loadUserProfile);
-    };
-
     var casLogIn = function() {
       return $http.get('/cas/login_url').then(function(results) {
         window.location = results.data.cas_login_url;
@@ -35,12 +31,10 @@
       };
       return $http.post('/devauth/login', credentials).then(
         function successCallback() {
-          refreshStatus().then(function() {
-            $rootScope.$broadcast('userStatusChange');
-          });
+          $state.go('landing', {}, {reload: true});
         },
         function errorCallback() {
-          $rootScope.$broadcast('authenticationFailure');
+          $rootScope.$broadcast('devAuthFailure');
           $rootScope.me = null;
         });
     };

@@ -41,11 +41,11 @@
       }
     };
 
-    var init = authService.authWrap(function() {
+    var init = function() {
       var uid = $stateParams.uid;
       loadAnalytics(uid);
       prepareReturnUrl(uid);
-    });
+    };
 
     $scope.student = {
       canvasProfile: null,

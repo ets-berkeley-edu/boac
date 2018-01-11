@@ -2,7 +2,7 @@
 
   'use strict';
 
-  angular.module('boac').controller('AllCohortsController', function(authService, cohortFactory, $scope) {
+  angular.module('boac').controller('AllCohortsController', function(cohortFactory, $scope) {
 
     $scope.isLoading = true;
     $scope.isEmpty = _.isEmpty;
@@ -14,7 +14,7 @@
       });
     };
 
-    authService.authWrap(init)();
+    init();
   });
 
 }(window.angular));
