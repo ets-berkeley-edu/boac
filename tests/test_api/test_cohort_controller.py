@@ -102,25 +102,25 @@ class TestCohortDetail:
         assert cohort['code'] == 'intensive'
         assert cohort['label'] == 'Intensive'
         assert 'members' in cohort
-        assert cohort['totalMemberCount'] == len(cohort['members']) == 3
+        assert cohort['totalMemberCount'] == len(cohort['members']) == 4
         assert 'teamGroups' not in cohort
 
     def test_order_by_with_intensive_cohort(self, authenticated_session, client):
         """returns the canned 'intensive' cohort, available to all authenticated users"""
         all_expected_order = {
-            'first_name': ['61889', '1022796', '242881'],
-            'gpa': ['1022796', '242881', '61889'],
-            'group_code': ['242881', '61889', '1022796'],
-            'last_name': ['1022796', '242881', '61889'],
-            'level': ['1022796', '242881', '61889'],
-            'major': ['1022796', '61889', '242881'],
-            'units': ['61889', '1022796', '242881'],
+            'first_name': ['61889', '1022796', '1049291', '242881'],
+            'gpa': ['1022796', '242881', '1049291', '61889'],
+            'group_name': ['242881', '1049291', '61889', '1022796'],
+            'last_name': ['1022796', '1049291', '242881', '61889'],
+            'level': ['1022796', '242881', '1049291', '61889'],
+            'major': ['1022796', '61889', '242881', '1049291'],
+            'units': ['61889', '1022796', '242881', '1049291'],
         }
         for order_by, expected_uid_list in all_expected_order.items():
             response = client.get(f'/api/intensive_cohort?orderBy={order_by}')
             assert response.status_code == 200, f'Non-200 response where order_by={order_by}'
             cohort = json.loads(response.data)
-            assert cohort['totalMemberCount'] == 3, f'Wrong count where order_by={order_by}'
+            assert cohort['totalMemberCount'] == 4, f'Wrong count where order_by={order_by}'
             uid_list = [s['uid'] for s in cohort['members']]
             assert uid_list == expected_uid_list, f'Unmet expectation where order_by={order_by}'
 

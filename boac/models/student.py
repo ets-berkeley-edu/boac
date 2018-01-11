@@ -51,12 +51,13 @@ class Student(Base):
         if not only_total_student_count:
             # Next, get matching students per order_by, offset, limit
             o = 's.first_name'
-            if order_by in ['first_name', 'in_intensive_cohort', 'last_name']:
-                o = f's.{order_by}'
-            elif order_by in ['group_code']:
-                o = f'sa.{order_by}'
-            elif order_by in ['level']:
+            if order_by == 'level':
+                # Sort by an implicit value, not a column in db
                 o = 'ol.ordinal'
+            elif order_by in ['group_name']:
+                o = f'a.{order_by}'
+            elif order_by in ['first_name', 'in_intensive_cohort', 'last_name']:
+                o = f's.{order_by}'
             elif order_by in ['gpa', 'units']:
                 o = f'n.{order_by}'
             elif order_by in ['major']:
@@ -92,6 +93,7 @@ class Student(Base):
             FROM students s
                 JOIN normalized_cache_students n ON n.sid = s.sid
                 LEFT JOIN student_athletes sa ON sa.sid = s.sid
+                LEFT JOIN athletics a ON a.group_code = sa.group_code
                 LEFT JOIN normalized_cache_student_majors m ON m.sid = s.sid
                 LEFT JOIN (VALUES
                     (1, 'Freshman'),

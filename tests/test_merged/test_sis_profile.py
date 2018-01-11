@@ -45,12 +45,12 @@ class TestSisProfile:
                 merge_sis_profile('11667051')
 
                 student_rows = NormalizedCacheStudent.query.all()
-                assert len(student_rows) == 5
-                assert student_rows[4].sid == '11667051'
-                assert student_rows[4].level == 'Senior'
+                assert len(student_rows) == 6
+                assert student_rows[-1].sid == '11667051'
+                assert student_rows[-1].level == 'Senior'
 
                 student_major_rows = NormalizedCacheStudentMajor.query.all()
-                assert len(student_major_rows) == 7
+                assert len(student_major_rows) == 8
                 majors = [row.major for row in student_major_rows]
                 assert 'English BA' in majors
                 assert 'Hungarian BA' in majors

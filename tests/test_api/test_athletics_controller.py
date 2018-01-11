@@ -30,23 +30,29 @@ class TestAthletics:
         group_codes = [team_group['groupCode'] for team_group in team_groups]
         group_names = [team_group['groupName'] for team_group in team_groups]
         total_member_counts = [team_group['totalMemberCount'] for team_group in team_groups]
-        assert ['MFB-DB', 'MFB-DL', 'MTE-AA', 'WFH-AA', 'WTE-AA'] == group_codes
-        assert ['Football, Defensive Backs', 'Football, Defensive Line', 'Men\'s Tennis', 'Women\'s Field Hockey',
-                'Women\'s Tennis'] == group_names
-        assert [2, 3, 1, 1, 1] == total_member_counts
+        assert ['MFB-DB', 'MFB-DL', 'MBB-AA', 'MTE-AA', 'WFH-AA', 'WTE-AA'] == group_codes
+        assert [
+            'Football, Defensive Backs',
+            'Football, Defensive Line',
+            'Men\'s Baseball',
+            'Men\'s Tennis',
+            'Women\'s Field Hockey',
+            'Women\'s Tennis',
+        ] == group_names
+        assert [2, 3, 1, 1, 1, 1] == total_member_counts
 
     def test_get_all_teams(self, authenticated_session, client):
         """returns all teams if authenticated"""
         response = client.get('/api/teams/all')
         assert response.status_code == 200
         teams = response.json
-        assert len(teams) == 4
+        assert len(teams) == 5
         team_codes = [team['code'] for team in teams]
         team_names = [team['name'] for team in teams]
         total_member_counts = [team['totalMemberCount'] for team in teams]
-        assert ['FBM', 'TNM', 'FHW', 'TNW'] == team_codes
-        assert ['Football', 'Men\'s Tennis', 'Women\'s Field Hockey', 'Women\'s Tennis'] == team_names
-        assert [3, 1, 1, 1] == total_member_counts
+        assert ['FBM', 'MBB', 'TNM', 'FHW', 'TNW'] == team_codes
+        assert ['Football', 'Men\'s Baseball', 'Men\'s Tennis', 'Women\'s Field Hockey', 'Women\'s Tennis'] == team_names
+        assert [3, 1, 1, 1, 1] == total_member_counts
         football = teams[0]
         assert football['code'] == 'FBM'
         assert football['name'] == 'Football'
@@ -103,7 +109,7 @@ class TestAthletics:
         expected = {
             'first_name': ['2345678901', '3456789012', '5678901234'],
             'gpa': ['3456789012', '2345678901', '5678901234'],
-            'group_code': ['2345678901', '5678901234', '3456789012'],
+            'group_name': ['2345678901', '5678901234', '3456789012'],
             'last_name': ['2345678901', '5678901234', '3456789012'],
             'level': ['2345678901', '3456789012', '5678901234'],
             'major': ['3456789012', '2345678901', '5678901234'],

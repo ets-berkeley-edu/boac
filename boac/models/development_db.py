@@ -41,6 +41,12 @@ womens_field_hockey = {
     'team_code': 'FHW',
     'team_name': 'Women\'s Field Hockey',
 }
+mens_baseball = {
+    'group_code': 'MBB-AA',
+    'group_name': 'Men\'s Baseball',
+    'team_code': 'MBB',
+    'team_name': 'Men\'s Baseball',
+}
 mens_tennis = {
     'group_code': 'MTE-AA',
     'group_name': 'Men\'s Tennis',
@@ -112,6 +118,7 @@ def create_student(sid, uid, first_name, last_name, team_groups, gpa, level, uni
 def load_student_athletes():
     fdb = create_team_group(football_defensive_backs)
     fdl = create_team_group(football_defensive_line)
+    mbb = create_team_group(mens_baseball)
     mt = create_team_group(mens_tennis)
     wfh = create_team_group(womens_field_hockey)
     wt = create_team_group(womens_tennis)
@@ -169,6 +176,17 @@ def load_student_athletes():
         level='Senior',
         units=102,
         majors=['Letters & Sci Undeclared UG'])
+    create_student(
+        uid='1049291',
+        sid='7890123456',
+        first_name='Paul',
+        last_name='Farestveit',
+        team_groups=[mbb],
+        gpa='3.90',
+        level='Senior',
+        units=110,
+        majors=['History BA'],
+        in_intensive_cohort=True)
     std_commit(allow_test_environment=True)
 
 
