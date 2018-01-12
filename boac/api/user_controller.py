@@ -6,6 +6,7 @@ from boac.lib import util
 from boac.lib.analytics import merge_analytics_for_user
 from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.http import tolerant_jsonify
+from boac.merged import calnet
 from boac.merged import member_details
 from boac.merged.sis_enrollments import merge_sis_enrollments
 from boac.merged.sis_profile import merge_sis_profile
@@ -17,16 +18,12 @@ from flask_login import current_user, login_required
 
 @app.route('/api/profile')
 def user_profile():
-    canvas_profile = False
+    profile = {
+        'uid': False,
+    }
     if current_user.is_active:
-        uid = current_user.get_id()
-        canvas_profile = load_canvas_profile(uid)
-    else:
-        uid = False
-    return tolerant_jsonify({
-        'uid': uid,
-        'canvasProfile': canvas_profile,
-    })
+        profile = calnet.get_calnet_user_for_uid(app, current_user.get_id())
+    return tolerant_jsonify(profile)
 
 
 @app.route('/api/students/all')

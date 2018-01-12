@@ -8,15 +8,16 @@
       <div>Loading.... </div>
     </div>
     <div data-ng-if="!isLoading">
-      <div data-ng-if="isEmpty(allCohorts)">
+      <div data-ng-if="!owners.length">
         <div>There are no saved cohorts</div>
       </div>
-      <div data-ng-if="!isEmpty(allCohorts)">
+      <div data-ng-if="owners.length">
         <ul>
-          <li data-ng-repeat="(uid, cohorts) in allCohorts">
-            <span data-ng-bind="'Owned by UID ' + uid"></span>
+          <li data-ng-repeat="owner in owners">
+            <span data-ng-bind="owner.firstName"></span>
+            <span data-ng-bind="owner.lastName"></span>
             <ul>
-              <li data-ng-repeat="cohort in cohorts">
+              <li data-ng-repeat="cohort in owner.cohorts">
                 <a data-ng-bind="cohort.label" data-ng-href="/cohort?c={{cohort.id}}"></a>
                 (<span data-ng-bind="cohort.totalMemberCount"></span>)
               </li>

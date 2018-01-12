@@ -1,6 +1,7 @@
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.lib import util
 from boac.lib.http import tolerant_jsonify
+from boac.merged import calnet
 from boac.merged import member_details
 from boac.models.cohort_filter import CohortFilter
 from boac.models.student import Student
@@ -17,7 +18,14 @@ def all_cohorts():
             if uid not in cohorts:
                 cohorts[uid] = []
             cohorts[uid].append(cohort)
-    return tolerant_jsonify(cohorts)
+    owners = []
+    for uid in cohorts.keys():
+        owner = calnet.get_calnet_user_for_uid(app, uid)
+        owner.update({
+            'cohorts': sorted(cohorts[uid], key=lambda c: c['name']),
+        })
+        owners.append(owner)
+    return tolerant_jsonify(owners)
 
 
 @app.route('/api/cohorts/my')
