@@ -25,6 +25,7 @@ def all_cohorts():
             'cohorts': sorted(cohorts[uid], key=lambda c: c['name']),
         })
         owners.append(owner)
+    owners = sorted(owners, key=lambda o: (o['firstName'], o['lastName']))
     return tolerant_jsonify(owners)
 
 
