@@ -101,7 +101,7 @@
       });
     });
 
-    authService.authWrap(init)();
+    init();
   });
 
 }(window.angular));
