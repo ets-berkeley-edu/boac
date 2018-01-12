@@ -26,6 +26,19 @@ class TestCohortDetail:
         assert 'totalMemberCount' in cohorts[0]
         assert len(cohorts[1]['teamGroups']) == 1
 
+    def test_cohorts_all(self, authenticated_session, client):
+        """returns all cohorts per owner"""
+        response = client.get('/api/cohorts/all')
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert len(data) == 2
+        oliver = data[0]
+        assert oliver['uid'] == '2040'
+        assert 'firstName' in oliver and 'lastName' in oliver
+        cohorts = oliver['cohorts']
+        assert len(cohorts) == 3
+        assert [1, 3, 2] == [cohort['id'] for cohort in cohorts]
+
     def test_get_cohort(self, authenticated_session, client):
         """returns a well-formed response with custom cohort"""
         user = AuthorizedUser.find_by_uid(test_uid)

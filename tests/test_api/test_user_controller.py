@@ -39,13 +39,16 @@ class TestUserProfile:
         response = client.get('/api/profile')
         assert response.status_code == 200
         assert response.json['uid'] == test_uid
-        assert response.json['canvasProfile'] is False
+        assert 'firstName' in response.json
+        assert 'lastName' in response.json
 
     def test_includes_canvas_profile_if_available(self, client, fake_auth):
         test_uid = '2040'
         fake_auth.login(test_uid)
         response = client.get('/api/profile')
-        assert response.json['canvasProfile']['sis_login_id'] == test_uid
+        assert response.json['uid'] == test_uid
+        assert 'firstName' in response.json
+        assert 'lastName' in response.json
 
 
 class TestUserPhoto:

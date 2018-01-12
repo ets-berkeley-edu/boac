@@ -15,26 +15,25 @@ class AuthorizedUser(Base, UserMixin):
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)
     uid = db.Column(db.String(255), nullable=False, unique=True)
-    is_advisor = db.Column(db.Boolean)
     is_admin = db.Column(db.Boolean)
+    is_advisor = db.Column(db.Boolean)
     is_director = db.Column(db.Boolean)
     cohort_filters = db.relationship('CohortFilter', secondary=cohort_filter_owners, back_populates='owners')
 
-    def __init__(self, uid, is_advisor=True, is_admin=False, is_director=False):
+    def __init__(self, uid, is_admin=False, is_advisor=True, is_director=False):
         self.uid = uid
-        self.is_advisor = is_advisor
         self.is_admin = is_admin
+        self.is_advisor = is_advisor
         self.is_director = is_director
 
     def __repr__(self):
-        return '<AuthorizedUser {}, is_advisor={}, is_admin={}, is_director={}, updated={}, created={}>'.format(
-            self.uid,
-            self.is_advisor,
-            self.is_admin,
-            self.is_director,
-            self.updated_at,
-            self.created_at,
-        )
+        return f"""<AuthorizedUser {self.uid},
+                    is_admin={self.is_admin},
+                    is_advisor={self.is_advisor},
+                    is_director={self.is_director},
+                    updated={self.updated_at},
+                    created={self.created_at}>
+                """
 
     def get_id(self):
         """Override UserMixin, since our DB conventionally reserves 'id' for generated keys."""

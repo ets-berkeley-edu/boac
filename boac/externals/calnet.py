@@ -50,15 +50,36 @@ class Client:
             all_out += out
         return all_out
 
-    def _csids_filter(self, csids):
-        clauses = ''.join('(berkeleyeducsid={id})'.format(id=id) for id in csids)
-        return '(&(objectclass=person)(|{clauses}))'.format(clauses=clauses)
+    def search_uids(self, uids):
+        all_out = []
+        for i in range(0, len(uids), BATCH_QUERY_MAXIMUM):
+            uids_batch = uids[i:i + BATCH_QUERY_MAXIMUM]
+            entries = self._search_uids(uids_batch)
+            out = [_attributes_to_dict(entry) for entry in entries]
+            all_out += out
+        return all_out
 
     def _search_csids(self, csids):
         with self.connect() as conn:
             conn.search('ou=people,dc=berkeley,dc=edu', self._csids_filter(csids), attributes=ldap3.ALL_ATTRIBUTES)
             entries = conn.entries
         return entries
+
+    def _search_uids(self, uids):
+        with self.connect() as conn:
+            conn.search('ou=people,dc=berkeley,dc=edu', self._uids_filter(uids), attributes=ldap3.ALL_ATTRIBUTES)
+            entries = conn.entries
+        return entries
+
+    @classmethod
+    def _csids_filter(cls, csids):
+        clauses = ''.join('(berkeleyeducsid={id})'.format(id=id) for id in csids)
+        return '(&(objectclass=person)(|{clauses}))'.format(clauses=clauses)
+
+    @classmethod
+    def _uids_filter(cls, uids):
+        clauses = ''.join('(uid={uid})'.format(uid=uid) for uid in uids)
+        return '(&(objectclass=person)(|{clauses}))'.format(clauses=clauses)
 
 
 class MockClient(Client):
