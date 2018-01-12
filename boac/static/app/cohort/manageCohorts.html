@@ -17,7 +17,7 @@
     <div data-ng-if="!myCohorts.length">
       You have no saved cohorts.
     </div>
-    <div data-ng-repeat="cohort in myCohorts">
+    <div data-ng-repeat="cohort in myCohorts | orderBy:'labelOriginal'">
       <hr class="flex-row-wrap-separator"/>
       <div class="flex-container flex-space-between" data-ng-if="!cohort.editMode">
         <div class="cohort-manage-label wrap-hard">
