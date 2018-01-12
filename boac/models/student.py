@@ -48,7 +48,9 @@ class Student(Base):
         summary = {
             'totalStudentCount': result.fetchone()[0],
         }
-        if not only_total_student_count:
+        if only_total_student_count:
+            connection.close()
+        else:
             # Next, get matching students per order_by, offset, limit
             o = 's.first_name'
             if order_by == 'level':
@@ -67,9 +69,9 @@ class Student(Base):
             sql += f' LIMIT {limit}' if limit else ''
             # SQLAlchemy will escape parameter values
             result = connection.execute(text(sql), **all_bindings)
-            connection.close()
             # Model query using list of SIDs
             sid_list = util.get_distinct_with_order([row['sid'] for row in result])
+            connection.close()
             students = cls.query.filter(cls.sid.in_(sid_list)).all() if sid_list else []
             # Order of students from query (above) might not match order of sid_list.
             students = [next(s for s in students if s.sid == sid) for sid in sid_list]
