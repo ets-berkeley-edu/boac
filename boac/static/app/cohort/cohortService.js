@@ -7,8 +7,8 @@
     var drawScatterplot = function(students, yAxisMeasure, goToUserPage) {
       var svg;
 
-      function x(d) { return d.analytics.pageViews; }
-      function y(d) { return _.get(d, yAxisMeasure); }
+      function x(d) { return d.analytics.pageViews.percentile; }
+      function y(d) { return _.get(d, yAxisMeasure).percentile; }
       function key(d) { return d.uid; }
 
       var yAxisName = 'Assignments on time';
@@ -170,7 +170,7 @@
         .attr('text-anchor', 'start')
         .attr('x', 0)
         .attr('y', height + 30)
-        .text('Page views');
+        .text('bCourses page views');
 
       // Add a y-axis label.
       svg.append('text')
@@ -182,11 +182,11 @@
         .text(yAxisName);
 
       var displayValue = function(d, prop) {
-        var value = _.get(d, prop);
-        if (!_.isFinite(value)) {
+        var value = _.get(d, prop + '.displayPercentile');
+        if (!value) {
           return 'No data';
         }
-        return _.round(value, 1) + '%';
+        return value + ' percentile';
       };
 
       dot.on('click', function(d) {
@@ -214,7 +214,7 @@
         tooltip.append('h4').attr('class', 'cohort-matrix-tooltip-header').text(d.firstName + ' ' + d.lastName);
         var table = tooltip.append('table').attr('class', 'cohort-matrix-tooltip-table');
         var pageViewsRow = table.append('tr');
-        pageViewsRow.append('td').text('Page views');
+        pageViewsRow.append('td').attr('class', 'cohort-matrix-tooltip-label').text('bCourses page views');
         pageViewsRow.append('td').attr('class', 'cohort-matrix-tooltip-value').text(displayValue(d, 'analytics.pageViews'));
         var yAxisRow = table.append('tr');
         yAxisRow.append('td').text(yAxisName);

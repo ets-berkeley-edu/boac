@@ -67,6 +67,10 @@ class TestCohortDetail:
         assert len(athlete['currentTerm']['enrollments']) == 3
         assert athlete['currentTerm']['enrollments'][0]['displayName'] == 'BURMESE 1A'
         assert len(athlete['currentTerm']['enrollments'][0]['canvasSites']) == 1
+        analytics = athlete['analytics']
+        for metric in ['assignmentsOnTime', 'pageViews', 'participations', 'courseCurrentScore']:
+            assert analytics[metric]['percentile'] > 0
+            assert analytics[metric]['displayPercentile'].endswith(('rd', 'st', 'th'))
 
     def test_includes_cohort_member_athletics(self, authenticated_session, client):
         """includes team memberships for custom cohort members"""
