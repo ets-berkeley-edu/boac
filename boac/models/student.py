@@ -41,10 +41,10 @@ class Student(Base):
                      unit_ranges_eligibility=None, unit_ranges_pacing=None, order_by=None, offset=0, limit=50,
                      only_total_student_count=False):
         # TODO: unit ranges
-        query, all_bindings = cls.get_students_query(group_codes, gpa_ranges, levels, majors, in_intensive_cohort)
+        query_tables, query_filter, all_bindings = cls.get_students_query(group_codes, gpa_ranges, levels, majors, in_intensive_cohort)
         # First, get total_count of matching students
         connection = db.engine.connect()
-        result = connection.execute(text(f'SELECT COUNT(DISTINCT(s.sid)) {query}'), **all_bindings)
+        result = connection.execute(text(f'SELECT COUNT(DISTINCT(s.sid)) {query_tables} {query_filter}'), **all_bindings)
         summary = {
             'totalStudentCount': result.fetchone()[0],
         }
@@ -56,16 +56,32 @@ class Student(Base):
             if order_by == 'level':
                 # Sort by an implicit value, not a column in db
                 o = 'ol.ordinal'
-            elif order_by in ['group_name']:
-                o = f'a.{order_by}'
             elif order_by in ['first_name', 'in_intensive_cohort', 'last_name']:
                 o = f's.{order_by}'
             elif order_by in ['gpa', 'units']:
                 o = f'n.{order_by}'
+            elif order_by in ['group_name']:
+                # In the special case where team group name is both a filter criterion and an ordering criterion, we have to do extra work.
+                # The athletics join specified in get_students_query join will include only those group names that are in filter criteria, but if
+                # any students are in multiple team groups, ordering may depend on group names not present in filter criteria; so we have to join
+                # the athletics rows a second time.
+                # Why not do this complex sorting after the query? Because correctly calculating pagination offsets requires filtering and ordering
+                # to be done at the SQL level.
+                if group_codes:
+                    query_tables += """LEFT JOIN student_athletes sa2 ON sa2.sid = s.sid
+                                       LEFT JOIN athletics a2 ON a2.group_code = sa2.group_code"""
+                    o = f'a2.{order_by}'
+                else:
+                    o = f'a.{order_by}'
             elif order_by in ['major']:
-                o = f'm.{order_by}'
+                # Majors, like group names, require extra handling in the special case where they are both filter criteria and ordering criteria.
+                if majors:
+                    query_tables += ' LEFT JOIN normalized_cache_student_majors m2 ON m2.sid = s.sid'
+                    o = f'm2.{order_by}'
+                else:
+                    o = f'm.{order_by}'
             o_secondary = 's.last_name' if order_by == 'first_name' else 's.first_name'
-            sql = f'SELECT DISTINCT(s.sid), {o}, {o_secondary} {query} ORDER BY {o}, {o_secondary} OFFSET {offset}'
+            sql = f'SELECT DISTINCT(s.sid), {o}, {o_secondary} {query_tables} {query_filter} ORDER BY {o}, {o_secondary} OFFSET {offset}'
             sql += f' LIMIT {limit}' if limit else ''
             # SQLAlchemy will escape parameter values
             result = connection.execute(text(sql), **all_bindings)
@@ -91,7 +107,7 @@ class Student(Base):
 
     @classmethod
     def get_students_query(cls, group_codes, gpa_ranges, levels, majors, in_intensive_cohort):
-        query = """
+        query_tables = """
             FROM students s
                 JOIN normalized_cache_students n ON n.sid = s.sid
                 LEFT JOIN student_athletes sa ON sa.sid = s.sid
@@ -104,6 +120,8 @@ class Student(Base):
                     (4, 'Senior'),
                     (5, 'Graduate')
                 ) AS ol (ordinal, level) ON n.level = ol.level
+        """
+        query_filter = """
             WHERE
                 TRUE
         """
@@ -111,21 +129,21 @@ class Student(Base):
         if group_codes:
             args = sqlalchemy_bindings(group_codes, 'group_code')
             all_bindings.update(args)
-            query += ' AND sa.group_code IN ({})'.format(':' + ', :'.join(args.keys()))
+            query_filter += ' AND sa.group_code IN ({})'.format(':' + ', :'.join(args.keys()))
         if gpa_ranges:
             # 'sqlalchemy_bindings' is not used here due to extravagant SQL syntax.
-            query += ' AND n.gpa <@ ANY(ARRAY[{}])'.format(', '.join(gpa_ranges))
+            query_filter += ' AND n.gpa <@ ANY(ARRAY[{}])'.format(', '.join(gpa_ranges))
         if levels:
             args = sqlalchemy_bindings(levels, 'level')
             all_bindings.update(args)
-            query += ' AND n.level IN ({})'.format(':' + ', :'.join(args.keys()))
+            query_filter += ' AND n.level IN ({})'.format(':' + ', :'.join(args.keys()))
         if majors:
             args = sqlalchemy_bindings(majors, 'major')
             all_bindings.update(args)
-            query += ' AND m.major IN ({})'.format(':' + ', :'.join(args.keys()))
+            query_filter += ' AND m.major IN ({})'.format(':' + ', :'.join(args.keys()))
         if in_intensive_cohort is not None:
-            query += ' AND s.in_intensive_cohort IS {}'.format(str(in_intensive_cohort))
-        return query, all_bindings
+            query_filter += ' AND s.in_intensive_cohort IS {}'.format(str(in_intensive_cohort))
+        return query_tables, query_filter, all_bindings
 
     def to_api_json(self):
         return api_util.student_to_json(self)
@@ -133,5 +151,5 @@ class Student(Base):
     def to_expanded_api_json(self):
         api_json = self.to_api_json()
         if self.athletics:
-            api_json['athletics'] = [a.to_api_json() for a in self.athletics]
+            api_json['athletics'] = sorted((a.to_api_json() for a in self.athletics), key=lambda a: a['groupName'])
         return api_json
