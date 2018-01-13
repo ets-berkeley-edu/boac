@@ -36,7 +36,7 @@ def merged_data(uid, csid):
         data['cumulativeGPA'] = sis_profile.get('cumulativeGPA')
         data['cumulativeUnits'] = sis_profile.get('cumulativeUnits')
         data['level'] = sis_profile.get('level', {}).get('description')
-        data['majors'] = [plan.get('description') for plan in sis_profile.get('plans', [])]
+        data['majors'] = sorted(plan.get('description') for plan in sis_profile.get('plans', []))
     canvas_profile = canvas.get_user_for_uid(uid)
     if canvas_profile:
         student_courses = canvas.get_student_courses(uid) or []
