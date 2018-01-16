@@ -24,7 +24,7 @@ def merge_analytics_for_user(user_courses, uid, canvas_user_id, term_id):
 
 def mean_course_analytics_for_user(user_courses, uid, canvas_user_id, term_id):
     merge_analytics_for_user(user_courses, uid, canvas_user_id, term_id)
-    meanValues = {}
+    mean_values = {}
     # TODO Remove misleading assignmentsOnTime metric.
     for metric in ['assignmentsOnTime', 'pageViews', 'participations', 'courseCurrentScore']:
         percentiles = []
@@ -34,11 +34,11 @@ def mean_course_analytics_for_user(user_courses, uid, canvas_user_id, term_id):
                 if percentile and not math.isnan(percentile):
                     percentiles.append(percentile)
         if len(percentiles):
-            meanPercentile = mean(percentiles)
-            meanValues[metric] = {'percentile': meanPercentile, 'displayPercentile': ordinal(meanPercentile)}
+            mean_percentile = mean(percentiles)
+            mean_values[metric] = {'percentile': mean_percentile, 'displayPercentile': ordinal(mean_percentile)}
         else:
-            meanValues[metric] = None
-    return meanValues
+            mean_values[metric] = None
+    return mean_values
 
 
 def analytics_from_summary_feed(summary_feed, canvas_user_id, canvas_course_id):

@@ -17,10 +17,10 @@ class Base(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
 
     @classmethod
-    def load_csv(klass, filename):
+    def load_csv(cls, filename):
         with open(filename) as csvfile:
             reader = csv.DictReader(csvfile)
             for csvrow in reader:
-                record = klass(**csvrow)
+                record = cls(**csvrow)
                 db.session.add(record)
         std_commit()

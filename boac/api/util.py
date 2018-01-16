@@ -26,12 +26,12 @@ def sis_enrollment_class_feed(enrollment):
 
 
 def sis_enrollment_section_feed(enrollment):
-    sectionData = enrollment.get('classSection', {})
+    section_data = enrollment.get('classSection', {})
     grades = enrollment.get('grades', [])
     return {
-        'ccn': sectionData.get('id'),
-        'component': sectionData.get('component', {}).get('code'),
-        'sectionNumber': sectionData.get('number'),
+        'ccn': section_data.get('id'),
+        'component': section_data.get('component', {}).get('code'),
+        'sectionNumber': section_data.get('number'),
         'enrollmentStatus': enrollment.get('enrollmentStatus', {}).get('status', {}).get('code'),
         'units': enrollment.get('enrolledUnits', {}).get('taken'),
         'gradingBasis': translate_grading_basis(enrollment.get('gradingBasis', {}).get('code')),
