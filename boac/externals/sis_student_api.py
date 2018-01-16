@@ -1,4 +1,4 @@
-"""Official access to student data"""
+"""Official access to student data."""
 
 from boac.lib import http
 from boac.lib.mockingbird import fixture

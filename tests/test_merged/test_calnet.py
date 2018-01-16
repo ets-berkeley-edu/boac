@@ -5,7 +5,7 @@ import pytest
 
 @pytest.mark.usefixtures('db_session')
 class TestCalnet:
-    """TestCalnet"""
+    """Test Calnet."""
 
     def test_refresh_cohort_attributes(self, app):
         athlete = Student.query.filter_by(uid='61889').first()

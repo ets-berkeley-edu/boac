@@ -37,9 +37,20 @@ class Student(Base):
         )
 
     @classmethod
-    def get_students(cls, gpa_ranges=None, group_codes=None, in_intensive_cohort=None, levels=None, majors=None,
-                     unit_ranges_eligibility=None, unit_ranges_pacing=None, order_by=None, offset=0, limit=50,
-                     only_total_student_count=False):
+    def get_students(
+            cls,
+            gpa_ranges=None,
+            group_codes=None,
+            in_intensive_cohort=None,
+            levels=None,
+            majors=None,
+            unit_ranges_eligibility=None,
+            unit_ranges_pacing=None,
+            order_by=None,
+            offset=0,
+            limit=50,
+            only_total_student_count=False,
+    ):
         # TODO: unit ranges
         query_tables, query_filter, all_bindings = cls.get_students_query(group_codes, gpa_ranges, levels, majors, in_intensive_cohort)
         # First, get total_count of matching students

@@ -5,7 +5,7 @@ import pytest
 
 @pytest.mark.usefixtures('db_session')
 class TestJobProgress:
-    """Background Job Process Tracker"""
+    """Background job process tracker."""
 
     def test_start_and_end(self):
         assert JobProgress().get() is None

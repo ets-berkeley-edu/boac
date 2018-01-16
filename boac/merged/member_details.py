@@ -1,4 +1,4 @@
-"""Helper utils for cohort controller"""
+"""Helper utils for cohort controller."""
 
 from boac.api.util import canvas_courses_api_feed
 from boac.externals import canvas
@@ -42,8 +42,7 @@ def merged_data(uid, csid):
         student_courses = canvas.get_student_courses(uid) or []
         current_term = app.config.get('CANVAS_CURRENT_ENROLLMENT_TERM')
         term_id = sis_term_id_for_name(current_term)
-        student_courses_in_current_term = [course for course in student_courses if
-                                           course.get('term', {}).get('name') == current_term]
+        student_courses_in_current_term = [course for course in student_courses if course.get('term', {}).get('name') == current_term]
         canvas_courses = canvas_courses_api_feed(student_courses_in_current_term)
         # Decorate the Canvas courses list with per-course statistics, and return summary statistics.
         data['analytics'] = mean_course_analytics_for_user(canvas_courses, uid, canvas_profile['id'], term_id)

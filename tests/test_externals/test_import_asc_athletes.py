@@ -3,24 +3,40 @@ from boac.models.athletics import Athletics
 
 
 class TestImportAscAthletes:
-    """Import ASC data"""
+    """Import ASC data."""
 
     def test_empty_import(self, app):
-        """gracefully handles empty dataset"""
+        """Gracefully handles empty dataset."""
         athletics, students = import_asc_athletes.load_student_athletes(app, [])
         assert not athletics
         assert not students
 
     def test_students_on_multiple_teams(self, app):
-        """maps one student to more than one team"""
+        """Maps one student to more than one team."""
         jane_sid = '1234567890'
         polo_code = 'WWP-AA'
         volleyball_code = 'WVB-AA'
         asc_data = [
-            asc_data_row(jane_sid, 'Jane B. Sporty', polo_code, 'Women\'s Water Polo', 'MBB',
-                         'Women\'s Water Polo', '2017-18', 'Yes'),
-            asc_data_row(jane_sid, 'Jane B. Sporty', volleyball_code, 'Women\'s Volleyball', 'WVB',
-                         'Women\'s Volleyball', '2017-18', 'Yes'),
+            asc_data_row(
+                jane_sid,
+                'Jane B. Sporty',
+                polo_code,
+                'Women\'s Water Polo',
+                'MBB',
+                'Women\'s Water Polo',
+                '2017-18',
+                'Yes',
+            ),
+            asc_data_row(
+                jane_sid,
+                'Jane B. Sporty',
+                volleyball_code,
+                'Women\'s Volleyball',
+                'WVB',
+                'Women\'s Volleyball',
+                '2017-18',
+                'Yes',
+            ),
         ]
         # Run import script
         athletics, students = import_asc_athletes.load_student_athletes(app, asc_data)

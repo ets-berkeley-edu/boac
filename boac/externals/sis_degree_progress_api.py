@@ -1,4 +1,4 @@
-"""Official access to undergraduate degree progress"""
+"""Official access to undergraduate degree progress."""
 
 from boac.lib import http
 from boac.lib.mockingbird import fixture

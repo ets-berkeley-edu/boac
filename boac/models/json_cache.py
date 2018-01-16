@@ -41,11 +41,10 @@ def clear_other(key_like):
 
 
 def stow(key_pattern, for_term=False):
-    """Uses the Decorator module to preserve the wrapped function's signature,
-    allowing easy wrapping by other decorators.
+    """Use Decorator module to preserve the wrapped function's signature, allowing easy wrapping by other decorators.
+
     If the for_term option is enabled, the wrapped function is expected to take a term_id argument.
-    TODO Mockingbird does not currently preserve signatures, and so JsonCache
-    cannot directly wrap a @fixture.
+    TODO Mockingbird does not currently preserve signatures, and so JsonCache cannot directly wrap a @fixture.
     """
     @decorator
     def _stow(func, *args, **kw):
@@ -77,7 +76,7 @@ def stow(key_pattern, for_term=False):
 
 
 def update_jsonb_row(stowed):
-    """Changes to a JSONB column will not be committed without some extra hoop-jumping."""
+    """Jump through some hoops to commit changes to a JSONB column."""
     flag_modified(stowed, 'json')
     db.session.merge(stowed)
     std_commit()

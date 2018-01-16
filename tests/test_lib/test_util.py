@@ -1,9 +1,9 @@
-import boac.lib.util as util
+from boac.lib import util
 
 
 class TestUtil:
-    """Generic utilities"""
+    """Generic utilities."""
 
     def test_vacuum_whitespace(self):
-        """cleans up leading, trailing, and repeated whitespace"""
+        """Cleans up leading, trailing, and repeated whitespace."""
         assert util.vacuum_whitespace('  Firstname    Lastname   ') == 'Firstname Lastname'

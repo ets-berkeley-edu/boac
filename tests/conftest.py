@@ -47,7 +47,6 @@ def app(request):
 @pytest.fixture(scope='session')
 def db(app, request):
     """Fixture database object, shared by all tests."""
-
     from boac.models import development_db
     # Drop all tables before re-loading the schemas.
     # If we dropped at teardown instead, an interrupted test run would block the next test run.
@@ -59,9 +58,9 @@ def db(app, request):
 
 @pytest.fixture(scope='function', autouse=True)
 def db_session(db, request):
-    """
-    Fixture database session used for the scope of a single test. All executions are wrapped
-    in a session and then rolled back to keep individual tests isolated.
+    """Fixture database session used for the scope of a single test.
+
+    All executions are wrapped in a session and then rolled back to keep individual tests isolated.
     """
     # Mixing SQL-using test fixtures with SQL-using decorators seems to cause timing issues with pytest's
     # fixture finalizers. Instead of using a finalizer to roll back the session and close connections,
@@ -86,9 +85,7 @@ def db_session(db, request):
 
 @pytest.fixture(scope='function')
 def fake_auth(app, db, client):
-    """
-    Shortcut to start an authenticated session.
-    """
+    """Shortcut to start an authenticated session."""
     return FakeAuth(app, client)
 
 

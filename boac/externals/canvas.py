@@ -17,9 +17,7 @@ def _get_course_sections(course_id, mock=None):
 
 @stow('canvas_user_for_uid_{uid}')
 def get_user_for_uid(uid):
-    """If the user is not found, returns False (which can be cached).
-    For any other error response, returns None (which will not be cached).
-    """
+    """If the user is not found, returns False (which can be cached). Otherwise, returns None (not cached)."""
     response = _get_user_for_uid(uid)
     if response and hasattr(response, 'json'):
         return response.json()
@@ -46,10 +44,7 @@ def get_student_courses(uid):
 
     def include_course(course):
         if course.get('enrollments'):
-            if next((e for e in course['enrollments'] if
-                     e['type'] == 'student' and
-                     e['enrollment_state'] in ['active', 'completed', 'inactive']
-                     ), None):
+            if next((e for e in course['enrollments'] if e['type'] == 'student' and e['enrollment_state'] in ['active', 'completed', 'inactive']), None):
                 return True
         return False
 
@@ -98,11 +93,15 @@ def get_course_enrollments(course_id, term_id):
 @fixture('canvas_course_enrollments_{course_id}')
 def _get_course_enrollments(course_id, mock=None):
     path = '/api/v1/courses/{course_id}/enrollments'.format(course_id=course_id)
-    return paged_request(path=path, mock=mock, query={
-        'type[]': 'StudentEnrollment',
-        # By default, Canvas will not return any students at all for completed course sites.
-        'state[]': ['active', 'completed', 'inactive'],
-    })
+    return paged_request(
+        path=path,
+        mock=mock,
+        query={
+            'type[]': 'StudentEnrollment',
+            # By default, Canvas will not return any students at all for completed course sites.
+            'state[]': ['active', 'completed', 'inactive'],
+        },
+    )
 
 
 def build_url(path, query=None):

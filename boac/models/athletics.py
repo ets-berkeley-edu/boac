@@ -62,10 +62,12 @@ class Athletics(Base):
 
     @classmethod
     def get_team(cls, team_code, order_by):
-        results = db.session.query(cls.team_code,
-                                   cls.team_name,
-                                   cls.group_code,
-                                   cls.group_name).filter(cls.team_code == team_code).all()
+        results = db.session.query(
+            cls.team_code,
+            cls.team_name,
+            cls.group_code,
+            cls.group_name,
+        ).filter(cls.team_code == team_code).all()
         team = None
         if len(results):
             team = {

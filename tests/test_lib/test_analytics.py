@@ -3,10 +3,10 @@ from boac.lib import analytics
 
 
 class TestAnalytics:
-    """Analytics"""
+    """Analytics."""
 
     def test_ordinal(self):
-        """Format a whole number as a position"""
+        """Format a whole number as a position."""
         assert analytics.ordinal(1) == '1st'
         assert analytics.ordinal(2) == '2nd'
         assert analytics.ordinal(3) == '3rd'
@@ -17,7 +17,7 @@ class TestAnalytics:
         assert analytics.ordinal(23) == '23rd'
 
     def test_canvas_course_scores(self, app):
-        """Summarizes current course score in fixture"""
+        """Summarizes current course score in fixture."""
         canvas_user_id = 9000100
         canvas_course_id = 7654321
         feed = canvas.get_course_enrollments(canvas_course_id, '2178')
@@ -30,7 +30,7 @@ class TestAnalytics:
         assert course_current_score['student']['roundedUpPercentile'] == 11
 
     def test_no_canvas_course_scores(self, app):
-        """Handles complete absence of scored assignments"""
+        """Handles complete absence of scored assignments."""
         canvas_user_id = 9000100
         canvas_course_id = 7654321
         feed = canvas.get_course_enrollments(canvas_course_id, '2178')
@@ -49,7 +49,7 @@ class TestAnalytics:
         assert course_current_score['student']['roundedUpPercentile'] is None
 
     def test_canvas_course_assignments(self, app):
-        """Summarizes the student assignment statuses from fixture"""
+        """Summarizes the student assignment statuses from fixture."""
         uid = '61889'
         canvas_course_id = 7654321
         feed = canvas.get_assignments_analytics(canvas_course_id, uid, '2178')
@@ -79,12 +79,13 @@ class TestAnalytics:
 
 
 class TestAnalyticsFromSummaryFeed:
-    """Canvas course summary analytics"""
+    """Canvas course summary analytics."""
+
     canvas_course_id = 7654321
     canvas_user_id = '9000001'
 
     def test_small_difference(self, app):
-        """notices that small difference"""
+        """Notices that small difference."""
         summary_feed = [
             {
                 'id': '9000000',
@@ -128,7 +129,7 @@ class TestAnalyticsFromSummaryFeed:
         assert best['assignmentsOnTime']['student']['raw'] == 3
 
     def test_insufficient_data(self, app):
-        """notes insufficient data status"""
+        """Notes insufficient data status."""
         summary_feed = [
             {
                 'id': '9000000',
@@ -159,7 +160,7 @@ class TestAnalyticsFromSummaryFeed:
             assert digested[column]['student']['percentile'] is None
 
     def test_zero_counts(self, app):
-        """does not calculate statistics on a void"""
+        """Does not calculate statistics on a void."""
         summary_feed = [
             {
                 'id': '9000000',
@@ -190,7 +191,7 @@ class TestAnalyticsFromSummaryFeed:
             assert digested[column]['student']['percentile'] is None
 
     def test_zeroth_percentile(self, app):
-        """returns statistics even if this student did sweet nothing"""
+        """Returns statistics even if this student did sweet nothing."""
         summary_feed = [
             {
                 'id': '9000000',

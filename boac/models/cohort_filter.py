@@ -1,9 +1,3 @@
-"""
-This package integrates with Flask-Login to determine who can use the app,
-and which privileges they have. It will probably end up as a DB table, but is
-simply mocked-out a la "demo mode" for now.
-"""
-
 import json
 import re
 from boac import db, std_commit
@@ -39,11 +33,25 @@ class CohortFilter(Base, UserMixin):
         )
 
     @classmethod
-    def create(cls, uid, label, gpa_ranges=None, group_codes=None, levels=None, majors=None,
-               unit_ranges_eligibility=None, unit_ranges_pacing=None):
-        criteria = cls.compose_filter_criteria(gpa_ranges=gpa_ranges, group_codes=group_codes, levels=levels,
-                                               majors=majors, unit_ranges_eligibility=unit_ranges_eligibility,
-                                               unit_ranges_pacing=unit_ranges_pacing)
+    def create(
+            cls,
+            uid,
+            label,
+            gpa_ranges=None,
+            group_codes=None,
+            levels=None,
+            majors=None,
+            unit_ranges_eligibility=None,
+            unit_ranges_pacing=None,
+    ):
+        criteria = cls.compose_filter_criteria(
+            gpa_ranges=gpa_ranges,
+            group_codes=group_codes,
+            levels=levels,
+            majors=majors,
+            unit_ranges_eligibility=unit_ranges_eligibility,
+            unit_ranges_pacing=unit_ranges_pacing,
+        )
         cf = CohortFilter(label=label, filter_criteria=json.dumps(criteria))
         user = AuthorizedUser.find_by_uid(uid)
         user.cohort_filters.append(cf)
@@ -91,8 +99,15 @@ class CohortFilter(Base, UserMixin):
         std_commit()
 
     @classmethod
-    def compose_filter_criteria(cls, gpa_ranges=None, group_codes=None, levels=None, majors=None,
-                                unit_ranges_eligibility=None, unit_ranges_pacing=None):
+    def compose_filter_criteria(
+            cls,
+            gpa_ranges=None,
+            group_codes=None,
+            levels=None,
+            majors=None,
+            unit_ranges_eligibility=None,
+            unit_ranges_pacing=None,
+    ):
         if not gpa_ranges and not group_codes and not levels and not majors and not unit_ranges_eligibility and not unit_ranges_pacing:
             raise InternalServerError('CohortFilter creation requires one or more non-empty criteria.')
         # Validate
@@ -138,10 +153,18 @@ def construct_cohort(cf, order_by=None, offset=0, limit=50, include_students=Tru
     majors = util.get(c, 'majors', [])
     unit_ranges_eligibility = util.get(c, 'unitRangesEligibility', [])
     unit_ranges_pacing = util.get(c, 'unitRangesPacing', [])
-    results = Student.get_students(gpa_ranges=gpa_ranges, group_codes=group_codes, levels=levels, majors=majors,
-                                   unit_ranges_eligibility=unit_ranges_eligibility,
-                                   unit_ranges_pacing=unit_ranges_pacing, order_by=order_by, offset=offset, limit=limit,
-                                   only_total_student_count=not include_students)
+    results = Student.get_students(
+        gpa_ranges=gpa_ranges,
+        group_codes=group_codes,
+        levels=levels,
+        majors=majors,
+        unit_ranges_eligibility=unit_ranges_eligibility,
+        unit_ranges_pacing=unit_ranges_pacing,
+        order_by=order_by,
+        offset=offset,
+        limit=limit,
+        only_total_student_count=not include_students,
+    )
     team_groups = Athletics.get_team_groups(group_codes) if group_codes else []
     cohort.update({
         'filterCriteria': {

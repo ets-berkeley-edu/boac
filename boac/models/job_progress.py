@@ -44,15 +44,11 @@ class JobProgress:
     def update(self, step_description):
         row = JsonCache.query.filter_by(key=self.key).first()
         if row is None:
-            app.logger.error('No active progress record to append step "{}" to {}'.format(step_description, self.key))
+            app.logger.error(f'No active progress record to append step "{step_description}" to {self.key}')
             return False
         progress = row.json
         if (not progress.get('start')) or progress.get('end') or (progress.get('steps') is None):
-            app.logger.error('Progress record {} not ready to append step {} to {}'.format(
-                progress,
-                step_description,
-                self.key,
-            ))
+            app.logger.error(f'Progress record {progress} not ready to append step {step_description} to {self.key}')
             return False
         step = '{} : {}'.format(
             datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
