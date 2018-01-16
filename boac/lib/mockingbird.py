@@ -20,8 +20,9 @@ A test function can temporarily substitute custom mock behavior with the registe
 
 
 class MockResponse:
-    """A callable object that can be passed into httpretty's register_uri method with the 'body' keyword. (Despite
-    that keyword's name, it takes a tuple including status and headers as well as response body.)
+    """A callable object that can be passed into httpretty's register_uri method with the 'body' keyword.
+
+    Despite that keyword's name, it takes a tuple including status and headers as well as response body.
 
     Functions that use the @mocking decorator should return a MockResponse object.
 
@@ -35,7 +36,7 @@ class MockResponse:
         self.body = body
 
     def __call__(self, *args):
-        return (self.status, self.headers, self.body)
+        return self.status, self.headers, self.body
 
 
 """Registry associating mockable request functions with zero or more mock response functions. Responses are arranged
@@ -52,8 +53,10 @@ def _unregister_mock(request_function):
 
 
 def mockable(func):
-    """Decorator marking a function as mockable. Since httpretty registers mock responses against URLs, the function
-    to be decorated must generate (or have access to) the complete URL to be called.
+    """Mark function as mockable.
+
+    Since httpretty registers mock responses against URLs, the function to be decorated must generate (or have access
+    to) the complete URL to be called.
 
     Functions using this decorator should accept an optional 'mock' argument. The decorator will replace this argument
     with a context manager that activates the mock response currently associated to the mockable function in the
@@ -84,9 +87,11 @@ def mockable(func):
 
 
 def mocking(request_func):
-    """Decorator marking a function that returns a mock response. The function to be mocked should be supplied to the
-    decorator as an argument. The decorated function will be called with the same arguments as the function to be
-    mocked (apart from the optional 'mock' argument) and may generate a dynamic response.
+    """Mark function as returning mock response.
+
+    The function to be mocked should be supplied to the decorator as an argument. The decorated function will be called
+    with the same arguments as the function to be mocked (apart from the optional 'mock' argument) and may generate a
+    dynamic response.
 
     Usage:
 
@@ -103,8 +108,9 @@ def mocking(request_func):
 
 
 def fixture(pattern):
-    """As an alternative to @mockable, @mocking, and response_from_fixture, the @fixture decorator with a template
-    pattern can be used as a shorthand. Wrapping a function like so:
+    """Alternative to @mockable, @mocking, and response_from_fixture.
+
+    The @fixture decorator with a template pattern can be used as a shorthand. Wrapping a function like so:
 
     @fixture('resource_{resource_id}_feed')
     def call_external_api(hostname, resource_id, mock=None):
@@ -138,16 +144,17 @@ def fixture(pattern):
 
 
 def parse_suffix(pattern):
-    """Extract base pattern and file suffix from original string"""
+    """Extract base pattern and file suffix from original string."""
     match = re.match(r'^(.+)\.([a-z]+)$', pattern)
     if match:
-        return (match.group(1), match.group(2))
+        return match.group(1), match.group(2)
     else:
-        return (pattern, 'json')
+        return pattern, 'json'
 
 
 def response_from_fixture(pattern, suffix):
     """Generate a mock response from a fixture filename.
+
     If a fixture matching {pattern}.json is found, return 200 with the fixture body.
     If a fixture matching {pattern}_page_1.json is found, delegate to response_from_paged_fixture.
     If a matching fixture is not found, return a generic 404.
@@ -177,8 +184,9 @@ def response_from_fixture(pattern, suffix):
 
 
 def response_from_paged_fixture(pattern, suffix):
-    """Convenience function to generate a mock response for an API with multiple pages. Fixture files should be
-    saved in the format:
+    """Generate mock response for an API with multiple pages.
+
+    Fixture files should be saved in the format:
       - some_resource_page_1.json
       - some_resource_page_2.json
     etc.
@@ -216,7 +224,7 @@ def response_from_paged_fixture(pattern, suffix):
                 '',
             ])
             headers['Link'] = '<{}>; rel="next"'.format(next_url)
-        return (200, headers, fixture)
+        return 200, headers, fixture
     # The fixtures path is based on app config and for obscure scoping reasons needs to be passed in as a partial;
     # otherwise Flask will see it as an attempt to evaluate app config outside an application context.
     return partial(handle_request, fixtures_path=_get_fixtures_path())
@@ -225,6 +233,7 @@ def response_from_paged_fixture(pattern, suffix):
 @contextmanager
 def register_mock(request_function, response):
     """Context manager, intended to be used from tests, that temporarily registers a mock response for a given request.
+
     A MockResponse object may be supplied, or, if dynamic behavior is required, a function that returns a MockResponse.
     """
     if isinstance(response, MockResponse):
@@ -258,7 +267,7 @@ def _environment_supports_mocks():
     if os.environ.get('FIXTURE_OUTPUT_PATH'):
         return False
     env = os.environ.get('BOAC_ENV')
-    return (env == 'test' or env == 'demo')
+    return env == 'test' or env == 'demo'
 
 
 def _evaluate_fixture_pattern(func, pattern, *args, **kw):

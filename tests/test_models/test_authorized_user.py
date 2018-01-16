@@ -4,15 +4,15 @@ import pytest
 
 @pytest.mark.usefixtures('db_session')
 class TestAuthorizedUser:
-    """Authorized User"""
+    """Authorized user."""
 
     def test_load_unknown_user(self):
-        """returns None to Flask-Login for unrecognized UID"""
+        """Returns None to Flask-Login for unrecognized UID."""
         unknown_uid = 'Ms. X'
         assert AuthorizedUser.find_by_uid(unknown_uid) is None
 
     def test_load_admin_user(self):
-        """returns authorization record to Flask-Login for recognized UID"""
+        """Returns authorization record to Flask-Login for recognized UID."""
         admin_uid = '1133399'
         loaded_user = AuthorizedUser.find_by_uid(admin_uid)
         assert loaded_user.is_active

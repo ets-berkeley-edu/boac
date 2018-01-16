@@ -1,4 +1,4 @@
-"""Official access to Cal1Card photos"""
+"""Official access to Cal1Card photos."""
 
 from boac.lib import http
 from boac.lib.mockingbird import fixture

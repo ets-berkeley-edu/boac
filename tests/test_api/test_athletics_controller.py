@@ -10,20 +10,20 @@ def authenticated_session(fake_auth):
 
 
 class TestAthletics:
-    """Athletics API"""
+    """Athletics API."""
 
     def test_team_not_authenticated(self, client):
-        """returns 401 if not authenticated"""
+        """Returns 401 if not authenticated."""
         response = client.get('/api/team/FHW')
         assert response.status_code == 401
 
     def test_teams_not_authenticated(self, client):
-        """returns 401 if not authenticated"""
+        """Returns 401 if not authenticated."""
         response = client.get('/api/teams/all')
         assert response.status_code == 401
 
     def test_get_all_team_groups(self, authenticated_session, client):
-        """returns all team-groups if authenticated"""
+        """Returns all team-groups if authenticated."""
         response = client.get('/api/team_groups/all')
         assert response.status_code == 200
         team_groups = response.json
@@ -42,7 +42,7 @@ class TestAthletics:
         assert [2, 3, 1, 1, 1, 1] == total_member_counts
 
     def test_get_all_teams(self, authenticated_session, client):
-        """returns all teams if authenticated"""
+        """Returns all teams if authenticated."""
         response = client.get('/api/teams/all')
         assert response.status_code == 200
         teams = response.json
@@ -59,14 +59,14 @@ class TestAthletics:
         assert football['totalMemberCount'] == 3
 
     def test_team_not_found(self, authenticated_session, client):
-        """returns code as name when no code-to-name translation exists"""
+        """Returns code as name when no code-to-name translation exists."""
         response = client.get('/api/team/XYZ')
         assert response.status_code == 404
         assert 'code' not in response.json
         assert 'No team found' in json.loads(response.data)['message']
 
     def test_team_with_athletes_in_multiple_groups(self, authenticated_session, client):
-        """returns a well-formed response on a valid code if authenticated"""
+        """Returns a well-formed response on a valid code if authenticated."""
         response = client.get('/api/team/FBM?orderBy=last_name')
         assert response.status_code == 200
         team = response.json
@@ -87,7 +87,7 @@ class TestAthletics:
         assert athlete['inIntensiveCohort'] is False
 
     def test_includes_student_sis_data(self, authenticated_session, client):
-        """includes SIS data for team members"""
+        """Includes SIS data for team members."""
         response = client.get('/api/team/FHW')
         athlete = response.json['members'][0]
         assert athlete['cumulativeGPA'] == 3.8
@@ -96,7 +96,7 @@ class TestAthletics:
         assert athlete['majors'] == ['Astrophysics BS', 'English BA']
 
     def test_includes_student_current_enrollments(self, authenticated_session, client):
-        """includes current-term active enrollments and analytics for team members"""
+        """Includes current-term active enrollments and analytics for team members."""
         response = client.get('/api/team/FHW')
         athlete = response.json['members'][0]
         assert athlete['currentTerm']['termName'] == 'Fall 2017'

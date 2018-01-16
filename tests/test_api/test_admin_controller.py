@@ -1,19 +1,19 @@
 class TestCachejobAccess:
 
     def test_not_authenticated(self, client):
-        """requires authentication"""
+        """Require authentication."""
         response = client.get('/api/admin/cachejob')
         assert response.status_code == 401
 
     def test_not_an_admin(self, client, fake_auth):
-        """returns 403 for normal users"""
+        """Return 403 for normal users."""
         test_uid = '6446'
         fake_auth.login(test_uid)
         response = client.get('/api/admin/cachejob')
         assert response.status_code == 401
 
     def test_as_an_admin(self, client, fake_auth):
-        """returns success"""
+        """Return success."""
         test_uid = '2040'
         fake_auth.login(test_uid)
         response = client.get('/api/admin/cachejob')

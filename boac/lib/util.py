@@ -1,4 +1,4 @@
-"""Generic utilities"""
+"""Generic utilities."""
 
 
 def get(_dict, key, default_value=None):

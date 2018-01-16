@@ -1,4 +1,4 @@
-"""Official access to team memberships"""
+"""Official access to team memberships."""
 
 from boac.lib import http
 from boac.models.json_cache import stow

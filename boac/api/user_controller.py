@@ -45,9 +45,17 @@ def get_students():
     order_by = util.get(params, 'orderBy', None)
     offset = util.get(params, 'offset', 0)
     limit = util.get(params, 'limit', 50)
-    results = Student.get_students(gpa_ranges=gpa_ranges, group_codes=group_codes, levels=levels, majors=majors,
-                                   unit_ranges_eligibility=unit_ranges_eligibility,
-                                   unit_ranges_pacing=unit_ranges_pacing, order_by=order_by, offset=offset, limit=limit)
+    results = Student.get_students(
+        gpa_ranges=gpa_ranges,
+        group_codes=group_codes,
+        levels=levels,
+        majors=majors,
+        unit_ranges_eligibility=unit_ranges_eligibility,
+        unit_ranges_pacing=unit_ranges_pacing,
+        order_by=order_by,
+        offset=offset,
+        limit=limit,
+    )
     member_details.merge_all(results['students'])
     return tolerant_jsonify({
         'members': results['students'],

@@ -75,9 +75,9 @@ def load(cohort_test_data=False):
 
 
 def load_schemas():
-    """
-    During early development, create the test DB from Python code.
-    We will convert to SQL scripts before enabling production deployments.
+    """Create db from Python code.
+
+    TODO: Convert to SQL scripts?
     """
     db.create_all()
 
@@ -94,8 +94,12 @@ def load_development_data():
 
 
 def create_team_group(t):
-    athletics = Athletics(group_code=t['group_code'], group_name=t['group_name'], team_code=t['team_code'],
-                          team_name=t['team_name'])
+    athletics = Athletics(
+        group_code=t['group_code'],
+        group_name=t['group_name'],
+        team_code=t['team_code'],
+        team_name=t['team_name'],
+    )
     db.session.add(athletics)
     return athletics
 
@@ -133,7 +137,8 @@ def load_student_athletes():
         level=None,
         units=0,
         majors=['Economics BA'],
-        in_intensive_cohort=True)
+        in_intensive_cohort=True,
+    )
     create_student(
         uid='1022796',
         sid='8901234567',
@@ -144,7 +149,8 @@ def load_student_athletes():
         level='Freshman',
         units=12,
         majors=['Chemistry BS'],
-        in_intensive_cohort=True)
+        in_intensive_cohort=True,
+    )
     create_student(
         uid='2040',
         sid='2345678901',
@@ -154,7 +160,8 @@ def load_student_athletes():
         gpa='3.495',
         level='Junior',
         units=34,
-        majors=['History BA'])
+        majors=['History BA'],
+    )
     create_student(
         uid='242881',
         sid='3456789012',
@@ -165,7 +172,8 @@ def load_student_athletes():
         level='Junior',
         units=70,
         majors=['English BA', 'Political Economy BA'],
-        in_intensive_cohort=True)
+        in_intensive_cohort=True,
+    )
     create_student(
         uid='1133399',
         sid='5678901234',
@@ -175,7 +183,8 @@ def load_student_athletes():
         gpa='3.501',
         level='Senior',
         units=102,
-        majors=['Letters & Sci Undeclared UG'])
+        majors=['Letters & Sci Undeclared UG'],
+    )
     create_student(
         uid='1049291',
         sid='7890123456',
@@ -186,7 +195,8 @@ def load_student_athletes():
         level='Senior',
         units=110,
         majors=['History BA'],
-        in_intensive_cohort=True)
+        in_intensive_cohort=True,
+    )
     std_commit(allow_test_environment=True)
 
 

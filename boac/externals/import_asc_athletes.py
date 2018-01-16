@@ -43,11 +43,7 @@ SPORT_TRANSLATIONS = {
 def load_csv(app, csv_file='tmp/FilteredAscStudents.csv'):
     with open(csv_file) as f:
         athletics, students = load_student_athletes(app, csv.DictReader(f))
-        app.logger.info('{} rows added to \'athletics\' table; {} rows added to \'students\' table; CSV file: {}'.format(
-            len(athletics),
-            len(students),
-            csv_file,
-        ))
+        app.logger.info(f'{len(athletics)} rows added to \'athletics\' table; {len(students)} rows added to \'students\' table; CSV file: {csv_file}')
 
 
 def load_student_athletes(app, rows):

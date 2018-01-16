@@ -1,8 +1,4 @@
-"""
-This package integrates with Flask-Login to determine who can use the app,
-and which privileges they have. It will probably end up as a DB table, but is
-simply mocked-out a la "demo mode" for now.
-"""
+"""This package integrates with Flask-Login. Determine who can use the app and which privileges they have."""
 
 from boac import db
 from boac.models.base import Base

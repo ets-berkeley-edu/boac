@@ -26,10 +26,7 @@ def refresh_cohort_attributes(app, cohorts=None):
     # Search LDAP.
     all_attrs = calnet.client(app).search_csids(csids)
     if len(csids) != len(all_attrs):
-        app.logger.warning('Looked for {} CSIDS but only found {}'.format(
-            len(csids),
-            len(all_attrs),
-        ))
+        app.logger.warning(f'Looked for {len(csids)} CSIDS but only found {len(all_attrs)}')
 
     # Update the DB.
     for attrs in all_attrs:

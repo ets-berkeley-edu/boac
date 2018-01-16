@@ -36,8 +36,8 @@ def get_next_page(response):
 
 
 def request(url, headers={}, auth=None):
-    """
-    Exception and error catching wrapper for outgoing HTTP requests.
+    """Exception and error catching wrapper for outgoing HTTP requests.
+
     :param url:
     :param headers:
     :return: The HTTP response from the external server, if the request was successful.

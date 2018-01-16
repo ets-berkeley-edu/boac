@@ -5,16 +5,17 @@ import simplejson as json
 
 
 class TestStudents:
-    """Students API"""
+    """Students API."""
+
     def test_all_students(self, client):
-        """returns a list of students"""
+        """Returns a list of students."""
         response = client.get('/api/students/all')
         assert response.status_code == 200
         # We have one student not on a team
         assert len(response.json) == 6
 
     def test_multiple_teams(self, client):
-        """includes multiple team memberships"""
+        """Includes multiple team memberships."""
         response = client.get('/api/students/all')
         assert response.status_code == 200
         oliver_athletics = next(user['athletics'] for user in response.json if user['uid'] == '2040')
@@ -25,10 +26,10 @@ class TestStudents:
 
 
 class TestUserProfile:
-    """User Profile API"""
+    """User Profile API."""
 
     def test_profile_not_authenticated(self, client):
-        """returns a well-formed response"""
+        """Returns a well-formed response."""
         response = client.get('/api/profile')
         assert response.status_code == 200
         assert not response.json['uid']
@@ -52,15 +53,15 @@ class TestUserProfile:
 
 
 class TestUserPhoto:
-    """User Photo API"""
+    """User Photo API."""
 
     def test_photo_not_authenticated(self, client):
-        """requires authentication"""
+        """Requires authentication."""
         response = client.get('/api/user/61889/photo')
         assert response.status_code == 401
 
     def test_photo_authenticated(self, client, fake_auth):
-        """returns a photo when authenticated"""
+        """Returns a photo when authenticated."""
         test_uid = '1133399'
         fake_auth.login(test_uid)
         response = client.get('/api/user/61889/photo')
@@ -69,7 +70,7 @@ class TestUserPhoto:
         assert response.headers.get('Content-Length') == '3559'
 
     def test_photo_not_found(self, client, fake_auth):
-        """returns 404 when photo not found"""
+        """Returns 404 when photo not found."""
         test_uid = '1133399'
         fake_auth.login(test_uid)
         response = client.get('/api/user/99999999/photo')
@@ -79,7 +80,8 @@ class TestUserPhoto:
 
 @pytest.mark.usefixtures('db_session')
 class TestUserAnalytics:
-    """User Analytics API"""
+    """User Analytics API."""
+
     api_path = '/api/user/{}/analytics'
     field_hockey_star = api_path.format(61889)
     non_student_uid = '2040'
@@ -103,12 +105,12 @@ class TestUserAnalytics:
             return next((course for course in term['enrollments'] if course['displayName'] == code), None)
 
     def test_user_analytics_not_authenticated(self, client):
-        """returns 401 if not authenticated"""
+        """Returns 401 if not authenticated."""
         response = client.get(TestUserAnalytics.field_hockey_star)
         assert response.status_code == 401
 
     def test_user_analytics_authenticated(self, authenticated_response):
-        """returns a well-formed response if authenticated"""
+        """Returns a well-formed response if authenticated."""
         assert authenticated_response.status_code == 200
         assert authenticated_response.json['uid'] == '61889'
         assert authenticated_response.json['canvasProfile']['id'] == 9000100
@@ -124,7 +126,7 @@ class TestUserAnalytics:
                     assert canvasSite['analytics']
 
     def test_user_analytics_multiple_terms(self, authenticated_response):
-        """returns all terms with enrollment data in reverse order"""
+        """Returns all terms with enrollment data in reverse order."""
         assert len(authenticated_response.json['enrollmentTerms']) == 2
         assert authenticated_response.json['enrollmentTerms'][0]['termName'] == 'Fall 2017'
         assert authenticated_response.json['enrollmentTerms'][0]['enrolledUnits'] == 12.5
@@ -134,25 +136,25 @@ class TestUserAnalytics:
         assert len(authenticated_response.json['enrollmentTerms'][1]['enrollments']) == 3
 
     def test_user_analytics_term_cutoff(self, authenticated_response):
-        """ignores terms before the configured cutoff"""
+        """Ignores terms before the configured cutoff."""
         for term in authenticated_response.json['enrollmentTerms']:
             assert term['termName'] != 'Spring 2016'
 
     def test_enrollment_without_course_site(self, authenticated_response):
-        """returns enrollments with no associated course sites"""
+        """Returns enrollments with no associated course sites."""
         enrollment_without_site = TestUserAnalytics.get_course_for_code(authenticated_response, '2172', 'MUSIC 41C')
         assert enrollment_without_site['title'] == 'Private Carillon Lessons for Advanced Students'
         assert enrollment_without_site['canvasSites'] == []
 
     def test_enrollment_with_multiple_course_sites(self, authenticated_response):
-        """returns multiple course sites associated with an enrollment, sorted by site id"""
+        """Returns multiple course sites associated with an enrollment, sorted by site id."""
         enrollment_with_multiple_sites = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'NUC ENG 124')
         assert len(enrollment_with_multiple_sites['canvasSites']) == 2
         assert enrollment_with_multiple_sites['canvasSites'][0]['courseName'] == 'Radioactive Waste Management'
         assert enrollment_with_multiple_sites['canvasSites'][1]['courseName'] == 'Optional Friday Night Radioactivity Group'
 
     def test_multiple_primary_section_enrollments(self, authenticated_response):
-        """disambiguates multiple primary sections under a single course display name"""
+        """Disambiguates multiple primary sections under a single course display name."""
         classics_first = TestUserAnalytics.get_course_for_code(authenticated_response, '2172', 'CLASSIC 130 LEC 001')
         classics_second = TestUserAnalytics.get_course_for_code(authenticated_response, '2172', 'CLASSIC 130 LEC 002')
         assert len(classics_first['sections']) == 1
@@ -172,26 +174,26 @@ class TestUserAnalytics:
         assert classics_second['grade'] == 'B-'
 
     def test_enrollments_sorted(self, authenticated_response):
-        """sorts enrollments by course display name"""
+        """Sorts enrollments by course display name."""
         spring_2017_enrollments = authenticated_response.json['enrollmentTerms'][1]['enrollments']
         assert(spring_2017_enrollments[0]['displayName'] == 'CLASSIC 130 LEC 001')
         assert(spring_2017_enrollments[1]['displayName'] == 'CLASSIC 130 LEC 002')
         assert(spring_2017_enrollments[2]['displayName'] == 'MUSIC 41C')
 
     def test_athletic_enrollments_removed(self, authenticated_response):
-        """removes athletic enrollments"""
+        """Removes athletic enrollments."""
         for enrollment in authenticated_response.json['enrollmentTerms'][0]['enrollments']:
             assert enrollment['displayName'] != 'PHYSED 11'
 
     def test_past_term_dropped_enrollments_removed(self, authenticated_response):
-        """removes dropped enrollments from past terms"""
+        """Removes dropped enrollments from past terms."""
         for enrollment in authenticated_response.json['enrollmentTerms'][1]['enrollments']:
             print(enrollment)
             for section in enrollment['sections']:
                 assert section['enrollmentStatus'] != 'D'
 
     def test_course_site_without_enrollment(self, authenticated_response):
-        """returns course sites with no associated enrollments"""
+        """Returns course sites with no associated enrollments."""
         assert len(authenticated_response.json['enrollmentTerms'][0]['unmatchedCanvasSites']) == 0
         assert len(authenticated_response.json['enrollmentTerms'][1]['unmatchedCanvasSites']) == 1
         unmatched_site = authenticated_response.json['enrollmentTerms'][1]['unmatchedCanvasSites'][0]
@@ -200,12 +202,12 @@ class TestUserAnalytics:
         assert unmatched_site['analytics']
 
     def test_course_site_without_membership(self, authenticated_response):
-        """returns a graceful error if the expected membership is not found in the course site"""
+        """Returns a graceful error if the expected membership is not found in the course site."""
         course_without_membership = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'BURMESE 1A')
         assert course_without_membership['canvasSites'][0]['analytics']['error'] == 'Unable to retrieve analytics'
 
     def test_course_site_with_enrollment(self, authenticated_response):
-        """returns sensible data if the expected enrollment is found in the course site"""
+        """Returns sensible data if the expected enrollment is found in the course site."""
         course_with_enrollment = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'MED ST 205')
         analytics = course_with_enrollment['canvasSites'][0]['analytics']
 
@@ -228,7 +230,7 @@ class TestUserAnalytics:
         assert analytics['participations']['courseDeciles'][10] == 12
 
     def test_empty_canvas_course_feed(self, client, fake_auth):
-        """returns 200 if user is found and Canvas course feed is empty"""
+        """Returns 200 if user is found and Canvas course feed is empty."""
         fake_auth.login(TestUserAnalytics.non_student_uid)
         response = client.get(TestUserAnalytics.non_student)
         assert response.status_code == 200
@@ -236,19 +238,19 @@ class TestUserAnalytics:
         assert not response.json['enrollmentTerms']
 
     def test_canvas_profile_not_found(self, authenticated_session, client):
-        """returns 404 if Canvas profile not found"""
+        """Returns 404 if Canvas profile not found."""
         response = client.get(TestUserAnalytics.unknown)
         assert response.status_code == 404
         assert response.json['message'] == 'No Canvas profile found for user'
 
     def test_relevant_majors(self, authenticated_session, client):
-        """returns list of majors relevant to our student population"""
+        """Returns list of majors relevant to our student population."""
         response = client.get('/api/majors/relevant')
         assert response.status_code == 200
         assert isinstance(response.json, list)
 
     def test_sis_enrollment_merge(self, authenticated_response):
-        """merges sorted SIS enrollment data"""
+        """Merges sorted SIS enrollment data."""
         burmese = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'BURMESE 1A')
         assert burmese['displayName'] == 'BURMESE 1A'
         assert burmese['title'] == 'Introductory Burmese'
@@ -308,7 +310,7 @@ class TestUserAnalytics:
         assert music['grade'] == 'A-'
 
     def test_dropped_sections(self, authenticated_response):
-        """collects dropped sections in a separate feed"""
+        """Collects dropped sections in a separate feed."""
         dropped_sections = authenticated_response.json['enrollmentTerms'][0]['droppedSections']
         assert len(dropped_sections) == 1
         assert dropped_sections[0]['displayName'] == 'NUC ENG 124'
@@ -316,7 +318,7 @@ class TestUserAnalytics:
         assert dropped_sections[0]['sectionNumber'] == '200'
 
     def test_sis_enrollment_not_found(self, authenticated_session, client):
-        """gracefully handles missing SIS enrollments"""
+        """Gracefully handles missing SIS enrollments."""
         sis_error = MockResponse(200, {}, '{"apiResponse": {"response": {"message": "Something unexpected."}}}')
         with register_mock(sis_enrollments_api._get_enrollments, sis_error):
             response = client.get(TestUserAnalytics.field_hockey_star)
@@ -326,7 +328,7 @@ class TestUserAnalytics:
                 assert term['enrollments'] == []
 
     def test_sis_profile(self, authenticated_response):
-        """provides SIS profile data"""
+        """Provides SIS profile data."""
         sis_profile = authenticated_response.json['sisProfile']
         assert sis_profile['academicCareer'] == 'UGRD'
         assert sis_profile['cumulativeGPA'] == 3.8
@@ -349,11 +351,11 @@ class TestUserAnalytics:
         assert sis_profile['termsInAttendance'] == 5
 
     def test_student_overview_link(self, authenticated_response):
-        """provides a link to official data about the student"""
+        """Provides a link to official data about the student."""
         assert authenticated_response.json['studentProfileLink']
 
     def test_athletics_profile(self, authenticated_response):
-        """includes athletics profile"""
+        """Includes athletics profile."""
         athletics_profile = authenticated_response.json['athleticsProfile']
         assert athletics_profile['name'] == 'Brigitte Lin'
         assert athletics_profile['uid'] == '61889'
@@ -370,7 +372,7 @@ class TestUserAnalytics:
         assert tennis['teamName'] == 'Women\'s Tennis'
 
     def test_sis_profile_unexpected_payload(self, authenticated_session, client):
-        """gracefully handles unexpected SIS profile data"""
+        """Gracefully handles unexpected SIS profile data."""
         sis_response = MockResponse(200, {}, '{"apiResponse": {"response": {"message": "Something wicked."}}}')
         with register_mock(sis_student_api._get_student, sis_response):
             response = client.get(TestUserAnalytics.field_hockey_star)
@@ -379,7 +381,7 @@ class TestUserAnalytics:
             assert not response.json['sisProfile']
 
     def test_sis_profile_error(self, authenticated_session, client):
-        """gracefully handles SIS profile error"""
+        """Gracefully handles SIS profile error."""
         sis_error = MockResponse(500, {}, '{"message": "Internal server error."}')
         with register_mock(sis_student_api._get_student, sis_error):
             response = client.get(TestUserAnalytics.field_hockey_star)

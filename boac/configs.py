@@ -3,8 +3,9 @@ import os
 
 
 def load_configs(app):
-    """
-    On app creation, load and and override configs in the following order:
+    """On app creation, load and and override configs.
+
+    Order:
      - config/default.py
      - config/{BOAC_ENV}.py
      - {BOAC_LOCAL_CONFIGS}/{BOAC_ENV}-local.py (excluded from version control; sensitive values go here)

@@ -1,12 +1,12 @@
-import boac.externals.canvas as canvas
+from boac.externals import canvas
 from boac.lib.mockingbird import MockResponse, register_mock
 
 
 class TestCanvasGetCourseSections:
-    """Canvas API query (get course sections)"""
+    """Canvas API query (get course sections)."""
 
     def test_get_course_sections(self, app):
-        """returns fixture data"""
+        """Returns fixture data."""
         burmese_sections = canvas._get_course_sections(7654320)
         assert burmese_sections
         assert len(burmese_sections) == 3
@@ -25,13 +25,13 @@ class TestCanvasGetCourseSections:
         assert nuclear_sections[1]['sis_section_id'] == 'SEC:2017-D-90300'
 
     def test_course_not_found(self, app, caplog):
-        """logs 404 for unknown course"""
+        """Logs 404 for unknown course."""
         response = canvas._get_course_sections(9999999)
         assert 'HTTP/1.1" 404' in caplog.text
         assert not response
 
     def test_server_error(self, app, caplog):
-        """logs unexpected server errors"""
+        """Logs unexpected server errors."""
         canvas_error = MockResponse(500, {}, '{"message": "Internal server error."}')
         with register_mock(canvas._get_course_sections, canvas_error):
             response = canvas._get_course_sections(7654320)
@@ -40,10 +40,10 @@ class TestCanvasGetCourseSections:
 
 
 class TestCanvasGetUserForUid:
-    """Canvas API query (user for LDAP UID)"""
+    """Canvas API query (user for LDAP UID)."""
 
     def test_user_for_uid(self, app):
-        """returns fixture data"""
+        """Returns fixture data."""
         oliver_response = canvas.get_user_for_uid(2040)
         assert oliver_response
         assert oliver_response['sortable_name'] == 'Heyer, Oliver'
@@ -55,13 +55,13 @@ class TestCanvasGetUserForUid:
         assert paul_response['avatar_url'] == 'https://en.wikipedia.org/wiki/Daffy_Duck#/media/File:Daffy_Duck.svg'
 
     def test_user_not_found(self, app, caplog):
-        """logs 404 for unknown user and returns False rather than None"""
+        """Logs 404 for unknown user and returns False rather than None."""
         response = canvas.get_user_for_uid(9999999)
         assert 'HTTP/1.1" 404' in caplog.text
         assert response is False
 
     def test_raw_user_not_found(self, app, caplog):
-        """logs 404 for unknown user and returns informative message"""
+        """Logs 404 for unknown user and returns informative message."""
         response = canvas._get_user_for_uid(9999999)
         assert 'HTTP/1.1" 404' in caplog.text
         assert not response
@@ -69,7 +69,7 @@ class TestCanvasGetUserForUid:
         assert response.raw_response.json()['message']
 
     def test_raw_server_error(self, app, caplog):
-        """logs unexpected server errors and returns informative message"""
+        """Logs unexpected server errors and returns informative message."""
         canvas_error = MockResponse(500, {}, '{"message": "Internal server error."}')
         with register_mock(canvas._get_user_for_uid, canvas_error):
             response = canvas._get_user_for_uid(2040)
@@ -80,10 +80,10 @@ class TestCanvasGetUserForUid:
 
 
 class TestCanvasGetUserCourses:
-    """Canvas API query (get courses for user)"""
+    """Canvas API query (get courses for user)."""
 
     def test_get_courses(self, app):
-        """returns a well-formed response from multiple terms"""
+        """Returns a well-formed response from multiple terms."""
         courses = canvas.get_student_courses(61889)
         assert courses
         assert len(courses) == 5
@@ -109,20 +109,20 @@ class TestCanvasGetUserCourses:
         assert courses[4]['term']['name'] == 'Spring 2017'
 
     def test_student_enrollments(self, app):
-        """returns only enrollments of type 'student'"""
+        """Returns only enrollments of type 'student'."""
         courses = canvas.get_student_courses(61889)
         for course in courses:
             assert course['enrollments'][0]['type'] == 'student'
             assert course['enrollments'][0]['enrollment_state'] == 'active'
 
     def test_user_not_found(self, app, caplog):
-        """logs 404 for unknown user"""
+        """Logs 404 for unknown user."""
         courses = canvas.get_student_courses(9999999)
         assert 'HTTP/1.1" 404' in caplog.text
         assert not courses
 
     def test_server_error(self, app, caplog):
-        """logs unexpected server errors"""
+        """Logs unexpected server errors."""
         canvas_error = MockResponse(503, {}, '{"message": "Server at capacity, go away."}')
         with register_mock(canvas._get_all_user_courses, canvas_error):
             courses = canvas._get_all_user_courses(61889)
@@ -131,10 +131,10 @@ class TestCanvasGetUserCourses:
 
 
 class TestCanvasGetStudentSummariesForCourse:
-    """Canvas API query (student summaries for course)"""
+    """Canvas API query (student summaries for course)."""
 
     def test_student_summaries(self, app):
-        """returns a large result set from paged Canvas API"""
+        """Returns a large result set from paged Canvas API."""
         student_summaries = canvas._get_student_summaries(7654321)
         assert student_summaries
         assert len(student_summaries) == 730
@@ -144,13 +144,13 @@ class TestCanvasGetStudentSummariesForCourse:
         assert student_summaries[729]['page_views'] == 400
 
     def test_course_not_found(self, app, caplog):
-        """logs 404 for unknown course"""
+        """Logs 404 for unknown course."""
         student_summaries = canvas._get_student_summaries(9999999)
         assert 'HTTP/1.1" 404' in caplog.text
         assert not student_summaries
 
     def test_server_error(self, app, caplog):
-        """logs unexpected server errors"""
+        """Logs unexpected server errors."""
         canvas_error = MockResponse(503, {}, '{"message": "Server at capacity, go away."}')
         with register_mock(canvas._get_student_summaries, canvas_error):
             student_summaries = canvas._get_student_summaries(7654321)
@@ -159,10 +159,10 @@ class TestCanvasGetStudentSummariesForCourse:
 
 
 class TestCanvasGrades:
-    """Canvas API queries for grade data"""
+    """Canvas API queries for grade data."""
 
     def test_course_enrollments(self, app):
-        """returns course enrollments"""
+        """Returns course enrollments."""
         feed = canvas._get_course_enrollments(7654321)
         assert feed
         assert len(feed) == 43
@@ -172,7 +172,7 @@ class TestCanvasGrades:
         assert feed[42]['grades']['current_score'] == 91.0
 
     def test_assignments_analytics(self, app):
-        """returns course assignments analytics"""
+        """Returns course assignments analytics."""
         feed = canvas._get_assignments_analytics(7654321, 61889)
         assert feed
         assert len(feed) == 7

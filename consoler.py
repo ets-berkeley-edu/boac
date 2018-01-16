@@ -1,4 +1,4 @@
-"""Run Flask-wrapped code from a Python Console
+"""Run Flask-wrapped code from a Python console.
 
 * From the command line:
     ``boac> python -i consoler.py``
@@ -27,7 +27,6 @@
 """
 
 from boac.factory import create_app
-from pprintpp import pprint as pp
 
 app = create_app()
 ac = app.app_context()

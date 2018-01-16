@@ -3,10 +3,10 @@ from boac.lib.mockingbird import MockResponse, register_mock
 
 
 class TestSisEnrollmentsApi:
-    """SIS enrollments API query"""
+    """SIS enrollments API query."""
 
     def test_get_enrollments(self, app):
-        """returns unwrapped data"""
+        """Returns unwrapped data."""
         oski_response = enrollments_api.get_enrollments(11667051, 2178)
         student = oski_response['student']
 
@@ -34,7 +34,7 @@ class TestSisEnrollmentsApi:
         assert enrollments[5]['grades'][0]['mark'] == 'P'
 
     def test_inner_get_enrollments(self, app):
-        """returns fixture data"""
+        """Returns fixture data."""
         oski_response = enrollments_api._get_enrollments(11667051, 2178)
         assert oski_response
         assert oski_response.status_code == 200
@@ -89,7 +89,7 @@ class TestSisEnrollmentsApi:
         assert enrollments[5]['grades'][0]['mark'] == 'P'
 
     def test_user_not_found(self, app, caplog):
-        """logs 404 for unknown user and returns informative message"""
+        """Logs 404 for unknown user and returns informative message."""
         response = enrollments_api._get_enrollments(9999999, 2178)
         assert 'HTTP/1.1" 404' in caplog.text
         assert not response
@@ -97,7 +97,7 @@ class TestSisEnrollmentsApi:
         assert response.raw_response.json()['message']
 
     def test_server_error(self, app, caplog):
-        """logs unexpected server errors and returns informative message"""
+        """Logs unexpected server errors and returns informative message."""
         api_error = MockResponse(500, {}, '{"message": "Internal server error."}')
         with register_mock(enrollments_api._get_enrollments, api_error):
             response = enrollments_api._get_enrollments(11667051, 2178)

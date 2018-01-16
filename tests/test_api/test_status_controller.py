@@ -1,8 +1,8 @@
 class TestStatusController:
-    """Status API"""
+    """Status API."""
 
     def test_anonymous_status(self, client):
-        """returns a well-formed response"""
+        """Returns a well-formed response."""
         response = client.get('/api/status')
         assert response.status_code == 200
         assert 'authenticated_as' in response.json
@@ -17,7 +17,7 @@ class TestStatusController:
         assert response.json['authenticated_as']['uid'] == test_uid
 
     def test_ping(self, client):
-        """answers the phone when pinged"""
+        """Answers the phone when pinged."""
         response = client.get('/api/ping')
         assert response.status_code == 200
         assert response.json['app'] is True

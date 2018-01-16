@@ -42,7 +42,7 @@ def mean_course_analytics_for_user(user_courses, uid, canvas_user_id, term_id):
 
 
 def analytics_from_summary_feed(summary_feed, canvas_user_id, canvas_course_id):
-    """Given a student summary feed for a Canvas course, return analytics for a given user"""
+    """Given a student summary feed for a Canvas course, return analytics for a given user."""
     # TODO Remove misleading tardiness_breakdown stats.
     df = pandas.DataFrame(summary_feed, columns=['id', 'page_views', 'participations', 'tardiness_breakdown'])
     df['on_time'] = [row['on_time'] for row in df['tardiness_breakdown']]
@@ -91,10 +91,13 @@ def analytics_from_canvas_course_assignments(feed):
         data['assignmentTotals'][total_type] += 1
 
         # If there is no submission, the Canvas API may return a nil-valued 'submission' property or may leave it out.
-        submission = assignment.get('submission', {
-            'score': None,
-            'submitted_at': None,
-        })
+        submission = assignment.get(
+            'submission',
+            {
+                'score': None,
+                'submitted_at': None,
+            },
+        )
 
         assignment_data = {
             'name': assignment['title'],
@@ -183,12 +186,13 @@ def ordinal(nbr):
 
 
 def quantiles(series, count):
-    """Return a given number of evenly spaced quantiles for a given series"""
+    """Return a given number of evenly spaced quantiles for a given series."""
     return [round(series.quantile(n / count)) for n in range(0, count + 1)]
 
 
 def rounded_up_percentile(dataframe, student_row):
     """Given a dataframe and an individual student row, return a more easily understood meaning of percentile.
+
     Z-score percentile is useful in a scatterplot to spot outliers in the overall population across contexts.
     (If 90% of the course's students received a score of '5', then one student with a '5' is not called out.)
     Rounded-up matches what non-statisticians would expect when viewing one particular student in one
@@ -201,7 +205,7 @@ def rounded_up_percentile(dataframe, student_row):
 
 
 def zptile(z_score):
-    """Derive percentile from zscore"""
+    """Derive percentile from zscore."""
     if z_score is None:
         return None
     else:
@@ -209,7 +213,7 @@ def zptile(z_score):
 
 
 def zscore(dataframe, value):
-    """Given a dataframe and an individual value, return a zscore"""
+    """Given a dataframe and an individual value, return a zscore."""
     if dataframe.std(ddof=0) == 0:
         return None
     else:
