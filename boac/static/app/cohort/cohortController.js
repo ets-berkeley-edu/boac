@@ -77,7 +77,7 @@
     // More info: https://angular-ui.github.io/bootstrap/
     $scope.pagination = {
       enabled: true,
-      currentPage: 0,
+      currentPage: 1,
       itemsPerPage: 50,
       noLimit: Number.MAX_SAFE_INTEGER
     };
@@ -167,6 +167,10 @@
       });
     };
 
+    var isPaginationEnabled = function() {
+      return _.includes(['search', 'intensive'], $scope.cohort.code) || !isNaN($scope.cohort.code);
+    };
+
     /**
      * Invoke API to get cohort, team or intensive.
      *
@@ -175,14 +179,13 @@
      */
     var listViewRefresh = function(callback) {
       // Pagination is not used on teams because the member count is always reasonable.
-      $scope.pagination.enabled = _.includes(['search', 'intensive'], $scope.cohort.code) || !isNaN($scope.cohort.code);
-      var page = $scope.pagination.enabled ? $scope.pagination.currentPage : 0;
-      var orderBy = $scope.orderBy.selected;
+      $scope.pagination.enabled = isPaginationEnabled();
+      var page = $scope.pagination.enabled ? $scope.pagination.currentPage : 1;
       var limit = $scope.pagination.enabled ? $scope.pagination.itemsPerPage : Number.MAX_SAFE_INTEGER;
       var offset = page === 0 ? 0 : (page - 1) * limit;
 
       $scope.isLoading = true;
-      getCohort(orderBy, offset, limit).then(function(response) {
+      getCohort($scope.orderBy.selected, offset, limit).then(function(response) {
         updateCohort(response.data);
         drawBoxplots();
         return callback();
@@ -327,7 +330,7 @@
           $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
         };
         var page = $scope.pagination.currentPage;
-        var offset = page === 0 ? 0 : (page - 1) * $scope.pagination.itemsPerPage;
+        var offset = page < 2 ? 0 : (page - 1) * $scope.pagination.itemsPerPage;
 
         // Perform the query
         $scope.isLoading = true;
@@ -392,6 +395,12 @@
           $scope.isLoading = false;
         });
       } else if (tabName === 'list') {
+        // Restore pagination; fortunately, 'currentPage' persists.
+        $scope.pagination.enabled = isPaginationEnabled();
+        if ($scope.pagination.enabled && $scope.pagination.currentPage > 1 && $scope.cohort.members.length > 50) {
+          var start = ($scope.pagination.currentPage - 1) * 50;
+          $scope.cohort.members = _.slice($scope.cohort.members, start, start + 50);
+        }
         drawBoxplots();
       }
     };
@@ -406,7 +415,7 @@
       $scope.search.dropdown = defaultDropdownState();
       // Refresh search results
       $scope.cohort.code = 'search';
-      $scope.pagination.currentPage = 0;
+      $scope.pagination.currentPage = 1;
       $location.search('c', $scope.cohort.code);
       $location.search('p', $scope.pagination.currentPage);
       if ($scope.tabs.selected === 'list') {
@@ -421,7 +430,7 @@
     $scope.$watch('orderBy.selected', function(value) {
       if (value && !$scope.isLoading) {
         $location.search('o', $scope.orderBy.selected);
-        $scope.pagination.currentPage = 0;
+        $scope.pagination.currentPage = 1;
         nextPage();
       }
     });
