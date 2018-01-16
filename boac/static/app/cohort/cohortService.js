@@ -206,8 +206,8 @@
 
         var tooltip = container.append('div')
           .attr('class', 'cohort-matrix-tooltip')
-          .style('top', parseInt(selection.attr('cy'), 10) + 30 + 'px')
-          .style('left', parseInt(selection.attr('cx'), 10) - 100 + 'px');
+          .style('top', parseInt(selection.attr('cy'), 10) + 45 + 'px')
+          .style('left', parseInt(selection.attr('cx'), 10) - 120 + 'px');
 
         // The tooltip starts out hidden while inserting data...
         tooltip.style('opacity', 0);
