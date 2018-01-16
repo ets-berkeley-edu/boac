@@ -27,6 +27,7 @@
 """
 
 from boac.factory import create_app
+from pprintpp import pprint as pp # noqa
 
 app = create_app()
 ac = app.app_context()

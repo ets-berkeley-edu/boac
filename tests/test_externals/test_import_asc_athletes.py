@@ -48,19 +48,63 @@ class TestImportAscAthletes:
         volleyball_team = Athletics.query.filter_by(group_code=volleyball_code).first()
         assert find_athlete(volleyball_team, jane_sid)
 
+    def test_student_active(self, app):
+        """Only imports active students."""
+        jane_sid = '1234567890'
+        polo_code = 'WWP-AA'
+        asc_data = [
+            asc_data_row(
+                jane_sid,
+                'Jane B. Sporty',
+                polo_code,
+                'Women\'s Water Polo',
+                'MBB',
+                'Women\'s Water Polo',
+                '2017-18',
+                'No',
+                'Yes',
+            ),
+        ]
+        # Run import script
+        athletics, students = import_asc_athletes.load_student_athletes(app, asc_data)
+        assert 0 == len(students)
+
+    def test_student_intensive(self, app):
+        """Marks intensive status if set."""
+        jane_sid = '1234567890'
+        polo_code = 'WWP-AA'
+        asc_data = [
+            asc_data_row(
+                jane_sid,
+                'Jane B. Sporty',
+                polo_code,
+                'Women\'s Water Polo',
+                'MBB',
+                'Women\'s Water Polo',
+                '2017-18',
+                'Yes',
+                'Yes',
+            ),
+        ]
+        # Run import script
+        athletics, students = import_asc_athletes.load_student_athletes(app, asc_data)
+        assert 1 == len(students)
+        assert students[jane_sid].in_intensive_cohort
+
 
 def find_athlete(team, sid):
     return next(athlete for athlete in team.athletes if athlete.sid == sid)
 
 
-def asc_data_row(sid, name, group_code, group_name, asc_code, team_name, academic_yr, is_active):
+def asc_data_row(sid, name, group_code, group_name, asc_code, team_name, academic_yr, is_active, is_intensive='No'):
     return {
         'SID': sid,
         'cName': name,
         'SportCode': group_code,
         'Sport': group_name,
-        'cSportCodeCore': asc_code,
-        'acSportCore': team_name,
+        'SportCodeCore': asc_code,
+        'SportCore': team_name,
         'AcadYr': academic_yr,
-        'SportActiveYN': is_active,
+        'ActiveYN': is_active,
+        'IntensiveYN': is_intensive,
     }
