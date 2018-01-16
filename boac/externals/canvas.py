@@ -11,7 +11,7 @@ def get_course_sections(course_id, term_id):
 
 @fixture('canvas_course_sections_{course_id}')
 def _get_course_sections(course_id, mock=None):
-    path = '/api/v1/courses/{course_id}/sections'.format(course_id=course_id)
+    path = f'/api/v1/courses/{course_id}/sections'
     return paged_request(path=path, mock=mock)
 
 
@@ -30,7 +30,7 @@ def get_user_for_uid(uid):
 
 @fixture('canvas_user_for_uid_{uid}')
 def _get_user_for_uid(uid, mock=None):
-    url = build_url('/api/v1/users/sis_login_id:{uid}'.format(uid=uid))
+    url = build_url(f'/api/v1/users/sis_login_id:{uid}')
     with mock(url):
         return authorized_request(url)
 
@@ -43,10 +43,14 @@ def get_student_courses(uid):
         return None
 
     def include_course(course):
+        include = False
         if course.get('enrollments'):
-            if next((e for e in course['enrollments'] if e['type'] == 'student' and e['enrollment_state'] in ['active', 'completed', 'inactive']), None):
-                return True
-        return False
+            blessed_states = ['active', 'completed', 'inactive']
+            include = next(
+                (e for e in course['enrollments'] if e['type'] == 'student' and e['enrollment_state'] in blessed_states),
+                False,
+            )
+        return include
 
     return [course for course in all_canvas_courses if include_course(course)]
 
@@ -58,7 +62,7 @@ def get_all_user_courses(uid):
 
 @fixture('canvas_user_courses_{uid}')
 def _get_all_user_courses(uid, mock=None):
-    path = '/api/v1/users/sis_login_id:{uid}/courses'.format(uid=uid)
+    path = f'/api/v1/users/sis_login_id:{uid}/courses'
     query = {'include': ['term']}
     return paged_request(path=path, query=query, mock=mock)
 
@@ -70,7 +74,7 @@ def get_student_summaries(course_id, term_id):
 
 @fixture('canvas_student_summaries_for_course_{course_id}')
 def _get_student_summaries(course_id, mock=None):
-    path = '/api/v1/courses/{course_id}/analytics/student_summaries'.format(course_id=course_id)
+    path = f'/api/v1/courses/{course_id}/analytics/student_summaries'
     return paged_request(path=path, mock=mock)
 
 
@@ -81,7 +85,7 @@ def get_assignments_analytics(course_id, uid, term_id):
 
 @fixture('canvas_course_assignments_analytics_{course_id}_{uid}')
 def _get_assignments_analytics(course_id, uid, mock=None):
-    path = '/api/v1/courses/{course_id}/analytics/users/sis_login_id:{uid}/assignments'.format(course_id=course_id, uid=uid)
+    path = f'/api/v1/courses/{course_id}/analytics/users/sis_login_id:{uid}/assignments'
     return paged_request(path=path, mock=mock)
 
 
@@ -92,7 +96,7 @@ def get_course_enrollments(course_id, term_id):
 
 @fixture('canvas_course_enrollments_{course_id}')
 def _get_course_enrollments(course_id, mock=None):
-    path = '/api/v1/courses/{course_id}/enrollments'.format(course_id=course_id)
+    path = f'/api/v1/courses/{course_id}/enrollments'
     return paged_request(
         path=path,
         mock=mock,

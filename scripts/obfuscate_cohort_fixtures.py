@@ -28,8 +28,9 @@ def main(app):
         student.uid = fake_uid
         std_commit()
 
-        profile_file = '{path}/canvas_user_for_uid_{uid}.json'.format(path=app.config.get('FIXTURES_PATH'))
-        courses_file = '{path}/canvas_user_courses_{uid}.json'.format(path=app.config.get('FIXTURES_PATH'))
+        fixtures_path = app.config.get('FIXTURES_PATH')
+        profile_file = f'{fixtures_path}/canvas_user_for_uid_{uid}.json'
+        courses_file = f'{fixtures_path}/canvas_user_courses_{uid}.json'
 
         # Obfuscate and rename Canvas profile fixture.
         if os.path.isfile(profile_file):
@@ -54,13 +55,13 @@ def main(app):
             with open(new_profile_file, 'w') as outfile:
                 json.dump(profile_json, outfile, indent=2)
             os.remove(profile_file)
-            print('Replaced {profile_file} with updated values at {new_profile_file}'.format(profile_file=profile_file, new_courses_file=new_profile_file))
+            print(f'Replaced {profile_file} with updated values at {new_profile_file}')
 
         # Rename Canvas course fixture, if present.
         if os.path.isfile(courses_file):
             new_courses_file = courses_file.replace(uid, str(fake_uid))
             os.rename(courses_file, new_courses_file)
-            print('Moved {courses_file} to {new_courses_file}'.format(courses_file=courses_file, new_courses_file=new_courses_file))
+            print(f'Moved {courses_file} to {new_courses_file}')
 
         fake_uid += 1
 
