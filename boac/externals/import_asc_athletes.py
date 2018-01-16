@@ -50,12 +50,19 @@ def load_csv(app, csv_file='tmp/FilteredAscStudents.csv'):
         ))
 
 
+def load_tsv(app, tsv_file='tmp/AscStudents.tsv'):
+    with open(tsv_file) as f:
+        athletics, students = load_student_athletes(app, csv.DictReader(f, dialect='excel-tab'))
+        app.logger.info(f'{len(athletics)} rows added to \'athletics\' table; {len(students)} rows added to \'students\' table; TSV file: {tsv_file}')
+
+
 def load_student_athletes(app, rows):
     athletics = {}
     students = {}
     for r in rows:
-        if r['AcadYr'] == THIS_ACAD_YR and r['SportActiveYN'] == 'Yes':
-            asc_code = r['cSportCodeCore']
+        if r['AcadYr'] == THIS_ACAD_YR and r['ActiveYN'] == 'Yes':
+            in_intensive_cohort = r.get('IntensiveYN', 'No') == 'Yes'
+            asc_code = r['SportCodeCore']
             if asc_code in SPORT_TRANSLATIONS:
                 sid = r['SID']
                 if sid in students:
@@ -67,7 +74,7 @@ def load_student_athletes(app, rows):
                         sid=sid,
                         first_name=full_name[0].strip() if len(full_name) else '',
                         last_name=full_name[1].strip() if len(full_name) > 1 else '',
-                        in_intensive_cohort=False,
+                        in_intensive_cohort=in_intensive_cohort,
                     )
                     std_commit()
                     students[sid] = student
@@ -80,7 +87,7 @@ def load_student_athletes(app, rows):
                         group_code=group_code,
                         group_name=r['Sport'],
                         team_code=SPORT_TRANSLATIONS[asc_code],
-                        team_name=r['acSportCore'],
+                        team_name=r['SportCore'],
                     )
                     db.session.add(team_group)
                     athletics[group_code] = team_group
@@ -88,7 +95,7 @@ def load_student_athletes(app, rows):
                 team_group.athletes.append(student)
                 std_commit()
             else:
-                app.logger.error('Unmapped asc_code {} has SportActiveYN for sid {}'.format(asc_code, r['SID']))
+                app.logger.error('Unmapped asc_code {} has ActiveYN for sid {}'.format(asc_code, r['SID']))
     return athletics, students
 
 
