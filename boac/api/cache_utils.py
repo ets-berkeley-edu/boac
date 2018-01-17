@@ -74,6 +74,11 @@ def load_term(term_id=current_term_id()):
         failures += f
         JobProgress().update(f'External data loaded for UID {uid}')
 
+    # Given a fresh start with no existing 'normalized' cache, merged profiles must be pre-fetched.
+    # Otherwise all team and cohort searches will return empty arrays in the UX.
+    if term_id == current_term_id():
+        load_merged_sis_profiles()
+
     JobProgress().end()
     app.logger.warn('Complete. Fetched {} external feeds.'.format(success_count))
     if len(failures):
@@ -151,7 +156,6 @@ def load_sis_externals(term_id, csid):
 
 
 def load_merged_sis_profiles():
-    """TODO For now, pending one merged model refresh strategy, this sits to the side of other cache loading methods."""
     from boac.models.student import Student
 
     success_count = 0
