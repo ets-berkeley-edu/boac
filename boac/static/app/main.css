@@ -64,6 +64,10 @@
   flex-wrap: wrap-reverse;
 }
 
+.flex-justify-center {
+  justify-content: center;
+}
+
 .flex-row-wrap {
   flex-flow: wrap;
 }
@@ -103,17 +107,27 @@
   color: #cf1715;
 }
 
-.loading-spinner-large {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: 2em;
-  margin: auto;
-  overflow: show;
-  width: 2em;
-  z-index: 999;
+.header {
+  background-color: #e8e8e8;
+  position: relative;
+}
+
+.header-column-home {
+  padding: 15px 0 0 20px;
+  vertical-align: middle;
+}
+
+.header-column-cohorts {
+  padding: 10px 0 10px 20px;
+}
+
+.header-column-search {
+  flex: 1;
+  padding: 10px 20px 10px 20px;
+}
+
+.header-column-name {
+  padding: 17px 20px 10px 10px;
 }
 
 .main {
@@ -128,8 +142,51 @@
   bottom: 0;
   left: 0;
   margin: auto;
-  overflow: show;
+  padding-top: 100px;
   z-index: 999;
+}
+
+.outage-banner li:first-child {
+  padding-right: 20px;
+}
+
+.outage {
+  background: url(/static/app/outage/status-code-cloud-background.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.outage-icon {
+  border-radius: 100%;
+  border: 2px solid #fff;
+  color: #fff;
+  display: table-cell;
+  height: 60px;
+  padding: 30px;
+  text-align: center;
+  transition: 0.5s;
+  vertical-align: middle;
+  width: 60px;
+}
+
+.outage-icon-fa-circle {
+  display: inline-block;
+}
+
+.outage-icon-inner {
+  display: none;
+}
+
+.outage-text-header {
+  color: #fff;
+  font-size: 48px;
+}
+
+.outage-text-body {
+  color: #fff;
+  font-size: 24px;
 }
 
 .wrap-hard {
