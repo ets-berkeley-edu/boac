@@ -413,6 +413,6 @@ class TestUserAnalytics:
         assert len(group_codes_1133399) == 3
         assert 'MFB-DB' in group_codes_1133399
         assert 'MFB-DL' in group_codes_1133399
-        assert 'MTE-AA' in group_codes_1133399
+        assert 'MTE' in group_codes_1133399
         group_codes_242881 = [a['groupCode'] for a in students[1]['athletics']]
         assert group_codes_242881 == ['MFB-DL']

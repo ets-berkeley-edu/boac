@@ -49,7 +49,7 @@ mens_baseball = {
     'team_name': 'Men\'s Baseball',
 }
 mens_tennis = {
-    'group_code': 'MTE-AA',
+    'group_code': 'MTE',
     'group_name': 'Men\'s Tennis',
     'team_code': 'TNM',
     'team_name': 'Men\'s Tennis',
