@@ -21,6 +21,8 @@ _default_users_csv = """uid,is_admin,is_director,is_advisor
 242881,true,false,false
 1022796,true,false,false
 1049291,true,false,false
+1081940,true,false,false
+90412,true,false,false
 6446,false,true,true
 """
 
