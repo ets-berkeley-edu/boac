@@ -143,7 +143,7 @@ class TestCohortDetail:
     def test_create_cohort(self, authenticated_session, client):
         """creates custom cohort, owned by current user"""
         label = 'Tennis'
-        group_codes = ['MTE-AA', 'WTE-AA']
+        group_codes = ['MTE', 'WTE-AA']
         data = {
             'label': label,
             'groupCodes': group_codes,
@@ -178,10 +178,10 @@ class TestCohortDetail:
     def test_invalid_group_code(self, authenticated_session, client):
         data = {
             'label': 'groupCodes must be uppercase',
-            'groupCodes': ['mte-aa'],
+            'groupCodes': ['mte'],
         }
         response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
-        assert 500 == response.status_code and 'mte-aa' in str(response.data)
+        assert 500 == response.status_code and 'mte' in str(response.data)
 
     def test_invalid_level(self, authenticated_session, client):
         data = {

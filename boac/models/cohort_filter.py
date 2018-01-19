@@ -99,7 +99,7 @@ class CohortFilter(Base, UserMixin):
         for arg in [gpa_ranges, group_codes, levels, majors, unit_ranges_eligibility, unit_ranges_pacing]:
             if arg and not isinstance(arg, list):
                 raise InternalServerError('All \'filter_criteria\' objects must be instance of \'list\' type.')
-        group_code_syntax = re.compile('^[A-Z]+\-[A-Z]+$')
+        group_code_syntax = re.compile('^[A-Z\-]+$')
         if group_codes and any(not group_code_syntax.match(code) for code in group_codes):
             raise InternalServerError('\'group_codes\' arg has invalid data: ' + str(group_codes))
         level_syntax = re.compile('^[A-Z][a-z]+$')
