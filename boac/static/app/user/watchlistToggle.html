@@ -1,0 +1,9 @@
+<button id="watchlist-toggle-{{sid}}"
+        class="btn btn-link btn-watchlist-{{faSize}}"
+        type="button"
+        title="{{alertMessage}}"
+        data-ng-click="toggle($event)">
+  <i class="{{faSize}}"
+     data-ng-class="{'fa fa-star': onWatchlist, 'fa fa-star-o': !onWatchlist}"></i>
+  <span role="alert" class="sr-only" aria-live="polite" data-ng-bind="alertMessage"></span>
+</button>

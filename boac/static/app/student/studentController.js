@@ -7,13 +7,14 @@
     boxplotService,
     googleAnalyticsService,
     studentFactory,
+    watchlistFactory,
     $base64,
     $location,
     $scope,
     $stateParams
   ) {
 
-    var loadAnalytics = function(uid) {
+    var loadStudent = function(uid) {
       $scope.student.isLoading = true;
       studentFactory.analyticsPerUser(uid).then(function(analytics) {
         $scope.student = analytics.data;
@@ -43,8 +44,13 @@
 
     var init = function() {
       var uid = $stateParams.uid;
-      loadAnalytics(uid);
+      loadStudent(uid);
       prepareReturnUrl(uid);
+      $scope.isWatchlistLoading = true;
+      watchlistFactory.getMyWatchlist().then(function(response) {
+        $scope.myWatchlist = response.data;
+        $scope.isWatchlistLoading = false;
+      });
     };
 
     $scope.student = {

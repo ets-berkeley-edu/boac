@@ -13,6 +13,14 @@
   white-space: nowrap;
 }
 
+.btn-watchlist-fa-1x {
+  padding: 2px 5px 0 2px;
+}
+
+.btn-watchlist-fa-lg {
+  padding: 0 5px 2px 0;
+}
+
 .container-left {
   float: left;
 }
