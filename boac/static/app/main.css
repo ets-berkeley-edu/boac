@@ -138,6 +138,19 @@
   padding: 17px 20px 10px 10px;
 }
 
+.loading-spinner-large {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2em;
+  margin: auto;
+  overflow: show;
+  width: 2em;
+  z-index: 999;
+}
+
 .main {
   padding-top: 20px;
   min-height: 370px;
