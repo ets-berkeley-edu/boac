@@ -56,7 +56,7 @@
             <div data-ng-if="myWatchlist.length">
               <ul>
                 <li data-ng-repeat="student in myWatchlist">
-                  <a data-ng-bind="student.name" data-ng-href="/student/{{student.sid}}"></a>
+                  <a data-ng-bind="student.name" data-ng-href="/student/{{student.uid}}"></a>
                   <watchlist-toggle data-sid="student.sid"
                                     data-fa-size="fa-lg"
                                     data-watchlist="myWatchlist"></watchlist-toggle>
