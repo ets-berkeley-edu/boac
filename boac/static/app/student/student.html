@@ -18,8 +18,13 @@
              data-avatar-fallback/>
       </div>
       <div class="student-profile-header-contact">
-        <h1 class="student-profile-header-name"
-            data-ng-bind="student.athleticsProfile.fullName"></h1>
+        <h1 class="student-profile-header-name">
+          {{student.athleticsProfile.fullName}}
+          <watchlist-toggle data-sid="student.athleticsProfile.sid"
+                            data-fa-size="fa-lg"
+                            data-watchlist="myWatchlist"
+                            data-ng-if="!isWatchlistLoading"></watchlist-toggle>
+        </h1>
         <h2 class="student-profile-header-name-preferred"
             data-ng-bind="student.sisProfile.preferredName"
             data-ng-if="student.sisProfile.preferredName !== student.athleticsProfile.fullName"></h2>

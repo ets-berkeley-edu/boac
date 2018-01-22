@@ -176,6 +176,7 @@
   color: #49b;
   font-size: 16px;
   margin: 0;
+  white-space: nowrap;
 }
 
 .cohort-member-name-container {

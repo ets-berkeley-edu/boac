@@ -337,12 +337,19 @@
                  data-avatar-fallback>
           </div>
           <div class="cohort-member-name-container">
-            <h3 class="cohort-member-name" data-ng-bind="student.firstName + ' ' + student.lastName"></h3>
+            <h3 class="flex-container cohort-member-name">
+              {{student.firstName}} {{student.lastName}}
+              <watchlist-toggle data-sid="student.sid"
+                                data-fa-size="fa-1x"
+                                data-watchlist="myWatchlist"></watchlist-toggle>
+            </h3>
             <div class="cohort-member-sid" data-ng-bind="student.sid"></div>
             <div class="cohort-member-text" data-ng-bind="student.level"></div>
             <div class="cohort-member-text" data-ng-bind="major" data-ng-repeat="major in student.majors"></div>
             <div class="cohort-member-teams-container">
-              <div class="cohort-member-teams" data-ng-bind="membership.groupName" data-ng-repeat="membership in student.athletics"></div>
+              <div class="cohort-member-teams"
+                   data-ng-bind="membership.groupName"
+                   data-ng-repeat="membership in student.athletics"></div>
             </div>
           </div>
           <div class="cohort-member-column">
@@ -413,7 +420,12 @@
                      data-avatar-fallback>
               </div>
               <div class="cohort-member-name-container">
-                <h3 class="cohort-member-name" data-ng-bind="student.firstName + ' ' + student.lastName"></h3>
+                <h3 class="flex-container cohort-member-name">
+                  {{student.firstName}} {{student.lastName}}
+                  <watchlist-toggle data-sid="student.sid"
+                                    data-fa-size="fa-1x"
+                                    data-watchlist="myWatchlist"></watchlist-toggle>
+                </h3>
                 <div class="cohort-member-sid">
                   SID: <span data-ng-bind="student.sid"></span>
                 </div>

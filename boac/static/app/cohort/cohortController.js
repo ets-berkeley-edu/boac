@@ -9,6 +9,7 @@
     googleAnalyticsService,
     studentFactory,
     utilService,
+    watchlistFactory,
     $anchorScroll,
     $base64,
     $location,
@@ -468,8 +469,8 @@
       cohortFactory.getAllTeamGroups().then(function(teamsResponse) {
         var teamGroups = teamsResponse.data;
 
-        studentFactory.getRelevantMajors().then(function(response) {
-          var majors = _.map(response.data, function(name) {
+        studentFactory.getRelevantMajors().then(function(majorsResponse) {
+          var majors = _.map(majorsResponse.data, function(name) {
             return {name: name};
           });
           $scope.search.options = {
@@ -491,22 +492,26 @@
             var render = $scope.tabs.selected === 'list' ? listViewRefresh : matrixViewRefresh;
             render(function() {
               initFilters(function() {
-                $scope.isLoading = false;
-                if (args.a) {
-                  $timeout(function() {
-                    // Scroll to anchor if returning from student profile page
-                    $scope.anchor = args.a;
-                    $location.search('a', null).replace();
-                    $anchorScroll.yOffset = 50;
-                    $anchorScroll(args.a);
-                  });
-                }
-                // Track view event
-                if (isNaN($scope.cohort.code)) {
-                  googleAnalyticsService.track('team', 'view', $scope.cohort.code + ': ' + $scope.cohort.name);
-                } else {
-                  googleAnalyticsService.track('cohort', 'view', $scope.cohort.name, $scope.cohort.code);
-                }
+                watchlistFactory.getMyWatchlist().then(function(response) {
+                  $scope.myWatchlist = response.data;
+                  $scope.isLoading = false;
+
+                  if (args.a) {
+                    $timeout(function() {
+                      // Scroll to anchor if returning from student profile page
+                      $scope.anchor = args.a;
+                      $location.search('a', null).replace();
+                      $anchorScroll.yOffset = 50;
+                      $anchorScroll(args.a);
+                    });
+                  }
+                  // Track view event
+                  if (isNaN($scope.cohort.code)) {
+                    googleAnalyticsService.track('team', 'view', $scope.cohort.code + ': ' + $scope.cohort.name);
+                  } else {
+                    googleAnalyticsService.track('cohort', 'view', $scope.cohort.name, $scope.cohort.code);
+                  }
+                });
               });
             });
           }
