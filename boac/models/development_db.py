@@ -73,7 +73,7 @@ def load(cohort_test_data=False):
     load_development_data()
     if cohort_test_data:
         load_student_athletes()
-        load_cohorts()
+        create_cohorts()
     return db
 
 
@@ -120,6 +120,7 @@ def create_student(sid, uid, first_name, last_name, team_groups, gpa, level, uni
         team_group.athletes.append(student)
     NormalizedCacheStudent.update_profile(sid, gpa=gpa, level=level, units=units)
     NormalizedCacheStudentMajor.update_majors(sid, majors)
+    return student
 
 
 def load_student_athletes():
@@ -130,7 +131,7 @@ def load_student_athletes():
     wfh = create_team_group(womens_field_hockey)
     wt = create_team_group(womens_tennis)
     # Some students are on teams and some are not
-    create_student(
+    brigitte = create_student(
         uid='61889',
         sid='11667051',
         first_name='Brigitte',
@@ -165,7 +166,7 @@ def load_student_athletes():
         units=34,
         majors=['History BA'],
     )
-    create_student(
+    paul_kerschen = create_student(
         uid='242881',
         sid='3456789012',
         first_name='Paul',
@@ -177,7 +178,7 @@ def load_student_athletes():
         majors=['English BA', 'Political Economy BA'],
         in_intensive_cohort=True,
     )
-    create_student(
+    sandeep = create_student(
         uid='1133399',
         sid='5678901234',
         first_name='Sandeep',
@@ -188,7 +189,7 @@ def load_student_athletes():
         units=102,
         majors=['Letters & Sci Undeclared UG'],
     )
-    create_student(
+    paul_farestveit = create_student(
         uid='1049291',
         sid='7890123456',
         first_name='Paul',
@@ -200,10 +201,18 @@ def load_student_athletes():
         majors=['History BA'],
         in_intensive_cohort=True,
     )
+    advisor = AuthorizedUser.find_by_uid('6446')
+    advisor.watchlist = [
+        paul_kerschen,
+        sandeep,
+        brigitte,
+        paul_farestveit,
+    ]
+    db.session.add(advisor)
     std_commit(allow_test_environment=True)
 
 
-def load_cohorts():
+def create_cohorts():
     # Oliver's cohorts
     CohortFilter.create(uid='2040', label='All sports', group_codes=['MFB-DL', 'MFB-DL', 'WFH-AA'])
     CohortFilter.create(uid='2040', label='Football, Defense', group_codes=['MFB-DL', 'MFB-DL'])

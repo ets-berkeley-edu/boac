@@ -1,8 +1,8 @@
 """This package integrates with Flask-Login. Determine who can use the app and which privileges they have."""
 
-from boac import db
+from boac import db, std_commit
 from boac.models.base import Base
-from boac.models.db_relationships import cohort_filter_owners
+from boac.models.db_relationships import advisor_watchlists, cohort_filter_owners
 from flask_login import UserMixin
 
 
@@ -14,7 +14,17 @@ class AuthorizedUser(Base, UserMixin):
     is_admin = db.Column(db.Boolean)
     is_advisor = db.Column(db.Boolean)
     is_director = db.Column(db.Boolean)
-    cohort_filters = db.relationship('CohortFilter', secondary=cohort_filter_owners, back_populates='owners')
+    cohort_filters = db.relationship(
+        'CohortFilter',
+        secondary=cohort_filter_owners,
+        back_populates='owners',
+        lazy=True,
+    )
+    watchlist = db.relationship(
+        'Student',
+        secondary=advisor_watchlists,
+        lazy=True,
+    )
 
     def __init__(self, uid, is_admin=False, is_advisor=True, is_director=False):
         self.uid = uid
@@ -34,6 +44,15 @@ class AuthorizedUser(Base, UserMixin):
     def get_id(self):
         """Override UserMixin, since our DB conventionally reserves 'id' for generated keys."""
         return self.uid
+
+    def append_to_watchlist(self, student):
+        self.watchlist.append(student)
+        std_commit()
+
+    def remove_from_watchlist(self, sid):
+        watchlist = [s for s in self.watchlist if not s.sid == sid]
+        self.watchlist = watchlist
+        std_commit()
 
     @classmethod
     def find_by_uid(cls, uid):

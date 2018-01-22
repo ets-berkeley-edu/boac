@@ -37,6 +37,10 @@ class Student(Base):
         )
 
     @classmethod
+    def find_by_sid(cls, sid):
+        return cls.query.filter_by(sid=sid).first()
+
+    @classmethod
     def get_students(
             cls,
             gpa_ranges=None,

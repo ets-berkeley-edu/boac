@@ -2,6 +2,14 @@ from boac import db
 from boac.models.base import Base
 
 
+advisor_watchlists = db.Table(
+    'advisor_watchlists',
+    Base.metadata,
+    db.Column('watchlist_owner_uid', db.String(80), db.ForeignKey('authorized_users.uid'), primary_key=True),
+    db.Column('sid', db.String(80), db.ForeignKey('students.sid'), primary_key=True),
+)
+
+
 student_athletes = db.Table(
     'student_athletes',
     Base.metadata,
