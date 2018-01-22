@@ -35,7 +35,7 @@
       var encodedReturnUrl = $location.search().r;
       if (!_.isEmpty(encodedReturnUrl)) {
         $location.search('r', null).replace();
-        var url = $base64.decode(encodedReturnUrl);
+        var url = $base64.decode(decodeURIComponent(encodedReturnUrl));
         var separator = _.includes(url, '?') ? '&' : '?';
         $scope.returnUrl = url + separator + 'a=' + uid;
       }
