@@ -1,4 +1,5 @@
 import json
+from boac import __version__ as version
 from boac.lib.http import tolerant_jsonify
 from flask import current_app as app
 
@@ -15,12 +16,9 @@ def app_config():
 
 @app.route('/api/version')
 def app_version():
-    v = {}
-    metadata = load_json('bower.json')
-    if metadata:
-        v.update({
-            'version': metadata['version'],
-        })
+    v = {
+        'version': version,
+    }
     build_stats = load_json('config/build-summary.json')
     if build_stats:
         v.update(build_stats)
