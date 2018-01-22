@@ -112,6 +112,8 @@
         .attr('width', width)
         .attr('height', height);
 
+      var avatarBackgroundPath = '/static/app/shared/avatar-50.png';
+
       function avatar(d) {
         var avatarId = 'avatar_' + d.uid;
         var pattern = defs.append('svg:pattern')
@@ -125,7 +127,7 @@
           .attr('height', 1)
           .attr('preserveAspectRatio', 'xMidYMid slice');
         avatarImage.on('error', function() {
-          avatarImage.attr('xlink:href', '/static/app/shared/avatar-50.png');
+          avatarImage.attr('xlink:href', avatarBackgroundPath);
         });
         return 'url(#' + avatarId + ')';
       }
@@ -156,7 +158,7 @@
         .enter().append('circle')
         .attr('class', 'dot')
         .style('fill', function(d) { return avatar(d); })
-        .style('background-image', 'url(/static/app/shared/avatar-50.png)')
+        .style('background-image', 'url(' + avatarBackgroundPath + ')')
         .style('background-size', 'cover')
         .style('stroke-width', 5)
         .style('stroke', '#ccc')

@@ -284,7 +284,7 @@
       });
       // Pass along a subset of students that have useful data.
       cohortService.drawScatterplot(partitions[0], yAxisMeasure, function(uid) {
-        var encodedAbsUrl = $base64.encode($location.absUrl());
+        var encodedAbsUrl = encodeURIComponent($base64.encode($location.absUrl()));
         $state.go('user', {uid: uid, r: encodedAbsUrl});
       });
       // List of students-without-data is rendered below the scatterplot.
@@ -443,7 +443,7 @@
     });
 
     $scope.studentProfile = function(uid) {
-      var encodedAbsUrl = $base64.encode($location.absUrl());
+      var encodedAbsUrl = encodeURIComponent($base64.encode($location.absUrl()));
       $location.path('/student/' + uid).search({r: encodedAbsUrl});
     };
 
