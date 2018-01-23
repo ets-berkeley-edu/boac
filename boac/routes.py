@@ -16,6 +16,7 @@ def register_routes(app):
     # Register API routes.
     import boac.api.admin_controller
     import boac.api.advisor_watchlist_controller
+    import boac.api.alerts_controller
     import boac.api.athletics_controller
     import boac.api.cohort_controller
     import boac.api.config_controller
