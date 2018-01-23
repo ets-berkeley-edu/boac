@@ -5,7 +5,7 @@
   angular.module('boac').directive('watchlistToggle', function(watchlistFactory, $rootScope) {
 
     var getAlertMessage = function(onWatchlist, sid) {
-      return onWatchlist ? 'Remove student ' + sid + ' from my Watchlist.' : 'Add student ' + sid + ' to my Watchlist.';
+      return onWatchlist ? 'Remove student ' + sid + ' from my list.' : 'Add student ' + sid + ' to my list.';
     };
 
     return {
