@@ -17,7 +17,7 @@ class TestImportAscAthletes:
         polo_code = 'WWP-AA'
         volleyball_code = 'WVB-AA'
         asc_data = [
-            asc_data_row(jane_sid, 'Jane B. Sporty', polo_code, 'Women\'s Water Polo', 'MBB',
+            asc_data_row(jane_sid, 'Jane B. Sporty', polo_code, 'Women\'s Water Polo', 'WWP',
                          'Women\'s Water Polo', '2017-18', 'Yes'),
             asc_data_row(jane_sid, 'Jane B. Sporty', volleyball_code, 'Women\'s Volleyball', 'WVB',
                          'Women\'s Volleyball', '2017-18', 'Yes'),
@@ -42,7 +42,7 @@ class TestImportAscAthletes:
                 'Jane B. Sporty',
                 polo_code,
                 'Women\'s Water Polo',
-                'MBB',
+                'WWP',
                 'Women\'s Water Polo',
                 '2017-18',
                 'No',
@@ -63,7 +63,7 @@ class TestImportAscAthletes:
                 'Jane B. Sporty',
                 polo_code,
                 'Women\'s Water Polo',
-                'MBB',
+                'WWP',
                 'Women\'s Water Polo',
                 '2017-18',
                 'Yes',
@@ -73,7 +73,7 @@ class TestImportAscAthletes:
         # Run import script
         athletics, students = import_asc_athletes.load_student_athletes(app, asc_data)
         assert 1 == len(students)
-        assert students[jane_sid].in_intensive_cohort
+        assert students[jane_sid]['in_intensive_cohort']
 
 
 def find_athlete(team, sid):
