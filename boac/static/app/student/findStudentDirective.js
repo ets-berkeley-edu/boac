@@ -25,9 +25,11 @@
             var options = [];
             _.each(response.data, function(student) {
               _.each(student.athletics, function(a) {
+                // Remove middle name
+                var firstName = _.split(student.firstName, ' ')[0];
                 options.push({
                   uid: student.uid,
-                  name: student.name,
+                  name: firstName + ' ' + student.lastName + ' - ' + student.sid,
                   groupName: a.groupName
                 });
               });
