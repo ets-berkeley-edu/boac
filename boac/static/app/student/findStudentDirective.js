@@ -27,7 +27,7 @@
               _.each(student.athletics, function(a) {
                 options.push({
                   uid: student.uid,
-                  name: student.name,
+                  name: student.name + ' - ' + student.sid,
                   groupName: a.groupName
                 });
               });
