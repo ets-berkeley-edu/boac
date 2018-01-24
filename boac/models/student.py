@@ -1,4 +1,4 @@
-from boac import db
+from boac import db, std_commit
 import boac.api.util as api_util
 from boac.lib import util
 from boac.models.base import Base
@@ -126,6 +126,19 @@ class Student(Base):
         if in_intensive_cohort is not None:
             query += ' AND s.in_intensive_cohort IS {}'.format(str(in_intensive_cohort))
         return query, all_bindings
+
+    @classmethod
+    def delete_student(cls, sid):
+        """This could probably be simplified by adding cascade options to the DB schema."""
+        from boac.models.normalized_cache_student import NormalizedCacheStudent
+        from boac.models.normalized_cache_student_major import NormalizedCacheStudentMajor
+        db.session.query(NormalizedCacheStudent).filter(NormalizedCacheStudent.sid == sid).delete()
+        db.session.query(NormalizedCacheStudentMajor).filter(NormalizedCacheStudentMajor.sid == sid).delete()
+        student = Student.query.filter(Student.sid == sid).first()
+        student.athletics = []
+        db.session.delete(student)
+        std_commit()
+        return
 
     def to_api_json(self):
         return api_util.student_to_json(self)
