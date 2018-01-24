@@ -4,7 +4,9 @@
            size="100"
            oi-options="student.uid as student.name group by student.groupName for student in lazyLoadOptions()"
            oi-select-options="{
-            maxlength: 255
+             dropdownFilter: 'boldNamesFilter',
+             listFilter: 'findStudentFilter:true',
+             maxlength: 255
            }"
            ng-model="selectedUID"
            placeholder="Search"
