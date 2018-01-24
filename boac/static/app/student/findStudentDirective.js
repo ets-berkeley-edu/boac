@@ -10,7 +10,7 @@
 
       // @see https://docs.angularjs.org/guide/directive#isolating-the-scope-of-a-directive
       scope: {},
-      templateUrl: '/static/app/student/findStudentSelect.html',
+      templateUrl: '/static/app/student/findStudent.html',
       controller: function(studentFactory, $location, $q, $scope, $timeout) {
 
         $scope.$watch('selectedUID', function() {
