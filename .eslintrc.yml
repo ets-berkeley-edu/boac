@@ -226,6 +226,32 @@ rules:
     - 2
     - always
   switch-colon-spacing: 2
+  unicorn:
+    - catch-error-name:
+      - 2
+      - name: err
+    - explicit-length-check: 2
+    - filename-case:
+      - 2
+      - case: kebabCase
+    - no-abusive-eslint-disable: 2
+    - no-process-exit: 2
+    - throw-new-error: 2
+    - number-literal-case: 2
+    - escape-case: 2
+    - no-array-instanceof: 2
+    - no-new-buffer: 2
+    - no-hex-escape: 2
+    - custom-error-definition: 2
+    - prefer-starts-ends-with: 2
+    - prefer-type-error: 2
+    - no-fn-reference-in-iterator: 2
+    - import-index: 2
+    - new-for-builtins: 2
+    - regex-shorthand: 2
+    - prefer-spread: 2
+    - error-message: 2
+    - no-unsafe-regex": 2
   use-isnan: 2
   valid-jsdoc:
     - 2
@@ -234,6 +260,10 @@ rules:
   valid-typeof: 2
   wrap-iife: 2
   wrap-regex: 2
+  xss:
+   no-mixed-html: 2
+   require-encode: 2
+   rule-name: 2
   yoda:
     - 2
     - never
