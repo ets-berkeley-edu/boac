@@ -5,7 +5,8 @@ from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.student import Student
 # Models below are included so that db.create_all will find them.
-from boac.models.db_relationships import cohort_filter_owners, student_athletes # noqa
+from boac.models.alert import Alert # noqa
+from boac.models.db_relationships import AlertView, cohort_filter_owners, student_athletes # noqa
 from boac.models.job_progress import JobProgress # noqa
 from boac.models.json_cache import JsonCache # noqa
 from boac.models.normalized_cache_student import NormalizedCacheStudent # noqa
