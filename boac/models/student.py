@@ -1,4 +1,4 @@
-from boac import db
+from boac import db, std_commit
 import boac.api.util as api_util
 from boac.lib import util
 from boac.models.base import Base
@@ -159,6 +159,14 @@ class Student(Base):
         if in_intensive_cohort is not None:
             query_filter += ' AND s.in_intensive_cohort IS {}'.format(str(in_intensive_cohort))
         return query_tables, query_filter, all_bindings
+
+    @classmethod
+    def delete_student(cls, sid):
+        student = Student.query.filter(Student.sid == sid).first()
+        student.athletics = []
+        db.session.delete(student)
+        std_commit()
+        return
 
     def to_api_json(self):
         return api_util.student_to_json(self)
