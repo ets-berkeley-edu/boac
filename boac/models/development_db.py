@@ -11,6 +11,7 @@ from boac.models.job_progress import JobProgress # noqa
 from boac.models.json_cache import JsonCache # noqa
 from boac.models.normalized_cache_student import NormalizedCacheStudent # noqa
 from boac.models.normalized_cache_student_major import NormalizedCacheStudentMajor # noqa
+from sqlalchemy.sql import text
 
 _default_users_csv = """uid,is_admin,is_director,is_advisor
 2040,true,false,false
@@ -66,7 +67,10 @@ womens_tennis = {
 
 
 def clear():
-    db.drop_all()
+    with open('scripts/db/drop_schema.sql', 'r') as ddlfile:
+        ddltext = ddlfile.read()
+    db.session().execute(text(ddltext))
+    std_commit()
 
 
 def load(cohort_test_data=False):
@@ -79,11 +83,11 @@ def load(cohort_test_data=False):
 
 
 def load_schemas():
-    """Create db from Python code.
-
-    TODO: Convert to SQL scripts?
-    """
-    db.create_all()
+    """Create DB schema from SQL file."""
+    with open('scripts/db/schema.sql', 'r') as ddlfile:
+        ddltext = ddlfile.read()
+    db.session().execute(text(ddltext))
+    std_commit()
 
 
 def load_development_data():
