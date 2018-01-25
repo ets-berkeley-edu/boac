@@ -284,7 +284,9 @@
       });
       // Pass along a subset of students that have useful data.
       cohortService.drawScatterplot(partitions[0], yAxisMeasure, function(uid) {
-        var encodedAbsUrl = encodeURIComponent($base64.encode($location.absUrl()));
+        var absUrl = $location.absUrl();
+        $location.state(absUrl);
+        var encodedAbsUrl = encodeURIComponent($base64.encode(absUrl));
         $state.go('user', {uid: uid, r: encodedAbsUrl});
       });
       // List of students-without-data is rendered below the scatterplot.
