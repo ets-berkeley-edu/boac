@@ -26,6 +26,28 @@ class TestCohortDetail:
         assert 'totalMemberCount' in cohorts[0]
         assert len(cohorts[1]['teamGroups']) == 1
 
+    def test_my_cohorts_includes_alert_counts(self, create_alerts, authenticated_session, client):
+        cohorts = client.get('/api/cohorts/my').json
+        assert len(cohorts[0]['alerts']) == 2
+        assert cohorts[0]['alerts'][0]['sid'] == '2345678901'
+        assert cohorts[0]['alerts'][0]['alertCount'] == 1
+        assert cohorts[0]['alerts'][1]['sid'] == '11667051'
+        assert cohorts[0]['alerts'][1]['alertCount'] == 2
+        assert len(cohorts[1]['alerts']) == 1
+        assert cohorts[1]['alerts'][0]['sid'] == '2345678901'
+        assert cohorts[1]['alerts'][0]['alertCount'] == 1
+
+        alert_to_dismiss = client.get('/api/alerts/current/11667051').json[0]['id']
+        client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
+        alert_to_dismiss = client.get('/api/alerts/current/2345678901').json[0]['id']
+        client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
+
+        cohorts = client.get('/api/cohorts/my').json
+        assert len(cohorts[0]['alerts']) == 1
+        assert cohorts[0]['alerts'][0]['sid'] == '11667051'
+        assert cohorts[0]['alerts'][0]['alertCount'] == 1
+        assert len(cohorts[1]['alerts']) == 0
+
     def test_cohorts_all(self, authenticated_session, client):
         """Returns all cohorts per owner."""
         response = client.get('/api/cohorts/all')

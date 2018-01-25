@@ -1,6 +1,7 @@
 import json
 import os
 import boac.factory
+from boac.models.alert import Alert
 import pytest
 
 
@@ -87,6 +88,29 @@ def db_session(db, request):
 def fake_auth(app, db, client):
     """Shortcut to start an authenticated session."""
     return FakeAuth(app, client)
+
+
+@pytest.fixture()
+def create_alerts(db_session):
+    """Create three canned alerts."""
+    Alert.create(
+        sid='11667051',
+        alert_type='late_assignment',
+        key='800900300',
+        message='Week 5 homework in RUSSIAN 13 is late.',
+    )
+    Alert.create(
+        sid='11667051',
+        alert_type='missing_assignment',
+        key='500600700',
+        message='Week 6 homework in PORTUGUESE 12 is missing.',
+    )
+    Alert.create(
+        sid='2345678901',
+        alert_type='late_assignment',
+        key='100200300',
+        message='Week 5 homework in BOSCRSR 27B is late.',
+    )
 
 
 def pytest_itemcollected(item):

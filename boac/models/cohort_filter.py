@@ -3,6 +3,7 @@ import re
 from boac import db, std_commit
 from boac.api.errors import InternalServerError
 from boac.lib import util
+from boac.models.alert import Alert
 from boac.models.athletics import Athletics
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.authorized_user import cohort_filter_owners
@@ -83,9 +84,12 @@ class CohortFilter(Base, UserMixin):
         return [construct_cohort(cf, include_students=False) for cf in CohortFilter.query.all()]
 
     @classmethod
-    def all_owned_by(cls, uid):
+    def all_owned_by(cls, uid, include_alerts=False):
         filters = CohortFilter.query.filter(CohortFilter.owners.any(uid=uid)).order_by(CohortFilter.label).all()
-        return [construct_cohort(cohort_filter, include_students=False) for cohort_filter in filters]
+        kwargs = {'include_students': False}
+        if include_alerts:
+            kwargs['include_alerts_for_uid'] = uid
+        return [construct_cohort(cohort_filter, **kwargs) for cohort_filter in filters]
 
     @classmethod
     def find_by_id(cls, cohort_id, order_by=None, offset=0, limit=50):
@@ -137,7 +141,7 @@ class CohortFilter(Base, UserMixin):
         }
 
 
-def construct_cohort(cf, order_by=None, offset=0, limit=50, include_students=True):
+def construct_cohort(cf, order_by=None, offset=0, limit=50, include_students=True, include_alerts_for_uid=None):
     cohort = {
         'id': cf.id,
         'code': cf.id,
@@ -163,7 +167,7 @@ def construct_cohort(cf, order_by=None, offset=0, limit=50, include_students=Tru
         order_by=order_by,
         offset=offset,
         limit=limit,
-        only_total_student_count=not include_students,
+        sids_only=not include_students,
     )
     team_groups = Athletics.get_team_groups(group_codes) if group_codes else []
     cohort.update({
@@ -182,4 +186,11 @@ def construct_cohort(cf, order_by=None, offset=0, limit=50, include_students=Tru
         cohort.update({
             'members': results['students'],
         })
+    if include_alerts_for_uid:
+        viewer = AuthorizedUser.find_by_uid(include_alerts_for_uid)
+        if viewer:
+            alert_counts = Alert.current_alert_counts_for_sids(viewer.id, results['sids'])
+            cohort.update({
+                'alerts': alert_counts,
+            })
     return cohort

@@ -1,10 +1,11 @@
-import datetime
+from datetime import datetime
 
 from boac import db, std_commit
-from boac.models import authorized_user
+from boac.api.errors import BadRequestError
+from boac.lib.util import camelize
 from boac.models.base import Base
 from boac.models.db_relationships import AlertView
-from sqlalchemy import text
+from sqlalchemy import and_, text
 
 
 class Alert(Base):
@@ -36,7 +37,7 @@ class Alert(Base):
         # to a string representation of today's date, but will more often (depending on the alert type)
         # contain a reference to a related resource, such as a course or assignment id.
         if key is None:
-            key = datetime.datetime.now().strftime('%Y-%m-%d')
+            key = datetime.now().strftime('%Y-%m-%d')
         else:
             # If we get a blank string as key, deliver a stern warning to the code that submitted it.
             key = key.strip()
@@ -65,38 +66,52 @@ class Alert(Base):
                     created={self.created_at}>
                 """
 
-    def add_viewer(self, uid):
-        viewer = authorized_user.AuthorizedUser.find_by_uid(uid)
-        if viewer:
-            db.session.add(AlertView(alert_id=self.id, viewer_id=viewer.id))
+    @classmethod
+    def dismiss(cls, alert_id, viewer_id):
+        alert = cls.query.filter_by(id=alert_id).first()
+        if alert:
+            alert_view = AlertView.query.filter_by(viewer_id=viewer_id, alert_id=alert_id).first()
+            if alert_view:
+                alert_view.dismissed_at = datetime.now()
+            else:
+                db.session.add(AlertView(viewer_id=viewer_id, alert_id=alert_id, dismissed_at=datetime.now()))
             std_commit()
+        else:
+            raise BadRequestError(f'No alert found for id {alert_id}')
 
     @classmethod
-    def current_alerts(cls, viewer_id):
+    def current_alert_counts_for_sids(cls, viewer_id, sids):
         query = text("""
             SELECT * FROM students s JOIN (
                 SELECT alerts.sid, count(*) as alert_count
-                FROM alert_views JOIN alerts
+                FROM alerts LEFT JOIN alert_views
                     ON alert_views.alert_id = alerts.id
-                WHERE alert_views.viewer_id = :viewer_id
-                    AND alerts.active = true
+                    AND alert_views.viewer_id = :viewer_id
+                WHERE alerts.active = true
                     AND alert_views.dismissed_at IS NULL
                 GROUP BY alerts.sid
             ) alert_counts
             ON s.sid = alert_counts.sid
+                AND s.sid = ANY(:sids)
             ORDER BY s.last_name
         """)
-        results = db.session.execute(query, {'viewer_id': viewer_id})
+        results = db.session.execute(query, {'viewer_id': viewer_id, 'sids': sids})
 
         def result_to_dict(result):
-            return {key: result[key] for key in ['sid', 'uid', 'first_name', 'last_name', 'alert_count']}
+            return {camelize(key): result[key] for key in ['sid', 'uid', 'first_name', 'last_name', 'alert_count']}
         return [result_to_dict(result) for result in results]
 
     @classmethod
     def current_alerts_for_sid(cls, viewer_id, sid):
-        query = AlertView.query.filter_by(viewer_id=viewer_id, dismissed_at=None).join(cls).filter_by(sid=sid, active=True)
-        results = query.order_by(Alert.created_at).all()
-        return [result.alert.to_api_json() for result in results]
+        query = (
+            cls.query.
+            filter_by(sid=sid, active=True).
+            outerjoin(AlertView, and_(cls.id == AlertView.alert_id, AlertView.viewer_id == viewer_id)).
+            filter_by(dismissed_at=None).
+            order_by(Alert.created_at)
+        )
+        results = query.all()
+        return [result.to_api_json() for result in results]
 
     def deactivate(self):
         self.active = False

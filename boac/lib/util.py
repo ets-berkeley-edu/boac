@@ -1,6 +1,15 @@
 """Generic utilities."""
 
 
+def camelize(string):
+    def lower_then_capitalize():
+        yield str.lower
+        while True:
+            yield str.capitalize
+    string_transform = lower_then_capitalize()
+    return ''.join(next(string_transform)(segment) for segment in string.split('_'))
+
+
 def get(_dict, key, default_value=None):
     value = _dict and key in _dict and _dict[key]
     return value or default_value
