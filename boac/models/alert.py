@@ -95,7 +95,7 @@ class Alert(Base):
     @classmethod
     def current_alerts_for_sid(cls, viewer_id, sid):
         query = AlertView.query.filter_by(viewer_id=viewer_id, dismissed_at=None).join(cls).filter_by(sid=sid, active=True)
-        results = query.all()
+        results = query.order_by(Alert.created_at).all()
         return [result.alert.to_api_json() for result in results]
 
     def deactivate(self):
