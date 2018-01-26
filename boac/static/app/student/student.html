@@ -87,6 +87,16 @@
       <div class="student-profile-terms">
         <div class="student-profile-term" data-ng-repeat="term in student.enrollmentTerms | limitTo: (showAllTerms ? undefined : 1)">
           <h2 class="student-profile-classes-header" data-ng-bind="term.termName"></h2>
+          <div data-ng-if="$index === 0 && alerts">
+            <div class="alert alert-warning" data-ng-attr-id="alert-{{alert.id}}" data-ng-repeat="alert in alerts">
+              <span data-ng-switch="alert.alertType">
+                <strong data-ng-switch-when="late_assignment">Late assignment!</strong>
+                <strong data-ng-switch-when="missing_assignment">Missed assignment!</strong>
+              </span>
+              <span data-ng-bind="alert.message"></span>
+              <a class="close" data-ng-click="dismissAlert(alert.id)" aria-label="close">&times;</a>
+            </div>
+          </div>
           <div data-ng-repeat="course in term.enrollments" class="student-profile-class">
             <div class="student-profile-class-heading">
               <div class="student-profile-class-title-outer">

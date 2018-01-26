@@ -10,6 +10,14 @@
       return $http.get('/api/user/' + uid + '/analytics');
     };
 
+    var dismissAlert = function(alertId) {
+      return $http.get('/api/alerts/' + alertId + '/dismiss');
+    };
+
+    var getAlerts = function(sid) {
+      return $http.get('/api/alerts/current/' + sid);
+    };
+
     var getAllStudents = function(orderBy) {
       return $http({
         url: '/api/students/all',
@@ -79,6 +87,8 @@
 
     return {
       analyticsPerUser: analyticsPerUser,
+      dismissAlert: dismissAlert,
+      getAlerts: getAlerts,
       getAllStudents: getAllStudents,
       getGpaRanges: getGpaRanges,
       getRelevantMajors: getRelevantMajors,
