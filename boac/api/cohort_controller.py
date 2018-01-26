@@ -32,7 +32,7 @@ def all_cohorts():
 @app.route('/api/cohorts/my')
 @login_required
 def my_cohorts():
-    return tolerant_jsonify(CohortFilter.all_owned_by(current_user.get_id()))
+    return tolerant_jsonify(CohortFilter.all_owned_by(current_user.get_id(), include_alerts=True))
 
 
 @app.route('/api/intensive_cohort')

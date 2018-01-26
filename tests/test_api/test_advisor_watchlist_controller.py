@@ -24,6 +24,18 @@ class TestAdvisorWatchlist:
         names = [student['firstName'] + ' ' + student['lastName'] for student in response.json]
         assert ['Brigitte Lin', 'Paul Farestveit', 'Paul Kerschen', 'Sandeep Jayaprakash'] == names
 
+    def test_watchlist_includes_alert_counts(self, create_alerts, authenticated_session, client):
+        watchlist = client.get('/api/watchlist/my').json
+        assert watchlist[0]['alertCount'] == 2
+        assert 'alertCount' not in watchlist[1]
+        assert 'alertCount' not in watchlist[2]
+        assert 'alertCount' not in watchlist[3]
+
+        alert_to_dismiss = client.get('/api/alerts/current/11667051').json[0]['id']
+        client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
+        watchlist = client.get('/api/watchlist/my').json
+        assert watchlist[0]['alertCount'] == 1
+
     def test_watchlist_add_and_remove(self, authenticated_session, client):
         """Add student to current_user's watchlist and then remove him."""
         sid = '2345678901'

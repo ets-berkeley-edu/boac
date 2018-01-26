@@ -53,18 +53,22 @@ class Student(Base):
             order_by=None,
             offset=0,
             limit=50,
-            only_total_student_count=False,
+            sids_only=False,
     ):
         # TODO: unit ranges
         query_tables, query_filter, all_bindings = cls.get_students_query(group_codes, gpa_ranges, levels, majors, in_intensive_cohort)
         # First, get total_count of matching students
         connection = db.engine.connect()
-        result = connection.execute(text(f'SELECT COUNT(DISTINCT(s.sid)) {query_tables} {query_filter}'), **all_bindings)
+        result = connection.execute(text(f'SELECT DISTINCT(s.sid) {query_tables} {query_filter}'), **all_bindings)
         summary = {
-            'totalStudentCount': result.fetchone()[0],
+            'totalStudentCount': result.rowcount,
         }
-        if only_total_student_count:
+        if sids_only:
+            rows = result.fetchall()
             connection.close()
+            summary.update({
+                'sids': [row[0] for row in rows],
+            })
         else:
             # Next, get matching students per order_by, offset, limit
             o = 's.first_name'
