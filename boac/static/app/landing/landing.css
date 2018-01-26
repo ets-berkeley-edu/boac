@@ -1,0 +1,77 @@
+.landing-issues-pill {
+  background-color: #f0ad4e;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  height: 20px;
+  line-height: 20px;
+  margin: 0 auto;
+  text-align: center;
+  width: 30px;
+}
+
+.landing-list {
+  list-style: none;
+  padding: 0;
+}
+
+.landing-list li {
+  font-size: 16px;
+  line-height: 1.6em;
+}
+
+.landing-list-cohort-wrapper {
+  margin-bottom: 15px;
+}
+
+.landing-list-wrapper {
+  margin-bottom: 30px;
+}
+
+.landing-my-cohorts-label {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.landing-table {
+  margin-bottom: 15px;
+  table-layout: fixed;
+}
+
+.landing-table-header th {
+  color: #999;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 0 20px 5px 0;
+  text-transform: uppercase;
+}
+
+.landing-table-header-issues {
+  width: 60px;
+}
+
+.landing-table-header-name {
+  width: 200px;
+}
+
+.landing-table-header-remove {
+  width: 60px;
+}
+
+.landing-table-header-sid {
+  width: 120px;
+}
+
+.landing-table-header-sortable {
+  cursor: pointer;
+}
+
+.landing-table-row {
+  font-size: 16px;
+  line-height: 1.6em;
+}
+
+.landing-table-row td {
+  padding-right: 20px;
+}

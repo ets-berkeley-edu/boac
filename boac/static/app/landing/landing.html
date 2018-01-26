@@ -6,16 +6,16 @@
 
     <div class="flex-container-wrap-reverse">
       <div class="flex-column-50">
-        <h2>Teams List</h2>
+        <h2>Team List</h2>
         <div data-ng-if="isLoading">
           <div>Loading.... </div>
         </div>
         <div data-ng-if="!isLoading">
           <div data-ng-if="!teams.length">
-            <div>There are zero teams in the database.</div>
+            <div>No teams are available.</div>
           </div>
           <div data-ng-if="teams.length">
-            <ul data-ng-if="!isLoading">
+            <ul data-ng-if="!isLoading" class="landing-list">
               <li data-ng-repeat="team in teams">
                 <a data-ng-bind="team.name" data-ng-href="/cohort?c={{team.code}}"></a>
                 (<span data-ng-bind="team.totalMemberCount"></span>)
@@ -25,41 +25,44 @@
         </div>
       </div>
       <div class="flex-column-50">
-        <div>
+        <div class="landing-list-wrapper">
+          <h2>My List</h2>
+          <div data-ng-if="isLoading">
+            <div>Loading.... </div>
+          </div>
+          <div data-ng-if="!isLoading">
+            <div data-ng-if="!myWatchlist.students.length">
+              <div>You have no students in your list. Add a student from their profile page.</div>
+            </div>
+            <sortable-alerts-table
+              data-alerts="myWatchlist"
+              data-watchlist="true"
+              data-ng-if="myWatchlist.students.length"></sortable-alerts-table>
+          </div>
+        </div>
+        <div class="landing-list-wrapper">
           <h2>My Saved Cohorts</h2>
           <div data-ng-if="isLoading">
             <div>Loading.... </div>
           </div>
           <div data-ng-if="!isLoading">
             <div data-ng-if="!myCohorts.length">
-              <div>You have no saved cohorts</div>
+              <div>
+                You have no saved cohorts.
+                <a data-ng-bind="team.name" data-ng-href="/cohort?c=new">Create your first cohort.</a>
+              </div>
             </div>
             <div data-ng-if="myCohorts.length">
-              <ul>
-                <li data-ng-repeat="cohort in myCohorts">
-                  <a data-ng-bind="cohort.label" data-ng-href="/cohort?c={{cohort.id}}"></a>
-                  (<span data-ng-bind="cohort.totalMemberCount"></span>)
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div>
-          <h2>My List</h2>
-          <div data-ng-if="isLoading">
-            <div>Loading.... </div>
-          </div>
-          <div data-ng-if="!isLoading">
-            <div data-ng-if="!myWatchlist.length">
-              <div>You have no students in your list.</div>
-            </div>
-            <div data-ng-if="myWatchlist.length">
-              <ul>
-                <li data-ng-repeat="student in myWatchlist">
-                  <a data-ng-bind="student.name" data-ng-href="/student/{{student.uid}}"></a>
-                  <watchlist-toggle data-sid="student.sid"
-                                    data-fa-size="fa-lg"
-                                    data-watchlist="myWatchlist"></watchlist-toggle>
+              <ul class="landing-list">
+                <li class="landing-list-cohort-wrapper" data-ng-repeat="cohort in myCohorts">
+                  <div class="landing-my-cohorts-label">
+                    <a data-ng-bind="cohort.label" data-ng-href="/cohort?c={{cohort.id}}"></a>
+                    (<span data-ng-bind="cohort.totalMemberCount"></span>)
+                  </div>
+                  <sortable-alerts-table
+                    data-alerts="cohort.alerts"
+                    data-watchlist="false"
+                    data-ng-if="cohort.alerts.students.length"></sortable-alerts-table>
                 </li>
               </ul>
             </div>
