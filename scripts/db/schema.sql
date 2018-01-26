@@ -197,6 +197,8 @@ CREATE TABLE students (
     first_name character varying(255) NOT NULL,
     last_name character varying(255) NOT NULL,
     in_intensive_cohort boolean DEFAULT false NOT NULL,
+    is_active_asc boolean DEFAULT true NOT NULL,
+    status_asc character varying(80),
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL
 );
