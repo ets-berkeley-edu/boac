@@ -13,10 +13,29 @@
           $scope.teams = teamsResponse.data;
 
           cohortFactory.getMyCohorts().then(function(cohortsResponse) {
-            $scope.myCohorts = cohortsResponse.data;
+            $scope.myCohorts = [];
+            _.each(cohortsResponse.data, function(cohort) {
+              if (cohort.alerts.length) {
+                var students = _.map(cohort.alerts, function(student) {
+                  return _.extend(student, {
+                    name: student.firstName + ' ' + student.lastName
+                  });
+                });
+                cohort.alerts = {
+                  students: students,
+                  sortBy: 'name',
+                  reverse: false
+                };
+              }
+              $scope.myCohorts.push(cohort);
+            });
 
             watchlistFactory.getMyWatchlist().then(function(response) {
-              $scope.myWatchlist = response.data;
+              $scope.myWatchlist = {
+                students: response.data,
+                sortBy: 'name',
+                reverse: false
+              };
               $scope.isLoading = false;
             });
           });
@@ -31,7 +50,7 @@
     });
 
     $rootScope.$on('watchlistRemoval', function(event, sidRemoved) {
-      $scope.myWatchlist = _.reject($scope.myWatchlist, ['sid', sidRemoved]);
+      $scope.myWatchlist.students = _.reject($scope.myWatchlist.students, ['sid', sidRemoved]);
     });
 
     init();

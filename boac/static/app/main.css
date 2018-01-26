@@ -21,6 +21,10 @@
   padding: 0 5px 2px 0;
 }
 
+.btn-watchlist-text {
+  padding: 2px 5px 0 2px;
+}
+
 .container-left {
   float: left;
 }

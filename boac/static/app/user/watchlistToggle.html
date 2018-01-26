@@ -4,6 +4,10 @@
         title="{{alertMessage}}"
         data-ng-click="toggle($event)">
   <i class="{{faSize}}"
-     data-ng-class="{'fa fa-star': onWatchlist, 'fa fa-star-o': !onWatchlist}"></i>
+     data-ng-class="{'fa fa-star': onWatchlist, 'fa fa-star-o': !onWatchlist}"
+     data-ng-if="faSize !== 'text'"></i>
+  <span data-ng-if="faSize === 'text'">
+    remove
+  </span>
   <span role="alert" class="sr-only" aria-live="polite" data-ng-bind="alertMessage"></span>
 </button>
