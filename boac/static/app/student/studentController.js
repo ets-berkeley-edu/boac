@@ -14,6 +14,14 @@
     $stateParams
   ) {
 
+    $scope.dismissAlert = function(alertId) {
+      studentFactory.dismissAlert(alertId).then(function() {
+        _.remove($scope.alerts, {id: alertId});
+      }).catch(function(error) {
+        $scope.error = _.truncate(error.data.message, {length: 200}) || 'An unexpected server error occurred.';
+      });
+    };
+
     var loadStudent = function(uid) {
       $scope.student.isLoading = true;
       studentFactory.analyticsPerUser(uid).then(function(analytics) {
@@ -27,6 +35,11 @@
         var athleticsProfile = $scope.student.athleticsProfile;
         if (athleticsProfile) {
           athleticsProfile.fullName = athleticsProfile.firstName + ' ' + athleticsProfile.lastName;
+          if (athleticsProfile.sid) {
+            studentFactory.getAlerts(athleticsProfile.sid).then(function(alerts) {
+              $scope.alerts = alerts.data;
+            });
+          }
         }
         $scope.student.isLoading = false;
       });
