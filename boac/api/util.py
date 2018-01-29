@@ -48,6 +48,8 @@ def student_to_json(student):
         'lastName': student.last_name,
         'name': student.first_name + ' ' + student.last_name,
         'inIntensiveCohort': student.in_intensive_cohort,
+        'isActiveAsc': student.is_active_asc,
+        'statusAsc': student.status_asc,
     }
 
 

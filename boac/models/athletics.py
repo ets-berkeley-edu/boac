@@ -28,7 +28,7 @@ class Athletics(Base):
     def all_team_groups(cls):
         query = db.session.query(cls.group_code, cls.group_name, cls.team_code, cls.team_name, func.count(Student.sid))
         order_by = [cls.group_name, cls.group_code]
-        results = query.join(Athletics.athletes).order_by(*order_by).group_by(*order_by).all()
+        results = query.join(Athletics.athletes).filter(Student.is_active_asc.is_(True)).order_by(*order_by).group_by(*order_by).all()
 
         def translate_row(row):
             return {
@@ -49,8 +49,9 @@ class Athletics(Base):
     @classmethod
     def all_teams(cls):
         query = db.session.query(cls.team_code, cls.team_name, func.count(func.distinct(Student.sid)))
+        query = query.distinct(cls.team_name).join(Athletics.athletes).filter(Student.is_active_asc.is_(True))
         order_by = [cls.team_name, cls.team_code]
-        results = query.distinct(cls.team_name).join(Athletics.athletes).order_by(*order_by).group_by(*order_by).all()
+        results = query.order_by(*order_by).group_by(*order_by).all()
 
         def translate_row(row):
             return {

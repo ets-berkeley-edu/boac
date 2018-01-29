@@ -130,6 +130,8 @@ def merge_students_import(app, import_students, delete_students):
         app.logger.debug(f'student_import = {student_import}')
         sid = student_import['sid']
         in_intensive_cohort = student_import['in_intensive_cohort']
+        is_active_asc = student_import['is_active_asc']
+        status_asc = student_import['status_asc']
         team_group_codes = set(student_import['athletics'])
         student_data = existing_students.get(sid, None)
         app.logger.debug(f'student_data = {student_data}')
@@ -141,17 +143,28 @@ def merge_students_import(app, import_students, delete_students):
                 first_name='',
                 last_name='',
                 in_intensive_cohort=in_intensive_cohort,
+                is_active_asc=is_active_asc,
+                status_asc=status_asc,
             )
             db.session.add(student_row)
             std_commit()
             merge_memberships(app, sid, set([]), team_group_codes)
         else:
             remaining_sids.remove(sid)
-            if student_data['inIntensiveCohort'] is not in_intensive_cohort:
+            if (
+                    student_data['inIntensiveCohort'] is not in_intensive_cohort
+            ) or (
+                    student_data['is_active_asc'] is not is_active_asc
+
+            ) or (
+                    student_data['status_asc'] != status_asc
+            ):
                 app.logger.warning(f'Modifying Student row to {student_import} from {student_data}')
                 student_changes += 1
-                student_row = Student.query.filter(Student.sid == sid).first()
+                student_row = Student.find_by_sid(sid)
                 student_row.in_intensive_cohort = in_intensive_cohort
+                student_row.is_active_asc = is_active_asc
+                student_row.status_asc = status_asc
                 db.session.merge(student_row)
                 std_commit()
             existing_group_codes = {mem['groupCode'] for mem in student_data['athletics']}
@@ -169,7 +182,7 @@ def merge_students_import(app, import_students, delete_students):
 
 def merge_memberships(app, sid, old_group_codes, new_group_codes):
     student_changes = 0
-    student_row = Student.query.filter(Student.sid == sid).first()
+    student_row = Student.find_by_sid(sid)
     for removed_group_code in (old_group_codes - new_group_codes):
         team_group = Athletics.query.filter(Athletics.group_code == removed_group_code).first()
         app.logger.warning(f'Removing SID {sid} from team group {team_group}')
@@ -188,17 +201,29 @@ def parse_all_rows(app, rows):
     import_athletics = {}
     import_students = {}
     for r in rows:
-        if r['AcadYr'] == THIS_ACAD_YR and r['ActiveYN'] == 'Yes':
+        if r['AcadYr'] == THIS_ACAD_YR and r['SportCode']:
             in_intensive_cohort = r.get('IntensiveYN', 'No') == 'Yes'
+            is_active_asc = r.get('ActiveYN', 'No') == 'Yes'
+            status_asc = r.get('TeamStatus', '')
             asc_code = r['SportCodeCore']
             if asc_code in SPORT_TRANSLATIONS:
                 sid = r['SID']
                 if sid in import_students:
                     student = import_students[sid]
+                    if (
+                            student['in_intensive_cohort'] is not in_intensive_cohort
+                    ) or (
+                            student['is_active_asc'] is not is_active_asc
+                    ) or (
+                            student['status_asc'] != status_asc
+                    ):
+                        app.logger.error(f'Unexpected conflict in import rows for SID {sid}')
                 else:
                     student = {
                         'sid': sid,
                         'in_intensive_cohort': in_intensive_cohort,
+                        'is_active_asc': is_active_asc,
+                        'status_asc': status_asc,
                         'athletics': [],
                     }
                     import_students[sid] = student

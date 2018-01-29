@@ -207,6 +207,22 @@ def load_student_athletes():
         majors=['History BA'],
         in_intensive_cohort=True,
     )
+    schlemiel = create_student(
+        uid='211159',
+        sid='838927492',
+        first_name='Siegfried',
+        last_name='Schlemiel',
+        # 'A mug is a mug in everything.' - Colonel Harrington
+        team_groups=[fdb, fdl, mt, wfh, wt],
+        gpa='0.40',
+        level='Sophomore',
+        units=8,
+        majors=['Mathematics'],
+        in_intensive_cohort=True,
+    )
+    schlemiel.is_active_asc = False
+    schlemiel.status_asc = 'Trouble'
+    db.session.merge(schlemiel)
     advisor = AuthorizedUser.find_by_uid('6446')
     advisor.watchlist = [
         paul_kerschen,
@@ -220,11 +236,11 @@ def load_student_athletes():
 
 def create_cohorts():
     # Oliver's cohorts
-    CohortFilter.create(uid='2040', label='All sports', group_codes=['MFB-DL', 'MFB-DL', 'WFH-AA'])
-    CohortFilter.create(uid='2040', label='Football, Defense', group_codes=['MFB-DL', 'MFB-DL'])
+    CohortFilter.create(uid='2040', label='All sports', group_codes=['MFB-DL', 'WFH-AA'])
+    CohortFilter.create(uid='2040', label='Football, Defense', group_codes=['MFB-DB', 'MFB-DL'])
     CohortFilter.create(uid='2040', label='Field Hockey', group_codes=['WFH-AA'])
     # Sandeep's cohorts
-    CohortFilter.create(uid='1133399', label='All sports', group_codes=['MFB-DL', 'MFB-DL', 'WFH-AA'])
+    CohortFilter.create(uid='1133399', label='All sports', group_codes=['MFB-DL', 'WFH-AA'])
     CohortFilter.create(uid='1133399', label='Football, Defense Backs', group_codes=['MFB-DB'])
     std_commit(allow_test_environment=True)
 

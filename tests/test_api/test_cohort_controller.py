@@ -23,8 +23,9 @@ class TestCohortDetail:
         assert len(cohorts[0]['teamGroups']) == 2
         # Student profiles are not included in this feed.
         assert 'students' not in cohorts[0]
-        assert 'totalMemberCount' in cohorts[0]
+        assert cohorts[0]['totalMemberCount'] == 4
         assert len(cohorts[1]['teamGroups']) == 1
+        assert cohorts[1]['totalMemberCount'] == 2
 
     def test_my_cohorts_includes_alert_counts(self, create_alerts, authenticated_session, client):
         cohorts = client.get('/api/cohorts/my').json
@@ -76,6 +77,7 @@ class TestCohortDetail:
         assert team_groups[0]['groupCode']
         assert team_groups[0]['groupName']
         assert isinstance(cohort['members'], list)
+        assert cohort['totalMemberCount'] == 4
         assert cohort['totalMemberCount'] == len(cohort['members'])
 
     def test_includes_cohort_member_sis_data(self, authenticated_session, client):
@@ -139,6 +141,22 @@ class TestCohortDetail:
         assert 'members' in cohort
         assert cohort['totalMemberCount'] == len(cohort['members']) == 4
         assert 'teamGroups' not in cohort
+        active_student = response.json['members'][0]
+        assert active_student['isActiveAsc']
+
+    def test_get_inactive_cohort(self, authenticated_session, client):
+        """Returns the canned 'inactive' cohort, available to all authenticated users."""
+        response = client.get('/api/inactive_cohort')
+        assert response.status_code == 200
+        cohort = json.loads(response.data)
+        assert cohort['code'] == 'inactive'
+        assert cohort['label'] == 'Inactive'
+        assert 'members' in cohort
+        assert cohort['totalMemberCount'] == len(cohort['members']) == 1
+        assert 'teamGroups' not in cohort
+        inactive_student = response.json['members'][0]
+        assert not inactive_student['isActiveAsc']
+        assert inactive_student['statusAsc'] == 'Trouble'
 
     def test_order_by_with_intensive_cohort(self, authenticated_session, client):
         """Returns the canned 'intensive' cohort, available to all authenticated users."""

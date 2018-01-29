@@ -24,17 +24,13 @@ class Student(Base):
     last_name = db.Column(db.String(255), nullable=False)
     in_intensive_cohort = db.Column(db.Boolean, nullable=False, default=False)
     athletics = db.relationship('Athletics', secondary=student_athletes, back_populates='athletes')
+    is_active_asc = db.Column(db.Boolean, nullable=False, default=True)
+    status_asc = db.Column(db.String(80))
 
     def __repr__(self):
-        return '<Athlete sid={}, uid={}, first_name={}, last_name={}, in_intensive_cohort={}, updated={}, created={}>'.format(
-            self.sid,
-            self.uid,
-            self.first_name,
-            self.last_name,
-            self.in_intensive_cohort,
-            self.updated_at,
-            self.created_at,
-        )
+        return f'<Athlete sid={self.sid}, uid={self.uid}, first_name={self.first_name}, last_name={self.last_name}, ' \
+               f'in_intensive_cohort={self.in_intensive_cohort}, is_active_asc={self.is_active_asc}, status_asc={self.status_asc}, ' \
+               f'updated={self.updated_at}, created={self.created_at}>'
 
     @classmethod
     def find_by_sid(cls, sid):
@@ -54,9 +50,10 @@ class Student(Base):
             offset=0,
             limit=50,
             sids_only=False,
+            is_inactive=False,
     ):
         # TODO: unit ranges
-        query_tables, query_filter, all_bindings = cls.get_students_query(group_codes, gpa_ranges, levels, majors, in_intensive_cohort)
+        query_tables, query_filter, all_bindings = cls.get_students_query(group_codes, gpa_ranges, levels, majors, in_intensive_cohort, is_inactive)
         # First, get total_count of matching students
         connection = db.engine.connect()
         result = connection.execute(text(f'SELECT DISTINCT(s.sid) {query_tables} {query_filter}'), **all_bindings)
@@ -117,7 +114,7 @@ class Student(Base):
 
     @classmethod
     def get_all(cls, order_by=None):
-        students = Student.query.options(joinedload('athletics')).all()
+        students = Student.query.filter(cls.is_active_asc.is_(True)).options(joinedload('athletics')).all()
         if order_by and len(students) > 0:
             # For now, only one order_by value is supported
             if order_by == 'groupName':
@@ -125,7 +122,7 @@ class Student(Base):
         return [s.to_expanded_api_json() for s in students]
 
     @classmethod
-    def get_students_query(cls, group_codes, gpa_ranges, levels, majors, in_intensive_cohort):
+    def get_students_query(cls, group_codes, gpa_ranges, levels, majors, in_intensive_cohort, is_inactive):
         query_tables = """
             FROM students s
                 JOIN normalized_cache_students n ON n.sid = s.sid
@@ -142,8 +139,8 @@ class Student(Base):
         """
         query_filter = """
             WHERE
-                TRUE
-        """
+                s.is_active_asc IS {}
+        """.format(not is_inactive)
         all_bindings = {}
         if group_codes:
             args = sqlalchemy_bindings(group_codes, 'group_code')
