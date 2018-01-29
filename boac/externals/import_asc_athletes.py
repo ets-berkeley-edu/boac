@@ -124,7 +124,7 @@ def merge_athletics_import(app, import_athletics):
 
 def merge_students_import(app, import_students, delete_students):
     student_changes = 0
-    existing_students = {row['sid']: row for row in Student.get_all('sid')}
+    existing_students = {row['sid']: row for row in Student.get_all('sid', include_inactive=True)}
     remaining_sids = set(existing_students.keys())
     for student_import in import_students.values():
         app.logger.debug(f'student_import = {student_import}')
@@ -154,10 +154,10 @@ def merge_students_import(app, import_students, delete_students):
             if (
                     student_data['inIntensiveCohort'] is not in_intensive_cohort
             ) or (
-                    student_data['is_active_asc'] is not is_active_asc
+                    student_data['isActiveAsc'] is not is_active_asc
 
             ) or (
-                    student_data['status_asc'] != status_asc
+                    student_data['statusAsc'] != status_asc
             ):
                 app.logger.warning(f'Modifying Student row to {student_import} from {student_data}')
                 student_changes += 1
