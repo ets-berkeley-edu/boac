@@ -31,7 +31,7 @@ class TestAdvisorWatchlist:
         assert 'alertCount' not in watchlist[2]
         assert 'alertCount' not in watchlist[3]
 
-        alert_to_dismiss = client.get('/api/alerts/current/11667051').json[0]['id']
+        alert_to_dismiss = client.get('/api/alerts/current/11667051').json['shown'][0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
         watchlist = client.get('/api/watchlist/my').json
         assert watchlist[0]['alertCount'] == 1

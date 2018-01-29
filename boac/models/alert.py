@@ -5,7 +5,7 @@ from boac.api.errors import BadRequestError
 from boac.lib.util import camelize
 from boac.models.base import Base
 from boac.models.db_relationships import AlertView
-from sqlalchemy import and_, text
+from sqlalchemy import text
 
 
 class Alert(Base):
@@ -103,24 +103,30 @@ class Alert(Base):
 
     @classmethod
     def current_alerts_for_sid(cls, viewer_id, sid):
-        query = (
-            cls.query.
-            filter_by(sid=sid, active=True).
-            outerjoin(AlertView, and_(cls.id == AlertView.alert_id, AlertView.viewer_id == viewer_id)).
-            filter_by(dismissed_at=None).
-            order_by(Alert.created_at)
-        )
-        results = query.all()
-        return [result.to_api_json() for result in results]
+        query = text("""
+            SELECT alerts.*, alert_views.dismissed_at
+            FROM alerts LEFT JOIN alert_views
+                ON alert_views.alert_id = alerts.id
+                AND alert_views.viewer_id = :viewer_id
+            WHERE alerts.active = true
+                AND alerts.sid = :sid
+            ORDER BY alerts.created_at
+        """)
+        results = db.session.execute(query, {'viewer_id': viewer_id, 'sid': sid})
+
+        def result_to_dict(result):
+            return {camelize(key): result[key] for key in ['id', 'alert_type', 'key', 'message']}
+        feed = {
+            'dismissed': [],
+            'shown': [],
+        }
+        for result in results:
+            if result['dismissed_at']:
+                feed['dismissed'].append(result_to_dict(result))
+            else:
+                feed['shown'].append(result_to_dict(result))
+        return feed
 
     def deactivate(self):
         self.active = False
         std_commit()
-
-    def to_api_json(self):
-        return {
-            'id': self.id,
-            'alertType': self.alert_type,
-            'key': self.key,
-            'message': self.message,
-        }

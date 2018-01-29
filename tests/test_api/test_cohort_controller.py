@@ -38,9 +38,9 @@ class TestCohortDetail:
         assert cohorts[1]['alerts'][0]['sid'] == '2345678901'
         assert cohorts[1]['alerts'][0]['alertCount'] == 1
 
-        alert_to_dismiss = client.get('/api/alerts/current/11667051').json[0]['id']
+        alert_to_dismiss = client.get('/api/alerts/current/11667051').json['shown'][0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
-        alert_to_dismiss = client.get('/api/alerts/current/2345678901').json[0]['id']
+        alert_to_dismiss = client.get('/api/alerts/current/2345678901').json['shown'][0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
 
         cohorts = client.get('/api/cohorts/my').json
