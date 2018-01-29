@@ -113,8 +113,11 @@ class Student(Base):
         return summary
 
     @classmethod
-    def get_all(cls, order_by=None):
-        students = Student.query.filter(cls.is_active_asc.is_(True)).options(joinedload('athletics')).all()
+    def get_all(cls, order_by=None, include_inactive=False):
+        query = Student.query
+        if not include_inactive:
+            query = query.filter(cls.is_active_asc.is_(True))
+        students = query.options(joinedload('athletics')).all()
         if order_by and len(students) > 0:
             # For now, only one order_by value is supported
             if order_by == 'groupName':
