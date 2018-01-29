@@ -22,7 +22,11 @@
     </td>
     <td data-ng-bind="student.sid"></td>
     <td>
-      <div class="landing-issues-pill" data-ng-bind="student.alertCount" data-ng-if="student.alertCount"></div>
+      <div class="landing-issues-pill landing-issues-pill-zero"
+           data-ng-if="!student.alertCount">0</div>
+      <div class="landing-issues-pill landing-issues-pill-nonzero"
+           data-ng-bind="student.alertCount"
+           data-ng-if="student.alertCount"></div>
     </td>
     <td>
       <watchlist-toggle data-sid="student.sid"

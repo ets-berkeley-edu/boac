@@ -1,5 +1,4 @@
 .landing-issues-pill {
-  background-color: #f0ad4e;
   border-radius: 10px;
   color: #fff;
   font-size: 16px;
@@ -9,6 +8,14 @@
   margin: 0 auto;
   text-align: center;
   width: 30px;
+}
+
+.landing-issues-pill-nonzero {
+  background-color: #f0ad4e;
+}
+
+.landing-issues-pill-zero {
+  background-color: #ccc;
 }
 
 .landing-list {
