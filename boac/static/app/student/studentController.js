@@ -16,9 +16,14 @@
 
     $scope.dismissAlert = function(alertId) {
       studentFactory.dismissAlert(alertId).then(function() {
-        _.remove($scope.alerts, {id: alertId});
+        var dismissed = _.remove($scope.alerts.shown, {id: alertId});
+        Array.prototype.push.apply($scope.alerts.dismissed, dismissed);
       }).catch(function(error) {
-        $scope.error = _.truncate(error.data.message, {length: 200}) || 'An unexpected server error occurred.';
+        if (error.data) {
+          $scope.error = _.truncate(error.data.message, {length: 200}) || 'An unexpected server error occurred.';
+        } else {
+          throw error;
+        }
       });
     };
 
