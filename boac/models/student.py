@@ -50,9 +50,10 @@ class Student(Base):
             offset=0,
             limit=50,
             sids_only=False,
+            is_inactive=False,
     ):
         # TODO: unit ranges
-        query_tables, query_filter, all_bindings = cls.get_students_query(group_codes, gpa_ranges, levels, majors, in_intensive_cohort)
+        query_tables, query_filter, all_bindings = cls.get_students_query(group_codes, gpa_ranges, levels, majors, in_intensive_cohort, is_inactive)
         # First, get total_count of matching students
         connection = db.engine.connect()
         result = connection.execute(text(f'SELECT DISTINCT(s.sid) {query_tables} {query_filter}'), **all_bindings)
@@ -121,7 +122,7 @@ class Student(Base):
         return [s.to_expanded_api_json() for s in students]
 
     @classmethod
-    def get_students_query(cls, group_codes, gpa_ranges, levels, majors, in_intensive_cohort):
+    def get_students_query(cls, group_codes, gpa_ranges, levels, majors, in_intensive_cohort, is_inactive):
         query_tables = """
             FROM students s
                 JOIN normalized_cache_students n ON n.sid = s.sid
@@ -138,8 +139,8 @@ class Student(Base):
         """
         query_filter = """
             WHERE
-                s.is_active_asc IS TRUE
-        """
+                s.is_active_asc IS {}
+        """.format(not is_inactive)
         all_bindings = {}
         if group_codes:
             args = sqlalchemy_bindings(group_codes, 'group_code')

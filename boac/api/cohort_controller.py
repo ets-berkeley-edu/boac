@@ -52,6 +52,23 @@ def get_intensive_cohort():
     })
 
 
+@app.route('/api/inactive_cohort')
+@login_required
+def get_inactive_cohort():
+    order_by = util.get(request.args, 'orderBy', None)
+    offset = util.get(request.args, 'offset', 0)
+    limit = util.get(request.args, 'limit', 50)
+    results = Student.get_students(is_inactive=True, order_by=order_by, offset=offset, limit=limit)
+    member_details.merge_all(results['students'])
+    return tolerant_jsonify({
+        'code': 'inactive',
+        'label': 'Inactive',
+        'name': 'Inactive',
+        'members': results['students'],
+        'totalMemberCount': results['totalStudentCount'],
+    })
+
+
 @app.route('/api/cohort/<cohort_id>')
 @login_required
 def get_cohort(cohort_id):

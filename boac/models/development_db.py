@@ -221,6 +221,7 @@ def load_student_athletes():
         in_intensive_cohort=True,
     )
     schlemiel.is_active_asc = False
+    schlemiel.status_asc = 'Trouble'
     db.session.merge(schlemiel)
     advisor = AuthorizedUser.find_by_uid('6446')
     advisor.watchlist = [
