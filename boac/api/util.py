@@ -1,18 +1,19 @@
 """Utility module containing standard API-feed translations of data objects."""
 
 
+def canvas_course_api_feed(course):
+    return {
+        'canvasCourseId': course.get('id'),
+        'courseName': course.get('name'),
+        'courseCode': course.get('course_code'),
+        'courseTerm': course.get('term', {}).get('name'),
+    }
+
+
 def canvas_courses_api_feed(courses):
     if not courses:
         return []
-
-    def course_api_values(course):
-        return {
-            'canvasCourseId': course.get('id'),
-            'courseName': course.get('name'),
-            'courseCode': course.get('course_code'),
-            'courseTerm': course.get('term', {}).get('name'),
-        }
-    return [course_api_values(course) for course in courses]
+    return [canvas_course_api_feed(course) for course in courses]
 
 
 def sis_enrollment_class_feed(enrollment):
