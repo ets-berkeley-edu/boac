@@ -87,16 +87,33 @@
       <div class="student-profile-terms">
         <div class="student-profile-term" data-ng-repeat="term in student.enrollmentTerms | limitTo: (showAllTerms ? undefined : 1)">
           <h2 class="student-profile-classes-header" data-ng-bind="term.termName"></h2>
-          <div data-ng-if="$index === 0 && alerts.shown.length">
-            <div class="alert alert-warning" data-ng-attr-id="alert-{{alert.id}}" data-ng-repeat="alert in alerts.shown">
-              <span data-ng-switch="alert.alertType">
-                <strong data-ng-switch-when="late_assignment">Late assignment!</strong>
-                <strong data-ng-switch-when="missing_assignment">Missed assignment!</strong>
-              </span>
-              <span data-ng-bind="alert.message"></span>
-              <a class="close" data-ng-click="dismissAlert(alert.id)" aria-label="close">&times;</a>
+
+          <div data-ng-if="$index === 0">
+            <div data-ng-if="alerts.shown.length">
+              <div class="alert alert-warning student-profile-alert" data-ng-attr-id="alert-{{alert.id}}" data-ng-repeat="alert in alerts.shown">
+                <div class="student-profile-alert-item">
+                  <student-alert-message alert="alert"></student-alert-message>
+                  <a class="close" data-ng-click="dismissAlert(alert.id)" aria-label="close">&times;</a>
+                </div>
+              </div>
+            </div>
+            <div data-ng-show="!showDismissedAlerts && alerts.dismissed.length">
+              <button class="btn btn-link student-profile-view-previous-semesters" data-ng-click="showDismissedAlerts=true">
+                View dismissed status alerts
+              </button>
+            </div>
+            <div data-ng-show="showDismissedAlerts && alerts.dismissed.length">
+              <button class="btn btn-link student-profile-view-previous-semesters" data-ng-click="showDismissedAlerts=false">
+                Hide dismissed status alerts
+              </button>
+              <div class="alert alert-warning student-profile-alert">
+                <div data-ng-repeat="alert in alerts.dismissed" class="student-profile-alert-item">
+                  <student-alert-message alert="alert"></student-alert-message>
+                </div>
+              </div>
             </div>
           </div>
+
           <div data-ng-repeat="course in term.enrollments" class="student-profile-class">
             <div class="student-profile-class-heading">
               <div class="student-profile-class-title-outer">
