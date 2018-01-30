@@ -217,57 +217,150 @@
     };
 
     /**
+     * @param  {Array}     allOptions     All options of dropdown
+     * @param  {Function}  isSelected     Determines value of 'selected' property
+     * @return {void}
+     */
+    var setSelected = function(allOptions, isSelected) {
+      _.each(allOptions, function(option) {
+        if (option) {
+          option.selected = isSelected(option);
+        }
+      });
+    };
+
+    /**
+     * @param  {String}    menuName     For example, 'gpaRanges'
+     * @param  {Object}    option       Has been selected or deselected
+     * @return {void}
+     */
+    var onClickOption = function(menuName, option) {
+      var delta = option.selected ? 1 : -1;
+      var existingValue = _.get($scope.search.count, menuName, 0);
+      _.set($scope.search.count, menuName, existingValue + delta);
+    };
+
+    /**
+     * Ordinarily, the value of 'selected' (per dropdown menu option) is managed by uib-dropdown-toggle in the
+     * template. However, we sometimes want to alter option 'selected' behind the scenes.
+     *
+     * @param  {String}    menuName         For example, 'majors'
+     * @param  {String}    optionName       For example, the option group 'Declared'
+     * @param  {Boolean}   value            The value used to update 'selected' property
+     * @return {void}
+     */
+    var manualSetSelected = function(menuName, optionName, value) {
+      var allMenuOptions = _.get($scope.search.options, menuName);
+      var match = _.find(allMenuOptions, {name: optionName});
+      if (match && match.selected !== value) {
+        match.selected = value;
+        onClickOption(menuName, match);
+      }
+    };
+
+    /**
+     * @param  {String}    menuName      For example, 'majors'
+     * @param  {Object}    optionGroup   Menu represents a group of options (see option-group definition)
+     * @return {void}
+     */
+    var onClickOptionGroup = function(menuName, optionGroup) {
+      if (menuName === 'majors') {
+        if (optionGroup.selected) {
+          if (optionGroup.name === 'Declared') {
+            // If user selects "Declared" then all other checkboxes are deselected
+            $scope.search.count.majors = 1;
+            setSelected($scope.search.options.majors, function(major) {
+              return major.name === optionGroup.name;
+            });
+          } else if (optionGroup.name === 'Undeclared') {
+            // If user selects "Undeclared" then "Declared" is deselected
+            manualSetSelected(menuName, 'Declared', false);
+            onClickOption(menuName, optionGroup);
+          }
+        } else {
+          onClickOption(menuName, optionGroup);
+        }
+      }
+    };
+
+    /**
+     * @param  {String}    menuName     Always 'majors'
+     * @param  {Object}    option       Has been selected or deselected
+     * @return {void}
+     */
+    var onClickSpecificMajor = function(menuName, option) {
+      manualSetSelected('majors', 'Declared', false);
+      onClickOption(menuName, option);
+    };
+
+    /**
      * The search form must reflect the team codes of the saved cohort.
      *
      * @param  {Function}    callback    Follow up activity per caller
      * @return {void}
      */
     var initFilters = function(callback) {
-      if ($scope.cohort.filterCriteria || $scope.cohort.teamGroups) {
-        // GPA ranges
-        var selectedGpaRanges = _.get($scope.cohort, 'filterCriteria.gpaRanges', []);
-        $scope.search.count.gpaRanges = selectedGpaRanges.length;
-        _.map($scope.search.options.gpaRanges, function(gpaRange) {
-          gpaRange.selected = _.includes(selectedGpaRanges, gpaRange.value);
-        });
-        // If we hit the cohort view with a team code then we populate filter with the team's group codes.
-        var selectedGroupCodes = [];
-        if ($scope.cohort.teamGroups) {
-          selectedGroupCodes = _.map($scope.cohort.teamGroups, 'groupCode');
-        } else {
-          selectedGroupCodes = _.get($scope.cohort, 'filterCriteria.groupCodes', []);
-        }
-        $scope.search.count.teamGroups = selectedGroupCodes.length;
-        _.map($scope.search.options.teamGroups, function(teamGroup) {
-          teamGroup.selected = _.includes(selectedGroupCodes, teamGroup.groupCode);
-        });
-        // Class levels
-        var selectedLevels = _.get($scope.cohort, 'filterCriteria.levels', []);
-        $scope.search.count.levels = selectedLevels.length;
-        _.map($scope.search.options.levels, function(level) {
-          level.selected = _.includes(selectedLevels, level.name);
-        });
-        // Majors
-        $scope.search.options.majors.unshift({name: 'Undeclared'}, null);
-        var selectedMajors = _.get($scope.cohort, 'filterCriteria.majors', []);
-        $scope.search.count.majors = selectedMajors.length;
-        _.map($scope.search.options.majors, function(major) {
-          if (major) {
-            major.selected = _.includes(selectedMajors, major.name);
-          }
-        });
-        // Units, eligibility
-        var selectedUnitRangesE = _.get($scope.cohort, 'filterCriteria.unitRangesEligibility', []);
-        _.map($scope.search.options.unitRangesEligibility, function(unitRange) {
-          unitRange.selected = _.includes(selectedUnitRangesE, unitRange.value);
-        });
-        // Units, pacing
-        var selectedUnitRangesP = _.get($scope.cohort, 'filterCriteria.unitRangesPacing', []);
-        _.map($scope.search.options.unitRangesPacing, function(unitRange) {
-          unitRange.selected = _.includes(selectedUnitRangesP, unitRange.value);
-        });
-        $scope.search.count.unitRanges = selectedUnitRangesE.length + selectedUnitRangesP.length;
+      // GPA ranges
+      var selectedGpaRanges = _.get($scope.cohort, 'filterCriteria.gpaRanges', []);
+      $scope.search.count.gpaRanges = selectedGpaRanges.length;
+      _.map($scope.search.options.gpaRanges, function(gpaRange) {
+        gpaRange.selected = _.includes(selectedGpaRanges, gpaRange.value);
+        gpaRange.onClick = onClickOption;
+      });
+      // If we hit the cohort view with a team code then we populate filter with the team's group codes.
+      var selectedGroupCodes = [];
+      if ($scope.cohort.teamGroups) {
+        selectedGroupCodes = _.map($scope.cohort.teamGroups, 'groupCode');
+      } else {
+        selectedGroupCodes = _.get($scope.cohort, 'filterCriteria.groupCodes', []);
       }
+      $scope.search.count.teamGroups = selectedGroupCodes.length;
+      _.map($scope.search.options.teamGroups, function(teamGroup) {
+        teamGroup.selected = _.includes(selectedGroupCodes, teamGroup.groupCode);
+        teamGroup.onClick = onClickOption;
+      });
+      // Class levels
+      var selectedLevels = _.get($scope.cohort, 'filterCriteria.levels', []);
+      $scope.search.count.levels = selectedLevels.length;
+      _.map($scope.search.options.levels, function(level) {
+        level.selected = _.includes(selectedLevels, level.name);
+        level.onClick = onClickOption;
+      });
+      // Majors
+      $scope.search.options.majors.unshift(
+        {
+          name: 'Declared',
+          onClick: onClickOptionGroup
+        },
+        {
+          name: 'Undeclared',
+          onClick: onClickOptionGroup
+        },
+        null
+      );
+      var selectedMajors = _.get($scope.cohort, 'filterCriteria.majors', []);
+      $scope.search.count.majors = selectedMajors.length;
+      _.map($scope.search.options.majors, function(major) {
+        if (major) {
+          major.selected = _.includes(selectedMajors, major.name);
+          major.onClick = major.onClick || onClickSpecificMajor;
+        }
+      });
+      /**
+       *  // Units, eligibility
+       *  var selectedUnitRangesE = _.get($scope.cohort, 'filterCriteria.unitRangesEligibility', []);
+       *  _.map($scope.search.options.unitRangesEligibility, function(unitRange) {
+       *    unitRange.selected = _.includes(selectedUnitRangesE, unitRange.value);
+       *    unitRange.onClick = onClickOption;
+       *  });
+       *  // Units, pacing
+       *  var selectedUnitRangesP = _.get($scope.cohort, 'filterCriteria.unitRangesPacing', []);
+       *  _.map($scope.search.options.unitRangesPacing, function(unitRange) {
+       *    unitRange.selected = _.includes(selectedUnitRangesP, unitRange.value);
+       *    unitRange.onClick = onClickOption;
+       *  });
+       *  $scope.search.count.unitRanges = selectedUnitRangesE.length + selectedUnitRangesP.length;
+       */
       // Ready for the world!
       return callback();
     };
@@ -374,19 +467,6 @@
     };
 
     /**
-     * The search form must reflect the team codes of the saved cohort.
-     *
-     * @param  {String}    type     Dropdown name
-     * @param  {Number}    option   Has been selected or deselected
-     * @return {void}
-     */
-    $scope.updateSelected = function(type, option) {
-      var delta = option.selected ? 1 : -1;
-      var existingValue = _.get($scope.search.count, type, 0);
-      _.set($scope.search.count, type, existingValue + delta);
-    };
-
-    /**
      * List view is paginated but Matrix view must show all users. Lazy load the Matrix tab.
      *
      * @param  {String}    tabName          Name of tab clicked by user
@@ -482,9 +562,12 @@
             gpaRanges: studentFactory.getGpaRanges(),
             levels: studentFactory.getStudentLevels(),
             majors: majors,
-            teamGroups: teamGroups,
-            unitRangesEligibility: studentFactory.getUnitRangesEligibility(),
-            unitRangesPacing: studentFactory.getUnitRangesPacing()
+            teamGroups: teamGroups
+            /**
+             *  ,
+             *  unitRangesEligibility: studentFactory.getUnitRangesEligibility(),
+             *  unitRangesPacing: studentFactory.getUnitRangesPacing()
+             */
           };
           // Filter options to 'selected' per request args
           presetSearchFilters(args);

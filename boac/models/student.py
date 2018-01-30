@@ -159,12 +159,19 @@ class Student(Base):
         if majors:
             # Only modify the majors list clone
             _majors = majors.copy()
+            # Use parens around an inclusive OR set of conditions
+            query_filter += ' AND (false '
+            # Afaik, no student can declare a major and remain undeclared. However, in the interest of surfacing
+            # front-end bugs we do not use an 'if...else' below. We expect the front-end to be smart.
+            if util.tolerant_remove(_majors, 'Declared'):
+                query_filter += ' OR NOT m.major ~* \'undeclared\''
             if util.tolerant_remove(_majors, 'Undeclared'):
-                query_filter += ' AND m.major ~* \'undeclared\''
+                query_filter += ' OR m.major ~* \'undeclared\''
             if _majors:
                 args = sqlalchemy_bindings(_majors, 'major')
                 all_bindings.update(args)
-                query_filter += ' AND m.major IN ({})'.format(':' + ', :'.join(args.keys()))
+                query_filter += ' OR m.major IN ({})'.format(':' + ', :'.join(args.keys()))
+            query_filter += ')'
         if in_intensive_cohort is not None:
             query_filter += ' AND s.in_intensive_cohort IS {}'.format(str(in_intensive_cohort))
         return query_tables, query_filter, all_bindings

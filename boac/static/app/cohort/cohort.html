@@ -67,13 +67,13 @@
             data-ng-show="!isLoading && !isSaving">
           <li class="cohort-filter-list-item"
               role="menuitem"
-              data-ng-repeat="teamGroup in search.options.teamGroups">
-            <input id="search-option-team-{{teamGroup.groupCode}}"
+              data-ng-repeat="option in search.options.teamGroups">
+            <input id="search-option-team-{{option.groupCode}}"
                    type="checkbox"
-                   data-ng-model="teamGroup.selected"
-                   aria-label="{{teamGroup.groupName}}"
-                   data-ng-click="updateSelected('teamGroups', teamGroup)"/>
-            <span data-ng-bind="teamGroup.groupName"></span></li>
+                   data-ng-model="option.selected"
+                   aria-label="{{option.groupName}}"
+                   data-ng-click="option.onClick('teamGroups', option)"/>
+            <span data-ng-bind="option.groupName"></span></li>
         </ul>
       </div>
     </div>
@@ -108,12 +108,12 @@
             data-ng-show="!isLoading && !isSaving">
           <li class="cohort-filter-list-item"
               role="menuitem"
-              data-ng-repeat="level in search.options.levels">
-            <input id="search-option-level-{{level.name}}"
+              data-ng-repeat="option in search.options.levels">
+            <input id="search-option-level-{{option.name}}"
                    type="checkbox"
-                   data-ng-model="level.selected"
-                   aria-label="{{level.name}}"
-                   data-ng-click="updateSelected('levels', level)"/>
+                   data-ng-model="option.selected"
+                   aria-label="{{option.name}}"
+                   data-ng-click="option.onClick('levels', option)"/>
             <span data-ng-bind="level.name"></span></li>
         </ul>
       </div>
@@ -148,16 +148,16 @@
             uib-dropdown-menu
             data-ng-show="!isLoading && !isSaving">
           <li class="cohort-filter-list-item"
-              data-ng-class="{'divider': !major}"
+              data-ng-class="{'divider': !option}"
               role="menuitem"
-              data-ng-repeat="major in search.options.majors">
-            <input id="search-option-major-{{major.name}}"
+              data-ng-repeat="option in search.options.majors">
+            <input id="search-option-major-{{option.name}}"
                    type="checkbox"
-                   data-ng-model="major.selected"
-                   aria-label="{{major.name}}"
-                   data-ng-click="updateSelected('majors', major)"
-                   data-ng-if="major"/>
-            <span data-ng-bind="major.name" data-ng-if="major"></span>
+                   data-ng-model="option.selected"
+                   aria-label="{{option.name}}"
+                   data-ng-click="option.onClick('majors', option)"
+                   data-ng-if="option"/>
+            <span data-ng-bind="option.name" data-ng-if="option"></span>
           </li>
         </ul>
       </div>
@@ -193,13 +193,13 @@
             data-ng-show="!isLoading && !isSaving">
           <li class="cohort-filter-list-item"
               role="menuitem"
-              data-ng-repeat="gpaRange in search.options.gpaRanges">
+              data-ng-repeat="option in search.options.gpaRanges">
             <input id="search-option-gpa-range-{{$index}}"
                    type="checkbox"
-                   data-ng-model="gpaRange.selected"
-                   aria-label="{{gpaRange.name}}"
-                   data-ng-click="updateSelected('gpaRanges', gpaRange)"/>
-            <span data-ng-bind="gpaRange.name"></span></li>
+                   data-ng-model="option.selected"
+                   aria-label="{{option.name}}"
+                   data-ng-click="option.onClick('gpaRanges', option)"/>
+            <span data-ng-bind="option.name"></span></li>
         </ul>
       </div>
     </div>
