@@ -157,9 +157,14 @@ class Student(Base):
             all_bindings.update(args)
             query_filter += ' AND n.level IN ({})'.format(':' + ', :'.join(args.keys()))
         if majors:
-            args = sqlalchemy_bindings(majors, 'major')
-            all_bindings.update(args)
-            query_filter += ' AND m.major IN ({})'.format(':' + ', :'.join(args.keys()))
+            # Only modify the majors list clone
+            _majors = majors.copy()
+            if util.tolerant_remove(_majors, 'Undeclared'):
+                query_filter += ' AND m.major ~* \'undeclared\''
+            if _majors:
+                args = sqlalchemy_bindings(_majors, 'major')
+                all_bindings.update(args)
+                query_filter += ' AND m.major IN ({})'.format(':' + ', :'.join(args.keys()))
         if in_intensive_cohort is not None:
             query_filter += ' AND s.in_intensive_cohort IS {}'.format(str(in_intensive_cohort))
         return query_tables, query_filter, all_bindings

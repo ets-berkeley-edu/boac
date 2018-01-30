@@ -148,14 +148,17 @@
             uib-dropdown-menu
             data-ng-show="!isLoading && !isSaving">
           <li class="cohort-filter-list-item"
+              data-ng-class="{'divider': !major}"
               role="menuitem"
               data-ng-repeat="major in search.options.majors">
             <input id="search-option-major-{{major.name}}"
                    type="checkbox"
                    data-ng-model="major.selected"
                    aria-label="{{major.name}}"
-                   data-ng-click="updateSelected('majors', major)"/>
-            <span data-ng-bind="major.name"></span></li>
+                   data-ng-click="updateSelected('majors', major)"
+                   data-ng-if="major"/>
+            <span data-ng-bind="major.name" data-ng-if="major"></span>
+          </li>
         </ul>
       </div>
     </div>
