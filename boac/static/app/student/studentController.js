@@ -94,6 +94,7 @@
     };
 
     $scope.showAllTerms = false;
+    $scope.showDismissedAlerts = false;
 
     init();
   });

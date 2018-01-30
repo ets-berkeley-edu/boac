@@ -187,6 +187,15 @@
   font-style: italic;
 }
 
+.student-profile-alert {
+  margin: 10px 0;
+  padding: 5px 15px;
+}
+
+.student-profile-alert-item {
+  padding: 5px 0;
+}
+
 .student-profile-dropped-section {
   margin-top: 25px;
 }
