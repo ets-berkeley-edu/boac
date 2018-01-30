@@ -208,7 +208,7 @@
     var preset = function(filterName, key, selectedValues) {
       if (!_.isEmpty(selectedValues)) {
         _.each($scope.search.options[filterName], function(option) {
-          if (_.includes(selectedValues, option[key])) {
+          if (option && _.includes(selectedValues, option[key])) {
             option.selected = true;
             $scope.search.count[filterName] += 1;
           }
@@ -248,10 +248,13 @@
           level.selected = _.includes(selectedLevels, level.name);
         });
         // Majors
+        $scope.search.options.majors.unshift({name: 'Undeclared'}, null);
         var selectedMajors = _.get($scope.cohort, 'filterCriteria.majors', []);
         $scope.search.count.majors = selectedMajors.length;
         _.map($scope.search.options.majors, function(major) {
-          major.selected = _.includes(selectedMajors, major.name);
+          if (major) {
+            major.selected = _.includes(selectedMajors, major.name);
+          }
         });
         // Units, eligibility
         var selectedUnitRangesE = _.get($scope.cohort, 'filterCriteria.unitRangesEligibility', []);

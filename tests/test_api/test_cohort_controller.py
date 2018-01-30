@@ -19,7 +19,7 @@ class TestCohortDetail:
         assert response.status_code == 200
 
         cohorts = response.json
-        assert len(cohorts) == 2
+        assert len(cohorts) == 3
         assert len(cohorts[0]['teamGroups']) == 2
         # Student profiles are not included in this feed.
         assert 'students' not in cohorts[0]
@@ -79,6 +79,20 @@ class TestCohortDetail:
         assert isinstance(cohort['members'], list)
         assert cohort['totalMemberCount'] == 4
         assert cohort['totalMemberCount'] == len(cohort['members'])
+
+    def test_undeclared_major(self, authenticated_session, client):
+        """Returns a well-formed response with custom cohort."""
+        user = AuthorizedUser.find_by_uid(test_uid)
+        # This filter has majors='Undeclared'.
+        cohort_id = user.cohort_filters[-1].id
+        response = client.get('/api/cohort/{}'.format(cohort_id))
+        assert response.status_code == 200
+        cohort = json.loads(response.data)
+        assert cohort['label'] == 'Undeclared students'
+        students = cohort['members']
+        assert cohort['totalMemberCount'] == len(students) == 1
+        # We expect the student with 'Letters & Sci Undeclared UG' major
+        assert students[0]['sid'] == '5678901234'
 
     def test_includes_cohort_member_sis_data(self, authenticated_session, client):
         """Includes SIS data for custom cohort members."""
@@ -197,9 +211,11 @@ class TestCohortDetail:
         """Creates custom cohort, owned by current user."""
         label = 'Tennis'
         group_codes = ['MTE', 'WTE-AA']
+        majors = ['Bioengineering BS', 'Undeclared']
         data = {
             'label': label,
             'groupCodes': group_codes,
+            'majors': majors,
         }
         response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 200
@@ -215,6 +231,8 @@ class TestCohortDetail:
         assert same_cohort['label'] == label
         assert 'teamGroups' in cohort and len(cohort['teamGroups']) == 2
         assert group_codes == [g['groupCode'] for g in cohort['teamGroups']]
+        f = cohort['filterCriteria']
+        assert 'majors' in f and len(f['majors']) == 2
 
     def test_invalid_create_cohort_params(self, authenticated_session, client):
         bad_range_syntax = 'numrange(2, BLARGH, \'[)\')'
@@ -298,7 +316,13 @@ class TestCohortDetail:
         client.post('/api/cohort/create', data=json.dumps(a_team_data), content_type='application/json')
 
         response = client.get('/api/cohorts/my')
-        assert [cohort['label'] for cohort in response.json] == ['All sports', 'Ateam', 'Football, Defense Backs', 'Zteam']
+        assert [cohort['label'] for cohort in response.json] == [
+            'All sports',
+            'Ateam',
+            'Football, Defense Backs',
+            'Undeclared students',
+            'Zteam',
+        ]
 
     def test_delete_cohort_not_authenticated(self, client):
         """Custom cohort deletion requires authentication."""

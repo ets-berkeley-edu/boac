@@ -242,6 +242,7 @@ def create_cohorts():
     # Sandeep's cohorts
     CohortFilter.create(uid='1133399', label='All sports', group_codes=['MFB-DL', 'WFH-AA'])
     CohortFilter.create(uid='1133399', label='Football, Defense Backs', group_codes=['MFB-DB'])
+    CohortFilter.create(uid='1133399', label='Undeclared students', majors=['Undeclared'])
     std_commit(allow_test_environment=True)
 
 

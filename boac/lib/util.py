@@ -27,3 +27,12 @@ def vacuum_whitespace(str):
     if not str:
         return None
     return ' '.join(str.split())
+
+
+def tolerant_remove(_list, item):
+    """Remove item from list. Return True if item was present, otherwise False."""
+    try:
+        _list.remove(item)
+        return True
+    except ValueError:
+        return False
