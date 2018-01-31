@@ -13,6 +13,7 @@ CREATE TABLE alerts (
   PRIMARY KEY (id)
 );
 
+CREATE INDEX alerts_key_idx ON alerts (key);
 CREATE INDEX alerts_sid_idx ON alerts (sid);
 
 ALTER TABLE alerts ADD CONSTRAINT alerts_sid_alert_type_key_unique_constraint UNIQUE (sid, alert_type, key);

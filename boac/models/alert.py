@@ -2,6 +2,7 @@ from datetime import datetime
 
 from boac import db, std_commit
 from boac.api.errors import BadRequestError
+from boac.lib.berkeley import current_term_id
 from boac.lib.util import camelize
 from boac.models.base import Base
 from boac.models.db_relationships import AlertView
@@ -87,6 +88,7 @@ class Alert(Base):
                     ON alert_views.alert_id = alerts.id
                     AND alert_views.viewer_id = :viewer_id
                 WHERE alerts.active = true
+                    AND alerts.key LIKE :key
                     AND alert_views.dismissed_at IS NULL
                 GROUP BY alerts.sid
             ) alert_counts
@@ -94,7 +96,7 @@ class Alert(Base):
                 AND s.sid = ANY(:sids)
             ORDER BY s.last_name
         """)
-        results = db.session.execute(query, {'viewer_id': viewer_id, 'sids': sids})
+        results = db.session.execute(query, {'viewer_id': viewer_id, 'key': current_term_id() + '_%', 'sids': sids})
 
         def result_to_dict(result):
             return {camelize(key): result[key] for key in ['sid', 'uid', 'first_name', 'last_name', 'alert_count']}
@@ -108,10 +110,11 @@ class Alert(Base):
                 ON alert_views.alert_id = alerts.id
                 AND alert_views.viewer_id = :viewer_id
             WHERE alerts.active = true
+                AND alerts.key LIKE :key
                 AND alerts.sid = :sid
             ORDER BY alerts.created_at
         """)
-        results = db.session.execute(query, {'viewer_id': viewer_id, 'sid': sid})
+        results = db.session.execute(query, {'viewer_id': viewer_id, 'key': current_term_id() + '_%', 'sid': sid})
 
         def result_to_dict(result):
             return {camelize(key): result[key] for key in ['id', 'alert_type', 'key', 'message']}

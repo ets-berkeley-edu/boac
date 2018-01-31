@@ -1,7 +1,13 @@
 import re
+from flask import current_app as app
 
 
 """A utility module collecting logic specific to the Berkeley campus."""
+
+
+def current_term_id():
+    term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
+    return sis_term_id_for_name(term_name)
 
 
 def sis_term_id_for_name(term_name=None):
