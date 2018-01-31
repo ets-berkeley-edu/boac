@@ -86,6 +86,55 @@ class TestImportAscAthletes:
         assert saved_student.is_active_asc is False
         assert saved_student.status_asc == 'Not Active'
 
+    def test_student_half_active(self, app):
+        """A student who is active on one team is considered an active athlete."""
+        sid = '1234567890'
+        asc_data = [
+            asc_data_row(
+                sid,
+                '',
+                'WWP',
+                'Women\'s Water Polo',
+                'WWP',
+                'Women\'s Water Polo',
+                '2017-18',
+                'No',
+                'Yes',
+                status='Not Active',
+            ),
+            asc_data_row(
+                sid,
+                '',
+                'WFH',
+                'Women\'s Field Hockey',
+                'WFH',
+                'Women\'s Field Hockey',
+                '2017-18',
+                'Yes',
+                'Yes',
+                status='Practice',
+            ),
+            asc_data_row(
+                sid,
+                '',
+                'WTE',
+                'Women\'s Tennis',
+                'WTE',
+                'Women\'s Tennis',
+                '2017-18',
+                'No',
+                'Yes',
+                status='Not Squad',
+            ),
+        ]
+        # Run import script
+        athletics, students = import_asc_athletes.load_student_athletes(app, asc_data)
+        assert 1 == len(students)
+        saved_student = Student.find_by_sid(sid)
+        assert saved_student.is_active_asc is True
+        assert len(saved_student.athletics) == 1
+        assert saved_student.athletics[0].group_code == 'WFH'
+
     def test_student_intensive(self, app):
         """Marks intensive status if set."""
         jane_sid = '1234567890'

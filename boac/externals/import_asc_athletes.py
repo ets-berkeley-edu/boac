@@ -208,16 +208,23 @@ def parse_all_rows(app, rows):
             asc_code = r['SportCodeCore']
             if asc_code in SPORT_TRANSLATIONS:
                 sid = r['SID']
+                group_code = r['SportCode']
                 if sid in import_students:
                     student = import_students[sid]
-                    if (
-                            student['in_intensive_cohort'] is not in_intensive_cohort
-                    ) or (
-                            student['is_active_asc'] is not is_active_asc
-                    ) or (
-                            student['status_asc'] != status_asc
-                    ):
+                    if student['in_intensive_cohort'] is not in_intensive_cohort:
                         app.logger.error(f'Unexpected conflict in import rows for SID {sid}')
+                    # Any active team membership means the student is an active athlete,
+                    # even if they happen not to be an active member of a different team.
+                    # Until BOAC-460 is resolved, the app will discard inactive memberships of an
+                    # otherwise active student.
+                    if not student['is_active_asc'] and is_active_asc:
+                        app.logger.warning('Will discard inactive memberships {} for SID {}'.format(student['athletics'], sid))
+                        student['athletics'] = []
+                        student['is_active_asc'] = is_active_asc
+                        student['status_asc'] = status_asc
+                    elif student['is_active_asc'] and not is_active_asc:
+                        app.logger.warning(f'Will discard inactive memberships {group_code} for SID {sid}')
+                        continue
                 else:
                     student = {
                         'sid': sid,
@@ -227,7 +234,6 @@ def parse_all_rows(app, rows):
                         'athletics': [],
                     }
                     import_students[sid] = student
-                group_code = r['SportCode']
                 student['athletics'].append(group_code)
                 if group_code not in import_athletics:
                     import_athletics[group_code] = {
