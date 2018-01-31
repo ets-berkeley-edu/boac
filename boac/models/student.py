@@ -28,9 +28,9 @@ class Student(Base):
     status_asc = db.Column(db.String(80))
 
     def __repr__(self):
-        return f'<Athlete sid={self.sid}, uid={self.uid}, first_name={self.first_name}, last_name={self.last_name}, ' \
-               f'in_intensive_cohort={self.in_intensive_cohort}, is_active_asc={self.is_active_asc}, status_asc={self.status_asc}, ' \
-               f'updated={self.updated_at}, created={self.created_at}>'
+        return f"""<Athlete sid={self.sid}, uid={self.uid}, first_name={self.first_name}, last_name={self.last_name},
+            in_intensive_cohort={self.in_intensive_cohort}, is_active_asc={self.is_active_asc},
+            status_asc={self.status_asc}, updated={self.updated_at}, created={self.created_at}>"""
 
     @classmethod
     def find_by_sid(cls, sid):
@@ -77,12 +77,12 @@ class Student(Base):
             elif order_by in ['gpa', 'units']:
                 o = f'n.{order_by}'
             elif order_by in ['group_name']:
-                # In the special case where team group name is both a filter criterion and an ordering criterion, we have to do extra work.
-                # The athletics join specified in get_students_query join will include only those group names that are in filter criteria, but if
-                # any students are in multiple team groups, ordering may depend on group names not present in filter criteria; so we have to join
-                # the athletics rows a second time.
-                # Why not do this complex sorting after the query? Because correctly calculating pagination offsets requires filtering and ordering
-                # to be done at the SQL level.
+                # In the special case where team group name is both a filter criterion and an ordering criterion, we
+                # have to do extra work. The athletics join specified in get_students_query join will include only
+                # those group names that are in filter criteria, but if any students are in multiple team groups,
+                # ordering may depend on group names not present in filter criteria; so we have to join the athletics
+                # rows a second time. Why not do this complex sorting after the query? Because correctly calculating
+                # pagination offsets requires filtering and ordering to be done at the SQL level.
                 if group_codes:
                     query_tables += """LEFT JOIN student_athletes sa2 ON sa2.sid = s.sid
                                        LEFT JOIN athletics a2 ON a2.group_code = sa2.group_code"""
@@ -90,14 +90,19 @@ class Student(Base):
                 else:
                     o = f'a.{order_by}'
             elif order_by in ['major']:
-                # Majors, like group names, require extra handling in the special case where they are both filter criteria and ordering criteria.
+                # Majors, like group names, require extra handling in the special case where they are both filter
+                # criteria and ordering criteria.
                 if majors:
                     query_tables += ' LEFT JOIN normalized_cache_student_majors m2 ON m2.sid = s.sid'
                     o = f'm2.{order_by}'
                 else:
                     o = f'm.{order_by}'
             o_secondary = 's.last_name' if order_by == 'first_name' else 's.first_name'
-            sql = f'SELECT DISTINCT(s.sid), {o}, {o_secondary} {query_tables} {query_filter} ORDER BY {o}, {o_secondary} OFFSET {offset}'
+            sql = f"""SELECT
+                DISTINCT(s.sid), {o}, {o_secondary} {query_tables} {query_filter}
+                ORDER BY {o}, {o_secondary}
+                OFFSET {offset}
+            """
             sql += f' LIMIT {limit}' if limit else ''
             # SQLAlchemy will escape parameter values
             result = connection.execute(text(sql), **all_bindings)
@@ -152,6 +157,7 @@ class Student(Base):
         if gpa_ranges:
             # 'sqlalchemy_bindings' is not used here due to extravagant SQL syntax.
             query_filter += ' AND n.gpa <@ ANY(ARRAY[{}])'.format(', '.join(gpa_ranges))
+            query_filter += ' AND n.gpa > 0'
         if levels:
             args = sqlalchemy_bindings(levels, 'level')
             all_bindings.update(args)
