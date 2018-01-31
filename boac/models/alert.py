@@ -46,7 +46,6 @@ class Alert(Base):
         alert = cls(sid, alert_type, key, message, active)
         db.session.add(alert)
         std_commit()
-        return alert
 
     def __init__(self, sid, alert_type, key, message=None, active=True):
         self.sid = sid
@@ -127,6 +126,39 @@ class Alert(Base):
                 feed['shown'].append(result_to_dict(result))
         return feed
 
+    def activate(self):
+        self.active = True
+        std_commit()
+
     def deactivate(self):
         self.active = False
         std_commit()
+
+    @classmethod
+    def create_or_activate(cls, sid, alert_type, key, message):
+        existing_alert = cls.query.filter_by(sid=sid, alert_type=alert_type, key=key).first()
+        if existing_alert:
+            existing_alert.message = message
+            existing_alert.activate()
+        else:
+            cls.create(sid=sid, alert_type=alert_type, key=key, message=message)
+
+    @classmethod
+    def deactivate_all(cls, sid, term_id, alert_types):
+        query = (
+            cls.query.
+            filter(cls.sid == sid).
+            filter(cls.alert_type.in_(alert_types)).
+            filter(cls.key.startswith(f'{term_id}_%'))
+        )
+        results = query.update({cls.active: False}, synchronize_session='fetch')
+        std_commit()
+        return results
+
+    @classmethod
+    def update_assignment_alerts(cls, sid, term_id, assignment_id, due_at, status, course_site_name):
+        alert_type = status + '_assignment'
+        key = f'{term_id}_{assignment_id}'
+        due_at_date = datetime.strptime(due_at, '%Y-%m-%dT%H:%M:%SZ').strftime('%b %-d, %Y')
+        message = f'{course_site_name} assignment due on {due_at_date}.'
+        cls.create_or_activate(sid=sid, alert_type=alert_type, key=key, message=message)

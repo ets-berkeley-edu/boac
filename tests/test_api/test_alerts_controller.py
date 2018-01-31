@@ -1,18 +1,7 @@
 from boac.models.alert import Alert
-import pytest
 
 advisor_1_uid = '2040'
 advisor_2_uid = '1133399'
-
-
-@pytest.fixture()
-def authenticated_session_1(fake_auth):
-    fake_auth.login(advisor_1_uid)
-
-
-@pytest.fixture()
-def authenticated_session_2(fake_auth):
-    fake_auth.login(advisor_2_uid)
 
 
 class TestAlertsController:
@@ -87,3 +76,17 @@ class TestAlertsController:
         assert len(advisor_2_brigitte_alerts['shown']) == 1
         assert advisor_2_brigitte_alerts['shown'][0]['key'] == '500600700'
         assert len(advisor_2_brigitte_alerts['dismissed']) == 0
+
+    def test_alerts_from_assignments(self, fake_auth, client):
+        """Surfaces alerts derived from assignment analytics."""
+        fake_auth.login(advisor_1_uid)
+        client.get('/api/user/61889/analytics')
+        response = client.get('/api/alerts/current/11667051')
+        assert len(response.json['dismissed']) == 0
+        assert len(response.json['shown']) == 2
+        assert response.json['shown'][0]['alertType'] == 'late_assignment'
+        assert response.json['shown'][0]['key'] == '2178_331896'
+        assert response.json['shown'][0]['message'] == 'MED ST 205 assignment due on Oct 6, 2017.'
+        assert response.json['shown'][1]['alertType'] == 'missing_assignment'
+        assert response.json['shown'][1]['key'] == '2178_331897'
+        assert response.json['shown'][1]['message'] == 'MED ST 205 assignment due on Nov 3, 2017.'

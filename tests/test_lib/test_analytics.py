@@ -51,9 +51,16 @@ class TestAnalytics:
     def test_canvas_course_assignments(self, app):
         """Summarizes the student assignment statuses from fixture."""
         uid = '61889'
+        sid = '11667051'
         canvas_course_id = 7654321
-        feed = canvas.get_assignments_analytics(canvas_course_id, uid, '2178')
-        digested = analytics.analytics_from_canvas_course_assignments(feed)
+        canvas_course_code = 'MED ST 205'
+        digested = analytics.analytics_from_canvas_course_assignments(
+            course_id=canvas_course_id,
+            course_code=canvas_course_code,
+            uid=uid,
+            sid=sid,
+            term_id='2178',
+        )
         assert digested['assignmentTotals']['floating'] == 2
         assert digested['assignmentTotals']['missing'] == 1
         assert digested['assignmentTotals']['onTime'] == 3

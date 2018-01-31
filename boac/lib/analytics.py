@@ -1,14 +1,17 @@
 import math
 from statistics import mean
 from boac.externals import canvas
+from boac.models.alert import Alert
+from boac.models.json_cache import stow
 from flask import current_app as app
 import pandas
 
 
-def merge_analytics_for_user(user_courses, uid, canvas_user_id, term_id):
+def merge_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id):
     if user_courses:
         for course in user_courses:
             canvas_course_id = course['canvasCourseId']
+            course_code = course['courseCode']
             student_summaries = canvas.get_student_summaries(canvas_course_id, term_id)
             if not student_summaries:
                 analytics = {'error': 'Unable to retrieve analytics'}
@@ -16,14 +19,19 @@ def merge_analytics_for_user(user_courses, uid, canvas_user_id, term_id):
                 analytics = analytics_from_summary_feed(student_summaries, canvas_user_id, canvas_course_id)
                 enrollments = canvas.get_course_enrollments(canvas_course_id, term_id)
                 analytics.update(analytics_from_canvas_course_enrollments(enrollments, canvas_user_id))
-                assignments = canvas.get_assignments_analytics(canvas_course_id, uid, term_id)
-                if assignments:
-                    analytics.update(analytics_from_canvas_course_assignments(assignments))
+                assignment_analytics = analytics_from_canvas_course_assignments(
+                    course_id=canvas_course_id,
+                    course_code=course_code,
+                    uid=uid,
+                    sid=sid,
+                    term_id=term_id,
+                )
+                analytics.update(assignment_analytics)
             course['analytics'] = analytics
 
 
-def mean_course_analytics_for_user(user_courses, uid, canvas_user_id, term_id):
-    merge_analytics_for_user(user_courses, uid, canvas_user_id, term_id)
+def mean_course_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id):
+    merge_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id)
     mean_values = {}
     # TODO Remove misleading assignmentsOnTime metric.
     for metric in ['assignmentsOnTime', 'pageViews', 'participations', 'courseCurrentScore']:
@@ -70,7 +78,11 @@ def analytics_from_canvas_course_enrollments(feed, canvas_user_id):
     }
 
 
-def analytics_from_canvas_course_assignments(feed):
+@stow('analytics_from_canvas_course_assignments_{course_id}_{uid}', for_term=True)
+def analytics_from_canvas_course_assignments(course_id, course_code, uid, sid, term_id):
+    assignments = canvas.get_assignments_analytics(course_id, uid, term_id)
+    if not assignments:
+        return {}
     data = {
         'assignmentTotals': {
             'floating': 0,
@@ -81,7 +93,7 @@ def analytics_from_canvas_course_assignments(feed):
         },
         'assignments': [],
     }
-    for assignment in feed:
+    for assignment in assignments:
         data['assignmentTotals']['all'] += 1
         total_type = assignment['status']
         if total_type == 'on_time':
@@ -99,7 +111,18 @@ def analytics_from_canvas_course_assignments(feed):
             },
         )
 
+        if assignment['status'] in ['late', 'missing']:
+            Alert.update_assignment_alerts(
+                sid=sid,
+                term_id=term_id,
+                assignment_id=assignment['assignment_id'],
+                due_at=assignment['due_at'],
+                status=assignment['status'],
+                course_site_name=course_code,
+            )
+
         assignment_data = {
+            'id': assignment['assignment_id'],
             'name': assignment['title'],
             'dueDate': assignment['due_at'],
             'pointsPossible': assignment['points_possible'],

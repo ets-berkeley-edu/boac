@@ -1,7 +1,10 @@
 from threading import Thread
 from boac import db, std_commit
+from boac.api.util import canvas_course_api_feed
+from boac.lib import analytics
 from boac.lib import berkeley
 from boac.merged.sis_profile import merge_sis_profile
+from boac.models.alert import Alert
 from boac.models.job_progress import JobProgress
 from boac.models.json_cache import JsonCache
 from flask import current_app as app
@@ -73,6 +76,9 @@ def load_term(term_id=current_term_id()):
         success_count += s
         failures += f
         JobProgress().update(f'External data loaded for UID {uid}')
+
+    for csid, uid in db.session.query(Student.sid, Student.uid).distinct():
+        load_analytics_feeds(uid, csid, term_id)
 
     # Given a fresh start with no existing 'normalized' cache, merged profiles must be pre-fetched.
     # Otherwise all team and cohort searches will return empty arrays in the UX.
@@ -153,6 +159,28 @@ def load_sis_externals(term_id, csid):
     elif enrollments is None:
         failures.append(f'SIS get_enrollments failed for CSID {csid}, term_id {term_id}')
     return success_count, failures
+
+
+def load_analytics_feeds(uid, sid, term_id):
+    # Load distilled analytics feeds, one level up from the Canvas APIs already called by load_canvas_externals.
+    # Prior to load, existing assignment alerts for the student and term are deactivated. Alerts still in effect
+    # will be reactivated as feeds are loaded.
+    Alert.deactivate_all(sid=sid, term_id=term_id, alert_types=['late_assignment', 'missing_assignment'])
+    from boac.externals import canvas
+    sites = canvas.get_student_courses(uid)
+    term_name = berkeley.term_name_for_sis_id(term_id)
+    if sites:
+        for site in sites:
+            if site.get('term', {}).get('name') != term_name:
+                continue
+            site_feed = canvas_course_api_feed(site)
+            analytics.analytics_from_canvas_course_assignments(
+                course_id=site_feed['canvasCourseId'],
+                course_code=site_feed['courseCode'],
+                uid=uid,
+                sid=sid,
+                term_id=term_id,
+            )
 
 
 def load_merged_sis_profiles():

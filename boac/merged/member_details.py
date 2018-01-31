@@ -45,7 +45,7 @@ def merged_data(uid, csid):
         student_courses_in_current_term = [course for course in student_courses if course.get('term', {}).get('name') == current_term]
         canvas_courses = canvas_courses_api_feed(student_courses_in_current_term)
         # Decorate the Canvas courses list with per-course statistics, and return summary statistics.
-        data['analytics'] = mean_course_analytics_for_user(canvas_courses, uid, canvas_profile['id'], term_id)
+        data['analytics'] = mean_course_analytics_for_user(canvas_courses, uid, csid, canvas_profile['id'], term_id)
         # Associate those course sites with campus enrollments.
         data['currentTerm'] = merge_sis_enrollments_for_term(canvas_courses, csid, current_term)
     return data
