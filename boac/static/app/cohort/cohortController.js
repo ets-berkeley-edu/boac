@@ -569,10 +569,10 @@
             });
           } else {
             var render = $scope.tabs.selected === 'list' ? listViewRefresh : matrixViewRefresh;
-            render(function() {
-              initFilters(function() {
-                watchlistFactory.getMyWatchlist().then(function(response) {
-                  $scope.myWatchlist = response.data;
+            watchlistFactory.getMyWatchlist().then(function(response) {
+              $scope.myWatchlist = response.data;
+              render(function() {
+                initFilters(function() {
                   $scope.isLoading = false;
 
                   if (args.a) {
