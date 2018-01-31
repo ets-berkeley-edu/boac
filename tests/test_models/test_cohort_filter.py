@@ -27,11 +27,10 @@ class TestCohortFilter:
         group_codes = ['MFB-DB', 'MFB-DL']
         levels = ['Junior']
         majors = ['Environmental Economics & Policy', 'Gender and Women\'s Studies']
-        unit_ranges_eligibility = [
+        unit_ranges = [
             'numrange(0, 5, \'[]\')',
             'numrange(30, NULL, \'[)\')',
         ]
-        unit_ranges_pacing = ['numrange(30, 59, \'[]\')']
         cohort = CohortFilter.create(
             uid='1022796',
             label='All criteria, all the time',
@@ -39,8 +38,7 @@ class TestCohortFilter:
             group_codes=group_codes,
             levels=levels,
             majors=majors,
-            unit_ranges_eligibility=unit_ranges_eligibility,
-            unit_ranges_pacing=unit_ranges_pacing,
+            unit_ranges=unit_ranges,
         )
         cohort = CohortFilter.find_by_id(cohort['id'])
         expected = {
@@ -48,13 +46,12 @@ class TestCohortFilter:
             'groupCodes': group_codes,
             'levels': levels,
             'majors': majors,
-            'unitRangesEligibility': unit_ranges_eligibility,
-            'unitRangesPacing': unit_ranges_pacing,
+            'unitRanges': unit_ranges,
         }
         cf = cohort['filterCriteria']
         assert expected == cf
         assert 2 == len(cf['gpaRanges'])
-        assert 2 == len(cf['unitRangesEligibility'])
+        assert 2 == len(cf['unitRanges'])
 
     def test_invalid_create(self):
         with pytest.raises(InternalServerError):

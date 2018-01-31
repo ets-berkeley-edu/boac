@@ -44,16 +44,22 @@ class Student(Base):
             in_intensive_cohort=None,
             levels=None,
             majors=None,
-            unit_ranges_eligibility=None,
-            unit_ranges_pacing=None,
+            unit_ranges=None,
             order_by=None,
             offset=0,
             limit=50,
             sids_only=False,
             is_inactive=False,
     ):
-        # TODO: unit ranges
-        query_tables, query_filter, all_bindings = cls.get_students_query(group_codes, gpa_ranges, levels, majors, in_intensive_cohort, is_inactive)
+        query_tables, query_filter, all_bindings = cls.get_students_query(
+            group_codes,
+            gpa_ranges,
+            levels,
+            majors,
+            unit_ranges,
+            in_intensive_cohort,
+            is_inactive,
+        )
         # First, get total_count of matching students
         connection = db.engine.connect()
         result = connection.execute(text(f'SELECT DISTINCT(s.sid) {query_tables} {query_filter}'), **all_bindings)
@@ -130,7 +136,7 @@ class Student(Base):
         return [s.to_expanded_api_json() for s in students]
 
     @classmethod
-    def get_students_query(cls, group_codes, gpa_ranges, levels, majors, in_intensive_cohort, is_inactive):
+    def get_students_query(cls, group_codes, gpa_ranges, levels, majors, unit_ranges, in_intensive_cohort, is_inactive):
         query_tables = """
             FROM students s
                 JOIN normalized_cache_students n ON n.sid = s.sid
@@ -178,6 +184,8 @@ class Student(Base):
                 all_bindings.update(args)
                 query_filter += ' OR m.major IN ({})'.format(':' + ', :'.join(args.keys()))
             query_filter += ')'
+        if unit_ranges:
+            query_filter += ' AND n.units <@ ANY(ARRAY[{}])'.format(', '.join(unit_ranges))
         if in_intensive_cohort is not None:
             query_filter += ' AND s.in_intensive_cohort IS {}'.format(str(in_intensive_cohort))
         return query_tables, query_filter, all_bindings

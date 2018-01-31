@@ -91,8 +91,7 @@ def create_cohort():
     group_codes = util.get(params, 'groupCodes')
     levels = util.get(params, 'levels')
     majors = util.get(params, 'majors')
-    unit_ranges_eligibility = util.get(params, 'unitRangesEligibility')
-    unit_ranges_pacing = util.get(params, 'unitRangesPacing')
+    unit_ranges = util.get(params, 'unitRanges')
     if not label:
         raise BadRequestError('Cohort creation requires \'label\'')
     cohort = CohortFilter.create(
@@ -102,8 +101,7 @@ def create_cohort():
         group_codes=group_codes,
         levels=levels,
         majors=majors,
-        unit_ranges_eligibility=unit_ranges_eligibility,
-        unit_ranges_pacing=unit_ranges_pacing,
+        unit_ranges=unit_ranges,
     )
     return tolerant_jsonify(cohort)
 

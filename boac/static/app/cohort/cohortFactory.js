@@ -6,15 +6,14 @@
 
   boac.factory('cohortFactory', function(googleAnalyticsService, utilService, $http, $rootScope) {
 
-    var createCohort = function(label, gpaRanges, groupCodes, levels, majors, unitRangesEligibility, unitRangesPacing) {
+    var createCohort = function(label, gpaRanges, groupCodes, levels, majors, unitRanges) {
       var args = {
         label: label,
         gpaRanges: gpaRanges,
         groupCodes: groupCodes,
         levels: levels,
         majors: majors,
-        unitRangesEligibility: unitRangesEligibility,
-        unitRangesPacing: unitRangesPacing
+        unitRanges: unitRanges
       };
       return $http.post('/api/cohort/create', args).then(function(response) {
         var cohort = response.data;

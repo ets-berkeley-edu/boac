@@ -291,8 +291,7 @@ class TestCohortDetail:
             'groupCodes': group_codes,
             'levels': levels,
             'majors': majors,
-            'unitRangesEligibility': [],
-            'unitRangesPacing': [],
+            'unitRanges': [],
         }
         client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
         response = client.get('/api/cohorts/my')
