@@ -42,16 +42,14 @@ class CohortFilter(Base, UserMixin):
             group_codes=None,
             levels=None,
             majors=None,
-            unit_ranges_eligibility=None,
-            unit_ranges_pacing=None,
+            unit_ranges=None,
     ):
         criteria = cls.compose_filter_criteria(
             gpa_ranges=gpa_ranges,
             group_codes=group_codes,
             levels=levels,
             majors=majors,
-            unit_ranges_eligibility=unit_ranges_eligibility,
-            unit_ranges_pacing=unit_ranges_pacing,
+            unit_ranges=unit_ranges,
         )
         cf = CohortFilter(label=label, filter_criteria=json.dumps(criteria))
         user = AuthorizedUser.find_by_uid(uid)
@@ -109,13 +107,12 @@ class CohortFilter(Base, UserMixin):
             group_codes=None,
             levels=None,
             majors=None,
-            unit_ranges_eligibility=None,
-            unit_ranges_pacing=None,
+            unit_ranges=None,
     ):
-        if not gpa_ranges and not group_codes and not levels and not majors and not unit_ranges_eligibility and not unit_ranges_pacing:
+        if not gpa_ranges and not group_codes and not levels and not majors and not unit_ranges:
             raise InternalServerError('CohortFilter creation requires one or more non-empty criteria.')
         # Validate
-        for arg in [gpa_ranges, group_codes, levels, majors, unit_ranges_eligibility, unit_ranges_pacing]:
+        for arg in [gpa_ranges, group_codes, levels, majors, unit_ranges]:
             if arg and not isinstance(arg, list):
                 raise InternalServerError('All \'filter_criteria\' objects must be instance of \'list\' type.')
         group_code_syntax = re.compile('^[A-Z\-]+$')
@@ -128,16 +125,16 @@ class CohortFilter(Base, UserMixin):
             raise InternalServerError('\'majors\' arg has invalid data: ' + str(majors))
         # The 'numrange' syntax is based on https://www.postgresql.org/docs/9.3/static/rangetypes.html
         numrange_syntax = re.compile('^numrange\([0-9\.NUL]+, [0-9\.NUL]+, \'..\'\)$')
-        for r in (gpa_ranges or []) + (unit_ranges_eligibility or []) + (unit_ranges_pacing or []):
+        for r in (gpa_ranges or []) + (unit_ranges or []):
             if not numrange_syntax.match(r):
-                raise InternalServerError('Range argument \'{}\' does not match expected \'numrange\' syntax: {}'.format(r, numrange_syntax.pattern))
+                msg = f'Range argument \'{r}\' does not match expected \'numrange\' syntax: {numrange_syntax.pattern}'
+                raise InternalServerError(msg)
         return {
             'groupCodes': group_codes or [],
             'levels': levels or [],
             'majors': majors or [],
             'gpaRanges': gpa_ranges or [],
-            'unitRangesEligibility': unit_ranges_eligibility or [],
-            'unitRangesPacing': unit_ranges_pacing or [],
+            'unitRanges': unit_ranges or [],
         }
 
 
@@ -155,15 +152,13 @@ def construct_cohort(cf, order_by=None, offset=0, limit=50, include_students=Tru
     group_codes = util.get(c, 'groupCodes', []) or util.get(c, 'team_group_codes', [])
     levels = util.get(c, 'levels', [])
     majors = util.get(c, 'majors', [])
-    unit_ranges_eligibility = util.get(c, 'unitRangesEligibility', [])
-    unit_ranges_pacing = util.get(c, 'unitRangesPacing', [])
+    unit_ranges = util.get(c, 'unitRanges', [])
     results = Student.get_students(
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
         levels=levels,
         majors=majors,
-        unit_ranges_eligibility=unit_ranges_eligibility,
-        unit_ranges_pacing=unit_ranges_pacing,
+        unit_ranges=unit_ranges,
         order_by=order_by,
         offset=offset,
         limit=limit,
@@ -176,8 +171,7 @@ def construct_cohort(cf, order_by=None, offset=0, limit=50, include_students=Tru
             'groupCodes': group_codes,
             'levels': levels,
             'majors': majors,
-            'unitRangesEligibility': unit_ranges_eligibility,
-            'unitRangesPacing': unit_ranges_pacing,
+            'unitRanges': unit_ranges,
         },
         'teamGroups': team_groups,
         'totalMemberCount': results['totalStudentCount'],

@@ -49,18 +49,7 @@
       ];
     };
 
-    var getUnitRangesEligibility = function() {
-      return [
-        {name: '0 - 5', value: 'numrange(0, 5, \'[]\')'},
-        {name: '6 - 11', value: 'numrange(6, 11, \'[]\')'},
-        {name: '12 - 17', value: 'numrange(12, 17, \'[]\')'},
-        {name: '18 - 23', value: 'numrange(18, 23, \'[]\')'},
-        {name: '24 - 29', value: 'numrange(24, 29, \'[]\')'},
-        {name: '30 +', value: 'numrange(30, NULL, \'[)\')'}
-      ];
-    };
-
-    var getUnitRangesPacing = function() {
+    var getUnitRanges = function() {
       return [
         {name: '0 - 29', value: 'numrange(0, 30, \'[)\')'},
         {name: '30 - 59', value: 'numrange(30, 60, \'[)\')'},
@@ -70,14 +59,13 @@
       ];
     };
 
-    var getStudents = function(gpaRanges, groupCodes, levels, majors, unitRangesEligibility, unitRangesPacing, orderBy, offset, limit) {
+    var getStudents = function(gpaRanges, groupCodes, levels, majors, unitRanges, orderBy, offset, limit) {
       var args = {
         gpaRanges: gpaRanges || [],
         groupCodes: groupCodes || [],
         levels: levels || [],
         majors: majors || [],
-        unitRangesEligibility: unitRangesEligibility || [],
-        unitRangesPacing: unitRangesPacing || [],
+        unitRanges: unitRanges || [],
         orderBy: orderBy || 'first_name',
         offset: offset || 0,
         limit: limit || 50
@@ -94,8 +82,7 @@
       getRelevantMajors: getRelevantMajors,
       getStudentLevels: getStudentLevels,
       getStudents: getStudents,
-      getUnitRangesEligibility: getUnitRangesEligibility,
-      getUnitRangesPacing: getUnitRangesPacing
+      getUnitRanges: getUnitRanges
     };
   });
 

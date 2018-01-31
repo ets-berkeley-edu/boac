@@ -40,8 +40,7 @@ def get_students():
     group_codes = util.get(params, 'groupCodes')
     levels = util.get(params, 'levels')
     majors = util.get(params, 'majors')
-    unit_ranges_eligibility = util.get(params, 'unitRangesEligibility')
-    unit_ranges_pacing = util.get(params, 'unitRangesPacing')
+    unit_ranges = util.get(params, 'unitRanges')
     order_by = util.get(params, 'orderBy', None)
     offset = util.get(params, 'offset', 0)
     limit = util.get(params, 'limit', 50)
@@ -50,8 +49,7 @@ def get_students():
         group_codes=group_codes,
         levels=levels,
         majors=majors,
-        unit_ranges_eligibility=unit_ranges_eligibility,
-        unit_ranges_pacing=unit_ranges_pacing,
+        unit_ranges=unit_ranges,
         order_by=order_by,
         offset=offset,
         limit=limit,

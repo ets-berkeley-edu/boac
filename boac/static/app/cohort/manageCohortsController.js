@@ -65,12 +65,6 @@
     $scope.deleteCohort = cohortFactory.deleteCohort;
 
     /**
-     * TODO: Filters per units
-     * var unitRangesE = studentFactory.getUnitRangesEligibility();
-     * var unitRangesP = studentFactory.getUnitRangesPacing();
-     *  [ 'Units eligibility: ' + _.join(names(f.unitRangesEligibility, unitRangesE, 'name'), ', ') ],
-     *  [ 'Units pacing: ' + _.join(names(f.unitRangesPacing, unitRangesP, 'name'), ', ') ]
-     *
      * @return {void}
      */
     var init = function() {
@@ -80,14 +74,16 @@
           cohort.labelOriginal = cohort.label;
 
           var f = cohort.filterCriteria;
-          var gpaLabels = _.map(names(f.gpaRanges, studentFactory.getGpaRanges(), 'name'), function(name) {
-            return 'GPA: ' + name;
-          });
           cohort.filterCriteriaNames = _.concat(
-            gpaLabels,
+            _.map(names(f.gpaRanges, studentFactory.getGpaRanges(), 'name'), function(name) {
+              return 'GPA: ' + name;
+            }),
             _.map(cohort.teamGroups, 'groupName'),
             _.map(f.levels, function(level) { return 'Level: ' + level; }),
-            _.map(f.majors, function(major) { return 'Major: ' + major; })
+            _.map(f.majors, function(major) { return 'Major: ' + major; }),
+            _.map(names(f.unitRanges, studentFactory.getUnitRanges(), 'name'), function(name) {
+              return 'Units: ' + name;
+            })
           );
         });
         resetPageView(angular.noop);

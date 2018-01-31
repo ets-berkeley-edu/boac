@@ -77,7 +77,7 @@
         </ul>
       </div>
     </div>
-    <!-- Class levels -->
+    <!-- Levels -->
     <div class="cohort-filters-column flex-column-btn">
       <div class="btn-group box-shadow-off"
            uib-dropdown
@@ -109,12 +109,12 @@
           <li class="cohort-filter-list-item"
               role="menuitem"
               data-ng-repeat="option in search.options.levels">
-            <input id="search-option-level-{{option.name}}"
+            <input id="search-option-level-{{option.value}}"
                    type="checkbox"
                    data-ng-model="option.selected"
                    aria-label="{{option.name}}"
                    data-ng-click="option.onClick('levels', option)"/>
-            <span data-ng-bind="level.name"></span></li>
+            <span data-ng-bind="option.name"></span></li>
         </ul>
       </div>
     </div>
@@ -204,7 +204,7 @@
       </div>
     </div>
     <!-- Units -->
-    <div class="cohort-filters-column flex-column-btn" data-ng-if="search.filterByUnitsFeatureEnabled">
+    <div class="cohort-filters-column flex-column-btn">
       <div class="btn-group box-shadow-off"
            uib-dropdown
            auto-close="outsideClick"
@@ -232,29 +232,15 @@
             role="menu"
             uib-dropdown-menu
             data-ng-show="!isLoading && !isSaving">
-          <!-- Pacing units -->
-          <li class="cohort-filter-list-section-label" role="menuitem">Pacing (Total)</li>
           <li class="cohort-filter-list-item"
             role="menuitem"
-            data-ng-repeat="unitRange in search.options.unitRangesPacing">
-          <input id="search-option-unit-range-pacing-{{$index}}"
+            data-ng-repeat="option in search.options.unitRanges">
+          <input id="search-option-unit-range-{{$index}}"
                  type="checkbox"
-                 data-ng-model="unitRange.selected"
-                 aria-label="{{unitRange.name}}"
-                 data-ng-click="updateSelected('unitRanges', unitRange)"/>
-          <span data-ng-bind="unitRange.name"></span></li>
-          <!-- Eligibility units -->
-          <li class="divider"></li>
-          <li class="cohort-filter-list-section-label" role="menuitem">Eligibility (Per Term/Year)</li>
-          <li class="cohort-filter-list-item"
-              role="menuitem"
-              data-ng-repeat="unitRange in search.options.unitRangesEligibility">
-            <input id="search-option-unit-range-eligibility-{{$index}}"
-                   type="checkbox"
-                   data-ng-model="unitRange.selected"
-                   aria-label="{{unitRange.name}}"
-                   data-ng-click="updateSelected('unitRanges', unitRange)"/>
-            <span data-ng-bind="unitRange.name"></span></li>
+                 data-ng-model="option.selected"
+                 aria-label="{{option.name}}"
+                 data-ng-click="option.onClick('unitRanges', option)"/>
+          <span data-ng-bind="option.name"></span></li>
         </ul>
       </div>
     </div>
@@ -267,8 +253,7 @@
                                  !search.count.teamGroups &&
                                  !search.count.levels &&
                                  !search.count.majors &&
-                                 !search.count.unitRangesEligibility &&
-                                 !search.count.unitRangesPacing) || isLoading || isSaving"
+                                 !search.count.unitRanges) || isLoading || isSaving"
               data-ng-click="executeSearch()">Search</button>
     </div>
     <div class="cohort-filters-column flex-column-btn">
@@ -279,8 +264,7 @@
                                    !search.count.teamGroups &&
                                    !search.count.levels &&
                                    !search.count.majors &&
-                                   !search.count.unitRangesEligibility &&
-                                   !search.count.unitRangesPacing) || isLoading || isSaving"
+                                   !search.count.unitRanges) || isLoading || isSaving"
                 data-ng-click="openCreateCohortModal(search.options)">
           Save Cohort
         </button>

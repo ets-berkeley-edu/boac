@@ -48,8 +48,7 @@
               cohortService.getSelected(filters.teamGroups, 'groupCode'),
               cohortService.getSelected(filters.levels, 'name'),
               cohortService.getSelected(filters.majors, 'name'),
-              cohortService.getSelected(filters.unitRangesEligibility, 'value'),
-              cohortService.getSelected(filters.unitRangesPacing, 'value')
+              cohortService.getSelected(filters.unitRanges, 'value')
             ).then(
               function() {
                 $rootScope.isSaving = false;
