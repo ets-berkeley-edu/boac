@@ -52,31 +52,17 @@ def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name, includ
             # If we haven't seen this class name before, we create a new feed entry for it.
             if class_name not in enrollments_by_class:
                 enrollments_by_class[class_name] = api_util.sis_enrollment_class_feed(enrollment)
-            # If we have seen this class name before, in most cases we'll just append the new section feed to the
-            # existing class feed. However, because multiple concurrent primary-section enrollments aren't distinguished by
-            # class name, we need to do an extra check for that case.
-            # TODO In the rare case of multiple-primary enrollments with associated secondary sections, secondary section
-            # handling will be unpredictable.
-            else:
-                if is_primary_section(section_feed):
-                    existing_primary = next((sec for sec in enrollments_by_class[class_name]['sections'] if is_primary_section(sec)), None)
-                    # If we do indeed have two primary sections under the same class name, disambiguate them.
-                    if existing_primary:
-                        # First, revise the existing class feed to include section number.
-                        disambiguated_class_name = '{} {} {}'.format(class_name, existing_primary['component'], existing_primary['sectionNumber'])
-                        enrollments_by_class[class_name]['displayName'] = disambiguated_class_name
-                        enrollments_by_class[disambiguated_class_name] = enrollments_by_class[class_name]
-                        del enrollments_by_class[class_name]
-                        # Now create a new class feed, also with section number, for our new primary section.
-                        class_name = '{} {} {}'.format(class_name, section_feed['component'], section_feed['sectionNumber'])
-                        enrollments_by_class[class_name] = api_util.sis_enrollment_class_feed(enrollment)
-                        enrollments_by_class[class_name]['displayName'] = class_name
+
+            if is_enrolled_primary_section(section_feed):
+                class_name = check_for_multiple_primary_sections(enrollment, class_name, enrollments_by_class, section_feed)
 
             enrollments_by_class[class_name]['sections'].append(section_feed)
-            if is_primary_section(section_feed):
+            if is_enrolled_primary_section(section_feed):
                 enrolled_units += section_feed['units']
-                # Since we allow only one primary section per class, it's safe to associate units and grade information
-                # with the class as well as the section.
+            # Since only one enrolled primary section is allowed per class, it's safe to associate units and grade information
+            # with the class as well as the section. If a primary section is waitlisted, do the same association unless we've
+            # already done it with a different section (this case may not arise in practice).
+            if is_enrolled_primary_section(section_feed) or (is_primary_section(section_feed) and 'units' not in enrollments_by_class[class_name]):
                 enrollments_by_class[class_name]['grade'] = section_feed['grade']
                 enrollments_by_class[class_name]['gradingBasis'] = section_feed['gradingBasis']
                 enrollments_by_class[class_name]['midtermGrade'] = section_feed['midtermGrade']
@@ -110,6 +96,27 @@ def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name, includ
     return term_feed
 
 
+def check_for_multiple_primary_sections(enrollment, class_name, enrollments_by_class, section_feed):
+    # If we have seen this class name before, in most cases we'll just append the new section feed to the
+    # existing class feed. However, because multiple concurrent primary-section enrollments aren't distinguished by
+    # class name, we need to do an extra check for that case.
+    # TODO In the rare case of multiple-primary enrollments with associated secondary sections, secondary section
+    # handling will be unpredictable.
+    existing_primary = next((sec for sec in enrollments_by_class[class_name]['sections'] if is_enrolled_primary_section(sec)), None)
+    # If we do indeed have two primary sections under the same class name, disambiguate them.
+    if existing_primary:
+        # First, revise the existing class feed to include section number.
+        disambiguated_class_name = '{} {} {}'.format(class_name, existing_primary['component'], existing_primary['sectionNumber'])
+        enrollments_by_class[class_name]['displayName'] = disambiguated_class_name
+        enrollments_by_class[disambiguated_class_name] = enrollments_by_class[class_name]
+        del enrollments_by_class[class_name]
+        # Now create a new class feed, also with section number, for our new primary section.
+        class_name = '{} {} {}'.format(class_name, section_feed['component'], section_feed['sectionNumber'])
+        enrollments_by_class[class_name] = api_util.sis_enrollment_class_feed(enrollment)
+        enrollments_by_class[class_name]['displayName'] = class_name
+    return class_name
+
+
 def collect_dropped_sections(term_feed):
     dropped_sections = []
     for enrollment in term_feed['enrollments']:
@@ -123,8 +130,12 @@ def collect_dropped_sections(term_feed):
     return dropped_sections
 
 
+def is_enrolled_primary_section(section_feed):
+    return is_primary_section(section_feed) and section_feed['enrollmentStatus'] == 'E'
+
+
 def is_primary_section(section_feed):
-    return section_feed['gradingBasis'] != 'NON' and section_feed['enrollmentStatus'] == 'E'
+    return section_feed['gradingBasis'] != 'NON'
 
 
 def merge_canvas_course_site(term_feed, site):
