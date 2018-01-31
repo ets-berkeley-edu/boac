@@ -11,11 +11,6 @@ from flask import current_app as app
 from sqlalchemy import or_
 
 
-def current_term_id():
-    term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
-    return berkeley.sis_term_id_for_name(term_name)
-
-
 def refresh_request_handler(term_id, load_only=False):
     """Handle a start refresh admin request by returning an error status or starting the job on a background thread."""
     job_state = JobProgress().get()
@@ -43,7 +38,7 @@ def background_thread_refresh(app_arg, term_id):
         load_term(term_id)
 
 
-def refresh_term(term_id=current_term_id()):
+def refresh_term(term_id=berkeley.current_term_id()):
     clear_term(term_id)
     load_term(term_id)
 
@@ -63,7 +58,7 @@ def clear_term(term_id):
     std_commit()
 
 
-def load_term(term_id=current_term_id()):
+def load_term(term_id=berkeley.current_term_id()):
     from boac.models.student import Student
     success_count = 0
     failures = []
@@ -82,7 +77,7 @@ def load_term(term_id=current_term_id()):
 
     # Given a fresh start with no existing 'normalized' cache, merged profiles must be pre-fetched.
     # Otherwise all team and cohort searches will return empty arrays in the UX.
-    if term_id == current_term_id():
+    if term_id == berkeley.current_term_id():
         load_merged_sis_profiles()
 
     JobProgress().end()

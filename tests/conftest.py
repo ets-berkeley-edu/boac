@@ -92,23 +92,29 @@ def fake_auth(app, db, client):
 
 @pytest.fixture()
 def create_alerts(db_session):
-    """Create three canned alerts."""
+    """Create three canned alerts for the current term and one for the previous term."""
     Alert.create(
         sid='11667051',
         alert_type='late_assignment',
-        key='800900300',
+        key='2172_100900300',
+        message='Week 5 homework in LATIN 100 is late.',
+    )
+    Alert.create(
+        sid='11667051',
+        alert_type='late_assignment',
+        key='2178_800900300',
         message='Week 5 homework in RUSSIAN 13 is late.',
     )
     Alert.create(
         sid='11667051',
         alert_type='missing_assignment',
-        key='500600700',
+        key='2178_500600700',
         message='Week 6 homework in PORTUGUESE 12 is missing.',
     )
     Alert.create(
         sid='2345678901',
         alert_type='late_assignment',
-        key='100200300',
+        key='2178_100200300',
         message='Week 5 homework in BOSCRSR 27B is late.',
     )
 
