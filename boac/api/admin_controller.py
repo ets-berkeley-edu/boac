@@ -1,5 +1,6 @@
 from functools import wraps
 from boac.api import cache_utils
+from boac.lib import berkeley
 from boac.lib.http import tolerant_jsonify
 from boac.models.job_progress import JobProgress
 from flask import current_app as app, request
@@ -21,7 +22,7 @@ def admin_required(func):
 
 
 def term():
-    term_id = request.args.get('term') or cache_utils.current_term_id()
+    term_id = request.args.get('term') or berkeley.current_term_id()
     return term_id
 
 
