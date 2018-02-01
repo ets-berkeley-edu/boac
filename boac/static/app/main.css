@@ -17,12 +17,22 @@
   padding: 2px 5px 0 2px;
 }
 
-.btn-watchlist-fa-lg {
-  padding: 0 5px 2px 0;
+.btn-watchlist-fa-2x {
+  padding: 0 0 2px 3px;
 }
 
 .btn-watchlist-text {
   padding: 2px 5px 0 2px;
+}
+
+.btn-watchlist-label-fa-1x {
+  font-size: 10px;
+  vertical-align: middle;
+}
+
+.btn-watchlist-label-fa-2x {
+  font-size: 11px;
+  vertical-align: middle;
 }
 
 .container-left {
