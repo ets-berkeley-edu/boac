@@ -20,15 +20,20 @@
     };
   });
 
-  angular.module('boac').controller('CreateCohortModal', function(filters, cohortFactory, cohortService, $rootScope, $scope, $uibModalInstance) {
-
-    // If we use the name '$scope.cohort' then we will collide with model name of underlying /cohort view.
+  angular.module('boac').controller('CreateCohortModal', function(
+    filters,
+    cohortFactory,
+    cohortService,
+    utilService,
+    $rootScope,
+    $scope,
+    $uibModalInstance
+  ) {
     $scope.label = null;
     $scope.error = {
       hide: false,
       message: null
     };
-
     $scope.create = function() {
       // The 'error.hide' flag allows us to hide validation error on-change of form input.
       $scope.error.hide = false;
@@ -42,13 +47,15 @@
           $scope.error.message = errorMessage;
           if (!$scope.error.message) {
             $rootScope.isSaving = true;
+            var getValues = utilService.getValuesSelected;
+            // Get values where selected=true
             cohortFactory.createCohort(
               $scope.label,
-              cohortService.getSelected(filters.gpaRanges, 'value'),
-              cohortService.getSelected(filters.teamGroups, 'groupCode'),
-              cohortService.getSelected(filters.levels, 'name'),
-              cohortService.getSelected(filters.majors, 'name'),
-              cohortService.getSelected(filters.unitRanges, 'value')
+              getValues(filters.gpaRanges),
+              getValues(filters.teamGroups, 'groupCode'),
+              getValues(filters.levels),
+              getValues(filters.majors),
+              getValues(filters.unitRanges)
             ).then(
               function() {
                 $rootScope.isSaving = false;

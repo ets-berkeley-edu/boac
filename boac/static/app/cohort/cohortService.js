@@ -246,10 +246,6 @@
       dot.on('mouseout', onDotDeselected);
     };
 
-    var getSelected = function(filterOptions, property) {
-      return _.map(_.filter(filterOptions, 'selected'), property);
-    };
-
     var validateCohortLabel = function(cohort, callback) {
       if (cohort.label === 'Intensive') {
         return callback('Sorry, \'Intensive\' is a reserved name. Please choose a different name.');
@@ -270,7 +266,6 @@
 
     return {
       drawScatterplot: drawScatterplot,
-      getSelected: getSelected,
       validateCohortLabel: validateCohortLabel
     };
 
