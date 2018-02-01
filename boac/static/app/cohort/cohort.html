@@ -281,7 +281,7 @@
 
   <div class="cohort-column-results">
     <div class="flex-container flex-space-between"
-         data-ng-if="!isLoading && !error && cohort.totalMemberCount">
+         data-ng-if="!isLoading && !error && (tabs.selected === 'matrix' || cohort.totalMemberCount)">
       <div class="cohort-sort-column">
         <div class="btn-group cohort-btn-group" role="group" aria-label="Select results view">
           <button type="button"
