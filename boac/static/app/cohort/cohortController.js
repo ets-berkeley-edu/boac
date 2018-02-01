@@ -63,13 +63,13 @@
 
     $scope.orderBy = {
       options: [
-        {value: 'first_name', label: 'First Name'},
-        {value: 'last_name', label: 'Last Name'},
-        {value: 'group_name', label: 'Team'},
-        {value: 'gpa', label: 'GPA'},
-        {value: 'level', label: 'Level'},
-        {value: 'major', label: 'Major'},
-        {value: 'units', label: 'Units'}
+        {name: 'First Name', value: 'first_name'},
+        {name: 'Last Name', value: 'last_name'},
+        {name: 'Team', value: 'group_name'},
+        {name: 'GPA', value: 'gpa'},
+        {name: 'Level', value: 'level'},
+        {name: 'Major', value: 'major'},
+        {name: 'Units', value: 'units'}
       ],
       selected: 'first_name'
     };
@@ -104,11 +104,13 @@
      */
     var getStudents = function(orderBy, offset, limit, updateBrowserLocation) {
       var opts = $scope.search.options;
-      var gpaRanges = cohortService.getSelected(opts.gpaRanges, 'value');
-      var groupCodes = cohortService.getSelected(opts.teamGroups, 'groupCode');
-      var levels = cohortService.getSelected(opts.levels, 'name');
-      var majors = cohortService.getSelected(opts.majors, 'name');
-      var unitRanges = cohortService.getSelected(opts.unitRanges, 'value');
+      var getValues = utilService.getValuesSelected;
+      // Get values where selected=true
+      var gpaRanges = getValues(opts.gpaRanges);
+      var groupCodes = getValues(opts.teamGroups, 'groupCode');
+      var levels = getValues(opts.levels);
+      var majors = getValues(opts.majors);
+      var unitRanges = getValues(opts.unitRanges);
       if (updateBrowserLocation) {
         $location.search('c', 'search');
         $location.search('g', gpaRanges);
@@ -553,12 +555,14 @@
         var teamGroups = teamsResponse.data;
 
         getMajors(function(majors) {
+          var decorate = utilService.decorateOptions;
+          // 'decorate' is used to standardize (eg, assign 'id' property) each set of menu options
           $scope.search.options = {
-            gpaRanges: studentFactory.getGpaRanges(),
-            levels: studentFactory.getStudentLevels(),
-            majors: majors,
-            teamGroups: teamGroups,
-            unitRanges: studentFactory.getUnitRanges()
+            gpaRanges: decorate(studentFactory.getGpaRanges(), 'name'),
+            levels: decorate(studentFactory.getStudentLevels(), 'name'),
+            majors: decorate(majors, 'name'),
+            teamGroups: decorate(teamGroups, 'groupName'),
+            unitRanges: decorate(studentFactory.getUnitRanges(), 'name')
           };
           // Filter options to 'selected' per request args
           presetSearchFilters(args);

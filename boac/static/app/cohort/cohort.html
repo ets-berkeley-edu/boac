@@ -68,12 +68,12 @@
           <li class="cohort-filter-list-item"
               role="menuitem"
               data-ng-repeat="option in search.options.teamGroups">
-            <input id="search-option-team-{{option.groupCode}}"
+            <input id="search-option-team-{{option.id}}"
                    type="checkbox"
                    data-ng-model="option.selected"
-                   aria-label="{{option.groupName}}"
+                   aria-label="{{option.name}}"
                    data-ng-click="option.onClick('teamGroups', option)"/>
-            <span data-ng-bind="option.groupName"></span></li>
+            <span data-ng-bind="option.name"></span></li>
         </ul>
       </div>
     </div>
@@ -109,7 +109,7 @@
           <li class="cohort-filter-list-item"
               role="menuitem"
               data-ng-repeat="option in search.options.levels">
-            <input id="search-option-level-{{option.value}}"
+            <input id="search-option-level-{{option.id}}"
                    type="checkbox"
                    data-ng-model="option.selected"
                    aria-label="{{option.name}}"
@@ -151,7 +151,7 @@
               data-ng-class="{'divider': !option}"
               role="menuitem"
               data-ng-repeat="option in search.options.majors">
-            <input id="search-option-major-{{option.name}}"
+            <input id="search-option-major-{{option.id}}"
                    type="checkbox"
                    data-ng-model="option.selected"
                    aria-label="{{option.name}}"
@@ -194,7 +194,7 @@
           <li class="cohort-filter-list-item"
               role="menuitem"
               data-ng-repeat="option in search.options.gpaRanges">
-            <input id="search-option-gpa-range-{{$index}}"
+            <input id="search-option-gpa-range-{{option.id}}"
                    type="checkbox"
                    data-ng-model="option.selected"
                    aria-label="{{option.name}}"
@@ -235,7 +235,7 @@
           <li class="cohort-filter-list-item"
             role="menuitem"
             data-ng-repeat="option in search.options.unitRanges">
-          <input id="search-option-unit-range-{{$index}}"
+          <input id="search-option-unit-range-{{option.id}}"
                  type="checkbox"
                  data-ng-model="option.selected"
                  aria-label="{{option.name}}"
@@ -305,7 +305,7 @@
         <select id="cohort-sort-by"
                 class="form-control"
                 data-ng-model="orderBy.selected"
-                data-ng-options="o.value as o.label for o in orderBy.options">
+                data-ng-options="o.value as o.name for o in orderBy.options">
         </select>
       </div>
     </div>
