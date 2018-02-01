@@ -1,13 +1,18 @@
 <button id="watchlist-toggle-{{sid}}"
         class="btn btn-link btn-watchlist-{{faSize}}"
         type="button"
-        title="{{alertMessage}}"
         data-ng-click="toggle($event)">
   <i class="{{faSize}}"
-     data-ng-class="{'fa fa-star': onWatchlist, 'fa fa-star-o': !onWatchlist}"
+     data-ng-class="{'fa fa-minus-circle': onWatchlist, 'fa fa-plus-circle': !onWatchlist}"
+     uib-tooltip="{{buttonLabel}}"
+     tooltip-animation="false"
+     tooltip-popup-close-delay="100"
+     tooltip-placement="bottom"
      data-ng-if="faSize !== 'text'"></i>
+  <span class="sr-only"
+        data-ng-bind="buttonAltText"
+        data-ng-if="faSize !== 'text'"></span>
   <span data-ng-if="faSize === 'text'">
     remove
   </span>
-  <span role="alert" class="sr-only" aria-live="polite" data-ng-bind="alertMessage"></span>
 </button>

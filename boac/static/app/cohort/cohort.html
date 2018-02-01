@@ -324,12 +324,14 @@
                  data-avatar-fallback>
           </div>
           <div class="cohort-member-name-container">
-            <h3 class="flex-container cohort-member-name">
-              {{student.firstName}} {{student.lastName}}
+            <div class="flex-container">
+              <h3 class="cohort-member-name">
+                {{student.firstName}} {{student.lastName}}
+              </h3>
               <watchlist-toggle data-sid="student.sid"
                                 data-fa-size="fa-1x"
                                 data-watchlist="myWatchlist"></watchlist-toggle>
-            </h3>
+            </div>
             <div class="cohort-member-sid" data-ng-bind="student.sid"></div>
             <div class="cohort-member-text" data-ng-bind="student.level"></div>
             <div class="cohort-member-text" data-ng-bind="major" data-ng-repeat="major in student.majors"></div>
@@ -407,12 +409,14 @@
                      data-avatar-fallback>
               </div>
               <div class="cohort-member-name-container">
-                <h3 class="flex-container cohort-member-name">
-                  {{student.firstName}} {{student.lastName}}
+                <div class="flex-container">
+                  <h3 class="flex-container cohort-member-name">
+                    {{student.firstName}} {{student.lastName}}
+                  </h3>
                   <watchlist-toggle data-sid="student.sid"
                                     data-fa-size="fa-1x"
                                     data-watchlist="myWatchlist"></watchlist-toggle>
-                </h3>
+                </div>
                 <div class="cohort-member-sid">
                   SID: <span data-ng-bind="student.sid"></span>
                 </div>
