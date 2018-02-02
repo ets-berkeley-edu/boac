@@ -41,6 +41,7 @@ def get_students():
     levels = util.get(params, 'levels')
     majors = util.get(params, 'majors')
     unit_ranges = util.get(params, 'unitRanges')
+    in_intensive_cohort = util.to_bool_or_none(util.get(params, 'inIntensiveCohort'))
     order_by = util.get(params, 'orderBy', None)
     offset = util.get(params, 'offset', 0)
     limit = util.get(params, 'limit', 50)
@@ -50,6 +51,7 @@ def get_students():
         levels=levels,
         majors=majors,
         unit_ranges=unit_ranges,
+        in_intensive_cohort=in_intensive_cohort,
         order_by=order_by,
         offset=offset,
         limit=limit,

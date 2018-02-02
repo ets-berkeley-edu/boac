@@ -4,7 +4,7 @@
 
   angular.module('boac').controller('CreateCohortController', function($scope, $uibModal) {
 
-    $scope.openCreateCohortModal = function(filters) {
+    $scope.openCreateCohortModal = function(opts) {
       $uibModal.open({
         animation: true,
         ariaLabelledBy: 'create-cohort-header',
@@ -12,8 +12,8 @@
         templateUrl: '/static/app/cohort/createCohortModal.html',
         controller: 'CreateCohortModal',
         resolve: {
-          filters: function() {
-            return filters;
+          opts: function() {
+            return opts;
           }
         }
       });
@@ -21,7 +21,7 @@
   });
 
   angular.module('boac').controller('CreateCohortModal', function(
-    filters,
+    opts,
     cohortFactory,
     cohortService,
     utilService,
@@ -51,11 +51,12 @@
             // Get values where selected=true
             cohortFactory.createCohort(
               $scope.label,
-              getValues(filters.gpaRanges),
-              getValues(filters.teamGroups, 'groupCode'),
-              getValues(filters.levels),
-              getValues(filters.majors),
-              getValues(filters.unitRanges)
+              getValues(opts.gpaRanges),
+              getValues(opts.groupCodes, 'groupCode'),
+              getValues(opts.levels),
+              getValues(opts.majors),
+              getValues(opts.unitRanges),
+              opts.intensive
             ).then(
               function() {
                 $rootScope.isSaving = false;

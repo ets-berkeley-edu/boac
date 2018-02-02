@@ -4,6 +4,10 @@
 
   angular.module('boac').service('utilService', function() {
 
+    var toBoolOrNull = function(str) {
+      return _.isNil(str) ? null : _.lowerCase(str) === 'true';
+    };
+
     var format = function(str, tokens) {
       var formatted = str;
       _.each(tokens, function(value, key) {
@@ -24,7 +28,7 @@
         if (option && option[pkRef]) {
           option.name = option.name || option[pkRef];
           option.value = option.value || option[pkRef];
-          option.id = option.id || _.toLower(option.value.replace(/\W+/g, '-'));
+          option.id = option.id || _.toLower(option.name.replace(/\W+/g, '-'));
         }
         return option;
       });
@@ -44,7 +48,8 @@
     return {
       decorateOptions: decorateOptions,
       format: format,
-      getValuesSelected: getValuesSelected
+      getValuesSelected: getValuesSelected,
+      toBoolOrNull: toBoolOrNull
     };
   });
 

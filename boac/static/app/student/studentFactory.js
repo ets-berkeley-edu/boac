@@ -59,7 +59,7 @@
       ];
     };
 
-    var getStudents = function(gpaRanges, groupCodes, levels, majors, unitRanges, orderBy, offset, limit) {
+    var getStudents = function(gpaRanges, groupCodes, levels, majors, unitRanges, intensive, orderBy, offset, limit) {
       var args = {
         gpaRanges: gpaRanges || [],
         groupCodes: groupCodes || [],
@@ -70,6 +70,9 @@
         offset: offset || 0,
         limit: limit || 50
       };
+      if (utilService.toBoolOrNull(intensive)) {
+        args.inIntensiveCohort = true;
+      }
       return $http.post('/api/students', args);
     };
 

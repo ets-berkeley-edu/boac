@@ -119,6 +119,14 @@
   margin: 10px 0 10px 0;
 }
 
+.cohort-checkbox-label {
+  padding: 0 0 0 5px;
+}
+
+.cohort-checkbox-column {
+  padding: 10px 0 0 0;
+}
+
 .filters-section-separator {
   margin: 0 0 0 0;
 }

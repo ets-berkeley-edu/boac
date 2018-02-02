@@ -36,6 +36,7 @@
 
     $scope.isLoading = true;
     $scope.isCreateCohortMode = false;
+    $scope.showIntensiveCheckbox = false;
 
     $scope.tabs = {
       all: ['list', 'matrix'],
@@ -52,13 +53,20 @@
     $scope.search = {
       count: {
         gpaRanges: 0,
-        teamGroups: 0,
+        groupCodes: 0,
         levels: 0,
         majors: 0,
         unitRanges: 0
       },
       dropdown: defaultDropdownState(),
-      options: {}
+      options: {
+        gpaRanges: null,
+        groupCodes: null,
+        intensive: null,
+        levels: null,
+        majors: null,
+        unitRanges: null
+      }
     };
 
     $scope.orderBy = {
@@ -91,6 +99,15 @@
     var updateCohort = function(data) {
       $scope.cohort = data;
       $scope.cohort.code = $scope.cohort.code || 'search';
+      var intensive = _.get($scope.cohort, 'filterCriteria.inIntensiveCohort') || utilService.toBoolOrNull($scope.search.options.intensive);
+      if (intensive) {
+        $scope.showIntensiveCheckbox = $scope.search.options.intensive = true;
+        // If no other search options are selected then it deserves 'Intensive' label.
+        var isIntensiveCohort = $scope.cohort.code === 'search' && !_.includes(JSON.stringify($scope.search.options), 'selected');
+        if (isIntensiveCohort) {
+          $scope.cohort.name = 'Intensive';
+        }
+      }
     };
 
     /**
@@ -107,19 +124,31 @@
       var getValues = utilService.getValuesSelected;
       // Get values where selected=true
       var gpaRanges = getValues(opts.gpaRanges);
-      var groupCodes = getValues(opts.teamGroups, 'groupCode');
+      var groupCodes = getValues(opts.groupCodes, 'groupCode');
       var levels = getValues(opts.levels);
       var majors = getValues(opts.majors);
       var unitRanges = getValues(opts.unitRanges);
+
       if (updateBrowserLocation) {
         $location.search('c', 'search');
         $location.search('g', gpaRanges);
-        $location.search('t', groupCodes);
+        $location.search('i', opts.intensive);
         $location.search('l', levels);
         $location.search('m', majors);
+        $location.search('t', groupCodes);
         $location.search('u', unitRanges);
       }
-      return studentFactory.getStudents(gpaRanges, groupCodes, levels, majors, unitRanges, orderBy, offset, limit);
+      return studentFactory.getStudents(
+        gpaRanges,
+        groupCodes,
+        levels,
+        majors,
+        unitRanges,
+        opts.intensive,
+        orderBy,
+        offset,
+        limit
+      );
     };
 
     /**
@@ -134,8 +163,6 @@
       var promise;
       if ($scope.cohort.code === 'search') {
         promise = getStudents(orderBy, offset, limit, true);
-      } else if ($scope.cohort.code === 'intensive') {
-        promise = cohortFactory.getIntensiveCohort(orderBy, offset, limit);
       } else if (isNaN($scope.cohort.code)) {
         promise = cohortFactory.getTeam($scope.cohort.code, orderBy, offset, limit);
       } else {
@@ -168,12 +195,10 @@
     };
 
     var isPaginationEnabled = function() {
-      return _.includes(['search', 'intensive'], $scope.cohort.code) || !isNaN($scope.cohort.code);
+      return _.includes([ 'search' ], $scope.cohort.code) || !isNaN($scope.cohort.code);
     };
 
     /**
-     * Invoke API to get cohort, team or intensive.
-     *
      * @param  {Function}    callback    Follow up activity per caller
      * @return {void}
      */
@@ -193,26 +218,6 @@
         $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
         return callback(null);
       });
-    };
-
-    /**
-     * Request parameters (query args) can will set 'selected=true' in cohort search filters. This feature supports
-     * the 'Return to results' link offered on student profile page.
-     *
-     * @param  {String}      filterName      Represents a dropdown (ie, search filter) used to search by teamGroup, etc.
-     * @param  {Function}    key             Used to compare filter options to incoming request parameters (ie, selectedValues).
-     * @param  {Function}    selectedValues  These values represent request parameters (e.g., list of majors)
-     * @return {void}
-     */
-    var preset = function(filterName, key, selectedValues) {
-      if (!_.isEmpty(selectedValues)) {
-        _.each($scope.search.options[filterName], function(option) {
-          if (option && _.includes(selectedValues, option[key])) {
-            option.selected = true;
-            $scope.search.count[filterName] += 1;
-          }
-        });
-      }
     };
 
     /**
@@ -327,8 +332,8 @@
       // GPA ranges
       initFilter('gpaRanges', 'value', getCohortCriteria('gpaRanges'), onClickOption);
       // Teams (if we receive a teamCode then init filter with groupCodes of that team)
-      var selectedCodes = $scope.cohort.teamGroups ? _.map($scope.cohort.teamGroups, 'groupCode') : getCohortCriteria('groupCodes');
-      initFilter('teamGroups', 'groupCode', selectedCodes, onClickOption);
+      var selectedCodes = $scope.cohort.groupCodes ? _.map($scope.cohort.groupCodes, 'groupCode') : getCohortCriteria('groupCodes');
+      initFilter('groupCodes', 'groupCode', selectedCodes, onClickOption);
       // Levels
       initFilter('levels', 'name', getCohortCriteria('levels'), onClickOption);
       // Majors (the 'Declared' and 'Undeclared' options are special)
@@ -419,6 +424,26 @@
     };
 
     /**
+     * Request parameters (query args) can will set 'selected=true' in cohort search filters. This feature supports
+     * the 'Return to results' link offered on student profile page.
+     *
+     * @param  {String}      filterName      Represents a dropdown (ie, search filter) used to search by teamGroup, etc.
+     * @param  {Function}    key             Used to compare filter options to incoming request parameters (ie, selectedValues).
+     * @param  {Function}    selectedValues  These values represent request parameters (e.g., list of majors)
+     * @return {void}
+     */
+    var preset = function(filterName, key, selectedValues) {
+      if (!_.isEmpty(selectedValues)) {
+        _.each($scope.search.options[filterName], function(option) {
+          if (option && _.includes(selectedValues, option[key])) {
+            option.selected = true;
+            $scope.search.count[filterName] += 1;
+          }
+        });
+      }
+    };
+
+    /**
      * Invoked when state is initializing. Preset filters and search criteria prior to cohort API call.
      *
      * @param  {Object}    args     See $location.search()
@@ -427,10 +452,11 @@
     var presetSearchFilters = function(args) {
       if ($scope.cohort.code === 'search' && !_.isEmpty(args)) {
         preset('gpaRanges', 'value', args.g);
-        preset('teamGroups', 'groupCode', args.t);
+        preset('groupCodes', 'groupCode', args.t);
         preset('levels', 'name', args.l);
         preset('majors', 'name', args.m);
         preset('unitRanges', 'value', args.u);
+        $scope.showIntensiveCheckbox = $scope.search.options.intensive = utilService.toBoolOrNull(args.i);
       }
       if (args.o && _.find($scope.orderBy.options, ['value', args.o])) {
         $scope.orderBy.selected = args.o;
@@ -440,9 +466,6 @@
       }
       if (args.v && _.includes($scope.tabs.all, args.v)) {
         $scope.tabs.selected = args.v;
-      }
-      if (args.p && !isNaN(args.p)) {
-        $scope.pagination.currentPage = parseInt(args.p, 10);
       }
     };
 
@@ -478,6 +501,7 @@
      */
     $scope.executeSearch = function() {
       $scope.isCreateCohortMode = false;
+      $scope.showIntensiveCheckbox = false;
       $scope.search.dropdown = defaultDropdownState();
       // Refresh search results
       $scope.cohort.code = 'search';
@@ -519,6 +543,13 @@
       }
     };
 
+    $scope.disableSearchButton = function() {
+      // Disable button if page is loading or no search criterion is selected
+      var count = $scope.search.count;
+      return $scope.isLoading || $scope.isSaving || (!count.gpaRanges && !count.groupCodes && !count.levels &&
+        !count.majors && !count.unitRanges && ($scope.showIntensiveCheckbox && !$scope.search.options.intensive));
+    };
+
     var getMajors = function(callback) {
       studentFactory.getRelevantMajors().then(function(majorsResponse) {
         var majors = _.map(majorsResponse.data, function(name) {
@@ -552,16 +583,17 @@
       $scope.isCreateCohortMode = $scope.cohort.code === 'new';
 
       cohortFactory.getAllTeamGroups().then(function(teamsResponse) {
-        var teamGroups = teamsResponse.data;
+        var groupCodes = teamsResponse.data;
 
         getMajors(function(majors) {
           var decorate = utilService.decorateOptions;
           // 'decorate' is used to standardize (eg, assign 'id' property) each set of menu options
           $scope.search.options = {
             gpaRanges: decorate(studentFactory.getGpaRanges(), 'name'),
+            groupCodes: decorate(groupCodes, 'groupName'),
+            intensive: args.i,
             levels: decorate(studentFactory.getStudentLevels(), 'name'),
             majors: decorate(majors, 'name'),
-            teamGroups: decorate(teamGroups, 'groupName'),
             unitRanges: decorate(studentFactory.getUnitRanges(), 'name')
           };
           // Filter options to 'selected' per request args
