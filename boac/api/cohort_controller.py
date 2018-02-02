@@ -35,23 +35,6 @@ def my_cohorts():
     return tolerant_jsonify(CohortFilter.all_owned_by(current_user.get_id(), include_alerts=True))
 
 
-@app.route('/api/intensive_cohort')
-@login_required
-def get_intensive_cohort():
-    order_by = util.get(request.args, 'orderBy', None)
-    offset = util.get(request.args, 'offset', 0)
-    limit = util.get(request.args, 'limit', 50)
-    results = Student.get_students(in_intensive_cohort=True, order_by=order_by, offset=offset, limit=limit)
-    member_details.merge_all(results['students'])
-    return tolerant_jsonify({
-        'code': 'intensive',
-        'label': 'Intensive',
-        'name': 'Intensive',
-        'members': results['students'],
-        'totalMemberCount': results['totalStudentCount'],
-    })
-
-
 @app.route('/api/inactive_cohort')
 @login_required
 def get_inactive_cohort():
@@ -92,6 +75,7 @@ def create_cohort():
     levels = util.get(params, 'levels')
     majors = util.get(params, 'majors')
     unit_ranges = util.get(params, 'unitRanges')
+    in_intensive_cohort = util.to_bool_or_none(util.get(params, 'inIntensiveCohort'))
     if not label:
         raise BadRequestError('Cohort creation requires \'label\'')
     cohort = CohortFilter.create(
@@ -102,6 +86,7 @@ def create_cohort():
         levels=levels,
         majors=majors,
         unit_ranges=unit_ranges,
+        in_intensive_cohort=in_intensive_cohort,
     )
     return tolerant_jsonify(cohort)
 

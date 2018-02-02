@@ -36,6 +36,7 @@ class TestCohortFilter:
             label='All criteria, all the time',
             gpa_ranges=gpa_ranges,
             group_codes=group_codes,
+            in_intensive_cohort=None,
             levels=levels,
             majors=majors,
             unit_ranges=unit_ranges,
@@ -44,6 +45,7 @@ class TestCohortFilter:
         expected = {
             'gpaRanges': gpa_ranges,
             'groupCodes': group_codes,
+            'inIntensiveCohort': None,
             'levels': levels,
             'majors': majors,
             'unitRanges': unit_ranges,

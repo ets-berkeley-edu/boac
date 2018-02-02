@@ -396,6 +396,7 @@ class TestUserAnalytics:
             'levels': ['Junior', 'Senior'],
             'majors': ['English BA', 'History BA', 'Letters & Sci Undeclared UG', 'Gender and Women\'s Studies'],
             'unitRanges': [],
+            'inIntensiveCohort': None,
             'orderBy': 'last_name',
             'offset': 1,
             'limit': 50,
@@ -415,3 +416,37 @@ class TestUserAnalytics:
         assert 'MTE' in group_codes_1133399
         group_codes_242881 = [a['groupCode'] for a in students[1]['athletics']]
         assert group_codes_242881 == ['MFB-DL']
+
+    def test_get_intensive_cohort(self, authenticated_session, client):
+        """Returns the canned 'intensive' cohort, available to all authenticated users."""
+        response = client.post('/api/students', data=json.dumps({'inIntensiveCohort': True}), content_type='application/json')
+        assert response.status_code == 200
+        cohort = json.loads(response.data)
+        assert 'members' in cohort
+        assert cohort['totalMemberCount'] == len(cohort['members']) == 4
+        assert 'teamGroups' not in cohort
+        active_student = response.json['members'][0]
+        assert active_student['isActiveAsc']
+
+    def test_order_by_with_intensive_cohort(self, authenticated_session, client):
+        """Returns the canned 'intensive' cohort, available to all authenticated users."""
+        all_expected_order = {
+            'first_name': ['61889', '1022796', '1049291', '242881'],
+            'gpa': ['1022796', '242881', '1049291', '61889'],
+            'group_name': ['242881', '1049291', '61889', '1022796'],
+            'last_name': ['1022796', '1049291', '242881', '61889'],
+            'level': ['1022796', '242881', '1049291', '61889'],
+            'major': ['1022796', '61889', '242881', '1049291'],
+            'units': ['61889', '1022796', '242881', '1049291'],
+        }
+        for order_by, expected_uid_list in all_expected_order.items():
+            args = {
+                'inIntensiveCohort': True,
+                'orderBy': order_by,
+            }
+            response = client.post('/api/students', data=json.dumps(args), content_type='application/json')
+            assert response.status_code == 200, f'Non-200 response where order_by={order_by}'
+            cohort = json.loads(response.data)
+            assert cohort['totalMemberCount'] == 4, f'Wrong count where order_by={order_by}'
+            uid_list = [s['uid'] for s in cohort['members']]
+            assert uid_list == expected_uid_list, f'Unmet expectation where order_by={order_by}'

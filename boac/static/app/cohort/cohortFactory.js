@@ -6,7 +6,7 @@
 
   boac.factory('cohortFactory', function(googleAnalyticsService, utilService, $http, $rootScope) {
 
-    var createCohort = function(label, gpaRanges, groupCodes, levels, majors, unitRanges) {
+    var createCohort = function(label, gpaRanges, groupCodes, levels, majors, unitRanges, intensive) {
       var args = {
         label: label,
         gpaRanges: gpaRanges,
@@ -15,6 +15,9 @@
         majors: majors,
         unitRanges: unitRanges
       };
+      if (utilService.toBoolOrNull(intensive)) {
+        args.inIntensiveCohort = true;
+      }
       return $http.post('/api/cohort/create', args).then(function(response) {
         var cohort = response.data;
         $rootScope.$broadcast('cohortCreated', {
@@ -47,16 +50,6 @@
         orderBy: orderBy || 'first_name'
       };
       var apiPath = utilService.format('/api/cohort/${id}?offset=${offset}&limit=${limit}&orderBy=${orderBy}', params);
-      return $http.get(apiPath);
-    };
-
-    var getIntensiveCohort = function(orderBy, offset, limit) {
-      var params = {
-        offset: offset || 0,
-        limit: limit || 50,
-        orderBy: orderBy || 'first_name'
-      };
-      var apiPath = utilService.format('/api/intensive_cohort?offset=${offset}&limit=${limit}&orderBy=${orderBy}', params);
       return $http.get(apiPath);
     };
 
@@ -97,7 +90,6 @@
       getAll: getAll,
       getAllTeamGroups: getAllTeamGroups,
       getCohort: getCohort,
-      getIntensiveCohort: getIntensiveCohort,
       getMyCohorts: getMyCohorts,
       getTeam: getTeam,
       getTeams: getTeams,

@@ -11,8 +11,7 @@ def camelize(string):
 
 
 def get(_dict, key, default_value=None):
-    value = _dict and key in _dict and _dict[key]
-    return value or default_value
+    return _dict[key] if key in _dict else default_value
 
 
 def get_distinct_with_order(sequence):
@@ -36,3 +35,19 @@ def tolerant_remove(_list, item):
         return True
     except ValueError:
         return False
+
+
+def to_bool_or_none(arg):
+    """
+    With the idea of "no decision is a decision" in mind, this util has three possible outcomes: True, False and None.
+
+    If arg is type string then intuitively handle 'true'/'false' values, else return None.
+    If arg is NOT type string and NOT None then rely on Python's bool().
+    """
+    s = arg
+    if isinstance(arg, str):
+        s = arg.strip().lower()
+        s = True if s == 'true' else s
+        s = False if s == 'false' else s
+        s = None if s not in [True, False] else s
+    return None if s is None else bool(s)
