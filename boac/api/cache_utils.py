@@ -8,7 +8,7 @@ from boac.models.alert import Alert
 from boac.models.job_progress import JobProgress
 from boac.models.json_cache import JsonCache
 from flask import current_app as app
-from sqlalchemy import or_
+from sqlalchemy import and_, or_
 
 
 def refresh_request_handler(term_id, load_only=False):
@@ -46,11 +46,17 @@ def refresh_term(term_id=berkeley.current_term_id()):
 def clear_term(term_id):
     """Delete term-specific cache entries.
 
-    When refreshing current term, also deletes non-term-specific cache entries, since they hold 'current' external data.
+    When refreshing current term, also deletes most non-term-specific cache entries, since they hold 'current' external data.
+    Application-supporting history must be explicitly excluded.
     """
     term_name = berkeley.term_name_for_sis_id(term_id)
     filter = JsonCache.key.like('term_{}%'.format(term_name))
     if term_name == app.config['CANVAS_CURRENT_ENROLLMENT_TERM']:
+        current_externals_filter = and_(
+            JsonCache.key.notlike('term_%'),
+            JsonCache.key.notlike('term_%'),
+        )
+
         filter = or_(filter, JsonCache.key.notlike('term_%'))
     matches = db.session.query(JsonCache).filter(filter)
     app.logger.info('Will delete {} entries'.format(matches.count()))
