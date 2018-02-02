@@ -11,7 +11,7 @@
         var words = _.split(phrase, ' ');
         var regex;
         if (words.length === 1) {
-          regex = RegExp('\\b' + words[0], 'gi');
+          regex = RegExp('\\b' + words[0], 'i');
         } else {
           var p = '';
           _.each(words, function(word) {
@@ -19,7 +19,7 @@
               p = p.concat('\\b(' + word + ').* ');
             }
           });
-          regex = RegExp(_.trimEnd(p), 'gi');
+          regex = RegExp(_.trimEnd(p), 'i');
         }
         _.each(options, function(option) {
           if (regex.test(option.name)) {
