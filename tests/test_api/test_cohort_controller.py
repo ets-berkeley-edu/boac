@@ -130,8 +130,8 @@ class TestCohortDetail:
         response = client.get('/api/cohort/{}'.format(cohort_id))
         athlete = response.json['members'][0]
         assert len(athlete['athletics']) == 2
-        tennis = next(membership for membership in athlete['athletics'] if membership['groupCode'] == 'WTE-AA')
-        field_hockey = next(membership for membership in athlete['athletics'] if membership['groupCode'] == 'WFH-AA')
+        tennis = next(membership for membership in athlete['athletics'] if membership['groupCode'] == 'WTE')
+        field_hockey = next(membership for membership in athlete['athletics'] if membership['groupCode'] == 'WFH')
         assert tennis['groupName'] == 'Women\'s Tennis'
         assert tennis['teamCode'] == 'TNW'
         assert tennis['teamName'] == 'Women\'s Tennis'
@@ -210,7 +210,7 @@ class TestCohortDetail:
     def test_create_cohort(self, authenticated_session, client):
         """Creates custom cohort, owned by current user."""
         label = 'Tennis'
-        group_codes = ['MTE', 'WTE-AA']
+        group_codes = ['MTE', 'WTE']
         majors = ['Bioengineering BS', 'Undeclared']
         data = {
             'label': label,
@@ -305,12 +305,12 @@ class TestCohortDetail:
         """Orders custom cohorts alphabetically."""
         z_team_data = {
             'label': 'Zteam',
-            'groupCodes': ['MTE-AA', 'WWP-AA'],
+            'groupCodes': ['MTE', 'WWP'],
         }
         client.post('/api/cohort/create', data=json.dumps(z_team_data), content_type='application/json')
         a_team_data = {
             'label': 'Ateam',
-            'groupCodes': ['MWP-AA', 'WTE-AA'],
+            'groupCodes': ['MWP', 'WTE'],
         }
         client.post('/api/cohort/create', data=json.dumps(a_team_data), content_type='application/json')
 
@@ -330,7 +330,7 @@ class TestCohortDetail:
 
     def test_delete_cohort_wrong_user(self, client, fake_auth):
         """Custom cohort deletion is only available to owners."""
-        cohort = CohortFilter.create(uid=test_uid, label='Badminton teams', group_codes=['WWP-AA', 'MWP-AA'])
+        cohort = CohortFilter.create(uid=test_uid, label='Badminton teams', group_codes=['WWP', 'MWP'])
         assert cohort and 'id' in cohort
 
         # This user does not own the custom cohort above
@@ -342,7 +342,7 @@ class TestCohortDetail:
     def test_delete_cohort(self, authenticated_session, client):
         """Deletes existing custom cohort while enforcing rules of ownership."""
         label = 'Water polo teams'
-        cohort = CohortFilter.create(uid=test_uid, label=label, group_codes=['WWP-AA', 'MWP-AA'])
+        cohort = CohortFilter.create(uid=test_uid, label=label, group_codes=['WWP', 'MWP'])
 
         assert cohort and 'id' in cohort
         id_of_created_cohort = cohort['id']

@@ -30,7 +30,7 @@ class TestAthletics:
         group_codes = [team_group['groupCode'] for team_group in team_groups]
         group_names = [team_group['groupName'] for team_group in team_groups]
         total_member_counts = [team_group['totalMemberCount'] for team_group in team_groups]
-        assert ['MFB-DB', 'MFB-DL', 'MBB-AA', 'MTE', 'WFH-AA', 'WTE-AA'] == group_codes
+        assert ['MFB-DB', 'MFB-DL', 'MBB', 'MTE', 'WFH', 'WTE'] == group_codes
         assert [
             'Football, Defensive Backs',
             'Football, Defensive Line',
@@ -50,7 +50,7 @@ class TestAthletics:
         team_codes = [team['code'] for team in teams]
         team_names = [team['name'] for team in teams]
         total_member_counts = [team['totalMemberCount'] for team in teams]
-        assert ['FBM', 'MBB', 'TNM', 'FHW', 'TNW'] == team_codes
+        assert ['FBM', 'BAM', 'TNM', 'FHW', 'TNW'] == team_codes
         assert ['Football', 'Men\'s Baseball', 'Men\'s Tennis', 'Women\'s Field Hockey', 'Women\'s Tennis'] == team_names
         assert [3, 1, 1, 1, 1] == total_member_counts
         football = teams[0]

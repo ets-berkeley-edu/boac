@@ -1,3 +1,4 @@
+import logging
 import urllib
 
 from flask import current_app as app
@@ -35,7 +36,7 @@ def get_next_page(response):
         return None
 
 
-def request(url, headers={}, auth=None):
+def request(url, headers={}, auth=None, auth_params=None):
     """Exception and error catching wrapper for outgoing HTTP requests.
 
     :param url:
@@ -49,7 +50,16 @@ def request(url, headers={}, auth=None):
     response = None
     try:
         # TODO handle methods other than GET
-        response = requests.get(url, headers=headers, auth=auth)
+
+        # By default, the urllib3 package used by Requests will log all request parameters at DEBUG level.
+        # If authorization credentials were provided as params, keep them out of log files.
+        if auth_params:
+            urllib_logger = logging.getLogger('urllib3')
+            saved_level = urllib_logger.level
+            urllib_logger.setLevel(logging.INFO)
+        response = requests.get(url, headers=headers, auth=auth, params=auth_params)
+        if auth_params:
+            urllib_logger.setLevel(saved_level)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         app.logger.error(e)

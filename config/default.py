@@ -76,6 +76,9 @@ CAL1CARD_PHOTO_API_URL = 'https://secreturl.berkeley.edu/photos'
 CAL1CARD_PHOTO_API_USERNAME = 'secretuser'
 CAL1CARD_PHOTO_API_PASSWORD = 'secretpassword'
 
+ASC_ATHLETES_API_URL = 'https://secreturl.berkeley.edu/intensives.php?AcadYr=2017-18'
+ASC_ATHLETES_API_KEY = 'secret'
+
 # Logging
 LOGGING_FORMAT = '[%(asctime)s] - %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
 LOGGING_LOCATION = 'boac.log'
