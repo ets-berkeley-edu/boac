@@ -362,11 +362,11 @@ class TestUserAnalytics:
         assert athletics_profile['sid'] == '11667051'
         assert athletics_profile['inIntensiveCohort'] is True
         assert len(athletics_profile['athletics']) == 2
-        hockey = next(a for a in athletics_profile['athletics'] if a['groupCode'] == 'WFH-AA')
+        hockey = next(a for a in athletics_profile['athletics'] if a['groupCode'] == 'WFH')
         assert hockey['groupName'] == 'Women\'s Field Hockey'
         assert hockey['teamCode'] == 'FHW'
         assert hockey['teamName'] == 'Women\'s Field Hockey'
-        tennis = next(a for a in athletics_profile['athletics'] if a['groupCode'] == 'WTE-AA')
+        tennis = next(a for a in athletics_profile['athletics'] if a['groupCode'] == 'WTE')
         assert tennis['groupName'] == 'Women\'s Tennis'
         assert tennis['teamCode'] == 'TNW'
         assert tennis['teamName'] == 'Women\'s Tennis'

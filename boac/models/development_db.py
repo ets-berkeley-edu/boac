@@ -42,15 +42,15 @@ football_defensive_line = {
     'team_name': 'Football',
 }
 womens_field_hockey = {
-    'group_code': 'WFH-AA',
+    'group_code': 'WFH',
     'group_name': 'Women\'s Field Hockey',
     'team_code': 'FHW',
     'team_name': 'Women\'s Field Hockey',
 }
 mens_baseball = {
-    'group_code': 'MBB-AA',
+    'group_code': 'MBB',
     'group_name': 'Men\'s Baseball',
-    'team_code': 'MBB',
+    'team_code': 'BAM',
     'team_name': 'Men\'s Baseball',
 }
 mens_tennis = {
@@ -60,7 +60,7 @@ mens_tennis = {
     'team_name': 'Men\'s Tennis',
 }
 womens_tennis = {
-    'group_code': 'WTE-AA',
+    'group_code': 'WTE',
     'group_name': 'Women\'s Tennis',
     'team_code': 'TNW',
     'team_name': 'Women\'s Tennis',
@@ -236,11 +236,11 @@ def load_student_athletes():
 
 def create_cohorts():
     # Oliver's cohorts
-    CohortFilter.create(uid='2040', label='All sports', group_codes=['MFB-DL', 'WFH-AA'])
+    CohortFilter.create(uid='2040', label='All sports', group_codes=['MFB-DL', 'WFH'])
     CohortFilter.create(uid='2040', label='Football, Defense', group_codes=['MFB-DB', 'MFB-DL'])
-    CohortFilter.create(uid='2040', label='Field Hockey', group_codes=['WFH-AA'])
+    CohortFilter.create(uid='2040', label='Field Hockey', group_codes=['WFH'])
     # Sandeep's cohorts
-    CohortFilter.create(uid='1133399', label='All sports', group_codes=['MFB-DL', 'WFH-AA'])
+    CohortFilter.create(uid='1133399', label='All sports', group_codes=['MFB-DL', 'WFH'])
     CohortFilter.create(uid='1133399', label='Football, Defense Backs', group_codes=['MFB-DB'])
     CohortFilter.create(uid='1133399', label='Undeclared students', majors=['Undeclared'])
     std_commit(allow_test_environment=True)
