@@ -73,13 +73,15 @@ class Student(Base):
                 'sids': [row[0] for row in rows],
             })
         else:
-            # Next, get matching students per order_by, offset, limit
-            o = 's.first_name'
+            # case-insensitive sort of first_name and last_name (see Postgres docs)
+            o = 'UPPER(s.first_name)'
             if order_by == 'level':
                 # Sort by an implicit value, not a column in db
                 o = 'ol.ordinal'
-            elif order_by in ['first_name', 'in_intensive_cohort', 'last_name']:
+            elif order_by == 'in_intensive_cohort':
                 o = f's.{order_by}'
+            elif order_by in ['first_name', 'last_name']:
+                o = f'UPPER(s.{order_by})'
             elif order_by in ['gpa', 'units']:
                 o = f'n.{order_by}'
             elif order_by in ['group_name']:
@@ -103,7 +105,7 @@ class Student(Base):
                     o = f'm2.{order_by}'
                 else:
                     o = f'm.{order_by}'
-            o_secondary = 's.last_name' if order_by == 'first_name' else 's.first_name'
+            o_secondary = 'UPPER(s.last_name)' if order_by == 'first_name' else 'UPPER(s.first_name)'
             sql = f"""SELECT
                 DISTINCT(s.sid), {o}, {o_secondary} {query_tables} {query_filter}
                 ORDER BY {o}, {o_secondary}
