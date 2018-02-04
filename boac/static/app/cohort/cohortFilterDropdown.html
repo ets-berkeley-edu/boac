@@ -1,0 +1,40 @@
+<div class="btn-group box-shadow-off"
+     uib-dropdown
+     auto-close="outsideClick"
+     is-open="search.dropdown[isOpen]"
+     keyboard-nav>
+  <button id="search-filter-{{id}}"
+          type="button"
+          class="btn cohort-filter-dropdown-toggle"
+          uib-dropdown-toggle
+          data-ng-click="toggleFilter($event)">
+    <span class="cohort-filter-label">
+      {{menuLabel}}
+      <span data-ng-if="!isLoading && !isSaving">(<span data-ng-bind="search.count[menuType]"></span>)</span>
+      <i class="fa fa-chevron-down"
+         data-ng-if="!isLoading && !isSaving && !search.dropdown[isOpen]"></i>
+      <i class="fa fa-chevron-up"
+         data-ng-if="!isLoading && !isSaving && search.dropdown[isOpen]"></i>
+      <i class="fa fa-spinner fa-spin"
+         aria-hidden="true"
+         data-ng-if="isLoading || isSaving"></i>
+    </span>
+  </button>
+  <ul aria-labelledby="search-filter-{{id}}"
+      class="cohort-filter-list dropdown-menu"
+      role="menu"
+      uib-dropdown-menu
+      data-ng-show="!isLoading && !isSaving">
+    <li class="cohort-filter-list-item"
+        data-ng-class="{'divider': !option}"
+        role="menuitem"
+        data-ng-repeat="option in search.options[menuType]">
+      <input id="search-option-{{id}}-{{option.id}}"
+             type="checkbox"
+             data-ng-model="option.selected"
+             aria-label="{{option.name}}"
+             data-ng-click="option.onClick(menuType, option)"
+             data-ng-if="option"/>
+      <span data-ng-bind="option.name" data-ng-if="option"></span></li>
+  </ul>
+</div>

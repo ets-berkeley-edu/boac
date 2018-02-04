@@ -45,7 +45,16 @@
       return _.map(_.filter(options, 'selected'), valueRef || 'value');
     };
 
+    /**
+     * @param  {String}     str      Word/phrase with camelCase
+     * @return {String}              All 'camelCase' are converted to 'camel-case'
+     */
+    var camelCaseToDashes = function(str) {
+      return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+    };
+
     return {
+      camelCaseToDashes: camelCaseToDashes,
       decorateOptions: decorateOptions,
       format: format,
       getValuesSelected: getValuesSelected,
