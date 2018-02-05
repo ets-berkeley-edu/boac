@@ -1,10 +1,11 @@
 import math
 from threading import Thread
 from boac import db, std_commit
-from boac.api.util import canvas_course_api_feed
+from boac.api.util import canvas_courses_api_feed
 from boac.lib import analytics
 from boac.lib import berkeley
 from boac.merged import import_asc_athletes
+from boac.merged.sis_enrollments import merge_sis_enrollments_for_term
 from boac.merged.sis_profile import merge_sis_profile
 from boac.models.alert import Alert
 from boac.models.job_progress import JobProgress
@@ -184,20 +185,26 @@ def load_analytics_feeds(uid, sid, term_id):
     # will be reactivated as feeds are loaded.
     Alert.deactivate_all(sid=sid, term_id=term_id, alert_types=['late_assignment', 'missing_assignment'])
     from boac.externals import canvas
-    sites = canvas.get_student_courses(uid)
+    student_courses = canvas.get_student_courses(uid)
+    canvas_courses_feed = canvas_courses_api_feed(student_courses)
+    # Route the course site feed through our SIS enrollments merge, so that site selection logic (e.g., filtering
+    # out dropped and athletic enrollments) is consistent with web API calls.
     term_name = berkeley.term_name_for_sis_id(term_id)
-    if sites:
+    merged_term_feed = merge_sis_enrollments_for_term(canvas_courses_feed, sid, term_name)
+
+    def load_analytics_for_sites(sites):
         for site in sites:
-            if site.get('term', {}).get('name') != term_name:
-                continue
-            site_feed = canvas_course_api_feed(site)
             analytics.analytics_from_canvas_course_assignments(
-                course_id=site_feed['canvasCourseId'],
-                course_code=site_feed['courseCode'],
+                course_id=site['canvasCourseId'],
+                course_code=site['courseCode'],
                 uid=uid,
                 sid=sid,
                 term_id=term_id,
             )
+    if merged_term_feed:
+        for enrollment in merged_term_feed['enrollments']:
+            load_analytics_for_sites(enrollment['canvasSites'])
+        load_analytics_for_sites(merged_term_feed['unmatchedCanvasSites'])
 
 
 def load_merged_sis_profiles():
