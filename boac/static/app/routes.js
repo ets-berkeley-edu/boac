@@ -53,7 +53,7 @@
         resolve: resolvePublic
       })
       .state('cohort', {
-        url: '/cohort?c&i',
+        url: '/cohort?c&i&inactive',
         templateUrl: '/static/app/cohort/cohort.html',
         controller: 'CohortController',
         resolve: resolvePrivate,

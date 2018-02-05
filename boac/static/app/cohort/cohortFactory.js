@@ -6,7 +6,7 @@
 
   boac.factory('cohortFactory', function(googleAnalyticsService, utilService, $http, $rootScope) {
 
-    var createCohort = function(label, gpaRanges, groupCodes, levels, majors, unitRanges, intensive) {
+    var createCohort = function(label, gpaRanges, groupCodes, levels, majors, unitRanges, intensive, inactive) {
       var args = {
         label: label,
         gpaRanges: gpaRanges,
@@ -17,6 +17,9 @@
       };
       if (utilService.toBoolOrNull(intensive)) {
         args.inIntensiveCohort = true;
+      }
+      if (utilService.toBoolOrNull(inactive)) {
+        args.isInactive = true;
       }
       return $http.post('/api/cohort/create', args).then(function(response) {
         var cohort = response.data;

@@ -45,6 +45,7 @@
     $scope.isLoading = true;
     $scope.isCreateCohortMode = false;
     $scope.showIntensiveCheckbox = false;
+    $scope.showInactiveCheckbox = false;
 
     $scope.tabs = {
       all: ['list', 'matrix'],
@@ -70,6 +71,7 @@
       options: {
         gpaRanges: null,
         groupCodes: null,
+        inactive: null,
         intensive: null,
         levels: null,
         majors: null,
@@ -116,6 +118,15 @@
           $scope.cohort.name = 'Intensive';
         }
       }
+      var inactive = _.get($scope.cohort, 'filterCriteria.isInactive') || utilService.toBoolOrNull($scope.search.options.inactive);
+      if (inactive) {
+        $scope.showInactiveCheckbox = $scope.search.options.inactive = true;
+        // If no other search options are selected then it deserves 'Inactive' label.
+        var isInactiveCohort = $scope.cohort.code === 'search' && !_.includes(JSON.stringify($scope.search.options), 'selected');
+        if (isInactiveCohort) {
+          $scope.cohort.name = 'Inactive';
+        }
+      }
     };
 
     /**
@@ -141,6 +152,7 @@
         $location.search('c', 'search');
         $location.search('g', gpaRanges);
         $location.search('i', opts.intensive);
+        $location.search('inactive', opts.inactive);
         $location.search('l', levels);
         $location.search('m', majors);
         $location.search('t', groupCodes);
@@ -153,6 +165,7 @@
         majors,
         unitRanges,
         opts.intensive,
+        opts.inactive,
         orderBy,
         offset,
         limit
@@ -464,6 +477,7 @@
             preset(filterName, args[key]);
           });
           $scope.showIntensiveCheckbox = $scope.search.options.intensive = utilService.toBoolOrNull(args.i);
+          $scope.showInactiveCheckbox = $scope.search.options.inactive = args.inactive;
         } else {
           // code is a team_code
           _.each($scope.search.options.groupCodes, function(option) {
@@ -518,6 +532,7 @@
     $scope.executeSearch = function() {
       $scope.isCreateCohortMode = false;
       $scope.showIntensiveCheckbox = false;
+      $scope.showInactiveCheckbox = false;
       $scope.search.dropdown = defaultDropdownState();
       // Refresh search results
       $scope.cohort.code = 'search';
@@ -556,7 +571,8 @@
       // Disable button if page is loading or no search criterion is selected
       var count = $scope.search.count;
       return $scope.isLoading || $scope.isSaving || (!count.gpaRanges && !count.groupCodes && !count.levels &&
-        !count.majors && !count.unitRanges && ($scope.showIntensiveCheckbox && !$scope.search.options.intensive));
+        !count.majors && !count.unitRanges && ($scope.showIntensiveCheckbox && !$scope.search.options.intensive) &&
+        ($scope.showInactiveCheckbox && !$scope.search.options.inactive));
     };
 
     var getMajors = function(callback) {
@@ -605,6 +621,7 @@
             gpaRanges: decorate(studentFactory.getGpaRanges(), 'name'),
             groupCodes: decorate(groupCodes, 'groupName'),
             intensive: args.i,
+            inactive: args.inactive,
             levels: decorate(studentFactory.getStudentLevels(), 'name'),
             majors: decorate(majors, 'name'),
             unitRanges: decorate(studentFactory.getUnitRanges(), 'name')

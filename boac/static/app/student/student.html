@@ -45,6 +45,9 @@
     <div class="student-profile-body">
       <div class="student-profile-sidebar">
         <div class="student-profile-sidebar-box">
+          <div data-ng-if="!student.athleticsProfile.isActiveAsc">
+            <h3 class="student-profile-sidebar-header student-profile-sidebar-inactive">INACTIVE</h3>
+          </div>
           <div data-ng-repeat="membership in student.athleticsProfile.athletics">
             <h3 class="student-profile-sidebar-header student-profile-sidebar-header-team" data-ng-bind="membership.groupName"></h3>
           </div>

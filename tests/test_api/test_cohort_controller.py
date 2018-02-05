@@ -145,20 +145,6 @@ class TestCohortDetail:
         assert response.status_code == 404
         assert 'No cohort found' in str(response.data)
 
-    def test_get_inactive_cohort(self, authenticated_session, client):
-        """Returns the canned 'inactive' cohort, available to all authenticated users."""
-        response = client.get('/api/inactive_cohort')
-        assert response.status_code == 200
-        cohort = json.loads(response.data)
-        assert cohort['code'] == 'inactive'
-        assert cohort['label'] == 'Inactive'
-        assert 'members' in cohort
-        assert cohort['totalMemberCount'] == len(cohort['members']) == 1
-        assert 'teamGroups' not in cohort
-        inactive_student = response.json['members'][0]
-        assert not inactive_student['isActiveAsc']
-        assert inactive_student['statusAsc'] == 'Trouble'
-
     def test_offset_and_limit(self, authenticated_session, client):
         """Returns a well-formed response with custom cohort."""
         user = AuthorizedUser.find_by_uid(test_uid)
@@ -267,8 +253,7 @@ class TestCohortDetail:
         cohort = next(x for x in response.json if x['label'] == 'Complex')
         assert cohort and 'filterCriteria' in cohort
         for key in cohort['filterCriteria']:
-            assert key in data
-            assert data[key] == cohort['filterCriteria'][key]
+            assert data.get(key) == cohort['filterCriteria'][key]
 
     def test_cohort_ordering(self, authenticated_session, client):
         """Orders custom cohorts alphabetically."""

@@ -247,8 +247,8 @@
     };
 
     var validateCohortLabel = function(cohort, callback) {
-      if (cohort.label === 'Intensive') {
-        return callback('Sorry, \'Intensive\' is a reserved name. Please choose a different name.');
+      if (_.includes(['Intensive', 'Inactive'], cohort.label)) {
+        return callback('Sorry, \'' + cohort.label + '\' is a reserved name. Please choose a different name.');
       }
       var error = null;
       cohortFactory.getMyCohorts().then(function(response) {

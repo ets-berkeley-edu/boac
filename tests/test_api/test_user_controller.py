@@ -425,8 +425,9 @@ class TestUserAnalytics:
         assert 'members' in cohort
         assert cohort['totalMemberCount'] == len(cohort['members']) == 4
         assert 'teamGroups' not in cohort
-        active_student = response.json['members'][0]
-        assert active_student['isActiveAsc']
+        for student in cohort['members']:
+            assert student['inIntensiveCohort']
+            assert student['isActiveAsc']
 
     def test_order_by_with_intensive_cohort(self, authenticated_session, client):
         """Returns the canned 'intensive' cohort, available to all authenticated users."""
@@ -450,3 +451,14 @@ class TestUserAnalytics:
             assert cohort['totalMemberCount'] == 4, f'Wrong count where order_by={order_by}'
             uid_list = [s['uid'] for s in cohort['members']]
             assert uid_list == expected_uid_list, f'Unmet expectation where order_by={order_by}'
+
+    def test_get_inactive_cohort(self, authenticated_session, client):
+        response = client.post('/api/students', data=json.dumps({'isInactive': True}), content_type='application/json')
+        assert response.status_code == 200
+        cohort = json.loads(response.data)
+        assert 'members' in cohort
+        assert cohort['totalMemberCount'] == len(cohort['members']) == 1
+        assert 'teamGroups' not in cohort
+        inactive_student = response.json['members'][0]
+        assert not inactive_student['isActiveAsc']
+        assert inactive_student['statusAsc'] == 'Trouble'
