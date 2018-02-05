@@ -1,30 +1,34 @@
+import math
 from threading import Thread
 from boac import db, std_commit
 from boac.api.util import canvas_course_api_feed
 from boac.lib import analytics
 from boac.lib import berkeley
+from boac.merged import import_asc_athletes
 from boac.merged.sis_profile import merge_sis_profile
 from boac.models.alert import Alert
 from boac.models.job_progress import JobProgress
 from boac.models.json_cache import JsonCache
 from flask import current_app as app
-from sqlalchemy import or_
+from sqlalchemy import and_, or_
 
 
-def refresh_request_handler(term_id, load_only=False):
+def refresh_request_handler(term_id, load_only=False, import_asc=False):
     """Handle a start refresh admin request by returning an error status or starting the job on a background thread."""
     job_state = JobProgress().get()
     if job_state is None or (not job_state['start']) or job_state['end']:
         if not load_only:
             # Delete the current cache _before_ adding the JsonCache row that tracks job progress.
             clear_term(term_id)
-        job_state = JobProgress().start()
+        JobProgress().start()
+        job_type = 'Load' if load_only else 'Refresh'
+        JobProgress().update(f'{job_type} term {term_id}; import ASC data = {import_asc}')
         app.logger.warn('About to start background thread')
         app_arg = app._get_current_object()
-        thread = Thread(target=background_thread_refresh, args=[app_arg, term_id], daemon=True)
+        thread = Thread(target=background_thread_refresh, args=[app_arg, term_id, import_asc], daemon=True)
         thread.start()
         return {
-            'progress': job_state,
+            'progress': JobProgress().get(),
         }
     else:
         return {
@@ -33,8 +37,10 @@ def refresh_request_handler(term_id, load_only=False):
         }
 
 
-def background_thread_refresh(app_arg, term_id):
+def background_thread_refresh(app_arg, term_id, import_asc):
     with app_arg.app_context():
+        if import_asc:
+            do_import_asc()
         load_term(term_id)
 
 
@@ -46,16 +52,27 @@ def refresh_term(term_id=berkeley.current_term_id()):
 def clear_term(term_id):
     """Delete term-specific cache entries.
 
-    When refreshing current term, also deletes non-term-specific cache entries, since they hold 'current' external data.
+    When refreshing current term, also deletes most non-term-specific cache entries, since they hold 'current' external data.
+    Application-supporting history must be explicitly excluded.
     """
     term_name = berkeley.term_name_for_sis_id(term_id)
     filter = JsonCache.key.like('term_{}%'.format(term_name))
     if term_name == app.config['CANVAS_CURRENT_ENROLLMENT_TERM']:
-        filter = or_(filter, JsonCache.key.notlike('term_%'))
+        current_externals_filter = and_(
+            JsonCache.key.notlike('term_%'),
+            JsonCache.key.notlike('asc_athletes_%'),
+            JsonCache.key.notlike('job_%'),
+        )
+        filter = or_(filter, current_externals_filter)
     matches = db.session.query(JsonCache).filter(filter)
     app.logger.info('Will delete {} entries'.format(matches.count()))
     matches.delete(synchronize_session=False)
     std_commit()
+
+
+def do_import_asc():
+    status = import_asc_athletes.update_from_asc_api()
+    JobProgress().update(f'ASC import finished: {status}')
 
 
 def load_term(term_id=berkeley.current_term_id()):
@@ -63,16 +80,21 @@ def load_term(term_id=berkeley.current_term_id()):
     success_count = 0
     failures = []
 
-    for csid, uid in db.session.query(Student.sid, Student.uid).distinct():
+    ids = db.session.query(Student.sid, Student.uid).distinct()
+    nbr_students = ids.count()
+    nbr_finished = 0
+    for csid, uid in ids:
         s, f = load_canvas_externals(uid, term_id)
         success_count += s
         failures += f
         s, f = load_sis_externals(term_id, csid)
         success_count += s
         failures += f
-        JobProgress().update(f'External data loaded for UID {uid}')
+        nbr_finished += 1
+        if (nbr_finished == nbr_students) or not (nbr_finished % math.ceil(nbr_students / 20)):
+            JobProgress().update(f'External data loaded for {nbr_finished} of {nbr_students} athletes')
 
-    for csid, uid in db.session.query(Student.sid, Student.uid).distinct():
+    for csid, uid in ids:
         load_analytics_feeds(uid, csid, term_id)
 
     # Given a fresh start with no existing 'normalized' cache, merged profiles must be pre-fetched.

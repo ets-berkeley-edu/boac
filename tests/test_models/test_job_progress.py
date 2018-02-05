@@ -41,3 +41,10 @@ class TestJobProgress:
         assert JobProgress().start() is False
         assert JobProgress().delete()
         assert JobProgress().start()
+
+    def test_multiple_job_names(self):
+        assert JobProgress('alphonse').start()
+        assert JobProgress('alphonse').start() is False
+        assert JobProgress('gaston').start()
+        assert JobProgress('alphonse').delete()
+        assert JobProgress('gaston').start() is False
