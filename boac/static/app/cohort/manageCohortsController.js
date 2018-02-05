@@ -83,7 +83,8 @@
             _.map(f.majors, function(major) { return 'Major: ' + major; }),
             _.map(names(f.unitRanges, studentFactory.getUnitRanges(), 'name'), function(name) {
               return 'Units: ' + name;
-            })
+            }),
+            f.inIntensiveCohort ? [ 'Intensive' ] : []
           );
         });
         resetPageView(angular.noop);
