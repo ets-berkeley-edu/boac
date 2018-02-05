@@ -536,13 +536,6 @@
       $location.path('/student/' + uid).search({r: encodedAbsUrl});
     };
 
-    $scope.toggleFilter = function(event) {
-      // Known issue: https://github.com/angular-ui/bootstrap/issues/6038
-      if (event) {
-        event.stopPropagation();
-      }
-    };
-
     $scope.disableSearchButton = function() {
       // Disable button if page is loading or no search criterion is selected
       var count = $scope.search.count;
