@@ -146,7 +146,7 @@
               </div>
             </div>
             <div data-ng-repeat="canvasSite in course.canvasSites">
-              <strong data-ng-bind="canvasSite.courseCode"></strong>
+              <div class="student-profile-course-site-code" data-ng-bind="canvasSite.courseCode"></div>
               <course-site-metrics
                 data-canvas-site="canvasSite"
                 data-course-name="course.displayName"
@@ -159,8 +159,11 @@
             </div>
           </div>
           <div data-ng-repeat="canvasSite in term.unmatchedCanvasSites" class="student-profile-class">
-            <h3 class="student-profile-class-title" data-ng-bind="canvasSite.courseCode"></h3>
-            <h4 class="student-profile-class-name" data-ng-bind="canvasSite.courseName"></h4>
+            <div class="student-profile-class-heading">
+              <div class="student-profile-class-title-outer">
+                <h3 class="student-profile-class-title" data-ng-bind="canvasSite.courseName"></h3>
+              </div>
+            </div>
             <course-site-metrics
               data-canvas-site="canvasSite"
               data-course-name="'unmatchedCanvasSites'"

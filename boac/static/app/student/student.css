@@ -134,7 +134,7 @@
 .student-profile-class-name {
   font-size: 16px;
   font-weight: 400;
-  margin: 5px 0 30px;
+  margin: 5px 0 0;
 }
 
 .student-profile-class-notation {
@@ -152,6 +152,7 @@
 
 .student-profile-class-title-outer {
   flex: 0.64;
+  margin-bottom: 30px;
 }
 
 .student-profile-class-units {
@@ -166,12 +167,12 @@
 }
 
 .student-profile-course-site-metrics {
-  margin-bottom: 25px;
+  margin-bottom: 20px;
 }
 
 .student-profile-course-site-metrics td {
   font-size: 14px;
-  padding: 5px 25px 0 0;
+  padding: 0 25px 5px 0;
 }
 
 .student-profile-course-site-metrics-legend {
@@ -185,6 +186,11 @@
 .student-profile-course-site-metrics-no-data {
   color: #666;
   font-style: italic;
+}
+
+.student-profile-course-site-code {
+  font-weight: bold;
+  margin-bottom: 5px;
 }
 
 .student-profile-alert {
