@@ -545,7 +545,11 @@
 
     var getMajors = function(callback) {
       studentFactory.getRelevantMajors().then(function(majorsResponse) {
-        var majors = _.map(majorsResponse.data, function(name) {
+        // Remove '*-undeclared' options in favor of generic 'Undeclared'
+        var majors = _.filter(majorsResponse.data, function(major) {
+          return !major.match(/undeclared/i);
+        });
+        majors = _.map(majors, function(name) {
           return {name: name};
         });
         majors.unshift(
