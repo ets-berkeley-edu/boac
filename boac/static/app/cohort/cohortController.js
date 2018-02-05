@@ -19,6 +19,14 @@
     $timeout
   ) {
 
+    var filters = {
+      gpaRanges: 'g',
+      groupCodes: 't',
+      levels: 'l',
+      majors: 'm',
+      unitRanges: 'u'
+    };
+
     /**
      * Control show/hide of dropdowns: true -> show, false -> hide
      *
@@ -450,13 +458,21 @@
      * @return {void}
      */
     var presetSearchFilters = function(args) {
-      if ($scope.cohort.code === 'search' && !_.isEmpty(args)) {
-        preset('gpaRanges', 'value', args.g);
-        preset('groupCodes', 'groupCode', args.t);
-        preset('levels', 'name', args.l);
-        preset('majors', 'name', args.m);
-        preset('unitRanges', 'value', args.u);
-        $scope.showIntensiveCheckbox = $scope.search.options.intensive = utilService.toBoolOrNull(args.i);
+      if (isNaN($scope.cohort.code) && !_.isEmpty(args)) {
+        if ($scope.cohort.code === 'search') {
+          _.each(filters, function(key, filterName) {
+            preset(filterName, args[key]);
+          });
+          $scope.showIntensiveCheckbox = $scope.search.options.intensive = utilService.toBoolOrNull(args.i);
+        } else {
+          // code is a team_code
+          _.each($scope.search.options.groupCodes, function(option) {
+            if ($scope.cohort.code === option.teamCode) {
+              option.selected = true;
+              $scope.search.count.groupCodes += 1;
+            }
+          });
+        }
       }
       if (args.o && _.find($scope.orderBy.options, ['value', args.o])) {
         $scope.orderBy.selected = args.o;
