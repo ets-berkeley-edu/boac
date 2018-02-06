@@ -31,12 +31,6 @@
             id: 'pageViews',
             label: 'Page Views',
             missingLabel: 'No Page Views'
-          },
-          {
-            dataset: scope.canvasSite.analytics.participations,
-            id: 'participations',
-            label: 'Participations',
-            missingLabel: 'No Participations'
           }
         ];
       }
