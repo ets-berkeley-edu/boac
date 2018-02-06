@@ -51,7 +51,7 @@
       <cohort-filter data-menu-type="unitRanges" data-label="Units"></cohort-filter>
     </div>
     <div class="cohort-filters-column cohort-checkbox-column">
-      <div class="flex-container" data-ng-if="showIntensiveCheckbox && !isLoading && !isSaving">
+      <div data-ng-if="showIntensiveCheckbox && !isLoading && !isSaving">
         <input id="intensive-checkbox"
                type="checkbox"
                data-ng-model="search.options.intensive"/>
