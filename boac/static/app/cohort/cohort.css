@@ -120,11 +120,16 @@
 }
 
 .cohort-checkbox-label {
-  padding: 0 0 0 5px;
+  font-size: 16px;
+  font-weight: 400;
 }
 
 .cohort-checkbox-column {
-  padding: 10px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 4px 0 0 20px;
+  text-align: center;
 }
 
 .filters-section-separator {
