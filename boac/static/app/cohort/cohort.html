@@ -57,6 +57,12 @@
                data-ng-model="search.options.intensive"/>
         <label class="cohort-checkbox-label" for="intensive-checkbox">Intensive</label>
       </div>
+      <div class="flex-container" data-ng-if="showInactiveCheckbox && !isLoading && !isSaving">
+        <input id="inactive-checkbox"
+               type="checkbox"
+               data-ng-model="search.options.inactive"/>
+        <label class="cohort-checkbox-label" for="inactive-checkbox">Inactive</label>
+      </div>
     </div>
     <!-- Search and save buttons -->
     <div class="cohort-filters-column flex-column-10"></div>

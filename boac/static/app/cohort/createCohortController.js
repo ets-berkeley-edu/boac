@@ -56,7 +56,8 @@
               getValues(opts.levels),
               getValues(opts.majors),
               getValues(opts.unitRanges),
-              opts.intensive
+              opts.intensive,
+              opts.inactive
             ).then(
               function() {
                 $rootScope.isSaving = false;

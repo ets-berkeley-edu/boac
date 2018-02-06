@@ -4,7 +4,6 @@ from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
 from boac.merged import member_details
 from boac.models.cohort_filter import CohortFilter
-from boac.models.student import Student
 from flask import current_app as app, request
 from flask_login import current_user, login_required
 
@@ -35,23 +34,6 @@ def my_cohorts():
     return tolerant_jsonify(CohortFilter.all_owned_by(current_user.get_id(), include_alerts=True))
 
 
-@app.route('/api/inactive_cohort')
-@login_required
-def get_inactive_cohort():
-    order_by = util.get(request.args, 'orderBy', None)
-    offset = util.get(request.args, 'offset', 0)
-    limit = util.get(request.args, 'limit', 50)
-    results = Student.get_students(is_inactive=True, order_by=order_by, offset=offset, limit=limit)
-    member_details.merge_all(results['students'])
-    return tolerant_jsonify({
-        'code': 'inactive',
-        'label': 'Inactive',
-        'name': 'Inactive',
-        'members': results['students'],
-        'totalMemberCount': results['totalStudentCount'],
-    })
-
-
 @app.route('/api/cohort/<cohort_id>')
 @login_required
 def get_cohort(cohort_id):
@@ -76,6 +58,7 @@ def create_cohort():
     majors = util.get(params, 'majors')
     unit_ranges = util.get(params, 'unitRanges')
     in_intensive_cohort = util.to_bool_or_none(util.get(params, 'inIntensiveCohort'))
+    is_inactive = util.get(params, 'isInactive')
     if not label:
         raise BadRequestError('Cohort creation requires \'label\'')
     cohort = CohortFilter.create(
@@ -87,6 +70,7 @@ def create_cohort():
         majors=majors,
         unit_ranges=unit_ranges,
         in_intensive_cohort=in_intensive_cohort,
+        is_inactive=is_inactive,
     )
     return tolerant_jsonify(cohort)
 

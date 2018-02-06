@@ -292,6 +292,10 @@
   padding-right: 4px;
 }
 
+.student-profile-sidebar-inactive {
+  color: #cf1715;
+}
+
 .student-profile-sidebar-subdetails {
   color: #999;
   font-size: 11px;

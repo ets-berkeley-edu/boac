@@ -31,8 +31,12 @@
       </a>
     </li>
     <li role="menuitem">
-      <a data-ui-sref="cohort({c: null, i: true})"
+      <a data-ui-sref="cohort({c: null, inactive: null, i: true})"
          data-ui-sref-opts="{reload: true}">Intensive</a>
+    </li>
+    <li role="menuitem">
+      <a data-ui-sref="cohort({c: null, i: null, inactive: true})"
+         data-ui-sref-opts="{reload: true}">Inactive</a>
     </li>
     <li class="divider"></li>
     <li role="menuitem"><a data-ui-sref="cohort({c: 'new', i: null})" data-ui-sref-opts="{reload: true}">Create New Cohort</a></li>
