@@ -449,14 +449,13 @@
      * the 'Return to results' link offered on student profile page.
      *
      * @param  {String}      filterName      Represents a dropdown (ie, search filter) used to search by teamGroup, etc.
-     * @param  {Function}    key             Used to compare filter options to incoming request parameters (ie, selectedValues).
      * @param  {Function}    selectedValues  These values represent request parameters (e.g., list of majors)
      * @return {void}
      */
-    var preset = function(filterName, key, selectedValues) {
+    var preset = function(filterName, selectedValues) {
       if (!_.isEmpty(selectedValues)) {
         _.each($scope.search.options[filterName], function(option) {
-          if (option && _.includes(selectedValues, option[key])) {
+          if (option && _.includes(selectedValues, option.value)) {
             option.selected = true;
             $scope.search.count[filterName] += 1;
           }
@@ -619,7 +618,7 @@
           // 'decorate' is used to standardize (eg, assign 'id' property) each set of menu options
           $scope.search.options = {
             gpaRanges: decorate(studentFactory.getGpaRanges(), 'name'),
-            groupCodes: decorate(groupCodes, 'groupName'),
+            groupCodes: decorate(groupCodes, 'groupCode'),
             intensive: args.i,
             inactive: args.inactive,
             levels: decorate(studentFactory.getStudentLevels(), 'name'),
