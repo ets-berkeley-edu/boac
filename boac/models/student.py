@@ -111,17 +111,18 @@ class Student(Base):
             diff = {by_first_name, by_last_name} - {o, o_secondary}
             o_tertiary = diff.pop() if diff else 's.sid'
             sql = f"""SELECT
-                DISTINCT(s.sid), {o}, {o_secondary}, {o_tertiary}
+                s.sid, MIN({o}), MIN({o_secondary}), MIN({o_tertiary})
                 {query_tables}
                 {query_filter}
-                ORDER BY {o}, {o_secondary}, {o_tertiary}
+                GROUP BY s.sid
+                ORDER BY MIN({o}), MIN({o_secondary}), MIN({o_tertiary})
                 OFFSET {offset}
             """
             sql += f' LIMIT {limit}' if limit else ''
             # SQLAlchemy will escape parameter values
             result = connection.execute(text(sql), **all_bindings)
             # Model query using list of SIDs
-            sid_list = util.get_distinct_with_order([row['sid'] for row in result])
+            sid_list = [row['sid'] for row in result]
             connection.close()
             students = cls.query.filter(cls.sid.in_(sid_list)).all() if sid_list else []
             # Order of students from query (above) might not match order of sid_list.
