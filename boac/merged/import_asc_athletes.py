@@ -41,6 +41,16 @@ SPORT_TRANSLATIONS = {
     'WWP': 'WPW',
 }
 
+# There are multiple groups within these teams, and the remainder group (for team members who don't fit any
+# of the defined squads or specialties) is misleadingly named as if it identifies the entire team.
+AMBIGUOUS_GROUP_CODES = [
+    'MFB',
+    'MSW',
+    'MTR',
+    'WSW',
+    'WTR',
+]
+
 
 def safety_check_asc_api(feed):
     # Does the new feed have less than half the number of active athletes?
@@ -330,13 +340,20 @@ def parse_all_rows(rows):
                 if group_code not in imported_team_groups:
                     imported_team_groups[group_code] = {
                         'group_code': group_code,
-                        'group_name': r['Sport'],
+                        'group_name': unambiguous_group_name(r['Sport'], group_code),
                         'team_code': SPORT_TRANSLATIONS[asc_code],
                         'team_name': r['SportCore'],
                     }
             else:
                 app.logger.error('Unmapped asc_code {} has ActiveYN for sid {}'.format(asc_code, r['SID']))
     return imported_team_groups, imported_students
+
+
+def unambiguous_group_name(asc_group_name, group_code):
+    if group_code in AMBIGUOUS_GROUP_CODES:
+        return f'{asc_group_name} - Other'
+    else:
+        return asc_group_name
 
 
 def merge_in_calnet_data():

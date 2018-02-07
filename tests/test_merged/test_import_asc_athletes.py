@@ -236,3 +236,24 @@ class TestImportAscAthletes:
         saved_student = Student.find_by_sid(jane_sid)
         assert saved_student.in_intensive_cohort
         assert saved_student.is_active_asc is True
+
+    def test_ambiguous_group_name(self, app):
+        sid = '1234567890'
+        ambiguous_group = 'MFB'
+        asc_data = [
+            asc_data_row(
+                sid,
+                ambiguous_group,
+                'Football',
+                ambiguous_group,
+                'Football',
+                '2017-18',
+                'Yes',
+            ),
+        ]
+        # Run import script
+        status = import_asc_athletes.load_student_athletes(asc_data)
+        assert 1 == status['new_team_groups']
+        # Verify results
+        eccentric_football_group = Athletics.query.filter_by(group_code=ambiguous_group).first()
+        assert 'Football - Other' == eccentric_football_group.group_name
