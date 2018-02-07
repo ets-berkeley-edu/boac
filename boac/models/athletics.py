@@ -34,6 +34,7 @@ class Athletics(Base):
             return {
                 'groupCode': row[0],
                 'groupName': row[1],
+                'name': row[1],
                 'teamCode': row[2],
                 'teamName': row[3],
                 'totalMemberCount': row[4],
@@ -91,6 +92,7 @@ class Athletics(Base):
         return {
             'groupCode': self.group_code,
             'groupName': self.group_name,
+            'name': self.group_name,
             'teamCode': self.team_code,
             'teamName': self.team_name,
         }
