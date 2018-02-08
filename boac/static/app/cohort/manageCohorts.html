@@ -16,6 +16,7 @@
   <div data-ng-if="!isLoading">
     <div data-ng-if="!myCohorts.length">
       You have no saved cohorts.
+      <a data-ng-href="/cohort?c=new">Create a new cohort.</a>
     </div>
     <div data-ng-repeat="cohort in myCohorts | orderBy:'labelOriginal'">
       <hr class="flex-row-wrap-separator"/>
