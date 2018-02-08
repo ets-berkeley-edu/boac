@@ -57,3 +57,14 @@ class TestAlert:
         alerts = get_current_alerts()
         assert len(alerts) == 1
         assert alerts[0]['id'] == alert_id
+
+    def test_alert_timezones(self):
+        """For purposes of displaying due dates, loves LA."""
+        Alert.update_assignment_alerts(**dict(alert_props, due_at='2017-02-03T07:59:01Z'))
+        assert get_current_alerts()[0]['message'] == 'MED ST 205 assignment due on Feb 2, 2017.'
+        Alert.update_assignment_alerts(**dict(alert_props, due_at='2017-02-03T08:00:01Z'))
+        assert get_current_alerts()[0]['message'] == 'MED ST 205 assignment due on Feb 3, 2017.'
+        Alert.update_assignment_alerts(**dict(alert_props, due_at='2017-06-17T06:59:59Z'))
+        assert get_current_alerts()[0]['message'] == 'MED ST 205 assignment due on Jun 16, 2017.'
+        Alert.update_assignment_alerts(**dict(alert_props, due_at='2017-06-17T07:00:01Z'))
+        assert get_current_alerts()[0]['message'] == 'MED ST 205 assignment due on Jun 17, 2017.'

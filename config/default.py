@@ -26,6 +26,8 @@ CSRF_SESSION_KEY = 'secret'
 # Used to encrypt session cookie.
 SECRET_KEY = 'secret'
 
+TIMEZONE = 'America/Los_Angeles'
+
 # Override in local configs.
 SQLALCHEMY_DATABASE_URI = 'postgres://boac:boac@localhost:5432/boac'
 
