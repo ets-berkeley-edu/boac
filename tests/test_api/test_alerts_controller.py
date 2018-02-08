@@ -86,7 +86,7 @@ class TestAlertsController:
         assert len(response.json['shown']) == 2
         assert response.json['shown'][0]['alertType'] == 'late_assignment'
         assert response.json['shown'][0]['key'] == '2178_331896'
-        assert response.json['shown'][0]['message'] == 'MED ST 205 assignment due on Oct 6, 2017.'
+        assert response.json['shown'][0]['message'] == 'MED ST 205 assignment due on Oct 5, 2017.'
         assert response.json['shown'][1]['alertType'] == 'missing_assignment'
         assert response.json['shown'][1]['key'] == '2178_331897'
-        assert response.json['shown'][1]['message'] == 'MED ST 205 assignment due on Nov 3, 2017.'
+        assert response.json['shown'][1]['message'] == 'MED ST 205 assignment due on Nov 2, 2017.'
