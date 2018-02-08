@@ -6,6 +6,8 @@ from boac.lib.berkeley import current_term_id
 from boac.lib.util import camelize
 from boac.models.base import Base
 from boac.models.db_relationships import AlertView
+from flask import current_app as app
+import pytz
 from sqlalchemy import text
 
 
@@ -162,6 +164,7 @@ class Alert(Base):
     def update_assignment_alerts(cls, sid, term_id, assignment_id, due_at, status, course_site_name):
         alert_type = status + '_assignment'
         key = f'{term_id}_{assignment_id}'
-        due_at_date = datetime.strptime(due_at, '%Y-%m-%dT%H:%M:%SZ').strftime('%b %-d, %Y')
+        due_at_datetime = pytz.utc.localize(datetime.strptime(due_at, '%Y-%m-%dT%H:%M:%SZ'))
+        due_at_date = due_at_datetime.astimezone(pytz.timezone(app.config['TIMEZONE'])).strftime('%b %-d, %Y')
         message = f'{course_site_name} assignment due on {due_at_date}.'
         cls.create_or_activate(sid=sid, alert_type=alert_type, key=key, message=message)
