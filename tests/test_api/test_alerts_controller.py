@@ -83,10 +83,13 @@ class TestAlertsController:
         client.get('/api/user/61889/analytics')
         response = client.get('/api/alerts/current/11667051')
         assert len(response.json['dismissed']) == 0
-        assert len(response.json['shown']) == 2
-        assert response.json['shown'][0]['alertType'] == 'late_assignment'
-        assert response.json['shown'][0]['key'] == '2178_331896'
-        assert response.json['shown'][0]['message'] == 'MED ST 205 assignment due on Oct 5, 2017.'
-        assert response.json['shown'][1]['alertType'] == 'missing_assignment'
-        assert response.json['shown'][1]['key'] == '2178_331897'
-        assert response.json['shown'][1]['message'] == 'MED ST 205 assignment due on Nov 2, 2017.'
+        assert len(response.json['shown']) == 3
+        assert response.json['shown'][0]['alertType'] == 'midterm'
+        assert response.json['shown'][0]['key'] == '2178_90100'
+        assert response.json['shown'][0]['message'] == 'BURMESE 1A midterm grade of D+.'
+        assert response.json['shown'][1]['alertType'] == 'late_assignment'
+        assert response.json['shown'][1]['key'] == '2178_331896'
+        assert response.json['shown'][1]['message'] == 'MED ST 205 assignment due on Oct 5, 2017.'
+        assert response.json['shown'][2]['alertType'] == 'missing_assignment'
+        assert response.json['shown'][2]['key'] == '2178_331897'
+        assert response.json['shown'][2]['message'] == 'MED ST 205 assignment due on Nov 2, 2017.'
