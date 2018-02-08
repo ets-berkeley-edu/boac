@@ -22,9 +22,9 @@ class TestCacheUtils:
         alerts = get_current_alerts()
         assert len(alerts) == 2
         assert alerts[0]['alertType'] == 'late_assignment'
-        assert alerts[0]['message'] == 'MED ST 205 assignment due on Oct 6, 2017.'
+        assert alerts[0]['message'] == 'MED ST 205 assignment due on Oct 5, 2017.'
         assert alerts[1]['alertType'] == 'missing_assignment'
-        assert alerts[1]['message'] == 'MED ST 205 assignment due on Nov 3, 2017.'
+        assert alerts[1]['message'] == 'MED ST 205 assignment due on Nov 2, 2017.'
 
     def test_assignment_alerts_updated_on_cache_reload(self, app, db_session):
         """Updates assignment alerts on cache reload."""
@@ -61,4 +61,4 @@ class TestCacheUtils:
                 api_alerts = get_current_alerts()
                 assert len(api_alerts) == 1
                 assert api_alerts[0]['alertType'] == 'late_assignment'
-                assert api_alerts[0]['message'] == 'MED ST 205 assignment due on Nov 3, 2017.'
+                assert api_alerts[0]['message'] == 'MED ST 205 assignment due on Nov 2, 2017.'
