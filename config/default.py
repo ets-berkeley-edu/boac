@@ -46,6 +46,9 @@ CAS_LOGOUT_URL = 'https://auth-test.berkeley.edu/cas/logout'
 # Enable with a valid Google id. For example, 'UA-999999999-1'
 GOOGLE_ANALYTICS_ID = False
 
+# Data Loch is treated as a readonly Postgres DB.
+DATA_LOCH_URI = 'postgres://nessie:secret@secreturl.com:5432/canvas'
+
 LDAP_HOST = 'nds-test.berkeley.edu'
 LDAP_BIND = 'mybind'
 LDAP_PASSWORD = 'secret'

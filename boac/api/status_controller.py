@@ -1,4 +1,5 @@
 from boac import db
+from boac.externals import data_loch
 from boac.lib.http import tolerant_jsonify
 from flask import current_app as app
 from flask_login import current_user
@@ -13,9 +14,19 @@ def app_status():
         except Exception:
             app.logger.exception('Database connection error')
             return False
+
+    def data_loch_status():
+        try:
+            data_loch.execute('SELECT 1')
+            return True
+        except Exception:
+            app.logger.exception('Data Loch connection error')
+            return False
+
     resp = {
         'app': True,
         'db': db_status(),
+        'data_loch': data_loch_status(),
     }
     return tolerant_jsonify(resp)
 
