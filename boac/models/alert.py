@@ -168,3 +168,9 @@ class Alert(Base):
         due_at_date = due_at_datetime.astimezone(pytz.timezone(app.config['TIMEZONE'])).strftime('%b %-d, %Y')
         message = f'{course_site_name} assignment due on {due_at_date}.'
         cls.create_or_activate(sid=sid, alert_type=alert_type, key=key, message=message)
+
+    @classmethod
+    def update_midterm_grade_alerts(cls, sid, term_id, section_id, class_name, grade):
+        key = f'{term_id}_{section_id}'
+        message = f'{class_name} midterm grade of {grade}.'
+        cls.create_or_activate(sid=sid, alert_type='midterm', key=key, message=message)

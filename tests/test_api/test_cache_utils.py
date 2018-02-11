@@ -20,17 +20,19 @@ class TestCacheUtils:
         from boac.api.cache_utils import load_term
         load_term(term_id)
         alerts = get_current_alerts()
-        assert len(alerts) == 2
-        assert alerts[0]['alertType'] == 'late_assignment'
-        assert alerts[0]['message'] == 'MED ST 205 assignment due on Oct 5, 2017.'
-        assert alerts[1]['alertType'] == 'missing_assignment'
-        assert alerts[1]['message'] == 'MED ST 205 assignment due on Nov 2, 2017.'
+        assert len(alerts) == 3
+        assert alerts[0]['alertType'] == 'midterm'
+        assert alerts[0]['message'] == 'BURMESE 1A midterm grade of D+.'
+        assert alerts[1]['alertType'] == 'late_assignment'
+        assert alerts[1]['message'] == 'MED ST 205 assignment due on Oct 5, 2017.'
+        assert alerts[2]['alertType'] == 'missing_assignment'
+        assert alerts[2]['message'] == 'MED ST 205 assignment due on Nov 2, 2017.'
 
     def test_assignment_alerts_updated_on_cache_reload(self, app, db_session):
         """Updates assignment alerts on cache reload."""
         from boac.api.cache_utils import load_term, refresh_term
         load_term(term_id)
-        assert len(get_current_alerts()) == 2
+        assert len(get_current_alerts()) == 3
 
         with open(app.config['BASE_DIR'] + '/fixtures/canvas_course_assignments_analytics_7654321_61889.json') as file:
             # History is rewritten, so that the late assignment turns out to have been on time...
@@ -47,18 +49,22 @@ class TestCacheUtils:
                 refresh_term(term_id)
 
                 db_alerts = db_session.query(Alert).order_by(Alert.created_at).all()
-                assert len(db_alerts) == 3
-                assert db_alerts[0].alert_type == 'late_assignment'
-                assert db_alerts[0].key == '2178_331896'
-                assert db_alerts[0].active is False
-                assert db_alerts[1].alert_type == 'missing_assignment'
-                assert db_alerts[1].key == '2178_331897'
+                assert len(db_alerts) == 4
+                assert db_alerts[0].alert_type == 'midterm'
+                assert db_alerts[0].key == '2178_90100'
+                assert db_alerts[0].active is True
+                assert db_alerts[1].alert_type == 'late_assignment'
+                assert db_alerts[1].key == '2178_331896'
                 assert db_alerts[1].active is False
-                assert db_alerts[2].alert_type == 'late_assignment'
+                assert db_alerts[2].alert_type == 'missing_assignment'
                 assert db_alerts[2].key == '2178_331897'
-                assert db_alerts[2].active is True
+                assert db_alerts[2].active is False
+                assert db_alerts[3].alert_type == 'late_assignment'
+                assert db_alerts[3].key == '2178_331897'
+                assert db_alerts[3].active is True
 
                 api_alerts = get_current_alerts()
-                assert len(api_alerts) == 1
-                assert api_alerts[0]['alertType'] == 'late_assignment'
-                assert api_alerts[0]['message'] == 'MED ST 205 assignment due on Nov 2, 2017.'
+                assert len(api_alerts) == 2
+                assert api_alerts[0]['alertType'] == 'midterm'
+                assert api_alerts[1]['alertType'] == 'late_assignment'
+                assert api_alerts[1]['message'] == 'MED ST 205 assignment due on Nov 2, 2017.'
