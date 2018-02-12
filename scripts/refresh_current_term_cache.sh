@@ -32,7 +32,12 @@ set -o allexport
 source $CONFIG_FILE
 set +o allexport
 
-url="${BOAC_URL}/api/admin/cachejob/refresh"
+# Refreshes external data cache for the current term, but does not import from ASC.
+#url="${BOAC_URL}/api/admin/cachejob/refresh"
+
+# Imports student athlete lists from ASC and then refreshes external data cache for the current term.
+url="${BOAC_URL}/api/admin/cachejob/import_refresh"
+
 echo | tee -a ${log_file}
 echo "About to ping ${url}" | tee -a ${log_file}
 echo | tee -a ${log_file}
