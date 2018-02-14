@@ -89,7 +89,7 @@
         {name: 'Major', value: 'major'},
         {name: 'Units', value: 'units'}
       ],
-      selected: 'first_name'
+      selected: 'last_name'
     };
 
     // More info: https://angular-ui.github.io/bootstrap/
