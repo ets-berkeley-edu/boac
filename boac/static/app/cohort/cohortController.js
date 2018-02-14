@@ -598,6 +598,13 @@
       });
     };
 
+    // Grades deserving alerts: D(+/-), F, I, NP.
+    var alertGrades = /^[DFIN]/;
+
+    $scope.isAlertGrade = function(grade) {
+      return grade && alertGrades.test(grade);
+    };
+
     /**
      * Initialize page view.
      *
