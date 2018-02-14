@@ -100,7 +100,7 @@ class TestCohortDetail:
         cohort_id = user.cohort_filters[0].id
         response = client.get('/api/cohort/{}'.format(cohort_id))
         assert response.status_code == 200
-        athlete = response.json['members'][0]
+        athlete = next(m for m in response.json['members'] if m['lastName'] == 'Lin')
         assert athlete['cumulativeGPA'] == 3.8
         assert athlete['cumulativeUnits'] == 101.3
         assert athlete['level'] == 'Junior'
@@ -112,7 +112,7 @@ class TestCohortDetail:
         cohort_id = user.cohort_filters[0].id
         response = client.get('/api/cohort/{}?orderBy=firstName'.format(cohort_id))
         assert response.status_code == 200
-        athlete = response.json['members'][0]
+        athlete = next(m for m in response.json['members'] if m['lastName'] == 'Lin')
         assert athlete['currentTerm']['termName'] == 'Fall 2017'
         assert athlete['currentTerm']['enrolledUnits'] == 12.5
         assert len(athlete['currentTerm']['enrollments']) == 3
@@ -128,7 +128,7 @@ class TestCohortDetail:
         user = AuthorizedUser.find_by_uid(test_uid)
         cohort_id = user.cohort_filters[0].id
         response = client.get('/api/cohort/{}'.format(cohort_id))
-        athlete = response.json['members'][0]
+        athlete = next(m for m in response.json['members'] if m['lastName'] == 'Lin')
         assert len(athlete['athletics']) == 2
         tennis = next(membership for membership in athlete['athletics'] if membership['groupCode'] == 'WTE')
         field_hockey = next(membership for membership in athlete['athletics'] if membership['groupCode'] == 'WFH')

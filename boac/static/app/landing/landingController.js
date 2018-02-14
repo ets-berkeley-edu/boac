@@ -7,6 +7,14 @@
     $scope.isLoading = true;
     $scope.isAuthenticated = authService.isAuthenticatedUser();
 
+    var extendSortableNames = function(students) {
+      return _.map(students, function(student) {
+        return _.extend(student, {
+          sortableName: student.lastName + ', ' + student.firstName
+        });
+      });
+    };
+
     var init = function() {
       if ($scope.isAuthenticated) {
         cohortFactory.getTeams().then(function(teamsResponse) {
@@ -16,14 +24,10 @@
             $scope.myCohorts = [];
             _.each(cohortsResponse.data, function(cohort) {
               if (cohort.alerts.length) {
-                var students = _.map(cohort.alerts, function(student) {
-                  return _.extend(student, {
-                    name: student.firstName + ' ' + student.lastName
-                  });
-                });
+                var students = extendSortableNames(cohort.alerts);
                 cohort.alerts = {
                   students: students,
-                  sortBy: 'name',
+                  sortBy: 'sortableName',
                   reverse: false
                 };
               }
@@ -32,8 +36,8 @@
 
             watchlistFactory.getMyWatchlist().then(function(response) {
               $scope.myWatchlist = {
-                students: response.data,
-                sortBy: 'name',
+                students: extendSortableNames(response.data),
+                sortBy: 'sortableName',
                 reverse: false
               };
               $scope.isLoading = false;

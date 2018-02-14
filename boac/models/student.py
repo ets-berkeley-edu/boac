@@ -76,7 +76,7 @@ class Student(Base):
             # case-insensitive sort of first_name and last_name (see Postgres docs)
             by_first_name = 'UPPER(s.first_name)'
             by_last_name = 'UPPER(s.last_name)'
-            o = by_first_name
+            o = by_last_name
             if order_by == 'level':
                 # Sort by an implicit value, not a column in db
                 o = 'ol.ordinal'
@@ -107,7 +107,7 @@ class Student(Base):
                     o = f'm2.{order_by}'
                 else:
                     o = f'm.{order_by}'
-            o_secondary = by_last_name if order_by == 'first_name' else by_first_name
+            o_secondary = by_first_name if order_by == 'last_name' else by_last_name
             diff = {by_first_name, by_last_name} - {o, o_secondary}
             o_tertiary = diff.pop() if diff else 's.sid'
             sql = f"""SELECT
