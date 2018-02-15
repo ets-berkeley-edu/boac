@@ -13,7 +13,6 @@
       <span class="sr-only" data-ng-if="alerts.sortBy === 'sid' && !cohort.reverse">Descending</span>
       <span class="caret" data-ng-if="alerts.sortBy === 'sid'"></span>
     </th>
-    <th class="landing-table-header-issues">Issues</th>
     <th class="landing-table-header-remove"></th>
   </tr>
   <tr data-ng-repeat="student in alerts.students | orderBy:alerts.sortBy:alerts.reverse" class="landing-table-row">
@@ -21,13 +20,6 @@
       <a data-ng-bind="student.sortableName" data-ng-href="/student/{{student.uid}}"></a>
     </td>
     <td data-ng-bind="student.sid"></td>
-    <td>
-      <div class="landing-issues-pill landing-issues-pill-zero"
-           data-ng-if="!student.alertCount">0</div>
-      <div class="landing-issues-pill landing-issues-pill-nonzero"
-           data-ng-bind="student.alertCount"
-           data-ng-if="student.alertCount"></div>
-    </td>
     <td>
       <watchlist-toggle data-sid="student.sid"
                         data-fa-size="text"

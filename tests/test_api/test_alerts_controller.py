@@ -76,20 +76,3 @@ class TestAlertsController:
         assert len(advisor_2_brigitte_alerts['shown']) == 1
         assert advisor_2_brigitte_alerts['shown'][0]['key'] == '2178_500600700'
         assert len(advisor_2_brigitte_alerts['dismissed']) == 0
-
-    def test_alerts_from_assignments(self, fake_auth, client):
-        """Surfaces alerts derived from assignment analytics."""
-        fake_auth.login(advisor_1_uid)
-        client.get('/api/user/61889/analytics')
-        response = client.get('/api/alerts/current/11667051')
-        assert len(response.json['dismissed']) == 0
-        assert len(response.json['shown']) == 3
-        assert response.json['shown'][0]['alertType'] == 'midterm'
-        assert response.json['shown'][0]['key'] == '2178_90100'
-        assert response.json['shown'][0]['message'] == 'BURMESE 1A midterm grade of D+.'
-        assert response.json['shown'][1]['alertType'] == 'late_assignment'
-        assert response.json['shown'][1]['key'] == '2178_331896'
-        assert response.json['shown'][1]['message'] == 'MED ST 205 assignment due on Oct 5, 2017.'
-        assert response.json['shown'][2]['alertType'] == 'missing_assignment'
-        assert response.json['shown'][2]['key'] == '2178_331897'
-        assert response.json['shown'][2]['message'] == 'MED ST 205 assignment due on Nov 2, 2017.'
