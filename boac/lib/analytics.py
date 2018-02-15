@@ -1,7 +1,6 @@
 import math
 from statistics import mean
 from boac.externals import canvas
-from boac.models.alert import Alert
 from boac.models.json_cache import stow
 from flask import current_app as app
 import pandas
@@ -110,16 +109,6 @@ def analytics_from_canvas_course_assignments(course_id, course_code, uid, sid, t
                 'submitted_at': None,
             },
         )
-
-        if assignment['status'] in ['late', 'missing']:
-            Alert.update_assignment_alerts(
-                sid=sid,
-                term_id=term_id,
-                assignment_id=assignment['assignment_id'],
-                due_at=assignment['due_at'],
-                status=assignment['status'],
-                course_site_name=course_code,
-            )
 
         assignment_data = {
             'id': assignment['assignment_id'],
