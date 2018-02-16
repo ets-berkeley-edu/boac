@@ -169,8 +169,10 @@
           </div>
           <div class="cohort-member-course-activity-wrapper">
             <div class="cohort-member-course-activity-row">
-              <div class="cohort-member-column cohort-member-text">CLASSES</div>
+              <div class="cohort-member-column cohort-member-text">CLASS</div>
               <div class="cohort-member-column cohort-member-text">PAGE VIEWS</div>
+              <div class="cohort-member-column-grade cohort-member-text">MID</div>
+              <div class="cohort-member-column-grade cohort-member-text">FINAL</div>
             </div>
             <div class="cohort-member-course-activity-row" data-ng-repeat="enrollment in student.currentTerm.enrollments">
               <div class="cohort-member-column">
@@ -182,6 +184,16 @@
                        class="cohort-boxplot">
                   </div>
                 </div>
+              </div>
+              <div class="cohort-member-column-grade">
+                <span class="cohort-grade" data-ng-bind="enrollment.midtermGrade" data-ng-if="enrollment.midtermGrade"></span>
+                <i class="fa fa-exclamation-triangle boac-exclamation" data-ng-if="isAlertGrade(enrollment.midtermGrade)"></i>
+                <span data-ng-if="!enrollment.midtermGrade">&mdash;</span>
+              </div>
+              <div class="cohort-member-column-grade">
+                <span class="cohort-grade" data-ng-bind="enrollment.grade" data-ng-if="enrollment.grade"></span>
+                <i class="fa fa-exclamation-triangle boac-exclamation" data-ng-if="isAlertGrade(enrollment.grade)"></i>
+                <span class="cohort-grading-basis" data-ng-bind="enrollment.gradingBasis" data-ng-if="!enrollment.grade"></span>
               </div>
             </div>
           </div>
