@@ -1,9 +1,6 @@
-from datetime import datetime
 import math
 from statistics import mean
-
 from boac.externals import canvas
-from boac.lib.util import localize_datetime, utc_timestamp_to_localtime
 from boac.models.alert import Alert
 from boac.models.json_cache import stow
 from flask import current_app as app
@@ -114,7 +111,15 @@ def analytics_from_canvas_course_assignments(course_id, course_code, uid, sid, t
             },
         )
 
-        generate_assignment_alerts(assignment, submission, course_code, sid, term_id)
+        if assignment['status'] in ['late', 'missing']:
+            Alert.update_assignment_alerts(
+                sid=sid,
+                term_id=term_id,
+                assignment_id=assignment['assignment_id'],
+                due_at=assignment['due_at'],
+                status=assignment['status'],
+                course_site_name=course_code,
+            )
 
         assignment_data = {
             'id': assignment['assignment_id'],
@@ -187,42 +192,6 @@ def analytics_for_column(df, student_row, column_name):
         'courseDeciles': column_quantiles,
         'displayPercentile': display_percentile,
     }
-
-
-def generate_assignment_alerts(assignment, submission, course_code, sid, term_id):
-    # Only assignments with due dates and nonzero median scores inspire enough confidence for us to potentially
-    # generate a late or missing alert.
-    if not assignment['due_at'] or not assignment['median']:
-        return
-
-    due_date = utc_timestamp_to_localtime(assignment['due_at']).date()
-    # Late assignments generate an alert only if the submission date is later than the due date by local
-    # timezone.
-    if (assignment['status'] == 'late' and
-            submission['submitted_at'] and
-            due_date < utc_timestamp_to_localtime(submission['submitted_at']).date()):
-        Alert.update_assignment_alerts(
-            sid=sid,
-            term_id=term_id,
-            assignment_id=assignment['assignment_id'],
-            due_at=assignment['due_at'],
-            status='late',
-            course_site_name=course_code,
-        )
-    # Missing assignments generate an alert only if submission and score data really is absent, and the due
-    # date by local timezone was earlier than today.
-    elif (assignment['status'] == 'missing' and
-            not submission['submitted_at'] and
-            not submission['score'] and
-            due_date < localize_datetime(datetime.utcnow()).date()):
-        Alert.update_assignment_alerts(
-            sid=sid,
-            term_id=term_id,
-            assignment_id=assignment['assignment_id'],
-            due_at=assignment['due_at'],
-            status='missing',
-            course_site_name=course_code,
-        )
 
 
 def ordinal(nbr):

@@ -39,7 +39,6 @@ class TestCacheUtils:
             modified_response_body = file.read().replace('"status": "late"', '"status": "on_time"')
             # ...meanwhile, the missing assignment shows up late.
             modified_response_body = modified_response_body.replace('"status": "missing"', '"status": "late"')
-            modified_response_body = modified_response_body.replace('"submitted_at": null', '"submitted_at": "2017-11-04T01:00:00Z"')
 
             def modified_assignment_analytics_fixture(course_id, uid, **kwargs):
                 if str(course_id) == '7654321' and str(uid) == '61889':
