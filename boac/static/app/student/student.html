@@ -52,7 +52,10 @@
             <h3 class="student-profile-sidebar-header student-profile-sidebar-header-team" data-ng-bind="membership.groupName"></h3>
           </div>
           <div data-ng-repeat="plan in student.sisProfile.plans">
-            <h3 class="student-profile-sidebar-header" data-ng-bind="plan.description"></h3>
+            <h3 class="student-profile-sidebar-header">
+              <span data-ng-bind="plan.description" data-ng-if="!plan.degreeProgramUrl"></span>
+              <a data-ng-bind="plan.description" data-ng-if="plan.degreeProgramUrl" data-ng-href="{{plan.degreeProgramUrl}}"></a>
+            </h3>
             <div class="student-profile-sidebar-details">
               <div data-ng-bind="plan.program" data-ng-if="plan.program"></div>
             </div>

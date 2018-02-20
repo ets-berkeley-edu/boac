@@ -344,8 +344,10 @@ class TestUserAnalytics:
         assert len(sis_profile['plans']) == 2
         assert sis_profile['plans'][0]['description'] == 'English BA'
         assert sis_profile['plans'][0]['program'] == 'Undergrad Letters & Science'
+        assert sis_profile['plans'][0]['degreeProgramUrl'] == 'http://guide.berkeley.edu/undergraduate/degree-programs/english/'
         assert sis_profile['plans'][1]['description'] == 'Astrophysics BS'
         assert sis_profile['plans'][1]['program'] == 'Undergrad Letters & Science'
+        assert sis_profile['plans'][1]['degreeProgramUrl'] == 'http://guide.berkeley.edu/undergraduate/degree-programs/astrophysics/'
         assert sis_profile['preferredName'] == 'Osk Bear'
         assert sis_profile['primaryName'] == 'Oski Bear'
         assert sis_profile['termsInAttendance'] == 5
