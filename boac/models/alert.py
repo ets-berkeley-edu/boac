@@ -99,7 +99,7 @@ class Alert(Base):
         results = db.session.execute(query, {'viewer_id': viewer_id, 'key': current_term_id() + '_%', 'sids': sids})
 
         def result_to_dict(result):
-            return {camelize(key): result[key] for key in ['sid', 'uid', 'first_name', 'last_name', 'alert_count']}
+            return {camelize(key): result[key] for key in ['sid', 'uid', 'first_name', 'last_name', 'is_active_asc', 'alert_count']}
         return [result_to_dict(result) for result in results]
 
     @classmethod
