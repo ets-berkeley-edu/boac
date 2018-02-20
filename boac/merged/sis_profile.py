@@ -1,6 +1,7 @@
 import re
 from boac.externals import sis_degree_progress_api
 from boac.externals import sis_student_api
+from boac.lib.berkeley import degree_program_url_for_major
 from boac.lib.util import vacuum_whitespace
 from boac.models.json_cache import stow
 from boac.models.normalized_cache_student import NormalizedCacheStudent
@@ -70,8 +71,10 @@ def merge_sis_profile_academic_status(sis_response, sis_profile):
         if academic_plan.get('type', {}).get('code') not in ['MAJ', 'SS', 'SP', 'HS', 'CRT']:
             continue
         plan = academic_plan.get('plan', {})
+        major = plan.get('description')
         plan_feed = {
-            'description': plan.get('description'),
+            'degreeProgramUrl': degree_program_url_for_major(major),
+            'description': major,
         }
         # Add program unless plan code indicates undeclared.
         if plan.get('code') != '25000U':
