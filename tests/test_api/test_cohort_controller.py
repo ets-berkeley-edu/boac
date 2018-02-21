@@ -27,10 +27,15 @@ class TestCohortDetail:
         assert len(cohorts[1]['teamGroups']) == 1
         assert cohorts[1]['totalMemberCount'] == 2
 
-    def test_my_cohorts_includes_alert_counts(self, create_alerts, authenticated_session, client):
+    def test_my_cohorts_includes_students_with_alert_counts(self, create_alerts, authenticated_session, client):
         cohorts = client.get('/api/cohorts/my').json
+        print(cohorts)
         assert len(cohorts[0]['alerts']) == 2
         assert cohorts[0]['alerts'][0]['sid'] == '2345678901'
+        assert cohorts[0]['alerts'][0]['uid']
+        assert cohorts[0]['alerts'][0]['firstName']
+        assert cohorts[0]['alerts'][0]['lastName']
+        assert cohorts[0]['alerts'][0]['isActiveAsc']
         assert cohorts[0]['alerts'][0]['alertCount'] == 1
         assert cohorts[0]['alerts'][1]['sid'] == '11667051'
         assert cohorts[0]['alerts'][1]['alertCount'] == 2

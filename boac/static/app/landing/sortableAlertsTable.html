@@ -18,6 +18,13 @@
   <tr data-ng-repeat="student in alerts.students | orderBy:alerts.sortBy:alerts.reverse" class="landing-table-row">
     <td>
       <a data-ng-bind="student.sortableName" data-ng-href="/student/{{student.uid}}"></a>
+      <span
+          class="landing-inactive-info-icon"
+          data-ng-if="!student.isActiveAsc"
+          uib-tooltip="Inactive"
+          tooltip-placement="bottom">
+        <i class="fa fa-info-circle"></i>
+      </span>
     </td>
     <td data-ng-bind="student.sid"></td>
     <td>

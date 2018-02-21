@@ -148,7 +148,10 @@
                                 data-fa-size="fa-1x"
                                 data-watchlist="myWatchlist"></watchlist-toggle>
             </div>
-            <div class="cohort-member-sid" data-ng-bind="student.sid"></div>
+            <div class="cohort-member-sid">
+              {{student.sid}}
+              <span class="cohort-member-inactive" data-ng-if="!student.isActiveAsc">INACTIVE</span>
+            </div>
             <div class="cohort-member-text" data-ng-bind="student.level"></div>
             <div class="cohort-member-text" data-ng-bind="major" data-ng-repeat="major in student.majors"></div>
             <div class="cohort-member-teams-container">
