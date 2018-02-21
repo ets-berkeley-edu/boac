@@ -27,9 +27,9 @@
                             data-watchlist="myWatchlist"
                             data-ng-if="!isWatchlistLoading"></watchlist-toggle>
         </div>
-        <h2 class="student-profile-header-name-preferred"
+        <h3 class="student-profile-header-name-preferred"
             data-ng-bind="student.sisProfile.preferredName"
-            data-ng-if="student.sisProfile.preferredName !== student.athleticsProfile.fullName"></h2>
+            data-ng-if="student.sisProfile.preferredName !== student.athleticsProfile.fullName"></h3>
         <a data-ng-href="mailto:{{student.sisProfile.emailAddress}}" data-ng-bind="student.sisProfile.emailAddress"></a>
         <div data-ng-bind="student.sisProfile.phoneNumber"></div>
       </div>
@@ -46,21 +46,21 @@
       <div class="student-profile-sidebar">
         <div class="student-profile-sidebar-box">
           <div data-ng-if="!student.athleticsProfile.isActiveAsc">
-            <h3 class="student-profile-sidebar-header student-profile-sidebar-inactive">INACTIVE</h3>
+            <h4 class="student-profile-sidebar-header student-profile-sidebar-inactive">INACTIVE</h4>
           </div>
           <div data-ng-repeat="membership in student.athleticsProfile.athletics">
-            <h3 class="student-profile-sidebar-header student-profile-sidebar-header-team" data-ng-bind="membership.groupName"></h3>
+            <h4 class="student-profile-sidebar-header student-profile-sidebar-header-team" data-ng-bind="membership.groupName"></h4>
           </div>
           <div data-ng-repeat="plan in student.sisProfile.plans">
-            <h3 class="student-profile-sidebar-header">
+            <h4 class="student-profile-sidebar-header">
               <span data-ng-bind="plan.description" data-ng-if="!plan.degreeProgramUrl"></span>
               <a data-ng-bind="plan.description" data-ng-if="plan.degreeProgramUrl" data-ng-href="{{plan.degreeProgramUrl}}"></a>
-            </h3>
+            </h4>
             <div class="student-profile-sidebar-details">
               <div data-ng-bind="plan.program" data-ng-if="plan.program"></div>
             </div>
           </div>
-          <h3 class="student-profile-sidebar-header" data-ng-bind="student.sisProfile.level.description"></h3>
+          <h4 class="student-profile-sidebar-header" data-ng-bind="student.sisProfile.level.description"></h4>
           <div class="student-profile-sidebar-details" data-ng-if="student.sisProfile.termsInAttendance">
             <span data-ng-pluralize
                   count="student.sisProfile.termsInAttendance"
@@ -68,7 +68,7 @@
           </div>
         </div>
         <div class="student-profile-sidebar-box" data-ng-if="student.sisProfile.degreeProgress">
-          <h3 class="student-profile-sidebar-header">Degree Progress</h3>
+          <h4 class="student-profile-sidebar-header">Degree Progress</h4>
           <table class="student-profile-sidebar-table">
             <tr>
               <th>University Requirements</th>
@@ -93,8 +93,9 @@
         </div>
       </div>
       <div class="student-profile-terms">
+        <h2>Classes</h2>
         <div class="student-profile-term" data-ng-repeat="term in student.enrollmentTerms | limitTo: (showAllTerms ? undefined : 1)">
-          <h2 class="student-profile-classes-header" data-ng-bind="term.termName"></h2>
+          <h3 class="student-profile-classes-header" data-ng-bind="term.termName"></h3>
 
           <div data-ng-if="$index === 0">
             <div data-ng-if="alerts.shown.length">
@@ -122,78 +123,126 @@
             </div>
           </div>
 
-          <div data-ng-repeat="course in term.enrollments" class="student-profile-class">
-            <div class="student-profile-class-heading">
-              <div class="student-profile-class-title-outer">
-                <h3 class="student-profile-class-title" data-ng-bind="course.displayName"></h3>
-                <h4 class="student-profile-class-name" data-ng-bind="course.title"></h4>
-              </div>
-              <div class="student-profile-class-sections">
-                <div data-ng-repeat="section in course.sections">
-                  <span data-ng-if="section.enrollmentStatus === 'W'">Waitlisted in</span>
-                  <span data-ng-if="section.enrollmentStatus === 'D'">Dropped</span>
-                  <span data-ng-bind="section.component"></span>
-                  <span data-ng-bind="section.sectionNumber"></span>
+          <uib-accordion>
+            <div uib-accordion-group
+                 class="student-profile-class"
+                 is-open="status.isFirstOpen"
+                 data-ng-repeat="course in term.enrollments">
+              <uib-accordion-heading>
+                <div class="accordion-heading student-profile-class-heading">
+                  <div class="accordion-heading-start">
+                    <div class="accordion-heading-start-inner">
+                      <div>
+                        <i data-ng-class="{'fa fa-caret-right': !status.isFirstOpen, 'fa fa-caret-down': status.isFirstOpen}"></i>
+                      </div>
+                      <div>
+                        <h4 class="student-profile-class-title" data-ng-bind="course.displayName"></h4>
+                      </div>
+                      <div>
+                        <div class="accordion-heading-sections">
+                          <div class="faint-text" data-ng-repeat="section in course.sections">
+                            <span data-ng-bind="section.component"></span>
+                            <span data-ng-bind="section.sectionNumber"></span>
+                            <span data-ng-if="!$last">&#47;&nbsp;</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <h5 class="student-profile-class-name" data-ng-bind="course.title"></h5>
+                    </div>
+                  </div>
+                  <div class="accordion-heading-end">
+                    <div class="accordion-heading-units">
+                      <span data-ng-pluralize
+                            count="course.units"
+                            when="{'one': '1 Unit', 'other': '{{course.units}} Units'}"></span>
+                    </div>
+                    <div class="accordion-heading-grades">
+                      <div class="accordion-heading-grade">
+                        Final:
+                        <span class="student-profile-class-grade"
+                              data-ng-bind="course.grade"
+                              data-ng-if="course.grade"></span>
+                        <span class="student-profile-class-grading-basis"
+                              data-ng-bind="course.gradingBasis"
+                              data-ng-if="!course.grade"></span>
+                      </div>
+                      <div class="accordion-heading-grade">
+                        Mid:
+                        <span class="student-profile-class-grade"
+                              data-ng-bind="course.midtermGrade"
+                              data-ng-if="course.midtermGrade"></span>
+                        <span class="student-profile-class-grade"
+                              data-ng-if="!course.midtermGrade">&mdash;</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </uib-accordion-heading>
+
+              <div class="student-profile-class-heading" data-ng-if="course.sections.length">
+                <div class="student-profile-class-sections">
+                  <div data-ng-repeat="section in course.sections">
+                    <span data-ng-if="section.enrollmentStatus === 'W'">Waitlisted in</span>
+                    <span data-ng-if="section.enrollmentStatus === 'D'">Dropped</span>
+                  </div>
                 </div>
               </div>
-              <div class="student-profile-class-units"
-                   data-ng-pluralize count="course.units" when="{'one': '1 Unit', 'other': '{{course.units}} Units'}"></div>
-              <div class="student-profile-class-grades">
-                <div>
-                  Final:
-                  <span class="student-profile-class-grade" data-ng-bind="course.grade" data-ng-if="course.grade"></span>
-                  <span class="student-profile-class-grading-basis" data-ng-bind="course.gradingBasis" data-ng-if="!course.grade"></span>
-                </div>
-                <div>
-                  Mid:
-                  <span class="student-profile-class-grade" data-ng-bind="course.midtermGrade" data-ng-if="course.midtermGrade"></span>
-                  <span class="student-profile-class-grade" data-ng-if="!course.midtermGrade">&mdash;</span>
-                </div>
+              <div data-ng-repeat="canvasSite in course.canvasSites">
+                <div class="student-profile-course-site-code" data-ng-bind="canvasSite.courseCode"></div>
+                <course-site-metrics
+                  data-canvas-site="canvasSite"
+                  data-course-name="course.displayName"
+                  data-draw-boxplot="drawBoxplot"
+                  data-term-id="term.termId">
+                </course-site-metrics>
               </div>
-            </div>
-            <div data-ng-repeat="canvasSite in course.canvasSites">
-              <div class="student-profile-course-site-code" data-ng-bind="canvasSite.courseCode"></div>
-              <course-site-metrics
-                data-canvas-site="canvasSite"
-                data-course-name="course.displayName"
-                data-draw-boxplot="drawBoxplot"
-                data-term-id="term.termId">
-              </course-site-metrics>
-            </div>
-            <div data-ng-if="!course.canvasSites.length" class="student-profile-class-notation">
-              No additional information
-            </div>
-          </div>
-          <div data-ng-repeat="canvasSite in term.unmatchedCanvasSites" class="student-profile-class">
-            <div class="student-profile-class-heading">
-              <div class="student-profile-class-title-outer">
-                <h3 class="student-profile-class-title" data-ng-bind="canvasSite.courseName"></h3>
-              </div>
-            </div>
-            <course-site-metrics
-              data-canvas-site="canvasSite"
-              data-course-name="'unmatchedCanvasSites'"
-              data-draw-boxplot="drawBoxplot"
-              data-term-id="term.termId">
-            </course-site-metrics>
-          </div>
-          <div class="student-profile-class" data-ng-if="term.droppedSections.length">
-            <div data-ng-repeat="droppedSection in term.droppedSections" class="student-profile-dropped-section">
-              <div class="student-profile-dropped-section-title">
-                <span data-ng-bind="droppedSection.displayName"></span> -
-                <span data-ng-bind="droppedSection.component"></span>
-                <span data-ng-bind="droppedSection.sectionNumber"></span>
+              <div class="student-profile-class"
+                   data-ng-if="term.unmatchedCanvasSites.length">
+                <div data-ng-repeat="canvasSite in term.unmatchedCanvasSites" class="student-profile-class">
+                  <div class="student-profile-class-heading">
+                    <div class="student-profile-class-title-outer">
+                      <h4 class="student-profile-class-title" data-ng-bind="canvasSite.courseName"></h4>
+                    </div>
+                  </div>
+                  <course-site-metrics
+                    data-canvas-site="canvasSite"
+                    data-course-name="'unmatchedCanvasSites'"
+                    data-draw-boxplot="drawBoxplot"
+                    data-term-id="term.termId">
+                  </course-site-metrics>
+                </div>
+                <div class="student-profile-class" data-ng-if="term.droppedSections.length">
+                  <div data-ng-repeat="droppedSection in term.droppedSections" class="student-profile-dropped-section">
+                    <div class="student-profile-dropped-section-title">
+                      <span data-ng-bind="droppedSection.displayName"></span> -
+                      <span data-ng-bind="droppedSection.component"></span>
+                      <span data-ng-bind="droppedSection.sectionNumber"></span>
+                    </div>
+                    <div class="student-profile-class-notation">
+                      <i class="fa fa-exclamation-triangle student-profile-dropped-section-icon"></i> Dropped
+                    </div>
+                  </div>
+                </div>
               </div>
               <div class="student-profile-class-notation">
                 <i class="fa fa-exclamation-triangle boac-exclamation"></i> Dropped
               </div>
             </div>
+          </uib-accordion>
+          <!--
+          <div data-ng-if="$last">
+            Total <span data-ng-bind="term.enrolledUnits"></span>
           </div>
+          -->
         </div>
-        <div data-ng-show="!showAllTerms && (student.enrollmentTerms.length > 1)" class="student-profile-view-previous-semesters-wrapper">
-          <button class="btn btn-link student-profile-view-previous-semesters" data-ng-click="showAllTerms=true">
-            <i class="fa fa-caret-right"></i>
-            View Previous Semesters
+
+        <div data-ng-show="student.enrollmentTerms.length > 1" class="student-profile-view-previous-semesters-wrapper">
+          <button class="btn btn-link student-profile-view-previous-semesters" data-ng-click="showAllTerms=!showAllTerms">
+            <i data-ng-class="{'fa fa-caret-right': !showAllTerms, 'fa fa-caret-up': showAllTerms}"></i>
+            <span data-ng-if="!showAllTerms">View Previous Semesters</span>
+            <span data-ng-if="showAllTerms">Hide Previous Semesters</span>
           </button>
         </div>
         <div class="student-profile-classes" data-ng-if="!student.enrollmentTerms.length">
