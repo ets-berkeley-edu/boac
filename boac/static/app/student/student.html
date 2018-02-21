@@ -129,14 +129,15 @@
           <uib-accordion>
             <div uib-accordion-group
                  class="student-profile-class"
-                 is-open="status.isFirstOpen"
+                 is-open="course.isShowingDetails"
+                 data-ng-click="accordionToggle(term)"
                  data-ng-repeat="course in term.enrollments">
               <uib-accordion-heading>
                 <div class="accordion-heading student-profile-class-heading">
                   <div class="accordion-heading-start">
                     <div class="accordion-heading-start-inner">
                       <div>
-                        <i data-ng-class="{'fa fa-caret-right': !status.isFirstOpen, 'fa fa-caret-down': status.isFirstOpen}"></i>
+                        <i data-ng-class="{'fa fa-caret-right': !course.isShowingDetails, 'fa fa-caret-down': course.isShowingDetails}"></i>
                       </div>
                       <div>
                         <h4 class="student-profile-class-title" data-ng-bind="course.displayName"></h4>
@@ -201,6 +202,9 @@
                   data-term-id="term.termId">
                 </course-site-metrics>
               </div>
+              <div class="student-profile-class-notation" data-ng-if="!course.canvasSites.length">
+                No additional information
+              </div>
               <div class="student-profile-class"
                    data-ng-if="term.unmatchedCanvasSites.length">
                 <div data-ng-repeat="canvasSite in term.unmatchedCanvasSites" class="student-profile-class">
@@ -228,9 +232,6 @@
                     </div>
                   </div>
                 </div>
-              </div>
-              <div class="student-profile-class-notation">
-                <i class="fa fa-exclamation-triangle boac-exclamation"></i> Dropped
               </div>
             </div>
           </uib-accordion>
