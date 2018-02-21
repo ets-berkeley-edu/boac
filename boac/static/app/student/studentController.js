@@ -14,6 +14,15 @@
     $stateParams
   ) {
 
+    $scope.student = {
+      canvasProfile: null,
+      enrollmentTerms: null,
+      isLoading: true
+    };
+
+    $scope.showAllTerms = false;
+    $scope.showDismissedAlerts = false;
+
     $scope.dismissAlert = function(alertId) {
       studentFactory.dismissAlert(alertId).then(function() {
         var dismissed = _.remove($scope.alerts.shown, {id: alertId});
@@ -23,6 +32,17 @@
           $scope.error = _.truncate(error.data.message, {length: 200}) || 'An unexpected server error occurred.';
         } else {
           throw error;
+        }
+      });
+    };
+
+    $scope.accordionToggle = function(term) {
+      // User is browsing 'term' so we collapse the view of other terms
+      _.each($scope.student.enrollmentTerms, function(next) {
+        if (next.termId !== term.termId) {
+          _.each(next.enrollments, function(course) {
+            course.isShowingDetails = false;
+          });
         }
       });
     };
@@ -72,12 +92,6 @@
       });
     };
 
-    $scope.student = {
-      canvasProfile: null,
-      enrollmentTerms: null,
-      isLoading: true
-    };
-
     $scope.drawBoxplot = function(termId, displayName, courseId, metric) {
       var term = _.find($scope.student.enrollmentTerms, {termId: termId});
 
@@ -93,9 +107,6 @@
       var elementId = 'boxplot-' + courseId + '-' + metric;
       boxplotService.drawBoxplotStudent(elementId, course.analytics[metric]);
     };
-
-    $scope.showAllTerms = false;
-    $scope.showDismissedAlerts = false;
 
     init();
   });
