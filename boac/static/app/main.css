@@ -156,6 +156,12 @@
   padding: 17px 20px 10px 10px;
 }
 
+.header-feedback {
+  font-size: 14px;
+  padding: 10px 0 0 0;
+  text-align: right;
+}
+
 .loading-spinner-large {
   position: fixed;
   top: 0;
