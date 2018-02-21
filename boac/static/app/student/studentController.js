@@ -57,6 +57,7 @@
         var url = $base64.decode(decodeURIComponent(encodedReturnUrl));
         var separator = _.includes(url, '?') ? '&' : '?';
         $scope.returnUrl = url + separator + 'a=' + uid;
+        $scope.hideFeedbackLink = true;
       }
     };
 
