@@ -1,3 +1,55 @@
+.accordion-heading {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.accordion-heading-end {
+  display: flex;
+}
+
+.accordion-heading-grade {
+  white-space: nowrap;
+}
+
+.accordion-heading-grades {
+  display: flex;
+  flex-direction: column;
+  width: 10%;
+}
+
+.accordion-heading-sections {
+  display: flex;
+  flex-wrap: nowrap;
+  font-style: italic;
+  justify-content: space-between;
+  margin-top: 1px;
+  white-space: nowrap;
+}
+
+.accordion-heading-start {
+  display: flex;
+  flex-direction: column;
+}
+
+.accordion-heading-start .fa {
+  color: #337ab7;
+}
+
+.accordion-heading-start-inner {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.accordion-heading-start-inner i {
+  margin-right: 5px;
+}
+
+.accordion-heading-units {
+  padding-right: 50px;
+  white-space: nowrap;
+}
+
 .return-to-cohort {
   padding: 10px 0 0 5px;
 }
@@ -112,6 +164,14 @@
   margin-top: 20px;
 }
 
+.student-profile-class a {
+  text-decoration: none;
+}
+
+.student-profile-class .panel-title {
+  width: 100%;
+}
+
 .student-profile-class-grade {
   font-weight: bold;
 }
@@ -119,10 +179,6 @@
 .student-profile-class-grading-basis {
   color: #666;
   font-style: italic;
-}
-
-.student-profile-class-grades {
-  flex: 0.12;
 }
 
 .student-profile-class-heading {
@@ -146,8 +202,11 @@
 }
 
 .student-profile-class-title {
-  font-size: 18px;
+  color: #337ab7;
+  font-size: 16px;
   margin: 0;
+  padding: 0 5px 0 5px;
+  white-space: nowrap;
 }
 
 .student-profile-class-title-outer {
@@ -155,14 +214,10 @@
   margin-bottom: 30px;
 }
 
-.student-profile-class-units {
-  flex: 0.12;
-}
-
 .student-profile-classes-header {
-  font-size: 30px;
+  font-size: 24px;
   font-weight: 400;
-  margin: 0 0 15px 0;
+  margin: 20px 0 15px 0;
   color: #999;
 }
 
@@ -200,6 +255,24 @@
 
 .student-profile-alert-item {
   padding: 5px 0;
+}
+
+.panel {
+  -webkit-box-shadow: none;
+  box-shadow: 0;
+}
+
+.student-profile-class .panel-body {
+  padding: 0;
+}
+
+.student-profile-class .panel,
+.panel-group .panel-heading + .panel-collapse > .panel-body {
+  border: none;
+}
+
+.student-profile-class .panel-heading {
+  padding: 10px 0;
 }
 
 .student-profile-dropped-section {
@@ -256,7 +329,7 @@
 }
 
 .student-profile-sidebar {
-  margin: 20px;
+  margin: 10px 10px 0 0;
 }
 
 .student-profile-sidebar-box {
@@ -327,11 +400,9 @@
 
 .student-profile-term {
   border-bottom: 1px solid #999;
-  margin-bottom: 20px;
-  padding-bottom: 20px;
 }
 
 .student-profile-terms {
   flex: 1;
-  margin: 20px;
+  margin-left: 20px;
 }
