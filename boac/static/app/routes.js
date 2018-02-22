@@ -71,12 +71,6 @@
 
     // Routes
     $stateProvider
-      .state('landing', {
-        url: '/',
-        templateUrl: '/static/app/landing/landing.html',
-        controller: 'LandingController',
-        resolve: resolvePublic
-      })
       .state('cohort', {
         url: '/cohort?c&i&inactive',
         templateUrl: '/static/app/cohort/cohort.html',
@@ -84,17 +78,29 @@
         resolve: resolvePrivate,
         reloadOnSearch: false
       })
-      .state('allCohorts', {
+      .state('cohorts', {
         url: '/cohorts/all',
         templateUrl: '/static/app/cohort/all.html',
         controller: 'AllCohortsController',
         resolve: resolvePrivate
       })
-      .state('manageCohorts', {
+      .state('cohortsManage', {
         url: '/cohorts/manage',
         templateUrl: '/static/app/cohort/manageCohorts.html',
         controller: 'ManageCohortsController',
         resolve: resolvePrivate
+      })
+      .state('course', {
+        url: '/course/:id',
+        templateUrl: '/static/app/course/course.html',
+        controller: 'CourseController',
+        resolve: resolvePrivate
+      })
+      .state('home', {
+        url: '/',
+        templateUrl: '/static/app/landing/landing.html',
+        controller: 'LandingController',
+        resolve: resolvePublic
       })
       .state('user', {
         url: '/student/:uid?r',
@@ -107,7 +113,7 @@
   }).run(function($rootScope, $state) {
     $rootScope.$on('$stateChangeError', function(event, toState, toParams, fromState, fromParams, error) {
       if (error.message === 'unauthenticated') {
-        $state.go('landing', {}, {reload: true});
+        $state.go('home', {}, {reload: true});
       }
     });
   });

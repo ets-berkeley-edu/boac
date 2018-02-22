@@ -56,7 +56,7 @@
       };
       return $http.post('/devauth/login', credentials).then(
         function successCallback() {
-          $state.go('landing', {}, {reload: true});
+          $state.go('home', {}, {reload: true});
         },
         function errorCallback() {
           $rootScope.$broadcast('devAuthFailure');
