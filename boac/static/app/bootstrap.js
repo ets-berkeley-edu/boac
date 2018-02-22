@@ -2,6 +2,7 @@
 
   var boac = angular.module('boac', [
     'base64',
+    'ngAnimate',
     'oi.select',
     'ui.bootstrap',
     'ui.router'
