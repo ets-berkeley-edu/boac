@@ -36,17 +36,6 @@
       });
     };
 
-    $scope.accordionToggle = function(term) {
-      // User is browsing 'term' so we collapse the view of other terms
-      _.each($scope.student.enrollmentTerms, function(next) {
-        if (next.termId !== term.termId) {
-          _.each(next.enrollments, function(course) {
-            course.isShowingDetails = false;
-          });
-        }
-      });
-    };
-
     var loadStudent = function(uid) {
       $scope.student.isLoading = true;
       studentFactory.analyticsPerUser(uid).then(function(analytics) {

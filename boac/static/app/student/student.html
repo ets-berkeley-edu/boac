@@ -102,7 +102,9 @@
 
           <div data-ng-if="$index === 0">
             <div data-ng-if="alerts.shown.length">
-              <div class="alert alert-warning student-profile-alert" data-ng-attr-id="alert-{{alert.id}}" data-ng-repeat="alert in alerts.shown">
+              <div class="alert alert-warning student-profile-alert"
+                   data-ng-attr-id="alert-{{alert.id}}"
+                   data-ng-repeat="alert in alerts.shown">
                 <div class="student-profile-alert-item">
                   <student-alert-message alert="alert"></student-alert-message>
                   <a class="close" data-ng-click="dismissAlert(alert.id)" aria-label="close">&times;</a>
@@ -126,17 +128,16 @@
             </div>
           </div>
 
-          <uib-accordion>
+          <uib-accordion close-others="false">
             <div uib-accordion-group
                  class="student-profile-class"
                  is-open="course.isShowingDetails"
-                 data-ng-click="accordionToggle(term)"
                  data-ng-repeat="course in term.enrollments">
               <uib-accordion-heading>
                 <div class="accordion-heading student-profile-class-heading">
                   <div class="accordion-heading-start">
                     <div class="accordion-heading-start-inner">
-                      <div>
+                      <div class="accordion-heading-caret">
                         <i data-ng-class="{'fa fa-caret-right': !course.isShowingDetails, 'fa fa-caret-down': course.isShowingDetails}"></i>
                       </div>
                       <div>

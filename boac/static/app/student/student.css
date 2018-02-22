@@ -41,8 +41,9 @@
   justify-content: flex-start;
 }
 
-.accordion-heading-start-inner i {
+.accordion-heading-caret {
   margin-right: 5px;
+  width: 10px;
 }
 
 .accordion-heading-units {
