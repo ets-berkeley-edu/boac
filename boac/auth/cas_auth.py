@@ -24,6 +24,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
+from urllib.parse import urlencode
+
 from boac.api.errors import ForbiddenRequestError
 from boac.lib.http import tolerant_jsonify
 import cas
@@ -37,8 +39,9 @@ from flask_login import (
 
 @app.route('/cas/login_url', methods=['GET'])
 def cas_login_url():
+    target_url = request.referrer or None
     return tolerant_jsonify({
-        'cas_login_url': _cas_client().get_login_url(),
+        'cas_login_url': _cas_client(target_url).get_login_url(),
     })
 
 
@@ -46,7 +49,8 @@ def cas_login_url():
 def cas_login():
     logger = app.logger
     ticket = request.args['ticket']
-    user_id, attributes, proxy_granting_ticket = _cas_client().verify_ticket(ticket)
+    target_url = request.args.get('url')
+    user_id, attributes, proxy_granting_ticket = _cas_client(target_url).verify_ticket(ticket)
     logger.info('Logged into CAS as user {}'.format(user_id))
     user = app.login_manager.user_callback(user_id)
     if user is None:
@@ -55,7 +59,7 @@ def cas_login():
     login_user(user)
     flash('Logged in successfully.')
     # The 'casLogin' marker is used by googleAnalyticsService to track CAS login events
-    return redirect('/?casLogin=true')
+    return redirect((target_url or '/') + '?casLogin=true')
 
 
 @app.route('/logout')
@@ -67,8 +71,10 @@ def logout():
     })
 
 
-def _cas_client():
+def _cas_client(target_url=None):
     cas_server = app.config['CAS_SERVER']
     # One (possible) advantage this has over "request.base_url" is that it embeds the configured SERVER_NAME.
     service_url = url_for('.cas_login', _external=True)
+    if target_url:
+        service_url = service_url + '?' + urlencode({'url': target_url})
     return cas.CASClientV3(server_url=cas_server, service_url=service_url)
