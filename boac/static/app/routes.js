@@ -110,10 +110,10 @@
         reloadOnSearch: false
       });
 
-  }).run(function($rootScope, $state) {
+  }).run(function(authFactory, $rootScope) {
     $rootScope.$on('$stateChangeError', function(event, toState, toParams, fromState, fromParams, error) {
       if (error.message === 'unauthenticated') {
-        $state.go('home', {}, {reload: true});
+        authFactory.casLogIn();
       }
     });
   });
