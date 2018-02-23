@@ -99,9 +99,17 @@ class TestUserPhoto:
         """Returns 404 when photo not found."""
         test_uid = '1133399'
         fake_auth.login(test_uid)
-        response = client.get('/api/user/99999999/photo')
+        response = client.get('/api/user/242881/photo')
         assert response.status_code == 404
         assert response.json['message'] == 'No photo was found for the requested id.'
+
+    def test_student_not_found(self, client, fake_auth):
+        """Returns 404 when student not found."""
+        test_uid = '1133399'
+        fake_auth.login(test_uid)
+        response = client.get('/api/user/99999999/photo')
+        assert response.status_code == 404
+        assert response.json['message'] == 'No student was found for the requested id.'
 
 
 @pytest.mark.usefixtures('db_session')
