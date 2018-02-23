@@ -22,7 +22,8 @@
       </div>
       <div class="student-profile-header-contact">
         <div class="flex-container">
-          <h1 class="student-profile-header-name">
+          <h1 class="student-profile-header-name"
+              data-ng-class="{'demo-mode-blur': demoMode}">
             {{student.athleticsProfile.fullName}}
           </h1>
           <watchlist-toggle data-sid="student.athleticsProfile.sid"
@@ -32,8 +33,11 @@
         </div>
         <h3 class="student-profile-header-name-preferred"
             data-ng-bind="student.sisProfile.preferredName"
+            data-ng-class="{'demo-mode-blur': demoMode}"
             data-ng-if="student.sisProfile.preferredName !== student.athleticsProfile.fullName"></h3>
-        <a data-ng-href="mailto:{{student.sisProfile.emailAddress}}" data-ng-bind="student.sisProfile.emailAddress"></a>
+        <a data-ng-href="mailto:{{student.sisProfile.emailAddress}}"
+           data-ng-class="{'demo-mode-blur': demoMode}"
+           data-ng-bind="student.sisProfile.emailAddress"></a>
         <div data-ng-bind="student.sisProfile.phoneNumber"></div>
       </div>
       <div class="student-profile-header-status-box">

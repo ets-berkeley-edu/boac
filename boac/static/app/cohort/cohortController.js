@@ -31,6 +31,7 @@
     boxplotService,
     cohortFactory,
     cohortService,
+    config,
     googleAnalyticsService,
     studentFactory,
     utilService,
@@ -43,6 +44,8 @@
     $state,
     $timeout
   ) {
+
+    $scope.demoMode = config.demoMode;
 
     var filters = {
       gpaRanges: 'g',

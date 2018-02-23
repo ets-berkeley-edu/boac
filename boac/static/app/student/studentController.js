@@ -30,6 +30,7 @@
   angular.module('boac').controller('StudentController', function(
     authService,
     boxplotService,
+    config,
     googleAnalyticsService,
     studentFactory,
     watchlistFactory,
@@ -38,6 +39,8 @@
     $scope,
     $stateParams
   ) {
+
+    $scope.demoMode = config.demoMode;
 
     $scope.student = {
       canvasProfile: null,
