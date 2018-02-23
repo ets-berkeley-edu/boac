@@ -143,6 +143,9 @@ def relevant_majors():
 @app.route('/api/user/<uid>/photo')
 @login_required
 def user_photo(uid):
+    student = Student.query.filter_by(uid=uid).first()
+    if not student:
+        raise errors.ResourceNotFoundError('No student was found for the requested id.')
     photo = get_cal1card_photo(uid)
     if photo:
         return Response(photo, mimetype='image/jpeg')
