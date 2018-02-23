@@ -30,6 +30,7 @@ import boac.api.util as api_util
 from boac.externals import canvas, sis_enrollments_api
 from boac.lib.berkeley import sis_term_id_for_name
 from boac.models.alert import Alert
+from boac.models.normalized_cache_course_sections import NormalizedCacheCourseSection
 from flask import current_app as app
 
 
@@ -95,7 +96,8 @@ def merge_enrollment(cs_id, enrollments, term_id, term_name):
         section_feed = api_util.sis_enrollment_section_feed(enrollment)
 
         # The SIS enrollments API gives us no better unique identifier than the course display name.
-        class_name = enrollment.get('classSection', {}).get('class', {}).get('course', {}).get('displayName')
+        section = enrollment.get('classSection', {})
+        class_name = section.get('class', {}).get('course', {}).get('displayName')
         # If we haven't seen this class name before, we create a new feed entry for it.
         if class_name not in enrollments_by_class:
             enrollments_by_class[class_name] = api_util.sis_enrollment_class_feed(enrollment)
@@ -106,6 +108,9 @@ def merge_enrollment(cs_id, enrollments, term_id, term_name):
         enrollments_by_class[class_name]['sections'].append(section_feed)
         if is_enrolled_primary_section(section_feed):
             enrolled_units += section_feed['units']
+
+        NormalizedCacheCourseSection.update_enrollment(term_id, cs_id, section)
+
         # Since only one enrolled primary section is allowed per class, it's safe to associate units and grade information
         # with the class as well as the section. If a primary section is waitlisted, do the same association unless we've
         # already done it with a different section (this case may not arise in practice).
