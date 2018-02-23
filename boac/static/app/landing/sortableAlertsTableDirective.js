@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').directive('sortableAlertsTable', function() {
+  angular.module('boac').directive('sortableAlertsTable', function(config) {
 
     return {
       // @see https://docs.angularjs.org/guide/directive#template-expanding-directive
@@ -42,6 +42,7 @@
       templateUrl: '/static/app/landing/sortableAlertsTable.html',
 
       link: function(scope) {
+        scope.demoMode = config.demoMode;
         scope.sort = function(data, sortBy) {
           if (data.sortBy === sortBy) {
             data.reverse = !data.reverse;

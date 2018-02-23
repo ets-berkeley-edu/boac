@@ -138,17 +138,22 @@
           </div>
           <div class="cohort-member-name-container">
             <div class="flex-container">
-              <h3 class="cohort-member-name" data-ng-if="orderBy.selected !== 'first_name'">
+              <h3 class="cohort-member-name"
+                  data-ng-class="{'demo-mode-blur': demoMode}"
+                  data-ng-if="orderBy.selected !== 'first_name'">
                 {{student.lastName}}, {{student.firstName}}
               </h3>
-              <h3 class="cohort-member-name" data-ng-if="orderBy.selected === 'first_name'">
+              <h3 class="cohort-member-name"
+                  data-ng-class="{'demo-mode-blur': demoMode}"
+                  data-ng-if="orderBy.selected === 'first_name'">
                 {{student.firstName}} {{student.lastName}}
               </h3>
               <watchlist-toggle data-sid="student.sid"
                                 data-fa-size="fa-1x"
                                 data-watchlist="myWatchlist"></watchlist-toggle>
             </div>
-            <div class="cohort-member-sid">
+            <div class="cohort-member-sid"
+                 data-ng-class="{'demo-mode-blur': demoMode}">
               {{student.sid}}
               <span class="cohort-member-inactive" data-ng-if="!student.isActiveAsc">INACTIVE</span>
             </div>
@@ -241,14 +246,16 @@
               </div>
               <div class="cohort-member-name-container">
                 <div class="flex-container">
-                  <h3 class="flex-container cohort-member-name">
+                  <h3 class="flex-container cohort-member-name"
+                      data-ng-class="{'demo-mode-blur': demoMode}">
                     {{student.lastName}}, {{student.firstName}}
                   </h3>
                   <watchlist-toggle data-sid="student.sid"
                                     data-fa-size="fa-1x"
                                     data-watchlist="myWatchlist"></watchlist-toggle>
                 </div>
-                <div class="cohort-member-sid">
+                <div class="cohort-member-sid"
+                     data-ng-class="{'demo-mode-blur': demoMode}">
                   SID: <span data-ng-bind="student.sid"></span>
                 </div>
               </div>

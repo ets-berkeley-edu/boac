@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').directive('findStudent', function() {
+  angular.module('boac').directive('findStudent', function(config) {
 
     return {
       // @see https://docs.angularjs.org/guide/directive#template-expanding-directive
@@ -50,9 +50,10 @@
             var options = [];
             _.each(response.data, function(student) {
               _.each(student.athletics, function(a) {
+                var name = config.demoMode ? 'John Doe' : student.name + ' - ' + student.sid;
                 options.push({
                   uid: student.uid,
-                  name: student.name + ' - ' + student.sid,
+                  name: name,
                   groupName: a.groupName
                 });
               });

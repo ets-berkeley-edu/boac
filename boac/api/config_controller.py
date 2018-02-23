@@ -37,6 +37,7 @@ def app_config():
         'ebEnvironment': app.config['EB_ENVIRONMENT'] if 'EB_ENVIRONMENT' in app.config else None,
         'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],
         'googleAnalyticsId': app.config['GOOGLE_ANALYTICS_ID'],
+        'demoMode': app.config['DEMO_MODE'] if 'DEMO_MODE' in app.config else False,
     })
 
 
