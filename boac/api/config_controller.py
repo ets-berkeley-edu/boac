@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import json
 from boac import __version__ as version
+from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from flask import current_app as app
 
@@ -37,7 +38,7 @@ def app_config():
         'ebEnvironment': app.config['EB_ENVIRONMENT'] if 'EB_ENVIRONMENT' in app.config else None,
         'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],
         'googleAnalyticsId': app.config['GOOGLE_ANALYTICS_ID'],
-        'demoMode': app.config['DEMO_MODE'] if 'DEMO_MODE' in app.config else False,
+        'demoMode': util.app_in_demo_mode(),
     })
 
 

@@ -35,6 +35,7 @@ class TestConfigController:
         # In tests, certain configs are omitted or disabled (e.g., Google Analytics)
         assert response.json['ebEnvironment'] is None
         assert response.json['googleAnalyticsId'] is False
+        assert isinstance(response.json['demoMode'], bool)
 
     def test_anonymous_api_version_request(self, client):
         """Returns a well-formed response."""

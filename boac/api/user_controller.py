@@ -143,7 +143,7 @@ def relevant_majors():
 @app.route('/api/user/<uid>/photo')
 @login_required
 def user_photo(uid):
-    if 'demoMode' in app.config and app.config['demoMode']:
+    if util.app_in_demo_mode():
         raise errors.ResourceNotFoundError('Photos are not served in demo mode.')
 
     student = Student.query.filter_by(uid=uid).first()
