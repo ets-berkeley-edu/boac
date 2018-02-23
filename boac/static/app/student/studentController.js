@@ -61,6 +61,98 @@
       });
     };
 
+    var showUnitsChart = function() {
+      var cumulativeUnits = _.get($scope.student, 'sisProfile.cumulativeUnits');
+      var currentEnrolledUnits = _.get($scope.student, 'enrollmentTerms[0].enrolledUnits');
+      var unitsChartOptions = {
+        chart: {
+          backgroundColor: 'transparent',
+          height: 60,
+          inverted: true,
+          spacingLeft: 5,
+          type: 'column',
+          width: 170
+        },
+        credits: {
+          enabled: false
+        },
+        legend: {
+          enabled: false
+        },
+        navigation: {
+          buttonOptions: {
+            enabled: false
+          }
+        },
+        title: {
+          text: ''
+        },
+        tooltip: {
+          enabled: false
+        },
+        xAxis: {
+          labels: {
+            enabled: false
+          },
+          lineWidth: 0,
+          startOnTick: false,
+          tickLength: 0
+        },
+        yAxis: {
+          min: 0,
+          max: 120,
+          gridLineColor: '#000000',
+          tickInterval: 30,
+          labels: {
+            align: 'center',
+            distance: 0,
+            overflow: false,
+            style: {
+              color: '#999999',
+              fontFamily: 'Helvetica, Arial, sans',
+              fontSize: '12px',
+              fontWeight: 'bold'
+            }
+          },
+          stackLabels: {
+            enabled: false
+          },
+          title: {
+            enabled: false
+          },
+          gridZIndex: 1000
+        },
+        plotOptions: {
+          column: {
+            stacking: 'normal',
+            groupPadding: 0,
+            pointPadding: 0
+          },
+          series: {
+            states: {
+              hover: {
+                enabled: false
+              }
+            }
+          }
+        },
+        colors: ['#d6e4f9', '#aec9eb'],
+        series: [
+          {
+            name: 'Term units',
+            data: [ currentEnrolledUnits ]
+          },
+          {
+            name: 'Cumulative units',
+            data: [ cumulativeUnits ]
+          }
+        ]
+      };
+      setTimeout(function() {
+        Highcharts.chart('student-profile-units-chart-container', unitsChartOptions);
+      });
+    };
+
     var loadStudent = function(uid) {
       $scope.student.isLoading = true;
       studentFactory.analyticsPerUser(uid).then(function(analytics) {
@@ -78,6 +170,7 @@
             studentFactory.getAlerts(athleticsProfile.sid).then(function(alerts) {
               $scope.alerts = alerts.data;
             });
+            showUnitsChart();
           }
         }
         $scope.student.isLoading = false;
