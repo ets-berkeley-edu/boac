@@ -36,9 +36,15 @@
         <a data-ng-href="mailto:{{student.sisProfile.emailAddress}}" data-ng-bind="student.sisProfile.emailAddress"></a>
         <div data-ng-bind="student.sisProfile.phoneNumber"></div>
       </div>
-      <div class="student-profile-header-status-box">
-        <div class="student-profile-header-status-number" data-ng-bind="student.sisProfile.cumulativeUnits"></div>
-        <div class="student-profile-header-status-legend">Total Units</div>
+      <div class="student-profile-header-status-box student-profile-header-status-box-units">
+        <div>
+          <div class="student-profile-header-status-number" data-ng-bind="student.sisProfile.cumulativeUnits"></div>
+          <div class="student-profile-header-status-legend">Cumulative Units</div>
+        </div>
+        <div class="student-profile-units-chart-outer">
+          <div class="student-profile-header-status-legend student-profile-header-status-legend-units">Unit Totals</div>
+          <div id="student-profile-units-chart-container"></div>
+        </div>
       </div>
       <div class="student-profile-header-status-box">
         <div class="student-profile-header-status-number" data-ng-bind="student.sisProfile.cumulativeGPA || '--'"></div>

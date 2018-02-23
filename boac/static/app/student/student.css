@@ -343,11 +343,22 @@
   text-align: center;
 }
 
+.student-profile-header-status-box-units {
+  display: flex;
+}
+
 .student-profile-header-status-legend {
   color: #999;
   font-size: 13px;
   font-weight: 300;
   text-transform: uppercase;
+}
+
+.student-profile-header-status-legend-units {
+  color: #000;
+  font-weight: 600;
+  padding-left: 5px;
+  text-align: left;
 }
 
 .student-profile-header-status-number {
@@ -414,6 +425,23 @@
 
 .student-profile-sidebar-table th {
   padding: 15px 0 3px 0;
+}
+
+#student-profile-units-chart-container {
+  height: 60px;
+  margin-top: 10px;
+  min-width: 170px;
+  width: 170px;
+}
+
+#student-profile-units-chart-container .highcharts-series rect {
+  stroke-width: 0;
+}
+
+.student-profile-units-chart-outer {
+  border-left: 1px solid #999;
+  margin-left: 10px;
+  padding-left: 10px;
 }
 
 .student-profile-view-previous-semesters {
