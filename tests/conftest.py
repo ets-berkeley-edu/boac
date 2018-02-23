@@ -26,8 +26,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import json
 import os
+from boac import std_commit
 import boac.factory
 from boac.models.alert import Alert
+from boac.models.normalized_cache_course_sections import NormalizedCacheCourseSection
 import pytest
 
 
@@ -143,6 +145,24 @@ def create_alerts(db_session):
         key='2178_100200300',
         message='Week 5 homework in BOSCRSR 27B is late.',
     )
+
+
+@pytest.fixture()
+def create_course_sections(db_session):
+    section = NormalizedCacheCourseSection(
+        term_id=2182,
+        section_id=1,
+        dept_name='NESTUD',
+        dept_code='NESTUD',
+        catalog_id='113',
+        display_name='NESTUD 113',
+        title='Gilgamesh: King, Hero, and God',
+        instruction_format='LEC',
+        section_num='001',
+        units=4,
+    )
+    db_session.add(section)
+    std_commit()
 
 
 def pytest_itemcollected(item):

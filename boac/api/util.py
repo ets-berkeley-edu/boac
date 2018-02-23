@@ -91,3 +91,22 @@ def translate_grading_basis(code):
         'SUS': 'S/U',
     }
     return bases.get(code) or code
+
+
+def course_section_to_json(section):
+    return {
+        'termId': section.term_id,
+        'sectionId': section.section_id,
+        'deptName': section.dept_name,
+        'deptCode': section.dept_code,
+        'catalogId': section.catalog_id,
+        'displayName': section.display_name,
+        'title': section.title,
+        'instructionFormat': section.instruction_format,
+        'sectionNum': section.section_num,
+        'units': section.units,
+        'meetingDays': section.meeting_days,
+        'meetingTimes': section.meeting_times,
+        'locations': section.locations,
+        'instructors': section.instructors,
+    }

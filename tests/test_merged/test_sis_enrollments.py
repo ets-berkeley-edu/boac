@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.merged.sis_enrollments import merge_sis_enrollments_for_term
 from boac.models.alert import Alert
+from boac.models.normalized_cache_course_sections import NormalizedCacheCourseSection
 import pytest
 
 
@@ -46,3 +47,22 @@ class TestMergedSisEnrollments:
         assert 'midterm' == alerts[0]['alertType']
         assert '2178_90100' == alerts[0]['key']
         assert 'BURMESE 1A midterm grade of D+.' == alerts[0]['message']
+
+    def test_populates_normalized_cache(self, app):
+        """Populates the normalized cache."""
+        merge_sis_enrollments_for_term([], '11667051', app.config['CANVAS_CURRENT_ENROLLMENT_TERM'])
+        section = NormalizedCacheCourseSection.query.first()
+        assert section.term_id
+        assert section.section_id
+        assert section.dept_name
+        assert section.dept_code
+        assert section.catalog_id
+        assert section.display_name
+        assert section.title
+        assert section.instruction_format
+        assert section.section_num
+        assert section.units
+        assert len(section.meeting_days)
+        assert len(section.meeting_times)
+        assert len(section.locations)
+        assert len(section.instructors)

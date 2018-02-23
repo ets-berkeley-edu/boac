@@ -54,6 +54,15 @@ cohort_filter_owners = db.Table(
 )
 
 
+student_enrollments = db.Table(
+    'normalized_cache_enrollments',
+    Base.metadata,
+    db.Column('term_id', db.Integer, db.ForeignKey('normalized_cache_course_sections.term_id'), primary_key=True),
+    db.Column('section_id', db.String(80), db.ForeignKey('normalized_cache_course_sections.section_id'), primary_key=True),
+    db.Column('sid', db.String(80), db.ForeignKey('students.sid'), primary_key=True),
+)
+
+
 # Alert views are represented as a model class because they contain 'created_at' and 'dismissed_at' metadata in
 # addition to join columns.
 # http://docs.sqlalchemy.org/en/latest/orm/basic_relationships.html#association-object
