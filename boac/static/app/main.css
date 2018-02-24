@@ -25,6 +25,12 @@
 
 .demo-mode-blur {
   color: transparent !important;
+  text-shadow: 0 0 15px rgba(0, 0, 0, 0.5) !important;
+}
+
+.demo-mode-blur:hover {
+  color: transparent !important;
+  text-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;
 }
 
 .boac-exclamation {
