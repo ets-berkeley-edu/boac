@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').service('cohortService', function(cohortFactory) {
+  angular.module('boac').service('cohortService', function(cohortFactory, config) {
 
     var drawScatterplot = function(students, yAxisMeasure, goToUserPage) {
       var svg;
@@ -238,7 +238,9 @@
 
         // The tooltip starts out hidden while inserting data...
         tooltip.style('opacity', 0);
-        tooltip.append('h4').attr('class', 'cohort-matrix-tooltip-header').text(d.firstName + ' ' + d.lastName);
+        tooltip.append('h4')
+          .attr('class', config.demoMode ? 'demo-mode-blur' : 'cohort-matrix-tooltip-header')
+          .text(d.firstName + ' ' + d.lastName);
         var table = tooltip.append('table').attr('class', 'cohort-matrix-tooltip-table');
         var pageViewsRow = table.append('tr');
         pageViewsRow.append('td').attr('class', 'cohort-matrix-tooltip-label').text('bCourses page views');
