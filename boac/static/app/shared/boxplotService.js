@@ -211,27 +211,27 @@
      */
     var drawBoxplotStudent = function(elementId, dataset) {
       // Options specific to a student-view boxplot and the provided dataset.
-      var tooltipHeaderFormat = '<div class="student-profile-boxplot-container-tooltip-header">' +
-                                '<div class="student-profile-boxplot-container-tooltip-label">User Score</div>' +
-                                '<div class="student-profile-boxplot-container-tooltip-value">' + dataset.student.raw + '</div>' +
+      var tooltipHeaderFormat = '<div class="student-profile-tooltip-header">' +
+                                '<div class="student-profile-tooltip-label">User Score</div>' +
+                                '<div class="student-profile-tooltip-value">' + dataset.student.raw + '</div>' +
                                 '</div>';
 
-      var tooltipBodyFormat = '<div class="student-profile-boxplot-container-tooltip-content">' +
-                              '<div class="student-profile-boxplot-container-tooltip-row">' +
-                              '<div class="student-profile-boxplot-container-tooltip-label">Maximum</div>' +
-                              '<div class="student-profile-boxplot-container-tooltip-value">' + dataset.courseDeciles[10] + '</div></div>' +
-                              '<div class="student-profile-boxplot-container-tooltip-row">' +
-                              '<div class="student-profile-boxplot-container-tooltip-label">70th Percentile</div>' +
-                              '<div class="student-profile-boxplot-container-tooltip-value">' + dataset.courseDeciles[7] + '</div></div>' +
-                              '<div class="student-profile-boxplot-container-tooltip-row">' +
-                              '<div class="student-profile-boxplot-container-tooltip-label">50th Percentile</div>' +
-                              '<div class="student-profile-boxplot-container-tooltip-value">' + dataset.courseDeciles[5] + '</div></div>' +
-                              '<div class="student-profile-boxplot-container-tooltip-row">' +
-                              '<div class="student-profile-boxplot-container-tooltip-label">30th Percentile</div>' +
-                              '<div class="student-profile-boxplot-container-tooltip-value">' + dataset.courseDeciles[3] + '</div></div>' +
-                              '<div class="student-profile-boxplot-container-tooltip-row">' +
-                              '<div class="student-profile-boxplot-container-tooltip-label">Minimum</div>' +
-                              '<div class="student-profile-boxplot-container-tooltip-value">' + dataset.courseDeciles[0] + '</div></div>' +
+      var tooltipBodyFormat = '<div class="student-profile-tooltip-content">' +
+                              '<div class="student-profile-tooltip-row">' +
+                              '<div class="student-profile-tooltip-label">Maximum</div>' +
+                              '<div class="student-profile-tooltip-value">' + dataset.courseDeciles[10] + '</div></div>' +
+                              '<div class="student-profile-tooltip-row">' +
+                              '<div class="student-profile-tooltip-label">70th Percentile</div>' +
+                              '<div class="student-profile-tooltip-value">' + dataset.courseDeciles[7] + '</div></div>' +
+                              '<div class="student-profile-tooltip-row">' +
+                              '<div class="student-profile-tooltip-label">50th Percentile</div>' +
+                              '<div class="student-profile-tooltip-value">' + dataset.courseDeciles[5] + '</div></div>' +
+                              '<div class="student-profile-tooltip-row">' +
+                              '<div class="student-profile-tooltip-label">30th Percentile</div>' +
+                              '<div class="student-profile-tooltip-value">' + dataset.courseDeciles[3] + '</div></div>' +
+                              '<div class="student-profile-tooltip-row">' +
+                              '<div class="student-profile-tooltip-label">Minimum</div>' +
+                              '<div class="student-profile-tooltip-value">' + dataset.courseDeciles[0] + '</div></div>' +
                               '</div>';
 
       var boxplotOptions = {
