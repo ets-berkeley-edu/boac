@@ -27,7 +27,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from urllib.parse import urlencode
 
 from boac.api.errors import ForbiddenRequestError
-from boac.lib.http import tolerant_jsonify
+from boac.lib.http import add_param_to_url, tolerant_jsonify
 import cas
 from flask import (
     current_app as app, flash, redirect, request, url_for,
@@ -58,8 +58,11 @@ def cas_login():
         raise ForbiddenRequestError('Unknown account')
     login_user(user)
     flash('Logged in successfully.')
+    if not target_url:
+        target_url = '/'
     # The 'casLogin' marker is used by googleAnalyticsService to track CAS login events
-    return redirect((target_url or '/') + '?casLogin=true')
+    redirect_url = add_param_to_url(target_url, ('casLogin', 'true'))
+    return redirect(redirect_url)
 
 
 @app.route('/logout')
