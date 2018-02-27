@@ -24,9 +24,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-import inspect
 from boac import db, std_commit
 from boac.lib.berkeley import term_name_for_sis_id
+from boac.lib.util import get_args_dict
 from boac.models.base import Base
 from decorator import decorator
 from flask import current_app as app
@@ -74,7 +74,7 @@ def stow(key_pattern, for_term=False):
     """
     @decorator
     def _stow(func, *args, **kw):
-        args_dict = _get_args(func, *args, **kw)
+        args_dict = get_args_dict(func, *args, **kw)
         key = key_pattern.format(**args_dict)
         if for_term:
             term_name = term_name_for_sis_id(args_dict.get('term_id'))
@@ -106,10 +106,3 @@ def update_jsonb_row(stowed):
     flag_modified(stowed, 'json')
     db.session.merge(stowed)
     std_commit()
-
-
-def _get_args(func, *args, **kw):
-    arg_names = inspect.getfullargspec(func)[0]
-    args_dict = dict(zip(arg_names, args))
-    args_dict.update(kw)
-    return args_dict

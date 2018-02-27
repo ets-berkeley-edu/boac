@@ -26,12 +26,12 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from contextlib import contextmanager
 from functools import partial, wraps
-import inspect
 import json
 import os
 import re
 import urllib
 
+from boac.lib.util import fill_pattern_from_args
 from flask import current_app as app
 import httpretty
 
@@ -161,7 +161,7 @@ def fixture(pattern):
         else:
             # We are reading from fixtures.
             def register_fixture(*args, **kw):
-                evaluated_pattern = _evaluate_fixture_pattern(func, base_pattern, *args, **kw)
+                evaluated_pattern = fill_pattern_from_args(base_pattern, func, *args, **kw)
                 return response_from_fixture(evaluated_pattern, suffix)
             mockable_wrapper = mockable(func)
             mocking(func)(register_fixture)
@@ -296,13 +296,6 @@ def _environment_supports_mocks():
     return env == 'test' or env == 'demo'
 
 
-def _evaluate_fixture_pattern(func, pattern, *args, **kw):
-    arg_names = inspect.getfullargspec(func)[0]
-    args_dict = dict(zip(arg_names, args))
-    args_dict.update(kw)
-    return pattern.format(**args_dict)
-
-
 def _get_fixtures_path():
     return app.config.get('FIXTURES_PATH') or (app.config['BASE_DIR'] + '/fixtures')
 
@@ -319,7 +312,7 @@ def _write_fixture(func, fixture_output_path, pattern, suffix):
         response = func(*args, **kw)
         json_path = '{}/{}.{}'.format(
             fixture_output_path,
-            _evaluate_fixture_pattern(func, pattern, *args, **kw),
+            fill_pattern_from_args(pattern, func, *args, **kw),
             suffix,
         )
 
