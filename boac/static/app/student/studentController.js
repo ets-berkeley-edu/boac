@@ -184,6 +184,15 @@
         $scope.student = analytics.data;
         // Track view event
         var preferredName = $scope.student.sisProfile && $scope.student.sisProfile.preferredName;
+        _.each($scope.student.enrollmentTerms, function(term) {
+          _.each(term.enrollments, function(course) {
+            _.each(course.sections, function(section) {
+              course.waitlisted = section.enrollmentStatus === 'W';
+              // Break if waitlisted
+              return !course.waitlisted;
+            });
+          });
+        });
         googleAnalyticsService.track('student', 'view-profile', preferredName, parseInt(uid, 10));
       }).catch(function(error) {
         $scope.error = _.truncate(error.data.message, {length: 200}) || 'An unexpected server error occurred.';

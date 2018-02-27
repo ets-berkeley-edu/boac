@@ -160,6 +160,9 @@
                             <span data-ng-bind="section.sectionNumber"></span>
                             <span data-ng-if="!$last">&#47;&nbsp;</span>
                           </div>
+                          <div class="student-waitlisted faint-text" data-ng-if="course.waitlisted">
+                            (Waitlisted)
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -195,15 +198,6 @@
                   </div>
                 </div>
               </uib-accordion-heading>
-
-              <div class="student-profile-class-heading" data-ng-if="course.sections.length">
-                <div class="student-profile-class-sections">
-                  <div data-ng-repeat="section in course.sections">
-                    <span data-ng-if="section.enrollmentStatus === 'W'">Waitlisted in</span>
-                    <span data-ng-if="section.enrollmentStatus === 'D'">Dropped</span>
-                  </div>
-                </div>
-              </div>
               <div data-ng-repeat="canvasSite in course.canvasSites">
                 <div class="student-profile-course-site-code" data-ng-bind="canvasSite.courseCode"></div>
                 <course-site-metrics
