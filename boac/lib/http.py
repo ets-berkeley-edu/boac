@@ -42,6 +42,13 @@ class ResponseExceptionWrapper:
         return False
 
 
+def add_param_to_url(url, param):
+    parsed_url = urllib.parse.urlparse(url)
+    parsed_query = urllib.parse.parse_qsl(parsed_url.query)
+    parsed_query.append(param)
+    return urllib.parse.urlunparse(parsed_url._replace(query=urllib.parse.urlencode(parsed_query)))
+
+
 def build_url(url, query=None):
     encoded_query = urllib.parse.urlencode(query, doseq=True) if query else ''
     url_components = urllib.parse.urlparse(url)
