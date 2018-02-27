@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from datetime import datetime
+import inspect
 
 from flask import current_app as app
 import pytz
@@ -40,6 +41,17 @@ def camelize(string):
             yield str.capitalize
     string_transform = lower_then_capitalize()
     return ''.join(next(string_transform)(segment) for segment in string.split('_'))
+
+
+def fill_pattern_from_args(pattern, func, *args, **kw):
+    return pattern.format(**get_args_dict(func, *args, **kw))
+
+
+def get_args_dict(func, *args, **kw):
+    arg_names = inspect.getfullargspec(func)[0]
+    resp = dict(zip(arg_names, args))
+    resp.update(kw)
+    return resp
 
 
 def get(_dict, key, default_value=None):
