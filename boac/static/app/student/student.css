@@ -29,6 +29,11 @@
   width: 100%;
 }
 
+.accordion-heading-caret {
+  margin-right: 5px;
+  width: 10px;
+}
+
 .accordion-heading-end {
   display: flex;
 }
@@ -64,11 +69,6 @@
 .accordion-heading-start-inner {
   display: flex;
   justify-content: flex-start;
-}
-
-.accordion-heading-caret {
-  margin-right: 5px;
-  width: 10px;
 }
 
 .accordion-heading-units {
@@ -246,6 +246,10 @@
 
 .student-profile-alert-item {
   padding: 5px 0;
+}
+
+.student-waitlisted {
+  padding-left: 5px;
 }
 
 .panel {
