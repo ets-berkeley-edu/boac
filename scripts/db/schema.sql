@@ -207,6 +207,21 @@ CREATE INDEX normalized_cache_students_level_idx ON normalized_cache_students US
 CREATE INDEX normalized_cache_students_units_idx ON normalized_cache_students USING btree (units);
 
 
+CREATE TABLE normalized_cache_enrollments (
+    term_id INTEGER NOT NULL,
+    section_id INTEGER NOT NULL,
+    sid VARCHAR(80) NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL
+);
+ALTER TABLE normalized_cache_enrollments OWNER TO boac;
+ALTER TABLE ONLY normalized_cache_enrollments
+    ADD CONSTRAINT normalized_cache_enrollments_pkey PRIMARY KEY (term_id, section_id, sid);
+CREATE INDEX normalized_cache_enrollments_term_id_idx ON normalized_cache_enrollments USING btree (term_id);
+CREATE INDEX normalized_cache_enrollments_section_id_idx ON normalized_cache_enrollments USING btree (section_id);
+CREATE INDEX normalized_cache_enrollments_sid_idx ON normalized_cache_enrollments USING btree (sid);
+
+
 CREATE TABLE student_athletes (
     group_code character varying(80) NOT NULL,
     sid character varying(80) NOT NULL
@@ -258,6 +273,8 @@ ALTER TABLE ONLY normalized_cache_student_majors
     ADD CONSTRAINT normalized_cache_student_majors_sid_fkey FOREIGN KEY (sid) REFERENCES students(sid) ON DELETE CASCADE;
 ALTER TABLE ONLY normalized_cache_students
     ADD CONSTRAINT normalized_cache_students_sid_fkey FOREIGN KEY (sid) REFERENCES students(sid) ON DELETE CASCADE;
+ALTER TABLE ONLY normalized_cache_enrollments
+    ADD CONSTRAINT normalized_cache_enrollments_sid_fkey FOREIGN KEY (sid) REFERENCES students(sid) ON DELETE CASCADE;
 
 
 ALTER TABLE ONLY student_athletes

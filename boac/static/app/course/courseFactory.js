@@ -27,23 +27,15 @@
 
   'use strict';
 
-  angular.module('boac').controller('CourseController', function(courseFactory, $scope, $stateParams) {
+  angular.module('boac').factory('courseFactory', function(utilService, $http) {
 
-    $scope.isLoading = true;
-
-    var init = function() {
-      courseFactory.getSection($stateParams.termId, $stateParams.sectionId).then(function(response) {
-        $scope.section = response.data;
-
-      }).catch(function(err) {
-        $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
-
-      }).then(function() {
-        $scope.isLoading = false;
-      });
+    var getSection = function(termId, sectionId) {
+      return $http.get('/api/section/' + termId + '/' + sectionId);
     };
 
-    init();
+    return {
+      getSection: getSection
+    };
   });
 
 }(window.angular));
