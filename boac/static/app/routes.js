@@ -91,7 +91,7 @@
         resolve: resolvePrivate
       })
       .state('course', {
-        url: '/course/:id',
+        url: '/course/:termId/:sectionId',
         templateUrl: '/static/app/course/course.html',
         controller: 'CourseController',
         resolve: resolvePrivate

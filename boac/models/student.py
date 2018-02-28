@@ -63,6 +63,11 @@ class Student(Base):
         return cls.query.filter_by(sid=sid).first()
 
     @classmethod
+    def find_students(cls, sids):
+        query = cls.sid.in_(sids)
+        return cls.query.order_by(cls.last_name).filter(query).all()
+
+    @classmethod
     def get_students(
             cls,
             gpa_ranges=None,

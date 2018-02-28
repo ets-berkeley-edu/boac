@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import re
 
 """Utility module containing standard API-feed translations of data objects."""
 
@@ -91,3 +92,62 @@ def translate_grading_basis(code):
         'SUS': 'S/U',
     }
     return bases.get(code) or code
+
+
+def course_section_to_json(term_id, section):
+    _class = section.get('class', {})
+    course = _class.get('course', {})
+    subject_area = course.get('subjectArea', {})
+    dept_name = subject_area.get('description')
+    dept_code = subject_area.get('code')
+    catalog_id = course.get('catalogNumber', {}).get('formatted')
+    instruction_format = section.get('component', {}).get('code')
+    units = _class.get('allowedUnits', {}).get('forAcademicProgress')
+    return {
+        'termId': term_id,
+        'sectionId': section['id'],
+        'deptName': dept_name,
+        'deptCode': dept_code,
+        'catalogId': catalog_id,
+        'displayName': course.get('displayName'),
+        'title': course.get('title'),
+        'instructionFormat': instruction_format,
+        'sectionNum': section.get('number'),
+        'units': units,
+        'schedule': _get_schedule_and_instructors(section),
+        'students': [student.to_api_json() for student in section['students']],
+    }
+
+
+def _get_schedule_and_instructors(section):
+    schedule = {
+        'locations': [],
+        'instructors': [],
+        'meetingDays': [],
+        'meetingTimes': [],
+    }
+    for meeting in section.get('meetings', []):
+        schedule['meetingDays'].append(meeting['meetsDays'])
+        start_time = _format_time(meeting['startTime'])
+        end_time = _format_time(meeting['endTime'])
+        schedule['meetingTimes'].append(f'{start_time} - {end_time}')
+        schedule['locations'].append(meeting['location']['description'])
+        meeting_instructors = []
+        instructors = meeting['assignedInstructors'] if 'assignedInstructors' in meeting else []
+        for entry in instructors:
+            instructor = entry['instructor']
+            for name in instructor['names']:
+                if name['type']['code'] == 'PRF':
+                    meeting_instructors.append(name['formattedName'])
+        schedule['instructors'].append(', '.join(meeting_instructors))
+    return schedule
+
+
+def _format_time(time):
+    formatted = None
+    split = re.split(':', time)
+    hour = split[0] if len(split) >= 2 and split[0].isdigit() else None
+    if hour:
+        suffix = 'AM' if int(hour) < 12 else 'PM'
+        formatted = f'{split[0]}:{split[1]} {suffix}'
+    return formatted
