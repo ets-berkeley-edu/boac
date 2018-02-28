@@ -42,12 +42,8 @@ def app_status():
             return False
 
     def data_loch_status():
-        try:
-            data_loch.execute('SELECT 1')
-            return True
-        except Exception:
-            app.logger.exception('Data Loch connection error')
-            return False
+        rows = data_loch.safe_execute('SELECT 1')
+        return rows is not None
 
     resp = {
         'app': True,

@@ -263,6 +263,8 @@ class TestUserAnalytics:
         assert analytics['participations']['courseDeciles'][9] == 6
         assert analytics['participations']['courseDeciles'][10] == 12
 
+        assert analytics['lochPageViews']['student']['raw'] == 766
+
     def test_empty_canvas_course_feed(self, client, fake_auth):
         """Returns 200 if user is found and Canvas course feed is empty."""
         fake_auth.login(TestUserAnalytics.non_student_uid)

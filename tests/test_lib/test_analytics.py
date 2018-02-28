@@ -24,8 +24,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-from boac.externals import canvas
+import io
+
+from boac.externals import canvas, data_loch
 from boac.lib import analytics
+from boac.lib.mockingdata import MockRows, register_mock
 
 
 class TestAnalytics:
@@ -263,3 +266,38 @@ class TestAnalyticsFromSummaryFeed:
         assert digested['participations']['courseDeciles'][10] == 11
         assert digested['pageViews']['displayPercentile'] == '0th'
         assert digested['pageViews']['boxPlottable'] is True
+
+
+class TestAnalyticsFromLochPageViews:
+    uid = '61889'
+    canvas_course_id = 7654321
+
+    def test_from_fixture(self, app):
+        digested = analytics.analytics_from_loch_page_views(self.uid, self.canvas_course_id)
+        assert digested['lochPageViews']['student']['raw'] == 766
+        assert digested['lochPageViews']['student']['percentile'] == 54
+        assert digested['lochPageViews']['courseDeciles'][0] == 9
+        assert digested['lochPageViews']['courseDeciles'][9] == 917
+        assert digested['lochPageViews']['courseDeciles'][10] == 31983
+
+    def test_with_loch_error(self, app):
+        bad_course_id = 'NoSuchSite'
+        digested = analytics.analytics_from_loch_page_views(self.uid, bad_course_id)
+        assert digested == {'error': 'Unable to retrieve from Data Loch'}
+
+    def test_when_no_data(self, app):
+        mr = MockRows(io.StringIO('uid,canvas_user_id,loch_page_views'))
+        with register_mock(data_loch.get_course_page_views, mr):
+            digested = analytics.analytics_from_loch_page_views(self.uid, self.canvas_course_id)
+        assert digested['lochPageViews']['student']['raw'] is None
+        assert digested['lochPageViews']['student']['percentile'] is None
+        assert digested['lochPageViews']['boxPlottable'] is False
+        assert digested['lochPageViews']['courseDeciles'] is None
+
+    def test_when_no_records_for_this_student(self, app):
+        lazy_uid = '211159'
+        digested = analytics.analytics_from_loch_page_views(lazy_uid, self.canvas_course_id)
+        assert digested['lochPageViews']['student']['raw'] == 0
+        assert digested['lochPageViews']['student']['roundedUpPercentile'] == 0
+        assert digested['lochPageViews']['courseDeciles'][0] == 0
+        assert digested['lochPageViews']['courseDeciles'][10] == 31983

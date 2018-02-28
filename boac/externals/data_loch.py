@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.lib.mockingdata import fixture
 from flask import current_app as app
+import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
 
@@ -33,12 +34,18 @@ from sqlalchemy.sql import text
 data_loch_db = None
 
 
-def execute(string):
+def safe_execute(string):
     global data_loch_db
     if data_loch_db is None:
         data_loch_db = create_engine(app.config['DATA_LOCH_URI'])
-    s = text(string)
-    return data_loch_db.execute(s)
+    try:
+        s = text(string)
+        dbresp = data_loch_db.execute(s)
+    except sqlalchemy.exc.SQLAlchemyError as err:
+        app.logger.error(f'SQL {s} threw {err}')
+        return None
+    rows = dbresp.fetchall()
+    return [dict(r) for r in rows]
 
 
 @fixture('loch_page_views_{course_id}.csv')
@@ -49,6 +56,4 @@ def get_course_page_views(course_id):
               WHERE canvas_course_id={course_id}
               ORDER BY sis_login_id
         """
-    rows = execute(sql).fetchall()
-    result = [dict(r) for r in rows]
-    return result
+    return safe_execute(sql)

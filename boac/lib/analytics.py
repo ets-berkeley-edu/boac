@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import math
 from statistics import mean
-from boac.externals import canvas
+from boac.externals import canvas, data_loch
 from boac.models.json_cache import stow
 from flask import current_app as app
 import pandas
@@ -52,6 +52,7 @@ def merge_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id):
                     term_id=term_id,
                 )
                 analytics.update(assignment_analytics)
+                analytics.update(analytics_from_loch_page_views(uid, canvas_course_id))
             course['analytics'] = analytics
 
 
@@ -152,6 +153,23 @@ def analytics_from_canvas_course_assignments(course_id, course_code, uid, sid, t
         }
         data['assignments'].append(assignment_data)
     return data
+
+
+def analytics_from_loch_page_views(uid, canvas_course_id):
+    course_rows = data_loch.get_course_page_views(canvas_course_id)
+    if course_rows is None:
+        return {'error': 'Unable to retrieve from Data Loch'}
+    df = pandas.DataFrame(course_rows, columns=['uid', 'loch_page_views'])
+    student_row = df.loc[df['uid'].values == uid]
+    if course_rows and student_row.empty:
+        app.logger.warn(f'UID {uid} not found in Data Loch page views for course site {canvas_course_id}; will assume 0 score')
+        student_row = pandas.DataFrame({'uid': [uid], 'loch_page_views': [0]})
+        df = df.append(student_row, ignore_index=True)
+        # Fetch newly appended row, mostly for the sake of its properly set-up index.
+        student_row = df.loc[df['uid'].values == uid]
+    return {
+        'lochPageViews': analytics_for_column(df, student_row, 'loch_page_views'),
+    }
 
 
 def analytics_for_column(df, student_row, column_name):
