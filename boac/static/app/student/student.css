@@ -267,11 +267,15 @@
 }
 
 .student-profile-class .panel-heading {
-  padding: 10px 0;
+  padding: 5px 0 10px 0;
 }
 
 .student-profile-dropped-section {
   margin-top: 15px;
+}
+
+.student-profile-dropped-section-icon {
+  color: #f0ad4e;
 }
 
 .student-profile-dropped-section-title {
@@ -505,6 +509,10 @@
 
 .student-profile-term {
   border-bottom: 1px solid #999;
+}
+
+.student-profile-term .panel-group {
+  margin-bottom: 10px;
 }
 
 .student-profile-terms {
