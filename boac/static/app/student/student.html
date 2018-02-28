@@ -226,16 +226,19 @@
                   </course-site-metrics>
                 </div>
               </div>
-              <div data-ng-if="term.droppedSections.length">
-                <div data-ng-repeat="droppedSection in term.droppedSections" class="student-profile-dropped-section">
-                  <div class="student-profile-dropped-section-title">
-                    <span data-ng-bind="droppedSection.displayName"></span> -
-                    <span data-ng-bind="droppedSection.component"></span>
-                    <span data-ng-bind="droppedSection.sectionNumber"></span>
-                  </div>
-                  <div class="student-profile-class-notation">
-                    <i class="fa fa-exclamation-triangle student-profile-dropped-section-icon"></i> Dropped
-                  </div>
+            </div>
+            <div uib-accordion-group
+                 class="student-profile-class"
+                 is-open="true"
+                 data-ng-if="term.droppedSections.length">
+              <div data-ng-repeat="droppedSection in term.droppedSections">
+                <div class="student-profile-dropped-section-title">
+                  <span data-ng-bind="droppedSection.displayName"></span> -
+                  <span data-ng-bind="droppedSection.component"></span>
+                  <span data-ng-bind="droppedSection.sectionNumber"></span>
+                </div>
+                <div class="student-profile-class-notation">
+                  <i class="fa fa-exclamation-triangle student-profile-dropped-section-icon"></i> Dropped
                 </div>
               </div>
             </div>
