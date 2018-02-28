@@ -52,7 +52,7 @@ def merge_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id):
                     term_id=term_id,
                 )
                 analytics.update(assignment_analytics)
-                analytics.update(analytics_from_loch_page_views(uid, canvas_course_id))
+                analytics.update(analytics_from_loch_page_views(uid, canvas_course_id, term_id))
             course['analytics'] = analytics
 
 
@@ -155,8 +155,8 @@ def analytics_from_canvas_course_assignments(course_id, course_code, uid, sid, t
     return data
 
 
-def analytics_from_loch_page_views(uid, canvas_course_id):
-    course_rows = data_loch.get_course_page_views(canvas_course_id)
+def analytics_from_loch_page_views(uid, canvas_course_id, term_id):
+    course_rows = data_loch.get_course_page_views(canvas_course_id, term_id)
     if course_rows is None:
         return {'error': 'Unable to retrieve from Data Loch'}
     df = pandas.DataFrame(course_rows, columns=['uid', 'loch_page_views'])

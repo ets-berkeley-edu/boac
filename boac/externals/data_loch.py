@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.lib.mockingdata import fixture
+from boac.models.json_cache import stow
 from flask import current_app as app
 import sqlalchemy
 from sqlalchemy import create_engine
@@ -48,8 +49,13 @@ def safe_execute(string):
     return [dict(r) for r in rows]
 
 
+@stow('loch_page_views_{course_id}.csv', for_term=True)
+def get_course_page_views(course_id, term_id):
+    return _get_course_page_views(course_id)
+
+
 @fixture('loch_page_views_{course_id}.csv')
-def get_course_page_views(course_id):
+def _get_course_page_views(course_id):
     sql = f"""SELECT
             sis_login_id AS uid, canvas_user_id, user_page_views AS loch_page_views
               FROM boac_analytics.page_views_zscore
