@@ -31,7 +31,6 @@ import os
 from boac.lib.util import fill_pattern_from_args
 from flask import current_app as app
 import pandas
-import sqlalchemy
 
 
 """This module stubs SQL-querying functions by a CSV-derived array of dicts in test or demo mode.
@@ -48,7 +47,7 @@ class MockRows:
 
     def __call__(self, *args):
         if self.csv_in is None:
-            raise sqlalchemy.exc.NoSuchTableError('No fixture provided')
+            return None
         # Unless otherwise instructed, `pandas` will interpret numeric strings as numbers instead of strings.
         df = pandas.read_csv(self.csv_in, dtype={'uid': object})
         return df.to_dict('records')
@@ -138,7 +137,7 @@ def fixture(pattern):
 def response_from_fixture(pattern):
     """Generate a mock response from a fixture filename.
 
-    The CSV-parsed fixture data will replace the original function's response, or a sqlalchemy exception will be raised
+    The CSV-parsed fixture data will replace the original function's response. None will be returned
     if the fixture is not found.
 
     Usage:

@@ -29,25 +29,23 @@ import io
 from boac.externals import data_loch
 from boac.lib.mockingdata import MockRows, register_mock
 import pytest
-import sqlalchemy
 
 
 @pytest.mark.usefixtures('db_session')
 class TestDataLoch:
 
     def test_course_page_views_fixture(self, app):
-        data = data_loch.get_course_page_views(7654321)
+        data = data_loch._get_course_page_views(7654321)
         assert len(data) > 0
-        assert {'uid': '61889', 'canvas_user_id': 9000100, 'loch_page_views': 768} in data
+        assert {'uid': '61889', 'canvas_user_id': 9000100, 'loch_page_views': 766} in data
 
     def test_override_fixture(self, app):
         mr = MockRows(io.StringIO('uid,canvas_user_id,loch_page_views\n2040,99999,13'))
-        with register_mock(data_loch.get_course_page_views, mr):
-            data = data_loch.get_course_page_views(123)
+        with register_mock(data_loch._get_course_page_views, mr):
+            data = data_loch._get_course_page_views(123)
         assert len(data) == 1
         assert {'uid': '2040', 'canvas_user_id': 99999, 'loch_page_views': 13} == data[0]
 
     def test_fixture_not_found(self, app):
-        with pytest.raises(sqlalchemy.exc.SQLAlchemyError) as exc_info:
-            data_loch.get_course_page_views(0)
-        assert exc_info.value
+        no_db = data_loch._get_course_page_views(0)
+        assert no_db is None

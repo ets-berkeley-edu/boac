@@ -24,7 +24,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.lib.mockingdata import fixture
+from boac.models.json_cache import stow
 from flask import current_app as app
+import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
 
@@ -33,22 +35,31 @@ from sqlalchemy.sql import text
 data_loch_db = None
 
 
-def execute(string):
+def safe_execute(string):
     global data_loch_db
     if data_loch_db is None:
         data_loch_db = create_engine(app.config['DATA_LOCH_URI'])
-    s = text(string)
-    return data_loch_db.execute(s)
+    try:
+        s = text(string)
+        dbresp = data_loch_db.execute(s)
+    except sqlalchemy.exc.SQLAlchemyError as err:
+        app.logger.error(f'SQL {s} threw {err}')
+        return None
+    rows = dbresp.fetchall()
+    return [dict(r) for r in rows]
+
+
+@stow('loch_page_views_{course_id}.csv', for_term=True)
+def get_course_page_views(course_id, term_id):
+    return _get_course_page_views(course_id)
 
 
 @fixture('loch_page_views_{course_id}.csv')
-def get_course_page_views(course_id):
+def _get_course_page_views(course_id):
     sql = f"""SELECT
             sis_login_id AS uid, canvas_user_id, user_page_views AS loch_page_views
               FROM boac_analytics.page_views_zscore
               WHERE canvas_course_id={course_id}
               ORDER BY sis_login_id
         """
-    rows = execute(sql).fetchall()
-    result = [dict(r) for r in rows]
-    return result
+    return safe_execute(sql)
