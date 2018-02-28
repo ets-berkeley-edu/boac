@@ -67,7 +67,7 @@
           <div data-ng-repeat="plan in student.sisProfile.plans">
             <h4 class="student-profile-sidebar-header">
               <span data-ng-bind="plan.description" data-ng-if="!plan.degreeProgramUrl"></span>
-              <a data-ng-bind="plan.description" data-ng-if="plan.degreeProgramUrl" data-ng-href="{{plan.degreeProgramUrl}}"></a>
+              <a data-ng-bind="plan.description" data-ng-if="plan.degreeProgramUrl" data-ng-href="{{plan.degreeProgramUrl}}" target="_blank"></a>
             </h4>
             <div class="student-profile-sidebar-details">
               <div data-ng-bind="plan.program" data-ng-if="plan.program"></div>
