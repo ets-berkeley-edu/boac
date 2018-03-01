@@ -67,15 +67,15 @@
     var showUnitsChart = function() {
       var cumulativeUnits = _.get($scope.student, 'sisProfile.cumulativeUnits');
       var currentEnrolledUnits = _.get($scope.student, 'enrollmentTerms[0].enrolledUnits');
-      var tooltipBodyFormat = '<div class="student-profile-tooltip-content">' +
-                              '<div class="student-profile-tooltip-row">' +
-                              '<div class="student-profile-tooltip-swatch" style="background-color:#aec9eb"></div>' +
-                              '<div class="student-profile-tooltip-label">Cumulative Units</div>' +
-                              '<div class="student-profile-tooltip-value">' + cumulativeUnits + '</div></div>' +
-                              '<div class="student-profile-tooltip-row">' +
-                              '<div class="student-profile-tooltip-swatch" style="background-color:#d6e4f9"></div>' +
-                              '<div class="student-profile-tooltip-label">Currently Enrolled Units</div>' +
-                              '<div class="student-profile-tooltip-value">' + currentEnrolledUnits + '</div></div>' +
+      var tooltipBodyFormat = '<div class="profile-tooltip-content">' +
+                              '<div class="profile-tooltip-row">' +
+                              '<div class="profile-tooltip-swatch" style="background-color:#aec9eb"></div>' +
+                              '<div class="profile-tooltip-label">Cumulative Units</div>' +
+                              '<div class="profile-tooltip-value">' + cumulativeUnits + '</div></div>' +
+                              '<div class="profile-tooltip-row">' +
+                              '<div class="profile-tooltip-swatch" style="background-color:#d6e4f9"></div>' +
+                              '<div class="profile-tooltip-label">Currently Enrolled Units</div>' +
+                              '<div class="profile-tooltip-value">' + currentEnrolledUnits + '</div></div>' +
                               '</div>';
       var unitsChartOptions = {
         chart: {
@@ -174,7 +174,7 @@
         ]
       };
       setTimeout(function() {
-        Highcharts.chart('student-profile-units-chart-container', unitsChartOptions);
+        Highcharts.chart('profile-units-chart-container', unitsChartOptions);
       });
     };
 

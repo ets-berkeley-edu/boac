@@ -1,2 +1,51 @@
+<div class="container">
+  <div data-ng-include="'/static/app/shared/header.html'"></div>
 
-<h1>Hello World (id: {{section.sectionId}})</h1>
+  <div class="loading-spinner-large" data-ng-if="isLoading && !error">
+    <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
+    <span class="sr-only">Loading...</span>
+  </div>
+  <div data-ng-if="!isLoading && !error">
+    <div class="return-to-cohort" data-ng-if="returnUrl">
+      <a data-ng-href="{{returnUrl}}">
+        <i class="fa fa-arrow-left" aria-hidden="true"></i> Return to cohort
+      </a>
+    </div>
+    <div class="profile-body">
+      <div class="profile-sidebar">
+        <div class="profile-sidebar-box">
+          <h1 class="profile-sidebar-header">{{section.displayName}} {{section.sectionNum}}</h1>
+          <div class="profile-sidebar-details">
+            <span data-ng-bind="section.courseCode"></span>
+            <span data-ng-if="section.courseCode">&mdash;</span>
+            <span data-ng-bind="section.units"></span> Units
+          </div>
+          <div class="profile-sidebar-details">
+            <h2 data-ng-bind="section.title"></h2>
+            <div data-ng-repeat="meeting in section.meetings">
+              <div data-ng-bind="meeting.time"></div>
+              <div data-ng-bind="meeting.location"></div>
+              <div data-ng-repeat="instructor in meeting.instructors">
+                <div data-ng-bind="instructor"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="profile-terms">
+        <h3 data-ng-bind="section.termName"></h3>
+        <ul data-ng-repeat="student in section.students">
+          <li>
+            <span data-ng-bind="student.name"></span> (<span data-ng-bind="student.sid"></span>)
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="container-left" data-ng-if="!isLoading && error">
+    <h1>Error</h1>
+    <div data-ng-bind="error"></div>
+  </div>
+
+  <div data-ng-include="'/static/app/shared/footer.html'" data-ng-if="!isLoading"></div>
+</div>

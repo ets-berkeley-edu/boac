@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import re
+from boac.lib.berkeley import term_name_for_sis_id
 
 """Utility module containing standard API-feed translations of data objects."""
 
@@ -105,6 +106,7 @@ def course_section_to_json(term_id, section):
     units = _class.get('allowedUnits', {}).get('forAcademicProgress')
     return {
         'termId': term_id,
+        'termName': term_name_for_sis_id(term_id),
         'sectionId': section['id'],
         'deptName': dept_name,
         'deptCode': dept_code,
@@ -114,33 +116,32 @@ def course_section_to_json(term_id, section):
         'instructionFormat': instruction_format,
         'sectionNum': section.get('number'),
         'units': units,
-        'schedule': _get_schedule_and_instructors(section),
+        'meetings': _get_meetings(section),
         'students': [student.to_api_json() for student in section['students']],
     }
 
 
-def _get_schedule_and_instructors(section):
-    schedule = {
-        'locations': [],
-        'instructors': [],
-        'meetingDays': [],
-        'meetingTimes': [],
-    }
+def _get_meetings(section):
+    meetings = []
     for meeting in section.get('meetings', []):
-        schedule['meetingDays'].append(meeting['meetsDays'])
+        m = {
+            'instructors': [],
+        }
+        if 'meetsDays' in meeting:
+            days = re.findall('[A-Z][^A-Z]*', meeting['meetsDays'])
+            m['days'] = ','.join(days)
         start_time = _format_time(meeting['startTime'])
         end_time = _format_time(meeting['endTime'])
-        schedule['meetingTimes'].append(f'{start_time} - {end_time}')
-        schedule['locations'].append(meeting['location']['description'])
-        meeting_instructors = []
-        instructors = meeting['assignedInstructors'] if 'assignedInstructors' in meeting else []
+        m['time'] = f'{start_time} - {end_time}'
+        m['location'] = meeting.get('location', {}).get('description')
+        instructors = meeting.get('assignedInstructors', [])
         for entry in instructors:
             instructor = entry['instructor']
             for name in instructor['names']:
                 if name['type']['code'] == 'PRF':
-                    meeting_instructors.append(name['formattedName'])
-        schedule['instructors'].append(', '.join(meeting_instructors))
-    return schedule
+                    m['instructors'].append(name['formattedName'])
+        meetings.append(m)
+    return meetings
 
 
 def _format_time(time):
