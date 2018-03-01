@@ -185,6 +185,8 @@
                         <span class="student-profile-class-grading-basis"
                               data-ng-bind="course.gradingBasis"
                               data-ng-if="!course.grade"></span>
+                        <span class="student-profile-class-grade"
+                              data-ng-if="!course.grade && !course.gradingBasis">&mdash;</span>
                       </div>
                       <div class="accordion-heading-grade">
                         Mid:
@@ -209,22 +211,6 @@
               </div>
               <div class="student-profile-class-notation" data-ng-if="!course.canvasSites.length">
                 No additional information
-              </div>
-              <div class="student-profile-class"
-                   data-ng-if="term.unmatchedCanvasSites.length">
-                <div data-ng-repeat="canvasSite in term.unmatchedCanvasSites" class="student-profile-class">
-                  <div class="student-profile-class-heading">
-                    <div class="student-profile-class-title-outer">
-                      <h4 class="student-profile-class-title" data-ng-bind="canvasSite.courseName"></h4>
-                    </div>
-                  </div>
-                  <course-site-metrics
-                    data-canvas-site="canvasSite"
-                    data-course-name="'unmatchedCanvasSites'"
-                    data-draw-boxplot="drawBoxplot"
-                    data-term-id="term.termId">
-                  </course-site-metrics>
-                </div>
               </div>
             </div>
             <div uib-accordion-group
