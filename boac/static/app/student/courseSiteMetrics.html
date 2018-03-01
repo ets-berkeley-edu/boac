@@ -1,25 +1,25 @@
-<table class="student-profile-course-site-metrics">
+<table class="profile-course-site-metrics">
   <tr data-ng-repeat="metric in metrics">
-    <td class="student-profile-course-site-metrics-legend" data-ng-bind="metric.label"></td>
+    <td class="profile-course-site-metrics-legend" data-ng-bind="metric.label"></td>
     <td data-ng-if="metric.dataset.displayPercentile">
       <strong data-ng-bind="metric.dataset.displayPercentile"></strong> percentile
     </td>
-    <td class="student-profile-course-site-metrics-no-data"
+    <td class="profile-course-site-metrics-no-data"
         data-ng-bind="metric.missingLabel"
         data-ng-if="!metric.dataset.displayPercentile"></td>
-    <td class="student-profile-boxplot-container" data-ng-if="metric.dataset.boxPlottable">
+    <td class="profile-boxplot-container" data-ng-if="metric.dataset.boxPlottable">
       <div id="boxplot-{{canvasSite.canvasCourseId}}-{{metric.id}}"
-           class="student-profile-boxplot"
+           class="profile-boxplot"
            data-ng-init="drawBoxplot(termId, courseName, canvasSite.canvasCourseId, metric.id)"></div>
     </td>
     <td data-ng-if="!metric.dataset.boxPlottable && metric.dataset.displayPercentile">
       Score:
       <strong data-ng-bind="metric.dataset.student.raw"></strong>
-      <span class="student-profile-course-site-metrics-maximum">
+      <span class="profile-course-site-metrics-maximum">
         (Maximum: <span data-ng-bind="metric.dataset.courseDeciles[10]"></span>)
       </span>
     </td>
-    <td class="student-profile-course-site-metrics-no-data"
+    <td class="profile-course-site-metrics-no-data"
         data-ng-if="!metric.dataset.boxPlottable && !metric.dataset.displayPercentile">
       No Data
     </td>

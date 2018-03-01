@@ -1,0 +1,451 @@
+/**
+ * Copyright ©2018. The Regents of the University of California (Regents). All Rights Reserved.
+ *
+ * Permission to use, copy, modify, and distribute this software and its documentation
+ * for educational, research, and not-for-profit purposes, without fee and without a
+ * signed licensing agreement, is hereby granted, provided that the above copyright
+ * notice, this paragraph and the following two paragraphs appear in all copies,
+ * modifications, and distributions.
+ *
+ * Contact The Office of Technology Licensing, UC Berkeley, 2150 Shattuck Avenue,
+ * Suite 510, Berkeley, CA 94720-1620, (510) 643-7201, otl@berkeley.edu,
+ * http://ipira.berkeley.edu/industry-info for commercial licensing opportunities.
+ *
+ * IN NO EVENT SHALL REGENTS BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
+ * INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF
+ * THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF REGENTS HAS BEEN ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
+ * SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
+ * "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
+ * ENHANCEMENTS, OR MODIFICATIONS.
+ */
+
+.profile-alert {
+  margin: 10px 0;
+  padding: 5px 15px;
+}
+
+.profile-alert-item {
+  padding: 5px 0;
+}
+
+.profile-avatar {
+  background-image: url(/static/app/shared/avatar-50.png);
+  background-size: cover;
+  border-radius: 50px;
+  border: 4px solid #999;
+  height: 100px;
+  margin: 20px;
+  max-height: 100px;
+  object-fit: cover;
+  width: 100px;
+}
+
+.profile-body {
+  display: flex;
+}
+
+.profile-boxplot {
+  height: 18px;
+  width: 75px;
+}
+
+.profile-boxplot .highcharts-container {
+  overflow: visible !important;
+}
+
+.profile-boxplot-container {
+  align-items: flex-end;
+  display: flex;
+}
+
+.profile-boxplot-container .highcharts-tooltip {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  line-height: 1.4em;
+  min-width: 200px;
+  padding: 0;
+}
+
+.profile-boxplot-container .highcharts-tooltip::after {
+  background: #fff;
+  border: 1px solid #aaa;
+  border-width: 0 1px 1px 0;
+  content: "";
+  display: block;
+  height: 10px;
+  position: absolute;
+  top: 75px;
+  left: -6px;
+  transform: rotate(135deg);
+  width: 10px;
+  z-index: 1;
+}
+
+.profile-boxplot-container g.highcharts-tooltip {
+  display: none !important;
+}
+
+.profile-boxplot-container .highcharts-tooltip span {
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: auto !important;
+}
+
+.profile-class .panel-body {
+  padding: 0;
+}
+
+.profile-class .panel,
+.panel-group .panel-heading + .panel-collapse > .panel-body {
+  border: none;
+}
+
+.profile-class .panel-heading {
+  padding: 5px 0 10px 0;
+}
+
+.profile-class .panel-title {
+  width: 100%;
+}
+
+.profile-class {
+  border-top: 1px solid #999;
+  margin-top: 20px;
+}
+
+.profile-class a {
+  text-decoration: none;
+}
+
+.profile-class-grade {
+  font-weight: bold;
+}
+
+.profile-class-grading-basis {
+  color: #666;
+  font-style: italic;
+}
+
+.profile-class-heading {
+  display: flex;
+  flex-direction: row;
+  margin-top: 15px;
+}
+
+.profile-class-name {
+  font-size: 16px;
+  font-weight: 400;
+  margin: 5px 0 0;
+}
+
+.profile-class-notation {
+  color: #999;
+  margin-bottom: 10px;
+}
+
+.profile-class-sections {
+  flex: 0.12;
+}
+
+.profile-class-title {
+  color: #337ab7;
+  font-size: 16px;
+  margin: 0;
+  padding: 0 5px 0 5px;
+  white-space: nowrap;
+}
+
+.profile-class-title-outer {
+  flex: 0.64;
+  margin-bottom: 30px;
+}
+
+.profile-classes-header {
+  font-size: 24px;
+  font-weight: 400;
+  margin: 20px 0 15px 0;
+  color: #999;
+}
+
+.profile-course-site-metrics {
+  margin-bottom: 20px;
+}
+
+.profile-course-site-metrics td {
+  font-size: 14px;
+  padding: 0 25px 5px 0;
+}
+
+.profile-course-site-metrics-legend {
+  color: #999;
+}
+
+.profile-course-site-metrics-maximum {
+  color: #666;
+}
+
+.profile-course-site-metrics-no-data {
+  color: #666;
+  font-style: italic;
+}
+
+.profile-course-site-code {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.profile-dropped-section {
+  margin-top: 15px;
+}
+
+.profile-dropped-section-icon {
+  color: #f0ad4e;
+}
+
+.profile-dropped-section-title {
+  font-weight: bold;
+}
+
+.profile-header {
+  background-color: #eee;
+  display: flex;
+  margin: 10px 0;
+}
+
+.profile-header-contact {
+  margin: 20px 0;
+  flex: 1;
+}
+
+.profile-header-name {
+  font-size: 24px;
+  margin: 0 0 5px 0;
+}
+
+.profile-header-name-preferred {
+  font-size: 20px;
+  font-weight: 400;
+  margin: 0 0 10px 0;
+}
+
+.profile-header-status-box {
+  background: #fff;
+  border: solid 1px #999;
+  border-radius: 10px;
+  font-size: 20px;
+  font-weight: 400;
+  margin: 15 10px;
+  padding: 10px 15px;
+  text-align: center;
+}
+
+.profile-header-status-box-units {
+  display: flex;
+}
+
+.profile-header-status-legend {
+  color: #999;
+  font-size: 13px;
+  font-weight: 300;
+  text-transform: uppercase;
+}
+
+.profile-header-status-legend-units {
+  color: #000;
+  font-weight: 600;
+  padding-left: 5px;
+  text-align: left;
+}
+
+.profile-header-status-number {
+  font-size: 42px;
+  line-height: 1.2em;
+}
+
+.profile-sidebar {
+  margin: 10px 10px 0 0;
+}
+
+.profile-sidebar-box {
+  background-color: #eee;
+  border: 1px solid #ccc;
+  margin-bottom: 20px;
+  padding: 10px;
+  width: 250px;
+}
+
+.profile-sidebar-details {
+  color: #999;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.profile-sidebar-header {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 5px 0;
+}
+
+.profile-sidebar-header-team {
+  margin-bottom: 10px;
+}
+
+.profile-sidebar-icon {
+  color: #999;
+  padding-right: 4px;
+}
+
+.profile-sidebar-inactive {
+  color: #cf1715;
+}
+
+.profile-sidebar-subdetails {
+  color: #999;
+  font-size: 11px;
+  font-style: italic;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.profile-sidebar-table {
+  font-size: 12px;
+  line-height: 1.2em;
+  margin: 10px 0;
+  width: 100%;
+}
+
+.profile-sidebar-table td {
+  padding: 3px 0;
+  white-space: nowrap;
+}
+
+.profile-sidebar-table th {
+  padding: 15px 0 3px 0;
+}
+
+.profile-term {
+  border-bottom: 1px solid #999;
+}
+
+.profile-term .panel-group {
+  margin-bottom: 10px;
+}
+
+.profile-terms {
+  flex: 1;
+  margin-left: 20px;
+}
+
+.profile-tooltip-content {
+  color: #000;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  margin: 0;
+  padding: 8px 15px;
+}
+
+.profile-tooltip-header {
+  background: #eee;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 0;
+  padding: 8px 15px;
+  text-align: left;
+}
+
+.profile-tooltip-label {
+  flex: 0.8;
+}
+
+.profile-tooltip-row {
+  align-items: center;
+  display: flex;
+  line-height: 1.5em;
+}
+
+.profile-tooltip-swatch {
+  height: 13px;
+  margin-right: 5px;
+  width: 13px;
+}
+
+.profile-tooltip-value {
+  flex: 0.2;
+  font-weight: bold;
+  text-align: right;
+}
+
+#profile-units-chart-container {
+  height: 60px;
+  margin-top: 10px;
+  min-width: 170px;
+  width: 170px;
+}
+
+.profile-units-chart-container .highcharts-container {
+  overflow: visible !important;
+}
+
+.profile-units-chart-container .highcharts-series rect {
+  stroke-width: 0;
+}
+
+.profile-units-chart-container .highcharts-tooltip {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  line-height: 1.4em;
+  min-width: 240px;
+  padding: 0;
+}
+
+.profile-units-chart-container .highcharts-tooltip::after {
+  background: #fff;
+  border: 1px solid #aaa;
+  border-width: 0 0 1px 1px;
+  content: "";
+  display: block;
+  height: 10px;
+  position: absolute;
+  top: -6px;
+  left: 40px;
+  transform: rotate(135deg);
+  width: 10px;
+  z-index: 1;
+}
+
+.profile-units-chart-container g.highcharts-tooltip {
+  display: none !important;
+}
+
+.profile-units-chart-container .highcharts-tooltip span {
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: auto !important;
+}
+
+.profile-units-chart-outer {
+  border-left: 1px solid #999;
+  margin-left: 10px;
+  padding-left: 10px;
+}
+
+.profile-view-previous-semesters {
+  margin: 0;
+  padding: 0;
+}
+
+.profile-view-previous-semesters-wrapper {
+  text-align: center;
+}
