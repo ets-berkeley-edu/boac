@@ -6,9 +6,9 @@
     <span class="sr-only">Loading...</span>
   </div>
   <div data-ng-if="!isLoading && !error">
-    <div class="return-to-cohort" data-ng-if="returnUrl">
+    <div class="return-to-url" data-ng-if="returnUrl">
       <a data-ng-href="{{returnUrl}}">
-        <i class="fa fa-arrow-left" aria-hidden="true"></i> Return to cohort
+        <i class="fa fa-arrow-left" aria-hidden="true"></i> Return to student
       </a>
     </div>
     <div class="profile-body">
@@ -23,6 +23,7 @@
           <div class="profile-sidebar-details">
             <h2 data-ng-bind="section.title"></h2>
             <div data-ng-repeat="meeting in section.meetings">
+              <div data-ng-bind="meeting.days"></div>
               <div data-ng-bind="meeting.time"></div>
               <div data-ng-bind="meeting.location"></div>
               <div data-ng-repeat="instructor in meeting.instructors">
@@ -34,11 +35,57 @@
       </div>
       <div class="profile-terms">
         <h3 data-ng-bind="section.termName"></h3>
-        <ul data-ng-repeat="student in section.students">
-          <li>
-            <span data-ng-bind="student.name"></span> (<span data-ng-bind="student.sid"></span>)
-          </li>
-        </ul>
+
+        <div data-ng-include="'/static/app/shared/tabs.html'"></div>
+
+        <div data-ng-show="tabs.selected === 'list'"
+             data-ng-if="!isLoading && !error && section.students.length">
+          <ul id="section-students-list" class="list-group">
+            <a class="list-group-item student-list-item"
+               data-ng-class="{'list-group-item-info': anchor===student.uid}"
+               id="{{student.uid}}"
+               href
+               data-ng-click="studentProfile(student.uid)"
+               data-ng-repeat="student in section.students">
+              <div class="student-avatar-container">
+                <img class="student-avatar"
+                     data-ng-src="/api/user/{{student.uid}}/photo"
+                     data-avatar-fallback>
+              </div>
+              <div class="student-name-container">
+                <div class="flex-container">
+                  <h3 class="student-name"
+                      data-ng-class="{'demo-mode-blur': demoMode}"
+                      data-ng-if="orderBy.selected !== 'first_name'">
+                    {{student.lastName}}, {{student.firstName}}
+                  </h3>
+                  <h3 class="student-name"
+                      data-ng-class="{'demo-mode-blur': demoMode}">
+                    {{student.firstName}} {{student.lastName}}
+                  </h3>
+                  <watchlist-toggle data-sid="student.sid"
+                                    data-fa-size="fa-1x"
+                                    data-watchlist="myWatchlist"></watchlist-toggle>
+                </div>
+                <div class="student-sid"
+                     data-ng-class="{'demo-mode-blur': demoMode}">
+                  {{student.sid}}
+                  <span class="student-inactive" data-ng-if="!student.isActiveAsc">INACTIVE</span>
+                </div>
+                <div class="student-text" data-ng-bind="student.level"></div>
+                <div class="student-text" data-ng-bind="major" data-ng-repeat="major in student.majors"></div>
+                <div class="student-teams-container">
+                  <div class="student-teams"
+                       data-ng-bind="membership.groupName"
+                       data-ng-repeat="membership in student.athletics"></div>
+                </div>
+              </div>
+            </a>
+          </ul>
+        </div>
+        <div id="matrix-outer" data-ng-show="tabs.selected === 'matrix' && !isLoading && !error">
+          <div data-ng-include="'/static/app/shared/matrix.html'"></div>
+        </div>
       </div>
     </div>
   </div>

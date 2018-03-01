@@ -95,24 +95,9 @@
   <div class="cohort-column-results">
     <div class="flex-container flex-space-between"
          data-ng-if="!isLoading && !error && (tabs.selected === 'matrix' || cohort.totalMemberCount)">
-      <div class="cohort-sort-column">
-        <div class="btn-group cohort-btn-group" role="group" aria-label="Select results view">
-          <button type="button"
-                  class="btn btn-secondary cohort-tab-button"
-                  data-ng-class="{'cohort-tab-button-selected': tabs.selected==='list'}"
-                  data-ng-click="onTab('list')"
-                  data-ng-disabled="isSaving">
-            <i class="fa fa-list"></i> List
-          </button>
-          <button type="button"
-                  class="btn btn-secondary cohort-tab-button"
-                  data-ng-class="{'cohort-tab-button-selected': tabs.selected==='matrix'}"
-                  data-ng-disabled="isSaving"
-                  data-ng-click="onTab('matrix')">
-            <i class="fa fa-table"></i> Matrix
-          </button>
-        </div>
-      </div>
+
+      <div data-ng-include="'/static/app/shared/tabs.html'"></div>
+
       <div class="cohort-sort-column" data-ng-if="tabs.selected === 'list'">
         <label class="cohort-sort-label" for="cohort-sort-by">Sort by</label>
         <select id="cohort-sort-by"
@@ -125,25 +110,25 @@
     <div data-ng-show="tabs.selected === 'list'"
          data-ng-if="!isLoading && !error && cohort.totalMemberCount">
       <ul id="cohort-members-list" class="list-group">
-        <a class="list-group-item cohort-member-list-item"
+        <a class="list-group-item student-list-item"
            data-ng-class="{'list-group-item-info': anchor===student.uid}"
            id="{{student.uid}}"
            href
            data-ng-click="studentProfile(student.uid)"
            data-ng-repeat="student in cohort.members">
-          <div class="cohort-avatar-container">
-            <img class="cohort-avatar"
+          <div class="student-avatar-container">
+            <img class="student-avatar"
                  data-ng-src="/api/user/{{student.uid}}/photo"
                  data-avatar-fallback>
           </div>
-          <div class="cohort-member-name-container">
+          <div class="student-name-container">
             <div class="flex-container">
-              <h3 class="cohort-member-name"
+              <h3 class="student-name"
                   data-ng-class="{'demo-mode-blur': demoMode}"
                   data-ng-if="orderBy.selected !== 'first_name'">
                 {{student.lastName}}, {{student.firstName}}
               </h3>
-              <h3 class="cohort-member-name"
+              <h3 class="student-name"
                   data-ng-class="{'demo-mode-blur': demoMode}"
                   data-ng-if="orderBy.selected === 'first_name'">
                 {{student.firstName}} {{student.lastName}}
@@ -152,53 +137,53 @@
                                 data-fa-size="fa-1x"
                                 data-watchlist="myWatchlist"></watchlist-toggle>
             </div>
-            <div class="cohort-member-sid"
+            <div class="student-sid"
                  data-ng-class="{'demo-mode-blur': demoMode}">
               {{student.sid}}
-              <span class="cohort-member-inactive" data-ng-if="!student.isActiveAsc">INACTIVE</span>
+              <span class="student-inactive" data-ng-if="!student.isActiveAsc">INACTIVE</span>
             </div>
-            <div class="cohort-member-text" data-ng-bind="student.level"></div>
-            <div class="cohort-member-text" data-ng-bind="major" data-ng-repeat="major in student.majors"></div>
-            <div class="cohort-member-teams-container">
-              <div class="cohort-member-teams"
+            <div class="student-text" data-ng-bind="student.level"></div>
+            <div class="student-text" data-ng-bind="major" data-ng-repeat="major in student.majors"></div>
+            <div class="student-teams-container">
+              <div class="student-teams"
                    data-ng-bind="membership.groupName"
                    data-ng-repeat="membership in student.athletics"></div>
             </div>
           </div>
-          <div class="cohort-member-column">
-            <div class="cohort-member-gpa" data-ng-bind="student.cumulativeGPA || '--'"></div>
-            <div class="cohort-member-text">GPA (Cumulative)</div>
+          <div class="student-column">
+            <div class="student-gpa" data-ng-bind="student.cumulativeGPA || '--'"></div>
+            <div class="student-text">GPA (Cumulative)</div>
           </div>
-          <div class="cohort-member-column">
-            <div class="cohort-member-gpa" data-ng-bind="student.currentTerm.enrolledUnits || '0'"></div>
-            <div class="cohort-member-text">Units (In Progress)</div>
-            <div class="cohort-member-gpa" data-ng-bind="student.cumulativeUnits || '--'"></div>
-            <div class="cohort-member-text">Total Units</div>
+          <div class="student-column">
+            <div class="student-gpa" data-ng-bind="student.currentTerm.enrolledUnits || '0'"></div>
+            <div class="student-text">Units (In Progress)</div>
+            <div class="student-gpa" data-ng-bind="student.cumulativeUnits || '--'"></div>
+            <div class="student-text">Total Units</div>
           </div>
-          <div class="cohort-member-course-activity-wrapper">
-            <div class="cohort-member-course-activity-row">
-              <div class="cohort-member-column cohort-member-text">CLASS</div>
-              <div class="cohort-member-column cohort-member-text">PAGE VIEWS</div>
-              <div class="cohort-member-column-grade cohort-member-text">MID</div>
-              <div class="cohort-member-column-grade cohort-member-text">FINAL</div>
+          <div class="student-course-activity-wrapper">
+            <div class="student-course-activity-row">
+              <div class="student-column student-text">CLASS</div>
+              <div class="student-column student-text">PAGE VIEWS</div>
+              <div class="student-column-grade student-text">MID</div>
+              <div class="student-column-grade student-text">FINAL</div>
             </div>
-            <div class="cohort-member-course-activity-row" data-ng-repeat="enrollment in student.currentTerm.enrollments">
-              <div class="cohort-member-column">
+            <div class="student-course-activity-row" data-ng-repeat="enrollment in student.currentTerm.enrollments">
+              <div class="student-column">
                 <div data-ng-bind="enrollment.displayName"></div>
               </div>
-              <div class="cohort-member-column">
+              <div class="student-column">
                 <div class="cohort-boxplot-container" data-ng-repeat="canvasSite in enrollment.canvasSites">
                   <div id="boxplot-{{canvasSite.canvasCourseId}}-{{student.uid}}-pageviews"
                        class="cohort-boxplot">
                   </div>
                 </div>
               </div>
-              <div class="cohort-member-column-grade">
+              <div class="student-column-grade">
                 <span class="cohort-grade" data-ng-bind="enrollment.midtermGrade" data-ng-if="enrollment.midtermGrade"></span>
                 <i class="fa fa-exclamation-triangle boac-exclamation" data-ng-if="isAlertGrade(enrollment.midtermGrade)"></i>
                 <span data-ng-if="!enrollment.midtermGrade">&mdash;</span>
               </div>
-              <div class="cohort-member-column-grade">
+              <div class="student-column-grade">
                 <span class="cohort-grade" data-ng-bind="enrollment.grade" data-ng-if="enrollment.grade"></span>
                 <i class="fa fa-exclamation-triangle boac-exclamation" data-ng-if="isAlertGrade(enrollment.grade)"></i>
                 <span class="cohort-grading-basis" data-ng-bind="enrollment.gradingBasis" data-ng-if="!enrollment.grade"></span>
@@ -215,63 +200,8 @@
           data-ng-click="nextPage()"
           data-ng-if="pagination.enabled && !isCreateCohortMode && (cohort.totalMemberCount > pagination.itemsPerPage)"></ul>
     </div>
-    <div id="cohort-matrix-outer" class="cohort-matrix-outer" data-ng-show="tabs.selected === 'matrix' && !isLoading && !error">
-      <div id="cohort-matrix-header" class="cohort-matrix-header">
-        <h4>Student Performance</h4>
-        <div>Current student achievements, comparing assignment grades and page views to the average in each bCourses class site.</div>
-      </div>
-      <div id="cohort-matrix-container" class="cohort-matrix-container">
-        <!-- IMPORTANT: We use data-ng-show because d3 must populate the div before we reveal it to the user. -->
-        <div id="scatterplot" class="cohort-matrix"></div>
-        <div id="cohort-missing-student-data" class="cohort-missing-student-data" data-ng-if="studentsWithoutData.length">
-          <h4>Missing Student Data</h4>
-          <div>For the following students, some bCourses classes may only provide partial data or information is currently unavailable:</div>
-          <div class="cohort-missing-student-data-header">
-            <div class="cohort-avatar-container"></div>
-            <div class="cohort-member-name-container"></div>
-            <div class="cohort-member-column">bCourses Page Views</div>
-            <div class="cohort-member-column"
-                 data-ng-bind="yAxisMeasure==='analytics.courseCurrentScore' ? 'Assignment Grades' : 'Assignments on Time'"></div>
-          </div>
-          <ul class="list-group">
-            <a class="list-group-item cohort-member-list-item"
-               data-ng-class="{'list-group-item-info': anchor===student.uid}"
-               href
-               data-ng-click="studentProfile(student.uid)"
-               data-ng-repeat="student in studentsWithoutData | orderBy:['lastName','firstName']">
-              <div class="cohort-avatar-container">
-                <img class="cohort-avatar"
-                     data-ng-src="/api/user/{{student.uid}}/photo"
-                     data-avatar-fallback>
-              </div>
-              <div class="cohort-member-name-container">
-                <div class="flex-container">
-                  <h3 class="flex-container cohort-member-name"
-                      data-ng-class="{'demo-mode-blur': demoMode}">
-                    {{student.lastName}}, {{student.firstName}}
-                  </h3>
-                  <watchlist-toggle data-sid="student.sid"
-                                    data-fa-size="fa-1x"
-                                    data-watchlist="myWatchlist"></watchlist-toggle>
-                </div>
-                <div class="cohort-member-sid"
-                     data-ng-class="{'demo-mode-blur': demoMode}">
-                  SID: <span data-ng-bind="student.sid"></span>
-                </div>
-              </div>
-              <div class="cohort-member-column">
-                <span data-ng-bind-template="{{student.analytics.pageViews.displayPercentile}} percentile" data-ng-if="student.analytics.pageViews"></span>
-              </div>
-              <div class="cohort-member-column" data-ng-if="yAxisMeasure==='analytics.courseCurrentScore'">
-                <span data-ng-bind-template="{{student.analytics.courseCurrentScore.displayPercentile}} percentile" data-ng-if="student.analytics.courseCurrentScore"></span>
-              </div>
-              <div class="cohort-member-column" data-ng-if="yAxisMeasure!=='analytics.courseCurrentScore'">
-                <span data-ng-bind-template="{{student.analytics.assignmentsOnTime.displayPercentile}} percentile" data-ng-if="student.analytics.assignmentsOnTime"></span>
-              </div>
-            </a>
-          </ul>
-        </div>
-      </div>
+    <div id="matrix-outer" data-ng-show="tabs.selected === 'matrix' && !isLoading && !error">
+      <div data-ng-include="'/static/app/shared/matrix.html'"></div>
     </div>
   </div>
 

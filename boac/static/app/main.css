@@ -269,6 +269,10 @@
   font-size: 24px;
 }
 
+.return-to-url {
+  padding: 10px 0 0 5px;
+}
+
 .wrap-hard {
   flex-wrap: wrap;
   word-wrap: break-word;
@@ -286,4 +290,33 @@ select option[value=""] {
 select.form-control {
   padding-left: 6px;
   width: 150px;
+}
+
+.tab-button {
+  background-color: #6bd;
+  color: #fff;
+}
+
+.tab-button:hover {
+  color: #cef;
+}
+
+.tab-btn-group {
+  padding: 0 0 5px 0;
+}
+
+.tab-button-selected {
+  background-color: #49b;
+}
+
+.tab-button-selected:active,
+.tab-button-selected:focus {
+  color: #fff;
+  outline: none !important;
+}
+
+.tabs-container {
+  display: flex;
+  margin: 20px 0 10px 0;
+  white-space: nowrap;
 }

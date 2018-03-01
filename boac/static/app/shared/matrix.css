@@ -23,36 +23,36 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-.cohort-matrix {
+.matrix {
   border: 1px solid #999;
   height: 500px;
   margin-bottom: 60px;
   width: 910px;
 }
 
-.cohort-matrix .dot {
+.matrix .dot {
   cursor: pointer;
   stroke: #000;
 }
 
-.cohort-matrix .overlay {
+.matrix .overlay {
   fill: none;
   pointer-events: all;
   cursor: ew-resize;
 }
 
-.cohort-matrix-axis path,
-.cohort-matrix-axis line {
+.matrix-axis path,
+.matrix-axis line {
   fill: none;
   stroke: rgba(0, 0, 0, 0.1);
   shape-rendering: crispEdges;
 }
 
-.cohort-matrix-axis text {
+.matrix-axis text {
   display: none;
 }
 
-.cohort-matrix-axis-label {
+.matrix-axis-label {
   font-size: 16px;
   font-weight: 200;
   letter-spacing: 0.1em;
@@ -60,16 +60,16 @@
   stroke: #999;
 }
 
-.cohort-matrix-container {
+.matrix-container {
   margin-bottom: 100px;
   position: relative;
 }
 
-.cohort-matrix-svg {
+.matrix-svg {
   overflow: visible !important;
 }
 
-.cohort-matrix-tooltip {
+.matrix-tooltip {
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -82,22 +82,22 @@
   width: 240px;
 }
 
-.cohort-matrix-tooltip-header {
+.matrix-tooltip-header {
   color: #49b;
   font-size: 14px;
   font-weight: bold;
   margin: 0 0 5px;
 }
 
-.cohort-matrix-tooltip-table td {
+.matrix-tooltip-table td {
   font-size: 12px;
 }
 
-.cohort-matrix-tooltip-label {
+.matrix-tooltip-label {
   padding: 0 10px 2px 0;
 }
 
-.cohort-matrix-tooltip-value {
+.matrix-tooltip-value {
   font-weight: bold;
   padding: 0 0 2px 0;
 }

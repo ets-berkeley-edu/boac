@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').service('utilService', function() {
+  angular.module('boac').service('utilService', function($base64) {
 
     var toBoolOrNull = function(str) {
       return _.isNil(str) ? null : _.lowerCase(str) === 'true';
@@ -101,12 +101,18 @@
       return words.join(' ');
     };
 
+    var studentProfile = function(uid) {
+      var encodedAbsUrl = encodeURIComponent($base64.encode($location.absUrl()));
+      $location.path('/student/' + uid).search({r: encodedAbsUrl});
+    };
+
     return {
       camelCaseToDashes: camelCaseToDashes,
       decorateOptions: decorateOptions,
       format: format,
       getValuesSelected: getValuesSelected,
       obfuscate: obfuscate,
+      studentProfile: studentProfile,
       toBoolOrNull: toBoolOrNull
     };
   });

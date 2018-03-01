@@ -63,26 +63,26 @@
 
           var xNewScale = transform.rescaleX(xScale);
           xAxis.scale(xNewScale);
-          svg.select('.x.cohort-matrix-axis').call(xAxis);
+          svg.select('.x.matrix-axis').call(xAxis);
 
           var yNewScale = transform.rescaleY(yScale);
           yAxis.scale(yNewScale);
-          svg.select('.y.cohort-matrix-axis').call(yAxis);
+          svg.select('.y.matrix-axis').call(yAxis);
 
-          svg.select('.cohort-matrix-gradient-rect').attr('transform', transform);
+          svg.select('.matrix-gradient-rect').attr('transform', transform);
 
           svg.selectAll('.dot')
             .attr('cx', function(d) { return transform.applyX(xScale(x(d))); })
             .attr('cy', function(d) { return transform.applyY(yScale(y(d))); });
         });
 
-      var container = d3.select('#cohort-matrix-container');
+      var container = d3.select('#matrix-container');
 
       // We clear the '#scatterplot' div with `html()` in case the current search results are replacing previous results.
       svg = d3.select('#scatterplot')
         .html('')
         .append('svg')
-        .attr('class', 'cohort-matrix-svg')
+        .attr('class', 'matrix-svg')
         .attr('width', width)
         .attr('height', height)
         .attr('stroke', 1)
@@ -93,23 +93,23 @@
         .append('rect')
         .attr('width', width)
         .attr('height', height)
-        .attr('class', 'cohort-matrix-gradient-rect')
-        .attr('fill', 'url(#cohort-matrix-background-gradient)');
+        .attr('class', 'matrix-gradient-rect')
+        .attr('fill', 'url(#matrix-background-gradient)');
 
       svg.append('g')
-        .attr('class', 'x cohort-matrix-axis')
+        .attr('class', 'x matrix-axis')
         .attr('transform', 'translate(0,' + height + ')')
         .call(xAxis);
 
       // Add the y-axis.
       svg.append('g')
-        .attr('class', 'y cohort-matrix-axis')
+        .attr('class', 'y matrix-axis')
         .call(yAxis);
 
       var defs = svg.append('svg:defs');
 
       var linearGradient = defs.append('linearGradient')
-        .attr('id', 'cohort-matrix-background-gradient')
+        .attr('id', 'matrix-background-gradient')
         .attr('x1', '0%')
         .attr('y1', '100%')
         .attr('x2', '100%')
@@ -161,7 +161,7 @@
         .attr('width', width)
         .attr('height', height)
         .attr('fill', 'none')
-        .classed('cohort-matrix-svg', true)
+        .classed('matrix-svg', true)
         .classed('objects', true);
 
       objects.append('svg:defs')
@@ -193,7 +193,7 @@
 
       // Add an x-axis label.
       svg.append('text')
-        .attr('class', 'cohort-matrix-axis-label')
+        .attr('class', 'matrix-axis-label')
         .attr('text-anchor', 'start')
         .attr('x', 0)
         .attr('y', height + 30)
@@ -201,7 +201,7 @@
 
       // Add a y-axis label.
       svg.append('text')
-        .attr('class', 'cohort-matrix-axis-label')
+        .attr('class', 'matrix-axis-label')
         .attr('text-anchor', 'start')
         .attr('x', -height)
         .attr('y', -20)
@@ -222,7 +222,7 @@
 
       var onDotSelected = function(d) {
         // Clear any existing tooltips.
-        container.selectAll('.cohort-matrix-tooltip').remove();
+        container.selectAll('.matrix-tooltip').remove();
 
         // Move dot to front.
         this.parentNode.appendChild(this);
@@ -232,22 +232,22 @@
           .style('stroke', '#ada');
 
         var tooltip = container.append('div')
-          .attr('class', 'cohort-matrix-tooltip')
+          .attr('class', 'matrix-tooltip')
           .style('top', parseInt(selection.attr('cy'), 10) + 45 + 'px')
           .style('left', parseInt(selection.attr('cx'), 10) - 120 + 'px');
 
         // The tooltip starts out hidden while inserting data...
         tooltip.style('opacity', 0);
         tooltip.append('h4')
-          .attr('class', config.demoMode ? 'demo-mode-blur' : 'cohort-matrix-tooltip-header')
+          .attr('class', config.demoMode ? 'demo-mode-blur' : 'matrix-tooltip-header')
           .text(d.firstName + ' ' + d.lastName);
-        var table = tooltip.append('table').attr('class', 'cohort-matrix-tooltip-table');
+        var table = tooltip.append('table').attr('class', 'matrix-tooltip-table');
         var pageViewsRow = table.append('tr');
-        pageViewsRow.append('td').attr('class', 'cohort-matrix-tooltip-label').text('bCourses page views');
-        pageViewsRow.append('td').attr('class', 'cohort-matrix-tooltip-value').text(displayValue(d, 'analytics.pageViews'));
+        pageViewsRow.append('td').attr('class', 'matrix-tooltip-label').text('bCourses page views');
+        pageViewsRow.append('td').attr('class', 'matrix-tooltip-value').text(displayValue(d, 'analytics.pageViews'));
         var yAxisRow = table.append('tr');
         yAxisRow.append('td').text(yAxisName);
-        yAxisRow.append('td').attr('class', 'cohort-matrix-tooltip-value').text(displayValue(d, yAxisMeasure));
+        yAxisRow.append('td').attr('class', 'matrix-tooltip-value').text(displayValue(d, yAxisMeasure));
 
         // ...and transitions to visible.
         tooltip.transition(d3.transition().duration(100).ease(d3.easeLinear))
@@ -261,7 +261,7 @@
         d3.select(this).attr('r', '30')
           .style('stroke', '#ccc');
 
-        container.select('.cohort-matrix-tooltip')
+        container.select('.matrix-tooltip')
           .transition(d3.transition().duration(500))
           .on('end', function() {
             this.remove();

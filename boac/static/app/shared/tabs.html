@@ -1,0 +1,18 @@
+<div class="tabs-container">
+  <div class="btn-group tab-btn-group" role="group" aria-label="Select results view">
+    <button type="button"
+            class="btn btn-secondary tab-button"
+            data-ng-class="{'tab-button-selected': tabs.selected==='list'}"
+            data-ng-click="onTab('list')"
+            data-ng-disabled="isSaving">
+      <i class="fa fa-list"></i> List
+    </button>
+    <button type="button"
+            class="btn btn-secondary tab-button"
+            data-ng-class="{'tab-button-selected': tabs.selected==='matrix'}"
+            data-ng-disabled="isSaving"
+            data-ng-click="onTab('matrix')">
+      <i class="fa fa-table"></i> Matrix
+    </button>
+  </div>
+</div>

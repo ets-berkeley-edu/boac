@@ -129,7 +129,7 @@ def _get_meetings(section):
         }
         if 'meetsDays' in meeting:
             days = re.findall('[A-Z][^A-Z]*', meeting['meetsDays'])
-            m['days'] = ','.join(days)
+            m['days'] = ', '.join(days)
         start_time = _format_time(meeting['startTime'])
         end_time = _format_time(meeting['endTime'])
         m['time'] = f'{start_time} - {end_time}'
