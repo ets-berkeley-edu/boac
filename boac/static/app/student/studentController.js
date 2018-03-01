@@ -185,6 +185,17 @@
         // Track view event
         var preferredName = $scope.student.sisProfile && $scope.student.sisProfile.preferredName;
         _.each($scope.student.enrollmentTerms, function(term) {
+          // Merge in unmatched canvas sites
+          var unmatched = _.map(term.unmatchedCanvasSites, function(c) {
+            // course_code is often valuable (eg, 'ECON 1 - LEC 001'), occasionally not (eg, CCN). Use it per strict criteria:
+            var useCourseCode = (/^[A-Z].*[A-Za-z]{3} \d/).test(c.courseCode);
+            return _.merge(c, {
+              displayName: useCourseCode ? c.courseCode : c.courseName,
+              title: useCourseCode ? c.courseName : null,
+              canvasSites: [ c ]
+            });
+          });
+          term.enrollments = _.concat(term.enrollments, unmatched);
           _.each(term.enrollments, function(course) {
             _.each(course.sections, function(section) {
               course.waitlisted = section.enrollmentStatus === 'W';
@@ -195,7 +206,8 @@
         });
         googleAnalyticsService.track('student', 'view-profile', preferredName, parseInt(uid, 10));
       }).catch(function(error) {
-        $scope.error = _.truncate(error.data.message, {length: 200}) || 'An unexpected server error occurred.';
+        var message = error.message || _.get(error, 'data.message') || 'An unexpected server error occurred.';
+        $scope.error = _.truncate(message, {length: 200});
       }).then(function() {
         var athleticsProfile = $scope.student.athleticsProfile;
         if (athleticsProfile) {
