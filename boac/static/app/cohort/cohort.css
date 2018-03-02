@@ -23,22 +23,6 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-.cohort-avatar {
-  background-image: url(/static/app/shared/avatar-50.png);
-  background-size: cover;
-  border: 5px solid #ccc;
-  border-radius: 30px;
-  height: 60px;
-  object-fit: cover;
-  width: 60px;
-}
-
-.cohort-avatar-container {
-  align-items: center;
-  display: flex;
-  flex: 0 0 60px;
-}
-
 .cohort-boxplot {
   height: 18px;
   width: 75px;
@@ -74,10 +58,6 @@
   top: 0 !important;
   left: 0 !important;
   width: auto !important;
-}
-
-.cohort-btn-group {
-  padding: 0 0 5px 0;
 }
 
 .cohort-checkbox-label {
@@ -190,76 +170,6 @@
   min-width: 200px;
 }
 
-.cohort-member-column {
-  flex: 0.5;
-  margin-left: 15px;
-}
-
-.cohort-member-column-grade {
-  flex: 0 0 40px;
-  margin-left: 15px;
-}
-
-.cohort-member-course-activity-row {
-  display: flex;
-}
-
-.cohort-member-course-activity-wrapper {
-  flex: 1.2;
-  margin-left: 0;
-  min-width: 320px;
-}
-
-.cohort-member-gpa {
-  font-size: 13px;
-  font-weight: bold;
-}
-
-.cohort-member-inactive {
-  color: #d0021b;
-  font-size: 11px;
-  font-weight: bold;
-}
-
-.cohort-member-list-item {
-  border-left: none;
-  border-right: none;
-  display: flex;
-}
-
-.cohort-member-name {
-  color: #49b;
-  font-size: 16px;
-  margin: 0;
-  white-space: nowrap;
-}
-
-.cohort-member-name-container {
-  flex: 0.8;
-  margin-left: 20px;
-  min-width: 200px;
-}
-
-.cohort-member-sid {
-  font-size: 11px;
-  font-weight: bold;
-  margin: 5px 0;
-}
-
-.cohort-member-teams {
-  color: #000;
-  font-size: 13px;
-}
-
-.cohort-member-teams-container {
-  margin-top: 5px;
-}
-
-.cohort-member-text {
-  color: #aaa;
-  font-size: 13px;
-}
-
 .cohort-missing-student-data {
   margin-top: 30px;
 }
@@ -278,25 +188,6 @@
 
 .cohort-sort-label {
   padding: 5px 10px 0 0;
-}
-
-.cohort-tab-button {
-  background-color: #6bd;
-  color: #fff;
-}
-
-.cohort-tab-button:hover {
-  color: #cef;
-}
-
-.cohort-tab-button-selected {
-  background-color: #49b;
-}
-
-.cohort-tab-button-selected:active,
-.cohort-tab-button-selected:focus {
-  color: #fff;
-  outline: none !important;
 }
 
 .filters-section-separator {

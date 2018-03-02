@@ -47,6 +47,8 @@
 
     $scope.demoMode = config.demoMode;
 
+    $scope.studentProfile = utilService.studentProfile;
+
     var filters = {
       gpaRanges: 'g',
       groupCodes: 't',
@@ -588,11 +590,6 @@
         $location.search('p', $scope.pagination.currentPage);
       }
     });
-
-    $scope.studentProfile = function(uid) {
-      var encodedAbsUrl = encodeURIComponent($base64.encode($location.absUrl()));
-      $location.path('/student/' + uid).search({r: encodedAbsUrl});
-    };
 
     $scope.disableSearchButton = function() {
       // Disable button if page is loading or no search criterion is selected

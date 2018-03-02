@@ -27,11 +27,70 @@
 
   'use strict';
 
-  angular.module('boac').controller('CourseController', function(courseFactory, $scope, $stateParams) {
+  angular.module('boac').controller('CourseController', function(
+    cohortService,
+    courseFactory,
+    googleAnalyticsService,
+    utilService,
+    watchlistFactory,
+    $anchorScroll,
+    $location,
+    $scope,
+    $state,
+    $stateParams,
+    $timeout) {
 
     $scope.isLoading = true;
 
+    $scope.studentProfile = utilService.studentProfile;
+
+    $scope.tabs = {
+      all: ['list', 'matrix'],
+      defaultTab: 'list',
+      selected: 'list'
+    };
+
+    /**
+     * Draw scatterplot graph.
+     *
+     * @param  {Function}      callback       Standard callback
+     * @return {void}
+     */
+    var scatterplotRefresh = function(callback) {
+      // Plot the cohort
+      var yAxisMeasure = $scope.yAxisMeasure = $location.search().yAxis || 'analytics.courseCurrentScore';
+      var partitions = _.partition($scope.section.students, function(student) {
+        return _.isFinite(_.get(student, 'analytics.pageViews.percentile')) &&
+          _.isFinite(_.get(student, yAxisMeasure + '.percentile'));
+      });
+      // Pass along a subset of students that have useful data.
+      cohortService.drawScatterplot(partitions[0], yAxisMeasure, function(uid) {
+        var absUrl = $location.absUrl();
+        $location.state(absUrl);
+        var encodedAbsUrl = encodeURIComponent($base64.encode(absUrl));
+        $state.go('user', {uid: uid, r: encodedAbsUrl});
+      });
+      // List of students-without-data is rendered below the scatterplot.
+      $scope.studentsWithoutData = partitions[1];
+      return callback();
+    };
+
+    $scope.onTab = function(tabName) {
+      $scope.isLoading = true;
+      $scope.tabs.selected = tabName;
+      $location.search('v', $scope.tabs.selected);
+      if (tabName === 'matrix') {
+        scatterplotRefresh(function() {
+          $scope.isLoading = false;
+        });
+      } else if (tabName === 'list') {
+        $scope.isLoading = false;
+      }
+    };
+
     var init = function() {
+      var args = _.clone($location.search());
+
       courseFactory.getSection($stateParams.termId, $stateParams.sectionId).then(function(response) {
         $scope.section = response.data;
 
@@ -39,7 +98,22 @@
         $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
 
       }).then(function() {
-        $scope.isLoading = false;
+        watchlistFactory.getMyWatchlist().then(function(response) {
+          $scope.myWatchlist = response.data;
+          $scope.isLoading = false;
+
+          if (args.a) {
+            $timeout(function() {
+              // Scroll to anchor if returning from student profile page
+              $scope.anchor = args.a;
+              $location.search('a', null).replace();
+              $anchorScroll.yOffset = 50;
+              $anchorScroll(args.a);
+            });
+          }
+          var s = $scope.section;
+          googleAnalyticsService.track('course', 'view', s.termName + ' ' + s.displayName + ' ' + s.sectionNum);
+        });
       });
     };
 
