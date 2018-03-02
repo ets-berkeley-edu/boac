@@ -34,6 +34,7 @@
     utilService,
     watchlistFactory,
     $anchorScroll,
+    $base64,
     $location,
     $scope,
     $state,
@@ -44,11 +45,7 @@
 
     $scope.studentProfile = utilService.studentProfile;
 
-    $scope.tabs = {
-      all: ['list', 'matrix'],
-      defaultTab: 'list',
-      selected: 'list'
-    };
+    $scope.tab = 'list';
 
     /**
      * Draw scatterplot graph.
@@ -77,8 +74,8 @@
 
     $scope.onTab = function(tabName) {
       $scope.isLoading = true;
-      $scope.tabs.selected = tabName;
-      $location.search('v', $scope.tabs.selected);
+      $scope.tab = tabName;
+      $location.search('v', $scope.tab);
       if (tabName === 'matrix') {
         scatterplotRefresh(function() {
           $scope.isLoading = false;
@@ -100,8 +97,13 @@
       }).then(function() {
         watchlistFactory.getMyWatchlist().then(function(response) {
           $scope.myWatchlist = response.data;
-          $scope.isLoading = false;
-
+          // Begin with matrix view if arg is present
+          if (args.v && _.includes(['list', 'matrix'], args.v)) {
+            $scope.tab = args.v;
+            $scope.onTab($scope.tab);
+          } else {
+            $scope.isLoading = false;
+          }
           if (args.a) {
             $timeout(function() {
               // Scroll to anchor if returning from student profile page
@@ -111,8 +113,11 @@
               $anchorScroll(args.a);
             });
           }
-          var s = $scope.section;
-          googleAnalyticsService.track('course', 'view', s.termName + ' ' + s.displayName + ' ' + s.sectionNum);
+          googleAnalyticsService.track(
+            'course',
+            'view',
+            $scope.section.termName + ' ' + $scope.section.displayName + ' ' + $scope.section.sectionNum
+          );
         });
       });
     };

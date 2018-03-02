@@ -5,7 +5,7 @@
     <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
     <span class="sr-only">Loading...</span>
   </div>
-  <div data-ng-if="!isLoading && !error">
+  <div data-ng-show="!isLoading && !error">
     <div class="return-to-url" data-ng-if="returnUrl">
       <a data-ng-href="{{returnUrl}}">
         <i class="fa fa-arrow-left" aria-hidden="true"></i> Return to student
@@ -38,7 +38,7 @@
 
         <div data-ng-include="'/static/app/shared/tabs.html'"></div>
 
-        <div data-ng-show="tabs.selected === 'list'"
+        <div data-ng-show="tab === 'list'"
              data-ng-if="!isLoading && !error && section.students.length">
           <ul id="section-students-list" class="list-group">
             <a class="list-group-item student-list-item"
@@ -83,7 +83,7 @@
             </a>
           </ul>
         </div>
-        <div id="matrix-outer" data-ng-show="tabs.selected === 'matrix' && !isLoading && !error">
+        <div id="matrix-outer" data-ng-show="tab === 'matrix' && !isLoading && !error">
           <div data-ng-include="'/static/app/shared/matrix.html'"></div>
         </div>
       </div>
