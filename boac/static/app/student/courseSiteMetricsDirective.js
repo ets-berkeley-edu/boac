@@ -42,7 +42,7 @@
           {
             dataset: scope.canvasSite.analytics.assignmentsOnTime,
             id: 'assignmentsOnTime',
-            label: 'Assignments on Time',
+            label: 'Online Assignments on Time',
             missingLabel: 'No Assignments'
           },
           {
