@@ -35,10 +35,16 @@
             data-ng-bind="student.sisProfile.preferredName"
             data-ng-class="{'demo-mode-blur': demoMode}"
             data-ng-if="student.sisProfile.preferredName !== student.athleticsProfile.fullName"></h3>
-        <a data-ng-href="mailto:{{student.sisProfile.emailAddress}}"
-           data-ng-class="{'demo-mode-blur': demoMode}"
-           data-ng-bind="student.sisProfile.emailAddress"></a>
-        <div data-ng-bind="student.sisProfile.phoneNumber"></div>
+        <div>
+          <i class="fa fa-envelope"></i>
+          <a data-ng-href="mailto:{{student.sisProfile.emailAddress}}"
+             data-ng-class="{'demo-mode-blur': demoMode}"
+             data-ng-bind="student.sisProfile.emailAddress"></a>
+        </div>
+        <div>
+          <i class="fa fa-phone"></i>
+          <span data-ng-bind="student.sisProfile.phoneNumber"></span>
+        </div>
       </div>
       <div class="profile-header-status-box profile-header-status-box-units">
         <div>

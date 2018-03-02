@@ -94,11 +94,11 @@
 
   <div class="cohort-column-results">
     <div class="flex-container flex-space-between"
-         data-ng-if="!isLoading && !error && (tabs.selected === 'matrix' || cohort.totalMemberCount)">
+         data-ng-if="!isLoading && !error && (tab === 'matrix' || cohort.totalMemberCount)">
 
       <div data-ng-include="'/static/app/shared/tabs.html'"></div>
 
-      <div class="cohort-sort-column" data-ng-if="tabs.selected === 'list'">
+      <div class="cohort-sort-column" data-ng-if="tab === 'list'">
         <label class="cohort-sort-label" for="cohort-sort-by">Sort by</label>
         <select id="cohort-sort-by"
                 class="form-control"
@@ -107,7 +107,7 @@
         </select>
       </div>
     </div>
-    <div data-ng-show="tabs.selected === 'list'"
+    <div data-ng-show="tab === 'list'"
          data-ng-if="!isLoading && !error && cohort.totalMemberCount">
       <ul id="cohort-members-list" class="list-group">
         <a class="list-group-item student-list-item"
@@ -200,7 +200,7 @@
           data-ng-click="nextPage()"
           data-ng-if="pagination.enabled && !isCreateCohortMode && (cohort.totalMemberCount > pagination.itemsPerPage)"></ul>
     </div>
-    <div id="matrix-outer" data-ng-show="tabs.selected === 'matrix' && !isLoading && !error">
+    <div id="matrix-outer" data-ng-show="tab === 'matrix' && !isLoading && !error">
       <div data-ng-include="'/static/app/shared/matrix.html'"></div>
     </div>
   </div>

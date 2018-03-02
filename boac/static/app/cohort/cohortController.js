@@ -76,12 +76,7 @@
     $scope.isCreateCohortMode = false;
     $scope.showIntensiveCheckbox = false;
     $scope.showInactiveCheckbox = false;
-
-    $scope.tabs = {
-      all: ['list', 'matrix'],
-      defaultTab: 'list',
-      selected: 'list'
-    };
+    $scope.tab = 'list';
 
     $scope.cohort = {
       code: null,
@@ -523,8 +518,8 @@
       if (args.p && !isNaN(args.p)) {
         $scope.pagination.currentPage = parseInt(args.p, 10);
       }
-      if (args.v && _.includes($scope.tabs.all, args.v)) {
-        $scope.tabs.selected = args.v;
+      if (args.v && _.includes(['list', 'matrix'], args.v)) {
+        $scope.tab = args.v;
       }
     };
 
@@ -535,8 +530,8 @@
      * @return {void}
      */
     $scope.onTab = function(tabName) {
-      $scope.tabs.selected = tabName;
-      $location.search('v', $scope.tabs.selected);
+      $scope.tab = tabName;
+      $location.search('v', $scope.tab);
       // Lazy load matrix data
       if (tabName === 'matrix' && !$scope.matrix) {
         matrixViewRefresh(function() {
@@ -568,7 +563,7 @@
       $scope.pagination.currentPage = 1;
       $location.search('c', $scope.cohort.code);
       $location.search('p', $scope.pagination.currentPage);
-      if ($scope.tabs.selected === 'list') {
+      if ($scope.tab === 'list') {
         nextPage();
       } else {
         matrixViewRefresh(function() {
@@ -665,7 +660,7 @@
               $scope.isLoading = false;
             });
           } else {
-            var render = $scope.tabs.selected === 'list' ? listViewRefresh : matrixViewRefresh;
+            var render = $scope.tab === 'list' ? listViewRefresh : matrixViewRefresh;
             watchlistFactory.getMyWatchlist().then(function(response) {
               $scope.myWatchlist = response.data;
               render(function() {
