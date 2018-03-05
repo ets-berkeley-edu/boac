@@ -29,11 +29,16 @@
 
   angular.module('boac').factory('courseFactory', function(utilService, $http) {
 
+    var getSectionIdsPerTerm = function() {
+      return $http.get('/api/sections/ids_per_term');
+    };
+
     var getSection = function(termId, sectionId) {
       return $http.get('/api/section/' + termId + '/' + sectionId);
     };
 
     return {
+      getSectionIdsPerTerm: getSectionIdsPerTerm,
       getSection: getSection
     };
   });

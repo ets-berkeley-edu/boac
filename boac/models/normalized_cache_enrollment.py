@@ -24,8 +24,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
+import re
 from boac import db, std_commit
-from boac.lib.berkeley import term_name_for_sis_id
+from boac.lib.berkeley import sis_term_id_for_name, term_name_for_sis_id
 from boac.models.base import Base
 from boac.models.json_cache import JsonCache, update_jsonb_row
 from boac.models.student import Student
@@ -70,6 +71,20 @@ class NormalizedCacheEnrollment(Base):
         return course_section or None
 
     @classmethod
+    def summarize_sections_in_cache(cls):
+        key_like = JsonCache.key.like('%-sis_course_section_summary_%')
+        rows = db.session.query(JsonCache.key).filter(key_like).order_by(JsonCache.key).all()
+        summary = {}
+        for row in rows:
+            m = re.search('term_(.+)-sis_course_section_summary_(.+)', row.key)
+            if m:
+                term_id = sis_term_id_for_name(m.group(1))
+                if term_id not in summary:
+                    summary[term_id] = []
+                summary[term_id].append(int(m.group(2)))
+        return summary
+
+    @classmethod
     def _refresh_course_enrollments(cls, term_id, sections):
         for section in sections:
             key = cls._course_section_cache_key(term_id=term_id, section_id=section['id'])
@@ -84,4 +99,4 @@ class NormalizedCacheEnrollment(Base):
     @classmethod
     def _course_section_cache_key(cls, term_id, section_id):
         term_name = term_name_for_sis_id(term_id)
-        return f'term_{term_name}-course_section_{section_id}'
+        return f'term_{term_name}-sis_course_section_summary_{section_id}'

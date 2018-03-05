@@ -161,10 +161,14 @@
                       </div>
                       <div>
                         <div class="accordion-heading-sections">
-                          <div class="faint-text" data-ng-repeat="section in course.sections">
+                          <div class="profile-course-section-info"
+                               data-ng-repeat="section in course.sections">
                             <span data-ng-bind="section.component"></span>
                             <span data-ng-bind="section.sectionNumber"></span>
-                            <span data-ng-if="!$last">&#47;&nbsp;</span>
+                            <i id="{{term.termId}}-section-{{section.ccn}}"
+                               class="fa fa-external-link"
+                               data-ng-click="goToCourse($event, term.termId, section.ccn)"
+                               data-ng-if="sectionIdsPerTerm[term.termId].indexOf(section.ccn) >= 0"></i>
                           </div>
                           <div class="student-waitlisted faint-text" data-ng-if="course.waitlisted">
                             (Waitlisted)

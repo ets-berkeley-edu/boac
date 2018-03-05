@@ -31,6 +31,7 @@
     authService,
     boxplotService,
     config,
+    courseFactory,
     googleAnalyticsService,
     studentFactory,
     watchlistFactory,
@@ -62,6 +63,11 @@
           throw error;
         }
       });
+    };
+
+    $scope.goToCourse = function(event, termId, sectionId) {
+      event.stopPropagation();
+      $location.path('/course/' + termId + '/' + sectionId);
     };
 
     var showUnitsChart = function() {
@@ -219,7 +225,11 @@
             showUnitsChart();
           }
         }
-        $scope.student.isLoading = false;
+      }).then(function() {
+        courseFactory.getSectionIdsPerTerm().then(function(response) {
+          $scope.sectionIdsPerTerm = response.data;
+          $scope.student.isLoading = false;
+        });
       });
     };
 

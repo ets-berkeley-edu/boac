@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').service('utilService', function($base64) {
+  angular.module('boac').service('utilService', function($base64, $location) {
 
     var toBoolOrNull = function(str) {
       return _.isNil(str) ? null : _.lowerCase(str) === 'true';
