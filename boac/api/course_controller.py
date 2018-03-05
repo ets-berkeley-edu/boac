@@ -44,3 +44,9 @@ def get_section(term_id, section_id):
     if 'students' in section:
         member_details.merge_all(section['students'])
     return tolerant_jsonify(section)
+
+
+@app.route('/api/sections/ids_per_term')
+@login_required
+def summarize_sections_in_cache():
+    return tolerant_jsonify(NormalizedCacheEnrollment.summarize_sections_in_cache())

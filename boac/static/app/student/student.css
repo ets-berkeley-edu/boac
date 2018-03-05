@@ -30,6 +30,7 @@
 }
 
 .accordion-heading-caret {
+  color: #337ab7;
   margin-right: 5px;
   width: 10px;
 }
@@ -60,10 +61,6 @@
 .accordion-heading-start {
   display: flex;
   flex-direction: column;
-}
-
-.accordion-heading-start .fa {
-  color: #337ab7;
 }
 
 .accordion-heading-start-inner {
