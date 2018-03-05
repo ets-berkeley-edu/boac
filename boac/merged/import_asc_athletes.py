@@ -383,7 +383,7 @@ def unambiguous_group_name(asc_group_name, group_code):
 
 
 def merge_in_calnet_data():
-    students = Student.query.filter(Student.uid.is_(None)).all()
+    students = Student.query.all()
     update_student_attributes(students)
     app.logger.info('Modified {} Student records from calnet'.format(len(db.session.dirty)))
     std_commit()
@@ -407,9 +407,14 @@ def update_student_attributes(students=None):
         name_split = a['sortable_name'].split(',') if 'sortable_name' in a else ''
         full_name = [name.strip() for name in reversed(name_split)]
         for m in sid_map[sid]:
-            m.uid = a['uid']
-            # Manually-entered ASC name may be more nicely formatted than a student's CalNet default.
-            # For now, don't overwrite it.
-            m.first_name = m.first_name or (full_name[0] if len(full_name) else '')
-            m.last_name = m.last_name or (full_name[1] if len(full_name) > 1 else '')
+            new_uid = a['uid']
+            if m.uid != new_uid:
+                app.logger.info(f'For SID {sid}, changing UID {m.uid} to {new_uid}')
+                m.uid = new_uid
+            new_first_name = full_name[0] if len(full_name) else ''
+            new_last_name = full_name[1] if len(full_name) > 1 else ''
+            if (m.first_name != new_first_name) or (m.last_name != new_last_name):
+                app.logger.info(f'For SID {sid}, changing name "{m.first_name} {m.last_name}" to "{new_first_name} {new_last_name}"')
+                m.first_name = new_first_name
+                m.last_name = new_last_name
     return students
