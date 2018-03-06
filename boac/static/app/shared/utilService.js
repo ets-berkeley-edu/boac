@@ -116,7 +116,7 @@
       return _.truncate(message, {length: 200});
     };
 
-    var prepareReturnUrl = function(anchorId) {
+    var unpackReturnUrl = function(anchorId) {
       var encodedReturnUrl = $location.search().r;
       var url = null;
       if (!_.isEmpty(encodedReturnUrl)) {
@@ -140,9 +140,32 @@
       return url;
     };
 
-    var toStudentWithReturnUrl = function(uid) {
-      var encodedAbsUrl = encodeURIComponent($base64.encode($location.absUrl()));
-      $location.path('/student/' + uid).search({r: encodedAbsUrl});
+    var inferReturnToLabel = function(returnUrl) {
+      var label = null;
+      if (returnUrl) {
+        var returnLabel = $location.search().returnLabel;
+        if (returnLabel) {
+          label = 'Return to ' + returnLabel;
+          $location.search('returnLabel', null).replace();
+        } else if (returnUrl.includes('student')) {
+          label = 'Return to student';
+        } else {
+          label = returnUrl.includes('cohort') ? 'Return to cohort' : 'Return to course';
+        }
+      }
+      return label;
+    };
+
+    var getEncodedAbsUrl = function() {
+      return encodeURIComponent($base64.encode($location.absUrl()));
+    };
+
+    var toStudentWithReturnUrl = function(uid, returnLabel) {
+      var encodedAbsUrl = getEncodedAbsUrl();
+      $location.path('/student/' + uid).search({
+        r: encodedAbsUrl,
+        returnLabel: returnLabel
+      });
     };
 
     return {
@@ -150,10 +173,12 @@
       camelCaseToDashes: camelCaseToDashes,
       decorateOptions: decorateOptions,
       format: format,
+      getEncodedAbsUrl: getEncodedAbsUrl,
+      inferReturnToLabel: inferReturnToLabel,
+      unpackReturnUrl: unpackReturnUrl,
       getValuesSelected: getValuesSelected,
       obfuscate: obfuscate,
       parseError: parseError,
-      prepareReturnUrl: prepareReturnUrl,
       toStudentWithReturnUrl: toStudentWithReturnUrl,
       toBoolOrNull: toBoolOrNull
     };
