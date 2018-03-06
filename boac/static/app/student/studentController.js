@@ -67,9 +67,13 @@
       });
     };
 
-    $scope.goToCourse = function(event, termId, sectionId) {
+    $scope.toCourseWithReturnUrl = function(event, termId, sectionId) {
       event.stopPropagation();
-      $location.path('/course/' + termId + '/' + sectionId);
+      var encodedAbsUrl = utilService.getEncodedAbsUrl();
+      $location.path('/course/' + termId + '/' + sectionId).search({
+        r: encodedAbsUrl,
+        returnLabel: $scope.student.sisProfile.preferredName
+      });
     };
 
     var loadStudent = function(uid, callback) {
@@ -134,7 +138,8 @@
           utilService.anchorScroll($scope.anchor);
         } else {
           // ...or, maybe we are fresh arrival from cohort page.
-          $scope.returnUrl = utilService.prepareReturnUrl(uid);
+          $scope.returnUrl = utilService.unpackReturnUrl(uid);
+          $scope.returnLabel = utilService.inferReturnToLabel($scope.returnUrl);
           $scope.hideFeedbackLink = !!$scope.returnUrl;
         }
         $scope.isWatchlistLoading = true;

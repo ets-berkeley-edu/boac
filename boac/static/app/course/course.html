@@ -8,7 +8,7 @@
   <div data-ng-show="!isLoading && !error">
     <div class="return-to-url" data-ng-if="returnUrl">
       <a data-ng-href="{{returnUrl}}">
-        <i class="fa fa-arrow-left" aria-hidden="true"></i> Return to student
+        <i class="fa fa-arrow-left" aria-hidden="true"></i> <span data-ng-bind="returnLabel"></span>
       </a>
       <div class="container-right">
         Questions or feedback? Contact us at <a href="mailto:ascpilot@lists.berkeley.edu">ascpilot@lists.berkeley.edu</a>
@@ -48,7 +48,7 @@
                data-ng-class="{'list-group-item-info': anchor===student.uid}"
                id="{{student.uid}}"
                href
-               data-ng-click="toStudentWithReturnUrl(student.uid)"
+               data-ng-click="toStudentWithReturnUrl(student.uid, section.displayName)"
                data-ng-repeat="student in section.students">
               <div class="student-avatar-container">
                 <img class="student-avatar"

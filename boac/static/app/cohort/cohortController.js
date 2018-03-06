@@ -40,8 +40,7 @@
     $base64,
     $location,
     $rootScope,
-    $scope,
-    $state
+    $scope
   ) {
 
     $scope.demoMode = config.demoMode;
@@ -410,7 +409,10 @@
         var absUrl = $location.absUrl();
         $location.state(absUrl);
         var encodedAbsUrl = encodeURIComponent($base64.encode(absUrl));
-        $state.go('user', {uid: uid, r: encodedAbsUrl});
+        $location.path('/student/' + uid).search({
+          r: encodedAbsUrl,
+          returnLabel: $scope.cohort.name || 'search'
+        });
       });
       // List of students-without-data is rendered below the scatterplot.
       $scope.studentsWithoutData = partitions[1];

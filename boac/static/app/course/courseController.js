@@ -42,7 +42,6 @@
   ) {
 
     $scope.isLoading = true;
-    $scope.toStudentWithReturnUrl = utilService.toStudentWithReturnUrl;
     $scope.tab = 'list';
 
     /**
@@ -61,7 +60,10 @@
         var absUrl = $location.absUrl();
         $location.state(absUrl);
         var encodedAbsUrl = encodeURIComponent($base64.encode(absUrl));
-        $state.go('user', {uid: uid, r: encodedAbsUrl});
+        $location.path('/student/' + uid).search({
+          r: encodedAbsUrl,
+          returnLabel: $scope.section.displayName
+        });
       });
       // List of students-without-data is rendered below the scatterplot.
       $scope.studentsWithoutData = partitions[1];
@@ -83,7 +85,8 @@
 
     var init = function() {
       // Maybe we are arriving from student page.
-      $scope.returnUrl = utilService.prepareReturnUrl();
+      $scope.returnUrl = utilService.unpackReturnUrl();
+      $scope.returnLabel = utilService.inferReturnToLabel($scope.returnUrl);
       $scope.hideFeedbackLink = !!$scope.returnUrl;
 
       var args = _.clone($location.search());
