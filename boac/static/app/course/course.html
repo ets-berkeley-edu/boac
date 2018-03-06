@@ -10,6 +10,9 @@
       <a data-ng-href="{{returnUrl}}">
         <i class="fa fa-arrow-left" aria-hidden="true"></i> Return to student
       </a>
+      <div class="container-right">
+        Questions or feedback? Contact us at <a href="mailto:ascpilot@lists.berkeley.edu">ascpilot@lists.berkeley.edu</a>
+      </div>
     </div>
     <div class="profile-body">
       <div class="profile-sidebar">
@@ -45,7 +48,7 @@
                data-ng-class="{'list-group-item-info': anchor===student.uid}"
                id="{{student.uid}}"
                href
-               data-ng-click="studentProfile(student.uid)"
+               data-ng-click="toStudentWithReturnUrl(student.uid)"
                data-ng-repeat="student in section.students">
               <div class="student-avatar-container">
                 <img class="student-avatar"
@@ -55,13 +58,8 @@
               <div class="student-name-container">
                 <div class="flex-container">
                   <h3 class="student-name"
-                      data-ng-class="{'demo-mode-blur': demoMode}"
-                      data-ng-if="orderBy.selected !== 'first_name'">
-                    {{student.lastName}}, {{student.firstName}}
-                  </h3>
-                  <h3 class="student-name"
                       data-ng-class="{'demo-mode-blur': demoMode}">
-                    {{student.firstName}} {{student.lastName}}
+                    {{student.lastName}}, {{student.firstName}}
                   </h3>
                   <watchlist-toggle data-sid="student.sid"
                                     data-fa-size="fa-1x"

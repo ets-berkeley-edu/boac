@@ -2,7 +2,7 @@
   <head>
     <meta charset="utf-8">
     <link rel="icon" type="image/png" href="/static/app/favicon.ico" />
-    <title>BOAC</title>
+    <title data-ng-bind="(pageTitle ? pageTitle : 'UC Berkeley') + ' | BOAC'"></title>
 
     <!-- Third-party CSS -->
     <link href="/static/lib/angular-bootstrap/ui-bootstrap-csp.css" rel="stylesheet">
@@ -59,6 +59,7 @@
     <script src="/static/app/student/studentAlertMessageDirective.js"></script>
     <script src="/static/app/student/studentController.js"></script>
     <script src="/static/app/student/studentFactory.js"></script>
+    <script src="/static/app/student/studentService.js"></script>
     <script src="/static/app/user/authController.js"></script>
     <script src="/static/app/user/authFactory.js"></script>
     <script src="/static/app/user/authService.js"></script>

@@ -35,6 +35,5 @@ class TestApiErrors:
 
     def test_non_api_route_not_found(self, client):
         """Serves front-end template for unknown non-API routes."""
-        response = client.get('/rumpus/')
+        response = client.get('/rumpus')
         assert response.status_code == 200
-        assert '<title>BOAC</title>' in str(response.data)

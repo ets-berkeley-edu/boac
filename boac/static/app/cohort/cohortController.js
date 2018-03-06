@@ -41,13 +41,12 @@
     $location,
     $rootScope,
     $scope,
-    $state,
-    $timeout
+    $state
   ) {
 
     $scope.demoMode = config.demoMode;
 
-    $scope.studentProfile = utilService.studentProfile;
+    $scope.toStudentWithReturnUrl = utilService.toStudentWithReturnUrl;
 
     var filters = {
       gpaRanges: 'g',
@@ -58,9 +57,7 @@
     };
 
     /**
-     * Control show/hide of dropdowns: true -> show, false -> hide
-     *
-     * @return {Object}                Each filter dropdown (unique key) has state (true/false)
+     * @return {Object}                Each dropdown has open or closed state
      */
     var defaultDropdownState = function() {
       return {
@@ -261,7 +258,7 @@
         drawBoxplots();
         return callback();
       }).catch(function(err) {
-        $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
+        $scope.error = utilService.parseError(err);
         return callback(null);
       });
     };
@@ -432,7 +429,7 @@
         scatterplotRefresh();
         return callback();
       }).catch(function(err) {
-        $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
+        $scope.error = utilService.parseError(err);
         return callback();
       });
     };
@@ -456,7 +453,7 @@
         };
 
         var handleError = function(err) {
-          $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
+          $scope.error = utilService.parseError(err);
         };
         var page = $scope.pagination.currentPage;
         var offset = page < 2 ? 0 : (page - 1) * $scope.pagination.itemsPerPage;
@@ -665,16 +662,13 @@
               $scope.myWatchlist = response.data;
               render(function() {
                 initFilters(function() {
+                  $rootScope.pageTitle = $scope.isCreateCohortMode ? 'Create Cohort' : $scope.cohort.name || 'Search';
                   $scope.isLoading = false;
 
                   if (args.a) {
-                    $timeout(function() {
-                      // Scroll to anchor if returning from student profile page
-                      $scope.anchor = args.a;
-                      $location.search('a', null).replace();
-                      $anchorScroll.yOffset = 50;
-                      $anchorScroll(args.a);
-                    });
+                    // We are returning from student page.
+                    $scope.anchor = args.a;
+                    utilService.anchorScroll($scope.anchor);
                   }
                   // Track view event
                   if (isNaN($scope.cohort.code)) {
