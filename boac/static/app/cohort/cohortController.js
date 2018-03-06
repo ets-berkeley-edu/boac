@@ -590,8 +590,8 @@
       // Disable button if page is loading or no search criterion is selected
       var count = $scope.search.count;
       return $scope.isLoading || $scope.isSaving || (!count.gpaRanges && !count.groupCodes && !count.levels &&
-        !count.majors && !count.unitRanges && ($scope.showIntensiveCheckbox && !$scope.search.options.intensive) &&
-        ($scope.showInactiveCheckbox && !$scope.search.options.inactive));
+        !count.majors && !count.unitRanges && (!$scope.showIntensiveCheckbox || !$scope.search.options.intensive) &&
+        (!$scope.showInactiveCheckbox || !$scope.search.options.inactive));
     };
 
     var getMajors = function(callback) {
