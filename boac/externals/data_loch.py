@@ -63,3 +63,22 @@ def _get_course_page_views(course_id):
               ORDER BY sis_login_id
         """
     return safe_execute(sql)
+
+
+@fixture('loch_on_time_submissions_relative_to_user_{course_id}_{user_id}.csv')
+def get_on_time_submissions_relative_to_user(course_id, user_id):
+    sql = f"""SELECT user_id as canvas_user_id,
+        COUNT(CASE WHEN assignment_status IN ('on_time', 'submitted') THEN 1 ELSE NULL END) AS on_time_submissions
+        FROM boac_analytics.assignment_submissions_scores
+        WHERE assignment_id IN
+        (
+          SELECT DISTINCT assignment_id FROM boac_analytics.assignment_submissions_scores
+          WHERE user_id = {user_id} AND course_id = {course_id}
+        )
+        GROUP BY user_id
+        HAVING count(*) = (
+          SELECT count(*) FROM boac_analytics.assignment_submissions_scores
+          WHERE user_id = {user_id} AND course_id = {course_id}
+        )
+        """
+    return safe_execute(sql)
