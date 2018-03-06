@@ -44,6 +44,10 @@
     $scope.isLoading = true;
     $scope.tab = 'list';
 
+    var goToStudent = $scope.goToStudent = function(uid) {
+      utilService.goTo('/student/' + uid, $scope.section.displayName);
+    };
+
     /**
      * @param  {Function}      callback       Standard callback
      * @return {void}
@@ -57,20 +61,15 @@
       });
       // Pass along a subset of students that have useful data.
       cohortService.drawScatterplot(partitions[0], yAxisMeasure, function(uid) {
-        var absUrl = $location.absUrl();
-        $location.state(absUrl);
-        var encodedAbsUrl = encodeURIComponent($base64.encode(absUrl));
-        $location.path('/student/' + uid).search({
-          r: encodedAbsUrl,
-          returnLabel: $scope.section.displayName
-        });
+        $location.state($location.absUrl());
+        goToStudent(uid);
       });
       // List of students-without-data is rendered below the scatterplot.
       $scope.studentsWithoutData = partitions[1];
       return callback();
     };
 
-    $scope.onTab = function(tabName) {
+    var onTab = $scope.onTab = function(tabName) {
       $scope.isLoading = true;
       $scope.tab = tabName;
       $location.search('v', $scope.tab);
@@ -86,7 +85,7 @@
     var init = function() {
       // Maybe we are arriving from student page.
       $scope.returnUrl = utilService.unpackReturnUrl();
-      $scope.returnLabel = utilService.inferReturnToLabel($scope.returnUrl);
+      $scope.returnLabel = utilService.constructReturnToLabel($scope.returnUrl);
       $scope.hideFeedbackLink = !!$scope.returnUrl;
 
       var args = _.clone($location.search());
@@ -104,14 +103,7 @@
           // Begin with matrix view if arg is present
           if (args.v && _.includes(['list', 'matrix'], args.v)) {
             $scope.tab = args.v;
-            $scope.onTab($scope.tab);
-          } else {
-            $scope.isLoading = false;
-          }
-          if (args.a) {
-            // We are returning to this course after a detour on student page.
-            $scope.anchor = args.a;
-            utilService.anchorScroll($scope.anchor);
+            onTab($scope.tab);
           }
           googleAnalyticsService.track(
             'course',
@@ -119,6 +111,13 @@
             $scope.section.termName + ' ' + $scope.section.displayName + ' ' + $scope.section.sectionNum
           );
         });
+      }).then(function() {
+        $scope.isLoading = false;
+        if (args.a) {
+          // Scroll to anchor
+          $scope.anchor = args.a;
+          utilService.anchorScroll($scope.anchor);
+        }
       });
     };
 

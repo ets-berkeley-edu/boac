@@ -140,13 +140,13 @@
       return url;
     };
 
-    var inferReturnToLabel = function(returnUrl) {
+    var constructReturnToLabel = function(returnUrl) {
       var label = null;
       if (returnUrl) {
-        var returnLabel = $location.search().returnLabel;
-        if (returnLabel) {
-          label = 'Return to ' + returnLabel;
-          $location.search('returnLabel', null).replace();
+        var name = $location.search().referringPageName;
+        if (name) {
+          label = 'Return to ' + name;
+          $location.search('referringPageName', null).replace();
         } else if (returnUrl.includes('student')) {
           label = 'Return to student';
         } else {
@@ -160,26 +160,31 @@
       return encodeURIComponent($base64.encode($location.absUrl()));
     };
 
-    var toStudentWithReturnUrl = function(uid, returnLabel) {
+    /**
+     * @param  {String}     path                    URI of destination
+     * @param  {String}     currentPageName         Used to construct 'Return to...' label (see returnUrl above)
+     * @return {void}
+     */
+    var goTo = function(path, currentPageName) {
       var encodedAbsUrl = getEncodedAbsUrl();
-      $location.path('/student/' + uid).search({
+      $location.path(path).search({
         r: encodedAbsUrl,
-        returnLabel: returnLabel
+        referringPageName: currentPageName
       });
     };
 
     return {
       anchorScroll: anchorScroll,
       camelCaseToDashes: camelCaseToDashes,
+      constructReturnToLabel: constructReturnToLabel,
       decorateOptions: decorateOptions,
       format: format,
       getEncodedAbsUrl: getEncodedAbsUrl,
-      inferReturnToLabel: inferReturnToLabel,
+      goTo: goTo,
       unpackReturnUrl: unpackReturnUrl,
       getValuesSelected: getValuesSelected,
       obfuscate: obfuscate,
       parseError: parseError,
-      toStudentWithReturnUrl: toStudentWithReturnUrl,
       toBoolOrNull: toBoolOrNull
     };
   });

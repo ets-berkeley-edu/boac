@@ -45,8 +45,6 @@
 
     $scope.demoMode = config.demoMode;
 
-    $scope.toStudentWithReturnUrl = utilService.toStudentWithReturnUrl;
-
     var filters = {
       gpaRanges: 'g',
       groupCodes: 't',
@@ -391,6 +389,15 @@
       return callback();
     };
 
+    var goToStudent = $scope.goToStudent = function(uid) {
+      var referringPageName = 'search';
+      if ($scope.cohort.name) {
+        // If 'id' is NOT null then it's a saved cohort (not a team) and we append suffix
+        referringPageName = $scope.cohort.id ? '\'' + $scope.cohort.name + '\' cohort' : $scope.cohort.name;
+      }
+      utilService.goTo('/student/' + uid, referringPageName);
+    };
+
     /**
      * Draw scatterplot graph.
      *
@@ -406,13 +413,8 @@
       });
       // Pass along a subset of students that have useful data.
       cohortService.drawScatterplot(partitions[0], yAxisMeasure, function(uid) {
-        var absUrl = $location.absUrl();
-        $location.state(absUrl);
-        var encodedAbsUrl = encodeURIComponent($base64.encode(absUrl));
-        $location.path('/student/' + uid).search({
-          r: encodedAbsUrl,
-          returnLabel: $scope.cohort.name || 'search'
-        });
+        $location.state($location.absUrl());
+        goToStudent(uid);
       });
       // List of students-without-data is rendered below the scatterplot.
       $scope.studentsWithoutData = partitions[1];
