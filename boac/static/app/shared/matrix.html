@@ -19,7 +19,7 @@
       <a class="list-group-item student-list-item"
          data-ng-class="{'list-group-item-info': anchor===student.uid}"
          href
-         data-ng-click="studentProfile(student.uid)"
+         data-ng-click="toStudentWithReturnUrl(student.uid)"
          data-ng-repeat="student in studentsWithoutData | orderBy:['lastName','firstName']">
         <div class="student-avatar-container">
           <img class="student-avatar"

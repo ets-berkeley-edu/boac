@@ -111,6 +111,14 @@
       });
 
   }).run(function(authFactory, $rootScope) {
+    $rootScope.$on('$stateChangeStart', function(e, toState) {
+      if (toState && toState.name) {
+        var name = toState.name.replace(/([A-Z])/g, ' $1');
+        $rootScope.pageTitle = name.charAt(0).toUpperCase() + name.slice(1);
+      } else {
+        $rootScope.pageTitle = 'UC Berkeley';
+      }
+    });
     $rootScope.$on('$stateChangeError', function(event, toState, toParams, fromState, fromParams, error) {
       if (error.message === 'unauthenticated') {
         authFactory.casLogIn();

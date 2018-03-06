@@ -27,7 +27,16 @@
 
   'use strict';
 
-  angular.module('boac').service('utilService', function($base64, $location) {
+  angular.module('boac').service('utilService', function($anchorScroll, $base64, $location, $rootScope, $timeout) {
+
+    var anchorScroll = function(anchorId) {
+      $timeout(function() {
+        // Clean up location URI
+        $location.search('a', null).replace();
+        $anchorScroll.yOffset = 50;
+        $anchorScroll(anchorId);
+      });
+    };
 
     var toBoolOrNull = function(str) {
       return _.isNil(str) ? null : _.lowerCase(str) === 'true';
@@ -101,18 +110,51 @@
       return words.join(' ');
     };
 
-    var studentProfile = function(uid) {
+    var parseError = function(error) {
+      $rootScope.pageTitle = 'Error';
+      var message = error.message || _.get(error, 'data.message') || error || 'An unexpected server error occurred.';
+      return _.truncate(message, {length: 200});
+    };
+
+    var prepareReturnUrl = function(anchorId) {
+      var encodedReturnUrl = $location.search().r;
+      var url = null;
+      if (!_.isEmpty(encodedReturnUrl)) {
+        // Parse referring URL
+        $location.search('r', null).replace();
+        url = $base64.decode(decodeURIComponent(encodedReturnUrl));
+        if (anchorId) {
+          var anchorParam = 'a=' + anchorId;
+          var urlComponents = url.split('?');
+          if (urlComponents.length > 1) {
+            url = urlComponents.shift();
+            var query = urlComponents.join('?');
+            query = query.replace(/&?casLogin=true/, '');
+            if (query.length) {
+              anchorParam = query + '&' + anchorParam;
+            }
+          }
+          url = url + '?' + anchorParam;
+        }
+      }
+      return url;
+    };
+
+    var toStudentWithReturnUrl = function(uid) {
       var encodedAbsUrl = encodeURIComponent($base64.encode($location.absUrl()));
       $location.path('/student/' + uid).search({r: encodedAbsUrl});
     };
 
     return {
+      anchorScroll: anchorScroll,
       camelCaseToDashes: camelCaseToDashes,
       decorateOptions: decorateOptions,
       format: format,
       getValuesSelected: getValuesSelected,
       obfuscate: obfuscate,
-      studentProfile: studentProfile,
+      parseError: parseError,
+      prepareReturnUrl: prepareReturnUrl,
+      toStudentWithReturnUrl: toStudentWithReturnUrl,
       toBoolOrNull: toBoolOrNull
     };
   });

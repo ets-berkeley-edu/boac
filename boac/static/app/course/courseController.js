@@ -33,23 +33,19 @@
     googleAnalyticsService,
     utilService,
     watchlistFactory,
-    $anchorScroll,
     $base64,
     $location,
+    $rootScope,
     $scope,
     $state,
-    $stateParams,
-    $timeout) {
+    $stateParams
+  ) {
 
     $scope.isLoading = true;
-
-    $scope.studentProfile = utilService.studentProfile;
-
+    $scope.toStudentWithReturnUrl = utilService.toStudentWithReturnUrl;
     $scope.tab = 'list';
 
     /**
-     * Draw scatterplot graph.
-     *
      * @param  {Function}      callback       Standard callback
      * @return {void}
      */
@@ -86,13 +82,18 @@
     };
 
     var init = function() {
+      // Maybe we are arriving from student page.
+      $scope.returnUrl = utilService.prepareReturnUrl();
+      $scope.hideFeedbackLink = !!$scope.returnUrl;
+
       var args = _.clone($location.search());
 
       courseFactory.getSection($stateParams.termId, $stateParams.sectionId).then(function(response) {
         $scope.section = response.data;
+        $rootScope.pageTitle = $scope.section.displayName;
 
       }).catch(function(err) {
-        $scope.error = err ? {message: err.status + ': ' + err.statusText} : true;
+        $scope.error = utilService.parseError(err);
 
       }).then(function() {
         watchlistFactory.getMyWatchlist().then(function(response) {
@@ -105,13 +106,9 @@
             $scope.isLoading = false;
           }
           if (args.a) {
-            $timeout(function() {
-              // Scroll to anchor if returning from student profile page
-              $scope.anchor = args.a;
-              $location.search('a', null).replace();
-              $anchorScroll.yOffset = 50;
-              $anchorScroll(args.a);
-            });
+            // We are returning to this course after a detour on student page.
+            $scope.anchor = args.a;
+            utilService.anchorScroll($scope.anchor);
           }
           googleAnalyticsService.track(
             'course',
