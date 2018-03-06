@@ -67,23 +67,22 @@
       });
     };
 
+    var getPreferredName = function() {
+      return _.get($scope.student, 'sisProfile.preferredName') || _.get($scope.student, 'canvasProfile.name');
+    };
+
     $scope.toCourseWithReturnUrl = function(event, termId, sectionId) {
       event.stopPropagation();
-      var encodedAbsUrl = utilService.getEncodedAbsUrl();
-      $location.path('/course/' + termId + '/' + sectionId).search({
-        r: encodedAbsUrl,
-        returnLabel: $scope.student.sisProfile.preferredName
-      });
+      utilService.goTo('/course/' + termId + '/' + sectionId, getPreferredName());
     };
 
     var loadStudent = function(uid, callback) {
       $scope.student.isLoading = true;
       studentFactory.analyticsPerUser(uid).then(function(analytics) {
         $scope.student = analytics.data;
-        $rootScope.pageTitle = $scope.student.sisProfile.preferredName;
+        var preferredName = $rootScope.pageTitle = getPreferredName();
 
         // Track view event
-        var preferredName = $scope.student.sisProfile && $scope.student.sisProfile.preferredName;
         _.each($scope.student.enrollmentTerms, function(term) {
           // Merge in unmatched canvas sites
           var unmatched = _.map(term.unmatchedCanvasSites, function(c) {
@@ -139,7 +138,7 @@
         } else {
           // ...or, maybe we are fresh arrival from cohort page.
           $scope.returnUrl = utilService.unpackReturnUrl(uid);
-          $scope.returnLabel = utilService.inferReturnToLabel($scope.returnUrl);
+          $scope.returnLabel = utilService.constructReturnToLabel($scope.returnUrl);
           $scope.hideFeedbackLink = !!$scope.returnUrl;
         }
         $scope.isWatchlistLoading = true;

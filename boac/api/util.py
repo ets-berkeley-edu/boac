@@ -147,8 +147,8 @@ def _get_meetings(section):
 def _format_time(time):
     formatted = None
     split = re.split(':', time)
-    hour = split[0] if len(split) >= 2 and split[0].isdigit() else None
+    hour = int(split[0]) if len(split) >= 2 and split[0].isdigit() else None
     if hour:
-        suffix = 'AM' if int(hour) < 12 else 'PM'
-        formatted = f'{split[0]}:{split[1]} {suffix}'
+        suffix = 'am' if hour < 12 else 'pm'
+        formatted = f'{hour}:{split[1]} {suffix}'
     return formatted

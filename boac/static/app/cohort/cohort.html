@@ -114,7 +114,7 @@
            data-ng-class="{'list-group-item-info': anchor===student.uid}"
            id="{{student.uid}}"
            href
-           data-ng-click="toStudentWithReturnUrl(student.uid)"
+           data-ng-click="goToStudent(student.uid)"
            data-ng-repeat="student in cohort.members">
           <div class="student-avatar-container">
             <img class="student-avatar"

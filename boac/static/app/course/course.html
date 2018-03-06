@@ -17,19 +17,30 @@
     <div class="profile-body">
       <div class="profile-sidebar">
         <div class="profile-sidebar-box">
-          <h1 class="profile-sidebar-header">{{section.displayName}} {{section.sectionNum}}</h1>
-          <div class="profile-sidebar-details">
-            <span data-ng-bind="section.courseCode"></span>
-            <span data-ng-if="section.courseCode">&mdash;</span>
+          <h1 class="course-sidebar-header" data-ng-bind="section.displayName"></h1>
+          <div class="course-details-section">
+            <span data-ng-bind="section.instructionFormat"></span>
+            <span data-ng-bind="section.sectionNum"></span>
+            <span data-ng-if="section.instructionFormat">&mdash;</span>
             <span data-ng-bind="section.units"></span> Units
           </div>
-          <div class="profile-sidebar-details">
-            <h2 data-ng-bind="section.title"></h2>
-            <div data-ng-repeat="meeting in section.meetings">
+          <div class="course-section-title" data-ng-if="section.title">
+            <span data-ng-bind="section.title"></span>
+          </div>
+          <div data-ng-repeat="meeting in section.meetings"
+               data-ng-if="section.meetings">
+            <div id="meetings-{{$index}}" class="course-details-meetings">
               <div data-ng-bind="meeting.days"></div>
               <div data-ng-bind="meeting.time"></div>
               <div data-ng-bind="meeting.location"></div>
-              <div data-ng-repeat="instructor in meeting.instructors">
+            </div>
+            <div data-ng-if="meeting.instructors">
+              <h2 class="course-instructors-header"
+                  id="instructors-{{$index}}"
+                  data-ng-pluralize
+                  count="meeting.instructors.length"
+                  when="{'one': 'Instructor', 'other': 'Instructors'}"></h2>
+              <div class="course-details-instructors" data-ng-repeat="instructor in meeting.instructors">
                 <div data-ng-bind="instructor"></div>
               </div>
             </div>
@@ -37,7 +48,7 @@
         </div>
       </div>
       <div class="profile-terms">
-        <h3 data-ng-bind="section.termName"></h3>
+        <h2 data-ng-bind="section.termName"></h2>
 
         <div data-ng-include="'/static/app/shared/tabs.html'"></div>
 
@@ -48,7 +59,7 @@
                data-ng-class="{'list-group-item-info': anchor===student.uid}"
                id="{{student.uid}}"
                href
-               data-ng-click="toStudentWithReturnUrl(student.uid, section.displayName)"
+               data-ng-click="goToStudent(student.uid)"
                data-ng-repeat="student in section.students">
               <div class="student-avatar-container">
                 <img class="student-avatar"
