@@ -49,6 +49,70 @@
       utilService.goTo('/student/' + uid, $scope.section.displayName);
     };
 
+    var getClassAveragePseudoStudent = function() {
+      var mockDeciles = [
+        0,
+        80,
+        87,
+        90,
+        93,
+        94,
+        95,
+        97,
+        100,
+        100,
+        100
+      ];
+      return {
+        analytics: {
+          assignmentsOnTime: {
+            displayPercentile: 67
+          },
+          courseCurrentScore: {
+            displayPercentile: 58,
+            percentile: 58
+          },
+          pageViews: {
+            displayPercentile: 35,
+            percentile: 35
+          }
+        },
+        enrollment: {
+          canvasSites: [
+            {
+              analytics: {
+                assignmentsOnTime: {
+                  courseDeciles: mockDeciles,
+                  student: {
+                    raw: 81
+                  }
+                },
+                courseCurrentScore: {
+                  courseDeciles: mockDeciles,
+                  student: {
+                    raw: 79
+                  }
+                },
+                pageViews: {
+                  courseDeciles: mockDeciles,
+                  student: {
+                    raw: 239
+                  }
+                }
+              },
+              canvasCourseId: 0
+            }
+          ],
+          grade: 'B-',
+          gradingBasis: null,
+          midtermGrade: 'B+'
+        },
+        isClassAverage: true,
+        lastName: 'Class Average',
+        uid: 0
+      };
+    };
+
     /**
      * @param  {Function}      callback       Standard callback
      * @return {void}
@@ -97,21 +161,40 @@
       var args = _.clone($location.search());
 
       courseFactory.getSection($stateParams.termId, $stateParams.sectionId).then(function(response) {
+        $rootScope.pageTitle = response.data.displayName;
         $scope.section = response.data;
-        $rootScope.pageTitle = $scope.section.displayName;
+        $scope.section.students.unshift(getClassAveragePseudoStudent());
         var students = $scope.section.students;
         // Draw boxplots when Angular is done rendering elements within repeaters
-        $scope.$$postDigest(boxplotService.drawBoxplots(students));
+        $scope.$$postDigest(function() {
+          _.each(students, function(student) {
+            _.each(_.get(student.enrollment, 'canvasSites'), function(canvasSite) {
+              boxplotService.drawBoxplotPageViews(student, canvasSite);
+            });
+          });
+        });
         // Cherry-pick section enrollment
         _.each(students, function(student) {
-          _.each(student.term.enrollments, function(e) {
+          _.each(_.get(student, 'term.enrollments', []), function(e) {
             if (e.displayName === $scope.section.displayName) {
               student.enrollment = e;
             }
           });
         });
+        $scope.isLoading = false;
+        if (args.a) {
+          // Scroll to anchor
+          $scope.anchor = args.a;
+          utilService.anchorScroll($scope.anchor);
+        }
+        googleAnalyticsService.track(
+          'course',
+          'view',
+          $scope.section.termName + ' ' + $scope.section.displayName + ' ' + $scope.section.sectionNum
+        );
       }).catch(function(err) {
         $scope.error = utilService.parseError(err);
+        $scope.isLoading = false;
 
       }).then(function() {
         watchlistFactory.getMyWatchlist().then(function(response) {
@@ -121,19 +204,7 @@
             $scope.tab = args.v;
             onTab($scope.tab);
           }
-          googleAnalyticsService.track(
-            'course',
-            'view',
-            $scope.section.termName + ' ' + $scope.section.displayName + ' ' + $scope.section.sectionNum
-          );
         });
-      }).then(function() {
-        $scope.isLoading = false;
-        if (args.a) {
-          // Scroll to anchor
-          $scope.anchor = args.a;
-          utilService.anchorScroll($scope.anchor);
-        }
       });
     };
 

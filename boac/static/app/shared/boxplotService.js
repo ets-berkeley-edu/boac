@@ -202,6 +202,15 @@
       });
     };
 
+    var drawBoxplotPageViews = function(student, canvasSite) {
+      var elementId = 'boxplot-' + canvasSite.canvasCourseId + '-' + student.uid + '-pageviews';
+      var dataset = _.get(canvasSite, 'analytics.pageViews');
+      // If the course site has not yet been viewed, then there is nothing to plot.
+      if (dataset && _.get(dataset, 'courseDeciles')) {
+        drawBoxplotCohort(elementId, dataset);
+      }
+    };
+
     /**
      * @param  {Student[]}      students        Draw boxplots for students in list view.
      * @return {Function}                       We recommend giving this function to $$postDigest
@@ -211,12 +220,7 @@
         _.each(students, function(student) {
           _.each(_.get(student, 'term.enrollments'), function(enrollment) {
             _.each(_.get(enrollment, 'canvasSites'), function(canvasSite) {
-              var elementId = 'boxplot-' + canvasSite.canvasCourseId + '-' + student.uid + '-pageviews';
-              var dataset = _.get(canvasSite, 'analytics.pageViews');
-              // If the course site has not yet been viewed, then there is nothing to plot.
-              if (dataset && _.get(dataset, 'courseDeciles')) {
-                drawBoxplotCohort(elementId, dataset);
-              }
+              drawBoxplotPageViews(student, canvasSite);
             });
           });
         });
@@ -287,6 +291,7 @@
     return {
       drawBoxplotCohort: drawBoxplotCohort,
       drawBoxplots: drawBoxplots,
+      drawBoxplotPageViews: drawBoxplotPageViews,
       drawBoxplotStudent: drawBoxplotStudent
     };
   });
