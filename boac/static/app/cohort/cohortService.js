@@ -146,8 +146,9 @@
           .attr('width', '100%')
           .attr('height', '100%')
           .attr('patternContentUnits', 'objectBoundingBox');
+        var photoUri = d.isClassAverage ? '/static/app/course/class-group-icon.svg' : '/api/user/' + d.uid + '/photo';
         var avatarImage = pattern.append('svg:image')
-          .attr('xlink:href', '/api/user/' + d.uid + '/photo')
+          .attr('xlink:href', photoUri)
           .attr('width', 1)
           .attr('height', 1)
           .attr('preserveAspectRatio', 'xMidYMid slice');
@@ -238,9 +239,10 @@
 
         // The tooltip starts out hidden while inserting data...
         tooltip.style('opacity', 0);
+        var fullName = d.firstName ? d.firstName + ' ' + d.lastName : d.lastName;
         tooltip.append('h4')
           .attr('class', config.demoMode ? 'demo-mode-blur' : 'matrix-tooltip-header')
-          .text(d.firstName + ' ' + d.lastName);
+          .text(fullName);
         var table = tooltip.append('table').attr('class', 'matrix-tooltip-table');
         var pageViewsRow = table.append('tr');
         pageViewsRow.append('td').attr('class', 'matrix-tooltip-label').text('bCourses page views');
