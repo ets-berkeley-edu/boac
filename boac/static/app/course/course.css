@@ -23,6 +23,37 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+.course-column-assignment-data {
+  font-size: 12px;
+  margin-left: 0 !important;
+}
+
+.course-column-header {
+  color: #aaa;
+  font-size: 12px;
+  text-align: center;
+  word-wrap: break-word;
+}
+
+.course-column-header-boxplot {
+  padding-right: 70px;
+}
+
+.course-column-header-grade {
+  padding-right: 30px;
+}
+
+.course-column-header-left {
+  min-width: 300px;
+}
+
+.course-column-headers {
+  align-content: flex-end;
+  align-items: flex-start;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .course-details-meetings {
   font-size: 16px;
 }
@@ -50,4 +81,3 @@
   font-weight: bold;
   margin: 0 0 5px 0;
 }
-
