@@ -48,10 +48,6 @@
   box-shadow: none !important;
 }
 
-.btn-nowrap {
-  white-space: nowrap;
-}
-
 .btn-watchlist-fa-1x {
   padding: 2px 5px 0 2px;
 }
@@ -213,6 +209,10 @@
 .main {
   padding-top: 20px;
   min-height: 370px;
+}
+
+.no-wrap {
+  white-space: nowrap;
 }
 
 .outage-banner {

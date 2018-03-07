@@ -15,11 +15,11 @@
     </li>
     <li class="flex-column-right" data-ng-controller="AuthController">
       <button id="header-sign-in"
-              class="btn btn-default btn-nowrap"
+              class="btn btn-default no-wrap"
               data-ng-click="casLogIn()"
               data-ng-if="!me.authenticated_as.is_authenticated">Sign In</button>
       <button id="header-log-out"
-              class="btn btn-default btn-nowrap"
+              class="btn btn-default no-wrap"
               data-ng-click="logOut()"
               data-ng-if="me.authenticated_as.is_authenticated">Log out</button>
     </li>
