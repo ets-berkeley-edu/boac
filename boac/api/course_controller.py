@@ -42,7 +42,7 @@ def get_section(term_id, section_id):
 
     section = api_util.course_section_to_json(term_id=term_id, section=row)
     if 'students' in section:
-        member_details.merge_all(section['students'])
+        member_details.merge_all(section['students'], section['termId'])
     return tolerant_jsonify(section)
 
 

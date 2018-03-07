@@ -28,6 +28,7 @@
   'use strict';
 
   angular.module('boac').controller('CourseController', function(
+    boxplotService,
     cohortService,
     courseFactory,
     googleAnalyticsService,
@@ -82,6 +83,11 @@
       }
     };
 
+    $scope.drawBoxplot = function(canvasSite, uid, metricId) {
+      var elementId = 'boxplot-' + uid + '-' + metricId;
+      boxplotService.drawBoxplotStudent(elementId, canvasSite.analytics[metricId]);
+    };
+
     var init = function() {
       // Maybe we are arriving from student page.
       $scope.returnUrl = utilService.unpackReturnUrl();
@@ -93,7 +99,17 @@
       courseFactory.getSection($stateParams.termId, $stateParams.sectionId).then(function(response) {
         $scope.section = response.data;
         $rootScope.pageTitle = $scope.section.displayName;
-
+        var students = $scope.section.students;
+        // Draw boxplots when Angular is done rendering elements within repeaters
+        $scope.$$postDigest(boxplotService.drawBoxplots(students));
+        // Cherry-pick section enrollment
+        _.each(students, function(student) {
+          _.each(student.term.enrollments, function(e) {
+            if (e.displayName === $scope.section.displayName) {
+              student.enrollment = e;
+            }
+          });
+        });
       }).catch(function(err) {
         $scope.error = utilService.parseError(err);
 

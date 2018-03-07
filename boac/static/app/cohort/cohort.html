@@ -155,7 +155,7 @@
             <div class="student-text">GPA (Cumulative)</div>
           </div>
           <div class="student-column">
-            <div class="student-gpa" data-ng-bind="student.currentTerm.enrolledUnits || '0'"></div>
+            <div class="student-gpa" data-ng-bind="student.term.enrolledUnits || '0'"></div>
             <div class="student-text">Units (In Progress)</div>
             <div class="student-gpa" data-ng-bind="student.cumulativeUnits || '--'"></div>
             <div class="student-text">Total Units</div>
@@ -167,7 +167,7 @@
               <div class="student-column-grade student-text">MID</div>
               <div class="student-column-grade student-text">FINAL</div>
             </div>
-            <div class="student-course-activity-row" data-ng-repeat="enrollment in student.currentTerm.enrollments">
+            <div class="student-course-activity-row" data-ng-repeat="enrollment in student.term.enrollments">
               <div class="student-column">
                 <div data-ng-bind="enrollment.displayName"></div>
               </div>

@@ -144,11 +144,13 @@ class TestCohortDetail:
         response = client.get('/api/cohort/{}?orderBy=firstName'.format(cohort_id))
         assert response.status_code == 200
         athlete = next(m for m in response.json['members'] if m['lastName'] == 'Lin')
-        assert athlete['currentTerm']['termName'] == 'Fall 2017'
-        assert athlete['currentTerm']['enrolledUnits'] == 12.5
-        assert len(athlete['currentTerm']['enrollments']) == 3
-        assert athlete['currentTerm']['enrollments'][0]['displayName'] == 'BURMESE 1A'
-        assert len(athlete['currentTerm']['enrollments'][0]['canvasSites']) == 1
+
+        term = athlete['term']
+        assert term['termName'] == 'Fall 2017'
+        assert term['enrolledUnits'] == 12.5
+        assert len(term['enrollments']) == 3
+        assert term['enrollments'][0]['displayName'] == 'BURMESE 1A'
+        assert len(term['enrollments'][0]['canvasSites']) == 1
         analytics = athlete['analytics']
         for metric in ['assignmentsOnTime', 'pageViews', 'participations', 'courseCurrentScore']:
             assert analytics[metric]['percentile'] > 0
