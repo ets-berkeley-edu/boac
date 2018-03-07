@@ -66,9 +66,15 @@ def refresh_request_handler(term_id, load_only=False, import_asc=False):
 
 def background_thread_refresh(app_arg, term_id, import_asc):
     with app_arg.app_context():
-        if import_asc:
-            do_import_asc()
-        load_term(term_id)
+        try:
+            if import_asc:
+                do_import_asc()
+            load_term(term_id)
+        except Exception as e:
+            app.logger.exception(e)
+            app.logger.error('Background thread is stopping')
+            JobProgress().update(f'An unexpected error occured: {e}')
+            raise e
 
 
 def refresh_term(term_id=berkeley.current_term_id()):
