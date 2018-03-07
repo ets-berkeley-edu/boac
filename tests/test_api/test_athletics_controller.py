@@ -125,11 +125,12 @@ class TestAthletics:
         """Includes current-term active enrollments and analytics for team members."""
         response = client.get('/api/team/FHW')
         athlete = response.json['members'][0]
-        assert athlete['currentTerm']['termName'] == 'Fall 2017'
-        assert athlete['currentTerm']['enrolledUnits'] == 12.5
-        assert len(athlete['currentTerm']['enrollments']) == 3
-        assert athlete['currentTerm']['enrollments'][0]['displayName'] == 'BURMESE 1A'
-        assert len(athlete['currentTerm']['enrollments'][0]['canvasSites']) == 1
+        term = athlete['term']
+        assert term['termName'] == 'Fall 2017'
+        assert term['enrolledUnits'] == 12.5
+        assert len(term['enrollments']) == 3
+        assert term['enrollments'][0]['displayName'] == 'BURMESE 1A'
+        assert len(term['enrollments'][0]['canvasSites']) == 1
 
     def test_get_team_order_by(self, authenticated_session, client):
         expected = {

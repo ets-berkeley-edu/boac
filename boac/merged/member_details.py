@@ -23,39 +23,41 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
-"""Helper utils for cohort controller."""
-
 from boac.api.util import canvas_courses_api_feed
 from boac.externals import canvas
 from boac.lib.analytics import mean_course_analytics_for_user
-from boac.lib.berkeley import sis_term_id_for_name
+from boac.lib.berkeley import sis_term_id_for_name, term_name_for_sis_id
 from boac.merged.sis_enrollments import merge_sis_enrollments_for_term
 from boac.merged.sis_profile import merge_sis_profile
 from flask import current_app as app
 
+"""Helper utils for cohort controller."""
 
-def merge_all(member_feeds):
+
+def merge_all(member_feeds, term_id=None):
+    if not term_id:
+        term_name = app.config.get('CANVAS_CURRENT_ENROLLMENT_TERM')
+        term_id = sis_term_id_for_name(term_name)
     for member_feed in member_feeds:
-        merge(member_feed)
+        _merge(member_feed, term_id)
     return member_feeds
 
 
-def merge(member_feed):
+def _merge(member_feed, term_id):
     uid = member_feed['uid']
     csid = member_feed['sid']
-    data_cache_key = 'merged_data/{}'.format(uid)
-    data = app.cache.get(data_cache_key) if app.cache else None
+    cache_key = f'merged_data/{term_id}/{uid}'
+    data = app.cache.get(cache_key) if app.cache else None
     if not data:
-        data = merged_data(uid, csid)
+        data = _merged_data(uid, csid, term_id)
         if app.cache and data:
-            app.cache.set(data_cache_key, data)
+            app.cache.set(cache_key, data)
     if data:
         member_feed.update(data)
     return member_feed
 
 
-def merged_data(uid, csid):
+def _merged_data(uid, csid, term_id):
     data = {}
     sis_profile = merge_sis_profile(csid)
     if sis_profile:
@@ -65,13 +67,12 @@ def merged_data(uid, csid):
         data['majors'] = sorted(plan.get('description') for plan in sis_profile.get('plans', []))
     canvas_profile = canvas.get_user_for_uid(uid)
     if canvas_profile:
+        term_name = term_name_for_sis_id(term_id)
         student_courses = canvas.get_student_courses(uid) or []
-        current_term = app.config.get('CANVAS_CURRENT_ENROLLMENT_TERM')
-        term_id = sis_term_id_for_name(current_term)
-        student_courses_in_current_term = [course for course in student_courses if course.get('term', {}).get('name') == current_term]
-        canvas_courses = canvas_courses_api_feed(student_courses_in_current_term)
+        student_courses_in_term = [course for course in student_courses if course.get('term', {}).get('name') == term_name]
+        canvas_courses = canvas_courses_api_feed(student_courses_in_term)
         # Decorate the Canvas courses list with per-course statistics, and return summary statistics.
         data['analytics'] = mean_course_analytics_for_user(canvas_courses, uid, csid, canvas_profile['id'], term_id)
         # Associate those course sites with campus enrollments.
-        data['currentTerm'] = merge_sis_enrollments_for_term(canvas_courses, csid, current_term)
+        data['term'] = merge_sis_enrollments_for_term(canvas_courses, csid, term_name)
     return data

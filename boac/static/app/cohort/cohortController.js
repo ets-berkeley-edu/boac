@@ -211,29 +211,6 @@
       return promise;
     };
 
-    /**
-     * Draw boxplots for students in list view.
-     *
-     * @return {void}
-     */
-    var drawBoxplots = function() {
-      // Wait until Angular has finished rendering elements within repeaters.
-      $scope.$$postDigest(function() {
-        _.each($scope.cohort.members, function(student) {
-          _.each(_.get(student, 'currentTerm.enrollments'), function(enrollment) {
-            _.each(_.get(enrollment, 'canvasSites'), function(canvasSite) {
-              var elementId = 'boxplot-' + canvasSite.canvasCourseId + '-' + student.uid + '-pageviews';
-              var dataset = _.get(canvasSite, 'analytics.pageViews');
-              // If the course site has not yet been viewed, then there is nothing to plot.
-              if (dataset && _.get(dataset, 'courseDeciles')) {
-                boxplotService.drawBoxplotCohort(elementId, dataset);
-              }
-            });
-          });
-        });
-      });
-    };
-
     var isPaginationEnabled = function() {
       return _.includes([ 'search' ], $scope.cohort.code) || !isNaN($scope.cohort.code);
     };
@@ -252,7 +229,8 @@
       $scope.isLoading = true;
       getCohort($scope.orderBy.selected, offset, limit).then(function(response) {
         updateCohort(response.data);
-        drawBoxplots();
+        // Draw boxplots when Angular is done rendering elements within repeaters
+        $scope.$$postDigest(boxplotService.drawBoxplots($scope.cohort.members));
         return callback();
       }).catch(function(err) {
         $scope.error = utilService.parseError(err);
@@ -561,6 +539,7 @@
       $scope.search.dropdown = defaultDropdownState();
       // Refresh search results
       $scope.cohort.code = 'search';
+      $rootScope.pageTitle = 'Search';
       $scope.pagination.currentPage = 1;
       $location.search('c', $scope.cohort.code);
       $location.search('p', $scope.pagination.currentPage);
