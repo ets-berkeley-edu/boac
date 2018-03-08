@@ -51,11 +51,13 @@ class NormalizedCacheEnrollment(Base):
 
     @classmethod
     def update_enrollments(cls, term_id, sid, sections):
+        term_id = int(term_id)
         # Previous enrollments might have been dropped
         cls.query.filter_by(term_id=term_id, sid=sid).delete()
+        std_commit()
         # Add fresh enrollment data
         for section in sections:
-            enrollment = cls(term_id=int(term_id), section_id=int(section['id']), sid=sid)
+            enrollment = cls(term_id=term_id, section_id=int(section['id']), sid=sid)
             db.session.add(enrollment)
         std_commit()
         cls._refresh_course_enrollments(term_id=term_id, sections=sections)
