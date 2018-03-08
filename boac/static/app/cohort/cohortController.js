@@ -120,6 +120,22 @@
     };
 
     /**
+     * Draw boxplots for students in list view.
+     * @return {void}
+     */
+    var drawBoxplots = function() {
+      $scope.$$postDigest(function() {
+        _.each($scope.cohort.members, function(student) {
+          _.each(_.get(student, 'term.enrollments'), function(enrollment) {
+            _.each(_.get(enrollment, 'canvasSites'), function(canvasSite) {
+              boxplotService.drawBoxplotPageViews(student, canvasSite);
+            });
+          });
+        });
+      });
+    };
+
+    /**
      * Update cohort in scope; insure a valid cohort.code.
      *
      * @param  {Object}    data        Response data with cohort/search results
@@ -230,7 +246,7 @@
       getCohort($scope.orderBy.selected, offset, limit).then(function(response) {
         updateCohort(response.data);
         // Draw boxplots when Angular is done rendering elements within repeaters
-        $scope.$$postDigest(boxplotService.drawBoxplots($scope.cohort.members));
+        drawBoxplots();
         return callback();
       }).catch(function(err) {
         $scope.error = utilService.parseError(err);

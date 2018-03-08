@@ -212,22 +212,6 @@
     };
 
     /**
-     * @param  {Student[]}      students        Draw boxplots for students in list view.
-     * @return {Function}                       We recommend giving this function to $$postDigest
-     */
-    var drawBoxplots = function(students) {
-      return function() {
-        _.each(students, function(student) {
-          _.each(_.get(student, 'term.enrollments'), function(enrollment) {
-            _.each(_.get(enrollment, 'canvasSites'), function(canvasSite) {
-              drawBoxplotPageViews(student, canvasSite);
-            });
-          });
-        });
-      };
-    };
-
-    /**
      * Render a student-view boxplot from a given dataset to a given element.
      *
      * @param  {String}  elementId     Element id where the boxplot should be rendered
@@ -290,7 +274,6 @@
 
     return {
       drawBoxplotCohort: drawBoxplotCohort,
-      drawBoxplots: drawBoxplots,
       drawBoxplotPageViews: drawBoxplotPageViews,
       drawBoxplotStudent: drawBoxplotStudent
     };

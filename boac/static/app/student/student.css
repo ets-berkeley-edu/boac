@@ -94,6 +94,22 @@
   flex: 0 0 60px;
 }
 
+.student-avatar-large {
+  background-image: url(/static/app/shared/avatar-50.png);
+  background-size: cover;
+  border: 5px solid #ccc;
+  border-radius: 50px;
+  height: 100px;
+  object-fit: cover;
+  width: 100px;
+}
+
+.student-avatar-large-container {
+  align-items: center;
+  display: flex;
+  flex: 0 0 100px;
+}
+
 .student-column {
   flex: 0.5;
   margin-left: 15px;
