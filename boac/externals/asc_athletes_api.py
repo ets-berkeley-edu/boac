@@ -48,6 +48,7 @@ def confirm_sync(sync_date):
 def get_current_feed():
     response = _get_current_feed()
     if not response or not hasattr(response, 'json'):
+        app.logger.error(f'Bad response from ASC Athletes API: {response}')
         return None
     # The API responds with a hash whose values correspond to the rows of a CSV or TSV.
     asc_hash = response.json()
@@ -81,6 +82,10 @@ def get_past_feed(date):
 def get_updates():
     last_sync_date = get_last_sync_date()
     current_rows = get_current_feed()
+    if current_rows is None:
+        return {
+            'error': 'Could not fetch feed from ASC Athletes API',
+        }
     sync_date = current_rows[0]['SyncDate']
     if sync_date != current_rows[-1]['SyncDate']:
         msg = f'Conflicting SyncDate values in ASC Athletes API: {current_rows[0]} vs. {current_rows[-1]}'
