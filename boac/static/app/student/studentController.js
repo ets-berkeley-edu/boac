@@ -73,15 +73,19 @@
 
     $scope.toCourseWithReturnUrl = function(event, termId, sectionId) {
       event.stopPropagation();
-      utilService.goTo('/course/' + termId + '/' + sectionId, getPreferredName());
+      var name = config.demoMode ? null : getPreferredName();
+      utilService.goTo('/course/' + termId + '/' + sectionId, name);
     };
 
     var loadStudent = function(uid, callback) {
       $scope.student.isLoading = true;
       studentFactory.analyticsPerUser(uid).then(function(analytics) {
         $scope.student = analytics.data;
-        var preferredName = $rootScope.pageTitle = getPreferredName();
+        var preferredName = getPreferredName();
 
+        if (!config.demoMode) {
+          $rootScope.pageTitle = preferredName;
+        }
         // Track view event
         _.each($scope.student.enrollmentTerms, function(term) {
           // Merge in unmatched canvas sites
