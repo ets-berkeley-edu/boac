@@ -30,6 +30,7 @@
   angular.module('boac').controller('CourseController', function(
     boxplotService,
     cohortService,
+    config,
     courseFactory,
     googleAnalyticsService,
     utilService,
@@ -42,6 +43,7 @@
     $stateParams
   ) {
 
+    $scope.demoMode = config.demoMode;
     $scope.isLoading = true;
     $scope.tab = 'list';
 

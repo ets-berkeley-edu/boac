@@ -27,7 +27,14 @@
 
   'use strict';
 
-  angular.module('boac').service('utilService', function($anchorScroll, $base64, $location, $rootScope, $timeout) {
+  angular.module('boac').service('utilService', function(
+    config,
+    $anchorScroll,
+    $base64,
+    $location,
+    $rootScope,
+    $timeout
+  ) {
 
     var anchorScroll = function(anchorId) {
       $timeout(function() {
@@ -144,7 +151,7 @@
       var label = null;
       if (returnUrl) {
         var name = $location.search().referringPageName;
-        if (name) {
+        if (name && !config.demoMode) {
           label = 'Return to ' + name;
           $location.search('referringPageName', null).replace();
         } else if (returnUrl.includes('student')) {
