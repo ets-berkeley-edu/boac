@@ -123,8 +123,8 @@
                 <ul class="flex-container flex-space-between" data-ng-repeat="canvasSite in student.enrollment.canvasSites">
                   <li data-ng-if="canvasSite.analytics.courseCurrentScore.courseDeciles">
                     <div id="boxplot-{{student.uid}}-courseCurrentScore"
-                       class="profile-boxplot"
-                       data-ng-init="drawBoxplot(canvasSite, student.uid, 'courseCurrentScore')"></div>
+                         class="profile-boxplot"
+                         data-ng-init="drawBoxplot(canvasSite, student.uid, 'courseCurrentScore')"></div>
                   </li>
                   <li data-ng-if="!canvasSite.analytics.courseCurrentScore.courseDeciles">
                     &mdash;
@@ -134,9 +134,9 @@
               <div class="student-column">
                 <div class="cohort-boxplot-container"
                      data-ng-repeat="canvasSite in student.enrollment.canvasSites">
-                  <div id="boxplot-{{canvasSite.canvasCourseId}}-{{student.uid}}-pageviews"
-                       class="cohort-boxplot">
-                  </div>
+                  <boxplot-page-views class="cohort-boxplot"
+                                      data-canvas-site="canvasSite"
+                                      data-student="student"></boxplot-page-views>
                 </div>
               </div>
               <div class="student-column-grade">

@@ -173,9 +173,9 @@
               </div>
               <div class="student-column">
                 <div class="cohort-boxplot-container" data-ng-repeat="canvasSite in enrollment.canvasSites">
-                  <div id="boxplot-{{canvasSite.canvasCourseId}}-{{student.uid}}-pageviews"
-                       class="cohort-boxplot">
-                  </div>
+                  <boxplot-page-views class="cohort-boxplot"
+                                      data-canvas-site="canvasSite"
+                                      data-student="student"></boxplot-page-views>
                 </div>
               </div>
               <div class="student-column-grade">

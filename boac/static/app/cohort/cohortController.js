@@ -28,7 +28,6 @@
   'use strict';
 
   angular.module('boac').controller('CohortController', function(
-    boxplotService,
     cohortFactory,
     cohortService,
     config,
@@ -117,22 +116,6 @@
       currentPage: 1,
       itemsPerPage: 50,
       noLimit: Number.MAX_SAFE_INTEGER
-    };
-
-    /**
-     * Draw boxplots for students in list view.
-     * @return {void}
-     */
-    var drawBoxplots = function() {
-      $scope.$$postDigest(function() {
-        _.each($scope.cohort.members, function(student) {
-          _.each(_.get(student, 'term.enrollments'), function(enrollment) {
-            _.each(_.get(enrollment, 'canvasSites'), function(canvasSite) {
-              boxplotService.drawBoxplotPageViews(student, canvasSite);
-            });
-          });
-        });
-      });
     };
 
     /**
@@ -245,8 +228,6 @@
       $scope.isLoading = true;
       getCohort($scope.orderBy.selected, offset, limit).then(function(response) {
         updateCohort(response.data);
-        // Draw boxplots when Angular is done rendering elements within repeaters
-        drawBoxplots();
         return callback();
       }).catch(function(err) {
         $scope.error = utilService.parseError(err);
@@ -447,7 +428,6 @@
 
         var handleSuccess = function(response) {
           updateCohort(response.data);
-          drawBoxplots();
         };
 
         var handleError = function(err) {
@@ -539,7 +519,6 @@
           var start = ($scope.pagination.currentPage - 1) * 50;
           $scope.cohort.members = _.slice($scope.cohort.members, start, start + 50);
         }
-        drawBoxplots();
       }
     };
 
