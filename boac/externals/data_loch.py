@@ -49,7 +49,7 @@ def safe_execute(string):
     return [dict(r) for r in rows]
 
 
-@stow('loch_page_views_{course_id}.csv', for_term=True)
+@stow('loch_page_views_{course_id}', for_term=True)
 def get_course_page_views(course_id, term_id):
     return _get_course_page_views(course_id)
 
@@ -65,8 +65,13 @@ def _get_course_page_views(course_id):
     return safe_execute(sql)
 
 
+@stow('loch_on_time_submissions_relative_to_user_{course_id}_{user_id}', for_term=True)
+def get_on_time_submissions_relative_to_user(course_id, user_id, term_id):
+    return _get_on_time_submissions_relative_to_user(course_id, user_id)
+
+
 @fixture('loch_on_time_submissions_relative_to_user_{course_id}_{user_id}.csv')
-def get_on_time_submissions_relative_to_user(course_id, user_id):
+def _get_on_time_submissions_relative_to_user(course_id, user_id):
     sql = f"""SELECT user_id as canvas_user_id,
         COUNT(CASE WHEN assignment_status IN ('on_time', 'submitted') THEN 1 ELSE NULL END) AS on_time_submissions
         FROM boac_analytics.assignment_submissions_scores

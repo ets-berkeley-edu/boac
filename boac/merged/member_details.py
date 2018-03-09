@@ -71,8 +71,15 @@ def _merged_data(uid, csid, term_id):
         student_courses = canvas.get_student_courses(uid) or []
         student_courses_in_term = [course for course in student_courses if course.get('term', {}).get('name') == term_name]
         canvas_courses = canvas_courses_api_feed(student_courses_in_term)
+        # Associate course sites with campus enrollments.
+        data['term'] = merge_sis_enrollments_for_term(canvas_courses, csid, term_name)
+        # Rebuild our Canvas courses list to remove any courses that were screened out during association (for instance,
+        # dropped or athletic enrollments).
+        canvas_courses = []
+        if data['term']:
+            for enrollment in data['term'].get('enrollments', []):
+                canvas_courses += enrollment['canvasSites']
+            canvas_courses += data['term'].get('unmatchedCanvasSites', [])
         # Decorate the Canvas courses list with per-course statistics, and return summary statistics.
         data['analytics'] = mean_course_analytics_for_user(canvas_courses, uid, csid, canvas_profile['id'], term_id)
-        # Associate those course sites with campus enrollments.
-        data['term'] = merge_sis_enrollments_for_term(canvas_courses, csid, term_name)
     return data

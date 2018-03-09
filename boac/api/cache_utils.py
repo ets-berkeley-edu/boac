@@ -216,7 +216,8 @@ def load_analytics_feeds(uid, sid, term_id):
     # Prior to load, existing assignment alerts for the student and term are deactivated. Alerts still in effect
     # will be reactivated as feeds are loaded.
     Alert.deactivate_all(sid=sid, term_id=term_id, alert_types=['late_assignment', 'missing_assignment'])
-    from boac.externals import canvas
+    from boac.externals import canvas, data_loch
+    canvas_user_profile = canvas.get_user_for_uid(uid)
     student_courses = canvas.get_student_courses(uid)
     canvas_courses_feed = canvas_courses_api_feed(student_courses)
     # Route the course site feed through our SIS enrollments merge, so that site selection logic (e.g., filtering
@@ -233,6 +234,10 @@ def load_analytics_feeds(uid, sid, term_id):
                 sid=sid,
                 term_id=term_id,
             )
+            data_loch.get_course_page_views(site['canvasCourseId'], term_id)
+            canvas_user_id = canvas_user_profile.get('id')
+            if canvas_user_id:
+                data_loch.get_on_time_submissions_relative_to_user(site['canvasCourseId'], canvas_user_id, term_id)
     if merged_term_feed:
         for enrollment in merged_term_feed['enrollments']:
             load_analytics_for_sites(enrollment['canvasSites'])

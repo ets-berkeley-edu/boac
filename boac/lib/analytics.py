@@ -157,13 +157,13 @@ def analytics_from_canvas_course_assignments(course_id, course_code, uid, sid, t
 
 def analytics_from_loch(uid, canvas_user_id, canvas_course_id, term_id):
     return {
-        'assignmentsOnTime': loch_assignments_on_time(canvas_user_id, canvas_course_id),
+        'assignmentsOnTime': loch_assignments_on_time(canvas_user_id, canvas_course_id, term_id),
         'pageViews': loch_page_views(uid, canvas_course_id, term_id),
     }
 
 
-def loch_assignments_on_time(canvas_user_id, canvas_course_id):
-    course_rows = data_loch.get_on_time_submissions_relative_to_user(canvas_course_id, canvas_user_id)
+def loch_assignments_on_time(canvas_user_id, canvas_course_id, term_id):
+    course_rows = data_loch.get_on_time_submissions_relative_to_user(canvas_course_id, canvas_user_id, term_id)
     if course_rows is None:
         return {'error': 'Unable to retrieve from Data Loch'}
     df = pandas.DataFrame(course_rows, columns=['canvas_user_id', 'on_time_submissions'])

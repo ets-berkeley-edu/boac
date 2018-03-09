@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from contextlib import contextmanager
 from functools import wraps
+import json
 import os
 
 from boac.lib.util import fill_pattern_from_args
@@ -50,7 +51,9 @@ class MockRows:
             return None
         # Unless otherwise instructed, `pandas` will interpret numeric strings as numbers instead of strings.
         df = pandas.read_csv(self.csv_in, dtype={'uid': object})
-        return df.to_dict('records')
+        # `pandas` also likes to store its numbers as numpy.int64, which is not JSON serializable, so we have
+        # to pipe the dataframe through JSON conversion before returning.
+        return json.loads(df.to_json(None, 'records'))
 
 
 """Registry associating mockable request functions with zero or more mock responses. Responses are arranged
