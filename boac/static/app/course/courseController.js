@@ -166,17 +166,8 @@
         $rootScope.pageTitle = response.data.displayName;
         $scope.section = response.data;
         $scope.section.students.unshift(getClassAveragePseudoStudent());
-        var students = $scope.section.students;
-        // Draw boxplots when Angular is done rendering elements within repeaters
-        $scope.$$postDigest(function() {
-          _.each(students, function(student) {
-            _.each(_.get(student.enrollment, 'canvasSites'), function(canvasSite) {
-              boxplotService.drawBoxplotPageViews(student, canvasSite);
-            });
-          });
-        });
         // Cherry-pick section enrollment
-        _.each(students, function(student) {
+        _.each($scope.section.students, function(student) {
           _.each(_.get(student, 'term.enrollments', []), function(e) {
             if (e.displayName === $scope.section.displayName) {
               student.enrollment = e;

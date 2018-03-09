@@ -150,7 +150,7 @@
      * @param  {Object}  dataset       Dataset to render; 'courseDeciles' and 'student' properties are expected
      * @return {void}
      */
-    var drawBoxplotCohort = function(elementId, dataset) {
+    var drawBoxplotPageViews = function(elementId, dataset) {
       // Options specific to a cohort-view boxplot and the provided dataset.
       var boxplotOptions = {
         chart: {
@@ -200,15 +200,6 @@
           throw err;
         }
       });
-    };
-
-    var drawBoxplotPageViews = function(student, canvasSite) {
-      var elementId = 'boxplot-' + canvasSite.canvasCourseId + '-' + student.uid + '-pageviews';
-      var dataset = _.get(canvasSite, 'analytics.pageViews');
-      // If the course site has not yet been viewed, then there is nothing to plot.
-      if (dataset && _.get(dataset, 'courseDeciles')) {
-        drawBoxplotCohort(elementId, dataset);
-      }
     };
 
     /**
@@ -273,7 +264,6 @@
     };
 
     return {
-      drawBoxplotCohort: drawBoxplotCohort,
       drawBoxplotPageViews: drawBoxplotPageViews,
       drawBoxplotStudent: drawBoxplotStudent
     };
