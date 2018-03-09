@@ -271,9 +271,10 @@ class TestAnalyticsFromSummaryFeed:
 class TestAnalyticsFromLochAssignmentsOnTime:
     canvas_user_id = 9000100
     canvas_course_id = 7654321
+    term_id = '2178'
 
     def test_from_fixture(self, app):
-        digested = analytics.loch_assignments_on_time(self.canvas_user_id, self.canvas_course_id)
+        digested = analytics.loch_assignments_on_time(self.canvas_user_id, self.canvas_course_id, self.term_id)
         assert digested['student']['raw'] == 7
         assert digested['student']['percentile'] == 71
         assert digested['student']['roundedUpPercentile'] == 81
@@ -283,13 +284,13 @@ class TestAnalyticsFromLochAssignmentsOnTime:
 
     def test_with_loch_error(self, app):
         bad_course_id = 'NoSuchSite'
-        digested = analytics.loch_assignments_on_time(self.canvas_user_id, bad_course_id)
+        digested = analytics.loch_assignments_on_time(self.canvas_user_id, bad_course_id, self.term_id)
         assert digested == {'error': 'Unable to retrieve from Data Loch'}
 
     def test_when_no_data(self, app):
         mr = MockRows(io.StringIO('canvas_user_id,on_time_submissions'))
-        with register_mock(data_loch.get_on_time_submissions_relative_to_user, mr):
-            digested = analytics.loch_assignments_on_time(self.canvas_user_id, self.canvas_course_id)
+        with register_mock(data_loch._get_on_time_submissions_relative_to_user, mr):
+            digested = analytics.loch_assignments_on_time(self.canvas_user_id, self.canvas_course_id, self.term_id)
         assert digested['student']['raw'] is None
         assert digested['student']['percentile'] is None
         assert digested['boxPlottable'] is False
