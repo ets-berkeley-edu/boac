@@ -212,12 +212,70 @@
               </uib-accordion-heading>
               <div data-ng-repeat="canvasSite in course.canvasSites">
                 <div class="profile-course-site-code" data-ng-bind="canvasSite.courseCode"></div>
-                <course-site-metrics
-                  data-canvas-site="canvasSite"
-                  data-course-name="course.displayName"
-                  data-draw-boxplot="drawBoxplot"
-                  data-term-id="term.termId">
-                </course-site-metrics>
+                <table class="visualize-metrics">
+                  <tr>
+                    <td class="visualize-metrics-legend">
+                      Online Assignments on Time
+                    </td>
+                    <td>
+                      <span data-ng-if="canvasSite.analytics.assignmentsOnTime.displayPercentile">
+                        <strong data-ng-bind="canvasSite.analytics.assignmentsOnTime.displayPercentile"></strong> percentile
+                      </span>
+                      <span class="visualize-metrics-no-data"
+                            data-ng-if="!canvasSite.analytics.assignmentsOnTime.displayPercentile">
+                        No Assignments
+                      </span>
+                    </td>
+                    <td>
+                      <span data-ng-if="canvasSite.analytics.assignmentsOnTime.displayPercentile">
+                        Score:
+                        <strong data-ng-bind="canvasSite.analytics.assignmentsOnTime.student.raw"></strong>
+                        <span class="visualize-metrics-maximum">
+                          (Maximum: <span data-ng-bind="canvasSite.analytics.assignmentsOnTime.courseDeciles[10]"></span>)
+                        </span>
+                      </span>
+                      <span class="visualize-metrics-no-data"
+                            data-ng-if="!canvasSite.analytics.assignmentsOnTime.displayPercentile">
+                        No Data
+                      </span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="visualize-metrics-legend">
+                      Assignment Grades
+                    </td>
+                    <td>
+                      <span data-ng-if="canvasSite.analytics.courseCurrentScore.displayPercentile">
+                        <strong data-ng-bind="canvasSite.analytics.courseCurrentScore.displayPercentile"></strong> percentile
+                      </span>
+                      <span class="visualize-metrics-no-data"
+                            data-ng-if="!canvasSite.analytics.courseCurrentScore.displayPercentile">
+                        No Grades
+                      </span>
+                    </td>
+                    <td class="profile-boxplot-container">
+                      <boxplot-draw class="profile-boxplot"
+                                    data-dataset="canvasSite.analytics.courseCurrentScore"></boxplot-draw>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="visualize-metrics-legend">
+                      Page Views
+                    </td>
+                    <td>
+                      <span data-ng-if="canvasSite.analytics.pageViews.displayPercentile">
+                        <strong data-ng-bind="canvasSite.analytics.pageViews.displayPercentile"></strong> percentile
+                      </span>
+                      <span data-ng-if="!canvasSite.analytics.pageViews.displayPercentile">
+                        No Page Views
+                      </span>
+                    </td>
+                    <td class="profile-boxplot-container">
+                      <boxplot-draw class="profile-boxplot"
+                                    data-dataset="canvasSite.analytics.pageViews"></boxplot-draw>
+                    </td>
+                  </tr>
+                </table>
               </div>
               <div class="profile-class-notation" data-ng-if="!course.canvasSites.length">
                 No additional information

@@ -29,7 +29,6 @@
 
   angular.module('boac').controller('StudentController', function(
     authService,
-    boxplotService,
     config,
     courseFactory,
     googleAnalyticsService,
@@ -151,22 +150,6 @@
           $scope.isWatchlistLoading = false;
         });
       });
-    };
-
-    $scope.drawBoxplot = function(termId, displayName, courseId, metric) {
-      var term = _.find($scope.student.enrollmentTerms, {termId: termId});
-      var courseSites;
-
-      if (displayName === 'unmatchedCanvasSites') {
-        courseSites = term.unmatchedCanvasSites;
-      } else {
-        var enrollment = _.find(term.enrollments, {displayName: displayName});
-        courseSites = enrollment.canvasSites;
-      }
-      var course = _.find(courseSites, {canvasCourseId: courseId});
-      var elementId = 'boxplot-' + courseId + '-' + metric;
-
-      boxplotService.drawBoxplotStudent(elementId, course.analytics[metric]);
     };
 
     init();

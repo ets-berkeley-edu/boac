@@ -320,3 +320,25 @@ select.form-control {
   margin: 20px 0 10px 0;
   white-space: nowrap;
 }
+
+.visualize-metrics {
+  margin-bottom: 20px;
+}
+
+.visualize-metrics td {
+  font-size: 14px;
+  padding: 0 25px 5px 0;
+}
+
+.visualize-metrics-legend {
+  color: #999;
+}
+
+.visualize-metrics-maximum {
+  color: #666;
+}
+
+.visualize-metrics-no-data {
+  color: #666;
+  font-style: italic;
+}
