@@ -84,7 +84,7 @@ def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name, includ
 
 def merge_enrollment(cs_id, enrollments, term_id, term_name):
     enrollments_by_class = {}
-    sections = []
+    sections_for_normalized_cache = []
     term_section_ids = {}
     enrolled_units = 0
     for enrollment in enrollments.get('studentEnrollments', []):
@@ -98,7 +98,8 @@ def merge_enrollment(cs_id, enrollments, term_id, term_name):
 
         # The SIS enrollments API gives us no better unique identifier than the course display name.
         class_section = enrollment.get('classSection', {})
-        sections.append(class_section)
+        if section_feed['enrollmentStatus'] in ['E', 'W']:
+            sections_for_normalized_cache.append(class_section)
         class_name = class_section.get('class', {}).get('course', {}).get('displayName')
         # If we haven't seen this class name before, we create a new feed entry for it.
         if class_name not in enrollments_by_class:
@@ -126,7 +127,7 @@ def merge_enrollment(cs_id, enrollments, term_id, term_name):
     enrollments_feed = sorted(enrollments_by_class.values(), key=lambda x: x['displayName'])
     sort_sections(enrollments_feed)
     # Cache course and enrollment info
-    NormalizedCacheEnrollment.update_enrollments(term_id=term_id, sid=cs_id, sections=sections)
+    NormalizedCacheEnrollment.update_enrollments(term_id=term_id, sid=cs_id, sections=sections_for_normalized_cache)
     return {
         'termId': term_id,
         'termName': term_name,
