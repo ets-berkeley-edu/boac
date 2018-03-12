@@ -186,6 +186,9 @@ def load_canvas_externals(uid, term_id):
 
 def load_sis_externals(term_id, csid):
     from boac.externals import sis_degree_progress_api, sis_enrollments_api, sis_student_api
+    from boac.merged.sis_enrollments import merge_enrollment
+
+    term_name = berkeley.term_name_for_sis_id(term_id)
 
     success_count = 0
     failures = []
@@ -205,6 +208,8 @@ def load_sis_externals(term_id, csid):
 
     enrollments = sis_enrollments_api.get_enrollments(csid, term_id)
     if enrollments:
+        # Perform higher-level enrollments feed processing; update NormalizedCacheEnrollment.
+        merge_enrollment(csid, enrollments, term_id, term_name)
         success_count += 1
     elif enrollments is None:
         failures.append(f'SIS get_enrollments failed for CSID {csid}, term_id {term_id}')

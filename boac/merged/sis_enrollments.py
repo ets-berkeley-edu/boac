@@ -30,6 +30,7 @@ import boac.api.util as api_util
 from boac.externals import canvas, sis_enrollments_api
 from boac.lib.berkeley import sis_term_id_for_name
 from boac.models.alert import Alert
+from boac.models.json_cache import stow
 from boac.models.normalized_cache_enrollment import NormalizedCacheEnrollment
 from flask import current_app as app
 
@@ -82,6 +83,7 @@ def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name, includ
     return term_feed
 
 
+@stow('merged_enrollment_{cs_id}', for_term=True)
 def merge_enrollment(cs_id, enrollments, term_id, term_name):
     enrollments_by_class = {}
     sections_for_normalized_cache = []
