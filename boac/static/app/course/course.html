@@ -108,35 +108,29 @@
                   <strong class="no-wrap"
                         data-ng-if="student.enrollment.canvasSites.length > 1"
                         data-ng-bind="canvasSite.courseCode"></strong>
-                  <div class="no-wrap" data-ng-if="canvasSite.analytics.assignmentsOnTime.courseDeciles">
+                  <div class="no-wrap" data-ng-if="canvasSite.analytics.assignmentsOnTime.displayPercentile">
                     Score: <strong data-ng-bind="canvasSite.analytics.assignmentsOnTime.student.raw"></strong>
                     <span class="faint-text">
                       (Max: <span data-ng-bind="canvasSite.analytics.assignmentsOnTime.courseDeciles[10]"></span>)
                     </span>
                   </div>
-                  <div data-ng-if="!canvasSite.analytics.assignmentsOnTime.courseDeciles">
-                    &mdash;
+                  <div data-ng-if="!canvasSite.analytics.assignmentsOnTime.displayPercentile">
+                    No Data
                   </div>
                 </div>
               </div>
               <div class="student-column">
-                <ul class="flex-container flex-space-between" data-ng-repeat="canvasSite in student.enrollment.canvasSites">
-                  <li data-ng-if="canvasSite.analytics.courseCurrentScore.courseDeciles">
-                    <div id="boxplot-{{student.uid}}-courseCurrentScore"
-                         class="profile-boxplot"
-                         data-ng-init="drawBoxplot(canvasSite, student.uid, 'courseCurrentScore')"></div>
-                  </li>
-                  <li data-ng-if="!canvasSite.analytics.courseCurrentScore.courseDeciles">
-                    &mdash;
-                  </li>
-                </ul>
+                <div class="profile-boxplot-container"
+                     data-ng-repeat="canvasSite in student.enrollment.canvasSites">
+                  <boxplot-draw class="profile-boxplot"
+                                data-dataset="canvasSite.analytics.courseCurrentScore"></boxplot-draw>
+                </div>
               </div>
               <div class="student-column">
-                <div class="cohort-boxplot-container"
+                <div class="profile-boxplot-container"
                      data-ng-repeat="canvasSite in student.enrollment.canvasSites">
-                  <boxplot-page-views class="cohort-boxplot"
-                                      data-canvas-site="canvasSite"
-                                      data-student="student"></boxplot-page-views>
+                  <boxplot-draw class="profile-boxplot"
+                                data-dataset="canvasSite.analytics.pageViews"></boxplot-draw>
                 </div>
               </div>
               <div class="student-column-grade">

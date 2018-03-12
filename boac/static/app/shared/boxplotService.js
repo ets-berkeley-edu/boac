@@ -144,17 +144,15 @@
     };
 
     /**
-     * Render a cohort-view boxplot from a given dataset to a given element.
-     *
-     * @param  {String}  elementId     Element id where the boxplot should be rendered
+     * @param  {String}  element       Element where the boxplot should be rendered
      * @param  {Object}  dataset       Dataset to render; 'courseDeciles' and 'student' properties are expected
      * @return {void}
      */
-    var drawBoxplotPageViews = function(elementId, dataset) {
+    var drawBoxplotCompact = function(element, dataset) {
       // Options specific to a cohort-view boxplot and the provided dataset.
       var boxplotOptions = {
         chart: {
-          renderTo: elementId
+          renderTo: element
         },
 
         series: seriesOptionsForDataset(dataset),
@@ -183,7 +181,7 @@
         try {
           var chart = new Highcharts.Chart(boxplotOptions, 0);
           // This tooltip-hiding event on the container element fires more reliably than the Highcharts default.
-          document.getElementById(elementId).addEventListener('mouseleave', function() {
+          element.addEventListener('mouseleave', function() {
             chart.tooltip.hide();
           });
           return chart;
@@ -203,13 +201,11 @@
     };
 
     /**
-     * Render a student-view boxplot from a given dataset to a given element.
-     *
-     * @param  {String}  elementId     Element id where the boxplot should be rendered
+     * @param  {String}  element       Element where the boxplot should be rendered
      * @param  {Object}  dataset       Dataset to render; 'courseDeciles' and 'student' properties are expected
      * @return {void}
      */
-    var drawBoxplotStudent = function(elementId, dataset) {
+    var drawBoxplotStandard = function(element, dataset) {
       // Options specific to a student-view boxplot and the provided dataset.
       var tooltipHeaderFormat = '<div class="profile-tooltip-header">' +
                                 '<div class="profile-tooltip-label">User Score</div>' +
@@ -236,7 +232,7 @@
 
       var boxplotOptions = {
         chart: {
-          renderTo: elementId
+          renderTo: element
         },
 
         series: seriesOptionsForDataset(dataset),
@@ -263,9 +259,16 @@
       });
     };
 
+    var drawBoxplot = function(element, dataset, compactTooltip) {
+      if (compactTooltip) {
+        drawBoxplotCompact(element, dataset);
+      } else {
+        drawBoxplotStandard(element, dataset);
+      }
+    };
+
     return {
-      drawBoxplotPageViews: drawBoxplotPageViews,
-      drawBoxplotStudent: drawBoxplotStudent
+      drawBoxplot: drawBoxplot
     };
   });
 

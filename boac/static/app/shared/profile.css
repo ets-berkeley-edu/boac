@@ -55,6 +55,7 @@
 
 .profile-boxplot .highcharts-container {
   overflow: visible !important;
+  z-index: auto !important;
 }
 
 .profile-boxplot-container {
@@ -69,6 +70,7 @@
   line-height: 1.4em;
   min-width: 200px;
   padding: 0;
+  z-index: 1;
 }
 
 .profile-boxplot-container .highcharts-tooltip::after {
@@ -83,7 +85,6 @@
   left: -6px;
   transform: rotate(135deg);
   width: 10px;
-  z-index: 1;
 }
 
 .profile-boxplot-container g.highcharts-tooltip {
@@ -171,28 +172,6 @@
   font-weight: 400;
   margin: 20px 0 15px 0;
   color: #999;
-}
-
-.profile-course-site-metrics {
-  margin-bottom: 20px;
-}
-
-.profile-course-site-metrics td {
-  font-size: 14px;
-  padding: 0 25px 5px 0;
-}
-
-.profile-course-site-metrics-legend {
-  color: #999;
-}
-
-.profile-course-site-metrics-maximum {
-  color: #666;
-}
-
-.profile-course-site-metrics-no-data {
-  color: #666;
-  font-style: italic;
 }
 
 .profile-course-site-code {
@@ -425,7 +404,6 @@
   left: 40px;
   transform: rotate(135deg);
   width: 10px;
-  z-index: 1;
 }
 
 .profile-units-chart-container g.highcharts-tooltip {

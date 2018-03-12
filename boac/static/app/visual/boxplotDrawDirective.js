@@ -27,23 +27,24 @@
 
   'use strict';
 
-  angular.module('boac').directive('boxplotPageViews', function(boxplotService) {
+  angular.module('boac').directive('boxplotDraw', function(boxplotService, utilService) {
     return {
       restrict: 'E',
 
       scope: {
-        canvasSite: '=',
-        student: '='
+        dataset: '='
       },
 
-      link: function(scope, elem) {
-        var dataset = _.get(scope.canvasSite, 'analytics.pageViews');
-        if (dataset && dataset.courseDeciles) {
-          var elementId = 'boxplot-' + scope.canvasSite.canvasCourseId + '-' + scope.student.uid + '-pageviews';
-          // We must have a predictable id on the element
-          elem.attr('id', elementId);
-          boxplotService.drawBoxplotPageViews(elementId, dataset);
-        }
+      link: function(scope, elem, attrs) {
+        angular.element(function() {
+          if (scope.dataset.boxPlottable) {
+            var compactTooltip = utilService.toBoolOrNull(attrs.compactTooltip);
+            boxplotService.drawBoxplot(elem[0], scope.dataset, compactTooltip);
+          } else {
+            elem.attr('class', elem.attr('class') + ' visualize-metrics-no-data');
+            elem.text('No Data');
+          }
+        });
       }
     };
   });
