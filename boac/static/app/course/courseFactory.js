@@ -33,8 +33,12 @@
       return $http.get('/api/sections/ids_per_term');
     };
 
-    var getSection = function(termId, sectionId) {
-      return $http.get('/api/section/' + termId + '/' + sectionId);
+    var getSection = function(termId, sectionId, includeAverage) {
+      var url = '/api/section/' + termId + '/' + sectionId;
+      if (includeAverage) {
+        url += '?includeAverage=true';
+      }
+      return $http.get(url);
     };
 
     return {

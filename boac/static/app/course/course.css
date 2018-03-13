@@ -81,3 +81,21 @@
   font-weight: bold;
   margin: 0 0 5px 0;
 }
+
+.course-student-name-container {
+  flex: 0.8;
+  margin-left: 20px;
+  min-width: 200px;
+}
+
+.course-student-name-container button {
+  padding: 2px 0 0 5px;
+}
+
+.course-student-name {
+  color: #49b;
+  font-size: 16px;
+  margin: 0;
+  max-width: 150px;
+  padding: 0;
+}

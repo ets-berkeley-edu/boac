@@ -49,6 +49,11 @@
       </div>
       <div class="profile-terms">
         <h2 data-ng-bind="section.termName"></h2>
+        <div data-ng-if="warning && warning.message">
+          <div class="has-error"><i class="fa fa-exclamation-triangle"></i>
+            Warning: <span data-ng-bind="warning.message"></span>
+          </div>
+        </div>
 
         <div data-ng-include="'/static/app/shared/tabs.html'"></div>
 
@@ -69,25 +74,29 @@
                href
                data-ng-click="goToStudent(student.uid)"
                data-ng-repeat="student in section.students">
-              <div class="student-avatar-container">
-                <img class="student-avatar"
+              <div class="student-avatar-large-container">
+                <img class="student-avatar-large"
                      data-ng-src="/api/user/{{student.uid}}/photo"
                      data-avatar-fallback
                      data-ng-if="!student.isClassAverage">
-                <img class="student-avatar"
+                <img class="student-avatar-large"
                      src="/static/app/course/class-group-icon.svg"
                      data-ng-if="student.isClassAverage">
               </div>
-              <div class="student-name-container">
+              <div class="course-student-name-container">
                 <div class="flex-container">
-                  <h3 class="student-name"
-                      data-ng-class="{'demo-mode-blur': demoMode}">
-                    {{student.lastName}}<span data-ng-if="student.firstName">, {{student.firstName}}</span>
-                  </h3>
-                  <watchlist-toggle data-sid="student.sid"
-                                    data-fa-size="fa-1x"
-                                    data-watchlist="myWatchlist"
-                                    data-ng-if="!student.isClassAverage"></watchlist-toggle>
+                  <div>
+                    <h3 class="course-student-name"
+                        data-ng-class="{'demo-mode-blur': demoMode}">
+                      {{student.lastName}}<span data-ng-if="student.firstName">, {{student.firstName}}</span>
+                    </h3>
+                  </div>
+                  <div>
+                    <watchlist-toggle data-sid="student.sid"
+                                      data-fa-size="fa-1x"
+                                      data-watchlist="myWatchlist"
+                                      data-ng-if="!student.isClassAverage"></watchlist-toggle>
+                  </div>
                 </div>
                 <div class="student-sid"
                      data-ng-class="{'demo-mode-blur': demoMode}"
@@ -105,9 +114,7 @@
               </div>
               <div class="student-column course-column-assignment-data">
                 <div data-ng-repeat="canvasSite in student.enrollment.canvasSites">
-                  <strong class="no-wrap"
-                        data-ng-if="student.enrollment.canvasSites.length > 1"
-                        data-ng-bind="canvasSite.courseCode"></strong>
+                  <strong class="no-wrap" data-ng-bind="canvasSite.courseCode"></strong>
                   <div class="no-wrap" data-ng-if="canvasSite.analytics.assignmentsOnTime.displayPercentile">
                     Score: <strong data-ng-bind="canvasSite.analytics.assignmentsOnTime.student.raw"></strong>
                     <span class="faint-text">

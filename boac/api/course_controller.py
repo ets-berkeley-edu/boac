@@ -26,10 +26,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api.errors import ResourceNotFoundError
 import boac.api.util as api_util
+from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged import member_details
 from boac.models.normalized_cache_enrollment import NormalizedCacheEnrollment
-from flask import current_app as app
+from flask import current_app as app, request
 from flask_login import login_required
 
 
@@ -39,10 +40,16 @@ def get_section(term_id, section_id):
     row = NormalizedCacheEnrollment.get_course_section(term_id=term_id, section_id=section_id)
     if not row:
         raise ResourceNotFoundError(f'No section {section_id} in term {term_id}')
-
     section = api_util.course_section_to_json(term_id=term_id, section=row)
-    if 'students' in section:
-        member_details.merge_all(section['students'], section['termId'])
+    students = section.get('students', [])
+    member_details.merge_all(students, section['termId'])
+    for student in students:
+        # Cherry-pick enrollment of section requested
+        for enrollment in student.get('term', {}).get('enrollments', []):
+            if enrollment['displayName'] == section['displayName']:
+                student['enrollment'] = enrollment
+    if students and util.to_bool_or_none(request.args.get('includeAverage')):
+        section['averageStudent'] = _get_average_student(students)
     return tolerant_jsonify(section)
 
 
@@ -50,3 +57,61 @@ def get_section(term_id, section_id):
 @login_required
 def summarize_sections_in_cache():
     return tolerant_jsonify(NormalizedCacheEnrollment.summarize_sections_in_cache())
+
+
+def _get_average_student(students):
+    average_student = {
+        'enrollment': {
+            'gradingBasis': 'N/A',
+        },
+        'isClassAverage': True,
+        'lastName': 'Class Average',
+        'uid': 0,
+    }
+    canvas_sites = _get_canvas_sites(students)
+    if canvas_sites:
+        for canvas_site in canvas_sites:
+            # TODO: student_summaries = canvas.get_student_summaries(canvas_site['canvasCourseId'], term_id)
+            mock_deciles = [15, 52, 65, 81, 92, 105, 117, 132, 161, 226, 567]
+            canvas_site['analytics'] = {
+                'assignmentsOnTime': {
+                    'courseDeciles': mock_deciles,
+                    'displayPercentile': '56th',
+                    'student': {
+                        'raw': 81,
+                    },
+                },
+                'courseCurrentScore': {
+                    'courseDeciles': mock_deciles,
+                    'boxPlottable': True,
+                    'student': {
+                        'raw': 79,
+                    },
+                },
+                'pageViews': {
+                    'courseDeciles': mock_deciles,
+                    'boxPlottable': True,
+                    'student': {
+                        'raw': 148,
+                    },
+                },
+            }
+    else:
+        average_student['warning'] = {
+            'message': 'Average cannot be calculated.',
+        }
+    average_student['enrollment']['canvasSites'] = canvas_sites
+    return average_student
+
+
+def _get_canvas_sites(students):
+    canvas_sites_dict = _get_canvas_sites_dict(students[0])
+    for student in students[1:]:
+        for course_id, canvas_site in _get_canvas_sites_dict(student).items():
+            canvas_sites_dict[course_id] = canvas_site
+    return list(canvas_sites_dict.values())
+
+
+def _get_canvas_sites_dict(student):
+    canvas_sites = student.get('enrollment', {}).get('canvasSites', [])
+    return {str(canvas_site['canvasCourseId']): canvas_site for canvas_site in canvas_sites}

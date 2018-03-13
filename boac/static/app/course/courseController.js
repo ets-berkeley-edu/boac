@@ -28,7 +28,6 @@
   'use strict';
 
   angular.module('boac').controller('CourseController', function(
-    boxplotService,
     cohortService,
     config,
     courseFactory,
@@ -49,70 +48,6 @@
 
     var goToStudent = $scope.goToStudent = function(uid) {
       utilService.goTo('/student/' + uid, $scope.section.displayName);
-    };
-
-    var getClassAveragePseudoStudent = function() {
-      var mockDeciles = [
-        0,
-        80,
-        87,
-        90,
-        93,
-        94,
-        95,
-        97,
-        100,
-        100,
-        100
-      ];
-      return {
-        analytics: {
-          assignmentsOnTime: {
-            displayPercentile: 67
-          },
-          courseCurrentScore: {
-            displayPercentile: 58,
-            percentile: 58
-          },
-          pageViews: {
-            displayPercentile: 35,
-            percentile: 35
-          }
-        },
-        enrollment: {
-          canvasSites: [
-            {
-              analytics: {
-                assignmentsOnTime: {
-                  courseDeciles: mockDeciles,
-                  student: {
-                    raw: 81
-                  }
-                },
-                courseCurrentScore: {
-                  courseDeciles: mockDeciles,
-                  student: {
-                    raw: 79
-                  }
-                },
-                pageViews: {
-                  courseDeciles: mockDeciles,
-                  student: {
-                    raw: 239
-                  }
-                }
-              },
-              canvasCourseId: 0
-            }
-          ],
-          grade: 'B-',
-          gradingBasis: null,
-          midtermGrade: 'B+'
-        },
-        isClassAverage: true,
-        lastName: 'Class Average',
-        uid: 0
-      };
     };
 
     /**
@@ -149,11 +84,6 @@
       }
     };
 
-    $scope.drawBoxplot = function(canvasSite, uid, metricId) {
-      var elementId = 'boxplot-' + uid + '-' + metricId;
-      boxplotService.drawBoxplotStudent(elementId, canvasSite.analytics[metricId]);
-    };
-
     var init = function() {
       // Maybe we are arriving from student page.
       $scope.returnUrl = utilService.unpackReturnUrl();
@@ -162,18 +92,18 @@
 
       var args = _.clone($location.search());
 
-      courseFactory.getSection($stateParams.termId, $stateParams.sectionId).then(function(response) {
+      courseFactory.getSection($stateParams.termId, $stateParams.sectionId, true).then(function(response) {
         $rootScope.pageTitle = response.data.displayName;
         $scope.section = response.data;
-        $scope.section.students.unshift(getClassAveragePseudoStudent());
-        // Cherry-pick section enrollment
-        _.each($scope.section.students, function(student) {
-          _.each(_.get(student, 'term.enrollments', []), function(e) {
-            if (e.displayName === $scope.section.displayName) {
-              student.enrollment = e;
-            }
-          });
-        });
+        // averageStudent has averages of ALL students, not just athletes
+        var averageStudent = $scope.section.averageStudent;
+        if (averageStudent) {
+          if (averageStudent.warning) {
+            $scope.warning = averageStudent.warning;
+          } else {
+            $scope.section.students.unshift(averageStudent);
+          }
+        }
         $scope.isLoading = false;
         if (args.a) {
           // Scroll to anchor
