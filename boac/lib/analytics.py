@@ -230,10 +230,9 @@ def analytics_for_column(df, student_row, column_name):
     # If all students have the same score, we have no basis for comparison.
     if nunique == 1:
         display_percentile = None
-    elif nunique <= 10:
-        display_percentile = ordinal(intuitive_percentile)
+    # Otherwise the intuitive percentile is our best option for display, whether or not the distribution is boxplottable.
     else:
-        display_percentile = ordinal(comparative_percentile)
+        display_percentile = ordinal(intuitive_percentile)
 
     return {
         'boxPlottable': box_plottable,

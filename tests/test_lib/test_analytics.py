@@ -53,7 +53,7 @@ class TestAnalytics:
         digested = analytics.analytics_from_canvas_course_enrollments(feed, canvas_user_id)
         course_current_score = digested['courseCurrentScore']
         assert course_current_score['boxPlottable'] is True
-        assert course_current_score['displayPercentile'] == '8th'
+        assert course_current_score['displayPercentile'] == '11th'
         assert course_current_score['student']['percentile'] == 8
         assert course_current_score['student']['raw'] == 86.0
         assert course_current_score['student']['roundedUpPercentile'] == 11
