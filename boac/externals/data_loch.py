@@ -65,6 +65,22 @@ def _get_course_page_views(course_id):
     return safe_execute(sql)
 
 
+@stow('loch_scores_{course_id}', for_term=True)
+def get_course_scores(course_id, term_id):
+    return _get_course_scores(course_id)
+
+
+@fixture('loch_scores_{course_id}.csv')
+def _get_course_scores(course_id):
+    sql = f"""SELECT
+              user_id as canvas_user_id, current_score
+              FROM boac_analytics.user_course_scores
+              WHERE canvas_course_id={course_id}
+              ORDER BY canvas_user_id
+        """
+    return safe_execute(sql)
+
+
 @stow('loch_on_time_submissions_relative_to_user_{course_id}_{user_id}', for_term=True)
 def get_on_time_submissions_relative_to_user(course_id, user_id, term_id):
     return _get_on_time_submissions_relative_to_user(course_id, user_id)
