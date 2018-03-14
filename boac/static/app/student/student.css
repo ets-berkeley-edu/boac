@@ -95,12 +95,8 @@
 }
 
 .student-avatar-large {
-  background-image: url(/static/app/shared/avatar-50.png);
-  background-size: cover;
-  border: 5px solid #ccc;
   border-radius: 50px;
   height: 100px;
-  object-fit: cover;
   width: 100px;
 }
 

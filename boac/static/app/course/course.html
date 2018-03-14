@@ -75,11 +75,11 @@
                data-ng-click="goToStudent(student.uid)"
                data-ng-repeat="student in section.students">
               <div class="student-avatar-large-container">
-                <img class="student-avatar-large"
+                <img class="student-avatar student-avatar-large"
                      data-ng-src="/api/user/{{student.uid}}/photo"
                      data-avatar-fallback
                      data-ng-if="!student.isClassAverage">
-                <img class="student-avatar-large"
+                <img class="student-avatar student-avatar-large"
                      src="/static/app/course/class-group-icon.svg"
                      data-ng-if="student.isClassAverage">
               </div>
