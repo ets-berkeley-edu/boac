@@ -390,6 +390,12 @@ class TestUserAnalytics:
         assert sis_profile['primaryName'] == 'Oski Bear'
         assert sis_profile['termsInAttendance'] == 5
 
+    def test_sis_profile_expected_graduation_term(self, authenticated_response):
+        """Provides the last of any expected graduation terms listed in SIS profile."""
+        sis_profile = authenticated_response.json['sisProfile']
+        assert sis_profile['expectedGraduationTerm']['id'] == '2198'
+        assert sis_profile['expectedGraduationTerm']['name'] == 'Fall 2019'
+
     def test_student_overview_link(self, authenticated_response):
         """Provides a link to official data about the student."""
         assert authenticated_response.json['studentProfileLink']
