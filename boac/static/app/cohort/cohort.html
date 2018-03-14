@@ -175,7 +175,8 @@
                 <div class="cohort-boxplot-container" data-ng-repeat="canvasSite in enrollment.canvasSites">
                   <boxplot-draw class="cohort-boxplot"
                                 data-compact-tooltip="true"
-                                data-dataset="canvasSite.analytics.pageViews"></boxplot-draw>
+                                data-dataset="canvasSite.analytics.pageViews"
+                                data-ng-if="tab === 'list'"></boxplot-draw>
                 </div>
               </div>
               <div class="student-column-grade">
