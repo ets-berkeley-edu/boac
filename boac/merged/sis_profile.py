@@ -27,7 +27,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import re
 from boac.externals import sis_degree_progress_api
 from boac.externals import sis_student_api
-from boac.lib.berkeley import degree_program_url_for_major
+from boac.lib.berkeley import degree_program_url_for_major, term_name_for_sis_id
 from boac.lib.util import vacuum_whitespace
 from boac.models.json_cache import stow
 from boac.models.normalized_cache_student import NormalizedCacheStudent
@@ -90,23 +90,7 @@ def merge_sis_profile_academic_status(sis_response, sis_profile):
             sis_profile['cumulativeUnits'] = units.get('unitsCumulative')
             break
 
-    sis_profile['plans'] = []
-    for student_plan in academic_status.get('studentPlans', []):
-        academic_plan = student_plan.get('academicPlan', {})
-        # SIS majors come in five flavors.
-        if academic_plan.get('type', {}).get('code') not in ['MAJ', 'SS', 'SP', 'HS', 'CRT']:
-            continue
-        plan = academic_plan.get('plan', {})
-        major = plan.get('description')
-        plan_feed = {
-            'degreeProgramUrl': degree_program_url_for_major(major),
-            'description': major,
-        }
-        # Add program unless plan code indicates undeclared.
-        if plan.get('code') != '25000U':
-            program = student_plan.get('academicPlan', {}).get('academicProgram', {}).get('program', {})
-            plan_feed['program'] = program.get('description')
-        sis_profile['plans'].append(plan_feed)
+    merge_sis_profile_plans(academic_status, sis_profile)
 
 
 def merge_sis_profile_emails(sis_response, sis_profile):
@@ -138,6 +122,33 @@ def merge_sis_profile_phones(sis_response, sis_profile):
         for phone in sis_response.get('phones', [])
     }
     sis_profile['phoneNumber'] = phones_by_code.get('CELL') or phones_by_code.get('LOCL') or phones_by_code.get('HOME')
+
+
+def merge_sis_profile_plans(academic_status, sis_profile):
+    sis_profile['plans'] = []
+    for student_plan in academic_status.get('studentPlans', []):
+        academic_plan = student_plan.get('academicPlan', {})
+        # SIS majors come in five flavors.
+        if academic_plan.get('type', {}).get('code') not in ['MAJ', 'SS', 'SP', 'HS', 'CRT']:
+            continue
+        plan = academic_plan.get('plan', {})
+        major = plan.get('description')
+        plan_feed = {
+            'degreeProgramUrl': degree_program_url_for_major(major),
+            'description': major,
+        }
+        # Find the latest expected graduation term from any plan.
+        expected_graduation_term = student_plan.get('expectedGraduationTerm', {}).get('id')
+        if expected_graduation_term and expected_graduation_term > sis_profile.get('expectedGraduationTerm', {}).get('id', '0'):
+            sis_profile['expectedGraduationTerm'] = {
+                'id': expected_graduation_term,
+                'name': term_name_for_sis_id(expected_graduation_term),
+            }
+        # Add program unless plan code indicates undeclared.
+        if plan.get('code') != '25000U':
+            program = student_plan.get('academicPlan', {}).get('academicProgram', {}).get('program', {})
+            plan_feed['program'] = program.get('description')
+        sis_profile['plans'].append(plan_feed)
 
 
 def store_normalized_profile(csid, sis_profile):

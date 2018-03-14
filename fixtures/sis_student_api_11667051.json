@@ -194,6 +194,10 @@
                         "description": "Major - Self-Supporting"
                       }
                     },
+                    "expectedGraduationTerm": {
+                      "id": "2182",
+                      "name": "2018 Spring"
+                    },
                     "primary": true,
                     "statusInPlan": {
                       "action": {
@@ -370,6 +374,10 @@
                         "description": "Major - Regular Acad/Prfnl"
                       }
                     },
+                    "expectedGraduationTerm": {
+                      "id": "2198",
+                      "name": "2019 Fall"
+                    },
                     "primary": true,
                     "statusInPlan": {
                       "action": {
@@ -409,6 +417,10 @@
                         "code": "SP",
                         "description": "Major - UG Specialization"
                       }
+                    },
+                    "expectedGraduationTerm": {
+                      "id": "2192",
+                      "name": "2019 Spring"
                     },
                     "primary": false,
                     "statusInPlan": {

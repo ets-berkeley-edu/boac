@@ -80,10 +80,14 @@
             </div>
           </div>
           <h4 class="profile-sidebar-header" data-ng-bind="student.sisProfile.level.description"></h4>
-          <div class="profile-sidebar-details" data-ng-if="student.sisProfile.termsInAttendance">
-            <span data-ng-pluralize
+          <div class="profile-sidebar-details">
+            <div data-ng-pluralize
                   count="student.sisProfile.termsInAttendance"
-                  when="{'one': '1 Term in Attendance', 'other': '{{student.sisProfile.termsInAttendance}} Terms in Attendance'}"></span>
+                  when="{'one': '1 Term in Attendance', 'other': '{{student.sisProfile.termsInAttendance}} Terms in Attendance'}"
+                  data-ng-if="student.sisProfile.termsInAttendance"></div>
+            <div data-ng-if="student.sisProfile.expectedGraduationTerm">
+              Expected graduation <span data-ng-bind="student.sisProfile.expectedGraduationTerm.name"></span>
+            </div>
           </div>
         </div>
         <div class="profile-sidebar-box" data-ng-if="student.sisProfile.degreeProgress">
