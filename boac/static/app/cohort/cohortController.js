@@ -169,8 +169,9 @@
       if (updateBrowserLocation) {
         $location.search('c', 'search');
         $location.search('g', gpaRanges);
-        $location.search('i', opts.intensive);
-        $location.search('inactive', opts.inactive);
+        // Use string 'true' rather than boolean so that the value persists in browser location.
+        $location.search('i', opts.intensive ? 'true' : null);
+        $location.search('inactive', opts.inactive ? 'true' : null);
         $location.search('l', levels);
         $location.search('m', majors);
         $location.search('t', groupCodes);
