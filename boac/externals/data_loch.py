@@ -75,7 +75,7 @@ def _get_course_scores(course_id):
     sql = f"""SELECT
               user_id as canvas_user_id, current_score
               FROM boac_analytics.user_course_scores
-              WHERE canvas_course_id={course_id}
+              WHERE course_id={course_id}
               ORDER BY canvas_user_id
         """
     return safe_execute(sql)
