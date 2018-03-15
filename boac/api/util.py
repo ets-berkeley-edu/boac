@@ -124,16 +124,14 @@ def course_section_to_json(term_id, section):
 def _get_meetings(section):
     meetings = []
     for meeting in section.get('meetings', []):
-        m = {
-            'instructors': [],
-        }
-        if 'meetsDays' in meeting:
-            days = re.findall('[A-Z][^A-Z]*', meeting['meetsDays'])
-            m['days'] = ', '.join(days)
         start_time = _format_time(meeting['startTime'])
         end_time = _format_time(meeting['endTime'])
-        m['time'] = f'{start_time} - {end_time}'
-        m['location'] = meeting.get('location', {}).get('description')
+        m = {
+            'days': _days_in_friendly_format(meeting) if 'meetsDays' in meeting else None,
+            'instructors': [],
+            'time': f'{start_time} - {end_time}',
+            'location': meeting.get('location', {}).get('description'),
+        }
         instructors = meeting.get('assignedInstructors', [])
         for entry in instructors:
             instructor = entry['instructor']
@@ -150,5 +148,27 @@ def _format_time(time):
     hour = int(split[0]) if len(split) >= 2 and split[0].isdigit() else None
     if hour:
         suffix = 'am' if hour < 12 else 'pm'
+        hour = hour if hour < 13 else hour - 12
         formatted = f'{hour}:{split[1]} {suffix}'
     return formatted
+
+
+def _days_in_friendly_format(section_meeting):
+    meets_days = section_meeting.get('meetsDays')
+    if not meets_days:
+        return None
+    days = re.findall('[A-Z][^A-Z]*', meets_days)
+    if len(days) == 1:
+        day_lookup = {
+            'Mo': 'Monday',
+            'Tu': 'Tuesday',
+            'We': 'Wednesday',
+            'Th': 'Thursday',
+            'Fr': 'Friday',
+            'Sa': 'Saturday',
+            'Su': 'Sunday',
+        }
+        return day_lookup[days[0]]
+    else:
+        day_list = list(map(lambda d: d if d in ['Th', 'Sa', 'Su'] else d[0], days))
+        return ', '.join(day_list)
