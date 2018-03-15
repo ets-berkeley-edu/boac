@@ -124,6 +124,11 @@
     };
 
     var unpackReturnUrl = function(anchorId) {
+      var disableBreadcrumb = true;
+      if (disableBreadcrumb) {
+        // TODO: Cook up a sensible breadcrumb strategy (see BOAC-596) or remove the feature.
+        return null;
+      }
       var encodedReturnUrl = $location.search().r;
       var url = null;
       if (!_.isEmpty(encodedReturnUrl)) {
