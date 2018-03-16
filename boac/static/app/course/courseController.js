@@ -65,6 +65,8 @@
       cohortService.drawScatterplot(partitions[0], yAxisMeasure, function(uid) {
         $location.state($location.absUrl());
         goToStudent(uid);
+        // Because intervening cohortService code moves out of Angular and into d3, administer the extra kick of $apply.
+        $scope.$apply();
       });
       // List of students-without-data is rendered below the scatterplot.
       $scope.studentsWithoutData = partitions[1];
