@@ -84,8 +84,9 @@
 
 .course-student-name-container {
   flex: 0.8;
-  margin-left: 20px;
-  min-width: 200px;
+  margin-left: 10px;
+  margin-right: 20px;
+  max-width: 150px;
 }
 
 .course-student-name-container button {

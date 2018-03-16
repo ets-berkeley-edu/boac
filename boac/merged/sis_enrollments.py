@@ -24,11 +24,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-import re
-
 import boac.api.util as api_util
 from boac.externals import canvas, sis_enrollments_api
-from boac.lib.berkeley import sis_term_id_for_name
+from boac.lib.berkeley import extract_canvas_ccn, sis_term_id_for_name
 from boac.models.alert import Alert
 from boac.models.json_cache import stow
 from boac.models.normalized_cache_enrollment import NormalizedCacheEnrollment
@@ -189,12 +187,7 @@ def merge_canvas_course_site(term_feed, site):
     if not sections:
         return
     for section in sections:
-        # Manually created site sections will have no integration ID.
-        canvas_sis_section_id = section.get('sis_section_id') or ''
-        ccn_match = re.match(r'\ASEC:20\d{2}-[BCD]-(\d{5})', canvas_sis_section_id)
-        if not ccn_match:
-            continue
-        canvas_ccn = ccn_match.group(1)
+        canvas_ccn = extract_canvas_ccn(section)
         if not canvas_ccn:
             continue
         for enrollment in term_feed['enrollments']:

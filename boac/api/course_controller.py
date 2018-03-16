@@ -26,7 +26,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api.errors import ResourceNotFoundError
 import boac.api.util as api_util
+from boac.externals import canvas
+from boac.lib import analytics
 from boac.lib import util
+from boac.lib.berkeley import extract_canvas_ccn
 from boac.lib.http import tolerant_jsonify
 from boac.merged import member_details
 from boac.models.normalized_cache_enrollment import NormalizedCacheEnrollment
@@ -49,7 +52,33 @@ def get_section(term_id, section_id):
             if enrollment['displayName'] == section['displayName']:
                 student['enrollment'] = enrollment
     if students and util.to_bool_or_none(request.args.get('includeAverage')):
-        section['averageStudent'] = _get_average_student(students)
+        section['averageStudent'] = {
+            'canvasCourseId': 0,
+            'cumulativeGPA': _get_student_average('cumulativeGPA', students),
+            'cumulativeUnits': _get_student_average('cumulativeUnits', students),
+            'enrollment': {
+                'canvasSites': [],
+                'grade': None,
+                'gradingBasis': None,
+            },
+            'isClassAverage': True,
+            'lastName': 'Class Average',
+            'sid': 0,
+            'uid': 0,
+        }
+        canvas_sites = _filter_canvas_sites_per_section_id(students, term_id, section_id)
+        for canvas_site in canvas_sites:
+            _analytics = analytics.get_student_averages(
+                term_id=term_id,
+                canvas_course_id=canvas_site['canvasCourseId'],
+            )
+            section['averageStudent']['enrollment']['canvasSites'].append({
+                'analytics': _analytics,
+                'canvasCourseId': canvas_site['canvasCourseId'],
+                'courseCode': canvas_site['courseCode'],
+                'courseName': canvas_site['courseName'],
+                'courseTerm': canvas_site['courseTerm'],
+            })
     return tolerant_jsonify(section)
 
 
@@ -59,59 +88,33 @@ def summarize_sections_in_cache():
     return tolerant_jsonify(NormalizedCacheEnrollment.summarize_sections_in_cache())
 
 
-def _get_average_student(students):
-    average_student = {
-        'enrollment': {
-            'gradingBasis': 'N/A',
-        },
-        'isClassAverage': True,
-        'lastName': 'Class Average',
-        'uid': 0,
-    }
-    canvas_sites = _get_canvas_sites(students)
-    if canvas_sites:
-        for canvas_site in canvas_sites:
-            # TODO: student_summaries = canvas.get_student_summaries(canvas_site['canvasCourseId'], term_id)
-            mock_deciles = [15, 52, 65, 81, 92, 105, 117, 132, 161, 226, 567]
-            canvas_site['analytics'] = {
-                'assignmentsOnTime': {
-                    'courseDeciles': mock_deciles,
-                    'displayPercentile': '56th',
-                    'student': {
-                        'raw': 81,
-                    },
-                },
-                'courseCurrentScore': {
-                    'courseDeciles': mock_deciles,
-                    'boxPlottable': True,
-                    'student': {
-                        'raw': 79,
-                    },
-                },
-                'pageViews': {
-                    'courseDeciles': mock_deciles,
-                    'boxPlottable': True,
-                    'student': {
-                        'raw': 148,
-                    },
-                },
-            }
-    else:
-        average_student['warning'] = {
-            'message': 'Average cannot be calculated.',
-        }
-    average_student['enrollment']['canvasSites'] = canvas_sites
-    return average_student
-
-
-def _get_canvas_sites(students):
-    canvas_sites_dict = _get_canvas_sites_dict(students[0])
+def _filter_canvas_sites_per_section_id(students, term_id, section_id):
+    canvas_sites_dict = _canvas_sites_dict(students[0])
     for student in students[1:]:
-        for course_id, canvas_site in _get_canvas_sites_dict(student).items():
+        for course_id, canvas_site in _canvas_sites_dict(student).items():
             canvas_sites_dict[course_id] = canvas_site
-    return list(canvas_sites_dict.values())
+    canvas_sites = []
+    for canvas_site in list(canvas_sites_dict.values()):
+        canvas_course_id = canvas_site['canvasCourseId']
+        sections = canvas.get_course_sections(canvas_course_id, term_id) or []
+        for section in sections:
+            if section_id == extract_canvas_ccn(section):
+                canvas_sites.append(canvas_site)
+    # Remove students' extraneous canvas sites
+    canvas_course_ids = [s['canvasCourseId'] for s in canvas_sites]
+    for student in students:
+        sites = student.get('enrollment', {}).get('canvasSites', [])
+        if sites:
+            sites = [s for s in sites if s['canvasCourseId'] in canvas_course_ids]
+            student['enrollment']['canvasSites'] = sites
+    return canvas_sites
 
 
-def _get_canvas_sites_dict(student):
+def _canvas_sites_dict(student):
     canvas_sites = student.get('enrollment', {}).get('canvasSites', [])
     return {str(canvas_site['canvasCourseId']): canvas_site for canvas_site in canvas_sites}
+
+
+def _get_student_average(attribute, students):
+    _students = [s for s in students if s.get(attribute)]
+    sum(s[attribute] for s in _students) / len(_students) if _students else None

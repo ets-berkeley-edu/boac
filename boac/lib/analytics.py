@@ -75,6 +75,52 @@ def mean_course_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_
     return mean_values
 
 
+@stow('average_student_per_course_{canvas_course_id}', for_term=True)
+def get_student_averages(term_id, canvas_course_id):
+    summary_feed = canvas.get_student_summaries(course_id=canvas_course_id, term_id=term_id)
+    averages = None
+    if summary_feed:
+        average_student = {
+            'id': 0,
+            'max_page_views': summary_feed[0]['max_page_views'],
+            'max_participations': summary_feed[0]['max_participations'],
+            'tardiness_breakdown': {},
+        }
+
+        def _add(_student, _key, _average_student):
+            _average_student[_key] = (_average_student.get(_key) or 0) + (_student.get(_key) or 0)
+        for student in summary_feed:
+            # Get sum totals
+            _add(student, 'page_views', average_student)
+            _add(student, 'participations', average_student)
+            tardiness_breakdown = student.get('tardiness_breakdown')
+            if tardiness_breakdown:
+                target = average_student['tardiness_breakdown']
+                _add(tardiness_breakdown, 'floating', target)
+                _add(tardiness_breakdown, 'missing', target)
+                _add(tardiness_breakdown, 'on_time', target)
+                _add(tardiness_breakdown, 'total', target)
+                _add(tardiness_breakdown, 'late', target)
+        # Calculate averages
+        count = len(summary_feed)
+
+        def _average(_average_student, _key):
+            if _key in _average_student:
+                _average_student[_key] = round(_average_student[_key] / count)
+        _average(average_student, 'page_views')
+        _average(average_student, 'page_views_level')
+        _average(average_student, 'participations')
+        _average(average_student, 'participations_level')
+        tb = average_student['tardiness_breakdown']
+        _average(tb, 'floating')
+        _average(tb, 'missing')
+        _average(tb, 'on_time')
+        _average(tb, 'total')
+        _average(tb, 'late')
+        averages = analytics_from_summary_feed([average_student], average_student['id'], canvas_course_id)
+    return averages
+
+
 def analytics_from_summary_feed(summary_feed, canvas_user_id, canvas_course_id):
     """Given a student summary feed for a Canvas course, return analytics for a given user."""
     # TODO Remove misleading tardiness_breakdown stats.
@@ -153,6 +199,11 @@ def analytics_from_canvas_course_assignments(course_id, course_code, uid, sid, t
         }
         data['assignments'].append(assignment_data)
     return data
+
+
+def _get_canvas_sites_dict(student):
+    canvas_sites = student.get('enrollment', {}).get('canvasSites', [])
+    return {str(canvas_site['canvasCourseId']): canvas_site for canvas_site in canvas_sites}
 
 
 def analytics_from_loch(uid, canvas_user_id, canvas_course_id, term_id):
