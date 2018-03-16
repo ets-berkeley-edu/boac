@@ -39,7 +39,7 @@
         watchlist: '='
       },
 
-      templateUrl: '/static/app/landing/sortableAlertsTable.html',
+      templateUrl: '/static/app/home/sortableAlertsTable.html',
 
       link: function(scope) {
         scope.demoMode = config.demoMode;

@@ -1,0 +1,61 @@
+.blue-sky-background {
+  background: url(/static/app/splash/blue-sky-background.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.outage-banner {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+  padding-top: 100px;
+  z-index: 999;
+}
+
+.outage-banner li:first-child {
+  padding-right: 20px;
+}
+
+.outage {
+  background: url(/static/app/splash/blue-sky-background.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.outage-icon {
+  border-radius: 100%;
+  border: 2px solid #fff;
+  color: #fff;
+  display: table-cell;
+  height: 60px;
+  padding: 30px;
+  text-align: center;
+  transition: 0.5s;
+  vertical-align: middle;
+  width: 60px;
+}
+
+.outage-icon-fa-circle {
+  display: inline-block;
+}
+
+.outage-icon-inner {
+  display: none;
+}
+
+.outage-text-header {
+  color: #fff;
+  font-size: 48px;
+}
+
+.outage-text-body {
+  color: #fff;
+  font-size: 24px;
+}

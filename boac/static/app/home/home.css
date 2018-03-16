@@ -23,7 +23,7 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-.landing-issues-pill {
+.home-issues-pill {
   border-radius: 10px;
   color: #fff;
   font-size: 16px;
@@ -35,52 +35,52 @@
   width: 30px;
 }
 
-.landing-issues-pill-nonzero {
+.home-issues-pill-nonzero {
   background-color: #f0ad4e;
 }
 
-.landing-issues-pill-zero {
+.home-issues-pill-zero {
   background-color: #ccc;
 }
 
-.landing-alert {
+.home-alert {
   font-size: 16px;
 }
 
-.landing-inactive-info-icon {
+.home-inactive-info-icon {
   color: #d0021b;
   font-size: 16px;
 }
 
-.landing-list {
+.home-list {
   list-style: none;
   padding: 0;
 }
 
-.landing-list li {
+.home-list li {
   font-size: 16px;
   line-height: 1.6em;
 }
 
-.landing-list-cohort-wrapper {
+.home-list-cohort-wrapper {
   margin-bottom: 15px;
 }
 
-.landing-list-wrapper {
+.home-list-wrapper {
   margin-bottom: 30px;
 }
 
-.landing-my-cohorts-label {
+.home-my-cohorts-label {
   font-weight: bold;
   margin-bottom: 10px;
 }
 
-.landing-table {
+.home-table {
   margin-bottom: 15px;
   table-layout: fixed;
 }
 
-.landing-table-header th {
+.home-table-header th {
   color: #999;
   font-size: 12px;
   font-weight: bold;
@@ -88,31 +88,31 @@
   text-transform: uppercase;
 }
 
-.landing-table-header-issues {
+.home-table-header-issues {
   width: 60px;
 }
 
-.landing-table-header-name {
+.home-table-header-name {
   width: 200px;
 }
 
-.landing-table-header-remove {
+.home-table-header-remove {
   width: 60px;
 }
 
-.landing-table-header-sid {
+.home-table-header-sid {
   width: 120px;
 }
 
-.landing-table-header-sortable {
+.home-table-header-sortable {
   cursor: pointer;
 }
 
-.landing-table-row {
+.home-table-row {
   font-size: 16px;
   line-height: 1.6em;
 }
 
-.landing-table-row td {
+.home-table-row td {
   padding-right: 20px;
 }
