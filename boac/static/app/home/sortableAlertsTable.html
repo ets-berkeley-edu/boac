@@ -1,28 +1,28 @@
 <div class="sr-only" role="alert"
      data-ng-bind-template="Sorted by {{alerts.sortBy}} {{alerts.reverse ? 'descending' : ''}}"
      data-ng-if="alerts.students.length"></div>
-<table class="landing-table" data-ng-if="alerts.students">
-  <tr class="landing-table-header">
-    <th class="landing-table-header-name landing-table-header-sortable" data-ng-click="sort(alerts, 'sortableName')" data-ng-class="{dropup: !alerts.reverse}">
+<table class="home-table" data-ng-if="alerts.students">
+  <tr class="home-table-header">
+    <th class="home-table-header-name home-table-header-sortable" data-ng-click="sort(alerts, 'sortableName')" data-ng-class="{dropup: !alerts.reverse}">
       <span class="sr-only">Sort by </span>Name
       <span class="sr-only" data-ng-if="alerts.sortBy === 'sortableName' && !alerts.reverse">Descending</span>
       <span class="caret" data-ng-if="alerts.sortBy === 'sortableName'"></span>
     </th>
-    <th class="landing-table-header-sid landing-table-header-sortable" data-ng-click="sort(alerts, 'sid')" data-ng-class="{dropup: !alerts.reverse}">
+    <th class="home-table-header-sid home-table-header-sortable" data-ng-click="sort(alerts, 'sid')" data-ng-class="{dropup: !alerts.reverse}">
       <span class="sr-only">Sort by </span>SID
       <span class="sr-only" data-ng-if="alerts.sortBy === 'sid' && !cohort.reverse">Descending</span>
       <span class="caret" data-ng-if="alerts.sortBy === 'sid'"></span>
     </th>
-    <th class="landing-table-header-issues">Issues</th>
-    <th class="landing-table-header-remove"></th>
+    <th class="home-table-header-issues">Issues</th>
+    <th class="home-table-header-remove"></th>
   </tr>
-  <tr data-ng-repeat="student in alerts.students | orderBy:alerts.sortBy:alerts.reverse" class="landing-table-row">
+  <tr data-ng-repeat="student in alerts.students | orderBy:alerts.sortBy:alerts.reverse" class="home-table-row">
     <td>
       <a data-ng-bind="student.sortableName"
          data-ng-class="{'demo-mode-blur': demoMode}"
          data-ng-href="/student/{{student.uid}}"></a>
       <span
-          class="landing-inactive-info-icon"
+          class="home-inactive-info-icon"
           data-ng-if="!student.isActiveAsc"
           uib-tooltip="Inactive"
           tooltip-placement="bottom">
@@ -31,9 +31,9 @@
     </td>
     <td data-ng-bind="student.sid" data-ng-class="{'demo-mode-blur': demoMode}"></td>
     <td>
-      <div class="landing-issues-pill landing-issues-pill-zero"
+      <div class="home-issues-pill home-issues-pill-zero"
            data-ng-if="!student.alertCount">0</div>
-      <div class="landing-issues-pill landing-issues-pill-nonzero"
+      <div class="home-issues-pill home-issues-pill-nonzero"
            data-ng-bind="student.alertCount"
            data-ng-if="student.alertCount"></div>
     </td>

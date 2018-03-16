@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').controller('LandingController', function(authService, cohortFactory, watchlistFactory, $rootScope, $scope) {
+  angular.module('boac').controller('HomeController', function(authService, cohortFactory, watchlistFactory, $rootScope, $scope) {
 
     $scope.isLoading = true;
     $scope.isAuthenticated = authService.isAuthenticatedUser();
