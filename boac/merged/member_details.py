@@ -67,6 +67,7 @@ def _merged_data(uid, csid, term_id):
         data['majors'] = sorted(plan.get('description') for plan in sis_profile.get('plans', []))
     canvas_profile = canvas.get_user_for_uid(uid)
     if canvas_profile:
+        data['canvasUserId'] = canvas_profile['id']
         term_name = term_name_for_sis_id(term_id)
         student_courses = canvas.get_student_courses(uid) or []
         student_courses_in_term = [course for course in student_courses if course.get('term', {}).get('name') == term_name]

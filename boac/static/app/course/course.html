@@ -114,7 +114,8 @@
               </div>
               <div class="student-column course-column-assignment-data">
                 <div data-ng-repeat="canvasSite in student.enrollment.canvasSites">
-                  <strong class="no-wrap" data-ng-bind="canvasSite.courseCode"></strong>
+                  <strong data-ng-if="student.enrollment.canvasSites.length > 1"
+                          data-ng-bind="canvasSite.courseCode"></strong>
                   <div class="no-wrap" data-ng-if="canvasSite.analytics.assignmentsOnTime.displayPercentile">
                     Score: <strong data-ng-bind="canvasSite.analytics.assignmentsOnTime.student.raw"></strong>
                     <span class="faint-text">
@@ -130,14 +131,16 @@
                 <div class="profile-boxplot-container"
                      data-ng-repeat="canvasSite in student.enrollment.canvasSites">
                   <boxplot-draw class="profile-boxplot"
-                                data-dataset="canvasSite.analytics.courseCurrentScore"></boxplot-draw>
+                                data-dataset="canvasSite.analytics.courseCurrentScore"
+                                data-ng-if="canvasSite.analytics.courseCurrentScore"></boxplot-draw>
                 </div>
               </div>
               <div class="student-column">
                 <div class="profile-boxplot-container"
                      data-ng-repeat="canvasSite in student.enrollment.canvasSites">
                   <boxplot-draw class="profile-boxplot"
-                                data-dataset="canvasSite.analytics.pageViews"></boxplot-draw>
+                                data-dataset="canvasSite.analytics.pageViews"
+                                data-ng-if="canvasSite.analytics.pageViews"></boxplot-draw>
                 </div>
               </div>
               <div class="student-column-grade">
