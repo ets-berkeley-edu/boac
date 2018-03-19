@@ -138,7 +138,8 @@ def analytics_from_summary_feed(summary_feed, canvas_user_id, canvas_course_id):
 
 
 def analytics_from_canvas_course_enrollments(feed, canvas_user_id):
-    df = pandas.DataFrame(feed, columns=['user_id', 'grades'])
+    filtered_feed = [enr for enr in feed if enr.get('enrollment_state') == 'active']
+    df = pandas.DataFrame(filtered_feed, columns=['user_id', 'grades'])
     df['current_score'] = [row['current_score'] for row in df['grades']]
     student_row = df.loc[df['user_id'].values == canvas_user_id]
     if student_row.empty:

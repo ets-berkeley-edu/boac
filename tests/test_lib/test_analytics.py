@@ -46,13 +46,15 @@ class TestAnalytics:
         assert analytics.ordinal(23) == '23rd'
 
     def test_canvas_course_scores(self, app):
-        """Summarizes current course score in fixture."""
+        """Summarizes current course score in fixture for active enrollments only."""
         canvas_user_id = 9000100
         canvas_course_id = 7654321
         feed = canvas.get_course_enrollments(canvas_course_id, '2178')
         digested = analytics.analytics_from_canvas_course_enrollments(feed, canvas_user_id)
         course_current_score = digested['courseCurrentScore']
         assert course_current_score['boxPlottable'] is True
+        assert course_current_score['courseDeciles'][0] == 76
+        assert course_current_score['courseDeciles'][10] == 97
         assert course_current_score['displayPercentile'] == '11th'
         assert course_current_score['student']['percentile'] == 8
         assert course_current_score['student']['raw'] == 86.0
