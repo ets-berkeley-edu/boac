@@ -117,6 +117,7 @@
       .state('splash', {
         url: '/',
         templateUrl: '/static/app/splash/splash.html',
+        controller: 'SplashController',
         resolve: resolveSplash
       })
       .state('user', {
@@ -128,6 +129,9 @@
       });
 
   }).run(function(authFactory, $rootScope, $state) {
+    // logOut is always an option
+    $rootScope.logOut = authFactory.logOut;
+
     $rootScope.$on('$stateChangeStart', function(e, toState) {
       if (toState && toState.name) {
         var name = toState.name.replace(/([A-Z])/g, ' $1');
