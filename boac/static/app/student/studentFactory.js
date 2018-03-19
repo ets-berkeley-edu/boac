@@ -67,10 +67,10 @@
 
     var getStudentLevels = function() {
       return [
-        {name: 'Freshman'},
-        {name: 'Sophomore'},
-        {name: 'Junior'},
-        {name: 'Senior'}
+        {name: 'Freshman (0-30 Units)', value: 'Freshman'},
+        {name: 'Sophomore (31-60 Units)', value: 'Sophomore'},
+        {name: 'Junior (61-90 Units)', value: 'Junior'},
+        {name: 'Senior (91+ Units)', value: 'Senior'}
       ];
     };
 
