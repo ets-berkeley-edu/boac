@@ -191,11 +191,11 @@ class TestCanvasGrades:
         """Returns course enrollments."""
         feed = canvas._get_course_enrollments(7654321)
         assert feed
-        assert len(feed) == 43
+        assert len(feed) == 44
         assert feed[0]['user_id'] == 9000100
         assert feed[0]['grades']['current_score'] == 86.125
-        assert feed[42]['user_id'] == 5432100
-        assert feed[42]['grades']['current_score'] == 91.0
+        assert feed[43]['user_id'] == 5432100
+        assert feed[43]['grades']['current_score'] == 91.0
 
     def test_assignments_analytics(self, app):
         """Returns course assignments analytics."""
