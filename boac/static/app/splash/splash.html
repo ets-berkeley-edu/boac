@@ -1,10 +1,49 @@
-<div class="container">
-  <div data-ng-include="'/static/app/shared/header.html'"></div>
-
-  <div class="body-text" data-ng-if="!isAuthenticated">
-    <h1>Welcome to BOAC</h1>
-    <div data-ng-bind="alertMessage || 'Please sign in.'"></div>
+<div class="splash-container">
+  <div class="splash-cell-stripe"></div>
+  <div class="avatar-container">
+    <img class="avatar-airplane" src="/static/app/splash/airplane.svg">
   </div>
-
-  <div data-ng-include="'/static/app/shared/footer.html'" data-ng-if="!isAuthenticated || !isLoading"></div>
+  <div class="splash-cell-sign-in">
+    <button id="splash-sign-in"
+            class="btn btn-default btn-primary splash-btn-sign-in"
+            data-ng-click="signIn()">Sign In</button>
+    <div class="splash-contact-us">
+      Questions or feedback? Contact us at <a href="mailto:ascpilot@lists.berkeley.edu">ascpilot@lists.berkeley.edu</a>
+    </div>
+    <div class="flex-container splash-dev-auth" data-ng-if="devAuthLogIn">
+      <div>
+        <input id="dev-auth-uid"
+               class="splash-form-input"
+               data-ng-model="uid"
+               type="text"
+               placeholder="UID"
+               required
+               size="10">
+      </div>
+      <div>
+        <input id="dev-auth-password"
+               autocomplete="none"
+               class="splash-form-input"
+               data-ng-model="password"
+               type="password"
+               placeholder="Password"
+               required
+               size="10">
+      </div>
+      <div>
+        <button id="dev-auth-submit"
+                class="btn btn-primary splash-btn-dev-auth"
+                data-ng-click="devAuthLogIn(uid, password)"
+                type="submit">DevAuth!</button>
+      </div>
+    </div>
+  </div>
+  <div class="splash-box-container">
+    <div class="splash-cell-header">
+      <h1 class="splash-text-header">BOAC</h1>
+    </div>
+  </div>
+  <div class="splash-cell-copyright">
+    <span class="splash-text-copyright">&copy; 2018 The Regents of the University of California</span>
+  </div>
 </div>

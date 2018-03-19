@@ -27,22 +27,21 @@
 
   'use strict';
 
-  angular.module('boac').controller('AuthController', function(authFactory, config, $scope) {
+  angular.module('boac').controller('SplashController', function(authFactory, config, $rootScope, $scope) {
 
-    $scope.devAuthEnabled = config.devAuthEnabled;
+    $rootScope.pageTitle = 'Welcome';
+    $rootScope.isSplash = true;
+    $scope.signIn = authFactory.casLogIn;
 
-    $scope.devAuth = {
-      uid: null,
-      password: null
+    var init = function() {
+      if (config.devAuthEnabled) {
+        $scope.devAuthLogIn = function(uid, password) {
+          return authFactory.devAuthLogIn(uid, password);
+        };
+      }
     };
 
-    $scope.casLogIn = authFactory.casLogIn;
-
-    $scope.devAuthLogIn = function() {
-      return authFactory.devAuthLogIn($scope.devAuth.uid, $scope.devAuth.password);
-    };
-
-    $scope.logOut = authFactory.logOut;
+    init();
   });
 
 }(window.angular));

@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').factory('authFactory', function($http, $rootScope, $state) {
+  angular.module('boac').factory('authFactory', function($http, $location, $rootScope) {
 
     var loadUserProfile = function(results) {
       // Refresh instance currently referenced in templates
@@ -56,7 +56,7 @@
       };
       return $http.post('/devauth/login', credentials).then(
         function successCallback() {
-          $state.go('home', {}, {reload: true});
+          window.location.replace('/home');
         },
         function errorCallback() {
           $rootScope.$broadcast('devAuthFailure');

@@ -3,25 +3,20 @@
     <li class="header-column-home">
       <a href="/home">Home</a>
     </li>
-    <li class="header-column-cohorts" data-ng-if="me.authenticated_as.is_authenticated">
+    <li class="header-column-cohorts">
       <my-cohorts-dropdown></my-cohorts-dropdown>
     </li>
-    <li class="header-column-search" data-ng-if="me.authenticated_as.is_authenticated">
+    <li class="header-column-search">
       <find-student></find-student>
     </li>
-    <li class="header-column-name" data-ng-if="me.authenticated_as.is_authenticated">
+    <li class="header-column-name">
       <span data-ng-bind="me.firstName"></span>
       <span data-ng-bind="me.lastName"></span>
     </li>
-    <li class="flex-column-right" data-ng-controller="AuthController">
-      <button id="header-sign-in"
-              class="btn btn-default no-wrap"
-              data-ng-click="casLogIn()"
-              data-ng-if="!me.authenticated_as.is_authenticated">Sign In</button>
+    <li class="flex-column-right">
       <button id="header-log-out"
               class="btn btn-default no-wrap"
-              data-ng-click="logOut()"
-              data-ng-if="me.authenticated_as.is_authenticated">Log out</button>
+              data-ng-click="logOut()">Log out</button>
     </li>
   </ul>
 </div>
