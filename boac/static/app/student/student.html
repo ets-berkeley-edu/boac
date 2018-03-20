@@ -85,7 +85,7 @@
                   count="student.sisProfile.termsInAttendance"
                   when="{'one': '1 Term in Attendance', 'other': '{{student.sisProfile.termsInAttendance}} Terms in Attendance'}"
                   data-ng-if="student.sisProfile.termsInAttendance"></div>
-            <div data-ng-if="student.sisProfile.expectedGraduationTerm">
+            <div data-ng-if="student.sisProfile.expectedGraduationTerm && student.sisProfile.level.code !== 'GR'">
               Expected graduation <span data-ng-bind="student.sisProfile.expectedGraduationTerm.name"></span>
             </div>
           </div>
