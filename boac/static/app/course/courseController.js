@@ -93,8 +93,8 @@
       $scope.hideFeedbackLink = !!$scope.returnUrl;
 
       var args = _.clone($location.search());
-
-      courseFactory.getSection($stateParams.termId, $stateParams.sectionId, true).then(function(response) {
+      // For now, exclude 'Average Student'
+      courseFactory.getSection($stateParams.termId, $stateParams.sectionId, false).then(function(response) {
         $rootScope.pageTitle = response.data.displayName;
         $scope.section = response.data;
         // averageStudent has averages of ALL students, not just athletes
