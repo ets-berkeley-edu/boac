@@ -154,19 +154,6 @@
   flex: 0.12;
 }
 
-.profile-class-title {
-  color: #337ab7;
-  font-size: 16px;
-  margin: 0;
-  padding: 0 5px 0 5px;
-  white-space: nowrap;
-}
-
-.profile-class-title-outer {
-  flex: 0.64;
-  margin-bottom: 30px;
-}
-
 .profile-classes-header {
   font-size: 24px;
   font-weight: 400;
@@ -245,10 +232,6 @@
 .profile-header-status-number {
   font-size: 42px;
   line-height: 1.2em;
-}
-
-.profile-course-section-info {
-  margin: 0 10px 0 5px;
 }
 
 .profile-sidebar {

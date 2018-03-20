@@ -70,7 +70,7 @@
       return _.get($scope.student, 'sisProfile.preferredName') || _.get($scope.student, 'canvasProfile.name');
     };
 
-    $scope.toCourseWithReturnUrl = function(event, termId, sectionId) {
+    $scope.goToCourse = function(event, termId, sectionId) {
       event.stopPropagation();
       var name = config.demoMode ? null : getPreferredName();
       utilService.goTo('/course/' + termId + '/' + sectionId, name);
@@ -78,35 +78,39 @@
 
     var loadStudent = function(uid, callback) {
       $scope.student.isLoading = true;
+      var preferredName = null;
       studentFactory.analyticsPerUser(uid).then(function(analytics) {
         $scope.student = analytics.data;
-        var preferredName = getPreferredName();
+        preferredName = getPreferredName();
 
         if (!config.demoMode) {
           $rootScope.pageTitle = preferredName;
         }
-        // Track view event
-        _.each($scope.student.enrollmentTerms, function(term) {
-          // Merge in unmatched canvas sites
-          var unmatched = _.map(term.unmatchedCanvasSites, function(c) {
-            // course_code is often valuable (eg, 'ECON 1 - LEC 001'), occasionally not (eg, CCN). Use it per strict criteria:
-            var useCourseCode = (/^[A-Z].*[A-Za-z]{3} \d/).test(c.courseCode);
-            return _.merge(c, {
-              displayName: useCourseCode ? c.courseCode : c.courseName,
-              title: useCourseCode ? c.courseName : null,
-              canvasSites: [ c ]
+        courseFactory.getSectionIdsPerTerm().then(function(response) {
+          var sectionIdsPerTerm = response.data;
+
+          _.each($scope.student.enrollmentTerms, function(term) {
+            // Merge in unmatched canvas sites
+            var unmatched = _.map(term.unmatchedCanvasSites, function(c) {
+              // course_code is often valuable (eg, 'ECON 1 - LEC 001'), occasionally not (eg, CCN). Use it per strict criteria:
+              var useCourseCode = (/^[A-Z].*[A-Za-z]{3} \d/).test(c.courseCode);
+              return _.merge(c, {
+                displayName: useCourseCode ? c.courseCode : c.courseName,
+                title: useCourseCode ? c.courseName : null,
+                canvasSites: [ c ]
+              });
             });
-          });
-          term.enrollments = _.concat(term.enrollments, unmatched);
-          _.each(term.enrollments, function(course) {
-            _.each(course.sections, function(section) {
-              course.waitlisted = section.enrollmentStatus === 'W';
-              // Break if waitlisted
-              return !course.waitlisted;
+            term.enrollments = _.concat(term.enrollments, unmatched);
+            _.each(term.enrollments, function(course) {
+              _.each(course.sections, function(section) {
+                course.waitlisted = course.waitlisted || section.enrollmentStatus === 'W';
+                section.displayName = section.component + ' ' + section.sectionNumber;
+                section.isViewableOnCoursePage = (section.component === 'LEC') && sectionIdsPerTerm[term.termId].indexOf(section.ccn) >= 0;
+              });
             });
           });
         });
-        googleAnalyticsService.track('student', 'view-profile', preferredName, parseInt(uid, 10));
+
       }).catch(function(err) {
         $scope.error = utilService.parseError(err);
 
@@ -121,11 +125,11 @@
             studentService.showUnitsChart($scope.student);
           }
         }
+
       }).then(function() {
-        courseFactory.getSectionIdsPerTerm().then(function(response) {
-          $scope.sectionIdsPerTerm = response.data;
-          $scope.student.isLoading = false;
-        });
+        $scope.student.isLoading = false;
+        googleAnalyticsService.track('student', 'view-profile', preferredName, parseInt(uid, 10));
+
       }).then(callback);
     };
 

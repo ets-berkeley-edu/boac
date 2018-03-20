@@ -52,7 +52,6 @@
 .accordion-heading-sections {
   display: flex;
   flex-wrap: nowrap;
-  font-style: italic;
   justify-content: space-between;
   margin-top: 1px;
   white-space: nowrap;
@@ -114,6 +113,18 @@
 .student-column-grade {
   flex: 0 0 40px;
   margin-left: 15px;
+}
+
+.student-course-title {
+  font-size: 16px;
+  margin: 0;
+  padding-right: 5px;
+  white-space: nowrap;
+}
+
+.student-course-sections {
+  font-weight: 400;
+  white-space: nowrap;
 }
 
 .student-course-activity-row {
@@ -182,4 +193,8 @@
 
 .student-waitlisted {
   padding-left: 5px;
+}
+
+uib-accordion .accordion-toggle {
+  cursor: default !important;
 }

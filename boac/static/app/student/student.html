@@ -147,32 +147,41 @@
               </div>
             </div>
           </div>
-
           <uib-accordion close-others="false">
             <div uib-accordion-group
+                 is-disabled="true"
+                 is-open="course.isOpen"
+                 aria-expanded="{{course.isOpen}}"
                  class="profile-class"
-                 is-open="course.isShowingDetails"
+                 data-ng-class="{'panel-open': course.isOpen}"
                  data-ng-repeat="course in term.enrollments">
               <uib-accordion-heading>
                 <div class="accordion-heading profile-class-heading">
                   <div class="accordion-heading-start">
                     <div class="accordion-heading-start-inner">
                       <div class="accordion-heading-caret">
-                        <i data-ng-class="{'fa fa-caret-right': !course.isShowingDetails, 'fa fa-caret-down': course.isShowingDetails}"></i>
+                        <i id="accordion-{{term.termId}}-course-{{$index}}"
+                           aria-label="{{course.isOpen ? 'Hide course details' : 'Show course details'}}"
+                           data-ng-class="{'fa fa-caret-right': !course.isOpen, 'fa fa-caret-down': course.isOpen}"
+                           data-ng-click="course.isOpen = !course.isOpen"
+                           role="button"></i>
                       </div>
                       <div>
-                        <h4 class="profile-class-title" data-ng-bind="course.displayName"></h4>
+                        <h4 class="student-course-title" data-ng-bind="course.displayName"></h4>
                       </div>
                       <div>
                         <div class="accordion-heading-sections">
-                          <div class="profile-course-section-info"
-                               data-ng-repeat="section in course.sections">
-                            <span data-ng-bind="section.component"></span>
-                            <span data-ng-bind="section.sectionNumber"></span>
-                            <i id="{{term.termId}}-section-{{section.ccn}}"
-                               class="fa fa-external-link"
-                               data-ng-click="toCourseWithReturnUrl($event, term.termId, section.ccn)"
-                               data-ng-if="sectionIdsPerTerm[term.termId].indexOf(section.ccn) >= 0"></i>
+                          <div class="student-course-sections">
+                            <span data-ng-repeat="section in course.sections"
+                                  data-ng-if="section.displayName">
+                              <span data-ng-if="$first">(</span><!--
+                              --><a href
+                                    data-ng-click="goToCourse($event, term.termId, section.ccn)"
+                                    data-ng-bind="section.displayName"
+                                    data-ng-if="section.isViewableOnCoursePage"></a><!--
+                              --><span data-ng-if="!section.isViewableOnCoursePage"
+                                       data-ng-bind="section.displayName"></span><span data-ng-if="!$last"> | </span><span data-ng-if="$last">)</span>
+                            </span>
                           </div>
                           <div class="student-waitlisted faint-text" data-ng-if="course.waitlisted">
                             (Waitlisted)
@@ -301,11 +310,6 @@
               </div>
             </div>
           </uib-accordion>
-          <!--
-          <div data-ng-if="$last">
-            Total <span data-ng-bind="term.enrolledUnits"></span>
-          </div>
-          -->
         </div>
 
         <div data-ng-show="student.enrollmentTerms.length > 1" class="profile-view-previous-semesters-wrapper">
