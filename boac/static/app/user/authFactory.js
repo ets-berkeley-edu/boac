@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').factory('authFactory', function($http, $location, $rootScope) {
+  angular.module('boac').factory('authFactory', function($http, $rootScope) {
 
     var loadUserProfile = function(results) {
       // Refresh instance currently referenced in templates
