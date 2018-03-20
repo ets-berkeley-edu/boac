@@ -121,21 +121,20 @@
                  data-ng-src="/api/user/{{student.uid}}/photo"
                  data-avatar-fallback>
           </div>
-          <div class="student-name-container">
-            <div class="flex-container">
-              <h3 class="student-name"
-                  data-ng-class="{'demo-mode-blur': demoMode}"
-                  data-ng-if="orderBy.selected !== 'first_name'">
-                {{student.lastName}}, {{student.firstName}}
-              </h3>
-              <h3 class="student-name"
-                  data-ng-class="{'demo-mode-blur': demoMode}"
-                  data-ng-if="orderBy.selected === 'first_name'">
-                {{student.firstName}} {{student.lastName}}
-              </h3>
-              <watchlist-toggle data-sid="student.sid"
-                                data-fa-size="fa-1x"
-                                data-watchlist="myWatchlist"></watchlist-toggle>
+          <div class="student-bio-container">
+            <div class="student-name-container">
+              <div>
+                <h3 class="student-name"
+                    data-ng-class="{'demo-mode-blur': demoMode}"
+                    data-ng-if="orderBy.selected !== 'first_name'">
+                  {{student.lastName}}, {{student.firstName}}
+                </h3>
+              </div>
+              <div>
+                <watchlist-toggle data-sid="student.sid"
+                                  data-fa-size="fa-1x"
+                                  data-watchlist="myWatchlist"></watchlist-toggle>
+              </div>
             </div>
             <div class="student-sid"
                  data-ng-class="{'demo-mode-blur': demoMode}">

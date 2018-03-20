@@ -105,6 +105,12 @@
   flex: 0 0 100px;
 }
 
+.student-bio-container {
+  flex: 0.8;
+  margin-left: 20px;
+  min-width: 200px;
+}
+
 .student-column {
   flex: 0.5;
   margin-left: 15px;
@@ -158,17 +164,18 @@
   display: flex;
 }
 
+.student-name-container {
+  display: flex;
+}
+
+.student-name-container div:first-child {
+  flex-basis: 70%;
+}
+
 .student-name {
   color: #49b;
   font-size: 16px;
   margin: 0;
-  white-space: nowrap;
-}
-
-.student-name-container {
-  flex: 0.8;
-  margin-left: 20px;
-  min-width: 200px;
 }
 
 .student-sid {
