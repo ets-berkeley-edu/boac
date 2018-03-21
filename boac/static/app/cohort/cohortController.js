@@ -351,7 +351,7 @@
       var selectedCodes = $scope.cohort.groupCodes ? _.map($scope.cohort.groupCodes, 'groupCode') : getCohortCriteria('groupCodes');
       initFilter('groupCodes', 'groupCode', selectedCodes, onClickOption);
       // Levels
-      initFilter('levels', 'name', getCohortCriteria('levels'), onClickOption);
+      initFilter('levels', 'value', getCohortCriteria('levels'), onClickOption);
       // Majors (the 'Declared' and 'Undeclared' options are special)
       _.map($scope.search.options.majors, function(option) {
         if (option) {
