@@ -10,33 +10,35 @@
     <div class="splash-contact-us">
       Questions or feedback? Contact us at <a href="mailto:ascpilot@lists.berkeley.edu">ascpilot@lists.berkeley.edu</a>
     </div>
-    <div class="flex-container splash-dev-auth" data-ng-if="devAuthLogIn">
-      <div>
-        <input id="dev-auth-uid"
-               class="splash-form-input"
-               data-ng-model="uid"
-               type="text"
-               placeholder="UID"
-               required
-               size="10">
+    <form data-ng-submit="devAuthLogIn(uid, password)" data-ng-if="devAuthLogIn">
+      <div class="flex-container splash-dev-auth">
+        <div>
+          <input id="dev-auth-uid"
+                 class="splash-form-input"
+                 data-ng-model="uid"
+                 type="text"
+                 placeholder="UID"
+                 autofocus
+                 required
+                 size="10">
+        </div>
+        <div>
+          <input id="dev-auth-password"
+                 autocomplete="none"
+                 class="splash-form-input"
+                 data-ng-model="password"
+                 type="password"
+                 placeholder="Password"
+                 required
+                 size="10">
+        </div>
+        <div>
+          <button id="dev-auth-submit"
+                  class="btn btn-primary splash-btn-dev-auth"
+                  type="submit">DevAuth!</button>
+        </div>
       </div>
-      <div>
-        <input id="dev-auth-password"
-               autocomplete="none"
-               class="splash-form-input"
-               data-ng-model="password"
-               type="password"
-               placeholder="Password"
-               required
-               size="10">
-      </div>
-      <div>
-        <button id="dev-auth-submit"
-                class="btn btn-primary splash-btn-dev-auth"
-                data-ng-click="devAuthLogIn(uid, password)"
-                type="submit">DevAuth!</button>
-      </div>
-    </div>
+    </form>
   </div>
   <div class="splash-box-container">
     <div class="splash-cell-header">
