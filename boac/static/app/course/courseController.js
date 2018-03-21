@@ -94,9 +94,24 @@
 
       var args = _.clone($location.search());
       // For now, exclude 'Average Student'
-      courseFactory.getSection($stateParams.termId, $stateParams.sectionId, false).then(function(response) {
+      var includeAverage = false;
+
+      courseFactory.getSection($stateParams.termId, $stateParams.sectionId, includeAverage).then(function(response) {
         $rootScope.pageTitle = response.data.displayName;
         $scope.section = response.data;
+        _.each($scope.section.students, function(student) {
+          var canvasSites = _.get(student, 'enrollment.canvasSites');
+          if (canvasSites) {
+            // Only primary-section related Canvas course sites are shown on /course page
+            var primaries = [];
+            _.each(canvasSites, function(canvasSite) {
+              if (_.includes(canvasSite.courseCode, 'LEC')) {
+                primaries.push(canvasSite);
+              }
+            });
+            student.enrollment.canvasSites = primaries;
+          }
+        });
         // averageStudent has averages of ALL students, not just athletes
         var averageStudent = $scope.section.averageStudent;
         if (averageStudent) {

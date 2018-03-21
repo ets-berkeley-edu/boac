@@ -82,9 +82,9 @@ def get_section(term_id, section_id):
     return tolerant_jsonify(section)
 
 
-@app.route('/api/sections/ids_per_term')
+@app.route('/api/sections/cached')
 @login_required
-def summarize_sections_in_cache():
+def get_cached_sections():
     return tolerant_jsonify(NormalizedCacheEnrollment.summarize_sections_in_cache())
 
 

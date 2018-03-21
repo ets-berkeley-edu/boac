@@ -57,6 +57,16 @@
       return formatted;
     };
 
+    var decorateEnrollments = function(enrollments, cachedSectionIds) {
+      _.each(enrollments, function(enrollment) {
+        _.each(enrollment.sections, function(section) {
+          enrollment.waitlisted = enrollment.waitlisted || section.enrollmentStatus === 'W';
+          section.displayName = section.component + ' ' + section.sectionNumber;
+          section.isViewableOnCoursePage = section.component === 'LEC' && cachedSectionIds && cachedSectionIds.indexOf(section.ccn) >= 0;
+        });
+      });
+    };
+
     /**
      * Standard set of menu options per expectations of cohort-view, etc.
      *
@@ -189,6 +199,7 @@
       anchorScroll: anchorScroll,
       camelCaseToDashes: camelCaseToDashes,
       constructReturnToLabel: constructReturnToLabel,
+      decorateEnrollments: decorateEnrollments,
       decorateOptions: decorateOptions,
       format: format,
       getEncodedAbsUrl: getEncodedAbsUrl,
