@@ -83,8 +83,8 @@
         $scope.student = analytics.data;
         preferredName = getPreferredName();
 
-        courseFactory.getSectionIdsPerTerm().then(function(response) {
-          var sectionIdsPerTerm = response.data;
+        courseFactory.getCachedCourseSections().then(function(response) {
+          var cachedSections = response.data;
 
           _.each($scope.student.enrollmentTerms, function(term) {
             // Merge in unmatched canvas sites
@@ -98,13 +98,7 @@
               });
             });
             term.enrollments = _.concat(term.enrollments, unmatched);
-            _.each(term.enrollments, function(course) {
-              _.each(course.sections, function(section) {
-                course.waitlisted = course.waitlisted || section.enrollmentStatus === 'W';
-                section.displayName = section.component + ' ' + section.sectionNumber;
-                section.isViewableOnCoursePage = (section.component === 'LEC') && sectionIdsPerTerm[term.termId].indexOf(section.ccn) >= 0;
-              });
-            });
+            utilService.decorateEnrollments(term.enrollments, cachedSections[term.termId]);
           });
         });
 

@@ -29,8 +29,8 @@
 
   angular.module('boac').factory('courseFactory', function(utilService, $http) {
 
-    var getSectionIdsPerTerm = function() {
-      return $http.get('/api/sections/ids_per_term');
+    var getCachedCourseSections = function() {
+      return $http.get('/api/sections/cached');
     };
 
     var getSection = function(termId, sectionId, includeAverage) {
@@ -42,7 +42,7 @@
     };
 
     return {
-      getSectionIdsPerTerm: getSectionIdsPerTerm,
+      getCachedCourseSections: getCachedCourseSections,
       getSection: getSection
     };
   });
