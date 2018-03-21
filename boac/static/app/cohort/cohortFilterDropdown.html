@@ -11,13 +11,11 @@
     <span class="cohort-filter-label">
       {{menuLabel}}
       <span data-ng-if="!isLoading && !isSaving">(<span data-ng-bind="search.count[menuType]"></span>)</span>
-      <i class="fa fa-chevron-down"
-         data-ng-if="!isLoading && !isSaving && !search.dropdown[isOpen]"></i>
+      <i class="fa"
+         data-ng-class="{'fa-spinner fa-spin': isLoading || isSaving, 'fa-chevron-down': !isLoading && !isSaving}"
+         data-ng-if="!search.dropdown[isOpen]"></i>
       <i class="fa fa-chevron-up"
          data-ng-if="!isLoading && !isSaving && search.dropdown[isOpen]"></i>
-      <i class="fa fa-spinner fa-spin"
-         aria-hidden="true"
-         data-ng-if="isLoading || isSaving"></i>
     </span>
   </button>
   <ul aria-labelledby="search-filter-{{id}}"
