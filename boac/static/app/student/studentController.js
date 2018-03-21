@@ -83,9 +83,6 @@
         $scope.student = analytics.data;
         preferredName = getPreferredName();
 
-        if (!config.demoMode) {
-          $rootScope.pageTitle = preferredName;
-        }
         courseFactory.getSectionIdsPerTerm().then(function(response) {
           var sectionIdsPerTerm = response.data;
 
@@ -124,6 +121,9 @@
             });
             studentService.showUnitsChart($scope.student);
           }
+        }
+        if (!config.demoMode) {
+          $rootScope.pageTitle = _.get(athleticsProfile, 'fullName') || preferredName;
         }
 
       }).then(function() {
