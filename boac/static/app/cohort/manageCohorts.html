@@ -22,7 +22,9 @@
       <hr class="flex-row-wrap-separator"/>
       <div class="flex-container flex-space-between" data-ng-if="!cohort.editMode">
         <div class="cohort-manage-label wrap-hard">
-          <strong><span id="cohort-label-{{$index}}" data-ng-bind="cohort.label"></span></strong>
+          <strong>
+            <a data-ui-sref="cohort({c: cohort.id})" data-ui-sref-opts="{reload: true}"><span id="cohort-label-{{$index}}" data-ng-bind="cohort.label"></span></a>
+          </strong>
           <span class="faint-text">(<span id="cohort-member-count-{{$index}}" data-ng-bind="cohort.totalMemberCount"></span>)</span>
         </div>
         <div>
