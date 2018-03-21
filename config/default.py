@@ -31,6 +31,9 @@ import os
 # Base directory for the application (one level up from this config file).
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
+# When BOAC is in demo-mode all student names and SIDs are blurred in the UI
+DEMO_MODE = False
+
 # The 'dist' version of index.html will force browsers to pick up new JS, HTML, CSS files
 INDEX_HTML = 'dist/templates/index.html'
 
