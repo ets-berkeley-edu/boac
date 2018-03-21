@@ -69,7 +69,7 @@ def get_next_page(response):
         return None
 
 
-def request(url, headers={}, auth=None, auth_params=None):
+def request(url, headers={}, method='get', auth=None, auth_params=None):
     """Exception and error catching wrapper for outgoing HTTP requests.
 
     :param url:
@@ -79,7 +79,9 @@ def request(url, headers={}, auth=None, auth_params=None):
         one was returned.
         Borrowing the Requests convention, successful responses are truthy and failures are falsey.
     """
-    app.logger.debug({'message': 'HTTP request', 'url': url, 'headers': sanitize_headers(headers)})
+    if method not in ['get', 'post', 'put', 'delete']:
+        raise ValueError(f'Unrecognized HTTP method "{method}"')
+    app.logger.debug({'message': 'HTTP request', 'url': url, 'method': method, 'headers': sanitize_headers(headers)})
     response = None
     try:
         # TODO handle methods other than GET
@@ -90,7 +92,8 @@ def request(url, headers={}, auth=None, auth_params=None):
             urllib_logger = logging.getLogger('urllib3')
             saved_level = urllib_logger.level
             urllib_logger.setLevel(logging.INFO)
-        response = requests.get(url, headers=headers, auth=auth, params=auth_params)
+        http_method = getattr(requests, method)
+        response = http_method(url, headers=headers, auth=auth, params=auth_params)
         if auth_params:
             urllib_logger.setLevel(saved_level)
         response.raise_for_status()

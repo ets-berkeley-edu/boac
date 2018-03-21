@@ -98,6 +98,10 @@ def mockable(func):
         with mock(url):
             response = requests.get(url)
             ...
+
+    HTTP methods other than GET may be specified by a keyword argument to mock().
+        with mock(url, method='post'):
+            response = requests.post(url)
     """
     _mock_registry[func.__name__] = []
 
@@ -275,11 +279,11 @@ def register_mock(request_function, response):
 
 
 @contextmanager
-def _activate_mock(url, mock_response):
+def _activate_mock(url, mock_response, method='get'):
     if mock_response and _environment_supports_mocks():
         httpretty.enable()
-        # TODO handle methods other than GET
-        httpretty.register_uri(httpretty.GET, url, body=mock_response)
+        http_method = getattr(httpretty, method.upper())
+        httpretty.register_uri(http_method, url, body=mock_response)
         yield
         httpretty.disable()
     else:
