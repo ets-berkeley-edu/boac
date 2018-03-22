@@ -305,7 +305,7 @@ def _get_fixtures_path():
 
 
 @contextmanager
-def _noop_mock(url):
+def _noop_mock(url, **kwargs):
     yield None
 
 
