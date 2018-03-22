@@ -448,19 +448,21 @@
     };
 
     /**
-     * Request parameters (query args) can will set 'selected=true' in cohort search filters. This feature supports
-     * the 'Return to results' link offered on student profile page.
+     * Certain query args will cause 'selected=true' in search filters.
      *
-     * @param  {String}      filterName      Represents a dropdown (ie, search filter) used to search by teamGroup, etc.
-     * @param  {Function}    selectedValues  These values represent request parameters (e.g., list of majors)
+     * @param  {String}     filterName    Represents a dropdown (ie, search filter) used to search by teamGroup, etc.
+     * @param  {Array}      selected      Request parameter value(s)
      * @return {void}
      */
-    var preset = function(filterName, selectedValues) {
-      if (!_.isEmpty(selectedValues)) {
+    var preset = function(filterName, selected) {
+      if (!_.isEmpty(selected)) {
         _.each($scope.search.options[filterName], function(option) {
-          if (option && _.includes(selectedValues, option.value)) {
-            option.selected = true;
-            $scope.search.count[filterName] += 1;
+          if (option) {
+            var match = _.isString(selected) ? selected === option.value : _.includes(selected, option.value);
+            if (match) {
+              option.selected = true;
+              $scope.search.count[filterName] += 1;
+            }
           }
         });
       }
