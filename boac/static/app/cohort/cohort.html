@@ -116,11 +116,13 @@
            href
            data-ng-click="goToStudent(student.uid)"
            data-ng-repeat="student in cohort.members">
-          <div class="student-avatar-large-container">
+
+          <div class="cohort-list-view-column-01">
             <img class="student-avatar student-avatar-large"
                  data-ng-src="/api/user/{{student.uid}}/photo"
                  data-avatar-fallback>
           </div>
+
           <div class="student-bio-container">
             <div class="student-name-container">
               <div>
@@ -149,22 +151,25 @@
                    data-ng-repeat="membership in student.athletics"></div>
             </div>
           </div>
+
           <div class="student-column">
             <div class="student-gpa" data-ng-bind="student.cumulativeGPA || '--'"></div>
             <div class="student-text">GPA (Cumulative)</div>
           </div>
+
           <div class="student-column">
             <div class="student-gpa" data-ng-bind="student.term.enrolledUnits || '0'"></div>
             <div class="student-text">Units (In Progress)</div>
             <div class="student-gpa" data-ng-bind="student.cumulativeUnits || '--'"></div>
             <div class="student-text">Total Units</div>
           </div>
+
           <div class="student-course-activity-wrapper">
             <div class="student-course-activity-row">
               <div class="student-column student-text">CLASS</div>
               <div class="student-column student-text">PAGE VIEWS</div>
-              <div class="student-column-grade student-text">MID</div>
-              <div class="student-column-grade student-text">FINAL</div>
+              <div class="cohort-list-view-column-grade student-text">MID</div>
+              <div class="cohort-list-view-column-grade student-text">FINAL</div>
             </div>
             <div class="student-course-activity-row" data-ng-repeat="enrollment in student.term.enrollments">
               <div class="student-column">
@@ -178,12 +183,12 @@
                                 data-ng-if="tab === 'list'"></boxplot-draw>
                 </div>
               </div>
-              <div class="student-column-grade">
+              <div class="cohort-list-view-column-grade">
                 <span class="cohort-grade" data-ng-bind="enrollment.midtermGrade" data-ng-if="enrollment.midtermGrade"></span>
                 <i class="fa fa-exclamation-triangle boac-exclamation" data-ng-if="isAlertGrade(enrollment.midtermGrade)"></i>
                 <span data-ng-if="!enrollment.midtermGrade">&mdash;</span>
               </div>
-              <div class="student-column-grade">
+              <div class="cohort-list-view-column-grade">
                 <span class="cohort-grade" data-ng-bind="enrollment.grade" data-ng-if="enrollment.grade"></span>
                 <i class="fa fa-exclamation-triangle boac-exclamation" data-ng-if="isAlertGrade(enrollment.grade)"></i>
                 <span class="cohort-grading-basis" data-ng-bind="enrollment.gradingBasis" data-ng-if="!enrollment.grade"></span>

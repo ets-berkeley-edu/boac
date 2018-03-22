@@ -99,12 +99,6 @@
   width: 100px;
 }
 
-.student-avatar-large-container {
-  align-items: center;
-  display: flex;
-  flex: 0 0 100px;
-}
-
 .student-bio-container {
   flex: 0.8;
   margin-left: 20px;
@@ -113,11 +107,6 @@
 
 .student-column {
   flex: 0.5;
-  margin-left: 15px;
-}
-
-.student-column-grade {
-  flex: 0 0 40px;
   margin-left: 15px;
 }
 

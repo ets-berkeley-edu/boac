@@ -23,37 +23,6 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-.course-column-assignment-data {
-  font-size: 12px;
-  margin-left: 0 !important;
-}
-
-.course-column-header {
-  color: #aaa;
-  font-size: 12px;
-  text-align: center;
-  word-wrap: break-word;
-}
-
-.course-column-header-boxplot {
-  padding-right: 70px;
-}
-
-.course-column-header-grade {
-  padding-right: 30px;
-}
-
-.course-column-header-left {
-  min-width: 300px;
-}
-
-.course-column-headers {
-  align-content: flex-end;
-  align-items: flex-start;
-  display: flex;
-  justify-content: flex-end;
-}
-
 .course-details-meetings {
   font-size: 16px;
 }
@@ -69,6 +38,101 @@
   margin-bottom: 5px;
 }
 
+.course-list-item {
+  border-left: none;
+  border-right: none;
+  display: flex;
+  justify-content: space-evenly;
+  padding: 5px 0 5px 0;
+}
+
+.course-list-view-column-01 {
+  flex: 0 0 105px;
+}
+
+.course-list-view-column-02 {
+  flex: 0 0 170px;
+}
+
+.course-list-view-column-02 > div {
+  align-self: flex-start;
+}
+
+.course-list-view-column-02 button {
+  padding: 2px 0 0 5px;
+}
+
+.course-list-view-column-02-student-name {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.course-list-view-column-03 {
+  flex: 0 0 120px;
+}
+
+.course-list-view-column-03-border {
+  align-self: flex-start;
+  border-left: 1px solid #ddd;
+  padding-left: 5px;
+}
+
+.course-list-view-column-03-header {
+  margin-left: 2px;
+  padding-left: 5px;
+}
+
+.course-list-view-column-04 {
+  flex: 0 0 80px;
+}
+
+.course-list-view-column-05 {
+  flex: 0 0 80px;
+}
+
+.course-list-view-column-06 {
+  align-self: flex-start;
+  flex: 0 0 80px;
+}
+
+.course-list-view-column-07 {
+  align-self: flex-start;
+  flex: 0 0 40px;
+}
+
+.course-list-view-column-08 {
+  align-self: flex-start;
+  flex: 0 0 40px;
+}
+
+.course-list-view-column-canvas-sites {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+}
+
+.course-list-view-column-canvas-sites > div {
+  align-items: flex-start;
+  flex: 0 0 50px;
+}
+
+.course-list-view-column-canvas-sites > div:not(:first-child) {
+  margin-top: 5px;
+}
+
+.course-list-view-column-canvas-sites .profile-boxplot {
+  color: #555;
+  font-size: 12px;
+  font-style: normal;
+}
+
+.course-list-view-column-header {
+  align-self: flex-end;
+  color: #aaa;
+  font-size: 12px;
+}
+
 .course-section-title {
   font-size: 18px;
   font-weight: bold;
@@ -82,21 +146,14 @@
   margin: 0 0 5px 0;
 }
 
-.course-student-name-container {
-  flex: 0.8;
-  margin-left: 10px;
-  margin-right: 20px;
-  max-width: 150px;
-}
-
-.course-student-name-container button {
-  padding: 2px 0 0 5px;
-}
-
 .course-student-name {
   color: #49b;
   font-size: 16px;
   margin: 0;
   max-width: 150px;
   padding: 0;
+}
+
+.list-group-header-row {
+  border: 0;
 }
