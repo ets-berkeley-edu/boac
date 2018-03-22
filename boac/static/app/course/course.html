@@ -59,22 +59,24 @@
 
         <div data-ng-show="tab === 'list'"
              data-ng-if="!isLoading && !error && section.students.length">
-          <div class="flex-container course-column-headers">
-            <div class="course-column-header-left"></div>
-            <div class="course-column-header course-column-header-boxplot">ASSIGNMENTS <div class="no-wrap">ON TIME</div></div>
-            <div class="course-column-header course-column-header-boxplot">ASSIGNMENT<div>GRADES</div></div>
-            <div class="course-column-header course-column-header-boxplot">PAGE VIEWS</div>
-            <div class="course-column-header course-column-header-grade">MID</div>
-            <div class="course-column-header course-column-header-grade">FINAL</div>
-          </div>
-          <ul id="section-students-list" class="list-group">
-            <a class="list-group-item student-list-item"
-               data-ng-class="{'list-group-item-info': anchor===student.uid}"
-               id="{{student.uid}}"
-               href
-               data-ng-click="goToStudent(student.uid)"
-               data-ng-repeat="student in section.students">
-              <div class="student-avatar-large-container">
+          <div id="course-students-list" class="list-group">
+
+            <div class="list-group-item course-list-item"
+                 data-ng-class="{'list-group-item-info': !$first && anchor===student.uid, 'list-group-header-row': $first}"
+                 data-ng-repeat="student in allRows = ['headerRow'].concat(section.students)">
+
+              <!-- Headers -->
+              <div class="course-list-view-column-01 course-list-view-column-header" data-ng-if="$first"></div>
+              <div class="course-list-view-column-02 course-list-view-column-header" data-ng-if="$first"></div>
+              <div class="course-list-view-column-03 course-list-view-column-header course-list-view-column-03-header" data-ng-if="$first">COURSE<div>SITE(S)</div></div>
+              <div class="course-list-view-column-04 course-list-view-column-header" data-ng-if="$first">ASSIGNMENTS <div class="no-wrap">ON TIME</div></div>
+              <div class="course-list-view-column-05 course-list-view-column-header" data-ng-if="$first">ASSIGNMENT<div>GRADES</div></div>
+              <div class="course-list-view-column-06 course-list-view-column-header" data-ng-if="$first">PAGE VIEWS</div>
+              <div class="course-list-view-column-07 course-list-view-column-header" data-ng-if="$first">MID</div>
+              <div class="course-list-view-column-08 course-list-view-column-header" data-ng-if="$first">FINAL</div>
+
+              <!-- Column -->
+              <div class="course-list-view-column-01" data-ng-if="!$first">
                 <img class="student-avatar student-avatar-large"
                      data-ng-src="/api/user/{{student.uid}}/photo"
                      data-avatar-fallback
@@ -83,19 +85,25 @@
                      src="/static/app/course/class-group-icon.svg"
                      data-ng-if="student.isClassAverage">
               </div>
-              <div class="course-student-name-container">
-                <div class="flex-container">
-                  <div>
-                    <h3 class="course-student-name"
-                        data-ng-class="{'demo-mode-blur': demoMode}">
-                      {{student.lastName}}<span data-ng-if="student.firstName">, {{student.firstName}}</span>
-                    </h3>
-                  </div>
-                  <div>
-                    <watchlist-toggle data-sid="student.sid"
-                                      data-fa-size="fa-1x"
-                                      data-watchlist="myWatchlist"
-                                      data-ng-if="!student.isClassAverage"></watchlist-toggle>
+
+              <!-- Column -->
+              <div class="course-list-view-column-02" data-ng-if="!$first">
+                <div>
+                  <div class="course-list-view-column-02-student-name">
+                    <div>
+                      <a id="{{student.uid}}" href data-ng-click="goToStudent(student.uid)">
+                        <h3 class="course-student-name"
+                            data-ng-class="{'demo-mode-blur': demoMode}">
+                          {{student.lastName}}<span data-ng-if="student.firstName">, {{student.firstName}}</span>
+                        </h3>
+                      </a>
+                    </div>
+                    <div>
+                      <watchlist-toggle data-sid="student.sid"
+                                        data-fa-size="fa-1x"
+                                        data-watchlist="myWatchlist"
+                                        data-ng-if="!student.isClassAverage"></watchlist-toggle>
+                    </div>
                   </div>
                 </div>
                 <div class="student-sid"
@@ -104,46 +112,75 @@
                   {{student.sid}}
                   <span class="student-inactive" data-ng-if="!student.isActiveAsc">INACTIVE</span>
                 </div>
-                <div class="student-text" data-ng-bind="student.level"></div>
-                <div class="student-text" data-ng-bind="major" data-ng-repeat="major in student.majors"></div>
-                <div class="student-teams-container">
-                  <div class="student-teams"
-                       data-ng-bind="membership.groupName"
-                       data-ng-repeat="membership in student.athletics"></div>
+                <div>
+                  <span class="student-text" data-ng-bind="student.level"></span>
                 </div>
-              </div>
-              <div class="student-column course-column-assignment-data">
-                <div data-ng-repeat="canvasSite in student.enrollment.canvasSites">
-                  <strong data-ng-if="student.enrollment.canvasSites.length > 1"
-                          data-ng-bind="canvasSite.courseCode"></strong>
-                  <div class="no-wrap" data-ng-if="canvasSite.analytics.assignmentsOnTime.displayPercentile">
-                    Score: <strong data-ng-bind="canvasSite.analytics.assignmentsOnTime.student.raw"></strong>
-                    <span class="faint-text">
-                      (Max: <span data-ng-bind="canvasSite.analytics.assignmentsOnTime.courseDeciles[10]"></span>)
-                    </span>
-                  </div>
-                  <div data-ng-if="!canvasSite.analytics.assignmentsOnTime.displayPercentile">
-                    No Data
+                <div>
+                  <div class="student-text" data-ng-bind="major" data-ng-repeat="major in student.majors"></div>
+                </div>
+                <div>
+                  <div class="student-teams-container">
+                    <div class="student-teams"
+                         data-ng-bind="membership.groupName"
+                         data-ng-repeat="membership in student.athletics"></div>
                   </div>
                 </div>
               </div>
-              <div class="student-column">
-                <div class="profile-boxplot-container"
-                     data-ng-repeat="canvasSite in student.enrollment.canvasSites">
-                  <boxplot-draw class="profile-boxplot"
-                                data-dataset="canvasSite.analytics.courseCurrentScore"
-                                data-ng-if="canvasSite.analytics.courseCurrentScore"></boxplot-draw>
+
+              <!-- Column -->
+              <div class="course-list-view-column-03" data-ng-if="!$first">
+                <div class="course-list-view-column-canvas-sites">
+                  <div class="course-list-view-column-03-border"
+                       data-ng-repeat="canvasSite in student.enrollment.canvasSites">
+                    <strong data-ng-bind="canvasSite.courseCode"></strong>
+                  </div>
                 </div>
               </div>
-              <div class="student-column">
-                <div class="profile-boxplot-container"
-                     data-ng-repeat="canvasSite in student.enrollment.canvasSites">
-                  <boxplot-draw class="profile-boxplot"
-                                data-dataset="canvasSite.analytics.pageViews"
-                                data-ng-if="canvasSite.analytics.pageViews"></boxplot-draw>
+
+              <!-- Column -->
+              <div class="course-list-view-column-04" data-ng-if="!$first">
+                <div class="course-list-view-column-canvas-sites">
+                  <div data-ng-repeat="canvasSite in student.enrollment.canvasSites">
+                    <div data-ng-if="canvasSite.analytics.assignmentsOnTime.displayPercentile">
+                      Score: <strong data-ng-bind="canvasSite.analytics.assignmentsOnTime.student.raw"></strong>
+                      <div class="faint-text">
+                        (Max: <span data-ng-bind="canvasSite.analytics.assignmentsOnTime.courseDeciles[10]"></span>)
+                      </div>
+                    </div>
+                    <div data-ng-if="!canvasSite.analytics.assignmentsOnTime.displayPercentile">
+                      No Data
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="student-column-grade">
+
+              <!-- Column -->
+              <div class="course-list-view-column-05" data-ng-if="!$first">
+                <div class="course-list-view-column-canvas-sites">
+                  <div class="profile-boxplot-container"
+                       data-ng-repeat="canvasSite in student.enrollment.canvasSites">
+                    <boxplot-draw class="profile-boxplot"
+                                  data-dataset="canvasSite.analytics.courseCurrentScore"
+                                  data-ng-if="canvasSite.analytics.courseCurrentScore"></boxplot-draw>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Column -->
+              <div class="course-list-view-column-06" data-ng-if="!$first">
+                <div class="course-list-view-column-canvas-sites">
+                  <div class="profile-boxplot-container"
+                       data-ng-repeat="canvasSite in student.enrollment.canvasSites">
+                    <boxplot-draw class="profile-boxplot"
+                                  data-dataset="canvasSite.analytics.pageViews"
+                                  data-ng-if="canvasSite.analytics.pageViews"></boxplot-draw>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Column -->
+              <div class="course-list-view-column-07"
+                   data-ng-if="!$first">
                 <span class="cohort-grade"
                       data-ng-bind="student.enrollment.midtermGrade"
                       data-ng-if="student.enrollment.midtermGrade"></span>
@@ -151,7 +188,10 @@
                    data-ng-if="isAlertGrade(student.enrollment.midtermGrade)"></i>
                 <span data-ng-if="!student.enrollment.midtermGrade">&mdash;</span>
               </div>
-              <div class="student-column-grade">
+
+              <!-- Column -->
+              <div class="course-list-view-column-08"
+                   data-ng-if="!$first">
                 <span class="cohort-grade"
                       data-ng-bind="student.enrollment.grade"
                       data-ng-if="student.enrollment.grade"></span>
@@ -161,8 +201,9 @@
                       data-ng-bind="student.enrollment.gradingBasis"
                       data-ng-if="!student.enrollment.grade"></span>
               </div>
-            </a>
-          </ul>
+
+            </div>
+          </div>
         </div>
         <div id="matrix-outer" data-ng-show="tab === 'matrix' && !isLoading && !error">
           <div data-ng-include="'/static/app/shared/matrix.html'"></div>
