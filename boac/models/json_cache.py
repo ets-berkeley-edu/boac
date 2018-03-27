@@ -31,6 +31,7 @@ from boac.models.base import Base
 from decorator import decorator
 from flask import current_app as app
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.attributes import flag_modified
 
 
@@ -93,8 +94,14 @@ def stow(key_pattern, for_term=False):
             if to_stow is not None:
                 app.logger.debug('Will stow JSON for key {key}'.format(key=key))
                 row = JsonCache(key=key, json=to_stow)
-                db.session.add(row)
-                std_commit()
+                try:
+                    db.session.add(row)
+                    std_commit()
+                except IntegrityError:
+                    app.logger.warn('Conflict for key {key}; will attempt to return stowed JSON'.format(key=key))
+                    stowed = JsonCache.query.filter_by(key=key).first()
+                    if stowed is not None:
+                        return stowed.json
             else:
                 app.logger.info('{key} not generated and will not be stowed in DB'.format(key=key))
             return to_stow
