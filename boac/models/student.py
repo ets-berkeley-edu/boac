@@ -28,7 +28,7 @@ from boac import db, std_commit
 import boac.api.util as api_util
 from boac.lib import util
 from boac.models.base import Base
-from boac.models.db_relationships import student_athletes
+from boac.models.db_relationships import student_athletes, student_group_members
 from sqlalchemy import text
 from sqlalchemy.orm import joinedload
 
@@ -52,6 +52,11 @@ class Student(Base):
     athletics = db.relationship('Athletics', secondary=student_athletes, back_populates='athletes')
     is_active_asc = db.Column(db.Boolean, nullable=False, default=True)
     status_asc = db.Column(db.String(80))
+    group_memberships = db.relationship(
+        'StudentGroup',
+        secondary=student_group_members,
+        lazy=True,
+    )
 
     def __repr__(self):
         return f"""<Athlete sid={self.sid}, uid={self.uid}, first_name={self.first_name}, last_name={self.last_name},

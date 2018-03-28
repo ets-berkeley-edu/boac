@@ -30,6 +30,7 @@ from boac.models.athletics import Athletics
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.student import Student
+from boac.models.student_group import StudentGroup
 # Models below are included so that db.create_all will find them.
 from boac.models.alert import Alert # noqa
 from boac.models.db_relationships import AlertView, cohort_filter_owners, student_athletes # noqa
@@ -250,13 +251,9 @@ def load_student_athletes():
     schlemiel.status_asc = 'Trouble'
     db.session.merge(schlemiel)
     advisor = AuthorizedUser.find_by_uid('6446')
-    advisor.watchlist = [
-        paul_kerschen,
-        sandeep,
-        brigitte,
-        paul_farestveit,
-    ]
-    db.session.add(advisor)
+    group = StudentGroup.get_or_create_my_watchlist(advisor.id)
+    for student in [paul_kerschen, sandeep, brigitte, paul_farestveit]:
+        StudentGroup.add_student(group.id, student.sid)
     std_commit(allow_test_environment=True)
 
 

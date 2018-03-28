@@ -25,9 +25,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 """This package integrates with Flask-Login. Determine who can use the app and which privileges they have."""
-from boac import db, std_commit
+from boac import db
 from boac.models.base import Base
-from boac.models.db_relationships import advisor_watchlists, cohort_filter_owners
+from boac.models.db_relationships import cohort_filter_owners
 from flask_login import UserMixin
 
 
@@ -43,11 +43,6 @@ class AuthorizedUser(Base, UserMixin):
         'CohortFilter',
         secondary=cohort_filter_owners,
         back_populates='owners',
-        lazy=True,
-    )
-    watchlist = db.relationship(
-        'Student',
-        secondary=advisor_watchlists,
         lazy=True,
     )
     alert_views = db.relationship(
@@ -74,15 +69,6 @@ class AuthorizedUser(Base, UserMixin):
     def get_id(self):
         """Override UserMixin, since our DB conventionally reserves 'id' for generated keys."""
         return self.uid
-
-    def append_to_watchlist(self, student):
-        self.watchlist.append(student)
-        std_commit()
-
-    def remove_from_watchlist(self, sid):
-        watchlist = [s for s in self.watchlist if not s.sid == sid]
-        self.watchlist = watchlist
-        std_commit()
 
     @classmethod
     def find_by_uid(cls, uid):
