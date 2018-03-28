@@ -171,11 +171,6 @@ def load_canvas_externals(uid, term_id):
                     failures.append(f'canvas.get_student_summaries failed for site_id {site_id}')
                     continue
                 success_count += 1
-                # This is a very time-consuming API and might have to managed separately.
-                if not canvas.get_course_enrollments(site_id, term_id):
-                    failures.append(f'canvas.get_course_enrollments failed for site_id {site_id}')
-                    continue
-                success_count += 1
                 # Do not treat an empty list as a failure.
                 if canvas.get_assignments_analytics(site_id, uid, term_id) is None:
                     failures.append(f'canvas.get_assignments_analytics failed for UID {uid}, site_id {site_id}')

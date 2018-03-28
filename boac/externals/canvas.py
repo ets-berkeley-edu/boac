@@ -115,25 +115,6 @@ def _get_assignments_analytics(course_id, uid, mock=None):
     return paged_request(path=path, mock=mock)
 
 
-@stow('canvas_course_enrollments_{course_id}', for_term=True)
-def get_course_enrollments(course_id, term_id):
-    return _get_course_enrollments(course_id)
-
-
-@fixture('canvas_course_enrollments_{course_id}')
-def _get_course_enrollments(course_id, mock=None):
-    path = f'/api/v1/courses/{course_id}/enrollments'
-    return paged_request(
-        path=path,
-        mock=mock,
-        query={
-            'type[]': 'StudentEnrollment',
-            # By default, Canvas will not return any students at all for completed course sites.
-            'state[]': ['active', 'completed', 'inactive'],
-        },
-    )
-
-
 def build_url(path, query=None):
     working_url = app.config['CANVAS_HTTP_URL'] + path
     return http.build_url(working_url, query)

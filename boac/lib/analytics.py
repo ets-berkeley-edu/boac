@@ -42,8 +42,9 @@ def merge_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id):
                 analytics = {'error': 'Unable to retrieve analytics'}
             else:
                 analytics = analytics_from_summary_feed(student_summaries, canvas_user_id, canvas_course_id)
-                enrollments = canvas.get_course_enrollments(canvas_course_id, term_id)
-                analytics.update(analytics_from_canvas_course_enrollments(enrollments, canvas_user_id))
+                analytics.update({
+                    'courseCurrentScore': loch_current_scores(canvas_user_id, canvas_course_id, term_id),
+                })
                 assignment_analytics = analytics_from_canvas_course_assignments(
                     course_id=canvas_course_id,
                     course_code=course_code,
@@ -63,10 +64,9 @@ def mean_course_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_
     for metric in ['assignmentsOnTime', 'pageViews', 'participations', 'courseCurrentScore']:
         percentiles = []
         for course in user_courses:
-            if course['analytics'].get(metric):
-                percentile = course['analytics'][metric]['student']['percentile']
-                if percentile and not math.isnan(percentile):
-                    percentiles.append(percentile)
+            percentile = course['analytics'].get(metric, {}).get('student', {}).get('percentile')
+            if percentile and not math.isnan(percentile):
+                percentiles.append(percentile)
         if len(percentiles):
             mean_percentile = mean(percentiles)
             mean_values[metric] = {'percentile': mean_percentile, 'displayPercentile': ordinal(mean_percentile)}
@@ -137,20 +137,6 @@ def analytics_from_summary_feed(summary_feed, canvas_user_id, canvas_course_id):
     }
 
 
-def analytics_from_canvas_course_enrollments(feed, canvas_user_id):
-    filtered_feed = [enr for enr in feed if enr.get('enrollment_state') == 'active']
-    df = pandas.DataFrame(filtered_feed, columns=['user_id', 'grades'])
-    df['current_score'] = [row['current_score'] for row in df['grades']]
-    student_row = df.loc[df['user_id'].values == canvas_user_id]
-    if student_row.empty:
-        canvas_course_id = feed[0]['course_id']
-        app.logger.error('Canvas ID {} not found in enrollments for course site {}'.format(canvas_user_id, canvas_course_id))
-        return {'error': 'Unable to retrieve analytics'}
-    return {
-        'courseCurrentScore': analytics_for_column(df, student_row, 'current_score'),
-    }
-
-
 @stow('analytics_from_canvas_course_assignments_{course_id}_{uid}', for_term=True)
 def analytics_from_canvas_course_assignments(course_id, course_code, uid, sid, term_id):
     assignments = canvas.get_assignments_analytics(course_id, uid, term_id)
@@ -210,7 +196,6 @@ def _get_canvas_sites_dict(student):
 def analytics_from_loch(uid, canvas_user_id, canvas_course_id, term_id):
     return {
         'assignmentsOnTime': loch_assignments_on_time(canvas_user_id, canvas_course_id, term_id),
-        'currentScores': loch_current_scores(canvas_user_id, canvas_course_id, term_id),
         'pageViews': loch_page_views(uid, canvas_course_id, term_id),
     }
 
