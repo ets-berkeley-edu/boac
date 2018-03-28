@@ -35,6 +35,11 @@ def authenticated_session(fake_auth):
     fake_auth.login(test_uid)
 
 
+@pytest.fixture()
+def authenticated_session_empty_watchlist(fake_auth):
+    fake_auth.login('2040')
+
+
 class TestAdvisorWatchlist:
 
     def test_not_authenticated(self, client):
@@ -51,6 +56,12 @@ class TestAdvisorWatchlist:
         names = [student['firstName'] + ' ' + student['lastName'] for student in students]
         assert ['Brigitte Lin', 'Paul Farestveit', 'Paul Kerschen', 'Sandeep Jayaprakash'] == names
 
+    def test_empty_watchlist(self, authenticated_session_empty_watchlist, client):
+        """Returns current_user's watchlist."""
+        response = client.get('/api/watchlist/my')
+        assert response.status_code == 200
+        assert response.json == []
+
     def test_watchlist_includes_alert_counts(self, create_alerts, authenticated_session, client):
         groups = client.get('/api/groups/my').json
         students = groups[0]['students']
@@ -64,19 +75,33 @@ class TestAdvisorWatchlist:
         groups = client.get('/api/groups/my').json
         assert groups[0]['students'][0]['alertCount'] == 1
 
-    def test_create_add_and_remove(self, authenticated_session, client):
+    def test_create_add_remove_and_delete(self, authenticated_session, client):
         """Add student to current_user's watchlist and then remove him."""
+        name = 'Fun Boy Three'
         response = client.post(
             '/api/group/create',
-            data=json.dumps({'name': 'Fun Boy Three'}),
+            data=json.dumps({'name': name}),
             content_type='application/json',
         )
         group = json.loads(response.data)
         group_id = group['id']
+        # Add student
         sid = '2345678901'
         response = client.get(f'/api/group/{group_id}/add_student/{sid}')
         assert response.status_code == 200
         groups = client.get('/api/groups/my').json
-        # Expect two groups because 'My Students' was created previously
-        assert len(groups) == 2
+        assert len(groups)
+        assert groups[0]['name'] == name
         assert groups[0]['students'][0]['sid'] == sid
+        # Remove student
+        response = client.get(f'/api/group/{group_id}/remove_student/{sid}')
+        assert response.status_code == 200
+        group = client.get(f'/api/group/{group_id}').json
+        assert group['name'] == name
+        assert not len(group['students'])
+        # Delete group
+        response = client.delete(f'/api/group/delete/{group_id}')
+        assert response.status_code == 200
+        # Verify
+        response = client.get(f'/api/group/{group_id}')
+        assert response.status_code == 404
