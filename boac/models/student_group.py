@@ -100,11 +100,9 @@ class StudentGroup(Base):
             std_commit()
 
     def to_api_json(self):
-        _json = {
+        return {
             'id': self.id,
             'ownerId': self.owner_id,
             'name': self.name,
+            'students': [student.to_api_json() for student in self.students],
         }
-        if self.students:
-            _json['students'] = [student.to_api_json() for student in self.students]
-        return _json

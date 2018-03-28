@@ -81,7 +81,7 @@ def add_student_to_group(group_id, sid):
     return tolerant_jsonify({'message': f'SID {sid} added to group \'{group_id}\' of UID {current_user.uid}'}), 200
 
 
-@app.route('/api/group/delete/<group_id>')
+@app.route('/api/group/delete/<group_id>', methods=['DELETE'])
 @login_required
 def delete_group(group_id):
     group = StudentGroup.find_by_id(group_id)
@@ -89,6 +89,16 @@ def delete_group(group_id):
         raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own group {group.id}')
     StudentGroup.delete(group_id)
     return tolerant_jsonify({'message': f'Group {group_id} has been deleted'}), 200
+
+
+@app.route('/api/group/<group_id>')
+@login_required
+def get_group(group_id):
+    group = StudentGroup.find_by_id(group_id)
+    if not group:
+        raise ResourceNotFoundError(f'No group found with id {group_id}')
+    decorated = _decorate_groups([group.to_api_json()])
+    return tolerant_jsonify(decorated[0])
 
 
 @app.route('/api/group/<group_id>/remove_student/<sid>')
