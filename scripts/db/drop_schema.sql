@@ -32,6 +32,14 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET row_security = off;
 
+-- TODO: remove legacy indices
+ALTER TABLE IF EXISTS ONLY public.advisor_watchlists DROP CONSTRAINT IF EXISTS advisor_watchlists_sid_fkey;
+ALTER TABLE IF EXISTS ONLY public.advisor_watchlists DROP CONSTRAINT IF EXISTS advisor_watchlists_watchlist_owner_uid_fkey;
+ALTER TABLE IF EXISTS ONLY public.advisor_watchlists DROP CONSTRAINT IF EXISTS advisor_watchlists_pkey;
+DROP TABLE IF EXISTS public.advisor_watchlists;
+
+--
+
 ALTER TABLE IF EXISTS ONLY public.student_athletes DROP CONSTRAINT IF EXISTS student_athletes_sid_fkey;
 ALTER TABLE IF EXISTS ONLY public.student_athletes DROP CONSTRAINT IF EXISTS student_athletes_group_code_fkey;
 ALTER TABLE IF EXISTS ONLY public.normalized_cache_students DROP CONSTRAINT IF EXISTS normalized_cache_students_sid_fkey;
@@ -42,8 +50,13 @@ ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS
 ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_sid_fkey;
 ALTER TABLE IF EXISTS ONLY public.alert_views DROP CONSTRAINT IF EXISTS alert_views_viewer_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.alert_views DROP CONSTRAINT IF EXISTS alert_views_alert_id_fkey;
-ALTER TABLE IF EXISTS ONLY public.advisor_watchlists DROP CONSTRAINT IF EXISTS advisor_watchlists_watchlist_owner_uid_fkey;
-ALTER TABLE IF EXISTS ONLY public.advisor_watchlists DROP CONSTRAINT IF EXISTS advisor_watchlists_sid_fkey;
+ALTER TABLE IF EXISTS ONLY public.student_group_members DROP CONSTRAINT IF EXISTS student_group_members_student_group_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.student_group_members DROP CONSTRAINT IF EXISTS student_group_members_sid_fkey;
+ALTER TABLE IF EXISTS ONLY public.student_groups DROP CONSTRAINT IF EXISTS student_groups_owner_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.student_groups DROP CONSTRAINT IF EXISTS student_groups_owner_id_name_unique_constraint;
+
+--
+
 DROP INDEX IF EXISTS public.normalized_cache_students_units_idx;
 DROP INDEX IF EXISTS public.normalized_cache_students_level_idx;
 DROP INDEX IF EXISTS public.normalized_cache_students_gpa_idx;
@@ -55,6 +68,10 @@ DROP INDEX IF EXISTS public.normalized_cache_enrollments_sid_idx;
 DROP INDEX IF EXISTS public.alerts_sid_idx;
 DROP INDEX IF EXISTS public.alert_views_viewer_id_idx;
 DROP INDEX IF EXISTS public.alert_views_alert_id_idx;
+DROP INDEX IF EXISTS public.student_groups_owner_id_idx;
+
+--
+
 ALTER TABLE IF EXISTS ONLY public.students DROP CONSTRAINT IF EXISTS students_pkey;
 ALTER TABLE IF EXISTS ONLY public.student_athletes DROP CONSTRAINT IF EXISTS student_athletes_pkey;
 ALTER TABLE IF EXISTS ONLY public.normalized_cache_students DROP CONSTRAINT IF EXISTS normalized_cache_students_pkey;
@@ -70,11 +87,15 @@ ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_sid_al
 ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_pkey;
 ALTER TABLE IF EXISTS ONLY public.alert_views DROP CONSTRAINT IF EXISTS alert_views_pkey;
 ALTER TABLE IF EXISTS ONLY public.alembic_version DROP CONSTRAINT IF EXISTS alembic_version_pkc;
-ALTER TABLE IF EXISTS ONLY public.advisor_watchlists DROP CONSTRAINT IF EXISTS advisor_watchlists_pkey;
+ALTER TABLE IF EXISTS ONLY public.student_group_members DROP CONSTRAINT IF EXISTS student_group_members_pkey;
+ALTER TABLE IF EXISTS ONLY public.student_groups DROP CONSTRAINT IF EXISTS student_groups_pkey;
 ALTER TABLE IF EXISTS public.json_cache ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE IF EXISTS public.cohort_filters ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE IF EXISTS public.authorized_users ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE IF EXISTS public.alerts ALTER COLUMN id DROP DEFAULT;
+
+--
+
 DROP TABLE IF EXISTS public.students;
 DROP TABLE IF EXISTS public.student_athletes;
 DROP TABLE IF EXISTS public.normalized_cache_students;
@@ -92,4 +113,6 @@ DROP SEQUENCE IF EXISTS public.alerts_id_seq;
 DROP TABLE IF EXISTS public.alerts;
 DROP TABLE IF EXISTS public.alert_views;
 DROP TABLE IF EXISTS public.alembic_version;
-DROP TABLE IF EXISTS public.advisor_watchlists;
+DROP TABLE IF EXISTS public.student_group_members;
+DROP TABLE IF EXISTS public.student_groups;
+DROP SEQUENCE IF EXISTS public.student_groups_id_seq;

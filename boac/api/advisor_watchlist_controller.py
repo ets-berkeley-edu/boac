@@ -24,36 +24,98 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
+from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.lib.http import tolerant_jsonify
 from boac.models.alert import Alert
-from boac.models.student import Student
-from flask import current_app as app
+from boac.models.student_group import StudentGroup
+from flask import current_app as app, request
 from flask_login import current_user, login_required
 
 
 @app.route('/api/watchlist/my')
 @login_required
 def my_watchlist():
-    watchlist = [student.to_api_json() for student in current_user.watchlist]
-    watchlist_by_sid = {student['sid']: student for student in watchlist}
-    alert_counts = Alert.current_alert_counts_for_sids(current_user.id, list(watchlist_by_sid.keys()))
-    for result in alert_counts:
-        watchlist_by_sid[result['sid']].update({
-            'alertCount': result['alertCount'],
-        })
-    return tolerant_jsonify(sorted(watchlist, key=lambda s: (s['firstName'], s['lastName'])))
+    # TODO: remove legacy support
+    group = StudentGroup.get_or_create_my_watchlist(current_user.id)
+    groups = _decorate_groups([group.to_api_json()])
+    return tolerant_jsonify(groups[0]['students'])
 
 
 @app.route('/api/watchlist/add/<sid>')
 @login_required
 def add_to_watchlist(sid):
-    student = Student.find_by_sid(sid)
-    current_user.append_to_watchlist(student)
-    return tolerant_jsonify({'message': f'SID {sid} added to watchlist of UID {current_user.uid}'}), 200
+    # TODO: remove legacy support
+    group = StudentGroup.get_or_create_my_watchlist(current_user.id)
+    return add_student_to_group(group.id, sid)
 
 
 @app.route('/api/watchlist/remove/<sid>')
 @login_required
 def remove_from_watchlist(sid):
-    current_user.remove_from_watchlist(sid)
+    # TODO: remove legacy support
+    group = StudentGroup.get_or_create_my_watchlist(current_user.id)
+    StudentGroup.remove_student(group.id, sid)
     return tolerant_jsonify({'message': f'SID {sid} removed from watchlist of UID {current_user.uid}'}), 200
+
+
+@app.route('/api/group/create', methods=['POST'])
+@login_required
+def create_group():
+    params = request.get_json()
+    name = params.get('name', None)
+    if not name:
+        raise BadRequestError('Group creation requires \'name\'')
+    group = StudentGroup.create(current_user.id, name)
+    return tolerant_jsonify(group.to_api_json())
+
+
+@app.route('/api/group/<group_id>/add_student/<sid>')
+@login_required
+def add_student_to_group(group_id, sid):
+    group = StudentGroup.find_by_id(group_id)
+    if not group:
+        raise ResourceNotFoundError(f'No group found with id: {group_id}')
+    if group.owner_id != current_user.id:
+        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own group {group.id}')
+    StudentGroup.add_student(group.id, sid)
+    return tolerant_jsonify({'message': f'SID {sid} added to group \'{group_id}\' of UID {current_user.uid}'}), 200
+
+
+@app.route('/api/group/delete/<group_id>')
+@login_required
+def delete_group(group_id):
+    group = StudentGroup.find_by_id(group_id)
+    if group.owner_id != current_user.id:
+        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own group {group.id}')
+    StudentGroup.delete(group_id)
+    return tolerant_jsonify({'message': f'Group {group_id} has been deleted'}), 200
+
+
+@app.route('/api/group/<group_id>/remove_student/<sid>')
+@login_required
+def remove_student_from_group(group_id, sid):
+    group = StudentGroup.find_by_id(group_id)
+    if group.owner_id != current_user.id:
+        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own group {group.id}')
+    StudentGroup.remove_student(group_id, sid)
+    return tolerant_jsonify({'message': f'SID {sid} has been removed from group {group_id}'}), 200
+
+
+@app.route('/api/groups/my')
+@login_required
+def my_groups():
+    groups = StudentGroup.get_groups_by_owner_id(current_user.id)
+    return tolerant_jsonify(_decorate_groups([g.to_api_json() for g in groups]))
+
+
+def _decorate_groups(groups):
+    for group in groups:
+        students_by_sid = {student['sid']: student for student in group['students']}
+        alert_counts = Alert.current_alert_counts_for_sids(current_user.id, list(students_by_sid.keys()))
+        for result in alert_counts:
+            student = students_by_sid[result['sid']]
+            student.update({
+                'alertCount': result['alertCount'],
+            })
+        group['students'] = sorted(group['students'], key=lambda s: (s['firstName'], s['lastName']))
+    return groups
