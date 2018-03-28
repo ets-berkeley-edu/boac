@@ -26,13 +26,18 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import csv
 import os
-from boac.models.authorized_user import AuthorizedUser
-from boac.models.student_group import StudentGroup
-from scriptpath import scriptify
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../..')))
+
+from boac.lib import scriptify
 
 
 @scriptify.in_app
 def main(app):
+    from boac.models.authorized_user import AuthorizedUser
+    from boac.models.student_group import StudentGroup
+    from boac.models.student import Student
+
     advisor_watchlists_data = '/tmp/advisor_watchlists.csv'
     if os.path.isfile(advisor_watchlists_data):
         with open(advisor_watchlists_data) as csv_file:
@@ -40,17 +45,21 @@ def main(app):
             # Skip first row
             next(rows, None)
             for row in rows:
-                owner_uid = row[0]
-                sid = row[1]
-                owner = AuthorizedUser.find_by_uid(owner_uid)
-                group = StudentGroup.find_by_owner_id(owner.id)
-                if not group:
-                    group = StudentGroup.create(owner.id, 'My Students')
-                StudentGroup.add_student(group.id, sid)
-                print(f'[INFO] Student {sid} added to the \'My Students\' group owned by UID {owner.uid}')
+                if len(row) == 2:
+                    owner_uid = row[0]
+                    sid = row[1]
+                    owner = AuthorizedUser.find_by_uid(owner_uid)
+                    if owner:
+                        if Student.find_by_sid(sid):
+                            group = StudentGroup.get_or_create_my_watchlist(owner.id)
+                            StudentGroup.add_student(group.id, sid)
+                            print(f'[INFO] Student {sid} added to the \'My Students\' group owned by UID {owner.uid}')
+                        else:
+                            print(f'[WARN] Student {sid} does not exist')
+                    else:
+                        print(f'[WARN] AuthorizedUser {owner_uid} does not exist')
     else:
         print(f'[ERROR] File not found: {advisor_watchlists_data}')
-
     print('\nDone. Enjoy the rest of your day.\n')
 
 
