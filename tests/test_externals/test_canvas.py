@@ -187,16 +187,6 @@ class TestCanvasGetStudentSummariesForCourse:
 class TestCanvasGrades:
     """Canvas API queries for grade data."""
 
-    def test_course_enrollments(self, app):
-        """Returns course enrollments."""
-        feed = canvas._get_course_enrollments(7654321)
-        assert feed
-        assert len(feed) == 44
-        assert feed[0]['user_id'] == 9000100
-        assert feed[0]['grades']['current_score'] == 86.125
-        assert feed[43]['user_id'] == 5432100
-        assert feed[43]['grades']['current_score'] == 91.0
-
     def test_assignments_analytics(self, app):
         """Returns course assignments analytics."""
         feed = canvas._get_assignments_analytics(7654321, 61889)

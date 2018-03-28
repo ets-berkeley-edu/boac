@@ -251,6 +251,8 @@ class TestUserAnalytics:
         assert analytics['assignmentsOnTime']['courseDeciles'][9] == 5
         assert analytics['assignmentsOnTime']['courseDeciles'][10] == 6
 
+        assert analytics['courseCurrentScore']['student']['raw'] == 84
+
         assert analytics['pageViews']['student']['raw'] == 768
         assert analytics['pageViews']['student']['percentile'] == 54
         assert analytics['pageViews']['courseDeciles'][0] == 9
@@ -264,7 +266,6 @@ class TestUserAnalytics:
         assert analytics['participations']['courseDeciles'][10] == 12
 
         assert analytics['loch']['assignmentsOnTime']['student']['raw'] == 7
-        assert analytics['loch']['currentScores']['student']['raw'] == 84
         assert analytics['loch']['pageViews']['student']['raw'] == 766
 
     def test_empty_canvas_course_feed(self, client, fake_auth):
