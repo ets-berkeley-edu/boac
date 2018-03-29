@@ -265,6 +265,35 @@ class TestAnalyticsFromLochAssignmentsOnTime:
         assert digested['courseDeciles'] is None
 
 
+class TestAnalyticsFromLochAssignmentsSubmitted:
+    canvas_user_id = 9000100
+    canvas_course_id = 7654321
+    term_id = '2178'
+
+    def test_from_fixture(self, app):
+        digested = analytics.loch_assignments_submitted(self.canvas_user_id, self.canvas_course_id, self.term_id)
+        assert digested['student']['raw'] == 8
+        assert digested['student']['percentile'] == 64
+        assert digested['student']['roundedUpPercentile'] == 81
+        assert digested['courseDeciles'][0] == 0
+        assert digested['courseDeciles'][9] == 10
+        assert digested['courseDeciles'][10] == 17
+
+    def test_with_loch_error(self, app):
+        bad_course_id = 'NoSuchSite'
+        digested = analytics.loch_assignments_submitted(self.canvas_user_id, bad_course_id, self.term_id)
+        assert digested == {'error': 'Unable to retrieve from Data Loch'}
+
+    def test_when_no_data(self, app):
+        mr = MockRows(io.StringIO('canvas_user_id,assignments_submitted'))
+        with register_mock(data_loch._get_submissions_turned_in_relative_to_user, mr):
+            digested = analytics.loch_assignments_submitted(self.canvas_user_id, self.canvas_course_id, self.term_id)
+        assert digested['student']['raw'] is None
+        assert digested['student']['percentile'] is None
+        assert digested['boxPlottable'] is False
+        assert digested['courseDeciles'] is None
+
+
 class TestAnalyticsFromLochCurrentScores:
     canvas_user_id = 9000100
     canvas_course_id = 7654321

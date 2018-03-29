@@ -238,6 +238,7 @@ def load_analytics_feeds(uid, sid, term_id):
             canvas_user_id = canvas_user_profile.get('id')
             if canvas_user_id:
                 data_loch.get_on_time_submissions_relative_to_user(site['canvasCourseId'], canvas_user_id, term_id)
+                data_loch.get_submissions_turned_in_relative_to_user(site['canvasCourseId'], canvas_user_id, term_id)
     if merged_term_feed:
         for enrollment in merged_term_feed['enrollments']:
             load_analytics_for_sites(enrollment['canvasSites'])
