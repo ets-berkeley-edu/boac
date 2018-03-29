@@ -32,30 +32,12 @@ from flask import current_app as app, request
 from flask_login import current_user, login_required
 
 
-@app.route('/api/watchlist/my')
+@app.route('/api/group/my_primary')
 @login_required
-def my_watchlist():
-    # TODO: remove legacy support
-    group = StudentGroup.get_or_create_my_watchlist(current_user.id)
-    groups = _decorate_groups([group.to_api_json()])
-    return tolerant_jsonify(groups[0]['students'])
-
-
-@app.route('/api/watchlist/add/<sid>')
-@login_required
-def add_to_watchlist(sid):
-    # TODO: remove legacy support
-    group = StudentGroup.get_or_create_my_watchlist(current_user.id)
-    return add_student_to_group(group.id, sid)
-
-
-@app.route('/api/watchlist/remove/<sid>')
-@login_required
-def remove_from_watchlist(sid):
-    # TODO: remove legacy support
-    group = StudentGroup.get_or_create_my_watchlist(current_user.id)
-    StudentGroup.remove_student(group.id, sid)
-    return tolerant_jsonify({'message': f'SID {sid} removed from watchlist of UID {current_user.uid}'}), 200
+def my_primary():
+    group = StudentGroup.get_or_create_my_primary(current_user.id)
+    decorated = _decorate_groups([group.to_api_json()])
+    return tolerant_jsonify(decorated[0])
 
 
 @app.route('/api/group/create', methods=['POST'])
@@ -101,7 +83,7 @@ def get_group(group_id):
     return tolerant_jsonify(decorated[0])
 
 
-@app.route('/api/group/<group_id>/remove_student/<sid>')
+@app.route('/api/group/<group_id>/remove_student/<sid>', methods=['DELETE'])
 @login_required
 def remove_student_from_group(group_id, sid):
     group = StudentGroup.find_by_id(group_id)

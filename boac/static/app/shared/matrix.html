@@ -36,10 +36,10 @@
                 data-ng-class="{'demo-mode-blur': demoMode}">
               {{student.lastName}}<span data-ng-if="student.firstName">, {{student.firstName}}</span>
             </h3>
-            <watchlist-toggle data-sid="student.sid"
-                              data-fa-size="fa-1x"
-                              data-watchlist="myWatchlist"
-                              data-ng-if="!student.isClassAverage"></watchlist-toggle>
+            <student-group-toggle data-sid="student.sid"
+                                  data-fa-size="fa-1x"
+                                  data-group="myPrimaryGroup"
+                                  data-ng-if="!student.isClassAverage"></student-group-toggle>
           </div>
           <div class="student-sid"
                data-ng-class="{'demo-mode-blur': demoMode}"

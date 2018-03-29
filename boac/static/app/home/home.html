@@ -31,13 +31,11 @@
             <div>Loading.... </div>
           </div>
           <div data-ng-if="!isLoading">
-            <div data-ng-if="!myWatchlist.students.length">
+            <div data-ng-if="!myPrimaryGroup.students.length">
               <div>You have no students in your list. Add students from their profile pages.</div>
             </div>
-            <sortable-alerts-table
-              data-alerts="myWatchlist"
-              data-watchlist="true"
-              data-ng-if="myWatchlist.students.length"></sortable-alerts-table>
+            <sortable-alerts-table data-group="myPrimaryGroup"
+                                   data-ng-if="myPrimaryGroup.students.length"></sortable-alerts-table>
           </div>
         </div>
         <div class="home-list-wrapper">
@@ -59,10 +57,8 @@
                     <a data-ng-bind="cohort.label" data-ng-href="/cohort?c={{cohort.id}}"></a>
                     (<span data-ng-bind="cohort.totalMemberCount"></span>)
                   </div>
-                  <sortable-alerts-table
-                    data-alerts="cohort.alerts"
-                    data-watchlist="false"
-                    data-ng-if="cohort.alerts.students.length"></sortable-alerts-table>
+                  <sortable-alerts-table data-group="cohort.alerts"
+                                         data-ng-if="cohort.alerts.students.length"></sortable-alerts-table>
                 </li>
               </ul>
             </div>

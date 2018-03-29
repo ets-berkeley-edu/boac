@@ -53,8 +53,7 @@ class StudentGroup(Base):
         self.owner_id = owner_id
 
     @classmethod
-    def get_or_create_my_watchlist(cls, owner_id):
-        # TODO: remove legacy support
+    def get_or_create_my_primary(cls, owner_id):
         name = 'My Students'
         group = cls.query.filter_by(owner_id=owner_id, name=name).first()
         if not group:

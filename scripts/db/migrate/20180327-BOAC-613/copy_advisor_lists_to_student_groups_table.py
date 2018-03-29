@@ -51,7 +51,7 @@ def main(app):
                     owner = AuthorizedUser.find_by_uid(owner_uid)
                     if owner:
                         if Student.find_by_sid(sid):
-                            group = StudentGroup.get_or_create_my_watchlist(owner.id)
+                            group = StudentGroup.get_or_create_my_primary(owner.id)
                             StudentGroup.add_student(group.id, sid)
                             print(f'[INFO] Student {sid} added to the \'My Students\' group owned by UID {owner.uid}')
                         else:

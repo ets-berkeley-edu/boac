@@ -34,8 +34,8 @@
     googleAnalyticsService,
     studentFactory,
     studentService,
+    studentGroupFactory,
     utilService,
-    watchlistFactory,
     $location,
     $rootScope,
     $scope,
@@ -148,10 +148,10 @@
           $scope.returnLabel = utilService.constructReturnToLabel($scope.returnUrl);
           $scope.hideFeedbackLink = !!$scope.returnUrl;
         }
-        $scope.isWatchlistLoading = true;
-        watchlistFactory.getMyWatchlist().then(function(response) {
-          $scope.myWatchlist = response.data;
-          $scope.isWatchlistLoading = false;
+        $scope.isMyPrimaryGroupLoading = true;
+        studentGroupFactory.getMyPrimaryGroup().then(function(response) {
+          $scope.myPrimaryGroup = response.data;
+          $scope.isMyPrimaryGroupLoading = false;
         });
       });
     };

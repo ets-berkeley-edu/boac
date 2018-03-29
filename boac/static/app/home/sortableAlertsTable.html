@@ -1,22 +1,22 @@
 <div class="sr-only" role="alert"
-     data-ng-bind-template="Sorted by {{alerts.sortBy}} {{alerts.reverse ? 'descending' : ''}}"
-     data-ng-if="alerts.students.length"></div>
-<table class="home-table" data-ng-if="alerts.students">
+     data-ng-bind-template="Sorted by {{group.sortBy}} {{group.reverse ? 'descending' : ''}}"
+     data-ng-if="group.students.length"></div>
+<table class="home-table" data-ng-if="group.students">
   <tr class="home-table-header">
-    <th class="home-table-header-name home-table-header-sortable" data-ng-click="sort(alerts, 'sortableName')" data-ng-class="{dropup: !alerts.reverse}">
+    <th class="home-table-header-name home-table-header-sortable" data-ng-click="sort(group, 'sortableName')" data-ng-class="{dropup: !group.reverse}">
       <span class="sr-only">Sort by </span>Name
-      <span class="sr-only" data-ng-if="alerts.sortBy === 'sortableName' && !alerts.reverse">Descending</span>
-      <span class="caret" data-ng-if="alerts.sortBy === 'sortableName'"></span>
+      <span class="sr-only" data-ng-if="group.sortBy === 'sortableName' && !group.reverse">Descending</span>
+      <span class="caret" data-ng-if="group.sortBy === 'sortableName'"></span>
     </th>
-    <th class="home-table-header-sid home-table-header-sortable" data-ng-click="sort(alerts, 'sid')" data-ng-class="{dropup: !alerts.reverse}">
+    <th class="home-table-header-sid home-table-header-sortable" data-ng-click="sort(group, 'sid')" data-ng-class="{dropup: !group.reverse}">
       <span class="sr-only">Sort by </span>SID
-      <span class="sr-only" data-ng-if="alerts.sortBy === 'sid' && !cohort.reverse">Descending</span>
-      <span class="caret" data-ng-if="alerts.sortBy === 'sid'"></span>
+      <span class="sr-only" data-ng-if="group.sortBy === 'sid' && !group.reverse">Descending</span>
+      <span class="caret" data-ng-if="group.sortBy === 'sid'"></span>
     </th>
     <th class="home-table-header-issues">Issues</th>
     <th class="home-table-header-remove"></th>
   </tr>
-  <tr data-ng-repeat="student in alerts.students | orderBy:alerts.sortBy:alerts.reverse" class="home-table-row">
+  <tr data-ng-repeat="student in group.students | orderBy:group.sortBy:group.reverse" class="home-table-row">
     <td>
       <a data-ng-bind="student.sortableName"
          data-ng-class="{'demo-mode-blur': demoMode}"
@@ -38,10 +38,10 @@
            data-ng-if="student.alertCount"></div>
     </td>
     <td>
-      <watchlist-toggle data-sid="student.sid"
-                        data-fa-size="text"
-                        data-watchlist="alerts.students"
-                        data-ng-if="watchlist"></watchlist-toggle>
+      <student-group-toggle data-sid="student.sid"
+                            data-fa-size="text"
+                            data-group="group"
+                            data-ng-if="!group.isCohortAlerts"></student-group-toggle>
     </td>
   </tr>
 </table>

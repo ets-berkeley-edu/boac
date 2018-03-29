@@ -33,8 +33,8 @@
     config,
     googleAnalyticsService,
     studentFactory,
+    studentGroupFactory,
     utilService,
-    watchlistFactory,
     $anchorScroll,
     $base64,
     $location,
@@ -641,8 +641,8 @@
             });
           } else {
             var render = $scope.tab === 'list' ? listViewRefresh : matrixViewRefresh;
-            watchlistFactory.getMyWatchlist().then(function(response) {
-              $scope.myWatchlist = response.data;
+            studentGroupFactory.getMyPrimaryGroup().then(function(response) {
+              $scope.myPrimaryGroup = response.data;
               render(function() {
                 initFilters(function() {
                   $rootScope.pageTitle = $scope.isCreateCohortMode ? 'Create Cohort' : $scope.cohort.name || 'Search';

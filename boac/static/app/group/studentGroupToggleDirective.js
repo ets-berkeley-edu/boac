@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').directive('watchlistToggle', function(watchlistFactory, $rootScope) {
+  angular.module('boac').directive('studentGroupToggle', function(studentGroupFactory, $rootScope) {
 
     return {
       // @see https://docs.angularjs.org/guide/directive#template-expanding-directive
@@ -36,20 +36,20 @@
       // @see https://docs.angularjs.org/guide/directive#isolating-the-scope-of-a-directive
       scope: {
         sid: '=',
-        watchlist: '='
+        group: '='
       },
 
-      templateUrl: '/static/app/user/watchlistToggle.html',
+      templateUrl: '/static/app/group/studentGroupToggle.html',
 
       link: function(scope, elem, attrs) {
         scope.faSize = attrs.faSize;
-        scope.onWatchlist = !!_.find(scope.watchlist, ['sid', scope.sid]);
+        scope.inGroup = !!_.find(scope.group.students, ['sid', scope.sid]);
 
         var buttonAltText = function() {
-          return scope.onWatchlist ? 'Remove student ' + scope.sid + ' from my list' : 'Add student ' + scope.sid + ' to my list';
+          return scope.inGroup ? 'Remove student ' + scope.sid + ' from my list' : 'Add student ' + scope.sid + ' to my list';
         };
         var buttonLabel = function() {
-          return scope.onWatchlist ? 'remove from My List' : 'add to My List';
+          return scope.inGroup ? 'remove from My List' : 'add to My List';
         };
 
         scope.buttonAltText = buttonAltText();
@@ -58,25 +58,25 @@
         scope.toggle = function($event) {
           $event.stopPropagation();
           $event.preventDefault();
-          // Choose proper factory method and then immediately toggle icon in UI
-          var updateWatchlist = scope.onWatchlist ? watchlistFactory.removeFromWatchlist : watchlistFactory.addToWatchlist;
-          scope.onWatchlist = !scope.onWatchlist;
+          // The order below matters. Choose proper factory method and then immediately toggle icon in UI.
+          var updateGroup = scope.inGroup ? studentGroupFactory.removeStudentFromGroup : studentGroupFactory.addStudentToGroup;
+          scope.inGroup = !scope.inGroup;
           scope.buttonLabel = buttonLabel();
           scope.buttonAltText = buttonAltText();
-          updateWatchlist(scope.sid).then(function() {
+          updateGroup(scope.group.id, scope.sid).then(function() {
             return false;
           });
         };
 
-        $rootScope.$on('watchlistAddition', function(event, sidAdded) {
-          if (sidAdded === scope.sid) {
-            scope.onWatchlist = true;
+        $rootScope.$on('studentGroupAddStudent', function(event, data) {
+          if (data.sid === scope.sid) {
+            scope.inGroup = true;
           }
         });
 
-        $rootScope.$on('watchlistRemoval', function(event, sidRemoved) {
-          if (sidRemoved === scope.sid) {
-            scope.onWatchlist = false;
+        $rootScope.$on('studentGroupRemoveStudent', function(event, data) {
+          if (data.sid === scope.sid) {
+            scope.inGroup = false;
           }
         });
       }
