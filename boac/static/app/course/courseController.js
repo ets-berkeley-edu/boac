@@ -32,8 +32,8 @@
     config,
     courseFactory,
     googleAnalyticsService,
+    studentGroupFactory,
     utilService,
-    watchlistFactory,
     $base64,
     $location,
     $rootScope,
@@ -122,8 +122,8 @@
         $scope.isLoading = false;
 
       }).then(function() {
-        watchlistFactory.getMyWatchlist().then(function(response) {
-          $scope.myWatchlist = response.data;
+        studentGroupFactory.getMyPrimaryGroup().then(function(response) {
+          $scope.myPrimaryGroup = response.data;
           // Begin with matrix view if arg is present
           if (args.v && _.includes(['list', 'matrix'], args.v)) {
             $scope.tab = args.v;

@@ -48,24 +48,24 @@
   box-shadow: none !important;
 }
 
-.btn-watchlist-fa-1x {
+.btn-student-group-fa-1x {
   padding: 2px 5px 0 2px;
 }
 
-.btn-watchlist-fa-2x {
+.btn-student-group-fa-2x {
   padding: 0 0 2px 3px;
 }
 
-.btn-watchlist-text {
+.btn-student-group-text {
   padding: 2px 5px 0 2px;
 }
 
-.btn-watchlist-label-fa-1x {
+.btn-student-group-label-fa-1x {
   font-size: 10px;
   vertical-align: middle;
 }
 
-.btn-watchlist-label-fa-2x {
+.btn-student-group-label-fa-2x {
   font-size: 11px;
   vertical-align: middle;
 }

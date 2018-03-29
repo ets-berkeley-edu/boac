@@ -251,7 +251,7 @@ def load_student_athletes():
     schlemiel.status_asc = 'Trouble'
     db.session.merge(schlemiel)
     advisor = AuthorizedUser.find_by_uid('6446')
-    group = StudentGroup.get_or_create_my_watchlist(advisor.id)
+    group = StudentGroup.get_or_create_my_primary(advisor.id)
     for student in [paul_kerschen, sandeep, brigitte, paul_farestveit]:
         StudentGroup.add_student(group.id, student.sid)
     std_commit(allow_test_environment=True)

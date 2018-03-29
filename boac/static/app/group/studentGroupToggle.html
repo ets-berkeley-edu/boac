@@ -1,5 +1,5 @@
-<button id="watchlist-toggle-{{sid}}"
-        class="btn btn-link btn-watchlist-{{faSize}}"
+<button id="student-group-toggle-{{sid}}"
+        class="btn btn-link btn-student-group-{{faSize}}"
         type="button"
         uib-tooltip="{{faSize === 'text' ? '' : buttonLabel}}"
         tooltip-animation="false"
@@ -7,12 +7,12 @@
         tooltip-placement="bottom"
         data-ng-click="toggle($event)">
   <i class="{{faSize}}"
-     data-ng-class="{'fa fa-minus-circle': onWatchlist, 'fa fa-plus-circle': !onWatchlist}"
+     data-ng-class="{'fa fa-minus-circle': inGroup, 'fa fa-plus-circle': !inGroup}"
      data-ng-if="faSize !== 'text'"></i>
   <span class="sr-only"
         data-ng-bind="buttonAltText"
         data-ng-if="faSize !== 'text'"></span>
-  <span data-ng-if="faSize === 'text'">
+  <span data-ng-if="inGroup && faSize === 'text'">
     remove
   </span>
 </button>

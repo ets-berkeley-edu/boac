@@ -36,18 +36,19 @@ def authenticated_session(fake_auth):
 
 
 @pytest.fixture()
-def authenticated_session_empty_watchlist(fake_auth):
+def authenticated_session_empty_primary(fake_auth):
     fake_auth.login('2040')
 
 
-class TestAdvisorWatchlist:
+class TestStudentGroupsController:
+    """StudentGroup API."""
 
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
         assert client.get('/api/groups/my').status_code == 401
 
-    def test_my_watchlist(self, authenticated_session, client):
-        """Returns current_user's watchlist."""
+    def test_my_groups(self, authenticated_session, client):
+        """Returns all of current_user's student groups."""
         response = client.get('/api/groups/my')
         assert response.status_code == 200
         groups = response.json
@@ -56,13 +57,14 @@ class TestAdvisorWatchlist:
         names = [student['firstName'] + ' ' + student['lastName'] for student in students]
         assert ['Brigitte Lin', 'Paul Farestveit', 'Paul Kerschen', 'Sandeep Jayaprakash'] == names
 
-    def test_empty_watchlist(self, authenticated_session_empty_watchlist, client):
-        """Returns current_user's watchlist."""
-        response = client.get('/api/watchlist/my')
+    def test_empty_group(self, authenticated_session_empty_primary, client):
+        """Returns current_user's primary group."""
+        response = client.get('/api/group/my_primary')
         assert response.status_code == 200
-        assert response.json == []
+        assert response.json['students'] == []
 
-    def test_watchlist_includes_alert_counts(self, create_alerts, authenticated_session, client):
+    def test_group_includes_alert_counts(self, create_alerts, authenticated_session, client):
+        """Returns groups with alerts per student."""
         groups = client.get('/api/groups/my').json
         students = groups[0]['students']
         assert students[0]['alertCount'] == 2
@@ -76,7 +78,7 @@ class TestAdvisorWatchlist:
         assert groups[0]['students'][0]['alertCount'] == 1
 
     def test_create_add_remove_and_delete(self, authenticated_session, client):
-        """Add student to current_user's watchlist and then remove him."""
+        """Create a group, add a student, remove the student and then delete the group."""
         name = 'Fun Boy Three'
         response = client.post(
             '/api/group/create',
@@ -94,7 +96,7 @@ class TestAdvisorWatchlist:
         assert groups[0]['name'] == name
         assert groups[0]['students'][0]['sid'] == sid
         # Remove student
-        response = client.get(f'/api/group/{group_id}/remove_student/{sid}')
+        response = client.delete(f'/api/group/{group_id}/remove_student/{sid}')
         assert response.status_code == 200
         group = client.get(f'/api/group/{group_id}').json
         assert group['name'] == name

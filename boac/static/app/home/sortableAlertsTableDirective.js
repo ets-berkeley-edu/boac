@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').directive('sortableAlertsTable', function(config) {
+  angular.module('boac').directive('sortableAlertsTable', function(config, $rootScope) {
 
     return {
       // @see https://docs.angularjs.org/guide/directive#template-expanding-directive
@@ -35,8 +35,7 @@
 
       // @see https://docs.angularjs.org/guide/directive#isolating-the-scope-of-a-directive
       scope: {
-        alerts: '=',
-        watchlist: '='
+        group: '='
       },
 
       templateUrl: '/static/app/home/sortableAlertsTable.html',
@@ -51,6 +50,12 @@
             data.reverse = false;
           }
         };
+
+        $rootScope.$on('studentGroupRemoveStudent', function(event, data) {
+          if (!_.get(scope, 'group.isCohortAlerts')) {
+            scope.group.students = _.reject(scope.group.students, ['sid', data.sid]);
+          }
+        });
       }
     };
   });

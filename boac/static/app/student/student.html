@@ -26,10 +26,10 @@
               data-ng-class="{'demo-mode-blur': demoMode}">
             {{student.athleticsProfile.fullName}}
           </h1>
-          <watchlist-toggle data-sid="student.athleticsProfile.sid"
-                            data-fa-size="fa-2x"
-                            data-watchlist="myWatchlist"
-                            data-ng-if="!isWatchlistLoading"></watchlist-toggle>
+          <student-group-toggle data-sid="student.athleticsProfile.sid"
+                                data-fa-size="fa-2x"
+                                data-group="myPrimaryGroup"
+                                data-ng-if="!isMyPrimaryGroupLoading"></student-group-toggle>
         </div>
         <h3 class="profile-header-name-preferred"
             data-ng-bind="student.sisProfile.preferredName"
