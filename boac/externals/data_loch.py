@@ -89,7 +89,31 @@ def get_on_time_submissions_relative_to_user(course_id, user_id, term_id):
 @fixture('loch_on_time_submissions_relative_to_user_{course_id}_{user_id}.csv')
 def _get_on_time_submissions_relative_to_user(course_id, user_id):
     sql = f"""SELECT user_id as canvas_user_id,
-        COUNT(CASE WHEN assignment_status IN ('on_time', 'submitted') THEN 1 ELSE NULL END) AS on_time_submissions
+        COUNT(CASE WHEN assignment_status = 'on_time' THEN 1 ELSE NULL END) AS on_time_submissions
+        FROM boac_analytics.assignment_submissions_scores
+        WHERE assignment_id IN
+        (
+          SELECT DISTINCT assignment_id FROM boac_analytics.assignment_submissions_scores
+          WHERE user_id = {user_id} AND course_id = {course_id}
+        )
+        GROUP BY user_id
+        HAVING count(*) = (
+          SELECT count(*) FROM boac_analytics.assignment_submissions_scores
+          WHERE user_id = {user_id} AND course_id = {course_id}
+        )
+        """
+    return safe_execute(sql)
+
+
+@stow('loch_submissions_turned_in_relative_to_user_{course_id}_{user_id}', for_term=True)
+def get_submissions_turned_in_relative_to_user(course_id, user_id, term_id):
+    return _get_submissions_turned_in_relative_to_user(course_id, user_id)
+
+
+@fixture('loch_submissions_turned_in_relative_to_user_{course_id}_{user_id}.csv')
+def _get_submissions_turned_in_relative_to_user(course_id, user_id):
+    sql = f"""SELECT user_id as canvas_user_id,
+        COUNT(CASE WHEN assignment_status IN ('on_time', 'late', 'submitted') THEN 1 ELSE NULL END) AS submissions_turned_in
         FROM boac_analytics.assignment_submissions_scores
         WHERE assignment_id IN
         (
