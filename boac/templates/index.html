@@ -16,12 +16,13 @@
     <link href="/static/app/course/course.css" rel="stylesheet">
     <link href="/static/app/home/home.css" rel="stylesheet">
     <link href="/static/app/shared/matrix.css" rel="stylesheet">
+    <link href="/static/app/nav/nav.css" rel="stylesheet">
     <link href="/static/app/shared/profile.css" rel="stylesheet">
     <link href="/static/app/splash/splash.css" rel="stylesheet">
     <link href="/static/app/student/student.css" rel="stylesheet">
   </head>
 
-  <body ui-view data-ng-class="{'background-blue-sky': isSplash, 'background-default': !isSplash}">
+  <body data-ng-cloak data-ui-view data-ng-class="{'background-blue-sky': angularStateName === 'splash'}">
     <!-- Third-party: Warning, if the order below is wrong then the app will break. -->
     <script src="/static/lib/angular/angular.min.js"></script>
     <script src="/static/lib/angular-animate/angular-animate.min.js"></script>
@@ -47,13 +48,15 @@
     <script src="/static/app/cohort/createCohortController.js"></script>
     <script src="/static/app/cohort/deleteCohortController.js"></script>
     <script src="/static/app/cohort/manageCohortsController.js"></script>
-    <script src="/static/app/cohort/myCohortsDropdownDirective.js"></script>
+    <script src="/static/app/cohort/teamsController.js"></script>
     <script src="/static/app/course/courseController.js"></script>
     <script src="/static/app/course/courseFactory.js"></script>
     <script src="/static/app/group/studentGroupFactory.js"></script>
     <script src="/static/app/group/studentGroupToggleDirective.js"></script>
     <script src="/static/app/home/homeController.js"></script>
     <script src="/static/app/home/sortableAlertsTableDirective.js"></script>
+    <script src="/static/app/nav/headerController.js"></script>
+    <script src="/static/app/nav/sidebarNavController.js"></script>
     <script src="/static/app/shared/avatarFallbackDirective.js"></script>
     <script src="/static/app/shared/boxplotService.js"></script>
     <script src="/static/app/shared/utilService.js"></script>
@@ -71,5 +74,19 @@
     <!-- Google Analytics (the order below matters) -->
     <script src="/static/app/shared/googleAnalyticsService.js"></script>
     <script async src='https://www.google-analytics.com/analytics.js'></script>
+
+    <div data-ng-if="angularStateName !== 'splash'">
+      <div class="index-container-header"
+           data-ui-view="header"></div>
+      <div class="index-container-body">
+        <div class="index-container-sidebar"
+             data-ui-view="sidebar"></div>
+        <div class="index-container-content">
+          <div class="body-text"
+               data-ui-view="content"></div>
+          <div data-ui-view="footer"></div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

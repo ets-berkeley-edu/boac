@@ -67,7 +67,7 @@ class TestStudentGroupsController:
         """Returns groups with alerts per student."""
         groups = client.get('/api/groups/my').json
         students = groups[0]['students']
-        assert students[0]['alertCount'] == 2
+        assert students[0]['alertCount'] == 3
         assert 'alertCount' not in students[1]
         assert 'alertCount' not in students[2]
         assert 'alertCount' not in students[3]
@@ -75,7 +75,7 @@ class TestStudentGroupsController:
         alert_to_dismiss = client.get('/api/alerts/current/11667051').json['shown'][0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
         groups = client.get('/api/groups/my').json
-        assert groups[0]['students'][0]['alertCount'] == 1
+        assert groups[0]['students'][0]['alertCount'] == 2
 
     def test_create_add_remove_and_delete(self, authenticated_session, client):
         """Create a group, add a student, remove the student and then delete the group."""

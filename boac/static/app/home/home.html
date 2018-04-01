@@ -1,77 +1,39 @@
-<div class="container">
-  <div data-ng-include="'/static/app/shared/header.html'"></div>
-
-  <div class="body-text" data-ng-if="isAuthenticated">
-    <h1>My Dashboard</h1>
-
-    <div class="flex-container-wrap-reverse">
-      <div class="flex-column-50">
-        <h2>Team List</h2>
-        <div data-ng-if="isLoading">
-          <div>Loading.... </div>
-        </div>
-        <div data-ng-if="!isLoading">
-          <div data-ng-if="!teams.length">
-            <div>No teams are available.</div>
-          </div>
-          <div data-ng-if="teams.length">
-            <ul data-ng-if="!isLoading" class="home-list">
-              <li data-ng-repeat="team in teams">
-                <a data-ng-bind="team.name" data-ng-href="/cohort?c={{team.code}}"></a>
-                (<span data-ng-bind="team.totalMemberCount"></span>)
-              </li>
-            </ul>
-          </div>
+<div class="home-container">
+  <div data-ng-if="isLoading">
+    <h1>Loading...</h1>
+    <div class="loading-spinner-large">
+      <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
+    </div>
+  </div>
+  <div class="home-content" data-ng-if="!isLoading">
+    <div>
+      <h1>My Students</h1>
+      <div data-ng-if="!myPrimaryGroup.students.length">
+        <div>You have no students in your list. Add students from their profile pages.</div>
+      </div>
+      <sortable-alerts-table data-group="myPrimaryGroup"
+                             data-ng-if="myPrimaryGroup.students.length"></sortable-alerts-table>
+    </div>
+    <div>
+      <h1>My Cohorts</h1>
+      <div data-ng-if="!myCohorts.length">
+        <div class="home-alert">
+          You have no saved cohorts.
+          <a data-ng-href="/cohort?c=new">Create a new cohort.</a>
         </div>
       </div>
-      <div class="flex-column-50">
-        <div class="home-list-wrapper">
-          <h2>My List</h2>
-          <div data-ng-if="isLoading">
-            <div>Loading.... </div>
-          </div>
-          <div data-ng-if="!isLoading">
-            <div data-ng-if="!myPrimaryGroup.students.length">
-              <div>You have no students in your list. Add students from their profile pages.</div>
+      <div data-ng-if="myCohorts.length">
+        <ul class="home-list">
+          <li class="home-list-cohort-wrapper" data-ng-repeat="cohort in myCohorts">
+            <div class="home-my-cohorts-label">
+              <a data-ng-bind="cohort.label" data-ng-href="/cohort?c={{cohort.id}}"></a>
+              (<span data-ng-bind="cohort.totalMemberCount"></span>)
             </div>
-            <sortable-alerts-table data-group="myPrimaryGroup"
-                                   data-ng-if="myPrimaryGroup.students.length"></sortable-alerts-table>
-          </div>
-        </div>
-        <div class="home-list-wrapper">
-          <h2>My Saved Cohorts</h2>
-          <div data-ng-if="isLoading">
-            <div>Loading.... </div>
-          </div>
-          <div data-ng-if="!isLoading">
-            <div data-ng-if="!myCohorts.length">
-              <div class="home-alert">
-                You have no saved cohorts.
-                <a data-ng-href="/cohort?c=new">Create a new cohort.</a>
-              </div>
-            </div>
-            <div data-ng-if="myCohorts.length">
-              <ul class="home-list">
-                <li class="home-list-cohort-wrapper" data-ng-repeat="cohort in myCohorts">
-                  <div class="home-my-cohorts-label">
-                    <a data-ng-bind="cohort.label" data-ng-href="/cohort?c={{cohort.id}}"></a>
-                    (<span data-ng-bind="cohort.totalMemberCount"></span>)
-                  </div>
-                  <sortable-alerts-table data-group="cohort.alerts"
-                                         data-ng-if="cohort.alerts.students.length"></sortable-alerts-table>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
+            <sortable-alerts-table data-group="cohort.alerts"
+                                   data-ng-if="cohort.alerts.students.length"></sortable-alerts-table>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
-
-  <div class="loading-spinner-large" data-ng-if="isAuthenticated && isLoading">
-    <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
-    <span class="sr-only">Loading...</span>
-  </div>
-
-  <div data-ng-include="'/static/app/shared/footer.html'" data-ng-if="!isAuthenticated || !isLoading"></div>
 </div>

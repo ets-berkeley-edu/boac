@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import re
 from boac.lib.berkeley import term_name_for_sis_id
+from boac.models.alert import Alert
 
 """Utility module containing standard API-feed translations of data objects."""
 
@@ -119,6 +120,19 @@ def course_section_to_json(term_id, section):
         'meetings': _get_meetings(section),
         'students': [student.to_api_json() for student in section['students']],
     }
+
+
+def decorate_student_groups(current_user_id, groups):
+    for group in groups:
+        students_by_sid = {student['sid']: student for student in group['students']}
+        alert_counts = Alert.current_alert_counts_for_sids(current_user_id, list(students_by_sid.keys()))
+        for result in alert_counts:
+            student = students_by_sid[result['sid']]
+            student.update({
+                'alertCount': result['alertCount'],
+            })
+        group['students'] = sorted(group['students'], key=lambda s: (s['firstName'], s['lastName']))
+    return groups
 
 
 def _get_meetings(section):

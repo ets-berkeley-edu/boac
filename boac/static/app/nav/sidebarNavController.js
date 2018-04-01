@@ -27,17 +27,14 @@
 
   'use strict';
 
-  angular.module('boac').controller('SplashController', function(authFactory, config, $rootScope, $scope) {
-
-    $rootScope.pageTitle = 'Welcome';
-    $scope.signIn = authFactory.casLogIn;
+  angular.module('boac').controller('SidebarNavController', function(config, me, $scope) {
 
     var init = function() {
-      if (config.devAuthEnabled) {
-        $scope.devAuthLogIn = function(uid, password) {
-          return authFactory.devAuthLogIn(uid, password);
-        };
-      }
+      $scope.demoMode = config.demoMode;
+      $scope.myCohorts = me.myCohorts;
+      $scope.myGroups = me.myGroups;
+      $scope.myPrimaryGroup = me.myPrimaryGroup;
+      $scope.truncate = _.truncate;
     };
 
     init();

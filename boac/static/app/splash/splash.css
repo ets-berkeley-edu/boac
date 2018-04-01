@@ -16,10 +16,6 @@
   transform: translate(-50%, -50%);
 }
 
-.background-default {
-  background-color: #fff;
-}
-
 .background-blue-sky {
   background: url(/static/app/splash/blue-sky-background.jpg) no-repeat center center fixed;
   -webkit-background-size: cover;

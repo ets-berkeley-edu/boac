@@ -28,15 +28,12 @@
   'use strict';
 
   angular.module('boac').controller('HomeController', function(
-    authService,
     cohortFactory,
+    config,
     studentGroupFactory,
     $rootScope,
     $scope
   ) {
-
-    $scope.isLoading = true;
-    $scope.isAuthenticated = authService.isAuthenticatedUser();
 
     var extendSortableNames = function(students) {
       return _.map(students, function(student) {
@@ -46,45 +43,62 @@
       });
     };
 
-    var init = function() {
-      if ($scope.isAuthenticated) {
-        cohortFactory.getTeams().then(function(teamsResponse) {
-          $scope.teams = teamsResponse.data;
+    var loadMyCohorts = function(callback) {
+      cohortFactory.getMyCohorts().then(function(cohortsResponse) {
+        $rootScope.myCohorts = [];
 
-          cohortFactory.getMyCohorts().then(function(cohortsResponse) {
-            $scope.myCohorts = [];
-            _.each(cohortsResponse.data, function(cohort) {
-              if (cohort.alerts.length) {
-                cohort.alerts = {
-                  isCohortAlerts: true,
-                  students: extendSortableNames(cohort.alerts),
-                  sortBy: 'sortableName',
-                  reverse: false
-                };
-              }
-              $scope.myCohorts.push(cohort);
-            });
-
-            studentGroupFactory.getMyPrimaryGroup().then(function(response) {
-              var group = response.data;
-              $scope.myPrimaryGroup = {
-                id: group.id,
-                name: group.name,
-                students: extendSortableNames(group.students),
-                sortBy: 'sortableName',
-                reverse: false
-              };
-              $scope.isLoading = false;
-            });
-          });
+        _.each(cohortsResponse.data, function(cohort) {
+          if (cohort.alerts.length) {
+            cohort.alerts = {
+              isCohortAlerts: true,
+              students: extendSortableNames(cohort.alerts),
+              sortBy: 'sortableName',
+              reverse: false
+            };
+          }
+          $rootScope.myCohorts.push(cohort);
         });
-      } else {
-        $scope.isLoading = false;
-      }
+        return callback();
+      });
     };
 
-    $rootScope.$on('devAuthFailure', function() {
-      $scope.alertMessage = 'Log in failed. Please try again.';
+    var loadMyStudentGroups = function(callback) {
+      studentGroupFactory.getMyStudentGroups().then(function(response) {
+        var groups = response.data;
+        $rootScope.myGroups = [];
+        _.each(groups, function(group) {
+          var decoratedGroup = {
+            id: group.id,
+            name: group.name,
+            students: extendSortableNames(group.students),
+            sortBy: 'sortableName',
+            reverse: false
+          };
+          if (group.name === 'My Students') {
+            $rootScope.myPrimaryGroup = decoratedGroup;
+          } else {
+            $rootScope.myGroups.push(group);
+          }
+        });
+        return callback();
+      });
+    };
+
+    var init = function() {
+      $scope.isLoading = true;
+
+      loadMyStudentGroups(function() {
+        loadMyCohorts(function() {
+          $scope.isLoading = false;
+        });
+      });
+    };
+
+    $rootScope.$on('myCohortsUpdated', function() {
+      $scope.isLoading = true;
+      loadMyCohorts(function() {
+        $scope.isLoading = false;
+      });
     });
 
     init();

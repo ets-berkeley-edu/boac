@@ -36,8 +36,10 @@ from boac.merged import calnet
 from boac.merged import member_details
 from boac.merged.sis_enrollments import merge_sis_enrollments
 from boac.merged.sis_profile import merge_sis_profile
+from boac.models.cohort_filter import CohortFilter
 from boac.models.normalized_cache_student_major import NormalizedCacheStudentMajor
 from boac.models.student import Student
+from boac.models.student_group import StudentGroup
 from flask import current_app as app, request, Response
 from flask_login import current_user, login_required
 
@@ -48,7 +50,18 @@ def user_profile():
         'uid': False,
     }
     if current_user.is_active:
-        profile = calnet.get_calnet_user_for_uid(app, current_user.get_id())
+        user_id = current_user.get_id()
+        profile = calnet.get_calnet_user_for_uid(app, user_id)
+        # The following is required/rendered in all BOAC views
+        profile['myCohorts'] = CohortFilter.all_owned_by(user_id, include_alerts=True)
+        all_groups = StudentGroup.get_groups_by_owner_id(current_user.id)
+        profile['myStudentGroups'] = []
+        for group in all_groups:
+            decorated = _decorate_student_group(group)
+            if group.name == 'My Students':
+                profile['myPrimaryGroup'] = decorated
+            else:
+                profile['myStudentGroups'].append(decorated)
     return tolerant_jsonify(profile)
 
 
@@ -166,3 +179,8 @@ def load_canvas_profile(uid):
             'error': 'Unable to reach bCourses',
         }
     return canvas_profile
+
+
+def _decorate_student_group(group):
+    decorated = api_util.decorate_student_groups(current_user_id=current_user.get_id(), groups=[group.to_api_json()])
+    return decorated[0] if len(decorated) else None

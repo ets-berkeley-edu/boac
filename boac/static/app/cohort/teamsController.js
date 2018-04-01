@@ -27,17 +27,15 @@
 
   'use strict';
 
-  angular.module('boac').controller('SplashController', function(authFactory, config, $rootScope, $scope) {
+  angular.module('boac').controller('TeamsController', function(cohortFactory, $scope) {
 
-    $rootScope.pageTitle = 'Welcome';
-    $scope.signIn = authFactory.casLogIn;
+    $scope.isLoading = true;
 
     var init = function() {
-      if (config.devAuthEnabled) {
-        $scope.devAuthLogIn = function(uid, password) {
-          return authFactory.devAuthLogIn(uid, password);
-        };
-      }
+      cohortFactory.getTeams().then(function(response) {
+        $scope.teams = response.data;
+        $scope.isLoading = false;
+      });
     };
 
     init();

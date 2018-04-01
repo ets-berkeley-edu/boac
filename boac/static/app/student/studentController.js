@@ -32,9 +32,9 @@
     config,
     courseFactory,
     googleAnalyticsService,
+    me,
     studentFactory,
     studentService,
-    studentGroupFactory,
     utilService,
     $location,
     $rootScope,
@@ -42,14 +42,15 @@
     $stateParams
   ) {
 
-    $scope.demoMode = config.demoMode;
-
     $scope.student = {
       canvasProfile: null,
       enrollmentTerms: null,
       isLoading: true
     };
 
+    $scope.demoMode = config.demoMode;
+    $scope.myGroups = me.myGroups;
+    $scope.myPrimaryGroup = me.myPrimaryGroup;
     $scope.showAllTerms = false;
     $scope.showDismissedAlerts = false;
 
@@ -146,13 +147,7 @@
           // ...or, maybe we are fresh arrival from cohort page.
           $scope.returnUrl = utilService.unpackReturnUrl(uid);
           $scope.returnLabel = utilService.constructReturnToLabel($scope.returnUrl);
-          $scope.hideFeedbackLink = !!$scope.returnUrl;
         }
-        $scope.isMyPrimaryGroupLoading = true;
-        studentGroupFactory.getMyPrimaryGroup().then(function(response) {
-          $scope.myPrimaryGroup = response.data;
-          $scope.isMyPrimaryGroupLoading = false;
-        });
       });
     };
 

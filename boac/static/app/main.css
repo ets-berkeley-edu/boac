@@ -40,12 +40,7 @@
 .body-text {
   font-size: 20px;
   font-weight: 400;
-  line-height: 1.8em;
-}
-
-.btn-group.open .dropdown-toggle {
-  -webkit-box-shadow: none !important;
-  box-shadow: none !important;
+  line-height: 1.2em;
 }
 
 .btn-student-group-fa-1x {
@@ -83,15 +78,6 @@
   padding-top: 10px;
 }
 
-.dropdown-menu-info {
-  display: block;
-  padding: 3px 20px;
-  clear: both;
-  font-weight: 400;
-  color: #333;
-  white-space: nowrap;
-}
-
 .faint-text {
   color: grey;
 }
@@ -100,21 +86,11 @@
   padding: 0 10px 0 10px;
 }
 
-.flex-column-right {
-  padding: 10px 10px 10px 0;
-}
-
 .flex-container {
   padding: 0;
   margin: 0;
   list-style: none;
   display: flex;
-}
-
-.flex-container-wrap-reverse {
-  display: flex;
-  -webkit-flex-wrap: wrap-reverse;
-  flex-wrap: wrap-reverse;
 }
 
 .flex-justify-center {
@@ -145,12 +121,6 @@
   flex-grow: 1;
 }
 
-.flex-column-50 {
-  flex: 0 0 50%;
-  flex-grow: 1;
-  min-width: 350px;
-}
-
 .form-control {
   height: 38px;
   padding: 8px 12px;
@@ -160,33 +130,27 @@
   color: #cf1715;
 }
 
-.header {
-  background-color: #e8e8e8;
-  position: relative;
+.index-container-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
-.header-column-home {
-  padding: 15px 0 0 20px;
-  vertical-align: middle;
+.index-container-body {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
 }
 
-.header-column-cohorts {
-  padding: 10px 0 10px 20px;
+.index-container-header {
+  background-color: #3b7ea5;
 }
 
-.header-column-search {
-  flex: 1;
-  padding: 10px 20px 10px 20px;
-}
-
-.header-column-name {
-  padding: 17px 20px 10px 10px;
-}
-
-.header-feedback {
-  font-size: 14px;
-  padding: 10px 0 0 0;
-  text-align: right;
+.index-container-sidebar {
+  background-color: #083456;
+  flex: 0 0 200px;
+  height: inherit;
+  padding: 10px 0 0 20px;
 }
 
 .loading-spinner-large {

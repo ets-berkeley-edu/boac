@@ -1,0 +1,141 @@
+.header-container {
+  align-items: center;
+  display: flex;
+  height: 56px;
+  justify-content: space-between;
+}
+
+.header-container div {
+  margin-left: 20px;
+}
+
+.header-container div:last-child {
+  flex-grow: 0;
+}
+
+.header-container div:last-child > span {
+  float: right;
+}
+
+.header-container div:last-child > button {
+  float: right;
+  margin-right: 20px;
+}
+
+.header-name {
+  float: right;
+}
+
+.header-text {
+  font-size: 16px;
+  color: #fff;
+}
+
+.header-text a:link,
+.header-text a:visited {
+  color: #fff;
+  text-decoration: none;
+  border: 0;
+  -moz-outline-style: none;
+}
+
+.header-text a:hover,
+.header-text a:focus,
+.header-text a:active {
+  color: #ddd;
+}
+
+.header-column-01 {
+  -webkit-flex: 1 0 0;
+  flex: 1 0 0;
+}
+
+.header-column-03 {
+  -webkit-flex: 3 0 0;
+  flex: 3 0 0;
+}
+
+.sidebar-cohort-pill {
+  background-color: #8bbdda;
+  border-radius: 10px;
+  color: #125704;
+  float: right;
+  font-size: 16px;
+  font-weight: 800;
+  height: 20px;
+  line-height: 20px;
+  margin-right: 5px;
+  text-align: center;
+  width: 30px;
+}
+
+.sidebar-contact-us {
+  bottom: 0;
+  margin: 50px 5px 0 0;
+  color: #8bbdda;
+  font-size: 16px;
+  line-height: 1.4em;
+  width: 180px;
+}
+
+.sidebar-copyright {
+  color: #8bbdda;
+  font-size: 12px;
+  line-height: 1.2em;
+}
+
+.sidebar-header {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 10px 0 2px 0;
+}
+
+.sidebar-header-icon {
+  border: 0;
+  object-fit: scale-down;
+  height: 16px;
+  margin: 0 2px 4px 0;
+}
+
+.sidebar-logo {
+  padding: 50px 0 10px 0;
+}
+
+.sidebar-section-divider {
+  background-color: #4a90e2;
+  border: none;
+  color: #4a90e2;
+  height: 1px;
+  margin: 5px 5px 5px 0;
+}
+
+.sidebar-student-alert {
+  color: #f0ad4e;
+  float: right;
+  font-size: 16px;
+  margin-right: 5px;
+  padding: 3px 0 0 1px;
+}
+
+.sidebar-text {
+  color: #8bbdda;
+  font-size: 16px;
+  line-height: 1.4em;
+}
+
+.sidebar-text a:link,
+.sidebar-text a:visited {
+  text-decoration: none;
+  border: 0;
+  -moz-outline-style: none;
+}
+
+.sidebar-text a:hover,
+.sidebar-text a:focus,
+.sidebar-text a:active {
+  color: #fff;
+  text-decoration: none;
+  border: 0;
+  -moz-outline-style: none;
+}
