@@ -3,6 +3,7 @@
      data-ng-if="group.students.length"></div>
 <table class="home-table" data-ng-if="group.students">
   <tr class="home-table-header">
+    <th></th>
     <th class="home-table-header-name home-table-header-sortable" data-ng-click="sort(group, 'sortableName')" data-ng-class="{dropup: !group.reverse}">
       <span class="sr-only">Sort by </span>Name
       <span class="sr-only" data-ng-if="group.sortBy === 'sortableName' && !group.reverse">Descending</span>
@@ -13,10 +14,19 @@
       <span class="sr-only" data-ng-if="group.sortBy === 'sid' && !group.reverse">Descending</span>
       <span class="caret" data-ng-if="group.sortBy === 'sid'"></span>
     </th>
+    <th class="home-table-header-issues">Major</th>
+    <th class="home-table-header-issues">Term Units</th>
+    <th class="home-table-header-issues">Cum. Units</th>
+    <th class="home-table-header-issues">GPA</th>
     <th class="home-table-header-issues">Issues</th>
     <th class="home-table-header-remove"></th>
   </tr>
   <tr data-ng-repeat="student in group.students | orderBy:group.sortBy:group.reverse" class="home-table-row">
+    <td>
+      <img class="student-avatar student-avatar-small"
+           data-ng-src="/api/user/{{student.uid}}/photo"
+           data-avatar-fallback>
+    </td>
     <td>
       <a data-ng-bind="student.sortableName"
          data-ng-class="{'demo-mode-blur': demoMode}"
@@ -30,6 +40,18 @@
       </span>
     </td>
     <td data-ng-bind="student.sid" data-ng-class="{'demo-mode-blur': demoMode}"></td>
+    <td>
+      <span class="student-text" data-ng-bind="major" data-ng-repeat="major in student.majors"></span>
+    </td>
+    <td>
+      <div data-ng-bind="student.term.enrolledUnits || '0'"></div>
+    </td>
+    <td>
+      <div data-ng-bind="student.cumulativeUnits || '--'"></div>
+    </td>
+    <td>
+      <div data-ng-bind="student.cumulativeGPA || '--'"></div>
+    </td>
     <td>
       <div class="home-issues-pill home-issues-pill-zero"
            data-ng-if="!student.alertCount">0</div>

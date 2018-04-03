@@ -25,8 +25,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
+import boac.api.util as api_util
 from boac.lib.http import tolerant_jsonify
-from boac.models.alert import Alert
+from boac.merged import member_details
 from boac.models.student_group import StudentGroup
 from flask import current_app as app, request
 from flask_login import current_user, login_required
@@ -102,12 +103,5 @@ def my_groups():
 
 def _decorate_groups(groups):
     for group in groups:
-        students_by_sid = {student['sid']: student for student in group['students']}
-        alert_counts = Alert.current_alert_counts_for_sids(current_user.id, list(students_by_sid.keys()))
-        for result in alert_counts:
-            student = students_by_sid[result['sid']]
-            student.update({
-                'alertCount': result['alertCount'],
-            })
-        group['students'] = sorted(group['students'], key=lambda s: (s['firstName'], s['lastName']))
-    return groups
+        member_details.merge_all(group['students'])
+    return api_util.decorate_student_groups(current_user_id=current_user.id, groups=groups)

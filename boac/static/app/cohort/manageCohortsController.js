@@ -37,7 +37,6 @@
     $scope
   ) {
 
-    $scope.truncate = utilService.truncate;
     $scope.isLoading = true;
 
     var resetPageView = function(callback) {

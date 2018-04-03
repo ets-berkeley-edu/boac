@@ -1,9 +1,4 @@
-<div class="container">
-  <div data-ng-include="'/static/app/shared/header.html'"></div>
-
-  <div data-ng-if="isLoading && !error">
-    <h1 class="faint-text">Loading....</h1>
-  </div>
+<div class="cohort-container">
   <div data-ng-if="isSaving && !error">
     <h1 class="faint-text">Saving....</h1>
   </div>
@@ -209,6 +204,4 @@
       <div data-ng-include="'/static/app/shared/matrix.html'"></div>
     </div>
   </div>
-
-  <div data-ng-include="'/static/app/shared/footer.html'" data-ng-if="!isLoading"></div>
 </div>

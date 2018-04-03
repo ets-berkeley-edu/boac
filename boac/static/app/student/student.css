@@ -99,6 +99,14 @@
   width: 100px;
 }
 
+.student-avatar-small {
+  border: 1px;
+  border-radius: 15px;
+  height: 30px;
+  padding: 2px 0 2px 0;
+  width: 30px;
+}
+
 .student-bio-container {
   flex: 0.8;
   margin-left: 20px;
@@ -130,10 +138,6 @@
   flex: 1.2;
   margin-left: 0;
   min-width: 320px;
-}
-
-.student-enrollment-details {
-  margin-bottom: 20px;
 }
 
 .student-gpa {

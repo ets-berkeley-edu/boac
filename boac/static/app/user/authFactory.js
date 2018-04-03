@@ -36,8 +36,8 @@
       $rootScope.$broadcast('userStatusChange');
       // Load user profile if authenticated
       if (me.authenticated_as.is_authenticated) {
-        return $http.get('/api/profile').then(function(profileResults) {
-          _.extend($rootScope.me, profileResults.data);
+        return $http.get('/api/profile').then(function(response) {
+          _.extend($rootScope.me.authenticated_as, response.data);
         });
       }
       return results;

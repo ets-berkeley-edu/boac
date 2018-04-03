@@ -23,13 +23,43 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+.course-column-description {
+  background-color: #e3f5ff;
+  flex: 3 0 0;
+  padding: 10px 10px 20px 10px;
+}
+
+.course-column-schedule {
+  background-color: #8bbdda;
+  color: #fff;
+  flex: 2 0 0;
+  padding: 10px 10px 20px 10px;
+}
+
+.course-container {
+  display: flex;
+  flex-direction: column;
+  line-height: 1em;
+}
+
+.course-container-summary {
+  display: flex;
+  flex-direction: row;
+}
+
 .course-details-meetings {
   font-size: 16px;
 }
 
 .course-details-section {
   font-size: 14px;
-  margin-bottom: 20px;
+}
+
+.course-header {
+  color: #999;
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0 0 5px 0;
 }
 
 .course-instructors-header {
@@ -134,16 +164,8 @@
 }
 
 .course-section-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
-  margin-bottom: 20px;
-}
-
-.course-sidebar-header {
-  color: #999;
-  font-size: 18px;
-  font-weight: bold;
-  margin: 0 0 5px 0;
 }
 
 .course-student-name {
@@ -152,6 +174,10 @@
   margin: 0;
   max-width: 150px;
   padding: 0;
+}
+
+.course-terms {
+  margin-left: 20px;
 }
 
 .list-group-header-row {

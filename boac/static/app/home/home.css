@@ -23,6 +23,15 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+.home-container {
+  padding: 0 0 0 20px;
+}
+
+.home-content {
+  display: flex;
+  flex-direction: column;
+}
+
 .home-issues-pill {
   border-radius: 10px;
   color: #fff;
@@ -64,10 +73,6 @@
 
 .home-list-cohort-wrapper {
   margin-bottom: 15px;
-}
-
-.home-list-wrapper {
-  margin-bottom: 30px;
 }
 
 .home-my-cohorts-label {

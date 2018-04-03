@@ -68,6 +68,24 @@
       return deferred.promise;
     };
 
+    var standardLayout = function(controller, templateUrl) {
+      return {
+        content: {
+          controller: controller,
+          templateUrl: templateUrl
+        },
+        footer: {templateUrl: '/static/app/nav/footer.html'},
+        header: {
+          controller: 'HeaderController',
+          templateUrl: '/static/app/nav/header.html'
+        },
+        sidebar: {
+          controller: 'SidebarNavController',
+          templateUrl: '/static/app/nav/sidebar.html'
+        }
+      };
+    };
+
     var resolveSplash = {
       me: resolveMe,
       authentication: splashAuthentication
@@ -85,33 +103,33 @@
     $stateProvider
       .state('cohort', {
         url: '/cohort?c&i&inactive',
-        templateUrl: '/static/app/cohort/cohort.html',
-        controller: 'CohortController',
+        views: standardLayout('CohortController', '/static/app/cohort/cohort.html'),
         resolve: resolvePrivate,
         reloadOnSearch: false
       })
       .state('cohorts', {
         url: '/cohorts/all',
-        templateUrl: '/static/app/cohort/all.html',
-        controller: 'AllCohortsController',
+        views: standardLayout('AllCohortsController', '/static/app/cohort/all.html'),
         resolve: resolvePrivate
       })
       .state('cohortsManage', {
         url: '/cohorts/manage',
-        templateUrl: '/static/app/cohort/manageCohorts.html',
-        controller: 'ManageCohortsController',
+        views: standardLayout('ManageCohortsController', '/static/app/cohort/manageCohorts.html'),
+        resolve: resolvePrivate
+      })
+      .state('teams', {
+        url: '/cohorts/teams',
+        views: standardLayout('TeamsController', '/static/app/cohort/teams.html'),
         resolve: resolvePrivate
       })
       .state('course', {
         url: '/course/:termId/:sectionId',
-        templateUrl: '/static/app/course/course.html',
-        controller: 'CourseController',
+        views: standardLayout('CourseController', '/static/app/course/course.html'),
         resolve: resolvePrivate
       })
       .state('home', {
         url: '/home',
-        templateUrl: '/static/app/home/home.html',
-        controller: 'HomeController',
+        views: standardLayout('HomeController', '/static/app/home/home.html'),
         resolve: resolvePrivate
       })
       .state('splash', {
@@ -122,20 +140,17 @@
       })
       .state('user', {
         url: '/student/:uid?r',
-        templateUrl: '/static/app/student/student.html',
-        controller: 'StudentController',
+        views: standardLayout('StudentController', '/static/app/student/student.html'),
         resolve: resolvePrivate,
         reloadOnSearch: false
       });
 
   }).run(function(authFactory, $rootScope, $state) {
-    // logOut is always an option
-    $rootScope.logOut = authFactory.logOut;
-
     $rootScope.$on('$stateChangeStart', function(e, toState) {
       if (toState && toState.name) {
         var name = toState.name.replace(/([A-Z])/g, ' $1');
         $rootScope.pageTitle = name.charAt(0).toUpperCase() + name.slice(1);
+        $rootScope.angularStateName = toState.name;
       } else {
         $rootScope.pageTitle = 'UC Berkeley';
       }

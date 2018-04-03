@@ -1,0 +1,79 @@
+<h2 class="sidebar-header no-wrap">
+  <img class="sidebar-header-icon" src="/static/app/nav/sidebar-icon-students.svg">
+  My Students
+</h2>
+
+<div class="sidebar-text no-wrap"
+     data-ng-repeat="student in myPrimaryGroup.students"
+     data-ng-if="myPrimaryGroup.students.length">
+  <a data-ng-class="{'demo-mode-blur': demoMode}"
+     data-ng-href="/student/{{student.uid}}">
+    {{truncate(student.name, {length:20, omission: '...'})}}
+  </a>
+  <i class="fa fa-exclamation-circle sidebar-student-alert" data-ng-if="student.alertCount"></i>
+</div>
+
+<h2 class="sidebar-header no-wrap">
+  <img class="sidebar-header-icon" src="/static/app/nav/sidebar-icon-cohorts.svg">
+  Cohorts <span class="sidebar-text" data-ng-if="myCohorts.length">(<a href="/cohorts/manage">Manage</a>)</span>
+</h2>
+
+<div class="sidebar-text">
+  <a data-ui-sref="cohort({c: 'new', i: null})"
+     data-ui-sref-opts="{reload: true}"><i class="fa fa-plus"></i> Create Cohort</a>
+</div>
+
+<div class="sidebar-text" data-ng-repeat="cohort in myCohorts">
+  <div class="no-wrap">
+    <a data-ui-sref="cohort({c: cohort.id, i: null})"
+       data-ui-sref-opts="{reload: true}">
+      {{truncate(cohort.label, {length:20, omission: '...'})}}
+    </a>
+    <span class="sidebar-cohort-pill"
+         data-ng-bind="cohort.totalMemberCount"
+         data-ng-if="cohort.totalMemberCount"></span>
+  </div>
+</div>
+
+<hr class="sidebar-section-divider"/>
+
+<div class="sidebar-text">
+  <a href="/cohorts/teams">Teams List</a>
+</div>
+<div class="sidebar-text">
+  <a data-ui-sref="cohort({c: null, inactive: null, i: true})"
+     data-ui-sref-opts="{reload: true}">Intensive</a>
+</div>
+<div class="sidebar-text">
+  <a data-ui-sref="cohort({c: null, i: null, inactive: true})"
+     data-ui-sref-opts="{reload: true}">Inactive</a>
+</div>
+<div class="sidebar-text">
+  <a href="/cohorts/all">Everyone's Cohorts</a>
+</div>
+
+<h2 class="sidebar-header no-wrap">
+  <img class="sidebar-header-icon" src="/static/app/nav/sidebar-icon-groups.svg">
+  Groups <span class="sidebar-text" data-ng-if="myGroups.length">(<a href="/groups/manage">Manage</a>)</span>
+</h2>
+<div class="sidebar-text">
+  <a data-ui-sref="group({c: 'new', i: null})"
+     data-ui-sref-opts="{reload: true}"><i class="fa fa-plus"></i> Create Group</a>
+</div>
+<div class="sidebar-text no-wrap"
+     data-ng-repeat="group in myGroups">
+  <a data-ng-class="{'demo-mode-blur': demoMode}"
+     data-ng-href="/group/{{group.id}}">
+    {{truncate(group.name, {length:20, omission: '...'})}}
+  </a>
+</div>
+
+
+<div class="sidebar-contact-us">
+  <a href="mailto:ascpilot@lists.berkeley.edu">Contact us</a> if you have questions or feedback.
+</div>
+
+<div class="sidebar-logo">
+  <div data-ng-include="'/static/app/shared/uc_berkeley_logo.html'"></div>
+</div>
+<div class="sidebar-copyright">&copy; 2018 The Regents of the University of California</div>

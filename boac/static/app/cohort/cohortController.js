@@ -32,8 +32,8 @@
     cohortService,
     config,
     googleAnalyticsService,
+    me,
     studentFactory,
-    studentGroupFactory,
     utilService,
     $anchorScroll,
     $base64,
@@ -41,8 +41,6 @@
     $rootScope,
     $scope
   ) {
-
-    $scope.demoMode = config.demoMode;
 
     var filters = {
       gpaRanges: 'g',
@@ -65,8 +63,11 @@
       };
     };
 
+    $scope.demoMode = config.demoMode;
     $scope.isLoading = true;
     $scope.isCreateCohortMode = false;
+    $scope.myPrimaryGroup = me.myPrimaryGroup;
+    $scope.myGroups = me.myGroups;
     $scope.showIntensiveCheckbox = false;
     $scope.showInactiveCheckbox = false;
     $scope.tab = 'list';
@@ -641,25 +642,22 @@
             });
           } else {
             var render = $scope.tab === 'list' ? listViewRefresh : matrixViewRefresh;
-            studentGroupFactory.getMyPrimaryGroup().then(function(response) {
-              $scope.myPrimaryGroup = response.data;
-              render(function() {
-                initFilters(function() {
-                  $rootScope.pageTitle = $scope.isCreateCohortMode ? 'Create Cohort' : $scope.cohort.name || 'Search';
-                  $scope.isLoading = false;
+            render(function() {
+              initFilters(function() {
+                $rootScope.pageTitle = $scope.isCreateCohortMode ? 'Create Cohort' : $scope.cohort.name || 'Search';
+                $scope.isLoading = false;
 
-                  if (args.a) {
-                    // We are returning from student page.
-                    $scope.anchor = args.a;
-                    utilService.anchorScroll($scope.anchor);
-                  }
-                  // Track view event
-                  if (isNaN($scope.cohort.code)) {
-                    googleAnalyticsService.track('team', 'view', $scope.cohort.code + ': ' + $scope.cohort.name);
-                  } else {
-                    googleAnalyticsService.track('cohort', 'view', $scope.cohort.name, $scope.cohort.code);
-                  }
-                });
+                if (args.a) {
+                  // We are returning from student page.
+                  $scope.anchor = args.a;
+                  utilService.anchorScroll($scope.anchor);
+                }
+                // Track view event
+                if (isNaN($scope.cohort.code)) {
+                  googleAnalyticsService.track('team', 'view', $scope.cohort.code + ': ' + $scope.cohort.name);
+                } else {
+                  googleAnalyticsService.track('cohort', 'view', $scope.cohort.name, $scope.cohort.code);
+                }
               });
             });
           }

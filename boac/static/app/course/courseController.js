@@ -32,7 +32,7 @@
     config,
     courseFactory,
     googleAnalyticsService,
-    studentGroupFactory,
+    me,
     utilService,
     $base64,
     $location,
@@ -44,6 +44,7 @@
 
     $scope.demoMode = config.demoMode;
     $scope.isLoading = true;
+    $scope.myPrimaryGroup = me.myPrimaryGroup;
     $scope.tab = 'list';
 
     var goToStudent = $scope.goToStudent = function(uid) {
@@ -90,7 +91,6 @@
       // Maybe we are arriving from student page.
       $scope.returnUrl = utilService.unpackReturnUrl();
       $scope.returnLabel = utilService.constructReturnToLabel($scope.returnUrl);
-      $scope.hideFeedbackLink = !!$scope.returnUrl;
 
       var args = _.clone($location.search());
       // For now, exclude 'Average Student'
@@ -122,14 +122,11 @@
         $scope.isLoading = false;
 
       }).then(function() {
-        studentGroupFactory.getMyPrimaryGroup().then(function(response) {
-          $scope.myPrimaryGroup = response.data;
-          // Begin with matrix view if arg is present
-          if (args.v && _.includes(['list', 'matrix'], args.v)) {
-            $scope.tab = args.v;
-            onTab($scope.tab);
-          }
-        });
+        // Begin with matrix view if arg is present
+        if (args.v && _.includes(['list', 'matrix'], args.v)) {
+          $scope.tab = args.v;
+          onTab($scope.tab);
+        }
       });
     };
 

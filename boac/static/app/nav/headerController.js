@@ -27,33 +27,14 @@
 
   'use strict';
 
-  angular.module('boac').directive('myCohortsDropdown', function() {
+  angular.module('boac').controller('HeaderController', function(authFactory, me, $scope) {
 
-    return {
-      // @see https://docs.angularjs.org/guide/directive#template-expanding-directive
-      restrict: 'E',
-
-      // @see https://docs.angularjs.org/guide/directive#isolating-the-scope-of-a-directive
-      scope: {},
-      templateUrl: '/static/app/cohort/myCohortsDropdown.html',
-      controller: function(cohortFactory, $rootScope, $scope) {
-
-        $scope.isLoading = true;
-        $scope.myCohorts = null;
-        $scope.truncate = _.truncate;
-
-        var init = function() {
-          cohortFactory.getMyCohorts().then(function(response) {
-            $scope.myCohorts = response.data;
-            $scope.isLoading = false;
-          });
-        };
-
-        $rootScope.$on('myCohortsUpdated', init);
-
-        init();
-      }
+    var init = function() {
+      $scope.logOut = authFactory.logOut;
+      $scope.me = me;
     };
+
+    init();
   });
 
 }(window.angular));

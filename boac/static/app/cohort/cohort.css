@@ -23,6 +23,10 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+.all-cohorts-container {
+  padding: 0 0 0 20px;
+}
+
 .cohort-boxplot {
   height: 18px;
   width: 75px;
@@ -79,6 +83,10 @@
   margin-left: 20px;
 }
 
+.cohort-container {
+  padding: 10px 0 0 10px;
+}
+
 .cohort-create-form-label {
   font-size: 16px;
   padding: 0 10px 10px 10px;
@@ -130,12 +138,6 @@
 
 .cohort-filter-list-item {
   padding: 0 30px 0 20px;
-  white-space: nowrap;
-}
-
-.cohort-filter-list-section-label {
-  color: grey;
-  padding: 5px 20px 5px 15px;
   white-space: nowrap;
 }
 
