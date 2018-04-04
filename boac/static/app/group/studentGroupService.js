@@ -29,8 +29,8 @@
 
   angular.module('boac').service('studentGroupService', function(studentGroupFactory, utilService) {
 
-    var loadMyStudentGroups = function(callback) {
-      studentGroupFactory.getMyStudentGroups().then(function(response) {
+    var loadMyGroups = function(callback) {
+      studentGroupFactory.getMyGroups().then(function(response) {
         var groups = response.data;
         var myPrimaryGroup = null;
         var myGroups = [];
@@ -53,7 +53,7 @@
     };
 
     return {
-      loadMyStudentGroups: loadMyStudentGroups
+      loadMyGroups: loadMyGroups
     };
   });
 

@@ -33,23 +33,23 @@
 
     var addStudentToGroup = function(groupId, sid) {
       return $http.get('/api/group/' + groupId + '/add_student/' + sid).then(function() {
-        $rootScope.$broadcast('addOrRemoveStudentInMyGroup', {groupId: groupId, sid: sid});
+        $rootScope.$broadcast('addStudentToGroup', {groupId: groupId, sid: sid});
       });
     };
 
     var createStudentGroup = function(name) {
       return $http.post('/api/group/create', {name: name}).then(function(group) {
-        $rootScope.$broadcast('addOrRemoveMyGroup', {group: group});
+        $rootScope.$broadcast('studentGroupCreated', {group: group});
       });
     };
 
     var deleteStudentGroup = function(id) {
       return $http.delete('/api/group/delete/' + id).then(function() {
-        $rootScope.$broadcast('addOrRemoveMyGroup', {groupId: id});
+        $rootScope.$broadcast('studentGroupDeleted', {groupId: id});
       });
     };
 
-    var getMyStudentGroups = function() {
+    var getMyGroups = function() {
       return $http.get('/api/groups/my');
     };
 
@@ -63,7 +63,7 @@
 
     var removeStudentFromGroup = function(groupId, sid) {
       return $http.delete('/api/group/' + groupId + '/remove_student/' + sid).then(function() {
-        $rootScope.$broadcast('addOrRemoveStudentInMyGroup', {groupId: groupId, sid: sid});
+        $rootScope.$broadcast('removeStudentFromGroup', {groupId: groupId, sid: sid});
       });
     };
 
@@ -71,7 +71,7 @@
       addStudentToGroup: addStudentToGroup,
       createStudentGroup: createStudentGroup,
       deleteStudentGroup: deleteStudentGroup,
-      getMyStudentGroups: getMyStudentGroups,
+      getMyGroups: getMyGroups,
       getStudentGroup: getStudentGroup,
       getMyPrimaryGroup: getMyPrimaryGroup,
       removeStudentFromGroup: removeStudentFromGroup

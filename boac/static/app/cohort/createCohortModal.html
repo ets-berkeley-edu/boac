@@ -1,10 +1,11 @@
 <div class="modal-header">
-  <h3 id="confirm-delete-header">Name Your Saved Cohort</h3>
+  <h3 id="create-cohort-header">Name Your Saved Cohort</h3>
 </div>
-<div class="modal-body" id="confirm-delete-body">
+<div class="modal-body" id="create-cohort-body">
   <div class="cohort-create-form-label">Cohort Name:</div>
   <div>
-    <input class="cohort-create-input-name"
+    <input id="cohort-create-input"
+           class="cohort-create-input-name"
            data-ng-change="error.hide = true"
            data-ng-model="label"
            type="text"

@@ -55,13 +55,13 @@ def user_profile():
         # The following is required/rendered in all BOAC views
         profile['myCohorts'] = CohortFilter.all_owned_by(user_id, include_alerts=True)
         all_groups = StudentGroup.get_groups_by_owner_id(current_user.id)
-        profile['myStudentGroups'] = []
+        profile['myGroups'] = []
         for group in all_groups:
             decorated = _decorate_student_group(group)
             if group.name == 'My Students':
                 profile['myPrimaryGroup'] = decorated
             else:
-                profile['myStudentGroups'].append(decorated)
+                profile['myGroups'].append(decorated)
     return tolerant_jsonify(profile)
 
 

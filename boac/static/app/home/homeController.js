@@ -28,10 +28,8 @@
   'use strict';
 
   angular.module('boac').controller('HomeController', function(
-    cohortFactory,
     cohortService,
     config,
-    studentGroupFactory,
     studentGroupService,
     $rootScope,
     $scope
@@ -40,7 +38,7 @@
     var init = function() {
       $scope.isLoading = true;
 
-      studentGroupService.loadMyStudentGroups(function(myPrimaryGroup, myGroups) {
+      studentGroupService.loadMyGroups(function(myPrimaryGroup, myGroups) {
         $scope.myPrimaryGroup = myPrimaryGroup;
         $scope.myGroups = myGroups;
 

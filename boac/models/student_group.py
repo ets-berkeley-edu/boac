@@ -104,4 +104,5 @@ class StudentGroup(Base):
             'ownerId': self.owner_id,
             'name': self.name,
             'students': [student.to_api_json() for student in self.students],
+            'studentCount': len(self.students),
         }
