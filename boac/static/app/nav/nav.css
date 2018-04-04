@@ -1,3 +1,17 @@
+.group-create-form-name {
+  font-size: 16px;
+  padding: 0 10px 10px 10px;
+}
+
+.group-create-input-name {
+  border: 1px solid #d9d9d9;
+  border-color: #66afe9;
+  border-radius: 4px;
+  box-sizing: border-box;
+  padding: 10px 10px 10px 10px;
+  width: 100%;
+}
+
 .footer-container {
   align-items: flex-start;
   align-self: end;
@@ -81,7 +95,7 @@
   flex: 3 0 0;
 }
 
-.sidebar-cohort-pill {
+.sidebar-pill {
   background-color: #8bbdda;
   border-radius: 10px;
   color: #125704;
@@ -129,9 +143,9 @@
   -moz-outline-style: none;
 }
 
-.sidebar-row-link:hover .sidebar-cohort-pill,
-.sidebar-row-link:focus .sidebar-cohort-pill,
-.sidebar-row-link:active .sidebar-cohort-pill {
+.sidebar-row-link:hover .sidebar-pill,
+.sidebar-row-link:focus .sidebar-pill,
+.sidebar-row-link:active .sidebar-pill {
   background-color: #f0ad4e;
   color: #083456;
 }

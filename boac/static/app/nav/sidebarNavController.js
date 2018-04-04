@@ -64,10 +64,30 @@
       });
     });
 
-    $rootScope.$on('addOrRemoveMyGroup', function() {
-      studentGroupFactory.getMyStudentGroups(function(myGroups) {
-        $scope.myGroups = myGroups;
+    var addToStudentCount = function(groupId, addValue) {
+      _.each($scope.myGroups, function(group) {
+        if (group.id === data.groupId) {
+          group.studentCount += addValue;
+        }
       });
+    };
+
+    $rootScope.$on('studentGroupCreated', function(event, data) {
+      $scope.myGroups.append(data.group);
+    });
+
+    $rootScope.$on('studentGroupDeleted', function(event, data) {
+      $scope.myGroups = _.remove($scope.myGroups, function(group) {
+        return data.groupId !== group.id;
+      });
+    });
+
+    $rootScope.$on('addStudentToGroup', function(event, data) {
+      addToStudentCount(data.groupId, 1);
+    });
+
+    $rootScope.$on('removeStudentFromGroup', function(event, data) {
+      addToStudentCount(data.groupId, -1);
     });
   });
 

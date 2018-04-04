@@ -15,7 +15,7 @@
                              data-ng-if="myPrimaryGroup.students.length"></sortable-alerts-table>
     </div>
     <div>
-      <h1 class="page-section-header">My Cohorts</h1>
+      <h1 class="page-section-header">Cohorts</h1>
       <div data-ng-if="!myCohorts.length">
         <div class="home-alert">
           You have no saved cohorts.
@@ -23,12 +23,31 @@
         </div>
       </div>
       <div data-ng-repeat="cohort in myCohorts" data-ng-if="myCohorts.length">
-        <h2 class="home-label-cohort">
-          <a data-ng-bind="cohort.label" data-ng-href="/cohort?c={{cohort.id}}"></a>
-          (<span data-ng-bind="cohort.totalMemberCount"></span>)
+        <h2 class="page-section-header">
+          <a id="home-cohort-{{$index}}"
+             data-ng-bind="cohort.label"
+             data-ng-href="/cohort?c={{cohort.id}}"></a> (<span data-ng-bind="cohort.totalMemberCount"></span>)
         </h2>
         <sortable-alerts-table data-group="cohort.alerts"
                                data-ng-if="cohort.alerts.students.length"></sortable-alerts-table>
+      </div>
+    </div>
+    <div>
+      <h1 class="page-section-header">Groups</h1>
+      <div data-ng-if="!myGroups.length">
+        <div class="home-alert">
+          You have no groups.
+          <a data-ng-href="/cohort?c=new">Create a new group.</a>
+        </div>
+      </div>
+      <div data-ng-repeat="group in myGroups" data-ng-if="myGroups.length">
+        <h2 class="page-section-header">
+          <a id="home-group-{{$index}}"
+             data-ng-bind="group.name"
+             data-ng-href="/group/{{group.id}}"></a> (<span data-ng-bind="group.students.length"></span>)
+        </h2>
+        <sortable-alerts-table data-group="group"
+                               data-ng-if="group.students.length"></sortable-alerts-table>
       </div>
     </div>
   </div>
