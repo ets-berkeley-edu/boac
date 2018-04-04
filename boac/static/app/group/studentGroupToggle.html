@@ -9,10 +9,5 @@
   <i class="{{faSize}}"
      data-ng-class="{'fa fa-minus-circle': inGroup, 'fa fa-plus-circle': !inGroup}"
      data-ng-if="faSize !== 'text'"></i>
-  <span class="sr-only"
-        data-ng-bind="buttonAltText"
-        data-ng-if="faSize !== 'text'"></span>
-  <span data-ng-if="inGroup && faSize === 'text'">
-    remove
-  </span>
+  <span class="sr-only" data-ng-bind="buttonAltText"></span>
 </button>
