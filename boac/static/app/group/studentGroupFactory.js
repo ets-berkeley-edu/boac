@@ -33,19 +33,19 @@
 
     var addStudentToGroup = function(groupId, sid) {
       return $http.get('/api/group/' + groupId + '/add_student/' + sid).then(function() {
-        $rootScope.$broadcast('studentGroupAddStudent', {groupId: groupId, sid: sid});
+        $rootScope.$broadcast('addOrRemoveStudentInMyGroup', {groupId: groupId, sid: sid});
       });
     };
 
     var createStudentGroup = function(name) {
       return $http.post('/api/group/create', {name: name}).then(function(group) {
-        $rootScope.$broadcast('studentGroupCreate', {group: group});
+        $rootScope.$broadcast('addOrRemoveMyGroup', {group: group});
       });
     };
 
     var deleteStudentGroup = function(id) {
       return $http.delete('/api/group/delete/' + id).then(function() {
-        $rootScope.$broadcast('studentGroupDelete', {groupId: id});
+        $rootScope.$broadcast('addOrRemoveMyGroup', {groupId: id});
       });
     };
 
@@ -63,7 +63,7 @@
 
     var removeStudentFromGroup = function(groupId, sid) {
       return $http.delete('/api/group/' + groupId + '/remove_student/' + sid).then(function() {
-        $rootScope.$broadcast('studentGroupRemoveStudent', {groupId: groupId, sid: sid});
+        $rootScope.$broadcast('addOrRemoveStudentInMyGroup', {groupId: groupId, sid: sid});
       });
     };
 

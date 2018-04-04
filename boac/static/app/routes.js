@@ -145,7 +145,7 @@
         reloadOnSearch: false
       });
 
-  }).run(function(authFactory, $rootScope, $state) {
+  }).run(function(authFactory, authService, $rootScope, $state) {
     $rootScope.$on('$stateChangeStart', function(e, toState) {
       if (toState && toState.name) {
         var name = toState.name.replace(/([A-Z])/g, ' $1');

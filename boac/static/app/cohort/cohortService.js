@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').service('cohortService', function(cohortFactory, config) {
+  angular.module('boac').service('cohortService', function(cohortFactory, config, utilService) {
 
     var drawScatterplot = function(students, yAxisMeasure, goToUserPage) {
       var svg;
@@ -293,8 +293,32 @@
       });
     };
 
+    var decorateCohortAlerts = function(cohort) {
+      if (cohort.alerts.length) {
+        cohort.alerts = {
+          isCohortAlerts: true,
+          students: utilService.extendSortableNames(cohort.alerts),
+          sortBy: 'sortableName',
+          reverse: false
+        };
+      }
+    };
+
+    var loadMyCohorts = function(callback) {
+      cohortFactory.getMyCohorts().then(function(cohortsResponse) {
+        var myCohorts = [];
+        _.each(cohortsResponse.data, function(cohort) {
+          decorateCohortAlerts(cohort);
+          myCohorts.push(cohort);
+        });
+        return callback(myCohorts);
+      });
+    };
+
     return {
+      decorateCohortAlerts: decorateCohortAlerts,
       drawScatterplot: drawScatterplot,
+      loadMyCohorts: loadMyCohorts,
       validateCohortLabel: validateCohortLabel
     };
 

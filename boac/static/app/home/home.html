@@ -7,7 +7,7 @@
   </div>
   <div class="home-content" data-ng-if="!isLoading">
     <div>
-      <h1 class="home-label-section">My Students</h1>
+      <h1 class="page-section-header">My Students</h1>
       <div data-ng-if="!myPrimaryGroup.students.length">
         <div>You have no students in your list. Add students from their profile pages.</div>
       </div>
@@ -15,7 +15,7 @@
                              data-ng-if="myPrimaryGroup.students.length"></sortable-alerts-table>
     </div>
     <div>
-      <h1 class="home-label-section">My Cohorts</h1>
+      <h1 class="page-section-header">My Cohorts</h1>
       <div data-ng-if="!myCohorts.length">
         <div class="home-alert">
           You have no saved cohorts.

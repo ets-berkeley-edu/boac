@@ -27,48 +27,34 @@
 
   'use strict';
 
-  angular.module('boac').controller('SidebarNavController', function(
-    cohortService,
-    config,
-    me,
-    studentGroupFactory,
-    $rootScope,
-    $scope
-  ) {
-    var init = function() {
-      $scope.demoMode = config.demoMode;
-      $scope.myCohorts = me.myCohorts;
-      $scope.myGroups = me.myGroups;
-      $scope.myPrimaryGroup = me.myPrimaryGroup;
-      $scope.truncate = _.truncate;
+  angular.module('boac').service('studentGroupService', function(studentGroupFactory, utilService) {
+
+    var loadMyStudentGroups = function(callback) {
+      studentGroupFactory.getMyStudentGroups().then(function(response) {
+        var groups = response.data;
+        var myPrimaryGroup = null;
+        var myGroups = [];
+        _.each(groups, function(group) {
+          var decoratedGroup = {
+            id: group.id,
+            name: group.name,
+            students: utilService.extendSortableNames(group.students),
+            sortBy: 'sortableName',
+            reverse: false
+          };
+          if (group.name === 'My Students') {
+            myPrimaryGroup = decoratedGroup;
+          } else {
+            myGroups.push(group);
+          }
+        });
+        return callback(myPrimaryGroup, myGroups);
+      });
     };
 
-    init();
-
-    $rootScope.$on('cohortCreated', function(event, data) {
-      var cohort = cohortService.decorateCohortAlerts(data.cohort);
-      $scope.myCohorts.push(cohort);
-    });
-
-    $rootScope.$on('cohortDeleted', function(event, data) {
-      $scope.myCohorts = _.remove($scope.myCohorts, function(cohort) {
-        return cohort.id !== data.cohort.id;
-      });
-    });
-
-    $rootScope.$on('cohortUpdated', function(event, data) {
-      _.each($scope.myCohorts, function(cohort) {
-        if (cohort.id === data.cohort.id) {
-          cohort.label = data.cohort.label;
-        }
-      });
-    });
-
-    $rootScope.$on('addOrRemoveMyGroup', function() {
-      studentGroupFactory.getMyStudentGroups(function(myGroups) {
-        $scope.myGroups = myGroups;
-      });
-    });
+    return {
+      loadMyStudentGroups: loadMyStudentGroups
+    };
   });
 
 }(window.angular));

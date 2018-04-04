@@ -185,10 +185,19 @@
       });
     };
 
+    var extendSortableNames = function(students) {
+      return _.map(students, function(student) {
+        return _.extend(student, {
+          sortableName: student.lastName + ', ' + student.firstName
+        });
+      });
+    };
+
     return {
       anchorScroll: anchorScroll,
       camelCaseToDashes: camelCaseToDashes,
       constructReturnToLabel: constructReturnToLabel,
+      extendSortableNames: extendSortableNames,
       decorateOptions: decorateOptions,
       format: format,
       getEncodedAbsUrl: getEncodedAbsUrl,

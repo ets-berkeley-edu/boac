@@ -112,8 +112,8 @@ def update_cohort():
     cohort = get_cohort_owned_by(params['id'], uid)
     if not cohort:
         raise BadRequestError('Cohort does not exist or is not owned by {}'.format(uid))
-    CohortFilter.update(cohort_id=cohort['id'], label=label)
-    return tolerant_jsonify({'message': 'Cohort updated (label: {})'.format(label)}), 200
+    cohort = CohortFilter.update(cohort_id=cohort['id'], label=label)
+    return tolerant_jsonify(cohort)
 
 
 @app.route('/api/cohort/delete/<cohort_id>', methods=['DELETE'])

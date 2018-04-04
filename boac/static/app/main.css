@@ -91,22 +91,6 @@
   justify-content: center;
 }
 
-.flex-row-wrap {
-  flex-flow: wrap;
-}
-
-.flex-row-wrap div:first-child {
-  margin-right: 10px;
-}
-
-.flex-row-wrap div:last-child {
-  margin-right: 150px;
-}
-
-.flex-row-wrap-separator {
-  margin: 30px 0 30px 0;
-}
-
 .flex-space-between {
   justify-content: space-between;
 }
@@ -147,10 +131,10 @@
 }
 
 .index-container-sidebar {
-  background-color: #083456;
+  background-color: #125074;
   flex: 0 0 200px;
   height: inherit;
-  padding: 10px 0 0 20px;
+  padding: 3px 0 0 0;
 }
 
 .loading-spinner-large {
@@ -173,6 +157,12 @@
 
 .no-wrap {
   white-space: nowrap;
+}
+
+.page-section-header {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 .return-to-url {
