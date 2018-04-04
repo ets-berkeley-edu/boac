@@ -107,8 +107,11 @@
         id: id,
         label: label
       };
-      return $http.post('/api/cohort/update', args).then(function() {
+      return $http.post('/api/cohort/update', args).then(function(response) {
         $rootScope.$broadcast('myCohortsUpdated');
+        $rootScope.$broadcast('cohortUpdated', {
+          cohort: response.data
+        });
       });
     };
 

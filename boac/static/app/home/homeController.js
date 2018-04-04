@@ -29,66 +29,23 @@
 
   angular.module('boac').controller('HomeController', function(
     cohortFactory,
+    cohortService,
     config,
     studentGroupFactory,
+    studentGroupService,
     $rootScope,
     $scope
   ) {
 
-    var extendSortableNames = function(students) {
-      return _.map(students, function(student) {
-        return _.extend(student, {
-          sortableName: student.lastName + ', ' + student.firstName
-        });
-      });
-    };
-
-    var loadMyCohorts = function(callback) {
-      cohortFactory.getMyCohorts().then(function(cohortsResponse) {
-        $rootScope.myCohorts = [];
-
-        _.each(cohortsResponse.data, function(cohort) {
-          if (cohort.alerts.length) {
-            cohort.alerts = {
-              isCohortAlerts: true,
-              students: extendSortableNames(cohort.alerts),
-              sortBy: 'sortableName',
-              reverse: false
-            };
-          }
-          $rootScope.myCohorts.push(cohort);
-        });
-        return callback();
-      });
-    };
-
-    var loadMyStudentGroups = function(callback) {
-      studentGroupFactory.getMyStudentGroups().then(function(response) {
-        var groups = response.data;
-        $rootScope.myGroups = [];
-        _.each(groups, function(group) {
-          var decoratedGroup = {
-            id: group.id,
-            name: group.name,
-            students: extendSortableNames(group.students),
-            sortBy: 'sortableName',
-            reverse: false
-          };
-          if (group.name === 'My Students') {
-            $rootScope.myPrimaryGroup = decoratedGroup;
-          } else {
-            $rootScope.myGroups.push(group);
-          }
-        });
-        return callback();
-      });
-    };
-
     var init = function() {
       $scope.isLoading = true;
 
-      loadMyStudentGroups(function() {
-        loadMyCohorts(function() {
+      studentGroupService.loadMyStudentGroups(function(myPrimaryGroup, myGroups) {
+        $scope.myPrimaryGroup = myPrimaryGroup;
+        $scope.myGroups = myGroups;
+
+        cohortService.loadMyCohorts(function(myCohorts) {
+          $scope.myCohorts = myCohorts;
           $scope.isLoading = false;
         });
       });
@@ -96,7 +53,8 @@
 
     $rootScope.$on('myCohortsUpdated', function() {
       $scope.isLoading = true;
-      loadMyCohorts(function() {
+      cohortService.loadMyCohorts(function(myCohorts) {
+        $scope.myCohorts = myCohorts;
         $scope.isLoading = false;
       });
     });

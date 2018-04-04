@@ -105,6 +105,7 @@
   align-items: stretch;
   display: flex;
   flex-flow: wrap;
+  padding: 0 10px 0 10px;
 }
 
 .cohort-filter-criteria > div {
@@ -174,13 +175,32 @@
   margin: 0 0 0 5px;
 }
 
+.cohort-manage-btn-link {
+  padding: 1px 0 1px 0;
+}
+
 .cohort-manage-label {
+  padding-left: 10px;
   width: 70%;
 }
 
 .cohort-manage-text-input {
   flex: 1;
   min-width: 200px;
+  padding-left: 10px;
+}
+
+.cohort-manage-row {
+  flex-flow: wrap;
+  padding: 10px 10px 5px 0;
+}
+
+.cohort-manage-row div:first-child {
+  margin-right: 10px;
+}
+
+.cohort-manage-row-separator {
+  margin: 10px 0 10px 0;
 }
 
 .cohort-missing-student-data {
@@ -201,6 +221,11 @@
 
 .cohort-sort-label {
   padding: 5px 10px 0 0;
+}
+
+.container-manage-cohorts {
+  padding: 0 20px 0 20px;
+  width: 100%;
 }
 
 .filters-section-separator {

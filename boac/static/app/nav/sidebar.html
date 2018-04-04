@@ -1,69 +1,97 @@
-<h2 class="sidebar-header no-wrap">
-  <img class="sidebar-header-icon" src="/static/app/nav/sidebar-icon-students.svg">
-  My Students
-</h2>
-
-<div class="sidebar-text no-wrap"
-     data-ng-repeat="student in myPrimaryGroup.students"
-     data-ng-if="myPrimaryGroup.students.length">
-  <a data-ng-class="{'demo-mode-blur': demoMode}"
-     data-ng-href="/student/{{student.uid}}">
-    {{truncate(student.name, {length:20, omission: '...'})}}
-  </a>
-  <i class="fa fa-exclamation-circle sidebar-student-alert" data-ng-if="student.alertCount"></i>
+<div class="sidebar-section-header sidebar-row-without-link">
+  <h2 class="sidebar-header">
+    <img class="sidebar-header-icon" src="/static/app/nav/sidebar-icon-students.svg">
+    My Students
+  </h2>
 </div>
-
-<h2 class="sidebar-header no-wrap">
-  <img class="sidebar-header-icon" src="/static/app/nav/sidebar-icon-cohorts.svg">
-  Cohorts <span class="sidebar-text" data-ng-if="myCohorts.length">(<a href="/cohorts/manage">Manage</a>)</span>
-</h2>
-
-<div class="sidebar-text">
-  <a data-ui-sref="cohort({c: 'new', i: null})"
-     data-ui-sref-opts="{reload: true}"><i class="fa fa-plus"></i> Create Cohort</a>
-</div>
-
-<div class="sidebar-text" data-ng-repeat="cohort in myCohorts">
-  <div class="no-wrap">
-    <a data-ui-sref="cohort({c: cohort.id, i: null})"
-       data-ui-sref-opts="{reload: true}">
-      {{truncate(cohort.label, {length:20, omission: '...'})}}
+<div id="sidebar-student-{{$index}}"
+     class="sidebar-row-link"
+     data-ng-repeat="student in myPrimaryGroup.students">
+  <span class="sidebar-row-link-label">
+    <a data-ng-class="{'demo-mode-blur': demoMode}"
+       data-ng-href="/student/{{student.uid}}">
+      {{truncate(student.name, {length:20, omission: '...'})}}
     </a>
-    <span class="sidebar-cohort-pill"
-         data-ng-bind="cohort.totalMemberCount"
-         data-ng-if="cohort.totalMemberCount"></span>
+    <i class="fa fa-exclamation-circle sidebar-student-alert" data-ng-if="student.alertCount"></i>
+  </span>
+</div>
+
+<div data-ng-class="{'sidebar-row-link': myCohorts.length, 'sidebar-row-without-link': !myCohorts.length}"
+     class="sidebar-section-header">
+  <h2 class="sidebar-header sidebar-row-link-label">
+      <img class="sidebar-header-icon" src="/static/app/nav/sidebar-icon-cohorts.svg">
+      Cohorts <span class="sidebar-manage-link" data-ng-if="myCohorts.length">(<a id="sidebar-cohorts-manage" href="/cohorts/manage">Manage</a>)</span>
+  </h2>
+</div>
+<div class="sidebar-row-link">
+  <span class="sidebar-row-link-label">
+    <a id="sidebar-cohort-create"
+       data-ui-sref="cohort({c: 'new', i: null})"
+       data-ui-sref-opts="{reload: true}"><i class="fa fa-plus"></i> Create Cohort</a>
+  </span>
+</div>
+<div class="sidebar-row-link" data-ng-repeat="cohort in myCohorts">
+  <div class="sidebar-row-link-label">
+    <a id="sidebar-cohort-{{$index}}"
+       data-ui-sref="cohort({c: cohort.id, i: null})"
+       data-ui-sref-opts="{reload: true}">
+      {{truncate(cohort.label, {length:18, omission: '...'})}}
+    </a>
+    <span id="sidebar-cohort-{{$index}}-count"
+          class="sidebar-cohort-pill"
+          data-ng-bind="cohort.totalMemberCount"></span>
   </div>
 </div>
 
 <hr class="sidebar-section-divider"/>
 
-<div class="sidebar-text">
-  <a href="/cohorts/teams">Teams List</a>
+<div class="sidebar-row-link">
+  <span class="sidebar-row-link-label">
+    <a id="sidebar-teams-link" href="/cohorts/teams">Team List</a>
+  </span>
 </div>
-<div class="sidebar-text">
-  <a data-ui-sref="cohort({c: null, inactive: null, i: true})"
-     data-ui-sref-opts="{reload: true}">Intensive</a>
+<div class="sidebar-row-link">
+  <span class="sidebar-row-link-label">
+    <a id="sidebar-cohort-intensive"
+       data-ui-sref="cohort({c: null, inactive: null, i: true})"
+       data-ui-sref-opts="{reload: true}">Intensive</a>
+  </span>
 </div>
-<div class="sidebar-text">
-  <a data-ui-sref="cohort({c: null, i: null, inactive: true})"
-     data-ui-sref-opts="{reload: true}">Inactive</a>
+<div class="sidebar-row-link">
+  <span class="sidebar-row-link-label">
+    <a id="sidebar-cohort-inactive"
+       data-ui-sref="cohort({c: null, i: null, inactive: true})"
+       data-ui-sref-opts="{reload: true}">Inactive</a>
+  </span>
 </div>
-<div class="sidebar-text">
-  <a href="/cohorts/all">Everyone's Cohorts</a>
+<div class="sidebar-row-link">
+  <span class="sidebar-row-link-label">
+    <a id="sidebar-cohorts-all" href="/cohorts/all">Everyone's Cohorts</a>
+  </span>
 </div>
 
-<h2 class="sidebar-header no-wrap">
-  <img class="sidebar-header-icon" src="/static/app/nav/sidebar-icon-groups.svg">
-  Groups <span class="sidebar-text" data-ng-if="myGroups.length">(<a href="/groups/manage">Manage</a>)</span>
-</h2>
-<div class="sidebar-text">
-  <a data-ui-sref="group({c: 'new', i: null})"
-     data-ui-sref-opts="{reload: true}"><i class="fa fa-plus"></i> Create Group</a>
+<div data-ng-class="{'sidebar-row-link': myGroups.length, 'sidebar-row-without-link': !myGroups.length}"
+     class="sidebar-section-header">
+  <h2 class="sidebar-header">
+    <img class="sidebar-header-icon" src="/static/app/nav/sidebar-icon-groups.svg">
+    Groups <span class="sidebar-manage-link" data-ng-if="myGroups.length">(<a id="sidebar-groups-manage" href="/groups/manage">Manage</a>)</span>
+  </h2>
 </div>
-<div class="sidebar-text no-wrap"
+<div class="sidebar-row-link">
+  <span class="sidebar-row-link-label">
+    <a id="sidebar-group-create" href><i class="fa fa-plus"></i> Create Group</a>
+  </span>
+</div>
+<div class="sidebar-row-link"
      data-ng-repeat="group in myGroups">
-  <a data-ng-class="{'demo-mode-blur': demoMode}"
-     data-ng-href="/group/{{group.id}}">
-    {{truncate(group.name, {length:20, omission: '...'})}}
-  </a>
+  <div class="sidebar-row-link-label">
+    <a id="sidebar-group-{{$index}}"
+       data-ng-class="{'demo-mode-blur': demoMode}"
+       data-ng-href="/group/{{group.id}}">
+      {{truncate(group.name, {length:18, omission: '...'})}}
+    </a>
+    <span id="sidebar-group-{{$index}}-count"
+          class="sidebar-group-pill"
+          data-ng-bind="group.totalMemberCount"></span>
+  </div>
 </div>

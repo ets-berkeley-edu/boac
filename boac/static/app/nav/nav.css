@@ -1,5 +1,5 @@
 .footer-container {
-  align-items: center;
+  align-items: flex-start;
   align-self: end;
   display: flex;
   flex-direction: row;
@@ -17,7 +17,7 @@
 
 .footer-copyright {
   display: inline-block;
-  margin: 10px 20px 0 20px;
+  margin: 0 20px 0 20px;
   text-align: right;
   white-space: nowrap;
 }
@@ -99,7 +99,8 @@
   color: #fff;
   font-size: 16px;
   font-weight: 600;
-  margin: 10px 0 2px 0;
+  margin: 1px 0 1px 0;
+  white-space: nowrap;
 }
 
 .sidebar-header-icon {
@@ -109,12 +110,59 @@
   margin: 0 2px 4px 0;
 }
 
+.sidebar-row-link {
+  border-left: 6px solid #125074;
+  color: #8bbdda;
+  font-size: 16px;
+  line-height: 1.4em;
+  padding: 1px 1px 1px 0;
+}
+
+.sidebar-row-link:hover,
+.sidebar-row-link:focus,
+.sidebar-row-link:active {
+  border-left: 6px solid #f0ad4e !important;
+  background-color: #083456;
+  border: 0;
+  color: #f0ad4e;
+  text-decoration: none;
+  -moz-outline-style: none;
+}
+
+.sidebar-row-link:hover .sidebar-cohort-pill,
+.sidebar-row-link:focus .sidebar-cohort-pill,
+.sidebar-row-link:active .sidebar-cohort-pill {
+  background-color: #f0ad4e;
+  color: #083456;
+}
+
+.sidebar-row-link a:link,
+.sidebar-row-link a:visited {
+  text-decoration: none;
+  border: 0;
+  color: inherit;
+  -moz-outline-style: none;
+}
+
+.sidebar-row-link-label {
+  padding-left: 8px;
+  white-space: nowrap;
+}
+
+.sidebar-row-without-link {
+  margin-left: 14px;
+}
+
 .sidebar-section-divider {
   background-color: #4a90e2;
   border: none;
   color: #4a90e2;
   height: 1px;
-  margin: 5px 5px 5px 0;
+  margin: 10px 10px 10px 15px;
+}
+
+.sidebar-section-header {
+  margin-top: 10px;
 }
 
 .sidebar-student-alert {
@@ -125,24 +173,8 @@
   padding: 3px 0 0 1px;
 }
 
-.sidebar-text {
+.sidebar-manage-link {
   color: #8bbdda;
   font-size: 16px;
   line-height: 1.4em;
-}
-
-.sidebar-text a:link,
-.sidebar-text a:visited {
-  text-decoration: none;
-  border: 0;
-  -moz-outline-style: none;
-}
-
-.sidebar-text a:hover,
-.sidebar-text a:focus,
-.sidebar-text a:active {
-  color: #fff;
-  text-decoration: none;
-  border: 0;
-  -moz-outline-style: none;
 }
