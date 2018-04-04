@@ -25,6 +25,7 @@
 
 .home-container {
   padding: 0 0 0 20px;
+  width: 100%;
 }
 
 .home-content {
@@ -61,63 +62,102 @@
   font-size: 16px;
 }
 
-.home-list {
-  list-style: none;
-  padding: 0;
-}
-
-.home-list li {
+.home-label-cohort {
   font-size: 16px;
-  line-height: 1.6em;
-}
-
-.home-list-cohort-wrapper {
-  margin-bottom: 15px;
-}
-
-.home-my-cohorts-label {
   font-weight: bold;
   margin-bottom: 10px;
 }
 
-.home-table {
-  margin-bottom: 15px;
-  table-layout: fixed;
+.home-label-section {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
-.home-table-header th {
+.group-summary-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.group-summary-flex-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.group-summary-column-header {
   color: #999;
   font-size: 12px;
   font-weight: bold;
-  padding: 0 20px 5px 0;
   text-transform: uppercase;
 }
 
-.home-table-header-issues {
+.group-summary-header-issues {
   width: 60px;
 }
 
-.home-table-header-name {
-  width: 200px;
+.group-summary-column {
+  padding: 0 5px 0 8px;
 }
 
-.home-table-header-remove {
-  width: 60px;
+.group-summary-column-01 {
+  flex: 1;
 }
 
-.home-table-header-sid {
-  width: 120px;
+.group-summary-column-02 {
+  flex: 6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.home-table-header-sortable {
+.group-summary-column-03 {
+  flex: 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.group-summary-column-04 {
+  flex: 4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.group-summary-column-05 {
+  flex: 3;
+  line-height: 1.4em;
+  overflow-wrap: normal;
+  padding: 0 2px 0 2px;
+  text-align: center;
+}
+
+.group-summary-column-06 {
+  flex: 3;
+  line-height: 1.4em;
+  overflow-wrap: normal;
+  text-align: center;
+}
+
+.group-summary-column-07 {
+  flex: 3;
+  text-align: center;
+}
+
+.group-summary-column-08 {
+  flex: 3;
+  text-align: right;
+  text-align: center;
+}
+
+.group-summary-header-sortable {
   cursor: pointer;
 }
 
-.home-table-row {
+.group-summary-row {
   font-size: 16px;
   line-height: 1.6em;
-}
-
-.home-table-row td {
-  padding-right: 20px;
 }

@@ -76,15 +76,12 @@
     <script async src='https://www.google-analytics.com/analytics.js'></script>
 
     <div data-ng-if="angularStateName !== 'splash'">
-      <div class="index-container-header"
-           data-ui-view="header"></div>
+      <div class="index-container-header" data-ui-view="header"></div>
       <div class="index-container-body">
-        <div class="index-container-sidebar"
-             data-ui-view="sidebar"></div>
+        <div class="index-container-sidebar" data-ui-view="sidebar"></div>
         <div class="index-container-content">
-          <div class="body-text"
-               data-ui-view="content"></div>
-          <div data-ui-view="footer"></div>
+          <div class="body-text" data-ui-view="content"></div>
+          <div class="index-container-footer" data-ui-view="footer"></div>
         </div>
       </div>
     </div>
