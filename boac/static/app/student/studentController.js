@@ -33,6 +33,7 @@
     courseFactory,
     googleAnalyticsService,
     me,
+    studentGroupFactory,
     studentFactory,
     studentService,
     utilService,
@@ -71,10 +72,16 @@
       return _.get($scope.student, 'sisProfile.preferredName') || _.get($scope.student, 'canvasProfile.name');
     };
 
-    $scope.goToCourse = function(event, termId, sectionId) {
-      event.stopPropagation();
-      var name = config.demoMode ? null : getPreferredName();
-      utilService.goTo('/course/' + termId + '/' + sectionId, name);
+    var identifyGroupsThatIncludeStudent = function(myGroups, student) {
+      _.each(myGroups, function(group) {
+        _.each(group.students, function(groupStudent) {
+          group.selected = student.sid === groupStudent.sid;
+          if (group.selected) {
+            // Break from loop
+            return false;
+          }
+        });
+      });
     };
 
     var loadStudent = function(uid, callback) {
@@ -82,6 +89,7 @@
       var preferredName = null;
       studentFactory.analyticsPerUser(uid).then(function(analytics) {
         $scope.student = analytics.data;
+        identifyGroupsThatIncludeStudent($scope.myGroups, $scope.student);
         preferredName = getPreferredName();
 
         courseFactory.getSectionIdsPerTerm().then(function(response) {
@@ -133,6 +141,24 @@
 
       }).then(callback);
     };
+
+    $scope.groupCheckboxClick = function(group) {
+      if (group.selected) {
+        studentGroupFactory.addStudentToGroup(group.id, $scope.student.sid).then(angular.noop);
+      } else {
+        studentGroupFactory.removeStudentFromGroup(group.id, $scope.student.sid).then(angular.noop);
+      }
+    };
+
+    $scope.goToCourse = function(event, termId, sectionId) {
+      event.stopPropagation();
+      var name = config.demoMode ? null : getPreferredName();
+      utilService.goTo('/course/' + termId + '/' + sectionId, name);
+    };
+
+    $rootScope.$on('studentGroupCreated', function(event, data) {
+      $scope.myGroups.push(data.group);
+    });
 
     var init = function() {
       var args = _.clone($location.search());
