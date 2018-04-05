@@ -44,10 +44,6 @@
   width: 100px;
 }
 
-.profile-body {
-  display: flex;
-}
-
 .profile-boxplot {
   height: 18px;
   width: 75px;
@@ -174,93 +170,10 @@
   font-weight: bold;
 }
 
-.profile-header {
-  background-color: #eee;
-  display: flex;
-  margin: 0;
-}
-
-.profile-header-contact {
-  margin: 20px 0;
-  flex: 1;
-}
-
-.profile-header-name {
-  font-size: 24px;
-  margin: 0 0 5px 0;
-}
-
-.profile-header-name-preferred {
-  font-size: 20px;
-  font-weight: 400;
-  margin: 0 0 10px 0;
-}
-
-.profile-header-status-box {
-  background: #fff;
-  border: solid 1px #999;
-  border-radius: 10px;
-  font-size: 20px;
-  font-weight: 400;
-  margin: 15 10px;
-  padding: 10px 15px;
-  text-align: center;
-}
-
-.profile-header-status-box-units {
-  display: flex;
-}
-
-.profile-header-status-legend {
-  color: #999;
-  font-size: 13px;
-  font-weight: 300;
-  text-transform: uppercase;
-}
-
-.profile-header-status-legend-units {
-  color: #000;
-  font-weight: 600;
-  padding-left: 5px;
-  text-align: left;
-}
-
-.profile-header-status-number {
-  font-size: 42px;
-  line-height: 1.2em;
-}
-
-.profile-sidebar {
-  margin: 10px 10px 0 0;
-}
-
-.profile-sidebar-box {
-  background-color: #eee;
-  border: 1px solid #ccc;
-  margin-bottom: 20px;
-  padding: 10px 10px 20px 10px;
-  width: 250px;
-}
-
 .profile-sidebar-details {
   color: #999;
   font-size: 14px;
   margin-bottom: 10px;
-}
-
-.profile-sidebar-header {
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0 0 5px 0;
-}
-
-.profile-sidebar-header-team {
-  margin-bottom: 10px;
-}
-
-.profile-sidebar-icon {
-  color: #999;
-  padding-right: 4px;
 }
 
 .profile-sidebar-inactive {
@@ -273,22 +186,6 @@
   font-style: italic;
   margin-top: 10px;
   text-align: center;
-}
-
-.profile-sidebar-table {
-  font-size: 12px;
-  line-height: 1.2em;
-  margin: 10px 0;
-  width: 100%;
-}
-
-.profile-sidebar-table td {
-  padding: 3px 0;
-  white-space: nowrap;
-}
-
-.profile-sidebar-table th {
-  padding: 15px 0 3px 0;
 }
 
 .profile-term {

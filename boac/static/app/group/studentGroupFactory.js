@@ -38,8 +38,8 @@
     };
 
     var createStudentGroup = function(name) {
-      return $http.post('/api/group/create', {name: name}).then(function(group) {
-        $rootScope.$broadcast('studentGroupCreated', {group: group});
+      return $http.post('/api/group/create', {name: name}).then(function(response) {
+        $rootScope.$broadcast('studentGroupCreated', {group: response.data});
       });
     };
 

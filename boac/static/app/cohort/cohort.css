@@ -223,6 +223,20 @@
   padding: 5px 10px 0 0;
 }
 
+.cohort-student-bio-container {
+  flex: 0.8;
+  margin-left: 20px;
+  min-width: 200px;
+}
+
+.cohort-student-name-container {
+  display: flex;
+}
+
+.cohort-student-name-container div:first-child {
+  flex-basis: 70%;
+}
+
 .container-manage-cohorts {
   padding: 0 20px 0 20px;
   width: 100%;

@@ -139,6 +139,7 @@ def user_analytics(uid):
         merge_analytics_for_user(term['unmatchedCanvasSites'], uid, student.sid, canvas_id, term_id)
 
     return tolerant_jsonify({
+        'sid': student.sid,
         'uid': uid,
         'athleticsProfile': athletics_profile,
         'canvasProfile': canvas_profile,

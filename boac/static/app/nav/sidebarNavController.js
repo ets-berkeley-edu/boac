@@ -66,14 +66,14 @@
 
     var addToStudentCount = function(groupId, addValue) {
       _.each($scope.myGroups, function(group) {
-        if (group.id === data.groupId) {
+        if (group.id === groupId) {
           group.studentCount += addValue;
         }
       });
     };
 
     $rootScope.$on('studentGroupCreated', function(event, data) {
-      $scope.myGroups.append(data.group);
+      $scope.myGroups.push(data.group);
     });
 
     $rootScope.$on('studentGroupDeleted', function(event, data) {
