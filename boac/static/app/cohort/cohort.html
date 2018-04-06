@@ -90,7 +90,51 @@
   <div class="cohort-column-results">
     <div class="flex-container flex-space-between"
          data-ng-if="!isLoading && !error && (tab === 'matrix' || cohort.totalMemberCount)">
-
+      <div data-ng-if="tab === 'list'">
+        <div class="student-group-checkbox-add-all">
+          <input id="student-group-checkbox-add-all"
+                 type="checkbox"
+                 data-ng-model="studentGroupForm.addAll"
+                 data-ng-click="toggleAllStudentCheckboxes()"/>
+        </div>
+      </div>
+      <div>
+        <div class="btn-group student-group-btn-group"
+             uib-dropdown
+             is-open="studentGroupForm.isOpen"
+             data-ng-if="studentGroupForm.showGroupsMenu">
+          <button id="add-to-group-button"
+                  type="button"
+                  class="btn btn-primary"
+                  uib-dropdown-toggle
+                  ng-disabled="studentGroupForm.disabled">
+            Add to Group <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu student-group-all-menu"
+              uib-dropdown-menu
+              role="menu"
+              aria-labelledby="add-to-group-button">
+            <li role="menuitem"
+                class="student-group-checkbox-item"
+                data-ng-repeat="group in allGroups track by $index">
+              <input id="student-group-checkbox-{{$index}}"
+                     class=""
+                     type="checkbox"
+                     data-ng-model="group.selected"
+                     data-ng-click="groupCheckboxClick(group)"
+                     aria-labelledby="group-name-{{$index}}"/>
+              <span id="group-name-{{$index}}" class="student-group-checkbox-name" data-ng-bind="group.name"></span>
+            </li>
+            <li class="divider"></li>
+            <li role="menuitem"
+                data-ng-controller="CreateStudentGroupController">
+              <a id="group-create"
+                 href
+                 data-ng-click="openCreateGroupModal()"><i class="fa fa-plus"></i> Create New Group</a>
+            </li>
+          </ul>
+        </div>
+      </div>
       <div data-ng-include="'/static/app/shared/tabs.html'"></div>
 
       <div class="cohort-sort-column" data-ng-if="tab === 'list'">
@@ -105,12 +149,17 @@
     <div data-ng-show="tab === 'list'"
          data-ng-if="!isLoading && !error && cohort.totalMemberCount">
       <ul id="cohort-members-list" class="list-group">
-        <a class="list-group-item student-list-item"
+        <div class="list-group-item student-list-item"
            data-ng-class="{'list-group-item-info': anchor===student.uid}"
-           id="{{student.uid}}"
-           href
-           data-ng-click="goToStudent(student.uid)"
            data-ng-repeat="student in cohort.members">
+
+          <div class="cohort-list-view-column-00">
+            <div class="student-checkbox-add-to-group">
+              <input id="student-{{student.sid}}-checkbox-add-to-group"
+                     type="checkbox"
+                     data-ng-model="student.checkboxSelected" data-ng-click="selectStudentCheckbox(student)"/>
+            </div>
+          </div>
 
           <div class="cohort-list-view-column-01">
             <img class="student-avatar student-avatar-large"
@@ -121,16 +170,15 @@
           <div class="cohort-student-bio-container">
             <div class="cohort-student-name-container">
               <div>
-                <h3 class="student-name"
-                    data-ng-class="{'demo-mode-blur': demoMode}"
-                    data-ng-if="orderBy.selected !== 'first_name'">
-                  {{student.lastName}}, {{student.firstName}}
-                </h3>
-              </div>
-              <div>
-                <student-group-toggle data-sid="student.sid"
-                                      data-fa-size="fa-1x"
-                                      data-group="myPrimaryGroup"></student-group-toggle>
+                <a id="{{student.uid}}"
+                   href
+                   data-ng-click="goToStudent(student.uid)">
+                  <h3 class="student-name"
+                      data-ng-class="{'demo-mode-blur': demoMode}"
+                      data-ng-if="orderBy.selected !== 'first_name'">
+                    {{student.lastName}}, {{student.firstName}}
+                  </h3>
+                </a>
               </div>
             </div>
             <div class="student-sid"
@@ -190,7 +238,7 @@
               </div>
             </div>
           </div>
-        </a>
+        </div>
       </ul>
       <ul uib-pagination
           direction-links="false"

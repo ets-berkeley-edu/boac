@@ -84,6 +84,13 @@ class StudentGroup(Base):
         std_commit()
 
     @classmethod
+    def add_students(cls, group_id, sids):
+        group = cls.query.filter_by(id=group_id).first()
+        for sid in sids:
+            group.students.append(Student.find_by_sid(sid))
+        std_commit()
+
+    @classmethod
     def remove_student(cls, group_id, sid):
         student = Student.find_by_sid(sid)
         if student:
