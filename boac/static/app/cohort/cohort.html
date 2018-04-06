@@ -5,7 +5,7 @@
   <div data-ng-if="error">
     <h1>Error</h1>
     <div>
-      Sorry, there was an error retrieving cohort data.
+      Sorry, there was an error retrieving data.
       <span class="faint-text" data-ng-if="error.message">(<span data-ng-bind="error.message"></span>)</span>
     </div>
   </div>
@@ -150,8 +150,8 @@
          data-ng-if="!isLoading && !error && cohort.totalMemberCount">
       <ul id="cohort-members-list" class="list-group">
         <div class="list-group-item student-list-item"
-           data-ng-class="{'list-group-item-info': anchor===student.uid}"
-           data-ng-repeat="student in cohort.members">
+             data-ng-class="{'list-group-item-info': anchor===student.uid}"
+             data-ng-repeat="student in cohort.members">
 
           <div class="cohort-list-view-column-00">
             <div class="student-checkbox-add-to-group">

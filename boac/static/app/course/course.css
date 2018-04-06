@@ -37,6 +37,10 @@
 }
 
 .course-container {
+  padding: 0 10px 0 10px;
+}
+
+.course-container-inner {
   display: flex;
   flex-direction: column;
   line-height: 1em;

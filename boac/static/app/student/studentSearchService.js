@@ -23,86 +23,30 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-.matrix {
-  border: 1px solid #999;
-  height: 500px;
-  margin-bottom: 60px;
-  width: 910px;
-}
+(function(angular) {
 
-.matrix .dot {
-  cursor: pointer;
-  stroke: #000;
-}
+  'use strict';
 
-.matrix .overlay {
-  fill: none;
-  pointer-events: all;
-  cursor: ew-resize;
-}
+  angular.module('boac').service('studentSearchService', function() {
 
-.matrix-axis path,
-.matrix-axis line {
-  fill: none;
-  stroke: rgba(0, 0, 0, 0.1);
-  shape-rendering: crispEdges;
-}
+    var getSortByOptionsForSearch = function() {
+      return {
+        options: [
+          {name: 'First Name', value: 'first_name'},
+          {name: 'Last Name', value: 'last_name'},
+          {name: 'Team', value: 'group_name'},
+          {name: 'GPA', value: 'gpa'},
+          {name: 'Level', value: 'level'},
+          {name: 'Major', value: 'major'},
+          {name: 'Units', value: 'units'}
+        ],
+        selected: 'last_name'
+      };
+    };
 
-.matrix-axis text {
-  display: none;
-}
+    return {
+      getSortByOptionsForSearch: getSortByOptionsForSearch
+    };
+  });
 
-.matrix-axis-label {
-  font-size: 16px;
-  font-weight: 200;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  stroke: #999;
-}
-
-.matrix-container {
-  margin: 0 10px 100px 20px;
-  margin-bottom: 100px;
-  position: relative;
-}
-
-.matrix-header {
-  margin: 5px 20px 10px 0;
-}
-
-.matrix-svg {
-  overflow: visible !important;
-}
-
-.matrix-tooltip {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  color: #666;
-  line-height: 1.4em;
-  opacity: 1;
-  padding: 5px 10px;
-  position: absolute;
-  text-align: left;
-  width: 240px;
-}
-
-.matrix-tooltip-header {
-  color: #49b;
-  font-size: 14px;
-  font-weight: bold;
-  margin: 0 0 5px;
-}
-
-.matrix-tooltip-table td {
-  font-size: 12px;
-}
-
-.matrix-tooltip-label {
-  padding: 0 10px 2px 0;
-}
-
-.matrix-tooltip-value {
-  font-weight: bold;
-  padding: 0 0 2px 0;
-}
+}(window.angular));
