@@ -58,7 +58,7 @@
       } else {
         $scope.isSaving = true;
         // Get values where selected=true
-        studentGroupFactory.createStudentGroup($scope.name).then(
+        studentGroupFactory.createGroup($scope.name).then(
           function() {
             $scope.isSaving = false;
             $uibModalInstance.close();

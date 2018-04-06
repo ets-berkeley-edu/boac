@@ -35,7 +35,7 @@
 
       // @see https://docs.angularjs.org/guide/directive#isolating-the-scope-of-a-directive
       scope: {
-        sid: '=',
+        student: '=',
         group: '='
       },
 
@@ -43,10 +43,10 @@
 
       link: function(scope, elem, attrs) {
         scope.faSize = attrs.faSize;
-        scope.inGroup = !!_.find(scope.group.students, ['sid', scope.sid]);
+        scope.inGroup = !!_.find(scope.group.students, ['sid', scope.student.sid]);
 
         var buttonAltText = function() {
-          return scope.inGroup ? 'Remove student ' + scope.sid + ' from my list' : 'Add student ' + scope.sid + ' to my list';
+          return scope.inGroup ? 'Remove student ' + scope.student.sid + ' from my list' : 'Add student ' + scope.student.sid + ' to my list';
         };
         var buttonLabel = function() {
           return scope.inGroup ? 'remove from My List' : 'add to My List';
@@ -63,19 +63,21 @@
           scope.inGroup = !scope.inGroup;
           scope.buttonLabel = buttonLabel();
           scope.buttonAltText = buttonAltText();
-          updateGroup(scope.group.id, scope.sid).then(function() {
+          updateGroup(scope.group.id, scope.student).then(function() {
             return false;
           });
         };
 
         $rootScope.$on('studentGroupAddStudent', function(event, data) {
-          if (data.sid === scope.sid) {
+          var student = data.student;
+          if (student.sid === scope.student.sid) {
             scope.inGroup = true;
           }
         });
 
         $rootScope.$on('studentGroupRemoveStudent', function(event, data) {
-          if (data.sid === scope.sid) {
+          var student = data.student;
+          if (student.sid === scope.student.sid) {
             scope.inGroup = false;
           }
         });
