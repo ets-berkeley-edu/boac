@@ -245,3 +245,28 @@
 .filters-section-separator {
   margin: 0;
 }
+
+.student-checkbox-add-to-group {
+  padding: 10px;
+}
+
+.student-group-btn-group {
+  padding: 10px;
+}
+
+.student-group-checkbox-add-all {
+  background-color: #eee;
+  padding: 20px;
+}
+
+.student-group-checkbox-item {
+  padding: 10px;
+}
+
+.student-group-checkbox-name {
+  padding: 10px;
+}
+
+.student-group-all-menu {
+  padding: 10px;
+}

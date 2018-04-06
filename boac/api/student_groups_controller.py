@@ -61,7 +61,7 @@ def add_student_to_group(group_id, sid):
     if group.owner_id != current_user.id:
         raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own group {group.id}')
     StudentGroup.add_student(group.id, sid)
-    return tolerant_jsonify({'message': f'SID {sid} added to group \'{group_id}\' of UID {current_user.uid}'}), 200
+    return tolerant_jsonify({'message': f'SID {sid} added to group \'{group_id}\''}), 200
 
 
 @app.route('/api/group/delete/<group_id>', methods=['DELETE'])
@@ -99,6 +99,23 @@ def remove_student_from_group(group_id, sid):
 def my_groups():
     groups = StudentGroup.get_groups_by_owner_id(current_user.id)
     return tolerant_jsonify(_decorate_groups([g.to_api_json() for g in groups]))
+
+
+@app.route('/api/group/students/add', methods=['POST'])
+@login_required
+def add_students_to_group():
+    params = request.get_json()
+    group_id = params.get('groupId')
+    sids = params.get('sids')
+    if not group_id or not len(sids):
+        raise BadRequestError('The required parameters are \'groupId\' and \'sids\'.')
+    group = StudentGroup.find_by_id(group_id)
+    if not group:
+        raise ResourceNotFoundError(f'No group found where id={group_id}')
+    if group.owner_id != current_user.id:
+        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own group {group.id}')
+    StudentGroup.add_students(group_id, sids)
+    return tolerant_jsonify({'message': f'Successfully added students to group \'{group_id}\''}), 200
 
 
 def _decorate_groups(groups):

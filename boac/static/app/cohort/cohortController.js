@@ -34,6 +34,7 @@
     googleAnalyticsService,
     me,
     studentFactory,
+    studentGroupFactory,
     utilService,
     $anchorScroll,
     $base64,
@@ -66,8 +67,7 @@
     $scope.demoMode = config.demoMode;
     $scope.isLoading = true;
     $scope.isCreateCohortMode = false;
-    $scope.myPrimaryGroup = me.myPrimaryGroup;
-    $scope.myGroups = me.myGroups;
+    $scope.allGroups = _.concat(me.myPrimaryGroup, me.myGroups);
     $scope.showIntensiveCheckbox = false;
     $scope.showInactiveCheckbox = false;
     $scope.tab = 'list';
@@ -117,6 +117,85 @@
       currentPage: 1,
       itemsPerPage: 50,
       noLimit: Number.MAX_SAFE_INTEGER
+    };
+
+    $scope.studentGroupForm = {
+      addAll: false,
+      isOpen: false,
+      showGroupsMenu: false
+    };
+
+    /**
+     * Show or hide the student-groups menu based on page state.
+     *
+     * @return {void}
+     */
+    var updateShowGroupsMenu = function() {
+      if ($scope.studentGroupForm.addAll) {
+        $scope.studentGroupForm.showGroupsMenu = true;
+      } else {
+        $scope.studentGroupForm.showGroupsMenu = !!_.find($scope.cohort.members, 'checkboxSelected');
+      }
+    };
+
+    /**
+     * Toggle the all-student-groups checkbox.
+     *
+     * @param  {Boolean}    value      If true, select all students in current page view.
+     * @return {void}
+     */
+    var toggleAllStudentCheckboxes = $scope.toggleAllStudentCheckboxes = function(value) {
+      var selected = _.isNil(value) ? $scope.studentGroupForm.addAll : value;
+      _.each($scope.cohort.members, function(student) {
+        student.checkboxSelected = selected;
+      });
+      $scope.studentGroupForm.addAll = selected;
+      updateShowGroupsMenu();
+      $scope.studentGroupForm.showGroupsMenu = selected;
+    };
+
+    /**
+     * Click on checkbox of an individual student.
+     *
+     * @param  {Student}    student      Student checkbox has been toggled.
+     * @return {void}
+     */
+    $scope.selectStudentCheckbox = function(student) {
+      if (student.checkboxSelected) {
+        var allStudentsSelected = true;
+        _.each($scope.cohort.members, function(member) {
+          if (!member.checkboxSelected) {
+            // We found a checkbox not checked. The 'all' checkbox must be false.
+            allStudentsSelected = false;
+            // Break out of loop.
+            return false;
+          }
+        });
+        $scope.studentGroupForm.addAll = allStudentsSelected;
+      } else {
+        $scope.studentGroupForm.addAll = false;
+      }
+      updateShowGroupsMenu();
+    };
+
+    /**
+     * Add selected students to the group provided and then reset all student-group related menus.
+     *
+     * @param  {Group}    group      Students will be added to this group.
+     * @return {void}
+     */
+    $scope.groupCheckboxClick = function(group) {
+      var students = _.filter($scope.cohort.members, 'checkboxSelected');
+      if (students.length) {
+        var sids = _.map(students, 'sid');
+        studentGroupFactory.addStudentsToGroup(group.id, sids).then(function() {
+          $scope.studentGroupForm.showGroupsMenu = false;
+          $scope.studentGroupForm.addAll = false;
+          _.each($scope.cohort.members, function(member) {
+            member.checkboxSelected = false;
+          });
+        });
+      }
     };
 
     /**
@@ -538,6 +617,7 @@
       $scope.showIntensiveCheckbox = false;
       $scope.showInactiveCheckbox = false;
       $scope.search.dropdown = defaultDropdownState();
+      toggleAllStudentCheckboxes(false);
       // Refresh search results
       $scope.cohort.code = 'search';
       $rootScope.pageTitle = 'Search';
@@ -664,6 +744,10 @@
         });
       });
     };
+
+    $rootScope.$on('studentGroupCreated', function(event, data) {
+      $scope.allGroups.push(data.group);
+    });
 
     /**
      * Reload page with newly created cohort.

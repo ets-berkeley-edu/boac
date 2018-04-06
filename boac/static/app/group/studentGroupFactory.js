@@ -31,6 +31,18 @@
 
   boac.factory('studentGroupFactory', function(googleAnalyticsService, utilService, $http, $rootScope) {
 
+    var addStudentsToGroup = function(groupId, sids) {
+      var args = {
+        groupId: groupId,
+        sids: sids
+      };
+      return $http.post('/api/group/students/add', args).then(function() {
+        _.each(sids, function(sid) {
+          $rootScope.$broadcast('addStudentToGroup', {groupId: groupId, sid: sid});
+        });
+      });
+    };
+
     var addStudentToGroup = function(groupId, sid) {
       return $http.get('/api/group/' + groupId + '/add_student/' + sid).then(function() {
         $rootScope.$broadcast('addStudentToGroup', {groupId: groupId, sid: sid});
@@ -68,6 +80,7 @@
     };
 
     return {
+      addStudentsToGroup: addStudentsToGroup,
       addStudentToGroup: addStudentToGroup,
       createStudentGroup: createStudentGroup,
       deleteStudentGroup: deleteStudentGroup,

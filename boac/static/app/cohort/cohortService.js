@@ -294,7 +294,7 @@
     };
 
     var decorateCohortAlerts = function(cohort) {
-      if (cohort.alerts.length) {
+      if (cohort.alerts && cohort.alerts.length) {
         cohort.alerts = {
           isCohortAlerts: true,
           students: utilService.extendSortableNames(cohort.alerts),
