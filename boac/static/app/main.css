@@ -23,6 +23,16 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+.page-not-found-background-image {
+  background: url(/static/app/shared/404_lost_in_the_clouds.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  height: 100%;
+  width: 100%;
+}
+
 .demo-mode-blur {
   color: transparent !important;
   text-shadow: 0 0 15px rgba(0, 0, 0, 0.5) !important;
