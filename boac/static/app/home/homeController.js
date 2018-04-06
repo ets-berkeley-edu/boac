@@ -35,6 +35,8 @@
     $scope
   ) {
 
+    $scope.demoMode = config.demoMode;
+
     var init = function() {
       $scope.isLoading = true;
 

@@ -132,6 +132,11 @@
         views: standardLayout('CourseController', '/static/app/course/course.html'),
         resolve: resolvePrivate
       })
+      .state('group', {
+        url: '/group/:id',
+        views: standardLayout('GroupController', '/static/app/group/group.html'),
+        resolve: resolvePrivate
+      })
       .state('home', {
         url: '/home',
         views: standardLayout('HomeController', '/static/app/home/home.html'),

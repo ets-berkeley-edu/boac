@@ -24,7 +24,7 @@
  */
 
 .all-cohorts-container {
-  padding: 0 0 0 20px;
+  padding: 0 10px 0 10px;
 }
 
 .cohort-boxplot {
@@ -84,7 +84,7 @@
 }
 
 .cohort-container {
-  padding: 10px 0 0 10px;
+  padding: 0 10px 0 10px;
 }
 
 .cohort-create-form-label {

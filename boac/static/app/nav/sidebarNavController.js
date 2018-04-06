@@ -46,13 +46,14 @@
     init();
 
     $rootScope.$on('cohortCreated', function(event, data) {
-      var cohort = cohortService.decorateCohortAlerts(data.cohort);
+      var cohort = data.cohort;
+      cohortService.decorateCohortAlerts(cohort);
       $scope.myCohorts.push(cohort);
     });
 
     $rootScope.$on('cohortDeleted', function(event, data) {
       $scope.myCohorts = _.remove($scope.myCohorts, function(cohort) {
-        return cohort.id !== data.cohort.id;
+        return cohort && (cohort.id !== data.cohort.id);
       });
     });
 

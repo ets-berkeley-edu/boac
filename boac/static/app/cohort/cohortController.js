@@ -29,15 +29,15 @@
 
   angular.module('boac').controller('CohortController', function(
     cohortFactory,
-    cohortService,
     config,
     googleAnalyticsService,
     me,
     studentFactory,
     studentGroupFactory,
+    studentSearchService,
     utilService,
+    visualizationService,
     $anchorScroll,
-    $base64,
     $location,
     $rootScope,
     $scope
@@ -98,18 +98,7 @@
       }
     };
 
-    $scope.orderBy = {
-      options: [
-        {name: 'First Name', value: 'first_name'},
-        {name: 'Last Name', value: 'last_name'},
-        {name: 'Team', value: 'group_name'},
-        {name: 'GPA', value: 'gpa'},
-        {name: 'Level', value: 'level'},
-        {name: 'Major', value: 'major'},
-        {name: 'Units', value: 'units'}
-      ],
-      selected: 'last_name'
-    };
+    $scope.orderBy = studentSearchService.getSortByOptionsForSearch();
 
     // More info: https://angular-ui.github.io/bootstrap/
     $scope.pagination = {
@@ -455,30 +444,6 @@
     };
 
     /**
-     * Draw scatterplot graph.
-     *
-     * @param  {Object}      response       Data from backend API
-     * @return {void}
-     */
-    var scatterplotRefresh = function() {
-      // Plot the cohort
-      var yAxisMeasure = $scope.yAxisMeasure = $location.search().yAxis || 'analytics.courseCurrentScore';
-      var partitions = _.partition($scope.cohort.members, function(member) {
-        return _.isFinite(_.get(member, 'analytics.pageViews.percentile')) &&
-          _.isFinite(_.get(member, yAxisMeasure + '.percentile'));
-      });
-      // Pass along a subset of students that have useful data.
-      cohortService.drawScatterplot(partitions[0], yAxisMeasure, function(uid) {
-        $location.state($location.absUrl());
-        goToStudent(uid);
-        // Because intervening cohortService code moves out of Angular and into d3, administer the extra kick of $apply.
-        $scope.$apply();
-      });
-      // List of students-without-data is rendered below the scatterplot.
-      $scope.studentsWithoutData = partitions[1];
-    };
-
-    /**
      * Get ALL students of the cohort then render the scatterplot graph.
      *
      * @param  {Function}    callback      Standard callback function
@@ -488,7 +453,17 @@
       $scope.isLoading = true;
       getCohort(null, 0, $scope.pagination.noLimit).then(function(response) {
         updateCohort(response.data);
-        scatterplotRefresh();
+        var goToUserPage = function(uid) {
+          $location.state($location.absUrl());
+          goToStudent(uid);
+          // The intervening visualizationService code moves out of Angular and into d3 thus the extra kick of $apply.
+          $scope.$apply();
+        };
+        visualizationService.scatterplotRefresh($scope.cohort.members, goToUserPage, function(yAxisMeasure, studentsWithoutData) {
+          $scope.yAxisMeasure = yAxisMeasure;
+          // List of students-without-data is rendered below the scatterplot.
+          $scope.studentsWithoutData = studentsWithoutData;
+        });
         return callback();
       }).catch(function(err) {
         $scope.error = utilService.parseError(err);

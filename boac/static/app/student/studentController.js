@@ -35,8 +35,9 @@
     me,
     studentGroupFactory,
     studentFactory,
-    studentService,
+    studentSearchService,
     utilService,
+    visualizationService,
     $location,
     $rootScope,
     $scope,
@@ -128,7 +129,7 @@
             studentFactory.getAlerts(athleticsProfile.sid).then(function(alerts) {
               $scope.alerts = alerts.data;
             });
-            studentService.showUnitsChart($scope.student);
+            visualizationService.showUnitsChart($scope.student);
           }
         }
         if (!config.demoMode) {
