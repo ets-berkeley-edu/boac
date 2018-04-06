@@ -79,7 +79,7 @@ def delete_group(group_id):
 def get_group(group_id):
     group = StudentGroup.find_by_id(group_id)
     if not group:
-        raise ResourceNotFoundError(f'No group found with id {group_id}')
+        raise ResourceNotFoundError(f'Sorry, no group found with id {group_id}.')
     decorated = _decorate_groups([group.to_api_json()])
     return tolerant_jsonify(decorated[0])
 

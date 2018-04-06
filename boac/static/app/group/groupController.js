@@ -90,6 +90,8 @@
         $scope.group = response.data;
         onTab(_.includes(['list', 'matrix'], args.v) ? args.v : 'list');
         $scope.isLoading = false;
+      }).catch(function(err) {
+        $scope.error = utilService.parseError(err);
       });
     };
 

@@ -120,7 +120,10 @@
     var parseError = function(error) {
       $rootScope.pageTitle = 'Error';
       var message = error.message || _.get(error, 'data.message') || error || 'An unexpected server error occurred.';
-      return _.truncate(message, {length: 200});
+      return {
+        status: error.status || 500,
+        message: _.truncate(message, {length: 200})
+      };
     };
 
     var unpackReturnUrl = function(anchorId) {
