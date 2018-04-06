@@ -31,6 +31,7 @@
     config,
     studentGroupFactory,
     studentSearchService,
+    utilService,
     visualizationService,
     $location,
     $scope,
@@ -39,7 +40,7 @@
 
     $scope.orderBy = studentSearchService.getSortByOptionsForSearch();
 
-    $scope.goToStudent = function(uid) {
+    var goToStudent = $scope.goToStudent = function(uid) {
       utilService.goTo('/student/' + uid, $scope.group.name);
     };
 

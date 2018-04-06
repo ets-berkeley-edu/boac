@@ -176,8 +176,7 @@
     $scope.groupCheckboxClick = function(group) {
       var students = _.filter($scope.cohort.members, 'checkboxSelected');
       if (students.length) {
-        var sids = _.map(students, 'sid');
-        studentGroupFactory.addStudentsToGroup(group.id, sids).then(function() {
+        studentGroupFactory.addStudentsToGroup(group.id, students).then(function() {
           $scope.studentGroupForm.showGroupsMenu = false;
           $scope.studentGroupForm.addAll = false;
           _.each($scope.cohort.members, function(member) {
@@ -720,7 +719,7 @@
       });
     };
 
-    $rootScope.$on('studentGroupCreated', function(event, data) {
+    $rootScope.$on('groupCreated', function(event, data) {
       $scope.allGroups.push(data.group);
     });
 

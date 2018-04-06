@@ -31,33 +31,33 @@
 
   boac.factory('studentGroupFactory', function(googleAnalyticsService, utilService, $http, $rootScope) {
 
-    var addStudentsToGroup = function(groupId, sids) {
+    var addStudentsToGroup = function(groupId, students) {
       var args = {
         groupId: groupId,
-        sids: sids
+        sids: _.map(students, 'sid')
       };
       return $http.post('/api/group/students/add', args).then(function() {
-        _.each(sids, function(sid) {
-          $rootScope.$broadcast('addStudentToGroup', {groupId: groupId, sid: sid});
+        _.each(students, function(student) {
+          $rootScope.$broadcast('addStudentToGroup', {groupId: groupId, student: student});
         });
       });
     };
 
-    var addStudentToGroup = function(groupId, sid) {
-      return $http.get('/api/group/' + groupId + '/add_student/' + sid).then(function() {
-        $rootScope.$broadcast('addStudentToGroup', {groupId: groupId, sid: sid});
+    var addStudentToGroup = function(groupId, student) {
+      return $http.get('/api/group/' + groupId + '/add_student/' + student.sid).then(function() {
+        $rootScope.$broadcast('addStudentToGroup', {groupId: groupId, student: student});
       });
     };
 
-    var createStudentGroup = function(name) {
+    var createGroup = function(name) {
       return $http.post('/api/group/create', {name: name}).then(function(response) {
-        $rootScope.$broadcast('studentGroupCreated', {group: response.data});
+        $rootScope.$broadcast('groupCreated', {group: response.data});
       });
     };
 
-    var deleteStudentGroup = function(id) {
+    var deleteGroup = function(id) {
       return $http.delete('/api/group/delete/' + id).then(function() {
-        $rootScope.$broadcast('studentGroupDeleted', {groupId: id});
+        $rootScope.$broadcast('groupDeleted', {groupId: id});
       });
     };
 
@@ -73,17 +73,17 @@
       return $http.get('/api/group/my_primary');
     };
 
-    var removeStudentFromGroup = function(groupId, sid) {
-      return $http.delete('/api/group/' + groupId + '/remove_student/' + sid).then(function() {
-        $rootScope.$broadcast('removeStudentFromGroup', {groupId: groupId, sid: sid});
+    var removeStudentFromGroup = function(groupId, student) {
+      return $http.delete('/api/group/' + groupId + '/remove_student/' + student.sid).then(function() {
+        $rootScope.$broadcast('removeStudentFromGroup', {groupId: groupId, student: student});
       });
     };
 
     return {
       addStudentsToGroup: addStudentsToGroup,
       addStudentToGroup: addStudentToGroup,
-      createStudentGroup: createStudentGroup,
-      deleteStudentGroup: deleteStudentGroup,
+      createGroup: createGroup,
+      deleteGroup: deleteGroup,
       getMyGroups: getMyGroups,
       getStudentGroup: getStudentGroup,
       getMyPrimaryGroup: getMyPrimaryGroup,
