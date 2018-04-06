@@ -97,7 +97,12 @@
     };
 
     // Default route
-    $urlRouterProvider.otherwise('/');
+    $urlRouterProvider.otherwise(function($injector, $location) {
+      $injector.get('authService').reloadMe().then(function(me) {
+        var uri = me && me.is_authenticated ? '/404' : '/';
+        $location.replace().path(uri);
+      });
+    });
 
     // Routes
     $stateProvider
@@ -141,6 +146,11 @@
       .state('user', {
         url: '/student/:uid?r',
         views: standardLayout('StudentController', '/static/app/student/student.html'),
+        resolve: resolvePrivate,
+        reloadOnSearch: false
+      }).state('404', {
+        url: '/404',
+        views: standardLayout(null, '/static/app/shared/404.html'),
         resolve: resolvePrivate,
         reloadOnSearch: false
       });
