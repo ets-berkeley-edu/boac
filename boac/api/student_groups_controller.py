@@ -118,6 +118,19 @@ def add_students_to_group():
     return tolerant_jsonify({'message': f'Successfully added students to group \'{group_id}\''}), 200
 
 
+@app.route('/api/group/update', methods=['POST'])
+@login_required
+def update_group():
+    params = request.get_json()
+    name = params['name']
+    if not name:
+        raise BadRequestError('Requested cohort label is empty or invalid')
+    group = StudentGroup.find_by_id(params['id'])
+    if not group or group.owner_id != current_user.id:
+        raise BadRequestError('Cohort does not exist or is not available to you')
+    return tolerant_jsonify(StudentGroup.update(group_id=group.id, name=name).to_api_json())
+
+
 def _decorate_groups(groups):
     for group in groups:
         member_details.merge_all(group['students'])

@@ -101,6 +101,16 @@ class TestStudentGroupsController:
         group = client.get(f'/api/group/{group_id}').json
         assert group['name'] == name
         assert not len(group['students'])
+        # Rename group
+        new_name = 'Teenage Wasteland'
+        response = client.post(
+            '/api/group/update',
+            data=json.dumps({'id': group_id, 'name': new_name}),
+            content_type='application/json',
+        )
+        assert response.status_code == 200
+        group = client.get(f'/api/group/{group_id}').json
+        assert group['name'] == new_name
         # Delete group
         response = client.delete(f'/api/group/delete/{group_id}')
         assert response.status_code == 200

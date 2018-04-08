@@ -27,33 +27,38 @@
 
   'use strict';
 
-  angular.module('boac').service('cohortService', function(cohortFactory, utilService) {
+  angular.module('boac').service('validationService', function($rootScope) {
 
-    var decorateCohortAlerts = function(cohort) {
-      if (cohort.alerts && cohort.alerts.length) {
-        cohort.alerts = {
-          isCohortAlerts: true,
-          students: utilService.extendSortableNames(cohort.alerts),
-          sortBy: 'sortableName',
-          reverse: false
-        };
-      }
+    var parseError = function(error) {
+      $rootScope.pageTitle = 'Error';
+      var message = error.message || _.get(error, 'data.message') || error || 'An unexpected server error occurred.';
+      return {
+        status: error.status || 500,
+        message: _.truncate(message, {length: 200})
+      };
     };
 
-    var loadMyCohorts = function(callback) {
-      cohortFactory.getMyCohorts().then(function(cohortsResponse) {
-        var myCohorts = [];
-        _.each(cohortsResponse.data, function(cohort) {
-          decorateCohortAlerts(cohort);
-          myCohorts.push(cohort);
+    var validateName = function(group, getGroupsFactoryFunction, callback) {
+      if (_.includes(['Intensive', 'Inactive'], group.name)) {
+        return callback('Sorry, \'' + group.name + '\' is a reserved name. Please choose a different name.');
+      }
+      var error = null;
+      getGroupsFactoryFunction().then(function(response) {
+        _.each(response.data, function(next) {
+          var validate = !group.id || group.id !== next.id;
+          if (validate && group.name === next.label) {
+            error = 'You have an existing cohort/group with this name. Please choose a different name.';
+            return false;
+          }
         });
-        return callback(myCohorts);
+      }).then(function() {
+        return callback(error);
       });
     };
 
     return {
-      decorateCohortAlerts: decorateCohortAlerts,
-      loadMyCohorts: loadMyCohorts
+      parseError: parseError,
+      validateName: validateName
     };
 
   });

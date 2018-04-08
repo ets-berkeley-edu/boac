@@ -65,7 +65,7 @@
       return $http.get('/api/groups/my');
     };
 
-    var getStudentGroup = function(id) {
+    var getGroup = function(id) {
       return $http.get('/api/group/' + id);
     };
 
@@ -79,13 +79,20 @@
       });
     };
 
+    var changeGroupName = function(groupId, name) {
+      return $http.post('/api/group/update', {id: groupId, name: name}).then(function(response) {
+        $rootScope.$broadcast('groupNameChanged', {group: response.data});
+      });
+    };
+
     return {
       addStudentsToGroup: addStudentsToGroup,
       addStudentToGroup: addStudentToGroup,
+      changeGroupName: changeGroupName,
       createGroup: createGroup,
       deleteGroup: deleteGroup,
+      getGroup: getGroup,
       getMyGroups: getMyGroups,
-      getStudentGroup: getStudentGroup,
       getMyPrimaryGroup: getMyPrimaryGroup,
       removeStudentFromGroup: removeStudentFromGroup
     };

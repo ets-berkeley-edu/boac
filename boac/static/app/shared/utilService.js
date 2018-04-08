@@ -117,15 +117,6 @@
       return words.join(' ');
     };
 
-    var parseError = function(error) {
-      $rootScope.pageTitle = 'Error';
-      var message = error.message || _.get(error, 'data.message') || error || 'An unexpected server error occurred.';
-      return {
-        status: error.status || 500,
-        message: _.truncate(message, {length: 200})
-      };
-    };
-
     var unpackReturnUrl = function(anchorId) {
       var disableBreadcrumb = true;
       if (disableBreadcrumb) {
@@ -208,7 +199,6 @@
       unpackReturnUrl: unpackReturnUrl,
       getValuesSelected: getValuesSelected,
       obfuscate: obfuscate,
-      parseError: parseError,
       toBoolOrNull: toBoolOrNull
     };
   });
