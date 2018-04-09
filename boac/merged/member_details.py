@@ -34,16 +34,16 @@ from flask import current_app as app
 """Helper utils for cohort controller."""
 
 
-def merge_all(member_feeds, term_id=None):
+def merge_all(member_feeds, term_id=None, include_analytics=True):
     if not term_id:
         term_name = app.config.get('CANVAS_CURRENT_ENROLLMENT_TERM')
         term_id = sis_term_id_for_name(term_name)
     for member_feed in member_feeds:
-        _merge(member_feed, term_id)
+        _merge(member_feed, term_id, include_analytics)
     return member_feeds
 
 
-def _merge(member_feed, term_id):
+def _merge(member_feed, term_id, include_analytics):
     uid = member_feed['uid']
     csid = member_feed['sid']
     cache_key = f'merged_data/{term_id}/{uid}'
@@ -53,6 +53,11 @@ def _merge(member_feed, term_id):
         if app.cache and data:
             app.cache.set(cache_key, data)
     if data:
+        if not include_analytics:
+            del data['analytics']
+            # The enrolled units count is the one piece of term data we want to preserve.
+            if data.get('term'):
+                data['term'] = {'enrolledUnits': data['term'].get('enrolledUnits')}
         member_feed.update(data)
     return member_feed
 

@@ -37,7 +37,7 @@ from flask_login import current_user, login_required
 @login_required
 def my_primary():
     group = StudentGroup.get_or_create_my_primary(current_user.id)
-    decorated = _decorate_groups([group.to_api_json()])
+    decorated = _decorate_groups([group.to_api_json()], include_analytics=True)
     return tolerant_jsonify(decorated[0])
 
 
@@ -80,7 +80,7 @@ def get_group(group_id):
     group = StudentGroup.find_by_id(group_id)
     if not group:
         raise ResourceNotFoundError(f'Sorry, no group found with id {group_id}.')
-    decorated = _decorate_groups([group.to_api_json()])
+    decorated = _decorate_groups([group.to_api_json()], include_analytics=True)
     return tolerant_jsonify(decorated[0])
 
 
@@ -98,7 +98,7 @@ def remove_student_from_group(group_id, sid):
 @login_required
 def my_groups():
     groups = StudentGroup.get_groups_by_owner_id(current_user.id)
-    return tolerant_jsonify(_decorate_groups([g.to_api_json() for g in groups]))
+    return tolerant_jsonify(_decorate_groups([g.to_api_json() for g in groups], include_analytics=False))
 
 
 @app.route('/api/group/students/add', methods=['POST'])
@@ -131,7 +131,7 @@ def update_group():
     return tolerant_jsonify(StudentGroup.update(group_id=group.id, name=name).to_api_json())
 
 
-def _decorate_groups(groups):
+def _decorate_groups(groups, include_analytics):
     for group in groups:
-        member_details.merge_all(group['students'])
+        member_details.merge_all(group['students'], include_analytics=include_analytics)
     return api_util.decorate_student_groups(current_user_id=current_user.id, groups=groups)
