@@ -189,10 +189,10 @@ def load_student_athletes():
         in_intensive_cohort=True,
     )
     create_student(
-        uid='2040',
+        uid='98765',
         sid='2345678901',
-        first_name='Oliver',
-        last_name='Heyer',
+        first_name='Frank',
+        last_name='Football',
         team_groups=[fdb, fdl],
         gpa='3.495',
         level='Junior',

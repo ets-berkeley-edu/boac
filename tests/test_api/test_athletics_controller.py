@@ -107,9 +107,8 @@ class TestAthletics:
         sid_list = [member['sid'] for member in members]
         assert ['2345678901', '5678901234', '3456789012'] == sid_list
         athlete = members[0]
-        assert athlete['firstName'] == 'Oliver'
-        assert athlete['lastName'] == 'Heyer'
-        assert athlete['uid'] == '2040'
+        assert athlete['name'] == 'Frank Football'
+        assert athlete['sid'] == '2345678901'
         assert athlete['inIntensiveCohort'] is False
 
     def test_includes_student_sis_data(self, authenticated_session, client):
