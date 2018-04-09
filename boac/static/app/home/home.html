@@ -7,7 +7,7 @@
   </div>
   <div class="home-content" data-ng-if="!isLoading">
     <div>
-      <h1 class="page-section-header">My Students</h1>
+      <h1 class="page-section-header"><a data-ng-href="/group/{{myPrimaryGroup.id}}">My Students</a></h1>
       <div data-ng-if="!myPrimaryGroup.students.length">
         <div>You have no students in your list. Add students from their profile pages.</div>
       </div>
