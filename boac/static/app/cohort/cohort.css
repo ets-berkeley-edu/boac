@@ -237,6 +237,24 @@
   flex-basis: 70%;
 }
 
+.cohort-tabs-container {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding-top: 20px;
+}
+
+.cohort-tabs-container-column-02 {
+  flex: 0 0 200px;
+  white-space: nowrap;
+}
+
+.cohort-tabs-container-column-03 {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
 .container-manage-cohorts {
   padding: 0 20px 0 20px;
   width: 100%;
@@ -244,29 +262,4 @@
 
 .filters-section-separator {
   margin: 0;
-}
-
-.student-checkbox-add-to-group {
-  padding: 10px;
-}
-
-.student-group-btn-group {
-  padding: 10px;
-}
-
-.student-group-checkbox-add-all {
-  background-color: #eee;
-  padding: 20px;
-}
-
-.student-group-checkbox-item {
-  padding: 10px;
-}
-
-.student-group-checkbox-name {
-  padding: 10px;
-}
-
-.student-group-all-menu {
-  padding: 10px;
 }

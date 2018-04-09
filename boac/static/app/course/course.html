@@ -34,6 +34,7 @@
           </div>
         </div>
         <div class="course-column-schedule">
+          <div class="course-term-name" data-ng-bind="section.termName"></div>
           <div data-ng-repeat="meeting in section.meetings"
                data-ng-if="section.meetings">
             <div id="meetings-{{$index}}" class="course-details-meetings">
@@ -56,14 +57,21 @@
       </div>
     </div>
     <div class="course-terms">
-      <h2 data-ng-bind="section.termName"></h2>
       <div data-ng-if="warning && warning.message">
         <div class="has-error"><i class="fa fa-exclamation-triangle"></i>
           Warning: <span data-ng-bind="warning.message"></span>
         </div>
       </div>
 
-      <div data-ng-include="'/static/app/shared/tabs.html'"></div>
+      <div class="course-tabs-container">
+        <div class="course-tabs-container-column-01">
+          <student-groups-selector data-students="section.students"
+                                   data-ng-if="tab === 'list'"></student-groups-selector>
+        </div>
+        <div class="course-tabs-container-column-02">
+          <div data-ng-include="'/static/app/shared/tabs.html'"></div>
+        </div>
+      </div>
 
       <div data-ng-show="tab === 'list'"
            data-ng-if="!isLoading && !error && section.students.length">
@@ -74,6 +82,7 @@
                data-ng-repeat="student in allRows = ['headerRow'].concat(section.students)">
 
             <!-- Headers -->
+            <div class="course-list-view-column-00 course-list-view-column-header" data-ng-if="$first"></div>
             <div class="course-list-view-column-01 course-list-view-column-header" data-ng-if="$first"></div>
             <div class="course-list-view-column-02 course-list-view-column-header" data-ng-if="$first"></div>
             <div class="course-list-view-column-03 course-list-view-column-header course-list-view-column-03-header" data-ng-if="$first">COURSE<div>SITE(S)</div></div>
@@ -82,6 +91,16 @@
             <div class="course-list-view-column-06 course-list-view-column-header" data-ng-if="$first">PAGE VIEWS</div>
             <div class="course-list-view-column-07 course-list-view-column-header" data-ng-if="$first">MID</div>
             <div class="course-list-view-column-08 course-list-view-column-header" data-ng-if="$first">FINAL</div>
+
+            <!-- Column -->
+            <div class="course-list-view-column-00">
+              <div class="student-checkbox-add-to-group">
+                <input id="student-{{student.sid}}-checkbox-add-to-group"
+                       type="checkbox"
+                       data-ng-click="checkboxForStudentGroupsSelector(student)"
+                       data-ng-model="student.selectedForStudentGroups"/>
+              </div>
+            </div>
 
             <!-- Column -->
             <div class="course-list-view-column-01" data-ng-if="!$first">

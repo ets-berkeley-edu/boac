@@ -88,61 +88,25 @@
   </div>
 
   <div class="cohort-column-results">
-    <div class="flex-container flex-space-between"
+    <div class="cohort-tabs-container"
          data-ng-if="!isLoading && !error && (tab === 'matrix' || cohort.totalMemberCount)">
-      <div data-ng-if="tab === 'list'">
-        <div class="student-group-checkbox-add-all">
-          <input id="student-group-checkbox-add-all"
-                 type="checkbox"
-                 data-ng-model="studentGroupForm.addAll"
-                 data-ng-click="toggleAllStudentCheckboxes()"/>
-        </div>
-      </div>
-      <div>
-        <div class="btn-group student-group-btn-group"
-             uib-dropdown
-             is-open="studentGroupForm.isOpen"
-             data-ng-if="studentGroupForm.showGroupsMenu">
-          <button id="add-to-group-button"
-                  type="button"
-                  class="btn btn-primary"
-                  uib-dropdown-toggle
-                  ng-disabled="studentGroupForm.disabled">
-            Add to Group <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu student-group-all-menu"
-              uib-dropdown-menu
-              role="menu"
-              aria-labelledby="add-to-group-button">
-            <li role="menuitem"
-                class="student-group-checkbox-item"
-                data-ng-repeat="group in allGroups track by $index">
-              <input id="student-group-checkbox-{{$index}}"
-                     type="checkbox"
-                     data-ng-model="group.selected"
-                     data-ng-click="groupCheckboxClick(group)"
-                     aria-labelledby="group-name-{{$index}}"/>
-              <span id="group-name-{{$index}}" class="student-group-checkbox-name" data-ng-bind="group.name"></span>
-            </li>
-            <li class="divider"></li>
-            <li role="menuitem"
-                data-ng-controller="CreateStudentGroupController">
-              <a id="group-create"
-                 href
-                 data-ng-click="openCreateGroupModal()"><i class="fa fa-plus"></i> Create New Group</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div data-ng-include="'/static/app/shared/tabs.html'"></div>
 
-      <div class="cohort-sort-column" data-ng-if="tab === 'list'">
-        <label class="cohort-sort-label" for="cohort-sort-by">Sort by</label>
-        <select id="cohort-sort-by"
-                class="form-control"
-                data-ng-model="orderBy.selected"
-                data-ng-options="o.value as o.name for o in orderBy.options">
-        </select>
+      <div class="cohort-tabs-container-column-01">
+        <student-groups-selector data-students="cohort.members"
+                                 data-ng-if="tab === 'list'"></student-groups-selector>
+      </div>
+      <div class="cohort-tabs-container-column-02">
+        <div data-ng-include="'/static/app/shared/tabs.html'"></div>
+      </div>
+      <div class="cohort-tabs-container-column-03">
+        <div class="cohort-sort-column" data-ng-if="tab === 'list'">
+          <label class="cohort-sort-label" for="cohort-sort-by">Sort by</label>
+          <select id="cohort-sort-by"
+                  class="form-control"
+                  data-ng-model="orderBy.selected"
+                  data-ng-options="o.value as o.name for o in orderBy.options">
+          </select>
+        </div>
       </div>
     </div>
     <div data-ng-show="tab === 'list'"
@@ -156,7 +120,8 @@
             <div class="student-checkbox-add-to-group">
               <input id="student-{{student.sid}}-checkbox-add-to-group"
                      type="checkbox"
-                     data-ng-model="student.checkboxSelected" data-ng-click="selectStudentCheckbox(student)"/>
+                     data-ng-click="checkboxForStudentGroupsSelector(student)"
+                     data-ng-model="student.selectedForStudentGroups"/>
             </div>
           </div>
 
