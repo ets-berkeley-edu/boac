@@ -1,0 +1,50 @@
+<div class="student-group-selector-container">
+  <div>
+    <div class="student-group-selector-checkbox">
+      <input id="student-group-checkbox-add-all"
+             class="student-group-selector-checkbox"
+             type="checkbox"
+             data-ng-model="studentGroupForm.allStudentsCheckboxToggle"
+             data-ng-click="toggleAllStudentCheckboxes()"/>
+    </div>
+  </div>
+  <div>
+    <div class="btn-group student-group-btn-group"
+         uib-dropdown
+         is-open="studentGroupForm.isOpen"
+         data-ng-if="studentGroupForm.showGroupsMenu">
+      <button id="add-to-group-button"
+              type="button"
+              class="btn btn-primary"
+              uib-dropdown-toggle
+              ng-disabled="studentGroupForm.disabled">
+        Add to Group <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu student-group-all-menu"
+          uib-dropdown-menu
+          role="menu"
+          aria-labelledby="add-to-group-button">
+        <li role="menuitem"
+            class="student-group-checkbox-item"
+            data-ng-repeat="group in myGroups track by $index">
+          <input id="student-{{student.sid}}-group-checkbox"
+                 type="checkbox"
+                 data-ng-model="group.selected"
+                 data-ng-click="groupCheckboxClick(group)"
+                 aria-labelledby="group-name-{{$index}}"/>
+          <span id="group-{{group.id}}-name"
+                aria-labelledby="student-{{student.sid}}-group-checkbox"
+                class="student-group-checkbox-name"
+                data-ng-bind="group.name"></span>
+        </li>
+        <li class="divider"></li>
+        <li role="menuitem"
+            data-ng-controller="CreateStudentGroupController">
+          <a id="group-create"
+             href
+             data-ng-click="openCreateGroupModal()"><i class="fa fa-plus"></i> Create New Group</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

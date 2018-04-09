@@ -198,6 +198,43 @@ select.form-control {
   width: 150px;
 }
 
+.student-checkbox-add-to-group {
+  padding: 10px;
+}
+
+.student-group-btn-group {
+  margin: 5px 20px 0 0;
+}
+
+.student-group-checkbox-item {
+  padding: 10px;
+}
+
+.student-group-checkbox-name {
+  padding: 10px;
+}
+
+.student-group-all-menu {
+  padding: 10px;
+}
+
+.student-group-selector-container {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.student-group-selector-checkbox {
+  background-color: #eee;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  flex: 0 0 36px;
+  margin: 5px 20px 0 0;
+  padding: 8px;
+  text-align: center;
+}
+
 .tab-button {
   background-color: #6bd;
   color: #fff;
