@@ -44,9 +44,9 @@ class TestStudents:
         """Includes multiple team memberships."""
         response = client.get('/api/students/all')
         assert response.status_code == 200
-        oliver_athletics = next(user['athletics'] for user in response.json if user['uid'] == '2040')
-        assert len(oliver_athletics) == 2
-        group_codes = [a['groupCode'] for a in oliver_athletics]
+        athletics = next(user['athletics'] for user in response.json if user['uid'] == '98765')
+        assert len(athletics) == 2
+        group_codes = [a['groupCode'] for a in athletics]
         assert 'MFB-DB' in group_codes
         assert 'MFB-DL' in group_codes
 
@@ -275,6 +275,7 @@ class TestUserAnalytics:
         response = client.get(TestUserAnalytics.non_student)
         assert response.status_code == 200
         assert response.json['uid'] == TestUserAnalytics.non_student_uid
+        assert not response.json['sid']
         assert not response.json['enrollmentTerms']
 
     def test_canvas_profile_not_found(self, authenticated_session, client):
