@@ -48,8 +48,8 @@
   angular.module('boac').controller('CreateCohortModal', function(
     opts,
     cohortFactory,
-    cohortService,
     utilService,
+    validationService,
     $rootScope,
     $scope,
     $uibModalInstance
@@ -61,14 +61,18 @@
     };
     $scope.create = function() {
       // The 'error.hide' flag allows us to hide validation error on-change of form input.
-      $scope.error.hide = false;
+      $scope.error = {
+        hide: false,
+        message: null
+      };
       $scope.label = _.trim($scope.label);
       if (_.isEmpty($scope.label)) {
         $scope.error.message = 'Required';
       } else if (_.size($scope.label) > 255) {
         $scope.error.message = 'Name must be 255 characters or fewer';
       } else {
-        cohortService.validateCohortLabel({label: $scope.label}, function(errorMessage) {
+        var proposedChange = {name: $scope.label};
+        validationService.validateName(proposedChange, cohortFactory.getMyCohorts, function(errorMessage) {
           $scope.error.message = errorMessage;
           if (!$scope.error.message) {
             $rootScope.isSaving = true;
