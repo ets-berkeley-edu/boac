@@ -37,6 +37,7 @@
     studentFactory,
     studentSearchService,
     utilService,
+    validationService,
     visualizationService,
     $location,
     $rootScope,
@@ -62,7 +63,7 @@
         Array.prototype.push.apply($scope.alerts.dismissed, dismissed);
       }).catch(function(error) {
         if (error) {
-          $scope.error = utilService.parseError(err);
+          $scope.error = validationService.parseError(err);
         } else {
           throw error;
         }
@@ -119,7 +120,7 @@
         });
 
       }).catch(function(err) {
-        $scope.error = utilService.parseError(err);
+        $scope.error = validationService.parseError(err);
 
       }).then(function() {
         var athleticsProfile = $scope.student.athleticsProfile;

@@ -77,6 +77,14 @@
       $scope.myGroups.push(data.group);
     });
 
+    $rootScope.$on('groupNameChanged', function(event, data) {
+      _.each($scope.myGroups, function(group) {
+        if (data.group.id === group.id) {
+          group.name = data.group.name;
+        }
+      });
+    });
+
     $rootScope.$on('groupDeleted', function(event, data) {
       $scope.myGroups = _.remove($scope.myGroups, function(group) {
         return data.groupId !== group.id;

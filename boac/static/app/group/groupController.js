@@ -32,6 +32,7 @@
     studentGroupFactory,
     studentSearchService,
     utilService,
+    validationService,
     visualizationService,
     $location,
     $scope,
@@ -81,15 +82,25 @@
       }
     };
 
+    $scope.removeFromGroup = function(student) {
+      studentGroupFactory.removeStudentFromGroup($scope.group.id, student).then(function() {
+        $scope.group.students = _.remove($scope.group.students, function(s) {
+          return s.sid !== student.sid;
+        });
+      });
+    };
+
     var init = function() {
       $scope.isLoading = true;
       var id = $stateParams.id;
       var args = _.clone($location.search());
 
-      studentGroupFactory.getStudentGroup(id).then(function(response) {
+      studentGroupFactory.getGroup(id).then(function(response) {
         $scope.group = response.data;
         onTab(_.includes(['list', 'matrix'], args.v) ? args.v : 'list');
         $scope.isLoading = false;
+      }).catch(function(err) {
+        $scope.error = validationService.parseError(err);
       });
     };
 

@@ -137,6 +137,11 @@
         views: standardLayout('GroupController', '/static/app/group/group.html'),
         resolve: resolvePrivate
       })
+      .state('groupsManage', {
+        url: '/groups/manage',
+        views: standardLayout('ManageGroupsController', '/static/app/group/manageGroups.html'),
+        resolve: resolvePrivate
+      })
       .state('home', {
         url: '/home',
         views: standardLayout('HomeController', '/static/app/home/home.html'),

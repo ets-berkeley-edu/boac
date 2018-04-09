@@ -102,7 +102,7 @@
       return $http.get('/api/team_groups/all');
     };
 
-    var updateCohort = function(id, label) {
+    var changeCohortName = function(id, label) {
       var args = {
         id: id,
         label: label
@@ -124,7 +124,7 @@
       getMyCohorts: getMyCohorts,
       getTeam: getTeam,
       getTeams: getTeams,
-      updateCohort: updateCohort
+      changeCohortName: changeCohortName
     };
   });
 

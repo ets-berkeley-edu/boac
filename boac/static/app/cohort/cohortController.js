@@ -36,6 +36,7 @@
     studentGroupFactory,
     studentSearchService,
     utilService,
+    validationService,
     visualizationService,
     $anchorScroll,
     $location,
@@ -184,6 +185,9 @@
           });
         });
       }
+      _.each($scope.allGroups, function(g) {
+        g.selected = false;
+      });
     };
 
     /**
@@ -299,7 +303,7 @@
         updateCohort(response.data);
         return callback();
       }).catch(function(err) {
-        $scope.error = utilService.parseError(err);
+        $scope.error = validationService.parseError(err);
         return callback(null);
       });
     };
@@ -465,7 +469,7 @@
         });
         return callback();
       }).catch(function(err) {
-        $scope.error = utilService.parseError(err);
+        $scope.error = validationService.parseError(err);
         return callback();
       });
     };
@@ -488,7 +492,7 @@
         };
 
         var handleError = function(err) {
-          $scope.error = utilService.parseError(err);
+          $scope.error = validationService.parseError(err);
         };
         var page = $scope.pagination.currentPage;
         var offset = page < 2 ? 0 : (page - 1) * $scope.pagination.itemsPerPage;

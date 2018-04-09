@@ -6,24 +6,26 @@
 
   <div data-ng-if="error">
     <h1>Error</h1>
-    <div>
-      Sorry, there was an error retrieving data.
-      <span class="faint-text" data-ng-if="error.message">(<span data-ng-bind="error.message"></span>)</span>
+    <div class="faint-text">
+      <span data-ng-bind="error.message" data-ng-if="error.message"></span>
+      <span data-ng-if="!error.message">Sorry, there was an error retrieving data.</span>
     </div>
   </div>
-  <div data-ng-if="!error && !isLoading && (group.studentCount >= 0)">
+  <div data-ng-if="!error && !isLoading">
     <h1 data-ng-if="group.name">
       <span data-ng-bind="group.name"></span>
-      <span class="faint-text">(<span data-ng-bind="group.studentCount"></span> members)</span>
+      <span class="faint-text">(<span data-ng-pluralize
+                                      count="group.students.length"
+                                      when="{'one': '1 Member', 'other': '{} Members'}"></span>)</span>
     </h1>
-    <h1 data-ng-if="!group.name">
-      <span data-ng-pluralize count="group.studentCount" when="{'one': '1 Result', 'other': '{} Results'}"></span>
-    </h1>
+    <div data-ng-if="!group.students.length">
+      This group has no students.
+    </div>
   </div>
 
   <div class="cohort-column-results" data-ng-show="!isLoading">
     <div class="flex-container flex-space-between"
-         data-ng-if="!isLoading && !error && (tab === 'matrix' || group.studentCount)">
+         data-ng-if="!isLoading && !error && (tab === 'matrix' || group.students.length)">
       <div data-ng-include="'/static/app/shared/tabs.html'"></div>
 
       <div class="cohort-sort-column" data-ng-if="tab === 'list'">
@@ -36,10 +38,16 @@
       </div>
     </div>
     <div data-ng-show="tab === 'list'" data-ng-if="!isLoading && !error && group.studentCount">
-      <ul id="group-students-list" class="list-group">
+      <div id="group-students-list" class="list-group">
         <div class="list-group-item student-list-item"
              data-ng-class="{'list-group-item-info': anchor===student.uid}"
-             data-ng-repeat="student in group.students">
+             data-ng-repeat="student in group.students track by $index">
+
+          <div class="cohort-list-view-column-01">
+            <i id="remove-student-{{student.sid}}-from-group"
+               class="fa fa-times-circle"
+               data-ng-click="removeFromGroup(student)"></i>
+          </div>
 
           <div class="cohort-list-view-column-01">
             <img class="student-avatar student-avatar-large"
@@ -118,14 +126,7 @@
             </div>
           </div>
         </div>
-      </ul>
-      <ul uib-pagination
-          direction-links="false"
-          items-per-page="pagination.itemsPerPage"
-          total-items="group.studentCount"
-          ng-model="pagination.currentPage"
-          data-ng-click="nextPage()"
-          data-ng-if="pagination.enabled && (group.studentCount > pagination.itemsPerPage)"></ul>
+      </div>
     </div>
     <div id="matrix-outer" data-ng-show="tab === 'matrix' && !isLoading && !error">
       <div data-ng-include="'/static/app/shared/matrix.html'"></div>

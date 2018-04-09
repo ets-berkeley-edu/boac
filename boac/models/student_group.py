@@ -99,6 +99,13 @@ class StudentGroup(Base):
             std_commit()
 
     @classmethod
+    def update(cls, group_id, name):
+        group = cls.query.filter_by(id=group_id).first()
+        group.name = name
+        std_commit()
+        return group
+
+    @classmethod
     def delete(cls, group_id):
         group = cls.query.filter_by(id=group_id).first()
         if group:

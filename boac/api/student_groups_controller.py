@@ -79,7 +79,7 @@ def delete_group(group_id):
 def get_group(group_id):
     group = StudentGroup.find_by_id(group_id)
     if not group:
-        raise ResourceNotFoundError(f'No group found with id {group_id}')
+        raise ResourceNotFoundError(f'Sorry, no group found with id {group_id}.')
     decorated = _decorate_groups([group.to_api_json()])
     return tolerant_jsonify(decorated[0])
 
@@ -116,6 +116,19 @@ def add_students_to_group():
         raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own group {group.id}')
     StudentGroup.add_students(group_id, sids)
     return tolerant_jsonify({'message': f'Successfully added students to group \'{group_id}\''}), 200
+
+
+@app.route('/api/group/update', methods=['POST'])
+@login_required
+def update_group():
+    params = request.get_json()
+    name = params['name']
+    if not name:
+        raise BadRequestError('Requested cohort label is empty or invalid')
+    group = StudentGroup.find_by_id(params['id'])
+    if not group or group.owner_id != current_user.id:
+        raise BadRequestError('Cohort does not exist or is not available to you')
+    return tolerant_jsonify(StudentGroup.update(group_id=group.id, name=name).to_api_json())
 
 
 def _decorate_groups(groups):

@@ -6,7 +6,7 @@
 </div>
 <div id="sidebar-student-{{$index}}"
      class="sidebar-row-link"
-     data-ng-repeat="student in myPrimaryGroup.students">
+     data-ng-repeat="student in myPrimaryGroup.students track by $index">
   <span class="sidebar-row-link-label">
     <a data-ng-class="{'demo-mode-blur': demoMode}"
        data-ng-href="/student/{{student.uid}}">
@@ -87,7 +87,6 @@
 <div class="sidebar-row-link" data-ng-repeat="group in myGroups">
   <div class="sidebar-row-link-label">
     <a id="sidebar-group-{{$index}}"
-       data-ng-class="{'demo-mode-blur': demoMode}"
        data-ng-href="/group/{{group.id}}">
       {{truncate(group.name, {length:18, omission: '...'})}}
     </a>

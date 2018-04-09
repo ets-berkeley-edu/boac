@@ -33,6 +33,7 @@
     googleAnalyticsService,
     me,
     utilService,
+    validationService,
     visualizationService,
     $location,
     $rootScope,
@@ -103,7 +104,7 @@
           $scope.section.termName + ' ' + $scope.section.displayName + ' ' + $scope.section.sectionNum
         );
       }).catch(function(err) {
-        $scope.error = utilService.parseError(err);
+        $scope.error = validationService.parseError(err);
         $scope.isLoading = false;
 
       }).then(function() {

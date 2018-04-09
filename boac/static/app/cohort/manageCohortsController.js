@@ -28,11 +28,10 @@
   'use strict';
 
   angular.module('boac').controller('ManageCohortsController', function(
-    authService,
     cohortFactory,
-    cohortService,
     studentFactory,
     utilService,
+    validationService,
     $rootScope,
     $scope
   ) {
@@ -69,17 +68,18 @@
     };
 
     $scope.cancelEdit = function(cohort) {
-      cohort.label = cohort.labelOriginal;
+      cohort.name = cohort.nameOriginal;
       setEditMode(cohort, false);
     };
 
-    $scope.updateCohort = function(cohort, label) {
-      cohortService.validateCohortLabel({id: cohort.id, label: label}, function(error) {
+    $scope.changeCohortName = function(cohort, name) {
+      var proposedChange = {id: cohort.id, name: name};
+      validationService.validateName(proposedChange, cohortFactory.getMyCohorts, function(error) {
         cohort.error = error;
         cohort.hideError = false;
         if (!cohort.error) {
-          cohortFactory.updateCohort(cohort.id, label).then(function() {
-            cohort.labelOriginal = label;
+          cohortFactory.changeCohortName(cohort.id, name).then(function() {
+            cohort.nameOriginal = name;
             setEditMode(cohort, false);
           });
         }
@@ -95,7 +95,7 @@
       cohortFactory.getMyCohorts().then(function(response) {
         $scope.myCohorts = response.data;
         _.each($scope.myCohorts, function(cohort) {
-          cohort.labelOriginal = cohort.label;
+          cohort.nameOriginal = cohort.name;
 
           var f = cohort.filterCriteria;
           cohort.filterCriteriaNames = _.concat(
@@ -117,7 +117,7 @@
     };
 
     $rootScope.$on('cohortDeleted', function(event, data) {
-      $scope.myCohorts = $scope.myCohorts = _.remove($scope.myCohorts, function(c) {
+      $scope.myCohorts = _.remove($scope.myCohorts, function(c) {
         return c.id !== data.cohort.id;
       });
     });

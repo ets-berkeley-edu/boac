@@ -27,34 +27,36 @@
 
   'use strict';
 
-  angular.module('boac').service('cohortService', function(cohortFactory, utilService) {
+  angular.module('boac').controller('DeleteGroupController', function($scope, $uibModal) {
 
-    var decorateCohortAlerts = function(cohort) {
-      if (cohort.alerts && cohort.alerts.length) {
-        cohort.alerts = {
-          isCohortAlerts: true,
-          students: utilService.extendSortableNames(cohort.alerts),
-          sortBy: 'sortableName',
-          reverse: false
-        };
-      }
-    };
-
-    var loadMyCohorts = function(callback) {
-      cohortFactory.getMyCohorts().then(function(cohortsResponse) {
-        var myCohorts = [];
-        _.each(cohortsResponse.data, function(cohort) {
-          decorateCohortAlerts(cohort);
-          myCohorts.push(cohort);
-        });
-        return callback(myCohorts);
+    $scope.openDeleteGroupModal = function(group) {
+      $uibModal.open({
+        animation: true,
+        ariaLabelledBy: 'confirm-delete-header',
+        ariaDescribedBy: 'confirm-delete-body',
+        templateUrl: '/static/app/group/deleteGroupModal.html',
+        controller: 'DeleteGroupModal',
+        resolve: {
+          group: function() {
+            return group;
+          }
+        }
       });
     };
+  });
 
-    return {
-      decorateCohortAlerts: decorateCohortAlerts,
-      loadMyCohorts: loadMyCohorts
+  angular.module('boac').controller('DeleteGroupModal', function(group, studentGroupFactory, $scope, $uibModalInstance) {
+
+    $scope.group = group;
+
+    $scope.delete = function(g) {
+      studentGroupFactory.deleteGroup(g.id);
+      $uibModalInstance.close();
     };
 
+    $scope.cancel = function() {
+      $uibModalInstance.close();
+    };
   });
+
 }(window.angular));
