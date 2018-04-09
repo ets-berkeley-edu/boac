@@ -26,7 +26,7 @@
     <div class="group-summary-column group-summary-column-08 group-summary-column-header">Issues</div>
   </div>
   <div class="group-summary-flex-row group-summary-row"
-       data-ng-repeat="student in group.students track by $index | orderBy:group.sortBy:group.reverse">
+       data-ng-repeat="student in group.students | orderBy:group.sortBy:group.reverse track by $index">
     <div class="group-summary-column group-summary-column-01">
       <img class="student-avatar student-avatar-small"
            data-ng-src="/api/user/{{student.uid}}/photo"
