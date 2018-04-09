@@ -54,8 +54,11 @@ class TestCohortDetail:
         assert cohorts[1]['totalMemberCount'] == 2
 
     def test_my_cohorts_includes_students_with_alert_counts(self, create_alerts, authenticated_session, client):
+        # Pre-load students into cache for consistent alert data.
+        client.get('/api/user/61889/analytics')
+        client.get('/api/user/98765/analytics')
+
         cohorts = client.get('/api/cohorts/my').json
-        print(cohorts)
         assert len(cohorts[0]['alerts']) == 2
         assert cohorts[0]['alerts'][0]['sid'] == '2345678901'
         assert cohorts[0]['alerts'][0]['uid']
@@ -64,10 +67,19 @@ class TestCohortDetail:
         assert cohorts[0]['alerts'][0]['isActiveAsc']
         assert cohorts[0]['alerts'][0]['alertCount'] == 1
         assert cohorts[0]['alerts'][1]['sid'] == '11667051'
-        assert cohorts[0]['alerts'][1]['alertCount'] == 2
+        assert cohorts[0]['alerts'][1]['alertCount'] == 3
         assert len(cohorts[1]['alerts']) == 1
         assert cohorts[1]['alerts'][0]['sid'] == '2345678901'
         assert cohorts[1]['alerts'][0]['alertCount'] == 1
+
+        # Summary student data is included with alert counts, but full term and analytics feeds are not.
+        assert cohorts[0]['alerts'][1]['cumulativeGPA'] == 3.8
+        assert cohorts[0]['alerts'][1]['cumulativeUnits'] == 101.3
+        assert cohorts[0]['alerts'][1]['level'] == 'Junior'
+        assert len(cohorts[0]['alerts'][1]['majors']) == 2
+        assert cohorts[0]['alerts'][1]['term']['enrolledUnits'] == 12.5
+        assert 'analytics' not in cohorts[0]['alerts'][1]
+        assert 'enrollments' not in cohorts[0]['alerts'][1]['term']
 
         alert_to_dismiss = client.get('/api/alerts/current/11667051').json['shown'][0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
@@ -77,7 +89,7 @@ class TestCohortDetail:
         cohorts = client.get('/api/cohorts/my').json
         assert len(cohorts[0]['alerts']) == 1
         assert cohorts[0]['alerts'][0]['sid'] == '11667051'
-        assert cohorts[0]['alerts'][0]['alertCount'] == 1
+        assert cohorts[0]['alerts'][0]['alertCount'] == 2
         assert len(cohorts[1]['alerts']) == 0
 
     def test_cohorts_all(self, authenticated_session, client):
