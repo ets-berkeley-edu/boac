@@ -108,6 +108,16 @@ class TestStudentGroupsController:
         assert 'analytics' in students[0]
         assert 'enrollments' in students[0]['term']
 
+    def test_group_detail_includes_athletics(self, authenticated_session, client):
+        """Returns athletic memberships for detailed group listing."""
+        primary_group = client.get('/api/group/my_primary').json
+        students = primary_group['students']
+        assert len(students[0]['athletics']) == 2
+        assert students[0]['athletics'][0]['name'] == 'Women\'s Field Hockey'
+        assert students[0]['athletics'][0]['groupCode'] == 'WFH'
+        assert students[0]['athletics'][1]['name'] == 'Women\'s Tennis'
+        assert students[0]['athletics'][1]['groupCode'] == 'WTE'
+
     def test_create_add_remove_and_delete(self, authenticated_session, client):
         """Create a group, add a student, remove the student and then delete the group."""
         name = 'Fun Boy Three'

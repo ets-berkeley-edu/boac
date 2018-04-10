@@ -117,6 +117,6 @@ class StudentGroup(Base):
             'id': self.id,
             'ownerId': self.owner_id,
             'name': self.name,
-            'students': [student.to_api_json() for student in self.students],
+            'students': [student.to_expanded_api_json() for student in self.students],
             'studentCount': len(self.students),
         }
