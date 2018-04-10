@@ -9,9 +9,10 @@
      data-ng-repeat="student in myPrimaryGroup.students track by $index">
   <span class="sidebar-row-link-label">
     <a id="sidebar-student-{{student.sid}}"
+       class="sidebar-row-link-label-text sidebar-row-link-label-text-wide"
        data-ng-class="{'demo-mode-blur': demoMode}"
-       data-ng-href="/student/{{student.uid}}">
-      {{truncate(student.name, {length:20, omission: '...'})}}
+       data-ng-href="/student/{{student.uid}}"
+       data-ng-bind="student.name">
     </a>
     <i class="fa fa-exclamation-circle sidebar-student-alert"
        uib-tooltip="{{student.alertCount}} {{student.alertCount === 1 ? 'issue' : 'issues'}}"
@@ -36,9 +37,10 @@
 <div class="sidebar-row-link" data-ng-repeat="cohort in myCohorts">
   <div class="sidebar-row-link-label">
     <a id="sidebar-cohort-{{$index}}"
+       class="sidebar-row-link-label-text"
        data-ui-sref="cohort({c: cohort.id, i: null})"
-       data-ui-sref-opts="{reload: true}">
-      {{truncate(cohort.label, {length:18, omission: '...'})}}
+       data-ui-sref-opts="{reload: true}"
+       data-ng-bind="cohort.label">
     </a>
     <span id="sidebar-cohort-{{$index}}-count"
           class="sidebar-pill"
@@ -90,8 +92,9 @@
 <div class="sidebar-row-link" data-ng-repeat="group in myGroups">
   <div class="sidebar-row-link-label">
     <a id="sidebar-group-{{$index}}"
-       data-ng-href="/group/{{group.id}}">
-      {{truncate(group.name, {length:18, omission: '...'})}}
+       class="sidebar-row-link-label-text"
+       data-ng-href="/group/{{group.id}}"
+       data-ng-bind="group.name">
     </a>
     <span id="sidebar-group-{{$index}}-count"
           class="sidebar-pill"

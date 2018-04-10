@@ -40,7 +40,6 @@
       $scope.myCohorts = _.clone(me.myCohorts);
       $scope.myGroups = _.clone(me.myGroups);
       $scope.myPrimaryGroup = _.clone(me.myPrimaryGroup);
-      $scope.truncate = _.truncate;
     };
 
     init();
