@@ -176,6 +176,11 @@
   margin-bottom: 10px;
 }
 
+.page-section-header-sub {
+  font-size: 18px;
+  font-weight: bold;
+}
+
 .return-to-url {
   padding: 10px 0 0 5px;
 }

@@ -8,11 +8,14 @@
      class="sidebar-row-link"
      data-ng-repeat="student in myPrimaryGroup.students track by $index">
   <span class="sidebar-row-link-label">
-    <a data-ng-class="{'demo-mode-blur': demoMode}"
+    <a id="sidebar-student-{{student.sid}}"
+       data-ng-class="{'demo-mode-blur': demoMode}"
        data-ng-href="/student/{{student.uid}}">
       {{truncate(student.name, {length:20, omission: '...'})}}
     </a>
-    <i class="fa fa-exclamation-circle sidebar-student-alert" data-ng-if="student.alertCount"></i>
+    <i class="fa fa-exclamation-circle sidebar-student-alert"
+       uib-tooltip="{{student.alertCount}} {{student.alertCount === 1 ? 'issue' : 'issues'}}"
+       data-ng-if="student.alertCount"></i>
   </span>
 </div>
 

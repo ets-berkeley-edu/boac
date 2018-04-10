@@ -53,10 +53,6 @@
   background-color: #ccc;
 }
 
-.home-alert {
-  font-size: 16px;
-}
-
 .home-inactive-info-icon {
   color: #d0021b;
   font-size: 16px;
@@ -146,6 +142,5 @@
 }
 
 .group-summary-row {
-  font-size: 16px;
   line-height: 1.6em;
 }

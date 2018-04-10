@@ -17,13 +17,11 @@
     <div>
       <h1 class="page-section-header">Cohorts</h1>
       <div data-ng-if="!myCohorts.length">
-        <div class="home-alert">
-          You have no saved cohorts.
-          <a data-ng-href="/cohort?c=new">Create a new cohort.</a>
-        </div>
+        You have no saved cohorts.
+        <a data-ng-href="/cohort?c=new">Create a new cohort.</a>
       </div>
       <div data-ng-repeat="cohort in myCohorts" data-ng-if="myCohorts.length">
-        <h2 class="page-section-header">
+        <h2 class="page-section-header-sub">
           <a id="home-cohort-{{$index}}"
              data-ng-bind="cohort.label"
              data-ng-href="/cohort?c={{cohort.id}}"></a> (<span data-ng-bind="cohort.totalMemberCount"></span>)
@@ -35,13 +33,11 @@
     <div>
       <h1 class="page-section-header">Groups</h1>
       <div data-ng-if="!myGroups.length">
-        <div class="home-alert">
-          You have no groups.
-          <a data-ng-href="/cohort?c=new">Create a new group.</a>
-        </div>
+        You have no groups.
+        <a data-ng-href="/cohort?c=new">Create a new group.</a>
       </div>
       <div data-ng-repeat="group in myGroups" data-ng-if="myGroups.length">
-        <h2 class="page-section-header">
+        <h2 class="page-section-header-sub">
           <a id="home-group-{{$index}}"
              data-ng-bind="group.name"
              data-ng-href="/group/{{group.id}}"></a> (<span data-ng-bind="group.students.length"></span>)
