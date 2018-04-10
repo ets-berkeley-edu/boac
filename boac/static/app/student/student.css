@@ -133,13 +133,12 @@
   flex: 3;
 }
 
-.student-bio-name {
+.student-section-header {
   font-size: 24px;
   font-weight: bold;
-  margin: 0 0 5px 0;
 }
 
-.student-bio-name-preferred {
+.student-preferred-name {
   font-size: 20px;
   font-weight: 400;
   margin: 0 0 10px 0;
@@ -273,6 +272,10 @@
   padding: 1px;
 }
 
+.student-group-checkbox-primary-label {
+  font-weight: bold;
+}
+
 .student-group-create-new {
   font-size: 11px;
   padding: 3px 1px 1px 1px;
@@ -323,6 +326,26 @@
 .student-profile-container {
   display: flex;
   flex-direction: row;
+}
+
+.student-term {
+  border-bottom: 1px solid #999;
+}
+
+.student-term .panel-group {
+  margin-bottom: 10px;
+}
+
+.student-term-header {
+  font-size: 20px;
+  font-weight: 400;
+  margin: 20px 0 15px 0;
+  color: #999;
+}
+
+.student-terms {
+  flex: 1;
+  margin-left: 20px;
 }
 
 .student-waitlisted {

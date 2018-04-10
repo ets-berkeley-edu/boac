@@ -32,19 +32,14 @@
           </div>
           <div class="student-bio-container-column-02">
             <div class="student-bio-contact">
-              <div class="flex-container">
-                <h1 class="student-bio-name"
-                    data-ng-class="{'demo-mode-blur': demoMode}">
-                  {{student.athleticsProfile.fullName}}
-                </h1>
-                <student-group-toggle data-student="student.athleticsProfile"
-                                      data-fa-size="fa-2x"
-                                      data-group="myPrimaryGroup"></student-group-toggle>
-              </div>
-              <h3 class="student-bio-name-preferred"
-                  data-ng-bind="student.sisProfile.preferredName"
-                  data-ng-class="{'demo-mode-blur': demoMode}"
-                  data-ng-if="student.sisProfile.preferredName !== student.athleticsProfile.fullName"></h3>
+              <h1 class="student-section-header"
+                  data-ng-class="{'demo-mode-blur': demoMode}">
+                {{student.athleticsProfile.fullName}}
+              </h1>
+              <div class="student-preferred-name"
+                   data-ng-bind="student.sisProfile.preferredName"
+                   data-ng-class="{'demo-mode-blur': demoMode}"
+                   data-ng-if="student.sisProfile.preferredName !== student.athleticsProfile.fullName"></div>
               <div>
                 <i class="fa fa-envelope"></i>
                 <a data-ng-href="mailto:{{student.sisProfile.emailAddress}}"
@@ -87,6 +82,15 @@
                   <h4 class="student-bio-header">
                     Groups <span data-ng-if="myGroups.length">(<a id="groups-manage" href="/groups/manage">Manage</a>)</span>
                   </h4>
+                </div>
+                <div class="student-group-checkbox">
+                  <input id="my-students-checkbox"
+                         type="checkbox"
+                         data-ng-model="myPrimaryGroup.selected"
+                         data-ng-click="groupCheckboxClick(myPrimaryGroup)"/>
+                  <span class="student-group-checkbox-primary-label">
+                    <a data-ng-href="/group/{{myPrimaryGroup.id}}" data-ng-bind="myPrimaryGroup.name"></a>
+                  </span>
                 </div>
                 <div class="student-group-checkbox" data-ng-repeat="group in myGroups track by $index">
                   <input id="student-group-checkbox-{{$index}}"
@@ -151,10 +155,10 @@
     <div class="student-container-row-02">
       <!-- Classes -->
       <div>
-        <div class="profile-terms">
-          <h2>Classes</h2>
-          <div class="profile-term" data-ng-repeat="term in student.enrollmentTerms | limitTo: (showAllTerms ? undefined : 1)">
-            <h3 class="profile-classes-header" data-ng-bind="term.termName"></h3>
+        <div class="student-terms">
+          <h2 class="student-section-header">Classes</h2>
+          <div class="student-term" data-ng-repeat="term in student.enrollmentTerms | limitTo: (showAllTerms ? undefined : 1)">
+            <h3 class="student-term-header" data-ng-bind="term.termName"></h3>
 
             <div data-ng-if="$index === 0">
               <div data-ng-if="alerts.shown.length">
