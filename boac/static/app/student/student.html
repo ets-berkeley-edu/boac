@@ -88,16 +88,18 @@
                          type="checkbox"
                          data-ng-model="myPrimaryGroup.selected"
                          data-ng-click="groupCheckboxClick(myPrimaryGroup)"/>
-                  <span class="student-group-checkbox-primary-label">
+                  <div class="student-group-checkbox-label student-group-checkbox-primary-label">
                     <a data-ng-href="/group/{{myPrimaryGroup.id}}" data-ng-bind="myPrimaryGroup.name"></a>
-                  </span>
+                  </div>
                 </div>
                 <div class="student-group-checkbox" data-ng-repeat="group in myGroups track by $index">
                   <input id="student-group-checkbox-{{$index}}"
                          type="checkbox"
                          data-ng-model="group.selected"
                          data-ng-click="groupCheckboxClick(group)"/>
-                  <a data-ng-href="/group/{{group.id}}" data-ng-bind="group.name"></a>
+                  <div class="student-group-checkbox-label">
+                    <a data-ng-href="/group/{{group.id}}" data-ng-bind="group.name"></a>
+                  </div>
                 </div>
                 <div class="student-group-create-new">
                   <span data-ng-controller="CreateStudentGroupController">
