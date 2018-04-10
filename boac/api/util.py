@@ -148,11 +148,12 @@ def _get_meetings(section):
         }
         instructors = meeting.get('assignedInstructors', [])
         for entry in instructors:
-            instructor = entry['instructor']
-            for name in instructor['names']:
-                if name['type']['code'] == 'PRF':
+            instructor = entry.get('instructor', {})
+            for name in instructor.get('names', []):
+                if name.get('type', {}).get('code') == 'PRF':
                     m['instructors'].append(name['formattedName'])
-        meetings.append(m)
+        if m.get('days') or m.get('instructors') or m.get('location'):
+            meetings.append(m)
     return meetings
 
 
