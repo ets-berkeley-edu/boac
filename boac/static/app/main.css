@@ -23,26 +23,6 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-.page-not-found-background-image {
-  background: url(/static/app/shared/404_lost_in_the_clouds.jpg) no-repeat center center;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-  height: 100%;
-  width: 100%;
-}
-
-.demo-mode-blur {
-  color: transparent !important;
-  text-shadow: 0 0 15px rgba(0, 0, 0, 0.5) !important;
-}
-
-.demo-mode-blur:hover {
-  color: transparent !important;
-  text-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;
-}
-
 .boac-exclamation {
   color: #f0ad4e;
 }
@@ -80,6 +60,16 @@
 
 .container-right {
   float: right;
+}
+
+.demo-mode-blur {
+  color: transparent !important;
+  text-shadow: 0 0 15px rgba(0, 0, 0, 0.5) !important;
+}
+
+.demo-mode-blur:hover {
+  color: transparent !important;
+  text-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;
 }
 
 .faint-text {
@@ -121,6 +111,7 @@
 .index-container-content {
   display: flex;
   flex-direction: column;
+  height: 100%;
   justify-content: space-between;
   width: 100%;
 }
@@ -169,6 +160,16 @@
   white-space: nowrap;
 }
 
+.page-not-found-background-image {
+  background: url(/static/app/shared/404_lost_in_the_clouds.jpg) no-repeat center center;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  height: 100%;
+  width: 100%;
+}
+
 .page-section-header {
   font-size: 24px;
   font-weight: bold;
@@ -177,25 +178,6 @@
 
 .return-to-url {
   padding: 10px 0 0 5px;
-}
-
-.wrap-hard {
-  flex-wrap: wrap;
-  word-wrap: break-word;
-}
-
-oi-select .select-dropdown {
-  max-height: 250px !important;
-}
-
-select[data-value=""],
-select option[value=""] {
-  color: #999;
-}
-
-select.form-control {
-  padding-left: 6px;
-  width: 150px;
 }
 
 .student-checkbox-add-to-group {
@@ -284,4 +266,28 @@ select.form-control {
 .visualize-metrics-no-data {
   color: #666;
   font-style: italic;
+}
+
+.wrap-hard {
+  flex-wrap: wrap;
+  word-wrap: break-word;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+oi-select .select-dropdown {
+  max-height: 250px !important;
+}
+
+select[data-value=""],
+select option[value=""] {
+  color: #999;
+}
+
+select.form-control {
+  padding-left: 6px;
+  width: 150px;
 }
