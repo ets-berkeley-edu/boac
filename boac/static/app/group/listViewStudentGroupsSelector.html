@@ -2,7 +2,6 @@
   <div>
     <div class="student-group-selector-checkbox">
       <input id="student-group-checkbox-add-all"
-             class="student-group-selector-checkbox"
              type="checkbox"
              data-ng-model="studentGroupForm.allStudentsCheckboxToggle"
              data-ng-click="toggleAllStudentCheckboxes()"/>
@@ -16,30 +15,36 @@
       <button id="add-to-group-button"
               type="button"
               class="btn btn-primary"
-              uib-dropdown-toggle
-              ng-disabled="studentGroupForm.disabled">
+              uib-dropdown-toggle>
         Add to Group <span class="caret"></span>
       </button>
       <ul class="dropdown-menu student-group-all-menu"
           uib-dropdown-menu
           role="menu"
           aria-labelledby="add-to-group-button">
+        <li role="menuitem" data-ng-if="isLoading">
+          Loading <i class="fa fa-spinner fa-spin"></i>
+        </li>
         <li role="menuitem"
-            class="student-group-checkbox-item"
-            data-ng-repeat="group in myGroups track by $index">
+            data-ng-class="{'student-group-checkbox-item': group, 'divider': !group}"
+            data-ng-repeat="group in myGroups track by $index"
+            data-ng-href="!isLoading">
           <input id="student-{{student.sid}}-group-checkbox"
                  type="checkbox"
                  data-ng-model="group.selected"
                  data-ng-click="groupCheckboxClick(group)"
-                 aria-labelledby="group-name-{{$index}}"/>
+                 aria-labelledby="group-name-{{$index}}"
+                 data-ng-if="group"/>
           <span id="group-{{group.id}}-name"
                 aria-labelledby="student-{{student.sid}}-group-checkbox"
                 class="student-group-checkbox-name"
-                data-ng-bind="group.name"></span>
+                data-ng-bind="group.name"
+                data-ng-if="group"></span>
         </li>
         <li class="divider"></li>
         <li role="menuitem"
-            data-ng-controller="CreateStudentGroupController">
+            data-ng-controller="CreateStudentGroupController"
+            data-ng-href="!isLoading">
           <a id="group-create"
              href
              data-ng-click="openCreateGroupModal()"><i class="fa fa-plus"></i> Create New Group</a>

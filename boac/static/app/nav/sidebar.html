@@ -11,7 +11,7 @@
     <a id="sidebar-student-{{student.sid}}"
        data-ng-class="{'demo-mode-blur': demoMode}"
        data-ng-href="/student/{{student.uid}}">
-      {{truncate(student.name || student.athleticsProfile.fullName, {length:20, omission: '...'})}}
+      {{truncate(student.name, {length:20, omission: '...'})}}
     </a>
     <i class="fa fa-exclamation-circle sidebar-student-alert"
        uib-tooltip="{{student.alertCount}} {{student.alertCount === 1 ? 'issue' : 'issues'}}"

@@ -188,12 +188,16 @@
   padding: 10px;
 }
 
+.student-checkbox-add-to-group input {
+  margin: 0;
+}
+
 .student-group-btn-group {
   margin: 5px 20px 0 0;
 }
 
 .student-group-checkbox-item {
-  padding: 10px;
+  padding: 0 10px 5px 10px;
 }
 
 .student-group-checkbox-name {
@@ -219,6 +223,10 @@
   margin: 5px 20px 0 0;
   padding: 8px;
   text-align: center;
+}
+
+.student-group-selector-checkbox input {
+  margin: 0;
 }
 
 .tab-button {

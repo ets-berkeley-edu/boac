@@ -74,10 +74,10 @@
       return _.get($scope.student, 'sisProfile.preferredName') || _.get($scope.student, 'canvasProfile.name');
     };
 
-    var identifyGroupsThatIncludeStudent = function(myGroups, student) {
-      _.each(myGroups, function(group) {
+    var identifyGroupsThatIncludeStudent = function() {
+      _.each(_.union($scope.myGroups, [ $scope.myPrimaryGroup ]), function(group) {
         _.each(group.students, function(groupStudent) {
-          group.selected = student.sid === groupStudent.sid;
+          group.selected = $scope.student.sid === groupStudent.sid;
           if (group.selected) {
             // Break from loop
             return false;
@@ -91,7 +91,7 @@
       var preferredName = null;
       studentFactory.analyticsPerUser(uid).then(function(analytics) {
         $scope.student = analytics.data;
-        identifyGroupsThatIncludeStudent($scope.myGroups, $scope.student);
+        identifyGroupsThatIncludeStudent();
         preferredName = getPreferredName();
 
         courseFactory.getSectionIdsPerTerm().then(function(response) {

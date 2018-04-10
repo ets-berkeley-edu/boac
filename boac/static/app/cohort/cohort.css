@@ -152,6 +152,7 @@
 
 .cohort-grading-basis {
   color: #666;
+  font-size: 14px;
   font-style: italic;
 }
 
@@ -159,10 +160,16 @@
   word-wrap: break-word;
 }
 
+.cohort-list-view-column-00 {
+  align-self: center;
+  flex: 0 0 30px;
+  margin-right: 5px;
+}
+
 .cohort-list-view-column-01 {
   align-items: center;
   display: flex;
-  flex: 0 0 100px;
+  flex: 0 0 30px;
 }
 
 .cohort-list-view-column-grade {
@@ -227,6 +234,13 @@
   flex: 0.8;
   margin-left: 20px;
   min-width: 200px;
+}
+
+.cohort-student-list-item {
+  border-left: none;
+  border-right: none;
+  display: flex;
+  padding-left: 0;
 }
 
 .cohort-student-name-container {

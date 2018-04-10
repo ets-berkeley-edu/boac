@@ -29,6 +29,7 @@
 
   angular.module('boac').controller('ManageGroupsController', function(
     studentGroupFactory,
+    studentGroupService,
     validationService,
     $rootScope,
     $scope
@@ -52,9 +53,7 @@
       });
     };
 
-    $scope.isMyPrimaryGroup = function(group) {
-      return group.name === 'My Students';
-    };
+    $scope.isMyPrimaryGroup = studentGroupService.isMyPrimaryGroup;
 
     $scope.setShowDetails = function(group, newValue) {
       resetPageView(function() {

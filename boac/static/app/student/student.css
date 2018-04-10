@@ -215,6 +215,7 @@
 
 .student-course-activity-row {
   display: flex;
+  font-size: 14px;
 }
 
 .student-course-activity-wrapper {

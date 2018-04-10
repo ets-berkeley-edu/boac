@@ -27,7 +27,11 @@
 
   'use strict';
 
-  angular.module('boac').directive('studentGroupsSelector', function(studentGroupFactory, $rootScope) {
+  angular.module('boac').directive('studentGroupsSelector', function(
+    studentGroupFactory,
+    studentGroupService,
+    $rootScope
+  ) {
 
     return {
       // @see https://docs.angularjs.org/guide/directive#template-expanding-directive
@@ -42,9 +46,10 @@
 
       link: function(scope) {
 
+        scope.isLoading = true;
+
         scope.studentGroupForm = {
           allStudentsCheckboxToggle: false,
-          isOpen: false,
           showGroupsMenu: false
         };
 
@@ -54,7 +59,15 @@
         });
 
         studentGroupFactory.getMyGroups().then(function(response) {
-          scope.myGroups = response.data;
+          scope.myGroups = _.sortBy(response.data, function(group) {
+            // 'My Students' first
+            return !studentGroupService.isMyPrimaryGroup(group);
+          });
+          if (scope.myGroups.length > 1) {
+            // Null will put a 'divider' in list of menu options
+            scope.myGroups.splice(1, 0, null);
+          }
+          scope.isLoading = false;
         });
 
         /**
@@ -63,11 +76,7 @@
          * @return {void}
          */
         var updateShowGroupsMenu = function() {
-          if (scope.studentGroupForm.allStudentsCheckboxToggle) {
-            scope.studentGroupForm.showGroupsMenu = true;
-          } else {
-            scope.studentGroupForm.showGroupsMenu = !!_.find(scope.students, 'selectedForStudentGroups');
-          }
+          scope.studentGroupForm.showGroupsMenu = scope.studentGroupForm.allStudentsCheckboxToggle || !!_.find(scope.students, 'selectedForStudentGroups');
         };
 
         /**
@@ -149,7 +158,9 @@
             });
           }
           _.each(scope.myGroups, function(g) {
-            g.selected = false;
+            if (g) {
+              g.selected = false;
+            }
           });
           toggleAllStudentCheckboxes(false);
         };
