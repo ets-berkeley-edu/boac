@@ -80,6 +80,8 @@ def get_group(group_id):
     group = StudentGroup.find_by_id(group_id)
     if not group:
         raise ResourceNotFoundError(f'Sorry, no group found with id {group_id}.')
+    if group.owner_id != current_user.id:
+        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own group {group.id}')
     decorated = _decorate_groups([group.to_api_json()], include_analytics=True)
     return tolerant_jsonify(decorated[0])
 
