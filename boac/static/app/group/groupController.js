@@ -41,6 +41,43 @@
 
     $scope.orderBy = studentSearchService.getSortByOptionsForSearch();
 
+    var levelComparator = function(level) {
+      switch (level) {
+        case 'Freshman':
+          return 1;
+        case 'Sophomore':
+          return 2;
+        case 'Junior':
+          return 3;
+        case 'Senior':
+          return 4;
+        default:
+          return 0;
+      }
+    };
+
+    $scope.studentComparator = function(student) {
+      switch ($scope.orderBy.selected) {
+        case 'first_name':
+          return student.firstName;
+        case 'last_name':
+          return student.lastName;
+        // group_name here refers to team groups (i.e., athletic memberships) and not the user-created groups you'd expect.
+        case 'group_name':
+          return _.get(student, 'athletics[0].groupName');
+        case 'gpa':
+          return student.cumulativeGPA;
+        case 'level':
+          return levelComparator(student.level);
+        case 'major':
+          return _.get(student, 'majors[0]');
+        case 'units':
+          return student.cumulativeUnits;
+        default:
+          return '';
+      }
+    };
+
     var goToStudent = $scope.goToStudent = function(uid) {
       utilService.goTo('/student/' + uid, $scope.group.name);
     };
