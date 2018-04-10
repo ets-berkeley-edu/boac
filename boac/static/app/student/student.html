@@ -93,7 +93,7 @@
                          type="checkbox"
                          data-ng-model="group.selected"
                          data-ng-click="groupCheckboxClick(group)"/>
-                  <span data-ng-bind="group.name"></span>
+                  <a data-ng-href="/group/{{group.id}}" data-ng-bind="group.name"></a>
                 </div>
                 <div class="student-group-create-new">
                   <span data-ng-controller="CreateStudentGroupController">
