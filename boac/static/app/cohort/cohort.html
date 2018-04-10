@@ -142,6 +142,11 @@
                       data-ng-if="orderBy.selected !== 'first_name'">
                     {{student.lastName}}, {{student.firstName}}
                   </h3>
+                  <h3 class="student-name"
+                      data-ng-class="{'demo-mode-blur': demoMode}"
+                      data-ng-if="orderBy.selected === 'first_name'">
+                    {{student.firstName}} {{student.lastName}}
+                  </h3>
                 </a>
               </div>
             </div>
