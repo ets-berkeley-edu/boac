@@ -32,9 +32,6 @@
           <span class="faint-text">(<span id="group-member-count-{{$index}}" data-ng-bind="group.students.length"></span>)</span>
         </div>
         <div>
-          <span class="faint-text" data-ng-if="isMyPrimaryGroup(group)">
-            Delete | Rename |
-          </span>
           <span data-ng-if="!isMyPrimaryGroup(group)">
             <span data-ng-controller="DeleteGroupController">
               <button type="button"
