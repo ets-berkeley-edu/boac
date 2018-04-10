@@ -29,6 +29,10 @@
 
   angular.module('boac').service('studentGroupService', function(studentGroupFactory, utilService) {
 
+    var isMyPrimaryGroup = function(group) {
+      return group.name === 'My Students';
+    };
+
     var loadMyGroups = function(callback) {
       studentGroupFactory.getMyGroups().then(function(response) {
         var groups = response.data;
@@ -42,7 +46,7 @@
             sortBy: 'sortableName',
             reverse: false
           };
-          if (group.name === 'My Students') {
+          if (isMyPrimaryGroup(group)) {
             myPrimaryGroup = decoratedGroup;
           } else {
             myGroups.push(group);
@@ -53,6 +57,7 @@
     };
 
     return {
+      isMyPrimaryGroup: isMyPrimaryGroup,
       loadMyGroups: loadMyGroups
     };
   });

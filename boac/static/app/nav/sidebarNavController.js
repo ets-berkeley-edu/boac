@@ -94,8 +94,10 @@
     $rootScope.$on('addStudentToGroup', function(event, data) {
       var groupId = data.groupId;
       var student = data.student;
+      student.name = student.name || student.athleticsProfile.fullName;
       if (groupId === $scope.myPrimaryGroup.id) {
-        $scope.myPrimaryGroup.students.push(student);
+        var students = _.union($scope.myPrimaryGroup.students, [ student ]);
+        $scope.myPrimaryGroup.students = _.sortBy(students, 'name');
       } else {
         addToStudentCount(data.groupId, 1);
       }

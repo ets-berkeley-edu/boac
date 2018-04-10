@@ -74,13 +74,13 @@
   border-left: none;
   border-right: none;
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between;
   padding: 5px 0 5px 0;
 }
 
 .course-list-view-column-00 {
-  flex: 0 0 10px;
-  min-width: 10px;
+  align-self: center;
+  flex: 0 0 30px;
 }
 
 .course-list-view-column-01 {
@@ -140,7 +140,7 @@
 .course-list-view-column-canvas-sites {
   display: flex;
   flex-direction: column;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .course-list-view-column-canvas-sites > div {
@@ -154,7 +154,7 @@
 
 .course-list-view-column-canvas-sites .profile-boxplot {
   color: #555;
-  font-size: 12px;
+  font-size: 14px;
   font-style: normal;
 }
 
