@@ -146,13 +146,6 @@
   margin-bottom: 10px;
 }
 
-.profile-classes-header {
-  font-size: 24px;
-  font-weight: 400;
-  margin: 20px 0 15px 0;
-  color: #999;
-}
-
 .profile-course-site-code {
   font-weight: bold;
   margin-bottom: 5px;
@@ -186,19 +179,6 @@
   font-style: italic;
   margin-top: 10px;
   text-align: center;
-}
-
-.profile-term {
-  border-bottom: 1px solid #999;
-}
-
-.profile-term .panel-group {
-  margin-bottom: 10px;
-}
-
-.profile-terms {
-  flex: 1;
-  margin-left: 20px;
 }
 
 .profile-tooltip-content {

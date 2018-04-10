@@ -116,22 +116,14 @@
             <!-- Column -->
             <div class="course-list-view-column-02" data-ng-if="!$first">
               <div>
-                <div class="course-list-view-column-02-student-name">
-                  <div>
-                    <a id="{{student.uid}}" href data-ng-click="goToStudent(student.uid)">
-                      <h3 class="course-student-name"
-                          data-ng-class="{'demo-mode-blur': demoMode}">
-                        {{student.lastName}}<span data-ng-if="student.firstName">, {{student.firstName}}</span>
-                      </h3>
-                    </a>
-                  </div>
-                  <div>
-                    <student-group-toggle data-student="student"
-                                          data-fa-size="fa-1x"
-                                          data-group="myPrimaryGroup"
-                                          data-ng-if="!student.isClassAverage"></student-group-toggle>
-                  </div>
-                </div>
+                <a id="student-{{student.sid}}"
+                   href
+                   data-ng-click="goToStudent(student.uid)">
+                  <h3 class="course-student-name"
+                      data-ng-class="{'demo-mode-blur': demoMode}">
+                    {{student.lastName}}<span data-ng-if="student.firstName">, {{student.firstName}}</span>
+                  </h3>
+                </a>
               </div>
               <div class="student-sid"
                    data-ng-class="{'demo-mode-blur': demoMode}"

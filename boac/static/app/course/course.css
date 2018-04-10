@@ -99,12 +99,6 @@
   padding: 2px 0 0 5px;
 }
 
-.course-list-view-column-02-student-name {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-
 .course-list-view-column-03 {
   flex: 0 0 120px;
 }
@@ -198,7 +192,6 @@
 }
 
 .course-term-name {
-  color: #000;
   font-size: 16px;
   font-weight: bold;
   padding-bottom: 10px;
