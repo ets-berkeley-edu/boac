@@ -162,6 +162,19 @@
   padding-left: 8px;
 }
 
+.sidebar-row-link-label-text {
+  display: inline-block;
+  overflow: hidden;
+  padding-right: 5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 150px;
+}
+
+.sidebar-row-link-label-text-wide {
+  width: 180px;
+}
+
 .sidebar-row-without-link {
   margin-left: 14px;
 }
