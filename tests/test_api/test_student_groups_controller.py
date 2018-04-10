@@ -24,6 +24,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
+from boac.models.authorized_user import AuthorizedUser
+from boac.models.student_group import StudentGroup
 import pytest
 import simplejson as json
 
@@ -46,6 +48,13 @@ class TestStudentGroupsController:
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
         assert client.get('/api/groups/my').status_code == 401
+
+    def test_unauthorized(self, authenticated_session_empty_primary, client):
+        """Rejects authenticated user if s/he does not own the group."""
+        advisor_with_group = AuthorizedUser.find_by_uid('6446')
+        groups = StudentGroup.get_groups_by_owner_id(advisor_with_group.id)
+        response = client.get(f'/api/group/{groups[0].id}')
+        assert response.status_code == 403
 
     def test_my_groups(self, authenticated_session, client):
         """Returns all of current_user's student groups."""
@@ -109,6 +118,7 @@ class TestStudentGroupsController:
         )
         group = json.loads(response.data)
         group_id = group['id']
+
         # Add student
         sid = '2345678901'
         response = client.get(f'/api/group/{group_id}/add_student/{sid}')
