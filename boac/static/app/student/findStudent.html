@@ -1,6 +1,6 @@
 <label for="find-user" class="sr-only">Find a student</label>
 <oi-select id="find-user"
-           class="cleanMode"
+           class="cleanMode student-search"
            size="100"
            oi-options="student.uid as student.name group by student.groupName for student in lazyLoadOptions()"
            oi-select-options="{
@@ -9,5 +9,5 @@
              maxlength: 255
            }"
            ng-model="selectedUID"
-           placeholder="Search"
+           placeholder="&#xf002; Search for Students"
            tabindex="-1"></oi-select>
