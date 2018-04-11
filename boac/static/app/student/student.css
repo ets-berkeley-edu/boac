@@ -37,6 +37,7 @@
 
 .accordion-heading-end {
   display: flex;
+  flex: 0 0 200px;
 }
 
 .accordion-heading-grade {
@@ -45,8 +46,8 @@
 
 .accordion-heading-grades {
   display: flex;
+  flex: 0 0 100px;
   flex-direction: column;
-  width: 10%;
 }
 
 .accordion-heading-sections {
@@ -68,7 +69,7 @@
 }
 
 .accordion-heading-units {
-  padding-right: 50px;
+  flex: 0 0 100px;
   white-space: nowrap;
 }
 
