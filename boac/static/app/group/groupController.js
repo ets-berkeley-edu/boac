@@ -120,7 +120,7 @@
     };
 
     $scope.removeFromGroup = function(student) {
-      studentGroupFactory.removeStudentFromGroup($scope.group.id, student).then(function() {
+      studentGroupFactory.removeStudentFromGroup($scope.group, student).then(function() {
         $scope.group.students = _.remove($scope.group.students, function(s) {
           return s.sid !== student.sid;
         });

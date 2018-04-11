@@ -32,6 +32,7 @@
     config,
     me,
     studentGroupFactory,
+    studentGroupService,
     $rootScope,
     $scope
   ) {
@@ -43,6 +44,11 @@
     };
 
     init();
+
+    var findGroupInScope = function(groupId) {
+      var allGroups = _.union([ $scope.myPrimaryGroup ], $scope.myGroups);
+      return _.find(allGroups, ['id', groupId]);
+    };
 
     $rootScope.$on('cohortCreated', function(event, data) {
       var cohort = data.cohort;
@@ -64,14 +70,6 @@
       });
     });
 
-    var addToStudentCount = function(groupId, addValue) {
-      _.each($scope.myGroups, function(group) {
-        if (group.id === groupId) {
-          group.studentCount += addValue;
-        }
-      });
-    };
-
     $rootScope.$on('groupCreated', function(event, data) {
       $scope.myGroups.push(data.group);
     });
@@ -91,26 +89,25 @@
     });
 
     $rootScope.$on('addStudentToGroup', function(event, data) {
-      var groupId = data.groupId;
+      var group = findGroupInScope(data.group.id);
       var student = data.student;
-      student.name = student.name || student.athleticsProfile.fullName;
-      if (groupId === $scope.myPrimaryGroup.id) {
-        var students = _.union($scope.myPrimaryGroup.students, [ student ]);
-        $scope.myPrimaryGroup.students = _.sortBy(students, 'name');
-      } else {
-        addToStudentCount(data.groupId, 1);
+
+      if (!studentGroupService.isStudentInGroup(student, group)) {
+        student.name = student.name || student.athleticsProfile.fullName;
+        group.students = _.union(group.students, [ student ]);
+        group.studentCount += 1;
       }
     });
 
     $rootScope.$on('removeStudentFromGroup', function(event, data) {
-      var groupId = data.groupId;
+      var group = findGroupInScope(data.group.id);
       var student = data.student;
-      if (groupId === $scope.myPrimaryGroup.id) {
-        $scope.myPrimaryGroup.students = _.remove($scope.myPrimaryGroup.students, function(s) {
+
+      if (studentGroupService.isStudentInGroup(student, group)) {
+        group.students = _.remove(group.students, function(s) {
           return s.sid !== student.sid;
         });
-      } else {
-        addToStudentCount(data.groupId, -1);
+        group.studentCount -= 1;
       }
     });
   });
