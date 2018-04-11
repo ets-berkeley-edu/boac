@@ -1,24 +1,33 @@
-<div class="student-group-selector-container">
+<div class="group-selector-container">
   <div>
-    <div class="student-group-selector-checkbox">
-      <input id="student-group-checkbox-add-all"
+    <div class="group-selector-checkbox">
+      <input id="group-checkbox-add-all"
              type="checkbox"
-             data-ng-model="studentGroupForm.allStudentsCheckboxToggle"
+             data-ng-model="selector.selectAllCheckbox"
              data-ng-click="toggleAllStudentCheckboxes()"/>
     </div>
   </div>
   <div>
-    <div class="btn-group student-group-btn-group"
+    <div class="group-btn-group"
          uib-dropdown
-         is-open="studentGroupForm.isOpen"
-         data-ng-if="studentGroupForm.showGroupsMenu">
+         is-open="selector.isOpen"
+         data-ng-if="selector.showGroupsMenu">
+      <button id="added-to-group-confirmation"
+              type="button"
+              data-ng-disabled="true"
+              class="btn group-btn-confirmation"
+              data-ng-if="isSaving">
+        <i class="fa fa-check"></i>
+        Added to Group
+      </button>
       <button id="add-to-group-button"
               type="button"
               class="btn btn-primary"
-              uib-dropdown-toggle>
+              uib-dropdown-toggle
+              data-ng-if="!isSaving">
         Add to Group <span class="caret"></span>
       </button>
-      <ul class="dropdown-menu student-group-all-menu"
+      <ul class="dropdown-menu group-all-menu"
           uib-dropdown-menu
           role="menu"
           aria-labelledby="add-to-group-button">
@@ -26,7 +35,7 @@
           Loading <i class="fa fa-spinner fa-spin"></i>
         </li>
         <li role="menuitem"
-            data-ng-class="{'student-group-checkbox-item': group, 'divider': !group}"
+            data-ng-class="{'group-checkbox-item': group, 'divider': !group}"
             data-ng-repeat="group in myGroups track by $index"
             data-ng-href="!isLoading">
           <input id="student-{{student.sid}}-group-checkbox"
@@ -37,7 +46,7 @@
                  data-ng-if="group"/>
           <span id="group-{{group.id}}-name"
                 aria-labelledby="student-{{student.sid}}-group-checkbox"
-                class="student-group-checkbox-name"
+                class="group-checkbox-name"
                 data-ng-bind="group.name"
                 data-ng-if="group"></span>
         </li>
