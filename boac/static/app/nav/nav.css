@@ -168,11 +168,11 @@
   padding-right: 5px;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 150px;
+  width: 180px;
 }
 
 .sidebar-row-link-label-text-wide {
-  width: 170px;
+  width: 195px;
 }
 
 .sidebar-row-without-link {
