@@ -40,6 +40,7 @@
     validationService,
     visualizationService,
     $location,
+    $q,
     $rootScope,
     $scope,
     $stateParams
@@ -90,7 +91,14 @@
       $scope.student.isLoading = true;
       var preferredName = null;
       studentFactory.analyticsPerUser(uid).then(function(analytics) {
-        $scope.student = analytics.data;
+        var student = analytics.data;
+        if (!student.sid) {
+          return $q.reject({
+            status: 404,
+            message: 'No student found with UID ' + uid
+          });
+        }
+        $scope.student = student;
         identifyGroupsThatIncludeStudent();
         preferredName = getPreferredName();
 
@@ -119,9 +127,6 @@
           });
         });
 
-      }).catch(function(err) {
-        $scope.error = validationService.parseError(err);
-
       }).then(function() {
         var athleticsProfile = $scope.student.athleticsProfile;
         if (athleticsProfile) {
@@ -140,6 +145,10 @@
       }).then(function() {
         $scope.student.isLoading = false;
         googleAnalyticsService.track('student', 'view-profile', preferredName, parseInt(uid, 10));
+
+      }).catch(function(err) {
+        $scope.error = validationService.parseError(err);
+        $scope.student.isLoading = false;
 
       }).then(callback);
     };
