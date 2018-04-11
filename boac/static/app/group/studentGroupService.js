@@ -29,6 +29,16 @@
 
   angular.module('boac').service('studentGroupService', function(studentGroupFactory, utilService) {
 
+    var decorateGroup = function(group) {
+      return {
+        id: group.id,
+        name: group.name,
+        students: utilService.extendSortableNames(group.students),
+        sortBy: 'sortableName',
+        reverse: false
+      };
+    };
+
     var isMyPrimaryGroup = function(group) {
       return group.name === 'My Students';
     };
@@ -39,17 +49,11 @@
         var myPrimaryGroup = null;
         var myGroups = [];
         _.each(groups, function(group) {
-          var decoratedGroup = {
-            id: group.id,
-            name: group.name,
-            students: utilService.extendSortableNames(group.students),
-            sortBy: 'sortableName',
-            reverse: false
-          };
+          var decoratedGroup = decorateGroup(group);
           if (isMyPrimaryGroup(group)) {
             myPrimaryGroup = decoratedGroup;
           } else {
-            myGroups.push(group);
+            myGroups.push(decoratedGroup);
           }
         });
         return callback(myPrimaryGroup, myGroups);
@@ -57,6 +61,7 @@
     };
 
     return {
+      decorateGroup: decorateGroup,
       isMyPrimaryGroup: isMyPrimaryGroup,
       loadMyGroups: loadMyGroups
     };

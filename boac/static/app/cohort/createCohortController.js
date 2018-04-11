@@ -46,6 +46,7 @@
   });
 
   angular.module('boac').controller('CreateCohortModal', function(
+    authService,
     opts,
     cohortFactory,
     utilService,
@@ -60,46 +61,41 @@
       message: null
     };
     $scope.create = function() {
+      $rootScope.isSaving = true;
       // The 'error.hide' flag allows us to hide validation error on-change of form input.
       $scope.error = {
         hide: false,
         message: null
       };
       $scope.label = _.trim($scope.label);
-      if (_.isEmpty($scope.label)) {
-        $scope.error.message = 'Required';
-      } else if (_.size($scope.label) > 255) {
-        $scope.error.message = 'Name must be 255 characters or fewer';
-      } else {
-        var proposedChange = {name: $scope.label};
-        validationService.validateName(proposedChange, cohortFactory.getMyCohorts, function(errorMessage) {
+      validationService.validateName({name: $scope.label}, authService.getMe().myCohorts, function(errorMessage) {
+        if (errorMessage) {
           $scope.error.message = errorMessage;
-          if (!$scope.error.message) {
-            $rootScope.isSaving = true;
-            var getValues = utilService.getValuesSelected;
-            // Get values where selected=true
-            cohortFactory.createCohort(
-              $scope.label,
-              getValues(opts.gpaRanges),
-              getValues(opts.groupCodes, 'groupCode'),
-              getValues(opts.levels),
-              getValues(opts.majors),
-              getValues(opts.unitRanges),
-              opts.intensive,
-              opts.inactive
-            ).then(
-              function() {
-                $rootScope.isSaving = false;
-                $uibModalInstance.close();
-              },
-              function(err) {
-                $scope.error.message = 'Sorry, the operation failed due to error: ' + err.data.message;
-                $rootScope.isSaving = false;
-              }
-            );
-          }
-        });
-      }
+          $rootScope.isSaving = false;
+        } else {
+          var getValues = utilService.getValuesSelected;
+          // Get values where selected=true
+          cohortFactory.createCohort(
+            $scope.label,
+            getValues(opts.gpaRanges),
+            getValues(opts.groupCodes, 'groupCode'),
+            getValues(opts.levels),
+            getValues(opts.majors),
+            getValues(opts.unitRanges),
+            opts.intensive,
+            opts.inactive
+          ).then(
+            function() {
+              $rootScope.isSaving = false;
+              $uibModalInstance.close();
+            },
+            function(err) {
+              $scope.error.message = 'Sorry, the operation failed due to error: ' + err.data.message;
+              $rootScope.isSaving = false;
+            }
+          );
+        }
+      });
     };
 
     $scope.cancel = function() {

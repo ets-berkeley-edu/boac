@@ -14,13 +14,13 @@
         <span data-ng-if="!error.message">Sorry, there was an error.</span>
       </div>
     </div>
-    <div data-ng-if="!myGroups.length" data-ng-controller="CreateStudentGroupController">
+    <div data-ng-if="!myGroups.length" data-ng-controller="CreateGroupController">
       You have no groups.
       <a id="sidebar-group-create"
          href
          data-ng-click="openCreateGroupModal()"><i class="fa fa-plus"></i> Create a new group</a>
     </div>
-    <div data-ng-repeat="group in myGroups | orderBy:'nameOriginal'">
+    <div data-ng-repeat="group in myGroups">
       <hr class="cohort-manage-row-separator"/>
       <div class="flex-container flex-space-between" data-ng-if="!group.editMode">
         <div class="cohort-manage-name wrap-hard">
@@ -46,17 +46,8 @@
                     class="btn-link cohort-manage-btn-link"
                     data-ng-click="setEditMode(group, true)">
               Rename
-            </button> <span class="faint-text" data-ng-if="group.students.length">|</span>
+            </button>
           </span>
-          <button type="button"
-                  id="group-details-btn-{{$index}}"
-                  class="btn-link cohort-manage-btn-link"
-                  data-ng-click="setShowDetails(group, !group.detailsShowing)"
-                  data-ng-if="group.students.length">
-
-            <span data-ng-if="!group.detailsShowing">Show Details</span>
-            <span data-ng-if="group.detailsShowing">Hide Details</span>
-          </button>
         </div>
       </div>
       <div class="flex-container flex-space-between cohort-manage-row" data-ng-if="group.editMode">
@@ -88,14 +79,6 @@
                   data-ng-click="changeGroupName(group, group.name)">
             Rename
           </button>
-        </div>
-      </div>
-      <div data-ng-show="group.detailsShowing && !group.editMode">
-        <div id="group-students-{{$index}}"
-             class="cohort-filter-criteria">
-          <div data-ng-repeat="student in group.students track by $index">
-            <span class="cohort-filter-criteria-label" data-ng-bind="student.name"></span>
-          </div>
         </div>
       </div>
       <hr class="cohort-manage-row-separator" data-ng-if="$last"/>

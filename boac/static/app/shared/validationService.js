@@ -38,22 +38,33 @@
       };
     };
 
-    var validateName = function(group, getGroupsFactoryFunction, callback) {
-      if (_.includes(['Intensive', 'Inactive'], group.name)) {
-        return callback('Sorry, \'' + group.name + '\' is a reserved name. Please choose a different name.');
-      }
-      var error = null;
-      getGroupsFactoryFunction().then(function(response) {
-        _.each(response.data, function(next) {
-          var validate = !group.id || group.id !== next.id;
-          if (validate && group.name === next.label) {
-            error = 'You have an existing cohort/group with this name. Please choose a different name.';
+    /**
+     * Verify that value of 'name' is non-empty, unique and not reserved.
+     *
+     * @param   {Object}      entity                  Group or cohort
+     * @param   {Function}    allExisting             All existing groups or cohorts owned by current user
+     * @param   {Function}    callback                Standard callback
+     * @param   {String}      callback.errorMessage   Error description, if any
+     * @returns {void}
+     */
+    var validateName = function(entity, allExisting, callback) {
+      var errorMessage = null;
+      if (_.isEmpty(entity.name)) {
+        errorMessage = 'Required';
+      } else if (_.size(entity.name) > 255) {
+        errorMessage = 'Name must be 255 characters or fewer';
+      } else if (_.includes(['Intensive', 'Inactive', 'My Students'], entity.name)) {
+        errorMessage = 'Sorry, \'' + entity.name + '\' is a reserved name. Please choose a different name.';
+      } else {
+        _.each(allExisting, function(existing) {
+          var validate = !entity.id || entity.id !== existing.id;
+          if (validate && entity.name === existing.name) {
+            errorMessage = 'You have an existing cohort/group with this name. Please choose a different name.';
             return false;
           }
         });
-      }).then(function() {
-        return callback(error);
-      });
+      }
+      return callback(errorMessage);
     };
 
     return {

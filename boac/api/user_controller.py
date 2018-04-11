@@ -39,7 +39,7 @@ from boac.merged.sis_profile import merge_sis_profile
 from boac.models.cohort_filter import CohortFilter
 from boac.models.normalized_cache_student_major import NormalizedCacheStudentMajor
 from boac.models.student import Student
-from boac.models.student_group import StudentGroup
+from boac.models.student_group import PRIMARY_GROUP_NAME, StudentGroup
 from flask import current_app as app, request, Response
 from flask_login import current_user, login_required
 
@@ -58,7 +58,7 @@ def user_profile():
         profile['myGroups'] = []
         for group in all_groups:
             decorated = _decorate_student_group(group)
-            if group.name == 'My Students':
+            if group.name == PRIMARY_GROUP_NAME:
                 profile['myPrimaryGroup'] = decorated
             else:
                 profile['myGroups'].append(decorated)
