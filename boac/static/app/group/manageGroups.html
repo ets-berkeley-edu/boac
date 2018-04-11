@@ -23,7 +23,7 @@
     <div data-ng-repeat="group in myGroups | orderBy:'nameOriginal'">
       <hr class="cohort-manage-row-separator"/>
       <div class="flex-container flex-space-between" data-ng-if="!group.editMode">
-        <div class="cohort-manage-label wrap-hard">
+        <div class="cohort-manage-name wrap-hard">
           <strong>
             <a id="group-{{group.id}}"
                data-ng-bind="group.name"
