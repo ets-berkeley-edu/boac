@@ -118,7 +118,7 @@ def course_section_to_json(term_id, section):
         'sectionNum': section.get('number'),
         'units': units,
         'meetings': _get_meetings(section),
-        'students': [student.to_api_json() for student in section['students']],
+        'students': [student.to_expanded_api_json() for student in section['students']],
     }
 
 

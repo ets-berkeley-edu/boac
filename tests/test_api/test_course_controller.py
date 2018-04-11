@@ -28,11 +28,27 @@ from boac.models.normalized_cache_enrollment import NormalizedCacheEnrollment
 import pytest
 
 test_uid = '1133399'
+term_id = 2178
+sid = '11667051'
+section_id = 90100
 
 
 @pytest.fixture()
 def authenticated_session(fake_auth):
     fake_auth.login(test_uid)
+
+
+@pytest.fixture()
+def course_data_load(fake_auth):
+    fake_auth.login(test_uid)
+    _json = json.load(open(f'fixtures/sis_enrollments_api_{sid}_{term_id}.json'))
+    enrollments = _json.get('apiResponse', {}).get('response', {}).get('studentEnrollments', {})
+    sections = []
+    for enrollment in enrollments:
+        section = enrollment.get('classSection')
+        sections.append(section)
+    # Cache course data
+    NormalizedCacheEnrollment.update_enrollments(term_id=term_id, sid=sid, sections=sections)
 
 
 class TestCourseController:
@@ -47,19 +63,8 @@ class TestCourseController:
         response = client.get('/api/section/2222/1')
         assert response.status_code == 404
 
-    def test_get_section(self, authenticated_session, client):
+    def test_get_section(self, authenticated_session, client, course_data_load):
         """Finds section info in normalized cache."""
-        term_id = 2178
-        sid = '11667051'
-        section_id = 90100
-        _json = json.load(open(f'fixtures/sis_enrollments_api_{sid}_{term_id}.json'))
-        enrollments = _json.get('apiResponse', {}).get('response', {}).get('studentEnrollments', {})
-        sections = []
-        for enrollment in enrollments:
-            section = enrollment.get('classSection')
-            sections.append(section)
-        # Cache course data
-        NormalizedCacheEnrollment.update_enrollments(term_id=term_id, sid=sid, sections=sections)
         response = client.get(f'/api/section/{term_id}/{section_id}')
         assert response.status_code == 200
         section = response.json
@@ -67,3 +72,19 @@ class TestCourseController:
         assert section['displayName'] == 'BURMESE 1A'
         assert section['title'] == 'Introductory Burmese'
         assert section['units'] == 4
+
+    def test_section_student_details(self, authenticated_session, client, course_data_load):
+        """Includes per-student details."""
+        response = client.get(f'/api/section/{term_id}/{section_id}')
+        students = response.json['students']
+        assert len(students) == 1
+        assert students[0]['uid'] == '61889'
+        assert students[0]['sid'] == '11667051'
+        assert students[0]['firstName'] == 'Brigitte'
+        assert students[0]['lastName'] == 'Lin'
+        assert students[0]['cumulativeGPA'] == 3.8
+        assert students[0]['cumulativeUnits'] == 101.3
+        assert students[0]['level'] == 'Junior'
+        assert len(students[0]['athletics']) == 2
+        assert len(students[0]['majors']) == 2
+        assert len(students[0]['term']['enrollments']) == 3
