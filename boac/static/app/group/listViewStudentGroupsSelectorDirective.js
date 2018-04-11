@@ -28,9 +28,10 @@
   'use strict';
 
   angular.module('boac').directive('studentGroupsSelector', function(
+    authService,
     studentGroupFactory,
-    studentGroupService,
-    $rootScope
+    $rootScope,
+    $timeout
   ) {
 
     return {
@@ -48,27 +49,26 @@
 
         scope.isLoading = true;
 
-        scope.studentGroupForm = {
-          allStudentsCheckboxToggle: false,
+        scope.selector = {
+          selectAllCheckbox: false,
           showGroupsMenu: false
         };
 
-        _.each(scope.students, function(student) {
-          // Init all student checkboxes to false
-          student.selectedForStudentGroups = false;
-        });
-
-        studentGroupFactory.getMyGroups().then(function(response) {
-          scope.myGroups = _.sortBy(response.data, function(group) {
-            // 'My Students' first
-            return !studentGroupService.isMyPrimaryGroup(group);
-          });
+        var init = function() {
+          var me = authService.getMe();
+          scope.myGroups = _.union([ me.myPrimaryGroup ], me.myGroups);
           if (scope.myGroups.length > 1) {
             // Null will put a 'divider' in list of menu options
             scope.myGroups.splice(1, 0, null);
           }
+          _.each(scope.students, function(student) {
+            // Init all student checkboxes to false
+            student.selectedForStudentGroups = false;
+          });
           scope.isLoading = false;
-        });
+        };
+
+        init();
 
         /**
          * Show or hide the student-groups menu based on page state.
@@ -76,7 +76,7 @@
          * @return {void}
          */
         var updateShowGroupsMenu = function() {
-          scope.studentGroupForm.showGroupsMenu = scope.studentGroupForm.allStudentsCheckboxToggle || !!_.find(scope.students, 'selectedForStudentGroups');
+          scope.selector.showGroupsMenu = scope.selector.selectAllCheckbox || !!_.find(scope.students, 'selectedForStudentGroups');
         };
 
         /**
@@ -96,9 +96,9 @@
                 return false;
               }
             });
-            scope.studentGroupForm.allStudentsCheckboxToggle = allStudentsSelected;
+            scope.selector.selectAllCheckbox = allStudentsSelected;
           } else {
-            scope.studentGroupForm.allStudentsCheckboxToggle = false;
+            scope.selector.selectAllCheckbox = false;
           }
           updateShowGroupsMenu();
         };
@@ -114,13 +114,13 @@
          * @return {void}
          */
         var toggleAllStudentCheckboxes = scope.toggleAllStudentCheckboxes = function(value) {
-          var selected = _.isNil(value) ? scope.studentGroupForm.allStudentsCheckboxToggle : value;
+          var selected = _.isNil(value) ? scope.selector.selectAllCheckbox : value;
           _.each(scope.students, function(student) {
             student.selectedForStudentGroups = selected;
           });
-          scope.studentGroupForm.allStudentsCheckboxToggle = selected;
+          scope.selector.selectAllCheckbox = selected;
           updateShowGroupsMenu();
-          scope.studentGroupForm.showGroupsMenu = selected;
+          scope.selector.showGroupsMenu = selected;
         };
 
         var isStudentInGroup = function(student, group) {
@@ -145,13 +145,13 @@
          * @return {void}
          */
         scope.groupCheckboxClick = function(group) {
+          scope.isSaving = true;
           var students = _.filter(scope.students, function(student) {
             return student.selectedForStudentGroups && !isStudentInGroup(student, group);
           });
           if (students.length) {
             studentGroupFactory.addStudentsToGroup(group.id, students).then(function() {
-              scope.studentGroupForm.showGroupsMenu = false;
-              scope.studentGroupForm.allStudentsCheckboxToggle = false;
+              scope.selector.selectAllCheckbox = false;
               _.each(scope.students, function(student) {
                 student.selectedForStudentGroups = false;
               });
@@ -162,7 +162,11 @@
               g.selected = false;
             }
           });
-          toggleAllStudentCheckboxes(false);
+          scope.selector.selectAllCheckbox = false;
+          $timeout(function() {
+            toggleAllStudentCheckboxes(false);
+            scope.isSaving = false;
+          }, 2000);
         };
       }
     };
