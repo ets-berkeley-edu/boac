@@ -175,12 +175,17 @@
         $rootScope.pageTitle = 'UC Berkeley';
       }
     });
+
     $rootScope.$on('$stateChangeError', function(event, toState, toParams, fromState, fromParams, error) {
       if (error.message === 'unauthenticated') {
         authFactory.casLogIn();
       } else if (error.message === 'authenticated') {
         $state.go('home');
       }
+    });
+
+    $rootScope.$on('$stateChangeSuccess', function() {
+      document.body.scrollTop = document.documentElement.scrollTop = 0;
     });
   });
 
