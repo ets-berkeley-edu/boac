@@ -146,9 +146,9 @@
 
     $scope.groupCheckboxClick = function(group) {
       if (group.selected) {
-        studentGroupFactory.addStudentToGroup(group.id, $scope.student).then(angular.noop);
+        studentGroupFactory.addStudentToGroup(group, $scope.student).then(angular.noop);
       } else {
-        studentGroupFactory.removeStudentFromGroup(group.id, $scope.student).then(angular.noop);
+        studentGroupFactory.removeStudentFromGroup(group, $scope.student).then(angular.noop);
       }
     };
 

@@ -43,6 +43,17 @@
       return group.name === 'My Students';
     };
 
+    var isStudentInGroup = function(student, group) {
+      var inGroup = false;
+      _.each(group.students, function(s) {
+        if (s.sid === student.sid) {
+          inGroup = true;
+          return false;
+        }
+      });
+      return inGroup;
+    };
+
     var loadMyGroups = function(callback) {
       studentGroupFactory.getMyGroups().then(function(response) {
         var groups = response.data;
@@ -63,6 +74,7 @@
     return {
       decorateGroup: decorateGroup,
       isMyPrimaryGroup: isMyPrimaryGroup,
+      isStudentInGroup: isStudentInGroup,
       loadMyGroups: loadMyGroups
     };
   });

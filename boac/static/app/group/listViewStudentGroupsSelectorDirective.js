@@ -30,6 +30,7 @@
   angular.module('boac').directive('studentGroupsSelector', function(
     authService,
     studentGroupFactory,
+    studentGroupService,
     $rootScope,
     $timeout
   ) {
@@ -54,13 +55,17 @@
           showGroupsMenu: false
         };
 
-        var init = function() {
-          var me = authService.getMe();
-          scope.myGroups = _.union([ me.myPrimaryGroup ], me.myGroups);
-          if (scope.myGroups.length > 1) {
+        var formatDropdownMenu = function() {
+          if (scope.myGroups.length > 1 && !_.isNil(scope.myGroups[1])) {
             // Null will put a 'divider' in list of menu options
             scope.myGroups.splice(1, 0, null);
           }
+        };
+
+        var init = function() {
+          var me = authService.getMe();
+          scope.myGroups = _.union([ me.myPrimaryGroup ], me.myGroups);
+          formatDropdownMenu();
           _.each(scope.students, function(student) {
             // Init all student checkboxes to false
             student.selectedForStudentGroups = false;
@@ -105,6 +110,7 @@
 
         $rootScope.$on('groupCreated', function(event, data) {
           scope.myGroups.push(data.group);
+          formatDropdownMenu();
         });
 
         /**
@@ -123,17 +129,6 @@
           scope.selector.showGroupsMenu = selected;
         };
 
-        var isStudentInGroup = function(student, group) {
-          var inGroup = false;
-          _.each(group.students, function(s) {
-            if (s.sid === student.sid) {
-              inGroup = true;
-              return false;
-            }
-          });
-          return inGroup;
-        };
-
         $rootScope.$on('resetStudentGroupsSelector', function() {
           toggleAllStudentCheckboxes(false);
         });
@@ -147,10 +142,10 @@
         scope.groupCheckboxClick = function(group) {
           scope.isSaving = true;
           var students = _.filter(scope.students, function(student) {
-            return student.selectedForStudentGroups && !isStudentInGroup(student, group);
+            return student.selectedForStudentGroups && !studentGroupService.isStudentInGroup(student, group);
           });
           if (students.length) {
-            studentGroupFactory.addStudentsToGroup(group.id, students).then(function() {
+            studentGroupFactory.addStudentsToGroup(group, students).then(function() {
               scope.selector.selectAllCheckbox = false;
               _.each(scope.students, function(student) {
                 student.selectedForStudentGroups = false;
