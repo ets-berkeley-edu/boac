@@ -23,7 +23,7 @@
     <link href="/static/app/student/student.css" rel="stylesheet">
   </head>
 
-  <body data-ng-cloak data-ui-view data-ng-class="{'background-blue-sky': angularStateName === 'splash'}">
+  <body data-ng-cloak data-ui-view data-ng-class="{'background-blue-sky': me && angularStateName === 'splash'}">
     <!-- Third-party: Warning, if the order below is wrong then the app will break. -->
     <script src="/static/lib/angular/angular.min.js"></script>
     <script src="/static/lib/angular-animate/angular-animate.min.js"></script>
