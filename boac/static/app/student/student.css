@@ -275,6 +275,10 @@
   padding: 1px;
 }
 
+.student-group-checkbox-input {
+  flex: 0 0 12px;
+}
+
 .student-group-checkbox-label {
   margin-left: 5px;
 }
