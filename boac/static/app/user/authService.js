@@ -30,10 +30,15 @@
   angular.module('boac').service('authService', function(
     authFactory,
     googleAnalyticsService,
+    studentGroupFactory,
     $http,
     $location,
     $rootScope
   ) {
+
+    var getMe = function() {
+      return $rootScope.me.authenticated_as;
+    };
 
     var reloadMe = function() {
       return $http.get('/api/status').then(authFactory.loadUserProfile).then(function() {
@@ -48,7 +53,32 @@
       });
     };
 
+    $rootScope.$on('groupCreated', function(event, data) {
+      if (_.get($rootScope, 'me.authenticated_as.myGroups')) {
+        $rootScope.me.authenticated_as.myGroups.push(data.group);
+      }
+    });
+
+    $rootScope.$on('groupDeleted', function(event, data) {
+      if (_.get($rootScope, 'me.authenticated_as.myGroups')) {
+        $rootScope.me.authenticated_as.myGroups = _.remove($rootScope.me.authenticated_as.myGroups, function(group) {
+          return data.groupId !== group.id;
+        });
+      }
+    });
+
+    $rootScope.$on('groupNameChanged', function(event, data) {
+      if (_.get($rootScope, 'me.authenticated_as.myGroups')) {
+        _.each($rootScope.me.authenticated_as.myGroups, function(group) {
+          if (data.group.id === group.id) {
+            group.name = data.group.name;
+          }
+        });
+      }
+    });
+
     return {
+      getMe: getMe,
       reloadMe: reloadMe
     };
   });

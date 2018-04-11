@@ -27,48 +27,59 @@
 
   'use strict';
 
-  angular.module('boac').controller('CreateStudentGroupController', function($scope, $uibModal) {
+  angular.module('boac').controller('CreateGroupController', function($scope, $uibModal) {
 
     $scope.openCreateGroupModal = function() {
       $uibModal.open({
         animation: true,
         ariaLabelledBy: 'create-group-header',
         ariaDescribedBy: 'create-group-body',
-        templateUrl: '/static/app/group/createStudentGroupModal.html',
+        templateUrl: '/static/app/group/createGroupModal.html',
         controller: 'CreateGroupModal',
         resolve: {}
       });
     };
   });
 
-  angular.module('boac').controller('CreateGroupModal', function(studentGroupFactory, $scope, $uibModalInstance) {
+  angular.module('boac').controller('CreateGroupModal', function(
+    authService,
+    studentGroupFactory,
+    validationService,
+    $scope,
+    $uibModalInstance
+  ) {
     $scope.name = null;
     $scope.error = {
       hide: false,
       message: null
     };
+
     $scope.create = function() {
+      $scope.isSaving = true;
       // The 'error.hide' flag allows us to hide validation error on-change of form input.
-      $scope.error.hide = false;
+      $scope.error = {
+        hide: false,
+        message: null
+      };
       $scope.name = _.trim($scope.name);
-      if (_.isEmpty($scope.name)) {
-        $scope.error.message = 'Required';
-      } else if (_.size($scope.name) > 255) {
-        $scope.error.message = 'Name must be 255 characters or fewer';
-      } else {
-        $scope.isSaving = true;
-        // Get values where selected=true
-        studentGroupFactory.createGroup($scope.name).then(
-          function() {
-            $scope.isSaving = false;
-            $uibModalInstance.close();
-          },
-          function(err) {
-            $scope.error.message = 'Sorry, the operation failed due to error: ' + err.data.message;
-            $scope.isSaving = false;
-          }
-        );
-      }
+      validationService.validateName({name: $scope.name}, authService.getMe().myGroups, function(errorMessage) {
+        if (errorMessage) {
+          $scope.isSaving = false;
+          $scope.error.message = errorMessage;
+        } else {
+          // Get values where selected=true
+          studentGroupFactory.createGroup($scope.name).then(
+            function() {
+              $scope.isSaving = false;
+              $uibModalInstance.close();
+            },
+            function(err) {
+              $scope.error.message = 'Sorry, the operation failed due to error: ' + err.data.message;
+              $scope.isSaving = false;
+            }
+          );
+        }
+      });
     };
 
     $scope.cancel = function() {

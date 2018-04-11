@@ -28,6 +28,7 @@
   'use strict';
 
   angular.module('boac').controller('ManageCohortsController', function(
+    authService,
     cohortFactory,
     studentFactory,
     utilService,
@@ -73,9 +74,8 @@
     };
 
     $scope.changeCohortName = function(cohort, name) {
-      var proposedChange = {id: cohort.id, name: name};
-      validationService.validateName(proposedChange, cohortFactory.getMyCohorts, function(error) {
-        cohort.error = error;
+      validationService.validateName({id: cohort.id, name: name}, authService.getMe().myCohorts, function(errorMessage) {
+        cohort.error = errorMessage;
         cohort.hideError = false;
         if (!cohort.error) {
           cohortFactory.changeCohortName(cohort.id, name).then(function() {
