@@ -85,6 +85,7 @@
                 </div>
                 <div class="student-group-checkbox">
                   <input id="my-students-checkbox"
+                         class="student-group-checkbox-input"
                          type="checkbox"
                          data-ng-model="myPrimaryGroup.selected"
                          data-ng-click="groupCheckboxClick(myPrimaryGroup)"/>
@@ -94,6 +95,7 @@
                 </div>
                 <div class="student-group-checkbox" data-ng-repeat="group in myGroups track by $index">
                   <input id="student-group-checkbox-{{$index}}"
+                         class="student-group-checkbox-input"
                          type="checkbox"
                          data-ng-model="group.selected"
                          data-ng-click="groupCheckboxClick(group)"/>
