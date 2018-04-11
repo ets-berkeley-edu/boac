@@ -37,30 +37,21 @@
   ) {
 
     $scope.isLoading = true;
+    $scope.isMyPrimaryGroup = studentGroupService.isMyPrimaryGroup;
 
     var resetPageView = function(callback) {
-      // For each group listed in the UI, hide details and the edit form
-      _.each($scope.myGroups, function(next) {
-        next.editMode = false;
-        next.detailsShowing = false;
+      _.each($scope.myGroups, function(group) {
+        group.editMode = false;
       });
       return callback();
     };
 
     var setEditMode = $scope.setEditMode = function(group, newValue) {
       resetPageView(function() {
-        group.detailsShowing = newValue;
         group.editMode = newValue;
       });
     };
 
-    $scope.isMyPrimaryGroup = studentGroupService.isMyPrimaryGroup;
-
-    $scope.setShowDetails = function(group, newValue) {
-      resetPageView(function() {
-        group.detailsShowing = newValue;
-      });
-    };
 
     $scope.cancelEdit = function(group) {
       group.name = group.nameOriginal;
@@ -79,8 +70,6 @@
         }
       });
     };
-
-    $scope.deleteGroup = studentGroupFactory.deleteGroup;
 
     /**
      * @return {void}
@@ -101,8 +90,8 @@
     });
 
     $rootScope.$on('groupDeleted', function(event, data) {
-      $scope.myGroups = _.remove($scope.myGroups, function(g) {
-        return g && (g.id !== data.groupId);
+      $scope.myGroups = _.remove($scope.myGroups, function(group) {
+        return group.id !== data.groupId;
       });
     });
 

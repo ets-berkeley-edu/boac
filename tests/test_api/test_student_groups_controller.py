@@ -58,11 +58,14 @@ class TestStudentGroupsController:
 
     def test_my_groups(self, authenticated_session, client):
         """Returns all of current_user's student groups."""
+        # 'My Students' is not first group created by this user but it will always be first in '/api/groups/my' list
+        assert client.get('/api/group/my_primary').status_code == 200
         response = client.get('/api/groups/my')
         assert response.status_code == 200
         groups = response.json
-        assert len(groups) == 1
-        students = groups[0]['students']
+        assert len(groups) == 2
+        assert groups[0]['name'] == 'My Students'
+        students = groups[1]['students']
         names = [student['firstName'] + ' ' + student['lastName'] for student in students]
         assert ['Brigitte Lin', 'Paul Farestveit', 'Paul Kerschen', 'Sandeep Jayaprakash'] == names
 
@@ -99,8 +102,11 @@ class TestStudentGroupsController:
 
     def test_group_detail_includes_analytics(self, authenticated_session, client):
         """Returns full term and analytics data for detailed group listing."""
-        primary_group = client.get('/api/group/my_primary').json
-        students = primary_group['students']
+        groups = client.get('/api/groups/my').json
+        group = next(group for group in groups if group['name'] == 'Cool Kids')
+        group_id = group['id']
+        group = client.get(f'/api/group/{group_id}').json
+        students = group['students']
         assert students[0]['cumulativeGPA'] == 3.8
         assert students[0]['cumulativeUnits'] == 101.3
         assert students[0]['level'] == 'Junior'
@@ -110,8 +116,9 @@ class TestStudentGroupsController:
 
     def test_group_detail_includes_athletics(self, authenticated_session, client):
         """Returns athletic memberships for detailed group listing."""
-        primary_group = client.get('/api/group/my_primary').json
-        students = primary_group['students']
+        groups = client.get('/api/groups/my').json
+        group = next(group for group in groups if group['name'] == 'Cool Kids')
+        students = group['students']
         assert len(students[0]['athletics']) == 2
         assert students[0]['athletics'][0]['name'] == 'Women\'s Field Hockey'
         assert students[0]['athletics'][0]['groupCode'] == 'WFH'
@@ -135,8 +142,9 @@ class TestStudentGroupsController:
         assert response.status_code == 200
         groups = client.get('/api/groups/my').json
         assert len(groups)
-        assert groups[0]['name'] == name
-        assert groups[0]['students'][0]['sid'] == sid
+        group = next(group for group in groups if group['id'] == group_id)
+        assert group['name'] == name
+        assert group['students'][0]['sid'] == sid
         # Remove student
         response = client.delete(f'/api/group/{group_id}/remove_student/{sid}')
         assert response.status_code == 200

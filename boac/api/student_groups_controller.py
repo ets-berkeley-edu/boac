@@ -28,7 +28,7 @@ from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotF
 import boac.api.util as api_util
 from boac.lib.http import tolerant_jsonify
 from boac.merged import member_details
-from boac.models.student_group import StudentGroup
+from boac.models.student_group import PRIMARY_GROUP_NAME, StudentGroup
 from flask import current_app as app, request
 from flask_login import current_user, login_required
 
@@ -100,6 +100,7 @@ def remove_student_from_group(group_id, sid):
 @login_required
 def my_groups():
     groups = StudentGroup.get_groups_by_owner_id(current_user.id)
+    groups = sorted(groups, key=lambda group: (group.name != PRIMARY_GROUP_NAME, group.name))
     return tolerant_jsonify(_decorate_groups([g.to_api_json() for g in groups], include_analytics=False))
 
 

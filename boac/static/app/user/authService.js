@@ -37,7 +37,7 @@
   ) {
 
     var getMe = function() {
-      return $rootScope.me.authenticated_as;
+      return _.cloneDeep($rootScope.me.authenticated_as);
     };
 
     var reloadMe = function() {

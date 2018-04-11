@@ -29,6 +29,9 @@ from boac.models.base import Base
 from boac.models.db_relationships import student_group_members
 from boac.models.student import Student
 
+# All BOAC users have a persistent primary group with a read-only name
+PRIMARY_GROUP_NAME = 'My Students'
+
 
 class StudentGroup(Base):
     __tablename__ = 'student_groups'
@@ -54,7 +57,7 @@ class StudentGroup(Base):
 
     @classmethod
     def get_or_create_my_primary(cls, owner_id):
-        name = 'My Students'
+        name = PRIMARY_GROUP_NAME
         group = cls.query.filter_by(owner_id=owner_id, name=name).first()
         if not group:
             group = cls.create(owner_id, name)
