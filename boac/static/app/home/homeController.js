@@ -51,6 +51,10 @@
       });
     };
 
+    $rootScope.$on('groupCreated', function(event, data) {
+      $scope.myGroups.push(studentGroupService.decorateGroup(data.group));
+    });
+
     $rootScope.$on('myCohortsUpdated', function() {
       $scope.isLoading = true;
       cohortService.loadMyCohorts(function(myCohorts) {

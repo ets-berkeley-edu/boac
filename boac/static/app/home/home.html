@@ -18,7 +18,7 @@
       <h1 class="page-section-header">Cohorts</h1>
       <div data-ng-if="!myCohorts.length">
         You have no saved cohorts.
-        <a data-ng-href="/cohort?c=new">Create a new cohort.</a>
+        <a id="home-cohort-create" data-ng-href="/cohort?c=new">Create a new cohort.</a>
       </div>
       <div data-ng-repeat="cohort in myCohorts" data-ng-if="myCohorts.length">
         <h2 class="page-section-header-sub">
@@ -34,7 +34,9 @@
       <h1 class="page-section-header">Groups</h1>
       <div data-ng-if="!myGroups.length">
         You have no groups.
-        <a data-ng-href="/cohort?c=new">Create a new group.</a>
+        <span data-ng-controller="CreateGroupController">
+          <a id="home-group-create" href data-ng-click="openCreateGroupModal()"> Create a new Group</a>
+        </span>
       </div>
       <div data-ng-repeat="group in myGroups" data-ng-if="myGroups.length">
         <h2 class="page-section-header-sub">
