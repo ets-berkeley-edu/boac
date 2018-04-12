@@ -33,7 +33,7 @@
 <div class="sidebar-row-link">
   <span class="sidebar-row-link-label">
     <a id="sidebar-cohort-create"
-       data-ui-sref="cohort({c: 'new', i: null})"
+       data-ui-sref="cohort({c: 'new', i: null, inactive: null})"
        data-ui-sref-opts="{reload: true}"><i class="fa fa-plus"></i> Create Cohort</a>
   </span>
 </div>
@@ -41,7 +41,7 @@
   <div class="sidebar-row-link-label">
     <a id="sidebar-cohort-{{$index}}"
        class="sidebar-row-link-label-text"
-       data-ui-sref="cohort({c: cohort.id, i: null})"
+       data-ui-sref="cohort({c: cohort.id, i: null, inactive: null})"
        data-ui-sref-opts="{reload: true}"
        data-ng-bind="cohort.label">
     </a>
