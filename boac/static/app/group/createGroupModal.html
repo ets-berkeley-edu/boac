@@ -1,33 +1,35 @@
 <div class="modal-header">
   <h3 id="create-group-header">Name Your Group</h3>
 </div>
-<div class="modal-body" id="create-group-body">
-  <div class="group-create-form-name">Group Name:</div>
-  <div>
-    <input id="group-create-input"
-           class="group-create-input-name"
-           data-ng-change="error.hide = true"
-           data-ng-model="name"
-           data-ng-readonly="isSaving"
-           type="text"
-           maxlength="255"
-           autofocus
-           required>
+<form name="createGroupForm" data-ng-submit="create(group)">
+  <div class="modal-body" id="create-group-body">
+    <div class="group-create-form-name">Group Name:</div>
+    <div>
+      <input id="group-create-input"
+             class="group-create-input-name"
+             data-ng-change="error.hide = true"
+             data-ng-model="name"
+             data-ng-readonly="isSaving"
+             type="text"
+             maxlength="255"
+             autofocus
+             required>
+    </div>
+    <div class="faint-text">255 character limit <span data-ng-if="name.length">({{255 - name.length}} left)</span></div>
+    <div class="has-error" data-ng-bind="error.message" data-ng-if="error.message && !error.hide"></div>
   </div>
-  <div class="faint-text">255 character limit <span data-ng-if="name.length">({{255 - name.length}} left)</span></div>
-  <div class="has-error" data-ng-bind="error.message" data-ng-if="error.message && !error.hide"></div>
-</div>
-<div class="modal-footer">
-  <button type="button"
-          id="confirm-create-group-btn"
-          class="btn btn btn-primary"
-          data-ng-disabled="!name.length || isSaving"
-          data-ng-click="create(group)">
-    <i class="fa fa-spinner fa-spin" data-ng-if="isSaving"></i> {{isSaving ? 'Saving' : 'Save'}}
-  </button>
-  <button type="button"
-          id="cancel-create-group-btn"
-          class="btn btn-default"
-          data-ng-disabled="isSaving"
-          data-ng-click="cancel()">Cancel</button>
-</div>
+  <div class="modal-footer">
+    <button type="button"
+            id="confirm-create-group-btn"
+            class="btn btn btn-primary"
+            data-ng-disabled="!name.length || isSaving"
+            data-ng-click="create(group)">
+      <i class="fa fa-spinner fa-spin" data-ng-if="isSaving"></i> {{isSaving ? 'Saving' : 'Save'}}
+    </button>
+    <button type="button"
+            id="cancel-create-group-btn"
+            class="btn btn-default"
+            data-ng-disabled="isSaving"
+            data-ng-click="cancel()">Cancel</button>
+  </div>
+</form>

@@ -50,7 +50,10 @@
           </span>
         </div>
       </div>
-      <div class="flex-container flex-space-between cohort-manage-row" data-ng-if="group.editMode">
+      <form name="renameGroupForm"
+            class="flex-container flex-space-between cohort-manage-row"
+            data-ng-submit="changeGroupName(group, group.name)"
+            data-ng-if="group.editMode">
         <div class="cohort-manage-text-input">
           <input aria-required="true"
                  class="form-control"
@@ -65,13 +68,7 @@
           <div class="has-error" data-ng-bind="group.error" data-ng-if="group.error && !group.hideError"></div>
           <div class="faint-text">255 character limit <span data-ng-if="group.name.length">({{255 - group.name.length}} left)</span></div>
         </div>
-        <div class="flex-container flex-space-between">
-          <button type="button"
-                  id="group-cancel-btn-{{$index}}"
-                  class="btn btn-sm btn-default cohort-manage-btn"
-                  data-ng-click="cancelEdit(group)">
-            Cancel
-          </button>
+        <div class="edit-mode-button-container">
           <button type="button"
                   id="group-save-btn-{{$index}}"
                   class="btn btn-sm btn-primary cohort-manage-btn"
@@ -79,8 +76,14 @@
                   data-ng-click="changeGroupName(group, group.name)">
             Rename
           </button>
+          <button type="button"
+                  id="group-cancel-btn-{{$index}}"
+                  class="btn btn-sm btn-default cohort-manage-btn"
+                  data-ng-click="cancelEdit(group)">
+            Cancel
+          </button>
         </div>
-      </div>
+      </form>
       <hr class="cohort-manage-row-separator" data-ng-if="$last"/>
     </div>
   </div>
