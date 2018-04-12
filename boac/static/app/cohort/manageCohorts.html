@@ -53,7 +53,10 @@
           </button>
         </div>
       </div>
-      <div class="flex-container flex-space-between cohort-manage-row" data-ng-if="cohort.editMode">
+      <form name="renameCohortForm"
+            class="flex-container flex-space-between cohort-manage-row"
+            data-ng-submit="changeCohortName(cohort, cohort.name)"
+            data-ng-if="cohort.editMode">
         <div class="cohort-manage-text-input">
           <input aria-required="true"
                  class="form-control"
@@ -68,13 +71,7 @@
           <div class="has-error" data-ng-bind="cohort.error" data-ng-if="cohort.error && !cohort.hideError"></div>
           <div class="faint-text">255 character limit <span data-ng-if="cohort.name.length">({{255 - cohort.name.length}} left)</span></div>
         </div>
-        <div class="flex-container flex-space-between">
-          <button type="button"
-                  id="cohort-cancel-btn-{{$index}}"
-                  class="btn btn-sm btn-default cohort-manage-btn"
-                  data-ng-click="cancelEdit(cohort)">
-            Cancel
-          </button>
+        <div class="edit-mode-button-container">
           <button type="button"
                   id="cohort-save-btn-{{$index}}"
                   class="btn btn-sm btn-primary cohort-manage-btn"
@@ -82,8 +79,14 @@
                   data-ng-click="changeCohortName(cohort, cohort.name)">
             Rename
           </button>
+          <button type="button"
+                  id="cohort-cancel-btn-{{$index}}"
+                  class="btn btn-sm btn-default cohort-manage-btn"
+                  data-ng-click="cancelEdit(cohort)">
+            Cancel
+          </button>
         </div>
-      </div>
+      </form>
       <div data-ng-show="cohort.detailsShowing && !cohort.editMode">
         <div id="cohort-filter-criteria-{{$index}}"
              class="cohort-filter-criteria">
