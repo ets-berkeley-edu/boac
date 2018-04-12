@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').directive('studentGroupsSelector', function(
+  angular.module('boac').directive('groupsSelector', function(
     authService,
     studentGroupFactory,
     studentGroupService,
@@ -44,7 +44,7 @@
         students: '='
       },
 
-      templateUrl: '/static/app/group/listViewStudentGroupsSelector.html',
+      templateUrl: '/static/app/group/groupsSelector.html',
 
       link: function(scope) {
 
@@ -85,6 +85,53 @@
         };
 
         /**
+         * Toggle the all-student-groups checkbox.
+         *
+         * @param  {Boolean}    value      If true, select all students in current page view.
+         * @return {void}
+         */
+        var toggleAllStudentCheckboxes = scope.toggleAllStudentCheckboxes = function(value) {
+          var selected = _.isNil(value) ? scope.selector.selectAllCheckbox : value;
+          _.each(scope.students, function(student) {
+            student.selectedForStudentGroups = selected;
+          });
+          scope.selector.selectAllCheckbox = selected;
+          updateShowGroupsMenu();
+          scope.selector.showGroupsMenu = selected;
+        };
+
+        /**
+         * Add selected students to the group provided and then reset all student-group related menus.
+         *
+         * @param  {Group}    group      Students will be added to this group.
+         * @return {void}
+         */
+        var groupCheckboxClick = scope.groupCheckboxClick = function(group) {
+          scope.isSaving = true;
+          var students = _.filter(scope.students, function(student) {
+            return student.selectedForStudentGroups && !studentGroupService.isStudentInGroup(student, group);
+          });
+          if (students.length) {
+            studentGroupFactory.addStudentsToGroup(group, students).then(function() {
+              scope.selector.selectAllCheckbox = false;
+              _.each(scope.students, function(student) {
+                student.selectedForStudentGroups = false;
+              });
+            });
+          }
+          _.each(scope.myGroups, function(g) {
+            if (g) {
+              g.selected = false;
+            }
+          });
+          scope.selector.selectAllCheckbox = false;
+          $timeout(function() {
+            toggleAllStudentCheckboxes(false);
+            scope.isSaving = false;
+          }, 2000);
+        };
+
+        /**
          * Click on checkbox of an individual student.
          *
          * @param  {Student}    student      Student checkbox has been toggled.
@@ -109,60 +156,15 @@
         };
 
         $rootScope.$on('groupCreated', function(event, data) {
-          scope.myGroups.push(data.group);
+          var group = data.group;
+          scope.myGroups.push(group);
+          groupCheckboxClick(group);
           formatDropdownMenu();
         });
-
-        /**
-         * Toggle the all-student-groups checkbox.
-         *
-         * @param  {Boolean}    value      If true, select all students in current page view.
-         * @return {void}
-         */
-        var toggleAllStudentCheckboxes = scope.toggleAllStudentCheckboxes = function(value) {
-          var selected = _.isNil(value) ? scope.selector.selectAllCheckbox : value;
-          _.each(scope.students, function(student) {
-            student.selectedForStudentGroups = selected;
-          });
-          scope.selector.selectAllCheckbox = selected;
-          updateShowGroupsMenu();
-          scope.selector.showGroupsMenu = selected;
-        };
 
         $rootScope.$on('resetStudentGroupsSelector', function() {
           toggleAllStudentCheckboxes(false);
         });
-
-        /**
-         * Add selected students to the group provided and then reset all student-group related menus.
-         *
-         * @param  {Group}    group      Students will be added to this group.
-         * @return {void}
-         */
-        scope.groupCheckboxClick = function(group) {
-          scope.isSaving = true;
-          var students = _.filter(scope.students, function(student) {
-            return student.selectedForStudentGroups && !studentGroupService.isStudentInGroup(student, group);
-          });
-          if (students.length) {
-            studentGroupFactory.addStudentsToGroup(group, students).then(function() {
-              scope.selector.selectAllCheckbox = false;
-              _.each(scope.students, function(student) {
-                student.selectedForStudentGroups = false;
-              });
-            });
-          }
-          _.each(scope.myGroups, function(g) {
-            if (g) {
-              g.selected = false;
-            }
-          });
-          scope.selector.selectAllCheckbox = false;
-          $timeout(function() {
-            toggleAllStudentCheckboxes(false);
-            scope.isSaving = false;
-          }, 2000);
-        };
       }
     };
   });
