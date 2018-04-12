@@ -65,8 +65,7 @@
 
       <div class="course-tabs-container">
         <div class="course-tabs-container-column-01">
-          <student-groups-selector data-students="section.students"
-                                   data-ng-if="tab === 'list'"></student-groups-selector>
+          <groups-selector data-students="section.students" data-ng-if="tab === 'list'"></groups-selector>
         </div>
         <div class="course-tabs-container-column-02">
           <div data-ng-include="'/static/app/shared/tabs.html'"></div>
