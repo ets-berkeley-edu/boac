@@ -1,16 +1,16 @@
 <div class="cohort-container">
   <div data-ng-if="isSaving && !error">
-    <h1 class="faint-text">Saving....</h1>
+    <h1 class="page-section-header faint-text">Saving....</h1>
   </div>
   <div data-ng-if="error">
-    <h1>Error</h1>
+    <h1 class="page-section-header">Error</h1>
     <div class="faint-text">
       <span data-ng-bind="error.message" data-ng-if="error.message"></span>
       <span data-ng-if="!error.message">Sorry, there was an error retrieving data.</span>
     </div>
   </div>
   <div class="cohort-label" data-ng-if="!error && !isCreateCohortMode && !isLoading && !isSaving && (cohort.totalMemberCount >= 0)">
-    <h1 data-ng-if="cohort.name">
+    <h1 class="page-section-header" data-ng-if="cohort.name">
       <span data-ng-bind="cohort.name"></span>
       <span class="faint-text">(<span data-ng-bind="cohort.totalMemberCount"></span> members)</span>
     </h1>
@@ -19,9 +19,7 @@
     </h1>
   </div>
   <div class="cohort-column-results" data-ng-if="!isLoading && !error && !isSaving && isCreateCohortMode">
-    <h1>
-      Create a Cohort
-    </h1>
+    <h1 class="page-section-header">Create a Cohort</h1>
     <div>
       Find a set of users then save your search as a custom cohort. Revisit your saved cohorts at any time.
     </div>
