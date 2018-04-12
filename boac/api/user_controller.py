@@ -50,18 +50,17 @@ def user_profile():
         'uid': False,
     }
     if current_user.is_active:
-        user_id = current_user.get_id()
-        profile = calnet.get_calnet_user_for_uid(app, user_id)
-        # The following is required/rendered in all BOAC views
-        profile['myCohorts'] = CohortFilter.all_owned_by(user_id, include_alerts=True)
+        uid = current_user.get_id()
+        profile = calnet.get_calnet_user_for_uid(app, uid)
+        # All BOAC views require group and cohort lists
+        profile['myCohorts'] = CohortFilter.all_owned_by(uid, include_alerts=True)
         all_groups = StudentGroup.get_groups_by_owner_id(current_user.id)
+        my_primary = StudentGroup.get_or_create_my_primary(current_user.id)
+        profile['myPrimaryGroup'] = _decorate_student_group(my_primary)
         profile['myGroups'] = []
         for group in all_groups:
-            decorated = _decorate_student_group(group)
-            if group.name == PRIMARY_GROUP_NAME:
-                profile['myPrimaryGroup'] = decorated
-            else:
-                profile['myGroups'].append(decorated)
+            if group.name != PRIMARY_GROUP_NAME:
+                profile['myGroups'].append(_decorate_student_group(group))
     return tolerant_jsonify(profile)
 
 
