@@ -60,14 +60,16 @@ class TestUserProfile:
         assert response.status_code == 200
         assert not response.json['uid']
 
-    def test_profile_includes_lack_of_canvas_account(self, client, fake_auth):
-        test_uid = '1133399'
-        fake_auth.login(test_uid)
+    def test_profile_auto_create_primary_group(self, client, fake_auth):
+        uid = '6446'
+        fake_auth.login(uid)
         response = client.get('/api/profile')
         assert response.status_code == 200
-        assert response.json['uid'] == test_uid
-        assert 'firstName' in response.json
-        assert 'lastName' in response.json
+        profile = response.json
+        assert profile['uid'] == uid
+        assert 'firstName' in profile
+        assert 'lastName' in profile
+        assert profile['myPrimaryGroup']
 
     def test_includes_canvas_profile_if_available(self, client, fake_auth):
         test_uid = '2040'
