@@ -170,7 +170,6 @@
       if (toState && toState.name) {
         var name = toState.name.replace(/([A-Z])/g, ' $1');
         $rootScope.pageTitle = name.charAt(0).toUpperCase() + name.slice(1);
-        $rootScope.angularStateName = toState.name;
       } else {
         $rootScope.pageTitle = 'UC Berkeley';
       }
@@ -184,7 +183,8 @@
       }
     });
 
-    $rootScope.$on('$stateChangeSuccess', function() {
+    $rootScope.$on('$stateChangeSuccess', function(event, toState) {
+      $rootScope.angularStateName = toState.name;
       document.body.scrollTop = document.documentElement.scrollTop = 0;
     });
   });
