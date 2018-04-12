@@ -133,6 +133,7 @@
 .index-container-body {
   display: flex;
   flex-direction: row;
+  height: 100%;
 }
 
 .index-container-footer {
