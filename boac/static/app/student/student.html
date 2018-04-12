@@ -5,7 +5,7 @@
   </div>
 
   <div class="container-left" data-ng-if="!student.isLoading && error">
-    <h1>{{error.status === 404 ? 'Not Found' : 'Error'}}</h1>
+    <h1 class="page-section-header">{{error.status === 404 ? 'Not Found' : 'Error'}}</h1>
     <div class="faint-text">
       <span data-ng-bind="error.message" data-ng-if="error.message"></span>
       <span data-ng-if="!error.message">Sorry, there was an error retrieving data.</span>
