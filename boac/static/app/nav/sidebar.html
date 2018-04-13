@@ -22,7 +22,8 @@
 
 <div data-ng-class="{'sidebar-row-link': myCohorts.length, 'sidebar-row-without-link': !myCohorts.length}"
      class="sidebar-section-header">
-  <span class="sidebar-header sidebar-row-link-label">
+  <span class="sidebar-header"
+        data-ng-class="{'sidebar-row-link-label': myCohorts.length}">
       <img class="sidebar-header-icon" src="/static/app/nav/sidebar-icon-cohorts.svg">
       Cohorts <span class="sidebar-manage-link"
                     data-ng-if="myCohorts.length">(<a id="sidebar-cohorts-manage"
@@ -80,7 +81,8 @@
 
 <div data-ng-class="{'sidebar-row-link': myGroups.length, 'sidebar-row-without-link': !myGroups.length}"
      class="sidebar-section-header">
-  <span class="sidebar-header sidebar-row-link-label">
+  <span class="sidebar-header"
+        data-ng-class="{'sidebar-row-link-label': myGroups.length}">
     <img class="sidebar-header-icon" src="/static/app/nav/sidebar-icon-groups.svg">
     Groups <span class="sidebar-manage-link" data-ng-if="myGroups.length">(<a id="sidebar-groups-manage" href="/groups/manage">Manage</a>)</span>
   </span>
