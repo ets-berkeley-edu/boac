@@ -165,26 +165,27 @@
         reloadOnSearch: false
       });
 
-  }).run(function(authFactory, authService, $rootScope, $state) {
-    $rootScope.$on('$stateChangeStart', function(e, toState) {
-      if (toState && toState.name) {
-        var name = toState.name.replace(/([A-Z])/g, ' $1');
+  }).run(function(authFactory, authService, $rootScope, $state, $transitions) {
+    $transitions.onStart({}, function($transition) {
+      if ($transition.$to().name) {
+        var name = $transition.$to().name.replace(/([A-Z])/g, ' $1');
         $rootScope.pageTitle = name.charAt(0).toUpperCase() + name.slice(1);
       } else {
         $rootScope.pageTitle = 'UC Berkeley';
       }
     });
 
-    $rootScope.$on('$stateChangeError', function(event, toState, toParams, fromState, fromParams, error) {
-      if (error.message === 'unauthenticated') {
+    $transitions.onError({}, function($transition) {
+      var message = _.get($transition.error(), 'detail.message');
+      if (message === 'unauthenticated') {
         authFactory.casLogIn();
-      } else if (error.message === 'authenticated') {
+      } else if (message === 'authenticated') {
         $state.go('home');
       }
     });
 
-    $rootScope.$on('$stateChangeSuccess', function(event, toState) {
-      $rootScope.angularStateName = toState.name;
+    $transitions.onSuccess({}, function($transition) {
+      $rootScope.angularStateName = $transition.$to().name;
       document.body.scrollTop = document.documentElement.scrollTop = 0;
     });
   });

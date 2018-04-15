@@ -52,7 +52,6 @@
       });
     };
 
-
     $scope.cancelEdit = function(group) {
       group.name = group.nameOriginal;
       setEditMode(group, false);

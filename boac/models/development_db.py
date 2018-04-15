@@ -24,7 +24,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-import csv
 from boac import db, std_commit
 from boac.models.athletics import Athletics
 from boac.models.authorized_user import AuthorizedUser
@@ -41,20 +40,20 @@ from boac.models.normalized_cache_student_major import NormalizedCacheStudentMaj
 from flask import current_app as app
 from sqlalchemy.sql import text
 
-_default_users_csv = """uid,is_admin,is_director,is_advisor
-2040,true,false,false
-53791,true,false,false
-95509,true,false,false
-177473,true,false,false
-1133399,true,false,false
-211159,true,false,false
-242881,true,false,false
-1022796,true,false,false
-1049291,true,false,false
-1081940,true,false,false
-90412,true,false,false
-6446,false,true,true
-"""
+_test_users = [
+    ['2040', True, False, False],
+    ['53791', True, False, False],
+    ['95509', True, False, False],
+    ['177473', True, False, False],
+    ['1133399', True, False, False],
+    ['211159', True, False, False],
+    ['242881', True, False, False],
+    ['1022796', True, False, False],
+    ['1049291', True, False, False],
+    ['1081940', True, False, False],
+    ['90412', True, False, False],
+    ['6446', False, True, True],
+]
 
 football_defensive_backs = {
     'group_code': 'MFB-DB',
@@ -119,12 +118,16 @@ def load_schemas():
 
 
 def load_development_data():
-    csv_reader = csv.DictReader(_default_users_csv.splitlines())
-    for row in csv_reader:
+    for test_user in _test_users:
         # This script can be run more than once. Do not create user if s/he exists in BOAC db.
-        user = AuthorizedUser.find_by_uid(row['uid'])
+        user = AuthorizedUser.find_by_uid(uid=test_user[0])
         if not user:
-            user = AuthorizedUser(**row)
+            user = AuthorizedUser(
+                uid=test_user[0],
+                is_admin=test_user[1],
+                is_advisor=test_user[2],
+                is_director=test_user[3],
+            )
             db.session.add(user)
     std_commit(allow_test_environment=True)
 
