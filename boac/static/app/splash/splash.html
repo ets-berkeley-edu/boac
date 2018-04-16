@@ -1,12 +1,17 @@
-<div class="splash-container">
+<div class="splash-container" data-ng-click="closeErrorPopovers()">
   <div class="splash-cell-stripe"></div>
   <div class="avatar-container">
     <img class="avatar-airplane" src="/static/app/splash/airplane.svg">
   </div>
   <div class="splash-cell-sign-in">
-    <button id="splash-sign-in"
-            class="btn btn-default btn-primary splash-btn-sign-in"
-            data-ng-click="signIn()">Sign In</button>
+    <form data-ng-submit="signIn()">
+      <button id="splash-sign-in"
+              class="btn btn-default btn-primary splash-btn-sign-in"
+              uib-popover-html="casLogin.error.popoverHtml"
+              popover-class="has-error"
+              popover-is-open="casLogin.error.isPopoverOpen"
+              popover-placement="top-left">Sign In</button>
+    </form>
     <div class="splash-contact-us">
       Questions or feedback? Contact us at <a href="mailto:ascpilot@lists.berkeley.edu">ascpilot@lists.berkeley.edu</a>
     </div>
@@ -20,7 +25,11 @@
                  placeholder="UID"
                  autofocus
                  required
-                 size="10">
+                 size="10"
+                 uib-popover-html="devAuth.error.popoverHtml"
+                 popover-class="has-error"
+                 popover-is-open="devAuth.error.isPopoverOpen"
+                 popover-placement="top-left">
         </div>
         <div>
           <input id="dev-auth-password"

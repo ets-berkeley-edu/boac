@@ -27,15 +27,60 @@
 
   'use strict';
 
-  angular.module('boac').controller('SplashController', function(authFactory, config, $rootScope, $scope) {
+  angular.module('boac').controller('SplashController', function(
+    authFactory,
+    config,
+    validationService,
+    $location,
+    $rootScope,
+    $sce,
+    $scope
+  ) {
 
     $rootScope.pageTitle = 'Welcome';
-    $scope.signIn = authFactory.casLogIn;
+
+    var closeErrorPopovers = $scope.closeErrorPopovers = function() {
+      _.set($scope.casLogin, 'error.isPopoverOpen', false);
+      _.set($scope.devAuth, 'error.isPopoverOpen', false);
+    };
+
+    var uibPopoverError = function(errorMessage) {
+      return {
+        popoverHtml: $sce.trustAsHtml('<i class="fa fa-exclamation-triangle"></i> ' + errorMessage),
+        isPopoverOpen: true
+      };
+    };
+
+    $scope.signIn = function() {
+      closeErrorPopovers();
+      authFactory.casLogIn().then(
+        function success(results) {
+          window.location = results.data.cas_login_url;
+        },
+        function failure(err) {
+          var errorMessage = validationService.parseError(err);
+          $scope.casLogin = {error: uibPopoverError(errorMessage)};
+        }
+      );
+    };
 
     var init = function() {
+      var casLoginError = _.get($location.search(), 'casLoginError');
+      if (casLoginError) {
+        $scope.casLogin = {error: uibPopoverError(casLoginError)};
+      }
       if (config.devAuthEnabled) {
         $scope.devAuthLogIn = function(uid, password) {
-          return authFactory.devAuthLogIn(uid, password);
+          closeErrorPopovers();
+          return authFactory.devAuthLogIn(uid, password).then(
+            function success() {
+              window.location.replace('/home');
+            },
+            function failure(err) {
+              var errorMessage = validationService.parseError(err).message;
+              $scope.devAuth = {error: uibPopoverError(errorMessage)};
+            }
+          );
         };
       }
     };

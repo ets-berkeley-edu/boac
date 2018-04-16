@@ -27,14 +27,16 @@
 
   'use strict';
 
-  angular.module('boac').controller('HeaderController', function(authFactory, me, $scope) {
+  angular.module('boac').controller('HeaderController', function(authFactory, authService, $scope) {
 
-    var init = function() {
-      $scope.logOut = authFactory.logOut;
-      $scope.me = me;
+    $scope.me = authService.getMe();
+
+    $scope.logOut = function() {
+      authFactory.logOut().then(function(results) {
+        window.location = results.data.cas_logout_url;
+      });
     };
 
-    init();
   });
 
 }(window.angular));

@@ -44,9 +44,7 @@
     };
 
     var casLogIn = function() {
-      return $http.get('/cas/login_url').then(function(results) {
-        window.location = results.data.cas_login_url;
-      });
+      return $http.get('/cas/login_url');
     };
 
     var devAuthLogIn = function(uid, password) {
@@ -54,20 +52,11 @@
         uid: uid,
         password: password
       };
-      return $http.post('/devauth/login', credentials).then(
-        function successCallback() {
-          window.location.replace('/home');
-        },
-        function errorCallback() {
-          $rootScope.$broadcast('devAuthFailure');
-          $rootScope.me = null;
-        });
+      return $http.post('/devauth/login', credentials);
     };
 
     var logOut = function() {
-      return $http.get('/logout').then(function(results) {
-        window.location = results.data.cas_logout_url;
-      });
+      return $http.get('/logout');
     };
 
     return {
