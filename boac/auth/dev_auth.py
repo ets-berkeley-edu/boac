@@ -40,13 +40,13 @@ def dev_login():
         params = request.get_json()
         if params['password'] != app.config['DEVELOPER_AUTH_PASSWORD']:
             logger.error('Wrong password entered in Developer Auth')
-            raise ForbiddenRequestError('Wrong credentials')
-        user_id = params['uid']
-        user = app.login_manager.user_callback(user_id)
+            raise ForbiddenRequestError('Invalid credentials')
+        uid = params['uid']
+        user = app.login_manager.user_callback(uid)
         if user is None:
-            logger.error('Unauthorized user ID {} entered in Developer Auth'.format(user_id))
-            raise ForbiddenRequestError('Unknown account')
-        logger.info('Developer Auth used to log in as UID {}'.format(user_id))
+            logger.error(f'Developer Auth attempt with UID {uid} failed: unauthorized / not found.')
+            raise ForbiddenRequestError(f'Sorry, user with UID {uid} is unauthorized or does not exist.')
+        logger.info(f'Developer Auth used to log in as UID {uid}')
         login_user(user)
         flash('Logged in successfully.')
         return redirect('/')

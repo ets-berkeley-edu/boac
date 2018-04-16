@@ -26,7 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from urllib.parse import urlencode
 
-from boac.api.errors import ForbiddenRequestError
 from boac.lib.http import add_param_to_url, tolerant_jsonify
 import cas
 from flask import (
@@ -50,18 +49,20 @@ def cas_login():
     logger = app.logger
     ticket = request.args['ticket']
     target_url = request.args.get('url')
-    user_id, attributes, proxy_granting_ticket = _cas_client(target_url).verify_ticket(ticket)
-    logger.info('Logged into CAS as user {}'.format(user_id))
-    user = app.login_manager.user_callback(user_id)
+    uid, attributes, proxy_granting_ticket = _cas_client(target_url).verify_ticket(ticket)
+    logger.info(f'Logged into CAS as user {uid}')
+    user = app.login_manager.user_callback(uid)
     if user is None:
-        logger.error('Unauthorized UID {}'.format(user_id))
-        raise ForbiddenRequestError('Unknown account')
-    login_user(user)
-    flash('Logged in successfully.')
-    if not target_url:
-        target_url = '/'
-    # The 'casLogin' marker is used by googleAnalyticsService to track CAS login events
-    redirect_url = add_param_to_url(target_url, ('casLogin', 'true'))
+        logger.error(f'Unauthorized UID {uid}')
+        param = ('casLoginError', f'Sorry, user with UID {uid} is unauthorized to use BOAC.')
+        redirect_url = add_param_to_url('/', param)
+    else:
+        login_user(user)
+        flash('Logged in successfully.')
+        if not target_url:
+            target_url = '/'
+        # Our googleAnalyticsService uses 'casLogin' marker to track CAS login events
+        redirect_url = add_param_to_url(target_url, ('casLogin', 'true'))
     return redirect(redirect_url)
 
 

@@ -39,4 +39,5 @@ class TestCasAuth:
     def test_cas_callback_with_invalid_ticket(self, client):
         """Fails if CAS can not verify the ticket."""
         response = client.get('/cas/callback?ticket=is_invalid')
-        assert response.status_code == 403
+        assert response.status_code == 302
+        assert 'casLoginError' in response.location
