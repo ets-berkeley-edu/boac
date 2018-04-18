@@ -32,12 +32,6 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET row_security = off;
 
--- TODO: remove legacy indices
-ALTER TABLE IF EXISTS ONLY public.advisor_watchlists DROP CONSTRAINT IF EXISTS advisor_watchlists_sid_fkey;
-ALTER TABLE IF EXISTS ONLY public.advisor_watchlists DROP CONSTRAINT IF EXISTS advisor_watchlists_watchlist_owner_uid_fkey;
-ALTER TABLE IF EXISTS ONLY public.advisor_watchlists DROP CONSTRAINT IF EXISTS advisor_watchlists_pkey;
-DROP TABLE IF EXISTS public.advisor_watchlists;
-
 --
 
 ALTER TABLE IF EXISTS ONLY public.student_athletes DROP CONSTRAINT IF EXISTS student_athletes_sid_fkey;
@@ -54,6 +48,8 @@ ALTER TABLE IF EXISTS ONLY public.student_group_members DROP CONSTRAINT IF EXIST
 ALTER TABLE IF EXISTS ONLY public.student_group_members DROP CONSTRAINT IF EXISTS student_group_members_sid_fkey;
 ALTER TABLE IF EXISTS ONLY public.student_groups DROP CONSTRAINT IF EXISTS student_groups_owner_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.student_groups DROP CONSTRAINT IF EXISTS student_groups_owner_id_name_unique_constraint;
+ALTER TABLE IF EXISTS ONLY public.university_dept_members DROP CONSTRAINT IF EXISTS university_dept_members_authorized_user_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.university_dept_members DROP CONSTRAINT IF EXISTS university_dept_members_university_dept_id_fkey;
 
 --
 
@@ -89,6 +85,8 @@ ALTER TABLE IF EXISTS ONLY public.alert_views DROP CONSTRAINT IF EXISTS alert_vi
 ALTER TABLE IF EXISTS ONLY public.alembic_version DROP CONSTRAINT IF EXISTS alembic_version_pkc;
 ALTER TABLE IF EXISTS ONLY public.student_group_members DROP CONSTRAINT IF EXISTS student_group_members_pkey;
 ALTER TABLE IF EXISTS ONLY public.student_groups DROP CONSTRAINT IF EXISTS student_groups_pkey;
+ALTER TABLE IF EXISTS ONLY public.university_dept_members DROP CONSTRAINT IF EXISTS university_dept_members_pkey;
+ALTER TABLE IF EXISTS ONLY public.university_depts DROP CONSTRAINT IF EXISTS university_dept_members_pkey;
 ALTER TABLE IF EXISTS public.json_cache ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE IF EXISTS public.cohort_filters ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE IF EXISTS public.authorized_users ALTER COLUMN id DROP DEFAULT;
@@ -116,3 +114,6 @@ DROP TABLE IF EXISTS public.alembic_version;
 DROP TABLE IF EXISTS public.student_group_members;
 DROP TABLE IF EXISTS public.student_groups;
 DROP SEQUENCE IF EXISTS public.student_groups_id_seq;
+DROP TABLE IF EXISTS public.university_dept_members;
+DROP TABLE IF EXISTS public.university_depts;
+DROP SEQUENCE IF EXISTS public.university_depts_id_seq

@@ -61,6 +61,7 @@ def user_profile():
         for group in all_groups:
             if group.name != PRIMARY_GROUP_NAME:
                 profile['myGroups'].append(_decorate_student_group(group))
+        profile['departmentMemberships'] = [api_util.department_membership_to_json(m) for m in current_user.department_memberships]
     return tolerant_jsonify(profile)
 
 
