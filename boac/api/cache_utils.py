@@ -125,14 +125,21 @@ def load_term(term_id=berkeley.current_term_id()):
         failures += f
         nbr_finished += 1
         if (nbr_finished == nbr_students) or not (nbr_finished % math.ceil(nbr_students / 20)):
-            JobProgress().update(f'External data loaded for {nbr_finished} of {nbr_students} athletes')
+            JobProgress().update(f'External data loaded for {nbr_finished} of {nbr_students} students')
 
+    JobProgress().update(f'About to load analytics feeds')
+    nbr_students = ids.count()
+    nbr_finished = 0
     for csid, uid in ids:
         load_analytics_feeds(uid, csid, term_id)
+        nbr_finished += 1
+        if (nbr_finished == nbr_students) or not (nbr_finished % math.ceil(nbr_students / 20)):
+            JobProgress().update(f'Analytics feeds loaded for {nbr_finished} of {nbr_students} students')
 
     # Given a fresh start with no existing 'normalized' cache, merged profiles must be pre-fetched.
     # Otherwise all team and cohort searches will return empty arrays in the UX.
     if term_id == berkeley.current_term_id():
+        JobProgress().update(f'About to load merged profiles for current term')
         load_merged_sis_profiles()
 
     JobProgress().end()
