@@ -30,7 +30,7 @@ from boac.externals import canvas
 from boac.externals.cal1card_photo_api import get_cal1card_photo
 from boac.lib import util
 from boac.lib.analytics import merge_analytics_for_user
-from boac.lib.berkeley import sis_term_id_for_name
+from boac.lib.berkeley import is_department_advisor, sis_term_id_for_name
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
 from boac.merged import member_details
@@ -46,22 +46,34 @@ from flask_login import current_user, login_required
 
 @app.route('/api/profile')
 def user_profile():
-    profile = {
-        'uid': False,
-    }
+    uid = current_user.get_id()
+    profile = calnet.get_calnet_user_for_uid(app, uid)
     if current_user.is_active:
-        uid = current_user.get_id()
-        profile = calnet.get_calnet_user_for_uid(app, uid)
         # All BOAC views require group and cohort lists
-        profile['myCohorts'] = CohortFilter.all_owned_by(uid, include_alerts=True)
-        all_groups = StudentGroup.get_groups_by_owner_id(current_user.id)
-        my_primary = StudentGroup.get_or_create_my_primary(current_user.id)
-        profile['myPrimaryGroup'] = _decorate_student_group(my_primary)
-        profile['myGroups'] = []
+        authorized_user_id = current_user.id
+        my_primary = StudentGroup.get_or_create_my_primary(authorized_user_id)
+        all_groups = StudentGroup.get_groups_by_owner_id(authorized_user_id)
+        my_groups = []
         for group in all_groups:
             if group.name != PRIMARY_GROUP_NAME:
-                profile['myGroups'].append(_decorate_student_group(group))
-        profile['departmentMemberships'] = [api_util.department_membership_to_json(m) for m in current_user.department_memberships]
+                my_groups.append(_decorate_student_group(group))
+        profile.update({
+            'departmentMemberships': [api_util.department_membership_to_json(m) for m in current_user.department_memberships],
+            'myCohorts': CohortFilter.all_owned_by(uid, include_alerts=True),
+            'myGroups': my_groups,
+            'myPrimaryGroup': _decorate_student_group(my_primary),
+            'personalization': {
+                'showAthletics': current_user.is_admin or is_department_advisor('UWASC', current_user),
+            },
+        })
+    else:
+        profile.update({
+            'departmentMemberships': None,
+            'myCohorts': None,
+            'myGroups': None,
+            'myPrimaryGroup': None,
+            'personalization': None,
+        })
     return tolerant_jsonify(profile)
 
 

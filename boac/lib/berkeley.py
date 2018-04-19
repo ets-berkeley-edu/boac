@@ -200,3 +200,8 @@ def extract_canvas_ccn(canvas_course_section):
     canvas_sis_section_id = canvas_course_section.get('sis_section_id') or ''
     ccn_match = re.match(r'\ASEC:20\d{2}-[BCD]-(\d{5})', canvas_sis_section_id)
     return ccn_match.group(1) if ccn_match else None
+
+
+def is_department_advisor(dept_code, current_user):
+    memberships = current_user.department_memberships
+    return bool([m for m in memberships if m.university_dept.dept_code == dept_code and (m.is_advisor or m.is_director)])

@@ -61,6 +61,7 @@ class TestUserProfile:
         assert not response.json['uid']
 
     def test_profile_auto_create_primary_group(self, client, fake_auth):
+        """Auto-creates 'My Students' group, behind the scenes."""
         uid = '6446'
         fake_auth.login(uid)
         response = client.get('/api/profile')
@@ -72,6 +73,7 @@ class TestUserProfile:
         assert profile['myPrimaryGroup']
 
     def test_includes_canvas_profile_if_available(self, client, fake_auth):
+        """Includes user profile info from Canvas."""
         test_uid = '2040'
         fake_auth.login(test_uid)
         response = client.get('/api/profile')
@@ -81,12 +83,20 @@ class TestUserProfile:
 
     def test_user_with_no_dept_membership(self, client, fake_auth):
         """Returns zero or more departments."""
-        test_uid = '2040'
-        fake_auth.login(test_uid)
+        fake_auth.login('2040')
         response = client.get('/api/profile')
         assert response.status_code == 200
-        profile = response.json
-        assert not len(profile['departmentMemberships'])
+        admin_user = response.json
+        assert not len(admin_user['departmentMemberships'])
+        # Admin users are shown athletics-related stuff
+        assert admin_user['personalization']['showAthletics'] is True
+
+    def test_personalize_hide_athletics(self, client, fake_auth):
+        """Returns user with showAthletics=false rule."""
+        fake_auth.login('1022796')
+        response = client.get('/api/profile')
+        assert response.status_code == 200
+        assert response.json['personalization']['showAthletics'] is False
 
     def test_user_with_dept_memberships(self, client, fake_auth):
         """Returns one or more departments."""
@@ -96,6 +106,7 @@ class TestUserProfile:
         assert response.status_code == 200
         profile = response.json
         assert len(profile['departmentMemberships'])
+        assert profile['personalization']['showAthletics'] is True
 
 
 class TestUserPhoto:

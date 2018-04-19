@@ -41,6 +41,7 @@
       $scope.myCohorts = _.clone(me.myCohorts);
       $scope.myGroups = _.clone(me.myGroups);
       $scope.myPrimaryGroup = _.clone(me.myPrimaryGroup);
+      $scope.showAthletics = !!_.get(me.personalization, 'showAthletics');
     };
 
     init();
