@@ -24,51 +24,39 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-"""This package integrates with Flask-Login. Determine who can use the app and which privileges they have."""
-from boac import db
+from boac import db, std_commit
 from boac.models.base import Base
-from boac.models.db_relationships import cohort_filter_owners
-from flask_login import UserMixin
+
+ASC_DEPT = {
+    'code': 'UWASC',
+    'name': 'Athletic Study Center',
+}
 
 
-class AuthorizedUser(Base, UserMixin):
-    __tablename__ = 'authorized_users'
+class UniversityDept(Base):
+    __tablename__ = 'university_depts'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)
-    uid = db.Column(db.String(255), nullable=False, unique=True)
-    is_admin = db.Column(db.Boolean)
-    department_memberships = db.relationship(
+    dept_code = db.Column(db.String(80), nullable=False)
+    dept_name = db.Column(db.String(255), nullable=False)
+    authorized_users = db.relationship(
         'UniversityDeptMember',
-        back_populates='authorized_user',
-        lazy=True,
-    )
-    cohort_filters = db.relationship(
-        'CohortFilter',
-        secondary=cohort_filter_owners,
-        back_populates='owners',
-        lazy=True,
-    )
-    alert_views = db.relationship(
-        'AlertView',
-        back_populates='viewer',
-        lazy=True,
+        back_populates='university_dept',
     )
 
-    def __init__(self, uid, is_admin=False):
-        self.uid = uid
-        self.is_admin = is_admin
+    __table_args__ = (db.UniqueConstraint('dept_code', 'dept_name', name='university_depts_code_unique_constraint'),)
 
-    def __repr__(self):
-        return f"""<AuthorizedUser {self.uid},
-                    is_admin={self.is_admin},
-                    updated={self.updated_at},
-                    created={self.created_at}>
-                """
-
-    def get_id(self):
-        """Override UserMixin, since our DB conventionally reserves 'id' for generated keys."""
-        return self.uid
+    def __init__(self, dept_code, dept_name):
+        self.dept_code = dept_code
+        self.dept_name = dept_name
 
     @classmethod
-    def find_by_uid(cls, uid):
-        return AuthorizedUser.query.filter_by(uid=uid).first()
+    def find_by_dept_code(cls, dept_code):
+        return cls.query.filter_by(dept_code=dept_code).first()
+
+    @classmethod
+    def create(cls, dept_code, dept_name):
+        dept = cls(dept_code=dept_code, dept_name=dept_name)
+        db.session.add(dept)
+        std_commit()
+        return dept

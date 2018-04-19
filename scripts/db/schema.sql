@@ -101,9 +101,7 @@ CREATE TABLE authorized_users (
     updated_at timestamp with time zone NOT NULL,
     id integer NOT NULL,
     uid character varying(255) NOT NULL,
-    is_advisor boolean,
-    is_admin boolean,
-    is_director boolean
+    is_admin boolean
 );
 ALTER TABLE authorized_users OWNER TO boac;
 CREATE SEQUENCE authorized_users_id_seq
@@ -188,6 +186,44 @@ ALTER TABLE ONLY student_group_members
     ADD CONSTRAINT student_group_members_pkey PRIMARY KEY (student_group_id, sid);
 CREATE INDEX student_group_members_student_group_id_idx ON student_group_members USING btree (student_group_id);
 CREATE INDEX student_group_members_sid_idx ON student_group_members USING btree (sid);
+
+--
+
+CREATE TABLE university_depts (
+  id INTEGER NOT NULL,
+  dept_code VARCHAR(80) NOT NULL,
+  dept_name VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+ALTER TABLE university_depts OWNER TO boac;
+CREATE SEQUENCE university_depts_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE university_depts_id_seq OWNER TO boac;
+ALTER SEQUENCE university_depts_id_seq OWNED BY university_depts.id;
+ALTER TABLE ONLY university_depts ALTER COLUMN id SET DEFAULT nextval('university_depts_id_seq'::regclass);
+ALTER TABLE ONLY university_depts
+    ADD CONSTRAINT university_depts_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY university_depts
+    ADD CONSTRAINT university_depts_code_unique_constraint UNIQUE (dept_code, dept_name);
+
+--
+
+CREATE TABLE university_dept_members (
+  university_dept_id INTEGER,
+  authorized_user_id INTEGER,
+  is_advisor BOOLEAN DEFAULT false NOT NULL,
+  is_director BOOLEAN DEFAULT false NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+ALTER TABLE university_dept_members OWNER TO boac;
+ALTER TABLE ONLY university_dept_members
+    ADD CONSTRAINT university_dept_members_pkey PRIMARY KEY (university_dept_id, authorized_user_id);
 
 --
 
@@ -297,6 +333,13 @@ ALTER TABLE ONLY student_group_members
 
 ALTER TABLE ONLY student_groups
     ADD CONSTRAINT student_groups_owner_id_fkey FOREIGN KEY (owner_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
+
+--
+
+ALTER TABLE ONLY university_dept_members
+    ADD CONSTRAINT university_dept_members_university_dept_id_fkey FOREIGN KEY (university_dept_id) REFERENCES university_depts(id) ON DELETE CASCADE;
+ALTER TABLE ONLY university_dept_members
+    ADD CONSTRAINT university_dept_members_authorized_user_id_fkey FOREIGN KEY (authorized_user_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
 
 --
 

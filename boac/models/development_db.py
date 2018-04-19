@@ -30,9 +30,10 @@ from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.student import Student
 from boac.models.student_group import StudentGroup
+from boac.models.university_dept import ASC_DEPT, UniversityDept
 # Models below are included so that db.create_all will find them.
 from boac.models.alert import Alert # noqa
-from boac.models.db_relationships import AlertView, cohort_filter_owners, student_athletes # noqa
+from boac.models.db_relationships import AlertView, cohort_filter_owners, student_athletes, UniversityDeptMember  # noqa
 from boac.models.job_progress import JobProgress # noqa
 from boac.models.json_cache import JsonCache # noqa
 from boac.models.normalized_cache_student import NormalizedCacheStudent # noqa
@@ -40,20 +41,41 @@ from boac.models.normalized_cache_student_major import NormalizedCacheStudentMaj
 from flask import current_app as app
 from sqlalchemy.sql import text
 
+
 _test_users = [
-    ['2040', True, False, False],
-    ['53791', True, False, False],
-    ['95509', True, False, False],
-    ['177473', True, False, False],
-    ['1133399', True, False, False],
-    ['211159', True, False, False],
-    ['242881', True, False, False],
-    ['1022796', True, False, False],
-    ['1049291', True, False, False],
-    ['1081940', True, False, False],
-    ['90412', True, False, False],
-    ['6446', False, True, True],
+    ['2040', True],
+    ['53791', True],
+    ['95509', True],
+    ['177473', True],
+    ['1133399', True],
+    ['211159', True],
+    ['242881', True],
+    ['1022796', True],
+    ['1049291', True],
+    ['1081940', True],
+    ['90412', True],
+    ['6446', False],
 ]
+
+_users_per_dept = {
+    ASC_DEPT['code']: [
+        {
+            'uid': '1081940',
+            'is_advisor': True,
+            'is_director': False,
+        },
+        {
+            'uid': '90412',
+            'is_advisor': False,
+            'is_director': True,
+        },
+        {
+            'uid': '6446',
+            'is_advisor': True,
+            'is_director': True,
+        },
+    ],
+}
 
 football_defensive_backs = {
     'group_code': 'MFB-DB',
@@ -118,17 +140,24 @@ def load_schemas():
 
 
 def load_development_data():
+    # For now, tests only know about ASC
+    UniversityDept.create(ASC_DEPT['code'], ASC_DEPT['name'])
     for test_user in _test_users:
         # This script can be run more than once. Do not create user if s/he exists in BOAC db.
         user = AuthorizedUser.find_by_uid(uid=test_user[0])
         if not user:
-            user = AuthorizedUser(
-                uid=test_user[0],
-                is_admin=test_user[1],
-                is_advisor=test_user[2],
-                is_director=test_user[3],
-            )
+            user = AuthorizedUser(uid=test_user[0], is_admin=test_user[1])
             db.session.add(user)
+    for dept_code, users in _users_per_dept.items():
+        university_dept = UniversityDept.find_by_dept_code(dept_code)
+        for user in users:
+            authorized_user = AuthorizedUser.find_by_uid(user['uid'])
+            UniversityDeptMember.create_membership(
+                university_dept,
+                authorized_user,
+                user['is_advisor'],
+                user['is_director'],
+            )
     std_commit(allow_test_environment=True)
 
 

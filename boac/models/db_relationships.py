@@ -26,9 +26,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
-from boac import db
+from boac import db, std_commit
 from boac.models.base import Base
-
+from boac.models.university_dept import UniversityDept
 
 student_athletes = db.Table(
     'student_athletes',
@@ -52,6 +52,29 @@ student_group_members = db.Table(
     db.Column('student_group_id', db.Integer, db.ForeignKey('student_groups.id'), primary_key=True),
     db.Column('sid', db.String(80), db.ForeignKey('students.sid'), primary_key=True),
 )
+
+
+class UniversityDeptMember(Base):
+    __tablename__ = 'university_dept_members'
+
+    university_dept_id = db.Column(db.Integer, db.ForeignKey('university_depts.id'), primary_key=True)
+    authorized_user_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), primary_key=True)
+    is_advisor = db.Column(db.Boolean, nullable=False)
+    is_director = db.Column(db.Boolean, nullable=False)
+    authorized_user = db.relationship('AuthorizedUser', back_populates='department_memberships')
+    # Pre-load UniversityDept below to avoid 'failed to locate', as seen during routes.py init phase
+    university_dept = db.relationship(UniversityDept.__name__, back_populates='authorized_users')
+
+    @classmethod
+    def create_membership(cls, university_dept, authorized_user, is_advisor, is_director):
+        if not len(authorized_user.department_memberships):
+            mapping = cls(is_advisor=is_advisor, is_director=is_director)
+            mapping.authorized_user = authorized_user
+            mapping.university_dept = university_dept
+            authorized_user.department_memberships.append(mapping)
+            university_dept.authorized_users.append(mapping)
+            db.session.add(mapping)
+        std_commit()
 
 
 # Alert views are represented as a model class because they contain 'created_at' and 'dismissed_at' metadata in

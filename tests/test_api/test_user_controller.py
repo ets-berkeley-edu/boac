@@ -79,6 +79,24 @@ class TestUserProfile:
         assert 'firstName' in response.json
         assert 'lastName' in response.json
 
+    def test_user_with_no_dept_membership(self, client, fake_auth):
+        """Returns zero or more departments."""
+        test_uid = '2040'
+        fake_auth.login(test_uid)
+        response = client.get('/api/profile')
+        assert response.status_code == 200
+        profile = response.json
+        assert not len(profile['departmentMemberships'])
+
+    def test_user_with_dept_memberships(self, client, fake_auth):
+        """Returns one or more departments."""
+        test_uid = '1081940'
+        fake_auth.login(test_uid)
+        response = client.get('/api/profile')
+        assert response.status_code == 200
+        profile = response.json
+        assert len(profile['departmentMemberships'])
+
 
 class TestUserPhoto:
     """User Photo API."""
