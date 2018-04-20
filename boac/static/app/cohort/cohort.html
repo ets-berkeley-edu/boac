@@ -28,7 +28,7 @@
   <hr class="filters-section-separator" data-ng-if="!isLoading && !error && !isCreateCohortMode"/>
 
   <div class="flex-container flex-space-between" data-ng-if="!error">
-    <div class="cohort-filters-column flex-column-btn">
+    <div class="cohort-filters-column flex-column-btn" data-ng-if="me.personalization.showAthletics">
       <cohort-filter data-menu-type="groupCodes" data-label="Teams"></cohort-filter>
     </div>
     <div class="cohort-filters-column flex-column-btn">

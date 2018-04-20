@@ -49,7 +49,7 @@
     // Authentication dependency for private states only; return a rejection if authenticated user not present.
     var resolveAuthentication = function(me, $q) {
       var deferred = $q.defer();
-      if (me.is_authenticated) {
+      if (me.isAuthenticated) {
         deferred.resolve({});
       } else {
         deferred.reject({message: 'unauthenticated'});
@@ -60,7 +60,7 @@
     // Return a rejection if authenticated user is present.
     var splashAuthentication = function(me, $q) {
       var deferred = $q.defer();
-      if (me.is_authenticated) {
+      if (me.isAuthenticated) {
         deferred.reject({message: 'authenticated'});
       } else {
         deferred.resolve({});
@@ -99,7 +99,7 @@
     // Default route
     $urlRouterProvider.otherwise(function($injector, $location) {
       $injector.get('authService').reloadMe().then(function(me) {
-        var uri = me && me.is_authenticated ? '/404' : '/';
+        var uri = me && me.isAuthenticated ? '/404' : '/';
         $location.replace().path(uri);
       });
     });

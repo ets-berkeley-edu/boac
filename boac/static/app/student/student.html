@@ -4,7 +4,7 @@
     <span class="sr-only">Loading...</span>
   </div>
 
-  <div class="container-left" data-ng-if="!student.isLoading && error">
+  <div class="container-error" data-ng-if="!student.isLoading && error">
     <h1 class="page-section-header">{{error.status === 404 ? 'Not Found' : 'Error'}}</h1>
     <div class="faint-text">
       <span data-ng-bind="error.message" data-ng-if="error.message"></span>
