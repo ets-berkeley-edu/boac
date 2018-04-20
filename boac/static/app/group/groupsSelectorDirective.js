@@ -64,7 +64,7 @@
 
         var init = function() {
           var me = authService.getMe();
-          scope.myGroups = _.union([ me.myPrimaryGroup ], me.myGroups);
+          scope.myGroups = me.myGroups;
           formatDropdownMenu();
           _.each(scope.students, function(student) {
             // Init all student checkboxes to false

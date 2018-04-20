@@ -11,44 +11,37 @@
            placeholder="Search for Students">
   </form>
 </div>
-<div class="sidebar-section-header sidebar-row-without-link">
-  <span class="sidebar-header">
-    <img class="sidebar-header-icon" src="/static/app/nav/sidebar-icon-students.svg">
-    My Students
+<div data-ng-class="{'sidebar-row-link': myGroups.length, 'sidebar-row-without-link': !myGroups.length}"
+     class="sidebar-section-header">
+  <span class="sidebar-header"
+        data-ng-class="{'sidebar-row-link-label': myGroups.length}"
+        data-ng-controller="CreateGroupController">
+        <a id="sidebar-groups-manage" href="/groups/manage" class="sidebar-row-link-label-text">Curated Cohorts</a>
+        <a id="sidebar-group-create" class="sidebar-create-link" href
+           data-ng-click="openCreateGroupModal()"><i class="fa fa-plus"></i></a>
   </span>
 </div>
-<div id="sidebar-student-{{$index}}"
-     class="sidebar-row-link"
-     data-ng-repeat="student in myPrimaryGroup.students track by $index">
-  <span class="sidebar-row-link-label">
-    <a id="sidebar-student-{{student.sid}}"
-       class="sidebar-row-link-label-text sidebar-row-link-label-text-wide"
-       data-ng-class="{'demo-mode-blur': demoMode}"
-       data-ng-href="/student/{{student.uid}}"
-       data-ng-bind="student.name">
+<div class="sidebar-row-link" data-ng-repeat="group in myGroups">
+  <div class="sidebar-row-link-label">
+    <a id="sidebar-group-{{$index}}"
+       class="sidebar-row-link-label-text"
+       data-ng-href="/group/{{group.id}}"
+       data-ng-bind="group.name">
     </a>
-    <i class="fa fa-exclamation-circle sidebar-student-alert"
-       uib-tooltip="{{student.alertCount}} {{student.alertCount === 1 ? 'issue' : 'issues'}}"
-       data-ng-if="student.alertCount"></i>
-  </span>
+    <span id="sidebar-group-{{$index}}-count"
+          class="sidebar-pill"
+          data-ng-bind="group.studentCount"></span>
+  </div>
 </div>
 
 <div data-ng-class="{'sidebar-row-link': myCohorts.length, 'sidebar-row-without-link': !myCohorts.length}"
      class="sidebar-section-header">
   <span class="sidebar-header"
         data-ng-class="{'sidebar-row-link-label': myCohorts.length}">
-      <img class="sidebar-header-icon" src="/static/app/nav/sidebar-icon-cohorts.svg">
-      Cohorts <span class="sidebar-manage-link"
-                    data-ng-if="myCohorts.length">(<a id="sidebar-cohorts-manage"
-                                                      data-ui-sref="cohortsManage()"
-                                                      data-ui-sref-opts="{reload: true}">Manage</a>)</span>
-  </span>
-</div>
-<div class="sidebar-row-link">
-  <span class="sidebar-row-link-label">
-    <a id="sidebar-cohort-create"
-       data-ui-sref="cohort({c: 'new', i: null, inactive: null})"
-       data-ui-sref-opts="{reload: true}"><i class="fa fa-plus"></i> Create Cohort</a>
+        <a id="sidebar-cohorts-manage" class="sidebar-row-link-label-text" data-ui-sref="cohortsManage()" data-ui-sref-opts="{reload: true}">Filtered Cohorts</a>
+        <a id="sidebar-cohort-create" class="sidebar-create-link"
+          data-ui-sref="cohort({c: 'new', i: null, inactive: null})"
+          data-ui-sref-opts="{reload: true}"><i class="fa fa-plus"></i></a>
   </span>
 </div>
 <div class="sidebar-row-link" data-ng-repeat="cohort in myCohorts">
@@ -76,46 +69,18 @@
   <span class="sidebar-row-link-label">
     <a id="sidebar-cohort-intensive"
        data-ui-sref="cohort({c: null, inactive: null, i: true})"
-       data-ui-sref-opts="{reload: true}">Intensive</a>
+       data-ui-sref-opts="{reload: true}">Intensive Students</a>
   </span>
 </div>
 <div class="sidebar-row-link" data-ng-if="showAthletics">
   <span class="sidebar-row-link-label">
     <a id="sidebar-cohort-inactive"
        data-ui-sref="cohort({c: null, i: null, inactive: true})"
-       data-ui-sref-opts="{reload: true}">Inactive</a>
+       data-ui-sref-opts="{reload: true}">Inactive Students</a>
   </span>
 </div>
 <div class="sidebar-row-link">
   <span class="sidebar-row-link-label">
-    <a id="sidebar-cohorts-all" href="/cohorts/all">Everyone's Cohorts</a>
+    <a id="sidebar-cohorts-all" href="/cohorts/all">Everyone's Filtered Cohorts</a>
   </span>
-</div>
-
-<div data-ng-class="{'sidebar-row-link': myGroups.length, 'sidebar-row-without-link': !myGroups.length}"
-     class="sidebar-section-header">
-  <span class="sidebar-header"
-        data-ng-class="{'sidebar-row-link-label': myGroups.length}">
-    <img class="sidebar-header-icon" src="/static/app/nav/sidebar-icon-groups.svg">
-    Groups <span class="sidebar-manage-link" data-ng-if="myGroups.length">(<a id="sidebar-groups-manage" href="/groups/manage">Manage</a>)</span>
-  </span>
-</div>
-<div class="sidebar-row-link">
-  <span class="sidebar-row-link-label" data-ng-controller="CreateGroupController">
-    <a id="sidebar-group-create"
-       href
-       data-ng-click="openCreateGroupModal()"><i class="fa fa-plus"></i> Create Group</a>
-  </span>
-</div>
-<div class="sidebar-row-link" data-ng-repeat="group in myGroups">
-  <div class="sidebar-row-link-label">
-    <a id="sidebar-group-{{$index}}"
-       class="sidebar-row-link-label-text"
-       data-ng-href="/group/{{group.id}}"
-       data-ng-bind="group.name">
-    </a>
-    <span id="sidebar-group-{{$index}}-count"
-          class="sidebar-pill"
-          data-ng-bind="group.studentCount"></span>
-  </div>
 </div>

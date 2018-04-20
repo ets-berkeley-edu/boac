@@ -69,10 +69,6 @@
       return $http.get('/api/group/' + id);
     };
 
-    var getMyPrimaryGroup = function() {
-      return $http.get('/api/group/my_primary');
-    };
-
     var removeStudentFromGroup = function(group, student) {
       return $http.delete('/api/group/' + group.id + '/remove_student/' + student.sid).then(function() {
         $rootScope.$broadcast('removeStudentFromGroup', {group: group, student: student});
@@ -93,7 +89,6 @@
       deleteGroup: deleteGroup,
       getGroup: getGroup,
       getMyGroups: getMyGroups,
-      getMyPrimaryGroup: getMyPrimaryGroup,
       removeStudentFromGroup: removeStudentFromGroup
     };
   });

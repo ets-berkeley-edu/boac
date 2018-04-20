@@ -282,6 +282,11 @@ def load_student_athletes():
     schlemiel.is_active_asc = False
     schlemiel.status_asc = 'Trouble'
     db.session.merge(schlemiel)
+
+    # Create empty default group for all users.
+    for user in AuthorizedUser.query.all():
+        StudentGroup.create(user.id, 'My Students')
+
     advisor = AuthorizedUser.find_by_uid('6446')
     group = StudentGroup.create(advisor.id, 'Cool Kids')
     for student in [paul_kerschen, sandeep, brigitte, paul_farestveit]:

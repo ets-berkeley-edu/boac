@@ -40,8 +40,7 @@
     var init = function() {
       $scope.isLoading = true;
 
-      studentGroupService.loadMyGroups(function(myPrimaryGroup, myGroups) {
-        $scope.myPrimaryGroup = myPrimaryGroup;
+      studentGroupService.loadMyGroups(function(myGroups) {
         $scope.myGroups = myGroups;
 
         cohortService.loadMyCohorts(function(myCohorts) {

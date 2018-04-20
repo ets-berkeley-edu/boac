@@ -54,7 +54,6 @@
 
     $scope.demoMode = config.demoMode;
     $scope.myGroups = _.clone(me.myGroups);
-    $scope.myPrimaryGroup = _.clone(me.myPrimaryGroup);
     $scope.showAllTerms = false;
     $scope.showDismissedAlerts = false;
 
@@ -76,7 +75,7 @@
     };
 
     var identifyGroupsThatIncludeStudent = function() {
-      _.each(_.union($scope.myGroups, [ $scope.myPrimaryGroup ]), function(group) {
+      _.each($scope.myGroups, function(group) {
         _.each(group.students, function(groupStudent) {
           group.selected = $scope.student.sid === groupStudent.sid;
           if (group.selected) {

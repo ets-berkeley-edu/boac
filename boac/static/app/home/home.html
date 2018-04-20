@@ -7,35 +7,11 @@
   </div>
   <div class="home-content" data-ng-if="!isLoading">
     <div>
-      <h1 class="page-section-header"><a data-ng-href="/group/{{myPrimaryGroup.id}}">My Students</a></h1>
-      <div data-ng-if="!myPrimaryGroup.students.length">
-        <div>You have no students in your list. Add students from their profile pages.</div>
-      </div>
-      <sortable-alerts-table data-group="myPrimaryGroup"
-                             data-ng-if="myPrimaryGroup.students.length"></sortable-alerts-table>
-    </div>
-    <div>
-      <h1 class="page-section-header">Cohorts</h1>
-      <div data-ng-if="!myCohorts.length">
-        You have no saved cohorts.
-        <a id="home-cohort-create" data-ng-href="/cohort?c=new">Create a new cohort.</a>
-      </div>
-      <div data-ng-repeat="cohort in myCohorts" data-ng-if="myCohorts.length">
-        <h2 class="page-section-header-sub">
-          <a id="home-cohort-{{$index}}"
-             data-ng-bind="cohort.label"
-             data-ng-href="/cohort?c={{cohort.id}}"></a> (<span data-ng-bind="cohort.totalMemberCount"></span>)
-        </h2>
-        <sortable-alerts-table data-group="cohort.alerts"
-                               data-ng-if="cohort.alerts.students.length"></sortable-alerts-table>
-      </div>
-    </div>
-    <div>
-      <h1 class="page-section-header">Groups</h1>
+      <h1 class="page-section-header">Curated Cohorts</h1>
       <div data-ng-if="!myGroups.length">
-        You have no groups.
+        You have no curated cohorts.
         <span data-ng-controller="CreateGroupController">
-          <a id="home-group-create" href data-ng-click="openCreateGroupModal()"> Create a new Group</a>
+          <a id="home-group-create" href data-ng-click="openCreateGroupModal()"> Create a new curated cohort.</a>
         </span>
       </div>
       <div data-ng-repeat="group in myGroups" data-ng-if="myGroups.length">
@@ -46,6 +22,22 @@
         </h2>
         <sortable-alerts-table data-group="group"
                                data-ng-if="group.students.length"></sortable-alerts-table>
+      </div>
+    </div>
+    <div>
+      <h1 class="page-section-header">Filtered Cohorts</h1>
+      <div data-ng-if="!myCohorts.length">
+        You have no filtered cohorts.
+        <a id="home-cohort-create" data-ng-href="/cohort?c=new">Create a new filtered cohort.</a>
+      </div>
+      <div data-ng-repeat="cohort in myCohorts" data-ng-if="myCohorts.length">
+        <h2 class="page-section-header-sub">
+          <a id="home-cohort-{{$index}}"
+             data-ng-bind="cohort.label"
+             data-ng-href="/cohort?c={{cohort.id}}"></a> (<span data-ng-bind="cohort.totalMemberCount"></span>)
+        </h2>
+        <sortable-alerts-table data-group="cohort.alerts"
+                               data-ng-if="cohort.alerts.students.length"></sortable-alerts-table>
       </div>
     </div>
   </div>

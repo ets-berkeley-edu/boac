@@ -39,7 +39,7 @@ from boac.merged.sis_profile import merge_sis_profile
 from boac.models.cohort_filter import CohortFilter
 from boac.models.normalized_cache_student_major import NormalizedCacheStudentMajor
 from boac.models.student import Student
-from boac.models.student_group import PRIMARY_GROUP_NAME, StudentGroup
+from boac.models.student_group import StudentGroup
 from flask import current_app as app, request, Response
 from flask_login import current_user, login_required
 
@@ -51,17 +51,12 @@ def user_profile():
     if current_user.is_active:
         # All BOAC views require group and cohort lists
         authorized_user_id = current_user.id
-        my_primary = StudentGroup.get_or_create_my_primary(authorized_user_id)
-        all_groups = StudentGroup.get_groups_by_owner_id(authorized_user_id)
-        my_groups = []
-        for group in all_groups:
-            if group.name != PRIMARY_GROUP_NAME:
-                my_groups.append(_decorate_student_group(group))
+        groups = StudentGroup.get_groups_by_owner_id(authorized_user_id)
+        groups = [_decorate_student_group(group) for group in groups]
         profile.update({
             'departmentMemberships': [api_util.department_membership_to_json(m) for m in current_user.department_memberships],
             'myCohorts': CohortFilter.all_owned_by(uid, include_alerts=True),
-            'myGroups': my_groups,
-            'myPrimaryGroup': _decorate_student_group(my_primary),
+            'myGroups': groups,
             'personalization': {
                 'showAthletics': current_user.is_admin or is_department_advisor('UWASC', current_user),
             },
@@ -71,7 +66,6 @@ def user_profile():
             'departmentMemberships': None,
             'myCohorts': None,
             'myGroups': None,
-            'myPrimaryGroup': None,
             'personalization': None,
         })
     return tolerant_jsonify(profile)

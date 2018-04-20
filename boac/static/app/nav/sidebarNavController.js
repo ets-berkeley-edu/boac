@@ -41,7 +41,6 @@
       $scope.demoMode = config.demoMode;
       $scope.myCohorts = _.clone(me.myCohorts);
       $scope.myGroups = _.clone(me.myGroups);
-      $scope.myPrimaryGroup = _.clone(me.myPrimaryGroup);
       $scope.search = {
         input: null,
         isSearching: false
@@ -61,8 +60,7 @@
     };
 
     var findGroupInScope = function(groupId) {
-      var allGroups = _.union([ $scope.myPrimaryGroup ], $scope.myGroups);
-      return _.find(allGroups, ['id', groupId]);
+      return _.find($scope.myGroups, ['id', groupId]);
     };
 
     $rootScope.$on('cohortCreated', function(event, data) {
