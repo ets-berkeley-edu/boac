@@ -119,6 +119,13 @@
   margin: 0 2px 4px 0;
 }
 
+.sidebar-create-link {
+  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
+  width: 20px;
+}
+
 .sidebar-row-link {
   border-left: 6px solid #125074;
   color: #8bbdda;
@@ -162,6 +169,7 @@
   overflow: hidden;
   padding-right: 5px;
   text-overflow: ellipsis;
+  vertical-align: middle;
   white-space: nowrap;
   width: 180px;
 }
@@ -183,7 +191,7 @@
 }
 
 .sidebar-section-header {
-  margin-top: 10px;
+  margin: 10px 0 5px 0;
 }
 
 .sidebar-section-search {

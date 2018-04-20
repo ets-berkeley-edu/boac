@@ -44,7 +44,6 @@
 
     $scope.demoMode = config.demoMode;
     $scope.isLoading = true;
-    $scope.myPrimaryGroup = me.myPrimaryGroup;
     $scope.tab = 'list';
 
     var goToStudent = $scope.goToStudent = function(uid) {

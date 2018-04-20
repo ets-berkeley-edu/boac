@@ -37,7 +37,6 @@
   ) {
 
     $scope.isLoading = true;
-    $scope.isMyPrimaryGroup = studentGroupService.isMyPrimaryGroup;
 
     var resetPageView = function(callback) {
       _.each($scope.myGroups, function(group) {

@@ -6,7 +6,7 @@
     </div>
   </div>
   <div data-ng-if="!isLoading">
-    <h1 class="page-section-header" data-ng-if="!error">Manage Groups</h1>
+    <h1 class="page-section-header" data-ng-if="!error">Manage Curated Cohorts</h1>
     <div data-ng-if="error">
       <h1 class="page-section-header">Error</h1>
       <div class="faint-text">
@@ -15,10 +15,10 @@
       </div>
     </div>
     <div data-ng-if="!myGroups.length" data-ng-controller="CreateGroupController">
-      You have no groups.
+      You have no curated cohorts.
       <a id="sidebar-group-create"
          href
-         data-ng-click="openCreateGroupModal()"><i class="fa fa-plus"></i> Create a new group</a>
+         data-ng-click="openCreateGroupModal()"><i class="fa fa-plus"></i> Create a new curated cohort</a>
     </div>
     <div data-ng-repeat="group in myGroups">
       <hr class="cohort-manage-row-separator"/>
@@ -32,23 +32,21 @@
           <span class="faint-text">(<span id="group-member-count-{{$index}}" data-ng-bind="group.students.length"></span>)</span>
         </div>
         <div>
-          <span data-ng-if="!isMyPrimaryGroup(group)">
-            <span data-ng-controller="DeleteGroupController">
-              <button type="button"
-                      id="delete-group-btn-{{$index}}"
-                      class="btn-link cohort-manage-btn-link"
-                      data-ng-click="openDeleteGroupModal(group)">
-                Delete
-              </button> <span class="faint-text">|</span>
-            </span>
+          <span data-ng-controller="DeleteGroupController">
             <button type="button"
-                    id="edit-group-btn-{{$index}}"
+                    id="delete-group-btn-{{$index}}"
                     class="btn-link cohort-manage-btn-link"
-                    data-ng-click="setEditMode(group, true)">
-              Rename
-            </button>
+                    data-ng-click="openDeleteGroupModal(group)">
+              Delete
+            </button> <span class="faint-text">|</span>
           </span>
-        </div>
+          <button type="button"
+                  id="edit-group-btn-{{$index}}"
+                  class="btn-link cohort-manage-btn-link"
+                  data-ng-click="setEditMode(group, true)">
+            Rename
+          </button>
+        </span>
       </div>
       <form name="renameGroupForm"
             class="flex-container flex-space-between cohort-manage-row"

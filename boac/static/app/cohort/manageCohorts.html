@@ -6,7 +6,7 @@
     </div>
   </div>
   <div data-ng-if="!isLoading">
-    <h1 class="page-section-header" data-ng-if="!error">Manage Cohorts</h1>
+    <h1 class="page-section-header" data-ng-if="!error">Manage Filtered Cohorts</h1>
     <div data-ng-if="error">
       <h1 class="page-section-header">Error</h1>
       <div class="faint-text">
@@ -15,8 +15,8 @@
       </div>
     </div>
     <div data-ng-if="!myCohorts.length">
-      You have no saved cohorts.
-      <a data-ng-href="/cohort?c=new">Create a new cohort.</a>
+      You have no filtered cohorts.
+      <a data-ng-href="/cohort?c=new">Create a new filtered cohort.</a>
     </div>
     <div data-ng-repeat="cohort in myCohorts | orderBy:'nameOriginal'">
       <hr class="cohort-manage-row-separator"/>

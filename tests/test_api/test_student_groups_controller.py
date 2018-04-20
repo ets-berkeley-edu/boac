@@ -58,20 +58,22 @@ class TestStudentGroupsController:
 
     def test_my_groups(self, authenticated_session, client):
         """Returns all of current_user's student groups."""
-        # 'My Students' is not first group created by this user but it will always be first in '/api/groups/my' list
-        assert client.get('/api/group/my_primary').status_code == 200
         response = client.get('/api/groups/my')
         assert response.status_code == 200
         groups = response.json
         assert len(groups) == 2
-        assert groups[0]['name'] == 'My Students'
-        students = groups[1]['students']
+        default_group = next(group for group in groups if group['name'] == 'My Students')
+        assert len(default_group['students']) == 0
+        cool_kids_group = next(group for group in groups if group['name'] == 'Cool Kids')
+        students = cool_kids_group['students']
         names = [student['firstName'] + ' ' + student['lastName'] for student in students]
         assert ['Brigitte Lin', 'Paul Farestveit', 'Paul Kerschen', 'Sandeep Jayaprakash'] == names
 
     def test_empty_group(self, authenticated_session_empty_primary, client):
-        """Returns current_user's primary group."""
-        response = client.get('/api/group/my_primary')
+        """Returns default empty group requested."""
+        groups = client.get('/api/groups/my').json
+        default_group = next(group for group in groups if group['name'] == 'My Students')
+        response = client.get(f'/api/group/{default_group["id"]}')
         assert response.status_code == 200
         assert response.json['students'] == []
 
