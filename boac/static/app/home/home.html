@@ -18,7 +18,7 @@
         <h2 class="page-section-header-sub">
           <a id="home-group-{{$index}}"
              data-ng-bind="group.name"
-             data-ng-href="/group/{{group.id}}"></a> (<span data-ng-bind="group.students.length"></span>)
+             data-ng-href="/group/{{group.id}}"></a> (<span data-ng-bind="group.studentCount"></span>)
         </h2>
         <sortable-alerts-table data-group="group"
                                data-ng-if="group.students.length"></sortable-alerts-table>

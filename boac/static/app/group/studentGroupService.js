@@ -33,6 +33,7 @@
       return {
         id: group.id,
         name: group.name,
+        studentCount: group.studentCount,
         students: utilService.extendSortableNames(group.students),
         sortBy: 'sortableName',
         reverse: false
