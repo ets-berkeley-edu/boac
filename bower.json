@@ -10,7 +10,6 @@
     "d3": "4.12.0",
     "fontawesome": "4.7.0",
     "highcharts-release": "6.0.7",
-    "lodash": "^4.17.5",
-    "oi.select": "^0.2.21"
+    "lodash": "^4.17.5"
   }
 }

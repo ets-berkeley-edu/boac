@@ -27,50 +27,21 @@
 
   'use strict';
 
-  angular.module('boac').filter('findStudentFilter', function() {
+  angular.module('boac').controller('SearchController', function(config, $location, $scope) {
 
-    return function(options, input) {
-      var filtered = [];
-      var phrase = _.trim(input);
-      if (phrase) {
-        var words = _.split(phrase, ' ');
-        var regex;
-        if (words.length === 1) {
-          regex = RegExp('\\b' + words[0], 'i');
-        } else {
-          var p = '';
-          _.each(words, function(word) {
-            if (word) {
-              p = p.concat('\\b(' + word + ').* ');
-            }
-          });
-          regex = RegExp(_.trimEnd(p), 'i');
-        }
-        _.each(options, function(option) {
-          if (regex.test(option.name)) {
-            filtered.push(option);
-          }
-        });
+    $scope.demoMode = config.demoMode;
+    $scope.isLoading = true;
+
+    var init = function() {
+      if ($location.search().q) {
+        $scope.searchInput = $location.search().q;
       } else {
-        filtered = options;
+        $scope.error = {message: 'No search input found.'};
       }
-      return filtered;
+      $scope.isLoading = false;
     };
 
-  }).filter('boldNamesFilter', function($sce) {
-
-    return function(label, query) {
-      var html = label;
-      var words = _.split(_.trim(query), ' ');
-      if (words.length) {
-        _.each(words, function(word) {
-          var regex = RegExp('(.*)(\\b' + word + ')(.*)', 'i');
-          html = html.replace(regex, '$1<strong>$2</strong>$3');
-        });
-      }
-      return $sce.trustAsHtml(html);
-    };
-
+    init();
   });
 
 }(window.angular));
