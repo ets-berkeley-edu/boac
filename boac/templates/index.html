@@ -8,7 +8,6 @@
     <link href="/static/lib/angular-bootstrap/ui-bootstrap-csp.css" rel="stylesheet">
     <link href="/static/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/lib/fontawesome/css/font-awesome.min.css" rel="stylesheet">
-    <link href="/static/lib/oi.select/dist/select.min.css" rel="stylesheet">
 
     <!-- BOAC CSS -->
     <link href="/static/app/main.css" rel="stylesheet">
@@ -36,7 +35,6 @@
     <script src="/static/lib/highcharts-release/highcharts.js"></script>
     <script src="/static/lib/highcharts-release/highcharts-more.js"></script>
     <script src="/static/lib/lodash/dist/lodash.min.js"></script>
-    <script src="/static/lib/oi.select/dist/select-tpls.min.js"></script>
 
     <!-- BOAC: Warning, keep bootstrap and routes first -->
     <script src="/static/app/bootstrap.js"></script>
@@ -69,8 +67,7 @@
     <script src="/static/app/shared/utilService.js"></script>
     <script src="/static/app/shared/validationService.js"></script>
     <script src="/static/app/splash/splashController.js"></script>
-    <script src="/static/app/student/findStudentDirective.js"></script>
-    <script src="/static/app/student/findStudentFilter.js"></script>
+    <script src="/static/app/search/searchController.js"></script>
     <script src="/static/app/student/studentAlertMessageDirective.js"></script>
     <script src="/static/app/student/studentController.js"></script>
     <script src="/static/app/student/studentFactory.js"></script>
@@ -85,10 +82,13 @@
     <script async src='https://www.google-analytics.com/analytics.js'></script>
 
     <div class="index-container" data-ng-if="angularStateName !== 'splash'">
+      <a href="#content"
+         id="skip-to-content-link"
+         class="sr-only">Skip To Content</a>
       <div class="index-container-header" data-ui-view="header"></div>
       <div class="index-container-body">
         <div class="index-container-sidebar" data-ui-view="sidebar"></div>
-        <div class="index-container-content">
+        <div id="content" class="index-container-content">
           <div class="body-text" data-ui-view="content"></div>
           <div class="index-container-footer" data-ui-view="footer"></div>
         </div>

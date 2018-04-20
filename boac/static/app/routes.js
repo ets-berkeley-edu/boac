@@ -106,6 +106,12 @@
 
     // Routes
     $stateProvider
+      .state('404', {
+        url: '/404',
+        views: standardLayout(null, '/static/app/shared/404.html'),
+        resolve: resolvePrivate,
+        reloadOnSearch: false
+      })
       .state('cohort', {
         url: '/cohort?c&i&inactive',
         views: standardLayout('CohortController', '/static/app/cohort/cohort.html'),
@@ -120,11 +126,6 @@
       .state('cohortsManage', {
         url: '/cohorts/manage',
         views: standardLayout('ManageCohortsController', '/static/app/cohort/manageCohorts.html'),
-        resolve: resolvePrivate
-      })
-      .state('teams', {
-        url: '/cohorts/teams',
-        views: standardLayout('TeamsController', '/static/app/cohort/teams.html'),
         resolve: resolvePrivate
       })
       .state('course', {
@@ -147,20 +148,25 @@
         views: standardLayout('HomeController', '/static/app/home/home.html'),
         resolve: resolvePrivate
       })
+      .state('search', {
+        url: '/search?q',
+        views: standardLayout('SearchController', '/static/app/search/searchResults.html'),
+        resolve: resolvePrivate
+      })
       .state('splash', {
         url: '/',
         templateUrl: '/static/app/splash/splash.html',
         controller: 'SplashController',
         resolve: resolveSplash
       })
+      .state('teams', {
+        url: '/cohorts/teams',
+        views: standardLayout('TeamsController', '/static/app/cohort/teams.html'),
+        resolve: resolvePrivate
+      })
       .state('user', {
         url: '/student/:uid?r',
         views: standardLayout('StudentController', '/static/app/student/student.html'),
-        resolve: resolvePrivate,
-        reloadOnSearch: false
-      }).state('404', {
-        url: '/404',
-        views: standardLayout(null, '/static/app/shared/404.html'),
         resolve: resolvePrivate,
         reloadOnSearch: false
       });

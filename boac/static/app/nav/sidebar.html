@@ -1,3 +1,16 @@
+<div class="sidebar-section-search">
+  <form id="search-students-form" data-ng-submit="searchForStudents()">
+    <label for="search-students-input" class="sr-only">Search for students</label>
+    <span class="search-students-icon"><i class="fa fa-search"></i></span>
+    <input id="search-students-input"
+           type="text"
+           class="search-students-input"
+           data-ng-model="search.input"
+           data-ng-readonly="search.isSearching"
+           maxlength="255"
+           placeholder="Search for Students">
+  </form>
+</div>
 <div class="sidebar-section-header sidebar-row-without-link">
   <span class="sidebar-header">
     <img class="sidebar-header-icon" src="/static/app/nav/sidebar-icon-students.svg">

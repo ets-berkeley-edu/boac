@@ -33,6 +33,7 @@
     me,
     studentGroupFactory,
     studentGroupService,
+    $location,
     $rootScope,
     $scope
   ) {
@@ -41,10 +42,23 @@
       $scope.myCohorts = _.clone(me.myCohorts);
       $scope.myGroups = _.clone(me.myGroups);
       $scope.myPrimaryGroup = _.clone(me.myPrimaryGroup);
+      $scope.search = {
+        input: null,
+        isSearching: false
+      };
       $scope.showAthletics = !!_.get(me.personalization, 'showAthletics');
     };
 
     init();
+
+    $rootScope.$on('$viewContentLoaded', function() {
+      $scope.search.input = null;
+    });
+
+    $scope.searchForStudents = function() {
+      $scope.search.isSearching = true;
+      $location.path('/search').search({q: $scope.search.input});
+    };
 
     var findGroupInScope = function(groupId) {
       var allGroups = _.union([ $scope.myPrimaryGroup ], $scope.myGroups);

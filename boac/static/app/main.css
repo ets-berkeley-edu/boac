@@ -149,7 +149,6 @@
   background-color: #125074;
   flex: 0 0 230px;
   min-height: 100%;
-  padding: 3px 0 0 0;
 }
 
 .loading-spinner-large {
@@ -261,10 +260,6 @@
 html,
 body {
   height: 100%;
-}
-
-oi-select .select-dropdown {
-  max-height: 250px !important;
 }
 
 select[data-value=""],
