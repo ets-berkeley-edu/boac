@@ -54,19 +54,19 @@
 
 <hr class="sidebar-section-divider"/>
 
-<div class="sidebar-row-link">
+<div class="sidebar-row-link" data-ng-if="showAthletics">
   <span class="sidebar-row-link-label">
     <a id="sidebar-teams-link" href="/cohorts/teams">Team List</a>
   </span>
 </div>
-<div class="sidebar-row-link">
+<div class="sidebar-row-link" data-ng-if="showAthletics">
   <span class="sidebar-row-link-label">
     <a id="sidebar-cohort-intensive"
        data-ui-sref="cohort({c: null, inactive: null, i: true})"
        data-ui-sref-opts="{reload: true}">Intensive</a>
   </span>
 </div>
-<div class="sidebar-row-link">
+<div class="sidebar-row-link" data-ng-if="showAthletics">
   <span class="sidebar-row-link-label">
     <a id="sidebar-cohort-inactive"
        data-ui-sref="cohort({c: null, i: null, inactive: true})"
