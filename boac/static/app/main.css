@@ -54,8 +54,8 @@
   vertical-align: middle;
 }
 
-.container-left {
-  float: left;
+.container-error {
+  padding: 0 10px 0 10px;
 }
 
 .container-right {

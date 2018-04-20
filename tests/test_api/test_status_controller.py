@@ -31,16 +31,15 @@ class TestStatusController:
         """Returns a well-formed response."""
         response = client.get('/api/status')
         assert response.status_code == 200
-        assert 'authenticated_as' in response.json
-        assert not response.json['authenticated_as']['is_authenticated']
+        assert response.json['isAuthenticated'] is False
 
     def test_when_authenticated(self, client, fake_auth):
         test_uid = '1133399'
         fake_auth.login(test_uid)
         response = client.get('/api/status')
         assert response.status_code == 200
-        assert response.json['authenticated_as']['is_authenticated']
-        assert response.json['authenticated_as']['uid'] == test_uid
+        assert response.json['isAuthenticated'] is True
+        assert response.json['uid'] == test_uid
 
     def test_ping(self, client):
         """Answers the phone when pinged."""

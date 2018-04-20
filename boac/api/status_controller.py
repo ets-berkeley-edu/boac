@@ -55,14 +55,9 @@ def app_status():
 
 @app.route('/api/status')
 def user_status():
-    uid = current_user.get_id()
-    authn_state = {
-        'is_authenticated': current_user.is_authenticated,
-        'is_active': current_user.is_active,
-        'is_anonymous': current_user.is_anonymous,
-        'uid': uid,
-    }
-    resp = {
-        'authenticated_as': authn_state,
-    }
-    return tolerant_jsonify(resp)
+    return tolerant_jsonify({
+        'isActive': current_user.is_active,
+        'isAnonymous': current_user.is_anonymous,
+        'isAuthenticated': current_user.is_authenticated,
+        'uid': current_user.get_id(),
+    })

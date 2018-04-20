@@ -60,9 +60,8 @@
       if (id) {
         ga('send', 'pageview', $location.path());
 
-        var me = $rootScope.me && $rootScope.me.authenticated_as;
-        if (me && me.is_authenticated) {
-          ga('set', 'uid', me.uid);
+        if ($rootScope.me && $rootScope.me.isAuthenticated) {
+          ga('set', 'uid', $rootScope.me.uid);
         }
       }
     };
