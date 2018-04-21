@@ -131,7 +131,7 @@ def course_section_to_json(term_id, section):
     }
 
 
-def decorate_student_groups(current_user_id, groups):
+def decorate_student_groups(current_user_id, groups, remove_students_without_alerts=False):
     for group in groups:
         students_by_sid = {student['sid']: student for student in group['students']}
         alert_counts = Alert.current_alert_counts_for_sids(current_user_id, list(students_by_sid.keys()))
@@ -140,6 +140,8 @@ def decorate_student_groups(current_user_id, groups):
             student.update({
                 'alertCount': result['alertCount'],
             })
+        if remove_students_without_alerts:
+            group['students'] = [s for s in group['students'] if s.get('alertCount')]
         group['students'] = sorted(group['students'], key=lambda s: (s['firstName'], s['lastName']))
     return groups
 

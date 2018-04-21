@@ -65,9 +65,7 @@ class TestStudentGroupsController:
         default_group = next(group for group in groups if group['name'] == 'My Students')
         assert len(default_group['students']) == 0
         cool_kids_group = next(group for group in groups if group['name'] == 'Cool Kids')
-        students = cool_kids_group['students']
-        names = [student['firstName'] + ' ' + student['lastName'] for student in students]
-        assert ['Brigitte Lin', 'Paul Farestveit', 'Paul Kerschen', 'Sandeep Jayaprakash'] == names
+        assert cool_kids_group['studentCount'] == 4
 
     def test_empty_group(self, authenticated_session_empty_primary, client):
         """Returns default empty group requested."""
@@ -77,19 +75,26 @@ class TestStudentGroupsController:
         assert response.status_code == 200
         assert response.json['students'] == []
 
-    def test_group_includes_alert_counts(self, create_alerts, authenticated_session, client):
-        """Returns groups with alerts per student."""
+    def test_group_summary_excludes_students_without_alerts(self, create_alerts, authenticated_session, client):
+        """When all groups are requested, returns only students with alerts."""
         groups = client.get('/api/groups/my').json
-        students = groups[0]['students']
-        assert students[0]['alertCount'] == 3
-        assert 'alertCount' not in students[1]
-        assert 'alertCount' not in students[2]
-        assert 'alertCount' not in students[3]
+        assert groups[0]['studentCount'] == 4
+        assert len(groups[0]['students']) == 1
+        assert groups[0]['students'][0]['alertCount'] == 3
 
         alert_to_dismiss = client.get('/api/alerts/current/11667051').json['shown'][0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
         groups = client.get('/api/groups/my').json
         assert groups[0]['students'][0]['alertCount'] == 2
+
+    def test_group_detail_includes_students_without_alerts(self, create_alerts, authenticated_session, client):
+        """When group detail is requested, returns all students."""
+        groups = client.get('/api/groups/my').json
+        group = client.get(f'/api/group/{groups[0]["id"]}').json
+        assert group['students'][0]['alertCount'] == 3
+        assert 'alertCount' not in group['students'][1]
+        assert 'alertCount' not in group['students'][2]
+        assert 'alertCount' not in group['students'][3]
 
     def test_group_index_includes_summary(self, authenticated_session, client):
         """Returns summary details but not full term and analytics data for group index."""
@@ -103,7 +108,7 @@ class TestStudentGroupsController:
         assert 'enrollments' not in students[0]['term']
 
     def test_group_detail_includes_analytics(self, authenticated_session, client):
-        """Returns full term and analytics data for detailed group listing."""
+        """Returns all students with full term and analytics data for detailed group listing."""
         groups = client.get('/api/groups/my').json
         group = next(group for group in groups if group['name'] == 'Cool Kids')
         group_id = group['id']
@@ -117,7 +122,7 @@ class TestStudentGroupsController:
         assert 'enrollments' in students[0]['term']
 
     def test_group_detail_includes_athletics(self, authenticated_session, client):
-        """Returns athletic memberships for detailed group listing."""
+        """Returns all students with athletic memberships for detailed group listing."""
         groups = client.get('/api/groups/my').json
         group = next(group for group in groups if group['name'] == 'Cool Kids')
         students = group['students']
@@ -142,9 +147,7 @@ class TestStudentGroupsController:
         sid = '2345678901'
         response = client.get(f'/api/group/{group_id}/add_student/{sid}')
         assert response.status_code == 200
-        groups = client.get('/api/groups/my').json
-        assert len(groups)
-        group = next(group for group in groups if group['id'] == group_id)
+        group = client.get(f'/api/group/{group_id}').json
         assert group['name'] == name
         assert group['students'][0]['sid'] == sid
         # Remove student

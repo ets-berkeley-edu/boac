@@ -93,7 +93,12 @@ def remove_student_from_group(group_id, sid):
 def my_groups():
     groups = StudentGroup.get_groups_by_owner_id(current_user.id)
     groups = sorted(groups, key=lambda group: group.name)
-    return tolerant_jsonify(_decorate_groups([g.to_api_json() for g in groups], include_analytics=False))
+    decorated = _decorate_groups(
+        [g.to_api_json() for g in groups],
+        include_analytics=False,
+        remove_students_without_alerts=True,
+    )
+    return tolerant_jsonify(decorated)
 
 
 @app.route('/api/group/students/add', methods=['POST'])
@@ -126,7 +131,11 @@ def update_group():
     return tolerant_jsonify(StudentGroup.update(group_id=group.id, name=name).to_api_json())
 
 
-def _decorate_groups(groups, include_analytics):
+def _decorate_groups(groups, include_analytics, remove_students_without_alerts=False):
     for group in groups:
         member_details.merge_all(group['students'], include_analytics=include_analytics)
-    return api_util.decorate_student_groups(current_user_id=current_user.id, groups=groups)
+    return api_util.decorate_student_groups(
+        current_user_id=current_user.id,
+        groups=groups,
+        remove_students_without_alerts=remove_students_without_alerts,
+    )
