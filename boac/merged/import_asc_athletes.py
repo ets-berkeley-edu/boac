@@ -249,7 +249,7 @@ def merge_students_import(imported_students, delete_students):
         'new_memberships': 0,
         'deleted_memberships': 0,
     }
-    existing_students = {row['sid']: row for row in Student.get_all('sid', include_inactive=True)}
+    existing_students = {row['sid']: row for row in Student.get_all('sid')}
     remaining_sids = set(existing_students.keys())
     for student_import in imported_students.values():
         sid = student_import['sid']

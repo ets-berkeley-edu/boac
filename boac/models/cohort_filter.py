@@ -195,7 +195,7 @@ def construct_cohort(cf, order_by=None, offset=0, limit=50, include_students=Tru
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
         in_intensive_cohort=in_intensive_cohort,
-        is_inactive=is_inactive,
+        is_active_asc=None if is_inactive is None else not is_inactive,
         levels=levels,
         majors=majors,
         unit_ranges=unit_ranges,

@@ -27,18 +27,38 @@
 
   'use strict';
 
-  angular.module('boac').controller('SearchController', function(config, $location, $scope) {
+  angular.module('boac').controller('SearchController', function(
+    config,
+    studentFactory,
+    validationService,
+    $location,
+    $scope
+  ) {
 
     $scope.demoMode = config.demoMode;
-    $scope.isLoading = true;
 
     var init = function() {
-      if ($location.search().q) {
-        $scope.searchInput = $location.search().q;
+      $scope.search = {
+        phrase: $location.search().q,
+        orderBy: 'first_name',
+        offset: 0,
+        limit: 50
+      };
+      if ($scope.search.phrase) {
+        $scope.isLoading = true;
+        studentFactory.searchForStudents($scope.search.phrase, $scope.search.orderBy, $scope.search.offset, $scope.search.limit).then(
+          function(response) {
+            $scope.searchResults = response.data;
+          },
+          function(err) {
+            $scope.error = validationService.parseError(err);
+          }
+        ).then(function() {
+          $scope.isLoading = false;
+        });
       } else {
         $scope.error = {message: 'No search input found.'};
       }
-      $scope.isLoading = false;
     };
 
     init();

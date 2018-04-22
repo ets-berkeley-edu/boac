@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.api import errors
+from boac.api.errors import BadRequestError
 import boac.api.util as api_util
 from boac.externals import canvas
 from boac.externals.cal1card_photo_api import get_cal1card_photo
@@ -74,7 +75,7 @@ def user_profile():
 @app.route('/api/students/all')
 def all_students():
     order_by = request.args['orderBy'] if 'orderBy' in request.args else None
-    return tolerant_jsonify(Student.get_all(order_by=order_by))
+    return tolerant_jsonify(Student.get_all(order_by=order_by, is_active_asc=True))
 
 
 @app.route('/api/students', methods=['POST'])
@@ -87,7 +88,7 @@ def get_students():
     majors = util.get(params, 'majors')
     unit_ranges = util.get(params, 'unitRanges')
     in_intensive_cohort = util.to_bool_or_none(util.get(params, 'inIntensiveCohort'))
-    is_inactive = util.get(params, 'isInactive')
+    is_inactive_asc = util.get(params, 'isInactive')
     order_by = util.get(params, 'orderBy', None)
     offset = util.get(params, 'offset', 0)
     limit = util.get(params, 'limit', 50)
@@ -98,7 +99,7 @@ def get_students():
         majors=majors,
         unit_ranges=unit_ranges,
         in_intensive_cohort=in_intensive_cohort,
-        is_inactive=is_inactive,
+        is_active_asc=None if is_inactive_asc is None else not is_inactive_asc,
         order_by=order_by,
         offset=offset,
         limit=limit,
@@ -107,6 +108,29 @@ def get_students():
     return tolerant_jsonify({
         'members': results['students'],
         'totalMemberCount': results['totalStudentCount'],
+    })
+
+
+@app.route('/api/students/search', methods=['POST'])
+@login_required
+def search_for_students():
+    params = request.get_json()
+    search_phrase = util.get(params, 'searchPhrase', '').strip()
+    if not len(search_phrase):
+        raise BadRequestError('Invalid or empty search input')
+    order_by = util.get(params, 'orderBy', None)
+    offset = util.get(params, 'offset', 0)
+    limit = util.get(params, 'limit', 50)
+    results = Student.search_for_students(
+        search_phrase=search_phrase,
+        order_by=order_by,
+        offset=offset,
+        limit=limit,
+    )
+    member_details.merge_all(results['students'])
+    return tolerant_jsonify({
+        'students': results['students'],
+        'totalStudentCount': results['totalStudentCount'],
     })
 
 
