@@ -63,7 +63,7 @@ class Athletics(Base):
                 'name': row[1],
                 'teamCode': row[2],
                 'teamName': row[3],
-                'totalMemberCount': row[4],
+                'totalStudentCount': row[4],
             }
         return [translate_row(row) for row in results]
 
@@ -84,7 +84,7 @@ class Athletics(Base):
             return {
                 'code': row[0],
                 'name': row[1],
-                'totalMemberCount': row[2],
+                'totalStudentCount': row[2],
             }
         return [translate_row(row) for row in results]
 
@@ -109,15 +109,15 @@ class Athletics(Base):
                     'groupName': row[3],
                 })
             group_codes = [group['groupCode'] for group in team['teamGroups']]
-            students = Student.get_students(
+            results = Student.get_students(
                 group_codes=group_codes,
                 is_active_asc=True,
                 order_by=order_by,
                 offset=0,
                 limit=None,
             )
-            team['members'] = students['students']
-            team['totalMemberCount'] = students['totalStudentCount']
+            team['students'] = results['students']
+            team['totalStudentCount'] = results['totalStudentCount']
         return team
 
     def to_api_json(self):

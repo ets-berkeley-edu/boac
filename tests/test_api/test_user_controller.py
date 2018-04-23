@@ -519,8 +519,8 @@ class TestUserAnalytics:
         response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
 
         assert response.status_code == 200
-        assert 'members' in response.json
-        students = response.json['members']
+        assert 'students' in response.json
+        students = response.json['students']
         assert 2 == len(students)
         # Offset of 1, ordered by lastName
         assert ['1133399', '242881'] == [student['uid'] for student in students]
@@ -537,10 +537,10 @@ class TestUserAnalytics:
         response = client.post('/api/students', data=json.dumps({'inIntensiveCohort': True}), content_type='application/json')
         assert response.status_code == 200
         cohort = json.loads(response.data)
-        assert 'members' in cohort
-        assert cohort['totalMemberCount'] == len(cohort['members']) == 5
+        assert 'students' in cohort
+        assert cohort['totalStudentCount'] == len(cohort['students']) == 5
         assert 'teamGroups' not in cohort
-        for student in cohort['members']:
+        for student in cohort['students']:
             assert student['inIntensiveCohort']
 
     def test_order_by_with_intensive_cohort(self, authenticated_session, client):
@@ -562,17 +562,17 @@ class TestUserAnalytics:
             response = client.post('/api/students', data=json.dumps(args), content_type='application/json')
             assert response.status_code == 200, f'Non-200 response where order_by={order_by}'
             cohort = json.loads(response.data)
-            assert cohort['totalMemberCount'] == 5, f'Wrong count where order_by={order_by}'
-            uid_list = [s['uid'] for s in cohort['members']]
+            assert cohort['totalStudentCount'] == 5, f'Wrong count where order_by={order_by}'
+            uid_list = [s['uid'] for s in cohort['students']]
             assert uid_list == expected_uid_list, f'Unmet expectation where order_by={order_by}'
 
     def test_get_inactive_cohort(self, authenticated_session, client):
         response = client.post('/api/students', data=json.dumps({'isInactive': True}), content_type='application/json')
         assert response.status_code == 200
         cohort = json.loads(response.data)
-        assert 'members' in cohort
-        assert cohort['totalMemberCount'] == len(cohort['members']) == 1
+        assert 'students' in cohort
+        assert cohort['totalStudentCount'] == len(cohort['students']) == 1
         assert 'teamGroups' not in cohort
-        inactive_student = response.json['members'][0]
+        inactive_student = response.json['students'][0]
         assert not inactive_student['isActiveAsc']
         assert inactive_student['statusAsc'] == 'Trouble'

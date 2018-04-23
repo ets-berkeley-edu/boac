@@ -16,7 +16,7 @@
       <span data-ng-bind="group.name"></span>
       <span class="faint-text">(<span data-ng-pluralize
                                       count="group.students.length"
-                                      when="{'one': '1 Member', 'other': '{} Members'}"></span>)</span>
+                                      when="{'one': 'One student', 'other': '{} students'}"></span>)</span>
     </h1>
     <div data-ng-if="!group.students.length">
       This curated cohort has no students.
@@ -82,8 +82,8 @@
             <div class="student-text" data-ng-bind="major" data-ng-repeat="major in student.majors"></div>
             <div class="student-teams-container">
               <div class="student-teams"
-                   data-ng-bind="membership.groupName"
-                   data-ng-repeat="membership in student.athletics"></div>
+                   data-ng-bind="team.groupName"
+                   data-ng-repeat="team in student.athletics"></div>
             </div>
           </div>
 

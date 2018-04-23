@@ -27,7 +27,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.api.errors import ResourceNotFoundError
 from boac.lib import util
 from boac.lib.http import tolerant_jsonify
-from boac.merged import member_details
+from boac.merged import student_details
 from boac.models.athletics import Athletics
 from flask import current_app as app, request
 from flask_login import login_required
@@ -40,7 +40,7 @@ def get_team(code):
     team = Athletics.get_team(code, order_by)
     if team is None:
         raise ResourceNotFoundError('No team found with code ' + code)
-    member_details.merge_all(team['members'])
+    student_details.merge_all(team['students'])
     return tolerant_jsonify(team)
 
 

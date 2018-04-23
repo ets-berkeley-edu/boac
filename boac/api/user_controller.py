@@ -34,7 +34,7 @@ from boac.lib.analytics import merge_analytics_for_user
 from boac.lib.berkeley import is_department_advisor, sis_term_id_for_name
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
-from boac.merged import member_details
+from boac.merged import student_details
 from boac.merged.sis_enrollments import merge_sis_enrollments
 from boac.merged.sis_profile import merge_sis_profile
 from boac.models.cohort_filter import CohortFilter
@@ -104,10 +104,10 @@ def get_students():
         offset=offset,
         limit=limit,
     )
-    member_details.merge_all(results['students'])
+    student_details.merge_all(results['students'])
     return tolerant_jsonify({
-        'members': results['students'],
-        'totalMemberCount': results['totalStudentCount'],
+        'students': results['students'],
+        'totalStudentCount': results['totalStudentCount'],
     })
 
 
@@ -127,7 +127,7 @@ def search_for_students():
         offset=offset,
         limit=limit,
     )
-    member_details.merge_all(results['students'])
+    student_details.merge_all(results['students'])
     return tolerant_jsonify({
         'students': results['students'],
         'totalStudentCount': results['totalStudentCount'],

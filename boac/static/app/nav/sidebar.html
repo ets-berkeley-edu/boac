@@ -5,8 +5,8 @@
     <input id="search-students-input"
            type="text"
            class="search-students-input"
-           data-ng-model="search.input"
-           data-ng-readonly="search.isSearching"
+           data-ng-model="searchPhrase"
+           data-ng-readonly="searchResultsLoading"
            maxlength="255"
            placeholder="Search for Students">
   </form>
@@ -54,7 +54,7 @@
     </a>
     <span id="sidebar-cohort-{{$index}}-count"
           class="sidebar-pill"
-          data-ng-bind="cohort.totalMemberCount"></span>
+          data-ng-bind="cohort.totalStudentCount"></span>
   </div>
 </div>
 

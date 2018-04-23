@@ -140,8 +140,8 @@
         $rootScope.checkboxForStudentGroupsSelector = function(student) {
           if (student.selectedForStudentGroups) {
             var allStudentsSelected = true;
-            _.each(scope.students, function(member) {
-              if (!member.selectedForStudentGroups) {
+            _.each(scope.students, function(_student) {
+              if (!_student.selectedForStudentGroups) {
                 // We found a checkbox not checked. The 'all' checkbox must be false.
                 allStudentsSelected = false;
                 // Break out of loop.

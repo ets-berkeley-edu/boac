@@ -9,13 +9,13 @@
       <span data-ng-if="!error.message">Sorry, there was an error retrieving data.</span>
     </div>
   </div>
-  <div class="cohort-label" data-ng-if="!error && !isCreateCohortMode && !isLoading && !isSaving && (cohort.totalMemberCount >= 0)">
+  <div class="cohort-label" data-ng-if="!error && !isCreateCohortMode && !isLoading && !isSaving && (cohort.totalStudentCount >= 0)">
     <h1 class="page-section-header" data-ng-if="cohort.name">
       <span data-ng-bind="cohort.name"></span>
-      <span class="faint-text">(<span data-ng-bind="cohort.totalMemberCount"></span> members)</span>
+      <span class="faint-text">(<span data-ng-bind="cohort.totalStudentCount"></span> students)</span>
     </h1>
     <h1 data-ng-if="!cohort.name">
-      <span data-ng-pluralize count="cohort.totalMemberCount" when="{'one': '1 Result', 'other': '{} Results'}"></span>
+      <span data-ng-pluralize count="cohort.totalStudentCount" when="{'one': '1 Result', 'other': '{} Results'}"></span>
     </h1>
   </div>
   <div class="cohort-column-results" data-ng-if="!isLoading && !error && !isSaving && isCreateCohortMode">
@@ -78,7 +78,7 @@
   </div>
 
   <hr class="filters-section-separator"
-      data-ng-if="!isLoading && !error && !isCreateCohortMode && cohort.totalMemberCount"/>
+      data-ng-if="!isLoading && !error && !isCreateCohortMode && cohort.totalStudentCount"/>
 
   <div class="loading-spinner-large" data-ng-if="isLoading && !error">
     <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
@@ -87,10 +87,10 @@
 
   <div class="cohort-column-results">
     <div class="cohort-tabs-container"
-         data-ng-if="!isLoading && !error && (tab === 'matrix' || cohort.totalMemberCount)">
+         data-ng-if="!isLoading && !error && (tab === 'matrix' || cohort.totalStudentCount)">
 
       <div class="cohort-tabs-container-column-01">
-        <groups-selector data-students="cohort.members" data-ng-if="tab === 'list'"></groups-selector>
+        <groups-selector data-students="cohort.students" data-ng-if="tab === 'list'"></groups-selector>
       </div>
       <div class="cohort-tabs-container-column-02">
         <div data-ng-include="'/static/app/shared/tabs.html'"></div>
@@ -107,11 +107,11 @@
       </div>
     </div>
     <div data-ng-show="tab === 'list'"
-         data-ng-if="!isLoading && !error && cohort.totalMemberCount">
-      <ul id="cohort-members-list" class="list-group">
+         data-ng-if="!isLoading && !error && cohort.totalStudentCount">
+      <ul id="cohort-students-list" class="list-group">
         <div class="list-group-item cohort-student-list-item"
              data-ng-class="{'list-group-item-info': anchor===student.uid}"
-             data-ng-repeat="student in cohort.members">
+             data-ng-repeat="student in cohort.students">
 
           <div class="cohort-list-view-column-00">
             <div class="student-checkbox-add-to-group">
@@ -156,8 +156,8 @@
             <div class="student-text" data-ng-bind="major" data-ng-repeat="major in student.majors"></div>
             <div class="student-teams-container">
               <div class="student-teams"
-                   data-ng-bind="membership.groupName"
-                   data-ng-repeat="membership in student.athletics"></div>
+                   data-ng-bind="team.groupName"
+                   data-ng-repeat="team in student.athletics"></div>
             </div>
           </div>
 
@@ -209,10 +209,10 @@
       <ul uib-pagination
           direction-links="false"
           items-per-page="pagination.itemsPerPage"
-          total-items="cohort.totalMemberCount"
+          total-items="cohort.totalStudentCount"
           ng-model="pagination.currentPage"
           data-ng-click="nextPage()"
-          data-ng-if="pagination.enabled && !isCreateCohortMode && (cohort.totalMemberCount > pagination.itemsPerPage)"></ul>
+          data-ng-if="pagination.enabled && !isCreateCohortMode && (cohort.totalStudentCount > pagination.itemsPerPage)"></ul>
     </div>
     <div id="matrix-outer" data-ng-show="tab === 'matrix' && !isLoading && !error">
       <div data-ng-include="'/static/app/shared/matrix.html'"></div>
