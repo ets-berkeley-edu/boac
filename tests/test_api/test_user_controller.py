@@ -50,6 +50,48 @@ class TestStudents:
         assert 'MFB-DB' in group_codes
         assert 'MFB-DL' in group_codes
 
+    def test_search_not_authenticated(self, client):
+        """Search is not available to the world."""
+        response = client.post('/api/students/search')
+        assert response.status_code == 401
+
+    def test_search_with_missing_input(self, client, fake_auth):
+        """Search is nothing without input."""
+        fake_auth.login('2040')
+        response = client.post('/api/students/search', data=json.dumps({'searchPhrase': ' \t  '}), content_type='application/json')
+        assert response.status_code == 400
+
+    def test_search_by_sid_snippet(self, client, fake_auth):
+        """Search by snippet of SID."""
+        fake_auth.login('2040')
+        response = client.post('/api/students/search', data=json.dumps({'searchPhrase': '89012'}), content_type='application/json')
+        assert response.status_code == 200
+        assert len(response.json['students']) == response.json['totalStudentCount'] == 2
+
+    def test_search_by_name_snippet(self, client, fake_auth):
+        """Search by snippet of name."""
+        fake_auth.login('2040')
+        response = client.post('/api/students/search', data=json.dumps({'searchPhrase': 'dav'}), content_type='application/json')
+        assert response.status_code == 200
+        students = response.json['students']
+        assert len(students) == response.json['totalStudentCount'] == 3
+        assert ['Crossman', 'Davies', 'Doolittle'] == [s['lastName'] for s in students]
+
+    def test_search_order_by_offset_limit(self, client, fake_auth):
+        """Search by snippet of name."""
+        fake_auth.login('2040')
+        args = {
+            'searchPhrase': 'dav',
+            'orderBy': 'major',
+            'offset': 1,
+            'limit': 1,
+        }
+        response = client.post('/api/students/search', data=json.dumps(args), content_type='application/json')
+        assert response.status_code == 200
+        assert response.json['totalStudentCount'] == 3
+        assert len(response.json['students']) == 1
+        assert 'Crossman' == response.json['students'][0]['lastName']
+
 
 class TestUserProfile:
     """User Profile API."""
@@ -425,7 +467,7 @@ class TestUserAnalytics:
     def test_athletics_profile(self, authenticated_response):
         """Includes athletics profile."""
         athletics_profile = authenticated_response.json['athleticsProfile']
-        assert athletics_profile['name'] == 'Brigitte Lin'
+        assert athletics_profile['name'] == 'Deborah Davies'
         assert athletics_profile['uid'] == '61889'
         assert athletics_profile['sid'] == '11667051'
         assert athletics_profile['inIntensiveCohort'] is True
@@ -462,7 +504,12 @@ class TestUserAnalytics:
             'gpaRanges': ['numrange(3, 3.5, \'[)\')', 'numrange(3.5, 4, \'[]\')'],
             'groupCodes': ['MFB-DB', 'MFB-DL'],
             'levels': ['Junior', 'Senior'],
-            'majors': ['English BA', 'History BA', 'Letters & Sci Undeclared UG', 'Gender and Women\'s Studies'],
+            'majors': [
+                'Chemistry BS',
+                'English BA',
+                'History BA',
+                'Letters & Sci Undeclared UG',
+            ],
             'unitRanges': [],
             'inIntensiveCohort': None,
             'orderBy': 'last_name',
@@ -491,22 +538,21 @@ class TestUserAnalytics:
         assert response.status_code == 200
         cohort = json.loads(response.data)
         assert 'members' in cohort
-        assert cohort['totalMemberCount'] == len(cohort['members']) == 4
+        assert cohort['totalMemberCount'] == len(cohort['members']) == 5
         assert 'teamGroups' not in cohort
         for student in cohort['members']:
             assert student['inIntensiveCohort']
-            assert student['isActiveAsc']
 
     def test_order_by_with_intensive_cohort(self, authenticated_session, client):
         """Returns the canned 'intensive' cohort, available to all authenticated users."""
         all_expected_order = {
-            'first_name': ['61889', '1022796', '1049291', '242881'],
-            'gpa': ['1022796', '242881', '1049291', '61889'],
-            'group_name': ['242881', '1049291', '61889', '1022796'],
-            'last_name': ['1022796', '1049291', '242881', '61889'],
-            'level': ['1022796', '242881', '1049291', '61889'],
-            'major': ['1022796', '61889', '242881', '1049291'],
-            'units': ['61889', '1022796', '242881', '1049291'],
+            'first_name': ['61889', '1022796', '1049291', '242881', '211159'],
+            'gpa': ['211159', '1022796', '242881', '1049291', '61889'],
+            'group_name': ['211159', '242881', '1049291', '61889', '1022796'],
+            'last_name': ['1022796', '61889', '1049291', '242881', '211159'],
+            'level': ['1022796', '211159', '242881', '1049291', '61889'],
+            'major': ['1022796', '242881', '61889', '1049291', '211159'],
+            'units': ['61889', '211159', '1022796', '242881', '1049291'],
         }
         for order_by, expected_uid_list in all_expected_order.items():
             args = {
@@ -516,7 +562,7 @@ class TestUserAnalytics:
             response = client.post('/api/students', data=json.dumps(args), content_type='application/json')
             assert response.status_code == 200, f'Non-200 response where order_by={order_by}'
             cohort = json.loads(response.data)
-            assert cohort['totalMemberCount'] == 4, f'Wrong count where order_by={order_by}'
+            assert cohort['totalMemberCount'] == 5, f'Wrong count where order_by={order_by}'
             uid_list = [s['uid'] for s in cohort['members']]
             assert uid_list == expected_uid_list, f'Unmet expectation where order_by={order_by}'
 

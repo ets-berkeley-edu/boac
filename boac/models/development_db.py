@@ -196,40 +196,40 @@ def load_student_athletes():
     wfh = create_team_group(womens_field_hockey)
     wt = create_team_group(womens_tennis)
     # Some students are on teams and some are not
-    brigitte = create_student(
+    deborah = create_student(
         uid='61889',
         sid='11667051',
-        first_name='Brigitte',
-        last_name='Lin',
+        first_name='Deborah',
+        last_name='Davies',
         team_groups=[wfh, wt],
         gpa=None,
         level=None,
         units=0,
-        majors=['Economics BA'],
+        majors=['History BA'],
         in_intensive_cohort=True,
     )
     create_student(
         uid='1022796',
         sid='8901234567',
-        first_name='John',
+        first_name='John David',
         last_name='Crossman',
         team_groups=[],
         gpa='1.85',
         level='Freshman',
         units=12,
-        majors=['Chemistry BS'],
+        majors=['Economics BA'],
         in_intensive_cohort=True,
     )
     create_student(
         uid='98765',
         sid='2345678901',
-        first_name='Frank',
-        last_name='Football',
+        first_name='Dave',
+        last_name='Doolittle',
         team_groups=[fdb, fdl],
         gpa='3.495',
         level='Junior',
         units=34,
-        majors=['History BA'],
+        majors=['Chemistry BS'],
     )
     paul_kerschen = create_student(
         uid='242881',
@@ -268,7 +268,7 @@ def load_student_athletes():
     )
     schlemiel = create_student(
         uid='211159',
-        sid='838927492',
+        sid='890127492',
         first_name='Siegfried',
         last_name='Schlemiel',
         # 'A mug is a mug in everything.' - Colonel Harrington
@@ -289,20 +289,20 @@ def load_student_athletes():
 
     advisor = AuthorizedUser.find_by_uid('6446')
     group = StudentGroup.create(advisor.id, 'Cool Kids')
-    for student in [paul_kerschen, sandeep, brigitte, paul_farestveit]:
+    for student in [paul_kerschen, sandeep, deborah, paul_farestveit]:
         StudentGroup.add_student(group.id, student.sid)
     std_commit(allow_test_environment=True)
 
 
 def create_cohorts():
     # Oliver's cohorts
-    CohortFilter.create(uid='2040', label='All sports', group_codes=['MFB-DL', 'WFH'])
-    CohortFilter.create(uid='2040', label='Football, Defense', group_codes=['MFB-DB', 'MFB-DL'])
-    CohortFilter.create(uid='2040', label='Field Hockey', group_codes=['WFH'])
+    CohortFilter.create(uid='2040', label='All sports', group_codes=['MFB-DL', 'WFH'], is_inactive=False)
+    CohortFilter.create(uid='2040', label='Football, Defense', group_codes=['MFB-DB', 'MFB-DL'], is_inactive=False)
+    CohortFilter.create(uid='2040', label='Field Hockey', group_codes=['WFH'], is_inactive=False)
     # Sandeep's cohorts
-    CohortFilter.create(uid='1133399', label='All sports', group_codes=['MFB-DL', 'WFH'])
-    CohortFilter.create(uid='1133399', label='Football, Defense Backs', group_codes=['MFB-DB'])
-    CohortFilter.create(uid='1133399', label='Undeclared students', majors=['Undeclared'])
+    CohortFilter.create(uid='1133399', label='All sports', group_codes=['MFB-DL', 'WFH'], is_inactive=False)
+    CohortFilter.create(uid='1133399', label='Football, Defense Backs', group_codes=['MFB-DB'], is_inactive=False)
+    CohortFilter.create(uid='1133399', label='Undeclared students', majors=['Undeclared'], is_inactive=False)
     std_commit(allow_test_environment=True)
 
 

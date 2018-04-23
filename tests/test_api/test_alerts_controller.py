@@ -53,28 +53,28 @@ class TestAlertsController:
     def test_dismiss_alerts(self, create_alerts, fake_auth, client):
         """Can dismiss alerts for one user without affecting visibility for other users."""
         fake_auth.login(advisor_1_uid)
-        advisor_1_brigitte_alerts = client.get('/api/alerts/current/11667051').json
-        assert len(advisor_1_brigitte_alerts['shown']) == 2
-        assert len(advisor_1_brigitte_alerts['dismissed']) == 0
-        alert_id = advisor_1_brigitte_alerts['shown'][0]['id']
+        advisor_1_deborah_alerts = client.get('/api/alerts/current/11667051').json
+        assert len(advisor_1_deborah_alerts['shown']) == 2
+        assert len(advisor_1_deborah_alerts['dismissed']) == 0
+        alert_id = advisor_1_deborah_alerts['shown'][0]['id']
         response = client.get('/api/alerts/' + str(alert_id) + '/dismiss')
         assert response.status_code == 200
         assert response.json['message'] == 'Alert ' + str(alert_id) + ' dismissed by UID 2040'
 
-        advisor_1_brigitte_alerts = client.get('/api/alerts/current/11667051').json
-        assert len(advisor_1_brigitte_alerts['shown']) == 1
-        assert len(advisor_1_brigitte_alerts['dismissed']) == 1
+        advisor_1_deborah_alerts = client.get('/api/alerts/current/11667051').json
+        assert len(advisor_1_deborah_alerts['shown']) == 1
+        assert len(advisor_1_deborah_alerts['dismissed']) == 1
 
         fake_auth.login(advisor_2_uid)
-        advisor_2_brigitte_alerts = client.get('/api/alerts/current/11667051').json
-        assert len(advisor_2_brigitte_alerts['shown']) == 2
-        assert len(advisor_2_brigitte_alerts['dismissed']) == 0
+        advisor_2_deborah_alerts = client.get('/api/alerts/current/11667051').json
+        assert len(advisor_2_deborah_alerts['shown']) == 2
+        assert len(advisor_2_deborah_alerts['dismissed']) == 0
 
     def test_duplicate_dismiss_alerts(self, create_alerts, fake_auth, client):
         """Shrugs off duplicate dismissals."""
         fake_auth.login(advisor_1_uid)
-        advisor_1_brigitte_alerts = client.get('/api/alerts/current/11667051').json
-        alert_id = advisor_1_brigitte_alerts['shown'][0]['id']
+        advisor_1_deborah_alerts = client.get('/api/alerts/current/11667051').json
+        alert_id = advisor_1_deborah_alerts['shown'][0]['id']
         response = client.get('/api/alerts/' + str(alert_id) + '/dismiss')
         assert response.status_code == 200
         response = client.get('/api/alerts/' + str(alert_id) + '/dismiss')
@@ -92,13 +92,13 @@ class TestAlertsController:
         Alert.query.filter_by(key='2178_800900300').first().deactivate()
 
         fake_auth.login(advisor_1_uid)
-        advisor_1_brigitte_alerts = client.get('/api/alerts/current/11667051').json
-        assert len(advisor_1_brigitte_alerts['shown']) == 1
-        assert advisor_1_brigitte_alerts['shown'][0]['key'] == '2178_500600700'
-        assert len(advisor_1_brigitte_alerts['dismissed']) == 0
+        advisor_1_deborah_alerts = client.get('/api/alerts/current/11667051').json
+        assert len(advisor_1_deborah_alerts['shown']) == 1
+        assert advisor_1_deborah_alerts['shown'][0]['key'] == '2178_500600700'
+        assert len(advisor_1_deborah_alerts['dismissed']) == 0
 
         fake_auth.login(advisor_2_uid)
-        advisor_2_brigitte_alerts = client.get('/api/alerts/current/11667051').json
-        assert len(advisor_2_brigitte_alerts['shown']) == 1
-        assert advisor_2_brigitte_alerts['shown'][0]['key'] == '2178_500600700'
-        assert len(advisor_2_brigitte_alerts['dismissed']) == 0
+        advisor_2_deborah_alerts = client.get('/api/alerts/current/11667051').json
+        assert len(advisor_2_deborah_alerts['shown']) == 1
+        assert advisor_2_deborah_alerts['shown'][0]['key'] == '2178_500600700'
+        assert len(advisor_2_deborah_alerts['dismissed']) == 0

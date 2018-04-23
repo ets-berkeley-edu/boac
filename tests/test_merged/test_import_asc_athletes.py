@@ -65,10 +65,10 @@ class TestImportAscAthletes:
         # Sandeep is busy.
         assert len(Student.find_by_sid('5678901234').athletics) == 3
         # Siegfried is a mug at everything.
-        inactor = Student.find_by_sid('838927492')
-        assert not inactor.is_active_asc
-        assert inactor.status_asc == 'Trouble'
-        assert len(inactor.athletics) == 5
+        inactive_student = Student.find_by_sid('890127492')
+        assert not inactive_student.is_active_asc
+        assert inactive_student.status_asc == 'Trouble'
+        assert len(inactive_student.athletics) == 5
 
     def test_update_from_asc_api_fixture(self, app):
         status = import_asc_athletes.update_from_asc_api()
@@ -83,10 +83,10 @@ class TestImportAscAthletes:
         # Sandeep relaxed.
         assert len(Student.find_by_sid('5678901234').athletics) == 1
         # Siegfried caught hydrophobia.
-        inactor = Student.find_by_sid('838927492')
-        assert not inactor.is_active_asc
-        assert inactor.status_asc == 'Beyond Aid'
-        assert inactor.athletics[0].group_code == 'MWP'
+        inactive_student = Student.find_by_sid('890127492')
+        assert not inactive_student.is_active_asc
+        assert inactive_student.status_asc == 'Beyond Aid'
+        assert inactive_student.athletics[0].group_code == 'MWP'
         assert(not status['errors'])
         assert(not status['warnings'])
         counts = status['change_counts']

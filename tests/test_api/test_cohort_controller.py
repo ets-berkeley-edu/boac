@@ -43,7 +43,6 @@ class TestCohortDetail:
     def test_my_cohorts(self, authenticated_session, client):
         response = client.get('/api/cohorts/my')
         assert response.status_code == 200
-
         cohorts = response.json
         assert len(cohorts) == 3
         assert len(cohorts[0]['teamGroups']) == 2
@@ -57,29 +56,33 @@ class TestCohortDetail:
         # Pre-load students into cache for consistent alert data.
         client.get('/api/user/61889/analytics')
         client.get('/api/user/98765/analytics')
-
         cohorts = client.get('/api/cohorts/my').json
         assert len(cohorts[0]['alerts']) == 2
-        assert cohorts[0]['alerts'][0]['sid'] == '2345678901'
-        assert cohorts[0]['alerts'][0]['uid']
-        assert cohorts[0]['alerts'][0]['firstName']
-        assert cohorts[0]['alerts'][0]['lastName']
-        assert cohorts[0]['alerts'][0]['isActiveAsc']
-        assert cohorts[0]['alerts'][0]['alertCount'] == 1
-        assert cohorts[0]['alerts'][1]['sid'] == '11667051'
-        assert cohorts[0]['alerts'][1]['alertCount'] == 3
-        assert len(cohorts[1]['alerts']) == 1
-        assert cohorts[1]['alerts'][0]['sid'] == '2345678901'
-        assert cohorts[1]['alerts'][0]['alertCount'] == 1
 
+        deborah = cohorts[0]['alerts'][0]
+        assert deborah['sid'] == '11667051'
+        assert deborah['alertCount'] == 3
         # Summary student data is included with alert counts, but full term and analytics feeds are not.
-        assert cohorts[0]['alerts'][1]['cumulativeGPA'] == 3.8
-        assert cohorts[0]['alerts'][1]['cumulativeUnits'] == 101.3
-        assert cohorts[0]['alerts'][1]['level'] == 'Junior'
-        assert len(cohorts[0]['alerts'][1]['majors']) == 2
-        assert cohorts[0]['alerts'][1]['term']['enrolledUnits'] == 12.5
-        assert 'analytics' not in cohorts[0]['alerts'][1]
-        assert 'enrollments' not in cohorts[0]['alerts'][1]['term']
+        assert deborah['cumulativeGPA'] == 3.8
+        assert deborah['cumulativeUnits'] == 101.3
+        assert deborah['level'] == 'Junior'
+        assert len(deborah['majors']) == 2
+        assert deborah['term']['enrolledUnits'] == 12.5
+        assert 'analytics' not in deborah
+        assert 'enrollments' not in deborah['term']
+
+        dave_doolittle = cohorts[0]['alerts'][1]
+        assert dave_doolittle['sid'] == '2345678901'
+        assert dave_doolittle['uid']
+        assert dave_doolittle['firstName']
+        assert dave_doolittle['lastName']
+        assert dave_doolittle['isActiveAsc']
+        assert dave_doolittle['alertCount'] == 1
+
+        other_alerts = cohorts[1]['alerts']
+        assert len(other_alerts) == 1
+        assert other_alerts[0]['sid'] == '2345678901'
+        assert other_alerts[0]['alertCount'] == 1
 
         alert_to_dismiss = client.get('/api/alerts/current/11667051').json['shown'][0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
@@ -143,7 +146,7 @@ class TestCohortDetail:
         cohort_id = user.cohort_filters[0].id
         response = client.get('/api/cohort/{}'.format(cohort_id))
         assert response.status_code == 200
-        athlete = next(m for m in response.json['members'] if m['lastName'] == 'Lin')
+        athlete = next(m for m in response.json['members'] if m['firstName'] == 'Deborah')
         assert athlete['cumulativeGPA'] == 3.8
         assert athlete['cumulativeUnits'] == 101.3
         assert athlete['level'] == 'Junior'
@@ -155,7 +158,7 @@ class TestCohortDetail:
         cohort_id = user.cohort_filters[0].id
         response = client.get('/api/cohort/{}?orderBy=firstName'.format(cohort_id))
         assert response.status_code == 200
-        athlete = next(m for m in response.json['members'] if m['lastName'] == 'Lin')
+        athlete = next(m for m in response.json['members'] if m['firstName'] == 'Deborah')
 
         term = athlete['term']
         assert term['termName'] == 'Fall 2017'
@@ -173,7 +176,7 @@ class TestCohortDetail:
         user = AuthorizedUser.find_by_uid(test_uid)
         cohort_id = user.cohort_filters[0].id
         response = client.get('/api/cohort/{}'.format(cohort_id))
-        athlete = next(m for m in response.json['members'] if m['lastName'] == 'Lin')
+        athlete = next(m for m in response.json['members'] if m['firstName'] == 'Deborah')
         assert len(athlete['athletics']) == 2
         tennis = next(membership for membership in athlete['athletics'] if membership['groupCode'] == 'WTE')
         field_hockey = next(membership for membership in athlete['athletics'] if membership['groupCode'] == 'WFH')

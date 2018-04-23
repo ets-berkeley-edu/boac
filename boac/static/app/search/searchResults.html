@@ -3,7 +3,6 @@
     <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
     <span class="sr-only">Loading...</span>
   </div>
-
   <div data-ng-if="error">
     <h1 class="page-section-header">Error</h1>
     <div class="faint-text">
@@ -11,10 +10,12 @@
       <span data-ng-if="!error.message">Sorry, there was an error retrieving data.</span>
     </div>
   </div>
-
   <div data-ng-if="!isLoading && !error">
     <h1 class="page-section-header">
-      36,976 students matching: <span data-ng-bind="searchInput"></span>
+      <span data-ng-pluralize count="searchResults.totalStudentCount" when="{'one': 'One student', 'other': '{} students'}"></span>
+      matching: <span data-ng-bind="search.phrase"></span>
     </h1>
+    <sortable-alerts-table data-group="searchResults"
+                           data-ng-if="searchResults.totalStudentCount"></sortable-alerts-table>
   </div>
 </div>

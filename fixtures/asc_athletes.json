@@ -14,7 +14,7 @@
     "SportCore": "Women's Field Hockey",
     "ActiveYN": "Yes",
     "SportStatus": "Practice",
-    "StudentName": "Lin, Brigitte",
+    "StudentName": "Davies, Deborah",
     "SyncDate": "2018-01-31"
   },
   "1161.3": {
@@ -32,7 +32,7 @@
     "SportCore": "Women's Tennis",
     "ActiveYN": "Yes",
     "SportStatus": "Practice",
-    "StudentName": "Lin, Brigitte",
+    "StudentName": "Davies, Deborah",
     "SyncDate": "2018-01-31"
   },
   "1162.3": {
@@ -144,7 +144,7 @@
     "SyncDate": "2018-01-31"
   },
   "1168.3": {
-    "SID": "838927492",
+    "SID": "890127492",
     "AcadYr": "2017-18",
     "IntensiveYN": "No",
     "IntensivePrev": "",

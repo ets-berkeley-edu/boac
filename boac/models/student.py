@@ -73,6 +73,42 @@ class Student(Base):
         return cls.query.order_by(cls.last_name).filter(query).all()
 
     @classmethod
+    def search_for_students(
+            cls,
+            search_phrase=None,
+            order_by=None,
+            offset=0,
+            limit=None,
+    ):
+        query_tables, query_filter, all_bindings = cls.get_students_query(search_phrase=search_phrase)
+        o, o_secondary, o_tertiary, _query_tables = cls._determine_order_by(order_by=order_by)
+        if _query_tables:
+            query_tables += _query_tables
+        connection = db.engine.connect()
+        result = connection.execute(text(f'SELECT DISTINCT(s.sid) {query_tables} {query_filter}'), **all_bindings)
+        total_student_count = result.rowcount
+        sql = f"""SELECT
+            s.sid
+            {query_tables}
+            {query_filter}
+            GROUP BY s.sid
+            ORDER BY MIN({o}), MIN({o_secondary}), MIN({o_tertiary})
+            OFFSET {offset}
+        """
+        sql += f' LIMIT {limit}' if limit else ''
+        result = connection.execute(text(sql), **all_bindings)
+        # Model query using list of SIDs
+        sid_list = [row['sid'] for row in result]
+        connection.close()
+        students = cls.query.filter(cls.sid.in_(sid_list)).all() if sid_list else []
+        # Order of students from query (above) might not match order of sid_list.
+        students = [next(s for s in students if s.sid == sid) for sid in sid_list]
+        return {
+            'students': [student.to_expanded_api_json() for student in students],
+            'totalStudentCount': total_student_count,
+        }
+
+    @classmethod
     def get_students(
             cls,
             gpa_ranges=None,
@@ -85,16 +121,16 @@ class Student(Base):
             offset=0,
             limit=50,
             sids_only=False,
-            is_inactive=False,
+            is_active_asc=None,
     ):
         query_tables, query_filter, all_bindings = cls.get_students_query(
-            group_codes,
-            gpa_ranges,
-            levels,
-            majors,
-            unit_ranges,
-            in_intensive_cohort,
-            is_inactive,
+            group_codes=group_codes,
+            gpa_ranges=gpa_ranges,
+            levels=levels,
+            majors=majors,
+            unit_ranges=unit_ranges,
+            in_intensive_cohort=in_intensive_cohort,
+            is_active_asc=is_active_asc,
         )
         # First, get total_count of matching students
         connection = db.engine.connect()
@@ -109,43 +145,13 @@ class Student(Base):
                 'sids': [row[0] for row in rows],
             })
         else:
-            # case-insensitive sort of first_name and last_name (see Postgres docs)
-            by_first_name = 'UPPER(s.first_name)'
-            by_last_name = 'UPPER(s.last_name)'
-            o = by_last_name
-            if order_by == 'level':
-                # Sort by an implicit value, not a column in db
-                o = 'ol.ordinal'
-            elif order_by == 'in_intensive_cohort':
-                o = f's.{order_by}'
-            elif order_by in ['first_name', 'last_name']:
-                o = f'UPPER(s.{order_by})'
-            elif order_by in ['gpa', 'units']:
-                o = f'n.{order_by}'
-            elif order_by in ['group_name']:
-                # In the special case where team group name is both a filter criterion and an ordering criterion, we
-                # have to do extra work. The athletics join specified in get_students_query join will include only
-                # those group names that are in filter criteria, but if any students are in multiple team groups,
-                # ordering may depend on group names not present in filter criteria; so we have to join the athletics
-                # rows a second time. Why not do this complex sorting after the query? Because correctly calculating
-                # pagination offsets requires filtering and ordering to be done at the SQL level.
-                if group_codes:
-                    query_tables += """LEFT JOIN student_athletes sa2 ON sa2.sid = s.sid
-                                       LEFT JOIN athletics a2 ON a2.group_code = sa2.group_code"""
-                    o = f'a2.{order_by}'
-                else:
-                    o = f'a.{order_by}'
-            elif order_by in ['major']:
-                # Majors, like group names, require extra handling in the special case where they are both filter
-                # criteria and ordering criteria.
-                if majors:
-                    query_tables += ' LEFT JOIN normalized_cache_student_majors m2 ON m2.sid = s.sid'
-                    o = f'm2.{order_by}'
-                else:
-                    o = f'm.{order_by}'
-            o_secondary = by_first_name if order_by == 'last_name' else by_last_name
-            diff = {by_first_name, by_last_name} - {o, o_secondary}
-            o_tertiary = diff.pop() if diff else 's.sid'
+            o, o_secondary, o_tertiary, _query_tables = cls._determine_order_by(
+                order_by=order_by,
+                group_codes=group_codes,
+                majors=majors,
+            )
+            if _query_tables:
+                query_tables += _query_tables
             sql = f"""SELECT
                 s.sid, MIN({o}), MIN({o_secondary}), MIN({o_tertiary})
                 {query_tables}
@@ -169,10 +175,52 @@ class Student(Base):
         return summary
 
     @classmethod
-    def get_all(cls, order_by=None, include_inactive=False):
+    def _determine_order_by(cls, order_by=None, group_codes=None, majors=None):
+        _query_tables = None
+        # case-insensitive sort of first_name and last_name (see Postgres docs)
+        by_first_name = 'UPPER(s.first_name)'
+        by_last_name = 'UPPER(s.last_name)'
+        o = by_last_name
+        if order_by == 'level':
+            # Sort by an implicit value, not a column in db
+            o = 'ol.ordinal'
+        elif order_by == 'in_intensive_cohort':
+            o = f's.{order_by}'
+        elif order_by in ['first_name', 'last_name']:
+            o = f'UPPER(s.{order_by})'
+        elif order_by in ['gpa', 'units']:
+            o = f'n.{order_by}'
+        elif order_by in ['group_name']:
+            # In the special case where team group name is both a filter criterion and an ordering criterion, we
+            # have to do extra work. The athletics join specified in get_students_query join will include only
+            # those group names that are in filter criteria, but if any students are in multiple team groups,
+            # ordering may depend on group names not present in filter criteria; so we have to join the athletics
+            # rows a second time. Why not do this complex sorting after the query? Because correctly calculating
+            # pagination offsets requires filtering and ordering to be done at the SQL level.
+            if group_codes:
+                _query_tables = """LEFT JOIN student_athletes sa2 ON sa2.sid = s.sid
+                                   LEFT JOIN athletics a2 ON a2.group_code = sa2.group_code"""
+                o = f'a2.{order_by}'
+            else:
+                o = f'a.{order_by}'
+        elif order_by in ['major']:
+            # Majors, like group names, require extra handling in the special case where they are both filter
+            # criteria and ordering criteria.
+            if majors:
+                _query_tables = ' LEFT JOIN normalized_cache_student_majors m2 ON m2.sid = s.sid'
+                o = f'm2.{order_by}'
+            else:
+                o = f'm.{order_by}'
+        o_secondary = by_first_name if order_by == 'last_name' else by_last_name
+        diff = {by_first_name, by_last_name} - {o, o_secondary}
+        o_tertiary = diff.pop() if diff else 's.sid'
+        return o, o_secondary, o_tertiary, _query_tables
+
+    @classmethod
+    def get_all(cls, order_by=None, is_active_asc=None):
         query = Student.query
-        if not include_inactive:
-            query = query.filter(cls.is_active_asc.is_(True))
+        if is_active_asc is not None:
+            query = query.filter(cls.is_active_asc.is_(is_active_asc))
         students = query.options(joinedload('athletics')).all()
         if order_by and len(students) > 0:
             # For now, only one order_by value is supported
@@ -181,7 +229,17 @@ class Student(Base):
         return [s.to_expanded_api_json() for s in students]
 
     @classmethod
-    def get_students_query(cls, group_codes, gpa_ranges, levels, majors, unit_ranges, in_intensive_cohort, is_inactive):
+    def get_students_query(
+            cls,
+            search_phrase=None,
+            group_codes=None,
+            gpa_ranges=None,
+            levels=None,
+            majors=None,
+            unit_ranges=None,
+            in_intensive_cohort=None,
+            is_active_asc=None,
+    ):
         query_tables = """
             FROM students s
                 JOIN normalized_cache_students n ON n.sid = s.sid
@@ -196,11 +254,22 @@ class Student(Base):
                     (5, 'Graduate')
                 ) AS ol (ordinal, level) ON n.level = ol.level
         """
-        query_filter = """
-            WHERE
-                s.is_active_asc IS {}
-        """.format(not is_inactive)
+        query_filter = ' WHERE true '
+        if is_active_asc is not None:
+            query_filter += f' AND s.is_active_asc IS {is_active_asc}'
         all_bindings = {}
+        if search_phrase:
+            all_bindings.update({'phrase': f'{search_phrase}%'})
+            all_bindings.update({'phrase_padded': f'% {search_phrase}%'})
+            query_filter += f"""
+                AND (
+                    s.sid ILIKE :phrase OR
+                    s.first_name ILIKE :phrase OR
+                    s.first_name ILIKE :phrase_padded OR
+                    s.last_name ILIKE :phrase OR
+                    s.last_name ILIKE :phrase_padded
+                )
+            """
         if group_codes:
             args = sqlalchemy_bindings(group_codes, 'group_code')
             all_bindings.update(args)

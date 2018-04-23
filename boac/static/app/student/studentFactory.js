@@ -104,6 +104,16 @@
       return $http.post('/api/students', args);
     };
 
+    var searchForStudents = function(searchPhrase, orderBy, offset, limit) {
+      var args = {
+        searchPhrase: searchPhrase,
+        orderBy: orderBy || 'first_name',
+        offset: offset || 0,
+        limit: limit || 50
+      };
+      return $http.post('/api/students/search', args);
+    };
+
     return {
       analyticsPerUser: analyticsPerUser,
       dismissAlert: dismissAlert,
@@ -113,7 +123,8 @@
       getRelevantMajors: getRelevantMajors,
       getStudentLevels: getStudentLevels,
       getStudents: getStudents,
-      getUnitRanges: getUnitRanges
+      getUnitRanges: getUnitRanges,
+      searchForStudents: searchForStudents
     };
   });
 

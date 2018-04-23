@@ -109,7 +109,13 @@ class Athletics(Base):
                     'groupName': row[3],
                 })
             group_codes = [group['groupCode'] for group in team['teamGroups']]
-            students = Student.get_students(group_codes=group_codes, order_by=order_by, offset=0, limit=None)
+            students = Student.get_students(
+                group_codes=group_codes,
+                is_active_asc=True,
+                order_by=order_by,
+                offset=0,
+                limit=None,
+            )
             team['members'] = students['students']
             team['totalMemberCount'] = students['totalStudentCount']
         return team

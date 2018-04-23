@@ -107,7 +107,7 @@ class TestAthletics:
         sid_list = [member['sid'] for member in members]
         assert ['2345678901', '5678901234', '3456789012'] == sid_list
         athlete = members[0]
-        assert athlete['name'] == 'Frank Football'
+        assert athlete['name'] == 'Dave Doolittle'
         assert athlete['sid'] == '2345678901'
         assert athlete['inIntensiveCohort'] is False
 
@@ -138,7 +138,7 @@ class TestAthletics:
             'group_name': ['2345678901', '5678901234', '3456789012'],
             'last_name': ['2345678901', '5678901234', '3456789012'],
             'level': ['2345678901', '3456789012', '5678901234'],
-            'major': ['3456789012', '2345678901', '5678901234'],
+            'major': ['2345678901', '3456789012', '5678901234'],
             'units': ['2345678901', '3456789012', '5678901234'],
         }
         for order_by, first_uid in expected.items():
