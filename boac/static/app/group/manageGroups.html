@@ -29,7 +29,7 @@
                data-ng-bind="group.name"
                data-ng-href="/group/{{group.id}}"></a>
           </strong>
-          <span class="faint-text">(<span id="group-student-count-{{$index}}" data-ng-bind="group.students.length"></span>)</span>
+          <span class="faint-text">(<span id="group-student-count-{{$index}}" data-ng-bind="group.studentCount"></span>)</span>
         </div>
         <div>
           <span data-ng-controller="DeleteGroupController">
@@ -46,7 +46,7 @@
                   data-ng-click="setEditMode(group, true)">
             Rename
           </button>
-        </span>
+        </div>
       </div>
       <form name="renameGroupForm"
             class="flex-container flex-space-between cohort-manage-row"
