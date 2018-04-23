@@ -38,19 +38,19 @@
 
     $scope.demoMode = config.demoMode;
 
-    $scope.orderBy = studentSearchService.getSortByOptionsForSearch();
-
     $scope.pagination = {
       currentPage: 1,
       itemsPerPage: 50
     };
 
-    $scope.nextPage = function() {
+    $scope.orderBy = studentSearchService.getSortByOptionsForSearch();
+
+    var nextPage = $scope.nextPage = function() {
       var page = $scope.pagination.currentPage;
       var offset = page < 2 ? 0 : (page - 1) * $scope.pagination.itemsPerPage;
 
       $scope.isLoading = true;
-      studentFactory.searchForStudents($scope.search.phrase, $scope.search.orderBy, offset, $scope.pagination.itemsPerPage).then(
+      studentFactory.searchForStudents($scope.search.phrase, $scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(
         function(response) {
           $scope.search.results = response.data;
         },
@@ -62,15 +62,38 @@
       });
     };
 
+    $scope.$watch('orderBy.selected', function(value) {
+      if (value && !$scope.isLoading) {
+        $location.search('o', $scope.orderBy.selected);
+        $scope.pagination.currentPage = 1;
+        nextPage();
+      }
+    });
+
+    $scope.$watch('pagination.currentPage', function() {
+      if (!$scope.isLoading) {
+        $location.search('p', $scope.pagination.currentPage);
+      }
+    });
+
     var init = function() {
       $scope.search = {
         phrase: $location.search().q,
-        orderBy: 'first_name',
         results: null
       };
+      var args = _.clone($location.search());
+      var offset = 0;
+
+      if (args.o && _.find($scope.orderBy.options, ['value', args.o])) {
+        $scope.orderBy.selected = args.o;
+      }
+      if (args.p && !isNaN(args.p)) {
+        $scope.pagination.currentPage = parseInt(args.p, 10);
+        offset = $scope.pagination.currentPage < 2 ? 0 : ($scope.pagination.currentPage - 1) * $scope.pagination.itemsPerPage;
+      }
       if ($scope.search.phrase) {
         $scope.isLoading = true;
-        studentFactory.searchForStudents($scope.search.phrase, $scope.search.orderBy, 0, $scope.pagination.itemsPerPage).then(
+        studentFactory.searchForStudents($scope.search.phrase, $scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(
           function(response) {
             $scope.search.results = response.data;
           },
