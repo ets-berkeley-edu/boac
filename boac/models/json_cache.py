@@ -24,6 +24,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
+import threading
+
 from boac import db, std_commit
 from boac.lib.berkeley import term_name_for_sis_id
 from boac.lib.util import get_args_dict
@@ -34,10 +36,13 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.attributes import flag_modified
 
+cache_thread = threading.local()
+cache_thread.type = 'normal'
 
-class JsonCache(Base):
-    __tablename__ = 'json_cache'
 
+# When staging, all keys point to the staging table except JobStatus and ASC synch records, which always use
+# the normal json_cache table.
+class JsonCacheBase(object):
     id = db.Column(db.Integer, nullable=False, primary_key=True)
     key = db.Column(db.String, nullable=False, unique=True)
     json = db.Column(JSONB)
@@ -55,15 +60,35 @@ class JsonCache(Base):
         )
 
 
+class JsonCache(JsonCacheBase, Base):
+    __tablename__ = 'json_cache'
+
+
+class JsonCacheStaging(JsonCacheBase, Base):
+    __tablename__ = 'json_cache_staging'
+
+
+def is_staging():
+    return cache_thread.type == 'staging'
+
+
+def set_staging(enabled):
+    if enabled:
+        cache_thread.type = 'staging'
+    else:
+        cache_thread.type = 'normal'
+
+
+def working_cache():
+    if is_staging():
+        return JsonCacheStaging
+    else:
+        return JsonCache
+
+
 def clear(key_like):
     matches = db.session.query(JsonCache).filter(JsonCache.key.like(key_like))
     app.logger.info('Will delete {count} entries matching {key_like}'.format(count=matches.count(), key_like=key_like))
-    matches.delete(synchronize_session=False)
-
-
-def clear_other(key_like):
-    matches = db.session.query(JsonCache).filter(JsonCache.key.notlike(key_like))
-    app.logger.info('Will delete {count} entries not matching {key_like}'.format(count=matches.count(), key_like=key_like))
     matches.delete(synchronize_session=False)
 
 
@@ -83,7 +108,7 @@ def stow(key_pattern, for_term=False):
                 term_name,
                 key,
             )
-        stowed = JsonCache.query.filter_by(key=key).first()
+        stowed = working_cache().query.filter_by(key=key).first()
         # Note that the query returns a DB row rather than the value of the JSON column.
         if stowed is not None:
             app.logger.debug('Returning stowed JSON for key {key}'.format(key=key))
@@ -93,13 +118,13 @@ def stow(key_pattern, for_term=False):
             to_stow = func(*args, **kw)
             if to_stow is not None:
                 app.logger.debug('Will stow JSON for key {key}'.format(key=key))
-                row = JsonCache(key=key, json=to_stow)
+                row = working_cache()(key=key, json=to_stow)
                 try:
                     db.session.add(row)
                     std_commit()
                 except IntegrityError:
                     app.logger.warn('Conflict for key {key}; will attempt to return stowed JSON'.format(key=key))
-                    stowed = JsonCache.query.filter_by(key=key).first()
+                    stowed = working_cache().query.filter_by(key=key).first()
                     if stowed is not None:
                         return stowed.json
             else:
