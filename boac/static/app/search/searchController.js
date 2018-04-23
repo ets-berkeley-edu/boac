@@ -30,6 +30,7 @@
   angular.module('boac').controller('SearchController', function(
     config,
     studentFactory,
+    studentSearchService,
     validationService,
     $location,
     $scope
@@ -37,18 +38,41 @@
 
     $scope.demoMode = config.demoMode;
 
+    $scope.orderBy = studentSearchService.getSortByOptionsForSearch();
+
+    $scope.pagination = {
+      currentPage: 1,
+      itemsPerPage: 50
+    };
+
+    $scope.nextPage = function() {
+      var page = $scope.pagination.currentPage;
+      var offset = page < 2 ? 0 : (page - 1) * $scope.pagination.itemsPerPage;
+
+      $scope.isLoading = true;
+      studentFactory.searchForStudents($scope.search.phrase, $scope.search.orderBy, offset, $scope.pagination.itemsPerPage).then(
+        function(response) {
+          $scope.search.results = response.data;
+        },
+        function(err) {
+          $scope.error = validationService.parseError(err);
+        }
+      ).then(function() {
+        $scope.isLoading = false;
+      });
+    };
+
     var init = function() {
       $scope.search = {
         phrase: $location.search().q,
         orderBy: 'first_name',
-        offset: 0,
-        limit: 50
+        results: null
       };
       if ($scope.search.phrase) {
         $scope.isLoading = true;
-        studentFactory.searchForStudents($scope.search.phrase, $scope.search.orderBy, $scope.search.offset, $scope.search.limit).then(
+        studentFactory.searchForStudents($scope.search.phrase, $scope.search.orderBy, 0, $scope.pagination.itemsPerPage).then(
           function(response) {
-            $scope.searchResults = response.data;
+            $scope.search.results = response.data;
           },
           function(err) {
             $scope.error = validationService.parseError(err);

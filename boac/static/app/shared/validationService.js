@@ -53,7 +53,7 @@
         errorMessage = 'Required';
       } else if (_.size(entity.name) > 255) {
         errorMessage = 'Name must be 255 characters or fewer';
-      } else if (_.includes(['Intensive', 'Inactive', 'My Students'], entity.name)) {
+      } else if (_.includes(['Intensive', 'Inactive'], entity.name)) {
         errorMessage = 'Sorry, \'' + entity.name + '\' is a reserved name. Please choose a different name.';
       } else {
         _.each(allExisting, function(existing) {
