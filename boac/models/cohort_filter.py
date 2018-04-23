@@ -216,11 +216,11 @@ def construct_cohort(cf, order_by=None, offset=0, limit=50, include_students=Tru
             'isInactive': is_inactive,
         },
         'teamGroups': team_groups,
-        'totalMemberCount': results['totalStudentCount'],
+        'totalStudentCount': results['totalStudentCount'],
     })
     if include_students:
         cohort.update({
-            'members': results['students'],
+            'students': results['students'],
         })
     if include_alerts_for_uid:
         viewer = AuthorizedUser.find_by_uid(include_alerts_for_uid)

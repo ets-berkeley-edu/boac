@@ -41,22 +41,19 @@
       $scope.demoMode = config.demoMode;
       $scope.myCohorts = _.clone(me.myCohorts);
       $scope.myGroups = _.clone(me.myGroups);
-      $scope.search = {
-        input: null,
-        isSearching: false
-      };
+      $scope.searchPhrase = null;
       $scope.showAthletics = !!_.get(me.personalization, 'showAthletics');
     };
 
     init();
 
     $rootScope.$on('$viewContentLoaded', function() {
-      $scope.search.input = null;
+      $scope.searchPhrase = null;
     });
 
     $scope.searchForStudents = function() {
-      $scope.search.isSearching = true;
-      $location.path('/search').search({q: $scope.search.input});
+      $scope.searchResultsLoading = true;
+      $location.path('/search').search({q: $scope.searchPhrase});
     };
 
     var findGroupInScope = function(groupId) {

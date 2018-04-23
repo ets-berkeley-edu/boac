@@ -28,7 +28,7 @@ from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotF
 from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
-from boac.merged import member_details
+from boac.merged import student_details
 from boac.models.cohort_filter import CohortFilter
 from flask import current_app as app, request
 from flask_login import current_user, login_required
@@ -59,7 +59,7 @@ def all_cohorts():
 def my_cohorts():
     cohorts = CohortFilter.all_owned_by(current_user.get_id(), include_alerts=True)
     for cohort in cohorts:
-        member_details.merge_all(cohort['alerts'], include_analytics=False)
+        student_details.merge_all(cohort['alerts'], include_analytics=False)
     return tolerant_jsonify(cohorts)
 
 
@@ -72,7 +72,7 @@ def get_cohort(cohort_id):
     cohort = CohortFilter.find_by_id(int(cohort_id), order_by, int(offset), int(limit))
     if not cohort:
         raise ResourceNotFoundError('No cohort found with identifier: {}'.format(cohort_id))
-    member_details.merge_all(cohort['members'])
+    student_details.merge_all(cohort['students'])
     return tolerant_jsonify(cohort)
 
 

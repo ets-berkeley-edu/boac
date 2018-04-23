@@ -31,7 +31,7 @@ from boac.lib import analytics
 from boac.lib import util
 from boac.lib.berkeley import extract_canvas_ccn
 from boac.lib.http import tolerant_jsonify
-from boac.merged import member_details
+from boac.merged import student_details
 from boac.models.normalized_cache_enrollment import NormalizedCacheEnrollment
 from flask import current_app as app, request
 from flask_login import login_required
@@ -45,7 +45,7 @@ def get_section(term_id, section_id):
         raise ResourceNotFoundError(f'No section {section_id} in term {term_id}')
     section = api_util.course_section_to_json(term_id=term_id, section=row)
     students = section.get('students', [])
-    member_details.merge_all(students, section['termId'])
+    student_details.merge_all(students, section['termId'])
     for student in students:
         # Cherry-pick enrollment of section requested
         for enrollment in student.get('term', {}).get('enrollments', []):

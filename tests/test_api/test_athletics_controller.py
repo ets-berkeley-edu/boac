@@ -55,7 +55,7 @@ class TestAthletics:
         team_groups = response.json
         group_codes = [team_group['groupCode'] for team_group in team_groups]
         group_names = [team_group['groupName'] for team_group in team_groups]
-        total_member_counts = [team_group['totalMemberCount'] for team_group in team_groups]
+        total_student_counts = [team_group['totalStudentCount'] for team_group in team_groups]
         assert ['MFB-DB', 'MFB-DL', 'MBB', 'MTE', 'WFH', 'WTE'] == group_codes
         assert [
             'Football, Defensive Backs',
@@ -65,7 +65,7 @@ class TestAthletics:
             'Women\'s Field Hockey',
             'Women\'s Tennis',
         ] == group_names
-        assert [2, 3, 1, 1, 1, 1] == total_member_counts
+        assert [2, 3, 1, 1, 1, 1] == total_student_counts
 
     def test_get_all_teams(self, authenticated_session, client):
         """Returns all teams if authenticated."""
@@ -75,14 +75,14 @@ class TestAthletics:
         assert len(teams) == 5
         team_codes = [team['code'] for team in teams]
         team_names = [team['name'] for team in teams]
-        total_member_counts = [team['totalMemberCount'] for team in teams]
+        total_student_counts = [team['totalStudentCount'] for team in teams]
         assert ['FBM', 'BAM', 'TNM', 'FHW', 'TNW'] == team_codes
         assert ['Football', 'Men\'s Baseball', 'Men\'s Tennis', 'Women\'s Field Hockey', 'Women\'s Tennis'] == team_names
-        assert [3, 1, 1, 1, 1] == total_member_counts
+        assert [3, 1, 1, 1, 1] == total_student_counts
         football = teams[0]
         assert football['code'] == 'FBM'
         assert football['name'] == 'Football'
-        assert football['totalMemberCount'] == 3
+        assert football['totalStudentCount'] == 3
 
     def test_team_not_found(self, authenticated_session, client):
         """Returns code as name when no code-to-name translation exists."""
@@ -101,12 +101,12 @@ class TestAthletics:
         assert 'teamGroups' in team
         group_codes = [team_group['groupCode'] for team_group in team['teamGroups']]
         assert ['MFB-DB', 'MFB-DL'] == group_codes
-        assert team['totalMemberCount'] == 3
-        members = team['members']
-        assert len(members) == 3
-        sid_list = [member['sid'] for member in members]
+        assert team['totalStudentCount'] == 3
+        students = team['students']
+        assert len(students) == 3
+        sid_list = [student['sid'] for student in students]
         assert ['2345678901', '5678901234', '3456789012'] == sid_list
-        athlete = members[0]
+        athlete = students[0]
         assert athlete['name'] == 'Dave Doolittle'
         assert athlete['sid'] == '2345678901'
         assert athlete['inIntensiveCohort'] is False
@@ -114,7 +114,7 @@ class TestAthletics:
     def test_includes_student_sis_data(self, authenticated_session, client):
         """Includes SIS data for team members."""
         response = client.get('/api/team/FHW')
-        athlete = response.json['members'][0]
+        athlete = response.json['students'][0]
         assert athlete['cumulativeGPA'] == 3.8
         assert athlete['cumulativeUnits'] == 101.3
         assert athlete['level'] == 'Junior'
@@ -123,7 +123,7 @@ class TestAthletics:
     def test_includes_student_current_enrollments(self, authenticated_session, client):
         """Includes current-term active enrollments and analytics for team members."""
         response = client.get('/api/team/FHW')
-        athlete = response.json['members'][0]
+        athlete = response.json['students'][0]
         term = athlete['term']
         assert term['termName'] == 'Fall 2017'
         assert term['enrolledUnits'] == 12.5
@@ -145,6 +145,6 @@ class TestAthletics:
             response = client.get(f'/api/team/FBM?orderBy={order_by}')
             assert response.status_code == 200, f'Non-200 response where order_by={order_by}'
             cohort = json.loads(response.data)
-            assert cohort['totalMemberCount'] == 3, f'Wrong count where order_by={order_by}'
-            sid_list = [s['sid'] for s in cohort['members']]
+            assert cohort['totalStudentCount'] == 3, f'Wrong count where order_by={order_by}'
+            sid_list = [s['sid'] for s in cohort['students']]
             assert sid_list == expected[order_by], f'Unmet expectation where order_by={order_by}'

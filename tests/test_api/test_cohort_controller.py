@@ -48,9 +48,9 @@ class TestCohortDetail:
         assert len(cohorts[0]['teamGroups']) == 2
         # Student profiles are not included in this feed.
         assert 'students' not in cohorts[0]
-        assert cohorts[0]['totalMemberCount'] == 4
+        assert cohorts[0]['totalStudentCount'] == 4
         assert len(cohorts[1]['teamGroups']) == 1
-        assert cohorts[1]['totalMemberCount'] == 2
+        assert cohorts[1]['totalStudentCount'] == 2
 
     def test_my_cohorts_includes_students_with_alert_counts(self, create_alerts, authenticated_session, client):
         # Pre-load students into cache for consistent alert data.
@@ -122,9 +122,9 @@ class TestCohortDetail:
         assert len(team_groups) == 2
         assert team_groups[0]['groupCode']
         assert team_groups[0]['groupName']
-        assert isinstance(cohort['members'], list)
-        assert cohort['totalMemberCount'] == 4
-        assert cohort['totalMemberCount'] == len(cohort['members'])
+        assert isinstance(cohort['students'], list)
+        assert cohort['totalStudentCount'] == 4
+        assert cohort['totalStudentCount'] == len(cohort['students'])
 
     def test_undeclared_major(self, authenticated_session, client):
         """Returns a well-formed response with custom cohort."""
@@ -135,30 +135,30 @@ class TestCohortDetail:
         assert response.status_code == 200
         cohort = json.loads(response.data)
         assert cohort['label'] == 'Undeclared students'
-        students = cohort['members']
-        assert cohort['totalMemberCount'] == len(students) == 1
+        students = cohort['students']
+        assert cohort['totalStudentCount'] == len(students) == 1
         # We expect the student with 'Letters & Sci Undeclared UG' major
         assert students[0]['sid'] == '5678901234'
 
     def test_includes_cohort_member_sis_data(self, authenticated_session, client):
-        """Includes SIS data for custom cohort members."""
+        """Includes SIS data for custom cohort students."""
         user = AuthorizedUser.find_by_uid(test_uid)
         cohort_id = user.cohort_filters[0].id
         response = client.get('/api/cohort/{}'.format(cohort_id))
         assert response.status_code == 200
-        athlete = next(m for m in response.json['members'] if m['firstName'] == 'Deborah')
+        athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
         assert athlete['cumulativeGPA'] == 3.8
         assert athlete['cumulativeUnits'] == 101.3
         assert athlete['level'] == 'Junior'
         assert athlete['majors'] == ['Astrophysics BS', 'English BA']
 
     def test_includes_cohort_member_current_enrollments(self, authenticated_session, client):
-        """Includes current-term active enrollments and analytics for custom cohort members."""
+        """Includes current-term active enrollments and analytics for custom cohort students."""
         user = AuthorizedUser.find_by_uid(test_uid)
         cohort_id = user.cohort_filters[0].id
         response = client.get('/api/cohort/{}?orderBy=firstName'.format(cohort_id))
         assert response.status_code == 200
-        athlete = next(m for m in response.json['members'] if m['firstName'] == 'Deborah')
+        athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
 
         term = athlete['term']
         assert term['termName'] == 'Fall 2017'
@@ -176,7 +176,7 @@ class TestCohortDetail:
         user = AuthorizedUser.find_by_uid(test_uid)
         cohort_id = user.cohort_filters[0].id
         response = client.get('/api/cohort/{}'.format(cohort_id))
-        athlete = next(m for m in response.json['members'] if m['firstName'] == 'Deborah')
+        athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
         assert len(athlete['athletics']) == 2
         tennis = next(membership for membership in athlete['athletics'] if membership['groupCode'] == 'WTE')
         field_hockey = next(membership for membership in athlete['athletics'] if membership['groupCode'] == 'WFH')
@@ -200,14 +200,14 @@ class TestCohortDetail:
         # First, offset is zero
         response = client.get(api_path + '?offset={}&limit={}'.format(0, 1))
         data_0 = json.loads(response.data)
-        assert data_0['totalMemberCount'] == 4
-        assert len(data_0['members']) == 1
+        assert data_0['totalStudentCount'] == 4
+        assert len(data_0['students']) == 1
         # Now, offset is one
         response = client.get(api_path + '?offset={}&limit={}'.format(1, 1))
         data_1 = json.loads(response.data)
-        assert len(data_1['members']) == 1
+        assert len(data_1['students']) == 1
         # Verify that a different offset results in a different member
-        assert data_0['members'][0]['uid'] != data_1['members'][0]['uid']
+        assert data_0['students'][0]['uid'] != data_1['students'][0]['uid']
 
     def test_create_cohort(self, authenticated_session, client):
         """Creates custom cohort, owned by current user."""
@@ -223,13 +223,13 @@ class TestCohortDetail:
         assert response.status_code == 200
 
         cohort = json.loads(response.data)
-        assert 'members' in cohort
+        assert 'students' in cohort
         assert 'label' in cohort and cohort['label'] == label
         assert 'teamGroups' in cohort
         assert group_codes == [g['groupCode'] for g in cohort['teamGroups']]
 
         same_cohort = CohortFilter.find_by_id(cohort['id'])
-        assert 'members' in cohort
+        assert 'students' in cohort
         assert same_cohort['label'] == label
         assert 'teamGroups' in cohort and len(cohort['teamGroups']) == 2
         assert group_codes == [g['groupCode'] for g in cohort['teamGroups']]

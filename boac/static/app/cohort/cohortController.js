@@ -73,8 +73,8 @@
 
     $scope.cohort = {
       code: null,
-      members: [],
-      totalMemberCount: null
+      students: [],
+      totalStudentCount: null
     };
 
     $scope.search = {
@@ -209,7 +209,7 @@
      * @return {void}
      */
     var listViewRefresh = function(callback) {
-      // Pagination is not used on teams because the member count is always reasonable.
+      // Pagination is not used on teams because student count is within reason.
       $scope.pagination.enabled = isPaginationEnabled();
       var page = $scope.pagination.enabled ? $scope.pagination.currentPage : 1;
       var limit = $scope.pagination.enabled ? $scope.pagination.itemsPerPage : Number.MAX_SAFE_INTEGER;
@@ -379,7 +379,7 @@
           // The intervening visualizationService code moves out of Angular and into d3 thus the extra kick of $apply.
           $scope.$apply();
         };
-        visualizationService.scatterplotRefresh($scope.cohort.members, goToUserPage, function(yAxisMeasure, studentsWithoutData) {
+        visualizationService.scatterplotRefresh($scope.cohort.students, goToUserPage, function(yAxisMeasure, studentsWithoutData) {
           $scope.yAxisMeasure = yAxisMeasure;
           // List of students-without-data is rendered below the scatterplot.
           $scope.studentsWithoutData = studentsWithoutData;
@@ -495,9 +495,9 @@
       } else if (tabName === 'list') {
         // Restore pagination; fortunately, 'currentPage' persists.
         $scope.pagination.enabled = isPaginationEnabled();
-        if ($scope.pagination.enabled && $scope.pagination.currentPage > 1 && $scope.cohort.members.length > 50) {
+        if ($scope.pagination.enabled && $scope.pagination.currentPage > 1 && $scope.cohort.students.length > 50) {
           var start = ($scope.pagination.currentPage - 1) * 50;
-          $scope.cohort.members = _.slice($scope.cohort.members, start, start + 50);
+          $scope.cohort.students = _.slice($scope.cohort.students, start, start + 50);
         }
       }
     };

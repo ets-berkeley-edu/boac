@@ -42,12 +42,12 @@ def get_calnet_user_for_uid(app, uid):
 
 
 def refresh_cohort_attributes(app, cohorts=None):
-    members = cohorts or Student.query.all()
+    students = cohorts or Student.query.all()
     # Students who play more than one sport will have multiple records.
-    member_map = {}
-    for m in members:
-        member_map.setdefault(m.sid, []).append(m)
-    csids = list(member_map.keys())
+    student_map = {}
+    for student in students:
+        student_map.setdefault(student.sid, []).append(student)
+    csids = list(student_map.keys())
 
     # Search LDAP.
     all_attrs = calnet.client(app).search_csids(csids)
@@ -60,13 +60,13 @@ def refresh_cohort_attributes(app, cohorts=None):
         csid = attrs['csid']
         name_split = attrs['sortable_name'].split(',') if 'sortable_name' in attrs else ''
         full_name = [name.strip() for name in reversed(name_split)]
-        for m in member_map[csid]:
-            m.uid = attrs['uid']
+        for student in student_map[csid]:
+            student.uid = attrs['uid']
             # A manually-entered ASC name may be more nicely formatted than a student's CalNet default.
             # For now, don't overwrite it.
-            m.first_name = m.first_name or (full_name[0] if len(full_name) else '')
-            m.last_name = m.last_name or (full_name[1] if len(full_name) > 1 else '')
-    return members
+            student.first_name = student.first_name or (full_name[0] if len(full_name) else '')
+            student.last_name = student.last_name or (full_name[1] if len(full_name) > 1 else '')
+    return students
 
 
 def fill_cohort_uids(app):
