@@ -113,8 +113,11 @@ def load_term(term_id=berkeley.current_term_id()):
     success_count = 0
     failures = []
 
-    ids = db.session.query(Student.sid, Student.uid).distinct()
-    nbr_students = ids.count()
+    # Return all query results as a static list object. If we instead iterated over the Query object to
+    # fetch one row at a time, the second Query iteration below would re-run the query from scratch. This can
+    # lead to inconsistencies between the two halves of the new cache.
+    ids = db.session.query(Student.sid, Student.uid).distinct().all()
+    nbr_students = len(ids)
     nbr_finished = 0
     for csid, uid in ids:
         s, f = load_canvas_externals(uid, term_id)
@@ -128,7 +131,6 @@ def load_term(term_id=berkeley.current_term_id()):
             JobProgress().update(f'External data loaded for {nbr_finished} of {nbr_students} students')
 
     JobProgress().update(f'About to load analytics feeds')
-    nbr_students = ids.count()
     nbr_finished = 0
     for csid, uid in ids:
         load_analytics_feeds(uid, csid, term_id)
