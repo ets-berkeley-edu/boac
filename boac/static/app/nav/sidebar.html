@@ -14,21 +14,20 @@
 <div data-ng-class="{'sidebar-row-link': myGroups.length, 'sidebar-row-without-link': !myGroups.length}"
      class="sidebar-section-header">
   <span class="sidebar-header"
-        data-ng-class="{'sidebar-row-link-label': myGroups.length}"
-        data-ng-controller="CreateGroupController">
-        <a id="sidebar-groups-manage" href="/groups/manage" class="sidebar-row-link-label-text">Curated Cohorts</a>
-        <a id="sidebar-group-create" class="sidebar-create-link" href
-           data-ng-click="openCreateGroupModal()"><i class="fa fa-plus"></i></a>
+        data-ng-class="{'sidebar-row-link-label': myGroups.length}">
+    <span class="sidebar-row-link-label-text">Curated Cohorts</span>
+    <a id="sidebar-curated-cohort-create" class="sidebar-create-link" href
+       data-ng-click="openCreateGroupModal()"><i class="fa fa-plus"></i></a>
   </span>
 </div>
 <div class="sidebar-row-link" data-ng-repeat="group in myGroups">
   <div class="sidebar-row-link-label">
-    <a id="sidebar-group-{{$index}}"
+    <a id="sidebar-curated-cohort-{{$index}}"
        class="sidebar-row-link-label-text"
        data-ng-href="/group/{{group.id}}"
        data-ng-bind="group.name">
     </a>
-    <span id="sidebar-group-{{$index}}-count"
+    <span id="sidebar-curated-cohort-{{$index}}-count"
           class="sidebar-pill"
           data-ng-bind="group.studentCount"></span>
   </div>
@@ -38,21 +37,21 @@
      class="sidebar-section-header">
   <span class="sidebar-header"
         data-ng-class="{'sidebar-row-link-label': myCohorts.length}">
-        <a id="sidebar-cohorts-manage" class="sidebar-row-link-label-text" data-ui-sref="cohortsManage()" data-ui-sref-opts="{reload: true}">Filtered Cohorts</a>
-        <a id="sidebar-cohort-create" class="sidebar-create-link"
-          data-ui-sref="cohort({c: 'new', i: null, inactive: null})"
-          data-ui-sref-opts="{reload: true}"><i class="fa fa-plus"></i></a>
+    <span class="sidebar-row-link-label-text">Filtered Cohorts</span>
+    <a id="sidebar-filtered-cohort-create" class="sidebar-create-link"
+       data-ui-sref="cohort({c: 'new', i: null, inactive: null})"
+       data-ui-sref-opts="{reload: true}"><i class="fa fa-plus"></i></a>
   </span>
 </div>
 <div class="sidebar-row-link" data-ng-repeat="cohort in myCohorts">
   <div class="sidebar-row-link-label">
-    <a id="sidebar-cohort-{{$index}}"
+    <a id="sidebar-filtered-cohort-{{$index}}"
        class="sidebar-row-link-label-text"
        data-ui-sref="cohort({c: cohort.id, i: null, inactive: null})"
        data-ui-sref-opts="{reload: true}"
        data-ng-bind="cohort.label">
     </a>
-    <span id="sidebar-cohort-{{$index}}-count"
+    <span id="sidebar-filtered-cohort-{{$index}}-count"
           class="sidebar-pill"
           data-ng-bind="cohort.totalStudentCount"></span>
   </div>
@@ -81,6 +80,6 @@
 </div>
 <div class="sidebar-row-link">
   <span class="sidebar-row-link-label">
-    <a id="sidebar-cohorts-all" href="/cohorts/all">Everyone's Filtered Cohorts</a>
+    <a id="sidebar-filtered-cohorts-all" href="/cohorts/all">Everyone's Filtered Cohorts</a>
   </span>
 </div>

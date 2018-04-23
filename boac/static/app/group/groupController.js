@@ -135,6 +135,7 @@
       studentGroupFactory.getGroup(id).then(function(response) {
         $scope.group = response.data;
         onTab(_.includes(['list', 'matrix'], args.v) ? args.v : 'list');
+        $rootScope.pageTitle = $scope.group.name;
         $scope.isLoading = false;
       }).catch(function(err) {
         $scope.error = validationService.parseError(err);
