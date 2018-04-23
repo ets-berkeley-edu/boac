@@ -619,7 +619,7 @@
             var render = $scope.tab === 'list' ? listViewRefresh : matrixViewRefresh;
             render(function() {
               initFilters(function() {
-                $rootScope.pageTitle = $scope.isCreateCohortMode ? 'Create Cohort' : $scope.cohort.name || 'Search';
+                $rootScope.pageTitle = $scope.isCreateCohortMode ? 'Create Filtered Cohort' : $scope.cohort.name || 'Search';
                 $scope.isLoading = false;
 
                 if (args.a) {

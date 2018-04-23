@@ -175,7 +175,22 @@
     $transitions.onStart({}, function($transition) {
       if ($transition.$to().name) {
         var name = $transition.$to().name.replace(/([A-Z])/g, ' $1');
-        $rootScope.pageTitle = name.charAt(0).toUpperCase() + name.slice(1);
+        switch (name) {
+          case 'cohort':
+            $rootScope.pageTitle = 'Filtered Cohort';
+            break;
+          case 'cohortsManage':
+            $rootScope.pageTitle = 'Manage Filtered Cohorts';
+            break;
+          case 'group':
+            $rootScope.pageTitle = 'Curated Cohort';
+            break;
+          case 'groupsManage':
+            $rootScope.pageTitle = 'Manage Curated Cohorts';
+            break;
+          default:
+            $rootScope.pageTitle = name.charAt(0).toUpperCase() + name.slice(1);
+        }
       } else {
         $rootScope.pageTitle = 'UC Berkeley';
       }
