@@ -116,6 +116,7 @@
     var updateCohort = function(data) {
       $scope.cohort = data;
       $scope.cohort.code = $scope.cohort.code || 'search';
+      $rootScope.pageTitle = $scope.cohort.name || 'Filtered Cohort';
       var intensive = _.get($scope.cohort, 'filterCriteria.inIntensiveCohort') || utilService.toBoolOrNull($scope.search.options.intensive);
       if (intensive) {
         $scope.showIntensiveCheckbox = $scope.search.options.intensive = true;
