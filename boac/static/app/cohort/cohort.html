@@ -57,19 +57,19 @@
         <label class="cohort-checkbox-label" for="inactive-checkbox">Inactive</label>
       </div>
     </div>
-    <!-- Search and save buttons -->
+    <!-- Apply and save buttons -->
     <div class="cohort-filters-column flex-column-10"></div>
     <div class="cohort-filters-column flex-column-btn">
-      <button id="execute-search"
+      <button id="apply-filters-btn"
               class="btn btn-primary no-wrap"
-              data-ng-disabled="disableSearchButton()"
-              data-ng-click="executeSearch()">Search</button>
+              data-ng-disabled="disableApplyButton()"
+              data-ng-click="applyFilters()">Apply</button>
     </div>
     <div class="cohort-filters-column flex-column-btn">
       <span data-ng-controller="CreateCohortController">
         <button id="create-cohort-btn"
                 class="btn btn-default no-wrap"
-                data-ng-disabled="disableSearchButton()"
+                data-ng-disabled="disableApplyButton()"
                 data-ng-click="openCreateCohortModal(search.options)">
           Save Cohort
         </button>

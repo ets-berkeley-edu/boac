@@ -508,7 +508,7 @@
      *
      * @return {void}
      */
-    $scope.executeSearch = function() {
+    $scope.applyFilters = function() {
       $scope.isCreateCohortMode = false;
       $scope.showIntensiveCheckbox = false;
       $scope.showInactiveCheckbox = false;
@@ -543,8 +543,8 @@
       }
     });
 
-    $scope.disableSearchButton = function() {
-      // Disable button if page is loading or no search criterion is selected
+    $scope.disableApplyButton = function() {
+      // Disable button if page is loading or no filter criterion is selected
       var count = $scope.search.count;
       return $scope.isLoading || $scope.isSaving || (!count.gpaRanges && !count.groupCodes && !count.levels &&
         !count.majors && !count.unitRanges && (!$scope.showIntensiveCheckbox || !$scope.search.options.intensive) &&
