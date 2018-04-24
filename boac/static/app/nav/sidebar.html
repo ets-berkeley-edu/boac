@@ -16,7 +16,10 @@
   <span class="sidebar-header"
         data-ng-class="{'sidebar-row-link-label': myGroups.length}"
         data-ng-controller="CreateGroupController">
-    <a id="sidebar-curated-cohorts-manage" href="/groups/manage" class="sidebar-row-link-label-text">Curated Cohorts</a>
+    <a id="sidebar-curated-cohorts-manage"
+       class="sidebar-row-link-label-text"
+       data-ui-sref="groupsManage()"
+       data-ui-sref-opts="{reload: true}">Curated Cohorts</a>
     <a id="sidebar-curated-cohort-create" class="sidebar-create-link" href
        data-ng-click="openCreateCuratedCohortModal()"><i class="fa fa-plus"></i></a>
   </span>
@@ -25,9 +28,8 @@
   <div class="sidebar-row-link-label">
     <a id="sidebar-curated-cohort-{{$index}}"
        class="sidebar-row-link-label-text"
-       data-ng-href="/group/{{group.id}}"
-       data-ng-bind="group.name">
-    </a>
+       data-ui-sref="group({id: group.id})"
+       data-ui-sref-opts="{reload: true}"><span data-ng-bind="group.name"></span></a>
     <span id="sidebar-curated-cohort-{{$index}}-count"
           class="sidebar-pill"
           data-ng-bind="group.studentCount"></span>
@@ -65,7 +67,9 @@
 
 <div class="sidebar-row-link" data-ng-if="showAthletics">
   <span class="sidebar-row-link-label">
-    <a id="sidebar-teams-link" href="/cohorts/teams">Team List</a>
+    <a id="sidebar-teams-link"
+       data-ui-sref="teams()"
+       data-ui-sref-opts="{reload: true}">Team List</a>
   </span>
 </div>
 <div class="sidebar-row-link" data-ng-if="showAthletics">
@@ -84,6 +88,8 @@
 </div>
 <div class="sidebar-row-link">
   <span class="sidebar-row-link-label">
-    <a id="sidebar-filtered-cohorts-all" href="/cohorts/all">Everyone's Filtered Cohorts</a>
+    <a id="sidebar-filtered-cohorts-all"
+       data-ui-sref="cohorts()"
+       data-ui-sref-opts="{reload: true}">Everyone's Filtered Cohorts</a>
   </span>
 </div>

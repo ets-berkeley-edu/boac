@@ -216,6 +216,7 @@
       var limit = $scope.pagination.enabled ? $scope.pagination.itemsPerPage : Number.MAX_SAFE_INTEGER;
       var offset = page === 0 ? 0 : (page - 1) * limit;
 
+      $anchorScroll();
       $scope.isLoading = true;
       getCohort($scope.orderBy.selected, offset, limit).then(function(response) {
         updateCohort(response.data);

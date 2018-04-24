@@ -32,6 +32,7 @@
     studentFactory,
     studentSearchService,
     validationService,
+    $anchorScroll,
     $location,
     $scope
   ) {
@@ -49,6 +50,7 @@
       var page = $scope.pagination.currentPage;
       var offset = page < 2 ? 0 : (page - 1) * $scope.pagination.itemsPerPage;
 
+      $anchorScroll();
       $scope.isLoading = true;
       studentFactory.searchForStudents($scope.search.phrase, $scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(
         function(response) {

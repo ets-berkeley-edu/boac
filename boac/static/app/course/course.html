@@ -37,20 +37,18 @@
           <div class="course-term-name" data-ng-bind="section.termName"></div>
           <div data-ng-repeat="meeting in section.meetings"
                data-ng-if="section.meetings">
+            <div class="course-details-instructors" data-ng-if="meeting.instructors.length">
+              <span class="course-instructors-header"
+                    id="instructors-{{$index}}"
+                    data-ng-pluralize
+                    count="meeting.instructors.length"
+                    when="{'one': 'Instructor:', 'other': 'Instructors:'}"></span>
+              <span data-ng-repeat="instructor in meeting.instructors">{{instructor}}{{$last ? '' : ', '}}</span>
+            </div>
             <div id="meetings-{{$index}}" class="course-details-meetings">
               <div data-ng-bind="meeting.days"></div>
               <div data-ng-bind="meeting.time"></div>
               <div data-ng-bind="meeting.location"></div>
-            </div>
-            <div data-ng-if="meeting.instructors.length">
-              <h2 class="course-instructors-header"
-                  id="instructors-{{$index}}"
-                  data-ng-pluralize
-                  count="meeting.instructors.length"
-                  when="{'one': 'Instructor', 'other': 'Instructors'}"></h2>
-              <div class="course-details-instructors" data-ng-repeat="instructor in meeting.instructors">
-                <div data-ng-bind="instructor"></div>
-              </div>
             </div>
           </div>
         </div>

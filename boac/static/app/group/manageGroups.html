@@ -25,11 +25,10 @@
       <div class="flex-container flex-space-between" data-ng-if="!group.editMode">
         <div class="cohort-manage-name wrap-hard">
           <strong>
-            <a id="curated-cohort-{{group.id}}"
-               data-ng-bind="group.name"
-               data-ng-href="/group/{{group.id}}"></a>
+            <a id="curated-cohort-name-{{$index}}"
+               data-ng-href="/group/{{group.id}}"><span data-ng-bind="group.name"></span></a>
           </strong>
-          <span class="faint-text">(<span id="curated-cohort-student-count-{{group.id}}" data-ng-bind="group.studentCount"></span>)</span>
+          <span class="faint-text">(<span id="curated-cohort-student-count-{{$index}}" data-ng-bind="group.studentCount"></span>)</span>
         </div>
         <div>
           <span data-ng-controller="DeleteGroupController">

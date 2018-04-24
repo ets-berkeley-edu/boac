@@ -1,8 +1,11 @@
 <div class="all-cohorts-container">
   <h1 class="page-section-header">Everyone's Cohorts</h1>
 
-  <div class="container" data-ng-if="isLoading">
-    <div>Loading.... </div>
+  <div data-ng-if="isLoading">
+    <div class="loading-spinner-large">
+      <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
+      <span class="sr-only">Loading...</span>
+    </div>
   </div>
   <div data-ng-if="!isLoading">
     <div data-ng-if="!owners.length">
