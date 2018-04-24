@@ -379,6 +379,7 @@ class TestUserAnalytics:
         assert burmese['sections'][0]['units'] == 4
         assert burmese['sections'][0]['gradingBasis'] == 'Letter'
         assert burmese['sections'][0]['midtermGrade'] == 'D+'
+        assert burmese['sections'][0]['primary'] is True
         assert not burmese['sections'][0]['grade']
         assert burmese['units'] == 4
         assert burmese['gradingBasis'] == 'Letter'
@@ -394,6 +395,7 @@ class TestUserAnalytics:
         assert medieval['sections'][0]['enrollmentStatus'] == 'E'
         assert medieval['sections'][0]['units'] == 5
         assert medieval['sections'][0]['gradingBasis'] == 'Letter'
+        assert medieval['sections'][0]['primary'] is True
         assert not medieval['sections'][0]['grade']
 
         nuclear = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'NUC ENG 124')
@@ -406,11 +408,13 @@ class TestUserAnalytics:
         assert nuclear['sections'][0]['units'] == 3
         assert nuclear['sections'][0]['gradingBasis'] == 'P/NP'
         assert nuclear['sections'][0]['grade'] == 'P'
+        assert nuclear['sections'][0]['primary'] is True
         assert nuclear['sections'][1]['ccn'] == 90301
         assert nuclear['sections'][1]['sectionNumber'] == '201'
         assert nuclear['sections'][1]['enrollmentStatus'] == 'E'
         assert nuclear['sections'][1]['units'] == 0
         assert nuclear['sections'][1]['gradingBasis'] == 'NON'
+        assert nuclear['sections'][1]['primary'] is False
         assert not nuclear['sections'][1]['grade']
 
         music = TestUserAnalytics.get_course_for_code(authenticated_response, '2172', 'MUSIC 41C')
@@ -423,6 +427,7 @@ class TestUserAnalytics:
         assert music['sections'][0]['units'] == 2
         assert music['sections'][0]['gradingBasis'] == 'Letter'
         assert music['sections'][0]['grade'] == 'A-'
+        assert music['sections'][0]['primary'] is True
         assert music['units'] == 2
         assert music['gradingBasis'] == 'Letter'
         assert music['grade'] == 'A-'
