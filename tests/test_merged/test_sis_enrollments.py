@@ -24,6 +24,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
+from boac.api.util import canvas_courses_api_feed
+from boac.externals import canvas
 from boac.merged.sis_enrollments import merge_sis_enrollments_for_term
 from boac.models.alert import Alert
 import pytest
@@ -46,3 +48,20 @@ class TestMergedSisEnrollments:
         assert 'midterm' == alerts[0]['alertType']
         assert '2178_90100' == alerts[0]['key']
         assert 'BURMESE 1A midterm grade of D+.' == alerts[0]['message']
+
+    def test_includes_course_site_section_mappings(self, app):
+        """Maps Canvas sites to SIS courses and sections."""
+        canvas_site_feed = canvas_courses_api_feed(canvas.get_student_courses('61889'))
+        feed = merge_sis_enrollments_for_term(canvas_site_feed, '11667051', app.config['CANVAS_CURRENT_ENROLLMENT_TERM'])
+        enrollments = feed['enrollments']
+        assert len(enrollments[0]['canvasSites']) == 1
+        assert enrollments[0]['canvasSites'][0]['canvasCourseId'] == 7654320
+        assert enrollments[0]['sections'][0]['canvasCourseIds'] == [7654320]
+        assert len(enrollments[1]['canvasSites']) == 1
+        assert enrollments[1]['canvasSites'][0]['canvasCourseId'] == 7654321
+        assert enrollments[1]['sections'][0]['canvasCourseIds'] == [7654321]
+        assert len(enrollments[2]['canvasSites']) == 2
+        assert enrollments[2]['canvasSites'][0]['canvasCourseId'] == 7654323
+        assert enrollments[2]['canvasSites'][1]['canvasCourseId'] == 7654330
+        assert (enrollments[2]['sections'][0]['canvasCourseIds']) == [7654323, 7654330]
+        assert (enrollments[2]['sections'][1]['canvasCourseIds']) == []

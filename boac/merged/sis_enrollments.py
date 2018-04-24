@@ -115,7 +115,7 @@ def merge_enrollment(cs_id, enrollments, term_id, term_name):
         # information with the class as well as the section. If a primary section is waitlisted, do the same
         # association unless we've already done it with a different section (this case may not arise in practice).
         if is_enrolled_primary_section(section_feed) or (
-                is_primary_section(section_feed) and 'units' not in enrollments_by_class[class_name]):
+                section_feed['primary'] and 'units' not in enrollments_by_class[class_name]):
             enrollments_by_class[class_name]['grade'] = section_feed['grade']
             enrollments_by_class[class_name]['gradingBasis'] = section_feed['gradingBasis']
             enrollments_by_class[class_name]['units'] = section_feed['units']
@@ -172,32 +172,28 @@ def collect_dropped_sections(term_feed):
 
 
 def is_enrolled_primary_section(section_feed):
-    return is_primary_section(section_feed) and section_feed['enrollmentStatus'] == 'E'
-
-
-def is_primary_section(section_feed):
-    return section_feed['gradingBasis'] != 'NON'
+    return section_feed['primary'] and section_feed['enrollmentStatus'] == 'E'
 
 
 def merge_canvas_course_site(term_feed, site):
     if site['courseTerm'] != term_feed['termName']:
         return
     site_matched = False
-    sections = canvas.get_course_sections(site['canvasCourseId'], term_feed['termId'])
-    if not sections:
+    canvas_sections = canvas.get_course_sections(site['canvasCourseId'], term_feed['termId'])
+    if not canvas_sections:
         return
-    for section in sections:
-        canvas_ccn = extract_canvas_ccn(section)
+    for canvas_section in canvas_sections:
+        canvas_ccn = extract_canvas_ccn(canvas_section)
         if not canvas_ccn:
             continue
         for enrollment in term_feed['enrollments']:
-            matching_section = next((section for section in enrollment['sections'] if canvas_ccn == str(section.get('ccn'))), None)
-            if matching_section:
-                site_matched = True
-                enrollment['canvasSites'].append(site)
-                break
-        if site_matched:
-            break
+            for sis_section in enrollment['sections']:
+                if canvas_ccn == str(sis_section.get('ccn')):
+                    sis_section['canvasCourseIds'] = sis_section.get('canvasCourseIds', [])
+                    sis_section['canvasCourseIds'].append(site['canvasCourseId'])
+                    if not site_matched:
+                        enrollment['canvasSites'].append(site)
+                    site_matched = True
     if not site_matched:
         term_feed['unmatchedCanvasSites'].append(site)
 
@@ -217,6 +213,8 @@ def remove_dropped_enrollments(term_feed):
 def sort_canvas_course_sites(term_feed):
     for enrollment in term_feed['enrollments']:
         enrollment['canvasSites'] = sorted(enrollment['canvasSites'], key=lambda x: x['canvasCourseId'])
+        for section in enrollment['sections']:
+            section['canvasCourseIds'] = sorted(section.get('canvasCourseIds', []))
     term_feed['unmatchedCanvasSites'] = sorted(term_feed['unmatchedCanvasSites'], key=lambda x: x['canvasCourseId'])
 
 

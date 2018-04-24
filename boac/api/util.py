@@ -58,15 +58,17 @@ def sis_enrollment_class_feed(enrollment):
 def sis_enrollment_section_feed(enrollment):
     section_data = enrollment.get('classSection', {})
     grades = enrollment.get('grades', [])
+    grading_basis = enrollment.get('gradingBasis', {}).get('code')
     return {
         'ccn': section_data.get('id'),
         'component': section_data.get('component', {}).get('code'),
         'sectionNumber': section_data.get('number'),
         'enrollmentStatus': enrollment.get('enrollmentStatus', {}).get('status', {}).get('code'),
         'units': enrollment.get('enrolledUnits', {}).get('taken'),
-        'gradingBasis': translate_grading_basis(enrollment.get('gradingBasis', {}).get('code')),
+        'gradingBasis': translate_grading_basis(grading_basis),
         'grade': next((grade.get('mark') for grade in grades if grade.get('type', {}).get('code') == 'OFFL'), None),
         'midtermGrade': next((grade.get('mark') for grade in grades if grade.get('type', {}).get('code') == 'MID'), None),
+        'primary': False if grading_basis == 'NON' else True,
     }
 
 
