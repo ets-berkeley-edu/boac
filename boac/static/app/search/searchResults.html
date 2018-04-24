@@ -27,8 +27,8 @@
       </div>
       <div class="cohort-tabs-container-column-03">
         <div class="cohort-sort-column">
-          <label class="cohort-sort-label" for="cohort-sort-by">Sort by</label>
-          <select id="cohort-sort-by"
+          <label class="cohort-sort-label" for="search-results-sort-by">Sort by</label>
+          <select id="search-results-sort-by"
                   class="form-control"
                   data-ng-model="orderBy.selected"
                   data-ng-options="o.value as o.name for o in orderBy.options">
@@ -37,16 +37,16 @@
       </div>
     </div>
     <div data-ng-if="!isLoading && !error && search.results.totalStudentCount">
-      <ul id="cohort-students-list" class="list-group">
+      <ul id="search-results" class="list-group">
         <div class="list-group-item cohort-student-list-item"
              data-ng-class="{'list-group-item-info': anchor===student.uid}"
              data-ng-repeat="student in search.results.students">
 
           <div class="cohort-list-view-column-00">
             <div class="student-checkbox-add-to-group">
-              <input id="student-{{student.sid}}-checkbox-add-to-group"
+              <input id="{{student.uid}}-curated-cohort-checkbox"
                      type="checkbox"
-                     data-ng-click="checkboxForStudentGroupsSelector(student)"
+                     data-ng-click="curatedCohortStudentToggle(student)"
                      data-ng-model="student.selectedForStudentGroups"/>
             </div>
           </div>

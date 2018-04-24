@@ -29,11 +29,11 @@
 
   angular.module('boac').controller('CreateGroupController', function($scope, $uibModal) {
 
-    $scope.openCreateGroupModal = function() {
+    $scope.openCreateCuratedCohortModal = function() {
       $uibModal.open({
         animation: true,
-        ariaLabelledBy: 'create-group-header',
-        ariaDescribedBy: 'create-group-body',
+        ariaLabelledBy: 'create-curated-cohort-header',
+        ariaDescribedBy: 'create-curated-cohort-body',
         templateUrl: '/static/app/group/createGroupModal.html',
         controller: 'CreateGroupModal',
         resolve: {}
@@ -42,7 +42,6 @@
   });
 
   angular.module('boac').controller('CreateGroupModal', function(
-    authService,
     studentGroupFactory,
     validationService,
     $scope,
@@ -62,7 +61,7 @@
         message: null
       };
       $scope.name = _.trim($scope.name);
-      validationService.validateName({name: $scope.name}, authService.getMe().myGroups, function(errorMessage) {
+      validationService.validateName({name: $scope.name}, function(errorMessage) {
         if (errorMessage) {
           $scope.isSaving = false;
           $scope.error.message = errorMessage;

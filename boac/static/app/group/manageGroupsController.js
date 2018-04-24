@@ -28,7 +28,6 @@
   'use strict';
 
   angular.module('boac').controller('ManageGroupsController', function(
-    authService,
     studentGroupFactory,
     studentGroupService,
     validationService,
@@ -57,7 +56,7 @@
     };
 
     $scope.changeGroupName = function(group, name) {
-      validationService.validateName({id: group.id, name: name}, authService.getMe().myGroups, function(error) {
+      validationService.validateName({id: group.id, name: name}, function(error) {
         group.error = error;
         group.hideError = false;
         if (!group.error) {

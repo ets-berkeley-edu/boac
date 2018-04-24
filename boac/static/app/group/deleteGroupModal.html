@@ -1,18 +1,18 @@
 <div class="modal-header">
-  <h3 id="confirm-delete-header">Delete Group</h3>
+  <h3 id="confirm-delete-header">Delete Curated Cohort</h3>
 </div>
 <div class="modal-body group-label" id="confirm-delete-body">
   Are you sure you want to delete "<strong><span data-ng-bind="group.name"></span></strong>"?
 </div>
 <div class="modal-footer">
-  <form name="deleteGroupForm" data-ng-submit="delete(group)">
+  <form data-ng-submit="delete(group)">
     <button type="button"
-            id="confirm-delete-group-btn"
+            id="confirm-delete-btn"
             class="btn btn btn-primary"
             autofocus
             data-ng-click="delete(group)">Delete</button>
     <button type="button"
-            id="cancel-delete-group-btn"
+            id="cancel-delete-btn"
             class="btn btn-default"
             data-ng-click="cancel()">Cancel</button>
   </form>

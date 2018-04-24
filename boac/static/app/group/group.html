@@ -30,7 +30,7 @@
 
       <div class="cohort-sort-column" data-ng-if="tab === 'list'">
         <label class="cohort-sort-label" for="cohort-sort-by">Sort by</label>
-        <select id="cohort-sort-by"
+        <select id="curated-cohort-sort-by"
                 class="form-control"
                 data-ng-model="orderBy.selected"
                 data-ng-options="o.value as o.name for o in orderBy.options">
@@ -38,13 +38,13 @@
       </div>
     </div>
     <div data-ng-show="tab === 'list'" data-ng-if="!isLoading && !error && group.studentCount">
-      <div id="group-students-list" class="list-group">
+      <div id="curated-cohort-students" class="list-group">
         <div class="list-group-item student-list-item"
              data-ng-class="{'list-group-item-info': anchor===student.uid}"
              data-ng-repeat="student in group.students | orderBy:studentComparator track by $index">
 
           <div class="cohort-list-view-column-01">
-            <i id="remove-student-{{student.sid}}-from-group"
+            <i id="student-{{student.uid}}-curated-cohort-remove"
                class="fa fa-times-circle"
                data-ng-click="removeFromGroup(student)"></i>
           </div>

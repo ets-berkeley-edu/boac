@@ -115,9 +115,9 @@
 
           <div class="cohort-list-view-column-00">
             <div class="student-checkbox-add-to-group">
-              <input id="student-{{student.sid}}-checkbox-add-to-group"
+              <input id="student-{{student.uid}}-curated-cohort-checkbox"
                      type="checkbox"
-                     data-ng-click="checkboxForStudentGroupsSelector(student)"
+                     data-ng-click="curatedCohortStudentToggle(student)"
                      data-ng-model="student.selectedForStudentGroups"/>
             </div>
           </div>

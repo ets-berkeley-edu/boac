@@ -10,19 +10,21 @@
       <div id="curated-cohorts-header-row" class="home-page-section-header-wrapper">
         <h1 class="page-section-header">Curated Cohorts</h1>
         <div class="home-cohort-actions" data-ng-controller="CreateGroupController">
-          <a id="home-curated-cohorts-create-link" href data-ng-click="openCreateGroupModal()">Create</a> |
+          <a id="home-curated-cohorts-create-link" href data-ng-click="openCreateCuratedCohortModal()">Create</a> |
           <a id="home-curated-cohorts-manage-link" href="/groups/manage">Manage</a>
         </div>
       </div>
       <div data-ng-if="!myGroups.length">
         You have no curated cohorts.
         <span data-ng-controller="CreateGroupController">
-          <a id="home-group-create" href data-ng-click="openCreateGroupModal()"> Create a new curated cohort.</a>
+          <a id="home-curated-cohort-create"
+             href
+             data-ng-click="openCreateCuratedCohortModal()"> Create a new curated cohort.</a>
         </span>
       </div>
       <div data-ng-repeat="group in myGroups" data-ng-if="myGroups.length">
         <h2 class="page-section-header-sub">
-          <a id="home-group-{{$index}}"
+          <a id="home-curated-cohort-{{group.id}}"
              data-ng-bind="group.name"
              data-ng-href="/group/{{group.id}}"></a> (<span data-ng-bind="group.studentCount"></span>)
         </h2>
@@ -44,7 +46,7 @@
       </div>
       <div data-ng-repeat="cohort in myCohorts" data-ng-if="myCohorts.length">
         <h2 class="page-section-header-sub">
-          <a id="home-cohort-{{$index}}"
+          <a id="home-filtered-cohort-{{$index}}"
              data-ng-bind="cohort.label"
              data-ng-href="/cohort?c={{cohort.id}}"></a> (<span data-ng-bind="cohort.totalStudentCount"></span>)
         </h2>

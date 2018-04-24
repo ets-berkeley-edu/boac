@@ -80,11 +80,11 @@
               <div class="student-bio-status-box-groups student-groups-checkboxes">
                 <div>
                   <h4 class="student-bio-header">
-                    Curated Cohorts <span data-ng-if="myGroups.length">(<a id="groups-manage" href="/groups/manage">Manage</a>)</span>
+                    Curated Cohorts <span data-ng-if="myGroups.length">(<a id="curated-cohorts-manage" href="/groups/manage">Manage</a>)</span>
                   </h4>
                 </div>
                 <div class="student-group-checkbox" data-ng-repeat="group in myGroups track by $index">
-                  <input id="student-group-checkbox-{{$index}}"
+                  <input id="curated-cohort-checkbox-{{$index}}"
                          class="student-group-checkbox-input"
                          type="checkbox"
                          data-ng-model="group.selected"
@@ -95,9 +95,9 @@
                 </div>
                 <div class="student-group-create-new">
                   <span data-ng-controller="CreateGroupController">
-                    <a id="group-create"
+                    <a id="curated-cohort-create"
                        href
-                       data-ng-click="openCreateGroupModal()"><i class="fa fa-plus"></i> Create New Curated Cohort</a>
+                       data-ng-click="openCreateCuratedCohortModal()"><i class="fa fa-plus"></i> Create New Curated Cohort</a>
                   </span>
                 </div>
               </div>

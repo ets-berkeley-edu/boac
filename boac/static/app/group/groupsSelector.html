@@ -1,7 +1,7 @@
 <div class="group-selector-container">
   <div>
     <div class="group-selector-checkbox">
-      <input id="group-checkbox-add-all"
+      <input id="curated-cohort-checkbox-add-all"
              type="checkbox"
              data-ng-model="selector.selectAllCheckbox"
              data-ng-click="toggleAllStudentCheckboxes()"/>
@@ -12,20 +12,20 @@
          uib-dropdown
          is-open="selector.isOpen"
          data-ng-if="selector.showGroupsMenu">
-      <button id="added-to-group-confirmation"
+      <button id="added-to-curated-cohort-confirmation"
               type="button"
               data-ng-disabled="true"
               class="btn group-btn-confirmation"
               data-ng-if="isSaving">
         <i class="fa fa-check"></i>
-        Added to Group
+        Added to Curated Cohort
       </button>
-      <button id="add-to-group-button"
+      <button id="add-to-curated-cohort-button"
               type="button"
               class="btn btn-primary"
               uib-dropdown-toggle
               data-ng-if="!isSaving">
-        Add to Group <span class="caret"></span>
+        Add to Curated Cohort <span class="caret"></span>
       </button>
       <ul class="dropdown-menu group-all-menu"
           uib-dropdown-menu
@@ -38,13 +38,13 @@
             data-ng-class="{'group-checkbox-item': group, 'divider': !group}"
             data-ng-repeat="group in myGroups track by $index"
             data-ng-href="!isLoading">
-          <input id="student-{{student.sid}}-group-checkbox"
+          <input id="student-{{student.uid}}-curated-cohort-checkbox"
                  type="checkbox"
                  data-ng-model="group.selected"
                  data-ng-click="groupCheckboxClick(group)"
                  aria-labelledby="group-name-{{$index}}"
                  data-ng-if="group"/>
-          <span id="group-{{group.id}}-name"
+          <span id="curated-cohort-{{group.id}}-name"
                 aria-labelledby="student-{{student.sid}}-group-checkbox"
                 class="group-checkbox-name"
                 data-ng-bind="group.name"
@@ -54,9 +54,9 @@
         <li role="menuitem"
             data-ng-controller="CreateGroupController"
             data-ng-href="!isLoading">
-          <a id="group-create"
+          <a id="curated-cohort-create"
              href
-             data-ng-click="openCreateGroupModal()"><i class="fa fa-plus"></i> Create New Group</a>
+             data-ng-click="openCreateCuratedCohortModal()"><i class="fa fa-plus"></i> Create New Curated Cohort</a>
         </li>
       </ul>
     </div>

@@ -1,11 +1,11 @@
 <div class="modal-header">
-  <h3 id="create-group-header">Name Your Curated Cohort</h3>
+  <h3 id="create-curated-cohort-header">Name Your Curated Cohort</h3>
 </div>
-<form name="createGroupForm" data-ng-submit="create(group)">
-  <div class="modal-body" id="create-group-body">
-    <div class="group-create-form-name">Curated Cohort Name:</div>
+<form data-ng-submit="create(group)">
+  <div id="create-curated-cohort-body" class="modal-body">
+    <div class="group-create-form-name">Name:</div>
     <div>
-      <input id="group-create-input"
+      <input id="curated-cohort-create-input"
              class="group-create-input-name"
              data-ng-change="error.hide = true"
              data-ng-model="name"
@@ -20,14 +20,14 @@
   </div>
   <div class="modal-footer">
     <button type="button"
-            id="confirm-create-group-btn"
+            id="confirm-create-curated-cohort-btn"
             class="btn btn btn-primary"
             data-ng-disabled="!name.length || isSaving"
             data-ng-click="create(group)">
       <i class="fa fa-spinner fa-spin" data-ng-if="isSaving"></i> {{isSaving ? 'Saving' : 'Save'}}
     </button>
     <button type="button"
-            id="cancel-create-group-btn"
+            id="cancel-create-curated-cohort-btn"
             class="btn btn-default"
             data-ng-disabled="isSaving"
             data-ng-click="cancel()">Cancel</button>

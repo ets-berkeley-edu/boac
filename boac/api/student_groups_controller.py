@@ -39,7 +39,7 @@ def create_group():
     params = request.get_json()
     name = params.get('name', None)
     if not name:
-        raise BadRequestError('Group creation requires \'name\'')
+        raise BadRequestError('Cohort creation requires \'name\'')
     group = StudentGroup.create(current_user.id, name)
     return tolerant_jsonify(group.to_api_json())
 
@@ -49,11 +49,11 @@ def create_group():
 def add_student_to_group(group_id, sid):
     group = StudentGroup.find_by_id(group_id)
     if not group:
-        raise ResourceNotFoundError(f'No group found with id: {group_id}')
+        raise ResourceNotFoundError(f'No cohort found with id: {group_id}')
     if group.owner_id != current_user.id:
-        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own group {group.id}')
+        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {group.id}')
     StudentGroup.add_student(group.id, sid)
-    return tolerant_jsonify({'message': f'SID {sid} added to group \'{group_id}\''}), 200
+    return tolerant_jsonify({'message': f'SID {sid} added to cohort \'{group_id}\''}), 200
 
 
 @app.route('/api/group/delete/<group_id>', methods=['DELETE'])
@@ -61,9 +61,9 @@ def add_student_to_group(group_id, sid):
 def delete_group(group_id):
     group = StudentGroup.find_by_id(group_id)
     if group.owner_id != current_user.id:
-        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own group {group.id}')
+        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {group.id}')
     StudentGroup.delete(group_id)
-    return tolerant_jsonify({'message': f'Group {group_id} has been deleted'}), 200
+    return tolerant_jsonify({'message': f'Cohort {group_id} has been deleted'}), 200
 
 
 @app.route('/api/group/<group_id>')
@@ -71,9 +71,9 @@ def delete_group(group_id):
 def get_group(group_id):
     group = StudentGroup.find_by_id(group_id)
     if not group:
-        raise ResourceNotFoundError(f'Sorry, no group found with id {group_id}.')
+        raise ResourceNotFoundError(f'Sorry, no cohort found with id {group_id}.')
     if group.owner_id != current_user.id:
-        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own group {group.id}')
+        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {group.id}')
     decorated = _decorate_groups([group.to_api_json()], include_analytics=True)
     return tolerant_jsonify(decorated[0])
 
@@ -83,9 +83,9 @@ def get_group(group_id):
 def remove_student_from_group(group_id, sid):
     group = StudentGroup.find_by_id(group_id)
     if group.owner_id != current_user.id:
-        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own group {group.id}')
+        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {group.id}')
     StudentGroup.remove_student(group_id, sid)
-    return tolerant_jsonify({'message': f'SID {sid} has been removed from group {group_id}'}), 200
+    return tolerant_jsonify({'message': f'SID {sid} has been removed from cohort {group_id}'}), 200
 
 
 @app.route('/api/groups/my')
@@ -111,11 +111,11 @@ def add_students_to_group():
         raise BadRequestError('The required parameters are \'groupId\' and \'sids\'.')
     group = StudentGroup.find_by_id(group_id)
     if not group:
-        raise ResourceNotFoundError(f'No group found where id={group_id}')
+        raise ResourceNotFoundError(f'No cohort found where id={group_id}')
     if group.owner_id != current_user.id:
-        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own group {group.id}')
+        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {group.id}')
     StudentGroup.add_students(group_id, sids)
-    return tolerant_jsonify({'message': f'Successfully added students to group \'{group_id}\''}), 200
+    return tolerant_jsonify({'message': f'Successfully added students to cohort \'{group_id}\''}), 200
 
 
 @app.route('/api/group/update', methods=['POST'])

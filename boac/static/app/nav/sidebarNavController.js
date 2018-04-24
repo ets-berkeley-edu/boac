@@ -72,7 +72,7 @@
       });
     });
 
-    $rootScope.$on('cohortUpdated', function(event, data) {
+    $rootScope.$on('cohortNameChanged', function(event, data) {
       _.each($scope.myCohorts, function(cohort) {
         if (cohort.id === data.cohort.id) {
           cohort.label = data.cohort.label;

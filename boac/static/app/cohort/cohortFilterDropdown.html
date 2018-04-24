@@ -3,7 +3,7 @@
      auto-close="outsideClick"
      is-open="search.dropdown[isOpen]"
      keyboard-nav>
-  <button id="search-filter-{{id}}"
+  <button id="cohort-filter-{{id}}"
           type="button"
           class="btn cohort-filter-dropdown-toggle"
           uib-dropdown-toggle
@@ -27,7 +27,7 @@
         data-ng-class="{'divider': !option}"
         role="menuitem"
         data-ng-repeat="option in search.options[menuType]">
-      <input id="search-option-{{id}}-{{option.id}}"
+      <input id="cohort-filter-option-{{id}}-{{option.id}}"
              type="checkbox"
              data-ng-model="option.selected"
              aria-label="{{option.name}}"
