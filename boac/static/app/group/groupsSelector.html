@@ -34,6 +34,9 @@
         <li role="menuitem" data-ng-if="isLoading">
           Loading <i class="fa fa-spinner fa-spin"></i>
         </li>
+        <li role="menuitem" data-ng-if="!myGroups.length">
+          <span class="group-selector-zero-cohorts faint-text">You have no curated cohorts.</span>
+        </li>
         <li role="menuitem"
             data-ng-class="{'group-checkbox-item': group, 'divider': !group}"
             data-ng-repeat="group in myGroups track by $index"

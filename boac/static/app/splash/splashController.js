@@ -34,7 +34,8 @@
     $location,
     $rootScope,
     $sce,
-    $scope
+    $scope,
+    $stateParams
   ) {
 
     $rootScope.pageTitle = 'Welcome';
@@ -65,7 +66,7 @@
     };
 
     var init = function() {
-      var casLoginError = _.get($location.search(), 'casLoginError');
+      var casLoginError = _.get($location.search(), 'casLoginError') || $stateParams.casLoginError;
       if (casLoginError) {
         $scope.casLogin = {error: uibPopoverError(casLoginError)};
       }

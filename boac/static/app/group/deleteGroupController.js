@@ -30,7 +30,7 @@
   angular.module('boac').controller('DeleteGroupController', function($scope, $uibModal) {
 
     $scope.openDeleteGroupModal = function(group) {
-      $uibModal.open({
+      var modal = $uibModal.open({
         animation: true,
         ariaLabelledBy: 'confirm-delete-header',
         ariaDescribedBy: 'confirm-delete-body',
@@ -42,6 +42,9 @@
           }
         }
       });
+      modal.result.finally(function() {
+        $scope.$destroy();
+      }).then(angular.noop, angular.noop);
     };
   });
 
