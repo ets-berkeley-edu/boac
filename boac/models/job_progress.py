@@ -50,12 +50,13 @@ class JobProgress:
     def key(self):
         return f'job_{self.key_suffix}'
 
-    def start(self):
+    def start(self, properties={}):
         start_json = {
             'start': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'end': None,
             'steps': [],
         }
+        start_json.update(properties)
         row = JsonCache.query.filter_by(key=self.key()).first()
         if row:
             progress = row.json

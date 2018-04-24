@@ -28,7 +28,7 @@ import re
 from boac import db, std_commit
 from boac.lib.berkeley import sis_term_id_for_name, term_name_for_sis_id
 from boac.models.base import Base
-from boac.models.json_cache import JsonCache, update_jsonb_row
+from boac.models.json_cache import update_jsonb_row, working_cache
 from boac.models.student import Student
 
 
@@ -65,7 +65,7 @@ class NormalizedCacheEnrollment(Base):
     @classmethod
     def get_course_section(cls, term_id, section_id):
         key = cls._course_section_cache_key(term_id=term_id, section_id=section_id)
-        row = JsonCache.query.filter_by(key=key).first()
+        row = working_cache().query.filter_by(key=key).first()
         course_section = row and row.json
         if course_section:
             sids = NormalizedCacheEnrollment.get_enrolled_sids(term_id=term_id, section_id=section_id)
@@ -74,8 +74,8 @@ class NormalizedCacheEnrollment(Base):
 
     @classmethod
     def summarize_sections_in_cache(cls):
-        key_like = JsonCache.key.like('%-sis_course_section_summary_%')
-        rows = db.session.query(JsonCache.key).filter(key_like).order_by(JsonCache.key).all()
+        key_like = working_cache().key.like('%-sis_course_section_summary_%')
+        rows = db.session.query(working_cache().key).filter(key_like).order_by(working_cache().key).all()
         summary = {}
         for row in rows:
             m = re.search('term_(.+)-sis_course_section_summary_(.+)', row.key)
@@ -90,12 +90,12 @@ class NormalizedCacheEnrollment(Base):
     def _refresh_course_enrollments(cls, term_id, sections):
         for section in sections:
             key = cls._course_section_cache_key(term_id=term_id, section_id=section['id'])
-            row = JsonCache.query.filter_by(key=key).first()
+            row = working_cache().query.filter_by(key=key).first()
             if row:
                 row.json = section
                 update_jsonb_row(row)
             else:
-                db.session.add(JsonCache(key=key, json=section))
+                db.session.add(working_cache()(key=key, json=section))
         std_commit()
 
     @classmethod
