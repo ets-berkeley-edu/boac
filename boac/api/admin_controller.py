@@ -78,6 +78,12 @@ def clear_cachejob():
     })
 
 
+@app.route('/api/admin/cachejob/continue')
+@admin_required
+def start_continuation_of_interrupted_job():
+    return tolerant_jsonify(cache_utils.continue_request_handler())
+
+
 @app.route('/api/admin/cachejob/load')
 @admin_required
 def start_load_only():

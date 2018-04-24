@@ -52,8 +52,16 @@ def refresh_request_handler(term_id, load_only=False, import_asc=False):
             'import_asc': import_asc,
         })
         app.logger.warn('About to start background thread')
-        app_arg = app._get_current_object()
-        thread = Thread(target=background_thread_refresh, args=[app_arg, term_id, job_type, import_asc], daemon=True)
+        thread = Thread(
+            target=background_thread_refresh,
+            daemon=True,
+            kwargs={
+                'app_arg': app._get_current_object(),
+                'term_id': term_id,
+                'job_type': job_type,
+                'import_asc': import_asc,
+            },
+        )
         thread.start()
         return {
             'progress': JobProgress().get(),
@@ -65,13 +73,44 @@ def refresh_request_handler(term_id, load_only=False, import_asc=False):
         }
 
 
-def background_thread_refresh(app_arg, term_id, job_type, import_asc):
+def continue_request_handler():
+    """Continue an interrupted cache refresh or load job (skipping the optional ASC import)."""
+    # WARNING: There is currently no protection against duplicate continuation requests. Admins need to ensure
+    # that the refresh job is currently inactive.
+
+    job_state = JobProgress().get()
+    if job_state and job_state['start'] and not job_state['end']:
+        job_type = job_state['job_type']
+        term_id = job_state['term_id']
+        JobProgress().update(f'Continuing {job_type} for term {term_id}')
+        thread = Thread(
+            target=background_thread_refresh,
+            daemon=True,
+            kwargs={
+                'app_arg': app._get_current_object(),
+                'term_id': term_id,
+                'job_type': job_type,
+                'continuation': True,
+            },
+        )
+        thread.start()
+        return {
+            'progress': JobProgress().get(),
+        }
+    else:
+        return {
+            'error': 'Cannot continue an existing refresh job',
+            'progress': job_state,
+        }
+
+
+def background_thread_refresh(app_arg, term_id, job_type, import_asc=False, continuation=False):
     with app_arg.app_context():
         try:
             if import_asc:
                 do_import_asc()
             if job_type == 'Refresh':
-                refresh_term(term_id)
+                refresh_term(term_id, continuation)
             else:
                 load_term(term_id)
             JobProgress().end()
@@ -82,10 +121,11 @@ def background_thread_refresh(app_arg, term_id, job_type, import_asc):
             raise e
 
 
-def refresh_term(term_id=berkeley.current_term_id()):
-    JobProgress().update(f'About to drop/create staging table')
-    json_cache.drop_staging_table()
-    json_cache.create_staging_table(exclusions_for_term(term_id))
+def refresh_term(term_id=berkeley.current_term_id(), continuation=False):
+    if not continuation or not json_cache.staging_table_exists():
+        JobProgress().update(f'About to drop/create staging table')
+        json_cache.drop_staging_table()
+        json_cache.create_staging_table(exclusions_for_term(term_id))
     json_cache.set_staging(True)
     load_term(term_id)
     JobProgress().update(f'About to refresh from staging table')

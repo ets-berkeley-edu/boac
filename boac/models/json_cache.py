@@ -40,6 +40,7 @@ from sqlalchemy.sql import text
 
 cache_thread = threading.local()
 
+
 # When staging, all keys point to the staging table except JobStatus and ASC synch records, which always use
 # the normal json_cache table.
 class JsonCacheBase(object):
@@ -158,6 +159,10 @@ def create_staging_table(exclusions_select):
     elapsed = round(time.perf_counter() - started, 2)
     app.logger.info(f'JSON Cache Staging table created in {elapsed} secs')
     log_table_sizes()
+
+
+def staging_table_exists():
+    return db.engine.dialect.has_table(db.engine, 'json_cache_staging')
 
 
 def drop_staging_table():
