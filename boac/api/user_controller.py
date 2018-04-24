@@ -122,7 +122,7 @@ def search_for_students():
     offset = util.get(params, 'offset', 0)
     limit = util.get(params, 'limit', 50)
     results = Student.search_for_students(
-        search_phrase=search_phrase,
+        search_phrase=search_phrase.replace(',', ' '),
         order_by=order_by,
         offset=offset,
         limit=limit,

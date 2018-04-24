@@ -77,6 +77,22 @@ class TestStudents:
         assert len(students) == response.json['totalStudentCount'] == 3
         assert ['Crossman', 'Davies', 'Doolittle'] == [s['lastName'] for s in students]
 
+    def test_search_by_full_name_snippet(self, client, fake_auth):
+        """Search by snippet of name."""
+        fake_auth.login('2040')
+        permutations = ['david c', 'john  david cro', 'john    cross', ' crossman, j ']
+        for phrase in permutations:
+            response = client.post(
+                '/api/students/search',
+                data=json.dumps({'searchPhrase': phrase}),
+                content_type='application/json',
+            )
+            message_if_fail = f'Unexpected result(s) when search phrase={phrase}'
+            assert response.status_code == 200, message_if_fail
+            students = response.json['students']
+            assert len(students) == response.json['totalStudentCount'] == 1, message_if_fail
+            assert students[0]['lastName'] == 'Crossman', message_if_fail
+
     def test_search_order_by_offset_limit(self, client, fake_auth):
         """Search by snippet of name."""
         fake_auth.login('2040')
