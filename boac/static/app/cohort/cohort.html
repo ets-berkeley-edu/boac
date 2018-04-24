@@ -90,7 +90,7 @@
          data-ng-if="!isLoading && !error && (tab === 'matrix' || cohort.totalStudentCount)">
 
       <div class="cohort-tabs-container-column-01">
-        <groups-selector data-students="cohort.students" data-ng-if="tab === 'list'"></groups-selector>
+        <curated-cohort-selector data-students="cohort.students" data-ng-if="tab === 'list'"></curated-cohort-selector>
       </div>
       <div class="cohort-tabs-container-column-02">
         <div data-ng-include="'/static/app/shared/tabs.html'"></div>

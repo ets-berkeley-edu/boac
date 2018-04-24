@@ -33,9 +33,9 @@
     me,
     studentGroupFactory,
     studentGroupService,
-    $location,
     $rootScope,
-    $scope
+    $scope,
+    $state
   ) {
     var init = function() {
       $scope.demoMode = config.demoMode;
@@ -53,7 +53,7 @@
 
     $scope.searchForStudents = function() {
       $scope.searchResultsLoading = true;
-      $location.path('/search').search({q: $scope.searchPhrase});
+      $state.transitionTo('search', {q: $scope.searchPhrase}, {reload: true});
     };
 
     var findGroupInScope = function(groupId) {

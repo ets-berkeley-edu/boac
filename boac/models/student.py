@@ -242,7 +242,7 @@ class Student(Base):
     ):
         query_tables = """
             FROM students s
-                JOIN normalized_cache_students n ON n.sid = s.sid
+                LEFT JOIN normalized_cache_students n ON n.sid = s.sid
                 LEFT JOIN student_athletes sa ON sa.sid = s.sid
                 LEFT JOIN athletics a ON a.group_code = sa.group_code
                 LEFT JOIN normalized_cache_student_majors m ON m.sid = s.sid
@@ -259,15 +259,18 @@ class Student(Base):
             query_filter += f' AND s.is_active_asc IS {is_active_asc}'
         all_bindings = {}
         if search_phrase:
-            all_bindings.update({'phrase': f'{search_phrase}%'})
-            all_bindings.update({'phrase_padded': f'% {search_phrase}%'})
+            phrase = ' '.join(f'{word}%' for word in search_phrase.split())
+            all_bindings.update({
+                'phrase': phrase,
+                'phrase_padded': f'% {phrase}',
+            })
             query_filter += f"""
                 AND (
                     s.sid ILIKE :phrase OR
-                    s.first_name ILIKE :phrase OR
-                    s.first_name ILIKE :phrase_padded OR
-                    s.last_name ILIKE :phrase OR
-                    s.last_name ILIKE :phrase_padded
+                    CONCAT(s.first_name, ' ', s.last_name) ILIKE :phrase OR
+                    CONCAT(s.first_name, ' ', s.last_name) ILIKE :phrase_padded OR
+                    CONCAT(s.last_name, ' ', s.first_name) ILIKE :phrase OR
+                    CONCAT(s.last_name, ' ', s.first_name) ILIKE :phrase_padded
                 )
             """
         if group_codes:

@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').directive('groupsSelector', function(
+  angular.module('boac').directive('curatedCohortSelector', function(
     authService,
     studentGroupFactory,
     studentGroupService,
@@ -55,17 +55,9 @@
           showGroupsMenu: false
         };
 
-        var formatDropdownMenu = function() {
-          if (scope.myGroups.length > 1 && !_.isNil(scope.myGroups[1])) {
-            // Null will put a 'divider' in list of menu options
-            scope.myGroups.splice(1, 0, null);
-          }
-        };
-
         var init = function() {
           var me = authService.getMe();
           scope.myGroups = me.myGroups;
-          formatDropdownMenu();
           _.each(scope.students, function(student) {
             // Init all student checkboxes to false
             student.selectedForStudentGroups = false;
@@ -159,7 +151,6 @@
           var group = data.group;
           scope.myGroups.push(group);
           groupCheckboxClick(group);
-          formatDropdownMenu();
         });
 
         $rootScope.$on('resetStudentGroupsSelector', function() {
