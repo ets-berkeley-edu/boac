@@ -24,28 +24,28 @@
         <div class="cohort-manage-name wrap-hard">
           <strong>
             <a data-ui-sref="cohort({c: cohort.id})"
-               data-ui-sref-opts="{reload: true}"><span id="cohort-name-{{$index}}"
+               data-ui-sref-opts="{reload: true}"><span id="filtered-cohort-name-{{$index}}"
                                                         data-ng-bind="cohort.name"></span></a>
           </strong>
-          <span class="faint-text">(<span id="cohort-student-count-{{$index}}" data-ng-bind="cohort.totalStudentCount"></span>)</span>
+          <span class="faint-text">(<span id="filtered-cohort-student-count-{{$index}}" data-ng-bind="cohort.totalStudentCount"></span>)</span>
         </div>
         <div>
           <span data-ng-controller="DeleteCohortController">
             <button type="button"
-                    id="delete-cohort-btn-{{$index}}"
+                    id="delete-filtered-cohort-btn-{{$index}}"
                     class="btn-link cohort-manage-btn-link"
                     data-ng-click="openDeleteCohortModal(cohort)">
               Delete
             </button> <span class="faint-text">|</span>
           </span>
           <button type="button"
-                  id="edit-cohort-btn-{{$index}}"
+                  id="edit-filtered-cohort-btn-{{$index}}"
                   class="btn-link cohort-manage-btn-link"
                   data-ng-click="setEditMode(cohort, true)">
             Rename
           </button> <span class="faint-text">|</span>
           <button type="button"
-                  id="cohort-details-btn-{{$index}}"
+                  id="filtered-cohort-details-btn-{{$index}}"
                   class="btn-link cohort-manage-btn-link"
                   data-ng-click="setShowDetails(cohort, !cohort.detailsShowing)">
             <span data-ng-if="!cohort.detailsShowing">Show Details</span>
@@ -63,7 +63,7 @@
                  data-ng-change="cohort.hideError = true"
                  data-ng-model="cohort.name"
                  focus-on="cohort.editMode"
-                 id="cohort-name-input-{{$index}}"
+                 id="filtered-cohort-name-input-{{$index}}"
                  maxlength="255"
                  name="name"
                  required
@@ -73,14 +73,14 @@
         </div>
         <div class="edit-mode-button-container">
           <button type="button"
-                  id="cohort-save-btn-{{$index}}"
+                  id="filtered-cohort-save-btn-{{$index}}"
                   class="btn btn-sm btn-primary cohort-manage-btn"
                   data-ng-disabled="!cohort.name"
                   data-ng-click="changeCohortName(cohort, cohort.name)">
             Rename
           </button>
           <button type="button"
-                  id="cohort-cancel-btn-{{$index}}"
+                  id="filtered-cohort-cancel-btn-{{$index}}"
                   class="btn btn-sm btn-default cohort-manage-btn"
                   data-ng-click="cancelEdit(cohort)">
             Cancel
@@ -88,7 +88,7 @@
         </div>
       </form>
       <div data-ng-show="cohort.detailsShowing && !cohort.editMode">
-        <div id="cohort-filter-criteria-{{$index}}"
+        <div id="filtered-cohort-criteria-{{$index}}"
              class="cohort-filter-criteria">
           <div data-ng-repeat="name in cohort.filterCriteriaNames track by $index">
             <span class="cohort-filter-criteria-label" data-ng-bind="name"></span>

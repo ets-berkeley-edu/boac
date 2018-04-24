@@ -124,12 +124,10 @@
         };
 
         /**
-         * Click on checkbox of an individual student.
-         *
-         * @param  {Student}    student      Student checkbox has been toggled.
+         * @param  {Student}    student      Add/remove student to/from curated cohort.
          * @return {void}
          */
-        $rootScope.checkboxForStudentGroupsSelector = function(student) {
+        $rootScope.curatedCohortStudentToggle = function(student) {
           if (student.selectedForStudentGroups) {
             var allStudentsSelected = true;
             _.each(scope.students, function(_student) {

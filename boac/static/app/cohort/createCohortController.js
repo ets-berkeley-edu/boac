@@ -32,8 +32,8 @@
     $scope.openCreateCohortModal = function(opts) {
       $uibModal.open({
         animation: true,
-        ariaLabelledBy: 'create-cohort-header',
-        ariaDescribedBy: 'create-cohort-body',
+        ariaLabelledBy: 'create-filtered-cohort-header',
+        ariaDescribedBy: 'create-filtered-cohort-body',
         templateUrl: '/static/app/cohort/createCohortModal.html',
         controller: 'CreateCohortModal',
         resolve: {
@@ -46,7 +46,6 @@
   });
 
   angular.module('boac').controller('CreateCohortModal', function(
-    authService,
     opts,
     cohortFactory,
     utilService,
@@ -68,7 +67,7 @@
         message: null
       };
       $scope.label = _.trim($scope.label);
-      validationService.validateName({name: $scope.label}, authService.getMe().myCohorts, function(errorMessage) {
+      validationService.validateName({name: $scope.label}, function(errorMessage) {
         if (errorMessage) {
           $scope.error.message = errorMessage;
           $rootScope.isSaving = false;

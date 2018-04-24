@@ -94,9 +94,9 @@
             <!-- Column -->
             <div class="course-list-view-column-00" data-ng-if="!$first">
               <div class="student-checkbox-add-to-group">
-                <input id="student-{{student.sid}}-checkbox-add-to-group"
+                <input id="student-{{student.uid}}-curated-cohort-checkbox"
                        type="checkbox"
-                       data-ng-click="checkboxForStudentGroupsSelector(student)"
+                       data-ng-click="curatedCohortStudentToggle(student)"
                        data-ng-model="student.selectedForStudentGroups"/>
               </div>
             </div>
@@ -115,7 +115,7 @@
             <!-- Column -->
             <div class="course-list-view-column-02" data-ng-if="!$first">
               <div>
-                <a id="student-{{student.sid}}"
+                <a id="{{student.uid}}"
                    href
                    data-ng-click="goToStudent(student.uid)">
                   <h3 class="course-student-name"

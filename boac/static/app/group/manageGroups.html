@@ -16,32 +16,32 @@
     </div>
     <div data-ng-if="!myGroups.length" data-ng-controller="CreateGroupController">
       You have no curated cohorts.
-      <a id="sidebar-group-create"
+      <a id="curated-cohort-create"
          href
-         data-ng-click="openCreateGroupModal()"><i class="fa fa-plus"></i> Create a new curated cohort</a>
+         data-ng-click="openCreateCuratedCohortModal()"><i class="fa fa-plus"></i> Create a new curated cohort</a>
     </div>
     <div data-ng-repeat="group in myGroups">
       <hr class="cohort-manage-row-separator"/>
       <div class="flex-container flex-space-between" data-ng-if="!group.editMode">
         <div class="cohort-manage-name wrap-hard">
           <strong>
-            <a id="group-{{group.id}}"
+            <a id="curated-cohort-{{group.id}}"
                data-ng-bind="group.name"
                data-ng-href="/group/{{group.id}}"></a>
           </strong>
-          <span class="faint-text">(<span id="group-student-count-{{$index}}" data-ng-bind="group.studentCount"></span>)</span>
+          <span class="faint-text">(<span id="curated-cohort-student-count-{{group.id}}" data-ng-bind="group.studentCount"></span>)</span>
         </div>
         <div>
           <span data-ng-controller="DeleteGroupController">
             <button type="button"
-                    id="delete-group-btn-{{$index}}"
+                    id="delete-curated-cohort-btn-{{$index}}"
                     class="btn-link cohort-manage-btn-link"
                     data-ng-click="openDeleteGroupModal(group)">
               Delete
             </button> <span class="faint-text">|</span>
           </span>
           <button type="button"
-                  id="edit-group-btn-{{$index}}"
+                  id="edit-curated-cohort-btn-{{$index}}"
                   class="btn-link cohort-manage-btn-link"
                   data-ng-click="setEditMode(group, true)">
             Rename
@@ -58,7 +58,7 @@
                  data-ng-change="group.hideError = true"
                  data-ng-model="group.name"
                  focus-on="group.editMode"
-                 id="group-label-input-{{$index}}"
+                 id="curated-cohort-label-input-{{$index}}"
                  maxlength="255"
                  name="label"
                  required
@@ -68,14 +68,14 @@
         </div>
         <div class="edit-mode-button-container">
           <button type="button"
-                  id="group-save-btn-{{$index}}"
+                  id="curated-cohort-save-btn-{{$index}}"
                   class="btn btn-sm btn-primary cohort-manage-btn"
                   data-ng-disabled="!group.name"
                   data-ng-click="changeGroupName(group, group.name)">
             Rename
           </button>
           <button type="button"
-                  id="group-cancel-btn-{{$index}}"
+                  id="curated-cohort-cancel-btn-{{$index}}"
                   class="btn btn-sm btn-default cohort-manage-btn"
                   data-ng-click="cancelEdit(group)">
             Cancel

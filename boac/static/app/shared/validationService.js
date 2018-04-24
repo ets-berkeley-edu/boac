@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').service('validationService', function($rootScope) {
+  angular.module('boac').service('validationService', function(authService, $rootScope) {
 
     var parseError = function(error) {
       $rootScope.pageTitle = 'Error';
@@ -41,27 +41,32 @@
     /**
      * Verify that value of 'name' is non-empty, unique and not reserved.
      *
-     * @param   {Object}      entity                  Group or cohort
-     * @param   {Function}    allExisting             All existing groups or cohorts owned by current user
+     * @param   {Cohort}      cohort                  Curated or filtered cohort
      * @param   {Function}    callback                Standard callback
      * @param   {String}      callback.errorMessage   Error description, if any
      * @returns {void}
      */
-    var validateName = function(entity, allExisting, callback) {
+    var validateName = function(cohort, callback) {
       var errorMessage = null;
-      if (_.isEmpty(entity.name)) {
+      if (_.isEmpty(cohort.name)) {
         errorMessage = 'Required';
-      } else if (_.size(entity.name) > 255) {
+      } else if (_.size(cohort.name) > 255) {
         errorMessage = 'Name must be 255 characters or fewer';
-      } else if (_.includes(['Intensive', 'Inactive'], entity.name)) {
-        errorMessage = 'Sorry, \'' + entity.name + '\' is a reserved name. Please choose a different name.';
+      } else if (_.includes(['Intensive', 'Inactive'], cohort.name)) {
+        errorMessage = 'Sorry, \'' + cohort.name + '\' is a reserved name. Please choose a different name.';
       } else {
-        _.each(allExisting, function(existing) {
-          var validate = !entity.id || entity.id !== existing.id;
-          if (validate && entity.name === existing.name) {
-            errorMessage = 'You have an existing cohort/group with this name. Please choose a different name.';
-            return false;
-          }
+        var allExisting = {
+          'curated cohort': authService.getMe().myGroups,
+          'filtered cohort': authService.getMe().myCohorts
+        };
+        _.each(allExisting, function(cohorts, description) {
+          _.each(cohorts, function(existingCohort) {
+            var validate = !cohort.id || cohort.id !== existingCohort.id;
+            if (validate && cohort.name === existingCohort.name) {
+              errorMessage = 'You have an existing ' + description + ' with this name. Please choose a different name.';
+              return false;
+            }
+          });
         });
       }
       return callback(errorMessage);

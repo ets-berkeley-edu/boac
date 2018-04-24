@@ -54,6 +54,30 @@
       });
     };
 
+    $rootScope.$on('cohortCreated', function(event, data) {
+      if (_.get($rootScope, 'me.myCohorts')) {
+        $rootScope.me.myCohorts.push(data.cohort);
+      }
+    });
+
+    $rootScope.$on('cohortDeleted', function(event, data) {
+      if (_.get($rootScope, 'me.myCohorts')) {
+        $rootScope.me.myCohorts = _.remove($rootScope.me.myCohorts, function(cohort) {
+          return data.cohort.id !== cohort.id;
+        });
+      }
+    });
+
+    $rootScope.$on('cohortNameChanged', function(event, data) {
+      if (_.get($rootScope, 'me.myCohorts')) {
+        _.each($rootScope.me.myCohorts, function(cohort) {
+          if (data.cohort.id === group.id) {
+            cohort.name = data.cohort.name;
+          }
+        });
+      }
+    });
+
     $rootScope.$on('groupCreated', function(event, data) {
       if (_.get($rootScope, 'me.myGroups')) {
         $rootScope.me.myGroups.push(data.group);

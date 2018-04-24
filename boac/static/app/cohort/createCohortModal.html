@@ -1,11 +1,11 @@
 <div class="modal-header">
-  <h3 id="create-cohort-header">Name Your Saved Cohort</h3>
+  <h3 id="create-filtered-cohort-header">Name Your Filtered Cohort</h3>
 </div>
 <form name="createCohortForm" data-ng-submit="create(cohort)">
-  <div class="modal-body" id="create-cohort-body">
-    <div class="cohort-create-form-label">Cohort Name:</div>
+  <div id="create-filtered-cohort-body" class="modal-body">
+    <div class="cohort-create-form-label">Name:</div>
     <div>
-      <input id="cohort-create-input"
+      <input id="filtered-cohort-create-input"
              class="cohort-create-input-name"
              data-ng-change="error.hide = true"
              data-ng-model="label"
@@ -20,14 +20,14 @@
   </div>
   <div class="modal-footer">
     <button type="button"
-            id="confirm-create-cohort-btn"
+            id="confirm-create-filtered-cohort-btn"
             class="btn btn btn-primary"
             data-ng-disabled="!label.length || isSaving"
             data-ng-click="create(cohort)">
       <i class="fa fa-spinner fa-spin" data-ng-if="isSaving"></i> {{isSaving ? 'Saving' : 'Save'}}
     </button>
     <button type="button"
-            id="cancel-create-cohort-btn"
+            id="cancel-create-filtered-cohort-btn"
             class="btn btn-default"
             data-ng-disabled="isSaving"
             data-ng-click="cancel()">Cancel</button>
