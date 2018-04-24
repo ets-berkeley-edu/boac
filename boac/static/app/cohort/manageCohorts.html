@@ -23,9 +23,9 @@
       <div class="flex-container flex-space-between" data-ng-if="!cohort.editMode">
         <div class="cohort-manage-name wrap-hard">
           <strong>
-            <a data-ui-sref="cohort({c: cohort.id})"
-               data-ui-sref-opts="{reload: true}"><span id="filtered-cohort-name-{{$index}}"
-                                                        data-ng-bind="cohort.name"></span></a>
+            <a id="filtered-cohort-name-{{$index}}"
+               data-ui-sref="cohort({c: cohort.id})"
+               data-ui-sref-opts="{reload: true}"><span data-ng-bind="cohort.name"></span></a>
           </strong>
           <span class="faint-text">(<span id="filtered-cohort-student-count-{{$index}}" data-ng-bind="cohort.totalStudentCount"></span>)</span>
         </div>

@@ -24,7 +24,7 @@
       </div>
       <div data-ng-repeat="group in myGroups" data-ng-if="myGroups.length">
         <h2 class="page-section-header-sub">
-          <a id="home-curated-cohort-{{group.id}}"
+          <a id="home-curated-cohort-{{$index}}"
              data-ng-bind="group.name"
              data-ng-href="/group/{{group.id}}"></a> (<span data-ng-bind="group.studentCount"></span>)
         </h2>
