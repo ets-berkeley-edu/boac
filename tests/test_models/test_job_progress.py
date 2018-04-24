@@ -74,3 +74,11 @@ class TestJobProgress:
         assert JobProgress('gaston').start()
         assert JobProgress('alphonse').delete()
         assert JobProgress('gaston').start() is False
+
+    def test_start_with_stored_properties(self):
+        assert JobProgress().get() is None
+        JobProgress().start({'job_type': 'refresh', 'term_id': '2178'})
+        progress = JobProgress().get()
+        assert progress['start'].startswith(str(date.today()))
+        assert progress['job_type'] == 'refresh'
+        assert progress['term_id'] == '2178'

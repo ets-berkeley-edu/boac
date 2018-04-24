@@ -33,6 +33,7 @@ from boac.lib import berkeley
 from boac.merged import import_asc_athletes
 from boac.merged.sis_enrollments import merge_sis_enrollments_for_term
 from boac.merged.sis_profile import merge_sis_profile
+from boac.models import json_cache
 from boac.models.alert import Alert
 from boac.models.job_progress import JobProgress
 from boac.models.json_cache import JsonCache
@@ -44,15 +45,15 @@ def refresh_request_handler(term_id, load_only=False, import_asc=False):
     """Handle a start refresh admin request by returning an error status or starting the job on a background thread."""
     job_state = JobProgress().get()
     if job_state is None or (not job_state['start']) or job_state['end']:
-        if not load_only:
-            # Delete the current cache _before_ adding the JsonCache row that tracks job progress.
-            clear_term(term_id)
-        JobProgress().start()
         job_type = 'Load' if load_only else 'Refresh'
-        JobProgress().update(f'{job_type} term {term_id}; import ASC data = {import_asc}')
+        JobProgress().start({
+            'job_type': job_type,
+            'term_id': term_id,
+            'import_asc': import_asc,
+        })
         app.logger.warn('About to start background thread')
         app_arg = app._get_current_object()
-        thread = Thread(target=background_thread_refresh, args=[app_arg, term_id, import_asc], daemon=True)
+        thread = Thread(target=background_thread_refresh, args=[app_arg, term_id, job_type, import_asc], daemon=True)
         thread.start()
         return {
             'progress': JobProgress().get(),
@@ -64,12 +65,16 @@ def refresh_request_handler(term_id, load_only=False, import_asc=False):
         }
 
 
-def background_thread_refresh(app_arg, term_id, import_asc):
+def background_thread_refresh(app_arg, term_id, job_type, import_asc):
     with app_arg.app_context():
         try:
             if import_asc:
                 do_import_asc()
-            load_term(term_id)
+            if job_type == 'Refresh':
+                refresh_term(term_id)
+            else:
+                load_term(term_id)
+            JobProgress().end()
         except Exception as e:
             app.logger.exception(e)
             app.logger.error('Background thread is stopping')
@@ -78,8 +83,34 @@ def background_thread_refresh(app_arg, term_id, import_asc):
 
 
 def refresh_term(term_id=berkeley.current_term_id()):
-    clear_term(term_id)
+    JobProgress().update(f'About to drop/create staging table')
+    json_cache.drop_staging_table()
+    json_cache.create_staging_table(exclusions_for_term(term_id))
+    json_cache.set_staging(True)
     load_term(term_id)
+    JobProgress().update(f'About to refresh from staging table')
+    refresh_count = json_cache.refresh_from_staging(inclusions_for_term(term_id))
+    if refresh_count == 0:
+        JobProgress().update('ERROR: No cache entries copied from staging')
+    else:
+        JobProgress().update(f'{refresh_count} cache entries copied from staging')
+
+
+def exclusions_for_term(term_id):
+    term_name = berkeley.term_name_for_sis_id(term_id)
+    where_clause = f'key NOT LIKE \'term_{term_name}%\''
+    # If we are refreshing current data, we only keep stowed entries which are explicitly keyed to past terms.
+    if term_name == app.config['CANVAS_CURRENT_ENROLLMENT_TERM']:
+        where_clause += ' AND key LIKE \'term_%\''
+    return where_clause
+
+
+def inclusions_for_term(term_id):
+    term_name = berkeley.term_name_for_sis_id(term_id)
+    where_clause = f'key LIKE \'term_{term_name}%\''
+    if term_name == app.config['CANVAS_CURRENT_ENROLLMENT_TERM']:
+        where_clause += ' OR (key NOT LIKE \'term_%\' AND key NOT LIKE \'asc_athletes_%\' AND key NOT LIKE \'job%\')'
+    return where_clause
 
 
 def clear_term(term_id):
@@ -101,6 +132,17 @@ def clear_term(term_id):
     app.logger.info('Will delete {} entries'.format(matches.count()))
     matches.delete(synchronize_session=False)
     std_commit()
+
+
+def cancel_refresh_in_progress(term_id):
+    progress = JobProgress().get()
+    if progress and progress['job_type'] == 'Refresh':
+        # Drop the staging table.
+        json_cache.drop_staging_table()
+    progress = JobProgress().delete()
+    return {
+        'progressDeleted': progress,
+    }
 
 
 def do_import_asc():
@@ -144,7 +186,6 @@ def load_term(term_id=berkeley.current_term_id()):
         JobProgress().update(f'About to load merged profiles for current term')
         load_merged_sis_profiles()
 
-    JobProgress().end()
     app.logger.warn('Complete. Fetched {} external feeds.'.format(success_count))
     if len(failures):
         app.logger.warn('Failed to fetch {} feeds:'.format(len(failures)))

@@ -65,13 +65,15 @@ def initdb():
 @application.cli.command()
 def load_external_data():
     from boac.api import cache_utils
-    cache_utils.load_term()
+    from boac.lib import berkeley
+    cache_utils.refresh_request_handler(berkeley.current_term_id(), load_only=True)
 
 
 @application.cli.command()
 def refresh_external_data():
     from boac.api import cache_utils
-    cache_utils.refresh_term()
+    from boac.lib import berkeley
+    cache_utils.refresh_request_handler(berkeley.current_term_id(), load_only=False)
 
 
 host = application.config['HOST']
