@@ -172,10 +172,10 @@
       decorateOptions: decorateOptions,
       format: format,
       getEncodedAbsUrl: getEncodedAbsUrl,
-      goTo: goTo,
-      unpackReturnUrl: unpackReturnUrl,
       getValuesSelected: getValuesSelected,
-      toBoolOrNull: toBoolOrNull
+      goTo: goTo,
+      toBoolOrNull: toBoolOrNull,
+      unpackReturnUrl: unpackReturnUrl
     };
   });
 

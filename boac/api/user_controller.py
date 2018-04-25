@@ -31,7 +31,7 @@ from boac.externals import canvas
 from boac.externals.cal1card_photo_api import get_cal1card_photo
 from boac.lib import util
 from boac.lib.analytics import merge_analytics_for_user
-from boac.lib.berkeley import is_department_advisor, sis_term_id_for_name
+from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
 from boac.merged import student_details
@@ -54,20 +54,26 @@ def user_profile():
         authorized_user_id = current_user.id
         groups = StudentGroup.get_groups_by_owner_id(authorized_user_id)
         groups = [_decorate_student_group(group) for group in groups]
+        departments = {}
+        for m in current_user.department_memberships:
+            departments.update({
+                m.university_dept.dept_code: {
+                    'isAdvisor': m.is_advisor,
+                    'isDirector': m.is_director,
+                },
+            })
         profile.update({
-            'departmentMemberships': [api_util.department_membership_to_json(m) for m in current_user.department_memberships],
             'myCohorts': CohortFilter.all_owned_by(uid, include_alerts=True),
             'myGroups': groups,
-            'personalization': {
-                'showAthletics': current_user.is_admin or is_department_advisor('UWASC', current_user),
-            },
+            'isAdmin': current_user.is_admin,
+            'departments': departments,
         })
     else:
         profile.update({
-            'departmentMemberships': None,
             'myCohorts': None,
             'myGroups': None,
-            'personalization': None,
+            'isAdmin': False,
+            'departments': None,
         })
     return tolerant_jsonify(profile)
 

@@ -28,9 +28,9 @@
   'use strict';
 
   angular.module('boac').controller('SidebarNavController', function(
+    authService,
     cohortService,
     config,
-    me,
     studentGroupFactory,
     studentGroupService,
     $rootScope,
@@ -38,11 +38,12 @@
     $state
   ) {
     var init = function() {
+      var me = authService.getMe();
       $scope.demoMode = config.demoMode;
       $scope.myCohorts = _.clone(me.myCohorts);
       $scope.myGroups = _.clone(me.myGroups);
       $scope.searchPhrase = null;
-      $scope.showAthletics = !!_.get(me.personalization, 'showAthletics');
+      $scope.showAthletics = me.isAdmin || authService.isDepartmentMember(me, 'UWASC');
     };
 
     init();

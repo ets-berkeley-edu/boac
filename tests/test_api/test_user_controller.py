@@ -132,27 +132,32 @@ class TestUserProfile:
         fake_auth.login('2040')
         response = client.get('/api/profile')
         assert response.status_code == 200
-        admin_user = response.json
-        assert not len(admin_user['departmentMemberships'])
-        # Admin users are shown athletics-related stuff
-        assert admin_user['personalization']['showAthletics'] is True
+        user = response.json
+        assert user['isAdmin'] is True
+        assert not len(user['departments'])
 
-    def test_personalize_hide_athletics(self, client, fake_auth):
-        """Returns user with showAthletics=false rule."""
+    def test_department_beyond_asc(self, client, fake_auth):
+        """Returns EHEEC director."""
         fake_auth.login('1022796')
         response = client.get('/api/profile')
         assert response.status_code == 200
-        assert response.json['personalization']['showAthletics'] is False
+        user = response.json
+        assert user['isAdmin'] is False
+        assert len(user['departments']) == 1
+        assert 'EHEEC' in user['departments']
+        assert user['departments']['EHEEC']['isAdvisor'] is False
+        assert user['departments']['EHEEC']['isDirector'] is True
 
-    def test_user_with_dept_memberships(self, client, fake_auth):
-        """Returns one or more departments."""
+    def test_athletic_study_center_user(self, client, fake_auth):
+        """Returns Athletic Study Center advisor."""
         test_uid = '1081940'
         fake_auth.login(test_uid)
         response = client.get('/api/profile')
         assert response.status_code == 200
-        profile = response.json
-        assert len(profile['departmentMemberships'])
-        assert profile['personalization']['showAthletics'] is True
+        user = response.json
+        assert 'UWASC' in user['departments']
+        assert user['departments']['UWASC']['isAdvisor'] is True
+        assert user['departments']['UWASC']['isDirector'] is False
 
 
 class TestUserPhoto:

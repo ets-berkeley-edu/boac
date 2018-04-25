@@ -40,6 +40,10 @@
       return _.cloneDeep($rootScope.me);
     };
 
+    var isDepartmentMember = function(user, deptCode) {
+      return _.get(user.departments, deptCode + '.isAdvisor') || _.get(user.departments, deptCode + '.isDirector');
+    };
+
     var reloadMe = function() {
       return $http.get('/api/status').then(authFactory.loadUserProfile).then(function() {
         var me = $rootScope.me;
@@ -104,6 +108,7 @@
 
     return {
       getMe: getMe,
+      isDepartmentMember: isDepartmentMember,
       reloadMe: reloadMe
     };
   });

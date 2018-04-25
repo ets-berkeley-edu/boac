@@ -88,6 +88,7 @@
       var args = {
         gpaRanges: gpaRanges || [],
         groupCodes: groupCodes || [],
+        isInactive: utilService.toBoolOrNull(inactive),
         levels: levels || [],
         majors: majors || [],
         unitRanges: unitRanges || [],
@@ -97,9 +98,6 @@
       };
       if (utilService.toBoolOrNull(intensive)) {
         args.inIntensiveCohort = true;
-      }
-      if (utilService.toBoolOrNull(inactive)) {
-        args.isInactive = true;
       }
       return $http.post('/api/students', args);
     };

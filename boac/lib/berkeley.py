@@ -207,11 +207,6 @@ def extract_canvas_ccn(canvas_course_section):
     return ccn_match.group(1) if ccn_match else None
 
 
-def is_department_advisor(dept_code, current_user):
-    memberships = current_user.department_memberships
-    return bool([m for m in memberships if m.university_dept.dept_code == dept_code and (m.is_advisor or m.is_director)])
-
-
 def is_authorized_to_use_boac(user):
     authorized = False
     if user.is_admin:

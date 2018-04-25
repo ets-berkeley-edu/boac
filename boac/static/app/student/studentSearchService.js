@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').service('studentSearchService', function() {
+  angular.module('boac').service('studentSearchService', function(utilService, studentFactory, $location) {
 
     var getSortByOptionsForSearch = function() {
       return {
@@ -44,8 +44,53 @@
       };
     };
 
+    /**
+     * Use selected filter options to query students API.
+     *
+     * @param  {Object}      opts                        Search criteria: gpaRanges, levels, etc.
+     * @param  {String}      orderBy                     Requested sort order
+     * @param  {Number}      offset                      As used in SQL query
+     * @param  {Number}      limit                       As used in SQL query
+     * @param  {Number}      updateBrowserLocation       If true, we will update search criteria in browser location URL
+     * @return {List}                                    Backend API results
+     */
+    var getStudents = function(opts, orderBy, offset, limit, updateBrowserLocation) {
+      var getValues = utilService.getValuesSelected;
+      // Get values where selected=true
+      var gpaRanges = getValues(opts.gpaRanges);
+      var groupCodes = getValues(opts.groupCodes, 'groupCode');
+      var levels = getValues(opts.levels);
+      var majors = getValues(opts.majors);
+      var unitRanges = getValues(opts.unitRanges);
+
+      if (updateBrowserLocation) {
+        $location.search('c', 'search');
+        $location.search('g', gpaRanges);
+        // Use string 'true' rather than boolean so that the value persists in browser location.
+        $location.search('i', opts.intensive ? 'true' : null);
+        $location.search('inactive', opts.inactive ? 'true' : null);
+        $location.search('l', levels);
+        $location.search('m', majors);
+        $location.search('t', groupCodes);
+        $location.search('u', unitRanges);
+      }
+      return studentFactory.getStudents(
+        gpaRanges,
+        groupCodes,
+        levels,
+        majors,
+        unitRanges,
+        opts.intensive,
+        opts.inactive,
+        orderBy,
+        offset,
+        limit
+      );
+    };
+
     return {
-      getSortByOptionsForSearch: getSortByOptionsForSearch
+      getSortByOptionsForSearch: getSortByOptionsForSearch,
+      getStudents: getStudents
     };
   });
 
