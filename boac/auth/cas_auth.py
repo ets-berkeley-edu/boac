@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from urllib.parse import urlencode
 
+from boac.lib.berkeley import is_authorized_to_use_boac
 from boac.lib.http import add_param_to_url, tolerant_jsonify
 import cas
 from flask import (
@@ -53,8 +54,12 @@ def cas_login():
     logger.info(f'Logged into CAS as user {uid}')
     user = app.login_manager.user_callback(uid)
     if user is None:
-        logger.error(f'Unauthorized UID {uid}')
-        param = ('casLoginError', f'Sorry, user with UID {uid} is unauthorized to use BOAC.')
+        logger.error(f'User with UID {uid} was not found.')
+        param = ('casLoginError', f'Sorry, no user found with UID {uid}.')
+        redirect_url = add_param_to_url('/', param)
+    elif not is_authorized_to_use_boac(user):
+        logger.error(f'Dev-auth: user with UID {uid} is not authorized.')
+        param = ('casLoginError', f'Sorry, user with UID {uid} is not authorized to use BOAC.')
         redirect_url = add_param_to_url('/', param)
     else:
         login_user(user)

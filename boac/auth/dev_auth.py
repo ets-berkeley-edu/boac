@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
+from boac.lib.berkeley import is_authorized_to_use_boac
 from flask import (
     current_app as app, flash, redirect, request,
 )
@@ -39,14 +40,17 @@ def dev_login():
         logger = app.logger
         params = request.get_json()
         if params['password'] != app.config['DEVELOPER_AUTH_PASSWORD']:
-            logger.error('Wrong password entered in Developer Auth')
+            logger.error('Dev-auth: Wrong password')
             raise ForbiddenRequestError('Invalid credentials')
         uid = params['uid']
         user = app.login_manager.user_callback(uid)
         if user is None:
-            logger.error(f'Developer Auth attempt with UID {uid} failed: unauthorized / not found.')
+            logger.error(f'Dev-auth: No user found with UID {uid}.')
             raise ForbiddenRequestError(f'Sorry, user with UID {uid} is unauthorized or does not exist.')
-        logger.info(f'Developer Auth used to log in as UID {uid}')
+        if not is_authorized_to_use_boac(user):
+            logger.error(f'Dev-auth: UID {uid} is not authorized to use BOAC.')
+            raise ForbiddenRequestError(f'Sorry, user with UID {uid} is not authorized to use BOAC.')
+        logger.info(f'Dev-auth used to log in as UID {uid}')
         login_user(user)
         flash('Logged in successfully.')
         return redirect('/')

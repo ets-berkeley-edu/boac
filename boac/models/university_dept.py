@@ -27,11 +27,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac import db, std_commit
 from boac.models.base import Base
 
-ASC_DEPT = {
-    'code': 'UWASC',
-    'name': 'Athletic Study Center',
-}
-
 
 class UniversityDept(Base):
     __tablename__ = 'university_depts'
