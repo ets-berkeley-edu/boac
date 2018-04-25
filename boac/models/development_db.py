@@ -25,12 +25,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac import db, std_commit
+from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE
 from boac.models.athletics import Athletics
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.student import Student
 from boac.models.student_group import StudentGroup
-from boac.models.university_dept import ASC_DEPT, UniversityDept
+from boac.models.university_dept import UniversityDept
 # Models below are included so that db.create_all will find them.
 from boac.models.alert import Alert # noqa
 from boac.models.db_relationships import AlertView, cohort_filter_owners, student_athletes, UniversityDeptMember  # noqa
@@ -51,6 +52,7 @@ _test_users = [
     ['211159', True],
     ['242881', True],
     ['1022796', False],
+    ['1015674', False],
     ['1049291', True],
     ['1081940', False],
     ['90412', True],
@@ -58,7 +60,14 @@ _test_users = [
 ]
 
 _users_per_dept = {
-    ASC_DEPT['code']: [
+    'EHEEC': [
+        {
+            'uid': '1022796',
+            'is_advisor': False,
+            'is_director': True,
+        },
+    ],
+    'UWASC': [
         {
             'uid': '1081940',
             'is_advisor': True,
@@ -140,8 +149,8 @@ def load_schemas():
 
 
 def load_development_data():
-    # For now, tests only know about ASC
-    UniversityDept.create(ASC_DEPT['code'], ASC_DEPT['name'])
+    for name, code in BERKELEY_DEPT_NAME_TO_CODE.items():
+        UniversityDept.create(code, name)
     for test_user in _test_users:
         # This script can be run more than once. Do not create user if s/he exists in BOAC db.
         user = AuthorizedUser.find_by_uid(uid=test_user[0])

@@ -155,6 +155,11 @@ ACADEMIC_PLAN_TO_DEGREE_PROGRAM_PAGE = {
     'Urban Studies': 'urban-studies',
 }
 
+BERKELEY_DEPT_NAME_TO_CODE = {
+    'Athletic Study Center': 'UWASC',
+    'Electrical Engineering and Computer Science': 'EHEEC',
+}
+
 
 def current_term_id():
     term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
@@ -205,3 +210,15 @@ def extract_canvas_ccn(canvas_course_section):
 def is_department_advisor(dept_code, current_user):
     memberships = current_user.department_memberships
     return bool([m for m in memberships if m.university_dept.dept_code == dept_code and (m.is_advisor or m.is_director)])
+
+
+def is_authorized_to_use_boac(user):
+    authorized = False
+    if user.is_admin:
+        authorized = True
+    elif len(user.department_memberships):
+        for m in user.department_memberships:
+            authorized = m.is_advisor or m.is_director
+            if authorized:
+                break
+    return authorized
