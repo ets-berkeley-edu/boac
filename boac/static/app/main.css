@@ -72,6 +72,10 @@
   text-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;
 }
 
+.display-none {
+  display: none;
+}
+
 .edit-mode-button-container {
   display: flex;
   flex-direction: row-reverse;

@@ -28,7 +28,7 @@
   <hr class="filters-section-separator" data-ng-if="!isLoading && !error && !isCreateCohortMode"/>
 
   <div class="flex-container flex-space-between" data-ng-if="!error">
-    <div class="cohort-filters-column flex-column-btn" data-ng-if="me.personalization.showAthletics">
+    <div class="cohort-filters-column flex-column-btn" data-ng-if="isAthleticStudyCenter">
       <cohort-filter data-menu-type="groupCodes" data-label="Teams"></cohort-filter>
     </div>
     <div class="cohort-filters-column flex-column-btn">
@@ -43,18 +43,20 @@
     <div class="cohort-filters-column flex-column-btn">
       <cohort-filter data-menu-type="unitRanges" data-label="Units"></cohort-filter>
     </div>
-    <div class="cohort-filters-column cohort-checkbox-column">
-      <div data-ng-if="showIntensiveCheckbox && !isLoading && !isSaving">
+    <div class="cohort-filters-column cohort-checkbox-column" data-ng-if="!isLoading && !isSaving && isAthleticStudyCenter">
+      <div data-ng-if="showIntensiveCheckbox">
         <input id="intensive-checkbox"
                type="checkbox"
                data-ng-model="search.options.intensive"/>
         <label class="cohort-checkbox-label" for="intensive-checkbox">Intensive</label>
       </div>
-      <div data-ng-if="showInactiveCheckbox && !isLoading && !isSaving">
+      <div>
         <input id="inactive-checkbox"
+               data-ng-class="{'display-none': !showInactiveCheckbox}"
                type="checkbox"
+               data-ng-disabled="!showInactiveCheckbox"
                data-ng-model="search.options.inactive"/>
-        <label class="cohort-checkbox-label" for="inactive-checkbox">Inactive</label>
+        <label class="cohort-checkbox-label" for="inactive-checkbox" data-ng-if="showInactiveCheckbox">Inactive</label>
       </div>
     </div>
     <!-- Apply and save buttons -->

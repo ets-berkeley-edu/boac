@@ -28,10 +28,10 @@
   'use strict';
 
   angular.module('boac').controller('CohortController', function(
+    authService,
     cohortFactory,
     config,
     googleAnalyticsService,
-    me,
     studentFactory,
     studentSearchService,
     utilService,
@@ -64,7 +64,9 @@
       };
     };
 
+    var me = authService.getMe();
     $scope.demoMode = config.demoMode;
+    $scope.isAthleticStudyCenter = me.isAdmin || authService.isDepartmentMember(me, 'UWASC');
     $scope.isLoading = true;
     $scope.isCreateCohortMode = false;
     $scope.showIntensiveCheckbox = false;
@@ -127,7 +129,7 @@
         }
       }
       var inactive = _.get($scope.cohort, 'filterCriteria.isInactive') || utilService.toBoolOrNull($scope.search.options.inactive);
-      if (inactive) {
+      if (utilService.toBoolOrNull(inactive)) {
         $scope.showInactiveCheckbox = $scope.search.options.inactive = true;
         // If no other search options are selected then it deserves 'Inactive' label.
         var isInactiveCohort = $scope.cohort.code === 'search' && !_.includes(JSON.stringify($scope.search.options), 'selected');
@@ -135,50 +137,6 @@
           $scope.cohort.name = 'Inactive';
         }
       }
-    };
-
-    /**
-     * Use selected filter options to query students API.
-     *
-     * @param  {String}      orderBy                     Requested sort order
-     * @param  {Number}      offset                      As used in SQL query
-     * @param  {Number}      limit                       As used in SQL query
-     * @param  {Number}      updateBrowserLocation       If true, we will update search criteria in browser location URL
-     * @return {List}                                    Backend API results
-     */
-    var getStudents = function(orderBy, offset, limit, updateBrowserLocation) {
-      var opts = $scope.search.options;
-      var getValues = utilService.getValuesSelected;
-      // Get values where selected=true
-      var gpaRanges = getValues(opts.gpaRanges);
-      var groupCodes = getValues(opts.groupCodes, 'groupCode');
-      var levels = getValues(opts.levels);
-      var majors = getValues(opts.majors);
-      var unitRanges = getValues(opts.unitRanges);
-
-      if (updateBrowserLocation) {
-        $location.search('c', 'search');
-        $location.search('g', gpaRanges);
-        // Use string 'true' rather than boolean so that the value persists in browser location.
-        $location.search('i', opts.intensive ? 'true' : null);
-        $location.search('inactive', opts.inactive ? 'true' : null);
-        $location.search('l', levels);
-        $location.search('m', majors);
-        $location.search('t', groupCodes);
-        $location.search('u', unitRanges);
-      }
-      return studentFactory.getStudents(
-        gpaRanges,
-        groupCodes,
-        levels,
-        majors,
-        unitRanges,
-        opts.intensive,
-        opts.inactive,
-        orderBy,
-        offset,
-        limit
-      );
     };
 
     /**
@@ -192,7 +150,7 @@
     var getCohort = function(orderBy, offset, limit) {
       var promise;
       if ($scope.cohort.code === 'search') {
-        promise = getStudents(orderBy, offset, limit, true);
+        promise = studentSearchService.getStudents($scope.search.options, orderBy, offset, limit, true);
       } else if (isNaN($scope.cohort.code)) {
         promise = cohortFactory.getTeam($scope.cohort.code, orderBy, offset, limit);
       } else {
@@ -418,7 +376,13 @@
 
         // Perform the query
         $scope.isLoading = true;
-        getStudents($scope.orderBy.selected, offset, $scope.pagination.itemsPerPage, true).then(handleSuccess, handleError).then(function() {
+        studentSearchService.getStudents(
+          $scope.search.options,
+          $scope.orderBy.selected,
+          offset,
+          $scope.pagination.itemsPerPage,
+          true
+        ).then(handleSuccess, handleError).then(function() {
           $scope.isLoading = false;
         });
       }
@@ -446,9 +410,24 @@
     };
 
     /**
+     * 'Intensive' and 'Inactive' are relevant to ASC advisors only.
+     *
+     * @param  {Object}       args       Selections from search filters
+     * @return {void}
+     */
+    var presetAthleticStudyCenterControls = function(args) {
+      $scope.showIntensiveCheckbox = $scope.search.options.intensive = utilService.toBoolOrNull(args.i);
+      if (args.inactive) {
+        $scope.showInactiveCheckbox = $scope.search.options.inactive = true;
+      } else {
+        $scope.search.options.inactive = false;
+      }
+    };
+
+    /**
      * Invoked when state is initializing. Preset filters and search criteria prior to cohort API call.
      *
-     * @param  {Object}    args     See $location.search()
+     * @param  {Object}       args       Selections from search filters
      * @return {void}
      */
     var presetSearchFilters = function(args) {
@@ -457,8 +436,9 @@
           _.each(filters, function(key, filterName) {
             preset(filterName, args[key]);
           });
-          $scope.showIntensiveCheckbox = $scope.search.options.intensive = utilService.toBoolOrNull(args.i);
-          $scope.showInactiveCheckbox = $scope.search.options.inactive = args.inactive;
+          if ($scope.isAthleticStudyCenter) {
+            presetAthleticStudyCenterControls(args);
+          }
         } else {
           // code is a team_code
           _.each($scope.search.options.groupCodes, function(option) {
@@ -600,12 +580,11 @@
 
         getMajors(function(majors) {
           var decorate = utilService.decorateOptions;
-          // 'decorate' is used to standardize (eg, assign 'id' property) each set of menu options
           $scope.search.options = {
             gpaRanges: decorate(studentFactory.getGpaRanges(), 'name'),
             groupCodes: decorate(groupCodes, 'groupCode'),
             intensive: args.i,
-            inactive: args.inactive,
+            inactive: args.inactive || ($scope.isAthleticStudyCenter ? false : null),
             levels: decorate(studentFactory.getStudentLevels(), 'name'),
             majors: decorate(majors, 'name'),
             unitRanges: decorate(studentFactory.getUnitRanges(), 'name')

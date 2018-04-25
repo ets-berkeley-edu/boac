@@ -85,15 +85,6 @@ def student_to_json(student):
     }
 
 
-def department_membership_to_json(department_membership):
-    return {
-        'deptCode': department_membership.university_dept.dept_code,
-        'deptName': department_membership.university_dept.dept_name,
-        'isAdvisor': department_membership.is_advisor,
-        'isDirector': department_membership.is_director,
-    }
-
-
 def translate_grading_basis(code):
     bases = {
         'CNC': 'C/NC',
