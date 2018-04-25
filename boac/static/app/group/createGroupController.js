@@ -30,7 +30,7 @@
   angular.module('boac').controller('CreateGroupController', function($scope, $uibModal) {
 
     $scope.openCreateCuratedCohortModal = function() {
-      $uibModal.open({
+      var modal = $uibModal.open({
         animation: true,
         ariaLabelledBy: 'create-curated-cohort-header',
         ariaDescribedBy: 'create-curated-cohort-body',
@@ -38,6 +38,9 @@
         controller: 'CreateGroupModal',
         resolve: {}
       });
+      modal.result.finally(function() {
+        $scope.$destroy();
+      }).then(angular.noop, angular.noop);
     };
   });
 

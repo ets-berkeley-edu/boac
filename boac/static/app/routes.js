@@ -157,6 +157,7 @@
         url: '/',
         templateUrl: '/static/app/splash/splash.html',
         controller: 'SplashController',
+        params: {casLoginError: null},
         resolve: resolveSplash
       })
       .state('teams', {
@@ -172,6 +173,25 @@
       });
 
   }).run(function(authFactory, authService, $rootScope, $state, $transitions) {
+
+    $state.defaultErrorHandler(function(error) {
+      var message = _.get(error, 'detail.message');
+      if (message === 'unauthenticated') {
+        authFactory.casLogIn().then(
+          function(results) {
+            window.location = results.data.cas_login_url;
+          },
+          function(err) {
+            $state.go('splash', {casLoginError: _.get(err, 'data.message') || 'An unexpected error occurred.'});
+          }
+        );
+      } else if (message === 'authenticated') {
+        $state.go('home');
+      } else {
+        $state.go('splash', {casLoginError: message});
+      }
+    });
+
     $transitions.onStart({}, function($transition) {
       if ($transition.$to().name) {
         var name = $transition.$to().name;
@@ -194,15 +214,6 @@
         }
       } else {
         $rootScope.pageTitle = 'UC Berkeley';
-      }
-    });
-
-    $transitions.onError({}, function($transition) {
-      var message = _.get($transition.error(), 'detail.message');
-      if (message === 'unauthenticated') {
-        authFactory.casLogIn();
-      } else if (message === 'authenticated') {
-        $state.go('home');
       }
     });
 
