@@ -42,9 +42,7 @@
           }
         }
       });
-      modal.result.finally(function() {
-        $scope.$destroy();
-      }).then(angular.noop, angular.noop);
+      modal.result.finally(angular.noop).then(angular.noop, angular.noop);
     };
   });
 
