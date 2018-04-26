@@ -29,16 +29,28 @@
 
   angular.module('boac').controller('CreateGroupController', function($scope, $uibModal) {
 
+    var isModalOpen = false;
+
     $scope.openCreateCuratedCohortModal = function() {
+      if (isModalOpen) {
+        return;
+      }
+      isModalOpen = true;
+
       var modal = $uibModal.open({
         animation: true,
         ariaLabelledBy: 'create-curated-cohort-header',
         ariaDescribedBy: 'create-curated-cohort-body',
+        backdrop: false,
         templateUrl: '/static/app/group/createGroupModal.html',
         controller: 'CreateGroupModal',
         resolve: {}
       });
-      modal.result.finally(angular.noop).then(angular.noop, angular.noop);
+      var modalClosed = function() {
+        isModalOpen = false;
+      };
+
+      modal.result.finally(angular.noop).then(modalClosed, modalClosed);
     };
   });
 
