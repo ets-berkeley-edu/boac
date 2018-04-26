@@ -52,8 +52,6 @@
         errorMessage = 'Required';
       } else if (_.size(cohort.name) > 255) {
         errorMessage = 'Name must be 255 characters or fewer';
-      } else if (_.includes(['Intensive', 'Inactive'], cohort.name)) {
-        errorMessage = 'Sorry, \'' + cohort.name + '\' is a reserved name. Please choose a different name.';
       } else {
         var allExisting = {
           'curated cohort': authService.getMe().myGroups,
