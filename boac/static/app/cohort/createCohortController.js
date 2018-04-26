@@ -29,11 +29,19 @@
 
   angular.module('boac').controller('CreateCohortController', function($scope, $uibModal) {
 
+    var isModalOpen = false;
+
     $scope.openCreateCohortModal = function(opts) {
+      if (isModalOpen) {
+        return;
+      }
+      isModalOpen = true;
+
       var modal = $uibModal.open({
         animation: true,
         ariaLabelledBy: 'create-filtered-cohort-header',
         ariaDescribedBy: 'create-filtered-cohort-body',
+        backdrop: false,
         templateUrl: '/static/app/cohort/createCohortModal.html',
         controller: 'CreateCohortModal',
         resolve: {
@@ -42,7 +50,11 @@
           }
         }
       });
-      modal.result.finally(angular.noop).then(angular.noop, angular.noop);
+      var modalClosed = function() {
+        isModalOpen = false;
+      };
+
+      modal.result.finally(angular.noop).then(modalClosed, modalClosed);
     };
   });
 

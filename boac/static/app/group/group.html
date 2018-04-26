@@ -44,9 +44,9 @@
              data-ng-repeat="student in group.students | orderBy:studentComparator track by $index">
 
           <div class="cohort-list-view-column-01">
-            <i id="student-{{student.uid}}-curated-cohort-remove"
-               class="fa fa-times-circle"
-               data-ng-click="removeFromGroup(student)"></i>
+            <button class="btn btn-link" data-ng-click="removeFromGroup(student)">
+              <i id="student-{{student.uid}}-curated-cohort-remove" class="fa fa-times-circle"></i>
+            </button>
           </div>
 
           <div class="cohort-list-view-column-01">

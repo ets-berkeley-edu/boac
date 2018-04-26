@@ -60,6 +60,8 @@ def add_student_to_group(group_id, sid):
 @login_required
 def delete_group(group_id):
     group = StudentGroup.find_by_id(group_id)
+    if not group:
+        raise ResourceNotFoundError(f'No cohort found with id: {group_id}')
     if group.owner_id != current_user.id:
         raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {group.id}')
     StudentGroup.delete(group_id)
@@ -82,6 +84,8 @@ def get_group(group_id):
 @login_required
 def remove_student_from_group(group_id, sid):
     group = StudentGroup.find_by_id(group_id)
+    if not group:
+        raise ResourceNotFoundError(f'No cohort found with id: {group_id}')
     if group.owner_id != current_user.id:
         raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {group.id}')
     StudentGroup.remove_student(group_id, sid)

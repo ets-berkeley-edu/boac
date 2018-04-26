@@ -29,11 +29,19 @@
 
   angular.module('boac').controller('DeleteGroupController', function($scope, $uibModal) {
 
+    var isModalOpen = false;
+
     $scope.openDeleteGroupModal = function(group) {
+      if (isModalOpen) {
+        return;
+      }
+      isModalOpen = true;
+
       var modal = $uibModal.open({
         animation: true,
         ariaLabelledBy: 'confirm-delete-header',
         ariaDescribedBy: 'confirm-delete-body',
+        backdrop: false,
         templateUrl: '/static/app/group/deleteGroupModal.html',
         controller: 'DeleteGroupModal',
         resolve: {
@@ -42,7 +50,11 @@
           }
         }
       });
-      modal.result.finally(angular.noop).then(angular.noop, angular.noop);
+      var modalClosed = function() {
+        isModalOpen = false;
+      };
+
+      modal.result.finally(angular.noop).then(modalClosed, modalClosed);
     };
   });
 
