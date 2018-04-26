@@ -16,10 +16,10 @@
            data-ng-bind="yAxisMeasure==='analytics.courseCurrentScore' ? 'Assignment Grades' : 'Online Assignments on Time'"></div>
     </div>
     <ul class="list-group">
-      <a class="list-group-item student-list-item"
+      <a id="{{student.uid}}"
+         class="list-group-item student-list-item"
          data-ng-class="{'list-group-item-info': anchor===student.uid}"
-         href
-         data-ng-click="goToStudent(student.uid)"
+         data-ng-href="/student/{{student.uid}}"
          data-ng-repeat="student in studentsWithoutData | orderBy:['lastName','firstName']">
         <div class="student-avatar-container">
           <img class="student-avatar"

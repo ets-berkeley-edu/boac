@@ -79,10 +79,6 @@
       }
     };
 
-    var goToStudent = $scope.goToStudent = function(uid) {
-      utilService.goTo('/student/' + uid, $scope.group.name);
-    };
-
     /**
      * @param  {Function}    callback      Standard callback function
      * @return {void}
@@ -91,7 +87,7 @@
       $scope.isLoading = true;
       var goToUserPage = function(uid) {
         $location.state($location.absUrl());
-        goToStudent(uid);
+        $location.path('/student/' + uid);
         // The intervening visualizationService code moves out of Angular and into d3 thus the extra kick of $apply.
         $scope.$apply();
       };

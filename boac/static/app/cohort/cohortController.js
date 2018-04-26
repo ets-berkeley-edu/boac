@@ -314,15 +314,6 @@
       return callback();
     };
 
-    var goToStudent = $scope.goToStudent = function(uid) {
-      var referringPageName = 'search';
-      if ($scope.cohort.name) {
-        // If 'id' is NOT null then it's a saved cohort (not a team) and we append suffix
-        referringPageName = $scope.cohort.id ? '\'' + $scope.cohort.name + '\' cohort' : $scope.cohort.name;
-      }
-      utilService.goTo('/student/' + uid, referringPageName);
-    };
-
     /**
      * Get ALL students of the cohort then render the scatterplot graph.
      *
@@ -335,7 +326,7 @@
         updateCohort(response.data);
         var goToUserPage = function(uid) {
           $location.state($location.absUrl());
-          goToStudent(uid);
+          $location.path('/student/' + uid);
           // The intervening visualizationService code moves out of Angular and into d3 thus the extra kick of $apply.
           $scope.$apply();
         };

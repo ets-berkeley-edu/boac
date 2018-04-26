@@ -139,23 +139,6 @@
       return label;
     };
 
-    var getEncodedAbsUrl = function() {
-      return encodeURIComponent($base64.encode($location.absUrl()));
-    };
-
-    /**
-     * @param  {String}     path                    URI of destination
-     * @param  {String}     currentPageName         Used to construct 'Return to...' label (see returnUrl above)
-     * @return {void}
-     */
-    var goTo = function(path, currentPageName) {
-      var encodedAbsUrl = getEncodedAbsUrl();
-      $location.path(path).search({
-        r: encodedAbsUrl,
-        referringPageName: currentPageName
-      });
-    };
-
     var extendSortableNames = function(students) {
       return _.map(students, function(student) {
         return _.extend(student, {
@@ -171,9 +154,7 @@
       extendSortableNames: extendSortableNames,
       decorateOptions: decorateOptions,
       format: format,
-      getEncodedAbsUrl: getEncodedAbsUrl,
       getValuesSelected: getValuesSelected,
-      goTo: goTo,
       toBoolOrNull: toBoolOrNull,
       unpackReturnUrl: unpackReturnUrl
     };

@@ -42,7 +42,8 @@
                    data-ng-if="student.sisProfile.preferredName !== student.athleticsProfile.fullName"></div>
               <div>
                 <i class="fa fa-envelope"></i>
-                <a data-ng-href="mailto:{{student.sisProfile.emailAddress}}"
+                <a id="student-mailto"
+                   data-ng-href="mailto:{{student.sisProfile.emailAddress}}"
                    data-ng-class="{'demo-mode-blur': demoMode}"
                    data-ng-bind="student.sisProfile.emailAddress"></a>
               </div>
@@ -161,7 +162,11 @@
                      data-ng-repeat="alert in alerts.shown">
                   <div class="profile-alert-item">
                     <student-alert-message alert="alert"></student-alert-message>
-                    <a class="close" data-ng-click="dismissAlert(alert.id)" aria-label="close">&times;</a>
+                    <button id="dismiss-alert-{{alert.id}}"
+                            class="btn btn-link close"
+                            data-ng-click="dismissAlert(alert.id)"
+                            title="Dismiss alert"
+                            aria-label="Close">&times;</button>
                   </div>
                 </div>
               </div>
@@ -194,7 +199,7 @@
                     <div class="accordion-heading-start">
                       <div class="accordion-heading-start-inner">
                         <div class="accordion-heading-caret">
-                          <i id="accordion-{{term.termId}}-course-{{$index}}"
+                          <i id="term-{{term.termId}}-course-{{$index}}"
                              aria-label="{{course.isOpen ? 'Hide course details' : 'Show course details'}}"
                              data-ng-class="{'fa fa-caret-right': !course.isOpen, 'fa fa-caret-down': course.isOpen}"
                              data-ng-click="course.isOpen = !course.isOpen"
@@ -209,8 +214,10 @@
                               <span data-ng-repeat="section in course.sections"
                                     data-ng-if="section.displayName">
                                 <span data-ng-if="$first">(</span><!--
-                                --><a href
-                                      data-ng-click="goToCourse($event, term.termId, section.ccn)"
+                                --><a id="term-{{term.termId}}-section-{{section.ccn}}"
+                                      data-ui-sref="course({termId: term.termId, sectionId: section.ccn})"
+                                      data-ui-sref-opts="{reload: true}"
+                                      data-ng-click="$event.stopPropagation()"
                                       data-ng-bind="section.displayName"
                                       data-ng-if="section.isViewableOnCoursePage"></a><!--
                                 --><span data-ng-if="!section.isViewableOnCoursePage"

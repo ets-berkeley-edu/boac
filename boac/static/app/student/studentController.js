@@ -160,12 +160,6 @@
       }
     };
 
-    $scope.goToCourse = function(event, termId, sectionId) {
-      event.stopPropagation();
-      var name = config.demoMode ? null : getPreferredName();
-      utilService.goTo('/course/' + termId + '/' + sectionId, name);
-    };
-
     $rootScope.$on('groupCreated', function(event, data) {
       $scope.myGroups.push(data.group);
     });
