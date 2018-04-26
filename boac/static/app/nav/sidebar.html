@@ -11,10 +11,8 @@
            placeholder="Search for Students">
   </form>
 </div>
-<div data-ng-class="{'sidebar-row-link': myGroups.length, 'sidebar-row-without-link': !myGroups.length}"
-     class="sidebar-section-header">
-  <span class="sidebar-header"
-        data-ng-class="{'sidebar-row-link-label': myGroups.length}"
+<div class="sidebar-row-link sidebar-section-header">
+  <span class="sidebar-header sidebar-row-link-label"
         data-ng-controller="CreateGroupController">
     <a id="sidebar-curated-cohorts-manage"
        class="sidebar-row-link-label-text"
@@ -36,8 +34,7 @@
   </div>
 </div>
 
-<div data-ng-class="{'sidebar-row-link': myCohorts.length, 'sidebar-row-without-link': !myCohorts.length}"
-     class="sidebar-section-header">
+<div class="sidebar-row-link sidebar-section-header">
   <span class="sidebar-header"
         data-ng-class="{'sidebar-row-link-label': myCohorts.length}">
     <a id="sidebar-filtered-cohorts-manage"

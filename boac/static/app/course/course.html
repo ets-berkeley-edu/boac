@@ -113,9 +113,7 @@
             <!-- Column -->
             <div class="course-list-view-column-02" data-ng-if="!$first">
               <div>
-                <a id="{{student.uid}}"
-                   href
-                   data-ng-click="goToStudent(student.uid)">
+                <a id="{{student.uid}}" data-ng-href="/student/{{student.uid}}">
                   <h3 class="course-student-name"
                       data-ng-class="{'demo-mode-blur': demoMode}">
                     {{student.lastName}}<span data-ng-if="student.firstName">, {{student.firstName}}</span>

@@ -60,9 +60,7 @@
           <div class="cohort-student-bio-container">
             <div class="cohort-student-name-container">
               <div>
-                <a id="{{student.uid}}"
-                   href
-                   data-ng-click="goToStudent(student.uid)">
+                <a id="{{student.uid}}" data-ng-href="/student/{{student.uid}}">
                   <h3 class="student-name"
                       data-ng-class="{'demo-mode-blur': demoMode}"
                       data-ng-if="orderBy.selected !== 'first_name'">
