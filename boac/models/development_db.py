@@ -305,13 +305,15 @@ def load_student_athletes():
 
 def create_cohorts():
     # Oliver's cohorts
-    CohortFilter.create(uid='2040', label='All sports', group_codes=['MFB-DL', 'WFH'], is_inactive=False)
-    CohortFilter.create(uid='2040', label='Football, Defense', group_codes=['MFB-DB', 'MFB-DL'], is_inactive=False)
-    CohortFilter.create(uid='2040', label='Field Hockey', group_codes=['WFH'], is_inactive=False)
+    CohortFilter.create(uid='2040', label='All sports', group_codes=['MFB-DL', 'WFH'])
+    CohortFilter.create(uid='2040', label='Football, Defense', group_codes=['MFB-DB', 'MFB-DL'])
+    CohortFilter.create(uid='2040', label='Field Hockey', group_codes=['WFH'])
     # Sandeep's cohorts
-    CohortFilter.create(uid='1133399', label='All sports', group_codes=['MFB-DL', 'WFH'], is_inactive=False)
-    CohortFilter.create(uid='1133399', label='Football, Defense Backs', group_codes=['MFB-DB'], is_inactive=False)
-    CohortFilter.create(uid='1133399', label='Undeclared students', majors=['Undeclared'], is_inactive=False)
+    CohortFilter.create(uid='1133399', label='Defense Backs, Inactive', group_codes=['MFB-DB'], is_inactive_asc=True)
+    CohortFilter.create(uid='1133399', label='Defense Backs, Active', group_codes=['MFB-DB'], is_inactive_asc=False)
+    CohortFilter.create(uid='1133399', label='Defense Backs, All', group_codes=['MFB-DB'])
+    CohortFilter.create(uid='1133399', label='Undeclared students', majors=['Undeclared'], is_inactive_asc=False)
+    CohortFilter.create(uid='1133399', label='All sports', group_codes=['MFB-DL', 'WFH'], is_inactive_asc=False)
     std_commit(allow_test_environment=True)
 
 

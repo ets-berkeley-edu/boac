@@ -25,7 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.api import errors
-from boac.api.errors import BadRequestError
 import boac.api.util as api_util
 from boac.externals import canvas
 from boac.externals.cal1card_photo_api import get_cal1card_photo
@@ -34,14 +33,13 @@ from boac.lib.analytics import merge_analytics_for_user
 from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
-from boac.merged import student_details
 from boac.merged.sis_enrollments import merge_sis_enrollments
 from boac.merged.sis_profile import merge_sis_profile
 from boac.models.cohort_filter import CohortFilter
 from boac.models.normalized_cache_student_major import NormalizedCacheStudentMajor
 from boac.models.student import Student
 from boac.models.student_group import StudentGroup
-from flask import current_app as app, request, Response
+from flask import current_app as app, Response
 from flask_login import current_user, login_required
 
 
@@ -76,68 +74,6 @@ def user_profile():
             'departments': None,
         })
     return tolerant_jsonify(profile)
-
-
-@app.route('/api/students/all')
-def all_students():
-    order_by = request.args['orderBy'] if 'orderBy' in request.args else None
-    return tolerant_jsonify(Student.get_all(order_by=order_by, is_active_asc=True))
-
-
-@app.route('/api/students', methods=['POST'])
-@login_required
-def get_students():
-    params = request.get_json()
-    gpa_ranges = util.get(params, 'gpaRanges')
-    group_codes = util.get(params, 'groupCodes')
-    levels = util.get(params, 'levels')
-    majors = util.get(params, 'majors')
-    unit_ranges = util.get(params, 'unitRanges')
-    in_intensive_cohort = util.to_bool_or_none(util.get(params, 'inIntensiveCohort'))
-    is_inactive_asc = util.get(params, 'isInactive')
-    order_by = util.get(params, 'orderBy', None)
-    offset = util.get(params, 'offset', 0)
-    limit = util.get(params, 'limit', 50)
-    results = Student.get_students(
-        gpa_ranges=gpa_ranges,
-        group_codes=group_codes,
-        levels=levels,
-        majors=majors,
-        unit_ranges=unit_ranges,
-        in_intensive_cohort=in_intensive_cohort,
-        is_active_asc=None if is_inactive_asc is None else not is_inactive_asc,
-        order_by=order_by,
-        offset=offset,
-        limit=limit,
-    )
-    student_details.merge_all(results['students'])
-    return tolerant_jsonify({
-        'students': results['students'],
-        'totalStudentCount': results['totalStudentCount'],
-    })
-
-
-@app.route('/api/students/search', methods=['POST'])
-@login_required
-def search_for_students():
-    params = request.get_json()
-    search_phrase = util.get(params, 'searchPhrase', '').strip()
-    if not len(search_phrase):
-        raise BadRequestError('Invalid or empty search input')
-    order_by = util.get(params, 'orderBy', None)
-    offset = util.get(params, 'offset', 0)
-    limit = util.get(params, 'limit', 50)
-    results = Student.search_for_students(
-        search_phrase=search_phrase.replace(',', ' '),
-        order_by=order_by,
-        offset=offset,
-        limit=limit,
-    )
-    student_details.merge_all(results['students'])
-    return tolerant_jsonify({
-        'students': results['students'],
-        'totalStudentCount': results['totalStudentCount'],
-    })
 
 
 @app.route('/api/user/<uid>/analytics')

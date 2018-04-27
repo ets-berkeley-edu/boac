@@ -72,7 +72,7 @@ class TestCohortFilter:
             'gpaRanges': gpa_ranges,
             'groupCodes': group_codes,
             'inIntensiveCohort': None,
-            'isInactive': None,
+            'isInactiveAsc': None,
             'levels': levels,
             'majors': majors,
             'unitRanges': unit_ranges,

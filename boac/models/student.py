@@ -76,11 +76,15 @@ class Student(Base):
     def search_for_students(
             cls,
             search_phrase=None,
+            is_active_asc=None,
             order_by=None,
             offset=0,
             limit=None,
     ):
-        query_tables, query_filter, all_bindings = cls.get_students_query(search_phrase=search_phrase)
+        query_tables, query_filter, all_bindings = cls.get_students_query(
+            search_phrase=search_phrase,
+            is_active_asc=is_active_asc,
+        )
         o, o_secondary, o_tertiary, _query_tables = cls._determine_order_by(order_by=order_by)
         if _query_tables:
             query_tables += _query_tables
