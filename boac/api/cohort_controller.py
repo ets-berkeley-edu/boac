@@ -87,7 +87,7 @@ def create_cohort():
     majors = util.get(params, 'majors')
     unit_ranges = util.get(params, 'unitRanges')
     in_intensive_cohort = util.to_bool_or_none(util.get(params, 'inIntensiveCohort'))
-    is_inactive = util.get(params, 'isInactive')
+    is_inactive_asc = util.get(params, 'isInactiveAsc')
     if not label:
         raise BadRequestError('Cohort creation requires \'label\'')
     cohort = CohortFilter.create(
@@ -99,7 +99,7 @@ def create_cohort():
         majors=majors,
         unit_ranges=unit_ranges,
         in_intensive_cohort=in_intensive_cohort,
-        is_inactive=is_inactive,
+        is_inactive_asc=is_inactive_asc,
     )
     return tolerant_jsonify(cohort)
 

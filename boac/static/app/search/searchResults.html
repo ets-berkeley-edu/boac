@@ -15,7 +15,11 @@
       <span data-ng-pluralize count="search.results.totalStudentCount" when="{'one': 'One student', 'other': '{} students'}"></span>
       matching '<span data-ng-bind="search.phrase"></span>'
     </h1>
+    <div data-ng-if="search.results.totalStudentCount > search.limit">
+      Showing the first {{search.limit}} students.
+    </div>
   </div>
+
   <div class="cohort-column-results">
     <div class="cohort-tabs-container"
          data-ng-if="!isLoading && !error && search.results.totalStudentCount">
@@ -30,8 +34,8 @@
           <label class="cohort-sort-label" for="search-results-sort-by">Sort by</label>
           <select id="search-results-sort-by"
                   class="form-control"
-                  data-ng-model="orderBy.selected"
-                  data-ng-options="o.value as o.name for o in orderBy.options">
+                  data-ng-model="search.orderBy.selected"
+                  data-ng-options="o.value as o.name for o in search.orderBy.options">
           </select>
         </div>
       </div>
@@ -63,12 +67,12 @@
                 <a id="{{student.uid}}" data-ng-href="/student/{{student.uid}}">
                   <h3 class="student-name"
                       data-ng-class="{'demo-mode-blur': demoMode}"
-                      data-ng-if="orderBy.selected !== 'first_name'">
+                      data-ng-if="search.orderBy.selected !== 'first_name'">
                     {{student.lastName}}, {{student.firstName}}
                   </h3>
                   <h3 class="student-name"
                       data-ng-class="{'demo-mode-blur': demoMode}"
-                      data-ng-if="orderBy.selected === 'first_name'">
+                      data-ng-if="search.orderBy.selected === 'first_name'">
                     {{student.firstName}} {{student.lastName}}
                   </h3>
                 </a>
@@ -133,13 +137,6 @@
           </div>
         </div>
       </ul>
-      <ul uib-pagination
-          direction-links="false"
-          items-per-page="pagination.itemsPerPage"
-          total-items="search.results.totalStudentCount"
-          ng-model="pagination.currentPage"
-          data-ng-click="nextPage()"
-          data-ng-if="search.results.totalStudentCount > pagination.itemsPerPage"></ul>
     </div>
     <div id="matrix-outer" data-ng-show="tab === 'matrix' && !isLoading && !error">
       <div data-ng-include="'/static/app/shared/matrix.html'"></div>

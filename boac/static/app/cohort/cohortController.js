@@ -128,9 +128,9 @@
           $scope.cohort.name = 'Intensive';
         }
       }
-      var inactive = _.get($scope.cohort, 'filterCriteria.isInactive') || utilService.toBoolOrNull($scope.search.options.inactive);
-      if (utilService.toBoolOrNull(inactive)) {
-        $scope.showInactiveCheckbox = $scope.search.options.inactive = true;
+      var inactiveAsc = _.get($scope.cohort, 'filterCriteria.isInactiveAsc') || utilService.toBoolOrNull($scope.search.options.inactiveAsc);
+      if (utilService.toBoolOrNull(inactiveAsc)) {
+        $scope.showInactiveCheckbox = $scope.search.options.inactiveAsc = true;
         // If no other search options are selected then it deserves 'Inactive' label.
         var isInactiveCohort = $scope.cohort.code === 'search' && !_.includes(JSON.stringify($scope.search.options), 'selected');
         if (isInactiveCohort) {

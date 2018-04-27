@@ -70,7 +70,7 @@ class CohortFilter(Base, UserMixin):
             majors=None,
             unit_ranges=None,
             in_intensive_cohort=None,
-            is_inactive=None,
+            is_inactive_asc=None,
     ):
         # If in_intensive_cohort is True then search intensive cohort; if equals False then search
         # non-intensive students; if equals None then search all students.
@@ -81,7 +81,7 @@ class CohortFilter(Base, UserMixin):
             majors=majors,
             unit_ranges=unit_ranges,
             in_intensive_cohort=in_intensive_cohort,
-            is_inactive=is_inactive,
+            is_inactive_asc=is_inactive_asc,
         )
         cf = CohortFilter(label=label, filter_criteria=json.dumps(criteria))
         user = AuthorizedUser.find_by_uid(uid)
@@ -141,7 +141,7 @@ class CohortFilter(Base, UserMixin):
             majors=None,
             unit_ranges=None,
             in_intensive_cohort=None,
-            is_inactive=None,
+            is_inactive_asc=None,
     ):
         if not gpa_ranges and not group_codes and not levels and not majors and not unit_ranges and in_intensive_cohort is None:
             raise InternalServerError('CohortFilter creation requires one or more non-empty criteria.')
@@ -170,7 +170,7 @@ class CohortFilter(Base, UserMixin):
             'gpaRanges': gpa_ranges or [],
             'unitRanges': unit_ranges or [],
             'inIntensiveCohort': in_intensive_cohort,
-            'isInactive': is_inactive,
+            'isInactiveAsc': is_inactive_asc,
         }
 
 
@@ -190,12 +190,12 @@ def construct_cohort(cf, order_by=None, offset=0, limit=50, include_students=Tru
     majors = util.get(c, 'majors', [])
     unit_ranges = util.get(c, 'unitRanges', [])
     in_intensive_cohort = util.to_bool_or_none(util.get(c, 'inIntensiveCohort'))
-    is_inactive = util.get(c, 'isInactive')
+    is_inactive_asc = util.get(c, 'isInactiveAsc')
     results = Student.get_students(
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
         in_intensive_cohort=in_intensive_cohort,
-        is_active_asc=None if is_inactive is None else not is_inactive,
+        is_active_asc=None if is_inactive_asc is None else not is_inactive_asc,
         levels=levels,
         majors=majors,
         unit_ranges=unit_ranges,
@@ -213,7 +213,7 @@ def construct_cohort(cf, order_by=None, offset=0, limit=50, include_students=Tru
             'majors': majors,
             'unitRanges': unit_ranges,
             'inIntensiveCohort': in_intensive_cohort,
-            'isInactive': is_inactive,
+            'isInactiveAsc': is_inactive_asc,
         },
         'teamGroups': team_groups,
         'totalStudentCount': results['totalStudentCount'],

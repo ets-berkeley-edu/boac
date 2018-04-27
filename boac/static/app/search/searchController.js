@@ -28,6 +28,7 @@
   'use strict';
 
   angular.module('boac').controller('SearchController', function(
+    authService,
     config,
     studentFactory,
     studentSearchService,
@@ -38,21 +39,20 @@
   ) {
 
     $scope.demoMode = config.demoMode;
-
-    $scope.pagination = {
-      currentPage: 1,
-      itemsPerPage: 50
+    $scope.search = {
+      limit: 50,
+      orderBy: studentSearchService.getSortByOptionsForSearch(),
+      phrase: $location.search().q,
+      results: null
     };
 
-    $scope.orderBy = studentSearchService.getSortByOptionsForSearch();
-
-    var nextPage = $scope.nextPage = function() {
-      var page = $scope.pagination.currentPage;
-      var offset = page < 2 ? 0 : (page - 1) * $scope.pagination.itemsPerPage;
+    var loadSearchResults = function() {
+      var me = authService.getMe();
+      var isInactiveAsc = authService.isDepartmentMember(me, 'UWASC') ? false : null;
 
       $anchorScroll();
       $scope.isLoading = true;
-      studentFactory.searchForStudents($scope.search.phrase, $scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(
+      studentFactory.searchForStudents($scope.search.phrase, isInactiveAsc, $scope.search.orderBy.selected, 0, $scope.search.limit).then(
         function(response) {
           $scope.search.results = response.data;
         },
@@ -64,47 +64,21 @@
       });
     };
 
-    $scope.$watch('orderBy.selected', function(value) {
+    $scope.$watch('search.orderBy.selected', function(value) {
       if (value && !$scope.isLoading) {
-        $location.search('o', $scope.orderBy.selected);
-        $scope.pagination.currentPage = 1;
-        nextPage();
-      }
-    });
-
-    $scope.$watch('pagination.currentPage', function() {
-      if (!$scope.isLoading) {
-        $location.search('p', $scope.pagination.currentPage);
+        $location.search('o', $scope.search.orderBy.selected);
+        loadSearchResults();
       }
     });
 
     var init = function() {
-      $scope.search = {
-        phrase: $location.search().q,
-        results: null
-      };
       var args = _.clone($location.search());
-      var offset = 0;
 
-      if (args.o && _.find($scope.orderBy.options, ['value', args.o])) {
-        $scope.orderBy.selected = args.o;
-      }
-      if (args.p && !isNaN(args.p)) {
-        $scope.pagination.currentPage = parseInt(args.p, 10);
-        offset = $scope.pagination.currentPage < 2 ? 0 : ($scope.pagination.currentPage - 1) * $scope.pagination.itemsPerPage;
+      if (args.o && _.find($scope.search.orderBy.options, ['value', args.o])) {
+        $scope.search.orderBy.selected = args.o;
       }
       if ($scope.search.phrase) {
-        $scope.isLoading = true;
-        studentFactory.searchForStudents($scope.search.phrase, $scope.orderBy.selected, offset, $scope.pagination.itemsPerPage).then(
-          function(response) {
-            $scope.search.results = response.data;
-          },
-          function(err) {
-            $scope.error = validationService.parseError(err);
-          }
-        ).then(function() {
-          $scope.isLoading = false;
-        });
+        loadSearchResults();
       } else {
         $scope.error = {message: 'No search input found.'};
       }
