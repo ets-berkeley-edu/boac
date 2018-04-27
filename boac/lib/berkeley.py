@@ -166,6 +166,17 @@ def current_term_id():
     return sis_term_id_for_name(term_name)
 
 
+def all_term_ids():
+    """Return SIS IDs of each term covered by BOAC, from current to oldest."""
+    earliest_term_id = int(sis_term_id_for_name(app.config['CANVAS_EARLIEST_TERM']))
+    term_id = int(current_term_id())
+    ids = []
+    while term_id >= earliest_term_id:
+        ids.append(str(term_id))
+        term_id -= 4 if (term_id % 10 == 2) else 3
+    return ids
+
+
 def sis_term_id_for_name(term_name=None):
     if term_name:
         match = re.match(r'\A(Spring|Summer|Fall) 20(\d{2})\Z', term_name)

@@ -39,13 +39,17 @@ class JobProgress:
 
     def delete(self):
         row = JsonCache.query.filter_by(key=self.key()).first()
+        job_state = row.json if row else None
         if row:
             db.session.query(JsonCache).filter(JsonCache.key == self.key()).delete()
-        return (row and row.json)
+        std_commit()
+        return job_state
 
     def get(self):
         row = JsonCache.query.filter_by(key=self.key()).first()
-        return (row and row.json)
+        job_state = row.json if row else None
+        std_commit()
+        return job_state
 
     def key(self):
         return f'job_{self.key_suffix}'
@@ -71,7 +75,7 @@ class JobProgress:
             std_commit()
         return start_json
 
-    def update(self, step_description):
+    def update(self, step_description, properties={}):
         row = JsonCache.query.filter_by(key=self.key()).first()
         if row is None:
             app.logger.error(f'No active progress record to append step "{step_description}" to {self.key()}')
@@ -80,6 +84,7 @@ class JobProgress:
         if (not progress.get('start')) or progress.get('end') or (progress.get('steps') is None):
             app.logger.error(f'Progress record {progress} not ready to append step {step_description} to {self.key()}')
             return False
+        progress.update(properties)
         step = '{} : {}'.format(
             datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             step_description,
