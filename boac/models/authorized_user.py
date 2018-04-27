@@ -41,18 +41,15 @@ class AuthorizedUser(Base, UserMixin):
     department_memberships = db.relationship(
         'UniversityDeptMember',
         back_populates='authorized_user',
-        lazy=True,
     )
     cohort_filters = db.relationship(
         'CohortFilter',
         secondary=cohort_filter_owners,
         back_populates='owners',
-        lazy=True,
     )
     alert_views = db.relationship(
         'AlertView',
         back_populates='viewer',
-        lazy=True,
     )
 
     def __init__(self, uid, is_admin=False):
