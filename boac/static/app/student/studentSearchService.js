@@ -27,19 +27,25 @@
 
   'use strict';
 
-  angular.module('boac').service('studentSearchService', function(utilService, studentFactory, $location) {
+  angular.module('boac').service('studentSearchService', function(authService, studentFactory, utilService, $location) {
 
     var getSortByOptionsForSearch = function() {
+      var me = authService.getMe();
+      var options = [
+        {name: 'First Name', value: 'first_name'},
+        {name: 'Last Name', value: 'last_name'},
+        {name: 'GPA', value: 'gpa'},
+        {name: 'Level', value: 'level'},
+        {name: 'Major', value: 'major'},
+        {name: 'Units', value: 'units'}
+      ];
+
+      if (authService.isDepartmentMember(me, 'UWASC')) {
+        options.push({name: 'Team', value: 'group_name'});
+        options = _.sortBy(options, [ 'name' ]);
+      }
       return {
-        options: [
-          {name: 'First Name', value: 'first_name'},
-          {name: 'Last Name', value: 'last_name'},
-          {name: 'Team', value: 'group_name'},
-          {name: 'GPA', value: 'gpa'},
-          {name: 'Level', value: 'level'},
-          {name: 'Major', value: 'major'},
-          {name: 'Units', value: 'units'}
-        ],
+        options: options,
         selected: 'last_name'
       };
     };
