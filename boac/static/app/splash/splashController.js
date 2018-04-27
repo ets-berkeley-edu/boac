@@ -47,7 +47,7 @@
 
     var uibPopoverError = function(errorMessage) {
       return {
-        popoverHtml: $sce.trustAsHtml('<i class="fa fa-exclamation-triangle"></i> ' + errorMessage),
+        popoverHtml: $sce.trustAsHtml('<i class="fas fa-exclamation-triangle"></i> ' + errorMessage),
         isPopoverOpen: true
       };
     };

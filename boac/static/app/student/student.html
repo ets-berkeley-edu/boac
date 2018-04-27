@@ -1,6 +1,6 @@
 <div class="student-container">
   <div class="loading-spinner-large" data-ng-if="student.isLoading && !error">
-    <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
+    <i class="fas fa-sync fa-spin fa-5x"></i>
     <span class="sr-only">Loading...</span>
   </div>
 
@@ -14,7 +14,7 @@
 
   <div class="return-to-url" data-ng-if="returnUrl">
     <a data-ng-href="{{returnUrl}}">
-      <i class="fa fa-arrow-left" aria-hidden="true"></i> <span data-ng-bind="returnLabel"></span>
+      <i class="fas fa-arrow-left" aria-hidden="true"></i> <span data-ng-bind="returnLabel"></span>
     </a>
   </div>
 
@@ -41,14 +41,14 @@
                    data-ng-class="{'demo-mode-blur': demoMode}"
                    data-ng-if="student.sisProfile.preferredName !== student.athleticsProfile.fullName"></div>
               <div>
-                <i class="fa fa-envelope"></i>
+                <i class="fas fa-envelope"></i>
                 <a id="student-mailto"
                    data-ng-href="mailto:{{student.sisProfile.emailAddress}}"
                    data-ng-class="{'demo-mode-blur': demoMode}"
                    data-ng-bind="student.sisProfile.emailAddress"></a>
               </div>
               <div>
-                <i class="fa fa-phone"></i>
+                <i class="fas fa-phone"></i>
                 <span data-ng-bind="student.sisProfile.phoneNumber"></span>
               </div>
             </div>
@@ -98,7 +98,7 @@
                   <span data-ng-controller="CreateGroupController">
                     <a id="curated-cohort-create"
                        href
-                       data-ng-click="openCreateCuratedCohortModal()"><i class="fa fa-plus"></i> Create New Curated Cohort</a>
+                       data-ng-click="openCreateCuratedCohortModal()"><i class="fas fa-plus"></i> Create New Curated Cohort</a>
                   </span>
                 </div>
               </div>
@@ -130,9 +130,9 @@
                   <td data-ng-bind="requirement.name"></td>
                   <td>
                     <i data-ng-class="{
-                            'fa fa-check student-bio-table-icon': requirement.status === 'Satisfied',
-                            'fa fa-exclamation-triangle student-bio-table-icon': requirement.status === 'Not Satisfied',
-                            'fa fa-clock-o student-bio-table-icon': requirement.status === 'In Progress'
+                            'fas fa-check student-bio-table-icon': requirement.status === 'Satisfied',
+                            'fas fa-exclamation-triangle student-bio-table-icon': requirement.status === 'Not Satisfied',
+                            'fas fa-clock-o student-bio-table-icon': requirement.status === 'In Progress'
                         }"></i>
                     <span data-ng-bind="requirement.status"></span>
                   </td>
@@ -201,7 +201,7 @@
                         <div class="accordion-heading-caret">
                           <i id="term-{{term.termId}}-course-{{$index}}"
                              aria-label="{{course.isOpen ? 'Hide course details' : 'Show course details'}}"
-                             data-ng-class="{'fa fa-caret-right': !course.isOpen, 'fa fa-caret-down': course.isOpen}"
+                             data-ng-class="{'fas fa-caret-right': !course.isOpen, 'fas fa-caret-down': course.isOpen}"
                              data-ng-click="course.isOpen = !course.isOpen"
                              role="button"></i>
                         </div>
@@ -346,7 +346,7 @@
                     <span data-ng-bind="droppedSection.sectionNumber"></span>
                   </div>
                   <div class="profile-class-notation">
-                    <i class="fa fa-exclamation-triangle profile-dropped-section-icon"></i> Dropped
+                    <i class="fas fa-exclamation-triangle profile-dropped-section-icon"></i> Dropped
                   </div>
                 </div>
               </div>
@@ -355,7 +355,7 @@
 
           <div data-ng-show="student.enrollmentTerms.length > 1" class="profile-view-previous-semesters-wrapper">
             <button class="btn btn-link profile-view-previous-semesters" data-ng-click="showAllTerms=!showAllTerms">
-              <i data-ng-class="{'fa fa-caret-right': !showAllTerms, 'fa fa-caret-up': showAllTerms}"></i>
+              <i data-ng-class="{'fas fa-caret-right': !showAllTerms, 'fas fa-caret-up': showAllTerms}"></i>
               <span data-ng-if="!showAllTerms">View Previous Semesters</span>
               <span data-ng-if="showAllTerms">Hide Previous Semesters</span>
             </button>

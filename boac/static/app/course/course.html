@@ -1,12 +1,12 @@
 <div class="course-container">
   <div class="loading-spinner-large" data-ng-if="isLoading && !error">
-    <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
+    <i class="fas fa-sync fa-spin fa-5x"></i>
     <span class="sr-only">Loading...</span>
   </div>
 
   <div class="return-to-url" data-ng-if="!isLoading && !error && returnUrl">
     <a data-ng-href="{{returnUrl}}">
-      <i class="fa fa-arrow-left" aria-hidden="true"></i> <span data-ng-bind="returnLabel"></span>
+      <i class="fas fa-arrow-left" aria-hidden="true"></i> <span data-ng-bind="returnLabel"></span>
     </a>
   </div>
 
@@ -56,7 +56,7 @@
     </div>
     <div class="course-terms">
       <div data-ng-if="warning && warning.message">
-        <div class="has-error"><i class="fa fa-exclamation-triangle"></i>
+        <div class="has-error"><i class="fas fa-exclamation-triangle"></i>
           Warning: <span data-ng-bind="warning.message"></span>
         </div>
       </div>
@@ -198,7 +198,7 @@
               <span class="cohort-grade"
                     data-ng-bind="student.enrollment.midtermGrade"
                     data-ng-if="student.enrollment.midtermGrade"></span>
-              <i class="fa fa-exclamation-triangle boac-exclamation"
+              <i class="fas fa-exclamation-triangle boac-exclamation"
                  data-ng-if="isAlertGrade(student.enrollment.midtermGrade)"></i>
               <span data-ng-if="!student.enrollment.midtermGrade">&mdash;</span>
             </div>
@@ -209,7 +209,7 @@
               <span class="cohort-grade"
                     data-ng-bind="student.enrollment.grade"
                     data-ng-if="student.enrollment.grade"></span>
-              <i class="fa fa-exclamation-triangle boac-exclamation"
+              <i class="fas fa-exclamation-triangle boac-exclamation"
                  data-ng-if="isAlertGrade(student.enrollment.grade)"></i>
               <span class="cohort-grading-basis"
                     data-ng-bind="student.enrollment.gradingBasis"

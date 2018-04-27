@@ -1,7 +1,7 @@
 <div class="container-manage-cohorts">
   <div data-ng-if="isLoading">
     <div class="loading-spinner-large">
-      <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
+      <i class="fas fa-sync fa-spin fa-5x"></i>
       <span class="sr-only">Loading...</span>
     </div>
   </div>
@@ -16,7 +16,7 @@
     </div>
     <div data-ng-if="!myCohorts.length">
       You have no filtered cohorts.
-      <a data-ng-href="/cohort?c=new"><i class="fa fa-plus"></i> Create a new filtered cohort.</a>
+      <a data-ng-href="/cohort?c=new"><i class="fas fa-plus"></i> Create a new filtered cohort.</a>
     </div>
     <div data-ng-repeat="cohort in myCohorts | orderBy:'nameOriginal'">
       <hr class="cohort-manage-row-separator"/>
