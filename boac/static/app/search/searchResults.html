@@ -1,6 +1,6 @@
 <div class="group-container">
   <div class="loading-spinner-large" data-ng-if="isLoading && !error">
-    <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
+    <i class="fas fa-sync fa-spin fa-5x"></i>
     <span class="sr-only">Searching for '<span data-ng-bind="search.phrase"></span>'...</span>
   </div>
   <div data-ng-if="error">
@@ -125,12 +125,12 @@
               </div>
               <div class="cohort-list-view-column-grade">
                 <span class="cohort-grade" data-ng-bind="enrollment.midtermGrade" data-ng-if="enrollment.midtermGrade"></span>
-                <i class="fa fa-exclamation-triangle boac-exclamation" data-ng-if="isAlertGrade(enrollment.midtermGrade)"></i>
+                <i class="fas fa-exclamation-triangle boac-exclamation" data-ng-if="isAlertGrade(enrollment.midtermGrade)"></i>
                 <span data-ng-if="!enrollment.midtermGrade">&mdash;</span>
               </div>
               <div class="cohort-list-view-column-grade">
                 <span class="cohort-grade" data-ng-bind="enrollment.grade" data-ng-if="enrollment.grade"></span>
-                <i class="fa fa-exclamation-triangle boac-exclamation" data-ng-if="isAlertGrade(enrollment.grade)"></i>
+                <i class="fas fa-exclamation-triangle boac-exclamation" data-ng-if="isAlertGrade(enrollment.grade)"></i>
                 <span class="cohort-grading-basis" data-ng-bind="enrollment.gradingBasis" data-ng-if="!enrollment.grade"></span>
               </div>
             </div>

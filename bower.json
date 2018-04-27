@@ -8,7 +8,7 @@
     "angular-ui-router": "^1.0.15",
     "bootstrap": "^3.3.7",
     "d3": "4.12.0",
-    "fontawesome": "4.7.0",
+    "fontawesome": "5.0.10",
     "highcharts-release": "6.0.7",
     "lodash": "^4.17.5"
   }

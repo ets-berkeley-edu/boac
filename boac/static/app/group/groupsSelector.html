@@ -17,7 +17,7 @@
               data-ng-disabled="true"
               class="btn group-btn-confirmation"
               data-ng-if="isSaving">
-        <i class="fa fa-check"></i>
+        <i class="fas fa-check"></i>
         Added to Curated Cohort
       </button>
       <button id="add-to-curated-cohort-button"
@@ -32,7 +32,7 @@
           role="menu"
           aria-labelledby="add-to-group-button">
         <li role="menuitem" data-ng-if="isLoading">
-          Loading <i class="fa fa-spinner fa-spin"></i>
+          Loading <i class="fas fa-spinner fa-spin"></i>
         </li>
         <li role="menuitem" data-ng-if="!myGroups.length">
           <span class="group-selector-zero-cohorts faint-text">You have no curated cohorts.</span>
@@ -59,7 +59,7 @@
             data-ng-href="!isLoading">
           <a id="curated-cohort-create"
              href
-             data-ng-click="openCreateCuratedCohortModal()"><i class="fa fa-plus"></i> Create New Curated Cohort</a>
+             data-ng-click="openCreateCuratedCohortModal()"><i class="fas fa-plus"></i> Create New Curated Cohort</a>
         </li>
       </ul>
     </div>

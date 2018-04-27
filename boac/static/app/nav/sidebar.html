@@ -1,7 +1,7 @@
 <div class="sidebar-section-search">
   <form id="sidebar-search-students-form" data-ng-submit="searchForStudents()">
     <label for="sidebar-search-students-input" class="sr-only">Search for students</label>
-    <span class="search-students-icon"><i class="fa fa-search"></i></span>
+    <span class="search-students-icon"><i class="fas fa-search"></i></span>
     <input id="sidebar-search-students-input"
            type="text"
            class="search-students-input"
@@ -19,7 +19,7 @@
        data-ui-sref="groupsManage()"
        data-ui-sref-opts="{reload: true}">Curated Cohorts</a>
     <a id="sidebar-curated-cohort-create" class="sidebar-create-link" href
-       data-ng-click="openCreateCuratedCohortModal()"><i class="fa fa-plus"></i></a>
+       data-ng-click="openCreateCuratedCohortModal()"><i class="fas fa-plus"></i></a>
   </span>
 </div>
 <div class="sidebar-row-link" data-ng-repeat="group in myGroups">
@@ -43,7 +43,7 @@
        data-ui-sref-opts="{reload: true}">Filtered Cohorts</a>
     <a id="sidebar-filtered-cohort-create" class="sidebar-create-link"
        data-ui-sref="cohort({c: 'new', i: null, inactive: null})"
-       data-ui-sref-opts="{reload: true}"><i class="fa fa-plus"></i></a>
+       data-ui-sref-opts="{reload: true}"><i class="fas fa-plus"></i></a>
   </span>
 </div>
 <div class="sidebar-row-link" data-ng-repeat="cohort in myCohorts">

@@ -1,7 +1,7 @@
 <div class="container-manage-groups">
   <div data-ng-if="isLoading">
     <div class="loading-spinner-large">
-      <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
+      <i class="fas fa-sync fa-spin fa-5x"></i>
       <span class="sr-only">Loading...</span>
     </div>
   </div>
@@ -18,7 +18,7 @@
       You have no curated cohorts.
       <a id="curated-cohort-create"
          href
-         data-ng-click="openCreateCuratedCohortModal()"><i class="fa fa-plus"></i> Create a new curated cohort</a>
+         data-ng-click="openCreateCuratedCohortModal()"><i class="fas fa-plus"></i> Create a new curated cohort</a>
     </div>
     <div data-ng-repeat="group in myGroups">
       <hr class="cohort-manage-row-separator"/>
