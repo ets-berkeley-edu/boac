@@ -197,6 +197,14 @@
   padding: 10px 0 0 5px;
 }
 
+.search-header-curated-cohort {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 20px 0 10px 0;
+}
+
 .student-checkbox-add-to-group {
   padding: 10px;
 }

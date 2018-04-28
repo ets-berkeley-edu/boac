@@ -35,27 +35,23 @@
 
       // @see https://docs.angularjs.org/guide/directive#isolating-the-scope-of-a-directive
       scope: {
-        group: '='
+        options: '=',
+        students: '='
       },
 
       templateUrl: '/static/app/home/sortableAlertsTable.html',
 
       link: function(scope) {
         scope.demoMode = config.demoMode;
-        scope.sort = function(data, sortBy) {
-          if (data.sortBy === sortBy) {
-            data.reverse = !data.reverse;
+        scope.curatedCohortStudentToggle = $rootScope.curatedCohortStudentToggle;
+        scope.sort = function(options, sortBy) {
+          if (options.sortBy === sortBy) {
+            options.reverse = !options.reverse;
           } else {
-            data.sortBy = sortBy;
-            data.reverse = false;
+            options.sortBy = sortBy;
+            options.reverse = false;
           }
         };
-
-        $rootScope.$on('studentGroupRemoveStudent', function(event, data) {
-          if (!_.get(scope, 'group.isCohortAlerts')) {
-            scope.group.students = _.reject(scope.group.students, ['sid', data.sid]);
-          }
-        });
       }
     };
   });

@@ -31,7 +31,7 @@
     authService,
     config,
     studentFactory,
-    studentSearchService,
+    utilService,
     validationService,
     $anchorScroll,
     $location,
@@ -41,9 +41,9 @@
     $scope.demoMode = config.demoMode;
     $scope.search = {
       limit: 50,
-      orderBy: studentSearchService.getSortByOptionsForSearch(),
       phrase: $location.search().q,
-      results: null
+      students: null,
+      totalStudentCount: null
     };
 
     var loadSearchResults = function() {
@@ -52,9 +52,10 @@
 
       $anchorScroll();
       $scope.isLoading = true;
-      studentFactory.searchForStudents($scope.search.phrase, isInactiveAsc, $scope.search.orderBy.selected, 0, $scope.search.limit).then(
+      studentFactory.searchForStudents($scope.search.phrase, isInactiveAsc, 'last_name', 0, $scope.search.limit).then(
         function(response) {
-          $scope.search.results = response.data;
+          $scope.search.students = utilService.extendSortableNames(response.data.students);
+          $scope.search.totalStudentCount = response.data.totalStudentCount;
         },
         function(err) {
           $scope.error = validationService.parseError(err);
@@ -64,20 +65,26 @@
       });
     };
 
-    $scope.$watch('search.orderBy.selected', function(value) {
-      if (value && !$scope.isLoading) {
-        $location.search('o', $scope.search.orderBy.selected);
-        loadSearchResults();
+    $scope.$watch('displayOptions.sortBy', function(value) {
+      if (!_.isNil(value) && !$scope.isLoading) {
+        $location.search('s', $scope.displayOptions.sortBy);
+      }
+    });
+
+    $scope.$watch('displayOptions.reverse', function(value) {
+      if (!_.isNil(value) && !$scope.isLoading) {
+        $location.search('r', value.toString());
       }
     });
 
     var init = function() {
-      var args = _.clone($location.search());
-
-      if (args.o && _.find($scope.search.orderBy.options, ['value', args.o])) {
-        $scope.search.orderBy.selected = args.o;
-      }
       if ($scope.search.phrase) {
+        var args = _.clone($location.search());
+        $scope.displayOptions = {
+          curatedCohort: true,
+          reverse: utilService.toBoolOrNull(args.r),
+          sortBy: _.includes(['sid', 'sortableName'], args.s) ? args.s : 'sortableName'
+        };
         loadSearchResults();
       } else {
         $scope.error = {message: 'No search input found.'};

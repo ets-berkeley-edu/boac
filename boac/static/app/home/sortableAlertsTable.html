@@ -1,23 +1,24 @@
 <div class="sr-only" role="alert"
-     data-ng-bind-template="Sorted by {{group.sortBy}} {{group.reverse ? 'descending' : ''}}"
-     data-ng-if="group.students.length"></div>
+     data-ng-bind-template="Sorted by {{options.sortBy}} {{options.reverse ? 'descending' : ''}}"
+     data-ng-if="students.length"></div>
 
-<div class="group-summary-container" data-ng-if="group.students">
+<div class="group-summary-container" data-ng-if="students">
   <div class="group-summary-flex-row group-summary-header">
+    <div class="group-summary-column group-summary-column-00 group-summary-column-header" data-ng-if="options.curatedCohort"></div>
     <div class="group-summary-column group-summary-column-01 group-summary-column-header"></div>
     <div class="group-summary-column group-summary-column-02 group-summary-column-header group-summary-header-sortable"
-         data-ng-click="sort(group, 'sortableName')"
-         data-ng-class="{dropup: !group.reverse}">
+         data-ng-click="sort(options, 'sortableName')"
+         data-ng-class="{dropup: !options.reverse}">
       <span class="sr-only">Sort by </span>Name
-      <span class="sr-only" data-ng-if="group.sortBy === 'sortableName' && !group.reverse">Descending</span>
-      <span class="caret" data-ng-if="group.sortBy === 'sortableName'"></span>
+      <span class="sr-only" data-ng-if="options.sortBy === 'sortableName' && !options.reverse">Descending</span>
+      <span class="caret" data-ng-if="options.sortBy === 'sortableName'"></span>
     </div>
     <div class="group-summary-column group-summary-column-03 group-summary-column-header group-summary-header-sortable"
-         data-ng-click="sort(group, 'sid')"
-         data-ng-class="{dropup: !group.reverse}">
+         data-ng-click="sort(options, 'sid')"
+         data-ng-class="{dropup: !options.reverse}">
       <span class="sr-only">Sort by </span>SID
-      <span class="sr-only" data-ng-if="group.sortBy === 'sid' && !group.reverse">Descending</span>
-      <span class="caret" data-ng-if="group.sortBy === 'sid'"></span>
+      <span class="sr-only" data-ng-if="options.sortBy === 'sid' && !options.reverse">Descending</span>
+      <span class="caret" data-ng-if="options.sortBy === 'sid'"></span>
     </div>
     <div class="group-summary-column group-summary-column-04 group-summary-column-header">Major</div>
     <div class="group-summary-column group-summary-column-05 group-summary-column-header">Term Units</div>
@@ -26,7 +27,15 @@
     <div class="group-summary-column group-summary-column-08 group-summary-column-header">Issues</div>
   </div>
   <div class="group-summary-flex-row group-summary-row"
-       data-ng-repeat="student in group.students | orderBy:group.sortBy:group.reverse track by $index">
+       data-ng-repeat="student in students | orderBy:options.sortBy:options.reverse track by $index">
+    <div class="group-summary-column group-summary-column-00" data-ng-if="options.curatedCohort">
+      <div class="student-checkbox-add-to-group">
+        <input id="{{student.uid}}-curated-cohort-checkbox"
+               type="checkbox"
+               data-ng-click="curatedCohortStudentToggle(student)"
+               data-ng-model="student.selectedForStudentGroups"/>
+      </div>
+    </div>
     <div class="group-summary-column group-summary-column-01">
       <img class="student-avatar student-avatar-small"
            data-ng-src="/api/user/{{student.uid}}/photo"
