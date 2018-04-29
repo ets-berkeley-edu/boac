@@ -98,6 +98,10 @@
   padding: 0 5px 0 8px;
 }
 
+.group-summary-column-00 {
+  flex: 1;
+}
+
 .group-summary-column-01 {
   flex: 1;
 }
