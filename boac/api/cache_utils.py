@@ -99,7 +99,7 @@ def continue_request_handler():
         }
     else:
         return {
-            'error': 'Cannot continue an existing refresh job',
+            'error': 'Cannot continue this refresh job',
             'progress': job_state,
         }
 
@@ -137,6 +137,10 @@ def refresh_term(term_id=berkeley.current_term_id(), continuation=False):
 
 
 def exclusions_for_term(term_id):
+    if term_id == 'all':
+        # Start with an empty staging table.
+        return 'key IS NULL'
+
     term_name = berkeley.term_name_for_sis_id(term_id)
     where_clause = f'key NOT LIKE \'term_{term_name}%\''
     # If we are refreshing current data, we only keep stowed entries which are explicitly keyed to past terms.
@@ -146,6 +150,9 @@ def exclusions_for_term(term_id):
 
 
 def inclusions_for_term(term_id):
+    if term_id == 'all':
+        return 'key NOT LIKE \'asc_athletes_%\' AND key NOT LIKE \'job%\''
+
     term_name = berkeley.term_name_for_sis_id(term_id)
     where_clause = f'key LIKE \'term_{term_name}%\''
     if term_name == app.config['CANVAS_CURRENT_ENROLLMENT_TERM']:
@@ -190,8 +197,27 @@ def do_import_asc():
     JobProgress().update(f'ASC import finished: {status}')
 
 
+def load_all_terms():
+    job_progress = JobProgress().get()
+    terms_done = job_progress.get('terms_done', [])
+    all_terms = berkeley.all_term_ids()
+    while terms_done != all_terms:
+        if len(terms_done) == len(all_terms):
+            app.logger.error(f'Unexpected terms_done value; stopping load: {terms_done}')
+            return
+        term_id = next(t for t in all_terms if t not in terms_done)
+        load_term(term_id)
+        terms_done.append(term_id)
+        JobProgress().update(f'Term {term_id} loaded', properties={'terms_done': terms_done})
+
+
 def load_term(term_id=berkeley.current_term_id()):
     from boac.models.student import Student
+
+    if term_id == 'all':
+        load_all_terms()
+        return
+
     success_count = 0
     failures = []
 
@@ -226,9 +252,9 @@ def load_term(term_id=berkeley.current_term_id()):
         JobProgress().update(f'About to load merged profiles for current term')
         load_merged_sis_profiles()
 
-    app.logger.warn('Complete. Fetched {} external feeds.'.format(success_count))
+    app.logger.warn(f'Term {term_id} load complete. Fetched {success_count} external feeds.')
     if len(failures):
-        app.logger.warn('Failed to fetch {} feeds:'.format(len(failures)))
+        app.logger.warn(f'Failed to fetch {len(failures)} feeds:')
         app.logger.warn(failures)
 
 

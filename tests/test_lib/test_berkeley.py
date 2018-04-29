@@ -45,6 +45,9 @@ class TestBerkeleySisTermIdForName:
         """Returns None for missing term names."""
         assert berkeley.sis_term_id_for_name(None) is None
 
+    def test_all_term_ids(self, app):
+        assert berkeley.all_term_ids() == ['2178', '2175', '2172', '2168']
+
 
 class TestBerkeleyDegreeProgramUrl:
 
