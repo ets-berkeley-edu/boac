@@ -21,14 +21,6 @@
   justify-content: space-between;
 }
 
-.header-container div {
-  margin-left: 20px;
-}
-
-.footer-container div:first-child {
-  margin-left: 10px;
-}
-
 .footer-copyright {
   display: inline-block;
   margin: 0 20px 0 20px;
@@ -40,6 +32,36 @@
   color: #4a90e2;
   height: 1px;
   margin: 20px;
+}
+
+.header-container div {
+  margin-left: 20px;
+  -webkit-flex: 1 0 0;
+  flex: 1 0 0;
+}
+
+.header-dropdown-text {
+  font-size: 16px;
+  color: #fff;
+}
+
+.header-dropdown-text button:link,
+.header-dropdown-text button:visited {
+  color: #fff;
+  text-decoration: none;
+  border: 0;
+  -moz-outline-style: none;
+}
+
+.header-dropdown-text button:hover,
+.header-dropdown-text button:focus,
+.header-dropdown-text button:active {
+  color: #ddd;
+  text-decoration: none;
+}
+
+.footer-container div:first-child {
+  margin-left: 10px;
 }
 
 .header-container {
@@ -62,10 +84,6 @@
   margin-right: 20px;
 }
 
-.header-name {
-  float: right;
-}
-
 .header-text {
   font-size: 16px;
   color: #fff;
@@ -83,11 +101,6 @@
 .header-text a:focus,
 .header-text a:active {
   color: #ddd;
-}
-
-.header-column-01 {
-  -webkit-flex: 1 0 0;
-  flex: 1 0 0;
 }
 
 .sidebar-pill {

@@ -1,15 +1,29 @@
 <div class="header-container">
-  <div class="header-column-03 header-text">
+  <div class="header-text">
     <a id="header-href-home"
        data-ui-sref="home()"
        data-ui-sref-opts="{reload: true}">Home</a>
   </div>
-  <div class="header-column-01 header-text">
-    <span class="header-name" data-ng-bind="me.firstName"></span>
-  </div>
-  <div class="header-column-01 header-text">
-    <button id="header-log-out"
-            class="btn btn-default no-wrap"
-            data-ng-click="logOut()">Log out</button>
+  <div>
+    <div class="btn-group header-dropdown-text"
+         uib-dropdown
+         keyboard-nav>
+      <button id="header-dropdown-under-name"
+              type="button"
+              class="btn btn-link header-text no-wrap"
+              uib-dropdown-toggle
+              data-ng-bind="me.firstName"></button>
+      <ul class="dropdown-menu-right no-wrap"
+          uib-dropdown-menu
+          role="menu"
+          aria-labelledby="header-log-out">
+        <li id="header-log-out" role="menuitem">
+          <a href data-ng-click="logOut()">Log Out</a>
+        </li>
+        <li id="header-help-mailto" role="menuitem">
+          <a href="mailto:ascpilot@lists.berkeley.edu" target="_blank">Feedback/Help</a>
+        </li>
+      </ul>
+    </div>
   </div>
 </div>
