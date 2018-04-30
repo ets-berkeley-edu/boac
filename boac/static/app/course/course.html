@@ -124,7 +124,7 @@
                    data-ng-class="{'demo-mode-blur': demoMode}"
                    data-ng-if="!student.isClassAverage">
                 {{student.sid}}
-                <span class="student-inactive" data-ng-if="!student.isActiveAsc">INACTIVE</span>
+                <span class="student-inactive" data-ng-if="isCurrentUserAscAdvisor && !student.isActiveAsc">INACTIVE</span>
               </div>
               <div>
                 <span class="student-text" data-ng-bind="student.level"></span>

@@ -64,9 +64,8 @@
       };
     };
 
-    var me = authService.getMe();
     $scope.demoMode = config.demoMode;
-    $scope.isAthleticStudyCenter = me.isAdmin || authService.isDepartmentMember(me, 'UWASC');
+    $scope.isCurrentUserAscAdvisor = authService.isCurrentUserAscAdvisor();
     $scope.isLoading = true;
     $scope.isCreateCohortMode = false;
     $scope.showIntensiveCheckbox = false;
@@ -427,7 +426,7 @@
           _.each(filters, function(key, filterName) {
             preset(filterName, args[key]);
           });
-          if ($scope.isAthleticStudyCenter) {
+          if ($scope.isCurrentUserAscAdvisor) {
             presetAthleticStudyCenterControls(args);
           }
         } else {
@@ -575,7 +574,7 @@
             gpaRanges: decorate(studentFactory.getGpaRanges(), 'name'),
             groupCodes: decorate(groupCodes, 'groupCode'),
             intensive: args.i,
-            inactive: args.inactive || ($scope.isAthleticStudyCenter ? false : null),
+            inactive: args.inactive || ($scope.isCurrentUserAscAdvisor ? false : null),
             levels: decorate(studentFactory.getStudentLevels(), 'name'),
             majors: decorate(majors, 'name'),
             unitRanges: decorate(studentFactory.getUnitRanges(), 'name')

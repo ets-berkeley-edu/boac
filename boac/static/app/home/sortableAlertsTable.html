@@ -45,11 +45,10 @@
       <a data-ng-bind="student.sortableName"
          data-ng-class="{'demo-mode-blur': demoMode}"
          data-ng-href="/student/{{student.uid}}"></a>
-      <span
-          class="home-inactive-info-icon"
-          data-ng-if="!student.isActiveAsc"
-          uib-tooltip="Inactive"
-          tooltip-placement="bottom">
+      <span class="home-inactive-info-icon"
+            uib-tooltip="Inactive"
+            tooltip-placement="bottom"
+            data-ng-if="isCurrentUserAscAdvisor && !student.isActiveAsc">
         <i class="fas fa-info-circle"></i>
       </span>
     </div>

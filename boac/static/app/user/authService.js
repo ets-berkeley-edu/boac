@@ -44,6 +44,10 @@
       return _.get(user.departments, deptCode + '.isAdvisor') || _.get(user.departments, deptCode + '.isDirector');
     };
 
+    var isCurrentUserAscAdvisor = function() {
+      return isDepartmentMember(getMe(), 'UWASC');
+    };
+
     var reloadMe = function() {
       return $http.get('/api/status').then(authFactory.loadUserProfile).then(function() {
         var me = $rootScope.me;
@@ -108,6 +112,7 @@
 
     return {
       getMe: getMe,
+      isCurrentUserAscAdvisor: isCurrentUserAscAdvisor,
       isDepartmentMember: isDepartmentMember,
       reloadMe: reloadMe
     };
