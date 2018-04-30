@@ -38,6 +38,10 @@
       };
     };
 
+    var isReservedName = function(name) {
+      return authService.isCurrentUserAscAdvisor() && _.includes(['intensive students', 'inactive students'], name.toLowerCase());
+    };
+
     /**
      * Verify that value of 'name' is non-empty, unique and not reserved.
      *
@@ -52,6 +56,8 @@
         errorMessage = 'Required';
       } else if (_.size(cohort.name) > 255) {
         errorMessage = 'Name must be 255 characters or fewer';
+      } else if (isReservedName(cohort.name)) {
+        errorMessage = 'Sorry, \'' + cohort.name + '\' is a reserved name. Please choose a different name.';
       } else {
         var allExisting = {
           'curated cohort': authService.getMe().myGroups,

@@ -28,6 +28,7 @@
   'use strict';
 
   angular.module('boac').controller('GroupController', function(
+    authService,
     config,
     studentGroupFactory,
     studentSearchService,
@@ -40,6 +41,7 @@
     $stateParams
   ) {
 
+    $scope.isCurrentUserAscAdvisor = authService.isCurrentUserAscAdvisor();
     $scope.orderBy = studentSearchService.getSortByOptionsForSearch();
 
     var levelComparator = function(level) {

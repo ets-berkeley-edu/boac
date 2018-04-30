@@ -51,8 +51,8 @@
       enrollmentTerms: null,
       isLoading: true
     };
-
     $scope.demoMode = config.demoMode;
+    $scope.isCurrentUserAscAdvisor = authService.isCurrentUserAscAdvisor();
     $scope.myGroups = _.clone(me.myGroups);
     $scope.showAllTerms = false;
     $scope.showDismissedAlerts = false;

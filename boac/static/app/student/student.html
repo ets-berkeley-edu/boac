@@ -53,7 +53,7 @@
               </div>
             </div>
             <div>
-              <div data-ng-if="!student.athleticsProfile.isActiveAsc">
+              <div data-ng-if="isCurrentUserAscAdvisor && !student.athleticsProfile.isActiveAsc">
                 <h4 class="student-bio-header profile-sidebar-inactive">INACTIVE</h4>
               </div>
               <div data-ng-repeat="membership in student.athleticsProfile.athletics">

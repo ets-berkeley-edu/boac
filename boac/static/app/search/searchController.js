@@ -47,12 +47,11 @@
     };
 
     var loadSearchResults = function() {
-      var me = authService.getMe();
-      var isInactiveAsc = authService.isDepartmentMember(me, 'UWASC') ? false : null;
+      var inactiveAsc = authService.isCurrentUserAscAdvisor() ? false : null;
 
       $anchorScroll();
       $scope.isLoading = true;
-      studentFactory.searchForStudents($scope.search.phrase, isInactiveAsc, 'last_name', 0, $scope.search.limit).then(
+      studentFactory.searchForStudents($scope.search.phrase, inactiveAsc, 'last_name', 0, $scope.search.limit).then(
         function(response) {
           $scope.search.students = utilService.extendSortableNames(response.data.students);
           $scope.search.totalStudentCount = response.data.totalStudentCount;

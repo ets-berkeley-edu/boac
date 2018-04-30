@@ -30,7 +30,6 @@
   angular.module('boac').service('studentSearchService', function(authService, studentFactory, utilService, $location) {
 
     var getSortByOptionsForSearch = function() {
-      var me = authService.getMe();
       var options = [
         {name: 'First Name', value: 'first_name'},
         {name: 'Last Name', value: 'last_name'},
@@ -40,7 +39,7 @@
         {name: 'Units', value: 'units'}
       ];
 
-      if (authService.isDepartmentMember(me, 'UWASC')) {
+      if (authService.isCurrentUserAscAdvisor()) {
         options.push({name: 'Team', value: 'group_name'});
         options = _.sortBy(options, [ 'name' ]);
       }

@@ -28,10 +28,10 @@
   'use strict';
 
   angular.module('boac').controller('CourseController', function(
+    authService,
     config,
     courseFactory,
     googleAnalyticsService,
-    me,
     utilService,
     validationService,
     visualizationService,
@@ -43,6 +43,7 @@
   ) {
 
     $scope.demoMode = config.demoMode;
+    $scope.isCurrentUserAscAdvisor = authService.isCurrentUserAscAdvisor();
     $scope.isLoading = true;
     $scope.tab = 'list';
 
