@@ -18,7 +18,9 @@
        class="sidebar-row-link-label-text"
        data-ui-sref="groupsManage()"
        data-ui-sref-opts="{reload: true}">Curated Cohorts</a>
-    <a id="sidebar-curated-cohort-create" class="sidebar-create-link" href
+    <a id="sidebar-curated-cohort-create"
+       class="sidebar-create-link"
+       href
        data-ng-click="openCreateCuratedCohortModal()"><i class="fas fa-plus"></i></a>
   </span>
 </div>
@@ -35,13 +37,13 @@
 </div>
 
 <div class="sidebar-row-link sidebar-section-header">
-  <span class="sidebar-header sidebar-row-link-label"
-        data-ng-class="{'sidebar-row-link-label': myCohorts.length}">
+  <span class="sidebar-header sidebar-row-link-label">
     <a id="sidebar-filtered-cohorts-manage"
        class="sidebar-row-link-label-text"
        data-ui-sref="cohortsManage()"
        data-ui-sref-opts="{reload: true}">Filtered Cohorts</a>
-    <a id="sidebar-filtered-cohort-create" class="sidebar-create-link"
+    <a id="sidebar-filtered-cohort-create"
+       class="sidebar-create-link"
        data-ui-sref="cohort({c: 'new', i: null, inactive: null})"
        data-ui-sref-opts="{reload: true}"><i class="fas fa-plus"></i></a>
   </span>

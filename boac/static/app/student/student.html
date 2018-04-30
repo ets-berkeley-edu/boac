@@ -81,7 +81,7 @@
               <div class="student-bio-status-box-groups student-groups-checkboxes">
                 <div>
                   <h4 class="student-bio-header">
-                    Curated Cohorts <span data-ng-if="myGroups.length">(<a id="curated-cohorts-manage" href="/groups/manage">Manage</a>)</span>
+                    Curated Cohorts
                   </h4>
                 </div>
                 <div class="student-group-checkbox" data-ng-repeat="group in myGroups track by $index">
@@ -93,13 +93,6 @@
                   <div class="student-group-checkbox-label">
                     <a data-ng-href="/group/{{group.id}}" data-ng-bind="group.name"></a>
                   </div>
-                </div>
-                <div class="student-group-create-new">
-                  <span data-ng-controller="CreateGroupController">
-                    <a id="curated-cohort-create"
-                       href
-                       data-ng-click="openCreateCuratedCohortModal()"><i class="fas fa-plus"></i> Create New Curated Cohort</a>
-                  </span>
                 </div>
               </div>
             </div>
