@@ -43,7 +43,7 @@
       $scope.myCohorts = _.clone(me.myCohorts);
       $scope.myGroups = _.clone(me.myGroups);
       $scope.searchPhrase = null;
-      $scope.showAthletics = me.isAdmin || authService.isCurrentUserAscAdvisor();
+      $scope.isCurrentUserAscAdvisor = authService.isCurrentUserAscAdvisor();
     };
 
     init();
