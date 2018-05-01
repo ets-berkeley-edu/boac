@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.lib import util
+from boac.lib.berkeley import is_department_member
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
 from boac.merged import student_details
@@ -37,6 +38,8 @@ from flask_login import current_user, login_required
 @app.route('/api/cohorts/all')
 @login_required
 def all_cohorts():
+    if not current_user.is_admin and not is_department_member(current_user, 'UWASC'):
+        raise ForbiddenRequestError('You are unauthorized to browse data that is managed by other departments')
     cohorts = {}
     for cohort in CohortFilter.all():
         for uid in cohort['owners']:
@@ -71,7 +74,7 @@ def get_cohort(cohort_id):
     limit = util.get(request.args, 'limit', 50)
     cohort = CohortFilter.find_by_id(int(cohort_id), order_by, int(offset), int(limit))
     if not cohort:
-        raise ResourceNotFoundError('No cohort found with identifier: {}'.format(cohort_id))
+        raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
     student_details.merge_all(cohort['students'])
     return tolerant_jsonify(cohort)
 
@@ -90,6 +93,9 @@ def create_cohort():
     is_inactive_asc = util.get(params, 'isInactiveAsc')
     if not label:
         raise BadRequestError('Cohort creation requires \'label\'')
+    asc_authorized = current_user.is_admin or is_department_member(current_user, 'UWASC')
+    if not asc_authorized and (in_intensive_cohort is not None or is_inactive_asc is not None):
+        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     cohort = CohortFilter.create(
         uid=current_user.get_id(),
         label=label,
@@ -114,7 +120,7 @@ def update_cohort():
         raise BadRequestError('Requested cohort label is empty or invalid')
     cohort = get_cohort_owned_by(params['id'], uid)
     if not cohort:
-        raise BadRequestError('Cohort does not exist or is not owned by {}'.format(uid))
+        raise BadRequestError(f'Cohort does not exist or is not owned by {uid}')
     cohort = CohortFilter.update(cohort_id=cohort['id'], label=label)
     return tolerant_jsonify(cohort)
 
@@ -128,11 +134,11 @@ def delete_cohort(cohort_id):
         cohort = get_cohort_owned_by(cohort_id, uid)
         if cohort:
             CohortFilter.delete(cohort_id)
-            return tolerant_jsonify({'message': 'Cohort deleted (id={})'.format(cohort_id)}), 200
+            return tolerant_jsonify({'message': f'Cohort deleted (id={cohort_id})'}), 200
         else:
-            raise BadRequestError('User {uid} does not own cohort_filter with id={id}'.format(uid=uid, id=cohort_id))
+            raise BadRequestError(f'User {uid} does not own cohort_filter with id={cohort_id}')
     else:
-        raise ForbiddenRequestError('Programmatic deletion of canned cohorts is not allowed (id={})'.format(cohort_id))
+        raise ForbiddenRequestError(f'Programmatic deletion of canned cohorts is not allowed (id={cohort_id})')
 
 
 def get_cohort_owned_by(cohort_filter_id, uid):
