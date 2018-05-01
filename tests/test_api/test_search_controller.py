@@ -56,6 +56,12 @@ class TestAthleticsStudyCenter:
         for student in cohort['students']:
             assert student['inIntensiveCohort']
 
+    def test_unauthorized_request_for_athletic_study_center_data(self, client, fake_auth):
+        """In order to access intensive_cohort, inactive status, etc. the user must be either ASC or Admin."""
+        fake_auth.login('1022796')
+        response = client.post('/api/students', data=json.dumps({'inIntensiveCohort': True}), content_type='application/json')
+        assert response.status_code == 403
+
     def test_order_by_with_intensive_cohort(self, authenticated_session, client):
         """Returns the canned 'intensive' cohort, available to all authenticated users."""
         all_expected_order = {
@@ -109,6 +115,13 @@ class TestSearch:
         """Search is not available to the world."""
         response = client.post('/api/students/search')
         assert response.status_code == 401
+
+    def test_unauthorized_request_for_athletic_study_center_data(self, client, fake_auth):
+        """In order to access intensive_cohort, inactive status, etc. the user must be either ASC or Admin."""
+        fake_auth.login('1022796')
+        args = {'searchPhrase': 'John', 'isInactiveAsc': False}
+        response = client.post('/api/students/search', data=json.dumps(args), content_type='application/json')
+        assert response.status_code == 403
 
     def test_search_with_missing_input(self, client, fake_auth):
         """Search is nothing without input."""

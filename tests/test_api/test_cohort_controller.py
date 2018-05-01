@@ -120,6 +120,11 @@ class TestCohortDetail:
         assert len(cohorts) == 3
         assert [1, 3, 2] == [cohort['id'] for cohort in cohorts]
 
+    def test_unauthorized_cohorts_all(self, client, fake_auth):
+        """Denies access to non-ASC advisor."""
+        fake_auth.login('1022796')
+        assert client.get('/api/cohorts/all').status_code == 403
+
     def test_get_cohort(self, authenticated_session, client):
         """Returns a well-formed response with custom cohort."""
         expected_cohort = _find_my_cohort_by_name(test_uid, 'All sports')
@@ -216,6 +221,16 @@ class TestCohortDetail:
         assert len(data_1['students']) == 1
         # Verify that a different offset results in a different member
         assert data_0['students'][0]['uid'] != data_1['students'][0]['uid']
+
+    def test_unauthorized_request_for_athletic_study_center_data(self, client, fake_auth):
+        """In order to access intensive_cohort, inactive status, etc. the user must be either ASC or Admin."""
+        fake_auth.login('1022796')
+        data = {
+            'label': 'My filtered cohort just hacked the system!',
+            'isInactiveAsc': True,
+        }
+        response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
+        assert response.status_code == 403
 
     def test_create_cohort(self, authenticated_session, client):
         """Creates custom cohort, owned by current user."""
@@ -361,4 +376,5 @@ class TestCohortDetail:
 
 
 def _find_my_cohort_by_name(uid, cohort_name):
-    return next(c for c in CohortFilter.all_owned_by(uid) if c['label'] == cohort_name)
+    cohorts = CohortFilter.all_owned_by(uid)
+    return next(c for c in cohorts if c['label'] == cohort_name) if len(CohortFilter.all_owned_by(uid)) else None

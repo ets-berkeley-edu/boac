@@ -62,33 +62,35 @@
   </div>
 </div>
 
-<hr class="sidebar-section-divider"/>
+<div data-ng-if="isCurrentUserAscAdvisor">
+  <hr class="sidebar-section-divider"/>
 
-<div class="sidebar-row-link" data-ng-if="isCurrentUserAscAdvisor">
-  <span class="sidebar-row-link-label">
-    <a id="sidebar-teams-link"
-       data-ui-sref="teams()"
-       data-ui-sref-opts="{reload: true}">Team List</a>
-  </span>
-</div>
-<div class="sidebar-row-link" data-ng-if="isCurrentUserAscAdvisor">
-  <span class="sidebar-row-link-label">
-    <a id="sidebar-cohort-intensive"
-       data-ui-sref="cohort({c: null, inactive: null, i: true})"
-       data-ui-sref-opts="{reload: true}">Intensive Students</a>
-  </span>
-</div>
-<div class="sidebar-row-link" data-ng-if="isCurrentUserAscAdvisor">
-  <span class="sidebar-row-link-label">
-    <a id="sidebar-cohort-inactive"
-       data-ui-sref="cohort({c: null, i: null, inactive: true})"
-       data-ui-sref-opts="{reload: true}">Inactive Students</a>
-  </span>
-</div>
-<div class="sidebar-row-link">
-  <span class="sidebar-row-link-label">
-    <a id="sidebar-filtered-cohorts-all"
-       data-ui-sref="cohorts()"
-       data-ui-sref-opts="{reload: true}">Everyone's Filtered Cohorts</a>
-  </span>
+  <div class="sidebar-row-link">
+    <span class="sidebar-row-link-label">
+      <a id="sidebar-teams-link"
+         data-ui-sref="teams()"
+         data-ui-sref-opts="{reload: true}">Team List</a>
+    </span>
+  </div>
+  <div class="sidebar-row-link">
+    <span class="sidebar-row-link-label">
+      <a id="sidebar-cohort-intensive"
+         data-ui-sref="cohort({c: null, inactive: null, i: true})"
+         data-ui-sref-opts="{reload: true}">Intensive Students</a>
+    </span>
+  </div>
+  <div class="sidebar-row-link">
+    <span class="sidebar-row-link-label">
+      <a id="sidebar-cohort-inactive"
+         data-ui-sref="cohort({c: null, i: null, inactive: true})"
+         data-ui-sref-opts="{reload: true}">Inactive Students</a>
+    </span>
+  </div>
+  <div class="sidebar-row-link">
+    <span class="sidebar-row-link-label">
+      <a id="sidebar-filtered-cohorts-all"
+         data-ui-sref="cohorts()"
+         data-ui-sref-opts="{reload: true}">Everyone's Filtered Cohorts</a>
+    </span>
+  </div>
 </div>

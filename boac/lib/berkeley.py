@@ -228,3 +228,12 @@ def is_authorized_to_use_boac(user):
             if authorized:
                 break
     return authorized
+
+
+def is_department_member(user, dept_code):
+    is_member = False
+    for m in user.department_memberships:
+        is_member = m.university_dept.dept_code == dept_code and (m.is_advisor or m.is_director)
+        if is_member:
+            break
+    return is_member

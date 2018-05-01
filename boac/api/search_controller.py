@@ -24,13 +24,14 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-from boac.api.errors import BadRequestError
+from boac.api.errors import BadRequestError, ForbiddenRequestError
 from boac.lib import util
+from boac.lib.berkeley import is_department_member
 from boac.lib.http import tolerant_jsonify
 from boac.merged import student_details
 from boac.models.student import Student
 from flask import current_app as app, request
-from flask_login import login_required
+from flask_login import current_user, login_required
 
 
 @app.route('/api/students/all')
@@ -53,6 +54,9 @@ def get_students():
     order_by = util.get(params, 'orderBy', None)
     offset = util.get(params, 'offset', 0)
     limit = util.get(params, 'limit', 50)
+    asc_authorized = current_user.is_admin or is_department_member(current_user, 'UWASC')
+    if not asc_authorized and (in_intensive_cohort is not None or is_inactive_asc is not None):
+        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     results = Student.get_students(
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
@@ -83,6 +87,9 @@ def search_for_students():
     order_by = util.get(params, 'orderBy', None)
     offset = util.get(params, 'offset', 0)
     limit = util.get(params, 'limit', 50)
+    asc_authorized = current_user.is_admin or is_department_member(current_user, 'UWASC')
+    if not asc_authorized and is_inactive_asc is not None:
+        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     results = Student.search_for_students(
         search_phrase=search_phrase.replace(',', ' '),
         is_active_asc=None if is_inactive_asc is None else not is_inactive_asc,
