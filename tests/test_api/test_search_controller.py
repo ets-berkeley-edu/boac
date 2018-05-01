@@ -136,6 +136,13 @@ class TestSearch:
         assert response.status_code == 200
         assert len(response.json['students']) == response.json['totalStudentCount'] == 2
 
+    def test_alerts_in_search_results(self, client, create_alerts, fake_auth):
+        """Search results include alert counts."""
+        fake_auth.login('2040')
+        response = client.post('/api/students/search', data=json.dumps({'searchPhrase': '89012'}), content_type='application/json')
+        assert response.status_code == 200
+        assert len(response.json['students']) == response.json['totalStudentCount'] == 2
+
     def test_search_by_name_snippet(self, client, fake_auth):
         """Search by snippet of name."""
         fake_auth.login('2040')
@@ -146,7 +153,7 @@ class TestSearch:
         assert ['Crossman', 'Davies', 'Doolittle'] == [s['lastName'] for s in students]
 
     def test_search_by_full_name_snippet(self, client, fake_auth):
-        """Search by snippet of name."""
+        """Search by snippet of full name."""
         fake_auth.login('2040')
         permutations = ['david c', 'john  david cro', 'john    cross', ' crossman, j ']
         for phrase in permutations:

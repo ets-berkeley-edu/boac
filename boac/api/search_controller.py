@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError
+from boac.api.util import decorate_students
 from boac.lib import util
 from boac.lib.berkeley import is_department_member
 from boac.lib.http import tolerant_jsonify
@@ -69,9 +70,10 @@ def get_students():
         offset=offset,
         limit=limit,
     )
-    student_details.merge_all(results['students'])
+    students = decorate_students(current_user_id=current_user.id, students=results['students'])
+    student_details.merge_all(students)
     return tolerant_jsonify({
-        'students': results['students'],
+        'students': students,
         'totalStudentCount': results['totalStudentCount'],
     })
 
@@ -97,8 +99,9 @@ def search_for_students():
         offset=offset,
         limit=limit,
     )
-    student_details.merge_all(results['students'])
+    students = decorate_students(current_user_id=current_user.id, students=results['students'])
+    student_details.merge_all(students)
     return tolerant_jsonify({
-        'students': results['students'],
+        'students': students,
         'totalStudentCount': results['totalStudentCount'],
     })
