@@ -84,7 +84,9 @@
                     Curated Cohorts
                   </h4>
                 </div>
-                <div class="student-group-checkbox" data-ng-repeat="group in myGroups track by $index">
+                <div class="student-group-checkbox"
+                     data-ng-repeat="group in myGroups track by $index"
+                     data-ng-if="myGroups.length">
                   <input id="curated-cohort-checkbox-{{$index}}"
                          class="student-group-checkbox-input"
                          type="checkbox"
@@ -93,6 +95,9 @@
                   <div class="student-group-checkbox-label">
                     <a data-ng-href="/group/{{group.id}}" data-ng-bind="group.name"></a>
                   </div>
+                </div>
+                <div class="student-group-checkbox" data-ng-if="!myGroups.length">
+                  <span class="faint-text">You have no curated cohorts.</span>
                 </div>
               </div>
             </div>
