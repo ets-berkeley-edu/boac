@@ -126,17 +126,22 @@ def course_section_to_json(term_id, section):
 
 def decorate_student_groups(current_user_id, groups, remove_students_without_alerts=False):
     for group in groups:
-        students_by_sid = {student['sid']: student for student in group['students']}
-        alert_counts = Alert.current_alert_counts_for_sids(current_user_id, list(students_by_sid.keys()))
-        for result in alert_counts:
-            student = students_by_sid[result['sid']]
-            student.update({
-                'alertCount': result['alertCount'],
-            })
-        if remove_students_without_alerts:
-            group['students'] = [s for s in group['students'] if s.get('alertCount')]
-        group['students'] = sorted(group['students'], key=lambda s: (s['firstName'], s['lastName']))
+        students = decorate_students(current_user_id, group['students'], remove_students_without_alerts)
+        group['students'] = sorted(students, key=lambda s: (s['firstName'], s['lastName']))
     return groups
+
+
+def decorate_students(current_user_id, students, remove_students_without_alerts=False):
+    students_by_sid = {student['sid']: student for student in students}
+    alert_counts = Alert.current_alert_counts_for_sids(current_user_id, list(students_by_sid.keys()))
+    for result in alert_counts:
+        student = students_by_sid[result['sid']]
+        student.update({
+            'alertCount': result['alertCount'],
+        })
+    if remove_students_without_alerts:
+        students = [s for s in students if s.get('alertCount')]
+    return students
 
 
 def _get_meetings(section):
