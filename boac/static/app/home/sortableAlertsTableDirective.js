@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').directive('sortableAlertsTable', function(authService, config, $rootScope) {
+  angular.module('boac').directive('sortableAlertsTable', function(authService, config) {
 
     return {
       // @see https://docs.angularjs.org/guide/directive#template-expanding-directive
@@ -44,7 +44,6 @@
       link: function(scope) {
         scope.isCurrentUserAscAdvisor = authService.isCurrentUserAscAdvisor();
         scope.demoMode = config.demoMode;
-        scope.curatedCohortStudentToggle = $rootScope.curatedCohortStudentToggle;
         scope.sort = function(options, sortBy) {
           if (options.sortBy === sortBy) {
             options.reverse = !options.reverse;
