@@ -484,7 +484,7 @@
       $scope.showIntensiveCheckbox = false;
       $scope.showInactiveCheckbox = false;
       $scope.search.dropdown = defaultDropdownState();
-      $rootScope.$broadcast('resetStudentGroupsSelector');
+      $rootScope.$broadcast('resetCuratedCohortSelector');
       // Refresh search results
       $scope.cohort.code = 'search';
       $rootScope.pageTitle = 'Search';

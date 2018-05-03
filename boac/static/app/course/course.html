@@ -63,7 +63,8 @@
 
       <div class="course-tabs-container">
         <div class="course-tabs-container-column-01">
-          <curated-cohort-selector data-students="section.students" data-ng-if="tab === 'list'"></curated-cohort-selector>
+          <curated-cohort-selector data-students="section.students"
+                                   data-ng-if="section.students.length && (tab === 'list')"></curated-cohort-selector>
         </div>
         <div class="course-tabs-container-column-02">
           <div data-ng-include="'/static/app/shared/tabs.html'"></div>
@@ -94,8 +95,8 @@
               <div class="student-checkbox-add-to-group">
                 <input id="student-{{student.uid}}-curated-cohort-checkbox"
                        type="checkbox"
-                       data-ng-click="curatedCohortStudentToggle(student)"
-                       data-ng-model="student.selectedForStudentGroups"/>
+                       data-ng-click="student.curatedCohortToggle($event)"
+                       data-ng-model="student.selectedForCuratedCohort"/>
               </div>
             </div>
 

@@ -52,29 +52,49 @@
 
         scope.selector = {
           selectAllCheckbox: false,
-          showGroupsMenu: false
+          showCuratedCohortMenu: false
         };
-
-        var init = function() {
-          var me = authService.getMe();
-          scope.myGroups = me.myGroups;
-          _.each(scope.students, function(student) {
-            // Init all student checkboxes to false
-            student.selectedForStudentGroups = false;
-          });
-          scope.isLoading = false;
-        };
-
-        init();
 
         /**
          * Show or hide the student-groups menu based on page state.
          *
          * @return {void}
          */
-        var updateShowGroupsMenu = function() {
-          scope.selector.showGroupsMenu = scope.selector.selectAllCheckbox || !!_.find(scope.students, 'selectedForStudentGroups');
+        var updateCuratedCohortMenu = function() {
+          scope.selector.showCuratedCohortMenu = scope.selector.selectAllCheckbox || !!_.find(scope.students, 'selectedForCuratedCohort');
         };
+
+        var initStudent = function(student) {
+          // Init all student checkboxes to false
+          student.selectedForCuratedCohort = false;
+          student.curatedCohortToggle = function(event) {
+            event.stopPropagation();
+            if (student.selectedForCuratedCohort) {
+              var allStudentsSelected = true;
+              _.each(scope.students, function(_student) {
+                if (!_student.selectedForCuratedCohort) {
+                  // We found a checkbox not checked. The 'all' checkbox must be false.
+                  allStudentsSelected = false;
+                  // Break out of loop.
+                  return false;
+                }
+              });
+              scope.selector.selectAllCheckbox = allStudentsSelected;
+            } else {
+              scope.selector.selectAllCheckbox = false;
+            }
+            updateCuratedCohortMenu();
+          };
+        };
+
+        var init = function() {
+          var me = authService.getMe();
+          scope.myGroups = me.myGroups;
+          _.each(scope.students, initStudent);
+          scope.isLoading = false;
+        };
+
+        init();
 
         /**
          * Toggle the all-student-groups checkbox.
@@ -85,11 +105,11 @@
         var toggleAllStudentCheckboxes = scope.toggleAllStudentCheckboxes = function(value) {
           var selected = _.isNil(value) ? scope.selector.selectAllCheckbox : value;
           _.each(scope.students, function(student) {
-            student.selectedForStudentGroups = selected;
+            student.selectedForCuratedCohort = selected;
           });
           scope.selector.selectAllCheckbox = selected;
-          updateShowGroupsMenu();
-          scope.selector.showGroupsMenu = selected;
+          updateCuratedCohortMenu();
+          scope.selector.showCuratedCohortMenu = selected;
         };
 
         /**
@@ -101,13 +121,13 @@
         var groupCheckboxClick = scope.groupCheckboxClick = function(group) {
           scope.isSaving = true;
           var students = _.filter(scope.students, function(student) {
-            return student.selectedForStudentGroups && !studentGroupService.isStudentInGroup(student, group);
+            return student.selectedForCuratedCohort && !studentGroupService.isStudentInGroup(student, group);
           });
           if (students.length) {
             studentGroupFactory.addStudentsToGroup(group, students).then(function() {
               scope.selector.selectAllCheckbox = false;
               _.each(scope.students, function(student) {
-                student.selectedForStudentGroups = false;
+                student.selectedForCuratedCohort = false;
               });
             });
           }
@@ -123,27 +143,6 @@
           }, 2000);
         };
 
-        /**
-         * @param  {Student}    student      Add/remove student to/from curated cohort.
-         * @return {void}
-         */
-        $rootScope.curatedCohortStudentToggle = function(student) {
-          if (student.selectedForStudentGroups) {
-            var allStudentsSelected = true;
-            _.each(scope.students, function(_student) {
-              if (!_student.selectedForStudentGroups) {
-                // We found a checkbox not checked. The 'all' checkbox must be false.
-                allStudentsSelected = false;
-                // Break out of loop.
-                return false;
-              }
-            });
-            scope.selector.selectAllCheckbox = allStudentsSelected;
-          } else {
-            scope.selector.selectAllCheckbox = false;
-          }
-          updateShowGroupsMenu();
-        };
 
         $rootScope.$on('groupCreated', function(event, data) {
           var group = data.group;
@@ -151,7 +150,7 @@
           groupCheckboxClick(group);
         });
 
-        $rootScope.$on('resetStudentGroupsSelector', function() {
+        $rootScope.$on('resetCuratedCohortSelector', function() {
           toggleAllStudentCheckboxes(false);
         });
       }
