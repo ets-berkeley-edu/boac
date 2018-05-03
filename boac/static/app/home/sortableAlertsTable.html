@@ -32,8 +32,8 @@
       <div class="student-checkbox-add-to-group">
         <input id="{{student.uid}}-curated-cohort-checkbox"
                type="checkbox"
-               data-ng-click="curatedCohortStudentToggle(student)"
-               data-ng-model="student.selectedForStudentGroups"/>
+               data-ng-click="student.curatedCohortToggle($event)"
+               data-ng-model="student.selectedForCuratedCohort"/>
       </div>
     </div>
     <div class="group-summary-column group-summary-column-01">

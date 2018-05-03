@@ -22,7 +22,8 @@
 
   <div class="cohort-column-results" data-ng-if="!isLoading && !error && search.totalStudentCount">
     <div class="search-header-curated-cohort">
-      <curated-cohort-selector data-students="search.students"></curated-cohort-selector>
+      <curated-cohort-selector data-students="search.students"
+                               data-ng-if="search.students.length"></curated-cohort-selector>
     </div>
     <div>
       <sortable-alerts-table data-students="search.students" data-options="displayOptions"></sortable-alerts-table>
