@@ -76,8 +76,7 @@ def get_course_scores(course_id, term_id):
 
 @fixture('loch_scores_{course_id}.csv')
 def _get_course_scores(course_id):
-    sql = f"""SELECT
-              user_id as canvas_user_id, current_score
+    sql = f"""SELECT canvas_user_id, current_score
               FROM {boac_schema()}.user_course_scores
               WHERE course_id={course_id}
               ORDER BY canvas_user_id
@@ -92,7 +91,7 @@ def get_on_time_submissions_relative_to_user(course_id, user_id, term_id):
 
 @fixture('loch_on_time_submissions_relative_to_user_{course_id}_{user_id}.csv')
 def _get_on_time_submissions_relative_to_user(course_id, user_id):
-    sql = f"""SELECT user_id as canvas_user_id,
+    sql = f"""SELECT canvas_user_id,
         COUNT(CASE WHEN
           assignment_status in ('graded', 'on_time', 'submitted')
         THEN 1 ELSE NULL END) AS on_time_submissions
@@ -100,12 +99,12 @@ def _get_on_time_submissions_relative_to_user(course_id, user_id):
         WHERE assignment_id IN
         (
           SELECT DISTINCT assignment_id FROM {boac_schema()}.assignment_submissions_scores
-          WHERE user_id = {user_id} AND course_id = {course_id}
+          WHERE canvas_user_id = {user_id} AND course_id = {course_id}
         )
-        GROUP BY user_id
+        GROUP BY canvas_user_id
         HAVING count(*) = (
           SELECT count(*) FROM {boac_schema()}.assignment_submissions_scores
-          WHERE user_id = {user_id} AND course_id = {course_id}
+          WHERE canvas_user_id = {user_id} AND course_id = {course_id}
         )
         """
     return safe_execute(sql)
@@ -118,7 +117,7 @@ def get_submissions_turned_in_relative_to_user(course_id, user_id, term_id):
 
 @fixture('loch_submissions_turned_in_relative_to_user_{course_id}_{user_id}.csv')
 def _get_submissions_turned_in_relative_to_user(course_id, user_id):
-    sql = f"""SELECT user_id as canvas_user_id,
+    sql = f"""SELECT canvas_user_id,
         COUNT(CASE WHEN
           assignment_status IN ('graded', 'late', 'on_time', 'submitted')
         THEN 1 ELSE NULL END) AS submissions_turned_in
@@ -126,12 +125,12 @@ def _get_submissions_turned_in_relative_to_user(course_id, user_id):
         WHERE assignment_id IN
         (
           SELECT DISTINCT assignment_id FROM {boac_schema()}.assignment_submissions_scores
-          WHERE user_id = {user_id} AND course_id = {course_id}
+          WHERE canvas_user_id = {user_id} AND course_id = {course_id}
         )
-        GROUP BY user_id
+        GROUP BY canvas_user_id
         HAVING count(*) = (
           SELECT count(*) FROM {boac_schema()}.assignment_submissions_scores
-          WHERE user_id = {user_id} AND course_id = {course_id}
+          WHERE canvas_user_id = {user_id} AND course_id = {course_id}
         )
         """
     return safe_execute(sql)
