@@ -122,19 +122,24 @@ def stow(key_pattern, for_term=False):
             to_stow = func(*args, **kw)
             if to_stow is not None:
                 app.logger.debug('Will stow JSON for key {key}'.format(key=key))
-                row = working_cache()(key=key, json=to_stow)
-                try:
-                    db.session.add(row)
-                    std_commit()
-                except IntegrityError:
-                    app.logger.warn('Conflict for key {key}; will attempt to return stowed JSON'.format(key=key))
-                    stowed = working_cache().query.filter_by(key=key).first()
-                    if stowed is not None:
-                        return stowed.json
+                insert_row(key=key, json=to_stow)
             else:
                 app.logger.info('{key} not generated and will not be stowed in DB'.format(key=key))
             return to_stow
     return _stow
+
+
+def insert_row(key, json):
+    """Insert new cache row with conflict checks."""
+    row = working_cache()(key=key, json=json)
+    try:
+        db.session.add(row)
+        std_commit()
+    except IntegrityError:
+        app.logger.warn('Conflict for key {key}; will attempt to return stowed JSON'.format(key=key))
+        stowed = working_cache().query.filter_by(key=key).first()
+        if stowed is not None:
+            return stowed.json
 
 
 def update_jsonb_row(stowed):

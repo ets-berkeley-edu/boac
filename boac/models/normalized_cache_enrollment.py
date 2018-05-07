@@ -28,7 +28,7 @@ import re
 from boac import db, std_commit
 from boac.lib.berkeley import sis_term_id_for_name, term_name_for_sis_id
 from boac.models.base import Base
-from boac.models.json_cache import update_jsonb_row, working_cache
+from boac.models.json_cache import insert_row, update_jsonb_row, working_cache
 from boac.models.student import Student
 
 
@@ -95,8 +95,7 @@ class NormalizedCacheEnrollment(Base):
                 row.json = section
                 update_jsonb_row(row)
             else:
-                db.session.add(working_cache()(key=key, json=section))
-        std_commit()
+                insert_row(key=key, json=section)
 
     @classmethod
     def _course_section_cache_key(cls, term_id, section_id):
