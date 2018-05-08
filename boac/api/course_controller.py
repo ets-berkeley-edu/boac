@@ -48,7 +48,10 @@ def get_section(term_id, section_id):
     student_details.merge_all(students, section['termId'])
     for student in students:
         # Cherry-pick enrollment of section requested
-        for enrollment in student.get('term', {}).get('enrollments', []):
+        student_term = student.get('term')
+        if not student_term:
+            continue
+        for enrollment in student_term.get('enrollments', []):
             if enrollment['displayName'] == section['displayName']:
                 student['enrollment'] = enrollment
     if students and util.to_bool_or_none(request.args.get('includeAverage')):
