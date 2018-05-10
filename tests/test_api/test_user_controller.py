@@ -260,12 +260,6 @@ class TestUserAnalytics:
         assert analytics['pageViews']['courseDeciles'][9] == 917
         assert analytics['pageViews']['courseDeciles'][10] == 31983
 
-        assert analytics['participations']['student']['raw'] == 5
-        assert analytics['participations']['student']['percentile'] == 83
-        assert analytics['participations']['courseDeciles'][0] == 0
-        assert analytics['participations']['courseDeciles'][9] == 6
-        assert analytics['participations']['courseDeciles'][10] == 12
-
         assert analytics['loch']['assignmentsOnTime']['student']['raw'] == 7
         assert analytics['loch']['assignmentsSubmitted']['student']['raw'] == 8
         assert analytics['loch']['pageViews']['student']['raw'] == 766

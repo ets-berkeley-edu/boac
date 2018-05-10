@@ -179,7 +179,7 @@ class TestCohortDetail:
         assert term['enrollments'][0]['displayName'] == 'BURMESE 1A'
         assert len(term['enrollments'][0]['canvasSites']) == 1
         analytics = athlete['analytics']
-        for metric in ['assignmentsOnTime', 'pageViews', 'participations', 'courseCurrentScore']:
+        for metric in ['assignmentsOnTime', 'pageViews', 'courseCurrentScore']:
             assert analytics[metric]['percentile'] > 0
             assert analytics[metric]['displayPercentile'].endswith(('rd', 'st', 'th'))
 
