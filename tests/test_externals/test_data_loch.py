@@ -44,11 +44,6 @@ class TestDataLoch:
         assert len(data) > 0
         assert {'canvas_user_id': 9000100, 'current_score': 84} in data
 
-    def test_on_time_submissions_relative_to_user_fixture(self, app):
-        data = data_loch._get_on_time_submissions_relative_to_user(7654321, 9000100)
-        assert len(data) > 0
-        assert {'canvas_user_id': 9000100, 'on_time_submissions': 7} in data
-
     def test_submissions_turned_in_relative_to_user_fixture(self, app):
         data = data_loch._get_submissions_turned_in_relative_to_user(7654321, 9000100)
         assert len(data) > 0

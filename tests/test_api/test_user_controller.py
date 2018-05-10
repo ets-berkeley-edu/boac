@@ -239,30 +239,27 @@ class TestUserAnalytics:
     def test_course_site_without_membership(self, authenticated_response):
         """Returns a graceful error if the expected membership is not found in the course site."""
         course_without_membership = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'BURMESE 1A')
-        assert course_without_membership['canvasSites'][0]['analytics']['error'] == 'Unable to retrieve analytics'
+        for metric in ['assignmentsSubmitted', 'courseCurrentScore', 'daysSinceCourseSiteVisited']:
+            assert course_without_membership['canvasSites'][0]['analytics'][metric]['error'] == 'Unable to retrieve from Data Loch'
 
     def test_course_site_with_enrollment(self, authenticated_response):
         """Returns sensible data if the expected enrollment is found in the course site."""
         course_with_enrollment = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'MED ST 205')
         analytics = course_with_enrollment['canvasSites'][0]['analytics']
 
-        assert analytics['assignmentsOnTime']['student']['raw'] == 5
-        assert analytics['assignmentsOnTime']['student']['percentile'] == 93
-        assert analytics['assignmentsOnTime']['courseDeciles'][0] == 0
-        assert analytics['assignmentsOnTime']['courseDeciles'][9] == 5
-        assert analytics['assignmentsOnTime']['courseDeciles'][10] == 6
+        assert analytics['assignmentsSubmitted']['student']['raw'] == 8
+        assert analytics['assignmentsSubmitted']['student']['percentile'] == 64
+        assert analytics['assignmentsSubmitted']['courseDeciles'][0] == 0
+        assert analytics['assignmentsSubmitted']['courseDeciles'][9] == 10
+        assert analytics['assignmentsSubmitted']['courseDeciles'][10] == 17
 
         assert analytics['courseCurrentScore']['student']['raw'] == 84
 
-        assert analytics['daysSinceCourseSiteVisited']['student']['raw'] == 768
+        assert analytics['daysSinceCourseSiteVisited']['student']['raw'] == 766
         assert analytics['daysSinceCourseSiteVisited']['student']['percentile'] == 54
         assert analytics['daysSinceCourseSiteVisited']['courseDeciles'][0] == 9
         assert analytics['daysSinceCourseSiteVisited']['courseDeciles'][9] == 917
         assert analytics['daysSinceCourseSiteVisited']['courseDeciles'][10] == 31983
-
-        assert analytics['loch']['assignmentsOnTime']['student']['raw'] == 7
-        assert analytics['loch']['assignmentsSubmitted']['student']['raw'] == 8
-        assert analytics['loch']['daysSinceCourseSiteVisited']['student']['raw'] == 766
 
     def test_empty_canvas_course_feed(self, client, fake_auth):
         """Returns 200 if user is found and Canvas course feed is empty."""

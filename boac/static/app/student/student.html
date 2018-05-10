@@ -267,27 +267,27 @@
                   <table class="visualize-metrics">
                     <tr>
                       <td class="visualize-metrics-legend">
-                        Online Assignments on Time
+                        Assignments Submitted
                       </td>
                       <td>
-                        <span data-ng-if="canvasSite.analytics.assignmentsOnTime.displayPercentile">
-                          <strong data-ng-bind="canvasSite.analytics.assignmentsOnTime.displayPercentile"></strong> percentile
+                        <span data-ng-if="canvasSite.analytics.assignmentsSubmitted.displayPercentile">
+                          <strong data-ng-bind="canvasSite.analytics.assignmentsSubmitted.displayPercentile"></strong> percentile
                         </span>
                         <span class="visualize-metrics-no-data"
-                              data-ng-if="!canvasSite.analytics.assignmentsOnTime.displayPercentile">
+                              data-ng-if="!canvasSite.analytics.assignmentsSubmitted.displayPercentile">
                           No Assignments
                         </span>
                       </td>
                       <td>
-                        <span data-ng-if="canvasSite.analytics.assignmentsOnTime.displayPercentile">
+                        <span data-ng-if="canvasSite.analytics.assignmentsSubmitted.displayPercentile">
                           Score:
-                          <strong data-ng-bind="canvasSite.analytics.assignmentsOnTime.student.raw"></strong>
+                          <strong data-ng-bind="canvasSite.analytics.assignmentsSubmitted.student.raw"></strong>
                           <span class="visualize-metrics-maximum">
-                            (Maximum: <span data-ng-bind="canvasSite.analytics.assignmentsOnTime.courseDeciles[10]"></span>)
+                            (Maximum: <span data-ng-bind="canvasSite.analytics.assignmentsSubmitted.courseDeciles[10]"></span>)
                           </span>
                         </span>
                         <span class="visualize-metrics-no-data"
-                              data-ng-if="!canvasSite.analytics.assignmentsOnTime.displayPercentile">
+                              data-ng-if="!canvasSite.analytics.assignmentsSubmitted.displayPercentile">
                           No Data
                         </span>
                       </td>

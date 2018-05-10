@@ -53,7 +53,11 @@ class MockRows:
         df = pandas.read_csv(self.csv_in, dtype={'uid': object})
         # `pandas` also likes to store its numbers as numpy.int64, which is not JSON serializable, so we have
         # to pipe the dataframe through JSON conversion before returning.
-        return json.loads(df.to_json(None, 'records'))
+        result = json.loads(df.to_json(None, 'records'))
+        # Be kind, rewind.
+        if hasattr(self.csv_in, 'seek'):
+            self.csv_in.seek(0)
+        return result
 
 
 """Registry associating mockable request functions with zero or more mock responses. Responses are arranged
