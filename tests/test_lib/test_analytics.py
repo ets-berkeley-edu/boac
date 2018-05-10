@@ -119,7 +119,7 @@ class TestAnalyticsFromSummaryFeed:
         best = analytics.analytics_from_summary_feed(summary_feed, self.canvas_user_id, self.canvas_course_id)
         median = analytics.analytics_from_summary_feed(summary_feed, '101', self.canvas_course_id)
         for digested in [worst, best, median]:
-            for column in ['assignmentsOnTime', 'pageViews', 'participations']:
+            for column in ['assignmentsOnTime', 'pageViews']:
                 assert digested[column]['boxPlottable'] is False
                 assert digested[column]['student']['percentile'] is not None
 
@@ -158,7 +158,7 @@ class TestAnalyticsFromSummaryFeed:
             },
         ]
         digested = analytics.analytics_from_summary_feed(summary_feed, self.canvas_user_id, self.canvas_course_id)
-        for column in ['assignmentsOnTime', 'pageViews', 'participations']:
+        for column in ['assignmentsOnTime', 'pageViews']:
             assert digested[column]['boxPlottable'] is False
             assert digested[column]['displayPercentile'] is None
             assert digested[column]['student']['percentile'] is None
@@ -189,7 +189,7 @@ class TestAnalyticsFromSummaryFeed:
             },
         ]
         digested = analytics.analytics_from_summary_feed(summary_feed, self.canvas_user_id, self.canvas_course_id)
-        for column in ['assignmentsOnTime', 'participations']:
+        for column in ['assignmentsOnTime']:
             assert digested[column]['boxPlottable'] is False
             assert digested[column]['displayPercentile'] is None
             assert digested[column]['student']['percentile'] is None
@@ -223,15 +223,12 @@ class TestAnalyticsFromSummaryFeed:
 
         digested = analytics.analytics_from_summary_feed(summary_feed, self.canvas_user_id, self.canvas_course_id)
         print('zeroth = {}'.format(repr(digested)))
-        for column in ['assignmentsOnTime', 'participations']:
+        for column in ['assignmentsOnTime']:
             assert digested[column]['boxPlottable'] is False
             assert digested[column]['student']['percentile'] is not None
         assert digested['assignmentsOnTime']['displayPercentile'] == '0th'
         assert digested['assignmentsOnTime']['student']['raw'] == 0
         assert digested['assignmentsOnTime']['courseDeciles'][10] == 16
-        assert digested['participations']['displayPercentile'] == '0th'
-        assert digested['participations']['student']['raw'] == 0
-        assert digested['participations']['courseDeciles'][10] == 11
         assert digested['pageViews']['displayPercentile'] == '0th'
         assert digested['pageViews']['boxPlottable'] is True
 

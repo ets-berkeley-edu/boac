@@ -61,7 +61,7 @@ def mean_course_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_
     merge_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id)
     mean_values = {}
     # TODO Remove misleading assignmentsOnTime metric.
-    for metric in ['assignmentsOnTime', 'pageViews', 'participations', 'courseCurrentScore']:
+    for metric in ['assignmentsOnTime', 'pageViews', 'courseCurrentScore']:
         percentiles = []
         for course in user_courses:
             percentile = course['analytics'].get(metric, {}).get('student', {}).get('percentile')
@@ -83,7 +83,6 @@ def get_student_averages(term_id, canvas_course_id):
         average_student = {
             'id': 0,
             'max_page_views': summary_feed[0]['max_page_views'],
-            'max_participations': summary_feed[0]['max_participations'],
             'tardiness_breakdown': {},
         }
 
@@ -92,7 +91,6 @@ def get_student_averages(term_id, canvas_course_id):
         for student in summary_feed:
             # Get sum totals
             _add(student, 'page_views', average_student)
-            _add(student, 'participations', average_student)
             tardiness_breakdown = student.get('tardiness_breakdown')
             if tardiness_breakdown:
                 target = average_student['tardiness_breakdown']
@@ -109,8 +107,6 @@ def get_student_averages(term_id, canvas_course_id):
                 _average_student[_key] = round(_average_student[_key] / count)
         _average(average_student, 'page_views')
         _average(average_student, 'page_views_level')
-        _average(average_student, 'participations')
-        _average(average_student, 'participations_level')
         tb = average_student['tardiness_breakdown']
         _average(tb, 'floating')
         _average(tb, 'missing')
@@ -124,7 +120,7 @@ def get_student_averages(term_id, canvas_course_id):
 def analytics_from_summary_feed(summary_feed, canvas_user_id, canvas_course_id):
     """Given a student summary feed for a Canvas course, return analytics for a given user."""
     # TODO Remove misleading tardiness_breakdown stats.
-    df = pandas.DataFrame(summary_feed, columns=['id', 'page_views', 'participations', 'tardiness_breakdown'])
+    df = pandas.DataFrame(summary_feed, columns=['id', 'page_views', 'tardiness_breakdown'])
     df['on_time'] = [row['on_time'] for row in df['tardiness_breakdown']]
     student_row = df.loc[df['id'].values == canvas_user_id]
     if not len(student_row):
@@ -133,7 +129,6 @@ def analytics_from_summary_feed(summary_feed, canvas_user_id, canvas_course_id):
     return {
         'assignmentsOnTime': analytics_for_column(df, student_row, 'on_time'),
         'pageViews': analytics_for_column(df, student_row, 'page_views'),
-        'participations': analytics_for_column(df, student_row, 'participations'),
     }
 
 
