@@ -119,7 +119,7 @@ class TestAnalyticsFromSummaryFeed:
         best = analytics.analytics_from_summary_feed(summary_feed, self.canvas_user_id, self.canvas_course_id)
         median = analytics.analytics_from_summary_feed(summary_feed, '101', self.canvas_course_id)
         for digested in [worst, best, median]:
-            for column in ['assignmentsOnTime', 'pageViews']:
+            for column in ['assignmentsOnTime', 'daysSinceCourseSiteVisited']:
                 assert digested[column]['boxPlottable'] is False
                 assert digested[column]['student']['percentile'] is not None
 
@@ -158,7 +158,7 @@ class TestAnalyticsFromSummaryFeed:
             },
         ]
         digested = analytics.analytics_from_summary_feed(summary_feed, self.canvas_user_id, self.canvas_course_id)
-        for column in ['assignmentsOnTime', 'pageViews']:
+        for column in ['assignmentsOnTime', 'daysSinceCourseSiteVisited']:
             assert digested[column]['boxPlottable'] is False
             assert digested[column]['displayPercentile'] is None
             assert digested[column]['student']['percentile'] is None
@@ -229,8 +229,8 @@ class TestAnalyticsFromSummaryFeed:
         assert digested['assignmentsOnTime']['displayPercentile'] == '0th'
         assert digested['assignmentsOnTime']['student']['raw'] == 0
         assert digested['assignmentsOnTime']['courseDeciles'][10] == 16
-        assert digested['pageViews']['displayPercentile'] == '0th'
-        assert digested['pageViews']['boxPlottable'] is True
+        assert digested['daysSinceCourseSiteVisited']['displayPercentile'] == '0th'
+        assert digested['daysSinceCourseSiteVisited']['boxPlottable'] is True
 
 
 class TestAnalyticsFromLochAssignmentsOnTime:
@@ -320,7 +320,7 @@ class TestAnalyticsFromLochCurrentScores:
         assert digested['courseDeciles'] is None
 
 
-class TestAnalyticsFromLochPageViews:
+class TestAnalyticsFromLochDaysSinceCourseSiteVisited:
     uid = '61889'
     canvas_course_id = 7654321
     term_id = '2178'

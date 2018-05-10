@@ -61,7 +61,7 @@ def mean_course_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_
     merge_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id)
     mean_values = {}
     # TODO Remove misleading assignmentsOnTime metric.
-    for metric in ['assignmentsOnTime', 'pageViews', 'courseCurrentScore']:
+    for metric in ['assignmentsOnTime', 'daysSinceCourseSiteVisited', 'courseCurrentScore']:
         percentiles = []
         for course in user_courses:
             percentile = course['analytics'].get(metric, {}).get('student', {}).get('percentile')
@@ -128,7 +128,7 @@ def analytics_from_summary_feed(summary_feed, canvas_user_id, canvas_course_id):
         return {'error': 'Unable to retrieve analytics'}
     return {
         'assignmentsOnTime': analytics_for_column(df, student_row, 'on_time'),
-        'pageViews': analytics_for_column(df, student_row, 'page_views'),
+        'daysSinceCourseSiteVisited': analytics_for_column(df, student_row, 'page_views'),
     }
 
 
@@ -192,7 +192,7 @@ def analytics_from_loch(uid, canvas_user_id, canvas_course_id, term_id):
     return {
         'assignmentsOnTime': loch_assignments_on_time(canvas_user_id, canvas_course_id, term_id),
         'assignmentsSubmitted': loch_assignments_submitted(canvas_user_id, canvas_course_id, term_id),
-        'pageViews': loch_page_views(uid, canvas_course_id, term_id),
+        'daysSinceCourseSiteVisited': loch_page_views(uid, canvas_course_id, term_id),
     }
 
 

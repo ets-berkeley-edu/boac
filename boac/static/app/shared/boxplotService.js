@@ -161,7 +161,7 @@
           borderColor: 'transparent',
           headerFormat: '',
           hideDelay: 0,
-          pointFormat: dataset.student.raw + ' Page Views (Class median is ' + dataset.courseDeciles[5] + ')',
+          pointFormat: 'Last visited course site 17 days ago. 75 out of 78 have connected more recently.',
           positioner: function(labelWidth, labelHeight) {
             return {
               x: -50,
