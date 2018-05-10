@@ -92,7 +92,7 @@ def working_cache():
 
 def clear(key_like):
     matches = db.session.query(JsonCache).filter(JsonCache.key.like(key_like))
-    app.logger.info('Will delete {count} entries matching {key_like}'.format(count=matches.count(), key_like=key_like))
+    app.logger.info(f'Will delete {matches.count()} entries matching {key_like}')
     matches.delete(synchronize_session=False)
 
 
@@ -108,23 +108,21 @@ def stow(key_pattern, for_term=False):
         key = key_pattern.format(**args_dict)
         if for_term:
             term_name = term_name_for_sis_id(args_dict.get('term_id'))
-            key = 'term_{}-{}'.format(
-                term_name,
-                key,
-            )
+            key = f'term_{term_name}-{key}'
         stowed = working_cache().query.filter_by(key=key).first()
         # Note that the query returns a DB row rather than the value of the JSON column.
         if stowed is not None:
-            app.logger.debug('Returning stowed JSON for key {key}'.format(key=key))
+            app.logger.debug(f'Returning stowed JSON for key {key}')
             return stowed.json
         else:
-            app.logger.info('{key} not found in DB'.format(key=key))
+            db_type = 'staging' if is_staging() else 'runtime'
+            app.logger.info(f'{key} not found in {db_type} DB')
             to_stow = func(*args, **kw)
             if to_stow is not None:
-                app.logger.debug('Will stow JSON for key {key}'.format(key=key))
+                app.logger.debug(f'Will stow JSON for key {key}')
                 insert_row(key=key, json=to_stow)
             else:
-                app.logger.info('{key} not generated and will not be stowed in DB'.format(key=key))
+                app.logger.info(f'{key} not generated and will not be stowed in DB')
             return to_stow
     return _stow
 
@@ -136,7 +134,7 @@ def insert_row(key, json):
         db.session.add(row)
         std_commit()
     except IntegrityError:
-        app.logger.warn('Conflict for key {key}; will attempt to return stowed JSON'.format(key=key))
+        app.logger.warn(f'Conflict for key {key}; will attempt to return stowed JSON')
         stowed = working_cache().query.filter_by(key=key).first()
         if stowed is not None:
             return stowed.json
