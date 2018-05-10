@@ -254,15 +254,15 @@ class TestUserAnalytics:
 
         assert analytics['courseCurrentScore']['student']['raw'] == 84
 
-        assert analytics['pageViews']['student']['raw'] == 768
-        assert analytics['pageViews']['student']['percentile'] == 54
-        assert analytics['pageViews']['courseDeciles'][0] == 9
-        assert analytics['pageViews']['courseDeciles'][9] == 917
-        assert analytics['pageViews']['courseDeciles'][10] == 31983
+        assert analytics['daysSinceCourseSiteVisited']['student']['raw'] == 768
+        assert analytics['daysSinceCourseSiteVisited']['student']['percentile'] == 54
+        assert analytics['daysSinceCourseSiteVisited']['courseDeciles'][0] == 9
+        assert analytics['daysSinceCourseSiteVisited']['courseDeciles'][9] == 917
+        assert analytics['daysSinceCourseSiteVisited']['courseDeciles'][10] == 31983
 
         assert analytics['loch']['assignmentsOnTime']['student']['raw'] == 7
         assert analytics['loch']['assignmentsSubmitted']['student']['raw'] == 8
-        assert analytics['loch']['pageViews']['student']['raw'] == 766
+        assert analytics['loch']['daysSinceCourseSiteVisited']['student']['raw'] == 766
 
     def test_empty_canvas_course_feed(self, client, fake_auth):
         """Returns 200 if user is found and Canvas course feed is empty."""

@@ -244,15 +244,18 @@
 
 .visualize-metrics {
   margin-bottom: 20px;
+  width: 80%;
 }
 
 .visualize-metrics td {
   font-size: 14px;
   padding: 0 25px 5px 0;
+  vertical-align: top;
 }
 
 .visualize-metrics-legend {
   color: #999;
+  white-space: nowrap;
 }
 
 .visualize-metrics-maximum {
