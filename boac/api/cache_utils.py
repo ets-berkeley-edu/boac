@@ -28,7 +28,6 @@ import math
 from threading import Thread
 from boac import db, std_commit
 from boac.api.util import canvas_courses_api_feed
-from boac.lib import analytics
 from boac.lib import berkeley
 from boac.merged import import_asc_athletes
 from boac.merged.sis_enrollments import merge_sis_enrollments_for_term
@@ -283,15 +282,6 @@ def load_canvas_externals(uid, term_id):
                     failures.append(f'canvas.get_course_sections failed for UID {uid}, site_id {site_id}')
                     continue
                 success_count += 1
-                if not canvas.get_student_summaries(site_id, term_id):
-                    failures.append(f'canvas.get_student_summaries failed for site_id {site_id}')
-                    continue
-                success_count += 1
-                # Do not treat an empty list as a failure.
-                if canvas.get_assignments_analytics(site_id, uid, term_id) is None:
-                    failures.append(f'canvas.get_assignments_analytics failed for UID {uid}, site_id {site_id}')
-                    continue
-                success_count += 1
     return success_count, failures
 
 
@@ -329,8 +319,8 @@ def load_sis_externals(term_id, csid):
 
 def load_analytics_feeds(uid, sid, term_id):
     # Load distilled analytics feeds, one level up from the Canvas APIs already called by load_canvas_externals.
-    # Prior to load, existing assignment alerts for the student and term are deactivated. Alerts still in effect
-    # will be reactivated as feeds are loaded.
+    # Prior to load, existing assignment alerts for the student and term are deactivated.
+    # TODO Reinstate assignment alerts based on loch data.
     Alert.deactivate_all(sid=sid, term_id=term_id, alert_types=['late_assignment', 'missing_assignment'])
     from boac.externals import canvas, data_loch
     canvas_user_profile = canvas.get_user_for_uid(uid)
@@ -343,17 +333,10 @@ def load_analytics_feeds(uid, sid, term_id):
 
     def load_analytics_for_sites(sites):
         for site in sites:
-            analytics.analytics_from_canvas_course_assignments(
-                course_id=site['canvasCourseId'],
-                course_code=site['courseCode'],
-                uid=uid,
-                sid=sid,
-                term_id=term_id,
-            )
             data_loch.get_course_page_views(site['canvasCourseId'], term_id)
+            data_loch.get_course_scores(site['canvasCourseId'], term_id)
             canvas_user_id = canvas_user_profile.get('id')
             if canvas_user_id:
-                data_loch.get_on_time_submissions_relative_to_user(site['canvasCourseId'], canvas_user_id, term_id)
                 data_loch.get_submissions_turned_in_relative_to_user(site['canvasCourseId'], canvas_user_id, term_id)
     if merged_term_feed:
         for enrollment in merged_term_feed['enrollments']:

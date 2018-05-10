@@ -84,7 +84,7 @@
             <div class="course-list-view-column-01 course-list-view-column-header" data-ng-if="$first"></div>
             <div class="course-list-view-column-02 course-list-view-column-header" data-ng-if="$first"></div>
             <div class="course-list-view-column-03 course-list-view-column-header course-list-view-column-03-header" data-ng-if="$first">COURSE<div>SITE(S)</div></div>
-            <div class="course-list-view-column-04 course-list-view-column-header" data-ng-if="$first">ASSIGNMENTS <div class="no-wrap">ON TIME</div></div>
+            <div class="course-list-view-column-04 course-list-view-column-header" data-ng-if="$first">ASSIGNMENTS<div>SUBMITTED</div></div>
             <div class="course-list-view-column-05 course-list-view-column-header" data-ng-if="$first">ASSIGNMENT<div>GRADES</div></div>
             <div class="course-list-view-column-06 course-list-view-column-header" data-ng-if="$first">ACTIVITY</div>
             <div class="course-list-view-column-07 course-list-view-column-header" data-ng-if="$first">MID</div>
@@ -156,13 +156,13 @@
             <div class="course-list-view-column-04" data-ng-if="!$first">
               <div class="course-list-view-column-canvas-sites">
                 <div data-ng-repeat="canvasSite in student.enrollment.canvasSites">
-                  <div data-ng-if="canvasSite.analytics.assignmentsOnTime.displayPercentile">
-                    Score: <strong data-ng-bind="canvasSite.analytics.assignmentsOnTime.student.raw"></strong>
+                  <div data-ng-if="canvasSite.analytics.assignmentsSubmitted.displayPercentile">
+                    Score: <strong data-ng-bind="canvasSite.analytics.assignmentsSubmitted.student.raw"></strong>
                     <div class="faint-text">
-                      (Max: <span data-ng-bind="canvasSite.analytics.assignmentsOnTime.courseDeciles[10]"></span>)
+                      (Max: <span data-ng-bind="canvasSite.analytics.assignmentsSubmitted.courseDeciles[10]"></span>)
                     </div>
                   </div>
-                  <div data-ng-if="!canvasSite.analytics.assignmentsOnTime.displayPercentile">
+                  <div data-ng-if="!canvasSite.analytics.assignmentsSubmitted.displayPercentile">
                     No Data
                   </div>
                 </div>

@@ -150,7 +150,7 @@
       function y(d) { return _.get(d, yAxisMeasure).percentile; }
       function key(d) { return d.uid; }
 
-      var yAxisName = 'Assignments on time';
+      var yAxisName = 'Assignments Submitted';
       if (yAxisMeasure === 'analytics.courseCurrentScore') {
         yAxisName = 'Assignment grades';
       }

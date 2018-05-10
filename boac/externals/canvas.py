@@ -93,28 +93,6 @@ def _get_all_user_courses(uid, mock=None):
     return paged_request(path=path, query=query, mock=mock)
 
 
-@stow('canvas_student_summaries_for_course_{course_id}', for_term=True)
-def get_student_summaries(course_id, term_id):
-    return _get_student_summaries(course_id)
-
-
-@fixture('canvas_student_summaries_for_course_{course_id}')
-def _get_student_summaries(course_id, mock=None):
-    path = f'/api/v1/courses/{course_id}/analytics/student_summaries'
-    return paged_request(path=path, mock=mock)
-
-
-@stow('canvas_course_assignments_analytics_{course_id}_{uid}', for_term=True)
-def get_assignments_analytics(course_id, uid, term_id):
-    return _get_assignments_analytics(course_id, uid)
-
-
-@fixture('canvas_course_assignments_analytics_{course_id}_{uid}')
-def _get_assignments_analytics(course_id, uid, mock=None):
-    path = f'/api/v1/courses/{course_id}/analytics/users/sis_login_id:{uid}/assignments'
-    return paged_request(path=path, mock=mock)
-
-
 def build_url(path, query=None):
     working_url = app.config['CANVAS_HTTP_URL'] + path
     return http.build_url(working_url, query)

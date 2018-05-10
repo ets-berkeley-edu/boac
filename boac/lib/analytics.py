@@ -26,8 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import math
 from statistics import mean
-from boac.externals import canvas, data_loch
-from boac.models.json_cache import stow
+from boac.externals import data_loch
 from flask import current_app as app
 import pandas
 
@@ -36,32 +35,17 @@ def merge_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id):
     if user_courses:
         for course in user_courses:
             canvas_course_id = course['canvasCourseId']
-            course_code = course['courseCode']
-            student_summaries = canvas.get_student_summaries(canvas_course_id, term_id)
-            if not student_summaries:
-                analytics = {'error': 'Unable to retrieve analytics'}
-            else:
-                analytics = analytics_from_summary_feed(student_summaries, canvas_user_id, canvas_course_id)
-                analytics.update({
-                    'courseCurrentScore': loch_current_scores(canvas_user_id, canvas_course_id, term_id),
-                })
-                assignment_analytics = analytics_from_canvas_course_assignments(
-                    course_id=canvas_course_id,
-                    course_code=course_code,
-                    uid=uid,
-                    sid=sid,
-                    term_id=term_id,
-                )
-                analytics.update(assignment_analytics)
-                analytics.update({'loch': analytics_from_loch(uid, canvas_user_id, canvas_course_id, term_id)})
-            course['analytics'] = analytics
+            course['analytics'] = {
+                'courseCurrentScore': loch_current_scores(canvas_user_id, canvas_course_id, term_id),
+                'assignmentsSubmitted': loch_assignments_submitted(canvas_user_id, canvas_course_id, term_id),
+                'daysSinceCourseSiteVisited': loch_page_views(uid, canvas_course_id, term_id),
+            }
 
 
 def mean_course_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id):
     merge_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id)
     mean_values = {}
-    # TODO Remove misleading assignmentsOnTime metric.
-    for metric in ['assignmentsOnTime', 'daysSinceCourseSiteVisited', 'courseCurrentScore']:
+    for metric in ['assignmentsSubmitted', 'daysSinceCourseSiteVisited', 'courseCurrentScore']:
         percentiles = []
         for course in user_courses:
             percentile = course['analytics'].get(metric, {}).get('student', {}).get('percentile')
@@ -75,140 +59,14 @@ def mean_course_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_
     return mean_values
 
 
-@stow('average_student_per_course_{canvas_course_id}', for_term=True)
 def get_student_averages(term_id, canvas_course_id):
-    summary_feed = canvas.get_student_summaries(course_id=canvas_course_id, term_id=term_id)
-    averages = None
-    if summary_feed:
-        average_student = {
-            'id': 0,
-            'max_page_views': summary_feed[0]['max_page_views'],
-            'tardiness_breakdown': {},
-        }
-
-        def _add(_student, _key, _average_student):
-            _average_student[_key] = (_average_student.get(_key) or 0) + (_student.get(_key) or 0)
-        for student in summary_feed:
-            # Get sum totals
-            _add(student, 'page_views', average_student)
-            tardiness_breakdown = student.get('tardiness_breakdown')
-            if tardiness_breakdown:
-                target = average_student['tardiness_breakdown']
-                _add(tardiness_breakdown, 'floating', target)
-                _add(tardiness_breakdown, 'missing', target)
-                _add(tardiness_breakdown, 'on_time', target)
-                _add(tardiness_breakdown, 'total', target)
-                _add(tardiness_breakdown, 'late', target)
-        # Calculate averages
-        count = len(summary_feed)
-
-        def _average(_average_student, _key):
-            if _key in _average_student:
-                _average_student[_key] = round(_average_student[_key] / count)
-        _average(average_student, 'page_views')
-        _average(average_student, 'page_views_level')
-        tb = average_student['tardiness_breakdown']
-        _average(tb, 'floating')
-        _average(tb, 'missing')
-        _average(tb, 'on_time')
-        _average(tb, 'total')
-        _average(tb, 'late')
-        averages = analytics_from_summary_feed([average_student], average_student['id'], canvas_course_id)
-    return averages
-
-
-def analytics_from_summary_feed(summary_feed, canvas_user_id, canvas_course_id):
-    """Given a student summary feed for a Canvas course, return analytics for a given user."""
-    # TODO Remove misleading tardiness_breakdown stats.
-    df = pandas.DataFrame(summary_feed, columns=['id', 'page_views', 'tardiness_breakdown'])
-    df['on_time'] = [row['on_time'] for row in df['tardiness_breakdown']]
-    student_row = df.loc[df['id'].values == canvas_user_id]
-    if not len(student_row):
-        app.logger.error('Canvas ID {} not found in student summaries for course site {}'.format(canvas_user_id, canvas_course_id))
-        return {'error': 'Unable to retrieve analytics'}
-    return {
-        'assignmentsOnTime': analytics_for_column(df, student_row, 'on_time'),
-        'daysSinceCourseSiteVisited': analytics_for_column(df, student_row, 'page_views'),
-    }
-
-
-@stow('analytics_from_canvas_course_assignments_{course_id}_{uid}', for_term=True)
-def analytics_from_canvas_course_assignments(course_id, course_code, uid, sid, term_id):
-    assignments = canvas.get_assignments_analytics(course_id, uid, term_id)
-    if not assignments:
-        return {}
-    data = {
-        'assignmentTotals': {
-            'floating': 0,
-            'missing': 0,
-            'onTime': 0,
-            'pastDue': 0,
-            'all': 0,
-        },
-        'assignments': [],
-    }
-    for assignment in assignments:
-        data['assignmentTotals']['all'] += 1
-        total_type = assignment['status']
-        if total_type == 'on_time':
-            total_type = 'onTime'
-        elif total_type == 'late':
-            total_type = 'pastDue'
-        data['assignmentTotals'][total_type] += 1
-
-        # If there is no submission, the Canvas API may return a nil-valued 'submission' property or may leave it out.
-        submission = assignment.get(
-            'submission',
-            {
-                'score': None,
-                'submitted_at': None,
-            },
-        )
-
-        assignment_data = {
-            'id': assignment['assignment_id'],
-            'name': assignment['title'],
-            'dueDate': assignment['due_at'],
-            'pointsPossible': assignment['points_possible'],
-            'status': assignment['status'],
-            'score': submission['score'],
-            'submittedDate': submission['submitted_at'],
-            'maxScore': assignment['max_score'],
-            'firstQuartile': assignment['first_quartile'],
-            'median': assignment['median'],
-            'thirdQuartile': assignment['third_quartile'],
-            'minScore': assignment['min_score'],
-        }
-        data['assignments'].append(assignment_data)
-    return data
+    """Average student metrics are disabled; when the time comes to re-implement, we'll take the loch as source."""
+    return None
 
 
 def _get_canvas_sites_dict(student):
     canvas_sites = student.get('enrollment', {}).get('canvasSites', [])
     return {str(canvas_site['canvasCourseId']): canvas_site for canvas_site in canvas_sites}
-
-
-def analytics_from_loch(uid, canvas_user_id, canvas_course_id, term_id):
-    return {
-        'assignmentsOnTime': loch_assignments_on_time(canvas_user_id, canvas_course_id, term_id),
-        'assignmentsSubmitted': loch_assignments_submitted(canvas_user_id, canvas_course_id, term_id),
-        'daysSinceCourseSiteVisited': loch_page_views(uid, canvas_course_id, term_id),
-    }
-
-
-def loch_assignments_on_time(canvas_user_id, canvas_course_id, term_id):
-    course_rows = data_loch.get_on_time_submissions_relative_to_user(canvas_course_id, canvas_user_id, term_id)
-    if course_rows is None:
-        return {'error': 'Unable to retrieve from Data Loch'}
-    df = pandas.DataFrame(course_rows, columns=['canvas_user_id', 'on_time_submissions'])
-    student_row = df.loc[df['canvas_user_id'].values == int(canvas_user_id)]
-    if course_rows and student_row.empty:
-        app.logger.warn(f'Canvas user id {canvas_user_id} not found in Data Loch assignments for course site {canvas_course_id}; will assume 0 score')
-        student_row = pandas.DataFrame({'canvas_user_id': [int(canvas_user_id)], 'on_time_submissions': [0]})
-        df = df.append(student_row, ignore_index=True)
-        # Fetch newly appended row, mostly for the sake of its properly set-up index.
-        student_row = df.loc[df['canvas_user_id'].values == int(canvas_user_id)]
-    return analytics_for_column(df, student_row, 'on_time_submissions')
 
 
 def loch_assignments_submitted(canvas_user_id, canvas_course_id, term_id):
