@@ -77,7 +77,7 @@ def get_course_scores(course_id, term_id):
 @fixture('loch_scores_{course_id}.csv')
 def _get_course_scores(course_id):
     sql = f"""SELECT canvas_user_id, current_score
-              FROM {boac_schema()}.user_course_scores
+              FROM {boac_schema()}.course_enrollments
               WHERE course_id={course_id}
               ORDER BY canvas_user_id
         """
