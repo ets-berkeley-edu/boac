@@ -186,8 +186,12 @@
                 <div data-ng-bind="enrollment.displayName"></div>
               </div>
               <div class="student-column">
-                <div class="cohort-boxplot-container" data-ng-repeat="canvasSite in enrollment.canvasSites">
-                  17 days ago
+                <div class="cohort-boxplot-container"
+                     data-ng-repeat="canvasSite in enrollment.canvasSites">
+                  <span data-ng-pluralize count="canvasSite.analytics.lastActivity.student.daysSinceLastActivity"
+                        when="{'0': 'Today', '1': 'Yesterday', 'other': '{} days ago'}"
+                        data-ng-if="canvasSite.analytics.lastActivity.student.daysSinceLastActivity != null"></span>
+                  <span data-ng-if="canvasSite.analytics.lastActivity.student.daysSinceLastActivity == null">Never</span>
                 </div>
               </div>
               <div class="cohort-list-view-column-grade">

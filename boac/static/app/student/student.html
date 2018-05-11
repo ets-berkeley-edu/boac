@@ -297,17 +297,17 @@
                         Assignment Grades
                       </td>
                       <td>
-                        <span data-ng-if="canvasSite.analytics.courseCurrentScore.displayPercentile">
-                          <strong data-ng-bind="canvasSite.analytics.courseCurrentScore.displayPercentile"></strong> percentile
+                        <span data-ng-if="canvasSite.analytics.currentScore.displayPercentile">
+                          <strong data-ng-bind="canvasSite.analytics.currentScore.displayPercentile"></strong> percentile
                         </span>
                         <span class="visualize-metrics-no-data"
-                              data-ng-if="!canvasSite.analytics.courseCurrentScore.displayPercentile">
+                              data-ng-if="!canvasSite.analytics.currentScore.displayPercentile">
                           No Grades
                         </span>
                       </td>
                       <td class="profile-boxplot-container">
                         <boxplot-draw class="profile-boxplot"
-                                      data-dataset="canvasSite.analytics.courseCurrentScore"></boxplot-draw>
+                                      data-dataset="canvasSite.analytics.currentScore"></boxplot-draw>
                       </td>
                     </tr>
                     <tr>

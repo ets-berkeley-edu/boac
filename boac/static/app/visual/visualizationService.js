@@ -146,12 +146,12 @@
     var drawScatterplot = function(students, yAxisMeasure, goToUserPage) {
       var svg;
 
-      function x(d) { return d.analytics.daysSinceCourseSiteVisited.percentile; }
+      function x(d) { return d.analytics.lastActivity.percentile; }
       function y(d) { return _.get(d, yAxisMeasure).percentile; }
       function key(d) { return d.uid; }
 
       var yAxisName = 'Assignments Submitted';
-      if (yAxisMeasure === 'analytics.courseCurrentScore') {
+      if (yAxisMeasure === 'analytics.currentScore') {
         yAxisName = 'Assignment grades';
       }
 
@@ -360,7 +360,7 @@
         var table = tooltip.append('table').attr('class', 'matrix-tooltip-table');
         var daysSinceRow = table.append('tr');
         daysSinceRow.append('td').attr('class', 'matrix-tooltip-label').text('Days since bCourses course site viewed');
-        daysSinceRow.append('td').attr('class', 'matrix-tooltip-value').text(displayValue(d, 'analytics.daysSinceCourseSiteVisited'));
+        daysSinceRow.append('td').attr('class', 'matrix-tooltip-value').text(displayValue(d, 'analytics.lastActivity'));
         var yAxisRow = table.append('tr');
         yAxisRow.append('td').text(yAxisName);
         yAxisRow.append('td').attr('class', 'matrix-tooltip-value').text(displayValue(d, yAxisMeasure));
@@ -399,9 +399,9 @@
      */
     var scatterplotRefresh = function(students, goToUserPage, callback) {
       // Plot the cohort
-      var yAxisMeasure = $location.search().yAxis || 'analytics.courseCurrentScore';
+      var yAxisMeasure = $location.search().yAxis || 'analytics.currentScore';
       var partitions = _.partition(students, function(student) {
-        return _.isFinite(_.get(student, 'analytics.daysSinceCourseSiteVisited.percentile')) && _.isFinite(_.get(student, yAxisMeasure + '.percentile'));
+        return _.isFinite(_.get(student, 'analytics.lastActivity.percentile')) && _.isFinite(_.get(student, yAxisMeasure + '.percentile'));
       });
       // Pass along a subset of students that have useful data.
       drawScatterplot(partitions[0], yAxisMeasure, goToUserPage);
