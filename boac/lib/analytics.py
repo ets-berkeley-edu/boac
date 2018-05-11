@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import math
 from statistics import mean
+import time
 from boac.externals import data_loch
 from flask import current_app as app
 import pandas
@@ -36,16 +37,16 @@ def merge_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id):
         for course in user_courses:
             canvas_course_id = course['canvasCourseId']
             course['analytics'] = {
-                'courseCurrentScore': loch_current_scores(canvas_user_id, canvas_course_id, term_id),
                 'assignmentsSubmitted': loch_assignments_submitted(canvas_user_id, canvas_course_id, term_id),
-                'daysSinceCourseSiteVisited': loch_page_views(uid, canvas_course_id, term_id),
+                'pageViews': loch_page_views(uid, canvas_course_id, term_id),
             }
+            course['analytics'].update(loch_student_analytics(canvas_user_id, canvas_course_id, term_id))
 
 
 def mean_course_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id):
     merge_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id)
     mean_values = {}
-    for metric in ['assignmentsSubmitted', 'daysSinceCourseSiteVisited', 'courseCurrentScore']:
+    for metric in ['assignmentsSubmitted', 'currentScore', 'lastActivity', 'pageViews']:
         percentiles = []
         for course in user_courses:
             percentile = course['analytics'].get(metric, {}).get('student', {}).get('percentile')
@@ -53,7 +54,10 @@ def mean_course_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_
                 percentiles.append(percentile)
         if len(percentiles):
             mean_percentile = mean(percentiles)
-            mean_values[metric] = {'percentile': mean_percentile, 'displayPercentile': ordinal(mean_percentile)}
+            mean_values[metric] = {
+                'displayPercentile': ordinal(mean_percentile),
+                'percentile': mean_percentile,
+            }
         else:
             mean_values[metric] = None
     return mean_values
@@ -84,19 +88,31 @@ def loch_assignments_submitted(canvas_user_id, canvas_course_id, term_id):
     return analytics_for_column(df, student_row, 'submissions_turned_in')
 
 
-def loch_current_scores(canvas_user_id, canvas_course_id, term_id):
-    course_rows = data_loch.get_course_scores(canvas_course_id, term_id)
-    if course_rows is None:
-        return {'error': 'Unable to retrieve from Data Loch'}
-    df = pandas.DataFrame(course_rows, columns=['canvas_user_id', 'current_score'])
+def loch_student_analytics(canvas_user_id, canvas_course_id, term_id):
+    enrollments = data_loch.get_course_enrollments(canvas_course_id, term_id)
+    if enrollments is None:
+        _error = {'error': 'Unable to retrieve from Data Loch'}
+        return {'currentScore': _error, 'lastActivity': _error}
+    df = pandas.DataFrame(enrollments, columns=['canvas_user_id', 'current_score', 'last_activity_at'])
     student_row = df.loc[df['canvas_user_id'].values == int(canvas_user_id)]
-    if course_rows and student_row.empty:
-        app.logger.warn(f'Canvas id {canvas_user_id} not found in Data Loch current scores for course site {canvas_course_id}; will assume 0 score')
-        student_row = pandas.DataFrame({'canvas_user_id': [int(canvas_user_id)], 'current_score': [0]})
+    if enrollments and student_row.empty:
+        app.logger.warn(f'Canvas user {canvas_user_id} not found in Data Loch for course site {canvas_course_id}')
+        student_row = pandas.DataFrame({
+            'canvas_user_id': [int(canvas_user_id)],
+            'current_score': [0],
+            'last_activity_at': [1],
+        })
         df = df.append(student_row, ignore_index=True)
         # Fetch newly appended row, mostly for the sake of its properly set-up index.
         student_row = df.loc[df['canvas_user_id'].values == int(canvas_user_id)]
-    return analytics_for_column(df, student_row, 'current_score')
+    last_activity = analytics_for_column(df, student_row, 'last_activity_at')
+    if last_activity.get('student', {}).get('raw'):
+        seconds_since_last_activity = int(time.time()) - last_activity['student']['raw']
+        last_activity['student']['daysSinceLastActivity'] = seconds_since_last_activity // (24 * 3600)
+    return {
+        'currentScore': analytics_for_column(df, student_row, 'current_score'),
+        'lastActivity': last_activity,
+    }
 
 
 def loch_page_views(uid, canvas_course_id, term_id):

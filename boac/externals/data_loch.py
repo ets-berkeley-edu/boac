@@ -69,14 +69,17 @@ def _get_course_page_views(course_id):
     return safe_execute(sql)
 
 
-@stow('loch_scores_{course_id}', for_term=True)
-def get_course_scores(course_id, term_id):
-    return _get_course_scores(course_id)
+@stow('loch_course_enrollments_{course_id}', for_term=True)
+def get_course_enrollments(course_id, term_id):
+    return _get_course_enrollments(course_id)
 
 
-@fixture('loch_scores_{course_id}.csv')
-def _get_course_scores(course_id):
-    sql = f"""SELECT canvas_user_id, current_score
+@fixture('loch_course_enrollments_{course_id}.csv')
+def _get_course_enrollments(course_id):
+    sql = f"""SELECT
+                canvas_user_id,
+                current_score,
+                EXTRACT(EPOCH FROM last_activity_at) AS last_activity_at
               FROM {boac_schema()}.course_enrollments
               WHERE course_id={course_id}
               ORDER BY canvas_user_id

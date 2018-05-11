@@ -39,10 +39,10 @@ class TestDataLoch:
         assert len(data) > 0
         assert {'uid': '61889', 'canvas_user_id': 9000100, 'loch_page_views': 766} in data
 
-    def test_course_scores_fixture(self, app):
-        data = data_loch._get_course_scores(7654321)
+    def test_course_enrollments_fixture(self, app):
+        data = data_loch._get_course_enrollments(7654321)
         assert len(data) > 0
-        assert {'canvas_user_id': 9000100, 'current_score': 84} in data
+        assert {'canvas_user_id': 9000100, 'current_score': 84, 'last_activity_at': 1535275620} in data
 
     def test_submissions_turned_in_relative_to_user_fixture(self, app):
         data = data_loch._get_submissions_turned_in_relative_to_user(7654321, 9000100)

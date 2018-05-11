@@ -102,36 +102,47 @@ class TestAnalyticsFromLochAssignmentsSubmitted:
         assert digested['courseDeciles'] is None
 
 
-class TestAnalyticsFromLochCurrentScores:
+class TestAnalyticsFromLochAnalytics:
     canvas_user_id = 9000100
     canvas_course_id = 7654321
     term_id = '2178'
 
     def test_from_fixture(self, app):
-        digested = analytics.loch_current_scores(self.canvas_user_id, self.canvas_course_id, self.term_id)
-        assert digested['student']['raw'] == 84
-        assert digested['student']['percentile'] == 73
-        assert digested['student']['roundedUpPercentile'] == 76
-        assert digested['courseDeciles'][0] == 47
-        assert digested['courseDeciles'][9] == 94
-        assert digested['courseDeciles'][10] == 104
+        digested = analytics.loch_student_analytics(self.canvas_user_id, self.canvas_course_id, self.term_id)
+        score = digested['currentScore']
+        assert score['student']['raw'] == 84
+        assert score['student']['percentile'] == 73
+        assert score['student']['roundedUpPercentile'] == 76
+        assert score['courseDeciles'][0] == 47
+        assert score['courseDeciles'][9] == 94
+        assert score['courseDeciles'][10] == 104
+        last_activity = digested['lastActivity']
+        assert last_activity['student']['raw'] == 1535275620
+        assert 'daysSinceLastActivity' in last_activity['student']
+        assert last_activity['student']['percentile'] == 93
+        assert last_activity['student']['roundedUpPercentile'] == 90
+        assert last_activity['courseDeciles'][0] == 1533021840
+        assert last_activity['courseDeciles'][9] == 1535264940
+        assert last_activity['courseDeciles'][10] == 1535533860
 
     def test_with_loch_error(self, app):
         bad_course_id = 'NoSuchSite'
-        digested = analytics.loch_current_scores(self.canvas_user_id, bad_course_id, self.term_id)
-        assert digested == {'error': 'Unable to retrieve from Data Loch'}
+        digested = analytics.loch_student_analytics(self.canvas_user_id, bad_course_id, self.term_id)
+        _error = {'error': 'Unable to retrieve from Data Loch'}
+        assert digested == {'currentScore': _error, 'lastActivity': _error}
 
     def test_when_no_data(self, app):
         mr = MockRows(io.StringIO('canvas_user_id,course_scores'))
-        with register_mock(data_loch._get_course_scores, mr):
-            digested = analytics.loch_current_scores(self.canvas_user_id, self.canvas_course_id, self.term_id)
-        assert digested['student']['raw'] is None
-        assert digested['student']['percentile'] is None
-        assert digested['boxPlottable'] is False
-        assert digested['courseDeciles'] is None
+        with register_mock(data_loch._get_course_enrollments, mr):
+            digested = analytics.loch_student_analytics(self.canvas_user_id, self.canvas_course_id, self.term_id)
+        score = digested['currentScore']
+        assert score['student']['raw'] is None
+        assert score['student']['percentile'] is None
+        assert score['boxPlottable'] is False
+        assert score['courseDeciles'] is None
 
 
-class TestAnalyticsFromLochDaysSinceCourseSiteVisited:
+class TestAnalyticsFromLochLastActivity:
     uid = '61889'
     canvas_course_id = 7654321
     term_id = '2178'
