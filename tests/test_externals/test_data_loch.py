@@ -59,3 +59,11 @@ class TestDataLoch:
     def test_fixture_not_found(self, app):
         no_db = data_loch._get_course_page_views(0)
         assert no_db is None
+
+    def test_user_for_uid(self, app):
+        data = data_loch._get_user_for_uid(2040)
+        assert len(data) == 1
+        assert {'canvas_id': 10001, 'name': 'Oliver Heyer', 'uid': '2040'} in data
+        data = data_loch._get_user_for_uid(242881)
+        assert len(data) == 1
+        assert {'canvas_id': 10002, 'name': 'Paul Kerschen', 'uid': '242881'} in data

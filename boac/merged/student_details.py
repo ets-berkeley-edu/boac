@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api.util import canvas_courses_api_feed
 from boac.externals import canvas
+from boac.externals import data_loch
 from boac.lib.analytics import mean_course_analytics_for_user
 from boac.lib.berkeley import sis_term_id_for_name, term_name_for_sis_id
 from boac.merged.sis_enrollments import merge_sis_enrollments_for_term
@@ -70,9 +71,10 @@ def _merged_data(uid, csid, term_id):
         data['cumulativeUnits'] = sis_profile.get('cumulativeUnits')
         data['level'] = sis_profile.get('level', {}).get('description')
         data['majors'] = sorted(plan.get('description') for plan in sis_profile.get('plans', []))
-    canvas_profile = canvas.get_user_for_uid(uid)
+    canvas_profile = data_loch.get_user_for_uid(uid)
     if canvas_profile:
-        data['canvasUserId'] = canvas_profile['id']
+        canvas_user_id = canvas_profile['canvas_id']
+        data['canvasUserId'] = canvas_user_id
         term_name = term_name_for_sis_id(term_id)
         student_courses = canvas.get_student_courses(uid) or []
         student_courses_in_term = [course for course in student_courses if course.get('term', {}).get('name') == term_name]
@@ -87,5 +89,5 @@ def _merged_data(uid, csid, term_id):
                 canvas_courses += enrollment['canvasSites']
             canvas_courses += data['term'].get('unmatchedCanvasSites', [])
         # Decorate the Canvas courses list with per-course statistics, and return summary statistics.
-        data['analytics'] = mean_course_analytics_for_user(canvas_courses, uid, csid, canvas_profile['id'], term_id)
+        data['analytics'] = mean_course_analytics_for_user(canvas_courses, uid, csid, canvas_user_id, term_id)
     return data
