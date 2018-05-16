@@ -28,6 +28,8 @@ import math
 from threading import Thread
 from boac import db, std_commit
 from boac.api.util import canvas_courses_api_feed
+from boac.externals import canvas
+from boac.externals import data_loch
 from boac.lib import berkeley
 from boac.merged import import_asc_athletes
 from boac.merged.sis_enrollments import merge_sis_enrollments_for_term
@@ -36,6 +38,7 @@ from boac.models import json_cache
 from boac.models.alert import Alert
 from boac.models.job_progress import JobProgress
 from boac.models.json_cache import JsonCache
+from boac.models.student import Student
 from flask import current_app as app
 from sqlalchemy import and_, or_
 
@@ -211,8 +214,6 @@ def load_all_terms():
 
 
 def load_term(term_id=berkeley.current_term_id()):
-    from boac.models.student import Student
-
     if term_id == 'all':
         load_all_terms()
         return
@@ -258,14 +259,12 @@ def load_term(term_id=berkeley.current_term_id()):
 
 
 def load_canvas_externals(uid, term_id):
-    from boac.externals import canvas
-
     success_count = 0
     failures = []
 
-    canvas_user_profile = canvas.get_user_for_uid(uid)
-    if canvas_user_profile is None:
-        failures.append(f'canvas.get_user_for_uid failed for UID {uid}')
+    canvas_user_profile = data_loch.get_user_for_uid(uid)
+    if not canvas_user_profile:
+        failures.append(f'data_loch.get_user_for_uid failed for UID {uid}')
     elif canvas_user_profile:
         success_count += 1
         sites = canvas.get_student_courses(uid)
@@ -322,8 +321,8 @@ def load_analytics_feeds(uid, sid, term_id):
     # Prior to load, existing assignment alerts for the student and term are deactivated.
     # TODO Reinstate assignment alerts based on loch data.
     Alert.deactivate_all(sid=sid, term_id=term_id, alert_types=['late_assignment', 'missing_assignment'])
-    from boac.externals import canvas, data_loch
-    canvas_user_profile = canvas.get_user_for_uid(uid)
+    canvas_user_profile = data_loch.get_user_for_uid(uid)
+    canvas_user_id = canvas_user_profile and canvas_user_profile['canvas_id']
     student_courses = canvas.get_student_courses(uid)
     canvas_courses_feed = canvas_courses_api_feed(student_courses)
     # Route the course site feed through our SIS enrollments merge, so that site selection logic (e.g., filtering
@@ -335,7 +334,6 @@ def load_analytics_feeds(uid, sid, term_id):
         for site in sites:
             data_loch.get_course_page_views(site['canvasCourseId'], term_id)
             data_loch.get_course_enrollments(site['canvasCourseId'], term_id)
-            canvas_user_id = canvas_user_profile.get('id')
             if canvas_user_id:
                 data_loch.get_submissions_turned_in_relative_to_user(site['canvasCourseId'], canvas_user_id, term_id)
     if merged_term_feed:

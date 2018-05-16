@@ -53,6 +53,10 @@ def boac_schema():
     return app.config['DATA_LOCH_BOAC_SCHEMA']
 
 
+def intermediate_schema():
+    return app.config['DATA_LOCH_INTERMEDIATE_SCHEMA']
+
+
 @stow('loch_page_views_{course_id}', for_term=True)
 def get_course_page_views(course_id, term_id):
     return _get_course_page_views(course_id)
@@ -109,5 +113,20 @@ def _get_submissions_turned_in_relative_to_user(course_id, user_id):
           SELECT count(*) FROM {boac_schema()}.assignment_submissions_scores
           WHERE canvas_user_id = {user_id} AND course_id = {course_id}
         )
+        """
+    return safe_execute(sql)
+
+
+@stow('loch_user_for_uid_{uid}')
+def get_user_for_uid(uid):
+    rows = _get_user_for_uid(uid)
+    return False if not rows or (len(rows) == 0) else rows[0]
+
+
+@fixture('loch_user_for_uid_{uid}.csv')
+def _get_user_for_uid(uid):
+    sql = f"""SELECT canvas_id, name, uid
+        FROM {intermediate_schema()}.users
+        WHERE uid = {uid}
         """
     return safe_execute(sql)

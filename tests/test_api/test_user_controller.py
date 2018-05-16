@@ -148,7 +148,7 @@ class TestUserAnalytics:
         """Returns a well-formed response if authenticated."""
         assert authenticated_response.status_code == 200
         assert authenticated_response.json['uid'] == '61889'
-        assert authenticated_response.json['canvasProfile']['id'] == 9000100
+        assert authenticated_response.json['canvasProfile']['canvas_id'] == 9000100
         assert len(authenticated_response.json['enrollmentTerms']) > 0
         for term in authenticated_response.json['enrollmentTerms']:
             assert len(term['enrollments']) > 0
