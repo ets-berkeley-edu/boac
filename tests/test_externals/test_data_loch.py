@@ -44,6 +44,26 @@ class TestDataLoch:
         assert len(data) > 0
         assert {'canvas_user_id': 9000100, 'current_score': 84, 'last_activity_at': 1535275620} in data
 
+    def test_sis_sections_in_canvas_course(self, app):
+        burmese_sections = data_loch._get_sis_sections_in_canvas_course(7654320)
+        assert len(burmese_sections) == 2
+        assert burmese_sections[0]['sis_section_id'] == 90100
+        assert burmese_sections[1]['sis_section_id'] == 90101
+
+        medieval_sections = data_loch._get_sis_sections_in_canvas_course(7654321)
+        assert len(medieval_sections) == 1
+        assert medieval_sections[0]['sis_section_id'] == 90200
+
+        nuclear_sections = data_loch._get_sis_sections_in_canvas_course(7654323)
+        assert len(nuclear_sections) == 2
+        assert nuclear_sections[0]['sis_section_id'] == 90299
+        assert nuclear_sections[1]['sis_section_id'] == 90300
+
+        # No SIS-linked site sections
+        project_site_sections = data_loch._get_sis_sections_in_canvas_course(9999991)
+        assert len(project_site_sections) == 1
+        assert {'sis_section_id': None} == project_site_sections[0]
+
     def test_submissions_turned_in_relative_to_user_fixture(self, app):
         data = data_loch._get_submissions_turned_in_relative_to_user(7654321, 9000100)
         assert len(data) > 0
@@ -58,6 +78,7 @@ class TestDataLoch:
 
     def test_fixture_not_found(self, app):
         no_db = data_loch._get_course_page_views(0)
+        # TODO Real data_loch queries will return an empty list if the course is not found.
         assert no_db is None
 
     def test_user_for_uid(self, app):

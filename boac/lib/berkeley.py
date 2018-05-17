@@ -211,13 +211,6 @@ def degree_program_url_for_major(plan_description):
         return None
 
 
-def extract_canvas_ccn(canvas_course_section):
-    # Manually created site sections will have no integration ID.
-    canvas_sis_section_id = canvas_course_section.get('sis_section_id') or ''
-    ccn_match = re.match(r'\ASEC:20\d{2}-[BCD]-(\d{5})', canvas_sis_section_id)
-    return ccn_match.group(1) if ccn_match else None
-
-
 def is_authorized_to_use_boac(user):
     authorized = False
     if user.is_admin:

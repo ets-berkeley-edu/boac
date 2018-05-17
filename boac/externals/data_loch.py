@@ -91,6 +91,22 @@ def _get_course_enrollments(course_id):
     return safe_execute(sql)
 
 
+@stow('loch_sis_sections_in_canvas_course_{canvas_course_id}', for_term=True)
+def get_sis_sections_in_canvas_course(canvas_course_id, term_id):
+    return _get_sis_sections_in_canvas_course(canvas_course_id)
+
+
+@fixture('loch_sis_sections_in_canvas_course_{canvas_course_id}.csv')
+def _get_sis_sections_in_canvas_course(canvas_course_id):
+    # The GROUP BY clause eliminates duplicates when multiple site sections include the same SIS class section.
+    sql = f"""SELECT sis_section_id
+        FROM {intermediate_schema()}.course_sections
+        WHERE canvas_course_id={canvas_course_id}
+        GROUP BY sis_section_id
+        """
+    return safe_execute(sql)
+
+
 @stow('loch_submissions_turned_in_relative_to_user_{course_id}_{user_id}', for_term=True)
 def get_submissions_turned_in_relative_to_user(course_id, user_id, term_id):
     return _get_submissions_turned_in_relative_to_user(course_id, user_id)

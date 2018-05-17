@@ -30,17 +30,6 @@ from boac.models.json_cache import stow
 from flask import current_app as app
 
 
-@stow('canvas_course_sections_{course_id}', for_term=True)
-def get_course_sections(course_id, term_id):
-    return _get_course_sections(course_id)
-
-
-@fixture('canvas_course_sections_{course_id}')
-def _get_course_sections(course_id, mock=None):
-    path = f'/api/v1/courses/{course_id}/sections'
-    return paged_request(path=path, mock=mock)
-
-
 def get_student_courses(uid):
     all_canvas_courses = get_all_user_courses(uid)
     # The paged_request wrapper returns either a list of course sites or None to signal HTTP request failure.

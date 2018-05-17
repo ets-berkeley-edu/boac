@@ -277,8 +277,8 @@ def load_canvas_externals(uid, term_id):
                 if site.get('term', {}).get('name') != term_name:
                     continue
                 site_id = site['id']
-                if not canvas.get_course_sections(site_id, term_id):
-                    failures.append(f'canvas.get_course_sections failed for UID {uid}, site_id {site_id}')
+                if not data_loch.get_sis_sections_in_canvas_course(site_id, term_id):
+                    failures.append(f'data_loch.get_sis_sections_in_canvas_course failed for UID {uid}, site_id {site_id}')
                     continue
                 success_count += 1
     return success_count, failures

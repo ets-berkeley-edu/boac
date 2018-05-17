@@ -28,43 +28,6 @@ from boac.externals import canvas
 from boac.lib.mockingbird import MockResponse, register_mock
 
 
-class TestCanvasGetCourseSections:
-    """Canvas API query (get course sections)."""
-
-    def test_get_course_sections(self, app):
-        """Returns fixture data."""
-        burmese_sections = canvas._get_course_sections(7654320)
-        assert burmese_sections
-        assert len(burmese_sections) == 3
-        assert burmese_sections[0]['sis_section_id'] == 'SEC:2017-D-90100'
-        assert burmese_sections[1]['sis_section_id'] == 'SEC:2017-D-90101'
-
-        medieval_sections = canvas._get_course_sections(7654321)
-        assert medieval_sections
-        assert len(medieval_sections) == 1
-        assert medieval_sections[0]['sis_section_id'] == 'SEC:2017-D-90200-88CA51BE'
-
-        nuclear_sections = canvas._get_course_sections(7654323)
-        assert nuclear_sections
-        assert len(nuclear_sections) == 2
-        assert nuclear_sections[0]['sis_section_id'] == 'SEC:2017-D-90299'
-        assert nuclear_sections[1]['sis_section_id'] == 'SEC:2017-D-90300'
-
-    def test_course_not_found(self, app, caplog):
-        """Logs 404 for unknown course."""
-        response = canvas._get_course_sections(9999999)
-        assert 'HTTP/1.1" 404' in caplog.text
-        assert not response
-
-    def test_server_error(self, app, caplog):
-        """Logs unexpected server errors."""
-        canvas_error = MockResponse(500, {}, '{"message": "Internal server error."}')
-        with register_mock(canvas._get_course_sections, canvas_error):
-            response = canvas._get_course_sections(7654320)
-            assert 'HTTP/1.1" 500' in caplog.text
-            assert not response
-
-
 class TestCanvasGetUserCourses:
     """Canvas API query (get courses for user)."""
 
