@@ -49,7 +49,8 @@
               </div>
               <div>
                 <i class="fas fa-phone"></i>
-                <span data-ng-bind="student.sisProfile.phoneNumber"></span>
+                <span data-ng-bind="student.sisProfile.phoneNumber"
+                      data-ng-class="{'demo-mode-blur': demoMode}"></span>
               </div>
             </div>
             <div>
@@ -316,10 +317,12 @@
                       </td>
                       <td colspan="2">
                         <div data-ng-if="canvasSite.analytics.lastActivity.student.daysSinceLastActivity == null">
-                          <span data-ng-bind="student.athleticsProfile.fullName"></span> has never visited this course site.
+                          <span data-ng-bind="student.athleticsProfile.fullName"
+                                data-ng-class="{'demo-mode-blur': demoMode}"></span> has never visited this course site.
                         </div>
                         <div data-ng-if="canvasSite.analytics.lastActivity.student.daysSinceLastActivity != null">
-                          <span data-ng-bind="student.athleticsProfile.fullName"></span>
+                          <span data-ng-bind="student.athleticsProfile.fullName"
+                                data-ng-class="{'demo-mode-blur': demoMode}"></span>
                           last visited the course site
                           <span data-ng-pluralize count="canvasSite.analytics.lastActivity.student.daysSinceLastActivity"
                                 when="{'0': 'today', '1': 'yesterday', 'other': '{} days ago'}"
