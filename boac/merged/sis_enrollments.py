@@ -25,8 +25,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 import boac.api.util as api_util
-from boac.externals import canvas, sis_enrollments_api
-from boac.lib.berkeley import extract_canvas_ccn, sis_term_id_for_name
+from boac.externals import data_loch, sis_enrollments_api
+from boac.lib.berkeley import sis_term_id_for_name
 from boac.models.alert import Alert
 from boac.models.json_cache import stow
 from boac.models.normalized_cache_enrollment import NormalizedCacheEnrollment
@@ -179,16 +179,16 @@ def merge_canvas_course_site(term_feed, site):
     if site['courseTerm'] != term_feed['termName']:
         return
     site_matched = False
-    canvas_sections = canvas.get_course_sections(site['canvasCourseId'], term_feed['termId'])
+    canvas_sections = data_loch.get_sis_sections_in_canvas_course(site['canvasCourseId'], term_feed['termId'])
     if not canvas_sections:
         return
     for canvas_section in canvas_sections:
-        canvas_ccn = extract_canvas_ccn(canvas_section)
+        canvas_ccn = canvas_section['sis_section_id']
         if not canvas_ccn:
             continue
         for enrollment in term_feed['enrollments']:
             for sis_section in enrollment['sections']:
-                if canvas_ccn == str(sis_section.get('ccn')):
+                if canvas_ccn == sis_section.get('ccn'):
                     sis_section['canvasCourseIds'] = sis_section.get('canvasCourseIds', [])
                     sis_section['canvasCourseIds'].append(site['canvasCourseId'])
                     if not site_matched:
