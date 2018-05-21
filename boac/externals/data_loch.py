@@ -107,6 +107,22 @@ def _get_sis_sections_in_canvas_course(canvas_course_id):
     return safe_execute(sql)
 
 
+@stow('loch_student_canvas_courses_{uid}.csv')
+def get_student_canvas_courses(uid):
+    return _get_student_canvas_courses(uid)
+
+
+@fixture('loch_student_canvas_courses_{uid}.csv')
+def _get_student_canvas_courses(uid):
+    sql = f"""SELECT DISTINCT enr.canvas_course_id, cs.canvas_course_name, cs.canvas_course_code, cs.canvas_course_term
+        FROM {intermediate_schema()}.active_student_enrollments enr
+        JOIN {intermediate_schema()}.course_sections cs
+            ON cs.canvas_course_id = enr.canvas_course_id
+        WHERE enr.uid = {uid}
+        """
+    return safe_execute(sql)
+
+
 @stow('loch_submissions_turned_in_relative_to_user_{course_id}_{user_id}', for_term=True)
 def get_submissions_turned_in_relative_to_user(course_id, user_id, term_id):
     return _get_submissions_turned_in_relative_to_user(course_id, user_id)

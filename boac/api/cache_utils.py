@@ -28,7 +28,6 @@ import math
 from threading import Thread
 from boac import db, std_commit
 from boac.api.util import canvas_courses_api_feed
-from boac.externals import canvas
 from boac.externals import data_loch
 from boac.lib import berkeley
 from boac.merged import import_asc_athletes
@@ -267,16 +266,16 @@ def load_canvas_externals(uid, term_id):
         failures.append(f'data_loch.get_user_for_uid failed for UID {uid}')
     elif canvas_user_profile:
         success_count += 1
-        sites = canvas.get_student_courses(uid)
+        sites = data_loch.get_student_canvas_courses(uid)
         if sites is None:
-            failures.append(f'canvas.get_student_courses failed for UID {uid}')
+            failures.append(f'data_loch.get_student_canvas_courses failed for UID {uid}')
         else:
             success_count += 1
             term_name = berkeley.term_name_for_sis_id(term_id)
             for site in sites:
-                if site.get('term', {}).get('name') != term_name:
+                if site.get('canvas_course_term') != term_name:
                     continue
-                site_id = site['id']
+                site_id = site['canvas_course_id']
                 if not data_loch.get_sis_sections_in_canvas_course(site_id, term_id):
                     failures.append(f'data_loch.get_sis_sections_in_canvas_course failed for UID {uid}, site_id {site_id}')
                     continue
@@ -323,7 +322,7 @@ def load_analytics_feeds(uid, sid, term_id):
     Alert.deactivate_all(sid=sid, term_id=term_id, alert_types=['late_assignment', 'missing_assignment'])
     canvas_user_profile = data_loch.get_user_for_uid(uid)
     canvas_user_id = canvas_user_profile and canvas_user_profile['canvas_id']
-    student_courses = canvas.get_student_courses(uid)
+    student_courses = data_loch.get_student_canvas_courses(uid)
     canvas_courses_feed = canvas_courses_api_feed(student_courses)
     # Route the course site feed through our SIS enrollments merge, so that site selection logic (e.g., filtering
     # out dropped and athletic enrollments) is consistent with web API calls.

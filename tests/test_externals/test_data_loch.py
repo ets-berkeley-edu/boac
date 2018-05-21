@@ -64,6 +64,30 @@ class TestDataLoch:
         assert len(project_site_sections) == 1
         assert {'sis_section_id': None} == project_site_sections[0]
 
+    def test_student_canvas_courses(self, app):
+        courses = data_loch._get_student_canvas_courses(61889)
+        assert len(courses) == 5
+        assert courses[0]['canvas_course_id'] == 7654320
+        assert courses[0]['canvas_course_name'] == 'Introductory Burmese'
+        assert courses[0]['canvas_course_code'] == 'BURMESE 1A'
+        assert courses[0]['canvas_course_term'] == 'Fall 2017'
+        assert courses[1]['canvas_course_id'] == 7654321
+        assert courses[1]['canvas_course_name'] == 'Medieval Manuscripts as Primary Sources'
+        assert courses[1]['canvas_course_code'] == 'MED ST 205'
+        assert courses[1]['canvas_course_term'] == 'Fall 2017'
+        assert courses[2]['canvas_course_id'] == 7654330
+        assert courses[2]['canvas_course_name'] == 'Optional Friday Night Radioactivity Group'
+        assert courses[2]['canvas_course_code'] == 'NUC ENG 124'
+        assert courses[2]['canvas_course_term'] == 'Fall 2017'
+        assert courses[3]['canvas_course_id'] == 7654323
+        assert courses[3]['canvas_course_name'] == 'Radioactive Waste Management'
+        assert courses[3]['canvas_course_code'] == 'NUC ENG 124'
+        assert courses[3]['canvas_course_term'] == 'Fall 2017'
+        assert courses[4]['canvas_course_id'] == 7654325
+        assert courses[4]['canvas_course_name'] == 'Modern Statistical Prediction and Machine Learning'
+        assert courses[4]['canvas_course_code'] == 'STAT 154'
+        assert courses[4]['canvas_course_term'] == 'Spring 2017'
+
     def test_submissions_turned_in_relative_to_user_fixture(self, app):
         data = data_loch._get_submissions_turned_in_relative_to_user(7654321, 9000100)
         assert len(data) > 0
