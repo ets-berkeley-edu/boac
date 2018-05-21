@@ -32,10 +32,10 @@ from boac.models.alert import Alert
 
 def canvas_course_api_feed(course):
     return {
-        'canvasCourseId': course.get('id'),
-        'courseName': course.get('name'),
-        'courseCode': course.get('course_code'),
-        'courseTerm': course.get('term', {}).get('name'),
+        'canvasCourseId': course.get('canvas_course_id'),
+        'courseName': course.get('canvas_course_name'),
+        'courseCode': course.get('canvas_course_code'),
+        'courseTerm': course.get('canvas_course_term'),
     }
 
 

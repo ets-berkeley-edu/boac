@@ -26,7 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api import errors
 import boac.api.util as api_util
-from boac.externals import canvas
 from boac.externals import data_loch
 from boac.externals.cal1card_photo_api import get_cal1card_photo
 from boac.lib import util
@@ -93,7 +92,7 @@ def user_analytics(uid):
         sis_profile = False
         athletics_profile = False
 
-    user_courses = canvas.get_student_courses(uid) or []
+    user_courses = data_loch.get_student_canvas_courses(uid) or []
     if student and sis_profile:
         # CalCentral's Student Overview page is advisors' official information source for the student.
         student_profile_link = 'https://calcentral.berkeley.edu/user/overview/{}'.format(uid)

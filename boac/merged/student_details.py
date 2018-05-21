@@ -24,7 +24,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.util import canvas_courses_api_feed
-from boac.externals import canvas
 from boac.externals import data_loch
 from boac.lib.analytics import mean_course_analytics_for_user
 from boac.lib.berkeley import sis_term_id_for_name, term_name_for_sis_id
@@ -76,8 +75,8 @@ def _merged_data(uid, csid, term_id):
         canvas_user_id = canvas_profile['canvas_id']
         data['canvasUserId'] = canvas_user_id
         term_name = term_name_for_sis_id(term_id)
-        student_courses = canvas.get_student_courses(uid) or []
-        student_courses_in_term = [course for course in student_courses if course.get('term', {}).get('name') == term_name]
+        student_courses = data_loch.get_student_canvas_courses(uid) or []
+        student_courses_in_term = [course for course in student_courses if course.get('canvas_course_term') == term_name]
         canvas_courses = canvas_courses_api_feed(student_courses_in_term)
         # Associate course sites with campus enrollments.
         data['term'] = merge_sis_enrollments_for_term(canvas_courses, csid, term_name)
