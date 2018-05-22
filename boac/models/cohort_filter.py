@@ -52,12 +52,12 @@ class CohortFilter(Base, UserMixin):
         self.filter_criteria = filter_criteria
 
     def __repr__(self):
-        return '<CohortFilter {}, label={}, owners={}, filter_criteria={}>'.format(
-            self.id,
-            self.label,
-            self.owners,
-            self.filter_criteria,
-        )
+        return f"""<CohortFilter {self.id},
+            label={self.label},
+            owners={self.owners},
+            filter_criteria={self.filter_criteria},
+            updated_at={self.updated_at},
+            created_at={self.created_at}>"""
 
     @classmethod
     def create(

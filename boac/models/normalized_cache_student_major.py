@@ -38,12 +38,10 @@ class NormalizedCacheStudentMajor(Base):
     major = db.Column(db.String(255), nullable=False, index=True)
 
     def __repr__(self):
-        return '<NormalizedCacheStudentMajor sid={}, major={}, updated={}, created={}>'.format(
-            self.sid,
-            self.major,
-            self.updated_at,
-            self.created_at,
-        )
+        return f"""<NormalizedCacheStudentMajor sid={self.sid},
+            major={self.major},
+            updated_at={self.updated_at},
+            created_at={self.created_at}>"""
 
     @classmethod
     def distinct_majors(cls):

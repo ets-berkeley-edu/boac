@@ -168,16 +168,16 @@ def clear_term(term_id):
     Application-supporting history must be explicitly excluded.
     """
     term_name = berkeley.term_name_for_sis_id(term_id)
-    filter = JsonCache.key.like('term_{}%'.format(term_name))
+    _filter = JsonCache.key.like(f'term_{term_name}%')
     if term_name == app.config['CANVAS_CURRENT_ENROLLMENT_TERM']:
         current_externals_filter = and_(
             JsonCache.key.notlike('term_%'),
             JsonCache.key.notlike('asc_athletes_%'),
             JsonCache.key.notlike('job_%'),
         )
-        filter = or_(filter, current_externals_filter)
-    matches = db.session.query(JsonCache).filter(filter)
-    app.logger.info('Will delete {} entries'.format(matches.count()))
+        _filter = or_(_filter, current_externals_filter)
+    matches = db.session.query(JsonCache).filter(_filter)
+    app.logger.info(f'Will delete {matches.count()} entries')
     matches.delete(synchronize_session=False)
     std_commit()
 

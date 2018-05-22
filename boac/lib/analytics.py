@@ -195,7 +195,7 @@ def ordinal(nbr):
         suffix = 'rd'
     else:
         suffix = 'th'
-    return '{}{}'.format(rounded, suffix)
+    return f'{rounded}{suffix}'
 
 
 def quantiles(series, count):

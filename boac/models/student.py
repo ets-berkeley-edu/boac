@@ -280,15 +280,18 @@ class Student(Base):
         if group_codes:
             args = sqlalchemy_bindings(group_codes, 'group_code')
             all_bindings.update(args)
-            query_filter += ' AND sa.group_code IN ({})'.format(':' + ', :'.join(args.keys()))
+            group_code_bindings = ':' + ', :'.join(args.keys())
+            query_filter += f' AND sa.group_code IN ({group_code_bindings})'
         if gpa_ranges:
             # 'sqlalchemy_bindings' is not used here due to extravagant SQL syntax.
-            query_filter += ' AND n.gpa <@ ANY(ARRAY[{}])'.format(', '.join(gpa_ranges))
+            gpa_range_set = ', '.join(gpa_ranges)
+            query_filter += f' AND n.gpa <@ ANY(ARRAY[{gpa_range_set}])'
             query_filter += ' AND n.gpa > 0'
         if levels:
             args = sqlalchemy_bindings(levels, 'level')
             all_bindings.update(args)
-            query_filter += ' AND n.level IN ({})'.format(':' + ', :'.join(args.keys()))
+            level_bindings = ':' + ', :'.join(args.keys())
+            query_filter += f' AND n.level IN ({level_bindings})'
         if majors:
             # Only modify the majors list clone
             _majors = majors.copy()
@@ -303,12 +306,14 @@ class Student(Base):
             if _majors:
                 args = sqlalchemy_bindings(_majors, 'major')
                 all_bindings.update(args)
-                query_filter += ' OR m.major IN ({})'.format(':' + ', :'.join(args.keys()))
+                major_bindings = ':' + ', :'.join(args.keys())
+                query_filter += f' OR m.major IN ({major_bindings})'
             query_filter += ')'
         if unit_ranges:
-            query_filter += ' AND n.units <@ ANY(ARRAY[{}])'.format(', '.join(unit_ranges))
+            unit_range_set = ', '.join(unit_ranges)
+            query_filter += f' AND n.units <@ ANY(ARRAY[{unit_range_set}])'
         if in_intensive_cohort is not None:
-            query_filter += ' AND s.in_intensive_cohort IS {}'.format(str(in_intensive_cohort))
+            query_filter += f' AND s.in_intensive_cohort IS {str(in_intensive_cohort)}'
         return query_tables, query_filter, all_bindings
 
     @classmethod

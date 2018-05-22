@@ -40,7 +40,7 @@ class TestAnalytics:
         assert analytics.ordinal(2) == '2nd'
         assert analytics.ordinal(3) == '3rd'
         for i in range(4, 20):
-            assert analytics.ordinal(i) == '{}th'.format(i)
+            assert analytics.ordinal(i) == f'{i}th'
         assert analytics.ordinal(21) == '21st'
         assert analytics.ordinal(22) == '22nd'
         assert analytics.ordinal(23) == '23rd'

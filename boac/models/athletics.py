@@ -41,14 +41,10 @@ class Athletics(Base):
     athletes = db.relationship('Student', secondary=student_athletes, back_populates='athletics')
 
     def __repr__(self):
-        return '<TeamGroup {} ({}), team {} ({}), updated={}, created={}>'.format(
-            self.group_name,
-            self.group_code,
-            self.team_code,
-            self.team_name,
-            self.updated_at,
-            self.created_at,
-        )
+        return f"""<TeamGroup {self.group_name} ({self.group_code}),
+            team {self.team_code} ({self.team_name}),
+            updated_at={self.updated_at},
+            created_at={self.created_at}>"""
 
     @classmethod
     def all_team_groups(cls):
