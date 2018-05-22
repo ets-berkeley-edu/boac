@@ -127,7 +127,7 @@ def fixture(pattern):
 
     @mocking(query_external_db)
     def external_db_mock(resource_id):
-        return response_from_fixture('resource_{resource_id}_rows.csv'.format(resource_id))
+        return response_from_fixture(f'resource_{resource_id}_rows.csv')
     """
     def fixture_wrapper(func):
         def register_fixture(*args, **kw):
@@ -151,9 +151,9 @@ def response_from_fixture(pattern):
 
     @mocking(query_external_db)
     def external_db_mock(resource_id):
-        return response_from_fixture('resource_{}_rows.csv'.format(resource_id))
+        return response_from_fixture(f'resource_{resource_id}_rows.csv')
     """
-    fixture_path = '{}/{}'.format(_get_fixtures_path(), pattern)
+    fixture_path = f'{_get_fixtures_path()}/{pattern}'
     if os.path.isfile(fixture_path):
         return MockRows(fixture_path)
     else:

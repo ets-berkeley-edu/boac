@@ -147,12 +147,16 @@ def check_for_multiple_primary_sections(enrollment, class_name, enrollments_by_c
     # If we do indeed have two primary sections under the same class name, disambiguate them.
     if existing_primary:
         # First, revise the existing class feed to include section number.
-        disambiguated_class_name = '{} {} {}'.format(class_name, existing_primary['component'], existing_primary['sectionNumber'])
+        component = existing_primary['component']
+        section = existing_primary['sectionNumber']
+        disambiguated_class_name = f'{class_name} {component} {section}'
         enrollments_by_class[class_name]['displayName'] = disambiguated_class_name
         enrollments_by_class[disambiguated_class_name] = enrollments_by_class[class_name]
         del enrollments_by_class[class_name]
         # Now create a new class feed, also with section number, for our new primary section.
-        class_name = '{} {} {}'.format(class_name, section_feed['component'], section_feed['sectionNumber'])
+        component = section_feed['component']
+        section = section_feed['sectionNumber']
+        class_name = f'{class_name} {component} {section}'
         enrollments_by_class[class_name] = api_util.sis_enrollment_class_feed(enrollment)
         enrollments_by_class[class_name]['displayName'] = class_name
     return class_name

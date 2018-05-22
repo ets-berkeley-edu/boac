@@ -53,12 +53,7 @@ class JsonCacheBase(object):
         self.json = json
 
     def __repr__(self):
-        return '<JsonCache {}, json={}, updated={}, created={}>'.format(
-            self.key,
-            self.json,
-            self.updated_at,
-            self.created_at,
-        )
+        return f'<JsonCache {self.key}, json={self.json}>'
 
 
 class JsonCache(JsonCacheBase, Base):

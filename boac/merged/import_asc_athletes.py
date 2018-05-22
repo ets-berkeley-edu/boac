@@ -346,7 +346,8 @@ def parse_all_rows(rows):
                     # Until BOAC-460 is resolved, the app will discard inactive memberships of an
                     # otherwise active student.
                     if not student['is_active_asc'] and is_active_asc:
-                        app.logger.warning('Will discard inactive memberships {} for active SID {}'.format(student['athletics'], sid))
+                        athletics = student['athletics']
+                        app.logger.warning(f'Will discard inactive memberships {athletics} for active SID {sid}')
                         student['athletics'] = []
                         student['is_active_asc'] = is_active_asc
                         student['status_asc'] = status_asc
@@ -371,7 +372,8 @@ def parse_all_rows(rows):
                         'team_name': r['SportCore'],
                     }
             else:
-                app.logger.error('Unmapped asc_code {} has ActiveYN for sid {}'.format(asc_code, r['SID']))
+                sid = r['SID']
+                app.logger.error(f'Unmapped asc_code {asc_code} has ActiveYN for sid {sid}')
     return imported_team_groups, imported_students
 
 
@@ -385,7 +387,7 @@ def unambiguous_group_name(asc_group_name, group_code):
 def merge_in_calnet_data():
     students = Student.query.all()
     update_student_attributes(students)
-    app.logger.info('Modified {} Student records from calnet'.format(len(db.session.dirty)))
+    app.logger.info(f'Modified {len(db.session.dirty)} student records from calnet')
     std_commit()
 
 
@@ -398,7 +400,7 @@ def update_student_attributes(students=None):
     # Search LDAP.
     all_attributes = calnet.client(app).search_csids(sids)
     if len(sids) != len(all_attributes):
-        app.logger.warning('Looked for {} SIDs but only found {}'.format(len(sids), len(all_attributes)))
+        app.logger.warning(f'Looked for {len(sids)} SIDs but only found {len(all_attributes)}')
 
     # Update db
     for a in all_attributes:

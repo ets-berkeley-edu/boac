@@ -37,13 +37,12 @@ class NormalizedCacheStudent(Base):
     units = db.Column(db.Numeric, nullable=True, index=True)
 
     def __repr__(self):
-        return '<NormalizedCacheStudent sid={}, gpa={}, level={}, units={}, created={}>'.format(
-            self.sid,
-            self.gpa,
-            self.level,
-            self.updated_at,
-            self.created_at,
-        )
+        return f"""<NormalizedCacheStudent sid={self.sid},
+            gpa={self.gpa},
+            level={self.level},
+            units={self.units},
+            updated_at={self.updated_at},
+            created_at={self.created_at}>"""
 
     @classmethod
     def update_profile(cls, sid, gpa=None, level=None, units=None):

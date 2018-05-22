@@ -65,7 +65,7 @@ class JobProgress:
         if row:
             progress = row.json
             if progress['start'] and not progress['end']:
-                app.logger.error('Cannot start job {} already in progress'.format(self.key()))
+                app.logger.error(f'Cannot start job {self.key()} already in progress')
                 return False
             row.json = start_json
             std_commit()
@@ -85,10 +85,8 @@ class JobProgress:
             app.logger.error(f'Progress record {progress} not ready to append step {step_description} to {self.key()}')
             return False
         progress.update(properties)
-        step = '{} : {}'.format(
-            datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            step_description,
-        )
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        step = f'{now} : {step_description}'
         progress['steps'].append(step)
         update_jsonb_row(row)
         return progress
@@ -98,11 +96,11 @@ class JobProgress:
         if row and row.json.get('start'):
             progress = row.json
             if progress.get('end'):
-                app.logger.error('Job {} is already ended: {}'.format(self.key(), progress))
+                app.logger.error(f'Job {self.key()} is already ended: {progress}')
                 return False
             progress['end'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             update_jsonb_row(row)
             return progress
         else:
-            app.logger.error('Job {} has not started'.format(self.key()))
+            app.logger.error(f'Job {self.key()} has not started')
             return False

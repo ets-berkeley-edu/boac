@@ -99,13 +99,13 @@ class Client:
 
     @classmethod
     def _csids_filter(cls, csids):
-        clauses = ''.join('(berkeleyeducsid={id})'.format(id=id) for id in csids)
-        return '(&(objectclass=person)(|{clauses}))'.format(clauses=clauses)
+        clauses = ''.join(f'(berkeleyeducsid={sid})' for sid in csids)
+        return f'(&(objectclass=person)(|{clauses}))'
 
     @classmethod
     def _uids_filter(cls, uids):
-        clauses = ''.join('(uid={uid})'.format(uid=uid) for uid in uids)
-        return '(&(objectclass=person)(|{clauses}))'.format(clauses=clauses)
+        clauses = ''.join(f'(uid={uid})' for uid in uids)
+        return f'(&(objectclass=person)(|{clauses}))'
 
 
 class MockClient(Client):
@@ -135,14 +135,14 @@ def _attributes_to_dict(entry):
 def _create_fixtures(app, sample_csids):
     fixture_output = os.environ.get('FIXTURE_OUTPUT_PATH') or mockingbird._get_fixtures_path()
     cl = Client(app)
-    cl.server.info.to_file('{fixture_output}/calnet_server_info.json'.format(fixture_output=fixture_output))
-    cl.server.schema.to_file('{fixture_output}/calnet_server_schema.json'.format(fixture_output=fixture_output))
+    cl.server.info.to_file(f'{fixture_output}/calnet_server_info.json')
+    cl.server.schema.to_file(f'{fixture_output}/calnet_server_schema.json')
     conn = cl.connect()
     conn.search('ou=people,dc=berkeley,dc=edu', cl._csids_filter(sample_csids), attributes=ldap3.ALL_ATTRIBUTES)
-    conn.response_to_file('{fixture_output}/calnet_search_entries.json'.format(fixture_output=fixture_output), raw=True)
+    conn.response_to_file(f'{fixture_output}/calnet_search_entries.json', raw=True)
     conn.unbind()
 
 
 def _fixture_path(pattern):
     fixtures_path = mockingbird._get_fixtures_path()
-    return '{}/calnet_{}.json'.format(fixtures_path, pattern)
+    return f'{fixtures_path}/calnet_{pattern}.json'

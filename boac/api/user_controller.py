@@ -95,7 +95,7 @@ def user_analytics(uid):
     user_courses = data_loch.get_student_canvas_courses(uid) or []
     if student and sis_profile:
         # CalCentral's Student Overview page is advisors' official information source for the student.
-        student_profile_link = 'https://calcentral.berkeley.edu/user/overview/{}'.format(uid)
+        student_profile_link = f'https://calcentral.berkeley.edu/user/overview/{uid}'
         canvas_courses_feed = api_util.canvas_courses_api_feed(user_courses)
         enrollment_terms = merge_sis_enrollments(canvas_courses_feed, student.sid, sis_profile.get('matriculation'))
     else:
