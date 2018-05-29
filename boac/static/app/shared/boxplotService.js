@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').service('boxplotService', function() {
+  angular.module('boac').service('boxplotService', function(utilService) {
 
     /**
      * Highcharts options shared between cohort-view and student-view boxplots.
@@ -118,16 +118,16 @@
         {
           data: [
             [
-              dataset.courseDeciles[0],
-              dataset.courseDeciles[3],
-              dataset.courseDeciles[5],
-              dataset.courseDeciles[7],
-              dataset.courseDeciles[10]
+              dataset.currentScore.courseDeciles[0],
+              dataset.currentScore.courseDeciles[3],
+              dataset.currentScore.courseDeciles[5],
+              dataset.currentScore.courseDeciles[7],
+              dataset.currentScore.courseDeciles[10]
             ]
           ]
         },
         {
-          data: [ [0, dataset.student.raw] ],
+          data: [ [0, dataset.currentScore.student.raw] ],
           marker: {
             fillColor: '#4a90e2',
             lineWidth: 0,
@@ -141,6 +141,16 @@
           type: 'scatter'
         }
       ];
+    };
+
+    var describeLastActivity = function(dataset) {
+      var daysSince = parseInt(_.get(dataset, 'lastActivity.student.daysSinceLastActivity'), 10);
+      if (daysSince === null) {
+        return 'Never visited course site.';
+      }
+      var inDays = 'Last visited course site ' + utilService.lastActivityDays(dataset).toLowerCase() + '.';
+      var inContext = utilService.lastActivityInContext(dataset);
+      return inContext ? inDays + ' ' + inContext : inDays;
     };
 
     /**
@@ -161,7 +171,7 @@
           borderColor: 'transparent',
           headerFormat: '',
           hideDelay: 0,
-          pointFormat: 'Last visited course site 17 days ago. 75 out of 78 have connected more recently.',
+          pointFormat: describeLastActivity(dataset),
           positioner: function(labelWidth, labelHeight) {
             return {
               x: -50,
@@ -209,25 +219,25 @@
       // Options specific to a student-view boxplot and the provided dataset.
       var tooltipHeaderFormat = '<div class="profile-tooltip-header">' +
                                 '<div class="profile-tooltip-label">User Score</div>' +
-                                '<div class="profile-tooltip-value">' + dataset.student.raw + '</div>' +
+                                '<div class="profile-tooltip-value">' + dataset.currentScore.student.raw + '</div>' +
                                 '</div>';
 
       var tooltipBodyFormat = '<div class="profile-tooltip-content">' +
                               '<div class="profile-tooltip-row">' +
                               '<div class="profile-tooltip-label">Maximum</div>' +
-                              '<div class="profile-tooltip-value">' + dataset.courseDeciles[10] + '</div></div>' +
+                              '<div class="profile-tooltip-value">' + dataset.currentScore.courseDeciles[10] + '</div></div>' +
                               '<div class="profile-tooltip-row">' +
                               '<div class="profile-tooltip-label">70th Percentile</div>' +
-                              '<div class="profile-tooltip-value">' + dataset.courseDeciles[7] + '</div></div>' +
+                              '<div class="profile-tooltip-value">' + dataset.currentScore.courseDeciles[7] + '</div></div>' +
                               '<div class="profile-tooltip-row">' +
                               '<div class="profile-tooltip-label">50th Percentile</div>' +
-                              '<div class="profile-tooltip-value">' + dataset.courseDeciles[5] + '</div></div>' +
+                              '<div class="profile-tooltip-value">' + dataset.currentScore.courseDeciles[5] + '</div></div>' +
                               '<div class="profile-tooltip-row">' +
                               '<div class="profile-tooltip-label">30th Percentile</div>' +
-                              '<div class="profile-tooltip-value">' + dataset.courseDeciles[3] + '</div></div>' +
+                              '<div class="profile-tooltip-value">' + dataset.currentScore.courseDeciles[3] + '</div></div>' +
                               '<div class="profile-tooltip-row">' +
                               '<div class="profile-tooltip-label">Minimum</div>' +
-                              '<div class="profile-tooltip-value">' + dataset.courseDeciles[0] + '</div></div>' +
+                              '<div class="profile-tooltip-value">' + dataset.currentScore.courseDeciles[0] + '</div></div>' +
                               '</div>';
 
       var boxplotOptions = {

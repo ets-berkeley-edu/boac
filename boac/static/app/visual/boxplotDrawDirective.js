@@ -37,7 +37,7 @@
 
       link: function(scope, elem, attrs) {
         angular.element(function() {
-          if (scope.dataset.boxPlottable) {
+          if (scope.dataset.currentScore.boxPlottable) {
             var compactTooltip = utilService.toBoolOrNull(attrs.compactTooltip);
             boxplotService.drawBoxplot(elem[0], scope.dataset, compactTooltip);
           } else {

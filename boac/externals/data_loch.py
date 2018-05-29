@@ -83,7 +83,8 @@ def _get_course_enrollments(course_id):
     sql = f"""SELECT
                 canvas_user_id,
                 current_score,
-                EXTRACT(EPOCH FROM last_activity_at) AS last_activity_at
+                EXTRACT(EPOCH FROM last_activity_at) AS last_activity_at,
+                sis_enrollment_status
               FROM {boac_schema()}.course_enrollments
               WHERE course_id={course_id}
               ORDER BY canvas_user_id

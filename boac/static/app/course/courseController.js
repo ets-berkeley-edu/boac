@@ -45,6 +45,7 @@
     $scope.demoMode = config.demoMode;
     $scope.isCurrentUserAscAdvisor = authService.isCurrentUserAscAdvisor();
     $scope.isLoading = true;
+    $scope.lastActivityDays = utilService.lastActivityDays;
     $scope.tab = 'list';
 
     var onTab = $scope.onTab = function(tabName) {

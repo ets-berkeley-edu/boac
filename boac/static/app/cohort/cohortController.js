@@ -68,6 +68,7 @@
     $scope.isCurrentUserAscAdvisor = authService.isCurrentUserAscAdvisor();
     $scope.isLoading = true;
     $scope.isCreateCohortMode = false;
+    $scope.lastActivityDays = utilService.lastActivityDays;
     $scope.showIntensiveCheckbox = false;
     $scope.showInactiveCheckbox = false;
     $scope.tab = 'list';

@@ -110,7 +110,7 @@
               </div>
               <div class="student-column">
                 <div class="cohort-boxplot-container" data-ng-repeat="canvasSite in enrollment.canvasSites">
-                  17 days
+                  <span data-ng-bind="lastActivityDays(canvasSite.analytics)"></span>
                 </div>
               </div>
               <div class="cohort-list-view-column-grade">
