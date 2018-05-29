@@ -50,7 +50,7 @@ class MockRows:
         if self.csv_in is None:
             return None
         # Unless otherwise instructed, `pandas` will interpret numeric strings as numbers instead of strings.
-        df = pandas.read_csv(self.csv_in, dtype={'uid': object})
+        df = pandas.read_csv(self.csv_in, dtype={'ldap_uid': object, 'sis_section_num': object, 'uid': object})
         # `pandas` also likes to store its numbers as numpy.int64, which is not JSON serializable, so we have
         # to pipe the dataframe through JSON conversion before returning.
         result = json.loads(df.to_json(None, 'records'))

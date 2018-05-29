@@ -133,7 +133,7 @@ class TestAnalyticsFromLochAnalytics:
 
     def test_when_no_data(self, app):
         mr = MockRows(io.StringIO('canvas_user_id,course_scores'))
-        with register_mock(data_loch._get_course_enrollments, mr):
+        with register_mock(data_loch._get_canvas_course_scores, mr):
             digested = analytics.loch_student_analytics(self.canvas_user_id, self.canvas_course_id, self.term_id)
         score = digested['currentScore']
         assert score['student']['raw'] is None

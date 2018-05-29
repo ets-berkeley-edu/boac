@@ -89,7 +89,7 @@ def loch_assignments_submitted(canvas_user_id, canvas_course_id, term_id):
 
 
 def loch_student_analytics(canvas_user_id, canvas_course_id, term_id):
-    enrollments = data_loch.get_course_enrollments(canvas_course_id, term_id)
+    enrollments = data_loch.get_canvas_course_scores(canvas_course_id, term_id)
     if enrollments is None:
         _error = {'error': 'Unable to retrieve from Data Loch'}
         return {'currentScore': _error, 'lastActivity': _error}

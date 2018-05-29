@@ -1,0 +1,4 @@
+grade,units,grading_basis,sis_enrollment_status,sis_term_id,ldap_uid,sis_course_title,sis_course_name,sis_section_id,sis_primary,sis_instruction_format,sis_section_num
+A-,2.0,GRD,E,2172,61889,Private Carillon Lessons for Advanced Students,MUSIC 41C,80100,true,TUT,001
+B-,4.0,GRD,E,2172,61889,Topics in Ancient Greek and Roman Culture,CLASSIC 130,21815,true,LEC,002
+P,4.0,EPN,E,2172,61889,Topics in Ancient Greek and Roman Culture,CLASSIC 130,13437,true,LEC,001

@@ -39,8 +39,8 @@ class TestDataLoch:
         assert len(data) > 0
         assert {'uid': '61889', 'canvas_user_id': 9000100, 'loch_page_views': 766} in data
 
-    def test_course_enrollments_fixture(self, app):
-        data = data_loch._get_course_enrollments(7654321)
+    def test_canvas_course_scores_fixture(self, app):
+        data = data_loch._get_canvas_course_scores(7654321)
         assert len(data) > 0
         assert {'canvas_user_id': 9000100, 'current_score': 84, 'last_activity_at': 1535275620} in data
 
@@ -63,6 +63,44 @@ class TestDataLoch:
         project_site_sections = data_loch._get_sis_sections_in_canvas_course(9999991)
         assert len(project_site_sections) == 1
         assert {'sis_section_id': None} == project_site_sections[0]
+
+    def test_sis_enrollments(self, app):
+        enrollments = data_loch._get_sis_enrollments(61889, 2178)
+
+        assert len(enrollments) == 5
+
+        assert enrollments[0]['sis_course_name'] == 'BURMESE 1A'
+        assert enrollments[0]['sis_section_num'] == '001'
+        assert enrollments[0]['sis_enrollment_status'] == 'E'
+        assert enrollments[0]['units'] == 4
+        assert enrollments[0]['grading_basis'] == 'GRD'
+
+        assert enrollments[1]['sis_course_name'] == 'MED ST 205'
+        assert enrollments[1]['sis_section_num'] == '001'
+        assert enrollments[1]['sis_enrollment_status'] == 'E'
+        assert enrollments[1]['units'] == 5
+        assert enrollments[1]['grading_basis'] == 'GRD'
+
+        assert enrollments[2]['sis_course_name'] == 'NUC ENG 124'
+        assert enrollments[2]['sis_section_num'] == '201'
+        assert enrollments[2]['sis_enrollment_status'] == 'E'
+        assert enrollments[2]['units'] == 0
+        assert enrollments[2]['grading_basis'] == 'NON'
+        assert not enrollments[2]['grade']
+
+        assert enrollments[3]['sis_course_name'] == 'NUC ENG 124'
+        assert enrollments[3]['sis_section_num'] == '002'
+        assert enrollments[3]['sis_enrollment_status'] == 'E'
+        assert enrollments[3]['units'] == 3
+        assert enrollments[3]['grading_basis'] == 'PNP'
+        assert enrollments[3]['grade'] == 'P'
+
+        assert enrollments[4]['sis_course_name'] == 'PHYSED 11'
+        assert enrollments[4]['sis_section_num'] == '001'
+        assert enrollments[4]['sis_enrollment_status'] == 'E'
+        assert enrollments[4]['units'] == 0.5
+        assert enrollments[4]['grading_basis'] == 'PNP'
+        assert enrollments[4]['grade'] == 'P'
 
     def test_student_canvas_courses(self, app):
         courses = data_loch._get_student_canvas_courses(61889)

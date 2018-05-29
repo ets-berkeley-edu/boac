@@ -31,6 +31,17 @@ from boac.lib.mockingbird import MockResponse, register_mock
 class TestSisEnrollmentsApi:
     """SIS enrollments API query."""
 
+    def test_get_drops_and_midterms(self, app):
+        oski_response = enrollments_api.get_drops_and_midterms(11667051, 2172)
+        drops = oski_response['droppedPrimarySections']
+        assert len(drops) == 1
+        assert drops[0]['displayName'] == 'MATH 136'
+        assert drops[0]['component'] == 'LEC'
+        assert drops[0]['sectionNumber'] == '001'
+        midterms = oski_response['midtermGrades']
+        assert len(midterms) == 1
+        assert midterms[80100] == 'F'
+
     def test_get_enrollments(self, app):
         """Returns unwrapped data."""
         oski_response = enrollments_api.get_enrollments(11667051, 2178)
@@ -86,11 +97,11 @@ class TestSisEnrollmentsApi:
         assert enrollments[1]['enrolledUnits']['taken'] == 5
         assert enrollments[1]['gradingBasis']['code'] == 'GRD'
 
-        assert enrollments[2]['classSection']['class']['course']['displayName'] == 'NUC ENG 124'
-        assert enrollments[2]['classSection']['number'] == '200'
+        assert enrollments[2]['classSection']['class']['course']['displayName'] == 'MUSIC 41C'
+        assert enrollments[2]['classSection']['number'] == '002'
         assert enrollments[2]['enrollmentStatus']['status']['code'] == 'D'
-        assert enrollments[2]['enrolledUnits']['taken'] == 0
-        assert enrollments[2]['gradingBasis']['code'] == 'NON'
+        assert enrollments[2]['enrolledUnits']['taken'] == 2
+        assert enrollments[2]['gradingBasis']['code'] == 'PNP'
         assert 'grades' not in enrollments[2]
 
         assert enrollments[3]['classSection']['class']['course']['displayName'] == 'NUC ENG 124'

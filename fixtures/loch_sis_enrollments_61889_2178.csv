@@ -1,0 +1,6 @@
+grade,units,grading_basis,sis_enrollment_status,sis_term_id,ldap_uid,sis_course_title,sis_course_name,sis_section_id,sis_primary,sis_instruction_format,sis_section_num
+,4.0,GRD,E,2178,61889,Introductory Burmese,BURMESE 1A,90100,true,LEC,001
+,5.0,GRD,E,2178,61889,Medieval Manuscripts as Primary Sources,MED ST 205,90200,true,SEM,001
+,0.0,NON,E,2178,61889,Radioactive Waste Management,NUC ENG 124,90301,false,DIS,201
+P,3.0,PNP,E,2178,61889,Radioactive Waste Management,NUC ENG 124,90300,true,LAB,002
+P,0.5,PNP,E,2178,61889,Physical Education Activities,PHYSED 11,50100,true,LAB,001

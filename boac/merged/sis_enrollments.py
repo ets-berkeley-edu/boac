@@ -33,7 +33,7 @@ from boac.models.normalized_cache_enrollment import NormalizedCacheEnrollment
 from flask import current_app as app
 
 
-def merge_sis_enrollments(canvas_course_sites, cs_id, matriculation):
+def merge_sis_enrollments(canvas_course_sites, uid, cs_id, matriculation):
     courses_by_term = []
 
     def reverse_terms_until(stop_term):
@@ -50,57 +50,73 @@ def merge_sis_enrollments(canvas_course_sites, cs_id, matriculation):
                 term_name = 'Fall ' + str(int(term_name[-4:]) - 1)
 
     for term_name in reverse_terms_until(matriculation):
-        include_dropped_enrollments = (term_name == app.config['CANVAS_CURRENT_ENROLLMENT_TERM'])
-        merged_enrollments = merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name, include_dropped_enrollments)
+        merged_enrollments = merge_sis_enrollments_for_term(canvas_course_sites, uid, cs_id, term_name)
         if merged_enrollments and (len(merged_enrollments['enrollments']) or len(merged_enrollments['unmatchedCanvasSites'])):
             courses_by_term.append(merged_enrollments)
     return courses_by_term
 
 
-def merge_sis_enrollments_for_term(canvas_course_sites, cs_id, term_name, include_dropped_enrollments=False):
+def merge_sis_enrollments_for_term(canvas_course_sites, uid, cs_id, term_name):
     term_id = sis_term_id_for_name(term_name)
-    enrollments = sis_enrollments_api.get_enrollments(cs_id, term_id)
-
-    if enrollments:
-        term_feed = merge_enrollment(cs_id, enrollments, term_id, term_name)
-    else:
-        return
+    enrollments = data_loch.get_sis_enrollments(uid, term_id) or []
+    term_feed = merge_enrollment(cs_id, enrollments, term_id, term_name)
 
     for site in canvas_course_sites:
         merge_canvas_course_site(term_feed, site)
 
     # Screen out unwanted enrollments after course site merge so that associated sites are removed rather than orphaned.
     remove_athletic_enrollments(term_feed)
-    # If dropped enrollments are to be included, collect section data in a separate list before removal.
-    if include_dropped_enrollments:
-        term_feed['droppedSections'] = collect_dropped_sections(term_feed)
-    remove_dropped_enrollments(term_feed)
 
     sort_canvas_course_sites(term_feed)
 
     return term_feed
 
 
+def merge_drops_and_midterms(cs_id, term_name, term_feed):
+    """Check for dropped classes and midterm deficient grades, creating new Alerts as needed."""
+    if term_name != app.config['CANVAS_CURRENT_ENROLLMENT_TERM']:
+        return term_feed
+
+    term_id = sis_term_id_for_name(term_name)
+    drops_and_midterms = sis_enrollments_api.get_drops_and_midterms(cs_id, term_id) or {}
+    term_feed['droppedSections'] = drops_and_midterms.get('droppedPrimarySections', [])
+    section_midterms = drops_and_midterms.get('midtermGrades', {})
+    for enrollment in term_feed['enrollments']:
+        for section in enrollment['sections']:
+            section_id = section['ccn']
+            if section_id in section_midterms:
+                midterm_grade = section_midterms[section_id]
+                section['midtermGrade'] = midterm_grade
+                enrollment['midtermGrade'] = midterm_grade
+                Alert.update_midterm_grade_alerts(cs_id, term_id, section_id, enrollment['displayName'], midterm_grade)
+    return term_feed
+
+
 @stow('merged_enrollment_{cs_id}', for_term=True)
 def merge_enrollment(cs_id, enrollments, term_id, term_name):
     enrollments_by_class = {}
-    sections_for_normalized_cache = []
     term_section_ids = {}
     enrolled_units = 0
-    for enrollment in enrollments.get('studentEnrollments', []):
+    for enrollment in enrollments:
         # Skip this class section if we've seen it already.
-        section_id = enrollment.get('classSection').get('id')
+        section_id = enrollment.get('sis_section_id')
         if section_id in term_section_ids:
             continue
 
         term_section_ids[section_id] = True
-        section_feed = api_util.sis_enrollment_section_feed(enrollment)
+        section_feed = {
+            'ccn': enrollment['sis_section_id'],
+            'component': enrollment['sis_instruction_format'],
+            'sectionNumber': enrollment['sis_section_num'],
+            'enrollmentStatus': enrollment['sis_enrollment_status'],
+            'units': enrollment['units'],
+            'gradingBasis': api_util.translate_grading_basis(enrollment['grading_basis']),
+            'grade': enrollment['grade'],
+            'primary': enrollment['sis_primary'],
+        }
 
         # The SIS enrollments API gives us no better unique identifier than the course display name.
-        class_section = enrollment.get('classSection', {})
-        if section_feed['enrollmentStatus'] in ['E', 'W']:
-            sections_for_normalized_cache.append(class_section)
-        class_name = class_section.get('class', {}).get('course', {}).get('displayName')
+        class_name = enrollment['sis_course_name']
         # If we haven't seen this class name before, we create a new feed entry for it.
         if class_name not in enrollments_by_class:
             enrollments_by_class[class_name] = api_util.sis_enrollment_class_feed(enrollment)
@@ -120,21 +136,20 @@ def merge_enrollment(cs_id, enrollments, term_id, term_name):
             enrollments_by_class[class_name]['gradingBasis'] = section_feed['gradingBasis']
             enrollments_by_class[class_name]['units'] = section_feed['units']
 
-            midterm_grade = section_feed['midtermGrade']
-            enrollments_by_class[class_name]['midtermGrade'] = midterm_grade
-            if midterm_grade:
-                Alert.update_midterm_grade_alerts(cs_id, term_id, section_id, class_name, midterm_grade)
     enrollments_feed = sorted(enrollments_by_class.values(), key=lambda x: x['displayName'])
     sort_sections(enrollments_feed)
     # Cache course and enrollment info
-    NormalizedCacheEnrollment.update_enrollments(term_id=term_id, sid=cs_id, sections=sections_for_normalized_cache)
-    return {
+    NormalizedCacheEnrollment.update_enrollments(term_id=term_id, sid=cs_id, enrollments=enrollments)
+    term_feed = {
         'termId': term_id,
         'termName': term_name,
         'enrollments': enrollments_feed,
         'enrolledUnits': enrolled_units,
         'unmatchedCanvasSites': [],
     }
+    merge_drops_and_midterms(cs_id, term_name, term_feed)
+
+    return term_feed
 
 
 def check_for_multiple_primary_sections(enrollment, class_name, enrollments_by_class, section_feed):

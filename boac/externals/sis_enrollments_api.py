@@ -28,11 +28,35 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.lib import http
 from boac.lib.mockingbird import fixture
-from boac.models.json_cache import stow
 from flask import current_app as app
 
 
-@stow('sis_enrollments_api_{cs_id}_{term_id}', for_term=True)
+def get_drops_and_midterms(cs_id, term_id):
+    """Obtain dropped classes and midterm deficient grades for the term."""
+    response = get_enrollments(cs_id, term_id)
+    if not response:
+        return response
+    enrollments = response.get('studentEnrollments', [])
+    dropped_classes = []
+    midterm_grades = {}
+    for enrollment in enrollments:
+        enrollment_status = enrollment.get('enrollmentStatus', {}).get('status', {}).get('code')
+        if enrollment_status == 'D' and enrollment.get('gradingBasis', {}).get('code') != 'NON':
+            dropped_classes.append({
+                'displayName': enrollment.get('classSection', {}).get('class', {}).get('course', {}).get('displayName'),
+                'component': enrollment.get('classSection', {}).get('component', {}).get('code'),
+                'sectionNumber': enrollment.get('classSection', {}).get('number'),
+            })
+        grades = enrollment.get('grades', [])
+        midterm = next((grade.get('mark') for grade in grades if grade.get('type', {}).get('code') == 'MID'), None)
+        if midterm:
+            midterm_grades[enrollment['classSection']['id']] = midterm
+    return {
+        'droppedPrimarySections': dropped_classes,
+        'midtermGrades': midterm_grades,
+    }
+
+
 def get_enrollments(cs_id, term_id):
     response = _get_enrollments(cs_id, term_id)
     if response and hasattr(response, 'json'):

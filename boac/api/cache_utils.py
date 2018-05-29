@@ -327,12 +327,12 @@ def load_analytics_feeds(uid, sid, term_id):
     # Route the course site feed through our SIS enrollments merge, so that site selection logic (e.g., filtering
     # out dropped and athletic enrollments) is consistent with web API calls.
     term_name = berkeley.term_name_for_sis_id(term_id)
-    merged_term_feed = merge_sis_enrollments_for_term(canvas_courses_feed, sid, term_name)
+    merged_term_feed = merge_sis_enrollments_for_term(canvas_courses_feed, uid, sid, term_name)
 
     def load_analytics_for_sites(sites):
         for site in sites:
             data_loch.get_course_page_views(site['canvasCourseId'], term_id)
-            data_loch.get_course_enrollments(site['canvasCourseId'], term_id)
+            data_loch.get_canvas_course_scores(site['canvasCourseId'], term_id)
             if canvas_user_id:
                 data_loch.get_submissions_turned_in_relative_to_user(site['canvasCourseId'], canvas_user_id, term_id)
     if merged_term_feed:

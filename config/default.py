@@ -80,7 +80,6 @@ DATA_LOCH_URI = 'postgres://nessie:secret@secreturl.com:5432/canvas'
 DATA_LOCH_BOAC_SCHEMA = 'boac_analytics'
 DATA_LOCH_INTERMEDIATE_SCHEMA = 'intermediate'
 
-
 LDAP_HOST = 'nds-test.berkeley.edu'
 LDAP_BIND = 'mybind'
 LDAP_PASSWORD = 'secret'

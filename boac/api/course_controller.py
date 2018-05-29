@@ -25,7 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.api.errors import ResourceNotFoundError
-import boac.api.util as api_util
 from boac.externals import data_loch
 from boac.lib import analytics
 from boac.lib import util
@@ -39,10 +38,9 @@ from flask_login import login_required
 @app.route('/api/section/<term_id>/<section_id>')
 @login_required
 def get_section(term_id, section_id):
-    row = NormalizedCacheEnrollment.get_course_section(term_id=term_id, section_id=section_id)
-    if not row:
+    section = NormalizedCacheEnrollment.get_course_section(term_id=term_id, section_id=section_id)
+    if not section:
         raise ResourceNotFoundError(f'No section {section_id} in term {term_id}')
-    section = api_util.course_section_to_json(term_id=term_id, section=row)
     students = section.get('students', [])
     student_details.merge_all(students, section['termId'])
     for student in students:

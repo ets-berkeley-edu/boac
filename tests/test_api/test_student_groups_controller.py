@@ -125,6 +125,8 @@ class TestStudentGroupsController:
         """Returns all students with athletic memberships for detailed group listing."""
         groups = client.get('/api/groups/my').json
         group = next(group for group in groups if group['name'] == 'Cool Kids')
+        group_id = group['id']
+        group = client.get(f'/api/group/{group_id}').json
         students = group['students']
         assert len(students[0]['athletics']) == 2
         assert students[0]['athletics'][0]['name'] == 'Women\'s Field Hockey'
