@@ -19,7 +19,9 @@
                                       when="{'one': 'One student', 'other': '{} students'}"></span>)</span>
     </h1>
     <div data-ng-if="!group.students.length">
-      This curated cohort has no students.
+      This curated cohort has no students. Start adding students from their profile pages to your
+      <strong data-ng-bind="group.name"></strong> cohort:
+      <search-students-form data-with-button="true"></search-students-form>
     </div>
   </div>
 

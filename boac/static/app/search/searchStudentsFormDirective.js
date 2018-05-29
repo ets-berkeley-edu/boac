@@ -27,43 +27,42 @@
 
   'use strict';
 
-  angular.module('boac').controller('HomeController', function(
-    cohortService,
-    config,
+  /**
+   * Fall back to a default avatar in the case of an error during image load.
+   */
+  angular.module('boac').directive('searchStudentsForm', function(
     page,
-    studentGroupService,
+    studentGroupFactory,
+    $location,
     $rootScope,
-    $scope
+    $state,
+    $transitions
   ) {
 
-    $scope.demoMode = config.demoMode;
+    $transitions.onStart({}, function($transition) {
+      if (_.get($transition.$to(), 'name') !== 'search') {
+        $rootScope.searchPhrase = null;
+      }
+    });
 
-    var init = function() {
-      page.loading(true);
+    $transitions.onFinish({}, function($transition) {
+      $rootScope.transitionTo = _.get($transition.$to(), 'name');
+    });
 
-      studentGroupService.loadMyGroups(function(myGroups) {
-        $scope.myGroups = myGroups;
+    return {
+      restrict: 'E',
+      scope: true,
+      templateUrl: '/static/app/search/searchStudentsForm.html',
 
-        cohortService.loadMyCohorts(function(myCohorts) {
-          $scope.myCohorts = myCohorts;
-          page.loading(false);
-        });
-      });
+      link: function(scope, elem, attrs) {
+        scope.searchPhrase = $location.search().q;
+        scope.withButton = attrs.withButton;
+        scope.searchForStudents = function() {
+          page.loading(true);
+          $state.transitionTo('search', {q: scope.searchPhrase}, {reload: true});
+        };
+      }
     };
-
-    $rootScope.$on('groupCreated', function(event, data) {
-      $scope.myGroups.push(studentGroupService.decorateGroup(data.group));
-    });
-
-    $rootScope.$on('myCohortsUpdated', function() {
-      page.loading(true);
-      cohortService.loadMyCohorts(function(myCohorts) {
-        $scope.myCohorts = myCohorts;
-        page.loading(false);
-      });
-    });
-
-    init();
   });
 
 }(window.angular));

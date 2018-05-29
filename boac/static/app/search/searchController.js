@@ -30,6 +30,7 @@
   angular.module('boac').controller('SearchController', function(
     authService,
     config,
+    page,
     studentFactory,
     utilService,
     validationService,
@@ -50,7 +51,7 @@
       var inactiveAsc = authService.isCurrentUserAscAdvisor() ? false : null;
 
       $anchorScroll();
-      $scope.isLoading = true;
+      page.loading(true);
       studentFactory.searchForStudents($scope.search.phrase, inactiveAsc, 'last_name', 0, $scope.search.limit).then(
         function(response) {
           $scope.search.students = utilService.extendSortableNames(response.data.students);
@@ -60,18 +61,18 @@
           $scope.error = validationService.parseError(err);
         }
       ).then(function() {
-        $scope.isLoading = false;
+        page.loading(false);
       });
     };
 
     $scope.$watch('displayOptions.sortBy', function(value) {
-      if (!_.isNil(value) && !$scope.isLoading) {
+      if (!_.isNil(value) && !page.isLoading()) {
         $location.search('s', $scope.displayOptions.sortBy);
       }
     });
 
     $scope.$watch('displayOptions.reverse', function(value) {
-      if (!_.isNil(value) && !$scope.isLoading) {
+      if (!_.isNil(value) && !page.isLoading()) {
         $location.search('r', value.toString());
       }
     });

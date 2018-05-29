@@ -27,14 +27,13 @@
 
   'use strict';
 
-  angular.module('boac').controller('AllCohortsController', function(cohortFactory, $scope) {
-
-    $scope.isLoading = true;
+  angular.module('boac').controller('AllCohortsController', function(cohortFactory, page, $scope) {
 
     var init = function() {
+      page.loading(true);
       cohortFactory.getAll().then(function(response) {
         $scope.owners = response.data;
-        $scope.isLoading = false;
+        page.loading(false);
       });
     };
 

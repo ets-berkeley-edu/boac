@@ -29,6 +29,7 @@
 
   angular.module('boac').controller('ManageCohortsController', function(
     cohortFactory,
+    page,
     studentFactory,
     utilService,
     validationService,
@@ -36,7 +37,7 @@
     $scope
   ) {
 
-    $scope.isLoading = true;
+    page.loading(true);
 
     var resetPageView = function(callback) {
       // For each cohort listed in the UI, hide details and the edit form
@@ -111,7 +112,7 @@
           );
         });
         resetPageView(angular.noop);
-        $scope.isLoading = false;
+        page.loading(false);
       });
     };
 

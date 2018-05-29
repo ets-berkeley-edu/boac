@@ -29,6 +29,7 @@
 
   angular.module('boac').directive('curatedCohortSelector', function(
     authService,
+    page,
     studentGroupFactory,
     studentGroupService,
     $rootScope,
@@ -48,7 +49,7 @@
 
       link: function(scope) {
 
-        scope.isLoading = true;
+        page.loading(true);
 
         scope.selector = {
           selectAllCheckbox: false,
@@ -91,7 +92,7 @@
           var me = authService.getMe();
           scope.myGroups = me.myGroups;
           _.each(scope.students, initStudent);
-          scope.isLoading = false;
+          page.loading(false);
         };
 
         init();

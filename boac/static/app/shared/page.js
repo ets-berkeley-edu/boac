@@ -27,43 +27,20 @@
 
   'use strict';
 
-  angular.module('boac').controller('HomeController', function(
-    cohortService,
-    config,
-    page,
-    studentGroupService,
-    $rootScope,
-    $scope
-  ) {
+  angular.module('boac').service('page', function($rootScope) {
 
-    $scope.demoMode = config.demoMode;
-
-    var init = function() {
-      page.loading(true);
-
-      studentGroupService.loadMyGroups(function(myGroups) {
-        $scope.myGroups = myGroups;
-
-        cohortService.loadMyCohorts(function(myCohorts) {
-          $scope.myCohorts = myCohorts;
-          page.loading(false);
-        });
-      });
+    var isLoading = function() {
+      return $rootScope.isLoading;
     };
 
-    $rootScope.$on('groupCreated', function(event, data) {
-      $scope.myGroups.push(studentGroupService.decorateGroup(data.group));
-    });
+    var loading = function(status) {
+      $rootScope.isLoading = status;
+    };
 
-    $rootScope.$on('myCohortsUpdated', function() {
-      page.loading(true);
-      cohortService.loadMyCohorts(function(myCohorts) {
-        $scope.myCohorts = myCohorts;
-        page.loading(false);
-      });
-    });
-
-    init();
+    return {
+      isLoading: isLoading,
+      loading: loading
+    };
   });
 
 }(window.angular));

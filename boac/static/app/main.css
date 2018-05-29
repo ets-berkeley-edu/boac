@@ -32,6 +32,10 @@
   line-height: 1.4em;
 }
 
+.btn-search-students {
+  height: 46px;
+}
+
 .btn-student-group-fa-1x {
   padding: 2px 5px 0 2px;
 }
@@ -203,6 +207,41 @@
   flex-direction: row;
   justify-content: flex-start;
   padding: 20px 0 10px 0;
+}
+
+.search-students-form-button {
+  min-width: 200px;
+  width: 60%;
+}
+
+.search-students-icon {
+  color: #999;
+  position: relative;
+  top: 28px;
+  left: 10px;
+}
+
+.search-students-input {
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  color: #999;
+  padding: 10px 15px 10px 30px;
+  width: 100%;
+}
+
+.search-students-with-button {
+  align-items: center;
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.search-students-with-button div {
+  align-self: flex-end;
+}
+
+.search-students-with-button div:first-child {
+  padding-right: 15px;
 }
 
 .student-checkbox-add-to-group {
