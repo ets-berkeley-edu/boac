@@ -34,28 +34,17 @@
     studentGroupFactory,
     studentGroupService,
     $rootScope,
-    $scope,
-    $state
+    $scope
   ) {
     var init = function() {
       var me = authService.getMe();
       $scope.demoMode = config.demoMode;
       $scope.myCohorts = _.clone(me.myCohorts);
       $scope.myGroups = _.clone(me.myGroups);
-      $scope.searchPhrase = null;
       $scope.isCurrentUserAscAdvisor = authService.isCurrentUserAscAdvisor();
     };
 
     init();
-
-    $rootScope.$on('$viewContentLoaded', function() {
-      $scope.searchPhrase = null;
-    });
-
-    $scope.searchForStudents = function() {
-      $scope.searchResultsLoading = true;
-      $state.transitionTo('search', {q: $scope.searchPhrase}, {reload: true});
-    };
 
     var findGroupInScope = function(groupId) {
       return _.find($scope.myGroups, ['id', groupId]);

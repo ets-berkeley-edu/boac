@@ -27,14 +27,14 @@
 
   'use strict';
 
-  angular.module('boac').controller('TeamsController', function(cohortFactory, $scope) {
+  angular.module('boac').controller('TeamsController', function(cohortFactory, page, $scope) {
 
-    $scope.isLoading = true;
+    page.loading(true);
 
     var init = function() {
       cohortFactory.getTeams().then(function(response) {
         $scope.teams = response.data;
-        $scope.isLoading = false;
+        page.loading(false);
       });
     };
 

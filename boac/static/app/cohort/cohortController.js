@@ -32,6 +32,7 @@
     cohortFactory,
     config,
     googleAnalyticsService,
+    page,
     studentFactory,
     studentSearchService,
     utilService,
@@ -66,7 +67,7 @@
 
     $scope.demoMode = config.demoMode;
     $scope.isCurrentUserAscAdvisor = authService.isCurrentUserAscAdvisor();
-    $scope.isLoading = true;
+    page.loading(true);
     $scope.isCreateCohortMode = false;
     $scope.lastActivityDays = utilService.lastActivityDays;
     $scope.showIntensiveCheckbox = false;
@@ -170,12 +171,12 @@
     var listViewRefresh = function(callback) {
       // Pagination is not used on teams because student count is within reason.
       $scope.pagination.enabled = isPaginationEnabled();
-      var page = $scope.pagination.enabled ? $scope.pagination.currentPage : 1;
+      var pageNumber = $scope.pagination.enabled ? $scope.pagination.currentPage : 1;
       var limit = $scope.pagination.enabled ? $scope.pagination.itemsPerPage : Number.MAX_SAFE_INTEGER;
-      var offset = page === 0 ? 0 : (page - 1) * limit;
+      var offset = pageNumber === 0 ? 0 : (pageNumber - 1) * limit;
 
       $anchorScroll();
-      $scope.isLoading = true;
+      page.loading(true);
       getCohort($scope.orderBy.selected, offset, limit).then(function(response) {
         updateCohort(response.data);
         return callback();
@@ -321,7 +322,7 @@
      * @return {void}
      */
     var matrixViewRefresh = function(callback) {
-      $scope.isLoading = true;
+      page.loading(true);
       getCohort(null, 0, $scope.pagination.noLimit).then(function(response) {
         updateCohort(response.data);
         var goToUserPage = function(uid) {
@@ -350,7 +351,7 @@
     var nextPage = $scope.nextPage = function() {
       if ($scope.cohort.code) {
         listViewRefresh(function() {
-          $scope.isLoading = false;
+          page.loading(false);
         });
       } else {
         $scope.pagination.enabled = true;
@@ -362,11 +363,11 @@
         var handleError = function(err) {
           $scope.error = validationService.parseError(err);
         };
-        var page = $scope.pagination.currentPage;
-        var offset = page < 2 ? 0 : (page - 1) * $scope.pagination.itemsPerPage;
+        var pageNumber = $scope.pagination.currentPage;
+        var offset = pageNumber < 2 ? 0 : (pageNumber - 1) * $scope.pagination.itemsPerPage;
 
         // Perform the query
-        $scope.isLoading = true;
+        page.loading(true);
         studentSearchService.getStudents(
           $scope.search.options,
           $scope.orderBy.selected,
@@ -374,7 +375,7 @@
           $scope.pagination.itemsPerPage,
           true
         ).then(handleSuccess, handleError).then(function() {
-          $scope.isLoading = false;
+          page.loading(false);
         });
       }
     };
@@ -463,7 +464,7 @@
       // Lazy load matrix data
       if (tabName === 'matrix' && !$scope.matrix) {
         matrixViewRefresh(function() {
-          $scope.isLoading = false;
+          page.loading(false);
         });
       } else if (tabName === 'list') {
         // Restore pagination; fortunately, 'currentPage' persists.
@@ -496,13 +497,13 @@
         nextPage();
       } else {
         matrixViewRefresh(function() {
-          $scope.isLoading = false;
+          page.loading(false);
         });
       }
     };
 
     $scope.$watch('orderBy.selected', function(value) {
-      if (value && !$scope.isLoading) {
+      if (value && !page.isLoading()) {
         $location.search('o', $scope.orderBy.selected);
         $scope.pagination.currentPage = 1;
         nextPage();
@@ -510,7 +511,7 @@
     });
 
     $scope.$watch('pagination.currentPage', function() {
-      if (!$scope.isLoading) {
+      if (!page.isLoading()) {
         $location.search('p', $scope.pagination.currentPage);
       }
     });
@@ -518,7 +519,7 @@
     $scope.disableApplyButton = function() {
       // Disable button if page is loading or no filter criterion is selected
       var count = $scope.search.count;
-      return $scope.isLoading || $scope.isSaving || (!count.gpaRanges && !count.groupCodes && !count.levels &&
+      return page.isLoading() || $scope.isSaving || (!count.gpaRanges && !count.groupCodes && !count.levels &&
         !count.majors && !count.unitRanges && (!$scope.showIntensiveCheckbox || !$scope.search.options.intensive) &&
         (!$scope.showInactiveCheckbox || !$scope.search.options.inactive));
     };
@@ -585,14 +586,14 @@
 
           if ($scope.isCreateCohortMode) {
             initFilters(function() {
-              $scope.isLoading = false;
+              page.loading(false);
             });
           } else {
             var render = $scope.tab === 'list' ? listViewRefresh : matrixViewRefresh;
             render(function() {
               initFilters(function() {
                 $rootScope.pageTitle = $scope.isCreateCohortMode ? 'Create Filtered Cohort' : $scope.cohort.name || 'Search';
-                $scope.isLoading = false;
+                page.loading(false);
 
                 if (args.a) {
                   // We are returning from student page.

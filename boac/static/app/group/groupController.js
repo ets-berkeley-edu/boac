@@ -30,6 +30,7 @@
   angular.module('boac').controller('GroupController', function(
     authService,
     config,
+    page,
     studentGroupFactory,
     studentSearchService,
     utilService,
@@ -87,7 +88,7 @@
      * @return {void}
      */
     var matrixViewRefresh = function(callback) {
-      $scope.isLoading = true;
+      page.loading(true);
       var goToUserPage = function(uid) {
         $location.state($location.absUrl());
         $location.path('/student/' + uid);
@@ -112,7 +113,7 @@
       // Lazy load matrix data
       if (tabName === 'matrix') {
         matrixViewRefresh(function() {
-          $scope.isLoading = false;
+          page.loading(false);
         });
       } else if (tabName === 'list') {
         // Do nothing.
@@ -128,7 +129,7 @@
     };
 
     var init = function() {
-      $scope.isLoading = true;
+      page.loading(true);
       var id = $stateParams.id;
       var args = _.clone($location.search());
 
@@ -136,7 +137,7 @@
         $scope.group = response.data;
         onTab(_.includes(['list', 'matrix'], args.v) ? args.v : 'list');
         $rootScope.pageTitle = $scope.group.name || 'Curated Cohort';
-        $scope.isLoading = false;
+        page.loading(false);
       }).catch(function(err) {
         $scope.error = validationService.parseError(err);
       });

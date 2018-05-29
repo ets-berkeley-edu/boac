@@ -28,6 +28,7 @@
   'use strict';
 
   angular.module('boac').controller('ManageGroupsController', function(
+    page,
     studentGroupFactory,
     studentGroupService,
     validationService,
@@ -35,7 +36,7 @@
     $scope
   ) {
 
-    $scope.isLoading = true;
+    page.loading(true);
 
     var resetPageView = function(callback) {
       _.each($scope.myGroups, function(group) {
@@ -78,7 +79,7 @@
           group.nameOriginal = group.name;
         });
         resetPageView(angular.noop);
-        $scope.isLoading = false;
+        page.loading(false);
       });
     };
 

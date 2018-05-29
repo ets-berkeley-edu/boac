@@ -195,19 +195,3 @@
 .sidebar-section-search {
   margin: 0 12px 12px 12px;
 }
-
-.search-students-icon {
-  color: #999;
-  position: relative;
-  top: 28px;
-  left: 10px;
-}
-
-.search-students-input {
-  box-sizing: border-box;
-  border: 2px solid #ccc;
-  border-radius: 4px;
-  color: #999;
-  padding: 10px 15px 10px 30px;
-  width: 100%;
-}

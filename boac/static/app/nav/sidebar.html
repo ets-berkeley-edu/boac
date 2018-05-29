@@ -1,15 +1,5 @@
 <div class="sidebar-section-search">
-  <form id="sidebar-search-students-form" data-ng-submit="searchForStudents()">
-    <label for="sidebar-search-students-input" class="sr-only">Search for students</label>
-    <span class="search-students-icon"><i class="fas fa-search"></i></span>
-    <input id="sidebar-search-students-input"
-           type="text"
-           class="search-students-input"
-           data-ng-model="searchPhrase"
-           data-ng-readonly="searchResultsLoading"
-           maxlength="255"
-           placeholder="Search for Students">
-  </form>
+  <search-students-form></search-students-form>
 </div>
 <div class="sidebar-row-link sidebar-section-header">
   <span class="sidebar-header sidebar-row-link-label"
