@@ -308,7 +308,8 @@
                       </td>
                       <td class="profile-boxplot-container">
                         <boxplot-draw class="profile-boxplot"
-                                      data-dataset="canvasSite.analytics.currentScore"></boxplot-draw>
+                                      data-dataset="canvasSite.analytics"
+                                      data-ng-if="canvasSite.analytics.currentScore"></boxplot-draw>
                       </td>
                     </tr>
                     <tr>
@@ -321,13 +322,9 @@
                                 data-ng-class="{'demo-mode-blur': demoMode}"></span> has never visited this course site.
                         </div>
                         <div data-ng-if="canvasSite.analytics.lastActivity.student.daysSinceLastActivity != null">
-                          <span data-ng-bind="student.athleticsProfile.fullName"
-                                data-ng-class="{'demo-mode-blur': demoMode}"></span>
-                          last visited the course site
-                          <span data-ng-pluralize count="canvasSite.analytics.lastActivity.student.daysSinceLastActivity"
-                                when="{'0': 'today', '1': 'yesterday', 'other': '{} days ago'}"
-                                data-ng-if="canvasSite.analytics.lastActivity.student.daysSinceLastActivity != null"></span>.
-                          TBD out of TBD enrolled students have done so more recently.
+                          <span data-ng-bind="student.athleticsProfile.fullName" data-ng-class="{'demo-mode-blur': demoMode}"></span>
+                          last visited the course site <span data-ng-bind="lastActivityDays(canvasSite.analytics).toLowerCase()"></span>.
+                          <span data-ng-bind="lastActivityInContext(canvasSite.analytics)"></span>
                         </div>
                       </td>
                     </tr>

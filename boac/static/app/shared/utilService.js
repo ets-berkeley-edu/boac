@@ -94,6 +94,26 @@
       return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
     };
 
+    var lastActivityDays = function(analytics) {
+      var daysSince = parseInt(_.get(analytics, 'lastActivity.student.daysSinceLastActivity'), 10);
+      switch (daysSince) {
+        case NaN: return 'Never';
+        case 0: return 'Today';
+        case 1: return 'Yesterday';
+        default: return daysSince + ' days ago';
+      }
+    };
+
+    var lastActivityInContext = function(analytics) {
+      var describe = '';
+      if (analytics.courseEnrollmentCount) {
+        var total = analytics.courseEnrollmentCount;
+        var percentAbove = (100 - analytics.lastActivity.student.roundedUpPercentile) / 100;
+        describe += Math.round(percentAbove * total) + ' out of ' + total + ' enrolled students have done so more recently.';
+      }
+      return describe;
+    };
+
     var unpackReturnUrl = function(anchorId) {
       var disableBreadcrumb = true;
       if (disableBreadcrumb) {
@@ -151,6 +171,8 @@
       anchorScroll: anchorScroll,
       camelCaseToDashes: camelCaseToDashes,
       constructReturnToLabel: constructReturnToLabel,
+      lastActivityDays: lastActivityDays,
+      lastActivityInContext: lastActivityInContext,
       extendSortableNames: extendSortableNames,
       decorateOptions: decorateOptions,
       format: format,

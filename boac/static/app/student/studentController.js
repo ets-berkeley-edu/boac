@@ -52,6 +52,8 @@
       isLoading: true
     };
     $scope.demoMode = config.demoMode;
+    $scope.lastActivityDays = utilService.lastActivityDays;
+    $scope.lastActivityInContext = utilService.lastActivityInContext;
     $scope.isCurrentUserAscAdvisor = authService.isCurrentUserAscAdvisor();
     $scope.myGroups = _.clone(me.myGroups);
     $scope.showAllTerms = false;

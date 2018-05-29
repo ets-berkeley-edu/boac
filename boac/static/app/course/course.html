@@ -175,7 +175,7 @@
                 <div class="profile-boxplot-container"
                      data-ng-repeat="canvasSite in student.enrollment.canvasSites">
                   <boxplot-draw class="profile-boxplot"
-                                data-dataset="canvasSite.analytics.currentScore"
+                                data-dataset="canvasSite.analytics"
                                 data-ng-if="canvasSite.analytics.currentScore"></boxplot-draw>
                 </div>
               </div>
@@ -186,7 +186,7 @@
               <div class="course-list-view-column-canvas-sites">
                 <div class="profile-boxplot-container"
                      data-ng-repeat="canvasSite in student.enrollment.canvasSites">
-                  17 days
+                  <span data-ng-bind="lastActivityDays(canvasSite.analytics)"></span>
                 </div>
               </div>
             </div>

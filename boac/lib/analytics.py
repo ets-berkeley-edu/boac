@@ -112,6 +112,7 @@ def loch_student_analytics(canvas_user_id, canvas_course_id, term_id):
     return {
         'currentScore': analytics_for_column(df, student_row, 'current_score'),
         'lastActivity': last_activity,
+        'courseEnrollmentCount': len([e for e in enrollments if e.get('sis_enrollment_status') == 'E']),
     }
 
 
@@ -122,7 +123,7 @@ def loch_page_views(uid, canvas_course_id, term_id):
     df = pandas.DataFrame(course_rows, columns=['uid', 'loch_page_views'])
     student_row = df.loc[df['uid'].values == uid]
     if course_rows and student_row.empty:
-        app.logger.warn(f'UID {uid} not found in Data Loch page views for course site {canvas_course_id}; will assume 0 score')
+        app.logger.warn(f'UID {uid} not found in DataLoch page views for course {canvas_course_id}; assume score of 0')
         student_row = pandas.DataFrame({'uid': [uid], 'loch_page_views': [0]})
         df = df.append(student_row, ignore_index=True)
         # Fetch newly appended row, mostly for the sake of its properly set-up index.

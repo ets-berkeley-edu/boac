@@ -42,6 +42,7 @@
   ) {
 
     $scope.isCurrentUserAscAdvisor = authService.isCurrentUserAscAdvisor();
+    $scope.lastActivityDays = utilService.lastActivityDays;
     $scope.orderBy = studentSearchService.getSortByOptionsForSearch();
 
     var levelComparator = function(level) {
