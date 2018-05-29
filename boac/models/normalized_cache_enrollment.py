@@ -26,9 +26,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import re
 from boac import db, std_commit
-from boac.lib.berkeley import sis_term_id_for_name, term_name_for_sis_id
+from boac.lib.berkeley import sis_term_id_for_name
+from boac.merged.sis_sections import get_sis_section
 from boac.models.base import Base
-from boac.models.json_cache import insert_row, update_jsonb_row, working_cache
+from boac.models.json_cache import working_cache
 from boac.models.student import Student
 
 
@@ -50,26 +51,25 @@ class NormalizedCacheEnrollment(Base):
         return sids
 
     @classmethod
-    def update_enrollments(cls, term_id, sid, sections):
+    def update_enrollments(cls, term_id, sid, enrollments):
         term_id = int(term_id)
         # Previous enrollments might have been dropped
         cls.query.filter_by(term_id=term_id, sid=sid).delete()
         std_commit()
         # Add fresh enrollment data
-        for section in sections:
-            enrollment = cls(term_id=term_id, section_id=int(section['id']), sid=sid)
-            db.session.add(enrollment)
+        for enrollment in enrollments:
+            if enrollment['sis_enrollment_status'] in ['E', 'W']:
+                normalized = cls(term_id=term_id, section_id=int(enrollment['sis_section_id']), sid=sid)
+                db.session.add(normalized)
         std_commit()
-        cls._refresh_course_enrollments(term_id=term_id, sections=sections)
 
     @classmethod
     def get_course_section(cls, term_id, section_id):
-        key = cls._course_section_cache_key(term_id=term_id, section_id=section_id)
-        row = working_cache().query.filter_by(key=key).first()
-        course_section = row and row.json
+        course_section = get_sis_section(term_id, section_id)
         if course_section:
             sids = NormalizedCacheEnrollment.get_enrolled_sids(term_id=term_id, section_id=section_id)
-            course_section['students'] = Student.find_students(sids)
+            students = Student.find_students(sids)
+            course_section['students'] = [student.to_expanded_api_json() for student in students]
         return course_section or None
 
     @classmethod
@@ -85,19 +85,3 @@ class NormalizedCacheEnrollment(Base):
                     summary[term_id] = []
                 summary[term_id].append(int(m.group(2)))
         return summary
-
-    @classmethod
-    def _refresh_course_enrollments(cls, term_id, sections):
-        for section in sections:
-            key = cls._course_section_cache_key(term_id=term_id, section_id=section['id'])
-            row = working_cache().query.filter_by(key=key).first()
-            if row:
-                row.json = section
-                update_jsonb_row(row)
-            else:
-                insert_row(key=key, json=section)
-
-    @classmethod
-    def _course_section_cache_key(cls, term_id, section_id):
-        term_name = term_name_for_sis_id(term_id)
-        return f'term_{term_name}-sis_course_section_summary_{section_id}'

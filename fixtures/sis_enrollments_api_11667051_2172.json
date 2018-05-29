@@ -78,8 +78,8 @@
             "forBilling": 2
           },
           "gradingBasis": {
-            "code": "GRD",
-            "description": "Standard Grading Basis"
+            "code": "NON",
+            "description": "Non-Graded Component"
           },
           "classSection": {
             "id": 80101,

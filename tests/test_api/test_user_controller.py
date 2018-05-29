@@ -23,8 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import io
 
-from boac.externals import sis_enrollments_api, sis_student_api
+from boac.externals import data_loch, sis_student_api
+from boac.lib import mockingdata
 from boac.lib.mockingbird import MockResponse, register_mock
 import pytest
 
@@ -220,13 +222,6 @@ class TestUserAnalytics:
         for enrollment in authenticated_response.json['enrollmentTerms'][0]['enrollments']:
             assert enrollment['displayName'] != 'PHYSED 11'
 
-    def test_past_term_dropped_enrollments_removed(self, authenticated_response):
-        """Removes dropped enrollments from past terms."""
-        for enrollment in authenticated_response.json['enrollmentTerms'][1]['enrollments']:
-            print(enrollment)
-            for section in enrollment['sections']:
-                assert section['enrollmentStatus'] != 'D'
-
     def test_course_site_without_enrollment(self, authenticated_response):
         """Returns course sites with no associated enrollments."""
         assert len(authenticated_response.json['enrollmentTerms'][0]['unmatchedCanvasSites']) == 0
@@ -356,14 +351,16 @@ class TestUserAnalytics:
         """Collects dropped sections in a separate feed."""
         dropped_sections = authenticated_response.json['enrollmentTerms'][0]['droppedSections']
         assert len(dropped_sections) == 1
-        assert dropped_sections[0]['displayName'] == 'NUC ENG 124'
-        assert dropped_sections[0]['component'] == 'DIS'
-        assert dropped_sections[0]['sectionNumber'] == '200'
+        assert dropped_sections[0]['displayName'] == 'MUSIC 41C'
+        assert dropped_sections[0]['component'] == 'TUT'
+        assert dropped_sections[0]['sectionNumber'] == '002'
 
     def test_sis_enrollment_not_found(self, authenticated_session, client):
         """Gracefully handles missing SIS enrollments."""
-        sis_error = MockResponse(200, {}, '{"apiResponse": {"response": {"message": "Something unexpected."}}}')
-        with register_mock(sis_enrollments_api._get_enrollments, sis_error):
+        hdrs = 'grade,units,grading_basis,sis_enrollment_status,sis_term_id,ldap_uid,sis_course_title,' \
+               'sis_course_name,sis_section_id,sis_primary,sis_instruction_format,sis_section_num '
+        mr = mockingdata.MockRows(io.StringIO(f'{hdrs}\n'))
+        with mockingdata.register_mock(data_loch._get_sis_enrollments, mr):
             response = client.get(TestUserAnalytics.field_hockey_star)
             assert response.status_code == 200
             assert len(response.json['enrollmentTerms']) > 0

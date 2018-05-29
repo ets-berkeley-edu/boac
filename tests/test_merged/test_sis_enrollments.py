@@ -35,7 +35,7 @@ import pytest
 class TestMergedSisEnrollments:
 
     def test_creates_alert_for_midterm_grade(self, app):
-        feed = merge_sis_enrollments_for_term([], '11667051', app.config['CANVAS_CURRENT_ENROLLMENT_TERM'])
+        feed = merge_sis_enrollments_for_term([], '61889', '11667051', app.config['CANVAS_CURRENT_ENROLLMENT_TERM'])
         assert '2178' == feed['termId']
         enrollments = feed['enrollments']
         assert 3 == len(enrollments)
@@ -52,7 +52,7 @@ class TestMergedSisEnrollments:
     def test_includes_course_site_section_mappings(self, app):
         """Maps Canvas sites to SIS courses and sections."""
         canvas_site_feed = canvas_courses_api_feed(data_loch.get_student_canvas_courses('61889'))
-        feed = merge_sis_enrollments_for_term(canvas_site_feed, '11667051', app.config['CANVAS_CURRENT_ENROLLMENT_TERM'])
+        feed = merge_sis_enrollments_for_term(canvas_site_feed, '61889', '11667051', app.config['CANVAS_CURRENT_ENROLLMENT_TERM'])
         enrollments = feed['enrollments']
         assert len(enrollments[0]['canvasSites']) == 1
         assert enrollments[0]['canvasSites'][0]['canvasCourseId'] == 7654320

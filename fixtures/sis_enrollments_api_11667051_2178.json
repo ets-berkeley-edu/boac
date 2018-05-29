@@ -587,23 +587,23 @@
             "fromDate": "2017-08-22"
           },
           "enrolledUnits": {
-            "taken": 0,
-            "forAcademicProgress": 0,
-            "forFinancialAid": 0,
-            "forBilling": 0
+            "taken": 2,
+            "forAcademicProgress": 2,
+            "forFinancialAid": 2,
+            "forBilling": 2
           },
           "gradingBasis": {
-            "code": "NON",
-            "description": "Non-Graded Component"
+            "code": "PNP",
+            "description": "Pass/Not Pass"
           },
           "classSection": {
-            "id": 90299,
-            "number": "200",
+            "id": 80101,
+            "number": "002",
             "component": {
-              "code": "DIS",
-              "description": "Discussion"
+              "code": "TUT",
+              "description": "Tutorial"
             },
-            "displayName": "2017 Fall NUC ENG 124 002 DIS 200",
+            "displayName": "2017 Spring MUSIC 41C 001 TUT 002",
             "association": {
               "primary": false,
               "primaryAssociatedComponent": {
@@ -746,20 +746,21 @@
                 "identifiers": [
                   {
                     "type": "cs-course-id",
-                    "id": "105000"
+                    "id": "22345"
                   }
                 ],
                 "subjectArea": {
-                  "code": "NUC ENG",
-                  "description": "Nuclear Engineering"
+                  "code": "MUSIC",
+                  "description": "Music"
                 },
                 "catalogNumber": {
-                  "number": "124",
-                  "formatted": "124"
+                  "number": "41",
+                  "suffix": "C",
+                  "formatted": "41C"
                 },
-                "displayName": "NUC ENG 124",
-                "title": "Radioactive Waste Management",
-                "transcriptTitle": "RADIO WSTE MGMT"
+                "displayName": "MUSIC 41C",
+                "title": "Private Carillon Lessons for Advanced Students",
+                "transcriptTitle": "PRIV CARILLON"
               },
               "offeringNumber": 1,
               "session": {
@@ -770,13 +771,13 @@
                 "id": "1",
                 "name": "Regular Academic Session"
               },
-              "number": "002",
-              "displayName": "2017 Fall NUC ENG 124 002",
+              "number": "001",
+              "displayName": "2017 Fall MUSIC 41C 001",
               "allowedUnits": {
-                "minimum": 3,
-                "maximum": 3,
-                "forAcademicProgress": 3,
-                "forFinancialAid": 3
+                "minimum": 4,
+                "maximum": 4,
+                "forAcademicProgress": 4,
+                "forFinancialAid": 4
               },
               "status": {
               }

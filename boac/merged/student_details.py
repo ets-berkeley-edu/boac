@@ -79,7 +79,7 @@ def _merged_data(uid, csid, term_id):
         student_courses_in_term = [course for course in student_courses if course.get('canvas_course_term') == term_name]
         canvas_courses = canvas_courses_api_feed(student_courses_in_term)
         # Associate course sites with campus enrollments.
-        data['term'] = merge_sis_enrollments_for_term(canvas_courses, csid, term_name)
+        data['term'] = merge_sis_enrollments_for_term(canvas_courses, uid, csid, term_name)
         # Rebuild our Canvas courses list to remove any courses that were screened out during association (for instance,
         # dropped or athletic enrollments).
         canvas_courses = []

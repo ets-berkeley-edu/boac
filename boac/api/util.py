@@ -23,8 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-import re
-from boac.lib.berkeley import term_name_for_sis_id
 from boac.models.alert import Alert
 
 """Utility module containing standard API-feed translations of data objects."""
@@ -46,10 +44,9 @@ def canvas_courses_api_feed(courses):
 
 
 def sis_enrollment_class_feed(enrollment):
-    class_data = enrollment.get('classSection', {}).get('class', {})
     return {
-        'displayName': class_data.get('course', {}).get('displayName'),
-        'title': class_data.get('course', {}).get('title'),
+        'displayName': enrollment['sis_course_name'],
+        'title': enrollment['sis_course_title'],
         'canvasSites': [],
         'sections': [],
     }
@@ -98,32 +95,6 @@ def translate_grading_basis(code):
     return bases.get(code) or code
 
 
-def course_section_to_json(term_id, section):
-    _class = section.get('class', {})
-    course = _class.get('course', {})
-    subject_area = course.get('subjectArea', {})
-    dept_name = subject_area.get('description')
-    dept_code = subject_area.get('code')
-    catalog_id = course.get('catalogNumber', {}).get('formatted')
-    instruction_format = section.get('component', {}).get('code')
-    units = _class.get('allowedUnits', {}).get('forAcademicProgress')
-    return {
-        'termId': term_id,
-        'termName': term_name_for_sis_id(term_id),
-        'sectionId': section['id'],
-        'deptName': dept_name,
-        'deptCode': dept_code,
-        'catalogId': catalog_id,
-        'displayName': course.get('displayName'),
-        'title': course.get('title'),
-        'instructionFormat': instruction_format,
-        'sectionNum': section.get('number'),
-        'units': units,
-        'meetings': _get_meetings(section),
-        'students': [student.to_expanded_api_json() for student in section['students']],
-    }
-
-
 def decorate_student_groups(current_user_id, groups, remove_students_without_alerts=False):
     for group in groups:
         students = decorate_students(current_user_id, group['students'], remove_students_without_alerts)
@@ -142,57 +113,3 @@ def decorate_students(current_user_id, students, remove_students_without_alerts=
     if remove_students_without_alerts:
         students = [s for s in students if s.get('alertCount')]
     return students
-
-
-def _get_meetings(section):
-    meetings = []
-    for meeting in section.get('meetings', []):
-        start_time = _format_time(meeting['startTime'])
-        end_time = _format_time(meeting['endTime'])
-        m = {
-            'days': _days_in_friendly_format(meeting) if 'meetsDays' in meeting else None,
-            'instructors': [],
-            'time': f'{start_time} - {end_time}',
-            'location': meeting.get('location', {}).get('description'),
-        }
-        instructors = meeting.get('assignedInstructors', [])
-        for entry in instructors:
-            instructor = entry.get('instructor', {})
-            for name in instructor.get('names', []):
-                if name.get('type', {}).get('code') == 'PRF':
-                    m['instructors'].append(name['formattedName'])
-        if m.get('days') or m.get('instructors') or m.get('location'):
-            meetings.append(m)
-    return meetings
-
-
-def _format_time(time):
-    formatted = None
-    split = re.split(':', time)
-    hour = int(split[0]) if len(split) >= 2 and split[0].isdigit() else None
-    if hour:
-        suffix = 'am' if hour < 12 else 'pm'
-        hour = hour if hour < 13 else hour - 12
-        formatted = f'{hour}:{split[1]} {suffix}'
-    return formatted
-
-
-def _days_in_friendly_format(section_meeting):
-    meets_days = section_meeting.get('meetsDays')
-    if not meets_days:
-        return None
-    days = re.findall('[A-Z][^A-Z]*', meets_days)
-    if len(days) == 1:
-        day_lookup = {
-            'Mo': 'Monday',
-            'Tu': 'Tuesday',
-            'We': 'Wednesday',
-            'Th': 'Thursday',
-            'Fr': 'Friday',
-            'Sa': 'Saturday',
-            'Su': 'Sunday',
-        }
-        return day_lookup[days[0]]
-    else:
-        day_list = list(map(lambda d: d if d in ['Th', 'Sa', 'Su'] else d[0], days))
-        return ', '.join(day_list)

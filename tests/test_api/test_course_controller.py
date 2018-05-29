@@ -23,32 +23,27 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-import json
+from boac.externals.data_loch import get_sis_enrollments
 from boac.models.normalized_cache_enrollment import NormalizedCacheEnrollment
 import pytest
 
-test_uid = '1133399'
+test_login_uid = '1133399'
 term_id = 2178
-sid = '11667051'
+student_uid = '61889'
+student_sid = '11667051'
 section_id = 90100
 
 
 @pytest.fixture()
 def authenticated_session(fake_auth):
-    fake_auth.login(test_uid)
+    fake_auth.login(test_login_uid)
 
 
 @pytest.fixture()
 def course_data_load(fake_auth):
-    fake_auth.login(test_uid)
-    _json = json.load(open(f'fixtures/sis_enrollments_api_{sid}_{term_id}.json'))
-    enrollments = _json.get('apiResponse', {}).get('response', {}).get('studentEnrollments', {})
-    sections = []
-    for enrollment in enrollments:
-        section = enrollment.get('classSection')
-        sections.append(section)
+    sis_enrollments = get_sis_enrollments(student_uid, term_id)
     # Cache course data
-    NormalizedCacheEnrollment.update_enrollments(term_id=term_id, sid=sid, sections=sections)
+    NormalizedCacheEnrollment.update_enrollments(term_id=term_id, sid=student_sid, enrollments=sis_enrollments)
 
 
 class TestCourseController:
@@ -72,14 +67,18 @@ class TestCourseController:
         assert section['displayName'] == 'BURMESE 1A'
         assert section['title'] == 'Introductory Burmese'
         assert section['units'] == 4
+        assert section['meetings'][0]['days'] == 'M, T, W, Th, F'
+        assert section['meetings'][0]['instructors'] == ['George Orwell']
+        assert section['meetings'][0]['time'] == '12:00 pm - 12:59 pm'
+        assert section['meetings'][0]['location'] == 'Wheeler 999'
 
     def test_section_student_details(self, authenticated_session, client, course_data_load):
         """Includes per-student details."""
         response = client.get(f'/api/section/{term_id}/{section_id}')
         students = response.json['students']
         assert len(students) == 1
-        assert students[0]['uid'] == '61889'
-        assert students[0]['sid'] == '11667051'
+        assert students[0]['uid'] == student_uid
+        assert students[0]['sid'] == student_sid
         assert students[0]['firstName'] == 'Deborah'
         assert students[0]['lastName'] == 'Davies'
         assert students[0]['cumulativeGPA'] == 3.8

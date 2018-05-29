@@ -97,7 +97,7 @@ def user_analytics(uid):
         # CalCentral's Student Overview page is advisors' official information source for the student.
         student_profile_link = f'https://calcentral.berkeley.edu/user/overview/{uid}'
         canvas_courses_feed = api_util.canvas_courses_api_feed(user_courses)
-        enrollment_terms = merge_sis_enrollments(canvas_courses_feed, student.sid, sis_profile.get('matriculation'))
+        enrollment_terms = merge_sis_enrollments(canvas_courses_feed, uid, student.sid, sis_profile.get('matriculation'))
     else:
         student_profile_link = None
         enrollment_terms = []
