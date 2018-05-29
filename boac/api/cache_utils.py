@@ -230,7 +230,7 @@ def load_term(term_id=berkeley.current_term_id()):
         s, f = load_canvas_externals(uid, term_id)
         success_count += s
         failures += f
-        s, f = load_sis_externals(term_id, csid)
+        s, f = load_sis_externals(uid, csid, term_id)
         success_count += s
         failures += f
         nbr_finished += 1
@@ -283,8 +283,8 @@ def load_canvas_externals(uid, term_id):
     return success_count, failures
 
 
-def load_sis_externals(term_id, csid):
-    from boac.externals import sis_degree_progress_api, sis_enrollments_api, sis_student_api
+def load_sis_externals(uid, csid, term_id):
+    from boac.externals import sis_degree_progress_api, sis_student_api
     from boac.merged.sis_enrollments import merge_enrollment
 
     term_name = berkeley.term_name_for_sis_id(term_id)
@@ -305,13 +305,13 @@ def load_sis_externals(term_id, csid):
     else:
         failures.append(f'SIS get_student failed for CSID {csid}')
 
-    enrollments = sis_enrollments_api.get_enrollments(csid, term_id)
+    enrollments = data_loch.get_sis_enrollments(uid, term_id) or []
     if enrollments:
         # Perform higher-level enrollments feed processing; update NormalizedCacheEnrollment.
         merge_enrollment(csid, enrollments, term_id, term_name)
         success_count += 1
     elif enrollments is None:
-        failures.append(f'SIS get_enrollments failed for CSID {csid}, term_id {term_id}')
+        failures.append(f'get_sis_enrollments failed for CSID {csid}, term_id {term_id}')
     return success_count, failures
 
 

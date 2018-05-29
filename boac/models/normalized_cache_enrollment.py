@@ -58,9 +58,8 @@ class NormalizedCacheEnrollment(Base):
         std_commit()
         # Add fresh enrollment data
         for enrollment in enrollments:
-            if enrollment['sis_enrollment_status'] in ['E', 'W']:
-                normalized = cls(term_id=term_id, section_id=int(enrollment['sis_section_id']), sid=sid)
-                db.session.add(normalized)
+            normalized = cls(term_id=term_id, section_id=int(enrollment['sis_section_id']), sid=sid)
+            db.session.add(normalized)
         std_commit()
 
     @classmethod
