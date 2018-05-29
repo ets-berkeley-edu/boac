@@ -109,7 +109,7 @@ def _get_sis_enrollments(uid, term_id):
               WHERE enr.ldap_uid = {uid}
                   AND enr.sis_enrollment_status != 'D'
                   AND enr.sis_term_id = {term_id}
-              ORDER BY crs.sis_course_name, crs.sis_primary DESC, crs.sis_instruction_format, crs.sis_section_num;
+              ORDER BY crs.sis_course_name, crs.sis_primary DESC, crs.sis_instruction_format, crs.sis_section_num
         """
     return safe_execute(sql)
 

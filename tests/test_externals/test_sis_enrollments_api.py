@@ -38,7 +38,6 @@ class TestSisEnrollmentsApi:
         assert drops[0]['displayName'] == 'MATH 136'
         assert drops[0]['component'] == 'LEC'
         assert drops[0]['sectionNumber'] == '001'
-        assert drops[0]['dropDate'] == '2016-12-11'
         midterms = oski_response['midtermGrades']
         assert len(midterms) == 1
         assert midterms[80100] == 'F'

@@ -46,7 +46,6 @@ def get_drops_and_midterms(cs_id, term_id):
                 'displayName': enrollment.get('classSection', {}).get('class', {}).get('course', {}).get('displayName'),
                 'component': enrollment.get('classSection', {}).get('component', {}).get('code'),
                 'sectionNumber': enrollment.get('classSection', {}).get('number'),
-                'dropDate': enrollment.get('enrollmentStatus', {}).get('fromDate'),
             })
         grades = enrollment.get('grades', [])
         midterm = next((grade.get('mark') for grade in grades if grade.get('type', {}).get('code') == 'MID'), None)
