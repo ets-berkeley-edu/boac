@@ -1,10 +1,10 @@
 <div class="student-container">
-  <div class="loading-spinner-large" data-ng-if="student.isLoading && !error">
+  <div class="loading-spinner-large" data-ng-if="isLoading && !error">
     <i class="fas fa-sync fa-spin fa-5x"></i>
     <span class="sr-only">Loading...</span>
   </div>
 
-  <div class="container-error" data-ng-if="!student.isLoading && error">
+  <div class="container-error" data-ng-if="!isLoading && error">
     <h1 class="page-section-header">{{error.status === 404 ? 'Not Found' : 'Error'}}</h1>
     <div class="faint-text">
       <span data-ng-bind="error.message" data-ng-if="error.message"></span>
@@ -18,7 +18,7 @@
     </a>
   </div>
 
-  <div data-ng-if="!student.isLoading && !error">
+  <div data-ng-if="!isLoading && !error">
     <div class="student-container-row-01">
       <div class="student-profile-container">
         <!-- Avatar, name, degree progress, etc. -->
