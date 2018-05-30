@@ -1,15 +1,15 @@
 {
   "name": "boac",
   "dependencies": {
-    "angular": "^1.6.9",
-    "angular-animate": "^1.6.9",
-    "angular-base64": "^2.0.5",
-    "angular-bootstrap": "^2.5.0",
-    "angular-ui-router": "^1.0.15",
-    "bootstrap": "^3.3.7",
+    "angular": "1.6.10",
+    "angular-animate": "1.6.10",
+    "angular-base64": "2.0.5",
+    "angular-bootstrap": "2.5.0",
+    "angular-ui-router": "1.0.18",
+    "bootstrap": "3.3.7",
     "d3": "4.12.0",
-    "fontawesome": "5.0.10",
+    "fontawesome": "5.0.13",
     "highcharts-release": "6.0.7",
-    "lodash": "^4.17.5"
+    "lodash": "4.17.10"
   }
 }
