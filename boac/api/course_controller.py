@@ -82,12 +82,6 @@ def get_section(term_id, section_id):
     return tolerant_jsonify(section)
 
 
-@app.route('/api/sections/ids_per_term')
-@login_required
-def summarize_sections_in_cache():
-    return tolerant_jsonify(NormalizedCacheEnrollment.summarize_sections_in_cache())
-
-
 def _filter_canvas_sites_per_section_id(students, term_id, section_id):
     canvas_sites_dict = _canvas_sites_dict(students[0])
     for student in students[1:]:

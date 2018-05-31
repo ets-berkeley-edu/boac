@@ -24,12 +24,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-import re
 from boac import db, std_commit
-from boac.lib.berkeley import sis_term_id_for_name
 from boac.merged.sis_sections import get_sis_section
 from boac.models.base import Base
-from boac.models.json_cache import working_cache
 from boac.models.student import Student
 
 
@@ -70,17 +67,3 @@ class NormalizedCacheEnrollment(Base):
             students = Student.find_students(sids)
             course_section['students'] = [student.to_expanded_api_json() for student in students]
         return course_section or None
-
-    @classmethod
-    def summarize_sections_in_cache(cls):
-        key_like = working_cache().key.like('%-sis_course_section_summary_%')
-        rows = db.session.query(working_cache().key).filter(key_like).order_by(working_cache().key).all()
-        summary = {}
-        for row in rows:
-            m = re.search('term_(.+)-sis_course_section_summary_(.+)', row.key)
-            if m:
-                term_id = sis_term_id_for_name(m.group(1))
-                if term_id not in summary:
-                    summary[term_id] = []
-                summary[term_id].append(int(m.group(2)))
-        return summary

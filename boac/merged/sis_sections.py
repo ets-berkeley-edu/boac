@@ -32,6 +32,12 @@ from boac.models.json_cache import stow
 
 @stow('sis_section_{sis_section_id}', for_term=True)
 def get_sis_section(term_id, sis_section_id):
+    """Provide detailed SIS Class Section data such as meeting schedules and instructors.
+
+    This feed is not used in search, analytics, cohort views, or student views, and is not
+    preloaded by cache refresh. Instead, it's lazy-loaded when an advisor first requests
+    a class view.
+    """
     from boac.lib.berkeley import term_name_for_sis_id
 
     rows = data_loch.get_sis_section(term_id, sis_section_id)
