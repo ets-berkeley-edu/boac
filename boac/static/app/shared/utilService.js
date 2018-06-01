@@ -96,8 +96,10 @@
 
     var lastActivityDays = function(analytics) {
       var daysSince = parseInt(_.get(analytics, 'lastActivity.student.daysSinceLastActivity'), 10);
+      if (isNaN(daysSince)) {
+        return 'Never';
+      }
       switch (daysSince) {
-        case NaN: return 'Never';
         case 0: return 'Today';
         case 1: return 'Yesterday';
         default: return daysSince + ' days ago';
