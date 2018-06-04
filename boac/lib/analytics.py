@@ -166,12 +166,9 @@ def analytics_for_column(df, student_row, column_name):
     # histogram are more readable.
     box_plottable = (nunique > 10)
 
-    # If all students have the same score, we have no basis for comparison.
-    if nunique == 1:
-        display_percentile = None
-    # Otherwise the intuitive percentile is our best option for display, whether or not the distribution is boxplottable.
-    else:
-        display_percentile = ordinal(intuitive_percentile)
+    # The intuitive percentile is our best option for display, whether or not the distribution is boxplottable.
+    # Note, however, that if all students have the same score, then all students are in the "100th percentile."
+    display_percentile = ordinal(intuitive_percentile)
 
     return {
         'boxPlottable': box_plottable,
