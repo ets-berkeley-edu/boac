@@ -93,6 +93,9 @@ def loch_student_analytics(canvas_user_id, canvas_course_id, term_id):
     if enrollments is None:
         _error = {'error': 'Unable to retrieve from Data Loch'}
         return {'currentScore': _error, 'lastActivity': _error}
+    if not next((e for e in enrollments if e.get('canvas_user_id') == canvas_user_id), None):
+        _error = {'error': f'According to Data Loch, Canvas user {canvas_user_id} is not enrolled in {canvas_course_id}'}
+        return {'currentScore': _error, 'lastActivity': _error}
     df = pandas.DataFrame(enrollments, columns=['canvas_user_id', 'current_score', 'last_activity_at'])
     student_row = df.loc[df['canvas_user_id'].values == int(canvas_user_id)]
     if enrollments and student_row.empty:

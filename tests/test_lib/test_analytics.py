@@ -136,10 +136,10 @@ class TestAnalyticsFromLochAnalytics:
         with register_mock(data_loch._get_canvas_course_scores, mr):
             digested = analytics.loch_student_analytics(self.canvas_user_id, self.canvas_course_id, self.term_id)
         score = digested['currentScore']
-        assert score['student']['raw'] is None
-        assert score['student']['percentile'] is None
-        assert score['boxPlottable'] is False
-        assert score['courseDeciles'] is None
+        assert 'student' not in score
+        assert 'boxPlottable' not in score
+        assert 'courseDeciles' not in score
+        assert f'{self.canvas_user_id} is not enrolled' in score['error']
 
 
 class TestAnalyticsFromLochLastActivity:
