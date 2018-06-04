@@ -280,7 +280,7 @@
                         </span>
                       </td>
                       <td>
-                        <span data-ng-if="canvasSite.analytics.assignmentsSubmitted.displayPercentile">
+                        <span data-ng-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
                           Score:
                           <strong data-ng-bind="canvasSite.analytics.assignmentsSubmitted.student.raw"></strong>
                           <span class="visualize-metrics-maximum">
@@ -288,7 +288,7 @@
                           </span>
                         </span>
                         <span class="visualize-metrics-no-data"
-                              data-ng-if="!canvasSite.analytics.assignmentsSubmitted.displayPercentile">
+                              data-ng-if="!canvasSite.analytics.assignmentsSubmitted.courseDeciles">
                           No Data
                         </span>
                       </td>
@@ -309,8 +309,20 @@
                       <td class="profile-boxplot-container">
                         <boxplot-draw class="profile-boxplot"
                                       data-dataset="canvasSite.analytics"
-                                      data-ng-if="canvasSite.analytics.currentScore"></boxplot-draw>
-                      </td>
+                                      data-ng-if="canvasSite.analytics.currentScore.boxPlottable"></boxplot-draw>
+                        <span class="visualize-metrics-no-data"
+                              data-ng-if="canvasSite.analytics.currentScore.courseDeciles">
+                          Score:
+                          <strong data-ng-bind="canvasSite.analytics.currentScore.student.raw"></strong>
+                          <span class="visualize-metrics-maximum">
+                            (Maximum: <span data-ng-bind="canvasSite.analytics.currentScore.courseDeciles[10]"></span>)
+                          </span>
+                        </span>
+                        <span class="visualize-metrics-no-data"
+                              data-ng-if="!canvasSite.analytics.currentScore.courseDeciles">
+                          No Data
+                        </span>
+                       </td>
                     </tr>
                     <tr>
                       <td class="visualize-metrics-legend">

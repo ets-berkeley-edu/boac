@@ -156,13 +156,13 @@
             <div class="course-list-view-column-04" data-ng-if="!$first">
               <div class="course-list-view-column-canvas-sites">
                 <div data-ng-repeat="canvasSite in student.enrollment.canvasSites">
-                  <div data-ng-if="canvasSite.analytics.assignmentsSubmitted.displayPercentile">
+                  <div data-ng-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
                     Score: <strong data-ng-bind="canvasSite.analytics.assignmentsSubmitted.student.raw"></strong>
                     <div class="faint-text">
                       (Max: <span data-ng-bind="canvasSite.analytics.assignmentsSubmitted.courseDeciles[10]"></span>)
                     </div>
                   </div>
-                  <div data-ng-if="!canvasSite.analytics.assignmentsSubmitted.displayPercentile">
+                  <div data-ng-if="!canvasSite.analytics.assignmentsSubmitted.courseDeciles">
                     No Data
                   </div>
                 </div>
@@ -176,7 +176,18 @@
                      data-ng-repeat="canvasSite in student.enrollment.canvasSites">
                   <boxplot-draw class="profile-boxplot"
                                 data-dataset="canvasSite.analytics"
-                                data-ng-if="canvasSite.analytics.currentScore"></boxplot-draw>
+                                data-ng-if="canvasSite.analytics.currentScore.boxPlottable"></boxplot-draw>
+                  <div data-ng-if="!canvasSite.analytics.currentScore.boxPlottable">
+                    <div data-ng-if="canvasSite.analytics.currentScore.courseDeciles">
+                      Score: <strong data-ng-bind="canvasSite.analytics.currentScore.student.raw"></strong>
+                      <div class="faint-text">
+                        (Max: <span data-ng-bind="canvasSite.analytics.currentScore.courseDeciles[10]"></span>)
+                      </div>
+                    </div>
+                    <div data-ng-if="!canvasSite.analytics.currentScore.courseDeciles">
+                      No Data
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
