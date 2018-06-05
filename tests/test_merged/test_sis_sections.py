@@ -23,7 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import io
 
+from boac.externals import data_loch
+from boac.lib.mockingdata import MockRows, register_mock
 from boac.merged.sis_sections import get_sis_section
 import pytest
 
@@ -53,3 +56,27 @@ class TestGetSisSection:
         assert section['meetings'][1]['time'] == '1:30 pm - 2:59 pm'
         assert section['meetings'][1]['location'] == 'Campbell Hall 501B'
         assert section['meetings'][1]['instructors'] == ['Johan Huizinga', 'Ernst Robert Curtius']
+
+    def test_handles_online_courses(self, app):
+        section_id = 99000
+        rows = [
+            'sis_term_id,sis_section_id,sis_course_title,sis_course_name,is_primary,sis_instruction_format,'
+            'sis_section_num,allowed_units,instructor_uid,instructor_name,instructor_role_code,'
+            'meeting_location,meeting_days,meeting_start_time,meeting_end_time,meeting_start_date,meeting_end_date',
+            '2178,99000,MedXieval Dead,MED ST 1999,true,ONL,001,86.0,'
+            '9922330,Hal Colossus,PI,,,,2017-08-23 00:00:00 UTC,2017-12-08 00:00:00 UTC',
+            # Also include an empty instructor row, since they sometimes show up.
+            '2178,99000,MedXieval Dead,MED ST 1999,true,ONL,001,86.0,'
+            '9922330,,APRX,,,,2017-08-23 00:00:00 UTC,2017-12-08 00:00:00 UTC',
+        ]
+        mr = MockRows(io.StringIO('\n'.join(rows)))
+        with register_mock(data_loch.get_sis_section, mr):
+            section = get_sis_section('2178', section_id)
+            assert section['sectionId'] == section_id
+            assert section['displayName'] == 'MED ST 1999'
+            assert section['title'] == 'MedXieval Dead'
+            assert section['units'] == 86
+            assert section['meetings'][0]['days'] is None
+            assert section['meetings'][0]['time'] is None
+            assert section['meetings'][0]['location'] is None
+            assert section['meetings'][0]['instructors'] == ['Hal Colossus']
