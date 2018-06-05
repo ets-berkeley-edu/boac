@@ -99,8 +99,8 @@ def loch_student_analytics(canvas_user_id, canvas_course_id, term_id):
         app.logger.warn(f'Canvas user {canvas_user_id} not found in Data Loch for course site {canvas_course_id}')
         student_row = pandas.DataFrame({
             'canvas_user_id': [int(canvas_user_id)],
-            'current_score': [0],
-            'last_activity_at': [1],
+            'current_score': [None],
+            'last_activity_at': [None],
         })
         df = df.append(student_row, ignore_index=True)
         # Fetch newly appended row, mostly for the sake of its properly set-up index.
