@@ -81,19 +81,23 @@ def _get_meetings(section_rows):
         else:
             meeting['instructors'] = []
             meetings[key] = meeting
-        meeting['instructors'].append(row['instructor_name'])
+        instructor_name = row['instructor_name']
+        if instructor_name and instructor_name not in meeting['instructors']:
+            meeting['instructors'].append(instructor_name)
     return list(meetings.values())
 
 
 def _format_time(time):
-    formatted = None
+    if not time:
+        return None
     split = re.split(':', time)
-    hour = int(split[0]) if len(split) >= 2 and split[0].isdigit() else None
-    if hour:
+    if len(split) >= 2 and split[0].isdigit():
+        hour = int(split[0])
         suffix = 'am' if hour < 12 else 'pm'
         hour = hour if hour < 13 else hour - 12
-        formatted = f'{hour}:{split[1]} {suffix}'
-    return formatted
+        return f'{hour}:{split[1]} {suffix}'
+    else:
+        return None
 
 
 def _days_in_friendly_format(section_row):
