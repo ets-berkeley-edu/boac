@@ -42,6 +42,7 @@
     $stateParams
   ) {
 
+    $scope.demoMode = config.demoMode;
     $scope.isCurrentUserAscAdvisor = authService.isCurrentUserAscAdvisor();
     $scope.lastActivityDays = utilService.lastActivityDays;
     $scope.orderBy = studentSearchService.getSortByOptionsForSearch();
