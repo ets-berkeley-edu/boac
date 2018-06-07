@@ -65,6 +65,7 @@
       };
     };
 
+    $scope.currentEnrollmentTerm = config.currentEnrollmentTerm;
     $scope.demoMode = config.demoMode;
     $scope.isCurrentUserAscAdvisor = authService.isCurrentUserAscAdvisor();
     page.loading(true);

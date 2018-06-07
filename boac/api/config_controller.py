@@ -35,10 +35,11 @@ from flask import current_app as app
 def app_config():
     return tolerant_jsonify({
         'boacEnv': app.config['BOAC_ENV'],
-        'ebEnvironment': app.config['EB_ENVIRONMENT'] if 'EB_ENVIRONMENT' in app.config else None,
-        'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],
-        'googleAnalyticsId': app.config['GOOGLE_ANALYTICS_ID'],
+        'currentEnrollmentTerm': app.config['CANVAS_CURRENT_ENROLLMENT_TERM'],
         'demoMode': util.app_in_demo_mode(),
+        'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],
+        'ebEnvironment': app.config['EB_ENVIRONMENT'] if 'EB_ENVIRONMENT' in app.config else None,
+        'googleAnalyticsId': app.config['GOOGLE_ANALYTICS_ID'],
     })
 
 
