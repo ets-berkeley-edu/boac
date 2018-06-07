@@ -223,9 +223,7 @@
                                          data-ng-bind="section.displayName"></span><span data-ng-if="!$last"> | </span><span data-ng-if="$last">)</span>
                               </span>
                             </div>
-                            <div class="student-waitlisted faint-text" data-ng-if="course.waitlisted">
-                              (Waitlisted)
-                            </div>
+                            <span class="student-waitlisted red-flag-status" data-ng-if="course.waitlisted">WAITLISTED</span>
                           </div>
                         </div>
                       </div>

@@ -64,14 +64,15 @@ def get_sis_section(term_id, sis_section_id):
 def _get_meetings(section_rows):
     meetings = {}
     for row in section_rows:
-        start_time = _format_time(row['meeting_start_time'])
-        end_time = _format_time(row['meeting_end_time'])
-        if start_time and end_time:
-            times = f'{start_time} - {end_time}'
-        else:
-            times = None
+        times = None
+        meeting_days = _days_in_friendly_format(row)
+        if meeting_days:
+            start_time = _format_time(row['meeting_start_time'])
+            end_time = _format_time(row['meeting_end_time'])
+            if start_time and end_time and (start_time != end_time):
+                times = f'{start_time} - {end_time}'
         meeting = {
-            'days': _days_in_friendly_format(row),
+            'days': meeting_days,
             'location': row['meeting_location'],
             'time': times,
         }

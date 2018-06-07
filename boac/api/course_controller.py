@@ -49,8 +49,14 @@ def get_section(term_id, section_id):
         if not student_term:
             continue
         for enrollment in student_term.get('enrollments', []):
-            if enrollment['displayName'] == section['displayName']:
-                student['enrollment'] = enrollment
+            _section = next((s for s in enrollment['sections'] if str(s['ccn']) == section_id), None)
+            if _section:
+                student['enrollment'] = {
+                    'canvasSites': enrollment.get('canvasSites', None),
+                    'enrollmentStatus': _section.get('enrollmentStatus', None),
+                    'grade': enrollment.get('grade', None),
+                    'gradingBasis': enrollment.get('gradingBasis', None),
+                }
     if students and util.to_bool_or_none(request.args.get('includeAverage')):
         section['averageStudent'] = {
             'canvasCourseId': 0,
