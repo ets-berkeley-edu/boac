@@ -125,7 +125,8 @@
                    data-ng-class="{'demo-mode-blur': demoMode}"
                    data-ng-if="!student.isClassAverage">
                 {{student.sid}}
-                <span class="student-inactive" data-ng-if="isCurrentUserAscAdvisor && !student.isActiveAsc">INACTIVE</span>
+                <span class="red-flag-status" data-ng-if="student.enrollment.enrollmentStatus === 'W'">WAITLISTED</span>
+                <span class="red-flag-status" data-ng-if="isCurrentUserAscAdvisor && !student.isActiveAsc">INACTIVE</span>
               </div>
               <div>
                 <span class="student-text" data-ng-bind="student.level"></span>
@@ -146,8 +147,13 @@
             <div class="course-list-view-column-03" data-ng-if="!$first">
               <div class="course-list-view-column-canvas-sites">
                 <div class="course-list-view-column-03-border"
-                     data-ng-repeat="canvasSite in student.enrollment.canvasSites">
+                     data-ng-repeat="canvasSite in student.enrollment.canvasSites"
+                     data-ng-if="student.enrollment.canvasSites.length">
                   <strong data-ng-bind="canvasSite.courseCode"></strong>
+                </div>
+                <div class="course-list-view-column-03-border"
+                     data-ng-if="!student.enrollment.canvasSites.length">
+                  No course site
                 </div>
               </div>
             </div>
@@ -155,7 +161,8 @@
             <!-- Column -->
             <div class="course-list-view-column-04" data-ng-if="!$first">
               <div class="course-list-view-column-canvas-sites">
-                <div data-ng-repeat="canvasSite in student.enrollment.canvasSites">
+                <div data-ng-repeat="canvasSite in student.enrollment.canvasSites"
+                     data-ng-if="student.enrollment.canvasSites.length">
                   <div data-ng-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
                     Score: <strong data-ng-bind="canvasSite.analytics.assignmentsSubmitted.student.raw"></strong>
                     <div class="faint-text">
@@ -166,6 +173,7 @@
                     No Data
                   </div>
                 </div>
+                <span data-ng-if="!student.enrollment.canvasSites.length">&mdash;</span>
               </div>
             </div>
 
@@ -173,7 +181,8 @@
             <div class="course-list-view-column-05" data-ng-if="!$first">
               <div class="course-list-view-column-canvas-sites">
                 <div class="profile-boxplot-container"
-                     data-ng-repeat="canvasSite in student.enrollment.canvasSites">
+                     data-ng-repeat="canvasSite in student.enrollment.canvasSites"
+                     data-ng-if="student.enrollment.canvasSites.length">
                   <boxplot-draw class="profile-boxplot"
                                 data-dataset="canvasSite.analytics"
                                 data-ng-if="canvasSite.analytics.currentScore.boxPlottable"></boxplot-draw>
@@ -189,6 +198,7 @@
                     </div>
                   </div>
                 </div>
+                <span data-ng-if="!student.enrollment.canvasSites.length">&mdash;</span>
               </div>
             </div>
 
@@ -196,9 +206,11 @@
             <div class="course-list-view-column-06" data-ng-if="!$first">
               <div class="course-list-view-column-canvas-sites">
                 <div class="profile-boxplot-container"
-                     data-ng-repeat="canvasSite in student.enrollment.canvasSites">
+                     data-ng-repeat="canvasSite in student.enrollment.canvasSites"
+                     data-ng-if="student.enrollment.canvasSites.length">
                   <span data-ng-bind="lastActivityDays(canvasSite.analytics)"></span>
                 </div>
+                <span data-ng-if="!student.enrollment.canvasSites.length">&mdash;</span>
               </div>
             </div>
 
