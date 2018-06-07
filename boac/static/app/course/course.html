@@ -27,7 +27,7 @@
             <span data-ng-bind="section.instructionFormat"></span>
             <span data-ng-bind="section.sectionNum"></span>
             <span data-ng-if="section.instructionFormat">&mdash;</span>
-            <span data-ng-bind="section.units"></span> Units
+            <span data-ng-pluralize count="section.units" when="{'one': '1 Unit', 'other': '{} Units'}"></span>
           </div>
           <div class="course-section-title" data-ng-if="section.title">
             <span data-ng-bind="section.title"></span>
