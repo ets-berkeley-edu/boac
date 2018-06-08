@@ -134,6 +134,27 @@ class TestStudentGroupsController:
         assert students[0]['athletics'][1]['name'] == 'Women\'s Tennis'
         assert students[0]['athletics'][1]['groupCode'] == 'WTE'
 
+    def test_add_multiple_students_to_group(self, authenticated_session, client):
+        """Create curated cohort and add students."""
+        name = 'Cheap Tricks'
+        response = client.post(
+            '/api/group/create',
+            data=json.dumps({'name': name}),
+            content_type='application/json',
+        )
+        group = json.loads(response.data)
+
+        # Add students and include invalid sid and dupe sids. Expect no "duplicate key violates" error.
+        response = client.post(
+            '/api/group/students/add',
+            data=json.dumps({'groupId': group['id'], 'sids': ['2345678901', '11667051', '2345678901', 'ABC']}),
+            content_type='application/json',
+        )
+        assert response.status_code == 200
+        updated_group = json.loads(response.data)
+        assert updated_group['id'] == group['id']
+        assert len(updated_group['students']) == 2
+
     def test_create_add_remove_and_delete(self, authenticated_session, client):
         """Create a group, add a student, remove the student and then delete the group."""
         name = 'Fun Boy Three'
