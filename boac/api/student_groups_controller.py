@@ -119,7 +119,7 @@ def add_students_to_group():
     if group.owner_id != current_user.id:
         raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {group.id}')
     StudentGroup.add_students(group_id, sids)
-    return tolerant_jsonify({'message': f'Successfully added students to cohort \'{group_id}\''}), 200
+    return tolerant_jsonify(group.to_api_json())
 
 
 @app.route('/api/group/update', methods=['POST'])

@@ -28,6 +28,8 @@ from boac import db, std_commit
 from boac.models.base import Base
 from boac.models.db_relationships import student_group_members
 from boac.models.student import Student
+from flask import current_app as app
+from sqlalchemy.exc import IntegrityError
 
 
 class StudentGroup(Base):
@@ -72,21 +74,33 @@ class StudentGroup(Base):
     def add_student(cls, group_id, sid):
         group = cls.query.filter_by(id=group_id).first()
         student = Student.find_by_sid(sid)
-        group.students.append(student)
-        std_commit()
+        if group and student:
+            try:
+                group.students.append(student)
+                std_commit()
+            except IntegrityError:
+                app.logger.warn(f'IntegrityError during add_student with group_id={group_id}, sid {sid}')
+        return group
 
     @classmethod
     def add_students(cls, group_id, sids):
         group = cls.query.filter_by(id=group_id).first()
-        for sid in sids:
-            group.students.append(Student.find_by_sid(sid))
-        std_commit()
+        if group:
+            for sid in set(sids):
+                student = Student.find_by_sid(sid)
+                if student:
+                    try:
+                        group.students.append(student)
+                        std_commit()
+                    except IntegrityError:
+                        app.logger.warn(f'IntegrityError during add_students with group_id={group_id}, sid {sid}')
+        return group
 
     @classmethod
     def remove_student(cls, group_id, sid):
+        group = cls.find_by_id(group_id)
         student = Student.find_by_sid(sid)
-        if student:
-            group = cls.find_by_id(group_id)
+        if group and student:
             group.students.remove(student)
             std_commit()
 
