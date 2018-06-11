@@ -27,9 +27,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import boac.api.util as api_util
 from boac.externals import data_loch, sis_enrollments_api
 from boac.lib.berkeley import sis_term_id_for_name
-from boac.models.alert import Alert
 from boac.models.json_cache import stow
-from boac.models.normalized_cache_enrollment import NormalizedCacheEnrollment
 from flask import current_app as app
 
 
@@ -85,14 +83,12 @@ def merge_drops_and_midterms(cs_id, term_name, term_feed):
                 midterm_grade = section_midterms[section_id]
                 section['midtermGrade'] = midterm_grade
                 enrollment['midtermGrade'] = midterm_grade
-                Alert.update_midterm_grade_alerts(cs_id, term_id, section_id, enrollment['displayName'], midterm_grade)
     return term_feed
 
 
 @stow('merged_enrollment_{cs_id}', for_term=True)
 def merge_enrollment(cs_id, enrollments, term_id, term_name):
     enrollments_by_class = {}
-    enrollments_for_normalized_cache = []
     term_section_ids = {}
     enrolled_units = 0
     for enrollment in enrollments:
@@ -100,10 +96,8 @@ def merge_enrollment(cs_id, enrollments, term_id, term_name):
         section_id = enrollment.get('sis_section_id')
         if section_id in term_section_ids:
             continue
-
         term_section_ids[section_id] = True
-        if enrollment['sis_enrollment_status'] in ['E', 'W']:
-            enrollments_for_normalized_cache.append(enrollment)
+
         section_feed = {
             'ccn': enrollment['sis_section_id'],
             'component': enrollment['sis_instruction_format'],
@@ -138,8 +132,6 @@ def merge_enrollment(cs_id, enrollments, term_id, term_name):
 
     enrollments_feed = sorted(enrollments_by_class.values(), key=lambda x: x['displayName'])
     sort_sections(enrollments_feed)
-    # Cache course and enrollment info
-    NormalizedCacheEnrollment.update_enrollments(term_id=term_id, sid=cs_id, enrollments=enrollments_for_normalized_cache)
     term_feed = {
         'termId': term_id,
         'termName': term_name,

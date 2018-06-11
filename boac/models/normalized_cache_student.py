@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
+from decimal import Decimal
 from boac import db, std_commit
 from boac.models.base import Base
 
@@ -46,6 +47,9 @@ class NormalizedCacheStudent(Base):
 
     @classmethod
     def update_profile(cls, sid, gpa=None, level=None, units=None):
+        # Converting to string, then Decimal forces fixed-point rather than floating.
+        gpa = gpa and Decimal(str(gpa))
+        units = units and Decimal(str(units))
         row = cls.query.filter_by(sid=sid).first()
         if row:
             row.gpa = gpa

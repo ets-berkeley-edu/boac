@@ -117,8 +117,9 @@ def fake_auth(app, db, client):
 
 
 @pytest.fixture()
-def create_alerts(db_session):
-    """Create three canned alerts for the current term and one for the previous term."""
+def create_alerts(client, db_session):
+    """Create assignment and midterm grade alerts."""
+    # Create three canned alerts for the current term and one for the previous term.
     Alert.create(
         sid='11667051',
         alert_type='late_assignment',
@@ -143,6 +144,10 @@ def create_alerts(db_session):
         key='2178_100200300',
         message='Week 5 homework in BOSCRSR 27B is late.',
     )
+    # Load our usual student of interest into the cache and generate midterm alerts from fixture data.
+    client.get('/api/user/61889/analytics')
+    from boac.api.cache_utils import load_alerts
+    load_alerts(2178)
 
 
 def pytest_itemcollected(item):

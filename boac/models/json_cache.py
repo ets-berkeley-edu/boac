@@ -122,6 +122,16 @@ def stow(key_pattern, for_term=False):
     return _stow
 
 
+def fetch(key, term_id=None):
+    """Query the cache for a given key with optional term specification."""
+    if term_id:
+        term_name = term_name_for_sis_id(term_id)
+        key = f'term_{term_name}-{key}'
+    stowed = working_cache().query.filter_by(key=key).first()
+    if stowed is not None:
+        return stowed.json
+
+
 def insert_row(key, json):
     """Insert new cache row with conflict checks."""
     row = working_cache()(key=key, json=json)
