@@ -102,8 +102,12 @@ def user_analytics(uid):
         student_profile_link = None
         enrollment_terms = []
 
+    current_term_id = sis_term_id_for_name(app.config['CANVAS_CURRENT_ENROLLMENT_TERM'])
+    has_enrollments_in_current_term = False
     for term in enrollment_terms:
         term_id = sis_term_id_for_name(term['termName'])
+        if term_id == current_term_id:
+            has_enrollments_in_current_term = True
         for enrollment in term['enrollments']:
             merge_analytics_for_user(enrollment['canvasSites'], uid, student.sid, canvas_id, term_id)
         merge_analytics_for_user(term['unmatchedCanvasSites'], uid, student.sid, canvas_id, term_id)
@@ -116,6 +120,7 @@ def user_analytics(uid):
         'sisProfile': sis_profile,
         'studentProfileLink': student_profile_link,
         'enrollmentTerms': enrollment_terms,
+        'hasCurrentTermEnrollments': has_enrollments_in_current_term,
     })
 
 

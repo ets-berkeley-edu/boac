@@ -27,15 +27,19 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import json
 from boac import __version__ as version
 from boac.lib import util
+from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.http import tolerant_jsonify
 from flask import current_app as app
 
 
 @app.route('/api/config')
 def app_config():
+    current_term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
+    current_term_id = sis_term_id_for_name(current_term_name)
     return tolerant_jsonify({
         'boacEnv': app.config['BOAC_ENV'],
-        'currentEnrollmentTerm': app.config['CANVAS_CURRENT_ENROLLMENT_TERM'],
+        'currentEnrollmentTerm': current_term_name,
+        'currentEnrollmentTermId': int(current_term_id),
         'demoMode': util.app_in_demo_mode(),
         'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],
         'ebEnvironment': app.config['EB_ENVIRONMENT'] if 'EB_ENVIRONMENT' in app.config else None,

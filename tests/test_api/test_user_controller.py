@@ -121,7 +121,8 @@ class TestUserAnalytics:
     """User Analytics API."""
 
     api_path = '/api/user/{}/analytics'
-    field_hockey_star = api_path.format(61889)
+    dave = api_path.format(98765)
+    deborah = api_path.format(61889)
     non_student_uid = '2040'
     non_student = api_path.format(non_student_uid)
     unknown_uid = 9999999
@@ -133,7 +134,7 @@ class TestUserAnalytics:
 
     @pytest.fixture()
     def authenticated_response(self, authenticated_session, client):
-        return client.get(TestUserAnalytics.field_hockey_star)
+        return client.get(TestUserAnalytics.deborah)
 
     @staticmethod
     def get_course_for_code(response, term_id, code):
@@ -143,14 +144,24 @@ class TestUserAnalytics:
 
     def test_user_analytics_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        response = client.get(TestUserAnalytics.field_hockey_star)
+        response = client.get(TestUserAnalytics.deborah)
         assert response.status_code == 401
+
+    def test_user_with_no_enrollments_in_current_term(self, authenticated_session, client):
+        """Identifies user with no enrollments in current term."""
+        response = client.get(TestUserAnalytics.dave)
+        assert response.status_code == 200
+        enrollment_terms = response.json['enrollmentTerms']
+        assert len(enrollment_terms) == 1
+        assert enrollment_terms[0]['termName'] == 'Spring 2017'
+        assert response.json['hasCurrentTermEnrollments'] is False
 
     def test_user_analytics_authenticated(self, authenticated_response):
         """Returns a well-formed response if authenticated."""
         assert authenticated_response.status_code == 200
         assert authenticated_response.json['uid'] == '61889'
         assert authenticated_response.json['canvasProfile']['canvas_id'] == 9000100
+        assert authenticated_response.json['hasCurrentTermEnrollments'] is True
         assert len(authenticated_response.json['enrollmentTerms']) > 0
         for term in authenticated_response.json['enrollmentTerms']:
             assert len(term['enrollments']) > 0
@@ -361,7 +372,7 @@ class TestUserAnalytics:
                'sis_course_name,sis_section_id,sis_primary,sis_instruction_format,sis_section_num '
         mr = mockingdata.MockRows(io.StringIO(f'{hdrs}\n'))
         with mockingdata.register_mock(data_loch._get_sis_enrollments, mr):
-            response = client.get(TestUserAnalytics.field_hockey_star)
+            response = client.get(TestUserAnalytics.deborah)
             assert response.status_code == 200
             assert len(response.json['enrollmentTerms']) > 0
             for term in response.json['enrollmentTerms']:
@@ -423,7 +434,7 @@ class TestUserAnalytics:
         """Gracefully handles unexpected SIS profile data."""
         sis_response = MockResponse(200, {}, '{"apiResponse": {"response": {"message": "Something wicked."}}}')
         with register_mock(sis_student_api._get_student, sis_response):
-            response = client.get(TestUserAnalytics.field_hockey_star)
+            response = client.get(TestUserAnalytics.deborah)
             assert response.status_code == 200
             assert response.json['canvasProfile']
             assert not response.json['sisProfile']
@@ -432,7 +443,7 @@ class TestUserAnalytics:
         """Gracefully handles SIS profile error."""
         sis_error = MockResponse(500, {}, '{"message": "Internal server error."}')
         with register_mock(sis_student_api._get_student, sis_error):
-            response = client.get(TestUserAnalytics.field_hockey_star)
+            response = client.get(TestUserAnalytics.deborah)
             assert response.status_code == 200
             assert response.json['canvasProfile']
             assert not response.json['sisProfile']

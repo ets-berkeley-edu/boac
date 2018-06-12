@@ -1,0 +1,426 @@
+{
+  "apiResponse": {
+    "correlationId": "2b6a487a-5405-432e-850c-b785f826b0a5",
+    "response": {
+      "any": {
+        "students": [
+          {
+            "academicStatuses": [
+              {
+                "cumulativeGPA": {
+                  "average": 3.2999999999999998,
+                  "source": "UCB",
+                  "type": {
+                    "code": "Cumulative"
+                  }
+                },
+                "cumulativeUnits": [
+                  {
+                    "type": {
+                      "code": "Total"
+                    },
+                    "unitsCumulative": 98.0,
+                    "unitsOther": 0,
+                    "unitsPassed": 62,
+                    "unitsTaken": 8,
+                    "unitsTest": 3.3,
+                    "unitsTransferAccepted": 25,
+                    "unitsTransferEarned": 25
+                  },
+                  {
+                    "type": {
+                      "code": "For GPA"
+                    },
+                    "unitsPassed": 8,
+                    "unitsTaken": 8,
+                    "unitsTransferEarned": 0
+                  },
+                  {
+                    "type": {
+                      "code": "Not For GPA"
+                    },
+                    "unitsPassed": 0,
+                    "unitsTaken": 0,
+                    "unitsTransferEarned": 0
+                  }
+                ],
+                "currentRegistration": {
+                  "academicCareer": {
+                    "code": "UGRD",
+                    "description": "Undergraduate"
+                  },
+                  "academicLevel": {
+                    "level": {
+                      "code": "30",
+                      "description": "Junior"
+                    }
+                  },
+                  "athlete": true,
+                  "disabled": false,
+                  "eligibleToRegister": true,
+                  "intendsToGraduate": false,
+                  "new": false,
+                  "registered": false,
+                  "specialStudyPrograms": [],
+                  "term": {
+                    "academicYear": "2017",
+                    "id": "2172",
+                    "name": "2017 Spring"
+                  },
+                  "termGPA": {
+                    "average": 0,
+                    "type": {
+                      "description": "Term GPA"
+                    }
+                  },
+                  "termUnits": [
+                    {
+                      "type": {
+                        "description": "Total"
+                      },
+                      "unitsEnrolled": 15,
+                      "unitsIncomplete": 0,
+                      "unitsMax": 0,
+                      "unitsMin": 0,
+                      "unitsOther": 0,
+                      "unitsPassed": 0,
+                      "unitsTaken": 0,
+                      "unitsTest": 0,
+                      "unitsTransferAccepted": 0,
+                      "unitsTransferEarned": 0,
+                      "unitsWaitlisted": 0
+                    },
+                    {
+                      "type": {
+                        "description": "For GPA"
+                      },
+                      "unitsEnrolled": 11,
+                      "unitsIncomplete": 0,
+                      "unitsMax": 0,
+                      "unitsMin": 0,
+                      "unitsPassed": 0,
+                      "unitsTaken": 0,
+                      "unitsTransferEarned": 0,
+                      "unitsWaitlisted": 0
+                    },
+                    {
+                      "type": {
+                        "description": "Not For GPA"
+                      },
+                      "unitsEnrolled": 4,
+                      "unitsIncomplete": 0,
+                      "unitsMax": 0,
+                      "unitsMin": 0,
+                      "unitsPassed": 0,
+                      "unitsTaken": 0,
+                      "unitsTransferEarned": 0,
+                      "unitsWaitlisted": 0
+                    }
+                  ]
+                },
+                "studentCareer": {
+                  "academicCareer": {
+                    "code": "UGRD",
+                    "description": "Undergraduate"
+                  },
+                  "fromDate": "2016-01-12",
+                  "matriculation": {
+                    "homeLocation": {
+                      "code": "019",
+                      "description": "Los Angeles County"
+                    },
+                    "term": {
+                      "id": "2155",
+                      "name": "2015 Summer"
+                    },
+                    "type": {
+                      "code": "",
+                      "description": ""
+                    }
+                  }
+                },
+                "studentPlans": [
+                  {
+                    "academicPlan": {
+                      "academicProgram": {
+                        "program": {
+                          "code": "UCLS",
+                          "description": "Undergrad Letters & Science"
+                        }
+                      },
+                      "plan": {
+                        "code": "25345U",
+                        "description": "English BA",
+                        "fromDate": "2016-01-12"
+                      },
+                      "targetDegree": {
+                        "type": {
+                          "code": "AB",
+                          "description": "Bachelor of Arts"
+                        }
+                      },
+                      "type": {
+                        "code": "MAJ",
+                        "description": "Major - Regular Acad/Prfnl"
+                      }
+                    },
+                    "expectedGraduationTerm": {
+                      "id": "2198",
+                      "name": "2019 Fall"
+                    },
+                    "primary": true,
+                    "statusInPlan": {
+                      "action": {
+                        "code": "DATA",
+                        "description": "Data Change"
+                      },
+                      "reason": {
+                        "code": "GTOI",
+                        "description": "Grad Term - Auto Opt-In"
+                      },
+                      "status": {
+                        "code": "AC",
+                        "description": "Active in Program"
+                      }
+                    }
+                  },
+                  {
+                    "academicPlan": {
+                      "academicProgram": {
+                        "program": {
+                          "code": "UCLS",
+                          "description": "Undergrad Letters & Science"
+                        }
+                      },
+                      "plan": {
+                        "code": "25345U",
+                        "description": "Astrophysics BS",
+                        "fromDate": "2016-01-12"
+                      },
+                      "targetDegree": {
+                        "type": {
+                          "code": "SB",
+                          "description": "Bachelor of Science"
+                        }
+                      },
+                      "type": {
+                        "code": "SP",
+                        "description": "Major - UG Specialization"
+                      }
+                    },
+                    "expectedGraduationTerm": {
+                      "id": "2192",
+                      "name": "2019 Spring"
+                    },
+                    "primary": false,
+                    "statusInPlan": {
+                      "action": {
+                        "code": "DATA",
+                        "description": "Data Change"
+                      },
+                      "reason": {
+                        "code": "GTOI",
+                        "description": "Grad Term - Auto Opt-In"
+                      },
+                      "status": {
+                        "code": "AC",
+                        "description": "Active in Program"
+                      }
+                    }
+                  },
+                  {
+                    "academicPlan": {
+                      "academicProgram": {
+                        "program": {
+                          "code": "UCLS",
+                          "description": "Undergrad Letters & Science"
+                        }
+                      },
+                      "plan": {
+                        "description": "Art History",
+                        "fromDate": "2016-01-12"
+                      },
+                      "type": {
+                        "code": "MIN"
+                      }
+                    }
+                  }
+                ],
+                "termsInAttendance": 5
+              }
+            ],
+            "addresses": [],
+            "affiliations": [
+              {
+                "detail": "Admitted",
+                "fromDate": "2015-12-07",
+                "status": {
+                  "code": "ACT",
+                  "description": "Active"
+                },
+                "type": {
+                  "code": "ADMT_UX",
+                  "description": "Admitted student's access to Cal Central"
+                }
+              },
+              {
+                "detail": "",
+                "fromDate": "2015-12-14",
+                "status": {
+                  "code": "ACT",
+                  "description": "Active"
+                },
+                "type": {
+                  "code": "STUDENT",
+                  "description": ""
+                }
+              },
+              {
+                "detail": "Active",
+                "fromDate": "2015-12-14",
+                "status": {
+                  "code": "ACT",
+                  "description": "Active"
+                },
+                "type": {
+                  "code": "UNDERGRAD",
+                  "description": "Undergraduate Student"
+                }
+              }
+            ],
+            "awardHonors": [],
+            "birth": {
+              "date": "1975-02-05",
+              "description": "United States",
+              "locality": "San Dimas, CA",
+              "stateCode": "",
+              "countryCode": "USA"
+            },
+            "confidential": false,
+            "degrees": [],
+            "emails": [],
+            "emergencyContacts": [],
+            "ethnicities": [],
+            "gender": {
+              "discloseGenderIdentity": false,
+              "discloseGenderOfRecord": true,
+              "discloseSexAtBirth": false,
+              "fromDate": "2015-01-05",
+              "genderOfRecord": {
+                "code": "M",
+                "description": "Male"
+              }
+            },
+            "holds": [],
+            "identifiers": [
+              {
+                "disclose": false,
+                "id": "2345678901",
+                "type": "student-id"
+              },
+              {
+                "disclose": false,
+                "id": "98765",
+                "type": "campus-uid"
+              },
+              {
+                "disclose": false,
+                "fromDate": "1902-02-01",
+                "id": "11667051",
+                "type": "DB2"
+              }
+            ],
+            "languages": [],
+            "names": [
+              {
+                "disclose": false,
+                "familyName": "Doolittle",
+                "formattedName": "Dave Doolittle",
+                "fromDate": "2015-10-02",
+                "givenName": "Dave",
+                "middleName": "",
+                "preferred": true,
+                "prefixName": "",
+                "suffixName": "",
+                "type": {
+                  "code": "PRF",
+                  "description": "Preferred"
+                },
+                "uiControl": {
+                  "code": "U",
+                  "description": "Edit - No Delete"
+                }
+              },
+              {
+                "disclose": false,
+                "familyName": "Doolittle",
+                "formattedName": "Dave Doolittle",
+                "fromDate": "1902-02-01",
+                "givenName": "Dave",
+                "middleName": "",
+                "preferred": false,
+                "prefixName": "",
+                "suffixName": "",
+                "type": {
+                  "code": "PRI",
+                  "description": "Primary"
+                },
+                "uiControl": {
+                  "code": "D",
+                  "description": "Display Only"
+                }
+              }
+            ],
+            "phones": [],
+            "residency": {
+              "source": {
+                "code": "Official"
+              },
+              "fromTerm": {
+                "id": "2145",
+                "name": "2014 Summer"
+              },
+              "fromDate": "2014-05-27",
+              "financialAid": {
+                "code": "NON",
+                "description": "Non-Resident"
+              },
+              "official": {
+                "code": "NON",
+                "description": "Non-Resident"
+              },
+              "tuition": {
+                "code": "NON",
+                "description": "Non-Resident"
+              },
+              "statementOfLegalResidenceStatus": {
+                "code": "D",
+                "description": "Auto Residency Determined"
+              },
+              "county": "",
+              "stateCode": "",
+              "countryCode": "USA",
+              "postalCode": "",
+              "comments": ""
+            },
+            "studentAttributes": [],
+            "urls": [],
+            "usaCountry": {
+              "citizenshipStatus": {
+                "code": "1",
+                "description": "Native"
+              },
+              "militaryStatus": {
+                "code": "",
+                "description": "",
+                "fromDate": "1902-02-01"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "responseType": "http://bmeta.berkeley.edu/student/studentV0.xsd/students",
+    "source": "UCB-SIS-STUDENT"
+  }
+}
