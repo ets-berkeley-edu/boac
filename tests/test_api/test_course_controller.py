@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.externals.data_loch import get_sis_enrollments
 from boac.models.normalized_cache_enrollment import NormalizedCacheEnrollment
 import pytest
 
@@ -41,9 +40,8 @@ def authenticated_session(fake_auth):
 
 @pytest.fixture()
 def course_data_load(fake_auth):
-    sis_enrollments = get_sis_enrollments(student_uid, term_id)
     # Cache course data
-    NormalizedCacheEnrollment.update_enrollments(term_id=term_id, sid=student_sid, enrollments=sis_enrollments)
+    NormalizedCacheEnrollment.update_enrollments(term_id=term_id, uid=student_uid, sid=student_sid)
 
 
 class TestCourseController:

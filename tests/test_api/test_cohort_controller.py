@@ -64,10 +64,13 @@ class TestCohortDetail:
         assert defense_backs_all['totalStudentCount'] == 3
         assert defense_backs_inactive['totalStudentCount'] == 1
 
-    def test_my_cohorts_includes_students_with_alert_counts(self, create_alerts, authenticated_session, client):
+    def test_my_cohorts_includes_students_with_alert_counts(self, create_alerts, authenticated_session, client, db_session):
         # Pre-load students into cache for consistent alert data.
         client.get('/api/user/61889/analytics')
         client.get('/api/user/98765/analytics')
+        from boac.api.cache_utils import load_alerts
+        load_alerts(2178)
+
         cohorts = client.get('/api/cohorts/my').json
         assert len(cohorts[0]['alerts']) == 2
 

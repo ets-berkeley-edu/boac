@@ -75,7 +75,7 @@ class TestStudentGroupsController:
         assert response.status_code == 200
         assert response.json['students'] == []
 
-    def test_group_summary_excludes_students_without_alerts(self, create_alerts, authenticated_session, client):
+    def test_group_summary_excludes_students_without_alerts(self, authenticated_session, create_alerts, client, db_session):
         """When all groups are requested, returns only students with alerts."""
         groups = client.get('/api/groups/my').json
         assert groups[0]['studentCount'] == 4
@@ -87,7 +87,7 @@ class TestStudentGroupsController:
         groups = client.get('/api/groups/my').json
         assert groups[0]['students'][0]['alertCount'] == 2
 
-    def test_group_detail_includes_students_without_alerts(self, create_alerts, authenticated_session, client):
+    def test_group_detail_includes_students_without_alerts(self, authenticated_session, create_alerts, client):
         """When group detail is requested, returns all students."""
         groups = client.get('/api/groups/my').json
         group = client.get(f'/api/group/{groups[0]["id"]}').json
@@ -96,7 +96,7 @@ class TestStudentGroupsController:
         assert 'alertCount' not in group['students'][2]
         assert 'alertCount' not in group['students'][3]
 
-    def test_group_index_includes_summary(self, authenticated_session, client):
+    def test_group_index_includes_summary(self, authenticated_session, create_alerts, client):
         """Returns summary details but not full term and analytics data for group index."""
         groups = client.get('/api/groups/my').json
         students = groups[0]['students']

@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac import db, std_commit
+from boac.externals import data_loch
 from boac.merged.sis_sections import get_sis_section
 from boac.models.base import Base
 from boac.models.student import Student
@@ -48,13 +49,25 @@ class NormalizedCacheEnrollment(Base):
         return sids
 
     @classmethod
-    def update_enrollments(cls, term_id, sid, enrollments):
+    def update_enrollments(cls, term_id, uid, sid):
         term_id = int(term_id)
-        # Previous enrollments might have been dropped
+        loch_enrollments = data_loch.get_sis_enrollments(uid, term_id) or []
+        section_ids = {}
+
+        # Previous enrollments might have been dropped.
         cls.query.filter_by(term_id=term_id, sid=sid).delete()
         std_commit()
-        # Add fresh enrollment data
-        for enrollment in enrollments:
+
+        # Add fresh enrollment data.
+        for enrollment in loch_enrollments:
+            if enrollment['sis_enrollment_status'] not in ['E', 'W']:
+                continue
+            # Skip duplicate class sections.
+            section_id = enrollment.get('sis_section_id')
+            if section_id in section_ids:
+                continue
+            section_ids[section_id] = True
+
             normalized = cls(term_id=term_id, section_id=int(enrollment['sis_section_id']), sid=sid)
             db.session.add(normalized)
         std_commit()

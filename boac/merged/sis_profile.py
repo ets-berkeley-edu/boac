@@ -30,8 +30,6 @@ from boac.externals import sis_student_api
 from boac.lib.berkeley import degree_program_url_for_major, term_name_for_sis_id
 from boac.lib.util import vacuum_whitespace
 from boac.models.json_cache import stow
-from boac.models.normalized_cache_student import NormalizedCacheStudent
-from boac.models.normalized_cache_student_major import NormalizedCacheStudentMajor
 from flask import current_app as app
 
 
@@ -57,8 +55,6 @@ def merge_sis_profile(csid):
     merge_sis_profile_phones(sis_response, sis_profile)
     if sis_profile['academicCareer'] == 'UGRD':
         sis_profile['degreeProgress'] = sis_degree_progress_api.parsed_degree_progress(csid)
-
-    store_normalized_profile(csid, sis_profile)
 
     return sis_profile
 
@@ -149,13 +145,3 @@ def merge_sis_profile_plans(academic_status, sis_profile):
             program = student_plan.get('academicPlan', {}).get('academicProgram', {}).get('program', {})
             plan_feed['program'] = program.get('description')
         sis_profile['plans'].append(plan_feed)
-
-
-def store_normalized_profile(csid, sis_profile):
-    gpa = sis_profile.get('cumulativeGPA')
-    level = sis_profile.get('level', {}).get('description')
-    units = sis_profile.get('cumulativeUnits')
-    NormalizedCacheStudent.update_profile(csid, gpa=gpa, level=level, units=units)
-
-    majors = [plan['description'] for plan in sis_profile.get('plans', [])]
-    NormalizedCacheStudentMajor.update_majors(csid, majors)
