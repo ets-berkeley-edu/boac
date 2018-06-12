@@ -31,6 +31,7 @@ from boac.api.util import canvas_courses_api_feed
 from boac.externals import data_loch
 from boac.lib import berkeley
 from boac.merged import import_asc_athletes
+from boac.merged.calnet import merge_student_calnet_data
 from boac.merged.sis_enrollments import merge_sis_enrollments_for_term
 from boac.merged.sis_profile import merge_sis_profile
 from boac.models import json_cache
@@ -229,6 +230,9 @@ def load_term(term_id=berkeley.current_term_id()):
 
     success_count = 0
     failures = []
+
+    # Load CalNet attributes from LDAP, including any missing UIDs.
+    merge_student_calnet_data()
 
     ids = get_all_student_ids()
     nbr_students = len(ids)
