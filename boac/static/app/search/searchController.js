@@ -34,7 +34,6 @@
     studentFactory,
     utilService,
     validationService,
-    $anchorScroll,
     $location,
     $scope
   ) {
@@ -49,8 +48,6 @@
 
     var loadSearchResults = function() {
       var inactiveAsc = authService.isCurrentUserAscAdvisor() ? false : null;
-
-      $anchorScroll();
       page.loading(true);
       studentFactory.searchForStudents($scope.search.phrase, inactiveAsc, 'last_name', 0, $scope.search.limit).then(
         function(response) {

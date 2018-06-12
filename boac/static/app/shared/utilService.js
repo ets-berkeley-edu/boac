@@ -27,23 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').service('utilService', function(
-    config,
-    $anchorScroll,
-    $base64,
-    $location,
-    $rootScope,
-    $timeout
-  ) {
-
-    var anchorScroll = function(anchorId) {
-      $timeout(function() {
-        // Clean up location URI
-        $location.search('a', null).replace();
-        $anchorScroll.yOffset = 50;
-        $anchorScroll(anchorId);
-      });
-    };
+  angular.module('boac').service('utilService', function() {
 
     var toBoolOrNull = function(str) {
       return _.isNil(str) ? null : _.lowerCase(str) === 'true';
@@ -116,51 +100,6 @@
       return describe;
     };
 
-    var unpackReturnUrl = function(anchorId) {
-      var disableBreadcrumb = true;
-      if (disableBreadcrumb) {
-        // TODO: Cook up a sensible breadcrumb strategy (see BOAC-596) or remove the feature.
-        return null;
-      }
-      var encodedReturnUrl = $location.search().r;
-      var url = null;
-      if (!_.isEmpty(encodedReturnUrl)) {
-        // Parse referring URL
-        $location.search('r', null).replace();
-        url = $base64.decode(decodeURIComponent(encodedReturnUrl));
-        if (anchorId) {
-          var anchorParam = 'a=' + anchorId;
-          var urlComponents = url.split('?');
-          if (urlComponents.length > 1) {
-            url = urlComponents.shift();
-            var query = urlComponents.join('?');
-            query = query.replace(/&?casLogin=true/, '');
-            if (query.length) {
-              anchorParam = query + '&' + anchorParam;
-            }
-          }
-          url = url + '?' + anchorParam;
-        }
-      }
-      return url;
-    };
-
-    var constructReturnToLabel = function(returnUrl) {
-      var label = null;
-      if (returnUrl) {
-        var name = $location.search().referringPageName;
-        if (name && !config.demoMode) {
-          label = 'Return to ' + name;
-          $location.search('referringPageName', null).replace();
-        } else if (returnUrl.includes('student')) {
-          label = 'Return to student';
-        } else {
-          label = returnUrl.includes('cohort') ? 'Return to cohort' : 'Return to course';
-        }
-      }
-      return label;
-    };
-
     var extendSortableNames = function(students) {
       return _.map(students, function(student) {
         return _.extend(student, {
@@ -170,17 +109,14 @@
     };
 
     return {
-      anchorScroll: anchorScroll,
       camelCaseToDashes: camelCaseToDashes,
-      constructReturnToLabel: constructReturnToLabel,
       lastActivityDays: lastActivityDays,
       lastActivityInContext: lastActivityInContext,
       extendSortableNames: extendSortableNames,
       decorateOptions: decorateOptions,
       format: format,
       getValuesSelected: getValuesSelected,
-      toBoolOrNull: toBoolOrNull,
-      unpackReturnUrl: unpackReturnUrl
+      toBoolOrNull: toBoolOrNull
     };
   });
 

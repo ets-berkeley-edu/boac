@@ -72,10 +72,6 @@
     };
 
     var init = function() {
-      // Maybe we are arriving from student page.
-      $scope.returnUrl = utilService.unpackReturnUrl();
-      $scope.returnLabel = utilService.constructReturnToLabel($scope.returnUrl);
-
       var args = _.clone($location.search());
       // For now, exclude 'Average Student'
       courseFactory.getSection($stateParams.termId, $stateParams.sectionId, false).then(function(response) {
@@ -91,11 +87,6 @@
           }
         }
         page.loading(false);
-        if (args.a) {
-          // Scroll to anchor
-          $scope.anchor = args.a;
-          utilService.anchorScroll($scope.anchor);
-        }
         googleAnalyticsService.track(
           'course',
           'view',

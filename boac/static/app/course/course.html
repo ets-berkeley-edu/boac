@@ -4,12 +4,6 @@
     <span class="sr-only">Loading...</span>
   </div>
 
-  <div class="return-to-url" data-ng-if="!isLoading && !error && returnUrl">
-    <a data-ng-href="{{returnUrl}}">
-      <i class="fas fa-arrow-left" aria-hidden="true"></i> <span data-ng-bind="returnLabel"></span>
-    </a>
-  </div>
-
   <div class="container-error" data-ng-if="!isLoading && error">
     <h1 class="page-section-header">Error</h1>
     <div class="faint-text">
