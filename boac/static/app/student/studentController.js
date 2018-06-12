@@ -53,11 +53,14 @@
       canvasProfile: null,
       enrollmentTerms: null
     };
+    $scope.currentEnrollmentTermId = config.currentEnrollmentTermId;
+    $scope.currentEnrollmentTerm = config.currentEnrollmentTerm;
     $scope.demoMode = config.demoMode;
     $scope.lastActivityDays = utilService.lastActivityDays;
     $scope.lastActivityInContext = utilService.lastActivityInContext;
     $scope.isCurrentUserAscAdvisor = authService.isCurrentUserAscAdvisor();
     $scope.myGroups = _.clone(me.myGroups);
+    $scope.parseInt = parseInt;
     $scope.showAllTerms = false;
     $scope.showDismissedAlerts = false;
 

@@ -329,6 +329,17 @@
   margin-top: 5px;
 }
 
+.term-no-enrollments {
+  border-bottom: 1px solid #999;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+}
+
+.term-no-enrollments-description {
+  border-top: 1px solid #999;
+  padding-top: 20px;
+}
+
 .student-text {
   color: #aaa;
   font-size: 13px;

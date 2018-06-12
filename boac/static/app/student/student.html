@@ -152,6 +152,13 @@
         <div class="student-terms">
           <h2 class="student-section-header">Classes</h2>
           <div class="student-term" data-ng-repeat="term in student.enrollmentTerms | limitTo: (showAllTerms ? undefined : 1)">
+
+            <div class="term-no-enrollments"
+                 data-ng-if="$first && !student.hasCurrentTermEnrollments && (currentEnrollmentTermId > parseInt(term.termId))">
+              <h3 class="student-term-header" data-ng-bind="currentEnrollmentTerm"></h3>
+              <div class="term-no-enrollments-description">No enrollments</div>
+            </div>
+
             <h3 class="student-term-header" data-ng-bind="term.termName"></h3>
 
             <div data-ng-if="$index === 0">
