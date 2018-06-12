@@ -57,7 +57,11 @@ def merge_sis_enrollments(canvas_course_sites, uid, cs_id, matriculation):
 def merge_sis_enrollments_for_term(canvas_course_sites, uid, cs_id, term_name):
     term_id = sis_term_id_for_name(term_name)
     enrollments = data_loch.get_sis_enrollments(uid, term_id) or []
-    term_feed = merge_enrollment(cs_id, enrollments, term_id, term_name)
+    if term_name == app.config['CANVAS_CURRENT_ENROLLMENT_TERM']:
+        drops_and_midterms = sis_enrollments_api.get_drops_and_midterms(cs_id, term_id)
+    else:
+        drops_and_midterms = None
+    term_feed = merge_enrollment(cs_id, enrollments, term_id, term_name, drops_and_midterms)
 
     for site in canvas_course_sites:
         merge_canvas_course_site(term_feed, site)
@@ -67,13 +71,7 @@ def merge_sis_enrollments_for_term(canvas_course_sites, uid, cs_id, term_name):
     return term_feed
 
 
-def merge_drops_and_midterms(cs_id, term_name, term_feed):
-    """Check for dropped classes and midterm deficient grades, creating new Alerts as needed."""
-    if term_name != app.config['CANVAS_CURRENT_ENROLLMENT_TERM']:
-        return term_feed
-
-    term_id = sis_term_id_for_name(term_name)
-    drops_and_midterms = sis_enrollments_api.get_drops_and_midterms(cs_id, term_id) or {}
+def merge_drops_and_midterms(term_feed, drops_and_midterms):
     term_feed['droppedSections'] = drops_and_midterms.get('droppedPrimarySections', [])
     section_midterms = drops_and_midterms.get('midtermGrades', {})
     for enrollment in term_feed['enrollments']:
@@ -87,7 +85,7 @@ def merge_drops_and_midterms(cs_id, term_name, term_feed):
 
 
 @stow('merged_enrollment_{cs_id}', for_term=True)
-def merge_enrollment(cs_id, enrollments, term_id, term_name):
+def merge_enrollment(cs_id, enrollments, term_id, term_name, drops_and_midterms):
     enrollments_by_class = {}
     term_section_ids = {}
     enrolled_units = 0
@@ -139,8 +137,8 @@ def merge_enrollment(cs_id, enrollments, term_id, term_name):
         'enrolledUnits': enrolled_units,
         'unmatchedCanvasSites': [],
     }
-    merge_drops_and_midterms(cs_id, term_name, term_feed)
-
+    if drops_and_midterms is not None:
+        merge_drops_and_midterms(term_feed, drops_and_midterms)
     return term_feed
 
 

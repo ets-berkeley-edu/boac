@@ -28,7 +28,7 @@ import math
 from threading import Thread
 from boac import db, std_commit
 from boac.api.util import canvas_courses_api_feed
-from boac.externals import data_loch
+from boac.externals import data_loch, sis_degree_progress_api, sis_enrollments_api, sis_student_api
 from boac.lib import berkeley
 from boac.merged import import_asc_athletes
 from boac.merged.calnet import merge_student_calnet_data
@@ -299,9 +299,6 @@ def load_canvas_externals(uid, term_id):
 
 
 def load_sis_externals(uid, csid, term_id):
-    from boac.externals import sis_degree_progress_api, sis_student_api
-    from boac.merged.sis_enrollments import merge_enrollment
-
     term_name = berkeley.term_name_for_sis_id(term_id)
 
     success_count = 0
@@ -321,9 +318,10 @@ def load_sis_externals(uid, csid, term_id):
         failures.append(f'SIS get_student failed for CSID {csid}')
 
     enrollments = data_loch.get_sis_enrollments(uid, term_id) or []
+    if term_name == app.config['CANVAS_CURRENT_ENROLLMENT_TERM']:
+        sis_enrollments_api.get_drops_and_midterms(csid, term_id)
+
     if enrollments:
-        # Perform higher-level enrollments feed processing.
-        merge_enrollment(csid, enrollments, term_id, term_name)
         success_count += 1
     elif enrollments is None:
         failures.append(f'get_sis_enrollments failed for CSID {csid}, term_id {term_id}')
