@@ -35,7 +35,7 @@ def get_drops_and_midterms(cs_id, term_id):
     """Obtain dropped classes and midterm deficient grades for the term."""
     response = get_enrollments(cs_id, term_id)
     if not response:
-        return response
+        return {}
     enrollments = response.get('studentEnrollments', [])
     dropped_classes = []
     midterm_grades = {}
