@@ -93,7 +93,7 @@
       });
     };
 
-    var loadStudent = function(uid, callback) {
+    var loadStudent = function(uid) {
       page.loading(true);
       var preferredName = null;
       studentFactory.analyticsPerUser(uid).then(function(analytics) {
@@ -152,7 +152,7 @@
         $scope.error = validationService.parseError(err);
         page.loading(false);
 
-      }).then(callback);
+      });
     };
 
     $scope.groupCheckboxClick = function(group) {
@@ -168,20 +168,8 @@
     });
 
     var init = function() {
-      var args = _.clone($location.search());
       var uid = $stateParams.uid;
-
-      loadStudent(uid, function() {
-        if (args.a) {
-          // We are returning to this student after a detour on course/section page...
-          $scope.anchor = args.a;
-          utilService.anchorScroll($scope.anchor);
-        } else {
-          // ...or, maybe we are fresh arrival from cohort page.
-          $scope.returnUrl = utilService.unpackReturnUrl(uid);
-          $scope.returnLabel = utilService.constructReturnToLabel($scope.returnUrl);
-        }
-      });
+      loadStudent(uid);
     };
 
     init();

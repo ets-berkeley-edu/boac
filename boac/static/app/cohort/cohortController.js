@@ -38,7 +38,6 @@
     utilService,
     validationService,
     visualizationService,
-    $anchorScroll,
     $location,
     $rootScope,
     $scope
@@ -176,7 +175,6 @@
       var limit = $scope.pagination.enabled ? $scope.pagination.itemsPerPage : Number.MAX_SAFE_INTEGER;
       var offset = pageNumber === 0 ? 0 : (pageNumber - 1) * limit;
 
-      $anchorScroll();
       page.loading(true);
       getCohort($scope.orderBy.selected, offset, limit).then(function(response) {
         updateCohort(response.data);
@@ -596,11 +594,6 @@
                 $rootScope.pageTitle = $scope.isCreateCohortMode ? 'Create Filtered Cohort' : $scope.cohort.name || 'Search';
                 page.loading(false);
 
-                if (args.a) {
-                  // We are returning from student page.
-                  $scope.anchor = args.a;
-                  utilService.anchorScroll($scope.anchor);
-                }
                 // Track view event
                 if (isNaN($scope.cohort.code)) {
                   googleAnalyticsService.track('team', 'view', $scope.cohort.code + ': ' + $scope.cohort.name);
