@@ -38,7 +38,7 @@ class TestMergedSisEnrollments:
         feed = merge_sis_enrollments_for_term([], '61889', '11667051', app.config['CANVAS_CURRENT_ENROLLMENT_TERM'])
         assert '2178' == feed['termId']
         enrollments = feed['enrollments']
-        assert 3 == len(enrollments)
+        assert 4 == len(enrollments)
         assert 'D+' == enrollments[0]['midtermGrade']
         assert 'BURMESE 1A' == enrollments[0]['displayName']
         assert 90100 == enrollments[0]['sections'][0]['ccn']

@@ -175,7 +175,7 @@ class TestCohortDetail:
         term = athlete['term']
         assert term['termName'] == 'Fall 2017'
         assert term['enrolledUnits'] == 12.5
-        assert len(term['enrollments']) == 3
+        assert len(term['enrollments']) == 4
         assert term['enrollments'][0]['displayName'] == 'BURMESE 1A'
         assert len(term['enrollments'][0]['canvasSites']) == 1
         analytics = athlete['analytics']

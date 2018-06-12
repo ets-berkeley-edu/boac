@@ -178,7 +178,7 @@ class TestUserAnalytics:
         assert len(authenticated_response.json['enrollmentTerms']) == 2
         assert authenticated_response.json['enrollmentTerms'][0]['termName'] == 'Fall 2017'
         assert authenticated_response.json['enrollmentTerms'][0]['enrolledUnits'] == 12.5
-        assert len(authenticated_response.json['enrollmentTerms'][0]['enrollments']) == 3
+        assert len(authenticated_response.json['enrollmentTerms'][0]['enrollments']) == 4
         assert authenticated_response.json['enrollmentTerms'][1]['termName'] == 'Spring 2017'
         assert authenticated_response.json['enrollmentTerms'][1]['enrolledUnits'] == 10
         assert len(authenticated_response.json['enrollmentTerms'][1]['enrollments']) == 3
@@ -227,11 +227,6 @@ class TestUserAnalytics:
         assert(spring_2017_enrollments[0]['displayName'] == 'CLASSIC 130 LEC 001')
         assert(spring_2017_enrollments[1]['displayName'] == 'CLASSIC 130 LEC 002')
         assert(spring_2017_enrollments[2]['displayName'] == 'MUSIC 41C')
-
-    def test_athletic_enrollments_removed(self, authenticated_response):
-        """Removes athletic enrollments."""
-        for enrollment in authenticated_response.json['enrollmentTerms'][0]['enrollments']:
-            assert enrollment['displayName'] != 'PHYSED 11'
 
     def test_course_site_without_enrollment(self, authenticated_response):
         """Returns course sites with no associated enrollments."""

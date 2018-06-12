@@ -86,4 +86,4 @@ class TestCourseController:
         assert students[0]['level'] == 'Junior'
         assert len(students[0]['athletics']) == 2
         assert len(students[0]['majors']) == 2
-        assert len(students[0]['term']['enrollments']) == 3
+        assert len(students[0]['term']['enrollments']) == 4
