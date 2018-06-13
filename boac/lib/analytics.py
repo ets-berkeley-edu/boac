@@ -38,7 +38,6 @@ def merge_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id):
             canvas_course_id = course['canvasCourseId']
             course['analytics'] = {
                 'assignmentsSubmitted': loch_assignments_submitted(canvas_user_id, canvas_course_id, term_id),
-                'pageViews': loch_page_views(uid, canvas_course_id, term_id),
             }
             course['analytics'].update(loch_student_analytics(canvas_user_id, canvas_course_id, term_id))
 
@@ -46,7 +45,7 @@ def merge_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id):
 def mean_course_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id):
     merge_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id)
     mean_values = {}
-    for metric in ['assignmentsSubmitted', 'currentScore', 'lastActivity', 'pageViews']:
+    for metric in ['assignmentsSubmitted', 'currentScore', 'lastActivity']:
         percentiles = []
         for course in user_courses:
             percentile = course['analytics'].get(metric, {}).get('student', {}).get('percentile')
@@ -112,23 +111,8 @@ def loch_student_analytics(canvas_user_id, canvas_course_id, term_id):
     return {
         'currentScore': analytics_for_column(df, student_row, 'current_score'),
         'lastActivity': last_activity,
-        'courseEnrollmentCount': len([e for e in enrollments if e.get('sis_enrollment_status') == 'E']),
+        'courseEnrollmentCount': len(enrollments),
     }
-
-
-def loch_page_views(uid, canvas_course_id, term_id):
-    course_rows = data_loch.get_course_page_views(canvas_course_id, term_id)
-    if course_rows is None:
-        return {'error': 'Unable to retrieve from Data Loch'}
-    df = pandas.DataFrame(course_rows, columns=['uid', 'loch_page_views'])
-    student_row = df.loc[df['uid'].values == uid]
-    if course_rows and student_row.empty:
-        app.logger.warn(f'UID {uid} not found in DataLoch page views for course {canvas_course_id}; assume score of 0')
-        student_row = pandas.DataFrame({'uid': [uid], 'loch_page_views': [0]})
-        df = df.append(student_row, ignore_index=True)
-        # Fetch newly appended row, mostly for the sake of its properly set-up index.
-        student_row = df.loc[df['uid'].values == uid]
-    return analytics_for_column(df, student_row, 'loch_page_views')
 
 
 def analytics_for_column(df, student_row, column_name):

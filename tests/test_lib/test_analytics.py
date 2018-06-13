@@ -145,39 +145,3 @@ class TestAnalyticsFromLochAnalytics:
         last_activity = digested['lastActivity']
         assert last_activity['student']['raw'] is 0
         assert 'daysSinceLastActivity' not in last_activity['student']
-
-
-class TestAnalyticsFromLochLastActivity:
-    uid = '61889'
-    canvas_course_id = 7654321
-    term_id = '2178'
-
-    def test_from_fixture(self, app):
-        digested = analytics.loch_page_views(self.uid, self.canvas_course_id, self.term_id)
-        assert digested['student']['raw'] == 766
-        assert digested['student']['percentile'] == 54
-        assert digested['courseDeciles'][0] == 9
-        assert digested['courseDeciles'][9] == 917
-        assert digested['courseDeciles'][10] == 31983
-
-    def test_with_loch_error(self, app):
-        bad_course_id = 'NoSuchSite'
-        digested = analytics.loch_page_views(self.uid, bad_course_id, self.term_id)
-        assert digested == {'error': 'Unable to retrieve from Data Loch'}
-
-    def test_when_no_data(self, app):
-        mr = MockRows(io.StringIO('uid,canvas_user_id,loch_page_views'))
-        with register_mock(data_loch._get_course_page_views, mr):
-            digested = analytics.loch_page_views(self.uid, self.canvas_course_id, self.term_id)
-        assert digested['student']['raw'] is None
-        assert digested['student']['percentile'] is None
-        assert digested['boxPlottable'] is False
-        assert digested['courseDeciles'] is None
-
-    def test_when_no_records_for_this_student(self, app):
-        lazy_uid = '211159'
-        digested = analytics.loch_page_views(lazy_uid, self.canvas_course_id, self.term_id)
-        assert digested['student']['raw'] == 0
-        assert digested['student']['roundedUpPercentile'] == 0
-        assert digested['courseDeciles'][0] == 0
-        assert digested['courseDeciles'][10] == 31983
