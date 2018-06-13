@@ -57,22 +57,6 @@ def intermediate_schema():
     return app.config['DATA_LOCH_INTERMEDIATE_SCHEMA']
 
 
-@stow('loch_page_views_{course_id}', for_term=True)
-def get_course_page_views(course_id, term_id):
-    return _get_course_page_views(course_id)
-
-
-@fixture('loch_page_views_{course_id}.csv')
-def _get_course_page_views(course_id):
-    sql = f"""SELECT
-            sis_login_id AS uid, canvas_user_id, user_page_views AS loch_page_views
-              FROM {boac_schema()}.page_views_zscore
-              WHERE canvas_course_id={course_id}
-              ORDER BY sis_login_id
-        """
-    return safe_execute(sql)
-
-
 @stow('loch_canvas_course_scores_{course_id}', for_term=True)
 def get_canvas_course_scores(course_id, term_id):
     return _get_canvas_course_scores(course_id)

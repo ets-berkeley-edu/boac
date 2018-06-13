@@ -341,7 +341,6 @@ def load_analytics_feeds(uid, sid, term_id):
 
     def load_analytics_for_sites(sites):
         for site in sites:
-            data_loch.get_course_page_views(site['canvasCourseId'], term_id)
             data_loch.get_canvas_course_scores(site['canvasCourseId'], term_id)
             if canvas_user_id:
                 data_loch.get_submissions_turned_in_relative_to_user(site['canvasCourseId'], canvas_user_id, term_id)
