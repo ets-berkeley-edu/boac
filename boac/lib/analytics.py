@@ -112,7 +112,7 @@ def loch_student_analytics(canvas_user_id, canvas_course_id, term_id):
     return {
         'currentScore': analytics_for_column(df, student_row, 'current_score'),
         'lastActivity': last_activity,
-        'courseEnrollmentCount': len([e for e in enrollments if e.get('sis_enrollment_status') == 'E']),
+        'courseEnrollmentCount': len(enrollments),
     }
 
 
