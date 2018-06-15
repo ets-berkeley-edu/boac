@@ -289,12 +289,14 @@
 .visualize-metrics td {
   font-size: 14px;
   padding: 0 25px 5px 0;
+  text-align: left;
   vertical-align: top;
 }
 
 .visualize-metrics-legend {
   color: #999;
   white-space: nowrap;
+  width: 15em;
 }
 
 .visualize-metrics-maximum {
@@ -304,6 +306,10 @@
 .visualize-metrics-no-data {
   color: #666;
   font-style: italic;
+}
+
+.visualize-metrics-summary {
+  width: 12em;
 }
 
 .wrap-hard {
