@@ -98,11 +98,7 @@
             <div class="course-list-view-column-01" data-ng-if="!$first">
               <img class="student-avatar student-avatar-large"
                    data-ng-src="/api/user/{{student.uid}}/photo"
-                   data-avatar-fallback
-                   data-ng-if="!student.isClassAverage">
-              <img class="student-avatar student-avatar-large"
-                   src="/static/app/course/class-group-icon.svg"
-                   data-ng-if="student.isClassAverage">
+                   data-avatar-fallback>
             </div>
 
             <!-- Column -->
@@ -116,8 +112,7 @@
                 </a>
               </div>
               <div class="student-sid"
-                   data-ng-class="{'demo-mode-blur': demoMode}"
-                   data-ng-if="!student.isClassAverage">
+                   data-ng-class="{'demo-mode-blur': demoMode}">
                 {{student.sid}}
                 <span class="red-flag-status" data-ng-if="student.enrollment.enrollmentStatus === 'W'">WAITLISTED</span>
                 <span class="red-flag-status" data-ng-if="isCurrentUserAscAdvisor && !student.isActiveAsc">INACTIVE</span>

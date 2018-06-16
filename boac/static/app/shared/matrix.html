@@ -24,11 +24,7 @@
         <div class="student-avatar-container">
           <img class="student-avatar"
                data-ng-src="/api/user/{{student.uid}}/photo"
-               data-avatar-fallback
-               data-ng-if="!student.isClassAverage">
-          <img class="student-avatar"
-               src="/static/app/course/class-group-icon.svg"
-               data-ng-if="student.isClassAverage">
+               data-avatar-fallback>
         </div>
         <div class="cohort-student-bio-container">
           <div class="flex-container">
