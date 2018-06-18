@@ -139,9 +139,9 @@ class TestSearch:
     def test_alerts_in_search_results(self, client, create_alerts, fake_auth):
         """Search results include alert counts."""
         fake_auth.login('2040')
-        response = client.post('/api/students/search', data=json.dumps({'searchPhrase': '89012'}), content_type='application/json')
+        response = client.post('/api/students/search', data=json.dumps({'searchPhrase': 'davies'}), content_type='application/json')
         assert response.status_code == 200
-        assert len(response.json['students']) == response.json['totalStudentCount'] == 2
+        assert response.json['students'][0]['alertCount'] == 2
 
     def test_search_by_name_snippet(self, client, fake_auth):
         """Search by snippet of name."""

@@ -23,9 +23,18 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.models.alert import Alert
-
 """Utility module containing standard API-feed translations of data objects."""
+
+
+def add_alert_counts(alert_counts, students):
+    students_by_sid = {student['sid']: student for student in students}
+    for alert_count in alert_counts:
+        student = students_by_sid.get(alert_count['sid'], None)
+        if student:
+            student.update({
+                'alertCount': alert_count['alertCount'],
+            })
+    return students
 
 
 def canvas_course_api_feed(course):
@@ -69,6 +78,19 @@ def sis_enrollment_section_feed(enrollment):
     }
 
 
+def sort_students_by_name(students):
+    students = sorted(students, key=lambda s: (s['firstName'], s['lastName']))
+    return students
+
+
+def strip_analytics(student_term_data):
+    del student_term_data['analytics']
+    # The enrolled units count is the one piece of term data we want to preserve.
+    if student_term_data.get('term'):
+        student_term_data['term'] = {'enrolledUnits': student_term_data['term'].get('enrolledUnits')}
+    return student_term_data
+
+
 def student_to_json(student):
     return {
         'sid': student.sid,
@@ -93,23 +115,3 @@ def translate_grading_basis(code):
         'SUS': 'S/U',
     }
     return bases.get(code) or code
-
-
-def decorate_student_groups(current_user_id, groups, remove_students_without_alerts=False):
-    for group in groups:
-        students = decorate_students(current_user_id, group['students'], remove_students_without_alerts)
-        group['students'] = sorted(students, key=lambda s: (s['firstName'], s['lastName']))
-    return groups
-
-
-def decorate_students(current_user_id, students, remove_students_without_alerts=False):
-    students_by_sid = {student['sid']: student for student in students}
-    alert_counts = Alert.current_alert_counts_for_sids(current_user_id, list(students_by_sid.keys()))
-    for result in alert_counts:
-        student = students_by_sid[result['sid']]
-        student.update({
-            'alertCount': result['alertCount'],
-        })
-    if remove_students_without_alerts:
-        students = [s for s in students if s.get('alertCount')]
-    return students

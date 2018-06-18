@@ -81,6 +81,17 @@ class TestUserProfile:
         assert user['departments']['UWASC']['isAdvisor'] is True
         assert user['departments']['UWASC']['isDirector'] is False
 
+    def test_includes_groups_and_alerts(self, client, fake_auth, create_alerts):
+        test_uid = '6446'
+        fake_auth.login(test_uid)
+        response = client.get('/api/profile')
+        groups = response.json['myGroups']
+        assert len(groups) == 2
+        assert groups[0]['name'] == 'Cool Kids'
+        student = groups[0]['students'][0]
+        assert student['uid'] == '61889'
+        assert student['alertCount'] == 2
+
 
 class TestUserPhoto:
     """User Photo API."""
