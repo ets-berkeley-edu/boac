@@ -29,11 +29,8 @@
 
   angular.module('boac').factory('courseFactory', function(utilService, $http) {
 
-    var getSection = function(termId, sectionId, includeAverage) {
+    var getSection = function(termId, sectionId) {
       var url = '/api/section/' + termId + '/' + sectionId;
-      if (includeAverage) {
-        url += '?includeAverage=true';
-      }
       return $http.get(url);
     };
 

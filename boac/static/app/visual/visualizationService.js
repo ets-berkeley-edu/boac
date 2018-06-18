@@ -260,7 +260,7 @@
           .attr('width', '100%')
           .attr('height', '100%')
           .attr('patternContentUnits', 'objectBoundingBox');
-        var photoUri = d.isClassAverage ? '/static/app/course/class-group-icon.svg' : '/api/user/' + d.uid + '/photo';
+        var photoUri = '/api/user/' + d.uid + '/photo';
         var avatarImage = pattern.append('svg:image')
           .attr('xlink:href', photoUri)
           .attr('width', 1)

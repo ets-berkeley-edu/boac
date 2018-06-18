@@ -26,12 +26,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api.errors import ResourceNotFoundError
 from boac.externals import data_loch
-from boac.lib import analytics
-from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged import student_details
 from boac.models.normalized_cache_enrollment import NormalizedCacheEnrollment
-from flask import current_app as app, request
+from flask import current_app as app
 from flask_login import login_required
 
 
@@ -57,34 +55,6 @@ def get_section(term_id, section_id):
                     'grade': enrollment.get('grade', None),
                     'gradingBasis': enrollment.get('gradingBasis', None),
                 }
-    if students and util.to_bool_or_none(request.args.get('includeAverage')):
-        section['averageStudent'] = {
-            'canvasCourseId': 0,
-            'cumulativeGPA': _get_student_average('cumulativeGPA', students),
-            'cumulativeUnits': _get_student_average('cumulativeUnits', students),
-            'enrollment': {
-                'canvasSites': [],
-                'grade': None,
-                'gradingBasis': None,
-            },
-            'isClassAverage': True,
-            'lastName': 'Class Average',
-            'sid': 0,
-            'uid': 0,
-        }
-        canvas_sites = _filter_canvas_sites_per_section_id(students, term_id, section_id)
-        for canvas_site in canvas_sites:
-            _analytics = analytics.get_student_averages(
-                term_id=term_id,
-                canvas_course_id=canvas_site['canvasCourseId'],
-            )
-            section['averageStudent']['enrollment']['canvasSites'].append({
-                'analytics': _analytics,
-                'canvasCourseId': canvas_site['canvasCourseId'],
-                'courseCode': canvas_site['courseCode'],
-                'courseName': canvas_site['courseName'],
-                'courseTerm': canvas_site['courseTerm'],
-            })
     return tolerant_jsonify(section)
 
 

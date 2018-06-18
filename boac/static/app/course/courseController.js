@@ -73,19 +73,9 @@
 
     var init = function() {
       var args = _.clone($location.search());
-      // For now, exclude 'Average Student'
-      courseFactory.getSection($stateParams.termId, $stateParams.sectionId, false).then(function(response) {
+      courseFactory.getSection($stateParams.termId, $stateParams.sectionId).then(function(response) {
         $rootScope.pageTitle = response.data.displayName;
         $scope.section = response.data;
-        // averageStudent has averages of ALL students, not just athletes
-        var averageStudent = $scope.section.averageStudent;
-        if (averageStudent) {
-          if (averageStudent.warning) {
-            $scope.warning = averageStudent.warning;
-          } else {
-            $scope.section.students.unshift(averageStudent);
-          }
-        }
         page.loading(false);
         googleAnalyticsService.track(
           'course',
