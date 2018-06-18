@@ -28,6 +28,7 @@ from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotF
 import boac.api.util as api_util
 from boac.lib.http import tolerant_jsonify
 from boac.merged import student_details
+from boac.models.alert import Alert
 from boac.models.student_group import StudentGroup
 from flask import current_app as app, request
 from flask_login import current_user, login_required
@@ -76,8 +77,12 @@ def get_group(group_id):
         raise ResourceNotFoundError(f'Sorry, no cohort found with id {group_id}.')
     if group.owner_id != current_user.id:
         raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {group.id}')
-    decorated = _decorate_groups([group.to_api_json()], include_analytics=True)
-    return tolerant_jsonify(decorated[0])
+    alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
+    group = group.to_api_json()
+    api_util.add_alert_counts(alert_counts, group['students'])
+    student_details.merge_all(group['students'])
+    api_util.sort_students_by_name(group['students'])
+    return tolerant_jsonify(group)
 
 
 @app.route('/api/group/<group_id>/remove_student/<sid>', methods=['DELETE'])
@@ -95,14 +100,21 @@ def remove_student_from_group(group_id, sid):
 @app.route('/api/groups/my')
 @login_required
 def my_groups():
+    alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
     groups = StudentGroup.get_groups_by_owner_id(current_user.id)
     groups = sorted(groups, key=lambda group: group.name)
-    decorated = _decorate_groups(
-        [g.to_api_json() for g in groups],
-        include_analytics=False,
-        remove_students_without_alerts=True,
-    )
-    return tolerant_jsonify(decorated)
+    groups = [g.to_api_json() for g in groups]
+    for group in groups:
+        students = group['students']
+        api_util.add_alert_counts(alert_counts, students)
+        # Only get detailed data for students with alerts.
+        students = [s for s in students if s.get('alertCount')]
+        students = student_details.merge_all(students)
+        for data in students:
+            api_util.strip_analytics(data)
+        api_util.sort_students_by_name(students)
+        group['students'] = students
+    return tolerant_jsonify(groups)
 
 
 @app.route('/api/group/students/add', methods=['POST'])
@@ -133,13 +145,3 @@ def update_group():
     if not group or group.owner_id != current_user.id:
         raise BadRequestError('Cohort does not exist or is not available to you')
     return tolerant_jsonify(StudentGroup.update(group_id=group.id, name=name).to_api_json())
-
-
-def _decorate_groups(groups, include_analytics, remove_students_without_alerts=False):
-    for group in groups:
-        student_details.merge_all(group['students'], include_analytics=include_analytics)
-    return api_util.decorate_student_groups(
-        current_user_id=current_user.id,
-        groups=groups,
-        remove_students_without_alerts=remove_students_without_alerts,
-    )

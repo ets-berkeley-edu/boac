@@ -25,11 +25,12 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError
-from boac.api.util import decorate_students
+from boac.api.util import add_alert_counts
 from boac.lib import util
 from boac.lib.berkeley import is_department_member
 from boac.lib.http import tolerant_jsonify
 from boac.merged import student_details
+from boac.models.alert import Alert
 from boac.models.student import Student
 from flask import current_app as app, request
 from flask_login import current_user, login_required
@@ -70,7 +71,9 @@ def get_students():
         offset=offset,
         limit=limit,
     )
-    students = decorate_students(current_user_id=current_user.id, students=results['students'])
+    alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
+    students = results['students']
+    add_alert_counts(alert_counts, students)
     student_details.merge_all(students)
     return tolerant_jsonify({
         'students': students,
@@ -99,7 +102,9 @@ def search_for_students():
         offset=offset,
         limit=limit,
     )
-    students = decorate_students(current_user_id=current_user.id, students=results['students'])
+    alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
+    students = results['students']
+    add_alert_counts(alert_counts, students)
     student_details.merge_all(students)
     return tolerant_jsonify({
         'students': students,

@@ -35,6 +35,7 @@ from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
 from boac.merged.sis_enrollments import merge_sis_enrollments
 from boac.merged.sis_profile import merge_sis_profile
+from boac.models.alert import Alert
 from boac.models.cohort_filter import CohortFilter
 from boac.models.normalized_cache_student_major import NormalizedCacheStudentMajor
 from boac.models.student import Student
@@ -50,8 +51,12 @@ def user_profile():
     if current_user.is_active:
         # All BOAC views require group and cohort lists
         authorized_user_id = current_user.id
+        alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
         groups = StudentGroup.get_groups_by_owner_id(authorized_user_id)
-        groups = [_decorate_student_group(group) for group in groups]
+        groups = [g.to_api_json() for g in groups]
+        for group in groups:
+            api_util.add_alert_counts(alert_counts, group['students'])
+            api_util.sort_students_by_name(group['students'])
         departments = {}
         for m in current_user.department_memberships:
             departments.update({
@@ -143,8 +148,3 @@ def user_photo(uid):
         return Response(photo, mimetype='image/jpeg')
     else:
         raise errors.ResourceNotFoundError('No photo was found for the requested id.')
-
-
-def _decorate_student_group(group):
-    decorated = api_util.decorate_student_groups(current_user_id=current_user.get_id(), groups=[group.to_api_json()])
-    return decorated[0] if len(decorated) else None
