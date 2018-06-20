@@ -42,7 +42,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 class CohortFilter(Base, UserMixin):
     __tablename__ = 'cohort_filters'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     label = db.Column(db.String(255), nullable=False)
     filter_criteria = db.Column(JSONB, nullable=False)
     owners = db.relationship('AuthorizedUser', secondary=cohort_filter_owners, back_populates='cohort_filters')
@@ -110,7 +110,7 @@ class CohortFilter(Base, UserMixin):
         return cohort
 
     @classmethod
-    def all(cls):
+    def all_cohorts(cls):
         return [construct_cohort(cf, include_students=False) for cf in CohortFilter.query.all()]
 
     @classmethod

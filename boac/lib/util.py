@@ -87,16 +87,16 @@ def to_bool_or_none(arg):
     return None if s is None else bool(s)
 
 
-def utc_timestamp_to_localtime(str):
-    utc_datetime = pytz.utc.localize(datetime.strptime(str, '%Y-%m-%dT%H:%M:%SZ'))
+def utc_timestamp_to_localtime(_str):
+    utc_datetime = pytz.utc.localize(datetime.strptime(_str, '%Y-%m-%dT%H:%M:%SZ'))
     return localize_datetime(utc_datetime)
 
 
-def vacuum_whitespace(str):
+def vacuum_whitespace(_str):
     """Collapse multiple-whitespace sequences into a single space; remove leading and trailing whitespace."""
-    if not str:
+    if not _str:
         return None
-    return ' '.join(str.split())
+    return ' '.join(_str.split())
 
 
 def app_in_demo_mode():

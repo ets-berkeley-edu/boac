@@ -42,7 +42,7 @@ def all_cohorts():
     if not current_user.is_admin and not is_department_member(current_user, 'UWASC'):
         raise ForbiddenRequestError('You are unauthorized to browse data that is managed by other departments')
     cohorts = {}
-    for cohort in CohortFilter.all():
+    for cohort in CohortFilter.all_cohorts():
         for uid in cohort['owners']:
             if uid not in cohorts:
                 cohorts[uid] = []

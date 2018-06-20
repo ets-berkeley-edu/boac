@@ -31,7 +31,7 @@ from boac.models.base import Base
 class UniversityDept(Base):
     __tablename__ = 'university_depts'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     dept_code = db.Column(db.String(80), nullable=False)
     dept_name = db.Column(db.String(255), nullable=False)
     authorized_users = db.relationship(

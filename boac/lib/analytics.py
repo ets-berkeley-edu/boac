@@ -32,7 +32,7 @@ from flask import current_app as app
 import pandas
 
 
-def merge_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id):
+def merge_analytics_for_user(user_courses, canvas_user_id, term_id):
     if user_courses:
         for course in user_courses:
             canvas_course_id = course['canvasCourseId']
@@ -42,8 +42,8 @@ def merge_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id):
             course['analytics'].update(loch_student_analytics(canvas_user_id, canvas_course_id, term_id))
 
 
-def mean_course_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id):
-    merge_analytics_for_user(user_courses, uid, sid, canvas_user_id, term_id)
+def mean_course_analytics_for_user(user_courses, canvas_user_id, term_id):
+    merge_analytics_for_user(user_courses, canvas_user_id, term_id)
     mean_values = {}
     for metric in ['assignmentsSubmitted', 'currentScore', 'lastActivity']:
         percentiles = []
