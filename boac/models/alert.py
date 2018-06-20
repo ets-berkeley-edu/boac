@@ -38,7 +38,7 @@ from sqlalchemy import text
 class Alert(Base):
     __tablename__ = 'alerts'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     sid = db.Column(db.String(80), db.ForeignKey('students.sid'), nullable=False)
     alert_type = db.Column(db.String(80), nullable=False)
     key = db.Column(db.String(255), nullable=False)

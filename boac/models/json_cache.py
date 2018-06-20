@@ -44,7 +44,7 @@ cache_thread = threading.local()
 # When staging, all keys point to the staging table except JobStatus and ASC synch records, which always use
 # the normal json_cache table.
 class JsonCacheBase(object):
-    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     key = db.Column(db.String, nullable=False, unique=True)
     json = db.Column(JSONB)
 

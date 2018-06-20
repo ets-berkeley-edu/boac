@@ -83,5 +83,5 @@ def _merged_data(uid, csid, term_id):
                 canvas_courses += enrollment['canvasSites']
             canvas_courses += data['term'].get('unmatchedCanvasSites', [])
         # Decorate the Canvas courses list with per-course statistics, and return summary statistics.
-        data['analytics'] = mean_course_analytics_for_user(canvas_courses, uid, csid, canvas_user_id, term_id)
+        data['analytics'] = mean_course_analytics_for_user(canvas_courses, canvas_user_id, term_id)
     return data

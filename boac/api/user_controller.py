@@ -114,8 +114,8 @@ def user_analytics(uid):
         if term_id == current_term_id:
             has_enrollments_in_current_term = True
         for enrollment in term['enrollments']:
-            merge_analytics_for_user(enrollment['canvasSites'], uid, student.sid, canvas_id, term_id)
-        merge_analytics_for_user(term['unmatchedCanvasSites'], uid, student.sid, canvas_id, term_id)
+            merge_analytics_for_user(enrollment['canvasSites'], canvas_id, term_id)
+        merge_analytics_for_user(term['unmatchedCanvasSites'], canvas_id, term_id)
 
     return tolerant_jsonify({
         'sid': student.sid if student else None,

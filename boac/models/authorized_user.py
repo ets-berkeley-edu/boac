@@ -34,7 +34,7 @@ from flask_login import UserMixin
 class AuthorizedUser(Base, UserMixin):
     __tablename__ = 'authorized_users'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     uid = db.Column(db.String(255), nullable=False, unique=True)
     is_admin = db.Column(db.Boolean)
     department_memberships = db.relationship(
