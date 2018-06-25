@@ -66,7 +66,7 @@ def _get_current_feed(mock=None):
         auth_params = {
             'ETSkey': app.config['ASC_ATHLETES_API_KEY'],
         }
-        return http.request(url, headers, auth_params=auth_params)
+        return http.request(url, headers, auth_params=auth_params, verify=False)
 
 
 def get_last_sync_date():
