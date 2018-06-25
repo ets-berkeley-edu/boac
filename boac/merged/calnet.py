@@ -50,7 +50,9 @@ def update_student_attributes(students=None):
     # Search LDAP.
     all_attributes = calnet.client(app).search_csids(sids)
     if len(sids) != len(all_attributes):
-        app.logger.warning(f'Looked for {len(sids)} SIDs but only found {len(all_attributes)}')
+        ldap_sids = [l['csid'] for l in all_attributes]
+        missing = set(sids) - set(ldap_sids)
+        app.logger.warning(f'Looked for {len(sids)} SIDs but only found {len(all_attributes)} : missing {missing}')
 
     # Update db
     for a in all_attributes:
