@@ -46,7 +46,7 @@ def merge_sis_enrollments_for_term(canvas_course_sites, uid, cs_id, term_name):
     if term_name == app.config['CANVAS_CURRENT_ENROLLMENT_TERM']:
         drops_and_midterms = sis_enrollments_api.get_drops_and_midterms(cs_id, term_id)
     else:
-        drops_and_midterms = None
+        drops_and_midterms = {}
     term_feed = merge_enrollment(cs_id, enrollments, term_id, term_name, drops_and_midterms)
 
     for site in canvas_course_sites:
@@ -62,7 +62,7 @@ def merge_drops_and_midterms(term_feed, drops_and_midterms):
     section_midterms = drops_and_midterms.get('midtermGrades', {})
     for enrollment in term_feed['enrollments']:
         for section in enrollment['sections']:
-            section_id = section['ccn']
+            section_id = str(section['ccn'])
             if section_id in section_midterms:
                 midterm_grade = section_midterms[section_id]
                 section['midtermGrade'] = midterm_grade
@@ -123,7 +123,7 @@ def merge_enrollment(cs_id, enrollments, term_id, term_name, drops_and_midterms)
         'enrolledUnits': enrolled_units,
         'unmatchedCanvasSites': [],
     }
-    if drops_and_midterms is not None:
+    if drops_and_midterms.get('midtermGrades') or drops_and_midterms.get('droppedPrimarySections'):
         merge_drops_and_midterms(term_feed, drops_and_midterms)
     return term_feed
 

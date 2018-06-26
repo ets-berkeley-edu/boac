@@ -52,7 +52,12 @@ def get_drops_and_midterms(cs_id, term_id):
         grades = enrollment.get('grades', [])
         midterm = next((grade.get('mark') for grade in grades if grade.get('type', {}).get('code') == 'MID'), None)
         if midterm:
-            midterm_grades[enrollment['classSection']['id']] = midterm
+            # SIS Section ID (aka CCN) is an integer, and an integer can be a Python dictionary key.
+            # However, when that dictionary is serialized to JSON, the key will be converted to string,
+            # resulting in a hard to diagnose discrepancy between the original object and its serialization.
+            # Let's avoid that, shall we?
+            ccn = str(enrollment['classSection']['id'])
+            midterm_grades[ccn] = midterm
     return {
         'droppedPrimarySections': dropped_classes,
         'midtermGrades': midterm_grades,
