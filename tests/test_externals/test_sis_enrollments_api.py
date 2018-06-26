@@ -40,7 +40,7 @@ class TestSisEnrollmentsApi:
         assert drops[0]['sectionNumber'] == '001'
         midterms = oski_response['midtermGrades']
         assert len(midterms) == 1
-        assert midterms[80100] == 'F'
+        assert midterms['80100'] == 'F'
 
     def test_get_enrollments(self, app):
         """Returns unwrapped data."""
