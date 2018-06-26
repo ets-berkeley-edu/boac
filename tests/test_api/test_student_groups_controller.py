@@ -128,11 +128,12 @@ class TestStudentGroupsController:
         group_id = group['id']
         group = client.get(f'/api/group/{group_id}').json
         students = group['students']
-        assert len(students[0]['athletics']) == 2
-        assert students[0]['athletics'][0]['name'] == 'Women\'s Field Hockey'
-        assert students[0]['athletics'][0]['groupCode'] == 'WFH'
-        assert students[0]['athletics'][1]['name'] == 'Women\'s Tennis'
-        assert students[0]['athletics'][1]['groupCode'] == 'WTE'
+        teams = students[0]['athleticsProfile']['athletics']
+        assert len(teams) == 2
+        assert teams[0]['name'] == 'Women\'s Field Hockey'
+        assert teams[0]['groupCode'] == 'WFH'
+        assert teams[1]['name'] == 'Women\'s Tennis'
+        assert teams[1]['groupCode'] == 'WTE'
 
     def test_add_multiple_students_to_group(self, authenticated_session, client):
         """Create curated cohort and add students."""

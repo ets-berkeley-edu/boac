@@ -50,7 +50,6 @@
     page.loading(true);
 
     $scope.student = {
-      canvasProfile: null,
       enrollmentTerms: null
     };
     $scope.currentEnrollmentTermId = config.currentEnrollmentTermId;
@@ -78,7 +77,7 @@
     };
 
     var getPreferredName = function() {
-      return _.get($scope.student, 'sisProfile.preferredName') || _.get($scope.student, 'canvasProfile.name');
+      return _.get($scope.student, 'sisProfile.preferredName') || _.get($scope.student, 'canvasUserName');
     };
 
     var identifyGroupsThatIncludeStudent = function() {
@@ -98,7 +97,8 @@
       var preferredName = null;
       studentFactory.analyticsPerUser(uid).then(function(analytics) {
         var student = analytics.data;
-        if (!student.sid) {
+        var sid = student.sid;
+        if (!sid) {
           return $q.reject({
             status: 404,
             message: 'No student found with UID ' + uid
@@ -132,16 +132,13 @@
       }).then(function() {
         var athleticsProfile = $scope.student.athleticsProfile;
         if (athleticsProfile) {
-          athleticsProfile.fullName = athleticsProfile.firstName + ' ' + athleticsProfile.lastName;
-          if (athleticsProfile.sid) {
-            studentFactory.getAlerts(athleticsProfile.sid).then(function(alerts) {
-              $scope.alerts = alerts.data;
-            });
-            visualizationService.showUnitsChart($scope.student);
-          }
+          studentFactory.getAlerts($scope.student.sid).then(function(alerts) {
+            $scope.alerts = alerts.data;
+          });
+          visualizationService.showUnitsChart($scope.student);
         }
         if (!config.demoMode) {
-          $rootScope.pageTitle = _.get(athleticsProfile, 'fullName') || preferredName;
+          $rootScope.pageTitle = _.get($scope.student.name) || preferredName;
         }
 
       }).then(function() {

@@ -33,7 +33,7 @@ from boac.lib import berkeley
 from boac.merged import import_asc_athletes
 from boac.merged.calnet import merge_student_calnet_data
 from boac.merged.sis_enrollments import merge_sis_enrollments_for_term
-from boac.merged.sis_profile import merge_sis_profile
+from boac.merged.sis_profile import get_merged_sis_profile
 from boac.models import json_cache
 from boac.models.alert import Alert
 from boac.models.job_progress import JobProgress
@@ -357,11 +357,11 @@ def load_merged_sis_profiles(ids=None):
     failures = []
 
     for csid, uid in ids:
-        sis_profile = merge_sis_profile(csid)
+        sis_profile = get_merged_sis_profile(csid)
         if sis_profile:
             success_count += 1
         else:
-            failures.append(f'merge_sis_profile failed for SID {csid}')
+            failures.append(f'get_merged_sis_profile failed for SID {csid}')
     return success_count, failures
 
 
@@ -373,7 +373,7 @@ def load_normalized_cache(term_id, ids=None):
         NormalizedCacheEnrollment.update_enrollments(term_id, uid, csid)
         # If loading the current term, also update the normalized profiles table to support team and cohort searches.
         if term_id == berkeley.current_term_id():
-            sis_profile = merge_sis_profile(csid)
+            sis_profile = get_merged_sis_profile(csid)
             if not sis_profile:
                 continue
             gpa = sis_profile.get('cumulativeGPA')

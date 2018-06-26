@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-from boac.merged.sis_profile import merge_sis_profile
+from boac.merged.sis_profile import get_merged_sis_profile
 import pytest
 
 
@@ -34,5 +34,5 @@ class TestSisProfile:
 
     def test_skips_concurrent_academic_status(self, app):
         """Skips concurrent academic status."""
-        profile = merge_sis_profile('11667051')
+        profile = get_merged_sis_profile('11667051')
         assert profile['academicCareer'] == 'UGRD'

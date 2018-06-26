@@ -26,15 +26,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api import errors
 import boac.api.util as api_util
-from boac.externals import data_loch
 from boac.externals.cal1card_photo_api import get_cal1card_photo
 from boac.lib import util
-from boac.lib.analytics import merge_analytics_for_user
-from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.http import tolerant_jsonify
-from boac.merged import calnet
-from boac.merged.sis_enrollments import merge_sis_enrollments
-from boac.merged.sis_profile import merge_sis_profile
+from boac.merged import calnet, student_details
 from boac.models.alert import Alert
 from boac.models.cohort_filter import CohortFilter
 from boac.models.normalized_cache_student_major import NormalizedCacheStudentMajor
@@ -84,49 +79,14 @@ def user_profile():
 @app.route('/api/user/<uid>/analytics')
 @login_required
 def user_analytics(uid):
-    canvas_profile = data_loch.get_user_for_uid(uid)
-    if canvas_profile is False:
-        raise errors.ResourceNotFoundError('No Canvas profile found for user')
-    canvas_id = canvas_profile['canvas_id']
-
     student = Student.query.filter_by(uid=uid).first()
-    if student:
-        sis_profile = merge_sis_profile(student.sid)
-        athletics_profile = student.to_expanded_api_json()
-    else:
-        sis_profile = False
-        athletics_profile = False
-
-    user_courses = data_loch.get_student_canvas_courses(uid) or []
-    if student and sis_profile:
-        # CalCentral's Student Overview page is advisors' official information source for the student.
-        student_profile_link = f'https://calcentral.berkeley.edu/user/overview/{uid}'
-        canvas_courses_feed = api_util.canvas_courses_api_feed(user_courses)
-        enrollment_terms = merge_sis_enrollments(canvas_courses_feed, uid, student.sid, sis_profile.get('matriculation'))
-    else:
-        student_profile_link = None
-        enrollment_terms = []
-
-    current_term_id = sis_term_id_for_name(app.config['CANVAS_CURRENT_ENROLLMENT_TERM'])
-    has_enrollments_in_current_term = False
-    for term in enrollment_terms:
-        term_id = sis_term_id_for_name(term['termName'])
-        if term_id == current_term_id:
-            has_enrollments_in_current_term = True
-        for enrollment in term['enrollments']:
-            merge_analytics_for_user(enrollment['canvasSites'], canvas_id, term_id)
-        merge_analytics_for_user(term['unmatchedCanvasSites'], canvas_id, term_id)
-
-    return tolerant_jsonify({
-        'sid': student.sid if student else None,
-        'uid': uid,
-        'athleticsProfile': athletics_profile,
-        'canvasProfile': canvas_profile,
-        'sisProfile': sis_profile,
-        'studentProfileLink': student_profile_link,
-        'enrollmentTerms': enrollment_terms,
-        'hasCurrentTermEnrollments': has_enrollments_in_current_term,
-    })
+    if not student:
+        raise errors.ResourceNotFoundError('Unknown student')
+    sid = student.sid
+    feed = student_details.get_student_and_terms(sid)
+    # CalCentral's Student Overview page is advisors' official information source for the student.
+    feed['studentProfileLink'] = f'https://calcentral.berkeley.edu/user/overview/{uid}'
+    return tolerant_jsonify(feed)
 
 
 @app.route('/api/majors/relevant')

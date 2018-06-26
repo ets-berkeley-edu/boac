@@ -93,7 +93,6 @@
       var student = data.student;
 
       if (!studentGroupService.isStudentInGroup(student, group)) {
-        student.name = student.name || student.athleticsProfile.fullName;
         group.students = _.union(group.students, [ student ]);
         group.studentCount += 1;
       }

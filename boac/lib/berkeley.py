@@ -177,6 +177,20 @@ def all_term_ids():
     return ids
 
 
+def reverse_terms_until(stop_term):
+    term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
+    while True:
+        yield term_name
+        if (term_name == stop_term) or (term_name == app.config['CANVAS_EARLIEST_TERM']):
+            break
+        if term_name.startswith('Fall'):
+            term_name = term_name.replace('Fall', 'Summer')
+        elif term_name.startswith('Summer'):
+            term_name = term_name.replace('Summer', 'Spring')
+        elif term_name.startswith('Spring'):
+            term_name = 'Fall ' + str(int(term_name[-4:]) - 1)
+
+
 def sis_term_id_for_name(term_name=None):
     if term_name:
         match = re.match(r'\A(Spring|Summer|Fall) 20(\d{2})\Z', term_name)

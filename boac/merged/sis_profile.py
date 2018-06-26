@@ -34,7 +34,7 @@ from flask import current_app as app
 
 
 @stow('merged_sis_profile_{csid}')
-def merge_sis_profile(csid):
+def get_merged_sis_profile(csid):
     sis_response = sis_student_api.get_student(csid)
     if not sis_response:
         return False
