@@ -40,7 +40,7 @@ def get_team(code):
     team = Athletics.get_team(code, order_by)
     if team is None:
         raise ResourceNotFoundError('No team found with code ' + code)
-    student_details.merge_all(team['students'])
+    student_details.merge_external_students_data(team['students'])
     return tolerant_jsonify(team)
 
 

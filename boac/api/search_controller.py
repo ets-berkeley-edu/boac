@@ -74,7 +74,7 @@ def get_students():
     alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
     students = results['students']
     add_alert_counts(alert_counts, students)
-    student_details.merge_all(students)
+    student_details.merge_external_students_data(students)
     return tolerant_jsonify({
         'students': students,
         'totalStudentCount': results['totalStudentCount'],
@@ -105,7 +105,7 @@ def search_for_students():
     alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
     students = results['students']
     add_alert_counts(alert_counts, students)
-    student_details.merge_all(students)
+    student_details.merge_external_students_data(students)
     return tolerant_jsonify({
         'students': students,
         'totalStudentCount': results['totalStudentCount'],

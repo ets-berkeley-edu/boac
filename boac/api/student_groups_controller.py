@@ -80,7 +80,7 @@ def get_group(group_id):
     alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
     group = group.to_api_json()
     api_util.add_alert_counts(alert_counts, group['students'])
-    student_details.merge_all(group['students'])
+    student_details.merge_external_students_data(group['students'])
     api_util.sort_students_by_name(group['students'])
     return tolerant_jsonify(group)
 
@@ -109,7 +109,7 @@ def my_groups():
         api_util.add_alert_counts(alert_counts, students)
         # Only get detailed data for students with alerts.
         students = [s for s in students if s.get('alertCount')]
-        students = student_details.merge_all(students)
+        student_details.merge_external_students_data(students)
         for data in students:
             api_util.strip_analytics(data)
         api_util.sort_students_by_name(students)

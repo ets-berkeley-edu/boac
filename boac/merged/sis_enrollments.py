@@ -26,27 +26,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import boac.api.util as api_util
 from boac.externals import data_loch, sis_enrollments_api
-from boac.lib.berkeley import sis_term_id_for_name
+from boac.lib.berkeley import reverse_terms_until, sis_term_id_for_name
 from boac.models.json_cache import stow
 from flask import current_app as app
 
 
 def merge_sis_enrollments(canvas_course_sites, uid, cs_id, matriculation):
     courses_by_term = []
-
-    def reverse_terms_until(stop_term):
-        term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
-        while True:
-            yield term_name
-            if (term_name == stop_term) or (term_name == app.config['CANVAS_EARLIEST_TERM']):
-                break
-            if term_name.startswith('Fall'):
-                term_name = term_name.replace('Fall', 'Summer')
-            elif term_name.startswith('Summer'):
-                term_name = term_name.replace('Summer', 'Spring')
-            elif term_name.startswith('Spring'):
-                term_name = 'Fall ' + str(int(term_name[-4:]) - 1)
-
     for term_name in reverse_terms_until(matriculation):
         merged_enrollments = merge_sis_enrollments_for_term(canvas_course_sites, uid, cs_id, term_name)
         if merged_enrollments and (len(merged_enrollments['enrollments']) or len(merged_enrollments['unmatchedCanvasSites'])):

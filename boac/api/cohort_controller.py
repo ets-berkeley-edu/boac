@@ -63,7 +63,7 @@ def all_cohorts():
 def my_cohorts():
     cohorts = CohortFilter.all_owned_by(current_user.get_id(), include_alerts=True)
     for cohort in cohorts:
-        student_details.merge_all(cohort['alerts'])
+        student_details.merge_external_students_data(cohort['alerts'])
         for data in cohort['alerts']:
             strip_analytics(data)
     return tolerant_jsonify(cohorts)
@@ -78,7 +78,7 @@ def get_cohort(cohort_id):
     cohort = CohortFilter.find_by_id(int(cohort_id), order_by, int(offset), int(limit))
     if not cohort:
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
-    student_details.merge_all(cohort['students'])
+    student_details.merge_external_students_data(cohort['students'])
     return tolerant_jsonify(cohort)
 
 

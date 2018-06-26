@@ -40,7 +40,7 @@ def get_section(term_id, section_id):
     if not section:
         raise ResourceNotFoundError(f'No section {section_id} in term {term_id}')
     students = section.get('students', [])
-    student_details.merge_all(students, section['termId'])
+    student_details.merge_external_students_data(students, section['termId'])
     for student in students:
         # Cherry-pick enrollment of section requested
         student_term = student.get('term')

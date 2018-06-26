@@ -171,7 +171,7 @@ class TestUserAnalytics:
         """Returns a well-formed response if authenticated."""
         assert authenticated_response.status_code == 200
         assert authenticated_response.json['uid'] == '61889'
-        assert authenticated_response.json['canvasProfile']['canvas_id'] == 9000100
+        assert authenticated_response.json['canvasUserId'] == 9000100
         assert authenticated_response.json['hasCurrentTermEnrollments'] is True
         assert len(authenticated_response.json['enrollmentTerms']) > 0
         for term in authenticated_response.json['enrollmentTerms']:
@@ -272,20 +272,11 @@ class TestUserAnalytics:
         assert analytics['lastActivity']['student']['percentile'] == 93
         assert analytics['lastActivity']['displayPercentile'] == '90th'
 
-    def test_empty_canvas_course_feed(self, client, fake_auth):
-        """Returns 200 if user is found and Canvas course feed is empty."""
-        fake_auth.login(TestUserAnalytics.non_student_uid)
-        response = client.get(TestUserAnalytics.non_student)
-        assert response.status_code == 200
-        assert response.json['uid'] == TestUserAnalytics.non_student_uid
-        assert not response.json['sid']
-        assert not response.json['enrollmentTerms']
-
-    def test_canvas_profile_not_found(self, authenticated_session, client):
-        """Returns 404 if Canvas profile not found."""
+    def test_student_not_found(self, authenticated_session, client):
+        """Returns 404 if no viewable student."""
         response = client.get(TestUserAnalytics.unknown)
         assert response.status_code == 404
-        assert response.json['message'] == 'No Canvas profile found for user'
+        assert response.json['message'] == 'Unknown student'
 
     def test_relevant_majors(self, authenticated_session, client):
         """Returns list of majors relevant to our student population."""
@@ -416,9 +407,6 @@ class TestUserAnalytics:
     def test_athletics_profile(self, authenticated_response):
         """Includes athletics profile."""
         athletics_profile = authenticated_response.json['athleticsProfile']
-        assert athletics_profile['name'] == 'Deborah Davies'
-        assert athletics_profile['uid'] == '61889'
-        assert athletics_profile['sid'] == '11667051'
         assert athletics_profile['inIntensiveCohort'] is True
         assert len(athletics_profile['athletics']) == 2
         hockey = next(a for a in athletics_profile['athletics'] if a['groupCode'] == 'WFH')
@@ -436,7 +424,7 @@ class TestUserAnalytics:
         with register_mock(sis_student_api._get_student, sis_response):
             response = client.get(TestUserAnalytics.deborah)
             assert response.status_code == 200
-            assert response.json['canvasProfile']
+            assert response.json['canvasUserId']
             assert not response.json['sisProfile']
 
     def test_sis_profile_error(self, authenticated_session, client):
@@ -445,5 +433,5 @@ class TestUserAnalytics:
         with register_mock(sis_student_api._get_student, sis_error):
             response = client.get(TestUserAnalytics.deborah)
             assert response.status_code == 200
-            assert response.json['canvasProfile']
+            assert response.json['canvasUserId']
             assert not response.json['sisProfile']

@@ -28,12 +28,12 @@
             <div class="student-bio-contact">
               <h1 class="student-section-header"
                   data-ng-class="{'demo-mode-blur': demoMode}">
-                {{student.athleticsProfile.fullName}}
+                {{student.name}}
               </h1>
               <div class="student-preferred-name"
                    data-ng-bind="student.sisProfile.preferredName"
                    data-ng-class="{'demo-mode-blur': demoMode}"
-                   data-ng-if="student.sisProfile.preferredName !== student.athleticsProfile.fullName"></div>
+                   data-ng-if="student.sisProfile.preferredName !== student.name"></div>
               <div>
                 <i class="fas fa-envelope"></i>
                 <a id="student-mailto"
