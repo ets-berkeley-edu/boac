@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api import errors
 import boac.api.util as api_util
+from boac.api.util import decorate_cohort
 from boac.externals.cal1card_photo_api import get_cal1card_photo
 from boac.lib import util
 from boac.lib.http import tolerant_jsonify
@@ -60,8 +61,9 @@ def user_profile():
                     'isDirector': m.is_director,
                 },
             })
+        my_cohorts = CohortFilter.all_owned_by(uid)
         profile.update({
-            'myCohorts': CohortFilter.all_owned_by(uid, include_alerts=True),
+            'myCohorts': [decorate_cohort(c, include_alerts_for_uid=uid, include_students=False) for c in my_cohorts],
             'myGroups': groups,
             'isAdmin': current_user.is_admin,
             'departments': departments,

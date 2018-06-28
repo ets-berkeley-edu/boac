@@ -131,22 +131,17 @@ class TestCohortDetail:
     def test_get_cohort(self, authenticated_session, client):
         """Returns a well-formed response with custom cohort."""
         expected_cohort = _find_my_cohort_by_name(test_uid, 'All sports')
-        cohort_id = expected_cohort['id']
-        response = client.get(f'/api/cohort/{cohort_id}')
+        response = client.get(f'/api/cohort/{expected_cohort.id}')
         assert response.status_code == 200
         cohort = json.loads(response.data)
-        assert cohort['id'] == expected_cohort['id']
-        assert cohort['label'] == expected_cohort['label']
-        assert cohort['teamGroups'] == expected_cohort['teamGroups']
-        assert cohort['totalStudentCount'] == expected_cohort['totalStudentCount']
-        assert cohort['totalStudentCount'] == len(cohort['students'])
+        assert cohort['id'] == expected_cohort.id
+        assert cohort['label'] == expected_cohort.label
 
     def test_undeclared_major(self, authenticated_session, client):
         """Returns a well-formed response with custom cohort."""
         name = 'Undeclared students'
         expected_cohort = _find_my_cohort_by_name(test_uid, name)
-        cohort_id = expected_cohort['id']
-        response = client.get(f'/api/cohort/{cohort_id}')
+        response = client.get(f'/api/cohort/{expected_cohort.id}')
         assert response.status_code == 200
         cohort = json.loads(response.data)
         assert cohort['label'] == name
@@ -158,8 +153,7 @@ class TestCohortDetail:
     def test_includes_cohort_member_sis_data(self, authenticated_session, client):
         """Includes SIS data for custom cohort students."""
         expected_cohort = _find_my_cohort_by_name(test_uid, 'All sports')
-        cohort_id = expected_cohort['id']
-        response = client.get(f'/api/cohort/{cohort_id}')
+        response = client.get(f'/api/cohort/{expected_cohort.id}')
         assert response.status_code == 200
         athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
         assert athlete['cumulativeGPA'] == 3.8
@@ -170,8 +164,7 @@ class TestCohortDetail:
     def test_includes_cohort_member_current_enrollments(self, authenticated_session, client):
         """Includes current-term active enrollments and analytics for custom cohort students."""
         expected_cohort = _find_my_cohort_by_name(test_uid, 'All sports')
-        cohort_id = expected_cohort['id']
-        response = client.get(f'/api/cohort/{cohort_id}?orderBy=firstName')
+        response = client.get(f'/api/cohort/{expected_cohort.id}?orderBy=firstName')
         assert response.status_code == 200
         athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
 
@@ -189,8 +182,7 @@ class TestCohortDetail:
     def test_includes_cohort_member_athletics(self, authenticated_session, client):
         """Includes team memberships for custom cohort members."""
         expected_cohort = _find_my_cohort_by_name(test_uid, 'All sports')
-        cohort_id = expected_cohort['id']
-        response = client.get(f'/api/cohort/{cohort_id}')
+        response = client.get(f'/api/cohort/{expected_cohort.id}')
         athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
         assert len(athlete['athletics']) == 2
         tennis = next(membership for membership in athlete['athletics'] if membership['groupCode'] == 'WTE')
@@ -211,8 +203,7 @@ class TestCohortDetail:
     def test_offset_and_limit(self, authenticated_session, client):
         """Returns a well-formed response with custom cohort."""
         expected_cohort = _find_my_cohort_by_name(test_uid, 'All sports')
-        cohort_id = expected_cohort['id']
-        api_path = f'/api/cohort/{cohort_id}'
+        api_path = f'/api/cohort/{expected_cohort.id}'
         # First, offset is zero
         response = client.get(f'{api_path}?offset={0}&limit={1}')
         data_0 = json.loads(response.data)
@@ -254,7 +245,10 @@ class TestCohortDetail:
         assert 'teamGroups' in cohort
         assert group_codes == [g['groupCode'] for g in cohort['teamGroups']]
 
-        same_cohort = CohortFilter.find_by_id(cohort['id'])
+        cohort_id = cohort['id']
+        response = client.get(f'/api/cohort/{cohort_id}')
+        same_cohort = json.loads(response.data)
+
         assert 'students' in cohort
         assert same_cohort['label'] == label
         assert 'teamGroups' in cohort and len(cohort['teamGroups']) == 2
@@ -354,12 +348,11 @@ class TestCohortDetail:
     def test_delete_cohort_wrong_user(self, client, fake_auth):
         """Custom cohort deletion is only available to owners."""
         cohort = CohortFilter.create(uid=test_uid, label='Badminton teams', group_codes=['WWP', 'MWP'])
-        assert cohort and 'id' in cohort
+        assert cohort
 
         # This user does not own the custom cohort above
         fake_auth.login('2040')
-        cohort_id = cohort['id']
-        response = client.delete(f'/api/cohort/delete/{cohort_id}')
+        response = client.delete(f'/api/cohort/delete/{cohort.id}')
         assert response.status_code == 400
         assert '2040 does not own' in str(response.data)
 
@@ -367,17 +360,13 @@ class TestCohortDetail:
         """Deletes existing custom cohort while enforcing rules of ownership."""
         label = 'Water polo teams'
         cohort = CohortFilter.create(uid=test_uid, label=label, group_codes=['WWP', 'MWP'])
-
-        assert cohort and 'id' in cohort
-        id_of_created_cohort = cohort['id']
-
         # Verify deletion
-        response = client.delete(f'/api/cohort/delete/{id_of_created_cohort}')
+        response = client.delete(f'/api/cohort/delete/{cohort.id}')
         assert response.status_code == 200
         cohorts = CohortFilter.all_owned_by(test_uid)
-        assert not next((c for c in cohorts if c['id'] == id_of_created_cohort), None)
+        assert not next((c for c in cohorts if c.id == cohort.id), None)
 
 
 def _find_my_cohort_by_name(uid, cohort_name):
     cohorts = CohortFilter.all_owned_by(uid)
-    return next(c for c in cohorts if c['label'] == cohort_name) if len(CohortFilter.all_owned_by(uid)) else None
+    return next(c for c in cohorts if c.label == cohort_name) if len(CohortFilter.all_owned_by(uid)) else None

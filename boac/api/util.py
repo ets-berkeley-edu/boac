@@ -23,6 +23,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import json
+from boac.lib import util
+from boac.models.alert import Alert
+from boac.models.athletics import Athletics
+from boac.models.authorized_user import AuthorizedUser
+from boac.models.student import Student
+
 """Utility module containing standard API-feed translations of data objects."""
 
 
@@ -92,19 +99,6 @@ def strip_analytics(student_term_data):
     return student_term_data
 
 
-def student_to_json(student):
-    return {
-        'sid': student.sid,
-        'uid': student.uid,
-        'firstName': student.first_name,
-        'lastName': student.last_name,
-        'name': student.first_name + ' ' + student.last_name,
-        'inIntensiveCohort': student.in_intensive_cohort,
-        'isActiveAsc': student.is_active_asc,
-        'statusAsc': student.status_asc,
-    }
-
-
 def translate_grading_basis(code):
     bases = {
         'CNC': 'C/NC',
@@ -116,3 +110,62 @@ def translate_grading_basis(code):
         'SUS': 'S/U',
     }
     return bases.get(code) or code
+
+
+def decorate_cohort(cohort, order_by=None, offset=0, limit=50, include_students=True, include_alerts_for_uid=None):
+    decorated = {
+        'id': cohort.id,
+        'code': cohort.id,
+        'label': cohort.label,
+        'name': cohort.label,
+        'owners': [user.uid for user in cohort.owners],
+    }
+    c = cohort if isinstance(cohort.filter_criteria, dict) else json.loads(cohort.filter_criteria)
+    gpa_ranges = util.get(c, 'gpaRanges', [])
+    # Property name 'team_group_codes' is deprecated; we prefer the camelCased 'groupCodes'.
+    group_codes = util.get(c, 'groupCodes', []) or util.get(c, 'team_group_codes', [])
+    levels = util.get(c, 'levels', [])
+    majors = util.get(c, 'majors', [])
+    unit_ranges = util.get(c, 'unitRanges', [])
+    in_intensive_cohort = util.to_bool_or_none(util.get(c, 'inIntensiveCohort'))
+    is_inactive_asc = util.get(c, 'isInactiveAsc')
+    results = Student.get_students(
+        gpa_ranges=gpa_ranges,
+        group_codes=group_codes,
+        in_intensive_cohort=in_intensive_cohort,
+        is_active_asc=None if is_inactive_asc is None else not is_inactive_asc,
+        levels=levels,
+        majors=majors,
+        unit_ranges=unit_ranges,
+        order_by=order_by,
+        offset=offset,
+        limit=limit,
+        sids_only=not include_students,
+    )
+    team_groups = Athletics.get_team_groups(group_codes) if group_codes else []
+
+    decorated.update({
+        'filterCriteria': {
+            'gpaRanges': gpa_ranges,
+            'groupCodes': group_codes,
+            'levels': levels,
+            'majors': majors,
+            'unitRanges': unit_ranges,
+            'inIntensiveCohort': in_intensive_cohort,
+            'isInactiveAsc': is_inactive_asc,
+        },
+        'teamGroups': team_groups,
+        'totalStudentCount': results['totalStudentCount'],
+    })
+    if include_students:
+        decorated.update({
+            'students': results['students'],
+        })
+    if include_alerts_for_uid:
+        viewer = AuthorizedUser.find_by_uid(include_alerts_for_uid)
+        if viewer:
+            alert_counts = Alert.current_alert_counts_for_sids(viewer.id, results['sids'])
+            decorated.update({
+                'alerts': alert_counts,
+            })
+    return decorated

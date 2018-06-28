@@ -28,13 +28,9 @@ import json
 import re
 from boac import db, std_commit
 from boac.api.errors import InternalServerError
-from boac.lib import util
-from boac.models.alert import Alert
-from boac.models.athletics import Athletics
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.authorized_user import cohort_filter_owners
 from boac.models.base import Base
-from boac.models.student import Student
 from flask_login import UserMixin
 from sqlalchemy.dialects.postgresql import JSONB
 
@@ -64,6 +60,7 @@ class CohortFilter(Base, UserMixin):
             cls,
             uid,
             label,
+            coe_advisor_uid=None,
             gpa_ranges=None,
             group_codes=None,
             levels=None,
@@ -77,54 +74,47 @@ class CohortFilter(Base, UserMixin):
         criteria = cls.compose_filter_criteria(
             gpa_ranges=gpa_ranges,
             group_codes=group_codes,
+            coe_advisor_uid=coe_advisor_uid,
+            in_intensive_cohort=in_intensive_cohort,
+            is_inactive_asc=is_inactive_asc,
             levels=levels,
             majors=majors,
             unit_ranges=unit_ranges,
-            in_intensive_cohort=in_intensive_cohort,
-            is_inactive_asc=is_inactive_asc,
         )
-        cf = CohortFilter(label=label, filter_criteria=json.dumps(criteria))
+        cohort = CohortFilter(label=label, filter_criteria=json.dumps(criteria))
         user = AuthorizedUser.find_by_uid(uid)
-        user.cohort_filters.append(cf)
+        user.cohort_filters.append(cohort)
         # The new Cohort Filter's primary ID column is not generated until the DB session is flushed.
         db.session.flush()
-        cohort = construct_cohort(cf)
         std_commit()
         return cohort
 
     @classmethod
     def update(cls, cohort_id, label):
-        cf = CohortFilter.query.filter_by(id=cohort_id).first()
-        cf.label = label
-        cohort = construct_cohort(cf)
+        cohort = CohortFilter.query.filter_by(id=cohort_id).first()
+        cohort.label = label
         std_commit()
         return cohort
 
     @classmethod
     def share(cls, cohort_id, user_id):
-        cf = CohortFilter.query.filter_by(id=cohort_id).first()
+        cohort = CohortFilter.query.filter_by(id=cohort_id).first()
         user = AuthorizedUser.find_by_uid(user_id)
-        user.cohort_filters.append(cf)
-        cohort = construct_cohort(cf)
+        user.cohort_filters.append(cohort)
         std_commit()
         return cohort
 
     @classmethod
     def all_cohorts(cls):
-        return [construct_cohort(cf, include_students=False) for cf in CohortFilter.query.all()]
+        return CohortFilter.query.all()
 
     @classmethod
-    def all_owned_by(cls, uid, include_alerts=False):
-        filters = CohortFilter.query.filter(CohortFilter.owners.any(uid=uid)).order_by(CohortFilter.label).all()
-        kwargs = {'include_students': False}
-        if include_alerts:
-            kwargs['include_alerts_for_uid'] = uid
-        return [construct_cohort(cohort_filter, **kwargs) for cohort_filter in filters]
+    def all_owned_by(cls, uid):
+        return CohortFilter.query.filter(CohortFilter.owners.any(uid=uid)).order_by(CohortFilter.label).all()
 
     @classmethod
-    def find_by_id(cls, cohort_id, order_by=None, offset=0, limit=50):
-        cf = CohortFilter.query.filter_by(id=cohort_id).first()
-        return cf and construct_cohort(cf, order_by, offset, limit)
+    def find_by_id(cls, cohort_id):
+        return CohortFilter.query.filter_by(id=cohort_id).first()
 
     @classmethod
     def delete(cls, cohort_id):
@@ -135,20 +125,23 @@ class CohortFilter(Base, UserMixin):
     @classmethod
     def compose_filter_criteria(
             cls,
+            coe_advisor_uid=None,
             gpa_ranges=None,
             group_codes=None,
+            in_intensive_cohort=None,
+            is_inactive_asc=None,
             levels=None,
             majors=None,
             unit_ranges=None,
-            in_intensive_cohort=None,
-            is_inactive_asc=None,
     ):
-        if not gpa_ranges and not group_codes and not levels and not majors and not unit_ranges and in_intensive_cohort is None:
+        has_criteria = next((c for c in [gpa_ranges, group_codes, levels, majors, unit_ranges] if c), None)
+        has_criteria = has_criteria or next((c for c in [coe_advisor_uid, in_intensive_cohort, is_inactive_asc] if c is not None), None)
+        if not has_criteria:
             raise InternalServerError('CohortFilter creation requires one or more non-empty criteria.')
         # Validate
         for arg in [gpa_ranges, group_codes, levels, majors, unit_ranges]:
             if arg and not isinstance(arg, list):
-                raise InternalServerError('All \'filter_criteria\' objects must be instance of \'list\' type.')
+                raise InternalServerError('Certain \'filter_criteria\' must be instance of \'list\' type.')
         group_code_syntax = re.compile('^[A-Z\-]+$')
         if group_codes and any(not group_code_syntax.match(code) for code in group_codes):
             raise InternalServerError('\'group_codes\' arg has invalid data: ' + str(group_codes))
@@ -164,69 +157,12 @@ class CohortFilter(Base, UserMixin):
                 msg = f'Range argument \'{r}\' does not match expected \'numrange\' syntax: {numrange_syntax.pattern}'
                 raise InternalServerError(msg)
         return {
+            'gpaRanges': gpa_ranges or [],
             'groupCodes': group_codes or [],
+            'inIntensiveCohort': in_intensive_cohort,
+            'coeAdvisorUid': coe_advisor_uid,
+            'isInactiveAsc': is_inactive_asc,
             'levels': levels or [],
             'majors': majors or [],
-            'gpaRanges': gpa_ranges or [],
             'unitRanges': unit_ranges or [],
-            'inIntensiveCohort': in_intensive_cohort,
-            'isInactiveAsc': is_inactive_asc,
         }
-
-
-def construct_cohort(cf, order_by=None, offset=0, limit=50, include_students=True, include_alerts_for_uid=None):
-    cohort = {
-        'id': cf.id,
-        'code': cf.id,
-        'label': cf.label,
-        'name': cf.label,
-        'owners': [user.uid for user in cf.owners],
-    }
-    c = cf if isinstance(cf.filter_criteria, dict) else json.loads(cf.filter_criteria)
-    gpa_ranges = util.get(c, 'gpaRanges', [])
-    # Property name 'team_group_codes' is deprecated; we prefer the camelCased 'groupCodes'.
-    group_codes = util.get(c, 'groupCodes', []) or util.get(c, 'team_group_codes', [])
-    levels = util.get(c, 'levels', [])
-    majors = util.get(c, 'majors', [])
-    unit_ranges = util.get(c, 'unitRanges', [])
-    in_intensive_cohort = util.to_bool_or_none(util.get(c, 'inIntensiveCohort'))
-    is_inactive_asc = util.get(c, 'isInactiveAsc')
-    results = Student.get_students(
-        gpa_ranges=gpa_ranges,
-        group_codes=group_codes,
-        in_intensive_cohort=in_intensive_cohort,
-        is_active_asc=None if is_inactive_asc is None else not is_inactive_asc,
-        levels=levels,
-        majors=majors,
-        unit_ranges=unit_ranges,
-        order_by=order_by,
-        offset=offset,
-        limit=limit,
-        sids_only=not include_students,
-    )
-    team_groups = Athletics.get_team_groups(group_codes) if group_codes else []
-    cohort.update({
-        'filterCriteria': {
-            'gpaRanges': gpa_ranges,
-            'groupCodes': group_codes,
-            'levels': levels,
-            'majors': majors,
-            'unitRanges': unit_ranges,
-            'inIntensiveCohort': in_intensive_cohort,
-            'isInactiveAsc': is_inactive_asc,
-        },
-        'teamGroups': team_groups,
-        'totalStudentCount': results['totalStudentCount'],
-    })
-    if include_students:
-        cohort.update({
-            'students': results['students'],
-        })
-    if include_alerts_for_uid:
-        viewer = AuthorizedUser.find_by_uid(include_alerts_for_uid)
-        if viewer:
-            alert_counts = Alert.current_alert_counts_for_sids(viewer.id, results['sids'])
-            cohort.update({
-                'alerts': alert_counts,
-            })
-    return cohort

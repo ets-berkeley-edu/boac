@@ -25,7 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac import db, std_commit
-import boac.api.util as api_util
 from boac.lib import util
 from boac.models.base import Base
 from boac.models.db_relationships import student_athletes, student_group_members
@@ -115,17 +114,18 @@ class Student(Base):
     @classmethod
     def get_students(
             cls,
+            coe_advisor_uid=None,
             gpa_ranges=None,
             group_codes=None,
             in_intensive_cohort=None,
-            levels=None,
-            majors=None,
-            unit_ranges=None,
-            order_by=None,
-            offset=0,
-            limit=50,
-            sids_only=False,
             is_active_asc=None,
+            levels=None,
+            limit=50,
+            majors=None,
+            offset=0,
+            order_by=None,
+            sids_only=False,
+            unit_ranges=None,
     ):
         query_tables, query_filter, all_bindings = cls.get_students_query(
             group_codes=group_codes,
@@ -325,7 +325,16 @@ class Student(Base):
         return
 
     def to_api_json(self):
-        return api_util.student_to_json(self)
+        return {
+            'sid': self.sid,
+            'uid': self.uid,
+            'firstName': self.first_name,
+            'lastName': self.last_name,
+            'name': self.first_name + ' ' + self.last_name,
+            'inIntensiveCohort': self.in_intensive_cohort,
+            'isActiveAsc': self.is_active_asc,
+            'statusAsc': self.status_asc,
+        }
 
     def to_expanded_api_json(self):
         api_json = self.to_api_json()
