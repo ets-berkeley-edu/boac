@@ -60,7 +60,7 @@ _test_users = [
 ]
 
 _users_per_dept = {
-    'EHEEC': [
+    'COENG': [
         {
             'uid': '1022796',
             'is_advisor': False,

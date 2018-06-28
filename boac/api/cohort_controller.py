@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import decorate_cohort, strip_analytics
+from boac.api.util import decorate_cohort, is_read_only_cohort, strip_analytics
 from boac.lib import util
 from boac.lib.berkeley import is_department_member
 from boac.lib.http import tolerant_jsonify
@@ -98,6 +98,8 @@ def create_cohort():
     unit_ranges = util.get(params, 'unitRanges')
     in_intensive_cohort = util.to_bool_or_none(util.get(params, 'inIntensiveCohort'))
     is_inactive_asc = util.get(params, 'isInactiveAsc')
+    if coe_advisor_uid and 'COENG' not in [m.university_dept.dept_code for m in current_user.department_memberships]:
+        raise ForbiddenRequestError(f'Only COE advisors have access to \'coeAdvisorUid\' criteria.')
     if not label:
         raise BadRequestError('Cohort creation requires \'label\'')
     asc_authorized = current_user.is_admin or is_department_member(current_user, 'UWASC')
@@ -141,6 +143,8 @@ def delete_cohort(cohort_id):
         uid = current_user.get_id()
         cohort = next((c for c in CohortFilter.all_owned_by(uid) if c.id == cohort_id), None)
         if cohort:
+            if is_read_only_cohort(cohort):
+                raise ForbiddenRequestError(f'Programmatic deletion of canned cohorts is not allowed (id={cohort_id})')
             CohortFilter.delete(cohort_id)
             return tolerant_jsonify({'message': f'Cohort deleted (id={cohort_id})'}), 200
         else:

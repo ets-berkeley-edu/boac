@@ -59,16 +59,16 @@ class TestUserProfile:
         assert not len(user['departments'])
 
     def test_department_beyond_asc(self, client, fake_auth):
-        """Returns EHEEC director."""
+        """Returns COENG director."""
         fake_auth.login('1022796')
         response = client.get('/api/profile')
         assert response.status_code == 200
         user = response.json
         assert user['isAdmin'] is False
         assert len(user['departments']) == 1
-        assert 'EHEEC' in user['departments']
-        assert user['departments']['EHEEC']['isAdvisor'] is False
-        assert user['departments']['EHEEC']['isDirector'] is True
+        assert 'COENG' in user['departments']
+        assert user['departments']['COENG']['isAdvisor'] is False
+        assert user['departments']['COENG']['isDirector'] is True
 
     def test_athletic_study_center_user(self, client, fake_auth):
         """Returns Athletic Study Center advisor."""

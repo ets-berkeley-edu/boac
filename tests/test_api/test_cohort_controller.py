@@ -256,6 +256,31 @@ class TestCohortDetail:
         f = cohort['filterCriteria']
         assert 'majors' in f and len(f['majors']) == 2
 
+    def test_read_only_cohort(self, client, fake_auth):
+        fake_auth.login('1022796')
+        data = {
+            'label': 'Students of Jane the COE Advisor',
+            'coeAdvisorUid': '1022796',
+            'groupCodes': [],
+            'majors': [],
+        }
+        response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
+        assert response.status_code == 200
+        cohort = json.loads(response.data)
+        assert cohort['isReadOnly'] is True
+        cohort_id = cohort['id']
+        response = client.delete(f'/api/cohort/delete/{cohort_id}')
+        assert response.status_code == 403
+
+    def test_forbidden_cohort_creation(self, client, fake_auth):
+        fake_auth.login('1081940')
+        data = {
+            'label': 'John the ASC Advisor',
+            'coeAdvisorUid': '1022796',
+        }
+        response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
+        assert response.status_code == 403
+
     def test_invalid_create_cohort_params(self, authenticated_session, client):
         bad_range_syntax = 'numrange(2, BLARGH, \'[)\')'
         data = {

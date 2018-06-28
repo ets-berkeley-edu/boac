@@ -157,7 +157,7 @@ ACADEMIC_PLAN_TO_DEGREE_PROGRAM_PAGE = {
 
 BERKELEY_DEPT_NAME_TO_CODE = {
     'Athletic Study Center': 'UWASC',
-    'Electrical Engineering and Computer Science': 'EHEEC',
+    'College of Engineering': 'COENG',
 }
 
 
