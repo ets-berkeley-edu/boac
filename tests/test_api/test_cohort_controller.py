@@ -64,6 +64,16 @@ class TestCohortDetail:
         assert defense_backs_all['totalStudentCount'] == 3
         assert defense_backs_inactive['totalStudentCount'] == 1
 
+    def test_create_cohort_if_first_coe_login(self, client, fake_auth):
+        # COE advisor logs in for the first time
+        uid = '90412'
+        fake_auth.login(uid)
+        cohorts = client.get('/api/cohorts/my').json
+        assert len(cohorts) == 1
+        cohort = cohorts[0]
+        assert cohort['name'] == 'My Engineering Students'
+        assert cohort['filterCriteria']['coeAdvisorUid'] == uid
+
     def test_my_cohorts_includes_students_with_alert_counts(self, create_alerts, authenticated_session, client, db_session):
         # Pre-load students into cache for consistent alert data.
         client.get('/api/user/61889/analytics')
@@ -257,10 +267,11 @@ class TestCohortDetail:
         assert 'majors' in f and len(f['majors']) == 2
 
     def test_read_only_cohort(self, client, fake_auth):
-        fake_auth.login('1022796')
+        uid = '1022796'
+        fake_auth.login(uid)
         data = {
             'label': 'Students of Jane the COE Advisor',
-            'coeAdvisorUid': '1022796',
+            'coeAdvisorUid': uid,
             'groupCodes': [],
             'majors': [],
         }
@@ -268,15 +279,17 @@ class TestCohortDetail:
         assert response.status_code == 200
         cohort = json.loads(response.data)
         assert cohort['isReadOnly'] is True
+        assert cohort['filterCriteria']['coeAdvisorUid'] == uid
         cohort_id = cohort['id']
         response = client.delete(f'/api/cohort/delete/{cohort_id}')
         assert response.status_code == 403
 
     def test_forbidden_cohort_creation(self, client, fake_auth):
-        fake_auth.login('1081940')
+        uid = '1081940'
+        fake_auth.login(uid)
         data = {
             'label': 'John the ASC Advisor',
-            'coeAdvisorUid': '1022796',
+            'coeAdvisorUid': uid,
         }
         response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 403

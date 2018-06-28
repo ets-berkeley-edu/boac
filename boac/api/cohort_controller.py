@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import decorate_cohort, is_read_only_cohort, strip_analytics
+from boac.api.util import decorate_cohort, get_dept_codes, is_read_only_cohort, strip_analytics
 from boac.lib import util
 from boac.lib.berkeley import is_department_member
 from boac.lib.http import tolerant_jsonify
@@ -62,7 +62,17 @@ def all_cohorts():
 @login_required
 def my_cohorts():
     uid = current_user.get_id()
-    cohorts = [decorate_cohort(c, include_alerts_for_uid=uid, include_students=False) for c in CohortFilter.all_owned_by(uid)]
+    _my_cohorts = CohortFilter.all_owned_by(uid)
+    if not _my_cohorts and 'COENG' in get_dept_codes(current_user):
+        profile = calnet.get_calnet_user_for_uid(app, uid)
+        first_name = profile.get('first_name')
+        CohortFilter.create(
+            uid=uid,
+            label=f'{first_name}\'s Students' if first_name else 'My Engineering Students',
+            coe_advisor_uid=uid,
+        )
+        _my_cohorts = CohortFilter.all_owned_by(uid)
+    cohorts = [decorate_cohort(c, include_alerts_for_uid=uid, include_students=False) for c in _my_cohorts]
     for cohort in cohorts:
         student_details.merge_external_students_data(cohort['alerts'])
         for data in cohort['alerts']:
@@ -98,7 +108,7 @@ def create_cohort():
     unit_ranges = util.get(params, 'unitRanges')
     in_intensive_cohort = util.to_bool_or_none(util.get(params, 'inIntensiveCohort'))
     is_inactive_asc = util.get(params, 'isInactiveAsc')
-    if coe_advisor_uid and 'COENG' not in [m.university_dept.dept_code for m in current_user.department_memberships]:
+    if coe_advisor_uid and 'COENG' not in get_dept_codes(current_user):
         raise ForbiddenRequestError(f'Only COE advisors have access to \'coeAdvisorUid\' criteria.')
     if not label:
         raise BadRequestError('Cohort creation requires \'label\'')

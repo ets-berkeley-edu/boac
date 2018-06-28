@@ -66,6 +66,11 @@ _users_per_dept = {
             'is_advisor': False,
             'is_director': True,
         },
+        {
+            'uid': '90412',
+            'is_advisor': True,
+            'is_director': True,
+        },
     ],
     'UWASC': [
         {
@@ -218,7 +223,7 @@ def load_student_athletes():
         in_intensive_cohort=True,
     )
     create_student(
-        uid='1022796',
+        uid='123456',
         sid='8901234567',
         first_name='John David',
         last_name='Crossman',
