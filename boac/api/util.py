@@ -59,6 +59,77 @@ def canvas_courses_api_feed(courses):
     return [canvas_course_api_feed(course) for course in courses]
 
 
+def decorate_cohort(cohort, order_by=None, offset=0, limit=50, include_students=True, include_alerts_for_uid=None):
+    decorated = {
+        'id': cohort.id,
+        'code': cohort.id,
+        'isReadOnly': is_read_only_cohort(cohort),
+        'label': cohort.label,
+        'name': cohort.label,
+        'owners': [user.uid for user in cohort.owners],
+    }
+    criteria = cohort if isinstance(cohort.filter_criteria, dict) else json.loads(cohort.filter_criteria)
+    coe_advisor_uid = util.get(criteria, 'coeAdvisorUid')
+    gpa_ranges = util.get(criteria, 'gpaRanges', [])
+    group_codes = util.get(criteria, 'groupCodes', [])
+    levels = util.get(criteria, 'levels', [])
+    majors = util.get(criteria, 'majors', [])
+    unit_ranges = util.get(criteria, 'unitRanges', [])
+    in_intensive_cohort = util.to_bool_or_none(util.get(criteria, 'inIntensiveCohort'))
+    is_inactive_asc = util.get(criteria, 'isInactiveAsc')
+    results = Student.get_students(
+        coe_advisor_uid=coe_advisor_uid,
+        gpa_ranges=gpa_ranges,
+        group_codes=group_codes,
+        in_intensive_cohort=in_intensive_cohort,
+        is_active_asc=None if is_inactive_asc is None else not is_inactive_asc,
+        levels=levels,
+        majors=majors,
+        unit_ranges=unit_ranges,
+        order_by=order_by,
+        offset=offset,
+        limit=limit,
+        sids_only=not include_students,
+    )
+    team_groups = Athletics.get_team_groups(group_codes) if group_codes else []
+    decorated.update({
+        'filterCriteria': {
+            'coeAdvisorUid': coe_advisor_uid,
+            'gpaRanges': gpa_ranges,
+            'groupCodes': group_codes,
+            'levels': levels,
+            'majors': majors,
+            'unitRanges': unit_ranges,
+            'inIntensiveCohort': in_intensive_cohort,
+            'isInactiveAsc': is_inactive_asc,
+        },
+        'teamGroups': team_groups,
+        'totalStudentCount': results['totalStudentCount'],
+    })
+    if include_students:
+        decorated.update({
+            'students': results['students'],
+        })
+    if include_alerts_for_uid:
+        viewer = AuthorizedUser.find_by_uid(include_alerts_for_uid)
+        if viewer:
+            alert_counts = Alert.current_alert_counts_for_sids(viewer.id, results['sids'])
+            decorated.update({
+                'alerts': alert_counts,
+            })
+    return decorated
+
+
+def get_dept_codes(user):
+    return [m.university_dept.dept_code for m in user.department_memberships]
+
+
+def is_read_only_cohort(cohort):
+    criteria = cohort if isinstance(cohort.filter_criteria, dict) else json.loads(cohort.filter_criteria)
+    keys_with_not_none_value = [key for key, value in criteria.items() if value not in [None, []]]
+    return keys_with_not_none_value == ['coeAdvisorUid']
+
+
 def sis_enrollment_class_feed(enrollment):
     return {
         'displayName': enrollment['sis_course_name'],
@@ -110,68 +181,3 @@ def translate_grading_basis(code):
         'SUS': 'S/U',
     }
     return bases.get(code) or code
-
-
-def is_read_only_cohort(cohort):
-    criteria = cohort if isinstance(cohort.filter_criteria, dict) else json.loads(cohort.filter_criteria)
-    keys_with_not_none_value = [key for key, value in criteria.items() if value not in [None, []]]
-    return keys_with_not_none_value == ['coeAdvisorUid']
-
-
-def decorate_cohort(cohort, order_by=None, offset=0, limit=50, include_students=True, include_alerts_for_uid=None):
-    decorated = {
-        'id': cohort.id,
-        'code': cohort.id,
-        'isReadOnly': is_read_only_cohort(cohort),
-        'label': cohort.label,
-        'name': cohort.label,
-        'owners': [user.uid for user in cohort.owners],
-    }
-    criteria = cohort if isinstance(cohort.filter_criteria, dict) else json.loads(cohort.filter_criteria)
-    gpa_ranges = util.get(criteria, 'gpaRanges', [])
-    group_codes = util.get(criteria, 'groupCodes', [])
-    levels = util.get(criteria, 'levels', [])
-    majors = util.get(criteria, 'majors', [])
-    unit_ranges = util.get(criteria, 'unitRanges', [])
-    in_intensive_cohort = util.to_bool_or_none(util.get(criteria, 'inIntensiveCohort'))
-    is_inactive_asc = util.get(criteria, 'isInactiveAsc')
-    results = Student.get_students(
-        gpa_ranges=gpa_ranges,
-        group_codes=group_codes,
-        in_intensive_cohort=in_intensive_cohort,
-        is_active_asc=None if is_inactive_asc is None else not is_inactive_asc,
-        levels=levels,
-        majors=majors,
-        unit_ranges=unit_ranges,
-        order_by=order_by,
-        offset=offset,
-        limit=limit,
-        sids_only=not include_students,
-    )
-    team_groups = Athletics.get_team_groups(group_codes) if group_codes else []
-
-    decorated.update({
-        'filterCriteria': {
-            'gpaRanges': gpa_ranges,
-            'groupCodes': group_codes,
-            'levels': levels,
-            'majors': majors,
-            'unitRanges': unit_ranges,
-            'inIntensiveCohort': in_intensive_cohort,
-            'isInactiveAsc': is_inactive_asc,
-        },
-        'teamGroups': team_groups,
-        'totalStudentCount': results['totalStudentCount'],
-    })
-    if include_students:
-        decorated.update({
-            'students': results['students'],
-        })
-    if include_alerts_for_uid:
-        viewer = AuthorizedUser.find_by_uid(include_alerts_for_uid)
-        if viewer:
-            alert_counts = Alert.current_alert_counts_for_sids(viewer.id, results['sids'])
-            decorated.update({
-                'alerts': alert_counts,
-            })
-    return decorated
