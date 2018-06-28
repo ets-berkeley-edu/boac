@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
+import json
 from boac.api.errors import InternalServerError
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
@@ -42,8 +42,8 @@ class TestCohortFilter:
         group_codes = ['MSW', 'MSW-DV', 'MSW-SW']
         cohort = CohortFilter.create(uid='2040', label='Swimming, Men\'s', group_codes=group_codes)
         foosball_label = 'Foosball teams'
-        cohort = CohortFilter.update(cohort['id'], foosball_label)
-        assert cohort['label'] == foosball_label
+        cohort = CohortFilter.update(cohort.id, foosball_label)
+        assert cohort.label == foosball_label
 
     def test_filter_criteria(self):
         gpa_ranges = [
@@ -67,8 +67,9 @@ class TestCohortFilter:
             majors=majors,
             unit_ranges=unit_ranges,
         )
-        cohort = CohortFilter.find_by_id(cohort['id'])
+        cohort = CohortFilter.find_by_id(cohort.id)
         expected = {
+            'coeAdvisorUid': None,
             'gpaRanges': gpa_ranges,
             'groupCodes': group_codes,
             'inIntensiveCohort': None,
@@ -77,10 +78,10 @@ class TestCohortFilter:
             'majors': majors,
             'unitRanges': unit_ranges,
         }
-        cf = cohort['filterCriteria']
-        assert expected == cf
-        assert 2 == len(cf['gpaRanges'])
-        assert 2 == len(cf['unitRanges'])
+        filter_criteria = json.loads(cohort.filter_criteria)
+        assert expected == filter_criteria
+        assert 2 == len(filter_criteria['gpaRanges'])
+        assert 2 == len(filter_criteria['unitRanges'])
 
     def test_invalid_create(self):
         with pytest.raises(InternalServerError):
@@ -97,14 +98,14 @@ class TestCohortFilter:
         # Create and share cohort
         group_codes = ['MFB-DB', 'MFB-DL', 'MFB-MLB', 'MFB-OLB']
         cohort = CohortFilter.create(uid=owner, label='Football, Defense', group_codes=group_codes)
-        cohort = CohortFilter.share(cohort['id'], shared_with)
-        assert len(cohort['owners']) == 2
-        assert owner, shared_with in [user.uid for user in cohort['owners']]
+        cohort = CohortFilter.share(cohort.id, shared_with)
+        assert len(cohort.owners) == 2
+        assert owner, shared_with in [user.uid for user in cohort.owners]
 
         # Delete cohort and verify
         previous_owner_count = cohort_count(owner)
         previous_shared_count = cohort_count(shared_with)
-        CohortFilter.delete(cohort['id'])
+        CohortFilter.delete(cohort.id)
         assert cohort_count(owner) == previous_owner_count - 1
         assert cohort_count(shared_with) == previous_shared_count - 1
 
