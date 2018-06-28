@@ -112,23 +112,29 @@ def translate_grading_basis(code):
     return bases.get(code) or code
 
 
+def is_read_only_cohort(cohort):
+    criteria = cohort if isinstance(cohort.filter_criteria, dict) else json.loads(cohort.filter_criteria)
+    keys_with_not_none_value = [key for key, value in criteria.items() if value not in [None, []]]
+    return keys_with_not_none_value == ['coeAdvisorUid']
+
+
 def decorate_cohort(cohort, order_by=None, offset=0, limit=50, include_students=True, include_alerts_for_uid=None):
     decorated = {
         'id': cohort.id,
         'code': cohort.id,
+        'isReadOnly': is_read_only_cohort(cohort),
         'label': cohort.label,
         'name': cohort.label,
         'owners': [user.uid for user in cohort.owners],
     }
-    c = cohort if isinstance(cohort.filter_criteria, dict) else json.loads(cohort.filter_criteria)
-    gpa_ranges = util.get(c, 'gpaRanges', [])
-    # Property name 'team_group_codes' is deprecated; we prefer the camelCased 'groupCodes'.
-    group_codes = util.get(c, 'groupCodes', []) or util.get(c, 'team_group_codes', [])
-    levels = util.get(c, 'levels', [])
-    majors = util.get(c, 'majors', [])
-    unit_ranges = util.get(c, 'unitRanges', [])
-    in_intensive_cohort = util.to_bool_or_none(util.get(c, 'inIntensiveCohort'))
-    is_inactive_asc = util.get(c, 'isInactiveAsc')
+    criteria = cohort if isinstance(cohort.filter_criteria, dict) else json.loads(cohort.filter_criteria)
+    gpa_ranges = util.get(criteria, 'gpaRanges', [])
+    group_codes = util.get(criteria, 'groupCodes', [])
+    levels = util.get(criteria, 'levels', [])
+    majors = util.get(criteria, 'majors', [])
+    unit_ranges = util.get(criteria, 'unitRanges', [])
+    in_intensive_cohort = util.to_bool_or_none(util.get(criteria, 'inIntensiveCohort'))
+    is_inactive_asc = util.get(criteria, 'isInactiveAsc')
     results = Student.get_students(
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
