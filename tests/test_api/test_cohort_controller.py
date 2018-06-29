@@ -32,8 +32,19 @@ coe_advisor_uid = '1133399'
 
 
 @pytest.fixture()
+def asc_advisor(fake_auth):
+    fake_auth.login('1081940')
+
+
+@pytest.fixture()
 def coe_advisor(fake_auth):
     fake_auth.login(coe_advisor_uid)
+
+
+@pytest.fixture()
+def coe_owned_cohort():
+    cohorts = CohortFilter.all_owned_by(coe_advisor_uid)
+    return next(c for c in cohorts if c.label == 'All sports') if len(cohorts) else None
 
 
 class TestCohortDetail:
@@ -132,20 +143,25 @@ class TestCohortDetail:
         cohorts = owner['cohorts']
         assert len(cohorts) == 5
 
-    def test_get_cohort(self, coe_advisor, client):
+    def test_get_cohort(self, coe_advisor, coe_owned_cohort, client):
         """Returns a well-formed response with custom cohort."""
-        expected_cohort = _find_my_cohort_by_name(coe_advisor_uid, 'All sports')
-        response = client.get(f'/api/cohort/{expected_cohort.id}')
+        response = client.get(f'/api/cohort/{coe_owned_cohort.id}')
         assert response.status_code == 200
         cohort = json.loads(response.data)
-        assert cohort['id'] == expected_cohort.id
-        assert cohort['label'] == expected_cohort.label
+        assert cohort['id'] == coe_owned_cohort.id
+        assert cohort['label'] == coe_owned_cohort.label
+
+    def test_unauthorized_get_cohort(self, asc_advisor, coe_owned_cohort, client):
+        """Returns a well-formed response with custom cohort."""
+        response = client.get(f'/api/cohort/{coe_owned_cohort.id}')
+        assert response.status_code == 404
+        assert 'No cohort found' in json.loads(response.data)['message']
 
     def test_undeclared_major(self, coe_advisor, client):
         """Returns a well-formed response with custom cohort."""
         name = 'Undeclared students'
-        expected_cohort = _find_my_cohort_by_name(coe_advisor_uid, name)
-        response = client.get(f'/api/cohort/{expected_cohort.id}')
+        cohort = next(c for c in CohortFilter.all_owned_by(coe_advisor_uid) if c.label == name)
+        response = client.get(f'/api/cohort/{cohort.id}')
         assert response.status_code == 200
         cohort = json.loads(response.data)
         assert cohort['label'] == name
@@ -154,10 +170,9 @@ class TestCohortDetail:
         # We expect the student with 'Letters & Sci Undeclared UG' major
         assert students[0]['sid'] == '5678901234'
 
-    def test_includes_cohort_member_sis_data(self, coe_advisor, client):
+    def test_includes_cohort_member_sis_data(self, coe_advisor, coe_owned_cohort, client):
         """Includes SIS data for custom cohort students."""
-        expected_cohort = _find_my_cohort_by_name(coe_advisor_uid, 'All sports')
-        response = client.get(f'/api/cohort/{expected_cohort.id}')
+        response = client.get(f'/api/cohort/{coe_owned_cohort.id}')
         assert response.status_code == 200
         athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
         assert athlete['cumulativeGPA'] == 3.8
@@ -165,10 +180,9 @@ class TestCohortDetail:
         assert athlete['level'] == 'Junior'
         assert athlete['majors'] == ['Astrophysics BS', 'English BA']
 
-    def test_includes_cohort_member_current_enrollments(self, coe_advisor, client):
+    def test_includes_cohort_member_current_enrollments(self, coe_advisor, coe_owned_cohort, client):
         """Includes current-term active enrollments and analytics for custom cohort students."""
-        expected_cohort = _find_my_cohort_by_name(coe_advisor_uid, 'All sports')
-        response = client.get(f'/api/cohort/{expected_cohort.id}?orderBy=firstName')
+        response = client.get(f'/api/cohort/{coe_owned_cohort.id}?orderBy=firstName')
         assert response.status_code == 200
         athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
 
@@ -183,10 +197,9 @@ class TestCohortDetail:
             assert analytics[metric]['percentile'] > 0
             assert analytics[metric]['displayPercentile'].endswith(('rd', 'st', 'th'))
 
-    def test_includes_cohort_member_athletics(self, coe_advisor, client):
+    def test_includes_cohort_member_athletics(self, coe_advisor, coe_owned_cohort, client):
         """Includes team memberships for custom cohort members."""
-        expected_cohort = _find_my_cohort_by_name(coe_advisor_uid, 'All sports')
-        response = client.get(f'/api/cohort/{expected_cohort.id}')
+        response = client.get(f'/api/cohort/{coe_owned_cohort.id}')
         athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
         assert len(athlete['athletics']) == 2
         tennis = next(membership for membership in athlete['athletics'] if membership['groupCode'] == 'WTE')
@@ -204,10 +217,9 @@ class TestCohortDetail:
         assert response.status_code == 404
         assert 'No cohort found' in str(response.data)
 
-    def test_offset_and_limit(self, coe_advisor, client):
+    def test_offset_and_limit(self, coe_advisor, coe_owned_cohort, client):
         """Returns a well-formed response with custom cohort."""
-        expected_cohort = _find_my_cohort_by_name(coe_advisor_uid, 'All sports')
-        api_path = f'/api/cohort/{expected_cohort.id}'
+        api_path = f'/api/cohort/{coe_owned_cohort.id}'
         # First, offset is zero
         response = client.get(f'{api_path}?offset={0}&limit={1}')
         data_0 = json.loads(response.data)
@@ -399,8 +411,3 @@ class TestCohortDetail:
         assert response.status_code == 200
         cohorts = CohortFilter.all_owned_by(coe_advisor_uid)
         assert not next((c for c in cohorts if c.id == cohort.id), None)
-
-
-def _find_my_cohort_by_name(uid, cohort_name):
-    cohorts = CohortFilter.all_owned_by(uid)
-    return next(c for c in cohorts if c.label == cohort_name) if len(CohortFilter.all_owned_by(uid)) else None
