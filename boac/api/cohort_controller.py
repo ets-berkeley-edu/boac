@@ -87,12 +87,12 @@ def get_cohort(cohort_id):
     offset = util.get(request.args, 'offset', 0)
     limit = util.get(request.args, 'limit', 50)
     cohort = CohortFilter.find_by_id(int(cohort_id))
-    if cohort:
+    if cohort and can_view_cohort(current_user, cohort):
         cohort = decorate_cohort(cohort, order_by, int(offset), int(limit))
+        student_details.merge_external_students_data(cohort['students'])
+        return tolerant_jsonify(cohort)
     else:
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
-    student_details.merge_external_students_data(cohort['students'])
-    return tolerant_jsonify(cohort)
 
 
 @app.route('/api/cohort/create', methods=['POST'])
