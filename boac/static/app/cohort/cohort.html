@@ -61,7 +61,8 @@
       <div data-ng-if="isCoeUser && cohort.isCannedCoeCohort">
         <input id="canned-coe-cohort-checkbox"
                type="checkbox"
-               data-ng-model="search.options.cannedCoeCohort"/>
+               data-ng-model="search.options.coeAdvisorUid"
+               data-ng-true-value="{{me.uid}}"/>
         <label class="cohort-checkbox-label" for="canned-coe-cohort-checkbox">My Students</label>
       </div>
     </div>
@@ -70,14 +71,14 @@
     <div class="cohort-filters-column flex-column-btn">
       <button id="apply-filters-btn"
               class="btn btn-primary no-wrap"
-              data-ng-disabled="disableApplyButton()"
+              data-ng-disabled="!enableApplyButton()"
               data-ng-click="applyFilters()">Apply</button>
     </div>
     <div class="cohort-filters-column flex-column-btn">
       <span data-ng-controller="CreateCohortController">
         <button id="create-cohort-btn"
                 class="btn btn-default no-wrap"
-                data-ng-disabled="disableApplyButton()"
+                data-ng-disabled="!enableApplyButton()"
                 data-ng-click="openCreateCohortModal(search.options)">
           Save Cohort
         </button>
