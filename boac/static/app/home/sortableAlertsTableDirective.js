@@ -42,7 +42,7 @@
       templateUrl: '/static/app/home/sortableAlertsTable.html',
 
       link: function(scope) {
-        scope.isCurrentUserAscAdvisor = authService.isCurrentUserAscAdvisor();
+        scope.isAscUser = authService.isAscUser();
         scope.demoMode = config.demoMode;
         scope.sort = function(options, sortBy) {
           if (options.sortBy === sortBy) {

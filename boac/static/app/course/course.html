@@ -116,7 +116,7 @@
                 {{student.sid}}
                 <span class="red-flag-status" data-ng-if="student.enrollment.enrollmentStatus === 'W'">WAITLISTED</span>
                 <span class="red-flag-status"
-                      data-ng-if="isCurrentUserAscAdvisor && !student.athleticsProfile.isActiveAsc">INACTIVE</span>
+                      data-ng-if="isAscUser && !student.athleticsProfile.isActiveAsc">INACTIVE</span>
               </div>
               <div>
                 <span class="student-text" data-ng-bind="student.level"></span>

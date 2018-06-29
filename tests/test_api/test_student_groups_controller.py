@@ -29,16 +29,16 @@ from boac.models.student_group import StudentGroup
 import pytest
 import simplejson as json
 
-test_uid = '6446'
+asc_advisor_uid = '6446'
 
 
 @pytest.fixture()
-def authenticated_session(fake_auth):
-    fake_auth.login(test_uid)
+def asc_advisor(fake_auth):
+    fake_auth.login(asc_advisor_uid)
 
 
 @pytest.fixture()
-def authenticated_session_empty_primary(fake_auth):
+def admin_user_session_empty_primary(fake_auth):
     fake_auth.login('2040')
 
 
@@ -49,14 +49,14 @@ class TestStudentGroupsController:
         """Returns 401 if not authenticated."""
         assert client.get('/api/groups/my').status_code == 401
 
-    def test_unauthorized(self, authenticated_session_empty_primary, client):
+    def test_unauthorized(self, admin_user_session_empty_primary, client):
         """Rejects authenticated user if s/he does not own the group."""
         advisor_with_group = AuthorizedUser.find_by_uid('6446')
         groups = StudentGroup.get_groups_by_owner_id(advisor_with_group.id)
         response = client.get(f'/api/group/{groups[0].id}')
         assert response.status_code == 403
 
-    def test_my_groups(self, authenticated_session, client):
+    def test_my_groups(self, asc_advisor, client):
         """Returns all of current_user's student groups."""
         response = client.get('/api/groups/my')
         assert response.status_code == 200
@@ -67,7 +67,7 @@ class TestStudentGroupsController:
         cool_kids_group = next(group for group in groups if group['name'] == 'Cool Kids')
         assert cool_kids_group['studentCount'] == 4
 
-    def test_empty_group(self, authenticated_session_empty_primary, client):
+    def test_empty_group(self, admin_user_session_empty_primary, client):
         """Returns default empty group requested."""
         groups = client.get('/api/groups/my').json
         default_group = next(group for group in groups if group['name'] == 'My Students')
@@ -75,7 +75,7 @@ class TestStudentGroupsController:
         assert response.status_code == 200
         assert response.json['students'] == []
 
-    def test_group_summary_excludes_students_without_alerts(self, authenticated_session, create_alerts, client, db_session):
+    def test_group_summary_excludes_students_without_alerts(self, asc_advisor, create_alerts, client, db_session):
         """When all groups are requested, returns only students with alerts."""
         groups = client.get('/api/groups/my').json
         assert groups[0]['studentCount'] == 4
@@ -87,7 +87,7 @@ class TestStudentGroupsController:
         groups = client.get('/api/groups/my').json
         assert groups[0]['students'][0]['alertCount'] == 2
 
-    def test_group_detail_includes_students_without_alerts(self, authenticated_session, create_alerts, client):
+    def test_group_detail_includes_students_without_alerts(self, asc_advisor, create_alerts, client):
         """When group detail is requested, returns all students."""
         groups = client.get('/api/groups/my').json
         group = client.get(f'/api/group/{groups[0]["id"]}').json
@@ -96,7 +96,7 @@ class TestStudentGroupsController:
         assert 'alertCount' not in group['students'][2]
         assert 'alertCount' not in group['students'][3]
 
-    def test_group_index_includes_summary(self, authenticated_session, create_alerts, client):
+    def test_group_index_includes_summary(self, asc_advisor, create_alerts, client):
         """Returns summary details but not full term and analytics data for group index."""
         groups = client.get('/api/groups/my').json
         students = groups[0]['students']
@@ -107,7 +107,7 @@ class TestStudentGroupsController:
         assert 'analytics' not in students[0]
         assert 'enrollments' not in students[0]['term']
 
-    def test_group_detail_includes_analytics(self, authenticated_session, client):
+    def test_group_detail_includes_analytics(self, asc_advisor, client):
         """Returns all students with full term and analytics data for detailed group listing."""
         groups = client.get('/api/groups/my').json
         group = next(group for group in groups if group['name'] == 'Cool Kids')
@@ -121,7 +121,7 @@ class TestStudentGroupsController:
         assert 'analytics' in students[0]
         assert 'enrollments' in students[0]['term']
 
-    def test_group_detail_includes_athletics(self, authenticated_session, client):
+    def test_group_detail_includes_athletics(self, asc_advisor, client):
         """Returns all students with athletic memberships for detailed group listing."""
         groups = client.get('/api/groups/my').json
         group = next(group for group in groups if group['name'] == 'Cool Kids')
@@ -135,7 +135,7 @@ class TestStudentGroupsController:
         assert teams[1]['name'] == 'Women\'s Tennis'
         assert teams[1]['groupCode'] == 'WTE'
 
-    def test_add_multiple_students_to_group(self, authenticated_session, client):
+    def test_add_multiple_students_to_group(self, asc_advisor, client):
         """Create curated cohort and add students."""
         name = 'Cheap Tricks'
         response = client.post(
@@ -156,7 +156,7 @@ class TestStudentGroupsController:
         assert updated_group['id'] == group['id']
         assert len(updated_group['students']) == 2
 
-    def test_create_add_remove_and_delete(self, authenticated_session, client):
+    def test_create_add_remove_and_delete(self, asc_advisor, client):
         """Create a group, add a student, remove the student and then delete the group."""
         name = 'Fun Boy Three'
         response = client.post(

@@ -48,7 +48,7 @@ _test_users = [
     ['53791', True],
     ['95509', True],
     ['177473', True],
-    ['1133399', True],
+    ['1133399', False],
     ['211159', True],
     ['242881', True],
     ['1022796', False],
@@ -70,6 +70,11 @@ _users_per_dept = {
             'uid': '90412',
             'is_advisor': True,
             'is_director': True,
+        },
+        {
+            'uid': '1133399',
+            'is_advisor': True,
+            'is_director': False,
         },
     ],
     'UWASC': [
@@ -258,7 +263,7 @@ def load_student_athletes():
         in_intensive_cohort=True,
     )
     sandeep = create_student(
-        uid='1133399',
+        uid='9933311',
         sid='5678901234',
         first_name='Sandeep',
         last_name='Jayaprakash',

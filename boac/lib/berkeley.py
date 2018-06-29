@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import re
 from flask import current_app as app
+import numpy as np
 
 
 """A utility module collecting logic specific to the Berkeley campus."""
@@ -237,10 +238,15 @@ def is_authorized_to_use_boac(user):
     return authorized
 
 
-def is_department_member(user, dept_code):
-    is_member = False
-    for m in user.department_memberships:
-        is_member = m.university_dept.dept_code == dept_code and (m.is_advisor or m.is_director)
-        if is_member:
-            break
-    return is_member
+def get_dept_codes(user):
+    return [m.university_dept.dept_code for m in user.department_memberships]
+
+
+def can_view_cohort(user, cohort):
+    if user.is_admin:
+        return True
+    my_dept_codes = get_dept_codes(user)
+    cohort_dept_codes = []
+    if cohort.owners:
+        cohort_dept_codes = np.concatenate([get_dept_codes(o) for o in cohort.owners])
+    return np.in1d(my_dept_codes, cohort_dept_codes)

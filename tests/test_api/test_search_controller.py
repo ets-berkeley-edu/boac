@@ -32,7 +32,11 @@ class TestAthleticsStudyCenter:
     """ASC-specific API calls."""
 
     @pytest.fixture()
-    def authenticated_session(self, fake_auth):
+    def asc_advisor(self, fake_auth):
+        fake_auth.login('1081940')
+
+    @pytest.fixture()
+    def coe_advisor(self, fake_auth):
         fake_auth.login('1133399')
 
     def test_multiple_teams(self, client):
@@ -45,7 +49,7 @@ class TestAthleticsStudyCenter:
         assert 'MFB-DB' in group_codes
         assert 'MFB-DL' in group_codes
 
-    def test_get_intensive_cohort(self, authenticated_session, client):
+    def test_get_intensive_cohort(self, asc_advisor, client):
         """Returns the canned 'intensive' cohort, available to all authenticated users."""
         response = client.post('/api/students', data=json.dumps({'inIntensiveCohort': True}), content_type='application/json')
         assert response.status_code == 200
@@ -62,7 +66,7 @@ class TestAthleticsStudyCenter:
         response = client.post('/api/students', data=json.dumps({'inIntensiveCohort': True}), content_type='application/json')
         assert response.status_code == 403
 
-    def test_order_by_with_intensive_cohort(self, authenticated_session, client):
+    def test_order_by_with_intensive_cohort(self, asc_advisor, client):
         """Returns the canned 'intensive' cohort, available to all authenticated users."""
         all_expected_order = {
             'first_name': ['61889', '123456', '1049291', '242881', '211159'],
@@ -85,7 +89,7 @@ class TestAthleticsStudyCenter:
             uid_list = [s['uid'] for s in cohort['students']]
             assert uid_list == expected_uid_list, f'Unmet expectation where order_by={order_by}'
 
-    def test_get_inactive_cohort(self, authenticated_session, client):
+    def test_get_inactive_cohort(self, asc_advisor, client):
         response = client.post('/api/students', data=json.dumps({'isInactiveAsc': True}), content_type='application/json')
         assert response.status_code == 200
         cohort = json.loads(response.data)
@@ -101,7 +105,7 @@ class TestSearch:
     """Student Search API."""
 
     @pytest.fixture()
-    def authenticated_session(self, fake_auth):
+    def asc_advisor(self, fake_auth):
         fake_auth.login('1133399')
 
     def test_all_students(self, client):
@@ -183,7 +187,7 @@ class TestSearch:
         assert len(response.json['students']) == 1
         assert 'Crossman' == response.json['students'][0]['lastName']
 
-    def test_get_students(self, authenticated_session, client):
+    def test_get_students(self, asc_advisor, client):
         data = {
             'gpaRanges': ['numrange(3, 3.5, \'[)\')', 'numrange(3.5, 4, \'[]\')'],
             'groupCodes': ['MFB-DB', 'MFB-DL'],
@@ -201,13 +205,12 @@ class TestSearch:
             'limit': 50,
         }
         response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
-
         assert response.status_code == 200
         assert 'students' in response.json
         students = response.json['students']
         assert 2 == len(students)
         # Offset of 1, ordered by lastName
-        assert ['1133399', '242881'] == [student['uid'] for student in students]
+        assert ['9933311', '242881'] == [student['uid'] for student in students]
         group_codes_1133399 = [a['groupCode'] for a in students[0]['athletics']]
         assert len(group_codes_1133399) == 3
         assert 'MFB-DB' in group_codes_1133399

@@ -39,7 +39,7 @@
     };
 
     var isReservedName = function(name) {
-      return authService.isCurrentUserAscAdvisor() && _.includes(['intensive students', 'inactive students'], name.toLowerCase());
+      return authService.isAscUser() && _.includes(['intensive students', 'inactive students'], name.toLowerCase());
     };
 
     /**

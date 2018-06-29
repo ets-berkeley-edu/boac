@@ -77,7 +77,7 @@
             <div class="student-sid" data-ng-class="{'demo-mode-blur': demoMode}">
               {{student.sid}}
               <span class="red-flag-status"
-                    data-ng-if="isCurrentUserAscAdvisor && !student.athleticsProfile.isActiveAsc">INACTIVE</span>
+                    data-ng-if="isAscUser && !student.athleticsProfile.isActiveAsc">INACTIVE</span>
             </div>
             <div class="student-text" data-ng-bind="student.level"></div>
             <div class="student-text" data-ng-bind="major" data-ng-repeat="major in student.majors"></div>

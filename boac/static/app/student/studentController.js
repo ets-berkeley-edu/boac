@@ -57,7 +57,8 @@
     $scope.demoMode = config.demoMode;
     $scope.lastActivityDays = utilService.lastActivityDays;
     $scope.lastActivityInContext = utilService.lastActivityInContext;
-    $scope.isCurrentUserAscAdvisor = authService.isCurrentUserAscAdvisor();
+    $scope.isAscUser = authService.isAscUser();
+    $scope.isCoeUser = authService.isCoeUser();
     $scope.myGroups = _.clone(me.myGroups);
     $scope.parseInt = parseInt;
     $scope.showAllTerms = false;
