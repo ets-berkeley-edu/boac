@@ -28,6 +28,7 @@ from boac import db, std_commit
 from boac.lib import util
 from boac.models.base import Base
 from boac.models.db_relationships import student_athletes, student_group_members
+from flask import current_app as app
 from sqlalchemy import text
 from sqlalchemy.orm import joinedload
 
@@ -127,6 +128,13 @@ class Student(Base):
             sids_only=False,
             unit_ranges=None,
     ):
+        if coe_advisor_uid is not None:
+            app.logger.warning(f'Search by coe_advisor_uid is not yet supported; returning empty list.')
+            return {
+                'sids': [],
+                'students': [],
+                'totalStudentCount': 0,
+            }
         query_tables, query_filter, all_bindings = cls.get_students_query(
             group_codes=group_codes,
             gpa_ranges=gpa_ranges,

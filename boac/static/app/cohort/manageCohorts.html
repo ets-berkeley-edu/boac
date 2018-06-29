@@ -30,7 +30,7 @@
           <span class="faint-text">(<span id="filtered-cohort-student-count-{{$index}}" data-ng-bind="cohort.totalStudentCount"></span>)</span>
         </div>
         <div>
-          <span data-ng-controller="DeleteCohortController">
+          <span data-ng-controller="DeleteCohortController" data-ng-if="!cohort.isReadOnly">
             <button type="button"
                     id="delete-filtered-cohort-btn-{{$index}}"
                     class="btn-link cohort-manage-btn-link"

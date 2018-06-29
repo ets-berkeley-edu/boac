@@ -27,13 +27,20 @@
 
   'use strict';
 
-  angular.module('boac').controller('AllCohortsController', function(cohortFactory, page, $scope) {
+  angular.module('boac').controller('AllCohortsController', function(cohortFactory, page, $location, $scope) {
 
     var init = function() {
       page.loading(true);
       cohortFactory.getAll().then(function(response) {
         $scope.owners = response.data;
         page.loading(false);
+      }).catch(function(error) {
+        if (error.status === 404) {
+          $location.replace().path('/404');
+        } else {
+          $scope.error = parseError(error);
+          page.loading(false);
+        }
       });
     };
 
