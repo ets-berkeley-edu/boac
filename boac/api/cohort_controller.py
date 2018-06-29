@@ -32,14 +32,16 @@ from boac.merged import calnet
 from boac.merged import student_details
 from boac.models.cohort_filter import CohortFilter
 from flask import current_app as app, request
+from flask import Response
 from flask_login import current_user, login_required
 
 
 @app.route('/api/cohorts/all')
 @login_required
 def all_cohorts():
+    # TODO: Implement BOAC-993 requirement w.r.t advisor permission to view other cohorts
     if not current_user.is_admin and not is_department_member(current_user, 'UWASC'):
-        raise ForbiddenRequestError('You are unauthorized to browse data that is managed by other departments')
+        return Response(status=404)
     cohorts_per_uid = {}
     for cohort in CohortFilter.all_cohorts():
         for authorized_user in cohort.owners:

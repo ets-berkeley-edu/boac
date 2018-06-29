@@ -79,7 +79,7 @@
     $rootScope.$on('cohortNameChanged', function(event, data) {
       if (_.get($rootScope, 'me.myCohorts')) {
         _.each($rootScope.me.myCohorts, function(cohort) {
-          if (data.cohort.id === group.id) {
+          if (data.cohort.id === cohort.id) {
             cohort.name = data.cohort.name;
           }
         });

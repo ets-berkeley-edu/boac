@@ -136,7 +136,7 @@ class TestCohortDetail:
     def test_unauthorized_cohorts_all(self, client, fake_auth):
         """Denies access to non-ASC advisor."""
         fake_auth.login('1022796')
-        assert client.get('/api/cohorts/all').status_code == 403
+        assert client.get('/api/cohorts/all').status_code == 404
 
     def test_get_cohort(self, authenticated_session, client):
         """Returns a well-formed response with custom cohort."""
