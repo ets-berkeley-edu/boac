@@ -44,7 +44,7 @@
 
     $scope.currentEnrollmentTerm = config.currentEnrollmentTerm;
     $scope.demoMode = config.demoMode;
-    $scope.isCurrentUserAscAdvisor = authService.isCurrentUserAscAdvisor();
+    $scope.isAscUser = authService.isAscUser();
     $scope.lastActivityDays = utilService.lastActivityDays;
     $scope.orderBy = studentSearchService.getSortByOptionsForSearch();
 

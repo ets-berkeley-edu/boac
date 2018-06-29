@@ -44,8 +44,14 @@
       return _.get(user.departments, deptCode + '.isAdvisor') || _.get(user.departments, deptCode + '.isDirector');
     };
 
-    var isCurrentUserAscAdvisor = function() {
+    var isAscUser = function() {
+      // Athletic Study Center
       return isDepartmentMember(getMe(), 'UWASC');
+    };
+
+    var isCoeUser = function() {
+      // College of Engineering
+      return isDepartmentMember(getMe(), 'COENG');
     };
 
     var reloadMe = function() {
@@ -112,7 +118,8 @@
 
     return {
       getMe: getMe,
-      isCurrentUserAscAdvisor: isCurrentUserAscAdvisor,
+      isAscUser: isAscUser,
+      isCoeUser: isCoeUser,
       isDepartmentMember: isDepartmentMember,
       reloadMe: reloadMe
     };

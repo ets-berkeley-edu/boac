@@ -60,10 +60,12 @@ def canvas_courses_api_feed(courses):
 
 
 def decorate_cohort(cohort, order_by=None, offset=0, limit=50, include_students=True, include_alerts_for_uid=None):
+    _is_canned_coe_cohort = is_canned_coe_cohort(cohort)
     decorated = {
         'id': cohort.id,
         'code': cohort.id,
-        'isReadOnly': is_read_only_cohort(cohort),
+        'isReadOnly': _is_canned_coe_cohort,
+        'isCannedCoeCohort': _is_canned_coe_cohort,
         'label': cohort.label,
         'name': cohort.label,
         'owners': [user.uid for user in cohort.owners],
@@ -120,11 +122,7 @@ def decorate_cohort(cohort, order_by=None, offset=0, limit=50, include_students=
     return decorated
 
 
-def get_dept_codes(user):
-    return [m.university_dept.dept_code for m in user.department_memberships]
-
-
-def is_read_only_cohort(cohort):
+def is_canned_coe_cohort(cohort):
     criteria = cohort if isinstance(cohort.filter_criteria, dict) else json.loads(cohort.filter_criteria)
     keys_with_not_none_value = [key for key, value in criteria.items() if value not in [None, []]]
     return keys_with_not_none_value == ['coeAdvisorUid']

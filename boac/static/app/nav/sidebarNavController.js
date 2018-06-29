@@ -41,7 +41,7 @@
       $scope.demoMode = config.demoMode;
       $scope.myCohorts = _.clone(me.myCohorts);
       $scope.myGroups = _.clone(me.myGroups);
-      $scope.isCurrentUserAscAdvisor = authService.isCurrentUserAscAdvisor();
+      $scope.isAscUser = authService.isAscUser();
     };
 
     init();

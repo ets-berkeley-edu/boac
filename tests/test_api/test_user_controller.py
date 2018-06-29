@@ -140,11 +140,11 @@ class TestUserAnalytics:
     unknown = api_path.format(unknown_uid)
 
     @pytest.fixture()
-    def authenticated_session(self, fake_auth):
+    def coe_advisor(self, fake_auth):
         fake_auth.login('1133399')
 
     @pytest.fixture()
-    def authenticated_response(self, authenticated_session, client):
+    def authenticated_response(self, coe_advisor, client):
         return client.get(TestUserAnalytics.deborah)
 
     @staticmethod
@@ -158,7 +158,7 @@ class TestUserAnalytics:
         response = client.get(TestUserAnalytics.deborah)
         assert response.status_code == 401
 
-    def test_user_with_no_enrollments_in_current_term(self, authenticated_session, client):
+    def test_user_with_no_enrollments_in_current_term(self, coe_advisor, client):
         """Identifies user with no enrollments in current term."""
         response = client.get(TestUserAnalytics.dave)
         assert response.status_code == 200
@@ -272,13 +272,13 @@ class TestUserAnalytics:
         assert analytics['lastActivity']['student']['percentile'] == 93
         assert analytics['lastActivity']['displayPercentile'] == '90th'
 
-    def test_student_not_found(self, authenticated_session, client):
+    def test_student_not_found(self, coe_advisor, client):
         """Returns 404 if no viewable student."""
         response = client.get(TestUserAnalytics.unknown)
         assert response.status_code == 404
         assert response.json['message'] == 'Unknown student'
 
-    def test_relevant_majors(self, authenticated_session, client):
+    def test_relevant_majors(self, coe_advisor, client):
         """Returns list of majors relevant to our student population."""
         response = client.get('/api/majors/relevant')
         assert response.status_code == 200
@@ -357,7 +357,7 @@ class TestUserAnalytics:
         assert dropped_sections[0]['component'] == 'TUT'
         assert dropped_sections[0]['sectionNumber'] == '002'
 
-    def test_sis_enrollment_not_found(self, authenticated_session, client):
+    def test_sis_enrollment_not_found(self, coe_advisor, client):
         """Gracefully handles missing SIS enrollments."""
         hdrs = 'grade,units,grading_basis,sis_enrollment_status,sis_term_id,ldap_uid,sis_course_title,' \
                'sis_course_name,sis_section_id,sis_primary,sis_instruction_format,sis_section_num '
@@ -418,7 +418,7 @@ class TestUserAnalytics:
         assert tennis['teamCode'] == 'TNW'
         assert tennis['teamName'] == 'Women\'s Tennis'
 
-    def test_sis_profile_unexpected_payload(self, authenticated_session, client):
+    def test_sis_profile_unexpected_payload(self, coe_advisor, client):
         """Gracefully handles unexpected SIS profile data."""
         sis_response = MockResponse(200, {}, '{"apiResponse": {"response": {"message": "Something wicked."}}}')
         with register_mock(sis_student_api._get_student, sis_response):
@@ -427,7 +427,7 @@ class TestUserAnalytics:
             assert response.json['canvasUserId']
             assert not response.json['sisProfile']
 
-    def test_sis_profile_error(self, authenticated_session, client):
+    def test_sis_profile_error(self, coe_advisor, client):
         """Gracefully handles SIS profile error."""
         sis_error = MockResponse(500, {}, '{"message": "Internal server error."}')
         with register_mock(sis_student_api._get_student, sis_error):

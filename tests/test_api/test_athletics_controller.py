@@ -27,12 +27,12 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import pytest
 import simplejson as json
 
-test_uid = '1133399'
+asc_advisor_uid = '1081940'
 
 
 @pytest.fixture()
-def authenticated_session(fake_auth):
-    fake_auth.login(test_uid)
+def asc_advisor(fake_auth):
+    fake_auth.login(asc_advisor_uid)
 
 
 class TestAthletics:
@@ -48,7 +48,7 @@ class TestAthletics:
         response = client.get('/api/teams/all')
         assert response.status_code == 401
 
-    def test_get_all_team_groups(self, authenticated_session, client):
+    def test_get_all_team_groups(self, asc_advisor, client):
         """Returns all team-groups if authenticated."""
         response = client.get('/api/team_groups/all')
         assert response.status_code == 200
@@ -67,7 +67,7 @@ class TestAthletics:
         ] == group_names
         assert [2, 3, 1, 1, 1, 1] == total_student_counts
 
-    def test_get_all_teams(self, authenticated_session, client):
+    def test_get_all_teams(self, asc_advisor, client):
         """Returns all teams if authenticated."""
         response = client.get('/api/teams/all')
         assert response.status_code == 200
@@ -84,14 +84,14 @@ class TestAthletics:
         assert football['name'] == 'Football'
         assert football['totalStudentCount'] == 3
 
-    def test_team_not_found(self, authenticated_session, client):
+    def test_team_not_found(self, asc_advisor, client):
         """Returns code as name when no code-to-name translation exists."""
         response = client.get('/api/team/XYZ')
         assert response.status_code == 404
         assert 'code' not in response.json
         assert 'No team found' in json.loads(response.data)['message']
 
-    def test_team_with_athletes_in_multiple_groups(self, authenticated_session, client):
+    def test_team_with_athletes_in_multiple_groups(self, asc_advisor, client):
         """Returns a well-formed response on a valid code if authenticated."""
         response = client.get('/api/team/FBM?orderBy=last_name')
         assert response.status_code == 200
@@ -111,7 +111,7 @@ class TestAthletics:
         assert athlete['sid'] == '2345678901'
         assert athlete['inIntensiveCohort'] is False
 
-    def test_includes_student_sis_data(self, authenticated_session, client):
+    def test_includes_student_sis_data(self, asc_advisor, client):
         """Includes SIS data for team members."""
         response = client.get('/api/team/FHW')
         athlete = response.json['students'][0]
@@ -120,7 +120,7 @@ class TestAthletics:
         assert athlete['level'] == 'Junior'
         assert athlete['majors'] == ['Astrophysics BS', 'English BA']
 
-    def test_includes_student_current_enrollments(self, authenticated_session, client):
+    def test_includes_student_current_enrollments(self, asc_advisor, client):
         """Includes current-term active enrollments and analytics for team members."""
         response = client.get('/api/team/FHW')
         athlete = response.json['students'][0]
@@ -131,7 +131,7 @@ class TestAthletics:
         assert term['enrollments'][0]['displayName'] == 'BURMESE 1A'
         assert len(term['enrollments'][0]['canvasSites']) == 1
 
-    def test_get_team_order_by(self, authenticated_session, client):
+    def test_get_team_order_by(self, asc_advisor, client):
         expected = {
             'first_name': ['2345678901', '3456789012', '5678901234'],
             'gpa': ['3456789012', '2345678901', '5678901234'],

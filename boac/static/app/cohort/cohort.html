@@ -28,7 +28,7 @@
   <hr class="filters-section-separator" data-ng-if="!isLoading && !error && !isCreateCohortMode"/>
 
   <div class="flex-container flex-space-between" data-ng-if="!error">
-    <div class="cohort-filters-column flex-column-btn" data-ng-if="isCurrentUserAscAdvisor">
+    <div class="cohort-filters-column flex-column-btn" data-ng-if="isAscUser">
       <cohort-filter data-menu-type="groupCodes" data-label="Teams"></cohort-filter>
     </div>
     <div class="cohort-filters-column flex-column-btn">
@@ -43,7 +43,7 @@
     <div class="cohort-filters-column flex-column-btn">
       <cohort-filter data-menu-type="unitRanges" data-label="Units"></cohort-filter>
     </div>
-    <div class="cohort-filters-column cohort-checkbox-column" data-ng-if="!isLoading && !isSaving && isCurrentUserAscAdvisor">
+    <div class="cohort-filters-column cohort-checkbox-column" data-ng-if="!isLoading && !isSaving">
       <div data-ng-if="showIntensiveCheckbox">
         <input id="intensive-checkbox"
                type="checkbox"
@@ -57,6 +57,12 @@
                data-ng-disabled="!showInactiveCheckbox"
                data-ng-model="search.options.inactive"/>
         <label class="cohort-checkbox-label" for="inactive-checkbox" data-ng-if="showInactiveCheckbox">Inactive</label>
+      </div>
+      <div data-ng-if="isCoeUser && cohort.isCannedCoeCohort">
+        <input id="canned-coe-cohort-checkbox"
+               type="checkbox"
+               data-ng-model="search.options.cannedCoeCohort"/>
+        <label class="cohort-checkbox-label" for="canned-coe-cohort-checkbox">My Students</label>
       </div>
     </div>
     <!-- Apply and save buttons -->
@@ -152,7 +158,7 @@
                  data-ng-class="{'demo-mode-blur': demoMode}">
               {{student.sid}}
               <span class="red-flag-status"
-                    data-ng-if="isCurrentUserAscAdvisor && !student.athleticsProfile.isActiveAsc">INACTIVE</span>
+                    data-ng-if="isAscUser && !student.athleticsProfile.isActiveAsc">INACTIVE</span>
             </div>
             <div class="student-text" data-ng-bind="student.level"></div>
             <div class="student-text" data-ng-bind="major" data-ng-repeat="major in student.majors"></div>

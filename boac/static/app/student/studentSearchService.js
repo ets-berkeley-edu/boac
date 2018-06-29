@@ -39,7 +39,7 @@
         {name: 'Units', value: 'units'}
       ];
 
-      if (authService.isCurrentUserAscAdvisor()) {
+      if (authService.isAscUser()) {
         options.push({name: 'Team', value: 'group_name'});
         options = _.sortBy(options, [ 'name' ]);
       }

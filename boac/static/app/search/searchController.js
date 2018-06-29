@@ -47,7 +47,7 @@
     };
 
     var loadSearchResults = function() {
-      var inactiveAsc = authService.isCurrentUserAscAdvisor() ? false : null;
+      var inactiveAsc = authService.isAscUser() ? false : null;
       page.loading(true);
       studentFactory.searchForStudents($scope.search.phrase, inactiveAsc, 'last_name', 0, $scope.search.limit).then(
         function(response) {

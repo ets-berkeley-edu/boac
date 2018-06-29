@@ -39,7 +39,7 @@ class TestAuthorizedUser:
 
     def test_load_admin_user(self):
         """Returns authorization record to Flask-Login for recognized UID."""
-        admin_uid = '1133399'
+        admin_uid = '2040'
         loaded_user = AuthorizedUser.find_by_uid(admin_uid)
         assert loaded_user.is_active
         assert loaded_user.get_id() == admin_uid
