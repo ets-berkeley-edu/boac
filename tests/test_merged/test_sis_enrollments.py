@@ -50,11 +50,12 @@ class TestMergedSisEnrollments:
         assert len(enrollments[0]['canvasSites']) == 1
         assert enrollments[0]['canvasSites'][0]['canvasCourseId'] == 7654320
         assert enrollments[0]['sections'][0]['canvasCourseIds'] == [7654320]
-        assert len(enrollments[1]['canvasSites']) == 1
+        assert len(enrollments[1]['canvasSites']) == 2
         assert enrollments[1]['canvasSites'][0]['canvasCourseId'] == 7654321
-        assert enrollments[1]['sections'][0]['canvasCourseIds'] == [7654321]
+        assert enrollments[1]['canvasSites'][1]['canvasCourseId'] == 7654330
+        assert enrollments[1]['sections'][0]['canvasCourseIds'] == [7654321, 7654330]
         assert len(enrollments[2]['canvasSites']) == 2
         assert enrollments[2]['canvasSites'][0]['canvasCourseId'] == 7654323
         assert enrollments[2]['canvasSites'][1]['canvasCourseId'] == 7654330
         assert (enrollments[2]['sections'][0]['canvasCourseIds']) == [7654323, 7654330]
-        assert (enrollments[2]['sections'][1]['canvasCourseIds']) == []
+        assert (enrollments[2]['sections'][1]['canvasCourseIds']) == [7654330]

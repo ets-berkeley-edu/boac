@@ -173,7 +173,7 @@ def is_enrolled_primary_section(section_feed):
 def merge_canvas_course_site(term_feed, site):
     if site['courseTerm'] != term_feed['termName']:
         return
-    site_matched = False
+    enrollments_matched = set()
     canvas_sections = data_loch.get_sis_sections_in_canvas_course(site['canvasCourseId'], term_feed['termId'])
     if not canvas_sections:
         return
@@ -181,15 +181,18 @@ def merge_canvas_course_site(term_feed, site):
         canvas_ccn = canvas_section['sis_section_id']
         if not canvas_ccn:
             continue
-        for enrollment in term_feed['enrollments']:
+        # There is no particularly intuitive unique identifier for a 'class enrollment', and so we resort to
+        # list position.
+        for index, enrollment in enumerate(term_feed['enrollments']):
             for sis_section in enrollment['sections']:
                 if canvas_ccn == sis_section.get('ccn'):
                     sis_section['canvasCourseIds'] = sis_section.get('canvasCourseIds', [])
                     sis_section['canvasCourseIds'].append(site['canvasCourseId'])
-                    if not site_matched:
+                    # Do not add the same site multiple times to the same enrollment.
+                    if index not in enrollments_matched:
+                        enrollments_matched.add(index)
                         enrollment['canvasSites'].append(site)
-                    site_matched = True
-    if not site_matched:
+    if not enrollments_matched:
         term_feed['unmatchedCanvasSites'].append(site)
 
 
