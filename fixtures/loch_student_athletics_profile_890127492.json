@@ -1,0 +1,42 @@
+{
+    "athletics": [
+        {
+            "groupCode": "MFB-DB",
+            "groupName": "Football, Defensive Backs",
+            "name": "Football, Defensive Backs",
+            "teamCode": "FBM",
+            "teamName": "Football"
+        },
+        {
+            "groupCode": "MFB-DL",
+            "groupName": "Football, Defensive Line",
+            "name": "Football, Defensive Line",
+            "teamCode": "FBM",
+            "teamName": "Football"
+        },
+        {
+            "groupCode": "MTE",
+            "groupName": "Men's Tennis",
+            "name": "Men's Tennis",
+            "teamCode": "TNM",
+            "teamName": "Men's Tennis"
+        },
+        {
+            "groupCode": "WFH",
+            "groupName": "Women's Field Hockey",
+            "name": "Women's Field Hockey",
+            "teamCode": "FHW",
+            "teamName": "Women's Field Hockey"
+        },
+        {
+            "groupCode": "WTE",
+            "groupName": "Women's Tennis",
+            "name": "Women's Tennis",
+            "teamCode": "TNW",
+            "teamName": "Women's Tennis"
+        }
+    ],
+    "inIntensiveCohort": true,
+    "isActiveAsc": false,
+    "statusAsc": "Trouble"
+}

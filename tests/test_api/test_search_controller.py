@@ -145,7 +145,7 @@ class TestSearch:
         fake_auth.login('2040')
         response = client.post('/api/students/search', data=json.dumps({'searchPhrase': 'davies'}), content_type='application/json')
         assert response.status_code == 200
-        assert response.json['students'][0]['alertCount'] == 2
+        assert response.json['students'][0]['alertCount'] == 3
 
     def test_search_by_name_snippet(self, client, fake_auth):
         """Search by snippet of name."""

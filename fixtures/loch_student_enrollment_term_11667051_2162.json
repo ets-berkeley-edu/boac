@@ -1,0 +1,34 @@
+{
+    "analytics": {
+        "assignmentsSubmitted": null,
+        "currentScore": null,
+        "lastActivity": null
+    },
+    "enrolledUnits": 0,
+    "enrollments": [
+        {
+            "canvasSites": [],
+            "displayName": "NESTUD 113",
+            "grade": "EPN",
+            "gradingBasis": 2162,
+            "sections": [
+                {
+                    "canvasCourseIds": [],
+                    "ccn": 54321,
+                    "component": "LEC",
+                    "enrollmentStatus": 61889,
+                    "grade": "EPN",
+                    "gradingBasis": 2162,
+                    "primary": true,
+                    "sectionNumber": "001",
+                    "units": "E"
+                }
+            ],
+            "title": " and God",
+            "units": "E"
+        }
+    ],
+    "termId": "2162",
+    "termName": "Spring 2016",
+    "unmatchedCanvasSites": []
+}

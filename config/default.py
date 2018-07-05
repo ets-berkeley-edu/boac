@@ -77,8 +77,10 @@ GOOGLE_ANALYTICS_ID = False
 
 # Data Loch is treated as a readonly Postgres DB.
 DATA_LOCH_URI = 'postgres://nessie:secret@secreturl.com:5432/canvas'
+DATA_LOCH_ASC_SCHEMA = 'boac_advising_asc'
 DATA_LOCH_BOAC_SCHEMA = 'boac_analytics'
 DATA_LOCH_INTERMEDIATE_SCHEMA = 'intermediate'
+DATA_LOCH_STUDENT_SCHEMA = 'student'
 
 LDAP_HOST = 'nds-test.berkeley.edu'
 LDAP_BIND = 'mybind'

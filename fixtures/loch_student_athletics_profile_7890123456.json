@@ -1,0 +1,15 @@
+{
+    "athletics": [
+        {
+            "groupCode": "MBB",
+            "groupName": "Men's Baseball",
+            "name": "Men's Baseball",
+            "teamCode": "MBB",
+            "teamName": "Men's Baseball"
+        }
+    ],
+    "inIntensiveCohort": true,
+    "isActiveAsc": true,
+    "statusAsc": "Compete"
+
+}

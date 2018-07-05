@@ -1,0 +1,54 @@
+{
+    "canvasUserId": "10000003",
+    "canvasUserName": "Sandeep Jayaprakash",
+    "firstName": "Sandeep",
+    "lastName": "Jayaprakash",
+    "name": "Sandeep Jayaprakash",
+    "sid": "5678901234",
+    "sisProfile": {
+        "academicCareer": "UGRD",
+        "cumulativeGPA": 3.501,
+        "cumulativeUnits": 102,
+        "degreeProgress": {
+            "reportDate": "2017-03-03",
+            "requirements": {
+                "americanCultures": {
+                    "name": "American Cultures",
+                    "status": "In Progress"
+                },
+                "americanHistory": {
+                    "name": "American History",
+                    "status": "Not Satisfied"
+                },
+                "americanInstitutions": {
+                    "name": "American Institutions",
+                    "status": "Not Satisfied"
+                },
+                "entryLevelWriting": {
+                    "name": "Entry Level Writing",
+                    "status": "Satisfied"
+                }
+            }
+        },
+        "expectedGraduationTerm": {
+            "id": "2198",
+            "name": "Fall 2019"
+        },
+        "level": {
+            "code": "40",
+            "description": "Senior"
+        },
+        "matriculation": "Summer 2015",
+        "phoneNumber": "415/123-4567",
+        "plans": [
+            {
+                "description": "Letters & Sci Undeclared UG",
+                "program": "Undergrad Letters & Science"
+            }
+        ],
+        "preferredName": "Sandeep Jayaprakash",
+        "primaryName": "Sandeep Jayaprakash",
+        "termsInAttendance": 5
+    },
+    "uid": "9933311"
+}

@@ -1,0 +1,54 @@
+{
+    "canvasUserId": "10000004",
+    "canvasUserName": "Siegfried Schlemiel",
+    "firstName": "Siegfried",
+    "lastName": "Schlemiel",
+    "name": "Siegfried Schlemiel",
+    "sid": "890127492",
+    "sisProfile": {
+        "academicCareer": "UGRD",
+        "cumulativeGPA": 0.4,
+        "cumulativeUnits": 8,
+        "degreeProgress": {
+            "reportDate": "2017-03-03",
+            "requirements": {
+                "americanCultures": {
+                    "name": "American Cultures",
+                    "status": "In Progress"
+                },
+                "americanHistory": {
+                    "name": "American History",
+                    "status": "Not Satisfied"
+                },
+                "americanInstitutions": {
+                    "name": "American Institutions",
+                    "status": "Not Satisfied"
+                },
+                "entryLevelWriting": {
+                    "name": "Entry Level Writing",
+                    "status": "Satisfied"
+                }
+            }
+        },
+        "expectedGraduationTerm": {
+            "id": "2198",
+            "name": "Fall 2019"
+        },
+        "level": {
+            "code": "20",
+            "description": "Sophomore"
+        },
+        "matriculation": "Summer 2015",
+        "phoneNumber": "415/123-4567",
+        "plans": [
+            {
+                "description": "Mathematics",
+                "program": "Undergrad Letters & Science"
+            }
+        ],
+        "preferredName": "Siegfried Schlemiel",
+        "primaryName": "Siegfried Schlemiel",
+        "termsInAttendance": 5
+    },
+    "uid": "211159"
+}

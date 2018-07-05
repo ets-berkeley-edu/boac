@@ -1,0 +1,58 @@
+{
+    "canvasUserId": "10000002",
+    "canvasUserName": "Paul Kerschen",
+    "firstName": "Paul",
+    "lastName": "Kerschen",
+    "name": "Paul Kerschen",
+    "sid": "3456789012",
+    "sisProfile": {
+        "academicCareer": "UGRD",
+        "cumulativeGPA": 3.005,
+        "cumulativeUnits": 70,
+        "degreeProgress": {
+            "reportDate": "2017-03-03",
+            "requirements": {
+                "americanCultures": {
+                    "name": "American Cultures",
+                    "status": "In Progress"
+                },
+                "americanHistory": {
+                    "name": "American History",
+                    "status": "Not Satisfied"
+                },
+                "americanInstitutions": {
+                    "name": "American Institutions",
+                    "status": "Not Satisfied"
+                },
+                "entryLevelWriting": {
+                    "name": "Entry Level Writing",
+                    "status": "Satisfied"
+                }
+            }
+        },
+        "expectedGraduationTerm": {
+            "id": "2198",
+            "name": "Fall 2019"
+        },
+        "level": {
+            "code": "30",
+            "description": "Junior"
+        },
+        "matriculation": "Summer 2015",
+        "phoneNumber": "415/123-4567",
+        "plans": [
+            {
+                "description": "English BA",
+                "program": "Undergrad Letters & Science"
+            },
+            {
+                "description": "Political Economy BA",
+                "program": "Undergrad Letters & Science"
+            }
+        ],
+        "preferredName": "Paul Kerschen",
+        "primaryName": "Paul Kerschen",
+        "termsInAttendance": 5
+    },
+    "uid": "242881"
+}
