@@ -28,7 +28,6 @@ from functools import wraps
 from boac.api import cache_utils
 from boac.lib import berkeley
 from boac.lib.http import tolerant_jsonify
-from boac.merged import import_asc_athletes
 from boac.models.job_progress import JobProgress
 from flask import current_app as app, request
 from flask_login import current_user
@@ -51,13 +50,6 @@ def admin_required(func):
 def term():
     term_id = request.args.get('term') or berkeley.current_term_id()
     return term_id
-
-
-@app.route('/api/admin/asc_import')
-@admin_required
-def do_import_from_asc():
-    status = import_asc_athletes.update_from_asc_api()
-    return tolerant_jsonify(status)
 
 
 @app.route('/api/admin/cachejob')

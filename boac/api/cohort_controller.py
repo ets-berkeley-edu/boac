@@ -29,7 +29,7 @@ from boac.lib import util
 from boac.lib.berkeley import can_view_cohort, get_dept_codes
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
-from boac.merged import student_details
+from boac.merged.student import get_summary_student_profiles
 from boac.models.cohort_filter import CohortFilter
 from flask import current_app as app, request
 from flask_login import current_user, login_required
@@ -73,10 +73,15 @@ def my_cohorts():
         )
         _my_cohorts = CohortFilter.all_owned_by(uid)
     cohorts = [decorate_cohort(c, include_alerts_for_uid=uid, include_students=False) for c in _my_cohorts]
+    alert_sids = []
     for cohort in cohorts:
-        student_details.merge_external_students_data(cohort['alerts'])
-        for data in cohort['alerts']:
-            strip_analytics(data)
+        alert_sids += [a['sid'] for a in cohort['alerts']]
+    alert_profiles = get_summary_student_profiles(alert_sids)
+    alert_profiles_by_sid = {p['sid']: p for p in alert_profiles}
+    for cohort in cohorts:
+        for alert in cohort['alerts']:
+            alert.update(alert_profiles_by_sid[alert['sid']])
+            strip_analytics(alert)
     return tolerant_jsonify(cohorts)
 
 
@@ -88,8 +93,7 @@ def get_cohort(cohort_id):
     limit = util.get(request.args, 'limit', 50)
     cohort = CohortFilter.find_by_id(int(cohort_id))
     if cohort and can_view_cohort(current_user, cohort):
-        cohort = decorate_cohort(cohort, order_by, int(offset), int(limit))
-        student_details.merge_external_students_data(cohort['students'])
+        cohort = decorate_cohort(cohort, order_by, int(offset), int(limit), include_profiles=True)
         return tolerant_jsonify(cohort)
     else:
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')

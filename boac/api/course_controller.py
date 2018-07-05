@@ -25,10 +25,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.api.errors import ResourceNotFoundError
+from boac.api.util import sort_students_by_name
 from boac.externals import data_loch
 from boac.lib.http import tolerant_jsonify
-from boac.merged import student_details
-from boac.models.normalized_cache_enrollment import NormalizedCacheEnrollment
+from boac.merged.sis_sections import get_sis_section
+from boac.merged.student import get_summary_student_profiles
 from flask import current_app as app
 from flask_login import login_required
 
@@ -36,12 +37,13 @@ from flask_login import login_required
 @app.route('/api/section/<term_id>/<section_id>')
 @login_required
 def get_section(term_id, section_id):
-    section = NormalizedCacheEnrollment.get_course_section(term_id=term_id, section_id=section_id)
+    section = get_sis_section(term_id, section_id)
     if not section:
         raise ResourceNotFoundError(f'No section {section_id} in term {term_id}')
-    students = section.get('students', [])
-    student_details.merge_external_students_data(students, section['termId'])
+    sids = [str(r['sid']) for r in data_loch.get_sis_section_enrollments(term_id, section_id)]
+    students = get_summary_student_profiles(sids, section['termId'])
     for student in students:
+        print(student)
         # Cherry-pick enrollment of section requested
         student_term = student.get('term')
         if not student_term:
@@ -55,38 +57,5 @@ def get_section(term_id, section_id):
                     'grade': enrollment.get('grade', None),
                     'gradingBasis': enrollment.get('gradingBasis', None),
                 }
+    section['students'] = sort_students_by_name(students)
     return tolerant_jsonify(section)
-
-
-def _filter_canvas_sites_per_section_id(students, term_id, section_id):
-    canvas_sites_dict = _canvas_sites_dict(students[0])
-    for student in students[1:]:
-        for course_id, canvas_site in _canvas_sites_dict(student).items():
-            canvas_sites_dict[course_id] = canvas_site
-    canvas_sites = []
-    for canvas_site in list(canvas_sites_dict.values()):
-        canvas_course_id = canvas_site['canvasCourseId']
-        sections = data_loch.get_sis_sections_in_canvas_course(canvas_course_id, term_id)
-        for section in sections:
-            # Is this an official course section, linked to the SIS?
-            if section['sis_section_id']:
-                canvas_sites.append(canvas_site)
-                break
-    # Remove students' extraneous canvas sites
-    canvas_course_ids = [s['canvasCourseId'] for s in canvas_sites]
-    for student in students:
-        sites = student.get('enrollment', {}).get('canvasSites', [])
-        if sites:
-            sites = [s for s in sites if s['canvasCourseId'] in canvas_course_ids]
-            student['enrollment']['canvasSites'] = sites
-    return canvas_sites
-
-
-def _canvas_sites_dict(student):
-    canvas_sites = student.get('enrollment', {}).get('canvasSites', [])
-    return {str(canvas_site['canvasCourseId']): canvas_site for canvas_site in canvas_sites}
-
-
-def _get_student_average(attribute, students):
-    _students = [s for s in students if s.get(attribute)]
-    sum(s[attribute] for s in _students) / len(_students) if _students else None

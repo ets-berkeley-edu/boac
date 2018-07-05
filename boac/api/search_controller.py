@@ -29,9 +29,8 @@ from boac.api.util import add_alert_counts
 from boac.lib import util
 from boac.lib.berkeley import get_dept_codes
 from boac.lib.http import tolerant_jsonify
-from boac.merged import student_details
+from boac.merged.student import query_students, search_for_students
 from boac.models.alert import Alert
-from boac.models.student import Student
 from flask import current_app as app, request
 from flask_login import current_user, login_required
 
@@ -39,7 +38,8 @@ from flask_login import current_user, login_required
 @app.route('/api/students/all')
 def all_students():
     order_by = request.args['orderBy'] if 'orderBy' in request.args else None
-    return tolerant_jsonify(Student.get_all(order_by=order_by, is_active_asc=True))
+    results = query_students(order_by=order_by, is_active_asc=True)
+    return tolerant_jsonify(results['students'])
 
 
 @app.route('/api/students', methods=['POST'])
@@ -60,7 +60,8 @@ def get_students():
     asc_authorized = current_user.is_admin or 'UWASC' in get_dept_codes(current_user)
     if not asc_authorized and (in_intensive_cohort is not None or is_inactive_asc is not None):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
-    results = Student.get_students(
+    results = query_students(
+        include_profiles=True,
         coe_advisor_uid=coe_advisor_uid,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
@@ -76,7 +77,6 @@ def get_students():
     alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
     students = results['students']
     add_alert_counts(alert_counts, students)
-    student_details.merge_external_students_data(students)
     return tolerant_jsonify({
         'students': students,
         'totalStudentCount': results['totalStudentCount'],
@@ -85,7 +85,7 @@ def get_students():
 
 @app.route('/api/students/search', methods=['POST'])
 @login_required
-def search_for_students():
+def search_students():
     params = request.get_json()
     search_phrase = util.get(params, 'searchPhrase', '').strip()
     if not len(search_phrase):
@@ -97,7 +97,8 @@ def search_for_students():
     asc_authorized = current_user.is_admin or 'UWASC' in get_dept_codes(current_user)
     if not asc_authorized and is_inactive_asc is not None:
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
-    results = Student.search_for_students(
+    results = search_for_students(
+        include_profiles=True,
         search_phrase=search_phrase.replace(',', ' '),
         is_active_asc=None if is_inactive_asc is None else not is_inactive_asc,
         order_by=order_by,
@@ -107,7 +108,6 @@ def search_for_students():
     alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
     students = results['students']
     add_alert_counts(alert_counts, students)
-    student_details.merge_external_students_data(students)
     return tolerant_jsonify({
         'students': students,
         'totalStudentCount': results['totalStudentCount'],

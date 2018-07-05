@@ -27,14 +27,14 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.api import errors
 import boac.api.util as api_util
 from boac.api.util import decorate_cohort
+from boac.externals import data_loch
 from boac.externals.cal1card_photo_api import get_cal1card_photo
 from boac.lib import util
 from boac.lib.http import tolerant_jsonify
-from boac.merged import calnet, student_details
+from boac.merged import calnet
+from boac.merged.student import get_student_and_terms
 from boac.models.alert import Alert
 from boac.models.cohort_filter import CohortFilter
-from boac.models.normalized_cache_student_major import NormalizedCacheStudentMajor
-from boac.models.student import Student
 from boac.models.student_group import StudentGroup
 from flask import current_app as app, Response
 from flask_login import current_user, login_required
@@ -52,7 +52,7 @@ def user_profile():
         groups = [g.to_api_json() for g in groups]
         for group in groups:
             api_util.add_alert_counts(alert_counts, group['students'])
-            api_util.sort_students_by_name(group['students'])
+            group['students'] = api_util.sort_students_by_name(group['students'])
         departments = {}
         for m in current_user.department_memberships:
             departments.update({
@@ -81,11 +81,9 @@ def user_profile():
 @app.route('/api/user/<uid>/analytics')
 @login_required
 def user_analytics(uid):
-    student = Student.query.filter_by(uid=uid).first()
-    if not student:
+    feed = get_student_and_terms(uid)
+    if not feed:
         raise errors.ResourceNotFoundError('Unknown student')
-    sid = student.sid
-    feed = student_details.get_student_and_terms(sid)
     # CalCentral's Student Overview page is advisors' official information source for the student.
     feed['studentProfileLink'] = f'https://calcentral.berkeley.edu/user/overview/{uid}'
     return tolerant_jsonify(feed)
@@ -93,7 +91,8 @@ def user_analytics(uid):
 
 @app.route('/api/majors/relevant')
 def relevant_majors():
-    return tolerant_jsonify(NormalizedCacheStudentMajor.distinct_majors())
+    majors = [row['major'] for row in data_loch.get_majors()]
+    return tolerant_jsonify(majors)
 
 
 @app.route('/api/user/<uid>/photo')
@@ -101,10 +100,6 @@ def relevant_majors():
 def user_photo(uid):
     if util.app_in_demo_mode():
         raise errors.ResourceNotFoundError('Photos are not served in demo mode.')
-
-    student = Student.query.filter_by(uid=uid).first()
-    if not student:
-        raise errors.ResourceNotFoundError('No student was found for the requested id.')
     photo = get_cal1card_photo(uid)
     if photo:
         return Response(photo, mimetype='image/jpeg')
