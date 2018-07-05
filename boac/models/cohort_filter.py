@@ -41,6 +41,7 @@ class CohortFilter(Base, UserMixin):
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     label = db.Column(db.String(255), nullable=False)
     filter_criteria = db.Column(JSONB, nullable=False)
+    student_count = db.Column(db.Integer)
     owners = db.relationship('AuthorizedUser', secondary=cohort_filter_owners, back_populates='cohort_filters')
 
     def __init__(self, label, filter_criteria):
@@ -95,6 +96,11 @@ class CohortFilter(Base, UserMixin):
         cohort.label = label
         std_commit()
         return cohort
+
+    def update_student_count(self, count):
+        self.student_count = count
+        std_commit()
+        return self
 
     @classmethod
     def share(cls, cohort_id, user_id):

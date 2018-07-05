@@ -87,6 +87,28 @@ def decorate_cohort(
     unit_ranges = util.get(criteria, 'unitRanges', [])
     in_intensive_cohort = util.to_bool_or_none(util.get(criteria, 'inIntensiveCohort'))
     is_inactive_asc = util.get(criteria, 'isInactiveAsc')
+    team_groups = athletics.get_team_groups(group_codes) if group_codes else []
+    decorated.update({
+        'filterCriteria': {
+            'coeAdvisorUid': coe_advisor_uid,
+            'gpaRanges': gpa_ranges,
+            'groupCodes': group_codes,
+            'levels': levels,
+            'majors': majors,
+            'unitRanges': unit_ranges,
+            'inIntensiveCohort': in_intensive_cohort,
+            'isInactiveAsc': is_inactive_asc,
+        },
+        'teamGroups': team_groups,
+    })
+
+    if not include_students and not include_alerts_for_uid and cohort.student_count is not None:
+        # No need for a students query; return the database-stashed student count.
+        decorated.update({
+            'totalStudentCount': cohort.student_count,
+        })
+        return decorated
+
     results = query_students(
         include_profiles=(include_students and include_profiles),
         coe_advisor_uid=coe_advisor_uid,
@@ -102,22 +124,14 @@ def decorate_cohort(
         limit=limit,
         sids_only=not include_students,
     )
-    team_groups = athletics.get_team_groups(group_codes) if group_codes else []
-    decorated.update({
-        'filterCriteria': {
-            'coeAdvisorUid': coe_advisor_uid,
-            'gpaRanges': gpa_ranges,
-            'groupCodes': group_codes,
-            'levels': levels,
-            'majors': majors,
-            'unitRanges': unit_ranges,
-            'inIntensiveCohort': in_intensive_cohort,
-            'isInactiveAsc': is_inactive_asc,
-        },
-        'teamGroups': team_groups,
-    })
     if results:
-        decorated.update({'totalStudentCount': results['totalStudentCount']})
+        # If the cohort is newly created or a cache refresh is underway, store the student count in the database
+        # to save future queries.
+        if cohort.student_count is None:
+            cohort.update_student_count(results['totalStudentCount'])
+        decorated.update({
+            'totalStudentCount': results['totalStudentCount'],
+        })
         if include_students:
             decorated.update({
                 'students': results['students'],

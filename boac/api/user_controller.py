@@ -25,7 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.api import errors
-import boac.api.util as api_util
 from boac.api.util import decorate_cohort
 from boac.externals import data_loch
 from boac.externals.cal1card_photo_api import get_cal1card_photo
@@ -33,7 +32,6 @@ from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
 from boac.merged.student import get_student_and_terms
-from boac.models.alert import Alert
 from boac.models.cohort_filter import CohortFilter
 from boac.models.student_group import StudentGroup
 from flask import current_app as app, Response
@@ -47,12 +45,8 @@ def user_profile():
     if current_user.is_active:
         # All BOAC views require group and cohort lists
         authorized_user_id = current_user.id
-        alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
         groups = StudentGroup.get_groups_by_owner_id(authorized_user_id)
-        groups = [g.to_api_json() for g in groups]
-        for group in groups:
-            api_util.add_alert_counts(alert_counts, group['students'])
-            group['students'] = api_util.sort_students_by_name(group['students'])
+        groups = [g.to_api_json(include_students=False) for g in groups]
         departments = {}
         for m in current_user.department_memberships:
             departments.update({
@@ -63,7 +57,7 @@ def user_profile():
             })
         my_cohorts = CohortFilter.all_owned_by(uid)
         profile.update({
-            'myCohorts': [decorate_cohort(c, include_alerts_for_uid=uid, include_students=False) for c in my_cohorts],
+            'myCohorts': [decorate_cohort(c, include_students=False) for c in my_cohorts],
             'myGroups': groups,
             'isAdmin': current_user.is_admin,
             'departments': departments,

@@ -24,7 +24,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-from boac.merged.sis_enrollments import merge_sis_enrollments_for_term
 from boac.models.alert import Alert
 import pytest
 
@@ -34,7 +33,6 @@ class TestCacheUtils:
     """Test cache utils."""
 
     def test_creates_alert_for_midterm_grade(self, app):
-        merge_sis_enrollments_for_term([], '61889', '11667051', app.config['CANVAS_CURRENT_ENROLLMENT_TERM'])
         from boac.api.cache_utils import load_alerts
         load_alerts(2178)
         alerts = Alert.current_alerts_for_sid(sid='11667051', viewer_id='2040')['shown']

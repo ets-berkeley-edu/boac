@@ -115,7 +115,7 @@ class StudentGroup(Base):
             db.session.delete(group)
             std_commit()
 
-    def to_api_json(self, sids_only=False):
+    def to_api_json(self, sids_only=False, include_students=True):
         api_json = {
             'id': self.id,
             'ownerId': self.owner_id,
@@ -124,6 +124,6 @@ class StudentGroup(Base):
         }
         if sids_only:
             api_json['students'] = [{'sid': s.sid} for s in self.students]
-        else:
+        elif include_students:
             api_json['students'] = get_api_json([s.sid for s in self.students])
         return api_json

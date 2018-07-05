@@ -91,6 +91,7 @@ def start_refresh():
 
 
 @app.route('/api/admin/cachejob/import_refresh')
+# For the moment, keeping this around as a legacy alias for start_refresh.
 @admin_required
 def start_import_refresh():
-    return tolerant_jsonify(cache_utils.refresh_request_handler(term(), import_asc=True))
+    return tolerant_jsonify(cache_utils.refresh_request_handler(term()))

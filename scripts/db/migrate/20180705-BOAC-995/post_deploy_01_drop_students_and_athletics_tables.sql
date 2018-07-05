@@ -1,6 +1,7 @@
 BEGIN;
 
 ALTER TABLE IF EXISTS ONLY public.student_athletes DROP CONSTRAINT IF EXISTS student_athletes_sid_fkey;
+ALTER TABLE IF EXISTS ONLY public.student_athletes DROP CONSTRAINT IF EXISTS student_athletes_group_code_fkey;
 ALTER TABLE IF EXISTS ONLY public.student_athletes DROP CONSTRAINT IF EXISTS student_athletes_pkey;
 ALTER TABLE IF EXISTS ONLY public.normalized_cache_students DROP CONSTRAINT IF EXISTS normalized_cache_students_sid_fkey;
 ALTER TABLE IF EXISTS ONLY public.normalized_cache_student_majors DROP CONSTRAINT IF EXISTS normalized_cache_student_majors_sid_fkey;

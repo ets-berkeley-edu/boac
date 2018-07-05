@@ -38,7 +38,7 @@ from flask import current_app as app
 from sqlalchemy import and_, or_
 
 
-def refresh_request_handler(term_id, load_only=False, import_asc=False):
+def refresh_request_handler(term_id, load_only=False):
     """Handle a start refresh admin request by returning an error status or starting the job on a background thread."""
     job_state = JobProgress().get()
     if job_state is None or (not job_state['start']) or job_state['end']:
@@ -46,7 +46,6 @@ def refresh_request_handler(term_id, load_only=False, import_asc=False):
         JobProgress().start({
             'job_type': job_type,
             'term_id': term_id,
-            'import_asc': import_asc,
         })
         app.logger.warn('About to start background thread')
         thread = Thread(
@@ -56,7 +55,6 @@ def refresh_request_handler(term_id, load_only=False, import_asc=False):
                 'app_arg': app._get_current_object(),
                 'term_id': term_id,
                 'job_type': job_type,
-                'import_asc': import_asc,
             },
         )
         thread.start()
@@ -101,7 +99,7 @@ def continue_request_handler():
         }
 
 
-def background_thread_refresh(app_arg, term_id, job_type, import_asc=False, continuation=False):
+def background_thread_refresh(app_arg, term_id, job_type, continuation=False):
     with app_arg.app_context():
         try:
             if job_type == 'Refresh':
@@ -125,10 +123,12 @@ def refresh_term(term_id=berkeley.current_term_id(), continuation=False):
     load_term(term_id)
     JobProgress().update(f'About to refresh from staging table')
     refresh_count = json_cache.refresh_from_staging(inclusions_for_term(term_id))
-    if refresh_count == 0:
-        JobProgress().update('ERROR: No cache entries copied from staging')
-    else:
-        JobProgress().update(f'{refresh_count} cache entries copied from staging')
+    # TODO Currently we're not looping anything into the staging table, so we expect refresh count to be zero.
+    # If a more considered set of cache entries comes back into the loop, this error message should come back
+    # too.
+    # if refresh_count == 0:
+    #     JobProgress().update('ERROR: No cache entries copied from staging')
+    JobProgress().update(f'{refresh_count} cache entries copied from staging')
 
 
 def exclusions_for_term(term_id):
@@ -214,18 +214,14 @@ def load_term(term_id=berkeley.current_term_id()):
         load_all_terms()
         return
 
-    success_count = 0
-    failures = []
-
     ids = get_all_student_ids()
 
     JobProgress().update(f'About to load alerts for current term')
     load_alerts(term_id, ids)
 
-    app.logger.warn(f'Term {term_id} load complete. Fetched {success_count} external feeds.')
-    if len(failures):
-        app.logger.warn(f'Failed to fetch {len(failures)} feeds:')
-        app.logger.warn(failures)
+    if term_id == berkeley.current_term_id():
+        JobProgress().update(f'About to load filtered cohort counts')
+        load_filtered_cohort_counts()
 
 
 def load_alerts(term_id, ids=None):
@@ -241,3 +237,13 @@ def load_alerts(term_id, ids=None):
             for section in enrollment['sections']:
                 if section.get('midtermGrade'):
                     Alert.update_midterm_grade_alerts(csid, term_id, section['ccn'], enrollment['displayName'], section['midtermGrade'])
+
+
+def load_filtered_cohort_counts():
+    from boac.api.util import decorate_cohort
+    from boac.models.cohort_filter import CohortFilter
+    for cohort in CohortFilter.query.all():
+        # Remove!
+        cohort.update_student_count(None)
+        # Reload!
+        decorate_cohort(cohort, include_students=False)
