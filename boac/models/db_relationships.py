@@ -30,13 +30,6 @@ from boac import db, std_commit
 from boac.models.base import Base
 from boac.models.university_dept import UniversityDept
 
-student_athletes = db.Table(
-    'student_athletes',
-    Base.metadata,
-    db.Column('group_code', db.String(80), db.ForeignKey('athletics.group_code'), primary_key=True),
-    db.Column('sid', db.String(80), db.ForeignKey('students.sid'), primary_key=True),
-)
-
 
 cohort_filter_owners = db.Table(
     'cohort_filter_owners',
@@ -46,12 +39,13 @@ cohort_filter_owners = db.Table(
 )
 
 
-student_group_members = db.Table(
-    'student_group_members',
-    Base.metadata,
-    db.Column('student_group_id', db.Integer, db.ForeignKey('student_groups.id'), primary_key=True),
-    db.Column('sid', db.String(80), db.ForeignKey('students.sid'), primary_key=True),
-)
+class StudentGroupMembership(db.Model):
+    __tablename__ = 'student_group_members'
+
+    student_group_id = db.Column('student_group_id', db.Integer, db.ForeignKey('student_groups.id'), primary_key=True)
+    sid = db.Column('sid', db.String(80), primary_key=True)
+
+    student_group = db.relationship('StudentGroup', back_populates='students')
 
 
 class UniversityDeptMember(Base):

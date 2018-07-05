@@ -26,19 +26,15 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import db, std_commit
 from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE
-from boac.models.athletics import Athletics
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
-from boac.models.student import Student
 from boac.models.student_group import StudentGroup
 from boac.models.university_dept import UniversityDept
 # Models below are included so that db.create_all will find them.
 from boac.models.alert import Alert # noqa
-from boac.models.db_relationships import AlertView, cohort_filter_owners, student_athletes, UniversityDeptMember  # noqa
+from boac.models.db_relationships import AlertView, cohort_filter_owners, UniversityDeptMember  # noqa
 from boac.models.job_progress import JobProgress # noqa
 from boac.models.json_cache import JsonCache # noqa
-from boac.models.normalized_cache_student import NormalizedCacheStudent # noqa
-from boac.models.normalized_cache_student_major import NormalizedCacheStudentMajor # noqa
 from flask import current_app as app
 from sqlalchemy.sql import text
 
@@ -180,136 +176,17 @@ def load_development_data():
     std_commit(allow_test_environment=True)
 
 
-def create_team_group(t):
-    athletics = Athletics(
-        group_code=t['group_code'],
-        group_name=t['group_name'],
-        team_code=t['team_code'],
-        team_name=t['team_name'],
-    )
-    db.session.add(athletics)
-    return athletics
-
-
-def create_student(sid, uid, first_name, last_name, team_groups, gpa, level, units, majors, in_intensive_cohort=False):
-    student = Student(
-        sid=sid,
-        uid=uid,
-        first_name=first_name,
-        last_name=last_name,
-        in_intensive_cohort=in_intensive_cohort,
-    )
-    db.session.add(student)
-    for team_group in team_groups:
-        team_group.athletes.append(student)
-    NormalizedCacheStudent.update_profile(sid, gpa=gpa, level=level, units=units)
-    NormalizedCacheStudentMajor.update_majors(sid, majors)
-    return student
-
-
 def load_student_athletes():
-    fdb = create_team_group(football_defensive_backs)
-    fdl = create_team_group(football_defensive_line)
-    mbb = create_team_group(mens_baseball)
-    mt = create_team_group(mens_tennis)
-    wfh = create_team_group(womens_field_hockey)
-    wt = create_team_group(womens_tennis)
-    # Some students are on teams and some are not
-    deborah = create_student(
-        uid='61889',
-        sid='11667051',
-        first_name='Deborah',
-        last_name='Davies',
-        team_groups=[wfh, wt],
-        gpa=None,
-        level=None,
-        units=0,
-        majors=['History BA'],
-        in_intensive_cohort=True,
-    )
-    create_student(
-        uid='123456',
-        sid='8901234567',
-        first_name='John David',
-        last_name='Crossman',
-        team_groups=[],
-        gpa='1.85',
-        level='Freshman',
-        units=12,
-        majors=['Economics BA'],
-        in_intensive_cohort=True,
-    )
-    create_student(
-        uid='98765',
-        sid='2345678901',
-        first_name='Dave',
-        last_name='Doolittle',
-        team_groups=[fdb, fdl],
-        gpa='3.495',
-        level='Junior',
-        units=34,
-        majors=['Chemistry BS'],
-    )
-    paul_kerschen = create_student(
-        uid='242881',
-        sid='3456789012',
-        first_name='Paul',
-        last_name='Kerschen',
-        team_groups=[fdl],
-        gpa='3.005',
-        level='Junior',
-        units=70,
-        majors=['English BA', 'Political Economy BA'],
-        in_intensive_cohort=True,
-    )
-    sandeep = create_student(
-        uid='9933311',
-        sid='5678901234',
-        first_name='Sandeep',
-        last_name='Jayaprakash',
-        team_groups=[fdb, fdl, mt],
-        gpa='3.501',
-        level='Senior',
-        units=102,
-        majors=['Letters & Sci Undeclared UG'],
-    )
-    paul_farestveit = create_student(
-        uid='1049291',
-        sid='7890123456',
-        first_name='Paul',
-        last_name='Farestveit',
-        team_groups=[mbb],
-        gpa='3.90',
-        level='Senior',
-        units=110,
-        majors=['History BA'],
-        in_intensive_cohort=True,
-    )
-    schlemiel = create_student(
-        uid='211159',
-        sid='890127492',
-        first_name='Siegfried',
-        last_name='Schlemiel',
-        # 'A mug is a mug in everything.' - Colonel Harrington
-        team_groups=[fdb, fdl, mt, wfh, wt],
-        gpa='0.40',
-        level='Sophomore',
-        units=8,
-        majors=['Mathematics'],
-        in_intensive_cohort=True,
-    )
-    schlemiel.is_active_asc = False
-    schlemiel.status_asc = 'Trouble'
-    db.session.merge(schlemiel)
-
     # Create empty default group for all users.
     for user in AuthorizedUser.query.all():
         StudentGroup.create(user.id, 'My Students')
 
     advisor = AuthorizedUser.find_by_uid('6446')
     group = StudentGroup.create(advisor.id, 'Cool Kids')
-    for student in [paul_kerschen, sandeep, deborah, paul_farestveit]:
-        StudentGroup.add_student(group.id, student.sid)
+    StudentGroup.add_student(group.id, '3456789012')  # PaulK
+    StudentGroup.add_student(group.id, '5678901234')  # Sandeep
+    StudentGroup.add_student(group.id, '11667051')    # Deborah
+    StudentGroup.add_student(group.id, '7890123456')  # PaulF
     std_commit(allow_test_environment=True)
 
 

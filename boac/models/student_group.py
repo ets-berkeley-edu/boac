@@ -25,11 +25,12 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac import db, std_commit
+from boac.merged.student import get_api_json
 from boac.models.base import Base
-from boac.models.db_relationships import student_group_members
-from boac.models.student import Student
+from boac.models.db_relationships import StudentGroupMembership
 from flask import current_app as app
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import FlushError
 
 
 class StudentGroup(Base):
@@ -38,11 +39,8 @@ class StudentGroup(Base):
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     owner_id = db.Column(db.String(80), db.ForeignKey('authorized_users.id'), nullable=False)
     name = db.Column(db.String(255), nullable=False)
-    students = db.relationship(
-        'Student',
-        secondary=student_group_members,
-        back_populates='group_memberships',
-    )
+
+    students = db.relationship('StudentGroupMembership', back_populates='student_group')
 
     __table_args__ = (db.UniqueConstraint(
         'owner_id',
@@ -73,35 +71,34 @@ class StudentGroup(Base):
     @classmethod
     def add_student(cls, group_id, sid):
         group = cls.query.filter_by(id=group_id).first()
-        student = Student.find_by_sid(sid)
-        if group and student:
+        if group:
             try:
-                group.students.append(student)
+                membership = StudentGroupMembership(sid=sid, student_group_id=group_id)
+                db.session.add(membership)
                 std_commit()
-            except IntegrityError:
-                app.logger.warn(f'IntegrityError during add_student with group_id={group_id}, sid {sid}')
+            except (FlushError, IntegrityError):
+                app.logger.warn(f'Database during add_student with group_id={group_id}, sid {sid}')
         return group
 
     @classmethod
     def add_students(cls, group_id, sids):
         group = cls.query.filter_by(id=group_id).first()
         if group:
-            for sid in set(sids):
-                student = Student.find_by_sid(sid)
-                if student:
-                    try:
-                        group.students.append(student)
-                        std_commit()
-                    except IntegrityError:
-                        app.logger.warn(f'IntegrityError during add_students with group_id={group_id}, sid {sid}')
+            try:
+                for sid in set(sids):
+                    membership = StudentGroupMembership(sid=sid, student_group_id=group_id)
+                    db.session.add(membership)
+                std_commit()
+            except (FlushError, IntegrityError):
+                app.logger.warn(f'Database error during add_students with group_id={group_id}, sid {sid}')
         return group
 
     @classmethod
     def remove_student(cls, group_id, sid):
         group = cls.find_by_id(group_id)
-        student = Student.find_by_sid(sid)
-        if group and student:
-            group.students.remove(student)
+        membership = StudentGroupMembership.query.filter_by(sid=sid, student_group_id=group_id).first()
+        if group and membership:
+            db.session.delete(membership)
             std_commit()
 
     @classmethod
@@ -118,11 +115,15 @@ class StudentGroup(Base):
             db.session.delete(group)
             std_commit()
 
-    def to_api_json(self):
-        return {
+    def to_api_json(self, sids_only=False):
+        api_json = {
             'id': self.id,
             'ownerId': self.owner_id,
             'name': self.name,
-            'students': [student.to_expanded_api_json() for student in self.students],
             'studentCount': len(self.students),
         }
+        if sids_only:
+            api_json['students'] = [{'sid': s.sid} for s in self.students]
+        else:
+            api_json['students'] = get_api_json([s.sid for s in self.students])
+        return api_json

@@ -80,19 +80,6 @@ ALTER TABLE ONLY alerts
     ADD CONSTRAINT alerts_sid_alert_type_key_unique_constraint UNIQUE (sid, alert_type, key);
 CREATE INDEX alerts_sid_idx ON alerts USING btree (sid);
 
---
-
-CREATE TABLE athletics (
-    group_code character varying(80) NOT NULL,
-    group_name character varying(255) NOT NULL,
-    team_code character varying(80) NOT NULL,
-    team_name character varying(255) NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
-);
-ALTER TABLE athletics OWNER TO boac;
-ALTER TABLE ONLY athletics
-    ADD CONSTRAINT athletics_pkey PRIMARY KEY (group_code);
 
 --
 
@@ -251,83 +238,8 @@ ALTER TABLE ONLY json_cache
 
 --
 
-CREATE TABLE normalized_cache_student_majors (
-    sid character varying(80) NOT NULL,
-    major character varying(255) NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
-);
-ALTER TABLE normalized_cache_student_majors OWNER TO boac;
-ALTER TABLE ONLY normalized_cache_student_majors
-    ADD CONSTRAINT normalized_cache_student_majors_pkey PRIMARY KEY (sid, major);
-CREATE INDEX normalized_cache_student_majors_major_idx ON normalized_cache_student_majors USING btree (major);
-CREATE INDEX normalized_cache_student_majors_sid_idx ON normalized_cache_student_majors USING btree (sid);
-
-
-CREATE TABLE normalized_cache_students (
-    sid character varying(80) NOT NULL,
-    gpa numeric,
-    level character varying(9),
-    units numeric,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
-);
-ALTER TABLE normalized_cache_students OWNER TO boac;
-ALTER TABLE ONLY normalized_cache_students
-    ADD CONSTRAINT normalized_cache_students_pkey PRIMARY KEY (sid);
-CREATE INDEX normalized_cache_students_gpa_idx ON normalized_cache_students USING btree (gpa);
-CREATE INDEX normalized_cache_students_level_idx ON normalized_cache_students USING btree (level);
-CREATE INDEX normalized_cache_students_units_idx ON normalized_cache_students USING btree (units);
-
---
-
-CREATE TABLE normalized_cache_enrollments (
-    term_id INTEGER NOT NULL,
-    section_id INTEGER NOT NULL,
-    sid VARCHAR(80) NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
-);
-ALTER TABLE normalized_cache_enrollments OWNER TO boac;
-ALTER TABLE ONLY normalized_cache_enrollments
-    ADD CONSTRAINT normalized_cache_enrollments_pkey PRIMARY KEY (term_id, section_id, sid);
-CREATE INDEX normalized_cache_enrollments_term_id_idx ON normalized_cache_enrollments USING btree (term_id);
-CREATE INDEX normalized_cache_enrollments_section_id_idx ON normalized_cache_enrollments USING btree (section_id);
-CREATE INDEX normalized_cache_enrollments_sid_idx ON normalized_cache_enrollments USING btree (sid);
-
---
-
-CREATE TABLE student_athletes (
-    group_code character varying(80) NOT NULL,
-    sid character varying(80) NOT NULL
-);
-ALTER TABLE student_athletes OWNER TO boac;
-ALTER TABLE ONLY student_athletes
-    ADD CONSTRAINT student_athletes_pkey PRIMARY KEY (group_code, sid);
-
---
-
-CREATE TABLE students (
-    sid character varying(80) NOT NULL,
-    uid character varying(80),
-    first_name character varying(255) NOT NULL,
-    last_name character varying(255) NOT NULL,
-    in_intensive_cohort boolean DEFAULT false NOT NULL,
-    is_active_asc boolean DEFAULT true NOT NULL,
-    status_asc character varying(80),
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
-);
-ALTER TABLE students OWNER TO boac;
-ALTER TABLE ONLY students
-    ADD CONSTRAINT students_pkey PRIMARY KEY (sid);
-
---
-
 ALTER TABLE ONLY student_group_members
     ADD CONSTRAINT student_group_members_student_group_id_fkey FOREIGN KEY (student_group_id) REFERENCES student_groups(id) ON DELETE CASCADE;
-ALTER TABLE ONLY student_group_members
-    ADD CONSTRAINT student_group_members_sid_fkey FOREIGN KEY (sid) REFERENCES students(sid) ON DELETE CASCADE;
 
 --
 
@@ -350,30 +262,7 @@ ALTER TABLE ONLY alert_views
 
 --
 
-ALTER TABLE ONLY alerts
-    ADD CONSTRAINT alerts_sid_fkey FOREIGN KEY (sid) REFERENCES students(sid) ON DELETE CASCADE;
-
---
-
 ALTER TABLE ONLY cohort_filter_owners
     ADD CONSTRAINT cohort_filter_owners_cohort_filter_id_fkey FOREIGN KEY (cohort_filter_id) REFERENCES cohort_filters(id) ON DELETE CASCADE;
 ALTER TABLE ONLY cohort_filter_owners
     ADD CONSTRAINT cohort_filter_owners_user_id_fkey FOREIGN KEY (user_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
-
---
-
-ALTER TABLE ONLY normalized_cache_student_majors
-    ADD CONSTRAINT normalized_cache_student_majors_sid_fkey FOREIGN KEY (sid) REFERENCES students(sid) ON DELETE CASCADE;
-ALTER TABLE ONLY normalized_cache_students
-    ADD CONSTRAINT normalized_cache_students_sid_fkey FOREIGN KEY (sid) REFERENCES students(sid) ON DELETE CASCADE;
-ALTER TABLE ONLY normalized_cache_enrollments
-    ADD CONSTRAINT normalized_cache_enrollments_sid_fkey FOREIGN KEY (sid) REFERENCES students(sid) ON DELETE CASCADE;
-
---
-
-ALTER TABLE ONLY student_athletes
-    ADD CONSTRAINT student_athletes_group_code_fkey FOREIGN KEY (group_code) REFERENCES athletics(group_code) ON DELETE CASCADE;
-ALTER TABLE ONLY student_athletes
-    ADD CONSTRAINT student_athletes_sid_fkey FOREIGN KEY (sid) REFERENCES students(sid) ON DELETE CASCADE;
-
---

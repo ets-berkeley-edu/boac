@@ -27,7 +27,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac import db, std_commit
 from boac.models.base import Base
 from boac.models.db_relationships import cohort_filter_owners
-from boac.models.student_group import StudentGroup
+# from boac.models.student_group import StudentGroup
 from flask_login import UserMixin
 
 
@@ -78,10 +78,10 @@ class AuthorizedUser(Base, UserMixin):
 
     # TODO This method is presently not called, since we currently create authorized users manually in the database. As
     # we move to creating users programmatically, they will be given a default "My Students" group on creation.
-    @classmethod
-    def create(cls, uid, is_admin):
-        user = cls(uid=uid, is_admin=is_admin)
-        db.session.add(user)
-        std_commit()
-        StudentGroup.create(user.id, 'My Students')
-        return user
+    # @classmethod
+    # def create(cls, uid, is_admin):
+    #    user = cls(uid=uid, is_admin=is_admin)
+    #    db.session.add(user)
+    #    std_commit()
+    #    StudentGroup.create(user.id, 'My Students')
+    #    return user
