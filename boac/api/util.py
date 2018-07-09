@@ -25,10 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import json
 from boac.lib import util
+from boac.merged import athletics
+from boac.merged.student import query_students
 from boac.models.alert import Alert
-from boac.models.athletics import Athletics
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.student import Student
 
 """Utility module containing standard API-feed translations of data objects."""
 
@@ -59,7 +59,15 @@ def canvas_courses_api_feed(courses):
     return [canvas_course_api_feed(course) for course in courses]
 
 
-def decorate_cohort(cohort, order_by=None, offset=0, limit=50, include_students=True, include_alerts_for_uid=None):
+def decorate_cohort(
+    cohort,
+    order_by=None,
+    offset=0,
+    limit=50,
+    include_students=True,
+    include_profiles=False,
+    include_alerts_for_uid=None,
+):
     _is_canned_coe_cohort = is_canned_coe_cohort(cohort)
     decorated = {
         'id': cohort.id,
@@ -79,7 +87,30 @@ def decorate_cohort(cohort, order_by=None, offset=0, limit=50, include_students=
     unit_ranges = util.get(criteria, 'unitRanges', [])
     in_intensive_cohort = util.to_bool_or_none(util.get(criteria, 'inIntensiveCohort'))
     is_inactive_asc = util.get(criteria, 'isInactiveAsc')
-    results = Student.get_students(
+    team_groups = athletics.get_team_groups(group_codes) if group_codes else []
+    decorated.update({
+        'filterCriteria': {
+            'coeAdvisorUid': coe_advisor_uid,
+            'gpaRanges': gpa_ranges,
+            'groupCodes': group_codes,
+            'levels': levels,
+            'majors': majors,
+            'unitRanges': unit_ranges,
+            'inIntensiveCohort': in_intensive_cohort,
+            'isInactiveAsc': is_inactive_asc,
+        },
+        'teamGroups': team_groups,
+    })
+
+    if not include_students and not include_alerts_for_uid and cohort.student_count is not None:
+        # No need for a students query; return the database-stashed student count.
+        decorated.update({
+            'totalStudentCount': cohort.student_count,
+        })
+        return decorated
+
+    results = query_students(
+        include_profiles=(include_students and include_profiles),
         coe_advisor_uid=coe_advisor_uid,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
@@ -93,32 +124,25 @@ def decorate_cohort(cohort, order_by=None, offset=0, limit=50, include_students=
         limit=limit,
         sids_only=not include_students,
     )
-    team_groups = Athletics.get_team_groups(group_codes) if group_codes else []
-    decorated.update({
-        'filterCriteria': {
-            'coeAdvisorUid': coe_advisor_uid,
-            'gpaRanges': gpa_ranges,
-            'groupCodes': group_codes,
-            'levels': levels,
-            'majors': majors,
-            'unitRanges': unit_ranges,
-            'inIntensiveCohort': in_intensive_cohort,
-            'isInactiveAsc': is_inactive_asc,
-        },
-        'teamGroups': team_groups,
-        'totalStudentCount': results['totalStudentCount'],
-    })
-    if include_students:
+    if results:
+        # If the cohort is newly created or a cache refresh is underway, store the student count in the database
+        # to save future queries.
+        if cohort.student_count is None:
+            cohort.update_student_count(results['totalStudentCount'])
         decorated.update({
-            'students': results['students'],
+            'totalStudentCount': results['totalStudentCount'],
         })
-    if include_alerts_for_uid:
-        viewer = AuthorizedUser.find_by_uid(include_alerts_for_uid)
-        if viewer:
-            alert_counts = Alert.current_alert_counts_for_sids(viewer.id, results['sids'])
+        if include_students:
             decorated.update({
-                'alerts': alert_counts,
+                'students': results['students'],
             })
+        if include_alerts_for_uid:
+            viewer = AuthorizedUser.find_by_uid(include_alerts_for_uid)
+            if viewer:
+                alert_counts = Alert.current_alert_counts_for_sids(viewer.id, results['sids'])
+                decorated.update({
+                    'alerts': alert_counts,
+                })
     return decorated
 
 
@@ -155,8 +179,7 @@ def sis_enrollment_section_feed(enrollment):
 
 
 def sort_students_by_name(students):
-    students = sorted(students, key=lambda s: (s['firstName'], s['lastName']))
-    return students
+    return sorted(students, key=lambda s: (s['firstName'], s['lastName']))
 
 
 def strip_analytics(student_term_data):

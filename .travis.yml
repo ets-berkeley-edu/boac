@@ -10,8 +10,13 @@ before_install:
 
   # Set up test db
   - psql -c 'create database boac_test;' -U postgres
+  - psql -c 'create database boac_loch_test;' -U postgres
+
   - psql boac_test -c 'create extension pg_trgm;' -U postgres
   - psql boac_test -c 'create role boac superuser login; alter schema public owner to boac;' -U postgres
+
+  - psql boac_loch_test -c 'create extension pg_trgm;' -U postgres
+  - psql boac_loch_test -c 'alter schema public owner to boac;' -U postgres
 
 install:
   - npm install

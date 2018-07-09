@@ -27,7 +27,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 import boac.api.util as api_util
 from boac.lib.http import tolerant_jsonify
-from boac.merged import student_details
+from boac.merged.student import get_summary_student_profiles
 from boac.models.alert import Alert
 from boac.models.student_group import StudentGroup
 from flask import current_app as app, request
@@ -78,10 +78,11 @@ def get_group(group_id):
     if group.owner_id != current_user.id:
         raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {group.id}')
     alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
-    group = group.to_api_json()
+    group = group.to_api_json(sids_only=True)
+    sids = [s['sid'] for s in group['students']]
+    group['students'] = get_summary_student_profiles(sids)
     api_util.add_alert_counts(alert_counts, group['students'])
-    student_details.merge_external_students_data(group['students'])
-    api_util.sort_students_by_name(group['students'])
+    group['students'] = api_util.sort_students_by_name(group['students'])
     return tolerant_jsonify(group)
 
 
@@ -103,17 +104,17 @@ def my_groups():
     alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
     groups = StudentGroup.get_groups_by_owner_id(current_user.id)
     groups = sorted(groups, key=lambda group: group.name)
-    groups = [g.to_api_json() for g in groups]
+    groups = [g.to_api_json(sids_only=True) for g in groups]
     for group in groups:
         students = group['students']
         api_util.add_alert_counts(alert_counts, students)
         # Only get detailed data for students with alerts.
-        students = [s for s in students if s.get('alertCount')]
-        student_details.merge_external_students_data(students)
-        for data in students:
+        sids_with_alerts = [s['sid'] for s in students if s.get('alertCount')]
+        students_with_alerts = get_summary_student_profiles(sids_with_alerts)
+        for data in students_with_alerts:
+            data['alertCount'] = next(s.get('alertCount') for s in students if s['sid'] == data['sid'])
             api_util.strip_analytics(data)
-        api_util.sort_students_by_name(students)
-        group['students'] = students
+        group['students'] = api_util.sort_students_by_name(students_with_alerts)
     return tolerant_jsonify(groups)
 
 

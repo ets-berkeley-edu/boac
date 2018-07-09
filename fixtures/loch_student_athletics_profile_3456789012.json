@@ -1,0 +1,14 @@
+{
+    "athletics": [
+        {
+            "groupCode": "MFB-DL",
+            "groupName": "Football, Defensive Line",
+            "name": "Football, Defensive Line",
+            "teamCode": "FBM",
+            "teamName": "Football"
+        }
+    ],
+    "inIntensiveCohort": true,
+    "isActiveAsc": true,
+    "statusAsc": "Compete"
+}

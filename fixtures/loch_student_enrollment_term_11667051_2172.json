@@ -1,0 +1,94 @@
+{
+    "analytics": {
+        "assignmentsSubmitted": null,
+        "currentScore": null,
+        "lastActivity": null
+    },
+    "enrolledUnits": 10.0,
+    "enrollments": [
+        {
+            "canvasSites": [],
+            "displayName": "CLASSIC 130 LEC 001",
+            "grade": "P",
+            "gradingBasis": "P/NP",
+            "sections": [
+                {
+                    "canvasCourseIds": [],
+                    "ccn": 13437,
+                    "component": "LEC",
+                    "enrollmentStatus": "E",
+                    "grade": "P",
+                    "gradingBasis": "P/NP",
+                    "primary": true,
+                    "sectionNumber": "001",
+                    "units": 4.0
+                }
+            ],
+            "title": "Topics in Ancient Greek and Roman Culture",
+            "units": 4.0
+        },
+        {
+            "canvasSites": [],
+            "displayName": "CLASSIC 130 LEC 002",
+            "grade": "B-",
+            "gradingBasis": "Letter",
+            "sections": [
+                {
+                    "canvasCourseIds": [],
+                    "ccn": 21815,
+                    "component": "LEC",
+                    "enrollmentStatus": "E",
+                    "grade": "B-",
+                    "gradingBasis": "Letter",
+                    "primary": true,
+                    "sectionNumber": "002",
+                    "units": 4.0
+                }
+            ],
+            "title": "Topics in Ancient Greek and Roman Culture",
+            "units": 4.0
+        },
+        {
+            "canvasSites": [],
+            "displayName": "MUSIC 41C",
+            "grade": "A-",
+            "gradingBasis": "Letter",
+            "sections": [
+                {
+                    "canvasCourseIds": [],
+                    "ccn": 80100,
+                    "component": "TUT",
+                    "enrollmentStatus": "E",
+                    "grade": "A-",
+                    "gradingBasis": "Letter",
+                    "primary": true,
+                    "sectionNumber": "001",
+                    "units": 2.0
+                }
+            ],
+            "title": "Private Carillon Lessons for Advanced Students",
+            "units": 2.0
+        }
+    ],
+    "termId": "2172",
+    "termName": "Spring 2017",
+    "unmatchedCanvasSites": [
+        {
+            "analytics": {
+                "assignmentsSubmitted": {
+                    "error": "Redshift query returned no results"
+                },
+                "currentScore": {
+                    "error": "Redshift query returned no results"
+                },
+                "lastActivity": {
+                    "error": "Redshift query returned no results"
+                }
+            },
+            "canvasCourseId": 7654325,
+            "courseCode": "STAT 154",
+            "courseName": "Modern Statistical Prediction and Machine Learning",
+            "courseTerm": "Spring 2017"
+        }
+    ]
+}

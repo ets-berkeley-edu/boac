@@ -27,7 +27,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import json
 import os
 import boac.factory
-from boac.models.alert import Alert
 import pytest
 
 
@@ -116,10 +115,30 @@ def fake_auth(app, db, client):
     return FakeAuth(app, client)
 
 
+@pytest.fixture(scope='session', autouse=True)
+def fake_loch(app):
+    """Mimic data loch schemas and tables in a local Postgres database."""
+    from sqlalchemy import create_engine
+    from sqlalchemy.sql import text
+    with open(app.config['BASE_DIR'] + '/fixtures/loch.sql', 'r') as ddlfile:
+        ddltext = ddlfile.read()
+    params = {}
+    fixtures = ['enrollment_term_11667051_' + term_id for term_id in ['2162', '2172', '2178']]
+    fixtures.append('enrollment_term_2345678901_2172')
+    for sid in ['11667051', '2345678901', '3456789012', '5678901234', '7890123456', '8901234567', '890127492']:
+        fixtures += ['profile_' + sid, 'athletics_profile_' + sid]
+    for fixture in fixtures:
+        with open(app.config['BASE_DIR'] + '/fixtures/loch_student_' + fixture + '.json', 'r') as f:
+            params[fixture] = f.read()
+    data_loch_db = create_engine(app.config['DATA_LOCH_URI'])
+    data_loch_db.execute(text(ddltext), params)
+
+
 @pytest.fixture()
 def create_alerts(client, db_session):
     """Create assignment and midterm grade alerts."""
     # Create three canned alerts for the current term and one for the previous term.
+    from boac.models.alert import Alert
     Alert.create(
         sid='11667051',
         alert_type='late_assignment',

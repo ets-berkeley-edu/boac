@@ -23,11 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-import io
 
-from boac.externals import data_loch, sis_student_api
-from boac.lib import mockingdata
-from boac.lib.mockingbird import MockResponse, register_mock
 import pytest
 
 
@@ -81,16 +77,14 @@ class TestUserProfile:
         assert user['departments']['UWASC']['isAdvisor'] is True
         assert user['departments']['UWASC']['isDirector'] is False
 
-    def test_includes_groups_and_alerts(self, client, fake_auth, create_alerts):
+    def test_includes_groups(self, client, fake_auth):
         test_uid = '6446'
         fake_auth.login(test_uid)
         response = client.get('/api/profile')
         groups = response.json['myGroups']
         assert len(groups) == 2
         assert groups[0]['name'] == 'Cool Kids'
-        student = groups[0]['students'][0]
-        assert student['uid'] == '61889'
-        assert student['alertCount'] == 2
+        assert groups[0]['studentCount'] == 4
 
 
 class TestUserPhoto:
@@ -117,14 +111,6 @@ class TestUserPhoto:
         response = client.get('/api/user/242881/photo')
         assert response.status_code == 404
         assert response.json['message'] == 'No photo was found for the requested id.'
-
-    def test_student_not_found(self, client, fake_auth):
-        """Returns 404 when student not found."""
-        test_uid = '1133399'
-        fake_auth.login(test_uid)
-        response = client.get('/api/user/99999999/photo')
-        assert response.status_code == 404
-        assert response.json['message'] == 'No student was found for the requested id.'
 
 
 @pytest.mark.usefixtures('db_session')
@@ -171,7 +157,7 @@ class TestUserAnalytics:
         """Returns a well-formed response if authenticated."""
         assert authenticated_response.status_code == 200
         assert authenticated_response.json['uid'] == '61889'
-        assert authenticated_response.json['canvasUserId'] == 9000100
+        assert authenticated_response.json['canvasUserId'] == '9000100'
         assert authenticated_response.json['hasCurrentTermEnrollments'] is True
         assert len(authenticated_response.json['enrollmentTerms']) > 0
         for term in authenticated_response.json['enrollmentTerms']:
@@ -252,7 +238,7 @@ class TestUserAnalytics:
         """Returns a graceful error if the expected membership is not found in the course site."""
         course_without_membership = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'BURMESE 1A')
         for metric in ['assignmentsSubmitted', 'currentScore', 'lastActivity']:
-            assert course_without_membership['canvasSites'][0]['analytics'][metric]['error'] == 'Unable to retrieve from Data Loch'
+            assert course_without_membership['canvasSites'][0]['analytics'][metric]['error']
 
     def test_course_site_with_enrollment(self, authenticated_response):
         """Returns sensible data if the expected enrollment is found in the course site."""
@@ -357,18 +343,6 @@ class TestUserAnalytics:
         assert dropped_sections[0]['component'] == 'TUT'
         assert dropped_sections[0]['sectionNumber'] == '002'
 
-    def test_sis_enrollment_not_found(self, coe_advisor, client):
-        """Gracefully handles missing SIS enrollments."""
-        hdrs = 'grade,units,grading_basis,sis_enrollment_status,sis_term_id,ldap_uid,sis_course_title,' \
-               'sis_course_name,sis_section_id,sis_primary,sis_instruction_format,sis_section_num '
-        mr = mockingdata.MockRows(io.StringIO(f'{hdrs}\n'))
-        with mockingdata.register_mock(data_loch._get_sis_enrollments, mr):
-            response = client.get(TestUserAnalytics.deborah)
-            assert response.status_code == 200
-            assert len(response.json['enrollmentTerms']) > 0
-            for term in response.json['enrollmentTerms']:
-                assert term['enrollments'] == []
-
     def test_sis_profile(self, authenticated_response):
         """Provides SIS profile data."""
         sis_profile = authenticated_response.json['sisProfile']
@@ -417,21 +391,3 @@ class TestUserAnalytics:
         assert tennis['groupName'] == 'Women\'s Tennis'
         assert tennis['teamCode'] == 'TNW'
         assert tennis['teamName'] == 'Women\'s Tennis'
-
-    def test_sis_profile_unexpected_payload(self, coe_advisor, client):
-        """Gracefully handles unexpected SIS profile data."""
-        sis_response = MockResponse(200, {}, '{"apiResponse": {"response": {"message": "Something wicked."}}}')
-        with register_mock(sis_student_api._get_student, sis_response):
-            response = client.get(TestUserAnalytics.deborah)
-            assert response.status_code == 200
-            assert response.json['canvasUserId']
-            assert not response.json['sisProfile']
-
-    def test_sis_profile_error(self, coe_advisor, client):
-        """Gracefully handles SIS profile error."""
-        sis_error = MockResponse(500, {}, '{"message": "Internal server error."}')
-        with register_mock(sis_student_api._get_student, sis_error):
-            response = client.get(TestUserAnalytics.deborah)
-            assert response.status_code == 200
-            assert response.json['canvasUserId']
-            assert not response.json['sisProfile']

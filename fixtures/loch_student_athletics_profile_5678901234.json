@@ -1,0 +1,28 @@
+{
+    "athletics": [
+        {
+            "groupCode": "MFB-DB",
+            "groupName": "Football, Defensive Backs",
+            "name": "Football, Defensive Backs",
+            "teamCode": "FBM",
+            "teamName": "Football"
+        },
+        {
+            "groupCode": "MFB-DL",
+            "groupName": "Football, Defensive Line",
+            "name": "Football, Defensive Line",
+            "teamCode": "FBM",
+            "teamName": "Football"
+        },
+        {
+            "groupCode": "MTE",
+            "groupName": "Men's Tennis",
+            "name": "Men's Tennis",
+            "teamCode": "TNM",
+            "teamName": "Men's Tennis"
+        }
+    ],
+    "inIntensiveCohort": false,
+    "isActiveAsc": true,
+    "statusAsc": "Compete"
+}

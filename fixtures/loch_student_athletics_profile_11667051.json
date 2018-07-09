@@ -1,0 +1,21 @@
+{
+    "athletics": [
+        {
+            "groupCode": "WFH",
+            "groupName": "Women's Field Hockey",
+            "name": "Women's Field Hockey",
+            "teamCode": "FHW",
+            "teamName": "Women's Field Hockey"
+        },
+        {
+            "groupCode": "WTE",
+            "groupName": "Women's Tennis",
+            "name": "Women's Tennis",
+            "teamCode": "TNW",
+            "teamName": "Women's Tennis"
+        }
+    ],
+    "inIntensiveCohort": true,
+    "isActiveAsc": true,
+    "statusAsc": "Compete"
+}
