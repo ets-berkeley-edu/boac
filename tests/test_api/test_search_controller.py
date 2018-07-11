@@ -28,18 +28,20 @@ import pytest
 import simplejson as json
 
 
+@pytest.fixture()
+def asc_advisor(fake_auth):
+    fake_auth.login('1081940')
+
+
+@pytest.fixture()
+def coe_advisor(fake_auth):
+    fake_auth.login('1133399')
+
+
 class TestAthleticsStudyCenter:
     """ASC-specific API calls."""
 
-    @pytest.fixture()
-    def asc_advisor(self, fake_auth):
-        fake_auth.login('1081940')
-
-    @pytest.fixture()
-    def coe_advisor(self, fake_auth):
-        fake_auth.login('1133399')
-
-    def test_multiple_teams(self, client):
+    def test_multiple_teams(self, asc_advisor, client):
         """Includes multiple team memberships."""
         response = client.get('/api/students/all')
         assert response.status_code == 200
@@ -103,10 +105,6 @@ class TestAthleticsStudyCenter:
 
 class TestSearch:
     """Student Search API."""
-
-    @pytest.fixture()
-    def asc_advisor(self, fake_auth):
-        fake_auth.login('1133399')
 
     def test_all_students(self, client):
         """Returns a list of students."""
@@ -187,30 +185,35 @@ class TestSearch:
         assert len(response.json['students']) == 1
         assert 'Crossman' == response.json['students'][0]['lastName']
 
+    sample_search = json.dumps({
+        'gpaRanges': ['numrange(3, 3.5, \'[)\')', 'numrange(3.5, 4, \'[]\')'],
+        'groupCodes': ['MFB-DB', 'MFB-DL'],
+        'levels': ['Junior', 'Senior'],
+        'majors': [
+            'Chemistry BS',
+            'English BA',
+            'History BA',
+            'Letters & Sci Undeclared UG',
+        ],
+        'unitRanges': [],
+        'inIntensiveCohort': None,
+        'orderBy': 'last_name',
+        'offset': 1,
+        'limit': 50,
+    })
+
     def test_get_students(self, asc_advisor, client):
-        data = {
-            'gpaRanges': ['numrange(3, 3.5, \'[)\')', 'numrange(3.5, 4, \'[]\')'],
-            'groupCodes': ['MFB-DB', 'MFB-DL'],
-            'levels': ['Junior', 'Senior'],
-            'majors': [
-                'Chemistry BS',
-                'English BA',
-                'History BA',
-                'Letters & Sci Undeclared UG',
-            ],
-            'unitRanges': [],
-            'inIntensiveCohort': None,
-            'orderBy': 'last_name',
-            'offset': 1,
-            'limit': 50,
-        }
-        response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
+        response = client.post('/api/students', data=self.sample_search, content_type='application/json')
         assert response.status_code == 200
         assert 'students' in response.json
         students = response.json['students']
         assert 2 == len(students)
         # Offset of 1, ordered by lastName
         assert ['9933311', '242881'] == [student['uid'] for student in students]
+
+    def test_get_students_includes_athletics_asc(self, asc_advisor, client):
+        response = client.post('/api/students', data=self.sample_search, content_type='application/json')
+        students = response.json['students']
         group_codes_1133399 = [a['groupCode'] for a in students[0]['athletics']]
         assert len(group_codes_1133399) == 3
         assert 'MFB-DB' in group_codes_1133399
@@ -218,3 +221,9 @@ class TestSearch:
         assert 'MTE' in group_codes_1133399
         group_codes_242881 = [a['groupCode'] for a in students[1]['athletics']]
         assert group_codes_242881 == ['MFB-DL']
+
+    def test_get_students_omits_athletics_non_asc(self, coe_advisor, client):
+        response = client.post('/api/students', data=self.sample_search, content_type='application/json')
+        students = response.json['students']
+        assert 'athletics' not in students[0]
+        assert 'athletics' not in students[1]

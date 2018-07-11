@@ -30,7 +30,7 @@ from boac import db, std_commit
 from boac.api.errors import BadRequestError
 from boac.lib.berkeley import current_term_id
 from boac.lib.util import camelize, utc_timestamp_to_localtime
-from boac.merged.student import get_full_student_profiles
+from boac.merged.student import get_full_student_profiles, get_student_query_scope
 from boac.models.base import Base
 from boac.models.db_relationships import AlertView
 from sqlalchemy import text
@@ -144,14 +144,17 @@ class Alert(Base):
         sids = list(alert_counts_by_sid.keys())
 
         def result_to_dict(result):
-            return {
+            result_dict = {
                 'sid': result.get('sid'),
                 'uid': result.get('uid'),
                 'firstName': result.get('firstName'),
                 'lastName': result.get('lastName'),
-                'isActiveAsc': result.get('athleticsProfile', {}).get('isActiveAsc'),
                 'alertCount': alert_counts_by_sid.get(result.get('sid')),
             }
+            scope = get_student_query_scope()
+            if 'UWASC' in scope or 'ADMIN' in scope:
+                result_dict['isActiveAsc'] = result.get('athleticsProfile', {}).get('isActiveAsc')
+            return result_dict
         return [result_to_dict(result) for result in get_full_student_profiles(sids)]
 
     @classmethod

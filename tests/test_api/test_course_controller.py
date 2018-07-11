@@ -25,11 +25,17 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import pytest
 
+asc_advisor_uid = '1081940'
 coe_advisor_uid = '1133399'
 term_id = 2178
 student_uid = '61889'
 student_sid = '11667051'
 section_id = 90100
+
+
+@pytest.fixture()
+def asc_advisor(fake_auth):
+    fake_auth.login(asc_advisor_uid)
 
 
 @pytest.fixture()
@@ -75,6 +81,17 @@ class TestCourseController:
         assert students[0]['cumulativeGPA'] == 3.8
         assert students[0]['cumulativeUnits'] == 101.3
         assert students[0]['level'] == 'Junior'
-        assert len(students[0]['athletics']) == 2
         assert len(students[0]['majors']) == 2
         assert len(students[0]['term']['enrollments']) == 4
+
+    def test_section_student_athletics_asc(self, asc_advisor, client):
+        """Includes athletics for ASC advisors."""
+        response = client.get(f'/api/section/{term_id}/{section_id}')
+        students = response.json['students']
+        assert len(students[0]['athletics']) == 2
+
+    def test_section_student_athletics_non_asc(self, coe_advisor, client):
+        """Does not include athletics for non-ASC advisors."""
+        response = client.get(f'/api/section/{term_id}/{section_id}')
+        students = response.json['students']
+        assert 'athletics' not in students[0]
