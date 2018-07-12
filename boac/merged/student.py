@@ -28,9 +28,10 @@ import json
 from boac.externals import data_loch
 from boac.lib.berkeley import current_term_id
 from flask import current_app as app
+from flask_login import current_user
 
 
-"""Provide controller access to merged external data."""
+"""Provide merged student data from external sources."""
 
 
 def get_api_json(sids):
@@ -47,15 +48,20 @@ def get_full_student_profiles(sids):
     if not profile_results:
         return []
     profiles_by_sid = {row['sid']: json.loads(row['profile']) for row in profile_results}
-    # TODO This athletic profile merge should occur only in the context of an ASC advisor session.
-    athletics_profiles = data_loch.get_athletics_profiles(sids)
-    athletics_profiles_by_sid = {row['sid']: json.loads(row['profile']) for row in athletics_profiles}
     profiles = []
     for sid in sids:
         profile = profiles_by_sid.get(sid)
         if profile:
-            profile['athleticsProfile'] = athletics_profiles_by_sid.get(sid)
             profiles.append(profile)
+
+    scope = get_student_query_scope()
+    if 'UWASC' in scope or 'ADMIN' in scope:
+        athletics_profiles = data_loch.get_athletics_profiles(sids)
+        for row in athletics_profiles:
+            profile = profiles_by_sid.get(row['sid'])
+            if profile:
+                profile['athleticsProfile'] = json.loads(row['profile'])
+
     return profiles
 
 
@@ -217,3 +223,13 @@ def search_for_students(
         'students': students,
         'totalStudentCount': total_student_count,
     }
+
+
+def get_student_query_scope():
+    # Use department membership and admin status to determine what data we can surface about which students.
+    if not current_user.is_authenticated:
+        return []
+    elif current_user.is_admin:
+        return ['ADMIN']
+    else:
+        return [m.university_dept.dept_code for m in current_user.department_memberships]

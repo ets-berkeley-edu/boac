@@ -29,7 +29,10 @@ from boac.models.student_group import StudentGroup
 import pytest
 import simplejson as json
 
+
+admin_uid = '2040'
 asc_advisor_uid = '6446'
+coe_advisor_uid = '1133399'
 
 
 @pytest.fixture()
@@ -38,8 +41,13 @@ def asc_advisor(fake_auth):
 
 
 @pytest.fixture()
-def admin_user_session_empty_primary(fake_auth):
-    fake_auth.login('2040')
+def coe_advisor(fake_auth):
+    fake_auth.login(coe_advisor_uid)
+
+
+@pytest.fixture()
+def admin_user_session(fake_auth):
+    fake_auth.login(admin_uid)
 
 
 class TestStudentGroupsController:
@@ -49,7 +57,7 @@ class TestStudentGroupsController:
         """Returns 401 if not authenticated."""
         assert client.get('/api/groups/my').status_code == 401
 
-    def test_unauthorized(self, admin_user_session_empty_primary, client):
+    def test_unauthorized(self, admin_user_session, client):
         """Rejects authenticated user if s/he does not own the group."""
         advisor_with_group = AuthorizedUser.find_by_uid('6446')
         groups = StudentGroup.get_groups_by_owner_id(advisor_with_group.id)
@@ -67,7 +75,7 @@ class TestStudentGroupsController:
         cool_kids_group = next(group for group in groups if group['name'] == 'Cool Kids')
         assert cool_kids_group['studentCount'] == 4
 
-    def test_empty_group(self, admin_user_session_empty_primary, client):
+    def test_empty_group(self, admin_user_session, client):
         """Returns default empty group requested."""
         groups = client.get('/api/groups/my').json
         default_group = next(group for group in groups if group['name'] == 'My Students')
@@ -134,6 +142,13 @@ class TestStudentGroupsController:
         assert teams[0]['groupCode'] == 'WFH'
         assert teams[1]['name'] == 'Women\'s Tennis'
         assert teams[1]['groupCode'] == 'WTE'
+
+    def test_group_detail_omits_athletics_non_asc(self, coe_advisor, client):
+        groups = client.get('/api/groups/my').json
+        group = next(group for group in groups if group['name'] == 'Group of One')
+        group_id = group['id']
+        group = client.get(f'/api/group/{group_id}').json
+        assert 'athleticsProfile' not in group['students'][0]
 
     def test_add_multiple_students_to_group(self, asc_advisor, client):
         """Create curated cohort and add students."""

@@ -187,6 +187,11 @@ def load_student_athletes():
     StudentGroup.add_student(group.id, '5678901234')  # Sandeep
     StudentGroup.add_student(group.id, '11667051')    # Deborah
     StudentGroup.add_student(group.id, '7890123456')  # PaulF
+
+    coe_advisor = AuthorizedUser.find_by_uid('1133399')
+    group = StudentGroup.create(coe_advisor.id, 'Group of One')
+    StudentGroup.add_student(group.id, '7890123456')  # PaulF
+
     std_commit(allow_test_environment=True)
 
 
@@ -195,6 +200,8 @@ def create_cohorts():
     CohortFilter.create(uid='2040', label='All sports', group_codes=['MFB-DL', 'WFH'])
     CohortFilter.create(uid='2040', label='Football, Defense', group_codes=['MFB-DB', 'MFB-DL'])
     CohortFilter.create(uid='2040', label='Field Hockey', group_codes=['WFH'])
+    # Flint's cohorts
+    CohortFilter.create(uid='1081940', label='All sports', group_codes=['MFB-DL', 'WFH'], is_inactive_asc=False)
     # Sandeep's cohorts
     CohortFilter.create(uid='1133399', label='Defense Backs, Inactive', group_codes=['MFB-DB'], is_inactive_asc=True)
     CohortFilter.create(uid='1133399', label='Defense Backs, Active', group_codes=['MFB-DB'], is_inactive_asc=False)

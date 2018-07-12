@@ -126,11 +126,27 @@ class TestUserAnalytics:
     unknown = api_path.format(unknown_uid)
 
     @pytest.fixture()
-    def coe_advisor(self, fake_auth):
+    def non_asc_advisor(self, fake_auth):
         fake_auth.login('1133399')
 
     @pytest.fixture()
-    def authenticated_response(self, coe_advisor, client):
+    def authenticated_response(self, non_asc_advisor, client):
+        return client.get(TestUserAnalytics.deborah)
+
+    @pytest.fixture()
+    def asc_advisor(self, fake_auth):
+        fake_auth.login('1081940')
+
+    @pytest.fixture()
+    def asc_authenticated_response(self, asc_advisor, client):
+        return client.get(TestUserAnalytics.deborah)
+
+    @pytest.fixture()
+    def admin_auth(self, fake_auth):
+        fake_auth.login('2040')
+
+    @pytest.fixture()
+    def admin_authenticated_response(self, admin_auth, client):
         return client.get(TestUserAnalytics.deborah)
 
     @staticmethod
@@ -144,7 +160,7 @@ class TestUserAnalytics:
         response = client.get(TestUserAnalytics.deborah)
         assert response.status_code == 401
 
-    def test_user_with_no_enrollments_in_current_term(self, coe_advisor, client):
+    def test_user_with_no_enrollments_in_current_term(self, non_asc_advisor, client):
         """Identifies user with no enrollments in current term."""
         response = client.get(TestUserAnalytics.dave)
         assert response.status_code == 200
@@ -258,13 +274,13 @@ class TestUserAnalytics:
         assert analytics['lastActivity']['student']['percentile'] == 93
         assert analytics['lastActivity']['displayPercentile'] == '90th'
 
-    def test_student_not_found(self, coe_advisor, client):
+    def test_student_not_found(self, non_asc_advisor, client):
         """Returns 404 if no viewable student."""
         response = client.get(TestUserAnalytics.unknown)
         assert response.status_code == 404
         assert response.json['message'] == 'Unknown student'
 
-    def test_relevant_majors(self, coe_advisor, client):
+    def test_relevant_majors(self, non_asc_advisor, client):
         """Returns list of majors relevant to our student population."""
         response = client.get('/api/majors/relevant')
         assert response.status_code == 200
@@ -378,9 +394,13 @@ class TestUserAnalytics:
         """Provides a link to official data about the student."""
         assert authenticated_response.json['studentProfileLink']
 
-    def test_athletics_profile(self, authenticated_response):
-        """Includes athletics profile."""
-        athletics_profile = authenticated_response.json['athleticsProfile']
+    def test_athletics_profile_non_asc(self, authenticated_response):
+        """Does not include athletics profile for non-ASC users."""
+        assert 'athleticsProfile' not in authenticated_response.json
+
+    def test_athletics_profile_asc(self, asc_authenticated_response):
+        """Includes athletics profile for ASC users."""
+        athletics_profile = asc_authenticated_response.json['athleticsProfile']
         assert athletics_profile['inIntensiveCohort'] is True
         assert len(athletics_profile['athletics']) == 2
         hockey = next(a for a in athletics_profile['athletics'] if a['groupCode'] == 'WFH')
@@ -391,3 +411,9 @@ class TestUserAnalytics:
         assert tennis['groupName'] == 'Women\'s Tennis'
         assert tennis['teamCode'] == 'TNW'
         assert tennis['teamName'] == 'Women\'s Tennis'
+
+    def test_athletics_profile_admin(self, admin_authenticated_response):
+        """Includes athletics profile for admins."""
+        athletics_profile = admin_authenticated_response.json['athleticsProfile']
+        assert athletics_profile['inIntensiveCohort'] is True
+        assert len(athletics_profile['athletics']) == 2

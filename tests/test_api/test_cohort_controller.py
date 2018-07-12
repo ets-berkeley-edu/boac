@@ -28,17 +28,30 @@ from boac.models.cohort_filter import CohortFilter
 import pytest
 import simplejson as json
 
+admin_uid = '2040'
+asc_advisor_uid = '1081940'
 coe_advisor_uid = '1133399'
 
 
 @pytest.fixture()
+def admin_session(fake_auth):
+    fake_auth.login(admin_uid)
+
+
+@pytest.fixture()
 def asc_advisor(fake_auth):
-    fake_auth.login('1081940')
+    fake_auth.login(asc_advisor_uid)
 
 
 @pytest.fixture()
 def coe_advisor(fake_auth):
     fake_auth.login(coe_advisor_uid)
+
+
+@pytest.fixture()
+def asc_owned_cohort():
+    cohorts = CohortFilter.all_owned_by(asc_advisor_uid)
+    return next(c for c in cohorts if c.label == 'All sports') if len(cohorts) else None
 
 
 @pytest.fixture()
@@ -112,7 +125,6 @@ class TestCohortDetail:
         assert dave_doolittle['uid']
         assert dave_doolittle['firstName']
         assert dave_doolittle['lastName']
-        assert dave_doolittle['isActiveAsc']
         assert dave_doolittle['alertCount'] == 1
 
         other_alerts = cohorts[1]['alerts']
@@ -197,11 +209,14 @@ class TestCohortDetail:
             assert analytics[metric]['percentile'] > 0
             assert analytics[metric]['displayPercentile'].endswith(('rd', 'st', 'th'))
 
-    def test_includes_cohort_member_athletics(self, coe_advisor, coe_owned_cohort, client):
-        """Includes team memberships for custom cohort members."""
-        response = client.get(f'/api/cohort/{coe_owned_cohort.id}')
+    def test_includes_cohort_member_athletics_asc(self, asc_advisor, asc_owned_cohort, client):
+        """Includes athletic data custom cohort members for ASC advisors."""
+        response = client.get(f'/api/cohort/{asc_owned_cohort.id}')
         athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
         assert len(athlete['athletics']) == 2
+        assert athlete['inIntensiveCohort'] is not None
+        assert athlete['isActiveAsc'] is not None
+        assert athlete['statusAsc'] is not None
         tennis = next(membership for membership in athlete['athletics'] if membership['groupCode'] == 'WTE')
         field_hockey = next(membership for membership in athlete['athletics'] if membership['groupCode'] == 'WFH')
         assert tennis['groupName'] == 'Women\'s Tennis'
@@ -210,6 +225,24 @@ class TestCohortDetail:
         assert field_hockey['groupName'] == 'Women\'s Field Hockey'
         assert field_hockey['teamCode'] == 'FHW'
         assert field_hockey['teamName'] == 'Women\'s Field Hockey'
+
+    def test_omits_cohort_member_athletics_non_asc(self, coe_advisor, coe_owned_cohort, client):
+        """Omits athletic data for non-ASC advisors."""
+        response = client.get(f'/api/cohort/{coe_owned_cohort.id}')
+        athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
+        assert 'athletics' not in athlete
+        assert 'inIntensiveCohort' not in athlete
+        assert 'isActiveAsc' not in athlete
+        assert 'statusAsc' not in athlete
+
+    def test_includes_cohort_member_athletics_advisors(self, admin_session, coe_owned_cohort, client):
+        """Includes athletic data for admins."""
+        response = client.get(f'/api/cohort/{coe_owned_cohort.id}')
+        athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
+        assert len(athlete['athletics']) == 2
+        assert athlete['inIntensiveCohort'] is not None
+        assert athlete['isActiveAsc'] is not None
+        assert athlete['statusAsc'] is not None
 
     def test_get_cohort_404(self, coe_advisor, client):
         """Returns a well-formed response when no cohort found."""
