@@ -40,7 +40,7 @@ class StudentGroup(Base):
     owner_id = db.Column(db.String(80), db.ForeignKey('authorized_users.id'), nullable=False)
     name = db.Column(db.String(255), nullable=False)
 
-    students = db.relationship('StudentGroupMembership', back_populates='student_group')
+    students = db.relationship('StudentGroupMembership', back_populates='student_group', cascade='all')
 
     __table_args__ = (db.UniqueConstraint(
         'owner_id',
