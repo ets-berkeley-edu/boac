@@ -1,14 +1,14 @@
 {
-    "canvasUserId": "9000100",
-    "canvasUserName": "Oski Bear",
-    "firstName": "Deborah",
-    "lastName": "Davies",
-    "name": "Deborah Davies",
-    "sid": "11667051",
+    "canvasUserId": "10000005",
+    "canvasUserName": "Wolfgang Pauli",
+    "firstName": "Wolfgang",
+    "lastName": "Pauli",
+    "name": "Wolfgang Pauli",
+    "sid": "9000000000",
     "sisProfile": {
         "academicCareer": "UGRD",
-        "cumulativeGPA": 3.7999999999999998,
-        "cumulativeUnits": 101.3,
+        "cumulativeGPA": 2.3,
+        "cumulativeUnits": 55,
         "degreeProgress": {
             "reportDate": "2017-03-03",
             "requirements": {
@@ -30,32 +30,25 @@
                 }
             }
         },
-        "emailAddress": "oski@berkeley.edu",
         "expectedGraduationTerm": {
             "id": "2198",
             "name": "Fall 2019"
         },
         "level": {
-            "code": "30",
-            "description": "Junior"
+            "code": "20",
+            "description": "Sophomore"
         },
         "matriculation": "Summer 2015",
         "phoneNumber": "415/123-4567",
         "plans": [
             {
-                "degreeProgramUrl": "http://guide.berkeley.edu/undergraduate/degree-programs/english/",
-                "description": "English BA",
-                "program": "Undergrad Letters & Science"
-            },
-            {
-                "degreeProgramUrl": "http://guide.berkeley.edu/undergraduate/degree-programs/nuclear-engineering/",
-                "description": "Nuclear Engineering BS",
+                "description": "Engineering Undeclared UG",
                 "program": "Engineering"
             }
         ],
-        "preferredName": "Osk Bear",
-        "primaryName": "Oski Bear",
+        "preferredName": "Wolfgang Pauli",
+        "primaryName": "Wolfgang Pauli",
         "termsInAttendance": 5
     },
-    "uid": "61889"
+    "uid": "300847"
 }

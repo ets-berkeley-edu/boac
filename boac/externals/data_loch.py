@@ -62,6 +62,10 @@ def boac_schema():
     return app.config['DATA_LOCH_BOAC_SCHEMA']
 
 
+def coe_schema():
+    return app.config['DATA_LOCH_COE_SCHEMA']
+
+
 def intermediate_schema():
     return app.config['DATA_LOCH_INTERMEDIATE_SCHEMA']
 
@@ -219,10 +223,13 @@ def get_all_student_ids():
     return safe_execute(sql)
 
 
-def get_student_for_uid(uid):
-    sql = f"""SELECT *
-        FROM {student_schema()}.student_academic_status
-        WHERE uid = :uid"""
+def get_student_for_uid_and_scope(uid, scope):
+    query_tables = _student_query_tables_for_scope(scope)
+    if not query_tables:
+        return None
+    sql = f"""SELECT sas.*
+        {query_tables}
+        WHERE sas.uid = :uid"""
     rows = safe_execute(sql, uid=uid)
     return None if not rows or (len(rows) == 0) else rows[0]
 
@@ -294,11 +301,14 @@ def _get_user_for_uid(uid):
     return safe_execute(sql)
 
 
-def get_majors():
-    # TODO For now, implicit scope of this search is students present in the ASC schema.
-    sql = f"""SELECT DISTINCT maj.major
-    FROM {asc_schema()}.students s
-    JOIN {student_schema()}.student_majors maj ON maj.sid = s.sid"""
+def get_majors(scope=[]):
+    query_tables = _student_query_tables_for_scope(scope)
+    if not query_tables:
+        return []
+    sql = f"""SELECT DISTINCT maj.major AS major
+        {query_tables}
+        JOIN {student_schema()}.student_majors maj ON maj.sid = sas.sid
+        ORDER BY major"""
     return safe_execute(sql)
 
 
@@ -311,19 +321,20 @@ def get_students_query(
         unit_ranges=None,
         in_intensive_cohort=None,
         is_active_asc=None,
+        coe_advisor_uid=None,
+        scope=[],
 ):  # noqa
-    # TODO For now, searches are implicitly constrained to students present in the ASC schema.
-    query_tables = f"""FROM {asc_schema()}.students s
-        LEFT JOIN {student_schema()}.student_academic_status sas ON sas.sid = s.sid"""
+    query_tables = _student_query_tables_for_scope(scope)
+    if not query_tables:
+        return None, None, None
     query_filter = ' WHERE true'
     query_bindings = {}
-    if is_active_asc is not None:
-        query_filter += ' AND s.active IS :is_active_asc'
-        query_bindings.update({'is_active_asc': is_active_asc})
+
+    # Name or SID search
     if search_phrase:
         phrase = ' '.join(f'{word}%' for word in search_phrase.split())
         query_filter += """
-            AND (s.sid ILIKE :phrase OR
+            AND (sas.sid ILIKE :phrase OR
                 (sas.first_name || ' ' || sas.last_name) ILIKE :phrase OR
                 (sas.first_name || ' ' || sas.last_name) ILIKE :phrase_padded OR
                 (sas.last_name || ' ' || sas.first_name) ILIKE :phrase OR
@@ -333,9 +344,8 @@ def get_students_query(
             'phrase': phrase,
             'phrase_padded': f'% {phrase}',
         })
-    if group_codes:
-        query_filter += ' AND s.group_code = ANY(:group_codes)'
-        query_bindings.update({'group_codes': group_codes})
+
+    # Generic SIS criteria
     if gpa_ranges:
         query_filter += numranges_to_sql('sas.gpa', gpa_ranges)
     if levels:
@@ -354,15 +364,29 @@ def get_students_query(
         if _majors:
             major_filters.append('maj.major = ANY(:majors)')
         query_filter += ' AND (' + ' OR '.join(major_filters) + ')'
-        query_tables += f' LEFT JOIN {student_schema()}.student_majors maj ON maj.sid = s.sid'
+        query_tables += f' LEFT JOIN {student_schema()}.student_majors maj ON maj.sid = sas.sid'
         query_bindings.update({'majors': _majors})
     if unit_ranges:
         query_filter += numranges_to_sql('sas.units', unit_ranges)
+
+    # ASC criteria
+    if is_active_asc is not None:
+        query_filter += ' AND s.active IS :is_active_asc'
+        query_bindings.update({'is_active_asc': is_active_asc})
     if in_intensive_cohort is not None:
         query_filter += f' AND s.intensive IS :in_intensive_cohort'
         query_bindings.update({
             'in_intensive_cohort': in_intensive_cohort,
         })
+    if group_codes:
+        query_filter += ' AND s.group_code = ANY(:group_codes)'
+        query_bindings.update({'group_codes': group_codes})
+
+    # COE criteria
+    if coe_advisor_uid:
+        query_filter += ' AND s.advisor_ldap_uid = :coe_advisor_uid'
+        query_bindings.update({'coe_advisor_uid': coe_advisor_uid})
+
     return query_tables, query_filter, query_bindings
 
 
@@ -386,7 +410,7 @@ def get_students_ordering(order_by=None, group_codes=None, majors=None):
         # rows a second time. Why not do this complex sorting after the query? Because correctly calculating
         # pagination offsets requires filtering and ordering to be done at the SQL level.
         if group_codes:
-            supplemental_query_tables = f' LEFT JOIN {asc_schema()}.students s2 ON s2.sid = s.sid'
+            supplemental_query_tables = f' LEFT JOIN {asc_schema()}.students s2 ON s2.sid = sas.sid'
             o = 's2.group_name'
         else:
             o = 's.group_name'
@@ -394,14 +418,14 @@ def get_students_ordering(order_by=None, group_codes=None, majors=None):
         # Majors, like group names, require extra handling in the special case where they are both filter
         # criteria and ordering criteria.
         if majors:
-            supplemental_query_tables = f' LEFT JOIN {student_schema()}.student_majors maj2 ON maj2.sid = s.sid'
+            supplemental_query_tables = f' LEFT JOIN {student_schema()}.student_majors maj2 ON maj2.sid = sas.sid'
             o = 'maj2.major'
         else:
-            supplemental_query_tables = f' LEFT JOIN {student_schema()}.student_majors m ON m.sid = s.sid'
+            supplemental_query_tables = f' LEFT JOIN {student_schema()}.student_majors m ON m.sid = sas.sid'
             o = 'm.major'
     o_secondary = by_first_name if order_by == 'last_name' else by_last_name
     diff = {by_first_name, by_last_name} - {o, o_secondary}
-    o_tertiary = diff.pop() if diff else 's.sid'
+    o_tertiary = diff.pop() if diff else 'sas.sid'
     return o, o_secondary, o_tertiary, supplemental_query_tables
 
 
@@ -437,3 +461,31 @@ def numranges_to_sql(column, numranges):
         return ' AND (' + ' OR '.join(sql_ranges) + ')'
     else:
         return ''
+
+
+def _student_query_tables_for_scope(scope):
+    if not scope:
+        return None
+    elif 'ADMIN' in scope:
+        table_sql = f"""FROM {student_schema()}.student_academic_status sas"""
+    else:
+        schemas_for_codes = {
+            'UWASC': asc_schema(),
+            'COENG': coe_schema(),
+        }
+        tables = []
+        for code in scope:
+            schema = schemas_for_codes.get(code)
+            if schema:
+                tables.append(f'{schema}.students')
+        if not tables:
+            return None
+        elif len(tables) == 1:
+            # If we are pulling from a single schema, include all schema-specific columns.
+            table_sql = f"""FROM {tables[0]} s
+                LEFT JOIN {student_schema()}.student_academic_status sas ON sas.sid = s.sid"""
+        else:
+            # If we are pulling from multiple schemas, SID will be the only common element in the union.
+            table_sql = f"""FROM ({' UNION '.join(['SELECT sid FROM ' + t for t in tables])}) s
+                LEFT JOIN {student_schema()}.student_academic_status sas ON sas.sid = s.sid"""
+    return table_sql

@@ -29,6 +29,11 @@ import simplejson as json
 
 
 @pytest.fixture()
+def admin_login(fake_auth):
+    fake_auth.login('2040')
+
+
+@pytest.fixture()
 def asc_advisor(fake_auth):
     fake_auth.login('1081940')
 
@@ -76,7 +81,7 @@ class TestAthleticsStudyCenter:
             'group_name': ['211159', '242881', '1049291', '61889', '123456'],
             'last_name': ['123456', '61889', '1049291', '242881', '211159'],
             'level': ['123456', '211159', '242881', '1049291', '61889'],
-            'major': ['123456', '242881', '61889', '1049291', '211159'],
+            'major': ['123456', '61889', '242881', '211159', '1049291'],
             'units': ['61889', '211159', '123456', '242881', '1049291'],
         }
         for order_by, expected_uid_list in all_expected_order.items():
@@ -106,7 +111,7 @@ class TestAthleticsStudyCenter:
 class TestSearch:
     """Student Search API."""
 
-    def test_all_students(self, client):
+    def test_all_students(self, asc_advisor, client):
         """Returns a list of students."""
         response = client.get('/api/students/all')
         assert response.status_code == 200
@@ -170,6 +175,31 @@ class TestSearch:
             assert len(students) == response.json['totalStudentCount'] == 1, message_if_fail
             assert students[0]['lastName'] == 'Crossman', message_if_fail
 
+    def test_search_by_name_asc_limited(self, asc_advisor, client):
+        """An ASC name search finds ASC Pauls."""
+        response = client.post('/api/students/search', data='{"searchPhrase": "paul"}', content_type='application/json')
+        students = response.json['students']
+        assert len(students) == 2
+        assert next(s for s in students if s['name'] == 'Paul Kerschen')
+        assert next(s for s in students if s['name'] == 'Paul Farestveit')
+
+    def test_search_by_name_coe_limited(self, coe_advisor, client):
+        """A COE name search finds COE Pauls."""
+        response = client.post('/api/students/search', data='{"searchPhrase": "paul"}', content_type='application/json')
+        students = response.json['students']
+        assert len(students) == 2
+        assert next(s for s in students if s['name'] == 'Paul Farestveit')
+        assert next(s for s in students if s['name'] == 'Wolfgang Pauli')
+
+    def test_search_by_name_admin_unlimited(self, admin_login, client):
+        """An admin name search finds all Pauls."""
+        response = client.post('/api/students/search', data='{"searchPhrase": "paul"}', content_type='application/json')
+        students = response.json['students']
+        assert len(students) == 3
+        assert next(s for s in students if s['name'] == 'Paul Kerschen')
+        assert next(s for s in students if s['name'] == 'Paul Farestveit')
+        assert next(s for s in students if s['name'] == 'Wolfgang Pauli')
+
     def test_search_order_by_offset_limit(self, client, fake_auth):
         """Search by snippet of name."""
         fake_auth.login('2040')
@@ -185,14 +215,14 @@ class TestSearch:
         assert len(response.json['students']) == 1
         assert 'Crossman' == response.json['students'][0]['lastName']
 
-    sample_search = json.dumps({
+    sample_search = {
         'gpaRanges': ['numrange(3, 3.5, \'[)\')', 'numrange(3.5, 4, \'[]\')'],
         'groupCodes': ['MFB-DB', 'MFB-DL'],
         'levels': ['Junior', 'Senior'],
         'majors': [
             'Chemistry BS',
             'English BA',
-            'History BA',
+            'Nuclear Engineering BS',
             'Letters & Sci Undeclared UG',
         ],
         'unitRanges': [],
@@ -200,10 +230,17 @@ class TestSearch:
         'orderBy': 'last_name',
         'offset': 1,
         'limit': 50,
-    })
+    }
+
+    asc_search = json.dumps(sample_search)
+
+    sample_search['groupCodes'] = []
+    sample_search['gpaRanges'] = []
+    sample_search['levels'] = []
+    coe_search = json.dumps(sample_search)
 
     def test_get_students(self, asc_advisor, client):
-        response = client.post('/api/students', data=self.sample_search, content_type='application/json')
+        response = client.post('/api/students', data=self.asc_search, content_type='application/json')
         assert response.status_code == 200
         assert 'students' in response.json
         students = response.json['students']
@@ -212,7 +249,7 @@ class TestSearch:
         assert ['9933311', '242881'] == [student['uid'] for student in students]
 
     def test_get_students_includes_athletics_asc(self, asc_advisor, client):
-        response = client.post('/api/students', data=self.sample_search, content_type='application/json')
+        response = client.post('/api/students', data=self.asc_search, content_type='application/json')
         students = response.json['students']
         group_codes_1133399 = [a['groupCode'] for a in students[0]['athletics']]
         assert len(group_codes_1133399) == 3
@@ -223,7 +260,31 @@ class TestSearch:
         assert group_codes_242881 == ['MFB-DL']
 
     def test_get_students_omits_athletics_non_asc(self, coe_advisor, client):
-        response = client.post('/api/students', data=self.sample_search, content_type='application/json')
+        response = client.post('/api/students', data=self.coe_search, content_type='application/json')
         students = response.json['students']
+        print(students)
         assert 'athletics' not in students[0]
-        assert 'athletics' not in students[1]
+
+    def test_get_students_asc_limited(self, asc_advisor, client):
+        """An ASC cohort search finds ASC sophomores."""
+        response = client.post('/api/students', data='{"levels": ["Sophomore"]}', content_type='application/json')
+        students = response.json['students']
+        assert len(students) == 1
+        assert next(s for s in students if s['name'] == 'Siegfried Schlemiel')
+
+    def test_get_students_coe_limited(self, coe_advisor, client):
+        """A COE cohort search finds COE sophomores."""
+        response = client.post('/api/students', data='{"levels": ["Sophomore"]}', content_type='application/json')
+        students = response.json['students']
+        assert len(students) == 2
+        assert next(s for s in students if s['name'] == 'Wolfgang Pauli')
+        assert next(s for s in students if s['name'] == 'Nora Stanton Barney')
+
+    def test_get_students_admin_unlimited(self, admin_login, client):
+        """An admin cohort search finds all sophomores."""
+        response = client.post('/api/students', data='{"levels": ["Sophomore"]}', content_type='application/json')
+        students = response.json['students']
+        assert len(students) == 3
+        assert next(s for s in students if s['name'] == 'Siegfried Schlemiel')
+        assert next(s for s in students if s['name'] == 'Wolfgang Pauli')
+        assert next(s for s in students if s['name'] == 'Nora Stanton Barney')

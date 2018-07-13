@@ -118,7 +118,7 @@ class TestAthletics:
         assert athlete['cumulativeGPA'] == 3.8
         assert athlete['cumulativeUnits'] == 101.3
         assert athlete['level'] == 'Junior'
-        assert athlete['majors'] == ['Astrophysics BS', 'English BA']
+        assert athlete['majors'] == ['English BA', 'Nuclear Engineering BS']
 
     def test_includes_student_current_enrollments(self, asc_advisor, client):
         """Includes current-term active enrollments and analytics for team members."""

@@ -27,7 +27,6 @@ import json
 
 from boac.externals import data_loch
 from boac.lib.berkeley import current_term_id
-from flask import current_app as app
 from flask_login import current_user
 
 
@@ -101,7 +100,7 @@ def get_summary_student_profiles(sids, term_id=None):
 
 def get_student_and_terms(uid):
     """Provide external data for student-specific view."""
-    student = data_loch.get_student_for_uid(uid)
+    student = data_loch.get_student_for_uid_and_scope(uid, get_student_query_scope())
     if not student:
         return
     profiles = get_full_student_profiles([student['sid']])
@@ -133,13 +132,13 @@ def query_students(
         sids_only=False,
         unit_ranges=None,
 ):
-    if coe_advisor_uid is not None:
-        app.logger.warning(f'Search by coe_advisor_uid is not yet supported; returning empty list.')
-        return {
-            'sids': [],
-            'students': [],
-            'totalStudentCount': 0,
-        }
+    scope = narrow_scope_by_criteria(
+        get_student_query_scope(),
+        in_intensive_cohort=in_intensive_cohort,
+        is_active_asc=is_active_asc,
+        group_codes=group_codes,
+        coe_advisor_uid=coe_advisor_uid,
+    )
     query_tables, query_filter, query_bindings = data_loch.get_students_query(
         group_codes=group_codes,
         gpa_ranges=gpa_ranges,
@@ -148,9 +147,16 @@ def query_students(
         unit_ranges=unit_ranges,
         in_intensive_cohort=in_intensive_cohort,
         is_active_asc=is_active_asc,
+        coe_advisor_uid=coe_advisor_uid,
+        scope=scope,
     )
-    # First, get total_count of matching students
-    result = data_loch.safe_execute(f'SELECT DISTINCT(s.sid) {query_tables} {query_filter}', **query_bindings)
+    if not query_tables:
+        return {
+            'sids': [],
+            'students': [],
+            'totalStudentCount': 0,
+        }    # First, get total_count of matching students
+    result = data_loch.safe_execute(f'SELECT DISTINCT(sas.sid) {query_tables} {query_filter}', **query_bindings)
     if result is None:
         return None
     summary = {
@@ -167,10 +173,10 @@ def query_students(
         if supplemental_query_tables:
             query_tables += supplemental_query_tables
         sql = f"""SELECT
-            s.sid, MIN({o}), MIN({o_secondary}), MIN({o_tertiary})
+            sas.sid, MIN({o}), MIN({o_secondary}), MIN({o_tertiary})
             {query_tables}
             {query_filter}
-            GROUP BY s.sid
+            GROUP BY sas.sid
             ORDER BY MIN({o}), MIN({o_secondary}), MIN({o_tertiary})
             OFFSET :offset
         """
@@ -194,20 +200,30 @@ def search_for_students(
     offset=0,
     limit=None,
 ):
+    scope = narrow_scope_by_criteria(
+        get_student_query_scope(),
+        is_active_asc=is_active_asc,
+    )
     query_tables, query_filter, query_bindings = data_loch.get_students_query(
         search_phrase=search_phrase,
         is_active_asc=is_active_asc,
+        scope=scope,
     )
+    if not query_tables:
+        return {
+            'students': [],
+            'totalStudentCount': 0,
+        }
     o, o_secondary, o_tertiary, supplemental_query_tables = data_loch.get_students_ordering(order_by=order_by)
     if supplemental_query_tables:
         query_tables += supplemental_query_tables
-    result = data_loch.safe_execute(f'SELECT DISTINCT(s.sid) {query_tables} {query_filter}', **query_bindings)
+    result = data_loch.safe_execute(f'SELECT DISTINCT(sas.sid) {query_tables} {query_filter}', **query_bindings)
     total_student_count = len(result)
     sql = f"""SELECT
-        s.sid
+        sas.sid
         {query_tables}
         {query_filter}
-        GROUP BY s.sid
+        GROUP BY sas.sid
         ORDER BY MIN({o}), MIN({o_secondary}), MIN({o_tertiary})
         OFFSET {offset}
     """
@@ -233,3 +249,37 @@ def get_student_query_scope():
         return ['ADMIN']
     else:
         return [m.university_dept.dept_code for m in current_user.department_memberships]
+
+
+def narrow_scope_by_criteria(scope, **kwargs):
+    # Searching by ASC-specific criteria will constrain the scope to ASC students; likewise for COE.
+    criteria_for_code = {
+        'UWASC': [
+            'in_intensive_cohort',
+            'is_active_asc',
+            'group_codes',
+        ],
+        'COENG': [
+            'coe_advisor_uid',
+        ],
+    }
+
+    # An explicit False counts as present, but other falsey criteria don't.
+    def any_criterion_present(criteria):
+        for c in criteria:
+            value = kwargs.get(c)
+            if value or value is False:
+                return True
+        return False
+
+    for code, criteria in criteria_for_code.items():
+        if any_criterion_present(criteria):
+            if 'ADMIN' in scope or code in scope:
+                # We've found a department-specific criterion; constrain scope to that department only.
+                return [code]
+            else:
+                # We've found a department-specific criterion but that department wasn't in the provided scope.
+                # Return empty.
+                return []
+    # No department-specific criteria found; return unmodified.
+    return scope

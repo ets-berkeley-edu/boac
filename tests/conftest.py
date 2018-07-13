@@ -127,6 +127,10 @@ def fake_loch(app):
     fixtures.append('enrollment_term_2345678901_2172')
     for sid in ['11667051', '2345678901', '3456789012', '5678901234', '7890123456', '8901234567', '890127492']:
         fixtures += ['profile_' + sid, 'athletics_profile_' + sid]
+    for sid in ['11667051', '7890123456', '9000000000', '9100000000']:
+        fixtures += ['coe_profile_' + sid]
+    for sid in ['9000000000', '9100000000']:
+        fixtures += ['profile_' + sid]
     for fixture in fixtures:
         with open(app.config['BASE_DIR'] + '/fixtures/loch_student_' + fixture + '.json', 'r') as f:
             params[fixture] = f.read()

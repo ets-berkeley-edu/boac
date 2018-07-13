@@ -1,7 +1,9 @@
 DROP SCHEMA IF EXISTS boac_advising_asc cascade;
+DROP SCHEMA IF EXISTS boac_advising_coe cascade;
 DROP SCHEMA IF EXISTS student cascade;
 
 CREATE SCHEMA boac_advising_asc;
+CREATE SCHEMA boac_advising_coe;
 CREATE SCHEMA student;
 
 CREATE TABLE boac_advising_asc.students
@@ -17,6 +19,18 @@ CREATE TABLE boac_advising_asc.students
 );
 
 CREATE TABLE boac_advising_asc.student_profiles
+(
+    sid VARCHAR NOT NULL,
+    profile TEXT NOT NULL
+);
+
+CREATE TABLE boac_advising_coe.students
+(
+    sid VARCHAR NOT NULL,
+    advisor_ldap_uid VARCHAR
+);
+
+CREATE TABLE boac_advising_coe.student_profiles
 (
     sid VARCHAR NOT NULL,
     profile TEXT NOT NULL
@@ -83,6 +97,22 @@ VALUES
 ('8901234567', :athletics_profile_8901234567),
 ('890127492', :athletics_profile_890127492);
 
+INSERT INTO boac_advising_coe.students
+(sid, advisor_ldap_uid)
+VALUES
+('11667051', '90412'),
+('7890123456', '1133399'),
+('9000000000', '1133399'),
+('9100000000', '90412');
+
+INSERT INTO boac_advising_coe.student_profiles
+(sid, profile)
+VALUES
+('11667051', :coe_profile_11667051),
+('7890123456', :coe_profile_7890123456),
+('9000000000', :coe_profile_9000000000),
+('9100000000', :coe_profile_9100000000);
+
 INSERT INTO student.student_profiles
 (sid, profile)
 VALUES
@@ -92,7 +122,9 @@ VALUES
 ('5678901234', :profile_5678901234),
 ('7890123456', :profile_7890123456),
 ('8901234567', :profile_8901234567),
-('890127492', :profile_890127492);
+('890127492', :profile_890127492),
+('9000000000', :profile_9000000000),
+('9100000000', :profile_9100000000);
 
 INSERT INTO student.student_academic_status
 (sid, uid, first_name, last_name, level, gpa, units)
@@ -103,19 +135,24 @@ VALUES
 ('5678901234', '9933311', 'Sandeep', 'Jayaprakash', '40', 3.501, 102),
 ('7890123456', '1049291', 'Paul', 'Farestveit', '40', 3.9, 110),
 ('8901234567', '123456', 'John David', 'Crossman', '10', 1.85, 12),
-('890127492', '211159', 'Siegfried', 'Schlemiel', '20', 0.4, 8);
+('890127492', '211159', 'Siegfried', 'Schlemiel', '20', 0.4, 8),
+('9000000000', '300847', 'Wolfgang', 'Pauli', '20', 2.3, 55),
+('9100000000', '300848', 'Nora Stanton', 'Barney', '20', 3.85, 60);
 
 INSERT INTO student.student_majors
 (sid, major)
 VALUES
-('11667051', 'History BA'),
+('11667051', 'English BA'),
+('11667051', 'Nuclear Engineering BS'),
 ('2345678901', 'Chemistry BS'),
 ('3456789012', 'English BA'),
 ('3456789012', 'Political Economy BA'),
 ('5678901234', 'Letters & Sci Undeclared UG'),
-('7890123456', 'History BA'),
+('7890123456', 'Nuclear Engineering BS'),
 ('8901234567', 'Economics BA'),
-('890127492', 'Mathematics');
+('890127492', 'Mathematics'),
+('9000000000', 'Engineering Undeclared UG'),
+('9100000000', 'Engineering Undeclared UG');
 
 INSERT INTO student.student_enrollment_terms
 (sid, term_id, enrollment_term)

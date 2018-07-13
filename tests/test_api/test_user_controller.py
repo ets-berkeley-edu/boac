@@ -160,7 +160,7 @@ class TestUserAnalytics:
         response = client.get(TestUserAnalytics.deborah)
         assert response.status_code == 401
 
-    def test_user_with_no_enrollments_in_current_term(self, non_asc_advisor, client):
+    def test_user_with_no_enrollments_in_current_term(self, asc_advisor, client):
         """Identifies user with no enrollments in current term."""
         response = client.get(TestUserAnalytics.dave)
         assert response.status_code == 200
@@ -280,6 +280,11 @@ class TestUserAnalytics:
         assert response.status_code == 404
         assert response.json['message'] == 'Unknown student'
 
+    def test_user_analytics_not_department_authorized(self, non_asc_advisor, client):
+        """Returns 404 if attempting to view a user outside one's own department."""
+        response = client.get(TestUserAnalytics.dave)
+        assert response.status_code == 404
+
     def test_relevant_majors(self, non_asc_advisor, client):
         """Returns list of majors relevant to our student population."""
         response = client.get('/api/majors/relevant')
@@ -377,9 +382,9 @@ class TestUserAnalytics:
         assert sis_profile['plans'][0]['description'] == 'English BA'
         assert sis_profile['plans'][0]['program'] == 'Undergrad Letters & Science'
         assert sis_profile['plans'][0]['degreeProgramUrl'] == 'http://guide.berkeley.edu/undergraduate/degree-programs/english/'
-        assert sis_profile['plans'][1]['description'] == 'Astrophysics BS'
-        assert sis_profile['plans'][1]['program'] == 'Undergrad Letters & Science'
-        assert sis_profile['plans'][1]['degreeProgramUrl'] == 'http://guide.berkeley.edu/undergraduate/degree-programs/astrophysics/'
+        assert sis_profile['plans'][1]['description'] == 'Nuclear Engineering BS'
+        assert sis_profile['plans'][1]['program'] == 'Engineering'
+        assert sis_profile['plans'][1]['degreeProgramUrl'] == 'http://guide.berkeley.edu/undergraduate/degree-programs/nuclear-engineering/'
         assert sis_profile['preferredName'] == 'Osk Bear'
         assert sis_profile['primaryName'] == 'Oski Bear'
         assert sis_profile['termsInAttendance'] == 5
