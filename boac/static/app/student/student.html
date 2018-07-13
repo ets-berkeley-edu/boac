@@ -331,11 +331,11 @@
                       </td>
                       <td colspan="2">
                         <div data-ng-if="canvasSite.analytics.lastActivity.student.daysSinceLastActivity == null">
-                          <span data-ng-bind="student.athleticsProfile.fullName"
+                          <span data-ng-bind="student.name"
                                 data-ng-class="{'demo-mode-blur': demoMode}"></span> has never visited this course site.
                         </div>
                         <div data-ng-if="canvasSite.analytics.lastActivity.student.daysSinceLastActivity != null">
-                          <span data-ng-bind="student.athleticsProfile.fullName" data-ng-class="{'demo-mode-blur': demoMode}"></span>
+                          <span data-ng-bind="student.name" data-ng-class="{'demo-mode-blur': demoMode}"></span>
                           last visited the course site <span data-ng-bind="lastActivityDays(canvasSite.analytics).toLowerCase()"></span>.
                           <span data-ng-bind="lastActivityInContext(canvasSite.analytics)"></span>
                         </div>
