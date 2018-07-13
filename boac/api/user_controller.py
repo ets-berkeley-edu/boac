@@ -31,7 +31,7 @@ from boac.externals.cal1card_photo_api import get_cal1card_photo
 from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
-from boac.merged.student import get_student_and_terms
+from boac.merged.student import get_student_and_terms, get_student_query_scope
 from boac.models.cohort_filter import CohortFilter
 from boac.models.student_group import StudentGroup
 from flask import current_app as app, Response
@@ -85,7 +85,7 @@ def user_analytics(uid):
 
 @app.route('/api/majors/relevant')
 def relevant_majors():
-    majors = [row['major'] for row in data_loch.get_majors()]
+    majors = [row['major'] for row in data_loch.get_majors(get_student_query_scope())]
     return tolerant_jsonify(majors)
 
 

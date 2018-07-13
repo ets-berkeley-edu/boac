@@ -57,13 +57,13 @@ def asc_owned_cohort():
 @pytest.fixture()
 def coe_owned_cohort():
     cohorts = CohortFilter.all_owned_by(coe_advisor_uid)
-    return next(c for c in cohorts if c.label == 'All sports') if len(cohorts) else None
+    return next(c for c in cohorts if c.label == 'Radioactive Women and Men') if len(cohorts) else None
 
 
 class TestCohortDetail:
     """Cohort API."""
 
-    def test_my_cohorts(self, coe_advisor, client):
+    def test_my_cohorts(self, asc_advisor, client):
         response = client.get('/api/cohorts/my')
         assert response.status_code == 200
         cohorts = response.json
@@ -97,8 +97,15 @@ class TestCohortDetail:
         cohort = cohorts[0]
         assert cohort['name'] == 'My Engineering Students'
         assert cohort['filterCriteria']['coeAdvisorUid'] == uid
+        assert cohort['totalStudentCount'] == 2
+        response = client.get(f"/api/cohort/{cohort['id']}")
+        assert response.status_code == 200
+        students = response.json['students']
+        assert len(students) == 2
+        assert next(s for s in students if s['name'] == 'Nora Stanton Barney')
+        assert next(s for s in students if s['name'] == 'Deborah Davies')
 
-    def test_my_cohorts_includes_students_with_alert_counts(self, create_alerts, coe_advisor, client, db_session):
+    def test_my_cohorts_includes_students_with_alert_counts(self, create_alerts, asc_advisor, client, db_session):
         # Pre-load students into cache for consistent alert data.
         client.get('/api/user/61889/analytics')
         client.get('/api/user/98765/analytics')
@@ -143,14 +150,14 @@ class TestCohortDetail:
         assert cohorts[0]['alerts'][0]['alertCount'] == 2
         assert len(cohorts[1]['alerts']) == 0
 
-    def test_cohorts_all(self, coe_advisor, client):
+    def test_cohorts_all(self, asc_advisor, client):
         """Returns all cohorts per owner."""
         response = client.get('/api/cohorts/all')
         assert response.status_code == 200
         data = json.loads(response.data)
         assert len(data) == 1
         owner = data[0]
-        assert owner['uid'] == '1133399'
+        assert owner['uid'] == '1081940'
         assert 'firstName' in owner and 'lastName' in owner
         cohorts = owner['cohorts']
         assert len(cohorts) == 5
@@ -169,10 +176,10 @@ class TestCohortDetail:
         assert response.status_code == 404
         assert 'No cohort found' in json.loads(response.data)['message']
 
-    def test_undeclared_major(self, coe_advisor, client):
+    def test_undeclared_major(self, asc_advisor, client):
         """Returns a well-formed response with custom cohort."""
         name = 'Undeclared students'
-        cohort = next(c for c in CohortFilter.all_owned_by(coe_advisor_uid) if c.label == name)
+        cohort = next(c for c in CohortFilter.all_owned_by(asc_advisor_uid) if c.label == name)
         response = client.get(f'/api/cohort/{cohort.id}')
         assert response.status_code == 200
         cohort = json.loads(response.data)
@@ -182,19 +189,19 @@ class TestCohortDetail:
         # We expect the student with 'Letters & Sci Undeclared UG' major
         assert students[0]['sid'] == '5678901234'
 
-    def test_includes_cohort_member_sis_data(self, coe_advisor, coe_owned_cohort, client):
+    def test_includes_cohort_member_sis_data(self, asc_advisor, asc_owned_cohort, client):
         """Includes SIS data for custom cohort students."""
-        response = client.get(f'/api/cohort/{coe_owned_cohort.id}')
+        response = client.get(f'/api/cohort/{asc_owned_cohort.id}')
         assert response.status_code == 200
         athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
         assert athlete['cumulativeGPA'] == 3.8
         assert athlete['cumulativeUnits'] == 101.3
         assert athlete['level'] == 'Junior'
-        assert athlete['majors'] == ['Astrophysics BS', 'English BA']
+        assert athlete['majors'] == ['English BA', 'Nuclear Engineering BS']
 
-    def test_includes_cohort_member_current_enrollments(self, coe_advisor, coe_owned_cohort, client):
+    def test_includes_cohort_member_current_enrollments(self, asc_advisor, asc_owned_cohort, client):
         """Includes current-term active enrollments and analytics for custom cohort students."""
-        response = client.get(f'/api/cohort/{coe_owned_cohort.id}?orderBy=firstName')
+        response = client.get(f'/api/cohort/{asc_owned_cohort.id}?orderBy=firstName')
         assert response.status_code == 200
         athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
 
@@ -229,11 +236,11 @@ class TestCohortDetail:
     def test_omits_cohort_member_athletics_non_asc(self, coe_advisor, coe_owned_cohort, client):
         """Omits athletic data for non-ASC advisors."""
         response = client.get(f'/api/cohort/{coe_owned_cohort.id}')
-        athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
-        assert 'athletics' not in athlete
-        assert 'inIntensiveCohort' not in athlete
-        assert 'isActiveAsc' not in athlete
-        assert 'statusAsc' not in athlete
+        secretly_an_athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
+        assert 'athletics' not in secretly_an_athlete
+        assert 'inIntensiveCohort' not in secretly_an_athlete
+        assert 'isActiveAsc' not in secretly_an_athlete
+        assert 'statusAsc' not in secretly_an_athlete
 
     def test_includes_cohort_member_athletics_advisors(self, admin_session, coe_owned_cohort, client):
         """Includes athletic data for admins."""
@@ -250,9 +257,9 @@ class TestCohortDetail:
         assert response.status_code == 404
         assert 'No cohort found' in str(response.data)
 
-    def test_offset_and_limit(self, coe_advisor, coe_owned_cohort, client):
+    def test_offset_and_limit(self, asc_advisor, asc_owned_cohort, client):
         """Returns a well-formed response with custom cohort."""
-        api_path = f'/api/cohort/{coe_owned_cohort.id}'
+        api_path = f'/api/cohort/{asc_owned_cohort.id}'
         # First, offset is zero
         response = client.get(f'{api_path}?offset={0}&limit={1}')
         data_0 = json.loads(response.data)
