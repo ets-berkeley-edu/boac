@@ -243,7 +243,12 @@ def search_for_students(
 
 def get_student_query_scope():
     # Use department membership and admin status to determine what data we can surface about which students.
-    if not current_user.is_authenticated:
+    # If this code is being called outside an HTTP request context, then assume it is an administrative task.
+    # Not all current_user proxy types define all attributes, and so the ordering of these conditional checks
+    # is important.
+    if not current_user:
+        return ['ADMIN']
+    elif not current_user.is_authenticated:
         return []
     elif current_user.is_admin:
         return ['ADMIN']
