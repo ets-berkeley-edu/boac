@@ -447,14 +447,22 @@ def numrange_to_sql(column, numrange):
     # TODO BOAC currently expresses range criteria using Postgres-specific numrange syntax, which must be
     # translated into vanilla SQL for use against Redshift. If we end up keeping these criteria in Redshift
     # long-term, we should look into migrating stored ranges.
-    numrange_syntax = re.compile('^numrange\(([0-9\.NUL]+), ([0-9\.NUL]+), \'..\'\)$')
+    numrange_syntax = re.compile('^numrange\(([0-9\.NUL]+), ([0-9\.NUL]+), \'(.)(.)\'\)$')
     numrange_match = numrange_syntax.match(numrange)
-    # At the moment, all BOAC ranges are inclusive at the lower end (except 0) and exclusive at the upper end.
     if numrange_match:
-        if numrange_match[1] == '0':
-            return f'({column} > {numrange_match[1]} AND {column} < {numrange_match[2]})'
-        else:
-            return f'({column} >= {numrange_match[1]} AND {column} < {numrange_match[2]})'
+        bounds = []
+        if numrange_match[1] != 'NULL':
+            lower_bound_condition = '>'
+            # Square brackets in numrange syntax indicate an inclusive range.
+            if numrange_match[3] == '[' and numrange_match[1] != '0':
+                lower_bound_condition += '='
+            bounds.append(f'{column} {lower_bound_condition} {numrange_match[1]}')
+        if numrange_match[2] != 'NULL':
+            upper_bound_condition = '<'
+            if numrange_match[4] == ']':
+                upper_bound_condition += '='
+            bounds.append(f'{column} {upper_bound_condition} {numrange_match[2]}')
+        return f"({' AND '.join(bounds)})"
 
 
 def numranges_to_sql(column, numranges):
