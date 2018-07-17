@@ -29,7 +29,7 @@ from boac.api.util import sort_students_by_name
 from boac.externals import data_loch
 from boac.lib.http import tolerant_jsonify
 from boac.merged.sis_sections import get_sis_section
-from boac.merged.student import get_summary_student_profiles
+from boac.merged.student import get_student_query_scope, get_summary_student_profiles
 from flask import current_app as app
 from flask_login import login_required
 
@@ -40,7 +40,7 @@ def get_section(term_id, section_id):
     section = get_sis_section(term_id, section_id)
     if not section:
         raise ResourceNotFoundError(f'No section {section_id} in term {term_id}')
-    sids = [str(r['sid']) for r in data_loch.get_sis_section_enrollments(term_id, section_id)]
+    sids = [str(r['sid']) for r in data_loch.get_sis_section_enrollments(term_id, section_id, get_student_query_scope())]
     students = get_summary_student_profiles(sids, section['termId'])
     for student in students:
         print(student)
