@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import json
 
 from boac.externals import data_loch
+from boac.lib import analytics
 from boac.lib.berkeley import current_term_id
 from flask_login import current_user
 
@@ -37,7 +38,7 @@ def get_api_json(sids):
     def distill_profile(profile):
         distilled = {key: profile[key] for key in ['uid', 'sid', 'firstName', 'lastName', 'name']}
         if profile.get('athleticsProfile'):
-            distilled.update(profile['athleticsProfile'])
+            distilled['athleticsProfile'] = profile['athleticsProfile']
         return distilled
     return [distill_profile(profile) for profile in get_full_student_profiles(sids)]
 
@@ -62,6 +63,43 @@ def get_full_student_profiles(sids):
                 profile['athleticsProfile'] = json.loads(row['profile'])
 
     return profiles
+
+
+def get_course_student_profiles(term_id, section_id):
+    sids = [str(r['sid']) for r in data_loch.get_sis_section_enrollments(term_id, section_id, get_student_query_scope())]
+
+    # TODO It's probably more efficient to store class profiles in the loch, rather than distilling them
+    # on the fly from full profiles.
+    students = get_full_student_profiles(sids)
+
+    enrollments_for_term = data_loch.get_enrollments_for_term(term_id, sids)
+    enrollments_by_sid = {row['sid']: json.loads(row['enrollment_term']) for row in enrollments_for_term}
+    for student in students:
+        # Strip SIS details to lighten the API load.
+        sis_profile = student.pop('sisProfile', None)
+        if sis_profile:
+            student['cumulativeGPA'] = sis_profile.get('cumulativeGPA')
+            student['cumulativeUnits'] = sis_profile.get('cumulativeUnits')
+            student['level'] = sis_profile.get('level', {}).get('description')
+            student['majors'] = sorted(plan.get('description') for plan in sis_profile.get('plans', []))
+        term = enrollments_by_sid.get(student['sid'])
+        student['hasCurrentTermEnrollments'] = False
+        if term:
+            # Strip the enrollments list down to the section of interest.
+            enrollments = term.pop('enrollments', [])
+            for enrollment in enrollments:
+                _section = next((s for s in enrollment['sections'] if str(s['ccn']) == section_id), None)
+                if _section:
+                    canvas_sites = enrollment.get('canvasSites', [])
+                    student['enrollment'] = {
+                        'canvasSites': canvas_sites,
+                        'enrollmentStatus': _section.get('enrollmentStatus', None),
+                        'grade': enrollment.get('grade', None),
+                        'gradingBasis': enrollment.get('gradingBasis', None),
+                    }
+                    student['analytics'] = analytics.mean_metrics_across_sites(canvas_sites)
+                    continue
+    return students
 
 
 def get_summary_student_profiles(sids, term_id=None):
@@ -90,11 +128,6 @@ def get_summary_student_profiles(sids, term_id=None):
             profile['term'] = term
             if term['termId'] == current_term_id() and len(term['enrollments']) > 0:
                 profile['hasCurrentTermEnrollments'] = True
-        # TODO Our existing tests, and possibly the front end, inconsistently expect athletics properties under
-        # 'athleticsProfile', and also under the root profile. Clean this up along with the rest of the athletics
-        # profile merge.
-        if profile.get('athleticsProfile'):
-            profile.update(profile['athleticsProfile'])
     return profiles
 
 

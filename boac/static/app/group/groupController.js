@@ -71,7 +71,7 @@
           return student.lastName;
         // group_name here refers to team groups (i.e., athletic memberships) and not the user-created groups you'd expect.
         case 'group_name':
-          return _.get(student, 'athletics[0].groupName');
+          return _.get(student, 'athleticsProfile.athletics[0].groupName');
         case 'gpa':
           return student.cumulativeGPA;
         case 'level':

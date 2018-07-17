@@ -82,13 +82,36 @@ class TestCourseController:
         assert students[0]['cumulativeUnits'] == 101.3
         assert students[0]['level'] == 'Junior'
         assert len(students[0]['majors']) == 2
-        assert len(students[0]['term']['enrollments']) == 4
+        assert len(students[0]['enrollment']['canvasSites']) == 1
+
+    def test_section_student_analytics(self, coe_advisor, client):
+        section_id = 90200
+        response = client.get(f'/api/section/{term_id}/{section_id}')
+        students = response.json['students']
+        assert len(students) == 1
+        assert students[0]['enrollment']['enrollmentStatus'] == 'E'
+        assert students[0]['enrollment']['gradingBasis'] == 'Letter'
+        # Per-site analytics are used by the List view.
+        assert len(students[0]['enrollment']['canvasSites']) == 2
+        assignments_submitted_0 = students[0]['enrollment']['canvasSites'][0]['analytics']['assignmentsSubmitted']
+        assert assignments_submitted_0['student']['percentile'] == 64
+        current_score_0 = students[0]['enrollment']['canvasSites'][0]['analytics']['currentScore']
+        assert current_score_0['displayPercentile'] == '76th'
+        assert current_score_0['student']['percentile'] == 73
+        assignments_submitted_1 = students[0]['enrollment']['canvasSites'][1]['analytics']['assignmentsSubmitted']
+        assert assignments_submitted_1['student']['percentile'] is None
+        current_score_1 = students[0]['enrollment']['canvasSites'][1]['analytics']['currentScore']
+        assert current_score_1['displayPercentile'] == '11th'
+        assert current_score_1['student']['percentile'] == 12
+        # Cross-site analytics are used by the Matrix view.
+        assert students[0]['analytics']['assignmentsSubmitted']['percentile'] == 64
+        assert students[0]['analytics']['currentScore']['percentile'] == 42.5
 
     def test_section_student_athletics_asc(self, asc_advisor, client):
         """Includes athletics for ASC advisors."""
         response = client.get(f'/api/section/{term_id}/{section_id}')
         students = response.json['students']
-        assert len(students[0]['athletics']) == 2
+        assert len(students[0]['athleticsProfile']['athletics']) == 2
 
     def test_section_student_athletics_non_asc(self, coe_advisor, client):
         """Does not include athletics for non-ASC advisors."""
