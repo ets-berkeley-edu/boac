@@ -136,9 +136,12 @@ def get_sis_section(term_id, sis_section_id):
 
 
 @fixture('loch_sis_section_enrollments_{term_id}_{sis_section_id}.csv')
-def get_sis_section_enrollments(term_id, sis_section_id):
+def get_sis_section_enrollments(term_id, sis_section_id, scope):
+    query_tables = _student_query_tables_for_scope(scope)
+    if not query_tables:
+        return []
     sql = f"""SELECT sas.sid, sas.first_name, sas.last_name
-              FROM {student_schema()}.student_academic_status sas
+              {query_tables}
               JOIN {intermediate_schema()}.sis_enrollments enr
                 ON sas.uid = enr.ldap_uid
                 AND enr.sis_term_id = :term_id
