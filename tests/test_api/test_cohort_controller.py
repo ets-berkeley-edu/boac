@@ -214,18 +214,18 @@ class TestCohortDetail:
         analytics = athlete['analytics']
         for metric in ['assignmentsSubmitted', 'currentScore', 'lastActivity']:
             assert analytics[metric]['percentile'] > 0
-            assert analytics[metric]['displayPercentile'].endswith(('rd', 'st', 'th'))
+            assert analytics[metric]['displayPercentile'].endswith(('nd', 'rd', 'st', 'th'))
 
     def test_includes_cohort_member_athletics_asc(self, asc_advisor, asc_owned_cohort, client):
         """Includes athletic data custom cohort members for ASC advisors."""
         response = client.get(f'/api/cohort/{asc_owned_cohort.id}')
         athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
-        assert len(athlete['athletics']) == 2
-        assert athlete['inIntensiveCohort'] is not None
-        assert athlete['isActiveAsc'] is not None
-        assert athlete['statusAsc'] is not None
-        tennis = next(membership for membership in athlete['athletics'] if membership['groupCode'] == 'WTE')
-        field_hockey = next(membership for membership in athlete['athletics'] if membership['groupCode'] == 'WFH')
+        assert len(athlete['athleticsProfile']['athletics']) == 2
+        assert athlete['athleticsProfile']['inIntensiveCohort'] is not None
+        assert athlete['athleticsProfile']['isActiveAsc'] is not None
+        assert athlete['athleticsProfile']['statusAsc'] is not None
+        tennis = next(membership for membership in athlete['athleticsProfile']['athletics'] if membership['groupCode'] == 'WTE')
+        field_hockey = next(membership for membership in athlete['athleticsProfile']['athletics'] if membership['groupCode'] == 'WFH')
         assert tennis['groupName'] == 'Women\'s Tennis'
         assert tennis['teamCode'] == 'TNW'
         assert tennis['teamName'] == 'Women\'s Tennis'
@@ -246,10 +246,10 @@ class TestCohortDetail:
         """Includes athletic data for admins."""
         response = client.get(f'/api/cohort/{coe_owned_cohort.id}')
         athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
-        assert len(athlete['athletics']) == 2
-        assert athlete['inIntensiveCohort'] is not None
-        assert athlete['isActiveAsc'] is not None
-        assert athlete['statusAsc'] is not None
+        assert len(athlete['athleticsProfile']['athletics']) == 2
+        assert athlete['athleticsProfile']['inIntensiveCohort'] is not None
+        assert athlete['athleticsProfile']['isActiveAsc'] is not None
+        assert athlete['athleticsProfile']['statusAsc'] is not None
 
     def test_get_cohort_404(self, coe_advisor, client):
         """Returns a well-formed response when no cohort found."""

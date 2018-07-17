@@ -1,283 +1,329 @@
 {
-    "analytics": {
-        "assignmentsSubmitted": {
-            "displayPercentile": "64th",
-            "percentile": 64
-        },
-        "currentScore": {
-            "displayPercentile": "73rd",
-            "percentile": 73
-        },
-        "lastActivity": {
-            "displayPercentile": "93rd",
-            "percentile": 93
-        }
+  "analytics": {
+    "assignmentsSubmitted": {
+      "displayPercentile": "62nd",
+      "percentile": 62
     },
-    "droppedSections": [
+    "currentScore": {
+      "displayPercentile": "93rd",
+      "percentile": 93
+    },
+    "lastActivity": {
+      "displayPercentile": "36th",
+      "percentile": 35.666666666666664
+    }
+  },
+  "droppedSections": [
+    {
+      "component": "TUT",
+      "displayName": "MUSIC 41C",
+      "sectionNumber": "002"
+    }
+  ],
+  "enrolledUnits": 12.5,
+  "enrollments": [
+    {
+      "canvasSites": [
         {
-            "component": "TUT",
-            "displayName": "MUSIC 41C",
-            "sectionNumber": "002"
+          "analytics": {
+            "assignmentsSubmitted": {
+              "error": "Redshift query returned no results"
+            },
+            "currentScore": {
+              "error": "Redshift query returned no results"
+            },
+            "lastActivity": {
+              "error": "Redshift query returned no results"
+            }
+          },
+          "canvasCourseId": 7654320,
+          "courseCode": "BURMESE 1A",
+          "courseName": "Introductory Burmese",
+          "courseTerm": "Fall 2017"
         }
-    ],
-    "enrolledUnits": 12.5,
-    "enrollments": [
+      ],
+      "displayName": "BURMESE 1A",
+      "grade": null,
+      "gradingBasis": "Letter",
+      "midtermGrade": "D+",
+      "sections": [
         {
-            "canvasSites": [
-                {
-                    "analytics": {
-                        "assignmentsSubmitted": {
-                            "error": "Redshift query returned no results"
-                        },
-                        "currentScore": {
-                            "error": "Redshift query returned no results"
-                        },
-                        "lastActivity": {
-                            "error": "Redshift query returned no results"
-                        }
-                    },
-                    "canvasCourseId": 7654320,
-                    "courseCode": "BURMESE 1A",
-                    "courseName": "Introductory Burmese",
-                    "courseTerm": "Fall 2017"
-                }
-            ],
-            "displayName": "BURMESE 1A",
-            "grade": null,
-            "gradingBasis": "Letter",
-            "midtermGrade": "D+",
-            "sections": [
-                {
-                    "canvasCourseIds": [
-                        7654320
-                    ],
-                    "ccn": 90100,
-                    "component": "LEC",
-                    "enrollmentStatus": "E",
-                    "grade": null,
-                    "gradingBasis": "Letter",
-                    "midtermGrade": "D+",
-                    "primary": true,
-                    "sectionNumber": "001",
-                    "units": 4.0
-                }
-            ],
-            "title": "Introductory Burmese",
-            "units": 4.0
-        },
-        {
-            "canvasSites": [
-                {
-                    "analytics": {
-                        "assignmentsSubmitted": {
-                            "boxPlottable": true,
-                            "courseDeciles": [
-                                0,
-                                4,
-                                5,
-                                5,
-                                5,
-                                6,
-                                7,
-                                8,
-                                8,
-                                10,
-                                17
-                            ],
-                            "displayPercentile": "81st",
-                            "student": {
-                                "percentile": 64,
-                                "raw": 8,
-                                "roundedUpPercentile": 81
-                            }
-                        },
-                        "courseEnrollmentCount": 331,
-                        "currentScore": {
-                            "boxPlottable": true,
-                            "courseDeciles": [
-                                47,
-                                63,
-                                67,
-                                70,
-                                73,
-                                76,
-                                78,
-                                82,
-                                86,
-                                94,
-                                104
-                            ],
-                            "displayPercentile": "76th",
-                            "student": {
-                                "percentile": 73,
-                                "raw": 84,
-                                "roundedUpPercentile": 76
-                            }
-                        },
-                        "lastActivity": {
-                            "boxPlottable": true,
-                            "courseDeciles": [
-                                1533021840,
-                                1533864420,
-                                1533975180,
-                                1534134360,
-                                1534296120,
-                                1534404540,
-                                1534566180,
-                                1534724580,
-                                1534993320,
-                                1535264940,
-                                1535533860
-                            ],
-                            "displayPercentile": "90th",
-                            "student": {
-                                "daysSinceLastActivity": -53,
-                                "percentile": 93,
-                                "raw": 1535275620,
-                                "roundedUpPercentile": 90
-                            }
-                        }
-                    },
-                    "canvasCourseId": 7654321,
-                    "courseCode": "MED ST 205",
-                    "courseName": "Medieval Manuscripts as Primary Sources",
-                    "courseTerm": "Fall 2017"
-                },
-                {
-                    "analytics": {
-                        "assignmentsSubmitted": {
-                            "error": "Redshift query returned no results"
-                        },
-                        "currentScore": {
-                            "error": "Redshift query returned no results"
-                        },
-                        "lastActivity": {
-                            "error": "Redshift query returned no results"
-                        }
-                    },
-                    "canvasCourseId": 7654330,
-                    "courseCode": "NUC ENG 124",
-                    "courseName": "Optional Friday Night Radioactivity Group",
-                    "courseTerm": "Fall 2017"
-                }
-            ],
-            "displayName": "MED ST 205",
-            "grade": null,
-            "gradingBasis": "Letter",
-            "sections": [
-                {
-                    "canvasCourseIds": [
-                        7654321,
-                        7654330
-                    ],
-                    "ccn": 90200,
-                    "component": "SEM",
-                    "enrollmentStatus": "E",
-                    "grade": null,
-                    "gradingBasis": "Letter",
-                    "primary": true,
-                    "sectionNumber": "001",
-                    "units": 5.0
-                }
-            ],
-            "title": "Medieval Manuscripts as Primary Sources",
-            "units": 5.0
-        },
-        {
-            "canvasSites": [
-                {
-                    "analytics": {
-                        "assignmentsSubmitted": {
-                            "error": "Redshift query returned no results"
-                        },
-                        "currentScore": {
-                            "error": "Redshift query returned no results"
-                        },
-                        "lastActivity": {
-                            "error": "Redshift query returned no results"
-                        }
-                    },
-                    "canvasCourseId": 7654323,
-                    "courseCode": "NUC ENG 124",
-                    "courseName": "Radioactive Waste Management",
-                    "courseTerm": "Fall 2017"
-                },
-                {
-                    "analytics": {
-                        "assignmentsSubmitted": {
-                            "error": "Redshift query returned no results"
-                        },
-                        "currentScore": {
-                            "error": "Redshift query returned no results"
-                        },
-                        "lastActivity": {
-                            "error": "Redshift query returned no results"
-                        }
-                    },
-                    "canvasCourseId": 7654330,
-                    "courseCode": "NUC ENG 124",
-                    "courseName": "Optional Friday Night Radioactivity Group",
-                    "courseTerm": "Fall 2017"
-                }
-            ],
-            "displayName": "NUC ENG 124",
-            "grade": "P",
-            "gradingBasis": "P/NP",
-            "sections": [
-                {
-                    "canvasCourseIds": [
-                        7654323,
-                        7654330
-                    ],
-                    "ccn": 90300,
-                    "component": "LAB",
-                    "enrollmentStatus": "E",
-                    "grade": "P",
-                    "gradingBasis": "P/NP",
-                    "primary": true,
-                    "sectionNumber": "002",
-                    "units": 3.0
-                },
-                {
-                    "canvasCourseIds": [
-                        7654330
-                    ],
-                    "ccn": 90301,
-                    "component": "DIS",
-                    "enrollmentStatus": "E",
-                    "grade": null,
-                    "gradingBasis": "NON",
-                    "primary": false,
-                    "sectionNumber": "201",
-                    "units": 0.0
-                }
-            ],
-            "title": "Radioactive Waste Management",
-            "units": 3.0
-        },
-        {
-            "canvasSites": [],
-            "displayName": "PHYSED 11",
-            "grade": "P",
-            "gradingBasis": "P/NP",
-            "sections": [
-                {
-                    "canvasCourseIds": [],
-                    "ccn": 50100,
-                    "component": "LAB",
-                    "enrollmentStatus": "E",
-                    "grade": "P",
-                    "gradingBasis": "P/NP",
-                    "primary": true,
-                    "sectionNumber": "001",
-                    "units": 0.5
-                }
-            ],
-            "title": "Physical Education Activities",
-            "units": 0.5
+          "canvasCourseIds": [
+            7654320
+          ],
+          "ccn": 90100,
+          "component": "LEC",
+          "enrollmentStatus": "E",
+          "grade": null,
+          "gradingBasis": "Letter",
+          "midtermGrade": "D+",
+          "primary": true,
+          "sectionNumber": "001",
+          "units": 4.0
         }
-    ],
-    "termId": "2178",
-    "termName": "Fall 2017",
-    "unmatchedCanvasSites": []
+      ],
+      "title": "Introductory Burmese",
+      "units": 4.0
+    },
+    {
+      "canvasSites": [
+        {
+          "analytics": {
+            "assignmentsSubmitted": {
+              "boxPlottable": true,
+              "courseDeciles": [
+                0,
+                4,
+                5,
+                5,
+                5,
+                6,
+                7,
+                8,
+                8,
+                10,
+                17
+              ],
+              "displayPercentile": "81st",
+              "student": {
+                "percentile": 64,
+                "raw": 8,
+                "roundedUpPercentile": 81
+              }
+            },
+            "courseEnrollmentCount": 331,
+            "currentScore": {
+              "boxPlottable": true,
+              "courseDeciles": [
+                47,
+                63,
+                67,
+                70,
+                73,
+                76,
+                78,
+                82,
+                86,
+                94,
+                104
+              ],
+              "displayPercentile": "76th",
+              "student": {
+                "percentile": 73,
+                "raw": 84,
+                "roundedUpPercentile": 76
+              }
+            },
+            "lastActivity": {
+              "boxPlottable": true,
+              "courseDeciles": [
+                1533021840,
+                1533864420,
+                1533975180,
+                1534134360,
+                1534296120,
+                1534404540,
+                1534566180,
+                1534724580,
+                1534993320,
+                1535264940,
+                1535533860
+              ],
+              "displayPercentile": "90th",
+              "student": {
+                "daysSinceLastActivity": -53,
+                "percentile": 93,
+                "raw": 1535275620,
+                "roundedUpPercentile": 90
+              }
+            }
+          },
+          "canvasCourseId": 7654321,
+          "courseCode": "MED ST 205",
+          "courseName": "Medieval Manuscripts as Primary Sources",
+          "courseTerm": "Fall 2017"
+        },
+        {
+          "analytics": {
+            "assignmentsSubmitted": {
+              "boxPlottable": false,
+              "student": {
+                "percentile": null,
+                "raw": null,
+                "roundedUpPercentile": null
+              },
+              "courseDeciles": null,
+              "displayPercentile": null
+            },
+            "currentScore": {
+              "boxPlottable": true,
+              "student": {
+                "percentile": 12,
+                "raw": 79,
+                "roundedUpPercentile": 11
+              },
+              "courseDeciles": [
+                45,
+                78,
+                82,
+                85,
+                87,
+                88,
+                89,
+                91,
+                92,
+                93,
+                98
+              ],
+              "displayPercentile": "11th"
+            },
+            "lastActivity": {
+              "boxPlottable": true,
+              "student": {
+                "percentile": 36,
+                "raw": 1526247970,
+                "roundedUpPercentile": 23,
+                "daysSinceLastActivity": 59
+              },
+              "courseDeciles": [
+                1524698255,
+                1526243609,
+                1526247251,
+                1526249270,
+                1526254618,
+                1526267208,
+                1526316290,
+                1526437210,
+                1526611983,
+                1527714838,
+                1531151430
+              ],
+              "displayPercentile": "23rd"
+            }
+          },
+          "canvasCourseId": 7654330,
+          "courseCode": "NUC ENG 124",
+          "courseName": "Optional Friday Night Radioactivity Group",
+          "courseTerm": "Fall 2017"
+        }
+      ],
+      "displayName": "MED ST 205",
+      "grade": null,
+      "gradingBasis": "Letter",
+      "sections": [
+        {
+          "canvasCourseIds": [
+            7654321,
+            7654330
+          ],
+          "ccn": 90200,
+          "component": "SEM",
+          "enrollmentStatus": "E",
+          "grade": null,
+          "gradingBasis": "Letter",
+          "primary": true,
+          "sectionNumber": "001",
+          "units": 5.0
+        }
+      ],
+      "title": "Medieval Manuscripts as Primary Sources",
+      "units": 5.0
+    },
+    {
+      "canvasSites": [
+        {
+          "analytics": {
+            "assignmentsSubmitted": {
+              "error": "Redshift query returned no results"
+            },
+            "currentScore": {
+              "error": "Redshift query returned no results"
+            },
+            "lastActivity": {
+              "error": "Redshift query returned no results"
+            }
+          },
+          "canvasCourseId": 7654323,
+          "courseCode": "NUC ENG 124",
+          "courseName": "Radioactive Waste Management",
+          "courseTerm": "Fall 2017"
+        },
+        {
+          "analytics": {
+            "assignmentsSubmitted": {
+              "error": "Redshift query returned no results"
+            },
+            "currentScore": {
+              "error": "Redshift query returned no results"
+            },
+            "lastActivity": {
+              "error": "Redshift query returned no results"
+            }
+          },
+          "canvasCourseId": 7654330,
+          "courseCode": "NUC ENG 124",
+          "courseName": "Optional Friday Night Radioactivity Group",
+          "courseTerm": "Fall 2017"
+        }
+      ],
+      "displayName": "NUC ENG 124",
+      "grade": "P",
+      "gradingBasis": "P/NP",
+      "sections": [
+        {
+          "canvasCourseIds": [
+            7654323,
+            7654330
+          ],
+          "ccn": 90300,
+          "component": "LAB",
+          "enrollmentStatus": "E",
+          "grade": "P",
+          "gradingBasis": "P/NP",
+          "primary": true,
+          "sectionNumber": "002",
+          "units": 3.0
+        },
+        {
+          "canvasCourseIds": [
+            7654330
+          ],
+          "ccn": 90301,
+          "component": "DIS",
+          "enrollmentStatus": "E",
+          "grade": null,
+          "gradingBasis": "NON",
+          "primary": false,
+          "sectionNumber": "201",
+          "units": 0.0
+        }
+      ],
+      "title": "Radioactive Waste Management",
+      "units": 3.0
+    },
+    {
+      "canvasSites": [],
+      "displayName": "PHYSED 11",
+      "grade": "P",
+      "gradingBasis": "P/NP",
+      "sections": [
+        {
+          "canvasCourseIds": [],
+          "ccn": 50100,
+          "component": "LAB",
+          "enrollmentStatus": "E",
+          "grade": "P",
+          "gradingBasis": "P/NP",
+          "primary": true,
+          "sectionNumber": "001",
+          "units": 0.5
+        }
+      ],
+      "title": "Physical Education Activities",
+      "units": 0.5
+    }
+  ],
+  "termId": "2178",
+  "termName": "Fall 2017",
+  "unmatchedCanvasSites": []
 }

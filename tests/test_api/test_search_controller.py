@@ -50,7 +50,7 @@ class TestAthleticsStudyCenter:
         """Includes multiple team memberships."""
         response = client.get('/api/students/all')
         assert response.status_code == 200
-        athletics = next(user['athletics'] for user in response.json if user['uid'] == '98765')
+        athletics = next(user['athleticsProfile']['athletics'] for user in response.json if user['uid'] == '98765')
         assert len(athletics) == 2
         group_codes = [a['groupCode'] for a in athletics]
         assert 'MFB-DB' in group_codes
@@ -65,7 +65,7 @@ class TestAthleticsStudyCenter:
         assert cohort['totalStudentCount'] == len(cohort['students']) == 5
         assert 'teamGroups' not in cohort
         for student in cohort['students']:
-            assert student['inIntensiveCohort']
+            assert student['athleticsProfile']['inIntensiveCohort']
 
     def test_unauthorized_request_for_athletic_study_center_data(self, client, fake_auth):
         """In order to access intensive_cohort, inactive status, etc. the user must be either ASC or Admin."""
@@ -104,8 +104,8 @@ class TestAthleticsStudyCenter:
         assert cohort['totalStudentCount'] == len(cohort['students']) == 1
         assert 'teamGroups' not in cohort
         inactive_student = response.json['students'][0]
-        assert not inactive_student['isActiveAsc']
-        assert inactive_student['statusAsc'] == 'Trouble'
+        assert not inactive_student['athleticsProfile']['isActiveAsc']
+        assert inactive_student['athleticsProfile']['statusAsc'] == 'Trouble'
 
 
 class TestSearch:
@@ -251,18 +251,17 @@ class TestSearch:
     def test_get_students_includes_athletics_asc(self, asc_advisor, client):
         response = client.post('/api/students', data=self.asc_search, content_type='application/json')
         students = response.json['students']
-        group_codes_1133399 = [a['groupCode'] for a in students[0]['athletics']]
+        group_codes_1133399 = [a['groupCode'] for a in students[0]['athleticsProfile']['athletics']]
         assert len(group_codes_1133399) == 3
         assert 'MFB-DB' in group_codes_1133399
         assert 'MFB-DL' in group_codes_1133399
         assert 'MTE' in group_codes_1133399
-        group_codes_242881 = [a['groupCode'] for a in students[1]['athletics']]
+        group_codes_242881 = [a['groupCode'] for a in students[1]['athleticsProfile']['athletics']]
         assert group_codes_242881 == ['MFB-DL']
 
     def test_get_students_omits_athletics_non_asc(self, coe_advisor, client):
         response = client.post('/api/students', data=self.coe_search, content_type='application/json')
         students = response.json['students']
-        print(students)
         assert 'athletics' not in students[0]
 
     def test_get_students_asc_limited(self, asc_advisor, client):
