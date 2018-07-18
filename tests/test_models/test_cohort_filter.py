@@ -69,7 +69,7 @@ class TestCohortFilter:
         )
         cohort = CohortFilter.find_by_id(cohort.id)
         expected = {
-            'coeAdvisorUid': None,
+            'advisorLdapUid': None,
             'gpaRanges': gpa_ranges,
             'groupCodes': group_codes,
             'inIntensiveCohort': None,

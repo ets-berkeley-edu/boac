@@ -89,6 +89,7 @@
           // Get values where selected=true
           cohortFactory.createCohort(
             $scope.label,
+            opts.advisorLdapUid,
             getValues(opts.gpaRanges),
             getValues(opts.groupCodes, 'groupCode'),
             getValues(opts.levels),

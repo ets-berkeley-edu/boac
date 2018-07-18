@@ -80,13 +80,14 @@
         $location.search('u', unitRanges);
       }
       return studentFactory.getStudents(
+        opts.advisorLdapUid,
         gpaRanges,
         groupCodes,
+        opts.intensive,
+        opts.inactive,
         levels,
         majors,
         unitRanges,
-        opts.intensive,
-        opts.inactive,
         orderBy,
         offset,
         limit

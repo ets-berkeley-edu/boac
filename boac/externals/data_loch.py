@@ -328,7 +328,7 @@ def get_students_query(
         unit_ranges=None,
         in_intensive_cohort=None,
         is_active_asc=None,
-        coe_advisor_uid=None,
+        advisor_ldap_uid=None,
         scope=[],
 ):  # noqa
     query_tables = _student_query_tables_for_scope(scope)
@@ -390,9 +390,9 @@ def get_students_query(
         query_bindings.update({'group_codes': group_codes})
 
     # COE criteria
-    if coe_advisor_uid:
-        query_filter += ' AND s.advisor_ldap_uid = :coe_advisor_uid'
-        query_bindings.update({'coe_advisor_uid': coe_advisor_uid})
+    if advisor_ldap_uid:
+        query_filter += ' AND s.advisor_ldap_uid = :advisor_ldap_uid'
+        query_bindings.update({'advisor_ldap_uid': advisor_ldap_uid})
 
     return query_tables, query_filter, query_bindings
 

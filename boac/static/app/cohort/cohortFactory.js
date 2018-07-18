@@ -31,9 +31,20 @@
 
   boac.factory('cohortFactory', function(googleAnalyticsService, utilService, $http, $rootScope) {
 
-    var createCohort = function(label, gpaRanges, groupCodes, levels, majors, unitRanges, intensive, inactiveAsc) {
+    var createCohort = function(
+      label,
+      advisorLdapUid,
+      gpaRanges,
+      groupCodes,
+      levels,
+      majors,
+      unitRanges,
+      intensive,
+      inactiveAsc
+    ) {
       var args = {
         label: label,
+        advisorLdapUid: advisorLdapUid,
         gpaRanges: gpaRanges,
         groupCodes: groupCodes,
         isInactiveAsc: utilService.toBoolOrNull(inactiveAsc),
