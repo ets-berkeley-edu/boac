@@ -26,15 +26,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from urllib.parse import urlencode
 
+from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
+from boac.api.util import admin_required
 from boac.lib.berkeley import is_authorized_to_use_boac
 from boac.lib.http import add_param_to_url, tolerant_jsonify
 import cas
-from flask import (
-    current_app as app, flash, redirect, request, url_for,
-)
-from flask_login import (
-    login_required, login_user, logout_user,
-)
+from flask import current_app as app, flash, redirect, request, url_for
+from flask_login import login_required, login_user, logout_user
 
 
 @app.route('/cas/login_url', methods=['GET'])
@@ -71,6 +69,25 @@ def cas_login():
     return redirect(redirect_url)
 
 
+@app.route('/devauth/login', methods=['POST'])
+def dev_login():
+    params = request.get_json() or {}
+    _dev_login(params.get('uid'), params.get('password'))
+    return redirect('/')
+
+
+@app.route('/api/admin/become_user', methods=['POST'])
+@admin_required
+def become():
+    if app.config['DEVELOPER_AUTH_ENABLED']:
+        params = request.get_json() or {}
+        logout_user()
+        _dev_login(params.get('uid'), app.config['DEVELOPER_AUTH_PASSWORD'])
+        return redirect('/')
+    else:
+        raise ResourceNotFoundError('Unknown path')
+
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -87,3 +104,23 @@ def _cas_client(target_url=None):
     if target_url:
         service_url = service_url + '?' + urlencode({'url': target_url})
     return cas.CASClientV3(server_url=cas_server, service_url=service_url)
+
+
+def _dev_login(uid, password):
+    if app.config['DEVELOPER_AUTH_ENABLED']:
+        logger = app.logger
+        if password != app.config['DEVELOPER_AUTH_PASSWORD']:
+            logger.error('Dev-auth: Wrong password')
+            raise ForbiddenRequestError('Invalid credentials')
+        user = app.login_manager.user_callback(uid)
+        if user is None:
+            logger.error(f'Dev-auth: No user found with UID {uid}.')
+            raise ForbiddenRequestError(f'Sorry, user with UID {uid} is unauthorized or does not exist.')
+        if not is_authorized_to_use_boac(user):
+            logger.error(f'Dev-auth: UID {uid} is not authorized to use BOAC.')
+            raise ForbiddenRequestError(f'Sorry, user with UID {uid} is not authorized to use BOAC.')
+        logger.info(f'Dev-auth used to log in as UID {uid}')
+        login_user(user)
+        flash('Logged in successfully.')
+    else:
+        raise ResourceNotFoundError('Unknown path')

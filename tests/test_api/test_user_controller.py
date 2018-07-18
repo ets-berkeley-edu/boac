@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
+from boac.models import development_db
 import pytest
 
 
@@ -85,6 +86,38 @@ class TestUserProfile:
         assert len(groups) == 2
         assert groups[0]['name'] == 'Cool Kids'
         assert groups[0]['studentCount'] == 4
+
+
+class TestAllUserProfiles:
+    """User Profiles API."""
+
+    admin_uid = '2040'
+    advisor_uid = '1133399'
+
+    def test_not_authenticated(self, client):
+        """Returns 'unauthorized' response status if user is not authenticated."""
+        response = client.get('/api/profiles/all')
+        assert response.status_code == 401
+
+    def test_disabled(self, app, client, fake_auth):
+        """Blocks access unless enabled."""
+        fake_auth.login(self.admin_uid)
+        app.config['DEVELOPER_AUTH_ENABLED'] = False
+        response = client.get('/api/profiles/all')
+        assert response.status_code == 404
+
+    def test_not_authorized(self, client, fake_auth):
+        """Returns 'unauthorized' response status if user is not admin."""
+        fake_auth.login(self.advisor_uid)
+        response = client.get('/api/profiles/all')
+        assert response.status_code == 401
+
+    def test_authorized(self, client, fake_auth):
+        """Returns a well-formed response."""
+        fake_auth.login(self.admin_uid)
+        response = client.get('/api/profiles/all')
+        assert response.status_code == 200
+        assert len(response.json) == len(development_db._test_users)
 
 
 class TestUserPhoto:

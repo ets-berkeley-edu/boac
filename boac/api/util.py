@@ -23,14 +23,31 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from functools import wraps
 import json
 from boac.lib import util
 from boac.merged import athletics
 from boac.merged.student import query_students
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
+from flask import current_app as app, request
+from flask_login import current_user
 
 """Utility module containing standard API-feed translations of data objects."""
+
+
+def admin_required(func):
+    @wraps(func)
+    def _admin_required(*args, **kw):
+        auth_key = app.config['API_KEY']
+        login_ok = current_user.is_authenticated and current_user.is_admin
+        api_key_ok = auth_key and (request.headers.get('App-Key') == auth_key)
+        if login_ok or api_key_ok:
+            return func(*args, **kw)
+        else:
+            app.logger.warn(f'Unauthorized request to {request.path}')
+            return app.login_manager.unauthorized()
+    return _admin_required
 
 
 def add_alert_counts(alert_counts, students):

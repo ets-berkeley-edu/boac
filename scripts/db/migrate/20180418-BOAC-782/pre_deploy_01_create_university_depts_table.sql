@@ -1,6 +1,6 @@
 BEGIN;
 
--- The ASC dept_code is UWASC; the College of Engineering includes EHEEC and more.
+-- College of Engineering advisors are mapped to dept_code COENG and ASC advisors to UWASC.
 
 CREATE TABLE university_depts (
   id SERIAL PRIMARY KEY,
