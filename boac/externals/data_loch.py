@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
+from datetime import datetime
 import re
 
 from boac.lib.berkeley import sis_term_id_for_name
@@ -46,12 +46,16 @@ def safe_execute(string, **kwargs):
         data_loch_db = create_engine(app.config['DATA_LOCH_URI'])
     try:
         s = text(string)
+        ts = datetime.now().timestamp()
         dbresp = data_loch_db.execute(s, **kwargs)
     except sqlalchemy.exc.SQLAlchemyError as err:
         app.logger.error(f'SQL {s} threw {err}')
         return None
     rows = dbresp.fetchall()
-    return [dict(r) for r in rows]
+    query_time = datetime.now().timestamp() - ts
+    row_array = [dict(r) for r in rows]
+    app.logger.debug(f'Query returned {len(row_array)} rows in {query_time} seconds:\n{string}\n{kwargs}')
+    return row_array
 
 
 def asc_schema():
