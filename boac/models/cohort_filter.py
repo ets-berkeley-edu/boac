@@ -61,7 +61,7 @@ class CohortFilter(Base, UserMixin):
             cls,
             uid,
             label,
-            coe_advisor_uid=None,
+            advisor_ldap_uid=None,
             gpa_ranges=None,
             group_codes=None,
             levels=None,
@@ -75,7 +75,7 @@ class CohortFilter(Base, UserMixin):
         criteria = cls.compose_filter_criteria(
             gpa_ranges=gpa_ranges,
             group_codes=group_codes,
-            coe_advisor_uid=coe_advisor_uid,
+            advisor_ldap_uid=advisor_ldap_uid,
             in_intensive_cohort=in_intensive_cohort,
             is_inactive_asc=is_inactive_asc,
             levels=levels,
@@ -131,7 +131,7 @@ class CohortFilter(Base, UserMixin):
     @classmethod
     def compose_filter_criteria(
             cls,
-            coe_advisor_uid=None,
+            advisor_ldap_uid=None,
             gpa_ranges=None,
             group_codes=None,
             in_intensive_cohort=None,
@@ -141,7 +141,7 @@ class CohortFilter(Base, UserMixin):
             unit_ranges=None,
     ):
         has_criteria = next((c for c in [gpa_ranges, group_codes, levels, majors, unit_ranges] if c), None)
-        has_criteria = has_criteria or next((c for c in [coe_advisor_uid, in_intensive_cohort, is_inactive_asc] if c is not None), None)
+        has_criteria = has_criteria or next((c for c in [advisor_ldap_uid, in_intensive_cohort, is_inactive_asc] if c is not None), None)
         if not has_criteria:
             raise InternalServerError('CohortFilter creation requires one or more non-empty criteria.')
         # Validate
@@ -166,7 +166,7 @@ class CohortFilter(Base, UserMixin):
             'gpaRanges': gpa_ranges or [],
             'groupCodes': group_codes or [],
             'inIntensiveCohort': in_intensive_cohort,
-            'coeAdvisorUid': coe_advisor_uid,
+            'advisorLdapUid': advisor_ldap_uid,
             'isInactiveAsc': is_inactive_asc,
             'levels': levels or [],
             'majors': majors or [],

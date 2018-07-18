@@ -85,18 +85,16 @@ def decorate_cohort(
     include_profiles=False,
     include_alerts_for_uid=None,
 ):
-    _is_canned_coe_cohort = is_canned_coe_cohort(cohort)
     decorated = {
         'id': cohort.id,
         'code': cohort.id,
-        'isReadOnly': _is_canned_coe_cohort,
-        'isCannedCoeCohort': _is_canned_coe_cohort,
+        'isReadOnly': is_read_only_cohort(cohort),
         'label': cohort.label,
         'name': cohort.label,
         'owners': [user.uid for user in cohort.owners],
     }
     criteria = cohort if isinstance(cohort.filter_criteria, dict) else json.loads(cohort.filter_criteria)
-    coe_advisor_uid = util.get(criteria, 'coeAdvisorUid')
+    advisor_ldap_uid = util.get(criteria, 'advisorLdapUid')
     gpa_ranges = util.get(criteria, 'gpaRanges', [])
     group_codes = util.get(criteria, 'groupCodes', [])
     levels = util.get(criteria, 'levels', [])
@@ -107,7 +105,7 @@ def decorate_cohort(
     team_groups = athletics.get_team_groups(group_codes) if group_codes else []
     decorated.update({
         'filterCriteria': {
-            'coeAdvisorUid': coe_advisor_uid,
+            'advisorLdapUid': advisor_ldap_uid,
             'gpaRanges': gpa_ranges,
             'groupCodes': group_codes,
             'levels': levels,
@@ -128,7 +126,7 @@ def decorate_cohort(
 
     results = query_students(
         include_profiles=(include_students and include_profiles),
-        coe_advisor_uid=coe_advisor_uid,
+        advisor_ldap_uid=advisor_ldap_uid,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
         in_intensive_cohort=in_intensive_cohort,
@@ -163,10 +161,10 @@ def decorate_cohort(
     return decorated
 
 
-def is_canned_coe_cohort(cohort):
+def is_read_only_cohort(cohort):
     criteria = cohort if isinstance(cohort.filter_criteria, dict) else json.loads(cohort.filter_criteria)
     keys_with_not_none_value = [key for key, value in criteria.items() if value not in [None, []]]
-    return keys_with_not_none_value == ['coeAdvisorUid']
+    return keys_with_not_none_value == ['advisorLdapUid']
 
 
 def sis_enrollment_class_feed(enrollment):

@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import decorate_cohort, is_canned_coe_cohort, strip_analytics
+from boac.api.util import decorate_cohort, is_read_only_cohort, strip_analytics
 from boac.lib import util
 from boac.lib.berkeley import can_view_cohort, get_dept_codes
 from boac.lib.http import tolerant_jsonify
@@ -62,14 +62,15 @@ def all_cohorts():
 def my_cohorts():
     uid = current_user.get_id()
     _my_cohorts = CohortFilter.all_owned_by(uid)
-    if not _my_cohorts and 'COENG' in get_dept_codes(current_user):
+    canned_cohort = next((c for c in _my_cohorts if is_read_only_cohort(c)), None)
+    if not canned_cohort and 'COENG' in get_dept_codes(current_user):
         # COE advisor, logging in for first time, gets a canned cohort sourced from COE UGRAD data in Nessie
         profile = calnet.get_calnet_user_for_uid(app, uid)
-        first_name = profile.get('first_name')
+        first_name = profile.get('firstName')
         CohortFilter.create(
             uid=uid,
             label=f'{first_name}\'s Students' if first_name else 'My Engineering Students',
-            coe_advisor_uid=uid,
+            advisor_ldap_uid=uid,
         )
         _my_cohorts = CohortFilter.all_owned_by(uid)
     cohorts = [decorate_cohort(c, include_alerts_for_uid=uid, include_students=False) for c in _my_cohorts]
@@ -104,7 +105,7 @@ def get_cohort(cohort_id):
 def create_cohort():
     params = request.get_json()
     label = util.get(params, 'label', None)
-    coe_advisor_uid = util.get(params, 'coeAdvisorUid')
+    advisor_ldap_uid = util.get(params, 'advisorLdapUid')
     gpa_ranges = util.get(params, 'gpaRanges')
     group_codes = util.get(params, 'groupCodes')
     levels = util.get(params, 'levels')
@@ -112,8 +113,8 @@ def create_cohort():
     unit_ranges = util.get(params, 'unitRanges')
     in_intensive_cohort = util.to_bool_or_none(util.get(params, 'inIntensiveCohort'))
     is_inactive_asc = util.get(params, 'isInactiveAsc')
-    if coe_advisor_uid and 'COENG' not in get_dept_codes(current_user):
-        raise ForbiddenRequestError(f'Only COE advisors have access to \'coeAdvisorUid\' criteria.')
+    if advisor_ldap_uid and 'COENG' not in get_dept_codes(current_user):
+        raise ForbiddenRequestError(f'Only COE advisors have access to \'advisorLdapUid\' criteria.')
     if not label:
         raise BadRequestError('Cohort creation requires \'label\'')
     asc_authorized = current_user.is_admin or 'UWASC' in get_dept_codes(current_user)
@@ -122,7 +123,7 @@ def create_cohort():
     cohort = CohortFilter.create(
         uid=current_user.get_id(),
         label=label,
-        coe_advisor_uid=coe_advisor_uid,
+        advisor_ldap_uid=advisor_ldap_uid,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
         levels=levels,
@@ -157,7 +158,7 @@ def delete_cohort(cohort_id):
         uid = current_user.get_id()
         cohort = next((c for c in CohortFilter.all_owned_by(uid) if c.id == cohort_id), None)
         if cohort:
-            if is_canned_coe_cohort(cohort):
+            if is_read_only_cohort(cohort):
                 raise ForbiddenRequestError(f'Programmatic deletion of canned cohorts is not allowed (id={cohort_id})')
             CohortFilter.delete(cohort_id)
             return tolerant_jsonify({'message': f'Cohort deleted (id={cohort_id})'}), 200

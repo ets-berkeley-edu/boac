@@ -85,18 +85,20 @@
     };
 
     var getStudents = function(
+      advisorLdapUid,
       gpaRanges,
       groupCodes,
+      intensive,
+      isInactiveAsc,
       levels,
       majors,
       unitRanges,
-      intensive,
-      isInactiveAsc,
       orderBy,
       offset,
       limit
     ) {
       var args = {
+        advisorLdapUid: advisorLdapUid,
         gpaRanges: gpaRanges || [],
         groupCodes: groupCodes || [],
         isInactiveAsc: utilService.toBoolOrNull(isInactiveAsc),

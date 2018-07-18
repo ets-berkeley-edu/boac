@@ -96,7 +96,7 @@ class TestCohortDetail:
         assert len(cohorts) == 1
         cohort = cohorts[0]
         assert cohort['name'] == 'My Engineering Students'
-        assert cohort['filterCriteria']['coeAdvisorUid'] == uid
+        assert cohort['filterCriteria']['advisorLdapUid'] == uid
         assert cohort['totalStudentCount'] == 2
         response = client.get(f"/api/cohort/{cohort['id']}")
         assert response.status_code == 200
@@ -317,16 +317,15 @@ class TestCohortDetail:
         fake_auth.login(uid)
         data = {
             'label': 'Students of Jane the COE Advisor',
-            'coeAdvisorUid': uid,
+            'advisorLdapUid': uid,
             'groupCodes': [],
             'majors': [],
         }
         response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 200
         cohort = json.loads(response.data)
-        assert cohort['isCannedCoeCohort'] is True
         assert cohort['isReadOnly'] is True
-        assert cohort['filterCriteria']['coeAdvisorUid'] == uid
+        assert cohort['filterCriteria']['advisorLdapUid'] == uid
         cohort_id = cohort['id']
         response = client.delete(f'/api/cohort/delete/{cohort_id}')
         assert response.status_code == 403
@@ -336,7 +335,7 @@ class TestCohortDetail:
         fake_auth.login(uid)
         data = {
             'label': 'John the ASC Advisor',
-            'coeAdvisorUid': uid,
+            'advisorLdapUid': uid,
         }
         response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 403

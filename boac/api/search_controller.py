@@ -46,7 +46,7 @@ def all_students():
 @login_required
 def get_students():
     params = request.get_json()
-    coe_advisor_uid = util.get(params, 'coeAdvisorUid')
+    advisor_ldap_uid = util.get(params, 'advisorLdapUid')
     gpa_ranges = util.get(params, 'gpaRanges')
     group_codes = util.get(params, 'groupCodes')
     levels = util.get(params, 'levels')
@@ -62,7 +62,7 @@ def get_students():
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     results = query_students(
         include_profiles=True,
-        coe_advisor_uid=coe_advisor_uid,
+        advisor_ldap_uid=advisor_ldap_uid,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
         levels=levels,

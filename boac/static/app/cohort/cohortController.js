@@ -75,7 +75,6 @@
     $scope.demoMode = config.demoMode;
     $scope.isCreateCohortMode = false;
     $scope.isAscUser = authService.isAscUser();
-    $scope.isCoeUser = authService.isCoeUser();
     $scope.lastActivityDays = utilService.lastActivityDays;
     $scope.orderBy = studentSearchService.getSortByOptionsForSearch();
     $scope.pagination = {
@@ -96,7 +95,7 @@
       },
       dropdown: defaultDropdownState(),
       options: {
-        coeAdvisorUid: null,
+        advisorLdapUid: null,
         gpaRanges: null,
         groupCodes: null,
         inactive: null,
@@ -129,11 +128,6 @@
           if (isInactiveCohort) {
             $scope.cohort.name = 'Inactive';
           }
-        }
-      }
-      if ($scope.isCoeUser) {
-        if ($scope.cohort.isCannedCoeCohort) {
-          $scope.search.options.coeAdvisorUid = $rootScope.me.uid;
         }
       }
     };
@@ -325,6 +319,7 @@
       initFilter('majors', 'name', getCohortCriteria('majors'));
       // Units
       initFilter('unitRanges', 'value', getCohortCriteria('unitRanges'), onClickOption);
+      $scope.search.options.advisorLdapUid = getCohortCriteria('advisorLdapUid');
       // Ready for the world!
       return callback();
     };
@@ -542,7 +537,7 @@
         enable = selectedOptionsCount ||
           ($scope.showIntensiveCheckbox && opts.intensive) ||
           ($scope.showInactiveCheckbox && opts.inactive) ||
-          ($scope.cohort.isCannedCoeCohort && opts.coeAdvisorUid);
+          opts.advisorLdapUid;
       }
       return enable;
     };
