@@ -27,8 +27,9 @@
 
   'use strict';
 
-  angular.module('boac').controller('HeaderController', function(authFactory, authService, $scope) {
+  angular.module('boac').controller('HeaderController', function(authFactory, authService, config, $scope) {
 
+    $scope.devAuthEnabled = config.devAuthEnabled;
     $scope.me = authService.getMe();
 
     $scope.logOut = function() {
