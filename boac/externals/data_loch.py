@@ -498,9 +498,9 @@ def _student_query_tables_for_scope(scope):
         elif len(tables) == 1:
             # If we are pulling from a single schema, include all schema-specific columns.
             table_sql = f"""FROM {tables[0]} s
-                LEFT JOIN {student_schema()}.student_academic_status sas ON sas.sid = s.sid"""
+                JOIN {student_schema()}.student_academic_status sas ON sas.sid = s.sid"""
         else:
             # If we are pulling from multiple schemas, SID will be the only common element in the union.
             table_sql = f"""FROM ({' UNION '.join(['SELECT sid FROM ' + t for t in tables])}) s
-                LEFT JOIN {student_schema()}.student_academic_status sas ON sas.sid = s.sid"""
+                JOIN {student_schema()}.student_academic_status sas ON sas.sid = s.sid"""
     return table_sql
