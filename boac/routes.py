@@ -36,12 +36,11 @@ def register_routes(app):
     login_manager = flask_login.LoginManager()
     login_manager.user_loader(AuthorizedUser.find_by_uid)
     login_manager.init_app(app)
-    import boac.auth.dev_auth
-    import boac.auth.cas_auth
 
     # Register API routes.
     import boac.api.admin_controller
     import boac.api.alerts_controller
+    import boac.api.auth_controller
     import boac.api.athletics_controller
     import boac.api.cohort_controller
     import boac.api.config_controller

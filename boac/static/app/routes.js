@@ -57,6 +57,16 @@
       return deferred.promise;
     };
 
+    var resolveAdminAuthentication = function(me, $q) {
+      var deferred = $q.defer();
+      if (me.isAuthenticated && me.isAdmin) {
+        deferred.resolve({});
+      } else {
+        deferred.reject({message: 'unauthorized'});
+      }
+      return deferred.promise;
+    };
+
     // Return a rejection if authenticated user is present.
     var splashAuthentication = function(me, $q) {
       var deferred = $q.defer();
@@ -86,6 +96,11 @@
       };
     };
 
+    var resolveAdmin = {
+      me: resolveMe,
+      authentication: resolveAdminAuthentication
+    };
+
     var resolveSplash = {
       me: resolveMe,
       authentication: splashAuthentication
@@ -111,6 +126,11 @@
         views: standardLayout(null, '/static/app/shared/404.html'),
         resolve: resolvePrivate,
         reloadOnSearch: false
+      })
+      .state('admin', {
+        url: '/admin',
+        views: standardLayout('AdminController', '/static/app/admin/admin.html'),
+        resolve: resolveAdmin
       })
       .state('cohort', {
         url: '/cohort?c&i&inactive',
@@ -187,6 +207,8 @@
         );
       } else if (message === 'authenticated') {
         $state.go('home');
+      } else if (message === 'unauthorized') {
+        $state.go('404');
       } else {
         $state.go('splash', {casLoginError: message});
       }
