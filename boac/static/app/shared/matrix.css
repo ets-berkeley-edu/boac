@@ -52,12 +52,21 @@
   display: none;
 }
 
-.matrix-axis-label {
+.matrix-axis-title {
   font-size: 16px;
   font-weight: 200;
   letter-spacing: 0.075em;
+  text-anchor: middle;
   text-transform: uppercase;
   stroke: #999;
+}
+
+.matrix-axis-label {
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+  stroke: #000;
 }
 
 .matrix-container {
