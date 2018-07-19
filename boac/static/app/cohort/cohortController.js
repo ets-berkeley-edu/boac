@@ -28,6 +28,7 @@
   'use strict';
 
   angular.module('boac').controller('CohortController', function(
+    adminFactory,
     authService,
     cohortFactory,
     config,
@@ -319,7 +320,17 @@
       initFilter('majors', 'name', getCohortCriteria('majors'));
       // Units
       initFilter('unitRanges', 'value', getCohortCriteria('unitRanges'), onClickOption);
-      $scope.search.options.advisorLdapUid = getCohortCriteria('advisorLdapUid');
+      var advisorUid = getCohortCriteria('advisorLdapUid');
+      if (advisorUid) {
+        $scope.search.options.advisorLdapUid = advisorUid;
+        if (advisorUid === authService.getMe().uid) {
+          $scope.advisorLdapUidLabel = 'My Students';
+        } else {
+          adminFactory.getUserProfile(advisorUid).then(function(response) {
+            $scope.advisorLdapUidLabel = response.data.firstName + '\'s Students';
+          });
+        }
+      }
       // Ready for the world!
       return callback();
     };

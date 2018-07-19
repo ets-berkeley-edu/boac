@@ -29,7 +29,7 @@
 
   angular.module('boac').factory('adminFactory', function($http) {
 
-    var allUserProfiles = function() {
+    var getAllUserProfiles = function() {
       return $http.get('/api/profiles/all');
     };
 
@@ -37,9 +37,14 @@
       return $http.post('/api/admin/become_user', {uid: uid});
     };
 
+    var getUserProfile = function(uid) {
+      return $http.get('/api/profile/' + uid);
+    };
+
     return {
-      allUserProfiles: allUserProfiles,
-      becomeUser: becomeUser
+      becomeUser: becomeUser,
+      getAllUserProfiles: getAllUserProfiles,
+      getUserProfile: getUserProfile
     };
   });
 
