@@ -33,7 +33,7 @@ class TestUserProfile:
 
     def test_profile_not_authenticated(self, client):
         """Returns a well-formed response."""
-        response = client.get('/api/profile')
+        response = client.get('/api/profile/my')
         assert response.status_code == 200
         assert not response.json['uid']
 
@@ -41,7 +41,7 @@ class TestUserProfile:
         """Includes user profile info from Canvas."""
         test_uid = '2040'
         fake_auth.login(test_uid)
-        response = client.get('/api/profile')
+        response = client.get('/api/profile/my')
         assert response.json['uid'] == test_uid
         assert 'firstName' in response.json
         assert 'lastName' in response.json
@@ -49,7 +49,7 @@ class TestUserProfile:
     def test_user_with_no_dept_membership(self, client, fake_auth):
         """Returns zero or more departments."""
         fake_auth.login('2040')
-        response = client.get('/api/profile')
+        response = client.get('/api/profile/my')
         assert response.status_code == 200
         user = response.json
         assert user['isAdmin'] is True
@@ -58,7 +58,7 @@ class TestUserProfile:
     def test_department_beyond_asc(self, client, fake_auth):
         """Returns COENG director."""
         fake_auth.login('1022796')
-        response = client.get('/api/profile')
+        response = client.get('/api/profile/my')
         assert response.status_code == 200
         user = response.json
         assert user['isAdmin'] is False
@@ -71,7 +71,7 @@ class TestUserProfile:
         """Returns Athletic Study Center advisor."""
         test_uid = '1081940'
         fake_auth.login(test_uid)
-        response = client.get('/api/profile')
+        response = client.get('/api/profile/my')
         assert response.status_code == 200
         user = response.json
         assert 'UWASC' in user['departments']
@@ -81,11 +81,23 @@ class TestUserProfile:
     def test_includes_groups(self, client, fake_auth):
         test_uid = '6446'
         fake_auth.login(test_uid)
-        response = client.get('/api/profile')
+        response = client.get('/api/profile/my')
         groups = response.json['myGroups']
         assert len(groups) == 2
         assert groups[0]['name'] == 'Cool Kids'
         assert groups[0]['studentCount'] == 4
+
+    def test_other_user_profile(self, client, fake_auth):
+        fake_auth.login('2040')
+        response = client.get('/api/profile/6446')
+        assert response.json['uid'] == '6446'
+        assert 'firstName' in response.json
+        assert 'lastName' in response.json
+
+    def test_other_user_profile_not_found(self, client, fake_auth):
+        fake_auth.login('2040')
+        response = client.get('/api/profile/2549')
+        assert response.status_code == 404
 
 
 class TestAllUserProfiles:

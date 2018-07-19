@@ -39,8 +39,8 @@ from flask import current_app as app, Response
 from flask_login import current_user, login_required
 
 
-@app.route('/api/profile')
-def user_profile():
+@app.route('/api/profile/my')
+def my_profile():
     uid = current_user.get_id()
     profile = calnet.get_calnet_user_for_uid(app, uid)
     if current_user.is_active:
@@ -71,6 +71,15 @@ def user_profile():
             'departments': None,
         })
     return tolerant_jsonify(profile)
+
+
+@app.route('/api/profile/<uid>')
+@login_required
+def user_profile(uid):
+    match = next((u for u in AuthorizedUser.query.all() if u.uid == uid), None)
+    if not match:
+        raise errors.ResourceNotFoundError('Unknown path')
+    return tolerant_jsonify(calnet.get_calnet_user_for_uid(app, uid))
 
 
 @app.route('/api/profiles/all')

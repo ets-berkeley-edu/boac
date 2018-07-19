@@ -59,11 +59,13 @@
         <label class="cohort-checkbox-label" for="inactive-checkbox" data-ng-if="showInactiveCheckbox">Inactive</label>
       </div>
       <div data-ng-if="search.options.advisorLdapUid">
-        <input id="canned-coe-cohort-checkbox"
+        <input id="advisor-ldap-uid-checkbox"
                type="checkbox"
                data-ng-checked="!!search.options.advisorLdapUid"
                data-ng-model="search.options.advisorLdapUid"/>
-        <label class="cohort-checkbox-label" for="canned-coe-cohort-checkbox">My Students</label>
+        <label class="cohort-checkbox-label"
+               data-ng-bind="advisorLdapUidLabel"
+               for="advisor-ldap-uid-checkbox"></label>
       </div>
     </div>
     <!-- Apply and save buttons -->

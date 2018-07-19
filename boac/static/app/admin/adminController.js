@@ -38,7 +38,7 @@
     var init = function() {
       page.loading(true);
       if (config.devAuthEnabled) {
-        adminFactory.allUserProfiles().then(function(response) {
+        adminFactory.getAllUserProfiles().then(function(response) {
           $scope.allProfiles = response.data;
           page.loading(false);
         });
