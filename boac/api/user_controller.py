@@ -47,7 +47,7 @@ def my_profile():
         # All BOAC views require group and cohort lists
         authorized_user_id = current_user.id
         groups = StudentGroup.get_groups_by_owner_id(authorized_user_id)
-        groups = [g.to_api_json(include_students=False) for g in groups]
+        groups = [g.to_api_json(sids_only=True) for g in groups]
         departments = {}
         for m in current_user.department_memberships:
             departments.update({

@@ -85,7 +85,11 @@ class TestUserProfile:
         groups = response.json['myGroups']
         assert len(groups) == 2
         assert groups[0]['name'] == 'Cool Kids'
+        assert len(groups[0]['students']) == 4
         assert groups[0]['studentCount'] == 4
+        student = groups[0]['students'][0]
+        assert 'sid' in student
+        assert 'firstName' not in student
 
     def test_other_user_profile(self, client, fake_auth):
         fake_auth.login('2040')
