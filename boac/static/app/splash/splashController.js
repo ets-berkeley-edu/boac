@@ -39,6 +39,7 @@
   ) {
 
     $rootScope.pageTitle = 'Welcome';
+    $scope.supportEmailAddress = config.supportEmailAddress;
 
     var closeErrorPopovers = $scope.closeErrorPopovers = function() {
       _.set($scope.casLogin, 'error.isPopoverOpen', false);

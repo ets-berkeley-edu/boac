@@ -13,7 +13,7 @@
               popover-placement="top-left">Sign In</button>
     </form>
     <div class="splash-contact-us">
-      Questions or feedback? Contact us at <a href="mailto:ascpilot@lists.berkeley.edu">ascpilot@lists.berkeley.edu</a>
+      Questions or feedback? Contact us at <a href="mailto:{{supportEmailAddress}}" data-ng-bind="supportEmailAddress"></a>
     </div>
     <form data-ng-submit="devAuthLogIn(uid, password)" data-ng-if="devAuthLogIn">
       <div class="flex-container splash-dev-auth">
