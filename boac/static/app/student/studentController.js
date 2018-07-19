@@ -131,13 +131,10 @@
         });
 
       }).then(function() {
-        var athleticsProfile = $scope.student.athleticsProfile;
-        if (athleticsProfile) {
-          studentFactory.getAlerts($scope.student.sid).then(function(alerts) {
-            $scope.alerts = alerts.data;
-          });
-          visualizationService.showUnitsChart($scope.student);
-        }
+        studentFactory.getAlerts($scope.student.sid).then(function(alerts) {
+          $scope.alerts = alerts.data;
+        });
+        visualizationService.showUnitsChart($scope.student);
         if (!config.demoMode) {
           $rootScope.pageTitle = _.get($scope.student.name) || preferredName;
         }
