@@ -306,22 +306,44 @@
         .attr('cy', function(d) { return yScale(y(d)); })
         .attr('r', '30');
 
-      // Add an x-axis label.
+      // Add x-axis labels.
+      svg.append('text')
+        .attr('class', 'matrix-axis-title')
+        .attr('x', width / 2)
+        .attr('y', height + 25)
+        .text('Days since bCourses course site viewed');
       svg.append('text')
         .attr('class', 'matrix-axis-label')
         .attr('text-anchor', 'start')
         .attr('x', 0)
-        .attr('y', height + 30)
-        .text('Days since bCourses course site viewed');
-
-      // Add a y-axis label.
+        .attr('y', height + 22)
+        .text('Previously');
       svg.append('text')
         .attr('class', 'matrix-axis-label')
-        .attr('text-anchor', 'start')
-        .attr('x', -height)
+        .attr('text-anchor', 'end')
+        .attr('x', width)
+        .attr('y', height + 22)
+        .text('Recently');
+
+      // Add y-axis labels.
+      svg.append('text')
+        .attr('class', 'matrix-axis-title')
         .attr('y', -20)
+        .attr('x', 0 - (height / 2))
         .attr('transform', 'rotate(-90)')
         .text(yAxisName);
+      svg.append('text')
+        .attr('class', 'matrix-axis-label')
+        .attr('text-anchor', 'end')
+        .attr('x', -10)
+        .attr('y', height - 2)
+        .text('Low');
+      svg.append('text')
+        .attr('class', 'matrix-axis-label')
+        .attr('text-anchor', 'end')
+        .attr('x', -10)
+        .attr('y', 10)
+        .text('High');
 
       var displayValue = function(d, prop) {
         var value = _.get(d, prop + '.displayPercentile');
