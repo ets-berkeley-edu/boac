@@ -144,7 +144,7 @@ def get_sis_section_enrollments(term_id, sis_section_id, scope):
     query_tables = _student_query_tables_for_scope(scope)
     if not query_tables:
         return []
-    sql = f"""SELECT sas.sid, sas.first_name, sas.last_name
+    sql = f"""SELECT DISTINCT sas.sid, sas.first_name, sas.last_name
               {query_tables}
               JOIN {intermediate_schema()}.sis_enrollments enr
                 ON sas.uid = enr.ldap_uid
