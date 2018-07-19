@@ -100,14 +100,7 @@
 
     $rootScope.$on('removeStudentFromGroup', function(event, data) {
       var group = findGroupInScope(data.group.id);
-      var student = data.student;
-
-      if (studentGroupService.isStudentInGroup(student, group)) {
-        group.students = _.remove(group.students, function(s) {
-          return s.sid !== student.sid;
-        });
-        group.studentCount -= 1;
-      }
+      group.studentCount -= 1;
     });
   });
 
