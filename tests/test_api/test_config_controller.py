@@ -33,9 +33,11 @@ class TestConfigController:
         assert response.status_code == 200
         assert 'boacEnv' in response.json
         # In tests, certain configs are omitted or disabled (e.g., Google Analytics)
-        assert response.json['ebEnvironment'] is None
-        assert response.json['googleAnalyticsId'] is False
-        assert isinstance(response.json['demoMode'], bool)
+        data = response.json
+        assert data['ebEnvironment'] is None
+        assert data['googleAnalyticsId'] is False
+        assert '@' in data['supportEmailAddress']
+        assert isinstance(data['demoMode'], bool)
 
     def test_anonymous_api_version_request(self, client):
         """Returns a well-formed response."""

@@ -30,6 +30,7 @@
   angular.module('boac').controller('HeaderController', function(authFactory, authService, config, $scope) {
 
     $scope.devAuthEnabled = config.devAuthEnabled;
+    $scope.supportEmailAddress = config.supportEmailAddress;
     $scope.me = authService.getMe();
 
     $scope.logOut = function() {

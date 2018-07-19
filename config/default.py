@@ -105,3 +105,5 @@ CACHE_DEFAULT = False
 # If the top decile of any analytics measure is below this number, treat it as zero ("no data").
 # At the beginning of a term, the bar may be lowered.
 MEANINGFUL_STATS_MINIMUM = 4
+
+BOAC_SUPPORT_EMAIL = 'boac-support@lists.berkeley.edu'

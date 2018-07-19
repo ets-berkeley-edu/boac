@@ -43,6 +43,7 @@ def app_config():
         'demoMode': util.app_in_demo_mode(),
         'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],
         'ebEnvironment': app.config['EB_ENVIRONMENT'] if 'EB_ENVIRONMENT' in app.config else None,
+        'supportEmailAddress': app.config['BOAC_SUPPORT_EMAIL'],
         'googleAnalyticsId': app.config['GOOGLE_ANALYTICS_ID'],
     })
 
