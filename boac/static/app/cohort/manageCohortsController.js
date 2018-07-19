@@ -28,6 +28,7 @@
   'use strict';
 
   angular.module('boac').controller('ManageCohortsController', function(
+    adminFactory,
     cohortFactory,
     page,
     studentFactory,
@@ -110,6 +111,12 @@
             }),
             f.inIntensiveCohort ? [ 'Intensive' ] : []
           );
+          if (f.advisorLdapUid) {
+            adminFactory.getUserProfile(f.advisorLdapUid).then(function(_response) {
+              var user = _response.data;
+              cohort.filterCriteriaNames.push(user.firstName + ' ' + user.lastName);
+            });
+          }
         });
         resetPageView(angular.noop);
         page.loading(false);
