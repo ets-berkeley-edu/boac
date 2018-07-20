@@ -194,7 +194,7 @@ def sis_enrollment_section_feed(enrollment):
 
 
 def sort_students_by_name(students):
-    return sorted(students, key=lambda s: (s['firstName'], s['lastName']))
+    return sorted(students, key=lambda s: (s['lastName'], s['firstName']))
 
 
 def strip_analytics(student_term_data):
