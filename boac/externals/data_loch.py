@@ -400,13 +400,13 @@ def get_students_query(
 def get_students_ordering(order_by=None, group_codes=None, majors=None):
     supplemental_query_tables = None
     # Case-insensitive sort of first_name and last_name.
-    by_first_name = 'UPPER(sas.first_name)'
-    by_last_name = 'UPPER(sas.last_name)'
+    by_first_name = naturalize_order('sas.first_name')
+    by_last_name = naturalize_order('sas.last_name')
     o = by_last_name
     if order_by == 'in_intensive_cohort':
         o = 's.intensive'
     elif order_by in ['first_name', 'last_name']:
-        o = f'UPPER(sas.{order_by})'
+        o = naturalize_order(f'sas.{order_by}')
     elif order_by in ['gpa', 'units', 'level']:
         o = f'sas.{order_by}'
     elif order_by == 'group_name':
@@ -418,18 +418,18 @@ def get_students_ordering(order_by=None, group_codes=None, majors=None):
         # pagination offsets requires filtering and ordering to be done at the SQL level.
         if group_codes:
             supplemental_query_tables = f' LEFT JOIN {asc_schema()}.students s2 ON s2.sid = sas.sid'
-            o = 's2.group_name'
+            o = naturalize_order('s2.group_name')
         else:
-            o = 's.group_name'
+            o = naturalize_order('s.group_name')
     elif order_by == 'major':
         # Majors, like group names, require extra handling in the special case where they are both filter
         # criteria and ordering criteria.
         if majors:
             supplemental_query_tables = f' LEFT JOIN {student_schema()}.student_majors maj2 ON maj2.sid = sas.sid'
-            o = 'maj2.major'
+            o = naturalize_order('maj2.major')
         else:
             supplemental_query_tables = f' LEFT JOIN {student_schema()}.student_majors m ON m.sid = sas.sid'
-            o = 'm.major'
+            o = naturalize_order('m.major')
     o_secondary = by_first_name if order_by == 'last_name' else by_last_name
     diff = {by_first_name, by_last_name} - {o, o_secondary}
     o_tertiary = diff.pop() if diff else 'sas.sid'
@@ -445,6 +445,10 @@ def level_to_code(level):
         'Graduate': 'GR',
     }
     return codes.get(level, level)
+
+
+def naturalize_order(column_name):
+    return f"UPPER(regexp_replace({column_name}, '\\\W', ''))"
 
 
 def numrange_to_sql(column, numrange):
