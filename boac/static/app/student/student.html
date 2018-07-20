@@ -112,9 +112,12 @@
               <div class="student-bio-status-number" data-ng-bind="student.sisProfile.cumulativeGPA || '--'"></div>
               <div class="student-bio-status-legend">Cumulative GPA</div>
             </div>
-            <div class="student-bio-status-box" data-ng-if="student.sisProfile.degreeProgress">
+            <div class="student-bio-status-box">
               <h4 class="student-bio-progress-header">Degree Progress</h4>
-              <table class="student-bio-table">
+              <div class="student-bio-no-data" data-ng-if="!student.sisProfile.degreeProgress">
+                No data
+              </div>
+              <table class="student-bio-table" data-ng-if="student.sisProfile.degreeProgress">
                 <tr>
                   <th>University Requirements</th>
                   <th>Status</th>
@@ -131,7 +134,7 @@
                   </td>
                 </tr>
               </table>
-              <div class="profile-sidebar-subdetails">
+              <div class="profile-sidebar-subdetails" data-ng-if="student.sisProfile.degreeProgress">
                 <div>Degree Progress as of <span data-ng-bind="student.sisProfile.degreeProgress.reportDate"></span>.</div>
                 <div>Advisors can refresh this data at <a data-ng-href="{{student.studentProfileLink}}">CalCentral</a>.</div>
               </div>
