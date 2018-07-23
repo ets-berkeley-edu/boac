@@ -48,7 +48,7 @@
       <div data-ng-repeat="cohort in myCohorts" data-ng-if="myCohorts.length">
         <h2 class="page-section-header-sub">
           <a id="home-filtered-cohort-{{$index}}"
-             data-ng-bind="cohort.label"
+             data-ng-bind="cohort.name"
              data-ng-href="/cohort?c={{cohort.id}}"></a> (<span data-ng-bind="cohort.totalStudentCount"></span>)
         </h2>
         <sortable-alerts-table data-students="cohort.alerts.students"

@@ -164,7 +164,7 @@
                     data-ng-if="isAscUser && !student.athleticsProfile.isActiveAsc">INACTIVE</span>
             </div>
             <div class="student-text" data-ng-bind="student.level"></div>
-            <div class="student-text" data-ng-bind="major" data-ng-repeat="major in student.majors"></div>
+            <div class="student-text" data-ng-bind="major" data-ng-repeat="major in student.majors track by $index"></div>
             <div class="student-teams-container">
               <div class="student-teams"
                    data-ng-bind="team.groupName"

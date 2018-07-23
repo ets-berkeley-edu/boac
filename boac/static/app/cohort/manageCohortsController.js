@@ -114,7 +114,7 @@
           if (f.advisorLdapUid) {
             adminFactory.getUserProfile(f.advisorLdapUid).then(function(_response) {
               var user = _response.data;
-              cohort.filterCriteriaNames.push(user.firstName + ' ' + user.lastName);
+              cohort.filterCriteriaNames.push('Advisor: ' + user.firstName + ' ' + user.lastName);
             });
           }
         });

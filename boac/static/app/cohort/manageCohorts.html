@@ -38,12 +38,14 @@
               Delete
             </button> <span class="faint-text">|</span>
           </span>
-          <button type="button"
-                  id="edit-filtered-cohort-btn-{{$index}}"
-                  class="btn-link cohort-manage-btn-link"
-                  data-ng-click="setEditMode(cohort, true)">
-            Rename
-          </button> <span class="faint-text">|</span>
+          <span data-ng-if="!cohort.isReadOnly">
+            <button type="button"
+                    id="edit-filtered-cohort-btn-{{$index}}"
+                    class="btn-link cohort-manage-btn-link"
+                    data-ng-click="setEditMode(cohort, true)">
+              Rename
+            </button> <span class="faint-text">|</span>
+          </span>
           <button type="button"
                   id="filtered-cohort-details-btn-{{$index}}"
                   class="btn-link cohort-manage-btn-link"
