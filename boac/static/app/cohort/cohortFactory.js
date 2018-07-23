@@ -62,7 +62,7 @@
         });
         $rootScope.$broadcast('myCohortsUpdated');
         // Track the event
-        googleAnalyticsService.track('cohort', 'create', cohort.label, cohort.id);
+        googleAnalyticsService.track('cohort', 'create', cohort.name, cohort.id);
       });
     };
 

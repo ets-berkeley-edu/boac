@@ -95,7 +95,7 @@ class TestCohortDetail:
         cohorts = client.get('/api/cohorts/my').json
         assert len(cohorts) == 1
         cohort = cohorts[0]
-        assert cohort['name'] == 'My Engineering Students'
+        assert cohort['name'] == 'My Students'
         assert cohort['filterCriteria']['advisorLdapUid'] == uid
         assert cohort['totalStudentCount'] == 2
         response = client.get(f"/api/cohort/{cohort['id']}")
