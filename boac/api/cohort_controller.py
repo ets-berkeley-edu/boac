@@ -139,13 +139,16 @@ def create_cohort():
 @login_required
 def update_cohort():
     params = request.get_json()
+    cohort_id = int(params['id'])
     uid = current_user.get_id()
     label = params['label']
     if not label:
         raise BadRequestError('Requested cohort label is empty or invalid')
-    cohort = next((c for c in CohortFilter.all_owned_by(uid) if c.id == params['id']), None)
+    cohort = next((c for c in CohortFilter.all_owned_by(uid) if c.id == cohort_id), None)
     if not cohort:
         raise BadRequestError(f'Cohort does not exist or is not owned by {uid}')
+    if is_read_only_cohort(cohort):
+        raise ForbiddenRequestError(f'Read-only cohort cannot be modified (id={cohort_id})')
     cohort = decorate_cohort(CohortFilter.update(cohort_id=cohort.id, label=label), include_students=False)
     return tolerant_jsonify(cohort)
 
@@ -159,7 +162,7 @@ def delete_cohort(cohort_id):
         cohort = next((c for c in CohortFilter.all_owned_by(uid) if c.id == cohort_id), None)
         if cohort:
             if is_read_only_cohort(cohort):
-                raise ForbiddenRequestError(f'Programmatic deletion of canned cohorts is not allowed (id={cohort_id})')
+                raise ForbiddenRequestError(f'Read-only cohort cannot be deleted (id={cohort_id})')
             CohortFilter.delete(cohort_id)
             return tolerant_jsonify({'message': f'Cohort deleted (id={cohort_id})'}), 200
         else:
