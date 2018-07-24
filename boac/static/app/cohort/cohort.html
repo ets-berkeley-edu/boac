@@ -44,27 +44,34 @@
       <cohort-filter data-menu-type="unitRanges" data-label="Units"></cohort-filter>
     </div>
     <div class="cohort-filters-column cohort-checkbox-column" data-ng-if="!isLoading && !isSaving">
-      <div data-ng-if="showIntensiveCheckbox">
+      <div data-ng-if="search.checkboxes.intensive.show">
         <input id="intensive-checkbox"
                type="checkbox"
-               data-ng-model="search.options.intensive"/>
-        <label class="cohort-checkbox-label" for="intensive-checkbox">Intensive</label>
+               data-ng-click="search.checkboxes.intensive.checked = !search.checkboxes.intensive.checked"
+               data-ng-model="search.checkboxes.intensive.checked"/>
+        <label class="cohort-checkbox-label"
+               for="intensive-checkbox"
+               data-ng-bind="search.checkboxes.intensive.label"></label>
       </div>
       <div>
         <input id="inactive-checkbox"
-               data-ng-class="{'display-none': !showInactiveCheckbox}"
+               data-ng-class="{'display-none': !search.checkboxes.inactive.show}"
                type="checkbox"
-               data-ng-disabled="!showInactiveCheckbox"
-               data-ng-model="search.options.inactive"/>
-        <label class="cohort-checkbox-label" for="inactive-checkbox" data-ng-if="showInactiveCheckbox">Inactive</label>
+               data-ng-disabled="!search.checkboxes.inactive.show"
+               data-ng-click="search.checkboxes.inactive.checked = !search.checkboxes.inactive.checked"
+               data-ng-model="search.checkboxes.inactive.checked"/>
+        <label class="cohort-checkbox-label"
+               for="inactive-checkbox"
+               data-ng-if="search.checkboxes.inactive.show"
+               data-ng-bind="search.checkboxes.inactive.label"></label>
       </div>
-      <div data-ng-if="search.options.advisorLdapUid">
+      <div data-ng-if="search.checkboxes.advisorLdapUid.show">
         <input id="advisor-ldap-uid-checkbox"
                type="checkbox"
-               data-ng-checked="!!search.options.advisorLdapUid"
-               data-ng-model="search.options.advisorLdapUid"/>
+               data-ng-click="search.checkboxes.advisorLdapUid.checked = !search.checkboxes.advisorLdapUid.checked"
+               data-ng-checked="search.checkboxes.advisorLdapUid.checked"/>
         <label class="cohort-checkbox-label"
-               data-ng-bind="advisorLdapUidLabel"
+               data-ng-bind="search.checkboxes.advisorLdapUid.label"
                for="advisor-ldap-uid-checkbox"></label>
       </div>
     </div>
@@ -81,7 +88,7 @@
         <button id="create-cohort-btn"
                 class="btn btn-default no-wrap"
                 data-ng-disabled="!enableApplyButton()"
-                data-ng-click="openCreateCohortModal(search.options)">
+                data-ng-click="openCreateCohortModal(search)">
           Save Cohort
         </button>
       </span>
