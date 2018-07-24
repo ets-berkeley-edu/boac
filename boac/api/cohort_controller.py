@@ -117,8 +117,8 @@ def create_cohort():
         raise ForbiddenRequestError(f'Only COE advisors have access to \'advisorLdapUid\' criteria.')
     if not label:
         raise BadRequestError('Cohort creation requires \'label\'')
-    asc_authorized = current_user.is_admin or 'UWASC' in get_dept_codes(current_user)
-    if not asc_authorized and (in_intensive_cohort is not None or is_inactive_asc is not None):
+    authorized = current_user.is_admin or 'UWASC' in get_dept_codes(current_user)
+    if not authorized and (in_intensive_cohort is not None or is_inactive_asc is not None):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     cohort = CohortFilter.create(
         uid=current_user.get_id(),
