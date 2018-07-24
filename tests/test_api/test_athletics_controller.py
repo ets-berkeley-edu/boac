@@ -28,11 +28,17 @@ import pytest
 import simplejson as json
 
 asc_advisor_uid = '1081940'
+coe_advisor_uid = '1133399'
 
 
 @pytest.fixture()
 def asc_advisor(fake_auth):
     fake_auth.login(asc_advisor_uid)
+
+
+@pytest.fixture()
+def coe_advisor(fake_auth):
+    fake_auth.login(coe_advisor_uid)
 
 
 class TestAthletics:
@@ -47,6 +53,16 @@ class TestAthletics:
         """Returns 401 if not authenticated."""
         response = client.get('/api/teams/all')
         assert response.status_code == 401
+
+    def test_team_not_authorized(self, client, coe_advisor):
+        """Returns 404 if not authorized."""
+        response = client.get('/api/team/FHW')
+        assert response.status_code == 404
+
+    def test_teams_not_authorized(self, client, coe_advisor):
+        """Returns 404 if not authorized."""
+        response = client.get('/api/teams/all')
+        assert response.status_code == 404
 
     def test_get_all_team_groups(self, asc_advisor, client):
         """Returns all team-groups if authenticated."""

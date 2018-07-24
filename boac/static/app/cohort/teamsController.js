@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').controller('TeamsController', function(cohortFactory, page, $scope) {
+  angular.module('boac').controller('TeamsController', function(cohortFactory, page, $location, $scope) {
 
     page.loading(true);
 
@@ -35,6 +35,13 @@
       cohortFactory.getTeams().then(function(response) {
         $scope.teams = response.data;
         page.loading(false);
+      }).catch(function(err) {
+        if (err.status === 404) {
+          $location.replace().path('/404');
+        } else {
+          $scope.error = validationService.parseError(err);
+          page.loading(false);
+        }
       });
     };
 
