@@ -31,7 +31,7 @@
 
     var isModalOpen = false;
 
-    $scope.openCreateCohortModal = function(opts) {
+    $scope.openCreateCohortModal = function(search) {
       if (isModalOpen) {
         return;
       }
@@ -45,8 +45,8 @@
         templateUrl: '/static/app/cohort/createCohortModal.html',
         controller: 'CreateCohortModal',
         resolve: {
-          opts: function() {
-            return opts;
+          search: function() {
+            return search;
           }
         }
       });
@@ -59,7 +59,7 @@
   });
 
   angular.module('boac').controller('CreateCohortModal', function(
-    opts,
+    search,
     cohortFactory,
     utilService,
     validationService,
@@ -86,17 +86,17 @@
           $rootScope.isSaving = false;
         } else {
           var getValues = utilService.getValuesSelected;
-          // Get values where selected=true
+          var opts = search.options;
           cohortFactory.createCohort(
             $scope.label,
-            opts.advisorLdapUid,
+            search.checkboxes.advisorLdapUid.checked ? search.checkboxes.advisorLdapUid.value : null,
             getValues(opts.gpaRanges),
             getValues(opts.groupCodes, 'groupCode'),
             getValues(opts.levels),
             getValues(opts.majors),
             getValues(opts.unitRanges),
-            opts.intensive,
-            opts.inactive
+            search.checkboxes.intensive.checked ? true : null,
+            search.checkboxes.inactive.checked ? true : null
           ).then(
             function() {
               $rootScope.isSaving = false;
