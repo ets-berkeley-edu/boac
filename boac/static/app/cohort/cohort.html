@@ -48,7 +48,7 @@
         <input id="intensive-checkbox"
                type="checkbox"
                data-ng-click="search.checkboxes.intensive.checked = !search.checkboxes.intensive.checked"
-               data-ng-model="search.checkboxes.intensive.checked"/>
+               data-ng-checked="search.checkboxes.intensive.checked"/>
         <label class="cohort-checkbox-label"
                for="intensive-checkbox"
                data-ng-bind="search.checkboxes.intensive.label"></label>
@@ -59,7 +59,7 @@
                type="checkbox"
                data-ng-disabled="!search.checkboxes.inactive.show"
                data-ng-click="search.checkboxes.inactive.checked = !search.checkboxes.inactive.checked"
-               data-ng-model="search.checkboxes.inactive.checked"/>
+               data-ng-checked="search.checkboxes.inactive.checked"/>
         <label class="cohort-checkbox-label"
                for="inactive-checkbox"
                data-ng-if="search.checkboxes.inactive.show"
