@@ -25,8 +25,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.api.errors import ResourceNotFoundError
+from boac.api.util import is_current_user_asc_affiliated
 from boac.lib import util
-from boac.lib.berkeley import get_dept_codes
 from boac.lib.http import tolerant_jsonify
 from boac.merged import athletics
 from boac.merged.student import get_summary_student_profiles
@@ -35,7 +35,7 @@ from flask_login import current_user, login_required
 
 
 def authorized():
-    return current_user.is_admin or 'UWASC' in get_dept_codes(current_user)
+    return current_user.is_admin or is_current_user_asc_affiliated()
 
 
 @app.route('/api/team/<code>')
@@ -43,8 +43,9 @@ def authorized():
 def get_team(code):
     if not authorized():
         raise ResourceNotFoundError('Unknown path')
+    is_active_asc = True if is_current_user_asc_affiliated() else None
     order_by = util.get(request.args, 'orderBy', 'first_name')
-    team = athletics.get_team(code, order_by)
+    team = athletics.get_team(code, is_active_asc, order_by)
     if team is None:
         raise ResourceNotFoundError('No team found with code ' + code)
     sids = [s['sid'] for s in team['students']]
