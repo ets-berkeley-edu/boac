@@ -53,38 +53,44 @@
      * Use selected filter options to query students API.
      *
      * @param  {Object}      opts                        Search criteria: gpaRanges, levels, etc.
+     * @param  {Boolean}     ascInactive                 Relevant to ASC students only
+     * @param  {Boolean}     ascIntensive                Relevant to ASC students only
+     * @param  {String}      advisorLdapUid              UID of advisor
      * @param  {String}      orderBy                     Requested sort order
      * @param  {Number}      offset                      As used in SQL query
      * @param  {Number}      limit                       As used in SQL query
      * @param  {Number}      updateBrowserLocation       If true, we will update search criteria in browser location URL
      * @return {List}                                    Backend API results
      */
-    var getStudents = function(opts, orderBy, offset, limit, updateBrowserLocation) {
+    var getStudents = function(opts, ascInactive, ascIntensive, advisorLdapUid, orderBy, offset, limit, updateBrowserLocation) {
       var getValues = utilService.getValuesSelected;
       // Get values where selected=true
       var gpaRanges = getValues(opts.gpaRanges);
       var groupCodes = getValues(opts.groupCodes, 'groupCode');
+      var inactive = ascInactive ? 'true' : null;
+      var intensive = ascIntensive ? 'true' : null;
       var levels = getValues(opts.levels);
       var majors = getValues(opts.majors);
       var unitRanges = getValues(opts.unitRanges);
 
       if (updateBrowserLocation) {
+        $location.search('a', advisorLdapUid);
         $location.search('c', 'search');
         $location.search('g', gpaRanges);
         // Use string 'true' rather than boolean so that the value persists in browser location.
-        $location.search('i', opts.intensive ? 'true' : null);
-        $location.search('inactive', opts.inactive ? 'true' : null);
+        $location.search('i', intensive);
+        $location.search('inactive', inactive);
         $location.search('l', levels);
         $location.search('m', majors);
         $location.search('t', groupCodes);
         $location.search('u', unitRanges);
       }
       return studentFactory.getStudents(
-        opts.advisorLdapUid,
+        advisorLdapUid,
         gpaRanges,
         groupCodes,
-        opts.intensive,
-        opts.inactive,
+        intensive,
+        inactive,
         levels,
         majors,
         unitRanges,
