@@ -55,9 +55,9 @@ def get_team(code):
 @app.route('/api/team_groups/all')
 @login_required
 def get_all_team_groups():
-    if not authorized():
-        raise ResourceNotFoundError('Unknown path')
-    return tolerant_jsonify(athletics.all_team_groups())
+    # TODO: Give unauthorized user a 404 without disrupting COE advisors on the filtered-cohort view.
+    data = athletics.all_team_groups() if authorized() else []
+    return tolerant_jsonify(data)
 
 
 @app.route('/api/teams/all')
