@@ -210,9 +210,10 @@ def query_students(
             {query_tables}
             {query_filter}
             GROUP BY sas.sid
-            ORDER BY MIN({o}) NULLS FIRST, MIN({o_secondary}) NULLS FIRST, MIN({o_tertiary}) NULLS FIRST
-            OFFSET :offset
-        """
+            ORDER BY MIN({o}) NULLS FIRST, MIN({o_secondary}) NULLS FIRST, MIN({o_tertiary}) NULLS FIRST"""
+        if o_tertiary != 'sas.sid':
+            sql += ', sas.sid'
+        sql += ' OFFSET :offset'
         query_bindings['offset'] = offset
         if limit and limit < 100:  # Sanity check large limits
             query_bindings['limit'] = limit
@@ -257,9 +258,10 @@ def search_for_students(
         {query_tables}
         {query_filter}
         GROUP BY sas.sid
-        ORDER BY MIN({o}) NULLS FIRST, MIN({o_secondary}) NULLS FIRST, MIN({o_tertiary}) NULLS FIRST
-        OFFSET {offset}
-    """
+        ORDER BY MIN({o}) NULLS FIRST, MIN({o_secondary}) NULLS FIRST, MIN({o_tertiary}) NULLS FIRST"""
+    if o_tertiary != 'sas.sid':
+        sql += ', sas.sid'
+    sql += f' OFFSET {offset}'
     if limit and limit < 100:  # Sanity check large limits
         sql += f' LIMIT :limit'
         query_bindings['limit'] = limit

@@ -150,7 +150,7 @@ def get_sis_section_enrollments(term_id, sis_section_id, scope):
                 ON sas.uid = enr.ldap_uid
                 AND enr.sis_term_id = :term_id
                 AND enr.sis_section_id = :sis_section_id
-              ORDER BY sas.last_name, sas.first_name
+              ORDER BY sas.last_name, sas.first_name, sas.sid
         """
     params = {'term_id': term_id, 'sis_section_id': sis_section_id}
     return safe_execute(sql, **params)
