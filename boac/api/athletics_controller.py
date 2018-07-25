@@ -26,16 +26,23 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api.errors import ResourceNotFoundError
 from boac.lib import util
+from boac.lib.berkeley import get_dept_codes
 from boac.lib.http import tolerant_jsonify
 from boac.merged import athletics
 from boac.merged.student import get_summary_student_profiles
 from flask import current_app as app, request
-from flask_login import login_required
+from flask_login import current_user, login_required
+
+
+def authorized():
+    return current_user.is_admin or 'UWASC' in get_dept_codes(current_user)
 
 
 @app.route('/api/team/<code>')
 @login_required
 def get_team(code):
+    if not authorized():
+        raise ResourceNotFoundError('Unknown path')
     order_by = util.get(request.args, 'orderBy', 'first_name')
     team = athletics.get_team(code, order_by)
     if team is None:
@@ -48,10 +55,14 @@ def get_team(code):
 @app.route('/api/team_groups/all')
 @login_required
 def get_all_team_groups():
+    if not authorized():
+        raise ResourceNotFoundError('Unknown path')
     return tolerant_jsonify(athletics.all_team_groups())
 
 
 @app.route('/api/teams/all')
 @login_required
 def get_all_teams():
+    if not authorized():
+        raise ResourceNotFoundError('Unknown path')
     return tolerant_jsonify(athletics.all_teams())

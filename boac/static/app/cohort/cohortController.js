@@ -382,8 +382,12 @@
         });
         return callback();
       }).catch(function(err) {
-        $scope.error = validationService.parseError(err);
-        return callback();
+        if (err.status === 404) {
+          $location.replace().path('/404');
+        } else {
+          $scope.error = validationService.parseError(err);
+          return callback();
+        }
       });
     };
 
@@ -639,6 +643,13 @@
             });
           }
         });
+      }).catch(function(err) {
+        if (err.status === 404) {
+          $location.replace().path('/404');
+        } else {
+          $scope.error = validationService.parseError(err);
+          page.loading(false);
+        }
       });
     };
 
