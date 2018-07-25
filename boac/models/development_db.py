@@ -92,43 +92,6 @@ _users_per_dept = {
     ],
 }
 
-football_defensive_backs = {
-    'group_code': 'MFB-DB',
-    'group_name': 'Football, Defensive Backs',
-    'team_code': 'FBM',
-    'team_name': 'Football',
-}
-football_defensive_line = {
-    'group_code': 'MFB-DL',
-    'group_name': 'Football, Defensive Line',
-    'team_code': 'FBM',
-    'team_name': 'Football',
-}
-womens_field_hockey = {
-    'group_code': 'WFH',
-    'group_name': 'Women\'s Field Hockey',
-    'team_code': 'FHW',
-    'team_name': 'Women\'s Field Hockey',
-}
-mens_baseball = {
-    'group_code': 'MBB',
-    'group_name': 'Men\'s Baseball',
-    'team_code': 'BAM',
-    'team_name': 'Men\'s Baseball',
-}
-mens_tennis = {
-    'group_code': 'MTE',
-    'group_name': 'Men\'s Tennis',
-    'team_code': 'TNM',
-    'team_name': 'Men\'s Tennis',
-}
-womens_tennis = {
-    'group_code': 'WTE',
-    'group_name': 'Women\'s Tennis',
-    'team_code': 'TNW',
-    'team_name': 'Women\'s Tennis',
-}
-
 
 def clear():
     with open(app.config['BASE_DIR'] + '/scripts/db/drop_schema.sql', 'r') as ddlfile:
@@ -141,8 +104,8 @@ def load(cohort_test_data=False):
     load_schemas()
     load_development_data()
     if cohort_test_data:
-        load_student_athletes()
-        create_cohorts()
+        create_curated_cohorts()
+        create_filtered_cohorts()
     return db
 
 
@@ -176,13 +139,13 @@ def load_development_data():
     std_commit(allow_test_environment=True)
 
 
-def load_student_athletes():
-    # Create empty default group for all users.
-    for user in AuthorizedUser.query.all():
-        StudentGroup.create(user.id, 'My Students')
+def create_curated_cohorts():
+    admin_id = AuthorizedUser.find_by_uid('2040').id
+    StudentGroup.create(admin_id, 'My Students')
 
-    advisor = AuthorizedUser.find_by_uid('6446')
-    group = StudentGroup.create(advisor.id, 'Cool Kids')
+    advisor_id = AuthorizedUser.find_by_uid('6446').id
+    StudentGroup.create(advisor_id, 'My Students')
+    group = StudentGroup.create(advisor_id, 'Cool Kids')
     StudentGroup.add_student(group.id, '3456789012')  # PaulK
     StudentGroup.add_student(group.id, '5678901234')  # Sandeep
     StudentGroup.add_student(group.id, '11667051')    # Deborah
@@ -195,7 +158,7 @@ def load_student_athletes():
     std_commit(allow_test_environment=True)
 
 
-def create_cohorts():
+def create_filtered_cohorts():
     # Oliver's cohorts
     CohortFilter.create(uid='2040', label='All sports', group_codes=['MFB-DL', 'WFH'])
     CohortFilter.create(uid='2040', label='Football, Defense', group_codes=['MFB-DB', 'MFB-DL'])

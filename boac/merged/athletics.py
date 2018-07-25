@@ -75,7 +75,7 @@ def all_teams():
     return [translate_row(row) for row in results]
 
 
-def get_team(team_code, order_by):
+def get_team(team_code, is_active_asc, order_by):
     results = data_loch.get_team_groups(team_code=team_code)
     if not results:
         return None
@@ -95,7 +95,7 @@ def get_team(team_code, order_by):
         group_codes = [group['groupCode'] for group in team['teamGroups']]
         results = query_students(
             group_codes=group_codes,
-            is_active_asc=True,
+            is_active_asc=is_active_asc,
             order_by=order_by,
             offset=0,
             limit=None,
