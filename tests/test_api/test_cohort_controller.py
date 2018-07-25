@@ -85,7 +85,7 @@ class TestCohortDetail:
         defense_backs_inactive = cohorts[3]
         assert len(defense_backs_active['teamGroups']) == len(defense_backs_all['teamGroups']) == len(defense_backs_inactive['teamGroups']) == 1
         assert defense_backs_active['totalStudentCount'] == 2
-        assert defense_backs_all['totalStudentCount'] == 3
+        assert defense_backs_all['totalStudentCount'] == 2
         assert defense_backs_inactive['totalStudentCount'] == 1
 
     def test_create_cohort_if_first_coe_login(self, client, fake_auth):
