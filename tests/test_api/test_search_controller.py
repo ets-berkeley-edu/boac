@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
+from boac.externals import data_loch
 import pytest
 import simplejson as json
 
@@ -43,28 +44,43 @@ def coe_advisor(fake_auth):
     fake_auth.login('1133399')
 
 
+@pytest.fixture(scope='session')
+def asc_inactive_students():
+    return data_loch.safe_execute("""
+        SELECT DISTINCT(sas.sid) FROM boac_advising_asc.students s
+        JOIN student.student_academic_status sas ON sas.sid = s.sid
+        WHERE s.active is FALSE
+    """)
+
+
 class TestAthleticsStudyCenter:
     """ASC-specific API calls."""
 
-    def test_multiple_teams(self, asc_advisor, client):
+    def test_multiple_teams(self, asc_advisor, asc_inactive_students, client):
         """Includes multiple team memberships."""
         response = client.get('/api/students/all')
         assert response.status_code == 200
-        athletics = next(user['athleticsProfile']['athletics'] for user in response.json if user['uid'] == '98765')
+        students = response.json
+        assert not _get_common_sids(asc_inactive_students, students)
+        athletics = next(s['athleticsProfile']['athletics'] for s in students if s['uid'] == '98765')
         assert len(athletics) == 2
         group_codes = [a['groupCode'] for a in athletics]
         assert 'MFB-DB' in group_codes
         assert 'MFB-DL' in group_codes
 
-    def test_get_intensive_cohort(self, asc_advisor, client):
+    def test_get_intensive_cohort(self, asc_advisor, asc_inactive_students, client):
         """Returns the canned 'intensive' cohort, available to all authenticated users."""
         response = client.post('/api/students', data=json.dumps({'inIntensiveCohort': True}), content_type='application/json')
         assert response.status_code == 200
         cohort = json.loads(response.data)
         assert 'students' in cohort
-        assert cohort['totalStudentCount'] == len(cohort['students']) == 5
+        students = cohort['students']
+        inactive_intensive_sid = '890127492'
+        assert inactive_intensive_sid not in [s['sid'] for s in students]
+        assert len(_get_common_sids(asc_inactive_students, students)) == 0
+        assert cohort['totalStudentCount'] == len(students) == 4
         assert 'teamGroups' not in cohort
-        for student in cohort['students']:
+        for student in students:
             assert student['athleticsProfile']['inIntensiveCohort']
 
     def test_unauthorized_request_for_athletic_study_center_data(self, client, fake_auth):
@@ -74,15 +90,15 @@ class TestAthleticsStudyCenter:
         assert response.status_code == 403
 
     def test_order_by_with_intensive_cohort(self, asc_advisor, client):
-        """Returns the canned 'intensive' cohort, available to all authenticated users."""
+        """Returns students marked as 'intensive' by ASC."""
         all_expected_order = {
-            'first_name': ['61889', '123456', '1049291', '242881', '211159'],
-            'gpa': ['61889', '211159', '123456', '242881', '1049291'],
-            'group_name': ['123456', '211159', '242881', '1049291', '61889'],
-            'last_name': ['123456', '61889', '1049291', '242881', '211159'],
-            'level': ['61889', '123456', '211159', '242881', '1049291'],
-            'major': ['123456', '61889', '242881', '211159', '1049291'],
-            'units': ['61889', '211159', '123456', '242881', '1049291'],
+            'first_name': ['61889', '123456', '1049291', '242881'],
+            'gpa': ['61889', '123456', '242881', '1049291'],
+            'group_name': ['123456', '242881', '1049291', '61889'],
+            'last_name': ['123456', '61889', '1049291', '242881'],
+            'level': ['61889', '123456', '242881', '1049291'],
+            'major': ['123456', '61889', '242881', '1049291'],
+            'units': ['61889', '123456', '242881', '1049291'],
         }
         for order_by, expected_uid_list in all_expected_order.items():
             args = {
@@ -92,7 +108,7 @@ class TestAthleticsStudyCenter:
             response = client.post('/api/students', data=json.dumps(args), content_type='application/json')
             assert response.status_code == 200, f'Non-200 response where order_by={order_by}'
             cohort = json.loads(response.data)
-            assert cohort['totalStudentCount'] == 5, f'Wrong count where order_by={order_by}'
+            assert cohort['totalStudentCount'] == 4, f'Wrong count where order_by={order_by}'
             uid_list = [s['uid'] for s in cohort['students']]
             assert uid_list == expected_uid_list, f'Unmet expectation where order_by={order_by}'
 
@@ -111,12 +127,37 @@ class TestAthleticsStudyCenter:
 class TestSearch:
     """Student Search API."""
 
-    def test_all_students(self, asc_advisor, client):
+    sample_search = {
+        'gpaRanges': ['numrange(3, 3.5, \'[)\')', 'numrange(3.5, 4, \'[]\')'],
+        'groupCodes': ['MFB-DB', 'MFB-DL'],
+        'levels': ['Junior', 'Senior'],
+        'majors': [
+            'Chemistry BS',
+            'English BA',
+            'Nuclear Engineering BS',
+            'Letters & Sci Undeclared UG',
+        ],
+        'unitRanges': [],
+        'inIntensiveCohort': None,
+        'orderBy': 'last_name',
+        'offset': 1,
+        'limit': 50,
+    }
+
+    asc_search = json.dumps(sample_search)
+
+    sample_search['groupCodes'] = []
+    sample_search['gpaRanges'] = []
+    sample_search['levels'] = []
+    coe_search = json.dumps(sample_search)
+
+    def test_all_students(self, asc_advisor, asc_inactive_students, client):
         """Returns a list of students."""
         response = client.get('/api/students/all')
         assert response.status_code == 200
-        # We have one student not on a team
-        assert len(response.json) == 6
+        students = response.json
+        assert len(students) == 6
+        assert not _get_common_sids(asc_inactive_students, students)
 
     def test_search_not_authenticated(self, client):
         """Search is not available to the world."""
@@ -136,12 +177,27 @@ class TestSearch:
         response = client.post('/api/students/search', data=json.dumps({'searchPhrase': ' \t  '}), content_type='application/json')
         assert response.status_code == 400
 
-    def test_search_by_sid_snippet(self, client, fake_auth):
+    def test_search_by_sid_snippet(self, client, fake_auth, asc_inactive_students):
         """Search by snippet of SID."""
-        fake_auth.login('2040')
-        response = client.post('/api/students/search', data=json.dumps({'searchPhrase': '89012'}), content_type='application/json')
-        assert response.status_code == 200
-        assert len(response.json['students']) == response.json['totalStudentCount'] == 2
+        def _search_students_as_user(uid, sid_snippet):
+            fake_auth.login(uid)
+            response = client.post(
+                '/api/students/search',
+                data=json.dumps({'searchPhrase': sid_snippet}),
+                content_type='application/json',
+            )
+            assert response.status_code == 200
+            return response.json['students'], response.json['totalStudentCount']
+
+        sid_snippet = '89012'
+        # Admin user performs search
+        students, total_student_count = _search_students_as_user('2040', sid_snippet)
+        assert len(students) == total_student_count == 2
+        assert _get_common_sids(asc_inactive_students, students)
+        # ASC advisor performs the same search
+        students, total_student_count = _search_students_as_user('1081940', sid_snippet)
+        assert len(students) == total_student_count == 1
+        assert not _get_common_sids(asc_inactive_students, students)
 
     def test_alerts_in_search_results(self, client, create_alerts, fake_auth):
         """Search results include alert counts."""
@@ -215,36 +271,13 @@ class TestSearch:
         assert len(response.json['students']) == 1
         assert 'Crossman' == response.json['students'][0]['lastName']
 
-    sample_search = {
-        'gpaRanges': ['numrange(3, 3.5, \'[)\')', 'numrange(3.5, 4, \'[]\')'],
-        'groupCodes': ['MFB-DB', 'MFB-DL'],
-        'levels': ['Junior', 'Senior'],
-        'majors': [
-            'Chemistry BS',
-            'English BA',
-            'Nuclear Engineering BS',
-            'Letters & Sci Undeclared UG',
-        ],
-        'unitRanges': [],
-        'inIntensiveCohort': None,
-        'orderBy': 'last_name',
-        'offset': 1,
-        'limit': 50,
-    }
-
-    asc_search = json.dumps(sample_search)
-
-    sample_search['groupCodes'] = []
-    sample_search['gpaRanges'] = []
-    sample_search['levels'] = []
-    coe_search = json.dumps(sample_search)
-
-    def test_get_students(self, asc_advisor, client):
+    def test_get_students(self, asc_advisor, asc_inactive_students, client):
         response = client.post('/api/students', data=self.asc_search, content_type='application/json')
         assert response.status_code == 200
         assert 'students' in response.json
         students = response.json['students']
         assert 2 == len(students)
+        assert not _get_common_sids(students, asc_inactive_students)
         # Offset of 1, ordered by lastName
         assert ['9933311', '242881'] == [student['uid'] for student in students]
 
@@ -264,11 +297,26 @@ class TestSearch:
         students = response.json['students']
         assert 'athletics' not in students[0]
 
-    def test_get_students_asc_limited(self, asc_advisor, client):
+    def test_get_active_asc_students(self, asc_advisor, asc_inactive_students, client):
         """An ASC cohort search finds ASC sophomores."""
-        response = client.post('/api/students', data='{"levels": ["Sophomore"]}', content_type='application/json')
+        args = {'levels': ['Sophomore']}
+        response = client.post('/api/students', data=json.dumps(args), content_type='application/json')
+        assert response.status_code == 200
+        students = response.json['students']
+        assert not _get_common_sids(students, asc_inactive_students)
+        assert not len(students)
+
+    def test_get_inactive_asc_students(self, asc_advisor, asc_inactive_students, client):
+        """An ASC cohort search finds ASC sophomores."""
+        args = {
+            'levels': ['Sophomore'],
+            'isInactiveAsc': True,
+        }
+        response = client.post('/api/students', data=json.dumps(args), content_type='application/json')
+        assert response.status_code == 200
         students = response.json['students']
         assert len(students) == 1
+        assert len(_get_common_sids(students, asc_inactive_students)) == 1
         assert next(s for s in students if s['name'] == 'Siegfried Schlemiel')
 
     def test_get_students_coe_limited(self, coe_advisor, client):
@@ -287,3 +335,9 @@ class TestSearch:
         assert next(s for s in students if s['name'] == 'Siegfried Schlemiel')
         assert next(s for s in students if s['name'] == 'Wolfgang Pauli')
         assert next(s for s in students if s['name'] == 'Nora Stanton Barney')
+
+
+def _get_common_sids(student_list_1, student_list_2):
+    sid_list_1 = [s['sid'] for s in student_list_1]
+    sid_list_2 = [s['sid'] for s in student_list_2]
+    return list(set(sid_list_1) & set(sid_list_2))

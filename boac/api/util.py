@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from functools import wraps
 import json
 from boac.lib import util
+from boac.lib.berkeley import get_dept_codes
 from boac.merged import athletics
 from boac.merged.student import query_students
 from boac.models.alert import Alert
@@ -126,14 +127,17 @@ def decorate_cohort(
             'totalStudentCount': cohort.student_count,
         })
         return decorated
-
+    if is_current_user_asc_affiliated():
+        is_active_asc = not is_inactive_asc
+    else:
+        is_active_asc = None if is_inactive_asc is None else not is_inactive_asc
     results = query_students(
         include_profiles=(include_students and include_profiles),
         advisor_ldap_uid=advisor_ldap_uid,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
         in_intensive_cohort=in_intensive_cohort,
-        is_active_asc=None if is_inactive_asc is None else not is_inactive_asc,
+        is_active_asc=is_active_asc,
         levels=levels,
         majors=majors,
         unit_ranges=unit_ranges,
@@ -220,3 +224,7 @@ def translate_grading_basis(code):
         'SUS': 'S/U',
     }
     return bases.get(code) or code
+
+
+def is_current_user_asc_affiliated():
+    return 'UWASC' in get_dept_codes(current_user)
