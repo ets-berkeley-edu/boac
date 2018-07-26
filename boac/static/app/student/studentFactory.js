@@ -43,14 +43,6 @@
       return $http.get('/api/alerts/current/' + sid);
     };
 
-    var getAllStudents = function(orderBy) {
-      return $http({
-        url: '/api/students/all',
-        method: 'GET',
-        params: orderBy ? {orderBy: orderBy} : {}
-      });
-    };
-
     var getGpaRanges = function() {
       return [
         {name: '3.50 - 4.00', value: 'numrange(3.5, 4, \'[]\')'},
@@ -130,7 +122,6 @@
       analyticsPerUser: analyticsPerUser,
       dismissAlert: dismissAlert,
       getAlerts: getAlerts,
-      getAllStudents: getAllStudents,
       getGpaRanges: getGpaRanges,
       getRelevantMajors: getRelevantMajors,
       getStudentLevels: getStudentLevels,
