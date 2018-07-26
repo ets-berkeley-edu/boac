@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import decorate_cohort, is_read_only_cohort, strip_analytics
+from boac.api.util import create_my_students_cohort, decorate_cohort, is_read_only_cohort, strip_analytics
 from boac.lib import util
 from boac.lib.berkeley import can_view_cohort, get_dept_codes
 from boac.lib.http import tolerant_jsonify
@@ -66,21 +66,16 @@ def my_cohorts():
     if not canned_cohort and 'COENG' in get_dept_codes(current_user):
         # COE advisor, logging in for first time, gets a canned cohort sourced from COE UGRAD data in Nessie
         profile = calnet.get_calnet_user_for_uid(app, uid)
-        first_name = profile.get('firstName')
-        CohortFilter.create(
-            uid=uid,
-            label=f'{first_name}\'s Students' if first_name else 'My Engineering Students',
-            advisor_ldap_uid=uid,
-        )
+        create_my_students_cohort(uid, profile.get('firstName'))
         _my_cohorts = CohortFilter.all_owned_by(uid)
     cohorts = [decorate_cohort(c, include_alerts_for_uid=uid, include_students=False) for c in _my_cohorts]
     alert_sids = []
     for cohort in cohorts:
-        alert_sids += [a['sid'] for a in cohort['alerts']]
+        alert_sids += [a['sid'] for a in cohort.get('alerts', [])]
     alert_profiles = get_summary_student_profiles(alert_sids)
     alert_profiles_by_sid = {p['sid']: p for p in alert_profiles}
     for cohort in cohorts:
-        for alert in cohort['alerts']:
+        for alert in cohort.get('alerts', []):
             alert.update(alert_profiles_by_sid[alert['sid']])
             strip_analytics(alert)
     return tolerant_jsonify(cohorts)

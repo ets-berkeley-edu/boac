@@ -239,7 +239,7 @@ def is_authorized_to_use_boac(user):
 
 
 def get_dept_codes(user):
-    return [m.university_dept.dept_code for m in user.department_memberships]
+    return [m.university_dept.dept_code for m in user.department_memberships] if user else None
 
 
 def can_view_cohort(user, cohort):

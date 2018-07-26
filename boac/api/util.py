@@ -31,6 +31,7 @@ from boac.merged import athletics
 from boac.merged.student import query_students
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.cohort_filter import CohortFilter
 from flask import current_app as app, request
 from flask_login import current_user
 
@@ -77,6 +78,14 @@ def canvas_courses_api_feed(courses):
     return [canvas_course_api_feed(course) for course in courses]
 
 
+def create_my_students_cohort(uid, first_name=None):
+    return CohortFilter.create(
+        uid=uid,
+        label=f'{first_name}\'s Students' if first_name else 'My Students',
+        advisor_ldap_uid=uid,
+    )
+
+
 def decorate_cohort(
     cohort,
     order_by=None,
@@ -90,7 +99,10 @@ def decorate_cohort(
     is_read_only = is_read_only_cohort(cohort)
     advisor_ldap_uid = util.get(criteria, 'advisorLdapUid')
     # In odd circumstances we override the cohort's actual name
-    cohort_name = 'My Students' if is_read_only and current_user.uid == advisor_ldap_uid else cohort.label
+    cohort_name = cohort.label
+    current_user_uid = current_user.uid if current_user and hasattr(current_user, 'uid') else None
+    if is_read_only and current_user_uid == advisor_ldap_uid:
+        cohort_name = 'My Students'
     decorated = {
         'id': cohort.id,
         'code': cohort.id,
@@ -127,7 +139,8 @@ def decorate_cohort(
             'totalStudentCount': cohort.student_count,
         })
         return decorated
-    if is_current_user_asc_affiliated():
+    owner = cohort.owners[0] if len(cohort.owners) else None
+    if owner and 'UWASC' in get_dept_codes(owner):
         is_active_asc = not is_inactive_asc
     else:
         is_active_asc = None if is_inactive_asc is None else not is_inactive_asc
