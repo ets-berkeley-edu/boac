@@ -253,7 +253,7 @@
                           <span class="profile-class-grade"
                                 data-ng-if="!course.grade && !course.gradingBasis">&mdash;</span>
                         </div>
-                        <div class="accordion-heading-grade">
+                        <div class="accordion-heading-grade" data-ng-if="currentEnrollmentTermId === parseInt(term.termId)">
                           Mid:
                           <span class="profile-class-grade"
                                 data-ng-bind="course.midtermGrade"
