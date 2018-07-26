@@ -108,13 +108,14 @@ def create_cohort():
     unit_ranges = util.get(params, 'unitRanges')
     in_intensive_cohort = util.to_bool_or_none(util.get(params, 'inIntensiveCohort'))
     is_inactive_asc = util.get(params, 'isInactiveAsc')
-    if advisor_ldap_uid and 'COENG' not in get_dept_codes(current_user):
-        raise ForbiddenRequestError(f'Only COE advisors have access to \'advisorLdapUid\' criteria.')
+    coe_authorized = current_user.is_admin or 'COENG' in get_dept_codes(current_user)
+    if not coe_authorized and advisor_ldap_uid:
+        raise ForbiddenRequestError(f'You are unauthorized to use COE-specific search criteria.')
     if not label:
         raise BadRequestError('Cohort creation requires \'label\'')
-    authorized = current_user.is_admin or 'UWASC' in get_dept_codes(current_user)
-    if not authorized and (in_intensive_cohort is not None or is_inactive_asc is not None):
-        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
+    asc_authorized = current_user.is_admin or 'UWASC' in get_dept_codes(current_user)
+    if not asc_authorized and (in_intensive_cohort is not None or is_inactive_asc is not None):
+        raise ForbiddenRequestError('You are unauthorized to use ASC-specific search criteria.')
     cohort = CohortFilter.create(
         uid=current_user.get_id(),
         label=label,
