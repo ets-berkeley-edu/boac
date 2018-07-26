@@ -175,11 +175,11 @@ class TestUserAnalytics:
     unknown = api_path.format(unknown_uid)
 
     @pytest.fixture()
-    def non_asc_advisor(self, fake_auth):
+    def coe_advisor(self, fake_auth):
         fake_auth.login('1133399')
 
     @pytest.fixture()
-    def authenticated_response(self, non_asc_advisor, client):
+    def authenticated_response(self, coe_advisor, client):
         return client.get(TestUserAnalytics.deborah)
 
     @pytest.fixture()
@@ -323,18 +323,18 @@ class TestUserAnalytics:
         assert analytics['lastActivity']['student']['percentile'] == 93
         assert analytics['lastActivity']['displayPercentile'] == '90th'
 
-    def test_student_not_found(self, non_asc_advisor, client):
+    def test_student_not_found(self, coe_advisor, client):
         """Returns 404 if no viewable student."""
         response = client.get(TestUserAnalytics.unknown)
         assert response.status_code == 404
         assert response.json['message'] == 'Unknown student'
 
-    def test_user_analytics_not_department_authorized(self, non_asc_advisor, client):
+    def test_user_analytics_not_department_authorized(self, coe_advisor, client):
         """Returns 404 if attempting to view a user outside one's own department."""
         response = client.get(TestUserAnalytics.dave)
         assert response.status_code == 404
 
-    def test_relevant_majors(self, non_asc_advisor, client):
+    def test_relevant_majors(self, coe_advisor, client):
         """Returns list of majors relevant to our student population."""
         response = client.get('/api/majors/relevant')
         assert response.status_code == 200

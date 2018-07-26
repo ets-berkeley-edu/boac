@@ -98,7 +98,8 @@ class TestBerkeleyAuthorization:
         assert berkeley.is_authorized_to_use_boac(asc_advisor)
 
     def test_zero_dept_codes(self, admin_user, unauthorized_user):
-        assert not berkeley.get_dept_codes(admin_user)
+        assert berkeley.get_dept_codes(None) is None
+        assert berkeley.get_dept_codes(admin_user) == []
         assert not berkeley.get_dept_codes(unauthorized_user)
 
     def test_asc_dept_codes(self, asc_advisor, coe_advisor):
