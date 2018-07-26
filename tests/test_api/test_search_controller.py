@@ -58,9 +58,9 @@ class TestAthleticsStudyCenter:
 
     def test_multiple_teams(self, asc_advisor, asc_inactive_students, client):
         """Includes multiple team memberships."""
-        response = client.get('/api/students/all')
+        response = client.post('/api/students', data=json.dumps({'groupCodes': ['MFB-DB', 'MFB-DL']}), content_type='application/json')
         assert response.status_code == 200
-        students = response.json
+        students = response.json['students']
         assert not _get_common_sids(asc_inactive_students, students)
         athletics = next(s['athleticsProfile']['athletics'] for s in students if s['uid'] == '98765')
         assert len(athletics) == 2
@@ -153,10 +153,13 @@ class TestSearch:
 
     def test_all_students(self, asc_advisor, asc_inactive_students, client):
         """Returns a list of students."""
-        response = client.get('/api/students/all')
+        data = {
+            'levels': ['Freshmen', 'Sophomore', 'Junior', 'Senior'],
+        }
+        response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 200
-        students = response.json
-        assert len(students) == 6
+        students = response.json['students']
+        assert len(students) == 4
         assert not _get_common_sids(asc_inactive_students, students)
 
     def test_search_not_authenticated(self, client):

@@ -35,15 +35,6 @@ from flask import current_app as app, request
 from flask_login import current_user, login_required
 
 
-# TODO: Remove this feed if it is unused on the BOAC front-end.
-@app.route('/api/students/all')
-def all_students():
-    order_by = request.args['orderBy'] if 'orderBy' in request.args else None
-    is_active_asc = True if is_current_user_asc_affiliated() else None
-    results = query_students(order_by=order_by, is_active_asc=is_active_asc)
-    return tolerant_jsonify(results['students'])
-
-
 @app.route('/api/students', methods=['POST'])
 @login_required
 def get_students():

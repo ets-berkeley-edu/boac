@@ -1,6 +1,0 @@
-<?xml version='1.0'?>
-<UC_CM_FAULT_DOC xmlns="http://bcs.is.berkeley.edu/Tools/schemas/UC_CM_GENERIC_PKG.UC_CM_FAULT_DOC.V1">
-    <ID>1000</ID>
-    <ERRMSGTEXT>Student id is required and EmplID must exist</ERRMSGTEXT>
-    <MESSAGE_SEVERITY>E</MESSAGE_SEVERITY>
-</UC_CM_FAULT_DOC>
