@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac import db, std_commit
+from boac.api.util import create_my_students_cohort
 from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
@@ -164,12 +165,15 @@ def create_filtered_cohorts():
     CohortFilter.create(uid='2040', label='Football, Defense', group_codes=['MFB-DB', 'MFB-DL'])
     CohortFilter.create(uid='2040', label='Field Hockey', group_codes=['WFH'])
     # Flint's cohorts
-    CohortFilter.create(uid='1081940', label='Defense Backs, Inactive', group_codes=['MFB-DB'], is_inactive_asc=True)
-    CohortFilter.create(uid='1081940', label='Defense Backs, Active', group_codes=['MFB-DB'], is_inactive_asc=False)
-    CohortFilter.create(uid='1081940', label='Defense Backs, All', group_codes=['MFB-DB'])
-    CohortFilter.create(uid='1081940', label='Undeclared students', majors=['Undeclared'], is_inactive_asc=False)
-    CohortFilter.create(uid='1081940', label='All sports', group_codes=['MFB-DL', 'WFH'], is_inactive_asc=False)
+    asc_advisor_uid = '1081940'
+    CohortFilter.create(uid=asc_advisor_uid, label='Defense Backs, Inactive', group_codes=['MFB-DB'], is_inactive_asc=True)
+    CohortFilter.create(uid=asc_advisor_uid, label='Defense Backs, Active', group_codes=['MFB-DB'], is_inactive_asc=False)
+    CohortFilter.create(uid=asc_advisor_uid, label='Defense Backs, All', group_codes=['MFB-DB'])
+    CohortFilter.create(uid=asc_advisor_uid, label='Undeclared students', majors=['Undeclared'], is_inactive_asc=False)
+    CohortFilter.create(uid=asc_advisor_uid, label='All sports', group_codes=['MFB-DL', 'WFH'], is_inactive_asc=False)
     # Sandeep's cohorts
+    coe_advisor_uid = '1133399'
+    create_my_students_cohort(coe_advisor_uid, 'Sandeep')
     CohortFilter.create(uid='1133399', label='Radioactive Women and Men', majors=['Nuclear Engineering BS'])
     std_commit(allow_test_environment=True)
 
