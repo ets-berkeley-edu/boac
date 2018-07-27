@@ -1,28 +1,28 @@
 Flask==0.12.2
 Flask-Login==0.4.1
 Flask-SQLAlchemy==2.3.2
-SQLAlchemy==1.2.8
+SQLAlchemy==1.2.10
 Werkzeug==0.14
 cx_Oracle==6.0.3
 decorator==4.3.0
 ldap3==2.5
 names==0.3.0
-psycopg2==2.7.4
+psycopg2==2.7.5
 requests==2.19.1
-simplejson==3.15.0
+simplejson==3.16.0
 xmltodict==0.11.0
 https://github.com/python-cas/python-cas/archive/master.zip
 
-# Dependencies for pandas 0.21.1. Note that pandas is not included in this requirements.txt file because
+# Dependencies for pandas 0.23.3. Note that pandas is not included in this requirements.txt file because
 # of potential conflicts during installation; it must be separately installed once its dependencies are
 # in place.
-numpy==1.14.5
+numpy==1.15.0
 python-dateutil==2.7.3
-pytz==2017.3
+pytz==2018.5
 
 # For testing
 
 https://github.com/gabrielfalcao/HTTPretty/archive/master.zip
-pytest==3.6.1
+pytest==3.6.3
 pytest-flask==0.10.0
-tox==3.0.0
+tox==3.1.2
