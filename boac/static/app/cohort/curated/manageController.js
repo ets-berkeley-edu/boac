@@ -27,10 +27,10 @@
 
   'use strict';
 
-  angular.module('boac').controller('ManageGroupsController', function(
+  angular.module('boac').controller('ManageCuratedCohortsController', function(
     page,
-    studentGroupFactory,
-    studentGroupService,
+    curatedCohortFactory,
+    curatedCohortService,
     validationService,
     $rootScope,
     $scope
@@ -39,31 +39,31 @@
     page.loading(true);
 
     var resetPageView = function(callback) {
-      _.each($scope.myGroups, function(group) {
-        group.editMode = false;
+      _.each($scope.cohorts, function(cohort) {
+        cohort.editMode = false;
       });
       return callback();
     };
 
-    var setEditMode = $scope.setEditMode = function(group, newValue) {
+    var setEditMode = $scope.setEditMode = function(cohort, newValue) {
       resetPageView(function() {
-        group.editMode = newValue;
+        cohort.editMode = newValue;
       });
     };
 
-    $scope.cancelEdit = function(group) {
-      group.name = group.nameOriginal;
-      setEditMode(group, false);
+    $scope.cancelEdit = function(cohort) {
+      cohort.name = cohort.nameOriginal;
+      setEditMode(cohort, false);
     };
 
-    $scope.changeGroupName = function(group, name) {
-      validationService.validateName({id: group.id, name: name}, function(error) {
-        group.error = error;
-        group.hideError = false;
-        if (!group.error) {
-          studentGroupFactory.changeGroupName(group.id, name).then(function() {
-            group.nameOriginal = name;
-            setEditMode(group, false);
+    $scope.rename = function(cohort, name) {
+      validationService.validateName({id: cohort.id, name: name}, function(error) {
+        cohort.error = error;
+        cohort.hideError = false;
+        if (!cohort.error) {
+          curatedCohortFactory.rename(cohort.id, name).then(function() {
+            cohort.nameOriginal = name;
+            setEditMode(cohort, false);
           });
         }
       });
@@ -73,23 +73,23 @@
      * @return {void}
      */
     var init = function() {
-      studentGroupFactory.getMyGroups().then(function(response) {
-        $scope.myGroups = response.data;
-        _.each($scope.myGroups, function(group) {
-          group.nameOriginal = group.name;
+      curatedCohortFactory.getMyCuratedCohorts().then(function(response) {
+        $scope.cohorts = response.data;
+        _.each($scope.cohorts, function(cohort) {
+          cohort.nameOriginal = cohort.name;
         });
         resetPageView(angular.noop);
         page.loading(false);
       });
     };
 
-    $rootScope.$on('groupCreated', function(event, data) {
-      $scope.myGroups.push(data.group);
+    $rootScope.$on('curatedCohortCreated', function(event, data) {
+      $scope.cohorts.push(data.cohort);
     });
 
-    $rootScope.$on('groupDeleted', function(event, data) {
-      $scope.myGroups = _.remove($scope.myGroups, function(group) {
-        return group.id !== data.groupId;
+    $rootScope.$on('curatedCohortDeleted', function(event, data) {
+      $scope.cohorts = _.remove($scope.cohorts, function(cohort) {
+        return cohort.id !== data.cohortId;
       });
     });
 

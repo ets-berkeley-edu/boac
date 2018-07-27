@@ -35,7 +35,7 @@
 
       // @see https://docs.angularjs.org/guide/directive#isolating-the-scope-of-a-directive
       scope: true,
-      templateUrl: '/static/app/cohort/cohortFilterDropdown.html',
+      templateUrl: '/static/app/cohort/filtered/filterDropdown.html',
       link: function(scope, elem, attrs) {
         scope.toggleFilter = function(event) {
           // Known issue: https://github.com/angular-ui/bootstrap/issues/6038

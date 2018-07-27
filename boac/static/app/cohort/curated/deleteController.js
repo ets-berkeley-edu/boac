@@ -27,34 +27,49 @@
 
   'use strict';
 
-  angular.module('boac').service('cohortService', function(cohortFactory, utilService) {
+  angular.module('boac').controller('DeleteCuratedCohortController', function($scope, $uibModal) {
 
-    var decorateCohortAlerts = function(cohort) {
-      if (cohort.alerts && cohort.alerts.length) {
-        cohort.alerts = {
-          isCohortAlerts: true,
-          students: utilService.extendSortableNames(cohort.alerts),
-          sortBy: 'sortableName',
-          reverse: false
-        };
+    var isModalOpen = false;
+
+    $scope.openDeleteCuratedCohortModal = function(cohort) {
+      if (isModalOpen) {
+        return;
       }
-    };
+      isModalOpen = true;
 
-    var loadMyCohorts = function(callback) {
-      cohortFactory.getMyCohorts().then(function(cohortsResponse) {
-        var myCohorts = [];
-        _.each(cohortsResponse.data, function(cohort) {
-          decorateCohortAlerts(cohort);
-          myCohorts.push(cohort);
-        });
-        return callback(myCohorts);
+      var modal = $uibModal.open({
+        animation: true,
+        ariaLabelledBy: 'confirm-delete-header',
+        ariaDescribedBy: 'confirm-delete-body',
+        backdrop: false,
+        templateUrl: '/static/app/cohort/curated/deleteModal.html',
+        controller: 'DeleteCuratedCohortModal',
+        resolve: {
+          cohort: function() {
+            return cohort;
+          }
+        }
       });
-    };
+      var modalClosed = function() {
+        isModalOpen = false;
+      };
 
-    return {
-      decorateCohortAlerts: decorateCohortAlerts,
-      loadMyCohorts: loadMyCohorts
+      modal.result.finally(angular.noop).then(modalClosed, modalClosed);
     };
-
   });
+
+  angular.module('boac').controller('DeleteCuratedCohortModal', function(cohort, curatedCohortFactory, $scope, $uibModalInstance) {
+
+    $scope.cohort = cohort;
+
+    $scope.delete = function(g) {
+      curatedCohortFactory.deleteCuratedCohort(g.id);
+      $uibModalInstance.close();
+    };
+
+    $scope.cancel = function() {
+      $uibModalInstance.close();
+    };
+  });
+
 }(window.angular));

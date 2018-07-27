@@ -27,10 +27,10 @@
 
   'use strict';
 
-  angular.module('boac').controller('CohortController', function(
+  angular.module('boac').controller('FilteredCohortController', function(
     adminFactory,
     authService,
-    cohortFactory,
+    filteredCohortFactory,
     config,
     googleAnalyticsService,
     page,
@@ -181,9 +181,9 @@
           limit,
           true);
       } else if (isNaN($scope.cohort.code)) {
-        promise = cohortFactory.getTeam($scope.cohort.code, orderBy, offset, limit);
+        promise = filteredCohortFactory.getTeam($scope.cohort.code, orderBy, offset, limit);
       } else {
-        promise = cohortFactory.getCohort($scope.cohort.code, orderBy, offset, limit);
+        promise = filteredCohortFactory.getCohort($scope.cohort.code, orderBy, offset, limit);
       }
       return promise;
     };
@@ -607,7 +607,7 @@
       $scope.cohort.code = isNaN(code) ? code : parseInt(code, 10);
       $scope.isCreateCohortMode = $scope.cohort.code === 'new';
 
-      cohortFactory.getAllTeamGroups().then(function(teamsResponse) {
+      filteredCohortFactory.getAllTeamGroups().then(function(teamsResponse) {
         var groupCodes = teamsResponse.data;
 
         getMajors(function(majors) {
@@ -656,7 +656,7 @@
     /**
      * Reload page with newly created cohort.
      */
-    $rootScope.$on('cohortCreated', function(event, data) {
+    $rootScope.$on('filteredCohortCreated', function(event, data) {
       $scope.isCreateCohortMode = false;
       var id = data.cohort.id;
       $scope.cohort.code = id;

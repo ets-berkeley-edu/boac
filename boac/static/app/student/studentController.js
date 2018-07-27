@@ -34,7 +34,7 @@
     googleAnalyticsService,
     me,
     page,
-    studentGroupFactory,
+    curatedCohortFactory,
     studentFactory,
     studentSearchService,
     utilService,
@@ -59,7 +59,7 @@
     $scope.lastActivityInContext = utilService.lastActivityInContext;
     $scope.isAscUser = authService.isAscUser();
     $scope.isCoeUser = authService.isCoeUser();
-    $scope.myGroups = _.clone(me.myGroups);
+    $scope.myCuratedCohorts = _.clone(me.myCuratedCohorts);
     $scope.parseInt = parseInt;
     $scope.showAllTerms = false;
     $scope.showDismissedAlerts = false;
@@ -81,11 +81,11 @@
       return _.get($scope.student, 'sisProfile.preferredName') || _.get($scope.student, 'canvasUserName');
     };
 
-    var identifyGroupsThatIncludeStudent = function() {
-      _.each($scope.myGroups, function(group) {
-        _.each(group.students, function(groupStudent) {
-          group.selected = $scope.student.sid === groupStudent.sid;
-          if (group.selected) {
+    var identifyCuratedCohortsWithStudent = function() {
+      _.each($scope.myCuratedCohorts, function(cohort) {
+        _.each(cohort.students, function(student) {
+          cohort.selected = $scope.student.sid === student.sid;
+          if (cohort.selected) {
             // Break from loop
             return false;
           }
@@ -106,7 +106,7 @@
           });
         }
         $scope.student = student;
-        identifyGroupsThatIncludeStudent();
+        identifyCuratedCohortsWithStudent();
         preferredName = getPreferredName();
 
         _.each($scope.student.enrollmentTerms, function(term) {
@@ -150,16 +150,16 @@
       });
     };
 
-    $scope.groupCheckboxClick = function(group) {
-      if (group.selected) {
-        studentGroupFactory.addStudentToGroup(group, $scope.student).then(angular.noop);
+    $scope.curatedCohortCheckboxClick = function(cohort) {
+      if (cohort.selected) {
+        curatedCohortFactory.addStudent(cohort, $scope.student).then(angular.noop);
       } else {
-        studentGroupFactory.removeStudentFromGroup(group, $scope.student).then(angular.noop);
+        curatedCohortFactory.removeStudent(cohort, $scope.student).then(angular.noop);
       }
     };
 
-    $rootScope.$on('groupCreated', function(event, data) {
-      $scope.myGroups.push(data.group);
+    $rootScope.$on('curatedCohortCreated', function(event, data) {
+      $scope.myCuratedCohorts.push(data.cohort);
     });
 
     var init = function() {

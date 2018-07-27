@@ -27,11 +27,11 @@
 
   'use strict';
 
-  angular.module('boac').controller('GroupController', function(
+  angular.module('boac').controller('CuratedCohortController', function(
     authService,
     config,
     page,
-    studentGroupFactory,
+    curatedCohortFactory,
     studentSearchService,
     utilService,
     validationService,
@@ -69,7 +69,7 @@
           return student.firstName;
         case 'last_name':
           return student.lastName;
-        // group_name here refers to team groups (i.e., athletic memberships) and not the user-created groups you'd expect.
+        // group_name here refers to team groups (i.e., athletic memberships) and not the user-created cohorts you'd expect.
         case 'group_name':
           return _.get(student, 'athleticsProfile.athletics[0].groupName');
         case 'gpa':
@@ -97,7 +97,7 @@
         // The intervening visualizationService code moves out of Angular and into d3 thus the extra kick of $apply.
         $scope.$apply();
       };
-      visualizationService.scatterplotRefresh($scope.group.students, goToUserPage, function(yAxisMeasure, studentsWithoutData) {
+      visualizationService.scatterplotRefresh($scope.cohort.students, goToUserPage, function(yAxisMeasure, studentsWithoutData) {
         $scope.yAxisMeasure = yAxisMeasure;
         // List of students-without-data is rendered below the scatterplot.
         $scope.studentsWithoutData = studentsWithoutData;
@@ -122,9 +122,9 @@
       }
     };
 
-    $scope.removeFromGroup = function(student) {
-      studentGroupFactory.removeStudentFromGroup($scope.group, student).then(function() {
-        $scope.group.students = _.remove($scope.group.students, function(s) {
+    $scope.removeFromCuratedCohort = function(student) {
+      curatedCohortFactory.removeStudentFromCuratedCohort($scope.cohort, student).then(function() {
+        $scope.cohort.students = _.remove($scope.cohort.students, function(s) {
           return s.sid !== student.sid;
         });
       });
@@ -135,10 +135,10 @@
       var id = $stateParams.id;
       var args = _.clone($location.search());
 
-      studentGroupFactory.getGroup(id).then(function(response) {
-        $scope.group = response.data;
+      curatedCohortFactory.getCuratedCohort(id).then(function(response) {
+        $scope.cohort = response.data;
         onTab(_.includes(['list', 'matrix'], args.v) ? args.v : 'list');
-        $rootScope.pageTitle = $scope.group.name || 'Curated Cohort';
+        $rootScope.pageTitle = $scope.cohort.name || 'Curated Cohort';
         page.loading(false);
       }).catch(function(err) {
         $scope.error = validationService.parseError(err);

@@ -29,67 +29,67 @@
 
   var boac = angular.module('boac');
 
-  boac.factory('studentGroupFactory', function(googleAnalyticsService, utilService, $http, $rootScope) {
+  boac.factory('curatedCohortFactory', function(googleAnalyticsService, utilService, $http, $rootScope) {
 
-    var addStudentsToGroup = function(group, students) {
+    var addStudents = function(cohort, students) {
       var args = {
-        groupId: group.id,
+        groupId: cohort.id,
         sids: _.map(students, 'sid')
       };
       return $http.post('/api/group/students/add', args).then(function() {
         _.each(students, function(student) {
-          $rootScope.$broadcast('addStudentToGroup', {group: group, student: student});
+          $rootScope.$broadcast('addStudentToCuratedCohort', {cohort: cohort, student: student});
         });
       });
     };
 
-    var addStudentToGroup = function(group, student) {
-      return $http.get('/api/group/' + group.id + '/add_student/' + student.sid).then(function() {
-        $rootScope.$broadcast('addStudentToGroup', {group: group, student: student});
+    var addStudent = function(cohort, student) {
+      return $http.get('/api/group/' + cohort.id + '/add_student/' + student.sid).then(function() {
+        $rootScope.$broadcast('addStudentToCuratedCohort', {cohort: cohort, student: student});
       });
     };
 
-    var createGroup = function(name) {
+    var create = function(name) {
       return $http.post('/api/group/create', {name: name}).then(function(response) {
-        $rootScope.$broadcast('groupCreated', {group: response.data});
+        $rootScope.$broadcast('curatedCohortCreated', {cohort: response.data});
       });
     };
 
-    var deleteGroup = function(id) {
+    var deleteCuratedCohort = function(id) {
       return $http.delete('/api/group/delete/' + id).then(function() {
-        $rootScope.$broadcast('groupDeleted', {groupId: id});
+        $rootScope.$broadcast('curatedCohortDeleted', {cohortId: id});
       });
     };
 
-    var getMyGroups = function() {
+    var getMyCuratedCohorts = function() {
       return $http.get('/api/groups/my');
     };
 
-    var getGroup = function(id) {
+    var getCuratedCohort = function(id) {
       return $http.get('/api/group/' + id);
     };
 
-    var removeStudentFromGroup = function(group, student) {
-      return $http.delete('/api/group/' + group.id + '/remove_student/' + student.sid).then(function() {
-        $rootScope.$broadcast('removeStudentFromGroup', {group: group, student: student});
+    var removeStudent = function(cohort, student) {
+      return $http.delete('/api/group/' + cohort.id + '/remove_student/' + student.sid).then(function() {
+        $rootScope.$broadcast('removeStudentFromCuratedCohort', {cohort: cohort, student: student});
       });
     };
 
-    var changeGroupName = function(groupId, name) {
-      return $http.post('/api/group/update', {id: groupId, name: name}).then(function(response) {
-        $rootScope.$broadcast('groupNameChanged', {group: response.data});
+    var rename = function(cohortId, name) {
+      return $http.post('/api/group/update', {id: cohortId, name: name}).then(function(response) {
+        $rootScope.$broadcast('curatedCohortRenamed', {cohort: response.data});
       });
     };
 
     return {
-      addStudentsToGroup: addStudentsToGroup,
-      addStudentToGroup: addStudentToGroup,
-      changeGroupName: changeGroupName,
-      createGroup: createGroup,
-      deleteGroup: deleteGroup,
-      getGroup: getGroup,
-      getMyGroups: getMyGroups,
-      removeStudentFromGroup: removeStudentFromGroup
+      addStudents: addStudents,
+      addStudent: addStudent,
+      rename: rename,
+      create: create,
+      deleteCuratedCohort: deleteCuratedCohort,
+      getCuratedCohort: getCuratedCohort,
+      getMyCuratedCohorts: getMyCuratedCohorts,
+      removeStudent: removeStudent
     };
   });
 

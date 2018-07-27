@@ -30,8 +30,8 @@
   angular.module('boac').directive('curatedCohortSelector', function(
     authService,
     page,
-    studentGroupFactory,
-    studentGroupService,
+    curatedCohortFactory,
+    curatedCohortService,
     $rootScope,
     $timeout
   ) {
@@ -45,7 +45,7 @@
         students: '='
       },
 
-      templateUrl: '/static/app/group/groupsSelector.html',
+      templateUrl: '/static/app/cohort/curated/curatedCohortSelector.html',
 
       link: function(scope) {
 
@@ -57,7 +57,7 @@
         };
 
         /**
-         * Show or hide the student-groups menu based on page state.
+         * Show or hide the curated cohorts menu based on page state.
          *
          * @return {void}
          */
@@ -90,7 +90,7 @@
 
         var init = function() {
           var me = authService.getMe();
-          scope.myGroups = me.myGroups;
+          scope.myCuratedCohorts = me.myCuratedCohorts;
           _.each(scope.students, initStudent);
           page.loading(false);
         };
@@ -98,7 +98,7 @@
         init();
 
         /**
-         * Toggle the all-student-groups checkbox.
+         * Toggle the curated cohort checkbox.
          *
          * @param  {Boolean}    value      If true, select all students in current page view.
          * @return {void}
@@ -114,25 +114,25 @@
         };
 
         /**
-         * Add selected students to the group provided and then reset all student-group related menus.
+         * Add selected students to the curated cohort provided and then reset all curated-cohort related menus.
          *
-         * @param  {Group}    group      Students will be added to this group.
+         * @param  {Object}    cohort      Students will be added to this cohort.
          * @return {void}
          */
-        var groupCheckboxClick = scope.groupCheckboxClick = function(group) {
+        var curatedCohortCheckboxClick = scope.curatedCohortCheckboxClick = function(cohort) {
           scope.isSaving = true;
           var students = _.filter(scope.students, function(student) {
-            return student.selectedForCuratedCohort && !studentGroupService.isStudentInGroup(student, group);
+            return student.selectedForCuratedCohort && !curatedCohortService.isStudentInCuratedCohort(student, cohort);
           });
           if (students.length) {
-            studentGroupFactory.addStudentsToGroup(group, students).then(function() {
+            curatedCohortFactory.addStudents(cohort, students).then(function() {
               scope.selector.selectAllCheckbox = false;
               _.each(scope.students, function(student) {
                 student.selectedForCuratedCohort = false;
               });
             });
           }
-          _.each(scope.myGroups, function(g) {
+          _.each(scope.myCuratedCohorts, function(g) {
             if (g) {
               g.selected = false;
             }
@@ -145,10 +145,10 @@
         };
 
 
-        $rootScope.$on('groupCreated', function(event, data) {
-          var group = data.group;
-          scope.myGroups.push(group);
-          groupCheckboxClick(group);
+        $rootScope.$on('curatedCohortCreated', function(event, data) {
+          var cohort = data.cohort;
+          scope.myCuratedCohorts.push(cohort);
+          curatedCohortCheckboxClick(cohort);
         });
 
         $rootScope.$on('resetCuratedCohortSelector', function() {

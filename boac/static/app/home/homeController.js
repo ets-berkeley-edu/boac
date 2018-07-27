@@ -31,7 +31,7 @@
     cohortService,
     config,
     page,
-    studentGroupService,
+    curatedCohortService,
     $rootScope,
     $scope
   ) {
@@ -41,24 +41,24 @@
     var init = function() {
       page.loading(true);
 
-      studentGroupService.loadMyGroups(function(myGroups) {
-        $scope.myGroups = myGroups;
+      curatedCohortService.getMyCuratedCohorts(function(cohorts) {
+        $scope.myCuratedCohorts = cohorts;
 
-        cohortService.loadMyCohorts(function(myCohorts) {
-          $scope.myCohorts = myCohorts;
+        cohortService.loadMyFilteredCohorts(function(myFilteredCohorts) {
+          $scope.myFilteredCohorts = myFilteredCohorts;
           page.loading(false);
         });
       });
     };
 
-    $rootScope.$on('groupCreated', function(event, data) {
-      $scope.myGroups.push(studentGroupService.decorateGroup(data.group));
+    $rootScope.$on('curatedCohortCreated', function(event, data) {
+      $scope.myCuratedCohorts.push(curatedCohortService.decorate(data.cohort));
     });
 
-    $rootScope.$on('myCohortsUpdated', function() {
+    $rootScope.$on('myFilteredCohortsUpdated', function() {
       page.loading(true);
-      cohortService.loadMyCohorts(function(myCohorts) {
-        $scope.myCohorts = myCohorts;
+      cohortService.loadMyFilteredCohorts(function(myFilteredCohorts) {
+        $scope.myFilteredCohorts = myFilteredCohorts;
         page.loading(false);
       });
     });

@@ -1,16 +1,16 @@
 <div class="modal-header">
   <h3 id="confirm-delete-header">Delete Curated Cohort</h3>
 </div>
-<div class="modal-body group-label" id="confirm-delete-body">
-  Are you sure you want to delete "<strong><span data-ng-bind="group.name"></span></strong>"?
+<div class="modal-body curated-cohort-label" id="confirm-delete-body">
+  Are you sure you want to delete "<strong><span data-ng-bind="cohort.name"></span></strong>"?
 </div>
 <div class="modal-footer">
-  <form data-ng-submit="delete(group)">
+  <form data-ng-submit="delete(cohort)">
     <button type="button"
             id="confirm-delete-btn"
             class="btn btn btn-primary"
             autofocus
-            data-ng-click="delete(group)">Delete</button>
+            data-ng-click="delete(cohort)">Delete</button>
     <button type="button"
             id="cancel-delete-btn"
             class="btn btn-default"

@@ -84,7 +84,8 @@
 }
 
 .cohort-container {
-  padding: 0 10px 0 10px;
+  padding: 0 10px 0 20px;
+  width: 100%;
 }
 
 .cohort-create-form-label {
@@ -276,4 +277,55 @@
 
 .filters-section-separator {
   margin: 0;
+}
+
+.cohort-all-menu {
+  padding: 10px;
+}
+
+.cohort-btn-confirmation {
+  background-color: #008000;
+  border-color: #2e6da4;
+  color: #fff;
+  margin-right: 20px;
+  white-space: nowrap;
+}
+
+.cohort-btn-group {
+  margin: 5px 20px 0 0;
+}
+
+.cohort-checkbox-item {
+  padding: 0 10px 5px 10px;
+}
+
+.cohort-checkbox-name {
+  padding: 10px;
+}
+
+.cohort-selector-checkbox {
+  background-color: #eee;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  flex: 0 0 36px;
+  margin: 5px 20px 0 0;
+  padding: 8px;
+  text-align: center;
+}
+
+.cohort-selector-checkbox input {
+  margin: 0;
+}
+
+.cohort-selector-container {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.cohort-selector-zero-cohorts {
+  color: #888;
+  padding: 3px 20px 3px 20px;
+  white-space: nowrap;
 }

@@ -27,48 +27,45 @@
 
   'use strict';
 
-  angular.module('boac').controller('DeleteGroupController', function($scope, $uibModal) {
+  angular.module('boac').service('curatedCohortService', function(curatedCohortFactory, utilService) {
 
-    var isModalOpen = false;
+    var decorate = function(cohort) {
+      return {
+        id: cohort.id,
+        name: cohort.name,
+        studentCount: cohort.studentCount,
+        students: utilService.extendSortableNames(cohort.students),
+        sortBy: 'sortableName',
+        reverse: false
+      };
+    };
 
-    $scope.openDeleteGroupModal = function(group) {
-      if (isModalOpen) {
-        return;
-      }
-      isModalOpen = true;
-
-      var modal = $uibModal.open({
-        animation: true,
-        ariaLabelledBy: 'confirm-delete-header',
-        ariaDescribedBy: 'confirm-delete-body',
-        backdrop: false,
-        templateUrl: '/static/app/group/deleteGroupModal.html',
-        controller: 'DeleteGroupModal',
-        resolve: {
-          group: function() {
-            return group;
-          }
+    var isStudentInCuratedCohort = function(student, cohort) {
+      var inCohort = false;
+      _.each(cohort.students, function(s) {
+        if (s.sid === student.sid) {
+          inCohort = true;
+          return false;
         }
       });
-      var modalClosed = function() {
-        isModalOpen = false;
-      };
-
-      modal.result.finally(angular.noop).then(modalClosed, modalClosed);
-    };
-  });
-
-  angular.module('boac').controller('DeleteGroupModal', function(group, studentGroupFactory, $scope, $uibModalInstance) {
-
-    $scope.group = group;
-
-    $scope.delete = function(g) {
-      studentGroupFactory.deleteGroup(g.id);
-      $uibModalInstance.close();
+      return inCohort;
     };
 
-    $scope.cancel = function() {
-      $uibModalInstance.close();
+    var getMyCuratedCohorts = function(callback) {
+      curatedCohortFactory.getMyCuratedCohorts().then(function(response) {
+        var cohorts = response.data;
+        var decoratedCohorts = [];
+        _.each(cohorts, function(cohort) {
+          decoratedCohorts.push(decorate(cohort));
+        });
+        return callback(decoratedCohorts);
+      });
+    };
+
+    return {
+      decorate: decorate,
+      isStudentInCuratedCohort: isStudentInCuratedCohort,
+      getMyCuratedCohorts: getMyCuratedCohorts
     };
   });
 

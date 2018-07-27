@@ -1,0 +1,103 @@
+<div class="container-manage-cohorts">
+  <div data-ng-if="isLoading">
+    <div class="loading-spinner-large">
+      <i class="fas fa-sync fa-spin fa-5x"></i>
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>
+  <div data-ng-if="!isLoading">
+    <h1 class="page-section-header" data-ng-if="!error">Manage Filtered Cohorts</h1>
+    <div data-ng-if="error">
+      <h1 class="page-section-header">Error</h1>
+      <div class="faint-text">
+        <span data-ng-bind="error.message" data-ng-if="error.message"></span>
+        <span data-ng-if="!error.message">Sorry, there was an error.</span>
+      </div>
+    </div>
+    <div data-ng-if="!myFilteredCohorts.length">
+      You have no filtered cohorts.
+      <a data-ng-href="/cohort?c=new"><i class="fas fa-plus"></i> Create a new filtered cohort.</a>
+    </div>
+    <div data-ng-repeat="cohort in myFilteredCohorts | orderBy:'nameOriginal'">
+      <hr class="cohort-manage-row-separator"/>
+      <div class="flex-container flex-space-between" data-ng-if="!cohort.editMode">
+        <div class="cohort-manage-name wrap-hard">
+          <strong>
+            <a id="filtered-cohort-name-{{$index}}"
+               data-ui-sref="filteredCohort({c: cohort.id})"
+               data-ui-sref-opts="{reload: true}"><span data-ng-bind="cohort.name"></span></a>
+          </strong>
+          <span class="faint-text">(<span id="filtered-cohort-student-count-{{$index}}" data-ng-bind="cohort.totalStudentCount"></span>)</span>
+        </div>
+        <div>
+          <span data-ng-controller="DeleteCohortController" data-ng-if="!cohort.isReadOnly">
+            <button type="button"
+                    id="delete-filtered-cohort-btn-{{$index}}"
+                    class="btn-link cohort-manage-btn-link"
+                    data-ng-click="openDeleteCohortModal(cohort)">
+              Delete
+            </button> <span class="faint-text">|</span>
+          </span>
+          <span data-ng-if="!cohort.isReadOnly">
+            <button type="button"
+                    id="edit-filtered-cohort-btn-{{$index}}"
+                    class="btn-link cohort-manage-btn-link"
+                    data-ng-click="setEditMode(cohort, true)">
+              Rename
+            </button> <span class="faint-text">|</span>
+          </span>
+          <button type="button"
+                  id="filtered-cohort-details-btn-{{$index}}"
+                  class="btn-link cohort-manage-btn-link"
+                  data-ng-click="setShowDetails(cohort, !cohort.detailsShowing)">
+            <span data-ng-if="!cohort.detailsShowing">Show Details</span>
+            <span data-ng-if="cohort.detailsShowing">Hide Details</span>
+          </button>
+        </div>
+      </div>
+      <form name="renameCohortForm"
+            class="flex-container flex-space-between cohort-manage-row"
+            data-ng-submit="changeCohortName(cohort, cohort.name)"
+            data-ng-if="cohort.editMode">
+        <div class="cohort-manage-text-input">
+          <input aria-required="true"
+                 class="form-control"
+                 data-ng-change="cohort.hideError = true"
+                 data-ng-model="cohort.name"
+                 focus-on="cohort.editMode"
+                 id="filtered-cohort-name-input-{{$index}}"
+                 maxlength="255"
+                 name="name"
+                 required
+                 type="text"/>
+          <div class="has-error" data-ng-bind="cohort.error" data-ng-if="cohort.error && !cohort.hideError"></div>
+          <div class="faint-text">255 character limit <span data-ng-if="cohort.name.length">({{255 - cohort.name.length}} left)</span></div>
+        </div>
+        <div class="edit-mode-button-container">
+          <button type="button"
+                  id="filtered-cohort-save-btn-{{$index}}"
+                  class="btn btn-sm btn-primary cohort-manage-btn"
+                  data-ng-disabled="!cohort.name"
+                  data-ng-click="changeCohortName(cohort, cohort.name)">
+            Rename
+          </button>
+          <button type="button"
+                  id="filtered-cohort-cancel-btn-{{$index}}"
+                  class="btn btn-sm btn-default cohort-manage-btn"
+                  data-ng-click="cancelEdit(cohort)">
+            Cancel
+          </button>
+        </div>
+      </form>
+      <div data-ng-show="cohort.detailsShowing && !cohort.editMode">
+        <div id="filtered-cohort-criteria-{{$index}}"
+             class="cohort-filter-criteria">
+          <div data-ng-repeat="name in cohort.filterCriteriaNames track by $index">
+            <span class="cohort-filter-criteria-label" data-ng-bind="name"></span>
+          </div>
+        </div>
+      </div>
+      <hr class="cohort-manage-row-separator" data-ng-if="$last"/>
+    </div>
+  </div>
+</div>

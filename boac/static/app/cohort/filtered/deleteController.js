@@ -27,46 +27,48 @@
 
   'use strict';
 
-  angular.module('boac').service('studentGroupService', function(studentGroupFactory, utilService) {
+  angular.module('boac').controller('DeleteCohortController', function($scope, $uibModal) {
 
-    var decorateGroup = function(group) {
-      return {
-        id: group.id,
-        name: group.name,
-        studentCount: group.studentCount,
-        students: utilService.extendSortableNames(group.students),
-        sortBy: 'sortableName',
-        reverse: false
-      };
-    };
+    var isModalOpen = false;
 
-    var isStudentInGroup = function(student, group) {
-      var inGroup = false;
-      _.each(group.students, function(s) {
-        if (s.sid === student.sid) {
-          inGroup = true;
-          return false;
+    $scope.openDeleteCohortModal = function(cohort) {
+      if (isModalOpen) {
+        return;
+      }
+      isModalOpen = true;
+
+      var modal = $uibModal.open({
+        animation: true,
+        ariaLabelledBy: 'confirm-delete-header',
+        ariaDescribedBy: 'confirm-delete-body',
+        backdrop: false,
+        templateUrl: '/static/app/cohort/filtered/deleteModal.html',
+        controller: 'DeleteCohortModal',
+        resolve: {
+          cohort: function() {
+            return cohort;
+          }
         }
       });
-      return inGroup;
+      var modalClosed = function() {
+        isModalOpen = false;
+      };
+
+      modal.result.finally(angular.noop).then(modalClosed, modalClosed);
+    };
+  });
+
+  angular.module('boac').controller('DeleteCohortModal', function(cohort, filteredCohortFactory, $scope, $uibModalInstance) {
+
+    $scope.cohort = cohort;
+
+    $scope.delete = function(item) {
+      filteredCohortFactory.deleteCohort(item);
+      $uibModalInstance.close();
     };
 
-    var loadMyGroups = function(callback) {
-      studentGroupFactory.getMyGroups().then(function(response) {
-        var groups = response.data;
-        var myGroups = [];
-        _.each(groups, function(group) {
-          var decoratedGroup = decorateGroup(group);
-          myGroups.push(decoratedGroup);
-        });
-        return callback(myGroups);
-      });
-    };
-
-    return {
-      decorateGroup: decorateGroup,
-      isStudentInGroup: isStudentInGroup,
-      loadMyGroups: loadMyGroups
+    $scope.cancel = function() {
+      $uibModalInstance.close();
     };
   });
 

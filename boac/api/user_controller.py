@@ -58,15 +58,15 @@ def my_profile():
             })
         my_cohorts = CohortFilter.all_owned_by(uid)
         profile.update({
-            'myCohorts': [decorate_cohort(c, include_students=False) for c in my_cohorts],
-            'myGroups': groups,
+            'myFilteredCohorts': [decorate_cohort(c, include_students=False) for c in my_cohorts],
+            'myCuratedCohorts': groups,
             'isAdmin': current_user.is_admin,
             'departments': departments,
         })
     else:
         profile.update({
-            'myCohorts': None,
-            'myGroups': None,
+            'myFilteredCohorts': None,
+            'myCuratedCohorts': None,
             'isAdmin': False,
             'departments': None,
         })
