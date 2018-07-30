@@ -459,18 +459,25 @@ def numrange_to_sql(column, numrange):
     numrange_match = numrange_syntax.match(numrange)
     if numrange_match:
         bounds = []
+        include_null = False
         if numrange_match[1] != 'NULL':
             lower_bound_condition = '>'
             # Square brackets in numrange syntax indicate an inclusive range.
-            if numrange_match[3] == '[' and numrange_match[1] != '0':
+            if numrange_match[3] == '[':
                 lower_bound_condition += '='
             bounds.append(f'{column} {lower_bound_condition} {numrange_match[1]}')
+        else:
+            # An inclusive lower bound of NULL is interpreted as including null values.
+            include_null = (numrange_match[3] == '[')
         if numrange_match[2] != 'NULL':
             upper_bound_condition = '<'
             if numrange_match[4] == ']':
                 upper_bound_condition += '='
             bounds.append(f'{column} {upper_bound_condition} {numrange_match[2]}')
-        return f"({' AND '.join(bounds)})"
+        sql_clause = f"({' AND '.join(bounds)})"
+        if include_null:
+            sql_clause = f'({column} IS NULL OR {sql_clause})'
+        return sql_clause
 
 
 def numranges_to_sql(column, numranges):
