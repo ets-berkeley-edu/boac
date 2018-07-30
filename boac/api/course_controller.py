@@ -25,20 +25,25 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.api.errors import ResourceNotFoundError
-from boac.api.util import sort_students_by_name
+from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged.sis_sections import get_sis_section
 from boac.merged.student import get_course_student_profiles
-from flask import current_app as app
+from flask import current_app as app, request
 from flask_login import login_required
 
 
 @app.route('/api/section/<term_id>/<section_id>')
 @login_required
 def get_section(term_id, section_id):
+    offset = util.get(request.args, 'offset', None)
+    if offset:
+        offset = int(offset)
+    limit = util.get(request.args, 'limit', None)
+    if limit:
+        limit = int(limit)
     section = get_sis_section(term_id, section_id)
     if not section:
         raise ResourceNotFoundError(f'No section {section_id} in term {term_id}')
-    students = get_course_student_profiles(term_id, section_id)
-    section['students'] = sort_students_by_name(students)
+    section.update(get_course_student_profiles(term_id, section_id, offset=offset, limit=limit))
     return tolerant_jsonify(section)

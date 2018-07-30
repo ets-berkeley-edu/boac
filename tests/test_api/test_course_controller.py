@@ -74,6 +74,7 @@ class TestCourseController:
         response = client.get(f'/api/section/{term_id}/{section_id}')
         students = response.json['students']
         assert len(students) == 1
+        assert response.json['totalStudentCount'] == 1
         assert students[0]['uid'] == student_uid
         assert students[0]['sid'] == student_sid
         assert students[0]['firstName'] == 'Deborah'

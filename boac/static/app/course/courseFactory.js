@@ -29,8 +29,11 @@
 
   angular.module('boac').factory('courseFactory', function(utilService, $http) {
 
-    var getSection = function(termId, sectionId) {
+    var getSection = function(termId, sectionId, offset, limit) {
       var url = '/api/section/' + termId + '/' + sectionId;
+      if (offset || limit) {
+        url += '?offset=' + (offset || 0) + '&limit=' + (limit || 50);
+      }
       return $http.get(url);
     };
 
