@@ -91,7 +91,7 @@ class CohortFilter(Base, UserMixin):
         return cohort
 
     @classmethod
-    def update(cls, cohort_id, label):
+    def rename(cls, cohort_id, label):
         cohort = CohortFilter.query.filter_by(id=cohort_id).first()
         cohort.label = label
         std_commit()

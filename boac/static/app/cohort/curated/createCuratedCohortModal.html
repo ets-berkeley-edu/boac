@@ -1,12 +1,12 @@
 <div class="modal-header">
-  <h3 id="create-curated-cohort-header">Name Your Curated Cohort</h3>
+  <h3 id="curated-cohort-create-header">Name Your Curated Cohort</h3>
 </div>
 <form data-ng-submit="create(cohort)">
-  <div id="create-curated-cohort-body" class="modal-body">
-    <div class="create-curated-create-form-name">Name:</div>
+  <div id="curated-cohort-create-body" class="modal-body">
+    <div class="curated-cohort-create-form-name">Name:</div>
     <div>
       <input id="curated-cohort-create-input"
-             class="cohort-create-input-name"
+             class="curated-cohort-create-input-name"
              data-ng-change="error.hide = true"
              data-ng-model="name"
              data-ng-readonly="isSaving"
@@ -20,14 +20,14 @@
   </div>
   <div class="modal-footer">
     <button type="button"
-            id="confirm-create-curated-cohort-btn"
+            id="curated-cohort-create-confirm-btn"
             class="btn btn btn-primary"
             data-ng-disabled="!name.length || isSaving"
             data-ng-click="create(cohort)">
       <i class="fas fa-spinner fa-spin" data-ng-if="isSaving"></i> {{isSaving ? 'Saving' : 'Save'}}
     </button>
     <button type="button"
-            id="cancel-create-curated-cohort-btn"
+            id="curated-cohort-create-cancel-btn"
             class="btn btn-default"
             data-ng-disabled="isSaving"
             data-ng-click="cancel()">Cancel</button>

@@ -123,7 +123,7 @@
     };
 
     $scope.removeFromCuratedCohort = function(student) {
-      curatedCohortFactory.removeStudentFromCuratedCohort($scope.cohort, student).then(function() {
+      curatedCohortFactory.removeStudent($scope.cohort, student).then(function() {
         $scope.cohort.students = _.remove($scope.cohort.students, function(s) {
           return s.sid !== student.sid;
         });

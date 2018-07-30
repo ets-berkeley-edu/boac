@@ -29,7 +29,7 @@ from boac.api.util import create_my_students_cohort
 from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
-from boac.models.student_group import StudentGroup
+from boac.models.curated_cohort import CuratedCohort
 from boac.models.university_dept import UniversityDept
 # Models below are included so that db.create_all will find them.
 from boac.models.alert import Alert # noqa
@@ -142,19 +142,19 @@ def load_development_data():
 
 def create_curated_cohorts():
     admin_id = AuthorizedUser.find_by_uid('2040').id
-    StudentGroup.create(admin_id, 'My Students')
+    CuratedCohort.create(admin_id, 'My Students')
 
     advisor_id = AuthorizedUser.find_by_uid('6446').id
-    StudentGroup.create(advisor_id, 'My Students')
-    group = StudentGroup.create(advisor_id, 'Cool Kids')
-    StudentGroup.add_student(group.id, '3456789012')  # PaulK
-    StudentGroup.add_student(group.id, '5678901234')  # Sandeep
-    StudentGroup.add_student(group.id, '11667051')    # Deborah
-    StudentGroup.add_student(group.id, '7890123456')  # PaulF
+    CuratedCohort.create(advisor_id, 'My Students')
+    curated_cohort = CuratedCohort.create(advisor_id, 'Cool Kids')
+    CuratedCohort.add_student(curated_cohort.id, '3456789012')  # PaulK
+    CuratedCohort.add_student(curated_cohort.id, '5678901234')  # Sandeep
+    CuratedCohort.add_student(curated_cohort.id, '11667051')    # Deborah
+    CuratedCohort.add_student(curated_cohort.id, '7890123456')  # PaulF
 
     coe_advisor = AuthorizedUser.find_by_uid('1133399')
-    group = StudentGroup.create(coe_advisor.id, 'Group of One')
-    StudentGroup.add_student(group.id, '7890123456')  # PaulF
+    curated_cohort = CuratedCohort.create(coe_advisor.id, 'Cohort of One')
+    CuratedCohort.add_student(curated_cohort.id, '7890123456')  # PaulF
 
     std_commit(allow_test_environment=True)
 

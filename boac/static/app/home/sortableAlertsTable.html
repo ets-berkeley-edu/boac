@@ -29,7 +29,7 @@
   <div class="group-summary-flex-row group-summary-row"
        data-ng-repeat="student in students | orderBy:options.sortBy:options.reverse track by $index">
     <div class="group-summary-column group-summary-column-00" data-ng-if="options.curatedCohort">
-      <div class="student-checkbox-add-to-group">
+      <div class="add-to-cohort-checkbox">
         <input id="{{student.uid}}-curated-cohort-checkbox"
                type="checkbox"
                data-ng-click="student.curatedCohortToggle($event)"

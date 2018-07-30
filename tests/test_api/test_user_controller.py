@@ -78,16 +78,16 @@ class TestUserProfile:
         assert user['departments']['UWASC']['isAdvisor'] is True
         assert user['departments']['UWASC']['isDirector'] is False
 
-    def test_includes_groups(self, client, fake_auth):
+    def test_includes_curated_cohorts(self, client, fake_auth):
         test_uid = '6446'
         fake_auth.login(test_uid)
         response = client.get('/api/profile/my')
-        groups = response.json['myCuratedCohorts']
-        assert len(groups) == 2
-        assert groups[0]['name'] == 'Cool Kids'
-        assert len(groups[0]['students']) == 4
-        assert groups[0]['studentCount'] == 4
-        student = groups[0]['students'][0]
+        curated_cohorts = response.json['myCuratedCohorts']
+        assert len(curated_cohorts) == 2
+        assert curated_cohorts[0]['name'] == 'Cool Kids'
+        assert len(curated_cohorts[0]['students']) == 4
+        assert curated_cohorts[0]['studentCount'] == 4
+        student = curated_cohorts[0]['students'][0]
         assert 'sid' in student
         assert 'firstName' not in student
 
@@ -259,9 +259,10 @@ class TestUserAnalytics:
     def test_enrollment_with_multiple_course_sites(self, authenticated_response):
         """Returns multiple course sites associated with an enrollment, sorted by site id."""
         enrollment_with_multiple_sites = TestUserAnalytics.get_course_for_code(authenticated_response, '2178', 'NUC ENG 124')
-        assert len(enrollment_with_multiple_sites['canvasSites']) == 2
-        assert enrollment_with_multiple_sites['canvasSites'][0]['courseName'] == 'Radioactive Waste Management'
-        assert enrollment_with_multiple_sites['canvasSites'][1]['courseName'] == 'Optional Friday Night Radioactivity Group'
+        canvas_sites = enrollment_with_multiple_sites['canvasSites']
+        assert len(canvas_sites) == 2
+        assert canvas_sites[0]['courseName'] == 'Radioactive Waste Management'
+        assert canvas_sites[1]['courseName'] == 'Optional Friday Night Radioactivity Group'
 
     def test_multiple_primary_section_enrollments(self, authenticated_response):
         """Disambiguates multiple primary sections under a single course display name."""

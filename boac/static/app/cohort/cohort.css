@@ -329,3 +329,17 @@
   padding: 3px 20px 3px 20px;
   white-space: nowrap;
 }
+
+.curated-cohort-create-form-name {
+  font-size: 16px;
+  padding: 0 10px 10px 0;
+}
+
+.curated-cohort-create-input-name {
+  border: 1px solid #d9d9d9;
+  border-color: #66afe9;
+  border-radius: 4px;
+  box-sizing: border-box;
+  padding: 10px 10px 10px 10px;
+  width: 100%;
+}

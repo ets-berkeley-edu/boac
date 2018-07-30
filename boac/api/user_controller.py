@@ -34,7 +34,7 @@ from boac.merged import calnet
 from boac.merged.student import get_student_and_terms, get_student_query_scope
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
-from boac.models.student_group import StudentGroup
+from boac.models.curated_cohort import CuratedCohort
 from flask import current_app as app, Response
 from flask_login import current_user, login_required
 
@@ -44,10 +44,9 @@ def my_profile():
     uid = current_user.get_id()
     profile = calnet.get_calnet_user_for_uid(app, uid)
     if current_user.is_active:
-        # All BOAC views require group and cohort lists
         authorized_user_id = current_user.id
-        groups = StudentGroup.get_groups_by_owner_id(authorized_user_id)
-        groups = [g.to_api_json(sids_only=True) for g in groups]
+        curated_cohorts = CuratedCohort.get_curated_cohorts_by_owner_id(authorized_user_id)
+        curated_cohorts = [c.to_api_json(sids_only=True) for c in curated_cohorts]
         departments = {}
         for m in current_user.department_memberships:
             departments.update({
@@ -59,7 +58,7 @@ def my_profile():
         my_cohorts = CohortFilter.all_owned_by(uid)
         profile.update({
             'myFilteredCohorts': [decorate_cohort(c, include_students=False) for c in my_cohorts],
-            'myCuratedCohorts': groups,
+            'myCuratedCohorts': curated_cohorts,
             'isAdmin': current_user.is_admin,
             'departments': departments,
         })

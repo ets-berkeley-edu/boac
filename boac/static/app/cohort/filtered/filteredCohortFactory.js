@@ -55,7 +55,7 @@
       if (utilService.toBoolOrNull(intensive)) {
         args.inIntensiveCohort = true;
       }
-      return $http.post('/api/cohort/create', args).then(function(response) {
+      return $http.post('/api/filtered_cohort/create', args).then(function(response) {
         var cohort = response.data;
         $rootScope.$broadcast('filteredCohortCreated', {
           cohort: cohort
@@ -67,7 +67,7 @@
     };
 
     var deleteCohort = function(cohort) {
-      return $http.delete('/api/cohort/delete/' + cohort.id).then(function() {
+      return $http.delete('/api/filtered_cohort/delete/' + cohort.id).then(function() {
         $rootScope.$broadcast('myFilteredCohortsUpdated');
         $rootScope.$broadcast('filteredCohortDeleted', {
           cohort: cohort
@@ -76,7 +76,7 @@
     };
 
     var getAll = function() {
-      return $http.get('/api/cohorts/all');
+      return $http.get('/api/filtered_cohorts/all');
     };
 
     var getCohort = function(id, orderBy, offset, limit) {
@@ -86,12 +86,12 @@
         limit: limit || 50,
         orderBy: orderBy || 'first_name'
       };
-      var apiPath = utilService.format('/api/cohort/${id}?offset=${offset}&limit=${limit}&orderBy=${orderBy}', params);
+      var apiPath = utilService.format('/api/filtered_cohort/${id}?offset=${offset}&limit=${limit}&orderBy=${orderBy}', params);
       return $http.get(apiPath);
     };
 
     var getMyFilteredCohorts = function() {
-      return $http.get('/api/cohorts/my');
+      return $http.get('/api/filtered_cohorts/my');
     };
 
     var getTeam = function(code, orderBy) {
@@ -111,12 +111,12 @@
       return $http.get('/api/team_groups/all');
     };
 
-    var changeCohortName = function(id, label) {
+    var rename = function(id, label) {
       var args = {
         id: id,
         label: label
       };
-      return $http.post('/api/cohort/update', args).then(function(response) {
+      return $http.post('/api/filtered_cohort/rename', args).then(function(response) {
         $rootScope.$broadcast('myFilteredCohortsUpdated');
         $rootScope.$broadcast('filteredCohortNameChanged', {
           cohort: response.data
@@ -133,7 +133,7 @@
       getMyFilteredCohorts: getMyFilteredCohorts,
       getTeam: getTeam,
       getTeams: getTeams,
-      changeCohortName: changeCohortName
+      rename: rename
     };
   });
 

@@ -57,7 +57,7 @@
       </div>
       <form name="renameCohortForm"
             class="flex-container flex-space-between cohort-manage-row"
-            data-ng-submit="changeCohortName(cohort, cohort.name)"
+            data-ng-submit="rename(cohort, cohort.name)"
             data-ng-if="cohort.editMode">
         <div class="cohort-manage-text-input">
           <input aria-required="true"
@@ -78,7 +78,7 @@
                   id="filtered-cohort-save-btn-{{$index}}"
                   class="btn btn-sm btn-primary cohort-manage-btn"
                   data-ng-disabled="!cohort.name"
-                  data-ng-click="changeCohortName(cohort, cohort.name)">
+                  data-ng-click="rename(cohort, cohort.name)">
             Rename
           </button>
           <button type="button"
