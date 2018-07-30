@@ -27,11 +27,11 @@
 
   'use strict';
 
-  angular.module('boac').controller('CreateGroupController', function($scope, $uibModal) {
+  angular.module('boac').controller('CreateCohortController', function($scope, $uibModal) {
 
     var isModalOpen = false;
 
-    $scope.openCreateCuratedCohortModal = function() {
+    $scope.openCreateCohortModal = function(search) {
       if (isModalOpen) {
         return;
       }
@@ -39,12 +39,16 @@
 
       var modal = $uibModal.open({
         animation: true,
-        ariaLabelledBy: 'create-curated-cohort-header',
-        ariaDescribedBy: 'create-curated-cohort-body',
+        ariaLabelledBy: 'create-filtered-cohort-header',
+        ariaDescribedBy: 'create-filtered-cohort-body',
         backdrop: false,
-        templateUrl: '/static/app/group/createGroupModal.html',
-        controller: 'CreateGroupModal',
-        resolve: {}
+        templateUrl: '/static/app/cohort/filtered/createModal.html',
+        controller: 'CreateCohortModal',
+        resolve: {
+          search: function() {
+            return search;
+          }
+        }
       });
       var modalClosed = function() {
         isModalOpen = false;
@@ -54,40 +58,53 @@
     };
   });
 
-  angular.module('boac').controller('CreateGroupModal', function(
-    studentGroupFactory,
+  angular.module('boac').controller('CreateCohortModal', function(
+    search,
+    filteredCohortFactory,
+    utilService,
     validationService,
+    $rootScope,
     $scope,
     $uibModalInstance
   ) {
-    $scope.name = null;
+    $scope.label = null;
     $scope.error = {
       hide: false,
       message: null
     };
-
     $scope.create = function() {
-      $scope.isSaving = true;
+      $rootScope.isSaving = true;
       // The 'error.hide' flag allows us to hide validation error on-change of form input.
       $scope.error = {
         hide: false,
         message: null
       };
-      $scope.name = _.trim($scope.name);
-      validationService.validateName({name: $scope.name}, function(errorMessage) {
+      $scope.label = _.trim($scope.label);
+      validationService.validateName({name: $scope.label}, function(errorMessage) {
         if (errorMessage) {
-          $scope.isSaving = false;
           $scope.error.message = errorMessage;
+          $rootScope.isSaving = false;
         } else {
-          // Get values where selected=true
-          studentGroupFactory.createGroup($scope.name).then(
+          var getValues = utilService.getValuesSelected;
+          var opts = search.options;
+          filteredCohortFactory.createCohort(
+            $scope.label,
+            search.checkboxes.advisorLdapUid.checked ? search.checkboxes.advisorLdapUid.value : null,
+            getValues(opts.gpaRanges),
+            getValues(opts.groupCodes, 'groupCode'),
+            getValues(opts.levels),
+            getValues(opts.majors),
+            getValues(opts.unitRanges),
+            search.checkboxes.intensive.checked ? true : null,
+            search.checkboxes.inactive.checked ? true : null
+          ).then(
             function() {
-              $scope.isSaving = false;
+              $rootScope.isSaving = false;
               $uibModalInstance.close();
             },
             function(err) {
               $scope.error.message = 'Sorry, the operation failed due to error: ' + err.data.message;
-              $scope.isSaving = false;
+              $rootScope.isSaving = false;
             }
           );
         }

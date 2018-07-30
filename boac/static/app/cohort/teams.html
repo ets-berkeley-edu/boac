@@ -12,7 +12,7 @@
     <div data-ng-if="teams.length">
       <ul data-ng-if="!isLoading" class="home-list">
         <li data-ng-repeat="team in teams">
-          <a data-ng-bind="team.name" data-ng-href="/cohort?c={{team.code}}"></a>
+          <a data-ng-bind="team.name" data-ng-href="/cohort/filtered?c={{team.code}}"></a>
           (<span data-ng-bind="team.totalStudentCount"></span>)
         </li>
       </ul>

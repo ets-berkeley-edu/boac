@@ -1,4 +1,4 @@
-<div class="group-container">
+<div class="cohort-container">
   <div class="loading-spinner-large" data-ng-if="isLoading && !error">
     <i class="fas fa-sync fa-spin fa-5x"></i>
     <span class="sr-only">Loading...</span>
@@ -12,22 +12,22 @@
     </div>
   </div>
   <div data-ng-if="!error && !isLoading">
-    <h1 data-ng-if="group.name">
-      <span data-ng-bind="group.name"></span>
+    <h1 data-ng-if="cohort.name">
+      <span data-ng-bind="cohort.name"></span>
       <span class="faint-text">(<span data-ng-pluralize
-                                      count="group.students.length"
+                                      count="cohort.students.length"
                                       when="{'one': 'One student', 'other': '{} students'}"></span>)</span>
     </h1>
-    <div data-ng-if="!group.students.length">
+    <div data-ng-if="!cohort.students.length">
       This curated cohort has no students. Start adding students from their profile pages to your
-      <strong data-ng-bind="group.name"></strong> cohort:
+      <strong data-ng-bind="cohort.name"></strong> cohort:
       <search-students-form data-with-button="true"></search-students-form>
     </div>
   </div>
 
   <div class="cohort-column-results" data-ng-show="!isLoading">
     <div class="flex-container flex-space-between"
-         data-ng-if="!isLoading && !error && (tab === 'matrix' || group.students.length)">
+         data-ng-if="!isLoading && !error && (tab === 'matrix' || cohort.students.length)">
       <div data-ng-include="'/static/app/shared/tabs.html'"></div>
 
       <div class="cohort-sort-column" data-ng-if="tab === 'list'">
@@ -39,14 +39,14 @@
         </select>
       </div>
     </div>
-    <div data-ng-show="tab === 'list'" data-ng-if="!isLoading && !error && group.studentCount">
+    <div data-ng-show="tab === 'list'" data-ng-if="!isLoading && !error && cohort.studentCount">
       <div id="curated-cohort-students" class="list-group">
-        <div class="list-group-item student-list-item"
-             data-ng-class="{'list-group-item-info': anchor===student.uid}"
-             data-ng-repeat="student in group.students | orderBy:studentComparator track by $index">
+        <div class="list-curated-cohort-item student-list-item"
+             data-ng-class="{'list-curated-cohort-item-info': anchor===student.uid}"
+             data-ng-repeat="student in cohort.students | orderBy:studentComparator track by $index">
 
           <div class="cohort-list-view-column-01">
-            <button class="btn btn-link" data-ng-click="removeFromGroup(student)">
+            <button class="btn btn-link" data-ng-click="removeFromCuratedCohort(student)">
               <i id="student-{{student.uid}}-curated-cohort-remove" class="fas fa-times-circle"></i>
             </button>
           </div>

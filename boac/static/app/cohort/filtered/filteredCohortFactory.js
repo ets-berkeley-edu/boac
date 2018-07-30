@@ -29,7 +29,7 @@
 
   var boac = angular.module('boac');
 
-  boac.factory('cohortFactory', function(googleAnalyticsService, utilService, $http, $rootScope) {
+  boac.factory('filteredCohortFactory', function(googleAnalyticsService, utilService, $http, $rootScope) {
 
     var createCohort = function(
       label,
@@ -57,10 +57,10 @@
       }
       return $http.post('/api/cohort/create', args).then(function(response) {
         var cohort = response.data;
-        $rootScope.$broadcast('cohortCreated', {
+        $rootScope.$broadcast('filteredCohortCreated', {
           cohort: cohort
         });
-        $rootScope.$broadcast('myCohortsUpdated');
+        $rootScope.$broadcast('myFilteredCohortsUpdated');
         // Track the event
         googleAnalyticsService.track('cohort', 'create', cohort.name, cohort.id);
       });
@@ -68,8 +68,8 @@
 
     var deleteCohort = function(cohort) {
       return $http.delete('/api/cohort/delete/' + cohort.id).then(function() {
-        $rootScope.$broadcast('myCohortsUpdated');
-        $rootScope.$broadcast('cohortDeleted', {
+        $rootScope.$broadcast('myFilteredCohortsUpdated');
+        $rootScope.$broadcast('filteredCohortDeleted', {
           cohort: cohort
         });
       });
@@ -90,7 +90,7 @@
       return $http.get(apiPath);
     };
 
-    var getMyCohorts = function() {
+    var getMyFilteredCohorts = function() {
       return $http.get('/api/cohorts/my');
     };
 
@@ -117,8 +117,8 @@
         label: label
       };
       return $http.post('/api/cohort/update', args).then(function(response) {
-        $rootScope.$broadcast('myCohortsUpdated');
-        $rootScope.$broadcast('cohortNameChanged', {
+        $rootScope.$broadcast('myFilteredCohortsUpdated');
+        $rootScope.$broadcast('filteredCohortNameChanged', {
           cohort: response.data
         });
       });
@@ -130,7 +130,7 @@
       getAll: getAll,
       getAllTeamGroups: getAllTeamGroups,
       getCohort: getCohort,
-      getMyCohorts: getMyCohorts,
+      getMyFilteredCohorts: getMyFilteredCohorts,
       getTeam: getTeam,
       getTeams: getTeams,
       changeCohortName: changeCohortName

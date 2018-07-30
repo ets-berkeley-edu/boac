@@ -9,47 +9,47 @@
     <div>
       <div id="curated-cohorts-header-row" class="home-page-section-header-wrapper">
         <h1 class="page-section-header">Curated Cohorts</h1>
-        <div class="home-cohort-actions" data-ng-controller="CreateGroupController">
+        <div class="home-cohort-actions" data-ng-controller="CreateCuratedCohortController">
           <a id="home-curated-cohorts-create-link" href data-ng-click="openCreateCuratedCohortModal()">Create</a> |
-          <a id="home-curated-cohorts-manage-link" href="/groups/manage">Manage</a>
+          <a id="home-curated-cohorts-manage-link" href="/cohort/curated/manage">Manage</a>
         </div>
       </div>
-      <div data-ng-if="!myGroups.length">
+      <div data-ng-if="!myCuratedCohorts.length">
         You have no curated cohorts.
-        <span data-ng-controller="CreateGroupController">
+        <span data-ng-controller="CreateCuratedCohortController">
           <a id="home-curated-cohort-create"
              href
              data-ng-click="openCreateCuratedCohortModal()"> Create a new curated cohort.</a>
         </span>
       </div>
-      <div data-ng-repeat="group in myGroups" data-ng-if="myGroups.length">
+      <div data-ng-repeat="cohort in myCuratedCohorts" data-ng-if="myCuratedCohorts.length">
         <h2 class="page-section-header-sub">
           <a id="home-curated-cohort-{{$index}}"
-             data-ng-bind="group.name"
-             data-ng-href="/group/{{group.id}}"></a> (<span data-ng-bind="group.studentCount"></span>)
+             data-ng-bind="cohort.name"
+             data-ng-href="/cohort/curated/{{cohort.id}}"></a> (<span data-ng-bind="cohort.studentCount"></span>)
         </h2>
-        <sortable-alerts-table data-students="group.students"
-                               data-options="group"
-                               data-ng-if="group.students.length"></sortable-alerts-table>
+        <sortable-alerts-table data-students="cohort.students"
+                               data-options="cohort"
+                               data-ng-if="cohort.students.length"></sortable-alerts-table>
       </div>
     </div>
     <div>
       <div id="filtered-cohorts-header-row" class="home-page-section-header-wrapper">
         <h1 class="page-section-header">Filtered Cohorts</h1>
         <div class="home-cohort-actions">
-          <a id="home-filtered-cohorts-create-link" data-ui-sref="cohort({c: 'new', i: null, inactive: null})" data-ui-sref-opts="{reload: true}">Create</a> |
-          <a id="home-filtered-cohorts-manage-link" data-ui-sref="cohortsManage()" data-ui-sref-opts="{reload: true}">Manage</a>
+          <a id="home-filtered-cohorts-create-link" data-ui-sref="filteredCohort({c: 'new', i: null, inactive: null})" data-ui-sref-opts="{reload: true}">Create</a> |
+          <a id="home-filtered-cohorts-manage-link" data-ui-sref="filteredCohortsManage()" data-ui-sref-opts="{reload: true}">Manage</a>
         </div>
       </div>
-      <div data-ng-if="!myCohorts.length">
+      <div data-ng-if="!myFilteredCohorts.length">
         You have no filtered cohorts.
         <a id="home-cohort-create" data-ng-href="/cohort?c=new">Create a new filtered cohort.</a>
       </div>
-      <div data-ng-repeat="cohort in myCohorts" data-ng-if="myCohorts.length">
+      <div data-ng-repeat="cohort in myFilteredCohorts" data-ng-if="myFilteredCohorts.length">
         <h2 class="page-section-header-sub">
           <a id="home-filtered-cohort-{{$index}}"
              data-ng-bind="cohort.name"
-             data-ng-href="/cohort?c={{cohort.id}}"></a> (<span data-ng-bind="cohort.totalStudentCount"></span>)
+             data-ng-href="/cohort/filtered?c={{cohort.id}}"></a> (<span data-ng-bind="cohort.totalStudentCount"></span>)
         </h2>
         <sortable-alerts-table data-students="cohort.alerts.students"
                                data-options="cohort.alerts"

@@ -30,7 +30,7 @@
   angular.module('boac').service('authService', function(
     authFactory,
     googleAnalyticsService,
-    studentGroupFactory,
+    curatedCohortFactory,
     $http,
     $location,
     $rootScope
@@ -68,23 +68,23 @@
       });
     };
 
-    $rootScope.$on('cohortCreated', function(event, data) {
-      if (_.get($rootScope, 'me.myCohorts')) {
-        $rootScope.me.myCohorts.push(data.cohort);
+    $rootScope.$on('filteredCohortCreated', function(event, data) {
+      if (_.get($rootScope, 'me.myFilteredCohorts')) {
+        $rootScope.me.myFilteredCohorts.push(data.cohort);
       }
     });
 
-    $rootScope.$on('cohortDeleted', function(event, data) {
-      if (_.get($rootScope, 'me.myCohorts')) {
-        $rootScope.me.myCohorts = _.remove($rootScope.me.myCohorts, function(cohort) {
+    $rootScope.$on('filteredCohortDeleted', function(event, data) {
+      if (_.get($rootScope, 'me.myFilteredCohorts')) {
+        $rootScope.me.myFilteredCohorts = _.remove($rootScope.me.myFilteredCohorts, function(cohort) {
           return data.cohort.id !== cohort.id;
         });
       }
     });
 
-    $rootScope.$on('cohortNameChanged', function(event, data) {
-      if (_.get($rootScope, 'me.myCohorts')) {
-        _.each($rootScope.me.myCohorts, function(cohort) {
+    $rootScope.$on('filteredCohortNameChanged', function(event, data) {
+      if (_.get($rootScope, 'me.myFilteredCohorts')) {
+        _.each($rootScope.me.myFilteredCohorts, function(cohort) {
           if (data.cohort.id === cohort.id) {
             cohort.name = data.cohort.name;
           }
@@ -92,25 +92,25 @@
       }
     });
 
-    $rootScope.$on('groupCreated', function(event, data) {
-      if (_.get($rootScope, 'me.myGroups')) {
-        $rootScope.me.myGroups.push(data.group);
+    $rootScope.$on('curatedCohortCreated', function(event, data) {
+      if (_.get($rootScope, 'me.myCuratedCohorts')) {
+        $rootScope.me.myCuratedCohorts.push(data.cohort);
       }
     });
 
-    $rootScope.$on('groupDeleted', function(event, data) {
-      if (_.get($rootScope, 'me.myGroups')) {
-        $rootScope.me.myGroups = _.remove($rootScope.me.myGroups, function(group) {
-          return data.groupId !== group.id;
+    $rootScope.$on('curatedCohortDeleted', function(event, data) {
+      if (_.get($rootScope, 'me.myCuratedCohorts')) {
+        $rootScope.me.myCuratedCohorts = _.remove($rootScope.me.myCuratedCohorts, function(cohort) {
+          return data.cohortId !== cohort.id;
         });
       }
     });
 
-    $rootScope.$on('groupNameChanged', function(event, data) {
-      if (_.get($rootScope, 'me.myGroups')) {
-        _.each($rootScope.me.myGroups, function(group) {
-          if (data.group.id === group.id) {
-            group.name = data.group.name;
+    $rootScope.$on('curatedCohortRenamed', function(event, data) {
+      if (_.get($rootScope, 'me.myCuratedCohorts')) {
+        _.each($rootScope.me.myCuratedCohorts, function(cohort) {
+          if (data.cohort.id === cohort.id) {
+            cohort.name = data.cohort.name;
           }
         });
       }

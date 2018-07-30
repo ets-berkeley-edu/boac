@@ -31,76 +31,72 @@
     authService,
     cohortService,
     config,
-    studentGroupFactory,
-    studentGroupService,
+    curatedCohortFactory,
+    curatedCohortService,
     $rootScope,
     $scope
   ) {
     var init = function() {
       var me = authService.getMe();
       $scope.demoMode = config.demoMode;
-      $scope.myCohorts = _.clone(me.myCohorts);
-      $scope.myGroups = _.clone(me.myGroups);
+      $scope.myFilteredCohorts = _.clone(me.myFilteredCohorts);
+      $scope.myCuratedCohorts = _.clone(me.myCuratedCohorts);
       $scope.isAscUser = authService.isAscUser();
     };
 
     init();
 
-    var findGroupInScope = function(groupId) {
-      return _.find($scope.myGroups, ['id', groupId]);
-    };
-
-    $rootScope.$on('cohortCreated', function(event, data) {
+    $rootScope.$on('filteredCohortCreated', function(event, data) {
       var cohort = data.cohort;
       cohortService.decorateCohortAlerts(cohort);
-      $scope.myCohorts.push(cohort);
+      $scope.myFilteredCohorts.push(cohort);
     });
 
-    $rootScope.$on('cohortDeleted', function(event, data) {
-      $scope.myCohorts = _.remove($scope.myCohorts, function(cohort) {
-        return cohort && (cohort.id !== data.cohort.id);
+    $rootScope.$on('filteredCohortDeleted', function(event, data) {
+      $scope.myFilteredCohorts = _.remove($scope.myFilteredCohorts, function(curatedCohort) {
+        return curatedCohort && (curatedCohort.id !== data.cohort.id);
       });
     });
 
-    $rootScope.$on('cohortNameChanged', function(event, data) {
-      _.each($scope.myCohorts, function(cohort) {
-        if (cohort.id === data.cohort.id) {
+    $rootScope.$on('filteredCohortNameChanged', function(event, data) {
+      _.each($scope.myFilteredCohorts, function(filteredCohort) {
+        if (filteredCohort.id === data.cohort.id) {
+          filteredCohort.name = data.cohort.name;
+        }
+      });
+    });
+
+    $rootScope.$on('curatedCohortCreated', function(event, data) {
+      $scope.myCuratedCohorts.push(data.cohort);
+    });
+
+    $rootScope.$on('curatedCohortRenamed', function(event, data) {
+      _.each($scope.myCuratedCohorts, function(cohort) {
+        if (data.cohort.id === cohort.id) {
           cohort.name = data.cohort.name;
         }
       });
     });
 
-    $rootScope.$on('groupCreated', function(event, data) {
-      $scope.myGroups.push(data.group);
-    });
-
-    $rootScope.$on('groupNameChanged', function(event, data) {
-      _.each($scope.myGroups, function(group) {
-        if (data.group.id === group.id) {
-          group.name = data.group.name;
-        }
+    $rootScope.$on('curatedCohortDeleted', function(event, data) {
+      $scope.myCuratedCohorts = _.remove($scope.myCuratedCohorts, function(curatedCohort) {
+        return data.cohortId !== curatedCohort.id;
       });
     });
 
-    $rootScope.$on('groupDeleted', function(event, data) {
-      $scope.myGroups = _.remove($scope.myGroups, function(group) {
-        return data.groupId !== group.id;
-      });
-    });
-
-    $rootScope.$on('addStudentToGroup', function(event, data) {
-      var group = findGroupInScope(data.group.id);
+    $rootScope.$on('addStudentToCuratedCohort', function(event, data) {
+      var cohort = _.find($scope.myCuratedCohorts, ['id', data.cohort.id]);
       var student = data.student;
 
-      if (!studentGroupService.isStudentInGroup(student, group)) {
-        group.students = _.union(group.students, [ student ]);
-        group.studentCount += 1;
+      if (!curatedCohortService.isStudentInCuratedCohort(student, cohort)) {
+        cohort.students = _.union(cohort.students, [ student ]);
+        cohort.studentCount += 1;
       }
     });
 
-    $rootScope.$on('removeStudentFromGroup', function(event, data) {
-      var group = findGroupInScope(data.group.id);
-      group.studentCount -= 1;
+    $rootScope.$on('removeStudentFromCuratedCohort', function(event, data) {
+      var curatedCohort = _.find($scope.myCuratedCohorts, ['id', data.cohort.id]);
+      curatedCohort.studentCount -= 1;
     });
   });
 

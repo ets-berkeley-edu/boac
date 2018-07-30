@@ -27,11 +27,11 @@
 
   'use strict';
 
-  angular.module('boac').controller('DeleteCohortController', function($scope, $uibModal) {
+  angular.module('boac').controller('CreateCuratedCohortController', function($scope, $uibModal) {
 
     var isModalOpen = false;
 
-    $scope.openDeleteCohortModal = function(cohort) {
+    $scope.openCreateCuratedCohortModal = function() {
       if (isModalOpen) {
         return;
       }
@@ -39,16 +39,12 @@
 
       var modal = $uibModal.open({
         animation: true,
-        ariaLabelledBy: 'confirm-delete-header',
-        ariaDescribedBy: 'confirm-delete-body',
+        ariaLabelledBy: 'create-curated-cohort-header',
+        ariaDescribedBy: 'create-curated-cohort-body',
         backdrop: false,
-        templateUrl: '/static/app/cohort/deleteCohortModal.html',
-        controller: 'DeleteCohortModal',
-        resolve: {
-          cohort: function() {
-            return cohort;
-          }
-        }
+        templateUrl: '/static/app/cohort/curated/createCuratedCohortModal.html',
+        controller: 'CreateCuratedCohortModal',
+        resolve: {}
       });
       var modalClosed = function() {
         isModalOpen = false;
@@ -58,13 +54,44 @@
     };
   });
 
-  angular.module('boac').controller('DeleteCohortModal', function(cohort, cohortFactory, $scope, $uibModalInstance) {
+  angular.module('boac').controller('CreateCuratedCohortModal', function(
+    curatedCohortFactory,
+    validationService,
+    $scope,
+    $uibModalInstance
+  ) {
+    $scope.name = null;
+    $scope.error = {
+      hide: false,
+      message: null
+    };
 
-    $scope.cohort = cohort;
-
-    $scope.delete = function(item) {
-      cohortFactory.deleteCohort(item);
-      $uibModalInstance.close();
+    $scope.create = function() {
+      $scope.isSaving = true;
+      // The 'error.hide' flag allows us to hide validation error on-change of form input.
+      $scope.error = {
+        hide: false,
+        message: null
+      };
+      $scope.name = _.trim($scope.name);
+      validationService.validateName({name: $scope.name}, function(errorMessage) {
+        if (errorMessage) {
+          $scope.isSaving = false;
+          $scope.error.message = errorMessage;
+        } else {
+          // Get values where selected=true
+          curatedCohortFactory.create($scope.name).then(
+            function() {
+              $scope.isSaving = false;
+              $uibModalInstance.close();
+            },
+            function(err) {
+              $scope.error.message = 'Sorry, the operation failed due to error: ' + err.data.message;
+              $scope.isSaving = false;
+            }
+          );
+        }
+      });
     };
 
     $scope.cancel = function() {

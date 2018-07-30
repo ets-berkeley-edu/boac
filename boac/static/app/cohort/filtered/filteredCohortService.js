@@ -27,24 +27,34 @@
 
   'use strict';
 
-  angular.module('boac').controller('AllCohortsController', function(cohortFactory, page, $location, $scope) {
+  angular.module('boac').service('cohortService', function(filteredCohortFactory, utilService) {
 
-    var init = function() {
-      page.loading(true);
-      cohortFactory.getAll().then(function(response) {
-        $scope.owners = response.data;
-        page.loading(false);
-      }).catch(function(error) {
-        if (error.status === 404) {
-          $location.replace().path('/404');
-        } else {
-          $scope.error = parseError(error);
-          page.loading(false);
-        }
+    var decorateCohortAlerts = function(cohort) {
+      if (cohort.alerts && cohort.alerts.length) {
+        cohort.alerts = {
+          isCohortAlerts: true,
+          students: utilService.extendSortableNames(cohort.alerts),
+          sortBy: 'sortableName',
+          reverse: false
+        };
+      }
+    };
+
+    var loadMyFilteredCohorts = function(callback) {
+      filteredCohortFactory.getMyFilteredCohorts().then(function(response) {
+        var myFilteredCohorts = [];
+        _.each(response.data, function(cohort) {
+          decorateCohortAlerts(cohort);
+          myFilteredCohorts.push(cohort);
+        });
+        return callback(myFilteredCohorts);
       });
     };
 
-    init();
-  });
+    return {
+      decorateCohortAlerts: decorateCohortAlerts,
+      loadMyFilteredCohorts: loadMyFilteredCohorts
+    };
 
+  });
 }(window.angular));

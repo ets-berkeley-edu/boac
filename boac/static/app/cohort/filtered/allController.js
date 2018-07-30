@@ -27,42 +27,24 @@
 
   'use strict';
 
-  /**
-   * Fall back to a default avatar in the case of an error during image load.
-   */
-  angular.module('boac').directive('searchStudentsForm', function(
-    page,
-    curatedCohortFactory,
-    $location,
-    $rootScope,
-    $state,
-    $transitions
-  ) {
+  angular.module('boac').controller('AllFilteredCohortsController', function(filteredCohortFactory, page, $location, $scope) {
 
-    $transitions.onStart({}, function($transition) {
-      if (_.get($transition.$to(), 'name') !== 'search') {
-        $rootScope.searchPhrase = null;
-      }
-    });
-
-    $transitions.onFinish({}, function($transition) {
-      $rootScope.transitionTo = _.get($transition.$to(), 'name');
-    });
-
-    return {
-      restrict: 'E',
-      scope: true,
-      templateUrl: '/static/app/search/searchStudentsForm.html',
-
-      link: function(scope, elem, attrs) {
-        scope.searchPhrase = $location.search().q;
-        scope.withButton = attrs.withButton;
-        scope.searchForStudents = function() {
-          page.loading(true);
-          $state.transitionTo('search', {q: scope.searchPhrase}, {reload: true});
-        };
-      }
+    var init = function() {
+      page.loading(true);
+      filteredCohortFactory.getAll().then(function(response) {
+        $scope.owners = response.data;
+        page.loading(false);
+      }).catch(function(error) {
+        if (error.status === 404) {
+          $location.replace().path('/404');
+        } else {
+          $scope.error = parseError(error);
+          page.loading(false);
+        }
+      });
     };
+
+    init();
   });
 
 }(window.angular));

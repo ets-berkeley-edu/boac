@@ -132,20 +132,26 @@
         views: standardLayout('AdminController', '/static/app/admin/admin.html'),
         resolve: resolveAdmin
       })
-      .state('cohort', {
-        url: '/cohort?c&i&inactive',
-        views: standardLayout('CohortController', '/static/app/cohort/cohort.html'),
+      .state('_filteredCohort', {
+        url: '/_cohort/filtered?c&i&inactive',
+        views: standardLayout('_FilteredCohortController', '/static/app/cohort/filtered/_filteredCohort.html'),
         resolve: resolvePrivate,
         reloadOnSearch: false
       })
-      .state('cohorts', {
-        url: '/cohorts/all',
-        views: standardLayout('AllCohortsController', '/static/app/cohort/all.html'),
+      .state('filteredCohort', {
+        url: '/cohort/filtered?c&i&inactive',
+        views: standardLayout('FilteredCohortController', '/static/app/cohort/filtered/filteredCohort.html'),
+        resolve: resolvePrivate,
+        reloadOnSearch: false
+      })
+      .state('filteredCohortsAll', {
+        url: '/cohort/filtered/all',
+        views: standardLayout('AllFilteredCohortsController', '/static/app/cohort/filtered/all.html'),
         resolve: resolvePrivate
       })
-      .state('cohortsManage', {
-        url: '/cohorts/manage',
-        views: standardLayout('ManageCohortsController', '/static/app/cohort/manageCohorts.html'),
+      .state('filteredCohortsManage', {
+        url: '/cohort/filtered/manage',
+        views: standardLayout('ManageFilteredCohortsController', '/static/app/cohort/filtered/manage.html'),
         resolve: resolvePrivate
       })
       .state('course', {
@@ -153,14 +159,14 @@
         views: standardLayout('CourseController', '/static/app/course/course.html'),
         resolve: resolvePrivate
       })
-      .state('group', {
-        url: '/group/:id',
-        views: standardLayout('GroupController', '/static/app/group/group.html'),
+      .state('curatedCohort', {
+        url: '/cohort/curated/:id',
+        views: standardLayout('CuratedCohortController', '/static/app/cohort/curated/curatedCohort.html'),
         resolve: resolvePrivate
       })
-      .state('groupsManage', {
-        url: '/groups/manage',
-        views: standardLayout('ManageGroupsController', '/static/app/group/manageGroups.html'),
+      .state('curatedCohortsManage', {
+        url: '/cohort/curated/manage',
+        views: standardLayout('ManageCuratedCohortsController', '/static/app/cohort/curated/manage.html'),
         resolve: resolvePrivate
       })
       .state('home', {
@@ -181,7 +187,7 @@
         resolve: resolveSplash
       })
       .state('teams', {
-        url: '/cohorts/teams',
+        url: '/teams',
         views: standardLayout('TeamsController', '/static/app/cohort/teams.html'),
         resolve: resolvePrivate
       })
@@ -218,16 +224,16 @@
       if ($transition.$to().name) {
         var name = $transition.$to().name;
         switch (name) {
-          case 'cohort':
+          case 'filteredCohort':
             $rootScope.pageTitle = 'Filtered Cohort';
             break;
-          case 'cohortsManage':
+          case 'filteredCohortsManage':
             $rootScope.pageTitle = 'Manage Filtered Cohorts';
             break;
-          case 'group':
+          case 'curatedCohort':
             $rootScope.pageTitle = 'Curated Cohort';
             break;
-          case 'groupsManage':
+          case 'curatedCohortsManage':
             $rootScope.pageTitle = 'Manage Curated Cohorts';
             break;
           default:

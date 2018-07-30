@@ -82,7 +82,7 @@ class TestUserProfile:
         test_uid = '6446'
         fake_auth.login(test_uid)
         response = client.get('/api/profile/my')
-        groups = response.json['myGroups']
+        groups = response.json['myCuratedCohorts']
         assert len(groups) == 2
         assert groups[0]['name'] == 'Cool Kids'
         assert len(groups[0]['students']) == 4

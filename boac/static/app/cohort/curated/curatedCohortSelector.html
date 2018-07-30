@@ -1,6 +1,6 @@
-<div class="group-selector-container">
+<div class="cohort-selector-container">
   <div>
-    <div class="group-selector-checkbox">
+    <div class="cohort-selector-checkbox">
       <input id="curated-cohort-checkbox-add-all"
              type="checkbox"
              data-ng-model="selector.selectAllCheckbox"
@@ -8,14 +8,14 @@
     </div>
   </div>
   <div>
-    <div class="group-btn-group"
+    <div class="cohort-btn-group"
          uib-dropdown
          is-open="selector.isOpen"
          data-ng-if="selector.showCuratedCohortMenu">
       <button id="added-to-curated-cohort-confirmation"
               type="button"
               data-ng-disabled="true"
-              class="btn group-btn-confirmation"
+              class="btn cohort-btn-confirmation"
               data-ng-if="isSaving">
         <i class="fas fa-check"></i>
         Added to Curated Cohort
@@ -27,35 +27,35 @@
               data-ng-if="!isSaving">
         Add to Curated Cohort <span class="caret"></span>
       </button>
-      <ul class="dropdown-menu group-all-menu"
+      <ul class="dropdown-menu cohort-all-menu"
           uib-dropdown-menu
           role="menu"
-          aria-labelledby="add-to-group-button">
+          aria-labelledby="add-to-cohort-button">
         <li role="menuitem" data-ng-if="isLoading">
           Loading <i class="fas fa-spinner fa-spin"></i>
         </li>
-        <li role="menuitem" data-ng-if="!myGroups.length">
-          <span class="group-selector-zero-cohorts faint-text">You have no curated cohorts.</span>
+        <li role="menuitem" data-ng-if="!myCuratedCohorts.length">
+          <span class="cohort-selector-zero-cohorts faint-text">You have no curated cohorts.</span>
         </li>
         <li role="menuitem"
-            data-ng-class="{'group-checkbox-item': group, 'divider': !group}"
-            data-ng-repeat="group in myGroups track by $index"
+            data-ng-class="{'cohort-checkbox-item': cohort, 'divider': !cohort}"
+            data-ng-repeat="cohort in myCuratedCohorts track by $index"
             data-ng-href="!isLoading">
           <input id="student-{{student.uid}}-curated-cohort-checkbox"
                  type="checkbox"
-                 data-ng-model="group.selected"
-                 data-ng-click="groupCheckboxClick(group)"
-                 aria-labelledby="group-name-{{$index}}"
-                 data-ng-if="group"/>
-          <span id="curated-cohort-{{group.id}}-name"
-                aria-labelledby="student-{{student.sid}}-group-checkbox"
-                class="group-checkbox-name"
-                data-ng-bind="group.name"
-                data-ng-if="group"></span>
+                 data-ng-model="cohort.selected"
+                 data-ng-click="curatedCohortCheckboxClick(cohort)"
+                 aria-labelledby="curated-cohort-name-{{$index}}"
+                 data-ng-if="cohort"/>
+          <span id="curated-cohort-{{cohort.id}}-name"
+                aria-labelledby="student-{{student.sid}}-cohort-checkbox"
+                class="cohort-checkbox-name"
+                data-ng-bind="cohort.name"
+                data-ng-if="cohort"></span>
         </li>
         <li class="divider"></li>
         <li role="menuitem"
-            data-ng-controller="CreateGroupController"
+            data-ng-controller="CreateCuratedCohortController"
             data-ng-href="!isLoading">
           <a id="curated-cohort-create"
              href

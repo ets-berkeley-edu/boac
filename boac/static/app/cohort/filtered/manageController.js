@@ -27,9 +27,9 @@
 
   'use strict';
 
-  angular.module('boac').controller('ManageCohortsController', function(
+  angular.module('boac').controller('ManageFilteredCohortsController', function(
     adminFactory,
-    cohortFactory,
+    filteredCohortFactory,
     page,
     studentFactory,
     utilService,
@@ -42,7 +42,7 @@
 
     var resetPageView = function(callback) {
       // For each cohort listed in the UI, hide details and the edit form
-      _.each($scope.myCohorts, function(next) {
+      _.each($scope.myFilteredCohorts, function(next) {
         next.editMode = false;
         next.detailsShowing = false;
       });
@@ -79,7 +79,7 @@
         cohort.error = errorMessage;
         cohort.hideError = false;
         if (!cohort.error) {
-          cohortFactory.changeCohortName(cohort.id, name).then(function() {
+          filteredCohortFactory.changeCohortName(cohort.id, name).then(function() {
             cohort.nameOriginal = name;
             setEditMode(cohort, false);
           });
@@ -87,15 +87,15 @@
       });
     };
 
-    $scope.deleteCohort = cohortFactory.deleteCohort;
+    $scope.deleteCohort = filteredCohortFactory.deleteCohort;
 
     /**
      * @return {void}
      */
     var init = function() {
-      cohortFactory.getMyCohorts().then(function(response) {
-        $scope.myCohorts = response.data;
-        _.each($scope.myCohorts, function(cohort) {
+      filteredCohortFactory.getMyFilteredCohorts().then(function(response) {
+        $scope.myFilteredCohorts = response.data;
+        _.each($scope.myFilteredCohorts, function(cohort) {
           cohort.nameOriginal = cohort.name;
 
           var f = cohort.filterCriteria;
@@ -123,8 +123,8 @@
       });
     };
 
-    $rootScope.$on('cohortDeleted', function(event, data) {
-      $scope.myCohorts = _.remove($scope.myCohorts, function(c) {
+    $rootScope.$on('filteredCohortDeleted', function(event, data) {
+      $scope.myFilteredCohorts = _.remove($scope.myFilteredCohorts, function(c) {
         return c.id !== data.cohort.id;
       });
     });
