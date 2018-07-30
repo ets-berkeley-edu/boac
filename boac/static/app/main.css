@@ -37,28 +37,6 @@
   height: 46px;
 }
 
-.btn-student-group-fa-1x {
-  padding: 2px 5px 0 2px;
-}
-
-.btn-student-group-fa-2x {
-  padding: 0 0 2px 3px;
-}
-
-.btn-student-group-text {
-  padding: 2px 5px 0 2px;
-}
-
-.btn-student-group-label-fa-1x {
-  font-size: 10px;
-  vertical-align: middle;
-}
-
-.btn-student-group-label-fa-2x {
-  font-size: 11px;
-  vertical-align: middle;
-}
-
 .container-error {
   padding: 0 10px 0 10px;
 }
@@ -245,11 +223,11 @@
   padding-right: 15px;
 }
 
-.student-checkbox-add-to-group {
+.add-to-cohort-checkbox {
   padding: 10px;
 }
 
-.student-checkbox-add-to-group input {
+.add-to-cohort-checkbox input {
   margin: 0;
 }
 

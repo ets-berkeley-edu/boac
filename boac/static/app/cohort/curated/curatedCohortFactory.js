@@ -33,10 +33,10 @@
 
     var addStudents = function(cohort, students) {
       var args = {
-        groupId: cohort.id,
+        curatedCohortId: cohort.id,
         sids: _.map(students, 'sid')
       };
-      return $http.post('/api/group/students/add', args).then(function() {
+      return $http.post('/api/curated_cohort/students/add', args).then(function() {
         _.each(students, function(student) {
           $rootScope.$broadcast('addStudentToCuratedCohort', {cohort: cohort, student: student});
         });
@@ -44,39 +44,39 @@
     };
 
     var addStudent = function(cohort, student) {
-      return $http.get('/api/group/' + cohort.id + '/add_student/' + student.sid).then(function() {
+      return $http.get('/api/curated_cohort/' + cohort.id + '/add_student/' + student.sid).then(function() {
         $rootScope.$broadcast('addStudentToCuratedCohort', {cohort: cohort, student: student});
       });
     };
 
     var create = function(name) {
-      return $http.post('/api/group/create', {name: name}).then(function(response) {
+      return $http.post('/api/curated_cohort/create', {name: name}).then(function(response) {
         $rootScope.$broadcast('curatedCohortCreated', {cohort: response.data});
       });
     };
 
     var deleteCuratedCohort = function(id) {
-      return $http.delete('/api/group/delete/' + id).then(function() {
+      return $http.delete('/api/curated_cohort/delete/' + id).then(function() {
         $rootScope.$broadcast('curatedCohortDeleted', {cohortId: id});
       });
     };
 
     var getMyCuratedCohorts = function() {
-      return $http.get('/api/groups/my');
+      return $http.get('/api/curated_cohorts/my');
     };
 
     var getCuratedCohort = function(id) {
-      return $http.get('/api/group/' + id);
+      return $http.get('/api/curated_cohort/' + id);
     };
 
     var removeStudent = function(cohort, student) {
-      return $http.delete('/api/group/' + cohort.id + '/remove_student/' + student.sid).then(function() {
+      return $http.delete('/api/curated_cohort/' + cohort.id + '/remove_student/' + student.sid).then(function() {
         $rootScope.$broadcast('removeStudentFromCuratedCohort', {cohort: cohort, student: student});
       });
     };
 
     var rename = function(cohortId, name) {
-      return $http.post('/api/group/update', {id: cohortId, name: name}).then(function(response) {
+      return $http.post('/api/curated_cohort/rename', {id: cohortId, name: name}).then(function(response) {
         $rootScope.$broadcast('curatedCohortRenamed', {cohort: response.data});
       });
     };

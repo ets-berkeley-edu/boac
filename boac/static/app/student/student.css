@@ -258,31 +258,31 @@
   padding-right: 4px;
 }
 
-.student-groups-checkboxes {
+.curated-cohorts-checkboxes {
   margin-bottom: 10px;
   padding: 15px 15px 15px 14px;
   text-align: left;
 }
 
-.student-group-checkbox {
+.curated-cohort-checkbox {
   display: flex;
   font-size: 12px;
   padding: 1px;
 }
 
-.student-group-checkbox-input {
+.curated-cohort-checkbox-input {
   flex: 0 0 12px;
 }
 
-.student-group-checkbox-label {
+.curated-cohort-checkbox-label {
   margin-left: 5px;
 }
 
-.student-group-checkbox-primary-label {
+.curated-cohort-checkbox-primary-label {
   font-weight: bold;
 }
 
-.student-group-create-new {
+.curated-cohort-create-new {
   font-size: 11px;
   padding: 3px 1px 1px 1px;
 }

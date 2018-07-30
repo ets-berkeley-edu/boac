@@ -74,12 +74,12 @@
       setEditMode(cohort, false);
     };
 
-    $scope.changeCohortName = function(cohort, name) {
+    $scope.rename = function(cohort, name) {
       validationService.validateName({id: cohort.id, name: name}, function(errorMessage) {
         cohort.error = errorMessage;
         cohort.hideError = false;
         if (!cohort.error) {
-          filteredCohortFactory.changeCohortName(cohort.id, name).then(function() {
+          filteredCohortFactory.rename(cohort.id, name).then(function() {
             cohort.nameOriginal = name;
             setEditMode(cohort, false);
           });

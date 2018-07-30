@@ -73,25 +73,25 @@
                   Expected graduation <span data-ng-bind="student.sisProfile.expectedGraduationTerm.name"></span>
                 </div>
               </div>
-              <div class="student-bio-status-box-groups student-groups-checkboxes">
+              <div class="student-bio-status-box-groups curated-cohorts-checkboxes">
                 <div>
                   <h4 class="student-bio-header">
                     Curated Cohorts
                   </h4>
                 </div>
-                <div class="student-group-checkbox"
+                <div class="curated-cohort-checkbox"
                      data-ng-repeat="cohort in myCuratedCohorts track by $index"
                      data-ng-if="myCuratedCohorts.length">
                   <input id="curated-cohort-checkbox-{{$index}}"
-                         class="student-group-checkbox-input"
+                         class="curated-cohort-checkbox-input"
                          type="checkbox"
                          data-ng-model="cohort.selected"
                          data-ng-click="curatedCohortCheckboxClick(cohort)"/>
-                  <div class="student-group-checkbox-label">
+                  <div class="curated-cohort-checkbox-label">
                     <a data-ng-href="/cohort/curated/{{cohort.id}}" data-ng-bind="cohort.name"></a>
                   </div>
                 </div>
-                <div class="student-group-checkbox" data-ng-if="!myCuratedCohorts.length">
+                <div class="curated-cohort-checkbox" data-ng-if="!myCuratedCohorts.length">
                   <span class="faint-text">You have no curated cohorts.</span>
                 </div>
               </div>

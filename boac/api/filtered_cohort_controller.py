@@ -35,7 +35,7 @@ from flask import current_app as app, request
 from flask_login import current_user, login_required
 
 
-@app.route('/api/cohorts/all')
+@app.route('/api/filtered_cohorts/all')
 @login_required
 def all_cohorts():
     cohorts_per_uid = {}
@@ -57,7 +57,7 @@ def all_cohorts():
     return tolerant_jsonify(owners)
 
 
-@app.route('/api/cohorts/my')
+@app.route('/api/filtered_cohorts/my')
 @login_required
 def my_cohorts():
     uid = current_user.get_id()
@@ -81,7 +81,7 @@ def my_cohorts():
     return tolerant_jsonify(cohorts)
 
 
-@app.route('/api/cohort/<cohort_id>')
+@app.route('/api/filtered_cohort/<cohort_id>')
 @login_required
 def get_cohort(cohort_id):
     order_by = util.get(request.args, 'orderBy', None)
@@ -95,7 +95,7 @@ def get_cohort(cohort_id):
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
 
 
-@app.route('/api/cohort/create', methods=['POST'])
+@app.route('/api/filtered_cohort/create', methods=['POST'])
 @login_required
 def create_cohort():
     params = request.get_json()
@@ -131,7 +131,7 @@ def create_cohort():
     return tolerant_jsonify(decorate_cohort(cohort))
 
 
-@app.route('/api/cohort/update', methods=['POST'])
+@app.route('/api/filtered_cohort/rename', methods=['POST'])
 @login_required
 def update_cohort():
     params = request.get_json()
@@ -145,11 +145,11 @@ def update_cohort():
         raise BadRequestError(f'Cohort does not exist or is not owned by {uid}')
     if is_read_only_cohort(cohort):
         raise ForbiddenRequestError(f'Read-only cohort cannot be modified (id={cohort_id})')
-    cohort = decorate_cohort(CohortFilter.update(cohort_id=cohort.id, label=label), include_students=False)
+    cohort = decorate_cohort(CohortFilter.rename(cohort_id=cohort.id, label=label), include_students=False)
     return tolerant_jsonify(cohort)
 
 
-@app.route('/api/cohort/delete/<cohort_id>', methods=['DELETE'])
+@app.route('/api/filtered_cohort/delete/<cohort_id>', methods=['DELETE'])
 @login_required
 def delete_cohort(cohort_id):
     if cohort_id.isdigit():
