@@ -38,16 +38,28 @@ from sqlalchemy.sql import text
 
 # Lazy init to support testing.
 data_loch_db = None
+data_loch_db_rds = None
 
 
-def safe_execute(string, **kwargs):
+def safe_execute_redshift(string, **kwargs):
     global data_loch_db
     if data_loch_db is None:
         data_loch_db = create_engine(app.config['DATA_LOCH_URI'])
+    return _safe_execute(string, data_loch_db, **kwargs)
+
+
+def safe_execute_rds(string, **kwargs):
+    global data_loch_db_rds
+    if data_loch_db_rds is None:
+        data_loch_db_rds = create_engine(app.config['DATA_LOCH_RDS_URI'])
+    return _safe_execute(string, data_loch_db_rds, **kwargs)
+
+
+def _safe_execute(string, db, **kwargs):
     try:
         s = text(string)
         ts = datetime.now().timestamp()
-        dbresp = data_loch_db.execute(s, **kwargs)
+        dbresp = db.execute(s, **kwargs)
     except sqlalchemy.exc.SQLAlchemyError as err:
         app.logger.error(f'SQL {s} threw {err}')
         return None
@@ -98,7 +110,7 @@ def _get_canvas_course_scores(course_id):
               WHERE course_id={course_id}
               ORDER BY canvas_user_id
         """
-    return safe_execute(sql)
+    return safe_execute_redshift(sql)
 
 
 def get_sis_enrollments(uid, term_id):
@@ -120,7 +132,7 @@ def _get_sis_enrollments(uid, term_id):
                   AND enr.sis_term_id = {term_id}
               ORDER BY crs.sis_course_name, crs.sis_primary DESC, crs.sis_instruction_format, crs.sis_section_num
         """
-    return safe_execute(sql)
+    return safe_execute_redshift(sql)
 
 
 @fixture('loch_sis_section_{term_id}_{sis_section_id}.csv')
@@ -136,7 +148,7 @@ def get_sis_section(term_id, sis_section_id):
                   AND sc.sis_term_id = {term_id}
               ORDER BY sc.meeting_days, sc.meeting_start_time, sc.meeting_end_time, sc.instructor_name
         """
-    return safe_execute(sql)
+    return safe_execute_redshift(sql)
 
 
 @fixture('loch_sis_section_enrollments_{term_id}_{sis_section_id}.csv')
@@ -153,7 +165,7 @@ def get_sis_section_enrollments(term_id, sis_section_id, scope):
               ORDER BY sas.last_name, sas.first_name, sas.sid
         """
     params = {'term_id': term_id, 'sis_section_id': sis_section_id}
-    return safe_execute(sql, **params)
+    return safe_execute_redshift(sql, **params)
 
 
 @stow('loch_sis_sections_in_canvas_course_{canvas_course_id}', for_term=True)
@@ -169,7 +181,7 @@ def _get_sis_sections_in_canvas_course(canvas_course_id):
         WHERE canvas_course_id={canvas_course_id}
         GROUP BY sis_section_id
         """
-    return safe_execute(sql)
+    return safe_execute_redshift(sql)
 
 
 @stow('loch_student_canvas_courses_{uid}.csv')
@@ -185,7 +197,7 @@ def _get_student_canvas_courses(uid):
             ON cs.canvas_course_id = enr.canvas_course_id
         WHERE enr.uid = {uid}
         """
-    return safe_execute(sql)
+    return safe_execute_redshift(sql)
 
 
 def get_all_teams():
@@ -195,7 +207,7 @@ def get_all_teams():
         AND team_code IS NOT NULL
         GROUP BY team_name, team_code
         ORDER BY team_name"""
-    return safe_execute(sql)
+    return safe_execute_rds(sql)
 
 
 def get_team_groups(group_codes=None, team_code=None):
@@ -212,7 +224,7 @@ def get_team_groups(group_codes=None, team_code=None):
         params.update({'team_code': team_code})
     sql += """ GROUP BY group_code, group_name, team_code, team_name
         ORDER BY group_name, group_code"""
-    return safe_execute(sql, **params)
+    return safe_execute_rds(sql, **params)
 
 
 def get_athletics_profiles(sids):
@@ -220,14 +232,14 @@ def get_athletics_profiles(sids):
         FROM {asc_schema()}.student_profiles
         WHERE sid = ANY(:sids)
         """
-    return safe_execute(sql, sids=sids)
+    return safe_execute_redshift(sql, sids=sids)
 
 
 def get_all_student_ids():
     sql = f"""SELECT sid, uid
         FROM {student_schema()}.student_academic_status
         """
-    return safe_execute(sql)
+    return safe_execute_rds(sql)
 
 
 def get_student_for_uid_and_scope(uid, scope):
@@ -237,7 +249,7 @@ def get_student_for_uid_and_scope(uid, scope):
     sql = f"""SELECT sas.*
         {query_tables}
         WHERE sas.uid = :uid"""
-    rows = safe_execute(sql, uid=uid)
+    rows = safe_execute_rds(sql, uid=uid)
     return None if not rows or (len(rows) == 0) else rows[0]
 
 
@@ -246,7 +258,7 @@ def get_student_profiles(sids):
         FROM {student_schema()}.student_profiles
         WHERE sid = ANY(:sids)
         """
-    return safe_execute(sql, sids=sids)
+    return safe_execute_redshift(sql, sids=sids)
 
 
 def get_enrollments_for_sid(sid):
@@ -255,7 +267,7 @@ def get_enrollments_for_sid(sid):
         WHERE sid = :sid
         AND term_id >= '{cutoff_term_id()}'"""
     sql += ' ORDER BY term_id DESC'
-    return safe_execute(sql, sid=sid)
+    return safe_execute_redshift(sql, sid=sid)
 
 
 def get_enrollments_for_term(term_id, sids):
@@ -264,7 +276,7 @@ def get_enrollments_for_term(term_id, sids):
         WHERE term_id = :term_id
         AND sid = ANY(:sids)
         """
-    return safe_execute(sql, term_id=term_id, sids=sids)
+    return safe_execute_redshift(sql, term_id=term_id, sids=sids)
 
 
 @stow('loch_submissions_turned_in_relative_to_user_{course_id}_{user_id}', for_term=True)
@@ -290,7 +302,7 @@ def _get_submissions_turned_in_relative_to_user(course_id, user_id):
           WHERE canvas_user_id = {user_id} AND course_id = {course_id}
         )
         """
-    return safe_execute(sql)
+    return safe_execute_redshift(sql)
 
 
 @stow('loch_user_for_uid_{uid}')
@@ -305,7 +317,7 @@ def _get_user_for_uid(uid):
         FROM {intermediate_schema()}.users
         WHERE uid = {uid}
         """
-    return safe_execute(sql)
+    return safe_execute_redshift(sql)
 
 
 def get_majors(scope=[]):
@@ -316,7 +328,7 @@ def get_majors(scope=[]):
         {query_tables}
         JOIN {student_schema()}.student_majors maj ON maj.sid = sas.sid
         ORDER BY major"""
-    return safe_execute(sql)
+    return safe_execute_rds(sql)
 
 
 def get_students_query(

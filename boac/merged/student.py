@@ -189,7 +189,7 @@ def query_students(
             'students': [],
             'totalStudentCount': 0,
         }    # First, get total_count of matching students
-    result = data_loch.safe_execute(f'SELECT DISTINCT(sas.sid) {query_tables} {query_filter}', **query_bindings)
+    result = data_loch.safe_execute_rds(f'SELECT DISTINCT(sas.sid) {query_tables} {query_filter}', **query_bindings)
     if result is None:
         return None
     summary = {
@@ -218,7 +218,7 @@ def query_students(
         if limit and limit < 100:  # Sanity check large limits
             query_bindings['limit'] = limit
             sql += f' LIMIT :limit'
-        result = data_loch.safe_execute(sql, **query_bindings)
+        result = data_loch.safe_execute_rds(sql, **query_bindings)
         if include_profiles:
             summary['students'] = get_summary_student_profiles([row['sid'] for row in result])
         else:
@@ -251,7 +251,7 @@ def search_for_students(
     o, o_secondary, o_tertiary, supplemental_query_tables = data_loch.get_students_ordering(order_by=order_by)
     if supplemental_query_tables:
         query_tables += supplemental_query_tables
-    result = data_loch.safe_execute(f'SELECT DISTINCT(sas.sid) {query_tables} {query_filter}', **query_bindings)
+    result = data_loch.safe_execute_rds(f'SELECT DISTINCT(sas.sid) {query_tables} {query_filter}', **query_bindings)
     total_student_count = len(result)
     sql = f"""SELECT
         sas.sid
@@ -265,7 +265,7 @@ def search_for_students(
     if limit and limit < 100:  # Sanity check large limits
         sql += f' LIMIT :limit'
         query_bindings['limit'] = limit
-    result = data_loch.safe_execute(sql, **query_bindings)
+    result = data_loch.safe_execute_rds(sql, **query_bindings)
     if include_profiles:
         students = get_summary_student_profiles([row['sid'] for row in result])
     else:
