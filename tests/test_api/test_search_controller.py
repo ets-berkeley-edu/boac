@@ -46,7 +46,7 @@ def coe_advisor(fake_auth):
 
 @pytest.fixture(scope='session')
 def asc_inactive_students():
-    return data_loch.safe_execute("""
+    return data_loch.safe_execute_rds("""
         SELECT DISTINCT(sas.sid) FROM boac_advising_asc.students s
         JOIN student.student_academic_status sas ON sas.sid = s.sid
         WHERE s.active is FALSE
