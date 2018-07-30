@@ -38,16 +38,28 @@ from sqlalchemy.sql import text
 
 # Lazy init to support testing.
 data_loch_db = None
+data_loch_db_rds = None
 
 
 def safe_execute(string, **kwargs):
     global data_loch_db
     if data_loch_db is None:
         data_loch_db = create_engine(app.config['DATA_LOCH_URI'])
+    return _safe_execute(string, data_loch_db, **kwargs)
+
+
+def safe_execute_rds(string, **kwargs):
+    global data_loch_db_rds
+    if data_loch_db_rds is None:
+        data_loch_db_rds = create_engine(app.config['DATA_LOCH_RDS_URI'])
+    return _safe_execute(string, data_loch_db_rds, **kwargs)
+
+
+def _safe_execute(string, db, **kwargs):
     try:
         s = text(string)
         ts = datetime.now().timestamp()
-        dbresp = data_loch_db.execute(s, **kwargs)
+        dbresp = db.execute(s, **kwargs)
     except sqlalchemy.exc.SQLAlchemyError as err:
         app.logger.error(f'SQL {s} threw {err}')
         return None
@@ -195,7 +207,7 @@ def get_all_teams():
         AND team_code IS NOT NULL
         GROUP BY team_name, team_code
         ORDER BY team_name"""
-    return safe_execute(sql)
+    return safe_execute_rds(sql)
 
 
 def get_team_groups(group_codes=None, team_code=None):
@@ -212,7 +224,7 @@ def get_team_groups(group_codes=None, team_code=None):
         params.update({'team_code': team_code})
     sql += """ GROUP BY group_code, group_name, team_code, team_name
         ORDER BY group_name, group_code"""
-    return safe_execute(sql, **params)
+    return safe_execute_rds(sql, **params)
 
 
 def get_athletics_profiles(sids):
@@ -227,7 +239,7 @@ def get_all_student_ids():
     sql = f"""SELECT sid, uid
         FROM {student_schema()}.student_academic_status
         """
-    return safe_execute(sql)
+    return safe_execute_rds(sql)
 
 
 def get_student_for_uid_and_scope(uid, scope):
@@ -237,7 +249,7 @@ def get_student_for_uid_and_scope(uid, scope):
     sql = f"""SELECT sas.*
         {query_tables}
         WHERE sas.uid = :uid"""
-    rows = safe_execute(sql, uid=uid)
+    rows = safe_execute_rds(sql, uid=uid)
     return None if not rows or (len(rows) == 0) else rows[0]
 
 
@@ -316,7 +328,7 @@ def get_majors(scope=[]):
         {query_tables}
         JOIN {student_schema()}.student_majors maj ON maj.sid = sas.sid
         ORDER BY major"""
-    return safe_execute(sql)
+    return safe_execute_rds(sql)
 
 
 def get_students_query(
