@@ -68,7 +68,7 @@
 
     var getUnitRanges = function() {
       return [
-        {name: '0 - 29', value: 'numrange(0, 30, \'[)\')'},
+        {name: '0 - 29', value: 'numrange(NULL, 30, \'[)\')'},
         {name: '30 - 59', value: 'numrange(30, 60, \'[)\')'},
         {name: '60 - 89', value: 'numrange(60, 90, \'[)\')'},
         {name: '90 - 119', value: 'numrange(90, 120, \'[)\')'},
