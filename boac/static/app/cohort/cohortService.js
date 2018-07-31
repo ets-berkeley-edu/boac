@@ -27,54 +27,46 @@
 
   'use strict';
 
-  angular.module('boac').controller('HomeController', function(
-    cohortService,
-    config,
-    curatedCohortFactory,
-    page,
-    $rootScope,
-    $scope
-  ) {
+  angular.module('boac').service('cohortService', function(filteredCohortFactory, utilService) {
 
-    $scope.demoMode = config.demoMode;
+    var decorate = function(cohort) {
+      return {
+        id: cohort.id,
+        name: cohort.name,
+        studentCount: cohort.studentCount,
+        students: utilService.extendSortableNames(cohort.students),
+        sortBy: 'sortableName',
+        reverse: false
+      };
+    };
 
-    var getMyCuratedCohorts = function(callback) {
-      curatedCohortFactory.getMyCuratedCohorts().then(function(response) {
-        var cohorts = response.data;
-        var decoratedCohorts = [];
-        _.each(cohorts, function(cohort) {
-          decoratedCohorts.push(cohortService.decorate(cohort));
+    var decorateCohortAlerts = function(cohort) {
+      if (cohort.alerts && cohort.alerts.length) {
+        cohort.alerts = {
+          isCohortAlerts: true,
+          students: utilService.extendSortableNames(cohort.alerts),
+          sortBy: 'sortableName',
+          reverse: false
+        };
+      }
+    };
+
+    var loadMyFilteredCohorts = function(callback) {
+      filteredCohortFactory.getMyFilteredCohorts().then(function(response) {
+        var myFilteredCohorts = [];
+        _.each(response.data, function(cohort) {
+          decorateCohortAlerts(cohort);
+          myFilteredCohorts.push(cohort);
         });
-        return callback(decoratedCohorts);
+        return callback(myFilteredCohorts);
       });
     };
 
-    var init = function() {
-      page.loading(true);
-
-      getMyCuratedCohorts(function(cohorts) {
-        $scope.myCuratedCohorts = cohorts;
-
-        cohortService.loadMyFilteredCohorts(function(myFilteredCohorts) {
-          $scope.myFilteredCohorts = myFilteredCohorts;
-          page.loading(false);
-        });
-      });
+    return {
+      decorate: decorate,
+      decorateCohortAlerts: decorateCohortAlerts,
+      loadMyFilteredCohorts: loadMyFilteredCohorts
     };
 
-    $rootScope.$on('curatedCohortCreated', function(event, data) {
-      $scope.myCuratedCohorts.push(cohortService.decorate(data.cohort));
-    });
-
-    $rootScope.$on('myFilteredCohortsUpdated', function() {
-      page.loading(true);
-      cohortService.loadMyFilteredCohorts(function(myFilteredCohorts) {
-        $scope.myFilteredCohorts = myFilteredCohorts;
-        page.loading(false);
-      });
-    });
-
-    init();
   });
-
 }(window.angular));

@@ -29,10 +29,9 @@
 
   angular.module('boac').controller('SidebarNavController', function(
     authService,
-    cohortService,
     config,
+    cohortService,
     curatedCohortFactory,
-    curatedCohortService,
     $rootScope,
     $scope
   ) {
@@ -88,7 +87,7 @@
       var cohort = _.find($scope.myCuratedCohorts, ['id', data.cohort.id]);
       var student = data.student;
 
-      if (!curatedCohortService.isStudentInCuratedCohort(student, cohort)) {
+      if (!_.find(cohort.students, {sid: student.sid})) {
         cohort.students = _.union(cohort.students, [ student ]);
         cohort.studentCount += 1;
       }

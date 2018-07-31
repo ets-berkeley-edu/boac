@@ -28,9 +28,9 @@
   'use strict';
 
   angular.module('boac').controller('ManageCuratedCohortsController', function(
-    page,
+    cohortService,
     curatedCohortFactory,
-    curatedCohortService,
+    page,
     validationService,
     $rootScope,
     $scope

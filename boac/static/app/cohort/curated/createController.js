@@ -42,7 +42,7 @@
         ariaLabelledBy: 'create-curated-cohort-header',
         ariaDescribedBy: 'create-curated-cohort-body',
         backdrop: false,
-        templateUrl: '/static/app/cohort/curated/createCuratedCohortModal.html',
+        templateUrl: '/static/app/cohort/curated/createModal.html',
         controller: 'CreateCuratedCohortModal',
         resolve: {}
       });
