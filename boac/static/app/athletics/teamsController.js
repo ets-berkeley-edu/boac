@@ -27,12 +27,12 @@
 
   'use strict';
 
-  angular.module('boac').controller('TeamsController', function(filteredCohortFactory, page, $location, $scope) {
+  angular.module('boac').controller('TeamsController', function(athleticsFactory, page, $location, $scope) {
 
     page.loading(true);
 
     var init = function() {
-      filteredCohortFactory.getTeams().then(function(response) {
+      athleticsFactory.getTeams().then(function(response) {
         $scope.teams = response.data;
         page.loading(false);
       }).catch(function(err) {
