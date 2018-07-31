@@ -27,34 +27,28 @@
 
   'use strict';
 
-  angular.module('boac').service('cohortService', function(filteredCohortFactory, utilService) {
-
-    var decorateCohortAlerts = function(cohort) {
-      if (cohort.alerts && cohort.alerts.length) {
-        cohort.alerts = {
-          isCohortAlerts: true,
-          students: utilService.extendSortableNames(cohort.alerts),
-          sortBy: 'sortableName',
-          reverse: false
-        };
-      }
-    };
-
-    var loadMyFilteredCohorts = function(callback) {
-      filteredCohortFactory.getMyFilteredCohorts().then(function(response) {
-        var myFilteredCohorts = [];
-        _.each(response.data, function(cohort) {
-          decorateCohortAlerts(cohort);
-          myFilteredCohorts.push(cohort);
-        });
-        return callback(myFilteredCohorts);
-      });
-    };
+  angular.module('boac').directive('filteredCohortMenu', function(utilService) {
 
     return {
-      decorateCohortAlerts: decorateCohortAlerts,
-      loadMyFilteredCohorts: loadMyFilteredCohorts
-    };
+      // @see https://docs.angularjs.org/guide/directive#template-expanding-directive
+      restrict: 'E',
 
+      // @see https://docs.angularjs.org/guide/directive#isolating-the-scope-of-a-directive
+      scope: true,
+      templateUrl: '/static/app/cohort/filtered/menu.html',
+      link: function(scope, elem, attrs) {
+        scope.toggleFilter = function(event) {
+          // Known issue: https://github.com/angular-ui/bootstrap/issues/6038
+          if (event) {
+            event.stopPropagation();
+          }
+        };
+        scope.id = utilService.camelCaseToDashes(attrs.menuType);
+        scope.isOpen = attrs.menuType + 'Open';
+        scope.menuLabel = attrs.label;
+        scope.menuType = attrs.menuType;
+      }
+    };
   });
+
 }(window.angular));

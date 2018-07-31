@@ -27,45 +27,18 @@
 
   'use strict';
 
-  angular.module('boac').service('curatedCohortService', function(curatedCohortFactory, utilService) {
-
-    var decorate = function(cohort) {
-      return {
-        id: cohort.id,
-        name: cohort.name,
-        studentCount: cohort.studentCount,
-        students: utilService.extendSortableNames(cohort.students),
-        sortBy: 'sortableName',
-        reverse: false
-      };
-    };
-
-    var isStudentInCuratedCohort = function(student, cohort) {
-      var inCohort = false;
-      _.each(cohort.students, function(s) {
-        if (s.sid === student.sid) {
-          inCohort = true;
-          return false;
-        }
-      });
-      return inCohort;
-    };
-
-    var getMyCuratedCohorts = function(callback) {
-      curatedCohortFactory.getMyCuratedCohorts().then(function(response) {
-        var cohorts = response.data;
-        var decoratedCohorts = [];
-        _.each(cohorts, function(cohort) {
-          decoratedCohorts.push(decorate(cohort));
-        });
-        return callback(decoratedCohorts);
-      });
-    };
+  angular.module('boac').directive('newFilteredCohortMenu', function() {
 
     return {
-      decorate: decorate,
-      isStudentInCuratedCohort: isStudentInCuratedCohort,
-      getMyCuratedCohorts: getMyCuratedCohorts
+      // @see https://docs.angularjs.org/guide/directive#template-expanding-directive
+      restrict: 'E',
+
+      // @see https://docs.angularjs.org/guide/directive#isolating-the-scope-of-a-directive
+      scope: true,
+      templateUrl: '/static/app/cohort/_filtered/menu.html',
+      link: function(scope) {
+        scope.helloWorld = 'Hello World';
+      }
     };
   });
 

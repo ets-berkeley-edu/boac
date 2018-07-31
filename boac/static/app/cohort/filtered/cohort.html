@@ -29,19 +29,19 @@
 
   <div class="flex-container flex-space-between" data-ng-if="!error">
     <div class="cohort-filters-column flex-column-btn" data-ng-if="isAscUser">
-      <cohort-filter data-menu-type="groupCodes" data-label="Teams"></cohort-filter>
+      <filtered-cohort-menu data-menu-type="groupCodes" data-label="Teams"></filtered-cohort-menu>
     </div>
     <div class="cohort-filters-column flex-column-btn">
-      <cohort-filter data-menu-type="levels" data-label="Levels"></cohort-filter>
+      <filtered-cohort-menu data-menu-type="levels" data-label="Levels"></filtered-cohort-menu>
     </div>
     <div class="cohort-filters-column flex-column-btn">
-      <cohort-filter data-menu-type="majors" data-label="Majors"></cohort-filter>
+      <filtered-cohort-menu data-menu-type="majors" data-label="Majors"></filtered-cohort-menu>
     </div>
     <div class="cohort-filters-column flex-column-btn">
-      <cohort-filter data-menu-type="gpaRanges" data-label="GPA"></cohort-filter>
+      <filtered-cohort-menu data-menu-type="gpaRanges" data-label="GPA"></filtered-cohort-menu>
     </div>
     <div class="cohort-filters-column flex-column-btn">
-      <cohort-filter data-menu-type="unitRanges" data-label="Units"></cohort-filter>
+      <filtered-cohort-menu data-menu-type="unitRanges" data-label="Units"></filtered-cohort-menu>
     </div>
     <div class="cohort-filters-column cohort-checkbox-column" data-ng-if="!isLoading && !isSaving">
       <div data-ng-if="search.checkboxes.intensive.show">

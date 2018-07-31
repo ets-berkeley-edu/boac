@@ -133,14 +133,14 @@
         resolve: resolveAdmin
       })
       .state('_filteredCohort', {
-        url: '/_cohort/filtered?c&i&inactive',
-        views: standardLayout('_FilteredCohortController', '/static/app/cohort/filtered/_filteredCohort.html'),
+        url: '/cohort/_filtered?c&i&inactive',
+        views: standardLayout('_FilteredCohortController', '/static/app/cohort/_filtered/cohort.html'),
         resolve: resolvePrivate,
         reloadOnSearch: false
       })
       .state('filteredCohort', {
         url: '/cohort/filtered?c&i&inactive',
-        views: standardLayout('FilteredCohortController', '/static/app/cohort/filtered/filteredCohort.html'),
+        views: standardLayout('FilteredCohortController', '/static/app/cohort/filtered/cohort.html'),
         resolve: resolvePrivate,
         reloadOnSearch: false
       })
@@ -161,7 +161,7 @@
       })
       .state('curatedCohort', {
         url: '/cohort/curated/:id',
-        views: standardLayout('CuratedCohortController', '/static/app/cohort/curated/curatedCohort.html'),
+        views: standardLayout('CuratedCohortController', '/static/app/cohort/curated/cohort.html'),
         resolve: resolvePrivate
       })
       .state('curatedCohortsManage', {

@@ -29,9 +29,9 @@
 
   angular.module('boac').directive('curatedCohortSelector', function(
     authService,
-    page,
+    cohortService,
     curatedCohortFactory,
-    curatedCohortService,
+    page,
     $rootScope,
     $timeout
   ) {
@@ -45,7 +45,7 @@
         students: '='
       },
 
-      templateUrl: '/static/app/cohort/curated/curatedCohortSelector.html',
+      templateUrl: '/static/app/cohort/curated/selector.html',
 
       link: function(scope) {
 
@@ -122,7 +122,7 @@
         var curatedCohortCheckboxClick = scope.curatedCohortCheckboxClick = function(cohort) {
           scope.isSaving = true;
           var students = _.filter(scope.students, function(student) {
-            return student.selectedForCuratedCohort && !curatedCohortService.isStudentInCuratedCohort(student, cohort);
+            return student.selectedForCuratedCohort && !_.find(cohort.students, {sid: student.sid});
           });
           if (students.length) {
             curatedCohortFactory.addStudents(cohort, students).then(function() {
