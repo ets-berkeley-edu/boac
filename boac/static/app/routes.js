@@ -188,7 +188,7 @@
       })
       .state('teams', {
         url: '/teams',
-        views: standardLayout('TeamsController', '/static/app/cohort/teams.html'),
+        views: standardLayout('TeamsController', '/static/app/athletics/teams.html'),
         resolve: resolvePrivate
       })
       .state('user', {

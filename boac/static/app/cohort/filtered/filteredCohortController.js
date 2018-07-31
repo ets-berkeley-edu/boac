@@ -29,9 +29,10 @@
 
   angular.module('boac').controller('FilteredCohortController', function(
     adminFactory,
+    athleticsFactory,
     authService,
-    filteredCohortFactory,
     config,
+    filteredCohortFactory,
     googleAnalyticsService,
     page,
     studentFactory,
@@ -181,7 +182,7 @@
           limit,
           true);
       } else if (isNaN($scope.cohort.code)) {
-        promise = filteredCohortFactory.getTeam($scope.cohort.code, orderBy, offset, limit);
+        promise = athleticsFactory.getTeam($scope.cohort.code, orderBy, offset, limit);
       } else {
         promise = filteredCohortFactory.getCohort($scope.cohort.code, orderBy, offset, limit);
       }
@@ -607,7 +608,7 @@
       $scope.cohort.code = isNaN(code) ? code : parseInt(code, 10);
       $scope.isCreateCohortMode = $scope.cohort.code === 'new';
 
-      filteredCohortFactory.getAllTeamGroups().then(function(teamsResponse) {
+      athleticsFactory.getAllTeamGroups().then(function(teamsResponse) {
         var groupCodes = teamsResponse.data;
 
         getMajors(function(majors) {

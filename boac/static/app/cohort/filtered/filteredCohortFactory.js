@@ -94,23 +94,6 @@
       return $http.get('/api/filtered_cohorts/my');
     };
 
-    var getTeam = function(code, orderBy) {
-      var params = {
-        code: code,
-        orderBy: orderBy || 'first_name'
-      };
-      var apiPath = utilService.format('/api/team/${code}?orderBy=${orderBy}', params);
-      return $http.get(apiPath);
-    };
-
-    var getTeams = function() {
-      return $http.get('/api/teams/all');
-    };
-
-    var getAllTeamGroups = function() {
-      return $http.get('/api/team_groups/all');
-    };
-
     var rename = function(id, label) {
       var args = {
         id: id,
@@ -128,11 +111,8 @@
       createCohort: createCohort,
       deleteCohort: deleteCohort,
       getAll: getAll,
-      getAllTeamGroups: getAllTeamGroups,
       getCohort: getCohort,
       getMyFilteredCohorts: getMyFilteredCohorts,
-      getTeam: getTeam,
-      getTeams: getTeams,
       rename: rename
     };
   });
