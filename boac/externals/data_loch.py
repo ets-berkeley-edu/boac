@@ -152,7 +152,7 @@ def get_sis_section(term_id, sis_section_id):
 
 
 @fixture('loch_sis_section_enrollments_{term_id}_{sis_section_id}.csv')
-def get_sis_section_enrollments(term_id, sis_section_id, scope):
+def get_sis_section_enrollments(term_id, sis_section_id, scope, offset=None, limit=None):
     query_tables = _student_query_tables_for_scope(scope)
     if not query_tables:
         return []
@@ -162,7 +162,27 @@ def get_sis_section_enrollments(term_id, sis_section_id, scope):
                 ON sas.uid = enr.ldap_uid
                 AND enr.sis_term_id = :term_id
                 AND enr.sis_section_id = :sis_section_id
-              ORDER BY sas.last_name, sas.first_name, sas.sid
+              ORDER BY {naturalize_order('sas.last_name')}, {naturalize_order('sas.first_name')}, sas.sid"""
+    params = {'term_id': term_id, 'sis_section_id': sis_section_id}
+    if offset:
+        sql += ' OFFSET :offset'
+        params['offset'] = offset
+    if limit:
+        sql += ' LIMIT :limit'
+        params['limit'] = limit
+    return safe_execute_redshift(sql, **params)
+
+
+def get_sis_section_enrollments_count(term_id, sis_section_id, scope):
+    query_tables = _student_query_tables_for_scope(scope)
+    if not query_tables:
+        return []
+    sql = f"""SELECT COUNT(DISTINCT sas.sid) as count
+              {query_tables}
+              JOIN {intermediate_schema()}.sis_enrollments enr
+                ON sas.uid = enr.ldap_uid
+                AND enr.sis_term_id = :term_id
+                AND enr.sis_section_id = :sis_section_id
         """
     params = {'term_id': term_id, 'sis_section_id': sis_section_id}
     return safe_execute_redshift(sql, **params)

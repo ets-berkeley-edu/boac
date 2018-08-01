@@ -65,9 +65,20 @@ def get_full_student_profiles(sids):
     return profiles
 
 
-def get_course_student_profiles(term_id, section_id):
-    sids = [str(r['sid']) for r in data_loch.get_sis_section_enrollments(term_id, section_id, get_student_query_scope())]
-
+def get_course_student_profiles(term_id, section_id, offset=None, limit=None):
+    enrollment_rows = data_loch.get_sis_section_enrollments(
+        term_id,
+        section_id,
+        scope=get_student_query_scope(),
+        offset=offset,
+        limit=limit,
+    )
+    sids = [str(r['sid']) for r in enrollment_rows]
+    if offset or len(sids) >= 50:
+        count_result = data_loch.get_sis_section_enrollments_count(term_id, section_id, scope=get_student_query_scope())
+        total_student_count = count_result[0]['count']
+    else:
+        total_student_count = len(sids)
     # TODO It's probably more efficient to store class profiles in the loch, rather than distilling them
     # on the fly from full profiles.
     students = get_full_student_profiles(sids)
@@ -99,7 +110,10 @@ def get_course_student_profiles(term_id, section_id):
                     }
                     student['analytics'] = analytics.mean_metrics_across_sites(canvas_sites)
                     continue
-    return students
+    return {
+        'students': students,
+        'totalStudentCount': total_student_count,
+    }
 
 
 def get_summary_student_profiles(sids, term_id=None):

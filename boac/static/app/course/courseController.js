@@ -47,9 +47,34 @@
     $scope.isAscUser = authService.isAscUser();
     page.loading(true);
     $scope.lastActivityDays = utilService.lastActivityDays;
+    $scope.pagination = {
+      currentPage: 1,
+      itemsPerPage: 50
+    };
     $scope.tab = 'list';
 
     $scope.exceedsMatrixThresholdMessage = utilService.exceedsMatrixThresholdMessage;
+
+    $scope.$watch('pagination.currentPage', function() {
+      if (!page.isLoading()) {
+        $location.search('p', $scope.pagination.currentPage);
+      }
+    });
+
+    var updateCourseData = function(response) {
+      $rootScope.pageTitle = response.data.displayName;
+      $scope.section = response.data;
+      $scope.studentCountExceedsMatrixThreshold = utilService.exceedsMatrixThreshold(_.get($scope.section, 'totalStudentCount'));
+    };
+
+    var refreshListView = function() {
+      var limit = $scope.pagination.itemsPerPage;
+      var offset = $scope.pagination.currentPage === 0 ? 0 : ($scope.pagination.currentPage - 1) * limit;
+      return courseFactory.getSection($stateParams.termId, $stateParams.sectionId, offset, limit).then(function(response) {
+        updateCourseData(response);
+        page.loading(false);
+      });
+    };
 
     var onTab = $scope.onTab = function(tabName) {
       page.loading(true);
@@ -62,40 +87,51 @@
           // The intervening visualizationService code moves out of Angular and into d3 thus the extra kick of $apply.
           $scope.$apply();
         };
-        visualizationService.scatterplotRefresh($scope.section.students, goToUserPage, function(yAxisMeasure, studentsWithoutData) {
-          $scope.yAxisMeasure = yAxisMeasure;
-          // List of students-without-data is rendered below the scatterplot.
-          $scope.studentsWithoutData = studentsWithoutData;
+        return courseFactory.getSection($stateParams.termId, $stateParams.sectionId).then(function(response) {
+          updateCourseData(response);
+          visualizationService.scatterplotRefresh($scope.section.students, goToUserPage, function(yAxisMeasure, studentsWithoutData) {
+            $scope.yAxisMeasure = yAxisMeasure;
+            // List of students-without-data is rendered below the scatterplot.
+            $scope.studentsWithoutData = studentsWithoutData;
+          });
           page.loading(false);
         });
       } else if (tabName === 'list') {
-        page.loading(false);
+        if ($scope.pagination.currentPage > 1 && $scope.section && $scope.section.students.length > 50) {
+          var start = ($scope.pagination.currentPage - 1) * 50;
+          $scope.section.students = _.slice($scope.section.students, start, start + 50);
+        }
+        return refreshListView();
       }
+    };
+
+    $scope.nextPage = function() {
+      refreshListView().catch(function(err) {
+        $scope.error = validationService.parseError(err);
+        page.loading(false);
+      });
     };
 
     var init = function() {
       var args = _.clone($location.search());
-      courseFactory.getSection($stateParams.termId, $stateParams.sectionId).then(function(response) {
-        $rootScope.pageTitle = response.data.displayName;
-        $scope.section = response.data;
-        $scope.studentCountExceedsMatrixThreshold = utilService.exceedsMatrixThreshold(_.get($scope.section, 'students.length'));
-        page.loading(false);
-        googleAnalyticsService.track(
-          'course',
-          'view',
-          $scope.section.termName + ' ' + $scope.section.displayName + ' ' + $scope.section.sectionNum
-        );
-      }).catch(function(err) {
-        $scope.error = validationService.parseError(err);
-        page.loading(false);
-
-      }).then(function() {
-        // Begin with matrix view if arg is present
-        if (args.v && _.includes(['list', 'matrix'], args.v)) {
-          $scope.tab = args.v;
-          onTab($scope.tab);
-        }
-      });
+      // Begin with matrix view if arg is present
+      if (args.v && _.includes(['list', 'matrix'], args.v)) {
+        $scope.tab = args.v;
+      }
+      if (args.p && !isNaN(args.p)) {
+        $scope.pagination.currentPage = parseInt(args.p, 10);
+      }
+      onTab($scope.tab)
+        .catch(function(err) {
+          $scope.error = validationService.parseError(err);
+          page.loading(false);
+        }).then(function() {
+          googleAnalyticsService.track(
+            'course',
+            'view',
+            $scope.section.termName + ' ' + $scope.section.displayName + ' ' + $scope.section.sectionNum
+          );
+        });
     };
 
     init();

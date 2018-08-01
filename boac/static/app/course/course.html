@@ -65,8 +65,7 @@
         </div>
       </div>
 
-      <div data-ng-show="tab === 'list'"
-           data-ng-if="!isLoading && !error && section.students.length">
+      <div data-ng-if="tab === 'list' && !isLoading && !error && section.totalStudentCount">
         <div id="course-students-list" class="list-group">
 
           <div class="list-group-item course-list-item"
@@ -230,6 +229,17 @@
 
           </div>
         </div>
+        <ul uib-pagination
+          boundary-link-numbers="true"
+          force-ellipses="true"
+          max-size="9"
+          rotate="false"
+          direction-links="false"
+          items-per-page="pagination.itemsPerPage"
+          total-items="section.totalStudentCount"
+          ng-model="pagination.currentPage"
+          data-ng-click="nextPage()"
+          data-ng-if="(section.totalStudentCount > pagination.itemsPerPage)"></ul>
       </div>
       <div id="matrix-outer" data-ng-show="tab === 'matrix' && !isLoading && !error">
         <div data-ng-include="'/static/app/shared/matrix.html'"></div>
