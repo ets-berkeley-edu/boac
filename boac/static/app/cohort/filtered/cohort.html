@@ -12,7 +12,9 @@
   <div class="cohort-label" data-ng-if="!error && !isCreateCohortMode && !isLoading && !isSaving && (cohort.totalStudentCount >= 0)">
     <h1 class="page-section-header" data-ng-if="cohort.name">
       <span data-ng-bind="cohort.name"></span>
-      <span class="faint-text">(<span data-ng-bind="cohort.totalStudentCount"></span> students)</span>
+      <span class="faint-text">(<span data-ng-pluralize
+                                count="cohort.totalStudentCount"
+                                when="{'one': '1 student', 'other': '{} students'}"></span>)</span>
     </h1>
     <h1 data-ng-if="!cohort.name">
       <span data-ng-pluralize count="cohort.totalStudentCount" when="{'one': '1 Result', 'other': '{} Results'}"></span>
