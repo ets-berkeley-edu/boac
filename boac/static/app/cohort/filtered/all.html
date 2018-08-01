@@ -15,7 +15,7 @@
       <h2 class="page-section-header-sub">{{owner.firstName}} {{owner.lastName}}</h2>
       <ul>
         <li data-ng-repeat="cohort in owner.cohorts">
-          <a data-ng-bind="cohort.name" data-ng-href="/cohort?c={{cohort.id}}"></a>
+          <a data-ng-bind="cohort.name" data-ng-href="/cohort/filtered?c={{cohort.id}}"></a>
           (<span data-ng-bind="cohort.totalStudentCount"></span>)
         </li>
       </ul>
