@@ -27,10 +27,17 @@
 
   'use strict';
 
-  angular.module('boac').service('utilService', function() {
+  angular.module('boac').service('utilService', function(config) {
+
+    var disableMatrixViewThreshold = parseInt(config.disableMatrixViewThreshold, 10);
+    var exceedsMatrixThresholdMessage = 'Sorry, the matrix view is only available when total student count is below ' + disableMatrixViewThreshold + '. Please narrow your search.';
 
     var toBoolOrNull = function(str) {
       return _.isNil(str) ? null : _.lowerCase(str) === 'true';
+    };
+
+    var exceedsMatrixThreshold = function(studentCount) {
+      return parseInt(studentCount, 10) > disableMatrixViewThreshold;
     };
 
     var format = function(str, tokens) {
@@ -110,6 +117,8 @@
 
     return {
       camelCaseToDashes: camelCaseToDashes,
+      exceedsMatrixThreshold: exceedsMatrixThreshold,
+      exceedsMatrixThresholdMessage: exceedsMatrixThresholdMessage,
       lastActivityDays: lastActivityDays,
       lastActivityInContext: lastActivityInContext,
       extendSortableNames: extendSortableNames,
