@@ -85,6 +85,8 @@ DATA_LOCH_COE_SCHEMA = 'boac_advising_coe'
 DATA_LOCH_INTERMEDIATE_SCHEMA = 'intermediate'
 DATA_LOCH_STUDENT_SCHEMA = 'student'
 
+DISABLE_MATRIX_VIEW_THRESHOLD = 800
+
 LDAP_HOST = 'nds-test.berkeley.edu'
 LDAP_BIND = 'mybind'
 LDAP_PASSWORD = 'secret'

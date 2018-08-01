@@ -40,6 +40,7 @@ def app_config():
         'boacEnv': app.config['BOAC_ENV'],
         'currentEnrollmentTerm': current_term_name,
         'currentEnrollmentTermId': int(current_term_id),
+        'disableMatrixViewThreshold': app.config['DISABLE_MATRIX_VIEW_THRESHOLD'],
         'demoMode': util.app_in_demo_mode(),
         'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],
         'ebEnvironment': app.config['EB_ENVIRONMENT'] if 'EB_ENVIRONMENT' in app.config else None,
