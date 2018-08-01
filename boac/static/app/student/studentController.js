@@ -136,7 +136,7 @@
         });
         visualizationService.showUnitsChart($scope.student);
         if (!config.demoMode) {
-          $rootScope.pageTitle = _.get($scope.student.name) || preferredName;
+          $rootScope.pageTitle = _.get($scope.student, 'name') || preferredName;
         }
 
       }).then(function() {
