@@ -122,6 +122,12 @@
     };
     $scope.tab = 'list';
 
+    $scope.exceedsMatrixThresholdMessage = utilService.exceedsMatrixThresholdMessage;
+
+    var checkMatrixViewThreshold = function() {
+      $scope.studentCountExceedsMatrixThreshold = utilService.exceedsMatrixThreshold(_.get($scope, 'cohort.totalStudentCount'));
+    };
+
     /**
      * Update cohort in scope; insure a valid cohort.code.
      *
@@ -400,6 +406,7 @@
     var nextPage = $scope.nextPage = function() {
       if ($scope.cohort.code) {
         listViewRefresh(function() {
+          checkMatrixViewThreshold();
           page.loading(false);
         });
       } else {
@@ -428,6 +435,7 @@
           $scope.pagination.itemsPerPage,
           true
         ).then(handleSuccess, handleError).then(function() {
+          checkMatrixViewThreshold();
           page.loading(false);
         });
       }
@@ -632,6 +640,8 @@
             render(function() {
               initFilters(function() {
                 $rootScope.pageTitle = $scope.isCreateCohortMode ? 'Create Filtered Cohort' : $scope.cohort.name || 'Search';
+                checkMatrixViewThreshold();
+
                 page.loading(false);
 
                 // Track view event

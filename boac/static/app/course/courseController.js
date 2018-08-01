@@ -49,6 +49,8 @@
     $scope.lastActivityDays = utilService.lastActivityDays;
     $scope.tab = 'list';
 
+    $scope.exceedsMatrixThresholdMessage = utilService.exceedsMatrixThresholdMessage;
+
     var onTab = $scope.onTab = function(tabName) {
       page.loading(true);
       $scope.tab = tabName;
@@ -76,6 +78,7 @@
       courseFactory.getSection($stateParams.termId, $stateParams.sectionId).then(function(response) {
         $rootScope.pageTitle = response.data.displayName;
         $scope.section = response.data;
+        $scope.studentCountExceedsMatrixThreshold = utilService.exceedsMatrixThreshold(_.get($scope.section, 'students.length'));
         page.loading(false);
         googleAnalyticsService.track(
           'course',
