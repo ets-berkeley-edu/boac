@@ -74,6 +74,8 @@ class TestCohortDetail:
             'Defense Backs, Inactive',
             'Undeclared students',
         ]
+        for cohort in cohorts:
+            assert cohort['isOwnedByCurrentUser'] is True
         all_sports = cohorts[0]
         assert len(all_sports['teamGroups']) == 2
         # Student profiles are not included in this feed.
@@ -97,6 +99,7 @@ class TestCohortDetail:
         cohort = cohorts[0]
         assert cohort['name'] == 'My Students'
         assert cohort['filterCriteria']['advisorLdapUid'] == uid
+        assert cohort['isOwnedByCurrentUser'] is True
         assert cohort['totalStudentCount'] == 2
         response = client.get(f"/api/filtered_cohort/{cohort['id']}")
         assert response.status_code == 200
@@ -443,6 +446,11 @@ class TestCohortDetail:
 
         # This user does not own the custom cohort above
         fake_auth.login('2040')
+        response = client.get(f'/api/filtered_cohort/{cohort.id}')
+        assert response.status_code == 200
+        _cohort = json.loads(response.data)
+        assert _cohort['isOwnedByCurrentUser'] is False
+
         response = client.delete(f'/api/filtered_cohort/delete/{cohort.id}')
         assert response.status_code == 400
         assert '2040 does not own' in str(response.data)

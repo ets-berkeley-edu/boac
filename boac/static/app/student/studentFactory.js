@@ -77,11 +77,11 @@
     };
 
     var getStudents = function(criteria, orderBy, offset, limit) {
-      var args = _.merge(criteria, {
+      var args = _.merge({
         orderBy: orderBy || 'first_name',
         offset: offset || 0,
         limit: limit || 50
-      });
+      }, criteria);
       return $http.post('/api/students', args);
     };
 

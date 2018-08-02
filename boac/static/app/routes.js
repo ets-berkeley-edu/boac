@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').config(function($locationProvider, $qProvider, $stateProvider, $urlRouterProvider) {
+  angular.module('boac').config(function(config, $locationProvider, $qProvider, $stateProvider, $urlRouterProvider) {
     /**
      * Use the HTML5 location provider to ensure that the $location service getters
      * and setters interact with the browser URL address through the HTML5 history API
@@ -119,6 +119,10 @@
       });
     });
 
+    var filteredCohortView = config.demoMode.betaTesting ?
+      standardLayout('_FilteredCohortController', '/static/app/cohort/_filtered/cohort.html') :
+      standardLayout('FilteredCohortController', '/static/app/cohort/filtered/cohort.html');
+
     // Routes
     $stateProvider
       .state('404', {
@@ -132,15 +136,9 @@
         views: standardLayout('AdminController', '/static/app/admin/admin.html'),
         resolve: resolveAdmin
       })
-      .state('_filteredCohort', {
-        url: '/cohort/_filtered?c&i&inactive',
-        views: standardLayout('_FilteredCohortController', '/static/app/cohort/_filtered/cohort.html'),
-        resolve: resolvePrivate,
-        reloadOnSearch: false
-      })
       .state('filteredCohort', {
-        url: '/cohort/filtered?c&i&inactive',
-        views: standardLayout('FilteredCohortController', '/static/app/cohort/filtered/cohort.html'),
+        url: '/cohort/filtered?c&i&v&t',
+        views: filteredCohortView,
         resolve: resolvePrivate,
         reloadOnSearch: false
       })

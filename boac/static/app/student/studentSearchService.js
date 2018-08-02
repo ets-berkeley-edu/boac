@@ -79,11 +79,11 @@
         $location.search('g', gpaRanges);
         // Use string 'true' rather than boolean so that the value persists in browser location.
         $location.search('i', intensive);
-        $location.search('inactive', inactive);
         $location.search('l', levels);
         $location.search('m', majors);
         $location.search('t', groupCodes);
         $location.search('u', unitRanges);
+        $location.search('v', inactive);
       }
       var criteria = {
         advisorLdapUid: advisorLdapUid,

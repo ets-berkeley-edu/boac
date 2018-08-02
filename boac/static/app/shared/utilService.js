@@ -32,6 +32,13 @@
     var disableMatrixViewThreshold = parseInt(config.disableMatrixViewThreshold, 10);
     var exceedsMatrixThresholdMessage = 'Sorry, the matrix view is only available when total student count is below ' + disableMatrixViewThreshold + '. Please narrow your search.';
 
+    var arrayRequired = function(obj) {
+      if (_.isNil(obj)) {
+        return null;
+      }
+      return Array.isArray(obj) ? obj : [ obj ];
+    };
+
     var toBoolOrNull = function(str) {
       return _.isNil(str) ? null : _.lowerCase(str) === 'true';
     };
@@ -116,6 +123,7 @@
     };
 
     return {
+      arrayRequired: arrayRequired,
       camelCaseToDashes: camelCaseToDashes,
       exceedsMatrixThreshold: exceedsMatrixThreshold,
       exceedsMatrixThresholdMessage: exceedsMatrixThresholdMessage,

@@ -5,7 +5,7 @@
   </div>
   <div data-ng-if="error">
     <h1 class="page-section-header">Error</h1>
-    <div class="faint-text">
+    <div class="faint-text has-error">
       <span data-ng-bind="error.message" data-ng-if="error.message"></span>
       <span data-ng-if="!error.message">Sorry, there was an error retrieving data.</span>
     </div>
@@ -18,12 +18,28 @@
     <h1 data-ng-if="!cohortName">
       <span data-ng-pluralize count="search.results.totalStudentCount" when="{'one': '1 Result', 'other': '{} Results'}"></span>
     </h1>
-
-
-    <new-filtered-cohort-menu></new-filtered-cohort-menu>
-
-    <hr>
-
+    <hr/>
+    <div>
+      Show Filters
+      <span data-ng-if="cohort && cohort.isOwnedByCurrentUser">
+        <span class="faint-text">|</span>
+        Rename
+        <span data-ng-controller="DeleteCohortController" data-ng-if="!cohort.isReadOnly">
+          <span class="faint-text">|</span>
+          <button type="button"
+                  id="delete-cohort"
+                  class="btn-link cohort-manage-btn-link"
+                  data-ng-click="openDeleteCohortModal(cohort, 'home')">
+            Delete
+          </button>
+        </span>
+      </span>
+    </div>
+    <hr/>
+    <div id="cohort-filters">
+      <filtered-cohort-menu-beta></filtered-cohort-menu-beta>
+    </div>
+    <hr/>
     <ul>
       <li data-ng-repeat="student in search.results.students track by $index">
         {{student}}

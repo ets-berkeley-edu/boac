@@ -51,6 +51,20 @@
       }
     };
 
+    var getSearchPageTitle = function(criteria) {
+      var definedKeys = _.keys(_.omitBy(criteria, _.isNil));
+      var title = null;
+      if (_.size(definedKeys) === 1) {
+        var key = definedKeys[0];
+        title = {
+          inactive: 'Inactive',
+          intensive: 'Intensive',
+          advisorLdapUid: 'My Students'
+        }[key];
+      }
+      return title;
+    };
+
     var loadMyFilteredCohorts = function(callback) {
       filteredCohortFactory.getMyFilteredCohorts().then(function(response) {
         var myFilteredCohorts = [];
@@ -65,6 +79,7 @@
     return {
       decorate: decorate,
       decorateCohortAlerts: decorateCohortAlerts,
+      getSearchPageTitle: getSearchPageTitle,
       loadMyFilteredCohorts: loadMyFilteredCohorts
     };
 

@@ -88,9 +88,9 @@
     $scope.search = {
       checkboxes: {
         inactive: {
-          checked: !!$location.search().inactive,
+          checked: !!$location.search().v,
           label: 'Inactive',
-          show: !!$location.search().inactive
+          show: !!$location.search().v
         },
         intensive: {
           checked: !!$location.search().i,

@@ -107,6 +107,7 @@ def decorate_cohort(
         'id': cohort.id,
         'code': cohort.id,
         'isReadOnly': is_read_only,
+        'isOwnedByCurrentUser': current_user_uid in [o.uid for o in cohort.owners],
         'label': cohort_name,
         'name': cohort_name,
         'owners': [user.uid for user in cohort.owners],
