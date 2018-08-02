@@ -154,12 +154,12 @@ class TestUserPhoto:
         assert response.headers.get('Content-Length') == '3559'
 
     def test_photo_not_found(self, client, fake_auth):
-        """Returns 404 when photo not found."""
+        """Returns an empty response when photo not found."""
         test_uid = '1133399'
         fake_auth.login(test_uid)
         response = client.get('/api/user/242881/photo')
-        assert response.status_code == 404
-        assert response.json['message'] == 'No photo was found for the requested id.'
+        assert response.status_code == 204
+        assert response.headers.get('Content-Length') == '0'
 
 
 @pytest.mark.usefixtures('db_session')
