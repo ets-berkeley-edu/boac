@@ -221,6 +221,7 @@ def _get_student_canvas_courses(uid):
 
 
 def get_all_teams():
+    # TODO: Remove this query after we launch new filtered-cohort view
     sql = f"""SELECT team_code, team_name, COUNT(DISTINCT sid)
         FROM {asc_schema()}.students
         WHERE active = TRUE

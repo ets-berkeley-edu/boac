@@ -62,6 +62,7 @@ def get_team_groups(group_codes):
 
 
 def all_teams():
+    # TODO: Remove this after we launch new filtered-cohort view
     results = data_loch.get_all_teams()
     if not results:
         return []
