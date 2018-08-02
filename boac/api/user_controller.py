@@ -129,4 +129,5 @@ def user_photo(uid):
     if photo:
         return Response(photo, mimetype='image/jpeg')
     else:
-        raise errors.ResourceNotFoundError('No photo was found for the requested id.')
+        # Status is NO_DATA
+        return Response('', status=204)
