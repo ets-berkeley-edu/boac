@@ -377,7 +377,7 @@
         tooltip.style('opacity', 0);
         var fullName = d.firstName ? d.firstName + ' ' + d.lastName : d.lastName;
         tooltip.append('h4')
-          .attr('class', config.demoMode ? 'demo-mode-blur' : 'matrix-tooltip-header')
+          .attr('class', config.demoMode.blur ? 'demo-mode-blur' : 'matrix-tooltip-header')
           .text(fullName);
         var table = tooltip.append('table').attr('class', 'matrix-tooltip-table');
         var daysSinceRow = table.append('tr');

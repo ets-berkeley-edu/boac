@@ -26,7 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import json
 from boac import __version__ as version
-from boac.lib import util
 from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.http import tolerant_jsonify
 from flask import current_app as app
@@ -41,7 +40,7 @@ def app_config():
         'currentEnrollmentTerm': current_term_name,
         'currentEnrollmentTermId': int(current_term_id),
         'disableMatrixViewThreshold': app.config['DISABLE_MATRIX_VIEW_THRESHOLD'],
-        'demoMode': util.app_in_demo_mode(),
+        'demoMode': app.config['DEMO_MODE'],
         'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],
         'ebEnvironment': app.config['EB_ENVIRONMENT'] if 'EB_ENVIRONMENT' in app.config else None,
         'supportEmailAddress': app.config['BOAC_SUPPORT_EMAIL'],

@@ -38,12 +38,13 @@
     </div>
     <div class="group-summary-column group-summary-column-01">
       <img class="student-avatar student-avatar-small"
+           data-ng-class="{'img-blur': demoMode.blur}"
            data-ng-src="/api/user/{{student.uid}}/photo"
            data-avatar-fallback>
     </div>
     <div class="group-summary-column group-summary-column-02">
       <a data-ng-bind="student.sortableName"
-         data-ng-class="{'demo-mode-blur': demoMode}"
+         data-ng-class="{'demo-mode-blur': demoMode.blur}"
          data-ng-href="/student/{{student.uid}}"></a>
       <span class="home-inactive-info-icon"
             uib-tooltip="Inactive"
@@ -53,7 +54,7 @@
       </span>
     </div>
     <div class="group-summary-column group-summary-column-03">
-      <span data-ng-bind="student.sid" data-ng-class="{'demo-mode-blur': demoMode}"></span>
+      <span data-ng-bind="student.sid" data-ng-class="{'demo-mode-blur': demoMode.blur}"></span>
     </div>
     <div class="group-summary-column group-summary-column-04">
       <span data-ng-bind="major" data-ng-repeat="major in student.majors"></span>

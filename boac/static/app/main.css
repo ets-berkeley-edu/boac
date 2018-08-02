@@ -104,6 +104,11 @@
   color: #cf1715;
 }
 
+.img-blur {
+  -webkit-filter: blur(10px);
+  filter: blur(10px);
+}
+
 .index-container {
   height: 100%;
   margin: 0;

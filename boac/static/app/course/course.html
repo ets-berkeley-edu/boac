@@ -96,6 +96,7 @@
             <!-- Column -->
             <div class="course-list-view-column-01" data-ng-if="!$first">
               <img class="student-avatar student-avatar-large"
+                   data-ng-class="{'img-blur': demoMode.blur}"
                    data-ng-src="/api/user/{{student.uid}}/photo"
                    data-avatar-fallback>
             </div>
@@ -105,13 +106,13 @@
               <div>
                 <a id="{{student.uid}}" data-ng-href="/student/{{student.uid}}">
                   <h3 class="course-student-name"
-                      data-ng-class="{'demo-mode-blur': demoMode}">
+                      data-ng-class="{'demo-mode-blur': demoMode.blur}">
                     {{student.lastName}}<span data-ng-if="student.firstName">, {{student.firstName}}</span>
                   </h3>
                 </a>
               </div>
               <div class="student-sid"
-                   data-ng-class="{'demo-mode-blur': demoMode}">
+                   data-ng-class="{'demo-mode-blur': demoMode.blur}">
                 {{student.sid}}
                 <span class="red-flag-status" data-ng-if="student.enrollment.enrollmentStatus === 'W'">WAITLISTED</span>
                 <span class="red-flag-status"
