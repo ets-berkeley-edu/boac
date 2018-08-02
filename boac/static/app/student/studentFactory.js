@@ -76,34 +76,12 @@
       ];
     };
 
-    var getStudents = function(
-      advisorLdapUid,
-      gpaRanges,
-      groupCodes,
-      intensive,
-      isInactiveAsc,
-      levels,
-      majors,
-      unitRanges,
-      orderBy,
-      offset,
-      limit
-    ) {
-      var args = {
-        advisorLdapUid: advisorLdapUid,
-        gpaRanges: gpaRanges || [],
-        groupCodes: groupCodes || [],
-        isInactiveAsc: utilService.toBoolOrNull(isInactiveAsc),
-        levels: levels || [],
-        majors: majors || [],
-        unitRanges: unitRanges || [],
+    var getStudents = function(criteria, orderBy, offset, limit) {
+      var args = _.merge(criteria, {
         orderBy: orderBy || 'first_name',
         offset: offset || 0,
         limit: limit || 50
-      };
-      if (utilService.toBoolOrNull(intensive)) {
-        args.inIntensiveCohort = true;
-      }
+      });
       return $http.post('/api/students', args);
     };
 

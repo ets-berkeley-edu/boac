@@ -27,14 +27,31 @@
 
   'use strict';
 
-  angular.module('boac').controller('TeamsController', function(athleticsFactory, page, $location, $scope) {
+  angular.module('boac').controller('TeamsController', function(athleticsFactory, page, validationService, $location, $scope) {
 
     page.loading(true);
 
     var init = function() {
-      athleticsFactory.getTeams().then(function(response) {
-        $scope.teams = response.data;
+      var teams = {};
+      athleticsFactory.getAllTeamGroups().then(function(response) {
+        var teamGroups = response.data;
+        _.each(teamGroups, function(t) {
+          var teamCode = t.teamCode;
+          if (!teams[teamCode]) {
+            var teamName = t.teamName;
+            teams[teamCode] = {
+              code: t.teamCode,
+              name: teamName,
+              totalStudentCount: t.totalStudentCount,
+              url: '/cohort/_filtered?name=' + encodeURI(teamName) + '&',
+              teamGroups: []
+            };
+          }
+          teams[teamCode].url += 't=' + encodeURI(t.groupCode) + '&';
+        });
+        $scope.teams = _.values(teams);
         page.loading(false);
+
       }).catch(function(err) {
         if (err.status === 404) {
           $location.replace().path('/404');

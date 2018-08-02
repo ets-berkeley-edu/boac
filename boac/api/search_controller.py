@@ -69,11 +69,11 @@ def get_students():
         limit=limit,
     )
     alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
-    students = results['students']
+    students = results['students'] if results else []
     add_alert_counts(alert_counts, students)
     return tolerant_jsonify({
         'students': students,
-        'totalStudentCount': results['totalStudentCount'],
+        'totalStudentCount': results['totalStudentCount'] if results else 0,
     })
 
 

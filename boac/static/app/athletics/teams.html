@@ -3,8 +3,14 @@
     <i class="fas fa-sync fa-spin fa-5x"></i>
     <span class="sr-only">Loading...</span>
   </div>
-
-  <div data-ng-if="!isLoading">
+  <div data-ng-if="error">
+    <h1 class="page-section-header">Error</h1>
+    <div class="faint-text">
+      <span data-ng-bind="error.message" data-ng-if="error.message"></span>
+      <span data-ng-if="!error.message">Sorry, there was an error retrieving data.</span>
+    </div>
+  </div>
+  <div data-ng-if="!error && !isLoading">
     <h1 class="page-section-header">Teams</h1>
     <div data-ng-if="!teams.length">
       <div>No teams available</div>
@@ -12,8 +18,9 @@
     <div data-ng-if="teams.length">
       <ul data-ng-if="!isLoading" class="home-list">
         <li data-ng-repeat="team in teams">
-          <a data-ng-bind="team.name" data-ng-href="/cohort/filtered?c={{team.code}}"></a>
+          <a data-ng-bind="team.name" data-ng-href="{{team.url}}"></a>
           (<span data-ng-bind="team.totalStudentCount"></span>)
+          <br>
         </li>
       </ul>
     </div>

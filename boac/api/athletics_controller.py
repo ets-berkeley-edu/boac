@@ -64,6 +64,7 @@ def get_all_team_groups():
 @app.route('/api/teams/all')
 @login_required
 def get_all_teams():
+    # TODO: Remove this feed after we launch new filtered-cohort view
     if not authorized():
         raise ResourceNotFoundError('Unknown path')
     return tolerant_jsonify(athletics.all_teams())
