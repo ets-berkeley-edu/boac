@@ -31,7 +31,7 @@
 
     var isModalOpen = false;
 
-    $scope.openDeleteCohortModal = function(cohort) {
+    $scope.openDeleteCohortModal = function(cohort, stateAfterDelete) {
       if (isModalOpen) {
         return;
       }
@@ -47,6 +47,9 @@
         resolve: {
           cohort: function() {
             return cohort;
+          },
+          stateAfterDelete: function() {
+            return stateAfterDelete;
           }
         }
       });
@@ -58,13 +61,28 @@
     };
   });
 
-  angular.module('boac').controller('DeleteCohortModal', function(cohort, filteredCohortFactory, $scope, $uibModalInstance) {
+  angular.module('boac').controller('DeleteCohortModal', function(
+    cohort,
+    filteredCohortFactory,
+    stateAfterDelete,
+    validationService,
+    $rootScope,
+    $scope,
+    $uibModalInstance
+  ) {
 
     $scope.cohort = cohort;
 
     $scope.delete = function(item) {
-      filteredCohortFactory.deleteCohort(item);
-      $uibModalInstance.close();
+      filteredCohortFactory.deleteCohort(item).then(function() {
+        if (stateAfterDelete) {
+          $state.go(stateAfterDelete);
+        } else {
+          $uibModalInstance.close();
+        }
+      }).catch(function(error) {
+        $scope.error = validationService.parseError(error);
+      });
     };
 
     $scope.cancel = function() {

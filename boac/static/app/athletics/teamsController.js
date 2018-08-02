@@ -43,7 +43,7 @@
               code: t.teamCode,
               name: teamName,
               totalStudentCount: t.totalStudentCount,
-              url: '/cohort/_filtered?name=' + encodeURI(teamName) + '&',
+              url: '/cohort/filtered?name=' + encodeURI(teamName) + '&',
               teamGroups: []
             };
           }

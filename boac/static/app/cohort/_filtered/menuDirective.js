@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').directive('newFilteredCohortMenu', function() {
+  angular.module('boac').directive('filteredCohortMenuBeta', function() {
 
     return {
       // @see https://docs.angularjs.org/guide/directive#template-expanding-directive
