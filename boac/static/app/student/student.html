@@ -20,6 +20,7 @@
           <div class="student-bio-container-column-01">
             <div class="profile-avatar-container">
               <img class="profile-avatar"
+                   data-ng-class="{'img-blur': demoMode.blur}"
                    data-ng-src="/api/user/{{student.uid}}/photo"
                    data-avatar-fallback/>
             </div>
@@ -27,24 +28,24 @@
           <div class="student-bio-container-column-02">
             <div class="student-bio-contact">
               <h1 class="student-section-header"
-                  data-ng-class="{'demo-mode-blur': demoMode}">
+                  data-ng-class="{'demo-mode-blur': demoMode.blur}">
                 {{student.name}}
               </h1>
               <div class="student-preferred-name"
                    data-ng-bind="student.sisProfile.preferredName"
-                   data-ng-class="{'demo-mode-blur': demoMode}"
+                   data-ng-class="{'demo-mode-blur': demoMode.blur}"
                    data-ng-if="student.sisProfile.preferredName !== student.name"></div>
               <div>
                 <i class="fas fa-envelope"></i>
                 <a id="student-mailto"
                    data-ng-href="mailto:{{student.sisProfile.emailAddress}}"
-                   data-ng-class="{'demo-mode-blur': demoMode}"
+                   data-ng-class="{'demo-mode-blur': demoMode.blur}"
                    data-ng-bind="student.sisProfile.emailAddress"></a>
               </div>
               <div>
                 <i class="fas fa-phone"></i>
                 <span data-ng-bind="student.sisProfile.phoneNumber"
-                      data-ng-class="{'demo-mode-blur': demoMode}"></span>
+                      data-ng-class="{'demo-mode-blur': demoMode.blur}"></span>
               </div>
             </div>
             <div>
@@ -335,10 +336,10 @@
                       <td colspan="2">
                         <div data-ng-if="canvasSite.analytics.lastActivity.student.daysSinceLastActivity == null">
                           <span data-ng-bind="student.name"
-                                data-ng-class="{'demo-mode-blur': demoMode}"></span> has never visited this course site.
+                                data-ng-class="{'demo-mode-blur': demoMode.blur}"></span> has never visited this course site.
                         </div>
                         <div data-ng-if="canvasSite.analytics.lastActivity.student.daysSinceLastActivity != null">
-                          <span data-ng-bind="student.name" data-ng-class="{'demo-mode-blur': demoMode}"></span>
+                          <span data-ng-bind="student.name" data-ng-class="{'demo-mode-blur': demoMode.blur}"></span>
                           last visited the course site <span data-ng-bind="lastActivityDays(canvasSite.analytics).toLowerCase()"></span>.
                           <span data-ng-bind="lastActivityInContext(canvasSite.analytics)"></span>
                         </div>

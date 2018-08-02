@@ -135,7 +135,7 @@
           $scope.alerts = alerts.data;
         });
         visualizationService.showUnitsChart($scope.student);
-        if (!config.demoMode) {
+        if (!config.demoMode.blur) {
           $rootScope.pageTitle = _.get($scope.student, 'name') || preferredName;
         }
 

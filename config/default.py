@@ -32,7 +32,10 @@ import os
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 # When BOAC is in demo-mode all student names and SIDs are blurred in the UI
-DEMO_MODE = False
+DEMO_MODE = {
+    'blur': False,
+    'betaTesting': False,
+}
 
 # The 'dist' version of index.html will force browsers to pick up new JS, HTML, CSS files
 INDEX_HTML = 'dist/templates/index.html'

@@ -23,18 +23,19 @@
          data-ng-repeat="student in studentsWithoutData | orderBy:['lastName','firstName']">
         <div class="student-avatar-container">
           <img class="student-avatar"
+               data-ng-class="{'img-blur': demoMode.blur}"
                data-ng-src="/api/user/{{student.uid}}/photo"
                data-avatar-fallback>
         </div>
         <div class="cohort-student-bio-container">
           <div class="flex-container">
             <h3 class="flex-container student-name"
-                data-ng-class="{'demo-mode-blur': demoMode}">
+                data-ng-class="{'demo-mode-blur': demoMode.blur}">
               {{student.lastName}}<span data-ng-if="student.firstName">, {{student.firstName}}</span>
             </h3>
           </div>
           <div class="student-sid"
-               data-ng-class="{'demo-mode-blur': demoMode}"
+               data-ng-class="{'demo-mode-blur': demoMode.blur}"
                data-ng-if="student.sid">
             SID: <span data-ng-bind="student.sid"></span>
           </div>

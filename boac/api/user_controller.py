@@ -28,7 +28,6 @@ from boac.api import errors
 from boac.api.util import admin_required, decorate_cohort
 from boac.externals import data_loch
 from boac.externals.cal1card_photo_api import get_cal1card_photo
-from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
 from boac.merged.student import get_student_and_terms, get_student_query_scope
@@ -126,8 +125,6 @@ def relevant_majors():
 @app.route('/api/user/<uid>/photo')
 @login_required
 def user_photo(uid):
-    if util.app_in_demo_mode():
-        raise errors.ResourceNotFoundError('Photos are not served in demo mode.')
     photo = get_cal1card_photo(uid)
     if photo:
         return Response(photo, mimetype='image/jpeg')

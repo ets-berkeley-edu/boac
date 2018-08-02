@@ -48,7 +48,3 @@ class TestUtil:
         assert util.to_bool_or_none('false') is False
         assert util.to_bool_or_none('FALSE') is False
         assert util.to_bool_or_none('blargh') is None
-
-    def test_app_in_demo_mode(self):
-        """Always defined and always a boolean."""
-        assert isinstance(util.app_in_demo_mode(), bool)
