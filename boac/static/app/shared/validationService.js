@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').service('validationService', function(authService, $rootScope) {
+  angular.module('boac').service('validationService', function($rootScope, authService) {
 
     var parseError = function(error) {
       $rootScope.pageTitle = 'Error';

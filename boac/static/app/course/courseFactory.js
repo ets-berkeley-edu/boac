@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').factory('courseFactory', function(utilService, $http) {
+  angular.module('boac').factory('courseFactory', function($http) {
 
     var getSection = function(termId, sectionId, offset, limit) {
       var url = '/api/section/' + termId + '/' + sectionId;

@@ -28,12 +28,11 @@
   'use strict';
 
   angular.module('boac').controller('SidebarNavController', function(
-    authService,
-    config,
-    cohortService,
-    curatedCohortFactory,
     $rootScope,
-    $scope
+    $scope,
+    authService,
+    cohortService,
+    config
   ) {
     var init = function() {
       var me = authService.getMe();

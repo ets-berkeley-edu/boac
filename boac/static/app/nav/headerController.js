@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').controller('HeaderController', function(authFactory, authService, config, $scope) {
+  angular.module('boac').controller('HeaderController', function($scope, authFactory, authService, config) {
 
     $scope.devAuthEnabled = config.devAuthEnabled;
     $scope.supportEmailAddress = config.supportEmailAddress;

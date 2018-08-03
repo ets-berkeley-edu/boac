@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').config(function(config, $locationProvider, $qProvider, $stateProvider, $urlRouterProvider) {
+  angular.module('boac').config(function($locationProvider, $stateProvider, $urlRouterProvider, config) {
     /**
      * Use the HTML5 location provider to ensure that the $location service getters
      * and setters interact with the browser URL address through the HTML5 history API
@@ -196,7 +196,7 @@
         reloadOnSearch: false
       });
 
-  }).run(function(authFactory, authService, $rootScope, $state, $transitions) {
+  }).run(function($rootScope, $state, $transitions, authFactory) {
 
     $state.defaultErrorHandler(function(error) {
       var message = _.get(error, 'detail.message');

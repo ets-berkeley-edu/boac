@@ -27,7 +27,12 @@
 
   'use strict';
 
-  angular.module('boac').controller('AllFilteredCohortsController', function(filteredCohortFactory, page, $location, $scope) {
+  angular.module('boac').controller('AllFilteredCohortsController', function(
+    $location,
+    $scope,
+    filteredCohortFactory,
+    page
+  ) {
 
     var init = function() {
       page.loading(true);

@@ -58,8 +58,7 @@
         var key = definedKeys[0];
         title = {
           inactive: 'Inactive',
-          intensive: 'Intensive',
-          advisorLdapUid: 'My Students'
+          intensive: 'Intensive'
         }[key];
       }
       return title;

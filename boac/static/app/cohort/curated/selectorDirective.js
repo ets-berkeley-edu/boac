@@ -28,12 +28,11 @@
   'use strict';
 
   angular.module('boac').directive('curatedCohortSelector', function(
-    authService,
-    cohortService,
-    curatedCohortFactory,
-    page,
     $rootScope,
-    $timeout
+    $timeout,
+    authService,
+    curatedCohortFactory,
+    page
   ) {
 
     return {

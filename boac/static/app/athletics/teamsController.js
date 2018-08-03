@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').controller('TeamsController', function(athleticsFactory, page, validationService, $location, $scope) {
+  angular.module('boac').controller('TeamsController', function($location, $scope, athleticsFactory, page, validationService) {
 
     page.loading(true);
 

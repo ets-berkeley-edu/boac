@@ -28,19 +28,40 @@
   'use strict';
 
   angular.module('boac').controller('_FilteredCohortController', function(
+    $location,
+    $rootScope,
+    $scope,
     cohortService,
     filteredCohortFactory,
     page,
     studentFactory,
     studentSearchService,
     utilService,
-    validationService,
-    $location,
-    $rootScope,
-    $scope
+    validationService
   ) {
 
     var args = _.clone($location.search());
+
+    var errorHandler = function(error) {
+      if (error.status === 404) {
+        $location.replace().path('/404');
+      } else {
+        $scope.error = validationService.parseError(error);
+        page.loading(false);
+      }
+    };
+
+    $scope.rename = function(cohortName) {
+      validationService.validateName({id: $scope.cohort.id, name: cohortName}, function(error) {
+        if (error) {
+          errorHandler(error);
+        } else {
+          filteredCohortFactory.rename($scope.cohort.id, cohortName).then(function() {
+            cohort.name = cohortName;
+          }).catch(errorHandler);
+        }
+      });
+    };
 
     $scope.search = {
       criteria: {
@@ -58,15 +79,6 @@
       results: {
         students: [],
         totalStudentCount: null
-      }
-    };
-
-    var errorHandler = function(error) {
-      if (error.status === 404) {
-        $location.replace().path('/404');
-      } else {
-        $scope.error = validationService.parseError(error);
-        page.loading(false);
       }
     };
 

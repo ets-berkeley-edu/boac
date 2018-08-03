@@ -28,14 +28,14 @@
   'use strict';
 
   angular.module('boac').controller('SearchController', function(
+    $location,
+    $scope,
     authService,
     config,
     page,
     studentFactory,
     utilService,
-    validationService,
-    $location,
-    $scope
+    validationService
   ) {
 
     $scope.demoMode = config.demoMode;

@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').service('studentSearchService', function(authService, studentFactory, utilService, $location) {
+  angular.module('boac').service('studentSearchService', function($location, authService, studentFactory, utilService) {
 
     var getSortByOptionsForSearch = function() {
       var options = [

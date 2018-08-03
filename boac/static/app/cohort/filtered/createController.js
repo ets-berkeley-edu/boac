@@ -59,13 +59,13 @@
   });
 
   angular.module('boac').controller('CreateCohortModal', function(
-    search,
-    filteredCohortFactory,
-    utilService,
-    validationService,
     $rootScope,
     $scope,
-    $uibModalInstance
+    $uibModalInstance,
+    filteredCohortFactory,
+    search,
+    utilService,
+    validationService
   ) {
     $scope.label = null;
     $scope.error = {

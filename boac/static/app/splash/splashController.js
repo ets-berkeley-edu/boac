@@ -28,14 +28,14 @@
   'use strict';
 
   angular.module('boac').controller('SplashController', function(
-    authFactory,
-    config,
-    validationService,
     $location,
     $rootScope,
     $sce,
     $scope,
-    $stateParams
+    $stateParams,
+    authFactory,
+    config,
+    validationService
   ) {
 
     $rootScope.pageTitle = 'Welcome';

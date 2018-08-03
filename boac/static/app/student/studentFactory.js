@@ -29,7 +29,7 @@
 
   var boac = angular.module('boac');
 
-  boac.factory('studentFactory', function(utilService, $http) {
+  boac.factory('studentFactory', function($http, utilService) {
 
     var analyticsPerUser = function(uid) {
       return $http.get('/api/user/' + uid + '/analytics');

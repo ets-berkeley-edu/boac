@@ -29,7 +29,7 @@
 
   var boac = angular.module('boac');
 
-  boac.factory('filteredCohortFactory', function(googleAnalyticsService, utilService, $http, $rootScope) {
+  boac.factory('filteredCohortFactory', function($http, $rootScope, googleAnalyticsService, utilService) {
 
     var createCohort = function(
       label,

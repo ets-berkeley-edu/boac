@@ -28,12 +28,11 @@
   'use strict';
 
   angular.module('boac').service('authService', function(
-    authFactory,
-    googleAnalyticsService,
-    curatedCohortFactory,
     $http,
     $location,
-    $rootScope
+    $rootScope,
+    authFactory,
+    googleAnalyticsService
   ) {
 
     var getMe = function() {

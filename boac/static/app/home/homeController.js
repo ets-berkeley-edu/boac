@@ -28,12 +28,12 @@
   'use strict';
 
   angular.module('boac').controller('HomeController', function(
+    $rootScope,
+    $scope,
     cohortService,
     config,
     curatedCohortFactory,
-    page,
-    $rootScope,
-    $scope
+    page
   ) {
 
     $scope.demoMode = config.demoMode;
