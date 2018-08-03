@@ -70,7 +70,7 @@ rules:
     - all
   default-case: 2
   dot-notation:
-    - 1
+    - 2
   eol-last: 2
   eqeqeq: 2
   for-direction: 2
