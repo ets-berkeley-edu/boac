@@ -28,18 +28,18 @@
   'use strict';
 
   angular.module('boac').controller('CuratedCohortController', function(
-    authService,
-    config,
-    page,
-    curatedCohortFactory,
-    studentSearchService,
-    utilService,
-    validationService,
-    visualizationService,
     $location,
     $rootScope,
     $scope,
-    $stateParams
+    $stateParams,
+    authService,
+    config,
+    curatedCohortFactory,
+    page,
+    studentSearchService,
+    utilService,
+    validationService,
+    visualizationService
   ) {
 
     $scope.currentEnrollmentTerm = config.currentEnrollmentTerm;

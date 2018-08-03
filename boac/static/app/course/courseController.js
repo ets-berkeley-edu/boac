@@ -28,6 +28,10 @@
   'use strict';
 
   angular.module('boac').controller('CourseController', function(
+    $location,
+    $rootScope,
+    $scope,
+    $stateParams,
     authService,
     config,
     courseFactory,
@@ -35,12 +39,7 @@
     page,
     utilService,
     validationService,
-    visualizationService,
-    $location,
-    $rootScope,
-    $scope,
-    $state,
-    $stateParams
+    visualizationService
   ) {
 
     $scope.demoMode = config.demoMode;

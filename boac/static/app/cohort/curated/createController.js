@@ -55,10 +55,10 @@
   });
 
   angular.module('boac').controller('CreateCuratedCohortModal', function(
-    curatedCohortFactory,
-    validationService,
     $scope,
-    $uibModalInstance
+    $uibModalInstance,
+    curatedCohortFactory,
+    validationService
   ) {
     $scope.name = null;
     $scope.error = {

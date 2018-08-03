@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').controller('AdminController', function(adminFactory, config, page, $location, $scope) {
+  angular.module('boac').controller('AdminController', function($location, $scope, adminFactory, config, page) {
 
     $scope.become = function(uid) {
       adminFactory.becomeUser(uid).then(function() {

@@ -28,23 +28,20 @@
   'use strict';
 
   angular.module('boac').controller('StudentController', function(
+    $location,
+    $rootScope,
+    $scope,
+    $stateParams,
     authService,
     config,
-    courseFactory,
+    curatedCohortFactory,
     googleAnalyticsService,
     me,
     page,
-    curatedCohortFactory,
     studentFactory,
-    studentSearchService,
     utilService,
     validationService,
-    visualizationService,
-    $location,
-    $q,
-    $rootScope,
-    $scope,
-    $stateParams
+    visualizationService
   ) {
 
     page.loading(true);
@@ -100,10 +97,7 @@
         var student = analytics.data;
         var sid = student.sid;
         if (!sid) {
-          return $q.reject({
-            status: 404,
-            message: 'No student found with UID ' + uid
-          });
+          $location.replace().path('/404');
         }
         $scope.student = student;
         identifyCuratedCohortsWithStudent();

@@ -28,6 +28,9 @@
   'use strict';
 
   angular.module('boac').controller('FilteredCohortController', function(
+    $location,
+    $rootScope,
+    $scope,
     adminFactory,
     athleticsFactory,
     authService,
@@ -39,10 +42,7 @@
     studentSearchService,
     utilService,
     validationService,
-    visualizationService,
-    $location,
-    $rootScope,
-    $scope
+    visualizationService
   ) {
 
     var filters = {

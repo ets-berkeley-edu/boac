@@ -7,7 +7,31 @@
 
 extends: eslint:recommended
 
+plugins:
+  - angular
+
 rules:
+  angular/avoid-scope-typos:
+    - 2
+  angular/component-limit:
+    - 2
+    - 2
+  angular/deferred:
+    - 1
+  angular/di-unused:
+    - 2
+  angular/directive-restrict:
+    - 2
+  angular/empty-controller:
+    - 2
+  angular/no-inline-template:
+    - 2
+  angular/no-services:
+    - 2
+  angular/di-order:
+    - 2
+  angular/module-dependency-order:
+    - 2
   array-bracket-newline:
     - 2
     - multiline: true

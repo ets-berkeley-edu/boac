@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').service('googleAnalyticsService', function(config, $location, $rootScope, $timeout) {
+  angular.module('boac').service('googleAnalyticsService', function($location, $rootScope, $timeout, config) {
 
     // Disable Google Analytics with id=False in py config file
     var id = config.googleAnalyticsId;

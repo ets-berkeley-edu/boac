@@ -58,7 +58,12 @@
     };
   });
 
-  angular.module('boac').controller('DeleteCuratedCohortModal', function(cohort, curatedCohortFactory, $scope, $uibModalInstance) {
+  angular.module('boac').controller('DeleteCuratedCohortModal', function(
+    $scope,
+    $uibModalInstance,
+    cohort,
+    curatedCohortFactory
+  ) {
 
     $scope.cohort = cohort;
 

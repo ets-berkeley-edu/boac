@@ -31,12 +31,11 @@
    * Fall back to a default avatar in the case of an error during image load.
    */
   angular.module('boac').directive('searchStudentsForm', function(
-    page,
-    curatedCohortFactory,
     $location,
     $rootScope,
     $state,
-    $transitions
+    $transitions,
+    page
   ) {
 
     $transitions.onStart({}, function($transition) {

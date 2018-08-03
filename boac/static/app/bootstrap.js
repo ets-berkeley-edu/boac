@@ -26,8 +26,8 @@
 (function(angular) {
 
   var boac = angular.module('boac', [
-    'base64',
     'ngAnimate',
+    'base64',
     'ui.bootstrap',
     'ui.router'
   ]);

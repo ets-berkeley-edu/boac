@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').service('visualizationService', function(config, $location) {
+  angular.module('boac').service('visualizationService', function($location, config) {
 
     var showUnitsChart = function(student) {
       var cumulativeUnits = _.get(student, 'sisProfile.cumulativeUnits');

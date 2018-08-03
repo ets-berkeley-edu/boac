@@ -29,7 +29,7 @@
 
   var boac = angular.module('boac');
 
-  boac.factory('athleticsFactory', function(googleAnalyticsService, utilService, $http) {
+  boac.factory('athleticsFactory', function($http, utilService) {
 
     var getTeam = function(code, orderBy) {
       var params = {

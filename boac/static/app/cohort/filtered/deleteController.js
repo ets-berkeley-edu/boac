@@ -62,13 +62,12 @@
   });
 
   angular.module('boac').controller('DeleteCohortModal', function(
+    $scope,
+    $uibModalInstance,
     cohort,
     filteredCohortFactory,
     stateAfterDelete,
-    validationService,
-    $rootScope,
-    $scope,
-    $uibModalInstance
+    validationService
   ) {
 
     $scope.cohort = cohort;
