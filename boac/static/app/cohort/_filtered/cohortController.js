@@ -32,15 +32,22 @@
     $rootScope,
     $scope,
     cohortService,
+    filterCriteriaService,
     filteredCohortFactory,
     page,
     studentFactory,
     studentSearchService,
-    utilService,
     validationService
   ) {
 
-    var args = _.clone($location.search());
+    $scope.search = {
+      orderBy: studentSearchService.getSortByOptionsForSearch(),
+      pagination: studentSearchService.initPagination(),
+      results: {
+        students: [],
+        totalStudentCount: null
+      }
+    };
 
     var errorHandler = function(error) {
       if (error.status === 404) {
@@ -63,53 +70,38 @@
       });
     };
 
-    $scope.search = {
-      criteria: {
-        advisorLdapUid: args.a,
-        gpaRanges: utilService.arrayRequired(args.g),
-        groupCodes: utilService.arrayRequired(args.t),
-        intensive: args.i,
-        inactive: args.v,
-        levels: utilService.arrayRequired(args.l),
-        majors: utilService.arrayRequired(args.m),
-        unitRanges: utilService.arrayRequired(args.u)
-      },
-      orderBy: studentSearchService.getSortByOptionsForSearch(),
-      pagination: studentSearchService.initPagination(),
-      results: {
-        students: [],
-        totalStudentCount: null
-      }
-    };
-
     var nextPage = $scope.nextPage = function() {
       page.loading(true);
-      var cohortId = parseInt(args.c, 10);
+      var cohortId = filterCriteriaService.getCohortIdFromLocation();
       var orderBy = $scope.search.orderBy.selected;
       var limit = $scope.search.pagination.itemsPerPage;
       var offset = ($scope.search.pagination.currentPage - 1) * limit;
 
       if (cohortId > 0) {
         filteredCohortFactory.getCohort(cohortId, orderBy, offset, limit).then(function(response) {
-          var cohort = response.data;
-          $scope.cohort = cohort;
-          $scope.search.criteria = cohort.filterCriteria;
+          var cohort = $scope.cohort = response.data;
+          // Update browser location
+          $location.url($location.path());
+          $location.search('c', cohort.id);
           $scope.search.results = {
             students: cohort.students,
             totalStudentCount: cohort.totalStudentCount
           };
+          filterCriteriaService.updateLocation(cohort.filterCriteria);
           $rootScope.pageTitle = $scope.cohortName = cohort.name;
           page.loading(false);
 
         }).catch(errorHandler);
 
       } else {
-        studentFactory.getStudents($scope.search.criteria, orderBy, offset, limit).then(function(response) {
+        var filterCriteria = filterCriteriaService.getCriteriaFromLocation();
+        filterCriteriaService.updateLocation(filterCriteria);
+        studentFactory.getStudents(filterCriteria, orderBy, offset, limit).then(function(response) {
           $scope.search.results = {
             students: response.data.students,
             totalStudentCount: response.data.totalStudentCount
           };
-          $scope.cohortName = cohortService.getSearchPageTitle($scope.search.criteria);
+          $scope.cohortName = cohortService.getSearchPageTitle(filterCriteria);
           $rootScope.pageTitle = $scope.cohortName || 'Filtered Cohort';
           page.loading(false);
 
