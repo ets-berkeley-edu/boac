@@ -80,32 +80,46 @@
       if (cohortId > 0) {
         filteredCohortFactory.getCohort(cohortId, orderBy, offset, limit).then(function(response) {
           var cohort = $scope.cohort = response.data;
+          $rootScope.pageTitle = $scope.cohortName = cohort.name;
+
           // Update browser location
           $location.url($location.path());
           $location.search('c', cohort.id);
-          $scope.search.results = {
-            students: cohort.students,
-            totalStudentCount: cohort.totalStudentCount
-          };
-          filterCriteriaService.updateLocation(cohort.filterCriteria);
-          $rootScope.pageTitle = $scope.cohortName = cohort.name;
-          page.loading(false);
 
+          _.extend($scope.search, {
+            filterCriteria: cohort.filterCriteria,
+            results: {
+              students: cohort.students,
+              totalStudentCount: cohort.totalStudentCount
+            }
+          });
+          page.loading(false);
         }).catch(errorHandler);
 
       } else {
         var filterCriteria = filterCriteriaService.getCriteriaFromLocation();
-        filterCriteriaService.updateLocation(filterCriteria);
-        studentFactory.getStudents(filterCriteria, orderBy, offset, limit).then(function(response) {
-          $scope.search.results = {
-            students: response.data.students,
-            totalStudentCount: response.data.totalStudentCount
-          };
-          $scope.cohortName = cohortService.getSearchPageTitle(filterCriteria);
-          $rootScope.pageTitle = $scope.cohortName || 'Filtered Cohort';
-          page.loading(false);
+        var hasCriteria = _.find(_.values(filterCriteria));
 
-        }).catch(errorHandler);
+        if (hasCriteria) {
+          filterCriteriaService.updateLocation(filterCriteria);
+          studentFactory.getStudents(filterCriteria, orderBy, offset, limit).then(function(response) {
+            $scope.cohortName = cohortService.getSearchPageTitle(filterCriteria);
+            $rootScope.pageTitle = $scope.cohortName || 'Filtered Cohort';
+            _.extend($scope.search, {
+              filterCriteria: filterCriteria,
+              results: {
+                students: response.data.students,
+                totalStudentCount: response.data.totalStudentCount
+              }
+            });
+            page.loading(false);
+          }).catch(errorHandler);
+
+        } else {
+          // No query args is create-cohort mode
+          $rootScope.pageTitle = $scope.cohortName = 'Create a Filtered Cohort';
+          page.loading(false);
+        }
       }
     };
 
