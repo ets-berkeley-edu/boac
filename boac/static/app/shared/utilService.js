@@ -118,6 +118,11 @@
       return describe;
     };
 
+    var lenientBoolean = function(obj) {
+      var value = asArray(obj);
+      return !_.isEmpty(value) && _.lowerCase(value[0]) !== 'false';
+    };
+
     var extendSortableNames = function(students) {
       return _.map(students, function(student) {
         return _.extend(student, {
@@ -133,6 +138,7 @@
       exceedsMatrixThresholdMessage: exceedsMatrixThresholdMessage,
       lastActivityDays: lastActivityDays,
       lastActivityInContext: lastActivityInContext,
+      lenientBoolean: lenientBoolean,
       extendSortableNames: extendSortableNames,
       decorateOptions: decorateOptions,
       format: format,
