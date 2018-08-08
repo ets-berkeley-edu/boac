@@ -3,52 +3,52 @@
 </div>
 <div data-ng-if="!isLoadingCriteria">
   <ul>
-    <li data-ng-repeat="columns in criteria.selected">
-      <span data-ng-repeat="column in columns">
-        {{column}} <span data-ng-if="!$last">|</span>
-      </span>
+    <li data-ng-repeat="savedFilter in savedFilters">
+      <span data-ng-bind="savedFilter.name"></span> |
+      <span data-ng-bind="savedFilter.value"></span>
     </li>
     <li>
-      <select id="menu-primary"
-              data-ng-model="menu.primary"
-              data-ng-options="o.name disable when o.disabled for o in criteria.available">
+      <select id="unsaved-filter-primary"
+              data-ng-model="unsavedFilter.primary"
+              data-ng-options="o.name disable when o.disabled for o in filterDefinitions">
       </select>
-      <select id="menu-secondary"
-              data-ng-model="menu.secondary"
-              data-ng-options="o.name disable when o.disabled for o in menu.primary.options"
-              data-ng-if="menu.primary.options">
+      <select id="unsaved-filter-secondary"
+              data-ng-model="unsavedFilter.secondary"
+              data-ng-options="o.name disable when o.disabled for o in unsavedFilter.primary.options"
+              data-ng-if="unsavedFilter.primary.options">
       </select>
-      <div data-ng-if="menu.primary">
+      <div data-ng-if="unsavedFilter.primary">
         <button type="button"
-                id="menu-add"
+                id="unsaved-filter-add"
                 class="btn btn-primary"
-                data-ng-click="addButton.onClick(menu)"
-                data-ng-if="addButton.show(menu)">
+                data-ng-click="addButton.onClick(unsavedFilter)"
+                data-ng-if="addButton.show(unsavedFilter)">
           Add
         </button>
         <button type="button"
-          id="menu-reset"
+          id="unsaved-filter-reset"
           class="btn-link cohort-manage-btn-link"
-          data-ng-click="menu.secondary = null; menu.primary = null">
+          data-ng-click="unsavedFilter.secondary = null; unsavedFilter.primary = null">
           Cancel
         </button>
       </div>
     </li>
   </ul>
   <div>
-    <div data-ng-if="menu.primary">
+    <div>
       <button type="button"
-              id="menu-apply"
+              id="unsaved-filter-apply"
               class="btn btn-primary"
               data-ng-click="applyButton.onClick()"
-              data-ng-disabled="applyButton.disable()"
-              data-ng-if="applyButton.show(menu)">
+              data-ng-disabled="applyButton.disabled(savedFilters, unsavedFilter)"
+              data-ng-if="applyButton.show(savedFilters, unsavedFilter)">
         Apply
       </button>
       <button type="button"
-        id="menu-save-cohort"
-        class="btn-link btn-secondary"
-        data-ng-click="menu.secondary = null; menu.primary = null">
+              id="unsaved-filter-save-cohort"
+              class="btn btn-secondary"
+              data-ng-disabled="saveButton.disabled()"
+              data-ng-click="saveButton.onClick(createFilter)">
         Save Cohort
       </button>
     </div>

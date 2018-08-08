@@ -37,64 +37,71 @@
     /**
      * @return {Array}    List of cohort filter-criteria, available to current user, with defining attributes.
      */
-    var criteriaRef = function() {
+    var filterDefinitions = function() {
       var me = authService.getMe();
       var ref = [
         {
           available: me.isAdmin || authService.isCoeUser(),
+          defaultValue: [],
           depth: 2,
+          key: 'advisorLdapUid',
           name: 'Advisor',
           handler: utilService.asArray,
-          param: 'a',
-          value: 'advisorLdapUid'
+          param: 'a'
         },
         {
           available: true,
+          defaultValue: [],
           depth: 2,
+          key: 'gpaRanges',
           handler: utilService.asArray,
           name: 'GPA',
-          param: 'g',
-          value: 'gpaRanges'
+          param: 'g'
         },
         {
           available: me.isAdmin || authService.isAscUser(),
+          defaultValue: false,
           depth: 1,
-          handler: utilService.toBoolOrNull,
+          handler: utilService.lenientBoolean,
+          key: 'isInactiveAsc',
           name: 'Inactive',
-          param: 'v',
-          value: 'isInactiveAsc'
+          param: 'v'
         },
         {
           available: me.isAdmin || authService.isAscUser(),
+          defaultValue: false,
           depth: 1,
-          handler: utilService.toBoolOrNull,
+          handler: utilService.lenientBoolean,
+          key: 'inIntensiveCohort',
           name: 'Intensive',
-          param: 'i',
-          value: 'inIntensiveCohort'
+          param: 'i'
         },
         {
           available: true,
+          defaultValue: [],
           depth: 2,
           handler: utilService.asArray,
+          key: 'levels',
           name: 'Levels',
-          param: 'l',
-          value: 'levels'
+          param: 'l'
         },
         {
           available: true,
+          defaultValue: [],
           depth: 2,
           handler: utilService.asArray,
+          key: 'majors',
           name: 'Majors',
-          param: 'm',
-          value: 'majors'
+          param: 'm'
         },
         {
           available: true,
+          defaultValue: [],
           depth: 2,
           handler: utilService.asArray,
+          key: 'unitRanges',
           name: 'Units',
-          param: 'u',
-          value: 'unitRanges'
+          param: 'u'
         }
       ];
 
@@ -109,25 +116,21 @@
       var queryArgs = _.clone($location.search());
       var criteria = {};
 
-      _.each(criteriaRef, function(c) {
+      _.each(filterDefinitions, function(c) {
         criteria[c.filter] = c.handler(queryArgs[c.param]);
       });
       return criteria;
     };
 
     var updateLocation = function(filterCriteria) {
-      var updates = [];
-
-      _.each(filterCriteria, function(value, filterName) {
-        var ref = _.find(criteriaRef, ['filter', filterName]);
-        if (ref && !_.isNil(value)) {
-          updates.push({param: ref.param, value: value});
-        }
-      });
       // Clear browser location then update
       $location.url($location.path());
-      _.each(updates, function(update) {
-        $location.search(update.param, update.value);
+
+      _.each(filterCriteria, function(value, filterName) {
+        var definition = _.find(filterDefinitions, ['filter', filterName]);
+        if (definition && !_.isNil(value)) {
+          $location.search(definition.param, value);
+        }
       });
     };
 
@@ -200,23 +203,24 @@
      * @param   {Function}    callback    Standard callback
      * @returns {Array}                   Available filter-criteria with populated menu options.
      */
-    var getFilterCriteriaRef = function(callback) {
+    var getFilterDefinitions = function(callback) {
       getMajors(function(majors) {
-        var menu = criteriaRef();
+        var definitions = filterDefinitions();
 
-        _.find(menu, ['value', 'majors']).options = majors;
-        _.find(menu, ['value', 'gpaRanges']).options = studentFactory.getGpaRanges();
-        _.find(menu, ['value', 'levels']).options = studentFactory.getStudentLevels();
-        _.find(menu, ['value', 'unitRanges']).options = studentFactory.getUnitRanges();
+        _.find(definitions, ['key', 'majors']).options = majors;
+        _.find(definitions, ['key', 'gpaRanges']).options = studentFactory.getGpaRanges();
+        _.find(definitions, ['key', 'levels']).options = studentFactory.getStudentLevels();
+        _.find(definitions, ['key', 'unitRanges']).options = studentFactory.getUnitRanges();
 
-        return callback(menu);
+        return callback(definitions);
       });
     };
 
     return {
+      filterDefinitions: filterDefinitions,
       getCohortIdFromLocation: getCohortIdFromLocation,
       getCriteriaFromLocation: getCriteriaFromLocation,
-      getFilterCriteriaRef: getFilterCriteriaRef,
+      getFilterDefinitions: getFilterDefinitions,
       getMajors: getMajors,
       updateLocation: updateLocation
     };

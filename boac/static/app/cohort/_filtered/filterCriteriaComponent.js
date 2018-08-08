@@ -27,109 +27,85 @@
 
   'use strict';
 
-  angular.module('boac').service('filterCriteriaUtil', function(filterCriteriaService, utilService) {
-
-    /**
-     * Cohort's existing filter-criteria are converted to an array of arrays. For example, if criteria has
-     * majors: [a, b, c] then this function will prepare three rows.
-     *
-     * @param  {Object}     cohort            Has filter-criteria of saved search.
-     * @param  {Function}   callback          Standard callback
-     * @return {Object}                       Bundle with available and selected cohort filter criteria.
-     */
-    var getCriteriaForDisplay = function(cohort, callback) {
-      filterCriteriaService.getFilterCriteriaRef(function(criteriaRef) {
-        var availableFilters = criteriaRef;
-        var selectedFilters = [];
-
-        _.each(cohort.filterCriteria, function(options, key) {
-          // If 'options' is an object then create an array of one.
-          var values = utilService.asArray(options);
-          if (_.size(values)) {
-            var ref = _.find(criteriaRef, ['value', key]);
-            _.each(values, function(value) {
-              // If multiple values are mapped to a key (eg, multiple gpaRanges) then we display multiple rows.
-              var columns = [];
-              columns.push(ref.name);
-              if (ref.depth === 1) {
-                ref.disabled = true;
-              } else if (ref.depth === 2) {
-                columns.push(value);
-                var subOption = _.find(ref.options, ['value', value]);
-                if (subOption) {
-                  subOption.disabled = true;
-                }
-              } else if (ref.depth > 2) {
-                // TODO: For now, no criteria definitions have depth > 2.
-              }
-              selectedFilters.push(columns);
-            });
-          }
-        });
-        return callback({
-          available: availableFilters,
-          selected: selectedFilters
-        });
-      });
-    };
-
-    return {
-      getCriteriaForDisplay: getCriteriaForDisplay
-    };
-  });
-
   var FilterCriteriaController = function($scope, filterCriteriaUtil) {
-
-    var filterCriteria = null;
 
     $scope.isLoadingCriteria = true;
 
     this.$onInit = function() {
-      filterCriteria = _.clone(this.cohort.filterCriteria);
+      var filterCriteria = _.clone(this.cohort.filterCriteria);
 
-      filterCriteriaUtil.getCriteriaForDisplay(this.cohort, function(criteria) {
-        $scope.criteria = criteria;
+      filterCriteriaUtil.getSavedFiltersForDisplay(filterCriteria, function(data) {
+        $scope.filterDefinitions = data.filterDefinitions;
+        $scope.savedFilters = data.savedFilters;
         $scope.isLoadingCriteria = false;
       });
     };
 
     $scope.addButton = {
-      onClick: function(menu) {
-        if (menu.primary.depth === 1) {
-          filterCriteria[menu.primary.value] = true;
-        } else if (menu.primary.depth === 2) {
-          filterCriteria[menu.primary.value] = menu.secondary.value;
+      onClick: function(unsavedFilter) {
+        var primary = unsavedFilter.primary;
+        var filterDefinition = _.find($scope.filterDefinitions, ['key', primary.key]);
+        var value = null;
+
+        if (filterDefinition.depth === 1) {
+          value = _.get(primary, 'value') || true;
+        } else if (unsavedFilter.primary.depth === 2) {
+          value = unsavedFilter.secondary.value;
+        } else {
+          throw new Error('Cohort-filter definition depth is not yet supported: ' + d.depth);
         }
-        filterCriteriaUtil.getCriteriaForDisplay({filterCriteria: filterCriteria}, function(criteria) {
-          $scope.criteria = criteria;
-          menu.primary = null;
-          menu.secondary = null;
+        $scope.savedFilters.push({
+          name: primary.name,
+          value: value
+        });
+
+        var filterCriteria = filterCriteriaUtil.constructFilterCriteria($scope.savedFilters);
+
+        filterCriteriaUtil.getSavedFiltersForDisplay(filterCriteria, function(data) {
+          $scope.filterDefinitions = data.filterDefinitions;
+          $scope.savedFilters = data.savedFilters;
+          // Reset the unsaved-filter
+          unsavedFilter.primary = null;
+          unsavedFilter.secondary = null;
         });
       },
-      show: function(menu) {
+      show: function(unsavedFilter) {
         var show = false;
-        var primary = _.get(menu, 'primary');
+        var primary = _.get(unsavedFilter, 'primary');
         if (primary) {
           // Show 'Add' button if and only if user has drilled down to a valid selection.
-          show = !!(primary.depth === 1 && primary.value) || (primary.depth === 2 && _.get(menu, 'secondary.value'));
+          show = primary.depth === 1 || (primary.depth === 2 && _.get(unsavedFilter, 'secondary.key'));
         }
         return show;
       }
     };
 
     $scope.applyButton = {
-      disable: function() {
-        return true;
+      disabled: function(savedFilters, unsavedFilter) {
+        return !savedFilters.length && !_.get(unsavedFilter, 'primary');
       },
       onClick: function() {
         _.noop();
       },
-      show: function(menu) {
+      show: function(savedFilters, unsavedFilter) {
+        return !_.isEmpty(savedFilters) && _.isEmpty(unsavedFilter);
+      }
+    };
+
+    $scope.saveButton = {
+      disabled: function() {
+        return true;
+      },
+      onClick: function(unsavedFilter) {
+        unsavedFilter.secondary = null;
+        unsavedFilter.primary = null;
+      },
+      show: function(unsavedFilter) {
         var show = false;
-        var primary = _.get(menu, 'primary');
+        var primary = _.get(unsavedFilter, 'primary');
         if (primary) {
           // Show 'Add' button if and only if user has drilled down to a valid selection.
-          show = !!(primary.depth === 1 && primary.value) || (primary.depth === 2 && _.get(menu, 'secondary.value'));
+          show = !!(primary.depth === 1 && primary.value) || (primary.depth === 2 && _.get(unsavedFilter, 'secondary.value'));
         }
         return show;
       }
