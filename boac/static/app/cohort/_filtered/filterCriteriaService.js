@@ -217,6 +217,7 @@
       getCohortIdFromLocation: getCohortIdFromLocation,
       getCriteriaFromLocation: getCriteriaFromLocation,
       getFilterCriteriaRef: getFilterCriteriaRef,
+      getMajors: getMajors,
       updateLocation: updateLocation
     };
 
