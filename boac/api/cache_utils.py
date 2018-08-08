@@ -228,15 +228,14 @@ def load_alerts(term_id, ids=None):
     if not ids:
         ids = get_all_student_ids()
     # TODO Reinstate assignment alerts based on loch data.
-    for csid, uid in ids:
-        term_feed = data_loch.get_enrollments_for_term(str(term_id), [csid])
-        if not term_feed or not term_feed[0]:
-            continue
-        enrollments = json.loads(term_feed[0]['enrollment_term']).get('enrollments', [])
+    csids = [i[0] for i in ids]
+    enrollments_for_term = data_loch.get_enrollments_for_term(str(term_id), csids)
+    for row in enrollments_for_term:
+        enrollments = json.loads(row['enrollment_term']).get('enrollments', [])
         for enrollment in enrollments:
             for section in enrollment['sections']:
                 if section.get('midtermGrade'):
-                    Alert.update_midterm_grade_alerts(csid, term_id, section['ccn'], enrollment['displayName'], section['midtermGrade'])
+                    Alert.update_midterm_grade_alerts(row['sid'], term_id, section['ccn'], enrollment['displayName'], section['midtermGrade'])
 
 
 def load_filtered_cohort_counts():
