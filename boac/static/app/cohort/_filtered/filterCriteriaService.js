@@ -27,57 +27,79 @@
 
   'use strict';
 
-  angular.module('boac').service('filterCriteriaService', function($location, utilService) {
+  angular.module('boac').service('filterCriteriaService', function(
+    $location,
+    authService,
+    studentFactory,
+    utilService
+  ) {
 
-    var asArray = function(obj) {
-      if (_.isNil(obj)) {
-        return null;
-      }
-      return Array.isArray(obj) ? obj : [ obj ];
+    /**
+     * @return {Array}    List of cohort filter-criteria, available to current user, with defining attributes.
+     */
+    var criteriaRef = function() {
+      var me = authService.getMe();
+      var ref = [
+        {
+          available: me.isAdmin || authService.isCoeUser(),
+          depth: 2,
+          name: 'Advisor',
+          handler: utilService.asArray,
+          param: 'a',
+          value: 'advisorLdapUid'
+        },
+        {
+          available: true,
+          depth: 2,
+          handler: utilService.asArray,
+          name: 'GPA',
+          param: 'g',
+          value: 'gpaRanges'
+        },
+        {
+          available: me.isAdmin || authService.isAscUser(),
+          depth: 1,
+          handler: utilService.toBoolOrNull,
+          name: 'Inactive',
+          param: 'v',
+          value: 'isInactiveAsc'
+        },
+        {
+          available: me.isAdmin || authService.isAscUser(),
+          depth: 1,
+          handler: utilService.toBoolOrNull,
+          name: 'Intensive',
+          param: 'i',
+          value: 'inIntensiveCohort'
+        },
+        {
+          available: true,
+          depth: 2,
+          handler: utilService.asArray,
+          name: 'Levels',
+          param: 'l',
+          value: 'levels'
+        },
+        {
+          available: true,
+          depth: 2,
+          handler: utilService.asArray,
+          name: 'Majors',
+          param: 'm',
+          value: 'majors'
+        },
+        {
+          available: true,
+          depth: 2,
+          handler: utilService.asArray,
+          name: 'Units',
+          param: 'u',
+          value: 'unitRanges'
+        }
+      ];
+
+      return _.filter(ref, 'available');
     };
-
-    var criteriaRef = [
-      {
-        filter: 'advisorLdapUid',
-        param: 'a',
-        handler: asArray
-      },
-      {
-        filter: 'gpaRanges',
-        param: 'g',
-        handler: asArray
-      },
-      {
-        filter: 'groupCodes',
-        param: 't',
-        handler: asArray
-      },
-      {
-        filter: 'intensive',
-        param: 'i',
-        handler: utilService.toBoolOrNull
-      },
-      {
-        filter: 'inactive',
-        param: 'v',
-        handler: utilService.toBoolOrNull
-      },
-      {
-        filter: 'levels',
-        param: 'l',
-        handler: asArray
-      },
-      {
-        filter: 'majors',
-        param: 'm',
-        handler: asArray
-      },
-      {
-        filter: 'unitRanges',
-        param: 'u',
-        handler: asArray
-      }
-    ];
 
     var getCohortIdFromLocation = function() {
       return parseInt($location.search().c, 10);
@@ -109,9 +131,92 @@
       });
     };
 
+    /**
+     * @param  {Array}     allOptions     All options of dropdown
+     * @param  {Function}  isSelected     Determines value of 'selected' property
+     * @return {void}
+     */
+    var setSelected = function(allOptions, isSelected) {
+      _.each(allOptions, function(option) {
+        if (option) {
+          option.selected = isSelected(option);
+        }
+      });
+    };
+
+    /**
+     * @param  {String}    menuName      For example, 'majors'
+     * @param  {Object}    optionGroup   Menu represents a group of options (see option-group definition)
+     * @return {void}
+     */
+    var onClickMajorOptionGroup = function(menuName, optionGroup) {
+      if (menuName === 'majors') {
+        if (optionGroup.selected) {
+          if (optionGroup.name === 'Declared') {
+            // If user selects "Declared" then all other checkboxes are deselected
+            $scope.search.count.majors = 1;
+            setSelected($scope.search.options.majors, function(major) {
+              return major.name === optionGroup.name;
+            });
+          } else if (optionGroup.name === 'Undeclared') {
+            // If user selects "Undeclared" then "Declared" is deselected
+            manualSetSelected(menuName, 'Declared', false);
+            onClickOption(menuName, optionGroup);
+          }
+        } else {
+          onClickOption(menuName, optionGroup);
+        }
+      }
+    };
+
+    var getMajors = function(callback) {
+      studentFactory.getRelevantMajors().then(function(majorsResponse) {
+        // Remove '*-undeclared' options in favor of generic 'Undeclared'
+        var majors = _.filter(majorsResponse.data, function(major) {
+          return !major.match(/undeclared/i);
+        });
+        majors = _.map(majors, function(name) {
+          return {
+            name: name,
+            value: name
+          };
+        });
+        majors.unshift(
+          {
+            name: 'Declared',
+            onClick: onClickMajorOptionGroup
+          },
+          {
+            name: 'Undeclared',
+            onClick: onClickMajorOptionGroup
+          },
+          null
+        );
+        return callback(majors);
+      });
+    };
+
+    /**
+     * @param   {Function}    callback    Standard callback
+     * @returns {Array}                   Available filter-criteria with populated menu options.
+     */
+    var getFilterCriteriaRef = function(callback) {
+      getMajors(function(majors) {
+        var menu = criteriaRef();
+
+        _.find(menu, ['value', 'majors']).options = majors;
+        _.find(menu, ['value', 'gpaRanges']).options = studentFactory.getGpaRanges();
+        _.find(menu, ['value', 'levels']).options = studentFactory.getStudentLevels();
+        _.find(menu, ['value', 'unitRanges']).options = studentFactory.getUnitRanges();
+
+        return callback(menu);
+      });
+    };
+
     return {
       getCohortIdFromLocation: getCohortIdFromLocation,
       getCriteriaFromLocation: getCriteriaFromLocation,
+      getFilterCriteriaRef: getFilterCriteriaRef,
       updateLocation: updateLocation
     };
 

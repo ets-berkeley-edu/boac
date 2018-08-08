@@ -32,6 +32,17 @@
     var disableMatrixViewThreshold = parseInt(config.disableMatrixViewThreshold, 10);
     var exceedsMatrixThresholdMessage = 'Sorry, the matrix view is only available when total student count is below ' + disableMatrixViewThreshold + '. Please narrow your search.';
 
+    /**
+     * @param  {Object}   obj   An array, object or nil.
+     * @return {Array}          Nil if input is nil; same array if input is array; array of one if input is an object.
+     */
+    var asArray = function(obj) {
+      if (_.isNil(obj)) {
+        return null;
+      }
+      return Array.isArray(obj) ? obj : [ obj ];
+    };
+
     var toBoolOrNull = function(str) {
       return _.isNil(str) ? null : _.lowerCase(str) === 'true';
     };
@@ -116,6 +127,7 @@
     };
 
     return {
+      asArray: asArray,
       camelCaseToDashes: camelCaseToDashes,
       exceedsMatrixThreshold: exceedsMatrixThreshold,
       exceedsMatrixThresholdMessage: exceedsMatrixThresholdMessage,

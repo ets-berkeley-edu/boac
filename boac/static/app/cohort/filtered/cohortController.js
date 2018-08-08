@@ -35,6 +35,7 @@
     athleticsFactory,
     authService,
     config,
+    filterCriteriaService,
     filteredCohortFactory,
     googleAnalyticsService,
     page,
@@ -225,19 +226,6 @@
     };
 
     /**
-     * @param  {Array}     allOptions     All options of dropdown
-     * @param  {Function}  isSelected     Determines value of 'selected' property
-     * @return {void}
-     */
-    var setSelected = function(allOptions, isSelected) {
-      _.each(allOptions, function(option) {
-        if (option) {
-          option.selected = isSelected(option);
-        }
-      });
-    };
-
-    /**
      * @param  {String}    menuName     For example, 'gpaRanges'
      * @param  {Object}    option       Has been selected or deselected
      * @return {void}
@@ -263,31 +251,6 @@
       if (match && !!match.selected !== !!value) {
         match.selected = value;
         onClickOption(menuName, match);
-      }
-    };
-
-    /**
-     * @param  {String}    menuName      For example, 'majors'
-     * @param  {Object}    optionGroup   Menu represents a group of options (see option-group definition)
-     * @return {void}
-     */
-    var onClickOptionGroup = function(menuName, optionGroup) {
-      if (menuName === 'majors') {
-        if (optionGroup.selected) {
-          if (optionGroup.name === 'Declared') {
-            // If user selects "Declared" then all other checkboxes are deselected
-            $scope.search.count.majors = 1;
-            setSelected($scope.search.options.majors, function(major) {
-              return major.name === optionGroup.name;
-            });
-          } else if (optionGroup.name === 'Undeclared') {
-            // If user selects "Undeclared" then "Declared" is deselected
-            manualSetSelected(menuName, 'Declared', false);
-            onClickOption(menuName, optionGroup);
-          }
-        } else {
-          onClickOption(menuName, optionGroup);
-        }
       }
     };
 
@@ -573,30 +536,6 @@
       return enable;
     };
 
-    var getMajors = function(callback) {
-      studentFactory.getRelevantMajors().then(function(majorsResponse) {
-        // Remove '*-undeclared' options in favor of generic 'Undeclared'
-        var majors = _.filter(majorsResponse.data, function(major) {
-          return !major.match(/undeclared/i);
-        });
-        majors = _.map(majors, function(name) {
-          return {name: name};
-        });
-        majors.unshift(
-          {
-            name: 'Declared',
-            onClick: onClickOptionGroup
-          },
-          {
-            name: 'Undeclared',
-            onClick: onClickOptionGroup
-          },
-          null
-        );
-        return callback(majors);
-      });
-    };
-
     // Grades deserving alerts: D(+/-), F, I, NP.
     var alertGrades = /^[DFIN]/;
 
@@ -619,7 +558,7 @@
       athleticsFactory.getAllTeamGroups().then(function(teamsResponse) {
         var groupCodes = teamsResponse.data;
 
-        getMajors(function(majors) {
+        filterCriteriaService.getMajors(function(majors) {
           var decorate = utilService.decorateOptions;
           $scope.search.options = {
             gpaRanges: decorate(studentFactory.getGpaRanges(), 'name'),

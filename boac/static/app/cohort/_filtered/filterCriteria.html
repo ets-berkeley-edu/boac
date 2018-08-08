@@ -1,0 +1,56 @@
+<div data-ng-if="isLoadingCriteria">
+  <i class="fas fa-sync fa-spin fa-2x"></i>
+</div>
+<div data-ng-if="!isLoadingCriteria">
+  <ul>
+    <li data-ng-repeat="columns in criteria.selected">
+      <span data-ng-repeat="column in columns">
+        {{column}} <span data-ng-if="!$last">|</span>
+      </span>
+    </li>
+    <li>
+      <select id="menu-primary"
+              data-ng-model="menu.primary"
+              data-ng-options="o.name disable when o.disabled for o in criteria.available">
+      </select>
+      <select id="menu-secondary"
+              data-ng-model="menu.secondary"
+              data-ng-options="o.name disable when o.disabled for o in menu.primary.options"
+              data-ng-if="menu.primary.options">
+      </select>
+      <div data-ng-if="menu.primary">
+        <button type="button"
+                id="menu-add"
+                class="btn btn-primary"
+                data-ng-click="addButton.onClick(menu)"
+                data-ng-if="addButton.show(menu)">
+          Add
+        </button>
+        <button type="button"
+          id="menu-reset"
+          class="btn-link cohort-manage-btn-link"
+          data-ng-click="menu.secondary = null; menu.primary = null">
+          Cancel
+        </button>
+      </div>
+    </li>
+  </ul>
+  <div>
+    <div data-ng-if="menu.primary">
+      <button type="button"
+              id="menu-apply"
+              class="btn btn-primary"
+              data-ng-click="applyButton.onClick()"
+              data-ng-disabled="applyButton.disable()"
+              data-ng-if="applyButton.show(menu)">
+        Apply
+      </button>
+      <button type="button"
+        id="menu-save-cohort"
+        class="btn-link btn-secondary"
+        data-ng-click="menu.secondary = null; menu.primary = null">
+        Save Cohort
+      </button>
+    </div>
+  </div>
+</div>

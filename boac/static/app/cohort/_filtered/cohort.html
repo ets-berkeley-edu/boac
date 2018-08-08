@@ -13,7 +13,8 @@
   <div data-ng-if="!error && !isLoading">
     <h1 class="page-section-header" data-ng-if="cohortName && !renameMode">
       <span data-ng-bind="cohortName"></span>
-      <span class="faint-text">(<span data-ng-bind="search.results.totalStudentCount"></span> students)</span>
+      <span class="faint-text"
+            data-ng-if="search.results.totalStudentCount != null">(<span data-ng-bind="search.results.totalStudentCount"></span> students)</span>
     </h1>
     <h1 data-ng-if="!cohortName">
       <span data-ng-pluralize count="search.results.totalStudentCount" when="{'one': '1 Result', 'other': '{} Results'}"></span>
@@ -73,10 +74,11 @@
         </span>
       </span>
     </div>
+
     <hr/>
-    <div id="cohort-filters">
-      <filtered-cohort-menu-beta></filtered-cohort-menu-beta>
-    </div>
+
+    <filter-criteria cohort="search"></filter-criteria>
+
     <hr/>
     <ul>
       <li data-ng-repeat="student in search.results.students track by $index">
