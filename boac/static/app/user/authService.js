@@ -53,6 +53,14 @@
       return isDepartmentMember(getMe(), 'COENG');
     };
 
+    var canViewAsc = function() {
+      return getMe().isAdmin || isAscUser();
+    };
+
+    var canViewCoe = function() {
+      return getMe().isAdmin || isCoeUser();
+    };
+
     var reloadMe = function() {
       return $http.get('/api/status').then(authFactory.loadUserProfile).then(function() {
         var me = $rootScope.me;
@@ -116,6 +124,8 @@
     });
 
     return {
+      canViewAsc: canViewAsc,
+      canViewCoe: canViewCoe,
       getMe: getMe,
       isAscUser: isAscUser,
       isCoeUser: isCoeUser,

@@ -27,85 +27,102 @@
 
   'use strict';
 
-  var FilterCriteriaController = function($scope, filterCriteriaUtil) {
+  var FilterCriteriaController = function($scope, filterCriteriaUtil, filterCriteriaService) {
 
     $scope.isLoadingCriteria = true;
 
     this.$onInit = function() {
       var filterCriteria = _.clone(this.cohort.filterCriteria);
+      filterCriteriaService.getFilterDefinitions(function(availableFilters) {
 
-      filterCriteriaUtil.getSavedFiltersForDisplay(filterCriteria, function(data) {
-        $scope.filterDefinitions = data.filterDefinitions;
-        $scope.savedFilters = data.savedFilters;
-        $scope.isLoadingCriteria = false;
+        filterCriteriaUtil.initFiltersForDisplay(filterCriteria, availableFilters, function(addedFilters) {
+          $scope.availableFilters = availableFilters;
+          $scope.addedFilters = addedFilters;
+          $scope.isLoadingCriteria = false;
+        });
       });
     };
 
+    /**
+     * Button to add a "draft" filter to the list of added-filters.
+     */
     $scope.addButton = {
-      onClick: function(unsavedFilter) {
-        var primary = unsavedFilter.primary;
-        var filterDefinition = _.find($scope.filterDefinitions, ['key', primary.key]);
+      onClick: function(draftFilter) {
+        var primary = draftFilter.primary;
+        var filterDefinition = _.find($scope.availableFilters, ['key', primary.key]);
         var value = null;
 
         if (filterDefinition.depth === 1) {
           value = _.get(primary, 'value') || true;
-        } else if (unsavedFilter.primary.depth === 2) {
-          value = unsavedFilter.secondary.value;
+        } else if (draftFilter.primary.depth === 2) {
+          value = draftFilter.secondary.value;
         } else {
           throw new Error('Cohort-filter definition depth is not yet supported: ' + d.depth);
         }
-        $scope.savedFilters.push({
+        $scope.addedFilters.push({
           name: primary.name,
           value: value
         });
 
-        var filterCriteria = filterCriteriaUtil.constructFilterCriteria($scope.savedFilters);
-
-        filterCriteriaUtil.getSavedFiltersForDisplay(filterCriteria, function(data) {
-          $scope.filterDefinitions = data.filterDefinitions;
-          $scope.savedFilters = data.savedFilters;
+        filterCriteriaUtil.updateFiltersForDisplay($scope.addedFilters, $scope.availableFilters, function(addedFilters) {
+          $scope.addedFilters = addedFilters;
           // Reset the unsaved-filter
-          unsavedFilter.primary = null;
-          unsavedFilter.secondary = null;
+          draftFilter.primary = null;
+          draftFilter.secondary = null;
         });
       },
-      show: function(unsavedFilter) {
+      show: function(draftFilter) {
         var show = false;
-        var primary = _.get(unsavedFilter, 'primary');
+        var primary = _.get(draftFilter, 'primary');
         if (primary) {
           // Show 'Add' button if and only if user has drilled down to a valid selection.
-          show = primary.depth === 1 || (primary.depth === 2 && _.get(unsavedFilter, 'secondary.key'));
+          show = primary.depth === 1 || (primary.depth === 2 && _.get(draftFilter, 'secondary.value'));
         }
-        return show;
+        return !!show;
       }
     };
 
+    /**
+     * Button to search for students based on added filters.
+     */
     $scope.applyButton = {
-      disabled: function(savedFilters, unsavedFilter) {
-        return !savedFilters.length && !_.get(unsavedFilter, 'primary');
+      disabled: function(addedFilters, draftFilter) {
+        return !addedFilters.length && !_.get(draftFilter, 'primary');
       },
       onClick: function() {
         _.noop();
       },
-      show: function(savedFilters, unsavedFilter) {
-        return !_.isEmpty(savedFilters) && _.isEmpty(unsavedFilter);
+      show: function(addedFilters, draftFilter) {
+        return !_.isEmpty(addedFilters) && _.isEmpty(draftFilter);
       }
     };
 
+    /**
+     * Button to remove an added filter.
+     */
+    $scope.removeButton = {
+      onClick: function(indexOfAddedFilter) {
+        _.pullAt($scope.addedFilters, [ indexOfAddedFilter ]);
+      }
+    };
+
+    /**
+     * Button to save/update the cohort in the db.
+     */
     $scope.saveButton = {
       disabled: function() {
         return true;
       },
-      onClick: function(unsavedFilter) {
-        unsavedFilter.secondary = null;
-        unsavedFilter.primary = null;
+      onClick: function(draftFilter) {
+        draftFilter.secondary = null;
+        draftFilter.primary = null;
       },
-      show: function(unsavedFilter) {
+      show: function(draftFilter) {
         var show = false;
-        var primary = _.get(unsavedFilter, 'primary');
+        var primary = _.get(draftFilter, 'primary');
         if (primary) {
           // Show 'Add' button if and only if user has drilled down to a valid selection.
-          show = !!(primary.depth === 1 && primary.value) || (primary.depth === 2 && _.get(unsavedFilter, 'secondary.value'));
+          show = !!(primary.depth === 1 && primary.value) || (primary.depth === 2 && _.get(draftFilter, 'secondary.value'));
         }
         return show;
       }

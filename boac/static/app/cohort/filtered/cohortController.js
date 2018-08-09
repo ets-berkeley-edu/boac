@@ -31,7 +31,6 @@
     $location,
     $rootScope,
     $scope,
-    adminFactory,
     athleticsFactory,
     authService,
     config,
@@ -41,6 +40,7 @@
     page,
     studentFactory,
     studentSearchService,
+    userFactory,
     utilService,
     validationService,
     visualizationService
@@ -318,7 +318,7 @@
         checkbox.show = checkbox.checked = true;
         checkbox.value = advisorUid;
         if (advisorUid !== authService.getMe().uid) {
-          adminFactory.getUserProfile(advisorUid).then(function(response) {
+          userFactory.getUserProfile(advisorUid).then(function(response) {
             $scope.search.checkboxes.advisorLdapUid.label = response.data.firstName + '\'s Students';
           });
         }

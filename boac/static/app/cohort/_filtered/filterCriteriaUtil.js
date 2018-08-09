@@ -29,20 +29,20 @@
 
   angular.module('boac').service('filterCriteriaUtil', function(filterCriteriaService, utilService) {
 
-    var constructFilterCriteria = function(savedFilters) {
+    var constructFilterCriteria = function(addedFilters) {
       var definitions = filterCriteriaService.filterDefinitions();
       var filterCriteria = {};
       // Initialize per definitions
       _.each(definitions, function(d) {
         filterCriteria[d.key] = d.defaultValue;
       });
-      // Update based on savedFilters
+      // Update based on addedFilters
       _.each(filterCriteria, function(value, key) {
         var definition = _.find(definitions, ['key', key]);
         var values = [];
-        _.each(savedFilters, function(savedFilter) {
-          if (definition.name === savedFilter.name) {
-            values.push(savedFilter.value);
+        _.each(addedFilters, function(addedFilter) {
+          if (definition.name === addedFilter.name) {
+            values.push(addedFilter.value);
           }
         });
         filterCriteria[key] = definition.handler(values);
@@ -54,47 +54,60 @@
      * Cohort's existing filter-criteria are converted to an array of arrays. For example, if criteria has
      * majors: [a, b, c] then this function will prepare three rows.
      *
+     * The value of the secondary dropdown-select is always an array with a single string. For example,
+     * the 'Levels' filter has secondary dropdown-select with four options but user can only choose one so
+     * 'secondaryOption' below is an array of length == 1.
+     *
      * @param  {Object}     filterCriteria    Has filter-criteria of saved search.
+     * @param  {Object}     availableFilters  Used to render 'Add filter' options (some options are disabled)
      * @param  {Function}   callback          Standard callback
      * @return {Object}                       Bundle with criteria-reference object and selected cohort filter criteria.
      */
-    var getSavedFiltersForDisplay = function(filterCriteria, callback) {
-      filterCriteriaService.getFilterDefinitions(function(filterDefinitions) {
-        var savedFilters = [];
+    var initFiltersForDisplay = function(filterCriteria, availableFilters, callback) {
+      var addedFilters = [];
 
-        _.each(filterCriteria, function(selectedOptions, key) {
-          // If 'options' is an object then create an array of one.
-          var values = utilService.asArray(selectedOptions);
-          if (utilService.lenientBoolean(values)) {
-            var d = _.find(filterDefinitions, ['key', key]);
-            // If multiple values are mapped to a key (eg, multiple gpaRanges) then we display multiple rows.
-            var savedFilter = {
-              name: d.name,
-              values: values
-            };
-            if (d.depth === 1) {
-              d.disabled = true;
-            } else if (d.depth === 2) {
-              var subOption = _.find(d.options, ['key', key]);
-              if (subOption) {
-                subOption.disabled = true;
+      _.each(filterCriteria, function(selectedOptions, key) {
+        if (utilService.lenientBoolean(selectedOptions)) {
+          var d = _.find(availableFilters, ['key', key]);
+          var handled = d.handler(selectedOptions);
+          handled = Array.isArray(handled) ? handled : [ handled ];
+          _.each(handled, function(value) {
+            if (value) {
+              var addedFilter = {
+                name: d.name,
+                value: value
+              };
+              if (d.depth === 1) {
+                d.disabled = true;
+              } else if (d.depth === 2) {
+                var secondaryOption = _.find(d.options, ['value', value]);
+                if (secondaryOption) {
+                  addedFilter.secondaryName = secondaryOption.name;
+                  secondaryOption.disabled = true;
+                }
+              } else {
+                throw new Error('Cohort-filter definition depth is not yet supported: ' + d.depth);
               }
-            } else {
-              throw new Error('Cohort-filter definition depth is not yet supported: ' + d.depth);
+              addedFilters.push(addedFilter);
             }
-            savedFilters.push(savedFilter);
-          }
-        });
-        return callback({
-          filterDefinitions: filterDefinitions,
-          savedFilters: savedFilters
-        });
+          });
+        }
+      });
+      return callback(addedFilters);
+    };
+
+    var updateFiltersForDisplay = function(addedFilters, availableFilters, callback) {
+      var filterCriteria = constructFilterCriteria(addedFilters);
+
+      initFiltersForDisplay(filterCriteria, availableFilters, function(updatedFilters) {
+        return callback(updatedFilters);
       });
     };
 
     return {
       constructFilterCriteria: constructFilterCriteria,
-      getSavedFiltersForDisplay: getSavedFiltersForDisplay
+      initFiltersForDisplay: initFiltersForDisplay,
+      updateFiltersForDisplay: updateFiltersForDisplay
     };
   });
 

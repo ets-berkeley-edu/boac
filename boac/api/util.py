@@ -28,6 +28,7 @@ import json
 from boac.lib import util
 from boac.lib.berkeley import get_dept_codes
 from boac.merged import athletics
+from boac.merged import calnet
 from boac.merged.student import query_students
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
@@ -61,6 +62,27 @@ def add_alert_counts(alert_counts, students):
                 'alertCount': alert_count['alertCount'],
             })
     return students
+
+
+def authorized_users_api_feed(users, sort_by='lastName'):
+    if not users:
+        return []
+    profiles = []
+    for user in users:
+        profile = calnet.get_calnet_user_for_uid(app, user.uid)
+        profile.update({
+            'is_admin': user.is_admin,
+            'departments': {},
+        })
+        for m in user.department_memberships:
+            profile['departments'].update({
+                m.university_dept.dept_code: {
+                    'isAdvisor': m.is_advisor,
+                    'isDirector': m.is_director,
+                },
+            })
+        profiles.append(profile)
+    return sorted(profiles, key=lambda p: p.get(sort_by) or '')
 
 
 def canvas_course_api_feed(course):
@@ -238,6 +260,10 @@ def translate_grading_basis(code):
         'SUS': 'S/U',
     }
     return bases.get(code) or code
+
+
+def can_current_user_view_dept(dept_code):
+    return current_user.is_admin or dept_code in get_dept_codes(current_user)
 
 
 def is_current_user_asc_affiliated():
