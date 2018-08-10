@@ -30,10 +30,10 @@
   angular.module('boac').controller('ManageFilteredCohortsController', function(
     $rootScope,
     $scope,
-    adminFactory,
     filteredCohortFactory,
     page,
     studentFactory,
+    userFactory,
     validationService
   ) {
 
@@ -111,7 +111,7 @@
             f.inIntensiveCohort ? [ 'Intensive' ] : []
           );
           if (f.advisorLdapUid) {
-            adminFactory.getUserProfile(f.advisorLdapUid).then(function(_response) {
+            userFactory.getUserProfile(f.advisorLdapUid).then(function(_response) {
               var user = _response.data;
               cohort.filterCriteriaNames.push('Advisor: ' + user.firstName + ' ' + user.lastName);
             });

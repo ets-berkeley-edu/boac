@@ -29,8 +29,10 @@
 
   angular.module('boac').service('filterCriteriaService', function(
     $location,
+    athleticsFactory,
     authService,
     studentFactory,
+    userFactory,
     utilService
   ) {
 
@@ -38,10 +40,9 @@
      * @return {Array}    List of cohort filter-criteria, available to current user, with defining attributes.
      */
     var filterDefinitions = function() {
-      var me = authService.getMe();
       var ref = [
         {
-          available: me.isAdmin || authService.isCoeUser(),
+          available: authService.canViewCoe(),
           defaultValue: [],
           depth: 2,
           key: 'advisorLdapUid',
@@ -59,7 +60,16 @@
           param: 'g'
         },
         {
-          available: me.isAdmin || authService.isAscUser(),
+          available: authService.canViewAsc(),
+          defaultValue: [],
+          depth: 2,
+          key: 'groupCodes',
+          handler: utilService.asArray,
+          name: 'Teams',
+          param: 't'
+        },
+        {
+          available: authService.canViewAsc(),
           defaultValue: false,
           depth: 1,
           handler: utilService.lenientBoolean,
@@ -68,7 +78,7 @@
           param: 'v'
         },
         {
-          available: me.isAdmin || authService.isAscUser(),
+          available: authService.canViewAsc(),
           defaultValue: false,
           depth: 1,
           handler: utilService.lenientBoolean,
@@ -104,7 +114,7 @@
           param: 'u'
         }
       ];
-
+      // Remove filters based on auth rules; see 'available' property above.
       return _.filter(ref, 'available');
     };
 
@@ -173,9 +183,9 @@
     };
 
     var getMajors = function(callback) {
-      studentFactory.getRelevantMajors().then(function(majorsResponse) {
+      studentFactory.getRelevantMajors().then(function(response) {
         // Remove '*-undeclared' options in favor of generic 'Undeclared'
-        var majors = _.filter(majorsResponse.data, function(major) {
+        var majors = _.filter(response.data, function(major) {
           return !major.match(/undeclared/i);
         });
         majors = _.map(majors, function(name) {
@@ -187,10 +197,12 @@
         majors.unshift(
           {
             name: 'Declared',
+            value: 'Declared',
             onClick: onClickMajorOptionGroup
           },
           {
             name: 'Undeclared',
+            value: 'Undeclared',
             onClick: onClickMajorOptionGroup
           },
           null
@@ -199,21 +211,63 @@
       });
     };
 
+    var setMenuOptions = function(definitions, key, options) {
+      _.find(definitions, ['key', key]).options = options;
+    };
+
     /**
      * @param   {Function}    callback    Standard callback
      * @returns {Array}                   Available filter-criteria with populated menu options.
      */
     var getFilterDefinitions = function(callback) {
-      getMajors(function(majors) {
-        var definitions = filterDefinitions();
+      var definitions = filterDefinitions();
 
-        _.find(definitions, ['key', 'majors']).options = majors;
-        _.find(definitions, ['key', 'gpaRanges']).options = studentFactory.getGpaRanges();
-        _.find(definitions, ['key', 'levels']).options = studentFactory.getStudentLevels();
-        _.find(definitions, ['key', 'unitRanges']).options = studentFactory.getUnitRanges();
+      async.series([
+        function(done) {
+          getMajors(function(majors) {
+            setMenuOptions(definitions, 'majors', majors);
+            setMenuOptions(definitions, 'gpaRanges', studentFactory.getGpaRanges());
+            setMenuOptions(definitions, 'levels', studentFactory.getStudentLevels());
+            setMenuOptions(definitions, 'unitRanges', studentFactory.getUnitRanges());
 
-        return callback(definitions);
-      });
+            return done();
+          });
+        },
+        function(done) {
+          if (authService.canViewAsc()) {
+            athleticsFactory.getAllTeamGroups().then(function(response) {
+              setMenuOptions(definitions, 'groupCodes', _.map(response.data, function(group) {
+                return {
+                  name: group.name,
+                  value: group.groupCode
+                };
+              }));
+              return done();
+            });
+          } else {
+            return done();
+          }
+        },
+        function(done) {
+          if (authService.canViewCoe()) {
+            // The 'Advisor' dropdown has UIDs and names
+            userFactory.getProfilesPerDeptCode('COENG').then(function(response) {
+              setMenuOptions(definitions, 'advisorLdapUid', _.map(response.data, function(user) {
+                return {
+                  name: user.firstName + ' ' + user.lastName,
+                  value: user.uid
+                };
+              }));
+              return done();
+            });
+          } else {
+            return done();
+          }
+        },
+        function() {
+          return callback(definitions);
+        }
+      ]);
     };
 
     return {

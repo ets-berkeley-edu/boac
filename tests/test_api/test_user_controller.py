@@ -108,7 +108,7 @@ class TestAllUserProfiles:
     """User Profiles API."""
 
     admin_uid = '2040'
-    advisor_uid = '1133399'
+    coe_advisor_uid = '1133399'
 
     def test_not_authenticated(self, client):
         """Returns 'unauthorized' response status if user is not authenticated."""
@@ -122,9 +122,9 @@ class TestAllUserProfiles:
         response = client.get('/api/profiles/all')
         assert response.status_code == 404
 
-    def test_not_authorized(self, client, fake_auth):
+    def test_unauthorized(self, client, fake_auth):
         """Returns 'unauthorized' response status if user is not admin."""
-        fake_auth.login(self.advisor_uid)
+        fake_auth.login(self.coe_advisor_uid)
         response = client.get('/api/profiles/all')
         assert response.status_code == 401
 
@@ -134,6 +134,19 @@ class TestAllUserProfiles:
         response = client.get('/api/profiles/all')
         assert response.status_code == 200
         assert len(response.json) == len(development_db._test_users)
+
+    def test_by_dept_code_unauthorized(self, client, fake_auth):
+        """Returns a well-formed response."""
+        fake_auth.login(self.coe_advisor_uid)
+        response = client.get('/api/profiles/dept/UWASC')
+        assert response.status_code == 403
+
+    def test_by_dept_code_authorized(self, client, fake_auth):
+        """Returns a well-formed response."""
+        fake_auth.login(self.coe_advisor_uid)
+        response = client.get('/api/profiles/dept/COENG')
+        assert response.status_code == 200
+        assert len(response.json) == 3
 
 
 class TestUserPhoto:

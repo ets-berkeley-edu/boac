@@ -27,10 +27,10 @@
 
   'use strict';
 
-  angular.module('boac').controller('AdminController', function($location, $scope, adminFactory, config, page) {
+  angular.module('boac').controller('AdminController', function($location, $scope, config, page, userFactory) {
 
     $scope.become = function(uid) {
-      adminFactory.becomeUser(uid).then(function() {
+      userFactory.becomeUser(uid).then(function() {
         window.location = '/';
       });
     };
@@ -38,7 +38,7 @@
     var init = function() {
       page.loading(true);
       if (config.devAuthEnabled) {
-        adminFactory.getAllUserProfiles().then(function(response) {
+        userFactory.getAllUserProfiles().then(function(response) {
           $scope.allProfiles = response.data;
           page.loading(false);
         });

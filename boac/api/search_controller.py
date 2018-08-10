@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError
-from boac.api.util import add_alert_counts, is_current_user_asc_affiliated
+from boac.api.util import add_alert_counts, can_current_user_view_dept, is_current_user_asc_affiliated
 from boac.lib import util
 from boac.lib.berkeley import get_dept_codes
 from boac.lib.http import tolerant_jsonify
@@ -50,7 +50,7 @@ def get_students():
     order_by = util.get(params, 'orderBy', None)
     offset = util.get(params, 'offset', 0)
     limit = util.get(params, 'limit', 50)
-    can_view_asc_data = current_user.is_admin or is_current_user_asc_affiliated()
+    can_view_asc_data = can_current_user_view_dept('UWASC')
     is_asc_data_request = in_intensive_cohort is not None or is_inactive_asc is not None
     if is_asc_data_request and not can_view_asc_data:
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')

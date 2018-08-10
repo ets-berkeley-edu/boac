@@ -31,7 +31,8 @@
     $location,
     $scope,
     filteredCohortFactory,
-    page
+    page,
+    validationService
   ) {
 
     var init = function() {
@@ -43,7 +44,7 @@
         if (error.status === 404) {
           $location.replace().path('/404');
         } else {
-          $scope.error = parseError(error);
+          $scope.error = validationService.parseError(error);
           page.loading(false);
         }
       });
