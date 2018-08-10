@@ -40,6 +40,9 @@
     validationService
   ) {
 
+    /**
+     * Object (ie, model) rendered on page.
+     */
     $scope.search = {
       orderBy: studentSearchService.getSortByOptionsForSearch(),
       pagination: studentSearchService.initPagination(),
@@ -70,7 +73,7 @@
       });
     };
 
-    var nextPage = $scope.nextPage = function() {
+    var reload = $scope.reload = function() {
       page.loading(true);
       var cohortId = filterCriteriaService.getCohortIdFromLocation();
       var orderBy = $scope.search.orderBy.selected;
@@ -123,6 +126,11 @@
       }
     };
 
-    nextPage();
+    var init = function() {
+      reload();
+    };
+
+    init();
+
   });
 }(window.angular));

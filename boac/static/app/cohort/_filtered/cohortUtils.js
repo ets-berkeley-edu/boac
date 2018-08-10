@@ -27,10 +27,10 @@
 
   'use strict';
 
-  angular.module('boac').service('filterCriteriaUtil', function(filterCriteriaService, utilService) {
+  angular.module('boac').service('cohortUtils', function(filterCriteriaFactory, filterCriteriaService, utilService) {
 
     var constructFilterCriteria = function(addedFilters) {
-      var definitions = filterCriteriaService.filterDefinitions();
+      var definitions = filterCriteriaFactory.filterDefinitions();
       var filterCriteria = {};
       // Initialize per definitions
       _.each(definitions, function(d) {
@@ -51,7 +51,7 @@
     };
 
     /**
-     * Cohort's existing filter-criteria are converted to an array of arrays. For example, if criteria has
+     * Transform Cohort's existing filter-criteria are converted to an array of arrays. For example, if criteria has
      * majors: [a, b, c] then this function will prepare three rows.
      *
      * The value of the secondary dropdown-select is always an array with a single string. For example,
@@ -63,7 +63,7 @@
      * @param  {Function}   callback          Standard callback
      * @return {Object}                       Bundle with criteria-reference object and selected cohort filter criteria.
      */
-    var initFiltersForDisplay = function(filterCriteria, availableFilters, callback) {
+    var transform = function(filterCriteria, availableFilters, callback) {
       var addedFilters = [];
 
       _.each(filterCriteria, function(selectedOptions, key) {
@@ -96,18 +96,24 @@
       return callback(addedFilters);
     };
 
-    var updateFiltersForDisplay = function(addedFilters, availableFilters, callback) {
+    var initFilters = function(filterCriteria, callback) {
+      filterCriteriaService.loadFilterOptions(filterCriteriaFactory.filterDefinitions(), function(availableFilters) {
+        transform(filterCriteria, availableFilters, function(addedFilters) {
+          return callback(addedFilters, availableFilters);
+        });
+      });
+    };
+
+    var updateFilters = function(addedFilters, callback) {
       var filterCriteria = constructFilterCriteria(addedFilters);
 
-      initFiltersForDisplay(filterCriteria, availableFilters, function(updatedFilters) {
-        return callback(updatedFilters);
-      });
+      initFilters(filterCriteria, callback);
     };
 
     return {
       constructFilterCriteria: constructFilterCriteria,
-      initFiltersForDisplay: initFiltersForDisplay,
-      updateFiltersForDisplay: updateFiltersForDisplay
+      initFilters: initFilters,
+      updateFilters: updateFilters
     };
   });
 

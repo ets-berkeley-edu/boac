@@ -27,19 +27,28 @@
 
   'use strict';
 
-  var FilterCriteriaController = function($scope, filterCriteriaUtil, filterCriteriaService) {
+  var FilterCriteriaController = function($scope, cohortUtils) {
 
     $scope.isLoadingCriteria = true;
+    var executeSearchFunction = null;
 
     this.$onInit = function() {
       var filterCriteria = _.clone(this.cohort.filterCriteria);
-      filterCriteriaService.getFilterDefinitions(function(availableFilters) {
+      executeSearchFunction = this.executeSearchFunction;
 
-        filterCriteriaUtil.initFiltersForDisplay(filterCriteria, availableFilters, function(addedFilters) {
-          $scope.availableFilters = availableFilters;
-          $scope.addedFilters = addedFilters;
-          $scope.isLoadingCriteria = false;
-        });
+      cohortUtils.initFilters(filterCriteria, function(addedFilters, availableFilters) {
+        $scope.availableFilters = availableFilters;
+        $scope.addedFilters = addedFilters;
+        $scope.isLoadingCriteria = false;
+      });
+    };
+
+    var updateFilters = function(callback) {
+      cohortUtils.updateFilters($scope.addedFilters, function(addedFilters, availableFilters) {
+        $scope.addedFilters = addedFilters;
+        $scope.availableFilters = availableFilters;
+
+        return callback();
       });
     };
 
@@ -64,8 +73,7 @@
           value: value
         });
 
-        filterCriteriaUtil.updateFiltersForDisplay($scope.addedFilters, $scope.availableFilters, function(addedFilters) {
-          $scope.addedFilters = addedFilters;
+        updateFilters(function() {
           // Reset the unsaved-filter
           draftFilter.primary = null;
           draftFilter.secondary = null;
@@ -90,10 +98,11 @@
         return !addedFilters.length && !_.get(draftFilter, 'primary');
       },
       onClick: function() {
-        _.noop();
+        executeSearchFunction();
       },
       show: function(addedFilters, draftFilter) {
-        return !_.isEmpty(addedFilters) && _.isEmpty(draftFilter);
+        // Show 'Apply' button (ie, perform search) if non-empty criteria and no "draft" filter is in-progress.
+        return !_.isEmpty(addedFilters) && !_.get(draftFilter, 'primary');
       }
     };
 
@@ -103,6 +112,7 @@
     $scope.removeButton = {
       onClick: function(indexOfAddedFilter) {
         _.pullAt($scope.addedFilters, [ indexOfAddedFilter ]);
+        updateFilters(_.noop);
       }
     };
 
@@ -131,7 +141,8 @@
 
   angular.module('boac').component('filterCriteria', {
     bindings: {
-      cohort: '='
+      cohort: '=',
+      executeSearchFunction: '='
     },
     controller: FilterCriteriaController,
     templateUrl: '/static/app/cohort/_filtered/filterCriteria.html'

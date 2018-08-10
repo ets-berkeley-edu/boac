@@ -32,91 +32,8 @@
     athleticsFactory,
     authService,
     studentFactory,
-    userFactory,
-    utilService
+    userFactory
   ) {
-
-    /**
-     * @return {Array}    List of cohort filter-criteria, available to current user, with defining attributes.
-     */
-    var filterDefinitions = function() {
-      var ref = [
-        {
-          available: authService.canViewCoe(),
-          defaultValue: [],
-          depth: 2,
-          key: 'advisorLdapUid',
-          name: 'Advisor',
-          handler: utilService.asArray,
-          param: 'a'
-        },
-        {
-          available: true,
-          defaultValue: [],
-          depth: 2,
-          key: 'gpaRanges',
-          handler: utilService.asArray,
-          name: 'GPA',
-          param: 'g'
-        },
-        {
-          available: authService.canViewAsc(),
-          defaultValue: [],
-          depth: 2,
-          key: 'groupCodes',
-          handler: utilService.asArray,
-          name: 'Teams',
-          param: 't'
-        },
-        {
-          available: authService.canViewAsc(),
-          defaultValue: false,
-          depth: 1,
-          handler: utilService.lenientBoolean,
-          key: 'isInactiveAsc',
-          name: 'Inactive',
-          param: 'v'
-        },
-        {
-          available: authService.canViewAsc(),
-          defaultValue: false,
-          depth: 1,
-          handler: utilService.lenientBoolean,
-          key: 'inIntensiveCohort',
-          name: 'Intensive',
-          param: 'i'
-        },
-        {
-          available: true,
-          defaultValue: [],
-          depth: 2,
-          handler: utilService.asArray,
-          key: 'levels',
-          name: 'Levels',
-          param: 'l'
-        },
-        {
-          available: true,
-          defaultValue: [],
-          depth: 2,
-          handler: utilService.asArray,
-          key: 'majors',
-          name: 'Majors',
-          param: 'm'
-        },
-        {
-          available: true,
-          defaultValue: [],
-          depth: 2,
-          handler: utilService.asArray,
-          key: 'unitRanges',
-          name: 'Units',
-          param: 'u'
-        }
-      ];
-      // Remove filters based on auth rules; see 'available' property above.
-      return _.filter(ref, 'available');
-    };
 
     var getCohortIdFromLocation = function() {
       return parseInt($location.search().c, 10);
@@ -126,7 +43,7 @@
       var queryArgs = _.clone($location.search());
       var criteria = {};
 
-      _.each(filterDefinitions, function(c) {
+      _.each(filterCriteriaFactory.filterDefinitions, function(c) {
         criteria[c.filter] = c.handler(queryArgs[c.param]);
       });
       return criteria;
@@ -135,6 +52,7 @@
     var updateLocation = function(filterCriteria) {
       // Clear browser location then update
       $location.url($location.path());
+      var filterDefinitions = filterCriteriaFactory.filterDefinitions();
 
       _.each(filterCriteria, function(value, filterName) {
         var definition = _.find(filterDefinitions, ['filter', filterName]);
@@ -216,12 +134,11 @@
     };
 
     /**
-     * @param   {Function}    callback    Standard callback
-     * @returns {Array}                   Available filter-criteria with populated menu options.
+     * @param   {Object}      definitions         Filter definitions will be populated according to user privileges.
+     * @param   {Function}    callback            Standard callback
+     * @returns {Array}                           Available filter-criteria with populated menu options.
      */
-    var getFilterDefinitions = function(callback) {
-      var definitions = filterDefinitions();
-
+    var loadFilterOptions = function(definitions, callback) {
       async.series([
         function(done) {
           getMajors(function(majors) {
@@ -271,11 +188,10 @@
     };
 
     return {
-      filterDefinitions: filterDefinitions,
       getCohortIdFromLocation: getCohortIdFromLocation,
       getCriteriaFromLocation: getCriteriaFromLocation,
-      getFilterDefinitions: getFilterDefinitions,
       getMajors: getMajors,
+      loadFilterOptions: loadFilterOptions,
       updateLocation: updateLocation
     };
 
