@@ -31,6 +31,7 @@
     $location,
     athleticsFactory,
     authService,
+    filterCriteriaFactory,
     studentFactory,
     userFactory
   ) {

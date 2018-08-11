@@ -1,42 +1,44 @@
-<div data-ng-if="isLoadingCriteria">
+<div data-ng-if="filters.isLoading">
   <i class="fas fa-sync fa-spin fa-2x"></i>
 </div>
-<div data-ng-if="!isLoadingCriteria">
+<div data-ng-if="!filters.isLoading">
   <ul>
-    <li data-ng-repeat="addedFilter in addedFilters">
-      <span data-ng-bind="addedFilter.name"></span>
-      <span data-ng-if="addedFilter.secondaryName"> | {{addedFilter.secondaryName}}</span>
+    <li data-ng-repeat="added in filters.added">
+      <span data-ng-bind="added.name"></span>
+      <span data-ng-if="added.secondaryName"> | {{added.secondaryName}}</span>
       <span>
         <button type="button"
                 id="remove-added-filter-{{$index}}"
                 class="btn-link cohort-manage-btn-link"
-                data-ng-click="removeButton.onClick($index)">
+                data-ng-click="buttons.removeButton.onClick($index)"
+                data-ng-if="buttons.removeButton.show">
           Remove
         </button>
       </span>
     </li>
     <li>
       <select id="unsaved-filter-primary"
-              data-ng-model="draftFilter.primary"
-              data-ng-options="o.name disable when o.disabled for o in availableFilters">
+              data-ng-model="filters.draft.primary"
+              data-ng-options="o.name disable when o.disabled for o in filters.available">
       </select>
       <select id="unsaved-filter-secondary"
-              data-ng-model="draftFilter.secondary"
-              data-ng-options="o.name disable when o.disabled for o in draftFilter.primary.options"
-              data-ng-if="draftFilter.primary.options">
+              data-ng-model="filters.draft.secondary"
+              data-ng-options="o.name disable when o.disabled for o in filters.draft.primary.options"
+              data-ng-if="filters.draft.primary.options">
       </select>
-      <div data-ng-if="draftFilter.primary">
+      <div data-ng-if="filters.draft.primary">
         <button type="button"
                 id="unsaved-filter-add"
                 class="btn btn-primary"
-                data-ng-click="addButton.onClick(draftFilter)"
-                data-ng-if="addButton.show(draftFilter)">
+                data-ng-click="buttons.addButton.onClick()"
+                data-ng-if="buttons.addButton.show">
           Add
         </button>
         <button type="button"
                 id="unsaved-filter-reset"
                 class="btn-link cohort-manage-btn-link"
-                data-ng-click="draftFilter.secondary = null; draftFilter.primary = null">
+                data-ng-click="buttons.cancelButton.onClick()"
+                data-ng-if="buttons.cancelButton.show">
           Cancel
         </button>
       </div>
@@ -47,16 +49,17 @@
       <button type="button"
               id="unsaved-filter-apply"
               class="btn btn-primary"
-              data-ng-click="applyButton.onClick()"
-              data-ng-disabled="applyButton.disabled(addedFilters, draftFilter)"
-              data-ng-if="applyButton.show(addedFilters, draftFilter)">
+              data-ng-click="buttons.applyButton.onClick()"
+              data-ng-disabled="buttons.applyButton.disabled"
+              data-ng-if="buttons.applyButton.show">
         Apply
       </button>
       <button type="button"
               id="unsaved-filter-save-cohort"
               class="btn btn-secondary"
-              data-ng-disabled="saveButton.disabled()"
-              data-ng-click="saveButton.onClick(createFilter)">
+              data-ng-disabled="buttons.saveButton.disabled"
+              data-ng-click="buttons.saveButton.onClick(createFilter)"
+              data-ng-if="buttons.saveButton.show">
         Save Cohort
       </button>
     </div>
