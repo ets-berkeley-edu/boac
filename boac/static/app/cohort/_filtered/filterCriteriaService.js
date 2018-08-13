@@ -40,24 +40,24 @@
       return parseInt($location.search().c, 10);
     };
 
-    var getCriteriaFromLocation = function() {
+    var getFilterCriteriaFromLocation = function() {
       var queryArgs = _.clone($location.search());
-      var criteria = {};
+      var filterCriteria = {};
 
-      _.each(filterCriteriaFactory.filterDefinitions, function(c) {
-        criteria[c.filter] = c.handler(queryArgs[c.param]);
+      _.each(filterCriteriaFactory.getFilterDefinitions(), function(d) {
+        filterCriteria[d.key] = d.handler(queryArgs[d.param]);
       });
-      return criteria;
+      return filterCriteria;
     };
 
     var updateLocation = function(filterCriteria) {
       // Clear browser location then update
       $location.url($location.path());
-      var filterDefinitions = filterCriteriaFactory.filterDefinitions();
+      var definitions = filterCriteriaFactory.getFilterDefinitions();
 
-      _.each(filterCriteria, function(value, filterName) {
-        var definition = _.find(filterDefinitions, ['filter', filterName]);
-        if (definition && !_.isNil(value)) {
+      _.each(filterCriteria, function(value, key) {
+        var definition = _.find(definitions, ['key', key]);
+        if (definition && _.size(value)) {
           $location.search(definition.param, value);
         }
       });
@@ -139,7 +139,7 @@
      * @param   {Function}    callback            Standard callback
      * @returns {Array}                           Available filter-criteria with populated menu options.
      */
-    var loadFilterOptions = function(definitions, callback) {
+    var getAvailableFilters = function(definitions, callback) {
       async.series([
         function(done) {
           getMajors(function(majors) {
@@ -190,9 +190,9 @@
 
     return {
       getCohortIdFromLocation: getCohortIdFromLocation,
-      getCriteriaFromLocation: getCriteriaFromLocation,
+      getFilterCriteriaFromLocation: getFilterCriteriaFromLocation,
       getMajors: getMajors,
-      loadFilterOptions: loadFilterOptions,
+      getAvailableFilters: getAvailableFilters,
       updateLocation: updateLocation
     };
 

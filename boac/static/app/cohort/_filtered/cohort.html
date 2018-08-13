@@ -11,12 +11,18 @@
     </div>
   </div>
   <div data-ng-if="!error && !isLoading">
+    <div data-ng-if="search.results.totalStudentCount === null">
+      <h1 class="page-section-header">Create a Filtered Cohort</h1>
+      <div>
+        Find a set of users, then save your search as a filtered cohort. Revisit your filtered cohorts at any time.
+      </div>
+    </div>
     <h1 class="page-section-header" data-ng-if="cohortName && !renameMode">
       <span data-ng-bind="cohortName"></span>
       <span class="faint-text"
             data-ng-if="search.results.totalStudentCount != null">(<span data-ng-bind="search.results.totalStudentCount"></span> students)</span>
     </h1>
-    <h1 data-ng-if="!cohortName">
+    <h1 data-ng-if="!cohortName && search.results.totalStudentCount !== null">
       <span data-ng-pluralize count="search.results.totalStudentCount" when="{'one': '1 Result', 'other': '{} Results'}"></span>
     </h1>
     <form name="renameCohortForm"
@@ -52,9 +58,10 @@
         </button>
       </div>
     </form>
-    <hr/>
     <div>
-      Show Filters
+      <span data-ng-if="showFilters && addedFilterCount">
+        Show Filters
+      </span>
       <span data-ng-if="cohort.isOwnedByCurrentUser && !cohort.isReadOnly">
         <span class="faint-text">|</span>
         <button type="button"
@@ -74,13 +81,11 @@
         </span>
       </span>
     </div>
-
-    <hr/>
-
     <filter-criteria cohort="search"
                      execute-search-function="reload"></filter-criteria>
 
-    <hr/>
+    <hr class="filters-section-separator" data-ng-if="search.results.students.length"/>
+
     <ul>
       <li data-ng-repeat="student in search.results.students track by $index">
         {{student}}
