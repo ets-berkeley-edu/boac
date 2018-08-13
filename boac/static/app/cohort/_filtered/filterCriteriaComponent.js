@@ -29,112 +29,149 @@
 
   var FilterCriteriaController = function($scope, cohortUtils) {
 
-    $scope.isLoadingCriteria = true;
+    $scope.filters = {
+      added: [],
+      available: [],
+      draft: {
+        primary: null,
+        secondary: null
+      },
+      isLoading: true
+    };
+
     var executeSearchFunction = null;
+
+    var redrawButtons = function() {
+      _.each($scope.buttons, function(button) {
+        button.redraw();
+      });
+    };
+
+    var onDraftFilterChange = function() {
+      if (!$scope.filters.isLoading) {
+        redrawButtons();
+      }
+    };
 
     this.$onInit = function() {
       var filterCriteria = _.clone(this.cohort.filterCriteria);
       executeSearchFunction = this.executeSearchFunction;
 
+      $scope.$watch('filters.draft.primary', onDraftFilterChange);
+      $scope.$watch('filters.draft.secondary', onDraftFilterChange);
+
       cohortUtils.initFilters(filterCriteria, function(addedFilters, availableFilters) {
-        $scope.availableFilters = availableFilters;
-        $scope.addedFilters = addedFilters;
-        $scope.isLoadingCriteria = false;
+        $scope.filters.available = availableFilters;
+        $scope.filters.added = addedFilters;
+        redrawButtons();
+        $scope.filters.isLoading = false;
       });
     };
 
     var updateFilters = function(callback) {
-      cohortUtils.updateFilters($scope.addedFilters, function(addedFilters, availableFilters) {
-        $scope.addedFilters = addedFilters;
-        $scope.availableFilters = availableFilters;
+      cohortUtils.updateFilters($scope.filters.added, function(addedFilters, availableFilters) {
+        $scope.filters.added = addedFilters;
+        $scope.filters.available = availableFilters;
 
         return callback();
       });
     };
 
-    /**
-     * Button to add a "draft" filter to the list of added-filters.
-     */
-    $scope.addButton = {
-      onClick: function(draftFilter) {
-        var primary = draftFilter.primary;
-        var filterDefinition = _.find($scope.availableFilters, ['key', primary.key]);
-        var value = null;
+    $scope.buttons = {
+      addButton: {
+        // Button to add a "draft" filter to the list of added-filters.
+        onClick: function() {
+          // TODO: No need for isLoading spinner if we do not re-init filterDefinitions in cohortUtils.updateFilters.
+          $scope.filters.isLoading = true;
 
-        if (filterDefinition.depth === 1) {
-          value = _.get(primary, 'value') || true;
-        } else if (draftFilter.primary.depth === 2) {
-          value = draftFilter.secondary.value;
-        } else {
-          throw new Error('Cohort-filter definition depth is not yet supported: ' + d.depth);
+          var primary = $scope.filters.draft.primary;
+          var filterDefinition = _.find($scope.filters.available, ['key', primary.key]);
+          var value = null;
+
+          if (filterDefinition.depth === 1) {
+            value = _.get(primary, 'value') || true;
+          } else if ($scope.filters.draft.primary.depth === 2) {
+            value = $scope.filters.draft.secondary.value;
+          } else {
+            throw new Error('Cohort-filter definition depth is not yet supported: ' + d.depth);
+          }
+          $scope.filters.added.push({
+            name: primary.name,
+            value: value
+          });
+
+          updateFilters(function() {
+            // Reset the unsaved-filter
+            $scope.filters.draft.primary = null;
+            $scope.filters.draft.secondary = null;
+            $scope.filters.isLoading = false;
+          });
+        },
+        show: false,
+        redraw: function() {
+          var depth = _.get($scope.filters.draft, 'primary.depth');
+          var secondaryValue = _.get($scope.filters.draft, 'secondary.value');
+          $scope.buttons.addButton.show = depth && (depth === 1 || (depth === 2 && secondaryValue));
         }
-        $scope.addedFilters.push({
-          name: primary.name,
-          value: value
-        });
-
-        updateFilters(function() {
-          // Reset the unsaved-filter
-          draftFilter.primary = null;
-          draftFilter.secondary = null;
-        });
       },
-      show: function(draftFilter) {
-        var show = false;
-        var primary = _.get(draftFilter, 'primary');
-        if (primary) {
+      applyButton: {
+        // Button to search for students based on added filters.
+        disabled: true,
+        onClick: function() {
+          $scope.filters.isLoading = true;
+          var filterCriteria = cohortUtils.constructFilterCriteria($scope.filters.added);
+          executeSearchFunction(filterCriteria);
+          $scope.filters.isLoading = false;
+        },
+        show: false,
+        redraw: function() {
+          // Show 'Apply' button (ie, perform search) if non-empty criteria and no "draft" filter is in-progress.
+          var primary = _.get($scope.filters.draft, 'primary');
+          var show = $scope.buttons.applyButton.show = !_.isEmpty($scope.filters.added) && !primary;
+          $scope.buttons.applyButton.disabled = !show && !$scope.filters.added.length && !primary;
+        }
+      },
+      cancelButton: {
+        // Button to reset draft filter.
+        onClick: function() {
+          $scope.filters.draft = {
+            primary: null,
+            secondary: null
+          };
+        },
+        show: false,
+        redraw: function() {
+          var depth = _.get($scope.filters.draft, 'primary.depth');
+          var secondaryValue = _.get($scope.filters.draft, 'secondary.value');
+          $scope.buttons.cancelButton.show = depth && (depth === 1 || (depth === 2 && secondaryValue));
+        }
+      },
+      removeButton: {
+        // Button to remove an added filter.
+        onClick: function(indexOfAddedFilter) {
+          _.pullAt($scope.filters.added, [ indexOfAddedFilter ]);
+          updateFilters(_.noop);
+        },
+        show: false,
+        redraw: function() {
+          $scope.buttons.removeButton.show = true;
+        }
+      },
+      saveButton: {
+        // Button to save/update the cohort in the db.
+        disabled: true,
+        onClick: function() {
+          $scope.filters.draft.secondary = null;
+          $scope.filters.draft.primary = null;
+        },
+        show: false,
+        redraw: function() {
           // Show 'Add' button if and only if user has drilled down to a valid selection.
-          show = primary.depth === 1 || (primary.depth === 2 && _.get(draftFilter, 'secondary.value'));
+          var depth = _.get($scope.filters.draft, 'primary.depth');
+          var secondaryValue = _.get($scope.filters.draft, 'secondary.value');
+          var show = $scope.buttons.saveButton.show = depth && (depth === 1 && primary.value) || (depth === 2 && secondaryValue);
+          $scope.buttons.saveButton.disabled = !show;
         }
-        return !!show;
-      }
-    };
-
-    /**
-     * Button to search for students based on added filters.
-     */
-    $scope.applyButton = {
-      disabled: function(addedFilters, draftFilter) {
-        return !addedFilters.length && !_.get(draftFilter, 'primary');
-      },
-      onClick: function() {
-        executeSearchFunction();
-      },
-      show: function(addedFilters, draftFilter) {
-        // Show 'Apply' button (ie, perform search) if non-empty criteria and no "draft" filter is in-progress.
-        return !_.isEmpty(addedFilters) && !_.get(draftFilter, 'primary');
-      }
-    };
-
-    /**
-     * Button to remove an added filter.
-     */
-    $scope.removeButton = {
-      onClick: function(indexOfAddedFilter) {
-        _.pullAt($scope.addedFilters, [ indexOfAddedFilter ]);
-        updateFilters(_.noop);
-      }
-    };
-
-    /**
-     * Button to save/update the cohort in the db.
-     */
-    $scope.saveButton = {
-      disabled: function() {
-        return true;
-      },
-      onClick: function(draftFilter) {
-        draftFilter.secondary = null;
-        draftFilter.primary = null;
-      },
-      show: function(draftFilter) {
-        var show = false;
-        var primary = _.get(draftFilter, 'primary');
-        if (primary) {
-          // Show 'Add' button if and only if user has drilled down to a valid selection.
-          show = !!(primary.depth === 1 && primary.value) || (primary.depth === 2 && _.get(draftFilter, 'secondary.value'));
-        }
-        return show;
       }
     };
   };

@@ -73,55 +73,70 @@
       });
     };
 
-    var reload = $scope.reload = function() {
+    var loadSavedCohort = function(cohortId, orderBy, limit, offset) {
+      filteredCohortFactory.getCohort(cohortId, orderBy, offset, limit).then(function(response) {
+        var cohort = $scope.cohort = response.data;
+        $rootScope.pageTitle = $scope.cohortName = cohort.name;
+
+        // Update browser location
+        $location.url($location.path());
+        $location.search('c', cohort.id);
+
+        _.extend($scope.search, {
+          filterCriteria: cohort.filterCriteria,
+          results: {
+            students: cohort.students,
+            totalStudentCount: cohort.totalStudentCount
+          }
+        });
+        page.loading(false);
+      }).catch(errorHandler);
+    };
+
+    var search = function(filterCriteria, orderBy, limit, offset) {
+      filterCriteriaService.updateLocation(filterCriteria);
+      studentFactory.getStudents(filterCriteria, orderBy, offset, limit).then(function(response) {
+        $scope.cohortName = cohortService.getSearchPageTitle(filterCriteria);
+        $rootScope.pageTitle = $scope.cohortName || 'Filtered Cohort';
+        _.extend($scope.search, {
+          filterCriteria: filterCriteria,
+          results: {
+            students: response.data.students,
+            totalStudentCount: response.data.totalStudentCount
+          }
+        });
+        page.loading(false);
+      }).catch(errorHandler);
+    };
+
+    var any = (criteria) => _.find(_.values(criteria));
+
+    var reload = $scope.reload = function(criteria) {
       page.loading(true);
-      var cohortId = filterCriteriaService.getCohortIdFromLocation();
-      var orderBy = $scope.search.orderBy.selected;
-      var limit = $scope.search.pagination.itemsPerPage;
-      var offset = ($scope.search.pagination.currentPage - 1) * limit;
 
-      if (cohortId > 0) {
-        filteredCohortFactory.getCohort(cohortId, orderBy, offset, limit).then(function(response) {
-          var cohort = $scope.cohort = response.data;
-          $rootScope.pageTitle = $scope.cohortName = cohort.name;
-
-          // Update browser location
-          $location.url($location.path());
-          $location.search('c', cohort.id);
-
-          _.extend($scope.search, {
-            filterCriteria: cohort.filterCriteria,
-            results: {
-              students: cohort.students,
-              totalStudentCount: cohort.totalStudentCount
-            }
-          });
-          page.loading(false);
-        }).catch(errorHandler);
+      if (criteria && any(criteria)) {
+        search(criteria);
 
       } else {
-        var filterCriteria = filterCriteriaService.getCriteriaFromLocation();
-        var hasCriteria = _.find(_.values(filterCriteria));
+        var cohortId = filterCriteriaService.getCohortIdFromLocation();
+        var orderBy = $scope.search.orderBy.selected;
+        var limit = $scope.search.pagination.itemsPerPage;
+        var offset = ($scope.search.pagination.currentPage - 1) * limit;
 
-        if (hasCriteria) {
-          filterCriteriaService.updateLocation(filterCriteria);
-          studentFactory.getStudents(filterCriteria, orderBy, offset, limit).then(function(response) {
-            $scope.cohortName = cohortService.getSearchPageTitle(filterCriteria);
-            $rootScope.pageTitle = $scope.cohortName || 'Filtered Cohort';
-            _.extend($scope.search, {
-              filterCriteria: filterCriteria,
-              results: {
-                students: response.data.students,
-                totalStudentCount: response.data.totalStudentCount
-              }
-            });
-            page.loading(false);
-          }).catch(errorHandler);
+        if (cohortId > 0) {
+          loadSavedCohort(cohortId, orderBy, limit, offset);
 
         } else {
-          // No query args is create-cohort mode
-          $rootScope.pageTitle = $scope.cohortName = 'Create a Filtered Cohort';
-          page.loading(false);
+          var filterCriteria = filterCriteriaService.getCriteriaFromLocation();
+
+          if (any(filterCriteria)) {
+            search(filterCriteria);
+
+          } else {
+            // No query args is create-cohort mode
+            $rootScope.pageTitle = $scope.cohortName = 'Create a Filtered Cohort';
+            page.loading(false);
+          }
         }
       }
     };
