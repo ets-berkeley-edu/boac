@@ -111,7 +111,7 @@
      */
     var onTab = $scope.onTab = function(tabName) {
       $scope.tab = tabName;
-      $location.search('v', $scope.tab);
+      $location.search('tab', $scope.tab);
       // Lazy load matrix data
       if (tabName === 'matrix') {
         matrixViewRefresh(function() {
@@ -137,7 +137,7 @@
 
       curatedCohortFactory.getCuratedCohort(id).then(function(response) {
         $scope.cohort = response.data;
-        onTab(_.includes(['list', 'matrix'], args.v) ? args.v : 'list');
+        onTab(_.includes(['list', 'matrix'], args.tab) ? args.tab : 'list');
         $rootScope.pageTitle = $scope.cohort.name || 'Curated Cohort';
         page.loading(false);
       }).catch(function(err) {

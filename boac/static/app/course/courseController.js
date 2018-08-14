@@ -78,7 +78,7 @@
     var onTab = $scope.onTab = function(tabName) {
       page.loading(true);
       $scope.tab = tabName;
-      $location.search('v', $scope.tab);
+      $location.search('tab', $scope.tab);
       if (tabName === 'matrix') {
         var goToUserPage = function(uid) {
           $location.state($location.absUrl());
@@ -114,9 +114,8 @@
     var init = function() {
       var args = _.clone($location.search());
       // Begin with matrix view if arg is present
-      if (args.v && _.includes(['list', 'matrix'], args.v)) {
-        $scope.tab = args.v;
-      }
+      $scope.tab = _.includes(['list', 'matrix'], args.tab) ? args.tab : $scope.tab;
+
       if (args.p && !isNaN(args.p)) {
         $scope.pagination.currentPage = parseInt(args.p, 10);
       }
