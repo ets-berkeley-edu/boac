@@ -1,0 +1,34 @@
+{
+    "analytics": {
+        "assignmentsSubmitted": null,
+        "currentScore": null,
+        "lastActivity": null
+    },
+    "enrolledUnits": 3,
+    "enrollments": [
+        {
+            "canvasSites": [],
+            "displayName": "ART 23AC",
+            "grade": "EPN",
+            "gradingBasis": "LTR",
+            "sections": [
+                {
+                    "canvasCourseIds": [],
+                    "ccn": 54321,
+                    "component": "LEC",
+                    "enrollmentStatus": "E",
+                    "grade": "EPN",
+                    "gradingBasis": "LTR",
+                    "primary": true,
+                    "sectionNumber": "001",
+                    "units": "E"
+                }
+            ],
+            "title": "Foundations of American Cyber-Culture",
+            "units": 3
+        }
+    ],
+    "termId": "2182",
+    "termName": "Spring 2018",
+    "unmatchedCanvasSites": []
+}

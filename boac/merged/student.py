@@ -154,7 +154,7 @@ def get_student_and_terms(uid):
     if not profiles or not profiles[0]:
         return
     profile = profiles[0]
-    enrollments_for_sid = data_loch.get_enrollments_for_sid(student['sid'])
+    enrollments_for_sid = data_loch.get_enrollments_for_sid(student['sid'], latest_term_id=current_term_id())
     profile['enrollmentTerms'] = [json.loads(row['enrollment_term']) for row in enrollments_for_sid]
     profile['hasCurrentTermEnrollments'] = False
     for term in profile['enrollmentTerms']:

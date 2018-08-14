@@ -258,10 +258,15 @@ class TestUserAnalytics:
         assert authenticated_response.json['enrollmentTerms'][1]['enrolledUnits'] == 10
         assert len(authenticated_response.json['enrollmentTerms'][1]['enrollments']) == 3
 
-    def test_user_analytics_term_cutoff(self, authenticated_response):
-        """Ignores terms before the configured cutoff."""
+    def test_user_analytics_earliest_term_cutoff(self, authenticated_response):
+        """Ignores terms before the configured earliest term."""
         for term in authenticated_response.json['enrollmentTerms']:
             assert term['termName'] != 'Spring 2016'
+
+    def test_user_analytics_current_term_cutoff(self, authenticated_response):
+        """Ignores terms after the configured current term."""
+        for term in authenticated_response.json['enrollmentTerms']:
+            assert term['termName'] != 'Spring 2018'
 
     def test_enrollment_without_course_site(self, authenticated_response):
         """Returns enrollments with no associated course sites."""

@@ -123,7 +123,7 @@ def fake_loch(app):
     with open(app.config['BASE_DIR'] + '/fixtures/loch.sql', 'r') as ddlfile:
         ddltext = ddlfile.read()
     params = {}
-    fixtures = ['enrollment_term_11667051_' + term_id for term_id in ['2162', '2172', '2178']]
+    fixtures = ['enrollment_term_11667051_' + term_id for term_id in ['2162', '2172', '2178', '2182']]
     fixtures.append('enrollment_term_2345678901_2172')
     for sid in ['11667051', '2345678901', '3456789012', '5678901234', '7890123456', '8901234567', '890127492']:
         fixtures += ['profile_' + sid, 'athletics_profile_' + sid]

@@ -90,7 +90,7 @@ def student_schema():
     return app.config['DATA_LOCH_STUDENT_SCHEMA']
 
 
-def cutoff_term_id():
+def earliest_term_id():
     return sis_term_id_for_name(app.config['CANVAS_EARLIEST_TERM'])
 
 
@@ -282,11 +282,13 @@ def get_student_profiles(sids):
     return safe_execute_redshift(sql, sids=sids)
 
 
-def get_enrollments_for_sid(sid):
+def get_enrollments_for_sid(sid, latest_term_id=None):
     sql = f"""SELECT term_id, enrollment_term
         FROM {student_schema()}.student_enrollment_terms
         WHERE sid = :sid
-        AND term_id >= '{cutoff_term_id()}'"""
+        AND term_id >= '{earliest_term_id()}'"""
+    if latest_term_id:
+        sql += f""" AND term_id <= '{latest_term_id}'"""
     sql += ' ORDER BY term_id DESC'
     return safe_execute_redshift(sql, sid=sid)
 
