@@ -27,25 +27,23 @@
 
   'use strict';
 
-  angular.module('boac').service('cohortUtils', function(filterCriteriaFactory, filterCriteriaService, utilService) {
+  angular.module('boac').service('cohortUtils', function(filterCriteriaFactory, utilService) {
 
-    var constructFilterCriteria = function(addedFilters) {
-      var definitions = filterCriteriaFactory.filterDefinitions();
+    var toFilterCriteria = function(addedFilters) {
+      var definitions = filterCriteriaFactory.getFilterDefinitions();
       var filterCriteria = {};
-      // Initialize per definitions
       _.each(definitions, function(d) {
         filterCriteria[d.key] = d.defaultValue;
-      });
-      // Update based on addedFilters
-      _.each(filterCriteria, function(value, key) {
-        var definition = _.find(definitions, ['key', key]);
         var values = [];
         _.each(addedFilters, function(addedFilter) {
-          if (definition.name === addedFilter.name) {
-            values.push(addedFilter.value);
+          if (d.key === addedFilter.key) {
+            var value = addedFilter.depth === 1 ? addedFilter.value : addedFilter.subCategory.value;
+            values.push(value);
           }
         });
-        filterCriteria[key] = definition.handler(values);
+        if (values.length) {
+          filterCriteria[d.key] = d.handler(values);
+        }
       });
       return filterCriteria;
     };
@@ -54,16 +52,16 @@
      * Transform Cohort's existing filter-criteria are converted to an array of arrays. For example, if criteria has
      * majors: [a, b, c] then this function will prepare three rows.
      *
-     * The value of the secondary dropdown-select is always an array with a single string. For example,
-     * the 'Levels' filter has secondary dropdown-select with four options but user can only choose one so
-     * 'secondaryOption' below is an array of length == 1.
+     * The value of the subCategory dropdown-select is always an array with a single string. For example,
+     * the 'Levels' filter has subCategory dropdown-select with four options but user can only choose one so
+     * 'subCategoryOption' below is an array of length == 1.
      *
      * @param  {Object}     filterCriteria    Has filter-criteria of saved search.
      * @param  {Object}     availableFilters  Used to render 'Add filter' options (some options are disabled)
      * @param  {Function}   callback          Standard callback
      * @return {Object}                       Bundle with criteria-reference object and selected cohort filter criteria.
      */
-    var transform = function(filterCriteria, availableFilters, callback) {
+    var initFiltersForDisplay = function(filterCriteria, availableFilters, callback) {
       var addedFilters = [];
 
       _.each(filterCriteria, function(selectedOptions, key) {
@@ -74,16 +72,17 @@
           _.each(handled, function(value) {
             if (value) {
               var addedFilter = {
+                key: d.key,
                 name: d.name,
                 value: value
               };
               if (d.depth === 1) {
                 d.disabled = true;
               } else if (d.depth === 2) {
-                var secondaryOption = _.find(d.options, ['value', value]);
-                if (secondaryOption) {
-                  addedFilter.secondaryName = secondaryOption.name;
-                  secondaryOption.disabled = true;
+                var availableSubCategory = _.find(d.options, ['value', value]);
+                if (availableSubCategory) {
+                  addedFilter.subCategory = _.pick(availableSubCategory, ['key', 'name', 'value']);
+                  availableSubCategory.disabled = true;
                 }
               } else {
                 throw new Error('Cohort-filter definition depth is not yet supported: ' + d.depth);
@@ -96,24 +95,9 @@
       return callback(addedFilters);
     };
 
-    var initFilters = function(filterCriteria, callback) {
-      filterCriteriaService.loadFilterOptions(filterCriteriaFactory.filterDefinitions(), function(availableFilters) {
-        transform(filterCriteria, availableFilters, function(addedFilters) {
-          return callback(addedFilters, availableFilters);
-        });
-      });
-    };
-
-    var updateFilters = function(addedFilters, callback) {
-      var filterCriteria = constructFilterCriteria(addedFilters);
-
-      initFilters(filterCriteria, callback);
-    };
-
     return {
-      constructFilterCriteria: constructFilterCriteria,
-      initFilters: initFilters,
-      updateFilters: updateFilters
+      toFilterCriteria: toFilterCriteria,
+      initFiltersForDisplay: initFiltersForDisplay
     };
   });
 

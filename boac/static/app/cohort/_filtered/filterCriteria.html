@@ -2,10 +2,10 @@
   <i class="fas fa-sync fa-spin fa-2x"></i>
 </div>
 <div data-ng-if="!filters.isLoading">
-  <ul>
-    <li data-ng-repeat="added in filters.added">
+  <div>
+    <div data-ng-repeat="added in filters.added track by $index">
       <span data-ng-bind="added.name"></span>
-      <span data-ng-if="added.secondaryName"> | {{added.secondaryName}}</span>
+      <span data-ng-if="added.subCategory"> | {{added.subCategory.name}}</span>
       <span>
         <button type="button"
                 id="remove-added-filter-{{$index}}"
@@ -15,18 +15,18 @@
           Remove
         </button>
       </span>
-    </li>
-    <li>
-      <select id="unsaved-filter-primary"
-              data-ng-model="filters.draft.primary"
+    </div>
+    <div>
+      <select id="draft-filter"
+              data-ng-model="filters.draft"
               data-ng-options="o.name disable when o.disabled for o in filters.available">
       </select>
-      <select id="unsaved-filter-secondary"
-              data-ng-model="filters.draft.secondary"
-              data-ng-options="o.name disable when o.disabled for o in filters.draft.primary.options"
-              data-ng-if="filters.draft.primary.options">
+      <select id="draft-filter-sub-category"
+              data-ng-model="filters.draft.subCategory"
+              data-ng-options="o.name disable when o.disabled for o in filters.draft.options"
+              data-ng-if="filters.draft.options">
       </select>
-      <div data-ng-if="filters.draft.primary">
+      <div data-ng-if="filters.draft">
         <button type="button"
                 id="unsaved-filter-add"
                 class="btn btn-primary"
@@ -42,8 +42,8 @@
           Cancel
         </button>
       </div>
-    </li>
-  </ul>
+    </div>
+  </div>
   <div>
     <div>
       <button type="button"

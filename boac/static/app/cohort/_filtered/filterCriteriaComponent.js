@@ -27,24 +27,31 @@
 
   'use strict';
 
-  var FilterCriteriaController = function($scope, cohortUtils) {
+  var FilterCriteriaController = function(
+    $rootScope,
+    $scope,
+    cohortUtils,
+    filterCriteriaFactory,
+    filterCriteriaService
+  ) {
 
     $scope.filters = {
       added: [],
       available: [],
-      draft: {
-        primary: null,
-        secondary: null
-      },
+      draft: null,
       isLoading: true
     };
 
     var executeSearchFunction = null;
 
-    var redrawButtons = function() {
+    var redrawButtons = function(isInitPhase) {
       _.each($scope.buttons, function(button) {
-        button.redraw();
+        button.redraw(isInitPhase);
       });
+    };
+
+    var onAddedFiltersChange = function() {
+      $rootScope.$broadcast('filterCriteriaComponent.filters.added', $scope.filters.added);
     };
 
     var onDraftFilterChange = function() {
@@ -57,61 +64,52 @@
       var filterCriteria = _.clone(this.cohort.filterCriteria);
       executeSearchFunction = this.executeSearchFunction;
 
-      $scope.$watch('filters.draft.primary', onDraftFilterChange);
-      $scope.$watch('filters.draft.secondary', onDraftFilterChange);
+      $scope.$watch('filters.added', onAddedFiltersChange);
+      $scope.$watch('filters.draft', onDraftFilterChange);
+      $scope.$watch('filters.draft.subCategory', onDraftFilterChange);
 
-      cohortUtils.initFilters(filterCriteria, function(addedFilters, availableFilters) {
-        $scope.filters.available = availableFilters;
-        $scope.filters.added = addedFilters;
-        redrawButtons();
-        $scope.filters.isLoading = false;
+      filterCriteriaService.getAvailableFilters(filterCriteriaFactory.getFilterDefinitions(), function(availableFilters) {
+        cohortUtils.initFiltersForDisplay(filterCriteria, availableFilters, function(addedFilters) {
+          $scope.filters.available = availableFilters;
+          $scope.filters.added = addedFilters;
+          redrawButtons(true);
+          $scope.filters.isLoading = false;
+        });
       });
     };
 
-    var updateFilters = function(callback) {
-      cohortUtils.updateFilters($scope.filters.added, function(addedFilters, availableFilters) {
-        $scope.filters.added = addedFilters;
-        $scope.filters.available = availableFilters;
-
-        return callback();
-      });
+    var updateDisableAfterAddOrRemove = function(updatedFilter, disable) {
+      var depth = updatedFilter.depth;
+      if (depth >= 3) {
+        throw new Error('Cohort-filter definition depth is not yet supported: ' + d.depth);
+      }
+      var filter = _.find($scope.filters.available, ['key', updatedFilter.key]);
+      if (depth === 1) {
+        filter.disabled = disable;
+      } else {
+        // Depth is 2. Disable selected option in available-filters list.
+        var value = updatedFilter.subCategory.value;
+        var option = _.find(filter.options, ['value', value]);
+        if (option) {
+          option.disabled = disable;
+        }
+      }
     };
 
     $scope.buttons = {
       addButton: {
         // Button to add a "draft" filter to the list of added-filters.
         onClick: function() {
-          // TODO: No need for isLoading spinner if we do not re-init filterDefinitions in cohortUtils.updateFilters.
-          $scope.filters.isLoading = true;
-
-          var primary = $scope.filters.draft.primary;
-          var filterDefinition = _.find($scope.filters.available, ['key', primary.key]);
-          var value = null;
-
-          if (filterDefinition.depth === 1) {
-            value = _.get(primary, 'value') || true;
-          } else if ($scope.filters.draft.primary.depth === 2) {
-            value = $scope.filters.draft.secondary.value;
-          } else {
-            throw new Error('Cohort-filter definition depth is not yet supported: ' + d.depth);
-          }
-          $scope.filters.added.push({
-            name: primary.name,
-            value: value
-          });
-
-          updateFilters(function() {
-            // Reset the unsaved-filter
-            $scope.filters.draft.primary = null;
-            $scope.filters.draft.secondary = null;
-            $scope.filters.isLoading = false;
-          });
+          var addedFilter = _.clone($scope.filters.draft);
+          updateDisableAfterAddOrRemove(addedFilter, true);
+          $scope.filters.added.push(addedFilter);
+          $scope.filters.draft = null;
         },
         show: false,
-        redraw: function() {
-          var depth = _.get($scope.filters.draft, 'primary.depth');
-          var secondaryValue = _.get($scope.filters.draft, 'secondary.value');
-          $scope.buttons.addButton.show = depth && (depth === 1 || (depth === 2 && secondaryValue));
+        redraw: function(isInitPhase) {
+          var depth = _.get($scope.filters.draft, 'depth');
+          var secondaryValue = _.get($scope.filters.draft, 'subCategory.value');
+          $scope.buttons.addButton.show = !isInitPhase && depth && (depth === 1 || (depth === 2 && secondaryValue));
         }
       },
       applyButton: {
@@ -119,38 +117,37 @@
         disabled: true,
         onClick: function() {
           $scope.filters.isLoading = true;
-          var filterCriteria = cohortUtils.constructFilterCriteria($scope.filters.added);
+          var filterCriteria = cohortUtils.toFilterCriteria($scope.filters.added);
           executeSearchFunction(filterCriteria);
           $scope.filters.isLoading = false;
         },
         show: false,
-        redraw: function() {
+        redraw: function(isInitPhase) {
           // Show 'Apply' button (ie, perform search) if non-empty criteria and no "draft" filter is in-progress.
-          var primary = _.get($scope.filters.draft, 'primary');
-          var show = $scope.buttons.applyButton.show = !_.isEmpty($scope.filters.added) && !primary;
-          $scope.buttons.applyButton.disabled = !show && !$scope.filters.added.length && !primary;
+          var emptyDraft = !$scope.filters.draft;
+          var show = $scope.buttons.applyButton.show = !isInitPhase && emptyDraft && $scope.filters.added.length;
+          $scope.buttons.applyButton.disabled = !show && emptyDraft && !$scope.filters.added.length;
         }
       },
       cancelButton: {
         // Button to reset draft filter.
         onClick: function() {
-          $scope.filters.draft = {
-            primary: null,
-            secondary: null
-          };
+          $scope.filters.draft = null;
         },
         show: false,
-        redraw: function() {
-          var depth = _.get($scope.filters.draft, 'primary.depth');
-          var secondaryValue = _.get($scope.filters.draft, 'secondary.value');
-          $scope.buttons.cancelButton.show = depth && (depth === 1 || (depth === 2 && secondaryValue));
+        redraw: function(isInitPhase) {
+          var depth = _.get($scope.filters.draft, 'depth');
+          var secondaryValue = _.get($scope.filters.draft, 'subCategory.value');
+          $scope.buttons.cancelButton.show = !isInitPhase && depth && (depth === 1 || (depth === 2 && secondaryValue));
         }
       },
       removeButton: {
         // Button to remove an added filter.
         onClick: function(indexOfAddedFilter) {
-          _.pullAt($scope.filters.added, [ indexOfAddedFilter ]);
-          updateFilters(_.noop);
+          var removedFilter = _.pullAt($scope.filters.added, [ indexOfAddedFilter ]);
+          if (removedFilter.length) {
+            updateDisableAfterAddOrRemove(removedFilter[0], false);
+          }
         },
         show: false,
         redraw: function() {
@@ -161,15 +158,14 @@
         // Button to save/update the cohort in the db.
         disabled: true,
         onClick: function() {
-          $scope.filters.draft.secondary = null;
-          $scope.filters.draft.primary = null;
+          $scope.filters.draft = null;
         },
         show: false,
         redraw: function() {
           // Show 'Add' button if and only if user has drilled down to a valid selection.
-          var depth = _.get($scope.filters.draft, 'primary.depth');
-          var secondaryValue = _.get($scope.filters.draft, 'secondary.value');
-          var show = $scope.buttons.saveButton.show = depth && (depth === 1 && primary.value) || (depth === 2 && secondaryValue);
+          var depth = _.get($scope.filters.draft, 'depth');
+          var subCategoryValue = _.get($scope.filters.draft, 'subCategory.value');
+          var show = $scope.buttons.saveButton.show = depth && (depth === 1 && $scope.filters.draft.value) || (depth === 2 && subCategoryValue);
           $scope.buttons.saveButton.disabled = !show;
         }
       }

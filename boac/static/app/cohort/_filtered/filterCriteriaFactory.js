@@ -32,11 +32,11 @@
     /**
      * @return {Array}    List of cohort filter-criteria, available to current user, with defining attributes.
      */
-    var filterDefinitions = function() {
+    var getFilterDefinitions = function() {
       var ref = [
         {
           available: authService.canViewCoe(),
-          defaultValue: [],
+          defaultValue: null,
           depth: 2,
           key: 'advisorLdapUid',
           name: 'Advisor',
@@ -45,7 +45,7 @@
         },
         {
           available: true,
-          defaultValue: [],
+          defaultValue: null,
           depth: 2,
           key: 'gpaRanges',
           handler: utilService.asArray,
@@ -54,7 +54,7 @@
         },
         {
           available: authService.canViewAsc(),
-          defaultValue: [],
+          defaultValue: null,
           depth: 2,
           key: 'groupCodes',
           handler: utilService.asArray,
@@ -81,7 +81,7 @@
         },
         {
           available: true,
-          defaultValue: [],
+          defaultValue: null,
           depth: 2,
           handler: utilService.asArray,
           key: 'levels',
@@ -90,7 +90,7 @@
         },
         {
           available: true,
-          defaultValue: [],
+          defaultValue: null,
           depth: 2,
           handler: utilService.asArray,
           key: 'majors',
@@ -99,7 +99,7 @@
         },
         {
           available: true,
-          defaultValue: [],
+          defaultValue: null,
           depth: 2,
           handler: utilService.asArray,
           key: 'unitRanges',
@@ -126,7 +126,7 @@
     };
 
     return {
-      filterDefinitions: filterDefinitions,
+      getFilterDefinitions: getFilterDefinitions,
       getPrimaryFilterSortOrder: getPrimaryFilterSortOrder
     };
 

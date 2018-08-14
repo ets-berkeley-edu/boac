@@ -40,6 +40,14 @@
     validationService
   ) {
 
+    $scope.showFilters = false;
+
+    $scope.filterCriteriaComponent = {
+      filters: {
+        added: null
+      }
+    };
+
     /**
      * Object (ie, model) rendered on page.
      */
@@ -47,10 +55,14 @@
       orderBy: studentSearchService.getSortByOptionsForSearch(),
       pagination: studentSearchService.initPagination(),
       results: {
-        students: [],
+        students: null,
         totalStudentCount: null
       }
     };
+
+    $rootScope.$on('filterCriteriaComponent.filters.added', function(addedFilters) {
+      $scope.addedFilterCount = _.size(addedFilters);
+    });
 
     var errorHandler = function(error) {
       if (error.status === 404) {
@@ -127,14 +139,15 @@
           loadSavedCohort(cohortId, orderBy, limit, offset);
 
         } else {
-          var filterCriteria = filterCriteriaService.getCriteriaFromLocation();
+          var filterCriteria = filterCriteriaService.getFilterCriteriaFromLocation();
 
           if (any(filterCriteria)) {
             search(filterCriteria);
 
           } else {
             // No query args is create-cohort mode
-            $rootScope.pageTitle = $scope.cohortName = 'Create a Filtered Cohort';
+            $scope.showFilters = true;
+            $rootScope.pageTitle = 'Create a Filtered Cohort';
             page.loading(false);
           }
         }
