@@ -50,10 +50,6 @@
       });
     };
 
-    var onAddedFiltersChange = function() {
-      $rootScope.$broadcast('filterCriteriaComponent.filters.added', $scope.filters.added);
-    };
-
     var onDraftFilterChange = function() {
       if (!$scope.filters.isLoading) {
         redrawButtons();
@@ -64,7 +60,6 @@
       var filterCriteria = _.clone(this.cohort.filterCriteria);
       executeSearchFunction = this.executeSearchFunction;
 
-      $scope.$watch('filters.added', onAddedFiltersChange);
       $scope.$watch('filters.draft', onDraftFilterChange);
       $scope.$watch('filters.draft.subCategory', onDraftFilterChange);
 
@@ -87,7 +82,7 @@
       if (depth === 1) {
         filter.disabled = disable;
       } else {
-        // Depth is 2. Disable selected option in available-filters list.
+        // Disable option in sub-categories.
         var value = updatedFilter.subCategory.value;
         var option = _.find(filter.options, ['value', value]);
         if (option) {
@@ -108,18 +103,17 @@
         show: false,
         redraw: function(isInitPhase) {
           var depth = _.get($scope.filters.draft, 'depth');
-          var secondaryValue = _.get($scope.filters.draft, 'subCategory.value');
-          $scope.buttons.addButton.show = !isInitPhase && depth && (depth === 1 || (depth === 2 && secondaryValue));
+          var subCategoryValue = _.get($scope.filters.draft, 'subCategory.value');
+          $scope.buttons.addButton.show = !isInitPhase && depth && (depth === 1 || (depth === 2 && subCategoryValue));
+          $scope.buttons.applyButton.redraw(false);
         }
       },
       applyButton: {
         // Button to search for students based on added filters.
         disabled: true,
         onClick: function() {
-          $scope.filters.isLoading = true;
           var filterCriteria = cohortUtils.toFilterCriteria($scope.filters.added);
           executeSearchFunction(filterCriteria);
-          $scope.filters.isLoading = false;
         },
         show: false,
         redraw: function(isInitPhase) {
@@ -137,8 +131,8 @@
         show: false,
         redraw: function(isInitPhase) {
           var depth = _.get($scope.filters.draft, 'depth');
-          var secondaryValue = _.get($scope.filters.draft, 'subCategory.value');
-          $scope.buttons.cancelButton.show = !isInitPhase && depth && (depth === 1 || (depth === 2 && secondaryValue));
+          var subCategoryValue = _.get($scope.filters.draft, 'subCategory.value');
+          $scope.buttons.cancelButton.show = !isInitPhase && depth && (depth === 1 || (depth === 2 && subCategoryValue));
         }
       },
       removeButton: {
@@ -147,6 +141,7 @@
           var removedFilter = _.pullAt($scope.filters.added, [ indexOfAddedFilter ]);
           if (removedFilter.length) {
             updateDisableAfterAddOrRemove(removedFilter[0], false);
+            $scope.buttons.applyButton.redraw(false);
           }
         },
         show: false,

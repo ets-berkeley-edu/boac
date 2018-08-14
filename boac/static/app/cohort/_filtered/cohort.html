@@ -59,8 +59,14 @@
       </div>
     </form>
     <div>
-      <span data-ng-if="showFilters && addedFilterCount">
-        Show Filters
+      <span data-ng-if="hasFilterCriteria">
+        <button type="button"
+                data-ng-attr-id="{{detailsShowing ? 'hide' : 'show'}}-details-button"
+                id="hide-details-button"
+                class="btn-link cohort-manage-btn-link"
+                data-ng-click="showHideDetails(detailsShowing)">
+          {{detailsShowing ? 'Hide' : 'Show'}} Filters
+        </button>
       </span>
       <span data-ng-if="cohort.isOwnedByCurrentUser && !cohort.isReadOnly">
         <span class="faint-text">|</span>
@@ -81,16 +87,175 @@
         </span>
       </span>
     </div>
+
     <filter-criteria cohort="search"
-                     execute-search-function="reload"></filter-criteria>
+                     execute-search-function="reload"
+                     data-ng-if="tab === 'list'"
+                     data-ng-show="detailsShowing"></filter-criteria>
 
-    <hr class="filters-section-separator" data-ng-if="search.results.students.length"/>
+    <hr class="filters-section-separator" data-ng-if="search.results.totalStudentCount"/>
 
-    <ul>
-      <li data-ng-repeat="student in search.results.students track by $index">
-        {{student}}
-      </li>
-    </ul>
+    <div class="cohort-column-results">
+      <div class="cohort-tabs-container"
+           data-ng-if="!isLoading && !error && (tab === 'matrix' || search.results.totalStudentCount)">
+
+        <div class="cohort-tabs-container-column-01">
+          <curated-cohort-selector data-students="search.results.students"
+                                   data-ng-if="search.results.totalStudentCount && (tab === 'list')"></curated-cohort-selector>
+        </div>
+        <div class="cohort-tabs-container-column-02">
+          <div data-ng-include="'/static/app/shared/tabs.html'"></div>
+        </div>
+        <div class="cohort-tabs-container-column-03">
+          <div class="cohort-sort-column" data-ng-if="tab === 'list'">
+            <label class="cohort-sort-label" for="cohort-sort-by">Sort by</label>
+            <select id="cohort-sort-by"
+                    class="form-control"
+                    data-ng-model="orderBy.selected"
+                    data-ng-options="o.value as o.name for o in orderBy.options">
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div data-ng-show="tab === 'list'"
+           data-ng-if="!isLoading && !error && search.results.totalStudentCount">
+        <ul id="cohort-students-list" class="list-group">
+          <div class="list-group-item cohort-student-list-item"
+               data-ng-class="{'list-group-item-info': anchor===student.uid}"
+               data-ng-repeat="student in search.results.students">
+
+            <div class="cohort-list-view-column-00">
+              <div class="add-to-cohort-checkbox">
+                <input id="student-{{student.uid}}-curated-cohort-checkbox"
+                       type="checkbox"
+                       data-ng-click="student.curatedCohortToggle($event)"
+                       data-ng-model="student.selectedForCuratedCohort"/>
+              </div>
+            </div>
+
+            <div class="cohort-list-view-column-01">
+              <img class="student-avatar student-avatar-large"
+                   data-ng-class="{'img-blur': demoMode.blur}"
+                   data-ng-src="/api/user/{{student.uid}}/photo"
+                   data-avatar-fallback>
+            </div>
+
+            <div class="cohort-student-bio-container">
+              <div class="cohort-student-name-container">
+                <div>
+                  <a id="{{student.uid}}" data-ng-href="/student/{{student.uid}}">
+                    <h3 class="student-name"
+                        data-ng-class="{'demo-mode-blur': demoMode.blur}"
+                        data-ng-if="orderBy.selected !== 'first_name'">
+                      {{student.lastName}}, {{student.firstName}}
+                    </h3>
+                    <h3 class="student-name"
+                        data-ng-class="{'demo-mode-blur': demoMode.blur}"
+                        data-ng-if="orderBy.selected === 'first_name'">
+                      {{student.firstName}} {{student.lastName}}
+                    </h3>
+                  </a>
+                </div>
+              </div>
+              <div class="student-sid"
+                   data-ng-class="{'demo-mode-blur': demoMode.blur}">
+                {{student.sid}}
+                <span class="red-flag-status"
+                      data-ng-if="isAscUser && !student.athleticsProfile.isActiveAsc">INACTIVE</span>
+              </div>
+              <div class="student-text" data-ng-bind="student.level"></div>
+              <div class="student-text" data-ng-bind="major" data-ng-repeat="major in student.majors track by $index"></div>
+              <div class="student-teams-container">
+                <div class="student-teams"
+                     data-ng-bind="team.groupName"
+                     data-ng-repeat="team in student.athleticsProfile.athletics"></div>
+              </div>
+            </div>
+
+            <div class="student-column">
+              <div class="student-gpa" data-ng-bind="student.cumulativeGPA || '--'"></div>
+              <div class="student-text">GPA (Cumulative)</div>
+            </div>
+
+            <div class="student-column">
+              <div class="student-gpa" data-ng-bind="student.term.enrolledUnits || '0'"></div>
+              <div class="student-text">Units (In Progress)</div>
+              <div class="student-gpa" data-ng-bind="student.cumulativeUnits || '--'"></div>
+              <div class="student-text">Total Units</div>
+            </div>
+
+            <div class="student-course-activity-wrapper">
+              <div class="student-course-activity-row">
+                <div class="student-column student-text">CLASS</div>
+                <div class="student-column student-text">BCOURSES ACTIVITY</div>
+                <div class="cohort-list-view-column-grade student-text">MID</div>
+                <div class="cohort-list-view-column-grade student-text">FINAL</div>
+              </div>
+              <div class="student-course-activity-row"
+                   data-ng-repeat="enrollment in student.term.enrollments"
+                   data-ng-if="student.term.enrollments.length">
+                <div class="student-column">
+                  <div data-ng-bind="enrollment.displayName"></div>
+                </div>
+                <div class="student-column">
+                  <div class="cohort-boxplot-container"
+                       data-ng-repeat="canvasSite in enrollment.canvasSites"
+                       data-ng-if="enrollment.canvasSites.length">
+                    <span data-ng-bind="lastActivityDays(canvasSite.analytics)"></span>
+                  </div>
+                  <div data-ng-if="!enrollment.canvasSites.length">&mdash;</div>
+                </div>
+                <div class="cohort-list-view-column-grade">
+                  <span class="cohort-grade" data-ng-bind="enrollment.midtermGrade" data-ng-if="enrollment.midtermGrade"></span>
+                  <i class="fas fa-exclamation-triangle boac-exclamation" data-ng-if="isAlertGrade(enrollment.midtermGrade)"></i>
+                  <span data-ng-if="!enrollment.midtermGrade">&mdash;</span>
+                </div>
+                <div class="cohort-list-view-column-grade">
+                  <span class="cohort-grade"
+                        data-ng-bind="enrollment.grade"
+                        data-ng-if="enrollment.grade"></span>
+                  <i class="fas fa-exclamation-triangle boac-exclamation" data-ng-if="isAlertGrade(enrollment.grade)"></i>
+                  <span class="cohort-grading-basis"
+                        data-ng-bind="enrollment.gradingBasis"
+                        data-ng-if="!enrollment.grade"></span>
+                  <span data-ng-if="!enrollment.grade && !enrollment.gradingBasis">&mdash;</span>
+                </div>
+              </div>
+              <div class="student-course-activity-row"
+                   data-ng-if="!student.term.enrollments.length">
+                <div class="student-column faint-text">
+                  No {{currentEnrollmentTerm.split(' ')[0] | lowercase}} enrollments
+                </div>
+                <div class="student-column">
+                  &mdash;
+                </div>
+                <div class="cohort-list-view-column-grade">
+                  &mdash;
+                </div>
+                <div class="cohort-list-view-column-grade">
+                  &mdash;
+                </div>
+              </div>
+            </div>
+          </div>
+        </ul>
+        <ul uib-pagination
+            boundary-link-numbers="true"
+            force-ellipses="true"
+            max-size="9"
+            rotate="false"
+            direction-links="false"
+            items-per-page="pagination.itemsPerPage"
+            total-items="search.results.totalStudentCount"
+            ng-model="pagination.currentPage"
+            data-ng-click="nextPage()"
+            data-ng-if="pagination.enabled && !isCreateCohortMode && (search.results.totalStudentCount > pagination.itemsPerPage)"></ul>
+      </div>
+      <div id="matrix-outer" data-ng-show="tab === 'matrix' && !isLoading && !error">
+        <div data-ng-include="'/static/app/shared/matrix.html'"></div>
+      </div>
+    </div>
     <ul uib-pagination
         boundary-link-numbers="true"
         force-ellipses="true"

@@ -64,14 +64,14 @@
 <div class="sidebar-row-link" data-ng-if="isAscUser">
   <span class="sidebar-row-link-label">
     <a id="sidebar-cohort-intensive"
-       data-ui-sref="filteredCohort({c: null, i: true, v: null})"
+       data-ui-sref="filteredCohort({c: null, i: true, t:null, v:null, cohortName: 'Intensive'})"
        data-ui-sref-opts="{reload: true}">Intensive Students</a>
   </span>
 </div>
 <div class="sidebar-row-link" data-ng-if="isAscUser">
   <span class="sidebar-row-link-label">
     <a id="sidebar-cohort-inactive"
-       data-ui-sref="filteredCohort({c: null, i: null, v: true})"
+       data-ui-sref="filteredCohort({c: null, i:null, t:null, v: true, cohortName: 'Inactive'})"
        data-ui-sref-opts="{reload: true}">Inactive Students</a>
   </span>
 </div>

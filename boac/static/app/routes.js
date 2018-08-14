@@ -137,7 +137,7 @@
         resolve: resolveAdmin
       })
       .state('filteredCohort', {
-        url: '/cohort/filtered?c&i&v&t',
+        url: '/cohort/filtered?c&cohortName&i&t&v',
         views: filteredCohortView,
         resolve: resolvePrivate,
         reloadOnSearch: false

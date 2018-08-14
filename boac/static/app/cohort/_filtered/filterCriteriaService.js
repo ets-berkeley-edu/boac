@@ -50,9 +50,9 @@
       return filterCriteria;
     };
 
-    var updateLocation = function(filterCriteria) {
-      // Clear browser location then update
-      $location.url($location.path());
+    var updateLocation = function(filterCriteria, currentPage) {
+      $location.search('page', currentPage);
+
       var definitions = filterCriteriaFactory.getFilterDefinitions();
 
       _.each(filterCriteria, function(value, key) {
