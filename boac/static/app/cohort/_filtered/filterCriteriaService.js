@@ -63,45 +63,7 @@
       });
     };
 
-    /**
-     * @param  {Array}     allOptions     All options of dropdown
-     * @param  {Function}  isSelected     Determines value of 'selected' property
-     * @return {void}
-     */
-    var setSelected = function(allOptions, isSelected) {
-      _.each(allOptions, function(option) {
-        if (option) {
-          option.selected = isSelected(option);
-        }
-      });
-    };
-
-    /**
-     * @param  {String}    menuName      For example, 'majors'
-     * @param  {Object}    optionGroup   Menu represents a group of options (see option-group definition)
-     * @return {void}
-     */
-    var onClickMajorOptionGroup = function(menuName, optionGroup) {
-      if (menuName === 'majors') {
-        if (optionGroup.selected) {
-          if (optionGroup.name === 'Declared') {
-            // If user selects "Declared" then all other checkboxes are deselected
-            $scope.search.count.majors = 1;
-            setSelected($scope.search.options.majors, function(major) {
-              return major.name === optionGroup.name;
-            });
-          } else if (optionGroup.name === 'Undeclared') {
-            // If user selects "Undeclared" then "Declared" is deselected
-            manualSetSelected(menuName, 'Declared', false);
-            onClickOption(menuName, optionGroup);
-          }
-        } else {
-          onClickOption(menuName, optionGroup);
-        }
-      }
-    };
-
-    var getMajors = function(callback) {
+    var getMajors = function(onClickDeclaredUndeclared, callback) {
       studentFactory.getRelevantMajors().then(function(response) {
         // Remove '*-undeclared' options in favor of generic 'Undeclared'
         var majors = _.filter(response.data, function(major) {
@@ -117,12 +79,12 @@
           {
             name: 'Declared',
             value: 'Declared',
-            onClick: onClickMajorOptionGroup
+            onClick: onClickDeclaredUndeclared
           },
           {
             name: 'Undeclared',
             value: 'Undeclared',
-            onClick: onClickMajorOptionGroup
+            onClick: onClickDeclaredUndeclared
           },
           null
         );
@@ -142,7 +104,7 @@
     var getAvailableFilters = function(definitions, callback) {
       async.series([
         function(done) {
-          getMajors(function(majors) {
+          getMajors(_.noop, function(majors) {
             setMenuOptions(definitions, 'majors', majors);
             setMenuOptions(definitions, 'gpaRanges', studentFactory.getGpaRanges());
             setMenuOptions(definitions, 'levels', studentFactory.getStudentLevels());
