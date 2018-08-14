@@ -34,7 +34,7 @@
        data-ui-sref-opts="{reload: true}">Filtered Cohorts</a>
     <a id="sidebar-filtered-cohort-create"
        class="sidebar-create-link"
-       data-ui-sref="filteredCohort({c: 'new', i: null, v: null})"
+       data-ui-sref="filteredCohort({c: 'new', i: null, t: null, v: null, cohortName: null})"
        data-ui-sref-opts="{reload: true}"><i class="fas fa-plus"></i></a>
   </span>
 </div>
@@ -42,7 +42,7 @@
   <div class="sidebar-row-link-label">
     <a id="sidebar-filtered-cohort-{{$index}}"
        class="sidebar-row-link-label-text"
-       data-ui-sref="filteredCohort({c: cohort.id, i: null, v: null})"
+       data-ui-sref="filteredCohort({c: cohort.id, i: null, t: null, v: null, cohortName: null})"
        data-ui-sref-opts="{reload: true}"
        data-ng-bind="cohort.name">
     </a>
