@@ -235,8 +235,7 @@ def get_team_groups(group_codes=None, team_code=None):
     params = {}
     sql = f"""SELECT group_code, group_name, team_code, team_name, COUNT(DISTINCT sid)
         FROM {asc_schema()}.students
-        WHERE active = TRUE
-        AND team_code IS NOT NULL"""
+        WHERE team_code IS NOT NULL"""
     if group_codes:
         sql += ' AND group_code = ANY(:group_codes)'
         params.update({'group_codes': group_codes})

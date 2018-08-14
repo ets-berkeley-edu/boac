@@ -34,10 +34,12 @@ def all_team_groups():
         return []
 
     def translate_row(row):
+        group_code = row['group_code']
+        group_name = row['group_name'] + ' (AA)' if group_code.endswith('-AA') else row['group_name']
         return {
-            'groupCode': row['group_code'],
-            'groupName': row['group_name'],
-            'name': row['group_name'],
+            'groupCode': group_code,
+            'groupName': group_name,
+            'name': group_name,
             'teamCode': row['team_code'],
             'teamName': row['team_name'],
             'totalStudentCount': row['count'],

@@ -77,17 +77,18 @@ class TestAthletics:
         team_groups = response.json
         group_codes = [team_group['groupCode'] for team_group in team_groups]
         group_names = [team_group['groupName'] for team_group in team_groups]
-        total_student_counts = [team_group['totalStudentCount'] for team_group in team_groups]
-        assert ['MFB-DB', 'MFB-DL', 'MBB', 'MTE', 'WFH', 'WTE'] == group_codes
+        assert ['MFB-DB', 'MFB-DL', 'MBB', 'MBB-AA', 'MTE', 'WFH', 'WTE'] == group_codes
         assert [
             'Football, Defensive Backs',
             'Football, Defensive Line',
             'Men\'s Baseball',
+            'Men\'s Baseball (AA)',
             'Men\'s Tennis',
             'Women\'s Field Hockey',
             'Women\'s Tennis',
         ] == group_names
-        assert [2, 3, 1, 1, 1, 1] == total_student_counts
+        total_student_counts = [team_group['totalStudentCount'] for team_group in team_groups]
+        assert [3, 4, 1, 1, 2, 2, 2] == total_student_counts
 
     def test_get_all_teams(self, asc_advisor, client):
         """Returns all teams if authenticated."""
@@ -100,7 +101,7 @@ class TestAthletics:
         total_student_counts = [team['totalStudentCount'] for team in teams]
         assert ['FBM', 'BAM', 'TNM', 'FHW', 'TNW'] == team_codes
         assert ['Football', 'Men\'s Baseball', 'Men\'s Tennis', 'Women\'s Field Hockey', 'Women\'s Tennis'] == team_names
-        assert [3, 1, 1, 1, 1] == total_student_counts
+        assert [3, 2, 1, 1, 1] == total_student_counts
         football = teams[0]
         assert football['code'] == 'FBM'
         assert football['name'] == 'Football'
