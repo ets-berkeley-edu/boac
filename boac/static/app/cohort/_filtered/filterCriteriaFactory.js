@@ -38,34 +38,37 @@
           available: authService.canViewCoe(),
           defaultValue: null,
           depth: 2,
+          handler: utilService.asArray,
           key: 'advisorLdapUid',
           name: 'Advisor',
-          handler: utilService.asArray,
-          param: 'a'
+          param: 'a',
+          subCategoryHeader: 'Advisor'
         },
         {
           available: true,
           defaultValue: null,
           depth: 2,
-          key: 'gpaRanges',
           handler: utilService.asArray,
+          key: 'gpaRanges',
           name: 'GPA',
-          param: 'g'
+          param: 'g',
+          subCategoryHeader: 'GPA Range'
         },
         {
           available: authService.canViewAsc(),
           defaultValue: null,
           depth: 2,
-          key: 'groupCodes',
           handler: utilService.asArray,
+          key: 'groupCodes',
           name: 'Teams',
-          param: 't'
+          param: 't',
+          subCategoryHeader: 'Team'
         },
         {
           available: authService.canViewAsc(),
           defaultValue: false,
-          depth: 1,
           handler: utilService.lenientBoolean,
+          depth: 1,
           key: 'isInactiveAsc',
           name: 'Inactive',
           param: 'v'
@@ -86,7 +89,8 @@
           handler: utilService.asArray,
           key: 'levels',
           name: 'Levels',
-          param: 'l'
+          param: 'l',
+          subCategoryHeader: 'Level'
         },
         {
           available: true,
@@ -95,7 +99,8 @@
           handler: utilService.asArray,
           key: 'majors',
           name: 'Majors',
-          param: 'm'
+          param: 'm',
+          subCategoryHeader: 'Major'
         },
         {
           available: true,
@@ -104,7 +109,8 @@
           handler: utilService.asArray,
           key: 'unitRanges',
           name: 'Units',
-          param: 'u'
+          param: 'u',
+          subCategoryHeader: 'Unit Range'
         }
       ];
       // Remove filters based on auth rules; see 'available' property above.

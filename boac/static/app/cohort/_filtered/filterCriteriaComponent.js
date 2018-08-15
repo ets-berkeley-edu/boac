@@ -42,6 +42,18 @@
       isLoading: true
     };
 
+    $scope.onDraftFilterClick = function(option) {
+      if (option && !option.disabled) {
+        $scope.filters.draft = option;
+      }
+    };
+
+    $scope.onDraftSubCategoryClick = function(option) {
+      if (option && !option.disabled) {
+        $scope.filters.draft.subCategory = option;
+      }
+    };
+
     var executeSearchFunction = null;
 
     var redrawButtons = function(isInitPhase) {
@@ -65,7 +77,11 @@
 
       filterCriteriaService.getAvailableFilters(filterCriteriaFactory.getFilterDefinitions(), function(availableFilters) {
         cohortUtils.initFiltersForDisplay(filterCriteria, availableFilters, function(addedFilters) {
-          $scope.filters.available = availableFilters;
+          var sortOrder = filterCriteriaFactory.getPrimaryFilterSortOrder();
+          $scope.filters.available = _.map(sortOrder, function(key) {
+            // Return null to insert divider in dropdown menu.
+            return key && _.find(availableFilters, ['key', key]);
+          });
           $scope.filters.added = addedFilters;
           redrawButtons(true);
           $scope.filters.isLoading = false;
@@ -88,6 +104,8 @@
         if (option) {
           option.disabled = disable;
         }
+        var remainingAvailable = _.omitBy(updatedFilter.options, 'disabled');
+        filter.disabled = _.isEmpty(remainingAvailable);
       }
     };
 
@@ -98,6 +116,8 @@
           var addedFilter = _.clone($scope.filters.draft);
           updateDisableAfterAddOrRemove(addedFilter, true);
           $scope.filters.added.push(addedFilter);
+          // Remove pointer to subCategory in availableFilters and then set draft to null.
+          $scope.filters.draft.subCategory = null;
           $scope.filters.draft = null;
         },
         show: false,
