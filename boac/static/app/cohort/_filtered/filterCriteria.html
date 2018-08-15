@@ -17,15 +17,48 @@
       </span>
     </div>
     <div>
-      <select id="draft-filter"
-              data-ng-model="filters.draft"
-              data-ng-options="o.name disable when o.disabled for o in filters.available">
-      </select>
-      <select id="draft-filter-sub-category"
-              data-ng-model="filters.draft.subCategory"
-              data-ng-options="o.name disable when o.disabled for o in filters.draft.options"
-              data-ng-if="filters.draft.options">
-      </select>
+      <div class="btn-group"
+           uib-dropdown
+           is-open="filters.draft.isOpen">
+        <button id="draft-filter"
+                type="button"
+                class="btn btn-primary"
+                uib-dropdown-toggle
+                ng-disabled="disabled">
+          {{filters.draft.name || 'New Filter'}} <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu"
+            uib-dropdown-menu
+            role="menu"
+            aria-labelledby="draft-filter">
+          <li role="menuitem"
+              data-ng-click="onDraftFilterClick(option)"
+              data-ng-class="{'divider': option === null, 'disabled': option.disabled}"
+              data-ng-repeat="option in filters.available track by $index"><a href="#" data-ng-bind="option.name"></a>
+          </li>
+        </ul>
+      </div>
+      <div class="btn-group"
+           uib-dropdown
+           is-open="filters.draft.isSubCategoryMenuOpen"
+           data-ng-if="filters.draft.options">
+        <button id="draft-filter-sub-category"
+                type="button"
+                class="btn btn-primary"
+                uib-dropdown-toggle
+                ng-disabled="disabled">
+          {{filters.draft.subCategory.name || filters.draft.subCategoryHeader}} <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu"
+            uib-dropdown-menu
+            role="menu"
+            aria-labelledby="draft-filter-sub-category">
+          <li role="menuitem"
+              data-ng-click="onDraftSubCategoryClick(option)"
+              data-ng-class="{'divider': option === null, 'disabled': option.disabled}"
+              data-ng-repeat="option in filters.draft.options track by $index"><a href="#" data-ng-bind="option.name"></a></li>
+        </ul>
+      </div>
       <div data-ng-if="filters.draft">
         <button type="button"
                 id="unsaved-filter-add"
