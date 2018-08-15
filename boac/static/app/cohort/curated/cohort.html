@@ -41,8 +41,8 @@
     </div>
     <div data-ng-show="tab === 'list'" data-ng-if="!isLoading && !error && cohort.studentCount">
       <div id="curated-cohort-students" class="list-group">
-        <div class="list-curated-cohort-item student-list-item"
-             data-ng-class="{'list-curated-cohort-item-info': anchor===student.uid}"
+        <div class="list-group-item student-list-item"
+             data-ng-class="{'list-group-item-info': anchor===student.uid}"
              data-ng-repeat="student in cohort.students | orderBy:studentComparator track by $index">
 
           <div class="cohort-list-view-column-01">
