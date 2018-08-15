@@ -94,8 +94,8 @@
         if (option) {
           option.disabled = disable;
         }
-        var remainingAvailable = _.omitBy(updatedFilter.options, 'disabled');
-        filter.disabled = _.isEmpty(remainingAvailable);
+        var disabledCount = _.size(_.filter(filter.options, 'disabled'));
+        filter.disabled = disabledCount === _.size(filter.options);
       }
     };
 
