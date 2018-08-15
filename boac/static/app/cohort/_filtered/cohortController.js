@@ -32,6 +32,7 @@
     $rootScope,
     $scope,
     cohortService,
+    filterCriteriaFactory,
     filterCriteriaService,
     filteredCohortFactory,
     page,
@@ -125,35 +126,42 @@
     var reload = $scope.reload = function(criteria, offsetOverride, limitOverride) {
       page.loading(true);
 
-      var orderBy = $scope.search.orderBy.selected;
-      var limit = limitOverride || $scope.search.pagination.itemsPerPage;
-      var offset = offsetOverride === null ? ($scope.search.pagination.currentPage - 1) * limit : offsetOverride;
-      var hasFilterCriteria = $scope.hasFilterCriteria = criteria && any(criteria);
+      filterCriteriaService.getAvailableFilters(filterCriteriaFactory.getFilterDefinitions(), function(availableFilters) {
+        $scope.availableFilters = _.map(filterCriteriaFactory.getPrimaryFilterSortOrder(), function(key) {
+          // Return null to insert divider in dropdown menu.
+          return key && _.find(availableFilters, ['key', key]);
+        });
 
-      if (hasFilterCriteria) {
-        search(criteria, orderBy, offset, limit);
+        var orderBy = $scope.search.orderBy.selected;
+        var limit = limitOverride || $scope.search.pagination.itemsPerPage;
+        var offset = offsetOverride === null ? ($scope.search.pagination.currentPage - 1) * limit : offsetOverride;
+        var hasFilterCriteria = $scope.hasFilterCriteria = criteria && any(criteria);
 
-      } else {
-        var cohortId = filterCriteriaService.getCohortIdFromLocation();
-
-        if (cohortId > 0) {
-          $scope.hasFilterCriteria = true;
-          loadSavedCohort(cohortId, orderBy, offset, limit);
+        if (hasFilterCriteria) {
+          search(criteria, orderBy, offset, limit);
 
         } else {
-          var filterCriteria = filterCriteriaService.getFilterCriteriaFromLocation();
+          var cohortId = filterCriteriaService.getCohortIdFromLocation();
 
-          if (any(filterCriteria)) {
-            search(filterCriteria);
+          if (cohortId > 0) {
+            $scope.hasFilterCriteria = true;
+            loadSavedCohort(cohortId, orderBy, offset, limit);
 
           } else {
-            // No query args is create-cohort mode
-            $scope.detailsShowing = true;
-            $rootScope.pageTitle = 'Create a Filtered Cohort';
-            page.loading(false);
+            var filterCriteria = filterCriteriaService.getFilterCriteriaFromLocation();
+
+            if (any(filterCriteria)) {
+              search(filterCriteria);
+
+            } else {
+              // No query args is create-cohort mode
+              $scope.detailsShowing = true;
+              $rootScope.pageTitle = 'Create a Filtered Cohort';
+              page.loading(false);
+            }
           }
         }
-      }
+      });
     };
 
     $scope.showHideDetails = function(detailsShowing) {

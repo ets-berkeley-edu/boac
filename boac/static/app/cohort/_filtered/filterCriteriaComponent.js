@@ -30,9 +30,7 @@
   var FilterCriteriaController = function(
     $rootScope,
     $scope,
-    cohortUtils,
-    filterCriteriaFactory,
-    filterCriteriaService
+    cohortUtils
   ) {
 
     $scope.filters = {
@@ -54,8 +52,6 @@
       }
     };
 
-    var executeSearchFunction = null;
-
     var redrawButtons = function(isInitPhase) {
       _.each($scope.buttons, function(button) {
         button.redraw(isInitPhase);
@@ -70,22 +66,16 @@
 
     this.$onInit = function() {
       var filterCriteria = _.clone(this.cohort.filterCriteria);
-      executeSearchFunction = this.executeSearchFunction;
 
+      $scope.executeSearchFunction = this.executeSearchFunction;
+      $scope.filters.available = _.clone(this.availableFilters);
       $scope.$watch('filters.draft', onDraftFilterChange);
       $scope.$watch('filters.draft.subCategory', onDraftFilterChange);
 
-      filterCriteriaService.getAvailableFilters(filterCriteriaFactory.getFilterDefinitions(), function(availableFilters) {
-        cohortUtils.initFiltersForDisplay(filterCriteria, availableFilters, function(addedFilters) {
-          var sortOrder = filterCriteriaFactory.getPrimaryFilterSortOrder();
-          $scope.filters.available = _.map(sortOrder, function(key) {
-            // Return null to insert divider in dropdown menu.
-            return key && _.find(availableFilters, ['key', key]);
-          });
-          $scope.filters.added = addedFilters;
-          redrawButtons(true);
-          $scope.filters.isLoading = false;
-        });
+      cohortUtils.initFiltersForDisplay(filterCriteria, $scope.filters.available, function(addedFilters) {
+        $scope.filters.added = addedFilters;
+        redrawButtons(true);
+        $scope.filters.isLoading = false;
       });
     };
 
@@ -114,8 +104,9 @@
         // Button to add a "draft" filter to the list of added-filters.
         onClick: function() {
           var addedFilter = _.clone($scope.filters.draft);
+
           updateDisableAfterAddOrRemove(addedFilter, true);
-          $scope.filters.added.push(addedFilter);
+          $scope.filters.added = cohortUtils.sortAddedFilters(_.union($scope.filters.added, [ addedFilter ]));
           // Remove pointer to subCategory in availableFilters and then set draft to null.
           $scope.filters.draft.subCategory = null;
           $scope.filters.draft = null;
@@ -133,7 +124,7 @@
         disabled: true,
         onClick: function() {
           var filterCriteria = cohortUtils.toFilterCriteria($scope.filters.added);
-          executeSearchFunction(filterCriteria);
+          $scope.executeSearchFunction(filterCriteria);
         },
         show: false,
         redraw: function(isInitPhase) {
@@ -189,6 +180,7 @@
 
   angular.module('boac').component('filterCriteria', {
     bindings: {
+      availableFilters: '=',
       cohort: '=',
       executeSearchFunction: '='
     },
