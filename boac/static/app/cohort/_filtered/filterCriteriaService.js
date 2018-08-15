@@ -33,7 +33,8 @@
     authService,
     filterCriteriaFactory,
     studentFactory,
-    userFactory
+    userFactory,
+    utilService
   ) {
 
     var getCohortIdFromLocation = function() {
@@ -88,6 +89,7 @@
           },
           null
         );
+        majors = utilService.decorateOrderedSet(majors);
         return callback(majors);
       });
     };

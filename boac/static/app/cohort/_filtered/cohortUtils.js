@@ -29,6 +29,24 @@
 
   angular.module('boac').service('cohortUtils', function(filterCriteriaFactory, utilService) {
 
+    var sortAddedFilters = function(addedFilters) {
+      var sortOrder = filterCriteriaFactory.getPrimaryFilterSortOrder();
+      return addedFilters.sort(function(f1, f2) {
+        var index1 = sortOrder.indexOf(f1.key);
+        var index2 = sortOrder.indexOf(f2.key);
+        var diff = index1 - index2;
+
+        if (diff === 0) {
+          // Objects are from the same category (e.g., Majors) so we sort by sub-category.
+          var p1 = _.get(f1, 'subCategory.position');
+          var p2 = _.get(f2, 'subCategory.position');
+
+          diff = _.isInteger(p1) && _.isInteger(p2) ? p1 - p2 : f1.value - f2.value;
+        }
+        return diff;
+      });
+    };
+
     var toFilterCriteria = function(addedFilters) {
       var definitions = filterCriteriaFactory.getFilterDefinitions();
       var filterCriteria = {};
@@ -81,7 +99,12 @@
               } else if (d.depth === 2) {
                 var availableSubCategory = _.find(d.options, ['value', value]);
                 if (availableSubCategory) {
-                  addedFilter.subCategory = _.pick(availableSubCategory, ['key', 'name', 'value']);
+                  addedFilter.subCategory = _.pick(availableSubCategory, [
+                    'key',
+                    'name',
+                    'position',
+                    'value'
+                  ]);
                   availableSubCategory.disabled = true;
                 }
               } else {
@@ -92,12 +115,13 @@
           });
         }
       });
-      return callback(addedFilters);
+      return callback(sortAddedFilters(addedFilters));
     };
 
     return {
       toFilterCriteria: toFilterCriteria,
-      initFiltersForDisplay: initFiltersForDisplay
+      initFiltersForDisplay: initFiltersForDisplay,
+      sortAddedFilters: sortAddedFilters
     };
   });
 

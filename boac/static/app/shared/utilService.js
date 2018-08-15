@@ -77,6 +77,12 @@
       });
     };
 
+    var decorateOrderedSet = function(set) {
+      return _.map(set, function(obj, index) {
+        return _.merge(obj, {position: index});
+      });
+    };
+
     /**
      * Extract 'value' property of each selected option in options array.
      *
@@ -134,6 +140,7 @@
     return {
       asArray: asArray,
       camelCaseToDashes: camelCaseToDashes,
+      decorateOrderedSet: decorateOrderedSet,
       exceedsMatrixThreshold: exceedsMatrixThreshold,
       exceedsMatrixThresholdMessage: exceedsMatrixThresholdMessage,
       lastActivityDays: lastActivityDays,
