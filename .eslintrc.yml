@@ -15,7 +15,7 @@ plugins:
 
 rules:
   angular/avoid-scope-typos:
-    - 2
+    - 0
   angular/component-limit:
     - 2
     - 2

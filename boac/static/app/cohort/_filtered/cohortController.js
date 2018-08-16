@@ -54,19 +54,12 @@
     };
     $scope.orderBy = studentSearchService.getSortByOptionsForSearch();
     $scope.hasFilterCriteria = false;
-    $scope.tab = 'list';
-
-    $scope.filterCriteriaComponent = {
-      filters: {
-        added: null
-      }
+    $scope.renameMode = {
+      error: null,
+      input: null,
+      on: false
     };
-
-    $rootScope.$on('filteredCohortDeleted', function(event, data) {
-      if (data.cohort.id === $scope.cohort.id) {
-        $state.go('home');
-      }
-    });
+    $scope.tab = 'list';
 
     /**
      * Object (ie, model) rendered on page.
@@ -80,22 +73,46 @@
       }
     };
 
+    $scope.filterCriteriaComponent = {
+      filters: {
+        added: null
+      }
+    };
+
+    $rootScope.$on('filteredCohortDeleted', function(event, data) {
+      if (data.cohort.id === $scope.cohort.id) {
+        $state.go('home');
+      }
+    });
+
     var errorHandler = function(error) {
       if (error.status === 404) {
         $location.replace().path('/404');
       } else {
         $scope.error = validationService.parseError(error);
         page.loading(false);
+        return $scope.error;
       }
     };
 
-    $scope.rename = function(cohortName) {
-      validationService.validateName({id: $scope.cohort.id, name: cohortName}, function(error) {
+    $scope.enterRenameMode = function(originalName) {
+      $scope.renameMode.input = originalName;
+      $scope.renameMode.on = true;
+    };
+
+    var exitRenameMode = $scope.exitRenameMode = function() {
+      $scope.renameMode.on = false;
+      $scope.renameMode.input = null;
+    };
+
+    $scope.rename = function() {
+      validationService.validateName({id: $scope.cohort.id, name: $scope.renameMode.input}, function(error) {
         if (error) {
-          errorHandler(error);
+          $scope.renameMode.error = errorHandler(error);
         } else {
-          filteredCohortFactory.rename($scope.cohort.id, cohortName).then(function() {
-            $scope.cohort.name = cohortName;
+          filteredCohortFactory.rename($scope.cohort.id, $scope.renameMode.input).then(function() {
+            $scope.cohort.name = $scope.renameMode.input;
+            exitRenameMode();
           }).catch(errorHandler);
         }
       });
@@ -148,16 +165,17 @@
       page.loading(true);
 
       filterCriteriaService.getAvailableFilters(filterCriteriaFactory.getFilterDefinitions(), function(availableFilters) {
-        $scope.availableFilters = _.map(filterCriteriaFactory.getPrimaryFilterSortOrder(), function(key) {
-          // Return null to insert divider in dropdown menu.
-          return key && _.find(availableFilters, ['key', key]);
-        });
-
         var criteria = searchCriteria || filterCriteriaService.getFilterCriteriaFromLocation();
         var orderBy = $scope.search.orderBy.selected;
         var limit = limitOverride || $scope.search.pagination.itemsPerPage;
         var offset = offsetOverride === null ? ($scope.search.pagination.currentPage - 1) * limit : offsetOverride;
         var hasFilterCriteria = $scope.hasFilterCriteria = criteria && any(criteria);
+        var sortOrder = filterCriteriaFactory.getPrimaryFilterSortOrder();
+
+        $scope.availableFilters = _.reject(_.map(sortOrder, function(key) {
+          // Return null to insert divider in dropdown menu.
+          return key && _.find(availableFilters, ['key', key]);
+        }), _.isUndefined);
 
         if (hasFilterCriteria) {
           search(criteria, orderBy, offset, limit);
