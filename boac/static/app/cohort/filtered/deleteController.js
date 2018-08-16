@@ -31,7 +31,7 @@
 
     var isModalOpen = false;
 
-    $scope.openDeleteCohortModal = function(cohort, stateAfterDelete) {
+    $scope.openDeleteCohortModal = function(cohort) {
       if (isModalOpen) {
         return;
       }
@@ -47,9 +47,6 @@
         resolve: {
           cohort: function() {
             return cohort;
-          },
-          stateAfterDelete: function() {
-            return stateAfterDelete;
           }
         }
       });
@@ -66,7 +63,6 @@
     $uibModalInstance,
     cohort,
     filteredCohortFactory,
-    stateAfterDelete,
     validationService
   ) {
 
@@ -74,11 +70,7 @@
 
     $scope.delete = function(item) {
       filteredCohortFactory.deleteCohort(item).then(function() {
-        if (stateAfterDelete) {
-          $state.go(stateAfterDelete);
-        } else {
-          $uibModalInstance.close();
-        }
+        $uibModalInstance.close();
       }).catch(function(error) {
         $scope.error = validationService.parseError(error);
       });

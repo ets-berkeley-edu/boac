@@ -90,6 +90,7 @@
           _.each(handled, function(value) {
             if (value) {
               var addedFilter = {
+                depth: d.depth,
                 key: d.key,
                 name: d.name,
                 value: value
@@ -97,15 +98,17 @@
               if (d.depth === 1) {
                 d.disabled = true;
               } else if (d.depth === 2) {
-                var availableSubCategory = _.find(d.options, ['value', value]);
-                if (availableSubCategory) {
-                  addedFilter.subCategory = _.pick(availableSubCategory, [
+                var subCategory = _.find(d.options, ['value', value]);
+                if (subCategory) {
+                  addedFilter.subCategory = _.pick(subCategory, [
                     'key',
                     'name',
                     'position',
                     'value'
                   ]);
-                  availableSubCategory.disabled = true;
+                  subCategory.disabled = true;
+                  var remainingAvailable = _.omitBy(d.options, 'disabled');
+                  d.disabled = _.isEmpty(remainingAvailable);
                 }
               } else {
                 throw new Error('Cohort-filter definition depth is not yet supported: ' + d.depth);

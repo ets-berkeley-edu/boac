@@ -79,7 +79,7 @@
 
     var decorateOrderedSet = function(set) {
       return _.map(set, function(obj, index) {
-        return _.merge(obj, {position: index});
+        return obj && _.merge(obj, {position: index});
       });
     };
 

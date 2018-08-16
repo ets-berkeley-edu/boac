@@ -125,6 +125,7 @@
         'unitRanges',
         'majors',
         null,
+        'advisorLdapUid',
         'groupCodes',
         'isInactiveAsc',
         'inIntensiveCohort'
