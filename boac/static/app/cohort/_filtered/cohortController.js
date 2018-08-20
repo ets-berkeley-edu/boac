@@ -45,6 +45,8 @@
     visualizationService
   ) {
 
+    var queryArgs = _.clone($location.search());
+
     /**
      * Cohort metadata ONLY. Search results (ie, students) are kept in $scope.search. Properties are null if user is
      * viewing unsaved search results.
@@ -63,7 +65,7 @@
       input: null,
       on: false
     };
-    $scope.tab = $location.search().tab || 'list';
+    $scope.tab = queryArgs.tab || 'list';
 
     /**
      * Object (ie, model) rendered on page.
@@ -165,7 +167,7 @@
     var search = function(filterCriteria, orderBy, offset, limit, callback) {
       filterCriteriaService.updateLocation(filterCriteria, $scope.search.pagination.currentPage);
       studentFactory.getStudents(filterCriteria, orderBy, offset, limit).then(function(response) {
-        $scope.cohort.name = $location.search().cohortName;
+        $scope.cohort.name = queryArgs.cohortName;
         $scope.cohort.name = $scope.cohort.name || cohortService.getSearchPageTitle(filterCriteria);
         $rootScope.pageTitle = $scope.cohort.name || 'Filtered Cohort';
         _.extend($scope.search, {
@@ -177,6 +179,12 @@
         });
 
       }).then(scatterplotRefresh).then(callback).catch(errorHandler);
+    };
+
+    var showDetails = $scope.showDetails = function(show, defaultValue) {
+      var detailsShowing = show === null ? defaultValue : utilService.toBoolOrNull(show);
+      $location.search('details', _.toLower(detailsShowing));
+      $scope.detailsShowing = detailsShowing;
     };
 
     var init = $scope.nextPage = $scope.onTab = function(tab, searchCriteria, offsetOverride, limitOverride) {
@@ -213,13 +221,15 @@
 
           if (cohortId > 0) {
             loadSavedCohort(cohortId, $scope.search.orderBy.selected, offset, limit, done);
+            showDetails(queryArgs.details, false);
 
           } else if (hasFilterCriteria) {
             search(criteria, $scope.search.orderBy.selected, offset, limit, done);
+            showDetails(queryArgs.details, true);
 
           } else {
             // No query args is create-cohort mode
-            $scope.detailsShowing = true;
+            showDetails(true);
             $rootScope.pageTitle = 'Create a Filtered Cohort';
             done();
           }
@@ -229,10 +239,6 @@
 
     $scope.executeSearchFunction = function(searchCriteria) {
       init('list', searchCriteria);
-    };
-
-    $scope.showHideDetails = function(detailsShowing) {
-      $scope.detailsShowing = !detailsShowing;
     };
 
     init();
