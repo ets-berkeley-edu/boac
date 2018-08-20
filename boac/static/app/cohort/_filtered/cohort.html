@@ -10,7 +10,7 @@
       <span data-ng-if="!error.message">Sorry, there was an error retrieving data.</span>
     </div>
   </div>
-  <div data-ng-if="!error && !isLoading">
+  <div data-ng-show="!error && !isLoading">
     <div data-ng-if="search.results.totalStudentCount === null">
       <h1 class="page-section-header">Create a Filtered Cohort</h1>
       <div>
@@ -92,9 +92,8 @@
 
     <filter-criteria available-filters="availableFilters"
                      cohort="search"
-                     execute-search-function="reload"
-                     data-ng-if="tab === 'list'"
-                     data-ng-show="detailsShowing"></filter-criteria>
+                     execute-search-function="executeSearchFunction"
+                     data-ng-if="tab === 'list' && detailsShowing && !error && !isLoading"></filter-criteria>
 
     <hr class="filters-section-separator" data-ng-if="search.results.totalStudentCount"/>
 
@@ -255,7 +254,8 @@
             data-ng-click="nextPage()"
             data-ng-if="pagination.enabled && !isCreateCohortMode && (search.results.totalStudentCount > pagination.itemsPerPage)"></ul>
       </div>
-      <div id="matrix-outer" data-ng-show="tab === 'matrix' && !isLoading && !error">
+      <div id="matrix-outer"
+           data-ng-show="tab === 'matrix' && !isLoading && !error">
         <div data-ng-include="'/static/app/shared/matrix.html'"></div>
       </div>
     </div>
