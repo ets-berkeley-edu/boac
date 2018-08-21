@@ -160,7 +160,9 @@ def get_student_and_terms(uid):
     for term in profile['enrollmentTerms']:
         if term['termId'] == current_term_id():
             profile['hasCurrentTermEnrollments'] = len(term['enrollments']) > 0
-            break
+        else:
+            # Omit dropped sections for past terms.
+            term.pop('droppedSections', None)
     return profile
 
 
