@@ -111,13 +111,15 @@
       $scope.renameMode.input = null;
     };
 
-    $scope.rename = function() {
-      validationService.validateName({id: $scope.cohort.id, name: $scope.renameMode.input}, function(error) {
+    $scope.rename = function($event) {
+      $event.stopPropagation();
+      var cohortName = $scope.renameMode.input;
+      validationService.validateName({id: $scope.cohort.id, name: cohortName}, function(error) {
         if (error) {
           $scope.renameMode.error = errorHandler(error);
         } else {
-          filteredCohortFactory.rename($scope.cohort.id, $scope.renameMode.input).then(function() {
-            $scope.cohort.name = $scope.renameMode.input;
+          filteredCohortFactory.rename($scope.cohort.id, cohortName).then(function() {
+            $scope.cohort.name = cohortName;
             exitRenameMode();
           }).catch(errorHandler);
         }

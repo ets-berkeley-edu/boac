@@ -80,7 +80,6 @@
 .cohort-column-results {
   flex: 0 0 70%;
   flex-grow: 1;
-  margin-left: 20px;
 }
 
 .cohort-container {
@@ -124,8 +123,103 @@
   white-space: nowrap;
 }
 
+.cohort-filter-draft-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 10px 0 0 0;
+}
+
+.cohort-filter-draft-column-01 {
+  border-left: 6px solid #3b7ea5;
+  flex: 0 0 200px;
+}
+
+.cohort-filter-draft-column-02 {
+  flex: 1;
+}
+
+.cohort-filter-draft-column-03 {
+  flex-basis: auto;
+}
+
+.cohort-filter-draft-column-03 button {
+  height: 40px;
+  margin-left: 10px;
+  width: 80px;
+}
+
+.cohort-filter-draft-column-04 {
+  flex: 1;
+  vertical-align: middle;
+}
+
+.cohort-filter-draft-column-04 button {
+  margin: 8px 0 0 10px;
+}
+
+.btn-filter-draft {
+  background-color: #f3f3f3;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  color: #000;
+  font-size: 16px;
+  margin-left: 8px;
+  padding: 8px 5px 8px 10px;
+  text-align: left;
+  white-space: nowrap;
+  width: 200px;
+  vertical-align: middle;
+}
+
+.btn-filter-draft span.fas {
+  float: right;
+  font-size: 24px;
+  margin-right: 10px;
+}
+
+.btn-filter-draft-apply {
+  height: 40px;
+  margin: 15px 8px 0 0;
+  width: 80px;
+}
+
+.btn-filter-draft-open {
+  color: #000;
+  outline: none !important;
+}
+
+.btn-filter-draft-save {
+  border: 1px solid #337ab7;
+  color: #337ab7;
+  height: 40px;
+  font-weight: 500;
+  margin: 15px 0 0 0;
+  width: 120px;
+}
+
+.btn-filter-draft-save:hover,
+.btn-filter-draft-save:focus,
+.btn-filter-draft-save:active {
+  color: #337abf;
+}
+
+.btn-filter-draft-subcategory {
+  width: 400px;
+}
+
+.cohort-filter-dropdown {
+  margin-left: 10px;
+  width: 200px;
+}
+
 .cohort-filter-dropdown-toggle {
   background: #fff;
+}
+
+.cohort-filter-subcategory-dropdown {
+  margin-left: 10px;
+  width: 400px;
 }
 
 .cohort-filter-label {
@@ -143,6 +237,38 @@
   white-space: nowrap;
 }
 
+.cohort-filter-row {
+  background-color: #f3f3f3;
+  border-left: 6px solid #3b7ea5 !important;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 5px 0 5px 0;
+  padding: 6px 10px 2px 10px;
+  text-align: left;
+}
+
+.cohort-filter-item-filter {
+  -webkit-flex: 0 0 200px;
+  flex: 0 0 200px;
+  font-weight: 600;
+}
+
+.cohort-filter-item-name {
+  -webkit-flex: 0 0 200px;
+  flex: 0 0 200px;
+}
+
+.cohort-filter-item-button {
+  flex: 0 0 200px;
+  text-align: right;
+}
+
+.cohort-filter-item-button > button {
+  text-transform: uppercase;
+  font-size: 0.8em;
+}
+
 .cohort-filters-column {
   margin: 10px 0 10px 0;
 }
@@ -155,6 +281,57 @@
   color: #666;
   font-size: 14px;
   font-style: italic;
+}
+
+.cohort-rename-container div {
+  margin-top: 8px;
+  padding: 0;
+  text-align: left;
+}
+
+.cohort-rename-container div > form {
+  height: 38px;
+  margin-top: 10px;
+}
+
+.cohort-header-container {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.cohort-header-container div {
+  -webkit-flex: 1 0 0;
+  flex: 1 0 0;
+}
+
+.cohort-header-container div:first-child {
+  -webkit-flex: 3 1 auto;
+  flex: 3 1 auto;
+}
+
+.cohort-header-buttons {
+  align-self: self-start;
+  flex-grow: 1;
+  margin-top: 18px;
+  text-align: right;
+}
+
+.cohort-header-button-links {
+  flex-grow: 1;
+  margin-top: 12px;
+  text-align: right;
+}
+
+.cohort-header-buttons > button {
+  float: right;
+  width: 70px;
+}
+
+.cohort-rename-container {
+  display: flex;
+  flex-direction: column;
 }
 
 .cohort-label {
@@ -257,7 +434,6 @@
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  padding-top: 20px;
 }
 
 .cohort-tabs-container-column-02 {
@@ -276,7 +452,8 @@
 }
 
 .filters-section-separator {
-  margin: 0;
+  border-top: 2px solid #eee;
+  margin: 20px 0 0 0;
 }
 
 .cohort-all-menu {

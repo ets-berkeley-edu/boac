@@ -3,63 +3,80 @@
 </div>
 <div data-ng-if="!filters.isLoading">
   <div>
-    <div data-ng-repeat="added in filters.added track by $index">
-      <span data-ng-bind="added.name"></span>
-      <span data-ng-if="added.subCategory"> | {{added.subCategory.name}}</span>
-      <span>
-        <button type="button"
-                id="remove-added-filter-{{$index}}"
-                class="btn-link cohort-manage-btn-link"
-                data-ng-click="buttons.removeButton.onClick($index)"
-                data-ng-if="buttons.removeButton.show">
-          Remove
-        </button>
-      </span>
-    </div>
     <div>
-      <div class="btn-group"
-           uib-dropdown
-           is-open="filters.draft.isOpen">
-        <button id="draft-filter"
-                type="button"
-                class="btn btn-primary"
-                uib-dropdown-toggle
-                ng-disabled="disabled">
-          {{filters.draft.name || 'New Filter'}} <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu"
-            uib-dropdown-menu
-            role="menu"
-            aria-labelledby="draft-filter">
-          <li role="menuitem"
-              data-ng-click="onDraftFilterClick(option)"
-              data-ng-class="{'divider': option === null, 'disabled': option.disabled}"
-              data-ng-repeat="option in filters.available track by $index"><a href="#" data-ng-bind="option.name"></a>
-          </li>
-        </ul>
+      <div class="cohort-filter-row"
+           data-ng-repeat="filter in filters.added track by $index">
+        <div class="cohort-filter-item-filter">
+          <span data-ng-bind="filter.name"></span>
+        </div>
+        <div class="cohort-filter-item-name">
+          <span data-ng-bind="filter.subcategory.name"
+                data-ng-if="filter.subcategory"></span>
+        </div>
+        <div class="cohort-filter-item-button">
+          <button type="button"
+                  id="remove-added-filter-{{$index}}"
+                  class="btn-link cohort-manage-btn-link"
+                  data-ng-click="buttons.removeButton.onClick($index)"
+                  data-ng-if="buttons.removeButton.show">
+            Remove
+          </button>
+        </div>
       </div>
-      <div class="btn-group"
-           uib-dropdown
-           is-open="filters.draft.isSubCategoryMenuOpen"
-           data-ng-if="filters.draft.options">
-        <button id="draft-filter-sub-category"
-                type="button"
-                class="btn btn-primary"
-                uib-dropdown-toggle
-                ng-disabled="disabled">
-          {{filters.draft.subCategory.name || filters.draft.subCategoryHeader}} <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu"
-            uib-dropdown-menu
-            role="menu"
-            aria-labelledby="draft-filter-sub-category">
-          <li role="menuitem"
-              data-ng-click="onDraftSubCategoryClick(option)"
-              data-ng-class="{'divider': option === null, 'disabled': option.disabled}"
-              data-ng-repeat="option in filters.draft.options track by $index"><a href="#" data-ng-bind="option.name"></a></li>
-        </ul>
+    </div>
+    <div class="cohort-filter-draft-row">
+      <div class="cohort-filter-draft-column-01">
+        <div class="btn-group"
+             uib-dropdown
+             is-open="filters.draft.isOpen">
+          <button id="draft-filter"
+                  type="button"
+                  class="btn-filter-draft"
+                  data-ng-class="{'btn-filter-draft-open': filters.draft.isOpen}"
+                  uib-dropdown-toggle
+                  ng-disabled="disabled">
+            {{filters.draft.name || 'New Filter'}}
+            <span data-ng-class="{'fa-angle-up': filters.draft.isOpen, 'fa-angle-down': !filters.draft.isOpen}" class="fas"></span>
+          </button>
+          <ul class="dropdown-menu cohort-filter-dropdown"
+              uib-dropdown-menu
+              role="menu"
+              aria-labelledby="draft-filter">
+            <li role="menuitem"
+                data-ng-click="onDraftFilterClick(option)"
+                data-ng-class="{'divider': option === null, 'disabled': option.disabled}"
+                data-ng-repeat="option in filters.available track by $index"><a href="#" data-ng-bind="option.name"></a>
+            </li>
+          </ul>
+        </div>
       </div>
-      <div data-ng-if="filters.draft">
+      <div class="cohort-filter-draft-column-02"
+           data-ng-if="filters.draft.depth !== 1">
+        <div class="btn-group"
+             uib-dropdown
+             is-open="filters.draft.isSubcategoryMenuOpen"
+             data-ng-if="filters.draft.options">
+          <button id="draft-filter-subcategory"
+                  type="button"
+                  class="btn-filter-draft btn-filter-draft-subcategory"
+                  data-ng-class="{'btn-filter-draft-open': filters.draft.isSubcategoryMenuOpen}"
+                  uib-dropdown-toggle
+                  ng-disabled="disabled">
+            {{filters.draft.subcategory.name || filters.draft.subcategoryHeader}}
+            <span data-ng-class="{'fa-angle-up': filters.draft.isSubcategoryMenuOpen, 'fa-angle-down': !filters.draft.isSubcategoryMenuOpen}" class="fas"></span>
+          </button>
+          <ul class="dropdown-menu cohort-filter-subcategory-dropdown"
+              uib-dropdown-menu
+              role="menu"
+              aria-labelledby="draft-filter-subcategory">
+            <li role="menuitem"
+                data-ng-click="onDraftSubCategoryClick(option)"
+                data-ng-class="{'divider': option === null, 'disabled': option.disabled}"
+                data-ng-repeat="option in filters.draft.options track by $index"><a href="#" data-ng-bind="option.name"></a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="cohort-filter-draft-column-03">
         <button type="button"
                 id="unsaved-filter-add"
                 class="btn btn-primary"
@@ -67,6 +84,8 @@
                 data-ng-if="buttons.addButton.show">
           Add
         </button>
+      </div>
+      <div class="cohort-filter-draft-column-04">
         <button type="button"
                 id="unsaved-filter-reset"
                 class="btn-link cohort-manage-btn-link"
@@ -81,7 +100,7 @@
     <div>
       <button type="button"
               id="unsaved-filter-apply"
-              class="btn btn-primary"
+              class="btn btn-primary btn-filter-draft-apply"
               data-ng-click="buttons.applyButton.onClick()"
               data-ng-disabled="buttons.applyButton.disabled"
               data-ng-if="buttons.applyButton.show">
@@ -89,7 +108,7 @@
       </button>
       <button type="button"
               id="unsaved-filter-save-cohort"
-              class="btn btn-secondary"
+              class="btn btn-secondary btn-filter-draft-save"
               data-ng-disabled="buttons.saveButton.disabled"
               data-ng-click="buttons.saveButton.onClick(createFilter)"
               data-ng-if="buttons.saveButton.show">

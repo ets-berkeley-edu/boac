@@ -42,13 +42,15 @@
 
     $scope.onDraftFilterClick = function(option) {
       if (option && !option.disabled) {
+        _.set($scope.filters.draft, 'subcategory', null);
+        $scope.buttons.saveButton.show = false;
         $scope.filters.draft = option;
       }
     };
 
     $scope.onDraftSubCategoryClick = function(option) {
       if (option && !option.disabled) {
-        $scope.filters.draft.subCategory = option;
+        $scope.filters.draft.subcategory = option;
       }
     };
 
@@ -70,7 +72,7 @@
       $scope.executeSearchFunction = this.executeSearchFunction;
       $scope.filters.available = _.clone(this.availableFilters);
       $scope.$watch('filters.draft', onDraftFilterChange);
-      $scope.$watch('filters.draft.subCategory', onDraftFilterChange);
+      $scope.$watch('filters.draft.subcategory', onDraftFilterChange);
 
       cohortUtils.initFiltersForDisplay(filterCriteria, $scope.filters.available, function(addedFilters) {
         $scope.filters.added = addedFilters;
@@ -89,7 +91,7 @@
         filter.disabled = disable;
       } else {
         // Disable option in sub-categories.
-        var value = updatedFilter.subCategory.value;
+        var value = updatedFilter.subcategory.value;
         var option = _.find(filter.options, ['value', value]);
         if (option) {
           option.disabled = disable;
@@ -107,15 +109,15 @@
 
           updateDisableAfterAddOrRemove(addedFilter, true);
           $scope.filters.added = cohortUtils.sortAddedFilters(_.union($scope.filters.added, [ addedFilter ]));
-          // Remove pointer to subCategory in availableFilters and then set draft to null.
-          $scope.filters.draft.subCategory = null;
+          // Remove pointer to subcategory in availableFilters and then set draft to null.
+          $scope.filters.draft.subcategory = null;
           $scope.filters.draft = null;
         },
         show: false,
         redraw: function(isInitPhase) {
           var depth = _.get($scope.filters.draft, 'depth');
-          var subCategoryValue = _.get($scope.filters.draft, 'subCategory.value');
-          $scope.buttons.addButton.show = !isInitPhase && depth && (depth === 1 || (depth === 2 && subCategoryValue));
+          var subcategoryValue = _.get($scope.filters.draft, 'subcategory.value');
+          $scope.buttons.addButton.show = !isInitPhase && depth && (depth === 1 || (depth === 2 && subcategoryValue));
           $scope.buttons.applyButton.redraw(false);
         }
       },
@@ -125,6 +127,7 @@
         onClick: function() {
           var filterCriteria = cohortUtils.toFilterCriteria($scope.filters.added);
           $scope.executeSearchFunction(filterCriteria);
+          $scope.buttons.saveButton.show = true;
         },
         show: false,
         redraw: function(isInitPhase) {
@@ -141,9 +144,7 @@
         },
         show: false,
         redraw: function(isInitPhase) {
-          var depth = _.get($scope.filters.draft, 'depth');
-          var subCategoryValue = _.get($scope.filters.draft, 'subCategory.value');
-          $scope.buttons.cancelButton.show = !isInitPhase && depth && (depth === 1 || (depth === 2 && subCategoryValue));
+          $scope.buttons.cancelButton.show = !isInitPhase && _.get($scope.filters.draft, 'key');
         }
       },
       removeButton: {
@@ -162,17 +163,16 @@
       },
       saveButton: {
         // Button to save/update the cohort in the db.
-        disabled: true,
+        disabled: false,
         onClick: function() {
           $scope.filters.draft = null;
         },
         show: false,
-        redraw: function() {
-          // Show 'Add' button if and only if user has drilled down to a valid selection.
-          var depth = _.get($scope.filters.draft, 'depth');
-          var subCategoryValue = _.get($scope.filters.draft, 'subCategory.value');
-          var show = $scope.buttons.saveButton.show = depth && (depth === 1 && $scope.filters.draft.value) || (depth === 2 && subCategoryValue);
-          $scope.buttons.saveButton.disabled = !show;
+        redraw: function(isInitPhase) {
+          // We set 'show' to true when user clicks Apply. We set 'show' to false if filters are altered.
+          if (isInitPhase && _.size($scope.filters.added)) {
+            $scope.buttons.saveButton.show = true;
+          }
         }
       }
     };

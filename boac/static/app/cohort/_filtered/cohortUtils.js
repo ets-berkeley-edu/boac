@@ -38,8 +38,8 @@
 
         if (diff === 0) {
           // Objects are from the same category (e.g., Majors) so we sort by sub-category.
-          var p1 = _.get(f1, 'subCategory.position');
-          var p2 = _.get(f2, 'subCategory.position');
+          var p1 = _.get(f1, 'subcategory.position');
+          var p2 = _.get(f2, 'subcategory.position');
 
           diff = _.isInteger(p1) && _.isInteger(p2) ? p1 - p2 : f1.value - f2.value;
         }
@@ -55,7 +55,7 @@
         var values = [];
         _.each(addedFilters, function(addedFilter) {
           if (d.key === addedFilter.key) {
-            var value = addedFilter.depth === 1 ? addedFilter.value : addedFilter.subCategory.value;
+            var value = addedFilter.depth === 1 ? addedFilter.value : addedFilter.subcategory.value;
             values.push(value);
           }
         });
@@ -70,9 +70,9 @@
      * Transform Cohort's existing filter-criteria are converted to an array of arrays. For example, if criteria has
      * majors: [a, b, c] then this function will prepare three rows.
      *
-     * The value of the subCategory dropdown-select is always an array with a single string. For example,
-     * the 'Levels' filter has subCategory dropdown-select with four options but user can only choose one so
-     * 'subCategoryOption' below is an array of length == 1.
+     * The value of the subcategory dropdown-select is always an array with a single string. For example,
+     * the 'Levels' filter has subcategory dropdown-select with four options but user can only choose one so
+     * 'subcategoryOption' below is an array of length == 1.
      *
      * @param  {Object}     filterCriteria    Has filter-criteria of saved search.
      * @param  {Object}     availableFilters  Used to render 'Add filter' options (some options are disabled)
@@ -98,15 +98,15 @@
               if (d.depth === 1) {
                 d.disabled = true;
               } else if (d.depth === 2) {
-                var subCategory = _.find(d.options, ['value', value]);
-                if (subCategory) {
-                  addedFilter.subCategory = _.pick(subCategory, [
+                var subcategory = _.find(d.options, ['value', value]);
+                if (subcategory) {
+                  addedFilter.subcategory = _.pick(subcategory, [
                     'key',
                     'name',
                     'position',
                     'value'
                   ]);
-                  subCategory.disabled = true;
+                  subcategory.disabled = true;
                   var remainingAvailable = _.omitBy(d.options, 'disabled');
                   d.disabled = _.isEmpty(remainingAvailable);
                 }

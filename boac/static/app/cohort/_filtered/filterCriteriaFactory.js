@@ -42,7 +42,7 @@
           key: 'advisorLdapUid',
           name: 'Advisor',
           param: 'a',
-          subCategoryHeader: 'Advisor'
+          subcategoryHeader: 'Advisor'
         },
         {
           available: true,
@@ -52,7 +52,7 @@
           key: 'gpaRanges',
           name: 'GPA',
           param: 'g',
-          subCategoryHeader: 'GPA Range'
+          subcategoryHeader: 'GPA Range'
         },
         {
           available: authService.canViewAsc(),
@@ -62,7 +62,7 @@
           key: 'groupCodes',
           name: 'Teams',
           param: 't',
-          subCategoryHeader: 'Team'
+          subcategoryHeader: 'Team'
         },
         {
           available: authService.canViewAsc(),
@@ -90,7 +90,7 @@
           key: 'levels',
           name: 'Levels',
           param: 'l',
-          subCategoryHeader: 'Level'
+          subcategoryHeader: 'Level'
         },
         {
           available: true,
@@ -100,7 +100,7 @@
           key: 'majors',
           name: 'Majors',
           param: 'm',
-          subCategoryHeader: 'Major'
+          subcategoryHeader: 'Major'
         },
         {
           available: true,
@@ -110,7 +110,7 @@
           key: 'unitRanges',
           name: 'Units',
           param: 'u',
-          subCategoryHeader: 'Unit Range'
+          subcategoryHeader: 'Unit Range'
         }
       ];
       // Remove filters based on auth rules; see 'available' property above.
