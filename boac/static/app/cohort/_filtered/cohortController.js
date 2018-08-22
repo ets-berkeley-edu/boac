@@ -54,8 +54,7 @@
     $scope.cohort = {
       id: null,
       name: null,
-      isOwnedByCurrentUser: null,
-      isReadOnly: null
+      isOwnedByCurrentUser: null
     };
     $scope.exceedsMatrixThresholdMessage = utilService.exceedsMatrixThresholdMessage;
     $scope.orderBy = studentSearchService.getSortByOptionsForSearch();

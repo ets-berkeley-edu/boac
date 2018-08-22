@@ -25,7 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac import db, std_commit
-from boac.api.util import create_my_students_cohort
 from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
@@ -173,7 +172,7 @@ def create_filtered_cohorts():
     CohortFilter.create(uid=asc_advisor_uid, label='All sports', group_codes=['MFB-DL', 'WFH'], is_inactive_asc=False)
     # Sandeep's cohorts
     coe_advisor_uid = '1133399'
-    create_my_students_cohort(coe_advisor_uid, 'Sandeep')
+    CohortFilter.create(uid=coe_advisor_uid, label='Sandeep\'s Students', advisor_ldap_uids=[coe_advisor_uid])
     CohortFilter.create(uid='1133399', label='Radioactive Women and Men', majors=['Nuclear Engineering BS'])
     std_commit(allow_test_environment=True)
 

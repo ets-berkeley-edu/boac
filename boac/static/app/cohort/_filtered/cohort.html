@@ -74,7 +74,7 @@
             {{detailsShowing ? 'Hide' : 'Show'}} Filters
           </button>
         </span>
-        <span data-ng-if="cohort.id && cohort.isOwnedByCurrentUser && !cohort.isReadOnly">
+        <span data-ng-if="cohort.id && cohort.isOwnedByCurrentUser">
           <span class="faint-text">|</span>
           <button type="button"
                   id="rename-cohort-button"

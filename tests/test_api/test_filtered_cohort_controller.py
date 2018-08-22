@@ -90,24 +90,6 @@ class TestCohortDetail:
         assert defense_backs_all['totalStudentCount'] == 2
         assert defense_backs_inactive['totalStudentCount'] == 1
 
-    def test_create_cohort_if_first_coe_login(self, client, fake_auth):
-        # COE advisor logs in for the first time
-        uid = '90412'
-        fake_auth.login(uid)
-        cohorts = client.get('/api/filtered_cohorts/my').json
-        assert len(cohorts) == 1
-        cohort = cohorts[0]
-        assert cohort['name'] == 'My Students'
-        assert cohort['filterCriteria']['advisorLdapUids'] == [uid]
-        assert cohort['isOwnedByCurrentUser'] is True
-        assert cohort['totalStudentCount'] == 2
-        response = client.get(f"/api/filtered_cohort/{cohort['id']}")
-        assert response.status_code == 200
-        students = response.json['students']
-        assert len(students) == 2
-        assert next(s for s in students if s['name'] == 'Nora Stanton Barney')
-        assert next(s for s in students if s['name'] == 'Deborah Davies')
-
     def test_my_cohorts_includes_students_with_alert_counts(self, asc_advisor_session, client, create_alerts, db_session):
         # Pre-load students into cache for consistent alert data.
         client.get('/api/user/61889/analytics')
@@ -314,24 +296,6 @@ class TestCohortDetail:
         assert group_codes == [g['groupCode'] for g in cohort['teamGroups']]
         f = cohort['filterCriteria']
         assert 'majors' in f and len(f['majors']) == 2
-
-    def test_read_only_cohort(self, client, fake_auth):
-        uid = '1022796'
-        fake_auth.login(uid)
-        data = {
-            'label': 'Students of Jane the COE Advisor',
-            'advisorLdapUids': [uid],
-            'groupCodes': [],
-            'majors': [],
-        }
-        response = client.post('/api/filtered_cohort/create', data=json.dumps(data), content_type='application/json')
-        assert response.status_code == 200
-        cohort = json.loads(response.data)
-        assert cohort['isReadOnly'] is True
-        assert cohort['filterCriteria']['advisorLdapUids'] == [uid]
-        cohort_id = cohort['id']
-        response = client.delete(f'/api/filtered_cohort/delete/{cohort_id}')
-        assert response.status_code == 403
 
     def test_forbidden_create_of_coe_uid_cohort(self, asc_advisor_session, client, fake_auth):
         data = {

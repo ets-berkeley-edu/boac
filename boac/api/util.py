@@ -32,7 +32,6 @@ from boac.merged import calnet
 from boac.merged.student import query_students
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.cohort_filter import CohortFilter
 from flask import current_app as app, request
 from flask_login import current_user
 
@@ -100,14 +99,6 @@ def canvas_courses_api_feed(courses):
     return [canvas_course_api_feed(course) for course in courses]
 
 
-def create_my_students_cohort(uid, first_name=None):
-    return CohortFilter.create(
-        uid=uid,
-        label=f'{first_name}\'s Students' if first_name else 'My Students',
-        advisor_ldap_uids=[uid],
-    )
-
-
 def decorate_cohort(
     cohort,
     order_by=None,
@@ -118,19 +109,15 @@ def decorate_cohort(
     include_alerts_for_uid=None,
 ):
     criteria = cohort if isinstance(cohort.filter_criteria, dict) else json.loads(cohort.filter_criteria)
-    is_read_only = is_read_only_cohort(cohort)
     advisor_ldap_uids = util.get(criteria, 'advisorLdapUids')
     if not isinstance(advisor_ldap_uids, list):
         advisor_ldap_uids = [advisor_ldap_uids] if advisor_ldap_uids else None
     # In odd circumstances we override the cohort's actual name
     cohort_name = cohort.label
     current_user_uid = current_user.uid if current_user and hasattr(current_user, 'uid') else None
-    if is_read_only and current_user_uid in advisor_ldap_uids:
-        cohort_name = 'My Students'
     decorated = {
         'id': cohort.id,
         'code': cohort.id,
-        'isReadOnly': is_read_only,
         'isOwnedByCurrentUser': current_user_uid in [o.uid for o in cohort.owners],
         'label': cohort_name,
         'name': cohort_name,
@@ -204,12 +191,6 @@ def decorate_cohort(
                     'alerts': alert_counts,
                 })
     return decorated
-
-
-def is_read_only_cohort(cohort):
-    criteria = cohort if isinstance(cohort.filter_criteria, dict) else json.loads(cohort.filter_criteria)
-    keys_with_not_none_value = [key for key, value in criteria.items() if value not in [None, []]]
-    return keys_with_not_none_value == ['advisorLdapUids']
 
 
 def sis_enrollment_class_feed(enrollment):

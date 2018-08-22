@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import create_my_students_cohort, decorate_cohort, is_read_only_cohort, strip_analytics
+from boac.api.util import decorate_cohort, strip_analytics
 from boac.lib import util
 from boac.lib.berkeley import can_view_cohort, get_dept_codes
 from boac.lib.http import tolerant_jsonify
@@ -61,14 +61,7 @@ def all_cohorts():
 @login_required
 def my_cohorts():
     uid = current_user.get_id()
-    _my_cohorts = CohortFilter.all_owned_by(uid)
-    canned_cohort = next((c for c in _my_cohorts if is_read_only_cohort(c)), None)
-    if not canned_cohort and 'COENG' in get_dept_codes(current_user):
-        # COE advisor, logging in for first time, gets a canned cohort sourced from COE UGRAD data in Nessie
-        profile = calnet.get_calnet_user_for_uid(app, uid)
-        create_my_students_cohort(uid, profile.get('firstName'))
-        _my_cohorts = CohortFilter.all_owned_by(uid)
-    cohorts = [decorate_cohort(c, include_alerts_for_uid=uid, include_students=False) for c in _my_cohorts]
+    cohorts = [decorate_cohort(c, include_alerts_for_uid=uid, include_students=False) for c in CohortFilter.all_owned_by(uid)]
     alert_sids = []
     for cohort in cohorts:
         alert_sids += [a['sid'] for a in cohort.get('alerts', [])]
@@ -143,8 +136,6 @@ def update_cohort():
     cohort = next((c for c in CohortFilter.all_owned_by(uid) if c.id == cohort_id), None)
     if not cohort:
         raise BadRequestError(f'Cohort does not exist or is not owned by {uid}')
-    if is_read_only_cohort(cohort):
-        raise ForbiddenRequestError(f'Read-only cohort cannot be modified (id={cohort_id})')
     cohort = decorate_cohort(CohortFilter.rename(cohort_id=cohort.id, label=label), include_students=False)
     return tolerant_jsonify(cohort)
 
@@ -157,8 +148,6 @@ def delete_cohort(cohort_id):
         uid = current_user.get_id()
         cohort = next((c for c in CohortFilter.all_owned_by(uid) if c.id == cohort_id), None)
         if cohort:
-            if is_read_only_cohort(cohort):
-                raise ForbiddenRequestError(f'Read-only cohort cannot be deleted (id={cohort_id})')
             CohortFilter.delete(cohort_id)
             return tolerant_jsonify({'message': f'Cohort deleted (id={cohort_id})'}), 200
         else:
