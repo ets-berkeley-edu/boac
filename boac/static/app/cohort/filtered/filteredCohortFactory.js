@@ -63,6 +63,7 @@
         $rootScope.$broadcast('myFilteredCohortsUpdated');
         // Track the event
         googleAnalyticsService.track('cohort', 'create', cohort.name, cohort.id);
+        return cohort;
       });
     };
 

@@ -142,15 +142,22 @@
       }
     };
 
+    var registerCohortMetadata = function(cohort) {
+      $rootScope.pageTitle = cohort.name;
+      // Reset browser location
+      $location.url($location.path());
+      $location.search('c', cohort.id);
+      $location.search('tab', $scope.tab);
+      // Grab a limited set of properties
+      var metadataKeys = _.keys($scope.cohort);
+      $scope.cohort = _.pick(cohort, metadataKeys);
+    };
+
     var loadSavedCohort = function(cohortId, orderBy, offset, limit, callback) {
       filteredCohortFactory.getCohort(cohortId, orderBy, offset, limit).then(function(response) {
         var cohort = response.data;
 
-        // Reset browser location
-        $rootScope.pageTitle = cohort.name;
-        $location.url($location.path());
-        $location.search('c', cohort.id);
-        $location.search('tab', $scope.tab);
+        registerCohortMetadata(cohort);
 
         _.extend($scope.search, {
           filterCriteria: cohort.filterCriteria,
@@ -159,9 +166,6 @@
             totalStudentCount: cohort.totalStudentCount
           }
         });
-        // Grab a limited set of properties
-        var metadataKeys = _.keys($scope.cohort);
-        $scope.cohort = _.pick(cohort, metadataKeys);
 
       }).then(scatterplotRefresh).then(callback).catch(errorHandler);
     };
@@ -184,7 +188,7 @@
     };
 
     var showDetails = $scope.showDetails = function(show, defaultValue) {
-      var detailsShowing = show === null ? defaultValue : utilService.toBoolOrNull(show);
+      var detailsShowing = _.isNil(show) ? defaultValue : utilService.toBoolOrNull(show);
       $location.search('details', _.toLower(detailsShowing));
       $scope.detailsShowing = detailsShowing;
     };
@@ -239,8 +243,14 @@
       });
     };
 
-    $scope.executeSearchFunction = function(searchCriteria) {
-      init('list', searchCriteria);
+    $scope.callbacks = {
+      executeSearch: function(searchCriteria) {
+        init('list', searchCriteria);
+      },
+      onSave: function(cohort) {
+        // Grab metadata without reloading page
+        registerCohortMetadata(cohort);
+      }
     };
 
     init();

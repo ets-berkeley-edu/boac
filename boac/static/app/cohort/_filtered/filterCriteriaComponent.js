@@ -69,7 +69,7 @@
     this.$onInit = function() {
       var filterCriteria = _.clone(this.cohort.filterCriteria);
 
-      $scope.executeSearchFunction = this.executeSearchFunction;
+      $scope.callbacks = this.callbacks;
       $scope.filters.available = _.clone(this.availableFilters);
       $scope.$watch('filters.draft', onDraftFilterChange);
       $scope.$watch('filters.draft.subcategory', onDraftFilterChange);
@@ -126,7 +126,7 @@
         disabled: true,
         onClick: function() {
           var filterCriteria = cohortUtils.toFilterCriteria($scope.filters.added);
-          $scope.executeSearchFunction(filterCriteria);
+          $scope.callbacks.executeSearch(filterCriteria);
           $scope.buttons.saveButton.show = true;
         },
         show: false,
@@ -164,8 +164,13 @@
       saveButton: {
         // Button to save/update the cohort in the db.
         disabled: false,
-        onClick: function() {
-          $scope.filters.draft = null;
+        onClick: function(openCreateCohortModal) {
+          $scope.buttons.saveButton.disabled = true;
+          var filterCriteria = cohortUtils.toFilterCriteria($scope.filters.added);
+          openCreateCohortModal(filterCriteria, function(cohort) {
+            $scope.buttons.saveButton.show = $scope.buttons.saveButton.disabled = false;
+            $scope.callbacks.onSave(cohort);
+          });
         },
         show: false,
         redraw: function(isInitPhase) {
@@ -182,7 +187,7 @@
     bindings: {
       availableFilters: '=',
       cohort: '=',
-      executeSearchFunction: '='
+      callbacks: '='
     },
     controller: FilterCriteriaController,
     templateUrl: '/static/app/cohort/_filtered/filterCriteria.html'
