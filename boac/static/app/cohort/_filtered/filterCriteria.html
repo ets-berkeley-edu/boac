@@ -106,14 +106,17 @@
               data-ng-if="buttons.applyButton.show">
         Apply
       </button>
-      <button type="button"
-              id="unsaved-filter-save-cohort"
-              class="btn btn-secondary btn-filter-draft-save"
-              data-ng-disabled="buttons.saveButton.disabled"
-              data-ng-click="buttons.saveButton.onClick(createFilter)"
-              data-ng-if="buttons.saveButton.show">
-        Save Cohort
-      </button>
+      <span data-ng-controller="CreateFilteredCohortController">
+        <button type="button"
+                id="unsaved-filter-save-cohort"
+                class="btn btn-secondary btn-filter-draft-save"
+                data-ng-disabled="buttons.saveButton.disabled"
+                data-ng-click="buttons.saveButton.onClick(openCreateCohortModal)"
+                data-ng-if="buttons.saveButton.show">
+          <span class="fa fa-spinner fa-spin" data-ng-if="isSaving"></span>
+          {{isSaving ? 'Saving' : 'Save'}} Cohort
+        </button>
+      </span>
     </div>
   </div>
 </div>
