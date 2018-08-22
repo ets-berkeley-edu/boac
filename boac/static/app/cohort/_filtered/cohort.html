@@ -12,7 +12,7 @@
   </div>
   <div data-ng-show="!error && !isLoading">
     <div class="cohort-header-container">
-      <div data-ng-if="search.results.totalStudentCount === null">
+      <div data-ng-if="!cohort.id && search.results.totalStudentCount === null">
         <h1 class="page-section-header">Create a Filtered Cohort</h1>
         <div>
           Find a set of users, then save your search as a filtered cohort. Revisit your filtered cohorts at any time.
@@ -99,7 +99,7 @@
       <filter-criteria available-filters="availableFilters"
                        cohort="search"
                        callbacks="callbacks"
-                       data-ng-if="tab === 'list' && availableFilters && !error"></filter-criteria>
+                       data-ng-if="!isLoading && tab === 'list' && availableFilters && !error"></filter-criteria>
     </div>
 
     <hr class="filters-section-separator" data-ng-if="search.results.totalStudentCount"/>

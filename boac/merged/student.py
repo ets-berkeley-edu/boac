@@ -168,7 +168,7 @@ def get_student_and_terms(uid):
 
 def query_students(
         include_profiles=False,
-        advisor_ldap_uid=None,
+        advisor_ldap_uids=None,
         gpa_ranges=None,
         group_codes=None,
         in_intensive_cohort=None,
@@ -186,7 +186,7 @@ def query_students(
         in_intensive_cohort=in_intensive_cohort,
         is_active_asc=is_active_asc,
         group_codes=group_codes,
-        advisor_ldap_uid=advisor_ldap_uid,
+        advisor_ldap_uids=advisor_ldap_uids,
     )
     query_tables, query_filter, query_bindings = data_loch.get_students_query(
         group_codes=group_codes,
@@ -196,7 +196,7 @@ def query_students(
         unit_ranges=unit_ranges,
         in_intensive_cohort=in_intensive_cohort,
         is_active_asc=is_active_asc,
-        advisor_ldap_uid=advisor_ldap_uid,
+        advisor_ldap_uids=advisor_ldap_uids,
         scope=scope,
     )
     if not query_tables:
@@ -316,7 +316,7 @@ def narrow_scope_by_criteria(scope, **kwargs):
             'group_codes',
         ],
         'COENG': [
-            'advisor_ldap_uid',
+            'advisor_ldap_uids',
         ],
     }
 

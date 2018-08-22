@@ -39,7 +39,7 @@ from flask_login import current_user, login_required
 @login_required
 def get_students():
     params = request.get_json()
-    advisor_ldap_uid = util.get(params, 'advisorLdapUid')
+    advisor_ldap_uids = util.get(params, 'advisorLdapUids')
     gpa_ranges = util.get(params, 'gpaRanges')
     group_codes = util.get(params, 'groupCodes')
     levels = util.get(params, 'levels')
@@ -56,7 +56,7 @@ def get_students():
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     results = query_students(
         include_profiles=True,
-        advisor_ldap_uid=advisor_ldap_uid,
+        advisor_ldap_uids=advisor_ldap_uids,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
         levels=levels,

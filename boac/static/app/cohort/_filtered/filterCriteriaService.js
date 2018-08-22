@@ -134,7 +134,7 @@
           if (authService.canViewCoe()) {
             // The 'Advisor' dropdown has UIDs and names
             userFactory.getProfilesPerDeptCode('COENG').then(function(response) {
-              setMenuOptions(definitions, 'advisorLdapUid', _.map(response.data, function(user) {
+              setMenuOptions(definitions, 'advisorLdapUids', _.map(response.data, function(user) {
                 return {
                   name: user.firstName + ' ' + user.lastName,
                   value: user.uid

@@ -104,7 +104,7 @@ def create_my_students_cohort(uid, first_name=None):
     return CohortFilter.create(
         uid=uid,
         label=f'{first_name}\'s Students' if first_name else 'My Students',
-        advisor_ldap_uid=uid,
+        advisor_ldap_uids=[uid],
     )
 
 
@@ -119,11 +119,13 @@ def decorate_cohort(
 ):
     criteria = cohort if isinstance(cohort.filter_criteria, dict) else json.loads(cohort.filter_criteria)
     is_read_only = is_read_only_cohort(cohort)
-    advisor_ldap_uid = util.get(criteria, 'advisorLdapUid')
+    advisor_ldap_uids = util.get(criteria, 'advisorLdapUids')
+    if not isinstance(advisor_ldap_uids, list):
+        advisor_ldap_uids = [advisor_ldap_uids] if advisor_ldap_uids else None
     # In odd circumstances we override the cohort's actual name
     cohort_name = cohort.label
     current_user_uid = current_user.uid if current_user and hasattr(current_user, 'uid') else None
-    if is_read_only and current_user_uid == advisor_ldap_uid:
+    if is_read_only and current_user_uid in advisor_ldap_uids:
         cohort_name = 'My Students'
     decorated = {
         'id': cohort.id,
@@ -144,7 +146,7 @@ def decorate_cohort(
     team_groups = athletics.get_team_groups(group_codes) if group_codes else []
     decorated.update({
         'filterCriteria': {
-            'advisorLdapUid': advisor_ldap_uid,
+            'advisorLdapUids': advisor_ldap_uids,
             'gpaRanges': gpa_ranges,
             'groupCodes': group_codes,
             'levels': levels,
@@ -169,7 +171,7 @@ def decorate_cohort(
         is_active_asc = None if is_inactive_asc is None else not is_inactive_asc
     results = query_students(
         include_profiles=(include_students and include_profiles),
-        advisor_ldap_uid=advisor_ldap_uid,
+        advisor_ldap_uids=advisor_ldap_uids,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
         in_intensive_cohort=in_intensive_cohort,
@@ -207,7 +209,7 @@ def decorate_cohort(
 def is_read_only_cohort(cohort):
     criteria = cohort if isinstance(cohort.filter_criteria, dict) else json.loads(cohort.filter_criteria)
     keys_with_not_none_value = [key for key, value in criteria.items() if value not in [None, []]]
-    return keys_with_not_none_value == ['advisorLdapUid']
+    return keys_with_not_none_value == ['advisorLdapUids']
 
 
 def sis_enrollment_class_feed(enrollment):

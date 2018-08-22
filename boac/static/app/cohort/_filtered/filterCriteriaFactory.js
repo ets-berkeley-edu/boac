@@ -39,7 +39,7 @@
           defaultValue: null,
           depth: 2,
           handler: utilService.asArray,
-          key: 'advisorLdapUid',
+          key: 'advisorLdapUids',
           name: 'Advisor',
           param: 'a',
           subcategoryHeader: 'Advisor'
@@ -125,7 +125,7 @@
         'unitRanges',
         'majors',
         null,
-        'advisorLdapUid',
+        'advisorLdapUids',
         'groupCodes',
         'isInactiveAsc',
         'inIntensiveCohort'

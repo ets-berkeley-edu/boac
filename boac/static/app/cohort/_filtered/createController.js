@@ -90,7 +90,7 @@
           var c = $client.filterCriteria;
           filteredCohortFactory.createCohort(
             $scope.name,
-            c.advisorLdapUid,
+            c.advisorLdapUids,
             c.gpaRanges,
             c.groupCodes,
             c.levels,

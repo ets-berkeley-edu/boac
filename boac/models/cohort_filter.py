@@ -61,7 +61,7 @@ class CohortFilter(Base, UserMixin):
             cls,
             uid,
             label,
-            advisor_ldap_uid=None,
+            advisor_ldap_uids=None,
             gpa_ranges=None,
             group_codes=None,
             levels=None,
@@ -75,7 +75,7 @@ class CohortFilter(Base, UserMixin):
         criteria = cls.compose_filter_criteria(
             gpa_ranges=gpa_ranges,
             group_codes=group_codes,
-            advisor_ldap_uid=advisor_ldap_uid,
+            advisor_ldap_uids=advisor_ldap_uids,
             in_intensive_cohort=in_intensive_cohort,
             is_inactive_asc=is_inactive_asc,
             levels=levels,
@@ -131,7 +131,7 @@ class CohortFilter(Base, UserMixin):
     @classmethod
     def compose_filter_criteria(
             cls,
-            advisor_ldap_uid=None,
+            advisor_ldap_uids=None,
             gpa_ranges=None,
             group_codes=None,
             in_intensive_cohort=None,
@@ -141,7 +141,7 @@ class CohortFilter(Base, UserMixin):
             unit_ranges=None,
     ):
         has_criteria = next((c for c in [gpa_ranges, group_codes, levels, majors, unit_ranges] if c), None)
-        has_criteria = has_criteria or next((c for c in [advisor_ldap_uid, in_intensive_cohort, is_inactive_asc] if c is not None), None)
+        has_criteria = has_criteria or next((c for c in [advisor_ldap_uids, in_intensive_cohort, is_inactive_asc] if c is not None), None)
         if not has_criteria:
             raise InternalServerError('CohortFilter creation requires one or more non-empty criteria.')
         # Validate
@@ -163,12 +163,12 @@ class CohortFilter(Base, UserMixin):
                 msg = f'Range argument \'{r}\' does not match expected \'numrange\' syntax: {numrange_syntax.pattern}'
                 raise InternalServerError(msg)
         return {
-            'gpaRanges': gpa_ranges or [],
-            'groupCodes': group_codes or [],
+            'gpaRanges': gpa_ranges,
+            'groupCodes': group_codes,
             'inIntensiveCohort': in_intensive_cohort,
-            'advisorLdapUid': advisor_ldap_uid,
+            'advisorLdapUids': advisor_ldap_uids,
             'isInactiveAsc': is_inactive_asc,
-            'levels': levels or [],
-            'majors': majors or [],
-            'unitRanges': unit_ranges or [],
+            'levels': levels,
+            'majors': majors,
+            'unitRanges': unit_ranges,
         }

@@ -55,14 +55,14 @@
      * @param  {Object}      opts                        Search criteria: gpaRanges, levels, etc.
      * @param  {Boolean}     ascInactive                 Relevant to ASC students only
      * @param  {Boolean}     ascIntensive                Relevant to ASC students only
-     * @param  {String}      advisorLdapUid              UID of advisor
+     * @param  {String}      advisorLdapUids             Advisor UIDs
      * @param  {String}      orderBy                     Requested sort order
      * @param  {Number}      offset                      As used in SQL query
      * @param  {Number}      limit                       As used in SQL query
      * @param  {Number}      updateBrowserLocation       If true, we will update search criteria in browser location URL
      * @return {List}                                    Backend API results
      */
-    var getStudents = function(opts, ascInactive, ascIntensive, advisorLdapUid, orderBy, offset, limit, updateBrowserLocation) {
+    var getStudents = function(opts, ascInactive, ascIntensive, advisorLdapUids, orderBy, offset, limit, updateBrowserLocation) {
       var getValues = utilService.getValuesSelected;
       // Get values where selected=true
       var gpaRanges = getValues(opts.gpaRanges);
@@ -74,7 +74,7 @@
       var unitRanges = getValues(opts.unitRanges);
 
       if (updateBrowserLocation) {
-        $location.search('a', advisorLdapUid);
+        $location.search('a', advisorLdapUids);
         $location.search('c', 'search');
         $location.search('g', gpaRanges);
         // Use string 'true' rather than boolean so that the value persists in browser location.
@@ -86,7 +86,7 @@
         $location.search('v', inactive);
       }
       var criteria = {
-        advisorLdapUid: advisorLdapUid,
+        advisorLdapUids: advisorLdapUids,
         gpaRanges: gpaRanges || [],
         groupCodes: groupCodes || [],
         inIntensiveCohort: intensive,
