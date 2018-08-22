@@ -36,10 +36,7 @@ class TestUtil:
 
     def test_cohort_decoration_outside_request_context(self):
         """Personalize the cohort name."""
-        cohort_filters = AuthorizedUser.find_by_uid(coe_advisor_uid).cohort_filters
-        assert len(cohort_filters)
-        canned_cohort = next((c for c in cohort_filters if api_util.is_read_only_cohort(c)), None)
-        assert canned_cohort
-        decorated_cohort = api_util.decorate_cohort(canned_cohort)
+        cohorts = AuthorizedUser.find_by_uid(coe_advisor_uid).cohort_filters
+        assert len(cohorts) == 2
+        decorated_cohort = api_util.decorate_cohort(cohorts[0])
         assert decorated_cohort['name'] == 'Sandeep\'s Students'
-        assert decorated_cohort['isReadOnly'] is True
