@@ -93,14 +93,15 @@
   background-color: #8bbdda;
   border-radius: 10px;
   color: #125704;
+  display: inline-block;
   float: right;
   font-size: 16px;
   font-weight: 800;
   height: 20px;
   line-height: 20px;
   margin-right: 5px;
+  padding: 0 4px 0 4px;
   text-align: center;
-  width: 30px;
 }
 
 .sidebar-header {
@@ -121,7 +122,10 @@
 .sidebar-row-link {
   border-left: 6px solid #125074;
   color: #8bbdda;
+  display: flex;
+  flex-direction: row;
   font-size: 16px;
+  justify-content: space-between;
   line-height: 1.4em;
   padding: 1px 1px 1px 0;
 }

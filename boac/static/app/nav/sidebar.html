@@ -20,6 +20,8 @@
        class="sidebar-row-link-label-text"
        data-ui-sref="curatedCohort({id: cohort.id})"
        data-ui-sref-opts="{reload: true}"><span data-ng-bind="cohort.name"></span></a>
+  </div>
+  <div>
     <span id="sidebar-curated-cohort-{{$index}}-count"
           class="sidebar-pill"
           data-ng-bind="cohort.studentCount"></span>
@@ -43,6 +45,8 @@
        data-ui-sref-opts="{reload: true}"
        data-ng-bind="cohort.name">
     </a>
+  </div>
+  <div>
     <span id="sidebar-filtered-cohort-{{$index}}-count"
           class="sidebar-pill"
           data-ng-bind="cohort.totalStudentCount"></span>
