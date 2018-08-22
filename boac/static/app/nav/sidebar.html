@@ -2,17 +2,21 @@
   <search-students-form></search-students-form>
 </div>
 <div class="sidebar-row-link sidebar-section-header">
-  <span class="sidebar-header sidebar-row-link-label"
-        data-ng-controller="CreateCuratedCohortController">
+  <div class="sidebar-header sidebar-row-link-label">
     <a id="sidebar-curated-cohorts-manage"
        class="sidebar-row-link-label-text"
        data-ui-sref="curatedCohortsManage()"
        data-ui-sref-opts="{reload: true}">Curated Cohorts</a>
-    <a id="sidebar-curated-cohort-create"
-       class="sidebar-create-link"
-       href
-       data-ng-click="openCreateCuratedCohortModal()"><i class="fas fa-plus"></i></a>
-  </span>
+  </div>
+  <div>
+    <span class="sidebar-header sidebar-row-link-label"
+          data-ng-controller="CreateCuratedCohortController">
+      <a id="sidebar-curated-cohort-create"
+         class="sidebar-create-link"
+         href
+         data-ng-click="openCreateCuratedCohortModal()"><i class="fas fa-plus"></i></a>
+    </span>
+  </div>
 </div>
 <div class="sidebar-row-link" data-ng-repeat="cohort in myCuratedCohorts">
   <div class="sidebar-row-link-label">
@@ -27,15 +31,18 @@
           data-ng-bind="cohort.studentCount"></span>
   </div>
 </div>
-
 <div class="sidebar-row-link sidebar-section-header">
-  <span class="sidebar-header sidebar-row-link-label">
+  <div class="sidebar-header sidebar-row-link-label">
     <span class="sidebar-row-link-label-text">Filtered Cohorts</span>
-    <a id="sidebar-filtered-cohort-create"
-       class="sidebar-create-link"
-       data-ui-sref="filteredCohort({c: 'new', i: null, t: null, v: null, cohortName: null})"
-       data-ui-sref-opts="{reload: true}"><i class="fas fa-plus"></i></a>
-  </span>
+  </div>
+  <div>
+    <span class="sidebar-header sidebar-row-link-label">
+      <a id="sidebar-filtered-cohort-create"
+         class="sidebar-create-link"
+         data-ui-sref="filteredCohort({c: 'new', i: null, t: null, v: null, cohortName: null})"
+         data-ui-sref-opts="{reload: true}"><i class="fas fa-plus"></i></a>
+    </span>
+  </div>
 </div>
 <div class="sidebar-row-link" data-ng-repeat="cohort in myFilteredCohorts">
   <div class="sidebar-row-link-label">
