@@ -33,7 +33,7 @@
 
     var createCohort = function(
       label,
-      advisorLdapUid,
+      advisorLdapUids,
       gpaRanges,
       groupCodes,
       levels,
@@ -44,7 +44,7 @@
     ) {
       var args = {
         label: label,
-        advisorLdapUid: advisorLdapUid,
+        advisorLdapUids: advisorLdapUids,
         gpaRanges: gpaRanges,
         groupCodes: groupCodes,
         isInactiveAsc: utilService.toBoolOrNull(inactiveAsc),

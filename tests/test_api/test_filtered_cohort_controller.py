@@ -98,7 +98,7 @@ class TestCohortDetail:
         assert len(cohorts) == 1
         cohort = cohorts[0]
         assert cohort['name'] == 'My Students'
-        assert cohort['filterCriteria']['advisorLdapUid'] == uid
+        assert cohort['filterCriteria']['advisorLdapUids'] == [uid]
         assert cohort['isOwnedByCurrentUser'] is True
         assert cohort['totalStudentCount'] == 2
         response = client.get(f"/api/filtered_cohort/{cohort['id']}")
@@ -320,7 +320,7 @@ class TestCohortDetail:
         fake_auth.login(uid)
         data = {
             'label': 'Students of Jane the COE Advisor',
-            'advisorLdapUid': uid,
+            'advisorLdapUids': [uid],
             'groupCodes': [],
             'majors': [],
         }
@@ -328,7 +328,7 @@ class TestCohortDetail:
         assert response.status_code == 200
         cohort = json.loads(response.data)
         assert cohort['isReadOnly'] is True
-        assert cohort['filterCriteria']['advisorLdapUid'] == uid
+        assert cohort['filterCriteria']['advisorLdapUids'] == [uid]
         cohort_id = cohort['id']
         response = client.delete(f'/api/filtered_cohort/delete/{cohort_id}')
         assert response.status_code == 403
@@ -336,7 +336,7 @@ class TestCohortDetail:
     def test_forbidden_create_of_coe_uid_cohort(self, asc_advisor_session, client, fake_auth):
         data = {
             'label': 'ASC advisor wants to see students of COE advisor',
-            'advisorLdapUid': '1133399',
+            'advisorLdapUids': '1133399',
         }
         response = client.post('/api/filtered_cohort/create', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 403
@@ -344,7 +344,7 @@ class TestCohortDetail:
     def test_admin_create_of_coe_uid_cohort(self, admin_session, client, fake_auth):
         data = {
             'label': 'Admin wants to see students of COE advisor',
-            'advisorLdapUid': '1133399',
+            'advisorLdapUids': '1133399',
         }
         response = client.post('/api/filtered_cohort/create', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 200
