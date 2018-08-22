@@ -18,7 +18,7 @@ fi
 [ -e /opt/python/current/env ] && source /opt/python/current/env && env
 
 # Run Python script
-#cd /opt/python/current/app
+cd /opt/python/current/app
 python3 scripts/db/migrate/20180822-BOAC-1165/alter_advisor_uid_key_in_cohort_json.py
 
 echo 'Done.'
