@@ -34,33 +34,8 @@ import pytest
 @pytest.mark.usefixtures('db_session')
 class TestDataLoch:
 
-    def test_canvas_course_scores_fixture(self, app):
-        data = data_loch._get_canvas_course_scores(7654321)
-        assert len(data) > 0
-        assert {'canvas_user_id': 9000100, 'current_score': 84, 'last_activity_at': 1535275620} in data
-
-    def test_sis_sections_in_canvas_course(self, app):
-        burmese_sections = data_loch._get_sis_sections_in_canvas_course(7654320)
-        assert len(burmese_sections) == 2
-        assert burmese_sections[0]['sis_section_id'] == 90100
-        assert burmese_sections[1]['sis_section_id'] == 90101
-
-        medieval_sections = data_loch._get_sis_sections_in_canvas_course(7654321)
-        assert len(medieval_sections) == 1
-        assert medieval_sections[0]['sis_section_id'] == 90200
-
-        nuclear_sections = data_loch._get_sis_sections_in_canvas_course(7654323)
-        assert len(nuclear_sections) == 2
-        assert nuclear_sections[0]['sis_section_id'] == 90299
-        assert nuclear_sections[1]['sis_section_id'] == 90300
-
-        # No SIS-linked site sections
-        project_site_sections = data_loch._get_sis_sections_in_canvas_course(9999991)
-        assert len(project_site_sections) == 1
-        assert {'sis_section_id': None} == project_site_sections[0]
-
     def test_sis_enrollments(self, app):
-        enrollments = data_loch._get_sis_enrollments(61889, 2178)
+        enrollments = data_loch.get_sis_enrollments(61889, 2178)
 
         assert len(enrollments) == 5
 
@@ -97,51 +72,14 @@ class TestDataLoch:
         assert enrollments[4]['grading_basis'] == 'PNP'
         assert enrollments[4]['grade'] == 'P'
 
-    def test_student_canvas_courses(self, app):
-        courses = data_loch._get_student_canvas_courses(61889)
-        assert len(courses) == 5
-        assert courses[0]['canvas_course_id'] == 7654320
-        assert courses[0]['canvas_course_name'] == 'Introductory Burmese'
-        assert courses[0]['canvas_course_code'] == 'BURMESE 1A'
-        assert courses[0]['canvas_course_term'] == 'Fall 2017'
-        assert courses[1]['canvas_course_id'] == 7654321
-        assert courses[1]['canvas_course_name'] == 'Medieval Manuscripts as Primary Sources'
-        assert courses[1]['canvas_course_code'] == 'MED ST 205'
-        assert courses[1]['canvas_course_term'] == 'Fall 2017'
-        assert courses[2]['canvas_course_id'] == 7654330
-        assert courses[2]['canvas_course_name'] == 'Optional Friday Night Radioactivity Group'
-        assert courses[2]['canvas_course_code'] == 'NUC ENG 124'
-        assert courses[2]['canvas_course_term'] == 'Fall 2017'
-        assert courses[3]['canvas_course_id'] == 7654323
-        assert courses[3]['canvas_course_name'] == 'Radioactive Waste Management'
-        assert courses[3]['canvas_course_code'] == 'NUC ENG 124'
-        assert courses[3]['canvas_course_term'] == 'Fall 2017'
-        assert courses[4]['canvas_course_id'] == 7654325
-        assert courses[4]['canvas_course_name'] == 'Modern Statistical Prediction and Machine Learning'
-        assert courses[4]['canvas_course_code'] == 'STAT 154'
-        assert courses[4]['canvas_course_term'] == 'Spring 2017'
-
-    def test_submissions_turned_in_relative_to_user_fixture(self, app):
-        data = data_loch._get_submissions_turned_in_relative_to_user(7654321, 9000100)
-        assert len(data) > 0
-        assert {'canvas_user_id': 9000100, 'submissions_turned_in': 8} in data
-
     def test_override_fixture(self, app):
-        mr = MockRows(io.StringIO('sis_section_id\n13131'))
-        with register_mock(data_loch._get_sis_sections_in_canvas_course, mr):
-            data = data_loch._get_sis_sections_in_canvas_course(7654320)
+        mr = MockRows(io.StringIO('sid,first_name,last_name\n20000000,Martin,Van Buren'))
+        with register_mock(data_loch.get_sis_section_enrollments, mr):
+            data = data_loch.get_sis_section_enrollments(2178, 12345)
         assert len(data) == 1
-        assert {'sis_section_id': 13131} == data[0]
+        assert {'sid': 20000000, 'first_name': 'Martin', 'last_name': 'Van Buren'} == data[0]
 
     def test_fixture_not_found(self, app):
-        no_db = data_loch._get_sis_sections_in_canvas_course(0)
+        no_db = data_loch.get_sis_section_enrollments(0, 0)
         # TODO Real data_loch queries will return an empty list if the course is not found.
         assert no_db is None
-
-    def test_user_for_uid(self, app):
-        data = data_loch._get_user_for_uid(2040)
-        assert len(data) == 1
-        assert {'canvas_id': 10001, 'name': 'Oliver Heyer', 'uid': '2040'} in data
-        data = data_loch._get_user_for_uid(242881)
-        assert len(data) == 1
-        assert {'canvas_id': 10002, 'name': 'Paul Kerschen', 'uid': '242881'} in data

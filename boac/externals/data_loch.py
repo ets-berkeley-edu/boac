@@ -29,7 +29,6 @@ import re
 from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.mockingdata import fixture
 from boac.lib.util import tolerant_remove
-from boac.models.json_cache import stow
 from flask import current_app as app
 import sqlalchemy
 from sqlalchemy import create_engine
@@ -94,31 +93,8 @@ def earliest_term_id():
     return sis_term_id_for_name(app.config['CANVAS_EARLIEST_TERM'])
 
 
-@stow('loch_canvas_course_scores_{course_id}', for_term=True)
-def get_canvas_course_scores(course_id, term_id):
-    return _get_canvas_course_scores(course_id)
-
-
-@fixture('loch_canvas_course_scores_{course_id}.csv')
-def _get_canvas_course_scores(course_id):
-    sql = f"""SELECT
-                canvas_user_id,
-                current_score,
-                EXTRACT(EPOCH FROM last_activity_at) AS last_activity_at,
-                sis_enrollment_status
-              FROM {boac_schema()}.course_enrollments
-              WHERE course_id={course_id}
-              ORDER BY canvas_user_id
-        """
-    return safe_execute_redshift(sql)
-
-
-def get_sis_enrollments(uid, term_id):
-    return _get_sis_enrollments(uid, term_id)
-
-
 @fixture('loch_sis_enrollments_{uid}_{term_id}.csv')
-def _get_sis_enrollments(uid, term_id):
+def get_sis_enrollments(uid, term_id):
     sql = f"""SELECT
                   enr.grade, enr.units, enr.grading_basis, enr.sis_enrollment_status, enr.sis_term_id, enr.ldap_uid,
                   crs.sis_course_title, crs.sis_course_name,
@@ -186,38 +162,6 @@ def get_sis_section_enrollments_count(term_id, sis_section_id, scope):
         """
     params = {'term_id': term_id, 'sis_section_id': sis_section_id}
     return safe_execute_redshift(sql, **params)
-
-
-@stow('loch_sis_sections_in_canvas_course_{canvas_course_id}', for_term=True)
-def get_sis_sections_in_canvas_course(canvas_course_id, term_id):
-    return _get_sis_sections_in_canvas_course(canvas_course_id)
-
-
-@fixture('loch_sis_sections_in_canvas_course_{canvas_course_id}.csv')
-def _get_sis_sections_in_canvas_course(canvas_course_id):
-    # The GROUP BY clause eliminates duplicates when multiple site sections include the same SIS class section.
-    sql = f"""SELECT sis_section_id
-        FROM {intermediate_schema()}.course_sections
-        WHERE canvas_course_id={canvas_course_id}
-        GROUP BY sis_section_id
-        """
-    return safe_execute_redshift(sql)
-
-
-@stow('loch_student_canvas_courses_{uid}.csv')
-def get_student_canvas_courses(uid):
-    return _get_student_canvas_courses(uid)
-
-
-@fixture('loch_student_canvas_courses_{uid}.csv')
-def _get_student_canvas_courses(uid):
-    sql = f"""SELECT DISTINCT enr.canvas_course_id, cs.canvas_course_name, cs.canvas_course_code, cs.canvas_course_term
-        FROM {intermediate_schema()}.active_student_enrollments enr
-        JOIN {intermediate_schema()}.course_sections cs
-            ON cs.canvas_course_id = enr.canvas_course_id
-        WHERE enr.uid = {uid}
-        """
-    return safe_execute_redshift(sql)
 
 
 def get_all_teams():
@@ -299,47 +243,6 @@ def get_enrollments_for_term(term_id, sids):
         AND sid = ANY(:sids)
         """
     return safe_execute_redshift(sql, term_id=term_id, sids=sids)
-
-
-@stow('loch_submissions_turned_in_relative_to_user_{course_id}_{user_id}', for_term=True)
-def get_submissions_turned_in_relative_to_user(course_id, user_id, term_id):
-    return _get_submissions_turned_in_relative_to_user(course_id, user_id)
-
-
-@fixture('loch_submissions_turned_in_relative_to_user_{course_id}_{user_id}.csv')
-def _get_submissions_turned_in_relative_to_user(course_id, user_id):
-    sql = f"""SELECT canvas_user_id,
-        COUNT(CASE WHEN
-          assignment_status IN ('graded', 'late', 'on_time', 'submitted')
-        THEN 1 ELSE NULL END) AS submissions_turned_in
-        FROM {boac_schema()}.assignment_submissions_scores
-        WHERE assignment_id IN
-        (
-          SELECT DISTINCT assignment_id FROM {boac_schema()}.assignment_submissions_scores
-          WHERE canvas_user_id = {user_id} AND course_id = {course_id}
-        )
-        GROUP BY canvas_user_id
-        HAVING count(*) = (
-          SELECT count(*) FROM {boac_schema()}.assignment_submissions_scores
-          WHERE canvas_user_id = {user_id} AND course_id = {course_id}
-        )
-        """
-    return safe_execute_redshift(sql)
-
-
-@stow('loch_user_for_uid_{uid}')
-def get_user_for_uid(uid):
-    rows = _get_user_for_uid(uid)
-    return False if not rows or (len(rows) == 0) else rows[0]
-
-
-@fixture('loch_user_for_uid_{uid}.csv')
-def _get_user_for_uid(uid):
-    sql = f"""SELECT canvas_id, name, uid
-        FROM {intermediate_schema()}.users
-        WHERE uid = {uid}
-        """
-    return safe_execute_redshift(sql)
 
 
 def get_majors(scope=[]):
