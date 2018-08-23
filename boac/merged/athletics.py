@@ -25,7 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.externals import data_loch
-from boac.merged.student import query_students
 
 
 def all_team_groups():
@@ -61,48 +60,3 @@ def get_team_groups(group_codes):
             'teamName': row['team_name'],
         }
     return [translate_row(row) for row in results]
-
-
-def all_teams():
-    # TODO: Remove this after we launch new filtered-cohort view
-    results = data_loch.get_all_teams()
-    if not results:
-        return []
-
-    def translate_row(row):
-        return {
-            'code': row['team_code'],
-            'name': row['team_name'],
-            'totalStudentCount': row['count'],
-        }
-    return [translate_row(row) for row in results]
-
-
-def get_team(team_code, is_active_asc, order_by):
-    results = data_loch.get_team_groups(team_code=team_code)
-    if not results:
-        return None
-
-    team = None
-    if len(results):
-        team = {
-            'teamGroups': [],
-        }
-        for row in results:
-            team['code'] = row['team_code']
-            team['name'] = row['team_name']
-            team['teamGroups'].append({
-                'groupCode': row['group_code'],
-                'groupName': row['group_name'],
-            })
-        group_codes = [group['groupCode'] for group in team['teamGroups']]
-        results = query_students(
-            group_codes=group_codes,
-            is_active_asc=is_active_asc,
-            order_by=order_by,
-            offset=0,
-            limit=None,
-        )
-        team['students'] = results['students']
-        team['totalStudentCount'] = results['totalStudentCount']
-    return team

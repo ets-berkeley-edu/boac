@@ -29,7 +29,6 @@
 
   angular.module('boac').service('filterCriteriaService', function(
     $location,
-    athleticsFactory,
     authService,
     filterCriteriaFactory,
     studentFactory,
@@ -117,7 +116,7 @@
         },
         function(done) {
           if (authService.canViewAsc()) {
-            athleticsFactory.getAllTeamGroups().then(function(response) {
+            studentFactory.getAllTeamGroups().then(function(response) {
               setMenuOptions(definitions, 'groupCodes', _.map(response.data, function(group) {
                 return {
                   name: group.name,

@@ -41,7 +41,6 @@ def register_routes(app):
     import boac.api.admin_controller
     import boac.api.alerts_controller
     import boac.api.auth_controller
-    import boac.api.athletics_controller
     import boac.api.filtered_cohort_controller
     import boac.api.config_controller
     import boac.api.course_controller

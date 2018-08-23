@@ -31,8 +31,8 @@
 
   boac.factory('studentFactory', function($http, utilService) {
 
-    var analyticsPerUser = function(uid) {
-      return $http.get('/api/user/' + uid + '/analytics');
+    var analyticsPerStudent = function(uid) {
+      return $http.get('/api/student/' + uid + '/analytics');
     };
 
     var dismissAlert = function(alertId) {
@@ -94,6 +94,10 @@
       return $http.post('/api/students', args);
     };
 
+    var getAllTeamGroups = function() {
+      return $http.get('/api/team_groups/all');
+    };
+
     var searchForStudents = function(searchPhrase, isInactiveAsc, orderBy, offset, limit) {
       var args = {
         searchPhrase: searchPhrase,
@@ -106,7 +110,7 @@
     };
 
     return {
-      analyticsPerUser: analyticsPerUser,
+      analyticsPerStudent: analyticsPerStudent,
       dismissAlert: dismissAlert,
       getAlerts: getAlerts,
       getCoePrepStatuses: getCoePrepStatuses,
@@ -114,6 +118,7 @@
       getRelevantMajors: getRelevantMajors,
       getStudentLevels: getStudentLevels,
       getStudents: getStudents,
+      getAllTeamGroups: getAllTeamGroups,
       getUnitRanges: getUnitRanges,
       searchForStudents: searchForStudents
     };

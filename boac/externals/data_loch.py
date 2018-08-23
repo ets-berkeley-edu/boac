@@ -177,17 +177,6 @@ def get_sis_section_enrollments_count(term_id, sis_section_id, scope):
     return safe_execute_redshift(sql, **params)
 
 
-def get_all_teams():
-    # TODO: Remove this query after we launch new filtered-cohort view
-    sql = f"""SELECT team_code, team_name, COUNT(DISTINCT sid)
-        FROM {asc_schema()}.students
-        WHERE active = TRUE
-        AND team_code IS NOT NULL
-        GROUP BY team_name, team_code
-        ORDER BY team_name"""
-    return safe_execute_rds(sql)
-
-
 def get_team_groups(group_codes=None, team_code=None):
     params = {}
     sql = f"""SELECT group_code, group_name, team_code, team_name, COUNT(DISTINCT sid)

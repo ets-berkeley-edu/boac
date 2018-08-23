@@ -92,8 +92,8 @@ class TestCohortDetail:
 
     def test_my_cohorts_includes_students_with_alert_counts(self, asc_advisor_session, client, create_alerts, db_session):
         # Pre-load students into cache for consistent alert data.
-        client.get('/api/user/61889/analytics')
-        client.get('/api/user/98765/analytics')
+        client.get('/api/student/61889/analytics')
+        client.get('/api/student/98765/analytics')
         from boac.models.alert import Alert
         Alert.update_all_for_term(2178)
 
