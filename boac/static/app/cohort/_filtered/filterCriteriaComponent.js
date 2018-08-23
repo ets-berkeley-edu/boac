@@ -155,6 +155,7 @@
             updateDisableAfterAddOrRemove(removedFilter[0], false);
             $scope.buttons.applyButton.redraw(false);
           }
+          $scope.buttons.saveButton.redraw(false);
         },
         show: false,
         redraw: function() {
@@ -177,6 +178,8 @@
           // We set 'show' to true when user clicks Apply. We set 'show' to false if filters are altered.
           if (isInitPhase && _.size($scope.filters.added)) {
             $scope.buttons.saveButton.show = true;
+          } else if (_.isEmpty($scope.filters.added)) {
+            $scope.buttons.saveButton.show = false;
           }
         }
       }
