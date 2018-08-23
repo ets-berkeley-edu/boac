@@ -94,11 +94,11 @@ class TestCohortDetail:
         # Pre-load students into cache for consistent alert data.
         client.get('/api/user/61889/analytics')
         client.get('/api/user/98765/analytics')
-        from boac.api.cache_utils import load_alerts
-        load_alerts(2178)
+        from boac.models.alert import Alert
+        Alert.update_all_for_term(2178)
 
         cohorts = client.get('/api/filtered_cohorts/my').json
-        assert len(cohorts[0]['alerts']) == 2
+        assert len(cohorts[0]['alerts']) == 3
 
         deborah = cohorts[0]['alerts'][0]
         assert deborah['sid'] == '11667051'
@@ -130,7 +130,7 @@ class TestCohortDetail:
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
 
         cohorts = client.get('/api/filtered_cohorts/my').json
-        assert len(cohorts[0]['alerts']) == 1
+        assert len(cohorts[0]['alerts']) == 2
         assert cohorts[0]['alerts'][0]['sid'] == '11667051'
         assert cohorts[0]['alerts'][0]['alertCount'] == 2
         assert len(cohorts[1]['alerts']) == 0

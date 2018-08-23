@@ -33,8 +33,8 @@ class TestCacheUtils:
     """Test cache utils."""
 
     def test_creates_alert_for_midterm_grade(self, app):
-        from boac.api.cache_utils import load_alerts
-        load_alerts(2178)
+        from boac.api.cache_utils import refresh_alerts
+        refresh_alerts(2178)
         alerts = Alert.current_alerts_for_sid(sid='11667051', viewer_id='2040')['shown']
         assert 1 == len(alerts)
         assert 0 < alerts[0]['id']

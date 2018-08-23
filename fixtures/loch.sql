@@ -1,9 +1,11 @@
 DROP SCHEMA IF EXISTS boac_advising_asc cascade;
 DROP SCHEMA IF EXISTS boac_advising_coe cascade;
+DROP SCHEMA IF EXISTS sis_data cascade;
 DROP SCHEMA IF EXISTS student cascade;
 
 CREATE SCHEMA boac_advising_asc;
 CREATE SCHEMA boac_advising_coe;
+CREATE SCHEMA sis_data;
 CREATE SCHEMA student;
 
 CREATE TABLE boac_advising_asc.students
@@ -34,6 +36,19 @@ CREATE TABLE boac_advising_coe.student_profiles
 (
     sid VARCHAR NOT NULL,
     profile TEXT NOT NULL
+);
+
+CREATE TABLE sis_data.sis_terms
+(
+    term_id VARCHAR NOT NULL,
+    term_name VARCHAR NOT NULL,
+    academic_career VARCHAR NOT NULL,
+    term_begins DATE NOT NULL,
+    term_ends DATE NOT NULL,
+    session_id VARCHAR NOT NULL,
+    session_name VARCHAR NOT NULL,
+    session_begins DATE NOT NULL,
+    session_ends DATE NOT NULL
 );
 
 CREATE TABLE student.student_profiles
@@ -114,6 +129,69 @@ VALUES
 ('9000000000', :coe_profile_9000000000),
 ('9100000000', :coe_profile_9100000000);
 
+INSERT INTO sis_data.sis_terms
+(term_id, term_name, academic_career, term_begins, term_ends, session_id, session_name, session_begins, session_ends)
+VALUES
+('2188', '2018 Fall', 'LAW', '2018-08-13', '2018-12-17', '1', 'Regular Academic Session', '2018-08-20', '2018-12-05'),
+('2188', '2018 Fall', 'GRAD', '2018-08-15', '2018-12-14', '1', 'Regular Academic Session', '2018-08-22', '2018-12-07'),
+('2188', '2018 Fall', 'UCBX', '2018-08-15', '2018-12-14', '1', 'Regular Academic Session', '2018-08-22', '2018-12-07'),
+('2188', '2018 Fall', 'UGRD', '2018-08-15', '2018-12-14', '1', 'Regular Academic Session', '2018-08-22', '2018-12-07'),
+('2185', '2018 Summer', 'LAW', '2018-05-14', '2018-08-13', '10W', '10 Week', '2018-05-15', '2018-07-19'),
+('2185', '2018 Summer', 'LAW', '2018-05-14', '2018-08-13', 'Q1', 'Summer LLM First Quarter', '2018-05-15', '2018-06-04'),
+('2185', '2018 Summer', 'LAW', '2018-05-14', '2018-08-13', 'Q2', 'Summer LLM Second Quarter', '2018-06-06', '2018-06-22'),
+('2185', '2018 Summer', 'LAW', '2018-05-14', '2018-08-13', 'Q3', 'Summer LLM Third Quarter', '2018-06-27', '2018-07-19'),
+('2185', '2018 Summer', 'LAW', '2018-05-14', '2018-08-13', 'Q4', 'Summer LLM Fourth Quarter', '2018-07-24', '2018-08-13'),
+('2185', '2018 Summer', 'GRAD', '2018-05-21', '2018-08-10', '1', 'Regular Academic Session', '2018-05-21', '2018-08-10'),
+('2185', '2018 Summer', 'GRAD', '2018-05-21', '2018-08-10', '10W', '10 Week', '2018-06-04', '2018-08-10'),
+('2185', '2018 Summer', 'GRAD', '2018-05-21', '2018-08-10', '3W', 'Session E', '2018-07-23', '2018-08-10'),
+('2185', '2018 Summer', 'GRAD', '2018-05-21', '2018-08-10', '6W1', 'Six Week - First', '2018-05-21', '2018-06-29'),
+('2185', '2018 Summer', 'GRAD', '2018-05-21', '2018-08-10', '6W2', 'Six Week - Second', '2018-07-02', '2018-08-10'),
+('2185', '2018 Summer', 'GRAD', '2018-05-21', '2018-08-10', '8W', 'Session C', '2018-06-18', '2018-08-10'),
+('2185', '2018 Summer', 'UGRD', '2018-05-21', '2018-08-10', '1', 'Regular Academic Session', '2018-05-21', '2018-08-10'),
+('2185', '2018 Summer', 'UGRD', '2018-05-21', '2018-08-10', '10W', '10 Week', '2018-06-04', '2018-08-10'),
+('2185', '2018 Summer', 'UGRD', '2018-05-21', '2018-08-10', '3W', 'Session E', '2018-07-23', '2018-08-10'),
+('2185', '2018 Summer', 'UGRD', '2018-05-21', '2018-08-10', '6W1', 'Six Week - First', '2018-05-21', '2018-06-29'),
+('2185', '2018 Summer', 'UGRD', '2018-05-21', '2018-08-10', '6W2', 'Six Week - Second', '2018-07-02', '2018-08-10'),
+('2185', '2018 Summer', 'UGRD', '2018-05-21', '2018-08-10', '8W', 'Session C', '2018-06-18', '2018-08-10'),
+('2182', '2018 Spring', 'LAW', '2018-01-01', '2018-05-09', '1', 'Regular Academic Session', '2018-01-08', '2018-04-20'),
+('2182', '2018 Spring', 'GRAD', '2018-01-09', '2018-05-11', '1', 'Regular Academic Session', '2018-01-16', '2018-05-04'),
+('2182', '2018 Spring', 'UCBX', '2018-01-09', '2018-05-11', '1', 'Regular Academic Session', '2018-01-16', '2018-05-04'),
+('2182', '2018 Spring', 'UGRD', '2018-01-09', '2018-05-11', '1', 'Regular Academic Session', '2018-01-16', '2018-05-04'),
+('2178', '2017 Fall', 'LAW', '2017-08-14', '2017-12-15', '1', 'Regular Academic Session', '2017-08-21', '2017-12-05'),
+('2178', '2017 Fall', 'GRAD', '2017-08-16', '2017-12-15', '1', 'Regular Academic Session', '2017-08-23', '2017-12-08'),
+('2178', '2017 Fall', 'UCBX', '2017-08-16', '2017-12-15', '1', 'Regular Academic Session', '2017-08-23', '2017-12-08'),
+('2178', '2017 Fall', 'UGRD', '2017-08-16', '2017-12-15', '1', 'Regular Academic Session', '2017-08-23', '2017-12-08'),
+('2175', '2017 Summer', 'LAW', '2017-05-17', '2017-08-17', '1', 'Regular Academic Session', '2017-05-22', '2017-08-11'),
+('2175', '2017 Summer', 'LAW', '2017-05-17', '2017-08-17', '10W', '10 Week', '2017-06-05', '2017-08-11'),
+('2175', '2017 Summer', 'LAW', '2017-05-17', '2017-08-17', '3W', 'Session E', '2017-07-17', '2017-08-04'),
+('2175', '2017 Summer', 'LAW', '2017-05-17', '2017-08-17', '6W1', 'Six Week - First', '2017-05-22', '2017-06-30'),
+('2175', '2017 Summer', 'LAW', '2017-05-17', '2017-08-17', '6W2', 'Six Week - Second', '2017-07-03', '2017-08-11'),
+('2175', '2017 Summer', 'LAW', '2017-05-17', '2017-08-17', '8W', 'Session C', '2017-06-19', '2017-08-11'),
+('2175', '2017 Summer', 'LAW', '2017-05-17', '2017-08-17', 'Q1', 'Summer LLM First Quarter', '2017-05-22', '2017-06-13'),
+('2175', '2017 Summer', 'LAW', '2017-05-17', '2017-08-17', 'Q2', 'Summer LLM Second Quarter', '2017-06-14', '2017-07-04'),
+('2175', '2017 Summer', 'LAW', '2017-05-17', '2017-08-17', 'Q3', 'Summer LLM Third Quarter', '2017-07-05', '2017-07-25'),
+('2175', '2017 Summer', 'LAW', '2017-05-17', '2017-08-17', 'Q4', 'Summer LLM Fourth Quarter', '2017-07-26', '2017-08-15'),
+('2175', '2017 Summer', 'GRAD', '2017-05-22', '2017-08-11', '1', 'Regular Academic Session', '2017-05-22', '2017-08-11'),
+('2175', '2017 Summer', 'GRAD', '2017-05-22', '2017-08-11', '10W', '10 Week', '2017-06-05', '2017-08-11'),
+('2175', '2017 Summer', 'GRAD', '2017-05-22', '2017-08-11', '3W', 'Session E', '2017-07-17', '2017-08-04'),
+('2175', '2017 Summer', 'GRAD', '2017-05-22', '2017-08-11', '6W1', 'Six Week - First', '2017-05-22', '2017-06-30'),
+('2175', '2017 Summer', 'GRAD', '2017-05-22', '2017-08-11', '6W2', 'Six Week - Second', '2017-07-03', '2017-08-11'),
+('2175', '2017 Summer', 'GRAD', '2017-05-22', '2017-08-11', '8W', 'Session C', '2017-06-19', '2017-08-11'),
+('2175', '2017 Summer', 'UGRD', '2017-05-22', '2017-08-11', '1', 'Regular Academic Session', '2017-05-22', '2017-08-11'),
+('2175', '2017 Summer', 'UGRD', '2017-05-22', '2017-08-11', '10W', '10 Week', '2017-06-05', '2017-08-11'),
+('2175', '2017 Summer', 'UGRD', '2017-05-22', '2017-08-11', '3W', 'Session E', '2017-07-17', '2017-08-04'),
+('2175', '2017 Summer', 'UGRD', '2017-05-22', '2017-08-11', '6W1', 'Six Week - First', '2017-05-22', '2017-06-30'),
+('2175', '2017 Summer', 'UGRD', '2017-05-22', '2017-08-11', '6W2', 'Six Week - Second', '2017-07-03', '2017-08-11'),
+('2175', '2017 Summer', 'UGRD', '2017-05-22', '2017-08-11', '8W', 'Session C', '2017-06-19', '2017-08-11'),
+('2172', '2017 Spring', 'LAW', '2017-01-02', '2017-05-10', '1', 'Regular Academic Session', '2017-01-09', '2017-04-25'),
+('2172', '2017 Spring', 'GRAD', '2017-01-10', '2017-05-12', '1', 'Regular Academic Session', '2017-01-17', '2017-05-05'),
+('2172', '2017 Spring', 'UCBX', '2017-01-10', '2017-05-12', '1', 'Regular Academic Session', '2017-01-17', '2017-05-05'),
+('2172', '2017 Spring', 'UGRD', '2017-01-10', '2017-05-12', '1', 'Regular Academic Session', '2017-01-17', '2017-05-05'),
+('2168', '2016 Fall', 'LAW', '2016-08-15', '2016-12-15', '1', 'Regular Academic Session', '2016-08-22', '2016-12-15'),
+('2168', '2016 Fall', 'GRAD', '2016-08-17', '2016-12-16', '1', 'Regular Academic Session', '2016-08-24', '2016-12-09'),
+('2168', '2016 Fall', 'UCBX', '2016-08-17', '2016-12-16', '1', 'Regular Academic Session', '2016-08-24', '2016-12-09'),
+('2168', '2016 Fall', 'UGRD', '2016-08-17', '2016-12-16', '1', 'Regular Academic Session', '2016-08-24', '2016-12-09');
+
 INSERT INTO student.student_profiles
 (sid, profile)
 VALUES
@@ -162,4 +240,5 @@ VALUES
 ('11667051', '2172', :enrollment_term_11667051_2172),
 ('11667051', '2178', :enrollment_term_11667051_2178),
 ('11667051', '2182', :enrollment_term_11667051_2182),
-('2345678901', '2172', :enrollment_term_2345678901_2172);
+('2345678901', '2172', :enrollment_term_2345678901_2172),
+('3456789012', '2178', :enrollment_term_3456789012_2178);

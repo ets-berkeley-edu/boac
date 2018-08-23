@@ -1,0 +1,128 @@
+{
+  "analytics": {
+    "assignmentsSubmitted": {
+      "displayPercentile": "81st",
+      "percentile": 81
+    },
+    "currentScore": {
+      "displayPercentile": "73rd",
+      "percentile": 73
+    },
+    "lastActivity": {
+      "displayPercentile": "21st",
+      "percentile": 21
+    }
+  },
+  "droppedSections": [
+    {
+      "component": "TUT",
+      "displayName": "MUSIC 41C",
+      "sectionNumber": "002"
+    }
+  ],
+  "enrolledUnits": 5,
+  "enrollments": [
+    {
+      "canvasSites": [
+        {
+          "analytics": {
+            "assignmentsSubmitted": {
+              "boxPlottable": true,
+              "courseDeciles": [
+                0,
+                4,
+                5,
+                5,
+                5,
+                6,
+                7,
+                8,
+                8,
+                10,
+                17
+              ],
+              "displayPercentile": "81st",
+              "student": {
+                "percentile": 64,
+                "raw": 8,
+                "roundedUpPercentile": 81
+              }
+            },
+            "courseEnrollmentCount": 331,
+            "currentScore": {
+              "boxPlottable": true,
+              "courseDeciles": [
+                47,
+                63,
+                67,
+                70,
+                73,
+                76,
+                78,
+                82,
+                86,
+                94,
+                104
+              ],
+              "displayPercentile": "76th",
+              "student": {
+                "percentile": 73,
+                "raw": 84,
+                "roundedUpPercentile": 76
+              }
+            },
+            "lastActivity": {
+              "boxPlottable": true,
+              "courseDeciles": [
+                0,
+                0,
+                1533975180,
+                1534134360,
+                1534296120,
+                1534404540,
+                1534566180,
+                1534724580,
+                1534993320,
+                1535264940,
+                1535533860
+              ],
+              "displayPercentile": "19th",
+              "student": {
+                "percentile": 10,
+                "raw": 0,
+                "roundedUpPercentile": 19
+              }
+            }
+          },
+          "canvasCourseId": 7654321,
+          "courseCode": "MED ST 205",
+          "courseName": "Medieval Manuscripts as Primary Sources",
+          "courseTerm": "Fall 2017"
+        }
+      ],
+      "displayName": "MED ST 205",
+      "grade": null,
+      "gradingBasis": "Letter",
+      "sections": [
+        {
+          "canvasCourseIds": [
+            7654321
+          ],
+          "ccn": 90200,
+          "component": "SEM",
+          "enrollmentStatus": "E",
+          "grade": null,
+          "gradingBasis": "Letter",
+          "primary": true,
+          "sectionNumber": "001",
+          "units": 5.0
+        }
+      ],
+      "title": "Medieval Manuscripts as Primary Sources",
+      "units": 5.0
+    }
+  ],
+  "termId": "2178",
+  "termName": "Fall 2017",
+  "unmatchedCanvasSites": []
+}

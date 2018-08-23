@@ -125,6 +125,7 @@ def fake_loch(app):
     params = {}
     fixtures = ['enrollment_term_11667051_' + term_id for term_id in ['2162', '2172', '2178', '2182']]
     fixtures.append('enrollment_term_2345678901_2172')
+    fixtures.append('enrollment_term_3456789012_2178')
     for sid in ['11667051', '2345678901', '3456789012', '5678901234', '7890123456', '8901234567', '890127492']:
         fixtures += ['profile_' + sid, 'athletics_profile_' + sid]
     for sid in ['11667051', '7890123456', '9000000000', '9100000000']:
@@ -169,8 +170,7 @@ def create_alerts(client, db_session):
     )
     # Load our usual student of interest into the cache and generate midterm alerts from fixture data.
     client.get('/api/user/61889/analytics')
-    from boac.api.cache_utils import load_alerts
-    load_alerts(2178)
+    Alert.update_all_for_term(2178)
 
 
 def pytest_itemcollected(item):
