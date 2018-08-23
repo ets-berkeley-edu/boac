@@ -1,3 +1,10 @@
 {
-    "advisorUid": "1133399"
+    "advisorUid": "1133399",
+	"gender": "",
+	"ethnicity": "",
+	"minority": ,
+	"didPrep": ,
+	"prepEligible": ,
+	"didTprep": ,
+	"tprepEligible":
 }

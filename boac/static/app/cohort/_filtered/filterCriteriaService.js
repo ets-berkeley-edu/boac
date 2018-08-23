@@ -146,6 +146,12 @@
             return done();
           }
         },
+        function(done) {
+          if (authService.canViewCoe()) {
+            setMenuOptions(definitions, 'coePrepStatuses', studentFactory.getCoePrepStatuses());
+          }
+          return done();
+        },
         function() {
           return callback(definitions);
         }

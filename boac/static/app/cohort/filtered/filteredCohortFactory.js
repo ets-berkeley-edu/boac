@@ -34,6 +34,7 @@
     var createCohort = function(
       label,
       advisorLdapUids,
+      coePrepStatuses,
       gpaRanges,
       groupCodes,
       levels,
@@ -44,6 +45,7 @@
     ) {
       var args = {
         label: label,
+        coePrepStatuses: coePrepStatuses,
         advisorLdapUids: advisorLdapUids,
         gpaRanges: gpaRanges,
         groupCodes: groupCodes,

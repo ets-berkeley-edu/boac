@@ -167,7 +167,7 @@
       }).then(scatterplotRefresh).then(callback).catch(errorHandler);
     };
 
-    var search = function(filterCriteria, orderBy, offset, limit, callback) {
+    var executeSearch = function(filterCriteria, orderBy, offset, limit, callback) {
       filterCriteriaService.updateLocation(filterCriteria, $scope.search.pagination.currentPage);
       studentFactory.getStudents(filterCriteria, orderBy, offset, limit).then(function(response) {
         $scope.cohort.name = $location.search().cohortName;
@@ -217,7 +217,7 @@
           if (cohortId > 0) {
             loadSavedCohort(cohortId, null, 0, Number.MAX_SAFE_INTEGER, done);
           } else {
-            search(criteria, null, 0, Number.MAX_SAFE_INTEGER, done);
+            executeSearch(criteria, null, 0, Number.MAX_SAFE_INTEGER, done);
           }
 
         } else {
@@ -232,7 +232,7 @@
             makeFiltersVisible(queryArgs.details, false);
 
           } else if (hasFilterCriteria) {
-            search(criteria, $scope.search.orderBy.selected, offset, limit, done);
+            executeSearch(criteria, $scope.search.orderBy.selected, offset, limit, done);
             makeFiltersVisible(queryArgs.details, true);
 
           } else {

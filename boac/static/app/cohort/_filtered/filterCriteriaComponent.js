@@ -132,7 +132,7 @@
         show: false,
         redraw: function(isInitPhase) {
           // Show 'Apply' button (ie, perform search) if non-empty criteria and no "draft" filter is in-progress.
-          var emptyDraft = !$scope.filters.draft;
+          var emptyDraft = !_.get($scope.filters.draft, 'key');
           var show = $scope.buttons.applyButton.show = !isInitPhase && emptyDraft && $scope.filters.added.length;
           $scope.buttons.applyButton.disabled = !show && emptyDraft && !$scope.filters.added.length;
         }

@@ -103,6 +103,16 @@
           subcategoryHeader: 'Major'
         },
         {
+          available: authService.canViewCoe(),
+          defaultValue: null,
+          depth: 2,
+          handler: utilService.asArray,
+          key: 'coePrepStatuses',
+          name: 'PREP',
+          param: 'p',
+          subcategoryHeader: 'Status'
+        },
+        {
           available: true,
           defaultValue: null,
           depth: 2,
@@ -128,7 +138,8 @@
         'advisorLdapUids',
         'groupCodes',
         'isInactiveAsc',
-        'inIntensiveCohort'
+        'inIntensiveCohort',
+        'coePrepStatuses'
       ];
     };
 

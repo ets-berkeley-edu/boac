@@ -1,3 +1,10 @@
 {
-    "advisorUid": "90412"
+    "advisorUid": "90412",
+    "gender": "m",
+    "ethnicity": "X",
+    "minority": false,
+    "didPrep": false,
+    "prepEligible": false,
+    "didTprep": false,
+    "tprepEligible": true
 }
