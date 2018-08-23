@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
+import json
 from boac.models import development_db
 import pytest
 
@@ -180,6 +181,7 @@ class TestUserAnalytics:
     """User Analytics API."""
 
     api_path = '/api/user/{}/analytics'
+    coe_student = api_path.format(1049291)
     dave = api_path.format(98765)
     deborah = api_path.format(61889)
     non_student_uid = '2040'
@@ -193,7 +195,9 @@ class TestUserAnalytics:
 
     @pytest.fixture()
     def authenticated_response(self, coe_advisor, client):
-        return client.get(TestUserAnalytics.deborah)
+        response = client.get(TestUserAnalytics.deborah)
+        assert response.status_code == 200
+        return response
 
     @pytest.fixture()
     def asc_advisor(self, fake_auth):
@@ -201,7 +205,15 @@ class TestUserAnalytics:
 
     @pytest.fixture()
     def asc_authenticated_response(self, asc_advisor, client):
-        return client.get(TestUserAnalytics.deborah)
+        response = client.get(TestUserAnalytics.deborah)
+        assert response.status_code == 200
+        return response
+
+    @pytest.fixture()
+    def coe_authenticated_response(self, coe_advisor, client):
+        response = client.get(TestUserAnalytics.coe_student)
+        assert response.status_code == 200
+        return response
 
     @pytest.fixture()
     def admin_auth(self, fake_auth):
@@ -209,7 +221,9 @@ class TestUserAnalytics:
 
     @pytest.fixture()
     def admin_authenticated_response(self, admin_auth, client):
-        return client.get(TestUserAnalytics.deborah)
+        response = client.get(TestUserAnalytics.deborah)
+        assert response.status_code == 200
+        return response
 
     @staticmethod
     def get_course_for_code(response, term_id, code):
@@ -473,7 +487,9 @@ class TestUserAnalytics:
 
     def test_athletics_profile_asc(self, asc_authenticated_response):
         """Includes athletics profile for ASC users."""
-        athletics_profile = asc_authenticated_response.json['athleticsProfile']
+        response = asc_authenticated_response.json
+        assert 'coeProfile' not in response
+        athletics_profile = response['athleticsProfile']
         assert athletics_profile['inIntensiveCohort'] is True
         assert len(athletics_profile['athletics']) == 2
         hockey = next(a for a in athletics_profile['athletics'] if a['groupCode'] == 'WFH')
@@ -484,6 +500,23 @@ class TestUserAnalytics:
         assert tennis['groupName'] == 'Women\'s Tennis'
         assert tennis['teamCode'] == 'TNW'
         assert tennis['teamName'] == 'Women\'s Tennis'
+
+    def test_college_of_engineering_profile(self, coe_advisor, coe_authenticated_response):
+        """Includes COE profile (eg, PREP) for COE students."""
+        response = coe_authenticated_response.json
+        assert 'athleticsProfile' not in response
+        assert 'coeProfile' in response
+        coe_profile = response['coeProfile']
+        assert json.loads(coe_profile) == {
+            'advisorUid': '1133399',
+            'gender': 'w',
+            'ethnicity': 'B',
+            'minority': True,
+            'didPrep': False,
+            'prepEligible': True,
+            'didTprep': False,
+            'tprepEligible': False,
+        }
 
     def test_athletics_profile_admin(self, admin_authenticated_response):
         """Includes athletics profile for admins."""

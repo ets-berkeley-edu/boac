@@ -53,6 +53,23 @@ def asc_inactive_students():
     """)
 
 
+class TestCollegeOfEngineering:
+    """COE-specific API calls."""
+
+    def test_unauthorized_request_for_coe_data(self, client, asc_advisor):
+        """In order to access PREP, etc. the user must be either COE or Admin."""
+        response = client.post('/api/students', data=json.dumps({'coePrepStatuses': ['did_prep']}), content_type='application/json')
+        assert response.status_code == 403
+
+    def test_authorized_request_for_coe_data(self, client, coe_advisor):
+        """In order to access PREP, etc. the user must be either COE or Admin."""
+        response = client.post('/api/students', data=json.dumps({'coePrepStatuses': ['did_prep']}), content_type='application/json')
+        assert response.status_code == 200
+        students = response.json['students']
+        assert len(students) == 1
+        assert students[0]['sid'] == '11667051'
+
+
 class TestAthleticsStudyCenter:
     """ASC-specific API calls."""
 

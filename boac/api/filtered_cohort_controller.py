@@ -94,6 +94,7 @@ def create_cohort():
     params = request.get_json()
     label = util.get(params, 'label', None)
     advisor_ldap_uids = util.get(params, 'advisorLdapUids')
+    coe_prep_statuses = util.get(params, 'coePrepStatuses')
     gpa_ranges = util.get(params, 'gpaRanges')
     group_codes = util.get(params, 'groupCodes')
     levels = util.get(params, 'levels')
@@ -102,10 +103,10 @@ def create_cohort():
     in_intensive_cohort = util.to_bool_or_none(util.get(params, 'inIntensiveCohort'))
     is_inactive_asc = util.get(params, 'isInactiveAsc')
     coe_authorized = current_user.is_admin or 'COENG' in get_dept_codes(current_user)
-    if not coe_authorized and advisor_ldap_uids:
-        raise ForbiddenRequestError(f'You are unauthorized to use COE-specific search criteria.')
     if not label:
         raise BadRequestError('Cohort creation requires \'label\'')
+    if not coe_authorized and (advisor_ldap_uids or coe_prep_statuses):
+        raise ForbiddenRequestError(f'You are unauthorized to use COE-specific search criteria.')
     asc_authorized = current_user.is_admin or 'UWASC' in get_dept_codes(current_user)
     if not asc_authorized and (in_intensive_cohort is not None or is_inactive_asc is not None):
         raise ForbiddenRequestError('You are unauthorized to use ASC-specific search criteria.')
@@ -113,6 +114,7 @@ def create_cohort():
         uid=current_user.get_id(),
         label=label,
         advisor_ldap_uids=advisor_ldap_uids,
+        coe_prep_statuses=coe_prep_statuses,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
         levels=levels,

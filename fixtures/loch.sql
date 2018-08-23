@@ -27,7 +27,14 @@ CREATE TABLE boac_advising_asc.student_profiles
 CREATE TABLE boac_advising_coe.students
 (
     sid VARCHAR NOT NULL,
-    advisor_ldap_uid VARCHAR
+    advisor_ldap_uid VARCHAR,
+    gender VARCHAR,
+    ethnicity VARCHAR,
+    minority BOOLEAN NOT NULL,
+    did_prep BOOLEAN NOT NULL,
+    prep_eligible BOOLEAN NOT NULL,
+    did_tprep BOOLEAN NOT NULL,
+    tprep_eligible BOOLEAN NOT NULL
 );
 
 CREATE TABLE boac_advising_coe.student_profiles
@@ -99,12 +106,12 @@ VALUES
 ('890127492', :athletics_profile_890127492);
 
 INSERT INTO boac_advising_coe.students
-(sid, advisor_ldap_uid)
+(sid, advisor_ldap_uid, gender, ethnicity, minority, did_prep, prep_eligible, did_tprep, tprep_eligible)
 VALUES
-('11667051', '90412'),
-('7890123456', '1133399'),
-('9000000000', '1133399'),
-('9100000000', '90412');
+('11667051', '90412', 'm', 'H', FALSE, TRUE, FALSE, FALSE, FALSE),
+('7890123456', '1133399', 'w', 'B', TRUE, FALSE, TRUE, FALSE, FALSE),
+('9000000000', '1133399', 'w', 'B', TRUE, FALSE, TRUE, FALSE, FALSE),
+('9100000000', '90412', 'm', 'X', FALSE, FALSE, FALSE, FALSE, TRUE);
 
 INSERT INTO boac_advising_coe.student_profiles
 (sid, profile)

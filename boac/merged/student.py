@@ -61,6 +61,13 @@ def get_full_student_profiles(sids):
             profile = profiles_by_sid.get(row['sid'])
             if profile:
                 profile['athleticsProfile'] = json.loads(row['profile'])
+    if 'COENG' in scope or 'ADMIN' in scope:
+        coe_profiles = data_loch.get_coe_profiles(sids)
+        if coe_profiles:
+            for row in coe_profiles:
+                profile = profiles_by_sid.get(row['sid'])
+                if profile:
+                    profile['coeProfile'] = row['profile']
 
     return profiles
 
@@ -169,6 +176,7 @@ def get_student_and_terms(uid):
 def query_students(
         include_profiles=False,
         advisor_ldap_uids=None,
+        coe_prep_statuses=None,
         gpa_ranges=None,
         group_codes=None,
         in_intensive_cohort=None,
@@ -183,20 +191,22 @@ def query_students(
 ):
     scope = narrow_scope_by_criteria(
         get_student_query_scope(),
+        advisor_ldap_uids=advisor_ldap_uids,
+        coe_prep_statuses=coe_prep_statuses,
+        group_codes=group_codes,
         in_intensive_cohort=in_intensive_cohort,
         is_active_asc=is_active_asc,
-        group_codes=group_codes,
-        advisor_ldap_uids=advisor_ldap_uids,
     )
     query_tables, query_filter, query_bindings = data_loch.get_students_query(
-        group_codes=group_codes,
+        advisor_ldap_uids=advisor_ldap_uids,
+        coe_prep_statuses=coe_prep_statuses,
         gpa_ranges=gpa_ranges,
+        group_codes=group_codes,
+        in_intensive_cohort=in_intensive_cohort,
+        is_active_asc=is_active_asc,
         levels=levels,
         majors=majors,
         unit_ranges=unit_ranges,
-        in_intensive_cohort=in_intensive_cohort,
-        is_active_asc=is_active_asc,
-        advisor_ldap_uids=advisor_ldap_uids,
         scope=scope,
     )
     if not query_tables:
@@ -317,6 +327,7 @@ def narrow_scope_by_criteria(scope, **kwargs):
         ],
         'COENG': [
             'advisor_ldap_uids',
+            'coe_prep_statuses',
         ],
     }
 

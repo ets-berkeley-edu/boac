@@ -40,6 +40,7 @@ from flask_login import current_user, login_required
 def get_students():
     params = request.get_json()
     advisor_ldap_uids = util.get(params, 'advisorLdapUids')
+    coe_prep_statuses = util.get(params, 'coePrepStatuses')
     gpa_ranges = util.get(params, 'gpaRanges')
     group_codes = util.get(params, 'groupCodes')
     levels = util.get(params, 'levels')
@@ -50,13 +51,18 @@ def get_students():
     order_by = util.get(params, 'orderBy', None)
     offset = util.get(params, 'offset', 0)
     limit = util.get(params, 'limit', 50)
+    # Authorization check
     can_view_asc_data = can_current_user_view_dept('UWASC')
     is_asc_data_request = in_intensive_cohort is not None or is_inactive_asc is not None
-    if is_asc_data_request and not can_view_asc_data:
+    can_view_coe_data = can_current_user_view_dept('COENG')
+    is_coe_data_request = advisor_ldap_uids is not None or coe_prep_statuses is not None
+    if (is_asc_data_request and not can_view_asc_data) or (is_coe_data_request and not can_view_coe_data):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
+
     results = query_students(
         include_profiles=True,
         advisor_ldap_uids=advisor_ldap_uids,
+        coe_prep_statuses=coe_prep_statuses,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
         levels=levels,
@@ -68,6 +74,8 @@ def get_students():
         offset=offset,
         limit=limit,
     )
+    if results is None:
+        raise BadRequestError('Invalid search criteria')
     alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
     students = results['students'] if results else []
     add_alert_counts(alert_counts, students)

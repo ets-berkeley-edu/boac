@@ -43,6 +43,15 @@
       return $http.get('/api/alerts/current/' + sid);
     };
 
+    var getCoePrepStatuses = function() {
+      return utilService.decorateOrderedSet([
+        {name: 'PREP', value: 'did_prep'},
+        {name: 'PREP eligible', value: 'prep_eligible'},
+        {name: 'T-PREP', value: 'did_tprep'},
+        {name: 'T-PREP eligible', value: 'tprep_eligible'}
+      ]);
+    };
+
     var getGpaRanges = function() {
       return utilService.decorateOrderedSet([
         {name: '3.50 - 4.00', value: 'numrange(3.5, 4, \'[]\')'},
@@ -100,6 +109,7 @@
       analyticsPerUser: analyticsPerUser,
       dismissAlert: dismissAlert,
       getAlerts: getAlerts,
+      getCoePrepStatuses: getCoePrepStatuses,
       getGpaRanges: getGpaRanges,
       getRelevantMajors: getRelevantMajors,
       getStudentLevels: getStudentLevels,

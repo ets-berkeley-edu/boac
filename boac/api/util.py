@@ -123,24 +123,26 @@ def decorate_cohort(
         'name': cohort_name,
         'owners': [user.uid for user in cohort.owners],
     }
-    gpa_ranges = util.get(criteria, 'gpaRanges', [])
-    group_codes = util.get(criteria, 'groupCodes', [])
-    levels = util.get(criteria, 'levels', [])
-    majors = util.get(criteria, 'majors', [])
-    unit_ranges = util.get(criteria, 'unitRanges', [])
-    in_intensive_cohort = util.to_bool_or_none(util.get(criteria, 'inIntensiveCohort'))
+    coe_prep_statuses = criteria.get('coePrepStatuses')
+    gpa_ranges = criteria.get('gpaRanges')
+    group_codes = criteria.get('groupCodes')
+    in_intensive_cohort = util.to_bool_or_none(criteria.get('inIntensiveCohort'))
     is_inactive_asc = util.get(criteria, 'isInactiveAsc')
+    levels = criteria.get('levels')
+    majors = criteria.get('majors')
     team_groups = athletics.get_team_groups(group_codes) if group_codes else []
+    unit_ranges = criteria.get('unitRanges')
     decorated.update({
         'filterCriteria': {
             'advisorLdapUids': advisor_ldap_uids,
+            'coePrepStatuses': coe_prep_statuses,
             'gpaRanges': gpa_ranges,
             'groupCodes': group_codes,
+            'inIntensiveCohort': in_intensive_cohort,
+            'isInactiveAsc': is_inactive_asc,
             'levels': levels,
             'majors': majors,
             'unitRanges': unit_ranges,
-            'inIntensiveCohort': in_intensive_cohort,
-            'isInactiveAsc': is_inactive_asc,
         },
         'teamGroups': team_groups,
     })
@@ -159,6 +161,7 @@ def decorate_cohort(
     results = query_students(
         include_profiles=(include_students and include_profiles),
         advisor_ldap_uids=advisor_ldap_uids,
+        coe_prep_statuses=coe_prep_statuses,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
         in_intensive_cohort=in_intensive_cohort,

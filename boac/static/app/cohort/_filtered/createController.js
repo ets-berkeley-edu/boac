@@ -91,6 +91,7 @@
           filteredCohortFactory.createCohort(
             $scope.name,
             c.advisorLdapUids,
+            c.coePrepStatuses,
             c.gpaRanges,
             c.groupCodes,
             c.levels,

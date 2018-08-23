@@ -199,6 +199,14 @@ def get_athletics_profiles(sids):
     return safe_execute_redshift(sql, sids=sids)
 
 
+def get_coe_profiles(sids):
+    sql = f"""SELECT sid, profile
+        FROM {coe_schema()}.student_profiles
+        WHERE sid = ANY(:sids)
+        """
+    return safe_execute_redshift(sql, sids=sids)
+
+
 def get_all_student_ids():
     sql = f"""SELECT sid, uid
         FROM {student_schema()}.student_academic_status
@@ -258,6 +266,7 @@ def get_majors(scope=[]):
 
 def get_students_query(
         search_phrase=None,
+        coe_prep_statuses=None,
         group_codes=None,
         gpa_ranges=None,
         levels=None,
@@ -290,8 +299,9 @@ def get_students_query(
         })
 
     # Generic SIS criteria
-    if gpa_ranges:
-        query_filter += numranges_to_sql('sas.gpa', gpa_ranges)
+    query_filter += numranges_to_sql('sas.gpa', gpa_ranges) if gpa_ranges else ''
+    query_filter += numranges_to_sql('sas.units', unit_ranges) if unit_ranges else ''
+
     if levels:
         query_filter += ' AND sas.level = ANY(:levels)'
         query_bindings.update({'levels': [level_to_code(l) for l in levels]})
@@ -310,18 +320,10 @@ def get_students_query(
         query_filter += ' AND (' + ' OR '.join(major_filters) + ')'
         query_tables += f' LEFT JOIN {student_schema()}.student_majors maj ON maj.sid = sas.sid'
         query_bindings.update({'majors': _majors})
-    if unit_ranges:
-        query_filter += numranges_to_sql('sas.units', unit_ranges)
 
     # ASC criteria
-    if is_active_asc is not None:
-        query_filter += ' AND s.active IS :is_active_asc'
-        query_bindings.update({'is_active_asc': is_active_asc})
-    if in_intensive_cohort is not None:
-        query_filter += f' AND s.intensive IS :in_intensive_cohort'
-        query_bindings.update({
-            'in_intensive_cohort': in_intensive_cohort,
-        })
+    query_filter += f' AND s.active IS {is_active_asc}' if is_active_asc is not None else ''
+    query_filter += f' AND s.intensive IS {in_intensive_cohort}' if in_intensive_cohort is not None else ''
     if group_codes:
         query_filter += ' AND s.group_code = ANY(:group_codes)'
         query_bindings.update({'group_codes': group_codes})
@@ -330,6 +332,8 @@ def get_students_query(
     if advisor_ldap_uids:
         query_filter += ' AND s.advisor_ldap_uid = ANY(:advisor_ldap_uids)'
         query_bindings.update({'advisor_ldap_uids': advisor_ldap_uids})
+    for coe_prep_status in coe_prep_statuses or []:
+        query_filter += f' AND s.{coe_prep_status} IS TRUE'
 
     return query_tables, query_filter, query_bindings
 
