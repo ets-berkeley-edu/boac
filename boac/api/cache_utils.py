@@ -24,7 +24,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-import json
 from threading import Thread
 
 from boac import db, std_commit
@@ -214,28 +213,17 @@ def load_term(term_id=berkeley.current_term_id()):
         load_all_terms()
         return
 
-    ids = get_all_student_ids()
-
-    JobProgress().update(f'About to load alerts for current term')
-    load_alerts(term_id, ids)
+    JobProgress().update(f'About to refresh alerts for current term')
+    refresh_alerts(term_id)
 
     if term_id == berkeley.current_term_id():
         JobProgress().update(f'About to load filtered cohort counts')
         load_filtered_cohort_counts()
 
 
-def load_alerts(term_id, ids=None):
-    if not ids:
-        ids = get_all_student_ids()
-    # TODO Reinstate assignment alerts based on loch data.
-    csids = [i[0] for i in ids]
-    enrollments_for_term = data_loch.get_enrollments_for_term(str(term_id), csids)
-    for row in enrollments_for_term:
-        enrollments = json.loads(row['enrollment_term']).get('enrollments', [])
-        for enrollment in enrollments:
-            for section in enrollment['sections']:
-                if section.get('midtermGrade'):
-                    Alert.update_midterm_grade_alerts(row['sid'], term_id, section['ccn'], enrollment['displayName'], section['midtermGrade'])
+def refresh_alerts(term_id):
+    Alert.deactivate_all_for_term(term_id)
+    Alert.update_all_for_term(term_id)
 
 
 def load_filtered_cohort_counts():

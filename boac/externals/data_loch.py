@@ -85,12 +85,25 @@ def intermediate_schema():
     return app.config['DATA_LOCH_INTERMEDIATE_SCHEMA']
 
 
+def sis_schema():
+    return app.config['DATA_LOCH_SIS_SCHEMA']
+
+
 def student_schema():
     return app.config['DATA_LOCH_STUDENT_SCHEMA']
 
 
 def earliest_term_id():
     return sis_term_id_for_name(app.config['CANVAS_EARLIEST_TERM'])
+
+
+def get_regular_undergraduate_session(term_id):
+    sql = f"""SELECT * FROM {sis_schema()}.sis_terms
+              WHERE term_id = '{term_id}'
+              AND academic_career = 'UGRD'
+              AND session_id = '1'
+           """
+    return safe_execute_rds(sql)
 
 
 @fixture('loch_sis_enrollments_{uid}_{term_id}.csv')
@@ -244,12 +257,12 @@ def get_enrollments_for_sid(sid, latest_term_id=None):
     return safe_execute_redshift(sql, sid=sid)
 
 
-def get_enrollments_for_term(term_id, sids):
+def get_enrollments_for_term(term_id, sids=None):
     sql = f"""SELECT sid, enrollment_term
         FROM {student_schema()}.student_enrollment_terms
-        WHERE term_id = :term_id
-        AND sid = ANY(:sids)
-        """
+        WHERE term_id = :term_id"""
+    if sids:
+        sql += ' AND sid = ANY(:sids)'
     return safe_execute_redshift(sql, term_id=term_id, sids=sids)
 
 

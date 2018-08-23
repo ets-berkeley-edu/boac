@@ -87,8 +87,9 @@ class TestCuratedCohortsController:
         """When all curated_cohorts are requested, returns only students with alerts."""
         curated_cohorts = client.get('/api/curated_cohorts/my').json
         assert curated_cohorts[0]['studentCount'] == 4
-        assert len(curated_cohorts[0]['students']) == 1
+        assert len(curated_cohorts[0]['students']) == 2
         assert curated_cohorts[0]['students'][0]['alertCount'] == 3
+        assert curated_cohorts[0]['students'][1]['alertCount'] == 1
 
         alert_to_dismiss = client.get('/api/alerts/current/11667051').json['shown'][0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
@@ -102,7 +103,7 @@ class TestCuratedCohortsController:
         assert curated_cohort['students'][0]['alertCount'] == 3
         assert 'alertCount' not in curated_cohort['students'][1]
         assert 'alertCount' not in curated_cohort['students'][2]
-        assert 'alertCount' not in curated_cohort['students'][3]
+        assert curated_cohort['students'][3]['alertCount'] == 1
 
     def test_curated_cohort_index_includes_summary(self, asc_advisor, create_alerts, client):
         """Returns summary details but not full term and analytics data for curated_cohort index."""

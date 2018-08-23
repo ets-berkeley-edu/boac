@@ -25,14 +25,17 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from datetime import datetime
+import json
 
 from boac import db, std_commit
 from boac.api.errors import BadRequestError
-from boac.lib.berkeley import current_term_id
+from boac.externals import data_loch
+from boac.lib.berkeley import current_term_id, term_name_for_sis_id
 from boac.lib.util import camelize, utc_timestamp_to_localtime
 from boac.merged.student import get_full_student_profiles, get_student_query_scope
 from boac.models.base import Base
 from boac.models.db_relationships import AlertView
+from flask import current_app as app
 from sqlalchemy import text
 
 
@@ -214,6 +217,47 @@ class Alert(Base):
         return results
 
     @classmethod
+    def no_activity_alerts_enabled(cls):
+        session = data_loch.get_regular_undergraduate_session(current_term_id())[0]
+        days_into_session = (datetime.date(datetime.today()) - session['session_begins']).days
+        return (
+            app.config['ALERT_NO_ACTIVITY_ENABLED'] and
+            not app.config['CANVAS_CURRENT_ENROLLMENT_TERM'].startswith('Summer') and
+            days_into_session >= app.config['ALERT_NO_ACTIVITY_DAYS_INTO_SESSION']
+        )
+
+    @classmethod
+    def deactivate_all_for_term(cls, term_id):
+        query = (
+            cls.query.
+            filter(cls.key.startswith(f'{term_id}_%'))
+        )
+        results = query.update({cls.active: False}, synchronize_session='fetch')
+        std_commit()
+        return results
+
+    @classmethod
+    def update_all_for_term(cls, term_id):
+        app.logger.info('Starting alert update')
+        enrollments_for_term = data_loch.get_enrollments_for_term(str(term_id))
+        no_activity_alerts_enabled = cls.no_activity_alerts_enabled()
+        for row in enrollments_for_term:
+            enrollments = json.loads(row['enrollment_term']).get('enrollments', [])
+            for enrollment in enrollments:
+                for section in enrollment['sections']:
+                    if section.get('midtermGrade'):
+                        cls.update_midterm_grade_alerts(row['sid'], term_id, section['ccn'], enrollment['displayName'], section['midtermGrade'])
+                if no_activity_alerts_enabled:
+                    for canvas_site in enrollment.get('canvasSites', []):
+                        student_activity = canvas_site.get('analytics', {}).get('lastActivity', {}).get('student')
+                        if (
+                            student_activity and student_activity.get('raw') == 0 and
+                            student_activity.get('roundedUpPercentile') < app.config['ALERT_NO_ACTIVITY_PERCENTILE_CUTOFF']
+                        ):
+                            cls.update_no_activity_alerts(row['sid'], term_id, canvas_site['canvasCourseId'], enrollment['displayName'])
+        app.logger.info('Alert update complete')
+
+    @classmethod
     def update_assignment_alerts(cls, sid, term_id, assignment_id, due_at, status, course_site_name):
         alert_type = status + '_assignment'
         key = f'{term_id}_{assignment_id}'
@@ -226,3 +270,9 @@ class Alert(Base):
         key = f'{term_id}_{section_id}'
         message = f'{class_name} midterm grade of {grade}.'
         cls.create_or_activate(sid=sid, alert_type='midterm', key=key, message=message)
+
+    @classmethod
+    def update_no_activity_alerts(cls, sid, term_id, canvas_course_id, class_name):
+        key = f'{term_id}_{canvas_course_id}'
+        message = f'No activity! Student has yet to use the {class_name} bCourses site for {term_name_for_sis_id(term_id)}.'
+        cls.create_or_activate(sid=sid, alert_type='no_activity', key=key, message=message)
