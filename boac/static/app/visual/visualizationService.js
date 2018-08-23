@@ -260,7 +260,7 @@
           .attr('width', '100%')
           .attr('height', '100%')
           .attr('patternContentUnits', 'objectBoundingBox');
-        var photoUri = '/api/user/' + d.uid + '/photo';
+        var photoUri = '/api/student/' + d.uid + '/photo';
         var avatarImage = pattern.append('svg:image')
           .attr('xlink:href', photoUri)
           .attr('width', 1)

@@ -27,13 +27,13 @@
 
   'use strict';
 
-  angular.module('boac').controller('TeamsController', function($location, $scope, athleticsFactory, page, validationService) {
+  angular.module('boac').controller('TeamsController', function($location, $scope, page, studentFactory, validationService) {
 
     page.loading(true);
 
     var init = function() {
       var teams = {};
-      athleticsFactory.getAllTeamGroups().then(function(response) {
+      studentFactory.getAllTeamGroups().then(function(response) {
         var teamGroups = response.data;
         _.each(teamGroups, function(t) {
           var teamCode = t.teamCode;

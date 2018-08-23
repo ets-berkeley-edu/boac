@@ -93,7 +93,7 @@
     var loadStudent = function(uid) {
       page.loading(true);
       var preferredName = null;
-      studentFactory.analyticsPerUser(uid).then(function(analytics) {
+      studentFactory.analyticsPerStudent(uid).then(function(analytics) {
         var student = analytics.data;
         var sid = student.sid;
         if (!sid) {
