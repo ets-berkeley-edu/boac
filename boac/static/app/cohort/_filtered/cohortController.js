@@ -255,6 +255,8 @@
 
     $scope.callbacks = {
       executeSearch: function(searchCriteria) {
+        $scope.cohort = {id: null, name: null, isOwnedByCurrentUser: null};
+        registerCohortMetadata($scope.cohort);
         init('list', searchCriteria);
       },
       onSave: function(cohort) {

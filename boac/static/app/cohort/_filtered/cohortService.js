@@ -29,6 +29,7 @@
 
   angular.module('boac').service('cohortService', function(filteredCohortFactory, utilService) {
 
+    // TODO: remove after legacy filtered-cohort code is removed
     var decorate = function(cohort) {
       return {
         id: cohort.id,

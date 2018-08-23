@@ -143,13 +143,8 @@
         reloadOnSearch: false
       })
       .state('filteredCohortsAll', {
-        url: '/cohort/filtered/all',
+        url: '/cohort/_filtered/all',
         views: standardLayout('AllFilteredCohortsController', '/static/app/cohort/filtered/all.html'),
-        resolve: resolvePrivate
-      })
-      .state('filteredCohortsManage', {
-        url: '/cohort/filtered/manage',
-        views: standardLayout('ManageFilteredCohortsController', '/static/app/cohort/filtered/manage.html'),
         resolve: resolvePrivate
       })
       .state('course', {

@@ -42,7 +42,7 @@
         ariaLabelledBy: 'confirm-delete-header',
         ariaDescribedBy: 'confirm-delete-body',
         backdrop: false,
-        templateUrl: '/static/app/cohort/filtered/deleteModal.html',
+        templateUrl: '/static/app/cohort/_filtered/deleteModal.html',
         controller: 'DeleteCohortModal',
         resolve: {
           cohort: function() {
