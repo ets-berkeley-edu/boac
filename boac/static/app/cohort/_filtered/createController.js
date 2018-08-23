@@ -96,8 +96,8 @@
             c.levels,
             c.majors,
             c.unitRanges,
-            c.intensive,
-            c.inactive
+            c.inIntensiveCohort,
+            c.isInactiveAsc
           ).then(
             function(cohort) {
               $rootScope.isSaving = false;
@@ -106,6 +106,7 @@
             },
             function(err) {
               $scope.error.message = err ? 'Sorry, the operation failed due to error: ' + err.data.message : 'Sorry, there was an error while creating cohort.';
+              $rootScope.isSaving = false;
             }
           );
         }
