@@ -66,10 +66,11 @@
     };
 
     var lastActivityDays = function(analytics) {
-      var daysSince = parseInt(_.get(analytics, 'lastActivity.student.daysSinceLastActivity'), 10);
-      if (isNaN(daysSince)) {
+      var timestamp = parseInt(_.get(analytics, 'lastActivity.student.raw'), 10);
+      if (!timestamp || isNaN(timestamp)) {
         return 'Never';
       }
+      var daysSince = Math.floor(((Date.now() / 1000) - timestamp) / 86400);
       switch (daysSince) {
         case 0: return 'Today';
         case 1: return 'Yesterday';
