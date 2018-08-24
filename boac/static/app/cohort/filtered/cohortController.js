@@ -34,6 +34,7 @@
     $scope,
     $state,
     cohortService,
+    config,
     filterCriteriaFactory,
     filterCriteriaService,
     filteredCohortFactory,
@@ -53,6 +54,7 @@
       name: null,
       isOwnedByCurrentUser: null
     };
+    $scope.demoMode = config.demoMode;
     $scope.exceedsMatrixThresholdMessage = utilService.exceedsMatrixThresholdMessage;
     $scope.hasFilterCriteria = false;
     $scope.renameMode = {
