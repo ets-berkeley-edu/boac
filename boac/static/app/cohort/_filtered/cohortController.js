@@ -39,7 +39,6 @@
     filteredCohortFactory,
     page,
     studentFactory,
-    studentSearchService,
     utilService,
     validationService,
     visualizationService
@@ -67,8 +66,8 @@
      * Object (ie, model) rendered on page.
      */
     $scope.search = {
-      orderBy: studentSearchService.getSortByOptionsForSearch(),
-      pagination: studentSearchService.initPagination(),
+      orderBy: cohortService.getSortByOptionsForSearch(),
+      pagination: cohortService.initPagination(),
       results: {
         students: null,
         totalStudentCount: null

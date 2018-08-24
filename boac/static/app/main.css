@@ -72,19 +72,11 @@
   color: grey;
 }
 
-.flex-column-btn {
-  padding: 0 10px 0 10px;
-}
-
 .flex-container {
   display: flex;
   list-style: none;
   margin: 0;
   padding: 0;
-}
-
-.flex-column-10 {
-  flex-grow: 1;
 }
 
 .flex-justify-center {

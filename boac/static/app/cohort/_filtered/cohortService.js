@@ -27,9 +27,8 @@
 
   'use strict';
 
-  angular.module('boac').service('cohortService', function(filteredCohortFactory, utilService) {
+  angular.module('boac').service('cohortService', function(authService, filteredCohortFactory, utilService) {
 
-    // TODO: remove after legacy filtered-cohort code is removed
     var decorate = function(cohort) {
       return {
         id: cohort.id,
@@ -65,6 +64,35 @@
       return title;
     };
 
+    var getSortByOptionsForSearch = function() {
+      var options = [
+        {name: 'First Name', value: 'first_name'},
+        {name: 'Last Name', value: 'last_name'},
+        {name: 'GPA', value: 'gpa'},
+        {name: 'Level', value: 'level'},
+        {name: 'Major', value: 'major'},
+        {name: 'Units', value: 'units'}
+      ];
+
+      if (authService.isAscUser()) {
+        options.push({name: 'Team', value: 'group_name'});
+        options = _.sortBy(options, [ 'name' ]);
+      }
+      return {
+        options: options,
+        selected: 'last_name'
+      };
+    };
+
+    var initPagination = function() {
+      return {
+        enabled: true,
+        currentPage: 1,
+        itemsPerPage: 50,
+        noLimit: null
+      };
+    };
+
     var loadMyFilteredCohorts = function(callback) {
       filteredCohortFactory.getMyFilteredCohorts().then(function(response) {
         var myFilteredCohorts = [];
@@ -80,6 +108,8 @@
       decorate: decorate,
       decorateCohortAlerts: decorateCohortAlerts,
       getSearchPageTitle: getSearchPageTitle,
+      getSortByOptionsForSearch: getSortByOptionsForSearch,
+      initPagination: initPagination,
       loadMyFilteredCohorts: loadMyFilteredCohorts
     };
 
