@@ -131,7 +131,6 @@
               ],
               "displayPercentile": "90th",
               "student": {
-                "daysSinceLastActivity": -53,
                 "percentile": 93,
                 "raw": 1535275620,
                 "roundedUpPercentile": 90
@@ -182,8 +181,7 @@
               "student": {
                 "percentile": 36,
                 "raw": 1526247970,
-                "roundedUpPercentile": 23,
-                "daysSinceLastActivity": 59
+                "roundedUpPercentile": 23
               },
               "courseDeciles": [
                 1524698255,
