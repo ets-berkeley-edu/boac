@@ -33,10 +33,10 @@
     $scope,
     $stateParams,
     authService,
+    cohortService,
     config,
     curatedCohortFactory,
     page,
-    studentSearchService,
     utilService,
     validationService,
     visualizationService
@@ -46,7 +46,7 @@
     $scope.demoMode = config.demoMode;
     $scope.isAscUser = authService.isAscUser();
     $scope.lastActivityDays = utilService.lastActivityDays;
-    $scope.orderBy = studentSearchService.getSortByOptionsForSearch();
+    $scope.orderBy = cohortService.getSortByOptionsForSearch();
 
     var levelComparator = function(level) {
       switch (level) {

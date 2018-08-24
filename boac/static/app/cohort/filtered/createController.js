@@ -27,11 +27,11 @@
 
   'use strict';
 
-  angular.module('boac').controller('CreateCohortController', function($scope, $uibModal) {
+  angular.module('boac').controller('CreateFilteredCohortController', function($scope, $uibModal) {
 
     var isModalOpen = false;
 
-    $scope.openCreateCohortModal = function(search) {
+    $scope.openCreateCohortModal = function(filterCriteria, callback) {
       if (isModalOpen) {
         return;
       }
@@ -43,10 +43,13 @@
         ariaDescribedBy: 'create-filtered-cohort-body',
         backdrop: false,
         templateUrl: '/static/app/cohort/filtered/createModal.html',
-        controller: 'CreateCohortModal',
+        controller: 'CreateFilteredCohortModal',
         resolve: {
-          search: function() {
-            return search;
+          $client: function() {
+            return {
+              filterCriteria,
+              callback
+            };
           }
         }
       });
@@ -58,16 +61,15 @@
     };
   });
 
-  angular.module('boac').controller('CreateCohortModal', function(
+  angular.module('boac').controller('CreateFilteredCohortModal', function(
+    $client,
     $rootScope,
     $scope,
     $uibModalInstance,
     filteredCohortFactory,
-    search,
-    utilService,
     validationService
   ) {
-    $scope.label = null;
+    $scope.name = null;
     $scope.error = {
       hide: false,
       message: null
@@ -79,31 +81,32 @@
         hide: false,
         message: null
       };
-      $scope.label = _.trim($scope.label);
-      validationService.validateName({name: $scope.label}, function(errorMessage) {
+      $scope.name = _.trim($scope.name);
+      validationService.validateName({name: $scope.name}, function(errorMessage) {
         if (errorMessage) {
           $scope.error.message = errorMessage;
           $rootScope.isSaving = false;
         } else {
-          var getValues = utilService.getValuesSelected;
-          var opts = search.options;
+          var c = $client.filterCriteria;
           filteredCohortFactory.createCohort(
-            $scope.label,
-            search.checkboxes.advisorLdapUid.checked ? search.checkboxes.advisorLdapUid.value : null,
-            getValues(opts.gpaRanges),
-            getValues(opts.groupCodes, 'groupCode'),
-            getValues(opts.levels),
-            getValues(opts.majors),
-            getValues(opts.unitRanges),
-            search.checkboxes.intensive.checked ? true : null,
-            search.checkboxes.inactive.checked ? true : null
+            $scope.name,
+            c.advisorLdapUids,
+            c.coePrepStatuses,
+            c.gpaRanges,
+            c.groupCodes,
+            c.levels,
+            c.majors,
+            c.unitRanges,
+            c.inIntensiveCohort,
+            c.isInactiveAsc
           ).then(
-            function() {
+            function(cohort) {
               $rootScope.isSaving = false;
+              $client.callback(cohort);
               $uibModalInstance.close();
             },
             function(err) {
-              $scope.error.message = 'Sorry, the operation failed due to error: ' + err.data.message;
+              $scope.error.message = err ? 'Sorry, the operation failed due to error: ' + err.data.message : 'Sorry, there was an error while creating cohort.';
               $rootScope.isSaving = false;
             }
           );

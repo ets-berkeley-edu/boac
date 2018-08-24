@@ -27,27 +27,57 @@
 
   'use strict';
 
-  angular.module('boac').directive('filteredCohortMenu', function(utilService) {
+  angular.module('boac').controller('DeleteCohortController', function($scope, $uibModal) {
 
-    return {
-      // @see https://docs.angularjs.org/guide/directive#template-expanding-directive
-      restrict: 'E',
+    var isModalOpen = false;
 
-      // @see https://docs.angularjs.org/guide/directive#isolating-the-scope-of-a-directive
-      scope: true,
-      templateUrl: '/static/app/cohort/filtered/menu.html',
-      link: function(scope, elem, attrs) {
-        scope.toggleFilter = function(event) {
-          // Known issue: https://github.com/angular-ui/bootstrap/issues/6038
-          if (event) {
-            event.stopPropagation();
-          }
-        };
-        scope.id = utilService.camelCaseToDashes(attrs.menuType);
-        scope.isOpen = attrs.menuType + 'Open';
-        scope.menuLabel = attrs.label;
-        scope.menuType = attrs.menuType;
+    $scope.openDeleteCohortModal = function(cohort) {
+      if (isModalOpen) {
+        return;
       }
+      isModalOpen = true;
+
+      var modal = $uibModal.open({
+        animation: true,
+        ariaLabelledBy: 'confirm-delete-header',
+        ariaDescribedBy: 'confirm-delete-body',
+        backdrop: false,
+        templateUrl: '/static/app/cohort/filtered/deleteModal.html',
+        controller: 'DeleteCohortModal',
+        resolve: {
+          cohort: function() {
+            return cohort;
+          }
+        }
+      });
+      var modalClosed = function() {
+        isModalOpen = false;
+      };
+
+      modal.result.finally(angular.noop).then(modalClosed, modalClosed);
+    };
+  });
+
+  angular.module('boac').controller('DeleteCohortModal', function(
+    $scope,
+    $uibModalInstance,
+    cohort,
+    filteredCohortFactory,
+    validationService
+  ) {
+
+    $scope.cohort = cohort;
+
+    $scope.delete = function(item) {
+      filteredCohortFactory.deleteCohort(item).then(function() {
+        $uibModalInstance.close();
+      }).catch(function(error) {
+        $scope.error = validationService.parseError(error);
+      });
+    };
+
+    $scope.cancel = function() {
+      $uibModalInstance.close();
     };
   });
 
