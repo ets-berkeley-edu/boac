@@ -193,7 +193,7 @@
       callbacks: '='
     },
     controller: FilterCriteriaController,
-    templateUrl: '/static/app/cohort/_filtered/filterCriteria.html'
+    templateUrl: '/static/app/cohort/filtered/filterCriteria.html'
   });
 
 }(window.angular));

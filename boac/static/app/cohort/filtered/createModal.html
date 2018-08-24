@@ -8,21 +8,21 @@
       <input id="filtered-cohort-create-input"
              class="cohort-create-input-name"
              data-ng-change="error.hide = true"
-             data-ng-model="label"
+             data-ng-model="name"
              data-ng-readonly="isSaving"
              type="text"
              maxlength="255"
              autofocus
              required>
     </div>
-    <div class="faint-text">255 character limit <span data-ng-if="label.length">({{255 - label.length}} left)</span></div>
+    <div class="faint-text">255 character limit <span data-ng-if="name.length">({{255 - name.length}} left)</span></div>
     <div class="has-error" data-ng-bind="error.message" data-ng-if="error.message && !error.hide"></div>
   </div>
   <div class="modal-footer">
     <button type="button"
             id="confirm-create-filtered-cohort-btn"
             class="btn btn btn-primary"
-            data-ng-disabled="!label.length || isSaving"
+            data-ng-disabled="!name.length || isSaving"
             data-ng-click="create(cohort)">
       <i class="fas fa-spinner fa-spin" data-ng-if="isSaving"></i> {{isSaving ? 'Saving' : 'Save'}}
     </button>

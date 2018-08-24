@@ -134,13 +134,13 @@
       })
       .state('filteredCohort', {
         url: '/cohort/filtered?c&cohortName&i&t&v',
-        views: standardLayout('_FilteredCohortController', '/static/app/cohort/_filtered/cohort.html'),
+        views: standardLayout('FilteredCohortController', '/static/app/cohort/filtered/cohort.html'),
         resolve: resolvePrivate,
         reloadOnSearch: false
       })
       .state('filteredCohortsAll', {
-        url: '/cohort/_filtered/all',
-        views: standardLayout('AllFilteredCohortsController', '/static/app/cohort/_filtered/all.html'),
+        url: '/cohort/filtered/all',
+        views: standardLayout('AllFilteredCohortsController', '/static/app/cohort/filtered/all.html'),
         resolve: resolvePrivate
       })
       .state('course', {
