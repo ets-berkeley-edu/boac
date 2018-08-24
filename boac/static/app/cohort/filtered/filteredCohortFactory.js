@@ -35,6 +35,7 @@
       label,
       advisorLdapUids,
       coePrepStatuses,
+      ethnicities,
       genders,
       gpaRanges,
       groupCodes,
@@ -46,18 +47,21 @@
     ) {
       var args = {
         label: label,
-        coePrepStatuses: coePrepStatuses,
         advisorLdapUids: advisorLdapUids,
+        coePrepStatuses: coePrepStatuses,
+        ethnicities: ethnicities,
         genders: genders,
         gpaRanges: gpaRanges,
         groupCodes: groupCodes,
-        isInactiveAsc: utilService.toBoolOrNull(inactiveAsc),
         levels: levels,
         majors: majors,
         unitRanges: unitRanges
       };
       if (utilService.toBoolOrNull(intensive)) {
         args.inIntensiveCohort = true;
+      }
+      if (utilService.toBoolOrNull(inactiveAsc)) {
+        args.isInactiveAsc = true;
       }
       return $http.post('/api/filtered_cohort/create', args).then(function(response) {
         var cohort = response.data;

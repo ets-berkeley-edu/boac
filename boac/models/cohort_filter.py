@@ -24,10 +24,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-import json
-import re
 from boac import db, std_commit
 from boac.api.errors import InternalServerError
+from boac.lib.util import camelize
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.authorized_user import cohort_filter_owners
 from boac.models.base import Base
@@ -57,39 +56,17 @@ class CohortFilter(Base, UserMixin):
             created_at={self.created_at}>"""
 
     @classmethod
-    def create(
-            cls,
-            uid,
-            label,
-            advisor_ldap_uids=None,
-            coe_prep_statuses=None,
-            genders=None,
-            gpa_ranges=None,
-            group_codes=None,
-            levels=None,
-            majors=None,
-            unit_ranges=None,
-            in_intensive_cohort=None,
-            is_inactive_asc=None,
-    ):
-        # If in_intensive_cohort is True then search intensive cohort; if equals False then search
-        # non-intensive students; if equals None then search all students.
-        criteria = cls.compose_filter_criteria(
-            advisor_ldap_uids=advisor_ldap_uids,
-            coe_prep_statuses=coe_prep_statuses,
-            genders=genders,
-            gpa_ranges=gpa_ranges,
-            group_codes=group_codes,
-            in_intensive_cohort=in_intensive_cohort,
-            is_inactive_asc=is_inactive_asc,
-            levels=levels,
-            majors=majors,
-            unit_ranges=unit_ranges,
-        )
-        cohort = CohortFilter(label=label, filter_criteria=json.dumps(criteria))
+    def create(cls, uid, label, **kwargs):
+        at_least_one_is_defined = False
+        filter_criteria = {}
+        for k, v in kwargs.items():
+            at_least_one_is_defined = at_least_one_is_defined or (len(v) if isinstance(v, list) else v is not None)
+            filter_criteria[camelize(k)] = v
+        if not at_least_one_is_defined:
+            raise InternalServerError('Cohort creation requires at least one filter specification.')
+        cohort = CohortFilter(label=label, filter_criteria=filter_criteria)
         user = AuthorizedUser.find_by_uid(uid)
         user.cohort_filters.append(cohort)
-        # The new Cohort Filter's primary ID column is not generated until the DB session is flushed.
         db.session.flush()
         std_commit()
         return cohort
@@ -131,52 +108,3 @@ class CohortFilter(Base, UserMixin):
         cohort_filter = CohortFilter.query.filter_by(id=cohort_id).first()
         db.session.delete(cohort_filter)
         std_commit()
-
-    @classmethod
-    def compose_filter_criteria(
-            cls,
-            advisor_ldap_uids=None,
-            coe_prep_statuses=None,
-            genders=None,
-            gpa_ranges=None,
-            group_codes=None,
-            in_intensive_cohort=None,
-            is_inactive_asc=None,
-            levels=None,
-            majors=None,
-            unit_ranges=None,
-    ):
-        has_criteria = next((c for c in [coe_prep_statuses, genders, gpa_ranges, group_codes, levels, majors, unit_ranges] if c), None)
-        has_criteria = has_criteria or next((c for c in [advisor_ldap_uids, in_intensive_cohort, is_inactive_asc] if c is not None), None)
-        if not has_criteria:
-            raise InternalServerError('CohortFilter creation requires one or more non-empty criteria.')
-        # Validate
-        for arg in [gpa_ranges, group_codes, levels, majors, unit_ranges]:
-            if arg and not isinstance(arg, list):
-                raise InternalServerError('Certain \'filter_criteria\' must be instance of \'list\' type.')
-        group_code_syntax = re.compile('^[A-Z\-]+$')
-        if group_codes and any(not group_code_syntax.match(code) for code in group_codes):
-            raise InternalServerError('\'group_codes\' arg has invalid data: ' + str(group_codes))
-        level_syntax = re.compile('^[A-Z][a-z]+$')
-        if levels and any(not level_syntax.match(level) for level in levels):
-            raise InternalServerError('\'levels\' arg has invalid data: ' + str(levels))
-        if majors and any(not isinstance(m, str) for m in majors):
-            raise InternalServerError('\'majors\' arg has invalid data: ' + str(majors))
-        # The 'numrange' syntax is based on https://www.postgresql.org/docs/9.3/static/rangetypes.html
-        numrange_syntax = re.compile('^numrange\([0-9\.NUL]+, [0-9\.NUL]+, \'..\'\)$')
-        for r in (gpa_ranges or []) + (unit_ranges or []):
-            if not numrange_syntax.match(r):
-                msg = f'Range argument \'{r}\' does not match expected \'numrange\' syntax: {numrange_syntax.pattern}'
-                raise InternalServerError(msg)
-        return {
-            'advisorLdapUids': advisor_ldap_uids,
-            'coePrepStatuses': coe_prep_statuses,
-            'genders': genders,
-            'gpaRanges': gpa_ranges,
-            'groupCodes': group_codes,
-            'inIntensiveCohort': in_intensive_cohort,
-            'isInactiveAsc': is_inactive_asc,
-            'levels': levels,
-            'majors': majors,
-            'unitRanges': unit_ranges,
-        }

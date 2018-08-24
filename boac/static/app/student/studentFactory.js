@@ -52,6 +52,10 @@
       ]);
     };
 
+    var getEthnicities = function() {
+      return $http.get('/api/ethnicities/coe');
+    };
+
     var getGenders = function() {
       // TODO: get full set with proper labels approved by BOAC Service Lead
       return utilService.decorateOrderedSet([{name: 'Male', value: 'm'}, {name: 'Female', value: 'f'}]);
@@ -119,6 +123,7 @@
       dismissAlert: dismissAlert,
       getAlerts: getAlerts,
       getCoePrepStatuses: getCoePrepStatuses,
+      getEthnicities: getEthnicities,
       getGenders: getGenders,
       getGpaRanges: getGpaRanges,
       getRelevantMajors: getRelevantMajors,

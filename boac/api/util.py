@@ -108,8 +108,9 @@ def decorate_cohort(
     include_profiles=False,
     include_alerts_for_uid=None,
 ):
-    criteria = cohort if isinstance(cohort.filter_criteria, dict) else json.loads(cohort.filter_criteria)
-    advisor_ldap_uids = util.get(criteria, 'advisorLdapUids')
+    c = cohort.filter_criteria
+    c = c if isinstance(c, dict) else json.loads(c)
+    advisor_ldap_uids = util.get(c, 'advisorLdapUids')
     if not isinstance(advisor_ldap_uids, list):
         advisor_ldap_uids = [advisor_ldap_uids] if advisor_ldap_uids else None
     # In odd circumstances we override the cohort's actual name
@@ -123,20 +124,22 @@ def decorate_cohort(
         'name': cohort_name,
         'owners': [user.uid for user in cohort.owners],
     }
-    coe_prep_statuses = criteria.get('coePrepStatuses')
-    genders = criteria.get('genders')
-    gpa_ranges = criteria.get('gpaRanges')
-    group_codes = criteria.get('groupCodes')
-    in_intensive_cohort = util.to_bool_or_none(criteria.get('inIntensiveCohort'))
-    is_inactive_asc = util.get(criteria, 'isInactiveAsc')
-    levels = criteria.get('levels')
-    majors = criteria.get('majors')
+    coe_prep_statuses = c.get('coePrepStatuses')
+    ethnicities = c.get('ethnicities')
+    genders = c.get('genders')
+    gpa_ranges = c.get('gpaRanges')
+    group_codes = c.get('groupCodes')
+    in_intensive_cohort = util.to_bool_or_none(c.get('inIntensiveCohort'))
+    is_inactive_asc = util.to_bool_or_none(c.get('isInactiveAsc'))
+    levels = c.get('levels')
+    majors = c.get('majors')
     team_groups = athletics.get_team_groups(group_codes) if group_codes else []
-    unit_ranges = criteria.get('unitRanges')
+    unit_ranges = c.get('unitRanges')
     decorated.update({
         'filterCriteria': {
             'advisorLdapUids': advisor_ldap_uids,
             'coePrepStatuses': coe_prep_statuses,
+            'ethnicities': ethnicities,
             'genders': genders,
             'gpaRanges': gpa_ranges,
             'groupCodes': group_codes,
@@ -164,6 +167,7 @@ def decorate_cohort(
         include_profiles=(include_students and include_profiles),
         advisor_ldap_uids=advisor_ldap_uids,
         coe_prep_statuses=coe_prep_statuses,
+        ethnicities=ethnicities,
         genders=genders,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,

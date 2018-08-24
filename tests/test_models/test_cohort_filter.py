@@ -69,25 +69,26 @@ class TestCohortFilter:
         )
         cohort = CohortFilter.find_by_id(cohort.id)
         expected = {
-            'advisorLdapUids': None,
-            'coePrepStatuses': None,
-            'genders': None,
             'gpaRanges': gpa_ranges,
             'groupCodes': group_codes,
             'inIntensiveCohort': None,
-            'isInactiveAsc': None,
             'levels': levels,
             'majors': majors,
             'unitRanges': unit_ranges,
         }
-        filter_criteria = json.loads(cohort.filter_criteria)
-        assert expected == filter_criteria
-        assert 2 == len(filter_criteria['gpaRanges'])
-        assert 2 == len(filter_criteria['unitRanges'])
 
-    def test_invalid_create(self):
+        def sort_and_format(filter_criteria):
+            return json.dumps(filter_criteria, sort_keys=True, indent=2)
+        assert sort_and_format(expected) == sort_and_format(cohort.filter_criteria)
+
+    def test_undefined_filter_criteria(self):
         with pytest.raises(InternalServerError):
-            CohortFilter.create(uid='2040', label='Cohort with undefined filter criteria')
+            CohortFilter.create(
+                uid='2040',
+                label='Cohort with undefined filter criteria',
+                genders=[],
+                in_intensive_cohort=None,
+            )
 
     def test_create_and_delete_cohort(self):
         """Cohort_filter record to Flask-Login for recognized UID."""

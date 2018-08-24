@@ -321,38 +321,9 @@ class TestCohortDetail:
             'levels': ['Sophomore'],
         }
         response = client.post('/api/filtered_cohort/create', data=json.dumps(data), content_type='application/json')
-        assert 500 == response.status_code
+        assert 400 == response.status_code
         assert 'BLARGH' in str(response.data)
         assert 'does not match expected' in str(response.data)
-
-    def test_invalid_group_code(self, client, coe_advisor_session):
-        data = {
-            'label': 'groupCodes must be uppercase',
-            'groupCodes': ['mte'],
-        }
-        response = client.post('/api/filtered_cohort/create', data=json.dumps(data), content_type='application/json')
-        assert 500 == response.status_code and 'mte' in str(response.data)
-
-    def test_invalid_level(self, client, coe_advisor_session):
-        data = {
-            'label': 'Levels must be capitalized',
-            'levels': ['sophomore'],
-        }
-        response = client.post('/api/filtered_cohort/create', data=json.dumps(data), content_type='application/json')
-        assert 500 == response.status_code and 'sophomore' in str(response.data)
-
-    def test_create_cohort_with_invalid_data_structure(self, client, coe_advisor_session):
-        data = {
-            'label': 'Majors must be a list of strings',
-            'majors': [
-                {
-                    'label': 'American Studies',
-                    'selected': True,
-                },
-            ],
-        }
-        response = client.post('/api/filtered_cohort/create', data=json.dumps(data), content_type='application/json')
-        assert 500 == response.status_code
 
     def test_create_cohort_with_complex_filters(self, client, coe_advisor_session):
         """Creates custom cohort, with many non-empty filter_criteria."""
