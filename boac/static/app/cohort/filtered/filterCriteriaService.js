@@ -148,6 +148,7 @@
         function(done) {
           if (authService.canViewCoe()) {
             setMenuOptions(definitions, 'coePrepStatuses', studentFactory.getCoePrepStatuses());
+            setMenuOptions(definitions, 'genders', studentFactory.getGenders());
           }
           return done();
         },

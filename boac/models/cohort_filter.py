@@ -63,6 +63,7 @@ class CohortFilter(Base, UserMixin):
             label,
             advisor_ldap_uids=None,
             coe_prep_statuses=None,
+            genders=None,
             gpa_ranges=None,
             group_codes=None,
             levels=None,
@@ -74,10 +75,11 @@ class CohortFilter(Base, UserMixin):
         # If in_intensive_cohort is True then search intensive cohort; if equals False then search
         # non-intensive students; if equals None then search all students.
         criteria = cls.compose_filter_criteria(
+            advisor_ldap_uids=advisor_ldap_uids,
             coe_prep_statuses=coe_prep_statuses,
+            genders=genders,
             gpa_ranges=gpa_ranges,
             group_codes=group_codes,
-            advisor_ldap_uids=advisor_ldap_uids,
             in_intensive_cohort=in_intensive_cohort,
             is_inactive_asc=is_inactive_asc,
             levels=levels,
@@ -135,6 +137,7 @@ class CohortFilter(Base, UserMixin):
             cls,
             advisor_ldap_uids=None,
             coe_prep_statuses=None,
+            genders=None,
             gpa_ranges=None,
             group_codes=None,
             in_intensive_cohort=None,
@@ -143,7 +146,7 @@ class CohortFilter(Base, UserMixin):
             majors=None,
             unit_ranges=None,
     ):
-        has_criteria = next((c for c in [coe_prep_statuses, gpa_ranges, group_codes, levels, majors, unit_ranges] if c), None)
+        has_criteria = next((c for c in [coe_prep_statuses, genders, gpa_ranges, group_codes, levels, majors, unit_ranges] if c), None)
         has_criteria = has_criteria or next((c for c in [advisor_ldap_uids, in_intensive_cohort, is_inactive_asc] if c is not None), None)
         if not has_criteria:
             raise InternalServerError('CohortFilter creation requires one or more non-empty criteria.')
@@ -168,6 +171,7 @@ class CohortFilter(Base, UserMixin):
         return {
             'advisorLdapUids': advisor_ldap_uids,
             'coePrepStatuses': coe_prep_statuses,
+            'genders': genders,
             'gpaRanges': gpa_ranges,
             'groupCodes': group_codes,
             'inIntensiveCohort': in_intensive_cohort,

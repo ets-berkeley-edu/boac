@@ -41,8 +41,18 @@
           handler: utilService.asArray,
           key: 'advisorLdapUids',
           name: 'Advisor',
-          param: 'a',
+          param: 'advisor',
           subcategoryHeader: 'Advisor'
+        },
+        {
+          available: authService.canViewCoe(),
+          defaultValue: null,
+          depth: 2,
+          handler: utilService.asArray,
+          key: 'genders',
+          name: 'Genders',
+          param: 'gender',
+          subcategoryHeader: 'Gender'
         },
         {
           available: true,
@@ -51,7 +61,7 @@
           handler: utilService.asArray,
           key: 'gpaRanges',
           name: 'GPA',
-          param: 'g',
+          param: 'gpa',
           subcategoryHeader: 'GPA Range'
         },
         {
@@ -61,7 +71,7 @@
           handler: utilService.asArray,
           key: 'groupCodes',
           name: 'Teams',
-          param: 't',
+          param: 'team',
           subcategoryHeader: 'Team'
         },
         {
@@ -71,7 +81,7 @@
           depth: 1,
           key: 'isInactiveAsc',
           name: 'Inactive',
-          param: 'v'
+          param: 'inactive'
         },
         {
           available: authService.canViewAsc(),
@@ -80,7 +90,7 @@
           handler: utilService.lenientBoolean,
           key: 'inIntensiveCohort',
           name: 'Intensive',
-          param: 'i'
+          param: 'intensive'
         },
         {
           available: true,
@@ -89,7 +99,7 @@
           handler: utilService.asArray,
           key: 'levels',
           name: 'Levels',
-          param: 'l',
+          param: 'level',
           subcategoryHeader: 'Level'
         },
         {
@@ -99,7 +109,7 @@
           handler: utilService.asArray,
           key: 'majors',
           name: 'Majors',
-          param: 'm',
+          param: 'major',
           subcategoryHeader: 'Major'
         },
         {
@@ -109,7 +119,7 @@
           handler: utilService.asArray,
           key: 'coePrepStatuses',
           name: 'PREP',
-          param: 'p',
+          param: 'prep',
           subcategoryHeader: 'Status'
         },
         {
@@ -119,7 +129,7 @@
           handler: utilService.asArray,
           key: 'unitRanges',
           name: 'Units',
-          param: 'u',
+          param: 'units',
           subcategoryHeader: 'Unit Range'
         }
       ];
@@ -136,6 +146,7 @@
         'majors',
         null,
         'advisorLdapUids',
+        'genders',
         'groupCodes',
         'isInactiveAsc',
         'inIntensiveCohort',

@@ -52,6 +52,11 @@
       ]);
     };
 
+    var getGenders = function() {
+      // TODO: get full set with proper labels approved by BOAC Service Lead
+      return utilService.decorateOrderedSet([{name: 'Male', value: 'm'}, {name: 'Female', value: 'f'}]);
+    };
+
     var getGpaRanges = function() {
       return utilService.decorateOrderedSet([
         {name: '3.50 - 4.00', value: 'numrange(3.5, 4, \'[]\')'},
@@ -114,6 +119,7 @@
       dismissAlert: dismissAlert,
       getAlerts: getAlerts,
       getCoePrepStatuses: getCoePrepStatuses,
+      getGenders: getGenders,
       getGpaRanges: getGpaRanges,
       getRelevantMajors: getRelevantMajors,
       getStudentLevels: getStudentLevels,

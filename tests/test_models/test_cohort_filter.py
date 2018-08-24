@@ -71,6 +71,7 @@ class TestCohortFilter:
         expected = {
             'advisorLdapUids': None,
             'coePrepStatuses': None,
+            'genders': None,
             'gpaRanges': gpa_ranges,
             'groupCodes': group_codes,
             'inIntensiveCohort': None,

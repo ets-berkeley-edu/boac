@@ -177,6 +177,7 @@ def query_students(
         include_profiles=False,
         advisor_ldap_uids=None,
         coe_prep_statuses=None,
+        genders=None,
         gpa_ranges=None,
         group_codes=None,
         in_intensive_cohort=None,
@@ -200,6 +201,7 @@ def query_students(
     query_tables, query_filter, query_bindings = data_loch.get_students_query(
         advisor_ldap_uids=advisor_ldap_uids,
         coe_prep_statuses=coe_prep_statuses,
+        genders=genders,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
         in_intensive_cohort=in_intensive_cohort,
