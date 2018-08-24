@@ -95,6 +95,7 @@ def create_cohort():
     label = util.get(params, 'label', None)
     advisor_ldap_uids = util.get(params, 'advisorLdapUids')
     coe_prep_statuses = util.get(params, 'coePrepStatuses')
+    genders = util.get(params, 'genders')
     gpa_ranges = util.get(params, 'gpaRanges')
     group_codes = util.get(params, 'groupCodes')
     levels = util.get(params, 'levels')
@@ -115,6 +116,7 @@ def create_cohort():
         label=label,
         advisor_ldap_uids=advisor_ldap_uids,
         coe_prep_statuses=coe_prep_statuses,
+        genders=genders,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
         levels=levels,

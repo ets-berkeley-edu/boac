@@ -69,6 +69,15 @@ class TestCollegeOfEngineering:
         assert len(students) == 1
         assert students[0]['sid'] == '11667051'
 
+    def test_authorized_request_for_gender(self, client, coe_advisor):
+        """For now, gender data is restricted to COE."""
+        response = client.post('/api/students', data=json.dumps({'genders': ['f']}), content_type='application/json')
+        assert response.status_code == 200
+        students = response.json['students']
+        assert len(students) == 2
+        assert students[0]['sid'] == '7890123456'
+        assert students[1]['sid'] == '9000000000'
+
 
 class TestAthleticsStudyCenter:
     """ASC-specific API calls."""

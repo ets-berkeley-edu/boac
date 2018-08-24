@@ -72,6 +72,7 @@ def get_students():
     params = request.get_json()
     advisor_ldap_uids = util.get(params, 'advisorLdapUids')
     coe_prep_statuses = util.get(params, 'coePrepStatuses')
+    genders = util.get(params, 'genders')
     gpa_ranges = util.get(params, 'gpaRanges')
     group_codes = util.get(params, 'groupCodes')
     levels = util.get(params, 'levels')
@@ -83,10 +84,10 @@ def get_students():
     offset = util.get(params, 'offset', 0)
     limit = util.get(params, 'limit', 50)
     # Authorization check
-    can_view_asc_data = can_current_user_view_dept('UWASC')
     is_asc_data_request = in_intensive_cohort is not None or is_inactive_asc is not None
+    is_coe_data_request = advisor_ldap_uids is not None or coe_prep_statuses is not None or genders is not None
+    can_view_asc_data = can_current_user_view_dept('UWASC')
     can_view_coe_data = can_current_user_view_dept('COENG')
-    is_coe_data_request = advisor_ldap_uids is not None or coe_prep_statuses is not None
     if (is_asc_data_request and not can_view_asc_data) or (is_coe_data_request and not can_view_coe_data):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
 
@@ -94,6 +95,7 @@ def get_students():
         include_profiles=True,
         advisor_ldap_uids=advisor_ldap_uids,
         coe_prep_statuses=coe_prep_statuses,
+        genders=genders,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
         levels=levels,

@@ -124,8 +124,8 @@ INSERT INTO boac_advising_coe.students
 (sid, advisor_ldap_uid, gender, ethnicity, minority, did_prep, prep_eligible, did_tprep, tprep_eligible)
 VALUES
 ('11667051', '90412', 'm', 'H', FALSE, TRUE, FALSE, FALSE, FALSE),
-('7890123456', '1133399', 'w', 'B', TRUE, FALSE, TRUE, FALSE, FALSE),
-('9000000000', '1133399', 'w', 'B', TRUE, FALSE, TRUE, FALSE, FALSE),
+('7890123456', '1133399', 'f', 'B', TRUE, FALSE, TRUE, FALSE, FALSE),
+('9000000000', '1133399', 'f', 'B', TRUE, FALSE, TRUE, FALSE, FALSE),
 ('9100000000', '90412', 'm', 'X', FALSE, FALSE, FALSE, FALSE, TRUE);
 
 INSERT INTO boac_advising_coe.student_profiles

@@ -269,6 +269,7 @@ def get_majors(scope=[]):
 def get_students_query(
         search_phrase=None,
         coe_prep_statuses=None,
+        genders=None,
         group_codes=None,
         gpa_ranges=None,
         levels=None,
@@ -336,6 +337,9 @@ def get_students_query(
         query_bindings.update({'advisor_ldap_uids': advisor_ldap_uids})
     for coe_prep_status in coe_prep_statuses or []:
         query_filter += f' AND s.{coe_prep_status} IS TRUE'
+    if genders:
+        query_filter += ' AND s.gender = ANY(:genders)'
+        query_bindings.update({'genders': genders})
 
     return query_tables, query_filter, query_bindings
 
