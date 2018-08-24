@@ -29,13 +29,21 @@ from boac.api.util import add_alert_counts, can_current_user_view_dept, is_curre
 from boac.externals import data_loch
 from boac.externals.cal1card_photo_api import get_cal1card_photo
 from boac.lib import util
-from boac.lib.berkeley import get_dept_codes
+from boac.lib.berkeley import COE_ETHNICITIES_PER_CODE, get_dept_codes
 from boac.lib.http import tolerant_jsonify
 from boac.merged import athletics
 from boac.merged.student import get_student_and_terms, get_student_query_scope, query_students, search_for_students
 from boac.models.alert import Alert
 from flask import current_app as app, request, Response
 from flask_login import current_user, login_required
+
+
+@app.route('/api/ethnicities/coe')
+@login_required
+def coe_ethnicities():
+    rows = data_loch.get_ethnicity_codes(get_student_query_scope())
+    codes = [row['ethnicity_code'] for row in rows]
+    return tolerant_jsonify({code: COE_ETHNICITIES_PER_CODE.get(code) for code in codes})
 
 
 @app.route('/api/majors/relevant')
@@ -72,6 +80,7 @@ def get_students():
     params = request.get_json()
     advisor_ldap_uids = util.get(params, 'advisorLdapUids')
     coe_prep_statuses = util.get(params, 'coePrepStatuses')
+    ethnicities = util.get(params, 'ethnicities')
     genders = util.get(params, 'genders')
     gpa_ranges = util.get(params, 'gpaRanges')
     group_codes = util.get(params, 'groupCodes')
@@ -85,7 +94,7 @@ def get_students():
     limit = util.get(params, 'limit', 50)
     # Authorization check
     is_asc_data_request = in_intensive_cohort is not None or is_inactive_asc is not None
-    is_coe_data_request = advisor_ldap_uids is not None or coe_prep_statuses is not None or genders is not None
+    is_coe_data_request = next((f for f in [advisor_ldap_uids, coe_prep_statuses, ethnicities, genders] if f), False)
     can_view_asc_data = can_current_user_view_dept('UWASC')
     can_view_coe_data = can_current_user_view_dept('COENG')
     if (is_asc_data_request and not can_view_asc_data) or (is_coe_data_request and not can_view_coe_data):
@@ -95,6 +104,7 @@ def get_students():
         include_profiles=True,
         advisor_ldap_uids=advisor_ldap_uids,
         coe_prep_statuses=coe_prep_statuses,
+        ethnicities=ethnicities,
         genders=genders,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,

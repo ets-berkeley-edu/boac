@@ -92,6 +92,7 @@
             $scope.name,
             c.advisorLdapUids,
             c.coePrepStatuses,
+            c.ethnicities,
             c.genders,
             c.gpaRanges,
             c.groupCodes,

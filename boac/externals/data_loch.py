@@ -255,6 +255,17 @@ def get_enrollments_for_term(term_id, sids=None):
     return safe_execute_redshift(sql, term_id=term_id, sids=sids)
 
 
+def get_ethnicity_codes(scope=()):
+    query_tables = _student_query_tables_for_scope(scope)
+    if not query_tables:
+        return []
+    return safe_execute_rds(f"""SELECT DISTINCT s.ethnicity AS ethnicity_code
+        {query_tables}
+        WHERE s.ethnicity IS NOT NULL AND s.ethnicity != ''
+        ORDER BY ethnicity_code
+        """)
+
+
 def get_majors(scope=[]):
     query_tables = _student_query_tables_for_scope(scope)
     if not query_tables:
@@ -269,6 +280,7 @@ def get_majors(scope=[]):
 def get_students_query(
         search_phrase=None,
         coe_prep_statuses=None,
+        ethnicities=None,
         genders=None,
         group_codes=None,
         gpa_ranges=None,
@@ -283,6 +295,7 @@ def get_students_query(
     query_tables = _student_query_tables_for_scope(scope)
     if not query_tables:
         return None, None, None
+
     query_filter = ' WHERE true'
     query_bindings = {}
 
@@ -302,8 +315,8 @@ def get_students_query(
         })
 
     # Generic SIS criteria
-    query_filter += numranges_to_sql('sas.gpa', gpa_ranges) if gpa_ranges else ''
-    query_filter += numranges_to_sql('sas.units', unit_ranges) if unit_ranges else ''
+    query_filter += _numranges_to_sql('sas.gpa', gpa_ranges) if gpa_ranges else ''
+    query_filter += _numranges_to_sql('sas.units', unit_ranges) if unit_ranges else ''
 
     if levels:
         query_filter += ' AND sas.level = ANY(:levels)'
@@ -337,6 +350,9 @@ def get_students_query(
         query_bindings.update({'advisor_ldap_uids': advisor_ldap_uids})
     for coe_prep_status in coe_prep_statuses or []:
         query_filter += f' AND s.{coe_prep_status} IS TRUE'
+    if ethnicities:
+        query_filter += ' AND s.ethnicity = ANY(:ethnicities)'
+        query_bindings.update({'ethnicities': ethnicities})
     if genders:
         query_filter += ' AND s.gender = ANY(:genders)'
         query_bindings.update({'genders': genders})
@@ -427,7 +443,7 @@ def numrange_to_sql(column, numrange):
         return sql_clause
 
 
-def numranges_to_sql(column, numranges):
+def _numranges_to_sql(column, numranges):
     sql_ranges = [numrange_to_sql(column, numrange) for numrange in numranges]
     sql_ranges = [r for r in sql_ranges if r]
     if len(sql_ranges):

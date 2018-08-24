@@ -156,6 +156,27 @@ ACADEMIC_PLAN_TO_DEGREE_PROGRAM_PAGE = {
     'Urban Studies': 'urban-studies',
 }
 
+COE_ETHNICITIES_PER_CODE = {
+    'A': 'African-American / Black',
+    'B': 'Japanese / Japanese American',
+    'C': 'American Indian / Alaska Native',
+    'D': 'Other',
+    'E': 'Mexican / Mexican-American / Chicano',
+    'F': 'White / Caucasian',
+    'G': 'Declined to state',
+    'H': 'Chinese / Chinese-American',
+    'I': 'Other Spanish-American / Latino',
+    'L': 'Filipino / Filipino-American',
+    'M': 'Pacific Islander',
+    'P': 'Puerto Rican',
+    'R': 'East Indian / Pakistani',
+    'T': 'Thai / Other Asian',
+    'V': 'Vietnamese',
+    'X': 'Korean / Korean-American',
+    'Y': 'Other Asian',
+    'Z': 'Foreign',
+}
+
 BERKELEY_DEPT_NAME_TO_CODE = {
     'Athletic Study Center': 'UWASC',
     'College of Engineering': 'COENG',

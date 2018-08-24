@@ -177,6 +177,7 @@ def query_students(
         include_profiles=False,
         advisor_ldap_uids=None,
         coe_prep_statuses=None,
+        ethnicities=None,
         genders=None,
         gpa_ranges=None,
         group_codes=None,
@@ -194,6 +195,8 @@ def query_students(
         get_student_query_scope(),
         advisor_ldap_uids=advisor_ldap_uids,
         coe_prep_statuses=coe_prep_statuses,
+        ethnicities=ethnicities,
+        genders=genders,
         group_codes=group_codes,
         in_intensive_cohort=in_intensive_cohort,
         is_active_asc=is_active_asc,
@@ -201,6 +204,7 @@ def query_students(
     query_tables, query_filter, query_bindings = data_loch.get_students_query(
         advisor_ldap_uids=advisor_ldap_uids,
         coe_prep_statuses=coe_prep_statuses,
+        ethnicities=ethnicities,
         genders=genders,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
@@ -330,6 +334,8 @@ def narrow_scope_by_criteria(scope, **kwargs):
         'COENG': [
             'advisor_ldap_uids',
             'coe_prep_statuses',
+            'ethnicities',
+            'genders',
         ],
     }
 

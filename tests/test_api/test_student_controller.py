@@ -70,13 +70,22 @@ class TestCollegeOfEngineering:
         assert students[0]['sid'] == '11667051'
 
     def test_authorized_request_for_gender(self, client, coe_advisor):
-        """For now, gender data is restricted to COE."""
+        """For now, only COE users can access gender data."""
         response = client.post('/api/students', data=json.dumps({'genders': ['f']}), content_type='application/json')
         assert response.status_code == 200
         students = response.json['students']
         assert len(students) == 2
         assert students[0]['sid'] == '7890123456'
         assert students[1]['sid'] == '9000000000'
+
+    def test_authorized_request_for_ethnicity(self, client, coe_advisor):
+        """For now, only COE users can access ethnicity data."""
+        response = client.post('/api/students', data=json.dumps({'ethnicities': ['B', 'H']}), content_type='application/json')
+        assert response.status_code == 200
+        students = response.json['students']
+        assert len(students) == 3
+        for index, sid in enumerate(['11667051', '7890123456', '9000000000']):
+            assert students[index]['sid'] == sid
 
 
 class TestAthleticsStudyCenter:
@@ -411,6 +420,24 @@ class TestAthletics:
         assert team_groups[1]['totalStudentCount'] == 4
 
 
+class TestBerkeleyData:
+    """Berkeley Data API."""
+
+    def test_relevant_majors(self, coe_advisor, client):
+        """Returns list of majors relevant to our student population."""
+        response = client.get('/api/majors/relevant')
+        assert response.status_code == 200
+        assert isinstance(response.json, list)
+
+    def test_coe_ethnicities(self, coe_advisor, client):
+        """Returns list of majors relevant to our student population."""
+        response = client.get('/api/ethnicities/coe')
+        assert response.status_code == 200
+        ethnicities = response.json
+        assert isinstance(ethnicities, dict)
+        assert len(ethnicities) == 3
+
+
 @pytest.mark.usefixtures('db_session')
 class TestStudentAnalytics:
     """Student Analytics API."""
@@ -601,12 +628,6 @@ class TestStudentAnalytics:
         """Returns 404 if attempting to view a user outside one's own department."""
         response = client.get(TestStudentAnalytics.dave)
         assert response.status_code == 404
-
-    def test_relevant_majors(self, coe_advisor, client):
-        """Returns list of majors relevant to our student population."""
-        response = client.get('/api/majors/relevant')
-        assert response.status_code == 200
-        assert isinstance(response.json, list)
 
     def test_sis_enrollment_merge(self, authenticated_response):
         """Merges sorted SIS enrollment data."""

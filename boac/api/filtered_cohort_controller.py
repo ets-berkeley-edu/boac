@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import re
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import decorate_cohort, strip_analytics
 from boac.lib import util
@@ -95,6 +96,7 @@ def create_cohort():
     label = util.get(params, 'label', None)
     advisor_ldap_uids = util.get(params, 'advisorLdapUids')
     coe_prep_statuses = util.get(params, 'coePrepStatuses')
+    ethnicities = util.get(params, 'ethnicities')
     genders = util.get(params, 'genders')
     gpa_ranges = util.get(params, 'gpaRanges')
     group_codes = util.get(params, 'groupCodes')
@@ -111,11 +113,21 @@ def create_cohort():
     asc_authorized = current_user.is_admin or 'UWASC' in get_dept_codes(current_user)
     if not asc_authorized and (in_intensive_cohort is not None or is_inactive_asc is not None):
         raise ForbiddenRequestError('You are unauthorized to use ASC-specific search criteria.')
+    for arg in [coe_prep_statuses, ethnicities, genders, gpa_ranges, group_codes, levels, majors, unit_ranges]:
+        if arg and not isinstance(arg, list):
+            raise BadRequestError('Certain \'filter_criteria\' must be instance of \'list\' type.')
+    # The 'numrange' syntax is based on https://www.postgresql.org/docs/9.3/static/rangetypes.html
+    numrange_syntax = re.compile('^numrange\([0-9\.NUL]+, [0-9\.NUL]+, \'..\'\)$')
+    for r in (gpa_ranges or []) + (unit_ranges or []):
+        if not numrange_syntax.match(r):
+            msg = f'Range argument \'{r}\' does not match expected \'numrange\' syntax: {numrange_syntax.pattern}'
+            raise BadRequestError(msg)
     cohort = CohortFilter.create(
         uid=current_user.get_id(),
         label=label,
         advisor_ldap_uids=advisor_ldap_uids,
         coe_prep_statuses=coe_prep_statuses,
+        ethnicities=ethnicities,
         genders=genders,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,

@@ -149,8 +149,17 @@
           if (authService.canViewCoe()) {
             setMenuOptions(definitions, 'coePrepStatuses', studentFactory.getCoePrepStatuses());
             setMenuOptions(definitions, 'genders', studentFactory.getGenders());
+            studentFactory.getEthnicities().then(function(response) {
+              var data = response.data;
+              var ethnicities = _.map(_.keys(data), function(code) {
+                return {name: data[code], value: code};
+              });
+              setMenuOptions(definitions, 'ethnicities', utilService.decorateOrderedSet(ethnicities));
+              return done();
+            });
+          } else {
+            return done();
           }
-          return done();
         },
         function() {
           return callback(definitions);
