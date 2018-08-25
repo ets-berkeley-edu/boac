@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.models.alert import Alert
 import pytest
+from tests.util import override_config
 
 
 def get_current_alerts(sid):
@@ -126,9 +127,34 @@ class TestNoActivityAlert:
 
     def test_no_activity_percentile_cutoff(self, app):
         """Respect percentile cutoff for alert creation."""
-        app.config['ALERT_NO_ACTIVITY_PERCENTILE_CUTOFF'] = 10
-        Alert.update_all_for_term(2178)
-        assert len(get_current_alerts('3456789012')) == 0
-        app.config['ALERT_NO_ACTIVITY_PERCENTILE_CUTOFF'] = 20
-        Alert.update_all_for_term(2178)
-        assert len(get_current_alerts('3456789012')) == 1
+        with override_config(app, 'ALERT_NO_ACTIVITY_PERCENTILE_CUTOFF', 10):
+            Alert.update_all_for_term(2178)
+            assert len(get_current_alerts('3456789012')) == 0
+        with override_config(app, 'ALERT_NO_ACTIVITY_PERCENTILE_CUTOFF', 20):
+            Alert.update_all_for_term(2178)
+            assert len(get_current_alerts('3456789012')) == 1
+
+
+class TestInfrequentActivityAlert:
+    """Alerts for infrequent bCourses activity."""
+
+    def test_update_infrequent_activity_alerts(self, app):
+        """Can be created from bCourses analytics feeds."""
+        with override_config(app, 'ALERT_INFREQUENT_ACTIVITY_ENABLED', True):
+            Alert.update_all_for_term(2178)
+            alerts = get_current_alerts('5678901234')
+            assert len(alerts) == 1
+            assert alerts[0]['id'] > 0
+            assert alerts[0]['alertType'] == 'infrequent_activity'
+            assert alerts[0]['key'] == '2178_7654321'
+            assert alerts[0]['message'].startswith('Infrequent activity! Last MED ST 205 bCourses activity')
+
+    def test_infrequent_activity_percentile_cutoff(self, app):
+        """Respect percentile cutoff for alert creation."""
+        with override_config(app, 'ALERT_INFREQUENT_ACTIVITY_ENABLED', True):
+            with override_config(app, 'ALERT_INFREQUENT_ACTIVITY_PERCENTILE_CUTOFF', 10):
+                Alert.update_all_for_term(2178)
+                assert len(get_current_alerts('5678901234')) == 0
+            with override_config(app, 'ALERT_INFREQUENT_ACTIVITY_PERCENTILE_CUTOFF', 20):
+                Alert.update_all_for_term(2178)
+                assert len(get_current_alerts('5678901234')) == 1

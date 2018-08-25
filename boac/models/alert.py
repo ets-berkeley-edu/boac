@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 import json
+import time
 
 from boac import db, std_commit
 from boac.api.errors import BadRequestError
@@ -217,6 +218,13 @@ class Alert(Base):
         return results
 
     @classmethod
+    def infrequent_activity_alerts_enabled(cls):
+        return (
+            app.config['ALERT_INFREQUENT_ACTIVITY_ENABLED'] and
+            not app.config['CANVAS_CURRENT_ENROLLMENT_TERM'].startswith('Summer')
+        )
+
+    @classmethod
     def no_activity_alerts_enabled(cls):
         session = data_loch.get_regular_undergraduate_session(current_term_id())[0]
         days_into_session = (datetime.date(datetime.today()) - session['session_begins']).days
@@ -241,20 +249,37 @@ class Alert(Base):
         app.logger.info('Starting alert update')
         enrollments_for_term = data_loch.get_enrollments_for_term(str(term_id))
         no_activity_alerts_enabled = cls.no_activity_alerts_enabled()
+        infrequent_activity_alerts_enabled = cls.infrequent_activity_alerts_enabled()
         for row in enrollments_for_term:
             enrollments = json.loads(row['enrollment_term']).get('enrollments', [])
             for enrollment in enrollments:
                 for section in enrollment['sections']:
                     if section.get('midtermGrade'):
                         cls.update_midterm_grade_alerts(row['sid'], term_id, section['ccn'], enrollment['displayName'], section['midtermGrade'])
-                if no_activity_alerts_enabled:
                     for canvas_site in enrollment.get('canvasSites', []):
                         student_activity = canvas_site.get('analytics', {}).get('lastActivity', {}).get('student')
-                        if (
-                            student_activity and student_activity.get('raw') == 0 and
-                            student_activity.get('roundedUpPercentile') < app.config['ALERT_NO_ACTIVITY_PERCENTILE_CUTOFF']
-                        ):
-                            cls.update_no_activity_alerts(row['sid'], term_id, canvas_site['canvasCourseId'], enrollment['displayName'])
+                        if not student_activity:
+                            continue
+                        if student_activity.get('raw') == 0:
+                            if (
+                                no_activity_alerts_enabled and
+                                student_activity.get('roundedUpPercentile') <= app.config['ALERT_NO_ACTIVITY_PERCENTILE_CUTOFF']
+                            ):
+                                cls.update_no_activity_alerts(row['sid'], term_id, canvas_site['canvasCourseId'], enrollment['displayName'])
+                        else:
+                            days_since = round((int(time.time()) - student_activity.get('raw')) / 86400)
+                            if (
+                                infrequent_activity_alerts_enabled and
+                                days_since >= app.config['ALERT_INFREQUENT_ACTIVITY_DAYS'] and
+                                student_activity.get('roundedUpPercentile') <= app.config['ALERT_INFREQUENT_ACTIVITY_PERCENTILE_CUTOFF']
+                            ):
+                                cls.update_infrequent_activity_alerts(
+                                    row['sid'],
+                                    term_id,
+                                    canvas_site['canvasCourseId'],
+                                    enrollment['displayName'],
+                                    days_since,
+                                )
         app.logger.info('Alert update complete')
 
     @classmethod
@@ -276,3 +301,9 @@ class Alert(Base):
         key = f'{term_id}_{canvas_course_id}'
         message = f'No activity! Student has yet to use the {class_name} bCourses site for {term_name_for_sis_id(term_id)}.'
         cls.create_or_activate(sid=sid, alert_type='no_activity', key=key, message=message)
+
+    @classmethod
+    def update_infrequent_activity_alerts(cls, sid, term_id, canvas_course_id, class_name, days_since):
+        key = f'{term_id}_{canvas_course_id}'
+        message = f'Infrequent activity! Last {class_name} bCourses activity was {days_since} days ago.'
+        cls.create_or_activate(sid=sid, alert_type='infrequent_activity', key=key, message=message)

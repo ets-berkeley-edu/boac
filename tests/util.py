@@ -23,14 +23,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from contextlib import contextmanager
 
-SQLALCHEMY_DATABASE_URI = 'postgres://boac:boac@localhost:5432/boac_test'
-DATA_LOCH_URI = 'postgres://boac:boac@localhost:5432/boac_loch_test'
-DATA_LOCH_RDS_URI = 'postgres://boac:boac@localhost:5432/boac_loch_test'
-TESTING = True
 
-INDEX_HTML = 'boac/templates/index.html'
-
-LOGGING_LOCATION = 'STDOUT'
-
-ALERT_INFREQUENT_ACTIVITY_ENABLED = False
+@contextmanager
+def override_config(app, key, value):
+    """Temporarily override an app config value."""
+    old_value = app.config[key]
+    app.config[key] = value
+    yield
+    app.config[key] = old_value

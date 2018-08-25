@@ -106,8 +106,12 @@ CAL1CARD_PHOTO_API_PASSWORD = 'secretpassword'
 ALERT_NO_ACTIVITY_ENABLED = True
 ALERT_NO_ACTIVITY_DAYS_INTO_SESSION = 14
 # Show "no activity" alerts for a course site only if the percentage of students with no activity
-# is below this number.
+# is below this number. Percentile cutoffs for other alert types work likewise.
 ALERT_NO_ACTIVITY_PERCENTILE_CUTOFF = 20
+
+ALERT_INFREQUENT_ACTIVITY_ENABLED = True
+ALERT_INFREQUENT_ACTIVITY_DAYS = 14
+ALERT_INFREQUENT_ACTIVITY_PERCENTILE_CUTOFF = 20
 
 # Logging
 LOGGING_FORMAT = '[%(asctime)s] - %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
