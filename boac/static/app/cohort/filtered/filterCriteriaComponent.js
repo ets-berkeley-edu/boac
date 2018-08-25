@@ -35,7 +35,7 @@
 
     $scope.filters = {
       added: [],
-      available: [],
+      definitions: [],
       draft: null,
       isLoading: true
     };
@@ -49,7 +49,7 @@
     };
 
     $scope.onDraftSubCategoryClick = function(option) {
-      if (option && !option.disabled) {
+      if (option !== null && !option.disabled) {
         $scope.filters.draft.subcategory = option;
       }
     };
@@ -67,14 +67,19 @@
     };
 
     this.$onInit = function() {
+      var definitions = _.clone(this.filterDefinitions);
       var filterCriteria = _.clone(this.cohort.filterCriteria);
 
+      $scope.filters.definitions = _.reject(_.map(cohortUtils.getFilterOrder(), function(key) {
+        // Return null to insert divider in dropdown menu.
+        return key && _.find(definitions, ['key', key]);
+      }), _.isUndefined);
+
       $scope.callbacks = this.callbacks;
-      $scope.filters.available = _.clone(this.availableFilters);
       $scope.$watch('filters.draft', onDraftFilterChange);
       $scope.$watch('filters.draft.subcategory', onDraftFilterChange);
 
-      cohortUtils.initFiltersForDisplay(filterCriteria, $scope.filters.available, function(addedFilters) {
+      cohortUtils.initFiltersForDisplay(filterCriteria, $scope.filters.definitions, function(addedFilters) {
         $scope.filters.added = addedFilters;
         redrawButtons(true);
         $scope.filters.isLoading = false;
@@ -82,14 +87,8 @@
     };
 
     var updateDisableAfterAddOrRemove = function(updatedFilter, disable) {
-      var depth = updatedFilter.depth;
-      if (depth >= 3) {
-        throw new Error('Cohort-filter definition depth is not yet supported: ' + d.depth);
-      }
-      var filter = _.find($scope.filters.available, ['key', updatedFilter.key]);
-      if (depth === 1) {
-        filter.disabled = disable;
-      } else {
+      var filter = _.find($scope.filters.definitions, ['key', updatedFilter.key]);
+      if (updatedFilter.type === 'array') {
         // Disable option in sub-categories.
         var value = updatedFilter.subcategory.value;
         var option = _.find(filter.options, ['value', value]);
@@ -98,6 +97,8 @@
         }
         var disabledCount = _.size(_.filter(filter.options, 'disabled'));
         filter.disabled = disabledCount === _.size(filter.options);
+      } else {
+        filter.disabled = disable;
       }
     };
 
@@ -109,15 +110,15 @@
 
           updateDisableAfterAddOrRemove(addedFilter, true);
           $scope.filters.added = cohortUtils.sortAddedFilters(_.union($scope.filters.added, [ addedFilter ]));
-          // Remove pointer to subcategory in availableFilters and then set draft to null.
+          // Remove pointer to subcategory in filter-definitions and then set draft to null.
           $scope.filters.draft.subcategory = null;
           $scope.filters.draft = null;
         },
         show: false,
         redraw: function(isInitPhase) {
-          var depth = _.get($scope.filters.draft, 'depth');
           var subcategoryValue = _.get($scope.filters.draft, 'subcategory.value');
-          $scope.buttons.addButton.show = !isInitPhase && depth && (depth === 1 || (depth === 2 && subcategoryValue));
+          var type = _.get($scope.filters, 'draft.type');
+          $scope.buttons.addButton.show = !isInitPhase && type && (type !== 'array' || (type === 'array' && subcategoryValue));
           $scope.buttons.applyButton.redraw(false);
         }
       },
@@ -125,7 +126,7 @@
         // Button to search for students based on added filters.
         disabled: true,
         onClick: function() {
-          var filterCriteria = cohortUtils.toFilterCriteria($scope.filters.added);
+          var filterCriteria = cohortUtils.toFilterCriteria($scope.filters.definitions, $scope.filters.added);
           $scope.callbacks.executeSearch(filterCriteria);
           $scope.buttons.saveButton.show = true;
         },
@@ -167,7 +168,7 @@
         disabled: false,
         onClick: function(openCreateCohortModal) {
           $scope.buttons.saveButton.disabled = true;
-          var filterCriteria = cohortUtils.toFilterCriteria($scope.filters.added);
+          var filterCriteria = cohortUtils.toFilterCriteria($scope.filters.definitions, $scope.filters.added);
           openCreateCohortModal(filterCriteria, function(cohort) {
             $scope.buttons.saveButton.show = $scope.buttons.saveButton.disabled = false;
             $scope.callbacks.onSave(cohort);
@@ -188,7 +189,7 @@
 
   angular.module('boac').component('filterCriteria', {
     bindings: {
-      availableFilters: '=',
+      filterDefinitions: '=',
       cohort: '=',
       callbacks: '='
     },

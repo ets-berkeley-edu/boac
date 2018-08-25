@@ -96,10 +96,10 @@
     </div>
 
     <div data-ng-show="filtersVisible">
-      <filter-criteria available-filters="availableFilters"
+      <filter-criteria filter-definitions="filterDefinitions"
                        cohort="search"
                        callbacks="callbacks"
-                       data-ng-if="!isLoading && tab === 'list' && availableFilters && !error"></filter-criteria>
+                       data-ng-if="!isLoading && tab === 'list' && filterDefinitions && !error"></filter-criteria>
     </div>
 
     <hr class="filters-section-separator" data-ng-if="search.results.totalStudentCount"/>

@@ -33,10 +33,6 @@
       return $http.get('/api/profiles/all');
     };
 
-    var getProfilesPerDeptCode = function(deptCode) {
-      return $http.get('/api/profiles/dept/' + deptCode);
-    };
-
     var becomeUser = function(uid) {
       return $http.post('/api/admin/become_user', {uid: uid});
     };
@@ -48,7 +44,6 @@
     return {
       becomeUser: becomeUser,
       getAllUserProfiles: getAllUserProfiles,
-      getProfilesPerDeptCode: getProfilesPerDeptCode,
       getUserProfile: getUserProfile
     };
   });

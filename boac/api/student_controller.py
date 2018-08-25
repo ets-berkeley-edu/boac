@@ -26,30 +26,15 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import add_alert_counts, can_current_user_view_dept, is_current_user_asc_affiliated
-from boac.externals import data_loch
 from boac.externals.cal1card_photo_api import get_cal1card_photo
 from boac.lib import util
-from boac.lib.berkeley import COE_ETHNICITIES_PER_CODE, get_dept_codes
+from boac.lib.berkeley import get_dept_codes
 from boac.lib.http import tolerant_jsonify
 from boac.merged import athletics
-from boac.merged.student import get_student_and_terms, get_student_query_scope, query_students, search_for_students
+from boac.merged.student import get_student_and_terms, query_students, search_for_students
 from boac.models.alert import Alert
 from flask import current_app as app, request, Response
 from flask_login import current_user, login_required
-
-
-@app.route('/api/ethnicities/coe')
-@login_required
-def coe_ethnicities():
-    rows = data_loch.get_ethnicity_codes(get_student_query_scope())
-    codes = [row['ethnicity_code'] for row in rows]
-    return tolerant_jsonify({code: COE_ETHNICITIES_PER_CODE.get(code) for code in codes})
-
-
-@app.route('/api/majors/relevant')
-def relevant_majors():
-    majors = [row['major'] for row in data_loch.get_majors(get_student_query_scope())]
-    return tolerant_jsonify(majors)
 
 
 @app.route('/api/student/<uid>/analytics')

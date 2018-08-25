@@ -32,17 +32,6 @@
     var disableMatrixViewThreshold = parseInt(config.disableMatrixViewThreshold, 10);
     var exceedsMatrixThresholdMessage = 'Sorry, the matrix view is only available when total student count is below ' + disableMatrixViewThreshold + '. Please narrow your search.';
 
-    /**
-     * @param  {Object}   obj   An array, object or nil.
-     * @return {Array}          Nil if input is nil; same array if input is array; array of one if input is an object.
-     */
-    var asArray = function(obj) {
-      if (_.isNil(obj)) {
-        return null;
-      }
-      return Array.isArray(obj) ? obj : [ obj ];
-    };
-
     var toBoolOrNull = function(str) {
       return _.isNil(str) ? null : _.lowerCase(str) === 'true';
     };
@@ -57,12 +46,6 @@
         formatted = formatted.replace('${' + key + '}', value);
       });
       return formatted;
-    };
-
-    var decorateOrderedSet = function(set) {
-      return _.map(set, function(obj, index) {
-        return obj && _.merge(obj, {position: index});
-      });
     };
 
     var lastActivityDays = function(analytics) {
@@ -88,11 +71,6 @@
       return describe;
     };
 
-    var lenientBoolean = function(obj) {
-      var value = asArray(obj);
-      return !_.isEmpty(value) && _.lowerCase(value[0]) !== 'false';
-    };
-
     var extendSortableNames = function(students) {
       return _.map(students, function(student) {
         return _.extend(student, {
@@ -102,15 +80,12 @@
     };
 
     return {
-      asArray: asArray,
-      decorateOrderedSet: decorateOrderedSet,
       exceedsMatrixThreshold: exceedsMatrixThreshold,
       exceedsMatrixThresholdMessage: exceedsMatrixThresholdMessage,
       extendSortableNames: extendSortableNames,
       format: format,
       lastActivityDays: lastActivityDays,
       lastActivityInContext: lastActivityInContext,
-      lenientBoolean: lenientBoolean,
       toBoolOrNull: toBoolOrNull
     };
   });
