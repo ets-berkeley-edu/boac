@@ -1,7 +1,9 @@
 <div class="cohort-selector-container">
   <div>
     <div class="cohort-selector-checkbox">
+      <label id="checkbox-add-all-label" class="sr-only">Select all students to add to a curated cohort</label>
       <input id="curated-cohort-checkbox-add-all"
+             aria-labelledby="checkbox-add-all-label"
              type="checkbox"
              data-ng-model="selector.selectAllCheckbox"
              data-ng-click="toggleAllStudentCheckboxes()"/>

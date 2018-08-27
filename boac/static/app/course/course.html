@@ -12,11 +12,16 @@
     </div>
   </div>
 
-  <div class="course-container-inner" data-ng-show="!isLoading && !error">
+  <div class="course-container-inner"
+       focus-on="!isLoading"
+       data-ng-show="!isLoading && !error">
     <div>
       <div class="course-container-summary">
         <div class="course-column-description">
-          <h1 class="course-header" data-ng-bind="section.displayName"></h1>
+          <h1 role="alert"
+              aria-live="polite"
+              class="course-header"
+              data-ng-bind="section.displayName"></h1>
           <div class="course-details-section">
             <span data-ng-bind="section.instructionFormat"></span>
             <span data-ng-bind="section.sectionNum"></span>
@@ -24,7 +29,9 @@
             <span data-ng-pluralize count="section.units" when="{'one': '1 Unit', 'other': '{} Units'}"></span>
           </div>
           <div class="course-section-title" data-ng-if="section.title">
-            <span data-ng-bind="section.title"></span>
+            <span role="alert"
+                  aria-live="polite"
+                  data-ng-bind="section.title"></span>
           </div>
         </div>
         <div class="course-column-schedule">
