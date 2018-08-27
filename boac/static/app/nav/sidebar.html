@@ -12,9 +12,9 @@
     <span class="sidebar-header sidebar-row-link-label"
           data-ng-controller="CreateCuratedCohortController">
       <a id="sidebar-curated-cohort-create"
+         aria-label="Create curated cohort"
          class="sidebar-create-link"
          href
-         title="Create curated cohort"
          data-ng-click="openCreateCuratedCohortModal()"><i class="fas fa-plus"></i><span class="sr-only">Create curated cohort</span></a>
     </span>
   </div>
@@ -28,8 +28,11 @@
   </div>
   <div>
     <span id="sidebar-curated-cohort-{{$index}}-count"
-          class="sidebar-pill"
-          data-ng-bind="cohort.studentCount"></span>
+          tabindex="0"
+          class="sidebar-pill">{{cohort.studentCount}}<span class="sr-only"
+                                                            data-ng-pluralize
+                                                            count="cohort.studentCount"
+                                                            when="{'one': ' student', 'other': ' students'}"></span></span>
   </div>
 </div>
 <div class="sidebar-row-link sidebar-section-header">
@@ -39,8 +42,8 @@
   <div>
     <span class="sidebar-header sidebar-row-link-label">
       <a id="sidebar-filtered-cohort-create"
+         aria-label="Create filtered cohort"
          class="sidebar-create-link"
-         title="Create filtered cohort"
          data-ui-sref="filteredCohort({c: null, i: null, t: null, v: null, cohortName: null})"
          data-ui-sref-opts="{reload: true}"><i class="fas fa-plus"></i><span class="sr-only">Create filtered cohort</span></a>
     </span>
@@ -55,8 +58,11 @@
   </div>
   <div>
     <span id="sidebar-filtered-cohort-{{$index}}-count"
-          class="sidebar-pill"
-          data-ng-bind="cohort.totalStudentCount"></span>
+          tabindex="0"
+          class="sidebar-pill">{{cohort.totalStudentCount}}<span class="sr-only"
+                                                                 data-ng-pluralize
+                                                                 count="cohort.totalStudentCount"
+                                                                 when="{'one': ' student', 'other': ' students'}"></span></span>
   </div>
 </div>
 
