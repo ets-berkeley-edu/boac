@@ -28,11 +28,13 @@
       <div class="cohort-filter-draft-column-01">
         <div class="btn-group"
              uib-dropdown
+             keyboard-nav="true"
              is-open="filters.draft.isOpen">
           <button id="draft-filter"
                   type="button"
                   class="btn-filter-draft"
                   data-ng-class="{'btn-filter-draft-open': filters.draft.isOpen}"
+                  focus-on="!filters.draft.options"
                   uib-dropdown-toggle
                   ng-disabled="disabled">
             {{filters.draft.name || 'New Filter'}}
@@ -45,7 +47,14 @@
             <li role="menuitem"
                 data-ng-click="onDraftFilterClick(option)"
                 data-ng-class="{'divider': option === null, 'disabled': option.disabled}"
-                data-ng-repeat="option in filters.definitions track by $index"><a href="#" data-ng-bind="option.name"></a>
+                data-ng-disabled="option.disabled"
+                data-ng-repeat="option in filters.definitions track by $index">
+              <a href="#"
+                 data-ng-bind="option.name"
+                 data-ng-if="option !== null && !option.disabled"></a>
+              <span data-ng-bind="option.name"
+                    data-ng-class="{'cohort-filter-disabled': option.disabled}"
+                    data-ng-if="option !== null && option.disabled"></span>
             </li>
           </ul>
         </div>
@@ -54,12 +63,14 @@
            data-ng-if="filters.draft.type === 'array'">
         <div class="btn-group"
              uib-dropdown
+             keyboard-nav="true"
              is-open="filters.draft.isSubcategoryMenuOpen"
              data-ng-if="filters.draft.options">
           <button id="draft-filter-subcategory"
                   type="button"
                   class="btn-filter-draft btn-filter-draft-subcategory"
                   data-ng-class="{'btn-filter-draft-open': filters.draft.isSubcategoryMenuOpen}"
+                  focus-on="filters.draft.options"
                   uib-dropdown-toggle
                   ng-disabled="disabled">
             {{filters.draft.subcategory.name || filters.draft.subcategoryHeader}}
@@ -72,7 +83,14 @@
             <li role="menuitem"
                 data-ng-click="onDraftSubCategoryClick(option)"
                 data-ng-class="{'divider': option === null, 'disabled': option.disabled}"
-                data-ng-repeat="option in filters.draft.options track by $index"><a href="#" data-ng-bind="option.name"></a></li>
+                data-ng-repeat="option in filters.draft.options track by $index">
+              <a href="#"
+                 data-ng-bind="option.name"
+                 data-ng-if="option !== null && !option.disabled"></a>
+              <span data-ng-bind="option.name"
+                    data-ng-class="{'cohort-filter-disabled': option.disabled}"
+                    data-ng-if="option !== null && option.disabled"></span>
+            </li>
           </ul>
         </div>
       </div>
@@ -80,6 +98,7 @@
         <button type="button"
                 id="unsaved-filter-add"
                 class="btn btn-primary"
+                focus-on="buttons.addButton.show"
                 data-ng-click="buttons.addButton.onClick()"
                 data-ng-if="buttons.addButton.show">
           Add
