@@ -1,10 +1,10 @@
 {
-    "advisorUid": "1133399",
-	"gender": "w",
-	"ethnicity": "B",
-	"minority": true,
-	"didPrep": false,
-	"prepEligible": true,
-	"didTprep": false,
-	"tprepEligible": false
+  "advisorUid": "1133399",
+  "gender": "w",
+  "ethnicity": "B",
+  "minority": true,
+  "didPrep": false,
+  "prepEligible": true,
+  "didTprep": false,
+  "tprepEligible": false
 }

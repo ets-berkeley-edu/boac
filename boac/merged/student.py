@@ -67,7 +67,7 @@ def get_full_student_profiles(sids):
             for row in coe_profiles:
                 profile = profiles_by_sid.get(row['sid'])
                 if profile:
-                    profile['coeProfile'] = row['profile']
+                    profile['coeProfile'] = json.loads(row['profile'])
 
     return profiles
 

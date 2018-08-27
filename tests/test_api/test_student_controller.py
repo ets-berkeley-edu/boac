@@ -745,7 +745,7 @@ class TestStudentAnalytics:
         assert 'athleticsProfile' not in response
         assert 'coeProfile' in response
         coe_profile = response['coeProfile']
-        assert json.loads(coe_profile) == {
+        assert coe_profile == {
             'advisorUid': '1133399',
             'gender': 'w',
             'ethnicity': 'B',
