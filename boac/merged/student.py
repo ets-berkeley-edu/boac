@@ -35,6 +35,9 @@ from flask_login import current_user
 
 
 def get_api_json(sids):
+    if not sids:
+        return []
+
     def distill_profile(profile):
         distilled = {key: profile[key] for key in ['uid', 'sid', 'firstName', 'lastName', 'name']}
         if profile.get('athleticsProfile'):
@@ -44,6 +47,8 @@ def get_api_json(sids):
 
 
 def get_full_student_profiles(sids):
+    if not sids:
+        return []
     profile_results = data_loch.get_student_profiles(sids)
     if not profile_results:
         return []
@@ -124,6 +129,8 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None):
 
 
 def get_summary_student_profiles(sids, term_id=None):
+    if not sids:
+        return []
     # TODO It's probably more efficient to store summary profiles in the loch, rather than distilling them
     # on the fly from full profiles.
     profiles = get_full_student_profiles(sids)

@@ -269,6 +269,7 @@
 
     $scope.callbacks = {
       executeSearch: function(searchCriteria) {
+        $scope.search.pagination.currentPage = 0;
         $scope.cohort = {id: null, name: null, isOwnedByCurrentUser: null};
         registerCohortMetadata($scope.cohort);
         init('list', searchCriteria);
