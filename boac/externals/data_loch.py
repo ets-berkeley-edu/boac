@@ -463,6 +463,14 @@ def _student_query_tables_for_scope(scope):
             'COENG': coe_schema(),
         }
         tables = []
+        # A dictionary with key 'intersection' indicates that multiple scopes should be treated as an intersection
+        # rather than a union.
+        if 'intersection' in scope:
+            scope = scope['intersection']
+            join_type = 'intersection'
+        else:
+            join_type = 'union'
+
         for code in scope:
             schema = schemas_for_codes.get(code)
             if schema:
@@ -473,8 +481,22 @@ def _student_query_tables_for_scope(scope):
             # If we are pulling from a single schema, include all schema-specific columns.
             table_sql = f"""FROM {tables[0]} s
                 JOIN {student_schema()}.student_academic_status sas ON sas.sid = s.sid"""
-        else:
-            # If we are pulling from multiple schemas, SID will be the only common element in the union.
+        elif join_type == 'union':
+            # In a union of multiple schemas, SID will be the only common element.
             table_sql = f"""FROM ({' UNION '.join(['SELECT sid FROM ' + t for t in tables])}) s
+                JOIN {student_schema()}.student_academic_status sas ON sas.sid = s.sid"""
+        elif join_type == 'intersection':
+            # In an intersection of multiple schemas, all queryable columns should be returned.
+            columns_for_codes = {
+                'UWASC': ['advisor_ldap_uid', 'gender', 'ethnicity', 'did_prep', 'prep_eligible', 'did_tprep', 'tprep_eligible'],
+                'COENG': ['active', 'intensive', 'group_code'],
+            }
+            intersection_columns = []
+            for code in scope:
+                intersection_columns += columns_for_codes[code]
+            intersection_sql = f"SELECT {tables[0]}.sid, {', '.join(intersection_columns)} FROM {tables[0]}"
+            for table in tables[1:]:
+                intersection_sql += f' INNER JOIN {table} ON {table}.sid = {tables[0]}.sid'
+            table_sql = f"""FROM ({intersection_sql}) s
                 JOIN {student_schema()}.student_academic_status sas ON sas.sid = s.sid"""
     return table_sql
