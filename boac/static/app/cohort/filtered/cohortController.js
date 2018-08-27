@@ -214,7 +214,7 @@
     var init = $scope.nextPage = $scope.onTab = function(tab, searchCriteria, offsetOverride, limitOverride) {
       var cohortId = parseInt($location.search().c, 10);
       var limit = limitOverride || $scope.search.pagination.itemsPerPage;
-      var offset = offsetOverride === null ? ($scope.search.pagination.currentPage - 1) * limit : offsetOverride;
+      var offset = _.isNil(offsetOverride) ? ($scope.search.pagination.currentPage - 1) * limit : offsetOverride;
       var queryArgs = _.clone($location.search());
       var done = function() {
         $scope.studentCountExceedsMatrixThreshold = utilService.exceedsMatrixThreshold(_.get($scope, 'search.results.totalStudentCount'));

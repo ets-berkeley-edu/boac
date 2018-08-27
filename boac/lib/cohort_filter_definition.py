@@ -165,7 +165,7 @@ def _get_coe_profiles():
         last_name = user.get('lastName')
         name = f'{first_name} {last_name}' if first_name or last_name else uid
         profiles.append({'name': name, 'value': uid})
-    return profiles
+    return sorted(profiles, key=lambda p: p['name'])
 
 
 def _unit_ranges():
@@ -219,7 +219,8 @@ def _coe_ethnicities():
 
     def ethnicity(code):
         return COE_ETHNICITIES_PER_CODE.get(code)
-    return [{'name': ethnicity(row[key]), 'value': row[key]} for row in rows]
+    ethnicities = [{'name': ethnicity(row[key]), 'value': row[key]} for row in rows]
+    return sorted(ethnicities, key=lambda e: e['name'])
 
 
 def _team_groups():
