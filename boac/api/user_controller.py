@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.api import errors
-from boac.api.util import admin_required, authorized_users_api_feed, decorate_cohort
+from boac.api.util import admin_required, authorized_users_api_feed
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
 from boac.models.authorized_user import AuthorizedUser
@@ -53,7 +53,7 @@ def my_profile():
             })
         my_cohorts = CohortFilter.all_owned_by(uid)
         profile.update({
-            'myFilteredCohorts': [decorate_cohort(c, include_students=False) for c in my_cohorts],
+            'myFilteredCohorts': [c.to_api_json(include_students=False) for c in my_cohorts],
             'myCuratedCohorts': curated_cohorts,
             'isAdmin': current_user.is_admin,
             'departments': departments,

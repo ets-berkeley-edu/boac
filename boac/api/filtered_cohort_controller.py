@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import decorate_cohort, strip_analytics
+from boac.api.util import strip_analytics
 from boac.lib import util
 from boac.lib.berkeley import can_view_cohort, get_dept_codes
 from boac.lib.cohort_filter_definition import get_cohort_filter_definitions
@@ -94,7 +94,7 @@ def get_cohort(cohort_id):
     limit = util.get(request.args, 'limit', 50)
     cohort = CohortFilter.find_by_id(int(cohort_id))
     if cohort and can_view_cohort(current_user, cohort):
-        cohort = decorate_cohort(cohort, order_by, int(offset), int(limit), include_profiles=True)
+        cohort = decorate_cohort(cohort, order_by=order_by, offset=int(offset), limit=int(limit), include_profiles=True)
         return tolerant_jsonify(cohort)
     else:
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
@@ -170,6 +170,13 @@ def delete_cohort(cohort_id):
             raise BadRequestError(f'User {uid} does not own cohort_filter with id={cohort_id}')
     else:
         raise ForbiddenRequestError(f'Programmatic deletion of canned cohorts is not allowed (id={cohort_id})')
+
+
+def decorate_cohort(cohort, **kwargs):
+    cohort_json = cohort.to_api_json(**kwargs)
+    uid = current_user.get_id()
+    cohort_json.update({'isOwnedByCurrentUser': (uid in [o.uid for o in cohort.owners])})
+    return cohort_json
 
 
 def _asc_authorized():
