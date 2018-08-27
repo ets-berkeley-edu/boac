@@ -172,7 +172,7 @@
 
       _.each(filterCriteria, function(value, key) {
         var definition = _.find(definitions, ['key', key]);
-        if (definition && _.size(value)) {
+        if (definition && _.size(typeof value === 'boolean' ? _.toString(value) : value)) {
           $location.search(definition.param, value);
         }
       });
@@ -215,6 +215,7 @@
       var cohortId = parseInt($location.search().c, 10);
       var limit = limitOverride || $scope.search.pagination.itemsPerPage;
       var offset = _.isNil(offsetOverride) ? ($scope.search.pagination.currentPage - 1) * limit : offsetOverride;
+      offset = offset < 0 ? 0 : offset;
       var queryArgs = _.clone($location.search());
       var done = function() {
         $scope.studentCountExceedsMatrixThreshold = utilService.exceedsMatrixThreshold(_.get($scope, 'search.results.totalStudentCount'));
