@@ -10,8 +10,11 @@
       <div id="curated-cohorts-header-row" class="home-page-section-header-wrapper">
         <h1 class="page-section-header">Curated Cohorts</h1>
         <div class="home-cohort-actions" data-ng-controller="CreateCuratedCohortController">
-          <a id="home-curated-cohorts-create-link" href data-ng-click="openCreateCuratedCohortModal()">Create</a> |
-          <a id="home-curated-cohorts-manage-link" href="/cohort/curated/manage">Manage</a>
+          <a id="home-curated-cohorts-create-link"
+             href
+             data-ng-click="openCreateCuratedCohortModal()">Create<span class="sr-only"> a curated cohort</span></a> |
+          <a id="home-curated-cohorts-manage-link"
+             href="/cohort/curated/manage">Manage<span class="sr-only"> your curated cohorts</span></a>
         </div>
       </div>
       <div data-ng-if="!myCuratedCohorts.length">
@@ -39,10 +42,10 @@
         <div class="home-cohort-actions">
           <a id="home-filtered-cohorts-create-link"
              data-ui-sref="filteredCohort({c: 'new'})"
-             data-ui-sref-opts="{reload: true}">Create</a> |
+             data-ui-sref-opts="{reload: true}">Create<span class="sr-only"> a filtered cohort</span></a> |
           <a id="home-filtered-cohorts-manage-link"
              data-ui-sref="filteredCohortsManage()"
-             data-ui-sref-opts="{reload: true}">Manage</a>
+             data-ui-sref-opts="{reload: true}">Manage<span class="sr-only"> your filtered cohorts</span></a>
         </div>
       </div>
       <div data-ng-if="!myFilteredCohorts.length">

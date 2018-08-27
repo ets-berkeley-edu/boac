@@ -93,6 +93,16 @@
   width: 100%;
 }
 
+.cohort-filter-disabled {
+  clear: both;
+  color: #777;
+  display: block;
+  font-weight: 400;
+  line-height: 1.42857143;
+  padding: 3px 20px;
+  white-space: nowrap;
+}
+
 .cohort-filter-draft-row {
   display: flex;
   flex-direction: row;
