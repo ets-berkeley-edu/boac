@@ -45,13 +45,13 @@
             <li role="menuitem"
                 data-ng-click="onDraftFilterClick(option)"
                 data-ng-class="{'divider': option === null, 'disabled': option.disabled}"
-                data-ng-repeat="option in filters.available track by $index"><a href="#" data-ng-bind="option.name"></a>
+                data-ng-repeat="option in filters.definitions track by $index"><a href="#" data-ng-bind="option.name"></a>
             </li>
           </ul>
         </div>
       </div>
       <div class="cohort-filter-draft-column-02"
-           data-ng-if="filters.draft.depth !== 1">
+           data-ng-if="filters.draft.type === 'array'">
         <div class="btn-group"
              uib-dropdown
              is-open="filters.draft.isSubcategoryMenuOpen"

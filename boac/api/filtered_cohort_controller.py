@@ -23,17 +23,28 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-import re
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import decorate_cohort, strip_analytics
 from boac.lib import util
 from boac.lib.berkeley import can_view_cohort, get_dept_codes
+from boac.lib.cohort_filter_definition import get_cohort_filter_definitions
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
-from boac.merged.student import get_summary_student_profiles
+from boac.merged.student import get_student_query_scope, get_summary_student_profiles
 from boac.models.cohort_filter import CohortFilter
 from flask import current_app as app, request
 from flask_login import current_user, login_required
+
+
+@app.route('/api/filter_cohort/definitions')
+@login_required
+def get_filter_definitions():
+    definitions = get_cohort_filter_definitions(get_student_query_scope())
+    for definition in definitions:
+        if definition['type'] == 'array':
+            for index, option in enumerate(definition['options']):
+                option['position'] = index
+    return tolerant_jsonify(definitions)
 
 
 @app.route('/api/filtered_cohorts/all')
@@ -103,25 +114,14 @@ def create_cohort():
     levels = util.get(params, 'levels')
     majors = util.get(params, 'majors')
     unit_ranges = util.get(params, 'unitRanges')
-    in_intensive_cohort = util.to_bool_or_none(util.get(params, 'inIntensiveCohort'))
-    is_inactive_asc = util.get(params, 'isInactiveAsc')
-    coe_authorized = current_user.is_admin or 'COENG' in get_dept_codes(current_user)
+    in_intensive_cohort = util.to_bool_or_none(params.get('inIntensiveCohort'))
+    is_inactive_asc = util.to_bool_or_none(params.get('isInactiveAsc'))
     if not label:
         raise BadRequestError('Cohort creation requires \'label\'')
-    if not coe_authorized and (advisor_ldap_uids or coe_prep_statuses):
+    if not _coe_authorized() and (advisor_ldap_uids or coe_prep_statuses):
         raise ForbiddenRequestError(f'You are unauthorized to use COE-specific search criteria.')
-    asc_authorized = current_user.is_admin or 'UWASC' in get_dept_codes(current_user)
-    if not asc_authorized and (in_intensive_cohort is not None or is_inactive_asc is not None):
+    if not _asc_authorized() and (in_intensive_cohort is not None or is_inactive_asc is not None):
         raise ForbiddenRequestError('You are unauthorized to use ASC-specific search criteria.')
-    for arg in [coe_prep_statuses, ethnicities, genders, gpa_ranges, group_codes, levels, majors, unit_ranges]:
-        if arg and not isinstance(arg, list):
-            raise BadRequestError('Certain \'filter_criteria\' must be instance of \'list\' type.')
-    # The 'numrange' syntax is based on https://www.postgresql.org/docs/9.3/static/rangetypes.html
-    numrange_syntax = re.compile('^numrange\([0-9\.NUL]+, [0-9\.NUL]+, \'..\'\)$')
-    for r in (gpa_ranges or []) + (unit_ranges or []):
-        if not numrange_syntax.match(r):
-            msg = f'Range argument \'{r}\' does not match expected \'numrange\' syntax: {numrange_syntax.pattern}'
-            raise BadRequestError(msg)
     cohort = CohortFilter.create(
         uid=current_user.get_id(),
         label=label,
@@ -170,3 +170,11 @@ def delete_cohort(cohort_id):
             raise BadRequestError(f'User {uid} does not own cohort_filter with id={cohort_id}')
     else:
         raise ForbiddenRequestError(f'Programmatic deletion of canned cohorts is not allowed (id={cohort_id})')
+
+
+def _asc_authorized():
+    return current_user.is_admin or 'UWASC' in get_dept_codes(current_user)
+
+
+def _coe_authorized():
+    return current_user.is_admin or 'COENG' in get_dept_codes(current_user)

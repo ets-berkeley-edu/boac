@@ -133,16 +133,3 @@ class TestAllUserProfiles:
         response = client.get('/api/profiles/all')
         assert response.status_code == 200
         assert len(response.json) == len(development_db._test_users)
-
-    def test_by_dept_code_unauthorized(self, client, fake_auth):
-        """Returns a well-formed response."""
-        fake_auth.login(self.coe_advisor_uid)
-        response = client.get('/api/profiles/dept/UWASC')
-        assert response.status_code == 403
-
-    def test_by_dept_code_authorized(self, client, fake_auth):
-        """Returns a well-formed response."""
-        fake_auth.login(self.coe_advisor_uid)
-        response = client.get('/api/profiles/dept/COENG')
-        assert response.status_code == 200
-        assert len(response.json) == 3

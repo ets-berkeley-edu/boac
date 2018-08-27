@@ -27,10 +27,45 @@
 
   'use strict';
 
-  angular.module('boac').service('cohortUtils', function(filterCriteriaFactory, utilService) {
+  angular.module('boac').service('cohortUtils', function() {
+
+    var getFilterOrder = function() {
+      return [
+        'gpaRanges',
+        null,
+        'levels',
+        'unitRanges',
+        'majors',
+        null,
+        'advisorLdapUids',
+        'ethnicities',
+        'genders',
+        'groupCodes',
+        'isInactiveAsc',
+        'inIntensiveCohort',
+        'coePrepStatuses'
+      ];
+    };
+
+    /**
+     * @param  {Object}   obj   An array, object or nil.
+     * @return {Array}          Nil if input is nil; same array if input is array; array of one if input is an object.
+     */
+    var asArray = function(obj) {
+      if (_.isNil(obj)) {
+        return null;
+      }
+      return Array.isArray(obj) ? obj : [ obj ];
+    };
+
+    var lenientBoolean = function(obj) {
+      // Force array for dependable object structure
+      var value = asArray(obj);
+      return !_.isEmpty(value) && _.lowerCase(value[0]) !== 'false';
+    };
 
     var sortAddedFilters = function(addedFilters) {
-      var sortOrder = filterCriteriaFactory.getPrimaryFilterSortOrder();
+      var sortOrder = getFilterOrder();
       return addedFilters.sort(function(f1, f2) {
         var index1 = sortOrder.indexOf(f1.key);
         var index2 = sortOrder.indexOf(f2.key);
@@ -47,20 +82,34 @@
       });
     };
 
-    var toFilterCriteria = function(addedFilters) {
-      var definitions = filterCriteriaFactory.getFilterDefinitions();
+    var translateQueryArg = function(filterDefinition, queryArg) {
+      var result;
+      var type = filterDefinition.type;
+      if (type === 'array') {
+        result = asArray(queryArg);
+      } else if (type === 'boolean') {
+        result = lenientBoolean(queryArg);
+      } else {
+        result = queryArg;
+      }
+      return result;
+    };
+
+    var toFilterCriteria = function(filterDefinitions, addedFilters) {
       var filterCriteria = {};
-      _.each(definitions, function(d) {
-        filterCriteria[d.key] = d.defaultValue;
-        var values = [];
-        _.each(addedFilters, function(addedFilter) {
-          if (d.key === addedFilter.key) {
-            var value = addedFilter.depth === 1 ? addedFilter.value : addedFilter.subcategory.value;
-            values.push(value);
+      _.each(filterDefinitions, function(d) {
+        if (d !== null) {
+          filterCriteria[d.key] = d.defaultValue;
+          var values = [];
+          _.each(addedFilters, function(filter) {
+            if (d.key === filter.key) {
+              var value = filter.type === 'array' ? filter.subcategory.value : filter.value;
+              values.push(value);
+            }
+          });
+          if (values.length) {
+            filterCriteria[d.key] = translateQueryArg(d, values);
           }
-        });
-        if (values.length) {
-          filterCriteria[d.key] = d.handler(values);
         }
       });
       return filterCriteria;
@@ -75,29 +124,27 @@
      * 'subcategoryOption' below is an array of length == 1.
      *
      * @param  {Object}     filterCriteria    Has filter-criteria of saved search.
-     * @param  {Object}     availableFilters  Used to render 'Add filter' options (some options are disabled)
+     * @param  {Object}     filterDefinitions  Used to render 'Add filter' options (some options are disabled)
      * @param  {Function}   callback          Standard callback
      * @return {Object}                       Bundle with criteria-reference object and selected cohort filter criteria.
      */
-    var initFiltersForDisplay = function(filterCriteria, availableFilters, callback) {
+    var initFiltersForDisplay = function(filterCriteria, filterDefinitions, callback) {
       var addedFilters = [];
 
       _.each(filterCriteria, function(selectedOptions, key) {
-        if (utilService.lenientBoolean(selectedOptions)) {
-          var d = _.find(availableFilters, ['key', key]);
-          var handled = d.handler(selectedOptions);
+        if (lenientBoolean(selectedOptions)) {
+          var d = _.find(filterDefinitions, ['key', key]);
+          var handled = translateQueryArg(d, selectedOptions);
           handled = Array.isArray(handled) ? handled : [ handled ];
           _.each(handled, function(value) {
             if (value) {
               var addedFilter = {
-                depth: d.depth,
                 key: d.key,
                 name: d.name,
+                type: d.type,
                 value: value
               };
-              if (d.depth === 1) {
-                d.disabled = true;
-              } else if (d.depth === 2) {
+              if (d.type === 'array') {
                 var subcategory = _.find(d.options, ['value', value]);
                 if (subcategory) {
                   addedFilter.subcategory = _.pick(subcategory, [
@@ -111,7 +158,7 @@
                   d.disabled = _.isEmpty(remainingAvailable);
                 }
               } else {
-                throw new Error('Cohort-filter definition depth is not yet supported: ' + d.depth);
+                d.disabled = true;
               }
               addedFilters.push(addedFilter);
             }
@@ -122,9 +169,11 @@
     };
 
     return {
-      toFilterCriteria: toFilterCriteria,
+      getFilterOrder: getFilterOrder,
       initFiltersForDisplay: initFiltersForDisplay,
-      sortAddedFilters: sortAddedFilters
+      sortAddedFilters: sortAddedFilters,
+      toFilterCriteria: toFilterCriteria,
+      translateQueryArg: translateQueryArg
     };
   });
 

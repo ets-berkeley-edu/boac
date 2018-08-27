@@ -34,9 +34,8 @@
     $scope,
     $state,
     cohortService,
+    cohortUtils,
     config,
-    filterCriteriaFactory,
-    filterCriteriaService,
     filteredCohortFactory,
     page,
     studentFactory,
@@ -168,8 +167,19 @@
       }).then(scatterplotRefresh).then(callback).catch(errorHandler);
     };
 
+    var updateLocation = function(definitions, filterCriteria, currentPage) {
+      $location.search('page', currentPage);
+
+      _.each(filterCriteria, function(value, key) {
+        var definition = _.find(definitions, ['key', key]);
+        if (definition && _.size(value)) {
+          $location.search(definition.param, value);
+        }
+      });
+    };
+
     var executeSearch = function(filterCriteria, orderBy, offset, limit, callback) {
-      filterCriteriaService.updateLocation(filterCriteria, $scope.search.pagination.currentPage);
+      updateLocation($scope.filterDefinitions, filterCriteria, $scope.search.pagination.currentPage);
       studentFactory.getStudents(filterCriteria, orderBy, offset, limit).then(function(response) {
         $scope.cohort.name = $location.search().cohortName;
         $scope.cohort.name = $scope.cohort.name || cohortService.getSearchPageTitle(filterCriteria);
@@ -191,10 +201,18 @@
       $scope.filtersVisible = filtersVisible;
     };
 
+    var getFilterCriteriaFromLocation = function(definitions) {
+      var queryArgs = _.clone($location.search());
+      var filterCriteria = {};
+
+      _.each(definitions, function(d) {
+        filterCriteria[d.key] = cohortUtils.translateQueryArg(d, queryArgs[d.param]);
+      });
+      return filterCriteria;
+    };
+
     var init = $scope.nextPage = $scope.onTab = function(tab, searchCriteria, offsetOverride, limitOverride) {
-      var cohortId = filterCriteriaService.getCohortIdFromLocation();
-      var criteria = searchCriteria || filterCriteriaService.getFilterCriteriaFromLocation() || null;
-      var hasFilterCriteria = $scope.hasFilterCriteria = !!cohortId || !!_.find(_.values(criteria));
+      var cohortId = parseInt($location.search().c, 10);
       var limit = limitOverride || $scope.search.pagination.itemsPerPage;
       var offset = offsetOverride === null ? ($scope.search.pagination.currentPage - 1) * limit : offsetOverride;
       var queryArgs = _.clone($location.search());
@@ -206,8 +224,11 @@
       page.loading(true);
       $anchorScroll();
 
-      filterCriteriaService.getAvailableFilters(filterCriteriaFactory.getFilterDefinitions(), function(availableFilters) {
-        // Matrix view requires cohort/search criteria
+      filteredCohortFactory.getFilterDefinitions().then(function(response) {
+        var definitions = $scope.filterDefinitions = response.data;
+        var criteria = searchCriteria || getFilterCriteriaFromLocation(definitions) || null;
+        var hasFilterCriteria = $scope.hasFilterCriteria = !!cohortId || !!_.find(_.values(criteria));
+
         $scope.tab = hasFilterCriteria ? tab || $scope.tab : 'list';
         $location.search('tab', $scope.tab);
 
@@ -221,27 +242,19 @@
             executeSearch(criteria, null, 0, Number.MAX_SAFE_INTEGER, done);
           }
 
+        } else if (cohortId > 0) {
+          loadSavedCohort(cohortId, $scope.search.orderBy.selected, offset, limit, done);
+          makeFiltersVisible(queryArgs.details, false);
+
+        } else if (hasFilterCriteria) {
+          executeSearch(criteria, $scope.search.orderBy.selected, offset, limit, done);
+          makeFiltersVisible(queryArgs.details, true);
+
         } else {
-          var filterOrder = filterCriteriaFactory.getPrimaryFilterSortOrder();
-          $scope.availableFilters = _.reject(_.map(filterOrder, function(key) {
-            // Return null to insert divider in dropdown menu.
-            return key && _.find(availableFilters, ['key', key]);
-          }), _.isUndefined);
-
-          if (cohortId > 0) {
-            loadSavedCohort(cohortId, $scope.search.orderBy.selected, offset, limit, done);
-            makeFiltersVisible(queryArgs.details, false);
-
-          } else if (hasFilterCriteria) {
-            executeSearch(criteria, $scope.search.orderBy.selected, offset, limit, done);
-            makeFiltersVisible(queryArgs.details, true);
-
-          } else {
-            // No query args is create-cohort mode
-            makeFiltersVisible(true);
-            $rootScope.pageTitle = 'Create a Filtered Cohort';
-            done();
-          }
+          // No query args is create-cohort mode
+          makeFiltersVisible(true);
+          $rootScope.pageTitle = 'Create a Filtered Cohort';
+          done();
         }
       });
     };

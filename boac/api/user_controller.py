@@ -25,14 +25,12 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.api import errors
-from boac.api.util import admin_required, authorized_users_api_feed, can_current_user_view_dept, decorate_cohort
-from boac.lib.berkeley import get_dept_codes
+from boac.api.util import admin_required, authorized_users_api_feed, decorate_cohort
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_cohort import CuratedCohort
-from boac.models.university_dept import UniversityDept
 from flask import current_app as app
 from flask_login import current_user, login_required
 
@@ -86,19 +84,5 @@ def all_user_profiles():
     if app.config['DEVELOPER_AUTH_ENABLED']:
         users = AuthorizedUser.query.all()
         return tolerant_jsonify(authorized_users_api_feed(users))
-    else:
-        raise errors.ResourceNotFoundError('Unknown path')
-
-
-@app.route('/api/profiles/dept/<dept_code>')
-@login_required
-def all_user_profiles_of_dept(dept_code):
-    dept = UniversityDept.find_by_dept_code(dept_code=dept_code)
-    if dept:
-        if can_current_user_view_dept(dept_code):
-            users = list(filter(lambda user: dept_code in get_dept_codes(user), AuthorizedUser.query.all()))
-            return tolerant_jsonify(authorized_users_api_feed(users))
-        else:
-            raise errors.ForbiddenRequestError(f'{current_user.uid} is not authorized to access {dept_code}')
     else:
         raise errors.ResourceNotFoundError('Unknown path')

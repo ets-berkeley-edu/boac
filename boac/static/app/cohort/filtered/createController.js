@@ -87,21 +87,7 @@
           $scope.error.message = errorMessage;
           $rootScope.isSaving = false;
         } else {
-          var c = $client.filterCriteria;
-          filteredCohortFactory.createCohort(
-            $scope.name,
-            c.advisorLdapUids,
-            c.coePrepStatuses,
-            c.ethnicities,
-            c.genders,
-            c.gpaRanges,
-            c.groupCodes,
-            c.levels,
-            c.majors,
-            c.unitRanges,
-            c.inIntensiveCohort,
-            c.isInactiveAsc
-          ).then(
+          filteredCohortFactory.createCohort($scope.name, $client.filterCriteria).then(
             function(cohort) {
               $rootScope.isSaving = false;
               $client.callback(cohort);

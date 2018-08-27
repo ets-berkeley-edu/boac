@@ -420,24 +420,6 @@ class TestAthletics:
         assert team_groups[1]['totalStudentCount'] == 4
 
 
-class TestBerkeleyData:
-    """Berkeley Data API."""
-
-    def test_relevant_majors(self, coe_advisor, client):
-        """Returns list of majors relevant to our student population."""
-        response = client.get('/api/majors/relevant')
-        assert response.status_code == 200
-        assert isinstance(response.json, list)
-
-    def test_coe_ethnicities(self, coe_advisor, client):
-        """Returns list of majors relevant to our student population."""
-        response = client.get('/api/ethnicities/coe')
-        assert response.status_code == 200
-        ethnicities = response.json
-        assert isinstance(ethnicities, dict)
-        assert len(ethnicities) == 3
-
-
 @pytest.mark.usefixtures('db_session')
 class TestStudentAnalytics:
     """Student Analytics API."""

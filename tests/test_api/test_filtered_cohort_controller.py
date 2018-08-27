@@ -313,18 +313,6 @@ class TestCohortDetail:
         response = client.post('/api/filtered_cohort/create', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 200
 
-    def test_invalid_create_cohort_params(self, client, coe_advisor_session):
-        bad_range_syntax = 'numrange(2, BLARGH, \'[)\')'
-        data = {
-            'label': 'Problematic Cohort',
-            'gpaRanges': [bad_range_syntax],
-            'levels': ['Sophomore'],
-        }
-        response = client.post('/api/filtered_cohort/create', data=json.dumps(data), content_type='application/json')
-        assert 400 == response.status_code
-        assert 'BLARGH' in str(response.data)
-        assert 'does not match expected' in str(response.data)
-
     def test_create_cohort_with_complex_filters(self, client, coe_advisor_session):
         """Creates custom cohort, with many non-empty filter_criteria."""
         label = 'Complex'
@@ -399,3 +387,61 @@ class TestCohortDetail:
         assert response.status_code == 200
         cohorts = CohortFilter.all_owned_by(coe_advisor_uid)
         assert not next((c for c in cohorts if c.id == cohort.id), None)
+
+    def test_coe_filter_definitions(self, client, coe_advisor_session):
+        """Gets filters available to COE users."""
+        response = client.get('/api/filter_cohort/definitions')
+        assert response.status_code == 200
+        definitions = response.json
+        assert len(definitions) == 8
+        assert definitions[0]['key'] == 'advisorLdapUids'
+
+    def test_asc_filter_definitions(self, client, asc_advisor_session):
+        """Gets filters available to ASC users."""
+        response = client.get('/api/filter_cohort/definitions')
+        assert response.status_code == 200
+        definitions = response.json
+        assert len(definitions) == 7
+        assert definitions[2]['key'] == 'isInactiveAsc'
+        assert definitions[2]['defaultValue'] is False
+
+    def test_admin_filter_definitions(self, client, admin_session):
+        """Gets filters available to Admin users."""
+        response = client.get('/api/filter_cohort/definitions')
+        assert response.status_code == 200
+        definitions = response.json
+        assert len(definitions) == 11
+        # COE advisors
+        assert definitions[0]['key'] == 'advisorLdapUids'
+        assert len(definitions[0]['options']) == 3
+        # Ethnicity
+        assert definitions[1]['key'] == 'ethnicities'
+        assert len(definitions[0]['options']) == 3
+        # Gender
+        assert definitions[2]['key'] == 'genders'
+        assert len(definitions[2]['options']) == 2
+        # GPA
+        assert definitions[3]['key'] == 'gpaRanges'
+        assert len(definitions[3]['options']) == 5
+        # Teams
+        assert definitions[4]['key'] == 'groupCodes'
+        assert len(definitions[4]['options']) == 7
+        # ASC Inactive
+        assert definitions[5]['key'] == 'isInactiveAsc'
+        assert len(definitions[5]['options']) == 2
+        assert definitions[5]['defaultValue'] is None
+        # ASC Intensive
+        assert definitions[6]['key'] == 'inIntensiveCohort'
+        assert len(definitions[6]['options']) == 2
+        # Levels
+        assert definitions[7]['key'] == 'levels'
+        assert len(definitions[7]['options']) == 4
+        # Majors
+        assert definitions[8]['key'] == 'majors'
+        assert len(definitions[8]['options']) == 8
+        # COE PREP
+        assert definitions[9]['key'] == 'coePrepStatuses'
+        assert len(definitions[9]['options']) == 4
+        # Units
+        assert definitions[10]['key'] == 'unitRanges'
+        assert len(definitions[10]['options']) == 5

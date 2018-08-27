@@ -6,7 +6,7 @@
     <a id="sidebar-curated-cohorts-manage"
        class="sidebar-row-link-label-text"
        data-ui-sref="curatedCohortsManage()"
-       data-ui-sref-opts="{reload: true}">Curated Cohorts</a>
+       data-ui-sref-opts="{reload: true}"><span class="sr-only">Manage </span>Curated Cohorts</a>
   </div>
   <div>
     <span class="sidebar-header sidebar-row-link-label"
@@ -14,7 +14,7 @@
       <a id="sidebar-curated-cohort-create"
          class="sidebar-create-link"
          href
-         data-ng-click="openCreateCuratedCohortModal()"><i class="fas fa-plus"></i></a>
+         data-ng-click="openCreateCuratedCohortModal()"><i class="fas fa-plus"></i><span class="sr-only">Create curated cohort</span></a>
     </span>
   </div>
 </div>
@@ -23,7 +23,7 @@
     <a id="sidebar-curated-cohort-{{$index}}"
        class="sidebar-row-link-label-text"
        data-ui-sref="curatedCohort({id: cohort.id})"
-       data-ui-sref-opts="{reload: true}"><span data-ng-bind="cohort.name"></span></a>
+       data-ui-sref-opts="{reload: true}"><span class="sr-only">Go to cohort </span><span data-ng-bind="cohort.name"></span></a>
   </div>
   <div>
     <span id="sidebar-curated-cohort-{{$index}}-count"
@@ -40,7 +40,7 @@
       <a id="sidebar-filtered-cohort-create"
          class="sidebar-create-link"
          data-ui-sref="filteredCohort({c: null, i: null, t: null, v: null, cohortName: null})"
-         data-ui-sref-opts="{reload: true}"><i class="fas fa-plus"></i></a>
+         data-ui-sref-opts="{reload: true}"><i class="fas fa-plus"></i><span class="sr-only">Create filtered cohort</span></a>
     </span>
   </div>
 </div>
@@ -49,9 +49,7 @@
     <a id="sidebar-filtered-cohort-{{$index}}"
        class="sidebar-row-link-label-text"
        data-ui-sref="filteredCohort({c: cohort.id, i: null, t: null, v: null, cohortName: null})"
-       data-ui-sref-opts="{reload: true}"
-       data-ng-bind="cohort.name">
-    </a>
+       data-ui-sref-opts="{reload: true}"><span class="sr-only">Go to cohort </span><span data-ng-bind="cohort.name"></span></a>
   </div>
   <div>
     <span id="sidebar-filtered-cohort-{{$index}}-count"
