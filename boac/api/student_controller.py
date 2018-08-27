@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import add_alert_counts, can_current_user_view_dept, is_current_user_asc_affiliated
+from boac.api.util import add_alert_counts, is_asc_authorized, is_coe_authorized, is_current_user_asc_affiliated
 from boac.externals.cal1card_photo_api import get_cal1card_photo
 from boac.lib import util
 from boac.lib.berkeley import get_dept_codes
@@ -80,9 +80,7 @@ def get_students():
     # Authorization check
     is_asc_data_request = in_intensive_cohort is not None or is_inactive_asc is not None
     is_coe_data_request = next((f for f in [advisor_ldap_uids, coe_prep_statuses, ethnicities, genders] if f), False)
-    can_view_asc_data = can_current_user_view_dept('UWASC')
-    can_view_coe_data = can_current_user_view_dept('COENG')
-    if (is_asc_data_request and not can_view_asc_data) or (is_coe_data_request and not can_view_coe_data):
+    if (is_asc_data_request and not is_asc_authorized()) or (is_coe_data_request and not is_coe_authorized()):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
 
     results = query_students(

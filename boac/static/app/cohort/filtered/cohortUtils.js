@@ -88,7 +88,7 @@
       if (type === 'array') {
         result = asArray(queryArg);
       } else if (type === 'boolean') {
-        result = lenientBoolean(queryArg);
+        result = _.isNil(queryArg) ? null : lenientBoolean(queryArg);
       } else {
         result = queryArg;
       }

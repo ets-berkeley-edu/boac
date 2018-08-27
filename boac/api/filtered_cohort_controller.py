@@ -24,9 +24,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import strip_analytics
+from boac.api.util import is_asc_authorized, is_coe_authorized, strip_analytics
 from boac.lib import util
-from boac.lib.berkeley import can_view_cohort, get_dept_codes
+from boac.lib.berkeley import can_view_cohort
 from boac.lib.cohort_filter_definition import get_cohort_filter_definitions
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
@@ -118,9 +118,9 @@ def create_cohort():
     is_inactive_asc = util.to_bool_or_none(params.get('isInactiveAsc'))
     if not label:
         raise BadRequestError('Cohort creation requires \'label\'')
-    if not _coe_authorized() and (advisor_ldap_uids or coe_prep_statuses):
+    if not is_coe_authorized() and (advisor_ldap_uids or coe_prep_statuses):
         raise ForbiddenRequestError(f'You are unauthorized to use COE-specific search criteria.')
-    if not _asc_authorized() and (in_intensive_cohort is not None or is_inactive_asc is not None):
+    if not is_asc_authorized() and (in_intensive_cohort is not None or is_inactive_asc is not None):
         raise ForbiddenRequestError('You are unauthorized to use ASC-specific search criteria.')
     cohort = CohortFilter.create(
         uid=current_user.get_id(),
@@ -177,11 +177,3 @@ def decorate_cohort(cohort, **kwargs):
     uid = current_user.get_id()
     cohort_json.update({'isOwnedByCurrentUser': (uid in [o.uid for o in cohort.owners])})
     return cohort_json
-
-
-def _asc_authorized():
-    return current_user.is_admin or 'UWASC' in get_dept_codes(current_user)
-
-
-def _coe_authorized():
-    return current_user.is_admin or 'COENG' in get_dept_codes(current_user)

@@ -146,8 +146,12 @@ def translate_grading_basis(code):
     return bases.get(code) or code
 
 
-def can_current_user_view_dept(dept_code):
-    return current_user.is_admin or dept_code in get_dept_codes(current_user)
+def is_asc_authorized():
+    return current_user.is_admin or 'UWASC' in get_dept_codes(current_user)
+
+
+def is_coe_authorized():
+    return current_user.is_admin or 'COENG' in get_dept_codes(current_user)
 
 
 def is_current_user_asc_affiliated():
