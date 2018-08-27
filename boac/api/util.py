@@ -24,14 +24,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from functools import wraps
-import json
-from boac.lib import util
+
 from boac.lib.berkeley import get_dept_codes
-from boac.merged import athletics
 from boac.merged import calnet
-from boac.merged.student import query_students
-from boac.models.alert import Alert
-from boac.models.authorized_user import AuthorizedUser
 from flask import current_app as app, request
 from flask_login import current_user
 
@@ -97,110 +92,6 @@ def canvas_courses_api_feed(courses):
     if not courses:
         return []
     return [canvas_course_api_feed(course) for course in courses]
-
-
-def decorate_cohort(
-    cohort,
-    order_by=None,
-    offset=0,
-    limit=50,
-    include_students=True,
-    include_profiles=False,
-    include_alerts_for_uid=None,
-):
-    c = cohort.filter_criteria
-    c = c if isinstance(c, dict) else json.loads(c)
-    advisor_ldap_uids = util.get(c, 'advisorLdapUids')
-    if not isinstance(advisor_ldap_uids, list):
-        advisor_ldap_uids = [advisor_ldap_uids] if advisor_ldap_uids else None
-    # In odd circumstances we override the cohort's actual name
-    cohort_name = cohort.label
-    current_user_uid = current_user.uid if current_user and hasattr(current_user, 'uid') else None
-    decorated = {
-        'id': cohort.id,
-        'code': cohort.id,
-        'isOwnedByCurrentUser': current_user_uid in [o.uid for o in cohort.owners],
-        'label': cohort_name,
-        'name': cohort_name,
-        'owners': [user.uid for user in cohort.owners],
-    }
-    coe_prep_statuses = c.get('coePrepStatuses')
-    ethnicities = c.get('ethnicities')
-    genders = c.get('genders')
-    gpa_ranges = c.get('gpaRanges')
-    group_codes = c.get('groupCodes')
-    in_intensive_cohort = util.to_bool_or_none(c.get('inIntensiveCohort'))
-    is_inactive_asc = util.to_bool_or_none(c.get('isInactiveAsc'))
-    levels = c.get('levels')
-    majors = c.get('majors')
-    team_groups = athletics.get_team_groups(group_codes) if group_codes else []
-    unit_ranges = c.get('unitRanges')
-    decorated.update({
-        'filterCriteria': {
-            'advisorLdapUids': advisor_ldap_uids,
-            'coePrepStatuses': coe_prep_statuses,
-            'ethnicities': ethnicities,
-            'genders': genders,
-            'gpaRanges': gpa_ranges,
-            'groupCodes': group_codes,
-            'inIntensiveCohort': in_intensive_cohort,
-            'isInactiveAsc': is_inactive_asc,
-            'levels': levels,
-            'majors': majors,
-            'unitRanges': unit_ranges,
-        },
-        'teamGroups': team_groups,
-    })
-
-    if not include_students and not include_alerts_for_uid and cohort.student_count is not None:
-        # No need for a students query; return the database-stashed student count.
-        decorated.update({
-            'totalStudentCount': cohort.student_count,
-        })
-        return decorated
-    owner = cohort.owners[0] if len(cohort.owners) else None
-    if owner and 'UWASC' in get_dept_codes(owner):
-        is_active_asc = not is_inactive_asc
-    else:
-        is_active_asc = None if is_inactive_asc is None else not is_inactive_asc
-    results = query_students(
-        include_profiles=(include_students and include_profiles),
-        advisor_ldap_uids=advisor_ldap_uids,
-        coe_prep_statuses=coe_prep_statuses,
-        ethnicities=ethnicities,
-        genders=genders,
-        gpa_ranges=gpa_ranges,
-        group_codes=group_codes,
-        in_intensive_cohort=in_intensive_cohort,
-        is_active_asc=is_active_asc,
-        levels=levels,
-        majors=majors,
-        unit_ranges=unit_ranges,
-        order_by=order_by,
-        offset=offset,
-        limit=limit,
-        sids_only=not include_students,
-    )
-    if results:
-        # If the cohort is newly created or a cache refresh is underway, store the student count in the database
-        # to save future queries.
-        if cohort.student_count is None:
-            cohort.update_student_count(results['totalStudentCount'])
-        decorated.update({
-            'totalStudentCount': results['totalStudentCount'],
-        })
-        if include_students:
-            decorated.update({
-                'students': results['students'],
-            })
-        if include_alerts_for_uid:
-            viewer = AuthorizedUser.find_by_uid(include_alerts_for_uid)
-            if viewer:
-                alert_counts = Alert.current_alert_counts_for_sids(viewer.id, results['sids'])
-                decorated.update({
-                    'alerts': alert_counts,
-                })
-    return decorated
 
 
 def sis_enrollment_class_feed(enrollment):

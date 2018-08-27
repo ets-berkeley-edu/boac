@@ -227,10 +227,9 @@ def refresh_alerts(term_id):
 
 
 def load_filtered_cohort_counts():
-    from boac.api.util import decorate_cohort
     from boac.models.cohort_filter import CohortFilter
     for cohort in CohortFilter.query.all():
         # Remove!
         cohort.update_student_count(None)
         # Reload!
-        decorate_cohort(cohort, include_students=False)
+        cohort.to_api_json(include_students=False)
