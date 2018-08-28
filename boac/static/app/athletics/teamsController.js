@@ -42,12 +42,11 @@
             teams[teamCode] = {
               code: t.teamCode,
               name: teamName,
-              totalStudentCount: t.totalStudentCount,
-              url: '/cohort/filtered?name=' + encodeURI(teamName) + '&',
+              url: '/cohort/filtered?cohortName=' + encodeURI(teamName) + '&',
               teamGroups: []
             };
           }
-          teams[teamCode].url += 't=' + encodeURI(t.groupCode) + '&';
+          teams[teamCode].url += 'team=' + encodeURI(t.groupCode) + '&';
         });
         $scope.teams = _.values(teams);
         page.loading(false);
