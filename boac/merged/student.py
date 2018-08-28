@@ -354,14 +354,23 @@ def narrow_scope_by_criteria(scope, **kwargs):
                 return True
         return False
 
+    narrowed_scope = []
     for code, criteria in criteria_for_code.items():
         if any_criterion_present(criteria):
             if 'ADMIN' in scope or code in scope:
-                # We've found a department-specific criterion; constrain scope to that department only.
-                return [code]
+                # We've found a department-specific criterion; add a scope constraint for that department.
+                narrowed_scope.append(code)
             else:
                 # We've found a department-specific criterion but that department wasn't in the provided scope.
                 # Return empty.
                 return []
-    # No department-specific criteria found; return unmodified.
-    return scope
+
+    if not narrowed_scope:
+        # No department-specific criteria found; return the original scope unmodified.
+        return scope
+    elif len(narrowed_scope) == 1:
+        # Criteria were found for one department; return a single-item array including that department.
+        return narrowed_scope
+    else:
+        # Criteria were found for more than one department; return an intersection of those departments.
+        return {'intersection': narrowed_scope}
