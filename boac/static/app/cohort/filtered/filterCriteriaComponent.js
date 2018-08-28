@@ -177,7 +177,7 @@
           // We set 'show' to true when user clicks Apply. We set 'show' to false if filters are altered.
           if (isInitPhase && _.size($scope.filters.added)) {
             $scope.buttons.saveButton.show = true;
-          } else if (_.isEmpty($scope.filters.added)) {
+          } else if (_.isEmpty($scope.filters.added) || _.get($scope.filters.draft, 'key')) {
             $scope.buttons.saveButton.show = false;
           }
         }

@@ -1,4 +1,5 @@
-<div class="sr-only" role="alert"
+<div class="sr-only"
+     role="alert"
      data-ng-bind-template="Sorted by {{options.sortBy}} {{options.reverse ? 'descending' : ''}}"
      data-ng-if="students.length"></div>
 
@@ -31,6 +32,7 @@
     <div class="group-summary-column group-summary-column-00" data-ng-if="options.curatedCohort">
       <div class="add-to-cohort-checkbox">
         <input id="{{student.uid}}-curated-cohort-checkbox"
+               aria-label="Add {{student.firstName}} {{student.lastName}} to a curated cohort"
                type="checkbox"
                data-ng-click="student.curatedCohortToggle($event)"
                data-ng-model="student.selectedForCuratedCohort"/>
@@ -38,12 +40,15 @@
     </div>
     <div class="group-summary-column group-summary-column-01">
       <img class="student-avatar student-avatar-small"
+           aria-label="Photo of {{student.firstName}} {{student.lastName}}"
+           tabindex="0"
            data-ng-class="{'img-blur': demoMode.blur}"
            data-ng-src="/api/student/{{student.uid}}/photo"
            data-avatar-fallback>
     </div>
     <div class="group-summary-column group-summary-column-02">
-      <a data-ng-bind="student.sortableName"
+      <a aria-label="Go to profile page of {{student.firstName}} {{student.lastName}}"
+         data-ng-bind="student.sortableName"
          data-ng-class="{'demo-mode-blur': demoMode.blur}"
          data-ng-href="/student/{{student.uid}}"></a>
       <span class="home-inactive-info-icon"
@@ -70,8 +75,12 @@
     </div>
     <div class="group-summary-column group-summary-column-08">
       <div class="home-issues-pill home-issues-pill-zero"
+           aria-label="No alerts for {{student.firstName}} {{student.lastName}}"
+           tabindex="0"
            data-ng-if="!student.alertCount">0</div>
       <div class="home-issues-pill home-issues-pill-nonzero"
+           aria-label="{{student.alertCount}} alerts for {{student.firstName}} {{student.lastName}}"
+           tabindex="0"
            data-ng-bind="student.alertCount"
            data-ng-if="student.alertCount"></div>
     </div>
