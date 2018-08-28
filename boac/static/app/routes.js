@@ -133,7 +133,7 @@
         resolve: resolveAdmin
       })
       .state('filteredCohort', {
-        url: '/cohort/filtered?c&cohortName&i&t&v',
+        url: '/cohort/filtered?id&inactive&intensive&name',
         views: standardLayout('FilteredCohortController', '/static/app/cohort/filtered/cohort.html'),
         resolve: resolvePrivate,
         reloadOnSearch: false

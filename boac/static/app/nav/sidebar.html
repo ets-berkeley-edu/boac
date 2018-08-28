@@ -47,7 +47,7 @@
       <a id="sidebar-filtered-cohort-create"
          aria-label="Create filtered cohort"
          class="sidebar-create-link"
-         data-ui-sref="filteredCohort({c: null, i: null, t: null, v: null, cohortName: null})"
+         data-ui-sref="filteredCohort({id: null, inactive: null, intensive: null, name: null})"
          data-ui-sref-opts="{reload: true}"><i class="fas fa-plus"></i></a>
     </span>
   </div>
@@ -58,7 +58,7 @@
        aria-label="Go to cohort {{cohort.name}}"
        class="sidebar-row-link-label-text"
        data-ng-bind="cohort.name"
-       data-ui-sref="filteredCohort({c: cohort.id, i: null, t: null, v: null, cohortName: null})"
+       data-ui-sref="filteredCohort({id: cohort.id, inactive: null, intensive: null, name: null})"
        data-ui-sref-opts="{reload: true}"></a>
   </div>
   <div>
@@ -83,14 +83,14 @@
 <div class="sidebar-row-link" data-ng-if="isAscUser">
   <span class="sidebar-row-link-label">
     <a id="sidebar-cohort-intensive"
-       data-ui-sref="filteredCohort({c: null, i: true, t:null, v:null, cohortName: 'Intensive'})"
+       data-ui-sref="filteredCohort({id: null, inactive: null, intensive: 'true', name: 'Intensive'})"
        data-ui-sref-opts="{reload: true}">Intensive Students</a>
   </span>
 </div>
 <div class="sidebar-row-link" data-ng-if="isAscUser">
   <span class="sidebar-row-link-label">
     <a id="sidebar-cohort-inactive"
-       data-ui-sref="filteredCohort({c: null, i:null, t:null, v: true, cohortName: 'Inactive'})"
+       data-ui-sref="filteredCohort({id: null, inactive: 'true', intensive: null, name: 'Inactive'})"
        data-ui-sref-opts="{reload: true}">Inactive Students</a>
   </span>
 </div>
