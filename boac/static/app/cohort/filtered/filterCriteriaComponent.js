@@ -40,44 +40,45 @@
       isLoading: true
     };
 
-    $scope.onDraftFilterClick = function(option) {
-      if (option && !option.disabled) {
-        _.set($scope.filters.draft, 'subcategory', null);
-        $scope.buttons.saveButton.show = false;
-        $scope.filters.draft = option;
-      }
-    };
-
-    $scope.onDraftSubCategoryClick = function(option) {
-      if (option !== null && !option.disabled) {
-        $scope.filters.draft.subcategory = option;
-      }
-    };
-
     var redrawButtons = function(isInitPhase) {
       _.each($scope.buttons, function(button) {
         button.redraw(isInitPhase);
       });
     };
 
-    var onDraftFilterChange = function() {
-      if (!$scope.filters.isLoading) {
+    $scope.onDraftFilterClick = function(option) {
+      if (option && !option.disabled) {
+        _.set($scope.filters.draft, 'subcategory', null);
+        $scope.filters.draft = option;
+        $scope.buttons.addButton.show = _.get(option, 'type') !== 'array';
         redrawButtons();
       }
+    };
+
+    $scope.onDraftSubCategoryClick = function(option) {
+      if (option !== null && !option.disabled) {
+        $scope.filters.draft.subcategory = option;
+        $scope.buttons.addButton.show = true;
+        $scope.buttons.cancelButton.show = true;
+      }
+    };
+
+    var resetDraftFilter = function() {
+      _.set($scope.filters.draft, 'subcategory', null);
+      $scope.filters.draft = null;
+      $scope.buttons.addButton.show = false;
+      $scope.buttons.cancelButton.show = false;
     };
 
     this.$onInit = function() {
       var definitions = _.clone(this.filterDefinitions);
       var filterCriteria = _.clone(this.cohort.filterCriteria);
 
+      $scope.callbacks = this.callbacks;
       $scope.filters.definitions = _.reject(_.map(cohortUtils.getFilterOrder(), function(key) {
         // Return null to insert divider in dropdown menu.
         return key && _.find(definitions, ['key', key]);
       }), _.isUndefined);
-
-      $scope.callbacks = this.callbacks;
-      $scope.$watch('filters.draft', onDraftFilterChange);
-      $scope.$watch('filters.draft.subcategory', onDraftFilterChange);
 
       cohortUtils.initFiltersForDisplay(filterCriteria, $scope.filters.definitions, function(addedFilters) {
         $scope.filters.added = addedFilters;
@@ -107,19 +108,15 @@
         // Button to add a "draft" filter to the list of added-filters.
         onClick: function() {
           var addedFilter = _.clone($scope.filters.draft);
+          resetDraftFilter();
 
           updateDisableAfterAddOrRemove(addedFilter, true);
           $scope.filters.added = cohortUtils.sortAddedFilters(_.union($scope.filters.added, [ addedFilter ]));
-          // Remove pointer to subcategory in filter-definitions and then set draft to null.
-          $scope.filters.draft.subcategory = null;
-          $scope.filters.draft = null;
+          $scope.buttons.applyButton.show = true;
         },
         show: false,
-        redraw: function(isInitPhase) {
-          var subcategoryValue = _.get($scope.filters.draft, 'subcategory.value');
-          var type = _.get($scope.filters, 'draft.type');
-          $scope.buttons.addButton.show = !isInitPhase && type && (type !== 'array' || (type === 'array' && subcategoryValue));
-          $scope.buttons.applyButton.redraw(false);
+        redraw: function() {
+          // addButton.show is managed in the onClick() of other buttons.
         }
       },
       applyButton: {
@@ -141,7 +138,8 @@
       cancelButton: {
         // Button to reset draft filter.
         onClick: function() {
-          $scope.filters.draft = null;
+          resetDraftFilter();
+          redrawButtons();
         },
         show: false,
         redraw: function(isInitPhase) {
@@ -158,9 +156,9 @@
           }
           $scope.buttons.saveButton.redraw(false);
         },
-        show: false,
+        show: true,
         redraw: function() {
-          $scope.buttons.removeButton.show = true;
+          // 'show' is always true
         }
       },
       saveButton: {

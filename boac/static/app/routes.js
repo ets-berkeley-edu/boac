@@ -216,9 +216,6 @@
           case 'filteredCohort':
             $rootScope.pageTitle = 'Filtered Cohort';
             break;
-          case 'filteredCohortsManage':
-            $rootScope.pageTitle = 'Manage Filtered Cohorts';
-            break;
           case 'curatedCohort':
             $rootScope.pageTitle = 'Curated Cohort';
             break;

@@ -116,7 +116,7 @@
 }
 
 .cohort-filter-draft-column-02 {
-  flex: 1;
+  flex: 0;
 }
 
 .cohort-filter-draft-column-03 {
@@ -211,13 +211,13 @@
 
 .cohort-filter-item-filter {
   -webkit-flex: 0 0 200px;
-  flex: 0 0 200px;
+  flex: 0 0 100px;
   font-weight: 600;
 }
 
 .cohort-filter-item-name {
   -webkit-flex: 0 0 200px;
-  flex: 0 0 200px;
+  flex: 0 0 400px;
 }
 
 .cohort-filter-item-button {
