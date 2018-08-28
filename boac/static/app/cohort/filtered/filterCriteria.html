@@ -17,6 +17,7 @@
           <div data-ng-if="buttons.removeButton.show">
             <button type="button"
                     id="remove-added-filter-{{$index}}"
+                    aria-label="Remove added filter"
                     class="btn-link cohort-manage-btn-link"
                     data-ng-click="buttons.removeButton.onClick($index)">
               Remove
@@ -99,6 +100,7 @@
         <div data-ng-if="buttons.addButton.show">
           <button type="button"
                   id="unsaved-filter-add"
+                  aria-label="Add filter to search criteria"
                   class="btn btn-primary"
                   focus-on="buttons.addButton.show"
                   data-ng-click="buttons.addButton.onClick()">
@@ -110,6 +112,7 @@
         <div data-ng-if="buttons.cancelButton.show">
           <button type="button"
                   id="unsaved-filter-reset"
+                  aria-label="Cancel new filter selection"
                   class="btn-link cohort-manage-btn-link"
                   data-ng-click="buttons.cancelButton.onClick()">
             Cancel
@@ -132,6 +135,7 @@
       <span data-ng-controller="CreateFilteredCohortController">
         <button type="button"
                 id="unsaved-filter-save-cohort"
+                aria-label="Create new cohort"
                 class="btn btn-secondary btn-filter-draft-save"
                 data-ng-disabled="buttons.saveButton.disabled"
                 data-ng-click="buttons.saveButton.onClick(openCreateCohortModal)"

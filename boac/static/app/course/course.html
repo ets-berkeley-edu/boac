@@ -99,6 +99,7 @@
               <div class="add-to-cohort-checkbox">
                 <input id="student-{{student.uid}}-curated-cohort-checkbox"
                        type="checkbox"
+                       aria-label="Add {{student.firstName}} {{student.lastName}} to a curated cohort"
                        data-ng-click="student.curatedCohortToggle($event)"
                        data-ng-model="student.selectedForCuratedCohort"/>
               </div>

@@ -57,6 +57,7 @@
       <div class="cohort-header-buttons no-wrap" data-ng-if="tab === 'list' && renameMode.on">
         <button type="button"
                 id="filtered-cohort-rename"
+                aria-label="Save changes to cohort name"
                 class="btn btn-sm btn-primary cohort-manage-btn"
                 data-ng-click="rename($event)">
           Rename
@@ -82,6 +83,7 @@
           <span class="faint-text">|</span>
           <button type="button"
                   id="rename-cohort-button"
+                  aria-label="Rename this cohort"
                   class="btn-link cohort-manage-btn-link"
                   data-ng-click="enterRenameMode(cohort.name)">
             Rename
@@ -90,6 +92,7 @@
             <span class="faint-text">|</span>
             <button type="button"
                     id="delete-cohort-button"
+                    aria-label="Delete this cohort"
                     class="btn-link cohort-manage-btn-link"
                     data-ng-click="openDeleteCohortModal(cohort)">
               Delete
@@ -141,6 +144,7 @@
             <div class="cohort-list-view-column-00">
               <div class="add-to-cohort-checkbox">
                 <input id="student-{{student.uid}}-curated-cohort-checkbox"
+                       aria-label="Add {{student.firstName}} {{student.lastName}} to a curated cohort"
                        type="checkbox"
                        data-ng-click="student.curatedCohortToggle($event)"
                        data-ng-model="student.selectedForCuratedCohort"/>
@@ -149,6 +153,7 @@
 
             <div class="cohort-list-view-column-01">
               <img class="student-avatar student-avatar-large"
+                   aria-label="Photo of {{student.firstName}} {{student.lastName}}"
                    data-ng-class="{'img-blur': demoMode.blur}"
                    data-ng-src="/api/student/{{student.uid}}/photo"
                    data-avatar-fallback>

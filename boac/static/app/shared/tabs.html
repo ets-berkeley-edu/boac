@@ -2,6 +2,7 @@
   <div class="btn-group tab-btn-group" role="group" aria-label="Select results view">
     <button type="button"
             class="btn btn-secondary tab-button"
+            aria-label="Switch to list view"
             data-ng-class="{'tab-button-selected': tab === 'list'}"
             data-ng-click="onTab('list')"
             data-ng-disabled="isSaving">
@@ -9,6 +10,7 @@
     </button>
     <button type="button"
             class="btn btn-secondary tab-button"
+            aria-label="Switch to matrix view"
             data-ng-attr-title="{{studentCountExceedsMatrixThreshold ? exceedsMatrixThresholdMessage : null}}"
             data-ng-class="{'tab-button-selected': tab === 'matrix'}"
             data-ng-disabled="isSaving || studentCountExceedsMatrixThreshold"
