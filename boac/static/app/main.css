@@ -23,6 +23,10 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+.accordion-header {
+  margin: 0;
+}
+
 .boac-exclamation {
   color: #f0ad4e;
 }
