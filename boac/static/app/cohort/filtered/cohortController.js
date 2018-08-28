@@ -142,8 +142,8 @@
       $rootScope.pageTitle = cohort.name;
       // Reset browser location
       $location.url($location.path());
-      $location.search('c', cohort.id);
-      $location.search('details', $scope.filtersVisible);
+      $location.search('id', cohort.id);
+      $location.search('details', _.toString($scope.filtersVisible));
       $location.search('orderBy', $scope.search.orderBy.selected);
       $location.search('tab', $scope.tab);
       // Grab a limited set of properties
@@ -181,7 +181,7 @@
     var executeSearch = function(filterCriteria, orderBy, offset, limit, callback) {
       updateLocation($scope.filterDefinitions, filterCriteria, $scope.search.pagination.currentPage);
       studentFactory.getStudents(filterCriteria, orderBy, offset, limit).then(function(response) {
-        $scope.cohort.name = $location.search().cohortName;
+        $scope.cohort.name = $location.search().name;
         $scope.cohort.name = $scope.cohort.name || cohortService.getSearchPageTitle(filterCriteria);
         $rootScope.pageTitle = $scope.cohort.name || 'Filtered Cohort';
         _.extend($scope.search, {
@@ -212,7 +212,7 @@
     };
 
     var init = $scope.nextPage = $scope.onTab = function(tab, searchCriteria, offsetOverride, limitOverride) {
-      var cohortId = parseInt($location.search().c, 10);
+      var cohortId = parseInt($location.search().id, 10);
       var limit = limitOverride || $scope.search.pagination.itemsPerPage;
       var offset = _.isNil(offsetOverride) ? ($scope.search.pagination.currentPage - 1) * limit : offsetOverride;
       offset = offset < 0 ? 0 : offset;

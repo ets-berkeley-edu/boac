@@ -42,7 +42,7 @@
             teams[teamCode] = {
               code: t.teamCode,
               name: teamName,
-              url: '/cohort/filtered?cohortName=' + encodeURI(teamName) + '&',
+              url: '/cohort/filtered?name=' + encodeURI(teamName) + '&',
               teamGroups: []
             };
           }
