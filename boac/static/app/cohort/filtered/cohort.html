@@ -251,33 +251,21 @@
         </ul>
         <ul uib-pagination
             boundary-link-numbers="true"
+            data-ng-click="nextPage()"
+            data-ng-if="search.results.totalStudentCount > search.pagination.itemsPerPage"
             force-ellipses="true"
             max-size="9"
             rotate="false"
             direction-links="false"
-            items-per-page="pagination.itemsPerPage"
-            total-items="search.results.totalStudentCount"
-            ng-model="pagination.currentPage"
-            data-ng-click="nextPage()"
-            data-ng-if="pagination.enabled && !isCreateCohortMode && (search.results.totalStudentCount > pagination.itemsPerPage)"></ul>
+            items-per-page="search.pagination.itemsPerPage"
+            ng-model="search.pagination.currentPage"
+            total-items="search.results.totalStudentCount"></ul>
       </div>
       <div id="matrix-outer"
            data-ng-show="tab === 'matrix' && !isLoading && !error">
         <div data-ng-include="'/static/app/shared/matrix.html'"></div>
       </div>
     </div>
-    <ul uib-pagination
-        boundary-link-numbers="true"
-        force-ellipses="true"
-        max-size="9"
-        rotate="false"
-        direction-links="false"
-        items-per-page="search.pagination.itemsPerPage"
-        ng-model="search.pagination.currentPage"
-        total-items="search.results.totalStudentCount"
-        data-ng-click="nextPage()"
-        data-ng-if="search.results.totalStudentCount > search.pagination.itemsPerPage"></ul>
-
   </div>
 </div>
 
