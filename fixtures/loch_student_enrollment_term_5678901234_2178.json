@@ -98,6 +98,45 @@
           "courseCode": "MED ST 205",
           "courseName": "Medieval Manuscripts as Primary Sources",
           "courseTerm": "Fall 2017"
+        },
+        {
+          "analytics": {
+            "assignmentsSubmitted": {
+              "boxPlottable": false,
+              "courseDeciles": null,
+              "displayPercentile": null,
+              "student": {
+                "percentile": null,
+                "raw": null,
+                "roundedUpPercentile": null
+              }
+            },
+            "courseEnrollmentCount": 213,
+            "currentScore": {
+              "boxPlottable": false,
+              "courseDeciles": null,
+              "displayPercentile": null,
+              "student": {
+                "percentile": null,
+                "raw": null,
+                "roundedUpPercentile": null
+              }
+            },
+            "lastActivity": {
+              "boxPlottable": false,
+              "courseDeciles": null,
+              "displayPercentile": null,
+              "student": {
+                "percentile": null,
+                "raw": null,
+                "roundedUpPercentile": null
+              }
+            }
+          },
+          "canvasCourseId": 76543217,
+          "courseCode": "MED ST 205 Slow",
+          "courseName": "Medieval Manuscripts as Disposable Sources",
+          "courseTerm": "Fall 2017"
         }
       ],
       "displayName": "MED ST 205",

@@ -258,7 +258,7 @@ class Alert(Base):
                         cls.update_midterm_grade_alerts(row['sid'], term_id, section['ccn'], enrollment['displayName'], section['midtermGrade'])
                     for canvas_site in enrollment.get('canvasSites', []):
                         student_activity = canvas_site.get('analytics', {}).get('lastActivity', {}).get('student')
-                        if not student_activity:
+                        if not student_activity or student_activity.get('roundedUpPercentile') is None:
                             continue
                         if student_activity.get('raw') == 0:
                             if (
