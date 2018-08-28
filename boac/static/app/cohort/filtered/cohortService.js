@@ -35,6 +35,7 @@
         name: cohort.name,
         studentCount: cohort.studentCount,
         students: utilService.extendSortableNames(cohort.students),
+        alertCount: _.sum(_.map(cohort.students, 'alertCount')),
         sortBy: 'sortableName',
         reverse: false
       };
@@ -48,6 +49,7 @@
           sortBy: 'sortableName',
           reverse: false
         };
+        cohort.alertCount = _.sum(_.map(cohort.alerts.students, 'alertCount'));
       }
     };
 

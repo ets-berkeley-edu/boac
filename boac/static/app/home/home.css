@@ -30,6 +30,37 @@
   text-align: right;
 }
 
+.home-cohort-accordion .panel-heading {
+  padding-left: 0;
+}
+
+.home-cohort-accordion-heading {
+  background: #ecf5fb;
+  display: flex;
+  justify-content: space-between;
+}
+
+.home-cohort-accordion-heading-count {
+  align-items: center;
+  display: flex;
+  margin: 10px 15px;
+}
+
+.home-cohort-accordion-heading-count-label {
+  margin: 0 5px;
+}
+
+.home-cohort-accordion-heading-name {
+  align-items: center;
+  display: flex;
+  margin: 10px 15px;
+}
+
+.home-cohort-accordion .panel-title a:focus,
+.home-cohort-accordion .panel-title a:hover {
+  text-decoration: none;
+}
+
 .home-container {
   padding: 0 0 0 20px;
   width: 100%;
