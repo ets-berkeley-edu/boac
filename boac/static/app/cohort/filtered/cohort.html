@@ -1,7 +1,7 @@
 <div class="cohort-container">
   <div class="loading-spinner-large" data-ng-if="isLoading && !error">
     <i class="fas fa-sync fa-spin fa-5x"></i>
-    <span class="sr-only">Loading...</span>
+    <span role="alert" aria-live="passive" class="sr-only">Loading...</span>
   </div>
   <div data-ng-if="error">
     <h1 class="page-section-header">Error</h1>
@@ -11,6 +11,10 @@
     </div>
   </div>
   <div data-ng-show="!error && !isLoading">
+    <a href="#pagination-widget"
+       id="skip-to-pagination-widget"
+       class="sr-only"
+       data-ng-if="search.results.totalStudentCount > search.pagination.itemsPerPage">Skip to pagination widget</a>
     <div class="cohort-header-container">
       <div data-ng-if="!cohort.id && search.results.totalStudentCount === null">
         <h1 class="page-section-header">Create a Filtered Cohort</h1>
@@ -37,7 +41,7 @@
                      data-ng-change="renameMode.hideError = true"
                      data-ng-model="renameMode.input"
                      focus-on="renameMode.on"
-                     id="filtered-cohort-name-input-{{$index}}"
+                     id="rename-cohort-input"
                      maxlength="255"
                      name="name"
                      required
@@ -253,12 +257,14 @@
             boundary-link-numbers="true"
             data-ng-click="nextPage()"
             data-ng-if="search.results.totalStudentCount > search.pagination.itemsPerPage"
-            force-ellipses="true"
-            max-size="9"
-            rotate="false"
             direction-links="false"
+            force-ellipses="true"
+            id="pagination-widget"
             items-per-page="search.pagination.itemsPerPage"
+            max-size="9"
             ng-model="search.pagination.currentPage"
+            rotate="false"
+            template-url="/static/app/shared/uibPaginationTemplate.html"
             total-items="search.results.totalStudentCount"></ul>
       </div>
       <div id="matrix-outer"

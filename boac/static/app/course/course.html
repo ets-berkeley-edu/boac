@@ -1,7 +1,7 @@
 <div class="course-container">
   <div class="loading-spinner-large" data-ng-if="isLoading && !error">
     <i class="fas fa-sync fa-spin fa-5x"></i>
-    <span class="sr-only">Loading...</span>
+    <span role="alert" aria-live="passive" class="sr-only">Loading...</span>
   </div>
 
   <div class="container-error" data-ng-if="!isLoading && error">
@@ -15,6 +15,10 @@
   <div class="course-container-inner"
        focus-on="!isLoading"
        data-ng-show="!isLoading && !error">
+    <a href="#pagination-widget"
+       id="skip-to-pagination-widget"
+       class="sr-only"
+       data-ng-if="section.totalStudentCount > pagination.itemsPerPage">Skip to pagination widget</a>
     <div>
       <div class="course-container-summary">
         <div class="course-column-description">
@@ -238,16 +242,18 @@
           </div>
         </div>
         <ul uib-pagination
-          boundary-link-numbers="true"
-          force-ellipses="true"
-          max-size="9"
-          rotate="false"
-          direction-links="false"
-          items-per-page="pagination.itemsPerPage"
-          total-items="section.totalStudentCount"
-          ng-model="pagination.currentPage"
-          data-ng-click="nextPage()"
-          data-ng-if="(section.totalStudentCount > pagination.itemsPerPage)"></ul>
+            boundary-link-numbers="true"
+            data-ng-click="nextPage()"
+            data-ng-if="section.totalStudentCount > pagination.itemsPerPage"
+            direction-links="false"
+            force-ellipses="true"
+            id="pagination-widget"
+            items-per-page="pagination.itemsPerPage"
+            max-size="9"
+            ng-model="pagination.currentPage"
+            rotate="false"
+            template-url="/static/app/shared/uibPaginationTemplate.html"
+            total-items="section.totalStudentCount"></ul>
       </div>
       <div id="matrix-outer" data-ng-show="tab === 'matrix' && !isLoading && !error">
         <div data-ng-include="'/static/app/shared/matrix.html'"></div>

@@ -4,9 +4,10 @@
 <div class="sidebar-row-link sidebar-section-header">
   <div class="sidebar-header sidebar-row-link-label">
     <a id="sidebar-curated-cohorts-manage"
+       aria-label="Manage your curated cohorts"
        class="sidebar-row-link-label-text"
        data-ui-sref="curatedCohortsManage()"
-       data-ui-sref-opts="{reload: true}"><span class="sr-only">Manage </span>Curated Cohorts</a>
+       data-ui-sref-opts="{reload: true}">Curated Cohorts</a>
   </div>
   <div>
     <span class="sidebar-header sidebar-row-link-label"
@@ -15,16 +16,18 @@
          aria-label="Create curated cohort"
          class="sidebar-create-link"
          href
-         data-ng-click="openCreateCuratedCohortModal()"><i class="fas fa-plus"></i><span class="sr-only">Create curated cohort</span></a>
+         data-ng-click="openCreateCuratedCohortModal()"><i class="fas fa-plus"></i></a>
     </span>
   </div>
 </div>
 <div class="sidebar-row-link" data-ng-repeat="cohort in myCuratedCohorts">
   <div class="sidebar-row-link-label">
     <a id="sidebar-curated-cohort-{{$index}}"
+       aria-label="Go to cohort {{cohort.name}}"
        class="sidebar-row-link-label-text"
+       data-ng-bind="cohort.name"
        data-ui-sref="curatedCohort({id: cohort.id})"
-       data-ui-sref-opts="{reload: true}"><span class="sr-only">Go to cohort </span><span data-ng-bind="cohort.name"></span></a>
+       data-ui-sref-opts="{reload: true}"></a>
   </div>
   <div>
     <span id="sidebar-curated-cohort-{{$index}}-count"
@@ -45,16 +48,18 @@
          aria-label="Create filtered cohort"
          class="sidebar-create-link"
          data-ui-sref="filteredCohort({c: null, i: null, t: null, v: null, cohortName: null})"
-         data-ui-sref-opts="{reload: true}"><i class="fas fa-plus"></i><span class="sr-only">Create filtered cohort</span></a>
+         data-ui-sref-opts="{reload: true}"><i class="fas fa-plus"></i></a>
     </span>
   </div>
 </div>
 <div class="sidebar-row-link" data-ng-repeat="cohort in myFilteredCohorts">
   <div class="sidebar-row-link-label">
     <a id="sidebar-filtered-cohort-{{$index}}"
+       aria-label="Go to cohort {{cohort.name}}"
        class="sidebar-row-link-label-text"
+       data-ng-bind="cohort.name"
        data-ui-sref="filteredCohort({c: cohort.id, i: null, t: null, v: null, cohortName: null})"
-       data-ui-sref-opts="{reload: true}"><span class="sr-only">Go to cohort </span><span data-ng-bind="cohort.name"></span></a>
+       data-ui-sref-opts="{reload: true}"></a>
   </div>
   <div>
     <span id="sidebar-filtered-cohort-{{$index}}-count"
