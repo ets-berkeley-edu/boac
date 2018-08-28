@@ -85,6 +85,7 @@
                      data-ng-if="myCuratedCohorts.length">
                   <input id="curated-cohort-checkbox-{{$index}}"
                          class="curated-cohort-checkbox-input"
+                         aria-label="{{cohort.selected ? 'Remove from' : 'Add to'}} curated cohort {{cohort.name}}"
                          type="checkbox"
                          data-ng-model="cohort.selected"
                          data-ng-click="curatedCohortCheckboxClick(cohort)"/>
@@ -207,6 +208,8 @@
                              aria-label="{{course.isOpen ? 'Hide course details' : 'Show course details'}}"
                              data-ng-class="{'fas fa-caret-right': !course.isOpen, 'fas fa-caret-down': course.isOpen}"
                              data-ng-click="course.isOpen = !course.isOpen"
+                             data-ng-keypress="course.isOpen = !course.isOpen"
+                             tabindex="0"
                              role="button"></i>
                         </div>
                         <div>
