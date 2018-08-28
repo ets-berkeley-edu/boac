@@ -14,13 +14,14 @@
                 data-ng-if="filter.subcategory"></span>
         </div>
         <div class="cohort-filter-item-button">
-          <button type="button"
-                  id="remove-added-filter-{{$index}}"
-                  class="btn-link cohort-manage-btn-link"
-                  data-ng-click="buttons.removeButton.onClick($index)"
-                  data-ng-if="buttons.removeButton.show">
-            Remove
-          </button>
+          <div data-ng-if="buttons.removeButton.show">
+            <button type="button"
+                    id="remove-added-filter-{{$index}}"
+                    class="btn-link cohort-manage-btn-link"
+                    data-ng-click="buttons.removeButton.onClick($index)">
+              Remove
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -94,23 +95,25 @@
         </div>
       </div>
       <div class="cohort-filter-draft-column-03">
-        <button type="button"
-                id="unsaved-filter-add"
-                class="btn btn-primary"
-                focus-on="buttons.addButton.show"
-                data-ng-click="buttons.addButton.onClick()"
-                data-ng-if="buttons.addButton.show">
-          Add
-        </button>
+        <div data-ng-if="buttons.addButton.show">
+          <button type="button"
+                  id="unsaved-filter-add"
+                  class="btn btn-primary"
+                  focus-on="buttons.addButton.show"
+                  data-ng-click="buttons.addButton.onClick()">
+            Add
+          </button>
+        </div>
       </div>
       <div class="cohort-filter-draft-column-04">
-        <button type="button"
-                id="unsaved-filter-reset"
-                class="btn-link cohort-manage-btn-link"
-                data-ng-click="buttons.cancelButton.onClick()"
-                data-ng-if="buttons.cancelButton.show">
-          Cancel
-        </button>
+        <div data-ng-if="buttons.cancelButton.show">
+          <button type="button"
+                  id="unsaved-filter-reset"
+                  class="btn-link cohort-manage-btn-link"
+                  data-ng-click="buttons.cancelButton.onClick()">
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   </div>
