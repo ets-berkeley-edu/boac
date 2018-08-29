@@ -276,6 +276,7 @@
 }
 
 .cohort-header-button-links {
+  align-self: flex-start;
   flex-grow: 1;
   margin-top: 12px;
   text-align: right;
