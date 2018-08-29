@@ -25,10 +25,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import add_alert_counts, is_asc_authorized, is_coe_authorized, is_current_user_asc_affiliated
+from boac.api.util import add_alert_counts, get_dept_codes, is_asc_authorized, is_unauthorized_search
 from boac.externals.cal1card_photo_api import get_cal1card_photo
 from boac.lib import util
-from boac.lib.berkeley import get_dept_codes
 from boac.lib.http import tolerant_jsonify
 from boac.merged import athletics
 from boac.merged.student import get_student_and_terms, query_students, search_for_students
@@ -63,6 +62,8 @@ def user_photo(uid):
 @login_required
 def get_students():
     params = request.get_json()
+    if is_unauthorized_search(params):
+        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     advisor_ldap_uids = util.get(params, 'advisorLdapUids')
     coe_prep_statuses = util.get(params, 'coePrepStatuses')
     ethnicities = util.get(params, 'ethnicities')
@@ -77,11 +78,6 @@ def get_students():
     order_by = util.get(params, 'orderBy', None)
     offset = util.get(params, 'offset', 0)
     limit = util.get(params, 'limit', 50)
-    # Authorization check
-    is_asc_data_request = in_intensive_cohort is not None or is_inactive_asc is not None
-    is_coe_data_request = next((f for f in [advisor_ldap_uids, coe_prep_statuses, ethnicities, genders] if f), False)
-    if (is_asc_data_request and not is_asc_authorized()) or (is_coe_data_request and not is_coe_authorized()):
-        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
 
     results = query_students(
         include_profiles=True,
@@ -115,6 +111,8 @@ def get_students():
 @login_required
 def search_students():
     params = request.get_json()
+    if is_unauthorized_search(params):
+        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     search_phrase = util.get(params, 'searchPhrase', '').strip()
     if not len(search_phrase):
         raise BadRequestError('Invalid or empty search input')
@@ -122,9 +120,6 @@ def search_students():
     order_by = util.get(params, 'orderBy', None)
     offset = util.get(params, 'offset', 0)
     limit = util.get(params, 'limit', 50)
-    asc_authorized = current_user.is_admin or 'UWASC' in get_dept_codes(current_user)
-    if not asc_authorized and is_inactive_asc is not None:
-        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     results = search_for_students(
         include_profiles=True,
         search_phrase=search_phrase.replace(',', ' '),
@@ -146,13 +141,12 @@ def search_students():
 @login_required
 def get_all_team_groups():
     # TODO: Give unauthorized user a 404 without disrupting COE advisors on the filtered-cohort view.
-    _authorized = current_user.is_admin or is_current_user_asc_affiliated()
-    data = athletics.all_team_groups() if _authorized else []
+    data = athletics.all_team_groups() if is_asc_authorized() else []
     return tolerant_jsonify(data)
 
 
 def _convert_asc_inactive_arg(is_inactive_asc):
-    if is_current_user_asc_affiliated():
+    if 'UWASC' in get_dept_codes(current_user):
         is_active_asc = not is_inactive_asc
     else:
         is_active_asc = None if is_inactive_asc is None else not is_inactive_asc

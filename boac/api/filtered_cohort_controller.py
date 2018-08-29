@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import is_asc_authorized, is_coe_authorized, strip_analytics
+from boac.api.util import is_unauthorized_search, strip_analytics
 from boac.lib import util
 from boac.lib.berkeley import can_view_cohort
 from boac.lib.cohort_filter_definition import get_cohort_filter_definitions
@@ -90,6 +90,8 @@ def my_cohorts():
 @app.route('/api/filtered_cohort/<cohort_id>')
 @login_required
 def get_cohort(cohort_id):
+    if is_unauthorized_search(request.args):
+        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     order_by = util.get(request.args, 'orderBy', None)
     offset = util.get(request.args, 'offset', 0)
     limit = util.get(request.args, 'limit', 50)
@@ -105,6 +107,8 @@ def get_cohort(cohort_id):
 @login_required
 def create_cohort():
     params = request.get_json()
+    if is_unauthorized_search(params):
+        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     label = util.get(params, 'label', None)
     advisor_ldap_uids = util.get(params, 'advisorLdapUids')
     coe_prep_statuses = util.get(params, 'coePrepStatuses')
@@ -119,10 +123,6 @@ def create_cohort():
     is_inactive_asc = util.to_bool_or_none(params.get('isInactiveAsc'))
     if not label:
         raise BadRequestError('Cohort creation requires \'label\'')
-    if not is_coe_authorized() and (advisor_ldap_uids or coe_prep_statuses):
-        raise ForbiddenRequestError(f'You are unauthorized to use COE-specific search criteria.')
-    if not is_asc_authorized() and (in_intensive_cohort is not None or is_inactive_asc is not None):
-        raise ForbiddenRequestError('You are unauthorized to use ASC-specific search criteria.')
     cohort = CohortFilter.create(
         uid=current_user.get_id(),
         label=label,

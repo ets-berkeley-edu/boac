@@ -67,21 +67,19 @@
     };
 
     var getSortByOptionsForSearch = function() {
+      var canViewAsc = authService.canViewAsc();
       var options = [
-        {name: 'First Name', value: 'first_name'},
-        {name: 'Last Name', value: 'last_name'},
-        {name: 'GPA', value: 'gpa'},
-        {name: 'Level', value: 'level'},
-        {name: 'Major', value: 'major'},
-        {name: 'Units', value: 'units'}
+        {name: 'First Name', value: 'first_name', available: true},
+        {name: 'Last Name', value: 'last_name', available: true},
+        {name: 'GPA', value: 'gpa', available: true},
+        {name: 'Level', value: 'level', available: true},
+        {name: 'Major', value: 'major', available: true},
+        {name: 'Team', value: 'group_name', available: canViewAsc},
+        {name: 'Units', value: 'units', available: true}
       ];
 
-      if (authService.isAscUser()) {
-        options.push({name: 'Team', value: 'group_name'});
-        options = _.sortBy(options, [ 'name' ]);
-      }
       return {
-        options: options,
+        options: _.filter(options, 'available'),
         selected: 'last_name'
       };
     };
