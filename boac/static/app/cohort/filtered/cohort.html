@@ -59,7 +59,8 @@
                 id="filtered-cohort-rename"
                 aria-label="Save changes to cohort name"
                 class="btn btn-sm btn-primary cohort-manage-btn"
-                data-ng-click="rename($event)">
+                data-ng-click="rename($event)"
+                data-ng-disabled="!renameMode.input">
           Rename
         </button>
         <button type="button"
