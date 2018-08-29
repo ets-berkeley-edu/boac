@@ -34,126 +34,138 @@ from boac.models.authorized_user import AuthorizedUser
 
 def get_cohort_filter_definitions(scope):
     all_dept_codes = list(BERKELEY_DEPT_NAME_TO_CODE.values())
-    definitions = [
-        {
-            'availableTo': ['COENG'],
-            'defaultValue': None,
-            'key': 'advisorLdapUids',
-            'name': 'Advisor',
-            'options': _get_coe_profiles,
-            'param': 'advisor',
-            'subcategoryHeader': 'Choose...',
-            'type': 'array',
-        },
-        {
-            'availableTo': ['COENG'],
-            'defaultValue': None,
-            'key': 'ethnicities',
-            'name': 'Ethnicity',
-            'options': _coe_ethnicities,
-            'param': 'ethnicity',
-            'subcategoryHeader': 'Choose...',
-            'type': 'array',
-        },
-        {
-            'availableTo': ['COENG'],
-            'defaultValue': None,
-            'key': 'genders',
-            'name': 'Gender',
-            'options': _genders,
-            'param': 'gender',
-            'subcategoryHeader': 'Choose...',
-            'type': 'array',
-        },
-        {
-            'availableTo': all_dept_codes,
-            'defaultValue': None,
-            'key': 'gpaRanges',
-            'name': 'GPA',
-            'options': _gpa_ranges,
-            'param': 'gpa',
-            'subcategoryHeader': 'Choose...',
-            'type': 'array',
-        },
-        {
-            'availableTo': ['UWASC'],
-            'defaultValue': None,
-            'key': 'groupCodes',
-            'name': 'Team',
-            'options': _team_groups,
-            'param': 'team',
-            'subcategoryHeader': 'Choose...',
-            'type': 'array',
-        },
-        {
-            'availableTo': ['UWASC'],
-            'defaultValue': False if 'UWASC' in scope else None,
-            'key': 'isInactiveAsc',
-            'name': 'Inactive',
-            'options': [True, False],
-            'param': 'inactive',
-            'type': 'boolean',
-        },
-        {
-            'availableTo': ['UWASC'],
-            'defaultValue': None,
-            'key': 'inIntensiveCohort',
-            'name': 'Intensive',
-            'options': [True, False],
-            'param': 'intensive',
-            'type': 'boolean',
-        },
-        {
-            'availableTo': all_dept_codes,
-            'defaultValue': None,
-            'key': 'levels',
-            'name': 'Level',
-            'options': _class_levels,
-            'param': 'level',
-            'subcategoryHeader': 'Choose...',
-            'type': 'array',
-        },
-        {
-            'availableTo': all_dept_codes,
-            'defaultValue': None,
-            'key': 'majors',
-            'name': 'Major',
-            'options': _majors,
-            'param': 'major',
-            'subcategoryHeader': 'Choose...',
-            'type': 'array',
-        },
-        {
-            'availableTo': ['COENG'],
-            'defaultValue': None,
-            'key': 'coePrepStatuses',
-            'name': 'PREP',
-            'options': _coe_prep_statuses,
-            'param': 'prep',
-            'subcategoryHeader': 'Choose...',
-            'type': 'array',
-        },
-        {
-            'availableTo': all_dept_codes,
-            'defaultValue': None,
-            'key': 'unitRanges',
-            'name': 'Units',
-            'options': _unit_ranges,
-            'param': 'units',
-            'subcategoryHeader': 'Choose...',
-            'type': 'array',
-        },
+    categories = [
+        [
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'gpaRanges',
+                'name': 'GPA',
+                'options': _gpa_ranges,
+                'param': 'gpa',
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+        ],
+        [
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'levels',
+                'name': 'Level',
+                'options': _class_levels,
+                'param': 'level',
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'majors',
+                'name': 'Major',
+                'options': _majors,
+                'param': 'major',
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'unitRanges',
+                'name': 'Units',
+                'options': _unit_ranges,
+                'param': 'units',
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+        ],
+        [
+            {
+                'availableTo': ['COENG'],
+                'defaultValue': None,
+                'key': 'advisorLdapUids',
+                'name': 'Advisor',
+                'options': _get_coe_profiles,
+                'param': 'advisor',
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+            {
+                'availableTo': ['COENG'],
+                'defaultValue': None,
+                'key': 'ethnicities',
+                'name': 'Ethnicity',
+                'options': _coe_ethnicities,
+                'param': 'ethnicity',
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+            {
+                'availableTo': ['COENG'],
+                'defaultValue': None,
+                'key': 'genders',
+                'name': 'Gender',
+                'options': _genders,
+                'param': 'gender',
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+            {
+                'availableTo': ['COENG'],
+                'defaultValue': None,
+                'key': 'coePrepStatuses',
+                'name': 'PREP',
+                'options': _coe_prep_statuses,
+                'param': 'prep',
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+        ],
+        [
+            {
+                'availableTo': ['UWASC'],
+                'defaultValue': False if 'UWASC' in scope else None,
+                'key': 'isInactiveAsc',
+                'name': 'Inactive',
+                'options': [True, False],
+                'param': 'inactive',
+                'type': 'boolean',
+            },
+            {
+                'availableTo': ['UWASC'],
+                'defaultValue': None,
+                'key': 'inIntensiveCohort',
+                'name': 'Intensive',
+                'options': [True, False],
+                'param': 'intensive',
+                'type': 'boolean',
+            },
+            {
+                'availableTo': ['UWASC'],
+                'defaultValue': None,
+                'key': 'groupCodes',
+                'name': 'Team',
+                'options': _team_groups,
+                'param': 'team',
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+        ],
     ]
+    available_categories = []
 
     def is_available(d):
-        return 'ADMIN' in scope or next((dept_code for dept_code in d['availableTo'] if dept_code in scope), False)
+        available = 'ADMIN' in scope or next((dept_code for dept_code in d['availableTo'] if dept_code in scope), False)
+        if available:
+            # If it is available then populate menu options
+            options = d.pop('options')
+            d['options'] = options() if callable(options) else options
+        return available
 
-    available_definitions = list(filter(lambda d: is_available(d), definitions))
-    for definition in available_definitions:
-        # Populate the menu options
-        options = definition.pop('options')
-        definition['options'] = options() if callable(options) else options
-    return available_definitions
+    for category in categories:
+        available_categories.append(list(filter(lambda d: is_available(d), category)))
+    # Remove unavailable (ie, empty) categories
+    return list(filter(lambda g: len(g), available_categories))
 
 
 def _get_coe_profiles():

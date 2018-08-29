@@ -39,12 +39,13 @@ from flask_login import current_user, login_required
 @app.route('/api/filter_cohort/definitions')
 @login_required
 def get_filter_definitions():
-    definitions = get_cohort_filter_definitions(get_student_query_scope())
-    for definition in definitions:
-        if definition['type'] == 'array':
-            for index, option in enumerate(definition['options']):
-                option['position'] = index
-    return tolerant_jsonify(definitions)
+    categories = get_cohort_filter_definitions(get_student_query_scope())
+    for category in categories:
+        for definition in category:
+            if definition['type'] == 'array':
+                for index, option in enumerate(definition['options']):
+                    option['position'] = index
+    return tolerant_jsonify(categories)
 
 
 @app.route('/api/filtered_cohorts/all')

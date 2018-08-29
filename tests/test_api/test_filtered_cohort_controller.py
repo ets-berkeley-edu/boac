@@ -392,56 +392,68 @@ class TestCohortDetail:
         """Gets filters available to COE users."""
         response = client.get('/api/filter_cohort/definitions')
         assert response.status_code == 200
-        definitions = response.json
-        assert len(definitions) == 8
-        assert definitions[0]['key'] == 'advisorLdapUids'
+        definition_categories = response.json
+        assert len(definition_categories) == 3
+        assert len(definition_categories[0]) == 1
+        assert len(definition_categories[1]) == 3
+        assert len(definition_categories[2]) == 4
+        assert definition_categories[2][0]['key'] == 'advisorLdapUids'
 
     def test_asc_filter_definitions(self, client, asc_advisor_session):
         """Gets filters available to ASC users."""
         response = client.get('/api/filter_cohort/definitions')
         assert response.status_code == 200
-        definitions = response.json
-        assert len(definitions) == 7
-        assert definitions[2]['key'] == 'isInactiveAsc'
-        assert definitions[2]['defaultValue'] is False
+        definition_categories = response.json
+        assert len(definition_categories) == 3
+        asc_category = definition_categories[2]
+        assert asc_category[0]['key'] == 'isInactiveAsc'
+        assert asc_category[1]['key'] == 'inIntensiveCohort'
+        assert asc_category[2]['key'] == 'groupCodes'
 
     def test_admin_filter_definitions(self, client, admin_session):
         """Gets filters available to Admin users."""
         response = client.get('/api/filter_cohort/definitions')
         assert response.status_code == 200
-        definitions = response.json
-        assert len(definitions) == 11
-        # COE advisors
-        assert definitions[0]['key'] == 'advisorLdapUids'
-        assert len(definitions[0]['options']) == 3
-        # Ethnicity
-        assert definitions[1]['key'] == 'ethnicities'
-        assert len(definitions[0]['options']) == 3
-        # Gender
-        assert definitions[2]['key'] == 'genders'
-        assert len(definitions[2]['options']) == 2
-        # GPA
-        assert definitions[3]['key'] == 'gpaRanges'
-        assert len(definitions[3]['options']) == 5
-        # Teams
-        assert definitions[4]['key'] == 'groupCodes'
-        assert len(definitions[4]['options']) == 7
-        # ASC Inactive
-        assert definitions[5]['key'] == 'isInactiveAsc'
-        assert len(definitions[5]['options']) == 2
-        assert definitions[5]['defaultValue'] is None
-        # ASC Intensive
-        assert definitions[6]['key'] == 'inIntensiveCohort'
-        assert len(definitions[6]['options']) == 2
+        definition_categories = response.json
+        assert len(definition_categories) == 4
+        # General
+        achievement_category = definition_categories[0]
+        assert achievement_category[0]['key'] == 'gpaRanges'
+        assert len(achievement_category[0]['options']) == 5
+
         # Levels
-        assert definitions[7]['key'] == 'levels'
-        assert len(definitions[7]['options']) == 4
+        progress_category = definition_categories[1]
+        assert progress_category[0]['key'] == 'levels'
+        assert len(progress_category[0]['options']) == 4
         # Majors
-        assert definitions[8]['key'] == 'majors'
-        assert len(definitions[8]['options']) == 8
-        # COE PREP
-        assert definitions[9]['key'] == 'coePrepStatuses'
-        assert len(definitions[9]['options']) == 4
+        assert progress_category[1]['key'] == 'majors'
+        assert len(progress_category[1]['options']) == 8
         # Units
-        assert definitions[10]['key'] == 'unitRanges'
-        assert len(definitions[10]['options']) == 5
+        assert progress_category[2]['key'] == 'unitRanges'
+        assert len(progress_category[2]['options']) == 5
+
+        # COE advisors
+        coe_category = definition_categories[2]
+        assert coe_category[0]['key'] == 'advisorLdapUids'
+        assert len(coe_category[0]['options']) == 3
+        # Ethnicity
+        assert coe_category[1]['key'] == 'ethnicities'
+        assert len(coe_category[1]['options']) == 3
+        # Gender
+        assert coe_category[2]['key'] == 'genders'
+        assert len(coe_category[2]['options']) == 2
+        # COE PREP
+        assert coe_category[3]['key'] == 'coePrepStatuses'
+        assert len(coe_category[3]['options']) == 4
+
+        # ASC Inactive
+        asc_category = definition_categories[3]
+        assert asc_category[0]['key'] == 'isInactiveAsc'
+        assert len(asc_category[0]['options']) == 2
+        assert asc_category[0]['defaultValue'] is None
+        # ASC Intensive
+        assert asc_category[1]['key'] == 'inIntensiveCohort'
+        assert len(asc_category[1]['options']) == 2
+        # Teams
+        assert asc_category[2]['key'] == 'groupCodes'
+        assert len(asc_category[2]['options']) == 7

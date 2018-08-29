@@ -29,24 +29,6 @@
 
   angular.module('boac').service('cohortUtils', function() {
 
-    var getFilterOrder = function() {
-      return [
-        'gpaRanges',
-        null,
-        'levels',
-        'unitRanges',
-        'majors',
-        null,
-        'advisorLdapUids',
-        'ethnicities',
-        'genders',
-        'groupCodes',
-        'isInactiveAsc',
-        'inIntensiveCohort',
-        'coePrepStatuses'
-      ];
-    };
-
     /**
      * @param  {Object}   obj   An array, object or nil.
      * @return {Array}          Nil if input is nil; same array if input is array; array of one if input is an object.
@@ -64,8 +46,8 @@
       return !_.isEmpty(value) && _.lowerCase(value[0]) !== 'false';
     };
 
-    var sortAddedFilters = function(addedFilters) {
-      var sortOrder = getFilterOrder();
+    var sortAddedFilters = function(filterDefinitions, addedFilters) {
+      var sortOrder = _.map(_.flatten(filterDefinitions), 'key');
       return addedFilters.sort(function(f1, f2) {
         var index1 = sortOrder.indexOf(f1.key);
         var index2 = sortOrder.indexOf(f2.key);
@@ -165,11 +147,10 @@
           });
         }
       });
-      return callback(sortAddedFilters(addedFilters));
+      return callback(sortAddedFilters(filterDefinitions, addedFilters));
     };
 
     return {
-      getFilterOrder: getFilterOrder,
       initFiltersForDisplay: initFiltersForDisplay,
       sortAddedFilters: sortAddedFilters,
       toFilterCriteria: toFilterCriteria,

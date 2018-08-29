@@ -75,11 +75,17 @@
       var filterCriteria = _.clone(this.cohort.filterCriteria);
 
       $scope.callbacks = this.callbacks;
-      $scope.filters.definitions = _.reject(_.map(cohortUtils.getFilterOrder(), function(key) {
-        // Return null to insert divider in dropdown menu.
-        return key && _.find(definitions, ['key', key]);
-      }), _.isUndefined);
+      $scope.filters.definitions = [];
 
+      _.each(definitions, function(category, index) {
+        _.each(category, function(definition) {
+          $scope.filters.definitions.push(definition);
+        });
+        if (index !== definitions.length - 1) {
+          // Null causes divider in filter dropdown
+          $scope.filters.definitions.push(null);
+        }
+      });
       cohortUtils.initFiltersForDisplay(filterCriteria, $scope.filters.definitions, function(addedFilters) {
         $scope.filters.added = addedFilters;
         redrawButtons(true);
@@ -111,7 +117,7 @@
           resetDraftFilter();
 
           updateDisableAfterAddOrRemove(addedFilter, true);
-          $scope.filters.added = cohortUtils.sortAddedFilters(_.union($scope.filters.added, [ addedFilter ]));
+          $scope.filters.added = cohortUtils.sortAddedFilters($scope.filters.definitions, _.union($scope.filters.added, [ addedFilter ]));
           $scope.buttons.applyButton.show = true;
         },
         show: false,
@@ -187,9 +193,9 @@
 
   angular.module('boac').component('filterCriteria', {
     bindings: {
-      filterDefinitions: '=',
+      callbacks: '=',
       cohort: '=',
-      callbacks: '='
+      filterDefinitions: '='
     },
     controller: FilterCriteriaController,
     templateUrl: '/static/app/cohort/filtered/filterCriteria.html'
