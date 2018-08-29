@@ -37,6 +37,8 @@
           <div>
             <form name="renameCohortForm" data-ng-submit="rename($event)">
               <input aria-required="true"
+                     aria-label="Input cohort name, 255 characters or fewer"
+                     aria-invalid="{{!renameMode.input}}"
                      class="form-control"
                      data-ng-change="renameMode.hideError = true"
                      data-ng-model="renameMode.input"
@@ -57,6 +59,7 @@
       <div class="cohort-header-buttons no-wrap" data-ng-if="tab === 'list' && renameMode.on">
         <button type="button"
                 id="filtered-cohort-rename"
+                aria-disabled="{{!renameMode.input}}"
                 aria-label="Save changes to cohort name"
                 class="btn btn-sm btn-primary cohort-manage-btn"
                 data-ng-click="rename($event)"
@@ -64,6 +67,7 @@
           Rename
         </button>
         <button type="button"
+                aria-label="Cancel rename cohort"
                 id="filtered-cohort-rename-cancel"
                 class="btn btn-sm btn-default cohort-manage-btn"
                 data-ng-click="exitRenameMode()">
@@ -73,6 +77,7 @@
       <div class="cohort-header-button-links no-wrap" data-ng-if="tab === 'list' && !renameMode.on">
         <span data-ng-if="hasFilterCriteria">
           <button type="button"
+                  aria-pressed="{{filtersVisible}}"
                   data-ng-attr-id="{{filtersVisible ? 'hide' : 'show'}}-details-button"
                   id="hide-details-button"
                   class="btn-link cohort-manage-btn-link"
@@ -104,10 +109,10 @@
     </div>
 
     <div data-ng-show="filtersVisible">
-      <filter-criteria filter-definitions="filterDefinitions"
+      <filter-criteria filter-categories="filterCategories"
                        cohort="search"
                        callbacks="callbacks"
-                       data-ng-if="!isLoading && tab === 'list' && filterDefinitions && !error"></filter-criteria>
+                       data-ng-if="!isLoading && tab === 'list' && filterCategories && !error"></filter-criteria>
     </div>
 
     <hr class="filters-section-separator" data-ng-if="search.results.totalStudentCount"/>
