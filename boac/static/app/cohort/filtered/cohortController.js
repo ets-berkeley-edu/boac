@@ -179,7 +179,9 @@
     };
 
     var executeSearch = function(filterCriteria, orderBy, offset, limit, callback) {
-      updateLocation($scope.filterDefinitions, filterCriteria, $scope.search.pagination.currentPage);
+      var filterDefinitions = _.flatten($scope.filterCategories);
+
+      updateLocation(filterDefinitions, filterCriteria, $scope.search.pagination.currentPage);
       studentFactory.getStudents(filterCriteria, orderBy, offset, limit).then(function(response) {
         $scope.cohort.name = $location.search().name;
         $scope.cohort.name = $scope.cohort.name || cohortService.getSearchPageTitle(filterCriteria);
@@ -225,9 +227,10 @@
       page.loading(true);
       $anchorScroll();
 
-      filteredCohortFactory.getFilterDefinitions().then(function(response) {
-        var definitions = $scope.filterDefinitions = response.data;
-        var criteria = searchCriteria || getFilterCriteriaFromLocation(definitions) || null;
+      filteredCohortFactory.getFilterCategories().then(function(response) {
+        var filterCategories = $scope.filterCategories = response.data;
+        var filterDefinitions = _.flatten(filterCategories);
+        var criteria = searchCriteria || getFilterCriteriaFromLocation(filterDefinitions) || null;
         var hasFilterCriteria = $scope.hasFilterCriteria = !!cohortId || !!_.find(_.values(criteria));
 
         $scope.tab = hasFilterCriteria ? tab || $scope.tab : 'list';

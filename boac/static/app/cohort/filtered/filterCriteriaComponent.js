@@ -71,17 +71,18 @@
     };
 
     this.$onInit = function() {
-      var definitions = _.clone(this.filterDefinitions);
+      var filterCategories = _.clone(this.filterCategories);
       var filterCriteria = _.clone(this.cohort.filterCriteria);
 
       $scope.callbacks = this.callbacks;
       $scope.filters.definitions = [];
 
-      _.each(definitions, function(category, index) {
+      _.each(filterCategories, function(category, index) {
         _.each(category, function(definition) {
           $scope.filters.definitions.push(definition);
         });
-        if (index !== definitions.length - 1) {
+        var isLast = index === filterCategories.length - 1;
+        if (!isLast) {
           // Null causes divider in filter dropdown
           $scope.filters.definitions.push(null);
         }
@@ -195,7 +196,7 @@
     bindings: {
       callbacks: '=',
       cohort: '=',
-      filterDefinitions: '='
+      filterCategories: '='
     },
     controller: FilterCriteriaController,
     templateUrl: '/static/app/cohort/filtered/filterCriteria.html'

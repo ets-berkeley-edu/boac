@@ -69,7 +69,7 @@
       return $http.get(apiPath);
     };
 
-    var getFilterDefinitions = function() {
+    var getFilterCategories = function() {
       return $http.get('/api/filter_cohort/definitions');
     };
 
@@ -95,7 +95,7 @@
       deleteCohort: deleteCohort,
       getAll: getAll,
       getCohort: getCohort,
-      getFilterDefinitions: getFilterDefinitions,
+      getFilterCategories: getFilterCategories,
       getMyFilteredCohorts: getMyFilteredCohorts,
       rename: rename
     };

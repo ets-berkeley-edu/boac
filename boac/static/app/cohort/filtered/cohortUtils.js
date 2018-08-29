@@ -46,8 +46,14 @@
       return !_.isEmpty(value) && _.lowerCase(value[0]) !== 'false';
     };
 
+    /**
+     * @param  {Object}     filterDefinitions   An array including, for example, the 'majors' filter definition.
+     * @param  {Object}     addedFilters        Filters added, by user, to search criteria.
+     * @return {Object}                         Added filters in proper order.
+     */
     var sortAddedFilters = function(filterDefinitions, addedFilters) {
-      var sortOrder = _.map(_.flatten(filterDefinitions), 'key');
+      var sortOrder = _.map(filterDefinitions, 'key');
+
       return addedFilters.sort(function(f1, f2) {
         var index1 = sortOrder.indexOf(f1.key);
         var index2 = sortOrder.indexOf(f2.key);
@@ -64,6 +70,11 @@
       });
     };
 
+    /**
+     * @param  {Object}     filterDefinition    For example, definition of the 'majors' filter option.
+     * @param  {Object}     queryArg            HTTP request parameter.
+     * @return {Object}                         Value converted according to filter definition (e.g., 1 becomes 'true').
+     */
     var translateQueryArg = function(filterDefinition, queryArg) {
       var result;
       var type = filterDefinition.type;
@@ -77,8 +88,14 @@
       return result;
     };
 
+    /**
+     * @param  {Object}     filterDefinitions    Including, or example, definition of the 'majors' filter option.
+     * @param  {Object}     addedFilters         Filters added, by user, to search criteria.
+     * @return {Object}                          Data structure compatible with cohort_filters db table.
+     */
     var toFilterCriteria = function(filterDefinitions, addedFilters) {
       var filterCriteria = {};
+
       _.each(filterDefinitions, function(d) {
         if (d !== null) {
           filterCriteria[d.key] = d.defaultValue;
@@ -106,7 +123,7 @@
      * 'subcategoryOption' below is an array of length == 1.
      *
      * @param  {Object}     filterCriteria    Has filter-criteria of saved search.
-     * @param  {Object}     filterDefinitions  Used to render 'Add filter' options (some options are disabled)
+     * @param  {Object}     filterDefinitions An array including, for example, the 'majors' filter definition.
      * @param  {Function}   callback          Standard callback
      * @return {Object}                       Bundle with criteria-reference object and selected cohort filter criteria.
      */
