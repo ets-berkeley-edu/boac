@@ -147,6 +147,15 @@ class TestAthleticsStudyCenter:
             uid_list = [s['uid'] for s in cohort['students']]
             assert uid_list == expected_uid_list, f'Unmet expectation where order_by={order_by}'
 
+    def test_forbidden_order_by(self, client, coe_advisor):
+        """COE advisor cannot order results by ASC criteria."""
+        data = {
+            'ethnicities': ['B', 'H'],
+            'orderBy': 'group_name',
+        }
+        response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
+        assert 403 == response.status_code
+
     def test_get_inactive_cohort(self, asc_advisor, client):
         response = client.post('/api/students', data=json.dumps({'isInactiveAsc': True}), content_type='application/json')
         assert response.status_code == 200
@@ -330,10 +339,9 @@ class TestSearch:
         group_codes_242881 = [a['groupCode'] for a in students[1]['athleticsProfile']['athletics']]
         assert group_codes_242881 == ['MFB-DL']
 
-    def test_get_students_omits_athletics_non_asc(self, coe_advisor, client):
+    def test_coe_unauthorized_request_for_asc_data(self, coe_advisor, client):
         response = client.post('/api/students', data=self.coe_search, content_type='application/json')
-        students = response.json['students']
-        assert 'athletics' not in students[0]
+        assert 403 == response.status_code
 
     def test_get_active_asc_students(self, asc_advisor, asc_inactive_students, client):
         """An ASC cohort search finds ASC sophomores."""
