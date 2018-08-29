@@ -56,6 +56,7 @@
     $scope.demoMode = config.demoMode;
     $scope.exceedsMatrixThresholdMessage = utilService.exceedsMatrixThresholdMessage;
     $scope.hasFilterCriteria = false;
+    $scope.lastActivityDays = utilService.lastActivityDays;
     $scope.renameMode = {
       error: null,
       input: null,
