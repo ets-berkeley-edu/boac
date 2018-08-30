@@ -489,7 +489,7 @@ def _student_query_tables_for_scope(scope):
             # In an intersection of multiple schemas, all queryable columns should be returned.
             columns_for_codes = {
                 'UWASC': ['advisor_ldap_uid', 'gender', 'ethnicity', 'did_prep', 'prep_eligible', 'did_tprep', 'tprep_eligible'],
-                'COENG': ['active', 'intensive', 'group_code'],
+                'COENG': ['active', 'intensive', 'group_code', 'group_name'],
             }
             intersection_columns = []
             for code in scope:

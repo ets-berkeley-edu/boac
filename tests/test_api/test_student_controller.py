@@ -87,6 +87,17 @@ class TestCollegeOfEngineering:
         for index, sid in enumerate(['11667051', '7890123456', '9000000000']):
             assert students[index]['sid'] == sid
 
+    def test_coe_search_by_admin_with_asc_order_by(self, client, admin_login):
+        """Admin user can order COE results by ASC criteria."""
+        data = {
+            'ethnicities': ['B', 'H'],
+            'orderBy': 'group_name',
+        }
+        response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
+        assert response.status_code == 200
+        students = response.json['students']
+        assert ['Men\'s Baseball', 'Women\'s Field Hockey'] == [s['athleticsProfile']['athletics'][0]['groupName'] for s in students]
+
 
 class TestAthleticsStudyCenter:
     """ASC-specific API calls."""

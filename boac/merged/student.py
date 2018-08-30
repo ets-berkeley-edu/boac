@@ -198,16 +198,19 @@ def query_students(
         sids_only=False,
         unit_ranges=None,
 ):
-    scope = narrow_scope_by_criteria(
-        get_student_query_scope(),
-        advisor_ldap_uids=advisor_ldap_uids,
-        coe_prep_statuses=coe_prep_statuses,
-        ethnicities=ethnicities,
-        genders=genders,
-        group_codes=group_codes,
-        in_intensive_cohort=in_intensive_cohort,
-        is_active_asc=is_active_asc,
-    )
+    criteria = {
+        'advisor_ldap_uids': advisor_ldap_uids,
+        'coe_prep_statuses': coe_prep_statuses,
+        'ethnicities': ethnicities,
+        'genders': genders,
+        'group_codes': group_codes,
+        'in_intensive_cohort': in_intensive_cohort,
+        'is_active_asc': is_active_asc,
+    }
+    if order_by:
+        # 'order_by' value might influence query scope
+        criteria.update({order_by: True})
+    scope = narrow_scope_by_criteria(get_student_query_scope(), **criteria)
     query_tables, query_filter, query_bindings = data_loch.get_students_query(
         advisor_ldap_uids=advisor_ldap_uids,
         coe_prep_statuses=coe_prep_statuses,
@@ -337,6 +340,7 @@ def narrow_scope_by_criteria(scope, **kwargs):
             'in_intensive_cohort',
             'is_active_asc',
             'group_codes',
+            'group_name',
         ],
         'COENG': [
             'advisor_ldap_uids',
@@ -347,8 +351,8 @@ def narrow_scope_by_criteria(scope, **kwargs):
     }
 
     # An explicit False counts as present, but other falsey criteria don't.
-    def any_criterion_present(criteria):
-        for c in criteria:
+    def any_criterion_present(criteria_):
+        for c in criteria_:
             value = kwargs.get(c)
             if value or value is False:
                 return True
