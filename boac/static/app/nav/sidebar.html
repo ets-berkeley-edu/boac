@@ -23,7 +23,7 @@
 <div class="sidebar-row-link" data-ng-repeat="cohort in myCuratedCohorts">
   <div class="sidebar-row-link-label">
     <a id="sidebar-curated-cohort-{{$index}}"
-       aria-label="Go to cohort {{cohort.name}}"
+       aria-label="Curated cohort '{{cohort.name}}' has {{cohort.studentCount}} students"
        class="sidebar-row-link-label-text"
        data-ng-bind="cohort.name"
        data-ui-sref="curatedCohort({id: cohort.id})"
@@ -31,7 +31,6 @@
   </div>
   <div>
     <span id="sidebar-curated-cohort-{{$index}}-count"
-          tabindex="0"
           class="sidebar-pill">{{cohort.studentCount}}<span class="sr-only"
                                                             data-ng-pluralize
                                                             count="cohort.studentCount"
@@ -55,7 +54,7 @@
 <div class="sidebar-row-link" data-ng-repeat="cohort in myFilteredCohorts">
   <div class="sidebar-row-link-label">
     <a id="sidebar-filtered-cohort-{{$index}}"
-       aria-label="Go to cohort {{cohort.name}}"
+       aria-label="Filtered cohort '{{cohort.name}}' has {{cohort.totalStudentCount}} students"
        class="sidebar-row-link-label-text"
        data-ng-bind="cohort.name"
        data-ui-sref="filteredCohort({id: cohort.id, inactive: null, intensive: null, name: null})"
@@ -63,7 +62,6 @@
   </div>
   <div>
     <span id="sidebar-filtered-cohort-{{$index}}-count"
-          tabindex="0"
           class="sidebar-pill">{{cohort.totalStudentCount}}<span class="sr-only"
                                                                  data-ng-pluralize
                                                                  count="cohort.totalStudentCount"

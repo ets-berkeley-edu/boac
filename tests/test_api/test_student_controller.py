@@ -394,8 +394,7 @@ class TestAthletics:
     def test_team_groups_not_authorized(self, client, coe_advisor):
         """Returns 404 if not authorized."""
         response = client.get('/api/team_groups/all')
-        assert response.status_code == 200
-        assert not response.json
+        assert response.status_code == 404
 
     def test_get_all_team_groups(self, asc_advisor, client):
         """Returns all team-groups if authenticated."""

@@ -140,9 +140,9 @@ def search_students():
 @app.route('/api/team_groups/all')
 @login_required
 def get_all_team_groups():
-    # TODO: Give unauthorized user a 404 without disrupting COE advisors on the filtered-cohort view.
-    data = athletics.all_team_groups() if is_asc_authorized() else []
-    return tolerant_jsonify(data)
+    if not is_asc_authorized():
+        raise ResourceNotFoundError('Unknown path')
+    return tolerant_jsonify(athletics.all_team_groups())
 
 
 def _convert_asc_inactive_arg(is_inactive_asc):
