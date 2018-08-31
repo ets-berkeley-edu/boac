@@ -348,8 +348,8 @@ def get_students_query(
     if advisor_ldap_uids:
         query_filter += ' AND s.advisor_ldap_uid = ANY(:advisor_ldap_uids)'
         query_bindings.update({'advisor_ldap_uids': advisor_ldap_uids})
-    for coe_prep_status in coe_prep_statuses or []:
-        query_filter += f' AND s.{coe_prep_status} IS TRUE'
+    if coe_prep_statuses:
+        query_filter += ' AND (' + ' OR '.join([f's.{cps} IS TRUE' for cps in coe_prep_statuses]) + ')'
     if ethnicities:
         query_filter += ' AND s.ethnicity = ANY(:ethnicities)'
         query_bindings.update({'ethnicities': ethnicities})
