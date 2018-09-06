@@ -175,8 +175,11 @@
           $scope.buttons.saveButton.disabled = true;
           var filterCriteria = cohortUtils.toFilterCriteria($scope.filters.definitions, $scope.filters.added);
           openCreateCohortModal(filterCriteria, function(cohort) {
-            $scope.buttons.saveButton.show = $scope.buttons.saveButton.disabled = false;
-            $scope.callbacks.onSave(cohort);
+            $scope.buttons.saveButton.disabled = false;
+            if (cohort) {
+              $scope.buttons.saveButton.show = false;
+              $scope.callbacks.onSave(cohort);
+            }
           });
         },
         show: false,

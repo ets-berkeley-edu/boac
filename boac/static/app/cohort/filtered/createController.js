@@ -103,6 +103,7 @@
     };
 
     $scope.cancel = function() {
+      $client.callback();
       $uibModalInstance.close();
     };
   });
