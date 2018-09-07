@@ -67,9 +67,13 @@
     /**
      * Object (ie, model) rendered on page.
      */
+    var pageArg = $location.search().page;
     $scope.search = {
       orderBy: cohortService.getSortByOptionsForSearch(),
-      pagination: cohortService.initPagination(),
+      pagination: {
+        currentPage: pageArg ? parseInt(pageArg, 10) : 1,
+        itemsPerPage: 50
+      },
       results: {
         students: null,
         totalStudentCount: null
@@ -146,6 +150,7 @@
       $location.search('id', cohort.id);
       $location.search('details', _.toString($scope.filtersVisible));
       $location.search('orderBy', $scope.search.orderBy.selected);
+      $location.search('page', $scope.search.pagination.currentPage);
       $location.search('tab', $scope.tab);
       // Grab a limited set of properties
       var metadataKeys = _.keys($scope.cohort);
@@ -168,21 +173,23 @@
       }).then(scatterplotRefresh).then(callback).catch(errorHandler);
     };
 
-    var updateLocation = function(definitions, filterCriteria, currentPage) {
+    var updateAddressBar = function(currentPage, filterCriteria, definitions) {
       $location.search('page', currentPage);
 
-      _.each(filterCriteria, function(value, key) {
-        var definition = _.find(definitions, ['key', key]);
-        if (definition && _.size(typeof value === 'boolean' ? _.toString(value) : value)) {
-          $location.search(definition.param, value);
-        }
-      });
+      if (!_.isNil(filterCriteria)) {
+        _.each(filterCriteria, function(value, key) {
+          var definition = _.find(definitions, ['key', key]);
+          if (definition && _.size(typeof value === 'boolean' ? _.toString(value) : value)) {
+            $location.search(definition.param, value);
+          }
+        });
+      }
     };
 
     var executeSearch = function(filterCriteria, orderBy, offset, limit, callback) {
       var filterDefinitions = _.flatten($scope.filterCategories);
 
-      updateLocation(filterDefinitions, filterCriteria, $scope.search.pagination.currentPage);
+      updateAddressBar($scope.search.pagination.currentPage, filterCriteria, filterDefinitions);
       studentFactory.getStudents(filterCriteria, orderBy, offset, limit).then(function(response) {
         $scope.cohort.name = $location.search().name;
         $scope.cohort.name = $scope.cohort.name || cohortService.getSearchPageTitle(filterCriteria);
@@ -216,8 +223,9 @@
 
     var init = $scope.nextPage = $scope.onTab = function(tab, searchCriteria, offsetOverride, limitOverride) {
       var cohortId = parseInt($location.search().id, 10);
+      var currentPage = $scope.search.pagination.currentPage;
       var limit = limitOverride || $scope.search.pagination.itemsPerPage;
-      var offset = _.isNil(offsetOverride) ? ($scope.search.pagination.currentPage - 1) * limit : offsetOverride;
+      var offset = _.isNil(offsetOverride) ? (currentPage - 1) * limit : offsetOverride;
       offset = offset < 0 ? 0 : offset;
       var queryArgs = _.clone($location.search());
       var done = function() {
@@ -225,6 +233,7 @@
         page.loading(false);
       };
 
+      updateAddressBar(currentPage);
       page.loading(true);
       $anchorScroll();
 
