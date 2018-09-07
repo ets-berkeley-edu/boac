@@ -84,15 +84,6 @@
       };
     };
 
-    var initPagination = function() {
-      return {
-        enabled: true,
-        currentPage: 1,
-        itemsPerPage: 50,
-        noLimit: null
-      };
-    };
-
     var loadMyFilteredCohorts = function(callback) {
       filteredCohortFactory.getMyFilteredCohorts().then(function(response) {
         var myFilteredCohorts = [];
@@ -109,7 +100,6 @@
       decorateCohortAlerts: decorateCohortAlerts,
       getSearchPageTitle: getSearchPageTitle,
       getSortByOptionsForSearch: getSortByOptionsForSearch,
-      initPagination: initPagination,
       loadMyFilteredCohorts: loadMyFilteredCohorts
     };
 
