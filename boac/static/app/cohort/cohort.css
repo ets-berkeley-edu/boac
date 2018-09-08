@@ -112,7 +112,7 @@
 
 .cohort-filter-draft-column-01 {
   border-left: 6px solid #3b7ea5;
-  flex: 0 0 200px;
+  flex: 0 0 240px;
 }
 
 .cohort-filter-draft-column-02 {
@@ -148,8 +148,9 @@
   margin-left: 8px;
   padding: 8px 5px 8px 10px;
   text-align: left;
-  width: 200px;
+  width: 240px;
   vertical-align: middle;
+  white-space: nowrap;
 }
 
 .btn-filter-draft span.fas {
@@ -191,7 +192,7 @@
 
 .cohort-filter-dropdown {
   margin-left: 10px;
-  width: 200px;
+  width: 240px;
 }
 
 .cohort-filter-subcategory-dropdown {
@@ -211,13 +212,13 @@
 }
 
 .cohort-filter-item-filter {
-  -webkit-flex: 0 0 200px;
-  flex: 0 0 100px;
+  -webkit-flex: 0 0 240px;
+  flex: 0 0 240px;
   font-weight: 600;
 }
 
 .cohort-filter-item-name {
-  -webkit-flex: 0 0 200px;
+  -webkit-flex: 0 0 240px;
   flex: 0 0 400px;
 }
 

@@ -278,19 +278,20 @@ def get_majors(scope=[]):
 
 
 def get_students_query(
-        search_phrase=None,
+        advisor_ldap_uids=None,
         coe_prep_statuses=None,
         ethnicities=None,
         genders=None,
-        group_codes=None,
         gpa_ranges=None,
-        levels=None,
-        majors=None,
-        unit_ranges=None,
+        group_codes=None,
         in_intensive_cohort=None,
         is_active_asc=None,
-        advisor_ldap_uids=None,
-        scope=[],
+        levels=None,
+        majors=None,
+        scope=(),
+        search_phrase=None,
+        underrepresented=None,
+        unit_ranges=None,
 ):  # noqa
     query_tables = _student_query_tables_for_scope(scope)
     if not query_tables:
@@ -356,6 +357,7 @@ def get_students_query(
     if genders:
         query_filter += ' AND s.gender = ANY(:genders)'
         query_bindings.update({'genders': genders})
+    query_filter += f' AND s.minority IS {underrepresented}' if underrepresented is not None else ''
 
     return query_tables, query_filter, query_bindings
 

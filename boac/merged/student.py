@@ -181,7 +181,6 @@ def get_student_and_terms(uid):
 
 
 def query_students(
-        include_profiles=False,
         advisor_ldap_uids=None,
         coe_prep_statuses=None,
         ethnicities=None,
@@ -189,6 +188,7 @@ def query_students(
         gpa_ranges=None,
         group_codes=None,
         in_intensive_cohort=None,
+        include_profiles=False,
         is_active_asc=None,
         levels=None,
         limit=50,
@@ -196,6 +196,7 @@ def query_students(
         offset=0,
         order_by=None,
         sids_only=False,
+        underrepresented=None,
         unit_ranges=None,
 ):
     criteria = {
@@ -206,6 +207,7 @@ def query_students(
         'group_codes': group_codes,
         'in_intensive_cohort': in_intensive_cohort,
         'is_active_asc': is_active_asc,
+        'underrepresented': underrepresented,
     }
     if order_by:
         # 'order_by' value might influence query scope
@@ -222,8 +224,9 @@ def query_students(
         is_active_asc=is_active_asc,
         levels=levels,
         majors=majors,
-        unit_ranges=unit_ranges,
         scope=scope,
+        underrepresented=underrepresented,
+        unit_ranges=unit_ranges,
     )
     if not query_tables:
         return {
@@ -347,6 +350,7 @@ def narrow_scope_by_criteria(scope, **kwargs):
             'coe_prep_statuses',
             'ethnicities',
             'genders',
+            'underrepresented',
         ],
     }
 

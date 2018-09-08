@@ -64,37 +64,23 @@ def get_students():
     params = request.get_json()
     if is_unauthorized_search(params):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
-    advisor_ldap_uids = util.get(params, 'advisorLdapUids')
-    coe_prep_statuses = util.get(params, 'coePrepStatuses')
-    ethnicities = util.get(params, 'ethnicities')
-    genders = util.get(params, 'genders')
-    gpa_ranges = util.get(params, 'gpaRanges')
-    group_codes = util.get(params, 'groupCodes')
-    levels = util.get(params, 'levels')
-    majors = util.get(params, 'majors')
-    unit_ranges = util.get(params, 'unitRanges')
-    in_intensive_cohort = util.to_bool_or_none(util.get(params, 'inIntensiveCohort'))
-    is_inactive_asc = util.get(params, 'isInactiveAsc')
-    order_by = util.get(params, 'orderBy', None)
-    offset = util.get(params, 'offset', 0)
-    limit = util.get(params, 'limit', 50)
-
     results = query_students(
+        advisor_ldap_uids=util.get(params, 'advisorLdapUids'),
+        coe_prep_statuses=util.get(params, 'coePrepStatuses'),
+        ethnicities=util.get(params, 'ethnicities'),
+        genders=util.get(params, 'genders'),
+        gpa_ranges=util.get(params, 'gpaRanges'),
+        group_codes=util.get(params, 'groupCodes'),
         include_profiles=True,
-        advisor_ldap_uids=advisor_ldap_uids,
-        coe_prep_statuses=coe_prep_statuses,
-        ethnicities=ethnicities,
-        genders=genders,
-        gpa_ranges=gpa_ranges,
-        group_codes=group_codes,
-        levels=levels,
-        majors=majors,
-        unit_ranges=unit_ranges,
-        in_intensive_cohort=in_intensive_cohort,
-        is_active_asc=_convert_asc_inactive_arg(is_inactive_asc),
-        order_by=order_by,
-        offset=offset,
-        limit=limit,
+        is_active_asc=_convert_asc_inactive_arg(util.get(params, 'isInactiveAsc')),
+        in_intensive_cohort=util.to_bool_or_none(util.get(params, 'inIntensiveCohort')),
+        levels=util.get(params, 'levels'),
+        limit=util.get(params, 'limit', 50),
+        majors=util.get(params, 'majors'),
+        offset=util.get(params, 'offset', 0),
+        order_by=util.get(params, 'orderBy', None),
+        underrepresented=util.get(params, 'underrepresented'),
+        unit_ranges=util.get(params, 'unitRanges'),
     )
     if results is None:
         raise BadRequestError('Invalid search criteria')
