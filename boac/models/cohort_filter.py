@@ -146,6 +146,7 @@ class CohortFilter(Base, UserMixin):
         levels = c.get('levels')
         majors = c.get('majors')
         team_groups = athletics.get_team_groups(group_codes) if group_codes else []
+        underrepresented = util.to_bool_or_none(c.get('underrepresented'))
         unit_ranges = c.get('unitRanges')
         cohort_json.update({
             'filterCriteria': {
@@ -160,6 +161,7 @@ class CohortFilter(Base, UserMixin):
                 'levels': levels,
                 'majors': majors,
                 'unitRanges': unit_ranges,
+                'underrepresented': underrepresented,
             },
             'teamGroups': team_groups,
         })
@@ -176,7 +178,6 @@ class CohortFilter(Base, UserMixin):
         else:
             is_active_asc = None if is_inactive_asc is None else not is_inactive_asc
         results = query_students(
-            include_profiles=(include_students and include_profiles),
             advisor_ldap_uids=advisor_ldap_uids,
             coe_prep_statuses=coe_prep_statuses,
             ethnicities=ethnicities,
@@ -184,14 +185,16 @@ class CohortFilter(Base, UserMixin):
             gpa_ranges=gpa_ranges,
             group_codes=group_codes,
             in_intensive_cohort=in_intensive_cohort,
+            include_profiles=(include_students and include_profiles),
             is_active_asc=is_active_asc,
             levels=levels,
-            majors=majors,
-            unit_ranges=unit_ranges,
-            order_by=order_by,
-            offset=offset,
             limit=limit,
+            majors=majors,
+            offset=offset,
+            order_by=order_by,
             sids_only=not include_students,
+            underrepresented=underrepresented,
+            unit_ranges=unit_ranges,
         )
         if results:
             # If the cohort is newly created or a cache refresh is underway, store the student count in the database

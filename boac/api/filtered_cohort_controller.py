@@ -110,33 +110,23 @@ def create_cohort():
     if is_unauthorized_search(params):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     label = util.get(params, 'label', None)
-    advisor_ldap_uids = util.get(params, 'advisorLdapUids')
-    coe_prep_statuses = util.get(params, 'coePrepStatuses')
-    ethnicities = util.get(params, 'ethnicities')
-    genders = util.get(params, 'genders')
-    gpa_ranges = util.get(params, 'gpaRanges')
-    group_codes = util.get(params, 'groupCodes')
-    levels = util.get(params, 'levels')
-    majors = util.get(params, 'majors')
-    unit_ranges = util.get(params, 'unitRanges')
-    in_intensive_cohort = util.to_bool_or_none(params.get('inIntensiveCohort'))
-    is_inactive_asc = util.to_bool_or_none(params.get('isInactiveAsc'))
     if not label:
         raise BadRequestError('Cohort creation requires \'label\'')
     cohort = CohortFilter.create(
-        uid=current_user.get_id(),
+        advisor_ldap_uids=util.get(params, 'advisorLdapUids'),
+        coe_prep_statuses=util.get(params, 'coePrepStatuses'),
+        ethnicities=util.get(params, 'ethnicities'),
+        genders=util.get(params, 'genders'),
+        gpa_ranges=util.get(params, 'gpaRanges'),
+        group_codes=util.get(params, 'groupCodes'),
+        in_intensive_cohort=util.to_bool_or_none(params.get('inIntensiveCohort')),
+        is_inactive_asc=util.to_bool_or_none(params.get('isInactiveAsc')),
         label=label,
-        advisor_ldap_uids=advisor_ldap_uids,
-        coe_prep_statuses=coe_prep_statuses,
-        ethnicities=ethnicities,
-        genders=genders,
-        gpa_ranges=gpa_ranges,
-        group_codes=group_codes,
-        levels=levels,
-        majors=majors,
-        unit_ranges=unit_ranges,
-        in_intensive_cohort=in_intensive_cohort,
-        is_inactive_asc=is_inactive_asc,
+        levels=util.get(params, 'levels'),
+        majors=util.get(params, 'majors'),
+        uid=current_user.get_id(),
+        underrepresented=util.get(params, 'underrepresented'),
+        unit_ranges=util.get(params, 'unitRanges'),
     )
     return tolerant_jsonify(decorate_cohort(cohort))
 
