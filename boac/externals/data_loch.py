@@ -286,6 +286,7 @@ def get_students_query(
         group_codes=None,
         in_intensive_cohort=None,
         is_active_asc=None,
+        last_name_range=None,
         levels=None,
         majors=None,
         scope=(),
@@ -318,7 +319,7 @@ def get_students_query(
     # Generic SIS criteria
     query_filter += _numranges_to_sql('sas.gpa', gpa_ranges) if gpa_ranges else ''
     query_filter += _numranges_to_sql('sas.units', unit_ranges) if unit_ranges else ''
-
+    query_filter += _query_filter_last_name_range(last_name_range)
     if levels:
         query_filter += ' AND sas.level = ANY(:levels)'
         query_bindings.update({'levels': [level_to_code(l) for l in levels]})
@@ -502,3 +503,18 @@ def _student_query_tables_for_scope(scope):
             table_sql = f"""FROM ({intersection_sql}) s
                 JOIN {student_schema()}.student_academic_status sas ON sas.sid = s.sid"""
     return table_sql
+
+
+def _query_filter_last_name_range(range_):
+    query_filter = ''
+    if isinstance(range_, list) and len(range_):
+        start = range_[0].upper()
+        stop = range_[-1].upper()
+        if start == stop:
+            query_filter += f' AND sas.last_name ILIKE \'{start}%\''
+        else:
+            query_filter += f' AND UPPER(sas.last_name) >= \'{start}\''
+            if stop < 'Z':
+                # If 'stop' were 'Z' then upper bound would not be necessary
+                query_filter += f' AND UPPER(sas.last_name) < \'{chr(ord(stop) + 1)}\''
+    return query_filter

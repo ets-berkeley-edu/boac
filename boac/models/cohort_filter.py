@@ -143,6 +143,7 @@ class CohortFilter(Base, UserMixin):
         group_codes = c.get('groupCodes')
         in_intensive_cohort = util.to_bool_or_none(c.get('inIntensiveCohort'))
         is_inactive_asc = util.to_bool_or_none(c.get('isInactiveAsc'))
+        last_name_range = c.get('lastNameRange')
         levels = c.get('levels')
         majors = c.get('majors')
         team_groups = athletics.get_team_groups(group_codes) if group_codes else []
@@ -158,6 +159,7 @@ class CohortFilter(Base, UserMixin):
                 'groupCodes': group_codes,
                 'inIntensiveCohort': in_intensive_cohort,
                 'isInactiveAsc': is_inactive_asc,
+                'lastNameRange': last_name_range,
                 'levels': levels,
                 'majors': majors,
                 'unitRanges': unit_ranges,
@@ -187,6 +189,7 @@ class CohortFilter(Base, UserMixin):
             in_intensive_cohort=in_intensive_cohort,
             include_profiles=(include_students and include_profiles),
             is_active_asc=is_active_asc,
+            last_name_range=last_name_range,
             levels=levels,
             limit=limit,
             majors=majors,

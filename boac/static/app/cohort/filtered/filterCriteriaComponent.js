@@ -48,9 +48,38 @@
 
     $scope.onDraftFilterClick = function(option) {
       if (option && !option.disabled) {
-        _.set($scope.filters.draft, 'subcategory', null);
-        $scope.filters.draft = option;
-        $scope.buttons.addButton.show = _.get(option, 'type') !== 'array';
+        // Init
+        $scope.filters.draft = _.clone(option);
+        // Is there a subcategory?
+        var type = _.get(option, 'type');
+        if (type === 'range') {
+          // Range form elements
+          $scope.filters.draft.subcategory = {
+            error: null,
+            name: null,
+            onChange: function() {
+              var start = _.upperCase(_.get($scope.filters.draft, 'subcategory.range.start'));
+              var stop = _.upperCase(_.get($scope.filters.draft, 'subcategory.range.stop'));
+              var error = start.length && stop.length && start > stop ? 'Invalid range' : null;
+              if (error) {
+                $scope.filters.draft.subcategory.error = error;
+              } else {
+                $scope.filters.draft.subcategory.error = null;
+                $scope.filters.draft.subcategory.name = cohortUtils.getRangeDisplayName(start, stop);
+                $scope.filters.draft.subcategory.value = [start, stop];
+              }
+              $scope.buttons.addButton.disabled = _.isEmpty(start) || _.isEmpty(stop) || start > stop;
+            },
+            range: {
+              lower: null,
+              upper: null
+            },
+            value: null
+          };
+          $scope.buttons.addButton.show = $scope.buttons.addButton.disabled = true;
+        } else if (type === 'boolean') {
+          $scope.buttons.addButton.show = true;
+        }
         redrawButtons();
       }
     };
@@ -64,7 +93,6 @@
     };
 
     var resetDraftFilter = function() {
-      _.set($scope.filters.draft, 'subcategory', null);
       $scope.filters.draft = null;
       $scope.buttons.addButton.show = false;
       $scope.buttons.cancelButton.show = false;

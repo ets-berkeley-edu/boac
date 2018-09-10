@@ -96,6 +96,30 @@
           </ul>
         </div>
       </div>
+      <div class="cohort-filter-draft-column-02" data-ng-if="filters.draft.type === 'range'">
+        <!-- TODO: The 'range' UX needs work. -->
+        <div class="flex-container">
+          <div>
+            <span data-ng-bind="filters.draft.subcategoryHeader[0]"></span>
+          </div>
+          <div>
+            <input data-ng-model="filters.draft.subcategory.range.start"
+                   data-ng-change="filters.draft.subcategory.onChange()"
+                   maxlength="1">
+          </div>
+          <div>
+            <span data-ng-bind="filters.draft.subcategoryHeader[1]"></span>
+          </div>
+          <div>
+            <input data-ng-model="filters.draft.subcategory.range.stop"
+                   data-ng-change="filters.draft.subcategory.onChange()"
+                   maxlength="1">
+          </div>
+        </div>
+        <div>
+          <span class="has-error" data-ng-bind="filters.draft.subcategory.error"></span>
+        </div>
+      </div>
       <div class="cohort-filter-draft-column-03">
         <div data-ng-if="buttons.addButton.show">
           <button type="button"
@@ -103,7 +127,8 @@
                   aria-label="Add filter to search criteria"
                   class="btn btn-primary"
                   focus-on="buttons.addButton.show"
-                  data-ng-click="buttons.addButton.onClick()">
+                  data-ng-click="buttons.addButton.onClick()"
+                  data-ng-disabled="buttons.addButton.disabled">
             Add
           </button>
         </div>

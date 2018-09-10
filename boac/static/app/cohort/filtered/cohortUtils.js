@@ -78,10 +78,12 @@
     var translateQueryArg = function(filterDefinition, queryArg) {
       var result;
       var type = filterDefinition.type;
-      if (type === 'array') {
+      if (_.isNil(queryArg)) {
+        result = null;
+      } else if (_.includes(['array', 'range'], type)) {
         result = asArray(queryArg);
       } else if (type === 'boolean') {
-        result = _.isNil(queryArg) ? null : lenientBoolean(queryArg);
+        result = lenientBoolean(queryArg);
       } else {
         result = queryArg;
       }
@@ -89,6 +91,9 @@
     };
 
     /**
+     * Filters of type 'range' have only one 'subcategory.value' and it's an array. The first and last
+     * elements in the array determine the range 'start' and 'stop'.
+     *
      * @param  {Object}     filterDefinitions    Including, or example, definition of the 'majors' filter option.
      * @param  {Object}     addedFilters         Filters added, by user, to search criteria.
      * @return {Object}                          Data structure compatible with cohort_filters db table.
@@ -98,12 +103,20 @@
 
       _.each(filterDefinitions, function(d) {
         if (d !== null) {
-          filterCriteria[d.key] = d.defaultValue;
+          if (!_.isNil(d.defaultValue)) {
+            // Eg, default value of 'isInactiveAsc' varies per user
+            filterCriteria[d.key] = d.defaultValue;
+          }
           var values = [];
           _.each(addedFilters, function(filter) {
             if (d.key === filter.key) {
-              var value = filter.type === 'array' ? filter.subcategory.value : filter.value;
-              values.push(value);
+              if (filter.type === 'boolean') {
+                values.push(filter.value);
+              } else if (filter.type === 'array') {
+                values.push(filter.subcategory.value);
+              } else if (filter.type === 'range') {
+                values = values.concat(filter.subcategory.value);
+              }
             }
           });
           if (values.length) {
@@ -112,6 +125,10 @@
         }
       });
       return filterCriteria;
+    };
+
+    var getRangeDisplayName = function(start, stop) {
+      return start === stop ? 'Starts with ' + start : start + ' through ' + stop;
     };
 
     /**
@@ -133,41 +150,59 @@
       _.each(filterCriteria, function(selectedOptions, key) {
         if (lenientBoolean(selectedOptions)) {
           var d = _.find(filterDefinitions, ['key', key]);
-          var handled = translateQueryArg(d, selectedOptions);
-          handled = Array.isArray(handled) ? handled : [ handled ];
-          _.each(handled, function(value) {
-            if (value) {
-              var addedFilter = {
-                key: d.key,
-                name: d.name,
-                type: d.type,
-                value: value
-              };
-              if (d.type === 'array') {
-                var subcategory = _.find(d.options, ['value', value]);
-                if (subcategory) {
-                  addedFilter.subcategory = _.pick(subcategory, [
-                    'key',
-                    'name',
-                    'position',
-                    'value'
-                  ]);
-                  subcategory.disabled = true;
-                  var remainingAvailable = _.omitBy(d.options, 'disabled');
-                  d.disabled = _.isEmpty(remainingAvailable);
-                }
-              } else {
-                d.disabled = true;
+          var values = translateQueryArg(d, selectedOptions);
+          values = Array.isArray(values) ? values : [ values ];
+          if (d.type === 'range') {
+            values.sort();
+            var start = values[0];
+            var stop = _.last(values);
+            addedFilters.push({
+              key: d.key,
+              name: d.name,
+              type: d.type,
+              subcategory: {
+                name: getRangeDisplayName(start, stop),
+                value: [start, stop]
               }
-              addedFilters.push(addedFilter);
-            }
-          });
+            });
+            d.disabled = true;
+
+          } else {
+            _.each(values, function(value) {
+              if (value) {
+                var addedFilter = {
+                  key: d.key,
+                  name: d.name,
+                  type: d.type,
+                  value: value
+                };
+                if (d.type === 'array') {
+                  var subcategory = _.find(d.options, ['value', value]);
+                  if (subcategory) {
+                    addedFilter.subcategory = _.pick(subcategory, [
+                      'key',
+                      'name',
+                      'position',
+                      'value'
+                    ]);
+                    subcategory.disabled = true;
+                    var remainingAvailable = _.omitBy(d.options, 'disabled');
+                    d.disabled = _.isEmpty(remainingAvailable);
+                  }
+                } else {
+                  d.disabled = true;
+                }
+                addedFilters.push(addedFilter);
+              }
+            });
+          }
         }
       });
       return callback(sortAddedFilters(filterDefinitions, addedFilters));
     };
 
     return {
+      getRangeDisplayName: getRangeDisplayName,
       initFiltersForDisplay: initFiltersForDisplay,
       sortAddedFilters: sortAddedFilters,
       toFilterCriteria: toFilterCriteria,

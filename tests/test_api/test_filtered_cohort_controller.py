@@ -417,15 +417,14 @@ class TestCohortFilterDefinitions:
         assert len(definitions[0]) == 1
         assert len(definitions[1]) == 3
         assert len(definitions[2]) == 3
-        assert len(definitions[3]) == 2
-        assert definitions[3][1]['key'] == 'advisorLdapUids'
+        assert len(definitions[3]) == 3
 
     def test_asc_filter_definitions(self, client, asc_advisor_session):
         """Gets filters available to ASC users."""
         response = client.get('/api/filter_cohort/definitions')
         assert response.status_code == 200
         definitions = response.json
-        assert len(definitions) == 3
+        assert len(definitions) == 4
         assert definitions[2][0]['key'] == 'isInactiveAsc'
         assert definitions[2][1]['key'] == 'inIntensiveCohort'
         assert definitions[2][2]['key'] == 'groupCodes'
@@ -474,6 +473,8 @@ class TestCohortFilterDefinitions:
         # COE PREP
         assert definitions[4][0]['key'] == 'coePrepStatuses'
         assert len(definitions[4][0]['options']) == 4
+        # Last Name
+        assert definitions[4][1]['key'] == 'lastNameRange'
         # COE advisors
-        assert definitions[4][1]['key'] == 'advisorLdapUids'
-        assert len(definitions[4][1]['options']) == 3
+        assert definitions[4][2]['key'] == 'advisorLdapUids'
+        assert len(definitions[4][2]['options']) == 3
