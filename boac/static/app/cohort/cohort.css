@@ -480,3 +480,30 @@
   padding: 10px 10px 10px 10px;
   width: 100%;
 }
+
+.draft-filter-range-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 0 15px 0 10px;
+}
+
+.draft-filter-range-label {
+  padding: 10px 8px 0 10px;
+}
+
+.draft-filter-range-input {
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: #333;
+  font-size: 18px;
+  padding: 8px 15px 8px 17px;
+  text-transform: uppercase;
+  width: 50px;
+}
+
+.draft-filter-subcategory-error {
+  font-weight: 400;
+  margin: 10px 0 0 20px;
+}

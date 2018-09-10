@@ -60,9 +60,9 @@
             onChange: function() {
               var start = _.upperCase(_.get($scope.filters.draft, 'subcategory.range.start'));
               var stop = _.upperCase(_.get($scope.filters.draft, 'subcategory.range.stop'));
-              var error = start.length && stop.length && start > stop ? 'Invalid range' : null;
+              var error = start.length && stop.length && start > stop;
               if (error) {
-                $scope.filters.draft.subcategory.error = error;
+                $scope.filters.draft.subcategory.error = 'The range values \'' + start + '\' and \'' + stop + '\' must be in ascending order.';
               } else {
                 $scope.filters.draft.subcategory.error = null;
                 $scope.filters.draft.subcategory.name = cohortUtils.getRangeDisplayName(start, stop);

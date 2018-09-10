@@ -97,27 +97,25 @@
         </div>
       </div>
       <div class="cohort-filter-draft-column-02" data-ng-if="filters.draft.type === 'range'">
-        <!-- TODO: The 'range' UX needs work. -->
-        <div class="flex-container">
-          <div>
+        <div class="draft-filter-range-container">
+          <div class="draft-filter-range-label">
             <span data-ng-bind="filters.draft.subcategoryHeader[0]"></span>
           </div>
           <div>
-            <input data-ng-model="filters.draft.subcategory.range.start"
+            <input class="draft-filter-range-input"
+                   data-ng-model="filters.draft.subcategory.range.start"
                    data-ng-change="filters.draft.subcategory.onChange()"
                    maxlength="1">
           </div>
-          <div>
+          <div class="draft-filter-range-label">
             <span data-ng-bind="filters.draft.subcategoryHeader[1]"></span>
           </div>
           <div>
-            <input data-ng-model="filters.draft.subcategory.range.stop"
+            <input class="draft-filter-range-input"
+                   data-ng-model="filters.draft.subcategory.range.stop"
                    data-ng-change="filters.draft.subcategory.onChange()"
                    maxlength="1">
           </div>
-        </div>
-        <div>
-          <span class="has-error" data-ng-bind="filters.draft.subcategory.error"></span>
         </div>
       </div>
       <div class="cohort-filter-draft-column-03">
@@ -144,6 +142,9 @@
           </button>
         </div>
       </div>
+    </div>
+    <div class="draft-filter-subcategory-error has-error">
+      <span data-ng-bind="filters.draft.subcategory.error"></span>
     </div>
   </div>
   <div>
