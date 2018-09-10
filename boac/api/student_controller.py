@@ -74,6 +74,7 @@ def get_students():
         include_profiles=True,
         is_active_asc=_convert_asc_inactive_arg(util.get(params, 'isInactiveAsc')),
         in_intensive_cohort=util.to_bool_or_none(util.get(params, 'inIntensiveCohort')),
+        last_name_range=_get_name_range_boundaries(util.get(params, 'lastNameRange')),
         levels=util.get(params, 'levels'),
         limit=util.get(params, 'limit', 50),
         majors=util.get(params, 'majors'),
@@ -102,17 +103,13 @@ def search_students():
     search_phrase = util.get(params, 'searchPhrase', '').strip()
     if not len(search_phrase):
         raise BadRequestError('Invalid or empty search input')
-    is_inactive_asc = util.get(params, 'isInactiveAsc')
-    order_by = util.get(params, 'orderBy', None)
-    offset = util.get(params, 'offset', 0)
-    limit = util.get(params, 'limit', 50)
     results = search_for_students(
         include_profiles=True,
         search_phrase=search_phrase.replace(',', ' '),
-        is_active_asc=_convert_asc_inactive_arg(is_inactive_asc),
-        order_by=order_by,
-        offset=offset,
-        limit=limit,
+        is_active_asc=_convert_asc_inactive_arg(util.get(params, 'isInactiveAsc')),
+        order_by=util.get(params, 'orderBy', None),
+        offset=util.get(params, 'offset', 0),
+        limit=util.get(params, 'limit', 50),
     )
     alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
     students = results['students']
@@ -137,3 +134,11 @@ def _convert_asc_inactive_arg(is_inactive_asc):
     else:
         is_active_asc = None if is_inactive_asc is None else not is_inactive_asc
     return is_active_asc
+
+
+def _get_name_range_boundaries(values):
+    if isinstance(values, list) and len(values):
+        values = sorted(values, key=lambda v: v.upper())
+        return [values[0].upper(), values[-1].upper()]
+    else:
+        return None

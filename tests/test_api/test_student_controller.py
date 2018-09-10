@@ -53,6 +53,32 @@ def asc_inactive_students():
     """)
 
 
+class TestFindStudents:
+    """Generic student API calls."""
+
+    def test_all_students(self, asc_advisor, asc_inactive_students, client):
+        """Returns a list of students."""
+        data = {
+            'levels': ['Freshmen', 'Sophomore', 'Junior', 'Senior'],
+        }
+        response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
+        assert response.status_code == 200
+        students = response.json['students']
+        assert len(students) == 4
+        assert not _get_common_sids(asc_inactive_students, students)
+
+    def test_last_name_range(self, client, admin_login):
+        """For now, only COE users can access gender data."""
+        response = client.post('/api/students', data=json.dumps({'lastNameRange': ['d', 'J']}), content_type='application/json')
+        assert response.status_code == 200
+        students = response.json['students']
+        assert len(students) == 4
+        assert students[0]['lastName'] == 'Davies'
+        assert students[1]['lastName'] == 'Doolittle'
+        assert students[2]['lastName'] == 'Farestveit'
+        assert students[3]['lastName'] == 'Jayaprakash'
+
+
 class TestCollegeOfEngineering:
     """COE-specific API calls."""
 
@@ -205,17 +231,6 @@ class TestSearch:
     sample_search['gpaRanges'] = []
     sample_search['levels'] = []
     coe_search = json.dumps(sample_search)
-
-    def test_all_students(self, asc_advisor, asc_inactive_students, client):
-        """Returns a list of students."""
-        data = {
-            'levels': ['Freshmen', 'Sophomore', 'Junior', 'Senior'],
-        }
-        response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
-        assert response.status_code == 200
-        students = response.json['students']
-        assert len(students) == 4
-        assert not _get_common_sids(asc_inactive_students, students)
 
     def test_search_not_authenticated(self, client):
         """Search is not available to the world."""

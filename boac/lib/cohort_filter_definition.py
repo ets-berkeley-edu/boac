@@ -152,6 +152,16 @@ def get_cohort_filter_definitions(scope):
                 'type': 'array',
             },
             {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'lastNameRange',
+                'name': 'Last Name',
+                'options': None,
+                'param': 'lastName',
+                'subcategoryHeader': ['Initials', 'through'],
+                'type': 'range',
+            },
+            {
                 'availableTo': ['COENG'],
                 'defaultValue': None,
                 'key': 'advisorLdapUids',

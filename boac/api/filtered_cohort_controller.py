@@ -122,6 +122,7 @@ def create_cohort():
         in_intensive_cohort=util.to_bool_or_none(params.get('inIntensiveCohort')),
         is_inactive_asc=util.to_bool_or_none(params.get('isInactiveAsc')),
         label=label,
+        last_name_range=util.get(params, 'lastNameRange'),
         levels=util.get(params, 'levels'),
         majors=util.get(params, 'majors'),
         uid=current_user.get_id(),
