@@ -411,6 +411,16 @@
       dot.on('mouseout', onDotDeselected);
     };
 
+    var yAxisMeasure = function() {
+      return $location.search().yAxis || 'analytics.currentScore';
+    };
+
+    var partitionPlottableStudents = function(students) {
+      return _.partition(students, function(student) {
+        return _.isFinite(_.get(student, 'analytics.lastActivity.percentile')) && _.isFinite(_.get(student, yAxisMeasure() + '.percentile'));
+      });
+    };
+
     /**
      * Draw scatterplot graph.
      *
@@ -420,20 +430,18 @@
      * @return {void}
      */
     var scatterplotRefresh = function(students, goToUserPage, callback) {
-      // Plot the cohort
-      var yAxisMeasure = $location.search().yAxis || 'analytics.currentScore';
-      var partitions = _.partition(students, function(student) {
-        return _.isFinite(_.get(student, 'analytics.lastActivity.percentile')) && _.isFinite(_.get(student, yAxisMeasure + '.percentile'));
-      });
       // Pass along a subset of students that have useful data.
-      drawScatterplot(partitions[0], yAxisMeasure, goToUserPage);
+      var partitions = partitionPlottableStudents(students);
+      drawScatterplot(partitions[0], yAxisMeasure(), goToUserPage);
       callback(yAxisMeasure, partitions[1]);
     };
 
     return {
+      partitionPlottableStudents: partitionPlottableStudents,
       scatterplotRefresh: scatterplotRefresh,
       showUnitsChart: showUnitsChart
     };
+
   });
 
 }(window.angular));

@@ -54,7 +54,6 @@
       isOwnedByCurrentUser: null
     };
     $scope.demoMode = config.demoMode;
-    $scope.exceedsMatrixThresholdMessage = utilService.exceedsMatrixThresholdMessage;
     $scope.hasFilterCriteria = false;
     $scope.lastActivityDays = utilService.lastActivityDays;
     $scope.renameMode = {
@@ -229,7 +228,13 @@
       offset = offset < 0 ? 0 : offset;
       var queryArgs = _.clone($location.search());
       var done = function() {
-        $scope.studentCountExceedsMatrixThreshold = utilService.exceedsMatrixThreshold(_.get($scope, 'search.results.totalStudentCount'));
+        if (utilService.exceedsMatrixThreshold(_.get($scope, 'search.results.totalStudentCount'))) {
+          $scope.matrixDisabledMessage = utilService.exceedsMatrixThresholdMessage;
+        } else if (visualizationService.partitionPlottableStudents($scope.search.results.students)[0].length === 0) {
+          $scope.matrixDisabledMessage = 'No student data is available to display.';
+        } else {
+          $scope.matrixDisabledMessage = null;
+        }
         page.loading(false);
       };
 

@@ -63,7 +63,13 @@
     var updateCourseData = function(response) {
       $rootScope.pageTitle = response.data.displayName;
       $scope.section = response.data;
-      $scope.studentCountExceedsMatrixThreshold = utilService.exceedsMatrixThreshold(_.get($scope.section, 'totalStudentCount'));
+      if (utilService.exceedsMatrixThreshold(_.get($scope.section, 'totalStudentCount'))) {
+        $scope.matrixDisabledMessage = utilService.exceedsMatrixThresholdMessage;
+      } else if (visualizationService.partitionPlottableStudents($scope.section.students)[0].length === 0) {
+        $scope.matrixDisabledMessage = 'No student data is available to display.';
+      } else {
+        $scope.matrixDisabledMessage = null;
+      }
     };
 
     var refreshListView = function() {
