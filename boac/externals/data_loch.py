@@ -209,13 +209,6 @@ def get_coe_profiles(sids):
     return safe_execute_redshift(sql, sids=sids)
 
 
-def get_all_student_ids():
-    sql = f"""SELECT sid, uid
-        FROM {student_schema()}.student_academic_status
-        """
-    return safe_execute_rds(sql)
-
-
 def get_student_for_uid_and_scope(uid, scope):
     query_tables = _student_query_tables_for_scope(scope)
     if not query_tables:
