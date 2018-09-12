@@ -24,7 +24,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
+from boac import std_commit
 from boac.models.alert import Alert
+from boac.models.curated_cohort import CuratedCohort
 import pytest
 
 
@@ -41,3 +43,19 @@ class TestCacheUtils:
         assert 'midterm' == alerts[0]['alertType']
         assert '2178_90100' == alerts[0]['key']
         assert 'BURMESE 1A midterm grade of D+.' == alerts[0]['message']
+
+    def test_update_curated_cohort_lists(self, app):
+        from boac.api.cache_utils import update_curated_cohort_lists
+        cohort = CuratedCohort.query.filter_by(name='Cool Kids').first()
+        cohort_id = cohort.id
+        original_sids = [s.sid for s in cohort.students]
+        sid_not_in_data_loch = '19040616'
+        CuratedCohort.add_student(cohort_id, sid_not_in_data_loch)
+        std_commit(allow_test_environment=True)
+        revised_sids = [s.sid for s in CuratedCohort.find_by_id(cohort_id).students]
+        assert sid_not_in_data_loch in revised_sids
+        update_curated_cohort_lists()
+        std_commit(allow_test_environment=True)
+        final_sids = [s.sid for s in CuratedCohort.find_by_id(cohort_id).students]
+        assert sid_not_in_data_loch not in final_sids
+        assert set(final_sids) == set(original_sids)

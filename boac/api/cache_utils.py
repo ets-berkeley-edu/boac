@@ -186,14 +186,6 @@ def cancel_refresh_in_progress(term_id):
     }
 
 
-def get_all_student_ids():
-    # Return all query results as a static list object. If we instead iterated over the Query object to
-    # fetch one row at a time, multiple iterations would re-run the query from scratch. This can
-    # lead to inconsistencies between different parts of the new cache.
-    rows = data_loch.get_all_student_ids()
-    return [(r['sid'], r['uid']) for r in rows]
-
-
 def load_all_terms():
     job_progress = JobProgress().get()
     terms_done = job_progress.get('terms_done', [])
@@ -213,12 +205,14 @@ def load_term(term_id=berkeley.current_term_id()):
         load_all_terms()
         return
 
-    JobProgress().update(f'About to refresh alerts for current term')
+    JobProgress().update(f'About to refresh alerts for term {term_id}')
     refresh_alerts(term_id)
 
     if term_id == berkeley.current_term_id():
         JobProgress().update(f'About to load filtered cohort counts')
         load_filtered_cohort_counts()
+        JobProgress().update(f'About to update curated cohort memberships')
+        update_curated_cohort_lists()
 
 
 def refresh_alerts(term_id):
@@ -233,3 +227,17 @@ def load_filtered_cohort_counts():
         cohort.update_student_count(None)
         # Reload!
         cohort.to_api_json(include_students=False)
+
+
+def update_curated_cohort_lists():
+    """Remove no-longer-accessible students from curated cohort lists."""
+    from boac.models.curated_cohort import CuratedCohort
+    for cohort in CuratedCohort.query.all():
+        member_sids = [s.sid for s in cohort.students]
+        available_students = [s['sid'] for s in data_loch.get_student_profiles(member_sids)]
+        if len(member_sids) > len(available_students):
+            cohort_id = cohort.id
+            unavailable_sids = set(member_sids) - set(available_students)
+            app.logger.info(f'Deleting inaccessible SIDs from cohort ID {cohort_id} : {unavailable_sids}')
+            for sid in unavailable_sids:
+                CuratedCohort.remove_student(cohort_id, sid)
