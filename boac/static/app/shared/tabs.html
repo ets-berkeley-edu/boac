@@ -11,9 +11,9 @@
     <button type="button"
             class="btn btn-secondary tab-button"
             aria-label="Switch to matrix view"
-            data-ng-attr-title="{{studentCountExceedsMatrixThreshold ? exceedsMatrixThresholdMessage : null}}"
+            data-ng-attr-title="{{matrixDisabledMessage}}"
             data-ng-class="{'tab-button-selected': tab === 'matrix'}"
-            data-ng-disabled="isSaving || studentCountExceedsMatrixThreshold"
+            data-ng-disabled="isSaving || matrixDisabledMessage"
             data-ng-click="onTab('matrix')">
       <i class="fas fa-table"></i> Matrix
     </button>

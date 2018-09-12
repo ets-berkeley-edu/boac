@@ -139,6 +139,11 @@
         $scope.cohort = response.data;
         onTab(_.includes(['list', 'matrix'], args.tab) ? args.tab : 'list');
         $rootScope.pageTitle = $scope.cohort.name || 'Curated Cohort';
+        if (visualizationService.partitionPlottableStudents($scope.cohort.students)[0].length === 0) {
+          $scope.matrixDisabledMessage = 'No student data is available to display.';
+        } else {
+          $scope.matrixDisabledMessage = null;
+        }
         page.loading(false);
       }).catch(function(err) {
         $scope.error = validationService.parseError(err);
