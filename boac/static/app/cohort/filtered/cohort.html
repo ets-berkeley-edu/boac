@@ -109,9 +109,10 @@
     </div>
 
     <div data-ng-show="filtersVisible">
-      <filter-criteria filter-categories="filterCategories"
-                       cohort="search"
+      <filter-criteria allow-edits="cohort.isOwnedByCurrentUser === null || cohort.isOwnedByCurrentUser"
                        callbacks="callbacks"
+                       cohort="search"
+                       filter-categories="filterCategories"
                        data-ng-if="!isLoading && tab === 'list' && filterCategories && !error"></filter-criteria>
     </div>
 

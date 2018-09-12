@@ -77,12 +77,13 @@
       return $http.get('/api/filtered_cohorts/my');
     };
 
-    var rename = function(id, label) {
+    var update = function(id, label, filterCriteria) {
       var args = {
         id: id,
-        label: label
+        label: label,
+        filterCriteria: filterCriteria
       };
-      return $http.post('/api/filtered_cohort/rename', args).then(function(response) {
+      return $http.post('/api/filtered_cohort/update', args).then(function(response) {
         $rootScope.$broadcast('myFilteredCohortsUpdated');
         $rootScope.$broadcast('filteredCohortNameChanged', {
           cohort: response.data
@@ -97,7 +98,7 @@
       getCohort: getCohort,
       getFilterCategories: getFilterCategories,
       getMyFilteredCohorts: getMyFilteredCohorts,
-      rename: rename
+      update: update
     };
   });
 

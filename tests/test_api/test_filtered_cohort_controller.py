@@ -370,6 +370,63 @@ class TestCohortCreate:
         assert 403 == response.status_code
 
 
+class TestCohortUpdate:
+    """Cohort Update API."""
+
+    def test_unauthorized_cohort_update(self, client, coe_advisor_session):
+        cohort = CohortFilter.create(uid=asc_advisor_uid, label='Swimming, Men\'s', group_codes=['MSW', 'MSW-DV', 'MSW-SW'])
+        data = {
+            'id': cohort.id,
+            'label': 'Hack the label!',
+        }
+        response = client.post('/api/filtered_cohort/update', data=json.dumps(data), content_type='application/json')
+        assert 403 == response.status_code
+
+    def test_cohort_update_name(self, client, asc_advisor_session):
+        cohort = CohortFilter.create(uid=asc_advisor_uid, label='Swimming, Men\'s', group_codes=['MSW', 'MSW-DV', 'MSW-SW'])
+        updated_label = 'Splashing, Men\'s'
+        # First, we POST an empty label
+        response = client.post('/api/filtered_cohort/update', data=json.dumps({'id': cohort.id}), content_type='application/json')
+        assert 400 == response.status_code
+        # Now, we POST a valid label
+        data = {
+            'id': cohort.id,
+            'label': updated_label,
+        }
+        response = client.post('/api/filtered_cohort/update', data=json.dumps(data), content_type='application/json')
+        assert 200 == response.status_code
+        update = response.json
+        assert update['label'] == updated_label
+
+        def remove_empties(filter_criteria):
+            return {k: v for k, v in filter_criteria.items() if v is not None}
+        expected = remove_empties(cohort.filter_criteria)
+        actual = remove_empties(update['filterCriteria'])
+        assert expected == actual
+
+    def test_cohort_update_filter_criteria(self, client, asc_advisor_session):
+        label = 'Swimming, Men\'s'
+        cohort = CohortFilter.create(uid=asc_advisor_uid, label=label, group_codes=['MSW', 'MSW-DV', 'MSW-SW'])
+        updated_filter_criteria = {
+            'groupCodes': ['MSW-DV', 'MSW-SW'],
+        }
+        data = {
+            'id': cohort.id,
+            'filterCriteria': updated_filter_criteria,
+        }
+        response = client.post('/api/filtered_cohort/update', data=json.dumps(data), content_type='application/json')
+        assert 200 == response.status_code
+        update = response.json
+        assert update['label'] == label
+
+        def remove_empties(filter_criteria):
+            return {k: v for k, v in filter_criteria.items() if v is not None}
+
+        expected = remove_empties(cohort.filter_criteria)
+        actual = remove_empties(update['filterCriteria'])
+        assert expected == actual
+
+
 class TestCohortDelete:
     """Cohort Delete API."""
 
