@@ -124,6 +124,13 @@ def get_sis_enrollments(uid, term_id):
     return safe_execute_redshift(sql)
 
 
+def get_sis_holds():
+    sql = f"""SELECT sid, feed
+        FROM {student_schema()}.student_holds
+        """
+    return safe_execute_redshift(sql)
+
+
 @fixture('loch_sis_section_{term_id}_{sis_section_id}.csv')
 def get_sis_section(term_id, sis_section_id):
     sql = f"""SELECT

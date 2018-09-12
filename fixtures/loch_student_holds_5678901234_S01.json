@@ -1,0 +1,29 @@
+{
+    "amountRequired": 0,
+    "comments": "",
+    "contact": {
+        "code": "",
+        "description": ""
+    },
+    "department": {
+        "code": "UCBKL",
+        "description": "Department"
+    },
+    "fromDate": "2018-07-07",
+    "impacts": [
+        {
+            "code": "TRAN",
+            "description": "Transcript Hold"
+        }
+    ],
+    "reason": {
+        "code": "CSBAL",
+        "description": "Past due balance",
+        "formalDescription": "Your student account has a past due balance. A hold is now placed against official registration for next semester. A hold prevents release of your transcript or diploma. Other campus services may also be withheld.\n\nUse the My Finances tab to make an online payment. \n\nFor billing questions, contact Cal Student Central at 510-664-9181 or open a case at https://studentcentral.berkeley.edu."
+    },
+    "reference": "",
+    "type": {
+        "code": "S01",
+        "description": "Past Due Balance"
+    }
+}
