@@ -40,7 +40,7 @@ class TestCal1CardPhotoApi:
     def test_user_not_found(self, app, caplog):
         """Logs error and returns False when user not found."""
         response = cal1card_photo_api.get_cal1card_photo(9999999)
-        assert 'HTTP/1.1" 404' in caplog.text
+        assert '404 Client Error' in caplog.text
         assert response is False
 
     def test_server_error(self, app, caplog):
@@ -48,7 +48,7 @@ class TestCal1CardPhotoApi:
         api_error = MockResponse(500, {}, '{"message": "Internal server error."}')
         with register_mock(cal1card_photo_api._get_cal1card_photo, api_error):
             response = cal1card_photo_api._get_cal1card_photo(61889)
-            assert 'HTTP/1.1" 500' in caplog.text
+            assert '500 Server Error' in caplog.text
             assert not response
             assert response.raw_response.status_code == 500
             assert response.raw_response.json()['message']

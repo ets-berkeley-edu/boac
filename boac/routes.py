@@ -25,15 +25,15 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.models.authorized_user import AuthorizedUser
-from flask import make_response, request
-import flask_login
+from flask import jsonify, make_response, request
+from flask_login import LoginManager
 
 
 def register_routes(app):
     """Register app routes."""
     # Register authentication modules. This should be done before
     # any authentication-protected routes are registered.
-    login_manager = flask_login.LoginManager()
+    login_manager = LoginManager()
     login_manager.user_loader(AuthorizedUser.find_by_uid)
     login_manager.init_app(app)
 
@@ -51,6 +51,10 @@ def register_routes(app):
 
     # Register error handlers.
     import boac.api.error_handlers
+
+    @app.login_manager.unauthorized_handler
+    def unauthorized_handler():
+        return jsonify(success=False, data={'login_required': True}, message='Unauthorized'), 401
 
     # Unmatched API routes return a 404.
     @app.route('/api/<path:path>')
