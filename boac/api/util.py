@@ -42,7 +42,7 @@ def admin_required(func):
         if login_ok or api_key_ok:
             return func(*args, **kw)
         else:
-            app.logger.warn(f'Unauthorized request to {request.path}')
+            app.logger.warning(f'Unauthorized request to {request.path}')
             return app.login_manager.unauthorized()
     return _admin_required
 

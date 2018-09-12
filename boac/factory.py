@@ -29,7 +29,7 @@ from boac.configs import load_configs
 from boac.logger import initialize_logger
 from boac.routes import register_routes
 from flask import Flask
-from werkzeug.contrib.cache import SimpleCache
+from flask_caching import Cache
 
 
 def create_app():
@@ -50,8 +50,5 @@ def create_app():
 def initialize_cache(app):
     """Baby's First Cache."""
     default = app.config['CACHE_DEFAULT']
-    if default:
-        app.cache = SimpleCache(default_timeout=default)
-    else:
-        app.cache = None
-    return app.cache
+    # 'app' is auto-configured in init_app() of this Cache instance
+    return Cache(app, config={'CACHE_TYPE': 'simple', 'CACHE_DEFAULT_TIMEOUT': default}) if default else None
