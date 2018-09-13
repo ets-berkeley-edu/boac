@@ -34,9 +34,8 @@ def initialize_logger(app):
     level = app.config['LOGGING_LEVEL']
     location = app.config['LOGGING_LOCATION']
 
-    # Configure the app logger, root logger, and library loggers as desired.
+    # Configure the root logger and library loggers as desired.
     loggers = [
-        app.logger,
         logging.getLogger(),
         logging.getLogger('ldap3'),
     ]
