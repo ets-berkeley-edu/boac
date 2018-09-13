@@ -42,13 +42,6 @@ class TestCohortFilter:
         assert not CohortFilter.find_by_id(99999999)
         assert not CohortFilter.all_owned_by('88888888')
 
-    def test_cohort_rename(self):
-        group_codes = ['MSW', 'MSW-DV', 'MSW-SW']
-        cohort = CohortFilter.create(uid=asc_advisor_uid, label='Swimming, Men\'s', group_codes=group_codes)
-        foosball_label = 'Foosball teams'
-        cohort = CohortFilter.rename(cohort.id, foosball_label)
-        assert cohort.label == foosball_label
-
     def test_filter_criteria(self):
         gpa_ranges = [
             'numrange(0, 2, \'[)\')',

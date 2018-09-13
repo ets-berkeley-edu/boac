@@ -132,20 +132,23 @@ def create_cohort():
     return tolerant_jsonify(decorate_cohort(cohort))
 
 
-@app.route('/api/filtered_cohort/rename', methods=['POST'])
+@app.route('/api/filtered_cohort/update', methods=['POST'])
 @login_required
 def update_cohort():
     params = request.get_json()
     cohort_id = int(params['id'])
     uid = current_user.get_id()
-    label = params['label']
-    if not label:
-        raise BadRequestError('Requested cohort label is empty or invalid')
+    label = params.get('label')
+    filter_criteria = params.get('filterCriteria')
+    if not label and not filter_criteria:
+        raise BadRequestError('Invalid request')
     cohort = next((c for c in CohortFilter.all_owned_by(uid) if c.id == cohort_id), None)
     if not cohort:
-        raise BadRequestError(f'Cohort does not exist or is not owned by {uid}')
-    cohort = decorate_cohort(CohortFilter.rename(cohort_id=cohort.id, label=label), include_students=False)
-    return tolerant_jsonify(cohort)
+        raise ForbiddenRequestError(f'Invalid or unauthorized request')
+    label = label or cohort.label
+    filter_criteria = filter_criteria or cohort.filter_criteria
+    updated = CohortFilter.update(cohort_id=cohort.id, label=label, filter_criteria=filter_criteria)
+    return tolerant_jsonify(decorate_cohort(updated, include_students=False))
 
 
 @app.route('/api/filtered_cohort/delete/<cohort_id>', methods=['DELETE'])

@@ -118,7 +118,7 @@
         if (error) {
           $scope.renameMode.error = errorHandler(error);
         } else {
-          filteredCohortFactory.rename($scope.cohort.id, cohortName).then(function() {
+          filteredCohortFactory.update($scope.cohort.id, cohortName).then(function() {
             $scope.cohort.name = cohortName;
             exitRenameMode();
           }).catch(errorHandler);

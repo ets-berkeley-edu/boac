@@ -5,28 +5,64 @@
   <div>
     <div>
       <div class="cohort-filter-row"
-           data-ng-repeat="filter in filters.added track by $index">
-        <div class="cohort-filter-item-filter">
-          <span data-ng-bind="filter.name"></span>
+           data-ng-repeat="row in filters.added track by $index">
+        <div class="cohort-added-filter-name">
+          <span data-ng-bind="row.name"></span>
         </div>
-        <div class="cohort-filter-item-name">
-          <span data-ng-bind="filter.subcategory.name"
-                data-ng-if="filter.subcategory"></span>
+        <div class="cohort-added-subcategory-name"
+             data-ng-if="!row.isEditMode">
+          <span data-ng-bind="row.subcategory.name"
+                data-ng-if="row.subcategory"></span>
         </div>
-        <div class="cohort-filter-item-button">
-          <div data-ng-if="buttons.removeButton.show">
-            <button type="button"
-                    id="remove-added-filter-{{$index}}"
-                    aria-label="Remove added filter"
-                    class="btn-link cohort-manage-btn-link"
-                    data-ng-click="buttons.removeButton.onClick($index)">
-              Remove
-            </button>
+        <div class="cohort-added-subcategory-name"
+             data-ng-if="row.isEditMode">
+
+          Edit mode!
+
+        </div>
+        <div class="cohort-added-filter-controls">
+          <div class="cohort-added-filter-buttons">
+            <div data-ng-if="row.subcategory && allowEdits && !row.isEditMode">
+              <button type="button"
+                      id="edit-added-filter-{{$index}}"
+                      aria-label="Edit added filter"
+                      class="btn-link btn-cohort-added-filter"
+                      data-ng-click="buttons.editAddedFilter.onClick($index)">
+                Edit
+              </button> |
+            </div>
+            <div data-ng-if="!row.isEditMode">
+              <button type="button"
+                      id="remove-added-filter-{{$index}}"
+                      aria-label="Remove added filter"
+                      class="btn-link btn-cohort-added-filter"
+                      data-ng-click="buttons.removeAddedFilter.onClick($index)">
+                Remove
+              </button>
+            </div>
+            <div data-ng-if="row.isEditMode">
+              <button type="button"
+                      id="update-added-filter-{{$index}}"
+                      aria-label="Edit added filter"
+                      class="btn btn-primary"
+                      data-ng-click="buttons.updateAddedFilter.onClick($index)">
+                Update
+              </button>
+            </div>
+            <div data-ng-if="row.isEditMode">
+              <button type="button"
+                      id="cancel-edit-added-filter-{{$index}}"
+                      aria-label="Edit added filter"
+                      class="btn-link btn-cohort-added-filter"
+                      data-ng-click="buttons.cancelEditAddedFilter.onClick($index)">
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="cohort-filter-draft-row">
+    <div class="cohort-filter-draft-row" data-ng-if="!filters.isEditMode">
       <div class="cohort-filter-draft-column-01">
         <div class="btn-group"
              uib-dropdown
@@ -119,25 +155,25 @@
         </div>
       </div>
       <div class="cohort-filter-draft-column-03">
-        <div data-ng-if="buttons.addButton.show">
+        <div data-ng-if="buttons.addFilter.show">
           <button type="button"
                   id="unsaved-filter-add"
                   aria-label="Add filter to search criteria"
                   class="btn btn-primary"
-                  focus-on="buttons.addButton.show"
-                  data-ng-click="buttons.addButton.onClick()"
-                  data-ng-disabled="buttons.addButton.disabled">
+                  focus-on="buttons.addFilter.show"
+                  data-ng-click="buttons.addFilter.onClick()"
+                  data-ng-disabled="buttons.addFilter.disabled">
             Add
           </button>
         </div>
       </div>
       <div class="cohort-filter-draft-column-04">
-        <div data-ng-if="buttons.cancelButton.show">
+        <div data-ng-if="buttons.cancelDraftFilter.show">
           <button type="button"
                   id="unsaved-filter-reset"
                   aria-label="Cancel new filter selection"
                   class="btn-link cohort-manage-btn-link"
-                  data-ng-click="buttons.cancelButton.onClick()">
+                  data-ng-click="buttons.cancelDraftFilter.onClick()">
             Cancel
           </button>
         </div>
@@ -148,14 +184,14 @@
     </div>
   </div>
   <div>
-    <div>
+    <div data-ng-if="!filters.isEditMode">
       <button type="button"
               id="unsaved-filter-apply"
               aria-label="Search for students"
               class="btn btn-primary btn-filter-draft-apply"
-              data-ng-click="buttons.applyButton.onClick()"
-              data-ng-disabled="buttons.applyButton.disabled"
-              data-ng-if="buttons.applyButton.show">
+              data-ng-click="buttons.search.onClick()"
+              data-ng-disabled="buttons.search.disabled"
+              data-ng-if="buttons.search.show">
         Apply
       </button>
       <span data-ng-controller="CreateFilteredCohortController">
@@ -163,9 +199,9 @@
                 id="unsaved-filter-save-cohort"
                 aria-label="Create new cohort"
                 class="btn btn-secondary btn-filter-draft-save"
-                data-ng-disabled="buttons.saveButton.disabled"
-                data-ng-click="buttons.saveButton.onClick(openCreateCohortModal)"
-                data-ng-if="buttons.saveButton.show">
+                data-ng-disabled="buttons.saveCohort.disabled"
+                data-ng-click="buttons.saveCohort.onClick(openCreateCohortModal)"
+                data-ng-if="buttons.saveCohort.show">
           <span class="fa fa-spinner fa-spin" data-ng-if="isSaving"></span>
           {{isSaving ? 'Saving' : 'Save'}} Cohort
         </button>
