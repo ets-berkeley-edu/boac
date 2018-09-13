@@ -24,8 +24,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
+import glob
 import json
 import os
+
 import boac.factory
 import pytest
 
@@ -120,22 +122,14 @@ def fake_loch(app):
     """Mimic data loch schemas and tables in a local Postgres database."""
     from sqlalchemy import create_engine
     from sqlalchemy.sql import text
-    with open(app.config['BASE_DIR'] + '/fixtures/loch.sql', 'r') as ddlfile:
+    fixture_path = f"{app.config['BASE_DIR']}/fixtures"
+    with open(f'{fixture_path}/loch.sql', 'r') as ddlfile:
         ddltext = ddlfile.read()
     params = {}
-    fixtures = ['enrollment_term_11667051_' + term_id for term_id in ['2162', '2172', '2178', '2182']]
-    fixtures.append('enrollment_term_2345678901_2172')
-    fixtures.append('enrollment_term_3456789012_2178')
-    fixtures.append('enrollment_term_5678901234_2178')
-    for sid in ['11667051', '2345678901', '3456789012', '5678901234', '7890123456', '8901234567', '890127492']:
-        fixtures += ['profile_' + sid, 'athletics_profile_' + sid]
-    for sid in ['11667051', '7890123456', '9000000000', '9100000000']:
-        fixtures += ['coe_profile_' + sid]
-    for sid in ['9000000000', '9100000000']:
-        fixtures += ['profile_' + sid]
-    for fixture in fixtures:
-        with open(app.config['BASE_DIR'] + '/fixtures/loch_student_' + fixture + '.json', 'r') as f:
-            params[fixture] = f.read()
+    for fixture in glob.glob(f'{fixture_path}/loch_student_*.json'):
+        key = fixture.replace(f'{fixture_path}/loch_student_', '').replace('.json', '')
+        with open(fixture, 'r') as f:
+            params[key] = f.read()
     data_loch_db = create_engine(app.config['DATA_LOCH_URI'])
     data_loch_db.execute(text(ddltext), params)
 

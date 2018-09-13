@@ -1,0 +1,54 @@
+{
+    "amountRequired": 0,
+    "comments": "",
+    "contact": {
+        "code": "",
+        "description": ""
+    },
+    "department": {
+        "code": "UCBKL",
+        "description": "Department"
+    },
+    "fromTerm": {
+        "academicYear": "2018",
+        "beginDate": "2017-08-16",
+        "category": {
+            "code": "R",
+            "description": "Regular Term"
+        },
+        "endDate": "2017-12-15",
+        "id": "2178",
+        "name": "2017 Fall"
+    },
+    "impacts": [
+        {
+            "code": "AENR",
+            "description": "Allow Drops, No Adds"
+        },
+        {
+            "code": "IENR",
+            "description": "No Initial Enroll, Add/Drop OK"
+        }
+    ],
+    "reason": {
+        "code": "SMOUT",
+        "description": "Semester Out",
+        "formalDescription": "You are not eligible to register for at least one semester.  Please see your College advisor if you have questions."
+    },
+    "reference": "",
+    "toTerm": {
+        "academicYear": "2018",
+        "beginDate": "2017-08-16",
+        "category": {
+            "code": "R",
+            "description": "Regular Term"
+        },
+        "endDate": "2017-12-15",
+        "id": "2178",
+        "name": "2017 Fall"
+    },
+    "type": {
+        "code": "V00",
+        "description": "AA - Advising Holds"
+    }
+}

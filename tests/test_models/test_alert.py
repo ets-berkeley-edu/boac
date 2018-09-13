@@ -158,3 +158,18 @@ class TestInfrequentActivityAlert:
             with override_config(app, 'ALERT_INFREQUENT_ACTIVITY_PERCENTILE_CUTOFF', 20):
                 Alert.update_all_for_term(2178)
                 assert len(get_current_alerts('5678901234')) == 1
+
+
+class TestHoldAlert:
+    """Alerts for SIS holds."""
+
+    def test_update_hold_alerts(self, app):
+        """Can be created from SIS feeds."""
+        with override_config(app, 'ALERT_HOLDS_ENABLED', True):
+            Alert.update_all_for_term(2178)
+            alerts = get_current_alerts('5678901234')
+            assert len(alerts) == 2
+            assert alerts[0]['key'] == '2178_S01_CSBAL'
+            assert alerts[0]['message'].startswith('Hold: Past due balance! Your student account has a past due balance.')
+            assert alerts[1]['key'] == '2178_V00_SMOUT'
+            assert alerts[1]['message'].startswith('Hold: Semester Out! You are not eligible to register')

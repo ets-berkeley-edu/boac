@@ -113,6 +113,8 @@ ALERT_INFREQUENT_ACTIVITY_ENABLED = True
 ALERT_INFREQUENT_ACTIVITY_DAYS = 14
 ALERT_INFREQUENT_ACTIVITY_PERCENTILE_CUTOFF = 20
 
+ALERT_HOLDS_ENABLED = True
+
 # Logging
 LOGGING_FORMAT = '[%(asctime)s] - %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
 LOGGING_LOCATION = 'boac.log'

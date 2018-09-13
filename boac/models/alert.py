@@ -280,6 +280,12 @@ class Alert(Base):
                                     enrollment['displayName'],
                                     days_since,
                                 )
+
+        if app.config['ALERT_HOLDS_ENABLED'] and str(term_id) == current_term_id():
+            holds = data_loch.get_sis_holds()
+            for row in holds:
+                hold_feed = json.loads(row['feed'])
+                cls.update_hold_alerts(row['sid'], term_id, hold_feed.get('type'), hold_feed.get('reason'))
         app.logger.info('Alert update complete')
 
     @classmethod
@@ -307,3 +313,9 @@ class Alert(Base):
         key = f'{term_id}_{canvas_course_id}'
         message = f'Infrequent activity! Last {class_name} bCourses activity was {days_since} days ago.'
         cls.create_or_activate(sid=sid, alert_type='infrequent_activity', key=key, message=message)
+
+    @classmethod
+    def update_hold_alerts(cls, sid, term_id, hold_type, hold_reason):
+        key = f"{term_id}_{hold_type.get('code')}_{hold_reason.get('code')}"
+        message = f"Hold: {hold_reason.get('description')}! {hold_reason.get('formalDescription')}."
+        cls.create_or_activate(sid=sid, alert_type='hold', key=key, message=message)

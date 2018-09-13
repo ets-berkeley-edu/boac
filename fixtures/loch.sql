@@ -58,6 +58,12 @@ CREATE TABLE sis_data.sis_terms
     session_ends DATE NOT NULL
 );
 
+CREATE TABLE student.student_holds
+(
+    sid VARCHAR NOT NULL,
+    feed TEXT NOT NULL
+);
+
 CREATE TABLE student.student_profiles
 (
     sid VARCHAR NOT NULL,
@@ -198,6 +204,12 @@ VALUES
 ('2168', '2016 Fall', 'GRAD', '2016-08-17', '2016-12-16', '1', 'Regular Academic Session', '2016-08-24', '2016-12-09'),
 ('2168', '2016 Fall', 'UCBX', '2016-08-17', '2016-12-16', '1', 'Regular Academic Session', '2016-08-24', '2016-12-09'),
 ('2168', '2016 Fall', 'UGRD', '2016-08-17', '2016-12-16', '1', 'Regular Academic Session', '2016-08-24', '2016-12-09');
+
+INSERT INTO student.student_holds
+(sid, feed)
+VALUES
+('5678901234', :holds_5678901234_S01),
+('5678901234', :holds_5678901234_V00);
 
 INSERT INTO student.student_profiles
 (sid, profile)
