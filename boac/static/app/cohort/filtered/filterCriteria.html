@@ -9,16 +9,14 @@
         <div class="cohort-added-filter-name">
           <span data-ng-bind="row.name"></span>
         </div>
-        <div class="cohort-added-subcategory-name"
-             data-ng-if="!row.isEditMode">
+        <div class="cohort-added-subcategory-name">
           <span data-ng-bind="row.subcategory.name"
-                data-ng-if="row.subcategory"></span>
-        </div>
-        <div class="cohort-added-subcategory-name"
-             data-ng-if="row.isEditMode">
-
-          Edit mode!
-
+                data-ng-if="row.subcategory && !row.isEditMode"></span>
+          <filter-criteria-edit-subcategory filter="row"
+                                            on-option-click="row.onOptionClick"
+                                            watch="row"
+                                            data-ng-if="row.isEditMode"></filter-criteria-edit-subcategory>
+          <span class="has-error" data-ng-bind="row.error"></span>
         </div>
         <div class="cohort-added-filter-controls">
           <div class="cohort-added-filter-buttons">
@@ -27,7 +25,7 @@
                       id="edit-added-filter-{{$index}}"
                       aria-label="Edit added filter"
                       class="btn-link btn-cohort-added-filter"
-                      data-ng-click="buttons.editAddedFilter.onClick($index)">
+                      data-ng-click="buttons.editAddedFilter.onClick(row)">
                 Edit
               </button> |
             </div>
@@ -45,7 +43,7 @@
                       id="update-added-filter-{{$index}}"
                       aria-label="Edit added filter"
                       class="btn btn-primary"
-                      data-ng-click="buttons.updateAddedFilter.onClick($index)">
+                      data-ng-click="buttons.updateAddedFilter.onClick(row)">
                 Update
               </button>
             </div>
@@ -54,7 +52,7 @@
                       id="cancel-edit-added-filter-{{$index}}"
                       aria-label="Edit added filter"
                       class="btn-link btn-cohort-added-filter"
-                      data-ng-click="buttons.cancelEditAddedFilter.onClick($index)">
+                      data-ng-click="buttons.cancelEditAddedFilter.onClick(row)">
                 Cancel
               </button>
             </div>
@@ -67,16 +65,16 @@
         <div class="btn-group"
              uib-dropdown
              keyboard-nav="true"
-             is-open="filters.draft.isOpen">
+             is-open="isDraftMenuOpen">
           <button id="draft-filter"
                   type="button"
-                  class="btn-filter-draft"
-                  data-ng-class="{'btn-filter-draft-open': filters.draft.isOpen}"
-                  focus-on="!filters.draft.options"
+                  class="btn-filter"
+                  data-ng-class="{'btn-filter-open': isDraftMenuOpen}"
+                  focus-on="!draft.options"
                   uib-dropdown-toggle
                   ng-disabled="disabled">
-            {{filters.draft.name || 'New Filter'}}
-            <span data-ng-class="{'fa-angle-up': filters.draft.isOpen, 'fa-angle-down': !filters.draft.isOpen}" class="fas"></span>
+            {{draft.name || 'New Filter'}}
+            <span data-ng-class="{'fa-angle-up': isDraftMenuOpen, 'fa-angle-down': !isDraftMenuOpen}" class="fas"></span>
           </button>
           <ul class="dropdown-menu cohort-filter-dropdown"
               uib-dropdown-menu
@@ -96,63 +94,10 @@
           </ul>
         </div>
       </div>
-      <div class="cohort-filter-draft-column-02"
-           data-ng-if="filters.draft.type === 'array'">
-        <div class="btn-group"
-             uib-dropdown
-             keyboard-nav="true"
-             is-open="filters.draft.isSubcategoryMenuOpen"
-             data-ng-if="filters.draft.options">
-          <button id="draft-filter-subcategory"
-                  type="button"
-                  class="btn-filter-draft btn-filter-draft-subcategory"
-                  data-ng-class="{'btn-filter-draft-open': filters.draft.isSubcategoryMenuOpen}"
-                  focus-on="filters.draft.options"
-                  uib-dropdown-toggle
-                  ng-disabled="disabled">
-            {{filters.draft.subcategory.name || filters.draft.subcategoryHeader}}
-            <span data-ng-class="{'fa-angle-up': filters.draft.isSubcategoryMenuOpen, 'fa-angle-down': !filters.draft.isSubcategoryMenuOpen}" class="fas"></span>
-          </button>
-          <ul class="dropdown-menu cohort-filter-subcategory-dropdown"
-              uib-dropdown-menu
-              role="menu"
-              aria-labelledby="draft-filter-subcategory">
-            <li role="menuitem"
-                id="{{filters.draft.param}}-{{option.value}}"
-                data-ng-click="onDraftSubCategoryClick(option)"
-                data-ng-class="{'divider': option === null, 'disabled': option.disabled}"
-                data-ng-repeat="option in filters.draft.options track by $index">
-              <a href="#"
-                 data-ng-bind="option.name"
-                 data-ng-if="option !== null && !option.disabled"></a>
-              <span data-ng-bind="option.name"
-                    data-ng-class="{'cohort-filter-disabled': option.disabled}"
-                    data-ng-if="option !== null && option.disabled"></span>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div class="cohort-filter-draft-column-02" data-ng-if="filters.draft.type === 'range'">
-        <div class="draft-filter-range-container">
-          <div class="draft-filter-range-label">
-            <span data-ng-bind="filters.draft.subcategoryHeader[0]"></span>
-          </div>
-          <div>
-            <input class="draft-filter-range-input"
-                   data-ng-model="filters.draft.subcategory.range.start"
-                   data-ng-change="filters.draft.subcategory.onChange()"
-                   maxlength="1">
-          </div>
-          <div class="draft-filter-range-label">
-            <span data-ng-bind="filters.draft.subcategoryHeader[1]"></span>
-          </div>
-          <div>
-            <input class="draft-filter-range-input"
-                   data-ng-model="filters.draft.subcategory.range.stop"
-                   data-ng-change="filters.draft.subcategory.onChange()"
-                   maxlength="1">
-          </div>
-        </div>
+      <div class="cohort-filter-draft-column-02" data-ng-if="['range', 'array'].indexOf(draft.type) > -1">
+        <filter-criteria-edit-subcategory filter="draft"
+                                          on-option-click="onDraftSubcategoryOptionClick"
+                                          watch="draft"></filter-criteria-edit-subcategory>
       </div>
       <div class="cohort-filter-draft-column-03">
         <div data-ng-if="buttons.addFilter.show">
@@ -179,8 +124,8 @@
         </div>
       </div>
     </div>
-    <div class="draft-filter-subcategory-error has-error">
-      <span data-ng-bind="filters.draft.subcategory.error"></span>
+    <div class="filter-subcategory-error has-error">
+      <span data-ng-bind="draft.subcategory.error"></span>
     </div>
   </div>
   <div>
@@ -189,17 +134,16 @@
               id="unsaved-filter-apply"
               aria-label="Search for students"
               class="btn btn-primary btn-filter-draft-apply"
-              data-ng-click="buttons.search.onClick()"
-              data-ng-disabled="buttons.search.disabled"
-              data-ng-if="buttons.search.show">
+              data-ng-click="buttons.apply.onClick()"
+              data-ng-disabled="buttons.apply.disabled"
+              data-ng-if="buttons.apply.show">
         Apply
       </button>
       <span data-ng-controller="CreateFilteredCohortController">
         <button type="button"
                 id="unsaved-filter-save-cohort"
                 aria-label="Create new cohort"
-                class="btn btn-secondary btn-filter-draft-save"
-                data-ng-disabled="buttons.saveCohort.disabled"
+                class="btn btn-primary btn-filter-draft-save"
                 data-ng-click="buttons.saveCohort.onClick(openCreateCohortModal)"
                 data-ng-if="buttons.saveCohort.show">
           <span class="fa fa-spinner fa-spin" data-ng-if="isSaving"></span>

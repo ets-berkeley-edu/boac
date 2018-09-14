@@ -30,7 +30,59 @@
 .btn-cohort-added-filter {
   text-transform: uppercase;
   font-size: 0.8em;
-  padding: 4px 0 5px 5px;
+  padding: 4px 1px 5px 5px;
+}
+
+.btn-filter {
+  background-color: #f3f3f3;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  color: #000;
+  font-size: 16px;
+  height: 42px;
+  margin-left: 8px;
+  padding: 8px 5px 8px 10px;
+  text-align: left;
+  width: 240px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.btn-filter span.fas {
+  float: right;
+  font-size: 24px;
+  margin-right: 10px;
+}
+
+.btn-filter-draft-apply {
+  height: 40px;
+  margin: 15px 8px 0 0;
+  width: 80px;
+}
+
+.btn-filter-open {
+  color: #000;
+  outline: none !important;
+}
+
+.btn-filter-draft-save {
+  background-color: #fff;
+  border: 1px solid #337ab7;
+  color: #337ab7;
+  height: 40px;
+  font-weight: 500;
+  margin: 15px 0 0 0;
+  width: 120px;
+}
+
+.btn-filter-draft-save:hover,
+.btn-filter-draft-save:focus,
+.btn-filter-draft-save:active {
+  color: #337abf;
+}
+
+.btn-filter-subcategory {
+  width: 400px;
 }
 
 .cohort-boxplot {
@@ -142,58 +194,6 @@
 
 .cohort-filter-draft-column-04 button {
   margin: 8px 0 0 10px;
-}
-
-.btn-filter-draft {
-  background-color: #f3f3f3;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  color: #000;
-  font-size: 16px;
-  height: 42px;
-  margin-left: 8px;
-  padding: 8px 5px 8px 10px;
-  text-align: left;
-  width: 240px;
-  vertical-align: middle;
-  white-space: nowrap;
-}
-
-.btn-filter-draft span.fas {
-  float: right;
-  font-size: 24px;
-  margin-right: 10px;
-}
-
-.btn-filter-draft-apply {
-  height: 40px;
-  margin: 15px 8px 0 0;
-  width: 80px;
-}
-
-.btn-filter-draft-open {
-  color: #000;
-  outline: none !important;
-}
-
-.btn-filter-draft-save {
-  background-color: #fff;
-  border: 1px solid #337ab7;
-  color: #337ab7;
-  height: 40px;
-  font-weight: 500;
-  margin: 15px 0 0 0;
-  width: 120px;
-}
-
-.btn-filter-draft-save:hover,
-.btn-filter-draft-save:focus,
-.btn-filter-draft-save:active {
-  color: #337abf;
-}
-
-.btn-filter-draft-subcategory {
-  width: 400px;
 }
 
 .cohort-filter-dropdown {
@@ -489,18 +489,18 @@
   width: 100%;
 }
 
-.draft-filter-range-container {
+.filter-range-container {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   padding: 0 15px 0 10px;
 }
 
-.draft-filter-range-label {
+.filter-range-label {
   padding: 10px 8px 0 10px;
 }
 
-.draft-filter-range-input {
+.filter-range-input {
   border: 2px solid #ccc;
   border-radius: 8px;
   box-sizing: border-box;
@@ -511,7 +511,7 @@
   width: 50px;
 }
 
-.draft-filter-subcategory-error {
+.filter-subcategory-error {
   font-weight: 400;
   margin: 10px 0 0 20px;
 }

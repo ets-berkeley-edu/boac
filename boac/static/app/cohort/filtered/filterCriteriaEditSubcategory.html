@@ -1,0 +1,60 @@
+<!--
+  Subcategory type: 'array'
+-->
+<div class="btn-group"
+     uib-dropdown
+     keyboard-nav="true"
+     is-open="isSubcategoryMenuOpen"
+     data-ng-if="filter.type === 'array' && filter.options">
+  <button id="filter-subcategory"
+          type="button"
+          class="btn-filter btn-filter-subcategory"
+          data-ng-class="{'btn-filter-open': isSubcategoryMenuOpen}"
+          focus-on="filter.options"
+          uib-dropdown-toggle
+          ng-disabled="disabled">
+    {{filter.subcategory.name || filter.subcategoryHeader}}
+    <span data-ng-class="{'fa-angle-up': isSubcategoryMenuOpen, 'fa-angle-down': !isSubcategoryMenuOpen}" class="fas"></span>
+  </button>
+  <ul class="dropdown-menu cohort-filter-subcategory-dropdown"
+      uib-dropdown-menu
+      role="menu"
+      aria-labelledby="filter-subcategory">
+    <li role="menuitem"
+        id="{{filter.key}}-{{option.value}}"
+        data-ng-click="onOptionClick(option)"
+        data-ng-class="{'divider': option === null, 'disabled': option.disabled}"
+        data-ng-repeat="option in filter.options track by $index">
+      <a href="#"
+         data-ng-bind="option.name"
+         data-ng-if="option !== null && !option.disabled"></a>
+      <span data-ng-bind="option.name"
+            data-ng-class="{'cohort-filter-disabled': option.disabled}"
+            data-ng-if="option !== null && option.disabled"></span>
+    </li>
+  </ul>
+</div>
+
+<!--
+  Subcategory type: 'range'
+-->
+<div class="filter-range-container" data-ng-if="filter.type === 'range'">
+  <div class="filter-range-label">
+    <span data-ng-bind="filter.subcategoryHeader[0]"></span>
+  </div>
+  <div>
+    <input class="filter-range-input"
+           data-ng-model="filter.subcategory.range.start"
+           data-ng-change="filter.subcategory.onChange()"
+           maxlength="1">
+  </div>
+  <div class="filter-range-label">
+    <span data-ng-bind="filter.subcategoryHeader[1]"></span>
+  </div>
+  <div>
+    <input class="filter-range-input"
+           data-ng-model="filter.subcategory.range.stop"
+           data-ng-change="filter.subcategory.onChange()"
+           maxlength="1">
+  </div>
+</div>
