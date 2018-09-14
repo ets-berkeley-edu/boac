@@ -75,7 +75,7 @@
         </button>
       </div>
       <div class="cohort-header-button-links no-wrap" data-ng-if="tab === 'list' && !renameMode.on">
-        <span data-ng-if="hasFilterCriteria">
+        <span data-ng-if="hasFilterCriteria || cohort.id">
           <button type="button"
                   aria-pressed="{{filtersVisible}}"
                   data-ng-attr-id="{{filtersVisible ? 'hide' : 'show'}}-details-button"
@@ -110,9 +110,11 @@
 
     <div data-ng-show="filtersVisible">
       <filter-criteria allow-edits="cohort.isOwnedByCurrentUser === null || cohort.isOwnedByCurrentUser"
+                       allow-save="hasFilterCriteria"
                        callbacks="callbacks"
-                       cohort="search"
+                       cohort-id="cohort.id"
                        filter-categories="filterCategories"
+                       filter-criteria="search.filterCriteria"
                        data-ng-if="!isLoading && tab === 'list' && filterCategories && !error"></filter-criteria>
     </div>
 

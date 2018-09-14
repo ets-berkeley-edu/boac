@@ -190,8 +190,7 @@
 
       updateAddressBar($scope.search.pagination.currentPage, filterCriteria, filterDefinitions);
       studentFactory.getStudents(filterCriteria, orderBy, offset, limit).then(function(response) {
-        $scope.cohort.name = $location.search().name;
-        $scope.cohort.name = $scope.cohort.name || cohortService.getSearchPageTitle(filterCriteria);
+        $scope.cohort.name = $scope.cohort.name || $location.search().name || cohortService.getSearchPageTitle(filterCriteria);
         $rootScope.pageTitle = $scope.cohort.name || 'Filtered Cohort';
         _.extend($scope.search, {
           filterCriteria: filterCriteria,
@@ -246,7 +245,7 @@
         var filterCategories = $scope.filterCategories = response.data;
         var filterDefinitions = _.flatten(filterCategories);
         var criteria = searchCriteria || getFilterCriteriaFromLocation(filterDefinitions) || null;
-        var hasFilterCriteria = $scope.hasFilterCriteria = !!cohortId || !!_.find(_.values(criteria));
+        var hasFilterCriteria = $scope.hasFilterCriteria = !!_.find(_.values(criteria));
 
         $scope.tab = hasFilterCriteria ? tab || $scope.tab : 'list';
         $location.search('tab', $scope.tab);
@@ -261,13 +260,13 @@
             executeSearch(criteria, null, 0, Number.MAX_SAFE_INTEGER, done);
           }
 
-        } else if (cohortId > 0) {
-          loadSavedCohort(cohortId, $scope.search.orderBy.selected, offset, limit, done);
-          makeFiltersVisible(queryArgs.details, false);
-
         } else if (hasFilterCriteria) {
           executeSearch(criteria, $scope.search.orderBy.selected, offset, limit, done);
           makeFiltersVisible(queryArgs.details, true);
+
+        } else if (cohortId > 0) {
+          loadSavedCohort(cohortId, $scope.search.orderBy.selected, offset, limit, done);
+          makeFiltersVisible(queryArgs.details, false);
 
         } else {
           // No query args is create-cohort mode
@@ -287,11 +286,9 @@
     });
 
     $scope.callbacks = {
-      executeSearch: function(searchCriteria) {
+      applyFilters: function(filterCriteria) {
         $scope.search.pagination.currentPage = 1;
-        $scope.cohort = {id: null, name: null, isOwnedByCurrentUser: null};
-        registerCohortMetadata($scope.cohort);
-        init('list', searchCriteria);
+        init('list', filterCriteria);
       },
       onSave: function(cohort) {
         // Grab metadata without reloading page
