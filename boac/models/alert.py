@@ -253,40 +253,49 @@ class Alert(Base):
         for row in enrollments_for_term:
             enrollments = json.loads(row['enrollment_term']).get('enrollments', [])
             for enrollment in enrollments:
-                for section in enrollment['sections']:
-                    if section.get('midtermGrade'):
-                        cls.update_midterm_grade_alerts(row['sid'], term_id, section['ccn'], enrollment['displayName'], section['midtermGrade'])
-                    for canvas_site in enrollment.get('canvasSites', []):
-                        student_activity = canvas_site.get('analytics', {}).get('lastActivity', {}).get('student')
-                        if not student_activity or student_activity.get('roundedUpPercentile') is None:
-                            continue
-                        if student_activity.get('raw') == 0:
-                            if (
-                                no_activity_alerts_enabled and
-                                student_activity.get('roundedUpPercentile') <= app.config['ALERT_NO_ACTIVITY_PERCENTILE_CUTOFF']
-                            ):
-                                cls.update_no_activity_alerts(row['sid'], term_id, canvas_site['canvasCourseId'], enrollment['displayName'])
-                        else:
-                            days_since = round((int(time.time()) - student_activity.get('raw')) / 86400)
-                            if (
-                                infrequent_activity_alerts_enabled and
-                                days_since >= app.config['ALERT_INFREQUENT_ACTIVITY_DAYS'] and
-                                student_activity.get('roundedUpPercentile') <= app.config['ALERT_INFREQUENT_ACTIVITY_PERCENTILE_CUTOFF']
-                            ):
-                                cls.update_infrequent_activity_alerts(
-                                    row['sid'],
-                                    term_id,
-                                    canvas_site['canvasCourseId'],
-                                    enrollment['displayName'],
-                                    days_since,
-                                )
-
+                cls.update_alerts_for_enrollment(row['sid'], term_id, enrollment, no_activity_alerts_enabled, infrequent_activity_alerts_enabled)
         if app.config['ALERT_HOLDS_ENABLED'] and str(term_id) == current_term_id():
             holds = data_loch.get_sis_holds()
             for row in holds:
                 hold_feed = json.loads(row['feed'])
                 cls.update_hold_alerts(row['sid'], term_id, hold_feed.get('type'), hold_feed.get('reason'))
+        if app.config['ALERT_WITHDRAWAL_ENABLED'] and str(term_id) == current_term_id():
+            profiles = data_loch.get_student_profiles()
+            for row in profiles:
+                profile_feed = json.loads(row['profile'])
+                if 'withdrawalCancel' in (profile_feed.get('sisProfile') or {}):
+                    cls.update_withdrawal_cancel_alerts(row['sid'], term_id)
         app.logger.info('Alert update complete')
+
+    @classmethod
+    def update_alerts_for_enrollment(cls, sid, term_id, enrollment, no_activity_alerts_enabled, infrequent_activity_alerts_enabled):
+        for section in enrollment['sections']:
+            if section.get('midtermGrade'):
+                cls.update_midterm_grade_alerts(sid, term_id, section['ccn'], enrollment['displayName'], section['midtermGrade'])
+            for canvas_site in enrollment.get('canvasSites', []):
+                student_activity = canvas_site.get('analytics', {}).get('lastActivity', {}).get('student')
+                if not student_activity or student_activity.get('roundedUpPercentile') is None:
+                    continue
+                if student_activity.get('raw') == 0:
+                    if (
+                        no_activity_alerts_enabled and
+                        student_activity.get('roundedUpPercentile') <= app.config['ALERT_NO_ACTIVITY_PERCENTILE_CUTOFF']
+                    ):
+                        cls.update_no_activity_alerts(sid, term_id, canvas_site['canvasCourseId'], enrollment['displayName'])
+                else:
+                    days_since = round((int(time.time()) - student_activity.get('raw')) / 86400)
+                    if (
+                        infrequent_activity_alerts_enabled and
+                        days_since >= app.config['ALERT_INFREQUENT_ACTIVITY_DAYS'] and
+                        student_activity.get('roundedUpPercentile') <= app.config['ALERT_INFREQUENT_ACTIVITY_PERCENTILE_CUTOFF']
+                    ):
+                        cls.update_infrequent_activity_alerts(
+                            sid,
+                            term_id,
+                            canvas_site['canvasCourseId'],
+                            enrollment['displayName'],
+                            days_since,
+                        )
 
     @classmethod
     def update_assignment_alerts(cls, sid, term_id, assignment_id, due_at, status, course_site_name):
@@ -319,3 +328,9 @@ class Alert(Base):
         key = f"{term_id}_{hold_type.get('code')}_{hold_reason.get('code')}"
         message = f"Hold: {hold_reason.get('description')}! {hold_reason.get('formalDescription')}."
         cls.create_or_activate(sid=sid, alert_type='hold', key=key, message=message)
+
+    @classmethod
+    def update_withdrawal_cancel_alerts(cls, sid, term_id):
+        key = f'{term_id}_withdrawal'
+        message = f'Withdrawal! Student has withdrawn from the {term_name_for_sis_id(term_id)} term.'
+        cls.create_or_activate(sid=sid, alert_type='withdrawal', key=key, message=message)

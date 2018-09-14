@@ -148,6 +148,8 @@ def get_summary_student_profiles(sids, term_id=None):
             profile['cumulativeUnits'] = sis_profile.get('cumulativeUnits')
             profile['level'] = sis_profile.get('level', {}).get('description')
             profile['majors'] = sorted(plan.get('description') for plan in sis_profile.get('plans', []))
+            if sis_profile.get('withdrawalCancel'):
+                profile['withdrawalCancel'] = sis_profile['withdrawalCancel']
         # Add the singleton term.
         term = enrollments_by_sid.get(profile['sid'])
         profile['hasCurrentTermEnrollments'] = False
