@@ -16,19 +16,19 @@
        class="sr-only"
        data-ng-if="search.results.totalStudentCount > search.pagination.itemsPerPage">Skip to pagination widget</a>
     <div class="cohort-header-container">
-      <div data-ng-if="!cohort.id && search.results.totalStudentCount === null">
+      <div data-ng-if="!search.cohort.id && search.results.totalStudentCount === null">
         <h1 class="page-section-header">Create a Filtered Cohort</h1>
         <div>
           Find a set of users, then save your search as a filtered cohort. Revisit your filtered cohorts at any time.
         </div>
       </div>
       <div data-ng-if="!renameMode.on">
-        <h1 class="page-section-header" data-ng-if="cohort.name">
-          <span data-ng-bind="cohort.name"></span>
+        <h1 class="page-section-header" data-ng-if="search.cohort.name">
+          <span data-ng-bind="search.cohort.name"></span>
           <span class="faint-text"
                 data-ng-if="search.results.totalStudentCount != null">(<span data-ng-bind="search.results.totalStudentCount"></span> students)</span>
         </h1>
-        <h1 data-ng-if="!cohort.name && search.results.totalStudentCount !== null">
+        <h1 data-ng-if="!search.cohort.name && search.results.totalStudentCount !== null">
           <span data-ng-pluralize count="search.results.totalStudentCount" when="{'one': '1 Result', 'other': '{} Results'}"></span>
         </h1>
       </div>
@@ -75,7 +75,7 @@
         </button>
       </div>
       <div class="cohort-header-button-links no-wrap" data-ng-if="tab === 'list' && !renameMode.on">
-        <span data-ng-if="hasFilterCriteria || cohort.id">
+        <span data-ng-if="isSearching || search.cohort.id">
           <button type="button"
                   aria-pressed="{{filtersVisible}}"
                   data-ng-attr-id="{{filtersVisible ? 'hide' : 'show'}}-details-button"
@@ -85,13 +85,13 @@
             {{filtersVisible ? 'Hide' : 'Show'}} Filters
           </button>
         </span>
-        <span data-ng-if="cohort.id && cohort.isOwnedByCurrentUser">
+        <span data-ng-if="search.cohort.id && search.cohort.isOwnedByCurrentUser">
           <span class="faint-text">|</span>
           <button type="button"
                   id="rename-cohort-button"
                   aria-label="Rename this cohort"
                   class="btn-link cohort-manage-btn-link"
-                  data-ng-click="enterRenameMode(cohort.name)">
+                  data-ng-click="enterRenameMode(search.cohort.name)">
             Rename
           </button>
           <span data-ng-controller="DeleteCohortController">
@@ -109,12 +109,10 @@
     </div>
 
     <div data-ng-show="filtersVisible">
-      <filter-criteria allow-edits="cohort.isOwnedByCurrentUser === null || cohort.isOwnedByCurrentUser"
-                       allow-save="hasFilterCriteria"
+      <filter-criteria allow-save="isSearching"
                        callbacks="callbacks"
-                       cohort-id="cohort.id"
                        filter-categories="filterCategories"
-                       filter-criteria="search.filterCriteria"
+                       search="search"
                        data-ng-if="!isLoading && tab === 'list' && filterCategories && !error"></filter-criteria>
     </div>
 

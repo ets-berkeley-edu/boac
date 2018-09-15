@@ -77,10 +77,12 @@ class CohortFilter(Base, UserMixin):
         return cohort
 
     @classmethod
-    def update(cls, cohort_id, label, filter_criteria):
+    def update(cls, cohort_id, label=None, filter_criteria=None, student_count=None):
         cohort = CohortFilter.query.filter_by(id=cohort_id).first()
         cohort.label = label
         cohort.filter_criteria = filter_criteria
+        if student_count is not None:
+            cohort.student_count = student_count
         std_commit()
         return cohort
 

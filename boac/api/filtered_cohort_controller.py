@@ -92,12 +92,21 @@ def my_cohorts():
 def get_cohort(cohort_id):
     if is_unauthorized_search(request.args):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
+    include_students = util.to_bool_or_none(util.get(request.args, 'includeStudents'))
+    include_students = True if include_students is None else include_students
     order_by = util.get(request.args, 'orderBy', None)
     offset = util.get(request.args, 'offset', 0)
     limit = util.get(request.args, 'limit', 50)
     cohort = CohortFilter.find_by_id(int(cohort_id))
     if cohort and can_view_cohort(current_user, cohort):
-        cohort = decorate_cohort(cohort, order_by=order_by, offset=int(offset), limit=int(limit), include_profiles=True)
+        cohort = decorate_cohort(
+            cohort,
+            order_by=order_by,
+            offset=int(offset),
+            limit=int(limit),
+            include_profiles=True,
+            include_students=include_students,
+        )
         return tolerant_jsonify(cohort)
     else:
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
@@ -140,14 +149,15 @@ def update_cohort():
     uid = current_user.get_id()
     label = params.get('label')
     filter_criteria = params.get('filterCriteria')
-    if not label and not filter_criteria:
+    student_count = params.get('studentCount')
+    if not label and not filter_criteria and not student_count:
         raise BadRequestError('Invalid request')
     cohort = next((c for c in CohortFilter.all_owned_by(uid) if c.id == cohort_id), None)
     if not cohort:
         raise ForbiddenRequestError(f'Invalid or unauthorized request')
     label = label or cohort.label
     filter_criteria = filter_criteria or cohort.filter_criteria
-    updated = CohortFilter.update(cohort_id=cohort.id, label=label, filter_criteria=filter_criteria)
+    updated = CohortFilter.update(cohort_id=cohort.id, label=label, filter_criteria=filter_criteria, student_count=student_count)
     return tolerant_jsonify(decorate_cohort(updated, include_students=False))
 
 
