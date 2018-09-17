@@ -40,14 +40,6 @@
       return parseInt(studentCount, 10) > disableMatrixViewThreshold;
     };
 
-    var format = function(str, tokens) {
-      var formatted = str;
-      _.each(tokens, function(value, key) {
-        formatted = formatted.replace('${' + key + '}', value);
-      });
-      return formatted;
-    };
-
     var lastActivityDays = function(analytics) {
       var timestamp = parseInt(_.get(analytics, 'lastActivity.student.raw'), 10);
       if (!timestamp || isNaN(timestamp)) {
@@ -83,7 +75,6 @@
       exceedsMatrixThreshold: exceedsMatrixThreshold,
       exceedsMatrixThresholdMessage: exceedsMatrixThresholdMessage,
       extendSortableNames: extendSortableNames,
-      format: format,
       lastActivityDays: lastActivityDays,
       lastActivityInContext: lastActivityInContext,
       toBoolOrNull: toBoolOrNull

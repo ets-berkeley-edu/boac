@@ -29,7 +29,7 @@
 
   var boac = angular.module('boac');
 
-  boac.factory('filteredCohortFactory', function($http, $rootScope, googleAnalyticsService, utilService) {
+  boac.factory('filteredCohortFactory', function($http, $rootScope, googleAnalyticsService) {
 
     var createCohort = function(label, filterCriteria) {
       var args = _.merge({label: label}, filterCriteria);
@@ -58,15 +58,17 @@
       return $http.get('/api/filtered_cohorts/all');
     };
 
-    var getCohort = function(id, orderBy, offset, limit) {
-      var params = {
+    var getCohort = function(id, includeStudents, orderBy, offset, limit) {
+      var template = _.template('/api/filtered_cohort/${id}?includeStudents=${includeStudents}&offset=${offset}&limit=${limit}&orderBy=${orderBy}');
+      var args = {
         id: id,
+        includeStudents: includeStudents || true,
         offset: offset || 0,
         limit: limit || 50,
         orderBy: orderBy || 'first_name'
       };
-      var apiPath = utilService.format('/api/filtered_cohort/${id}?offset=${offset}&limit=${limit}&orderBy=${orderBy}', params);
-      return $http.get(apiPath);
+
+      return $http.get(template(args));
     };
 
     var getFilterCategories = function() {
@@ -77,11 +79,12 @@
       return $http.get('/api/filtered_cohorts/my');
     };
 
-    var update = function(id, label, filterCriteria) {
+    var update = function(id, label, filterCriteria, studentCount) {
       var args = {
         id: id,
         label: label,
-        filterCriteria: filterCriteria
+        filterCriteria: filterCriteria,
+        studentCount: studentCount
       };
       return $http.post('/api/filtered_cohort/update', args).then(function(response) {
         $rootScope.$broadcast('myFilteredCohortsUpdated');

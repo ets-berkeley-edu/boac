@@ -154,6 +154,14 @@ class TestCohortDetail:
         cohort = json.loads(response.data)
         assert cohort['id'] == coe_owned_cohort.id
         assert cohort['label'] == coe_owned_cohort.label
+        assert 'students' in cohort
+
+    def test_get_cohort_without_students(self, coe_advisor_session, client, coe_owned_cohort):
+        """Returns a well-formed response with cohort and no students."""
+        response = client.get(f'/api/filtered_cohort/{coe_owned_cohort.id}?includeStudents=false')
+        assert response.status_code == 200
+        cohort = json.loads(response.data)
+        assert 'students' not in cohort
 
     def test_unauthorized_get_cohort(self, asc_advisor_session, client, coe_owned_cohort):
         """Returns a well-formed response with custom cohort."""
@@ -406,24 +414,34 @@ class TestCohortUpdate:
 
     def test_cohort_update_filter_criteria(self, client, asc_advisor_session):
         label = 'Swimming, Men\'s'
-        cohort = CohortFilter.create(uid=asc_advisor_uid, label=label, group_codes=['MSW', 'MSW-DV', 'MSW-SW'])
+        original_student_count = 4
+        cohort = CohortFilter.create(
+            uid=asc_advisor_uid,
+            label=label,
+            group_codes=['MSW', 'MSW-DV', 'MSW-SW'],
+            student_count=original_student_count,
+        )
+        assert original_student_count > 0
         updated_filter_criteria = {
             'groupCodes': ['MSW-DV', 'MSW-SW'],
         }
         data = {
             'id': cohort.id,
             'filterCriteria': updated_filter_criteria,
+            'studentCount': original_student_count - 1,
         }
         response = client.post('/api/filtered_cohort/update', data=json.dumps(data), content_type='application/json')
         assert 200 == response.status_code
-        update = response.json
-        assert update['label'] == label
+
+        updated_cohort = CohortFilter.find_by_id(int(response.json['id']))
+        assert updated_cohort.label == label
+        assert updated_cohort.student_count == original_student_count - 1
 
         def remove_empties(filter_criteria):
             return {k: v for k, v in filter_criteria.items() if v is not None}
 
         expected = remove_empties(cohort.filter_criteria)
-        actual = remove_empties(update['filterCriteria'])
+        actual = remove_empties(updated_cohort.filter_criteria)
         assert expected == actual
 
 

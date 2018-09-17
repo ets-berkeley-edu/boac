@@ -25,7 +25,7 @@
                       id="edit-added-filter-{{$index}}"
                       aria-label="Edit added filter"
                       class="btn-link btn-cohort-added-filter"
-                      data-ng-click="buttons.editAddedFilter.onClick(row)">
+                      data-ng-click="buttons.editFilter.onClick(row)">
                 Edit
               </button> |
             </div>
@@ -52,7 +52,7 @@
                       id="cancel-edit-added-filter-{{$index}}"
                       aria-label="Edit added filter"
                       class="btn-link btn-cohort-added-filter"
-                      data-ng-click="buttons.cancelEditAddedFilter.onClick(row)">
+                      data-ng-click="buttons.cancelEditFilter.onClick(row)">
                 Cancel
               </button>
             </div>
@@ -147,7 +147,7 @@
                 data-ng-click="buttons.saveCohort.onClick(openCreateCohortModal)"
                 data-ng-if="buttons.saveCohort.show">
           <span class="fa fa-spinner fa-spin" data-ng-if="isSaving"></span>
-          {{isSaving ? 'Saving' : 'Save'}} Cohort
+          {{isSaving ? 'Saving' : 'Save Cohort'}}
         </button>
       </span>
     </div>

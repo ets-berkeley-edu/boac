@@ -101,13 +101,13 @@
 
     this.$onInit = function() {
       var filterCategories = _.clone(this.filterCategories);
-      var filterCriteria = _.clone(this.filterCriteria);
+      var filterCriteria = _.clone(this.search.filterCriteria);
 
-      $scope.callbacks = this.callbacks;
-      $scope.cohortId = this.cohortId;
-      $scope.filters.definitions = [];
-      $scope.allowEdits = this.allowEdits;
+      $scope.allowEdits = _.get(this.search.cohort, 'isOwnedByCurrentUser', true);
       $scope.buttons.saveCohort.show = this.allowSave;
+      $scope.callbacks = this.callbacks;
+      $scope.filters.definitions = [];
+      $scope.search = this.search;
 
       _.each(filterCategories, function(category, index) {
         _.each(category, function(definition) {
@@ -145,6 +145,7 @@
     $scope.buttons = {
       addFilter: {
         // Button to add a "draft" filter to the list of added-filters.
+        disabled: false,
         onClick: function() {
           var addedFilter = _.clone($scope.draft);
           $scope.buttons.saveCohort.show = false;
@@ -172,19 +173,20 @@
       },
       cancelDraftFilter: {
         onClick: function() {
+          $scope.buttons.addFilter.disabled = false;
           resetDraftFilter();
           redrawButtons();
         },
         show: false
       },
-      cancelEditAddedFilter: {
+      cancelEditFilter: {
         onClick: function(row) {
           row.subcategory = row.original || row.subcategory;
           row.isEditMode = false;
           $scope.filters.isEditMode = false;
         }
       },
-      editAddedFilter: {
+      editFilter: {
         onClick: function(row) {
           var filter = _.find($scope.filters.definitions, ['key', row.key]);
           $scope.buttons.updateAddedFilter.disabled = true;
@@ -220,9 +222,13 @@
           };
 
           $scope.isSaving = true;
-          if ($scope.cohortId) {
-            // TODO: update db and update cache w.r.t cohort student_count
-            filteredCohortFactory.update($scope.cohortId, null, filterCriteria).then(done);
+          if ($scope.search.cohort.id) {
+            filteredCohortFactory.update(
+              $scope.search.cohort.id,
+              null,
+              filterCriteria,
+              $scope.search.results.totalStudentCount
+            ).then(done);
           } else {
             openCreateCohortModal(filterCriteria, done);
           }
@@ -241,12 +247,10 @@
 
   angular.module('boac').component('filterCriteria', {
     bindings: {
-      allowEdits: '=',
       allowSave: '=',
       callbacks: '=',
-      cohortId: '=',
       filterCategories: '=',
-      filterCriteria: '='
+      search: '='
     },
     controller: FilterCriteriaController,
     templateUrl: '/static/app/cohort/filtered/filterCriteria.html'
