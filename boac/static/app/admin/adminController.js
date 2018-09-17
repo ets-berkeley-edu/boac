@@ -27,19 +27,71 @@
 
   'use strict';
 
-  angular.module('boac').controller('AdminController', function($location, $scope, config, page, userFactory) {
+  angular.module('boac').controller('AdminController', function(
+    $location,
+    $scope,
+    adminFactory,
+    config,
+    page,
+    userFactory
+  ) {
+
+    $scope.demoMode = config.demoMode.blur;
 
     $scope.become = function(uid) {
-      userFactory.becomeUser(uid).then(function() {
+      adminFactory.becomeUser(uid).then(function() {
         window.location = '/';
       });
+    };
+
+    $scope.toggleDemoMode = function() {
+      $scope.isToggling = true;
+      var blur = !$scope.demoMode;
+
+      adminFactory.setDemoMode(blur).then(function(response) {
+        $scope.demoMode = response.data.blur;
+        $scope.isToggling = false;
+      });
+    };
+
+    var getDeptName = function(deptCode) {
+      switch (deptCode) {
+        case 'COENG': return 'College of Engineering';
+        case 'UWASC': return 'Athletic Study Center';
+        default: return null;
+      }
+    };
+
+    var groupByDept = function(advisors) {
+      var byDept = _.groupBy(advisors, function(advisor) {
+        var deptCodes = _.keys(advisor.departments);
+        return deptCodes.length ? deptCodes[0] : null;
+      });
+      var groups = _.map(byDept, function(users, deptCode) {
+        return {
+          name: getDeptName(deptCode),
+          userCount: users.length,
+          users: users
+        };
+      });
+      return _.sortBy(groups, 'name');
     };
 
     var init = function() {
       page.loading(true);
       if (config.devAuthEnabled) {
         userFactory.getAllUserProfiles().then(function(response) {
-          $scope.allProfiles = response.data;
+          var byIsAdmin = _.groupBy(response.data, 'is_admin');
+          var adminUsers = byIsAdmin.true;
+
+          $scope.groups = [
+            {
+              name: 'Admins',
+              userCount: adminUsers.length,
+              users: adminUsers
+            }
+          ].concat(groupByDept(byIsAdmin.false));
+
           page.loading(false);
         });
       } else {

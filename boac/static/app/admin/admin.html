@@ -6,23 +6,86 @@
     </div>
   </div>
   <div data-ng-if="!isLoading">
-    <h1>Users</h1>
-    <div>
-      <span class="red-flag-status">*</span> Indicates Admin user
+    <h1 class="page-section-header">BOAC Flight Deck</h1>
+    <h2 class="page-section-header-sub">Demo Mode</h2>
+    <div class="demo-mode-switch-container">
+      <div data-ng-if="!isToggling">
+        <label class="switch">
+          <input id="toggle-demo-mode"
+                 type="checkbox"
+                 data-ng-class="{'demo-mode-input-checked': demoMode}"
+                 data-ng-disabled="isToggling"
+                 data-ng-model="demoMode"
+                 data-ng-change="toggleDemoMode()"
+                 value="{{demoMode ? 'on' : 'off'}}"/>
+          <span class="slider round"></span>
+        </label>
+        <label class="sr-only" for="toggle-demo-mode">Demo mode</label>
+      </div>
+      <div class="demo-mode-toggling-label" data-ng-if="isToggling">
+        <span class="fa fa-spinner fa-spin" data-ng-if="isToggling"></span>
+        Toggling demo mode...
+      </div>
+      <div class="demo-mode-label" data-ng-if="!isToggling">
+        {{demoMode ? 'On' : 'Off'}}
+      </div>
     </div>
-    <hr/>
-    <div>
-      <ul data-ng-repeat="user in allProfiles">
-        <li>
-          <div>
-            {{user.firstName}} {{user.lastName}}<span class="red-flag-status" data-ng-if="user.is_admin">*</span> ({{user.uid}})
-            [<a href data-ng-click="become(user.uid)">become</a>]
+    <h2 class="page-section-header-sub">Users</h2>
+    <uib-accordion close-others="false">
+      <div uib-accordion-group
+           is-disabled="true"
+           is-open="group.isOpen"
+           aria-expanded="{{group.isOpen}}"
+           class="admin-accordion"
+           data-ng-class="{'panel-open': group.isOpen}"
+           data-ng-repeat="group in groups"
+           data-ng-if="groups.length">
+        <uib-accordion-heading>
+          <a id="group-{{$index}}"
+             data-ng-click="group.isOpen = !group.isOpen"
+             data-ng-keypress="group.isOpen = !group.isOpen"
+             tabindex="0"
+             role="button"
+             href="#">
+            <div class="admin-accordion-heading">
+              <div class="admin-accordion-heading-name">
+                <div class="accordion-heading-caret">
+                  <i id="group-{{$index}}-caret"
+                      aria-label="{{group.isOpen ? 'Hide group details' : 'Show group details'}}"
+                      data-ng-class="{'fas fa-caret-right': !group.isOpen, 'fas fa-caret-down': group.isOpen}"></i>
+                </div>
+                <h3 class="admin-group-name accordion-header">
+                  <span data-ng-bind="group.name || 'No Department Affiliation'"></span> (<span data-ng-bind="group.userCount"></span>)
+                </h3>
+              </div>
+            </div>
+          </a>
+        </uib-accordion-heading>
+        <div class="group-summary-container">
+          <div class="group-summary-flex-row group-summary-row"
+               data-ng-repeat="user in group.users | orderBy:options.sortBy:options.reverse track by $index">
+            <div class="user-summary-column">
+              <img class="student-avatar student-avatar-small"
+                  aria-label="Photo of {{user.firstName}} {{user.lastName}}"
+                  tabindex="0"
+                  data-ng-class="{'img-blur': demoMode.blur}"
+                  data-ng-src="/api/student/{{user.uid}}/photo"
+                  data-avatar-fallback>
+            </div>
+            <div class="user-summary-column user-summary-name">
+              <a aria-label="Go to UC Berkeley Directory page of {{user.firstName}} {{user.lastName}}"
+                  data-ng-class="{'demo-mode-blur': demoMode.blur}"
+                  data-ng-href="https://www.berkeley.edu/directory/results?search-term={{user.firstName}}+{{user.lastName}}"
+                  target="_blank">{{user.firstName}} {{user.lastName}}</a>
+              <a href
+                 id="become-{{user.uid}}"
+                 data-ng-click="become(user.uid)"
+                 title="Log in as {{user.firstName}} {{user.lastName}}"
+                 data-ng-if="!user.is_admin"><i class="fas fa-sign-in-alt"></i></a>
+            </div>
           </div>
-          <ul>
-            <li data-ng-repeat="(deptCode, role) in user.departments">{{deptCode}}: {{role}}</li>
-          </ul>
-        </li>
-      </ul>
-    </div>
+        </div>
+      </div>
+    </uib-accordion>
   </div>
 </div>
