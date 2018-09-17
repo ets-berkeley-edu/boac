@@ -297,14 +297,12 @@
         .data(students, key)
         .enter().append('circle')
         .attr('class', 'dot')
-        .style('fill', function(d) { return avatar(d); })
-        .style('background-image', 'url(' + avatarBackgroundPath + ')')
-        .style('background-size', 'cover')
-        .style('stroke-width', 5)
-        .style('stroke', '#ccc')
+        .style('fill', '#8bbdda')
+        .style('opacity', 0.66)
+        .style('stroke-width', 0)
         .attr('cx', function(d) { return xScale(x(d)); })
         .attr('cy', function(d) { return yScale(y(d)); })
-        .attr('r', '30');
+        .attr('r', 9);
 
       // Add x-axis labels.
       svg.append('text')
@@ -365,8 +363,13 @@
         this.parentNode.appendChild(this);
         // Stroke highlight.
         var selection = d3.select(this);
-        selection.attr('r', '50')
-          .style('stroke', '#ada');
+        selection.attr('r', '45')
+          .style('stroke-width', 5)
+          .style('stroke', '#ccc')
+          .style('fill', function(_d) { return avatar(_d); })
+          .style('background-image', 'url(' + avatarBackgroundPath + ')')
+          .style('background-size', 'cover')
+          .style('opacity', 1);
 
         var tooltip = container.append('div')
           .attr('class', 'matrix-tooltip')
@@ -396,8 +399,10 @@
       };
 
       var onDotDeselected = function() {
-        d3.select(this).attr('r', '30')
-          .style('stroke', '#ccc');
+        d3.select(this).attr('r', '9')
+          .style('fill', '#8bbdda')
+          .style('opacity', 0.66)
+          .style('stroke-width', 0);
 
         container.select('.matrix-tooltip')
           .transition(d3.transition().duration(500))
