@@ -173,3 +173,16 @@ class TestHoldAlert:
             assert alerts[0]['message'].startswith('Hold: Past due balance! Your student account has a past due balance.')
             assert alerts[1]['key'] == '2178_V00_SMOUT'
             assert alerts[1]['message'].startswith('Hold: Semester Out! You are not eligible to register')
+
+
+class TestHoldWithdrawal:
+    """Alerts for withdrawal/cancellation status."""
+
+    def test_update_withdrawal_alerts(self, app):
+        """Can be created from SIS feeds."""
+        with override_config(app, 'ALERT_WITHDRAWAL_ENABLED', True):
+            Alert.update_all_for_term(2178)
+            alerts = get_current_alerts('2345678901')
+            assert len(alerts) == 1
+            assert alerts[0]['key'] == '2178_withdrawal'
+            assert alerts[0]['message'] == 'Withdrawal! Student has withdrawn from the Fall 2017 term.'

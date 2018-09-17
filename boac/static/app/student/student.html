@@ -159,41 +159,14 @@
                  data-ng-if="$first && !student.hasCurrentTermEnrollments && (currentEnrollmentTermId > parseInt(term.termId))">
               <h3 class="student-term-header" data-ng-bind="currentEnrollmentTerm"></h3>
               <div class="term-no-enrollments-description">No enrollments</div>
+              <div data-ng-include="'/static/app/student/studentSemesterNotices.html'"></div>
             </div>
 
             <h3 class="student-term-header" data-ng-bind="term.termName"></h3>
 
-            <div data-ng-if="$index === 0">
-              <div data-ng-if="alerts.shown.length">
-                <div class="alert alert-warning profile-alert"
-                     data-ng-attr-id="alert-{{alert.id}}"
-                     data-ng-repeat="alert in alerts.shown">
-                  <div class="profile-alert-item">
-                    <student-alert-message alert="alert"></student-alert-message>
-                    <button id="dismiss-alert-{{alert.id}}"
-                            class="btn btn-link close"
-                            data-ng-click="dismissAlert(alert.id)"
-                            title="Dismiss alert"
-                            aria-label="Close">&times;</button>
-                  </div>
-                </div>
-              </div>
-              <div data-ng-show="!showDismissedAlerts && alerts.dismissed.length">
-                <button class="btn btn-link profile-view-previous-semesters" data-ng-click="showDismissedAlerts=true">
-                  View dismissed status alerts
-                </button>
-              </div>
-              <div data-ng-show="showDismissedAlerts && alerts.dismissed.length">
-                <button class="btn btn-link profile-view-previous-semesters" data-ng-click="showDismissedAlerts=false">
-                  Hide dismissed status alerts
-                </button>
-                <div class="alert alert-warning profile-alert">
-                  <div data-ng-repeat="alert in alerts.dismissed" class="profile-alert-item">
-                    <student-alert-message alert="alert"></student-alert-message>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <div data-ng-include="'/static/app/student/studentSemesterNotices.html'"
+                 data-ng-if="$first && (student.hasCurrentTermEnrollments || currentEnrollmentTermId <= parseInt(term.termId))"></div>
+
             <uib-accordion close-others="false">
               <div uib-accordion-group
                    is-disabled="true"
@@ -384,6 +357,11 @@
           </div>
           <div class="profile-classes" data-ng-if="!student.enrollmentTerms.length">
             No courses
+            <div data-ng-if="student.sisProfile.withdrawalCancel">
+              <span class="red-flag-small">
+                {{student.sisProfile.withdrawalCancel.description}} ({{student.sisProfile.withdrawalCancel.reason}}) {{student.sisProfile.withdrawalCancel.date | date}}
+              </span>
+            </div>
           </div>
         </div>
       </div>

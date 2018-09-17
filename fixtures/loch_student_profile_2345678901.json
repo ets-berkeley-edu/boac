@@ -48,7 +48,12 @@
         ],
         "preferredName": "Dave Doolittle",
         "primaryName": "Dave Doolittle",
-        "termsInAttendance": 5
+        "termsInAttendance": 5,
+        "withdrawalCancel": {
+            "date": "2017-08-21",
+            "description": "Withdrew",
+            "reason": "Personal"
+        }
     },
     "uid": "98765"
 }

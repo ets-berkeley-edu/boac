@@ -177,6 +177,12 @@
   font-weight: bold;
 }
 
+.red-flag-small {
+  color: #d0021b;
+  font-size: 12px;
+  font-weight: bold;
+}
+
 .return-to-url {
   padding: 10px 0 0 5px;
 }
