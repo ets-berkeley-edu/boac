@@ -24,6 +24,21 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
+from flask import current_app as app
+import pytest
+import simplejson as json
+
+
+@pytest.fixture()
+def admin_session(fake_auth):
+    fake_auth.login('2040')
+
+
+@pytest.fixture()
+def asc_advisor_session(fake_auth):
+    fake_auth.login('1081940')
+
+
 class TestCachejobAccess:
 
     def test_not_authenticated(self, client):
@@ -31,17 +46,13 @@ class TestCachejobAccess:
         response = client.get('/api/admin/cachejob')
         assert response.status_code == 401
 
-    def test_not_an_admin(self, client, fake_auth):
+    def test_not_an_admin(self, client, asc_advisor_session):
         """Return 403 for normal users."""
-        test_uid = '6446'
-        fake_auth.login(test_uid)
         response = client.get('/api/admin/cachejob')
         assert response.status_code == 401
 
-    def test_as_an_admin(self, client, fake_auth):
+    def test_as_an_admin(self, client, admin_session):
         """Return success."""
-        test_uid = '2040'
-        fake_auth.login(test_uid)
         response = client.get('/api/admin/cachejob')
         assert response.status_code == 200
         assert response.headers.get('Content-Type') == 'application/json'
@@ -65,3 +76,27 @@ class TestCachejobAccess:
         headers = {'app_key': None}
         response = client.get('/api/admin/cachejob', headers=headers)
         assert response.status_code == 401
+
+
+class TestConfigManagement:
+
+    def test_set_demo_mode_not_authenticated(self, client):
+        """Require authentication."""
+        assert client.post('/api/admin/demo_mode').status_code == 401
+
+    def test_set_demo_mode_not_an_admin(self, client, asc_advisor_session):
+        """Return 403 for non-admin user."""
+        response = client.post('/api/admin/demo_mode')
+        assert response.status_code == 401
+
+    def test_admin_set_demo_mode(self, client, admin_session):
+        """Return 403 for non-admin user."""
+        assert app.config['DEMO_MODE']['blur'] is False
+        # Verify toggle
+        for blur in [True, False]:
+            response = client.post('/api/admin/demo_mode', data=json.dumps({'blur': blur}), content_type='application/json')
+            assert response.status_code == 200
+            assert response.json['blur'] is blur
+            response = client.get('/api/config')
+            assert response.status_code == 200
+            assert response.json['demoMode']['blur'] is blur

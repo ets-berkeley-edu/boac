@@ -27,19 +27,19 @@
 
   'use strict';
 
-  angular.module('boac').factory('userFactory', function($http) {
+  angular.module('boac').factory('adminFactory', function($http) {
 
-    var getAllUserProfiles = function() {
-      return $http.get('/api/profiles/all');
+    var becomeUser = function(uid) {
+      return $http.post('/api/admin/become_user', {uid: uid});
     };
 
-    var getUserProfile = function(uid) {
-      return $http.get('/api/profile/' + uid);
+    var setDemoMode = function(blur) {
+      return $http.post('/api/admin/demo_mode', {blur: blur});
     };
 
     return {
-      getAllUserProfiles: getAllUserProfiles,
-      getUserProfile: getUserProfile
+      becomeUser: becomeUser,
+      setDemoMode: setDemoMode
     };
   });
 

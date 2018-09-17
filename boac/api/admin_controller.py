@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.api import cache_utils
+from boac.api.errors import BadRequestError
 from boac.api.util import admin_required
 from boac.lib import berkeley
 from boac.lib.http import tolerant_jsonify
@@ -35,6 +36,18 @@ from flask import current_app as app, request
 def term():
     term_id = request.args.get('term') or berkeley.current_term_id()
     return term_id
+
+
+@app.route('/api/admin/demo_mode', methods=['POST'])
+@admin_required
+def set_demo_mode():
+    blur = request.get_json().get('blur', None)
+    if blur is None:
+        raise BadRequestError('Parameter \'demoMode\' not found')
+    demo_mode = app.config['DEMO_MODE']
+    demo_mode['blur'] = bool(blur)
+    app.config.update(DEMO_MODE=demo_mode)
+    return tolerant_jsonify(app.config['DEMO_MODE'])
 
 
 @app.route('/api/admin/cachejob')
