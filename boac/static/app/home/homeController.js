@@ -66,14 +66,6 @@
       $scope.myCuratedCohorts.push(cohortService.decorate(data.cohort));
     });
 
-    $rootScope.$on('myFilteredCohortsUpdated', function() {
-      page.loading(true);
-      cohortService.loadMyFilteredCohorts(function(myFilteredCohorts) {
-        $scope.myFilteredCohorts = myFilteredCohorts;
-        page.loading(false);
-      });
-    });
-
     init();
   });
 

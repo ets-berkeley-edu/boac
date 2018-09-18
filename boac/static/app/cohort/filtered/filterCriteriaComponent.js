@@ -213,11 +213,9 @@
       saveCohort: {
         onClick: function(openCreateCohortModal) {
           var filterCriteria = cohortUtils.toFilterCriteria($scope.filters.definitions, $scope.filters.added);
-          var done = function(cohort) {
-            if (cohort) {
-              $scope.buttons.saveCohort.show = false;
-              $scope.callbacks.onSave(cohort);
-            }
+          var done = function() {
+            $scope.buttons.saveCohort.show = false;
+            $scope.callbacks.onSave($scope.search.cohort);
             $scope.isSaving = false;
           };
 

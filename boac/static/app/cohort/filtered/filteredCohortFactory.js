@@ -88,7 +88,7 @@
       };
       return $http.post('/api/filtered_cohort/update', args).then(function(response) {
         $rootScope.$broadcast('myFilteredCohortsUpdated');
-        $rootScope.$broadcast('filteredCohortNameChanged', {
+        $rootScope.$broadcast('filteredCohortUpdated', {
           cohort: response.data
         });
       });

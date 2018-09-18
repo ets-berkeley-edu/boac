@@ -56,10 +56,11 @@
       });
     });
 
-    $rootScope.$on('filteredCohortNameChanged', function(event, data) {
-      _.each($scope.myFilteredCohorts, function(filteredCohort) {
-        if (filteredCohort.id === data.cohort.id) {
-          filteredCohort.name = data.cohort.name;
+    $rootScope.$on('filteredCohortUpdated', function(event, data) {
+      _.each($scope.myFilteredCohorts, function(cohort) {
+        if (cohort.id === data.cohort.id) {
+          cohort.name = data.cohort.name;
+          cohort.totalStudentCount = data.cohort.totalStudentCount;
         }
       });
     });

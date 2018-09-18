@@ -89,11 +89,12 @@
       }
     });
 
-    $rootScope.$on('filteredCohortNameChanged', function(event, data) {
+    $rootScope.$on('filteredCohortUpdated', function(event, data) {
       if (_.get($rootScope, 'me.myFilteredCohorts')) {
         _.each($rootScope.me.myFilteredCohorts, function(cohort) {
           if (data.cohort.id === cohort.id) {
             cohort.name = data.cohort.name;
+            cohort.totalStudentCount = data.cohort.totalStudentCount;
           }
         });
       }

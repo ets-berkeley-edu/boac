@@ -90,7 +90,7 @@ class TestConfigManagement:
         assert response.status_code == 401
 
     def test_admin_set_demo_mode(self, client, admin_session):
-        """Return 403 for non-admin user."""
+        """Admin successfully toggles demo mode."""
         assert app.config['DEMO_MODE']['blur'] is False
         # Verify toggle
         for blur in [True, False]:
