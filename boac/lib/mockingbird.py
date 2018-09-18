@@ -33,10 +33,10 @@ import urllib
 
 from boac.lib.util import fill_pattern_from_args
 from flask import current_app as app
-import httpretty
+import responses
 
 
-"""This module wraps the httpretty package to return fake external API responses in test or demo mode.
+"""This module wraps the responses package to return fake external API responses in test or demo mode.
 
 A module can define mock behavior by using the @mockable decorator on a function that calls an external URL, and the
 @mocking decorator on a function that returns the fake response.
@@ -46,9 +46,9 @@ A test function can temporarily substitute custom mock behavior with the registe
 
 
 class MockResponse:
-    """A callable object that can be passed into httpretty's register_uri method with the 'body' keyword.
+    """A callable object that can be passed into responses' add_callback method with the 'callback' keyword.
 
-    Despite that keyword's name, it takes a tuple including status and headers as well as response body.
+    That keyword expects a function returning a three-part tuple: status, headers, and body.
 
     Functions that use the @mocking decorator should return a MockResponse object.
 
@@ -81,8 +81,8 @@ def _unregister_mock(request_function):
 def mockable(func):
     """Mark function as mockable.
 
-    Since httpretty registers mock responses against URLs, the function to be decorated must generate (or have access
-    to) the complete URL to be called.
+    Since the responses package registers mock responses against URLs, the function to be decorated must generate
+    (or have access to) the complete URL to be called.
 
     Functions using this decorator should accept an optional 'mock' argument. The decorator will replace this argument
     with a context manager that activates the mock response currently associated to the mockable function in the
@@ -281,11 +281,10 @@ def register_mock(request_function, response):
 @contextmanager
 def _activate_mock(url, mock_response, method='get'):
     if mock_response and _environment_supports_mocks():
-        httpretty.enable()
-        http_method = getattr(httpretty, method.upper())
-        httpretty.register_uri(http_method, url, body=mock_response)
-        yield
-        httpretty.disable()
+        with responses.RequestsMock() as rsps:
+            http_method = getattr(responses, method.upper())
+            rsps.add_callback(http_method, url, callback=mock_response)
+            yield
     else:
         yield
 
