@@ -162,7 +162,8 @@
               type: d.type,
               subcategory: {
                 name: getRangeDisplayName(start, stop),
-                value: [start, stop]
+                value: [start, stop],
+                range: {start: start, stop: stop}
               }
             });
             d.disabled = true;

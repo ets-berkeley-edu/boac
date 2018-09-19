@@ -79,7 +79,7 @@
       return $http.get('/api/filtered_cohorts/my');
     };
 
-    var update = function(id, label, filterCriteria, studentCount) {
+    var update = function(id, label, filterCriteria, studentCount, callback) {
       var args = {
         id: id,
         label: label,
@@ -87,10 +87,13 @@
         studentCount: studentCount
       };
       return $http.post('/api/filtered_cohort/update', args).then(function(response) {
+        var cohort = response.data;
+
         $rootScope.$broadcast('myFilteredCohortsUpdated');
         $rootScope.$broadcast('filteredCohortUpdated', {
-          cohort: response.data
+          cohort: cohort
         });
+        callback(cohort);
       });
     };
 

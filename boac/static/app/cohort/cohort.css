@@ -81,6 +81,10 @@
   color: #337abf;
 }
 
+.btn-filter-draft-saved {
+  background-color: #0b6623;
+}
+
 .btn-filter-subcategory {
   width: 400px;
 }
@@ -210,6 +214,7 @@
   border-left: 6px solid #3b7ea5 !important;
   display: flex;
   flex-direction: row;
+  height: 46;
   justify-content: space-between;
   margin: 5px 0 5px 0;
   padding: 2px 10px 2px 10px;
@@ -490,11 +495,14 @@
 .filter-range-container {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  padding: 0 15px 0 10px;
+  padding-right: 15px;
 }
 
-.filter-range-label {
+.filter-range-label-start {
+  padding: 10px 8px 0 0;
+}
+
+.filter-range-label-stop {
   padding: 10px 8px 0 10px;
 }
 
