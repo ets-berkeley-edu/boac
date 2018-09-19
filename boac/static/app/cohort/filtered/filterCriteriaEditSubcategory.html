@@ -39,7 +39,7 @@
   Subcategory type: 'range'
 -->
 <div class="filter-range-container" data-ng-if="filter.type === 'range'">
-  <div class="filter-range-label">
+  <div class="filter-range-label-start">
     <span data-ng-bind="filter.subcategoryHeader[0]"></span>
   </div>
   <div>
@@ -48,7 +48,7 @@
            data-ng-change="filter.subcategory.onChange()"
            maxlength="1">
   </div>
-  <div class="filter-range-label">
+  <div class="filter-range-label-stop">
     <span data-ng-bind="filter.subcategoryHeader[1]"></span>
   </div>
   <div>

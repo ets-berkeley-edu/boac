@@ -63,6 +63,7 @@
     $uibModalInstance,
     cohort,
     filteredCohortFactory,
+    page,
     validationService
   ) {
 
@@ -70,6 +71,7 @@
 
     $scope.delete = function(item) {
       filteredCohortFactory.deleteCohort(item).then(function() {
+        page.loading(true);
         $uibModalInstance.close();
       }).catch(function(error) {
         $scope.error = validationService.parseError(error);
