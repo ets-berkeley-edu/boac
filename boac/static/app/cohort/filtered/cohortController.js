@@ -40,8 +40,7 @@
     page,
     studentFactory,
     utilService,
-    validationService,
-    visualizationService
+    validationService
   ) {
 
     /**
@@ -56,7 +55,6 @@
       input: null,
       on: false
     };
-    $scope.tab = $location.search().tab || 'list';
 
     /**
      * Object (ie, model) rendered on page.
@@ -126,29 +124,12 @@
       });
     };
 
-    var scatterplotRefresh = function() {
-      if ($scope.tab === 'matrix') {
-        var goToUserPage = function(uid) {
-          $location.state($location.absUrl());
-          $location.path('/student/' + uid);
-          // The intervening visualizationService code moves out of Angular and into d3 thus the extra kick of $apply.
-          $scope.$apply();
-        };
-        visualizationService.scatterplotRefresh($scope.search.results.students, goToUserPage, function(yAxisMeasure, studentsWithoutData) {
-          $scope.yAxisMeasure = yAxisMeasure;
-          // List of students-without-data is rendered below the scatterplot.
-          $scope.studentsWithoutData = studentsWithoutData;
-        });
-      }
-    };
-
     var resetAddressBar = function(cohort) {
       $location.url($location.path());
       $location.search('id', cohort.id);
       $location.search('details', _.toString($scope.filtersVisible));
       $location.search('orderBy', $scope.search.orderBy.selected);
       $location.search('page', $scope.search.pagination.currentPage);
-      $location.search('tab', $scope.tab);
 
       $rootScope.pageTitle = cohort.name;
     };
@@ -194,15 +175,6 @@
         });
         $rootScope.pageTitle = $scope.search.cohort.name || 'Filtered Cohort';
 
-        if (utilService.exceedsMatrixThreshold(_.get($scope, 'search.results.totalStudentCount'))) {
-          $scope.matrixDisabledMessage = utilService.exceedsMatrixThresholdMessage;
-        } else if (visualizationService.partitionPlottableStudents($scope.search.results.students)[0].length === 0) {
-          $scope.matrixDisabledMessage = 'No student data is available to display.';
-        } else {
-          $scope.matrixDisabledMessage = null;
-        }
-        scatterplotRefresh();
-
       } else {
         $rootScope.pageTitle = 'Create a Filtered Cohort';
         makeFiltersVisible(true);
@@ -210,8 +182,8 @@
       page.loading(false);
     };
 
-    var init = $scope.nextPage = $scope.onTab = function(tab, searchCriteria, offsetOverride, limitOverride) {
-      // This function is invoked in various ways: 'Apply' button, list/matrix toggle or pagination click.
+    var init = $scope.nextPage = function(searchCriteria, offsetOverride, limitOverride) {
+      // This function is invoked via 'Apply' button or pagination click.
       page.loading(true);
       $anchorScroll();
 
@@ -220,19 +192,11 @@
         var filterDefinitions = _.flatten(filterCategories);
         var criteria = searchCriteria || getFilterCriteriaFromLocation(filterDefinitions) || null;
         var isSearching = $scope.isSearching = !!_.find(_.values(criteria));
-
-        $scope.tab = isSearching ? tab || $scope.tab : 'list';
-        $location.search('tab', $scope.tab);
-
         var currentPage = $scope.search.pagination.currentPage;
         var queryArgs = _.clone($location.search());
         var limit = limitOverride || $scope.search.pagination.itemsPerPage;
         var offset = _.isNil(offsetOverride) ? (currentPage - 1) * limit : offsetOverride;
-        // In matrix view we must fetch all students.
-        if ($scope.tab === 'matrix') {
-          limit = Number.MAX_SAFE_INTEGER;
-          offset = 0;
-        }
+
         if (queryArgs.orderBy && _.find($scope.search.orderBy.options, ['value', queryArgs.orderBy])) {
           $scope.search.orderBy.selected = queryArgs.orderBy;
         }
@@ -305,7 +269,7 @@
     $scope.callbacks = {
       applyFilters: function(filterCriteria) {
         $scope.search.pagination.currentPage = 1;
-        init('list', filterCriteria);
+        init(filterCriteria);
       },
       onSave: function(cohort) {
         // Do not reload the page

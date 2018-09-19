@@ -28,7 +28,6 @@
   'use strict';
 
   angular.module('boac').controller('CuratedCohortController', function(
-    $location,
     $rootScope,
     $scope,
     $stateParams,
@@ -38,8 +37,7 @@
     curatedCohortFactory,
     page,
     utilService,
-    validationService,
-    visualizationService
+    validationService
   ) {
 
     $scope.currentEnrollmentTerm = config.currentEnrollmentTerm;
@@ -85,43 +83,6 @@
       }
     };
 
-    /**
-     * @param  {Function}    callback      Standard callback function
-     * @return {void}
-     */
-    var matrixViewRefresh = function(callback) {
-      page.loading(true);
-      var goToUserPage = function(uid) {
-        $location.state($location.absUrl());
-        $location.path('/student/' + uid);
-        // The intervening visualizationService code moves out of Angular and into d3 thus the extra kick of $apply.
-        $scope.$apply();
-      };
-      visualizationService.scatterplotRefresh($scope.cohort.students, goToUserPage, function(yAxisMeasure, studentsWithoutData) {
-        $scope.yAxisMeasure = yAxisMeasure;
-        // List of students-without-data is rendered below the scatterplot.
-        $scope.studentsWithoutData = studentsWithoutData;
-      });
-      return callback();
-    };
-
-    /**
-     * @param  {String}    tabName          Name of tab clicked by user
-     * @return {void}
-     */
-    var onTab = $scope.onTab = function(tabName) {
-      $scope.tab = tabName;
-      $location.search('tab', $scope.tab);
-      // Lazy load matrix data
-      if (tabName === 'matrix') {
-        matrixViewRefresh(function() {
-          page.loading(false);
-        });
-      } else if (tabName === 'list') {
-        // Do nothing.
-      }
-    };
-
     $scope.removeFromCuratedCohort = function(student) {
       curatedCohortFactory.removeStudent($scope.cohort, student).then(function() {
         $scope.cohort.students = _.remove($scope.cohort.students, function(s) {
@@ -131,19 +92,12 @@
     };
 
     var init = function() {
-      page.loading(true);
       var id = $stateParams.id;
-      var args = _.clone($location.search());
 
+      page.loading(true);
       curatedCohortFactory.getCuratedCohort(id).then(function(response) {
         $scope.cohort = response.data;
-        onTab(_.includes(['list', 'matrix'], args.tab) ? args.tab : 'list');
         $rootScope.pageTitle = $scope.cohort.name || 'Curated Cohort';
-        if (visualizationService.partitionPlottableStudents($scope.cohort.students)[0].length === 0) {
-          $scope.matrixDisabledMessage = 'No student data is available to display.';
-        } else {
-          $scope.matrixDisabledMessage = null;
-        }
         page.loading(false);
       }).catch(function(err) {
         $scope.error = validationService.parseError(err);
