@@ -23,7 +23,7 @@ pytz==2018.5
 
 # For testing
 
-https://github.com/gabrielfalcao/HTTPretty/archive/master.zip
 pytest==3.8.0
 pytest-flask==0.12.0
+responses==0.9.0
 tox==3.3.0
