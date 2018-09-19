@@ -169,27 +169,6 @@
         .ticks(10, d3.format(',d'))
         .tickSize(-width);
 
-      var zoom = d3.zoom()
-        .scaleExtent([1, 10])
-        .translateExtent([[0, 0], [width, height]])
-        .on('zoom', function() {
-          var transform = d3.event.transform;
-
-          var xNewScale = transform.rescaleX(xScale);
-          xAxis.scale(xNewScale);
-          svg.select('.x.matrix-axis').call(xAxis);
-
-          var yNewScale = transform.rescaleY(yScale);
-          yAxis.scale(yNewScale);
-          svg.select('.y.matrix-axis').call(yAxis);
-
-          svg.select('.matrix-gradient-rect').attr('transform', transform);
-
-          svg.selectAll('.dot')
-            .attr('cx', function(d) { return transform.applyX(xScale(x(d))); })
-            .attr('cy', function(d) { return transform.applyY(yScale(y(d))); });
-        });
-
       var container = d3.select('#matrix-container');
 
       // We clear the '#scatterplot' div with `html()` in case the current search results are replacing previous results.
@@ -199,8 +178,7 @@
         .attr('class', 'matrix-svg')
         .attr('width', width)
         .attr('height', height)
-        .attr('stroke', 1)
-        .call(zoom);
+        .attr('stroke', 1);
 
       svg.append('g')
         .attr('clip-path', 'url(#clip-inner)')
