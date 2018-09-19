@@ -32,7 +32,7 @@
           <span data-ng-pluralize count="search.results.totalStudentCount" when="{'one': '1 Result', 'other': '{} Results'}"></span>
         </h1>
       </div>
-      <div data-ng-if="tab === 'list'">
+      <div>
         <div class="cohort-rename-container" data-ng-if="renameMode.on">
           <div>
             <form name="renameCohortForm" data-ng-submit="rename($event)">
@@ -56,7 +56,7 @@
           <div class="faint-text">255 character limit <span data-ng-if="renameMode.input.length">({{255 - renameMode.input.length}} left)</span></div>
         </div>
       </div>
-      <div class="cohort-header-buttons no-wrap" data-ng-if="tab === 'list' && renameMode.on">
+      <div class="cohort-header-buttons no-wrap" data-ng-if="renameMode.on">
         <button type="button"
                 id="filtered-cohort-rename"
                 aria-disabled="{{!renameMode.input}}"
@@ -74,14 +74,15 @@
           Cancel
         </button>
       </div>
-      <div class="cohort-header-button-links no-wrap" data-ng-if="tab === 'list' && !renameMode.on">
+      <div class="cohort-header-button-links no-wrap" data-ng-if="!renameMode.on">
         <span data-ng-if="isSearching || search.cohort.id">
           <button type="button"
                   aria-pressed="{{filtersVisible}}"
                   data-ng-attr-id="{{filtersVisible ? 'hide' : 'show'}}-details-button"
                   id="hide-details-button"
                   class="btn-link cohort-manage-btn-link"
-                  data-ng-click="makeFiltersVisible(!filtersVisible)">
+                  data-ng-click="makeFiltersVisible(!filtersVisible)"
+                  data-ng-keypress="makeFiltersVisible(!filtersVisible)">
             {{filtersVisible ? 'Hide' : 'Show'}} Filters
           </button>
         </span>
@@ -107,30 +108,29 @@
         </span>
       </div>
     </div>
-
-    <div data-ng-show="filtersVisible">
-      <filter-criteria allow-save="isSearching"
-                       callbacks="callbacks"
-                       filter-categories="filterCategories"
-                       search="search"
-                       data-ng-if="!isLoading && tab === 'list' && filterCategories && !error"></filter-criteria>
-    </div>
+    <uib-accordion>
+      <div uib-accordion-group
+           class="cohort-filter-criteria-panel"
+           is-open="filtersVisible"
+           aria-expanded="{{filtersVisible}}">
+        <filter-criteria allow-save="isSearching"
+                         callbacks="callbacks"
+                         filter-categories="filterCategories"
+                         search="search"
+                         data-ng-if="!isLoading && filterCategories && !error"></filter-criteria>
+      </div>
+    </uib-accordion>
 
     <hr class="filters-section-separator" data-ng-if="search.results.totalStudentCount"/>
 
     <div class="cohort-column-results">
-      <div class="cohort-tabs-container"
-           data-ng-if="!isLoading && !error && (tab === 'matrix' || search.results.totalStudentCount)">
-
-        <div class="cohort-tabs-container-column-01">
+      <div class="cohort-list-header" data-ng-if="!isLoading && !error && search.results.totalStudentCount">
+        <div class="cohort-list-header-column-01">
           <curated-cohort-selector data-students="search.results.students"
-                                   data-ng-if="search.results.totalStudentCount && (tab === 'list')"></curated-cohort-selector>
+                                   data-ng-if="search.results.totalStudentCount"></curated-cohort-selector>
         </div>
-        <div class="cohort-tabs-container-column-02">
-          <div data-ng-include="'/static/app/shared/tabs.html'"></div>
-        </div>
-        <div class="cohort-tabs-container-column-03">
-          <div class="cohort-sort-column" data-ng-if="tab === 'list'">
+        <div class="cohort-list-header-column-02">
+          <div class="cohort-sort-column">
             <label class="cohort-sort-label" for="cohort-sort-by">Sort by</label>
             <select id="cohort-sort-by"
                     class="form-control"
@@ -141,8 +141,7 @@
         </div>
       </div>
 
-      <div data-ng-show="tab === 'list'"
-           data-ng-if="!isLoading && !error && search.results.totalStudentCount">
+      <div data-ng-if="!isLoading && !error && search.results.totalStudentCount">
         <ul id="cohort-students-list" class="list-group">
           <div class="list-group-item cohort-student-list-item"
                data-ng-class="{'list-group-item-info': anchor===student.uid}"
@@ -283,10 +282,6 @@
             rotate="false"
             template-url="/static/app/shared/uibPaginationTemplate.html"
             total-items="search.results.totalStudentCount"></ul>
-      </div>
-      <div id="matrix-outer"
-           data-ng-show="tab === 'matrix' && !isLoading && !error">
-        <div data-ng-include="'/static/app/shared/matrix.html'"></div>
       </div>
     </div>
   </div>
