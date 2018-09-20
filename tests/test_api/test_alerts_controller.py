@@ -26,8 +26,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.models.alert import Alert
 
-advisor_1_uid = '2040'
-advisor_2_uid = '1133399'
+admin_uid = '2040'
+coe_advisor = '1133399'
 
 
 class TestAlertsController:
@@ -38,7 +38,7 @@ class TestAlertsController:
 
     def test_current_alerts_for_sid(self, create_alerts, fake_auth, client):
         """Returns current_user's current alerts for a given sid."""
-        fake_auth.login(advisor_1_uid)
+        fake_auth.login(admin_uid)
         response = client.get('/api/alerts/current/11667051')
         assert response.status_code == 200
         assert len(response.json['shown']) == 3
@@ -55,7 +55,7 @@ class TestAlertsController:
 
     def test_dismiss_alerts(self, create_alerts, fake_auth, client):
         """Can dismiss alerts for one user without affecting visibility for other users."""
-        fake_auth.login(advisor_1_uid)
+        fake_auth.login(admin_uid)
         advisor_1_deborah_alerts = client.get('/api/alerts/current/11667051').json
         assert len(advisor_1_deborah_alerts['shown']) == 3
         assert len(advisor_1_deborah_alerts['dismissed']) == 0
@@ -68,14 +68,14 @@ class TestAlertsController:
         assert len(advisor_1_deborah_alerts['shown']) == 2
         assert len(advisor_1_deborah_alerts['dismissed']) == 1
 
-        fake_auth.login(advisor_2_uid)
+        fake_auth.login(coe_advisor)
         advisor_2_deborah_alerts = client.get('/api/alerts/current/11667051').json
         assert len(advisor_2_deborah_alerts['shown']) == 3
         assert len(advisor_2_deborah_alerts['dismissed']) == 0
 
     def test_duplicate_dismiss_alerts(self, create_alerts, fake_auth, client):
         """Shrugs off duplicate dismissals."""
-        fake_auth.login(advisor_1_uid)
+        fake_auth.login(admin_uid)
         advisor_1_deborah_alerts = client.get('/api/alerts/current/11667051').json
         alert_id = advisor_1_deborah_alerts['shown'][0]['id']
         response = client.get('/api/alerts/' + str(alert_id) + '/dismiss')
@@ -85,7 +85,7 @@ class TestAlertsController:
 
     def test_dismiss_nonexistent_alerts(self, create_alerts, fake_auth, client):
         """Politely handles nonexistent alert dismissals."""
-        fake_auth.login(advisor_1_uid)
+        fake_auth.login(admin_uid)
         response = client.get('/api/alerts/99999999/dismiss')
         assert response.status_code == 400
         assert response.json['message'] == 'No alert found for id 99999999'
@@ -94,13 +94,13 @@ class TestAlertsController:
         """Can programmatically deactivate alerts, removing them for all users."""
         Alert.query.filter_by(key='2178_800900300').first().deactivate()
 
-        fake_auth.login(advisor_1_uid)
+        fake_auth.login(admin_uid)
         advisor_1_deborah_alerts = client.get('/api/alerts/current/11667051').json
         assert len(advisor_1_deborah_alerts['shown']) == 2
         assert advisor_1_deborah_alerts['shown'][0]['key'] == '2178_500600700'
         assert len(advisor_1_deborah_alerts['dismissed']) == 0
 
-        fake_auth.login(advisor_2_uid)
+        fake_auth.login(coe_advisor)
         advisor_2_deborah_alerts = client.get('/api/alerts/current/11667051').json
         assert len(advisor_2_deborah_alerts['shown']) == 2
         assert advisor_2_deborah_alerts['shown'][0]['key'] == '2178_500600700'
