@@ -35,7 +35,7 @@
       var tooltipBodyFormat = '<div class="profile-tooltip-content">' +
                               '<div class="profile-tooltip-row">' +
                               '<div class="profile-tooltip-swatch" style="background-color:#aec9eb"></div>' +
-                              '<div class="profile-tooltip-label">Cumulative Units</div>' +
+                              '<div class="profile-tooltip-label">Units Completed</div>' +
                               '<div class="profile-tooltip-value">' + cumulativeUnits + '</div></div>' +
                               '<div class="profile-tooltip-row">' +
                               '<div class="profile-tooltip-swatch" style="background-color:#d6e4f9"></div>' +

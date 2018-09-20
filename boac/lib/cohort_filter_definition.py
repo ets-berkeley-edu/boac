@@ -62,7 +62,7 @@ def get_cohort_filter_definitions(scope):
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
                 'key': 'unitRanges',
-                'name': 'Units',
+                'name': 'Units Completed',
                 'options': _unit_ranges,
                 'param': 'units',
                 'subcategoryHeader': 'Choose...',
