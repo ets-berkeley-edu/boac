@@ -256,6 +256,7 @@
       if (filterDefinition && !filterDefinition.disabled) {
         $scope.draft = initDraft(filterDefinition);
         $scope.search.buttons.apply.redraw();
+        $scope.draft.buttons.cancel.show = true;
       }
     };
 
@@ -263,7 +264,6 @@
       if (option !== null && !option.disabled) {
         $scope.draft.subcategory = option;
         $scope.draft.buttons.add.show = true;
-        $scope.draft.buttons.cancel.show = true;
       }
     };
 
