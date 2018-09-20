@@ -346,6 +346,7 @@
   align-items: center;
   display: flex;
   flex: 0 0 30px;
+  position: relative;
 }
 
 .cohort-list-view-column-grade {

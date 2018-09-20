@@ -104,6 +104,7 @@ def get_cohort(cohort_id):
             order_by=order_by,
             offset=int(offset),
             limit=int(limit),
+            include_alerts_for_uid=current_user.uid,
             include_profiles=True,
             include_students=include_students,
         )

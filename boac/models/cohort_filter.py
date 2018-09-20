@@ -182,6 +182,7 @@ class CohortFilter(Base, UserMixin):
             is_active_asc = not is_inactive_asc
         else:
             is_active_asc = None if is_inactive_asc is None else not is_inactive_asc
+        sids_only = not include_students
         results = query_students(
             advisor_ldap_uids=advisor_ldap_uids,
             coe_prep_statuses=coe_prep_statuses,
@@ -198,7 +199,7 @@ class CohortFilter(Base, UserMixin):
             majors=majors,
             offset=offset,
             order_by=order_by,
-            sids_only=not include_students,
+            sids_only=sids_only,
             underrepresented=underrepresented,
             unit_ranges=unit_ranges,
         )
@@ -217,8 +218,14 @@ class CohortFilter(Base, UserMixin):
             if include_alerts_for_uid:
                 viewer = AuthorizedUser.find_by_uid(include_alerts_for_uid)
                 if viewer:
-                    alert_counts = Alert.current_alert_counts_for_sids(viewer.id, results['sids'])
+                    sids = results.get('sids') if sids_only else [s['sid'] for s in results.get('students')]
+                    alert_counts = Alert.current_alert_counts_for_sids(viewer.id, sids)
                     cohort_json.update({
                         'alerts': alert_counts,
                     })
+                    if include_students:
+                        counts_per_sid = {a.get('sid'): a.get('alertCount') for a in alert_counts}
+                        for student in results.get('students'):
+                            sid = student['sid']
+                            student['alertCount'] = counts_per_sid.get(sid) if sid in counts_per_sid else 0
         return cohort_json
