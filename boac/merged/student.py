@@ -97,6 +97,7 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None):
 
     enrollments_for_term = data_loch.get_enrollments_for_term(term_id, sids)
     enrollments_by_sid = {row['sid']: json.loads(row['enrollment_term']) for row in enrollments_for_term}
+    all_canvas_sites = {}
     for student in students:
         # Strip SIS details to lighten the API load.
         sis_profile = student.pop('sisProfile', None)
@@ -120,11 +121,17 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None):
                         'grade': enrollment.get('grade', None),
                         'gradingBasis': enrollment.get('gradingBasis', None),
                     }
-                    student['analytics'] = analytics.mean_metrics_across_sites(canvas_sites)
+                    student['analytics'] = analytics.mean_metrics_across_sites(canvas_sites, 'student')
+                    # If more than one course site is associated with this section, derive mean metrics from as many sites as possible.
+                    for site in canvas_sites:
+                        if site['canvasCourseId'] not in all_canvas_sites:
+                            all_canvas_sites[site['canvasCourseId']] = site
                     continue
+    mean_metrics = analytics.mean_metrics_across_sites(all_canvas_sites.values(), 'courseMean')
     return {
         'students': students,
         'totalStudentCount': total_student_count,
+        'meanMetrics': mean_metrics,
     }
 
 

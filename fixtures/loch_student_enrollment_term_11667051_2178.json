@@ -84,6 +84,10 @@
                 10,
                 17
               ],
+              "courseMean": {
+                "percentile": 57,
+                "raw": 6.875
+              },
               "displayPercentile": "81st",
               "student": {
                 "percentile": 64,
@@ -107,6 +111,10 @@
                 94,
                 104
               ],
+              "courseMean": {
+                "percentile": 43,
+                "raw": 73.333
+              },
               "displayPercentile": "76th",
               "student": {
                 "percentile": 73,
@@ -117,8 +125,8 @@
             "lastActivity": {
               "boxPlottable": true,
               "courseDeciles": [
-                1533021840,
-                1533864420,
+                0,
+                0,
                 1533975180,
                 1534134360,
                 1534296120,
@@ -129,6 +137,10 @@
                 1535264940,
                 1535533860
               ],
+              "courseMean": {
+                "percentile": 45,
+                "raw": 1534360153.3705
+              },
               "displayPercentile": "90th",
               "student": {
                 "percentile": 93,
@@ -152,6 +164,7 @@
                 "roundedUpPercentile": null
               },
               "courseDeciles": null,
+              "courseMean": null,
               "displayPercentile": null
             },
             "currentScore": {
@@ -174,6 +187,10 @@
                 93,
                 98
               ],
+              "courseMean": {
+                "percentile": 38,
+                "raw": 86.544
+              },
               "displayPercentile": "11th"
             },
             "lastActivity": {
@@ -196,6 +213,10 @@
                 1527714838,
                 1531151430
               ],
+              "courseMean": {
+                "percentile": 47,
+                "raw": "1526319432.333"
+              },
               "displayPercentile": "23rd"
             }
           },

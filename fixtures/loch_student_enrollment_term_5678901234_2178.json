@@ -41,6 +41,10 @@
                 10,
                 17
               ],
+              "courseMean": {
+                "percentile": 57,
+                "raw": 6.875
+              },
               "displayPercentile": "81st",
               "student": {
                 "percentile": 64,
@@ -64,6 +68,10 @@
                 94,
                 104
               ],
+              "courseMean": {
+                "percentile": 43,
+                "raw": 73.333
+              },
               "displayPercentile": "76th",
               "student": {
                 "percentile": 73,
@@ -86,6 +94,10 @@
                 1535264940,
                 1535533860
               ],
+              "courseMean": {
+                "percentile": 45,
+                "raw": 1534360153.3705
+              },
               "displayPercentile": "20th",
               "student": {
                 "percentile": 20,
@@ -104,6 +116,7 @@
             "assignmentsSubmitted": {
               "boxPlottable": false,
               "courseDeciles": null,
+              "courseMean": null,
               "displayPercentile": null,
               "student": {
                 "percentile": null,
@@ -115,6 +128,7 @@
             "currentScore": {
               "boxPlottable": false,
               "courseDeciles": null,
+              "courseMean": null,
               "displayPercentile": null,
               "student": {
                 "percentile": null,
@@ -125,6 +139,7 @@
             "lastActivity": {
               "boxPlottable": false,
               "courseDeciles": null,
+              "courseMean": null,
               "displayPercentile": null,
               "student": {
                 "percentile": null,

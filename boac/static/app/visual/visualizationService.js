@@ -238,7 +238,12 @@
           .attr('width', '100%')
           .attr('height', '100%')
           .attr('patternContentUnits', 'objectBoundingBox');
-        var photoUri = config.demoMode.blur ? avatarBackgroundPath : '/api/student/' + d.uid + '/photo';
+        var photoUri = null;
+        if (d.isClassMean) {
+          photoUri = '/static/app/course/class-mean-avatar.svg';
+        } else {
+          photoUri = config.demoMode.blur ? avatarBackgroundPath : '/api/student/' + d.uid + '/photo';
+        }
         var avatarImage = pattern.append('svg:image')
           .attr('xlink:href', photoUri)
           .attr('width', 1)
@@ -275,12 +280,12 @@
         .data(students, key)
         .enter().append('circle')
         .attr('class', 'dot')
-        .style('fill', '#8bbdda')
-        .style('opacity', 0.66)
+        .style('fill', function(d) { return d.isClassMean ? avatar(d) : '#8bbdda'; })
+        .style('opacity', function(d) { return d.isClassMean ? 1 : 0.66; })
         .style('stroke-width', 0)
         .attr('cx', function(d) { return xScale(x(d)); })
         .attr('cy', function(d) { return yScale(y(d)); })
-        .attr('r', 9);
+        .attr('r', function(d) { return d.isClassMean ? 22 : 9; });
 
       // Add x-axis labels.
       svg.append('text')
@@ -342,7 +347,7 @@
         // Stroke highlight.
         var selection = d3.select(this);
         selection.attr('r', '45')
-          .style('stroke-width', 5)
+          .style('stroke-width', function(_d) { return _d.isClassMean ? 0 : 5; })
           .style('stroke', '#ccc')
           .style('fill', function(_d) { return avatar(_d); })
           .style('background-image', 'url(' + avatarBackgroundPath + ')')
@@ -377,9 +382,10 @@
       };
 
       var onDotDeselected = function() {
-        d3.select(this).attr('r', '9')
-          .style('fill', '#8bbdda')
-          .style('opacity', 0.66)
+        d3.select(this)
+          .attr('r', function(_d) { return _d.isClassMean ? 22 : 9; })
+          .style('fill', function(_d) { return _d.isClassMean ? avatar(_d) : '#8bbdda'; })
+          .style('opacity', function(_d) { return _d.isClassMean ? 1 : 0.66; })
           .style('stroke-width', 0);
 
         container.select('.matrix-tooltip')
@@ -408,13 +414,22 @@
      * Draw scatterplot graph.
      *
      * @param  {Student[]}      students        Members of group, cohort or whatever
+     * @param  {Object}         meanMetrics     Mean statistics for the scatterplot context
      * @param  {Function}       goToUserPage    Browser redirects to student profile page
      * @param  {Function}       callback        Standard callback
      * @return {void}
      */
-    var scatterplotRefresh = function(students, goToUserPage, callback) {
+    var scatterplotRefresh = function(students, meanMetrics, goToUserPage, callback) {
       // Pass along a subset of students that have useful data.
       var partitions = partitionPlottableStudents(students);
+      var plottableStudents = partitions[0];
+      if (meanMetrics) {
+        plottableStudents.push({
+          analytics: meanMetrics,
+          isClassMean: true,
+          lastName: 'Class Average'
+        });
+      }
       drawScatterplot(partitions[0], yAxisMeasure(), goToUserPage);
       callback(yAxisMeasure, partitions[1]);
     };
