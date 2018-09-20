@@ -75,7 +75,7 @@
         {name: 'Level', value: 'level', available: true},
         {name: 'Major', value: 'major', available: true},
         {name: 'Team', value: 'group_name', available: canViewAsc},
-        {name: 'Units', value: 'units', available: true}
+        {name: 'Units Completed', value: 'units', available: true}
       ];
 
       return {
