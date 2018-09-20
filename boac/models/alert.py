@@ -34,6 +34,7 @@ from boac.externals import data_loch
 from boac.lib.berkeley import current_term_id, term_name_for_sis_id
 from boac.lib.util import camelize, utc_timestamp_to_localtime
 from boac.merged.student import get_full_student_profiles, get_student_query_scope
+from boac.models.authorized_user import AuthorizedUser
 from boac.models.base import Base
 from boac.models.db_relationships import AlertView
 from flask import current_app as app
@@ -334,3 +335,17 @@ class Alert(Base):
         key = f'{term_id}_withdrawal'
         message = f'Withdrawal! Student has withdrawn from the {term_name_for_sis_id(term_id)} term.'
         cls.create_or_activate(sid=sid, alert_type='withdrawal', key=key, message=message)
+
+    @classmethod
+    def include_alert_counts_for_students(cls, viewer_uid, cohort):
+        alert_counts = None
+        viewer = AuthorizedUser.find_by_uid(viewer_uid)
+        if viewer:
+            sids = cohort.get('sids') if 'sids' in cohort else [s['sid'] for s in cohort.get('students', [])]
+            alert_counts = cls.current_alert_counts_for_sids(viewer.id, sids)
+            if 'students' in cohort:
+                counts_per_sid = {s.get('sid'): s.get('alertCount') for s in alert_counts}
+                for student in cohort.get('students'):
+                    sid = student['sid']
+                    student['alertCount'] = counts_per_sid.get(sid) if sid in counts_per_sid else 0
+        return alert_counts

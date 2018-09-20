@@ -147,14 +147,15 @@ class TestCohortDetail:
         cohorts = owner['cohorts']
         assert len(cohorts) == 5
 
-    def test_get_cohort(self, coe_advisor_session, client, coe_owned_cohort):
-        """Returns a well-formed response with custom cohort."""
+    def test_get_cohort(self, coe_advisor_session, client, coe_owned_cohort, create_alerts):
+        """Returns a well-formed response with filtered cohort and alert count per student."""
         response = client.get(f'/api/filtered_cohort/{coe_owned_cohort.id}')
         assert response.status_code == 200
         cohort = json.loads(response.data)
         assert cohort['id'] == coe_owned_cohort.id
         assert cohort['label'] == coe_owned_cohort.label
         assert 'students' in cohort
+        assert cohort['students'][0].get('alertCount') == 3
 
     def test_get_cohort_without_students(self, coe_advisor_session, client, coe_owned_cohort):
         """Returns a well-formed response with cohort and no students."""

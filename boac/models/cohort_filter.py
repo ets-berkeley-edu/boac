@@ -216,16 +216,8 @@ class CohortFilter(Base, UserMixin):
                     'students': results['students'],
                 })
             if include_alerts_for_uid:
-                viewer = AuthorizedUser.find_by_uid(include_alerts_for_uid)
-                if viewer:
-                    sids = results.get('sids') if sids_only else [s['sid'] for s in results.get('students')]
-                    alert_counts = Alert.current_alert_counts_for_sids(viewer.id, sids)
-                    cohort_json.update({
-                        'alerts': alert_counts,
-                    })
-                    if include_students:
-                        counts_per_sid = {a.get('sid'): a.get('alertCount') for a in alert_counts}
-                        for student in results.get('students'):
-                            sid = student['sid']
-                            student['alertCount'] = counts_per_sid.get(sid) if sid in counts_per_sid else 0
+                alert_counts = Alert.include_alert_counts_for_students(viewer_uid=include_alerts_for_uid, cohort=results)
+                cohort_json.update({
+                    'alerts': alert_counts,
+                })
         return cohort_json

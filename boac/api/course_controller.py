@@ -29,8 +29,9 @@ from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged.sis_sections import get_sis_section
 from boac.merged.student import get_course_student_profiles
+from boac.models.alert import Alert
 from flask import current_app as app, request
-from flask_login import login_required
+from flask_login import current_user, login_required
 
 
 @app.route('/api/section/<term_id>/<section_id>')
@@ -45,5 +46,7 @@ def get_section(term_id, section_id):
     section = get_sis_section(term_id, section_id)
     if not section:
         raise ResourceNotFoundError(f'No section {section_id} in term {term_id}')
-    section.update(get_course_student_profiles(term_id, section_id, offset=offset, limit=limit))
+    student_profiles = get_course_student_profiles(term_id, section_id, offset=offset, limit=limit)
+    section.update(student_profiles)
+    Alert.include_alert_counts_for_students(viewer_uid=current_user.uid, cohort=student_profiles)
     return tolerant_jsonify(section)

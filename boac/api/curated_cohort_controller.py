@@ -72,18 +72,17 @@ def delete_curated_cohort(curated_cohort_id):
 @app.route('/api/curated_cohort/<curated_cohort_id>')
 @login_required
 def get_curated_cohort(curated_cohort_id):
-    curated_cohort = CuratedCohort.find_by_id(curated_cohort_id)
-    if not curated_cohort:
+    cohort = CuratedCohort.find_by_id(curated_cohort_id)
+    if not cohort:
         raise ResourceNotFoundError(f'Sorry, no cohort found with id {curated_cohort_id}.')
-    if curated_cohort.owner_id != current_user.id:
-        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {curated_cohort.id}')
-    alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
-    curated_cohort = curated_cohort.to_api_json(sids_only=True)
-    sids = [s['sid'] for s in curated_cohort['students']]
-    curated_cohort['students'] = get_summary_student_profiles(sids)
-    api_util.add_alert_counts(alert_counts, curated_cohort['students'])
-    curated_cohort['students'] = api_util.sort_students_by_name(curated_cohort['students'])
-    return tolerant_jsonify(curated_cohort)
+    if cohort.owner_id != current_user.id:
+        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {cohort.id}')
+    cohort = cohort.to_api_json(sids_only=True)
+    sids = [s['sid'] for s in cohort['students']]
+    cohort['students'] = get_summary_student_profiles(sids)
+    cohort['students'] = api_util.sort_students_by_name(cohort['students'])
+    Alert.include_alert_counts_for_students(viewer_uid=current_user.uid, cohort=cohort)
+    return tolerant_jsonify(cohort)
 
 
 @app.route('/api/curated_cohort/<curated_cohort_id>/remove_student/<sid>', methods=['DELETE'])
