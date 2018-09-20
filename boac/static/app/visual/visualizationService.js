@@ -150,6 +150,8 @@
       function y(d) { return _.get(d, yAxisMeasure).percentile; }
       function key(d) { return d.uid; }
 
+      var classMean = students[students.length - 1];
+
       var yAxisName = 'Assignments Submitted';
       if (yAxisMeasure === 'analytics.currentScore') {
         yAxisName = 'Assignment grades';
@@ -183,10 +185,42 @@
       svg.append('g')
         .attr('clip-path', 'url(#clip-inner)')
         .append('rect')
-        .attr('width', width)
-        .attr('height', height)
-        .attr('class', 'matrix-gradient-rect')
-        .attr('fill', 'url(#matrix-background-gradient)');
+        .attr('width', xScale(x(classMean)))
+        .attr('height', yScale(y(classMean)))
+        .attr('stroke', '#ccc')
+        .attr('stroke-width', 1)
+        .attr('fill', '#fffbda');
+
+      svg.append('g')
+        .attr('clip-path', 'url(#clip-inner)')
+        .append('rect')
+        .attr('width', xScale(x(classMean)))
+        .attr('height', height - yScale(y(classMean)))
+        .attr('y', yScale(y(classMean)))
+        .attr('stroke', '#ccc')
+        .attr('stroke-width', 1)
+        .attr('fill', '#ffdcda');
+
+      svg.append('g')
+        .attr('clip-path', 'url(#clip-inner)')
+        .append('rect')
+        .attr('width', width - xScale(x(classMean)))
+        .attr('height', yScale(y(classMean)))
+        .attr('x', xScale(x(classMean)))
+        .attr('stroke', '#ccc')
+        .attr('stroke-width', 1)
+        .attr('fill', '#e6ffda');
+
+      svg.append('g')
+        .attr('clip-path', 'url(#clip-inner)')
+        .append('rect')
+        .attr('width', width - xScale(x(classMean)))
+        .attr('height', height - yScale(y(classMean)))
+        .attr('x', xScale(x(classMean)))
+        .attr('y', yScale(y(classMean)))
+        .attr('stroke', '#ccc')
+        .attr('stroke-width', 1)
+        .attr('fill', '#fffbda');
 
       svg.append('g')
         .attr('class', 'x matrix-axis')
@@ -199,26 +233,6 @@
         .call(yAxis);
 
       var defs = svg.append('svg:defs');
-
-      var linearGradient = defs.append('linearGradient')
-        .attr('id', 'matrix-background-gradient')
-        .attr('x1', '0%')
-        .attr('y1', '100%')
-        .attr('x2', '100%')
-        .attr('y2', '0%')
-        .attr('spreadMethod', 'pad');
-      linearGradient.append('stop')
-        .attr('offset', '0%')
-        .attr('stop-color', '#ffe5e5')
-        .attr('stop-opacity', '1');
-      linearGradient.append('stop')
-        .attr('offset', '50%')
-        .attr('stop-color', '#fffde5')
-        .attr('stop-opacity', '1');
-      linearGradient.append('stop')
-        .attr('offset', '100%')
-        .attr('stop-color', '#e8ffe5')
-        .attr('stop-opacity', '1');
 
       defs.append('svg:clipPath')
         .attr('id', 'clip-inner')
@@ -430,7 +444,7 @@
           lastName: 'Class Average'
         });
       }
-      drawScatterplot(partitions[0], yAxisMeasure(), goToUserPage);
+      drawScatterplot(plottableStudents, yAxisMeasure(), goToUserPage);
       callback(yAxisMeasure, partitions[1]);
     };
 
