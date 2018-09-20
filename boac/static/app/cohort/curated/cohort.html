@@ -50,10 +50,7 @@
             </button>
           </div>
           <div class="cohort-list-view-column-01">
-            <img class="student-avatar student-avatar-large"
-                 data-ng-class="{'img-blur': demoMode.blur}"
-                 data-ng-src="/api/student/{{student.uid}}/photo"
-                 data-avatar-fallback>
+            <div data-ng-include="'/static/app/student/studentAvatar.html'"></div>
           </div>
           <div class="cohort-student-bio-container">
             <div class="cohort-student-name-container">

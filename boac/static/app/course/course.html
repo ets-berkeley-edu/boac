@@ -104,15 +104,10 @@
                        data-ng-model="student.selectedForCuratedCohort"/>
               </div>
             </div>
-
             <!-- Column -->
             <div class="course-list-view-column-01" data-ng-if="!$first">
-              <img class="student-avatar student-avatar-large"
-                   data-ng-class="{'img-blur': demoMode.blur}"
-                   data-ng-src="/api/student/{{student.uid}}/photo"
-                   data-avatar-fallback>
+              <div data-ng-include="'/static/app/student/studentAvatar.html'"></div>
             </div>
-
             <!-- Column -->
             <div class="course-list-view-column-02" data-ng-if="!$first">
               <div>

@@ -88,6 +88,23 @@
   width: 60px;
 }
 
+.student-avatar-alert-count {
+  background-color: #f0ad4e;
+  border-radius: 15px;
+  border: 2px solid #fff;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  object-fit: cover;
+  padding-top: 2px;
+  position: absolute;
+  text-align: center;
+  height: 30px;
+  width: 30px;
+  top: 5%;
+  right: 5%;
+}
+
 .student-avatar-container {
   align-items: center;
   display: flex;
@@ -98,6 +115,10 @@
   border-radius: 50px;
   height: 100px;
   width: 100px;
+}
+
+.student-avatar-large-container {
+  position: relative;
 }
 
 .student-avatar-small {
