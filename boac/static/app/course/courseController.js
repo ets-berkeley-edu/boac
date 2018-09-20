@@ -94,11 +94,16 @@
         };
         return courseFactory.getSection($stateParams.termId, $stateParams.sectionId).then(function(response) {
           updateCourseData(response);
-          visualizationService.scatterplotRefresh($scope.section.students, goToUserPage, function(yAxisMeasure, studentsWithoutData) {
-            $scope.yAxisMeasure = yAxisMeasure;
-            // List of students-without-data is rendered below the scatterplot.
-            $scope.studentsWithoutData = studentsWithoutData;
-          });
+          visualizationService.scatterplotRefresh(
+            $scope.section.students,
+            $scope.section.meanMetrics,
+            goToUserPage,
+            function(yAxisMeasure, studentsWithoutData) {
+              $scope.yAxisMeasure = yAxisMeasure;
+              // List of students-without-data is rendered below the scatterplot.
+              $scope.studentsWithoutData = studentsWithoutData;
+            }
+          );
           page.loading(false);
         });
       } else if (tabName === 'list') {

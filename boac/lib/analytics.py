@@ -28,14 +28,17 @@ import math
 from statistics import mean
 
 
-def mean_metrics_across_sites(canvas_sites):
+def mean_metrics_across_sites(canvas_sites, key):
     """Mimic Data Loch's term-wide analytics summary, but restricted to a list of course sites."""
     # Adapted from nessie.lib.analytics
     mean_values = {}
     for metric in ['assignmentsSubmitted', 'currentScore', 'lastActivity']:
         percentiles = []
         for site in canvas_sites:
-            percentile = site['analytics'].get(metric, {}).get('student', {}).get('percentile')
+            metric_for_key = site['analytics'].get(metric, {}).get(key)
+            if not metric_for_key:
+                continue
+            percentile = metric_for_key.get('percentile')
             if percentile and not math.isnan(percentile):
                 percentiles.append(percentile)
         if len(percentiles):
