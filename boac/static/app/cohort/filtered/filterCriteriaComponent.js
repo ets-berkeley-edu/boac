@@ -209,6 +209,16 @@
       return draft;
     };
 
+    var onSuccessfulCohortSave = function(cohort) {
+      $scope.search.cohort = cohort;
+      $scope.callbacks.onSave($scope.search.cohort);
+      $scope.isSaving = false;
+      $scope.acknowledgeSave = true;
+      $timeout(function() {
+        $scope.search.buttons.save.show = $scope.acknowledgeSave = false;
+      }, 2000);
+    };
+
     var initSearch = function(search, allowSave) {
       return _.merge(search, {
         buttons: {
@@ -229,21 +239,15 @@
             onClick: function(openCreateCohortModal) {
               var filterCriteria = cohortUtils.toFilterCriteria($scope.filters.definitions, $scope.filters.added);
               var cohortId = $scope.search.cohort.id;
-              var done = function(cohort) {
-                $scope.search.cohort = cohort;
-                $scope.callbacks.onSave($scope.search.cohort);
-                $scope.isSaving = false;
-                $scope.acknowledgeSave = true;
-                $timeout(function() {
-                  $scope.search.buttons.save.show = $scope.acknowledgeSave = false;
-                }, 2000);
-              };
 
               $scope.isSaving = true;
               if (cohortId) {
-                filteredCohortFactory.update(cohortId, null, filterCriteria, $scope.search.results.totalStudentCount, done);
+                var count = $scope.search.results.totalStudentCount;
+                filteredCohortFactory.update(cohortId, null, filterCriteria, count, onSuccessfulCohortSave);
               } else {
-                openCreateCohortModal(filterCriteria, done);
+                openCreateCohortModal(filterCriteria, function() {
+                  $scope.isSaving = false;
+                });
               }
             },
             show: allowSave

@@ -16,7 +16,8 @@
     {{filter.subcategory.name || filter.subcategoryHeader}}
     <span data-ng-class="{'fa-angle-up': isSubcategoryMenuOpen, 'fa-angle-down': !isSubcategoryMenuOpen}" class="fas"></span>
   </button>
-  <ul class="dropdown-menu cohort-filter-subcategory-dropdown"
+  <ul id="cohort-filter-subcategory"
+      class="dropdown-menu cohort-filter-subcategory-dropdown"
       uib-dropdown-menu
       role="menu"
       aria-labelledby="filter-subcategory">
@@ -25,7 +26,8 @@
         data-ng-click="onOptionClick(option)"
         data-ng-class="{'divider': option === null, 'disabled': option.disabled}"
         data-ng-repeat="option in filter.options track by $index">
-      <a href="#"
+      <a id="cohort-filter-subcategory-{{option.name}}"
+         href="#"
          data-ng-bind="option.name"
          data-ng-if="option !== null && !option.disabled"></a>
       <span data-ng-bind="option.name"
