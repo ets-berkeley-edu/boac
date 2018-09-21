@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 import json
+import re
 import time
 
 from boac import db, std_commit
@@ -282,7 +283,7 @@ class Alert(Base):
                         no_activity_alerts_enabled and
                         student_activity.get('roundedUpPercentile') <= app.config['ALERT_NO_ACTIVITY_PERCENTILE_CUTOFF']
                     ):
-                        cls.update_no_activity_alerts(sid, term_id, canvas_site['canvasCourseId'], enrollment['displayName'])
+                        cls.update_no_activity_alerts(sid, term_id, enrollment['displayName'])
                 else:
                     days_since = round((int(time.time()) - student_activity.get('raw')) / 86400)
                     if (
@@ -293,7 +294,6 @@ class Alert(Base):
                         cls.update_infrequent_activity_alerts(
                             sid,
                             term_id,
-                            canvas_site['canvasCourseId'],
                             enrollment['displayName'],
                             days_since,
                         )
@@ -313,15 +313,21 @@ class Alert(Base):
         cls.create_or_activate(sid=sid, alert_type='midterm', key=key, message=message)
 
     @classmethod
-    def update_no_activity_alerts(cls, sid, term_id, canvas_course_id, class_name):
-        key = f'{term_id}_{canvas_course_id}'
+    def update_no_activity_alerts(cls, sid, term_id, class_name):
+        key = f'{term_id}_{class_name}'
         message = f'No activity! Student has yet to use the {class_name} bCourses site for {term_name_for_sis_id(term_id)}.'
         cls.create_or_activate(sid=sid, alert_type='no_activity', key=key, message=message)
 
     @classmethod
-    def update_infrequent_activity_alerts(cls, sid, term_id, canvas_course_id, class_name, days_since):
-        key = f'{term_id}_{canvas_course_id}'
+    def update_infrequent_activity_alerts(cls, sid, term_id, class_name, days_since):
+        key = f'{term_id}_{class_name}'
         message = f'Infrequent activity! Last {class_name} bCourses activity was {days_since} days ago.'
+        # If an active infrequent activity alert already exists and is more recent, skip the update.
+        existing_alert = cls.query.filter_by(sid=sid, alert_type='infrequent_activity', key=key, active=True).first()
+        if existing_alert:
+            match = re.search('(\d+) days ago.$', message)
+            if match and match[1] and int(match[1]) < days_since:
+                return
         cls.create_or_activate(sid=sid, alert_type='infrequent_activity', key=key, message=message)
 
     @classmethod
