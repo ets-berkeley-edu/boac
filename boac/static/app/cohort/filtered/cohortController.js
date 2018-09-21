@@ -116,7 +116,7 @@
         if (error) {
           $scope.renameMode.error = errorHandler(error);
         } else {
-          filteredCohortFactory.update($scope.search.cohort.id, cohortName).then(function() {
+          filteredCohortFactory.update($scope.search.cohort.id, cohortName, null, null, _.noop).then(function() {
             $scope.search.cohort.name = cohortName;
             exitRenameMode();
           }).catch(errorHandler);
