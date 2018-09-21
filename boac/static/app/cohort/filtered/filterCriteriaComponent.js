@@ -210,13 +210,16 @@
     };
 
     var onSuccessfulCohortSave = function(cohort) {
-      $scope.search.cohort = cohort;
-      $scope.callbacks.onSave($scope.search.cohort);
       $scope.isSaving = false;
-      $scope.acknowledgeSave = true;
-      $timeout(function() {
-        $scope.search.buttons.save.show = $scope.acknowledgeSave = false;
-      }, 2000);
+      // If user clicked 'Cancel' then do nothing.
+      if (cohort) {
+        $scope.search.cohort = cohort;
+        $scope.callbacks.onSave($scope.search.cohort);
+        $scope.acknowledgeSave = true;
+        $timeout(function() {
+          $scope.search.buttons.save.show = $scope.acknowledgeSave = false;
+        }, 2000);
+      }
     };
 
     var initSearch = function(search, allowSave) {
@@ -245,9 +248,7 @@
                 var count = $scope.search.results.totalStudentCount;
                 filteredCohortFactory.update(cohortId, null, filterCriteria, count, onSuccessfulCohortSave);
               } else {
-                openCreateCohortModal(filterCriteria, function() {
-                  $scope.isSaving = false;
-                });
+                openCreateCohortModal(filterCriteria, onSuccessfulCohortSave);
               }
             },
             show: allowSave
