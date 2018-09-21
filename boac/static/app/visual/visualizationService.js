@@ -312,13 +312,13 @@
         .attr('text-anchor', 'start')
         .attr('x', 0)
         .attr('y', height + 22)
-        .text('Previously');
+        .text('Less Recently');
       svg.append('text')
         .attr('class', 'matrix-axis-label')
         .attr('text-anchor', 'end')
         .attr('x', width)
         .attr('y', height + 22)
-        .text('Recently');
+        .text('More Recently');
 
       // Add y-axis labels.
       svg.append('text')
