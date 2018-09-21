@@ -110,6 +110,43 @@
           "courseCode": "MED ST 205",
           "courseName": "Medieval Manuscripts as Primary Sources",
           "courseTerm": "Fall 2017"
+        },
+        {
+          "analytics": {
+            "assignmentsSubmitted": null,
+            "courseEnrollmentCount": 25,
+            "currentScore": null,
+            "lastActivity": {
+              "boxPlottable": true,
+              "courseDeciles": [
+                0,
+                0,
+                1533975180,
+                1534134360,
+                1534296120,
+                1534404540,
+                1534566180,
+                1534724580,
+                1534993320,
+                1535264940,
+                1535533860
+              ],
+              "courseMean": {
+                "percentile": 45,
+                "raw": 1534360153.3705
+              },
+              "displayPercentile": "19th",
+              "student": {
+                "percentile": 10,
+                "raw": 0,
+                "roundedUpPercentile": 19
+              }
+            }
+          },
+          "canvasCourseId": 7654329,
+          "courseCode": "MED ST 205",
+          "courseName": "Tuesday Night Paleography Roundtable",
+          "courseTerm": "Fall 2017"
         }
       ],
       "displayName": "MED ST 205",

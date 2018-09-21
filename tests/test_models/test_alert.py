@@ -116,13 +116,13 @@ class TestNoActivityAlert:
     """Alerts for no bCourses activity."""
 
     def test_update_no_activity_alerts(self):
-        """Can be created from bCourses analytics feeds."""
+        """Can be created from bCourses analytics feeds, at most one per enrollment."""
         Alert.update_all_for_term(2178)
         alerts = get_current_alerts('3456789012')
         assert len(alerts) == 1
         assert alerts[0]['id'] > 0
         assert alerts[0]['alertType'] == 'no_activity'
-        assert alerts[0]['key'] == '2178_7654321'
+        assert alerts[0]['key'] == '2178_MED ST 205'
         assert alerts[0]['message'] == 'No activity! Student has yet to use the MED ST 205 bCourses site for Fall 2017.'
 
     def test_no_activity_percentile_cutoff(self, app):
@@ -139,14 +139,14 @@ class TestInfrequentActivityAlert:
     """Alerts for infrequent bCourses activity."""
 
     def test_update_infrequent_activity_alerts(self, app):
-        """Can be created from bCourses analytics feeds."""
+        """Can be created from bCourses analytics feeds, at most one per enrollment."""
         with override_config(app, 'ALERT_INFREQUENT_ACTIVITY_ENABLED', True):
             Alert.update_all_for_term(2178)
             alerts = get_current_alerts('5678901234')
             assert len(alerts) == 1
             assert alerts[0]['id'] > 0
             assert alerts[0]['alertType'] == 'infrequent_activity'
-            assert alerts[0]['key'] == '2178_7654321'
+            assert alerts[0]['key'] == '2178_MED ST 205'
             assert alerts[0]['message'].startswith('Infrequent activity! Last MED ST 205 bCourses activity')
 
     def test_infrequent_activity_percentile_cutoff(self, app):
