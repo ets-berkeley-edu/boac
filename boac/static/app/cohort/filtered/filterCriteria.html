@@ -29,7 +29,7 @@
                 Edit
               </button> |
             </div>
-            <div data-ng-if="!row.isEditMode">
+            <div data-ng-if="allowEdits && !row.isEditMode">
               <button type="button"
                       id="remove-added-filter-{{$index}}"
                       aria-label="Remove added filter"
@@ -38,7 +38,7 @@
                 Remove
               </button>
             </div>
-            <div data-ng-if="row.isEditMode">
+            <div data-ng-if="allowEdits && row.isEditMode">
               <button type="button"
                       id="update-added-filter-{{$index}}"
                       aria-label="Edit added filter"
@@ -47,7 +47,7 @@
                 Update
               </button> |
             </div>
-            <div data-ng-if="row.isEditMode">
+            <div data-ng-if="allowEdits && row.isEditMode">
               <button type="button"
                       id="cancel-edit-added-filter-{{$index}}"
                       aria-label="Edit added filter"
@@ -60,7 +60,7 @@
         </div>
       </div>
     </div>
-    <div class="cohort-filter-draft-row" data-ng-if="!filters.isEditMode">
+    <div class="cohort-filter-draft-row" data-ng-if="allowEdits && !filters.isEditMode">
       <div class="cohort-filter-draft-column-01">
         <div class="btn-group"
              uib-dropdown
@@ -142,14 +142,12 @@
         <button type="button"
                 id="save-filtered-cohort"
                 aria-label="Create new cohort"
-                class="btn btn-primary btn-filter-draft-save"
-                data-ng-class="{'btn-filter-draft-saved': acknowledgeSave}"
+                class="btn"
+                data-ng-class="{'btn-filter-draft-saved': acknowledgeSave, 'btn-primary btn-filter-draft-save': !acknowledgeSave}"
                 data-ng-click="search.buttons.save.onClick(openCreateCohortModal)"
                 data-ng-if="search.buttons.save.show">
-          <span class="fa fa-spinner fa-spin" data-ng-if="isSaving"></span>
-          <span data-ng-if="isSaving">Saving</span>
-          <span data-ng-if="acknowledgeSave">Saved!</span>
-          <span data-ng-if="!isSaving">Save Cohort</span>
+          <span data-ng-if="acknowledgeSave">Saved</span>
+          <span data-ng-if="!acknowledgeSave">Save Cohort</span>
         </button>
       </span>
     </div>
