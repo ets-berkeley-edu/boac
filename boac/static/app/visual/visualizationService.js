@@ -29,9 +29,13 @@
 
   angular.module('boac').service('visualizationService', function($location, config) {
 
-    var showUnitsChart = function(student) {
+    var showUnitsChart = function(student, currentTermId) {
       var cumulativeUnits = _.get(student, 'sisProfile.cumulativeUnits');
-      var currentEnrolledUnits = _.get(student, 'enrollmentTerms[0].enrolledUnits');
+      var currentEnrolledUnits = 0;
+      var currentEnrollmentTerm = _.find(_.get(student, 'enrollmentTerms'), {termId: currentTermId});
+      if (currentEnrollmentTerm) {
+        currentEnrolledUnits = _.get(currentEnrollmentTerm, 'enrolledUnits');
+      }
       var tooltipBodyFormat = '<div class="profile-tooltip-content">' +
                               '<div class="profile-tooltip-row">' +
                               '<div class="profile-tooltip-swatch" style="background-color:#aec9eb"></div>' +
