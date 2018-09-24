@@ -128,7 +128,7 @@
         studentFactory.getAlerts($scope.student.sid).then(function(alerts) {
           $scope.alerts = alerts.data;
         });
-        visualizationService.showUnitsChart($scope.student);
+        visualizationService.showUnitsChart($scope.student, $scope.currentEnrollmentTermId.toString());
         if (!config.demoMode.blur) {
           $rootScope.pageTitle = _.get($scope.student, 'name') || preferredName;
         }
