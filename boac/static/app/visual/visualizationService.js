@@ -449,7 +449,7 @@
         });
       }
       drawScatterplot(plottableStudents, yAxisMeasure(), goToUserPage);
-      callback(yAxisMeasure, partitions[1]);
+      callback(yAxisMeasure(), partitions[1]);
     };
 
     return {
