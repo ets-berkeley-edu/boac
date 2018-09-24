@@ -210,7 +210,6 @@
     };
 
     var onSuccessfulCohortSave = function(cohort) {
-      $scope.isSaving = false;
       // If user clicked 'Cancel' then do nothing.
       if (cohort) {
         $scope.search.cohort = cohort;
@@ -243,7 +242,6 @@
               var filterCriteria = cohortUtils.toFilterCriteria($scope.filters.definitions, $scope.filters.added);
               var cohortId = $scope.search.cohort.id;
 
-              $scope.isSaving = true;
               if (cohortId) {
                 var count = $scope.search.results.totalStudentCount;
                 filteredCohortFactory.update(cohortId, null, filterCriteria, count, onSuccessfulCohortSave);
@@ -272,11 +270,19 @@
       }
     };
 
+    /**
+     * Invoked on page load only. If user has just clicked 'Create New Cohort' then the 'cohort' object is undefined.
+     * If user is viewing an existing cohort then s/he can save changes if and only if 'isOwnedByCurrentUser' is true.
+     * We never offer a 'Save As' option therefore other people's cohorts are strictly read-only.
+     *
+     * @returns {void}
+     */
     this.$onInit = function() {
       var filterCategories = _.clone(this.filterCategories);
       var filterCriteria = _.clone(this.search.filterCriteria);
-
-      $scope.allowEdits = _.get(_.pick(this.search.cohort, _.identity), 'isOwnedByCurrentUser', true);
+      var isOwnedByCurrentUser = _.get(this.search.cohort, 'isOwnedByCurrentUser');
+      // See documentation above
+      $scope.allowEdits = _.isNil(isOwnedByCurrentUser) || isOwnedByCurrentUser;
       $scope.callbacks = this.callbacks;
       $scope.filters.definitions = [];
       $scope.search = initSearch(this.search, this.allowSave);

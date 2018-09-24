@@ -69,9 +69,9 @@
   background-color: #fff;
   border: 1px solid #337ab7;
   color: #337ab7;
-  height: 40px;
   font-weight: 500;
-  margin: 15px 0 0 0;
+  height: 40px;
+  margin-top: 15px;
   width: 120px;
 }
 
@@ -82,7 +82,13 @@
 }
 
 .btn-filter-draft-saved {
-  background-color: #0b6623;
+  background-color: #008000;
+  border: 1px solid #337ab7;
+  color: #fff;
+  font-weight: 500;
+  height: 40px;
+  margin-top: 15px;
+  width: 120px;
 }
 
 .btn-filter-subcategory {
