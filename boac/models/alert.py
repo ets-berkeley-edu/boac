@@ -33,7 +33,7 @@ from boac import db, std_commit
 from boac.api.errors import BadRequestError
 from boac.externals import data_loch
 from boac.lib.berkeley import current_term_id, term_name_for_sis_id
-from boac.lib.util import camelize, utc_timestamp_to_localtime
+from boac.lib.util import camelize, unix_timestamp_to_localtime, utc_timestamp_to_localtime
 from boac.merged.student import get_full_student_profiles, get_student_query_scope
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.base import Base
@@ -285,7 +285,9 @@ class Alert(Base):
                     ):
                         cls.update_no_activity_alerts(sid, term_id, enrollment['displayName'])
                 else:
-                    days_since = round((int(time.time()) - student_activity.get('raw')) / 86400)
+                    localized_last_activity = unix_timestamp_to_localtime(student_activity.get('raw')).date()
+                    localized_today = unix_timestamp_to_localtime(time.time()).date()
+                    days_since = (localized_today - localized_last_activity).days
                     if (
                         infrequent_activity_alerts_enabled and
                         days_since >= app.config['ALERT_INFREQUENT_ACTIVITY_DAYS'] and

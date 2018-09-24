@@ -48,3 +48,12 @@ class TestUtil:
         assert util.to_bool_or_none('false') is False
         assert util.to_bool_or_none('FALSE') is False
         assert util.to_bool_or_none('blargh') is None
+
+    def test_unix_timestamp_to_localtime(self):
+        """Localizes timestamps."""
+        assert util.unix_timestamp_to_localtime(1536300000).year == 2018
+        assert util.unix_timestamp_to_localtime(1536300000).month == 9
+        assert util.unix_timestamp_to_localtime(1536300000).day == 6
+        assert util.unix_timestamp_to_localtime(1536300000).hour == 23
+        assert util.unix_timestamp_to_localtime(1536305000).day == 7
+        assert util.unix_timestamp_to_localtime(1536305000).hour == 0

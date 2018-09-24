@@ -87,6 +87,11 @@ def to_bool_or_none(arg):
     return None if s is None else bool(s)
 
 
+def unix_timestamp_to_localtime(epoch):
+    utc_from_timestamp = datetime.utcfromtimestamp(epoch).replace(tzinfo=pytz.utc)
+    return localize_datetime(utc_from_timestamp)
+
+
 def utc_timestamp_to_localtime(_str):
     utc_datetime = pytz.utc.localize(datetime.strptime(_str, '%Y-%m-%dT%H:%M:%SZ'))
     return localize_datetime(utc_datetime)
