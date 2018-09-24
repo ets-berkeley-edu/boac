@@ -27,13 +27,14 @@
 
   'use strict';
 
-  angular.module('boac').controller('HeaderController', function($scope, authFactory, authService, config) {
+  angular.module('boac').controller('HeaderController', function($scope, authFactory, authService, config, googleAnalyticsService) {
 
     $scope.devAuthEnabled = config.devAuthEnabled;
     $scope.supportEmailAddress = config.supportEmailAddress;
     $scope.me = authService.getMe();
 
     $scope.logOut = function() {
+      googleAnalyticsService.track('User', 'log_out');
       authFactory.logOut().then(function(results) {
         window.location = results.data.cas_logout_url;
       });

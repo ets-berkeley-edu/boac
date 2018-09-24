@@ -29,7 +29,7 @@
 
   var boac = angular.module('boac');
 
-  boac.factory('curatedCohortFactory', function($http, $rootScope) {
+  boac.factory('curatedCohortFactory', function($http, $rootScope, googleAnalyticsService) {
 
     var addStudents = function(cohort, students) {
       var args = {
@@ -40,6 +40,7 @@
         _.each(students, function(student) {
           $rootScope.$broadcast('addStudentToCuratedCohort', {cohort: cohort, student: student});
         });
+        googleAnalyticsService.track('Curated Cohort', 'add_students', cohort.name, cohort.id);
       });
     };
 
@@ -51,13 +52,16 @@
 
     var create = function(name) {
       return $http.post('/api/curated_cohort/create', {name: name}).then(function(response) {
-        $rootScope.$broadcast('curatedCohortCreated', {cohort: response.data});
+        var cohort = response.data;
+        $rootScope.$broadcast('curatedCohortCreated', {cohort: cohort});
+        googleAnalyticsService.track('Curated Cohort', 'create', cohort.name, cohort.id);
       });
     };
 
     var deleteCuratedCohort = function(id) {
       return $http.delete('/api/curated_cohort/delete/' + id).then(function() {
         $rootScope.$broadcast('curatedCohortDeleted', {cohortId: id});
+        googleAnalyticsService.track('Curated Cohort', 'delete', null, id);
       });
     };
 
@@ -77,7 +81,9 @@
 
     var rename = function(cohortId, name) {
       return $http.post('/api/curated_cohort/rename', {id: cohortId, name: name}).then(function(response) {
-        $rootScope.$broadcast('curatedCohortRenamed', {cohort: response.data});
+        var cohort = response.data;
+        $rootScope.$broadcast('curatedCohortRenamed', {cohort: cohort});
+        googleAnalyticsService.track('Curated Cohort', 'rename', cohort.name, cohort.id);
       });
     };
 

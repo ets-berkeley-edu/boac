@@ -105,6 +105,7 @@
             }
           );
           page.loading(false);
+          googleAnalyticsService.track('Course', 'matrix', $scope.section.termName + ' ' + $scope.section.displayName, $scope.section.sectionNum);
         });
       } else if (tabName === 'list') {
         if ($scope.pagination.currentPage > 1 && $scope.section && $scope.section.students.length > 50) {
@@ -126,7 +127,6 @@
       var args = _.clone($location.search());
       // Begin with matrix view if arg is present
       $scope.tab = _.includes(['list', 'matrix'], args.tab) ? args.tab : $scope.tab;
-
       if (args.p && !isNaN(args.p)) {
         $scope.pagination.currentPage = parseInt(args.p, 10);
       }
@@ -135,11 +135,7 @@
           $scope.error = validationService.parseError(err);
           page.loading(false);
         }).then(function() {
-          googleAnalyticsService.track(
-            'course',
-            'view',
-            $scope.section.termName + ' ' + $scope.section.displayName + ' ' + $scope.section.sectionNum
-          );
+          googleAnalyticsService.track('Course', 'view', $scope.section.termName + ' ' + $scope.section.displayName, $scope.section.sectionNum);
         });
     };
 

@@ -27,65 +27,38 @@
 
   'use strict';
 
-  angular.module('boac').service('googleAnalyticsService', function($location, $rootScope, $timeout, config) {
+  angular.module('boac').service('googleAnalyticsService', function($rootScope, $transitions, config) {
 
     // Disable Google Analytics with id=False in py config file
     var id = config.googleAnalyticsId;
 
     /**
-     * @param  {String}    category     Eg, 'cohort'
-     * @param  {String}    action       Eg, 'create'
-     * @param  {String}    [label]      [Optional] Eg, 'Golfers with a low GPA'
-     * @param  {Number}    [value]      [Optional] Eg, 23 (id of new cohort)
+     * See https://developers.google.com/analytics/devguides/collection/analyticsjs/events
+     *
+     * @param  {String}    category  For example, 'cohort'
+     * @param  {String}    action    For example, 'delete'
+     * @param  {String}    label     For example, cohort name
+     * @param  {String}    value     For example, cohort id
      * @return {void}
      */
     var track = function(category, action, label, value) {
       if (id) {
-        var fields = {
-          hitType: 'event',
-          eventCategory: category,
-          eventAction: action
-        };
-        if (label) {
-          fields.eventLabel = label;
-        }
-        if (value) {
-          fields.eventValue = parseInt(value, 10);
-        }
-        ga('send', fields);
+        ga('send', 'event', category, action, label, value, {
+          userId: _.get($rootScope.me, 'uid')
+        });
       }
     };
 
-    var trackPageView = function() {
+    $transitions.onSuccess({}, function() {
       if (id) {
-        ga('send', 'pageview', $location.path());
-
-        if ($rootScope.me && $rootScope.me.isAuthenticated) {
-          ga('set', 'uid', $rootScope.me.uid);
-        }
-      }
-    };
-
-    // Event fired when page is fully rendered
-    $rootScope.$on('$viewContentLoaded', function() {
-      $timeout(trackPageView, 0);
-    });
-
-    /**
-     * Register googleAnalyticsId per https://developers.google.com/analytics
-     *
-     * @return {void}
-     */
-    var googleAnalytics = function() {
-      if (id) {
-        /* eslint-disable */
-        window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-        /* eslint-enable */
+        var uid = _.get($rootScope.me, 'uid');
         ga('create', id, 'auto');
+        if (uid) {
+          ga('set', 'userId', uid);
+        }
+        ga('send', 'pageview');
       }
-    };
-
-    googleAnalytics();
+    });
 
     return {
       track: track
