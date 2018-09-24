@@ -124,6 +124,16 @@ class TestCollegeOfEngineering:
         students = response.json['students']
         assert ['Men\'s Baseball', 'Women\'s Field Hockey'] == [s['athleticsProfile']['athletics'][0]['groupName'] for s in students]
 
+    def test_admin_search_for_students(self, client, admin_login):
+        """Admin user can search with ASC and/or COE criteria."""
+        data = {
+            'underrepresented': True,
+            'groupCodes': ['MFB-DB'],
+        }
+        response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
+        assert response.status_code == 200
+        assert response.json.get('students') == []
+
 
 class TestAthleticsStudyCenter:
     """ASC-specific API calls."""
