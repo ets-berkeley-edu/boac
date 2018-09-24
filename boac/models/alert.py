@@ -317,7 +317,7 @@ class Alert(Base):
     @classmethod
     def update_no_activity_alerts(cls, sid, term_id, class_name):
         key = f'{term_id}_{class_name}'
-        message = f'No activity! Student has yet to use the {class_name} bCourses site for {term_name_for_sis_id(term_id)}.'
+        message = f'No activity! Student has never visited the {class_name} bCourses site for {term_name_for_sis_id(term_id)}.'
         cls.create_or_activate(sid=sid, alert_type='no_activity', key=key, message=message)
 
     @classmethod

@@ -123,7 +123,7 @@ class TestNoActivityAlert:
         assert alerts[0]['id'] > 0
         assert alerts[0]['alertType'] == 'no_activity'
         assert alerts[0]['key'] == '2178_MED ST 205'
-        assert alerts[0]['message'] == 'No activity! Student has yet to use the MED ST 205 bCourses site for Fall 2017.'
+        assert alerts[0]['message'] == 'No activity! Student has never visited the MED ST 205 bCourses site for Fall 2017.'
 
     def test_no_activity_percentile_cutoff(self, app):
         """Respect percentile cutoff for alert creation."""
