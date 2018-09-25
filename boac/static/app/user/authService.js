@@ -66,9 +66,7 @@
         var me = $rootScope.me;
         if ($rootScope.me.isAuthenticated) {
           if ($location.search().casLogin) {
-            // Track CAS login event
-            var uid = $rootScope.me.uid;
-            googleAnalyticsService.track('user', 'login', uid, parseInt(uid, 10));
+            googleAnalyticsService.track('User', 'login');
           }
         }
         return me;

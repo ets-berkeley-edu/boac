@@ -135,12 +135,11 @@
 
       }).then(function() {
         page.loading(false);
-        googleAnalyticsService.track('student', 'view-profile', preferredName, parseInt(uid, 10));
+        googleAnalyticsService.track('Student', 'view', preferredName, $scope.student.sid);
 
       }).catch(function(err) {
         $scope.error = validationService.parseError(err);
         page.loading(false);
-
       });
     };
 

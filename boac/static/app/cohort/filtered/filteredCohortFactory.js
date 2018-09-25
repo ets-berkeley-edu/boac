@@ -39,8 +39,7 @@
           cohort: cohort
         });
         $rootScope.$broadcast('myFilteredCohortsUpdated');
-        // Track the event
-        googleAnalyticsService.track('cohort', 'create', cohort.name, cohort.id);
+        googleAnalyticsService.track('Filtered Cohort', 'create', cohort.name, cohort.id);
         return cohort;
       });
     };
@@ -51,6 +50,7 @@
         $rootScope.$broadcast('filteredCohortDeleted', {
           cohort: cohort
         });
+        googleAnalyticsService.track('Filtered Cohort', 'delete', cohort.name, cohort.id);
       });
     };
 
@@ -93,6 +93,7 @@
         $rootScope.$broadcast('filteredCohortUpdated', {
           cohort: cohort
         });
+        googleAnalyticsService.track('Filtered Cohort', 'update', cohort.name, cohort.id);
         callback(cohort);
       });
     };
