@@ -112,13 +112,59 @@
                 <div class="student-bio-status-legend">Units Completed</div>
               </div>
               <div class="profile-units-chart-outer">
-                <div class="student-bio-status-legend student-bio-status-legend-units">Unit Totals</div>
+                <div class="student-bio-status-legend student-bio-status-legend-heading">Unit Totals</div>
                 <div class="profile-units-chart-container" id="profile-units-chart-container"></div>
               </div>
             </div>
             <div class="student-bio-status-box">
-              <div class="student-bio-status-number" data-ng-bind="student.sisProfile.cumulativeGPA || '--'"></div>
-              <div class="student-bio-status-legend">Cumulative GPA</div>
+              <div class="student-bio-status-box-units">
+                <div>
+                  <div class="student-bio-status-number" data-ng-bind="student.sisProfile.cumulativeGPA || '--'"></div>
+                  <div class="student-bio-status-legend">Cumulative GPA</div>
+                </div>
+                <div class="profile-units-chart-outer">
+                  <div class="student-bio-status-legend student-bio-status-legend-heading">GPA Trends</div>
+                  <div class="profile-units-chart-container" id="profile-gpa-chart-container" data-ng-show="gpaTerms.length"></div>
+                  <div class="student-bio-status-legend student-bio-status-legend-small"
+                       data-ng-if="!gpaTerms.length">
+                    GPA Not Yet Available
+                  </div>
+                  <div class="student-bio-status-legend profile-last-term-gpa-outer"
+                       data-ng-if="gpaTerms.length">
+                    <span data-ng-bind="gpaTerms[0].name"></span> GPA:
+                    <strong class="profile-last-term-gpa"
+                            data-ng-bind="gpaTerms[0].gpa"
+                            data-ng-class="{'profile-last-term-gpa': gpaTerms[0].gpa >= 2, 'profile-gpa-alert': gpaTerms[0].gpa < 2}"></strong>
+                  </div>
+                  <button class="btn btn-link profile-view-previous-semesters" data-ng-click="showTermGpa=!showTermGpa">
+                    <i data-ng-class="{'fas fa-caret-right': !showTermGpa, 'fas fa-caret-down': showTermGpa}"></i>
+                    <span data-ng-if="!showTermGpa">Show Term GPA</span>
+                    <span data-ng-if="showTermGpa">Hide Term GPA</span>
+                  </button>
+                </div>
+              </div>
+              <table class="student-bio-table" data-ng-if="showTermGpa">
+                <tr>
+                  <th>Term</th>
+                  <th>GPA</th>
+                </tr>
+                <tr data-ng-repeat="term in gpaTerms" data-ng-class-even="'student-bio-table-zebra'">
+                  <td data-ng-bind="term.name"></td>
+                  <td data-ng-if="term.gpa < 2">
+                    <div class="profile-term-gpa-alert-outer">
+                      <i class="fa fa-exclamation-triangle profile-term-gpa-alert profile-term-gpa-alert-icon"></i>
+                      <div class="profile-term-gpa-alert" data-ng-bind="term.gpa"></div>
+                    </div>
+                  </td>
+                  <td data-ng-if="term.gpa >= 2">
+                    <span data-ng-bind="term.gpa"></span>
+                  </td>
+                </tr>
+                <tr data-ng-if="!gpaTerms.length">
+                  <td>No previous terms</td>
+                  <td>--</td>
+                </tr>
+              </table>
             </div>
             <div class="student-bio-status-box">
               <h4 class="student-bio-progress-header">Degree Progress</h4>

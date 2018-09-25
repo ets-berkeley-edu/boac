@@ -147,6 +147,111 @@
       });
     };
 
+    var showGpaChart = function(gpaTerms) {
+      var seriesData = [];
+      var i = 0;
+      _.eachRight(gpaTerms, function(term) {
+        seriesData.push({
+          x: i,
+          y: term.gpa
+        });
+        i++;
+      });
+
+      if (seriesData.length) {
+        var fillColor = seriesData[seriesData.length - 1].y < 2 ? '#d0021b' : '#3b7ea5';
+        seriesData[seriesData.length - 1].marker = {
+          fillColor: fillColor,
+          radius: 5
+        };
+      }
+
+      var gpaChartOptions = {
+        title: {
+          text: ''
+        },
+        credits: false,
+        chart: {
+          width: 170,
+          height: 40,
+          type: 'area',
+          margin: [
+            2,
+            0,
+            2,
+            0
+          ],
+          style: {
+            overflow: 'visible'
+          },
+          skipClone: true
+        },
+        yAxis: {
+          endOnTick: false,
+          startOnTick: false,
+          labels: {
+            enabled: false
+          },
+          title: {
+            text: null
+          },
+          softMin: 1.9,
+          plotLines: [
+            {
+              color: '#c3d2e3',
+              dashStyle: 'dot',
+              width: 1,
+              value: 2
+            }
+          ],
+          tickPositions: []
+        },
+        xAxis: {
+          labels: {
+            enabled: false
+          },
+          title: {
+            text: null
+          },
+          startOnTick: false,
+          endOnTick: false,
+          tickPositions: [],
+          visible: false
+        },
+        legend: {
+          enabled: false
+        },
+        tooltip: {
+          enabled: false
+        },
+        plotOptions: {
+          line: {
+            states: {
+              hover: {
+                enabled: false
+              }
+            }
+          },
+          series: {
+            marker: {
+              radius: 0
+            }
+          }
+        },
+        series: [
+          {
+            type: 'line',
+            data: seriesData
+          }
+        ],
+        colors: [ '#4a90e2' ]
+      };
+
+      setTimeout(function() {
+        Highcharts.chart('profile-gpa-chart-container', gpaChartOptions);
+      });
+    };
+
     var drawScatterplot = function(students, yAxisMeasure, goToUserPage) {
       var svg;
 
@@ -502,6 +607,7 @@
     return {
       partitionPlottableStudents: partitionPlottableStudents,
       scatterplotRefresh: scatterplotRefresh,
+      showGpaChart: showGpaChart,
       showUnitsChart: showUnitsChart
     };
 
