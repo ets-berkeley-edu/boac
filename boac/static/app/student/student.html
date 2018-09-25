@@ -333,6 +333,15 @@
                   No additional information
                 </div>
               </div>
+              <div class="accordion-heading profile-class"
+                   data-ng-if="term.enrolledUnits">
+                <div class="accordion-heading-start"></div>
+                <div class="accordion-heading-end">
+                  <div class="accordion-heading-units-total">
+                    Total <span data-ng-bind="term.enrolledUnits"></span>
+                  </div>
+                </div>
+              </div>
               <div uib-accordion-group
                    class="profile-class"
                    is-open="true"
