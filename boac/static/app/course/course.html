@@ -161,7 +161,7 @@
                 <div data-ng-repeat="canvasSite in student.enrollment.canvasSites"
                      data-ng-if="student.enrollment.canvasSites.length">
                   <div data-ng-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
-                    Score: <strong data-ng-bind="canvasSite.analytics.assignmentsSubmitted.student.raw"></strong>
+                    <strong data-ng-bind="canvasSite.analytics.assignmentsSubmitted.student.raw"></strong>
                     <div class="faint-text">
                       (Max: <span data-ng-bind="canvasSite.analytics.assignmentsSubmitted.courseDeciles[10]"></span>)
                     </div>
