@@ -73,6 +73,13 @@
   white-space: nowrap;
 }
 
+.accordion-heading-units-total {
+  color: #777;
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 15px;
+}
+
 .panel {
   -webkit-box-shadow: none;
   box-shadow: 0;
@@ -376,10 +383,6 @@
 .student-text {
   color: #aaa;
   font-size: 13px;
-}
-
-.student-term {
-  border-bottom: 1px solid #999;
 }
 
 .student-term .panel-group {
