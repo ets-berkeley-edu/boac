@@ -31,8 +31,15 @@
 }
 
 .matrix .dot {
-  cursor: pointer;
   stroke: #000;
+}
+
+.matrix .dot-mean {
+  cursor: auto;
+}
+
+.matrix .dot-student {
+  cursor: pointer;
 }
 
 .matrix .overlay {

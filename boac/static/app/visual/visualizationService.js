@@ -297,7 +297,7 @@
         .selectAll('.dot')
         .data(students, key)
         .enter().append('circle')
-        .attr('class', 'dot')
+        .attr('class', function(d) { return d.isClassMean ? 'dot dot-mean' : 'dot dot-student'; })
         .style('fill', function(d) { return d.isClassMean ? avatar(d) : '#8bbdda'; })
         .style('opacity', function(d) { return d.isClassMean ? 1 : 0.66; })
         .style('stroke-width', 0)
@@ -353,7 +353,9 @@
       };
 
       dot.on('click', function(d) {
-        goToUserPage(d.uid);
+        if (!d.isClassMean) {
+          goToUserPage(d.uid);
+        }
       });
 
       var onDotSelected = function(d) {
