@@ -91,6 +91,12 @@
   width: 120px;
 }
 
+.btn-filter-draft-saved:hover,
+.btn-filter-draft-saved:focus,
+.btn-filter-draft-saved:active {
+  color: #fff;
+}
+
 .btn-filter-subcategory {
   width: 400px;
 }

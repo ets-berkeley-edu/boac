@@ -32,7 +32,8 @@
     $scope,
     $timeout,
     cohortUtils,
-    filteredCohortFactory
+    filteredCohortFactory,
+    utilService
   ) {
 
     $scope.filters = {
@@ -93,7 +94,7 @@
             onClick: function(row) {
               setFilterOptionDisabled(row.key, row.previousSubcategory.value, true);
               row.subcategory = row.previousSubcategory;
-              row.isEditMode = $scope.filters.isEditMode = false;
+              row.isEditMode = $scope.filters.isEditMode = row.error = null;
             }
           },
           edit: {
@@ -128,17 +129,26 @@
           },
           update: {
             onClick: function(row) {
+              row.error = null;
               setFilterOptionDisabled(row.key, row.subcategory.value, true);
               setFilterOptionDisabled(row.key, row.previousSubcategory.value, false);
               $scope.search.buttons.apply.show = row.previousSubcategory !== row.subcategory;
               if (row.type === 'range') {
                 var start = row.subcategory.range.start;
                 var stop = row.subcategory.range.stop;
-                row.subcategory.name = cohortUtils.getRangeDisplayName(start, stop);
-                row.subcategory.value = [start, stop];
+                if (_.isEmpty(start) || _.isEmpty(stop)) {
+                  row.error = utilService.uibPopoverError('Required field(s) are blank. Please fix.');
+                } else if (start > stop) {
+                  row.error = utilService.uibPopoverError('The range values \'' + start + '\' and \'' + stop + '\' must be in ascending order.');
+                } else {
+                  row.subcategory.name = cohortUtils.getRangeDisplayName(start, stop);
+                  row.subcategory.value = [start, stop];
+                }
               }
-              row.previousSubcategory = null;
-              $scope.filters.isEditMode = row.isEditMode = false;
+              if (!row.error) {
+                row.previousSubcategory = null;
+                $scope.filters.isEditMode = row.isEditMode = false;
+              }
             }
           }
         }

@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').service('utilService', function(config) {
+  angular.module('boac').service('utilService', function($sce, config) {
 
     var disableMatrixViewThreshold = parseInt(config.disableMatrixViewThreshold, 10);
     var exceedsMatrixThresholdMessage = 'Sorry, the matrix view is only available when total student count is below ' + disableMatrixViewThreshold + '. Please narrow your search.';
@@ -72,13 +72,21 @@
       });
     };
 
+    var uibPopoverError = function(errorMessage) {
+      return {
+        popoverHtml: $sce.trustAsHtml('<i class="fas fa-exclamation-triangle"></i> ' + errorMessage),
+        isPopoverOpen: true
+      };
+    };
+
     return {
       exceedsMatrixThreshold: exceedsMatrixThreshold,
       exceedsMatrixThresholdMessage: exceedsMatrixThresholdMessage,
       extendSortableNames: extendSortableNames,
       lastActivityDays: lastActivityDays,
       lastActivityInContext: lastActivityInContext,
-      toBoolOrNull: toBoolOrNull
+      toBoolOrNull: toBoolOrNull,
+      uibPopoverError: uibPopoverError
     };
   });
 
