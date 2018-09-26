@@ -362,8 +362,10 @@
         // Clear any existing tooltips.
         container.selectAll('.matrix-tooltip').remove();
 
-        // Move dot to front.
-        this.parentNode.appendChild(this);
+        // Move dot to front if it represents a real student. Not much to see, otherwise.
+        if (!d.isClassMean) {
+          this.parentNode.appendChild(this);
+        }
         // Stroke highlight.
         var selection = d3.select(this);
         selection.attr('r', '45')
@@ -444,7 +446,8 @@
       var partitions = partitionPlottableStudents(students);
       var plottableStudents = partitions[0];
       if (meanMetrics) {
-        plottableStudents.push({
+        // The imaginary mean must be drawn first, so as not to block access to real students.
+        plottableStudents.unshift({
           analytics: meanMetrics,
           isClassMean: true,
           lastName: 'Class Average'
