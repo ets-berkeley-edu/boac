@@ -30,11 +30,11 @@
   angular.module('boac').controller('SplashController', function(
     $location,
     $rootScope,
-    $sce,
     $scope,
     $stateParams,
     authFactory,
     config,
+    utilService,
     validationService
   ) {
 
@@ -46,13 +46,6 @@
       _.set($scope.devAuth, 'error.isPopoverOpen', false);
     };
 
-    var uibPopoverError = function(errorMessage) {
-      return {
-        popoverHtml: $sce.trustAsHtml('<i class="fas fa-exclamation-triangle"></i> ' + errorMessage),
-        isPopoverOpen: true
-      };
-    };
-
     $scope.signIn = function() {
       closeErrorPopovers();
       authFactory.casLogIn().then(
@@ -61,7 +54,9 @@
         },
         function failure(err) {
           var errorMessage = validationService.parseError(err);
-          $scope.casLogin = {error: uibPopoverError(errorMessage)};
+          $scope.casLogin = {
+            error: utilService.uibPopoverError(errorMessage)
+          };
         }
       );
     };
@@ -69,7 +64,9 @@
     var init = function() {
       var casLoginError = _.get($location.search(), 'casLoginError') || $stateParams.casLoginError;
       if (casLoginError) {
-        $scope.casLogin = {error: uibPopoverError(casLoginError)};
+        $scope.casLogin = {
+          error: utilService.uibPopoverError(casLoginError)
+        };
       }
       if (config.devAuthEnabled) {
         $scope.devAuthLogIn = function(uid, password) {
@@ -80,7 +77,7 @@
             },
             function failure(err) {
               var errorMessage = validationService.parseError(err).message;
-              $scope.devAuth = {error: uibPopoverError(errorMessage)};
+              $scope.devAuth = {error: utilService.uibPopoverError(errorMessage)};
             }
           );
         };
