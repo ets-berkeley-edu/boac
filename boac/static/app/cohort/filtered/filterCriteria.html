@@ -16,7 +16,6 @@
                                             on-option-click="row.onOptionClick"
                                             watch="row"
                                             data-ng-if="row.isEditMode"></filter-criteria-edit-subcategory>
-          <span class="has-error" data-ng-bind="row.error"></span>
         </div>
         <div class="cohort-added-filter-controls">
           <div class="cohort-added-filter-buttons">
@@ -43,6 +42,10 @@
                       id="update-added-filter-{{$index}}"
                       aria-label="Edit added filter"
                       class="btn btn-primary"
+                      uib-popover-html="row.error.popoverHtml"
+                      popover-class="has-error"
+                      popover-is-open="row.error.isPopoverOpen"
+                      popover-placement="top-left"
                       data-ng-click="filters.added.buttons.update.onClick(row)">
                 Update
               </button> |
