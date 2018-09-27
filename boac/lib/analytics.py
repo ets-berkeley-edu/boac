@@ -39,7 +39,7 @@ def mean_metrics_across_sites(canvas_sites, key):
             if not metric_for_key:
                 continue
             percentile = metric_for_key.get('percentile')
-            if percentile and not math.isnan(percentile):
+            if percentile is not None and not math.isnan(percentile):
                 percentiles.append(percentile)
         if len(percentiles):
             mean_percentile = mean(percentiles)
