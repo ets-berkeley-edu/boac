@@ -13,8 +13,10 @@
           focus-on="filter.options"
           uib-dropdown-toggle
           ng-disabled="disabled">
-    {{filter.subcategory.name || filter.subcategoryHeader}}
-    <span data-ng-class="{'fa-angle-up': isSubcategoryMenuOpen, 'fa-angle-down': !isSubcategoryMenuOpen}" class="fas"></span>
+    <span class="flex-row flex-space-between">
+      <span>{{filter.subcategory.name || filter.subcategoryHeader}}</span>
+      <span data-ng-class="{'fa-angle-up': isSubcategoryMenuOpen, 'fa-angle-down': !isSubcategoryMenuOpen}" class="fas"></span>
+    </span>
   </button>
   <ul id="cohort-filter-subcategory"
       class="dropdown-menu cohort-filter-subcategory-dropdown"
