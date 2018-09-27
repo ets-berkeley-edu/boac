@@ -154,7 +154,7 @@
       function y(d) { return _.get(d, yAxisMeasure).percentile; }
       function key(d) { return d.uid; }
 
-      var classMean = students[students.length - 1];
+      var classMean = students[0];
 
       var yAxisName = 'Assignments Submitted';
       if (yAxisMeasure === 'analytics.currentScore') {
