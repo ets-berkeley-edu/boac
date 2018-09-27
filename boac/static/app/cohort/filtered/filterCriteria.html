@@ -76,8 +76,10 @@
                   focus-on="!draft.options"
                   uib-dropdown-toggle
                   ng-disabled="disabled">
-            {{draft.name || 'New Filter'}}
-            <span data-ng-class="{'fa-angle-up': isDraftMenuOpen, 'fa-angle-down': !isDraftMenuOpen}" class="fas"></span>
+            <span class="flex-row flex-space-between">
+              <span>{{draft.name || 'New Filter'}}</span>
+              <span data-ng-class="{'fa-angle-up': isDraftMenuOpen, 'fa-angle-down': !isDraftMenuOpen}" class="fas"></span>
+            </span>
           </button>
           <ul class="dropdown-menu cohort-filter-dropdown"
               uib-dropdown-menu

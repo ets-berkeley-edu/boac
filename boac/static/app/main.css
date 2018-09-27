@@ -87,6 +87,11 @@
   justify-content: center;
 }
 
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
 .flex-space-between {
   justify-content: space-between;
 }
