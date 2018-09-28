@@ -78,8 +78,15 @@
                                  data-ng-if="cohort.students.length"></sortable-alerts-table>
           <div>
             <a id="home-curated-cohort-{{$index}}-view-all" data-ng-href="/cohort/curated/{{cohort.id}}">
-              View all <span data-ng-bind="cohort.studentCount"></span> students
-              in "<span data-ng-bind="cohort.name"></span>"
+              <span data-ng-if="cohort.studentCount">
+                View <span data-ng-pluralize
+                           count="cohort.studentCount"
+                           when="{'one': 'the one student', 'other': 'all {} students'}"></span>
+                in "<span data-ng-bind="cohort.name"></span>"
+              </span>
+              <span data-ng-if="!cohort.studentCount">
+                "<span data-ng-bind="cohort.name"></span>" has 0 students
+              </span>
             </a>
           </div>
         </div>
@@ -148,8 +155,15 @@
                                  data-ng-if="cohort.alerts.students.length"></sortable-alerts-table>
           <div>
             <a id="home-curated-cohort-{{$index}}-view-all" data-ng-href="/cohort/filtered?id={{cohort.id}}">
-              View all <span data-ng-bind="cohort.totalStudentCount"></span> students
-              in "<span data-ng-bind="cohort.name"></span>"
+              <span data-ng-if="cohort.totalStudentCount">
+                View <span data-ng-pluralize
+                           count="cohort.totalStudentCount"
+                           when="{'one': 'the one student', 'other': 'all {} students'}"></span>
+                in "<span data-ng-bind="cohort.name"></span>"
+              </span>
+              <span data-ng-if="!cohort.totalStudentCount">
+                "<span data-ng-bind="cohort.name"></span>" has 0 students
+              </span>
             </a>
           </div>
         </div>
