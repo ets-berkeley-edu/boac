@@ -274,31 +274,38 @@ class Alert(Base):
         for section in enrollment['sections']:
             if section.get('midtermGrade'):
                 cls.update_midterm_grade_alerts(sid, term_id, section['ccn'], enrollment['displayName'], section['midtermGrade'])
+            last_activity = None
+            activity_percentile = None
             for canvas_site in enrollment.get('canvasSites', []):
                 student_activity = canvas_site.get('analytics', {}).get('lastActivity', {}).get('student')
                 if not student_activity or student_activity.get('roundedUpPercentile') is None:
                     continue
-                if student_activity.get('raw') == 0:
-                    if (
-                        no_activity_alerts_enabled and
-                        student_activity.get('roundedUpPercentile') <= app.config['ALERT_NO_ACTIVITY_PERCENTILE_CUTOFF']
-                    ):
-                        cls.update_no_activity_alerts(sid, term_id, enrollment['displayName'])
-                else:
-                    localized_last_activity = unix_timestamp_to_localtime(student_activity.get('raw')).date()
-                    localized_today = unix_timestamp_to_localtime(time.time()).date()
-                    days_since = (localized_today - localized_last_activity).days
-                    if (
-                        infrequent_activity_alerts_enabled and
+                raw_epoch = student_activity.get('raw')
+                if last_activity is None or raw_epoch > last_activity:
+                    last_activity = raw_epoch
+                    activity_percentile = student_activity.get('roundedUpPercentile')
+            if last_activity is None:
+                continue
+            if (
+                no_activity_alerts_enabled and
+                last_activity == 0 and
+                activity_percentile <= app.config['ALERT_NO_ACTIVITY_PERCENTILE_CUTOFF']
+            ):
+                cls.update_no_activity_alerts(sid, term_id, enrollment['displayName'])
+            elif infrequent_activity_alerts_enabled:
+                localized_last_activity = unix_timestamp_to_localtime(last_activity).date()
+                localized_today = unix_timestamp_to_localtime(time.time()).date()
+                days_since = (localized_today - localized_last_activity).days
+                if (
                         days_since >= app.config['ALERT_INFREQUENT_ACTIVITY_DAYS'] and
-                        student_activity.get('roundedUpPercentile') <= app.config['ALERT_INFREQUENT_ACTIVITY_PERCENTILE_CUTOFF']
-                    ):
-                        cls.update_infrequent_activity_alerts(
-                            sid,
-                            term_id,
-                            enrollment['displayName'],
-                            days_since,
-                        )
+                        activity_percentile <= app.config['ALERT_INFREQUENT_ACTIVITY_PERCENTILE_CUTOFF']
+                ):
+                    cls.update_infrequent_activity_alerts(
+                        sid,
+                        term_id,
+                        enrollment['displayName'],
+                        days_since,
+                    )
 
     @classmethod
     def update_assignment_alerts(cls, sid, term_id, assignment_id, due_at, status, course_site_name):
