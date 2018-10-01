@@ -3,6 +3,22 @@
   <div>Assignment grades plotted against number of days since the student last visited the bCourses course site.</div>
 </div>
 <div id="matrix-container" class="matrix-container">
+  <div class="matrix-zoom-wrapper">
+    Zoom:
+    <div class="btn-group">
+      <button type="button" class="btn matrix-zoom-button" data-ng-click="zoomIn()">
+        <i class="fa fa-plus"></i>
+        <span class="sr-only">Zoom in</span>
+      </button>
+      <button type="button"
+              class="btn matrix-zoom-button"
+              data-ng-click="zoomOut()"
+              data-ng-disabled="zoom.scale === 1">
+        <i class="fa fa-minus" data-ng-class="{'matrix-zoom-disabled': zoom.scale === 1}"></i>
+        <span class="sr-only">Zoom out</span>
+      </button>
+    </div>
+  </div>
   <!-- IMPORTANT: We use data-ng-show because d3 must populate the div before we reveal it to the user. -->
   <div id="scatterplot" class="matrix"></div>
   <div id="cohort-missing-student-data" class="cohort-missing-student-data" data-ng-if="studentsWithoutData.length">

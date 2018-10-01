@@ -167,6 +167,10 @@
       var xScale = d3.scaleLinear().domain([0, 100]).range([0, width]).nice();
       var yScale = d3.scaleLinear().domain([0, 100]).range([height, 0]).nice();
 
+      var zoomProperties = {
+        scale: 1
+      };
+
       var xAxis = d3.axisBottom(xScale)
         .ticks(10, d3.format(',d'))
         .tickSize(-height);
@@ -174,6 +178,28 @@
       var yAxis = d3.axisLeft(yScale)
         .ticks(10, d3.format(',d'))
         .tickSize(-width);
+
+      var onZoom = function() {
+        var transform = d3.event.transform;
+        var xNewScale = transform.rescaleX(xScale);
+        xAxis.scale(xNewScale);
+        svg.select('.x.matrix-axis').call(xAxis);
+        var yNewScale = transform.rescaleY(yScale);
+        yAxis.scale(yNewScale);
+        svg.select('.y.matrix-axis').call(yAxis);
+        svg.selectAll('.matrix-quadrant-rect').attr('transform', transform);
+        svg.selectAll('.dot')
+          .attr('cx', function(d) { return transform.applyX(xScale(x(d))); })
+          .attr('cy', function(d) { return transform.applyY(yScale(y(d))); });
+        zoomProperties.scale = transform.k;
+      };
+
+      var zoom = d3.zoom()
+        .scaleExtent([1, 10])
+        .translateExtent([[0, 0], [width, height]])
+        // Disable zoom events triggered by the mouse wheel.
+        .filter(function() { return !event.button && event.type !== 'wheel'; })
+        .on('zoom', onZoom);
 
       var container = d3.select('#matrix-container');
 
@@ -186,9 +212,18 @@
         .attr('height', height)
         .attr('stroke', 1);
 
+      svg.call(zoom);
+
+      zoomProperties.programmaticZoom = function(scale, callback) {
+        svg.transition().duration(300)
+          .call(zoom.scaleBy, scale)
+          .on('end', callback);
+      };
+
       svg.append('g')
         .attr('clip-path', 'url(#clip-inner)')
         .append('rect')
+        .attr('class', 'matrix-quadrant-rect')
         .attr('width', xScale(x(classMean)))
         .attr('height', yScale(y(classMean)))
         .attr('stroke', '#ccc')
@@ -198,6 +233,7 @@
       svg.append('g')
         .attr('clip-path', 'url(#clip-inner)')
         .append('rect')
+        .attr('class', 'matrix-quadrant-rect')
         .attr('width', xScale(x(classMean)))
         .attr('height', height - yScale(y(classMean)))
         .attr('y', yScale(y(classMean)))
@@ -208,6 +244,7 @@
       svg.append('g')
         .attr('clip-path', 'url(#clip-inner)')
         .append('rect')
+        .attr('class', 'matrix-quadrant-rect')
         .attr('width', width - xScale(x(classMean)))
         .attr('height', yScale(y(classMean)))
         .attr('x', xScale(x(classMean)))
@@ -218,6 +255,7 @@
       svg.append('g')
         .attr('clip-path', 'url(#clip-inner)')
         .append('rect')
+        .attr('class', 'matrix-quadrant-rect')
         .attr('width', width - xScale(x(classMean)))
         .attr('height', height - yScale(y(classMean)))
         .attr('x', xScale(x(classMean)))
@@ -378,7 +416,7 @@
 
         var tooltip = container.append('div')
           .attr('class', 'matrix-tooltip')
-          .style('top', parseInt(selection.attr('cy'), 10) + 45 + 'px')
+          .style('top', parseInt(selection.attr('cy'), 10) + 80 + 'px')
           .style('left', parseInt(selection.attr('cx'), 10) - 120 + 'px');
 
         // The tooltip starts out hidden while inserting data...
@@ -420,6 +458,10 @@
 
       dot.on('mouseover', onDotSelected);
       dot.on('mouseout', onDotDeselected);
+
+      return {
+        zoomProperties: zoomProperties
+      };
     };
 
     var yAxisMeasure = function() {
@@ -453,8 +495,8 @@
           lastName: 'Class Average'
         });
       }
-      drawScatterplot(plottableStudents, yAxisMeasure(), goToUserPage);
-      callback(yAxisMeasure(), partitions[1]);
+      var scatterplotProps = drawScatterplot(plottableStudents, yAxisMeasure(), goToUserPage);
+      callback(yAxisMeasure(), partitions[1], scatterplotProps.zoomProperties);
     };
 
     return {
