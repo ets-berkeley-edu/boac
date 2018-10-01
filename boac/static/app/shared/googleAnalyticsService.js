@@ -42,7 +42,7 @@
      * @return {void}
      */
     var track = function(category, action, label, value) {
-      if (id) {
+      if (id && ga) {
         ga('send', 'event', category, action, label, value, {
           userId: _.get($rootScope.me, 'uid')
         });
@@ -50,7 +50,7 @@
     };
 
     $transitions.onSuccess({}, function() {
-      if (id) {
+      if (id && ga) {
         var uid = _.get($rootScope.me, 'uid');
         ga('create', id, 'auto');
         if (uid) {
