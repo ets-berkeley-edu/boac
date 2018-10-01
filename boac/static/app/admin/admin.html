@@ -64,14 +64,6 @@
         <div class="group-summary-container">
           <div class="group-summary-flex-row group-summary-row"
                data-ng-repeat="user in group.users | orderBy:options.sortBy:options.reverse track by $index">
-            <div class="user-summary-column">
-              <img class="student-avatar student-avatar-small"
-                  aria-label="Photo of {{user.firstName}} {{user.lastName}}"
-                  tabindex="0"
-                  data-ng-class="{'img-blur': demoMode.blur}"
-                  data-ng-src="/api/student/{{user.uid}}/photo"
-                  data-avatar-fallback>
-            </div>
             <div class="user-summary-column user-summary-name">
               <a aria-label="Go to UC Berkeley Directory page of {{user.firstName}} {{user.lastName}}"
                   data-ng-class="{'demo-mode-blur': demoMode.blur}"
