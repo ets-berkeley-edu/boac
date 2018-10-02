@@ -98,10 +98,18 @@
             $scope.section.students,
             $scope.section.meanMetrics,
             goToUserPage,
-            function(yAxisMeasure, studentsWithoutData) {
+            function(yAxisMeasure, studentsWithoutData, zoom) {
               $scope.yAxisMeasure = yAxisMeasure;
               // List of students-without-data is rendered below the scatterplot.
               $scope.studentsWithoutData = studentsWithoutData;
+              // Make d3 zoom available to the scope.
+              $scope.zoom = zoom;
+              $scope.zoomIn = function() {
+                zoom.programmaticZoom(2, function() { $scope.$apply(); });
+              };
+              $scope.zoomOut = function() {
+                zoom.programmaticZoom(0.5, function() { $scope.$apply(); });
+              };
             }
           );
           page.loading(false);

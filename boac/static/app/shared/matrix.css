@@ -79,6 +79,7 @@
   margin: 0 10px 100px 40px;
   margin-bottom: 100px;
   position: relative;
+  width: 910px;
 }
 
 .matrix-header {
@@ -120,4 +121,20 @@
 .matrix-tooltip-value {
   font-weight: bold;
   padding: 0 0 2px 0;
+}
+
+.matrix-zoom-button {
+  border: 1px solid #ccc;
+  height: 30px;
+  padding: 0;
+  width: 30px;
+}
+
+.matrix-zoom-disabled {
+  color: #ccc;
+}
+
+.matrix-zoom-wrapper {
+  margin-bottom: 5px;
+  text-align: right;
 }
