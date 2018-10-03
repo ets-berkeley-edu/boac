@@ -19,7 +19,10 @@ pip3 install pandas==0.23.3
 
 ### Install front-end dependencies
 
-`bower install`
+```
+bower install
+npm install
+```
 
 ### Create Postgres user and databases
 
