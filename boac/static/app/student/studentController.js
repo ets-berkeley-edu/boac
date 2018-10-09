@@ -60,6 +60,7 @@
     $scope.parseInt = parseInt;
     $scope.showAllTerms = false;
     $scope.showDismissedAlerts = false;
+    $scope.showTermGpa = false;
 
     $scope.dismissAlert = function(alertId) {
       studentFactory.dismissAlert(alertId).then(function() {
@@ -103,6 +104,8 @@
         identifyCuratedCohortsWithStudent();
         preferredName = getPreferredName();
 
+        $scope.gpaTerms = [];
+
         _.each($scope.student.enrollmentTerms, function(term) {
           // Merge in unmatched canvas sites
           var unmatched = _.map(term.unmatchedCanvasSites, function(c) {
@@ -122,6 +125,12 @@
               section.isViewableOnCoursePage = section.primary;
             });
           });
+          if (_.get(term, 'termGpa.unitsTakenForGpa')) {
+            $scope.gpaTerms.push({
+              name: _.get(term, 'termName'),
+              gpa: _.get(term, 'termGpa.gpa')
+            });
+          }
         });
 
       }).then(function() {
@@ -129,6 +138,9 @@
           $scope.alerts = alerts.data;
         });
         visualizationService.showUnitsChart($scope.student, $scope.currentEnrollmentTermId.toString());
+        if ($scope.gpaTerms.length > 1) {
+          visualizationService.showGpaChart($scope.gpaTerms);
+        }
         if (!config.demoMode.blur) {
           $rootScope.pageTitle = _.get($scope.student, 'name') || preferredName;
         }
