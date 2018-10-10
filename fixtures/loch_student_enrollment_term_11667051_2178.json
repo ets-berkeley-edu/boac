@@ -340,6 +340,48 @@
       ],
       "title": "Physical Education Activities",
       "units": 0.5
+    },
+    {
+      "canvasSites": [
+        {
+          "analytics": {
+            "assignmentsSubmitted": {
+              "error": "Redshift query returned no results"
+            },
+            "currentScore": {
+              "error": "Redshift query returned no results"
+            },
+            "lastActivity": {
+              "error": "Redshift query returned no results"
+            }
+          },
+          "canvasCourseId": 1476237,
+          "courseName": "Kanye West Decal",
+          "courseCode": "SOCIOL 198 - GRP 006",
+          "courseTerm": "Fall 2017"
+        }
+      ],
+      "displayName": "SOCIOL 198",
+      "title": "Directed Group Study for Undergraduates",
+      "grade": null,
+      "gradingBasis": "Letter",
+      "sections": [
+        {
+          "ccn": 23707,
+          "component": "GRP",
+          "sectionNumber": "009",
+          "enrollmentStatus": "E",
+          "units": 2.0,
+          "gradingBasis": "Letter",
+          "midtermGrade": "D-",
+          "grade": null,
+          "primary": true,
+          "canvasCourseIds": [
+            1476237
+          ]
+        }
+      ],
+      "units": 2.0
     }
   ],
   "termId": "2178",

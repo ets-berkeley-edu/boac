@@ -554,7 +554,7 @@ class TestStudentAnalytics:
         assert len(authenticated_response.json['enrollmentTerms']) == 2
         assert authenticated_response.json['enrollmentTerms'][0]['termName'] == 'Fall 2017'
         assert authenticated_response.json['enrollmentTerms'][0]['enrolledUnits'] == 12.5
-        assert len(authenticated_response.json['enrollmentTerms'][0]['enrollments']) == 4
+        assert len(authenticated_response.json['enrollmentTerms'][0]['enrollments']) == 5
         assert authenticated_response.json['enrollmentTerms'][1]['termName'] == 'Spring 2017'
         assert authenticated_response.json['enrollmentTerms'][1]['enrolledUnits'] == 10
         assert len(authenticated_response.json['enrollmentTerms'][1]['enrollments']) == 3

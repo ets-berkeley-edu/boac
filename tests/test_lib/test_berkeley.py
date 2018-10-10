@@ -112,3 +112,16 @@ class TestBerkeleyAuthorization:
         assert berkeley.can_view_cohort(admin_user, coe_cohorts[0])
         assert not berkeley.can_view_cohort(asc_advisor, coe_cohorts[0])
         assert berkeley.can_view_cohort(coe_advisor, coe_cohorts[0])
+
+
+class TestAlertRules:
+    """Rules related to alert creation."""
+
+    def test_section_is_eligible_for_alerts(self):
+        assert berkeley.section_is_eligible_for_alerts({'displayName': 'SOCIOL 198'}, {'component': 'LEC'})
+        dis_section = {'component': 'DIS'}
+        for catalog_id in ('98', '199', '98A', '98BC', '199BC'):
+            assert not berkeley.section_is_eligible_for_alerts({'displayName': f'SOCIOL {catalog_id}'}, dis_section)
+        for display_name in ('PSYCH 19A', 'MATH 9A', 'SOCIOL 198, Special Edition', 'Pop Music in 1988'):
+            eligible_for_alert = {'displayName': display_name}
+            assert berkeley.section_is_eligible_for_alerts(eligible_for_alert, dis_section), f'Failed on {display_name}'
