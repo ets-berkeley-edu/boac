@@ -87,9 +87,22 @@
                    data-ng-repeat="team in student.athleticsProfile.athletics"></div>
             </div>
           </div>
-          <div class="student-column">
-            <div class="student-gpa" data-ng-bind="student.cumulativeGPA || '--'"></div>
-            <div class="student-text">GPA (Cumulative)</div>
+          <div class="student-column student-column-gpa">
+            <div>
+              <span class="student-gpa" data-ng-bind="student.cumulativeGPA || '--'"></span>
+              <span class="student-text">GPA (Cumulative)</span>
+            </div>
+            <gpa-chart data-gpa-terms="student.termGpa"
+                       data-width="120"
+                       data-ng-if="student.termGpa.length > 1"></gpa-chart>
+            <div class="student-bio-status-legend profile-last-term-gpa-outer"
+                 data-ng-if="student.termGpa.length">
+              <i class="fa fa-exclamation-triangle boac-exclamation"
+                 data-ng-if="student.termGpa[0].gpa < 2"></i>
+              <span data-ng-bind="student.termGpa[0].termName"></span> GPA:
+              <strong data-ng-bind="student.termGpa[0].gpa"
+                      data-ng-class="{'profile-last-term-gpa': student.termGpa[0].gpa >= 2, 'profile-gpa-alert': student.termGpa[0].gpa < 2}"></strong>
+            </div>
           </div>
           <div class="student-column">
             <div class="student-gpa" data-ng-bind="student.term.enrolledUnits || '0'"></div>

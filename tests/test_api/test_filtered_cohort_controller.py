@@ -214,8 +214,8 @@ class TestCohortDetail:
         response = client.get(f'/api/filtered_cohort/{asc_owned_cohort.id}?orderBy=firstName')
         deborah = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
         assert len(deborah['termGpa']) == 4
-        assert deborah['termGpa'][0] == {'termName': 'Spring 2016', 'gpa': 3.8}
-        assert deborah['termGpa'][3] == {'termName': 'Spring 2018', 'gpa': 2.9}
+        assert deborah['termGpa'][0] == {'termName': 'Spring 2018', 'gpa': 2.9}
+        assert deborah['termGpa'][3] == {'termName': 'Spring 2016', 'gpa': 3.8}
 
     def test_includes_cohort_member_athletics_asc(self, asc_advisor_session, asc_owned_cohort, client):
         """Includes athletic data custom cohort members for ASC advisors."""

@@ -138,9 +138,6 @@
           $scope.alerts = alerts.data;
         });
         visualizationService.showUnitsChart($scope.student, $scope.currentEnrollmentTermId.toString());
-        if ($scope.gpaTerms.length > 1) {
-          visualizationService.showGpaChart($scope.gpaTerms);
-        }
         if (!config.demoMode.blur) {
           $rootScope.pageTitle = _.get($scope.student, 'name') || preferredName;
         }

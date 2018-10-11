@@ -243,7 +243,7 @@ def get_term_gpas(sids):
         FROM {student_schema()}.student_term_gpas
         WHERE sid = ANY(:sids)
         AND units_taken_for_gpa > 0
-        ORDER BY sid, term_id"""
+        ORDER BY sid, term_id DESC"""
     return safe_execute_rds(sql, sids=sids)
 
 
