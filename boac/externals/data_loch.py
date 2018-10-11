@@ -238,6 +238,15 @@ def get_student_profiles(sids=None):
         return safe_execute_redshift(sql)
 
 
+def get_term_gpas(sids):
+    sql = f"""SELECT sid, term_id, gpa, units_taken_for_gpa
+        FROM {student_schema()}.student_term_gpas
+        WHERE sid = ANY(:sids)
+        AND units_taken_for_gpa > 0
+        ORDER BY sid, term_id"""
+    return safe_execute_rds(sql, sids=sids)
+
+
 def get_enrollments_for_sid(sid, latest_term_id=None):
     sql = f"""SELECT term_id, enrollment_term
         FROM {student_schema()}.student_enrollment_terms
