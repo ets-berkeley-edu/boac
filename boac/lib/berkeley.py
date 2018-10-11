@@ -271,3 +271,12 @@ def can_view_cohort(user, cohort):
     if cohort.owners:
         cohort_dept_codes = np.concatenate([get_dept_codes(o) for o in cohort.owners])
     return np.in1d(my_dept_codes, cohort_dept_codes)
+
+
+def section_is_eligible_for_alerts(enrollment, section):
+    if section.get('component') == 'LEC':
+        return True
+    else:
+        display_name = enrollment.get('displayName')
+        decal_catalog_id_pattern = re.compile(' 1?9[89][A-Z]?[A-Z]?$')
+        return not decal_catalog_id_pattern.search(display_name)
