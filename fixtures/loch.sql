@@ -94,6 +94,14 @@ CREATE TABLE student.student_enrollment_terms
     enrollment_term TEXT NOT NULL
 );
 
+CREATE TABLE student.student_term_gpas
+(
+    sid VARCHAR NOT NULL,
+    term_id VARCHAR(4) NOT NULL,
+    gpa DECIMAL(4,3),
+    units_taken_for_gpa DECIMAL(4,1)
+);
+
 INSERT INTO boac_advising_asc.students
 (sid, intensive, active, status_asc, group_code, group_name, team_code, team_name)
 VALUES
@@ -262,3 +270,16 @@ VALUES
 ('2345678901', '2172', :enrollment_term_2345678901_2172),
 ('3456789012', '2178', :enrollment_term_3456789012_2178),
 ('5678901234', '2178', :enrollment_term_5678901234_2178);
+
+INSERT INTO student.student_term_gpas
+(sid, term_id, gpa, units_taken_for_gpa)
+VALUES
+('11667051', '2162', 3.8, 15),
+('11667051', '2172', 2.7, 17),
+('11667051', '2175', 0, 0),
+('11667051', '2178', 1.8, 15),
+('11667051', '2182', 2.9, 14),
+('2345678901', '2172', 3.5, 16),
+('2345678901', '2175', 0, 4),
+('3456789012', '2178', 3.2, 15),
+('5678901234', '2178', 2.1, 14);
