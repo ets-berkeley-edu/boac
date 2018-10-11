@@ -76,14 +76,14 @@ class TestDataLoch:
     def test_get_term_gpas(self, app):
         term_gpas = data_loch.get_term_gpas(['11667051'])
         assert len(term_gpas) == 4
-        assert term_gpas[0]['term_id'] == '2162'
+        assert term_gpas[0]['term_id'] == '2182'
         assert term_gpas[0]['sid'] == '11667051'
-        assert term_gpas[0]['gpa'] == Decimal('3.800')
-        assert term_gpas[0]['units_taken_for_gpa'] == 15
-        assert term_gpas[3]['term_id'] == '2182'
-        assert term_gpas[0]['sid'] == '11667051'
-        assert term_gpas[3]['gpa'] == Decimal('2.900')
-        assert term_gpas[3]['units_taken_for_gpa'] == 14
+        assert term_gpas[0]['gpa'] == Decimal('2.900')
+        assert term_gpas[0]['units_taken_for_gpa'] == 14
+        assert term_gpas[3]['term_id'] == '2162'
+        assert term_gpas[3]['sid'] == '11667051'
+        assert term_gpas[3]['gpa'] == Decimal('3.800')
+        assert term_gpas[3]['units_taken_for_gpa'] == 15
 
     def test_override_fixture(self, app):
         mr = MockRows(io.StringIO('sid,first_name,last_name\n20000000,Martin,Van Buren'))

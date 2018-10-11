@@ -147,7 +147,7 @@
       });
     };
 
-    var showGpaChart = function(gpaTerms) {
+    var showGpaChart = function(element, gpaTerms, width) {
       var seriesData = [];
       var i = 0;
       _.eachRight(gpaTerms, function(term) {
@@ -172,7 +172,8 @@
         },
         credits: false,
         chart: {
-          width: 170,
+          renderTo: element,
+          width: width,
           height: 40,
           type: 'area',
           margin: [
@@ -248,7 +249,7 @@
       };
 
       setTimeout(function() {
-        Highcharts.chart('profile-gpa-chart-container', gpaChartOptions);
+        return new Highcharts.Chart(gpaChartOptions, 0);
       });
     };
 

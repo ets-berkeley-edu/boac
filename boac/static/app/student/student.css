@@ -221,6 +221,11 @@
 }
 
 .student-column {
+  flex: 0 0 120px;
+  margin-left: 15px;
+}
+
+.student-column-gpa {
   flex: 0.5;
   margin-left: 15px;
 }
@@ -337,7 +342,7 @@
 .profile-last-term-gpa-outer {
   font-size: 12px;
   padding-left: 5px;
-  text-align: right;
+  text-align: left;
 }
 
 .profile-term-gpa-alert {
