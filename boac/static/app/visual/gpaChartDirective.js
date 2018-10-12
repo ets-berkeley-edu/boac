@@ -39,7 +39,8 @@
       link: function(scope, elem) {
         angular.element(function() {
           if (scope.gpaTerms.length) {
-            visualizationService.showGpaChart(elem[0], scope.gpaTerms, scope.width);
+            var width = scope.width || (elem[0].parentNode.clientWidth - 5);
+            visualizationService.showGpaChart(elem[0], scope.gpaTerms, width);
           }
         });
       }
