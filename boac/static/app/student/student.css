@@ -188,6 +188,10 @@
   display: flex;
 }
 
+.student-bio-status-box-units-left {
+  flex: 0 0 115px;
+}
+
 .student-bio-no-data {
   font-size: 18px;
   font-weight: 300;
@@ -343,6 +347,12 @@
   font-size: 12px;
   padding-left: 5px;
   text-align: left;
+}
+
+.profile-last-term-gpa-outer-right {
+  font-size: 12px;
+  padding-left: 5px;
+  text-align: right;
 }
 
 .profile-term-gpa-alert {

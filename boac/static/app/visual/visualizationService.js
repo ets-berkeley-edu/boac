@@ -52,8 +52,7 @@
           height: 60,
           inverted: true,
           spacingLeft: 5,
-          type: 'column',
-          width: 170
+          type: 'column'
         },
         credits: {
           enabled: false
@@ -143,6 +142,7 @@
         ]
       };
       setTimeout(function() {
+        unitsChartOptions.chart.width = angular.element(document.querySelector('#profile-units-chart-container'))[0].parentNode.clientWidth;
         Highcharts.chart('profile-units-chart-container', unitsChartOptions);
       });
     };
@@ -199,7 +199,7 @@
           softMin: 1.9,
           plotLines: [
             {
-              color: '#c3d2e3',
+              color: '#888',
               dashStyle: 'dot',
               width: 1,
               value: 2

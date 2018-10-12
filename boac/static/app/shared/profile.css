@@ -227,8 +227,6 @@
 #profile-units-chart-container {
   height: 60px;
   margin-top: 10px;
-  min-width: 170px;
-  width: 170px;
 }
 
 .profile-units-chart-container .highcharts-container {
@@ -275,7 +273,8 @@
 
 .profile-units-chart-outer {
   border-left: 1px solid #999;
-  margin-left: 10px;
+  flex: 1;
+  margin: 0 10px;
   padding-left: 10px;
 }
 
