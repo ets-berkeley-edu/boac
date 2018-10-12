@@ -106,9 +106,11 @@ class TestCohortDetail:
         # Summary student data is included with alert counts, but full term and analytics feeds are not.
         assert deborah['cumulativeGPA'] == 3.8
         assert deborah['cumulativeUnits'] == 101.3
+        assert deborah['expectedGraduationTerm']['name'] == 'Fall 2019'
         assert deborah['level'] == 'Junior'
         assert len(deborah['majors']) == 2
         assert deborah['term']['enrolledUnits'] == 12.5
+        assert deborah['termGpa'][0]['gpa'] == 2.9
         assert 'analytics' not in deborah
         assert 'enrollments' not in deborah['term']
 

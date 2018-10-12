@@ -172,14 +172,8 @@
   text-align: center;
 }
 
-.group-summary-column-07 {
+.group-summary-column-small {
   flex: 3;
-  text-align: center;
-}
-
-.group-summary-column-08 {
-  flex: 3;
-  text-align: right;
   text-align: center;
 }
 
