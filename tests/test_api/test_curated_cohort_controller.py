@@ -133,7 +133,9 @@ class TestMyCuratedCohorts:
         students = cohorts[0]['students']
         assert students[0]['cumulativeGPA'] == 3.8
         assert students[0]['cumulativeUnits'] == 101.3
+        assert students[0]['expectedGraduationTerm']['name'] == 'Fall 2019'
         assert students[0]['level'] == 'Junior'
+        assert students[0]['termGpa'][0]['gpa'] == 2.9
         assert len(students[0]['majors']) == 2
         assert 'analytics' not in students[0]
         assert 'enrollments' not in students[0]['term']

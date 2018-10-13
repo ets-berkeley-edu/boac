@@ -156,6 +156,7 @@ def get_summary_student_profiles(sids, term_id=None):
         if sis_profile:
             profile['cumulativeGPA'] = sis_profile.get('cumulativeGPA')
             profile['cumulativeUnits'] = sis_profile.get('cumulativeUnits')
+            profile['expectedGraduationTerm'] = sis_profile.get('expectedGraduationTerm')
             profile['level'] = sis_profile.get('level', {}).get('description')
             profile['majors'] = sorted(plan.get('description') for plan in sis_profile.get('plans', []))
             if sis_profile.get('withdrawalCancel'):

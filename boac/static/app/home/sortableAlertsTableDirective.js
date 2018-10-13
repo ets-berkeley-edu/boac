@@ -44,6 +44,9 @@
       link: function(scope) {
         scope.isAscUser = authService.isAscUser();
         scope.demoMode = config.demoMode;
+        scope.abbreviateTermName = function(termName) {
+          return termName.replace('20', ' \'').replace('Spring', 'Spr').replace('Summer', 'Sum');
+        };
         scope.sort = function(options, sortBy) {
           if (options.sortBy === sortBy) {
             options.reverse = !options.reverse;
