@@ -31,8 +31,8 @@
 
   boac.factory('filteredCohortFactory', function($http, $rootScope, googleAnalyticsService) {
 
-    var createCohort = function(label, filterCriteria) {
-      var args = _.merge({label: label}, filterCriteria);
+    var createCohort = function(name, filterCriteria) {
+      var args = _.merge({name: name}, filterCriteria);
       return $http.post('/api/filtered_cohort/create', args).then(function(response) {
         var cohort = response.data;
         $rootScope.$broadcast('filteredCohortCreated', {
@@ -79,10 +79,10 @@
       return $http.get('/api/filtered_cohorts/my');
     };
 
-    var update = function(id, label, filterCriteria, studentCount, callback) {
+    var update = function(id, name, filterCriteria, studentCount, callback) {
       var args = {
         id: id,
-        label: label,
+        name: name,
         filterCriteria: filterCriteria,
         studentCount: studentCount
       };
