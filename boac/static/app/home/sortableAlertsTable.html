@@ -81,7 +81,8 @@
            tabindex="0"
            data-ng-class="{'img-blur': demoMode.blur}"
            data-ng-src="/api/student/{{student.uid}}/photo"
-           data-avatar-fallback>
+           data-avatar-fallback
+           data-ng-if="includeAvatar">
     </div>
     <div class="group-summary-column group-summary-column-02">
       <a aria-label="Go to profile page of {{student.firstName}} {{student.lastName}}"
