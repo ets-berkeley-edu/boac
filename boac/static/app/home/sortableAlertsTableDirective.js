@@ -35,6 +35,7 @@
 
       // @see https://docs.angularjs.org/guide/directive#isolating-the-scope-of-a-directive
       scope: {
+        includeAvatar: '=',
         options: '=',
         students: '='
       },
