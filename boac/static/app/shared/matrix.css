@@ -132,6 +132,8 @@
 .matrix-tooltip-value {
   font-weight: bold;
   padding: 0 0 2px 0;
+  vertical-align: top;
+  white-space: nowrap;
 }
 
 .matrix-zoom-button {
