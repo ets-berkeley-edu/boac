@@ -135,7 +135,6 @@ class CohortFilter(Base, UserMixin):
         cohort_json = {
             'id': self.id,
             'code': self.id,
-            'label': cohort_name,
             'name': cohort_name,
             'owners': [user.uid for user in self.owners],
         }

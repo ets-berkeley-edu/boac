@@ -119,9 +119,9 @@ def create_cohort():
     params = request.get_json()
     if is_unauthorized_search(params):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
-    label = util.get(params, 'label', None)
-    if not label:
-        raise BadRequestError('Cohort creation requires \'label\'')
+    name = util.get(params, 'name', None)
+    if not name:
+        raise BadRequestError('Cohort creation requires \'name\'')
     cohort = CohortFilter.create(
         advisor_ldap_uids=util.get(params, 'advisorLdapUids'),
         coe_prep_statuses=util.get(params, 'coePrepStatuses'),
@@ -131,7 +131,7 @@ def create_cohort():
         group_codes=util.get(params, 'groupCodes'),
         in_intensive_cohort=util.to_bool_or_none(params.get('inIntensiveCohort')),
         is_inactive_asc=util.to_bool_or_none(params.get('isInactiveAsc')),
-        name=label,
+        name=name,
         last_name_range=util.get(params, 'lastNameRange'),
         levels=util.get(params, 'levels'),
         majors=util.get(params, 'majors'),
@@ -148,15 +148,15 @@ def update_cohort():
     params = request.get_json()
     cohort_id = int(params['id'])
     uid = current_user.get_id()
-    label = params.get('label')
+    name = params.get('name')
     filter_criteria = params.get('filterCriteria')
     student_count = params.get('studentCount')
-    if not label and not filter_criteria and not student_count:
+    if not name and not filter_criteria and not student_count:
         raise BadRequestError('Invalid request')
     cohort = next((c for c in CohortFilter.all_owned_by(uid) if c.id == cohort_id), None)
     if not cohort:
         raise ForbiddenRequestError(f'Invalid or unauthorized request')
-    name = label or cohort.name
+    name = name or cohort.name
     filter_criteria = filter_criteria or cohort.filter_criteria
     updated = CohortFilter.update(cohort_id=cohort.id, name=name, filter_criteria=filter_criteria, student_count=student_count)
     return tolerant_jsonify(decorate_cohort(updated, include_students=False))
