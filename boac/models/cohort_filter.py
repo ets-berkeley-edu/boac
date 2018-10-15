@@ -43,25 +43,25 @@ class CohortFilter(Base, UserMixin):
     __tablename__ = 'cohort_filters'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
-    label = db.Column(db.String(255), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
     filter_criteria = db.Column(JSONB, nullable=False)
     student_count = db.Column(db.Integer)
     owners = db.relationship('AuthorizedUser', secondary=cohort_filter_owners, back_populates='cohort_filters')
 
-    def __init__(self, label, filter_criteria):
-        self.label = label
+    def __init__(self, name, filter_criteria):
+        self.name = name
         self.filter_criteria = filter_criteria
 
     def __repr__(self):
         return f"""<CohortFilter {self.id},
-            label={self.label},
+            name={self.name},
             owners={self.owners},
             filter_criteria={self.filter_criteria},
             updated_at={self.updated_at},
             created_at={self.created_at}>"""
 
     @classmethod
-    def create(cls, uid, label, **kwargs):
+    def create(cls, uid, name, **kwargs):
         at_least_one_is_defined = False
         filter_criteria = {}
         for k, v in kwargs.items():
@@ -69,7 +69,7 @@ class CohortFilter(Base, UserMixin):
             filter_criteria[util.camelize(k)] = v
         if not at_least_one_is_defined:
             raise InternalServerError('Cohort creation requires at least one filter specification.')
-        cohort = CohortFilter(label=label, filter_criteria=filter_criteria)
+        cohort = CohortFilter(name=name, filter_criteria=filter_criteria)
         user = AuthorizedUser.find_by_uid(uid)
         user.cohort_filters.append(cohort)
         db.session.flush()
@@ -77,9 +77,9 @@ class CohortFilter(Base, UserMixin):
         return cohort
 
     @classmethod
-    def update(cls, cohort_id, label=None, filter_criteria=None, student_count=None):
+    def update(cls, cohort_id, name=None, filter_criteria=None, student_count=None):
         cohort = CohortFilter.query.filter_by(id=cohort_id).first()
-        cohort.label = label
+        cohort.name = name
         cohort.filter_criteria = filter_criteria
         if student_count is not None:
             cohort.student_count = student_count
@@ -105,7 +105,7 @@ class CohortFilter(Base, UserMixin):
 
     @classmethod
     def all_owned_by(cls, uid):
-        return CohortFilter.query.filter(CohortFilter.owners.any(uid=uid)).order_by(CohortFilter.label).all()
+        return CohortFilter.query.filter(CohortFilter.owners.any(uid=uid)).order_by(CohortFilter.name).all()
 
     @classmethod
     def find_by_id(cls, cohort_id):
@@ -131,7 +131,7 @@ class CohortFilter(Base, UserMixin):
         advisor_ldap_uids = util.get(c, 'advisorLdapUids')
         if not isinstance(advisor_ldap_uids, list):
             advisor_ldap_uids = [advisor_ldap_uids] if advisor_ldap_uids else None
-        cohort_name = self.label
+        cohort_name = self.name
         cohort_json = {
             'id': self.id,
             'code': self.id,

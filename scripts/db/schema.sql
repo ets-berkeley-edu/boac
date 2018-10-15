@@ -119,7 +119,7 @@ ALTER TABLE ONLY cohort_filter_owners
 
 CREATE TABLE cohort_filters (
     id integer NOT NULL,
-    label character varying(255) NOT NULL,
+    name character varying(255) NOT NULL,
     filter_criteria jsonb NOT NULL,
     student_count integer,
     created_at timestamp with time zone NOT NULL,
