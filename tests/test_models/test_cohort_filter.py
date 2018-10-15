@@ -56,7 +56,7 @@ class TestCohortFilter:
         ]
         cohort = CohortFilter.create(
             uid='1022796',
-            label='All criteria, all the time',
+            name='All criteria, all the time',
             gpa_ranges=gpa_ranges,
             group_codes=group_codes,
             in_intensive_cohort=None,
@@ -82,7 +82,7 @@ class TestCohortFilter:
         with pytest.raises(InternalServerError):
             CohortFilter.create(
                 uid=asc_advisor_uid,
-                label='Cohort with undefined filter criteria',
+                name='Cohort with undefined filter criteria',
                 genders=[],
                 in_intensive_cohort=None,
             )
@@ -97,7 +97,7 @@ class TestCohortFilter:
 
         # Create and share cohort
         group_codes = ['MFB-DB', 'MFB-DL', 'MFB-MLB', 'MFB-OLB']
-        cohort = CohortFilter.create(uid=owner, label='Football, Defense', group_codes=group_codes)
+        cohort = CohortFilter.create(uid=owner, name='Football, Defense', group_codes=group_codes)
         cohort = CohortFilter.share(cohort.id, shared_with)
         assert len(cohort.owners) == 2
         assert owner, shared_with in [user.uid for user in cohort.owners]

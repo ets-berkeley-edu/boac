@@ -131,7 +131,7 @@ def create_cohort():
         group_codes=util.get(params, 'groupCodes'),
         in_intensive_cohort=util.to_bool_or_none(params.get('inIntensiveCohort')),
         is_inactive_asc=util.to_bool_or_none(params.get('isInactiveAsc')),
-        label=label,
+        name=label,
         last_name_range=util.get(params, 'lastNameRange'),
         levels=util.get(params, 'levels'),
         majors=util.get(params, 'majors'),
@@ -156,9 +156,9 @@ def update_cohort():
     cohort = next((c for c in CohortFilter.all_owned_by(uid) if c.id == cohort_id), None)
     if not cohort:
         raise ForbiddenRequestError(f'Invalid or unauthorized request')
-    label = label or cohort.label
+    name = label or cohort.name
     filter_criteria = filter_criteria or cohort.filter_criteria
-    updated = CohortFilter.update(cohort_id=cohort.id, label=label, filter_criteria=filter_criteria, student_count=student_count)
+    updated = CohortFilter.update(cohort_id=cohort.id, name=name, filter_criteria=filter_criteria, student_count=student_count)
     return tolerant_jsonify(decorate_cohort(updated, include_students=False))
 
 

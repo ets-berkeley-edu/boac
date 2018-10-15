@@ -160,20 +160,20 @@ def create_curated_cohorts():
 
 def create_filtered_cohorts():
     # Oliver's cohorts
-    CohortFilter.create(uid='2040', label='All sports', group_codes=['MFB-DL', 'WFH'])
-    CohortFilter.create(uid='2040', label='Football, Defense', group_codes=['MFB-DB', 'MFB-DL'])
-    CohortFilter.create(uid='2040', label='Field Hockey', group_codes=['WFH'])
+    CohortFilter.create(uid='2040', name='All sports', group_codes=['MFB-DL', 'WFH'])
+    CohortFilter.create(uid='2040', name='Football, Defense', group_codes=['MFB-DB', 'MFB-DL'])
+    CohortFilter.create(uid='2040', name='Field Hockey', group_codes=['WFH'])
     # Flint's cohorts
     asc_advisor_uid = '1081940'
-    CohortFilter.create(uid=asc_advisor_uid, label='Defense Backs, Inactive', group_codes=['MFB-DB'], is_inactive_asc=True)
-    CohortFilter.create(uid=asc_advisor_uid, label='Defense Backs, Active', group_codes=['MFB-DB'], is_inactive_asc=False)
-    CohortFilter.create(uid=asc_advisor_uid, label='Defense Backs, All', group_codes=['MFB-DB'])
-    CohortFilter.create(uid=asc_advisor_uid, label='Undeclared students', majors=['Undeclared'], is_inactive_asc=False)
-    CohortFilter.create(uid=asc_advisor_uid, label='All sports', group_codes=['MFB-DL', 'WFH'], is_inactive_asc=False)
+    CohortFilter.create(uid=asc_advisor_uid, name='Defense Backs, Inactive', group_codes=['MFB-DB'], is_inactive_asc=True)
+    CohortFilter.create(uid=asc_advisor_uid, name='Defense Backs, Active', group_codes=['MFB-DB'], is_inactive_asc=False)
+    CohortFilter.create(uid=asc_advisor_uid, name='Defense Backs, All', group_codes=['MFB-DB'])
+    CohortFilter.create(uid=asc_advisor_uid, name='Undeclared students', majors=['Undeclared'], is_inactive_asc=False)
+    CohortFilter.create(uid=asc_advisor_uid, name='All sports', group_codes=['MFB-DL', 'WFH'], is_inactive_asc=False)
     # Sandeep's cohorts
     coe_advisor_uid = '1133399'
-    CohortFilter.create(uid=coe_advisor_uid, label='Sandeep\'s Students', advisor_ldap_uids=[coe_advisor_uid])
-    CohortFilter.create(uid='1133399', label='Radioactive Women and Men', majors=['Nuclear Engineering BS'])
+    CohortFilter.create(uid=coe_advisor_uid, name='Sandeep\'s Students', advisor_ldap_uids=[coe_advisor_uid])
+    CohortFilter.create(uid='1133399', name='Radioactive Women and Men', majors=['Nuclear Engineering BS'])
     std_commit(allow_test_environment=True)
 
 
