@@ -110,6 +110,17 @@
   margin: 0 0 5px;
 }
 
+.matrix-tooltip-header-outer {
+  margin: 5px 20px 10px 0;
+}
+
+.matrix-tooltip-major {
+  color: #999;
+  font-size: 12px;
+  line-height: 1.3em;
+  margin: 0;
+}
+
 .matrix-tooltip-table td {
   font-size: 12px;
 }
