@@ -527,10 +527,16 @@
 
         // The tooltip starts out hidden while inserting data...
         tooltip.style('opacity', 0);
+        var headerOuter = tooltip.append('div').attr('class', 'matrix-tooltip-header-outer');
         var fullName = d.firstName ? d.firstName + ' ' + d.lastName : d.lastName;
-        tooltip.append('h4')
+        headerOuter.append('h4')
           .attr('class', config.demoMode.blur ? 'demo-mode-blur' : 'matrix-tooltip-header')
           .text(fullName);
+        _.each(d.majors, function(major) {
+          headerOuter.append('div')
+            .attr('class', 'matrix-tooltip-major')
+            .text(major);
+        });
         var table = tooltip.append('table').attr('class', 'matrix-tooltip-table');
         var daysSinceRow = table.append('tr');
         daysSinceRow.append('td').attr('class', 'matrix-tooltip-label').text('Days since bCourses course site viewed');
