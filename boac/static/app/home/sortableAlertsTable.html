@@ -6,57 +6,57 @@
 <div class="group-summary-container" data-ng-if="students">
   <div class="group-summary-flex-row group-summary-header">
     <div class="group-summary-column group-summary-column-00 group-summary-column-header" data-ng-if="options.curatedCohort"></div>
-    <div class="group-summary-column group-summary-column-01 group-summary-column-header"></div>
-    <div class="group-summary-column group-summary-column-02 group-summary-column-header group-summary-header-sortable"
+    <div class="group-summary-column group-summary-column-photo group-summary-column-header"></div>
+    <div class="group-summary-column group-summary-column-name group-summary-column-header group-summary-header-sortable"
          data-ng-click="sort(options, 'sortableName')"
          data-ng-class="{dropup: !options.reverse}">
       <span class="sr-only">Sort by </span>Name
       <span class="sr-only" data-ng-if="options.sortBy === 'sortableName' && !options.reverse">Descending</span>
       <span class="caret" data-ng-if="options.sortBy === 'sortableName'"></span>
     </div>
-    <div class="group-summary-column group-summary-column-03 group-summary-column-header group-summary-header-sortable"
+    <div class="group-summary-column group-summary-column-sid group-summary-column-header group-summary-header-sortable"
          data-ng-click="sort(options, 'sid')"
          data-ng-class="{dropup: !options.reverse}">
       <span class="sr-only">Sort by </span>SID
       <span class="sr-only" data-ng-if="options.sortBy === 'sid' && !options.reverse">Descending</span>
       <span class="caret" data-ng-if="options.sortBy === 'sid'"></span>
     </div>
-    <div class="group-summary-column group-summary-column-04 group-summary-column-header group-summary-header-sortable"
+    <div class="group-summary-column group-summary-column-major group-summary-column-header group-summary-header-sortable"
          data-ng-click="sort(options, 'majors[0]')"
          data-ng-class="{dropup: !options.reverse}">
       <span class="sr-only">Sort by </span>Major
       <span class="sr-only" data-ng-if="options.sortBy === 'majors[0]' && !options.reverse">Descending</span>
       <span class="caret" data-ng-if="options.sortBy === 'majors[0]'"></span>
     </div>
-    <div class="group-summary-column group-summary-column-small group-summary-column-header group-summary-header-sortable"
+    <div class="group-summary-column group-summary-column-grad group-summary-column-header group-summary-header-sortable"
          data-ng-click="sort(options, 'expectedGraduationTerm.id')"
          data-ng-class="{dropup: !options.reverse}">
       <span class="sr-only">Sort by </span>Grad
       <span class="sr-only" data-ng-if="options.sortBy === 'expectedGraduationTerm.id' && !options.reverse">Descending</span>
       <span class="caret" data-ng-if="options.sortBy === 'expectedGraduationTerm.id'"></span>
     </div>
-    <div class="group-summary-column group-summary-column-05 group-summary-column-header group-summary-header-sortable"
+    <div class="group-summary-column group-summary-column-units-term group-summary-column-header group-summary-header-sortable"
          data-ng-click="sort(options, 'term.enrolledUnits')"
          data-ng-class="{dropup: !options.reverse}">
       <span class="sr-only">Sort by </span>Term Units
       <span class="sr-only" data-ng-if="options.sortBy === 'term.enrolledUnits' && !options.reverse">Descending</span>
       <span class="caret" data-ng-if="options.sortBy === 'term.enrolledUnits'"></span>
     </div>
-    <div class="group-summary-column group-summary-column-06 group-summary-column-header group-summary-header-sortable"
+    <div class="group-summary-column group-summary-column-units-completed group-summary-column-header group-summary-header-sortable"
          data-ng-click="sort(options, 'cumulativeUnits')"
          data-ng-class="{dropup: !options.reverse}">
       <span aria-label="Sort by Units Completed">Units Completed</span>
       <span class="sr-only" data-ng-if="options.sortBy === 'cumulativeUnits' && !options.reverse">Descending</span>
       <span class="caret" data-ng-if="options.sortBy === 'cumulativeUnits'"></span>
     </div>
-    <div class="group-summary-column group-summary-column-small group-summary-column-header group-summary-header-sortable"
+    <div class="group-summary-column group-summary-column-gpa group-summary-column-header group-summary-header-sortable"
          data-ng-click="sort(options, 'cumulativeGPA')"
          data-ng-class="{dropup: !options.reverse}">
       <span class="sr-only">Sort by </span>GPA
       <span class="sr-only" data-ng-if="options.sortBy === 'cumulativeGPA' && !options.reverse">Descending</span>
       <span class="caret" data-ng-if="options.sortBy === 'cumulativeGPA'"></span>
     </div>
-    <div class="group-summary-column group-summary-column-small group-summary-column-header group-summary-header-sortable"
+    <div class="group-summary-column group-summary-column-issues group-summary-column-header group-summary-header-sortable"
          data-ng-click="sort(options, 'alertCount')"
          data-ng-class="{dropup: !options.reverse}">
       <span aria-label="Sort by Issue Count">Issues</span>
@@ -75,7 +75,7 @@
                data-ng-model="student.selectedForCuratedCohort"/>
       </div>
     </div>
-    <div class="group-summary-column group-summary-column-01">
+    <div class="group-summary-column group-summary-column-photo">
       <img class="student-avatar student-avatar-small"
            aria-label="Photo of {{student.firstName}} {{student.lastName}}"
            tabindex="0"
@@ -84,7 +84,7 @@
            data-avatar-fallback
            data-ng-if="includeAvatar">
     </div>
-    <div class="group-summary-column group-summary-column-02">
+    <div class="group-summary-column group-summary-column-name">
       <a aria-label="Go to profile page of {{student.firstName}} {{student.lastName}}"
          data-ng-bind="student.sortableName"
          data-ng-class="{'demo-mode-blur': demoMode.blur}"
@@ -96,25 +96,27 @@
         <i class="fas fa-info-circle"></i>
       </span>
     </div>
-    <div class="group-summary-column group-summary-column-03">
+    <div class="group-summary-column group-summary-column-sid">
       <span data-ng-bind="student.sid" data-ng-class="{'demo-mode-blur': demoMode.blur}"></span>
     </div>
-    <div class="group-summary-column group-summary-column-04">
+    <div class="group-summary-column group-summary-column-major">
       <span data-ng-bind="major" data-ng-repeat="major in student.majors"></span>
     </div>
-    <div class="group-summary-column group-summary-column-small">
+    <div class="group-summary-column group-summary-column-grad">
       <span data-ng-bind="abbreviateTermName(student.expectedGraduationTerm.name)"></span>
     </div>
-    <div class="group-summary-column group-summary-column-05">
+    <div class="group-summary-column group-summary-column-units-term">
       <div data-ng-bind="student.term.enrolledUnits || '0'"></div>
     </div>
-    <div class="group-summary-column group-summary-column-06">
-      <div data-ng-bind="student.cumulativeUnits || '--'"></div>
+    <div class="group-summary-column group-summary-column-units-completed">
+      <div data-ng-if="!student.cumulativeUnits">--</div>
+      <div data-ng-bind="student.cumulativeUnits | variablePrecisionNumber:2:3" data-ng-if="student.cumulativeUnits"></div>
     </div>
-    <div class="group-summary-column group-summary-column-small">
-      <div data-ng-bind="student.cumulativeGPA || '--'"></div>
+    <div class="group-summary-column group-summary-column-gpa">
+      <div data-ng-if="!student.cumulativeGPA">--</div>
+      <div data-ng-bind="student.cumulativeGPA | number:3" data-ng-if="student.cumulativeGPA"></div>
     </div>
-    <div class="group-summary-column group-summary-column-small">
+    <div class="group-summary-column group-summary-column-issues">
       <div class="home-issues-pill home-issues-pill-zero"
            aria-label="No alerts for {{student.firstName}} {{student.lastName}}"
            tabindex="0"
