@@ -55,10 +55,6 @@
   shape-rendering: crispEdges;
 }
 
-.matrix-axis text {
-  display: none;
-}
-
 .matrix-axis-title {
   font-size: 16px;
   font-weight: 200;
@@ -73,6 +69,15 @@
   font-weight: bold;
   letter-spacing: 0.075em;
   text-transform: uppercase;
+}
+
+.matrix-choose-metrics {
+  font-size: 14px;
+}
+
+.matrix-choose-metrics-select {
+  display: inline-block;
+  margin: 0 5px;
 }
 
 .matrix-container {

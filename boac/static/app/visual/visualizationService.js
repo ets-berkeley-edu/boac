@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').service('visualizationService', function($location, config) {
+  angular.module('boac').service('visualizationService', function(config, utilService) {
 
     var showUnitsChart = function(student, currentTermId) {
       var cumulativeUnits = _.get(student, 'sisProfile.cumulativeUnits');
@@ -253,36 +253,106 @@
       });
     };
 
-    var drawScatterplot = function(students, yAxisMeasure, goToUserPage) {
+    var formatForDisplay = function(prop) {
+      if (prop === 'analytics.currentScore') {
+        return 'Assignment grades';
+      }
+      if (prop === 'analytics.lastActivity') {
+        return 'Days since bCourses site viewed';
+      }
+      if (prop === 'cumulativeGPA') {
+        return 'Cumulative GPA';
+      }
+      if (prop.startsWith('termGpa')) {
+        var termId = prop.slice(-4);
+        return utilService.termNameForSisId(termId) + ' GPA';
+      }
+      return '';
+    };
+
+    var isGpaProp = function(prop) {
+      return (prop === 'cumulativeGPA') || prop.startsWith('termGpa');
+    };
+
+    var getDisplayProperty = function(obj, prop) {
+      if (_.has(obj, prop + '.displayPercentile')) {
+        return _.get(obj, prop + '.displayPercentile') + ' percentile';
+      }
+      if (_.has(obj, prop)) {
+        return _.get(obj, prop);
+      }
+      return 'No data';
+    };
+
+    var getLabelLower = function(prop) {
+      if (prop === 'analytics.currentScore') {
+        return 'Low';
+      }
+      if (prop === 'analytics.lastActivity') {
+        return 'Less recent';
+      }
+      return '';
+    };
+
+    var getLabelUpper = function(prop) {
+      if (prop === 'analytics.currentScore') {
+        return 'High';
+      }
+      if (prop === 'analytics.lastActivity') {
+        return 'More recent';
+      }
+      return '';
+    };
+
+    var getTickFormat = function(prop) {
+      return isGpaProp(prop) ? d3.format('.2f') : '';
+    };
+
+    var getPlottableProperty = function(obj, prop) {
+      if (_.has(obj, prop + '.percentile')) {
+        return _.get(obj, prop + '.percentile');
+      }
+      return _.get(obj, prop);
+    };
+
+    var hasPlottableProperty = function(obj, prop) {
+      // In the case of cumulative GPA, zero indicates missing data rather than a real zero.
+      if (prop === 'cumulativeGPA') {
+        return !!getPlottableProperty(obj, prop);
+      }
+      return _.isFinite(getPlottableProperty(obj, prop));
+    };
+
+    var drawScatterplot = function(students, xAxisMeasure, yAxisMeasure, goToUserPage) {
       var svg;
 
-      function x(d) { return d.analytics.lastActivity.percentile; }
-      function y(d) { return _.get(d, yAxisMeasure).percentile; }
+      function x(d) { return getPlottableProperty(d, xAxisMeasure); }
+      function y(d) { return getPlottableProperty(d, yAxisMeasure); }
       function key(d) { return d.uid; }
 
       var classMean = students[0];
 
-      var yAxisName = 'Assignments Submitted';
-      if (yAxisMeasure === 'analytics.currentScore') {
-        yAxisName = 'Assignment grades';
-      }
-
       var width = 910;
       var height = 500;
 
-      var xScale = d3.scaleLinear().domain([0, 100]).range([0, width]).nice();
-      var yScale = d3.scaleLinear().domain([0, 100]).range([height, 0]).nice();
+      var xMax = isGpaProp(xAxisMeasure) ? 4 : 100;
+      var yMax = isGpaProp(yAxisMeasure) ? 4 : 100;
+
+      var xScale = d3.scaleLinear().domain([0, xMax]).range([0, width]).nice();
+      var yScale = d3.scaleLinear().domain([0, yMax]).range([height, 0]).nice();
 
       var zoomProperties = {
         scale: 1
       };
 
       var xAxis = d3.axisBottom(xScale)
-        .ticks(10, d3.format(',d'))
+        .ticks(10)
+        .tickFormat(getTickFormat(xAxisMeasure))
         .tickSize(-height);
 
       var yAxis = d3.axisLeft(yScale)
-        .ticks(10, d3.format(',d'))
+        .ticks(10)
+        .tickFormat(getTickFormat(yAxisMeasure))
         .tickSize(-width);
 
       var onZoom = function() {
@@ -435,7 +505,7 @@
         .attr('height', height + 110);
 
       var dotGroup = objects.append('g')
-        .attr('clip-path', 'url(#clip)');
+        .attr('clip-path', 'url(#clip-inner)');
 
       var dot = dotGroup.attr('class', 'dots')
         .selectAll('.dot')
@@ -453,49 +523,50 @@
       svg.append('text')
         .attr('class', 'matrix-axis-title')
         .attr('x', width / 2)
-        .attr('y', height + 25)
-        .text('Days since bCourses course site viewed');
+        .attr('y', height + 35)
+        .text(formatForDisplay(xAxisMeasure));
       svg.append('text')
         .attr('class', 'matrix-axis-label')
         .attr('text-anchor', 'start')
         .attr('x', 0)
         .attr('y', height + 22)
-        .text('Less Recently');
+        .text(getLabelLower(xAxisMeasure));
       svg.append('text')
         .attr('class', 'matrix-axis-label')
         .attr('text-anchor', 'end')
         .attr('x', width)
         .attr('y', height + 22)
-        .text('More Recently');
+        .text(getLabelUpper(xAxisMeasure));
 
-      // Add y-axis labels.
+      // Add y-axis labels, breaking lines to conserve space.
       svg.append('text')
         .attr('class', 'matrix-axis-title')
-        .attr('y', -20)
+        .attr('y', -35)
         .attr('x', 0 - (height / 2))
         .attr('transform', 'rotate(-90)')
-        .text(yAxisName);
-      svg.append('text')
+        .text(formatForDisplay(yAxisMeasure));
+      var lowerYText = svg.append('text')
         .attr('class', 'matrix-axis-label')
         .attr('text-anchor', 'end')
         .attr('x', -10)
-        .attr('y', height - 2)
-        .text('Low');
-      svg.append('text')
+        .attr('y', height - 20);
+      _.each(getLabelLower(yAxisMeasure).split(' '), function(word) {
+        lowerYText.append('tspan')
+          .attr('x', -10)
+          .attr('dy', 12)
+          .text(word);
+      });
+      var upperYText = svg.append('text')
         .attr('class', 'matrix-axis-label')
         .attr('text-anchor', 'end')
-        .attr('x', -10)
-        .attr('y', 10)
-        .text('High');
-
-      var displayValue = function(d, prop) {
-        var value = _.get(d, prop + '.displayPercentile');
-        if (!value) {
-          return 'No data';
-        }
-        return value + ' percentile';
-      };
-
+        .attr('x', 0)
+        .attr('y', 0);
+      _.each(getLabelUpper(yAxisMeasure).split(' '), function(word) {
+        upperYText.append('tspan')
+          .attr('x', -10)
+          .attr('dy', 12)
+          .text(word);
+      });
       dot.on('click', function(d) {
         if (!d.isClassMean) {
           goToUserPage(d.uid);
@@ -506,9 +577,12 @@
         // Clear any existing tooltips.
         container.selectAll('.matrix-tooltip').remove();
 
-        // Move dot to front if it represents a real student. Not much to see, otherwise.
+        /*
+         * If the dot represents a real student, lift it outside the path-clipped dotGroup so it can
+         * overlap the edge of the matrix if need be.
+         */
         if (!d.isClassMean) {
-          this.parentNode.appendChild(this);
+          objects.node().appendChild(this);
         }
         // Stroke highlight.
         var selection = d3.select(this);
@@ -539,11 +613,11 @@
         });
         var table = tooltip.append('table').attr('class', 'matrix-tooltip-table');
         var daysSinceRow = table.append('tr');
-        daysSinceRow.append('td').attr('class', 'matrix-tooltip-label').text('Days since bCourses course site viewed');
-        daysSinceRow.append('td').attr('class', 'matrix-tooltip-value').text(displayValue(d, 'analytics.lastActivity'));
+        daysSinceRow.append('td').attr('class', 'matrix-tooltip-label').text(formatForDisplay(xAxisMeasure));
+        daysSinceRow.append('td').attr('class', 'matrix-tooltip-value').text(getDisplayProperty(d, xAxisMeasure));
         var yAxisRow = table.append('tr');
-        yAxisRow.append('td').text(yAxisName);
-        yAxisRow.append('td').attr('class', 'matrix-tooltip-value').text(displayValue(d, yAxisMeasure));
+        yAxisRow.append('td').attr('class', 'matrix-tooltip-label').text(formatForDisplay(yAxisMeasure));
+        yAxisRow.append('td').attr('class', 'matrix-tooltip-value').text(getDisplayProperty(d, yAxisMeasure));
 
         // ...and transitions to visible.
         tooltip.transition(d3.transition().duration(100).ease(d3.easeLinear))
@@ -554,6 +628,9 @@
       };
 
       var onDotDeselected = function() {
+        // Return the dot to the path-clipped dot group.
+        dotGroup.node().appendChild(this);
+
         d3.select(this)
           .attr('r', function(_d) { return _d.isClassMean ? 22 : 9; })
           .style('fill', function(_d) { return _d.isClassMean ? avatar(_d) : '#8bbdda'; })
@@ -576,13 +653,9 @@
       };
     };
 
-    var yAxisMeasure = function() {
-      return $location.search().yAxis || 'analytics.currentScore';
-    };
-
-    var partitionPlottableStudents = function(students) {
+    var partitionPlottableStudents = function(xAxisMeasure, yAxisMeasure, students) {
       return _.partition(students, function(student) {
-        return _.isFinite(_.get(student, 'analytics.lastActivity.percentile')) && _.isFinite(_.get(student, yAxisMeasure() + '.percentile'));
+        return hasPlottableProperty(student, xAxisMeasure) && hasPlottableProperty(student, yAxisMeasure);
       });
     };
 
@@ -591,27 +664,33 @@
      *
      * @param  {Student[]}      students        Members of group, cohort or whatever
      * @param  {Object}         meanMetrics     Mean statistics for the scatterplot context
+     * @param  {Object}         selectedAxes    Currently selected x-axis and y-axis metrics
      * @param  {Function}       goToUserPage    Browser redirects to student profile page
      * @param  {Function}       callback        Standard callback
      * @return {void}
      */
-    var scatterplotRefresh = function(students, meanMetrics, goToUserPage, callback) {
+    var scatterplotRefresh = function(students, meanMetrics, selectedAxes, goToUserPage, callback) {
       // Pass along a subset of students that have useful data.
-      var partitions = partitionPlottableStudents(students);
+      var partitions = partitionPlottableStudents(selectedAxes.x, selectedAxes.y, students);
       var plottableStudents = partitions[0];
       if (meanMetrics) {
         // The imaginary mean must be drawn first, so as not to block access to real students.
         plottableStudents.unshift({
           analytics: meanMetrics,
+          cumulativeGPA: meanMetrics.gpa.cumulative,
           isClassMean: true,
-          lastName: 'Class Average'
+          lastName: 'Class Average',
+          termGpa: meanMetrics.gpa
         });
       }
-      var scatterplotProps = drawScatterplot(plottableStudents, yAxisMeasure(), goToUserPage);
-      callback(yAxisMeasure(), partitions[1], scatterplotProps.zoomProperties);
+      var scatterplotProps = drawScatterplot(plottableStudents, selectedAxes.x, selectedAxes.y, goToUserPage);
+      callback(partitions[1], scatterplotProps.zoomProperties);
     };
 
     return {
+      formatForDisplay: formatForDisplay,
+      getDisplayProperty: getDisplayProperty,
+      hasPlottableProperty: hasPlottableProperty,
       partitionPlottableStudents: partitionPlottableStudents,
       scatterplotRefresh: scatterplotRefresh,
       showGpaChart: showGpaChart,
