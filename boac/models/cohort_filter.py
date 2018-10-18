@@ -46,6 +46,7 @@ class CohortFilter(Base, UserMixin):
     name = db.Column(db.String(255), nullable=False)
     filter_criteria = db.Column(JSONB, nullable=False)
     student_count = db.Column(db.Integer)
+    alert_count = db.Column(db.Integer)
     owners = db.relationship('AuthorizedUser', secondary=cohort_filter_owners, back_populates='cohort_filters')
 
     def __init__(self, name, filter_criteria):
@@ -57,6 +58,8 @@ class CohortFilter(Base, UserMixin):
             name={self.name},
             owners={self.owners},
             filter_criteria={self.filter_criteria},
+            student_count={self.student_count},
+            alert_count={self.alert_count},
             updated_at={self.updated_at},
             created_at={self.created_at}>"""
 
@@ -77,17 +80,24 @@ class CohortFilter(Base, UserMixin):
         return cohort
 
     @classmethod
-    def update(cls, cohort_id, name=None, filter_criteria=None, student_count=None):
+    def update(cls, cohort_id, name=None, filter_criteria=None, student_count=None, alert_count=None):
         cohort = CohortFilter.query.filter_by(id=cohort_id).first()
         cohort.name = name
         cohort.filter_criteria = filter_criteria
         if student_count is not None:
             cohort.student_count = student_count
+        if alert_count is not None:
+            cohort.alert_count = alert_count
         std_commit()
         return cohort
 
     def update_student_count(self, count):
         self.student_count = count
+        std_commit()
+        return self
+
+    def update_alert_count(self, count):
+        self.alert_count = count
         std_commit()
         return self
 
@@ -124,7 +134,7 @@ class CohortFilter(Base, UserMixin):
         limit=50,
         include_students=True,
         include_profiles=False,
-        include_alerts_for_uid=None,
+        include_alerts_for_user_id=None,
     ):
         c = self.filter_criteria
         c = c if isinstance(c, dict) else json.loads(c)
@@ -170,7 +180,7 @@ class CohortFilter(Base, UserMixin):
             'teamGroups': team_groups,
         })
 
-        if not include_students and not include_alerts_for_uid and self.student_count is not None:
+        if not include_students and not include_alerts_for_user_id and self.student_count is not None:
             # No need for a students query; return the database-stashed student count.
             cohort_json.update({
                 'totalStudentCount': self.student_count,
@@ -214,9 +224,11 @@ class CohortFilter(Base, UserMixin):
                 cohort_json.update({
                     'students': results['students'],
                 })
-            if include_alerts_for_uid:
-                alert_counts = Alert.include_alert_counts_for_students(viewer_uid=include_alerts_for_uid, cohort=results)
+            if include_alerts_for_user_id:
+                alert_count_per_sid = Alert.include_alert_counts_for_students(viewer_user_id=include_alerts_for_user_id, cohort=results)
                 cohort_json.update({
-                    'alerts': alert_counts,
+                    'alerts': alert_count_per_sid,
                 })
+                if self.alert_count is None:
+                    self.update_alert_count(sum(student['alertCount'] for student in alert_count_per_sid))
         return cohort_json

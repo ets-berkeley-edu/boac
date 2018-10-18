@@ -73,8 +73,8 @@ def all_cohorts():
 @app.route('/api/filtered_cohorts/my')
 @login_required
 def my_cohorts():
-    uid = current_user.get_id()
-    cohorts = [decorate_cohort(c, include_alerts_for_uid=uid, include_students=False) for c in CohortFilter.all_owned_by(uid)]
+    cohorts = CohortFilter.all_owned_by(current_user.get_id())
+    cohorts = [decorate_cohort(c, include_alerts_for_user_id=current_user.id, include_students=False) for c in cohorts]
     alert_sids = []
     for cohort in cohorts:
         alert_sids += [a['sid'] for a in cohort.get('alerts', [])]
@@ -104,7 +104,7 @@ def get_cohort(cohort_id):
             order_by=order_by,
             offset=int(offset),
             limit=int(limit),
-            include_alerts_for_uid=current_user.uid,
+            include_alerts_for_user_id=current_user.id,
             include_profiles=True,
             include_students=include_students,
         )
