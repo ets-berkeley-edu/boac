@@ -81,7 +81,7 @@ def get_curated_cohort(curated_cohort_id):
     sids = [s['sid'] for s in cohort['students']]
     cohort['students'] = get_summary_student_profiles(sids)
     cohort['students'] = api_util.sort_students_by_name(cohort['students'])
-    Alert.include_alert_counts_for_students(viewer_uid=current_user.uid, cohort=cohort)
+    Alert.include_alert_counts_for_students(viewer_user_id=current_user.id, cohort=cohort)
     return tolerant_jsonify(cohort)
 
 

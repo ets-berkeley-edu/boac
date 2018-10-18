@@ -48,5 +48,5 @@ def get_section(term_id, section_id):
         raise ResourceNotFoundError(f'No section {section_id} in term {term_id}')
     student_profiles = get_course_student_profiles(term_id, section_id, offset=offset, limit=limit)
     section.update(student_profiles)
-    Alert.include_alert_counts_for_students(viewer_uid=current_user.uid, cohort=student_profiles)
+    Alert.include_alert_counts_for_students(viewer_user_id=current_user.id, cohort=student_profiles)
     return tolerant_jsonify(section)

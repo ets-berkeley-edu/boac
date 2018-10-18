@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import std_commit
 from boac.models.alert import Alert
+from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_cohort import CuratedCohort
 import pytest
 
@@ -59,3 +60,14 @@ class TestCacheUtils:
         final_sids = [s.sid for s in CuratedCohort.find_by_id(cohort_id).students]
         assert sid_not_in_data_loch not in final_sids
         assert set(final_sids) == set(original_sids)
+
+    def test_load_filtered_cohort_counts(self, app):
+        from boac.api.cache_utils import load_filtered_cohort_counts
+        uid = '2040'
+        cohorts = CohortFilter.all_owned_by(uid)
+        assert len(cohorts)
+        for cohort in cohorts:
+            assert cohort.alert_count is None
+        load_filtered_cohort_counts()
+        for cohort in CohortFilter.all_owned_by('2040'):
+            assert cohort.alert_count >= 0

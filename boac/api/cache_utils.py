@@ -225,8 +225,11 @@ def load_filtered_cohort_counts():
     for cohort in CohortFilter.query.all():
         # Remove!
         cohort.update_student_count(None)
+        cohort.update_alert_count(None)
+        # The db schema supports multiple cohort owners but in the real world it is one owner per cohort.
+        owner_id = cohort.owners[0].id if len(cohort.owners) else None
         # Reload!
-        cohort.to_api_json(include_students=False)
+        cohort.to_api_json(include_students=False, include_alerts_for_user_id=owner_id)
 
 
 def update_curated_cohort_lists():

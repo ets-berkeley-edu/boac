@@ -424,35 +424,27 @@ class TestCohortUpdate:
 
     def test_cohort_update_filter_criteria(self, client, asc_advisor_session):
         name = 'Swimming, Men\'s'
-        original_student_count = 4
         cohort = CohortFilter.create(
             uid=asc_advisor_uid,
             name=name,
-            group_codes=['MSW', 'MSW-DV', 'MSW-SW'],
-            student_count=original_student_count,
+            group_codes=['MBB'],
         )
-        assert original_student_count > 0
-        updated_filter_criteria = {
-            'groupCodes': ['MSW-DV', 'MSW-SW'],
+        response = client.get(f'/api/filtered_cohort/{cohort.id}')
+        cohort = json.loads(response.data)
+        assert cohort['totalStudentCount'] == 1
+        # Update the db
+        updates = {
+            'id': cohort['id'],
+            'filterCriteria': {
+                'groupCodes': ['MBB', 'MBB-AA'],
+            },
+            'studentCount': 3,
         }
-        data = {
-            'id': cohort.id,
-            'filterCriteria': updated_filter_criteria,
-            'studentCount': original_student_count - 1,
-        }
-        response = client.post('/api/filtered_cohort/update', data=json.dumps(data), content_type='application/json')
-        assert 200 == response.status_code
-
+        client.post('/api/filtered_cohort/update', data=json.dumps(updates), content_type='application/json')
+        # Verify the value of 'student_count' in db
         updated_cohort = CohortFilter.find_by_id(int(response.json['id']))
-        assert updated_cohort.name == name
-        assert updated_cohort.student_count == original_student_count - 1
-
-        def remove_empties(filter_criteria):
-            return {k: v for k, v in filter_criteria.items() if v is not None}
-
-        expected = remove_empties(cohort.filter_criteria)
-        actual = remove_empties(updated_cohort.filter_criteria)
-        assert expected == actual
+        assert updated_cohort.student_count == updates['studentCount']
+        assert updated_cohort.filter_criteria['groupCodes'] == updates['filterCriteria']['groupCodes']
 
 
 class TestCohortDelete:
