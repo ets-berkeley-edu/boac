@@ -1,10 +1,12 @@
 DROP SCHEMA IF EXISTS boac_advising_asc cascade;
 DROP SCHEMA IF EXISTS boac_advising_coe cascade;
+DROP SCHEMA IF EXISTS boac_analytics cascade;
 DROP SCHEMA IF EXISTS sis_data cascade;
 DROP SCHEMA IF EXISTS student cascade;
 
 CREATE SCHEMA boac_advising_asc;
 CREATE SCHEMA boac_advising_coe;
+CREATE SCHEMA boac_analytics;
 CREATE SCHEMA sis_data;
 CREATE SCHEMA student;
 
@@ -43,6 +45,14 @@ CREATE TABLE boac_advising_coe.student_profiles
 (
     sid VARCHAR NOT NULL,
     profile TEXT NOT NULL
+);
+
+CREATE TABLE boac_analytics.section_mean_gpas
+(
+    sis_term_id VARCHAR NOT NULL,
+    sis_section_id VARCHAR NOT NULL,
+    gpa_term_id VARCHAR NOT NULL,
+    avg_gpa DOUBLE PRECISION NOT NULL
 );
 
 CREATE TABLE sis_data.sis_terms
@@ -149,6 +159,16 @@ VALUES
 ('7890123456', :coe_profile_7890123456),
 ('9000000000', :coe_profile_9000000000),
 ('9100000000', :coe_profile_9100000000);
+
+INSERT INTO boac_analytics.section_mean_gpas
+(sis_term_id, sis_section_id, gpa_term_id, avg_gpa)
+VALUES
+('2178','90100','cumulative',3.302),
+('2178','90100','2175',3.12),
+('2178','90100','2172',3.445),
+('2178','90200','cumulative',3.131),
+('2178','90200','2175',3.055),
+('2178','90200','2172',3.23);
 
 INSERT INTO sis_data.sis_terms
 (term_id, term_name, academic_career, term_begins, term_ends, session_id, session_name, session_begins, session_ends)

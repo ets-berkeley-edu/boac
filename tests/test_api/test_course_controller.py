@@ -84,6 +84,9 @@ class TestCourseController:
         assert students[0]['level'] == 'Junior'
         assert len(students[0]['majors']) == 2
         assert len(students[0]['enrollment']['canvasSites']) == 1
+        assert len(students[0]['termGpa']) == 4
+        assert students[0]['termGpa'][0]['termName'] == 'Spring 2018'
+        assert students[0]['termGpa'][0]['gpa'] == 2.9
         assert isinstance(students[0].get('alertCount'), int)
 
     def test_section_student_analytics(self, coe_advisor, client):
@@ -120,6 +123,9 @@ class TestCourseController:
         assert mean_metrics['currentScore']['percentile'] == 40.5
         assert mean_metrics['lastActivity']['displayPercentile'] == '46th'
         assert mean_metrics['lastActivity']['percentile'] == 46
+        assert mean_metrics['gpa']['cumulative'] == 3.131
+        assert mean_metrics['gpa']['2175'] == 3.055
+        assert mean_metrics['gpa']['2172'] == 3.23
 
     def test_section_student_athletics_asc(self, asc_advisor, client):
         """Includes athletics for ASC advisors."""
