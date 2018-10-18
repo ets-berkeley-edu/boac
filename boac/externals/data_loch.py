@@ -184,6 +184,16 @@ def get_sis_section_enrollments_count(term_id, sis_section_id, scope):
     return safe_execute_redshift(sql, **params)
 
 
+def get_sis_section_mean_gpas(term_id, sis_section_id):
+    params = {'term_id': term_id, 'sis_section_id': sis_section_id}
+    sql = f"""SELECT gpa_term_id, avg_gpa
+          FROM {boac_schema()}.section_mean_gpas
+          WHERE sis_term_id = :term_id
+          AND sis_section_id = :sis_section_id
+    """
+    return safe_execute_redshift(sql, **params)
+
+
 def get_team_groups(group_codes=None, team_code=None):
     params = {}
     sql = f"""SELECT group_code, group_name, team_code, team_name, COUNT(DISTINCT sid)

@@ -99,6 +99,7 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None):
 
     enrollments_for_term = data_loch.get_enrollments_for_term(term_id, sids)
     enrollments_by_sid = {row['sid']: json.loads(row['enrollment_term']) for row in enrollments_for_term}
+    term_gpas = get_term_gpas_by_sid(sids)
     all_canvas_sites = {}
     for student in students:
         # Strip SIS details to lighten the API load.
@@ -129,7 +130,12 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None):
                         if site['canvasCourseId'] not in all_canvas_sites:
                             all_canvas_sites[site['canvasCourseId']] = site
                     continue
+        student['termGpa'] = term_gpas.get(student['sid'])
     mean_metrics = analytics.mean_metrics_across_sites(all_canvas_sites.values(), 'courseMean')
+    mean_metrics['gpa'] = {}
+    mean_gpas = data_loch.get_sis_section_mean_gpas(term_id, section_id)
+    for row in mean_gpas:
+        mean_metrics['gpa'][str(row['gpa_term_id'])] = row['avg_gpa']
     return {
         'students': students,
         'totalStudentCount': total_student_count,
