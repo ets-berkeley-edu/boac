@@ -51,56 +51,32 @@ def coe_advisor_session(fake_auth):
 @pytest.fixture()
 def asc_owned_cohort():
     cohorts = CohortFilter.all_owned_by(asc_advisor_uid)
-    return next(c for c in cohorts if c.name == 'All sports') if len(cohorts) else None
+    return next((c for c in cohorts if c.name == 'All sports'), None)
 
 
 @pytest.fixture()
 def coe_owned_cohort():
     cohorts = CohortFilter.all_owned_by(coe_advisor_uid)
-    return next(c for c in cohorts if c.name == 'Radioactive Women and Men') if len(cohorts) else None
+    assert len(cohorts)
+    return next((c for c in cohorts if c.name == 'Radioactive Women and Men'), None)
 
 
 class TestCohortDetail:
     """Cohort API."""
 
-    def test_my_cohorts(self, asc_advisor_session, client):
-        response = client.get('/api/filtered_cohorts/my')
-        assert response.status_code == 200
-        cohorts = response.json
-        assert [cohort['name'] for cohort in cohorts] == [
-            'All sports',
-            'Defense Backs, Active',
-            'Defense Backs, All',
-            'Defense Backs, Inactive',
-            'Undeclared students',
-        ]
-        for cohort in cohorts:
-            assert cohort['isOwnedByCurrentUser'] is True
-        all_sports = cohorts[0]
-        assert len(all_sports['teamGroups']) == 2
-        # Student profiles are not included in this feed.
-        assert 'students' not in all_sports
-        assert all_sports['totalStudentCount'] == 4
-
-        defense_backs_active = cohorts[1]
-        defense_backs_all = cohorts[2]
-        defense_backs_inactive = cohorts[3]
-        assert len(defense_backs_active['teamGroups']) == len(defense_backs_all['teamGroups']) == len(defense_backs_inactive['teamGroups']) == 1
-        assert defense_backs_active['totalStudentCount'] == 2
-        assert defense_backs_all['totalStudentCount'] == 2
-        assert defense_backs_inactive['totalStudentCount'] == 1
-
-    def test_my_cohorts_includes_students_with_alert_counts(self, asc_advisor_session, client, create_alerts, db_session):
+    def test_students_with_alert_counts(self, asc_advisor_session, client, create_alerts, db_session):
         # Pre-load students into cache for consistent alert data.
         client.get('/api/student/61889/analytics')
         client.get('/api/student/98765/analytics')
         from boac.models.alert import Alert
         Alert.update_all_for_term(2178)
+        cohorts = CohortFilter.all_owned_by(asc_advisor_uid)
+        assert len(cohorts)
+        cohort_id = cohorts[0].id
+        students_with_alerts = client.get(f'/api/filtered_cohort/{cohort_id}/students_with_alerts').json
+        assert len(students_with_alerts) == 3
 
-        cohorts = client.get('/api/filtered_cohorts/my').json
-        assert len(cohorts[0]['alerts']) == 3
-
-        deborah = cohorts[0]['alerts'][0]
+        deborah = students_with_alerts[0]
         assert deborah['sid'] == '11667051'
         assert deborah['alertCount'] == 3
         # Summary student data is included with alert counts, but full term and analytics feeds are not.
@@ -114,28 +90,22 @@ class TestCohortDetail:
         assert 'analytics' not in deborah
         assert 'enrollments' not in deborah['term']
 
-        dave_doolittle = cohorts[0]['alerts'][1]
+        dave_doolittle = students_with_alerts[1]
         assert dave_doolittle['sid'] == '2345678901'
         assert dave_doolittle['uid']
         assert dave_doolittle['firstName']
         assert dave_doolittle['lastName']
         assert dave_doolittle['alertCount'] == 1
 
-        other_alerts = cohorts[1]['alerts']
-        assert len(other_alerts) == 1
-        assert other_alerts[0]['sid'] == '2345678901'
-        assert other_alerts[0]['alertCount'] == 1
-
         alert_to_dismiss = client.get('/api/alerts/current/11667051').json['shown'][0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
         alert_to_dismiss = client.get('/api/alerts/current/2345678901').json['shown'][0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
 
-        cohorts = client.get('/api/filtered_cohorts/my').json
-        assert len(cohorts[0]['alerts']) == 2
-        assert cohorts[0]['alerts'][0]['sid'] == '11667051'
-        assert cohorts[0]['alerts'][0]['alertCount'] == 2
-        assert len(cohorts[1]['alerts']) == 0
+        students_with_alerts = client.get(f'/api/filtered_cohort/{cohort_id}/students_with_alerts').json
+        assert len(students_with_alerts) == 2
+        assert students_with_alerts[0]['sid'] == '11667051'
+        assert students_with_alerts[0]['alertCount'] == 2
 
     def test_cohorts_all(self, asc_advisor_session, client):
         """Returns all cohorts per owner."""
@@ -174,12 +144,11 @@ class TestCohortDetail:
 
     def test_undeclared_major(self, asc_advisor_session, client):
         """Returns a well-formed response with custom cohort."""
-        name = 'Undeclared students'
-        cohort = next(c for c in CohortFilter.all_owned_by(asc_advisor_uid) if c.name == name)
+        cohort = CohortFilter.all_owned_by(asc_advisor_uid)[-1]
         response = client.get(f'/api/filtered_cohort/{cohort.id}')
         assert response.status_code == 200
         cohort = json.loads(response.data)
-        assert cohort['name'] == name
+        assert cohort['name'] == 'Undeclared students'
         students = cohort['students']
         assert cohort['totalStudentCount'] == len(students) == 1
         # We expect the student with 'Letters & Sci Undeclared UG' major
@@ -285,26 +254,6 @@ class TestCohortDetail:
         response = client.post('/api/filtered_cohort/create', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 403
 
-    def test_cohort_ordering(self, client, asc_advisor_session):
-        """Orders custom cohorts alphabetically."""
-        z_team_data = {
-            'name': 'Zebra Zealots',
-            'groupCodes': ['MTE', 'WWP'],
-        }
-        response = client.post('/api/filtered_cohort/create', data=json.dumps(z_team_data), content_type='application/json')
-        assert response.status_code == 200
-        a_team_data = {
-            'name': 'Aardvark Admirers',
-            'groupCodes': ['MWP', 'WTE'],
-        }
-        response = client.post('/api/filtered_cohort/create', data=json.dumps(a_team_data), content_type='application/json')
-        assert response.status_code == 200
-        response = client.get('/api/filtered_cohorts/my')
-        assert response.status_code == 200
-        cohorts = response.json
-        assert cohorts[0]['name'] == 'Aardvark Admirers'
-        assert cohorts[-1]['name'] == 'Zebra Zealots'
-
 
 class TestCohortCreate:
     """Cohort Create API."""
@@ -368,9 +317,10 @@ class TestCohortCreate:
         }
         response = client.post('/api/filtered_cohort/create', data=json.dumps(data), content_type='application/json')
         assert 200 == response.status_code
-        response = client.get('/api/filtered_cohorts/my')
+        cohort_id = response.json['id']
+        response = client.get(f'/api/filtered_cohort/{cohort_id}')
         assert 200 == response.status_code
-        cohort = next((x for x in response.json if x['name'] == data['name']), None)
+        cohort = response.json
         assert cohort and 'filterCriteria' in cohort
         for key in cohort['filterCriteria']:
             assert data.get(key) == cohort['filterCriteria'][key]
@@ -433,16 +383,18 @@ class TestCohortUpdate:
         cohort = json.loads(response.data)
         assert cohort['totalStudentCount'] == 1
         # Update the db
+        cohort_id = cohort['id']
         updates = {
-            'id': cohort['id'],
+            'id': cohort_id,
             'filterCriteria': {
                 'groupCodes': ['MBB', 'MBB-AA'],
             },
             'studentCount': 3,
         }
-        client.post('/api/filtered_cohort/update', data=json.dumps(updates), content_type='application/json')
+        response = client.post('/api/filtered_cohort/update', data=json.dumps(updates), content_type='application/json')
+        assert response.status_code == 200
         # Verify the value of 'student_count' in db
-        updated_cohort = CohortFilter.find_by_id(int(response.json['id']))
+        updated_cohort = CohortFilter.find_by_id(cohort_id)
         assert updated_cohort.student_count == updates['studentCount']
         assert updated_cohort.filter_criteria['groupCodes'] == updates['filterCriteria']['groupCodes']
 
@@ -478,7 +430,7 @@ class TestCohortDelete:
         # Verify deletion
         response = client.delete(f'/api/filtered_cohort/delete/{cohort.id}')
         assert response.status_code == 200
-        cohorts = CohortFilter.all_owned_by(coe_advisor_uid)
+        cohorts = CohortFilter.all_owned_by(asc_advisor_uid)
         assert not next((c for c in cohorts if c.id == cohort.id), None)
 
 

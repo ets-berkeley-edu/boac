@@ -31,7 +31,6 @@
     $rootScope,
     $scope,
     authService,
-    cohortService,
     config
   ) {
     var init = function() {
@@ -45,9 +44,7 @@
     init();
 
     $rootScope.$on('filteredCohortCreated', function(event, data) {
-      var cohort = data.cohort;
-      cohortService.decorateCohortAlerts(cohort);
-      $scope.myFilteredCohorts.push(cohort);
+      $scope.myFilteredCohorts.push(data.cohort);
     });
 
     $rootScope.$on('filteredCohortDeleted', function(event, data) {

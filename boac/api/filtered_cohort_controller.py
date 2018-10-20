@@ -70,21 +70,22 @@ def all_cohorts():
     return tolerant_jsonify(owners)
 
 
-@app.route('/api/filtered_cohorts/my')
+@app.route('/api/filtered_cohort/<cohort_id>/students_with_alerts')
 @login_required
-def my_cohorts():
-    cohorts = CohortFilter.all_owned_by(current_user.get_id())
-    cohorts = [decorate_cohort(c, include_alerts_for_user_id=current_user.id, include_students=False) for c in cohorts]
-    alert_sids = []
-    for cohort in cohorts:
-        alert_sids += [a['sid'] for a in cohort.get('alerts', [])]
-    alert_profiles = get_summary_student_profiles(alert_sids)
-    alert_profiles_by_sid = {p['sid']: p for p in alert_profiles}
-    for cohort in cohorts:
-        for alert in cohort.get('alerts', []):
-            alert.update(alert_profiles_by_sid[alert['sid']])
-            strip_analytics(alert)
-    return tolerant_jsonify(cohorts)
+def students_with_alerts(cohort_id):
+    cohort = CohortFilter.find_by_id(cohort_id)
+    if cohort and can_view_cohort(current_user, cohort):
+        cohort = decorate_cohort(cohort, include_alerts_for_user_id=current_user.id, include_students=False)
+        students = cohort.get('alerts', [])
+        alert_sids = [s['sid'] for s in students]
+        alert_profiles = get_summary_student_profiles(alert_sids)
+        alert_profiles_by_sid = {p['sid']: p for p in alert_profiles}
+        for student in students:
+            student.update(alert_profiles_by_sid[student['sid']])
+            strip_analytics(student)
+    else:
+        raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
+    return tolerant_jsonify(students)
 
 
 @app.route('/api/filtered_cohort/<cohort_id>')
@@ -146,19 +147,24 @@ def create_cohort():
 @login_required
 def update_cohort():
     params = request.get_json()
-    cohort_id = int(params['id'])
-    uid = current_user.get_id()
+    cohort_id = int(params.get('id'))
     name = params.get('name')
     filter_criteria = params.get('filterCriteria')
     student_count = params.get('studentCount')
     if not name and not filter_criteria and not student_count:
         raise BadRequestError('Invalid request')
+    uid = current_user.get_id()
     cohort = next((c for c in CohortFilter.all_owned_by(uid) if c.id == cohort_id), None)
     if not cohort:
         raise ForbiddenRequestError(f'Invalid or unauthorized request')
     name = name or cohort.name
     filter_criteria = filter_criteria or cohort.filter_criteria
-    updated = CohortFilter.update(cohort_id=cohort.id, name=name, filter_criteria=filter_criteria, student_count=student_count)
+    updated = CohortFilter.update(
+        cohort_id=cohort_id,
+        name=name,
+        filter_criteria=filter_criteria,
+        student_count=student_count,
+    )
     return tolerant_jsonify(decorate_cohort(updated, include_students=False))
 
 

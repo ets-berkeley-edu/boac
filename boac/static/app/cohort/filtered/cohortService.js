@@ -27,31 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').service('cohortService', function(authService, filteredCohortFactory, utilService) {
-
-    var decorate = function(cohort) {
-      return {
-        id: cohort.id,
-        name: cohort.name,
-        studentCount: cohort.studentCount,
-        students: utilService.extendSortableNames(cohort.students),
-        alertCount: _.sum(_.map(cohort.students, 'alertCount')),
-        sortBy: 'sortableName',
-        reverse: false
-      };
-    };
-
-    var decorateCohortAlerts = function(cohort) {
-      if (cohort.alerts && cohort.alerts.length) {
-        cohort.alerts = {
-          isCohortAlerts: true,
-          students: utilService.extendSortableNames(cohort.alerts),
-          sortBy: 'sortableName',
-          reverse: false
-        };
-        cohort.alertCount = _.sum(_.map(cohort.alerts.students, 'alertCount'));
-      }
-    };
+  angular.module('boac').service('cohortService', function(authService) {
 
     var getSearchPageTitle = function(criteria) {
       var definedKeys = _.keys(_.omitBy(criteria, _.isNil));
@@ -84,23 +60,9 @@
       };
     };
 
-    var loadMyFilteredCohorts = function(callback) {
-      filteredCohortFactory.getMyFilteredCohorts().then(function(response) {
-        var myFilteredCohorts = [];
-        _.each(response.data, function(cohort) {
-          decorateCohortAlerts(cohort);
-          myFilteredCohorts.push(cohort);
-        });
-        return callback(myFilteredCohorts);
-      });
-    };
-
     return {
-      decorate: decorate,
-      decorateCohortAlerts: decorateCohortAlerts,
       getSearchPageTitle: getSearchPageTitle,
-      getSortByOptionsForSearch: getSortByOptionsForSearch,
-      loadMyFilteredCohorts: loadMyFilteredCohorts
+      getSortByOptionsForSearch: getSortByOptionsForSearch
     };
 
   });

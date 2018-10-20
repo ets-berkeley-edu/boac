@@ -75,8 +75,8 @@
       return $http.get('/api/filter_cohort/definitions');
     };
 
-    var getMyFilteredCohorts = function() {
-      return $http.get('/api/filtered_cohorts/my');
+    var getStudentsWithAlertsInCohort = function(cohortId) {
+      return $http.get('/api/filtered_cohort/' + cohortId + '/students_with_alerts');
     };
 
     var update = function(id, name, filterCriteria, studentCount, callback) {
@@ -104,7 +104,7 @@
       getAll: getAll,
       getCohort: getCohort,
       getFilterCategories: getFilterCategories,
-      getMyFilteredCohorts: getMyFilteredCohorts,
+      getStudentsWithAlertsInCohort: getStudentsWithAlertsInCohort,
       update: update
     };
   });
