@@ -30,43 +30,65 @@
   angular.module('boac').controller('HomeController', function(
     $rootScope,
     $scope,
-    cohortService,
-    config,
     curatedCohortFactory,
-    page
+    filteredCohortFactory,
+    utilService
   ) {
 
-    $scope.demoMode = config.demoMode;
-
-    var getMyCuratedCohorts = function(callback) {
-      curatedCohortFactory.getMyCuratedCohorts().then(function(response) {
-        var cohorts = response.data;
-        var decoratedCohorts = [];
-        _.each(cohorts, function(cohort) {
-          decoratedCohorts.push(cohortService.decorate(cohort));
-        });
-        return callback(decoratedCohorts);
+    var decorateCohort = function(cohort, students) {
+      _.assignIn(cohort, {
+        alertCount: _.sum(_.map(students, 'alertCount')),
+        sortOptions: {
+          reverse: false,
+          sortBy: 'sortableName'
+        },
+        students: utilService.extendSortableNames(students)
       });
     };
 
-    var init = function() {
-      page.loading(true);
+    $scope.clickCuratedCohort = function(cohort) {
+      if (_.isNil(cohort.students)) {
+        var done = function() {
+          cohort.isLoading = false;
+          cohort.isOpen = !cohort.isOpen;
+        };
+        cohort.isLoading = true;
+        if (cohort.studentCount) {
+          curatedCohortFactory.getStudentsWithAlertsInCohort(cohort.id).then(function(response) {
+            decorateCohort(cohort, response.data);
+            done();
+          });
+        } else {
+          done();
+        }
+      } else {
+        cohort.isOpen = !cohort.isOpen;
+      }
+    };
 
-      getMyCuratedCohorts(function(cohorts) {
-        $scope.myCuratedCohorts = cohorts;
-
-        cohortService.loadMyFilteredCohorts(function(myFilteredCohorts) {
-          $scope.myFilteredCohorts = myFilteredCohorts;
-          page.loading(false);
-        });
-      });
+    $scope.clickFilteredCohort = function(cohort) {
+      if (_.isNil(cohort.students)) {
+        var done = function() {
+          cohort.isLoading = false;
+          cohort.isOpen = !cohort.isOpen;
+        };
+        cohort.isLoading = true;
+        if (cohort.totalStudentCount) {
+          filteredCohortFactory.getStudentsWithAlertsInCohort(cohort.id).then(function(response) {
+            decorateCohort(cohort, response.data);
+            done();
+          });
+        } else {
+          done();
+        }
+      } else {
+        cohort.isOpen = !cohort.isOpen;
+      }
     };
 
     $rootScope.$on('curatedCohortCreated', function(event, data) {
-      $scope.myCuratedCohorts.push(cohortService.decorate(data.cohort));
+      $scope.me.myCuratedCohorts.push(decorateCohort(data.cohort));
     });
-
-    init();
   });
 
 }(window.angular));

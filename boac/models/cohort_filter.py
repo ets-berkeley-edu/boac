@@ -36,6 +36,7 @@ from boac.models.authorized_user import AuthorizedUser
 from boac.models.authorized_user import cohort_filter_owners
 from boac.models.base import Base
 from flask_login import UserMixin
+from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import JSONB
 
 
@@ -126,6 +127,25 @@ class CohortFilter(Base, UserMixin):
         cohort_filter = CohortFilter.query.filter_by(id=cohort_id).first()
         db.session.delete(cohort_filter)
         std_commit()
+
+    @classmethod
+    def summarize_alert_counts_in_all_owned_by(cls, uid):
+        user_id = AuthorizedUser.find_by_uid(str(uid)).id
+        query = text(f"""SELECT * FROM cohort_filters c
+            LEFT JOIN cohort_filter_owners o ON o.cohort_filter_id = c.id
+            WHERE o.user_id = :user_id
+            ORDER BY c.name""")
+        results = db.session.execute(query, {'user_id': user_id})
+
+        def transform(row):
+            return {
+                'id': row['id'],
+                'name': row['name'],
+                'filterCriteria': row['filter_criteria'],
+                'alertCount': row['alert_count'],
+                'totalStudentCount': row['student_count'],
+            }
+        return [transform(row) for row in results]
 
     def to_api_json(
         self,

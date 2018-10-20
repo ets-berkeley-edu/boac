@@ -65,8 +65,8 @@
       });
     };
 
-    var getMyCuratedCohorts = function() {
-      return $http.get('/api/curated_cohorts/my');
+    var getStudentsWithAlertsInCohort = function(cohortId) {
+      return $http.get('/api/curated_cohort/' + cohortId + '/students_with_alerts');
     };
 
     var getCuratedCohort = function(id) {
@@ -94,7 +94,7 @@
       create: create,
       deleteCuratedCohort: deleteCuratedCohort,
       getCuratedCohort: getCuratedCohort,
-      getMyCuratedCohorts: getMyCuratedCohorts,
+      getStudentsWithAlertsInCohort: getStudentsWithAlertsInCohort,
       removeStudent: removeStudent
     };
   });

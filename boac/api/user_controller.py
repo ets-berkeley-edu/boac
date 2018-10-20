@@ -28,6 +28,7 @@ from boac.api import errors
 from boac.api.util import admin_required, authorized_users_api_feed
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
+from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_cohort import CuratedCohort
@@ -40,9 +41,6 @@ def my_profile():
     uid = current_user.get_id()
     profile = calnet.get_calnet_user_for_uid(app, uid)
     if current_user.is_active:
-        authorized_user_id = current_user.id
-        curated_cohorts = CuratedCohort.get_curated_cohorts_by_owner_id(authorized_user_id)
-        curated_cohorts = [c.to_api_json(sids_only=True) for c in curated_cohorts]
         departments = {}
         for m in current_user.department_memberships:
             departments.update({
@@ -51,19 +49,27 @@ def my_profile():
                     'isDirector': m.is_director,
                 },
             })
-        my_cohorts = CohortFilter.all_owned_by(uid)
+        filtered_cohorts = []
+        for cohort in CohortFilter.summarize_alert_counts_in_all_owned_by(uid):
+            cohort['isOwnedByCurrentUser'] = True
+            filtered_cohorts.append(cohort)
+        curated_cohorts = []
+        user_id = current_user.id
+        for cohort in CuratedCohort.get_curated_cohorts_by_owner_id(user_id):
+            _curated_cohort_api_json(cohort)
+            students = [{'sid': s.sid} for s in cohort.students]
+            students = Alert.include_alert_counts_for_students(viewer_user_id=user_id, cohort={'students': students})
+            curated_cohorts.append({
+                'id': cohort.id,
+                'name': cohort.name,
+                'alertCount': sum(s['alertCount'] for s in students),
+                'studentCount': len(students),
+            })
         profile.update({
-            'myFilteredCohorts': [c.to_api_json(include_students=False) for c in my_cohorts],
+            'myFilteredCohorts': filtered_cohorts,
             'myCuratedCohorts': curated_cohorts,
             'isAdmin': current_user.is_admin,
             'departments': departments,
-        })
-    else:
-        profile.update({
-            'myFilteredCohorts': None,
-            'myCuratedCohorts': None,
-            'isAdmin': False,
-            'departments': None,
         })
     return tolerant_jsonify(profile)
 
@@ -86,3 +92,16 @@ def all_user_profiles():
         return tolerant_jsonify(authorized_users_api_feed(users))
     else:
         raise errors.ResourceNotFoundError('Unknown path')
+
+
+def _curated_cohort_api_json(cohort):
+    api_json = {
+        'id': cohort.id,
+        'name': cohort.name,
+        'sids': [],
+        'studentCount': 0,
+    }
+    for student in cohort.students:
+        api_json['sids'].append(student.sid)
+        api_json['studentCount'] += 1
+    return api_json
