@@ -34,6 +34,7 @@
     filteredCohortFactory,
     utilService
   ) {
+    $scope.profile = $rootScope.profile;
 
     var decorateCohort = function(cohort, students) {
       _.assignIn(cohort, {
@@ -85,10 +86,6 @@
         cohort.isOpen = !cohort.isOpen;
       }
     };
-
-    $rootScope.$on('curatedCohortCreated', function(event, data) {
-      $scope.me.myCuratedCohorts.push(decorateCohort(data.cohort));
-    });
   });
 
 }(window.angular));

@@ -146,6 +146,16 @@ def translate_grading_basis(code):
     return bases.get(code) or code
 
 
+def get_current_user_status():
+    return {
+        'isActive': current_user.is_active,
+        'isAdmin': current_user.is_admin if hasattr(current_user, 'is_admin') else False,
+        'isAnonymous': current_user.is_anonymous,
+        'isAuthenticated': current_user.is_authenticated,
+        'uid': current_user.get_id(),
+    }
+
+
 def is_asc_authorized():
     return current_user.is_admin or 'UWASC' in get_dept_codes(current_user)
 

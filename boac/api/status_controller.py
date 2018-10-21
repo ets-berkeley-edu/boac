@@ -25,10 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac import db
+from boac.api.util import get_current_user_status
 from boac.externals import data_loch
 from boac.lib.http import tolerant_jsonify
 from flask import current_app as app
-from flask_login import current_user
 
 
 @app.route('/api/ping')
@@ -55,9 +55,4 @@ def app_status():
 
 @app.route('/api/status')
 def user_status():
-    return tolerant_jsonify({
-        'isActive': current_user.is_active,
-        'isAnonymous': current_user.is_anonymous,
-        'isAuthenticated': current_user.is_authenticated,
-        'uid': current_user.get_id(),
-    })
+    return tolerant_jsonify(get_current_user_status())

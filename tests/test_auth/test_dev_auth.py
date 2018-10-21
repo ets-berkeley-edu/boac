@@ -67,7 +67,7 @@ class TestDevAuth:
         app.config['DEVELOPER_AUTH_ENABLED'] = True
         params = {'uid': self.authorized_uid, 'password': app.config['DEVELOPER_AUTH_PASSWORD']}
         response = client.post('/devauth/login', data=json.dumps(params), content_type='application/json')
-        assert response.status_code == 302
+        assert response.status_code == 200
         response = client.get('/api/status')
         assert response.status_code == 200
         assert response.json['uid'] == self.authorized_uid

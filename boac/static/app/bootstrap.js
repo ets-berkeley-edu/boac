@@ -32,12 +32,20 @@
     'ui.router'
   ]);
 
-  var loadConstants = function() {
+  var useHttp = function() {
     var initInjector = angular.injector([ 'ng' ]);
-    var $http = initInjector.get('$http');
+    return initInjector.get('$http');
+  };
 
-    return $http.get('/api/config').then(function(results) {
-      boac.constant('config', results.data);
+  var loadConstants = function() {
+    return useHttp().get('/api/config').then(function(response) {
+      boac.constant('config', response.data);
+    });
+  };
+
+  var loadSessionStatus = function() {
+    return useHttp().get('/api/status').then(function(response) {
+      boac.value('status', response.data);
     });
   };
 
@@ -47,6 +55,6 @@
     });
   };
 
-  loadConstants().then(bootstrap);
+  loadConstants().then(loadSessionStatus().then(bootstrap));
 
 }(window.angular));

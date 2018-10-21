@@ -27,23 +27,40 @@
 
   'use strict';
 
-  angular.module('boac').controller('SplashController', function(
+  angular.module('boac').controller('LoginController', function(
     $location,
     $rootScope,
     $scope,
+    $state,
     $stateParams,
     authFactory,
     config,
+    status,
     utilService,
     validationService
   ) {
 
     $rootScope.pageTitle = 'Welcome';
+    $scope.profile = $rootScope.profile;
     $scope.supportEmailAddress = config.supportEmailAddress;
 
     var closeErrorPopovers = $scope.closeErrorPopovers = function() {
       _.set($scope.casLogin, 'error.isPopoverOpen', false);
       _.set($scope.devAuth, 'error.isPopoverOpen', false);
+    };
+
+    var devAuthLogIn = function(uid, password) {
+      closeErrorPopovers();
+      return authFactory.devAuthLogIn(uid, password).then(
+        function success(response) {
+          _.extend(status, response.data);
+          $state.go('home', {reload: true});
+        },
+        function failure(err) {
+          var errorMessage = validationService.parseError(err).message;
+          $scope.devAuth = {error: utilService.uibPopoverError(errorMessage)};
+        }
+      );
     };
 
     $scope.signIn = function() {
@@ -69,18 +86,7 @@
         };
       }
       if (config.devAuthEnabled) {
-        $scope.devAuthLogIn = function(uid, password) {
-          closeErrorPopovers();
-          return authFactory.devAuthLogIn(uid, password).then(
-            function success() {
-              window.location.replace('/home');
-            },
-            function failure(err) {
-              var errorMessage = validationService.parseError(err).message;
-              $scope.devAuth = {error: utilService.uibPopoverError(errorMessage)};
-            }
-          );
-        };
+        $scope.devAuthLogIn = devAuthLogIn;
       }
     };
 

@@ -30,7 +30,6 @@
   angular.module('boac').directive('curatedCohortSelector', function(
     $rootScope,
     $timeout,
-    authService,
     curatedCohortFactory,
     page
   ) {
@@ -88,8 +87,7 @@
         };
 
         var init = function() {
-          var me = authService.getMe();
-          scope.myCuratedCohorts = me.myCuratedCohorts;
+          scope.myCuratedCohorts = _.get($rootScope, 'profile.myCuratedCohorts');
           _.each(scope.students, initStudent);
           page.loading(false);
         };
@@ -143,11 +141,8 @@
           }, 2000);
         };
 
-
         $rootScope.$on('curatedCohortCreated', function(event, data) {
-          var cohort = data.cohort;
-          scope.myCuratedCohorts.push(cohort);
-          curatedCohortCheckboxClick(cohort);
+          curatedCohortCheckboxClick(data.cohort);
         });
 
         $rootScope.$on('resetCuratedCohortSelector', function() {

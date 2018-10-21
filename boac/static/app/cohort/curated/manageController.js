@@ -31,11 +31,10 @@
     $rootScope,
     $scope,
     curatedCohortFactory,
-    page,
     validationService
   ) {
 
-    page.loading(true);
+    $scope.profile = $rootScope.profile;
 
     var resetPageView = function(callback) {
       _.each($scope.cohorts, function(cohort) {
@@ -72,25 +71,11 @@
      * @return {void}
      */
     var init = function() {
-      curatedCohortFactory.getMyCuratedCohorts().then(function(response) {
-        $scope.cohorts = response.data;
-        _.each($scope.cohorts, function(cohort) {
-          cohort.nameOriginal = cohort.name;
-        });
-        resetPageView(angular.noop);
-        page.loading(false);
+      _.each($rootScope.profile.myCuratedCohorts, function(cohort) {
+        cohort.nameOriginal = cohort.name;
       });
+      resetPageView(angular.noop);
     };
-
-    $rootScope.$on('curatedCohortCreated', function(event, data) {
-      $scope.cohorts.push(data.cohort);
-    });
-
-    $rootScope.$on('curatedCohortDeleted', function(event, data) {
-      $scope.cohorts = _.remove($scope.cohorts, function(cohort) {
-        return cohort.id !== data.cohortId;
-      });
-    });
 
     init();
   });

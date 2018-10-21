@@ -28,54 +28,54 @@
   'use strict';
 
   angular.module('boac').config(function($locationProvider, $stateProvider, $urlRouterProvider) {
-    /**
-     * Use the HTML5 location provider to ensure that the $location service getters
-     * and setters interact with the browser URL address through the HTML5 history API
-     */
+
     $locationProvider.html5Mode({
       enabled: true,
       requireBase: false
     });
 
-    // Authentication dependency for all states, public and private; get current user if any.
-    var resolveMe = function(authService, $q) {
-      var deferred = $q.defer();
-      authService.reloadMe().then(function(me) {
-        deferred.resolve(me);
+    var authenticatedProfile = function($http, $injector, $q, $rootScope) {
+      return $q(function(resolve, reject) {
+        var status = $injector.get('status');
+
+        if (_.get(status, 'isAuthenticated')) {
+          if (_.get($rootScope, 'profile')) {
+            resolve({message: 'authenticated'});
+          } else {
+            $http.get('/api/profile/my').then(function(response) {
+              $rootScope.profile = response.data;
+              $rootScope.$broadcast('userProfileLoaded', {
+                profile: $rootScope.profile
+              });
+              resolve({message: 'authenticated'});
+            });
+          }
+        } else {
+          reject();
+        }
       });
-      return deferred.promise;
     };
 
-    // Authentication dependency for private states only; return a rejection if authenticated user not present.
-    var resolveAuthentication = function(me, $q) {
-      var deferred = $q.defer();
-      if (me.isAuthenticated) {
-        deferred.resolve({});
-      } else {
-        deferred.reject({message: 'unauthenticated'});
-      }
-      return deferred.promise;
+    var authenticatedAdmin = function($injector, $q) {
+      var status = $injector.get('status');
+      return $q(function(resolve, reject) {
+        if (_.get(status, 'isAuthenticated') && _.get(status, 'isAdmin')) {
+          resolve();
+        } else {
+          reject({message: 'unauthorized'});
+        }
+      });
     };
 
-    var resolveAdminAuthentication = function(me, $q) {
-      var deferred = $q.defer();
-      if (me.isAuthenticated && me.isAdmin) {
-        deferred.resolve({});
-      } else {
-        deferred.reject({message: 'unauthorized'});
-      }
-      return deferred.promise;
-    };
-
-    // Return a rejection if authenticated user is present.
-    var splashAuthentication = function(me, $q) {
-      var deferred = $q.defer();
-      if (me.isAuthenticated) {
-        deferred.reject({message: 'authenticated'});
-      } else {
-        deferred.resolve({});
-      }
-      return deferred.promise;
+    var resolveLogin = function($injector, $q) {
+      var status = $injector.get('status');
+      return $q(function(resolve, reject) {
+        if (_.get(status, 'isAuthenticated')) {
+          reject({message: 'authenticated'});
+        } else {
+          resolve();
+        }
+      });
     };
 
     var standardLayout = function(controller, templateUrl) {
@@ -83,40 +83,18 @@
         content: {
           controller: controller,
           templateUrl: templateUrl
-        },
-        footer: {templateUrl: '/static/app/nav/footer.html'},
-        header: {
-          controller: 'HeaderController',
-          templateUrl: '/static/app/nav/header.html'
-        },
-        sidebar: {
-          controller: 'SidebarNavController',
-          templateUrl: '/static/app/nav/sidebar.html'
         }
       };
     };
 
-    var resolveAdmin = {
-      me: resolveMe,
-      authentication: resolveAdminAuthentication
-    };
-
-    var resolveSplash = {
-      me: resolveMe,
-      authentication: splashAuthentication
-    };
-
     var resolvePrivate = {
-      me: resolveMe,
-      authentication: resolveAuthentication
+      authentication: authenticatedProfile
     };
 
     // Default route
-    $urlRouterProvider.otherwise(function($injector, $location) {
-      $injector.get('authService').reloadMe().then(function(me) {
-        var uri = me && me.isAuthenticated ? '/404' : '/';
-        $location.replace().path(uri);
-      });
+    $urlRouterProvider.otherwise(function($injector) {
+      var status = $injector.get('status');
+      return status.isAuthenticated ? '/home' : '/login';
     });
 
     // Routes
@@ -130,7 +108,9 @@
       .state('admin', {
         url: '/admin',
         views: standardLayout('AdminController', '/static/app/admin/admin.html'),
-        resolve: resolveAdmin
+        resolve: {
+          authentication: authenticatedAdmin
+        }
       })
       .state('filteredCohort', {
         url: '/cohort/filtered?id&inactive&intensive&name',
@@ -163,17 +143,22 @@
         views: standardLayout('HomeController', '/static/app/home/home.html'),
         resolve: resolvePrivate
       })
+      .state('login', {
+        url: '/login',
+        views: {
+          login: {
+            controller: 'LoginController',
+            templateUrl: '/static/app/splash/login.html'
+          }
+        },
+        resolve: {
+          authentication: resolveLogin
+        }
+      })
       .state('search', {
         url: '/search?q',
         views: standardLayout('SearchController', '/static/app/search/searchResults.html'),
         resolve: resolvePrivate
-      })
-      .state('splash', {
-        url: '/',
-        templateUrl: '/static/app/splash/splash.html',
-        controller: 'SplashController',
-        params: {casLoginError: null},
-        resolve: resolveSplash
       })
       .state('teams', {
         url: '/teams',
@@ -187,7 +172,7 @@
         reloadOnSearch: false
       });
 
-  }).run(function($rootScope, $state, $transitions, authFactory) {
+  }).run(function($rootScope, $state, $transitions, authFactory, status) {
 
     $state.defaultErrorHandler(function(error) {
       var message = _.get(error, 'detail.message');
@@ -205,11 +190,12 @@
       } else if (message === 'unauthorized') {
         $state.go('404');
       } else {
-        $state.go('splash', {casLoginError: message});
+        $state.go('login', {casLoginError: message});
       }
     });
 
-    $transitions.onStart({}, function($transition) {
+    $transitions.onEnter({}, function($transition) {
+      $rootScope.angularStateName = $transition.$to().name;
       if ($transition.$to().name) {
         var name = $transition.$to().name;
         switch (name) {
@@ -231,8 +217,11 @@
       }
     });
 
-    $transitions.onSuccess({}, function($transition) {
-      $rootScope.angularStateName = $transition.$to().name;
+    $transitions.onStart({}, function() {
+      $rootScope.status = status;
+    });
+
+    $transitions.onSuccess({}, function() {
       document.body.scrollTop = document.documentElement.scrollTop = 0;
     });
   });

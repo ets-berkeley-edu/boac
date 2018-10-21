@@ -22,7 +22,7 @@
     <link href="/static/app/student/student.css" rel="stylesheet">
   </head>
 
-  <body data-ng-cloak data-ui-view data-ng-class="{'background-blue-sky': angularStateName === 'splash'}">
+  <body data-ng-cloak data-ui-view data-ng-class="{'background-blue-sky': !status.isAuthenticated}">
     <!-- Third-party: Warning, if the order below is wrong then the app will break. -->
     <script src="/static/lib/angular/angular.min.js"></script>
     <script src="/static/lib/angular-animate/angular-animate.min.js"></script>
@@ -62,8 +62,8 @@
     <script src="/static/app/course/courseFactory.js"></script>
     <script src="/static/app/home/homeController.js"></script>
     <script src="/static/app/home/sortableAlertsTableDirective.js"></script>
-    <script src="/static/app/nav/headerController.js"></script>
-    <script src="/static/app/nav/sidebarNavController.js"></script>
+    <script src="/static/app/nav/headerComponent.js"></script>
+    <script src="/static/app/nav/sidebarNavComponent.js"></script>
     <script src="/static/app/shared/avatarFallbackDirective.js"></script>
     <script src="/static/app/shared/boxplotService.js"></script>
     <script src="/static/app/shared/focusOnDirective.js"></script>
@@ -71,7 +71,7 @@
     <script src="/static/app/shared/utilService.js"></script>
     <script src="/static/app/shared/validationService.js"></script>
     <script src="/static/app/shared/variablePrecisionNumberFilter.js"></script>
-    <script src="/static/app/splash/splashController.js"></script>
+    <script src="/static/app/splash/loginController.js"></script>
     <script src="/static/app/search/searchController.js"></script>
     <script src="/static/app/search/searchStudentsFormDirective.js"></script>
     <script src="/static/app/student/studentAlertMessageDirective.js"></script>
@@ -88,18 +88,30 @@
     <script src="/static/app/shared/googleAnalyticsService.js"></script>
     <script async src='https://www.google-analytics.com/analytics.js'></script>
 
-    <div class="index-container" data-ng-if="angularStateName !== 'splash'">
+    <div data-ui-view="login" data-ng-if="!status.isAuthenticated"></div>
+
+    <div class="index-container" data-ng-if="status.isAuthenticated">
       <a href="#content"
          id="skip-to-content-link"
          class="sr-only">Skip To Content</a>
-      <div class="index-container-header" data-ui-view="header"></div>
+      <div class="index-container-header">
+        <header></header>
+      </div>
       <div class="index-container-body">
-        <div class="index-container-sidebar" data-ui-view="sidebar"></div>
+        <div class="index-container-sidebar">
+          <sidebar></sidebar>
+        </div>
         <div class="index-container-content">
-          <div id="content" class="body-text" data-ui-view="content"></div>
-          <div class="index-container-footer" data-ui-view="footer"></div>
+          <div id="content" class="body-text" data-ui-view="content">
+            <div class="loading-spinner-large">
+              <i class="fas fa-sync fa-spin fa-5x"></i>
+              <span role="alert" aria-live="passive" class="sr-only">Loading...</span>
+            </div>
+          </div>
+          <div class="index-container-footer" data-ng-include="'/static/app/nav/footer.html'"></div>
         </div>
       </div>
     </div>
+
   </body>
 </html>

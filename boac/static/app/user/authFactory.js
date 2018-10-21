@@ -27,21 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').factory('authFactory', function($http, $rootScope) {
-
-    var loadUserProfile = function(results) {
-      // Refresh instance currently referenced in templates
-      var me = results.data;
-      $rootScope.me = me;
-      $rootScope.$broadcast('userStatusChange');
-      // Load user profile if authenticated
-      if (me.isAuthenticated) {
-        return $http.get('/api/profile/my').then(function(response) {
-          _.extend($rootScope.me, response.data);
-        });
-      }
-      return results;
-    };
+  angular.module('boac').factory('authFactory', function($http) {
 
     var casLogIn = function() {
       return $http.get('/cas/login_url');
@@ -62,7 +48,6 @@
     return {
       casLogIn: casLogIn,
       devAuthLogIn: devAuthLogIn,
-      loadUserProfile: loadUserProfile,
       logOut: logOut
     };
   });

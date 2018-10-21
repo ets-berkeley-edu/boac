@@ -68,7 +68,7 @@ class TestDevAuth:
         app.config['DEVELOPER_AUTH_ENABLED'] = True
         params = {'uid': self.admin_uid, 'password': app.config['DEVELOPER_AUTH_PASSWORD']}
         response = client.post('/devauth/login', data=json.dumps(params), content_type='application/json')
-        assert response.status_code == 302
+        assert response.status_code == 200
         response = client.get('/api/status')
         assert response.status_code == 200
         assert response.json['uid'] == self.admin_uid
@@ -106,7 +106,7 @@ class TestBecomeUser:
         fake_auth.login(self.admin_uid)
         app.config['DEVELOPER_AUTH_ENABLED'] = False
         response = client.post('/api/admin/become_user', data=json.dumps({'uid': self.advisor_uid}), content_type='application/json')
-        assert response.status_code == 404
+        assert response.status_code == 403
 
     def test_unauthorized_user(self, app, client, fake_auth):
         """Blocks access unless user is admin."""
@@ -120,7 +120,7 @@ class TestBecomeUser:
         fake_auth.login(self.admin_uid)
         app.config['DEVELOPER_AUTH_ENABLED'] = True
         response = client.post('/api/admin/become_user', data=json.dumps({'uid': self.advisor_uid}), content_type='application/json')
-        assert response.status_code == 302
+        assert response.status_code == 200
         response = client.get('/api/status')
         assert response.status_code == 200
         assert response.json['uid'] == self.advisor_uid
