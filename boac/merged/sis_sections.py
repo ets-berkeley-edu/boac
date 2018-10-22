@@ -127,6 +127,6 @@ def _maximum_units(section_row):
     # Education Abroad Program needs to map one-off CS section IDs to externally administered
     # classes. As a placeholder which won't interfere with any real earned-credits awarded the student,
     # the "allowed units" for those sections are generally set to an unrealistically large number.
-    if units > 20 and section_row['sis_course_name'].startswith('EAP'):
+    if units and units > 20 and section_row['sis_course_name'].startswith('EAP'):
         units = None
     return units
