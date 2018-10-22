@@ -84,6 +84,7 @@ class TestCourseController:
         assert students[0]['level'] == 'Junior'
         assert len(students[0]['majors']) == 2
         assert len(students[0]['enrollment']['canvasSites']) == 1
+        assert students[0]['enrollment']['midtermGrade'] == 'D+'
         assert students[0]['termGpa']['2182'] == 2.9
         assert isinstance(students[0].get('alertCount'), int)
 
