@@ -152,6 +152,12 @@ class TestMyCuratedCohorts:
         cohort = client.get(f'/api/curated_cohort/{cohort_id}').json
         assert 'athleticsProfile' not in cohort['students'][0]
 
+    def test_my_curated_cohorts_by_sid(self, client, coe_advisor, cohorts_of_coe_advisor):
+        cohort = cohorts_of_coe_advisor[0]
+        sid = cohort.students[0].sid
+        curated_cohort_ids = client.get(f'/api/curated_cohorts/my/{sid}').json
+        assert curated_cohort_ids == [cohort.id]
+
 
 class TestCuratedCohortCreate:
     """Curated Cohort Create API."""
@@ -178,7 +184,7 @@ class TestCuratedCohortCreate:
         assert response.status_code == 200
         updated_cohort = json.loads(response.data)
         assert updated_cohort['id'] == cohort['id']
-        assert len(updated_cohort['students']) == 2
+        assert updated_cohort['studentCount'] == 2
 
 
 class TestCuratedCohortDelete:
@@ -197,16 +203,22 @@ class TestCuratedCohortDelete:
 
         # Add student
         sid = '2345678901'
+        student_count_before = cohort['studentCount']
         response = client.get(f'/api/curated_cohort/{curated_cohort_id}/add_student/{sid}')
         assert response.status_code == 200
+        assert response.json['studentCount'] == student_count_before + 1
+
         cohort = client.get(f'/api/curated_cohort/{curated_cohort_id}').json
         assert cohort['name'] == name
         student = cohort['students'][0]
         assert student['sid'] == sid
         assert isinstance(student.get('alertCount'), int)
         # Remove student
+        student_count_before = cohort['studentCount']
         response = client.delete(f'/api/curated_cohort/{curated_cohort_id}/remove_student/{sid}')
         assert response.status_code == 200
+        assert response.json['studentCount'] == student_count_before - 1
+
         cohort = client.get(f'/api/curated_cohort/{curated_cohort_id}').json
         assert cohort['name'] == name
         assert not len(cohort['students'])

@@ -54,7 +54,7 @@ def add_student_to_curated_cohort(curated_cohort_id, sid):
     if curated_cohort.owner_id != current_user.id:
         raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {curated_cohort.id}')
     CuratedCohort.add_student(curated_cohort.id, sid)
-    return tolerant_jsonify({'message': f'SID {sid} added to cohort \'{curated_cohort_id}\''}), 200
+    return tolerant_jsonify(CuratedCohort.find_by_id(curated_cohort_id).to_api_json())
 
 
 @app.route('/api/curated_cohort/delete/<curated_cohort_id>', methods=['DELETE'])
@@ -105,6 +105,12 @@ def get_students_with_alerts(cohort_id):
     return tolerant_jsonify(sort_students_by_name(students_with_alerts))
 
 
+@app.route('/api/curated_cohorts/my/<sid>')
+@login_required
+def curated_cohort_ids_per_sid(sid):
+    return tolerant_jsonify(CuratedCohort.curated_cohort_ids_per_sid(user_id=current_user.id, sid=sid))
+
+
 @app.route('/api/curated_cohort/<curated_cohort_id>/remove_student/<sid>', methods=['DELETE'])
 @login_required
 def remove_student_from_curated_cohort(curated_cohort_id, sid):
@@ -114,7 +120,7 @@ def remove_student_from_curated_cohort(curated_cohort_id, sid):
     if curated_cohort.owner_id != current_user.id:
         raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {curated_cohort.id}')
     CuratedCohort.remove_student(curated_cohort_id, sid)
-    return tolerant_jsonify({'message': f'SID {sid} has been removed from cohort {curated_cohort_id}'}), 200
+    return tolerant_jsonify(CuratedCohort.find_by_id(curated_cohort_id).to_api_json(include_students=False))
 
 
 @app.route('/api/curated_cohort/students/add', methods=['POST'])
@@ -122,7 +128,7 @@ def remove_student_from_curated_cohort(curated_cohort_id, sid):
 def add_students_to_curated_cohort():
     params = request.get_json()
     curated_cohort_id = params.get('curatedCohortId')
-    sids = params.get('sids')
+    sids = [sid for sid in set(params.get('sids')) if sid.isdigit()]
     if not curated_cohort_id or not len(sids):
         raise BadRequestError('The required parameters are \'curatedCohortId\' and \'sids\'.')
     curated_cohort = CuratedCohort.find_by_id(curated_cohort_id)
@@ -130,8 +136,8 @@ def add_students_to_curated_cohort():
         raise ResourceNotFoundError(f'No cohort found where id={curated_cohort_id}')
     if curated_cohort.owner_id != current_user.id:
         raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {curated_cohort.id}')
-    curated_cohort = CuratedCohort.add_students(curated_cohort_id=curated_cohort_id, sids=sids)
-    return tolerant_jsonify(curated_cohort.to_api_json())
+    CuratedCohort.add_students(curated_cohort_id=curated_cohort_id, sids=sids)
+    return tolerant_jsonify(CuratedCohort.find_by_id(curated_cohort_id).to_api_json(include_students=False))
 
 
 @app.route('/api/curated_cohort/rename', methods=['POST'])
@@ -141,7 +147,9 @@ def rename_curated_cohort():
     name = params['name']
     if not name:
         raise BadRequestError('Requested cohort label is empty or invalid')
-    curated_cohort = CuratedCohort.find_by_id(params['id'])
+    curated_cohort_id = params['id']
+    curated_cohort = CuratedCohort.find_by_id(curated_cohort_id)
     if not curated_cohort or curated_cohort.owner_id != current_user.id:
         raise BadRequestError('Cohort does not exist or is not available to you')
-    return tolerant_jsonify(CuratedCohort.rename(curated_cohort_id=curated_cohort.id, name=name).to_api_json())
+    CuratedCohort.rename(curated_cohort_id=curated_cohort.id, name=name)
+    return tolerant_jsonify(CuratedCohort.find_by_id(curated_cohort_id).to_api_json(include_students=False))

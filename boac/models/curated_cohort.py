@@ -28,9 +28,7 @@ from boac import db, std_commit
 from boac.merged.student import get_api_json
 from boac.models.base import Base
 from boac.models.db_relationships import CuratedCohortStudent
-from flask import current_app as app
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm.exc import FlushError
+from sqlalchemy import text
 
 
 class CuratedCohort(Base):
@@ -61,6 +59,16 @@ class CuratedCohort(Base):
         return cls.query.filter_by(owner_id=owner_id).order_by(cls.name).all()
 
     @classmethod
+    def curated_cohort_ids_per_sid(cls, user_id, sid):
+        query = text(f"""SELECT
+            student_group_id as id
+            FROM student_group_members m
+            JOIN student_groups g ON g.id = m.student_group_id
+            WHERE g.owner_id = :user_id AND m.sid = :sid""")
+        results = db.session.execute(query, {'user_id': user_id, 'sid': sid})
+        return [row['id'] for row in results]
+
+    @classmethod
     def create(cls, owner_id, name):
         curated_cohort = cls(name, owner_id)
         db.session.add(curated_cohort)
@@ -71,26 +79,17 @@ class CuratedCohort(Base):
     def add_student(cls, curated_cohort_id, sid):
         curated_cohort = cls.query.filter_by(id=curated_cohort_id).first()
         if curated_cohort:
-            try:
-                membership = CuratedCohortStudent(sid=sid, curated_cohort_id=curated_cohort_id)
-                db.session.add(membership)
-                std_commit()
-            except (FlushError, IntegrityError):
-                app.logger.warn(f'Database error in add_student with curated_cohort_id={curated_cohort_id}, sid {sid}')
-        return curated_cohort
+            curated_cohort.students.append(CuratedCohortStudent(sid=sid, curated_cohort_id=curated_cohort_id))
+            std_commit()
 
     @classmethod
     def add_students(cls, curated_cohort_id, sids):
         curated_cohort = cls.query.filter_by(id=curated_cohort_id).first()
         if curated_cohort:
-            try:
-                for sid in set(sids):
-                    membership = CuratedCohortStudent(sid=sid, curated_cohort_id=curated_cohort_id)
-                    db.session.add(membership)
-                std_commit()
-            except (FlushError, IntegrityError):
-                app.logger.warn(f'Database error in add_students with curated_cohort_id={curated_cohort_id}, sid {sid}')
-        return curated_cohort
+            sids = set(sids).difference([s.sid for s in curated_cohort.students])
+            for sid in sids:
+                curated_cohort.students.append(CuratedCohortStudent(sid=sid, curated_cohort_id=curated_cohort_id))
+            std_commit()
 
     @classmethod
     def remove_student(cls, curated_cohort_id, sid):
@@ -105,7 +104,6 @@ class CuratedCohort(Base):
         curated_cohort = cls.query.filter_by(id=curated_cohort_id).first()
         curated_cohort.name = name
         std_commit()
-        return curated_cohort
 
     @classmethod
     def delete(cls, curated_cohort_id):

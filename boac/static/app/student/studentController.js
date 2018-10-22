@@ -78,18 +78,6 @@
       return _.get($scope.student, 'sisProfile.preferredName') || _.get($scope.student, 'canvasUserName');
     };
 
-    var identifyCuratedCohortsWithStudent = function() {
-      _.each($rootScope.profile.myCuratedCohorts, function(cohort) {
-        _.each(cohort.students, function(student) {
-          cohort.selected = $scope.student.sid === student.sid;
-          if (cohort.selected) {
-            // Break from loop
-            return false;
-          }
-        });
-      });
-    };
-
     var loadStudent = function(uid) {
       page.loading(true);
       var preferredName = null;
@@ -100,7 +88,6 @@
           $location.replace().path('/404');
         }
         $scope.student = student;
-        identifyCuratedCohortsWithStudent();
         preferredName = getPreferredName();
 
         $scope.gpaTerms = [];
@@ -136,14 +123,20 @@
         studentFactory.getAlerts($scope.student.sid).then(function(alerts) {
           $scope.alerts = alerts.data;
         });
-        visualizationService.showUnitsChart($scope.student, $scope.currentEnrollmentTermId.toString());
         if (!config.demoMode.blur) {
           $rootScope.pageTitle = _.get($scope.student, 'name') || preferredName;
         }
 
       }).then(function() {
-        page.loading(false);
-        googleAnalyticsService.track('Student', 'view', preferredName, $scope.student.sid);
+        curatedCohortFactory.getMyCuratedCohortIdsPerStudentId($scope.student.sid).then(function(response) {
+          var curatedCohortIds = response.data;
+          _.each($rootScope.profile.myCuratedCohorts, function(cohort) {
+            cohort.selected = _.includes(curatedCohortIds, cohort.id);
+          });
+          visualizationService.showUnitsChart($scope.student, $scope.currentEnrollmentTermId.toString());
+          page.loading(false);
+          googleAnalyticsService.track('Student', 'view', preferredName, $scope.student.sid);
+        });
 
       }).catch(function(err) {
         $scope.error = validationService.parseError(err);
@@ -153,9 +146,9 @@
 
     $scope.curatedCohortCheckboxClick = function(cohort) {
       if (cohort.selected) {
-        curatedCohortFactory.addStudent(cohort, $scope.student).then(angular.noop);
+        curatedCohortFactory.removeStudent(cohort.id, $scope.student.sid);
       } else {
-        curatedCohortFactory.removeStudent(cohort, $scope.student).then(angular.noop);
+        curatedCohortFactory.addStudent(cohort.id, $scope.student.sid);
       }
     };
 

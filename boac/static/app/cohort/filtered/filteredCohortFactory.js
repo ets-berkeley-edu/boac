@@ -27,9 +27,11 @@
 
   'use strict';
 
-  var boac = angular.module('boac');
+  angular.module('boac').factory('filteredCohortFactory', function($http, $rootScope, googleAnalyticsService) {
 
-  boac.factory('filteredCohortFactory', function($http, $rootScope, googleAnalyticsService) {
+    var getStashedCohort = function(cohortId) {
+      return _.find($rootScope.profile.myFilteredCohorts, ['id', cohortId]);
+    };
 
     var createCohort = function(name, filterCriteria) {
       var args = _.merge({name: name}, filterCriteria);
@@ -41,12 +43,15 @@
       });
     };
 
-    var deleteCohort = function(cohort) {
-      return $http.delete('/api/filtered_cohort/delete/' + cohort.id).then(function() {
-        $rootScope.profile.myFilteredCohorts = _.remove($rootScope.profile.myFilteredCohorts, function(curatedCohort) {
-          return curatedCohort && (curatedCohort.id !== cohort.id);
+    var deleteCohort = function(cohortId) {
+      return $http.delete('/api/filtered_cohort/delete/' + cohortId).then(function() {
+        $rootScope.profile.myFilteredCohorts = _.remove($rootScope.profile.myFilteredCohorts, function(cohort) {
+          var match = cohort.id !== cohortId;
+          if (match) {
+            googleAnalyticsService.track('Filtered Cohort', 'delete', cohort.name, cohort.id);
+          }
+          return match;
         });
-        googleAnalyticsService.track('Filtered Cohort', 'delete', cohort.name, cohort.id);
       });
     };
 
@@ -84,13 +89,10 @@
       };
       return $http.post('/api/filtered_cohort/update', args).then(function(response) {
         var cohort = response.data;
+        var stashedCohort = getStashedCohort(id);
 
-        _.each($rootScope.profile.myFilteredCohorts, function(c) {
-          if (c.id === cohort.id) {
-            c.name = cohort.name;
-            c.totalStudentCount = cohort.totalStudentCount;
-          }
-        });
+        stashedCohort.name = cohort.name;
+        stashedCohort.totalStudentCount = cohort.totalStudentCount;
         googleAnalyticsService.track('Filtered Cohort', 'update', cohort.name, cohort.id);
         callback(cohort);
       });

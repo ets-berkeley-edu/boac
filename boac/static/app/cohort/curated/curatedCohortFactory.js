@@ -29,31 +29,28 @@
 
   angular.module('boac').factory('curatedCohortFactory', function($http, $rootScope, googleAnalyticsService) {
 
-    var onAddStudentToCuratedCohort = function(cohort, student) {
-      var c = _.find($rootScope.profile.myCuratedCohorts, ['id', cohort.id]);
-
-      if (!_.find(c.students, {sid: student.sid})) {
-        c.students = _.union(c.students, [ student ]);
-        c.studentCount += 1;
-      }
+    var getStashedCohort = function(cohortId) {
+      return _.find($rootScope.profile.myCuratedCohorts, ['id', cohortId]);
     };
 
-    var addStudents = function(cohort, students) {
+    var addStudents = function(cohortId, sids) {
       var args = {
-        curatedCohortId: cohort.id,
-        sids: _.map(students, 'sid')
+        curatedCohortId: cohortId,
+        sids: sids
       };
-      return $http.post('/api/curated_cohort/students/add', args).then(function() {
-        _.each(students, function(student) {
-          onAddStudentToCuratedCohort(cohort, student);
-        });
+
+      return $http.post('/api/curated_cohort/students/add', args).then(function(response) {
+        var cohort = response.data;
+        getStashedCohort(cohortId).studentCount = cohort.studentCount;
         googleAnalyticsService.track('Curated Cohort', 'add_students', cohort.name, cohort.id);
       });
     };
 
-    var addStudent = function(cohort, student) {
-      return $http.get('/api/curated_cohort/' + cohort.id + '/add_student/' + student.sid).then(function() {
-        onAddStudentToCuratedCohort(cohort, student);
+    var addStudent = function(cohortId, sid) {
+      return $http.get('/api/curated_cohort/' + cohortId + '/add_student/' + sid).then(function(response) {
+        var cohort = response.data;
+        getStashedCohort(cohortId).studentCount = cohort.studentCount;
+        googleAnalyticsService.track('Curated Cohort', 'add_student', cohort.name, cohort.id);
       });
     };
 
@@ -61,7 +58,6 @@
       return $http.post('/api/curated_cohort/create', {name: name}).then(function(response) {
         var cohort = response.data;
         $rootScope.profile.myCuratedCohorts.push(cohort);
-        $rootScope.$broadcast('curatedCohortCreated', {cohort: cohort});
         googleAnalyticsService.track('Curated Cohort', 'create', cohort.name, cohort.id);
       });
     };
@@ -83,21 +79,23 @@
       return $http.get('/api/curated_cohort/' + id);
     };
 
-    var removeStudent = function(cohort, student) {
-      return $http.delete('/api/curated_cohort/' + cohort.id + '/remove_student/' + student.sid).then(function() {
-        var curatedCohort = _.find($rootScope.profile.myCuratedCohorts, ['id', cohort.id]);
-        curatedCohort.studentCount -= 1;
+    var getMyCuratedCohortIdsPerStudentId = function(sid) {
+      return $http.get('/api/curated_cohorts/my/' + sid);
+    };
+
+    var removeStudent = function(cohortId, sid) {
+      return $http.delete('/api/curated_cohort/' + cohortId + '/remove_student/' + sid).then(function(response) {
+        var cohort = response.data;
+        getStashedCohort(cohortId).studentCount = cohort.studentCount;
+        googleAnalyticsService.track('Curated Cohort', 'remove_student', cohort.name, cohort.id);
       });
     };
 
     var rename = function(cohortId, name) {
-      return $http.post('/api/curated_cohort/rename', {id: cohortId, name: name}).then(function() {
-        _.each($rootScope.profile.myCuratedCohorts, function(c) {
-          if (cohortId === c.id) {
-            c.name = name;
-          }
-        });
-        googleAnalyticsService.track('Curated Cohort', 'rename', name, cohortId);
+      return $http.post('/api/curated_cohort/rename', {id: cohortId, name: name}).then(function(response) {
+        var cohort = response.data;
+        _.set(getStashedCohort(cohortId), 'name', cohort.name);
+        googleAnalyticsService.track('Curated Cohort', 'rename', cohort.name, cohort.id);
       });
     };
 
@@ -108,6 +106,7 @@
       create: create,
       deleteCuratedCohort: deleteCuratedCohort,
       getCuratedCohort: getCuratedCohort,
+      getMyCuratedCohortIdsPerStudentId: getMyCuratedCohortIdsPerStudentId,
       getStudentsWithAlertsInCohort: getStudentsWithAlertsInCohort,
       removeStudent: removeStudent
     };

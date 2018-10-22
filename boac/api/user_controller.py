@@ -58,11 +58,11 @@ def my_profile():
         for cohort in CuratedCohort.get_curated_cohorts_by_owner_id(user_id):
             _curated_cohort_api_json(cohort)
             students = [{'sid': s.sid} for s in cohort.students]
-            students = Alert.include_alert_counts_for_students(viewer_user_id=user_id, cohort={'students': students})
+            students_with_alerts = Alert.include_alert_counts_for_students(viewer_user_id=user_id, cohort={'students': students})
             curated_cohorts.append({
                 'id': cohort.id,
                 'name': cohort.name,
-                'alertCount': sum(s['alertCount'] for s in students),
+                'alertCount': sum(s['alertCount'] for s in students_with_alerts),
                 'studentCount': len(students),
             })
         profile.update({

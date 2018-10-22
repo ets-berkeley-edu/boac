@@ -40,6 +40,7 @@
     validationService
   ) {
 
+    $scope.cohortId = _.toNumber($stateParams.id);
     $scope.currentEnrollmentTerm = config.currentEnrollmentTerm;
     $scope.demoMode = config.demoMode;
     $scope.isAscUser = authService.isAscUser();
@@ -84,20 +85,19 @@
     };
 
     $scope.removeFromCuratedCohort = function(student) {
-      curatedCohortFactory.removeStudent($scope.cohort, student).then(function() {
-        $scope.cohort.students = _.remove($scope.cohort.students, function(s) {
+      curatedCohortFactory.removeStudent($scope.cohortId, student.sid).then(function() {
+        $scope.students = _.remove($scope.students, function(s) {
           return s.sid !== student.sid;
         });
       });
     };
 
     var init = function() {
-      var id = $stateParams.id;
-
       page.loading(true);
-      curatedCohortFactory.getCuratedCohort(id).then(function(response) {
-        $scope.cohort = response.data;
-        $rootScope.pageTitle = $scope.cohort.name || 'Curated Cohort';
+      curatedCohortFactory.getCuratedCohort($scope.cohortId).then(function(response) {
+        var cohort = response.data;
+        $scope.cohortName = $rootScope.pageTitle = cohort.name || 'Curated Cohort';
+        $scope.students = cohort.students;
         page.loading(false);
       }).catch(function(err) {
         $scope.error = validationService.parseError(err);
