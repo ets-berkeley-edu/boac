@@ -84,6 +84,7 @@ class TestCourseController:
         assert students[0]['level'] == 'Junior'
         assert len(students[0]['majors']) == 2
         assert len(students[0]['enrollment']['canvasSites']) == 1
+        assert students[0]['enrollment']['midtermGrade'] == 'D+'
         assert isinstance(students[0].get('alertCount'), int)
 
     def test_section_student_analytics(self, coe_advisor, client):
