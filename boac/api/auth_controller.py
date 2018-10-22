@@ -27,7 +27,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from urllib.parse import urlencode
 
 from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import admin_required
+from boac.api.util import admin_required, get_current_user_status
 from boac.lib.berkeley import is_authorized_to_use_boac
 from boac.lib.http import add_param_to_url, tolerant_jsonify
 import cas
@@ -70,31 +70,36 @@ def cas_login():
 
 
 @app.route('/devauth/login', methods=['POST'])
-def dev_login():
+def dev_auth_login():
     params = request.get_json() or {}
-    _dev_login(params.get('uid'), params.get('password'))
-    return redirect('/')
+    user = _dev_auth_login(params.get('uid'), params.get('password'))
+    if user:
+        login_user(user)
+        flash('Logged in successfully.')
+        return tolerant_jsonify(get_current_user_status())
+    else:
+        raise ResourceNotFoundError('Unknown path')
 
 
 @app.route('/api/admin/become_user', methods=['POST'])
 @admin_required
 def become():
-    if app.config['DEVELOPER_AUTH_ENABLED']:
-        params = request.get_json() or {}
-        logout_user()
-        _dev_login(params.get('uid'), app.config['DEVELOPER_AUTH_PASSWORD'])
-        return redirect('/')
+    params = request.get_json() or {}
+    logout_user()
+    user = _dev_auth_login(params.get('uid'), app.config['DEVELOPER_AUTH_PASSWORD'])
+    if user:
+        login_user(user)
+        return tolerant_jsonify(get_current_user_status())
     else:
-        raise ResourceNotFoundError('Unknown path')
+        raise ForbiddenRequestError('Invalid credentials')
 
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
-    return tolerant_jsonify({
-        'cas_logout_url': _cas_client().get_logout_url(redirect_url=request.url_root),
-    })
+    cas_logout_url = _cas_client().get_logout_url(redirect_url=request.url_root)
+    return tolerant_jsonify({'casLogoutUrl': cas_logout_url, **get_current_user_status()})
 
 
 def _cas_client(target_url=None):
@@ -106,7 +111,7 @@ def _cas_client(target_url=None):
     return cas.CASClientV3(server_url=cas_server, service_url=service_url)
 
 
-def _dev_login(uid, password):
+def _dev_auth_login(uid, password):
     if app.config['DEVELOPER_AUTH_ENABLED']:
         logger = app.logger
         if password != app.config['DEVELOPER_AUTH_PASSWORD']:
@@ -120,7 +125,6 @@ def _dev_login(uid, password):
             logger.error(f'Dev-auth: UID {uid} is not authorized to use BOAC.')
             raise ForbiddenRequestError(f'Sorry, user with UID {uid} is not authorized to use BOAC.')
         logger.info(f'Dev-auth used to log in as UID {uid}')
-        login_user(user)
-        flash('Logged in successfully.')
+        return user
     else:
-        raise ResourceNotFoundError('Unknown path')
+        return None

@@ -27,19 +27,19 @@
 
   'use strict';
 
-  angular.module('boac').controller('HeaderController', function($scope, authFactory, authService, config, googleAnalyticsService) {
+  var SidebarNavController = function($rootScope, $scope, authService, config) {
+    $scope.isLoading = true;
 
-    $scope.devAuthEnabled = config.devAuthEnabled;
-    $scope.supportEmailAddress = config.supportEmailAddress;
-    $scope.me = authService.getMe();
+    $rootScope.$on('userProfileLoaded', function(event, data) {
+      $scope.profile = _.get(data, 'profile');
+      $scope.isAscUser = authService.isDepartmentMember($scope.profile);
+      $scope.demoMode = config.demoMode;
+      $scope.isLoading = false;
+    });
+  };
 
-    $scope.logOut = function() {
-      googleAnalyticsService.track('User', 'log_out');
-      authFactory.logOut().then(function(results) {
-        window.location = results.data.cas_logout_url;
-      });
-    };
-
+  angular.module('boac').component('sidebar', {
+    controller: SidebarNavController,
+    templateUrl: '/static/app/nav/sidebar.html'
   });
-
 }(window.angular));

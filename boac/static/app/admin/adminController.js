@@ -39,8 +39,9 @@
     $scope.demoMode = config.demoMode.blur;
 
     $scope.become = function(uid) {
-      adminFactory.becomeUser(uid).then(function() {
-        window.location = '/';
+      adminFactory.becomeUser(uid).then(function(response) {
+        _.extend(status, response.data);
+        window.location = '/home';
       });
     };
 

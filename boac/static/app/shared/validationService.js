@@ -48,7 +48,7 @@
      * @param   {Cohort}      cohort                  Curated or filtered cohort
      * @param   {Function}    callback                Standard callback
      * @param   {String}      callback.errorMessage   Error description, if any
-     * @returns {void}
+     * @returns {Object}                              Callback return object
      */
     var validateName = function(cohort, callback) {
       var errorMessage = null;
@@ -60,8 +60,8 @@
         errorMessage = 'Sorry, \'' + cohort.name + '\' is a reserved name. Please choose a different name.';
       } else {
         var allExisting = {
-          'curated cohort': authService.getMe().myCuratedCohorts,
-          'filtered cohort': authService.getMe().myFilteredCohorts
+          'curated cohort': $rootScope.profile.myCuratedCohorts,
+          'filtered cohort': $rootScope.profile.myFilteredCohorts
         };
         _.each(allExisting, function(cohorts, description) {
           _.each(cohorts, function(existingCohort) {

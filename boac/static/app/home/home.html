@@ -1,9 +1,9 @@
 <div class="home-container">
-  <div class="loading-spinner-large" data-ng-if="isLoading">
+  <div class="loading-spinner-large" data-ng-if="profile.myCuratedCohorts === null">
     <i class="fas fa-sync fa-spin fa-5x"></i>
     <span role="alert" aria-live="passive" class="sr-only">Loading...</span>
   </div>
-  <div class="home-content" data-ng-if="!isLoading">
+  <div class="home-content" data-ng-if="profile.myCuratedCohorts !== null">
     <div>
       <div id="curated-cohorts-header-row" class="home-page-section-header-wrapper">
         <h1 class="page-section-header">Curated Cohorts</h1>
@@ -17,7 +17,7 @@
              href="/cohort/curated/manage">Manage</a>
         </div>
       </div>
-      <div data-ng-if="!me.myCuratedCohorts.length">
+      <div data-ng-if="!profile.myCuratedCohorts.length">
         You have no curated cohorts.
         <span data-ng-controller="CreateCuratedCohortController">
           <a id="home-curated-cohort-create"
@@ -25,14 +25,14 @@
              data-ng-click="openCreateCuratedCohortModal()"> Create a new curated cohort.</a>
         </span>
       </div>
-      <uib-accordion close-others="false" data-ng-if="me.myCuratedCohorts.length">
+      <uib-accordion close-others="false" data-ng-if="profile.myCuratedCohorts.length">
         <div uib-accordion-group
              is-disabled="true"
              is-open="cohort.isOpen"
              aria-expanded="{{cohort.isOpen}}"
              class="home-cohort-accordion"
              data-ng-class="{'panel-open': cohort.isOpen}"
-             data-ng-repeat="cohort in me.myCuratedCohorts">
+             data-ng-repeat="cohort in profile.myCuratedCohorts track by $index">
           <uib-accordion-heading>
             <a id="home-curated-cohort-{{$index}}"
                class="home-cohort-accordion-heading-link"
@@ -104,11 +104,11 @@
              href="/cohort/filtered">Create</a>
         </div>
       </div>
-      <div data-ng-if="me.myFilteredCohorts && !me.myFilteredCohorts.length">
+      <div data-ng-if="profile.myFilteredCohorts && !profile.myFilteredCohorts.length">
         You have no filtered cohorts.
         <a id="create-filtered-cohort" href="/cohort/filtered">Create a new filtered cohort.</a>
       </div>
-      <uib-accordion close-others="false" data-ng-if="me.myFilteredCohorts.length">
+      <uib-accordion close-others="false" data-ng-if="profile.myFilteredCohorts.length">
         <div uib-accordion-group
              id="home-filtered-cohort-{{$index}}"
              is-disabled="true"
@@ -116,7 +116,7 @@
              aria-expanded="{{cohort.isOpen}}"
              class="home-cohort-accordion"
              data-ng-class="{'panel-open': cohort.isOpen}"
-             data-ng-repeat="cohort in me.myFilteredCohorts">
+             data-ng-repeat="cohort in profile.myFilteredCohorts track by $index">
           <uib-accordion-heading>
             <a id="home-filtered-cohort-{{$index}}"
                class="home-cohort-accordion-heading-link"

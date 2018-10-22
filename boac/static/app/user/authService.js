@@ -27,109 +27,38 @@
 
   'use strict';
 
-  angular.module('boac').service('authService', function(
-    $http,
-    $location,
-    $rootScope,
-    authFactory,
-    googleAnalyticsService
-  ) {
-
-    var getMe = function() {
-      return _.cloneDeep($rootScope.me);
-    };
+  angular.module('boac').service('authService', function($rootScope, $state, authFactory, status) {
 
     var isDepartmentMember = function(user, deptCode) {
       return _.get(user.departments, deptCode + '.isAdvisor') || _.get(user.departments, deptCode + '.isDirector');
     };
 
     var isAscUser = function() {
-      // Athletic Study Center
-      return isDepartmentMember(getMe(), 'UWASC');
+      return isDepartmentMember($rootScope.profile, 'UWASC');
     };
 
     var isCoeUser = function() {
-      // College of Engineering
-      return isDepartmentMember(getMe(), 'COENG');
+      return isDepartmentMember($rootScope.profile, 'COENG');
     };
 
     var canViewAsc = function() {
-      return getMe().isAdmin || isAscUser();
+      return status.isAdmin || isAscUser();
     };
 
-    var canViewCoe = function() {
-      return getMe().isAdmin || isCoeUser();
-    };
-
-    var reloadMe = function() {
-      return $http.get('/api/status').then(authFactory.loadUserProfile).then(function() {
-        var me = $rootScope.me;
-        if ($rootScope.me.isAuthenticated) {
-          if ($location.search().casLogin) {
-            googleAnalyticsService.track('User', 'login');
-          }
-        }
-        return me;
+    var logOut = function() {
+      authFactory.logOut().then(function(response) {
+        _.extend(status, response.data);
+        $rootScope.profile = null;
+        $state.go('login', {reload: true});
       });
     };
 
-    $rootScope.$on('filteredCohortCreated', function(event, data) {
-      if (_.get($rootScope, 'me.myFilteredCohorts')) {
-        $rootScope.me.myFilteredCohorts.push(data.cohort);
-      }
-    });
-
-    $rootScope.$on('filteredCohortDeleted', function(event, data) {
-      if (_.get($rootScope, 'me.myFilteredCohorts')) {
-        $rootScope.me.myFilteredCohorts = _.remove($rootScope.me.myFilteredCohorts, function(cohort) {
-          return data.cohort.id !== cohort.id;
-        });
-      }
-    });
-
-    $rootScope.$on('filteredCohortUpdated', function(event, data) {
-      if (_.get($rootScope, 'me.myFilteredCohorts')) {
-        _.each($rootScope.me.myFilteredCohorts, function(cohort) {
-          if (data.cohort.id === cohort.id) {
-            cohort.name = data.cohort.name;
-            cohort.totalStudentCount = data.cohort.totalStudentCount;
-          }
-        });
-      }
-    });
-
-    $rootScope.$on('curatedCohortCreated', function(event, data) {
-      if (_.get($rootScope, 'me.myCuratedCohorts')) {
-        $rootScope.me.myCuratedCohorts.push(data.cohort);
-      }
-    });
-
-    $rootScope.$on('curatedCohortDeleted', function(event, data) {
-      if (_.get($rootScope, 'me.myCuratedCohorts')) {
-        $rootScope.me.myCuratedCohorts = _.remove($rootScope.me.myCuratedCohorts, function(cohort) {
-          return data.cohortId !== cohort.id;
-        });
-      }
-    });
-
-    $rootScope.$on('curatedCohortRenamed', function(event, data) {
-      if (_.get($rootScope, 'me.myCuratedCohorts')) {
-        _.each($rootScope.me.myCuratedCohorts, function(cohort) {
-          if (data.cohort.id === cohort.id) {
-            cohort.name = data.cohort.name;
-          }
-        });
-      }
-    });
-
     return {
       canViewAsc: canViewAsc,
-      canViewCoe: canViewCoe,
-      getMe: getMe,
       isAscUser: isAscUser,
       isCoeUser: isCoeUser,
       isDepartmentMember: isDepartmentMember,
-      reloadMe: reloadMe
+      logOut: logOut
     };
   });
 

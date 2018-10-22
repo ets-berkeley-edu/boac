@@ -83,12 +83,6 @@
       }
     };
 
-    $rootScope.$on('filteredCohortDeleted', function(event, data) {
-      if (data.cohort.id === $scope.search.cohort.id) {
-        $state.go('home');
-      }
-    });
-
     var errorHandler = function(error) {
       if (error.status === 404) {
         $location.replace().path('/404');
@@ -270,6 +264,9 @@
       applyFilters: function(filterCriteria) {
         $scope.search.pagination.currentPage = 1;
         init(filterCriteria);
+      },
+      onDelete: function() {
+        $state.go('home');
       },
       onSave: function(cohort) {
         // Do not reload the page

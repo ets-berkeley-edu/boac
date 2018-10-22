@@ -27,42 +27,34 @@
 
   'use strict';
 
-  angular.module('boac').service('googleAnalyticsService', function($rootScope, $transitions, config) {
+  var HeaderController = function(
+    $rootScope,
+    $scope,
+    $state,
+    $transitions,
+    authService,
+    config,
+    googleAnalyticsService,
+    status
+  ) {
+    $scope.profile = $rootScope.profile;
+    $scope.status = status;
 
-    // Disable Google Analytics with id=False in py config file
-    var id = config.googleAnalyticsId;
-
-    /**
-     * See https://developers.google.com/analytics/devguides/collection/analyticsjs/events
-     *
-     * @param  {String}    category  For example, 'cohort'
-     * @param  {String}    action    For example, 'delete'
-     * @param  {String}    label     For example, cohort name
-     * @param  {String}    value     For example, cohort id
-     * @return {void}
-     */
-    var track = function(category, action, label, value) {
-      if (id && ga) {
-        ga('send', 'event', category, action, label, value, {
-          userId: _.get($rootScope.profile, 'uid')
-        });
-      }
-    };
-
-    $transitions.onSuccess({}, function() {
-      if (id && ga) {
-        var uid = _.get($rootScope.profile, 'uid');
-        ga('create', id, 'auto');
-        if (uid) {
-          ga('set', 'userId', uid);
-        }
-        ga('send', 'pageview');
-      }
+    $rootScope.$on('userProfileLoaded', function(event, data) {
+      $scope.profile = _.get(data, 'profile');
+      $scope.devAuthEnabled = config.devAuthEnabled;
+      $scope.supportEmailAddress = config.supportEmailAddress;
     });
 
-    return {
-      track: track
+    $scope.logOut = function() {
+      var name = $scope.profile.firstName + ' ' + $scope.profile.lastName;
+      googleAnalyticsService.track('User', 'log_out', name, $scope.profile.uid);
+      authService.logOut();
     };
-  });
+  };
 
+  angular.module('boac').component('header', {
+    controller: HeaderController,
+    templateUrl: '/static/app/nav/header.html'
+  });
 }(window.angular));

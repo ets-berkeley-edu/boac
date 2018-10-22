@@ -27,9 +27,16 @@
 
   'use strict';
 
-  var boac = angular.module('boac');
+  angular.module('boac').factory('curatedCohortFactory', function($http, $rootScope, googleAnalyticsService) {
 
-  boac.factory('curatedCohortFactory', function($http, $rootScope, googleAnalyticsService) {
+    var onAddStudentToCuratedCohort = function(cohort, student) {
+      var c = _.find($rootScope.profile.myCuratedCohorts, ['id', cohort.id]);
+
+      if (!_.find(c.students, {sid: student.sid})) {
+        c.students = _.union(c.students, [ student ]);
+        c.studentCount += 1;
+      }
+    };
 
     var addStudents = function(cohort, students) {
       var args = {
@@ -38,7 +45,7 @@
       };
       return $http.post('/api/curated_cohort/students/add', args).then(function() {
         _.each(students, function(student) {
-          $rootScope.$broadcast('addStudentToCuratedCohort', {cohort: cohort, student: student});
+          onAddStudentToCuratedCohort(cohort, student);
         });
         googleAnalyticsService.track('Curated Cohort', 'add_students', cohort.name, cohort.id);
       });
@@ -46,13 +53,14 @@
 
     var addStudent = function(cohort, student) {
       return $http.get('/api/curated_cohort/' + cohort.id + '/add_student/' + student.sid).then(function() {
-        $rootScope.$broadcast('addStudentToCuratedCohort', {cohort: cohort, student: student});
+        onAddStudentToCuratedCohort(cohort, student);
       });
     };
 
     var create = function(name) {
       return $http.post('/api/curated_cohort/create', {name: name}).then(function(response) {
         var cohort = response.data;
+        $rootScope.profile.myCuratedCohorts.push(cohort);
         $rootScope.$broadcast('curatedCohortCreated', {cohort: cohort});
         googleAnalyticsService.track('Curated Cohort', 'create', cohort.name, cohort.id);
       });
@@ -60,7 +68,9 @@
 
     var deleteCuratedCohort = function(id) {
       return $http.delete('/api/curated_cohort/delete/' + id).then(function() {
-        $rootScope.$broadcast('curatedCohortDeleted', {cohortId: id});
+        $rootScope.profile.myCuratedCohorts = _.remove($rootScope.profile.myCuratedCohorts, function(cohort) {
+          return id !== cohort.id;
+        });
         googleAnalyticsService.track('Curated Cohort', 'delete', null, id);
       });
     };
@@ -75,15 +85,19 @@
 
     var removeStudent = function(cohort, student) {
       return $http.delete('/api/curated_cohort/' + cohort.id + '/remove_student/' + student.sid).then(function() {
-        $rootScope.$broadcast('removeStudentFromCuratedCohort', {cohort: cohort, student: student});
+        var curatedCohort = _.find($rootScope.profile.myCuratedCohorts, ['id', cohort.id]);
+        curatedCohort.studentCount -= 1;
       });
     };
 
     var rename = function(cohortId, name) {
-      return $http.post('/api/curated_cohort/rename', {id: cohortId, name: name}).then(function(response) {
-        var cohort = response.data;
-        $rootScope.$broadcast('curatedCohortRenamed', {cohort: cohort});
-        googleAnalyticsService.track('Curated Cohort', 'rename', cohort.name, cohort.id);
+      return $http.post('/api/curated_cohort/rename', {id: cohortId, name: name}).then(function() {
+        _.each($rootScope.profile.myCuratedCohorts, function(c) {
+          if (cohortId === c.id) {
+            c.name = name;
+          }
+        });
+        googleAnalyticsService.track('Curated Cohort', 'rename', name, cohortId);
       });
     };
 

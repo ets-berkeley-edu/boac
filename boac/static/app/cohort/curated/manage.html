@@ -14,13 +14,13 @@
         <span data-ng-if="!error.message">Sorry, there was an error.</span>
       </div>
     </div>
-    <div data-ng-if="!cohorts.length" data-ng-controller="CreateCuratedCohortController">
+    <div data-ng-if="!profile.myCuratedCohorts.length" data-ng-controller="CreateCuratedCohortController">
       You have no curated cohorts.
       <a id="curated-cohort-create"
          href
          data-ng-click="openCreateCuratedCohortModal()"><i class="fas fa-plus"></i> Create a new curated cohort</a>
     </div>
-    <div data-ng-repeat="cohort in cohorts">
+    <div data-ng-repeat="cohort in profile.myCuratedCohorts">
       <hr class="cohort-manage-row-separator"/>
       <div class="flex-container flex-space-between" data-ng-if="!cohort.editMode">
         <div class="cohort-manage-name wrap-hard">

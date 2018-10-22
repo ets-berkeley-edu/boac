@@ -1,4 +1,6 @@
-<div class="splash-container" data-ng-click="closeErrorPopovers()">
+<div class="splash-container"
+     data-ng-click="closeErrorPopovers()"
+     data-ng-if="!status.isAuthenticated">
   <div class="splash-cell-stripe"></div>
   <div class="avatar-container">
     <img class="avatar-airplane" src="/static/app/splash/airplane.svg">

@@ -36,7 +36,6 @@
     config,
     curatedCohortFactory,
     googleAnalyticsService,
-    me,
     page,
     studentFactory,
     utilService,
@@ -56,8 +55,8 @@
     $scope.lastActivityInContext = utilService.lastActivityInContext;
     $scope.isAscUser = authService.isAscUser();
     $scope.isCoeUser = authService.isCoeUser();
-    $scope.myCuratedCohorts = _.clone(me.myCuratedCohorts);
     $scope.parseInt = parseInt;
+    $scope.profile = $rootScope.profile;
     $scope.showAllTerms = false;
     $scope.showDismissedAlerts = false;
     $scope.showTermGpa = false;
@@ -80,7 +79,7 @@
     };
 
     var identifyCuratedCohortsWithStudent = function() {
-      _.each($scope.myCuratedCohorts, function(cohort) {
+      _.each($rootScope.profile.myCuratedCohorts, function(cohort) {
         _.each(cohort.students, function(student) {
           cohort.selected = $scope.student.sid === student.sid;
           if (cohort.selected) {
@@ -159,10 +158,6 @@
         curatedCohortFactory.removeStudent(cohort, $scope.student).then(angular.noop);
       }
     };
-
-    $rootScope.$on('curatedCohortCreated', function(event, data) {
-      $scope.myCuratedCohorts.push(data.cohort);
-    });
 
     var init = function() {
       var uid = $stateParams.uid;

@@ -35,10 +35,7 @@
       var args = _.merge({name: name}, filterCriteria);
       return $http.post('/api/filtered_cohort/create', args).then(function(response) {
         var cohort = response.data;
-        $rootScope.$broadcast('filteredCohortCreated', {
-          cohort: cohort
-        });
-        $rootScope.$broadcast('myFilteredCohortsUpdated');
+        $rootScope.profile.myFilteredCohorts.push(cohort);
         googleAnalyticsService.track('Filtered Cohort', 'create', cohort.name, cohort.id);
         return cohort;
       });
@@ -46,9 +43,8 @@
 
     var deleteCohort = function(cohort) {
       return $http.delete('/api/filtered_cohort/delete/' + cohort.id).then(function() {
-        $rootScope.$broadcast('myFilteredCohortsUpdated');
-        $rootScope.$broadcast('filteredCohortDeleted', {
-          cohort: cohort
+        $rootScope.profile.myFilteredCohorts = _.remove($rootScope.profile.myFilteredCohorts, function(curatedCohort) {
+          return curatedCohort && (curatedCohort.id !== cohort.id);
         });
         googleAnalyticsService.track('Filtered Cohort', 'delete', cohort.name, cohort.id);
       });
@@ -89,9 +85,11 @@
       return $http.post('/api/filtered_cohort/update', args).then(function(response) {
         var cohort = response.data;
 
-        $rootScope.$broadcast('myFilteredCohortsUpdated');
-        $rootScope.$broadcast('filteredCohortUpdated', {
-          cohort: cohort
+        _.each($rootScope.profile.myFilteredCohorts, function(c) {
+          if (c.id === cohort.id) {
+            c.name = cohort.name;
+            c.totalStudentCount = cohort.totalStudentCount;
+          }
         });
         googleAnalyticsService.track('Filtered Cohort', 'update', cohort.name, cohort.id);
         callback(cohort);
