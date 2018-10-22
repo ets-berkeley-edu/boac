@@ -122,6 +122,7 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None):
                         'enrollmentStatus': _section.get('enrollmentStatus', None),
                         'grade': enrollment.get('grade', None),
                         'gradingBasis': enrollment.get('gradingBasis', None),
+                        'midtermGrade': enrollment.get('midtermGrade', None),
                     }
                     student['analytics'] = analytics.mean_metrics_across_sites(canvas_sites, 'student')
                     # If more than one course site is associated with this section, derive mean metrics from as many sites as possible.
