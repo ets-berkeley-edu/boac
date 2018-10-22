@@ -12,10 +12,10 @@
   </div>
   <div class="cohort-header-container" data-ng-if="!error && !isLoading">
     <div>
-      <h1 class="page-section-header" data-ng-if="cohort.name">
-        <span data-ng-bind="cohort.name"></span>
+      <h1 class="page-section-header" data-ng-if="cohortName">
+        <span data-ng-bind="cohortName"></span>
         <span class="faint-text">(<span data-ng-pluralize
-                                        count="cohort.students.length"
+                                        count="students.length"
                                         when="{'one': 'One student', 'other': '{} students'}"></span>)</span>
       </h1>
     </div>
@@ -30,17 +30,17 @@
       </div>
     </div>
   </div>
-  <div data-ng-if="!isLoading && !error && !cohort.students.length">
+  <div data-ng-if="!isLoading && !error && !students.length">
     This curated cohort has no students. Start adding students from their profile pages to your
-    <strong data-ng-bind="cohort.name"></strong> cohort:
+    <strong data-ng-bind="cohortName"></strong> cohort:
     <search-students-form data-with-button="true"></search-students-form>
   </div>
-  <div class="cohort-column-results" data-ng-show="!isLoading && !error && cohort.students.length">
+  <div class="cohort-column-results" data-ng-show="!isLoading && !error && students.length">
     <div>
       <div id="curated-cohort-students" class="list-group">
         <div class="list-group-item student-list-item"
              data-ng-class="{'list-group-item-info': anchor===student.uid}"
-             data-ng-repeat="student in cohort.students | orderBy:studentComparator track by $index">
+             data-ng-repeat="student in students | orderBy:studentComparator track by $index">
 
           <div class="cohort-list-view-column-01">
             <button id="student-{{student.uid}}-curated-cohort-remove"

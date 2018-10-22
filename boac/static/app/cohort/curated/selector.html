@@ -6,7 +6,7 @@
              aria-labelledby="checkbox-add-all-label"
              type="checkbox"
              data-ng-model="selector.selectAllCheckbox"
-             data-ng-click="toggleAllStudentCheckboxes()"/>
+             data-ng-click="toggleAllStudentCheckboxes(null)"/>
     </div>
   </div>
   <div>
@@ -36,12 +36,12 @@
         <li role="menuitem" data-ng-if="isLoading">
           Loading <i class="fas fa-spinner fa-spin"></i>
         </li>
-        <li role="menuitem" data-ng-if="!myCuratedCohorts.length">
+        <li role="menuitem" data-ng-if="!profile.myCuratedCohorts.length">
           <span class="cohort-selector-zero-cohorts faint-text">You have no curated cohorts.</span>
         </li>
         <li role="menuitem"
             data-ng-class="{'cohort-checkbox-item': cohort, 'divider': !cohort}"
-            data-ng-repeat="cohort in myCuratedCohorts track by $index"
+            data-ng-repeat="cohort in profile.myCuratedCohorts track by $index"
             data-ng-href="!isLoading">
           <input id="student-{{student.uid}}-curated-cohort-checkbox"
                  type="checkbox"

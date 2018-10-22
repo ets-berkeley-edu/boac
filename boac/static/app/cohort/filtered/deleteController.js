@@ -74,7 +74,7 @@
     $scope.cohort = cohort;
 
     $scope.delete = function(item) {
-      filteredCohortFactory.deleteCohort(item).then(function() {
+      filteredCohortFactory.deleteCohort(item.id).then(function() {
         page.loading(true);
         callbacks.onDelete();
         $uibModalInstance.close();

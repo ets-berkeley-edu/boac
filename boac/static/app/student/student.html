@@ -40,16 +40,16 @@
               </div>
               <div>
                 <i class="fas fa-envelope"></i>
+                <span class="sr-only">Email</span>
                 <a id="student-mailto"
-                   aria-label="Email this student"
                    data-ng-href="mailto:{{student.sisProfile.emailAddress}}"
                    data-ng-class="{'demo-mode-blur': demoMode.blur}"
                    data-ng-bind="student.sisProfile.emailAddress"></a>
               </div>
               <div data-ng-if="student.sisProfile.phoneNumber">
                 <i class="fas fa-phone"></i>
-                <span aria-label="Student phone number is {{student.sisProfile.phoneNumber}}"
-                      data-ng-bind="student.sisProfile.phoneNumber"
+                <span class="sr-only">Phone number</span>
+                <span data-ng-bind="student.sisProfile.phoneNumber"
                       data-ng-class="{'demo-mode-blur': demoMode.blur}"
                       tabindex="0"></span>
               </div>
