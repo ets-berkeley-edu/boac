@@ -72,6 +72,44 @@
       });
     };
 
+    var previousSisTermId = function(termId) {
+      var previousTermId = '';
+      var strTermId = termId.toString();
+      switch (strTermId.slice(3)) {
+        case '2':
+          previousTermId = (parseInt(strTermId.slice(0, 3), 10) - 1).toString() + '8';
+          break;
+        case '5':
+          previousTermId = strTermId.slice(0, 3) + '2';
+          break;
+        case '8':
+          previousTermId = strTermId.slice(0, 3) + '5';
+          break;
+        default:
+          break;
+      }
+      return previousTermId;
+    };
+
+    var termNameForSisId = function(termId) {
+      var strTermId = termId.toString();
+      var termName = '20' + strTermId.slice(1, 3);
+      switch (strTermId.slice(3)) {
+        case '2':
+          termName = 'Spring ' + termName;
+          break;
+        case '5':
+          termName = 'Summer ' + termName;
+          break;
+        case '8':
+          termName = 'Fall ' + termName;
+          break;
+        default:
+          break;
+      }
+      return termName;
+    };
+
     var uibPopoverError = function(errorMessage) {
       return {
         popoverHtml: $sce.trustAsHtml('<i class="fas fa-exclamation-triangle"></i> ' + errorMessage),
@@ -85,6 +123,8 @@
       extendSortableNames: extendSortableNames,
       lastActivityDays: lastActivityDays,
       lastActivityInContext: lastActivityInContext,
+      previousSisTermId: previousSisTermId,
+      termNameForSisId: termNameForSisId,
       toBoolOrNull: toBoolOrNull,
       uibPopoverError: uibPopoverError
     };

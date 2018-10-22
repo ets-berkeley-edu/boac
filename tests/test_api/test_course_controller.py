@@ -84,9 +84,7 @@ class TestCourseController:
         assert students[0]['level'] == 'Junior'
         assert len(students[0]['majors']) == 2
         assert len(students[0]['enrollment']['canvasSites']) == 1
-        assert len(students[0]['termGpa']) == 4
-        assert students[0]['termGpa'][0]['termName'] == 'Spring 2018'
-        assert students[0]['termGpa'][0]['gpa'] == 2.9
+        assert students[0]['termGpa']['2182'] == 2.9
         assert isinstance(students[0].get('alertCount'), int)
 
     def test_section_student_analytics(self, coe_advisor, client):

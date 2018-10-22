@@ -52,6 +52,24 @@
     };
     $scope.tab = 'list';
 
+    $scope.getDisplayProperty = visualizationService.getDisplayProperty;
+    $scope.hasPlottableProperty = visualizationService.hasPlottableProperty;
+
+    $scope.axisLabels = {};
+    var metrics = ['analytics.currentScore', 'analytics.lastActivity', 'cumulativeGPA'];
+    var lastTermId = utilService.previousSisTermId(config.currentEnrollmentTermId);
+    var previousTermId = utilService.previousSisTermId(lastTermId);
+    metrics.push('termGpa.' + previousTermId);
+    metrics.push('termGpa.' + lastTermId);
+    _.each(metrics, function(metric) {
+      $scope.axisLabels[metric] = visualizationService.formatForDisplay(metric);
+    });
+
+    $scope.selectedAxes = {
+      x: 'analytics.currentScore',
+      y: 'cumulativeGPA'
+    };
+
     $scope.exceedsMatrixThresholdMessage = utilService.exceedsMatrixThresholdMessage;
 
     $scope.$watch('pagination.currentPage', function() {
@@ -65,10 +83,17 @@
       $scope.section = response.data;
       if (utilService.exceedsMatrixThreshold(_.get($scope.section, 'totalStudentCount'))) {
         $scope.matrixDisabledMessage = utilService.exceedsMatrixThresholdMessage;
-      } else if (visualizationService.partitionPlottableStudents($scope.section.students)[0].length === 0) {
-        $scope.matrixDisabledMessage = 'No student data is available to display.';
       } else {
-        $scope.matrixDisabledMessage = null;
+        var plottableStudents = visualizationService.partitionPlottableStudents(
+          $scope.selectedAxes.x,
+          $scope.selectedAxes.y,
+          $scope.section.students
+        );
+        if (plottableStudents[0].length === 0) {
+          $scope.matrixDisabledMessage = 'No student data is available to display.';
+        } else {
+          $scope.matrixDisabledMessage = null;
+        }
       }
     };
 
@@ -81,37 +106,41 @@
       });
     };
 
+    var refreshScatterplot = $scope.refreshScatterplot = function() {
+      var goToUserPage = function(uid) {
+        $location.state($location.absUrl());
+        $location.path('/student/' + uid);
+        // The intervening visualizationService code moves out of Angular and into d3, hence the extra kick of $apply.
+        $scope.$apply();
+      };
+      visualizationService.scatterplotRefresh(
+        $scope.section.students,
+        $scope.section.meanMetrics,
+        $scope.selectedAxes,
+        goToUserPage,
+        function(studentsWithoutData, zoom) {
+          // List of students-without-data is rendered below the scatterplot.
+          $scope.studentsWithoutData = studentsWithoutData;
+          // Make d3 zoom available to the scope.
+          $scope.zoom = zoom;
+          $scope.zoomIn = function() {
+            zoom.programmaticZoom(2, function() { $scope.$apply(); });
+          };
+          $scope.zoomOut = function() {
+            zoom.programmaticZoom(0.5, function() { $scope.$apply(); });
+          };
+        }
+      );
+    };
+
     var onTab = $scope.onTab = function(tabName) {
       page.loading(true);
       $scope.tab = tabName;
       $location.search('tab', $scope.tab);
       if (tabName === 'matrix') {
-        var goToUserPage = function(uid) {
-          $location.state($location.absUrl());
-          $location.path('/student/' + uid);
-          // The intervening visualizationService code moves out of Angular and into d3 thus the extra kick of $apply.
-          $scope.$apply();
-        };
         return courseFactory.getSection($stateParams.termId, $stateParams.sectionId).then(function(response) {
           updateCourseData(response);
-          visualizationService.scatterplotRefresh(
-            $scope.section.students,
-            $scope.section.meanMetrics,
-            goToUserPage,
-            function(yAxisMeasure, studentsWithoutData, zoom) {
-              $scope.yAxisMeasure = yAxisMeasure;
-              // List of students-without-data is rendered below the scatterplot.
-              $scope.studentsWithoutData = studentsWithoutData;
-              // Make d3 zoom available to the scope.
-              $scope.zoom = zoom;
-              $scope.zoomIn = function() {
-                zoom.programmaticZoom(2, function() { $scope.$apply(); });
-              };
-              $scope.zoomOut = function() {
-                zoom.programmaticZoom(0.5, function() { $scope.$apply(); });
-              };
-            }
-          );
+          refreshScatterplot();
           page.loading(false);
           googleAnalyticsService.track('Course', 'matrix', $scope.section.termName + ' ' + $scope.section.displayName, $scope.section.sectionNum);
         });
