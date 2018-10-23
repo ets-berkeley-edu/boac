@@ -124,7 +124,7 @@
         resolve: resolvePrivate
       })
       .state('course', {
-        url: '/course/:termId/:sectionId',
+        url: '/course/:termId/:sectionId?u',
         views: standardLayout('CourseController', '/static/app/course/course.html'),
         resolve: resolvePrivate
       })

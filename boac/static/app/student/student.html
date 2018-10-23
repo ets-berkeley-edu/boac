@@ -249,7 +249,7 @@
                                     data-ng-if="section.displayName">
                                 <span data-ng-if="$first">(</span><!--
                                 --><a id="term-{{term.termId}}-section-{{section.ccn}}"
-                                      data-ui-sref="course({termId: term.termId, sectionId: section.ccn})"
+                                      data-ui-sref="course({termId: term.termId, sectionId: section.ccn, u: student.uid})"
                                       data-ui-sref-opts="{reload: true}"
                                       data-ng-click="$event.stopPropagation()"
                                       data-ng-bind="section.displayName"
