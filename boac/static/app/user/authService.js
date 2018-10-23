@@ -57,7 +57,6 @@
       canViewAsc: canViewAsc,
       isAscUser: isAscUser,
       isCoeUser: isCoeUser,
-      isDepartmentMember: isDepartmentMember,
       logOut: logOut
     };
   });

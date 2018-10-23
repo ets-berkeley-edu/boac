@@ -4,24 +4,21 @@ bCourses offers analytic choices.
 
 ## Installation
 
-### Install Python 3
-
-### Create your virtual environment
-
-### Install Bower
-
-### Install back-end
+* Install Python 3
+* Create your virtual environment (venv)
+* Install dependencies
 
 ```
 pip3 install -r requirements.txt [--upgrade]
 pip3 install pandas==0.23.3
 ```
 
-### Install front-end dependencies
+### Front-end dependencies
 
 ```
-bower install
 npm install
+npm install -g bower
+bower install
 ```
 
 ### Create Postgres user and databases

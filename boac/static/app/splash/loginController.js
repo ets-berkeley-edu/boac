@@ -66,8 +66,8 @@
     $scope.signIn = function() {
       closeErrorPopovers();
       authFactory.casLogIn().then(
-        function success(results) {
-          window.location = results.data.cas_login_url;
+        function success(response) {
+          window.location = response.data.casLoginUrl;
         },
         function failure(err) {
           var errorMessage = validationService.parseError(err);

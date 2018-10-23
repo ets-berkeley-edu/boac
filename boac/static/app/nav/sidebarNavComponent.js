@@ -30,9 +30,9 @@
   var SidebarNavController = function($rootScope, $scope, authService, config) {
     $scope.isLoading = true;
 
-    $rootScope.$on('userProfileLoaded', function(event, data) {
-      $scope.profile = _.get(data, 'profile');
-      $scope.isAscUser = authService.isDepartmentMember($scope.profile);
+    $rootScope.$on('userProfileLoaded', function() {
+      $scope.profile = $rootScope.profile;
+      $scope.isAscUser = authService.isAscUser();
       $scope.demoMode = config.demoMode;
       $scope.isLoading = false;
     });

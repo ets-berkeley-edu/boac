@@ -39,7 +39,7 @@ from flask_login import login_required, login_user, logout_user
 def cas_login_url():
     target_url = request.referrer or None
     return tolerant_jsonify({
-        'cas_login_url': _cas_client(target_url).get_login_url(),
+        'casLoginUrl': _cas_client(target_url).get_login_url(),
     })
 
 
