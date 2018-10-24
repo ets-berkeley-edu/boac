@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 import re
+
 from flask import current_app as app
 import numpy as np
 

@@ -24,10 +24,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-"""Execute script functions in an app context."""
-
 from functools import wraps
+
 from boac.factory import create_app
+
+"""Execute script functions in an app context."""
 
 
 def in_app(func):

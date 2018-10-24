@@ -24,12 +24,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-"""Official access to Cal1Card photos."""
-
 from boac.lib import http
 from boac.lib.mockingbird import fixture
 from flask import current_app as app
 from requests.auth import HTTPBasicAuth
+
+
+"""Official access to Cal1Card photos."""
 
 
 def get_cal1card_photo(uid):

@@ -221,8 +221,8 @@ class Alert(Base):
     @classmethod
     def infrequent_activity_alerts_enabled(cls):
         return (
-            app.config['ALERT_INFREQUENT_ACTIVITY_ENABLED'] and
-            not app.config['CANVAS_CURRENT_ENROLLMENT_TERM'].startswith('Summer')
+            app.config['ALERT_INFREQUENT_ACTIVITY_ENABLED']
+            and not app.config['CANVAS_CURRENT_ENROLLMENT_TERM'].startswith('Summer')
         )
 
     @classmethod
@@ -230,9 +230,9 @@ class Alert(Base):
         session = data_loch.get_regular_undergraduate_session(current_term_id())[0]
         days_into_session = (datetime.date(datetime.today()) - session['session_begins']).days
         return (
-            app.config['ALERT_NO_ACTIVITY_ENABLED'] and
-            not app.config['CANVAS_CURRENT_ENROLLMENT_TERM'].startswith('Summer') and
-            days_into_session >= app.config['ALERT_NO_ACTIVITY_DAYS_INTO_SESSION']
+            app.config['ALERT_NO_ACTIVITY_ENABLED']
+            and not app.config['CANVAS_CURRENT_ENROLLMENT_TERM'].startswith('Summer')
+            and days_into_session >= app.config['ALERT_NO_ACTIVITY_DAYS_INTO_SESSION']
         )
 
     @classmethod
@@ -287,9 +287,9 @@ class Alert(Base):
                 if last_activity is None:
                     continue
                 if (
-                    no_activity_alerts_enabled and
-                    last_activity == 0 and
-                    activity_percentile <= app.config['ALERT_NO_ACTIVITY_PERCENTILE_CUTOFF']
+                    no_activity_alerts_enabled
+                        and last_activity == 0
+                        and activity_percentile <= app.config['ALERT_NO_ACTIVITY_PERCENTILE_CUTOFF']
                 ):
                     cls.update_no_activity_alerts(sid, term_id, enrollment['displayName'])
                 elif infrequent_activity_alerts_enabled:
@@ -297,8 +297,8 @@ class Alert(Base):
                     localized_today = unix_timestamp_to_localtime(time.time()).date()
                     days_since = (localized_today - localized_last_activity).days
                     if (
-                            days_since >= app.config['ALERT_INFREQUENT_ACTIVITY_DAYS'] and
-                            activity_percentile <= app.config['ALERT_INFREQUENT_ACTIVITY_PERCENTILE_CUTOFF']
+                            days_since >= app.config['ALERT_INFREQUENT_ACTIVITY_DAYS']
+                            and activity_percentile <= app.config['ALERT_INFREQUENT_ACTIVITY_PERCENTILE_CUTOFF']
                     ):
                         cls.update_infrequent_activity_alerts(
                             sid,
