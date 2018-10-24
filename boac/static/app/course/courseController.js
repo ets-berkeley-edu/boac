@@ -78,9 +78,18 @@
       }
     });
 
+    var featureSearchedStudent = function(data) {
+      var section = _.clone(data);
+      var subject = _.remove(section.students, function(student) {
+        return student.uid === _.get($location.search(), 'u');
+      });
+      section.students = _.union(subject, section.students);
+      return section;
+    };
+
     var updateCourseData = function(response) {
       $rootScope.pageTitle = response.data.displayName;
-      $scope.section = response.data;
+      $scope.section = featureSearchedStudent(response.data);
       if (utilService.exceedsMatrixThreshold(_.get($scope.section, 'totalStudentCount'))) {
         $scope.matrixDisabledMessage = utilService.exceedsMatrixThresholdMessage;
       } else {
