@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from datetime import date
+
 from boac.models.job_progress import JobProgress
 import pytest
 

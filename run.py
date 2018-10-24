@@ -24,6 +24,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
+import os
+import subprocess
+
+from boac.factory import create_app
+
 """BOAC takes good care of you.
 
 Usage mode A:
@@ -37,11 +42,6 @@ Usage mode B:
 >>> flask run --debugger
 >>> flask initdb
 """
-
-import os
-import subprocess
-
-from boac.factory import create_app
 
 # When running under WSGI, system environment variables are not automatically made available to Python code, and
 # an app restart will result in configurations being lost. We work around this with an explicit load from the shell

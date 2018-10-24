@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac.factory import create_app
+from pprintpp import pprint as pp # noqa
 
 """Run Flask-wrapped code from a Python console.
 
@@ -51,9 +53,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
                     , ...
 
 """
-
-from boac.factory import create_app
-from pprintpp import pprint as pp # noqa
 
 app = create_app()
 ac = app.app_context()

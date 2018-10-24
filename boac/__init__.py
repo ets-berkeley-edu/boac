@@ -42,14 +42,14 @@ def std_commit(allow_test_environment=False):
     """
     # Give a hoot, don't pollute.
     if app.config['TESTING'] and not allow_test_environment:
-        # When running tests, a session flush generates the id and timestamps that would otherwise show up during a commit.
+        # When running tests, session flush generates id and timestamps that would otherwise show up during a commit.
         db.session.flush()
         return
     successful_commit = False
     try:
         db.session.commit()
         successful_commit = True
-    except SQLAlchemyError as exception:
+    except SQLAlchemyError:
         db.session.rollback()
         raise
     finally:
