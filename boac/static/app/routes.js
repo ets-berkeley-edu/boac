@@ -179,7 +179,7 @@
       if (message === 'unauthenticated') {
         authFactory.casLogIn().then(
           function(results) {
-            window.location = results.data.cas_login_url;
+            window.location = results.data.casLoginUrl;
           },
           function(err) {
             $state.go('splash', {casLoginError: _.get(err, 'data.message') || 'An unexpected error occurred.'});

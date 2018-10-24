@@ -25,7 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 import json
-import re
 
 
 class TestDevAuth:
@@ -83,10 +82,10 @@ class TestCasAuth:
     """CAS login URL generation and redirects."""
 
     def test_cas_login_url(self, client):
-        """Fails if the chosen UID does not match an authorized user."""
+        """Returns berkeley.edu URL of CAS login page."""
         response = client.get('/cas/login_url')
         assert response.status_code == 200
-        assert re.compile('.*berkeley.edu/cas/login').match(str(response.data)) is not None
+        assert 'berkeley.edu/cas/login' in response.json.get('casLoginUrl')
 
     def test_cas_callback_with_invalid_ticket(self, client):
         """Fails if CAS can not verify the ticket."""
