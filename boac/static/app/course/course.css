@@ -206,3 +206,8 @@
 .list-group-header-row {
   border: 0;
 }
+
+select.course-page-size {
+  margin-left: 10px;
+  width: 100px;
+}

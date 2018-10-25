@@ -76,6 +76,10 @@
   color: grey;
 }
 
+.flex-align-center {
+  align-items: center;
+}
+
 .flex-container {
   display: flex;
   list-style: none;
