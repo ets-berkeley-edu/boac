@@ -73,6 +73,13 @@ class TestDataLoch:
         assert enrollments[4]['grading_basis'] == 'PNP'
         assert enrollments[4]['grade'] == 'P'
 
+    def test_get_enrolled_primary_sections(self, app):
+        sections = data_loch.get_enrolled_primary_sections('2178', 'MATH1')
+        assert len(sections) == 6
+        for section in sections:
+            assert section['term_id'] == '2178'
+            assert section['sis_course_name'].startswith('MATH 1')
+
     def test_get_term_gpas(self, app):
         term_gpas = data_loch.get_term_gpas(['11667051'])
         assert len(term_gpas) == 4

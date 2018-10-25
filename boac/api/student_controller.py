@@ -27,7 +27,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import add_alert_counts, get_dept_codes, is_asc_authorized, is_unauthorized_search
 from boac.externals.cal1card_photo_api import get_cal1card_photo
+from boac.externals.data_loch import get_enrolled_primary_sections
 from boac.lib import util
+from boac.lib.berkeley import current_term_id
 from boac.lib.http import tolerant_jsonify
 from boac.merged import athletics
 from boac.merged.student import get_student_and_terms, query_students, search_for_students
@@ -103,7 +105,7 @@ def search_students():
     search_phrase = util.get(params, 'searchPhrase', '').strip()
     if not len(search_phrase):
         raise BadRequestError('Invalid or empty search input')
-    results = search_for_students(
+    student_results = search_for_students(
         include_profiles=True,
         search_phrase=search_phrase.replace(',', ' '),
         is_active_asc=_convert_asc_inactive_arg(util.get(params, 'isInactiveAsc')),
@@ -111,12 +113,27 @@ def search_students():
         offset=util.get(params, 'offset', 0),
         limit=util.get(params, 'limit', 50),
     )
+    alphanumeric_search_phrase = ''.join(e for e in search_phrase if e.isalnum()).upper()
+    if alphanumeric_search_phrase:
+        courses = []
+        for row in get_enrolled_primary_sections(current_term_id(), alphanumeric_search_phrase):
+            courses.append({
+                'termId': row['term_id'],
+                'sectionId': row['sis_section_id'],
+                'courseName': row['sis_course_name'],
+                'courseTitle': row['sis_course_title'],
+                'instructionFormat': row['sis_instruction_format'],
+                'sectionNum': row['sis_section_num'],
+            })
+    else:
+        courses = None
     alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
-    students = results['students']
+    students = student_results['students']
     add_alert_counts(alert_counts, students)
     return tolerant_jsonify({
+        'courses': courses,
         'students': students,
-        'totalStudentCount': results['totalStudentCount'],
+        'totalStudentCount': student_results['totalStudentCount'],
     })
 
 

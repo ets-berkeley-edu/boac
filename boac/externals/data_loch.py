@@ -106,6 +106,16 @@ def get_regular_undergraduate_session(term_id):
     return safe_execute_rds(sql)
 
 
+def get_enrolled_primary_sections(term_id, course_name):
+    sql = f"""SELECT * FROM {sis_schema()}.enrolled_primary_sections
+              WHERE term_id = '{term_id}'
+              AND sis_course_name_compressed LIKE '{course_name}%'
+              ORDER BY sis_course_name_compressed, sis_instruction_format, sis_section_num
+              LIMIT 50
+           """
+    return safe_execute_rds(sql)
+
+
 @fixture('loch_sis_enrollments_{uid}_{term_id}.csv')
 def get_sis_enrollments(uid, term_id):
     sql = f"""SELECT
