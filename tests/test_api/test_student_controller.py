@@ -348,6 +348,38 @@ class TestSearch:
         assert next(s for s in students if s['name'] == 'Paul Farestveit')
         assert next(s for s in students if s['name'] == 'Wolfgang Pauli')
 
+    def test_search_by_name_includes_courses(self, coe_advisor, client):
+        """A name search returns matching courses if any."""
+        response = client.post('/api/students/search', data='{"searchPhrase": "paul"}', content_type='application/json')
+        assert response.json['courses'] == []
+        response = client.post('/api/students/search', data='{"searchPhrase": "da"}', content_type='application/json')
+        students = response.json['students']
+        assert len(students) == 1
+        assert students[0]['name'] == 'Deborah Davies'
+        courses = response.json['courses']
+        assert len(courses) == 1
+        assert courses[0] == {
+            'termId': '2178',
+            'sectionId': '21057',
+            'courseName': 'DANISH 1A',
+            'courseTitle': 'Beginning Danish',
+            'instructionFormat': 'LEC',
+            'sectionNum': '001',
+        }
+
+    def test_search_by_name_normalizes_queries(self, coe_advisor, client):
+        queries = ['MATH 16A', 'Math 16 A', 'math  16-a']
+        for query in queries:
+            response = client.post(
+                '/api/students/search',
+                data=json.dumps({'searchPhrase': query}),
+                content_type='application/json',
+            )
+            courses = response.json['courses']
+            assert len(courses) == 2
+            for course in courses:
+                assert course['courseName'] == 'MATH 16A'
+
     def test_search_order_by_offset_limit(self, client, fake_auth):
         """Search by snippet of name."""
         fake_auth.login('2040')
