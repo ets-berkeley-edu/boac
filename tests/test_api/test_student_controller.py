@@ -358,6 +358,7 @@ class TestSearch:
         assert students[0]['name'] == 'Deborah Davies'
         courses = response.json['courses']
         assert len(courses) == 1
+        assert response.json['totalCourseCount'] == 1
         assert courses[0] == {
             'termId': '2178',
             'sectionId': '21057',
@@ -377,6 +378,7 @@ class TestSearch:
             )
             courses = response.json['courses']
             assert len(courses) == 2
+            assert response.json['totalCourseCount'] == 2
             for course in courses:
                 assert course['courseName'] == 'MATH 16A'
 
