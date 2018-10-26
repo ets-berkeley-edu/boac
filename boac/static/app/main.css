@@ -200,9 +200,28 @@
   padding: 20px 0 10px 0;
 }
 
+.search-results-cell {
+  padding: 5px 0;
+}
+
+.search-results-table {
+  margin-top: 10px;
+  width: 100%;
+}
+
 .search-students-form-button {
   min-width: 200px;
   width: 60%;
+}
+
+.search-students-form-label {
+  font-weight: 400;
+  margin: 0;
+}
+
+.search-students-form-label-outer {
+  color: #fff;
+  margin: 10px 0;
 }
 
 .search-students-icon {
@@ -217,7 +236,7 @@
   border: 2px solid #ccc;
   border-radius: 4px;
   color: #333;
-  padding: 10px 15px 10px 30px;
+  padding: 10px;
   width: 100%;
 }
 
@@ -225,6 +244,7 @@
   align-items: center;
   display: flex;
   flex-flow: row wrap;
+  margin-top: 10px;
 }
 
 .search-students-with-button div {

@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from itertools import islice
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import add_alert_counts, get_dept_codes, is_asc_authorized, is_unauthorized_search
@@ -116,7 +117,8 @@ def search_students():
     alphanumeric_search_phrase = ''.join(e for e in search_phrase if e.isalnum()).upper()
     if alphanumeric_search_phrase:
         courses = []
-        for row in get_enrolled_primary_sections(current_term_id(), alphanumeric_search_phrase):
+        course_rows = get_enrolled_primary_sections(current_term_id(), alphanumeric_search_phrase)
+        for row in islice(course_rows, 50):
             courses.append({
                 'termId': row['term_id'],
                 'sectionId': row['sis_section_id'],
@@ -133,6 +135,7 @@ def search_students():
     return tolerant_jsonify({
         'courses': courses,
         'students': students,
+        'totalCourseCount': len(course_rows),
         'totalStudentCount': student_results['totalStudentCount'],
     })
 

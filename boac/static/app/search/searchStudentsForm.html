@@ -1,16 +1,18 @@
 <form id="search-students-form"
       data-ng-class="{'search-students-with-button': withButton}"
       data-ng-submit="searchForStudents()">
+  <div class="search-students-form-label-outer" data-ng-if="!withButton">
+    <i class="fas fa-search"></i>
+    <label for="search-students-input"
+           class="search-students-form-label">Search Students or Classes</label>
+  </div>
   <div data-ng-class="{'search-students-form-button': withButton}">
-      <label for="search-students-input" class="sr-only">Search for students</label>
-      <span class="search-students-icon"><i class="fas fa-search"></i></span>
       <input id="search-students-input"
              type="text"
              class="search-students-input"
              data-ng-model="searchPhrase"
              data-ng-readonly="searchResultsLoading"
-             maxlength="255"
-             placeholder="Search for Students">
+             maxlength="255">
   </div>
   <div data-ng-if="withButton">
     <button id="search-students-button"

@@ -46,12 +46,73 @@
       totalStudentCount: null
     };
 
+    var courseSortOptions = $scope.courseSortOptions = {
+      reverse: false,
+      sortBy: 'section'
+    };
+
+    $scope.courseSort = function(sortBy) {
+      if (courseSortOptions.sortBy === sortBy) {
+        courseSortOptions.reverse = !courseSortOptions.reverse;
+      } else {
+        courseSortOptions.sortBy = sortBy;
+        courseSortOptions.reverse = false;
+      }
+    };
+
+    var splitCourseName = function(name) {
+      var split = name.split(' ');
+      return [split.slice(0, -1).join(' '), split[split.length - 1]];
+    };
+
+    $scope.courseComparator = function(course1, course2) {
+      // If sorting by title, return string comparison.
+      if ((courseSortOptions.sortBy === 'title') && (course1.value.courseTitle !== course2.value.courseTitle)) {
+        return (course1.value.courseTitle > course2.value.courseTitle) ? 1 : -1;
+      }
+      // If sorting by section name, attempt to compare by subject area.
+      var splitName1 = splitCourseName(course1.value.courseName);
+      var splitName2 = splitCourseName(course2.value.courseName);
+      if (splitName1[0] > splitName2[0]) {
+        return 1;
+      }
+      if (splitName1[0] < splitName2[0]) {
+        return -1;
+      }
+      // If subject areas are identical, extract and compare numeric portion of catalog id.
+      var numericCode1 = parseInt(splitName1[1].match(/\d+/)[0], 10);
+      var numericCode2 = parseInt(splitName2[1].match(/\d+/)[0], 10);
+      if (numericCode1 > numericCode2) {
+        return 1;
+      }
+      if (numericCode1 < numericCode2) {
+        return -1;
+      }
+      // If catalog ids are numerically indentical, handle prefixes and suffixes with alphabetic comparison.
+      if (splitName1[1] > splitName2[1]) {
+        return 1;
+      }
+      if (splitName1[1] < splitName2[1]) {
+        return -1;
+      }
+      // Instruction format and section number.
+      if (course1.value.instructionFormat > course2.value.instructionFormat) {
+        return 1;
+      }
+      if (course1.value.instructionFormat < course2.value.instructionFormat) {
+        return -1;
+      }
+      return (course1.value.sectionNum > course2.value.sectionNum) ? 1 : -1;
+    };
+
     var loadSearchResults = function() {
       var inactiveAsc = authService.isAscUser() ? false : null;
       page.loading(true);
       studentFactory.searchForStudents($scope.search.phrase, inactiveAsc, 'last_name', 0, $scope.search.limit).then(
         function(response) {
+          $scope.search.courses = response.data.courses;
           $scope.search.students = utilService.extendSortableNames(response.data.students);
+          $scope.search.totalCourseCount = response.data.totalCourseCount;
           $scope.search.totalStudentCount = response.data.totalStudentCount;
         },
         function(err) {
