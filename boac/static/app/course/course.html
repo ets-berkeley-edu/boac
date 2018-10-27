@@ -239,7 +239,8 @@
 
           </div>
         </div>
-        <ul uib-pagination
+        <div class="flex-row flex-align-center">
+          <ul uib-pagination
             boundary-link-numbers="true"
             data-ng-click="nextPage()"
             data-ng-if="section.totalStudentCount > pagination.itemsPerPage"
@@ -252,6 +253,14 @@
             rotate="false"
             template-url="/static/app/shared/uibPaginationTemplate.html"
             total-items="section.totalStudentCount"></ul>
+            <select class="form-control course-page-size"
+              data-ng-change="resizePage(pagination.selected.itemsPerPage)"
+              data-ng-if="section.totalStudentCount > pagination.defaultItemsPerPage"
+              data-ng-model="pagination.selected.itemsPerPage"
+              data-ng-options="o.value as o.label for o in pagination.options">
+            </select>
+          </div>
+        </div>
       </div>
       <div id="matrix-outer" data-ng-show="tab === 'matrix' && !isLoading && !error">
         <div data-ng-include="'/static/app/shared/matrix.html'"></div>

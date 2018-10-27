@@ -48,7 +48,12 @@
     $scope.lastActivityDays = utilService.lastActivityDays;
     $scope.pagination = {
       currentPage: 1,
-      itemsPerPage: 50
+      defaultItemsPerPage: 50,
+      itemsPerPage: 50,
+      selected: {
+        itemsPerPage: 50
+      },
+      options: [{label: 'Show 50', value: 50}, {label: 'Show 100', value: 100}]
     };
     $scope.tab = 'list';
 
@@ -154,15 +159,27 @@
           googleAnalyticsService.track('Course', 'matrix', $scope.section.termName + ' ' + $scope.section.displayName, $scope.section.sectionNum);
         });
       } else if (tabName === 'list') {
-        if ($scope.pagination.currentPage > 1 && $scope.section && $scope.section.students.length > 50) {
-          var start = ($scope.pagination.currentPage - 1) * 50;
-          $scope.section.students = _.slice($scope.section.students, start, start + 50);
+        if ($scope.pagination.currentPage > 1 && $scope.section && $scope.section.students.length > $scope.pagination.itemsPerPage) {
+          var start = ($scope.pagination.currentPage - 1) * $scope.pagination.itemsPerPage;
+          $scope.section.students = _.slice($scope.section.students, start, start + $scope.pagination.itemsPerPage);
         }
         return refreshListView();
       }
     };
 
     $scope.nextPage = function() {
+      refreshListView().catch(function(err) {
+        $scope.error = validationService.parseError(err);
+        page.loading(false);
+      });
+    };
+
+    $scope.resizePage = function(selectedItemsPerPage) {
+      var currentItemsPerPage = $scope.pagination.itemsPerPage;
+      $scope.pagination.currentPage = Math.round($scope.pagination.currentPage * (currentItemsPerPage / selectedItemsPerPage));
+      $scope.pagination.itemsPerPage = selectedItemsPerPage;
+      $location.search('p', $scope.pagination.currentPage);
+
       refreshListView().catch(function(err) {
         $scope.error = validationService.parseError(err);
         page.loading(false);
