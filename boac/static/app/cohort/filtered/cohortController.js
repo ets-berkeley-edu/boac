@@ -33,6 +33,7 @@
     $rootScope,
     $scope,
     $state,
+    authService,
     cohortService,
     cohortUtils,
     config,
@@ -48,6 +49,7 @@
      * viewing unsaved search results.
      */
     $scope.demoMode = config.demoMode;
+    $scope.isAscUser = authService.isAscUser();
     $scope.isSearching = false;
     $scope.lastActivityDays = utilService.lastActivityDays;
     $scope.renameMode = {
