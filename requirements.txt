@@ -9,7 +9,7 @@ decorator==4.3.0
 ldap3==2.5.1
 names==0.3.0
 psycopg2==2.7.5
-requests==2.19.1
+requests==2.20.0
 simplejson==3.16.0
 xmltodict==0.11.0
 https://github.com/python-cas/python-cas/archive/master.zip
