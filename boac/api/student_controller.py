@@ -115,8 +115,8 @@ def search_students():
         limit=util.get(params, 'limit', 50),
     )
     alphanumeric_search_phrase = ''.join(e for e in search_phrase if e.isalnum()).upper()
+    courses = []
     if alphanumeric_search_phrase:
-        courses = []
         course_rows = get_enrolled_primary_sections(current_term_id(), alphanumeric_search_phrase)
         for row in islice(course_rows, 50):
             courses.append({
@@ -128,7 +128,7 @@ def search_students():
                 'sectionNum': row['sis_section_num'],
             })
     else:
-        courses = None
+        course_rows = []
     alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
     students = student_results['students']
     add_alert_counts(alert_counts, students)
