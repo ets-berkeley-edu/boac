@@ -85,7 +85,8 @@ def start_load_only():
 @app.route('/api/admin/cachejob/refresh')
 @admin_required
 def start_refresh():
-    return tolerant_jsonify(cache_utils.refresh_request_handler(term()))
+    response = cache_utils.refresh_request_handler(term())
+    return tolerant_jsonify(response, status=500 if 'error' in response else 200)
 
 
 @app.route('/api/admin/cachejob/import_refresh')
