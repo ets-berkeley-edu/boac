@@ -76,6 +76,9 @@
         <span class="sr-only" data-ng-if="courseSortOptions.sortBy === 'title' && !courseSortOptions.reverse">Descending</span>
         <span class="caret" data-ng-if="courseSortOptions.sortBy === 'title'"></span>
       </td>
+      <td class="group-summary-column-header search-results-cell">
+        Instructor(s)
+      </td>
     </tr>
     <tr data-ng-repeat="course in search.courses | orderBy:'':courseSortOptions.reverse:courseComparator">
       <td class="search-results-cell">
@@ -86,6 +89,7 @@
         </a>
       </td>
       <td class="search-results-cell" data-ng-bind="course.courseTitle"></td>
+      <td class="search-results-cell" data-ng-bind="course.instructors"></td>
     </tr>
   </table>
 

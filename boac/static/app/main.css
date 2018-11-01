@@ -205,11 +205,14 @@
 }
 
 .search-results-cell {
-  padding: 5px 0;
+  padding: 5px 10px 5px 0;
+  vertical-align: top;
+  width: 33%;
 }
 
 .search-results-table {
   margin-top: 10px;
+  table-layout: fixed;
   width: 100%;
 }
 
