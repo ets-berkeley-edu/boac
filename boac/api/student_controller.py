@@ -126,6 +126,7 @@ def search_students():
                 'courseTitle': row['sis_course_title'],
                 'instructionFormat': row['sis_instruction_format'],
                 'sectionNum': row['sis_section_num'],
+                'instructors': row['instructors'],
             })
     else:
         course_rows = []

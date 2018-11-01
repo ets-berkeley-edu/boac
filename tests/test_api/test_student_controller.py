@@ -366,6 +366,7 @@ class TestSearch:
             'courseTitle': 'Beginning Danish',
             'instructionFormat': 'LEC',
             'sectionNum': '001',
+            'instructors': 'Karen Blixen',
         }
 
     def test_search_by_name_normalizes_queries(self, coe_advisor, client):

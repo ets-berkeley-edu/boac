@@ -63,7 +63,8 @@ CREATE TABLE sis_data.enrolled_primary_sections
     sis_course_name_compressed VARCHAR NOT NULL,
     sis_course_title VARCHAR NOT NULL,
     sis_instruction_format VARCHAR NOT NULL,
-    sis_section_num VARCHAR NOT NULL
+    sis_section_num VARCHAR NOT NULL,
+    instructors VARCHAR
 );
 
 CREATE TABLE sis_data.sis_terms
@@ -182,17 +183,17 @@ VALUES
 ('2178','90200','2172',3.23);
 
 INSERT INTO sis_data.enrolled_primary_sections
-(term_id, sis_section_id, sis_course_name, sis_course_name_compressed, sis_course_title, sis_instruction_format, sis_section_num)
+(term_id, sis_section_id, sis_course_name, sis_course_name_compressed, sis_course_title, sis_instruction_format, sis_section_num, instructors)
 VALUES
-('2172', '22100', 'MATH 1A', 'MATH1A', 'Calculus', 'LEC', '001'),
-('2178', '21057', 'DANISH 1A', 'DANISH1A', 'Beginning Danish', 'LEC', '001'),
-('2178', '22140', 'MATH 1A', 'MATH1A', 'Calculus', 'LEC', '001'),
-('2178', '22141', 'MATH 1A', 'MATH1A', 'Calculus', 'LEC', '002'),
-('2178', '22172', 'MATH 16A', 'MATH16A', 'Analytic Geometry and Calculus', 'LEC', '001'),
-('2178', '22173', 'MATH 16A', 'MATH16A', 'Analytic Geometry and Calculus', 'LEC', '002'),
-('2178', '22174', 'MATH 16B', 'MATH16B', 'Analytic Geometry and Calculus', 'LEC', '001'),
-('2178', '22460', 'MATH 185', 'MATH185', 'Introduction to Complex Analysis', 'LEC', '001'),
-('2178', '22114', 'MATH 55', 'MATH55', 'Discrete Mathematics', 'LEC', '001');
+('2172', '22100', 'MATH 1A', 'MATH1A', 'Calculus', 'LEC', '001', 'Gottfried Wilhelm Leibniz'),
+('2178', '21057', 'DANISH 1A', 'DANISH1A', 'Beginning Danish', 'LEC', '001', 'Karen Blixen'),
+('2178', '22140', 'MATH 1A', 'MATH1A', 'Calculus', 'LEC', '001', 'Gottfried Wilhelm Leibniz'),
+('2178', '22141', 'MATH 1A', 'MATH1A', 'Calculus', 'LEC', '002', 'Sir Isaac Newton'),
+('2178', '22172', 'MATH 16A', 'MATH16A', 'Analytic Geometry and Calculus', 'LEC', '001', 'Gottfried Wilhelm Leibniz, Sir Isaac Newton'),
+('2178', '22173', 'MATH 16A', 'MATH16A', 'Analytic Geometry and Calculus', 'LEC', '002', 'Gottfried Wilhelm Leibniz'),
+('2178', '22174', 'MATH 16B', 'MATH16B', 'Analytic Geometry and Calculus', 'LEC', '001', 'Sir Isaac Newton'),
+('2178', '22460', 'MATH 185', 'MATH185', 'Introduction to Complex Analysis', 'LEC', '001', 'Leonhard Euler'),
+('2178', '22114', 'MATH 55', 'MATH55', 'Discrete Mathematics', 'LEC', '001', 'David Hilbert');
 
 INSERT INTO sis_data.sis_terms
 (term_id, term_name, academic_career, term_begins, term_ends, session_id, session_name, session_begins, session_ends)
