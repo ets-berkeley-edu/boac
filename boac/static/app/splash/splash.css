@@ -100,7 +100,7 @@
 }
 
 .splash-cell-copyright {
-  background-color: #aac9e4;
+  background-color: #3b80bf;
   height: 40px;
   width: 320px;
   padding-top: 10px;
@@ -156,7 +156,6 @@
 .splash-text-copyright {
   color: #fff;
   font-size: 12px;
-  font-weight: lighter;
 }
 
 .splash-text-header {
