@@ -97,7 +97,7 @@
      * @param  {Object}    cohort      Students will be added to this cohort.
      * @return {void}
      */
-    $scope.curatedCohortCheckboxClick = function(cohort) {
+    $scope.curatedCohortCheckboxClick = $scope.onCreateCuratedCohort = function(cohort) {
       $scope.isSaving = true;
       var students = _.filter($scope.students, function(student) {
         return student.selectedForCuratedCohort && !_.find(cohort.students, {sid: student.sid});

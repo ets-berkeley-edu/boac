@@ -45,7 +45,7 @@
     /**
      * Verify that value of 'name' is non-empty, unique and not reserved.
      *
-     * @param   {Cohort}      cohort                  Curated or filtered cohort
+     * @param   {Object}      cohort                  Curated or filtered cohort
      * @param   {Function}    callback                Standard callback
      * @param   {String}      callback.errorMessage   Error description, if any
      * @returns {Object}                              Callback return object
