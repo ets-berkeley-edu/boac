@@ -62,13 +62,12 @@
       </div>
     </div>
     <div class="course-terms">
-      <div data-ng-if="warning && warning.message">
-        <div class="has-error"><i class="fas fa-exclamation-triangle"></i>
-          Warning: <span data-ng-bind="warning.message"></span>
-        </div>
+      <div class="course-tabs-container" data-ng-if="!section.totalStudentCount">
+        <span class="has-error"><i class="fas fa-exclamation-triangle"></i></span>
+        <span class="container-error">No students advised by your department are enrolled in this section.</span>
       </div>
 
-      <div class="course-tabs-container">
+      <div class="course-tabs-container" data-ng-if="section.totalStudentCount">
         <div class="course-tabs-container-column-01">
           <curated-cohort-selector data-students="section.students"
                                    data-ng-if="section.students.length && (tab === 'list')"></curated-cohort-selector>
