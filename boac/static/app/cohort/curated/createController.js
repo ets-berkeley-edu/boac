@@ -31,7 +31,7 @@
 
     var isModalOpen = false;
 
-    $scope.openCreateCuratedCohortModal = function() {
+    $scope.openCreateCuratedCohortModal = function(onCreateCuratedCohort) {
       if (isModalOpen) {
         return;
       }
@@ -44,7 +44,11 @@
         backdrop: false,
         templateUrl: '/static/app/cohort/curated/createModal.html',
         controller: 'CreateCuratedCohortModal',
-        resolve: {}
+        resolve: {
+          onCreateCuratedCohort: function() {
+            return onCreateCuratedCohort;
+          }
+        }
       });
       var modalClosed = function() {
         isModalOpen = false;
@@ -58,6 +62,7 @@
     $scope,
     $uibModalInstance,
     curatedCohortFactory,
+    onCreateCuratedCohort,
     validationService
   ) {
     $scope.name = null;
@@ -74,13 +79,14 @@
         message: null
       };
       $scope.name = _.trim($scope.name);
-      validationService.validateName({name: $scope.name}, function(errorMessage) {
+      var cohort = {name: $scope.name};
+      validationService.validateName(cohort, function(errorMessage) {
         if (errorMessage) {
           $scope.isSaving = false;
           $scope.error.message = errorMessage;
         } else {
           // Get values where selected=true
-          curatedCohortFactory.create($scope.name).then(
+          curatedCohortFactory.create($scope.name, onCreateCuratedCohort).then(
             function() {
               $scope.isSaving = false;
               $uibModalInstance.close();
