@@ -91,6 +91,10 @@
   margin: 5px 20px 10px 0;
 }
 
+.matrix-outer {
+  margin-left: 20px;
+}
+
 .matrix-svg {
   overflow: visible !important;
 }
