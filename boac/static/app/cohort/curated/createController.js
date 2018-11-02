@@ -92,7 +92,9 @@
               $uibModalInstance.close();
             },
             function(err) {
-              $scope.error.message = 'Sorry, the operation failed due to error: ' + err.data.message;
+              $scope.error = {
+                message: 'Sorry, the operation failed due to error: ' + validationService.parseError(err).message
+              };
               $scope.isSaving = false;
             }
           );
