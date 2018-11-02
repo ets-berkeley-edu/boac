@@ -59,7 +59,8 @@
         var cohort = response.data;
         $rootScope.profile.myCuratedCohorts.push(cohort);
         googleAnalyticsService.track('Curated Cohort', 'create', cohort.name, cohort.id);
-        callback(cohort);
+        var onCohortCreate = callback || _.noop;
+        onCohortCreate(cohort);
       });
     };
 
