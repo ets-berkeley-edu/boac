@@ -46,6 +46,8 @@ def app_config():
         'ebEnvironment': app.config['EB_ENVIRONMENT'] if 'EB_ENVIRONMENT' in app.config else None,
         'supportEmailAddress': app.config['BOAC_SUPPORT_EMAIL'],
         'googleAnalyticsId': app.config['GOOGLE_ANALYTICS_ID'],
+        'vueEnabled': app.config['VUE_ENABLED'],
+        'vueBaseUrl': app.config['VUE_BASE_URL'],
     })
 
 
