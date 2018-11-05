@@ -37,47 +37,48 @@
   <div id="cohort-missing-student-data" class="cohort-missing-student-data" data-ng-if="studentsWithoutData.length">
     <h4>Missing Student Data</h4>
     <div>For the following students, some results may only provide partial data or information is currently unavailable:</div>
-    <div class="cohort-missing-student-data-header">
-      <div class="student-avatar-container"></div>
-      <div class="cohort-student-bio-container"></div>
-      <div class="student-column" data-ng-bind="axisLabels[selectedAxes.x]"></div>
-      <div class="student-column" data-ng-bind="axisLabels[selectedAxes.y]"></div>
-    </div>
-    <ul class="list-group">
-      <a id="{{student.uid}}"
+    <table class="missing-student-data-table">
+      <tr class="cohort-missing-student-data-header">
+        <td class="student-avatar-container"></td>
+        <td class="cohort-student-bio-container"></td>
+        <td class="student-column" data-ng-bind="axisLabels[selectedAxes.x]"></td>
+        <td class="student-column" data-ng-bind="axisLabels[selectedAxes.y]"></td>
+      </tr>
+      <tr id="{{student.uid}}"
          class="list-group-item student-list-item"
          data-ng-class="{'list-group-item-info': anchor===student.uid}"
-         data-ng-href="/student/{{student.uid}}"
          data-ng-repeat="student in studentsWithoutData | orderBy:['lastName','firstName']">
-        <div class="student-avatar-container">
+        <td class="student-avatar-container">
           <img class="student-avatar"
                data-ng-class="{'img-blur': demoMode.blur}"
                data-ng-src="/api/student/{{student.uid}}/photo"
                data-avatar-fallback>
-        </div>
-        <div class="cohort-student-bio-container">
+        </td>
+        <td class="cohort-student-bio-container">
           <div class="flex-container">
-            <h3 class="flex-container student-name"
-                data-ng-class="{'demo-mode-blur': demoMode.blur}">
-              {{student.lastName}}<span data-ng-if="student.firstName">, {{student.firstName}}</span>
-            </h3>
+            <a data-ng-href="/student/{{student.uid}}">
+              <h3 class="flex-container student-name"
+                  data-ng-class="{'demo-mode-blur': demoMode.blur}">
+                {{student.lastName}}<span data-ng-if="student.firstName">, {{student.firstName}}</span>
+              </h3>
+            </a>
           </div>
           <div class="student-sid"
                data-ng-class="{'demo-mode-blur': demoMode.blur}"
                data-ng-if="student.sid">
             SID: <span data-ng-bind="student.sid"></span>
           </div>
-        </div>
-        <div class="student-column">
+        </td>
+        <td class="student-column">
           <span data-ng-bind="getDisplayProperty(student, selectedAxes.x)"
                 data-ng-if="hasPlottableProperty(student, selectedAxes.x)"></span>
-        </div>
-        <div class="student-column">
+        </td>
+        <td class="student-column">
           <span data-ng-bind="getDisplayProperty(student, selectedAxes.y)"
                 data-ng-if="hasPlottableProperty(student, selectedAxes.y)"></span>
-        </div>
-      </a>
-    </ul>
+        </td>
+      </tr>
+    </table>
   </div>
 </div>
 <div class="matrix-container">

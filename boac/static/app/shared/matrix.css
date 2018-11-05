@@ -160,3 +160,7 @@
   margin-bottom: 5px;
   text-align: right;
 }
+
+.missing-student-data-table {
+  width: 100%;
+}
