@@ -85,11 +85,14 @@
                 17
               ],
               "courseMean": {
+                "matrixyPercentile": 57,
                 "percentile": 57,
-                "raw": 6.875
+                "raw": 6.875,
+                "roundedUpPercentile": 50
               },
               "displayPercentile": "81st",
               "student": {
+                "matrixyPercentile": 64,
                 "percentile": 64,
                 "raw": 8,
                 "roundedUpPercentile": 81
@@ -112,11 +115,14 @@
                 104
               ],
               "courseMean": {
+                "matrixyPercentile": 43,
                 "percentile": 43,
-                "raw": 73.333
+                "raw": 73.333,
+                "roundedUpPercentile": 50
               },
               "displayPercentile": "76th",
               "student": {
+                "matrixyPercentile": 73,
                 "percentile": 73,
                 "raw": 84,
                 "roundedUpPercentile": 76
@@ -138,11 +144,14 @@
                 1535533860
               ],
               "courseMean": {
+                "matrixyPercentile": 45,
                 "percentile": 45,
-                "raw": 1534360153.3705
+                "raw": 1534360153.3705,
+                "roundedUpPercentile": 50
               },
               "displayPercentile": "90th",
               "student": {
+                "matrixyPercentile": 93,
                 "percentile": 93,
                 "raw": 1535275620,
                 "roundedUpPercentile": 90
@@ -170,6 +179,7 @@
             "currentScore": {
               "boxPlottable": true,
               "student": {
+                "matrixyPercentile": 12,
                 "percentile": 12,
                 "raw": 79,
                 "roundedUpPercentile": 11
@@ -188,14 +198,17 @@
                 98
               ],
               "courseMean": {
+                "matrixyPercentile": 38,
                 "percentile": 38,
-                "raw": 86.544
+                "raw": 86.544,
+                "roundedUpPercentile": 50
               },
               "displayPercentile": "11th"
             },
             "lastActivity": {
               "boxPlottable": true,
               "student": {
+                "matrixyPercentile": 36,
                 "percentile": 36,
                 "raw": 1526247970,
                 "roundedUpPercentile": 23
@@ -214,8 +227,10 @@
                 1531151430
               ],
               "courseMean": {
+                "matrixyPercentile": 47,
                 "percentile": 47,
-                "raw": "1526319432.333"
+                "raw": "1526319432.333",
+                "roundedUpPercentile": 50
               },
               "displayPercentile": "23rd"
             }

@@ -116,11 +116,11 @@ class TestCourseController:
         section_id = 90200
         response = client.get(f'/api/section/{term_id}/{section_id}')
         mean_metrics = response.json['meanMetrics']
-        assert mean_metrics['assignmentsSubmitted']['displayPercentile'] == '57th'
+        assert mean_metrics['assignmentsSubmitted']['displayPercentile'] == '50th'
         assert mean_metrics['assignmentsSubmitted']['percentile'] == 57
-        assert mean_metrics['currentScore']['displayPercentile'] == '40th'
+        assert mean_metrics['currentScore']['displayPercentile'] == '50th'
         assert mean_metrics['currentScore']['percentile'] == 40.5
-        assert mean_metrics['lastActivity']['displayPercentile'] == '46th'
+        assert mean_metrics['lastActivity']['displayPercentile'] == '50th'
         assert mean_metrics['lastActivity']['percentile'] == 46
         assert mean_metrics['gpa']['cumulative'] == 3.131
         assert mean_metrics['gpa']['2175'] == 3.055

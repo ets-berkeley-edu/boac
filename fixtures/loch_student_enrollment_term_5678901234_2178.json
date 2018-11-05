@@ -42,11 +42,14 @@
                 17
               ],
               "courseMean": {
+                "matrixyPercentile": 57,
                 "percentile": 57,
-                "raw": 6.875
+                "raw": 6.875,
+                "roundedUpPercentile": 61
               },
               "displayPercentile": "81st",
               "student": {
+                "matrixyPercentile": 64,
                 "percentile": 64,
                 "raw": 8,
                 "roundedUpPercentile": 81
@@ -69,11 +72,14 @@
                 104
               ],
               "courseMean": {
+                "matrixyPercentile": 43,
                 "percentile": 43,
-                "raw": 73.333
+                "raw": 73.333,
+                "roundedUpPercentile": 50
               },
               "displayPercentile": "76th",
               "student": {
+                "matrixyPercentile": 73,
                 "percentile": 73,
                 "raw": 84,
                 "roundedUpPercentile": 76
@@ -95,11 +101,14 @@
                 1535533860
               ],
               "courseMean": {
+                "matrixyPercentile": 45,
                 "percentile": 45,
-                "raw": 1534360153.3705
+                "raw": 1534360153.3705,
+                "roundedUpPercentile": 50
               },
               "displayPercentile": "20th",
               "student": {
+                "matrixyPercentile": 20,
                 "percentile": 20,
                 "raw": 1533975180,
                 "roundedUpPercentile": 20
@@ -132,11 +141,14 @@
                 1535533860
               ],
               "courseMean": {
+                "matrixyPercentile": 45,
                 "percentile": 45,
-                "raw": 1534360153.3705
+                "raw": 1534360153.3705,
+                "roundedUpPercentile": 50
               },
               "displayPercentile": "20th",
               "student": {
+                "matrixyPercentile": 20,
                 "percentile": 20,
                 "raw": 1533985180,
                 "roundedUpPercentile": 20
@@ -156,6 +168,7 @@
               "courseMean": null,
               "displayPercentile": null,
               "student": {
+                "matrixyPercentile": null,
                 "percentile": null,
                 "raw": null,
                 "roundedUpPercentile": null
@@ -168,6 +181,7 @@
               "courseMean": null,
               "displayPercentile": null,
               "student": {
+                "matrixyPercentile": null,
                 "percentile": null,
                 "raw": null,
                 "roundedUpPercentile": null
@@ -179,6 +193,7 @@
               "courseMean": null,
               "displayPercentile": null,
               "student": {
+                "matrixyPercentile": null,
                 "percentile": null,
                 "raw": null,
                 "roundedUpPercentile": null
