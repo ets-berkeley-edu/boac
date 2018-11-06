@@ -34,17 +34,20 @@ def mean_metrics_across_sites(canvas_sites, key):
     mean_values = {}
     for metric in ['assignmentsSubmitted', 'currentScore', 'lastActivity']:
         percentiles = []
+        rounded_up_percentiles = []
         for site in canvas_sites:
             metric_for_key = site['analytics'].get(metric, {}).get(key)
             if not metric_for_key:
                 continue
-            percentile = metric_for_key.get('percentile')
+            percentile = metric_for_key.get('matrixyPercentile')
             if percentile is not None and not math.isnan(percentile):
                 percentiles.append(percentile)
+                rounded_up_percentiles.append(metric_for_key.get('roundedUpPercentile'))
         if len(percentiles):
             mean_percentile = mean(percentiles)
+            rounded_up_percentile = mean(rounded_up_percentiles)
             mean_values[metric] = {
-                'displayPercentile': ordinal(mean_percentile),
+                'displayPercentile': ordinal(rounded_up_percentile),
                 'percentile': mean_percentile,
             }
         else:
