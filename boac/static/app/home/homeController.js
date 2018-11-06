@@ -37,6 +37,9 @@
     $scope.profile = $rootScope.profile;
 
     var decorateCohort = function(cohort, students) {
+      _.each(students, function(student) {
+        student.alertCount = student.alertCount || 0;
+      });
       _.assignIn(cohort, {
         alertCount: _.sum(_.map(students, 'alertCount')),
         sortOptions: {
