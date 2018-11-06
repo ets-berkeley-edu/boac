@@ -112,6 +112,9 @@
         function(response) {
           $scope.search.courses = response.data.courses;
           $scope.search.students = utilService.extendSortableNames(response.data.students);
+          _.each($scope.search.students, function(student) {
+            student.alertCount = student.alertCount || 0;
+          });
           $scope.search.totalCourseCount = response.data.totalCourseCount;
           $scope.search.totalStudentCount = response.data.totalStudentCount;
         },
