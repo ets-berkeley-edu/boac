@@ -48,10 +48,7 @@
     var initStudent = function(student) {
       // Init all student checkboxes to false
       student.selectedForCuratedCohort = false;
-      student.curatedCohortToggle = function(event) {
-        event.stopPropagation();
-        student.selectedForCuratedCohort = !student.selectedForCuratedCohort;
-
+      student.onCuratedCohortToggle = function() {
         if (student.selectedForCuratedCohort) {
           $scope.selector.showCuratedCohortMenu = true;
           var selectAllCheckbox = true;
@@ -78,11 +75,10 @@
      * @return {void}
      */
     var toggleAllStudentCheckboxes = $scope.toggleAllStudentCheckboxes = function(value) {
-      var selected = _.isNil(value) ? !$scope.selector.selectAllCheckbox : value;
+      var selected = _.isNil(value) ? $scope.selector.selectAllCheckbox : value;
       _.each($scope.students, function(student) {
         student.selectedForCuratedCohort = selected;
       });
-      $scope.selector.selectAllCheckbox = selected;
       updateCuratedCohortMenu();
       $scope.selector.showCuratedCohortMenu = selected;
     };
