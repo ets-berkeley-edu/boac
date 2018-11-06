@@ -152,11 +152,15 @@
       $scope.tab = tabName;
       $location.search('tab', $scope.tab);
       if (tabName === 'matrix') {
-        return courseFactory.getSection($stateParams.termId, $stateParams.sectionId).then(function(response) {
+        var sectionId = $stateParams.sectionId;
+        return courseFactory.getSection($stateParams.termId, sectionId).then(function(response) {
           updateCourseData(response);
           refreshScatterplot();
           page.loading(false);
-          googleAnalyticsService.track('Course', 'matrix', $scope.section.termName + ' ' + $scope.section.displayName, $scope.section.sectionNum);
+          if ($scope.section) {
+            var label = _.get($scope.section, 'termName') + ' ' + _.get($scope.section, 'displayName');
+            googleAnalyticsService.track('Course', 'matrix', label, sectionId);
+          }
         });
       } else if (tabName === 'list') {
         if ($scope.pagination.currentPage > 1 && $scope.section && $scope.section.students.length > $scope.pagination.itemsPerPage) {
@@ -198,7 +202,10 @@
           $scope.error = validationService.parseError(err);
           page.loading(false);
         }).then(function() {
-          googleAnalyticsService.track('Course', 'view', $scope.section.termName + ' ' + $scope.section.displayName, $scope.section.sectionNum);
+          if ($scope.section) {
+            var label = _.get($scope.section, 'termName') + ' ' + _.get($scope.section, 'displayName');
+            googleAnalyticsService.track('Course', 'view', label, $stateParams.sectionId);
+          }
         });
     };
 
