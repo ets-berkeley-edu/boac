@@ -1,7 +1,8 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import store from '@/store';
-import { getMyProfile } from '@/api/user';
+import { getAppConfig } from '@/api/config';
+import { getUserProfile } from '@/api/user';
 import Login from '@/views/Login.vue';
 import Home from '@/views/Home.vue';
 import Admin from '@/views/Admin.vue';
@@ -19,11 +20,15 @@ let beforeEach = (to: any, from: any, next: any) => {
   if (store.getters.user) {
     safeNext(to, next);
   } else {
-    getMyProfile().then(me => {
-      if (me) {
-        store.commit('registerMe', me);
+    getUserProfile().then(user => {
+      if (user) {
+        store.commit('registerUser', user);
+        getAppConfig()
+          .then(config => store.commit('storeConfig', config))
+          .then(() => safeNext(to, next));
+      } else {
+        safeNext(to, next);
       }
-      safeNext(to, next);
     });
   }
 };

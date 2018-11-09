@@ -5,11 +5,15 @@ Vue.use(Vuex);
 
 const state = {
   apiBaseUrl: process.env.VUE_APP_API_BASE_URL,
+  config: null,
   errors: [],
   user: null
 };
 
 const getters = {
+  config: (state: any) => {
+    return state.config;
+  },
   errors: (state: any) => {
     return state.errors;
   },
@@ -22,12 +26,15 @@ const mutations = {
   logout: (state: any) => {
     state.user = null;
   },
-  registerMe: (state: any, user: any) => {
+  registerUser: (state: any, user: any) => {
     state.user = user;
   },
   reportError: (state: any, error: any) => {
     error.id = new Date().getTime();
     state.errors.push(error);
+  },
+  storeConfig: (state: any, config: any) => {
+    state.config = config;
   },
   dismissError: (state: any, id: number) => {
     const indexOf = state.errors.findIndex((e: any) => e.id === id);

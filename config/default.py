@@ -42,6 +42,10 @@ INDEX_HTML = 'dist/templates/index.html'
 INDEX_HTML_VUE = 'dist/static/index.html'
 # The following applies to localhost ONLY, where Vue.js front-end is served on a different port.
 VUE_LOCALHOST_BASE_URL = None
+VUE_ENABLED = False
+VUE_PATHS = [
+    '/admin',
+]
 
 # Directory to search for mock fixtures, if running in "test" or "demo" mode.
 FIXTURES_PATH = None
@@ -132,9 +136,3 @@ CACHE_DEFAULT = False
 MEANINGFUL_STATS_MINIMUM = 4
 
 BOAC_SUPPORT_EMAIL = 'boac-support@lists.berkeley.edu'
-
-VUE_ENABLED = False
-VUE_PATHS = [
-    '/admin',
-]
-VUE_BASE_URL = 'http://localhost:8080'
