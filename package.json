@@ -4,23 +4,98 @@
     "type": "git",
     "url": "git://github.com/ets-berkeley-edu/boac.git"
   },
+  "scripts": {
+    "build-vue": "vue-cli-service build --modern --dest 'dist/static/vue'",
+    "lint-vue": "vue-cli-service lint --config vue.eslintrc.js --no-fix src",
+    "lint-vue-fix": "vue-cli-service lint src",
+    "serve-vue": "vue-cli-service serve --open",
+    "test-vue": "vue-cli-service test:unit"
+  },
   "dependencies": {
+    "@babel/core": "^7.1.5",
+    "@babel/runtime": "^7.1.5",
+    "axios": "^0.18.0",
+    "bootstrap-vue": "^2.0.0-rc.11",
+    "vue": "^2.5.17",
+    "vue-class-component": "^6.0.0",
+    "vue-property-decorator": "^7.0.0",
+    "vue-router": "^3.0.1",
+    "vuex": "^3.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0-beta",
+    "@types/jest": "^23.3.9",
+    "@vue/cli-plugin-babel": "^3.1.1",
+    "@vue/cli-plugin-eslint": "^3.1.4",
+    "@vue/cli-plugin-typescript": "^3.1.1",
+    "@vue/cli-plugin-unit-jest": "^3.1.1",
+    "@vue/cli-service": "^3.1.3",
+    "@vue/eslint-config-prettier": "^4.0.0",
+    "@vue/eslint-config-typescript": "^3.1.1",
+    "@vue/test-utils": "^1.0.0-beta.25",
+    "babel-core": "^7.0.0-beta",
+    "babel-runtime": "^7.0.0-beta",
     "bower": "1.8.4",
-    "eslint": "5.2.0",
+    "eslint": "^5.8.0",
     "eslint-plugin-angular": "3.3.0",
     "eslint-plugin-import": "2.13.0",
     "eslint-plugin-no-loops": "0.3.0",
-    "eslint-plugin-xss": "0.1.9",
     "eslint-plugin-unicorn": "5.0.0",
+    "eslint-plugin-xss": "0.1.9",
     "gulp": "4.0.0",
     "gulp-csso": "3.0.1",
+    "gulp-debug": "^4.0.0",
     "gulp-filter": "5.1.0",
+    "gulp-rename": "^1.4.0",
     "gulp-rev": "8.1.1",
     "gulp-rev-replace": "0.4.4",
+    "jest": "^23.6.0",
+    "node-sass": "^4.9.0",
+    "sass-loader": "^7.0.1",
     "stylelint": "9.4.0",
     "stylelint-config-standard": "18.2.0",
     "stylelint-order": "0.8.1",
-    "stylelint-scss": "3.2.0"
+    "stylelint-scss": "3.2.0",
+    "ts-jest": "^23.10.4",
+    "typescript": "^3.0.0",
+    "vue-jest": "^3.0.0",
+    "vue-template-compiler": "^2.5.17"
+  },
+  "babel": {
+    "presets": [
+      "@vue/app"
+    ]
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ],
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "vue"
+    ],
+    "transform": {
+      "^.+\\.js$": "<rootDir>/node_modules/babel-jest",
+      ".*\\.(vue)$": "<rootDir>/node_modules/vue-jest"
+    },
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/$1"
+    },
+    "snapshotSerializers": [
+      "<rootDir>/node_modules/jest-serializer-vue"
+    ],
+    "testMatch": [
+      "**/tests-vue/**/*.spec.(js|ts)"
+    ],
+    "testURL": "http://localhost:8080/"
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
   },
   "license": "SEE LICENSE IN LICENSE"
 }

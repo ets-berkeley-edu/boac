@@ -23,48 +23,25 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-var csso = require('gulp-csso');
-var del = require('del');
-var gulp = require('gulp');
-var filter = require('gulp-filter');
-var rev = require('gulp-rev');
-var revReplace = require('gulp-rev-replace');
-var rename = require('gulp-rename');
+(function(angular) {
 
-gulp.task('clean', function(done) {
-  return del([ 'dist' ], done);
-});
+  'use strict';
 
-gulp.task('rev', function(done) {
-  // No rev() for third-party js/css files
-  gulp.src('boac/static/lib/**/*').pipe(gulp.dest('dist/static/lib'));
-  var css = filter('boac/static/app/**/*.css', {restore: true});
-  // The index.html filename, unlike js/css files, is preserved
-  var index = filter(['**/*', '!**/favicon.ico', '!**/index.html'], {
-    restore: true
+  var VueMigratedLinkController = function($scope, config) {
+    this.$onInit = function() {
+      $scope.vueEnabled = config.vueEnabled;
+      $scope.vueBaseUrl = config.vueBaseUrl;
+      $scope.uri = this.uri;
+    };
+  };
+
+  angular.module('boac').component('vueMigratedLink', {
+    bindings: {
+      uri: '='
+    },
+    restrict: 'E',
+    transclude: true,
+    controller: VueMigratedLinkController,
+    templateUrl: '/static/app/nav/vueMigrationLink.html'
   });
-  // We cannot minify our js due to http://budiirawan.com/uglify-angular-error-unpr-unknown-provider-aprovider/
-  gulp
-    .src(['boac/static/**', 'boac/templates/index.html'])
-    .pipe(css)
-    .pipe(csso())
-    .pipe(css.restore)
-    .pipe(index)
-    .pipe(rev())
-    .pipe(index.restore)
-    .pipe(revReplace())
-    .pipe(gulp.dest('dist/static'))
-    .on('end', function() {
-      var indexHtml = 'dist/static/index.html';
-      gulp
-        .src(indexHtml)
-        .pipe(rename('angularIndex.html'))
-        .pipe(gulp.dest('dist/templates'))
-        .on('end', function() {
-          return del(indexHtml);
-        });
-    });
-  return done();
-});
-
-gulp.task('dist', gulp.series('clean', 'rev'));
+}(window.angular));

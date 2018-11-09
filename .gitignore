@@ -23,6 +23,7 @@ venv
 # Compiled/optimized files
 .python-version
 __pycache__/
+dist
 
 # Temporary files
 tmp/

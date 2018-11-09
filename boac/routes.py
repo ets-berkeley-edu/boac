@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.models.authorized_user import AuthorizedUser
-from flask import jsonify, make_response, request
+from flask import jsonify, make_response, redirect, request
 from flask_login import LoginManager
 
 
@@ -66,7 +66,7 @@ def register_routes(app):
     @app.route('/', defaults={'path': ''})
     @app.route('/<path:path>')
     def front_end_route(**kwargs):
-        return make_response(open(app.config['INDEX_HTML']).read())
+        return _vue_response() if _serve_vue(app) else make_response(open(app.config['INDEX_HTML']).read())
 
     @app.after_request
     def log_api_requests(response):
@@ -84,3 +84,17 @@ def register_routes(app):
             else:
                 app.logger.debug(log_message)
         return response
+
+    def _vue_response():
+        vue_base_url = app.config['VUE_LOCALHOST_BASE_URL']
+        if vue_base_url:
+            return redirect(vue_base_url + request.full_path)
+        else:
+            return make_response(open(app.config['INDEX_HTML_VUE']).read())
+
+    def _serve_vue(app_):
+        if app_.config['VUE_ENABLED']:
+            path = request.path
+            return next((p for p in app_.config['VUE_PATHS'] if path.startswith(p)), False)
+        else:
+            return False

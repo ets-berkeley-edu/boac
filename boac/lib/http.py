@@ -122,4 +122,10 @@ def sanitize_headers(headers):
 
 
 def tolerant_jsonify(obj, status=200, **kwargs):
-    return Response(json.dumps(obj, ignore_nan=True, separators=(',', ':'), **kwargs), mimetype='application/json', status=status)
+    # In development the response can be shared with requesting code from any local origin.
+    headers = {
+        'Access-Control-Allow-Origin': 'http://localhost:8080',
+        'Access-Control-Allow-Credentials': 'true',
+    } if app.config['BOAC_ENV'] == 'development' else {}
+    content = json.dumps(obj, ignore_nan=True, separators=(',', ':'), **kwargs)
+    return Response(content, mimetype='application/json', headers=headers, status=status)
