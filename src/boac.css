@@ -28,8 +28,8 @@
   flex-direction: row;
 }
 
-.content {
-  flex: 1;
+.has-error {
+  color: red;
 }
 
 .no-wrap {

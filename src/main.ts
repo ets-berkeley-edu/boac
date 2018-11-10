@@ -1,9 +1,11 @@
-import Vue from 'vue';
+import 'bootstrap-vue/dist/bootstrap-vue.css';
+import 'bootstrap/dist/css/bootstrap.css';
 import App from './App.vue';
 import axios from 'axios';
 import BootstrapVue from 'bootstrap-vue';
 import router from './router';
 import store from './store';
+import Vue from 'vue';
 
 // Allow cookies in Access-Control requests
 axios.defaults.withCredentials = true;

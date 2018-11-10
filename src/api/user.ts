@@ -7,7 +7,7 @@ export function getCasLoginURL() {
     .then(response => response.data, () => null);
 }
 
-export function getMyProfile() {
+export function getUserProfile() {
   return axios
     .get(`${store.state.apiBaseUrl}/api/profile/my`)
     .then(response => response.data, () => null);

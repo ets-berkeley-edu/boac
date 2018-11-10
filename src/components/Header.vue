@@ -1,14 +1,25 @@
 <template>
-  <div class="header">
-    <div class="logo">
-      <legacy-link uri="/home">
-        <i style="color: #0275d8" class="fas fa-plane-departure"></i>
-      </legacy-link>
+  <div class="header-container">
+    <div class="header-text">
+      <legacy-link id="header-href-home" uri="/home">Home</legacy-link>
     </div>
-    <div class="flex-row greeting" v-if="user">
-      <div>Hello {{ user.uid }}</div>
-      <div>
-        [<b-link v-on:click="logOut()">Logout</b-link>]
+    <div>
+      <div class="header-dropdown-text">
+        <div>
+          <b-dropdown id="header-dropdown-under-name"
+                      right
+                      variant="link">
+            <template slot="button-content">
+              {{ user.firstName }}
+            </template>
+            <b-dd-item v-if="user.isAdmin">
+              <legacy-link data-uri="'/admin'">Admin</legacy-link>
+            </b-dd-item>
+            <b-dd-item>
+              <a :href="`mailto:${config.supportEmailAddress}`" target="_blank">Feedback/Help</a>
+            </b-dd-item>
+          </b-dropdown>
+        </div>
       </div>
     </div>
   </div>
@@ -24,15 +35,13 @@ export default {
   components: {
     LegacyLink
   },
-  data() {
-    return {
-      homeUrl: null,
-      user: null
-    };
-  },
-  created() {
-    this.homeUrl = store.state.apiBaseUrl + '/home';
-    this.user = store.getters.user;
+  computed: {
+    config() {
+      return store.getters.config;
+    },
+    user() {
+      return store.getters.user;
+    }
   },
   methods: {
     logOut() {
@@ -45,20 +54,20 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.breadcrumb span {
-  padding: 5px;
-}
-.header {
+.header-container {
+  align-items: center;
   display: flex;
+  height: 56px;
   justify-content: space-between;
 }
-.logo {
-  padding-top: 10px;
+.header-container div:last-child {
+  flex-grow: 0;
 }
-.greeting {
-  padding-top: 15px;
+.header-container div:last-child > span {
+  float: right;
 }
-.greeting div {
-  padding-left: 10px;
+.header-container div:last-child > button {
+  float: right;
+  margin-right: 20px;
 }
 </style>

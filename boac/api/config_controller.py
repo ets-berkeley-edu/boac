@@ -47,7 +47,8 @@ def app_config():
         'supportEmailAddress': app.config['BOAC_SUPPORT_EMAIL'],
         'googleAnalyticsId': app.config['GOOGLE_ANALYTICS_ID'],
         'vueEnabled': app.config['VUE_ENABLED'],
-        'vueBaseUrl': app.config['VUE_BASE_URL'],
+        'vueBaseUrl': app.config['VUE_LOCALHOST_BASE_URL'],
+        'vuePaths': app.config['VUE_PATHS'],
     })
 
 

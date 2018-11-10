@@ -1,12 +1,12 @@
 <template>
-  <div class="main">
-    <slot/>
+  <div>
+    I am a sidebar.
   </div>
 </template>
 
 <script>
 export default {
-  name: 'Container'
+  name: 'Sidebar'
 };
 </script>
 
