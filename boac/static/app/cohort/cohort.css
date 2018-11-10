@@ -346,6 +346,11 @@
   white-space: nowrap;
 }
 
+.cohort-list-row-info {
+  background-color: #bee5eb;
+  color: #0c5460;
+}
+
 .cohort-list-view-column-00 {
   align-self: center;
   flex: 0 0 30px;
@@ -402,9 +407,21 @@
 }
 
 .cohort-missing-student-data-header {
-  display: flex;
   font-weight: bold;
-  padding: 15px 15px 5px;
+  border-bottom: 1px solid #ddd;
+}
+
+.cohort-missing-student-data-header th {
+  padding: 15px 0 5px;
+}
+
+.cohort-missing-student-data-row {
+  border-bottom: 1px solid #ddd;
+}
+
+.cohort-missing-student-data-row td {
+  padding: 5px 0;
+  margin-bottom: 5px;
 }
 
 .cohort-sort-column {
