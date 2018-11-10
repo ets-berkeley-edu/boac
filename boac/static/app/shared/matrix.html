@@ -38,46 +38,57 @@
     <h4>Missing Student Data</h4>
     <div>For the following students, some results may only provide partial data or information is currently unavailable:</div>
     <table class="missing-student-data-table">
-      <tr class="cohort-missing-student-data-header">
-        <td class="student-avatar-container"></td>
-        <td class="cohort-student-bio-container"></td>
-        <td class="student-column" data-ng-bind="axisLabels[selectedAxes.x]"></td>
-        <td class="student-column" data-ng-bind="axisLabels[selectedAxes.y]"></td>
-      </tr>
-      <tr id="{{student.uid}}"
-         class="list-group-item student-list-item"
-         data-ng-class="{'list-group-item-info': anchor===student.uid}"
-         data-ng-repeat="student in studentsWithoutData | orderBy:['lastName','firstName']">
-        <td class="student-avatar-container">
-          <img class="student-avatar"
-               data-ng-class="{'img-blur': demoMode.blur}"
-               data-ng-src="/api/student/{{student.uid}}/photo"
-               data-avatar-fallback>
-        </td>
-        <td class="cohort-student-bio-container">
-          <div class="flex-container">
-            <a data-ng-href="/student/{{student.uid}}">
-              <h3 class="flex-container student-name"
-                  data-ng-class="{'demo-mode-blur': demoMode.blur}">
-                {{student.lastName}}<span data-ng-if="student.firstName">, {{student.firstName}}</span>
-              </h3>
-            </a>
-          </div>
-          <div class="student-sid"
-               data-ng-class="{'demo-mode-blur': demoMode.blur}"
-               data-ng-if="student.sid">
-            SID: <span data-ng-bind="student.sid"></span>
-          </div>
-        </td>
-        <td class="student-column">
-          <span data-ng-bind="getDisplayProperty(student, selectedAxes.x)"
-                data-ng-if="hasPlottableProperty(student, selectedAxes.x)"></span>
-        </td>
-        <td class="student-column">
-          <span data-ng-bind="getDisplayProperty(student, selectedAxes.y)"
-                data-ng-if="hasPlottableProperty(student, selectedAxes.y)"></span>
-        </td>
-      </tr>
+      <thead>
+        <tr class="cohort-missing-student-data-header">
+          <th class="student-avatar-container" scope="col"></th>
+          <th class="cohort-student-bio-container" scope="col"><span class="sr-only">Student Name</span></th>
+          <th class="student-column" data-ng-bind="axisLabels[selectedAxes.x]" scope="col"></th>
+          <th class="student-column" data-ng-bind="axisLabels[selectedAxes.y]" scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="{{student.uid}}"
+            class="cohort-missing-student-data-row"
+            data-ng-class="{'cohort-list-row-info': anchor===student.uid}"
+            data-ng-repeat="student in studentsWithoutData | orderBy:['lastName','firstName']">
+          <td class="student-avatar-container">
+            <img class="student-avatar"
+                 data-ng-class="{'img-blur': demoMode.blur}"
+                 data-ng-src="/api/student/{{student.uid}}/photo"
+                 data-avatar-fallback
+                 alt="Student photo">
+          </td>
+          <td class="cohort-student-bio-container">
+            <div class="flex-container">
+              <a data-ng-href="/student/{{student.uid}}">
+                <div class="flex-container student-name"
+                    data-ng-class="{'demo-mode-blur': demoMode.blur}"
+                    data-ng-bind="student.lastName + (student.firstName ? ', ' + student.firstName : '')" >
+                </div>
+              </a>
+            </div>
+            <div class="student-sid"
+                 data-ng-class="{'demo-mode-blur': demoMode.blur}"
+                 data-ng-if="student.sid">
+              SID: <span data-ng-bind="student.sid"></span>
+            </div>
+          </td>
+          <td class="student-column">
+            <span data-ng-bind="getDisplayProperty(student, selectedAxes.x)"
+                  data-ng-if="hasPlottableProperty(student, selectedAxes.x)"></span>
+            <span class="sr-only" data-ng-if="!hasPlottableProperty(student, selectedAxes.x)">
+              No data
+            </span>
+          </td>
+          <td class="student-column">
+            <span data-ng-bind="getDisplayProperty(student, selectedAxes.y)"
+                  data-ng-if="hasPlottableProperty(student, selectedAxes.y)"></span>
+            <span class="sr-only" data-ng-if="!hasPlottableProperty(student, selectedAxes.y)">
+              No data
+            </span>
+          </td>
+        </tr>
+      </tbody>
     </table>
   </div>
 </div>
