@@ -83,7 +83,7 @@
               <div class="student-bio-status-box-groups curated-cohorts-checkboxes">
                 <div>
                   <h4 class="student-bio-header">
-                    Curated Cohorts
+                    Curated Groups
                   </h4>
                 </div>
                 <div class="curated-cohort-checkbox"
@@ -91,7 +91,7 @@
                      data-ng-if="profile.myCuratedCohorts.length">
                   <input id="curated-cohort-checkbox-{{$index}}"
                          class="curated-cohort-checkbox-input"
-                         aria-label="{{cohort.selected ? 'Remove from' : 'Add to'}} curated cohort {{cohort.name}}"
+                         aria-label="{{cohort.selected ? 'Remove from' : 'Add to'}} curated group {{cohort.name}}"
                          type="checkbox"
                          data-ng-model="cohort.selected"
                          data-ng-click="curatedCohortCheckboxClick(cohort)"/>
@@ -100,7 +100,12 @@
                   </div>
                 </div>
                 <div class="curated-cohort-checkbox" data-ng-if="!profile.myCuratedCohorts.length">
-                  <span class="faint-text">You have no curated cohorts.</span>
+                  <span class="faint-text">You have no curated groups.</span>
+                </div>
+                <div class="curated-cohort-create-new" data-ng-controller="CreateCuratedCohortController">
+                  <a id="curated-cohort-create-link" href data-ng-click="openCreateCuratedCohortModal()">
+                    <i class="fas fa-plus"></i> Create New Curated Group
+                  </a>
                 </div>
               </div>
             </div>

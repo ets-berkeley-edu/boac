@@ -6,7 +6,7 @@
     </div>
   </div>
   <div data-ng-if="!isLoading">
-    <h1 class="page-section-header" data-ng-if="!error">Manage Curated Cohorts</h1>
+    <h1 class="page-section-header" data-ng-if="!error">Manage Curated Groups</h1>
     <div data-ng-if="error">
       <h1 class="page-section-header">Error</h1>
       <div class="faint-text">
@@ -15,10 +15,10 @@
       </div>
     </div>
     <div data-ng-if="!profile.myCuratedCohorts.length" data-ng-controller="CreateCuratedCohortController">
-      You have no curated cohorts.
+      You have no curated groups.
       <a id="curated-cohort-create"
          href
-         data-ng-click="openCreateCuratedCohortModal()"><i class="fas fa-plus"></i> Create a new curated cohort</a>
+         data-ng-click="openCreateCuratedCohortModal()"><i class="fas fa-plus"></i> Create a new curated group</a>
     </div>
     <div data-ng-repeat="cohort in profile.myCuratedCohorts">
       <hr class="cohort-manage-row-separator"/>

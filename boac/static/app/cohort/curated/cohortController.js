@@ -96,7 +96,7 @@
       page.loading(true);
       curatedCohortFactory.getCuratedCohort($scope.cohortId).then(function(response) {
         var cohort = response.data;
-        $scope.cohortName = $rootScope.pageTitle = cohort.name || 'Curated Cohort';
+        $scope.cohortName = $rootScope.pageTitle = cohort.name || 'Curated Group';
         $scope.students = cohort.students;
         page.loading(false);
       }).catch(function(err) {

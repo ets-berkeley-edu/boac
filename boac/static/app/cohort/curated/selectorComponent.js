@@ -37,7 +37,7 @@
     };
 
     /**
-     * Show or hide the curated cohorts menu based on page state.
+     * Show or hide the curated groups menu based on page state.
      *
      * @return {void}
      */
@@ -69,7 +69,7 @@
     };
 
     /**
-     * Toggle the curated cohort checkbox.
+     * Toggle the curated group checkbox.
      *
      * @param  {Boolean}    value      If true, select all students in current page view.
      * @return {void}
@@ -88,7 +88,7 @@
     };
 
     /**
-     * Add selected students to the curated cohort provided and then reset all curated-cohort related menus.
+     * Add selected students to the curated group provided and then reset all curated group-related menus.
      *
      * @param  {Object}    cohort      Students will be added to this cohort.
      * @return {void}
