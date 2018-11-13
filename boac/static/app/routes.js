@@ -200,13 +200,13 @@
         var name = $transition.$to().name;
         switch (name) {
           case 'filteredCohort':
-            $rootScope.pageTitle = 'Filtered Cohort';
+            $rootScope.pageTitle = 'Cohort';
             break;
           case 'curatedCohort':
-            $rootScope.pageTitle = 'Curated Cohort';
+            $rootScope.pageTitle = 'Curated Group';
             break;
           case 'curatedCohortsManage':
-            $rootScope.pageTitle = 'Manage Curated Cohorts';
+            $rootScope.pageTitle = 'Manage Curated Groups';
             break;
           default:
             name = name.replace(/([A-Z])/g, ' $1');

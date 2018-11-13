@@ -5,108 +5,17 @@
   </div>
   <div class="home-content" data-ng-if="profile.myCuratedCohorts !== null">
     <div>
-      <div id="curated-cohorts-header-row" class="home-page-section-header-wrapper">
-        <h1 class="page-section-header">Curated Cohorts</h1>
-        <div class="home-cohort-actions" data-ng-controller="CreateCuratedCohortController">
-          <a id="home-curated-cohorts-create-link"
-             href
-             aria-label="Create a curated cohorts"
-             data-ng-click="openCreateCuratedCohortModal()">Create</a> |
-          <a id="home-curated-cohorts-manage-link"
-             aria-label="Manage your curated cohorts"
-             href="/cohort/curated/manage">Manage</a>
-        </div>
-      </div>
-      <div data-ng-if="!profile.myCuratedCohorts.length">
-        You have no curated cohorts.
-        <span data-ng-controller="CreateCuratedCohortController">
-          <a id="home-curated-cohort-create"
-             href
-             data-ng-click="openCreateCuratedCohortModal()"> Create a new curated cohort.</a>
-        </span>
-      </div>
-      <uib-accordion close-others="false" data-ng-if="profile.myCuratedCohorts.length">
-        <div uib-accordion-group
-             is-disabled="true"
-             is-open="cohort.isOpen"
-             aria-expanded="{{cohort.isOpen}}"
-             class="home-cohort-accordion"
-             data-ng-class="{'panel-open': cohort.isOpen}"
-             data-ng-repeat="cohort in profile.myCuratedCohorts track by $index">
-          <uib-accordion-heading>
-            <a id="home-curated-cohort-{{$index}}"
-               class="home-cohort-accordion-heading-link"
-               data-ng-click="clickCuratedCohort(cohort)"
-               data-ng-keypress="clickCuratedCohort(cohort)"
-               data-ng-disabled="cohort.isLoading"
-               tabindex="0"
-               role="button"
-               href="#">
-              <div class="home-cohort-accordion-heading">
-                <div class="home-cohort-accordion-heading-name">
-                  <div class="accordion-heading-caret">
-                    <i id="home-curated-cohort-{{$index}}-caret"
-                       aria-label="{{cohort.isOpen ? 'Hide cohort details' : 'Show cohort details'}}"
-                       data-ng-class="{
-                         'fas fa-spinner fa-spin': cohort.isLoading,
-                         'fas fa-caret-right': !cohort.isOpen,
-                         'fas fa-caret-down': cohort.isOpen
-                        }"></i>
-                  </div>
-                  <h2 class="page-section-header-sub accordion-header">
-                    <span data-ng-bind="cohort.name"></span>
-                    (<span data-ng-bind="cohort.studentCount"></span>)
-                  </h2>
-                </div>
-                <div class="home-cohort-accordion-heading-count">
-                  <div class="group-summary-column-header home-cohort-accordion-heading-count-label">
-                    Total Issues:
-                  </div>
-                  <div class="home-issues-pill home-issues-pill-zero"
-                    aria-label="No issues for {{cohort.name}}"
-                    tabindex="0"
-                    data-ng-if="!cohort.alertCount">0</div>
-                  <div class="home-issues-pill home-issues-pill-nonzero"
-                    aria-label="{{cohort.alertCount}} alerts for {{cohort.name}}"
-                    tabindex="0"
-                    data-ng-bind="cohort.alertCount"
-                    data-ng-if="cohort.alertCount"></div>
-                </div>
-              </div>
-            </a>
-          </uib-accordion-heading>
-          <div data-ng-if="cohort.students.length">
-            <sortable-alerts-table data-students="cohort.students"
-                                   data-options="cohort.sortOptions"></sortable-alerts-table>
-          </div>
-          <div>
-            <a id="home-curated-cohort-{{$index}}-view-all" data-ng-href="/cohort/curated/{{cohort.id}}">
-              <span data-ng-if="cohort.studentCount">
-                View <span data-ng-pluralize
-                           count="cohort.studentCount"
-                           when="{'one': 'the one student', 'other': 'all {} students'}"></span>
-                in "<span data-ng-bind="cohort.name"></span>"
-              </span>
-              <span data-ng-if="!cohort.studentCount">
-                "<span data-ng-bind="cohort.name"></span>" has 0 students
-              </span>
-            </a>
-          </div>
-        </div>
-      </uib-accordion>
-    </div>
-    <div>
       <div id="filtered-cohorts-header-row" class="home-page-section-header-wrapper">
-        <h1 class="page-section-header">Filtered Cohorts</h1>
-        <div class="home-cohort-actions">
-          <a id="create-another-filtered-cohort"
-             aria-label="Create a filtered cohort"
-             href="/cohort/filtered">Create</a>
-        </div>
+        <h1 class="page-section-header" data-ng-if="profile.myFilteredCohorts && !profile.myFilteredCohorts.length">
+          You have no saved cohorts.
+        </h1>
+        <h1 class="page-section-header" data-ng-if="profile.myFilteredCohorts.length">
+          Cohorts
+        </h1>
       </div>
       <div data-ng-if="profile.myFilteredCohorts && !profile.myFilteredCohorts.length">
-        You have no filtered cohorts.
-        <a id="create-filtered-cohort" href="/cohort/filtered">Create a new filtered cohort.</a>
+        <a id="create-filtered-cohort" href="/cohort/filtered">Create a student group</a>
+        automatically by your filtering preferences, such as GPA or units.
       </div>
       <uib-accordion close-others="false" data-ng-if="profile.myFilteredCohorts.length">
         <div uib-accordion-group
@@ -169,6 +78,80 @@
                 in "<span data-ng-bind="cohort.name"></span>"
               </span>
               <span data-ng-if="!cohort.totalStudentCount">
+                "<span data-ng-bind="cohort.name"></span>" has 0 students
+              </span>
+            </a>
+          </div>
+        </div>
+      </uib-accordion>
+    </div>
+    <div data-ng-if="profile.myCuratedCohorts.length">
+      <div id="curated-cohorts-header-row" class="home-page-section-header-wrapper">
+        <h1 class="page-section-header">Curated Groups</h1>
+      </div>
+      <uib-accordion close-others="false" data-ng-if="profile.myCuratedCohorts.length">
+        <div uib-accordion-group
+             is-disabled="true"
+             is-open="cohort.isOpen"
+             aria-expanded="{{cohort.isOpen}}"
+             class="home-cohort-accordion"
+             data-ng-class="{'panel-open': cohort.isOpen}"
+             data-ng-repeat="cohort in profile.myCuratedCohorts track by $index">
+          <uib-accordion-heading>
+            <a id="home-curated-cohort-{{$index}}"
+               class="home-cohort-accordion-heading-link"
+               data-ng-click="clickCuratedCohort(cohort)"
+               data-ng-keypress="clickCuratedCohort(cohort)"
+               data-ng-disabled="cohort.isLoading"
+               tabindex="0"
+               role="button"
+               href="#">
+              <div class="home-cohort-accordion-heading">
+                <div class="home-cohort-accordion-heading-name">
+                  <div class="accordion-heading-caret">
+                    <i id="home-curated-cohort-{{$index}}-caret"
+                       aria-label="{{cohort.isOpen ? 'Hide group details' : 'Show group details'}}"
+                       data-ng-class="{
+                         'fas fa-spinner fa-spin': cohort.isLoading,
+                         'fas fa-caret-right': !cohort.isOpen,
+                         'fas fa-caret-down': cohort.isOpen
+                        }"></i>
+                  </div>
+                  <h2 class="page-section-header-sub accordion-header">
+                    <span data-ng-bind="cohort.name"></span>
+                    (<span data-ng-bind="cohort.studentCount"></span>)
+                  </h2>
+                </div>
+                <div class="home-cohort-accordion-heading-count">
+                  <div class="group-summary-column-header home-cohort-accordion-heading-count-label">
+                    Total Issues:
+                  </div>
+                  <div class="home-issues-pill home-issues-pill-zero"
+                    aria-label="No issues for {{cohort.name}}"
+                    tabindex="0"
+                    data-ng-if="!cohort.alertCount">0</div>
+                  <div class="home-issues-pill home-issues-pill-nonzero"
+                    aria-label="{{cohort.alertCount}} alerts for {{cohort.name}}"
+                    tabindex="0"
+                    data-ng-bind="cohort.alertCount"
+                    data-ng-if="cohort.alertCount"></div>
+                </div>
+              </div>
+            </a>
+          </uib-accordion-heading>
+          <div data-ng-if="cohort.students.length">
+            <sortable-alerts-table data-students="cohort.students"
+                                   data-options="cohort.sortOptions"></sortable-alerts-table>
+          </div>
+          <div>
+            <a id="home-curated-cohort-{{$index}}-view-all" data-ng-href="/cohort/curated/{{cohort.id}}">
+              <span data-ng-if="cohort.studentCount">
+                View <span data-ng-pluralize
+                           count="cohort.studentCount"
+                           when="{'one': 'the one student', 'other': 'all {} students'}"></span>
+                in "<span data-ng-bind="cohort.name"></span>"
+              </span>
+              <span data-ng-if="!cohort.studentCount">
                 "<span data-ng-bind="cohort.name"></span>" has 0 students
               </span>
             </a>
