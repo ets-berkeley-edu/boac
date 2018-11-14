@@ -39,6 +39,8 @@
     var decorateCohort = function(cohort, students) {
       _.each(students, function(student) {
         student.alertCount = student.alertCount || 0;
+        student.term = student.term || {};
+        student.term.enrolledUnits = student.term.enrolledUnits || 0;
       });
       _.assignIn(cohort, {
         alertCount: _.sum(_.map(students, 'alertCount')),

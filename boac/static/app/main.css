@@ -210,12 +210,6 @@
   width: 33%;
 }
 
-.search-results-table {
-  margin-top: 10px;
-  table-layout: fixed;
-  width: 100%;
-}
-
 .search-students-form-button {
   min-width: 200px;
   width: 60%;
@@ -297,6 +291,12 @@
   display: flex;
   margin: 20px 0 10px 0;
   white-space: nowrap;
+}
+
+.table-full-width {
+  margin: 10px 0;
+  table-layout: fixed;
+  width: 100%;
 }
 
 .visualize-metrics {

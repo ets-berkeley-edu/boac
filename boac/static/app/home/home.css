@@ -111,18 +111,21 @@
   padding: 0 5px 0 8px;
 }
 
-.group-summary-column-00 {
-  flex: 1;
+.group-summary-column-checkbox {
+  padding: 0;
+  text-align: left;
+  width: 40px;
 }
 
 .group-summary-column-gpa {
-  flex: 3;
   text-align: right;
+  width: 8%;
 }
 
 .group-summary-column-grad {
-  flex: 2;
   text-align: left;
+  white-space: nowrap;
+  width: 8%;
 }
 
 .group-summary-column-header {
@@ -134,50 +137,53 @@
 }
 
 .group-summary-column-issues {
-  flex: 3;
   text-align: center;
+  width: 10%;
 }
 
 .group-summary-column-major {
-  flex: 4;
+  width: 20%;
+}
+
+.group-summary-column-major div {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .group-summary-column-name {
-  flex: 6;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  width: 20%;
 }
 
 .group-summary-column-photo {
-  flex: 1;
+  width: 40px;
 }
 
 .group-summary-column-sid {
-  flex: 3;
   overflow: hidden;
   text-overflow: ellipsis;
+  width: 15%;
 }
 
 .group-summary-column-units-completed {
-  flex: 2;
   line-height: 1.4em;
   overflow-wrap: normal;
   text-align: right;
+  width: 10%;
 }
 
 .group-summary-column-units-term {
-  flex: 2;
   line-height: 1.4em;
   overflow-wrap: normal;
-  text-align: center;
+  text-align: right;
+  width: 5%;
 }
 
 .group-summary-header-issues {
-  width: 60px;
+  width: 10%;
 }
 
 .group-summary-header-sortable {

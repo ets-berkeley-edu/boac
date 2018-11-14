@@ -114,6 +114,8 @@
           $scope.search.students = utilService.extendSortableNames(response.data.students);
           _.each($scope.search.students, function(student) {
             student.alertCount = student.alertCount || 0;
+            student.term = student.term || {};
+            student.term.enrolledUnits = student.term.enrolledUnits || 0;
           });
           $scope.search.totalCourseCount = response.data.totalCourseCount;
           $scope.search.totalStudentCount = response.data.totalStudentCount;
