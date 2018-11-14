@@ -21,13 +21,14 @@ phases:
   build:
     commands:
       - sudo npm install -g @vue/cli
-      - sudo ./scripts/production-build-boac-vuejs.sh
+      - sudo npm run build-vue
       - sudo ./node_modules/.bin/bower install --allow-root
       - sudo ./node_modules/.bin/gulp dist --allow-root
 
   post_build:
     commands:
       - chmod 755 ./scripts/*.sh
+      - ./scripts/production-vuejs-post-build.sh
       - ./scripts/create-build-summary.sh
 
 artifacts:
