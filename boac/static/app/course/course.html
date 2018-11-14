@@ -50,7 +50,8 @@
                     data-ng-pluralize
                     count="meeting.instructors.length"
                     when="{'one': 'Instructor:', 'other': 'Instructors:'}"></span>
-              <span data-ng-repeat="instructor in meeting.instructors">{{instructor}}{{$last ? '' : ', '}}</span>
+              <span data-ng-class="{'demo-mode-blur': demoMode.blur}"
+                    data-ng-repeat="instructor in meeting.instructors">{{instructor}}{{$last ? '' : ', '}}</span>
             </div>
             <div id="meetings-{{$index}}" class="course-details-meetings">
               <div data-ng-bind="meeting.days"></div>
