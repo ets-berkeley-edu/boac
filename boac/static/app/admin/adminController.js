@@ -55,43 +55,11 @@
       });
     };
 
-    var getDeptName = function(deptCode) {
-      switch (deptCode) {
-        case 'COENG': return 'College of Engineering';
-        case 'UWASC': return 'Athletic Study Center';
-        default: return null;
-      }
-    };
-
-    var groupByDept = function(advisors) {
-      var byDept = _.groupBy(advisors, function(advisor) {
-        var deptCodes = _.keys(advisor.departments);
-        return deptCodes.length ? deptCodes[0] : null;
-      });
-      var groups = _.map(byDept, function(users, deptCode) {
-        return {
-          name: getDeptName(deptCode),
-          userCount: users.length,
-          users: users
-        };
-      });
-      return _.sortBy(groups, 'name');
-    };
-
     var init = function() {
       page.loading(true);
       if (config.devAuthEnabled) {
-        userFactory.getAllUserProfiles().then(function(response) {
-          var byIsAdmin = _.groupBy(response.data, 'is_admin');
-          var adminUsers = byIsAdmin.true;
-
-          $scope.groups = [
-            {
-              name: 'Admins',
-              userCount: adminUsers.length,
-              users: adminUsers
-            }
-          ].concat(groupByDept(byIsAdmin.false));
+        userFactory.getAuthorizedUserGroups().then(function(response) {
+          $scope.groups = response.data;
 
           page.loading(false);
         });

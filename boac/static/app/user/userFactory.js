@@ -29,17 +29,12 @@
 
   angular.module('boac').factory('userFactory', function($http) {
 
-    var getAllUserProfiles = function() {
-      return $http.get('/api/profiles/all');
-    };
-
-    var getUserProfile = function(uid) {
-      return $http.get('/api/profile/' + uid);
+    var getAuthorizedUserGroups = function() {
+      return $http.get('/api/profiles/authorized_user_groups');
     };
 
     return {
-      getAllUserProfiles: getAllUserProfiles,
-      getUserProfile: getUserProfile
+      getAuthorizedUserGroups: getAuthorizedUserGroups
     };
   });
 

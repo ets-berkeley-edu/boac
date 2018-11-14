@@ -12,11 +12,11 @@
             <Sidebar/>
           </v-navigation-drawer>
         </v-flex>
-        <v-layout column align-start justify-space-between>
-          <v-flex class="footer">
+        <v-layout column align-start justify-space-between ml-2 mt-2>
+          <v-content app>
             <DisplayError/>
             <router-view></router-view>
-          </v-flex>
+          </v-content>
           <v-footer class="footer-container">
             <v-layout row justify-space-between align-end>
               <v-flex class="text-sm-left">

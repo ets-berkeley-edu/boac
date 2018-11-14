@@ -23,9 +23,9 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 from boac.api import errors
 from boac.api.util import admin_required, authorized_users_api_feed
+from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
 from boac.models.alert import Alert
@@ -83,15 +83,26 @@ def user_profile(uid):
     return tolerant_jsonify(calnet.get_calnet_user_for_uid(app, uid))
 
 
-@app.route('/api/profiles/all')
+@app.route('/api/profiles/authorized_user_groups')
 @admin_required
-def all_user_profiles():
-    # This feature is not available in production
-    if app.config['DEVELOPER_AUTH_ENABLED']:
-        users = AuthorizedUser.query.all()
-        return tolerant_jsonify(authorized_users_api_feed(users))
-    else:
-        raise errors.ResourceNotFoundError('Unknown path')
+def authorized_user_groups():
+    depts = {}
+    for dept_name, dept_code in {**{'Admins': 'ADMIN'}, **BERKELEY_DEPT_NAME_TO_CODE}.items():
+        depts[dept_code] = {
+            'code': dept_code,
+            'name': dept_name,
+            'users': [],
+        }
+    for user in AuthorizedUser.query.all():
+        if user.is_admin:
+            depts['ADMIN']['users'].append(user)
+        for m in user.department_memberships:
+            depts[m.university_dept.dept_code]['users'].append(user)
+    user_groups = []
+    for dept_code, dept in depts.items():
+        dept['users'] = authorized_users_api_feed(dept['users'])
+        user_groups.append(dept)
+    return tolerant_jsonify(user_groups)
 
 
 def _curated_cohort_api_json(cohort):

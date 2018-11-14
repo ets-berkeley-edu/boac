@@ -23,8 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
-from boac.models import development_db
 from boac.models.cohort_filter import CohortFilter
 import pytest
 
@@ -139,33 +137,33 @@ class TestMyCohorts:
         assert 'studentCount' in cohorts[0]
 
 
-class TestAllUserProfiles:
-    """User Profiles API."""
+class TestAuthorizedUserGroups:
+    """User API."""
 
     admin_uid = '2040'
     coe_advisor_uid = '1133399'
 
     def test_not_authenticated(self, client):
         """Returns 'unauthorized' response status if user is not authenticated."""
-        response = client.get('/api/profiles/all')
+        response = client.get('/api/profiles/authorized_user_groups')
         assert response.status_code == 401
-
-    def test_disabled(self, app, client, fake_auth):
-        """Blocks access unless enabled."""
-        fake_auth.login(self.admin_uid)
-        app.config['DEVELOPER_AUTH_ENABLED'] = False
-        response = client.get('/api/profiles/all')
-        assert response.status_code == 404
 
     def test_unauthorized(self, client, fake_auth):
         """Returns 'unauthorized' response status if user is not admin."""
         fake_auth.login(self.coe_advisor_uid)
-        response = client.get('/api/profiles/all')
+        response = client.get('/api/profiles/authorized_user_groups')
         assert response.status_code == 401
 
     def test_authorized(self, client, fake_auth):
         """Returns a well-formed response."""
         fake_auth.login(self.admin_uid)
-        response = client.get('/api/profiles/all')
+        response = client.get('/api/profiles/authorized_user_groups')
         assert response.status_code == 200
-        assert len(response.json) == len(development_db._test_users)
+        user_groups = sorted(response.json, key=lambda g: g['code'])
+        assert len(user_groups) == 3
+        assert user_groups[0]['name'] == 'Admins'
+        assert len(user_groups[0]['users']) == 8
+        assert user_groups[1]['name'] == 'College of Engineering'
+        assert len(user_groups[1]['users']) == 3
+        assert user_groups[2]['name'] == 'Athletic Study Center'
+        assert len(user_groups[2]['users']) == 2

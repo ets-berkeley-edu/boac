@@ -20,6 +20,7 @@ axios.interceptors.response.use(response => response, function(error) {
 
 Vue.config.productionTip = false;
 Vue.use(Vuetify);
+Vue.use(require('vue-lodash'), { name: '_' });
 
 new Vue({
   router,

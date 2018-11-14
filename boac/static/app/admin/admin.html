@@ -55,7 +55,7 @@
                       data-ng-class="{'fas fa-caret-right': !group.isOpen, 'fas fa-caret-down': group.isOpen}"></i>
                 </div>
                 <h3 class="admin-group-name accordion-header">
-                  <span data-ng-bind="group.name || 'No Department Affiliation'"></span> (<span data-ng-bind="group.userCount"></span>)
+                  <span data-ng-bind="group.name || 'No Department Affiliation'"></span> (<span data-ng-bind="group.users.length"></span>)
                 </h3>
               </div>
             </div>

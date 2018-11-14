@@ -13,6 +13,18 @@ export function getUserProfile() {
     .then(response => response.data, () => null);
 }
 
+export function getAuthorizedUserGroups() {
+  return axios
+    .get(`${store.state.apiBaseUrl}/api/profiles/authorized_user_groups`)
+    .then(response => response.data, () => null);
+}
+
+export function becomeUser(uid: string) {
+  return axios
+    .post(`${store.state.apiBaseUrl}/api/admin/become_user`, { uid: uid })
+    .then(response => response.data, () => null);
+}
+
 export function getCasLogoutURL() {
   return axios
     .get(`${store.state.apiBaseUrl}/logout`)
