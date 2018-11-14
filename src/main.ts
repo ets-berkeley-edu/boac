@@ -1,11 +1,10 @@
-import 'bootstrap-vue/dist/bootstrap-vue.css';
-import 'bootstrap/dist/css/bootstrap.css';
+import 'vuetify/dist/vuetify.min.css';
 import App from './App.vue';
 import axios from 'axios';
-import BootstrapVue from 'bootstrap-vue';
 import router from './router';
 import store from './store';
 import Vue from 'vue';
+import Vuetify from 'vuetify';
 
 // Allow cookies in Access-Control requests
 axios.defaults.withCredentials = true;
@@ -20,7 +19,7 @@ axios.interceptors.response.use(response => response, function(error) {
 });
 
 Vue.config.productionTip = false;
-Vue.use(BootstrapVue);
+Vue.use(Vuetify);
 
 new Vue({
   router,

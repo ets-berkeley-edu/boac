@@ -4,7 +4,6 @@ import store from '@/store';
 import { getAppConfig } from '@/api/config';
 import { getUserProfile } from '@/api/user';
 import Login from '@/views/Login.vue';
-import Home from '@/views/Home.vue';
 import Admin from '@/views/Admin.vue';
 
 Vue.use(VueRouter);
@@ -14,7 +13,7 @@ let beforeEach = (to: any, from: any, next: any) => {
     if (to.matched.length) {
       next();
     } else {
-      next('/home');
+      next('/admin');
     }
   };
   if (store.getters.user) {
@@ -37,7 +36,7 @@ let requiresAuth = (to: any, from: any, next: any) => {
   if (store.getters.user) {
     next();
   } else {
-    next('/login');
+    window.location = store.state.apiBaseUrl;
   }
 };
 
@@ -50,17 +49,11 @@ const router = new VueRouter({
       component: Login,
       beforeEnter: (to: any, from: any, next: any) => {
         if (store.getters.user) {
-          next('/home');
+          next('/admin');
         } else {
           next();
         }
       }
-    },
-    {
-      path: '/home',
-      name: 'home',
-      component: Home,
-      beforeEnter: requiresAuth
     },
     {
       path: '/admin',

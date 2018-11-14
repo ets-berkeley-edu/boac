@@ -1,72 +1,61 @@
 <template>
-  <div class="index-container">
-    <a href="#content"
-       id="skip-to-content-link"
-       class="sr-only">Skip To Content</a>
-    <div class="header-container">
-      <Header/>
-    </div>
-    <div class="body-container">
-      <div class="sidebar-container">
-        <sidebar></sidebar>
-      </div>
-      <div class="content">
-        <div id="content">
-          <display-error/>
-          <router-view/>
-        </div>
-        <div class="footer-container">
-          <Footer/>
-        </div>
-      </div>
-    </div>
+  <div id="app">
+    <v-app>
+      <v-toolbar color="#3b7ea5">
+        <v-toolbar-title v-on:click="goHome()" class="white--text">Home</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <HeaderMenu/>
+      </v-toolbar>
+      <v-layout row>
+        <v-flex shrink>
+          <v-navigation-drawer dark permanent>
+            <Sidebar/>
+          </v-navigation-drawer>
+        </v-flex>
+        <v-layout column align-start justify-space-between>
+          <v-flex class="footer">
+            <DisplayError/>
+            <router-view></router-view>
+          </v-flex>
+          <v-footer class="footer-container">
+            <v-layout row justify-space-between align-end>
+              <v-flex class="text-sm-left">
+                <img src="@/assets/uc-berkeley-logo.svg"/>
+              </v-flex>
+              <v-flex class="text-xs-right">
+                &copy; 2018 The Regents of the University of California
+              </v-flex>
+            </v-layout>
+          </v-footer>
+        </v-layout>
+      </v-layout>
+    </v-app>
   </div>
 </template>
 
 <script>
 import DisplayError from './components/DisplayError.vue';
-import Footer from './components/Footer.vue';
-import Header from './components/Header.vue';
+import HeaderMenu from './components/HeaderMenu.vue';
 import Sidebar from './components/Sidebar.vue';
+import store from '@/store';
 
 export default {
   name: 'App',
   components: {
     DisplayError,
-    Footer,
-    Header,
+    HeaderMenu,
     Sidebar
+  },
+  methods: {
+    goHome() {
+      window.location.href = store.state.apiBaseUrl;
+    }
   }
 };
 </script>
 
-<style scoped lang="scss">
-.content {
-  flex: 1;
-  font-size: 16px;
-  line-height: 1.4em;
-  min-height: 100%;
-}
-.index-container {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-.body-container {
-  display: flex;
-  flex-direction: row;
-  min-height: 100%;
-}
+<style scoped>
 .footer-container {
-  margin: 20px 0 70px 0;
   width: 100%;
-}
-.header-container {
-  background-color: #3b7ea5;
-}
-.sidebar-container {
-  background-color: #125074;
-  flex: 0 0 230px;
-  min-height: 100%;
 }
 </style>

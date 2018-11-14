@@ -23,11 +23,6 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-.flex-row {
-  display: flex;
-  flex-direction: row;
-}
-
 .has-error {
   color: red;
 }
