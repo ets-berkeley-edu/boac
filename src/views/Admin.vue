@@ -1,30 +1,49 @@
 <template>
   <div>
     <h1>BOAC Flight Deck</h1>
-    <div v-if="devAuthEnabled">
-      <h2>Demo Mode</h2>
-      <v-switch v-model="demoMode"></v-switch>
-    </div>
+    <DemoModeToggle/>
+
     <h2>Users</h2>
-    <div>
-      TODO
-    </div>
+    <v-treeview
+        :items="userGroups"
+        item-key="code"
+        item-children="users"></v-treeview>
   </div>
 </template>
 
 <script>
-import store from '@/store';
-import { setDemoMode } from '@/api/config';
+import { becomeUser, getAuthorizedUserGroups } from '@/api/user';
+import DemoModeToggle from '@/components/DemoModeToggle.vue';
 
 export default {
-  name: 'HeaderMenu',
-  computed: {
-    devAuthEnabled() {
-      return store.getters.config.devAuthEnabled;
+  name: 'Admin',
+  components: {
+    DemoModeToggle
+  },
+  created() {
+    this.loadUserGroups();
+  },
+  data: () => ({
+    active: [],
+    userGroups: []
+  }),
+  methods: {
+    /* eslint no-undef: "warn" */
+    loadUserGroups() {
+      getAuthorizedUserGroups().then(data => {
+        this.userGroups = data;
+        _.each(this.userGroups, group => {
+          _.each(group.users, user => {
+            user.id = user.uid;
+            user.name = user.firstName + ' ' + user.lastName;
+          });
+        });
+      });
     },
-    demoMode: {
-      get: () => store.getters.user,
-      set: blur => setDemoMode(blur)
+    selected(uid) {
+      becomeUser(uid).then(() => {
+        window.location = '/home';
+      });
     }
   }
 };
