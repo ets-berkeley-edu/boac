@@ -8,7 +8,7 @@
 import store from '@/store';
 
 export default {
-  name: 'LegacyLink',
+  name: 'SmartRouteRef',
   data() {
     return {
       url: null

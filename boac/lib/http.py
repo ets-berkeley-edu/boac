@@ -122,11 +122,5 @@ def sanitize_headers(headers):
 
 
 def tolerant_jsonify(obj, status=200, **kwargs):
-    vue_base_url = app.config['VUE_LOCALHOST_BASE_URL']
-    headers = {
-        # In development the response can be shared with requesting code from any local origin.
-        'Access-Control-Allow-Origin': vue_base_url,
-        'Access-Control-Allow-Credentials': 'true',
-    } if vue_base_url and app.config['BOAC_ENV'] == 'development' else {}
     content = json.dumps(obj, ignore_nan=True, separators=(',', ':'), **kwargs)
-    return Response(content, mimetype='application/json', headers=headers, status=status)
+    return Response(content, mimetype='application/json', status=status)
