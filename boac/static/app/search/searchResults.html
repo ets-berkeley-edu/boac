@@ -25,15 +25,15 @@
     </ul>
   </div>
 
-  <div role="alert"
-       aria-live="passive"
-       data-ng-if="!isLoading && !error && search.totalStudentCount">
-    <h1 class="page-section-header">
-      <span data-ng-pluralize count="search.totalStudentCount" when="{'one': 'One student', 'other': '{} students'}"></span>
-      matching '<span data-ng-bind="search.phrase"></span>'
-    </h1>
-    <div data-ng-if="search.totalStudentCount > search.limit">
-      Showing the first {{search.limit}} students.
+  <div tabindex="0" focus-on="!isLoading && search.totalStudentCount">
+    <div data-ng-if="!isLoading && !error && search.totalStudentCount">
+      <h1 class="page-section-header">
+        <span data-ng-pluralize count="search.totalStudentCount" when="{'one': 'One student', 'other': '{} students'}"></span>
+        matching '<span data-ng-bind="search.phrase"></span>'
+      </h1>
+      <div data-ng-if="search.totalStudentCount > search.limit">
+        Showing the first {{search.limit}} students.
+      </div>
     </div>
   </div>
 
@@ -48,47 +48,58 @@
     </div>
   </div>
 
-  <div role="alert"
-       aria-live="passive"
-       data-ng-if="!isLoading && !error && search.totalCourseCount">
-    <h1 class="page-section-header">
-      <span data-ng-pluralize count="search.totalCourseCount" when="{'one': 'One class', 'other': '{} classes'}"></span>
-      matching '<span data-ng-bind="search.phrase"></span>'
-    </h1>
-    <div data-ng-if="search.courses.length < search.totalCourseCount">
-      Showing the first {{search.courses.length}} classes.
+  <div tabindex="0" focus-on="!isLoading && !search.totalStudentCount && search.totalCourseCount">
+    <div data-ng-if="!isLoading && !error && search.totalCourseCount">
+      <h1 class="page-section-header">
+        <span data-ng-pluralize count="search.totalCourseCount" when="{'one': 'One class', 'other': '{} classes'}"></span>
+        matching '<span data-ng-bind="search.phrase"></span>'
+      </h1>
+      <div data-ng-if="search.courses.length < search.totalCourseCount">
+        Showing the first {{search.courses.length}} classes.
+      </div>
     </div>
   </div>
 
-  <table class="table-full-width" data-ng-if="search.totalCourseCount">
+  <div class="sr-only"
+       role="alert"
+       data-ng-bind-template="Courses sorted by {{courseSortOptions.sortBy === 'section' ? 'section' : 'course name'}} {{courseSortOptions.reverse ? 'descending' : 'ascending'}}"
+       data-ng-if="search.totalCourseCount && coursesResorted"></div>
+
+  <table class="table-full-width" data-ng-if="!isLoading && !error && search.totalCourseCount">
     <tr>
-      <td class="group-summary-column-header group-summary-header-sortable search-results-cell"
+      <th class="group-summary-column-header group-summary-header-sortable search-results-cell"
           data-ng-click="courseSort('section')"
-          data-ng-class="{dropup: !courseSortOptions.reverse}">
-        <span class="sr-only">Sort by </span>Section
-        <span class="sr-only" data-ng-if="courseSortOptions.sortBy === 'section' && !courseSortOptions.reverse">Descending</span>
+          data-ng-class="{dropup: !courseSortOptions.reverse}"
+          role="button"
+          aria-label="Sort by section {{courseSortOptions.sortBy === 'section' ? (courseSortOptions.reverse ? 'ascending' : 'descending') : ''}}">
+        Section
         <span class="caret" data-ng-if="courseSortOptions.sortBy === 'section'"></span>
-      </td>
-      <td class="group-summary-column-header group-summary-header-sortable search-results-cell"
+      </th>
+      <th class="group-summary-column-header group-summary-header-sortable search-results-cell"
           data-ng-click="courseSort('title')"
-          data-ng-class="{dropup: !courseSortOptions.reverse}">
-        <span class="sr-only">Sort by </span>Course Name
-        <span class="sr-only" data-ng-if="courseSortOptions.sortBy === 'title' && !courseSortOptions.reverse">Descending</span>
+          data-ng-class="{dropup: !courseSortOptions.reverse}"
+          role="button"
+          aria-label="Sort by course name {{courseSortOptions.sortBy === 'title' ? (courseSortOptions.reverse ? 'ascending' : 'descending') : ''}}">
+        Course Name
         <span class="caret" data-ng-if="courseSortOptions.sortBy === 'title'"></span>
-      </td>
-      <td class="group-summary-column-header search-results-cell">
+      </th>
+      <th class="group-summary-column-header search-results-cell">
         Instructor(s)
-      </td>
+      </th>
     </tr>
     <tr data-ng-repeat="course in search.courses | orderBy:'':courseSortOptions.reverse:courseComparator">
       <td class="search-results-cell">
+        <span class="sr-only">Section</span>
         <a data-ui-sref="course({termId: course.termId, sectionId: course.sectionId})">
           <span data-ng-bind="course.courseName"></span> -
           <span data-ng-bind="course.instructionFormat"></span>
           <span data-ng-bind="course.sectionNum"></span>
         </a>
       </td>
-      <td class="search-results-cell" data-ng-bind="course.courseTitle"></td>
+      <td class="search-results-cell">
+        <span class="sr-only">Course Name</span>
+        <span data-ng-bind="course.courseTitle"></span>
+      </td>
       <td data-ng-class="demoMode.blur ? 'search-results-cell demo-mode-blur' : 'search-results-cell'" data-ng-bind="course.instructors"></td>
     </tr>
   </table>
