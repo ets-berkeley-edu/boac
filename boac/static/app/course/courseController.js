@@ -183,6 +183,7 @@
       $scope.pagination.currentPage = Math.round($scope.pagination.currentPage * (currentItemsPerPage / selectedItemsPerPage));
       $scope.pagination.itemsPerPage = selectedItemsPerPage;
       $location.search('p', $scope.pagination.currentPage);
+      $location.search('s', $scope.pagination.itemsPerPage);
 
       refreshListView().catch(function(err) {
         $scope.error = validationService.parseError(err);
@@ -190,13 +191,30 @@
       });
     };
 
-    var init = function() {
-      var args = _.clone($location.search());
-      // Begin with matrix view if arg is present
-      $scope.tab = _.includes(['list', 'matrix'], args.tab) ? args.tab : $scope.tab;
+    var initPagination = function(args) {
       if (args.p && !isNaN(args.p)) {
         $scope.pagination.currentPage = parseInt(args.p, 10);
       }
+      if (args.s && !isNaN(args.s)) {
+        var itemsPerPage = parseInt(args.s, 10);
+        if (_.includes(_.map($scope.pagination.options, 'value'), itemsPerPage)) {
+          $scope.pagination.itemsPerPage = itemsPerPage;
+          $scope.pagination.selected.itemsPerPage = itemsPerPage;
+        } else {
+          $location.search('s', $scope.pagination.itemsPerPage);
+        }
+      }
+    };
+
+    var initViewMode = function(args) {
+      $scope.tab = _.includes(['list', 'matrix'], args.tab) ? args.tab : $scope.tab;
+    };
+
+    var init = function() {
+      var args = _.clone($location.search());
+      initViewMode(args);
+      initPagination(args);
+
       onTab($scope.tab)
         .catch(function(err) {
           $scope.error = validationService.parseError(err);
