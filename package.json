@@ -37,6 +37,7 @@
     "babel-core": "^7.0.0-beta",
     "babel-runtime": "^7.0.0-beta",
     "bower": "1.8.4",
+    "del": "2.2.2",
     "eslint": "^5.8.0",
     "eslint-plugin-angular": "3.3.0",
     "eslint-plugin-import": "2.13.0",
