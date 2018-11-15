@@ -3,7 +3,7 @@ version: 0.2
 eb_codebuild_settings:
   CodeBuildServiceRole: arn:aws:iam::697877139013:role/service-role/code-build-BOAC-service-role
   ComputeType: BUILD_GENERAL1_MEDIUM
-  Image: aws/codebuild/nodejs:6.3.1
+  Image: aws/codebuild/nodejs:8.11.0
   Timeout: 60
 
 phases:
