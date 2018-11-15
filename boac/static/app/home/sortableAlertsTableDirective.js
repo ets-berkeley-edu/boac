@@ -82,6 +82,7 @@
             options.sortBy = sortBy;
             options.reverse = false;
           }
+          scope.resorted = true;
           setSortDescriptions();
         };
       }

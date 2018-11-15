@@ -58,6 +58,7 @@
         courseSortOptions.sortBy = sortBy;
         courseSortOptions.reverse = false;
       }
+      $scope.coursesResorted = true;
     };
 
     var splitCourseName = function(name) {
