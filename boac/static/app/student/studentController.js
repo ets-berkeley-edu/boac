@@ -133,7 +133,15 @@
           _.each($rootScope.profile.myCuratedCohorts, function(cohort) {
             cohort.selected = _.includes(curatedCohortIds, cohort.id);
           });
-          visualizationService.showUnitsChart($scope.student, $scope.currentEnrollmentTermId.toString());
+
+          $scope.cumulativeUnits = _.get($scope.student, 'sisProfile.cumulativeUnits');
+          var termId = $scope.currentEnrollmentTermId.toString();
+          var currentEnrollmentTerm = _.find(_.get($scope.student, 'enrollmentTerms'), {termId: termId});
+          if (currentEnrollmentTerm) {
+            $scope.currentEnrolledUnits = _.get(currentEnrollmentTerm, 'enrolledUnits');
+          }
+          visualizationService.showUnitsChart($scope.cumulativeUnits, $scope.currentEnrolledUnits);
+
           page.loading(false);
           googleAnalyticsService.track('Student', 'view', preferredName, $scope.student.sid);
         });

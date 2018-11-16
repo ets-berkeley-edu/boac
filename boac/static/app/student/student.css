@@ -189,7 +189,10 @@
 }
 
 .student-bio-status-box-units-left {
+  display: flex;
   flex: 0 0 115px;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
 }
 
 .student-bio-no-data {

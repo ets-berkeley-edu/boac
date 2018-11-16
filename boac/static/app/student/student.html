@@ -113,26 +113,31 @@
           <div class="student-bio-container-column-03">
             <div class="student-bio-status-box student-bio-status-box-units">
               <div class="student-bio-status-box-units-left">
-                <div class="student-bio-status-number" data-ng-bind="student.sisProfile.cumulativeUnits"></div>
                 <div class="student-bio-status-legend">Units Completed</div>
+                <div class="student-bio-status-number" data-ng-bind="student.sisProfile.cumulativeUnits"></div>
               </div>
               <div class="profile-units-chart-outer">
-                <div class="student-bio-status-legend student-bio-status-legend-heading">Unit Totals</div>
-                <div class="profile-units-chart-container" id="profile-units-chart-container"></div>
+                <div class="student-bio-status-legend student-bio-status-legend-heading" aria-hidden="true">Unit Totals</div>
+                <div class="profile-units-chart-container" id="profile-units-chart-container" aria-hidden="true"></div>
+                <div class="sr-only">
+                  Currently enrolled units: <span data-ng-bind="currentEnrolledUnits || '0'"></span>
+                </div>
               </div>
             </div>
             <div class="student-bio-status-box">
               <div class="student-bio-status-box-units">
                 <div class="student-bio-status-box-units-left">
+                  <div class="student-bio-status-legend">Cumulative GPA</div>
                   <div class="student-bio-status-number"
                        data-ng-bind="student.sisProfile.cumulativeGPA ? (student.sisProfile.cumulativeGPA | number:3) : '--'"></div>
-                  <div class="student-bio-status-legend">Cumulative GPA</div>
+                  <div class="sr-only" data-ng-if="!student.sisProfile.cumulativeGPA">No data</div>
                 </div>
                 <div class="profile-units-chart-outer">
                   <div class="student-bio-status-legend student-bio-status-legend-heading">GPA Trends</div>
                   <gpa-chart class="profile-boxplot"
                              data-gpa-terms="gpaTerms"
-                             data-ng-if="gpaTerms.length > 1"></gpa-chart>
+                             data-ng-if="gpaTerms.length > 1"
+                             aria-hidden="true"></gpa-chart>
                   <div class="student-bio-status-legend student-bio-status-legend-small"
                        data-ng-if="!gpaTerms.length">
                     GPA Not Yet Available
@@ -197,7 +202,10 @@
               </table>
               <div class="profile-sidebar-subdetails" data-ng-if="student.sisProfile.degreeProgress">
                 <div>Degree Progress as of <span data-ng-bind="student.sisProfile.degreeProgress.reportDate"></span>.</div>
-                <div>Advisors can refresh this data at <a data-ng-href="{{student.studentProfileLink}}">CalCentral</a>.</div>
+                <div>
+                  Advisors can refresh this data at
+                  <a data-ng-href="{{student.studentProfileLink}}" target="_blank" aria-label="Open CalCentral in new window">CalCentral</a>.
+                </div>
               </div>
             </div>
           </div>
