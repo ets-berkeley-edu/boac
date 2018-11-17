@@ -37,6 +37,7 @@
     curatedCohortFactory,
     googleAnalyticsService,
     page,
+    status,
     studentFactory,
     utilService,
     validationService,
@@ -50,7 +51,7 @@
     };
     $scope.currentEnrollmentTermId = config.currentEnrollmentTermId;
     $scope.currentEnrollmentTerm = config.currentEnrollmentTerm;
-    $scope.demoMode = config.demoMode;
+    $scope.inDemoMode = status.inDemoMode;
     $scope.lastActivityDays = utilService.lastActivityDays;
     $scope.lastActivityInContext = utilService.lastActivityInContext;
     $scope.isAscUser = authService.isAscUser();
@@ -123,7 +124,7 @@
         studentFactory.getAlerts($scope.student.sid).then(function(alerts) {
           $scope.alerts = alerts.data;
         });
-        if (!config.demoMode.blur) {
+        if (!status.inDemoMode) {
           $rootScope.pageTitle = _.get($scope.student, 'name') || preferredName;
         }
 

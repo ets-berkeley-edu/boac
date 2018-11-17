@@ -1,6 +1,7 @@
 # IDE-related
 .idea
 .vscode
+.history
 
 # AWS
 .elasticbeanstalk/*

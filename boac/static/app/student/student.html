@@ -20,7 +20,7 @@
           <div class="student-bio-container-column-01">
             <div class="profile-avatar-container">
               <img class="profile-avatar"
-                   data-ng-class="{'img-blur': demoMode.blur}"
+                   data-ng-class="{'img-blur': inDemoMode}"
                    data-ng-src="/api/student/{{student.uid}}/photo"
                    data-avatar-fallback/>
             </div>
@@ -28,31 +28,31 @@
           <div class="student-bio-container-column-02">
             <div class="student-bio-contact">
               <h1 class="student-section-header"
-                  data-ng-class="{'demo-mode-blur': demoMode.blur}">
+                  data-ng-class="{'demo-mode-blur': inDemoMode}">
                 {{student.name}}
               </h1>
               <h2 class="sr-only">Profile</h2>
               <div class="sr-only" data-ng-if="student.sisProfile.preferredName !== student.name">Preferred name</div>
               <div class="student-preferred-name"
                    data-ng-bind="student.sisProfile.preferredName"
-                   data-ng-class="{'demo-mode-blur': demoMode.blur}"
+                   data-ng-class="{'demo-mode-blur': inDemoMode}"
                    data-ng-if="student.sisProfile.preferredName !== student.name"></div>
               <div class="student-profile-sid">
-                SID <span data-ng-bind="student.sid" data-ng-class="{'demo-mode-blur': demoMode.blur}"></span>
+                SID <span data-ng-bind="student.sid" data-ng-class="{'demo-mode-blur': inDemoMode}"></span>
               </div>
               <div>
                 <i class="fas fa-envelope"></i>
                 <span class="sr-only">Email</span>
                 <a id="student-mailto"
                    data-ng-href="mailto:{{student.sisProfile.emailAddress}}"
-                   data-ng-class="{'demo-mode-blur': demoMode.blur}"
+                   data-ng-class="{'demo-mode-blur': inDemoMode}"
                    data-ng-bind="student.sisProfile.emailAddress"></a>
               </div>
               <div data-ng-if="student.sisProfile.phoneNumber">
                 <i class="fas fa-phone"></i>
                 <span class="sr-only">Phone number</span>
                 <span data-ng-bind="student.sisProfile.phoneNumber"
-                      data-ng-class="{'demo-mode-blur': demoMode.blur}"
+                      data-ng-class="{'demo-mode-blur': inDemoMode}"
                       tabindex="0"></span>
               </div>
             </div>
@@ -395,10 +395,10 @@
                       <td colspan="2">
                         <div data-ng-if="!canvasSite.analytics.lastActivity.student.raw">
                           <span data-ng-bind="student.name"
-                                data-ng-class="{'demo-mode-blur': demoMode.blur}"></span> has never visited this course site.
+                                data-ng-class="{'demo-mode-blur': inDemoMode}"></span> has never visited this course site.
                         </div>
                         <div data-ng-if="canvasSite.analytics.lastActivity.student.raw">
-                          <span data-ng-bind="student.name" data-ng-class="{'demo-mode-blur': demoMode.blur}"></span>
+                          <span data-ng-bind="student.name" data-ng-class="{'demo-mode-blur': inDemoMode}"></span>
                           last visited the course site <span data-ng-bind="lastActivityDays(canvasSite.analytics).toLowerCase()"></span>.
                           <span data-ng-bind="lastActivityInContext(canvasSite.analytics)"></span>
                         </div>

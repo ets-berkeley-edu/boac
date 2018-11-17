@@ -33,8 +33,8 @@
       return $http.post('/api/admin/become_user', {uid: uid});
     };
 
-    var setDemoMode = function(blur) {
-      return $http.post('/api/admin/demo_mode', {blur: blur});
+    var setDemoMode = function(demoMode) {
+      return $http.post('/api/admin/demo_mode', {demoMode: demoMode});
     };
 
     return {

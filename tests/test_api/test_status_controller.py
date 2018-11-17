@@ -40,6 +40,7 @@ class TestStatusController:
         assert response.status_code == 200
         assert response.json['isAuthenticated'] is True
         assert response.json['uid'] == test_uid
+        assert isinstance(response.json['inDemoMode'], bool)
 
     def test_ping(self, client):
         """Answers the phone when pinged."""

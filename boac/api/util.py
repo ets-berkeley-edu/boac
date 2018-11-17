@@ -152,6 +152,7 @@ def get_current_user_status():
         'isAdmin': current_user.is_admin if hasattr(current_user, 'is_admin') else False,
         'isAnonymous': current_user.is_anonymous,
         'isAuthenticated': current_user.is_authenticated,
+        'inDemoMode': current_user.in_demo_mode if hasattr(current_user, 'in_demo_mode') else False,
         'uid': current_user.get_id(),
     }
 

@@ -53,7 +53,7 @@
             data-ng-repeat="student in studentsWithoutData | orderBy:['lastName','firstName']">
           <td class="student-avatar-container">
             <img class="student-avatar"
-                 data-ng-class="{'img-blur': demoMode.blur}"
+                 data-ng-class="{'img-blur': inDemoMode}"
                  data-ng-src="/api/student/{{student.uid}}/photo"
                  data-avatar-fallback
                  alt="Student photo">
@@ -62,13 +62,13 @@
             <div class="flex-container">
               <a data-ng-href="/student/{{student.uid}}">
                 <div class="flex-container student-name"
-                    data-ng-class="{'demo-mode-blur': demoMode.blur}"
+                    data-ng-class="{'demo-mode-blur': inDemoMode}"
                     data-ng-bind="student.lastName + (student.firstName ? ', ' + student.firstName : '')" >
                 </div>
               </a>
             </div>
             <div class="student-sid"
-                 data-ng-class="{'demo-mode-blur': demoMode.blur}"
+                 data-ng-class="{'demo-mode-blur': inDemoMode}"
                  data-ng-if="student.sid">
               SID: <span data-ng-bind="student.sid"></span>
             </div>

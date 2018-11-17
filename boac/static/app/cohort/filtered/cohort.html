@@ -164,12 +164,12 @@
                 <div>
                   <a id="{{student.uid}}" data-ng-href="/student/{{student.uid}}">
                     <h3 class="student-name"
-                        data-ng-class="{'demo-mode-blur': demoMode.blur}"
+                        data-ng-class="{'demo-mode-blur': inDemoMode}"
                         data-ng-if="search.orderBy.selected !== 'first_name'">
                       {{student.lastName}}, {{student.firstName}}
                     </h3>
                     <h3 class="student-name"
-                        data-ng-class="{'demo-mode-blur': demoMode.blur}"
+                        data-ng-class="{'demo-mode-blur': inDemoMode}"
                         data-ng-if="search.orderBy.selected === 'first_name'">
                       {{student.firstName}} {{student.lastName}}
                     </h3>
@@ -177,7 +177,7 @@
                 </div>
               </div>
               <div class="student-sid"
-                   data-ng-class="{'demo-mode-blur': demoMode.blur}">
+                   data-ng-class="{'demo-mode-blur': inDemoMode}">
                 {{student.sid}}
                 <span class="red-flag-status"
                       data-ng-if="isAscUser && !student.athleticsProfile.isActiveAsc">INACTIVE</span>

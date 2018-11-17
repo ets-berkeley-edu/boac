@@ -27,13 +27,13 @@
 
   'use strict';
 
-  var SidebarNavController = function($rootScope, $scope, authService, config) {
+  var SidebarNavController = function($rootScope, $scope, authService, status) {
     $scope.isLoading = true;
 
     $rootScope.$on('userProfileLoaded', function() {
       $scope.profile = $rootScope.profile;
       $scope.isAscUser = authService.isAscUser();
-      $scope.demoMode = config.demoMode;
+      $scope.inDemoMode = status.inDemoMode;
       $scope.isLoading = false;
     });
   };

@@ -36,6 +36,7 @@ class AuthorizedUser(Base, UserMixin):
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     uid = db.Column(db.String(255), nullable=False, unique=True)
     is_admin = db.Column(db.Boolean)
+    in_demo_mode = db.Column(db.Boolean, nullable=False)
     department_memberships = db.relationship(
         'UniversityDeptMember',
         back_populates='authorized_user',
@@ -53,13 +54,15 @@ class AuthorizedUser(Base, UserMixin):
         lazy='joined',
     )
 
-    def __init__(self, uid, is_admin=False):
+    def __init__(self, uid, is_admin=False, in_demo_mode=False):
         self.uid = uid
         self.is_admin = is_admin
+        self.in_demo_mode = in_demo_mode
 
     def __repr__(self):
         return f"""<AuthorizedUser {self.uid},
                     is_admin={self.is_admin},
+                    in_demo_mode={self.in_demo_mode},
                     updated={self.updated_at},
                     created={self.created_at}>
                 """
@@ -67,6 +70,12 @@ class AuthorizedUser(Base, UserMixin):
     def get_id(self):
         """Override UserMixin, since our DB conventionally reserves 'id' for generated keys."""
         return self.uid
+
+    @classmethod
+    def find_by_id(cls, db_id):
+        user = AuthorizedUser.query.filter_by(id=db_id).first()
+        std_commit()
+        return user
 
     @classmethod
     def find_by_uid(cls, uid):

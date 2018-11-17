@@ -100,7 +100,7 @@
         <span class="sr-only">Course Name</span>
         <span data-ng-bind="course.courseTitle"></span>
       </td>
-      <td data-ng-class="demoMode.blur ? 'search-results-cell demo-mode-blur' : 'search-results-cell'" data-ng-bind="course.instructors"></td>
+      <td data-ng-class="inDemoMode ? 'search-results-cell demo-mode-blur' : 'search-results-cell'" data-ng-bind="course.instructors"></td>
     </tr>
   </table>
 

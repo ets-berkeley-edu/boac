@@ -102,8 +102,3 @@ def vacuum_whitespace(_str):
     if not _str:
         return None
     return ' '.join(_str.split())
-
-
-def app_in_demo_mode():
-    """Return config value, if found. The default is False."""
-    return 'DEMO_MODE' in app.config and app.config['DEMO_MODE']

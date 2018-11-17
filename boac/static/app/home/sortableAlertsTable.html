@@ -89,7 +89,7 @@
         <img class="student-avatar student-avatar-small"
              aria-label="Photo of {{student.firstName}} {{student.lastName}}"
              tabindex="0"
-             data-ng-class="{'img-blur': demoMode.blur}"
+             data-ng-class="{'img-blur': inDemoMode}"
              data-ng-src="/api/student/{{student.uid}}/photo"
              data-avatar-fallback>
       </td>
@@ -97,7 +97,7 @@
         <span class="sr-only" data-ng-bind="srText.sortableName"></span>
         <a aria-label="Go to profile page of {{student.firstName}} {{student.lastName}}"
            data-ng-bind="student.sortableName"
-           data-ng-class="{'demo-mode-blur': demoMode.blur}"
+           data-ng-class="{'demo-mode-blur': inDemoMode}"
            data-ng-href="/student/{{student.uid}}"></a>
         <span class="home-inactive-info-icon"
               uib-tooltip="Inactive"
@@ -108,7 +108,7 @@
       </td>
       <td class="group-summary-column group-summary-column-sid">
         <span class="sr-only" data-ng-bind="srText.sid"></span>
-        <span data-ng-bind="student.sid" data-ng-class="{'demo-mode-blur': demoMode.blur}"></span>
+        <span data-ng-bind="student.sid" data-ng-class="{'demo-mode-blur': inDemoMode}"></span>
       </td>
       <td class="group-summary-column group-summary-column-major">
         <span class="sr-only" data-ng-bind="srText['majors[0]']"></span>
