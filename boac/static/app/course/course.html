@@ -176,7 +176,7 @@
                     No Data
                   </div>
                 </div>
-                <span data-ng-if="!student.enrollment.canvasSites.length">&mdash;</span>
+                <span data-ng-if="!student.enrollment.canvasSites.length"><span class="sr-only">No data</span>&mdash;</span>
               </div>
             </div>
 
@@ -201,7 +201,7 @@
                     </div>
                   </div>
                 </div>
-                <span data-ng-if="!student.enrollment.canvasSites.length">&mdash;</span>
+                <span data-ng-if="!student.enrollment.canvasSites.length"><span class="sr-only">No data</span>&mdash;</span>
               </div>
             </div>
 
@@ -213,7 +213,7 @@
                      data-ng-if="student.enrollment.canvasSites.length">
                   <span data-ng-bind="lastActivityDays(canvasSite.analytics)"></span>
                 </div>
-                <span data-ng-if="!student.enrollment.canvasSites.length">&mdash;</span>
+                <span data-ng-if="!student.enrollment.canvasSites.length"><span class="sr-only">No data</span>&mdash;</span>
               </div>
             </div>
 
@@ -225,7 +225,7 @@
                     data-ng-if="student.enrollment.midtermGrade"></span>
               <i class="fas fa-exclamation-triangle boac-exclamation"
                  data-ng-if="isAlertGrade(student.enrollment.midtermGrade)"></i>
-              <span data-ng-if="!student.enrollment.midtermGrade">&mdash;</span>
+              <span data-ng-if="!student.enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
             </div>
 
             <!-- Column -->
