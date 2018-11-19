@@ -23,8 +23,9 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 # Development environment.
 DEBUG = True
 
 INDEX_HTML = 'boac/templates/index.html'
+INDEX_HTML_VUE = 'public/index.html'
+VUE_LOCALHOST_BASE_URL = 'http://localhost:8080'

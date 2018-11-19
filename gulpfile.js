@@ -29,7 +29,6 @@ var gulp = require('gulp');
 var filter = require('gulp-filter');
 var rev = require('gulp-rev');
 var revReplace = require('gulp-rev-replace');
-var rename = require('gulp-rename');
 
 gulp.task('clean', function(done) {
   return del([ 'dist' ], done);
@@ -58,7 +57,6 @@ gulp.task('rev', function(done) {
       var indexHtml = 'dist/static/index.html';
       gulp
         .src(indexHtml)
-        .pipe(rename('angularIndex.html'))
         .pipe(gulp.dest('dist/templates'))
         .on('end', function() {
           return del(indexHtml);

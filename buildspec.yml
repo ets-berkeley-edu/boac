@@ -24,11 +24,11 @@ phases:
       - sudo ./node_modules/.bin/bower install --allow-root
       - sudo ./node_modules/.bin/gulp dist --allow-root
       - sudo npm run build-vue
+      - mv ./dist/static/vue/* ./dist/static/
 
   post_build:
     commands:
       - chmod 755 ./scripts/*.sh
-      - ./scripts/production-vuejs-post-build.sh
       - ./scripts/create-build-summary.sh
 
 artifacts:
