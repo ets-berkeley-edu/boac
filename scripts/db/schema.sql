@@ -88,7 +88,8 @@ CREATE TABLE authorized_users (
     updated_at timestamp with time zone NOT NULL,
     id integer NOT NULL,
     uid character varying(255) NOT NULL,
-    is_admin boolean
+    is_admin boolean,
+    in_demo_mode boolean DEFAULT false NOT NULL
 );
 ALTER TABLE authorized_users OWNER TO boac;
 CREATE SEQUENCE authorized_users_id_seq

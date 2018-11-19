@@ -36,13 +36,14 @@
     config,
     curatedCohortFactory,
     page,
+    status,
     utilService,
     validationService
   ) {
 
     $scope.cohortId = _.toNumber($stateParams.id);
     $scope.currentEnrollmentTerm = config.currentEnrollmentTerm;
-    $scope.demoMode = config.demoMode;
+    $scope.inDemoMode = status.inDemoMode;
     $scope.isAscUser = authService.isAscUser();
     $scope.lastActivityDays = utilService.lastActivityDays;
     $scope.orderBy = cohortService.getSortByOptionsForSearch();

@@ -13,11 +13,11 @@
         <label class="switch">
           <input id="toggle-demo-mode"
                  type="checkbox"
-                 data-ng-class="{'demo-mode-input-checked': demoMode}"
+                 data-ng-class="{'demo-mode-input-checked': inDemoMode}"
                  data-ng-disabled="isToggling"
-                 data-ng-model="demoMode"
+                 data-ng-model="inDemoMode"
                  data-ng-change="toggleDemoMode()"
-                 value="{{demoMode ? 'on' : 'off'}}"/>
+                 value="{{inDemoMode ? 'on' : 'off'}}"/>
           <span class="slider round"></span>
         </label>
         <label class="sr-only" for="toggle-demo-mode">Demo mode</label>
@@ -27,7 +27,7 @@
         Toggling demo mode...
       </div>
       <div class="demo-mode-label" data-ng-if="!isToggling">
-        {{demoMode ? 'On' : 'Off'}}
+        {{inDemoMode ? 'On' : 'Off'}}
       </div>
     </div>
     <h2 class="page-section-header-sub">Users</h2>
@@ -66,7 +66,7 @@
                data-ng-repeat="user in group.users | orderBy:options.sortBy:options.reverse track by $index">
             <div class="user-summary-column user-summary-name">
               <a aria-label="Go to UC Berkeley Directory page of {{user.firstName}} {{user.lastName}}"
-                  data-ng-class="{'demo-mode-blur': demoMode.blur}"
+                  data-ng-class="{'demo-mode-blur': inDemoMode}"
                   data-ng-href="https://www.berkeley.edu/directory/results?search-term={{user.firstName}}+{{user.lastName}}"
                   target="_blank">{{user.firstName}} {{user.lastName}}</a>
               <a href

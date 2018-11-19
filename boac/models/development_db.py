@@ -40,19 +40,19 @@ from sqlalchemy.sql import text
 
 
 _test_users = [
-    ['2040', True],
-    ['53791', True],
-    ['95509', True],
-    ['177473', True],
-    ['1133399', False],
-    ['211159', True],
-    ['242881', True],
-    ['1022796', False],
-    ['1015674', False],
-    ['1049291', True],
-    ['1081940', False],
-    ['90412', True],
-    ['6446', False],
+    ['2040', True, True],
+    ['53791', True, False],
+    ['95509', True, False],
+    ['177473', True, False],
+    ['1133399', False, False],
+    ['211159', True, False],
+    ['242881', True, False],
+    ['1022796', False, False],
+    ['1015674', False, False],
+    ['1049291', True, False],
+    ['1081940', False, False],
+    ['90412', True, False],
+    ['6446', False, False],
 ]
 
 _users_per_dept = {
@@ -124,7 +124,7 @@ def load_development_data():
         # This script can be run more than once. Do not create user if s/he exists in BOAC db.
         user = AuthorizedUser.find_by_uid(uid=test_user[0])
         if not user:
-            user = AuthorizedUser(uid=test_user[0], is_admin=test_user[1])
+            user = AuthorizedUser(uid=test_user[0], is_admin=test_user[1], in_demo_mode=test_user[2])
             db.session.add(user)
     for dept_code, users in _users_per_dept.items():
         university_dept = UniversityDept.find_by_dept_code(dept_code)

@@ -37,12 +37,13 @@
     courseFactory,
     googleAnalyticsService,
     page,
+    status,
     utilService,
     validationService,
     visualizationService
   ) {
 
-    $scope.demoMode = config.demoMode;
+    $scope.inDemoMode = status.inDemoMode;
     $scope.isAscUser = authService.isAscUser();
     page.loading(true);
     $scope.lastActivityDays = utilService.lastActivityDays;

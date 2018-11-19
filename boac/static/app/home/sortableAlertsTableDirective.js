@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').directive('sortableAlertsTable', function(authService, config) {
+  angular.module('boac').directive('sortableAlertsTable', function(authService, status) {
 
     return {
       // @see https://docs.angularjs.org/guide/directive#template-expanding-directive
@@ -43,7 +43,7 @@
 
       link: function(scope) {
         scope.isAscUser = authService.isAscUser();
-        scope.demoMode = config.demoMode;
+        scope.inDemoMode = status.inDemoMode;
         scope.abbreviateTermName = function(termName) {
           return termName && termName.replace('20', ' \'').replace('Spring', 'Spr').replace('Summer', 'Sum');
         };

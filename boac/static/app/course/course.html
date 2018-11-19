@@ -51,7 +51,7 @@
                     data-ng-pluralize
                     count="meeting.instructors.length"
                     when="{'one': 'Instructor:', 'other': 'Instructors:'}"></span>
-              <span data-ng-class="{'demo-mode-blur': demoMode.blur}"
+              <span data-ng-class="{'demo-mode-blur': inDemoMode}"
                     data-ng-repeat="instructor in meeting.instructors">{{instructor}}{{$last ? '' : ', '}}</span>
             </div>
             <div id="meetings-{{$index}}" class="course-details-meetings">
@@ -118,13 +118,13 @@
               <div>
                 <a id="{{student.uid}}" data-ng-href="/student/{{student.uid}}">
                   <h3 class="course-student-name"
-                      data-ng-class="{'demo-mode-blur': demoMode.blur}">
+                      data-ng-class="{'demo-mode-blur': inDemoMode}">
                     {{student.lastName}}<span data-ng-if="student.firstName">, {{student.firstName}}</span>
                   </h3>
                 </a>
               </div>
               <div class="student-sid"
-                   data-ng-class="{'demo-mode-blur': demoMode.blur}">
+                   data-ng-class="{'demo-mode-blur': inDemoMode}">
                 {{student.sid}}
                 <span class="red-flag-status" data-ng-if="student.enrollment.enrollmentStatus === 'W'">WAITLISTED</span>
                 <span class="red-flag-status"

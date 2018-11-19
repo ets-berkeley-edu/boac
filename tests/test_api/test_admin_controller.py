@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from flask import current_app as app
+from boac.models.authorized_user import AuthorizedUser
 import pytest
 import simplejson as json
 
@@ -103,14 +103,14 @@ class TestConfigManagement:
         response = client.post('/api/admin/demo_mode')
         assert response.status_code == 401
 
-    def test_admin_set_demo_mode(self, client, admin_session):
+    def test_admin_set_demo_mode(self, client, fake_auth):
         """Admin successfully toggles demo mode."""
-        assert app.config['DEMO_MODE']['blur'] is False
+        test_uid = '53791'
+        fake_auth.login(test_uid)
         # Verify toggle
-        for blur in [True, False]:
-            response = client.post('/api/admin/demo_mode', data=json.dumps({'blur': blur}), content_type='application/json')
+        for in_demo_mode in [True, False]:
+            response = client.post('/api/admin/demo_mode', data=json.dumps({'demoMode': in_demo_mode}), content_type='application/json')
             assert response.status_code == 200
-            assert response.json['blur'] is blur
-            response = client.get('/api/config')
-            assert response.status_code == 200
-            assert response.json['demoMode']['blur'] is blur
+            assert response.json['inDemoMode'] is in_demo_mode
+            user = AuthorizedUser.find_by_uid(test_uid)
+            assert user.in_demo_mode is in_demo_mode

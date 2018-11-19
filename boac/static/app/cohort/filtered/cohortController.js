@@ -36,9 +36,9 @@
     authService,
     cohortService,
     cohortUtils,
-    config,
     filteredCohortFactory,
     page,
+    status,
     studentFactory,
     utilService,
     validationService
@@ -48,7 +48,7 @@
      * Cohort metadata ONLY. Search results (ie, students) are kept in $scope.search. Properties are null if user is
      * viewing unsaved search results.
      */
-    $scope.demoMode = config.demoMode;
+    $scope.inDemoMode = status.inDemoMode;
     $scope.isAscUser = authService.isAscUser();
     $scope.isSearching = false;
     $scope.lastActivityDays = utilService.lastActivityDays;

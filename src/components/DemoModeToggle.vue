@@ -17,7 +17,7 @@ export default {
     },
     demoMode: {
       get: () => store.getters.user,
-      set: blur => setDemoMode(blur)
+      set: demoMode => setDemoMode(demoMode)
     }
   }
 };

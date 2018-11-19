@@ -7,8 +7,10 @@ export function getAppConfig() {
     .then(response => response.data, () => null);
 }
 
-export function setDemoMode(blur: boolean) {
+export function setDemoMode(demoMode: boolean) {
   return axios
-    .post(`${store.state.apiBaseUrl}/api/admin/demo_mode`, { blur: blur })
+    .post(`${store.state.apiBaseUrl}/api/admin/demo_mode`, {
+      demoMode: demoMode
+    })
     .then(response => response.data, () => null);
 }

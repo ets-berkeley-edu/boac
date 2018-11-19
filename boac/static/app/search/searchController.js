@@ -31,14 +31,14 @@
     $location,
     $scope,
     authService,
-    config,
     page,
+    status,
     studentFactory,
     utilService,
     validationService
   ) {
 
-    $scope.demoMode = config.demoMode;
+    $scope.inDemoMode = status.inDemoMode;
     $scope.search = {
       limit: 50,
       phrase: $location.search().q,

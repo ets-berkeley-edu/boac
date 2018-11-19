@@ -33,10 +33,11 @@
     adminFactory,
     config,
     page,
+    status,
     userFactory
   ) {
 
-    $scope.demoMode = config.demoMode.blur;
+    $scope.inDemoMode = status.inDemoMode;
 
     $scope.become = function(uid) {
       adminFactory.becomeUser(uid).then(function(response) {
@@ -47,10 +48,11 @@
 
     $scope.toggleDemoMode = function() {
       $scope.isToggling = true;
-      var blur = !$scope.demoMode;
+      var inDemoMode = !$scope.inDemoMode;
 
-      adminFactory.setDemoMode(blur).then(function(response) {
-        $scope.demoMode = response.data.blur;
+      adminFactory.setDemoMode(inDemoMode).then(function(response) {
+        $scope.inDemoMode = response.data.inDemoMode;
+        status.inDemoMode = response.data.inDemoMode;
         $scope.isToggling = false;
       });
     };
