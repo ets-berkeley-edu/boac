@@ -27,6 +27,7 @@
               class="course-header"
               data-ng-bind="section.displayName"></h1>
           <div class="course-details-section">
+            <h2 class="sr-only">Details</h2>
             <span data-ng-bind="section.instructionFormat"></span>
             <span data-ng-bind="section.sectionNum"></span>
             <span data-ng-if="section.instructionFormat">&mdash;</span>
@@ -41,6 +42,7 @@
           </div>
         </div>
         <div class="course-column-schedule">
+          <h2 class="sr-only">Schedule</h2>
           <div class="course-term-name" data-ng-bind="section.termName"></div>
           <div data-ng-repeat="meeting in section.meetings"
                data-ng-if="section.meetings">
@@ -63,6 +65,8 @@
       </div>
     </div>
     <div class="course-terms">
+      <h2 class="sr-only">Students</h2>
+
       <div class="course-tabs-container" data-ng-if="!section.totalStudentCount">
         <span class="has-error"><i class="fas fa-exclamation-triangle"></i></span>
         <span class="container-error">No students advised by your department are enrolled in this section.</span>
