@@ -13,7 +13,6 @@
   </div>
 
   <div class="course-container-inner"
-       focus-on="!isLoading"
        data-ng-show="!isLoading && !error">
     <a href="#pagination-widget"
        id="skip-to-pagination-widget"
@@ -22,8 +21,8 @@
     <div>
       <div class="course-container-summary">
         <div class="course-column-description">
-          <h1 role="alert"
-              aria-live="polite"
+          <h1 focus-on="!isLoading"
+              tabindex="0"
               class="course-header"
               data-ng-bind="section.displayName"></h1>
           <div class="course-details-section">
@@ -187,8 +186,17 @@
                      data-ng-repeat="canvasSite in student.enrollment.canvasSites"
                      data-ng-if="student.enrollment.canvasSites.length">
                   <boxplot-draw class="profile-boxplot"
+                                aria-hidden="true"
                                 data-dataset="canvasSite.analytics"
                                 data-ng-if="canvasSite.analytics.currentScore.boxPlottable"></boxplot-draw>
+                  <div class="sr-only" data-ng-if="canvasSite.analytics.currentScore.boxPlottable">
+                    <div>User score: <span data-ng-bind="canvasSite.analytics.currentScore.student.raw"></span></div>
+                    <div>Maximum: <span data-ng-bind="canvasSite.analytics.currentScore.courseDeciles[10]"></span></div>
+                    <div>70th Percentile: <span data-ng-bind="canvasSite.analytics.currentScore.courseDeciles[7]"></span></div>
+                    <div>50th Percentile: <span data-ng-bind="canvasSite.analytics.currentScore.courseDeciles[5]"></span></div>
+                    <div>30th Percentile: <span data-ng-bind="canvasSite.analytics.currentScore.courseDeciles[3]"></span></div>
+                    <div>Minimum: <span data-ng-bind="canvasSite.analytics.currentScore.courseDeciles[0]"></span></div>
+                  </div>
                   <div data-ng-if="!canvasSite.analytics.currentScore.boxPlottable">
                     <div data-ng-if="canvasSite.analytics.currentScore.courseDeciles">
                       Score: <strong data-ng-bind="canvasSite.analytics.currentScore.student.raw"></strong>

@@ -361,8 +361,17 @@
                       </td>
                       <td class="profile-boxplot-container">
                         <boxplot-draw class="profile-boxplot"
+                                      aria-hidden="true"
                                       data-dataset="canvasSite.analytics"
                                       data-ng-if="canvasSite.analytics.currentScore.boxPlottable"></boxplot-draw>
+                        <div class="sr-only" data-ng-if="canvasSite.analytics.currentScore.boxPlottable">
+                          <div>User score: <span data-ng-bind="canvasSite.analytics.currentScore.student.raw"></span></div>
+                          <div>Maximum: <span data-ng-bind="canvasSite.analytics.currentScore.courseDeciles[10]"></span></div>
+                          <div>70th Percentile: <span data-ng-bind="canvasSite.analytics.currentScore.courseDeciles[7]"></span></div>
+                          <div>50th Percentile: <span data-ng-bind="canvasSite.analytics.currentScore.courseDeciles[5]"></span></div>
+                          <div>30th Percentile: <span data-ng-bind="canvasSite.analytics.currentScore.courseDeciles[3]"></span></div>
+                          <div>Minimum: <span data-ng-bind="canvasSite.analytics.currentScore.courseDeciles[0]"></span></div>
+                        </div>
                         <div data-ng-if="!canvasSite.analytics.currentScore.boxPlottable">
                           <span class="visualize-metrics-no-data"
                                 data-ng-if="canvasSite.analytics.currentScore.courseDeciles">

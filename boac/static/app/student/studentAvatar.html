@@ -1,6 +1,7 @@
 <div class="student-avatar-large-container">
   <img class="student-avatar student-avatar-large"
        aria-label="Photo of {{student.firstName}} {{student.lastName}}"
+       alt="Photo of {{student.firstName}} {{student.lastName}}"
        data-ng-class="{'img-blur': demoMode.blur}"
        data-ng-src="/api/student/{{student.uid}}/photo"
        data-avatar-fallback>

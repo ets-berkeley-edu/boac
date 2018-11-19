@@ -41,14 +41,14 @@ class TestGetSisSection:
         assert section['displayName'] == 'BURMESE 1A'
         assert section['title'] == 'Introductory Burmese'
         assert section['units'] == 4
-        assert section['meetings'][0]['days'] == 'M, T, W, Th, F'
+        assert section['meetings'][0]['days'] == 'Mon, Tue, Wed, Thu, Fri'
         assert section['meetings'][0]['instructors'] == ['George Orwell']
         assert section['meetings'][0]['time'] == '12:00 pm - 12:59 pm'
         assert section['meetings'][0]['location'] == 'Wheeler 999'
 
     def test_handles_multiple_locations_and_instructors(self, app):
         section = get_sis_section('2178', 90200)
-        assert section['meetings'][0]['days'] == 'T, Th'
+        assert section['meetings'][0]['days'] == 'Tue, Thu'
         assert section['meetings'][0]['time'] == '6:00 pm - 6:59 pm'
         assert section['meetings'][0]['location'] == 'Dwinelle 117'
         assert section['meetings'][0]['instructors'] == ['Johan Huizinga', 'Ernst Robert Curtius']

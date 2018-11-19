@@ -106,19 +106,19 @@ def _days_in_friendly_format(section_row):
     if not meets_days:
         return None
     days = re.findall('[A-Z][A-Z]', meets_days.upper())
+    day_lookup = {
+        'MO': 'Monday',
+        'TU': 'Tuesday',
+        'WE': 'Wednesday',
+        'TH': 'Thursday',
+        'FR': 'Friday',
+        'SA': 'Saturday',
+        'SU': 'Sunday',
+    }
     if len(days) == 1:
-        day_lookup = {
-            'MO': 'Monday',
-            'TU': 'Tuesday',
-            'WE': 'Wednesday',
-            'TH': 'Thursday',
-            'FR': 'Friday',
-            'SA': 'Saturday',
-            'SU': 'Sunday',
-        }
         return day_lookup[days[0]]
     else:
-        day_list = [(d.capitalize() if d in ['TH', 'SA', 'SU'] else d[0]) for d in days]
+        day_list = [day_lookup[d][0:3] for d in days]
         return ', '.join(day_list)
 
 
