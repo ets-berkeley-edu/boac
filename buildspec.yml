@@ -21,9 +21,9 @@ phases:
   build:
     commands:
       - sudo npm install -g @vue/cli
-      - sudo npm run build-vue
       - sudo ./node_modules/.bin/bower install --allow-root
       - sudo ./node_modules/.bin/gulp dist --allow-root
+      - sudo npm run build-vue
 
   post_build:
     commands:
