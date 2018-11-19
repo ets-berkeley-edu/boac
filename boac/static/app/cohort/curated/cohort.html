@@ -130,12 +130,12 @@
                      data-ng-if="enrollment.canvasSites.length">
                   <span data-ng-bind="lastActivityDays(canvasSite.analytics)"></span>
                 </div>
-                <div data-ng-if="!enrollment.canvasSites.length">&mdash;</div>
+                <div data-ng-if="!enrollment.canvasSites.length"><span class="sr-only">No data</span>&mdash;</div>
               </div>
               <div class="cohort-list-view-column-grade">
                 <span class="cohort-grade" data-ng-bind="enrollment.midtermGrade" data-ng-if="enrollment.midtermGrade"></span>
                 <i class="fas fa-exclamation-triangle boac-exclamation" data-ng-if="isAlertGrade(enrollment.midtermGrade)"></i>
-                <span data-ng-if="!enrollment.midtermGrade">&mdash;</span>
+                <span data-ng-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
               </div>
               <div class="cohort-list-view-column-grade">
                 <span class="cohort-grade"
@@ -145,7 +145,7 @@
                 <span class="cohort-grading-basis"
                       data-ng-bind="enrollment.gradingBasis"
                       data-ng-if="!enrollment.grade"></span>
-                <span data-ng-if="!enrollment.grade && !enrollment.gradingBasis">&mdash;</span>
+                <span data-ng-if="!enrollment.grade && !enrollment.gradingBasis"><span class="sr-only">No data</span>&mdash;</span>
               </div>
             </div>
             <div class="student-course-activity-row"
@@ -154,13 +154,13 @@
                 No {{currentEnrollmentTerm.split(' ')[0] | lowercase}} enrollments
               </div>
               <div class="student-column">
-                &mdash;
+                <span class="sr-only">No data</span>&mdash;
               </div>
               <div class="cohort-list-view-column-grade">
-                &mdash;
+                <span class="sr-only">No data</span>&mdash;
               </div>
               <div class="cohort-list-view-column-grade">
-                &mdash;
+                <span class="sr-only">No data</span>&mdash;
               </div>
             </div>
           </div>
