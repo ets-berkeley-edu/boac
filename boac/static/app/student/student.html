@@ -31,6 +31,8 @@
                   data-ng-class="{'demo-mode-blur': demoMode.blur}">
                 {{student.name}}
               </h1>
+              <h2 class="sr-only">Profile</h2>
+              <div class="sr-only" data-ng-if="student.sisProfile.preferredName !== student.name">Preferred name</div>
               <div class="student-preferred-name"
                    data-ng-bind="student.sisProfile.preferredName"
                    data-ng-class="{'demo-mode-blur': demoMode.blur}"
@@ -56,25 +58,27 @@
             </div>
             <div>
               <div data-ng-if="isAscUser && !student.athleticsProfile.isActiveAsc">
-                <h4 class="student-bio-header profile-sidebar-inactive">INACTIVE</h4>
+                <div class="student-bio-header profile-sidebar-inactive">INACTIVE</div>
               </div>
               <div data-ng-repeat="membership in student.athleticsProfile.athletics">
-                <h4 class="student-bio-header student-bio-header-team" data-ng-bind="membership.groupName"></h4>
+                <div class="student-bio-header student-bio-header-team" data-ng-bind="membership.groupName"></div>
               </div>
+              <h3 class="sr-only">Major</h3>
               <div data-ng-repeat="plan in student.sisProfile.plans">
-                <h4 class="student-bio-header">
+                <div class="student-bio-header">
                   <span data-ng-bind="plan.description" data-ng-if="!plan.degreeProgramUrl"></span>
                   <a data-ng-bind="plan.description"
                      data-ng-if="plan.degreeProgramUrl"
                      data-ng-href="{{plan.degreeProgramUrl}}"
                      target="_blank"
                      aria-label="Open {{plan.description}} program page in new window"></a>
-                </h4>
+                </div>
                 <div class="profile-sidebar-details">
                   <div data-ng-bind="plan.program" data-ng-if="plan.program"></div>
                 </div>
               </div>
-              <h4 class="student-bio-header" data-ng-bind="student.sisProfile.level.description"></h4>
+              <h3 class="sr-only">Level</h3>
+              <div class="student-bio-header" data-ng-bind="student.sisProfile.level.description"></div>
               <div class="profile-sidebar-details">
                 <div data-ng-pluralize
                      count="student.sisProfile.termsInAttendance"
@@ -86,9 +90,7 @@
               </div>
               <div class="student-bio-status-box-groups curated-cohorts-checkboxes">
                 <div>
-                  <h4 class="student-bio-header">
-                    Curated Groups
-                  </h4>
+                  <h3 class="student-bio-header">Curated Groups</h3>
                 </div>
                 <div class="curated-cohort-checkbox"
                      data-ng-repeat="cohort in profile.myCuratedCohorts track by $index"
@@ -115,7 +117,9 @@
             </div>
           </div>
           <div class="student-bio-container-column-03">
+            <h2 class="sr-only">Academic Status</h2>
             <div class="student-bio-status-box student-bio-status-box-units">
+              <h3 class="sr-only">Units</h3>
               <div class="student-bio-status-box-units-left">
                 <div class="student-bio-status-legend">Units Completed</div>
                 <div class="student-bio-status-number" data-ng-bind="student.sisProfile.cumulativeUnits"></div>
@@ -129,6 +133,7 @@
               </div>
             </div>
             <div class="student-bio-status-box">
+              <h3 class="sr-only">GPA</h3>
               <div class="student-bio-status-box-units">
                 <div class="student-bio-status-box-units-left">
                   <div class="student-bio-status-legend">Cumulative GPA</div>
@@ -183,7 +188,7 @@
               </table>
             </div>
             <div class="student-bio-status-box">
-              <h4 class="student-bio-progress-header">Degree Progress</h4>
+              <h3 class="student-bio-progress-header">Degree Progress</h3>
               <div class="student-bio-no-data" data-ng-if="!student.sisProfile.degreeProgress">
                 No data
               </div>
@@ -279,9 +284,7 @@
                           </div>
                         </div>
                       </div>
-                      <div>
-                        <h5 class="profile-class-name" data-ng-bind="course.title"></h5>
-                      </div>
+                      <div class="profile-class-name" data-ng-bind="course.title"></div>
                     </div>
                     <div class="accordion-heading-end">
                       <div class="accordion-heading-units">
@@ -314,7 +317,7 @@
                   </div>
                 </uib-accordion-heading>
                 <div data-ng-repeat="canvasSite in course.canvasSites">
-                  <div class="profile-course-site-code" data-ng-bind="canvasSite.courseCode"></div>
+                  <h5 class="profile-course-site-code" data-ng-bind="canvasSite.courseCode"></h5>
                   <table class="visualize-metrics">
                     <tr>
                       <td class="visualize-metrics-legend">
