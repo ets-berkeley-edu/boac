@@ -13,7 +13,6 @@
   </div>
 
   <div class="course-container-inner"
-       focus-on="!isLoading"
        data-ng-show="!isLoading && !error">
     <a href="#pagination-widget"
        id="skip-to-pagination-widget"
@@ -22,8 +21,8 @@
     <div>
       <div class="course-container-summary">
         <div class="course-column-description">
-          <h1 role="alert"
-              aria-live="polite"
+          <h1 focus-on="!isLoading"
+              tabindex="0"
               class="course-header"
               data-ng-bind="section.displayName"></h1>
           <div class="course-details-section">
