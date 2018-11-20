@@ -252,17 +252,20 @@
                   <div class="accordion-heading profile-class-heading">
                     <div class="accordion-heading-start">
                       <div class="accordion-heading-start-inner">
-                        <div class="accordion-heading-caret">
-                          <i id="term-{{term.termId}}-course-{{$index}}"
-                             aria-label="{{course.isOpen ? 'Hide course details' : 'Show course details'}}"
-                             data-ng-class="{'fas fa-caret-right': !course.isOpen, 'fas fa-caret-down': course.isOpen}"
-                             data-ng-click="course.isOpen = !course.isOpen"
-                             data-ng-keypress="course.isOpen = !course.isOpen"
-                             tabindex="0"
-                             role="button"></i>
-                        </div>
-                        <div>
-                          <h4 class="student-course-title" data-ng-bind="course.displayName"></h4>
+                        <div class="accordion-heading-title-wrapper">
+                          <span class="sr-only" data-ng-bind-template="Row {{$index+1}} of {{term.enrollments.length}}"></span>
+                          <div>
+                            <h4 class="student-course-title" data-ng-bind="course.displayName"></h4>
+                          </div>
+                          <div class="accordion-heading-caret">
+                            <i id="term-{{term.termId}}-course-{{$index}}"
+                               aria-label="{{course.isOpen ? 'Hide course details' : 'Show course details'}}"
+                               data-ng-class="{'fas fa-caret-right': !course.isOpen, 'fas fa-caret-down': course.isOpen}"
+                               data-ng-click="course.isOpen = !course.isOpen"
+                               data-ng-keypress="course.isOpen = !course.isOpen"
+                               tabindex="0"
+                               role="button"></i>
+                          </div>
                         </div>
                         <div>
                           <div class="accordion-heading-sections">
@@ -302,7 +305,7 @@
                                 data-ng-bind="course.gradingBasis"
                                 data-ng-if="!course.grade"></span>
                           <span class="profile-class-grade"
-                                data-ng-if="!course.grade && !course.gradingBasis">&mdash;</span>
+                                data-ng-if="!course.grade && !course.gradingBasis"><span class="sr-only">No data</span>&mdash;</span>
                         </div>
                         <div class="accordion-heading-grade" data-ng-if="currentEnrollmentTermId === parseInt(term.termId)">
                           Mid:
@@ -310,7 +313,7 @@
                                 data-ng-bind="course.midtermGrade"
                                 data-ng-if="course.midtermGrade"></span>
                           <span class="profile-class-grade"
-                                data-ng-if="!course.midtermGrade">&mdash;</span>
+                                data-ng-if="!course.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
                         </div>
                       </div>
                     </div>
