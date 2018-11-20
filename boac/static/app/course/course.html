@@ -82,25 +82,34 @@
       </div>
 
       <div data-ng-if="tab === 'list' && !isLoading && !error && section.totalStudentCount">
-        <div id="course-students-list" class="list-group">
+        <table id="course-list-view-table" class="course-list-view-table">
+          <tr class="course-list-view-row">
+            <th class="course-list-view-column course-list-view-column-checkbox course-list-view-column-header"></th>
+            <th class="course-list-view-column course-list-view-column-avatar course-list-view-column-header">
+              <span class="sr-only">Student Photo</span>
+            </th>
+            <th class="course-list-view-column course-list-view-column-profile course-list-view-column-header">
+              <span class="sr-only">Student Profile</span>
+            </th>
+            <th class="course-list-view-column course-list-view-column-header">
+              Course Site<span aria-hidden="true">(s)</span>
+            </th>
+            <th class="course-list-view-column course-list-view-column-header">Assignments Submitted</th>
+            <th class="course-list-view-column course-list-view-column-header">Assignment Grades</th>
+            <th class="course-list-view-column course-list-view-column-header">bCourses Activity</th>
+            <th class="course-list-view-column course-list-view-column-header">
+              Mid<span class="sr-only">point Grade</span>
+            </th>
+            <th class="course-list-view-column course-list-view-column-header">
+              Final<span class="sr-only"> Grade</span>
+            </th>
+          </tr>
 
-          <div class="list-group-item course-list-item"
-               data-ng-class="{'list-group-item-info': !$first && anchor===student.uid, 'list-group-header-row': $first}"
-               data-ng-repeat="student in allRows = ['headerRow'].concat(section.students)">
+          <tr class="course-list-view-row"
+              data-ng-class="{'list-group-item-info': anchor===student.uid}"
+              data-ng-repeat="student in section.students">
 
-            <!-- Headers -->
-            <div class="course-list-view-column-00 course-list-view-column-header" data-ng-if="$first"></div>
-            <div class="course-list-view-column-01 course-list-view-column-header" data-ng-if="$first"></div>
-            <div class="course-list-view-column-02 course-list-view-column-header" data-ng-if="$first"></div>
-            <div class="course-list-view-column-03 course-list-view-column-header course-list-view-column-03-header" data-ng-if="$first">COURSE SITE(S)</div>
-            <div class="course-list-view-column-04 course-list-view-column-header" data-ng-if="$first">ASSIGNMENTS SUBMITTED</div>
-            <div class="course-list-view-column-05 course-list-view-column-header" data-ng-if="$first">ASSIGNMENT GRADES</div>
-            <div class="course-list-view-column-06 course-list-view-column-header" data-ng-if="$first">BCOURSES ACTIVITY</div>
-            <div class="course-list-view-column-07 course-list-view-column-header" data-ng-if="$first">MID</div>
-            <div class="course-list-view-column-08 course-list-view-column-header" data-ng-if="$first">FINAL</div>
-
-            <!-- Column -->
-            <div class="course-list-view-column-00" data-ng-if="!$first">
+            <td class="course-list-view-column course-list-view-column-checkbox">
               <div class="add-to-cohort-checkbox">
                 <input id="student-{{student.uid}}-curated-cohort-checkbox"
                        type="checkbox"
@@ -108,13 +117,13 @@
                        data-ng-change="student.onCuratedCohortToggle()"
                        data-ng-model="student.selectedForCuratedCohort"/>
               </div>
-            </div>
-            <!-- Column -->
-            <div class="course-list-view-column-01" data-ng-if="!$first">
+            </td>
+
+            <td class="course-list-view-column course-list-view-column-avatar">
               <div data-ng-include="'/static/app/student/studentAvatar.html'"></div>
-            </div>
-            <!-- Column -->
-            <div class="course-list-view-column-02" data-ng-if="!$first">
+            </td>
+
+            <td class="course-list-view-column course-list-view-column-profile">
               <div>
                 <a id="{{student.uid}}" data-ng-href="/student/{{student.uid}}">
                   <h3 class="course-student-name"
@@ -143,28 +152,27 @@
                        data-ng-repeat="membership in student.athleticsProfile.athletics"></div>
                 </div>
               </div>
-            </div>
+            </td>
 
-            <!-- Column -->
-            <div class="course-list-view-column-03" data-ng-if="!$first">
+            <td class="course-list-view-column">
               <div class="course-list-view-column-canvas-sites">
-                <div class="course-list-view-column-03-border"
+                <div class="course-list-view-column-canvas-sites-border"
                      data-ng-repeat="canvasSite in student.enrollment.canvasSites"
                      data-ng-if="student.enrollment.canvasSites.length">
                   <strong data-ng-bind="canvasSite.courseCode"></strong>
                 </div>
-                <div class="course-list-view-column-03-border"
+                <div class="course-list-view-column-canvas-sites-border"
                      data-ng-if="!student.enrollment.canvasSites.length">
                   No course site
                 </div>
               </div>
-            </div>
+            </td>
 
-            <!-- Column -->
-            <div class="course-list-view-column-04" data-ng-if="!$first">
+            <td class="course-list-view-column">
               <div class="course-list-view-column-canvas-sites">
                 <div data-ng-repeat="canvasSite in student.enrollment.canvasSites"
                      data-ng-if="student.enrollment.canvasSites.length">
+                  <span class="sr-only" data-ng-bind="canvasSite.courseCode" data-ng-if="student.enrollment.canvasSites.length > 1"></span>
                   <div data-ng-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
                     <strong data-ng-bind="canvasSite.analytics.assignmentsSubmitted.student.raw"></strong>
                     <div class="faint-text">
@@ -177,14 +185,14 @@
                 </div>
                 <span data-ng-if="!student.enrollment.canvasSites.length"><span class="sr-only">No data</span>&mdash;</span>
               </div>
-            </div>
+            </td>
 
-            <!-- Column -->
-            <div class="course-list-view-column-05" data-ng-if="!$first">
+            <td class="course-list-view-column">
               <div class="course-list-view-column-canvas-sites">
                 <div class="profile-boxplot-container"
                      data-ng-repeat="canvasSite in student.enrollment.canvasSites"
                      data-ng-if="student.enrollment.canvasSites.length">
+                  <span class="sr-only" data-ng-bind="canvasSite.courseCode" data-ng-if="student.enrollment.canvasSites.length > 1"></span>
                   <boxplot-draw class="profile-boxplot"
                                 aria-hidden="true"
                                 data-dataset="canvasSite.analytics"
@@ -211,34 +219,30 @@
                 </div>
                 <span data-ng-if="!student.enrollment.canvasSites.length"><span class="sr-only">No data</span>&mdash;</span>
               </div>
-            </div>
+            </td>
 
-            <!-- Column -->
-            <div class="course-list-view-column-06" data-ng-if="!$first">
+            <td class="course-list-view-column">
               <div class="course-list-view-column-canvas-sites">
                 <div class="profile-boxplot-container"
                      data-ng-repeat="canvasSite in student.enrollment.canvasSites"
                      data-ng-if="student.enrollment.canvasSites.length">
+                  <span class="sr-only" data-ng-bind="canvasSite.courseCode" data-ng-if="student.enrollment.canvasSites.length > 1"></span>
                   <span data-ng-bind="lastActivityDays(canvasSite.analytics)"></span>
                 </div>
                 <span data-ng-if="!student.enrollment.canvasSites.length"><span class="sr-only">No data</span>&mdash;</span>
               </div>
-            </div>
+            </td>
 
-            <!-- Column -->
-            <div class="course-list-view-column-07"
-                 data-ng-if="!$first">
+            <td class="course-list-view-column">
               <span class="cohort-grade"
                     data-ng-bind="student.enrollment.midtermGrade"
                     data-ng-if="student.enrollment.midtermGrade"></span>
               <i class="fas fa-exclamation-triangle boac-exclamation"
                  data-ng-if="isAlertGrade(student.enrollment.midtermGrade)"></i>
               <span data-ng-if="!student.enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
-            </div>
+            </td>
 
-            <!-- Column -->
-            <div class="course-list-view-column-08"
-                 data-ng-if="!$first">
+            <td class="course-list-view-column">
               <span class="cohort-grade"
                     data-ng-bind="student.enrollment.grade"
                     data-ng-if="student.enrollment.grade"></span>
@@ -247,10 +251,10 @@
               <span class="cohort-grading-basis"
                     data-ng-bind="student.enrollment.gradingBasis"
                     data-ng-if="!student.enrollment.grade"></span>
-            </div>
+            </td>
+          </tr>
+        </table>
 
-          </div>
-        </div>
         <div class="flex-row flex-align-center">
           <ul uib-pagination
             boundary-link-numbers="true"
@@ -264,16 +268,17 @@
             ng-model="pagination.currentPage"
             rotate="false"
             template-url="/static/app/shared/uibPaginationTemplate.html"
-            total-items="section.totalStudentCount"></ul>
-            <select class="form-control course-page-size"
-              data-ng-change="resizePage(pagination.selected.itemsPerPage)"
-              data-ng-if="section.totalStudentCount > pagination.defaultItemsPerPage"
-              data-ng-model="pagination.selected.itemsPerPage"
-              data-ng-options="o.value as o.label for o in pagination.options">
-            </select>
-          </div>
+            total-items="section.totalStudentCount">
+          </ul>
+          <select class="form-control course-page-size"
+            data-ng-change="resizePage(pagination.selected.itemsPerPage)"
+            data-ng-if="section.totalStudentCount > pagination.defaultItemsPerPage"
+            data-ng-model="pagination.selected.itemsPerPage"
+            data-ng-options="o.value as o.label for o in pagination.options">
+          </select>
         </div>
       </div>
+
       <div id="matrix-outer" class="matrix-outer" data-ng-show="tab === 'matrix' && !isLoading && !error">
         <div data-ng-include="'/static/app/shared/matrix.html'"></div>
       </div>
