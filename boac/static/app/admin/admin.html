@@ -7,8 +7,8 @@
   </div>
   <div data-ng-if="!isLoading">
     <h1 class="page-section-header">BOAC Flight Deck</h1>
-    <h2 class="page-section-header-sub">Demo Mode</h2>
-    <div class="demo-mode-switch-container">
+    <h2 class="page-section-header-sub" data-ng-if="devAuthEnabled">Demo Mode</h2>
+    <div class="demo-mode-switch-container" data-ng-if="devAuthEnabled">
       <div data-ng-if="!isToggling">
         <label class="switch">
           <input id="toggle-demo-mode"
@@ -72,6 +72,7 @@
               <a href
                  id="become-{{user.uid}}"
                  data-ng-click="become(user.uid)"
+                 data-ng-if="devAuthEnabled"
                  title="Log in as {{user.firstName}} {{user.lastName}}"
                  data-ng-if="!user.is_admin"><i class="fas fa-sign-in-alt"></i></a>
             </div>

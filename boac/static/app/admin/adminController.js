@@ -28,7 +28,6 @@
   'use strict';
 
   angular.module('boac').controller('AdminController', function(
-    $location,
     $scope,
     adminFactory,
     config,
@@ -38,6 +37,7 @@
   ) {
 
     $scope.inDemoMode = status.inDemoMode;
+    $scope.devAuthEnabled = config.devAuthEnabled;
 
     $scope.become = function(uid) {
       adminFactory.becomeUser(uid).then(function(response) {
@@ -59,15 +59,10 @@
 
     var init = function() {
       page.loading(true);
-      if (config.devAuthEnabled) {
-        userFactory.getAuthorizedUserGroups().then(function(response) {
-          $scope.groups = response.data;
-
-          page.loading(false);
-        });
-      } else {
-        $location.replace().path('/404');
-      }
+      userFactory.getAuthorizedUserGroups().then(function(response) {
+        $scope.groups = response.data;
+        page.loading(false);
+      });
     };
 
     init();
