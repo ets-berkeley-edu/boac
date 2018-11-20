@@ -77,7 +77,6 @@
       <div class="cohort-header-button-links no-wrap" data-ng-if="!renameMode.on">
         <span data-ng-if="isSearching || search.cohort.id">
           <button type="button"
-                  aria-pressed="{{filtersVisible}}"
                   data-ng-attr-id="{{filtersVisible ? 'hide' : 'show'}}-details-button"
                   id="show-hide-details-button"
                   class="btn-link cohort-manage-btn-link"
@@ -293,5 +292,11 @@
       </div>
     </div>
   </div>
+  <div class="sr-only"
+       role="region"
+       aria-live="polite"
+       tabindex="-1"
+       data-ng-bind="filtersVisible ? 'shown' : 'hidden'"
+       data-ng-if="filterVisibilityToggled"></div>
 </div>
 
