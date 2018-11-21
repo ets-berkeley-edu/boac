@@ -44,19 +44,22 @@
 -->
 <div class="filter-range-container" data-ng-if="filter.type === 'range'">
   <div class="filter-range-label-start">
-    <span data-ng-bind="filter.subcategoryHeader[0]"></span>
+    <span data-ng-bind="filter.subcategoryHeader[0]" id="filter-{{filter.key}}-subcategory-range-start-label"></span>
   </div>
   <div>
     <input class="filter-range-input"
+           focus-on="filter.isEditMode"
+           aria-labelledby="filter-{{filter.key}}-subcategory-range-start-label"
            data-ng-model="filter.subcategory.range.start"
            data-ng-change="filter.subcategory.onChange()"
            maxlength="1">
   </div>
   <div class="filter-range-label-stop">
-    <span data-ng-bind="filter.subcategoryHeader[1]"></span>
+    <span data-ng-bind="filter.subcategoryHeader[1]" id="filter-{{filter.key}}-subcategory-range-end-label"></span>
   </div>
   <div>
     <input class="filter-range-input"
+           aria-labelledby="filter-{{filter.key}}-subcategory-range-end-label"
            data-ng-model="filter.subcategory.range.stop"
            data-ng-change="filter.subcategory.onChange()"
            maxlength="1">

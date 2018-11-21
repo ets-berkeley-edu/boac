@@ -1,6 +1,7 @@
 <div data-ng-if="filters.isLoading">
   <i class="fas fa-sync fa-spin fa-2x"></i>
 </div>
+<div class="sr-only" aria-live="polite" data-ng-bind="filterUpdateStatus"></div>
 <div data-ng-if="!filters.isLoading">
   <div>
     <div>
@@ -22,7 +23,7 @@
             <div data-ng-if="row.subcategory && allowEdits && !row.isEditMode">
               <button type="button"
                       id="edit-added-filter-{{$index}}"
-                      aria-label="Edit added filter"
+                      aria-label="Edit filter"
                       class="btn-link btn-cohort-added-filter"
                       data-ng-click="filters.added.buttons.edit.onClick(row)">
                 Edit
@@ -31,7 +32,7 @@
             <div data-ng-if="allowEdits && !row.isEditMode">
               <button type="button"
                       id="remove-added-filter-{{$index}}"
-                      aria-label="Remove added filter"
+                      aria-label="Remove filter"
                       class="btn-link btn-cohort-added-filter"
                       data-ng-click="filters.added.buttons.remove.onClick($index)">
                 Remove
@@ -73,7 +74,6 @@
                   type="button"
                   class="btn-filter"
                   data-ng-class="{'btn-filter-open': isDraftMenuOpen}"
-                  focus-on="!draft.options"
                   uib-dropdown-toggle
                   ng-disabled="disabled">
             <span class="flex-row flex-space-between">
@@ -85,7 +85,7 @@
               uib-dropdown-menu
               role="menu"
               aria-labelledby="draft-filter">
-            <li role="menuitem"
+            <li role="{{option === null ? 'none' : 'menuitem'}}"
                 data-ng-click="onDraftFilterClick(option)"
                 data-ng-class="{'divider': option === null, 'disabled': option.disabled}"
                 data-ng-repeat="option in filters.definitions track by $index">
@@ -104,32 +104,27 @@
                                           on-option-click="onDraftSubcategoryOptionClick"
                                           watch="draft"></filter-criteria-edit-subcategory>
       </div>
-      <div class="cohort-filter-draft-column-03">
-        <div data-ng-if="draft.buttons.add.show">
-          <button type="button"
-                  id="unsaved-filter-add"
-                  aria-label="Add filter to search criteria"
-                  class="btn btn-primary"
-                  focus-on="draft.buttons.add.show"
-                  data-ng-click="draft.buttons.add.onClick()"
-                  data-ng-disabled="draft.buttons.add.disabled">
-            Add
-          </button>
-        </div>
+      <div class="cohort-filter-draft-column-03" data-ng-if="draft.buttons.add.show">
+        <button type="button"
+                id="unsaved-filter-add"
+                aria-label="Add filter to search criteria"
+                class="btn btn-primary"
+                data-ng-click="draft.buttons.add.onClick()"
+                data-ng-disabled="draft.buttons.add.disabled">
+          Add
+        </button>
       </div>
-      <div class="cohort-filter-draft-column-04">
-        <div data-ng-if="draft.buttons.cancel.show">
-          <button type="button"
-                  id="unsaved-filter-reset"
-                  aria-label="Cancel new filter selection"
-                  class="btn-link cohort-manage-btn-link"
-                  data-ng-click="draft.buttons.cancel.onClick()">
-            Cancel
-          </button>
-        </div>
+      <div class="cohort-filter-draft-column-04" data-ng-if="draft.buttons.cancel.show">
+        <button type="button"
+                id="unsaved-filter-reset"
+                aria-label="Cancel new filter selection"
+                class="btn-link cohort-manage-btn-link"
+                data-ng-click="draft.buttons.cancel.onClick()">
+          Cancel
+        </button>
       </div>
     </div>
-    <div class="filter-subcategory-error has-error">
+    <div class="filter-subcategory-error has-error" data-ng-if="draft.subcategory.error">
       <span data-ng-bind="draft.subcategory.error"></span>
     </div>
   </div>
