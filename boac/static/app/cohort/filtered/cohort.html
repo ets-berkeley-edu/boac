@@ -17,18 +17,18 @@
        data-ng-if="search.results.totalStudentCount > search.pagination.itemsPerPage">Skip to pagination widget</a>
     <div class="cohort-header-container">
       <div data-ng-if="!search.cohort.id && search.results.totalStudentCount === null">
-        <h1 class="page-section-header">Create a Filtered Cohort</h1>
+        <h1 class="page-section-header" focus-on="!isLoading" tabindex="0">Create a Filtered Cohort</h1>
         <div>
           Find a set of users, then save your search as a filtered cohort. Revisit your filtered cohorts at any time.
         </div>
       </div>
       <div data-ng-if="!renameMode.on">
-        <h1 class="page-section-header" data-ng-if="search.cohort.name">
+        <h1 class="page-section-header" data-ng-if="search.cohort.name" focus-on="!isLoading" tabindex="0">
           <span data-ng-bind="search.cohort.name"></span>
           <span class="faint-text"
                 data-ng-if="search.results.totalStudentCount != null">(<span data-ng-bind="search.results.totalStudentCount"></span> students)</span>
         </h1>
-        <h1 data-ng-if="!search.cohort.name && search.results.totalStudentCount !== null">
+        <h1 data-ng-if="!search.cohort.name && search.results.totalStudentCount !== null" focus-on="!isLoading" tabindex="0">
           <span data-ng-pluralize count="search.results.totalStudentCount" when="{'one': '1 Result', 'other': '{} Results'}"></span>
         </h1>
       </div>
