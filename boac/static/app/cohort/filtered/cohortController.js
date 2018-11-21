@@ -147,6 +147,7 @@
       var filtersVisible = _.isNil(show) ? defaultValue : utilService.toBoolOrNull(show);
       $location.search('details', _.toLower(filtersVisible));
       $scope.filtersVisible = filtersVisible;
+      $scope.filterVisibilityToggled = true;
     };
 
     var getFilterCriteriaFromLocation = function(definitions) {
