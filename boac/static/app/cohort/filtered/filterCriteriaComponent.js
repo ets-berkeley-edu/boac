@@ -95,6 +95,7 @@
               setFilterOptionDisabled(row.key, row.previousSubcategory.value, true);
               row.subcategory = row.previousSubcategory;
               row.isEditMode = $scope.filters.isEditMode = row.error = null;
+              $scope.filterUpdateStatus = 'Cancelled';
             }
           },
           edit: {
@@ -124,6 +125,7 @@
                 updateDisableAfterAddOrRemove(removed[0], false);
                 $scope.search.buttons.apply.redraw();
                 $scope.search.buttons.save.show = false;
+                $scope.filterUpdateStatus = removed[0].name + ' filter removed';
               }
             }
           },
@@ -146,6 +148,7 @@
                 }
               }
               if (!row.error) {
+                $scope.filterUpdateStatus = row.name + ' filter updated';
                 row.previousSubcategory = null;
                 $scope.filters.isEditMode = row.isEditMode = false;
               }
@@ -171,6 +174,7 @@
               updateDisableAfterAddOrRemove(addedFilter, true);
               $scope.filters.added = decorateAddedFilters(_.union($scope.filters.added, [ addedFilter ]));
               $scope.search.buttons.apply.show = true;
+              $scope.filterUpdateStatus = addedFilter.name + ' filter added';
             },
             show: false
           },
@@ -178,6 +182,7 @@
             onClick: function() {
               $scope.draft = null;
               $scope.search.buttons.apply.redraw();
+              $scope.filterUpdateStatus = 'Cancelled';
             },
             show: false
           }
