@@ -11,7 +11,7 @@
     </div>
   </div>
   <div class="cohort-header-container" data-ng-if="!error && !isLoading">
-    <div>
+    <div data-ng-if="!renameMode.on">
       <h1 class="page-section-header" data-ng-if="cohortName">
         <span data-ng-bind="cohortName"></span>
         <span class="faint-text">(<span data-ng-pluralize
@@ -19,17 +19,89 @@
                                         when="{'one': 'One student', 'other': '{} students'}"></span>)</span>
       </h1>
     </div>
+    <div>
+      <div class="cohort-rename-container" data-ng-if="renameMode.on">
+        <div>
+          <form name="renameCohortForm" data-ng-submit="rename($event)">
+            <input aria-required="true"
+                   aria-label="Input cohort name, 255 characters or fewer"
+                   aria-invalid="{{!renameMode.input}}"
+                   class="form-control"
+                   data-ng-change="renameMode.hideError = true"
+                   data-ng-model="renameMode.input"
+                   focus-on="renameMode.on"
+                   id="rename-cohort-input"
+                   maxlength="255"
+                   name="name"
+                   required
+                   type="text"/>
+          </form>
+        </div>
+        <div class="has-error"
+             data-ng-bind="renameMode.error"
+             data-ng-if="renameMode.error && !renameMode.hideError"></div>
+        <div class="faint-text">255 character limit <span data-ng-if="renameMode.input.length">({{255 - renameMode.input.length}} left)</span></div>
+      </div>
+    </div>
     <div class="curated-cohort-header-column-02">
-      <div class="cohort-sort-column" data-ng-if="students.length">
-        <label class="cohort-sort-label" for="curated-cohort-sort-by">Sort by</label>
-        <select id="curated-cohort-sort-by"
-                class="form-control"
-                data-ng-model="orderBy.selected"
-                data-ng-options="o.value as o.name for o in orderBy.options">
-        </select>
+      <div class="cohort-header-buttons no-wrap" data-ng-if="renameMode.on">
+        <button type="button"
+                id="curated-cohort-rename"
+                aria-disabled="{{!renameMode.input}}"
+                aria-label="Save changes to cohort name"
+                class="btn btn-sm btn-primary cohort-manage-btn"
+                data-ng-click="rename($event)"
+                data-ng-disabled="!renameMode.input">
+          Rename
+        </button>
+        <button type="button"
+                aria-label="Cancel rename cohort"
+                id="curated-cohort-rename-cancel"
+                class="btn btn-sm btn-default cohort-manage-btn"
+                data-ng-click="exitRenameMode()">
+          Cancel
+        </button>
+      </div>
+      <div class="cohort-header-button-links no-wrap" data-ng-if="!renameMode.on">
+        <button type="button"
+                id="rename-cohort-button"
+                aria-label="Rename this cohort"
+                class="btn-link cohort-manage-btn-link"
+                data-ng-click="enterRenameMode(cohortName)">
+          Rename
+        </button>
+        <span data-ng-controller="DeleteCuratedCohortController">
+          <span class="faint-text">|</span>
+          <button type="button"
+                  id="delete-cohort-button"
+                  aria-label="Delete this cohort"
+                  class="btn-link cohort-manage-btn-link"
+                  data-ng-click="openDeleteCuratedCohortModal(cohort, callbacks)">
+            Delete
+          </button>
+        </span>
       </div>
     </div>
   </div>
+
+  <hr class="filters-section-separator" data-ng-if="!isLoading && !error && students.length"/>
+
+  <div class="cohort-column-results" data-ng-if="!isLoading && !error && students.length">
+    <div class="cohort-list-header">
+      <div class="cohort-list-header-column-01"></div>
+      <div class="cohort-list-header-column-02">
+        <div class="cohort-sort-column">
+          <label class="cohort-sort-label" for="curated-cohort-sort-by">Sort by</label>
+          <select id="curated-cohort-sort-by"
+                  class="form-control"
+                  data-ng-model="orderBy.selected"
+                  data-ng-options="o.value as o.name for o in orderBy.options">
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div data-ng-if="!isLoading && !error && !students.length">
     This curated group has no students. Start adding students from their profile pages to your
     <strong data-ng-bind="cohortName"></strong> group:

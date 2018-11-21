@@ -28,8 +28,10 @@
   'use strict';
 
   angular.module('boac').controller('CuratedCohortController', function(
+    $location,
     $rootScope,
     $scope,
+    $state,
     $stateParams,
     authService,
     cohortService,
@@ -85,6 +87,47 @@
       }
     };
 
+    var errorHandler = function(error) {
+      if (error.status === 404) {
+        $location.replace().path('/404');
+      } else {
+        $scope.error = validationService.parseError(error);
+        page.loading(false);
+        return $scope.error;
+      }
+    };
+
+    $scope.renameMode = {
+      error: null,
+      input: null,
+      on: false
+    };
+
+    $scope.enterRenameMode = function(originalName) {
+      $scope.renameMode.input = originalName;
+      $scope.renameMode.on = true;
+    };
+
+    var exitRenameMode = $scope.exitRenameMode = function() {
+      $scope.renameMode.on = false;
+      $scope.renameMode.input = null;
+    };
+
+    $scope.rename = function($event) {
+      $event.stopPropagation();
+      var name = $scope.renameMode.input;
+      validationService.validateName({id: $scope.cohortId, name: name}, function(error) {
+        if (error) {
+          $scope.renameMode.error = errorHandler(error);
+        } else {
+          curatedCohortFactory.rename($scope.cohortId, name).then(function() {
+            $scope.cohortName = $scope.cohort.name = name;
+            exitRenameMode();
+          }).catch(errorHandler);
+        }
+      });
+    };
+
     $scope.removeFromCuratedCohort = function(student) {
       curatedCohortFactory.removeStudent($scope.cohortId, student.sid).then(function() {
         $scope.students = _.remove($scope.students, function(s) {
@@ -93,12 +136,18 @@
       });
     };
 
+    $scope.callbacks = {
+      onDelete: function() {
+        $state.go('home');
+      }
+    };
+
     var init = function() {
       page.loading(true);
       curatedCohortFactory.getCuratedCohort($scope.cohortId).then(function(response) {
-        var cohort = response.data;
-        $scope.cohortName = $rootScope.pageTitle = cohort.name || 'Curated Group';
-        $scope.students = cohort.students;
+        $scope.cohort = response.data;
+        $scope.cohortName = $rootScope.pageTitle = $scope.cohort.name || 'Curated Group';
+        $scope.students = $scope.cohort.students;
         page.loading(false);
       }).catch(function(err) {
         $scope.error = validationService.parseError(err);
