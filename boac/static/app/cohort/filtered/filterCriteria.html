@@ -40,7 +40,7 @@
             <div data-ng-if="allowEdits && row.isEditMode">
               <button type="button"
                       id="update-added-filter-{{$index}}"
-                      aria-label="Edit added filter"
+                      aria-label="Update filter"
                       class="btn btn-primary"
                       uib-popover-html="row.error.popoverHtml"
                       popover-class="has-error"
@@ -53,7 +53,7 @@
             <div data-ng-if="allowEdits && row.isEditMode">
               <button type="button"
                       id="cancel-edit-added-filter-{{$index}}"
-                      aria-label="Edit added filter"
+                      aria-label="Cancel"
                       class="btn-link btn-cohort-added-filter"
                       data-ng-click="filters.added.buttons.cancel.onClick(row)">
                 Cancel
