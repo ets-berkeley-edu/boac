@@ -1,24 +1,32 @@
 <template>
   <div>
-    <h1>BOAC Flight Deck</h1>
-    <DemoModeToggle/>
+    <Spinner/>
+    <div v-if="!loading">
+      <h1>BOAC Flight Deck</h1>
+      <DemoModeToggle/>
 
-    <h2>Users</h2>
-    <v-treeview
-        :items="userGroups"
-        item-key="code"
-        item-children="users"></v-treeview>
+      <h2>Users</h2>
+      <v-treeview
+          :items="userGroups"
+          item-key="code"
+          item-children="users"></v-treeview>
+    </div>
   </div>
 </template>
 
 <script>
+import _ from 'lodash';
 import { becomeUser, getAuthorizedUserGroups } from '@/api/user';
 import DemoModeToggle from '@/components/DemoModeToggle.vue';
+import Spinner from '@/components/Spinner.vue';
+import Loading from '@/mixins/Loading.vue';
 
 export default {
   name: 'Admin',
+  mixins: [Loading],
   components: {
-    DemoModeToggle
+    DemoModeToggle,
+    Spinner
   },
   created() {
     this.loadUserGroups();
@@ -28,7 +36,6 @@ export default {
     userGroups: []
   }),
   methods: {
-    /* eslint no-undef: "warn" */
     loadUserGroups() {
       getAuthorizedUserGroups().then(data => {
         this.userGroups = data;
@@ -38,6 +45,7 @@ export default {
             user.name = user.firstName + ' ' + user.lastName;
           });
         });
+        this.loaded();
       });
     },
     selected(uid) {

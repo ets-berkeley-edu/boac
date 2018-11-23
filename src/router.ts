@@ -1,10 +1,13 @@
+import Admin from '@/views/Admin.vue';
+import AllCohorts from '@/views/cohort/filtered/AllCohorts.vue';
+import Login from '@/views/Login.vue';
+import ManageCuratedCohorts from '@/views/cohort/curated/ManageCuratedCohorts.vue';
+import ParentRoute from '@/views/ParentRoute.vue';
+import store from '@/store';
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import store from '@/store';
 import { getAppConfig } from '@/api/config';
 import { getUserProfile } from '@/api/user';
-import Login from '@/views/Login.vue';
-import Admin from '@/views/Admin.vue';
 
 Vue.use(VueRouter);
 
@@ -60,6 +63,38 @@ const router = new VueRouter({
       name: 'admin',
       component: Admin,
       beforeEnter: requiresAuth
+    },
+    {
+      path: '/cohort',
+      component: ParentRoute,
+      beforeEnter: requiresAuth,
+      children: [
+        {
+          path: 'curated',
+          component: ParentRoute,
+          children: [
+            {
+              path: 'manage',
+              component: ManageCuratedCohorts
+            },
+            {
+              path: ':id',
+              meta: { underConstruction: true }
+            }
+          ]
+        },
+        {
+          path: 'filtered',
+          meta: { underConstruction: true },
+          component: ParentRoute,
+          children: [
+            {
+              path: 'all',
+              component: AllCohorts
+            }
+          ]
+        }
+      ]
     }
   ]
 });

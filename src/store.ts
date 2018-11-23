@@ -6,6 +6,7 @@ Vue.use(Vuex);
 const state = {
   apiBaseUrl: process.env.VUE_APP_API_BASE_URL,
   config: null,
+  loading: null,
   errors: [],
   user: null
 };
@@ -17,6 +18,9 @@ const getters = {
   errors: (state: any) => {
     return state.errors;
   },
+  loading: (state: any) => {
+    return state.loading;
+  },
   user: (state: any) => {
     return state.user;
   }
@@ -25,6 +29,12 @@ const getters = {
 const mutations = {
   logout: (state: any) => {
     state.user = null;
+  },
+  loadingStart: (state: any) => {
+    state.loading = true;
+  },
+  loadingComplete: (state: any) => {
+    state.loading = false;
   },
   registerUser: (state: any, user: any) => {
     state.user = user;
