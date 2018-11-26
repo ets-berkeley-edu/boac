@@ -1,35 +1,32 @@
 <template>
-  <v-menu offset-y v-if="user">
-    <v-btn slot="activator">
-      {{ user.firstName }}
-    </v-btn>
-    <v-list>
-      <v-list-tile v-if="user.isAdmin">
-        <v-list-tile-title>
-          Admin
-        </v-list-tile-title>
-      </v-list-tile>
-      <v-list-tile v-if="config">
-        <v-list-tile-title>
-          <a :href="`mailto:${config.supportEmailAddress}`" target="_blank">Feedback/Help</a>
-        </v-list-tile-title>
-      </v-list-tile>
-    </v-list>
-  </v-menu>
+  <md-menu md-direction="bottom-end"
+           md-size="small">
+    <md-button class="header-btn-label no-wrap"
+               md-menu-trigger>
+      <span v-if="user">{{ user.firstName }}</span>
+      <i v-bind:class="{'fas fa-caret-down': user, 'fas fa-spinner fa-spin': !user}"></i>
+    </md-button>
+    <md-menu-content class="header-menu-content" v-if="user">
+      <md-menu-item href="/admin">Admin</md-menu-item>
+      <md-menu-item href="#" v-on:click="logOut">Log Out</md-menu-item>
+      <md-menu-item :href="'mailto:' + supportEmailAddress" target="_blank">Feedback/Help</md-menu-item>
+    </md-menu-content>
+  </md-menu>
 </template>
 
 <script>
+import _ from 'lodash';
 import { getCasLogoutURL } from '@/api/user';
 import store from '@/store';
 
 export default {
   name: 'HeaderMenu',
   computed: {
-    config() {
-      return store.getters.config;
-    },
     user() {
       return store.getters.user;
+    },
+    supportEmailAddress() {
+      return _.get(store.getters.config, 'supportEmailAddress');
     }
   },
   methods: {
@@ -41,3 +38,16 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.header-btn-label {
+  font-size: 16px;
+  text-transform: none;
+}
+.header-btn-label span {
+  padding-right: 6px;
+}
+.header-menu-content {
+  background-color: white;
+}
+</style>
