@@ -66,18 +66,28 @@
     <div class="course-terms">
       <h2 class="sr-only">Students</h2>
 
-      <div class="course-tabs-container" data-ng-if="!section.totalStudentCount">
+      <div class="course-view-controls-container" data-ng-if="!section.totalStudentCount">
         <span class="has-error"><i class="fas fa-exclamation-triangle"></i></span>
         <span class="container-error">No students advised by your department are enrolled in this section.</span>
       </div>
 
-      <div class="course-tabs-container" data-ng-if="section.totalStudentCount">
-        <div class="course-tabs-container-column-01">
-          <curated-cohort-selector data-students="section.students"
-                                   data-ng-if="section.students.length && (tab === 'list')"></curated-cohort-selector>
-        </div>
-        <div class="course-tabs-container-column-02">
+      <div class="course-view-controls-container" data-ng-if="section.totalStudentCount">
+        <curated-cohort-selector data-students="section.students"
+                                 data-ng-if="section.students.length && (tab === 'list')"></curated-cohort-selector>
+        <div class="course-tabs-container">
           <div data-ng-include="'/static/app/shared/tabs.html'"></div>
+        </div>
+        <div class="flex-container course-page-size">
+          <span data-ng-bind="section.totalStudentCount"></span>&nbsp;total students &mdash; View per page:&nbsp;
+          <ul class="flex-container" data-ng-if="section.totalStudentCount > pagination.defaultItemsPerPage">
+            <li data-ng-repeat="option in pagination.options">
+              <a href
+                 data-ng-bind="option"
+                 data-ng-class="{'selected': option==pagination.itemsPerPage}"
+                 data-ng-click="resizePage(option)"
+                 title="Show {{option}} results per page"></a><span data-ng-if="!$last">&nbsp;|&nbsp;</span>
+            </li>
+          </ul>
         </div>
       </div>
 
@@ -270,12 +280,6 @@
             template-url="/static/app/shared/uibPaginationTemplate.html"
             total-items="section.totalStudentCount">
           </ul>
-          <select class="form-control course-page-size"
-            data-ng-change="resizePage(pagination.selected.itemsPerPage)"
-            data-ng-if="section.totalStudentCount > pagination.defaultItemsPerPage"
-            data-ng-model="pagination.selected.itemsPerPage"
-            data-ng-options="o.value as o.label for o in pagination.options">
-          </select>
         </div>
       </div>
 
