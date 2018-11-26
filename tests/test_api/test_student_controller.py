@@ -348,11 +348,24 @@ class TestSearch:
         assert next(s for s in students if s['name'] == 'Paul Farestveit')
         assert next(s for s in students if s['name'] == 'Wolfgang Pauli')
 
-    def test_search_by_name_includes_courses(self, coe_advisor, client):
-        """A name search returns matching courses if any."""
-        response = client.post('/api/students/search', data='{"searchPhrase": "paul"}', content_type='application/json')
-        assert response.json['courses'] == []
+    def test_search_by_name_excludes_courses_unless_requested(self, coe_advisor, client):
         response = client.post('/api/students/search', data='{"searchPhrase": "da"}', content_type='application/json')
+        assert 'courses' not in response.json
+        assert 'totalCourseCount' not in response.json
+
+    def test_search_by_name_includes_courses_if_requested(self, coe_advisor, client):
+        """A name search returns matching courses if any."""
+        response = client.post(
+            '/api/students/search',
+            data=json.dumps({'searchPhrase': 'paul', 'includeCourses': True}),
+            content_type='application/json',
+        )
+        assert response.json['courses'] == []
+        response = client.post(
+            '/api/students/search',
+            data=json.dumps({'searchPhrase': 'da', 'includeCourses': True}),
+            content_type='application/json',
+        )
         students = response.json['students']
         assert len(students) == 1
         assert students[0]['name'] == 'Deborah Davies'
@@ -374,7 +387,7 @@ class TestSearch:
         for query in queries:
             response = client.post(
                 '/api/students/search',
-                data=json.dumps({'searchPhrase': query}),
+                data=json.dumps({'searchPhrase': query, 'includeCourses': True}),
                 content_type='application/json',
             )
             courses = response.json['courses']

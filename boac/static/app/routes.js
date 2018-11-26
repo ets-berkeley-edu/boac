@@ -151,7 +151,7 @@
         }
       })
       .state('search', {
-        url: '/search?q',
+        url: '/search?q&includeCourses',
         views: standardLayout('SearchController', '/static/app/search/searchResults.html'),
         resolve: resolvePrivate
       })
