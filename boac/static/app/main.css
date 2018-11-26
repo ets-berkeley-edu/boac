@@ -304,7 +304,8 @@
   width: 80%;
 }
 
-.visualize-metrics td {
+.visualize-metrics td,
+.visualize-metrics th {
   font-size: 14px;
   padding: 0 25px 5px 0;
   text-align: left;
@@ -313,6 +314,7 @@
 
 .visualize-metrics-legend {
   color: #999;
+  font-weight: normal;
   white-space: nowrap;
   width: 15em;
 }

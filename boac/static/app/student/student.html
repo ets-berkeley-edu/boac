@@ -320,12 +320,15 @@
                   </div>
                 </uib-accordion-heading>
                 <div data-ng-repeat="canvasSite in course.canvasSites">
-                  <h5 class="profile-course-site-code" data-ng-bind="canvasSite.courseCode"></h5>
+                  <h5 class="profile-course-site-code">
+                    <span class="sr-only">Course Site</span>
+                    <span data-ng-bind="canvasSite.courseCode"></span>
+                  </h5>
                   <table class="visualize-metrics">
                     <tr>
-                      <td class="visualize-metrics-legend">
+                      <th class="visualize-metrics-legend" scope="row">
                         Assignments Submitted
-                      </td>
+                      </th>
                       <td class="visualize-metrics-summary">
                         <span data-ng-if="canvasSite.analytics.assignmentsSubmitted.displayPercentile">
                           <strong data-ng-bind="canvasSite.analytics.assignmentsSubmitted.displayPercentile"></strong> percentile
@@ -350,9 +353,9 @@
                       </td>
                     </tr>
                     <tr>
-                      <td class="visualize-metrics-legend">
+                      <th class="visualize-metrics-legend" scope="row">
                         Assignment Grades
-                      </td>
+                      </th>
                       <td class="visualize-metrics-summary">
                         <span data-ng-if="canvasSite.analytics.currentScore.displayPercentile">
                           <strong data-ng-bind="canvasSite.analytics.currentScore.displayPercentile"></strong> percentile
@@ -392,9 +395,9 @@
                        </td>
                     </tr>
                     <tr data-ng-if="currentEnrollmentTermId === parseInt(term.termId)">
-                      <td class="visualize-metrics-legend">
+                      <th class="visualize-metrics-legend" scope="row">
                         Last bCourses Activity
-                      </td>
+                      </th>
                       <td colspan="2">
                         <div data-ng-if="!canvasSite.analytics.lastActivity.student.raw">
                           <span data-ng-bind="student.name"
