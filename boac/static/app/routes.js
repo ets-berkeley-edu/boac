@@ -133,11 +133,6 @@
         views: standardLayout('CuratedCohortController', '/static/app/cohort/curated/cohort.html'),
         resolve: resolvePrivate
       })
-      .state('curatedCohortsManage', {
-        url: '/cohort/curated/manage',
-        views: standardLayout('ManageCuratedCohortsController', '/static/app/cohort/curated/manage.html'),
-        resolve: resolvePrivate
-      })
       .state('home', {
         url: '/home',
         views: standardLayout('HomeController', '/static/app/home/home.html'),
@@ -204,9 +199,6 @@
             break;
           case 'curatedCohort':
             $rootScope.pageTitle = 'Curated Group';
-            break;
-          case 'curatedCohortsManage':
-            $rootScope.pageTitle = 'Manage Curated Groups';
             break;
           default:
             name = name.replace(/([A-Z])/g, ' $1');

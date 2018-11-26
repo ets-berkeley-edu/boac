@@ -37,13 +37,9 @@
   <hr class="sidebar-section-divider"/>
 
   <div data-ng-if="profile.myCuratedCohorts.length">
-    <div class="sidebar-row-link sidebar-section-header">
+    <div class="sidebar-row sidebar-section-header">
       <div class="sidebar-header sidebar-row-link-label">
-        <a id="sidebar-curated-cohorts-manage"
-           aria-label="Manage your curated groups"
-           class="sidebar-row-link-label-text"
-           data-ui-sref="curatedCohortsManage()"
-           data-ui-sref-opts="{reload: true}">Curated Groups</a>
+        <span class="sidebar-row-link-label-text">Curated Groups</a>
       </div>
     </div>
     <div class="sidebar-row-link" data-ng-repeat="cohort in profile.myCuratedCohorts">

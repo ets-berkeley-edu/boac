@@ -378,30 +378,6 @@
   padding: 1px 0 1px 0;
 }
 
-.cohort-manage-name {
-  padding-left: 10px;
-  width: 70%;
-}
-
-.cohort-manage-text-input {
-  flex: 1;
-  min-width: 200px;
-  padding-left: 10px;
-}
-
-.cohort-manage-row {
-  flex-flow: wrap;
-  padding: 10px 10px 5px 0;
-}
-
-.cohort-manage-row div:first-child {
-  margin-right: 10px;
-}
-
-.cohort-manage-row-separator {
-  margin: 10px 0 10px 0;
-}
-
 .cohort-missing-student-data {
   margin-top: 30px;
 }

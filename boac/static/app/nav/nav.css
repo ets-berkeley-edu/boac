@@ -129,6 +129,11 @@
   width: 20px;
 }
 
+.sidebar-row {
+  line-height: 1.4em;
+  padding: 1px 1px 1px 6px;
+}
+
 .sidebar-row-link {
   border-left: 6px solid #125074;
   color: #8bbdda;
