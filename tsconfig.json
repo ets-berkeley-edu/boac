@@ -8,6 +8,7 @@
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "noImplicitAny": false,
     "sourceMap": true,
     "removeComments": true,
     "baseUrl": ".",
