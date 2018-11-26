@@ -138,6 +138,19 @@
   width: 100%;
 }
 
+.course-page-size {
+  margin-left: auto;
+}
+
+.course-page-size a {
+  text-decoration: none;
+}
+
+.course-page-size a.selected {
+  color: #000;
+  font-weight: bold;
+}
+
 .course-section-title {
   font-size: 16px;
   font-weight: bold;
@@ -153,14 +166,6 @@
 }
 
 .course-tabs-container {
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  padding-top: 20px;
-}
-
-.course-tabs-container-column-02 {
   flex: 0 0 200px;
   white-space: nowrap;
 }
@@ -172,6 +177,14 @@
 
 .course-terms {
   margin: 0 20px 0 20px;
+}
+
+.course-view-controls-container {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding-top: 20px;
 }
 
 .list-group-header-row {
