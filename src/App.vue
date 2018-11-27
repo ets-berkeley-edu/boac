@@ -1,13 +1,13 @@
 <template>
   <div id="app">
     <v-app>
-      <v-toolbar class="toolbar">
+      <v-toolbar class="toolbar" dark>
         <v-toolbar-title><a :href="homeAddress">Home</a></v-toolbar-title>
         <v-spacer></v-spacer>
         <HeaderMenu/>
       </v-toolbar>
       <v-layout row>
-        <v-flex shrink class="sidebar-container font-weight-medium">
+        <v-flex class="sidebar-container font-weight-medium">
           <v-navigation-drawer dark permanent class="nav-container">
             <Sidebar/>
           </v-navigation-drawer>
@@ -60,11 +60,10 @@ export default {
   background-color: #125074;
 }
 .sidebar-container {
-  width: 230px;
+  max-width: 230px;
 }
 .toolbar {
   font-size: 16px;
-  color: #fff;
   background-color: #3b7ea5;
 }
 .toolbar a:link,

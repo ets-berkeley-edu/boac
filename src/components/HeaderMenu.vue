@@ -7,7 +7,7 @@
       <i v-bind:class="{'fas fa-caret-down': user, 'fas fa-spinner fa-spin': !user}"></i>
     </md-button>
     <md-menu-content class="header-menu-content" v-if="user">
-      <md-menu-item href="/admin">Admin</md-menu-item>
+      <md-menu-item href><router-link to="/admin">Admin</router-link></md-menu-item>
       <md-menu-item href="#" v-on:click="logOut">Log Out</md-menu-item>
       <md-menu-item :href="'mailto:' + supportEmailAddress" target="_blank">Feedback/Help</md-menu-item>
     </md-menu-content>

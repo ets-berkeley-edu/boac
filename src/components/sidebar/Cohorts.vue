@@ -1,35 +1,33 @@
 <template>
-  <div>
-    <div class="sidebar-row-link sidebar-section-header">
-      <div class="sidebar-header sidebar-row-link-label">
+  <v-container pa-1 fluid>
+    <v-layout class="sidebar-row-link">
+      <v-flex grow class="sidebar-row-link-label sidebar-header">
         <span class="sidebar-row-link-label-text">Cohorts</span>
-      </div>
-      <div>
-        <span class="sidebar-header sidebar-row-link-label">
-          <SmartRef id="sidebar-filtered-cohort-create"
-                    aria-label="Create cohort"
-                    class="sidebar-create-link"
-                    path="/cohort/filtered"><i class="fas fa-plus"></i></SmartRef>
-        </span>
-      </div>
-    </div>
-    <div class="sidebar-row-link"
-         v-for="(cohort, index) in cohorts"
-         v-bind:key="cohort.id">
-      <div class="sidebar-row-link-label">
+      </v-flex>
+      <v-flex shrink align-self-end class="sidebar-header sidebar-icon-plus">
+        <SmartRef id="sidebar-filtered-cohort-create"
+                  aria-label="Create cohort"
+                  path="/cohort/filtered"><i class="fas fa-plus"></i></SmartRef>
+      </v-flex>
+    </v-layout>
+    <v-layout class="sidebar-row-link"
+              v-for="(cohort, index) in cohorts"
+              v-bind:key="cohort.id">
+      <v-flex class="sidebar-row-link-label">
         <SmartRef :id="'sidebar-filtered-cohort-' + index"
                   :aria-label="'Cohort ' + cohort.name + ' has ' + cohort.totalStudentCount + ' students'"
                   class="sidebar-row-link-label-text"
                   path="/cohort/filtered"
                   :args="{id: cohort.id}">{{ cohort.name }}</SmartRef>
-      </div>
-      <div>
+      </v-flex>
+      <v-spacer></v-spacer>
+      <v-flex>
         <span :id="'sidebar-filtered-cohort-' + index + '-count'"
               class="sidebar-pill">{{cohort.totalStudentCount}}<span class="sr-only">{{ 'student' | pluralize(cohort.totalStudentCount)}}</span>
         </span>
-      </div>
-    </div>
-  </div>
+      </v-flex>
+    </v-layout>
+  </v-container>
 </template>
 
 <script>
@@ -49,10 +47,7 @@ export default {
 </script>
 
 <style scoped>
-.sidebar-create-link {
-  display: inline-block;
-  text-align: center;
-  vertical-align: middle;
-  width: 20px;
+.sidebar-icon-plus {
+  float: right;
 }
 </style>
