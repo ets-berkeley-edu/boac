@@ -854,6 +854,14 @@ class TestStudentAnalytics:
             'prepEligible': True,
             'didTprep': False,
             'tprepEligible': False,
+            'probation': False,
+            'sat1read': 510,
+            'sat2read': 520,
+            'sat2math': 620,
+            'inMet': False,
+            'gradTerm': 'sp',
+            'gradYear': '2020',
+            'probation': False,
         }
 
     def test_athletics_profile_admin(self, admin_authenticated_response):

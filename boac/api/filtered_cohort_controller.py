@@ -126,6 +126,7 @@ def create_cohort():
     cohort = CohortFilter.create(
         advisor_ldap_uids=util.get(params, 'advisorLdapUids'),
         coe_prep_statuses=util.get(params, 'coePrepStatuses'),
+        coe_probation=util.get(params, 'coeProbation'),
         ethnicities=util.get(params, 'ethnicities'),
         genders=util.get(params, 'genders'),
         gpa_ranges=util.get(params, 'gpaRanges'),

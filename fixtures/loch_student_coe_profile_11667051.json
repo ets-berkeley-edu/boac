@@ -6,5 +6,12 @@
   "didPrep": true,
   "prepEligible": false,
   "didTprep": false,
-  "tprepEligible": false
+  "tprepEligible": false,
+  "sat1read": null,
+  "sat2read": null,
+  "sat2math": null,
+  "inMet": false,
+  "gradTerm": null,
+  "gradYear": null,
+  "probation": false
 }

@@ -169,6 +169,7 @@ class CohortFilter(Base, UserMixin):
             'owners': [user.uid for user in self.owners],
         }
         coe_prep_statuses = c.get('coePrepStatuses')
+        coe_probation = util.to_bool_or_none(c.get('coeProbation'))
         ethnicities = c.get('ethnicities')
         genders = c.get('genders')
         gpa_ranges = c.get('gpaRanges')
@@ -185,6 +186,7 @@ class CohortFilter(Base, UserMixin):
             'filterCriteria': {
                 'advisorLdapUids': advisor_ldap_uids,
                 'coePrepStatuses': coe_prep_statuses,
+                'coeProbation': coe_probation,
                 'ethnicities': ethnicities,
                 'genders': genders,
                 'gpaRanges': gpa_ranges,
@@ -215,6 +217,7 @@ class CohortFilter(Base, UserMixin):
         results = query_students(
             advisor_ldap_uids=advisor_ldap_uids,
             coe_prep_statuses=coe_prep_statuses,
+            coe_probation=coe_probation,
             ethnicities=ethnicities,
             genders=genders,
             gpa_ranges=gpa_ranges,

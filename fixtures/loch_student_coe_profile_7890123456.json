@@ -6,5 +6,12 @@
   "didPrep": false,
   "prepEligible": true,
   "didTprep": false,
-  "tprepEligible": false
+  "tprepEligible": false,
+  "sat1read": 510,
+  "sat2read": 520,
+  "sat2math": 620,
+  "inMet": false,
+  "gradTerm": "sp",
+  "gradYear": "2020",
+  "probation": false
 }

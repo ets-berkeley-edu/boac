@@ -152,6 +152,15 @@ def get_cohort_filter_definitions(scope):
                 'type': 'array',
             },
             {
+                'availableTo': ['COENG'],
+                'defaultValue': None,
+                'key': 'coeProbation',
+                'name': 'Probation',
+                'options': [True, False],
+                'param': 'coeProbation',
+                'type': 'boolean',
+            },
+            {
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
                 'key': 'lastNameRange',

@@ -311,6 +311,7 @@ def get_majors(scope=[]):
 def get_students_query(
         advisor_ldap_uids=None,
         coe_prep_statuses=None,
+        coe_probation=None,
         ethnicities=None,
         genders=None,
         gpa_ranges=None,
@@ -389,6 +390,7 @@ def get_students_query(
     if genders:
         query_filter += ' AND s.gender = ANY(:genders)'
         query_bindings.update({'genders': genders})
+    query_filter += f' AND s.probation IS {coe_probation}' if coe_probation is not None else ''
     query_filter += f' AND s.minority IS {underrepresented}' if underrepresented is not None else ''
 
     return query_tables, query_filter, query_bindings
@@ -522,8 +524,23 @@ def _student_query_tables_for_scope(scope):
         elif join_type == 'intersection':
             # In an intersection of multiple schemas, all queryable columns should be returned.
             columns_for_codes = {
-                'COENG': ['advisor_ldap_uid', 'gender', 'ethnicity', 'did_prep', 'minority', 'prep_eligible', 'did_tprep', 'tprep_eligible'],
-                'UWASC': ['active', 'intensive', 'group_code', 'group_name'],
+                'COENG': [
+                    'advisor_ldap_uid',
+                    'did_prep',
+                    'did_tprep',
+                    'ethnicity',
+                    'gender',
+                    'minority',
+                    'prep_eligible',
+                    'probation',
+                    'tprep_eligible',
+                ],
+                'UWASC': [
+                    'active',
+                    'group_code',
+                    'group_name',
+                    'intensive',
+                ],
             }
             intersection_columns = []
             for code in scope:
