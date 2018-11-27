@@ -17,8 +17,8 @@
         <SmartRef :id="'sidebar-filtered-cohort-' + index"
                   :aria-label="'Cohort ' + cohort.name + ' has ' + cohort.totalStudentCount + ' students'"
                   class="sidebar-row-link-label-text"
-                  path="/cohort/filtered"
-                  :args="{id: cohort.id}">{{ cohort.name }}</SmartRef>
+                  :path="'/filtered_cohort/' + cohort.id"
+                  :objectId="cohort.id">{{ cohort.name }}</SmartRef>
       </v-flex>
       <v-spacer></v-spacer>
       <v-flex>

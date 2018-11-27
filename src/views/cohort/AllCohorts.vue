@@ -11,7 +11,8 @@
         <h2 class="page-section-header-sub">{{owner.firstName}} {{owner.lastName}}</h2>
         <ul>
           <li v-for="cohort in owner.cohorts" v-bind:key="cohort.id">
-            <SmartRef :path="'/cohort/filtered?id=' + cohort.id">{{ cohort.name }}</SmartRef> ({{ cohort.totalStudentCount }})
+            <SmartRef :path="'/filtered_cohort/' + cohort.id"
+                      :objectId="cohort.id">{{ cohort.name }}</SmartRef> ({{ cohort.totalStudentCount }})
           </li>
         </ul>
       </div>

@@ -66,7 +66,13 @@ def register_routes(app):
     @app.route('/', defaults={'path': ''})
     @app.route('/<path:path>')
     def front_end_route(**kwargs):
-        return _vue_response() if _serve_vue(app) else make_response(open(app.config['INDEX_HTML']).read())
+        if app.config['VUE_ENABLED']:
+            path = request.path
+            vue_paths = app.config['VUE_PATHS']
+            vue_path = next((value for key, value in vue_paths.items() if path.startswith(key)), None)
+        else:
+            vue_path = None
+        return _vue_response(vue_path) if vue_path else make_response(open(app.config['INDEX_HTML']).read())
 
     @app.after_request
     def after_api_request(response):
@@ -90,16 +96,9 @@ def register_routes(app):
                 app.logger.debug(log_message)
         return response
 
-    def _vue_response():
+    def _vue_response(uri_path):
         vue_base_url = app.config['VUE_LOCALHOST_BASE_URL']
         if vue_base_url:
-            return redirect(vue_base_url + request.full_path)
+            return redirect(vue_base_url + uri_path)
         else:
             return make_response(open(app.config['INDEX_HTML_VUE']).read())
-
-    def _serve_vue(app_):
-        if app_.config['VUE_ENABLED']:
-            path = request.path
-            return next((p for p in app_.config['VUE_PATHS'] if path.startswith(p)), False)
-        else:
-            return False

@@ -1,6 +1,5 @@
 <template>
   <router-link :to="path"
-               :params="args"
                @click.native="maybeRedirect"><slot></slot></router-link>
 </template>
 
@@ -11,21 +10,24 @@ import store from '@/store';
 export default {
   name: 'SmartRef',
   computed: {
-    underConstruction() {
+    legacyUri() {
       let route = _.get(this.$router.resolve({ path: this.path }), 'route');
-      return !route || route.meta.underConstruction;
+      return !route || _.get(route, 'meta.legacyUri');
     }
   },
   methods: {
     maybeRedirect() {
-      if (this.underConstruction) {
-        window.location = store.state.apiBaseUrl + this.path;
+      if (this.legacyUri) {
+        let uri = this.objectId
+          ? _.replace(this.legacyUri, ':id', this.objectId)
+          : this.legacyUri;
+        window.location = store.state.apiBaseUrl + uri;
       }
     }
   },
   props: {
     path: String,
-    args: Object
+    objectId: Number
   }
 };
 </script>

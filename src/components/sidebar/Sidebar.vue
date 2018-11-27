@@ -1,16 +1,14 @@
 <template>
-  <div>
+  <div v-if="user">
     <SearchStudents/>
     <Cohorts/>
-
     <hr class="section-divider"/>
-
     <CuratedGroups/>
 
     <div class="sidebar-row-link">
       <span class="sidebar-row-link-label">
         <SmartRef id="sidebar-filtered-cohorts-all"
-                  path="/cohort/filtered/all">Everyone's Cohorts</SmartRef>
+                  path="/cohorts_all">Everyone's Cohorts</SmartRef>
       </span>
     </div>
   </div>

@@ -30,8 +30,16 @@
   var VueMigratedLinkController = function($scope, config) {
     this.$onInit = function() {
       $scope.vueEnabled = config.vueEnabled;
-      $scope.vueBaseUrl = config.vueBaseUrl;
-      $scope.uri = this.uri;
+      let vueUrl = null;
+      if (config.vueEnabled) {
+        for (let path in config.vuePaths) {
+          if (this.uri.startsWith(path)) {
+            vueUrl = config.vueBaseUrl + config.vuePaths[path];
+            break;
+          }
+        }
+      }
+      $scope.redirectUrl = vueUrl || this.uri;
     };
   };
 

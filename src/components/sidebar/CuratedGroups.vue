@@ -11,7 +11,8 @@
           <SmartRef :id="'sidebar-curated-cohort-' + index"
                     :aria-label="'Curated group ' + group.name + ' has ' + group.studentCount + ' students'"
                     class="sidebar-row-link-label-text"
-                    :path="'/cohort/curated/' + group.id">{{ group.name }}</SmartRef>
+                    :path="'/curated_group/' + group.id"
+                    :objectId="group.id">{{ group.name }}</SmartRef>
         </v-flex>
         <v-spacer></v-spacer>
         <v-flex>

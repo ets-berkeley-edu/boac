@@ -38,5 +38,9 @@ ALERT_INFREQUENT_ACTIVITY_ENABLED = False
 ALERT_WITHDRAWAL_ENABLED = False
 
 VUE_ENABLED = True
-INDEX_HTML = 'tests/static/index-legacy.html'
-INDEX_HTML_VUE = 'tests/static/index-vue.html'
+INDEX_HTML = 'tests/static/test-index-legacy.html'
+INDEX_HTML_VUE = 'tests/static/test-index-vue.html'
+VUE_PATHS = {
+    '/admin': '/admin',
+    '/cohort/filtered/all': '/cohorts_all',
+}
