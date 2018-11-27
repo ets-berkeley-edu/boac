@@ -15,7 +15,8 @@
           <div class="cohort-manage-name">
             <strong>
               <SmartRef :id="'curated-cohort-name-' + index"
-                        :path="'/cohort/curated/' + group.id">{{ group.name }}</SmartRef>
+                        :path="'/cohort/curated/' + group.id"
+                        :objectId="group.id">{{ group.name }}</SmartRef>
             </strong>
             <span class="faint-text">(<span :id="'curated-cohort-student-count-' + index">{{ group.studentCount }}</span>)</span>
           </div>

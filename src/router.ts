@@ -2,7 +2,6 @@ import Admin from '@/views/Admin.vue';
 import AllCohorts from '@/views/cohort/AllCohorts.vue';
 import Login from '@/views/Login.vue';
 import CuratedGroup from '@/views/group/CuratedGroup.vue';
-import ParentRoute from '@/views/ParentRoute.vue';
 import store from '@/store';
 import Vue from 'vue';
 import VueRouter from 'vue-router';
@@ -65,33 +64,19 @@ const router = new VueRouter({
       beforeEnter: requiresAuth
     },
     {
-      path: '/cohort',
-      component: ParentRoute,
+      path: '/cohorts_all',
+      component: AllCohorts
+    },
+    {
+      path: '/curated_group/:id',
       beforeEnter: requiresAuth,
-      children: [
-        {
-          path: 'curated',
-          component: ParentRoute,
-          children: [
-            {
-              path: ':id',
-              component: CuratedGroup,
-              meta: { underConstruction: true }
-            }
-          ]
-        },
-        {
-          path: 'filtered',
-          meta: { underConstruction: true },
-          component: ParentRoute,
-          children: [
-            {
-              path: 'all',
-              component: AllCohorts
-            }
-          ]
-        }
-      ]
+      component: CuratedGroup,
+      meta: { legacyUri: '/cohort/curated/:id' }
+    },
+    {
+      path: '/filtered_cohort/:id',
+      beforeEnter: requiresAuth,
+      meta: { legacyUri: '/cohort/filtered?id=:id' }
     }
   ]
 });

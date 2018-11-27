@@ -42,7 +42,7 @@ class TestVueEnabledURI:
 
     def test_vue_enabled_path(self, client, asc_advisor_session):
         """Serves Vue.js index page."""
-        response = client.get('/admin?foo=baz')
+        response = client.get('/cohort/filtered/all')
         assert response.status_code == 200
         assert 'I am a Vue.js page' in str(response.data)
 

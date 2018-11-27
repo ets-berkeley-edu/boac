@@ -26,6 +26,8 @@
 </template>
 
 <script>
+import _ from 'lodash';
+
 export default {
   name: 'SearchStudents',
   data() {
@@ -34,6 +36,11 @@ export default {
       searchPhrase: '',
       withButton: false
     };
+  },
+  methods: {
+    search() {
+      _.noop();
+    }
   }
 };
 </script>
