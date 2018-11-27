@@ -141,7 +141,10 @@
           if (currentEnrollmentTerm) {
             $scope.currentEnrolledUnits = _.get(currentEnrollmentTerm, 'enrolledUnits');
           }
-          visualizationService.showUnitsChart($scope.cumulativeUnits, $scope.currentEnrolledUnits);
+          $scope.showUnitTotals = $scope.cumulativeUnits || $scope.currentEnrolledUnits;
+          if ($scope.showUnitTotals) {
+            visualizationService.showUnitsChart($scope.cumulativeUnits, $scope.currentEnrolledUnits);
+          }
 
           page.loading(false);
           googleAnalyticsService.track('Student', 'view', preferredName, $scope.student.sid);

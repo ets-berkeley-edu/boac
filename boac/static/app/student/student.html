@@ -122,12 +122,18 @@
               <h3 class="sr-only">Units</h3>
               <div class="student-bio-status-box-units-left">
                 <div class="student-bio-status-legend">Units Completed</div>
-                <div class="student-bio-status-number" data-ng-bind="student.sisProfile.cumulativeUnits"></div>
+                <div class="student-bio-status-number" data-ng-bind="cumulativeUnits" data-ng-if="cumulativeUnits"></div>
+                <div class="student-bio-status-number" data-ng-if="!cumulativeUnits">--<span class="sr-only">No data</span></div>
               </div>
               <div class="profile-units-chart-outer">
                 <div class="student-bio-status-legend student-bio-status-legend-heading" aria-hidden="true">Unit Totals</div>
-                <div class="profile-units-chart-container" id="profile-units-chart-container" aria-hidden="true"></div>
-                <div class="sr-only">
+                <div class="profile-units-chart-container" id="profile-units-chart-container" aria-hidden="true"
+                     data-ng-if="showUnitTotals"></div>
+                <div class="student-bio-status-legend student-bio-status-legend-small"
+                       data-ng-if="!showUnitTotals">
+                    Units Not Yet Available
+                </div>
+                <div class="sr-only" data-ng-if="showUnitTotals">
                   Currently enrolled units: <span data-ng-bind="currentEnrolledUnits || '0'"></span>
                 </div>
               </div>
