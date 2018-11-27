@@ -1,7 +1,7 @@
 import Admin from '@/views/Admin.vue';
-import AllCohorts from '@/views/cohort/filtered/AllCohorts.vue';
+import AllCohorts from '@/views/cohort/AllCohorts.vue';
 import Login from '@/views/Login.vue';
-import ManageCuratedCohorts from '@/views/cohort/curated/ManageCuratedCohorts.vue';
+import CuratedGroup from '@/views/group/CuratedGroup.vue';
 import ParentRoute from '@/views/ParentRoute.vue';
 import store from '@/store';
 import Vue from 'vue';
@@ -74,11 +74,8 @@ const router = new VueRouter({
           component: ParentRoute,
           children: [
             {
-              path: 'manage',
-              component: ManageCuratedCohorts
-            },
-            {
               path: ':id',
+              component: CuratedGroup,
               meta: { underConstruction: true }
             }
           ]

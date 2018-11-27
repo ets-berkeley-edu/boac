@@ -43,17 +43,14 @@ export default {
 .sidebar-header {
   color: #fff;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 800;
   margin: 1px 0 1px 0;
   white-space: nowrap;
 }
 .sidebar-row-link {
   border-left: 6px solid #125074;
   color: #8bbdda;
-  display: flex;
-  flex-direction: row;
   font-size: 16px;
-  justify-content: space-between;
   line-height: 1.4em;
   padding: 1px 1px 1px 0;
 }
@@ -81,10 +78,9 @@ export default {
   -moz-outline-style: none;
 }
 .sidebar-row-link-label {
-  padding-left: 8px;
+  padding-left: 5px;
 }
 .sidebar-row-link-label-text {
-  display: inline-block;
   overflow: hidden;
   padding-right: 5px;
   text-overflow: ellipsis;
@@ -100,9 +96,8 @@ export default {
   border: none;
   color: #4a90e2;
   height: 1px;
-  margin: 10px 10px 10px 15px;
+  margin: 10px 5px 10px 10px;
 }
-
 .sidebar-pill {
   background-color: #8bbdda;
   border-radius: 10px;
@@ -113,7 +108,6 @@ export default {
   font-weight: 800;
   height: 20px;
   line-height: 20px;
-  margin-right: 5px;
   padding: 0 4px 0 4px;
   text-align: center;
 }
