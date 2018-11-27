@@ -112,7 +112,7 @@
       </td>
       <td class="group-summary-column group-summary-column-major">
         <span class="sr-only" data-ng-bind="srText['majors[0]']"></span>
-        <div data-ng-if="student.majors.length == 0">--<span class="sr-only">No data</span></div>
+        <div data-ng-if="student.majors.length === 0">--<span class="sr-only">No data</span></div>
         <div data-ng-bind="major" data-ng-repeat="major in student.majors" data-ng-if="student.majors.length > 0"></div>
       </td>
       <td class="group-summary-column group-summary-column-grad">
