@@ -6,5 +6,12 @@
   "didPrep": false,
   "prepEligible": false,
   "didTprep": false,
-  "tprepEligible": true
+  "tprepEligible": true,
+  "sat1read": 720,
+  "sat2read": 760,
+  "sat2math": 770,
+  "inMet": true,
+  "gradTerm": "fa",
+  "gradYear": "2018",
+  "probation": "true"
 }
