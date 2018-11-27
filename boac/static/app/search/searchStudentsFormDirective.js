@@ -56,9 +56,10 @@
       link: function(scope, elem, attrs) {
         scope.searchPhrase = $location.search().q;
         scope.withButton = attrs.withButton;
+        scope.includeCourses = attrs.includeCourses;
         scope.searchForStudents = function() {
           page.loading(true);
-          $state.transitionTo('search', {q: scope.searchPhrase}, {reload: true});
+          $state.transitionTo('search', {q: scope.searchPhrase, includeCourses: scope.includeCourses}, {reload: true});
         };
       }
     };

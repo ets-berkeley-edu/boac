@@ -40,6 +40,7 @@
 
     $scope.inDemoMode = status.inDemoMode;
     $scope.search = {
+      includeCourses: $location.search().includeCourses,
       limit: 50,
       phrase: $location.search().q,
       students: null,
@@ -109,7 +110,7 @@
     var loadSearchResults = function() {
       var inactiveAsc = authService.isAscUser() ? false : null;
       page.loading(true);
-      studentFactory.searchForStudents($scope.search.phrase, inactiveAsc, 'last_name', 0, $scope.search.limit).then(
+      studentFactory.searchForStudents($scope.search.phrase, $scope.search.includeCourses, inactiveAsc, 'last_name', 0, $scope.search.limit).then(
         function(response) {
           $scope.search.courses = response.data.courses;
           $scope.search.students = utilService.extendSortableNames(response.data.students);

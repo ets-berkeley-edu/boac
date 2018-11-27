@@ -114,31 +114,36 @@ def search_students():
         offset=util.get(params, 'offset', 0),
         limit=util.get(params, 'limit', 50),
     )
-    alphanumeric_search_phrase = ''.join(e for e in search_phrase if e.isalnum()).upper()
-    courses = []
-    if alphanumeric_search_phrase:
-        course_rows = get_enrolled_primary_sections(current_term_id(), alphanumeric_search_phrase)
-        for row in islice(course_rows, 50):
-            courses.append({
-                'termId': row['term_id'],
-                'sectionId': row['sis_section_id'],
-                'courseName': row['sis_course_name'],
-                'courseTitle': row['sis_course_title'],
-                'instructionFormat': row['sis_instruction_format'],
-                'sectionNum': row['sis_section_num'],
-                'instructors': row['instructors'],
-            })
-    else:
-        course_rows = []
     alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
     students = student_results['students']
     add_alert_counts(alert_counts, students)
-    return tolerant_jsonify({
-        'courses': courses,
+
+    feed = {
         'students': students,
-        'totalCourseCount': len(course_rows),
         'totalStudentCount': student_results['totalStudentCount'],
-    })
+    }
+
+    if util.get(params, 'includeCourses'):
+        alphanumeric_search_phrase = ''.join(e for e in search_phrase if e.isalnum()).upper()
+        courses = []
+        if alphanumeric_search_phrase:
+            course_rows = get_enrolled_primary_sections(current_term_id(), alphanumeric_search_phrase)
+            for row in islice(course_rows, 50):
+                courses.append({
+                    'termId': row['term_id'],
+                    'sectionId': row['sis_section_id'],
+                    'courseName': row['sis_course_name'],
+                    'courseTitle': row['sis_course_title'],
+                    'instructionFormat': row['sis_instruction_format'],
+                    'sectionNum': row['sis_section_num'],
+                    'instructors': row['instructors'],
+                })
+        else:
+            course_rows = []
+        feed['courses'] = courses
+        feed['totalCourseCount'] = len(course_rows)
+
+    return tolerant_jsonify(feed)
 
 
 @app.route('/api/team_groups/all')
