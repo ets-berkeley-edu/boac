@@ -27,19 +27,23 @@
 
 <script>
 import _ from 'lodash';
+import router from '@/router';
 
 export default {
   name: 'SearchStudents',
   data() {
     return {
       disable: false,
-      searchPhrase: '',
+      searchPhrase: null,
       withButton: false
     };
   },
   methods: {
     search() {
-      _.noop();
+      this.searchPhrase = _.trim(this.searchPhrase);
+      if (this.searchPhrase) {
+        router.push({ path: 'search', query: { q: this.searchPhrase } });
+      }
     }
   }
 };

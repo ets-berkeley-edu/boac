@@ -59,6 +59,8 @@ class TestUserProfile:
         assert response.status_code == 200
         user = response.json
         assert user['isAdmin'] is True
+        assert user['isAsc'] is False
+        assert user['isCoe'] is False
         assert not len(user['departments'])
 
     def test_department_beyond_asc(self, client, fake_auth):
@@ -68,6 +70,7 @@ class TestUserProfile:
         assert response.status_code == 200
         user = response.json
         assert user['isAdmin'] is False
+        assert user['isCoe'] is True
         assert len(user['departments']) == 1
         assert 'COENG' in user['departments']
         assert user['departments']['COENG']['isAdvisor'] is False
@@ -80,6 +83,7 @@ class TestUserProfile:
         response = client.get('/api/profile/my')
         assert response.status_code == 200
         user = response.json
+        assert user['isAsc'] is True
         assert 'UWASC' in user['departments']
         assert user['departments']['UWASC']['isAdvisor'] is True
         assert user['departments']['UWASC']['isDirector'] is False
@@ -103,7 +107,8 @@ class TestMyCohorts:
     def test_my_cohorts(self, asc_advisor_session, client):
         response = client.get('/api/profile/my')
         assert response.status_code == 200
-        cohorts = response.json['myFilteredCohorts']
+        user = response.json
+        cohorts = user['myFilteredCohorts']
         assert [cohort['name'] for cohort in cohorts] == [
             'All sports',
             'Defense Backs, Active',

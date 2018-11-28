@@ -37,9 +37,8 @@ INDEX_HTML_VUE = 'dist/static/index.html'
 # The following applies to localhost ONLY, where Vue.js front-end is served on a different port.
 VUE_LOCALHOST_BASE_URL = None
 VUE_ENABLED = False
-VUE_PATHS = [
-    '/admin',
-]
+# See VUE_PATHS sample config in config/test.py
+VUE_PATHS = []
 
 # Directory to search for mock fixtures, if running in "test" or "demo" mode.
 FIXTURES_PATH = None
