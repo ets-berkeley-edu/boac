@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api import errors
 from boac.api.util import admin_required, authorized_users_api_feed
-from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE
+from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE, get_dept_codes
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
 from boac.models.alert import Alert
@@ -49,6 +49,9 @@ def my_profile():
                     'isDirector': m.is_director,
                 },
             })
+        dept_codes = get_dept_codes(current_user)
+        profile['isAsc'] = 'UWASC' in dept_codes
+        profile['isCoe'] = 'COENG' in dept_codes
         filtered_cohorts = []
         for cohort in CohortFilter.summarize_alert_counts_in_all_owned_by(uid):
             cohort['isOwnedByCurrentUser'] = True
@@ -69,6 +72,7 @@ def my_profile():
             'myFilteredCohorts': filtered_cohorts,
             'myCuratedCohorts': curated_cohorts,
             'isAdmin': current_user.is_admin,
+            'inDemoMode': current_user.in_demo_mode if hasattr(current_user, 'in_demo_mode') else False,
             'departments': departments,
         })
     return tolerant_jsonify(profile)

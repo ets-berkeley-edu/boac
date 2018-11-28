@@ -39,9 +39,7 @@ export default {
   name: 'Cohorts',
   components: { SmartRef },
   computed: {
-    cohorts() {
-      return _.get(store.getters.user, 'myFilteredCohorts');
-    }
+    cohorts: () => _.get(store.getters.user, 'myFilteredCohorts')
   }
 };
 </script>
