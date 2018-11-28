@@ -77,9 +77,10 @@
         <div class="course-tabs-container">
           <div data-ng-include="'/static/app/shared/tabs.html'"></div>
         </div>
-        <div class="flex-container course-page-size">
+        <div class="flex-container course-page-size"
+             data-ng-if="tab === 'list' && (section.totalStudentCount > pagination.defaultItemsPerPage)">
           <span data-ng-bind="section.totalStudentCount"></span>&nbsp;total students &mdash; View per page:&nbsp;
-          <ul class="flex-container" data-ng-if="section.totalStudentCount > pagination.defaultItemsPerPage">
+          <ul class="flex-container">
             <li data-ng-repeat="option in pagination.options">
               <a href
                  data-ng-bind="option"
