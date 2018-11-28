@@ -308,24 +308,25 @@ def get_majors(scope=[]):
     return safe_execute_rds(sql)
 
 
-def get_students_query(
-        advisor_ldap_uids=None,
-        coe_prep_statuses=None,
-        coe_probation=None,
-        ethnicities=None,
-        genders=None,
-        gpa_ranges=None,
-        group_codes=None,
-        in_intensive_cohort=None,
-        is_active_asc=None,
-        last_name_range=None,
-        levels=None,
-        majors=None,
-        scope=(),
-        search_phrase=None,
-        underrepresented=None,
-        unit_ranges=None,
-):  # noqa
+def get_students_query(     # noqa
+    advisor_ldap_uids=None,
+    coe_prep_statuses=None,
+    coe_probation=None,
+    ethnicities=None,
+    genders=None,
+    gpa_ranges=None,
+    group_codes=None,
+    in_intensive_cohort=None,
+    is_active_asc=None,
+    is_active_coe=None,
+    last_name_range=None,
+    levels=None,
+    majors=None,
+    scope=(),
+    search_phrase=None,
+    underrepresented=None,
+    unit_ranges=None,
+):
     query_tables = _student_query_tables_for_scope(scope)
     if not query_tables:
         return None, None, None
@@ -392,6 +393,10 @@ def get_students_query(
         query_bindings.update({'genders': genders})
     query_filter += f' AND s.probation IS {coe_probation}' if coe_probation is not None else ''
     query_filter += f' AND s.minority IS {underrepresented}' if underrepresented is not None else ''
+    if is_active_coe is False:
+        query_filter += f" AND s.status IN ('D','P','U','W','X','Z')"
+    elif is_active_coe is True:
+        query_filter += f" AND s.status NOT IN ('D','P','U','W','X','Z')"
 
     return query_tables, query_filter, query_bindings
 
@@ -533,6 +538,7 @@ def _student_query_tables_for_scope(scope):
                     'minority',
                     'prep_eligible',
                     'probation',
+                    'status',
                     'tprep_eligible',
                 ],
                 'UWASC': [

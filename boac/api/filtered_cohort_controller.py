@@ -133,6 +133,7 @@ def create_cohort():
         group_codes=util.get(params, 'groupCodes'),
         in_intensive_cohort=util.to_bool_or_none(params.get('inIntensiveCohort')),
         is_inactive_asc=util.to_bool_or_none(params.get('isInactiveAsc')),
+        is_inactive_coe=util.to_bool_or_none(params.get('isInactiveCoe')),
         name=name,
         last_name_range=util.get(params, 'lastNameRange'),
         levels=util.get(params, 'levels'),

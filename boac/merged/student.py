@@ -44,6 +44,8 @@ def get_api_json(sids):
         distilled = {key: profile[key] for key in ['uid', 'sid', 'firstName', 'lastName', 'name']}
         if profile.get('athleticsProfile'):
             distilled['athleticsProfile'] = profile['athleticsProfile']
+        if profile.get('coeProfile'):
+            distilled['coeProfile'] = profile['coeProfile']
         return distilled
     return [distill_profile(profile) for profile in get_full_student_profiles(sids)]
 
@@ -75,6 +77,10 @@ def get_full_student_profiles(sids):
                 profile = profiles_by_sid.get(row['sid'])
                 if profile:
                     profile['coeProfile'] = json.loads(row['profile'])
+                    if profile['coeProfile'].get('status') in ['D', 'P', 'U', 'W', 'X', 'Z']:
+                        profile['coeProfile']['isActiveCoe'] = False
+                    else:
+                        profile['coeProfile']['isActiveCoe'] = True
 
     return profiles
 
@@ -213,25 +219,26 @@ def get_term_gpas_by_sid(sids, as_dicts=False):
 
 
 def query_students(
-        advisor_ldap_uids=None,
-        coe_prep_statuses=None,
-        coe_probation=None,
-        ethnicities=None,
-        genders=None,
-        gpa_ranges=None,
-        group_codes=None,
-        in_intensive_cohort=None,
-        include_profiles=False,
-        is_active_asc=None,
-        last_name_range=None,
-        levels=None,
-        limit=50,
-        majors=None,
-        offset=0,
-        order_by=None,
-        sids_only=False,
-        underrepresented=None,
-        unit_ranges=None,
+    advisor_ldap_uids=None,
+    coe_prep_statuses=None,
+    coe_probation=None,
+    ethnicities=None,
+    genders=None,
+    gpa_ranges=None,
+    group_codes=None,
+    in_intensive_cohort=None,
+    include_profiles=False,
+    is_active_asc=None,
+    is_active_coe=None,
+    last_name_range=None,
+    levels=None,
+    limit=50,
+    majors=None,
+    offset=0,
+    order_by=None,
+    sids_only=False,
+    underrepresented=None,
+    unit_ranges=None,
 ):
     criteria = {
         'advisor_ldap_uids': advisor_ldap_uids,
@@ -242,6 +249,7 @@ def query_students(
         'group_codes': group_codes,
         'in_intensive_cohort': in_intensive_cohort,
         'is_active_asc': is_active_asc,
+        'is_active_coe': is_active_coe,
         'underrepresented': underrepresented,
     }
     if order_by:
@@ -258,6 +266,7 @@ def query_students(
         group_codes=group_codes,
         in_intensive_cohort=in_intensive_cohort,
         is_active_asc=is_active_asc,
+        is_active_coe=is_active_coe,
         last_name_range=last_name_range,
         levels=levels,
         majors=majors,
@@ -312,6 +321,7 @@ def search_for_students(
     include_profiles=False,
     search_phrase=None,
     is_active_asc=None,
+    is_active_coe=None,
     order_by=None,
     offset=0,
     limit=None,
@@ -319,10 +329,12 @@ def search_for_students(
     scope = narrow_scope_by_criteria(
         get_student_query_scope(),
         is_active_asc=is_active_asc,
+        is_active_coe=is_active_coe,
     )
     query_tables, query_filter, query_bindings = data_loch.get_students_query(
         search_phrase=search_phrase,
         is_active_asc=is_active_asc,
+        is_active_coe=is_active_coe,
         scope=scope,
     )
     if not query_tables:
@@ -384,6 +396,7 @@ def narrow_scope_by_criteria(scope, **kwargs):
         ],
         'COENG': [
             'advisor_ldap_uids',
+            'is_active_coe',
             'coe_prep_statuses',
             'coe_probation',
             'ethnicities',

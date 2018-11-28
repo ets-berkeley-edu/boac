@@ -13,5 +13,6 @@
   "inMet": false,
   "gradTerm": null,
   "gradYear": null,
-  "probation": false
+  "probation": false,
+  "status": "Z"
 }

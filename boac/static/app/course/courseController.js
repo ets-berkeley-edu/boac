@@ -32,7 +32,6 @@
     $rootScope,
     $scope,
     $stateParams,
-    authService,
     config,
     courseFactory,
     googleAnalyticsService,
@@ -44,7 +43,7 @@
   ) {
 
     $scope.inDemoMode = status.inDemoMode;
-    $scope.isAscUser = authService.isAscUser();
+    $scope.displayAsInactive = utilService.displayAsInactive;
     page.loading(true);
     $scope.lastActivityDays = utilService.lastActivityDays;
     $scope.pagination = {
