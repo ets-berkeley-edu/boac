@@ -19,7 +19,9 @@
           aria-labelledby="header-log-out"
           data-ng-if="profile">
         <li role="menuitem" data-ng-if="status.isAdmin">
-          <vue-migrated-link data-uri="'/admin'">Admin</vue-migrated-link>
+          <a id="header-admin"
+             data-ui-sref="admin()"
+             data-ui-sref-opts="{reload: true}">Admin</a>
         </li>
         <li id="header-log-out" role="menuitem">
           <a href data-ng-click="logOut()">Log Out</a>
