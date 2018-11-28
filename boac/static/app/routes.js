@@ -167,7 +167,7 @@
         reloadOnSearch: false
       });
 
-  }).run(function($rootScope, $state, $transitions, authFactory, status) {
+  }).run(function($rootScope, $state, $transitions, authFactory, config, status) {
 
     $state.defaultErrorHandler(function(error) {
       var message = _.get(error, 'detail.message');
@@ -186,6 +186,18 @@
         $state.go('404');
       } else {
         $state.go('login', {casLoginError: message});
+      }
+    });
+
+    $transitions.onBefore({}, function($transition) {
+      if (config.vueEnabled) {
+        var url = _.toString($transition.$to().self.url);
+        for (var key in config.vuePaths) {
+          if (url.startsWith(key)) {
+            // Force page refresh. The server-side routing will redirect user to Vue-enabled index.html and proper path.
+            window.location = url;
+          }
+        }
       }
     });
 
