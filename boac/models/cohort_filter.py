@@ -28,7 +28,7 @@ import json
 from boac import db, std_commit
 from boac.api.errors import InternalServerError
 from boac.lib import util
-from boac.lib.berkeley import get_dept_codes
+from boac.lib.berkeley import convert_inactive_arg
 from boac.merged import athletics
 from boac.merged.student import query_students
 from boac.models.alert import Alert
@@ -176,6 +176,7 @@ class CohortFilter(Base, UserMixin):
         group_codes = c.get('groupCodes')
         in_intensive_cohort = util.to_bool_or_none(c.get('inIntensiveCohort'))
         is_inactive_asc = util.to_bool_or_none(c.get('isInactiveAsc'))
+        is_inactive_coe = util.to_bool_or_none(c.get('isInactiveCoe'))
         last_name_range = c.get('lastNameRange')
         levels = c.get('levels')
         majors = c.get('majors')
@@ -193,6 +194,7 @@ class CohortFilter(Base, UserMixin):
                 'groupCodes': group_codes,
                 'inIntensiveCohort': in_intensive_cohort,
                 'isInactiveAsc': is_inactive_asc,
+                'isInactiveCoe': is_inactive_coe,
                 'lastNameRange': last_name_range,
                 'levels': levels,
                 'majors': majors,
@@ -208,11 +210,11 @@ class CohortFilter(Base, UserMixin):
                 'totalStudentCount': self.student_count,
             })
             return cohort_json
+
         owner = self.owners[0] if len(self.owners) else None
-        if owner and 'UWASC' in get_dept_codes(owner):
-            is_active_asc = not is_inactive_asc
-        else:
-            is_active_asc = None if is_inactive_asc is None else not is_inactive_asc
+        is_active_asc = convert_inactive_arg(is_inactive_asc, 'UWASC', owner)
+        is_active_coe = convert_inactive_arg(is_inactive_coe, 'COENG', owner)
+
         sids_only = not include_students
         results = query_students(
             advisor_ldap_uids=advisor_ldap_uids,
@@ -225,6 +227,7 @@ class CohortFilter(Base, UserMixin):
             in_intensive_cohort=in_intensive_cohort,
             include_profiles=(include_students and include_profiles),
             is_active_asc=is_active_asc,
+            is_active_coe=is_active_coe,
             last_name_range=last_name_range,
             levels=levels,
             limit=limit,

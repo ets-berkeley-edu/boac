@@ -177,8 +177,7 @@
               <div class="student-sid"
                    data-ng-class="{'demo-mode-blur': inDemoMode}">
                 {{student.sid}}
-                <span class="red-flag-status"
-                      data-ng-if="isAscUser && !student.athleticsProfile.isActiveAsc">INACTIVE</span>
+                <span class="red-flag-status" data-ng-if="displayAsInactive(student)">INACTIVE</span>
               </div>
               <div data-ng-if="student.withdrawalCancel">
                 <span class="red-flag-small">

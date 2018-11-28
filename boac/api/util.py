@@ -170,7 +170,7 @@ def is_unauthorized_search(params):
 
 
 def _is_coe_data_request(params):
-    keys = ['advisorLdapUids', 'coePrepStatuses', 'ethnicities', 'genders']
+    keys = ['advisorLdapUids', 'coePrepStatuses', 'coeProbation', 'ethnicities', 'genders', 'isInactiveCoe']
     return next((key for key in keys if params.get(key) is not None), False)
 
 

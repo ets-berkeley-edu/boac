@@ -109,8 +109,17 @@
 
     var loadSearchResults = function() {
       var inactiveAsc = authService.isAscUser() ? false : null;
+      var inactiveCoe = authService.isCoeUser() ? false : null;
       page.loading(true);
-      studentFactory.searchForStudents($scope.search.phrase, $scope.search.includeCourses, inactiveAsc, 'last_name', 0, $scope.search.limit).then(
+      studentFactory.searchForStudents(
+        $scope.search.phrase,
+        $scope.search.includeCourses,
+        inactiveAsc,
+        inactiveCoe,
+        'last_name',
+        0,
+        $scope.search.limit
+      ).then(
         function(response) {
           $scope.search.courses = response.data.courses;
           $scope.search.students = utilService.extendSortableNames(response.data.students);

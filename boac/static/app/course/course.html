@@ -146,8 +146,7 @@
                    data-ng-class="{'demo-mode-blur': inDemoMode}">
                 {{student.sid}}
                 <span class="red-flag-status" data-ng-if="student.enrollment.enrollmentStatus === 'W'">WAITLISTED</span>
-                <span class="red-flag-status"
-                      data-ng-if="isAscUser && !student.athleticsProfile.isActiveAsc">INACTIVE</span>
+                <span class="red-flag-status" data-ng-if="displayAsInactive(student)">INACTIVE</span>
               </div>
               <div>
                 <span class="student-text" data-ng-bind="student.level"></span>

@@ -27,13 +27,17 @@
 
   'use strict';
 
-  angular.module('boac').service('utilService', function($sce, config) {
+  angular.module('boac').service('utilService', function($sce, authService, config) {
 
     var disableMatrixViewThreshold = parseInt(config.disableMatrixViewThreshold, 10);
     var exceedsMatrixThresholdMessage = 'Sorry, the matrix view is only available when total student count is below ' + disableMatrixViewThreshold + '. Please narrow your search.';
 
     var toBoolOrNull = function(str) {
       return _.isNil(str) ? null : _.lowerCase(str) === 'true';
+    };
+
+    var displayAsInactive = function(student) {
+      return (authService.isAscUser() && !student.athleticsProfile.isActiveAsc) || (authService.isCoeUser() && !student.coeProfile.isActiveCoe);
     };
 
     var exceedsMatrixThreshold = function(studentCount) {
@@ -118,6 +122,7 @@
     };
 
     return {
+      displayAsInactive: displayAsInactive,
       exceedsMatrixThreshold: exceedsMatrixThreshold,
       exceedsMatrixThresholdMessage: exceedsMatrixThresholdMessage,
       extendSortableNames: extendSortableNames,

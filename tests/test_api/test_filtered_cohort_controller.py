@@ -446,7 +446,7 @@ class TestCohortFilterDefinitions:
         assert len(definitions[0]) == 1
         assert len(definitions[1]) == 3
         assert len(definitions[2]) == 3
-        assert len(definitions[3]) == 4
+        assert len(definitions[3]) == 5
 
     def test_asc_filter_definitions(self, client, asc_advisor_session):
         """Gets filters available to ASC users."""
@@ -499,14 +499,16 @@ class TestCohortFilterDefinitions:
         assert definitions[3][2]['key'] == 'groupCodes'
         assert len(definitions[3][2]['options']) == 7
 
+        # COE inactive
+        assert definitions[4][0]['key'] == 'isInactiveCoe'
         # COE PREP
-        assert definitions[4][0]['key'] == 'coePrepStatuses'
-        assert len(definitions[4][0]['options']) == 4
+        assert definitions[4][1]['key'] == 'coePrepStatuses'
+        assert len(definitions[4][1]['options']) == 4
         # COE-provided probation status
-        assert definitions[4][1]['key'] == 'coeProbation'
-        assert definitions[4][1]['defaultValue'] is None
+        assert definitions[4][2]['key'] == 'coeProbation'
+        assert definitions[4][2]['defaultValue'] is None
         # Last Name
-        assert definitions[4][2]['key'] == 'lastNameRange'
+        assert definitions[4][3]['key'] == 'lastNameRange'
         # COE advisors
-        assert definitions[4][3]['key'] == 'advisorLdapUids'
-        assert len(definitions[4][3]['options']) == 3
+        assert definitions[4][4]['key'] == 'advisorLdapUids'
+        assert len(definitions[4][4]['options']) == 3

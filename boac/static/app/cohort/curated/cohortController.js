@@ -33,7 +33,6 @@
     $scope,
     $state,
     $stateParams,
-    authService,
     cohortService,
     config,
     curatedCohortFactory,
@@ -45,8 +44,8 @@
 
     $scope.cohortId = _.toNumber($stateParams.id);
     $scope.currentEnrollmentTerm = config.currentEnrollmentTerm;
+    $scope.displayAsInactive = utilService.displayAsInactive;
     $scope.inDemoMode = status.inDemoMode;
-    $scope.isAscUser = authService.isAscUser();
     $scope.lastActivityDays = utilService.lastActivityDays;
     $scope.orderBy = cohortService.getSortByOptionsForSearch();
 

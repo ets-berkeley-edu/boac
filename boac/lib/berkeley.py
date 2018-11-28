@@ -264,6 +264,14 @@ def get_dept_codes(user):
     return [m.university_dept.dept_code for m in user.department_memberships] if user else None
 
 
+def convert_inactive_arg(is_inactive, dept_code, user):
+    if user and dept_code in get_dept_codes(user):
+        is_active = not is_inactive
+    else:
+        is_active = None if is_inactive is None else not is_inactive
+    return is_active
+
+
 def can_view_cohort(user, cohort):
     if user.is_admin:
         return True

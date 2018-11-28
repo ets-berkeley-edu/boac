@@ -102,7 +102,7 @@
         <span class="home-inactive-info-icon"
               uib-tooltip="Inactive"
               tooltip-placement="bottom"
-              data-ng-if="isAscUser && !student.athleticsProfile.isActiveAsc">
+              data-ng-if="displayAsInactive(student)">
           <i class="fas fa-info-circle"></i>
         </span>
       </td>

@@ -115,7 +115,7 @@ def get_cohort_filter_definitions(scope):
                 'availableTo': ['UWASC'],
                 'defaultValue': False if 'UWASC' in scope else None,
                 'key': 'isInactiveAsc',
-                'name': 'Inactive',
+                'name': 'Inactive' if 'UWASC' in scope else 'Inactive (ASC)',
                 'options': [True, False],
                 'param': 'inactive',
                 'type': 'boolean',
@@ -141,6 +141,15 @@ def get_cohort_filter_definitions(scope):
             },
         ],
         [
+            {
+                'availableTo': ['COENG'],
+                'defaultValue': False if 'COENG' in scope else None,
+                'key': 'isInactiveCoe',
+                'name': 'Inactive' if 'COENG' in scope else 'Inactive (COE)',
+                'options': [True, False],
+                'param': 'isInactiveCoe',
+                'type': 'boolean',
+            },
             {
                 'availableTo': ['COENG'],
                 'defaultValue': None,
