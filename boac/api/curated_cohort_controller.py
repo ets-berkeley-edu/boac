@@ -40,7 +40,7 @@ def create_curated_cohort():
     params = request.get_json()
     name = params.get('name', None)
     if not name:
-        raise BadRequestError('Cohort creation requires \'name\'')
+        raise BadRequestError('Curated group creation requires \'name\'')
     curated_cohort = CuratedCohort.create(current_user.id, name)
     return tolerant_jsonify(curated_cohort.to_api_json())
 
@@ -50,9 +50,9 @@ def create_curated_cohort():
 def add_student_to_curated_cohort(curated_cohort_id, sid):
     curated_cohort = CuratedCohort.find_by_id(curated_cohort_id)
     if not curated_cohort:
-        raise ResourceNotFoundError(f'No cohort found with id: {curated_cohort_id}')
+        raise ResourceNotFoundError(f'No curated group found with id: {curated_cohort_id}')
     if curated_cohort.owner_id != current_user.id:
-        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {curated_cohort.id}')
+        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own curated group {curated_cohort.id}')
     CuratedCohort.add_student(curated_cohort.id, sid)
     return tolerant_jsonify(CuratedCohort.find_by_id(curated_cohort_id).to_api_json())
 
@@ -62,11 +62,11 @@ def add_student_to_curated_cohort(curated_cohort_id, sid):
 def delete_curated_cohort(curated_cohort_id):
     curated_cohort = CuratedCohort.find_by_id(curated_cohort_id)
     if not curated_cohort:
-        raise ResourceNotFoundError(f'No cohort found with id: {curated_cohort_id}')
+        raise ResourceNotFoundError(f'No curated group found with id: {curated_cohort_id}')
     if curated_cohort.owner_id != current_user.id:
-        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {curated_cohort.id}')
+        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own curated group {curated_cohort.id}')
     CuratedCohort.delete(curated_cohort_id)
-    return tolerant_jsonify({'message': f'Cohort {curated_cohort_id} has been deleted'}), 200
+    return tolerant_jsonify({'message': f'Curated group {curated_cohort_id} has been deleted'}), 200
 
 
 @app.route('/api/curated_cohort/<curated_cohort_id>')
@@ -74,9 +74,9 @@ def delete_curated_cohort(curated_cohort_id):
 def get_curated_cohort(curated_cohort_id):
     cohort = CuratedCohort.find_by_id(curated_cohort_id)
     if not cohort:
-        raise ResourceNotFoundError(f'Sorry, no cohort found with id {curated_cohort_id}.')
+        raise ResourceNotFoundError(f'Sorry, no curated group found with id {curated_cohort_id}.')
     if cohort.owner_id != current_user.id:
-        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {cohort.id}')
+        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own curated group {cohort.id}')
     cohort = cohort.to_api_json(sids_only=True)
     sids = [s['sid'] for s in cohort['students']]
     cohort['students'] = sort_students_by_name(get_summary_student_profiles(sids))
@@ -89,9 +89,9 @@ def get_curated_cohort(curated_cohort_id):
 def get_students_with_alerts(cohort_id):
     cohort = CuratedCohort.find_by_id(cohort_id)
     if not cohort:
-        raise ResourceNotFoundError(f'Sorry, no cohort found with id {cohort_id}.')
+        raise ResourceNotFoundError(f'Sorry, no curated group found with id {cohort_id}.')
     if cohort.owner_id != current_user.id:
-        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {cohort.id}')
+        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own curated group {cohort.id}')
     cohort = CuratedCohort.to_api_json(cohort, sids_only=True)
     students = Alert.include_alert_counts_for_students(viewer_user_id=current_user.id, cohort=cohort)
     alert_count_per_sid = {}
@@ -116,9 +116,9 @@ def curated_cohort_ids_per_sid(sid):
 def remove_student_from_curated_cohort(curated_cohort_id, sid):
     curated_cohort = CuratedCohort.find_by_id(curated_cohort_id)
     if not curated_cohort:
-        raise ResourceNotFoundError(f'No cohort found with id: {curated_cohort_id}')
+        raise ResourceNotFoundError(f'No curated group found with id: {curated_cohort_id}')
     if curated_cohort.owner_id != current_user.id:
-        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {curated_cohort.id}')
+        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own curated group {curated_cohort.id}')
     CuratedCohort.remove_student(curated_cohort_id, sid)
     return tolerant_jsonify(CuratedCohort.find_by_id(curated_cohort_id).to_api_json(include_students=False))
 
@@ -133,9 +133,9 @@ def add_students_to_curated_cohort():
         raise BadRequestError('The required parameters are \'curatedCohortId\' and \'sids\'.')
     curated_cohort = CuratedCohort.find_by_id(curated_cohort_id)
     if not curated_cohort:
-        raise ResourceNotFoundError(f'No cohort found where id={curated_cohort_id}')
+        raise ResourceNotFoundError(f'No curated group found where id={curated_cohort_id}')
     if curated_cohort.owner_id != current_user.id:
-        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own cohort {curated_cohort.id}')
+        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own curated group {curated_cohort.id}')
     CuratedCohort.add_students(curated_cohort_id=curated_cohort_id, sids=sids)
     return tolerant_jsonify(CuratedCohort.find_by_id(curated_cohort_id).to_api_json(include_students=False))
 
@@ -146,10 +146,10 @@ def rename_curated_cohort():
     params = request.get_json()
     name = params['name']
     if not name:
-        raise BadRequestError('Requested cohort label is empty or invalid')
+        raise BadRequestError('Requested curated group name is empty or invalid')
     curated_cohort_id = params['id']
     curated_cohort = CuratedCohort.find_by_id(curated_cohort_id)
     if not curated_cohort or curated_cohort.owner_id != current_user.id:
-        raise BadRequestError('Cohort does not exist or is not available to you')
+        raise BadRequestError('Curated group does not exist or is not available to you')
     CuratedCohort.rename(curated_cohort_id=curated_cohort.id, name=name)
     return tolerant_jsonify(CuratedCohort.find_by_id(curated_cohort_id).to_api_json(include_students=False))

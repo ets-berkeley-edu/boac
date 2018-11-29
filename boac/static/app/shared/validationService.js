@@ -60,8 +60,8 @@
         errorMessage = 'Sorry, \'' + cohort.name + '\' is a reserved name. Please choose a different name.';
       } else {
         var allExisting = {
-          'curated cohort': $rootScope.profile.myCuratedCohorts,
-          'filtered cohort': $rootScope.profile.myFilteredCohorts
+          'curated group': $rootScope.profile.myCuratedCohorts,
+          cohort: $rootScope.profile.myFilteredCohorts
         };
         _.each(allExisting, function(cohorts, description) {
           _.each(cohorts, function(existingCohort) {
