@@ -29,8 +29,6 @@ DATA_LOCH_URI = 'postgres://boac:boac@localhost:5432/boac_loch_test'
 DATA_LOCH_RDS_URI = 'postgres://boac:boac@localhost:5432/boac_loch_test'
 TESTING = True
 
-INDEX_HTML = 'boac/templates/index.html'
-
 LOGGING_LOCATION = 'STDOUT'
 
 ALERT_HOLDS_ENABLED = False

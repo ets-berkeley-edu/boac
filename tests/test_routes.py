@@ -34,21 +34,31 @@ def asc_advisor_session(fake_auth):
 
 class TestVueRedirect:
 
-    def test_vue_enabled_path(self, client, asc_advisor_session):
-        """Serves Vue.js index page."""
+    def test_vue_enabled_path(self, app, client, asc_advisor_session):
+        """Serves Vue page when the route is strictly defined on the Vue side."""
+        vue_path = '/student_12345?r=1'
+        vue_base_url = 'http://localhost:8080'
+        with override_config(app, 'VUE_LOCALHOST_BASE_URL', vue_base_url):
+            response = client.get(vue_path)
+            assert response.status_code == 302
+            assert response.location == vue_base_url + vue_path
+
+    def test_path_rewrite_to_vue_enabled(self, client, asc_advisor_session):
+        """Serves Vue page when the legacy route is mapped to a Vue route."""
         response = client.get('/cohort/filtered/all')
         assert response.status_code == 200
         assert 'I am a Vue.js page' in str(response.data)
 
     def test_path_token_replace(self, app, client, asc_advisor_session):
-        """Serves Vue.js index page."""
-        with override_config(app, 'VUE_LOCALHOST_BASE_URL', 'http://localhost:8080'):
-            response = client.get('/student/123')
+        """Redirects to Vue page, preserving id in request path."""
+        vue_base_url = 'http://localhost:8080'
+        with override_config(app, 'VUE_LOCALHOST_BASE_URL', vue_base_url):
+            response = client.get('/student/123?r=1')
             assert response.status_code == 302
-            assert response.location == 'http://localhost:8080/student_123'
+            assert response.location == vue_base_url + '/student_123?r=1'
 
     def test_non_vue_enabled_path(self, client, asc_advisor_session):
-        """Serves default index page."""
+        """Serves legacy (Angular) index page when route is not yet supported on the Vue side."""
         response = client.get('/home')
         assert response.status_code == 200
         assert 'I am the default index page' in str(response.data)
