@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import re
 
 from boac.models.authorized_user import AuthorizedUser
 from flask import jsonify, make_response, redirect, request
@@ -66,13 +67,8 @@ def register_routes(app):
     @app.route('/', defaults={'path': ''})
     @app.route('/<path:path>')
     def front_end_route(**kwargs):
-        if app.config['VUE_ENABLED']:
-            path = request.path
-            vue_paths = app.config['VUE_PATHS']
-            vue_path = next((value for key, value in vue_paths.items() if path.startswith(key)), None)
-        else:
-            vue_path = None
-        return _vue_response(vue_path) if vue_path else make_response(open(app.config['INDEX_HTML']).read())
+        vue_redirect = _vue_redirect_path()
+        return _vue_response(vue_redirect) if vue_redirect else make_response(open(app.config['INDEX_HTML']).read())
 
     @app.after_request
     def after_api_request(response):
@@ -95,6 +91,19 @@ def register_routes(app):
             else:
                 app.logger.debug(log_message)
         return response
+
+    def _vue_redirect_path():
+        vue_redirect = None
+        vue_path_mappings = app.config['VUE_ENABLED'] and app.config['VUE_PATHS']
+        if vue_path_mappings:
+            for angular_path_pattern, vue_path in vue_path_mappings.items():
+                match = re.compile(angular_path_pattern).match(request.path)
+                if match:
+                    vue_redirect = vue_path
+                    for index, token in enumerate(match.groups()):
+                        vue_redirect = vue_redirect.replace(f'\\{index + 1}', token)
+                    break
+        return vue_redirect
 
     def _vue_response(uri_path):
         vue_base_url = app.config['VUE_LOCALHOST_BASE_URL']

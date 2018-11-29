@@ -38,21 +38,6 @@ def asc_advisor_session(fake_auth):
     fake_auth.login('1081940')
 
 
-class TestVueEnabledURI:
-
-    def test_vue_enabled_path(self, client, asc_advisor_session):
-        """Serves Vue.js index page."""
-        response = client.get('/cohort/filtered/all')
-        assert response.status_code == 200
-        assert 'I am a Vue.js page' in str(response.data)
-
-    def test_non_vue_enabled_path(self, client, asc_advisor_session):
-        """Serves default index page."""
-        response = client.get('/home')
-        assert response.status_code == 200
-        assert 'I am the default index page' in str(response.data)
-
-
 class TestCachejobAccess:
 
     def test_not_authenticated(self, client):

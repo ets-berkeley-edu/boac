@@ -3,6 +3,7 @@ import AllCohorts from '@/views/cohort/AllCohorts.vue';
 import CuratedGroup from '@/views/group/CuratedGroup.vue';
 import Login from '@/views/Login.vue';
 import Search from '@/views/Search.vue';
+import Student from '@/views/Student.vue';
 import store from '@/store';
 import Vue from 'vue';
 import VueRouter from 'vue-router';
@@ -69,13 +70,18 @@ const router = new VueRouter({
       component: AllCohorts
     },
     {
-      path: '/curated_group/:id',
+      path: '/curated_group_:id',
       beforeEnter: requiresAuth,
       component: CuratedGroup,
       meta: { legacyUri: '/cohort/curated/:id' }
     },
     {
-      path: '/filtered_cohort/:id',
+      path: '/student_:uid',
+      beforeEnter: requiresAuth,
+      component: Student
+    },
+    {
+      path: '/cohort_:id',
       beforeEnter: requiresAuth,
       meta: { legacyUri: '/cohort/filtered?id=:id' }
     },

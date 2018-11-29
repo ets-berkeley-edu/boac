@@ -23,25 +23,32 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import pytest
+from tests.util import override_config
 
-SQLALCHEMY_DATABASE_URI = 'postgres://boac:boac@localhost:5432/boac_test'
-DATA_LOCH_URI = 'postgres://boac:boac@localhost:5432/boac_loch_test'
-DATA_LOCH_RDS_URI = 'postgres://boac:boac@localhost:5432/boac_loch_test'
-TESTING = True
 
-INDEX_HTML = 'boac/templates/index.html'
+@pytest.fixture()
+def asc_advisor_session(fake_auth):
+    fake_auth.login('1081940')
 
-LOGGING_LOCATION = 'STDOUT'
 
-ALERT_HOLDS_ENABLED = False
-ALERT_INFREQUENT_ACTIVITY_ENABLED = False
-ALERT_WITHDRAWAL_ENABLED = False
+class TestVueRedirect:
 
-VUE_ENABLED = True
-INDEX_HTML = 'tests/static/test-index-legacy.html'
-INDEX_HTML_VUE = 'tests/static/test-index-vue.html'
-VUE_PATHS = {
-    '/admin': '/admin',
-    '/cohort/filtered/all': '/cohorts_all',
-    r'/student/([0-9]+).*': r'/student_\1',
-}
+    def test_vue_enabled_path(self, client, asc_advisor_session):
+        """Serves Vue.js index page."""
+        response = client.get('/cohort/filtered/all')
+        assert response.status_code == 200
+        assert 'I am a Vue.js page' in str(response.data)
+
+    def test_path_token_replace(self, app, client, asc_advisor_session):
+        """Serves Vue.js index page."""
+        with override_config(app, 'VUE_LOCALHOST_BASE_URL', 'http://localhost:8080'):
+            response = client.get('/student/123')
+            assert response.status_code == 302
+            assert response.location == 'http://localhost:8080/student_123'
+
+    def test_non_vue_enabled_path(self, client, asc_advisor_session):
+        """Serves default index page."""
+        response = client.get('/home')
+        assert response.status_code == 200
+        assert 'I am the default index page' in str(response.data)
