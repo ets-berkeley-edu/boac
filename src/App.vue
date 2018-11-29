@@ -79,21 +79,3 @@ export default {
   color: #ddd;
 }
 </style>
-
-<style>
-.has-error {
-  color: red;
-}
-.no-wrap {
-  white-space: nowrap;
-}
-.page-section-header {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-.page-section-header-sub {
-  font-size: 18px;
-  font-weight: bold;
-}
-</style>

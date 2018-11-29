@@ -39,7 +39,12 @@ gulp.task('rev', function(done) {
   gulp.src('boac/static/lib/**/*').pipe(gulp.dest('dist/static/lib'));
   var css = filter('boac/static/app/**/*.css', {restore: true});
   // The index.html filename, unlike js/css files, is preserved
-  var index = filter(['**/*', '!**/favicon.ico', '!**/index.html'], {
+  var index = filter([
+    '**/*',
+    '!**/favicon.ico',
+    '!**/boac-import-all.css',
+    '!**/index.html'
+  ], {
     restore: true
   });
   // We cannot minify our js due to http://budiirawan.com/uglify-angular-error-unpr-unknown-provider-aprovider/
