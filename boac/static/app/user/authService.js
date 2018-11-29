@@ -27,7 +27,7 @@
 
   'use strict';
 
-  angular.module('boac').service('authService', function($rootScope, $state, authFactory, status) {
+  angular.module('boac').service('authService', function($http, $q, $rootScope, $state, authFactory, status) {
 
     var isDepartmentMember = function(user, deptCode) {
       return _.get(user.departments, deptCode + '.isAdvisor') || _.get(user.departments, deptCode + '.isDirector');
@@ -45,6 +45,20 @@
       return status.isAdmin || isAscUser();
     };
 
+    var loadUserProfile = function() {
+      return $q(function(resolve, reject) {
+        $http.get('/api/profile/my').then(function(response) {
+          $rootScope.profile = response.data;
+          $rootScope.$broadcast('userProfileLoaded', {
+            profile: $rootScope.profile
+          });
+          resolve($rootScope.profile);
+        }, function(error) {
+          reject(error);
+        });
+      });
+    };
+
     var logOut = function() {
       authFactory.logOut().then(function(response) {
         _.extend(status, response.data);
@@ -57,6 +71,7 @@
       canViewAsc: canViewAsc,
       isAscUser: isAscUser,
       isCoeUser: isCoeUser,
+      loadUserProfile: loadUserProfile,
       logOut: logOut
     };
   });

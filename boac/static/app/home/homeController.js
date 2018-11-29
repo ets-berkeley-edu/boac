@@ -28,13 +28,13 @@
   'use strict';
 
   angular.module('boac').controller('HomeController', function(
-    $rootScope,
     $scope,
+    authService,
     curatedCohortFactory,
     filteredCohortFactory,
+    page,
     utilService
   ) {
-    $scope.profile = $rootScope.profile;
 
     var decorateCohort = function(cohort, students) {
       _.each(students, function(student) {
@@ -91,6 +91,16 @@
         cohort.isOpen = !cohort.isOpen;
       }
     };
+
+    var init = function() {
+      authService.loadUserProfile().then(function(profile) {
+        $scope.profile = profile;
+        page.loading(false);
+      });
+    };
+
+    page.loading(true);
+    init();
   });
 
 }(window.angular));

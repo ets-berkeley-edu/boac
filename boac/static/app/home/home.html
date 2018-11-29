@@ -1,9 +1,9 @@
 <div class="home-container">
-  <div class="loading-spinner-large" data-ng-if="profile.myCuratedCohorts === null">
+  <div class="loading-spinner-large" data-ng-if="isLoading">
     <i class="fas fa-sync fa-spin fa-5x"></i>
     <span role="alert" aria-live="passive" class="sr-only">Loading...</span>
   </div>
-  <div class="home-content" data-ng-if="profile.myCuratedCohorts !== null">
+  <div class="home-content" data-ng-if="!isLoading">
     <div>
       <div id="filtered-cohorts-header-row" class="home-page-section-header-wrapper">
         <h1 class="page-section-header" data-ng-if="profile.myFilteredCohorts && !profile.myFilteredCohorts.length">

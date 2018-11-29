@@ -34,19 +34,14 @@
       requireBase: false
     });
 
-    var authenticatedProfile = function($http, $injector, $q, $rootScope) {
+    var authenticatedProfile = function($injector, $q, $rootScope, authService) {
       return $q(function(resolve, reject) {
         var status = $injector.get('status');
-
         if (_.get(status, 'isAuthenticated')) {
           if (_.get($rootScope, 'profile')) {
             resolve({message: 'authenticated'});
           } else {
-            $http.get('/api/profile/my').then(function(response) {
-              $rootScope.profile = response.data;
-              $rootScope.$broadcast('userProfileLoaded', {
-                profile: $rootScope.profile
-              });
+            authService.loadUserProfile().then(function() {
               resolve({message: 'authenticated'});
             });
           }
@@ -56,11 +51,15 @@
       });
     };
 
-    var authenticatedAdmin = function($injector, $q) {
+    var authenticatedAdmin = function($injector, $q, $rootScope, authService) {
       var status = $injector.get('status');
       return $q(function(resolve, reject) {
         if (_.get(status, 'isAuthenticated') && _.get(status, 'isAdmin')) {
-          resolve();
+          if (_.get($rootScope, 'profile')) {
+            resolve();
+          } else {
+            authService.loadUserProfile().then(resolve);
+          }
         } else {
           reject({message: 'unauthorized'});
         }
