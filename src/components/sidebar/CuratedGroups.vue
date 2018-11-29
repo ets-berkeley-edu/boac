@@ -8,11 +8,10 @@
                 v-for="(group, index) in curatedGroups"
                 v-bind:key="group.id">
         <v-flex class="sidebar-row-link-label">
-          <SmartRef :id="'sidebar-curated-cohort-' + index"
-                    :aria-label="'Curated group ' + group.name + ' has ' + group.studentCount + ' students'"
-                    class="sidebar-row-link-label-text"
-                    :path="'/curated_group/' + group.id"
-                    :objectId="group.id">{{ group.name }}</SmartRef>
+          <router-link :id="'sidebar-curated-cohort-' + index"
+                       :aria-label="'Curated group ' + group.name + ' has ' + group.studentCount + ' students'"
+                       class="sidebar-row-link-label-text"
+                       :to="'/curated_group_' + group.id">{{ group.name }}</router-link>
         </v-flex>
         <v-spacer></v-spacer>
         <v-flex>
@@ -27,12 +26,10 @@
 
 <script>
 import _ from 'lodash';
-import SmartRef from '@/components/SmartRef';
 import store from '@/store';
 
 export default {
   name: 'CuratedGroups',
-  components: { SmartRef },
   computed: {
     curatedGroups() {
       return _.get(store.getters.user, 'myCuratedCohorts') || [];

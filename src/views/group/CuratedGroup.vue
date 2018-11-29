@@ -14,9 +14,8 @@
         <v-layout row v-if="!group.editMode">
           <div class="cohort-manage-name">
             <strong>
-              <SmartRef :id="'curated-cohort-name-' + index"
-                        :path="'/cohort/curated/' + group.id"
-                        :objectId="group.id">{{ group.name }}</SmartRef>
+              <router-link :id="'curated-cohort-name-' + index"
+                           :to="'/cohort/curated/' + group.id">{{ group.name }}</router-link>
             </strong>
             <span class="faint-text">(<span :id="'curated-cohort-student-count-' + index">{{ group.studentCount }}</span>)</span>
           </div>
@@ -81,16 +80,12 @@
 import _ from 'lodash';
 import Spinner from '@/components/Spinner.vue';
 import Loading from '@/mixins/Loading.vue';
-import SmartRef from '@/components/SmartRef';
 import store from '@/store';
 
 export default {
   name: 'Manage',
   mixins: [Loading],
-  components: {
-    SmartRef,
-    Spinner
-  },
+  components: { Spinner },
   computed: {
     curatedGroups() {
       this.loaded();

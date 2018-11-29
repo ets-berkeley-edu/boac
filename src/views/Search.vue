@@ -1,8 +1,8 @@
 <template>
-<div>
-  <Spinner/>
-  <SortableStudents v-bind:students="students"/>
-</div>
+  <div>
+    <Spinner/>
+    <SortableStudents v-bind:students="students"/>
+  </div>
 </template>
 
 <script>
@@ -10,14 +10,12 @@ import _ from 'lodash';
 import { search } from '@/api/student';
 import Spinner from '@/components/Spinner.vue';
 import Loading from '@/mixins/Loading.vue';
-import SmartRef from '@/components/SmartRef';
 import SortableStudents from '@/components/search/SortableStudents';
 
 export default {
   name: 'Search',
   mixins: [Loading],
   components: {
-    SmartRef,
     SortableStudents,
     Spinner
   },
