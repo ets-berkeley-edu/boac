@@ -67,8 +67,8 @@ def register_routes(app):
     @app.route('/', defaults={'path': ''})
     @app.route('/<path:path>')
     def front_end_route(**kwargs):
-        vue_redirect = _vue_redirect_path()
-        return _vue_response(vue_redirect) if vue_redirect else make_response(open(app.config['INDEX_HTML']).read())
+        vue_redirect = _vue_redirect_path(app)
+        return _vue_response(app, vue_redirect) if vue_redirect else make_response(open(app.config['INDEX_HTML']).read())
 
     @app.after_request
     def after_api_request(response):
@@ -92,22 +92,32 @@ def register_routes(app):
                 app.logger.debug(log_message)
         return response
 
-    def _vue_redirect_path():
-        vue_redirect = None
-        vue_path_mappings = app.config['VUE_ENABLED'] and app.config['VUE_PATHS']
-        if vue_path_mappings:
-            for angular_path_pattern, vue_path in vue_path_mappings.items():
-                match = re.compile(angular_path_pattern).match(request.path)
-                if match:
-                    vue_redirect = vue_path
-                    for index, token in enumerate(match.groups()):
-                        vue_redirect = vue_redirect.replace(f'\\{index + 1}', token)
-                    break
-        return vue_redirect
 
-    def _vue_response(uri_path):
-        vue_base_url = app.config['VUE_LOCALHOST_BASE_URL']
-        if vue_base_url:
-            return redirect(vue_base_url + uri_path)
-        else:
-            return make_response(open(app.config['INDEX_HTML_VUE']).read())
+def _vue_redirect_path(app):
+    vue_redirect = None
+    vue_path_mappings = app.config['VUE_ENABLED'] and app.config['VUE_PATHS']
+    if vue_path_mappings:
+        for angular_path_pattern, vue_path in vue_path_mappings.items():
+            match = re.compile(angular_path_pattern).match(request.path)
+            if match:
+                vue_redirect = vue_path
+                for index, token in enumerate(match.groups()):
+                    vue_redirect = vue_redirect.replace(f'\\{index + 1}', token)
+                q = request.query_string
+                vue_redirect = vue_redirect + '?' + q.decode('utf-8') if q else vue_redirect
+                break
+            else:
+                # If incoming path is served by Vue then pass through... But, make sure Vue index.html is used.
+                vue_path_prefix = vue_path.split('\\1')[0]
+                if request.path.startswith(vue_path_prefix):
+                    vue_redirect = request.full_path
+                    break
+    return vue_redirect
+
+
+def _vue_response(app, uri_path):
+    vue_base_url = app.config['VUE_LOCALHOST_BASE_URL']
+    if vue_base_url:
+        return redirect(vue_base_url + uri_path)
+    else:
+        return make_response(open(app.config['INDEX_HTML_VUE']).read())
