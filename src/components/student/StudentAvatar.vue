@@ -20,7 +20,7 @@ export default {
     baseUrl: () => store.state.apiBaseUrl
   },
   methods: {
-    avatarFallback: () => '/static/app/shared/avatar-50.png'
+    avatarFallback: () => this.baseUrl + '/static/app/shared/avatar-50.png'
   }
 };
 </script>
