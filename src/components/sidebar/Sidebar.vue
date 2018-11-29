@@ -7,8 +7,8 @@
 
     <div class="sidebar-row-link">
       <span class="sidebar-row-link-label">
-        <SmartRef id="sidebar-filtered-cohorts-all"
-                  path="/cohorts_all">Everyone's Cohorts</SmartRef>
+        <router-link id="sidebar-filtered-cohorts-all"
+                     to="/cohorts_all">Everyone's Cohorts</router-link>
       </span>
     </div>
   </div>
@@ -19,15 +19,13 @@ import store from '@/store';
 import Cohorts from '@/components/sidebar/Cohorts.vue';
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue';
 import SearchStudents from '@/components/sidebar/SearchStudents.vue';
-import SmartRef from '@/components/SmartRef.vue';
 
 export default {
   name: 'Sidebar',
   components: {
     Cohorts,
     CuratedGroups,
-    SearchStudents,
-    SmartRef
+    SearchStudents
   },
   computed: {
     user() {

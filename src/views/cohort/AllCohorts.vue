@@ -11,8 +11,7 @@
         <h2 class="page-section-header-sub">{{owner.firstName}} {{owner.lastName}}</h2>
         <ul>
           <li v-for="cohort in owner.cohorts" v-bind:key="cohort.id">
-            <SmartRef :path="'/filtered_cohort/' + cohort.id"
-                      :objectId="cohort.id">{{ cohort.name }}</SmartRef> ({{ cohort.totalStudentCount }})
+            <router-link :to="'/cohort_' + cohort.id">{{ cohort.name }}</router-link> ({{ cohort.totalStudentCount }})
           </li>
         </ul>
       </div>
@@ -24,15 +23,11 @@
 import { getUsersWithCohorts } from '@/api/cohorts';
 import Spinner from '@/components/Spinner.vue';
 import Loading from '@/mixins/Loading.vue';
-import SmartRef from '@/components/SmartRef';
 
 export default {
   name: 'AllCohorts',
   mixins: [Loading],
-  components: {
-    SmartRef,
-    Spinner
-  },
+  components: { Spinner },
   created() {
     getUsersWithCohorts().then(data => {
       this.usersWithCohorts = data;
@@ -44,9 +39,3 @@ export default {
   })
 };
 </script>
-
-<style scoped>
-.all-cohorts-container {
-  padding: 0 10px 0 10px;
-}
-</style>

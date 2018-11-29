@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import Admin from '@/views/Admin.vue';
 import AllCohorts from '@/views/cohort/AllCohorts.vue';
 import CuratedGroup from '@/views/group/CuratedGroup.vue';
@@ -12,15 +13,26 @@ import { getUserProfile } from '@/api/user';
 
 Vue.use(VueRouter);
 
-let beforeEach = (to: any, from: any, next: any) => {
-  let safeNext = (to: any, next: any) => {
-    if (to.matched.length) {
-      next();
-    } else {
-      next('/admin');
+const safeNext = (to: any, next: any) => {
+  if (to.matched.length) {
+    next();
+  } else {
+    window.location = store.state.apiBaseUrl;
+  }
+};
+
+const beforeEach = (to: any, from: any, next: any) => {
+  let legacyPathRedirect = _.get(to, 'meta.legacyPathRedirect');
+  if (legacyPathRedirect) {
+    for (const key in to.params) {
+      legacyPathRedirect = _.replace(
+        legacyPathRedirect,
+        ':' + key,
+        to.params[key]
+      );
     }
-  };
-  if (store.getters.user) {
+    window.location = store.state.apiBaseUrl + legacyPathRedirect;
+  } else if (store.getters.user) {
     safeNext(to, next);
   } else {
     getUserProfile().then(user => {
@@ -67,23 +79,30 @@ const router = new VueRouter({
     },
     {
       path: '/cohorts_all',
-      component: AllCohorts
+      component: AllCohorts,
+      beforeEnter: requiresAuth
+    },
+    {
+      path: '/cohort_:id',
+      beforeEnter: requiresAuth,
+      meta: { legacyPathRedirect: '/cohort/filtered?id=:id' }
+    },
+    {
+      path: '/cohort_create',
+      beforeEnter: requiresAuth,
+      meta: { legacyPathRedirect: '/cohort/filtered' }
     },
     {
       path: '/curated_group_:id',
       beforeEnter: requiresAuth,
       component: CuratedGroup,
-      meta: { legacyUri: '/cohort/curated/:id' }
+      meta: { legacyPathRedirect: '/cohort/curated/:id' }
     },
     {
       path: '/student_:uid',
       beforeEnter: requiresAuth,
-      component: Student
-    },
-    {
-      path: '/cohort_:id',
-      beforeEnter: requiresAuth,
-      meta: { legacyUri: '/cohort/filtered?id=:id' }
+      component: Student,
+      meta: { legacyPathRedirect: '/student/:uid' }
     },
     {
       path: '/search',

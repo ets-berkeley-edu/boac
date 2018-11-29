@@ -5,20 +5,19 @@
         <span class="sidebar-row-link-label-text">Cohorts</span>
       </v-flex>
       <v-flex shrink align-self-end class="sidebar-header sidebar-icon-plus">
-        <SmartRef id="sidebar-filtered-cohort-create"
-                  aria-label="Create cohort"
-                  path="/cohort/filtered"><i class="fas fa-plus"></i></SmartRef>
+        <router-link id="sidebar-filtered-cohort-create"
+                     aria-label="Create cohort"
+                     to="/cohort_create"><i class="fas fa-plus"></i></router-link>
       </v-flex>
     </v-layout>
     <v-layout class="sidebar-row-link"
               v-for="(cohort, index) in cohorts"
               v-bind:key="cohort.id">
       <v-flex class="sidebar-row-link-label">
-        <SmartRef :id="'sidebar-filtered-cohort-' + index"
-                  :aria-label="'Cohort ' + cohort.name + ' has ' + cohort.totalStudentCount + ' students'"
-                  class="sidebar-row-link-label-text"
-                  :path="'/filtered_cohort/' + cohort.id"
-                  :objectId="cohort.id">{{ cohort.name }}</SmartRef>
+        <router-link :id="'sidebar-filtered-cohort-' + index"
+                     :aria-label="'Cohort ' + cohort.name + ' has ' + cohort.totalStudentCount + ' students'"
+                     class="sidebar-row-link-label-text"
+                     :to="'/cohort_' + cohort.id">{{ cohort.name }}</router-link>
       </v-flex>
       <v-spacer></v-spacer>
       <v-flex>
@@ -33,11 +32,9 @@
 <script>
 import _ from 'lodash';
 import store from '@/store';
-import SmartRef from '@/components/SmartRef.vue';
 
 export default {
   name: 'Cohorts',
-  components: { SmartRef },
   computed: {
     cohorts: () => _.get(store.getters.user, 'myFilteredCohorts')
   }
