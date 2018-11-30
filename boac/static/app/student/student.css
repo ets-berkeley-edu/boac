@@ -260,17 +260,6 @@
   white-space: nowrap;
 }
 
-.student-course-activity-row {
-  display: flex;
-  font-size: 14px;
-}
-
-.student-course-activity-wrapper {
-  flex: 1.2;
-  margin-left: 0;
-  min-width: 320px;
-}
-
 .student-gpa {
   font-size: 13px;
   font-weight: bold;
