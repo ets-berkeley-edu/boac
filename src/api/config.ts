@@ -12,5 +12,8 @@ export function setDemoMode(demoMode: boolean) {
     .post(`${store.state.apiBaseUrl}/api/admin/demo_mode`, {
       demoMode: demoMode
     })
-    .then(response => response.data, () => null);
+    .then(response => response.data, () => null)
+    .then(() => {
+      store.getters.user.inDemoMode = demoMode;
+    });
 }

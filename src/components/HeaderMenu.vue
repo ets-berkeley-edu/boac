@@ -1,17 +1,14 @@
 <template>
-  <md-menu md-direction="bottom-end"
-           md-size="small">
-    <md-button class="header-btn-label no-wrap"
-               md-menu-trigger>
-      <span v-if="user">{{ user.firstName }}</span>
-      <i v-bind:class="{'fas fa-caret-down': user, 'fas fa-spinner fa-spin': !user}"></i>
-    </md-button>
-    <md-menu-content class="header-menu-content" v-if="user">
-      <md-menu-item href><router-link to="/admin">Admin</router-link></md-menu-item>
-      <md-menu-item href="#" v-on:click="logOut">Log Out</md-menu-item>
-      <md-menu-item :href="'mailto:' + supportEmailAddress" target="_blank">Feedback/Help</md-menu-item>
-    </md-menu-content>
-  </md-menu>
+  <div v-if="user">
+    <b-dropdown id="ddown-right"
+                right
+                :text="user.firstName"
+                variant="link">
+      <b-dropdown-item href="/admin" v:if="user.isAdmin">Admin</b-dropdown-item>
+      <b-dropdown-item href="#" v-on:click="logOut">Log Out</b-dropdown-item>
+      <b-dropdown-item :href="'mailto:' + supportEmailAddress" target="_blank">Feedback/Help</b-dropdown-item>
+    </b-dropdown>
+  </div>
 </template>
 
 <script>
