@@ -1,32 +1,34 @@
 <template>
-  <v-container pa-1 fluid>
-    <v-layout class="sidebar-row-link">
-      <v-flex grow class="sidebar-row-link-label sidebar-header">
+  <div>
+    <div class="sidebar-row-link sidebar-section-header">
+      <div class="sidebar-header sidebar-row-link-label">
         <span class="sidebar-row-link-label-text">Cohorts</span>
-      </v-flex>
-      <v-flex shrink align-self-end class="sidebar-header sidebar-icon-plus">
-        <router-link id="sidebar-filtered-cohort-create"
-                     aria-label="Create cohort"
-                     to="/cohort_create"><i class="fas fa-plus"></i></router-link>
-      </v-flex>
-    </v-layout>
-    <v-layout class="sidebar-row-link"
-              v-for="(cohort, index) in cohorts"
-              v-bind:key="cohort.id">
-      <v-flex class="sidebar-row-link-label">
+      </div>
+      <div>
+        <span class="sidebar-header sidebar-row-link-label">
+          <router-link id="sidebar-filtered-cohort-create"
+                       class="sidebar-create-link"
+                       aria-label="Create cohort"
+                       to="/cohort_create"><i class="fas fa-plus"></i></router-link>
+        </span>
+      </div>
+    </div>
+    <div class="sidebar-row-link"
+         v-for="(cohort, index) in cohorts"
+         v-bind:key="cohort.id">
+      <div class="sidebar-row-link-label">
         <router-link :id="'sidebar-filtered-cohort-' + index"
                      :aria-label="'Cohort ' + cohort.name + ' has ' + cohort.totalStudentCount + ' students'"
                      class="sidebar-row-link-label-text"
                      :to="'/cohort_' + cohort.id">{{ cohort.name }}</router-link>
-      </v-flex>
-      <v-spacer></v-spacer>
-      <v-flex>
+      </div>
+      <div>
         <span :id="'sidebar-filtered-cohort-' + index + '-count'"
               class="sidebar-pill">{{cohort.totalStudentCount}}<span class="sr-only">{{ 'student' | pluralize(cohort.totalStudentCount)}}</span>
         </span>
-      </v-flex>
-    </v-layout>
-  </v-container>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>

@@ -2,7 +2,7 @@ import _ from 'lodash';
 import Admin from '@/views/Admin.vue';
 import AllCohorts from '@/views/cohort/AllCohorts.vue';
 import CuratedGroup from '@/views/group/CuratedGroup.vue';
-import Login from '@/views/Login.vue';
+import Home from '@/views/Home.vue';
 import Router from 'vue-router';
 import Search from '@/views/Search.vue';
 import store from '@/store';
@@ -17,7 +17,7 @@ const safeNext = (to: any, next: any) => {
   if (to.matched.length) {
     next();
   } else {
-    window.location = store.state.apiBaseUrl;
+    next('/home');
   }
 };
 
@@ -52,7 +52,7 @@ const requiresAuth = (to: any, from: any, next: any) => {
   if (store.getters.user) {
     next();
   } else {
-    window.location = store.state.apiBaseUrl;
+    next('/login');
   }
 };
 
@@ -61,15 +61,17 @@ const router = new Router({
   routes: [
     {
       path: '/login',
-      name: 'login',
-      component: Login,
       beforeEnter: (to: any, from: any, next: any) => {
         if (store.getters.user) {
-          next('/admin');
-        } else {
-          next();
+          next('/home');
         }
       }
+    },
+    {
+      path: '/home',
+      name: 'home',
+      component: Home,
+      beforeEnter: requiresAuth
     },
     {
       path: '/admin',

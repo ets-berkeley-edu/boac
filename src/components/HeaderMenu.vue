@@ -2,8 +2,7 @@
   <div v-if="user">
     <b-dropdown id="ddown-right"
                 right
-                :text="user.firstName"
-                variant="link">
+                :text="user.firstName">
       <b-dropdown-item href="/admin" v:if="user.isAdmin">Admin</b-dropdown-item>
       <b-dropdown-item href="#" v-on:click="logOut">Log Out</b-dropdown-item>
       <b-dropdown-item :href="'mailto:' + supportEmailAddress" target="_blank">Feedback/Help</b-dropdown-item>

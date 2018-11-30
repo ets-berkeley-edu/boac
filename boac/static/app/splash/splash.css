@@ -141,6 +141,7 @@
   min-height: 24em;
   padding-top: 200px;
   position: relative;
+  z-index: 999;
 }
 
 .splash-dev-auth {
