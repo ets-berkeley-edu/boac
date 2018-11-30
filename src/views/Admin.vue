@@ -1,11 +1,10 @@
 <template>
-  <div>
+  <div class="home-container">
     <Spinner/>
     <div v-if="!loading">
       <h1>BOAC Flight Deck</h1>
       <DemoModeToggle/>
-
-      <h2>Users</h2>
+      <h2 class="page-section-header-sub">Users</h2>
       <v-treeview
           :items="userGroups"
           item-key="code"

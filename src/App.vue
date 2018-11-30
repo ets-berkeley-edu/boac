@@ -1,35 +1,28 @@
 <template>
   <div id="app">
-    <v-app>
-      <v-toolbar class="toolbar" dark>
-        <v-toolbar-title><a :href="homeAddress">Home</a></v-toolbar-title>
-        <v-spacer></v-spacer>
-        <HeaderMenu/>
-      </v-toolbar>
-      <v-layout row>
-        <v-flex class="sidebar-container font-weight-medium">
-          <v-navigation-drawer dark permanent class="nav-container">
+    <b-container fluid>
+      <b-row class="toolbar">
+        <b-col sm="8"><a :href="homeAddress">Home</a></b-col>
+        <b-col sm="4"><HeaderMenu/></b-col>
+      </b-row>
+      <b-row>
+        <b-col class="sidebar-container">
+          <div class="nav-container">
             <Sidebar/>
-          </v-navigation-drawer>
-        </v-flex>
-        <v-layout column align-start justify-space-between ml-2 mt-2>
-          <v-content app>
-            <DisplayError/>
-            <router-view></router-view>
-          </v-content>
-          <v-footer class="footer-container">
-            <v-layout row justify-space-between align-end>
-              <v-flex class="text-sm-left">
-                <img src="@/assets/uc-berkeley-logo.svg"/>
-              </v-flex>
-              <v-flex class="text-xs-right">
-                &copy; 2018 The Regents of the University of California
-              </v-flex>
-            </v-layout>
-          </v-footer>
-        </v-layout>
-      </v-layout>
-    </v-app>
+          </div>
+        </b-col>
+        <b-col>
+          <DisplayError/>
+          <router-view></router-view>
+        </b-col>
+        <b-col>
+          <b-row>
+            <b-col sm="8"><img src="@/assets/uc-berkeley-logo.svg"/></b-col>
+            <b-col sm="4">&copy; 2018 The Regents of the University of California</b-col>
+          </b-row>
+        </b-col>
+      </b-row>
+    </b-container>
   </div>
 </template>
 

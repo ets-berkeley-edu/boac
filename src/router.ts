@@ -3,15 +3,15 @@ import Admin from '@/views/Admin.vue';
 import AllCohorts from '@/views/cohort/AllCohorts.vue';
 import CuratedGroup from '@/views/group/CuratedGroup.vue';
 import Login from '@/views/Login.vue';
+import Router from 'vue-router';
 import Search from '@/views/Search.vue';
-import Student from '@/views/Student.vue';
 import store from '@/store';
+import Student from '@/views/Student.vue';
 import Vue from 'vue';
-import VueRouter from 'vue-router';
 import { getAppConfig } from '@/api/config';
 import { getUserProfile } from '@/api/user';
 
-Vue.use(VueRouter);
+Vue.use(Router);
 
 const safeNext = (to: any, next: any) => {
   if (to.matched.length) {
@@ -48,7 +48,7 @@ const beforeEach = (to: any, from: any, next: any) => {
   }
 };
 
-let requiresAuth = (to: any, from: any, next: any) => {
+const requiresAuth = (to: any, from: any, next: any) => {
   if (store.getters.user) {
     next();
   } else {
@@ -56,7 +56,7 @@ let requiresAuth = (to: any, from: any, next: any) => {
   }
 };
 
-const router = new VueRouter({
+const router = new Router({
   mode: 'history',
   routes: [
     {
