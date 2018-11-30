@@ -1,6 +1,15 @@
 import axios from 'axios';
 import store from '@/store';
 
+export function devAuthLogIn(uid: string, password: string) {
+  return axios
+    .post(`${store.state.apiBaseUrl}/devauth/login`, {
+      uid: uid,
+      password: password
+    })
+    .then(response => response.data, () => null);
+}
+
 export function getCasLoginURL() {
   return axios
     .get(`${store.state.apiBaseUrl}/cas/login_url`)

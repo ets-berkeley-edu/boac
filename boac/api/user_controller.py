@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api import errors
-from boac.api.util import admin_required, authorized_users_api_feed
+from boac.api.util import admin_required, authorized_users_api_feed, get_current_user_status
 from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE, get_dept_codes
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
@@ -38,43 +38,45 @@ from flask_login import current_user, login_required
 
 @app.route('/api/profile/my')
 def my_profile():
-    uid = current_user.get_id()
-    profile = calnet.get_calnet_user_for_uid(app, uid)
-    if current_user.is_active:
-        departments = {}
-        for m in current_user.department_memberships:
-            departments.update({
-                m.university_dept.dept_code: {
-                    'isAdvisor': m.is_advisor,
-                    'isDirector': m.is_director,
-                },
+    profile = get_current_user_status()
+    if current_user.is_authenticated:
+        uid = current_user.get_id()
+        profile.update(calnet.get_calnet_user_for_uid(app, uid))
+        if current_user.is_active:
+            departments = {}
+            for m in current_user.department_memberships:
+                departments.update({
+                    m.university_dept.dept_code: {
+                        'isAdvisor': m.is_advisor,
+                        'isDirector': m.is_director,
+                    },
+                })
+            dept_codes = get_dept_codes(current_user)
+            profile['isAsc'] = 'UWASC' in dept_codes
+            profile['isCoe'] = 'COENG' in dept_codes
+            filtered_cohorts = []
+            for cohort in CohortFilter.summarize_alert_counts_in_all_owned_by(uid):
+                cohort['isOwnedByCurrentUser'] = True
+                filtered_cohorts.append(cohort)
+            curated_cohorts = []
+            user_id = current_user.id
+            for cohort in CuratedCohort.get_curated_cohorts_by_owner_id(user_id):
+                _curated_cohort_api_json(cohort)
+                students = [{'sid': s.sid} for s in cohort.students]
+                students_with_alerts = Alert.include_alert_counts_for_students(viewer_user_id=user_id, cohort={'students': students})
+                curated_cohorts.append({
+                    'id': cohort.id,
+                    'name': cohort.name,
+                    'alertCount': sum(s['alertCount'] for s in students_with_alerts),
+                    'studentCount': len(students),
+                })
+            profile.update({
+                'myFilteredCohorts': filtered_cohorts,
+                'myCuratedCohorts': curated_cohorts,
+                'isAdmin': current_user.is_admin,
+                'inDemoMode': current_user.in_demo_mode if hasattr(current_user, 'in_demo_mode') else False,
+                'departments': departments,
             })
-        dept_codes = get_dept_codes(current_user)
-        profile['isAsc'] = 'UWASC' in dept_codes
-        profile['isCoe'] = 'COENG' in dept_codes
-        filtered_cohorts = []
-        for cohort in CohortFilter.summarize_alert_counts_in_all_owned_by(uid):
-            cohort['isOwnedByCurrentUser'] = True
-            filtered_cohorts.append(cohort)
-        curated_cohorts = []
-        user_id = current_user.id
-        for cohort in CuratedCohort.get_curated_cohorts_by_owner_id(user_id):
-            _curated_cohort_api_json(cohort)
-            students = [{'sid': s.sid} for s in cohort.students]
-            students_with_alerts = Alert.include_alert_counts_for_students(viewer_user_id=user_id, cohort={'students': students})
-            curated_cohorts.append({
-                'id': cohort.id,
-                'name': cohort.name,
-                'alertCount': sum(s['alertCount'] for s in students_with_alerts),
-                'studentCount': len(students),
-            })
-        profile.update({
-            'myFilteredCohorts': filtered_cohorts,
-            'myCuratedCohorts': curated_cohorts,
-            'isAdmin': current_user.is_admin,
-            'inDemoMode': current_user.in_demo_mode if hasattr(current_user, 'in_demo_mode') else False,
-            'departments': departments,
-        })
     return tolerant_jsonify(profile)
 
 

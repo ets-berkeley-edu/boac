@@ -41,6 +41,7 @@ class TestUserProfile:
         """Returns a well-formed response."""
         response = client.get('/api/profile/my')
         assert response.status_code == 200
+        assert response.json['isAuthenticated'] is False
         assert not response.json['uid']
 
     def test_includes_canvas_profile_if_available(self, client, fake_auth):
@@ -48,6 +49,7 @@ class TestUserProfile:
         test_uid = '2040'
         fake_auth.login(test_uid)
         response = client.get('/api/profile/my')
+        assert response.json['isAuthenticated'] is True
         assert response.json['uid'] == test_uid
         assert 'firstName' in response.json
         assert 'lastName' in response.json
