@@ -221,58 +221,58 @@
               <div class="student-text">Units Completed</div>
             </div>
 
-            <div class="student-course-activity-wrapper">
-              <div class="student-course-activity-row">
-                <div class="student-column student-text">CLASS</div>
-                <div class="student-column student-text">BCOURSES ACTIVITY</div>
-                <div class="cohort-list-view-column-grade student-text">MID</div>
-                <div class="cohort-list-view-column-grade student-text">FINAL</div>
-              </div>
-              <div class="student-course-activity-row"
-                   data-ng-repeat="enrollment in student.term.enrollments"
-                   data-ng-if="student.term.enrollments.length">
-                <div class="student-column">
-                  <div data-ng-bind="enrollment.displayName"></div>
-                </div>
-                <div class="student-column">
-                  <div class="cohort-boxplot-container"
-                       data-ng-repeat="canvasSite in enrollment.canvasSites"
-                       data-ng-if="enrollment.canvasSites.length">
-                    <span data-ng-bind="lastActivityDays(canvasSite.analytics)"></span>
-                  </div>
-                  <div data-ng-if="!enrollment.canvasSites.length"><span class="sr-only">No data</span>&mdash;</div>
-                </div>
-                <div class="cohort-list-view-column-grade">
-                  <span class="cohort-grade" data-ng-bind="enrollment.midtermGrade" data-ng-if="enrollment.midtermGrade"></span>
-                  <i class="fas fa-exclamation-triangle boac-exclamation" data-ng-if="isAlertGrade(enrollment.midtermGrade)"></i>
-                  <span data-ng-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
-                </div>
-                <div class="cohort-list-view-column-grade">
-                  <span class="cohort-grade"
-                        data-ng-bind="enrollment.grade"
-                        data-ng-if="enrollment.grade"></span>
-                  <i class="fas fa-exclamation-triangle boac-exclamation" data-ng-if="isAlertGrade(enrollment.grade)"></i>
-                  <span class="cohort-grading-basis"
-                        data-ng-bind="enrollment.gradingBasis"
-                        data-ng-if="!enrollment.grade"></span>
-                  <span data-ng-if="!enrollment.grade && !enrollment.gradingBasis"><span class="sr-only">No data</span>&mdash;</span>
-                </div>
-              </div>
-              <div class="student-course-activity-row"
-                   data-ng-if="!student.term.enrollments.length">
-                <div class="student-column faint-text">
-                  No {{currentEnrollmentTerm.split(' ')[0] | lowercase}} enrollments
-                </div>
-                <div class="student-column">
-                  <span class="sr-only">No data</span>&mdash;
-                </div>
-                <div class="cohort-list-view-column-grade">
-                  <span class="sr-only">No data</span>&mdash;
-                </div>
-                <div class="cohort-list-view-column-grade">
-                  <span class="sr-only">No data</span>&mdash;
-                </div>
-              </div>
+            <div class="cohort-course-activity-wrapper">
+              <table class="cohort-course-activity-table">
+                <tr>
+                  <th class="cohort-course-activity-header cohort-course-activity-course-name">CLASS</th>
+                  <th class="cohort-course-activity-header">BCOURSES ACTIVITY</th>
+                  <th class="cohort-course-activity-header">MID</th>
+                  <th class="cohort-course-activity-header">FINAL</th>
+                </tr>
+                <tr data-ng-repeat="enrollment in student.term.enrollments"
+                    data-ng-if="student.term.enrollments.length">
+                  <td class="cohort-course-activity-data cohort-course-activity-course-name">
+                    <div data-ng-bind="enrollment.displayName"></div>
+                  </td>
+                  <td class="cohort-course-activity-data">
+                    <div class="cohort-boxplot-container"
+                         data-ng-repeat="canvasSite in enrollment.canvasSites"
+                         data-ng-if="enrollment.canvasSites.length">
+                      <span data-ng-bind="lastActivityDays(canvasSite.analytics)"></span>
+                    </div>
+                    <div data-ng-if="!enrollment.canvasSites.length"><span class="sr-only">No data</span>&mdash;</div>
+                  </td>
+                  <td class="cohort-course-activity-data">
+                    <span class="cohort-grade" data-ng-bind="enrollment.midtermGrade" data-ng-if="enrollment.midtermGrade"></span>
+                    <i class="fas fa-exclamation-triangle boac-exclamation" data-ng-if="isAlertGrade(enrollment.midtermGrade)"></i>
+                    <span data-ng-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
+                  </td>
+                  <td class="cohort-course-activity-data">
+                    <span class="cohort-grade"
+                          data-ng-bind="enrollment.grade"
+                          data-ng-if="enrollment.grade"></span>
+                    <i class="fas fa-exclamation-triangle boac-exclamation" data-ng-if="isAlertGrade(enrollment.grade)"></i>
+                    <span class="cohort-grading-basis"
+                          data-ng-bind="enrollment.gradingBasis"
+                          data-ng-if="!enrollment.grade"></span>
+                    <span data-ng-if="!enrollment.grade && !enrollment.gradingBasis"><span class="sr-only">No data</span>&mdash;</span>
+                  </td>
+                </tr>
+                <tr data-ng-if="!student.term.enrollments.length">
+                  <td class="cohort-course-activity-data cohort-course-activity-course-name faint-text">
+                    No {{currentEnrollmentTerm.split(' ')[0] | lowercase}} enrollments
+                  </td>
+                  <td class="cohort-course-activity-data">
+                    <span class="sr-only">No data</span>&mdash;
+                  </td>
+                  <td class="cohort-course-activity-data">
+                    <span class="sr-only">No data</span>&mdash;
+                  </td>
+                  <td class="cohort-course-activity-data">
+                    <span class="sr-only">No data</span>&mdash;
+                  </td>
+                </tr>
+              </table>
             </div>
           </div>
         </ul>
