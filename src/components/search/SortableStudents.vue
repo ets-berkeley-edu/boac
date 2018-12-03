@@ -1,23 +1,22 @@
 <template>
-  <ul>
-    <li v-for="student in students" v-bind:key="student.sid">
-      <StudentAvatar v-bind:student="student"/>
-      {{ student.sid }}
-    </li>
-  </ul>
+  <div v-if="students">
+    <CuratedGroupSelector :students="students"/>
+    <SortableStudentRow :student="student" v-for="student in students" v-bind:key="student.sid"/>
+  </div>
 </template>
 
 <script>
-import StudentAvatar from '@/components/student/StudentAvatar';
+import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
+import SortableStudentRow from '@/components/search/SortableStudentRow';
 
 export default {
   name: 'SortableStudents',
   components: {
-    StudentAvatar
+    CuratedGroupSelector,
+    SortableStudentRow
   },
-  props: ['students']
+  props: {
+    students: Array
+  }
 };
 </script>
-
-<style scoped>
-</style>

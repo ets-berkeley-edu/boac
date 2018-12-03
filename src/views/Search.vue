@@ -1,7 +1,7 @@
 <template>
   <div>
     <Spinner/>
-    <SortableStudents v-bind:students="students"/>
+    <SortableStudents :students="students"/>
   </div>
 </template>
 
@@ -64,9 +64,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.foo {
-  font-size: 16px;
-}
-</style>
