@@ -27,6 +27,33 @@
   margin: 0;
 }
 
+.avatar {
+  background-image: url(/static/app/shared/avatar-50.png);
+  background-size: cover;
+  border: 5px solid #ccc;
+  border-radius: 30px;
+  height: 60px;
+  object-fit: cover;
+  width: 60px;
+}
+
+.avatar-large {
+  border: 4px solid #999;
+  border-radius: 50px;
+  height: 100px;
+  margin: 20px;
+  max-height: 100px;
+  width: 100px;
+}
+
+.avatar-small {
+  border: 1px;
+  border-radius: 15px;
+  height: 30px;
+  padding: 2px 0 2px 0;
+  width: 30px;
+}
+
 .boac-exclamation {
   color: #f0ad4e;
 }
@@ -103,6 +130,10 @@
 .form-control {
   height: 38px;
   padding: 8px 12px;
+}
+
+.full-width {
+  width: 100%;
 }
 
 .has-error {
@@ -340,6 +371,20 @@
 html,
 body {
   height: 100%;
+}
+
+#content {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+#content a {
+  color: #337ab7;
+}
+
+#content .nav-pills .nav-link.active,
+#content .nav-pills .show > .nav-link {
+  background-color: #337ab7;
+  color: #fff;
 }
 
 select[data-value=""],

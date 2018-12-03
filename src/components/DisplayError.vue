@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="errors.length">
     <ul>
       <li class="has-error" v-for="error in errors" v-bind:key="error.id">
         {{error}} [<button v-on:click="dismissError(error.id)">dismiss</button>
