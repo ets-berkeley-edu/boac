@@ -30,6 +30,10 @@
   var SidebarNavController = function($rootScope, $scope, authService, status) {
     $scope.isLoading = true;
 
+    $scope.getCuratedGroupUri = function(id) {
+      return '/cohort/curated/' + id;
+    };
+
     $rootScope.$on('userProfileLoaded', function() {
       $scope.profile = $rootScope.profile;
       $scope.isAscUser = authService.isAscUser();

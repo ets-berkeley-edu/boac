@@ -98,7 +98,7 @@ const router = new Router({
       path: '/curated_group_:id',
       beforeEnter: requiresAuth,
       component: CuratedGroup,
-      meta: { legacyPathRedirect: '/cohort/curated/:id' }
+      props: true
     },
     {
       path: '/student_:uid',

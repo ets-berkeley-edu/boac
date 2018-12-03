@@ -31,6 +31,7 @@ from boac.merged.student import get_summary_student_profiles
 from boac.models.alert import Alert
 from boac.models.curated_cohort import CuratedCohort
 from flask import current_app as app, request
+from flask_cors import cross_origin
 from flask_login import current_user, login_required
 
 
@@ -59,6 +60,7 @@ def add_student_to_curated_cohort(curated_cohort_id, sid):
 
 @app.route('/api/curated_cohort/delete/<curated_cohort_id>', methods=['DELETE'])
 @login_required
+@cross_origin(allow_headers=['Content-Type'])
 def delete_curated_cohort(curated_cohort_id):
     curated_cohort = CuratedCohort.find_by_id(curated_cohort_id)
     if not curated_cohort:

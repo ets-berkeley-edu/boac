@@ -51,6 +51,12 @@ const mutations = {
     if (indexOf > -1) {
       state.errors.splice(indexOf, 1);
     }
+  },
+  updateCuratedGroup: (state: any, data: any) => {
+    var group = state.user.myCuratedCohorts.find(
+      group => group.id === +data.id
+    );
+    group.name = data.name;
   }
 };
 
