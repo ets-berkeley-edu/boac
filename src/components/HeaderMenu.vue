@@ -1,8 +1,15 @@
 <template>
   <div v-if="user">
-    <b-dropdown id="ddown-right"
-                right
-                :text="user.firstName">
+    <b-dropdown id="header-dropdown-under-name"
+                class="mr-3"
+                variant="link"
+                no-caret
+                right>
+      <template slot="button-content">
+        <div class="d-flex align-items-center">
+          <div class="b-link-text">{{ user.firstName }}</div><i class="ml-1 fas fa-caret-down b-link-text"></i>
+        </div>
+      </template>
       <b-dropdown-item href="/admin" v:if="user.isAdmin">Admin</b-dropdown-item>
       <b-dropdown-item href="#" v-on:click="logOut">Log Out</b-dropdown-item>
       <b-dropdown-item :href="'mailto:' + supportEmailAddress" target="_blank">Feedback/Help</b-dropdown-item>
@@ -36,14 +43,8 @@ export default {
 </script>
 
 <style scoped>
-.header-btn-label {
-  font-size: 16px;
-  text-transform: none;
-}
-.header-btn-label span {
-  padding-right: 6px;
-}
-.header-menu-content {
-  background-color: white;
+.b-link-text {
+  color: #fff;
+  text-decoration: none !important;
 }
 </style>

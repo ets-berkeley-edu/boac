@@ -31,6 +31,11 @@
   color: #fff;
 }
 
+.header-dropdown-text button {
+  float: right;
+  margin-right: 20px;
+}
+
 .header-dropdown-text button:link,
 .header-dropdown-text button:visited {
   color: #fff;
@@ -63,11 +68,6 @@
 
 .header-container div:last-child > span {
   float: right;
-}
-
-.header-container div:last-child > button {
-  float: right;
-  margin-right: 20px;
 }
 
 .header-text {

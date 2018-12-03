@@ -3,7 +3,7 @@
     <form id="search-students-form"
           v-bind:class="{'search-students-with-button': withButton}"
           v-on:submit.prevent="search()">
-      <div class="search-students-form-label-outer" v-if="!withButton">
+      <div class="search-students-form-label-outer search-label" v-if="!withButton">
         <i class="fas fa-search"></i>
         <label for="search-students-input"
                class="search-students-form-label">Search Students or Classes</label>
@@ -50,41 +50,12 @@ export default {
 </script>
 
 <style scoped>
-.sidebar-section-search {
-  margin: 12px;
-}
-.search-students-form-button {
-  min-width: 200px;
-  width: 60%;
-}
-.search-students-form-label {
-  font-weight: 400;
-  margin: 0;
-  padding-left: 3px;
-}
-.search-students-form-label-outer {
-  color: #fff;
-  margin: 10px 0;
-}
-.search-students-input {
-  background-color: #fff;
-  box-sizing: border-box;
-  border: 2px solid #ccc;
-  border-radius: 4px;
-  color: #333;
-  padding: 10px;
-  width: 100%;
-}
-.search-students-with-button {
-  align-items: center;
+.search-label {
   display: flex;
-  flex-flow: row wrap;
-  margin-top: 10px;
+  align-items: baseline;
+  font-size: 14px;
 }
-.search-students-with-button div {
-  align-self: flex-end;
-}
-.search-students-with-button div:first-child {
-  padding-right: 15px;
+.search-label i {
+  padding-right: 4px;
 }
 </style>

@@ -17,29 +17,9 @@ export default {
   props: ['student'],
   computed: {
     inDemoMode: () => store.getters.user.inDemoMode,
-    baseUrl: () => store.state.apiBaseUrl
-  },
-  methods: {
-    avatarFallback: () => this.baseUrl + '/static/app/shared/avatar-50.png'
+    baseUrl: () => store.state.apiBaseUrl,
+    avatarFallback: () =>
+      store.state.apiBaseUrl + '/static/app/shared/avatar-50.png'
   }
 };
 </script>
-
-<style scoped>
-.student-avatar {
-  background-image: url(/static/app/shared/avatar-50.png);
-  background-size: cover;
-  border: 5px solid #ccc;
-  border-radius: 30px;
-  height: 60px;
-  object-fit: cover;
-  width: 60px;
-}
-.student-avatar-small {
-  border: 1px;
-  border-radius: 15px;
-  height: 30px;
-  padding: 2px 0 2px 0;
-  width: 30px;
-}
-</style>

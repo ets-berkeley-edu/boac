@@ -2,10 +2,10 @@
   <div id="app" class="index-container">
     <a href="#content"
        id="skip-to-content-link"
-       class="sr-only">Skip To Content</a>
+       class="sr-only sr-only-focusable">Skip To Content</a>
     <div class="index-container-header">
       <div class="header-container">
-        <div class="header-text"><a :href="homeAddress">Home</a></div>
+        <div class="header-text"><router-link to="/home">Home</router-link></div>
         <div><HeaderMenu/></div>
       </div>
     </div>
@@ -38,7 +38,6 @@
 import DisplayError from '@/components/DisplayError.vue';
 import HeaderMenu from '@/components/HeaderMenu.vue';
 import Sidebar from '@/components/sidebar/Sidebar.vue';
-import store from '@/store';
 
 export default {
   name: 'App',
@@ -46,9 +45,6 @@ export default {
     DisplayError,
     HeaderMenu,
     Sidebar
-  },
-  data: () => ({
-    homeAddress: store.state.apiBaseUrl
-  })
+  }
 };
 </script>

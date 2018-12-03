@@ -26,6 +26,7 @@ Vue.filter(
   'pluralize',
   (noun: string, count: number) => `${count} ` + (count > 1 ? `${noun}s` : noun)
 );
+Vue.prototype.$eventHub = new Vue();
 
 new Vue({
   router,
