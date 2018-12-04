@@ -77,6 +77,7 @@ def register_routes(app):
             response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
             response.headers['Access-Control-Allow-Origin'] = app.config['VUE_LOCALHOST_BASE_URL']
             response.headers['Access-Control-Allow-Credentials'] = 'true'
+            response.headers['Access-Control-Methods'] = ['POST', 'GET', 'OPTIONS', 'DELETE']
         if request.full_path.startswith('/api'):
             log_message = ' '.join([
                 request.remote_addr,

@@ -43,6 +43,7 @@
     "eslint-plugin-import": "2.13.0",
     "eslint-plugin-no-loops": "0.3.0",
     "eslint-plugin-unicorn": "5.0.0",
+    "eslint-plugin-vue": "^4.7.1",
     "eslint-plugin-xss": "0.1.9",
     "gulp": "4.0.0",
     "gulp-csso": "3.0.1",

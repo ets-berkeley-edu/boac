@@ -16,7 +16,8 @@
       </div>
       <div>
         <span :id="'sidebar-curated-cohort-' + index + '-count'"
-              class="sidebar-pill">{{group.studentCount}}<span class="sr-only">{{ 'student' | pluralize(group.totalStudentCount) }}</span></span>
+          class="sidebar-pill">{{group.studentCount}}<span class="sr-only">{{ 'student' | pluralize(group.studentCount) }}</span>
+        </span>
       </div>
     </div>
     <hr class="section-divider"/>
