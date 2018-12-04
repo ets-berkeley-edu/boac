@@ -90,6 +90,15 @@
   display: none;
 }
 
+.dropdown-menu li a,
+.pagination li a {
+  color: #333 !important;
+}
+
+.pagination .active a {
+  color: #fff !important;
+}
+
 .edit-mode-button-container {
   display: flex;
   flex-direction: row-reverse;
