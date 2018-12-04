@@ -1,7 +1,7 @@
 <template>
   <div>
     <CuratedStudentCheckbox :sid="student.sid"/>
-    <StudentAvatar :student="student"/>
+    <StudentAvatar :student="student" size="small"/>
     {{ student.name }}
   </div>
 </template>
