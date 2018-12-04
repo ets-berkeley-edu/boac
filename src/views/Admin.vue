@@ -39,15 +39,16 @@
 
 <script>
 import _ from 'lodash';
-import { becomeUser, getAuthorizedUserGroups } from '@/api/user';
+import AppConfig from '@/mixins/AppConfig';
 import DemoModeToggle from '@/components/DemoModeToggle.vue';
-import Spinner from '@/components/Spinner.vue';
 import Loading from '@/mixins/Loading.vue';
-import store from '@/store';
+import Spinner from '@/components/Spinner.vue';
+import UserMetadata from '@/mixins/UserMetadata';
+import { becomeUser, getAuthorizedUserGroups } from '@/api/user';
 
 export default {
   name: 'Admin',
-  mixins: [Loading],
+  mixins: [AppConfig, Loading, UserMetadata],
   components: {
     DemoModeToggle,
     Spinner
@@ -59,10 +60,6 @@ export default {
     active: [],
     userGroups: []
   }),
-  computed: {
-    user: () => store.getters.user,
-    devAuthEnabled: () => _.get(store.getters.config, 'devAuthEnabled')
-  },
   methods: {
     loadUserGroups() {
       getAuthorizedUserGroups().then(data => {
