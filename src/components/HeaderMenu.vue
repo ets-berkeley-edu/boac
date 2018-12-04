@@ -10,7 +10,7 @@
           <div class="b-link-text">{{ user.firstName }}</div><i class="ml-1 fas fa-caret-down b-link-text"></i>
         </div>
       </template>
-      <b-dropdown-item href="/admin" v:if="user.isAdmin">Admin</b-dropdown-item>
+      <b-dropdown-item href="#" v-if="user.isAdmin"><router-link to="/admin" tag="span">Admin</router-link></b-dropdown-item>
       <b-dropdown-item href="#" v-on:click="logOut">Log Out</b-dropdown-item>
       <b-dropdown-item :href="'mailto:' + supportEmailAddress" target="_blank">Feedback/Help</b-dropdown-item>
     </b-dropdown>
@@ -18,20 +18,13 @@
 </template>
 
 <script>
-import _ from 'lodash';
+import AppConfig from '@/mixins/AppConfig';
+import UserMetadata from '@/mixins/UserMetadata';
 import { getCasLogoutURL } from '@/api/user';
-import store from '@/store';
 
 export default {
   name: 'HeaderMenu',
-  computed: {
-    user() {
-      return store.getters.user;
-    },
-    supportEmailAddress() {
-      return _.get(store.getters.config, 'supportEmailAddress');
-    }
-  },
+  mixins: [AppConfig, UserMetadata],
   methods: {
     logOut() {
       getCasLogoutURL().then(data => {
