@@ -40,6 +40,9 @@
                 {{student.sisProfile.phoneNumber}}</span>
             </div>
           </div>
+          <div id="student-bio-inactive" v-if="displayAsInactive(student)">
+            <div class="student-bio-header student-bio-inactive">Inactive</div>
+          </div>
           <div id="student-bio-athletics" v-if="student.athleticsProfile">
             <div v-for="membership in student.athleticsProfile.athletics" :key="membership.groupName">
               <div class="student-bio-header">{{membership.groupName}}</div>
@@ -168,11 +171,12 @@ import { getStudentDetails } from '@/api/student';
 import Loading from '@/mixins/Loading.vue';
 import Spinner from '@/components/Spinner.vue';
 import StudentAvatar from '@/components/student/StudentAvatar';
+import StudentMetadata from '@/mixins/StudentMetadata';
 import store from '@/store';
 
 export default {
   name: 'Student',
-  mixins: [Loading],
+  mixins: [Loading, StudentMetadata],
   components: {
     Spinner,
     StudentAvatar
@@ -216,17 +220,21 @@ export default {
   margin: 20px 0;
   flex: 1;
 }
-.student-bio-header {
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0 0 5px 0;
-}
 .student-bio-details {
   color: #999;
   font-size: 14px;
 }
 .student-bio-details-outer {
   margin-bottom: 10px;
+}
+.student-bio-header {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 5px 0;
+}
+.student-bio-inactive {
+  color: #cf1715;
+  text-transform: uppercase;
 }
 .student-bio-sid {
   font-size: 14px;
