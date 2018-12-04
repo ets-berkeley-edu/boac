@@ -11,12 +11,13 @@
 
 <script>
 import store from '@/store';
+import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
   name: 'StudentAvatar',
+  mixins: [UserMetadata],
   props: ['size', 'student'],
   computed: {
-    inDemoMode: () => store.getters.user.inDemoMode,
     baseUrl: () => store.state.apiBaseUrl,
     avatarFallback: () =>
       store.state.apiBaseUrl + '/static/app/shared/avatar-50.png'

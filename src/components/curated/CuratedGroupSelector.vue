@@ -1,9 +1,6 @@
 <template>
   <div class="cohort-selector-container">
     <div>
-      Selected sids: {{ sids }}
-    </div>
-    <div>
       <div class="cohort-selector-checkbox">
         <label id="checkbox-add-all-label"
                class="sr-only">Select all students to add to a curated group</label>

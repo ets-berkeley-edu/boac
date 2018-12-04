@@ -24,7 +24,7 @@
       </div>
       <div>
         <span :id="'sidebar-filtered-cohort-' + index + '-count'"
-              class="sidebar-pill">{{cohort.totalStudentCount}}<span class="sr-only">{{ 'student' | pluralize(cohort.totalStudentCount)}}</span>
+              class="sidebar-pill">{{cohort.totalStudentCount}}<span class="sr-only">{{ 'student' | pluralize(cohort.totalStudentCount) }}</span>
         </span>
       </div>
     </div>
