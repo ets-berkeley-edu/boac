@@ -38,6 +38,5 @@ export default {
 <style scoped>
 .b-link-text {
   color: #fff;
-  text-decoration: none !important;
 }
 </style>

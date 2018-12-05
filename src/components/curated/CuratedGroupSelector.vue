@@ -1,79 +1,67 @@
 <template>
   <div class="cohort-selector-container">
-    <div>
-      <div class="cohort-selector-checkbox">
-        <label id="checkbox-add-all-label"
-               class="sr-only">Select all students to add to a curated group</label>
-        <b-form-checkbox v-model="checked"
-                         :indeterminate="indeterminate"
-                         aria-describedby="students"
-                         aria-controls="students"
-                         @change="toggle">
-          {{ checked ? 'Un-select All Students' : 'Select All Students' }}
-         </b-form-checkbox>
-      </div>
+    <div class="selector-checkbox-container">
+      <label id="checkbox-add-all-label"
+             class="sr-only">Select all students to add to a curated group</label>
+      <b-form-checkbox plain
+                       class="p-2 mr-0"
+                       v-model="checked"
+                       :indeterminate="indeterminate"
+                       aria-describedby="students"
+                       aria-controls="students"
+                       @change="toggle">
+        <span class="sr-only">{{ checked ? 'Un-select All Students' : 'Select All Students' }}</span>
+       </b-form-checkbox>
     </div>
     <div>
-      <div class="cohort-btn-group"
-           uib-dropdown
-           is-open="selector.isOpen"
-           v-if="showMenu">
-        <button id="added-to-curated-cohort-confirmation"
-                type="button"
-                data-ng-disabled="true"
-                class="btn cohort-btn-confirmation"
-                v-if="isSaving">
-          <i class="fas fa-check"></i>
-          Added to Curated Group
-        </button>
-        <button id="add-to-curated-cohort-button"
-                type="button"
-                class="btn btn-primary"
-                uib-dropdown-toggle
-                v-if="!isSaving">
-          Add to Curated Group <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu cohort-all-menu"
-            uib-dropdown-menu
-            role="menu"
-            aria-labelledby="add-to-cohort-button">
-          <li role="menuitem" v-if="isLoading">
-            Loading <i class="fas fa-spinner fa-spin"></i>
-          </li>
-          <li role="menuitem" v-if="!curatedGroups.length">
-            <span class="cohort-selector-zero-cohorts faint-text">You have no curated groups.</span>
-          </li>
-          <li role="menuitem"
-              v-bind:class="{'cohort-checkbox-item': group, 'divider': !group}"
-              v-for="(group, index) in curatedGroups"
-              v-bind:key="group.id"
-              data-ng-href="!isLoading">
-            <input :id="'student-' + student.uid + '-curated-cohort-checkbox'"
-                   type="checkbox"
-                   v-model="group.selected"
-                   v-on:click="curatedCohortCheckboxClick(group)"
-                   :aria-labelledby="'curated-cohort-name-' + index"
-                   v-if="group"/>
-            <span :id="'curated-cohort-' + group.id + '-name'"
-                  :aria-labelledby="'student-' + student.uid + '-cohort-checkbox'"
-                  class="cohort-checkbox-name"
-                  v-if="group">{{ group.name }}</span>
-          </li>
-          <li class="divider"></li>
+      <b-dropdown class="ml-2"
+                  variant="primary"
+                  :disabled="isSaving"
+                  v-if="showMenu">
+        <template slot="button-content">
+            <span v-if="!isSaving">Add to Curated Group</span>
           <!--
-          <li role="menuitem"
-              data-ng-controller="CreateCuratedCohortController"
-              data-ng-href="!isLoading">
-            <a id="curated-cohort-create"
-               href
-               v-on:click="openCreateCuratedCohortModal(onCreateCuratedCohort)"><i class="fas fa-plus"></i> Create New Curated Group</a>
-          </li>
+          <span :id="isSaving ? 'added-to-curated-cohort-confirmation' : 'add-to-curated-cohort-button'"
+               class="d-flex align-items-center"
+               :class="{'btn cohort-btn-confirmation': isSaving, 'btn btn-primary': !isSaving}">
+            <span v-if="isSaving"><i class="fas fa-check"></i> Added to Curated Group</span>
+          </span>
           -->
-        </ul>
-      </div>
+        </template>
+        <b-dropdown-item v-if="reloading">
+          Loading <i class="fas fa-spinner fa-spin"></i>
+        </b-dropdown-item>
+        <b-dropdown-item v-if="!curatedGroups.length">
+          <span class="cohort-selector-zero-cohorts faint-text">You have no curated groups.</span>
+        </b-dropdown-item>
+        <b-dropdown-item class="cohort-checkbox-item"
+                         v-for="(group, index) in curatedGroups"
+                         :key="group.id"
+                         v-if="group && !reloading">
+          <input :id="'curated-group=' + group.id + '-checkbox'"
+                 type="checkbox"
+                 v-model="group.selected"
+                 v-on:click="curatedGroupCheckboxClick(group)"
+                 :aria-labelledby="'curated-cohort-name-' + index"
+                 v-if="group"/>
+          <span :id="'curated-cohort-' + group.id + '-name'"
+                :aria-labelledby="'curated-group-' + group.id + '-checkbox'"
+                class="cohort-checkbox-name"
+                v-if="group">{{ group.name }}</span>
+        </b-dropdown-item>
+        <b-dropdown-divider v-if="!reloading"></b-dropdown-divider>
+        <b-dropdown-item data-ng-controller="CreateCuratedGroupController"
+                         v-if="!reloading">
+          <span v-b-modal="'createCuratedGroupModal'"
+                 class="btn-link cohort-manage-btn-link"
+                 id="curated-cohort-create"
+                 aria-label="Create a new curated group"
+                 v-on:click="openCreateCuratedGroupModal(onCreateCuratedGroup)">
+            <i class="fas fa-plus"></i> Create New Curated Group
+          </span>
+        </b-dropdown-item>
+      </b-dropdown>
     </div>
-    <!--
-    -->
   </div>
 </template>
 
@@ -90,7 +78,8 @@ export default {
     sids: [],
     checked: false,
     indeterminate: false,
-    showMenu: false
+    isSaving: false,
+    reloading: false
   }),
   created() {
     this.$eventHub.$on('curated-group-checkbox-checked', sid => {
@@ -104,7 +93,10 @@ export default {
   },
   computed: {
     curatedGroups() {
-      return _.get(store.getters, 'user.myCuratedCohorts');
+      return _.get(store.getters.user, 'myCuratedCohorts') || [];
+    },
+    showMenu() {
+      return this.sids.length;
     }
   },
   methods: {
@@ -117,7 +109,23 @@ export default {
     refresh() {
       this.indeterminate = _.inRange(this.sids.length, 1, this.students.length);
       this.checked = this.sids.length === this.students.length;
+    },
+    curatedGroupCheckboxClick() {
+      console.log('curatedGroupCheckboxClick!');
+    },
+    openCreateCuratedGroupModal() {
+      console.log('openCreateCuratedGroupModal!');
     }
   }
 };
 </script>
+
+<style scoped>
+.selector-checkbox-container {
+  background-color: #eee;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  padding: 3px 0 3px 3px;
+  text-align: center;
+}
+</style>

@@ -27,7 +27,6 @@
 
 <script>
 import _ from 'lodash';
-import router from '@/router';
 
 export default {
   name: 'SearchStudents',
@@ -42,7 +41,7 @@ export default {
     search() {
       this.searchPhrase = _.trim(this.searchPhrase);
       if (this.searchPhrase) {
-        router.push({ path: 'search', query: { q: this.searchPhrase } });
+        this.$router.push({ path: 'search', query: { q: this.searchPhrase } });
       }
     }
   }

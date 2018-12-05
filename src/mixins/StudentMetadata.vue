@@ -10,7 +10,9 @@ export default {
         (user && (user.isAsc && !student.athleticsProfile.isActiveAsc)) ||
         (user.isCoe && !student.coeProfile.isActiveCoe)
       );
-    }
+    },
+    setSortableName: student =>
+      (student.sortableName = student.lastName + ', ' + student.firstName)
   }
 };
 </script>

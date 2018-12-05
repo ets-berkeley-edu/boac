@@ -1,5 +1,5 @@
 <template>
-  <div class="all-cohorts-container">
+  <div class="p3">
     <Spinner/>
     <div v-if="!loading">
       <h1 class="page-section-header">Everyone's Cohorts</h1>

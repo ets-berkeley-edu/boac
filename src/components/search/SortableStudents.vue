@@ -7,7 +7,7 @@
       <thead>
         <tr>
           <th class="group-summary-column group-summary-column-checkbox group-summary-column-header"
-              v-if="options.curatedCohort"></th>
+              v-if="options.includeCuratedCheckbox"></th>
           <th class="group-summary-column group-summary-column-photo group-summary-column-header"></th>
           <th class="group-summary-column group-summary-column-name group-summary-column-header group-summary-header-sortable"
               v-on:click="sort(options, 'sortableName')"
@@ -77,7 +77,8 @@
       </thead>
       <tbody>
         <tr v-for="student in sortedStudents" v-bind:key="student.sid">
-          <td class="group-summary-column group-summary-column-checkbox">
+          <td class="group-summary-column group-summary-column-checkbox"
+              v-if="options.includeCuratedCheckbox">
             <div class="add-to-cohort-checkbox">
               <CuratedStudentCheckbox :sid="student.sid"/>
             </div>
@@ -86,9 +87,9 @@
             <StudentAvatar :student="student" size="small"/>
           </td>
           <td class="group-summary-column group-summary-column-name">
-            <span class="sr-only">{{ options.srText.sortableName }}</span>
+            <span class="sr-only">{{ srText.sortableName }}</span>
             <a :aria-label="'Go to profile page of ' + student.firstName + ' ' + student.lastName"
-               v-bind:class="{'demo-mode-blur': inDemoMode}"
+               v-bind:class="{'demo-mode-blur': user.inDemoMode}"
                :href="'/student_' + student.uid">{{ student.sortableName }}</a>
             <span class="home-inactive-info-icon"
                   uib-tooltip="Inactive"
@@ -98,37 +99,37 @@
             </span>
           </td>
           <td class="group-summary-column group-summary-column-sid">
-            <span class="sr-only">{{ options.srText.sid }}</span>
-            <span v-bind:class="{'demo-mode-blur': inDemoMode}">{{ student.sid }}</span>
+            <span class="sr-only">{{ srText.sid }}</span>
+            <span v-bind:class="{'demo-mode-blur': user.inDemoMode}">{{ student.sid }}</span>
           </td>
           <td class="group-summary-column group-summary-column-major">
-            <span class="sr-only">{{ options.srText['majors[0]'] }}</span>
+            <span class="sr-only">{{ srText['majors[0]'] }}</span>
             <div v-if="student.majors.length === 0">--<span class="sr-only">No data</span></div>
             <div v-for="major in student.majors"
                  v-bind:key="major"
                  v-if="student.majors.length > 0">{{ major }}</div>
           </td>
           <td class="group-summary-column group-summary-column-grad">
-            <span class="sr-only">{{ options.srText['expectedGraduationTerm.id'] }}</span>
+            <span class="sr-only">{{ srText['expectedGraduationTerm.id'] }}</span>
             <div v-if="!student.expectedGraduationTerm">--<span class="sr-only">No data</span></div>
             <span>{{ abbreviateTermName(student.expectedGraduationTerm && student.expectedGraduationTerm.name) }}</span>
           </td>
           <td class="group-summary-column group-summary-column-units-term">
-            <span class="sr-only">{{ options.srText['term.enrolledUnits'] }}</span>
+            <span class="sr-only">{{ srText['term.enrolledUnits'] }}</span>
             <div>{{ student.term.enrolledUnits || '0' }}</div>
           </td>
           <td class="group-summary-column group-summary-column-units-completed">
-            <span class="sr-only">{{ options.srText.cumulativeUnits }}</span>
+            <span class="sr-only">{{ srText.cumulativeUnits }}</span>
             <div v-if="!student.cumulativeUnits">--<span class="sr-only">No data</span></div>
             <div v-if="student.cumulativeUnits">{{ student.cumulativeUnits | variablePrecisionNumber(2, 3) }}</div>
           </td>
           <td class="group-summary-column group-summary-column-gpa">
-            <span class="sr-only">{{ options.srText.cumulativeGPA }}</span>
+            <span class="sr-only">{{ srText.cumulativeGPA }}</span>
             <div v-if="!student.cumulativeGPA">--<span class="sr-only">No data</span></div>
             <div v-if="student.cumulativeGPA">{{ student.cumulativeGPA | round(3) }}</div>
           </td>
           <td class="group-summary-column group-summary-column-issues">
-            <span class="sr-only">{{ options.srText.alertCount }}</span>
+            <span class="sr-only">{{ srText.alertCount }}</span>
             <div class="home-issues-pill home-issues-pill-zero"
                  :aria-label="'No alerts for ' + student.firstName + ' ' + student.lastName"
                  tabindex="0"
@@ -159,28 +160,28 @@ export default {
     StudentAvatar
   },
   mixins: [AppConfig, StudentMetadata, UserMetadata],
-  created() {
-    this.setSortDescriptions();
-  },
   props: {
-    students: Array
+    students: Array,
+    options: {
+      type: Object,
+      default: () => ({
+        sortBy: 'sortableName',
+        includeCuratedCheckbox: false,
+        reverse: false
+      })
+    }
   },
   data: () => ({
     currentSortDescription: null,
-    options: {
-      sortBy: null,
-      curatedCohort: false,
-      reverse: false,
-      srText: {
-        sortableName: 'student name',
-        sid: 'S I D',
-        'majors[0]': 'major',
-        'expectedGraduationTerm.id': 'expected graduation term',
-        'term.enrolledUnits': 'term units',
-        cumulativeUnits: 'units completed',
-        cumulativeGPA: 'GPA',
-        alertCount: 'issue count'
-      }
+    srText: {
+      sortableName: 'student name',
+      sid: 'S I D',
+      'majors[0]': 'major',
+      'expectedGraduationTerm.id': 'expected graduation term',
+      'term.enrolledUnits': 'term units',
+      cumulativeUnits: 'units completed',
+      cumulativeGPA: 'GPA',
+      alertCount: 'issue count'
     },
     resorted: false,
     sortOptions: {
@@ -191,8 +192,12 @@ export default {
       sortableName: null
     }
   }),
+  created() {
+    this.setSortDescriptions();
+  },
   computed: {
     sortedStudents() {
+      _.each(this.students, student => this.setSortableName(student));
       return _.orderBy(
         this.students,
         this.options.sortBy,
@@ -218,14 +223,15 @@ export default {
       this.setSortDescriptions();
     },
     setSortDescriptions() {
-      const sortBy = this.options.sortBy;
-      const reverse = this.options.reverse;
       this.sortOptions = {};
-      this.currentSortDescription = 'Sorted by ' + this.options.srText[sortBy];
-      if (reverse) {
+      this.currentSortDescription =
+        'Sorted by ' + this.srText[this.options.sortBy];
+      if (this.reverse) {
         this.currentSortDescription += ' descending';
       }
-      this.sortOptions = _.mapValues(this.options.srText, function(value, key) {
+      const sortBy = this.sortBy;
+      const reverse = this.reverse;
+      this.sortOptions = _.mapValues(this.srText, function(value, key) {
         let optionText = 'Sort by ' + value;
         if (key === sortBy) {
           optionText += reverse ? ' ascending' : ' descending';
