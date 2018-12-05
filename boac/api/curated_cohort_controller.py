@@ -43,6 +43,10 @@ def create_curated_cohort():
     if not name:
         raise BadRequestError('Curated group creation requires \'name\'')
     curated_cohort = CuratedCohort.create(current_user.id, name)
+    # Optionally, add students
+    if 'sids' in params:
+        sids = [sid for sid in set(params.get('sids')) if sid.isdigit()]
+        CuratedCohort.add_students(curated_cohort_id=curated_cohort.id, sids=sids)
     return tolerant_jsonify(curated_cohort.to_api_json())
 
 

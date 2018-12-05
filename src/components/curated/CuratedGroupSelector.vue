@@ -5,28 +5,27 @@
              class="sr-only">Select all students to add to a curated group</label>
       <b-form-checkbox plain
                        class="p-2 mr-0"
-                       v-model="checked"
+                       :disabled="isSaving"
+                       v-model="isSelectAllChecked"
                        :indeterminate="indeterminate"
                        aria-describedby="students"
                        aria-controls="students"
                        @change="toggle">
-        <span class="sr-only">{{ checked ? 'Un-select All Students' : 'Select All Students' }}</span>
+        <span class="sr-only">{{ isSelectAllChecked ? 'Un-select All Students' : 'Select All Students' }}</span>
        </b-form-checkbox>
     </div>
     <div>
       <b-dropdown class="ml-2"
-                  variant="primary"
+                  no-caret
+                  :variant="isSaving ? 'success' : 'primary'"
                   :disabled="isSaving"
                   v-if="showMenu">
         <template slot="button-content">
-            <span v-if="!isSaving">Add to Curated Group</span>
-          <!--
           <span :id="isSaving ? 'added-to-curated-cohort-confirmation' : 'add-to-curated-cohort-button'"
-               class="d-flex align-items-center"
-               :class="{'btn cohort-btn-confirmation': isSaving, 'btn btn-primary': !isSaving}">
+                class="p-0 pr-1">
+            <span v-if="!isSaving">Add to Curated Group <i class="fas fa-caret-down pl-1"></i></span>
             <span v-if="isSaving"><i class="fas fa-check"></i> Added to Curated Group</span>
           </span>
-          -->
         </template>
         <b-dropdown-item v-if="reloading">
           Loading <i class="fas fa-spinner fa-spin"></i>
@@ -34,14 +33,15 @@
         <b-dropdown-item v-if="!curatedGroups.length">
           <span class="cohort-selector-zero-cohorts faint-text">You have no curated groups.</span>
         </b-dropdown-item>
-        <b-dropdown-item class="cohort-checkbox-item"
+        <b-dropdown-item href
+                         class="cohort-checkbox-item"
                          v-for="(group, index) in curatedGroups"
                          :key="group.id"
                          v-if="group && !reloading">
           <input :id="'curated-group=' + group.id + '-checkbox'"
                  type="checkbox"
                  v-model="group.selected"
-                 v-on:click="curatedGroupCheckboxClick(group)"
+                 @click="curatedGroupCheckboxClick(group)"
                  :aria-labelledby="'curated-cohort-name-' + index"
                  v-if="group"/>
           <span :id="'curated-cohort-' + group.id + '-name'"
@@ -50,17 +50,25 @@
                 v-if="group">{{ group.name }}</span>
         </b-dropdown-item>
         <b-dropdown-divider v-if="!reloading"></b-dropdown-divider>
-        <b-dropdown-item data-ng-controller="CreateCuratedGroupController"
-                         v-if="!reloading">
-          <span v-b-modal="'createCuratedGroupModal'"
-                 class="btn-link cohort-manage-btn-link"
-                 id="curated-cohort-create"
-                 aria-label="Create a new curated group"
-                 v-on:click="openCreateCuratedGroupModal(onCreateCuratedGroup)">
+        <b-dropdown-item v-if="!reloading">
+          <b-btn id="curated-cohort-create"
+                 variant="link"
+                 v-b-modal="'modal'"
+                 aria-label="Create a new curated group">
             <i class="fas fa-plus"></i> Create New Curated Group
-          </span>
+          </b-btn>
         </b-dropdown-item>
       </b-dropdown>
+      <b-modal id="modal"
+               v-model="showModal"
+               hide-footer
+               hide-header-close
+               title="Name Your Curated Group">
+        <CreateCuratedGroupModal :sids="sids"
+                                :create="modalCreateCuratedGroup"
+                                :cancel="modalCancel"
+                                :saving="isSaving"/>
+      </b-modal>
     </div>
   </div>
 </template>
@@ -68,18 +76,24 @@
 <script>
 import _ from 'lodash';
 import store from '@/store';
+import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal.vue';
+import { addStudents, createCuratedGroup } from '@/api/cohorts';
 
 export default {
   name: 'CuratedGroupSelector',
+  components: {
+    CreateCuratedGroupModal
+  },
   props: {
     students: Array
   },
   data: () => ({
     sids: [],
-    checked: false,
+    isSelectAllChecked: false,
     indeterminate: false,
     isSaving: false,
-    reloading: false
+    reloading: false,
+    showModal: false
   }),
   created() {
     this.$eventHub.$on('curated-group-checkbox-checked', sid => {
@@ -108,13 +122,38 @@ export default {
     },
     refresh() {
       this.indeterminate = _.inRange(this.sids.length, 1, this.students.length);
-      this.checked = this.sids.length === this.students.length;
+      this.isSelectAllChecked = this.sids.length === this.students.length;
     },
-    curatedGroupCheckboxClick() {
-      console.log('curatedGroupCheckboxClick!');
+    curatedGroupCheckboxClick(group) {
+      this.isSaving = true;
+      const self = this;
+      addStudents(group, this.sids)
+        .then(() => {
+          self.sids = [];
+          self.isSelectAllChecked = self.indeterminate = false;
+          _.each(self.curatedGroups, g => (g.selected = false));
+          self.$eventHub.$emit('curated-group-deselect-all');
+        })
+        .finally(() => {
+          setTimeout(() => (group.selected = self.isSaving = false), 1000);
+        });
     },
-    openCreateCuratedGroupModal() {
-      console.log('openCreateCuratedGroupModal!');
+    modalCreateCuratedGroup(name) {
+      this.isSaving = true;
+      let done = () => {
+        this.sids = [];
+        this.refresh();
+        this.toggle(false);
+        this.isSaving = false;
+        this.showModal = false;
+      };
+      createCuratedGroup(name, this.sids).then(done);
+    },
+    modalCancel() {
+      this.sids = [];
+      this.refresh();
+      this.toggle(false);
+      this.showModal = false;
     }
   }
 };

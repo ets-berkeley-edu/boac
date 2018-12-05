@@ -13,6 +13,21 @@ export function getCuratedGroup(id) {
     .then(response => response.data, () => null);
 }
 
+export function createCuratedGroup(name: string, sids: object) {
+  return axios
+    .post(`${store.state.apiBaseUrl}/api/curated_cohort/create`, {
+      name: name,
+      sids: sids
+    })
+    .then(function(response) {
+      const group = response.data;
+      store.commit('createdCuratedGroup', group);
+      // TODO: implement GA tracking (BOAC-1506)
+      // googleAnalyticsService.track('Curated Cohort', 'create', cohort.name, cohort.id);
+      return group;
+    });
+}
+
 export function deleteCuratedGroup(id) {
   return axios
     .delete(`${store.state.apiBaseUrl}/api/curated_cohort/delete/${id}`, {
@@ -39,4 +54,19 @@ export function renameCuratedGroup(id, name) {
       return response.data;
     })
     .catch(error => error);
+}
+
+export function addStudents(curatedGroup, sids) {
+  return axios
+    .post(`${store.state.apiBaseUrl}/api/curated_cohort/students/add`, {
+      curatedCohortId: curatedGroup.id,
+      sids: sids
+    })
+    .then(response => {
+      const group = response.data;
+      store.commit('updateCuratedGroup', group);
+      // TODO: implement GA tracking (BOAC-1506)
+      // googleAnalyticsService.track('Curated Cohort', 'add_students', cohort.name, cohort.id);
+      return group;
+    });
 }

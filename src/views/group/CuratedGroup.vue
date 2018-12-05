@@ -155,7 +155,8 @@ export default {
             this.curatedGroup.name = this.renameMode.input;
             store.commit('updateCuratedGroup', {
               id: this.id,
-              name: this.curatedGroup.name
+              name: this.curatedGroup.name,
+              studentCount: this.curatedGroup.studentCount
             });
             this.exitRenameMode();
           })
