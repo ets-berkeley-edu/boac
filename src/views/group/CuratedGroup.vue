@@ -26,9 +26,8 @@
           </form>
         </div>
         <div class="has-error"
-             data-ng-bind="renameMode.error"
-             data-ng-if="renameMode.error && !renameMode.hideError"></div>
-        <div class="faint-text">255 character limit <span data-ng-if="renameMode.input.length">({{255 - renameMode.input.length}} left)</span></div>
+             v-if="renameMode.error && !renameMode.hideError">{{ renameMode.error }}</div>
+        <div class="faint-text">255 character limit <span v-if="renameMode.input.length">({{255 - renameMode.input.length}} left)</span></div>
       </div>
       <div class="curated-cohort-header-column-02">
         <div class="cohort-header-buttons no-wrap" v-if="renameMode.on">

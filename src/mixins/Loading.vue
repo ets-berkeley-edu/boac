@@ -12,6 +12,9 @@ export default {
     }
   },
   methods: {
+    startLoading() {
+      store.commit('loadingStart');
+    },
     loaded() {
       store.commit('loadingComplete');
     }

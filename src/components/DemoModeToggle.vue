@@ -29,8 +29,12 @@ export default {
   name: 'DemoModeToggle',
   mixins: [AppConfig, UserMetadata],
   data: () => ({
+    inDemoMode: null,
     isToggling: false
   }),
+  created() {
+    this.inDemoMode = this.user.inDemoMode;
+  },
   methods: {
     toggle: function() {
       this.isToggling = true;
