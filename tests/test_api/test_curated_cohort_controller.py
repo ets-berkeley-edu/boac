@@ -167,24 +167,29 @@ class TestCuratedCohortCreate:
         name = 'Cheap Tricks'
         response = client.post(
             '/api/curated_cohort/create',
-            data=json.dumps({'name': name}),
+            data=json.dumps({
+                'name': name,
+                'sids': ['2345678901', '11667051'],
+            }),
             content_type='application/json',
         )
         cohort = json.loads(response.data)
+        assert cohort['name'] == name
+        assert cohort['studentCount'] == 2
 
         # Add students and include invalid sid and dupe sids. Expect no "duplicate key violates" error.
         response = client.post(
             '/api/curated_cohort/students/add',
             data=json.dumps({
                 'curatedCohortId': cohort['id'],
-                'sids': ['2345678901', '11667051', '2345678901', 'ABC'],
+                'sids': ['7890123456', 'ABC'],
             }),
             content_type='application/json',
         )
         assert response.status_code == 200
         updated_cohort = json.loads(response.data)
         assert updated_cohort['id'] == cohort['id']
-        assert updated_cohort['studentCount'] == 2
+        assert updated_cohort['studentCount'] == 3
 
 
 class TestCuratedCohortDelete:

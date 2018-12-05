@@ -53,10 +53,14 @@ const mutations = {
     }
   },
   updateCuratedGroup: (state: any, data: any) => {
-    var group = state.user.myCuratedCohorts.find(
+    let group = state.user.myCuratedCohorts.find(
       group => group.id === +data.id
     );
     group.name = data.name;
+    group.studentCount = data.studentCount;
+  },
+  createdCuratedGroup: (state: any, group: any) => {
+    state.user.myCuratedCohorts.push(group);
   }
 };
 
