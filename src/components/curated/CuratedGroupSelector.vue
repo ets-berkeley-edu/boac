@@ -12,7 +12,7 @@
                        aria-controls="students"
                        @change="toggle">
         <span class="sr-only">{{ isSelectAllChecked ? 'Un-select All Students' : 'Select All Students' }}</span>
-       </b-form-checkbox>
+      </b-form-checkbox>
     </div>
     <div>
       <b-dropdown class="ml-2"
@@ -27,18 +27,16 @@
             <span v-if="isSaving"><i class="fas fa-check"></i> Added to Curated Group</span>
           </span>
         </template>
-        <b-dropdown-item v-if="reloading">
-          Loading <i class="fas fa-spinner fa-spin"></i>
-        </b-dropdown-item>
         <b-dropdown-item v-if="!curatedGroups.length">
           <span class="cohort-selector-zero-cohorts faint-text">You have no curated groups.</span>
         </b-dropdown-item>
-        <b-dropdown-item href
+        <b-dropdown-item :id="'curated-group-' + group.id + '-menu-item'"
+                         href
                          class="cohort-checkbox-item"
                          v-for="(group, index) in curatedGroups"
                          :key="group.id"
                          v-if="group && !reloading">
-          <input :id="'curated-group=' + group.id + '-checkbox'"
+          <input :id="'curated-group-' + group.id + '-checkbox'"
                  type="checkbox"
                  v-model="group.selected"
                  @click="curatedGroupCheckboxClick(group)"
@@ -49,8 +47,8 @@
                 class="cohort-checkbox-name"
                 v-if="group">{{ group.name }}</span>
         </b-dropdown-item>
-        <b-dropdown-divider v-if="!reloading"></b-dropdown-divider>
-        <b-dropdown-item v-if="!reloading">
+        <b-dropdown-divider></b-dropdown-divider>
+        <b-dropdown-item id="curated-cohort-create-menu-item">
           <b-btn id="curated-cohort-create"
                  variant="link"
                  v-b-modal="'modal'"
@@ -65,9 +63,8 @@
                hide-header-close
                title="Name Your Curated Group">
         <CreateCuratedGroupModal :sids="sids"
-                                :create="modalCreateCuratedGroup"
-                                :cancel="modalCancel"
-                                :saving="isSaving"/>
+                                 :create="modalCreateCuratedGroup"
+                                 :cancel="modalCancel"/>
       </b-modal>
     </div>
   </div>
@@ -75,12 +72,13 @@
 
 <script>
 import _ from 'lodash';
-import store from '@/store';
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal.vue';
+import UserMetadata from '@/mixins/UserMetadata';
 import { addStudents, createCuratedGroup } from '@/api/cohorts';
 
 export default {
   name: 'CuratedGroupSelector',
+  mixins: [UserMetadata],
   components: {
     CreateCuratedGroupModal
   },
@@ -107,7 +105,7 @@ export default {
   },
   computed: {
     curatedGroups() {
-      return _.get(store.getters.user, 'myCuratedCohorts') || [];
+      return _.get(this.user, 'myCuratedCohorts') || [];
     },
     showMenu() {
       return this.sids.length;
@@ -116,36 +114,37 @@ export default {
   methods: {
     toggle(checked) {
       this.sids = checked ? _.map(this.students, 'sid') : [];
-      this.$eventHub.$emit(
-        checked ? 'curated-group-select-all' : 'curated-group-deselect-all'
-      );
+      let event = checked
+        ? 'curated-group-select-all'
+        : 'curated-group-deselect-all';
+      this.$eventHub.$emit(event);
     },
     refresh() {
       this.indeterminate = _.inRange(this.sids.length, 1, this.students.length);
       this.isSelectAllChecked = this.sids.length === this.students.length;
     },
     curatedGroupCheckboxClick(group) {
+      const afterAddStudents = () => {
+        this.sids = [];
+        this.isSelectAllChecked = this.indeterminate = false;
+        _.each(this.curatedGroups, g => (g.selected = false));
+        this.$eventHub.$emit('curated-group-deselect-all');
+        this.isSaving = false;
+      };
+      const done = () => (group.selected = self.isSaving = false);
       this.isSaving = true;
-      const self = this;
       addStudents(group, this.sids)
-        .then(() => {
-          self.sids = [];
-          self.isSelectAllChecked = self.indeterminate = false;
-          _.each(self.curatedGroups, g => (g.selected = false));
-          self.$eventHub.$emit('curated-group-deselect-all');
-        })
-        .finally(() => {
-          setTimeout(() => (group.selected = self.isSaving = false), 1000);
-        });
+        .then(afterAddStudents)
+        .finally(() => setTimeout(done, 1000));
     },
     modalCreateCuratedGroup(name) {
       this.isSaving = true;
+      this.showModal = false;
       let done = () => {
         this.sids = [];
         this.refresh();
         this.toggle(false);
         this.isSaving = false;
-        this.showModal = false;
       };
       createCuratedGroup(name, this.sids).then(done);
     },

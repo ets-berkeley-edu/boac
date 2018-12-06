@@ -7,8 +7,6 @@
           <input id="curated-cohort-create-input"
                  ref="modalNameInput"
                  class="curated-cohort-create-input-name"
-                 :aria-disabled="saving"
-                 :disabled="saving"
                  @change="error.hide = true"
                  v-model="name"
                  type="text"
@@ -22,14 +20,12 @@
       <div class="modal-footer">
         <b-btn id="curated-cohort-create-confirm-btn"
                variant="primary"
-               :aria-disabled="!name.length || saving"
-               :disabled="!name.length || saving"
+               :aria-disabled="!name.length"
+               :disabled="!name.length"
                @click="createCuratedGroup($event)">
           Save
         </b-btn>
         <b-btn type="button"
-               :aria-disabled="saving"
-               :disabled="saving"
                id="curated-cohort-create-cancel-btn"
                class="btn btn-default"
                @click="cancelModal()">Cancel</b-btn>
@@ -39,12 +35,14 @@
 </template>
 
 <script>
+import Validator from '@/mixins/Validator';
+
 export default {
   name: 'CreateCuratedGroupModal',
+  mixins: [Validator],
   props: {
     cancel: Function,
-    create: Function,
-    saving: Boolean
+    create: Function
   },
   data: () => ({
     name: '',
@@ -64,8 +62,13 @@ export default {
     },
     createCuratedGroup: function(event) {
       event.preventDefault();
-      this.create(this.name);
-      this.reset();
+      let errorMessage = this.validateCohortName({ name: this.name });
+      if (errorMessage) {
+        this.error = { message: errorMessage, hide: false };
+      } else {
+        this.create(this.name);
+        this.reset();
+      }
     }
   }
 };
