@@ -66,7 +66,6 @@
                data-ng-repeat="user in group.users | orderBy:options.sortBy:options.reverse track by $index">
             <div class="user-summary-column user-summary-name">
               <a aria-label="Go to UC Berkeley Directory page of {{user.firstName}} {{user.lastName}}"
-                  data-ng-class="{'demo-mode-blur': inDemoMode}"
                   data-ng-href="https://www.berkeley.edu/directory/results?search-term={{user.firstName}}+{{user.lastName}}"
                   target="_blank">{{user.firstName}} {{user.lastName}}</a>
               <a href
