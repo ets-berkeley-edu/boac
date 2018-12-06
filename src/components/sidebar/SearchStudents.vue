@@ -30,11 +30,13 @@ import _ from 'lodash';
 
 export default {
   name: 'SearchStudents',
+  props: {
+    withButton: Boolean
+  },
   data() {
     return {
       disable: false,
-      searchPhrase: null,
-      withButton: false
+      searchPhrase: null
     };
   },
   methods: {
