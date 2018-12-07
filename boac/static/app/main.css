@@ -387,7 +387,8 @@ body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-#content a {
+#content a,
+#content .btn-link {
   color: #337ab7;
 }
 

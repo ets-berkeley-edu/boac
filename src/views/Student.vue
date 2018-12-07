@@ -249,21 +249,21 @@
                 </div>
               </div>
               <b-collapse class="panel-body" :id="`course-canvas-data-${term.termId}-${courseIndex}`">
-                <div v-for="(canvasSite, index) in course.canvasSites" :key="index">
-                  <h5 class="profile-course-site-code">
+                <div v-for="(canvasSite, index) in course.canvasSites" :key="index" class="student-bcourses-wrapper">
+                  <h5 class="student-bcourses-site-code">
                     <span class="sr-only">Course Site</span>
                     {{canvasSite.courseCode}}
                   </h5>
-                  <table class="visualize-metrics">
+                  <table class="student-bcourses">
                     <tr>
-                      <th class="visualize-metrics-legend" scope="row">
+                      <th class="student-bcourses-legend" scope="row">
                         Assignments Submitted
                       </th>
-                      <td class="visualize-metrics-summary">
+                      <td class="student-bcourses-summary">
                         <span v-if="canvasSite.analytics.assignmentsSubmitted.displayPercentile">
                           <strong>{{canvasSite.analytics.assignmentsSubmitted.displayPercentile}}</strong> percentile
                         </span>
-                        <span class="visualize-metrics-no-data"
+                        <span class="student-bcourses-no-data"
                               v-if="!canvasSite.analytics.assignmentsSubmitted.displayPercentile">
                           No Assignments
                         </span>
@@ -272,25 +272,25 @@
                         <span v-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
                           Score:
                           <strong>{{canvasSite.analytics.assignmentsSubmitted.student.raw}}</strong>
-                          <span class="visualize-metrics-maximum">
+                          <span class="student-bcourses-maximum">
                             (Maximum: {{canvasSite.analytics.assignmentsSubmitted.courseDeciles[10]}})
                           </span>
                         </span>
-                        <span class="visualize-metrics-no-data"
+                        <span class="student-bcourses-no-data"
                               v-if="!canvasSite.analytics.assignmentsSubmitted.courseDeciles">
                           No Data
                         </span>
                       </td>
                     </tr>
                     <tr>
-                      <th class="visualize-metrics-legend" scope="row">
+                      <th class="student-bcourses-legend" scope="row">
                         Assignment Grades
                       </th>
-                      <td class="visualize-metrics-summary">
+                      <td class="student-bcourses-summary">
                         <span v-if="canvasSite.analytics.currentScore.displayPercentile">
                           <strong>{{canvasSite.analytics.currentScore.displayPercentile}}</strong> percentile
                         </span>
-                        <span class="visualize-metrics-no-data"
+                        <span class="student-bcourses-no-data"
                               v-if="!canvasSite.analytics.currentScore.displayPercentile">
                           No Grades
                         </span>
@@ -309,15 +309,15 @@
                           <div>Minimum: {{canvasSite.analytics.currentScore.courseDeciles[0]}}</div>
                         </div>
                         <div v-if="!canvasSite.analytics.currentScore.boxPlottable">
-                          <span class="visualize-metrics-no-data"
+                          <span class="student-bcourses-no-data"
                                 v-if="canvasSite.analytics.currentScore.courseDeciles">
                             Score:
                             <strong>{{canvasSite.analytics.currentScore.student.raw}}</strong>
-                            <span class="visualize-metrics-maximum">
+                            <span class="student-bcourses-maximum">
                               (Maximum: {{canvasSite.analytics.currentScore.courseDeciles[10]}})
                             </span>
                           </span>
-                          <span class="visualize-metrics-no-data"
+                          <span class="student-bcourses-no-data"
                                 v-if="!canvasSite.analytics.currentScore.courseDeciles">
                             No Data
                           </span>
@@ -325,7 +325,7 @@
                        </td>
                     </tr>
                     <tr v-if="currentEnrollmentTermId === parseInt(term.termId)">
-                      <th class="visualize-metrics-legend" scope="row">
+                      <th class="student-bcourses-legend" scope="row">
                         Last bCourses Activity
                       </th>
                       <td colspan="2">
@@ -341,10 +341,10 @@
                     </tr>
                   </table>
                 </div>
+                <div class="student-bcourses-wrapper student-course-notation" v-if="!course.canvasSites || !course.canvasSites.length">
+                  No additional information
+                </div>
               </b-collapse>
-              <div class="student-course-notation" v-if="!course.canvasSites || !course.canvasSites.length">
-                No additional information
-              </div>
             </div>
             <div class="student-course-heading student-course" v-if="term.enrolledUnits">
               <div class="student-course-heading-start"></div>
@@ -354,22 +354,22 @@
                 </div>
               </div>
             </div>
-            <div class="student-course"
+            <div class="student-course student-course-dropped"
                  is-open="true"
                  v-if="term.droppedSections && term.droppedSections.length">
               <div v-for="(droppedSection, index) in term.droppedSections" :key="index">
-                <div class="profile-dropped-section-title">
+                <div class="student-course-dropped-title">
                   {{droppedSection.displayName}} - {{droppedSection.component}} {{droppedSection.sectionNumber}}
                 <div class="student-course-notation">
-                  <i class="fas fa-exclamation-triangle profile-dropped-section-icon"></i> Dropped
+                  <i class="fas fa-exclamation-triangle student-course-dropped-icon"></i> Dropped
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div v-if="student.enrollmentTerms.length > 1" class="profile-view-previous-semesters-wrapper">
-          <button class="btn btn-link profile-view-previous-semesters" @click="showAllTerms=!showAllTerms">
+        <div v-if="student.enrollmentTerms.length > 1" class="toggle-previous-semesters-wrapper">
+          <button class="btn btn-link toggle-previous-semesters" @click="showAllTerms=!showAllTerms">
             <i :class="{'fas fa-caret-right': !showAllTerms, 'fas fa-caret-up': showAllTerms}"></i>
             <span v-if="!showAllTerms">View Previous Semesters</span>
             <span v-if="showAllTerms">Hide Previous Semesters</span>
@@ -480,6 +480,41 @@ export default {
 :not(.collapsed) > .when-course-closed {
   display: none;
 }
+.student-bcourses {
+  line-height: 1.1;
+  margin-bottom: 20px;
+  width: 80%;
+}
+.student-bcourses td,
+.student-bcourses th {
+  font-size: 14px;
+  padding: 0 25px 5px 0;
+  text-align: left;
+  vertical-align: top;
+}
+.student-bcourses-legend {
+  color: #999;
+  font-weight: normal;
+  white-space: nowrap;
+  width: 15em;
+}
+.student-bcourses-maximum {
+  color: #666;
+}
+.student-bcourses-no-data {
+  color: #666;
+  font-style: italic;
+}
+.student-bcourses-site-code {
+  font-size: 15px;
+  margin-bottom: 5px;
+}
+.student-bcourses-summary {
+  width: 12em;
+}
+.student-bcourses-wrapper {
+  margin-top: 15px;
+}
 .student-bio-contact {
   margin: 20px 0;
   flex: 1;
@@ -532,6 +567,16 @@ export default {
   margin-right: 15px;
   padding: 0;
   width: 10px;
+}
+.student-course-dropped {
+  margin-top: 15px;
+  padding-top: 15px;
+}
+.student-course-dropped-icon {
+  color: #f0ad4e;
+}
+.student-course-dropped-title {
+  font-weight: bold;
 }
 .student-course-grade {
   font-weight: bold;
@@ -707,7 +752,7 @@ export default {
   padding-right: 4px;
 }
 .student-term {
-  margin-bottom: 10px;
+  margin: 30px 0 10px 0;
 }
 .student-term-header {
   font-size: 20px;
@@ -717,5 +762,11 @@ export default {
 }
 .student-terms-container {
   margin: 20px;
+}
+.toggle-previous-semesters {
+  font-size: 14px;
+}
+.toggle-previous-semesters-wrapper {
+  text-align: center;
 }
 </style>
