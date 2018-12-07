@@ -1,15 +1,17 @@
 <template>
-  <div v-if="user">
+  <div>
     <SearchStudents/>
-    <Cohorts/>
-    <hr class="section-divider"/>
-    <CuratedGroups/>
+    <div v-if="user">
+      <Cohorts/>
+      <hr class="section-divider"/>
+      <CuratedGroups/>
 
-    <div class="sidebar-row-link">
-      <span class="sidebar-row-link-label">
-        <router-link id="sidebar-filtered-cohorts-all"
-                     to="/cohorts_all">Everyone's Cohorts</router-link>
-      </span>
+      <div class="sidebar-row-link">
+        <span class="sidebar-row-link-label">
+          <router-link id="sidebar-filtered-cohorts-all"
+                       to="/cohorts_all">Everyone's Cohorts</router-link>
+        </span>
+      </div>
     </div>
   </div>
 </template>
@@ -19,13 +21,15 @@ import store from '@/store';
 import Cohorts from '@/components/sidebar/Cohorts.vue';
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue';
 import SearchStudents from '@/components/sidebar/SearchStudents.vue';
+import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
   name: 'Sidebar',
   components: {
     Cohorts,
     CuratedGroups,
-    SearchStudents
+    SearchStudents,
+    UserMetadata
   },
   computed: {
     user() {

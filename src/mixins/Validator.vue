@@ -1,11 +1,9 @@
 <script>
 import _ from 'lodash';
 import store from '@/store';
-import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
   name: 'Validator',
-  mixins: [UserMetadata],
   methods: {
     validateCohortName: cohort => {
       const user = store.getters.user;

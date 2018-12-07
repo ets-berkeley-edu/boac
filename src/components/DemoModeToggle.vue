@@ -23,7 +23,7 @@
 <script>
 import AppConfig from '@/mixins/AppConfig';
 import UserMetadata from '@/mixins/UserMetadata';
-import { setDemoMode } from '@/api/config';
+import { setDemoMode } from '@/api/user';
 
 export default {
   name: 'DemoModeToggle',

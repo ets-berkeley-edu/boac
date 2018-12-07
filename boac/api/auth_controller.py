@@ -69,19 +69,19 @@ def cas_login():
     return redirect(redirect_url)
 
 
-@app.route('/devauth/login', methods=['POST'])
+@app.route('/api/auth/dev_auth_login', methods=['POST'])
 def dev_auth_login():
     params = request.get_json() or {}
     user = _dev_auth_login(params.get('uid'), params.get('password'))
     if user:
-        login_user(user)
+        login_user(user, force=True)
         flash('Logged in successfully.')
         return tolerant_jsonify(get_current_user_status())
     else:
         raise ResourceNotFoundError('Unknown path')
 
 
-@app.route('/api/admin/become_user', methods=['POST'])
+@app.route('/api/auth/become_user', methods=['POST'])
 @admin_required
 def become():
     params = request.get_json() or {}
@@ -94,7 +94,7 @@ def become():
         raise ForbiddenRequestError('Invalid credentials')
 
 
-@app.route('/logout')
+@app.route('/api/auth/logout')
 @login_required
 def logout():
     logout_user()

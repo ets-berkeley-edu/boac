@@ -46,7 +46,11 @@ class FakeAuth(object):
             'uid': uid,
             'password': self.app.config['DEVELOPER_AUTH_PASSWORD'],
         }
-        self.client.post('/devauth/login', data=json.dumps(params), content_type='application/json')
+        self.client.post(
+            '/api/auth/dev_auth_login',
+            data=json.dumps(params),
+            content_type='application/json',
+        )
 
 
 # Because app and db fixtures are only created once per pytest run, individual tests

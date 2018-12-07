@@ -21,8 +21,10 @@ export default {
   },
   methods: {
     $_UserMetadata_isDepartmentMember: deptCode => {
-      _.get(store.getters.user, `departments.${deptCode}.isAdvisor`) ||
-        _.get(store.getters.user, `departments.${deptCode}.isDirector`);
+      return (
+        _.get(store.getters.user, `departments.${deptCode}.isAdvisor`) ||
+        _.get(store.getters.user, `departments.${deptCode}.isDirector`)
+      );
     }
   }
 };

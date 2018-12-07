@@ -30,11 +30,11 @@
   angular.module('boac').factory('adminFactory', function($http) {
 
     var becomeUser = function(uid) {
-      return $http.post('/api/admin/become_user', {uid: uid});
+      return $http.post('/api/auth/become_user', {uid: uid});
     };
 
     var setDemoMode = function(demoMode) {
-      return $http.post('/api/admin/demo_mode', {demoMode: demoMode});
+      return $http.post('/api/user/demo_mode', {demoMode: demoMode});
     };
 
     return {

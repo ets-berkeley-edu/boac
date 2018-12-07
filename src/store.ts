@@ -8,7 +8,8 @@ const state = {
   config: null,
   loading: null,
   errors: [],
-  user: null
+  user: null,
+  isUserAuthenticated: null
 };
 
 const getters = {
@@ -23,11 +24,15 @@ const getters = {
   },
   user: (state: any) => {
     return state.user;
+  },
+  isUserAuthenticated: (state: any) => {
+    return state.isUserAuthenticated;
   }
 };
 
 const mutations = {
   logout: (state: any) => {
+    state.isUserAuthenticated = false;
     state.user = null;
   },
   loadingStart: (state: any) => {
@@ -37,7 +42,13 @@ const mutations = {
     state.loading = false;
   },
   registerUser: (state: any, user: any) => {
-    state.user = user;
+    state.isUserAuthenticated = user.isAuthenticated;
+    if (user.uid) {
+      state.user = user;
+    }
+  },
+  userAuthenticated: (state: any) => {
+    state.isUserAuthenticated = true;
   },
   reportError: (state: any, error: any) => {
     error.id = new Date().getTime();

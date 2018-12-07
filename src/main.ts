@@ -35,7 +35,7 @@ Vue.filter(
   (value, minPrecision, maxPrecision) =>
     `TODO: ${value}, ${minPrecision}, ${maxPrecision}`
 );
-
+// Emit, and listen for, events via hub
 Vue.prototype.$eventHub = new Vue();
 
 new Vue({

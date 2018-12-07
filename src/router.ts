@@ -21,51 +21,52 @@ const safeNext = (to: any, next: any) => {
   }
 };
 
-const beforeEach = (to: any, from: any, next: any) => {
-  let legacyPathRedirect = _.get(to, 'meta.legacyPathRedirect');
-  if (legacyPathRedirect) {
-    for (const key in to.params) {
-      legacyPathRedirect = _.replace(
-        legacyPathRedirect,
-        ':' + key,
-        to.params[key]
-      );
-    }
-    window.location = store.state.apiBaseUrl + legacyPathRedirect;
-  } else if (store.getters.user) {
-    safeNext(to, next);
+const redirect = (path: string, params: any) => {
+  for (const key in params) {
+    path = _.replace(path, ':' + key, params[key]);
+  }
+  window.location.href = store.state.apiBaseUrl + path;
+};
+
+const loadConfig = callback => {
+  if (store.getters.config) {
+    callback();
   } else {
-    getUserProfile().then(user => {
-      if (user) {
-        store.commit('registerUser', user);
-        getAppConfig()
-          .then(config => store.commit('storeConfig', config))
-          .then(() => safeNext(to, next));
-      } else {
-        safeNext(to, next);
-      }
-    });
+    getAppConfig()
+      .then(config => store.commit('storeConfig', config))
+      .then(callback);
   }
 };
 
-const requiresAuth = (to: any, from: any, next: any) => {
-  if (store.getters.user) {
-    next();
-  } else {
-    next('/login');
+const loadUserProfile = callback => {
+  getUserProfile()
+    .then(user => store.commit('registerUser', user))
+    .then(callback);
+};
+
+const beforeEach = (to: any, from: any, next: any) => {
+  let redirectPath = _.get(to, 'meta.legacyPathRedirect');
+  if (redirectPath) {
+    redirect(redirectPath, to.params);
   }
+  loadConfig(() => {
+    if (store.getters.user) {
+      safeNext(to, next);
+    } else {
+      loadUserProfile(() => safeNext(to, next));
+    }
+  });
+};
+
+const requiresAuth = (to: any, from: any, next: any) => {
+  return store.getters.user ? next() : next('/login');
 };
 
 const router = new Router({
   mode: 'history',
   routes: [
     {
-      path: '/login',
-      beforeEnter: (to: any, from: any, next: any) => {
-        if (store.getters.user) {
-          next('/home');
-        }
-      }
+      path: '/login'
     },
     {
       path: '/home',
@@ -82,38 +83,57 @@ const router = new Router({
     {
       path: '/cohorts_all',
       component: AllCohorts,
-      beforeEnter: requiresAuth
+      beforeEnter: requiresAuth,
+      meta: {
+        title: 'All Cohorts'
+      }
     },
     {
       path: '/cohort_:id',
       beforeEnter: requiresAuth,
-      meta: { legacyPathRedirect: '/cohort/filtered?id=:id' }
+      meta: {
+        legacyPathRedirect: '/cohort/filtered?id=:id',
+        title: 'Cohort'
+      }
     },
     {
       path: '/cohort_create',
       beforeEnter: requiresAuth,
-      meta: { legacyPathRedirect: '/cohort/filtered' }
+      meta: {
+        legacyPathRedirect: '/cohort/filtered',
+        title: 'Create Cohort'
+      }
     },
     {
       path: '/curated_group_:id',
       beforeEnter: requiresAuth,
       component: CuratedGroup,
-      props: true
+      props: true,
+      meta: {
+        title: 'Curated Group'
+      }
     },
     {
       path: '/student_:uid',
       beforeEnter: requiresAuth,
-      component: Student,
-      meta: { legacyPathRedirect: '/student/:uid' }
+      component: Student
     },
     {
       path: '/search',
       beforeEnter: requiresAuth,
-      component: Search
+      component: Search,
+      meta: {
+        title: 'Search'
+      }
     }
   ]
 });
 
 router.beforeEach(beforeEach);
+
+router.afterEach(to => {
+  let name = _.get(to, 'meta.title') || _.capitalize(to.name) || 'Welcome';
+  document.title = `${name} | BOAC`;
+});
 
 export default router;
