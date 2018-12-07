@@ -1,4 +1,5 @@
 <script>
+import _ from 'lodash';
 import store from '@/store';
 
 export default {
@@ -10,6 +11,32 @@ export default {
         (user && (user.isAsc && !student.athleticsProfile.isActiveAsc)) ||
         (user.isCoe && !student.coeProfile.isActiveCoe)
       );
+    },
+    isAlertGrade(midtermGrade) {
+      // TODO: implement me
+      return midtermGrade;
+    },
+    lastActivityDays(analytics) {
+      let timestamp = parseInt(
+        _.get(analytics, 'lastActivity.student.raw'),
+        10
+      );
+      if (!timestamp || isNaN(timestamp)) {
+        return 'Never';
+      }
+      // Days tick over at midnight according to the user's browser.
+      let daysSince = Math.round(
+        new Date().setHours(0, 0, 0, 0) -
+          new Date(timestamp * 1000).setHours(0, 0, 0, 0) / 86400000
+      );
+      switch (daysSince) {
+        case 0:
+          return 'Today';
+        case 1:
+          return 'Yesterday';
+        default:
+          return daysSince + ' days ago';
+      }
     },
     setSortableName: student =>
       (student.sortableName = student.lastName + ', ' + student.firstName)

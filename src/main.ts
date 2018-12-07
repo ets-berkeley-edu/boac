@@ -1,5 +1,7 @@
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 import 'bootstrap/dist/css/bootstrap.css';
+import _ from 'lodash';
+import { format as formatDate, parse as parseDate } from 'date-fns';
 import App from './App.vue';
 import axios from 'axios';
 import BootstrapVue from 'bootstrap-vue';
@@ -22,6 +24,17 @@ axios.interceptors.response.use(response => response, function(error) {
 Vue.config.productionTip = false;
 Vue.use(BootstrapVue);
 Vue.use(require('vue-lodash'));
+
+Vue.filter('date', (dateString: string, format: string = 'MMM dd, YYYY') => {
+  let date = parseDate(dateString);
+  return formatDate(date, format);
+});
+Vue.filter('lowercase', (str: string) => {
+  return str.toLowerCase();
+});
+Vue.filter('orderBy', (list: any[], comparator) => {
+  return _.orderBy(list, comparator);
+});
 Vue.filter('pluralize', (noun: string, count: number, substitutions = {}) => {
   return (
     `${substitutions[count] || count} ` + (count !== 1 ? `${noun}s` : noun)
