@@ -103,8 +103,7 @@ const router = new Router({
     {
       path: '/student_:uid',
       beforeEnter: requiresAuth,
-      component: Student,
-      meta: { legacyPathRedirect: '/student/:uid' }
+      component: Student
     },
     {
       path: '/search',
