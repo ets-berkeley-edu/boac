@@ -36,6 +36,25 @@ def asc_advisor_session(fake_auth):
     fake_auth.login(asc_advisor_uid)
 
 
+class TestUserStatusController:
+    """Status API."""
+
+    def test_anonymous_status(self, client):
+        """Returns a well-formed response."""
+        response = client.get('/api/user/status')
+        assert response.status_code == 200
+        assert response.json['isAuthenticated'] is False
+
+    def test_when_authenticated(self, client, fake_auth):
+        test_uid = '1133399'
+        fake_auth.login(test_uid)
+        response = client.get('/api/user/status')
+        assert response.status_code == 200
+        assert response.json['isAuthenticated'] is True
+        assert response.json['uid'] == test_uid
+        assert isinstance(response.json['inDemoMode'], bool)
+
+
 class TestUserProfile:
     """User Profile API."""
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="background-blue-sky">
+  <div class="background-blue-sky fill-viewport">
     <div class="splash-container">
       <div class="splash-cell-stripe"></div>
       <div class="avatar-container">
@@ -7,11 +7,11 @@
              :src="`${baseUrl}/static/app/splash/airplane.svg`">
       </div>
       <div class="splash-cell-sign-in">
-        <form @submit.prevent="logIn">
+        <form @submit.prevent="logIn()">
           <b-btn id="splash-sign-in"
                  class="splash-btn-sign-in"
                  autofocus
-                 @click.prevent="logIn"
+                 @click.stop="logIn()"
                  variant="primary"
                  placement="top-left">Sign In</b-btn>
           <b-popover target="dev-auth-uid"
@@ -49,7 +49,6 @@
                      class="splash-form-input"
                      v-model="devAuth.password"
                      @change="clearError"
-                     @click.prevent="logInDevAuth()"
                      type="password"
                      placeholder="Password"
                      size="10">
@@ -79,7 +78,7 @@
 import AppConfig from '@/mixins/AppConfig';
 import router from '@/router';
 import store from '@/store';
-import { devAuthLogIn, getCasLoginURL } from '@/api/user';
+import { devAuthLogIn, getCasLoginURL } from '@/api/auth';
 
 export default {
   name: 'Login',
@@ -108,30 +107,31 @@ export default {
       });
     },
     logInDevAuth() {
-      if (this.devAuth.uid && this.devAuth.password) {
-        devAuthLogIn(this.devAuth.uid, this.devAuth.password)
-          .then(status => {
-            if (status.isAuthenticated) {
-              store.commit('userAuthenticated');
-              router.push({ path: '/' });
-            } else {
-              this.error = {
-                message:
-                  status.get('error') ||
-                  'Sorry, you are unauthorized to use BOAC. Please contact us for assistance.',
-                hide: false
-              };
+      devAuthLogIn(this.devAuth.uid, this.devAuth.password)
+        .then(status => {
+          if (status.isAuthenticated) {
+            store.commit('userAuthenticated');
+            const isAuthenticated = store.getters.isUserAuthenticated;
+            if (isAuthenticated) {
+              router.push({ path: '/home' });
             }
-          })
-          .catch(err => {
+          } else {
             this.error = {
               message:
-                err.message ||
-                'Sorry, we were unable to authenticate your credentials',
+                status.get('error') ||
+                'Sorry, you are unauthorized to use BOAC. Please contact us for assistance.',
               hide: false
             };
-          });
-      }
+          }
+        })
+        .catch(err => {
+          this.error = {
+            message:
+              err.message ||
+              'Sorry, we were unable to authenticate your credentials',
+            hide: false
+          };
+        });
     }
   }
 };
