@@ -10,17 +10,15 @@
 </template>
 
 <script>
-import store from '@/store';
+import AppConfig from '@/mixins/AppConfig';
 import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
   name: 'StudentAvatar',
-  mixins: [UserMetadata],
+  mixins: [AppConfig, UserMetadata],
   props: ['size', 'student'],
   computed: {
-    baseUrl: () => store.state.apiBaseUrl,
-    avatarFallback: () =>
-      store.state.apiBaseUrl + '/static/app/shared/avatar-50.png'
+    avatarFallback: () => this.apiBaseUrl + '/static/app/shared/avatar-50.png'
   }
 };
 </script>

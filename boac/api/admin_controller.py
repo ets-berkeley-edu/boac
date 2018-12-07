@@ -23,34 +23,17 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 from boac.api import cache_utils
-from boac.api.errors import BadRequestError
 from boac.api.util import admin_required
 from boac.lib import berkeley
 from boac.lib.http import tolerant_jsonify
-from boac.models.authorized_user import AuthorizedUser
 from boac.models.job_progress import JobProgress
 from flask import current_app as app, request
-from flask_login import current_user
 
 
 def term():
     term_id = request.args.get('term') or berkeley.current_term_id()
     return term_id
-
-
-@app.route('/api/admin/demo_mode', methods=['POST'])
-@admin_required
-def set_demo_mode():
-    in_demo_mode = request.get_json().get('demoMode', None)
-    if in_demo_mode is None:
-        raise BadRequestError('Parameter \'demoMode\' not found')
-    user = AuthorizedUser.find_by_id(current_user.id)
-    user.in_demo_mode = bool(in_demo_mode)
-    return tolerant_jsonify({
-        'inDemoMode': user.in_demo_mode,
-    })
 
 
 @app.route('/api/admin/cachejob')

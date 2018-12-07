@@ -32,7 +32,7 @@ from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_cohort import CuratedCohort
-from flask import current_app as app
+from flask import current_app as app, request
 from flask_login import current_user, login_required
 
 
@@ -109,6 +109,19 @@ def authorized_user_groups():
         dept['users'] = authorized_users_api_feed(dept['users'])
         user_groups.append(dept)
     return tolerant_jsonify(user_groups)
+
+
+@app.route('/api/user/demo_mode', methods=['POST'])
+@admin_required
+def set_demo_mode():
+    in_demo_mode = request.get_json().get('demoMode', None)
+    if in_demo_mode is None:
+        raise errors.BadRequestError('Parameter \'demoMode\' not found')
+    user = AuthorizedUser.find_by_id(current_user.id)
+    user.in_demo_mode = bool(in_demo_mode)
+    return tolerant_jsonify({
+        'inDemoMode': user.in_demo_mode,
+    })
 
 
 def _curated_cohort_api_json(cohort):

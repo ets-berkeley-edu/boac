@@ -38,11 +38,11 @@
         uid: uid,
         password: password
       };
-      return $http.post('/devauth/login', credentials);
+      return $http.post('/api/auth/dev_auth_login', credentials);
     };
 
     var logOut = function() {
-      return $http.get('/logout');
+      return $http.get('/api/auth/logout');
     };
 
     return {

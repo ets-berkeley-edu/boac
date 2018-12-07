@@ -23,8 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 import pytest
+import simplejson as json
 
 asc_advisor_uid = '1081940'
 
@@ -174,3 +176,27 @@ class TestAuthorizedUserGroups:
         assert len(user_groups[1]['users']) == 3
         assert user_groups[2]['name'] == 'Athletic Study Center'
         assert len(user_groups[2]['users']) == 2
+
+
+class TestDemoMode:
+
+    def test_set_demo_mode_not_authenticated(self, client):
+        """Require authentication."""
+        assert client.post('/api/user/demo_mode').status_code == 401
+
+    def test_set_demo_mode_not_an_admin(self, client, asc_advisor_session):
+        """Return 403 for non-admin user."""
+        response = client.post('/api/user/demo_mode')
+        assert response.status_code == 401
+
+    def test_admin_set_demo_mode(self, client, fake_auth):
+        """Admin successfully toggles demo mode."""
+        test_uid = '53791'
+        fake_auth.login(test_uid)
+        # Verify toggle
+        for in_demo_mode in [True, False]:
+            response = client.post('/api/user/demo_mode', data=json.dumps({'demoMode': in_demo_mode}), content_type='application/json')
+            assert response.status_code == 200
+            assert response.json['inDemoMode'] is in_demo_mode
+            user = AuthorizedUser.find_by_uid(test_uid)
+            assert user.in_demo_mode is in_demo_mode

@@ -3,11 +3,14 @@ import store from '@/store';
 
 export function devAuthLogIn(uid: string, password: string) {
   return axios
-    .post(`${store.state.apiBaseUrl}/devauth/login`, {
+    .post(`${store.state.apiBaseUrl}/api/auth/dev_auth_login`, {
       uid: uid,
       password: password
     })
-    .then(response => response.data, () => null);
+    .then(response => {
+      let status = response.data;
+      return status;
+    }, error => error);
 }
 
 export function getCasLoginURL() {
@@ -30,12 +33,23 @@ export function getAuthorizedUserGroups() {
 
 export function becomeUser(uid: string) {
   return axios
-    .post(`${store.state.apiBaseUrl}/api/admin/become_user`, { uid: uid })
+    .post(`${store.state.apiBaseUrl}/api/auth/become_user`, { uid: uid })
     .then(response => response.data, () => null);
 }
 
 export function getCasLogoutURL() {
   return axios
-    .get(`${store.state.apiBaseUrl}/logout`)
+    .get(`${store.state.apiBaseUrl}/api/auth/logout`)
     .then(response => response.data, () => null);
+}
+
+export function setDemoMode(demoMode: boolean) {
+  return axios
+    .post(`${store.state.apiBaseUrl}/api/user/demo_mode`, {
+      demoMode: demoMode
+    })
+    .then(response => response.data, () => null)
+    .then(() => {
+      store.getters.user.inDemoMode = demoMode;
+    });
 }
