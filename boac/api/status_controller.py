@@ -24,7 +24,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import db
-from boac.api.util import get_current_user_status
 from boac.externals import data_loch
 from boac.lib.http import tolerant_jsonify
 from flask import current_app as app
@@ -50,8 +49,3 @@ def app_status():
         'data_loch': data_loch_status(),
     }
     return tolerant_jsonify(resp)
-
-
-@app.route('/api/status')
-def user_status():
-    return tolerant_jsonify(get_current_user_status())

@@ -7,7 +7,7 @@
     </div>
     <div class="sidebar-row-link"
          v-for="(group, index) in curatedGroups"
-         v-bind:key="group.id">
+         :key="group.id">
       <div class="sidebar-row-link-label">
         <router-link :id="'sidebar-curated-cohort-' + index"
                      :aria-label="'Curated group ' + group.name + ' has ' + group.studentCount + ' students'"
@@ -16,7 +16,7 @@
       </div>
       <div>
         <span :id="'sidebar-curated-cohort-' + index + '-count'"
-          class="sidebar-pill">{{group.studentCount}}<span class="sr-only">{{ 'student' | pluralize(group.studentCount) }}</span>
+              class="sidebar-pill">{{group.studentCount}}<span class="sr-only">{{ 'student' | pluralize(group.studentCount) }}</span>
         </span>
       </div>
     </div>

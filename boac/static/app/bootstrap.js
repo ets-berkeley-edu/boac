@@ -44,7 +44,7 @@
   };
 
   var loadSessionStatus = function() {
-    return useHttp().get('/api/status').then(function(response) {
+    return useHttp().get('/api/user/status').then(function(response) {
       boac.value('status', response.data);
     });
   };

@@ -124,6 +124,11 @@ def set_demo_mode():
     })
 
 
+@app.route('/api/user/status')
+def user_status():
+    return tolerant_jsonify(get_current_user_status())
+
+
 def _curated_cohort_api_json(cohort):
     api_json = {
         'id': cohort.id,

@@ -5,7 +5,7 @@
          :aria-label="'Photo of ' + student.firstName + ' ' + student.lastName"
          tabindex="0"
          :src="baseUrl + '/api/student/' + student.uid + '/photo'"
-         @error="avatarFallback"/>
+         @error="`${baseUrl}/static/app/shared/avatar-50.png`"/>
     <div class="student-avatar-alert-count home-inactive-info-icon"
          v-if="alertCount">
       <span v-b-tooltip.hover.bottom

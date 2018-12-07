@@ -67,12 +67,12 @@ class TestDevAuth:
         params = {'uid': self.admin_uid, 'password': app.config['DEVELOPER_AUTH_PASSWORD']}
         response = client.post('/api/auth/dev_auth_login', data=json.dumps(params), content_type='application/json')
         assert response.status_code == 200
-        response = client.get('/api/status')
+        response = client.get('/api/user/status')
         assert response.status_code == 200
         assert response.json['uid'] == self.admin_uid
         response = client.get('/api/auth/logout')
         assert response.status_code == 200
-        response = client.get('/api/status')
+        response = client.get('/api/user/status')
         assert response.status_code == 200
         assert response.json['isAnonymous']
 
@@ -123,6 +123,6 @@ class TestBecomeUser:
         app.config['DEVELOPER_AUTH_ENABLED'] = True
         response = client.post('/api/auth/become_user', data=json.dumps({'uid': self.advisor_uid}), content_type='application/json')
         assert response.status_code == 200
-        response = client.get('/api/status')
+        response = client.get('/api/user/status')
         assert response.status_code == 200
         assert response.json['uid'] == self.advisor_uid
