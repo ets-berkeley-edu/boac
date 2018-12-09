@@ -13,5 +13,6 @@ export default {
 <style>
 .fill-viewport {
   height: 100%;
+  font-size: 14px;
 }
 </style>

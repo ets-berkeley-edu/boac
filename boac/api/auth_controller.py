@@ -72,26 +72,15 @@ def cas_login():
 @app.route('/api/auth/dev_auth_login', methods=['POST'])
 def dev_auth_login():
     params = request.get_json() or {}
-    user = _dev_auth_login(params.get('uid'), params.get('password'))
-    if user:
-        login_user(user, force=True)
-        flash('Logged in successfully.')
-        return tolerant_jsonify(get_current_user_status())
-    else:
-        raise ResourceNotFoundError('Unknown path')
+    return _dev_auth_login(params.get('uid'), params.get('password'))
 
 
 @app.route('/api/auth/become_user', methods=['POST'])
 @admin_required
 def become():
-    params = request.get_json() or {}
     logout_user()
-    user = _dev_auth_login(params.get('uid'), app.config['DEVELOPER_AUTH_PASSWORD'])
-    if user:
-        login_user(user)
-        return tolerant_jsonify(get_current_user_status())
-    else:
-        raise ForbiddenRequestError('Invalid credentials')
+    params = request.get_json() or {}
+    return _dev_auth_login(params.get('uid'), app.config['DEVELOPER_AUTH_PASSWORD'])
 
 
 @app.route('/api/auth/logout')
@@ -125,6 +114,7 @@ def _dev_auth_login(uid, password):
             logger.error(f'Dev-auth: UID {uid} is not authorized to use BOAC.')
             raise ForbiddenRequestError(f'Sorry, user with UID {uid} is not authorized to use BOAC.')
         logger.info(f'Dev-auth used to log in as UID {uid}')
-        return user
+        login_user(user, force=True)
+        return tolerant_jsonify(get_current_user_status())
     else:
-        return None
+        raise ResourceNotFoundError('Unknown path')

@@ -9,65 +9,24 @@
       <div class="splash-cell-sign-in">
         <form @submit.prevent="logIn()">
           <b-btn id="splash-sign-in"
-                 class="splash-btn-sign-in"
+                 class="btn-sign-in"
                  autofocus
                  @click.stop="logIn()"
                  variant="primary"
                  placement="top-left">Sign In</b-btn>
-          <b-popover target="dev-auth-uid"
-                     placement="topright"
-                     :show="error.target === 'logIn'"
-                     :title="error.title || 'Error'"
-                     triggers="hover focus"
-                     :content="error.message">
-          </b-popover>
         </form>
         <div class="splash-contact-us">
-          Questions or feedback? Contact us at <a :href="'mailto:' + supportEmailAddress">{{ supportEmailAddress }}</a>
+          Questions or feedback? Contact us at
+          <a :href="`mailto:${supportEmailAddress}`" target="_blank">{{ supportEmailAddress }}</a>
         </div>
-        <form @submit.prevent="logInDevAuth()" v-if="devAuthEnabled">
-          <div class="flex-container splash-dev-auth">
-            <div>
-              <input id="dev-auth-uid"
-                     class="splash-form-input"
-                     v-model="devAuth.uid"
-                     @change="clearError"
-                     type="text"
-                     placeholder="UID"
-                     size="10">
-              <b-popover target="dev-auth-uid"
-                         placement="topright"
-                         :show="error.target === 'devAuth'"
-                         :title="error.title || 'Error'"
-                         triggers="hover focus"
-                         :content="error.message">
-              </b-popover>
-            </div>
-            <div>
-              <input id="dev-auth-password"
-                     autocomplete="none"
-                     class="splash-form-input"
-                     v-model="devAuth.password"
-                     @change="clearError"
-                     type="password"
-                     placeholder="Password"
-                     size="10">
-            </div>
-            <div>
-              <b-btn id="dev-auth-submit"
-                     class="splash-btn-dev-auth"
-                     variant="primary"
-                     type="submit">DevAuth!</b-btn>
-            </div>
-          </div>
-        </form>
+        <DevAuth v-if="devAuthEnabled"/>
       </div>
       <div class="splash-box-container">
         <div class="splash-cell-header">
-          <h1 class="splash-text-header">BOAC</h1>
+          <h1>BOAC</h1>
         </div>
       </div>
-      <div class="splash-cell-copyright">
+      <div class="splash-cell-copyright pt-2">
         <span class="splash-text-copyright">&copy; 2018 The Regents of the University of California</span>
       </div>
     </div>
@@ -76,63 +35,40 @@
 
 <script>
 import AppConfig from '@/mixins/AppConfig';
-import router from '@/router';
-import store from '@/store';
-import { devAuthLogIn, getCasLoginURL } from '@/api/auth';
+import DevAuth from '@/components/admin/DevAuth.vue';
+import { getCasLoginURL } from '@/api/auth';
 
 export default {
   name: 'Login',
   mixins: [AppConfig],
-  data: () => ({
-    devAuth: {
-      uid: null,
-      password: null
-    },
-    error: null
-  }),
-  created() {
-    this.clearError();
+  components: {
+    DevAuth
   },
   methods: {
-    clearError() {
-      this.error = {
-        title: null,
-        message: null,
-        target: null
-      };
-    },
     logIn() {
       getCasLoginURL().then(data => {
         window.location.href = data.casLoginUrl;
       });
-    },
-    logInDevAuth() {
-      devAuthLogIn(this.devAuth.uid, this.devAuth.password)
-        .then(status => {
-          if (status.isAuthenticated) {
-            store.commit('userAuthenticated');
-            const isAuthenticated = store.getters.isUserAuthenticated;
-            if (isAuthenticated) {
-              router.push({ path: '/home' });
-            }
-          } else {
-            this.error = {
-              message:
-                status.get('error') ||
-                'Sorry, you are unauthorized to use BOAC. Please contact us for assistance.',
-              hide: false
-            };
-          }
-        })
-        .catch(err => {
-          this.error = {
-            message:
-              err.message ||
-              'Sorry, we were unable to authenticate your credentials',
-            hide: false
-          };
-        });
     }
   }
 };
 </script>
+
+<style scoped>
+h1 {
+  color: #0275d8;
+  font-weight: 200;
+  font-size: 81px;
+  letter-spacing: 8px;
+  padding-top: 14px;
+}
+.btn-sign-in {
+  height: 50px;
+  width: 256px;
+  font-size: 20px;
+  top: 4.7em;
+}
+button {
+  background-color: #3b80bf;
+}
+</style>
