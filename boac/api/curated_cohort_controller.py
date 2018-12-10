@@ -119,6 +119,7 @@ def curated_cohort_ids_per_sid(sid):
 
 @app.route('/api/curated_cohort/<curated_cohort_id>/remove_student/<sid>', methods=['DELETE'])
 @login_required
+@cross_origin(allow_headers=['Content-Type'])
 def remove_student_from_curated_cohort(curated_cohort_id, sid):
     curated_cohort = CuratedCohort.find_by_id(curated_cohort_id)
     if not curated_cohort:

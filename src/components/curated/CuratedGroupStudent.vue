@@ -150,7 +150,7 @@ export default {
   mixins: [StudentMetadata, UserMetadata],
   methods: {
     removeFromCuratedCohort: function() {
-      //TODO: implement me
+      this.$eventHub.$emit('curated-group-remove-student', this.student.sid);
     }
   }
 };

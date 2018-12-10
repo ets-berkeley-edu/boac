@@ -74,6 +74,7 @@ const mutations = {
     );
     group.name = data.name;
     group.studentCount = data.studentCount;
+    group.students = data.students;
   },
   createdCuratedGroup: (state: any, group: any) => {
     state.user.myCuratedCohorts.push(group);

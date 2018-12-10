@@ -36,6 +36,8 @@
 
 <script>
 import _ from 'lodash';
+import { removeFromCuratedGroup } from '@/api/cohorts';
+import store from '@/store';
 import CuratedGroupStudent from '@/components/curated/CuratedGroupStudent.vue';
 import SearchStudents from '@/components/sidebar/SearchStudents.vue';
 import UserMetadata from '@/mixins/UserMetadata';
@@ -50,12 +52,14 @@ export default {
     CuratedGroupStudent
   },
   mixins: [UserMetadata],
-  data: () => ({
-    sort: {
-      selected: 'last_name',
-      options: []
-    }
-  }),
+  data() {
+    return {
+      sort: {
+        selected: 'last_name',
+        options: []
+      }
+    };
+  },
   created() {
     let options = [
       { name: 'First Name', value: 'first_name', available: true },
@@ -67,14 +71,30 @@ export default {
       { name: 'Units Completed', value: 'units', available: true }
     ];
     this.sort.options = _.filter(options, 'available');
+    this.$eventHub.$on('curated-group-remove-student', sid =>
+      this.$_CuratedGroupList_removeStudent(sid)
+    );
   },
   computed: {
-    orderedStudents: () =>
-      _.orderBy(this.curatedGroup.students, this.studentComparator),
+    orderedStudents: function() {
+      return this.curatedGroup.students
+        .slice(0)
+        .sort(this.$_CuratedGroupList_studentComparator);
+    },
     anchor: () => location.hash
   },
   methods: {
-    levelComparator: function(level) {
+    $_CuratedGroupList_removeStudent: function(sid) {
+      removeFromCuratedGroup(this.curatedGroup.id, sid).then(() => {
+        let deleteIndex = this.curatedGroup.students.findIndex(student => {
+          return student.sid === sid;
+        });
+        this.curatedGroup.students.splice(deleteIndex, 1);
+        this.curatedGroup.studentCount = this.curatedGroup.students.length;
+        store.commit('updateCuratedGroup', this.curatedGroup);
+      });
+    },
+    $_CuratedGroupList_levelComparator: function(level) {
       switch (level) {
         case 'Freshman':
           return 1;
@@ -88,7 +108,7 @@ export default {
           return 0;
       }
     },
-    studentComparator: function(student) {
+    $_CuratedGroupList_studentComparator: function(student) {
       switch (this.sort.selected) {
         case 'first_name':
           return student.firstName;
@@ -100,7 +120,7 @@ export default {
         case 'gpa':
           return student.cumulativeGPA;
         case 'level':
-          return this.levelComparator(student.level);
+          return this.$_CuratedGroupList_levelComparator(student.level);
         case 'major':
           return _.get(student, 'majors[0]');
         case 'units':

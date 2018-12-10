@@ -135,10 +135,7 @@ export default {
         renameCuratedGroup(this.curatedGroup.id, this.renameMode.input)
           .then(() => {
             this.curatedGroup.name = this.renameMode.input;
-            store.commit('updateCuratedGroup', {
-              id: this.curatedGroup.id,
-              name: this.curatedGroup.name
-            });
+            store.commit('updateCuratedGroup', this.curatedGroup);
             this.exitRenameMode();
           })
           .catch(error => {
