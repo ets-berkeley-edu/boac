@@ -1,7 +1,16 @@
 <template>
-  <div class="loading-spinner-large" v-if="loading">
-    <i class="fas fa-sync fa-spin fa-5x"></i>
-    <span role="alert" aria-live="passive" class="sr-only">Loading...</span>
+  <div>
+    <div class="loading-spinner-large" v-if="loading">
+      <i class="fas fa-sync fa-spin fa-5x"></i>
+      <span role="alert"
+            aria-live="passive"
+            class="sr-only">Loading...</span>
+    </div>
+    <div v-if="!loading">
+      <span role="alert"
+            aria-live="passive"
+            class="sr-only">Page content loaded</span>
+    </div>
   </div>
 </template>
 

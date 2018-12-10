@@ -13,9 +13,10 @@ export function getUserProfile() {
     .then(response => response.data, () => null);
 }
 
-export function getAuthorizedUserGroups() {
+export function getAuthorizedUserGroups(sortUsersBy: string) {
+  let query = sortUsersBy ? `sortUsersBy=${sortUsersBy}` : '';
   return axios
-    .get(`${store.state.apiBaseUrl}/api/profiles/authorized_user_groups`)
+    .get(`${store.state.apiBaseUrl}/api/users/authorized_groups?${query}`)
     .then(response => response.data, () => null);
 }
 

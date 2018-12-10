@@ -30,7 +30,7 @@
   angular.module('boac').factory('userFactory', function($http) {
 
     var getAuthorizedUserGroups = function() {
-      return $http.get('/api/profiles/authorized_user_groups');
+      return $http.get('/api/users/authorized_groups');
     };
 
     return {

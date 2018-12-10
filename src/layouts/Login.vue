@@ -10,14 +10,17 @@
         <form @submit.prevent="logIn()">
           <b-btn id="splash-sign-in"
                  class="btn-sign-in"
-                 autofocus
+                 aria-label="Log in to BOAC"
                  @click.stop="logIn()"
                  variant="primary"
+                 tabindex="0"
                  placement="top-left">Sign In</b-btn>
         </form>
         <div class="splash-contact-us">
           Questions or feedback? Contact us at
-          <a :href="`mailto:${supportEmailAddress}`" target="_blank">{{ supportEmailAddress }}</a>
+          <a :href="`mailto:${supportEmailAddress}`"
+             aria-label="BOAC support email address"
+             target="_blank">{{ supportEmailAddress }}</a>
         </div>
         <DevAuth v-if="devAuthEnabled"/>
       </div>
