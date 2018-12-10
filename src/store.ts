@@ -5,6 +5,8 @@ Vue.use(Vuex);
 
 const state = {
   apiBaseUrl: process.env.VUE_APP_API_BASE_URL,
+  legacyRedirectsEnabled:
+    process.env.VUE_APP_ENABLE_LEGACY_REDIRECTS.toLowerCase() === 'true',
   config: null,
   loading: null,
   errors: [],
@@ -27,6 +29,9 @@ const getters = {
   },
   isUserAuthenticated: (state: any) => {
     return state.isUserAuthenticated;
+  },
+  legacyRedirectsEnabled: (state: any) => {
+    return state.legacyRedirectsEnabled;
   }
 };
 
