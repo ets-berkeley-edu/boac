@@ -40,7 +40,7 @@
 <script>
 import _ from 'lodash';
 import AppConfig from '@/mixins/AppConfig';
-import DemoModeToggle from '@/components/DemoModeToggle.vue';
+import DemoModeToggle from '@/components/admin/DemoModeToggle.vue';
 import Loading from '@/mixins/Loading.vue';
 import Spinner from '@/components/Spinner.vue';
 import UserMetadata from '@/mixins/UserMetadata';
