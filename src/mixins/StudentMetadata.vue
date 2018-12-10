@@ -4,6 +4,8 @@ import store from '@/store';
 
 export default {
   name: 'StudentMetadata',
+  // Grades deserving alerts: D(+/-), F, I, NP.
+  alertGrades: /^[DFIN]/,
   methods: {
     displayAsInactive(student) {
       const user = store.getters.user;
@@ -13,9 +15,8 @@ export default {
           (user.isCoe && !student.coeProfile.isActiveCoe))
       );
     },
-    isAlertGrade(midtermGrade) {
-      // TODO: implement me
-      return midtermGrade;
+    isAlertGrade(grade) {
+      return grade && this.$options.alertGrades.test(grade);
     },
     lastActivityDays(analytics) {
       let timestamp = parseInt(

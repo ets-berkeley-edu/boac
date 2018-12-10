@@ -70,3 +70,19 @@ export function addStudents(curatedGroup, sids) {
       return group;
     });
 }
+
+export function removeFromCuratedGroup(groupId, sid) {
+  return axios
+    .delete(
+      `${
+        store.state.apiBaseUrl
+      }/api/curated_cohort/${groupId}/remove_student/${sid}`
+    )
+    .then(response => {
+      const group = response.data;
+      store.commit('updateCuratedGroup', group);
+      // TODO: implement GA tracking (BOAC-1506)
+      // googleAnalyticsService.track('Curated Cohort', 'remove_student', cohort.name, cohort.id);
+      return group;
+    });
+}
