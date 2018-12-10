@@ -7,6 +7,7 @@ import BootstrapVue from 'bootstrap-vue';
 import router from './router';
 import store from './store';
 import Vue from 'vue';
+import VueHighcharts from 'vue-highcharts';
 
 // Allow cookies in Access-Control requests
 axios.defaults.withCredentials = true;
@@ -23,6 +24,7 @@ axios.interceptors.response.use(response => response, function(error) {
 Vue.config.productionTip = false;
 Vue.use(BootstrapVue);
 Vue.use(require('vue-lodash'));
+Vue.use(VueHighcharts);
 
 Vue.filter('date', (dateString: string, format: string = 'MMM dd, YYYY') => {
   let date = parseDate(dateString);

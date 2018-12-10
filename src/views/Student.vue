@@ -98,10 +98,10 @@
             </div>
             <div class="student-chart-outer" id="student-status-unit-totals">
               <div class="student-status-legend student-status-legend-heading" aria-hidden="true">Unit Totals</div>
-              <div class="student-chart-units-container" id="student-chart-units-container" aria-hidden="true"
-                   v-if="showUnitTotals">
-                  &quot;Pardon Our Progress&quot;
-              </div>
+              <StudentUnitsChart v-if="showUnitTotals"
+                                 :currentEnrolledUnits="currentEnrolledUnits"
+                                 :cumulativeUnits="cumulativeUnits">
+              </StudentUnitsChart>
               <div class="student-status-legend student-status-legend-small"
                    v-if="!showUnitTotals">
                   Units Not Yet Available
@@ -397,6 +397,7 @@ import Spinner from '@/components/Spinner.vue';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentMetadata from '@/mixins/StudentMetadata';
+import StudentUnitsChart from '@/components/student/StudentUnitsChart';
 import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
@@ -404,7 +405,8 @@ export default {
   mixins: [AppConfig, Loading, StudentAnalytics, StudentMetadata, UserMetadata],
   components: {
     Spinner,
-    StudentAvatar
+    StudentAvatar,
+    StudentUnitsChart
   },
   created() {
     var uid = this.$route.path.split('/').pop();
@@ -550,7 +552,7 @@ export default {
 .student-chart-outer {
   border-left: 1px solid #999;
   flex: 1;
-  margin: 0 10px;
+  margin-left: 10px;
   padding-left: 10px;
 }
 .student-chart-units-container {
@@ -673,7 +675,10 @@ export default {
 }
 .student-profile-status-container {
   background: #8bbdda;
-  flex: 3;
+  min-width: 330px;
+  max-width: 400px;
+  flex-basis: auto;
+  flex-grow: 0.25;
 }
 .student-progress-header {
   font-size: 16px;
