@@ -110,7 +110,7 @@ const router = new Router({
           beforeEnter: requiresAuth
         },
         {
-          path: '/cohorts_all',
+          path: '/cohorts/all',
           component: AllCohorts,
           beforeEnter: requiresAuth,
           meta: {
@@ -118,7 +118,7 @@ const router = new Router({
           }
         },
         {
-          path: '/cohort_:id',
+          path: '/cohort/:id',
           beforeEnter: requiresAuth,
           meta: {
             legacyPathRedirect: '/cohort/filtered?id=:id',
@@ -126,7 +126,7 @@ const router = new Router({
           }
         },
         {
-          path: '/cohort_create',
+          path: '/cohort/create',
           beforeEnter: requiresAuth,
           meta: {
             legacyPathRedirect: '/cohort/filtered',
@@ -134,7 +134,7 @@ const router = new Router({
           }
         },
         {
-          path: '/curated_group_:id',
+          path: '/curated_group/:id',
           beforeEnter: requiresAuth,
           component: CuratedGroup,
           props: true,
@@ -143,7 +143,7 @@ const router = new Router({
           }
         },
         {
-          path: '/student_:uid',
+          path: '/student/:uid',
           beforeEnter: requiresAuth,
           component: Student
         },

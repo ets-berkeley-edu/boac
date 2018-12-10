@@ -40,7 +40,7 @@ INDEX_HTML = 'tests/static/test-index-legacy.html'
 INDEX_HTML_VUE = 'tests/static/test-index-vue.html'
 VUE_PATHS = {
     '/admin': '/admin',
-    r'/cohort/curated/([0-9]+).*': r'/curated_group_\1',
-    '/cohort/filtered/all': '/cohorts_all',
-    r'/student/([0-9]+).*': r'/student_\1',
+    r'/cohort/curated/([0-9]+).*': r'/curated_group/\1',
+    '/cohort/filtered/all': '/cohorts/all',
+    r'/student/([0-9]+).*': r'/student/\1',
 }

@@ -9,7 +9,7 @@
           <router-link id="sidebar-filtered-cohort-create"
                        class="sidebar-create-link"
                        aria-label="Create cohort"
-                       to="/cohort_create"><i class="fas fa-plus"></i></router-link>
+                       to="/cohort/create"><i class="fas fa-plus"></i></router-link>
         </span>
       </div>
     </div>
@@ -20,7 +20,7 @@
         <router-link :id="'sidebar-filtered-cohort-' + index"
                      :aria-label="'Cohort ' + cohort.name + ' has ' + cohort.totalStudentCount + ' students'"
                      class="sidebar-row-link-label-text"
-                     :to="'/cohort_' + cohort.id">{{ cohort.name }}</router-link>
+                     :to="'/cohort/' + cohort.id">{{ cohort.name }}</router-link>
       </div>
       <div>
         <span :id="'sidebar-filtered-cohort-' + index + '-count'"

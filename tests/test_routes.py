@@ -36,7 +36,7 @@ class TestVueRedirect:
 
     def test_vue_enabled_path(self, app, client, asc_advisor_session):
         """Serves Vue page when the route is strictly defined on the Vue side."""
-        vue_path = '/student_12345?r=1'
+        vue_path = '/student/12345?r=1'
         vue_base_url = 'http://localhost:8080'
         with override_config(app, 'VUE_LOCALHOST_BASE_URL', vue_base_url):
             response = client.get(vue_path)
@@ -55,7 +55,7 @@ class TestVueRedirect:
         with override_config(app, 'VUE_LOCALHOST_BASE_URL', vue_base_url):
             response = client.get('/student/123?r=1')
             assert response.status_code == 302
-            assert response.location == vue_base_url + '/student_123?r=1'
+            assert response.location == vue_base_url + '/student/123?r=1'
 
     def test_non_vue_enabled_path(self, client, asc_advisor_session):
         """Serves legacy (Angular) index page when route is not yet supported on the Vue side."""

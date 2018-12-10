@@ -8,8 +8,9 @@ export default {
     displayAsInactive(student) {
       const user = store.getters.user;
       return (
-        (user && (user.isAsc && !student.athleticsProfile.isActiveAsc)) ||
-        (user.isCoe && !student.coeProfile.isActiveCoe)
+        user &&
+        ((user.isAsc && !student.athleticsProfile.isActiveAsc) ||
+          (user.isCoe && !student.coeProfile.isActiveCoe))
       );
     },
     isAlertGrade(midtermGrade) {

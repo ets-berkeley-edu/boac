@@ -40,7 +40,7 @@
                 {{student.sisProfile.phoneNumber}}</span>
             </div>
           </div>
-          <div id="student-bio-inactive" v-if="displayAsInactive(student)">
+          <div id="student-bio-inactive" v-if="isInactive">
             <div class="student-bio-header student-bio-inactive">Inactive</div>
           </div>
           <div id="student-bio-athletics" v-if="student.athleticsProfile">
@@ -397,18 +397,17 @@ import Spinner from '@/components/Spinner.vue';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentMetadata from '@/mixins/StudentMetadata';
-import store from '@/store';
+import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
   name: 'Student',
-  mixins: [AppConfig, Loading, StudentAnalytics, StudentMetadata],
+  mixins: [AppConfig, Loading, StudentAnalytics, StudentMetadata, UserMetadata],
   components: {
     Spinner,
     StudentAvatar
   },
   created() {
-    this.inDemoMode = store.getters.user.inDemoMode;
-    var uid = this.$route.path.split('_').pop();
+    var uid = this.$route.path.split('/').pop();
     this.loadStudent(uid);
   },
   data: () => ({
@@ -419,6 +418,7 @@ export default {
     loadStudent(uid) {
       getStudentDetails(uid).then(data => {
         this.student = data;
+        this.isInactive = this.displayAsInactive(this.student);
         this.cumulativeUnits = _.get(
           this.student,
           'sisProfile.cumulativeUnits'

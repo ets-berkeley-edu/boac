@@ -11,7 +11,7 @@
         <h2 class="page-section-header-sub">{{owner.firstName}} {{owner.lastName}}</h2>
         <ul>
           <li v-for="cohort in owner.cohorts" v-bind:key="cohort.id">
-            <router-link :to="'/cohort_' + cohort.id">{{ cohort.name }}</router-link> ({{ cohort.totalStudentCount }})
+            <router-link :to="'/cohort/' + cohort.id">{{ cohort.name }}</router-link> ({{ cohort.totalStudentCount }})
           </li>
         </ul>
       </div>
