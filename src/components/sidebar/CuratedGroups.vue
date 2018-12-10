@@ -12,7 +12,7 @@
         <router-link :id="'sidebar-curated-cohort-' + index"
                      :aria-label="'Curated group ' + group.name + ' has ' + group.studentCount + ' students'"
                      class="sidebar-row-link-label-text"
-                     :to="'/curated_group_' + group.id">{{ group.name }}</router-link>
+                     :to="'/curated_group/' + group.id">{{ group.name }}</router-link>
       </div>
       <div>
         <span :id="'sidebar-curated-cohort-' + index + '-count'"

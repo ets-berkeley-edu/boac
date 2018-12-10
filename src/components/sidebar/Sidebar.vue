@@ -9,9 +9,10 @@
       <div class="sidebar-row-link">
         <span class="sidebar-row-link-label">
           <router-link id="sidebar-filtered-cohorts-all"
-                       to="/cohorts_all">Everyone's Cohorts</router-link>
+                       to="/cohorts/all">Everyone's Cohorts</router-link>
         </span>
       </div>
+
     </div>
   </div>
 </template>
