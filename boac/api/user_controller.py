@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api import errors
 from boac.api.util import admin_required, authorized_users_api_feed, get_current_user_status
+from boac.lib import util
 from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE, get_dept_codes
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
@@ -89,9 +90,10 @@ def user_profile(uid):
     return tolerant_jsonify(calnet.get_calnet_user_for_uid(app, uid))
 
 
-@app.route('/api/profiles/authorized_user_groups')
+@app.route('/api/users/authorized_groups')
 @admin_required
 def authorized_user_groups():
+    sort_users_by = util.get(request.args, 'sortUsersBy', None)
     depts = {}
     for dept_name, dept_code in {**{'Admins': 'ADMIN'}, **BERKELEY_DEPT_NAME_TO_CODE}.items():
         depts[dept_code] = {
@@ -106,7 +108,7 @@ def authorized_user_groups():
             depts[m.university_dept.dept_code]['users'].append(user)
     user_groups = []
     for dept_code, dept in depts.items():
-        dept['users'] = authorized_users_api_feed(dept['users'])
+        dept['users'] = authorized_users_api_feed(dept['users'], sort_users_by)
         user_groups.append(dept)
     return tolerant_jsonify(user_groups)
 

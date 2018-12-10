@@ -64,6 +64,7 @@ def authorized_users_api_feed(users, sort_by='lastName'):
     profiles = []
     for user in users:
         profile = calnet.get_calnet_user_for_uid(app, user.uid)
+        profile['name'] = (profile.get('firstName') or '') + ' ' + (profile.get('lastName') or '')
         profile.update({
             'isAdmin': user.is_admin,
             'departments': {},

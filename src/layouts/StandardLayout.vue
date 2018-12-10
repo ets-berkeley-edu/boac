@@ -2,7 +2,7 @@
   <div id="app" class="index-container">
     <a href="#content"
        id="skip-to-content-link"
-       class="sr-only sr-only-focusable">Skip To Content</a>
+       class="sr-only sr-only-focusable">Skip to main content</a>
     <div class="index-container-header">
       <div class="header-container">
         <div class="header-text"><router-link to="/home">Home</router-link></div>

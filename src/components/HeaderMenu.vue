@@ -13,7 +13,7 @@
             <div class="b-link-text">{{ user.firstName }}</div><i class="ml-1 fas fa-caret-down b-link-text"></i>
           </div>
         </template>
-        <b-dropdown-item href="#" v-if="user.isAdmin"><router-link to="/admin" tag="span">Admin</router-link></b-dropdown-item>
+        <b-dropdown-item v-if="user.isAdmin" @click="goAdmin">Admin</b-dropdown-item>
         <b-dropdown-item href="#" @click="logOut">Log Out</b-dropdown-item>
         <b-dropdown-item :href="`mailto:${supportEmailAddress}`" target="_blank">Feedback/Help</b-dropdown-item>
       </b-dropdown>
@@ -36,6 +36,9 @@ export default {
         store.commit('logout');
         window.location.href = data.casLogoutURL;
       });
+    },
+    goAdmin() {
+      this.$router.push({ path: '/admin' });
     }
   }
 };
