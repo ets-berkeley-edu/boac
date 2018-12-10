@@ -166,7 +166,9 @@ const router = new Router({
 });
 
 router.beforeEach((to: any, from: any, next: any) => {
-  let redirectPath = _.get(to, 'meta.legacyPathRedirect');
+  let redirectPath =
+    store.getters.legacyRedirectsEnabled &&
+    _.get(to, 'meta.legacyPathRedirect');
   if (redirectPath) {
     redirect(redirectPath, to.params);
   } else {
