@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { getCuratedGroup } from '@/api/cohorts';
+import { getCuratedGroup } from '@/api/curated';
 import Spinner from '@/components/Spinner.vue';
 import Loading from '@/mixins/Loading.vue';
 import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader.vue';

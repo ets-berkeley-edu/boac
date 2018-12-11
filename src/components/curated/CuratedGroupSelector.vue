@@ -74,7 +74,7 @@
 import _ from 'lodash';
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal.vue';
 import UserMetadata from '@/mixins/UserMetadata';
-import { addStudents, createCuratedGroup } from '@/api/cohorts';
+import { addStudents, createCuratedGroup } from '@/api/curated';
 
 export default {
   name: 'CuratedGroupSelector',

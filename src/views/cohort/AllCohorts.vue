@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { getUsersWithCohorts } from '@/api/cohorts';
+import { getUsersWithCohorts } from '@/api/cohort';
 import Spinner from '@/components/Spinner.vue';
 import Loading from '@/mixins/Loading.vue';
 
