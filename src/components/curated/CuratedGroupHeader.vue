@@ -13,7 +13,7 @@
                  aria-label="Input cohort name, 255 characters or fewer"
                  :aria-invalid="!renameMode.input"
                  class="form-control"
-                 @change="renameMode.hideError = true"
+                 @input="renameMode.hideError = true"
                  v-model="renameMode.input"
                  focus-on="renameMode.on"
                  id="rename-cohort-input"
@@ -90,18 +90,20 @@
 </template>
 
 <script>
-import _ from 'lodash';
 import { deleteCuratedGroup, renameCuratedGroup } from '@/api/cohorts';
+import Validator from '@/mixins/Validator.vue';
 import store from '@/store';
 
 export default {
   name: 'CuratedGroupHeader',
+  mixins: [Validator],
   props: ['curatedGroup'],
   data: () => ({
     isModalOpen: false,
     renameMode: {
       on: false,
       error: undefined,
+      hideError: false,
       input: undefined
     }
   }),
@@ -121,26 +123,22 @@ export default {
           this.$router.push('home');
         })
         .catch(error => {
-          this.renameMode.error = error;
+          this.error = error;
         });
     },
     rename: function() {
-      // TODO: finish validation logic (BOAC-1496)
-      if (_.isEmpty(this.renameMode.input)) {
-        this.renameMode.error = 'Required';
-      } else if (_.size(this.renameMode.input) > 255) {
-        this.renameMode.error = 'Name must be 255 characters or fewer';
-      }
+      this.renameMode.hideError = false;
+      this.renameMode.error = this.validateCohortName({
+        name: this.renameMode.input
+      });
       if (!this.renameMode.error) {
-        renameCuratedGroup(this.curatedGroup.id, this.renameMode.input)
-          .then(() => {
+        renameCuratedGroup(this.curatedGroup.id, this.renameMode.input).then(
+          () => {
             this.curatedGroup.name = this.renameMode.input;
             store.commit('updateCuratedGroup', this.curatedGroup);
             this.exitRenameMode();
-          })
-          .catch(error => {
-            this.renameMode.error = error;
-          });
+          }
+        );
       }
     }
   }
