@@ -2,14 +2,14 @@
   <div class="p-3">
     <Spinner/>
     <div v-if="error">
-      <h1 role="alert" aria-live="passive" class="page-section-header">Error</h1>
+      <h1 role="alert" aria-live="passive">Error</h1>
       <div class="faint-text">
         <span role="alert" aria-live="passive" v-if="error.message">{{ error.message }}</span>
         <span role="alert" aria-live="passive" v-if="!error.message">Sorry, there was an error retrieving data.</span>
       </div>
     </div>
     <div v-if="!loading && !error && !totalStudentCount && !totalCourseCount">
-      <h1 role="alert" aria-live="passive" class="page-section-header">No results matching '{{ phrase }}'</h1>
+      <h1 role="alert" aria-live="passive">No results matching '{{ phrase }}'</h1>
       <div>Suggestions:</div>
       <ul>
         <li>Keep your search term simple.</li>
@@ -20,9 +20,7 @@
     </div>
     <div tabindex="0" focus-on="!loading && totalStudentCount">
       <div v-if="!loading && !error && totalStudentCount">
-        <h1 class="page-section-header">
-          {{ 'student' | pluralize(totalStudentCount) }} matching '{{ phrase }}'
-        </h1>
+        <h1>{{ 'student' | pluralize(totalStudentCount) }} matching '{{ phrase }}'</h1>
         <div v-if="totalStudentCount > limit">
           Showing the first {{limit}} students.
         </div>

@@ -4,48 +4,54 @@
       <label id="checkbox-add-all-label"
              class="sr-only">Select all students to add to a curated group</label>
       <b-form-checkbox plain
-                       class="p-2 mr-0"
+                       class="p-1 mr-0"
                        :disabled="isSaving"
                        v-model="isSelectAllChecked"
                        :indeterminate="indeterminate"
-                       aria-describedby="students"
-                       aria-controls="students"
+                       aria-describedby="checkbox-add-all-label"
+                       aria-controls="curated-group-dropdown-select"
                        @change="toggle">
         <span class="sr-only">{{ isSelectAllChecked ? 'Un-select All Students' : 'Select All Students' }}</span>
       </b-form-checkbox>
     </div>
     <div>
-      <b-dropdown class="ml-2"
+      <b-dropdown id="curated-group-dropdown-select"
+                  variant="primary"
+                  toggle-class="b-dd-primary-override"
+                  size="sm"
                   no-caret
-                  :variant="isSaving ? 'success' : 'primary'"
                   :disabled="isSaving"
                   v-if="showMenu">
         <template slot="button-content">
           <span :id="isSaving ? 'added-to-curated-cohort-confirmation' : 'add-to-curated-cohort-button'"
-                class="p-0 pr-1">
-            <span v-if="!isSaving">Add to Curated Group <i class="fas fa-caret-down pl-1"></i></span>
-            <span v-if="isSaving"><i class="fas fa-check"></i> Added to Curated Group</span>
+                class="p-3">
+            <span v-if="!isSaving">Add to Curated Group <i class="fas fa-caret-down"></i></span>
+            <span v-if="isSaving">
+              <i  class="fas fa-check"></i> Added to Curated Group
+              <span role="alert"
+                    aria-live="passive"
+                    class="sr-only">Selected students added to the chosen curated group</span>
+            </span>
           </span>
         </template>
         <b-dropdown-item v-if="!curatedGroups.length">
           <span class="cohort-selector-zero-cohorts faint-text">You have no curated groups.</span>
         </b-dropdown-item>
-        <b-dropdown-item :id="'curated-group-' + group.id + '-menu-item'"
-                         href
-                         class="cohort-checkbox-item"
-                         v-for="(group, index) in curatedGroups"
+        <b-dropdown-item :id="`curated-group-${group.id}-menu-item`"
+                         class="b-dd-item-override"
+                         v-for="group in curatedGroups"
                          :key="group.id"
                          v-if="group && !reloading">
-          <input :id="'curated-group-' + group.id + '-checkbox'"
+          <input :id="`curated-group-${group.id}-checkbox`"
                  type="checkbox"
                  v-model="group.selected"
                  @click="curatedGroupCheckboxClick(group)"
-                 :aria-labelledby="'curated-cohort-name-' + index"
+                 :aria-labelledby="`curated-cohort-${group.id}-name`"
                  v-if="group"/>
-          <span :id="'curated-cohort-' + group.id + '-name'"
-                :aria-labelledby="'curated-group-' + group.id + '-checkbox'"
-                class="cohort-checkbox-name"
-                v-if="group">{{ group.name }}</span>
+          <label :id="`curated-cohort-${group.id}-name`"
+                 class="cohort-checkbox-name pb-0 pt-0"
+                 :aria-label="`Add students to curated group '${group.name}'`"
+                 v-if="group">{{ group.name }}</label>
         </b-dropdown-item>
         <b-dropdown-divider></b-dropdown-divider>
         <b-dropdown-item id="curated-cohort-create-menu-item">
@@ -158,7 +164,13 @@ export default {
 };
 </script>
 
+
+
 <style scoped>
+label {
+  font-size: 14px;
+  margin-bottom: 0;
+}
 .selector-checkbox-container {
   background-color: #eee;
   border: 1px solid #aaa;

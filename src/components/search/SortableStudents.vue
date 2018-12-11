@@ -89,8 +89,8 @@
           <td class="group-summary-column group-summary-column-name">
             <span class="sr-only">{{ srText.sortableName }}</span>
             <router-link :aria-label="'Go to profile page of ' + student.firstName + ' ' + student.lastName"
-                         :class="{'demo-mode-blur': user.inDemoMode}"
-                         :to="'/student_' + student.uid">{{ student.sortableName }}</router-link>
+                         :class="{'demo-mode-blur': inDemoMode}"
+                         :to="'/student/' + student.uid">{{ student.sortableName }}</router-link>
             <span class="home-inactive-info-icon"
                   uib-tooltip="Inactive"
                   tooltip-placement="bottom"
@@ -100,7 +100,7 @@
           </td>
           <td class="group-summary-column group-summary-column-sid">
             <span class="sr-only">{{ srText.sid }}</span>
-            <span v-bind:class="{'demo-mode-blur': user.inDemoMode}">{{ student.sid }}</span>
+            <span v-bind:class="{'demo-mode-blur': inDemoMode}">{{ student.sid }}</span>
           </td>
           <td class="group-summary-column group-summary-column-major">
             <span class="sr-only">{{ srText['majors[0]'] }}</span>
