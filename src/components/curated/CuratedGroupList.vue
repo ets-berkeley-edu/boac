@@ -36,7 +36,7 @@
 
 <script>
 import _ from 'lodash';
-import { removeFromCuratedGroup } from '@/api/cohorts';
+import { removeFromCuratedGroup } from '@/api/curated';
 import store from '@/store';
 import CuratedGroupStudent from '@/components/curated/CuratedGroupStudent.vue';
 import SearchStudents from '@/components/sidebar/SearchStudents.vue';

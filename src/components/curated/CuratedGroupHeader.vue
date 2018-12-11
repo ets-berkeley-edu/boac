@@ -90,7 +90,7 @@
 </template>
 
 <script>
-import { deleteCuratedGroup, renameCuratedGroup } from '@/api/cohorts';
+import { deleteCuratedGroup, renameCuratedGroup } from '@/api/curated';
 import Validator from '@/mixins/Validator.vue';
 import store from '@/store';
 
