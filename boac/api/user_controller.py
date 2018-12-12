@@ -24,15 +24,12 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api import errors
-from boac.api.util import admin_required, authorized_users_api_feed, get_current_user_status
+from boac.api.util import admin_required, authorized_users_api_feed, get_current_user_status, get_my_cohorts, get_my_curated_groups
 from boac.lib import util
 from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE, get_dept_codes
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
-from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.cohort_filter import CohortFilter
-from boac.models.curated_cohort import CuratedCohort
 from flask import current_app as app, request
 from flask_login import current_user, login_required
 
@@ -55,25 +52,13 @@ def my_profile():
             dept_codes = get_dept_codes(current_user)
             profile['isAsc'] = 'UWASC' in dept_codes
             profile['isCoe'] = 'COENG' in dept_codes
-            filtered_cohorts = []
-            for cohort in CohortFilter.summarize_alert_counts_in_all_owned_by(uid):
-                cohort['isOwnedByCurrentUser'] = True
-                filtered_cohorts.append(cohort)
-            curated_cohorts = []
-            user_id = current_user.id
-            for cohort in CuratedCohort.get_curated_cohorts_by_owner_id(user_id):
-                _curated_cohort_api_json(cohort)
-                students = [{'sid': s.sid} for s in cohort.students]
-                students_with_alerts = Alert.include_alert_counts_for_students(viewer_user_id=user_id, cohort={'students': students})
-                curated_cohorts.append({
-                    'id': cohort.id,
-                    'name': cohort.name,
-                    'alertCount': sum(s['alertCount'] for s in students_with_alerts),
-                    'studentCount': len(students),
+            exclude_cohorts = util.to_bool_or_none(request.args.get('excludeCohorts'))
+            if not exclude_cohorts:
+                profile.update({
+                    'myFilteredCohorts': get_my_cohorts(),
+                    'myCuratedCohorts': get_my_curated_groups(),
                 })
             profile.update({
-                'myFilteredCohorts': filtered_cohorts,
-                'myCuratedCohorts': curated_cohorts,
                 'isAdmin': current_user.is_admin,
                 'inDemoMode': current_user.in_demo_mode if hasattr(current_user, 'in_demo_mode') else False,
                 'departments': departments,
@@ -129,16 +114,3 @@ def set_demo_mode():
 @app.route('/api/user/status')
 def user_status():
     return tolerant_jsonify(get_current_user_status())
-
-
-def _curated_cohort_api_json(cohort):
-    api_json = {
-        'id': cohort.id,
-        'name': cohort.name,
-        'sids': [],
-        'studentCount': 0,
-    }
-    for student in cohort.students:
-        api_json['sids'].append(student.sid)
-        api_json['studentCount'] += 1
-    return api_json

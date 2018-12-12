@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.curated_cohort import CuratedCohort
 import pytest
@@ -65,11 +64,28 @@ def cohorts_of_coe_advisor():
 class TestGetCuratedCohort:
     """Curated Cohort API."""
 
+    def test_not_authenticated(self, client):
+        """Rejects anonymous user."""
+        response = client.get('/api/curated_groups/my')
+        assert response.status_code == 401
+
     def test_unauthorized(self, admin_user_session, client, cohorts_of_asc_advisor):
         """Rejects authenticated user if s/he does not own the curated_cohort."""
         cohort_id = cohorts_of_asc_advisor[0].id
         response = client.get(f'/api/curated_cohort/{cohort_id}')
         assert response.status_code == 403
+
+    def test_my_curated_groups(self, client, coe_advisor):
+        """Gets curated groups of current user."""
+        response = client.get('/api/curated_groups/my')
+        assert response.status_code == 200
+        groups = response.json
+        assert len(groups) == 1
+        group = groups[0]
+        assert 'id' in group
+        assert 'alertCount' in group
+        assert 'studentCount' in group
+        assert group['name'] == 'Cohort of One'
 
     def test_curated_cohort_includes_alert_count(self, asc_advisor, client, cohorts_of_asc_advisor, create_alerts):
         """Successfully fetches curated_cohort with alert count per student."""

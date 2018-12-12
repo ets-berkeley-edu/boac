@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import is_unauthorized_search, strip_analytics
+from boac.api.util import get_my_cohorts, is_unauthorized_search, strip_analytics
 from boac.lib import util
 from boac.lib.berkeley import can_view_cohort
 from boac.lib.cohort_filter_definition import get_cohort_filter_definitions
@@ -34,6 +34,12 @@ from boac.merged.student import get_student_query_scope, get_summary_student_pro
 from boac.models.cohort_filter import CohortFilter
 from flask import current_app as app, request
 from flask_login import current_user, login_required
+
+
+@app.route('/api/cohorts/my')
+@login_required
+def my_cohorts():
+    return tolerant_jsonify(get_my_cohorts())
 
 
 @app.route('/api/filter_cohort/definitions')
