@@ -1,23 +1,16 @@
 <script>
 import store from '@/store';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'Loading',
-  beforeCreate() {
-    store.commit('loadingStart');
-  },
+  beforeCreate: () => store.dispatch('context/loadingStart'),
   computed: {
-    loading() {
-      return store.getters.loading;
-    }
+    ...mapGetters('context', ['loading'])
   },
   methods: {
-    startLoading() {
-      store.commit('loadingStart');
-    },
-    loaded() {
-      store.commit('loadingComplete');
-    }
+    startLoading: () => store.dispatch('context/loadingStart'),
+    loaded: () => store.dispatch('context/loadingComplete')
   }
 };
 </script>

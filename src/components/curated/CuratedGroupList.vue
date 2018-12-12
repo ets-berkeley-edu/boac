@@ -91,7 +91,7 @@ export default {
         });
         this.curatedGroup.students.splice(deleteIndex, 1);
         this.curatedGroup.studentCount = this.curatedGroup.students.length;
-        store.commit('updateCuratedGroup', this.curatedGroup);
+        store.commit('curated/updateCuratedGroup', this.curatedGroup);
       });
     },
     $_CuratedGroupList_levelComparator: function(level) {

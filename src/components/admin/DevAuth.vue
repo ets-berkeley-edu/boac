@@ -71,11 +71,9 @@ export default {
                 status < 404 ? 'Invalid credentials' : 'Uh oh, system error!'
               );
             } else if (data.isAuthenticated) {
-              store.commit('userAuthenticated');
-              const isAuthenticated = store.getters.isUserAuthenticated;
-              if (isAuthenticated) {
+              store.dispatch('user/userAuthenticated').then(() => {
                 router.push({ path: '/home' });
-              }
+              });
             } else {
               this.reportError(
                 'Unauthorized. Please contact us for assistance.'

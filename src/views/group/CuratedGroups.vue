@@ -77,9 +77,8 @@
 </template>
 
 <script>
-import _ from 'lodash';
-import Spinner from '@/components/Spinner.vue';
 import Loading from '@/mixins/Loading.vue';
+import Spinner from '@/components/Spinner.vue';
 import store from '@/store';
 
 export default {
@@ -89,7 +88,7 @@ export default {
   computed: {
     curatedGroups() {
       this.loaded();
-      return _.get(store.getters.user, 'myCuratedCohorts') || [];
+      return store.getters['curated/myCuratedGroups'];
     }
   }
 };

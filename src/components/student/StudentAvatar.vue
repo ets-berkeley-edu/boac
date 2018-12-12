@@ -4,8 +4,8 @@
          :class="{'student-avatar-large': size === 'large', 'student-avatar-small': size === 'small', 'img-blur': inDemoMode}"
          :aria-label="'Photo of ' + student.firstName + ' ' + student.lastName"
          tabindex="0"
-         :src="baseUrl + '/api/student/' + student.uid + '/photo'"
-         @error="`${baseUrl}/static/app/shared/avatar-50.png`"/>
+         :src="apiBaseUrl + '/api/student/' + student.uid + '/photo'"
+         @error="`${apiBaseUrl}/static/app/shared/avatar-50.png`"/>
     <div class="student-avatar-alert-count home-inactive-info-icon"
          v-if="alertCount">
       <span v-b-tooltip.hover.bottom
