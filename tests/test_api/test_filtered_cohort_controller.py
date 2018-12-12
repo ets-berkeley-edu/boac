@@ -64,6 +64,20 @@ def coe_owned_cohort():
 class TestCohortDetail:
     """Cohort API."""
 
+    def test_my_cohorts_not_authenticated(self, client):
+        """Rejects anonymous user."""
+        response = client.get('/api/cohorts/my')
+        assert response.status_code == 401
+
+    def test_my_cohorts(self, coe_advisor_session, client):
+        """Returns user's cohorts."""
+        response = client.get('/api/cohorts/my')
+        assert response.status_code == 200
+        cohorts = response.json
+        assert len(cohorts) == 2
+        for key in 'name', 'alertCount', 'filterCriteria', 'totalStudentCount', 'isOwnedByCurrentUser':
+            assert key in cohorts[0], f'Missing cohort element: {key}'
+
     def test_students_with_alert_counts(self, asc_advisor_session, client, create_alerts, db_session):
         # Pre-load students into cache for consistent alert data.
         client.get('/api/student/61889/analytics')

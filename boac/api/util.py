@@ -27,6 +27,9 @@ from functools import wraps
 
 from boac.lib.berkeley import get_dept_codes
 from boac.merged import calnet
+from boac.models.alert import Alert
+from boac.models.cohort_filter import CohortFilter
+from boac.models.curated_cohort import CuratedCohort
 from flask import current_app as app, request
 from flask_login import current_user
 
@@ -159,6 +162,31 @@ def get_current_user_status():
     }
 
 
+def get_my_curated_groups():
+    curated_groups = []
+    user_id = current_user.id
+    for cohort in CuratedCohort.get_curated_cohorts_by_owner_id(user_id):
+        _curated_cohort_api_json(cohort)
+        students = [{'sid': s.sid} for s in cohort.students]
+        students_with_alerts = Alert.include_alert_counts_for_students(viewer_user_id=user_id, cohort={'students': students})
+        curated_groups.append({
+            'id': cohort.id,
+            'name': cohort.name,
+            'alertCount': sum(s['alertCount'] for s in students_with_alerts),
+            'studentCount': len(students),
+        })
+    return curated_groups
+
+
+def get_my_cohorts():
+    uid = current_user.get_id()
+    cohorts = []
+    for cohort in CohortFilter.summarize_alert_counts_in_all_owned_by(uid):
+        cohort['isOwnedByCurrentUser'] = True
+        cohorts.append(cohort)
+    return cohorts
+
+
 def is_asc_authorized():
     return current_user.is_admin or 'UWASC' in get_dept_codes(current_user)
 
@@ -180,3 +208,16 @@ def _is_asc_data_request(params):
     keys = ['inIntensiveCohort', 'isInactiveAsc', 'groupCodes']
     is_asc_request = next((key for key in keys if params.get(key) is not None), False)
     return is_asc_request or params.get('orderBy') in ['group_name']
+
+
+def _curated_cohort_api_json(cohort):
+    api_json = {
+        'id': cohort.id,
+        'name': cohort.name,
+        'sids': [],
+        'studentCount': 0,
+    }
+    for student in cohort.students:
+        api_json['sids'].append(student.sid)
+        api_json['studentCount'] += 1
+    return api_json

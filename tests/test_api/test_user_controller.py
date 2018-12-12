@@ -81,6 +81,8 @@ class TestUserProfile:
         response = client.get('/api/profile/my')
         assert response.status_code == 200
         user = response.json
+        assert 'myFilteredCohorts' in user
+        assert 'myCuratedCohorts' in user
         assert user['isAdmin'] is True
         assert user['isAsc'] is False
         assert user['isCoe'] is False
@@ -99,13 +101,15 @@ class TestUserProfile:
         assert user['departments']['COENG']['isAdvisor'] is False
         assert user['departments']['COENG']['isDirector'] is True
 
-    def test_athletic_study_center_user(self, client, fake_auth):
+    def test_asc_advisor_exclude_cohorts(self, client, fake_auth):
         """Returns Athletic Study Center advisor."""
         test_uid = '1081940'
         fake_auth.login(test_uid)
-        response = client.get('/api/profile/my')
+        response = client.get('/api/profile/my?excludeCohorts=true')
         assert response.status_code == 200
         user = response.json
+        assert 'myFilteredCohorts' not in user
+        assert 'myCuratedCohorts' not in user
         assert user['isAsc'] is True
         assert 'UWASC' in user['departments']
         assert user['departments']['UWASC']['isAdvisor'] is True
@@ -154,12 +158,12 @@ class TestMyCohorts:
         assert cohorts[0]['name'] == 'Aardvark Admirers'
         assert cohorts[-1]['name'] == 'Zebra Zealots'
 
-    def test_my_curated_cohorts(self, client, fake_auth):
-        """Returns user's student curated cohorts."""
+    def test_my_curated_groups(self, client, fake_auth):
+        """Returns user's curated groups."""
         fake_auth.login('6446')
-        response = client.get('/api/profile/my')
+        response = client.get('/api/curated_groups/my')
         assert response.status_code == 200
-        cohorts = response.json['myCuratedCohorts']
+        cohorts = response.json
         assert len(cohorts) == 2
         assert 'name' in cohorts[0]
         assert 'studentCount' in cohorts[0]
