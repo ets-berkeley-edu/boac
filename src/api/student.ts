@@ -2,14 +2,16 @@ import axios from 'axios';
 import store from '@/store';
 
 export function getStudentDetails(uid: string) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${store.state.apiBaseUrl}/api/student/${uid}/analytics`)
+    .get(`${apiBaseUrl}/api/student/${uid}/analytics`)
     .then(response => response.data, () => null);
 }
 
 export function search(phrase: string) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .post(`${store.state.apiBaseUrl}/api/students/search`, {
+    .post(`${apiBaseUrl}/api/students/search`, {
       searchPhrase: phrase
     })
     .then(response => response.data, () => null);

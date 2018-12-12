@@ -14,8 +14,9 @@
       </div>
     </div>
     <div class="sidebar-row-link"
-         v-for="(cohort, index) in cohorts"
-         v-bind:key="cohort.id">
+         v-for="(cohort, index) in myCohorts"
+         v-bind:key="cohort.id"
+         v-if="myCohorts">
       <div class="sidebar-row-link-label">
         <router-link :id="'sidebar-filtered-cohort-' + index"
                      :aria-label="'Cohort ' + cohort.name + ' has ' + cohort.totalStudentCount + ' students'"
@@ -32,14 +33,11 @@
 </template>
 
 <script>
-import _ from 'lodash';
-import store from '@/store';
+import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
   name: 'Cohorts',
-  computed: {
-    cohorts: () => _.get(store.getters.user, 'myFilteredCohorts')
-  }
+  mixins: [UserMetadata]
 };
 </script>
 

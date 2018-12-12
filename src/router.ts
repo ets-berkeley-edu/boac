@@ -11,8 +11,6 @@ import StandardLayout from './layouts/StandardLayout.vue';
 import store from '@/store';
 import Student from '@/views/Student.vue';
 import Vue from 'vue';
-import { getAppConfig } from '@/api/config';
-import { getUserProfile, getUserStatus } from '@/api/user';
 
 Vue.use(Router);
 
@@ -20,51 +18,11 @@ const redirect = (path: string, params: any) => {
   for (const key in params) {
     path = _.replace(path, ':' + key, params[key]);
   }
-  window.location.href = store.state.apiBaseUrl + path;
-};
-
-const lazyInitConfig = callback => {
-  const config = store.getters.config;
-  if (config) {
-    return callback(config);
-  } else {
-    return getAppConfig().then(config => {
-      store.commit('storeConfig', config);
-      callback(config);
-    });
-  }
-};
-
-const lazyInitUserStatus = callback => {
-  const isAuthenticated = store.getters.isUserAuthenticated;
-  if (isAuthenticated === null) {
-    return getUserStatus().then(data => {
-      if (data.isAuthenticated) {
-        store.commit('userAuthenticated');
-        callback(true);
-      } else {
-        callback(false);
-      }
-    });
-  } else {
-    return callback(isAuthenticated);
-  }
-};
-
-const lazyInitUserProfile = callback => {
-  const user = store.getters.user;
-  if (user) {
-    return callback(user);
-  } else {
-    return getUserProfile().then(user => {
-      store.commit('registerUser', user);
-      callback(user);
-    });
-  }
+  window.location.href = store.getters.apiBaseUrl + path;
 };
 
 const requiresAuth = (to: any, from: any, next: any) => {
-  lazyInitUserStatus(isAuthenticated => {
+  store.dispatch('user/loadUserStatus').then(isAuthenticated => {
     if (isAuthenticated) {
       next();
     } else {
@@ -84,7 +42,7 @@ const router = new Router({
       path: '/login',
       component: Login,
       beforeEnter: (to: any, from: any, next: any) => {
-        lazyInitUserStatus(isAuthenticated => {
+        store.dispatch('user/loadUserStatus').then(isAuthenticated => {
           if (isAuthenticated) {
             next('/home');
           } else {
@@ -172,7 +130,7 @@ router.beforeEach((to: any, from: any, next: any) => {
   if (redirectPath) {
     redirect(redirectPath, to.params);
   } else {
-    lazyInitConfig(() => {
+    store.dispatch('context/loadConfig').then(() => {
       next();
     });
   }
@@ -181,9 +139,11 @@ router.beforeEach((to: any, from: any, next: any) => {
 router.afterEach((to: any) => {
   let name = _.get(to, 'meta.title') || _.capitalize(to.name) || 'Welcome';
   document.title = `${name} | BOAC`;
-  lazyInitUserStatus(isAuthenticated => {
+  store.dispatch('user/loadUserStatus').then(isAuthenticated => {
     if (isAuthenticated) {
-      lazyInitUserProfile(() => {
+      store.dispatch('user/loadUser').then(() => {
+        store.dispatch('cohort/loadMyCohorts');
+        store.dispatch('curated/loadMyCuratedGroups');
         return;
       });
     }

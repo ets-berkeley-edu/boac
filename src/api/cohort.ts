@@ -1,8 +1,16 @@
 import axios from 'axios';
 import store from '@/store';
 
-export function getUsersWithCohorts() {
+export function getMyCohorts() {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${store.state.apiBaseUrl}/api/filtered_cohorts/all`)
+    .get(`${apiBaseUrl}/api/cohorts/my`)
+    .then(response => response.data, () => null);
+}
+
+export function getUsersWithCohorts() {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .get(`${apiBaseUrl}/api/filtered_cohorts/all`)
     .then(response => response.data, () => null);
 }

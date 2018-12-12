@@ -10,20 +10,23 @@ export default {
     canViewAsc: undefined
   }),
   created() {
-    this.inDemoMode = _.get(store.getters, 'user.inDemoMode');
+    this.inDemoMode = _.get(this.user, 'inDemoMode');
     this.isAscUser = this.$_UserMetadata_isDepartmentMember('UWASC');
     this.canViewAsc =
-      _.get(store.getters, 'user.isAdmin') &&
+      _.get(this.user, 'isAdmin') &&
       this.$_UserMetadata_isDepartmentMember('UWASC');
   },
   computed: {
-    user: () => store.getters.user
+    myCohorts: () => store.getters['cohort/myCohorts'],
+    myCuratedGroups: () => store.getters['curated/myCuratedGroups'],
+    user: () => store.getters['user/currentUser']
   },
   methods: {
     $_UserMetadata_isDepartmentMember: deptCode => {
+      let user = store.getters['user/currentUser'];
       return (
-        _.get(store.getters.user, `departments.${deptCode}.isAdvisor`) ||
-        _.get(store.getters.user, `departments.${deptCode}.isDirector`)
+        _.get(user, `departments.${deptCode}.isAdvisor`) ||
+        _.get(user, `departments.${deptCode}.isDirector`)
       );
     }
   }

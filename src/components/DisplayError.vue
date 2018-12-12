@@ -15,12 +15,12 @@ export default {
   name: 'DisplayError',
   data() {
     return {
-      errors: store.getters.errors
+      errors: store.getters['context/errors']
     };
   },
   methods: {
     dismissError(id) {
-      store.commit('dismissError', id);
+      store.dispatch('context/dismissError', id);
     }
   }
 };

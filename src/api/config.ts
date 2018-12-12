@@ -2,7 +2,8 @@ import axios from 'axios';
 import store from '@/store';
 
 export function getAppConfig() {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${store.state.apiBaseUrl}/api/config`)
+    .get(`${apiBaseUrl}/api/config`)
     .then(response => response.data, () => null);
 }

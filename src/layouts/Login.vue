@@ -4,7 +4,7 @@
       <div class="splash-cell-stripe"></div>
       <div class="avatar-container">
         <img class="avatar-airplane"
-             :src="`${baseUrl}/static/app/splash/airplane.svg`">
+             :src="`${apiBaseUrl}/static/app/splash/airplane.svg`">
       </div>
       <div class="splash-cell-sign-in">
         <form @submit.prevent="logIn()">

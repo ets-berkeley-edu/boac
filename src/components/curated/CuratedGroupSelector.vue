@@ -110,9 +110,6 @@ export default {
     });
   },
   computed: {
-    curatedGroups() {
-      return _.get(this.user, 'myCuratedCohorts') || [];
-    },
     showMenu() {
       return this.sids.length;
     }

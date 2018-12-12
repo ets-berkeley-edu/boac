@@ -12,7 +12,6 @@
                        to="/cohorts/all">Everyone's Cohorts</router-link>
         </span>
       </div>
-
     </div>
   </div>
 </template>
@@ -33,9 +32,7 @@ export default {
     UserMetadata
   },
   computed: {
-    user() {
-      return store.getters.user;
-    }
+    user: () => store.getters['user/currentUser']
   }
 };
 </script>

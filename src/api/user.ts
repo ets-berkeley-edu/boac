@@ -2,33 +2,38 @@ import axios from 'axios';
 import store from '@/store';
 
 export function getUserStatus() {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${store.state.apiBaseUrl}/api/user/status`)
+    .get(`${apiBaseUrl}/api/user/status`)
     .then(response => response.data, () => null);
 }
 
 export function getUserProfile() {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${store.state.apiBaseUrl}/api/profile/my`)
+    .get(`${apiBaseUrl}/api/profile/my?excludeCohorts=true`)
     .then(response => response.data, () => null);
 }
 
 export function getAuthorizedUserGroups(sortUsersBy: string) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   let query = sortUsersBy ? `sortUsersBy=${sortUsersBy}` : '';
   return axios
-    .get(`${store.state.apiBaseUrl}/api/users/authorized_groups?${query}`)
+    .get(`${apiBaseUrl}/api/users/authorized_groups?${query}`)
     .then(response => response.data, () => null);
 }
 
 export function becomeUser(uid: string) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .post(`${store.state.apiBaseUrl}/api/auth/become_user`, { uid: uid })
+    .post(`${apiBaseUrl}/api/auth/become_user`, { uid: uid })
     .then(response => response.data, () => null);
 }
 
 export function setDemoMode(demoMode: boolean) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .post(`${store.state.apiBaseUrl}/api/user/demo_mode`, {
+    .post(`${apiBaseUrl}/api/user/demo_mode`, {
       demoMode: demoMode
     })
     .then(response => response.data, () => null)
