@@ -123,9 +123,9 @@
               </div>
               <div class="student-chart-outer" id="student-status-gpa-trends">
                 <div class="student-status-legend student-status-legend-heading">GPA Trends</div>
-                <div class="student-status-legend student-status-legend-small">
-                  &quot;Pardon Our Progress&quot;
-                </div>
+                <StudentGpaChart v-if="student.termGpa.length > 1"
+                                 :student="student">
+                </StudentGpaChart>
               </div>
             </div>
           </div>
@@ -396,6 +396,7 @@ import Loading from '@/mixins/Loading.vue';
 import Spinner from '@/components/Spinner.vue';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar';
+import StudentGpaChart from '@/components/student/StudentGpaChart';
 import StudentMetadata from '@/mixins/StudentMetadata';
 import StudentUnitsChart from '@/components/student/StudentUnitsChart';
 import UserMetadata from '@/mixins/UserMetadata';
@@ -406,6 +407,7 @@ export default {
   components: {
     Spinner,
     StudentAvatar,
+    StudentGpaChart,
     StudentUnitsChart
   },
   created() {
@@ -413,13 +415,15 @@ export default {
     this.loadStudent(uid);
   },
   data: () => ({
-    gpaTerms: [],
-    showAllTerms: false
+    showAllTerms: false,
+    student: {
+      termGpa: []
+    }
   }),
   methods: {
     loadStudent(uid) {
       getStudentDetails(uid).then(data => {
-        this.student = data;
+        _.assign(this.student, data);
         this.isInactive = this.displayAsInactive(this.student);
         this.cumulativeUnits = _.get(
           this.student,
@@ -452,7 +456,7 @@ export default {
         });
       });
       if (_.get(term, 'termGpa.unitsTakenForGpa')) {
-        this.gpaTerms.push({
+        this.student.termGpa.push({
           name: _.get(term, 'termName'),
           gpa: _.get(term, 'termGpa.gpa')
         });
