@@ -1,7 +1,7 @@
 <template>
   <div>
     <SearchStudents/>
-    <div v-if="user">
+    <div v-if="myCohorts">
       <Cohorts/>
       <hr class="section-divider"/>
       <CuratedGroups/>

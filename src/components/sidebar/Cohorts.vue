@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="myCohorts">
     <div class="sidebar-row-link sidebar-section-header">
       <div class="sidebar-header sidebar-row-link-label">
         <span class="sidebar-row-link-label-text">Cohorts</span>
@@ -15,8 +15,7 @@
     </div>
     <div class="sidebar-row-link"
          v-for="(cohort, index) in myCohorts"
-         v-bind:key="cohort.id"
-         v-if="myCohorts">
+         v-bind:key="cohort.id">
       <div class="sidebar-row-link-label">
         <router-link :id="'sidebar-filtered-cohort-' + index"
                      :aria-label="'Cohort ' + cohort.name + ' has ' + cohort.totalStudentCount + ' students'"

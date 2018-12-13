@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import Admin from '@/views/Admin.vue';
 import AllCohorts from '@/views/cohort/AllCohorts.vue';
+import Course from '@/views/Course.vue';
 import CuratedGroup from '@/views/group/CuratedGroup.vue';
 import Home from '@/views/Home.vue';
 import Login from '@/layouts/Login.vue';
@@ -89,6 +90,15 @@ const router = new Router({
           meta: {
             legacyPathRedirect: '/cohort/filtered',
             title: 'Create Cohort'
+          }
+        },
+        {
+          path: '/course/:termId/:sectionId',
+          beforeEnter: requiresAuth,
+          component: Course,
+          meta: {
+            legacyPathRedirect: '/course/:termId/:sectionId',
+            title: 'Course'
           }
         },
         {
