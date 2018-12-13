@@ -1,4 +1,4 @@
-import './filters';
+import filters from './filters';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import _ from 'lodash';
@@ -33,6 +33,9 @@ Vue.use(VueAnalytics, {
   }),
   checkDuplicatedScript: true
 });
+
+// Filters
+_.each(filters, (filter, name) => Vue.filter(name, filter));
 
 // Emit, and listen for, events via hub
 Vue.prototype.$eventHub = new Vue();
