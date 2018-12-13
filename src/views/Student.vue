@@ -10,31 +10,31 @@
           <div class="student-bio-contact">
             <h1 class="student-section-header"
                 id="student-name-header"
-                :class="{'demo-mode-blur': inDemoMode}">
+                :class="{'demo-mode-blur': user.inDemoMode}">
               {{student.name}}
             </h1>
             <h2 class="sr-only">Profile</h2>
             <div class="sr-only" v-if="student.sisProfile.preferredName !== student.name">Preferred name</div>
             <div class="student-preferred-name"
                  id="student-preferred-name"
-                 :class="{'demo-mode-blur': inDemoMode}"
+                 :class="{'demo-mode-blur': user.inDemoMode}"
                  v-if="student.sisProfile.preferredName !== student.name">
               {{student.sisProfile.preferredName}}</div>
             <div class="student-bio-sid" id="student-bio-sid">
-              SID <span :class="{'demo-mode-blur': inDemoMode}">{{student.sid}}</span>
+              SID <span :class="{'demo-mode-blur': user.inDemoMode}">{{student.sid}}</span>
             </div>
             <div>
               <i class="fas fa-envelope"></i>
               <span class="sr-only">Email</span>
               <a id="student-mailto"
                  :href="'mailto:' + student.sisProfile.emailAddress"
-                 :class="{'demo-mode-blur': inDemoMode}">
+                 :class="{'demo-mode-blur': user.inDemoMode}">
                  {{student.sisProfile.emailAddress}}</a>
             </div>
             <div v-if="student.sisProfile.phoneNumber">
               <i class="fas fa-phone"></i>
               <span class="sr-only">Phone number</span>
-              <span :class="{'demo-mode-blur': inDemoMode}"
+              <span :class="{'demo-mode-blur': user.inDemoMode}"
                     id="student-phone-number"
                     tabindex="0">
                 {{student.sisProfile.phoneNumber}}</span>
@@ -366,10 +366,10 @@
                       </th>
                       <td colspan="2">
                         <div v-if="!canvasSite.analytics.lastActivity.student.raw">
-                          <span :class="{'demo-mode-blur': inDemoMode}">{{student.name}}</span> has never visited this course site.
+                          <span :class="{'demo-mode-blur': user.inDemoMode}">{{student.name}}</span> has never visited this course site.
                         </div>
                         <div v="canvasSite.analytics.lastActivity.student.raw">
-                          <span :class="{'demo-mode-blur': inDemoMode}">{{student.name}}</span>
+                          <span :class="{'demo-mode-blur': user.inDemoMode}">{{student.name}}</span>
                           last visited the course site {{lastActivityDays(canvasSite.analytics).toLowerCase()}}.
                           {{lastActivityInContext(canvasSite.analytics)}}
                         </div>

@@ -1,7 +1,7 @@
 <template>
   <div :class="{'student-avatar-large-container': size === 'large'}">
     <img class="avatar"
-         :class="{'student-avatar-large': size === 'large', 'student-avatar-small': size === 'small', 'img-blur': inDemoMode}"
+         :class="{'student-avatar-large': size === 'large', 'student-avatar-small': size === 'small', 'img-blur': user.inDemoMode}"
          :aria-label="'Photo of ' + student.firstName + ' ' + student.lastName"
          tabindex="0"
          :src="apiBaseUrl + '/api/student/' + student.uid + '/photo'"

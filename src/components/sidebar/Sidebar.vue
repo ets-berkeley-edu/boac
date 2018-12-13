@@ -5,7 +5,6 @@
       <Cohorts/>
       <hr class="section-divider"/>
       <CuratedGroups/>
-
       <div class="sidebar-row-link">
         <span class="sidebar-row-link-label">
           <router-link id="sidebar-filtered-cohorts-all"
@@ -17,7 +16,6 @@
 </template>
 
 <script>
-import store from '@/store';
 import Cohorts from '@/components/sidebar/Cohorts.vue';
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue';
 import SearchStudents from '@/components/sidebar/SearchStudents.vue';
@@ -28,12 +26,9 @@ export default {
   components: {
     Cohorts,
     CuratedGroups,
-    SearchStudents,
-    UserMetadata
+    SearchStudents
   },
-  computed: {
-    user: () => store.getters['user/currentUser']
-  }
+  mixins: [UserMetadata]
 };
 </script>
 
