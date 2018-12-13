@@ -33,11 +33,15 @@ Vue.filter('date', (dateString: string, format: string = 'MMM dd, YYYY') => {
 Vue.filter('lowercase', (str: string) => {
   return str.toLowerCase();
 });
-Vue.filter('pluralize', (noun: string, count: number, substitutions = {}) => {
-  return (
-    `${substitutions[count] || count} ` + (count !== 1 ? `${noun}s` : noun)
-  );
-});
+Vue.filter(
+  'pluralize',
+  (noun: string, count: number, substitutions = {}, pluralSuffix = 's') => {
+    return (
+      `${substitutions[count] || count} ` +
+      (count !== 1 ? `${noun}${pluralSuffix}` : noun)
+    );
+  }
+);
 Vue.filter('round', function(value, decimals) {
   return (
     Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals)

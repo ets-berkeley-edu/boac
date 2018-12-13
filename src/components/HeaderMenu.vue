@@ -33,9 +33,9 @@ export default {
   methods: {
     logOut() {
       getCasLogoutURL().then(data => {
-        store.dispatch('user/logout').then(() => {
-          window.location.href = data.casLogoutURL;
-        });
+        store
+          .dispatch('user/logout')
+          .then(() => (window.location.href = data.casLogoutURL));
       });
     },
     goAdmin() {

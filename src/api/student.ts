@@ -8,11 +8,25 @@ export function getStudentDetails(uid: string) {
     .then(response => response.data, () => null);
 }
 
-export function search(phrase: string) {
+export function search(
+  phrase: string,
+  includeCourses: boolean,
+  isInactiveAsc: boolean,
+  isInactiveCoe: boolean,
+  orderBy: string,
+  offset: number,
+  limit: number
+) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
     .post(`${apiBaseUrl}/api/students/search`, {
-      searchPhrase: phrase
+      searchPhrase: phrase,
+      includeCourses: includeCourses,
+      isInactiveAsc: isInactiveAsc,
+      isInactiveCoe: isInactiveCoe,
+      orderBy: orderBy || 'first_name',
+      offset: offset || 0,
+      limit: limit || 50
     })
     .then(response => response.data, () => null);
 }

@@ -6,7 +6,7 @@ export default {
   name: 'Validator',
   methods: {
     validateCohortName: cohort => {
-      const user = store.getters['user/currentUser'];
+      const user = store.getters['user/user'];
       const name = _.trim(cohort.name);
       const isReservedName = name =>
         user.isAsc &&

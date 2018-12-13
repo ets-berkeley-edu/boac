@@ -8,7 +8,7 @@ export default {
   alertGrades: /^[DFIN]/,
   methods: {
     displayAsInactive(student) {
-      const user = store.getters['user/currentUser'];
+      const user = store.getters['user/user'];
       return (
         user &&
         ((user.isAsc && !student.athleticsProfile.isActiveAsc) ||

@@ -43,7 +43,10 @@ export default {
     search() {
       this.searchPhrase = _.trim(this.searchPhrase);
       if (this.searchPhrase) {
-        this.$router.push({ path: '/search', query: { q: this.searchPhrase } });
+        this.$router.push({
+          path: '/search',
+          query: { q: this.searchPhrase, includeCourses: 'true' }
+        });
       }
     }
   }
