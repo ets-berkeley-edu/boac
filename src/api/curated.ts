@@ -1,3 +1,4 @@
+import { event } from 'vue-analytics';
 import axios from 'axios';
 import store from '@/store';
 
@@ -24,10 +25,12 @@ export function createCuratedGroup(name: string, sids: object) {
     })
     .then(function(response) {
       const group = response.data;
-      store.dispatch('curated/createdCuratedGroup', group).then(() => {
-        // TODO: implement GA tracking (BOAC-1506)
-        // googleAnalyticsService.track('Curated Cohort', 'create', cohort.name, cohort.id);
-        return group;
+      store.dispatch('curated/createCuratedGroup', group);
+      return group;
+    })
+    .then(group => {
+      event('Curated Cohort', 'create', group.name, group.id, {
+        userId: store.getters['user/user'].uid
       });
     });
 }
@@ -41,23 +44,31 @@ export function deleteCuratedGroup(id) {
       }
     })
     .then(() => {
-      // TODO: implement GA tracking (BOAC-1495)
-      // googleAnalyticsService.track('Curated Cohort', 'delete', null, id);
+      store.commit('curated/deleteCuratedGroup', id);
+    })
+    .then(() => {
+      event('Curated Cohort', 'delete', null, id, {
+        userId: store.getters['user/user'].uid
+      });
     })
     .catch(error => error);
 }
 
 export function renameCuratedGroup(id, name) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  let group = {
+    id: id,
+    name: name
+  };
   return axios
-    .post(`${apiBaseUrl}/api/curated_cohort/rename`, {
-      id: id,
-      name: name
+    .post(`${apiBaseUrl}/api/curated_cohort/rename`, group)
+    .then(() => {
+      store.commit('curated/updateCuratedGroup', group);
     })
-    .then(response => {
-      // TODO: implement GA tracking (BOAC-1495)
-      // googleAnalyticsService.track('Curated Cohort', 'rename', cohort.name, cohort.id);
-      return response.data;
+    .then(() => {
+      event('Curated Cohort', 'rename', group.name, group.id, {
+        userId: store.getters['user/user'].uid
+      });
     })
     .catch(error => error);
 }
@@ -71,10 +82,12 @@ export function addStudents(curatedGroup, sids) {
     })
     .then(response => {
       const group = response.data;
-      store.dispatch('curated/updateCuratedGroup', group).then(() => {
-        // TODO: implement GA tracking (BOAC-1506)
-        // googleAnalyticsService.track('Curated Cohort', 'add_students', cohort.name, cohort.id);
-        return group;
+      store.dispatch('curated/updateCuratedGroup', group);
+      return group;
+    })
+    .then(group => {
+      event('Curated Cohort', 'add_students', group.name, group.id, {
+        userId: store.getters['user/user'].uid
       });
     });
 }
@@ -85,10 +98,12 @@ export function removeFromCuratedGroup(groupId, sid) {
     .delete(`${apiBaseUrl}/api/curated_cohort/${groupId}/remove_student/${sid}`)
     .then(response => {
       const group = response.data;
-      store.dispatch('curated/updateCuratedGroup', group).then(() => {
-        // TODO: implement GA tracking (BOAC-1506)
-        // googleAnalyticsService.track('Curated Cohort', 'remove_student', cohort.name, cohort.id);
-        return group;
+      store.dispatch('curated/updateCuratedGroup', group);
+      return group;
+    })
+    .then(group => {
+      event('Curated Cohort', 'remove_student', group.name, group.id, {
+        userId: store.getters['user/user'].uid
       });
     });
 }

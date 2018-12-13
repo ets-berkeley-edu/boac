@@ -1,5 +1,6 @@
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 import 'bootstrap/dist/css/bootstrap.css';
+import _ from 'lodash';
 import { format as formatDate, parse as parseDate } from 'date-fns';
 import App from './App.vue';
 import axios from 'axios';
@@ -8,6 +9,7 @@ import router from './router';
 import store from './store';
 import Vue from 'vue';
 import VueHighcharts from 'vue-highcharts';
+import VueAnalytics from 'vue-analytics';
 
 // Allow cookies in Access-Control requests
 axios.defaults.withCredentials = true;
@@ -25,6 +27,12 @@ Vue.config.productionTip = false;
 Vue.use(BootstrapVue);
 Vue.use(require('vue-lodash'));
 Vue.use(VueHighcharts);
+Vue.use(VueAnalytics, {
+  id: store.dispatch('context/loadConfig').then(response => {
+    return _.get(response, 'googleAnalyticsId');
+  }),
+  checkDuplicatedScript: true
+});
 
 Vue.filter('date', (dateString: string, format: string = 'MMM dd, YYYY') => {
   let date = parseDate(dateString);

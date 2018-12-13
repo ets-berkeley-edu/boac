@@ -92,7 +92,7 @@
 <script>
 import { deleteCuratedGroup, renameCuratedGroup } from '@/api/curated';
 import Validator from '@/mixins/Validator.vue';
-import store from '@/store';
+import router from '@/router';
 
 export default {
   name: 'CuratedGroupHeader',
@@ -120,7 +120,7 @@ export default {
       deleteCuratedGroup(this.curatedGroup.id)
         .then(() => {
           this.isModalOpen = false;
-          this.$router.push('home');
+          router.push({ path: '/home' });
         })
         .catch(error => {
           this.error = error;
@@ -135,7 +135,6 @@ export default {
         renameCuratedGroup(this.curatedGroup.id, this.renameMode.input).then(
           () => {
             this.curatedGroup.name = this.renameMode.input;
-            store.commit('curated/updateCuratedGroup', this.curatedGroup);
             this.exitRenameMode();
           }
         );
