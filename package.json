@@ -21,6 +21,7 @@
     "vue": "^2.5.17",
     "vue-analytics": "^5.16.1",
     "vue-class-component": "^6.0.0",
+    "vue-filter-number-format": "^1.0.3",
     "vue-highcharts": "0.0.11",
     "vue-lodash": "^2.0.0",
     "vue-property-decorator": "^7.0.0",
