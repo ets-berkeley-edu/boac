@@ -12,39 +12,49 @@
     </div>
     <div class="sr-only"
          role="alert"
-         v-if="totalCourseCount && coursesResorted">
-      Courses sorted by {{ courseSortOptions.sortBy === 'section' ? 'section' : 'course name' }}
-      {{ courseSortOptions.reverse ? 'descending' : 'ascending' }}
+         v-if="totalCourseCount && resorted">
+      Courses sorted by {{ sort.by === 'section' ? 'section' : 'course name' }} {{ describeReverse(sort.reverse.section) }}
     </div>
     <table class="table-full-width" v-if="totalCourseCount">
-      <tr>
-        <th class="group-summary-column-header group-summary-header-sortable search-results-cell"
-            @click="courseSort('section')"
-            :class="{dropup: !courseSortOptions.reverse}"
-            role="button"
-            :aria-label="`Sort by section ${ courseSortOptions.sortBy === 'section' ? (courseSortOptions.reverse ? 'ascending' : 'descending') : ''}`">
-          Section
-          <span class="caret" v-if="courseSortOptions.sortBy === 'section'"></span>
+      <tr role="row">
+        <th :class="{ dropup: !sort.reverse.section }">
+          <button id="column-sort-button-section"
+                  class="btn btn-link table-header-text group-summary-column-header group-summary-header-sortable search-results-cell"
+                  :aria-label="`Sort by section ${ sort.by === 'section' ? describeReverse(sort.reverse.section) : ''}`"
+                  tabindex="0"
+                  @click="courseSort('section')">
+            Section
+            <span class="caret" v-if="sort.by === 'section'">
+              <i :class="{
+                'fas fa-caret-down': sort.reverse.section,
+                'fas fa-caret-up': !sort.reverse.section
+              }"></i>
+            </span>
+          </button>
         </th>
-        <th class="group-summary-column-header group-summary-header-sortable search-results-cell"
-            @click="courseSort('title')"
-            :class="{dropup: !courseSortOptions.reverse}"
-            role="button"
-            :aria-label="`Sort by course name ${courseSortOptions.sortBy === 'title' ? (courseSortOptions.reverse ? 'ascending' : 'descending') : ''}`">
-          Course Name
-          <span class="caret" v-if="courseSortOptions.sortBy === 'title'"></span>
+        <th :class="{ dropup: !sort.reverse.title }">
+          <button id="column-sort-button-title"
+                  class="btn btn-link table-header-text group-summary-column-header group-summary-header-sortable search-results-cell"
+                  :aria-label="`Sort by course name ${ sort.by === 'title' ? describeReverse(sort.reverse.title) : ''}`"
+                  tabindex="0"
+                  @click="courseSort('title')">
+            Course Name
+            <span class="caret" v-if="sort.by === 'title'">
+              <i :class="{
+                'fas fa-caret-down': sort.reverse.title,
+                'fas fa-caret-up': !sort.reverse.title
+              }"></i>
+            </span>
+          </button>
         </th>
         <th class="group-summary-column-header search-results-cell">
-          Instructor(s)
+          <span class="table-header-text">Instructor(s)</span>
         </th>
       </tr>
-      <!--
-      TODO: orderBy:'':courseSortOptions.reverse:courseComparator
-      -->
       <tr v-for="course in courses" :key="course.id">
         <td class="search-results-cell">
           <span class="sr-only">Section</span>
-          <router-link :to="{name: 'course', params: {termId: course.termId, sectionId: course.sectionId}}">
+          <router-link :to="`/course/${course.termId}/${course.sectionId}`">
             {{ course.courseName }} - {{ course.instructionFormat }} {{ course.sectionNum }}
           </router-link>
         </td>
@@ -71,16 +81,85 @@ export default {
     renderPrimaryHeader: Boolean
   },
   data: () => ({
-    coursesResorted: undefined,
-    courseSortOptions: {
-      sortBy: null,
-      reverse: false
+    resorted: undefined,
+    sort: {
+      by: null,
+      reverse: {
+        section: false,
+        title: false
+      }
     }
   }),
+  created() {
+    this.courseSort('section');
+  },
   methods: {
-    courseSort() {
-      console.log('courseSort!!!');
-    }
+    courseSort(sortBy) {
+      this.sort.reverse[sortBy] = !this.sort.reverse[sortBy];
+      if (this.sort.by !== sortBy) {
+        this.sort.by = sortBy;
+        this.courses = this.courses.sort(this.courseComparator);
+      }
+      this.courses = this.courses.reverse();
+      this.resorted = true;
+    },
+    courseComparator(c1, c2) {
+      if (this.sort.by === 'title' && c1.courseTitle !== c2.courseTitle) {
+        return c1.courseTitle > c2.courseTitle ? 1 : -1;
+      }
+      // If sorting by section name, attempt to compare by subject area.
+      let split1 = this.splitCourseName(c1);
+      let split2 = this.splitCourseName(c2);
+      if (split1[0] > split2[0]) {
+        return 1;
+      }
+      if (split1[0] < split2[0]) {
+        return -1;
+      }
+      // If subject areas are identical, extract and compare numeric portion of catalog id.
+      let code1 = parseInt(split1[1].match(/\d+/)[0], 10);
+      let code2 = parseInt(split2[1].match(/\d+/)[0], 10);
+      if (code1 > code2) {
+        return 1;
+      }
+      if (code1 < code2) {
+        return -1;
+      }
+      // If catalog ids are numerically identical then handle prefixes and suffixes with alphabetic comparison.
+      if (split1[1] > split2[1]) {
+        return 1;
+      }
+      if (split1[1] < split2[1]) {
+        return -1;
+      }
+      // Instruction format and section number.
+      if (c1.instructionFormat > c2.instructionFormat) {
+        return 1;
+      }
+      if (c1.instructionFormat < c2.instructionFormat) {
+        return -1;
+      }
+      return c1.sectionNum > c2.sectionNum ? 1 : -1;
+    },
+    splitCourseName(course) {
+      let split = course.courseName.split(' ');
+      return [split.slice(0, -1).join(' '), split[split.length - 1]];
+    },
+    describeReverse: reverse => (reverse ? 'descending' : 'ascending')
   }
 };
 </script>
+
+<style scoped>
+.table-header-text {
+  color: #999 !important;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 0;
+  text-decoration: none;
+  width: fit-content;
+}
+.table-header-text:focus {
+  outline: -webkit-focus-ring-color auto 5px;
+}
+</style>
