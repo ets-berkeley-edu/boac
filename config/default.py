@@ -23,22 +23,22 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 import logging
 import os
-
 
 # Base directory for the application (one level up from this config file).
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
-# The 'dist' version of index.html will force browsers to pick up new JS, HTML, CSS files
+# These "INDEX_HTML" defaults are good in boac-dev, boac-qa, etc. See development.py for appropriate local configs.
 INDEX_HTML = 'dist/templates/index.html'
+
+# Vue.js related
 INDEX_HTML_VUE = 'dist/static/index.html'
-# The following applies to localhost ONLY, where Vue.js front-end is served on a different port.
-VUE_LOCALHOST_BASE_URL = None
 VUE_ENABLED = False
 # See VUE_PATHS sample config in config/test.py
 VUE_PATHS = []
+# This base-URL config should only be non-None in the "local" env where the Vue front-end runs on port 8080.
+VUE_LOCALHOST_BASE_URL = None
 
 # Directory to search for mock fixtures, if running in "test" or "demo" mode.
 FIXTURES_PATH = None
