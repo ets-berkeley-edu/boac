@@ -11,8 +11,14 @@ const getters = {
 };
 
 const mutations = {
-  createdCuratedGroup: (state: any, group: any) => {
+  createCuratedGroup: (state: any, group: any) => {
     state.myCuratedGroups.push(group);
+  },
+  deleteCuratedGroup: (state: any, id: any) => {
+    let indexOf = state.myCuratedGroups.findIndex(curatedGroup => {
+      return curatedGroup.id === id;
+    });
+    state.myCuratedGroups.splice(indexOf, 1);
   },
   saveMyCuratedGroups: (state: any, curatedGroups: any) => {
     state.myCuratedGroups = curatedGroups;
@@ -21,15 +27,13 @@ const mutations = {
     let group = state.myCuratedGroups.find(
       group => group.id === +updatedGroup.id
     );
-    group.name = updatedGroup.name;
-    group.studentCount = updatedGroup.studentCount;
-    group.students = updatedGroup.students;
+    Object.assign(group, updatedGroup);
   }
 };
 
 const actions = {
-  createdCuratedGroup: ({ commit }, group) => {
-    commit('createdCuratedGroup', group);
+  createCuratedGroup: ({ commit }, group) => {
+    commit('createCuratedGroup', group);
   },
   updateCuratedGroup: ({ commit }, group) => {
     commit('updateCuratedGroup', group);
