@@ -340,6 +340,10 @@
   width: 100%;
 }
 
+.toggle-btn-link {
+  font-size: 14px;
+}
+
 .visualize-metrics {
   margin-bottom: 20px;
   width: 80%;
@@ -390,6 +394,18 @@ body {
 #content a,
 #content .btn-link {
   color: #337ab7;
+}
+
+#content .btn-link-close {
+  border: 0;
+  color: #000;
+  float: right;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.2;
+  text-shadow: 0 1px 0 #fff;
 }
 
 #content .nav-pills .nav-link.active,

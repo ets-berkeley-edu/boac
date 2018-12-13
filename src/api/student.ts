@@ -1,6 +1,20 @@
 import axios from 'axios';
 import store from '@/store';
 
+export function dismissStudentAlert(alertId: string) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .get(`${apiBaseUrl}/api/alerts/${alertId}/dismiss`)
+    .then(response => response.data, () => null);
+}
+
+export function getStudentAlerts(sid: string) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .get(`${apiBaseUrl}/api/alerts/current/${sid}`)
+    .then(response => response.data, () => null);
+}
+
 export function getStudentDetails(uid: string) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
