@@ -206,19 +206,13 @@
                v-if="index === 0 && !student.hasCurrentTermEnrollments && (currentEnrollmentTermId > parseInt(term.termId))">
             <h3 class="student-term-header">{{currentEnrollmentTerm}}</h3>
             <div class="term-no-enrollments-description">No enrollments</div>
-
-            <!-- TODO Implement a vuetiful student-profile alerts component.
-            <div data-ng-include="'/static/app/student/studentSemesterNotices.html'"></div> -->
-
+            <StudentAlerts :student="student"></StudentAlerts>
           </div>
 
           <h3 class="student-term-header">{{term.termName}}</h3>
-
-          <!-- See student-profile alerts TODO, supra.
-               <div data-ng-include="'/static/app/student/studentSemesterNotices.html'"
-               data-ng-if="$first && (student.hasCurrentTermEnrollments || currentEnrollmentTermId <= parseInt(term.termId))"></div>
-               -->
-
+            <StudentAlerts :student="student"
+                           v-if="index === 0 && (student.hasCurrentTermEnrollments || (currentEnrollmentTermId <= parseInt(term.termId)))">
+            </StudentAlerts>
             <div v-for="(course, courseIndex) in term.enrollments" :key="courseIndex" class="student-course">
               <div class="student-course-heading">
                 <div class="student-course-heading-start">
@@ -430,6 +424,7 @@ import { getStudentDetails } from '@/api/student';
 import AppConfig from '@/mixins/AppConfig';
 import Loading from '@/mixins/Loading.vue';
 import Spinner from '@/components/Spinner.vue';
+import StudentAlerts from '@/components/student/StudentAlerts';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentGpaChart from '@/components/student/StudentGpaChart';
@@ -442,6 +437,7 @@ export default {
   mixins: [AppConfig, Loading, StudentAnalytics, StudentMetadata, UserMetadata],
   components: {
     Spinner,
+    StudentAlerts,
     StudentAvatar,
     StudentGpaChart,
     StudentUnitsChart
@@ -836,9 +832,6 @@ export default {
 }
 .student-terms-container {
   margin: 20px;
-}
-.toggle-btn-link {
-  font-size: 14px;
 }
 .toggle-previous-semesters-wrapper {
   text-align: center;
