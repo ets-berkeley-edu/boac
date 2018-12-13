@@ -39,7 +39,9 @@ Vue.filter('pluralize', (noun: string, count: number, substitutions = {}) => {
   );
 });
 Vue.filter('round', function(value, decimals) {
-  return Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
+  return (
+    Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals)
+  ).toFixed(decimals);
 });
 Vue.filter(
   'variablePrecisionNumber',

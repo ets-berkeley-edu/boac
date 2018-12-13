@@ -126,8 +126,44 @@
                 <StudentGpaChart v-if="student.termGpa.length > 1"
                                  :student="student">
                 </StudentGpaChart>
+                <div class="student-status-legend student-status-legend-small"
+                     v-if="!student.termGpa.length">
+                  GPA Not Yet Available
+                </div>
+                <div class="student-status-legend student-gpa-last-term-outer-right"
+                     v-if="student.termGpa.length">
+                  {{ student.termGpa[0].name }} GPA:
+                  <strong :class="{'student-gpa-last-term': student.termGpa[0].gpa >= 2, 'student-gpa-alert': student.termGpa[0].gpa < 2}">
+                    {{ student.termGpa[0].gpa | round(3) }}
+                  </strong>
+                </div>
+                <button class="btn btn-link toggle-btn-link" @click="showTermGpa=!showTermGpa" v-if="student.termGpa.length">
+                  <i :class="{'fas fa-caret-right': !showTermGpa, 'fas fa-caret-down': showTermGpa}"></i>
+                  <span v-if="!showTermGpa">Show Term GPA</span>
+                  <span v-if="showTermGpa">Hide Term GPA</span>
+                </button>
               </div>
             </div>
+            <table class="student-status-table" v-if="showTermGpa">
+              <tr>
+                <th>Term</th>
+                <th>GPA</th>
+              </tr>
+              <tr v-for="(term, termIndex) in student.termGpa" :key="termIndex" :class="{'student-status-table-zebra': termIndex % 2 === 0}">
+                <td>{{ term.name }}</td>
+                <td v-if="term.gpa < 2">
+                  <div class="student-gpa-term-alert-outer">
+                    <i class="fa fa-exclamation-triangle student-gpa-term-alert student-gpa-term-alert-icon"></i>
+                    <div class="student-gpa-term-alert">{{ term.gpa | round(3) }}</div>
+                  </div>
+                </td>
+                <td v-if="term.gpa >= 2">{{ term.gpa | round(3) }}</td>
+              </tr>
+              <tr v-if="!student.termGpa.length">
+                <td>No previous terms</td>
+                <td>--</td>
+              </tr>
+            </table>
           </div>
           <div class="student-status-box student-status-box-degree-progress" id="student-status-degree-progress">
             <h3 class="student-progress-header">Degree Progress</h3>
@@ -369,7 +405,7 @@
         </div>
 
         <div v-if="student.enrollmentTerms.length > 1" class="toggle-previous-semesters-wrapper">
-          <button class="btn btn-link toggle-previous-semesters" @click="showAllTerms=!showAllTerms">
+          <button class="btn btn-link toggle-btn-link" @click="showAllTerms=!showAllTerms">
             <i :class="{'fas fa-caret-right': !showAllTerms, 'fas fa-caret-up': showAllTerms}"></i>
             <span v-if="!showAllTerms">View Previous Semesters</span>
             <span v-if="showAllTerms">Hide Previous Semesters</span>
@@ -416,6 +452,7 @@ export default {
   },
   data: () => ({
     showAllTerms: false,
+    showTermGpa: false,
     student: {
       termGpa: []
     }
@@ -664,6 +701,33 @@ export default {
   padding: 15px 15px 15px 14px;
   text-align: left;
 }
+.student-gpa-alert {
+  color: #d0021b;
+}
+.student-gpa-last-term {
+  color: #000;
+}
+.student-gpa-last-term-outer {
+  font-size: 12px;
+  padding-left: 5px;
+  text-align: left;
+}
+.student-gpa-last-term-outer-right {
+  font-size: 12px;
+  padding-left: 5px;
+  text-align: right;
+}
+.student-gpa-term-alert {
+  color: #d0021b;
+  position: relative;
+  right: 20px;
+}
+.student-gpa-term-alert-icon {
+  width: 20px;
+}
+.student-gpa-term-alert-outer {
+  display: flex;
+}
 .student-preferred-name {
   font-size: 20px;
   font-weight: 400;
@@ -744,6 +808,7 @@ export default {
   font-size: 12px;
   line-height: 1.2em;
   margin: 10px 0;
+  text-align: left;
   width: 100%;
 }
 .student-status-table-zebra {
@@ -772,7 +837,7 @@ export default {
 .student-terms-container {
   margin: 20px;
 }
-.toggle-previous-semesters {
+.toggle-btn-link {
   font-size: 14px;
 }
 .toggle-previous-semesters-wrapper {
