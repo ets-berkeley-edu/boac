@@ -132,6 +132,7 @@
 </template>
 
 <script>
+import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar.vue';
 import StudentGpaChart from '@/components/student/StudentGpaChart.vue';
 import StudentMetadata from '@/mixins/StudentMetadata';
@@ -147,7 +148,7 @@ export default {
     StudentAvatar,
     StudentGpaChart
   },
-  mixins: [StudentMetadata, UserMetadata],
+  mixins: [StudentAnalytics, StudentMetadata, UserMetadata],
   methods: {
     removeFromCuratedCohort: function() {
       this.$eventHub.$emit('curated-group-remove-student', this.student.sid);
