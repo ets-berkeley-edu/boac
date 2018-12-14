@@ -255,10 +255,10 @@
                   <div class="student-course-name">{{course.title}}</div>
                 </div>
                 <div class="student-course-heading-end">
-                  <div class="student-course-heading-units">
+                  <div class="student-course-heading-units" v-if="'units' in course">
                     {{ 'Unit' | pluralize(course.units) }}
                   </div>
-                  <div class="student-course-heading-grades">
+                  <div class="student-course-heading-grades" v-if="'grade' in course || 'gradingBasis' in course">
                     <div class="student-course-heading-grade">
                       Final:
                       <span class="student-course-grade"
