@@ -1,5 +1,5 @@
 <template>
-  <highcharts class="student-chart-units-container"
+  <highcharts class="student-chart-container student-chart-units-container"
               id="student-chart-units-container"
               ref="studentUnitsChart"
               :options="unitsChartOptions"
@@ -122,18 +122,18 @@ export default {
     },
     generateTooltipHtml() {
       return `
-        <div class="student-chart-units-tooltip-content">
-          <div class="student-chart-units-tooltip-row">
-            <div class="student-chart-units-tooltip-swatch swatch-blue-medium"></div>
-            <div class="student-chart-units-tooltip-label">Units Completed</div>
-            <div class="student-chart-units-tooltip-value">${
+        <div class="student-chart-tooltip-content">
+          <div class="student-chart-tooltip-row">
+            <div class="student-chart-tooltip-swatch swatch-blue-medium"></div>
+            <div class="student-chart-tooltip-label">Units Completed</div>
+            <div class="student-chart-tooltip-value">${
               this.cumulativeUnits
             }</div>
           </div>
-          <div class="student-chart-units-tooltip-row">
-            <div class="student-chart-units-tooltip-swatch swatch-blue-light"></div>
-            <div class="student-chart-units-tooltip-label">Currently Enrolled Units</div>
-            <div class="student-chart-units-tooltip-value">${
+          <div class="student-chart-tooltip-row">
+            <div class="student-chart-tooltip-swatch swatch-blue-light"></div>
+            <div class="student-chart-tooltip-label">Currently Enrolled Units</div>
+            <div class="student-chart-tooltip-value">${
               this.currentEnrolledUnits
             }</div>
           </div>
@@ -143,83 +143,22 @@ export default {
 };
 </script>
 
+<style src="./student-chart.css">
+</style>
+
 <style>
-.student-chart-units-container .highcharts-container {
-  overflow: visible !important;
-}
-.student-chart-units-container .highcharts-series rect {
-  stroke-width: 0;
-}
-.student-chart-units-container .highcharts-tooltip {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  line-height: 1.4em;
-  min-width: 240px;
-  padding: 0;
-}
 .student-chart-units-container .highcharts-tooltip::after {
   background: #fff;
   border: 1px solid #aaa;
-  border-width: 0 0 1px 1px;
+  border-width: 0 1px 1px 0;
   content: '';
   display: block;
   height: 10px;
   position: absolute;
-  top: -6px;
-  left: 40px;
+  top: 75px;
+  left: -6px;
   transform: rotate(135deg);
   width: 10px;
-}
-.student-chart-units-container g.highcharts-tooltip {
-  display: none !important;
-}
-.student-chart-units-container .highcharts-tooltip span {
-  position: relative !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: auto !important;
-}
-.student-chart-units-container .highcharts-container {
-  overflow: visible !important;
-  z-index: auto !important;
-}
-.student-chart-units-tooltip-content {
-  color: #000;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  margin: 0;
-  padding: 8px 15px;
-}
-.student-chart-units-tooltip-header {
-  background: #eee;
-  border-bottom: 1px solid #ddd;
-  display: flex;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  margin-bottom: 0;
-  padding: 8px 15px;
-  text-align: left;
-}
-.student-chart-units-tooltip-label {
-  flex: 0.8;
-}
-.student-chart-units-tooltip-row {
-  align-items: center;
-  display: flex;
-  line-height: 1.5em;
-}
-.student-chart-units-tooltip-swatch {
-  height: 13px;
-  margin-right: 5px;
-  width: 13px;
-}
-.student-chart-units-tooltip-value {
-  flex: 0.2;
-  font-weight: bold;
-  text-align: right;
 }
 .swatch-blue-medium {
   background-color: #aec9eb;

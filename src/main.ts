@@ -5,6 +5,8 @@ import _ from 'lodash';
 import App from './App.vue';
 import axios from 'axios';
 import BootstrapVue from 'bootstrap-vue';
+import Highcharts from 'highcharts';
+import HighchartsMore from 'highcharts/highcharts-more';
 import router from './router';
 import store from './store';
 import Vue from 'vue';
@@ -26,7 +28,10 @@ axios.interceptors.response.use(response => response, function(error) {
 Vue.config.productionTip = false;
 Vue.use(BootstrapVue);
 Vue.use(require('vue-lodash'));
-Vue.use(VueHighcharts);
+
+HighchartsMore(Highcharts);
+Vue.use(VueHighcharts, { Highcharts });
+
 Vue.use(VueAnalytics, {
   id: store.dispatch('context/loadConfig').then(response => {
     return _.get(response, 'googleAnalyticsId');
