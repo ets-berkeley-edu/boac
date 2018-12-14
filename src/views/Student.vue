@@ -326,10 +326,9 @@
                         </span>
                       </td>
                       <td class="profile-boxplot-container">
-                        <div aria-hidden="true"
-                             v-if="canvasSite.analytics.currentScore.boxPlottable">
-                          &quot;Pardon Our Progress&quot;
-                        </div>
+                        <StudentBoxplot :dataset="canvasSite.analytics"
+                                        :numericId="canvasSite.canvasCourseId.toString()"
+                                        v-if="canvasSite.analytics.currentScore.boxPlottable"></StudentBoxplot>
                         <div class="sr-only" v-if="canvasSite.analytics.currentScore.boxPlottable">
                           <div>User score: {{canvasSite.analytics.currentScore.student.raw}}</div>
                           <div>Maximum: {{canvasSite.analytics.currentScore.courseDeciles[10]}}</div>
@@ -427,6 +426,7 @@ import Spinner from '@/components/Spinner.vue';
 import StudentAlerts from '@/components/student/StudentAlerts';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar';
+import StudentBoxplot from '@/components/student/StudentBoxplot';
 import StudentGpaChart from '@/components/student/StudentGpaChart';
 import StudentMetadata from '@/mixins/StudentMetadata';
 import StudentUnitsChart from '@/components/student/StudentUnitsChart';
@@ -439,6 +439,7 @@ export default {
     Spinner,
     StudentAlerts,
     StudentAvatar,
+    StudentBoxplot,
     StudentGpaChart,
     StudentUnitsChart
   },
