@@ -4,7 +4,7 @@
     <div v-if="!loading">
       <div class="flex-row full-width" id="student-profile-container">
         <div class="student-profile-photo-container" id="student-profile-photo-container">
-          <StudentAvatar :student="student" size="large"/>
+          <StudentAvatar :student="student" size="large-padded"/>
         </div>
         <div class="student-profile-bio-container" id="student-profile-bio-container">
           <div class="student-bio-contact">
@@ -270,9 +270,7 @@
                               v-if="section.displayName">
                           <span v-if="sectionIndex === 0">(</span><!--
                           --><a :id="`term-${term.termId}-section-${section.ccn}`"
-                             data-ui-sref="course({termId: term.termId, sectionId: section.ccn, u: student.uid})"
-                             data-ui-sref-opts="{reload: true}"
-                             @click="$event.stopPropagation()"
+                             :href="`/course/${term.termId}/${section.ccn}?u=${student.uid}`"
                              v-if="section.isViewableOnCoursePage">{{section.displayName}}</a><!--
                           --><span v-if="!section.isViewableOnCoursePage">
                                {{section.displayName}}</span><!--
