@@ -82,9 +82,40 @@
             <div>
               <h3 class="student-bio-header">Curated Groups</h3>
             </div>
-            <div class="curated-cohort-checkbox">
-              <span class="faint-text">&quot;Pardon Our Progress&quot;</span>
+            <div class="student-curated-group-checkbox"
+                 v-for="(curatedGroup, curatedGroupIndex) in curatedGroups"
+                 :key="curatedGroupIndex"
+                 v-if="curatedGroups.length">
+              <input :id="'curated-group-checkbox-' + curatedGroupIndex"
+                     type="checkbox"
+                     class="student-curated-group-checkbox-input"
+                     v-model="curatedGroupMemberships"
+                     :value="curatedGroup.id"
+                     @change="updateCuratedGroupMembership(curatedGroup)"
+                     :aria-label="(curatedGroup.selected ? 'Remove from' : 'Add to') + ' curated group ' + curatedGroup.name"/>
+              <div class="student-curated-group-checkbox-label">
+                <a :href="'/cohort/curated/' + curatedGroup.id">{{curatedGroup.name}}</a>
+              </div>
             </div>
+            <div class="student-curated-group-checkbox" v-if="!curatedGroups.length">
+              <span class="faint-text">You have no curated groups.</span>
+            </div>
+            <div class="student-curated-group-create-new">
+              <button id="curated-group-create-btn"
+                      class="btn btn-link student-curated-group-create-new-btn"
+                      v-b-modal="'create-curated-group-modal'">
+                <i class="fas fa-plus"></i> Create New Curated Group
+              </button>
+            </div>
+            <b-modal id="create-curated-group-modal"
+                     v-model="showCreateCuratedGroupModal"
+                     hide-footer
+                     hide-header-close
+                     title="Name Your Curated Group">
+              <CreateCuratedGroupModal :sids="[]"
+                                       :create="modalCreateCuratedGroup"
+                                       :cancel="modalCreateCuratedGroupCancel"/>
+            </b-modal>
           </div>
         </div>
         <div class="student-profile-status-container" id="student-profile-status-container">
@@ -419,8 +450,16 @@
 
 <script>
 import _ from 'lodash';
+import store from '@/store';
+import {
+  addStudents,
+  createCuratedGroup,
+  getMyCuratedGroupIdsPerStudentId,
+  removeFromCuratedGroup
+} from '@/api/curated';
 import { getStudentDetails } from '@/api/student';
 import AppConfig from '@/mixins/AppConfig';
+import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal.vue';
 import Loading from '@/mixins/Loading.vue';
 import Spinner from '@/components/Spinner.vue';
 import StudentAlerts from '@/components/student/StudentAlerts';
@@ -436,6 +475,7 @@ export default {
   name: 'Student',
   mixins: [AppConfig, Loading, StudentAnalytics, StudentMetadata, UserMetadata],
   components: {
+    CreateCuratedGroupModal,
     Spinner,
     StudentAlerts,
     StudentAvatar,
@@ -448,7 +488,10 @@ export default {
     this.loadStudent(uid);
   },
   data: () => ({
+    curatedGroups: store.getters['curated/myCuratedGroups'],
+    curatedGroupMemberships: [],
     showAllTerms: false,
+    showCreateCuratedGroupModal: false,
     showTermGpa: false,
     student: {
       termGpa: []
@@ -465,8 +508,20 @@ export default {
         );
         this.setCurrentEnrollmentTerm();
         _.each(this.student.enrollmentTerms, this.parseEnrollmentTerm);
+
+        getMyCuratedGroupIdsPerStudentId(this.student.sid).then(data => {
+          this.curatedGroupMemberships = data;
+        });
+
         this.loaded();
       });
+    },
+    modalCreateCuratedGroup(name) {
+      this.showCreateCuratedGroupModal = false;
+      createCuratedGroup(name, []);
+    },
+    modalCreateCuratedGroupCancel() {
+      this.showCreateCuratedGroupModal = false;
     },
     parseEnrollmentTerm(term) {
       // Merge in unmatched canvas sites
@@ -510,6 +565,13 @@ export default {
         );
       }
       this.showUnitTotals = this.cumulativeUnits || this.currentEnrolledUnits;
+    },
+    updateCuratedGroupMembership(group) {
+      if (_.includes(this.curatedGroupMemberships, group.id)) {
+        addStudents(group, [this.student.sid]);
+      } else {
+        removeFromCuratedGroup(group.id, this.student.sid);
+      }
     }
   }
 };
@@ -687,6 +749,32 @@ export default {
 .student-course-sections {
   font-weight: 400;
   white-space: nowrap;
+}
+.student-curated-group-checkbox {
+  align-items: center;
+  display: flex;
+  font-size: 12px;
+  padding: 1px;
+}
+.student-curated-group-checkbox-input {
+  flex: 0 0 12px;
+}
+.student-curated-group-checkbox-label {
+  margin-left: 5px;
+}
+.student-curated-group-checkbox-primary-label {
+  font-weight: bold;
+}
+.student-curated-group-create-new {
+  border-top: solid 1px #ccc;
+  font-size: 11px;
+  margin-top: 5px;
+  padding: 3px 1px 1px 1px;
+}
+.student-curated-group-create-new-btn {
+  border: 0;
+  font-size: 11px;
+  padding: 0;
 }
 .student-curated-groups-box {
   background: #fff;

@@ -16,6 +16,13 @@ export function getCuratedGroup(id) {
     .then(response => response.data, () => null);
 }
 
+export function getMyCuratedGroupIdsPerStudentId(sid: string) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .get(`${apiBaseUrl}/api/curated_cohorts/my/${sid}`)
+    .then(response => response.data, () => null);
+}
+
 export function createCuratedGroup(name: string, sids: object) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
