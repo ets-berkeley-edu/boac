@@ -24,8 +24,9 @@
       <div id="curated-cohort-students" class="list-group">
         <CuratedGroupStudent :student="student"
                              :sort="sort"
+                             :id="`student-${student.uid}`"
                              class="list-group-item student-list-item"
-                             :class="{'list-group-item-info' : anchor === student.uid}"
+                             :class="{'list-group-item-info' : anchor === `#${student.uid}`}"
                              v-for="(student, index) in orderedStudents"
                              :key="index">
         </CuratedGroupStudent>
@@ -39,6 +40,7 @@ import _ from 'lodash';
 import { removeFromCuratedGroup } from '@/api/curated';
 import store from '@/store';
 import CuratedGroupStudent from '@/components/curated/CuratedGroupStudent.vue';
+import Scrollable from '@/mixins/Scrollable';
 import SearchStudents from '@/components/sidebar/SearchStudents.vue';
 import UserMetadata from '@/mixins/UserMetadata';
 
@@ -51,7 +53,7 @@ export default {
     SearchStudents,
     CuratedGroupStudent
   },
-  mixins: [UserMetadata],
+  mixins: [UserMetadata, Scrollable],
   data() {
     return {
       sort: {
@@ -74,6 +76,14 @@ export default {
     this.$eventHub.$on('curated-group-remove-student', sid =>
       this.$_CuratedGroupList_removeStudent(sid)
     );
+  },
+  mounted() {
+    this.$nextTick(function() {
+      let anchor = this.anchor.replace(/(#)([0-9])/g, function(a, m1, m2) {
+        return `${m1}student-${m2}`;
+      });
+      this.scrollTo(anchor);
+    });
   },
   computed: {
     orderedStudents: function() {
