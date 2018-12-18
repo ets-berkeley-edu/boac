@@ -31,6 +31,7 @@ export default {
     getCuratedGroup(this.id).then(data => {
       this.curatedGroup = data;
       this.loaded();
+      document.title = `${this.curatedGroup.name} | BOAC`;
     });
   }
 };
