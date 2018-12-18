@@ -340,10 +340,6 @@
   width: 100%;
 }
 
-.toggle-btn-link {
-  font-size: 14px;
-}
-
 .visualize-metrics {
   margin-bottom: 20px;
   width: 80%;
@@ -412,6 +408,10 @@ body {
 #content .nav-pills .show > .nav-link {
   background-color: #337ab7;
   color: #fff;
+}
+
+#content .toggle-btn-link {
+  font-size: 14px;
 }
 
 select[data-value=""],

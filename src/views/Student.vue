@@ -83,9 +83,9 @@
               <h3 class="student-bio-header">Curated Groups</h3>
             </div>
             <div class="student-curated-group-checkbox"
-                 v-for="(curatedGroup, curatedGroupIndex) in curatedGroups"
+                 v-for="(curatedGroup, curatedGroupIndex) in myCuratedGroups"
                  :key="curatedGroupIndex"
-                 v-if="curatedGroups.length">
+                 v-if="myCuratedGroups.length">
               <input :id="'curated-group-checkbox-' + curatedGroupIndex"
                      type="checkbox"
                      class="student-curated-group-checkbox-input"
@@ -97,7 +97,7 @@
                 <a :href="'/cohort/curated/' + curatedGroup.id">{{curatedGroup.name}}</a>
               </div>
             </div>
-            <div class="student-curated-group-checkbox" v-if="!curatedGroups.length">
+            <div class="student-curated-group-checkbox" v-if="!myCuratedGroups.length">
               <span class="faint-text">You have no curated groups.</span>
             </div>
             <div class="student-curated-group-create-new">
@@ -161,7 +161,7 @@
                      v-if="!student.termGpa.length">
                   GPA Not Yet Available
                 </div>
-                <div class="student-status-legend student-gpa-last-term-outer-right"
+                <div class="student-status-legend student-status-legend-gpa"
                      v-if="student.termGpa.length">
                   {{ student.termGpa[0].name }} GPA:
                   <strong :class="{'student-gpa-last-term': student.termGpa[0].gpa >= 2, 'student-gpa-alert': student.termGpa[0].gpa < 2}">
@@ -450,7 +450,6 @@
 
 <script>
 import _ from 'lodash';
-import store from '@/store';
 import {
   addStudents,
   createCuratedGroup,
@@ -488,7 +487,6 @@ export default {
     this.loadStudent(uid);
   },
   data: () => ({
-    curatedGroups: store.getters['curated/myCuratedGroups'],
     curatedGroupMemberships: [],
     showAllTerms: false,
     showCreateCuratedGroupModal: false,
@@ -652,7 +650,7 @@ export default {
 .student-chart-outer {
   border-left: 1px solid #999;
   flex: 1;
-  margin-left: 10px;
+  margin: 0 10px;
   padding-left: 10px;
 }
 .student-chart-units-container {
@@ -791,16 +789,12 @@ export default {
 }
 .student-gpa-last-term {
   color: #000;
+  font-weight: 700;
 }
 .student-gpa-last-term-outer {
   font-size: 12px;
   padding-left: 5px;
   text-align: left;
-}
-.student-gpa-last-term-outer-right {
-  font-size: 12px;
-  padding-left: 5px;
-  text-align: right;
 }
 .student-gpa-term-alert {
   color: #d0021b;
@@ -828,10 +822,8 @@ export default {
 }
 .student-profile-status-container {
   background: #8bbdda;
-  min-width: 330px;
-  max-width: 400px;
-  flex-basis: auto;
-  flex-grow: 0.25;
+  min-width: 340px;
+  flex: 3;
 }
 .student-progress-header {
   font-size: 16px;
@@ -867,6 +859,11 @@ export default {
   font-size: 13px;
   font-weight: 300;
   text-transform: uppercase;
+}
+.student-status-legend-gpa {
+  font-size: 12px;
+  padding-left: 5px;
+  text-align: right;
 }
 .student-status-legend-heading {
   color: #000;
