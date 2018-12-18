@@ -185,13 +185,13 @@ export default {
 .student-chart-boxplot-container .highcharts-tooltip::after {
   background: #fff;
   border: 1px solid #aaa;
-  border-width: 0 0 1px 1px;
+  border-width: 0 1px 1px 0;
   content: '';
   display: block;
   height: 10px;
   position: absolute;
-  top: -6px;
-  left: 40px;
+  top: 75px;
+  left: -6px;
   transform: rotate(135deg);
   width: 10px;
 }

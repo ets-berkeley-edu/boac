@@ -150,13 +150,13 @@ export default {
 .student-chart-units-container .highcharts-tooltip::after {
   background: #fff;
   border: 1px solid #aaa;
-  border-width: 0 1px 1px 0;
+  border-width: 0 0 1px 1px;
   content: '';
   display: block;
   height: 10px;
   position: absolute;
-  top: 75px;
-  left: -6px;
+  top: -6px;
+  left: 40px;
   transform: rotate(135deg);
   width: 10px;
 }
