@@ -44,12 +44,15 @@ const actions = {
   loadUserStatus: ({ commit, state }) => {
     return new Promise(resolve => {
       if (_.isNil(state.isUserAuthenticated)) {
-        getUserStatus().then(data => {
-          if (data.isAuthenticated) {
-            commit('userAuthenticated');
-          }
-          resolve(data.isUserAuthenticated);
-        });
+        getUserStatus()
+          .then(data => {
+            if (data.isAuthenticated) {
+              commit('userAuthenticated');
+            }
+          })
+          .then(() => {
+            resolve(state.isUserAuthenticated);
+          });
       } else {
         resolve(state.isUserAuthenticated);
       }
