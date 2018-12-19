@@ -79,6 +79,9 @@ export default {
   },
   mounted() {
     this.$nextTick(function() {
+      if (!this.anchor) {
+        return false;
+      }
       let anchor = this.anchor.replace(/(#)([0-9])/g, function(a, m1, m2) {
         return `${m1}student-${m2}`;
       });
