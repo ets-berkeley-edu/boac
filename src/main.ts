@@ -32,11 +32,14 @@ Vue.use(require('vue-lodash'));
 HighchartsMore(Highcharts);
 Vue.use(VueHighcharts, { Highcharts });
 
-Vue.use(VueAnalytics, {
-  id: store.dispatch('context/loadConfig').then(response => {
-    return _.get(response, 'googleAnalyticsId');
-  }),
-  checkDuplicatedScript: true
+store.dispatch('context/loadConfig').then(response => {
+  let googleAnalyticsId = _.get(response, 'googleAnalyticsId');
+  if (googleAnalyticsId) {
+    Vue.use(VueAnalytics, {
+      id: googleAnalyticsId,
+      checkDuplicatedScript: true
+    });
+  }
 });
 
 // Filters
