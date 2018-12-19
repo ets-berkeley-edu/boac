@@ -85,7 +85,7 @@
             <div class="student-curated-group-checkbox"
                  v-for="(curatedGroup, curatedGroupIndex) in myCuratedGroups"
                  :key="curatedGroupIndex"
-                 v-if="myCuratedGroups.length">
+                 v-if="!isEmpty(myCuratedGroups)">
               <input :id="'curated-group-checkbox-' + curatedGroupIndex"
                      type="checkbox"
                      class="student-curated-group-checkbox-input"
@@ -97,7 +97,7 @@
                 <a :href="'/cohort/curated/' + curatedGroup.id">{{curatedGroup.name}}</a>
               </div>
             </div>
-            <div class="student-curated-group-checkbox" v-if="!myCuratedGroups.length">
+            <div class="student-curated-group-checkbox" v-if="isEmpty(myCuratedGroups)">
               <span class="faint-text">You have no curated groups.</span>
             </div>
             <div class="student-curated-group-create-new">
@@ -154,21 +154,21 @@
               </div>
               <div class="student-chart-outer" id="student-status-gpa-trends">
                 <div class="student-status-legend student-status-legend-heading">GPA Trends</div>
-                <StudentGpaChart v-if="student.termGpa.length > 1"
+                <StudentGpaChart v-if="get(student, 'termGpa.length') > 1"
                                  :student="student">
                 </StudentGpaChart>
                 <div class="student-status-legend student-status-legend-small"
-                     v-if="!student.termGpa.length">
+                     v-if="isEmpty(student.termGpa)">
                   GPA Not Yet Available
                 </div>
                 <div class="student-status-legend student-status-legend-gpa"
-                     v-if="student.termGpa.length">
+                     v-if="isEmpty(student.termGpa)">
                   {{ student.termGpa[0].name }} GPA:
                   <strong :class="{'student-gpa-last-term': student.termGpa[0].gpa >= 2, 'student-gpa-alert': student.termGpa[0].gpa < 2}">
                     {{ student.termGpa[0].gpa | round(3) }}
                   </strong>
                 </div>
-                <button class="btn btn-link toggle-btn-link" @click="showTermGpa=!showTermGpa" v-if="student.termGpa.length">
+                <button class="btn btn-link toggle-btn-link" @click="showTermGpa=!showTermGpa" v-if="!isEmpty(student.termGpa)">
                   <i :class="{'fas fa-caret-right': !showTermGpa, 'fas fa-caret-down': showTermGpa}"></i>
                   <span v-if="!showTermGpa">Show Term GPA</span>
                   <span v-if="showTermGpa">Hide Term GPA</span>
@@ -190,7 +190,7 @@
                 </td>
                 <td v-if="term.gpa >= 2">{{ term.gpa | round(3) }}</td>
               </tr>
-              <tr v-if="!student.termGpa.length">
+              <tr v-if="isEmpty(student.termGpa)">
                 <td>No previous terms</td>
                 <td>--</td>
               </tr>
@@ -401,7 +401,7 @@
                     </tr>
                   </table>
                 </div>
-                <div class="student-bcourses-wrapper student-course-notation" v-if="!course.canvasSites || !course.canvasSites.length">
+                <div class="student-bcourses-wrapper student-course-notation" v-if="isEmpty(course.canvasSites)">
                   No additional information
                 </div>
               </b-collapse>
@@ -416,7 +416,7 @@
             </div>
             <div class="student-course student-course-dropped"
                  is-open="true"
-                 v-if="term.droppedSections && term.droppedSections.length">
+                 v-if="!isEmpty(term.droppedSections)">
               <div v-for="(droppedSection, index) in term.droppedSections" :key="index">
                 <div class="student-course-dropped-title">
                   {{droppedSection.displayName}} - {{droppedSection.component}} {{droppedSection.sectionNumber}}
@@ -428,14 +428,14 @@
           </div>
         </div>
 
-        <div v-if="student.enrollmentTerms.length > 1" class="toggle-previous-semesters-wrapper">
+        <div v-if="get(student, 'enrollmentTerms.length') > 1" class="toggle-previous-semesters-wrapper">
           <button class="btn btn-link toggle-btn-link" @click="showAllTerms=!showAllTerms">
             <i :class="{'fas fa-caret-right': !showAllTerms, 'fas fa-caret-up': showAllTerms}"></i>
             <span v-if="!showAllTerms">View Previous Semesters</span>
             <span v-if="showAllTerms">Hide Previous Semesters</span>
           </button>
         </div>
-        <div v-if="!student.enrollmentTerms.length">
+        <div v-if="isEmpty(student.enrollmentTerms)">
           No courses
           <div v-if="student.sisProfile.withdrawalCancel">
             <span class="red-flag-small">
@@ -469,10 +469,18 @@ import StudentGpaChart from '@/components/student/StudentGpaChart';
 import StudentMetadata from '@/mixins/StudentMetadata';
 import StudentUnitsChart from '@/components/student/StudentUnitsChart';
 import UserMetadata from '@/mixins/UserMetadata';
+import Util from '@/mixins/Util';
 
 export default {
   name: 'Student',
-  mixins: [AppConfig, Loading, StudentAnalytics, StudentMetadata, UserMetadata],
+  mixins: [
+    AppConfig,
+    Loading,
+    StudentAnalytics,
+    StudentMetadata,
+    UserMetadata,
+    Util
+  ],
   components: {
     CreateCuratedGroupModal,
     Spinner,
