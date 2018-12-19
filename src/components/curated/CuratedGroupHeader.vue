@@ -8,23 +8,23 @@
     </div>
     <div class="cohort-rename-container" v-if="renameMode.on">
       <div>
-        <form name="renameCohortForm" v-on:submit="rename">
+        <form name="renameCohortForm" @submit="rename">
           <input aria-required="true"
-                 aria-label="Input cohort name, 255 characters or fewer"
-                 :aria-invalid="!renameMode.input"
-                 class="form-control"
-                 @input="renameMode.hideError = true"
-                 v-model="renameMode.input"
-                 focus-on="renameMode.on"
-                 id="rename-cohort-input"
-                 maxlength="255"
-                 name="name"
-                 required
-                 type="text"/>
+                aria-label="Input cohort name, 255 characters or fewer"
+                :aria-invalid="!renameMode.input"
+                class="form-control"
+                @input="renameMode.hideError = true"
+                v-model="renameMode.input"
+                ref="input"
+                id="rename-cohort-input"
+                maxlength="255"
+                name="name"
+                required
+                type="text"/>
         </form>
       </div>
       <div class="has-error"
-           v-if="renameMode.error && !renameMode.hideError">
+          v-if="renameMode.error && !renameMode.hideError">
         {{ renameMode.error }}
       </div>
       <div class="faint-text">255 character limit <span v-if="renameMode.input.length">({{255 - renameMode.input.length}} left)</span></div>
@@ -107,6 +107,15 @@ export default {
       input: undefined
     }
   }),
+  watch: {
+    'renameMode.on': function() {
+      if (this.renameMode.on) {
+        this.$nextTick(() => {
+          this.$refs.input.focus();
+        });
+      }
+    }
+  },
   methods: {
     enterRenameMode: function() {
       this.renameMode.input = this.curatedGroup.name;
