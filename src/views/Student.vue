@@ -66,7 +66,7 @@
           </div>
           <div id="student-bio-level">
             <h3 class="sr-only">Level</h3>
-            <div class="student-bio-header">{{student.sisProfile.level.description}}</div>
+            <div class="student-bio-header">{{get(student, 'sisProfile.level.description')}}</div>
           </div>
           <div class="student-bio-details-outer">
             <div class="student-bio-details" id="student-bio-terms-in-attendance" v-if="student.sisProfile.termsInAttendance">
@@ -162,7 +162,7 @@
                   GPA Not Yet Available
                 </div>
                 <div class="student-status-legend student-status-legend-gpa"
-                     v-if="isEmpty(student.termGpa)">
+                     v-if="!isEmpty(student.termGpa)">
                   {{ student.termGpa[0].name }} GPA:
                   <strong :class="{'student-gpa-last-term': student.termGpa[0].gpa >= 2, 'student-gpa-alert': student.termGpa[0].gpa < 2}">
                     {{ student.termGpa[0].gpa | round(3) }}
