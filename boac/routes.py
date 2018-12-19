@@ -68,6 +68,8 @@ def register_routes(app):
     @app.route('/<path:path>')
     def front_end_route(**kwargs):
         vue_redirect = _vue_redirect_path(app)
+        if not vue_redirect:
+            app.logger.info(f'Angular: {request.path} will be served by legacy UI')
         return _vue_response(app, vue_redirect) if vue_redirect else make_response(open(app.config['INDEX_HTML']).read())
 
     @app.after_request
@@ -101,16 +103,19 @@ def _vue_redirect_path(app):
         for angular_path_pattern, vue_path in vue_path_mappings.items():
             match = re.compile(angular_path_pattern).match(request.path)
             if match:
+                app.logger.info(f'Vue: Request path {request.path} matches pattern {angular_path_pattern}')
                 vue_redirect = vue_path
                 for index, token in enumerate(match.groups()):
                     vue_redirect = vue_redirect.replace(f'\\{index + 1}', token)
                 q = request.query_string
                 vue_redirect = vue_redirect + '?' + q.decode('utf-8') if q else vue_redirect
+                app.logger.info(f'Vue: Prepare redirect to {vue_redirect}')
                 break
             else:
                 # If incoming path is served by Vue then pass through... But, make sure Vue index.html is used.
                 vue_path_prefix = vue_path.split('\\1')[0]
                 if request.path.startswith(vue_path_prefix):
+                    app.logger.info(f'Vue: Request path starts with {vue_path_prefix} so we will \'vue_redirect\'')
                     vue_redirect = request.full_path
                     break
     return vue_redirect
@@ -119,6 +124,9 @@ def _vue_redirect_path(app):
 def _vue_response(app, uri_path):
     vue_base_url = app.config['VUE_LOCALHOST_BASE_URL']
     if vue_base_url:
+        app.logger.info(f'Vue: Redirecting to {vue_base_url}{uri_path}')
         return redirect(vue_base_url + uri_path)
     else:
-        return make_response(open(app.config['INDEX_HTML_VUE']).read())
+        index_html = app.config['INDEX_HTML_VUE']
+        app.logger.info(f'Vue: The page at {uri_path} will be served with INDEX_HTML_VUE={index_html}')
+        return make_response(open(index_html).read())
