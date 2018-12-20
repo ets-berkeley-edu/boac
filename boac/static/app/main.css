@@ -305,29 +305,6 @@
   margin: 0;
 }
 
-.tab-button {
-  background-color: #6bd;
-  color: #fff;
-}
-
-.tab-button:hover {
-  color: #cef;
-}
-
-.tab-btn-group {
-  padding: 0 0 5px 0;
-}
-
-.tab-button-selected {
-  background-color: #49b;
-}
-
-.tab-button-selected:active,
-.tab-button-selected:focus {
-  color: #fff;
-  outline: none !important;
-}
-
 .tabs-container {
   display: flex;
   margin: 20px 0 10px 0;
@@ -404,10 +381,41 @@ body {
   text-shadow: 0 1px 0 #fff;
 }
 
+#content .list-group-item-info {
+  color: #31708f;
+  background-color: #d9edf7;
+}
+
 #content .nav-pills .nav-link.active,
 #content .nav-pills .show > .nav-link {
   background-color: #337ab7;
   color: #fff;
+}
+
+#content .tab-button {
+  background-color: #6bd;
+  border: 1px solid transparent;
+  color: #fff;
+  font-size: 14px;
+  opacity: 1;
+}
+
+#content .tab-button:hover {
+  color: #cef;
+}
+
+#content .tab-btn-group {
+  padding: 0 0 5px 0;
+}
+
+#content .tab-button-selected {
+  background-color: #49b;
+}
+
+#content .tab-button-selected:active,
+#content .tab-button-selected:focus {
+  color: #fff;
+  outline: none !important;
 }
 
 #content .toggle-btn-link {
