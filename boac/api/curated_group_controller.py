@@ -40,7 +40,7 @@ def my_curated_cohorts():
     return tolerant_jsonify(get_my_curated_groups())
 
 
-@app.route('/api/curated_cohort/create', methods=['POST'])
+@app.route('/api/curated_group/create', methods=['POST'])
 @login_required
 def create_curated_cohort():
     params = request.get_json()
@@ -55,7 +55,7 @@ def create_curated_cohort():
     return tolerant_jsonify(curated_cohort.to_api_json())
 
 
-@app.route('/api/curated_cohort/<curated_cohort_id>/add_student/<sid>')
+@app.route('/api/curated_group/<curated_cohort_id>/add_student/<sid>')
 @login_required
 def add_student_to_curated_cohort(curated_cohort_id, sid):
     curated_cohort = CuratedCohort.find_by_id(curated_cohort_id)
@@ -67,7 +67,7 @@ def add_student_to_curated_cohort(curated_cohort_id, sid):
     return tolerant_jsonify(CuratedCohort.find_by_id(curated_cohort_id).to_api_json())
 
 
-@app.route('/api/curated_cohort/delete/<curated_cohort_id>', methods=['DELETE'])
+@app.route('/api/curated_group/delete/<curated_cohort_id>', methods=['DELETE'])
 @login_required
 @cross_origin(allow_headers=['Content-Type'])
 def delete_curated_cohort(curated_cohort_id):
@@ -80,7 +80,7 @@ def delete_curated_cohort(curated_cohort_id):
     return tolerant_jsonify({'message': f'Curated group {curated_cohort_id} has been deleted'}), 200
 
 
-@app.route('/api/curated_cohort/<curated_cohort_id>')
+@app.route('/api/curated_group/<curated_cohort_id>')
 @login_required
 def get_curated_cohort(curated_cohort_id):
     cohort = CuratedCohort.find_by_id(curated_cohort_id)
@@ -95,7 +95,7 @@ def get_curated_cohort(curated_cohort_id):
     return tolerant_jsonify(cohort)
 
 
-@app.route('/api/curated_cohort/<cohort_id>/students_with_alerts')
+@app.route('/api/curated_group/<cohort_id>/students_with_alerts')
 @login_required
 def get_students_with_alerts(cohort_id):
     cohort = CuratedCohort.find_by_id(cohort_id)
@@ -116,13 +116,13 @@ def get_students_with_alerts(cohort_id):
     return tolerant_jsonify(sort_students_by_name(students_with_alerts))
 
 
-@app.route('/api/curated_cohorts/my/<sid>')
+@app.route('/api/curated_groups/my/<sid>')
 @login_required
 def curated_cohort_ids_per_sid(sid):
     return tolerant_jsonify(CuratedCohort.curated_cohort_ids_per_sid(user_id=current_user.id, sid=sid))
 
 
-@app.route('/api/curated_cohort/<curated_cohort_id>/remove_student/<sid>', methods=['DELETE'])
+@app.route('/api/curated_group/<curated_cohort_id>/remove_student/<sid>', methods=['DELETE'])
 @login_required
 @cross_origin(allow_headers=['Content-Type'])
 def remove_student_from_curated_cohort(curated_cohort_id, sid):
@@ -135,7 +135,7 @@ def remove_student_from_curated_cohort(curated_cohort_id, sid):
     return tolerant_jsonify(CuratedCohort.find_by_id(curated_cohort_id).to_api_json(include_students=False))
 
 
-@app.route('/api/curated_cohort/students/add', methods=['POST'])
+@app.route('/api/curated_group/students/add', methods=['POST'])
 @login_required
 def add_students_to_curated_cohort():
     params = request.get_json()
@@ -152,7 +152,7 @@ def add_students_to_curated_cohort():
     return tolerant_jsonify(CuratedCohort.find_by_id(curated_cohort_id).to_api_json(include_students=False))
 
 
-@app.route('/api/curated_cohort/rename', methods=['POST'])
+@app.route('/api/curated_group/rename', methods=['POST'])
 @login_required
 def rename_curated_cohort():
     params = request.get_json()

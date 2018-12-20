@@ -35,7 +35,7 @@
 
     var createCohort = function(name, filterCriteria) {
       var args = _.merge({name: name}, filterCriteria);
-      return $http.post('/api/filtered_cohort/create', args).then(function(response) {
+      return $http.post('/api/cohort/create', args).then(function(response) {
         var cohort = response.data;
         $rootScope.profile.myFilteredCohorts.push(cohort);
         googleAnalyticsService.track('Filtered Cohort', 'create', cohort.name, cohort.id);
@@ -44,7 +44,7 @@
     };
 
     var deleteCohort = function(cohortId) {
-      return $http.delete('/api/filtered_cohort/delete/' + cohortId).then(function() {
+      return $http.delete('/api/cohort/delete/' + cohortId).then(function() {
         $rootScope.profile.myFilteredCohorts = _.remove($rootScope.profile.myFilteredCohorts, function(cohort) {
           var match = cohort.id !== cohortId;
           if (match) {
@@ -56,11 +56,11 @@
     };
 
     var getAll = function() {
-      return $http.get('/api/filtered_cohorts/all');
+      return $http.get('/api/cohorts/all');
     };
 
     var getCohort = function(id, includeStudents, orderBy, offset, limit) {
-      var template = _.template('/api/filtered_cohort/${id}?includeStudents=${includeStudents}&offset=${offset}&limit=${limit}&orderBy=${orderBy}');
+      var template = _.template('/api/cohort/${id}?includeStudents=${includeStudents}&offset=${offset}&limit=${limit}&orderBy=${orderBy}');
       var args = {
         id: id,
         includeStudents: includeStudents || true,
@@ -73,11 +73,11 @@
     };
 
     var getFilterCategories = function() {
-      return $http.get('/api/filter_cohort/definitions');
+      return $http.get('/api/cohort/filter_definitions');
     };
 
     var getStudentsWithAlertsInCohort = function(cohortId) {
-      return $http.get('/api/filtered_cohort/' + cohortId + '/students_with_alerts');
+      return $http.get('/api/cohort/' + cohortId + '/students_with_alerts');
     };
 
     var update = function(id, name, filterCriteria, studentCount, callback) {
@@ -87,7 +87,7 @@
         filterCriteria: filterCriteria,
         studentCount: studentCount
       };
-      return $http.post('/api/filtered_cohort/update', args).then(function(response) {
+      return $http.post('/api/cohort/update', args).then(function(response) {
         var cohort = response.data;
         var stashedCohort = getStashedCohort(id);
 

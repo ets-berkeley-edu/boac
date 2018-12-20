@@ -42,12 +42,12 @@ def register_routes(app):
     import boac.api.admin_controller
     import boac.api.alerts_controller
     import boac.api.auth_controller
-    import boac.api.filtered_cohort_controller
+    import boac.api.cohort_controller
     import boac.api.config_controller
     import boac.api.course_controller
+    import boac.api.curated_group_controller
     import boac.api.student_controller
     import boac.api.status_controller
-    import boac.api.curated_cohort_controller
     import boac.api.user_controller
 
     # Register error handlers.

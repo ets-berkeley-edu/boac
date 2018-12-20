@@ -72,7 +72,7 @@ class TestGetCuratedCohort:
     def test_unauthorized(self, admin_user_session, client, cohorts_of_asc_advisor):
         """Rejects authenticated user if s/he does not own the curated_cohort."""
         cohort_id = cohorts_of_asc_advisor[0].id
-        response = client.get(f'/api/curated_cohort/{cohort_id}')
+        response = client.get(f'/api/curated_group/{cohort_id}')
         assert response.status_code == 403
 
     def test_my_curated_groups(self, client, coe_advisor):
@@ -90,7 +90,7 @@ class TestGetCuratedCohort:
     def test_curated_cohort_includes_alert_count(self, asc_advisor, client, cohorts_of_asc_advisor, create_alerts):
         """Successfully fetches curated_cohort with alert count per student."""
         cohort_id = cohorts_of_asc_advisor[0].id
-        response = client.get(f'/api/curated_cohort/{cohort_id}')
+        response = client.get(f'/api/curated_group/{cohort_id}')
         students = response.json.get('students')
         assert students
         for student in students:
@@ -101,7 +101,7 @@ class TestGetCuratedCohort:
 
     def test_curated_cohort_includes_term_gpas(self, asc_advisor, client, cohorts_of_asc_advisor):
         cohort_id = cohorts_of_asc_advisor[0].id
-        deborah = next(s for s in client.get(f'/api/curated_cohort/{cohort_id}').json['students'] if s['firstName'] == 'Deborah')
+        deborah = next(s for s in client.get(f'/api/curated_group/{cohort_id}').json['students'] if s['firstName'] == 'Deborah')
         assert len(deborah['termGpa']) == 4
         assert deborah['termGpa'][0] == {'termName': 'Spring 2018', 'gpa': 2.9}
         assert deborah['termGpa'][3] == {'termName': 'Spring 2016', 'gpa': 3.8}
@@ -113,26 +113,26 @@ class TestMyCuratedCohorts:
     def test_students_without_alerts(self, asc_advisor, client, create_alerts, cohorts_of_asc_advisor, db_session):
         """Students with alerts per curated cohort id."""
         cohort_id = cohorts_of_asc_advisor[0].id
-        students_with_alerts = client.get(f'/api/curated_cohort/{cohort_id}/students_with_alerts').json
+        students_with_alerts = client.get(f'/api/curated_group/{cohort_id}/students_with_alerts').json
         assert len(students_with_alerts) == 2
         assert students_with_alerts[0]['alertCount'] == 3
 
         alert_to_dismiss = client.get('/api/alerts/current/11667051').json['shown'][0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
-        students_with_alerts = client.get(f'/api/curated_cohort/{cohort_id}/students_with_alerts').json
+        students_with_alerts = client.get(f'/api/curated_group/{cohort_id}/students_with_alerts').json
         assert students_with_alerts[0]['alertCount'] == 2
 
     def test_curated_cohort_detail_includes_students_without_alerts(self, asc_advisor, client, cohorts_of_asc_advisor, create_alerts):
         """When curated_cohort detail is requested, returns all students."""
         cohort_id = cohorts_of_asc_advisor[0].id
-        cohort = client.get(f'/api/curated_cohort/{cohort_id}').json
+        cohort = client.get(f'/api/curated_group/{cohort_id}').json
         alert_counts = [s.get('alertCount') for s in cohort['students']]
         assert alert_counts == [3, 0, 0, 1]
 
     def test_curated_cohort_index_includes_summary(self, asc_advisor, client, cohorts_of_asc_advisor, create_alerts):
         """Returns summary details but not full term and analytics data for curated_cohort index."""
         cohort_id = cohorts_of_asc_advisor[0].id
-        students = client.get(f'/api/curated_cohort/{cohort_id}/students_with_alerts').json
+        students = client.get(f'/api/curated_group/{cohort_id}/students_with_alerts').json
         assert students[0]['cumulativeGPA'] == 3.8
         assert students[0]['cumulativeUnits'] == 101.3
         assert students[0]['expectedGraduationTerm']['name'] == 'Fall 2019'
@@ -143,7 +143,7 @@ class TestMyCuratedCohorts:
     def test_curated_cohort_detail_includes_analytics(self, asc_advisor, client, cohorts_of_asc_advisor, create_alerts):
         """Returns all students with full term and analytics data for detailed curated_cohort listing."""
         cohort_id = cohorts_of_asc_advisor[0].id
-        cohort = client.get(f'/api/curated_cohort/{cohort_id}').json
+        cohort = client.get(f'/api/curated_group/{cohort_id}').json
         student = cohort['students'][0]
         assert student['cumulativeGPA'] == 3.8
         assert student['cumulativeUnits'] == 101.3
@@ -154,7 +154,7 @@ class TestMyCuratedCohorts:
     def test_curated_cohort_detail_includes_athletics(self, asc_advisor, client, cohorts_of_asc_advisor):
         """Returns all students with athletic memberships for detailed curated_cohort listing."""
         cohort_id = cohorts_of_asc_advisor[0].id
-        cohort = client.get(f'/api/curated_cohort/{cohort_id}').json
+        cohort = client.get(f'/api/curated_group/{cohort_id}').json
         students = cohort['students']
         teams = students[0]['athleticsProfile']['athletics']
         assert len(teams) == 2
@@ -165,13 +165,13 @@ class TestMyCuratedCohorts:
 
     def test_curated_cohort_detail_omits_athletics_non_asc(self, client, coe_advisor, cohorts_of_coe_advisor):
         cohort_id = cohorts_of_coe_advisor[0].id
-        cohort = client.get(f'/api/curated_cohort/{cohort_id}').json
+        cohort = client.get(f'/api/curated_group/{cohort_id}').json
         assert 'athleticsProfile' not in cohort['students'][0]
 
     def test_my_curated_cohorts_by_sid(self, client, coe_advisor, cohorts_of_coe_advisor):
         cohort = cohorts_of_coe_advisor[0]
         sid = cohort.students[0].sid
-        curated_cohort_ids = client.get(f'/api/curated_cohorts/my/{sid}').json
+        curated_cohort_ids = client.get(f'/api/curated_groups/my/{sid}').json
         assert curated_cohort_ids == [cohort.id]
 
 
@@ -182,7 +182,7 @@ class TestCuratedCohortCreate:
         """Create curated cohort and add students."""
         name = 'Cheap Tricks'
         response = client.post(
-            '/api/curated_cohort/create',
+            '/api/curated_group/create',
             data=json.dumps({
                 'name': name,
                 'sids': ['2345678901', '11667051'],
@@ -195,7 +195,7 @@ class TestCuratedCohortCreate:
 
         # Add students and include invalid sid and dupe sids. Expect no "duplicate key violates" error.
         response = client.post(
-            '/api/curated_cohort/students/add',
+            '/api/curated_group/students/add',
             data=json.dumps({
                 'curatedCohortId': cohort['id'],
                 'sids': ['7890123456', 'ABC'],
@@ -215,7 +215,7 @@ class TestCuratedCohortDelete:
         """Create a curated_cohort, add a student, remove the student and then delete the curated_cohort."""
         name = 'Fun Boy Three'
         response = client.post(
-            '/api/curated_cohort/create',
+            '/api/curated_group/create',
             data=json.dumps({'name': name}),
             content_type='application/json',
         )
@@ -225,37 +225,37 @@ class TestCuratedCohortDelete:
         # Add student
         sid = '2345678901'
         student_count_before = cohort['studentCount']
-        response = client.get(f'/api/curated_cohort/{curated_cohort_id}/add_student/{sid}')
+        response = client.get(f'/api/curated_group/{curated_cohort_id}/add_student/{sid}')
         assert response.status_code == 200
         assert response.json['studentCount'] == student_count_before + 1
 
-        cohort = client.get(f'/api/curated_cohort/{curated_cohort_id}').json
+        cohort = client.get(f'/api/curated_group/{curated_cohort_id}').json
         assert cohort['name'] == name
         student = cohort['students'][0]
         assert student['sid'] == sid
         assert isinstance(student.get('alertCount'), int)
         # Remove student
         student_count_before = cohort['studentCount']
-        response = client.delete(f'/api/curated_cohort/{curated_cohort_id}/remove_student/{sid}')
+        response = client.delete(f'/api/curated_group/{curated_cohort_id}/remove_student/{sid}')
         assert response.status_code == 200
         assert response.json['studentCount'] == student_count_before - 1
 
-        cohort = client.get(f'/api/curated_cohort/{curated_cohort_id}').json
+        cohort = client.get(f'/api/curated_group/{curated_cohort_id}').json
         assert cohort['name'] == name
         assert not len(cohort['students'])
         # Rename curated_cohort
         new_name = 'Teenage Wasteland'
         response = client.post(
-            '/api/curated_cohort/rename',
+            '/api/curated_group/rename',
             data=json.dumps({'id': curated_cohort_id, 'name': new_name}),
             content_type='application/json',
         )
         assert response.status_code == 200
-        cohort = client.get(f'/api/curated_cohort/{curated_cohort_id}').json
+        cohort = client.get(f'/api/curated_group/{curated_cohort_id}').json
         assert cohort['name'] == new_name
         # Delete curated_cohort
-        response = client.delete(f'/api/curated_cohort/delete/{curated_cohort_id}')
+        response = client.delete(f'/api/curated_group/delete/{curated_cohort_id}')
         assert response.status_code == 200
         # Verify
-        response = client.get(f'/api/curated_cohort/{curated_cohort_id}')
+        response = client.get(f'/api/curated_group/{curated_cohort_id}')
         assert response.status_code == 404
