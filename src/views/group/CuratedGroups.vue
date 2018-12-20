@@ -2,7 +2,7 @@
   <div class="container-manage-cohorts">
     <Spinner/>
     <div v-if="!loading">
-      <h1 class="page-section-header">Manage Curated Groups</h1>
+      <h1 ref="pageHeader" tabindex="0" class="page-section-header">Manage Curated Groups</h1>
       <div v-if="!curatedGroups.length" data-ng-controller="CreateCuratedCohortController">
         You have no curated groups.
         <a id="curated-cohort-create"

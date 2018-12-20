@@ -18,9 +18,10 @@
       <div>
         <div class="course-container-summary">
           <div class="course-column-description">
-            <h1 focus-on="!isLoading"
-                tabindex="0"
-                class="course-header">
+            <h1 id="course-header"
+                ref="pageHeader"
+                class="course-header"
+                tabindex="0">
               {{ section.displayName }}
             </h1>
             <div class="course-details-section">
