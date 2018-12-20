@@ -10,7 +10,14 @@ export default {
   },
   methods: {
     startLoading: () => store.dispatch('context/loadingStart'),
-    loaded: () => store.dispatch('context/loadingComplete')
+    loaded() {
+      store.dispatch('context/loadingComplete');
+      this.$nextTick(() => {
+        if (this.$refs.pageHeader) {
+          this.$refs.pageHeader.focus();
+        }
+      });
+    }
   }
 };
 </script>

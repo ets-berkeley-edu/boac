@@ -1,7 +1,7 @@
 <template>
   <div class="cohort-header-container">
     <div v-if="!renameMode.on">
-      <h1 class="page-section-header">
+      <h1 tabindex="0" ref="pageHeader" class="page-section-header">
         <span>{{ curatedGroup.name || 'Curated Group' }}</span>
         <span class="faint-text"> (<span>{{ 'student' | pluralize(curatedGroup.studentCount, {1: 'One'})}}</span>)</span>
       </h1>
@@ -91,12 +91,13 @@
 
 <script>
 import { deleteCuratedGroup, renameCuratedGroup } from '@/api/curated';
+import Loading from '@/mixins/Loading.vue';
 import Validator from '@/mixins/Validator.vue';
 import router from '@/router';
 
 export default {
   name: 'CuratedGroupHeader',
-  mixins: [Validator],
+  mixins: [Loading, Validator],
   props: ['curatedGroup'],
   data: () => ({
     isModalOpen: false,
@@ -115,6 +116,9 @@ export default {
         });
       }
     }
+  },
+  mounted() {
+    this.loaded();
   },
   methods: {
     enterRenameMode: function() {

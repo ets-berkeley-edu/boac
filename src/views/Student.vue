@@ -10,6 +10,8 @@
           <div class="student-bio-contact">
             <h1 class="student-section-header"
                 id="student-name-header"
+                ref="pageHeader"
+                tabindex="0"
                 :class="{'demo-mode-blur': user.inDemoMode}">
               {{student.name}}
             </h1>

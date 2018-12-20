@@ -2,7 +2,7 @@
   <div class="m-3">
     <Spinner/>
     <div v-if="!loading">
-      <h1>Everyone's Cohorts</h1>
+      <h1 ref="pageHeader" tabindex="0">Everyone's Cohorts</h1>
 
       <div v-if="!usersWithCohorts.length">
         <div>There are no saved cohorts</div>
