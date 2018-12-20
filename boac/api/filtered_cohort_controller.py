@@ -25,10 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import get_my_cohorts, is_unauthorized_search, strip_analytics
-from boac.lib import util
 from boac.lib.berkeley import can_view_cohort
 from boac.lib.cohort_filter_definition import get_cohort_filter_definitions
 from boac.lib.http import tolerant_jsonify
+from boac.lib.util import get as get_param, to_bool_or_none as to_bool
 from boac.merged import calnet
 from boac.merged.student import get_student_query_scope, get_summary_student_profiles
 from boac.models.cohort_filter import CohortFilter
@@ -99,11 +99,11 @@ def students_with_alerts(cohort_id):
 def get_cohort(cohort_id):
     if is_unauthorized_search(request.args):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
-    include_students = util.to_bool_or_none(util.get(request.args, 'includeStudents'))
+    include_students = to_bool(get_param(request.args, 'includeStudents'))
     include_students = True if include_students is None else include_students
-    order_by = util.get(request.args, 'orderBy', None)
-    offset = util.get(request.args, 'offset', 0)
-    limit = util.get(request.args, 'limit', 50)
+    order_by = get_param(request.args, 'orderBy', None)
+    offset = get_param(request.args, 'offset', 0)
+    limit = get_param(request.args, 'limit', 50)
     cohort = CohortFilter.find_by_id(int(cohort_id))
     if cohort and can_view_cohort(current_user, cohort):
         cohort = decorate_cohort(
@@ -126,27 +126,27 @@ def create_cohort():
     params = request.get_json()
     if is_unauthorized_search(params):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
-    name = util.get(params, 'name', None)
+    name = get_param(params, 'name', None)
     if not name:
         raise BadRequestError('Cohort creation requires \'name\'')
     cohort = CohortFilter.create(
-        advisor_ldap_uids=util.get(params, 'advisorLdapUids'),
-        coe_prep_statuses=util.get(params, 'coePrepStatuses'),
-        coe_probation=util.get(params, 'coeProbation'),
-        ethnicities=util.get(params, 'ethnicities'),
-        genders=util.get(params, 'genders'),
-        gpa_ranges=util.get(params, 'gpaRanges'),
-        group_codes=util.get(params, 'groupCodes'),
-        in_intensive_cohort=util.to_bool_or_none(params.get('inIntensiveCohort')),
-        is_inactive_asc=util.to_bool_or_none(params.get('isInactiveAsc')),
-        is_inactive_coe=util.to_bool_or_none(params.get('isInactiveCoe')),
+        advisor_ldap_uids=get_param(params, 'advisorLdapUids'),
+        coe_prep_statuses=get_param(params, 'coePrepStatuses'),
+        coe_probation=get_param(params, 'coeProbation'),
+        ethnicities=get_param(params, 'ethnicities'),
+        genders=get_param(params, 'genders'),
+        gpa_ranges=get_param(params, 'gpaRanges'),
+        group_codes=get_param(params, 'groupCodes'),
+        in_intensive_cohort=to_bool(params.get('inIntensiveCohort')),
+        is_inactive_asc=to_bool(params.get('isInactiveAsc')),
+        is_inactive_coe=to_bool(params.get('isInactiveCoe')),
         name=name,
-        last_name_range=util.get(params, 'lastNameRange'),
-        levels=util.get(params, 'levels'),
-        majors=util.get(params, 'majors'),
+        last_name_range=get_param(params, 'lastNameRange'),
+        levels=get_param(params, 'levels'),
+        majors=get_param(params, 'majors'),
         uid=current_user.get_id(),
-        underrepresented=util.get(params, 'underrepresented'),
-        unit_ranges=util.get(params, 'unitRanges'),
+        underrepresented=get_param(params, 'underrepresented'),
+        unit_ranges=get_param(params, 'unitRanges'),
     )
     return tolerant_jsonify(decorate_cohort(cohort))
 
@@ -190,6 +190,28 @@ def delete_cohort(cohort_id):
             raise BadRequestError(f'User {uid} does not own cohort_filter with id={cohort_id}')
     else:
         raise ForbiddenRequestError(f'Programmatic deletion of canned cohorts is not allowed (id={cohort_id})')
+
+
+@app.route('/api/cohort/translate_filter_criteria', methods=['POST'])
+@login_required
+def translate_filter_criteria():
+    rows = []
+    criteria = get_param(request.get_json(), 'filterCriteria')
+    if criteria:
+        for definitions in get_cohort_filter_definitions(get_student_query_scope()):
+            for definition in definitions:
+                selected = criteria.get(definition['key'])
+                if selected is not None:
+                    def _append_row(value):
+                        row = {k: definition.get(k) for k in ['key', 'name', 'options', 'subcategoryHeader']}
+                        row['value'] = value
+                        rows.append(row)
+                    if isinstance(selected, list) and definition['type'] != 'range':
+                        for option in selected:
+                            _append_row(option)
+                    else:
+                        _append_row(selected)
+    return tolerant_jsonify(rows)
 
 
 def decorate_cohort(cohort, **kwargs):
