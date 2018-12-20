@@ -101,9 +101,9 @@ def _vue_redirect_path(app):
     vue_path_mappings = app.config['VUE_ENABLED'] and app.config['VUE_PATHS']
     if vue_path_mappings:
         for angular_path_pattern, vue_path in vue_path_mappings.items():
-            match = re.compile(angular_path_pattern).match(request.path)
+            match = re.compile(angular_path_pattern).match(request.full_path)
             if match:
-                app.logger.info(f'Vue: Request path {request.path} matches pattern {angular_path_pattern}')
+                app.logger.info(f'Vue: Request path {request.full_path} matches pattern {angular_path_pattern}')
                 vue_redirect = vue_path
                 for index, token in enumerate(match.groups()):
                     vue_redirect = vue_redirect.replace(f'\\{index + 1}', token)
@@ -112,10 +112,13 @@ def _vue_redirect_path(app):
                 app.logger.info(f'Vue: Prepare redirect to {vue_redirect}')
                 break
             else:
-                # If incoming path is served by Vue then pass through... But, make sure Vue index.html is used.
-                vue_path_prefix = vue_path.split('\\1')[0]
-                if request.path.startswith(vue_path_prefix):
-                    app.logger.info(f'Vue: Request path starts with {vue_path_prefix} so we will \'vue_redirect\'')
+                # If incoming path should be served by Vue then pass through and make sure VUE_INDEX_HTML is used.
+                # To determine if incoming path should be served by Vue we get regex that is deduced from target string
+                # in VUE_PATHS config. Those "target strings" may contain '\1' and '\2'  and we assume those
+                # placeholders are numeric (eg, UID). We expect this programmatic deduction to work in all cases.
+                vue_path_regex = vue_path.replace('\\1', '[0-9]+').replace('\\2', '[0-9]+')
+                if re.compile(vue_path_regex).match(request.full_path):
+                    app.logger.info(f'Vue: Request path matches {vue_path_regex} so we will \'vue_redirect\'')
                     vue_redirect = request.full_path
                     break
     return vue_redirect

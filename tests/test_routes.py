@@ -45,7 +45,7 @@ class TestVueRedirect:
 
     def test_path_rewrite_to_vue_enabled(self, client, asc_advisor_session):
         """Serves Vue page when the legacy route is mapped to a Vue route."""
-        response = client.get('/cohort/filtered/all')
+        response = client.get('/cohorts/all')
         assert response.status_code == 200
         assert 'I am a Vue.js page' in str(response.data)
 
