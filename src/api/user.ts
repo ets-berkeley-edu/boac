@@ -38,6 +38,6 @@ export function setDemoMode(demoMode: boolean) {
     })
     .then(response => response.data, () => null)
     .then(() => {
-      store.getters.user.inDemoMode = demoMode;
+      store.dispatch('user/setDemoMode', demoMode);
     });
 }

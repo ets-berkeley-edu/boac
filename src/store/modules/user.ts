@@ -29,6 +29,9 @@ const mutations = {
       state.user = user;
     }
   },
+  setDemoMode: (state: any, demoMode: boolean) => {
+    state.user.demoMode = demoMode;
+  },
   userAuthenticated: (state: any) => {
     state.isUserAuthenticated = true;
   }
@@ -37,6 +40,9 @@ const mutations = {
 const actions = {
   logout: ({ commit }) => {
     commit('logout');
+  },
+  setDemoMode: ({ commit }, demoMode) => {
+    commit('setDemoMode', demoMode);
   },
   userAuthenticated: ({ commit }) => {
     commit('userAuthenticated');

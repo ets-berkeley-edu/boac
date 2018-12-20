@@ -30,6 +30,9 @@ const getters = {
   },
   supportEmailAddress: (state: any): string => {
     return _.get(state.config, 'supportEmailAddress');
+  },
+  vuePaths: (state: any): string[] => {
+    return _.get(state.config, 'vuePaths');
   }
 };
 

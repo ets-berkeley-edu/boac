@@ -9,7 +9,7 @@
           <router-link id="sidebar-filtered-cohort-create"
                        class="sidebar-create-link"
                        aria-label="Create cohort"
-                       to="/cohort/create"><i class="fas fa-plus"></i></router-link>
+                       to="/create_cohort"><i class="fas fa-plus"></i></router-link>
         </span>
       </div>
     </div>
@@ -17,10 +17,10 @@
          v-for="(cohort, index) in myCohorts"
          v-bind:key="cohort.id">
       <div class="sidebar-row-link-label">
-        <router-link :id="'sidebar-filtered-cohort-' + index"
-                     :aria-label="'Cohort ' + cohort.name + ' has ' + cohort.totalStudentCount + ' students'"
+        <router-link :id="`sidebar-filtered-cohort-${index}`"
+                     :aria-label="`Cohort ${cohort.name} has ${cohort.totalStudentCount}  students`"
                      class="sidebar-row-link-label-text"
-                     :to="'/cohort/' + cohort.id">{{ cohort.name }}</router-link>
+                     :to="`/cohort/${cohort.id}`">{{ cohort.name }}</router-link>
       </div>
       <div>
         <span :id="'sidebar-filtered-cohort-' + index + '-count'"
