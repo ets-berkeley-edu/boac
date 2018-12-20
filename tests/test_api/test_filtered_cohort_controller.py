@@ -526,3 +526,66 @@ class TestCohortFilterDefinitions:
         # COE advisors
         assert definitions[4][4]['key'] == 'advisorLdapUids'
         assert len(definitions[4][4]['options']) == 3
+
+
+class TestCohortTranslations:
+    """Cohort Translation API."""
+
+    def test_translate_criteria_when_empty(self, client, coe_advisor_session):
+        """Empty filterCriteria translates to zero rows."""
+        response = client.post(
+            '/api/cohort/translate_filter_criteria',
+            data=json.dumps({'filterCriteria': {}}),
+            content_type='application/json',
+        )
+        assert response.status_code == 200
+        assert json.loads(response.data) == []
+
+    def test_translate_criteria_with_boolean(self, client, coe_advisor_session):
+        """Filter-criteria with boolean is properly translated."""
+        key = 'isInactiveCoe'
+        response = client.post(
+            '/api/cohort/translate_filter_criteria',
+            data=json.dumps({'filterCriteria': {key: False}}),
+            content_type='application/json',
+        )
+        assert response.status_code == 200
+        rows = json.loads(response.data)
+        assert len(rows) == 1
+        row = rows[0]
+        assert row['name'] == 'Inactive'
+        assert row['key'] == key
+        assert row['value'] is False
+
+    def test_translate_criteria_with_array(self, client, coe_advisor_session):
+        """Filter-criteria with array is properly translated."""
+        key = 'levels'
+        selected_options = ['Freshman', 'Sophomore']
+        response = client.post(
+            '/api/cohort/translate_filter_criteria',
+            data=json.dumps({'filterCriteria': {key: selected_options}}),
+            content_type='application/json',
+        )
+        assert response.status_code == 200
+        rows = json.loads(response.data)
+        assert len(rows) == 2
+        assert rows[0]['name'] == rows[1]['name'] == 'Level'
+        assert rows[0]['key'] == rows[1]['key'] == key
+        assert rows[0]['value'] == 'Freshman'
+        assert rows[1]['value'] == 'Sophomore'
+
+    def test_translate_criteria_with_range(self, client, coe_advisor_session):
+        """Filter-criteria with range is properly translated."""
+        key = 'lastNameRange'
+        selected_options = ['M', 'Z']
+        response = client.post(
+            '/api/cohort/translate_filter_criteria',
+            data=json.dumps({'filterCriteria': {key: selected_options}}),
+            content_type='application/json',
+        )
+        assert response.status_code == 200
+        rows = json.loads(response.data)
+        assert len(rows) == 1
+        assert rows[0]['name'] == 'Last Name'
+        assert rows[0]['key'] == key
+        assert rows[0]['value'] == selected_options
