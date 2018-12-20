@@ -39,7 +39,7 @@
         sids: sids
       };
 
-      return $http.post('/api/curated_cohort/students/add', args).then(function(response) {
+      return $http.post('/api/curated_group/students/add', args).then(function(response) {
         var cohort = response.data;
         getStashedCohort(cohortId).studentCount = cohort.studentCount;
         googleAnalyticsService.track('Curated Cohort', 'add_students', cohort.name, cohort.id);
@@ -47,7 +47,7 @@
     };
 
     var addStudent = function(cohortId, sid) {
-      return $http.get('/api/curated_cohort/' + cohortId + '/add_student/' + sid).then(function(response) {
+      return $http.get('/api/curated_group/' + cohortId + '/add_student/' + sid).then(function(response) {
         var cohort = response.data;
         getStashedCohort(cohortId).studentCount = cohort.studentCount;
         googleAnalyticsService.track('Curated Cohort', 'add_student', cohort.name, cohort.id);
@@ -55,7 +55,7 @@
     };
 
     var create = function(name, callback) {
-      return $http.post('/api/curated_cohort/create', {name: name}).then(function(response) {
+      return $http.post('/api/curated_group/create', {name: name}).then(function(response) {
         var cohort = response.data;
         $rootScope.profile.myCuratedCohorts.push(cohort);
         googleAnalyticsService.track('Curated Cohort', 'create', cohort.name, cohort.id);
@@ -65,7 +65,7 @@
     };
 
     var deleteCuratedCohort = function(id) {
-      return $http.delete('/api/curated_cohort/delete/' + id).then(function() {
+      return $http.delete('/api/curated_group/delete/' + id).then(function() {
         $rootScope.profile.myCuratedCohorts = _.remove($rootScope.profile.myCuratedCohorts, function(cohort) {
           return id !== cohort.id;
         });
@@ -74,19 +74,19 @@
     };
 
     var getStudentsWithAlertsInCohort = function(cohortId) {
-      return $http.get('/api/curated_cohort/' + cohortId + '/students_with_alerts');
+      return $http.get('/api/curated_group/' + cohortId + '/students_with_alerts');
     };
 
     var getCuratedCohort = function(id) {
-      return $http.get('/api/curated_cohort/' + id);
+      return $http.get('/api/curated_group/' + id);
     };
 
     var getMyCuratedCohortIdsPerStudentId = function(sid) {
-      return $http.get('/api/curated_cohorts/my/' + sid);
+      return $http.get('/api/curated_groups/my/' + sid);
     };
 
     var removeStudent = function(cohortId, sid) {
-      return $http.delete('/api/curated_cohort/' + cohortId + '/remove_student/' + sid).then(function(response) {
+      return $http.delete('/api/curated_group/' + cohortId + '/remove_student/' + sid).then(function(response) {
         var cohort = response.data;
         getStashedCohort(cohortId).studentCount = cohort.studentCount;
         googleAnalyticsService.track('Curated Cohort', 'remove_student', cohort.name, cohort.id);
@@ -94,7 +94,7 @@
     };
 
     var rename = function(cohortId, name) {
-      return $http.post('/api/curated_cohort/rename', {id: cohortId, name: name}).then(function(response) {
+      return $http.post('/api/curated_group/rename', {id: cohortId, name: name}).then(function(response) {
         var cohort = response.data;
         _.set(getStashedCohort(cohortId), 'name', cohort.name);
         googleAnalyticsService.track('Curated Cohort', 'rename', cohort.name, cohort.id);

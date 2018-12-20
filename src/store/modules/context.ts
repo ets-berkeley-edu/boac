@@ -79,6 +79,9 @@ const actions = {
         });
       }
     });
+  },
+  reportError: ({ commit }, error) => {
+    commit('reportError', error);
   }
 };
 

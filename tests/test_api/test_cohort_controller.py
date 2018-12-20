@@ -87,7 +87,7 @@ class TestCohortDetail:
         cohorts = CohortFilter.all_owned_by(asc_advisor_uid)
         assert len(cohorts)
         cohort_id = cohorts[0].id
-        students_with_alerts = client.get(f'/api/filtered_cohort/{cohort_id}/students_with_alerts').json
+        students_with_alerts = client.get(f'/api/cohort/{cohort_id}/students_with_alerts').json
         assert len(students_with_alerts) == 3
 
         deborah = students_with_alerts[0]
@@ -116,14 +116,14 @@ class TestCohortDetail:
         alert_to_dismiss = client.get('/api/alerts/current/2345678901').json['shown'][0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
 
-        students_with_alerts = client.get(f'/api/filtered_cohort/{cohort_id}/students_with_alerts').json
+        students_with_alerts = client.get(f'/api/cohort/{cohort_id}/students_with_alerts').json
         assert len(students_with_alerts) == 2
         assert students_with_alerts[0]['sid'] == '11667051'
         assert students_with_alerts[0]['alertCount'] == 2
 
     def test_cohorts_all(self, asc_advisor_session, client):
         """Returns all cohorts per owner."""
-        response = client.get('/api/filtered_cohorts/all')
+        response = client.get('/api/cohorts/all')
         assert response.status_code == 200
         data = json.loads(response.data)
         assert len(data) == 1
@@ -135,7 +135,7 @@ class TestCohortDetail:
 
     def test_get_cohort(self, coe_advisor_session, client, coe_owned_cohort, create_alerts):
         """Returns a well-formed response with filtered cohort and alert count per student."""
-        response = client.get(f'/api/filtered_cohort/{coe_owned_cohort.id}')
+        response = client.get(f'/api/cohort/{coe_owned_cohort.id}')
         assert response.status_code == 200
         cohort = json.loads(response.data)
         assert cohort['id'] == coe_owned_cohort.id
@@ -145,21 +145,21 @@ class TestCohortDetail:
 
     def test_get_cohort_without_students(self, coe_advisor_session, client, coe_owned_cohort):
         """Returns a well-formed response with cohort and no students."""
-        response = client.get(f'/api/filtered_cohort/{coe_owned_cohort.id}?includeStudents=false')
+        response = client.get(f'/api/cohort/{coe_owned_cohort.id}?includeStudents=false')
         assert response.status_code == 200
         cohort = json.loads(response.data)
         assert 'students' not in cohort
 
     def test_unauthorized_get_cohort(self, asc_advisor_session, client, coe_owned_cohort):
         """Returns a well-formed response with custom cohort."""
-        response = client.get(f'/api/filtered_cohort/{coe_owned_cohort.id}')
+        response = client.get(f'/api/cohort/{coe_owned_cohort.id}')
         assert response.status_code == 404
         assert 'No cohort found' in json.loads(response.data)['message']
 
     def test_undeclared_major(self, asc_advisor_session, client):
         """Returns a well-formed response with custom cohort."""
         cohort = CohortFilter.all_owned_by(asc_advisor_uid)[-1]
-        response = client.get(f'/api/filtered_cohort/{cohort.id}')
+        response = client.get(f'/api/cohort/{cohort.id}')
         assert response.status_code == 200
         cohort = json.loads(response.data)
         assert cohort['name'] == 'Undeclared students'
@@ -170,7 +170,7 @@ class TestCohortDetail:
 
     def test_includes_cohort_member_sis_data(self, asc_advisor_session, asc_owned_cohort, client):
         """Includes SIS data for custom cohort students."""
-        response = client.get(f'/api/filtered_cohort/{asc_owned_cohort.id}')
+        response = client.get(f'/api/cohort/{asc_owned_cohort.id}')
         assert response.status_code == 200
         athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
         assert athlete['cumulativeGPA'] == 3.8
@@ -180,7 +180,7 @@ class TestCohortDetail:
 
     def test_includes_cohort_member_current_enrollments(self, asc_advisor_session, asc_owned_cohort, client):
         """Includes current-term active enrollments and analytics for custom cohort students."""
-        response = client.get(f'/api/filtered_cohort/{asc_owned_cohort.id}?orderBy=firstName')
+        response = client.get(f'/api/cohort/{asc_owned_cohort.id}?orderBy=firstName')
         assert response.status_code == 200
         athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
 
@@ -196,7 +196,7 @@ class TestCohortDetail:
             assert analytics[metric]['displayPercentile'].endswith(('nd', 'rd', 'st', 'th'))
 
     def test_includes_cohort_member_term_gpa(self, asc_advisor_session, asc_owned_cohort, client):
-        response = client.get(f'/api/filtered_cohort/{asc_owned_cohort.id}?orderBy=firstName')
+        response = client.get(f'/api/cohort/{asc_owned_cohort.id}?orderBy=firstName')
         deborah = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
         assert len(deborah['termGpa']) == 4
         assert deborah['termGpa'][0] == {'termName': 'Spring 2018', 'gpa': 2.9}
@@ -204,7 +204,7 @@ class TestCohortDetail:
 
     def test_includes_cohort_member_athletics_asc(self, asc_advisor_session, asc_owned_cohort, client):
         """Includes athletic data custom cohort members for ASC advisors."""
-        response = client.get(f'/api/filtered_cohort/{asc_owned_cohort.id}')
+        response = client.get(f'/api/cohort/{asc_owned_cohort.id}')
         athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
         assert len(athlete['athleticsProfile']['athletics']) == 2
         assert athlete['athleticsProfile']['inIntensiveCohort'] is not None
@@ -221,7 +221,7 @@ class TestCohortDetail:
 
     def test_omits_cohort_member_athletics_non_asc(self, coe_advisor_session, client, coe_owned_cohort):
         """Omits athletic data for non-ASC advisors."""
-        response = client.get(f'/api/filtered_cohort/{coe_owned_cohort.id}')
+        response = client.get(f'/api/cohort/{coe_owned_cohort.id}')
         secretly_an_athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
         assert 'athletics' not in secretly_an_athlete
         assert 'inIntensiveCohort' not in secretly_an_athlete
@@ -230,7 +230,7 @@ class TestCohortDetail:
 
     def test_includes_cohort_member_athletics_advisors(self, admin_session, client, coe_owned_cohort):
         """Includes athletic data for admins."""
-        response = client.get(f'/api/filtered_cohort/{coe_owned_cohort.id}')
+        response = client.get(f'/api/cohort/{coe_owned_cohort.id}')
         athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
         assert len(athlete['athleticsProfile']['athletics']) == 2
         assert athlete['athleticsProfile']['inIntensiveCohort'] is not None
@@ -239,13 +239,13 @@ class TestCohortDetail:
 
     def test_get_cohort_404(self, client, coe_advisor_session):
         """Returns a well-formed response when no cohort found."""
-        response = client.get('/api/filtered_cohort/99999999')
+        response = client.get('/api/cohort/99999999')
         assert response.status_code == 404
         assert 'No cohort found' in str(response.data)
 
     def test_offset_and_limit(self, asc_advisor_session, asc_owned_cohort, client):
         """Returns a well-formed response with custom cohort."""
-        api_path = f'/api/filtered_cohort/{asc_owned_cohort.id}'
+        api_path = f'/api/cohort/{asc_owned_cohort.id}'
         # First, offset is zero
         response = client.get(f'{api_path}?offset={0}&limit={1}')
         data_0 = json.loads(response.data)
@@ -265,7 +265,7 @@ class TestCohortDetail:
             'name': 'My filtered cohort just hacked the system!',
             'isInactiveAsc': True,
         }
-        response = client.post('/api/filtered_cohort/create', data=json.dumps(data), content_type='application/json')
+        response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 403
 
 
@@ -282,7 +282,7 @@ class TestCohortCreate:
                 'Bioengineering BS',
             ],
         }
-        response = client.post('/api/filtered_cohort/create', data=json.dumps(data), content_type='application/json')
+        response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 200
 
         cohort = json.loads(response.data)
@@ -292,7 +292,7 @@ class TestCohortCreate:
         assert data['groupCodes'] == [g['groupCode'] for g in cohort['teamGroups']]
 
         cohort_id = cohort['id']
-        response = client.get(f'/api/filtered_cohort/{cohort_id}')
+        response = client.get(f'/api/cohort/{cohort_id}')
         same_cohort = json.loads(response.data)
 
         assert 'students' in cohort
@@ -307,7 +307,7 @@ class TestCohortCreate:
             'name': 'ASC advisor wants to see students of COE advisor',
             'advisorLdapUids': '1133399',
         }
-        response = client.post('/api/filtered_cohort/create', data=json.dumps(data), content_type='application/json')
+        response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 403
 
     def test_admin_create_of_coe_uid_cohort(self, admin_session, client, fake_auth):
@@ -315,7 +315,7 @@ class TestCohortCreate:
             'name': 'Admin wants to see students of COE advisor',
             'advisorLdapUids': '1133399',
         }
-        response = client.post('/api/filtered_cohort/create', data=json.dumps(data), content_type='application/json')
+        response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 200
 
     def test_create_cohort_with_complex_filters(self, client, coe_advisor_session):
@@ -329,10 +329,10 @@ class TestCohortCreate:
                 'Gender and Women\’s Studies',
             ],
         }
-        response = client.post('/api/filtered_cohort/create', data=json.dumps(data), content_type='application/json')
+        response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
         assert 200 == response.status_code
         cohort_id = response.json['id']
-        response = client.get(f'/api/filtered_cohort/{cohort_id}')
+        response = client.get(f'/api/cohort/{cohort_id}')
         assert 200 == response.status_code
         cohort = response.json
         assert cohort and 'filterCriteria' in cohort
@@ -342,13 +342,13 @@ class TestCohortCreate:
     def test_admin_creation_of_asc_cohort(self, client, admin_session):
         """COE advisor cannot use ASC criteria."""
         data = {'name': 'Admin superpowers', 'groupCodes': ['MTE', 'WWP']}
-        response = client.post('/api/filtered_cohort/create', data=json.dumps(data), content_type='application/json')
+        response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
         assert 200 == response.status_code
 
     def test_forbidden_cohort_creation(self, client, coe_advisor_session):
         """COE advisor cannot use ASC criteria."""
         data = {'name': 'Sorry Charlie', 'groupCodes': ['MTE', 'WWP']}
-        response = client.post('/api/filtered_cohort/create', data=json.dumps(data), content_type='application/json')
+        response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
         assert 403 == response.status_code
 
 
@@ -361,21 +361,21 @@ class TestCohortUpdate:
             'id': cohort.id,
             'name': 'Hack the name!',
         }
-        response = client.post('/api/filtered_cohort/update', data=json.dumps(data), content_type='application/json')
+        response = client.post('/api/cohort/update', data=json.dumps(data), content_type='application/json')
         assert 403 == response.status_code
 
     def test_cohort_update_name(self, client, asc_advisor_session):
         cohort = CohortFilter.create(uid=asc_advisor_uid, name='Swimming, Men\'s', group_codes=['MSW', 'MSW-DV', 'MSW-SW'])
         updated_name = 'Splashing, Men\'s'
         # First, we POST an empty name
-        response = client.post('/api/filtered_cohort/update', data=json.dumps({'id': cohort.id}), content_type='application/json')
+        response = client.post('/api/cohort/update', data=json.dumps({'id': cohort.id}), content_type='application/json')
         assert 400 == response.status_code
         # Now, we POST a valid name
         data = {
             'id': cohort.id,
             'name': updated_name,
         }
-        response = client.post('/api/filtered_cohort/update', data=json.dumps(data), content_type='application/json')
+        response = client.post('/api/cohort/update', data=json.dumps(data), content_type='application/json')
         assert 200 == response.status_code
         update = response.json
         assert update['name'] == updated_name
@@ -393,7 +393,7 @@ class TestCohortUpdate:
             name=name,
             group_codes=['MBB'],
         )
-        response = client.get(f'/api/filtered_cohort/{cohort.id}')
+        response = client.get(f'/api/cohort/{cohort.id}')
         cohort = json.loads(response.data)
         assert cohort['totalStudentCount'] == 1
         # Update the db
@@ -405,7 +405,7 @@ class TestCohortUpdate:
             },
             'studentCount': 3,
         }
-        response = client.post('/api/filtered_cohort/update', data=json.dumps(updates), content_type='application/json')
+        response = client.post('/api/cohort/update', data=json.dumps(updates), content_type='application/json')
         assert response.status_code == 200
         # Verify the value of 'student_count' in db
         updated_cohort = CohortFilter.find_by_id(cohort_id)
@@ -418,7 +418,7 @@ class TestCohortDelete:
 
     def test_delete_cohort_not_authenticated(self, client):
         """Custom cohort deletion requires authentication."""
-        response = client.delete('/api/filtered_cohort/delete/123')
+        response = client.delete('/api/cohort/delete/123')
         assert response.status_code == 401
 
     def test_delete_cohort_wrong_user(self, client, fake_auth):
@@ -428,12 +428,12 @@ class TestCohortDelete:
 
         # This user does not own the custom cohort above
         fake_auth.login('2040')
-        response = client.get(f'/api/filtered_cohort/{cohort.id}')
+        response = client.get(f'/api/cohort/{cohort.id}')
         assert response.status_code == 200
         _cohort = json.loads(response.data)
         assert _cohort['isOwnedByCurrentUser'] is False
 
-        response = client.delete(f'/api/filtered_cohort/delete/{cohort.id}')
+        response = client.delete(f'/api/cohort/delete/{cohort.id}')
         assert response.status_code == 400
         assert '2040 does not own' in str(response.data)
 
@@ -442,7 +442,7 @@ class TestCohortDelete:
         name = 'Water polo teams'
         cohort = CohortFilter.create(uid=coe_advisor_uid, name=name, group_codes=['WWP', 'MWP'])
         # Verify deletion
-        response = client.delete(f'/api/filtered_cohort/delete/{cohort.id}')
+        response = client.delete(f'/api/cohort/delete/{cohort.id}')
         assert response.status_code == 200
         cohorts = CohortFilter.all_owned_by(asc_advisor_uid)
         assert not next((c for c in cohorts if c.id == cohort.id), None)
@@ -453,7 +453,7 @@ class TestCohortFilterDefinitions:
 
     def test_coe_filter_definitions(self, client, coe_advisor_session):
         """Gets filters available to COE users."""
-        response = client.get('/api/filter_cohort/definitions')
+        response = client.get('/api/cohort/filter_definitions')
         assert response.status_code == 200
         definitions = response.json
         assert len(definitions) == 4
@@ -464,7 +464,7 @@ class TestCohortFilterDefinitions:
 
     def test_asc_filter_definitions(self, client, asc_advisor_session):
         """Gets filters available to ASC users."""
-        response = client.get('/api/filter_cohort/definitions')
+        response = client.get('/api/cohort/filter_definitions')
         assert response.status_code == 200
         definitions = response.json
         assert len(definitions) == 4
@@ -474,7 +474,7 @@ class TestCohortFilterDefinitions:
 
     def test_admin_filter_definitions(self, client, admin_session):
         """Gets filters available to Admin users."""
-        response = client.get('/api/filter_cohort/definitions')
+        response = client.get('/api/cohort/filter_definitions')
         assert response.status_code == 200
         definitions = response.json
         assert len(definitions) == 5

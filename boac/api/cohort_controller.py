@@ -42,7 +42,7 @@ def my_cohorts():
     return tolerant_jsonify(get_my_cohorts())
 
 
-@app.route('/api/filter_cohort/definitions')
+@app.route('/api/cohort/filter_definitions')
 @login_required
 def get_filter_definitions():
     categories = get_cohort_filter_definitions(get_student_query_scope())
@@ -54,7 +54,7 @@ def get_filter_definitions():
     return tolerant_jsonify(categories)
 
 
-@app.route('/api/filtered_cohorts/all')
+@app.route('/api/cohorts/all')
 @login_required
 def all_cohorts():
     cohorts_per_uid = {}
@@ -76,7 +76,7 @@ def all_cohorts():
     return tolerant_jsonify(owners)
 
 
-@app.route('/api/filtered_cohort/<cohort_id>/students_with_alerts')
+@app.route('/api/cohort/<cohort_id>/students_with_alerts')
 @login_required
 def students_with_alerts(cohort_id):
     cohort = CohortFilter.find_by_id(cohort_id)
@@ -94,7 +94,7 @@ def students_with_alerts(cohort_id):
     return tolerant_jsonify(students)
 
 
-@app.route('/api/filtered_cohort/<cohort_id>')
+@app.route('/api/cohort/<cohort_id>')
 @login_required
 def get_cohort(cohort_id):
     if is_unauthorized_search(request.args):
@@ -120,7 +120,7 @@ def get_cohort(cohort_id):
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
 
 
-@app.route('/api/filtered_cohort/create', methods=['POST'])
+@app.route('/api/cohort/create', methods=['POST'])
 @login_required
 def create_cohort():
     params = request.get_json()
@@ -151,7 +151,7 @@ def create_cohort():
     return tolerant_jsonify(decorate_cohort(cohort))
 
 
-@app.route('/api/filtered_cohort/update', methods=['POST'])
+@app.route('/api/cohort/update', methods=['POST'])
 @login_required
 def update_cohort():
     params = request.get_json()
@@ -176,7 +176,7 @@ def update_cohort():
     return tolerant_jsonify(decorate_cohort(updated, include_students=False))
 
 
-@app.route('/api/filtered_cohort/delete/<cohort_id>', methods=['DELETE'])
+@app.route('/api/cohort/delete/<cohort_id>', methods=['DELETE'])
 @login_required
 def delete_cohort(cohort_id):
     if cohort_id.isdigit():

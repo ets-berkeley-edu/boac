@@ -12,21 +12,21 @@ export function getMyCuratedGroups() {
 export function getCuratedGroup(id) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${apiBaseUrl}/api/curated_cohort/${id}`)
+    .get(`${apiBaseUrl}/api/curated_group/${id}`)
     .then(response => response.data, () => null);
 }
 
 export function getMyCuratedGroupIdsPerStudentId(sid: string) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${apiBaseUrl}/api/curated_cohorts/my/${sid}`)
+    .get(`${apiBaseUrl}/api/curated_groups/my/${sid}`)
     .then(response => response.data, () => null);
 }
 
 export function createCuratedGroup(name: string, sids: object) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .post(`${apiBaseUrl}/api/curated_cohort/create`, {
+    .post(`${apiBaseUrl}/api/curated_group/create`, {
       name: name,
       sids: sids
     })
@@ -45,7 +45,7 @@ export function createCuratedGroup(name: string, sids: object) {
 export function deleteCuratedGroup(id) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .delete(`${apiBaseUrl}/api/curated_cohort/delete/${id}`, {
+    .delete(`${apiBaseUrl}/api/curated_group/delete/${id}`, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -68,7 +68,7 @@ export function renameCuratedGroup(id, name) {
     name: name
   };
   return axios
-    .post(`${apiBaseUrl}/api/curated_cohort/rename`, group)
+    .post(`${apiBaseUrl}/api/curated_group/rename`, group)
     .then(() => {
       store.commit('curated/updateCuratedGroup', group);
     })
@@ -83,7 +83,7 @@ export function renameCuratedGroup(id, name) {
 export function addStudents(curatedGroup, sids) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .post(`${apiBaseUrl}/api/curated_cohort/students/add`, {
+    .post(`${apiBaseUrl}/api/curated_group/students/add`, {
       curatedCohortId: curatedGroup.id,
       sids: sids
     })
@@ -102,7 +102,7 @@ export function addStudents(curatedGroup, sids) {
 export function removeFromCuratedGroup(groupId, sid) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .delete(`${apiBaseUrl}/api/curated_cohort/${groupId}/remove_student/${sid}`)
+    .delete(`${apiBaseUrl}/api/curated_group/${groupId}/remove_student/${sid}`)
     .then(response => {
       const group = response.data;
       store.dispatch('curated/updateCuratedGroup', group);
