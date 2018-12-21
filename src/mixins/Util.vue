@@ -5,7 +5,8 @@ export default {
   name: 'Util',
   methods: {
     get: _.get,
-    isEmpty: _.isEmpty
+    isEmpty: _.isEmpty,
+    size: _.size
   }
 };
 </script>
