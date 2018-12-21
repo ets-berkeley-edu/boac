@@ -556,6 +556,7 @@ class TestCohortTranslations:
         assert row['name'] == 'Inactive'
         assert row['key'] == key
         assert row['value'] is False
+        assert 'subcategoryHeader' not in row
 
     def test_translate_criteria_with_array(self, client, coe_advisor_session):
         """Filter-criteria with array is properly translated."""
@@ -571,8 +572,14 @@ class TestCohortTranslations:
         assert len(rows) == 2
         assert rows[0]['name'] == rows[1]['name'] == 'Level'
         assert rows[0]['key'] == rows[1]['key'] == key
-        assert rows[0]['value'] == 'Freshman'
-        assert rows[1]['value'] == 'Sophomore'
+        assert rows[0]['subcategoryHeader'] == 'Freshman'
+        assert rows[1]['subcategoryHeader'] == 'Sophomore'
+
+        def selected_option_matches(row, value):
+            option = next((o for o in row.get('options', []) if o.get('selected') is True), None)
+            return option and option['value'] == value
+        assert selected_option_matches(rows[0], 'Freshman') is True
+        assert selected_option_matches(rows[1], 'Sophomore') is True
 
     def test_translate_criteria_with_range(self, client, coe_advisor_session):
         """Filter-criteria with range is properly translated."""
@@ -586,6 +593,8 @@ class TestCohortTranslations:
         assert response.status_code == 200
         rows = json.loads(response.data)
         assert len(rows) == 1
-        assert rows[0]['name'] == 'Last Name'
-        assert rows[0]['key'] == key
-        assert rows[0]['value'] == selected_options
+        row = rows[0]
+        assert row['name'] == 'Last Name'
+        assert row['key'] == key
+        assert row['value'] == selected_options
+        assert row['subcategoryHeader'] == 'Initials M through Z'

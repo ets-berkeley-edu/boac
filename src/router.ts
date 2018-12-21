@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import Admin from '@/views/Admin.vue';
 import AllCohorts from '@/views/cohort/AllCohorts.vue';
+import Cohort from '@/views/cohort/Cohort.vue';
 import Course from '@/views/Course.vue';
 import CuratedGroup from '@/views/group/CuratedGroup.vue';
 import Home from '@/views/Home.vue';
@@ -88,6 +89,7 @@ const router = new Router({
         },
         {
           path: '/cohort/:id',
+          component: Cohort,
           beforeEnter: requiresAuth,
           meta: {
             legacyPathRedirect: '/cohort/filtered?id=:id',
@@ -96,6 +98,7 @@ const router = new Router({
         },
         {
           path: '/create_cohort',
+          component: Cohort,
           beforeEnter: requiresAuth,
           meta: {
             legacyPathRedirect: '/cohort/filtered',

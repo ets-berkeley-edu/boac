@@ -35,9 +35,9 @@
 </template>
 
 <script>
-import DisplayError from '@/components/DisplayError.vue';
-import HeaderMenu from '@/components/HeaderMenu.vue';
-import Sidebar from '@/components/sidebar/Sidebar.vue';
+import DisplayError from '@/components/DisplayError';
+import HeaderMenu from '@/components/HeaderMenu';
+import Sidebar from '@/components/sidebar/Sidebar';
 
 export default {
   name: 'App',

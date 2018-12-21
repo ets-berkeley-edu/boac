@@ -1,4 +1,5 @@
 import cohort from '@/store/modules/cohort';
+import cohortEditSession from '@/store/modules/cohort-edit-session';
 import context from '@/store/modules/context';
 import curated from '@/store/modules/curated';
 import user from '@/store/modules/user';
@@ -10,6 +11,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   modules: {
     cohort,
+    cohortEditSession,
     context,
     curated,
     user
