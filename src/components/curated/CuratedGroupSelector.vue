@@ -16,6 +16,7 @@
     </div>
     <div>
       <b-dropdown id="curated-group-dropdown-select"
+                  class="curated-group-dropdown-select"
                   variant="primary"
                   toggle-class="b-dd-primary-override"
                   size="sm"
@@ -113,7 +114,9 @@ export default {
     });
   },
   computed: {
-    showMenu: () => this.sids.length
+    showMenu() {
+      return this.sids.length;
+    }
   },
   methods: {
     toggle(checked) {
@@ -165,6 +168,9 @@ export default {
 
 
 <style scoped>
+.curated-group-dropdown-select {
+  margin: 0 10px;
+}
 label {
   font-size: 14px;
   margin-bottom: 0;

@@ -142,11 +142,7 @@
 
               <td class="course-list-view-column course-list-view-column-checkbox">
                 <div class="add-to-cohort-checkbox">
-                  <input :id="`student-${student.uid}-curated-cohort-checkbox`"
-                         type="checkbox"
-                         :aria-label="`Add ${student.firstName}} ${student.lastName} to a curated group`"
-                         @change="student.onCuratedCohortToggle()"
-                         v-model="student.selectedForCuratedCohort"/>
+                  <CuratedStudentCheckbox :sid="student.sid"/>
                 </div>
               </td>
 
@@ -319,6 +315,7 @@
 import _ from 'lodash';
 import { getSection } from '@/api/course';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
+import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox';
 import Loading from '@/mixins/Loading.vue';
 import Spinner from '@/components/Spinner.vue';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
@@ -333,6 +330,7 @@ export default {
   mixins: [Loading, StudentAnalytics, StudentMetadata, UserMetadata, Util],
   components: {
     CuratedGroupSelector,
+    CuratedStudentCheckbox,
     Spinner,
     StudentAvatar,
     StudentBoxplot
@@ -620,11 +618,11 @@ export default {
 }
 
 .course-view-controls-container {
-  align-items: center;
+  align-items: baseline;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  padding-top: 20px;
+  padding: 20px 0 15px 0;
 }
 </style>
 
