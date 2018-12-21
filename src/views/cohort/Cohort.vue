@@ -11,7 +11,9 @@
                     v-for="(filter, index) in filters" :key="index"
                     :filter="filter"
                     :index="index"/>
-      <CohortStudents />
+      <Students :listName="cohortName"
+                listType="cohort"
+                :students="students"></Students>
     </div>
   </div>
 </template>
@@ -24,6 +26,7 @@ import CohortStudents from '@/components/cohort/CohortStudents';
 import CohortEditSession from '@/mixins/CohortEditSession';
 import Loading from '@/mixins/Loading';
 import Spinner from '@/components/Spinner';
+import Students from '@/components/student/Students';
 
 export default {
   name: 'Cohort',
@@ -32,7 +35,8 @@ export default {
     Spinner,
     CohortFilter,
     CohortPageHeader,
-    CohortStudents
+    CohortStudents,
+    Students
   },
   created() {
     let id = _.get(this.$route, 'params.id');

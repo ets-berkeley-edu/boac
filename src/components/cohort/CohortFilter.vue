@@ -76,9 +76,13 @@ export default {
     index: Number
   },
   data: () => ({
-    allowEdits: true,
+    allowEdits: undefined,
     isEditMode: false
   }),
+  created() {
+    this.allowEdits =
+      _.isNil(this.isOwnedByCurrentUser) || this.isOwnedByCurrentUser;
+  },
   methods: {
     update: _.noop
   }

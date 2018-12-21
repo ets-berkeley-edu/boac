@@ -15,7 +15,7 @@
     <div class="cohort-student-bio-container">
       <div class="cohort-student-name-container">
         <div>
-          <a :id="student.uid" :href="`/student/${student.uid}`">
+          <router-link :id="student.uid" :to="`/student/${student.uid}`">
             <h3 class="student-name"
                 :class="{'demo-mode-blur' : user.inDemoMode}"
                 v-if="sort.selected !== 'first_name'">
@@ -26,7 +26,7 @@
                 v-if="sort.selected === 'first_name'">
               {{ student.firstName }} {{ student.lastName }}
             </h3>
-          </a>
+          </router-link>
         </div>
       </div>
       <div class="student-sid" :class="{'demo-mode-blur' : user.inDemoMode}">
@@ -58,9 +58,9 @@
         <span class="student-gpa" v-if="student.cumulativeGPA">{{ student.cumulativeGPA | round(3) }}</span>
         <span class="student-text">GPA (Cumulative)</span>
       </div>
-      <StudentGpaChart v-if="student.termGpa && student.termGpa.length > 1" :student="student" :width="'130'"/>
+      <StudentGpaChart v-if="size(student.termGpa) > 1" :student="student" :width="'130'"/>
       <div class="student-bio-status-legend profile-last-term-gpa-outer"
-            v-if="student.termGpa && student.termGpa.length">
+           v-if="size(student.termGpa)">
         <i class="fa fa-exclamation-triangle boac-exclamation"
             v-if="student.termGpa[0].gpa < 2"></i>
         <span>{{ student.termGpa[0].termName }}</span> GPA:
@@ -68,7 +68,7 @@
       </div>
     </div>
     <div class="student-column">
-      <div class="student-gpa">{{ student.term.enrolledUnits || '0' }}</div>
+      <div class="student-gpa">{{ get(student.term, 'enrolledUnits', 0) }}</div>
       <div class="student-text">Units in Progress</div>
       <div class="student-gpa" v-if="!student.cumulativeUnits">{{ student.cumulativeUnits }}</div>
       <div class="student-gpa" v-if="student.cumulativeUnits">--<span class="sr-only">No data</span></div>
@@ -82,7 +82,7 @@
           <th class="cohort-course-activity-header">MID</th>
           <th class="cohort-course-activity-header">FINAL</th>
         </tr>
-        <tr v-for="(enrollment, index) in student.term.enrollments" :key="index">
+        <tr v-for="(enrollment, index) in get(student.term, 'enrollments', [])" :key="index">
           <td class="cohort-course-activity-data cohort-course-activity-course-name">
             <div>{{ enrollment.displayName }}</div>
           </td>
@@ -96,7 +96,7 @@
               </span>
               <span>{{ lastActivityDays(canvasSite.analytics) }}</span>
             </div>
-            <div v-if="!enrollment.canvasSites.length"><span class="sr-only">No data</span>&mdash;</div>
+            <div v-if="!get(enrollment, 'canvasSites').length"><span class="sr-only">No data</span>&mdash;</div>
           </td>
           <td class="cohort-course-activity-data">
             <span class="cohort-grade" v-if="enrollment.midtermGrade">{{ enrollment.midtermGrade }}</span>
@@ -112,9 +112,9 @@
             <span v-if="!enrollment.grade && !enrollment.gradingBasis"><span class="sr-only">No data</span>&mdash;</span>
           </td>
         </tr>
-        <tr v-if="!student.term.enrollments.length">
+        <tr v-if="!get(student.term, 'enrollments', []).length">
           <td class="cohort-course-activity-data cohort-course-activity-course-name faint-text">
-            {{ `No ${currentEnrollmentTerm.split(' ')[0] | lowercase} enrollments` }}
+            No {{currentEnrollmentTermId}} enrollments
           </td>
           <td class="cohort-course-activity-data">
             <span class="sr-only">No data</span>&mdash;
@@ -132,23 +132,25 @@
 </template>
 
 <script>
+import AppConfig from '@/mixins/AppConfig';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
-import StudentAvatar from '@/components/student/StudentAvatar.vue';
-import StudentGpaChart from '@/components/student/StudentGpaChart.vue';
+import StudentAvatar from '@/components/student/StudentAvatar';
+import StudentGpaChart from '@/components/student/StudentGpaChart';
 import StudentMetadata from '@/mixins/StudentMetadata';
 import UserMetadata from '@/mixins/UserMetadata';
+import Util from '@/mixins/Util';
 
 export default {
-  name: 'CuratedGroupStudent',
-  props: {
-    student: Object,
-    sort: Object
-  },
+  name: 'StudentRow',
+  mixins: [AppConfig, StudentAnalytics, StudentMetadata, UserMetadata, Util],
   components: {
     StudentAvatar,
     StudentGpaChart
   },
-  mixins: [StudentAnalytics, StudentMetadata, UserMetadata],
+  props: {
+    student: Object,
+    sort: Object
+  },
   methods: {
     removeFromCuratedCohort: function() {
       this.$eventHub.$emit('curated-group-remove-student', this.student.sid);
@@ -156,6 +158,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-</style>

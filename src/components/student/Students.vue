@@ -3,7 +3,7 @@
     <div class="cohort-list-header">
       <div class="cohort-list-header-column-01"></div>
       <div class="cohort-list-header-column-02">
-        <div class="cohort-sort-column">
+        <div class="cohort-sort-column" v-if="students.length">
           <label class="cohort-sort-label" for="curated-cohort-sort-by">Sort by</label>
           <select id="curated-cohort-sort-by"
                   class="form-control"
@@ -15,21 +15,20 @@
         </div>
       </div>
     </div>
-    <div v-if="!curatedGroup.students.length">
+    <div v-if="!students.length && listType === 'curatedGroup'">
       This curated group has no students. Start adding students from their profile pages to your
-      <strong>{{ curatedGroup.name }}</strong> group:
+      <strong>{{ listName }}</strong> group:
       <SearchStudents :withButton="true"/>
     </div>
-    <div v-if="curatedGroup.students.length">
+    <div v-if="students.length">
       <div id="curated-cohort-students" class="list-group">
-        <CuratedGroupStudent :student="student"
-                             :sort="sort"
-                             :id="`student-${student.uid}`"
-                             class="list-group-item student-list-item"
-                             :class="{'list-group-item-info' : anchor === `#${student.uid}`}"
-                             v-for="(student, index) in orderedStudents"
-                             :key="index">
-        </CuratedGroupStudent>
+        <StudentRow :student="student"
+                    :sort="sort"
+                    :id="`student-${student.uid}`"
+                    class="list-group-item student-list-item"
+                    :class="{'list-group-item-info' : anchor === `#${student.uid}`}"
+                    v-for="(student, index) in orderedStudents"
+                    :key="index"/>
       </div>
     </div>
   </div>
@@ -37,21 +36,21 @@
 
 <script>
 import _ from 'lodash';
-import { removeFromCuratedGroup } from '@/api/curated';
-import store from '@/store';
-import CuratedGroupStudent from '@/components/curated/CuratedGroupStudent.vue';
 import Scrollable from '@/mixins/Scrollable';
-import SearchStudents from '@/components/sidebar/SearchStudents.vue';
+import SearchStudents from '@/components/sidebar/SearchStudents';
+import StudentRow from '@/components/student/StudentRow';
 import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
-  name: 'CuratedGroupList',
+  name: 'Students',
   props: {
-    curatedGroup: Object
+    listName: String,
+    listType: String,
+    students: Array
   },
   components: {
     SearchStudents,
-    CuratedGroupStudent
+    StudentRow
   },
   mixins: [UserMetadata, Scrollable],
   data() {
@@ -73,9 +72,6 @@ export default {
       { name: 'Units Completed', value: 'units', available: true }
     ];
     this.sort.options = _.filter(options, 'available');
-    this.$eventHub.$on('curated-group-remove-student', sid =>
-      this.$_CuratedGroupList_removeStudent(sid)
-    );
   },
   mounted() {
     this.$nextTick(function() {
@@ -90,24 +86,12 @@ export default {
   },
   computed: {
     orderedStudents: function() {
-      return this.curatedGroup.students
-        .slice(0)
-        .sort(this.$_CuratedGroupList_compareStudents);
+      return this.students.slice(0).sort(this.$_Students_compareStudents);
     },
     anchor: () => location.hash
   },
   methods: {
-    $_CuratedGroupList_removeStudent: function(sid) {
-      removeFromCuratedGroup(this.curatedGroup.id, sid).then(() => {
-        let deleteIndex = this.curatedGroup.students.findIndex(student => {
-          return student.sid === sid;
-        });
-        this.curatedGroup.students.splice(deleteIndex, 1);
-        this.curatedGroup.studentCount = this.curatedGroup.students.length;
-        store.commit('curated/updateCuratedGroup', this.curatedGroup);
-      });
-    },
-    $_CuratedGroupList_levelComparator: function(level) {
+    $_Students_levelComparator: function(level) {
       switch (level) {
         case 'Freshman':
           return 1;
@@ -121,10 +105,10 @@ export default {
           return 0;
       }
     },
-    $_CuratedGroupList_compareNumbers: function(thisNumber, thatNumber) {
+    $_Students_compareNumbers: function(thisNumber, thatNumber) {
       return (thisNumber >= thatNumber) - (thisNumber <= thatNumber);
     },
-    $_CuratedGroupList_compareStudents: function(thisStudent, thatStudent) {
+    $_Students_compareStudents: function(thisStudent, thatStudent) {
       switch (this.sort.selected) {
         case 'first_name':
           return thisStudent.firstName.localeCompare(thatStudent.firstName);
@@ -139,21 +123,21 @@ export default {
             _.get(thatStudent, 'athleticsProfile.athletics[0].groupName')
           );
         case 'gpa':
-          return this.$_CuratedGroupList_compareNumbers(
+          return this.$_Students_compareNumbers(
             thisStudent.cumulativeGPA,
             thatStudent.cumulativeGPA
           );
         case 'level':
-          return this.$_CuratedGroupList_compareNumbers(
-            this.$_CuratedGroupList_levelComparator(thisStudent.level),
-            this.$_CuratedGroupList_levelComparator(thatStudent.level)
+          return this.$_Students_compareNumbers(
+            this.$_Students_levelComparator(thisStudent.level),
+            this.$_Students_levelComparator(thatStudent.level)
           );
         case 'major':
           return _.get(thisStudent, 'majors[0]').localeCompare(
             _.get(thatStudent, 'majors[0]')
           );
         case 'units':
-          return this.$_CuratedGroupList_compareNumbers(
+          return this.$_Students_compareNumbers(
             thisStudent.cumulativeUnits,
             thatStudent.cumulativeUnits
           );
