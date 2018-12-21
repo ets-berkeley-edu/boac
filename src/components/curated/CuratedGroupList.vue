@@ -92,7 +92,7 @@ export default {
     orderedStudents: function() {
       return this.curatedGroup.students
         .slice(0)
-        .sort(this.$_CuratedGroupList_studentComparator);
+        .sort(this.$_CuratedGroupList_compareStudents);
     },
     anchor: () => location.hash
   },
@@ -121,25 +121,44 @@ export default {
           return 0;
       }
     },
-    $_CuratedGroupList_studentComparator: function(student) {
+    $_CuratedGroupList_compareNumbers: function(thisNumber, thatNumber) {
+      return (thisNumber >= thatNumber) - (thisNumber <= thatNumber);
+    },
+    $_CuratedGroupList_compareStudents: function(thisStudent, thatStudent) {
       switch (this.sort.selected) {
         case 'first_name':
-          return student.firstName;
+          return thisStudent.firstName.localeCompare(thatStudent.firstName);
         case 'last_name':
-          return student.lastName;
+          return thisStudent.lastName.localeCompare(thatStudent.lastName);
         // group_name here refers to team groups (i.e., athletic memberships) and not the user-created cohorts you'd expect.
         case 'group_name':
-          return _.get(student, 'athleticsProfile.athletics[0].groupName');
+          return _.get(
+            thisStudent,
+            'athleticsProfile.athletics[0].groupName'
+          ).localeCompare(
+            _.get(thatStudent, 'athleticsProfile.athletics[0].groupName')
+          );
         case 'gpa':
-          return student.cumulativeGPA;
+          return this.$_CuratedGroupList_compareNumbers(
+            thisStudent.cumulativeGPA,
+            thatStudent.cumulativeGPA
+          );
         case 'level':
-          return this.$_CuratedGroupList_levelComparator(student.level);
+          return this.$_CuratedGroupList_compareNumbers(
+            this.$_CuratedGroupList_levelComparator(thisStudent.level),
+            this.$_CuratedGroupList_levelComparator(thatStudent.level)
+          );
         case 'major':
-          return _.get(student, 'majors[0]');
+          return _.get(thisStudent, 'majors[0]').localeCompare(
+            _.get(thatStudent, 'majors[0]')
+          );
         case 'units':
-          return student.cumulativeUnits;
+          return this.$_CuratedGroupList_compareNumbers(
+            thisStudent.cumulativeUnits,
+            thatStudent.cumulativeUnits
+          );
         default:
-          return '';
+          return 0;
       }
     }
   }
