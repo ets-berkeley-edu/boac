@@ -101,7 +101,7 @@
             {{ section.totalStudentCount }} total students &mdash; View per page:&nbsp;
             <ul class="flex-container">
               <li v-for="(option, optionIndex) in pagination.options" :key="optionIndex">
-                <a href
+                <a href="#"
                    :class="{'selected': option==pagination.itemsPerPage}"
                    @click="resizePage(option)"
                    :title="`Show ${option} results per page`">
@@ -290,24 +290,19 @@
             </tr>
           </table>
 
-          <!-- TODO pagination
-          <div class="flex-row flex-align-center">
-            <ul uib-pagination
-              boundary-link-numbers="true"
-              data-ng-click="nextPage()"
-              data-ng-if="section.totalStudentCount > pagination.itemsPerPage"
-              direction-links="false"
-              force-ellipses="true"
-              id="pagination-widget"
-              items-per-page="pagination.itemsPerPage"
-              max-size="9"
-              ng-model="pagination.currentPage"
-              rotate="false"
-              template-url="/static/app/shared/uibPaginationTemplate.html"
-              total-items="section.totalStudentCount">
-            </ul>
-          </div>
-          -->
+         <div class="course-pagination">
+           <b-pagination
+             id="pagination-widget"
+             size="md"
+             :total-rows="section.totalStudentCount"
+             :limit="20"
+             v-model="pagination.currentPage"
+             :per-page="pagination.itemsPerPage"
+             :hide-goto-end-buttons="true"
+             v-if="section.totalStudentCount > pagination.itemsPerPage"
+             @input="nextPage()">
+           </b-pagination>
+         </div>
         </div>
 
         <!-- TODO matrix
@@ -408,6 +403,13 @@ export default {
       }
       this.refreshListView();
     },
+    nextPage() {
+      this.$router.push({
+        query: { ...this.$route.query, p: this.pagination.currentPage }
+      });
+      this.startLoading();
+      this.refreshListView();
+    },
     onTab() {
       // TODO
     },
@@ -426,6 +428,23 @@ export default {
         this.updateCourseData(data);
         this.loaded();
       });
+    },
+    resizePage(selectedItemsPerPage) {
+      var currentItemsPerPage = this.pagination.itemsPerPage;
+      this.pagination.itemsPerPage = selectedItemsPerPage;
+      this.pagination.currentPage = Math.round(
+        this.pagination.currentPage *
+          (currentItemsPerPage / selectedItemsPerPage)
+      );
+      this.$router.push({
+        query: {
+          ...this.$route.query,
+          p: this.pagination.currentPage,
+          s: this.pagination.itemsPerPage
+        }
+      });
+      this.startLoading();
+      this.refreshListView();
     },
     updateCourseData(data) {
       document.title = data.displayName;
@@ -568,6 +587,10 @@ export default {
   font-weight: bold;
 }
 
+.course-pagination {
+  margin-top: 20px;
+}
+
 .course-section-title {
   font-size: 16px;
   font-weight: bold;
@@ -602,5 +625,18 @@ export default {
   flex-direction: row;
   justify-content: flex-start;
   padding-top: 20px;
+}
+</style>
+
+<style>
+#content .page-item.active .page-link {
+  background-color: #337ab7;
+  border-color: #337ab7;
+}
+
+/* Hide default first/last buttons in bootstrap-vue pagination widget. */
+#content ul.pagination li:first-child,
+#content ul.pagination li:last-child {
+  display: none;
 }
 </style>
