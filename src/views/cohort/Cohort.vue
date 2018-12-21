@@ -9,7 +9,8 @@
       <CohortPageHeader />
       <CohortFilter class="cohort-filter-row"
                     v-for="(filter, index) in filters" :key="index"
-                    :filter="filter"/>
+                    :filter="filter"
+                    :index="index"/>
       <CohortStudents />
     </div>
   </div>
