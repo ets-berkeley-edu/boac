@@ -113,9 +113,7 @@ export default {
     });
   },
   computed: {
-    showMenu() {
-      return this.sids.length;
-    }
+    showMenu: () => this.sids.length
   },
   methods: {
     toggle(checked) {
