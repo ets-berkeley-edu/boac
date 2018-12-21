@@ -16,24 +16,24 @@
       <div class="cohort-added-filter-buttons">
         <div v-if="allowEdits && !isEditMode">
           <b-btn variant="link"
-                  :id="`edit-added-filter-${id}`"
-                  aria-label="Edit filter"
-                  class="btn-link btn-cohort-added-filter"
-                  @click="isEditMode = true">
+                 :id="`edit-added-filter-${index}`"
+                 aria-label="Edit filter"
+                 class="btn-link btn-cohort-added-filter"
+                 @click="isEditMode = true">
             Edit
           </b-btn> |
         </div>
         <div v-if="allowEdits && !isEditMode">
           <b-btn variant="link"
-                  :id="`remove-added-filter-${id}`"
-                  aria-label="Remove filter"
-                  class="btn-link btn-cohort-added-filter"
-                  @click="remove(filter)">
+                 :id="`remove-added-filter-${index}`"
+                 aria-label="Remove filter"
+                 class="btn-link btn-cohort-added-filter"
+                 @click="removeFilter(index)">
             Remove
           </b-btn>
         </div>
         <div v-if="allowEdits && isEditMode">
-          <b-btn :id="`update-added-filter-${id}`"
+          <b-btn :id="`update-added-filter-${index}`"
                  aria-label="Update filter"
                  class="btn btn-primary"
                  uib-popover-html="filter.error.popoverHtml"
@@ -46,10 +46,10 @@
         </div>
         <div v-if="allowEdits && isEditMode">
           <b-btn variant="link"
-                 :id="`cancel-edit-added-filter-${id}`"
+                 :id="`cancel-edit-added-filter-${index}`"
                  aria-label="Cancel"
                  class="btn-cohort-added-filter"
-                 @click="cancel()">
+                 @click="isEditMode = false">
             Cancel
           </b-btn>
         </div>
@@ -72,14 +72,14 @@ export default {
   name: 'CohortFilter',
   mixins: [CohortEditSession],
   props: {
-    filter: Object
+    filter: Object,
+    index: Number
   },
   data: () => ({
     allowEdits: true,
     isEditMode: false
   }),
   methods: {
-    cancel: _.noop,
     update: _.noop
   }
 };

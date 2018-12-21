@@ -1,31 +1,31 @@
 <template>
   <div class="cohort-header-container">
-    <div v-if="!id && totalStudentCount === null">
+    <div v-if="!cohortId && totalStudentCount === null">
       <h1 class="page-section-header" focus-on="!isLoading" tabindex="0">Create a Filtered Cohort</h1>
       <div>
         Find a set of users, then save your search as a filtered cohort. Revisit your filtered cohorts at any time.
       </div>
     </div>
-    <div v-if="!renameMode.on">
-      <h1 class="page-section-header" v-if="name" focus-on="!isLoading" tabindex="0">
-        {{ name }}
+    <div v-if="!renameMode">
+      <h1 class="page-section-header" v-if="cohortName" focus-on="!isLoading" tabindex="0">
+        {{ cohortName }}
         <span class="faint-text"
               v-if="totalStudentCount != null">{{ 'student' | pluralize(totalStudentCount) }}</span>
       </h1>
-      <h1 v-if="!name && totalStudentCount !== null" focus-on="!isLoading" tabindex="0">
+      <h1 v-if="!cohortName && totalStudentCount !== null" focus-on="!isLoading" tabindex="0">
         {{ 'Result' | pluralize(totalStudentCount) }}
       </h1>
     </div>
     <div>
-      <div class="cohort-rename-container" v-if="renameMode.on">
+      <div class="cohort-rename-container" v-if="renameMode">
         <div>
           <form name="renameCohortForm" @submit.prevent="rename()">
             <input aria-required="true"
                    aria-label="Input cohort name, 255 characters or fewer"
-                   :aria-invalid="!!renameMode.input"
+                   :aria-invalid="!!name"
                    class="form-control"
-                   @change="renameMode.hideError = true"
-                   v-model="renameMode.input"
+                   @change="error = null"
+                   v-model="name"
                    id="rename-cohort-input"
                    maxlength="255"
                    name="name"
@@ -33,47 +33,48 @@
                    type="text"/>
           </form>
         </div>
-        <div class="has-error"
-             v-if="renameMode.error && !renameMode.hideError">{{ renameMode.error }}</div>
-        <div class="faint-text">255 character limit <span v-if="renameMode.input.length">({{255 - renameMode.input.length}} left)</span></div>
+        <div class="has-error" v-if="error">{{ error }}</div>
+        <div class="faint-text">255 character limit <span v-if="name.length">({{255 - name.length}} left)</span></div>
       </div>
     </div>
-    <div class="cohort-header-buttons no-wrap" v-if="renameMode.on">
-      <button type="button"
-              id="filtered-cohort-rename"
-              !aria-disabled="!renameMode.input"
-              aria-label="Save changes to cohort name"
-              class="btn btn-sm btn-primary cohort-manage-btn"
-              @click.prevent="rename()"
-              :disabled="!renameMode.input">
+    <div class="cohort-header-buttons no-wrap" v-if="renameMode">
+      <b-btn id="filtered-cohort-rename"
+             size="sm"
+             :aria-disabled="!name"
+             aria-label="Save changes to cohort name"
+             class="cohort-manage-btn"
+             @click.prevent="rename()"
+             :disabled="!name">
         Rename
-      </button>
-      <button type="button"
-              aria-label="Cancel rename cohort"
-              id="filtered-cohort-rename-cancel"
-              class="btn btn-sm btn-default cohort-manage-btn"
-              @click="exitRenameMode()">
+      </b-btn>
+      <b-btn variant="outline-success"
+             size="sm"
+             aria-label="Cancel rename cohort"
+             id="filtered-cohort-rename-cancel"
+             class="cohort-manage-btn"
+             @click="renameModeToggle()">
         Cancel
-      </button>
+      </b-btn>
     </div>
-    <div class="cohort-header-button-links no-wrap" v-if="!renameMode.on">
-      <span v-if="isSearching || id">
-        <button type="button"
-                id="show-hide-details-button"
-                class="btn-link cohort-manage-btn-link"
-                @click="makeFiltersVisible(!filtersVisible)">
-          {{filtersVisible ? 'Hide' : 'Show'}} Filters
-        </button>
+    <div class="cohort-header-button-links no-wrap" v-if="!renameMode">
+      <span v-if="searchingMode || cohortId">
+        <b-btn variant="link"
+               type="button"
+               id="show-hide-details-button"
+               class="cohort-manage-btn-link"
+               @click="toggleShowFilters()">
+          {{showFiltersMode ? 'Hide' : 'Show'}} Filters
+        </b-btn>
       </span>
-      <span v-if="id && isOwnedByCurrentUser">
+      <span v-if="cohortId && isOwnedByCurrentUser">
         <span class="faint-text">|</span>
-        <button type="button"
-                id="rename-cohort-button"
-                aria-label="Rename this cohort"
-                class="btn-link cohort-manage-btn-link"
-                @click="enterRenameMode(name)">
+        <b-btn variant="link"
+               id="rename-cohort-button"
+               aria-label="Rename this cohort"
+               class="cohort-manage-btn-link"
+               @click="renameModeToggle()">
           Rename
-        </button>
+        </b-btn>
         <span>
           <!--
           <span class="faint-text">|</span>
@@ -85,7 +86,6 @@
                   data-ng-click="openDeleteCohortModal(search.cohort, callbacks)">
             Delete
           </button>
-          -->
           <span class="faint-text">|</span>
           <b-modal id="delete-cohort-modal"
                    v-model="showDeleteModal"
@@ -94,6 +94,7 @@
                    title="Delete">
             <DeleteCohortModal />
           </b-modal>
+          -->
         </span>
       </span>
     </div>
@@ -110,19 +111,14 @@ export default {
   components: { DeleteCohortModal },
   mixins: [CohortEditSession],
   data: () => ({
-    filtersVisible: false,
-    isSearching: false,
-    showDeleteModal: undefined,
-    renameMode: {
-      on: false,
-      error: undefined,
-      hideError: false,
-      input: undefined
-    }
+    error: undefined,
+    name: undefined
   }),
   methods: {
-    enterRenameMode: _.noop,
-    exitRenameMode: _.noop,
+    renameModeToggle() {
+      this.name = this.cohortName;
+      this.toggleRenameMode();
+    },
     rename: _.noop
   }
 };

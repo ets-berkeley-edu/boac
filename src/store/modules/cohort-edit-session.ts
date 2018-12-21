@@ -19,38 +19,48 @@ import _ from 'lodash';
 import { getCohort, translateFilterCriteria } from '@/api/cohort';
 
 const state = {
-  id: undefined,
-  isOwnedByCurrentUser: undefined,
-  name: undefined,
-  filters: undefined,
-  students: undefined,
-  totalStudentCount: undefined
+  cohort: {
+    id: undefined,
+    isOwnedByCurrentUser: undefined,
+    name: undefined,
+    filters: undefined,
+    students: undefined,
+    totalStudentCount: undefined
+  },
+  modes: {
+    rename: false,
+    searching: false,
+    showFilters: false
+  }
 };
 
 const getters = {
-  id: (state: any): any => state.id,
-  isOwnedByCurrentUser: (state: any): any => state.isOwnedByCurrentUser,
-  name: (state: any): any => state.name,
-  filters: (state: any): any => state.filters,
-  students: (state: any): any => state.students,
-  totalStudentCount: (state: any): any => state.totalStudentCount
+  cohortId: (state: any): number => state.cohort.id,
+  isOwnedByCurrentUser: (state: any): boolean =>
+    state.cohort.isOwnedByCurrentUser,
+  cohortName: (state: any): string => state.cohort.name,
+  filters: (state: any): any[] => state.cohort.filters,
+  students: (state: any): any[] => state.cohort.students,
+  totalStudentCount: (state: any): number => state.cohort.totalStudentCount,
+  renameMode: (state: any): boolean => state.modes.rename,
+  searchingMode: (state: any): boolean => state.modes.searching,
+  showFiltersMode: (state: any): boolean => state.modes.showFilters
 };
 
 const mutations = {
   resetSession: (state: any, cohort: any) => {
-    state.id = _.get(cohort, 'id');
-    state.isOwnedByCurrentUser = _.get(cohort, 'isOwnedByCurrentUser');
-    state.name = _.get(cohort, 'name');
-    state.filters = _.get(cohort, 'filters');
-    state.students = _.get(cohort, 'students');
-    state.totalStudentCount = _.get(cohort, 'totalStudentCount');
+    state.cohort.id = _.get(cohort, 'id');
+    state.cohort.isOwnedByCurrentUser = _.get(cohort, 'isOwnedByCurrentUser');
+    state.cohort.name = _.get(cohort, 'name');
+    state.cohort.filters = _.get(cohort, 'filters');
+    state.cohort.students = _.get(cohort, 'students');
+    state.cohort.totalStudentCount = _.get(cohort, 'totalStudentCount');
   },
-  removeFilter: (state: any, filter: any) => {
-    state.filters = _.remove(state.filters, existingFilter => {
-      // TODO: fix the following comparison such that we remove the proper filter
-      return filter === existingFilter;
-    });
-  }
+  removeFilter: (state: any, index: number) =>
+    state.cohort.filters.splice(index, 1),
+  toggleShowFilters: (state: any) =>
+    (state.modes.showFilters = !state.modes.showFilters),
+  toggleRenameMode: (state: any) => (state.modes.rename = !state.modes.rename)
 };
 
 const actions = {
@@ -70,9 +80,11 @@ const actions = {
       }
     });
   },
-  removeFilter({ commit }, filter: any) {
-    commit('removeFilter', filter);
-  }
+  removeFilter: ({ commit }, index: number) => commit('removeFilter', index),
+  toggleShowFilters: ({ commit }) => commit('toggleShowFilters'),
+  toggleRenameMode: ({ commit }) => commit('toggleRenameMode'),
+  getFilterId: (state: any, filter: any): string =>
+    window.btoa(filter.key + filter.subcategoryHeader)
 };
 
 export default {
