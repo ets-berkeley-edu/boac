@@ -21,13 +21,13 @@
 </template>
 
 <script>
-import AppConfig from '@/mixins/AppConfig';
+import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
 import { setDemoMode } from '@/api/user';
 
 export default {
   name: 'DemoModeToggle',
-  mixins: [AppConfig, UserMetadata],
+  mixins: [Context, UserMetadata],
   data: () => ({
     inDemoMode: null,
     isToggling: false

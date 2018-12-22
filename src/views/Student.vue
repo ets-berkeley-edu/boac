@@ -450,14 +450,7 @@
 
 <script>
 import _ from 'lodash';
-import {
-  addStudents,
-  createCuratedGroup,
-  getMyCuratedGroupIdsPerStudentId,
-  removeFromCuratedGroup
-} from '@/api/curated';
-import { getStudentDetails } from '@/api/student';
-import AppConfig from '@/mixins/AppConfig';
+import Context from '@/mixins/Context';
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal.vue';
 import Loading from '@/mixins/Loading.vue';
 import Spinner from '@/components/Spinner.vue';
@@ -470,11 +463,18 @@ import StudentMetadata from '@/mixins/StudentMetadata';
 import StudentUnitsChart from '@/components/student/StudentUnitsChart';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
+import {
+  addStudents,
+  createCuratedGroup,
+  getMyCuratedGroupIdsPerStudentId,
+  removeFromCuratedGroup
+} from '@/api/curated';
+import { getStudentDetails } from '@/api/student';
 
 export default {
   name: 'Student',
   mixins: [
-    AppConfig,
+    Context,
     Loading,
     StudentAnalytics,
     StudentMetadata,

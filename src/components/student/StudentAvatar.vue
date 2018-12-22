@@ -21,12 +21,12 @@
 </template>
 
 <script>
-import AppConfig from '@/mixins/AppConfig';
+import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
   name: 'StudentAvatar',
-  mixins: [AppConfig, UserMetadata],
+  mixins: [Context, UserMetadata],
   props: {
     size: String,
     student: Object,
