@@ -1,5 +1,6 @@
 <template>
   <b-form-checkbox :id="'student-' + sid + '-curated-cohort-checkbox'"
+                   plain
                    v-model="status"
                    @change="toggle">
     <span class="sr-only">{{ checkboxDescription }}</span>
@@ -41,3 +42,9 @@ export default {
   }
 };
 </script>
+
+<style>
+.form-check-inline {
+  margin: 0;
+}
+</style>
