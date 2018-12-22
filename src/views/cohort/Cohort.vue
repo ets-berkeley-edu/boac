@@ -20,10 +20,9 @@
 
 <script>
 import _ from 'lodash';
+import CohortEditSession from '@/mixins/CohortEditSession';
 import CohortFilter from '@/components/cohort/CohortFilter';
 import CohortPageHeader from '@/components/cohort/CohortPageHeader';
-import CohortStudents from '@/components/cohort/CohortStudents';
-import CohortEditSession from '@/mixins/CohortEditSession';
 import Loading from '@/mixins/Loading';
 import Spinner from '@/components/Spinner';
 import Students from '@/components/student/Students';
@@ -35,7 +34,6 @@ export default {
     Spinner,
     CohortFilter,
     CohortPageHeader,
-    CohortStudents,
     Students
   },
   created() {

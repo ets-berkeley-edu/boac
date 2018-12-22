@@ -2,7 +2,7 @@
 import { mapGetters } from 'vuex';
 
 export default {
-  name: 'AppConfig',
+  name: 'Context',
   computed: {
     ...mapGetters('context', [
       'apiBaseUrl',

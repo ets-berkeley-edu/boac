@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { getAppConfig } from '@/api/config';
+import { getConfig } from '@/api/config';
 
 const state = {
   legacyRedirectsEnabled:
@@ -73,7 +73,7 @@ const actions = {
       if (state.config) {
         resolve(state.config);
       } else {
-        getAppConfig().then(config => {
+        getConfig().then(config => {
           commit('storeConfig', config);
           resolve(config);
         });

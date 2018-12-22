@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import AppConfig from '@/mixins/AppConfig';
+import Context from '@/mixins/Context';
 import DemoModeToggle from '@/components/admin/DemoModeToggle.vue';
 import Loading from '@/mixins/Loading.vue';
 import Spinner from '@/components/Spinner.vue';
@@ -50,7 +50,7 @@ import { becomeUser, getAuthorizedUserGroups } from '@/api/user';
 
 export default {
   name: 'Admin',
-  mixins: [AppConfig, Loading, UserMetadata],
+  mixins: [Context, Loading, UserMetadata],
   components: {
     DemoModeToggle,
     Spinner

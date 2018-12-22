@@ -132,7 +132,7 @@
 </template>
 
 <script>
-import AppConfig from '@/mixins/AppConfig';
+import Context from '@/mixins/Context';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentGpaChart from '@/components/student/StudentGpaChart';
@@ -142,7 +142,7 @@ import Util from '@/mixins/Util';
 
 export default {
   name: 'StudentRow',
-  mixins: [AppConfig, StudentAnalytics, StudentMetadata, UserMetadata, Util],
+  mixins: [Context, StudentAnalytics, StudentMetadata, UserMetadata, Util],
   components: {
     StudentAvatar,
     StudentGpaChart

@@ -37,13 +37,13 @@
 </template>
 
 <script>
-import AppConfig from '@/mixins/AppConfig';
+import Context from '@/mixins/Context';
 import DevAuth from '@/components/admin/DevAuth.vue';
 import { getCasLoginURL } from '@/api/auth';
 
 export default {
   name: 'Login',
-  mixins: [AppConfig],
+  mixins: [Context],
   components: {
     DevAuth
   },

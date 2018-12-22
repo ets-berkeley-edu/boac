@@ -147,7 +147,7 @@
 
 <script>
 import _ from 'lodash';
-import AppConfig from '@/mixins/AppConfig';
+import Context from '@/mixins/Context';
 import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentMetadata from '@/mixins/StudentMetadata';
@@ -159,7 +159,7 @@ export default {
     CuratedStudentCheckbox,
     StudentAvatar
   },
-  mixins: [AppConfig, StudentMetadata, UserMetadata],
+  mixins: [Context, StudentMetadata, UserMetadata],
   props: {
     students: Array,
     options: {

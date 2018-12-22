@@ -19,7 +19,6 @@ export default {
     ...mapGetters('cohortEditSession', [
       'cohortId',
       'cohortName',
-      'getFilterId',
       'isOwnedByCurrentUser',
       'filters',
       'students',

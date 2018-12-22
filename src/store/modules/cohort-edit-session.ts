@@ -82,9 +82,7 @@ const actions = {
   },
   removeFilter: ({ commit }, index: number) => commit('removeFilter', index),
   toggleShowFilters: ({ commit }) => commit('toggleShowFilters'),
-  toggleRenameMode: ({ commit }) => commit('toggleRenameMode'),
-  getFilterId: (state: any, filter: any): string =>
-    window.btoa(filter.key + filter.subcategoryHeader)
+  toggleRenameMode: ({ commit }) => commit('toggleRenameMode')
 };
 
 export default {
