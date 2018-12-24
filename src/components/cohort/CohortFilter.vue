@@ -4,7 +4,7 @@
       {{ filter.name }}
     </div>
     <div class="cohort-added-subcategory-name">
-      <span v-if="filter.subcategoryHeader && !isEditMode">{{ filter.subcategoryHeader }}</span>
+      <span v-if="!isEditMode">{{ summary }}</span>
       <!--
       <filter-criteria-edit-subcategory filter="row"
                                         on-option-click="filter.onOptionClick"
@@ -13,26 +13,30 @@
                                         -->
     </div>
     <div class="cohort-added-filter-controls">
-      <div class="cohort-added-filter-buttons">
-        <div v-if="allowEdits && !isEditMode">
+      <div class="cohort-added-filter-buttons"
+           :class="{'disabled-link': disableButtons}"
+           v-if="allowEdits">
+        <div v-if="!isEditMode">
           <b-btn variant="link"
                  :id="`edit-added-filter-${index}`"
                  aria-label="Edit filter"
                  class="btn-link btn-cohort-added-filter"
-                 @click="isEditMode = true">
-            Edit
+                 :disabled="disableButtons"
+                 @click="edit()">
+            <span :class="{'disabled-link': disableButtons}">Edit</span>
           </b-btn> |
         </div>
-        <div v-if="allowEdits && !isEditMode">
+        <div v-if="!isEditMode">
           <b-btn variant="link"
                  :id="`remove-added-filter-${index}`"
                  aria-label="Remove filter"
                  class="btn-link btn-cohort-added-filter"
+                 :disabled="disableButtons"
                  @click="removeFilter(index)">
-            Remove
+            <span :class="{'disabled-link': disableButtons}">Remove</span>
           </b-btn>
         </div>
-        <div v-if="allowEdits && isEditMode">
+        <div v-if="isEditMode">
           <b-btn :id="`update-added-filter-${index}`"
                  aria-label="Update filter"
                  class="btn btn-primary"
@@ -44,12 +48,12 @@
             Update
           </b-btn> |
         </div>
-        <div v-if="allowEdits && isEditMode">
+        <div v-if="isEditMode">
           <b-btn variant="link"
                  :id="`cancel-edit-added-filter-${index}`"
                  aria-label="Cancel"
                  class="btn-cohort-added-filter"
-                 @click="isEditMode = false">
+                 @click="cancel()">
             Cancel
           </b-btn>
         </div>
@@ -76,15 +80,46 @@ export default {
     index: Number
   },
   data: () => ({
-    allowEdits: undefined,
-    isEditMode: false
+    isEditMode: false,
+    summary: undefined
   }),
   created() {
-    this.allowEdits =
-      _.isNil(this.isOwnedByCurrentUser) || this.isOwnedByCurrentUser;
+    let value = _.get(this.filter, 'value');
+    let h = this.filter.subcategoryHeader;
+    switch (this.filter.type) {
+      case 'range':
+        this.summary = h[0] + ' ' + value[0] + ' ' + h[1] + ' ' + value[1];
+        break;
+      case 'array':
+        this.summary = value;
+        break;
+      default:
+        this.summary = null;
+        break;
+    }
+  },
+  computed: {
+    allowEdits() {
+      let isOwnedByCurrentUser = _.get(this.cohort, 'isOwnedByCurrentUser');
+      return _.isNil(isOwnedByCurrentUser) || isOwnedByCurrentUser;
+    },
+    disableButtons() {
+      return !_.includes(['readyForApply', 'readyForSave'], this.pageMode);
+    }
   },
   methods: {
-    update: _.noop
+    cancel() {
+      this.isEditMode = false;
+      this.readyForSave();
+    },
+    edit() {
+      this.isEditMode = true;
+      this.setPageMode('edit');
+    },
+    update() {
+      this.isEditMode = false;
+      this.readyForSave();
+    }
   }
 };
 </script>

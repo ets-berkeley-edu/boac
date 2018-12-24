@@ -45,35 +45,39 @@
              class="cohort-manage-btn"
              @click.prevent="rename()"
              :disabled="!name">
-        Rename
+        <span :class="{'disabled-link': !name}">Rename</span>
       </b-btn>
       <b-btn variant="outline-success"
              size="sm"
              aria-label="Cancel rename cohort"
              id="filtered-cohort-rename-cancel"
              class="cohort-manage-btn"
-             @click="renameModeToggle()">
+             @click="readyForSave()">
         Cancel
       </b-btn>
     </div>
     <div class="cohort-header-button-links no-wrap" v-if="!renameMode">
-      <span v-if="searchingMode || cohortId">
+      <span v-if="cohortId">
         <b-btn variant="link"
                type="button"
                id="show-hide-details-button"
                class="cohort-manage-btn-link"
-               @click="toggleShowFilters()">
-          {{showFiltersMode ? 'Hide' : 'Show'}} Filters
+               :disabled="disableButtons"
+               :aria-disabled="disableButtons"
+               @click="toggleCompactView()">
+          <span :class="{'disabled-link': disableButtons}">{{isCompactView ? 'Show' : 'Hide'}} Filters</span>
         </b-btn>
       </span>
-      <span v-if="cohortId && isOwnedByCurrentUser">
-        <span class="faint-text">|</span>
+      <span>
+        <span class="faint-text" :class="{'disabled-link': disableButtons}">|</span>
         <b-btn variant="link"
                id="rename-cohort-button"
                aria-label="Rename this cohort"
                class="cohort-manage-btn-link"
-               @click="renameModeToggle()">
-          Rename
+               :disabled="disableButtons"
+               :aria-disabled="disableButtons"
+               @click="beginRename()">
+          <span :class="{'disabled-link': disableButtons}">Rename</span>
         </b-btn>
         <span>
           <!--
@@ -102,7 +106,6 @@
 </template>
 
 <script>
-import _ from 'lodash';
 import CohortEditSession from '@/mixins/CohortEditSession';
 import DeleteCohortModal from '@/components/cohort/DeleteCohortModal';
 
@@ -114,12 +117,25 @@ export default {
     error: undefined,
     name: undefined
   }),
-  methods: {
-    renameModeToggle() {
-      this.name = this.cohortName;
-      this.toggleRenameMode();
+  created() {
+    this.name = this.cohortName;
+  },
+  computed: {
+    renameMode() {
+      return this.pageMode === 'rename';
     },
-    rename: _.noop
+    disableButtons() {
+      return !this.isOwnedByCurrentUser;
+    }
+  },
+  methods: {
+    beginRename() {
+      this.name = this.cohortName;
+      this.setPageMode('rename');
+    },
+    rename() {
+      this.readyForSave();
+    }
   }
 };
 </script>

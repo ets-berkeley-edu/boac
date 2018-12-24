@@ -1,88 +1,113 @@
-// -----
-// TODO: The cohort object in the store will have two elements: cohort and filterRowEditSession.
-//       The latter is non null when a filter is being added or edited, before it is saved.
-//       The component with Apply/Save buttons will watch filterRowEditSession and show/hide appropriately.
-// -----
-// TODO: Each button on UI has a state in store. Components for events at the store, depending on the event.
-//       Then, have a mixin with one getter per state entry
-// -----
-// TODO: When a new filter row is added, send the set of selected filters to the server side
-//       in order to get up to date menu options, with proper disabling of
-//       certain options (primary and secondary)
-// -----
-// TODO: The base64 and menus are returned to client in one response. When user clicks Apply the client
-//       side just posts the base64 hash to server where it is decoded and used to create student query.
-//       These same steps happen when a filter criteria row is removed on the client side.
-// -----
-
 import _ from 'lodash';
-import { getCohort, translateFilterCriteria } from '@/api/cohort';
+import { getCohort } from '@/api/cohort';
+import { getCohortFilterOptions, translateToMenu } from '@/api/menu';
+
+const PAGE_MODES = ['add', 'edit', 'readyForApply', 'readyForSave', 'rename'];
 
 const state = {
-  cohort: {
-    id: undefined,
-    isOwnedByCurrentUser: undefined,
-    name: undefined,
-    filters: undefined,
-    students: undefined,
-    totalStudentCount: undefined
-  },
-  modes: {
-    rename: false,
-    searching: false,
-    showFilters: false
-  }
+  cohortId: undefined,
+  cohortName: undefined,
+  filters: undefined,
+  isCompactView: undefined,
+  menu: undefined,
+  pageMode: undefined,
+  students: undefined,
+  totalStudentCount: undefined
 };
 
 const getters = {
-  cohortId: (state: any): number => state.cohort.id,
-  isOwnedByCurrentUser: (state: any): boolean =>
-    state.cohort.isOwnedByCurrentUser,
-  cohortName: (state: any): string => state.cohort.name,
-  filters: (state: any): any[] => state.cohort.filters,
-  students: (state: any): any[] => state.cohort.students,
-  totalStudentCount: (state: any): number => state.cohort.totalStudentCount,
-  renameMode: (state: any): boolean => state.modes.rename,
-  searchingMode: (state: any): boolean => state.modes.searching,
-  showFiltersMode: (state: any): boolean => state.modes.showFilters
+  cohortId: (state: any): number => state.cohortId,
+  cohortName: (state: any): string => state.cohortName,
+  filters: (state: any): any[] => state.filters,
+  isCompactView: (state: any): boolean => state.isCompactView,
+  isOwnedByCurrentUser: (state: any): boolean => state.isOwnedByCurrentUser,
+  menu: (state: any): any[] => state.menu,
+  pageMode: (state: any) => state.pageMode,
+  students: (state: any): any[] => state.students,
+  totalStudentCount: (state: any): number => state.totalStudentCount
 };
 
 const mutations = {
-  resetSession: (state: any, cohort: any) => {
-    state.cohort.id = _.get(cohort, 'id');
-    state.cohort.isOwnedByCurrentUser = _.get(cohort, 'isOwnedByCurrentUser');
-    state.cohort.name = _.get(cohort, 'name');
-    state.cohort.filters = _.get(cohort, 'filters');
-    state.cohort.students = _.get(cohort, 'students');
-    state.cohort.totalStudentCount = _.get(cohort, 'totalStudentCount');
+  addFilter: (state: any, filter: any) => state.filters.push(filter),
+  isCompactView: (state: any, compactView: boolean) =>
+    (state.isCompactView = compactView),
+  setPageMode(state: any, pageMode: string) {
+    if (_.includes(PAGE_MODES, pageMode)) {
+      state.pageMode = pageMode;
+    } else {
+      throw new TypeError('Invalid page mode: ' + pageMode);
+    }
   },
-  removeFilter: (state: any, index: number) =>
-    state.cohort.filters.splice(index, 1),
-  toggleShowFilters: (state: any) =>
-    (state.modes.showFilters = !state.modes.showFilters),
-  toggleRenameMode: (state: any) => (state.modes.rename = !state.modes.rename)
+  removeFilter: (state: any, index: number) => state.filters.splice(index, 1),
+  readyForSave: (state: any) => (state.pageMode = 'readyForSave'),
+  resetSession: (
+    state: any,
+    { cohort, filters, students, totalStudentCount }
+  ) => {
+    state.pageMode = 'readyForSave';
+    state.cohortId = cohort && cohort.id;
+    state.cohortName = cohort && cohort.name;
+    state.isOwnedByCurrentUser = !cohort || cohort.isOwnedByCurrentUser;
+    state.filters = filters;
+    state.students = students;
+    state.totalStudentCount = totalStudentCount;
+  },
+  toggleCompactView: (state: any) =>
+    (state.isCompactView = !state.isCompactView),
+  updateMenu: (state: any, menu: any[]) => (state.menu = menu)
 };
 
 const actions = {
   init({ commit }, id: number) {
     return new Promise(resolve => {
+      commit('setPageMode', 'readyForSave');
+      commit('isCompactView', !!id);
       if (id > 0) {
         getCohort(id, true).then(cohort => {
-          translateFilterCriteria(cohort.filterCriteria).then(filters => {
-            cohort.filters = filters;
-            commit('resetSession', cohort);
-            resolve();
+          translateToMenu(cohort.filterCriteria).then(filters => {
+            commit('resetSession', {
+              cohort,
+              filters: filters,
+              students: cohort.students,
+              totalStudentCount: cohort.totalStudentCount
+            });
+            getCohortFilterOptions(filters).then(menu => {
+              commit('updateMenu', menu);
+              resolve();
+            });
           });
         });
       } else {
-        commit('resetSession');
-        resolve();
+        getCohortFilterOptions([]).then(menu => {
+          commit('updateMenu', menu);
+          commit('resetSession');
+          resolve();
+        });
       }
     });
   },
-  removeFilter: ({ commit }, index: number) => commit('removeFilter', index),
-  toggleShowFilters: ({ commit }) => commit('toggleShowFilters'),
-  toggleRenameMode: ({ commit }) => commit('toggleRenameMode')
+  addFilter: ({ commit, state }, filter: any) => {
+    return new Promise(resolve => {
+      commit('addFilter', filter);
+      getCohortFilterOptions(state.filters).then(menu => {
+        commit('updateMenu', menu);
+        resolve();
+      });
+    });
+  },
+  removeFilter: ({ commit, state }, index: number) => {
+    return new Promise(resolve => {
+      commit('removeFilter', index);
+      getCohortFilterOptions(state.filters).then(menu => {
+        commit('updateMenu', menu);
+        resolve();
+      });
+    });
+  },
+  readyForSave: ({ commit }) => commit('readyForSave'),
+  setPageMode: ({ commit }, pageMode: string) =>
+    commit('setPageMode', pageMode),
+  toggleCompactView: ({ commit }) => commit('toggleCompactView')
 };
 
 export default {

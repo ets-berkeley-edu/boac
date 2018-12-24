@@ -7,19 +7,24 @@
          class="sr-only"
          v-if="totalStudentCount > 50">Skip to pagination widget</a>
       <CohortPageHeader />
-      <CohortFilter class="cohort-filter-row"
-                    v-for="(filter, index) in filters" :key="index"
-                    :filter="filter"
-                    :index="index"/>
+      <div v-if="!isCompactView">
+        <CohortFilter class="cohort-filter-row"
+                      v-for="(filter, index) in filters" :key="index"
+                      :filter="filter"
+                      :index="index"/>
+        <AddCohortFilterMenu />
+      </div>
       <Students :listName="cohortName"
                 listType="cohort"
-                :students="students"></Students>
+                :students="students"
+                v-if="students"></Students>
     </div>
   </div>
 </template>
 
 <script>
 import _ from 'lodash';
+import AddCohortFilterMenu from '@/components/cohort/AddCohortFilterMenu';
 import CohortEditSession from '@/mixins/CohortEditSession';
 import CohortFilter from '@/components/cohort/CohortFilter';
 import CohortPageHeader from '@/components/cohort/CohortPageHeader';
@@ -31,9 +36,10 @@ export default {
   name: 'Cohort',
   mixins: [CohortEditSession, Loading],
   components: {
-    Spinner,
+    AddCohortFilterMenu,
     CohortFilter,
     CohortPageHeader,
+    Spinner,
     Students
   },
   created() {
@@ -45,3 +51,9 @@ export default {
   }
 };
 </script>
+
+<style>
+.disabled-link {
+  color: lightgrey;
+}
+</style>

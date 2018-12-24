@@ -21,12 +21,3 @@ export function getUsersWithCohorts() {
     .get(`${apiBaseUrl}/api/cohorts/all`)
     .then(response => response.data, () => null);
 }
-
-export function translateFilterCriteria(filterCriteria: any) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
-  return axios
-    .post(`${apiBaseUrl}/api/cohort/translate_filter_criteria`, {
-      filterCriteria: filterCriteria
-    })
-    .then(response => response.data, () => null);
-}
