@@ -1,6 +1,7 @@
 import _ from 'lodash';
-import { getCohort } from '@/api/cohort';
+import { getCohort, saveCohort } from '@/api/cohort';
 import { getCohortFilterOptions, translateToMenu } from '@/api/menu';
+import store from '@/store';
 
 const PAGE_MODES = ['add', 'edit', 'readyForApply', 'readyForSave', 'rename'];
 
@@ -38,8 +39,11 @@ const mutations = {
       throw new TypeError('Invalid page mode: ' + pageMode);
     }
   },
-  removeFilter: (state: any, index: number) => state.filters.splice(index, 1),
+  removeFilter: (state: any, index: number) => {
+    state.filters.splice(index, 1);
+  },
   readyForSave: (state: any) => (state.pageMode = 'readyForSave'),
+  renameCohort: (state: any, name: string) => (state.cohortName = name),
   resetSession: (
     state: any,
     { cohort, filters, students, totalStudentCount }
@@ -91,6 +95,15 @@ const actions = {
       commit('addFilter', filter);
       getCohortFilterOptions(state.filters).then(menu => {
         commit('updateMenu', menu);
+        resolve();
+      });
+    });
+  },
+  renameCohort: ({ commit, state }, name: string) => {
+    return new Promise(resolve => {
+      commit('renameCohort', name);
+      saveCohort(state.cohortId, state.cohortName).then(cohort => {
+        store.dispatch('cohort/updateCohort', cohort);
         resolve();
       });
     });

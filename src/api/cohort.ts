@@ -21,3 +21,31 @@ export function getUsersWithCohorts() {
     .get(`${apiBaseUrl}/api/cohorts/all`)
     .then(response => response.data, () => null);
 }
+
+export function deleteCohort(id) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .delete(`${apiBaseUrl}/api/cohort/delete/${id}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(() => store.commit('cohort/deleteCohort', id), () => null);
+}
+
+export function saveCohort(
+  id: number,
+  name: string,
+  filterCriteria?: any,
+  studentCount?: number
+) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .post(`${apiBaseUrl}/api/cohort/update`, {
+      id,
+      name,
+      filterCriteria,
+      studentCount
+    })
+    .then(response => response.data, () => null);
+}

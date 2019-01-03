@@ -165,8 +165,6 @@ export default {
 };
 </script>
 
-
-
 <style scoped>
 .curated-group-dropdown-select {
   margin: 0 10px;
