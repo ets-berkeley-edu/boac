@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from copy import deepcopy
+
 from boac.api.util import authorized_users_api_feed
 from boac.externals import data_loch
 from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE, COE_ETHNICITIES_PER_CODE, get_dept_codes
@@ -204,6 +206,71 @@ def get_cohort_filter_definitions(scope):
         available_categories.append(list(filter(lambda d: is_available(d), category)))
     # Remove unavailable (ie, empty) categories
     return list(filter(lambda g: len(g), available_categories))
+
+
+def translate_cohort_filter(criteria=None):
+    rows = []
+    if criteria:
+        for definitions in get_cohort_filter_definitions(get_student_query_scope()):
+            for definition in definitions:
+                selected = criteria.get(definition['key'])
+                if selected is not None:
+                    if definition['type'] == 'array':
+                        for selection in selected:
+                            rows.append(_translate_filter_row(definition, selection))
+                    else:
+                        rows.append(_translate_filter_row(definition, selected))
+    return rows
+
+
+def get_cohort_filter_options(existing_filters):
+    # Default menu has all options available.
+    filter_categories = get_cohort_filter_definitions(get_student_query_scope())
+    menus = [menu for category in filter_categories for menu in category]
+    for key in _keys_of_type_boolean(existing_filters):
+        # Disable sub_menu options if they are already in cohort criteria
+        for menu in menus:
+            if menu['key'] == key:
+                # Disable 'boolean' sub_menu (e.g., 'isInactiveCoe') if it is already in cohort criteria
+                menu['disabled'] = True
+    # Next, get selected 'array' options (e.g., 'levels') from cohort criteria.
+    for key, values in _selections_of_type_array(existing_filters).items():
+        menu = next(s for s in menus if s['key'] == key)
+        if len(values) == len(menu['options']):
+            # If count of selected values equals number of options then disable the sub_menu
+            menu['disabled'] = True
+        for option in menu['options']:
+            if option['value'] in values:
+                # Disable sub_menu options that are already in cohort criteria
+                option['disabled'] = True
+    return filter_categories
+
+
+def _translate_filter_row(definition, selection=None):
+    clone = deepcopy(definition)
+    row = {k: clone.get(k) for k in ['key', 'name', 'options', 'subcategoryHeader', 'type']}
+    if definition['type'] == 'array':
+        option = next((o for o in row.get('options', []) if o['value'] == selection), None)
+        if option:
+            row['value'] = option['value']
+    else:
+        row['value'] = selection
+    return row
+
+
+def _keys_of_type_boolean(rows):
+    # First, get selected 'boolean' options (e.g., 'coeProbation') from cohort criteria.
+    existing_boolean_rows = list(filter(lambda row: row['type'] in ['boolean'], rows))
+    return list(map(lambda r: r['key'], existing_boolean_rows))
+
+
+def _selections_of_type_array(rows):
+    existing_array_rows = list(filter(lambda row: row['type'] in ['array'], rows))
+    unique_keys = set(map(lambda row: row['key'], existing_array_rows))
+    selections = dict.fromkeys(unique_keys, [])
+    for row in existing_array_rows:
+        selections[row['key']].append(row['value'])
+    return selections
 
 
 def _get_coe_profiles():

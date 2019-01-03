@@ -23,16 +23,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from copy import deepcopy
-
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import get_my_cohorts, is_unauthorized_search, strip_analytics
 from boac.lib.berkeley import can_view_cohort
-from boac.lib.cohort_filter_definition import get_cohort_filter_definitions
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, to_bool_or_none as to_bool
 from boac.merged import calnet
-from boac.merged.student import get_student_query_scope, get_summary_student_profiles
+from boac.merged.student import get_summary_student_profiles
 from boac.models.cohort_filter import CohortFilter
 from flask import current_app as app, request
 from flask_login import current_user, login_required
@@ -42,18 +39,6 @@ from flask_login import current_user, login_required
 @login_required
 def my_cohorts():
     return tolerant_jsonify(get_my_cohorts())
-
-
-@app.route('/api/cohort/filter_definitions')
-@login_required
-def get_filter_definitions():
-    categories = get_cohort_filter_definitions(get_student_query_scope())
-    for category in categories:
-        for definition in category:
-            if definition['type'] == 'array':
-                for index, option in enumerate(definition['options']):
-                    option['position'] = index
-    return tolerant_jsonify(categories)
 
 
 @app.route('/api/cohorts/all')
@@ -194,45 +179,8 @@ def delete_cohort(cohort_id):
         raise ForbiddenRequestError(f'Programmatic deletion of canned cohorts is not allowed (id={cohort_id})')
 
 
-@app.route('/api/cohort/translate_filter_criteria', methods=['POST'])
-@login_required
-def translate_filter_criteria():
-    rows = []
-    criteria = get_param(request.get_json(), 'filterCriteria')
-    if criteria:
-        for definitions in get_cohort_filter_definitions(get_student_query_scope()):
-            for definition in definitions:
-                selected = criteria.get(definition['key'])
-                if selected is not None:
-                    if definition['type'] == 'array':
-                        for selection in selected:
-                            rows.append(_translate_filter_row(definition, selection))
-                    else:
-                        rows.append(_translate_filter_row(definition, selected))
-    return tolerant_jsonify(rows)
-
-
 def decorate_cohort(cohort, **kwargs):
     cohort_json = cohort.to_api_json(**kwargs)
     uid = current_user.get_id()
     cohort_json.update({'isOwnedByCurrentUser': (uid in [o.uid for o in cohort.owners])})
     return cohort_json
-
-
-def _translate_filter_row(definition, selection=None):
-    clone = deepcopy(definition)
-    row = {k: clone.get(k) for k in ['key', 'name', 'options', 'subcategoryHeader', 'type']}
-    if definition['type'] == 'array':
-        option = next((o for o in row.get('options', []) if o['value'] == selection), None)
-        if option:
-            row['subcategoryHeader'] = selection
-            option['selected'] = True
-    else:
-        row['value'] = selection
-        if definition['type'] == 'range':
-            h = row['subcategoryHeader']
-            v = row['value']
-            row['subcategoryHeader'] = h[0] + ' ' + v[0] + ' ' + h[1] + ' ' + v[1]
-        else:
-            del row['subcategoryHeader']
-    return row

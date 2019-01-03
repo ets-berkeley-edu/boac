@@ -73,7 +73,7 @@
     };
 
     var getFilterCategories = function() {
-      return $http.get('/api/cohort/filter_definitions');
+      return $http.get('/api/menu/cohort/deprecated_filter_definitions');
     };
 
     var getStudentsWithAlertsInCohort = function(cohortId) {

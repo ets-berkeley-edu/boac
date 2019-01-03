@@ -1,31 +1,34 @@
 <script>
 import store from '@/store';
-import { mapGetters, mapMutations } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'CohortEditSession',
   methods: {
-    initSession: id =>
-      new Promise(resolve =>
+    initSession(id) {
+      return new Promise(resolve =>
         store.dispatch('cohortEditSession/init', id).then(resolve)
-      ),
-    ...mapMutations('cohortEditSession', [
+      );
+    },
+    ...mapActions('cohortEditSession', [
+      'addFilter',
       'removeFilter',
-      'toggleShowFilters',
-      'toggleRenameMode'
+      'readyForSave',
+      'setPageMode',
+      'toggleCompactView'
     ])
   },
   computed: {
     ...mapGetters('cohortEditSession', [
       'cohortId',
       'cohortName',
-      'isOwnedByCurrentUser',
       'filters',
+      'isOwnedByCurrentUser',
+      'isCompactView',
+      'menu',
+      'pageMode',
       'students',
-      'totalStudentCount',
-      'renameMode',
-      'searchingMode',
-      'showFiltersMode'
+      'totalStudentCount'
     ])
   }
 };
