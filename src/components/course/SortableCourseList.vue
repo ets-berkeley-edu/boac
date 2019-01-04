@@ -17,14 +17,14 @@
     </div>
     <table class="table-full-width" v-if="totalCourseCount">
       <tr role="row">
-        <th :class="{ dropup: !sort.reverse.section }">
+        <th>
           <button id="column-sort-button-section"
                   class="btn btn-link table-header-text group-summary-column-header group-summary-header-sortable search-results-cell"
                   :aria-label="`Sort by section ${ sort.by === 'section' ? describeReverse(sort.reverse.section) : ''}`"
                   tabindex="0"
                   @click="courseSort('section')">
             Section
-            <span class="caret" v-if="sort.by === 'section'">
+            <span v-if="sort.by === 'section'">
               <i :class="{
                 'fas fa-caret-down': sort.reverse.section,
                 'fas fa-caret-up': !sort.reverse.section
@@ -32,14 +32,14 @@
             </span>
           </button>
         </th>
-        <th :class="{ dropup: !sort.reverse.title }">
+        <th>
           <button id="column-sort-button-title"
                   class="btn btn-link table-header-text group-summary-column-header group-summary-header-sortable search-results-cell"
                   :aria-label="`Sort by course name ${ sort.by === 'title' ? describeReverse(sort.reverse.title) : ''}`"
                   tabindex="0"
                   @click="courseSort('title')">
             Course Name
-            <span class="caret" v-if="sort.by === 'title'">
+            <span v-if="sort.by === 'title'">
               <i :class="{
                 'fas fa-caret-down': sort.reverse.title,
                 'fas fa-caret-up': !sort.reverse.title

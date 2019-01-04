@@ -11,67 +11,99 @@
           <th class="group-summary-column group-summary-column-photo group-summary-column-header"></th>
           <th class="group-summary-column group-summary-column-name group-summary-column-header group-summary-header-sortable"
               v-on:click="sort(options, 'sortableName')"
-              v-bind:class="{dropup: !options.reverse}"
               role="button"
               :aria-label="sortOptions.sortableName">
             Name
-            <span class="caret" v-if="options.sortBy === 'sortableName'"></span>
+            <span v-if="options.sortBy === 'sortableName'">
+              <i :class="{
+               'fas fa-caret-down': options.reverse,
+               'fas fa-caret-up': !options.reverse
+              }"></i>
+            </span>
           </th>
           <th class="group-summary-column group-summary-column-sid group-summary-column-header group-summary-header-sortable"
               v-on:click="sort(options, 'sid')"
-              v-bind:class="{dropup: !options.reverse}"
               role="button"
               :aria-label="sortOptions.sid">
             SID
-            <span class="caret" v-if="options.sortBy === 'sid'"></span>
+            <span v-if="options.sortBy === 'sid'">
+              <i :class="{
+               'fas fa-caret-down': options.reverse,
+               'fas fa-caret-up': !options.reverse
+              }"></i>
+            </span>
           </th>
           <th class="group-summary-column group-summary-column-major group-summary-column-header group-summary-header-sortable"
               v-on:click="sort(options, 'majors[0]')"
-              v-bind:class="{dropup: !options.reverse}"
               role="button"
               :aria-label="sortOptions['majors[0]']">
             Major
-            <span class="caret" v-if="options.sortBy === 'majors[0]'"></span>
+            <span v-if="options.sortBy === 'majors[0]'">
+              <i :class="{
+               'fas fa-caret-down': options.reverse,
+               'fas fa-caret-up': !options.reverse
+              }"></i>
+            </span>
           </th>
           <th class="group-summary-column group-summary-column-grad group-summary-column-header group-summary-header-sortable"
               v-on:click="sort(options, 'expectedGraduationTerm.id')"
-              v-bind:class="{dropup: !options.reverse}"
               role="button"
               :aria-label="sortOptions['expectedGraduationTerm.id']">
             Grad
-            <span class="caret" v-if="options.sortBy === 'expectedGraduationTerm.id'"></span>
+            <span v-if="options.sortBy === 'expectedGraduationTerm.id'">
+              <i :class="{
+               'fas fa-caret-down': options.reverse,
+               'fas fa-caret-up': !options.reverse
+              }"></i>
+            </span>
           </th>
           <th class="group-summary-column group-summary-column-units-term group-summary-column-header group-summary-header-sortable"
               v-on:click="sort(options, 'term.enrolledUnits')"
-              v-bind:class="{dropup: !options.reverse}"
               role="button"
               :aria-label="sortOptions['term.enrolledUnits']">
             Term Units
-            <span class="caret" v-if="options.sortBy === 'term.enrolledUnits'"></span>
+            <span v-if="options.sortBy === 'term.enrolledUnits'">
+              <i :class="{
+               'fas fa-caret-down': options.reverse,
+               'fas fa-caret-up': !options.reverse
+              }"></i>
+            </span>
           </th>
           <th class="group-summary-column group-summary-column-units-completed group-summary-column-header group-summary-header-sortable"
               v-on:click="sort(options, 'cumulativeUnits')"
-              v-bind:class="{dropup: !options.reverse}"
               role="button"
               :aria-label="sortOptions.cumulativeUnits">
             Units Completed
-            <span class="caret" v-if="options.sortBy === 'cumulativeUnits'"></span>
+            <span v-if="options.sortBy === 'cumulativeUnits'">
+              <i :class="{
+               'fas fa-caret-down': options.reverse,
+               'fas fa-caret-up': !options.reverse
+              }"></i>
+            </span>
           </th>
           <th class="group-summary-column group-summary-column-gpa group-summary-column-header group-summary-header-sortable"
               v-on:click="sort(options, 'cumulativeGPA')"
-              v-bind:class="{dropup: !options.reverse}"
               role="button"
               :aria-label="sortOptions.cumulativeGPA">
             GPA
-            <span class="caret" v-if="options.sortBy === 'cumulativeGPA'"></span>
+            <span class="caret" v-if="options.sortBy === 'cumulativeGPA'">
+              <i :class="{
+               'fas fa-caret-down': options.reverse,
+               'fas fa-caret-up': !options.reverse
+              }"></i>
+            </span>
           </th>
           <th class="group-summary-column group-summary-column-issues group-summary-column-header group-summary-header-sortable"
               v-on:click="sort(options, 'alertCount')"
-              v-bind:class="{dropup: !options.reverse}"
               role="button"
               :aria-label="sortOptions.alertCount">
             Issues
-            <span class="caret" v-if="options.sortBy === 'alertCount'"></span>
+            <span v-if="options.sortBy === 'alertCount'">
+              <i :class="{
+               'fas fa-caret-down': options.reverse,
+               'fas fa-caret-up': !options.reverse
+              }"></i>
+            </span>
           </th>
         </tr>
       </thead>
