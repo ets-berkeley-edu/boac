@@ -118,23 +118,23 @@ export default {
   },
   computed: {
     renameMode() {
-      return this.pageMode === 'rename';
+      return this.editMode === 'rename';
     },
     disableButtons() {
-      return !this.isOwnedByCurrentUser;
+      return this.editMode && this.editMode !== 'rename';
     }
   },
   methods: {
     beginRename() {
       this.name = this.cohortName;
-      this.setPageMode('rename');
+      this.setEditMode('rename');
     },
     cancelDeleteModal() {
       this.showDeleteModal = false;
     },
     cancelRename() {
       this.name = this.cohortName;
-      this.readyForSave();
+      this.setEditMode(null);
     },
     cohortDelete() {
       deleteCohort(this.cohortId).then(() => {
@@ -144,7 +144,7 @@ export default {
     },
     submitRename() {
       this.renameCohort(this.name);
-      this.readyForSave();
+      this.setEditMode(null);
     }
   }
 };

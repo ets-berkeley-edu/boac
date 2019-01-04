@@ -4,19 +4,19 @@
       {{ filter.name }}
     </div>
     <div class="cohort-added-subcategory-name">
-      <span v-if="!isEditMode">{{ summary }}</span>
+      <span v-if="!isModifyingFilter">{{ summary }}</span>
       <!--
       <filter-criteria-edit-subcategory filter="row"
                                         on-option-click="filter.onOptionClick"
                                         watch="row"
-                                        v-if="isEditMode"></filter-criteria-edit-subcategory>
+                                        v-if="isModifyingFilter"></filter-criteria-edit-subcategory>
                                         -->
     </div>
     <div class="cohort-added-filter-controls">
       <div class="cohort-added-filter-buttons"
            :class="{'disabled-link': disableButtons}"
            v-if="allowEdits">
-        <div v-if="!isEditMode">
+        <div v-if="!isModifyingFilter">
           <b-btn variant="link"
                  :id="`edit-added-filter-${index}`"
                  aria-label="Edit filter"
@@ -26,7 +26,7 @@
             <span :class="{'disabled-link': disableButtons}">Edit</span>
           </b-btn> |
         </div>
-        <div v-if="!isEditMode">
+        <div v-if="!isModifyingFilter">
           <b-btn variant="link"
                  :id="`remove-added-filter-${index}`"
                  aria-label="Remove filter"
@@ -36,7 +36,7 @@
             <span :class="{'disabled-link': disableButtons}">Remove</span>
           </b-btn>
         </div>
-        <div v-if="isEditMode">
+        <div v-if="isModifyingFilter">
           <b-btn :id="`update-added-filter-${index}`"
                  aria-label="Update filter"
                  class="btn btn-primary"
@@ -48,7 +48,7 @@
             Update
           </b-btn> |
         </div>
-        <div v-if="isEditMode">
+        <div v-if="isModifyingFilter">
           <b-btn variant="link"
                  :id="`cancel-edit-added-filter-${index}`"
                  aria-label="Cancel"
@@ -80,7 +80,7 @@ export default {
     index: Number
   },
   data: () => ({
-    isEditMode: false,
+    isModifyingFilter: false,
     summary: undefined
   }),
   created() {
@@ -104,21 +104,21 @@ export default {
       return _.isNil(isOwnedByCurrentUser) || isOwnedByCurrentUser;
     },
     disableButtons() {
-      return !_.includes(['readyForApply', 'readyForSave'], this.pageMode);
+      return this.editMode !== null;
     }
   },
   methods: {
     cancel() {
-      this.isEditMode = false;
-      this.readyForSave();
+      this.isModifyingFilter = false;
+      this.setEditMode(null);
     },
     edit() {
-      this.isEditMode = true;
-      this.setPageMode('edit');
+      this.isModifyingFilter = true;
+      this.setEditMode('edit');
     },
     update() {
-      this.isEditMode = false;
-      this.readyForSave();
+      this.isModifyingFilter = false;
+      this.setEditMode(null);
     }
   }
 };

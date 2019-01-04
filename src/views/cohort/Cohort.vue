@@ -14,7 +14,7 @@
                       :index="index"/>
         <AddCohortFilterMenu />
       </div>
-      <div v-if="students">
+      <div v-if="students.length">
         <div class="cohort-column-results">
           <div class="search-header-curated-cohort">
             <CuratedGroupSelector :students="students"/>
