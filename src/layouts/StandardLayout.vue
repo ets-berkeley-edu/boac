@@ -16,7 +16,8 @@
       <div class="index-container-content">
         <div id="content" class="body-text">
           <DisplayError/>
-          <router-view></router-view>
+          <!-- The ':key' attribute forces component reload when same route is requested with diff id in path. -->
+          <router-view :key="$route.fullPath"></router-view>
         </div>
         <div class="index-container-footer">
           <hr class="footer-separator">
