@@ -25,10 +25,5 @@ export default {
     return (
       Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals)
     ).toFixed(decimals);
-  },
-  variablePrecisionNumber: (value, minPrecision, maxPrecision) => {
-    let maximallyPreciseDecimal = value | numFormat(maxPrecision);
-    let superfluousZeros = new RegExp(`0{1,${maxPrecision - minPrecision}}$`);
-    return maximallyPreciseDecimal.toString().replace(superfluousZeros, '');
   }
 };
