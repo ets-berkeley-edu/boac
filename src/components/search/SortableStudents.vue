@@ -121,7 +121,7 @@
           <td class="group-summary-column group-summary-column-units-completed">
             <span class="sr-only">{{ srText.cumulativeUnits }}</span>
             <div v-if="!student.cumulativeUnits">--<span class="sr-only">No data</span></div>
-            <div v-if="student.cumulativeUnits">{{ student.cumulativeUnits | variablePrecisionNumber(2, 3) }}</div>
+            <div v-if="student.cumulativeUnits">{{ student.cumulativeUnits | numFormat('0.00') }}</div>
           </td>
           <td class="group-summary-column group-summary-column-gpa">
             <span class="sr-only">{{ srText.cumulativeGPA }}</span>

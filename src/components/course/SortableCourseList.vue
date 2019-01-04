@@ -95,6 +95,7 @@ export default {
   },
   methods: {
     courseSort(sortBy) {
+      this.courses = this.courses || [];
       this.sort.reverse[sortBy] = !this.sort.reverse[sortBy];
       if (this.sort.by !== sortBy) {
         this.sort.by = sortBy;
