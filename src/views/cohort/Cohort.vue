@@ -14,10 +14,18 @@
                       :index="index"/>
         <AddCohortFilterMenu />
       </div>
-      <Students :listName="cohortName"
-                listType="cohort"
-                :students="students"
-                v-if="students"></Students>
+      <div v-if="students">
+        <div class="cohort-column-results">
+          <div class="search-header-curated-cohort">
+            <CuratedGroupSelector :students="students"/>
+          </div>
+          <div>
+            <Students :listName="cohortName"
+                      listType="cohort"
+                      :students="students"></Students>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -28,6 +36,7 @@ import AddCohortFilterMenu from '@/components/cohort/AddCohortFilterMenu';
 import CohortEditSession from '@/mixins/CohortEditSession';
 import CohortFilter from '@/components/cohort/CohortFilter';
 import CohortPageHeader from '@/components/cohort/CohortPageHeader';
+import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
 import Loading from '@/mixins/Loading';
 import Spinner from '@/components/Spinner';
 import Students from '@/components/student/Students';
@@ -39,6 +48,7 @@ export default {
     AddCohortFilterMenu,
     CohortFilter,
     CohortPageHeader,
+    CuratedGroupSelector,
     Spinner,
     Students
   },

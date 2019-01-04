@@ -3,9 +3,14 @@
     <div class="cohort-list-view-column-01">
       <button :id="`student-${student.uid}-curated-cohort-remove`"
               class="btn btn-link"
-              @click="removeFromCuratedCohort">
+              @click="removeFromCuratedGroup"
+              v-if="listType === 'curatedGroup'">
         <i class="fas fa-times-circle"></i>
       </button>
+      <div class="add-to-cohort-checkbox"
+           v-if="listType !== 'curatedGroup'">
+        <CuratedStudentCheckbox :sid="student.sid"/>
+      </div>
     </div>
     <div class="cohort-list-view-column-01">
       <StudentAvatar :size="'large'"
@@ -133,6 +138,7 @@
 
 <script>
 import Context from '@/mixins/Context';
+import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentGpaChart from '@/components/student/StudentGpaChart';
@@ -144,15 +150,17 @@ export default {
   name: 'StudentRow',
   mixins: [Context, StudentAnalytics, StudentMetadata, UserMetadata, Util],
   components: {
+    CuratedStudentCheckbox,
     StudentAvatar,
     StudentGpaChart
   },
   props: {
+    listType: String,
     student: Object,
     sort: Object
   },
   methods: {
-    removeFromCuratedCohort: function() {
+    removeFromCuratedGroup: function() {
       this.$eventHub.$emit('curated-group-remove-student', this.student.sid);
     }
   }
