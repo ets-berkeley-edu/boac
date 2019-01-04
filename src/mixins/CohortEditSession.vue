@@ -14,6 +14,7 @@ export default {
       'addFilter',
       'removeFilter',
       'readyForSave',
+      'renameCohort',
       'setPageMode',
       'toggleCompactView'
     ])

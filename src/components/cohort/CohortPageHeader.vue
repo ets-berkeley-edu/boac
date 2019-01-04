@@ -19,7 +19,7 @@
     <div>
       <div class="cohort-rename-container" v-if="renameMode">
         <div>
-          <form name="renameCohortForm" @submit.prevent="rename()">
+          <form name="renameCohortForm" @submit.prevent="submitRename()">
             <input aria-required="true"
                    aria-label="Input cohort name, 255 characters or fewer"
                    :aria-invalid="!!name"
@@ -40,10 +40,9 @@
     <div class="cohort-header-buttons no-wrap" v-if="renameMode">
       <b-btn id="filtered-cohort-rename"
              size="sm"
-             :aria-disabled="!name"
              aria-label="Save changes to cohort name"
              class="cohort-manage-btn"
-             @click.prevent="rename()"
+             @click.prevent="submitRename()"
              :disabled="!name">
         <span :class="{'disabled-link': !name}">Rename</span>
       </b-btn>
@@ -52,7 +51,7 @@
              aria-label="Cancel rename cohort"
              id="filtered-cohort-rename-cancel"
              class="cohort-manage-btn"
-             @click="readyForSave()">
+             @click="cancelRename()">
         Cancel
       </b-btn>
     </div>
@@ -63,43 +62,37 @@
                id="show-hide-details-button"
                class="cohort-manage-btn-link"
                :disabled="disableButtons"
-               :aria-disabled="disableButtons"
                @click="toggleCompactView()">
           <span :class="{'disabled-link': disableButtons}">{{isCompactView ? 'Show' : 'Hide'}} Filters</span>
         </b-btn>
       </span>
-      <span>
+      <span v-if="cohortId && isOwnedByCurrentUser">
         <span class="faint-text" :class="{'disabled-link': disableButtons}">|</span>
         <b-btn variant="link"
                id="rename-cohort-button"
                aria-label="Rename this cohort"
                class="cohort-manage-btn-link"
                :disabled="disableButtons"
-               :aria-disabled="disableButtons"
                @click="beginRename()">
           <span :class="{'disabled-link': disableButtons}">Rename</span>
         </b-btn>
-        <span>
-          <!--
-          <span class="faint-text">|</span>
-          <button type="button"
-                  data-ng-controller="DeleteCohortController"
-                  id="delete-cohort-button"
-                  aria-label="Delete this cohort"
-                  class="btn-link cohort-manage-btn-link"
-                  data-ng-click="openDeleteCohortModal(search.cohort, callbacks)">
-            Delete
-          </button>
-          <span class="faint-text">|</span>
-          <b-modal id="delete-cohort-modal"
-                   v-model="showDeleteModal"
-                   hide-footer
-                   hide-header-close
-                   title="Delete">
-            <DeleteCohortModal />
-          </b-modal>
-          -->
-        </span>
+        <span class="faint-text">|</span>
+        <b-btn id="delete-cohort-button"
+               variant="link"
+               v-b-modal="'confirmDeleteModal'"
+               aria-label="Delete this cohort"
+               class="cohort-manage-btn-link">
+          Delete
+        </b-btn>
+        <b-modal id="confirmDeleteModal"
+                 v-model="showDeleteModal"
+                 hide-footer
+                 hide-header-close
+                 title="Delete Saved Cohort">
+          <DeleteCohortModal :cohortName="cohortName"
+                             :cancelDeleteModal="cancelDeleteModal"
+                             :deleteCohort="cohortDelete"/>
+        </b-modal>
       </span>
     </div>
   </div>
@@ -108,6 +101,8 @@
 <script>
 import CohortEditSession from '@/mixins/CohortEditSession';
 import DeleteCohortModal from '@/components/cohort/DeleteCohortModal';
+import router from '@/router';
+import { deleteCohort } from '@/api/cohort';
 
 export default {
   name: 'CohortPageHeader',
@@ -115,7 +110,8 @@ export default {
   mixins: [CohortEditSession],
   data: () => ({
     error: undefined,
-    name: undefined
+    name: undefined,
+    showDeleteModal: false
   }),
   created() {
     this.name = this.cohortName;
@@ -133,7 +129,21 @@ export default {
       this.name = this.cohortName;
       this.setPageMode('rename');
     },
-    rename() {
+    cancelDeleteModal() {
+      this.showDeleteModal = false;
+    },
+    cancelRename() {
+      this.name = this.cohortName;
+      this.readyForSave();
+    },
+    cohortDelete() {
+      deleteCohort(this.cohortId).then(() => {
+        this.showDeleteModal = false;
+        router.push({ path: '/' });
+      });
+    },
+    submitRename() {
+      this.renameCohort(this.name);
       this.readyForSave();
     }
   }
