@@ -200,7 +200,13 @@ export default {
       _.each(this.students, student => this.setSortableName(student));
       return _.orderBy(
         this.students,
-        this.options.sortBy,
+        student => {
+          let sortVal = _.get(student, this.options.sortBy);
+          if (typeof sortVal === 'string') {
+            sortVal = sortVal.toLowerCase();
+          }
+          return sortVal;
+        },
         this.options.reverse ? 'desc' : 'asc'
       );
     }
