@@ -23,6 +23,7 @@
     <div v-if="students.length">
       <div id="curated-cohort-students" class="list-group">
         <StudentRow :student="student"
+                    :listType="listType"
                     :sort="sort"
                     :id="`student-${student.uid}`"
                     class="list-group-item student-list-item"

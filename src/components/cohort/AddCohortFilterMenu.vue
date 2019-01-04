@@ -87,17 +87,17 @@
                aria-label="Search for students"
                class="btn-filter-draft-apply"
                @click="apply()"
-               v-if="showApply">
+               v-if="showApplyButton">
           Apply
         </b-btn>
-        <div v-if="showSave">
+        <div v-if="showSaveButton">
           <b-btn id="save-filtered-cohort"
                  aria-label="Save cohort"
                  :class="{'btn-filter-draft-saved': acknowledgeSave, 'btn-primary btn-filter-draft-save': !acknowledgeSave}"
                  @click="save(openCreateCohortModal)">
             <span v-if="acknowledgeSave">Saved</span>
-            <span v-if="!acknowledgeSave && cohort">Save Cohort</span>
-            <span v-if="!acknowledgeSave && !cohort">Save</span>
+            <span v-if="!acknowledgeSave && cohortId">Save Cohort</span>
+            <span v-if="!acknowledgeSave && !cohortId">Save</span>
           </b-btn>
         </div>
       </div>
@@ -122,13 +122,11 @@ export default {
     filterUpdateStatus: null,
     openCreateCohortModal: null,
     showAdd: false,
-    showApply: false,
-    showSave: false,
     subcategoryError: null
   }),
   computed: {
     disable() {
-      return _.includes(['edit', 'rename'], this.pageMode);
+      return this.editMode && this.editMode !== 'add';
     }
   },
   methods: {
@@ -149,18 +147,16 @@ export default {
     reset() {
       this.selected = this.selectedArrayOption = null;
       this.showAdd = false;
-      this.showApply = false;
     }
   },
   watch: {
     selected(value) {
       if (value) {
-        this.showApply = false;
         this.showAdd = value.type === 'boolean';
         this.selected = value;
-        this.setPageMode('add');
+        this.setEditMode('add');
       } else {
-        this.readyForSave();
+        this.setEditMode(null);
       }
     },
     selectedArrayOption(value) {

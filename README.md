@@ -54,9 +54,13 @@ tox
 tox -e test
 
 # Linters, à la carte
-tox -e lint-py
-tox -e lint-js
 tox -e lint-css
+tox -e lint-js
+tox -e lint-py
+tox -e lint-vue
+
+# Auto-fix linting errors in Vue code
+tox -e lint-vue-fix
 
 # Run specific test(s)
 tox -e test -- tests/test_models/test_authorized_user.py

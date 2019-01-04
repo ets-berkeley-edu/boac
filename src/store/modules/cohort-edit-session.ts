@@ -3,15 +3,17 @@ import { getCohort, saveCohort } from '@/api/cohort';
 import { getCohortFilterOptions, translateToMenu } from '@/api/menu';
 import store from '@/store';
 
-const PAGE_MODES = ['add', 'edit', 'readyForApply', 'readyForSave', 'rename'];
+const EDIT_MODE_TYPES = [null, 'add', 'edit', 'rename'];
 
 const state = {
   cohortId: undefined,
   cohortName: undefined,
   filters: undefined,
   isCompactView: undefined,
+  isModifiedSinceLastSearch: undefined,
+  isOwnedByCurrentUser: undefined,
   menu: undefined,
-  pageMode: undefined,
+  editMode: undefined,
   students: undefined,
   totalStudentCount: undefined
 };
@@ -19,52 +21,67 @@ const state = {
 const getters = {
   cohortId: (state: any): number => state.cohortId,
   cohortName: (state: any): string => state.cohortName,
+  editMode: (state: any) => state.editMode,
   filters: (state: any): any[] => state.filters,
   isCompactView: (state: any): boolean => state.isCompactView,
+  isModifiedSinceLastSearch: (state: any): boolean =>
+    state.isModifiedSinceLastSearch,
   isOwnedByCurrentUser: (state: any): boolean => state.isOwnedByCurrentUser,
   menu: (state: any): any[] => state.menu,
-  pageMode: (state: any) => state.pageMode,
+  showApplyButton: (state: any): boolean =>
+    state.isModifiedSinceLastSearch === true,
+  showSaveButton: (state: any): boolean =>
+    state.isModifiedSinceLastSearch === false,
   students: (state: any): any[] => state.students,
   totalStudentCount: (state: any): number => state.totalStudentCount
 };
 
 const mutations = {
-  addFilter: (state: any, filter: any) => state.filters.push(filter),
+  addFilter: (state: any, filter: any) => {
+    state.filters.push(filter);
+    state.isModifiedSinceLastSearch = true;
+  },
   isCompactView: (state: any, compactView: boolean) =>
     (state.isCompactView = compactView),
-  setPageMode(state: any, pageMode: string) {
-    if (_.includes(PAGE_MODES, pageMode)) {
-      state.pageMode = pageMode;
+  setEditMode(state: any, editMode: string) {
+    if (_.includes(EDIT_MODE_TYPES, editMode)) {
+      state.editMode = editMode;
     } else {
-      throw new TypeError('Invalid page mode: ' + pageMode);
+      throw new TypeError('Invalid page mode: ' + editMode);
     }
   },
   removeFilter: (state: any, index: number) => {
     state.filters.splice(index, 1);
+    state.isModifiedSinceLastSearch = true;
   },
-  readyForSave: (state: any) => (state.pageMode = 'readyForSave'),
   renameCohort: (state: any, name: string) => (state.cohortName = name),
   resetSession: (
     state: any,
     { cohort, filters, students, totalStudentCount }
   ) => {
-    state.pageMode = 'readyForSave';
+    state.editMode = null;
     state.cohortId = cohort && cohort.id;
     state.cohortName = cohort && cohort.name;
     state.isOwnedByCurrentUser = !cohort || cohort.isOwnedByCurrentUser;
     state.filters = filters;
     state.students = students;
     state.totalStudentCount = totalStudentCount;
+    if (!state.cohortId) {
+      // If cohortId is null then show 'Save Cohort' for unsaved search results
+      state.isModifiedSinceLastSearch = true;
+    }
   },
   toggleCompactView: (state: any) =>
     (state.isCompactView = !state.isCompactView),
-  updateMenu: (state: any, menu: any[]) => (state.menu = menu)
+  updateMenu: (state: any, menu: any[]) => (state.menu = menu),
+  setModifiedSinceLastSearch: (state: any, value: boolean) =>
+    (state.isModifiedSinceLastSearch = value)
 };
 
 const actions = {
   init({ commit }, id: number) {
     return new Promise(resolve => {
-      commit('setPageMode', 'readyForSave');
+      commit('setEditMode', null);
       commit('isCompactView', !!id);
       if (id > 0) {
         getCohort(id, true).then(cohort => {
@@ -93,6 +110,7 @@ const actions = {
   addFilter: ({ commit, state }, filter: any) => {
     return new Promise(resolve => {
       commit('addFilter', filter);
+      commit('setModifiedSinceLastSearch', true);
       getCohortFilterOptions(state.filters).then(menu => {
         commit('updateMenu', menu);
         resolve();
@@ -111,15 +129,15 @@ const actions = {
   removeFilter: ({ commit, state }, index: number) => {
     return new Promise(resolve => {
       commit('removeFilter', index);
+      commit('setModifiedSinceLastSearch', true);
       getCohortFilterOptions(state.filters).then(menu => {
         commit('updateMenu', menu);
         resolve();
       });
     });
   },
-  readyForSave: ({ commit }) => commit('readyForSave'),
-  setPageMode: ({ commit }, pageMode: string) =>
-    commit('setPageMode', pageMode),
+  setEditMode: ({ commit }, editMode: string) =>
+    commit('setEditMode', editMode),
   toggleCompactView: ({ commit }) => commit('toggleCompactView')
 };
 

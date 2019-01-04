@@ -13,9 +13,8 @@ export default {
     ...mapActions('cohortEditSession', [
       'addFilter',
       'removeFilter',
-      'readyForSave',
       'renameCohort',
-      'setPageMode',
+      'setEditMode',
       'toggleCompactView'
     ])
   },
@@ -26,8 +25,11 @@ export default {
       'filters',
       'isOwnedByCurrentUser',
       'isCompactView',
+      'isModifiedSinceLastSearch',
       'menu',
-      'pageMode',
+      'editMode',
+      'showApplyButton',
+      'showSaveButton',
       'students',
       'totalStudentCount'
     ])
