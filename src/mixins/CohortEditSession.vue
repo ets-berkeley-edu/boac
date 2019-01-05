@@ -12,6 +12,7 @@ export default {
     },
     ...mapActions('cohortEditSession', [
       'addFilter',
+      'applyFilters',
       'removeFilter',
       'renameCohort',
       'setEditMode',

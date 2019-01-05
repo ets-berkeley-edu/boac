@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import get_my_cohorts, is_unauthorized_search, strip_analytics
 from boac.lib.berkeley import can_view_cohort
+from boac.lib.cohort_filter_definition import translate_filters_to_cohort_criteria
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, to_bool_or_none as to_bool
 from boac.merged import calnet
@@ -105,6 +106,32 @@ def get_cohort(cohort_id):
         return tolerant_jsonify(cohort)
     else:
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
+
+
+@app.route('/api/cohort/per_filters', methods=['POST'])
+@login_required
+def get_cohort_per_filters():
+    filters = get_param(request.get_json(), 'filters', [])
+    if not filters:
+        raise BadRequestError('API requires \'filters\'')
+    include_students = to_bool(get_param(request.args, 'includeStudents'))
+    include_students = True if include_students is None else include_students
+    order_by = get_param(request.args, 'orderBy', None)
+    offset = get_param(request.args, 'offset', 0)
+    limit = get_param(request.args, 'limit', 50)
+    filter_criteria = translate_filters_to_cohort_criteria(filters)
+    if is_unauthorized_search(filter_criteria):
+        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
+    cohort = decorate_cohort(
+        CohortFilter(name='tmp', filter_criteria=filter_criteria),
+        order_by=order_by,
+        offset=int(offset),
+        limit=int(limit),
+        include_alerts_for_user_id=current_user.id,
+        include_profiles=True,
+        include_students=include_students,
+    )
+    return tolerant_jsonify(cohort)
 
 
 @app.route('/api/cohort/create', methods=['POST'])

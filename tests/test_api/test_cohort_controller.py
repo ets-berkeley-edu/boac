@@ -446,3 +446,97 @@ class TestCohortDelete:
         assert response.status_code == 200
         cohorts = CohortFilter.all_owned_by(asc_advisor_uid)
         assert not next((c for c in cohorts if c.id == cohort.id), None)
+
+
+class TestCohortPerFilters:
+    """Cohort API."""
+
+    @classmethod
+    def _post(cls, client, json_data=()):
+        return client.post(
+            '/api/cohort/per_filters',
+            data=json.dumps(json_data),
+            content_type='application/json',
+        )
+
+    def test_cohort_per_filters_not_authenticated(self, client):
+        """API requires authentication."""
+        assert self._post(client).status_code == 401
+
+    def test_cohort_per_filters_with_empty(self, client, coe_advisor_session):
+        """API requires non-empty input."""
+        assert self._post(client, {'filters': []}).status_code == 400
+
+    def test_asc_advisor_querying_with_coe_attributes(self, client, asc_advisor_session):
+        """ASC advisor is not allowed to query with COE attributes."""
+        response = self._post(
+            client,
+            {
+                'filters':
+                    [
+                        {
+                            'key': 'coeProbation',
+                            'type': 'boolean',
+                            'value': 'true',
+                        },
+                    ],
+            },
+        )
+        assert response.status_code == 403
+
+    def test_cohort_per_filters_for_coe_advisor(self, client, coe_advisor_session):
+        """API translates 'coeProbation' filter to proper filter_criteria query."""
+        gpa_range_1 = 'numrange(0, 2, \'[)\')'
+        gpa_range_2 = 'numrange(2, 2.5, \'[)\')'
+        response = self._post(
+            client,
+            {
+                'filters':
+                    [
+                        {
+                            'key': 'coeProbation',
+                            'type': 'boolean',
+                            'value': 'true',
+                        },
+                        {
+                            'key': 'gpaRanges',
+                            'type': 'array',
+                            'value': gpa_range_1,
+                        },
+                        {
+                            'key': 'gpaRanges',
+                            'type': 'array',
+                            'value': gpa_range_2,
+                        },
+                        {
+                            'key': 'lastNameRange',
+                            'type': 'range',
+                            'value': ['A', 'Z'],
+                        },
+                    ],
+            },
+        )
+        assert response.status_code == 200
+        cohort = response.json
+        assert 'totalStudentCount' in cohort
+        assert 'students' in cohort
+        criteria = cohort['filterCriteria']
+        assert criteria['coeProbation'] is not None
+        assert criteria['lastNameRange'] is not None
+        gpa_ranges = criteria['gpaRanges']
+        assert len(gpa_ranges) == 2
+        assert gpa_range_1 in gpa_ranges
+        assert gpa_range_2 in gpa_ranges
+        for key in [
+            'advisorLdapUids',
+            'ethnicities',
+            'genders',
+            'groupCodes',
+            'inIntensiveCohort',
+            'isInactiveAsc',
+            'levels',
+            'majors',
+            'underrepresented',
+            'unitRanges',
+        ]:
+            assert criteria[key] is None

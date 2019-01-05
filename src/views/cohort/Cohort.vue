@@ -9,12 +9,13 @@
       <CohortPageHeader />
       <div v-if="!isCompactView">
         <CohortFilter class="cohort-filter-row"
-                      v-for="(filter, index) in filters" :key="index"
+                      v-for="(filter, index) in filters" :key="compositeKey(filter)"
                       :filter="filter"
                       :index="index"/>
         <AddCohortFilterMenu />
       </div>
-      <div v-if="students.length">
+      <SectionSpinner name="Students" :loading="editMode === 'apply'" />
+      <div v-if="showStudentsSection">
         <div class="cohort-column-results">
           <div class="search-header-curated-cohort">
             <CuratedGroupSelector :students="students"/>
@@ -38,6 +39,7 @@ import CohortFilter from '@/components/cohort/CohortFilter';
 import CohortPageHeader from '@/components/cohort/CohortPageHeader';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
 import Loading from '@/mixins/Loading';
+import SectionSpinner from '@/components/util/SectionSpinner';
 import Spinner from '@/components/Spinner';
 import Students from '@/components/student/Students';
 
@@ -49,6 +51,7 @@ export default {
     CohortFilter,
     CohortPageHeader,
     CuratedGroupSelector,
+    SectionSpinner,
     Spinner,
     Students
   },
@@ -58,6 +61,14 @@ export default {
     this.initSession(id, encodedCriteria).then(() => {
       this.loaded();
     });
+  },
+  methods: {
+    compositeKey: filter => `${filter.key}${filter.value}`
+  },
+  computed: {
+    showStudentsSection() {
+      return _.size(this.students) && this.editMode !== 'apply';
+    }
   }
 };
 </script>

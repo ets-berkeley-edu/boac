@@ -8,6 +8,15 @@ export function getCohort(id: number, includeStudents = true) {
     .then(response => response.data, () => null);
 }
 
+export function getCohortPerFilters(filters: any[]) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .post(`${apiBaseUrl}/api/cohort/per_filters`, {
+      filters: filters
+    })
+    .then(response => response.data, () => null);
+}
+
 export function getMyCohorts() {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios

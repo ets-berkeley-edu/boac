@@ -86,7 +86,8 @@
         <b-btn id="unsaved-filter-apply"
                aria-label="Search for students"
                class="btn-filter-draft-apply"
-               @click="apply()"
+               @click="applyFilters()"
+               :disabled="!!editMode"
                v-if="showApplyButton">
           Apply
         </b-btn>
@@ -94,6 +95,7 @@
           <b-btn id="save-filtered-cohort"
                  aria-label="Save cohort"
                  :class="{'btn-filter-draft-saved': acknowledgeSave, 'btn-primary btn-filter-draft-save': !acknowledgeSave}"
+                 :disabled="!!editMode"
                  @click="save(openCreateCohortModal)">
             <span v-if="acknowledgeSave">Saved</span>
             <span v-if="!acknowledgeSave && cohortId">Save Cohort</span>
@@ -131,7 +133,6 @@ export default {
   },
   methods: {
     save: _.noop,
-    apply: _.noop,
     add() {
       switch (this.selected.type) {
         case 'array':
