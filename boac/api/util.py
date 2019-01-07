@@ -195,19 +195,17 @@ def is_coe_authorized():
     return current_user.is_admin or 'COENG' in get_dept_codes(current_user)
 
 
-def is_unauthorized_search(params):
-    return (_is_asc_data_request(params) and not is_asc_authorized()) or (_is_coe_data_request(params) and not is_coe_authorized())
-
-
-def _is_coe_data_request(params):
-    keys = ['advisorLdapUids', 'coePrepStatuses', 'coeProbation', 'ethnicities', 'genders', 'isInactiveCoe']
-    return next((key for key in keys if params.get(key) is not None), False)
-
-
-def _is_asc_data_request(params):
-    keys = ['inIntensiveCohort', 'isInactiveAsc', 'groupCodes']
-    is_asc_request = next((key for key in keys if params.get(key) is not None), False)
-    return is_asc_request or params.get('orderBy') in ['group_name']
+def is_unauthorized_search(filter_keys, order_by):
+    filter_key_set = set(filter_keys)
+    asc_keys = {'inIntensiveCohort', 'isInactiveAsc', 'groupCodes'}
+    if list(filter_key_set & asc_keys) or order_by in ['group_name']:
+        if not is_asc_authorized():
+            return True
+    coe_keys = {'advisorLdapUids', 'coePrepStatuses', 'coeProbation', 'ethnicities', 'genders', 'isInactiveCoe'}
+    if list(filter_key_set & coe_keys):
+        if not is_coe_authorized():
+            return True
+    return False
 
 
 def _curated_cohort_api_json(cohort):

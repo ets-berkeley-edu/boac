@@ -1,19 +1,25 @@
 import _ from 'lodash';
-import { getCohort, saveCohort } from '@/api/cohort';
+import {
+  createCohort,
+  getCohort,
+  getStudentsPerFilters,
+  saveCohort
+} from '@/api/cohort';
 import { getCohortFilterOptions, translateToMenu } from '@/api/menu';
 import store from '@/store';
 
-const EDIT_MODE_TYPES = [null, 'add', 'edit', 'rename'];
+const EDIT_MODE_TYPES = [null, 'add', 'apply', 'edit', 'rename'];
 
 const state = {
   cohortId: undefined,
   cohortName: undefined,
+  editMode: undefined,
   filters: undefined,
   isCompactView: undefined,
   isModifiedSinceLastSearch: undefined,
   isOwnedByCurrentUser: undefined,
   menu: undefined,
-  editMode: undefined,
+  orderBy: undefined,
   students: undefined,
   totalStudentCount: undefined
 };
@@ -28,8 +34,9 @@ const getters = {
     state.isModifiedSinceLastSearch,
   isOwnedByCurrentUser: (state: any): boolean => state.isOwnedByCurrentUser,
   menu: (state: any): any[] => state.menu,
-  showApplyButton: (state: any): boolean =>
-    state.isModifiedSinceLastSearch === true,
+  showApplyButton(state: any) {
+    return state.isModifiedSinceLastSearch === true && !!_.size(state.filters);
+  },
   showSaveButton: (state: any): boolean =>
     state.isModifiedSinceLastSearch === false,
   students: (state: any): any[] => state.students,
@@ -63,7 +70,7 @@ const mutations = {
     state.cohortId = cohort && cohort.id;
     state.cohortName = cohort && cohort.name;
     state.isOwnedByCurrentUser = !cohort || cohort.isOwnedByCurrentUser;
-    state.filters = filters;
+    state.filters = filters || [];
     state.students = students;
     state.totalStudentCount = totalStudentCount;
     if (!state.cohortId) {
@@ -74,6 +81,10 @@ const mutations = {
   toggleCompactView: (state: any) =>
     (state.isCompactView = !state.isCompactView),
   updateMenu: (state: any, menu: any[]) => (state.menu = menu),
+  updateStudents: (state: any, { students, totalStudentCount }) => {
+    state.students = students;
+    state.totalStudentCount = totalStudentCount;
+  },
   setModifiedSinceLastSearch: (state: any, value: boolean) =>
     (state.isModifiedSinceLastSearch = value)
 };
@@ -101,7 +112,7 @@ const actions = {
       } else {
         getCohortFilterOptions([]).then(menu => {
           commit('updateMenu', menu);
-          commit('resetSession');
+          commit('resetSession', {});
           resolve();
         });
       }
@@ -115,6 +126,36 @@ const actions = {
         commit('updateMenu', menu);
         resolve();
       });
+    });
+  },
+  applyFilters: ({ commit, state }) => {
+    return new Promise(resolve => {
+      commit('setEditMode', 'apply');
+      getStudentsPerFilters(state.filters).then(data => {
+        commit('updateStudents', {
+          students: data.students,
+          totalStudentCount: data.totalStudentCount
+        });
+        commit('setModifiedSinceLastSearch', false);
+        commit('setEditMode', null);
+        resolve();
+      });
+    });
+  },
+  createCohort: ({ commit, state }, name: string) => {
+    return new Promise(resolve => {
+      createCohort(name, state.filters, state.totalStudentCount).then(
+        cohort => {
+          store.dispatch('cohort/addCohort', cohort);
+          commit('resetSession', {
+            cohort,
+            filters: state.filters,
+            students: state.students,
+            totalStudentCount: cohort.totalStudentCount
+          });
+          resolve();
+        }
+      );
     });
   },
   renameCohort: ({ commit, state }, name: string) => {
@@ -136,6 +177,7 @@ const actions = {
       });
     });
   },
+  saveCohort: ({ commit }) => commit('saveCohort'),
   setEditMode: ({ commit }, editMode: string) =>
     commit('setEditMode', editMode),
   toggleCompactView: ({ commit }) => commit('toggleCompactView')

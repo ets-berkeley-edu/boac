@@ -4,36 +4,23 @@ import { getConfig } from '@/api/config';
 const state = {
   legacyRedirectsEnabled:
     process.env.VUE_APP_ENABLE_LEGACY_REDIRECTS.toLowerCase() === 'true',
-  config: null,
-  loading: null,
+  config: undefined,
+  loading: undefined,
   errors: []
 };
 
 const getters = {
-  apiBaseUrl: (): any => {
-    return process.env.VUE_APP_API_BASE_URL;
-  },
-  currentEnrollmentTermId: (state: any): boolean => {
-    return _.get(state.config, 'currentEnrollmentTermId');
-  },
-  devAuthEnabled: (state: any): boolean => {
-    return _.get(state.config, 'devAuthEnabled');
-  },
-  errors: (state: any): any => {
-    return state.errors;
-  },
-  loading: (state: any): boolean => {
-    return state.loading;
-  },
-  legacyRedirectsEnabled: (state: any): boolean => {
-    return state.legacyRedirectsEnabled;
-  },
-  supportEmailAddress: (state: any): string => {
-    return _.get(state.config, 'supportEmailAddress');
-  },
-  vuePaths: (state: any): string[] => {
-    return _.get(state.config, 'vuePaths');
-  }
+  apiBaseUrl: (): any => process.env.VUE_APP_API_BASE_URL,
+  currentEnrollmentTermId: (state: any): boolean =>
+    _.get(state.config, 'currentEnrollmentTermId'),
+  devAuthEnabled: (state: any): boolean =>
+    _.get(state.config, 'devAuthEnabled'),
+  errors: (state: any): any => state.errors,
+  loading: (state: any): boolean => state.loading,
+  legacyRedirectsEnabled: (state: any): boolean => state.legacyRedirectsEnabled,
+  supportEmailAddress: (state: any): string =>
+    _.get(state.config, 'supportEmailAddress'),
+  vuePaths: (state: any): string[] => _.get(state.config, 'vuePaths')
 };
 
 const mutations = {
@@ -43,31 +30,19 @@ const mutations = {
       state.errors.splice(indexOf, 1);
     }
   },
-  loadingComplete: (state: any) => {
-    state.loading = false;
-  },
-  loadingStart: (state: any) => {
-    state.loading = true;
-  },
+  loadingComplete: (state: any) => (state.loading = false),
+  loadingStart: (state: any) => (state.loading = true),
   reportError: (state: any, error: any) => {
     error.id = new Date().getTime();
     state.errors.push(error);
   },
-  storeConfig: (state: any, config: any) => {
-    state.config = config;
-  }
+  storeConfig: (state: any, config: any) => (state.config = config)
 };
 
 const actions = {
-  dismissError: ({ commit }, id) => {
-    commit('dismissError', id);
-  },
-  loadingComplete: ({ commit }) => {
-    commit('loadingComplete');
-  },
-  loadingStart: ({ commit }) => {
-    commit('loadingStart');
-  },
+  dismissError: ({ commit }, id) => commit('dismissError', id),
+  loadingComplete: ({ commit }) => commit('loadingComplete'),
+  loadingStart: ({ commit }) => commit('loadingStart'),
   loadConfig: ({ commit, state }) => {
     return new Promise(resolve => {
       if (state.config) {
@@ -80,9 +55,7 @@ const actions = {
       }
     });
   },
-  reportError: ({ commit }, error) => {
-    commit('reportError', error);
-  }
+  reportError: ({ commit }, error) => commit('reportError', error)
 };
 
 export default {

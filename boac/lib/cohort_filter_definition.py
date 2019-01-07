@@ -28,6 +28,7 @@ from copy import deepcopy
 from boac.api.util import authorized_users_api_feed
 from boac.externals import data_loch
 from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE, COE_ETHNICITIES_PER_CODE, get_dept_codes
+from boac.lib.util import to_bool_or_none as to_bool
 from boac.merged import athletics
 from boac.merged.student import get_student_query_scope
 from boac.models.authorized_user import AuthorizedUser
@@ -221,6 +222,22 @@ def translate_cohort_filter(criteria=None):
                     else:
                         rows.append(_translate_filter_row(definition, selected))
     return rows
+
+
+def translate_filters_to_cohort_criteria(filters):
+    criteria = {}
+    for filter_ in filters:
+        key = filter_['key']
+        type_ = filter_['type']
+        value = filter_['value']
+        if type_ == 'boolean':
+            criteria[key] = to_bool(value)
+        elif type_ == 'array':
+            criteria[key] = criteria.get(key) or []
+            criteria[key].append(value)
+        elif type_ == 'range':
+            criteria[key] = value
+    return criteria
 
 
 def get_cohort_filter_options(existing_filters):

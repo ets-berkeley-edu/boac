@@ -86,7 +86,8 @@
         <b-btn id="unsaved-filter-apply"
                aria-label="Search for students"
                class="btn-filter-draft-apply"
-               @click="apply()"
+               @click="applyFilters()"
+               :disabled="!!editMode"
                v-if="showApplyButton">
           Apply
         </b-btn>
@@ -94,11 +95,20 @@
           <b-btn id="save-filtered-cohort"
                  aria-label="Save cohort"
                  :class="{'btn-filter-draft-saved': acknowledgeSave, 'btn-primary btn-filter-draft-save': !acknowledgeSave}"
-                 @click="save(openCreateCohortModal)">
+                 :disabled="!!editMode"
+                 @click="save()">
             <span v-if="acknowledgeSave">Saved</span>
             <span v-if="!acknowledgeSave && cohortId">Save Cohort</span>
             <span v-if="!acknowledgeSave && !cohortId">Save</span>
           </b-btn>
+          <b-modal id="createCohortModal"
+                   v-model="showCreateModal"
+                   hide-footer
+                   hide-header-close
+                   title="Name Your Saved Cohort">
+            <CreateCohortModal :cancel="cancelCreateModal"
+                               :create="create"/>
+          </b-modal>
         </div>
       </div>
     </div>
@@ -106,22 +116,23 @@
 </template>
 
 <script>
-import _ from 'lodash';
 import CohortEditSession from '@/mixins/CohortEditSession';
+import CreateCohortModal from '@/components/cohort/CreateCohortModal';
 
 export default {
   name: 'AddCohortFilterMenu',
   mixins: [CohortEditSession],
+  components: { CreateCohortModal },
   data: () => ({
-    selected: null,
-    selectedArrayOption: null,
+    acknowledgeSave: null,
+    filterUpdateStatus: null,
     range: {
       start: null
     },
-    acknowledgeSave: null,
-    filterUpdateStatus: null,
-    openCreateCohortModal: null,
+    selected: null,
+    selectedArrayOption: null,
     showAdd: false,
+    showCreateModal: false,
     subcategoryError: null
   }),
   computed: {
@@ -130,8 +141,6 @@ export default {
     }
   },
   methods: {
-    save: _.noop,
-    apply: _.noop,
     add() {
       switch (this.selected.type) {
         case 'array':
@@ -144,9 +153,23 @@ export default {
       this.addFilter(this.selected);
       this.reset();
     },
+    cancelCreateModal() {
+      this.showCreateModal = false;
+    },
+    create(name) {
+      this.showCreateModal = false;
+      this.createCohort(name);
+    },
     reset() {
       this.selected = this.selectedArrayOption = null;
       this.showAdd = false;
+    },
+    save() {
+      if (this.cohortId) {
+        this.saveCohort();
+      } else {
+        this.showCreateModal = true;
+      }
     }
   },
   watch: {

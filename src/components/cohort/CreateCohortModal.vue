@@ -1,12 +1,12 @@
 <template>
   <div>
-    <form @submit.prevent="createCuratedGroup()">
-      <div id="curated-cohort-create-body" class="modal-body">
-        <div class="curated-cohort-create-form-name">Name:</div>
+    <form @submit.prevent="createCohort()">
+      <div id="cohort-create-body" class="modal-body">
+        <div class="cohort-create-form-name">Name:</div>
         <div>
-          <input id="curated-cohort-create-input"
+          <input id="cohort-create-input"
                  ref="modalNameInput"
-                 class="curated-cohort-create-input-name"
+                 class="cohort-create-input-name"
                  @change="error.hide = true"
                  v-model="name"
                  type="text"
@@ -18,14 +18,14 @@
         <div class="has-error" v-if="error.message && !error.hide">{{ error.message }}</div>
       </div>
       <div class="modal-footer">
-        <b-btn id="curated-cohort-create-confirm-btn"
+        <b-btn id="cohort-create-confirm-btn"
                variant="primary"
                :disabled="!name.length"
-               @click.prevent="createCuratedGroup()">
+               @click.prevent="createCohort()">
           Save
         </b-btn>
         <b-btn type="button"
-               id="curated-cohort-create-cancel-btn"
+               id="cohort-create-cancel-btn"
                class="btn btn-default"
                @click="cancelModal()">Cancel</b-btn>
       </div>
@@ -37,7 +37,7 @@
 import Validator from '@/mixins/Validator';
 
 export default {
-  name: 'CreateCuratedGroupModal',
+  name: 'CreateCohortModal',
   mixins: [Validator],
   props: {
     cancel: Function,
@@ -59,7 +59,7 @@ export default {
       this.cancel();
       this.reset();
     },
-    createCuratedGroup: function() {
+    createCohort: function() {
       let errorMessage = this.validateCohortName({ name: this.name });
       if (errorMessage) {
         this.error = { message: errorMessage, hide: false };

@@ -1,6 +1,6 @@
 <template>
   <div class="cohort-header-container">
-    <div v-if="!cohortId && totalStudentCount === null">
+    <div v-if="!cohortId && totalStudentCount === undefined">
       <h1 class="page-section-header" focus-on="!isLoading" tabindex="0">Create a Filtered Cohort</h1>
       <div>
         Find a set of users, then save your search as a filtered cohort. Revisit your filtered cohorts at any time.
@@ -10,9 +10,9 @@
       <h1 class="page-section-header" v-if="cohortName" focus-on="!isLoading" tabindex="0">
         {{ cohortName }}
         <span class="faint-text"
-              v-if="totalStudentCount != null">{{ 'student' | pluralize(totalStudentCount) }}</span>
+              v-if="editMode !== 'apply' && totalStudentCount !== undefined">{{ 'student' | pluralize(totalStudentCount) }}</span>
       </h1>
-      <h1 v-if="!cohortName && totalStudentCount !== null" focus-on="!isLoading" tabindex="0">
+      <h1 v-if="!cohortName && totalStudentCount !== undefined" focus-on="!isLoading" tabindex="0">
         {{ 'Result' | pluralize(totalStudentCount) }}
       </h1>
     </div>
@@ -81,8 +81,9 @@
                variant="link"
                v-b-modal="'confirmDeleteModal'"
                aria-label="Delete this cohort"
+               :disabled="disableButtons"
                class="cohort-manage-btn-link">
-          Delete
+          <span :class="{'disabled-link': disableButtons}">Delete</span>
         </b-btn>
         <b-modal id="confirmDeleteModal"
                  v-model="showDeleteModal"

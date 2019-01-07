@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import get_my_cohorts, is_unauthorized_search, strip_analytics
 from boac.lib.berkeley import can_view_cohort
+from boac.lib.cohort_filter_definition import translate_filters_to_cohort_criteria
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, to_bool_or_none as to_bool
 from boac.merged import calnet
@@ -84,11 +85,12 @@ def students_with_alerts(cohort_id):
 @app.route('/api/cohort/<cohort_id>')
 @login_required
 def get_cohort(cohort_id):
-    if is_unauthorized_search(request.args):
+    filter_keys = list(request.args.keys())
+    order_by = get_param(request.args, 'orderBy', None)
+    if is_unauthorized_search(filter_keys, order_by):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     include_students = to_bool(get_param(request.args, 'includeStudents'))
     include_students = True if include_students is None else include_students
-    order_by = get_param(request.args, 'orderBy', None)
     offset = get_param(request.args, 'offset', 0)
     limit = get_param(request.args, 'limit', 50)
     cohort = CohortFilter.find_by_id(int(cohort_id))
@@ -107,35 +109,75 @@ def get_cohort(cohort_id):
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
 
 
+@app.route('/api/cohort/get_students_per_filters', methods=['POST'])
+@login_required
+def get_cohort_per_filters():
+    filters = get_param(request.get_json(), 'filters', [])
+    if not filters:
+        raise BadRequestError('API requires \'filters\'')
+    include_students = to_bool(get_param(request.args, 'includeStudents'))
+    include_students = True if include_students is None else include_students
+    order_by = get_param(request.args, 'orderBy', None)
+    offset = get_param(request.args, 'offset', 0)
+    limit = get_param(request.args, 'limit', 50)
+    filter_keys = list(map(lambda f: f['key'], filters))
+    if is_unauthorized_search(filter_keys, order_by):
+        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
+    cohort = decorate_cohort(
+        CohortFilter(name='tmp', filter_criteria=translate_filters_to_cohort_criteria(filters)),
+        order_by=order_by,
+        offset=int(offset),
+        limit=int(limit),
+        include_alerts_for_user_id=current_user.id,
+        include_profiles=True,
+        include_students=include_students,
+    )
+    return tolerant_jsonify(cohort)
+
+
 @app.route('/api/cohort/create', methods=['POST'])
 @login_required
 def create_cohort():
     params = request.get_json()
-    if is_unauthorized_search(params):
-        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     name = get_param(params, 'name', None)
+    filters = get_param(params, 'filters', None)
+    student_count = get_param(params, 'studentCount')
+    order_by = params.get('orderBy')
     if not name:
         raise BadRequestError('Cohort creation requires \'name\'')
+    if filters:
+        filter_keys = list(map(lambda f: f['key'], filters))
+        if is_unauthorized_search(filter_keys, order_by):
+            raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
+        filter_criteria = translate_filters_to_cohort_criteria(filters)
+    else:
+        if is_unauthorized_search(list(params.keys()), order_by):
+            raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
+        filter_criteria = {}
+        for key in [
+            'advisorLdapUids',
+            'coePrepStatuses',
+            'coeProbation',
+            'ethnicities',
+            'genders',
+            'gpaRanges',
+            'groupCodes',
+            'lastNameRange',
+            'levels',
+            'majors',
+            'underrepresented',
+            'unitRanges',
+        ]:
+            filter_criteria[key] = get_param(params, key)
+        for key in ['inIntensiveCohort', 'isInactiveAsc', 'isInactiveCoe']:
+            filter_criteria[key] = to_bool(params.get(key))
     cohort = CohortFilter.create(
-        advisor_ldap_uids=get_param(params, 'advisorLdapUids'),
-        coe_prep_statuses=get_param(params, 'coePrepStatuses'),
-        coe_probation=get_param(params, 'coeProbation'),
-        ethnicities=get_param(params, 'ethnicities'),
-        genders=get_param(params, 'genders'),
-        gpa_ranges=get_param(params, 'gpaRanges'),
-        group_codes=get_param(params, 'groupCodes'),
-        in_intensive_cohort=to_bool(params.get('inIntensiveCohort')),
-        is_inactive_asc=to_bool(params.get('isInactiveAsc')),
-        is_inactive_coe=to_bool(params.get('isInactiveCoe')),
-        name=name,
-        last_name_range=get_param(params, 'lastNameRange'),
-        levels=get_param(params, 'levels'),
-        majors=get_param(params, 'majors'),
         uid=current_user.get_id(),
-        underrepresented=get_param(params, 'underrepresented'),
-        unit_ranges=get_param(params, 'unitRanges'),
+        name=name,
+        filter_criteria=filter_criteria,
+        student_count=student_count,
     )
-    return tolerant_jsonify(decorate_cohort(cohort))
+    return tolerant_jsonify(decorate_cohort(cohort, order_by=order_by))
 
 
 @app.route('/api/cohort/update', methods=['POST'])

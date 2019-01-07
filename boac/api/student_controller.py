@@ -65,7 +65,8 @@ def user_photo(uid):
 @login_required
 def get_students():
     params = request.get_json()
-    if is_unauthorized_search(params):
+    order_by = util.get(params, 'orderBy', None)
+    if is_unauthorized_search(list(params.keys()), order_by):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     results = query_students(
         advisor_ldap_uids=util.get(params, 'advisorLdapUids'),
@@ -84,7 +85,7 @@ def get_students():
         limit=util.get(params, 'limit', 50),
         majors=util.get(params, 'majors'),
         offset=util.get(params, 'offset', 0),
-        order_by=util.get(params, 'orderBy', None),
+        order_by=order_by,
         underrepresented=util.get(params, 'underrepresented'),
         unit_ranges=util.get(params, 'unitRanges'),
     )
@@ -103,7 +104,8 @@ def get_students():
 @login_required
 def search_students():
     params = request.get_json()
-    if is_unauthorized_search(params):
+    order_by = util.get(params, 'orderBy', None)
+    if is_unauthorized_search(list(params.keys()), order_by):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     search_phrase = util.get(params, 'searchPhrase', '').strip()
     if not len(search_phrase):
@@ -113,7 +115,7 @@ def search_students():
         search_phrase=search_phrase.replace(',', ' '),
         is_active_asc=convert_inactive_arg(util.get(params, 'isInactiveAsc'), 'UWASC', current_user),
         is_active_coe=convert_inactive_arg(util.get(params, 'isInactiveCoe'), 'COENG', current_user),
-        order_by=util.get(params, 'orderBy', None),
+        order_by=order_by,
         offset=util.get(params, 'offset', 0),
         limit=util.get(params, 'limit', 50),
     )

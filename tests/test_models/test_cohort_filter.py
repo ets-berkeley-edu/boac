@@ -30,7 +30,6 @@ from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 import pytest
 
-
 asc_advisor_uid = '2040'
 coe_advisor_uid = '1133399'
 
@@ -58,12 +57,14 @@ class TestCohortFilter:
         cohort = CohortFilter.create(
             uid='1022796',
             name='All criteria, all the time',
-            gpa_ranges=gpa_ranges,
-            group_codes=group_codes,
-            in_intensive_cohort=None,
-            levels=levels,
-            majors=majors,
-            unit_ranges=unit_ranges,
+            filter_criteria={
+                'gpaRanges': gpa_ranges,
+                'groupCodes': group_codes,
+                'inIntensiveCohort': None,
+                'levels': levels,
+                'majors': majors,
+                'unitRanges': unit_ranges,
+            },
         )
         cohort = CohortFilter.find_by_id(cohort.id)
         expected = {
@@ -84,8 +85,10 @@ class TestCohortFilter:
             CohortFilter.create(
                 uid=asc_advisor_uid,
                 name='Cohort with undefined filter criteria',
-                genders=[],
-                in_intensive_cohort=None,
+                filter_criteria={
+                    'genders': [],
+                    'inIntensiveCohort': None,
+                },
             )
 
     def test_create_and_delete_cohort(self):
@@ -98,7 +101,13 @@ class TestCohortFilter:
 
         # Create and share cohort
         group_codes = ['MFB-DB', 'MFB-DL', 'MFB-MLB', 'MFB-OLB']
-        cohort = CohortFilter.create(uid=owner, name='Football, Defense', group_codes=group_codes)
+        cohort = CohortFilter.create(
+            uid=owner,
+            name='Football, Defense',
+            filter_criteria={
+                'groupCodes': group_codes,
+            },
+        )
         cohort = CohortFilter.share(cohort.id, shared_with)
         assert len(cohort.owners) == 2
         assert owner, shared_with in [user.uid for user in cohort.owners]

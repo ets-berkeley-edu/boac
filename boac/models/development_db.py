@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 from boac import db, std_commit
 from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE
 from boac.models.authorized_user import AuthorizedUser
@@ -160,20 +159,84 @@ def create_curated_cohorts():
 
 def create_filtered_cohorts():
     # Oliver's cohorts
-    CohortFilter.create(uid='2040', name='All sports', group_codes=['MFB-DL', 'WFH'])
-    CohortFilter.create(uid='2040', name='Football, Defense', group_codes=['MFB-DB', 'MFB-DL'])
-    CohortFilter.create(uid='2040', name='Field Hockey', group_codes=['WFH'])
+    CohortFilter.create(
+        uid='2040',
+        name='All sports',
+        filter_criteria={
+            'groupCodes': ['MFB-DL', 'WFH'],
+        },
+    )
+    CohortFilter.create(
+        uid='2040',
+        name='Football, Defense',
+        filter_criteria={
+            'groupCodes': ['MFB-DB', 'MFB-DL'],
+        },
+    )
+    CohortFilter.create(
+        uid='2040',
+        name='Field Hockey',
+        filter_criteria={
+            'groupCodes': ['WFH'],
+        },
+    )
     # Flint's cohorts
     asc_advisor_uid = '1081940'
-    CohortFilter.create(uid=asc_advisor_uid, name='Defense Backs, Inactive', group_codes=['MFB-DB'], is_inactive_asc=True)
-    CohortFilter.create(uid=asc_advisor_uid, name='Defense Backs, Active', group_codes=['MFB-DB'], is_inactive_asc=False)
-    CohortFilter.create(uid=asc_advisor_uid, name='Defense Backs, All', group_codes=['MFB-DB'])
-    CohortFilter.create(uid=asc_advisor_uid, name='Undeclared students', majors=['Undeclared'], is_inactive_asc=False)
-    CohortFilter.create(uid=asc_advisor_uid, name='All sports', group_codes=['MFB-DL', 'WFH'], is_inactive_asc=False)
+    CohortFilter.create(
+        uid=asc_advisor_uid,
+        name='Defense Backs, Inactive',
+        filter_criteria={
+            'groupCodes': ['MFB-DB'],
+            'isInactiveAsc': True,
+        },
+    )
+    CohortFilter.create(
+        uid=asc_advisor_uid,
+        name='Defense Backs, Active',
+        filter_criteria={
+            'groupCodes': ['MFB-DB'],
+            'isInactiveAsc': False,
+        },
+    )
+    CohortFilter.create(
+        uid=asc_advisor_uid,
+        name='Defense Backs, All',
+        filter_criteria={
+            'groupCodes': ['MFB-DB'],
+        },
+    )
+    CohortFilter.create(
+        uid=asc_advisor_uid,
+        name='Undeclared students',
+        filter_criteria={
+            'majors': ['Undeclared'],
+            'isInactiveAsc': False,
+        },
+    )
+    CohortFilter.create(
+        uid=asc_advisor_uid,
+        name='All sports',
+        filter_criteria={
+            'groupCodes': ['MFB-DL', 'WFH'],
+            'isInactiveAsc': False,
+        },
+    )
     # Sandeep's cohorts
     coe_advisor_uid = '1133399'
-    CohortFilter.create(uid=coe_advisor_uid, name='Sandeep\'s Students', advisor_ldap_uids=[coe_advisor_uid])
-    CohortFilter.create(uid='1133399', name='Radioactive Women and Men', majors=['Nuclear Engineering BS'])
+    CohortFilter.create(
+        uid=coe_advisor_uid,
+        name='Sandeep\'s Students',
+        filter_criteria={
+            'advisorLdapUids': [coe_advisor_uid],
+        },
+    )
+    CohortFilter.create(
+        uid='1133399',
+        name='Radioactive Women and Men',
+        filter_criteria={
+            'majors': ['Nuclear Engineering BS'],
+        },
+    )
     std_commit(allow_test_environment=True)
 
 
