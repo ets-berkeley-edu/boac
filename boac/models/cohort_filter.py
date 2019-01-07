@@ -65,15 +65,11 @@ class CohortFilter(Base, UserMixin):
             created_at={self.created_at}>"""
 
     @classmethod
-    def create(cls, uid, name, **kwargs):
-        at_least_one_is_defined = False
-        filter_criteria = {}
-        for k, v in kwargs.items():
-            at_least_one_is_defined = at_least_one_is_defined or (len(v) if isinstance(v, list) else v is not None)
-            filter_criteria[util.camelize(k)] = v
-        if not at_least_one_is_defined:
+    def create(cls, uid, name, filter_criteria, student_count=None):
+        if all(not isinstance(value, bool) and not value for value in filter_criteria.values()):
             raise InternalServerError('Cohort creation requires at least one filter specification.')
         cohort = CohortFilter(name=name, filter_criteria=filter_criteria)
+        cohort.student_count = student_count
         user = AuthorizedUser.find_by_uid(uid)
         user.cohort_filters.append(cohort)
         db.session.flush()

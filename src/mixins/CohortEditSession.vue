@@ -13,8 +13,10 @@ export default {
     ...mapActions('cohortEditSession', [
       'addFilter',
       'applyFilters',
+      'createCohort',
       'removeFilter',
       'renameCohort',
+      'saveCohort',
       'setEditMode',
       'toggleCompactView'
     ])

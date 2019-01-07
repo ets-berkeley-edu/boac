@@ -11,13 +11,16 @@ const getters = {
 };
 
 const mutations = {
+  addCohort: (state: any, cohort: any) => {
+    state.myCohorts.push(cohort);
+  },
   deleteCohort: (state: any, id: any) => {
     let indexOf = state.myCohorts.findIndex(
       curatedGroup => curatedGroup.id === id
     );
     state.myCohorts.splice(indexOf, 1);
   },
-  saveMyCohorts: (state: any, cohorts: any) => {
+  saveMyCohorts: (state: any, cohorts: any[]) => {
     state.myCohorts = cohorts;
   },
   updateCohort: (state: any, updatedCohort: any) => {
@@ -29,6 +32,9 @@ const mutations = {
 };
 
 const actions = {
+  addCohort: ({ commit }, cohort) => {
+    commit('addCohort', cohort);
+  },
   deleteCohort: ({ commit }, cohort) => {
     commit('deleteCohort', cohort);
   },

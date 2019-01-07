@@ -1,5 +1,10 @@
 import _ from 'lodash';
-import { getCohort, getCohortPerFilters, saveCohort } from '@/api/cohort';
+import {
+  createCohort,
+  getCohort,
+  getStudentsPerFilters,
+  saveCohort
+} from '@/api/cohort';
 import { getCohortFilterOptions, translateToMenu } from '@/api/menu';
 import store from '@/store';
 
@@ -8,12 +13,13 @@ const EDIT_MODE_TYPES = [null, 'add', 'apply', 'edit', 'rename'];
 const state = {
   cohortId: undefined,
   cohortName: undefined,
+  editMode: undefined,
   filters: undefined,
   isCompactView: undefined,
   isModifiedSinceLastSearch: undefined,
   isOwnedByCurrentUser: undefined,
   menu: undefined,
-  editMode: undefined,
+  orderBy: undefined,
   students: undefined,
   totalStudentCount: undefined
 };
@@ -125,15 +131,31 @@ const actions = {
   applyFilters: ({ commit, state }) => {
     return new Promise(resolve => {
       commit('setEditMode', 'apply');
-      getCohortPerFilters(state.filters).then(cohort => {
+      getStudentsPerFilters(state.filters).then(data => {
         commit('updateStudents', {
-          students: cohort.students,
-          totalStudentCount: cohort.totalStudentCount
+          students: data.students,
+          totalStudentCount: data.totalStudentCount
         });
         commit('setModifiedSinceLastSearch', false);
         commit('setEditMode', null);
         resolve();
       });
+    });
+  },
+  createCohort: ({ commit, state }, name: string) => {
+    return new Promise(resolve => {
+      createCohort(name, state.filters, state.totalStudentCount).then(
+        cohort => {
+          store.dispatch('cohort/addCohort', cohort);
+          commit('resetSession', {
+            cohort,
+            filters: state.filters,
+            students: state.students,
+            totalStudentCount: cohort.totalStudentCount
+          });
+          resolve();
+        }
+      );
     });
   },
   renameCohort: ({ commit, state }, name: string) => {
@@ -155,6 +177,7 @@ const actions = {
       });
     });
   },
+  saveCohort: ({ commit }) => commit('saveCohort'),
   setEditMode: ({ commit }, editMode: string) =>
     commit('setEditMode', editMode),
   toggleCompactView: ({ commit }) => commit('toggleCompactView')

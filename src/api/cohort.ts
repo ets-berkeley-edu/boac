@@ -1,6 +1,21 @@
 import axios from 'axios';
 import store from '@/store';
 
+export function createCohort(
+  name: string,
+  filters: any[],
+  studentCount: number
+) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .post(`${apiBaseUrl}/api/cohort/create`, {
+      name,
+      filters,
+      studentCount
+    })
+    .then(response => response.data, () => null);
+}
+
 export function getCohort(id: number, includeStudents = true) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
@@ -8,10 +23,10 @@ export function getCohort(id: number, includeStudents = true) {
     .then(response => response.data, () => null);
 }
 
-export function getCohortPerFilters(filters: any[]) {
+export function getStudentsPerFilters(filters: any[]) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .post(`${apiBaseUrl}/api/cohort/per_filters`, {
+    .post(`${apiBaseUrl}/api/cohort/get_students_per_filters`, {
       filters: filters
     })
     .then(response => response.data, () => null);
@@ -45,7 +60,7 @@ export function deleteCohort(id) {
 export function saveCohort(
   id: number,
   name: string,
-  filterCriteria?: any,
+  filters?: any,
   studentCount?: number
 ) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
@@ -53,7 +68,7 @@ export function saveCohort(
     .post(`${apiBaseUrl}/api/cohort/update`, {
       id,
       name,
-      filterCriteria,
+      filters,
       studentCount
     })
     .then(response => response.data, () => null);

@@ -150,8 +150,20 @@ class TestMyCohorts:
 
     def test_cohort_ordering(self, client, asc_advisor_session):
         """Order alphabetically."""
-        CohortFilter.create(uid=asc_advisor_uid, name='Zebra Zealots', group_codes=['MTE', 'WWP'])
-        CohortFilter.create(uid=asc_advisor_uid, name='Aardvark Admirers', group_codes=['MWP', 'WTE'])
+        CohortFilter.create(
+            uid=asc_advisor_uid,
+            name='Zebra Zealots',
+            filter_criteria={
+                'groupCodes': ['MTE', 'WWP'],
+            },
+        )
+        CohortFilter.create(
+            uid=asc_advisor_uid,
+            name='Aardvark Admirers',
+            filter_criteria={
+                'groupCodes': ['MWP', 'WTE'],
+            },
+        )
         response = client.get('/api/profile/my')
         assert response.status_code == 200
         cohorts = response.json['myFilteredCohorts']
