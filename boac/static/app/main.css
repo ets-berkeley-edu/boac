@@ -408,6 +408,10 @@ body {
   color: #cef;
 }
 
+#content .tab-button:disabled {
+  cursor: not-allowed;
+}
+
 #content .tab-btn-group {
   padding: 0 0 5px 0;
 }
