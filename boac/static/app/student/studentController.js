@@ -154,11 +154,11 @@
       });
     };
 
-    $scope.curatedCohortCheckboxClick = function(cohort) {
-      if (cohort.selected) {
-        curatedCohortFactory.removeStudent(cohort.id, $scope.student.sid);
+    $scope.curatedCohortCheckboxClick = function(cohortId, addStudent) {
+      if (addStudent) {
+        curatedCohortFactory.addStudent(cohortId, $scope.student.sid);
       } else {
-        curatedCohortFactory.addStudent(cohort.id, $scope.student.sid);
+        curatedCohortFactory.removeStudent(cohortId, $scope.student.sid);
       }
     };
 
