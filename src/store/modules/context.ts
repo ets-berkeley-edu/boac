@@ -15,6 +15,8 @@ const getters = {
     _.get(state.config, 'currentEnrollmentTermId'),
   devAuthEnabled: (state: any): boolean =>
     _.get(state.config, 'devAuthEnabled'),
+  disableMatrixViewThreshold: (state: any): string =>
+    _.get(state.config, 'disableMatrixViewThreshold'),
   errors: (state: any): any => state.errors,
   loading: (state: any): boolean => state.loading,
   legacyRedirectsEnabled: (state: any): boolean => state.legacyRedirectsEnabled,

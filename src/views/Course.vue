@@ -81,7 +81,7 @@
                       class="btn btn-secondary tab-button"
                       aria-label="Switch to list view"
                       :class="{'tab-button-selected': tab === 'list'}"
-                      @click="onTab('list')">
+                      @click="toggleView('list')">
                 <i class="fas fa-list"></i> List
               </button>
               <button type="button"
@@ -90,7 +90,7 @@
                       :title="matrixDisabledMessage"
                       :class="{'tab-button-selected': tab === 'matrix'}"
                       :disabled="matrixDisabledMessage"
-                      @click="onTab('matrix')">
+                      @click="toggleView('matrix')">
                 <i class="fas fa-table"></i> Matrix
               </button>
             </div>
@@ -301,11 +301,9 @@
          </div>
         </div>
 
-        <!-- TODO matrix
-        <div id="matrix-outer" class="matrix-outer" data-ng-show="tab === 'matrix' && !isLoading && !error">
-          <div data-ng-include="'/static/app/shared/matrix.html'"></div>
+        <div id="matrix-outer" class="matrix-outer" v-if="tab === 'matrix' && !loading && !error">
+          <Matrix :featured="featured" :section="section"/>
         </div>
-        -->
       </div>
     </div>
   </div>
@@ -316,6 +314,8 @@ import _ from 'lodash';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
 import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox';
 import Loading from '@/mixins/Loading';
+import Matrix from '@/components/matrix/Matrix';
+import MatrixUtil from '@/components/matrix/MatrixUtil';
 import Spinner from '@/components/util/Spinner';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar';
@@ -327,10 +327,18 @@ import { getSection } from '@/api/course';
 
 export default {
   name: 'Course',
-  mixins: [Loading, StudentAnalytics, StudentMetadata, UserMetadata, Util],
+  mixins: [
+    Loading,
+    MatrixUtil,
+    StudentAnalytics,
+    StudentMetadata,
+    UserMetadata,
+    Util
+  ],
   components: {
     CuratedGroupSelector,
     CuratedStudentCheckbox,
+    Matrix,
     Spinner,
     StudentAvatar,
     StudentBoxplot
@@ -338,12 +346,16 @@ export default {
   created() {
     this.initViewMode();
     this.initPagination();
-    this.loadListView();
+    if (this.tab == 'matrix') {
+      this.loadMatrixView();
+    } else {
+      this.loadListView();
+    }
   },
   data: () => ({
     error: null,
     featured: null,
-    matrixDisabledMessage: 'Matrix not implemented',
+    matrixDisabledMessage: null,
     pagination: {
       currentPage: 1,
       defaultItemsPerPage: 50,
@@ -401,15 +413,18 @@ export default {
       }
       this.refreshListView();
     },
+    loadMatrixView() {
+      getSection(this.$route.params.termId, this.$route.params.sectionId).then(
+        data => {
+          this.updateCourseData(data);
+          this.loaded();
+        }
+      );
+    },
     nextPage() {
       this.$router.push({
         query: { ...this.$route.query, p: this.pagination.currentPage }
       });
-      this.startLoading();
-      this.refreshListView();
-    },
-    onTab() {
-      // TODO
     },
     refreshListView() {
       var limit = this.pagination.itemsPerPage;
@@ -444,9 +459,27 @@ export default {
       this.startLoading();
       this.refreshListView();
     },
+    toggleView(tabName) {
+      this.$router.push({
+        query: { ...this.$route.query, tab: tabName }
+      });
+    },
     updateCourseData(data) {
       document.title = data.displayName;
       this.section = this.featureSearchedStudent(data);
+      if (
+        this.exceedsMatrixThreshold(_.get(this.section, 'totalStudentCount'))
+      ) {
+        this.matrixDisabledMessage = this.exceedsMatrixThresholdMessage();
+      } else {
+        var plottableStudents = this.partitionPlottableStudents();
+        if (plottableStudents[0].length === 0) {
+          this.matrixDisabledMessage =
+            'No student data is available to display.';
+        } else {
+          this.matrixDisabledMessage = null;
+        }
+      }
     }
   }
 };
