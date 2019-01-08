@@ -77,8 +77,8 @@
 </template>
 
 <script>
-import Loading from '@/mixins/Loading.vue';
-import Spinner from '@/components/Spinner.vue';
+import Loading from '@/mixins/Loading';
+import Spinner from '@/components/util/Spinner';
 import store from '@/store';
 
 export default {

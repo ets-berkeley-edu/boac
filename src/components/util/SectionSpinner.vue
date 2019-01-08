@@ -1,7 +1,6 @@
 <template>
   <div>
-    <div class="loading-spinner-large"
-         v-if="loading">
+    <div class="spinner" v-if="loading">
       <i class="fas fa-sync fa-spin"
          :class="`fa-${faSize}x`"></i>
       <span role="alert"
@@ -36,7 +35,7 @@ export default {
 </script>
 
 <style scoped>
-.loading-spinner-large {
+.spinner {
   position: fixed;
   top: 0;
   right: 0;

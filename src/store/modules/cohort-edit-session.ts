@@ -20,6 +20,10 @@ const state = {
   isOwnedByCurrentUser: undefined,
   menu: undefined,
   orderBy: undefined,
+  pagination: {
+    currentPage: undefined,
+    itemsPerPage: 50
+  },
   students: undefined,
   totalStudentCount: undefined
 };
@@ -34,6 +38,7 @@ const getters = {
     state.isModifiedSinceLastSearch,
   isOwnedByCurrentUser: (state: any): boolean => state.isOwnedByCurrentUser,
   menu: (state: any): any[] => state.menu,
+  pagination: (state: any) => state.pagination,
   showApplyButton(state: any) {
     return state.isModifiedSinceLastSearch === true && !!_.size(state.filters);
   },
@@ -73,11 +78,14 @@ const mutations = {
     state.filters = filters || [];
     state.students = students;
     state.totalStudentCount = totalStudentCount;
+    state.pagination.currentPage = 1;
     if (!state.cohortId) {
       // If cohortId is null then show 'Save Cohort' for unsaved search results
       state.isModifiedSinceLastSearch = true;
     }
   },
+  setCurrentPage: (state: any, currentPage: number) =>
+    (state.pagination.currentPage = currentPage),
   toggleCompactView: (state: any) =>
     (state.isCompactView = !state.isCompactView),
   updateMenu: (state: any, menu: any[]) => (state.menu = menu),
@@ -94,6 +102,7 @@ const actions = {
     return new Promise(resolve => {
       commit('setEditMode', null);
       commit('isCompactView', !!id);
+      commit('setCurrentPage', 0);
       if (id > 0) {
         getCohort(id, true).then(cohort => {
           translateToMenu(cohort.filterCriteria).then(filters => {
@@ -131,7 +140,13 @@ const actions = {
   applyFilters: ({ commit, state }) => {
     return new Promise(resolve => {
       commit('setEditMode', 'apply');
-      getStudentsPerFilters(state.filters).then(data => {
+      let offset =
+        (state.pagination.currentPage - 1) * state.pagination.itemsPerPage;
+      getStudentsPerFilters(
+        state.filters,
+        offset,
+        state.pagination.itemsPerPage
+      ).then(data => {
         commit('updateStudents', {
           students: data.students,
           totalStudentCount: data.totalStudentCount
@@ -178,6 +193,8 @@ const actions = {
     });
   },
   saveCohort: ({ commit }) => commit('saveCohort'),
+  setCurrentPage: ({ commit }, currentPage: number) =>
+    commit('setCurrentPage', currentPage),
   setEditMode: ({ commit }, editMode: string) =>
     commit('setEditMode', editMode),
   toggleCompactView: ({ commit }) => commit('toggleCompactView')

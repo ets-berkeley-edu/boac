@@ -17,6 +17,7 @@ export default {
       'removeFilter',
       'renameCohort',
       'saveCohort',
+      'setCurrentPage',
       'setEditMode',
       'toggleCompactView'
     ])
@@ -25,12 +26,13 @@ export default {
     ...mapGetters('cohortEditSession', [
       'cohortId',
       'cohortName',
+      'editMode',
       'filters',
-      'isOwnedByCurrentUser',
       'isCompactView',
       'isModifiedSinceLastSearch',
+      'isOwnedByCurrentUser',
       'menu',
-      'editMode',
+      'pagination',
       'showApplyButton',
       'showSaveButton',
       'students',

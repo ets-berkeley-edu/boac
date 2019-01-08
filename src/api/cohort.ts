@@ -23,11 +23,17 @@ export function getCohort(id: number, includeStudents = true) {
     .then(response => response.data, () => null);
 }
 
-export function getStudentsPerFilters(filters: any[]) {
+export function getStudentsPerFilters(
+  filters: any[],
+  offset: number,
+  limit: number
+) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
     .post(`${apiBaseUrl}/api/cohort/get_students_per_filters`, {
-      filters: filters
+      filters,
+      offset,
+      limit
     })
     .then(response => response.data, () => null);
 }

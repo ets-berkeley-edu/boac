@@ -313,17 +313,17 @@
 
 <script>
 import _ from 'lodash';
-import { getSection } from '@/api/course';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
 import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox';
-import Loading from '@/mixins/Loading.vue';
-import Spinner from '@/components/Spinner.vue';
+import Loading from '@/mixins/Loading';
+import Spinner from '@/components/util/Spinner';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentBoxplot from '@/components/student/StudentBoxplot';
 import StudentMetadata from '@/mixins/StudentMetadata';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
+import { getSection } from '@/api/course';
 
 export default {
   name: 'Course',
