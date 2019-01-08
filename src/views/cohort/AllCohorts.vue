@@ -21,8 +21,8 @@
 
 <script>
 import { getUsersWithCohorts } from '@/api/cohort';
-import Spinner from '@/components/Spinner.vue';
-import Loading from '@/mixins/Loading.vue';
+import Spinner from '@/components/util/Spinner';
+import Loading from '@/mixins/Loading';
 
 export default {
   name: 'AllCohorts',

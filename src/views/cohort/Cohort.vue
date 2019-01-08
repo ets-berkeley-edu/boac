@@ -24,6 +24,18 @@
             <Students :listName="cohortName"
                       listType="cohort"
                       :students="students"></Students>
+            <div class="course-pagination">
+              <b-pagination id="pagination-widget"
+                            size="md"
+                            :total-rows="totalStudentCount"
+                            :limit="20"
+                            v-model="pageNumber"
+                            :per-page="pagination.itemsPerPage"
+                            :hide-goto-end-buttons="true"
+                            v-if="totalStudentCount > pagination.itemsPerPage"
+                            @input="nextPage()">
+              </b-pagination>
+            </div>
           </div>
         </div>
       </div>
@@ -40,7 +52,7 @@ import CohortPageHeader from '@/components/cohort/CohortPageHeader';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
 import Loading from '@/mixins/Loading';
 import SectionSpinner from '@/components/util/SectionSpinner';
-import Spinner from '@/components/Spinner';
+import Spinner from '@/components/util/Spinner';
 import Students from '@/components/student/Students';
 
 export default {
@@ -55,15 +67,23 @@ export default {
     Spinner,
     Students
   },
+  data: () => ({
+    pageNumber: undefined
+  }),
   created() {
     let id = _.get(this.$route, 'params.id');
     let encodedCriteria = _.get(this.$route, 'query.q');
     this.initSession(id, encodedCriteria).then(() => {
+      this.currentPage = this.pagination.currentPage;
       this.loaded();
     });
   },
   methods: {
-    compositeKey: filter => `${filter.key}${filter.value}`
+    compositeKey: filter => `${filter.key}${filter.value}`,
+    nextPage() {
+      this.setCurrentPage(this.pageNumber);
+      this.applyFilters();
+    }
   },
   computed: {
     showStudentsSection() {

@@ -13,7 +13,7 @@
 <script>
 import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader';
 import Loading from '@/mixins/Loading';
-import Spinner from '@/components/Spinner';
+import Spinner from '@/components/util/Spinner';
 import store from '@/store';
 import Students from '@/components/student/Students';
 import { getCuratedGroup, removeFromCuratedGroup } from '@/api/curated';

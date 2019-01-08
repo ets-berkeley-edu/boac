@@ -44,13 +44,13 @@
 
 <script>
 import _ from 'lodash';
-import { search } from '@/api/student';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
-import Loading from '@/mixins/Loading.vue';
+import Loading from '@/mixins/Loading';
 import SortableCourseList from '@/components/course/SortableCourseList';
 import SortableStudents from '@/components/search/SortableStudents';
-import Spinner from '@/components/Spinner.vue';
+import Spinner from '@/components/util/Spinner';
 import UserMetadata from '@/mixins/UserMetadata';
+import { search } from '@/api/student';
 
 export default {
   name: 'Search',

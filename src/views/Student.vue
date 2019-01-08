@@ -451,9 +451,9 @@
 <script>
 import _ from 'lodash';
 import Context from '@/mixins/Context';
-import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal.vue';
-import Loading from '@/mixins/Loading.vue';
-import Spinner from '@/components/Spinner.vue';
+import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal';
+import Loading from '@/mixins/Loading';
+import Spinner from '@/components/util/Spinner';
 import StudentAlerts from '@/components/student/StudentAlerts';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar';

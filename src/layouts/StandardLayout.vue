@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import DisplayError from '@/components/DisplayError';
+import DisplayError from '@/components/util/DisplayError';
 import HeaderMenu from '@/components/HeaderMenu';
 import Sidebar from '@/components/sidebar/Sidebar';
 

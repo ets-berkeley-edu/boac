@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="loading-spinner-large" v-if="loading">
+    <div class="spinner" v-if="loading">
       <i class="fas fa-sync fa-spin fa-5x"></i>
       <span role="alert"
             aria-live="passive"
@@ -23,7 +23,7 @@ export default {
 </script>
 
 <style scoped>
-.loading-spinner-large {
+.spinner {
   position: fixed;
   top: 0;
   right: 0;

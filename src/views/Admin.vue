@@ -42,9 +42,9 @@
 
 <script>
 import Context from '@/mixins/Context';
-import DemoModeToggle from '@/components/admin/DemoModeToggle.vue';
-import Loading from '@/mixins/Loading.vue';
-import Spinner from '@/components/Spinner.vue';
+import DemoModeToggle from '@/components/admin/DemoModeToggle';
+import Loading from '@/mixins/Loading';
+import Spinner from '@/components/util/Spinner';
 import UserMetadata from '@/mixins/UserMetadata';
 import { becomeUser, getAuthorizedUserGroups } from '@/api/user';
 

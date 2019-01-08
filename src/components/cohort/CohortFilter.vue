@@ -4,7 +4,7 @@
       {{ filter.name }}
     </div>
     <div class="cohort-added-subcategory-name">
-      <span v-if="!isModifyingFilter">{{ summary }}</span>
+      <span v-if="!isModifyingFilter">{{ subcategoryName }}</span>
       <!--
       <filter-criteria-edit-subcategory filter="row"
                                         on-option-click="filter.onOptionClick"
@@ -66,12 +66,6 @@
 import _ from 'lodash';
 import CohortEditSession from '@/mixins/CohortEditSession';
 
-// -----
-// TODO: When a new filter row is added, send the set of selected filters to the server
-//       in order to get up to date menu options, with proper disabling of
-//       certain options (primary and secondary)
-// -----
-
 export default {
   name: 'CohortFilter',
   mixins: [CohortEditSession],
@@ -81,20 +75,24 @@ export default {
   },
   data: () => ({
     isModifyingFilter: false,
-    summary: undefined
+    subcategoryName: undefined
   }),
   created() {
     let value = _.get(this.filter, 'value');
     let h = this.filter.subcategoryHeader;
     switch (this.filter.type) {
       case 'range':
-        this.summary = h[0] + ' ' + value[0] + ' ' + h[1] + ' ' + value[1];
+        this.subcategoryName =
+          h[0] + ' ' + value[0] + ' ' + h[1] + ' ' + value[1];
         break;
       case 'array':
-        this.summary = value;
+        this.subcategoryName = _.get(
+          _.find(this.filter.options, ['value', value]),
+          'name'
+        );
         break;
       default:
-        this.summary = null;
+        this.subcategoryName = null;
         break;
     }
   },
