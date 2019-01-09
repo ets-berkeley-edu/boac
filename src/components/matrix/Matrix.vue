@@ -308,8 +308,7 @@ export default {
         .attr('width', width)
         .attr('height', height);
 
-      var avatarBackgroundPath =
-        this.apiBaseUrl + '/static/app/shared/avatar-50.png';
+      var avatarBackgroundPath = require('@/assets/avatar-50.png');
 
       var avatar = d => {
         var avatarId = 'avatar_' + d.uid;
@@ -321,8 +320,7 @@ export default {
           .attr('patternContentUnits', 'objectBoundingBox');
         var photoUri = null;
         if (d.isClassMean) {
-          photoUri =
-            this.apiBaseUrl + '/static/app/course/class-mean-avatar.svg';
+          photoUri = require('@/assets/class-mean-avatar.svg');
         } else {
           photoUri = this.user.inDemoMode
             ? avatarBackgroundPath
