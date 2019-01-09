@@ -8,11 +8,12 @@
          v-if="totalStudentCount > 50">Skip to pagination widget</a>
       <CohortPageHeader />
       <div v-if="!isCompactView">
-        <CohortFilter class="cohort-filter-row"
-                      v-for="(filter, index) in filters" :key="compositeKey(filter)"
-                      :filter="filter"
-                      :index="index"/>
-        <AddCohortFilterMenu />
+        <FilterRow class="cohort-filter-row"
+                   v-for="(filter, index) in filters"
+                   :key="compositeKey(filter)"
+                   :index="index"/>
+        <FilterRow />
+        <ApplyAndSaveButtons />
       </div>
       <SectionSpinner name="Students" :loading="editMode === 'apply'" />
       <div v-if="showStudentsSection">
@@ -45,11 +46,11 @@
 
 <script>
 import _ from 'lodash';
-import AddCohortFilterMenu from '@/components/cohort/AddCohortFilterMenu';
+import ApplyAndSaveButtons from '@/components/cohort/ApplyAndSaveButtons';
 import CohortEditSession from '@/mixins/CohortEditSession';
-import CohortFilter from '@/components/cohort/CohortFilter';
 import CohortPageHeader from '@/components/cohort/CohortPageHeader';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
+import FilterRow from '@/components/cohort/FilterRow';
 import Loading from '@/mixins/Loading';
 import SectionSpinner from '@/components/util/SectionSpinner';
 import Spinner from '@/components/util/Spinner';
@@ -59,10 +60,10 @@ export default {
   name: 'Cohort',
   mixins: [CohortEditSession, Loading],
   components: {
-    AddCohortFilterMenu,
-    CohortFilter,
+    ApplyAndSaveButtons,
     CohortPageHeader,
     CuratedGroupSelector,
+    FilterRow,
     SectionSpinner,
     Spinner,
     Students
