@@ -609,6 +609,16 @@ class TestStudentAnalytics:
                     assert canvasSite['courseCode']
                     assert canvasSite['analytics']
 
+    def test_user_analytics_holds(self, asc_advisor, client):
+        """Returns holds if any."""
+        response = client.get(TestStudentAnalytics.api_path.format(9933311))
+        holds = response.json['holds']
+        assert len(holds) == 2
+        assert holds[0]['reason']['description'] == 'Past due balance'
+        assert holds[0]['reason']['formalDescription'].startswith('Your student account has a past due balance')
+        assert holds[1]['reason']['description'] == 'Semester Out'
+        assert holds[1]['reason']['formalDescription'].startswith('You are not eligible to register')
+
     def test_user_analytics_multiple_terms(self, authenticated_response):
         """Returns all terms with enrollment data in reverse order."""
         assert len(authenticated_response.json['enrollmentTerms']) == 2
