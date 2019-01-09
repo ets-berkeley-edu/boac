@@ -26,11 +26,17 @@
               @click="showDismissedAlerts=false">
         Hide dismissed status alerts
       </button>
-      <div class="alert alert-warning student-alert">
+      <div class="alert alert-warning student-hold-notification">
         <div v-for="alert in alerts.dismissed" :key="alert.id" class="student-alert-item">
           <StudentAlertMessage :alert="alert"></StudentAlertMessage>
         </div>
       </div>
+    </div>
+    <div v-for="(hold, holdIndex) in student.holds"
+         :key="holdIndex"
+         :id="'hold-notification-' + holdIndex"
+         class="alert alert-info student-hold-notification">
+      Hold: {{ get(hold, 'reason.description') }}. {{ get(hold, 'reason.formalDescription') }}
     </div>
     <div v-if="student.sisProfile.withdrawalCancel">
       <span class="red-flag-small">
@@ -47,6 +53,7 @@ import _ from 'lodash';
 
 import { dismissStudentAlert, getStudentAlerts } from '@/api/student';
 import StudentAlertMessage from '@/components/student/StudentAlertMessage';
+import Util from '@/mixins/Util';
 
 export default {
   name: 'StudentAlerts',
@@ -60,6 +67,7 @@ export default {
     },
     showDismissedAlerts: false
   }),
+  mixins: [Util],
   props: {
     student: Object
   },
@@ -91,5 +99,13 @@ export default {
 
 .student-alert-item {
   padding: 5px 0;
+}
+
+.student-hold-notification {
+  margin: 10px 0;
+  padding: 5px 15px;
+  background-color: #fff6ff;
+  border-color: #f6e6f6;
+  color: #745074;
 }
 </style>

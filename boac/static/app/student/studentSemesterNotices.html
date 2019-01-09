@@ -27,6 +27,11 @@
     </div>
   </div>
 </div>
+<div class="alert alert-info student-hold-notification"
+     data-ng-attr-id="hold-notification-{$index}"
+     data-ng-repeat="hold in student.holds">
+  Hold: <span data-ng-bind="hold.reason.description"></span>. <span data-ng-bind="hold.reason.formalDescription"></span>
+</div>
 <div data-ng-if="student.sisProfile.withdrawalCancel">
   <span class="red-flag-small">
     {{student.sisProfile.withdrawalCancel.description}}

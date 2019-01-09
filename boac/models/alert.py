@@ -255,11 +255,6 @@ class Alert(Base):
             enrollments = json.loads(row['enrollment_term']).get('enrollments', [])
             for enrollment in enrollments:
                 cls.update_alerts_for_enrollment(row['sid'], term_id, enrollment, no_activity_alerts_enabled, infrequent_activity_alerts_enabled)
-        if app.config['ALERT_HOLDS_ENABLED'] and str(term_id) == current_term_id():
-            holds = data_loch.get_sis_holds()
-            for row in holds:
-                hold_feed = json.loads(row['feed'])
-                cls.update_hold_alerts(row['sid'], term_id, hold_feed.get('type'), hold_feed.get('reason'))
         if app.config['ALERT_WITHDRAWAL_ENABLED'] and str(term_id) == current_term_id():
             profiles = data_loch.get_student_profiles()
             for row in profiles:
@@ -338,12 +333,6 @@ class Alert(Base):
             if match and match[1] and int(match[1]) < days_since:
                 return
         cls.create_or_activate(sid=sid, alert_type='infrequent_activity', key=key, message=message)
-
-    @classmethod
-    def update_hold_alerts(cls, sid, term_id, hold_type, hold_reason):
-        key = f"{term_id}_{hold_type.get('code')}_{hold_reason.get('code')}"
-        message = f"Hold: {hold_reason.get('description')}! {hold_reason.get('formalDescription')}."
-        cls.create_or_activate(sid=sid, alert_type='hold', key=key, message=message)
 
     @classmethod
     def update_withdrawal_cancel_alerts(cls, sid, term_id):

@@ -372,6 +372,14 @@
   font-weight: bold;
 }
 
+.student-hold-notification {
+  margin: 10px 0;
+  padding: 5px 15px;
+  background-color: #fff6ff;
+  border-color: #f6e6f6;
+  color: #745074;
+}
+
 .student-list-item {
   border-left: none;
   border-right: none;

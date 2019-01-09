@@ -133,9 +133,10 @@ def get_sis_enrollments(uid, term_id):
     return safe_execute_redshift(sql)
 
 
-def get_sis_holds():
-    sql = f"""SELECT sid, feed
+def get_sis_holds(sid):
+    sql = f"""SELECT feed
         FROM {student_schema()}.student_holds
+        WHERE sid = '{sid}'
         """
     return safe_execute_redshift(sql)
 
