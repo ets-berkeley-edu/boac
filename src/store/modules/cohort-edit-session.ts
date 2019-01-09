@@ -201,10 +201,11 @@ const actions = {
       });
     });
   },
-  saveExistingCohort: ({ state }) => {
+  saveExistingCohort: ({ commit, state }) => {
     return new Promise(resolve => {
       saveCohort(state.cohortId, state.cohortName).then(cohort => {
         store.dispatch('cohort/updateCohort', cohort);
+        commit('setModifiedSinceLastSearch', null);
         resolve();
       });
     });

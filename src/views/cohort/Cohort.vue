@@ -96,6 +96,6 @@ export default {
 
 <style>
 .disabled-link {
-  color: lightgrey;
+  color: #ccc;
 }
 </style>

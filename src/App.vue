@@ -15,4 +15,10 @@ export default {
   height: 100%;
   font-size: 14px;
 }
+.btn-link:active,
+.btn-link:focus,
+.btn-link:focus-within,
+.btn-link:hover {
+  text-decoration: none !important;
+}
 </style>
