@@ -100,7 +100,7 @@
                          aria-label="{{cohort.selected ? 'Remove from' : 'Add to'}} curated group {{cohort.name}}"
                          type="checkbox"
                          data-ng-model="cohort.selected"
-                         data-ng-click="curatedCohortCheckboxClick(cohort)"/>
+                         data-ng-change="curatedCohortCheckboxClick(cohort.id, cohort.selected)"/>
                   <div class="curated-cohort-checkbox-label">
                     <a data-ng-href="/cohort/curated/{{cohort.id}}" data-ng-bind="cohort.name"></a>
                   </div>
