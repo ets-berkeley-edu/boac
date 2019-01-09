@@ -149,10 +149,12 @@
             <div class="flex-row">
               <div class="student-status-box-left" id="student-status-cumulative-gpa">
                 <div class="student-status-legend">Cumulative GPA</div>
-                <div class="student-status-number">
-                  {{student.sisProfile.cumulativeGPA || '--'}}
+                <div class="student-status-number" v-if="student.sisProfile.cumulativeGPA">
+                  {{ student.sisProfile.cumulativeGPA | round(3) }}
                 </div>
-                <div class="sr-only" v-if="!student.sisProfile.cumulativeGPA">No data</div>
+                <div class="student-status-number" v-if="!student.sisProfile.cumulativeGPA">
+                  -- <span class="sr-only">No data</span>
+                </div>
               </div>
               <div class="student-chart-outer" id="student-status-gpa-trends">
                 <div class="student-status-legend student-status-legend-heading">GPA Trends</div>
