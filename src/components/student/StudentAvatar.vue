@@ -8,8 +8,8 @@
          }"
          :aria-label="'Photo of ' + student.firstName + ' ' + student.lastName"
          tabindex="0"
-         :src="apiBaseUrl + '/api/student/' + student.uid + '/photo'"
-         @error="`${apiBaseUrl}/static/app/shared/avatar-50.png`"/>
+         :src="avatarUrl"
+         @error="avatarError"/>
     <div class="student-avatar-alert-count home-inactive-info-icon"
          v-if="alertCount">
       <span v-b-tooltip.hover.bottom
@@ -27,20 +27,29 @@ import UserMetadata from '@/mixins/UserMetadata';
 export default {
   name: 'StudentAvatar',
   mixins: [Context, UserMetadata],
+  data: () => ({
+    avatarUrl: ''
+  }),
+  created() {
+    this.avatarUrl =
+      this.apiBaseUrl + '/api/student/' + this.student.uid + '/photo';
+  },
+  methods: {
+    avatarError() {
+      this.avatarUrl = require('@/assets/avatar-50.png');
+    }
+  },
   props: {
     size: String,
     student: Object,
     alertCount: Number
-  },
-  computed: {
-    avatarFallback: () => this.apiBaseUrl + '/static/app/shared/avatar-50.png'
   }
 };
 </script>
 
 <style scoped>
-.student-avatar {
-  background-image: url(/static/app/shared/avatar-50.png);
+.avatar {
+  background-image: url('~@/assets/avatar-50.png');
   background-size: cover;
   border: 5px solid #ccc;
   border-radius: 30px;
