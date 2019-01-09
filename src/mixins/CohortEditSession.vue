@@ -16,10 +16,11 @@ export default {
       'createCohort',
       'removeFilter',
       'renameCohort',
-      'saveCohort',
+      'saveExistingCohort',
       'setCurrentPage',
       'setEditMode',
-      'toggleCompactView'
+      'toggleCompactView',
+      'updateExistingFilter'
     ])
   },
   computed: {

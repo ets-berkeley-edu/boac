@@ -93,6 +93,10 @@ const mutations = {
     state.students = students;
     state.totalStudentCount = totalStudentCount;
   },
+  updateExistingFilter: (state: any, { index, updatedFilter }) => {
+    state.filters[index] = updatedFilter;
+    state.isModifiedSinceLastSearch = true;
+  },
   setModifiedSinceLastSearch: (state: any, value: boolean) =>
     (state.isModifiedSinceLastSearch = value)
 };
@@ -176,7 +180,12 @@ const actions = {
   renameCohort: ({ commit, state }, name: string) => {
     return new Promise(resolve => {
       commit('renameCohort', name);
-      saveCohort(state.cohortId, state.cohortName).then(cohort => {
+      saveCohort(
+        state.cohortId,
+        state.cohortName,
+        state.filters,
+        state.totalStudentCount
+      ).then(cohort => {
         store.dispatch('cohort/updateCohort', cohort);
         resolve();
       });
@@ -192,11 +201,20 @@ const actions = {
       });
     });
   },
-  saveCohort: ({ commit }) => commit('saveCohort'),
+  saveExistingCohort: ({ state }) => {
+    return new Promise(resolve => {
+      saveCohort(state.cohortId, state.cohortName).then(cohort => {
+        store.dispatch('cohort/updateCohort', cohort);
+        resolve();
+      });
+    });
+  },
   setCurrentPage: ({ commit }, currentPage: number) =>
     commit('setCurrentPage', currentPage),
   setEditMode: ({ commit }, editMode: string) =>
     commit('setEditMode', editMode),
+  updateExistingFilter: ({ commit }, { index, updatedFilter }: any) =>
+    commit('updateExistingFilter', { index, updatedFilter }),
   toggleCompactView: ({ commit }) => commit('toggleCompactView')
 };
 
