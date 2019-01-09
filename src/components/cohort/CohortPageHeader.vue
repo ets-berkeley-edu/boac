@@ -39,51 +39,47 @@
     </div>
     <div class="cohort-header-buttons no-wrap" v-if="renameMode">
       <b-btn id="filtered-cohort-rename"
-             size="sm"
-             aria-label="Save changes to cohort name"
              class="cohort-manage-btn"
+             aria-label="Save changes to cohort name"
+             variant="primary"
+             size="sm"
              @click.prevent="submitRename()"
              :disabled="!name">
         <span :class="{'disabled-link': !name}">Rename</span>
       </b-btn>
-      <b-btn variant="outline-success"
-             size="sm"
-             aria-label="Cancel rename cohort"
-             id="filtered-cohort-rename-cancel"
+      <b-btn id="filtered-cohort-rename-cancel"
              class="cohort-manage-btn"
+             aria-label="Cancel rename cohort"
+             variant="secondary"
+             size="sm"
              @click="cancelRename()">
         Cancel
       </b-btn>
     </div>
-    <div class="cohort-header-button-links no-wrap" v-if="!renameMode">
-      <span v-if="cohortId">
-        <b-btn variant="link"
-               type="button"
-               id="show-hide-details-button"
-               class="cohort-manage-btn-link"
-               :disabled="disableButtons"
-               @click="toggleCompactView()">
-          <span :class="{'disabled-link': disableButtons}">{{isCompactView ? 'Show' : 'Hide'}} Filters</span>
-        </b-btn>
-      </span>
+    <div class="cohort-header-button-links align-middle no-wrap" v-if="!renameMode">
+      <b-btn id="show-hide-details-button"
+             class="cohort-manage-btn-link pr-2"
+             variant="link"
+             @click="toggleCompactView()"
+             v-if="cohortId">
+        {{isCompactView ? 'Show' : 'Hide'}} Filters
+      </b-btn>
       <span v-if="cohortId && isOwnedByCurrentUser">
-        <span class="faint-text" :class="{'disabled-link': disableButtons}">|</span>
-        <b-btn variant="link"
-               id="rename-cohort-button"
+        <span class="faint-text">|</span>
+        <b-btn id="rename-cohort-button"
+               class="cohort-manage-btn-link pl-2 pr-2"
                aria-label="Rename this cohort"
-               class="cohort-manage-btn-link"
-               :disabled="disableButtons"
+               variant="link"
                @click="beginRename()">
-          <span :class="{'disabled-link': disableButtons}">Rename</span>
+          Rename
         </b-btn>
         <span class="faint-text">|</span>
         <b-btn id="delete-cohort-button"
+               class="cohort-manage-btn-link pl-2 pr-0"
                variant="link"
                v-b-modal="'confirmDeleteModal'"
-               aria-label="Delete this cohort"
-               :disabled="disableButtons"
-               class="cohort-manage-btn-link">
-          <span :class="{'disabled-link': disableButtons}">Delete</span>
+               aria-label="Delete this cohort">
+          Delete
         </b-btn>
         <b-modal id="confirmDeleteModal"
                  v-model="showDeleteModal"
@@ -120,9 +116,6 @@ export default {
   computed: {
     renameMode() {
       return this.editMode === 'rename';
-    },
-    disableButtons() {
-      return this.editMode && this.editMode !== 'rename';
     }
   },
   methods: {
