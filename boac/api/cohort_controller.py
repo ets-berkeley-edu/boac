@@ -146,10 +146,7 @@ def create_cohort():
     if not name:
         raise BadRequestError('Cohort creation requires \'name\'')
     if filters:
-        filter_keys = list(map(lambda f: f['key'], filters))
-        if is_unauthorized_search(filter_keys, order_by):
-            raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
-        filter_criteria = translate_filters_to_cohort_criteria(filters)
+        filter_criteria = _filters_to_filter_criteria(filters, order_by)
     else:
         if is_unauthorized_search(list(params.keys()), order_by):
             raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
@@ -186,7 +183,7 @@ def update_cohort():
     params = request.get_json()
     cohort_id = int(params.get('id'))
     name = params.get('name')
-    filter_criteria = params.get('filterCriteria')
+    filter_criteria = _filters_to_filter_criteria(params.get('filters')) if 'filters' in params else params.get('filterCriteria')
     student_count = params.get('studentCount')
     if not name and not filter_criteria and not student_count:
         raise BadRequestError('Invalid request')
@@ -226,3 +223,10 @@ def decorate_cohort(cohort, **kwargs):
     uid = current_user.get_id()
     cohort_json.update({'isOwnedByCurrentUser': (uid in [o.uid for o in cohort.owners])})
     return cohort_json
+
+
+def _filters_to_filter_criteria(filters, order_by=None):
+    filter_keys = list(map(lambda f: f['key'], filters))
+    if is_unauthorized_search(filter_keys, order_by):
+        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
+    return translate_filters_to_cohort_criteria(filters)

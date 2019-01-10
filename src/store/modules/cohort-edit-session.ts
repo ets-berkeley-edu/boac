@@ -203,7 +203,12 @@ const actions = {
   },
   saveExistingCohort: ({ commit, state }) => {
     return new Promise(resolve => {
-      saveCohort(state.cohortId, state.cohortName).then(cohort => {
+      saveCohort(
+        state.cohortId,
+        state.cohortName,
+        state.filters,
+        state.totalStudentCount
+      ).then(cohort => {
         store.dispatch('cohort/updateCohort', cohort);
         commit('setModifiedSinceLastSearch', null);
         resolve();
