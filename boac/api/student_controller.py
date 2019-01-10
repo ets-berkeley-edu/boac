@@ -64,7 +64,7 @@ def user_photo(uid):
 @app.route('/api/students', methods=['POST'])
 @login_required
 def get_students():
-    params = request.get_json()
+    params = util.remove_none_values(request.get_json())
     order_by = util.get(params, 'orderBy', None)
     if is_unauthorized_search(list(params.keys()), order_by):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
@@ -103,7 +103,7 @@ def get_students():
 @app.route('/api/students/search', methods=['POST'])
 @login_required
 def search_students():
-    params = request.get_json()
+    params = util.remove_none_values(request.get_json())
     order_by = util.get(params, 'orderBy', None)
     if is_unauthorized_search(list(params.keys()), order_by):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')

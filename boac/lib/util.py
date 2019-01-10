@@ -62,6 +62,10 @@ def localize_datetime(dt):
     return dt.astimezone(pytz.timezone(app.config['TIMEZONE']))
 
 
+def remove_none_values(_dict):
+    return {k: v for k, v in _dict.items() if v is not None}
+
+
 def tolerant_remove(_list, item):
     """Remove item from list. Return True if item was present, otherwise False."""
     try:
