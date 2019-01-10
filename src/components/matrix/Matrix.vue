@@ -207,7 +207,7 @@ export default {
         .scaleExtent([1, 10])
         .translateExtent([[0, 0], [width, height]])
         // Disable zoom events triggered by the mouse wheel.
-        .filter(() => !event.button && event.type !== 'wheel')
+        .filter(() => !d3.event.button && d3.event.type !== 'wheel')
         .on('zoom', onZoom);
 
       var container = d3.select('#matrix-container');
@@ -439,7 +439,7 @@ export default {
       });
 
       var onDotSelected = d => {
-        var element = event.currentTarget;
+        var element = d3.event.currentTarget;
         // Clear any existing tooltips.
         container.selectAll('.matrix-tooltip').remove();
 
@@ -524,7 +524,7 @@ export default {
 
       var onDotDeselected = () => {
         // Return the dot to the path-clipped dot group.
-        var element = event.currentTarget;
+        var element = d3.event.currentTarget;
         dotGroup.node().appendChild(element);
 
         d3.select(element)
