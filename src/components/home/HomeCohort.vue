@@ -6,7 +6,7 @@
       <a :id="`home-filtered-cohort-${index}-toggle`"
           v-b-toggle="`home-filtered-cohort-${index}`"
           class="home-cohort-accordion-heading-link"
-          @click.prevent="fetchFilteredCohort()"
+          @click.prevent="fetchStudents()"
           tabindex="0"
           role="button"
           href="#">
@@ -44,8 +44,8 @@
                 :aria-expanded="isOpen"
                 class="panel-body"
                 :class="{'panel-open': isOpen}">
-      <div v-if="cohort.students && size(cohort.students)">
-        <SortableStudents :students="cohort.students"/>
+      <div v-if="cohort.studentsWithAlerts && size(cohort.studentsWithAlerts)">
+        <SortableStudents :students="cohort.studentsWithAlerts"/>
       </div>
       <div>
         <router-link :id="`home-curated-cohort-${index}-view-all`" :to="`/cohort/${cohort.id}`">
@@ -84,12 +84,12 @@ export default {
     isFetching: false
   }),
   methods: {
-    fetchFilteredCohort() {
+    fetchStudents() {
       this.isOpen = !this.isOpen;
       if (!this.isFetching) {
         this.isFetching = true;
         store
-          .dispatch('cohort/loadCohortStudents', this.cohort.id)
+          .dispatch('cohort/loadStudentsWithAlerts', this.cohort.id)
           .then(cohort => {
             this.cohort = cohort;
             this.isFetching = false;
