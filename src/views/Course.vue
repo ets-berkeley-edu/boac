@@ -152,12 +152,12 @@
 
               <td class="course-list-view-column course-list-view-column-profile">
                 <div>
-                  <a :id="student.uid" :href="`/student/${student.uid}`">
+                  <router-link :id="student.uid" :to="`/student/${student.uid}`">
                     <h3 class="course-student-name"
                         :class="{'demo-mode-blur': user.inDemoMode}">
                       {{ student.lastName }}<span v-if="student.firstName">, {{ student.firstName }}</span>
                     </h3>
-                  </a>
+                  </router-link>
                 </div>
                 <div class="student-sid" :class="{'demo-mode-blur': user.inDemoMode}">
                   {{ student.sid }}
@@ -388,7 +388,7 @@ export default {
       }
       if (this.$route.query.s && !isNaN(this.$route.query.s)) {
         var itemsPerPage = parseInt(this.$route.query.s, 10);
-        if (_.includes(_.map(this.pagination.options, 'value'), itemsPerPage)) {
+        if (_.includes(this.pagination.options, itemsPerPage)) {
           this.pagination.itemsPerPage = itemsPerPage;
         } else {
           this.$router.push({
@@ -444,20 +444,17 @@ export default {
     },
     resizePage(selectedItemsPerPage) {
       var currentItemsPerPage = this.pagination.itemsPerPage;
-      this.pagination.itemsPerPage = selectedItemsPerPage;
-      this.pagination.currentPage = Math.round(
+      var newPage = Math.round(
         this.pagination.currentPage *
           (currentItemsPerPage / selectedItemsPerPage)
       );
       this.$router.push({
         query: {
           ...this.$route.query,
-          p: this.pagination.currentPage,
-          s: this.pagination.itemsPerPage
+          p: newPage,
+          s: selectedItemsPerPage
         }
       });
-      this.startLoading();
-      this.refreshListView();
     },
     toggleView(tabName) {
       this.$router.push({
