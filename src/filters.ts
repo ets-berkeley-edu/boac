@@ -17,7 +17,7 @@ export default {
     pluralSuffix = 's'
   ) => {
     return (
-      `${substitutions[count] || count} ` +
+      `${substitutions[count] || substitutions['other'] || count} ` +
       (count !== 1 ? `${noun}${pluralSuffix}` : noun)
     );
   },

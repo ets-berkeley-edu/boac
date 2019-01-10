@@ -108,7 +108,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="student in sortedStudents" v-bind:key="student.sid">
+        <tr v-for="student in sortedStudents" :key="student.sid">
           <td class="group-summary-column group-summary-column-checkbox"
               v-if="options.includeCuratedCheckbox">
             <div class="add-to-cohort-checkbox">
@@ -132,14 +132,13 @@
           </td>
           <td class="group-summary-column group-summary-column-sid">
             <span class="sr-only">{{ srText.sid }}</span>
-            <span v-bind:class="{'demo-mode-blur': user.inDemoMode}">{{ student.sid }}</span>
+            <span :class="{'demo-mode-blur': user.inDemoMode}">{{ student.sid }}</span>
           </td>
           <td class="group-summary-column group-summary-column-major">
             <span class="sr-only">{{ srText['majors[0]'] }}</span>
             <div v-if="student.majors.length === 0">--<span class="sr-only">No data</span></div>
             <div v-for="major in student.majors"
-                 v-bind:key="major"
-                 v-if="student.majors.length > 0">{{ major }}</div>
+                 :key="major">{{ major }}</div>
           </td>
           <td class="group-summary-column group-summary-column-grad">
             <span class="sr-only">{{ srText['expectedGraduationTerm.id'] }}</span>
@@ -148,7 +147,7 @@
           </td>
           <td class="group-summary-column group-summary-column-units-term">
             <span class="sr-only">{{ srText['term.enrolledUnits'] }}</span>
-            <div>{{ student.term.enrolledUnits || '0' }}</div>
+            <div>{{ get(student.term, 'enrolledUnits', 0) }}</div>
           </td>
           <td class="group-summary-column group-summary-column-units-completed">
             <span class="sr-only">{{ srText.cumulativeUnits }}</span>
@@ -184,6 +183,7 @@ import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox'
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentMetadata from '@/mixins/StudentMetadata';
 import UserMetadata from '@/mixins/UserMetadata';
+import Util from '@/mixins/Util';
 
 export default {
   name: 'SortableStudents',
@@ -191,7 +191,7 @@ export default {
     CuratedStudentCheckbox,
     StudentAvatar
   },
-  mixins: [Context, StudentMetadata, UserMetadata],
+  mixins: [Context, StudentMetadata, UserMetadata, Util],
   props: {
     students: Array,
     options: {
