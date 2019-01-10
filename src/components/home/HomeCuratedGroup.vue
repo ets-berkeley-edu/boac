@@ -1,20 +1,20 @@
 <template>
-  <div :id="`home-filtered-cohort-${index}`"
+  <div :id="`home-curated-cohort-${index}`"
        class="home-cohort-accordion panel"
-       :class="{'panel-open': cohort.isOpen}">
+       :class="{'panel-open': curatedGroup.isOpen}">
     <div class="panel-heading">
-      <a :id="`home-filtered-cohort-${index}-toggle`"
-          v-b-toggle="`home-filtered-cohort-${index}`"
+      <a :id="`home-curated-cohort-${index}-toggle`"
+          v-b-toggle="`home-curated-cohort-${index}`"
           class="home-cohort-accordion-heading-link"
-          @click.prevent="fetchFilteredCohort()"
+          @click.prevent="fetchStudents()"
           tabindex="0"
           role="button"
           href="#">
         <div class="home-cohort-accordion-heading">
           <div class="home-cohort-accordion-heading-name">
             <div class="accordion-heading-caret">
-              <i :id="`home-filtered-cohort-${index}-caret`"
-                :aria-label="isOpen ? 'Hide cohort details' : 'Show cohort details'"
+              <i :id="`home-curated-cohort-${index}-caret`"
+                :aria-label="isOpen ? 'Hide curated group details' : 'Show curated group details'"
                 :class="{
                   'fas fa-spinner fa-spin': isFetching,
                   'fas fa-caret-right': !isOpen,
@@ -22,8 +22,8 @@
                 }"></i>
             </div>
             <h2 class="page-section-header-sub accordion-header">
-              <span>{{ cohort.name }}</span>
-              (<span>{{ cohort.totalStudentCount }}</span>)
+              <span>{{ curatedGroup.name }}</span>
+              (<span>{{ curatedGroup.studentCount }}</span>)
             </h2>
           </div>
           <div class="home-cohort-accordion-heading-count">
@@ -32,31 +32,31 @@
             </div>
             <div class="home-issues-pill home-issues-pill-zero"
                   aria-label="`No issues for ${cohort.name}`"
-                  v-if="!cohort.alertCount">0</div>
+                  v-if="!curatedGroup.alertCount">0</div>
             <div class="home-issues-pill home-issues-pill-nonzero"
-                  aria-label="`${cohort.alertCount} alerts for ${cohort.name}`"
-                  v-if="cohort.alertCount">{{ cohort.alertCount }}</div>
+                  aria-label="`${curatedGroup.alertCount} alerts for ${curatedGroup.name}`"
+                  v-if="curatedGroup.alertCount">{{ curatedGroup.alertCount }}</div>
           </div>
         </div>
       </a>
     </div>
-    <b-collapse :id="`home-filtered-cohort-${index}`"
+    <b-collapse :id="`home-curated-cohort-${index}`"
                 :aria-expanded="isOpen"
                 class="panel-body"
                 :class="{'panel-open': isOpen}">
-      <div v-if="cohort.students && size(cohort.students)">
-        <SortableStudents :students="cohort.students"/>
+      <div v-if="curatedGroup.studentsWithAlerts && size(curatedGroup.studentsWithAlerts)">
+        <SortableStudents :students="curatedGroup.studentsWithAlerts"/>
       </div>
       <div>
-        <router-link :id="`home-curated-cohort-${index}-view-all`" :to="`/cohort/${cohort.id}`">
-          <span v-if="cohort.totalStudentCount">
-            View <span>{{'student' | pluralize(cohort.totalStudentCount,
-                        {1: 'the one', 'other': `all ${cohort.totalStudentCount}`})}}
+        <router-link :id="`home-curated-cohort-${index}-view-all`" :to="`/curated_group/${curatedGroup.id}`">
+          <span v-if="curatedGroup.studentCount">
+            View <span>{{'student' | pluralize(curatedGroup.studentCount,
+                        {1: 'the one', 'other': `all ${curatedGroup.studentCount}`})}}
                   </span>
-            in "<span>{{ cohort.name }}</span>"
+            in "<span>{{ curatedGroup.name }}</span>"
           </span>
-          <span v-if="!cohort.totalStudentCount">
-            "<span>{{ cohort.name }}</span>" has 0 students
+          <span v-if="!curatedGroup.studentCount">
+            "<span>{{ curatedGroup.name }}</span>" has 0 students
           </span>
         </router-link>
       </div>
@@ -70,13 +70,13 @@ import store from '@/store';
 import Util from '@/mixins/Util.vue';
 
 export default {
-  name: 'HomeCohort',
+  name: 'HomeCuratedGroup',
   components: {
     SortableStudents
   },
   mixins: [Util],
   props: {
-    cohort: Object,
+    curatedGroup: Object,
     index: Number
   },
   data: () => ({
@@ -84,14 +84,14 @@ export default {
     isFetching: false
   }),
   methods: {
-    fetchFilteredCohort() {
+    fetchStudents() {
       this.isOpen = !this.isOpen;
       if (!this.isFetching) {
         this.isFetching = true;
         store
-          .dispatch('cohort/loadCohortStudents', this.cohort.id)
-          .then(cohort => {
-            this.cohort = cohort;
+          .dispatch('curated/loadStudentsWithAlerts', this.curatedGroup.id)
+          .then(curatedGroup => {
+            this.curatedGroup = curatedGroup;
             this.isFetching = false;
           });
       }
@@ -100,16 +100,5 @@ export default {
 };
 </script>
 
-<style>
-.panel-group {
-  margin-bottom: 20px;
-}
-.panel-group .panel + .panel {
-  margin-top: 5px;
-}
-.panel-heading {
-  padding: 10px 15px;
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
-}
+<style src="./home.css">
 </style>

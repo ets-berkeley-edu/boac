@@ -1,4 +1,7 @@
-import { getMyCuratedGroups } from '@/api/curated';
+import {
+  getMyCuratedGroups,
+  getStudentsWithAlertsInCohort
+} from '@/api/curated';
 
 const state = {
   myCuratedGroups: null
@@ -37,6 +40,25 @@ const actions = {
   },
   updateCuratedGroup: ({ commit }, group) => {
     commit('updateCuratedGroup', group);
+  },
+  async loadStudentsWithAlerts({ commit, state }, id) {
+    return new Promise(resolve => {
+      let curatedGroup = state.myCuratedGroups.find(
+        curatedGroup => curatedGroup.id === +id
+      );
+      if (!curatedGroup.studentsWithAlerts) {
+        getStudentsWithAlertsInCohort(id)
+          .then(studentsWithAlerts => {
+            curatedGroup.studentsWithAlerts = studentsWithAlerts;
+            commit('updateCuratedGroup', curatedGroup);
+          })
+          .then(() => {
+            resolve(curatedGroup);
+          });
+      } else {
+        resolve(curatedGroup);
+      }
+    });
   },
   async loadMyCuratedGroups({ commit, state }) {
     if (state.myCuratedGroups === null) {
