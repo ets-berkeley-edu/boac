@@ -22,12 +22,22 @@
                       :index="index"/>
         </div>
       </div>
+      <div v-if="size(myCuratedGroups)">
+        <div id="curated-cohorts-header-row" class="home-page-section-header-wrapper">
+          <h1 class="page-section-header">Curated Groups</h1>
+        </div>
+        <HomeCuratedGroup v-for="(curatedGroup, index) in myCuratedGroups" 
+                         :key="index" 
+                         :curatedGroup="curatedGroup" 
+                         :index="index"/>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import HomeCohort from '@/components/home/HomeCohort.vue';
+import HomeCuratedGroup from '@/components/home/HomeCuratedGroup.vue';
 import Loading from '@/mixins/Loading.vue';
 import Spinner from '@/components/util/Spinner.vue';
 import UserMetadata from '@/mixins/UserMetadata.vue';
@@ -38,7 +48,13 @@ export default {
   mixins: [Loading, UserMetadata, Util],
   components: {
     HomeCohort,
+    HomeCuratedGroup,
     Spinner
+  },
+  mounted() {
+    if (this.myCohorts || this.myCuratedGroups) {
+      this.loaded();
+    }
   },
   watch: {
     myCohorts: function() {
@@ -54,3 +70,9 @@ export default {
   }
 };
 </script>
+
+<style>
+.panel-group {
+  margin-bottom: 20px;
+}
+</style>
