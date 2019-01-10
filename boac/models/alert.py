@@ -267,6 +267,9 @@ class Alert(Base):
     def update_alerts_for_enrollment(cls, sid, term_id, enrollment, no_activity_alerts_enabled, infrequent_activity_alerts_enabled):
         for section in enrollment['sections']:
             if section_is_eligible_for_alerts(enrollment=enrollment, section=section):
+                # If the grade is in, what's done is done.
+                if section.get('grade'):
+                    continue
                 if section.get('midtermGrade'):
                     cls.update_midterm_grade_alerts(sid, term_id, section['ccn'], enrollment['displayName'], section['midtermGrade'])
                 last_activity = None
