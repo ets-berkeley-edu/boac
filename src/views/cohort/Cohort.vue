@@ -8,7 +8,7 @@
          v-if="totalStudentCount > 50">Skip to pagination widget</a>
       <CohortPageHeader />
       <div v-if="!isCompactView">
-        <FilterRow class="cohort-filter-row"
+        <FilterRow class="filter-row"
                    v-for="(filter, index) in filters"
                    :key="compositeKey(filter)"
                    :index="index"/>
@@ -93,3 +93,14 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.filter-row {
+  align-items: center;
+  background-color: #f3f3f3;
+  border-left: 6px solid #3b7ea5 !important;
+  margin: 5px 0 5px 0;
+  padding: 2px 10px 2px 10px;
+  text-align: left;
+}
+</style>
