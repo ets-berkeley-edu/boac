@@ -3,16 +3,16 @@
     <div class="cohort-added-filter-name" v-if="!isModifyingFilter || isExistingFilter">
       {{ filter.name }}
     </div>
-    <div class="cohort-filter-draft-column-01" v-if="isModifyingFilter && !isExistingFilter">
+    <div class="cohort-filter-draft-column-01 pr-2" v-if="isModifyingFilter && !isExistingFilter">
       <div class="sr-only" aria-live="polite">{{ filterUpdateStatus }}</div>
       <b-dropdown id="draft-filter"
                   variant="link"
                   no-caret>
         <template slot="button-content">
           <div class="dropdown-content">
-            <div>{{ filter.key || 'New Filter' }}</div>
+            <div>{{ filter.name || 'New Filter' }}</div>
             <div>
-              <i :class="{'fas fa-angle-up menu-caret': isMenuOpen, 'fas fa-angle-down menu-caret': !isMenuOpen}"></i>
+              <i :class="{ 'fas fa-angle-up menu-caret': isMenuOpen, 'fas fa-angle-down menu-caret': !isMenuOpen }"></i>
             </div>
           </div>
         </template>
@@ -21,7 +21,7 @@
              :key="index">
           <b-dropdown-item v-for="subCategory in category"
                            class="dropdown-item"
-                           :class="{'dropdown-item-disabled': subCategory.disabled, 'dropdown-item-text': !subCategory.disabled}"
+                           :class="{ 'dropdown-item-disabled': subCategory.disabled, 'dropdown-item-text': !subCategory.disabled }"
                            :key="subCategory.key"
                            @click="setFilterCategory(subCategory)"
                            :disabled="subCategory.disabled">{{ subCategory.name }}</b-dropdown-item>
@@ -32,67 +32,74 @@
     <div class="cohort-added-subcategory-name" v-if="!isModifyingFilter">
       <span>{{ filter.valueLabel }}</span>
     </div>
-    <div class="cohort-added-subcategory-name" v-if="isModifyingFilter">
-      <div class="cohort-filter-draft-column-02" v-if="filter.type === 'array'">
-        <b-dropdown id="filter-subcategory">
+    <div :class="{
+            'cohort-added-subcategory-name': isExistingFilter,
+            'cohort-filter-draft-column-02': !isExistingFilter && filter.type === 'boolean',
+            'cohort-filter-draft-column-02 pr-2': !isExistingFilter && filter.type !== 'boolean'
+          }"
+         v-if="isModifyingFilter">
+      <div v-if="filter.type === 'array'">
+        <b-dropdown id="filter-subcategory"
+                    variant="link"
+                    no-caret>
           <template slot="button-content">
-            <div class="d-flex align-items-center">
-              <div class="b-link-text">{{ filter.valueLabel || 'Choose...' }}</div><i class="ml-1 fas fa-caret-down b-link-text"></i>
+            <div class="dropdown-content">
+              <div>{{ filter.valueLabel || 'Choose...' }}</div>
+              <div>
+                <i :class="{ 'fas fa-angle-up menu-caret': isMenuOpen, 'fas fa-angle-down menu-caret': !isMenuOpen }"></i>
+              </div>
             </div>
           </template>
           <b-dropdown-item v-for="option in filter.options"
                            class="dropdown-item"
-                           :class="{'dropdown-item-disabled': option.disabled, 'dropdown-item-text': !option.disabled}"
+                           :class="{ 'dropdown-item-disabled': option.disabled, 'dropdown-item-text': !option.disabled }"
                            :key="option.key"
-                           :disabled="option.disabled"
-                           @click="setFilterValue(option)">{{ option.name }}</b-dropdown-item>
+                           @click="setFilterValue(option)"
+                           :disabled="option.disabled">{{ option.name }}</b-dropdown-item>
         </b-dropdown>
-        <!--
-          Subcategory type: 'range'
-        -->
-        <div class="filter-range-container" v-if="filter.type === 'range'">
-          <div class="filter-range-label-start">
-            {{ filter.subcategoryHeader[0] }}
-          </div>
-          <div>
-            <input class="filter-range-input"
-                   focus-on="filter.isEditMode"
-                   :aria-labelledby="`filter-${filter.key}-subcategory-range-start-label`"
-                   v-model="range.start"
-                   maxlength="1"/>
-          </div>
-          <div class="filter-range-label-stop">
-            {{ filter.subcategoryHeader[1] }}
-          </div>
-          <div>
-            <input class="filter-range-input"
-                   :aria-labelledby="`filter-${filter.key}-subcategory-range-end-label`"
-                   v-model="range.stop"
-                   maxlength="1">
-          </div>
+      </div>
+      <div class="filter-range-container" v-if="filter.type === 'range'">
+        <div class="filter-range-label-start">
+          {{ filter.subcategoryHeader[0] }}
+        </div>
+        <div>
+          <input class="filter-range-input"
+                 focus-on="filter.isEditMode"
+                 :aria-labelledby="`filter-${filter.key}-subcategory-range-start-label`"
+                 v-model="range.start"
+                 maxlength="1"/>
+        </div>
+        <div class="filter-range-label-stop">
+          {{ filter.subcategoryHeader[1] }}
+        </div>
+        <div>
+          <input class="filter-range-input"
+                 :aria-labelledby="`filter-${filter.key}-subcategory-range-end-label`"
+                 v-model="range.stop"
+                 maxlength="1">
         </div>
       </div>
     </div>
+    <div class="cohort-filter-draft-column-03 pl-0" v-if="!isExistingFilter">
+      <b-btn id="unsaved-filter-add"
+             class="ml-0"
+             aria-label="Add filter to search criteria"
+             @click="addNewFilter()"
+             v-if="showAdd">
+        Add
+      </b-btn>
+    </div>
+    <div class="cohort-filter-draft-column-04"
+         v-if="isModifyingFilter && filter.type && !isExistingFilter">
+      <b-btn id="unsaved-filter-reset"
+             class="cohort-manage-btn-link p-0"
+             aria-label="Cancel new filter selection"
+             variant="link"
+             @click="reset()">
+        Cancel
+      </b-btn>
+    </div>
     <div>
-      <div class="cohort-filter-draft-column-03">
-        <b-btn id="unsaved-filter-add"
-               aria-label="Add filter to search criteria"
-               @click="addNewFilter()"
-               v-if="showAdd && !isExistingFilter">
-          Add
-        </b-btn>
-      </div>
-      <div class="cohort-filter-draft-column-04"
-           v-if="isModifyingFilter && !isExistingFilter && filter.type">
-        <b-btn id="unsaved-filter-reset"
-               class="cohort-manage-btn-link"
-               aria-label="Cancel new filter selection"
-               variant="link"
-               size="sm"
-               @click="reset()">
-          Cancel
-        </b-btn>
-      </div>
       <div class="cohort-added-filter-controls" v-if="isOwnedByCurrentUser && isExistingFilter">
         <div class="cohort-added-filter-buttons" v-if="!isModifyingFilter">
           <span v-if="filter.type !== 'boolean'">
@@ -147,7 +154,7 @@ export default {
     index: Number
   },
   data: () => ({
-    filter: undefined,
+    filter: {},
     filterUpdateStatus: undefined,
     isExistingFilter: undefined,
     isMenuOpen: false,
@@ -190,16 +197,8 @@ export default {
       }
     },
     setFilterCategory(menuItem) {
-      // Do NOT reassign 'this.filter' because it is a pointer to filter object in the store (cohort-edit-session).
-      this.extend(this.filter, {
-        key: menuItem.key,
-        name: menuItem.name,
-        value: undefined,
-        valueLabel: undefined,
-        subcategoryHeader: menuItem.subcategoryHeader,
-        options: menuItem.options,
-        type: menuItem.type
-      });
+      this.filter = this.cloneDeep(menuItem);
+      this.showAdd = menuItem.type === 'boolean';
     },
     setFilterValue(option) {
       if (option) {
@@ -268,7 +267,8 @@ export default {
 </script>
 
 <style scoped>
-.cohort-filter-draft-column-01 .b-dropdown {
+.cohort-filter-draft-column-01 .b-dropdown,
+.cohort-filter-draft-column-02 .b-dropdown {
   background-color: #f3f3f3;
   border: 1px solid #ccc;
   border-radius: 4px;

@@ -93,9 +93,3 @@ export default {
   }
 };
 </script>
-
-<style>
-.disabled-link {
-  color: #ccc;
-}
-</style>

@@ -7,7 +7,7 @@
       </div>
     </div>
     <div v-if="!renameMode">
-      <h1 class="page-section-header" v-if="cohortName" focus-on="!isLoading" tabindex="0">
+      <h1 class="page-section-header mt-0" v-if="cohortName" focus-on="!isLoading" tabindex="0">
         {{ cohortName }}
         <span class="faint-text"
               v-if="editMode !== 'apply' && totalStudentCount !== undefined">{{ 'student' | pluralize(totalStudentCount) }}</span>
@@ -56,9 +56,9 @@
         Cancel
       </b-btn>
     </div>
-    <div class="cohort-header-button-links align-middle no-wrap" v-if="!renameMode">
+    <div class="cohort-header-button-links align-middle no-wrap mt-0" v-if="!renameMode">
       <b-btn id="show-hide-details-button"
-             class="cohort-manage-btn-link pr-2"
+             class="pr-2 pt-0"
              variant="link"
              @click="toggleCompactView()"
              v-if="cohortId">
@@ -67,7 +67,7 @@
       <span v-if="cohortId && isOwnedByCurrentUser">
         <span class="faint-text">|</span>
         <b-btn id="rename-cohort-button"
-               class="cohort-manage-btn-link pl-2 pr-2"
+               class="pl-2 pr-2 pt-0"
                aria-label="Rename this cohort"
                variant="link"
                @click="beginRename()">
@@ -75,7 +75,7 @@
         </b-btn>
         <span class="faint-text">|</span>
         <b-btn id="delete-cohort-button"
-               class="cohort-manage-btn-link pl-2 pr-0"
+               class="pl-2 pr-0 pt-0"
                variant="link"
                v-b-modal="'confirmDeleteModal'"
                aria-label="Delete this cohort">
@@ -143,3 +143,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.disabled-link {
+  color: #ccc;
+}
+</style>
