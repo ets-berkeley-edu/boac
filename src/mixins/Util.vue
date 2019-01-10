@@ -7,6 +7,7 @@ export default {
     cloneDeep: _.cloneDeep,
     extend: _.extend,
     find: _.find,
+    flatten: _.flatten,
     get: _.get,
     isEmpty: _.isEmpty,
     isNil: _.isNil,

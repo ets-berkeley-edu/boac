@@ -25,7 +25,10 @@
              :key="index">
           <b-dropdown-item v-for="subCategory in category"
                            class="dropdown-item"
-                           :class="{'text-muted font-weight-light': subCategory.disabled, 'text-dark': !subCategory.disabled}"
+                           :class="{
+                             'pointer-default text-muted font-weight-light': subCategory.disabled,
+                             'text-dark': !subCategory.disabled
+                           }"
                            :key="subCategory.key"
                            @click="setFilterCategory(subCategory)"
                            :disabled="subCategory.disabled">{{ subCategory.name }}</b-dropdown-item>
@@ -52,7 +55,10 @@
           </template>
           <b-dropdown-item v-for="option in filter.options"
                            class="dropdown-item"
-                           :class="{'text-muted font-weight-light': option.disabled, 'text-dark': !option.disabled}"
+                           :class="{
+                             'pointer-default text-muted font-weight-light': option.disabled,
+                             'text-dark': !option.disabled
+                           }"
                            :key="option.key"
                            @click="updateFilterValue(option)"
                            :disabled="option.disabled">{{ option.name }}</b-dropdown-item>
@@ -189,6 +195,15 @@ export default {
       this.setEditMode(null);
     },
     editExistingFilter() {
+      let category = this.find(this.flatten(this.menu), [
+        'key',
+        this.filter.key
+      ]);
+      switch (this.filter.type) {
+        case 'array':
+          this.filter.options = category.options;
+          break;
+      }
       this.$eventHub.$emit('cohort-filter-row-edit', this.index);
       this.isModifyingFilter = true;
       this.setEditMode('edit');
@@ -218,7 +233,10 @@ export default {
       }
     },
     updateExisting() {
-      this.updateExistingFilter(this.index, this.filter);
+      this.updateExistingFilter({
+        index: this.index,
+        updatedFilter: this.filter
+      });
       this.isModifyingFilter = false;
       this.setEditMode(null);
     },
@@ -291,5 +309,8 @@ export default {
 }
 .menu-caret {
   font-size: 22px;
+}
+.pointer-default {
+  cursor: default;
 }
 </style>
