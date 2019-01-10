@@ -2,7 +2,7 @@ import numFormat from 'vue-filter-number-format';
 import { format as formatDate, parse as parseDate } from 'date-fns';
 
 export default {
-  date: (dateString: string, format: string = 'MMM dd, YYYY') => {
+  date: (dateString: string, format: string = 'MMM DD, YYYY') => {
     let date = parseDate(dateString);
     return formatDate(date, format);
   },
