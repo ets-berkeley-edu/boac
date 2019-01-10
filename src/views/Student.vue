@@ -96,7 +96,7 @@
                      @change="updateCuratedGroupMembership(curatedGroup)"
                      :aria-label="(curatedGroup.selected ? 'Remove from' : 'Add to') + ' curated group ' + curatedGroup.name"/>
               <div class="student-curated-group-checkbox-label">
-                <a :href="'/cohort/curated/' + curatedGroup.id">{{curatedGroup.name}}</a>
+                <router-link :to="'/curated_group/' + curatedGroup.id">{{curatedGroup.name}}</router-link>
               </div>
             </div>
             <div class="student-curated-group-checkbox" v-if="isEmpty(myCuratedGroups)">
@@ -273,9 +273,9 @@
                               :key="sectionIndex"
                               v-if="section.displayName">
                           <span v-if="sectionIndex === 0">(</span><!--
-                          --><a :id="`term-${term.termId}-section-${section.ccn}`"
-                             :href="`/course/${term.termId}/${section.ccn}?u=${student.uid}`"
-                             v-if="section.isViewableOnCoursePage">{{section.displayName}}</a><!--
+                          --><router-link :id="`term-${term.termId}-section-${section.ccn}`"
+                             :to="`/course/${term.termId}/${section.ccn}?u=${student.uid}`"
+                             v-if="section.isViewableOnCoursePage">{{section.displayName}}</router-link><!--
                           --><span v-if="!section.isViewableOnCoursePage">
                                {{section.displayName}}</span><!--
                           --><span v-if="sectionIndex < course.sections.length - 1"> | </span><!--
