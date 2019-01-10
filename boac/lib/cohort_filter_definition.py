@@ -284,9 +284,12 @@ def _keys_of_type_boolean(rows):
 def _selections_of_type_array(rows):
     existing_array_rows = list(filter(lambda row: row['type'] in ['array'], rows))
     unique_keys = set(map(lambda row: row['key'], existing_array_rows))
-    selections = dict.fromkeys(unique_keys, [])
+    selections = dict.fromkeys(unique_keys)
     for row in existing_array_rows:
-        selections[row['key']].append(row['value'])
+        key = row['key']
+        if not selections[key]:
+            selections[key] = []
+        selections[key].append(row['value'])
     return selections
 
 

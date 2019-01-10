@@ -197,7 +197,13 @@ class TestAllCohortFilterOptions:
                 'existingFilters':
                     [
                         self._level_option('Freshman'),
-                        self._level_option('Senior'),
+                        self._level_option('Sophomore'),
+                        self._level_option('Junior'),
+                        {
+                            'key': 'advisorLdapUids',
+                            'type': 'array',
+                            'value': '1022796',
+                        },
                     ],
             },
         )
@@ -207,18 +213,19 @@ class TestAllCohortFilterOptions:
         assertion_count = 0
         for category in filter_categories:
             for menu in category:
+                # All top-level category menus are enabled
                 assert 'disabled' not in menu
                 if menu['key'] == 'levels':
                     for option in menu['options']:
                         disabled = option.get('disabled')
-                        if option['value'] in ['Freshman', 'Senior']:
+                        if option['value'] in ['Freshman', 'Sophomore', 'Junior']:
                             assert disabled is True
                             assertion_count += 1
                         else:
                             assert disabled is None
                 else:
                     assert 'disabled' not in menu
-        assert assertion_count == 2
+        assert assertion_count == 3
 
     def test_all_options_in_category_disabled(self, client, coe_advisor_session):
         """Disable the category if all its options are in existing-filters."""

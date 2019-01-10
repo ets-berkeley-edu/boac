@@ -214,8 +214,16 @@ const actions = {
     commit('setCurrentPage', currentPage),
   setEditMode: ({ commit }, editMode: string) =>
     commit('setEditMode', editMode),
-  updateExistingFilter: ({ commit }, { index, updatedFilter }: any) =>
-    commit('updateExistingFilter', { index, updatedFilter }),
+  updateExistingFilter: ({ commit, state }, { index, updatedFilter }: any) => {
+    return new Promise(resolve => {
+      commit('updateExistingFilter', { index, updatedFilter });
+      commit('setModifiedSinceLastSearch', true);
+      getCohortFilterOptions(state.filters).then(menu => {
+        commit('updateMenu', menu);
+        resolve();
+      });
+    });
+  },
   toggleCompactView: ({ commit }) => commit('toggleCompactView')
 };
 
