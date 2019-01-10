@@ -51,7 +51,7 @@
           <span class="table-header-text">Instructor(s)</span>
         </th>
       </tr>
-      <tr v-for="course in courses" :key="course.id">
+      <tr v-for="course in sortedCourses" :key="course.id">
         <td class="search-results-cell">
           <span class="sr-only">Section</span>
           <router-link :to="`/course/${course.termId}/${course.sectionId}`">
@@ -88,20 +88,22 @@ export default {
         section: false,
         title: false
       }
-    }
+    },
+    sortedCourses: []
   }),
   created() {
     this.courseSort('section');
   },
   methods: {
     courseSort(sortBy) {
-      this.courses = this.courses || [];
-      this.sort.reverse[sortBy] = !this.sort.reverse[sortBy];
       if (this.sort.by !== sortBy) {
         this.sort.by = sortBy;
-        this.courses = this.courses.sort(this.courseComparator);
+        this.sort.reverse[sortBy] = false;
+        this.sortedCourses = this.courses.sort(this.courseComparator);
+      } else {
+        this.sort.reverse[sortBy] = !this.sort.reverse[sortBy];
+        this.sortedCourses = this.sortedCourses.reverse();
       }
-      this.courses = this.courses.reverse();
       this.resorted = true;
     },
     courseComparator(c1, c2) {
