@@ -1,6 +1,10 @@
 <template>
-  <div class="cohort-filter-draft-row" v-if="showRow">
-    <div class="cohort-added-filter-name" v-if="!isModifyingFilter || isExistingFilter">
+  <div class="d-flex"
+       :class="{'pt-2': !isExistingFilter}"
+       v-if="showRow">
+    <div :id="`existing-name-${index}`"
+         class="dropdown-width p-2 font-weight-bold"
+         v-if="isExistingFilter">
       {{ filter.name }}
     </div>
     <div class="cohort-filter-draft-column-01 pr-2" v-if="isModifyingFilter && !isExistingFilter">
@@ -9,10 +13,10 @@
                   variant="link"
                   no-caret>
         <template slot="button-content">
-          <div class="dropdown-content">
+          <div class="dropdown-width d-flex justify-content-between font-weight-bold text-dark">
             <div>{{ filter.name || 'New Filter' }}</div>
             <div>
-              <i :class="{ 'fas fa-angle-up menu-caret': isMenuOpen, 'fas fa-angle-down menu-caret': !isMenuOpen }"></i>
+              <i :class="{'fas fa-angle-up menu-caret': isMenuOpen, 'fas fa-angle-down menu-caret': !isMenuOpen}"></i>
             </div>
           </div>
         </template>
@@ -21,7 +25,7 @@
              :key="index">
           <b-dropdown-item v-for="subCategory in category"
                            class="dropdown-item"
-                           :class="{ 'dropdown-item-disabled': subCategory.disabled, 'dropdown-item-text': !subCategory.disabled }"
+                           :class="{'text-muted font-weight-light': subCategory.disabled, 'text-dark': !subCategory.disabled}"
                            :key="subCategory.key"
                            @click="setFilterCategory(subCategory)"
                            :disabled="subCategory.disabled">{{ subCategory.name }}</b-dropdown-item>
@@ -29,32 +33,28 @@
         </div>
       </b-dropdown>
     </div>
-    <div class="cohort-added-subcategory-name" v-if="!isModifyingFilter">
-      <span>{{ filter.valueLabel }}</span>
+    <div v-if="!isModifyingFilter">
+      {{ valueLabel }}
     </div>
-    <div :class="{
-            'cohort-added-subcategory-name': isExistingFilter,
-            'cohort-filter-draft-column-02': !isExistingFilter && filter.type === 'boolean',
-            'cohort-filter-draft-column-02 pr-2': !isExistingFilter && filter.type !== 'boolean'
-          }"
+    <div class="cohort-filter-draft-column-02"
          v-if="isModifyingFilter">
       <div v-if="filter.type === 'array'">
-        <b-dropdown id="filter-subcategory"
+        <b-dropdown :id="`dropdown-edit-${isExistingFilter ? index : 'new'}`"
                     variant="link"
                     no-caret>
           <template slot="button-content">
-            <div class="dropdown-content">
-              <div>{{ filter.valueLabel || 'Choose...' }}</div>
+            <div class="dropdown-width d-flex justify-content-between text-secondary">
+              <div>{{ valueLabel || 'Choose...' }}</div>
               <div>
-                <i :class="{ 'fas fa-angle-up menu-caret': isMenuOpen, 'fas fa-angle-down menu-caret': !isMenuOpen }"></i>
+                <i :class="{'fas fa-angle-up menu-caret': isMenuOpen, 'fas fa-angle-down menu-caret': !isMenuOpen}"></i>
               </div>
             </div>
           </template>
           <b-dropdown-item v-for="option in filter.options"
                            class="dropdown-item"
-                           :class="{ 'dropdown-item-disabled': option.disabled, 'dropdown-item-text': !option.disabled }"
+                           :class="{'text-muted font-weight-light': option.disabled, 'text-dark': !option.disabled}"
                            :key="option.key"
-                           @click="setFilterValue(option)"
+                           @click="updateFilterValue(option)"
                            :disabled="option.disabled">{{ option.name }}</b-dropdown-item>
         </b-dropdown>
       </div>
@@ -82,7 +82,8 @@
     </div>
     <div class="cohort-filter-draft-column-03 pl-0" v-if="!isExistingFilter">
       <b-btn id="unsaved-filter-add"
-             class="ml-0"
+             class="ml-2"
+             variant="primary"
              aria-label="Add filter to search criteria"
              @click="addNewFilter()"
              v-if="showAdd">
@@ -99,45 +100,43 @@
         Cancel
       </b-btn>
     </div>
-    <div>
-      <div class="cohort-added-filter-controls" v-if="isOwnedByCurrentUser && isExistingFilter">
-        <div class="cohort-added-filter-buttons" v-if="!isModifyingFilter">
-          <span v-if="filter.type !== 'boolean'">
-            <b-btn :id="`edit-added-filter-${index}`"
-                   class="btn-cohort-added-filter pr-1"
-                   aria-label="Edit filter"
-                   variant="link"
-                   size="sm"
-                   @click="editExistingFilter()">
-              Edit
-            </b-btn> |
-          </span>
-          <b-btn :id="`remove-added-filter-${index}`"
-                 class="btn-cohort-added-filter pl-2 pr-0"
-                 aria-label="Remove filter"
+    <div class="ml-auto p-2" v-if="isOwnedByCurrentUser && isExistingFilter">
+      <div class="d-flex flex-row" v-if="!isModifyingFilter">
+        <span v-if="filter.type !== 'boolean'">
+          <b-btn :id="`edit-added-filter-${index}`"
+                 class="btn-cohort-added-filter pr-1"
+                 aria-label="Edit filter"
                  variant="link"
                  size="sm"
-                 @click="removeFilter(index)">
-            Remove
-          </b-btn>
-        </div>
-        <div v-if="isModifyingFilter">
-          <b-btn :id="`update-added-filter-${index}`"
-                 aria-label="Update filter"
-                 variant="primary"
-                 size="sm"
-                 @click="updateExisting()">
-            Update
-          </b-btn>
-          <b-btn :id="`cancel-edit-added-filter-${index}`"
-                 class="btn-cohort-added-filter"
-                 aria-label="Cancel"
-                 variant="link"
-                 size="sm"
-                 @click="cancel()">
-            Cancel
-          </b-btn>
-        </div>
+                 @click="editExistingFilter()">
+            Edit
+          </b-btn> |
+        </span>
+        <b-btn :id="`remove-added-filter-${index}`"
+               class="btn-cohort-added-filter pl-2 pr-0"
+               aria-label="Remove filter"
+               variant="link"
+               size="sm"
+               @click="removeFilter(index)">
+          Remove
+        </b-btn>
+      </div>
+      <div class="d-flex flex-row" v-if="isModifyingFilter">
+        <b-btn :id="`update-added-filter-${index}`"
+               aria-label="Update filter"
+               variant="primary"
+               size="sm"
+               @click="updateExisting()">
+          Update
+        </b-btn>
+        <b-btn :id="`cancel-edit-added-filter-${index}`"
+               class="btn-cohort-added-filter"
+               aria-label="Cancel"
+               variant="link"
+               size="sm"
+               @click="cancelEditExisting()">
+          Cancel
+        </b-btn>
       </div>
     </div>
   </div>
@@ -154,7 +153,7 @@ export default {
     index: Number
   },
   data: () => ({
-    filter: {},
+    filter: undefined,
     filterUpdateStatus: undefined,
     isExistingFilter: undefined,
     isMenuOpen: false,
@@ -165,21 +164,32 @@ export default {
     },
     showAdd: false,
     showRow: true,
-    subcategoryError: undefined
+    subcategoryError: undefined,
+    valueLabel: undefined,
+    valueOriginal: undefined
   }),
   created() {
     this.reset();
+    this.valueOriginal = this.filter && this.filter.value;
+    this.$eventHub.$on('cohort-filter-row-edit', editIndex => {
+      if (this.index && this.index !== editIndex) {
+        this.cancelEditExisting();
+      }
+    });
   },
   methods: {
     addNewFilter() {
       this.addFilter(this.filter);
       this.reset();
     },
-    cancel() {
+    cancelEditExisting() {
       this.isModifyingFilter = false;
+      this.filter.value = this.valueOriginal;
+      this.valueLabel = this.getFilterValueLabel();
       this.setEditMode(null);
     },
     editExistingFilter() {
+      this.$eventHub.$emit('cohort-filter-row-edit', this.index);
       this.isModifyingFilter = true;
       this.setEditMode('edit');
     },
@@ -193,17 +203,17 @@ export default {
         this.filter = this.cloneDeep(this.filters[this.index]);
         this.isExistingFilter = true;
         this.isModifyingFilter = false;
-        this.updateFilterValueLabel();
+        this.valueLabel = this.getFilterValueLabel();
       }
     },
     setFilterCategory(menuItem) {
       this.filter = this.cloneDeep(menuItem);
       this.showAdd = menuItem.type === 'boolean';
     },
-    setFilterValue(option) {
+    updateFilterValue(option) {
       if (option) {
-        this.filter.value = option.value;
-        this.updateFilterValueLabel();
+        this.filter.value = this.valueOriginal = option.value;
+        this.valueLabel = this.getFilterValueLabel();
         this.showAdd = true;
       }
     },
@@ -212,28 +222,24 @@ export default {
       this.isModifyingFilter = false;
       this.setEditMode(null);
     },
-    updateFilterValueLabel() {
+    getFilterValueLabel() {
       // Update human-readable label
+      let label = undefined;
       let h = this.filter.subcategoryHeader;
       switch (this.filter.type) {
         case 'range':
-          this.filter.valueLabel = [
-            h[0],
-            this.filter.value[0],
-            h[1],
-            this.filter.value[1]
-          ].join(' ');
+          label = [h[0], this.filter.value[0], h[1], this.filter.value[1]].join(
+            ' '
+          );
           break;
         case 'array':
-          this.filter.valueLabel = this.get(
+          label = this.get(
             this.find(this.filter.options, ['value', this.filter.value]),
             'name'
           );
           break;
-        default:
-          this.filter.valueLabel = null;
-          break;
       }
+      return label;
     }
   },
   watch: {
@@ -247,15 +253,12 @@ export default {
           break;
         case 'edit':
           if (!this.isExistingFilter) {
-            this.showRow = false;
             this.reset();
-          } else {
-            this.showRow = true;
+            this.showRow = false;
           }
           break;
         case 'rename':
           this.reset();
-          this.showRow = true;
           break;
         default:
           this.showRow = true;
@@ -278,23 +281,13 @@ export default {
   vertical-align: middle;
   white-space: nowrap;
 }
-.dropdown-content {
-  color: #000;
-  display: flex;
-  font-weight: 500;
-  justify-content: space-between;
+.dropdown-width {
   width: 240px;
 }
 .dropdown-item {
   font-size: 14px;
   padding-top: 3px;
   width: 260px;
-}
-.dropdown-item-disabled {
-  color: #ccc !important;
-}
-.dropdown-item-text {
-  color: #000 !important;
 }
 .menu-caret {
   font-size: 22px;
