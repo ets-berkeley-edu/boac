@@ -13,6 +13,7 @@
 <script>
 import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader';
 import Loading from '@/mixins/Loading';
+import router from '@/router';
 import Spinner from '@/components/util/Spinner';
 import store from '@/store';
 import Students from '@/components/student/Students';
@@ -33,9 +34,13 @@ export default {
   }),
   created() {
     getCuratedGroup(this.id).then(data => {
-      this.curatedGroup = data;
-      this.loaded();
-      document.title = `${this.curatedGroup.name} | BOAC`;
+      if (data) {
+        this.curatedGroup = data;
+        this.loaded();
+        document.title = `${this.curatedGroup.name} | BOAC`;
+      } else {
+        router.push({ path: '/404' });
+      }
     });
     this.$eventHub.$on('curated-group-remove-student', sid =>
       this.$_Students_removeStudent(sid)
