@@ -48,7 +48,6 @@ VUE_PATHS = {
     # r'/home': r'/home',
     # r'/login': r'/login',
     # r'/student/([0-9]+).*': r'/student/\1',
-    # r'/teams': r'/teams',
 }
 # This base-URL config should only be non-None in the "local" env where the Vue front-end runs on port 8080.
 VUE_LOCALHOST_BASE_URL = None
