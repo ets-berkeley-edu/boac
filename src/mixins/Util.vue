@@ -13,6 +13,12 @@ export default {
     isNil: _.isNil,
     mapValues: _.mapValues,
     trim: _.trim,
+    scrollTo(id) {
+      const e = document.getElementById(id);
+      if (e) {
+        window.scrollTo(0, e.offsetTop);
+      }
+    },
     size: _.size
   }
 };

@@ -55,10 +55,11 @@ import Loading from '@/mixins/Loading';
 import SectionSpinner from '@/components/util/SectionSpinner';
 import Spinner from '@/components/util/Spinner';
 import Students from '@/components/student/Students';
+import Util from '@/mixins/Util';
 
 export default {
   name: 'Cohort',
-  mixins: [CohortEditSession, Loading],
+  mixins: [CohortEditSession, Loading, Util],
   components: {
     ApplyAndSaveButtons,
     CohortPageHeader,
@@ -85,7 +86,9 @@ export default {
     compositeKey: filter => `${filter.key}${filter.value}`,
     nextPage() {
       this.setCurrentPage(this.pageNumber);
-      this.applyFilters();
+      this.applyFilters().then(() => {
+        this.scrollTo('content');
+      });
     }
   },
   computed: {

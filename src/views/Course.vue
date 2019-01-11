@@ -346,7 +346,7 @@ export default {
   created() {
     this.initViewMode();
     this.initPagination();
-    if (this.tab == 'matrix') {
+    if (this.tab === 'matrix') {
       this.loadMatrixView();
     } else {
       this.loadListView();
