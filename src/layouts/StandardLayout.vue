@@ -19,17 +19,7 @@
           <!-- The ':key' attribute forces component reload when same route is requested with diff id in path. -->
           <router-view :key="$route.fullPath"></router-view>
         </div>
-        <div class="index-container-footer">
-          <hr class="footer-separator">
-          <div class="footer-container">
-            <div>
-              <img src="@/assets/uc-berkeley-logo.svg"/>
-            </div>
-            <div class="footer-copyright">
-              &copy; 2018 The Regents of the University of California
-            </div>
-          </div>
-        </div>
+        <Footer v-if="!loading"/>
       </div>
     </div>
   </div>
@@ -37,39 +27,19 @@
 
 <script>
 import DisplayError from '@/components/util/DisplayError';
+import Footer from '@/components/Footer';
 import HeaderMenu from '@/components/HeaderMenu';
+import Loading from '@/mixins/Loading';
 import Sidebar from '@/components/sidebar/Sidebar';
 
 export default {
-  name: 'App',
+  name: 'StandardLayout',
+  mixins: [Loading],
   components: {
     DisplayError,
+    Footer,
     HeaderMenu,
     Sidebar
   }
 };
 </script>
-
-<style>
-h1 {
-  font-size: 24px;
-  font-weight: bold;
-  margin: 0 0 10px 0;
-}
-.b-dd-primary-override {
-  background-color: #337ab7;
-  border-color: #2e6da4;
-  border-top-right-radius: 0.3em !important;
-  border-bottom-right-radius: 0.3em !important;
-  margin-left: 5px !important;
-}
-.b-dd-primary-override:hover,
-.b-dd-primary-override:focus,
-.b-dd-primary-override:active {
-  background-color: #286090;
-  border-color: #204d74;
-}
-.b-dd-item-override {
-  color: #212529 !important;
-}
-</style>
