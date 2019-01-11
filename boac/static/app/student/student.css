@@ -238,7 +238,7 @@
 }
 
 .student-column-gpa {
-  flex: 0.5;
+  flex: 0.5 0 130px;
   margin-left: 15px;
 }
 
