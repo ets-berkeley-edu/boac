@@ -1,5 +1,5 @@
 <template>
-  <div :class="{'student-avatar-large-container': size === 'large-padded'}">
+  <div class="student-avatar-container" :class="{'student-avatar-large-container': size === 'large-padded'}">
     <img class="avatar"
          :class="{
            'student-avatar-large': ['large', 'large-padded'].includes(size),
@@ -76,9 +76,7 @@ export default {
 }
 
 .student-avatar-container {
-  align-items: center;
-  display: flex;
-  flex: 0 0 60px;
+  position: relative;
 }
 
 .student-avatar-large {
@@ -89,7 +87,6 @@ export default {
 
 .student-avatar-large-container {
   margin: 20px;
-  position: relative;
 }
 
 .student-avatar-small {
