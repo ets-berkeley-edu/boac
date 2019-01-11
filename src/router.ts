@@ -12,7 +12,6 @@ import Search from '@/views/Search.vue';
 import StandardLayout from './layouts/StandardLayout.vue';
 import store from '@/store';
 import Student from '@/views/Student.vue';
-import Teams from '@/views/Teams.vue';
 import Vue from 'vue';
 
 Vue.use(Router);
@@ -142,14 +141,6 @@ const router = new Router({
           component: Search,
           meta: {
             title: 'Search'
-          }
-        },
-        {
-          path: '/teams',
-          beforeEnter: requiresAuth,
-          component: Teams,
-          meta: {
-            title: 'Teams'
           }
         },
         {
