@@ -75,8 +75,8 @@
     <div class="student-column">
       <div class="student-gpa">{{ get(student.term, 'enrolledUnits', 0) }}</div>
       <div class="student-text">Units in Progress</div>
-      <div class="student-gpa" v-if="!student.cumulativeUnits">{{ student.cumulativeUnits }}</div>
-      <div class="student-gpa" v-if="student.cumulativeUnits">--<span class="sr-only">No data</span></div>
+      <div class="student-gpa" v-if="student.cumulativeUnits">{{ student.cumulativeUnits }}</div>
+      <div class="student-gpa" v-if="!student.cumulativeUnits">--<span class="sr-only">No data</span></div>
       <div class="student-text">Units Completed</div>
     </div>
     <div class="cohort-course-activity-wrapper">
