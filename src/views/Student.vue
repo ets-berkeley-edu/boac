@@ -675,9 +675,10 @@ export default {
 .student-course-collapse-button {
   color: #337ab7;
   height: 15px;
-  margin-right: 15px;
+  line-height: 1;
+  margin-right: 10px;
   padding: 0;
-  width: 10px;
+  width: 12px;
 }
 .student-course-dropped {
   margin-top: 15px;
