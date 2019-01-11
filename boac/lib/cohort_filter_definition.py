@@ -250,8 +250,12 @@ def get_cohort_filter_options(existing_filters):
             if menu['key'] == key:
                 # Disable 'boolean' sub_menu (e.g., 'isInactiveCoe') if it is already in cohort criteria
                 menu['disabled'] = True
-    # Next, get selected 'array' options (e.g., 'levels') from cohort criteria.
-    for key, values in _selections_of_type_array(existing_filters).items():
+    # Get filters of type 'range' (e.g., 'last name')
+    for key, values in _selections_of_type('range', existing_filters).items():
+        menu = next(s for s in menus if s['key'] == key)
+        menu['disabled'] = True
+    # Get filters of type 'array' (e.g., 'levels')
+    for key, values in _selections_of_type('array', existing_filters).items():
         menu = next(s for s in menus if s['key'] == key)
         if len(values) == len(menu['options']):
             # If count of selected values equals number of options then disable the sub_menu
@@ -281,11 +285,11 @@ def _keys_of_type_boolean(rows):
     return list(map(lambda r: r['key'], existing_boolean_rows))
 
 
-def _selections_of_type_array(rows):
-    existing_array_rows = list(filter(lambda row: row['type'] in ['array'], rows))
-    unique_keys = set(map(lambda row: row['key'], existing_array_rows))
+def _selections_of_type(filter_type, existing_filters):
+    rows = list(filter(lambda row: row['type'] in [filter_type], existing_filters))
+    unique_keys = set(map(lambda row: row['key'], rows))
     selections = dict.fromkeys(unique_keys)
-    for row in existing_array_rows:
+    for row in rows:
         key = row['key']
         if not selections[key]:
             selections[key] = []

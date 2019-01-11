@@ -11,6 +11,8 @@ export default {
     get: _.get,
     isEmpty: _.isEmpty,
     isNil: _.isNil,
+    mapValues: _.mapValues,
+    trim: _.trim,
     size: _.size
   }
 };
