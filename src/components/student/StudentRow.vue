@@ -61,7 +61,7 @@
       <div>
         <span class="student-gpa" v-if="!student.cumulativeGPA">--<span class="sr-only">No data</span></span>
         <span class="student-gpa" v-if="student.cumulativeGPA">{{ student.cumulativeGPA | round(3) }}</span>
-        <span class="student-text">GPA (Cumulative)</span>
+        <span class="student-text"> GPA (Cumulative)</span>
       </div>
       <StudentGpaChart v-if="size(student.termGpa) > 1" :student="student" :width="'130'"/>
       <div class="student-bio-status-legend profile-last-term-gpa-outer"
