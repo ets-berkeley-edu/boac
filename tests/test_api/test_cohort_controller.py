@@ -419,6 +419,14 @@ class TestCohortCreate:
 class TestCohortUpdate:
     """Cohort Update API."""
 
+    @classmethod
+    def _post_cohort_update(cls, client, json_data=()):
+        return client.post(
+            '/api/cohort/update',
+            data=json.dumps(json_data),
+            content_type='application/json',
+        )
+
     def test_unauthorized_cohort_update(self, client, coe_advisor_session):
         cohort = CohortFilter.create(
             uid=asc_advisor_uid,
@@ -431,10 +439,10 @@ class TestCohortUpdate:
             'id': cohort.id,
             'name': 'Hack the name!',
         }
-        response = client.post('/api/cohort/update', data=json.dumps(data), content_type='application/json')
+        response = self._post_cohort_update(client, data)
         assert 403 == response.status_code
 
-    def test_cohort_update_name(self, client, asc_advisor_session):
+    def test_update_filters(self, client, asc_advisor_session):
         cohort = CohortFilter.create(
             uid=asc_advisor_uid,
             name='Swimming, Men\'s',
@@ -442,24 +450,28 @@ class TestCohortUpdate:
                 'groupCodes': ['MSW', 'MSW-DV', 'MSW-SW'],
             },
         )
-        updated_name = 'Splashing, Men\'s'
         # First, we POST an empty name
-        response = client.post('/api/cohort/update', data=json.dumps({'id': cohort.id}), content_type='application/json')
+        response = self._post_cohort_update(client, {'id': cohort.id})
         assert 400 == response.status_code
         # Now, we POST a valid name
         data = {
             'id': cohort.id,
-            'name': updated_name,
+            'filters': [
+                {'key': 'majors', 'type': 'array', 'value': 'Gender and Women''s Studies'},
+                {'key': 'gpaRanges', 'type': 'array', 'value': 'numrange(2, 2.5, \'[)\')'},
+            ],
         }
-        response = client.post('/api/cohort/update', data=json.dumps(data), content_type='application/json')
+        response = self._post_cohort_update(client, data)
         assert 200 == response.status_code
-        update = response.json
-        assert update['name'] == updated_name
+        filter_criteria = response.json['filterCriteria']
+        assert filter_criteria['majors'] == ['Gender and Women''s Studies']
+        assert filter_criteria['gpaRanges'] == ['numrange(2, 2.5, \'[)\')']
+        assert filter_criteria['groupCodes'] is None
 
-        def remove_empties(filter_criteria):
-            return {k: v for k, v in filter_criteria.items() if v is not None}
+        def remove_empties(criteria):
+            return {k: v for k, v in criteria.items() if v is not None}
         expected = remove_empties(cohort.filter_criteria)
-        actual = remove_empties(update['filterCriteria'])
+        actual = remove_empties(filter_criteria)
         assert expected == actual
 
     def test_cohort_update_filter_criteria(self, client, asc_advisor_session):
@@ -483,7 +495,7 @@ class TestCohortUpdate:
             },
             'studentCount': 3,
         }
-        response = client.post('/api/cohort/update', data=json.dumps(updates), content_type='application/json')
+        response = self._post_cohort_update(client, updates)
         assert response.status_code == 200
         # Verify the value of 'student_count' in db
         updated_cohort = CohortFilter.find_by_id(cohort_id)

@@ -1,13 +1,12 @@
 <template>
   <div>
     <form @submit.prevent="createCohort()">
-      <div id="cohort-create-body" class="modal-body">
-        <div class="cohort-create-form-name">Name:</div>
+      <div id="cohort-create-body">
+        <div class="pb-2">Name:</div>
         <div>
           <input id="cohort-create-input"
                  ref="modalNameInput"
                  class="cohort-create-input-name"
-                 @change="error.hide = true"
                  v-model="name"
                  type="text"
                  maxlength="255"
@@ -15,7 +14,7 @@
                  required>
         </div>
         <div class="faint-text">255 character limit <span v-if="name.length">({{255 - name.length}} left)</span></div>
-        <div class="has-error" v-if="error.message && !error.hide">{{ error.message }}</div>
+        <div class="has-error" v-if="error">{{ error }}</div>
       </div>
       <div class="modal-footer">
         <b-btn id="cohort-create-confirm-btn"
@@ -45,15 +44,12 @@ export default {
   },
   data: () => ({
     name: '',
-    error: {
-      message: null,
-      hide: false
-    }
+    error: undefined
   }),
   methods: {
     reset() {
       this.name = '';
-      this.error = { message: null, hide: false };
+      this.error = undefined;
     },
     cancelModal() {
       this.cancel();
@@ -62,11 +58,16 @@ export default {
     createCohort: function() {
       let errorMessage = this.validateCohortName({ name: this.name });
       if (errorMessage) {
-        this.error = { message: errorMessage, hide: false };
+        this.error = errorMessage;
       } else {
         this.create(this.name);
         this.reset();
       }
+    }
+  },
+  watch: {
+    name() {
+      this.error = undefined;
     }
   }
 };

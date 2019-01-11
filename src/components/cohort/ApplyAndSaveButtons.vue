@@ -1,8 +1,9 @@
 <template>
   <div>
       <b-btn id="unsaved-filter-apply"
-             aria-label="Search for students"
              class="btn-filter-draft-apply"
+             aria-label="Search for students"
+             variant="primary"
              @click="applyFilters()"
              :disabled="!!editMode"
              v-if="showApplyButton">
@@ -10,8 +11,9 @@
       </b-btn>
       <div v-if="showSaveButton">
         <b-btn id="save-filtered-cohort"
-               aria-label="Save cohort"
                :class="{'btn-filter-draft-saved': acknowledgeSave, 'btn-primary btn-filter-draft-save': !acknowledgeSave}"
+               aria-label="Save cohort"
+               variant="primary"
                :disabled="!!editMode"
                @click="save()">
           <span v-if="acknowledgeSave">Saved</span>

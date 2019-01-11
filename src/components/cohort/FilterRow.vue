@@ -31,6 +31,7 @@
                            }"
                            :key="subCategory.key"
                            @click="setFilterCategory(subCategory)"
+                           :aria-disabled="subCategory.disabled"
                            :disabled="subCategory.disabled">{{ subCategory.name }}</b-dropdown-item>
           <b-dropdown-divider v-if="index !== (menu.length - 1)"></b-dropdown-divider>
         </div>
@@ -61,6 +62,7 @@
                            }"
                            :key="option.key"
                            @click="updateFilterValue(option)"
+                           :aria-disabled="option.disabled"
                            :disabled="option.disabled">{{ option.name }}</b-dropdown-item>
         </b-dropdown>
       </div>
