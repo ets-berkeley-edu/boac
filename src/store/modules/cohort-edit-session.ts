@@ -6,6 +6,7 @@ import {
   saveCohort
 } from '@/api/cohort';
 import { getCohortFilterOptions, translateToMenu } from '@/api/menu';
+import router from '@/router';
 import store from '@/store';
 
 const EDIT_MODE_TYPES = [null, 'add', 'apply', 'edit', 'rename'];
@@ -109,18 +110,22 @@ const actions = {
       commit('setCurrentPage', 0);
       if (id > 0) {
         getCohort(id, true).then(cohort => {
-          translateToMenu(cohort.filterCriteria).then(filters => {
-            commit('resetSession', {
-              cohort,
-              filters: filters,
-              students: cohort.students,
-              totalStudentCount: cohort.totalStudentCount
+          if (cohort) {
+            translateToMenu(cohort.filterCriteria).then(filters => {
+              commit('resetSession', {
+                cohort,
+                filters: filters,
+                students: cohort.students,
+                totalStudentCount: cohort.totalStudentCount
+              });
+              getCohortFilterOptions(filters).then(menu => {
+                commit('updateMenu', menu);
+                resolve();
+              });
             });
-            getCohortFilterOptions(filters).then(menu => {
-              commit('updateMenu', menu);
-              resolve();
-            });
-          });
+          } else {
+            router.push({ path: '/404' });
+          }
         });
       } else {
         getCohortFilterOptions([]).then(menu => {

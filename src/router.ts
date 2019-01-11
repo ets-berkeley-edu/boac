@@ -144,6 +144,13 @@ const router = new Router({
           }
         },
         {
+          path: '/404',
+          component: NotFound,
+          meta: {
+            title: 'Page not found'
+          }
+        },
+        {
           path: '*',
           component: NotFound,
           beforeEnter: requiresAuth
