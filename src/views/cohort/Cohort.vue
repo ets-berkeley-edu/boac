@@ -7,14 +7,14 @@
          class="sr-only"
          v-if="totalStudentCount > 50">Skip to pagination widget</a>
       <CohortPageHeader />
-      <div v-if="!isCompactView">
+      <b-collapse id="show-hide-filters" v-model="showFilters">
         <FilterRow class="filter-row"
                    v-for="(filter, index) in filters"
                    :key="compositeKey(filter)"
                    :index="index"/>
         <FilterRow />
         <ApplyAndSaveButtons />
-      </div>
+      </b-collapse>
       <SectionSpinner name="Students" :loading="editMode === 'apply'" />
       <div v-if="showStudentsSection">
         <div class="cohort-column-results">
@@ -69,12 +69,14 @@ export default {
     Students
   },
   data: () => ({
-    pageNumber: undefined
+    pageNumber: undefined,
+    showFilters: undefined
   }),
   created() {
     let id = _.get(this.$route, 'params.id');
     let encodedCriteria = _.get(this.$route, 'query.q');
     this.initSession(id, encodedCriteria).then(() => {
+      this.showFilters = !this.isCompactView;
       this.currentPage = this.pagination.currentPage;
       this.loaded();
     });
@@ -89,6 +91,11 @@ export default {
   computed: {
     showStudentsSection() {
       return _.size(this.students) && this.editMode !== 'apply';
+    }
+  },
+  watch: {
+    isCompactView() {
+      this.showFilters = !this.isCompactView;
     }
   }
 };
