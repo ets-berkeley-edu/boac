@@ -17,14 +17,13 @@
       </h1>
     </div>
     <div>
-      <div class="cohort-rename-container" v-if="renameMode">
+      <div v-if="renameMode">
         <div>
-          <form name="renameCohortForm" @submit.prevent="submitRename()">
+          <form class="pt-0" name="renameCohortForm" @submit.prevent="submitRename()">
             <input aria-required="true"
                    aria-label="Input cohort name, 255 characters or fewer"
                    :aria-invalid="!!name"
                    class="form-control"
-                   @change="error = null"
                    v-model="name"
                    id="rename-cohort-input"
                    maxlength="255"
@@ -33,11 +32,11 @@
                    type="text"/>
           </form>
         </div>
-        <div class="has-error" v-if="error">{{ error }}</div>
-        <div class="faint-text">255 character limit <span v-if="name.length">({{255 - name.length}} left)</span></div>
+        <div class="has-error pl-2" v-if="renameError">{{ renameError }}</div>
+        <div class="faint-text pl-2" v-if="!renameError">255 character limit <span v-if="name.length">({{255 - name.length}} left)</span></div>
       </div>
     </div>
-    <div class="cohort-header-buttons no-wrap" v-if="renameMode">
+    <div class="d-flex justify-content-end ml-2" v-if="renameMode">
       <b-btn id="filtered-cohort-rename"
              class="cohort-manage-btn"
              aria-label="Save changes to cohort name"
@@ -56,16 +55,18 @@
         Cancel
       </b-btn>
     </div>
-    <div class="cohort-header-button-links align-middle no-wrap mt-0" v-if="!renameMode">
-      <b-btn id="show-hide-details-button"
-             class="pr-2 pt-0"
-             variant="link"
-             @click="toggleCompactView()"
-             v-if="cohortId">
-        {{isCompactView ? 'Show' : 'Hide'}} Filters
-      </b-btn>
-      <span v-if="cohortId && isOwnedByCurrentUser">
-        <span class="faint-text">|</span>
+    <div class="d-flex justify-content-end align-middle mt-0" v-if="!renameMode">
+      <div>
+        <b-btn id="show-hide-details-button"
+               class="pr-2 pt-0"
+               variant="link"
+               @click="toggleCompactView()"
+               v-if="cohortId">
+          {{isCompactView ? 'Show' : 'Hide'}} Filters
+        </b-btn>
+      </div>
+      <div class="faint-text" v-if="cohortId && isOwnedByCurrentUser">|</div>
+      <div v-if="cohortId && isOwnedByCurrentUser">
         <b-btn id="rename-cohort-button"
                class="pl-2 pr-2 pt-0"
                aria-label="Rename this cohort"
@@ -73,7 +74,9 @@
                @click="beginRename()">
           Rename
         </b-btn>
-        <span class="faint-text">|</span>
+      </div>
+      <div class="faint-text">|</div>
+      <div v-if="cohortId && isOwnedByCurrentUser">
         <b-btn id="delete-cohort-button"
                class="pl-2 pr-0 pt-0"
                variant="link"
@@ -90,7 +93,7 @@
                              :cancelDeleteModal="cancelDeleteModal"
                              :deleteCohort="cohortDelete"/>
         </b-modal>
-      </span>
+      </div>
     </div>
   </div>
 </template>
@@ -99,15 +102,16 @@
 import CohortEditSession from '@/mixins/CohortEditSession';
 import DeleteCohortModal from '@/components/cohort/DeleteCohortModal';
 import router from '@/router';
+import Validator from '@/mixins/Validator';
 import { deleteCohort } from '@/api/cohort';
 
 export default {
   name: 'CohortPageHeader',
   components: { DeleteCohortModal },
-  mixins: [CohortEditSession],
+  mixins: [CohortEditSession, Validator],
   data: () => ({
-    error: undefined,
     name: undefined,
+    renameError: undefined,
     showDeleteModal: false
   }),
   created() {
@@ -137,8 +141,19 @@ export default {
       });
     },
     submitRename() {
-      this.renameCohort(this.name);
-      this.setEditMode(null);
+      this.renameError = this.validateCohortName({
+        id: this.cohortId,
+        name: this.name
+      });
+      if (!this.renameError) {
+        this.renameCohort(this.name);
+        this.setEditMode(null);
+      }
+    }
+  },
+  watch: {
+    name() {
+      this.renameError = undefined;
     }
   }
 };
