@@ -67,7 +67,8 @@ const router = new Router({
           component: Home,
           beforeEnter: requiresAuth,
           meta: {
-            legacyPathRedirect: '/home'
+            legacyPathRedirect: '/home',
+            title: 'Home'
           }
         },
         {
@@ -76,7 +77,8 @@ const router = new Router({
           component: Admin,
           beforeEnter: requiresAuth,
           meta: {
-            legacyPathRedirect: '/admin'
+            legacyPathRedirect: '/admin',
+            title: 'Admin'
           }
         },
         {
@@ -130,7 +132,8 @@ const router = new Router({
           beforeEnter: requiresAuth,
           component: Student,
           meta: {
-            legacyPathRedirect: '/student/:uid'
+            legacyPathRedirect: '/student/:uid',
+            title: 'Student'
           }
         },
         {
@@ -144,7 +147,10 @@ const router = new Router({
         {
           path: '/teams',
           beforeEnter: requiresAuth,
-          component: Teams
+          component: Teams,
+          meta: {
+            title: 'Teams'
+          }
         },
         {
           path: '*',
