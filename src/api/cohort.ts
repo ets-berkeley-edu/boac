@@ -16,10 +16,28 @@ export function createCohort(
     .then(response => response.data, () => null);
 }
 
+export function deleteCohort(id) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .delete(`${apiBaseUrl}/api/cohort/delete/${id}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(() => store.commit('cohort/deleteCohort', id), () => null);
+}
+
 export function getCohort(id: number, includeStudents = true) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
     .get(`${apiBaseUrl}/api/cohort/${id}?includeStudents=${includeStudents}`)
+    .then(response => response.data, () => null);
+}
+
+export function getMyCohorts() {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .get(`${apiBaseUrl}/api/cohorts/my`)
     .then(response => response.data, () => null);
 }
 
@@ -38,10 +56,10 @@ export function getStudentsPerFilters(
     .then(response => response.data, () => null);
 }
 
-export function getMyCohorts() {
+export function getStudentsWithAlerts(cohortId) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${apiBaseUrl}/api/cohorts/my`)
+    .get(`${apiBaseUrl}/api/cohort/${cohortId}/students_with_alerts`)
     .then(response => response.data, () => null);
 }
 
@@ -50,17 +68,6 @@ export function getUsersWithCohorts() {
   return axios
     .get(`${apiBaseUrl}/api/cohorts/all`)
     .then(response => response.data, () => null);
-}
-
-export function deleteCohort(id) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
-  return axios
-    .delete(`${apiBaseUrl}/api/cohort/delete/${id}`, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(() => store.commit('cohort/deleteCohort', id), () => null);
 }
 
 export function saveCohort(

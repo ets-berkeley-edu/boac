@@ -115,7 +115,7 @@ export function renameCuratedGroup(id, name) {
     .catch(error => error);
 }
 
-export function getStudentsWithAlertsInCohort(groupId) {
+export function getStudentsWithAlerts(groupId) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
     .get(`${apiBaseUrl}/api/curated_group/${groupId}/students_with_alerts`)

@@ -1,4 +1,4 @@
-import { getMyCohorts, getCohort } from '@/api/cohort';
+import { getMyCohorts, getStudentsWithAlerts } from '@/api/cohort';
 
 const state = {
   myCohorts: null
@@ -36,12 +36,13 @@ const actions = {
   deleteCohort: ({ commit }, cohort) => {
     commit('deleteCohort', cohort);
   },
-  async loadCohortStudents({ commit, state }, id) {
+  async loadStudentsWithAlerts({ commit, state }, cohortId) {
     return new Promise(resolve => {
-      let cohort = state.myCohorts.find(cohort => cohort.id === +id);
-      if (!cohort.students) {
-        getCohort(id, true)
-          .then(cohort => {
+      let cohort = state.myCohorts.find(cohort => cohort.id === +cohortId);
+      if (!cohort.studentsWithAlerts) {
+        getStudentsWithAlerts(cohortId)
+          .then(studentsWithAlerts => {
+            cohort.studentsWithAlerts = studentsWithAlerts;
             commit('updateCohort', cohort);
           })
           .then(() => {
