@@ -455,6 +455,7 @@ import _ from 'lodash';
 import Context from '@/mixins/Context';
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal';
 import Loading from '@/mixins/Loading';
+import router from '@/router';
 import Spinner from '@/components/util/Spinner';
 import StudentAlerts from '@/components/student/StudentAlerts';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
@@ -508,21 +509,24 @@ export default {
   methods: {
     loadStudent(uid) {
       getStudentDetails(uid).then(data => {
-        document.title = `${data.name} | BOAC`;
-        _.assign(this.student, data);
-        this.isInactive = this.displayAsInactive(this.student);
-        this.cumulativeUnits = _.get(
-          this.student,
-          'sisProfile.cumulativeUnits'
-        );
-        this.setCurrentEnrollmentTerm();
-        _.each(this.student.enrollmentTerms, this.parseEnrollmentTerm);
+        if (data) {
+          document.title = `${data.name} | BOAC`;
+          _.assign(this.student, data);
+          this.isInactive = this.displayAsInactive(this.student);
+          this.cumulativeUnits = _.get(
+            this.student,
+            'sisProfile.cumulativeUnits'
+          );
+          this.setCurrentEnrollmentTerm();
+          _.each(this.student.enrollmentTerms, this.parseEnrollmentTerm);
 
-        getMyCuratedGroupIdsPerStudentId(this.student.sid).then(data => {
-          this.curatedGroupMemberships = data;
-        });
-
-        this.loaded();
+          getMyCuratedGroupIdsPerStudentId(this.student.sid).then(data => {
+            this.curatedGroupMemberships = data;
+          });
+          this.loaded();
+        } else {
+          router.push({ path: '/404' });
+        }
       });
     },
     modalCreateCuratedGroup(name) {
