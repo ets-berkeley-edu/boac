@@ -462,7 +462,7 @@ export default {
       });
     },
     updateCourseData(data) {
-      document.title = data.displayName;
+      document.title = `${data.displayName} | BOAC`;
       this.section = this.featureSearchedStudent(data);
       if (
         this.exceedsMatrixThreshold(_.get(this.section, 'totalStudentCount'))
