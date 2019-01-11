@@ -67,13 +67,17 @@
         </b-dropdown>
       </div>
       <div class="filter-range-container" v-if="filter.type === 'range'">
+        <div class="sr-only" aria-live="polite">{{ range.error }}</div>
         <div class="filter-range-label-start">
           {{ filter.subcategoryHeader[0] }}
         </div>
         <div>
-          <input class="filter-range-input"
+          <span :id="isExistingFilter ? `filter-${index}-range-start-label` : 'filter-range-start-label'"
+                class="sr-only">beginning of range</span>
+          <input :id="isExistingFilter ? `filter-${index}-range-start` : 'filter-range-start'"
+                 class="filter-range-input"
                  focus-on="filter.isEditMode"
-                 :aria-labelledby="`filter-${filter.key}-subcategory-range-start-label`"
+                 :aria-labelledby="isExistingFilter ? `filter-${index}-range-start-label` : 'filter-range-start-label'"
                  v-model="range.start"
                  maxlength="1"/>
         </div>
@@ -81,11 +85,19 @@
           {{ filter.subcategoryHeader[1] }}
         </div>
         <div>
+          <span :id="isExistingFilter ? `filter-${index}-range-stop-label` : 'filter-range-stop-label'"
+                class="sr-only">end of range</span>
           <input class="filter-range-input"
-                 :aria-labelledby="`filter-${filter.key}-subcategory-range-end-label`"
+                 :aria-labelledby="isExistingFilter ? `filter-${index}-range-stop-label` : 'filter-range-stop-label'"
                  v-model="range.stop"
                  maxlength="1">
         </div>
+        <b-popover :show="true"
+                   :target="isExistingFilter ? `filter-${index}-range-start` : 'filter-range-start'"
+                   placement="top"
+                   v-if="size(range.error)">
+          <span class="has-error">{{ range.error }}</span>
+        </b-popover>
       </div>
     </div>
     <div class="cohort-filter-draft-column-03 pl-0" v-if="!isExistingFilter">
@@ -168,7 +180,8 @@ export default {
     isModifyingFilter: undefined,
     range: {
       start: undefined,
-      end: undefined
+      stop: undefined,
+      error: undefined
     },
     showAdd: false,
     showRow: true,
@@ -187,6 +200,10 @@ export default {
   },
   methods: {
     addNewFilter() {
+      this.filter.value =
+        this.filter.type === 'range'
+          ? [this.range.start, this.range.stop]
+          : this.filter.value;
       this.addFilter(this.filter);
       this.reset();
     },
@@ -212,6 +229,7 @@ export default {
     },
     reset() {
       this.showAdd = false;
+      this.range = this.mapValues(this.range, () => undefined);
       if (this.isNil(this.index)) {
         this.filter = {};
         this.isExistingFilter = false;
@@ -245,16 +263,20 @@ export default {
     getFilterValueLabel() {
       // Update human-readable label
       let label = undefined;
-      let h = this.filter.subcategoryHeader;
+      const h = this.filter.subcategoryHeader;
+      const v = this.filter.value;
       switch (this.filter.type) {
         case 'range':
-          label = [h[0], this.filter.value[0], h[1], this.filter.value[1]].join(
-            ' '
-          );
+          if (Array.isArray(v) && this.size(v) === 2) {
+            label =
+              v[0] === v[1]
+                ? 'Starts with ' + v[0]
+                : [h[0], v[0], h[1], v[1]].join(' ');
+          }
           break;
         case 'array':
           label = this.get(
-            this.find(this.filter.options, ['value', this.filter.value]),
+            this.find(this.filter.options, ['value', v]),
             'name'
           );
           break;
@@ -284,6 +306,18 @@ export default {
           this.showRow = true;
           break;
       }
+    },
+    range: {
+      handler(rangeObject) {
+        const start = this.trim(this.get(rangeObject, 'start'));
+        const stop = this.trim(this.get(rangeObject, 'stop'));
+        this.range.error =
+          start && stop && start > stop
+            ? 'Values must be in ascending order.'
+            : undefined;
+        this.showAdd = start && stop && !this.range.error;
+      },
+      deep: true
     }
   }
 };

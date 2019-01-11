@@ -251,6 +251,30 @@ class TestAllCohortFilterOptions:
                 else:
                     assert 'disabled' not in menu
 
+    def test_disable_last_name_range(self, client, coe_advisor_session):
+        """Disable the category if all its options are in existing-filters."""
+        response = self._post(
+            client,
+            {
+                'existingFilters':
+                    [
+                        {
+                            'key': 'lastNameRange',
+                            'type': 'range',
+                            'value': ['A', 'B'],
+                        },
+                    ],
+            },
+        )
+        assert response.status_code == 200
+        for category in response.json:
+            for menu in category:
+                is_disabled = menu.get('disabled')
+                if menu['key'] == 'lastNameRange':
+                    assert is_disabled is True
+                else:
+                    assert is_disabled is None
+
 
 class TestCohortFilterTranslate:
     """Menu API."""
