@@ -119,7 +119,7 @@
         </tr>
         <tr v-if="!get(student.term, 'enrollments', []).length">
           <td class="cohort-course-activity-data cohort-course-activity-course-name faint-text">
-            No {{currentEnrollmentTermId}} enrollments
+            No {{ termNameForSisId(currentEnrollmentTermId) }} enrollments
           </td>
           <td class="cohort-course-activity-data">
             <span class="sr-only">No data</span>&mdash;
@@ -137,6 +137,7 @@
 </template>
 
 <script>
+import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
 import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
@@ -148,7 +149,14 @@ import Util from '@/mixins/Util';
 
 export default {
   name: 'StudentRow',
-  mixins: [Context, StudentAnalytics, StudentMetadata, UserMetadata, Util],
+  mixins: [
+    Berkeley,
+    Context,
+    StudentAnalytics,
+    StudentMetadata,
+    UserMetadata,
+    Util
+  ],
   components: {
     CuratedStudentCheckbox,
     StudentAvatar,
