@@ -455,7 +455,6 @@ import _ from 'lodash';
 import Context from '@/mixins/Context';
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal';
 import Loading from '@/mixins/Loading';
-import router from '@/router';
 import Spinner from '@/components/util/Spinner';
 import StudentAlerts from '@/components/student/StudentAlerts';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
@@ -525,7 +524,7 @@ export default {
           });
           this.loaded();
         } else {
-          router.push({ path: '/404' });
+          this.$router.push({ path: '/404' });
         }
       });
     },

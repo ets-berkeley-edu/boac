@@ -200,10 +200,16 @@ export default {
   },
   methods: {
     addNewFilter() {
-      this.filter.value =
-        this.filter.type === 'range'
-          ? [this.range.start, this.range.stop]
-          : this.filter.value;
+      switch (this.filter.type) {
+        case 'array':
+          break;
+        case 'boolean':
+          this.filter.value = true;
+          break;
+        case 'range':
+          this.filter.value = [this.range.start, this.range.stop];
+          break;
+      }
       this.addFilter(this.filter);
       this.reset();
     },
