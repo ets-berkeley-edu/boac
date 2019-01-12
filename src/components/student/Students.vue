@@ -28,7 +28,7 @@
                     :id="`student-${student.uid}`"
                     class="list-group-item student-list-item"
                     :class="{'list-group-item-info' : anchor === `#${student.uid}`}"
-                    v-for="(student, index) in orderedStudents"
+                    v-for="(student, index) in sortedStudents"
                     :key="index"/>
       </div>
     </div>
@@ -41,6 +41,8 @@ import Scrollable from '@/mixins/Scrollable';
 import SearchStudents from '@/components/sidebar/SearchStudents';
 import StudentRow from '@/components/student/StudentRow';
 import UserMetadata from '@/mixins/UserMetadata';
+
+let SUPPLEMENTAL_SORT_BY = ['lastName', 'firstName', 'sid'];
 
 export default {
   name: 'Students',
@@ -57,20 +59,24 @@ export default {
   data() {
     return {
       sort: {
-        selected: 'last_name',
+        selected: 'lastName',
         options: []
       }
     };
   },
   created() {
     let options = [
-      { name: 'First Name', value: 'first_name', available: true },
-      { name: 'Last Name', value: 'last_name', available: true },
-      { name: 'GPA', value: 'gpa', available: true },
-      { name: 'Level', value: 'level', available: true },
-      { name: 'Major', value: 'major', available: true },
-      { name: 'Team', value: 'group_name', available: this.canViewAsc },
-      { name: 'Units Completed', value: 'units', available: true }
+      { name: 'First Name', value: 'firstName', available: true },
+      { name: 'Last Name', value: 'lastName', available: true },
+      { name: 'GPA', value: 'cumulativeGPA', available: true },
+      { name: 'Level', value: 'sortableLevel', available: true },
+      { name: 'Major', value: 'majors[0]', available: true },
+      {
+        name: 'Team',
+        value: 'athleticsProfile.athletics[0].groupName',
+        available: this.canViewAsc
+      },
+      { name: 'Units Completed', value: 'cumulativeUnits', available: true }
     ];
     this.sort.options = _.filter(options, 'available');
   },
@@ -86,64 +92,42 @@ export default {
     });
   },
   computed: {
-    orderedStudents: function() {
-      return this.students.slice(0).sort(this.$_Students_compareStudents);
+    sortedStudents() {
+      _.each(this.students, student => this.setSortableLevel(student));
+      return _.orderBy(this.students, this.iteratees());
     },
     anchor: () => location.hash
   },
   methods: {
-    $_Students_levelComparator: function(level) {
-      switch (level) {
+    iteratees: function() {
+      let iteratees = _.concat(this.sort.selected, SUPPLEMENTAL_SORT_BY);
+      return _.map(iteratees, iter => {
+        return student => {
+          let sortVal = _.get(student, iter);
+          if (typeof sortVal === 'string') {
+            sortVal = sortVal.toLowerCase();
+          }
+          return sortVal;
+        };
+      });
+    },
+    setSortableLevel: student => {
+      switch (student.level) {
         case 'Freshman':
-          return 1;
+          student.sortableLevel = 1;
+          break;
         case 'Sophomore':
-          return 2;
+          student.sortableLevel = 2;
+          break;
         case 'Junior':
-          return 3;
+          student.sortableLevel = 3;
+          break;
         case 'Senior':
-          return 4;
+          student.sortableLevel = 4;
+          break;
         default:
-          return 0;
-      }
-    },
-    $_Students_compareNumbers: function(thisNumber, thatNumber) {
-      return (thisNumber >= thatNumber) - (thisNumber <= thatNumber);
-    },
-    $_Students_compareStudents: function(thisStudent, thatStudent) {
-      switch (this.sort.selected) {
-        case 'first_name':
-          return thisStudent.firstName.localeCompare(thatStudent.firstName);
-        case 'last_name':
-          return thisStudent.lastName.localeCompare(thatStudent.lastName);
-        // group_name here refers to team groups (i.e., athletic memberships) and not the user-created cohorts you'd expect.
-        case 'group_name':
-          return _.get(
-            thisStudent,
-            'athleticsProfile.athletics[0].groupName'
-          ).localeCompare(
-            _.get(thatStudent, 'athleticsProfile.athletics[0].groupName')
-          );
-        case 'gpa':
-          return this.$_Students_compareNumbers(
-            thisStudent.cumulativeGPA,
-            thatStudent.cumulativeGPA
-          );
-        case 'level':
-          return this.$_Students_compareNumbers(
-            this.$_Students_levelComparator(thisStudent.level),
-            this.$_Students_levelComparator(thatStudent.level)
-          );
-        case 'major':
-          return _.get(thisStudent, 'majors[0]').localeCompare(
-            _.get(thatStudent, 'majors[0]')
-          );
-        case 'units':
-          return this.$_Students_compareNumbers(
-            thisStudent.cumulativeUnits,
-            thatStudent.cumulativeUnits
-          );
-        default:
-          return 0;
+          student.sortableLevel = 0;
+          break;
       }
     }
   }
