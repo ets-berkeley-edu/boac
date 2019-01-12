@@ -6,7 +6,7 @@
          id="skip-to-pagination-widget"
          class="sr-only"
          v-if="totalStudentCount > 50">Skip to pagination widget</a>
-      <CohortPageHeader />
+      <CohortPageHeader/>
       <b-collapse id="show-hide-filters" v-model="showFilters">
         <FilterRow class="filter-row"
                    v-for="(filter, index) in filters"
@@ -75,8 +75,7 @@ export default {
   }),
   created() {
     let id = _.get(this.$route, 'params.id');
-    let encodedCriteria = _.get(this.$route, 'query.q');
-    this.initSession(id, encodedCriteria).then(() => {
+    this.init(id).then(() => {
       this.showFilters = !this.isCompactView;
       this.currentPage = this.pagination.currentPage;
       this.loaded();

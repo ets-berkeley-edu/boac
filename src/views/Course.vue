@@ -316,7 +316,6 @@ import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox'
 import Loading from '@/mixins/Loading';
 import Matrix from '@/components/matrix/Matrix';
 import MatrixUtil from '@/components/matrix/MatrixUtil';
-import router from '@/router';
 import Spinner from '@/components/util/Spinner';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar';
@@ -443,7 +442,7 @@ export default {
           this.updateCourseData(data);
           this.loaded();
         } else {
-          router.push({ path: '/404' });
+          this.$router.push({ path: '/404' });
         }
       });
     },
