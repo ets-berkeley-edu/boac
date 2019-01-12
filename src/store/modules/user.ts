@@ -8,14 +8,18 @@ const $_user_isDepartmentMember = (state, deptCode) => {
 
 const state = {
   user: null,
+  preferences: {
+    sortBy: 'last_name'
+  },
   isUserAuthenticated: null
 };
 
 const getters = {
-  user: (state: any): any => state.user,
   isAscUser: (state: any): boolean => $_user_isDepartmentMember(state, 'UWASC'),
   isCoeUser: (state: any): boolean => $_user_isDepartmentMember(state, 'COENG'),
-  isUserAuthenticated: (state: any): boolean => state.isUserAuthenticated
+  isUserAuthenticated: (state: any): boolean => state.isUserAuthenticated,
+  preferences: (state: any): any => state.preferences,
+  user: (state: any): any => state.user
 };
 
 const mutations = {
@@ -32,6 +36,13 @@ const mutations = {
   setDemoMode: (state: any, demoMode: boolean) => {
     state.user.demoMode = demoMode;
   },
+  setUserPreference: (state: any, { key, value }) => {
+    if (_.has(state.preferences, key)) {
+      state.preferences[key] = value;
+    } else {
+      throw new TypeError('Invalid user preference type: ' + key);
+    }
+  },
   userAuthenticated: (state: any) => {
     state.isUserAuthenticated = true;
   }
@@ -43,6 +54,9 @@ const actions = {
   },
   setDemoMode: ({ commit }, demoMode) => {
     commit('setDemoMode', demoMode);
+  },
+  setUserPreference: ({ commit }, { key, value }) => {
+    commit('setUserPreference', { key, value });
   },
   userAuthenticated: ({ commit }) => {
     commit('userAuthenticated');

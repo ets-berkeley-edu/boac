@@ -112,14 +112,15 @@ def get_cohort(cohort_id):
 @app.route('/api/cohort/get_students_per_filters', methods=['POST'])
 @login_required
 def get_cohort_per_filters():
-    filters = get_param(request.get_json(), 'filters', [])
+    params = request.get_json()
+    filters = get_param(params, 'filters', [])
     if not filters:
         raise BadRequestError('API requires \'filters\'')
-    include_students = to_bool(get_param(request.args, 'includeStudents'))
+    include_students = to_bool(get_param(params, 'includeStudents'))
     include_students = True if include_students is None else include_students
-    order_by = get_param(request.args, 'orderBy', None)
-    offset = get_param(request.args, 'offset', 0)
-    limit = get_param(request.args, 'limit', 50)
+    order_by = get_param(params, 'orderBy', None)
+    offset = get_param(params, 'offset', 0)
+    limit = get_param(params, 'limit', 50)
     filter_keys = list(map(lambda f: f['key'], filters))
     if is_unauthorized_search(filter_keys, order_by):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
