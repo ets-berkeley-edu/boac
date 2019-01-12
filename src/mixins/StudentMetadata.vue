@@ -16,9 +16,7 @@ export default {
     },
     isAlertGrade(grade) {
       return grade && this.$options.alertGrades.test(grade);
-    },
-    setSortableName: student =>
-      (student.sortableName = student.lastName + ', ' + student.firstName)
+    }
   }
 };
 </script>

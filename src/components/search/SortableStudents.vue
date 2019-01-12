@@ -10,11 +10,11 @@
               v-if="options.includeCuratedCheckbox"></th>
           <th class="group-summary-column group-summary-column-photo group-summary-column-header"></th>
           <th class="group-summary-column group-summary-column-name group-summary-column-header group-summary-header-sortable"
-              v-on:click="sort(options, 'sortableName')"
+              v-on:click="sort(options, 'lastName')"
               role="button"
-              :aria-label="sortOptions.sortableName">
+              :aria-label="sortOptions.lastName">
             Name
-            <span v-if="options.sortBy === 'sortableName'">
+            <span v-if="options.sortBy === 'lastName'">
               <i :class="{
                'fas fa-caret-down': options.reverse,
                'fas fa-caret-up': !options.reverse
@@ -119,10 +119,10 @@
             <StudentAvatar :student="student" size="small"/>
           </td>
           <td class="group-summary-column group-summary-column-name">
-            <span class="sr-only">{{ srText.sortableName }}</span>
+            <span class="sr-only">{{ srText.lastName }}</span>
             <router-link :aria-label="'Go to profile page of ' + student.firstName + ' ' + student.lastName"
                          :class="{'demo-mode-blur': user.inDemoMode}"
-                         :to="'/student/' + student.uid">{{ student.sortableName }}</router-link>
+                         :to="'/student/' + student.uid">{{ `${student.lastName}, ${student.firstName}` }}</router-link>
             <span class="home-inactive-info-icon"
                   uib-tooltip="Inactive"
                   tooltip-placement="bottom"
@@ -185,6 +185,12 @@ import StudentMetadata from '@/mixins/StudentMetadata';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
+let SUPPLEMENTAL_SORT_BY = {
+  lastName: 'asc',
+  firstName: 'asc',
+  sid: 'asc'
+};
+
 export default {
   name: 'SortableStudents',
   components: {
@@ -197,7 +203,7 @@ export default {
     options: {
       type: Object,
       default: () => ({
-        sortBy: 'sortableName',
+        sortBy: 'lastName',
         includeCuratedCheckbox: false,
         reverse: false
       })
@@ -206,7 +212,7 @@ export default {
   data: () => ({
     currentSortDescription: null,
     srText: {
-      sortableName: 'student name',
+      lastName: 'student name',
       sid: 'S I D',
       'majors[0]': 'major',
       'expectedGraduationTerm.id': 'expected graduation term',
@@ -221,7 +227,7 @@ export default {
       cumulativeGPA: null,
       cumulativeUnits: null,
       sid: null,
-      sortableName: null
+      lastName: null
     }
   }),
   created() {
@@ -229,17 +235,13 @@ export default {
   },
   computed: {
     sortedStudents() {
-      _.each(this.students, student => this.setSortableName(student));
       return _.orderBy(
         this.students,
-        student => {
-          let sortVal = _.get(student, this.options.sortBy);
-          if (typeof sortVal === 'string') {
-            sortVal = sortVal.toLowerCase();
-          }
-          return sortVal;
-        },
-        this.options.reverse ? 'desc' : 'asc'
+        this.iteratees(),
+        _.concat(
+          this.options.reverse ? 'desc' : 'asc',
+          _.values(SUPPLEMENTAL_SORT_BY)
+        )
       );
     }
   },
@@ -250,6 +252,21 @@ export default {
         .replace('20', " '")
         .replace('Spring', 'Spr')
         .replace('Summer', 'Sum'),
+    iteratees: function() {
+      let iteratees = _.concat(
+        this.options.sortBy,
+        _.keys(SUPPLEMENTAL_SORT_BY)
+      );
+      return _.map(iteratees, iter => {
+        return student => {
+          let sortVal = _.get(student, iter);
+          if (typeof sortVal === 'string') {
+            sortVal = sortVal.toLowerCase();
+          }
+          return sortVal;
+        };
+      });
+    },
     sort(options, sortBy) {
       if (options.sortBy === sortBy) {
         options.reverse = !options.reverse;

@@ -23,12 +23,12 @@
           <router-link :id="student.uid" :to="`/student/${student.uid}`">
             <h3 class="student-name"
                 :class="{'demo-mode-blur' : user.inDemoMode}"
-                v-if="sort.selected !== 'first_name'">
+                v-if="sort.selected !== 'firstName'">
               {{ student.lastName }}, {{ student.firstName }}
             </h3>
             <h3 class="student-name"
                 :class="{'demo-mode-blur' : user.inDemoMode}"
-                v-if="sort.selected === 'first_name'">
+                v-if="sort.selected === 'firstName'">
               {{ student.firstName }} {{ student.lastName }}
             </h3>
           </router-link>

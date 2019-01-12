@@ -85,7 +85,7 @@ export default {
     },
     studentListOptions: {
       includeCuratedCheckbox: true,
-      sortBy: 'sortableName',
+      sortBy: 'lastName',
       reverse: false
     }
   }),
