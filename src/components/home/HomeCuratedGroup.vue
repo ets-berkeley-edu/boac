@@ -14,7 +14,7 @@
           <div class="home-cohort-accordion-heading-name">
             <div class="accordion-heading-caret">
               <i :id="`home-curated-cohort-${index}-caret`"
-                :aria-label="isOpen ? 'Hide curated group details' : 'Show curated group details'"
+                :aria-label="isFetching ? 'Loading curated group details. ' : ''"
                 :class="{
                   'fas fa-spinner fa-spin': isFetching,
                   'fas fa-caret-right': !isOpen,
@@ -22,8 +22,10 @@
                 }"></i>
             </div>
             <h2 class="page-section-header-sub accordion-header">
+              <span class="sr-only">{{`${isOpen ? 'Hide' : 'Show'} details for curated group `}}</span>
               <span>{{ curatedGroup.name }}</span>
-              (<span>{{ curatedGroup.studentCount }}</span>)
+              (<span>{{ curatedGroup.studentCount }}</span>
+              <span class="sr-only">&nbsp;students</span>)
             </h2>
           </div>
           <div class="home-cohort-accordion-heading-count">
