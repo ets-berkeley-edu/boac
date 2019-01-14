@@ -291,9 +291,12 @@ def get_ethnicity_codes(scope=()):
     query_tables = _student_query_tables_for_scope(scope)
     if not query_tables:
         return []
+    # TODO 'Z' is an international visa status rather than an ethnicity, and should be suppressed for now.
+    # BOAC will handle international status separately from ethnicity after switching to campus-wide demographic
+    # data.
     return safe_execute_rds(f"""SELECT DISTINCT s.ethnicity AS ethnicity_code
         {query_tables}
-        WHERE s.ethnicity IS NOT NULL AND s.ethnicity != ''
+        WHERE s.ethnicity IS NOT NULL AND s.ethnicity != '' AND s.ethnicity != 'Z'
         ORDER BY ethnicity_code
         """)
 
