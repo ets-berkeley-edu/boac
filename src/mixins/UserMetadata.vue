@@ -7,7 +7,14 @@ export default {
     ...mapActions('user', ['setUserPreference'])
   },
   computed: {
-    ...mapGetters('user', ['isAscUser', 'isCoeUser', 'preferences', 'user']),
+    ...mapGetters('user', [
+      'canViewAsc',
+      'canViewCoe',
+      'isAscUser',
+      'isCoeUser',
+      'preferences',
+      'user'
+    ]),
     ...mapGetters('cohort', ['myCohorts']),
     ...mapGetters('curated', ['myCuratedGroups'])
   }
