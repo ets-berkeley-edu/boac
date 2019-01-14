@@ -18,7 +18,8 @@
         <li>Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
       </ul>
     </div>
-    <div tabindex="0" focus-on="!loading && results.totalStudentCount">
+    <div tabindex="0"
+         :v-focus-if="!loading && results.totalStudentCount">
       <div v-if="!loading && !error && results.totalStudentCount">
         <h1>{{ 'student' | pluralize(results.totalStudentCount) }} matching '{{ phrase }}'</h1>
         <div v-if="results.totalStudentCount > limit">
@@ -37,7 +38,7 @@
     <SortableCourseList :searchPhrase="phrase"
                         :courses="results.courses"
                         :totalCourseCount="results.totalCourseCount"
-                        :renderPrimaryHeader="!!(!results.totalStudentCount && results.totalCourseCount)"
+                        :renderPrimaryHeader="!results.totalStudentCount && !!results.totalCourseCount"
                         v-if="!loading"/>
   </div>
 </template>

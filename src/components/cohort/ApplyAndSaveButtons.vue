@@ -11,10 +11,9 @@
       </b-btn>
       <div v-if="showSaveButton">
         <b-btn id="save-filtered-cohort"
-               :class="{'btn-filter-draft-saved': acknowledgeSave, 'btn-primary btn-filter-draft-save': !acknowledgeSave}"
-               aria-label="Save cohort"
-               variant="primary"
-               :disabled="!!editMode"
+               class="save-button-width mt-3"
+               :variant="saveButtonVariant"
+               :disabled="editMode || acknowledgeSave"
                @click="save()">
           <span v-if="acknowledgeSave">Saved</span>
           <span v-if="!acknowledgeSave && cohortId">Save Cohort</span>
@@ -44,6 +43,11 @@ export default {
     acknowledgeSave: null,
     showCreateModal: false
   }),
+  computed: {
+    saveButtonVariant() {
+      return this.acknowledgeSave ? 'success' : 'primary';
+    }
+  },
   methods: {
     cancelCreateModal() {
       this.showCreateModal = false;
@@ -65,3 +69,10 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.save-button-width {
+  min-width: 120px;
+  width: 120px;
+}
+</style>

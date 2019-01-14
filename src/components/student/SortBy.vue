@@ -1,5 +1,5 @@
 <template>
-  <div class="cohort-sort-column">
+  <div class="cohort-sort-column pr-3">
     <label class="cohort-sort-label" for="students-sort-by">Sort by</label>
     <select id="students-sort-by"
             class="form-control"

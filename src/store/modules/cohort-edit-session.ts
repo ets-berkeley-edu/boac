@@ -108,6 +108,10 @@ const actions = {
       commit('setEditMode', null);
       commit('isCompactView', !!id);
       commit('setCurrentPage', 0);
+      store.dispatch('user/setUserPreference', {
+        key: 'sortBy',
+        value: 'last_name'
+      });
       if (id > 0) {
         getCohort(id, true, orderBy).then(cohort => {
           if (cohort) {

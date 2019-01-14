@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div tabindex="0" focus-on="renderPrimaryHeader">
+    <div tabindex="0" :v-focus-if="renderPrimaryHeader">
       <div v-if="totalCourseCount">
         <h1 class="page-section-header">
           {{ 'class' | pluralize(totalCourseCount, {1: 'One'}, 'es') }} matching '{{ searchPhrase }}'

@@ -9,9 +9,12 @@
     <div class="modal-footer">
       <form @submit.prevent="deleteCohort()">
         <b-btn id="confirm-delete-btn"
+               variant="primary"
+               v-focus
                @click.prevent="deleteCohort()">Delete</b-btn>
         <b-btn id="cancel-delete-btn"
-               variant="outline-success"
+               class="pl-2"
+               variant="link"
                @click="cancelDeleteModal()">Cancel</b-btn>
       </form>
     </div>
@@ -28,3 +31,6 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+</style>

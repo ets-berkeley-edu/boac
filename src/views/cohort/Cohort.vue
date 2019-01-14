@@ -7,7 +7,9 @@
          class="sr-only"
          v-if="totalStudentCount > 50">Skip to pagination widget</a>
       <CohortPageHeader/>
-      <b-collapse id="show-hide-filters" v-model="showFilters">
+      <b-collapse id="show-hide-filters"
+                  class="mr-3"
+                  v-model="showFilters">
         <FilterRow class="filter-row"
                    v-for="(filter, index) in filters"
                    :key="compositeKey(filter)"
@@ -18,14 +20,14 @@
       <SectionSpinner name="Students" :loading="editMode === 'apply'" />
       <div class="pt-2" v-if="showStudentsSection">
         <div class="cohort-column-results">
-          <hr class="filters-section-separator"/>
+          <hr class="filters-section-separator mr-2"/>
           <div class="d-flex justify-content-between align-items-center p-2">
             <CuratedGroupSelector :students="students"/>
             <SortBy v-if="students.length"/>
           </div>
           <div>
             <div class="cohort-column-results">
-              <div id="cohort-students" class="list-group">
+              <div id="cohort-students" class="list-group mr-2">
                 <StudentRow :student="student"
                             listType="cohort"
                             :sortedBy="preferences.sortBy"
@@ -43,7 +45,7 @@
                             :limit="10"
                             v-model="pageNumber"
                             :per-page="pagination.itemsPerPage"
-                            hide-goto-end-buttons="true"
+                            :hide-goto-end-buttons="true"
                             v-if="totalStudentCount > pagination.itemsPerPage"
                             @input="nextPage()">
               </b-pagination>

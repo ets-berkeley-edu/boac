@@ -1,11 +1,10 @@
 <template>
-  <div class="index-container-footer">
-    <hr class="footer-separator">
-    <div class="footer-container">
+  <div class="m-4">
+    <div class="d-flex justify-content-between">
       <div>
         <img src="@/assets/uc-berkeley-logo.svg"/>
       </div>
-      <div class="footer-copyright">
+      <div class="pt-3">
         &copy; 2018 The Regents of the University of California
       </div>
     </div>
