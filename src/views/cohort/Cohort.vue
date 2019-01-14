@@ -1,5 +1,5 @@
 <template>
-  <div class="p-3">
+  <div class="pl-3 pt-3">
     <Spinner/>
     <div v-if="!loading">
       <a href="#pagination-widget"
@@ -16,23 +16,34 @@
         <ApplyAndSaveButtons />
       </b-collapse>
       <SectionSpinner name="Students" :loading="editMode === 'apply'" />
-      <div v-if="showStudentsSection">
+      <div class="pt-2" v-if="showStudentsSection">
         <div class="cohort-column-results">
-          <div class="search-header-curated-cohort">
+          <hr class="filters-section-separator"/>
+          <div class="d-flex justify-content-between align-items-center p-2">
             <CuratedGroupSelector :students="students"/>
+            <SortBy v-if="students.length"/>
           </div>
           <div>
-            <Students :listName="cohortName"
-                      listType="cohort"
-                      :students="students"></Students>
-            <div class="course-pagination">
+            <div class="cohort-column-results">
+              <div id="cohort-students" class="list-group">
+                <StudentRow :student="student"
+                            listType="cohort"
+                            :sortedBy="preferences.sortBy"
+                            :id="`student-${student.uid}`"
+                            class="list-group-item student-list-item"
+                            :class="{'list-group-item-info' : anchor === `#${student.uid}`}"
+                            v-for="student in students"
+                            :key="student.sid"/>
+              </div>
+            </div>
+            <div class="p-3">
               <b-pagination id="pagination-widget"
                             size="md"
                             :total-rows="totalStudentCount"
-                            :limit="20"
+                            :limit="10"
                             v-model="pageNumber"
                             :per-page="pagination.itemsPerPage"
-                            :hide-goto-end-buttons="true"
+                            hide-goto-end-buttons="true"
                             v-if="totalStudentCount > pagination.itemsPerPage"
                             @input="nextPage()">
               </b-pagination>
@@ -45,37 +56,43 @@
 </template>
 
 <script>
-import _ from 'lodash';
 import ApplyAndSaveButtons from '@/components/cohort/ApplyAndSaveButtons';
 import CohortEditSession from '@/mixins/CohortEditSession';
 import CohortPageHeader from '@/components/cohort/CohortPageHeader';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
 import FilterRow from '@/components/cohort/FilterRow';
 import Loading from '@/mixins/Loading';
+import Scrollable from '@/mixins/Scrollable';
 import SectionSpinner from '@/components/util/SectionSpinner';
+import SortBy from '@/components/student/SortBy';
 import Spinner from '@/components/util/Spinner';
-import Students from '@/components/student/Students';
+import StudentRow from '@/components/student/StudentRow';
+import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'Cohort',
-  mixins: [CohortEditSession, Loading, Util],
+  mixins: [CohortEditSession, Loading, Scrollable, UserMetadata, Util],
   components: {
     ApplyAndSaveButtons,
     CohortPageHeader,
     CuratedGroupSelector,
     FilterRow,
     SectionSpinner,
+    SortBy,
     Spinner,
-    Students
+    StudentRow
   },
   data: () => ({
     pageNumber: undefined,
     showFilters: undefined
   }),
   created() {
-    let id = _.get(this.$route, 'params.id');
-    this.init(id).then(() => {
+    let id = this.get(this.$route, 'params.id');
+    this.init({
+      id,
+      orderBy: this.preferences.sortBy
+    }).then(() => {
       this.showFilters = !this.isCompactView;
       this.currentPage = this.pagination.currentPage;
       this.loaded();
@@ -83,21 +100,28 @@ export default {
   },
   methods: {
     compositeKey: filter => `${filter.key}${filter.value}`,
-    nextPage() {
-      this.setCurrentPage(this.pageNumber);
-      this.applyFilters().then(() => {
-        this.scrollTo('content');
+    nextPage(page) {
+      this.setCurrentPage(page || this.pageNumber);
+      this.applyFilters(this.preferences.sortBy).then(() => {
+        this.scrollTo('#content');
       });
     }
   },
   computed: {
+    anchor: () => location.hash,
     showStudentsSection() {
-      return _.size(this.students) && this.editMode !== 'apply';
+      return this.size(this.students) && this.editMode !== 'apply';
     }
   },
   watch: {
     isCompactView() {
       this.showFilters = !this.isCompactView;
+    },
+    preferences: {
+      handler() {
+        this.nextPage(1);
+      },
+      deep: true
     }
   }
 };
@@ -111,5 +135,10 @@ export default {
   margin: 5px 0 5px 0;
   padding: 2px 10px 2px 10px;
   text-align: left;
+}
+.student-list-item {
+  border-left: none;
+  border-right: none;
+  display: flex;
 }
 </style>

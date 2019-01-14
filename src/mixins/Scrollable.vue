@@ -5,7 +5,9 @@ export default {
   name: 'Scrollable',
   methods: {
     scrollTo: anchor => {
-      VueScrollTo.scrollTo(anchor, 600);
+      VueScrollTo.scrollTo(anchor, 600, {
+        easing: 'ease-in'
+      });
     }
   }
 };

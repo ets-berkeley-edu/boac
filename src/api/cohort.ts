@@ -27,10 +27,16 @@ export function deleteCohort(id) {
     .then(() => store.commit('cohort/deleteCohort', id), () => null);
 }
 
-export function getCohort(id: number, includeStudents = true) {
+export function getCohort(
+  id: number,
+  includeStudents = true,
+  orderBy = 'lastName'
+) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${apiBaseUrl}/api/cohort/${id}?includeStudents=${includeStudents}`)
+    .get(
+      `${apiBaseUrl}/api/cohort/${id}?includeStudents=${includeStudents}&orderBy=${orderBy}`
+    )
     .then(response => response.data, () => null);
 }
 
@@ -43,6 +49,7 @@ export function getMyCohorts() {
 
 export function getStudentsPerFilters(
   filters: any[],
+  orderBy: string,
   offset: number,
   limit: number
 ) {
@@ -50,6 +57,7 @@ export function getStudentsPerFilters(
   return axios
     .post(`${apiBaseUrl}/api/cohort/get_students_per_filters`, {
       filters,
+      orderBy,
       offset,
       limit
     })

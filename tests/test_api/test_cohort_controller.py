@@ -362,7 +362,9 @@ class TestCohortCreate:
             'name': 'Admin wants to see students of COE advisor',
             'advisorLdapUids': '1133399',
         }
-        assert self._post_cohort_create(client, data).status_code == 200
+        response = self._post_cohort_create(client, data)
+        assert response.status_code == 200
+        assert len(response.json['students']) == 2
 
     def test_create_complex_cohort(self, client, coe_advisor_session):
         """Creates custom cohort, with many non-empty filter_criteria."""
@@ -561,15 +563,15 @@ class TestCohortPerFilters:
             content_type='application/json',
         )
 
-    def test_cohort_per_filters_not_authenticated(self, client):
+    def test_students_per_filters_not_authenticated(self, client):
         """API requires authentication."""
         assert self._post(client).status_code == 401
 
-    def test_cohort_per_filters_with_empty(self, client, coe_advisor_session):
+    def test_students_per_filters_with_empty(self, client, coe_advisor_session):
         """API requires non-empty input."""
         assert self._post(client, {'filters': []}).status_code == 400
 
-    def test_asc_advisor_querying_with_coe_attributes(self, client, asc_advisor_session):
+    def test_students_per_filters_unauthorized(self, client, asc_advisor_session):
         """ASC advisor is not allowed to query with COE attributes."""
         response = self._post(
             client,
@@ -586,7 +588,7 @@ class TestCohortPerFilters:
         )
         assert response.status_code == 403
 
-    def test_cohort_per_filters_for_coe_advisor(self, client, coe_advisor_session):
+    def test_students_per_filters_coe_advisor(self, client, coe_advisor_session):
         """API translates 'coeProbation' filter to proper filter_criteria query."""
         gpa_range_1 = 'numrange(0, 2, \'[)\')'
         gpa_range_2 = 'numrange(2, 2.5, \'[)\')'
@@ -642,3 +644,32 @@ class TestCohortPerFilters:
             'unitRanges',
         ]:
             assert criteria[key] is None
+
+    def test_students_per_filters_order_by(self, client, asc_advisor_session):
+        def _get_first_student(order_by):
+            response = self._post(
+                client,
+                {
+                    'filters':
+                        [
+                            {
+                                'key': 'groupCodes',
+                                'type': 'array',
+                                'value': 'MFB-DL',
+                            },
+                        ],
+                    'orderBy': order_by,
+                },
+            )
+            assert response.status_code == 200
+            students = response.json['students']
+            assert len(students) == 4
+            return students[0]
+        assert _get_first_student('first_name')['firstName'] == 'Dave'
+        assert _get_first_student('last_name')['lastName'] == 'Doolittle'
+        assert _get_first_student('gpa')['cumulativeGPA'] == 0.4
+        assert _get_first_student('level')['level'] == 'Sophomore'
+        assert _get_first_student('major')['majors'][0] == 'Chemistry BS'
+        assert _get_first_student('units')['cumulativeUnits'] == 8
+        student = _get_first_student('group_name')
+        assert student['athleticsProfile']['athletics'][0]['groupName'] == 'Football, Defensive Backs'

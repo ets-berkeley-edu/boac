@@ -103,13 +103,13 @@ const mutations = {
 };
 
 const actions = {
-  init({ commit }, id: number) {
+  init({ commit }, { id, orderBy }) {
     return new Promise(resolve => {
       commit('setEditMode', null);
       commit('isCompactView', !!id);
       commit('setCurrentPage', 0);
       if (id > 0) {
-        getCohort(id, true).then(cohort => {
+        getCohort(id, true, orderBy).then(cohort => {
           if (cohort) {
             translateToMenu(cohort.filterCriteria).then(filters => {
               commit('resetSession', {
@@ -146,13 +146,14 @@ const actions = {
       });
     });
   },
-  applyFilters: ({ commit, state }) => {
+  applyFilters: ({ commit, state }, orderBy) => {
     return new Promise(resolve => {
       commit('setEditMode', 'apply');
       let offset =
         (state.pagination.currentPage - 1) * state.pagination.itemsPerPage;
       getStudentsPerFilters(
         state.filters,
+        orderBy,
         offset,
         state.pagination.itemsPerPage
       ).then(data => {

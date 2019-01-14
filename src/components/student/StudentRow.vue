@@ -23,12 +23,12 @@
           <router-link :id="student.uid" :to="`/student/${student.uid}`">
             <h3 class="student-name"
                 :class="{'demo-mode-blur' : user.inDemoMode}"
-                v-if="sort.selected !== 'firstName'">
+                v-if="sortedBy !== 'firstName'">
               {{ student.lastName }}, {{ student.firstName }}
             </h3>
             <h3 class="student-name"
                 :class="{'demo-mode-blur' : user.inDemoMode}"
-                v-if="sort.selected === 'firstName'">
+                v-if="sortedBy === 'firstName'">
               {{ student.firstName }} {{ student.lastName }}
             </h3>
           </router-link>
@@ -165,7 +165,7 @@ export default {
   props: {
     listType: String,
     student: Object,
-    sort: Object
+    sortedBy: String
   },
   methods: {
     removeFromCuratedGroup: function() {
