@@ -6,6 +6,12 @@ const $_user_isDepartmentMember = (state, deptCode) => {
   return membership && (membership.isAdvisor || membership.isDirector);
 };
 
+const $_user_canViewDepartment = (state, deptCode) => {
+  return (
+    $_user_isDepartmentMember(state, deptCode) || _.get(state.user, 'isAdmin')
+  );
+};
+
 const state = {
   user: null,
   preferences: {
@@ -15,6 +21,8 @@ const state = {
 };
 
 const getters = {
+  canViewAsc: (state: any): boolean => $_user_canViewDepartment(state, 'UWASC'),
+  canViewCoe: (state: any): boolean => $_user_canViewDepartment(state, 'COENG'),
   isAscUser: (state: any): boolean => $_user_isDepartmentMember(state, 'UWASC'),
   isCoeUser: (state: any): boolean => $_user_isDepartmentMember(state, 'COENG'),
   isUserAuthenticated: (state: any): boolean => state.isUserAuthenticated,
