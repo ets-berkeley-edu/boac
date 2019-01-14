@@ -1,5 +1,5 @@
 <template>
-  <b-form-checkbox :id="'student-' + sid + '-curated-cohort-checkbox'"
+  <b-form-checkbox :id="`student-${sid}-curated-group-checkbox`"
                    plain
                    v-model="status"
                    @change="toggle">

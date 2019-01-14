@@ -8,7 +8,8 @@
       </div>
     </div>
     <div v-if="!renameMode">
-      <h1 class="page-section-header mt-0"
+      <h1 id="cohort-name"
+          class="page-section-header mt-0"
           tabindex="0"
           v-if="cohortName">
         {{ cohortName }}
@@ -23,15 +24,15 @@
     <div class="w-100 mr-3" v-if="renameMode">
       <div class="">
         <form class="pt-0" name="renameCohortForm" @submit.prevent="submitRename()">
-          <input aria-required="true"
-                 aria-label="Input cohort name, 255 characters or fewer"
-                 :aria-invalid="!!name"
+          <input id="rename-cohort-input"
+                 name="name"
                  class="rename-input"
+                 aria-label="Input cohort name, 255 characters or fewer"
+                 aria-required="true"
+                 :aria-invalid="!!name"
                  v-model="name"
                  v-focus
-                 id="rename-cohort-input"
                  maxlength="255"
-                 name="name"
                  required
                  type="text"/>
         </form>

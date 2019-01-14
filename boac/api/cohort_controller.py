@@ -214,7 +214,7 @@ def delete_cohort(cohort_id):
             CohortFilter.delete(cohort_id)
             return tolerant_jsonify({'message': f'Cohort deleted (id={cohort_id})'}), 200
         else:
-            raise BadRequestError(f'User {uid} does not own cohort_filter with id={cohort_id}')
+            raise BadRequestError(f'User {uid} does not own cohort with id={cohort_id}')
     else:
         raise ForbiddenRequestError(f'Programmatic deletion of canned cohorts is not allowed (id={cohort_id})')
 

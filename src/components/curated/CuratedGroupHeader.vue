@@ -32,7 +32,7 @@
     <div class="curated-cohort-header-column-02">
       <div class="cohort-header-buttons no-wrap" v-if="renameMode.on">
         <button type="button"
-                id="curated-cohort-rename"
+                id="curated-group-rename"
                 :aria-disabled="!renameMode.input"
                 aria-label="Save changes to cohort name"
                 class="btn btn-sm btn-primary cohort-manage-btn"
@@ -42,7 +42,7 @@
         </button>
         <button type="button"
                 aria-label="Cancel rename cohort"
-                id="curated-cohort-rename-cancel"
+                id="curated-group-rename-cancel"
                 class="btn btn-sm btn-default cohort-manage-btn"
                 @click="exitRenameMode">
           Cancel

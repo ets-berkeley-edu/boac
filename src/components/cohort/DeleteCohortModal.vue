@@ -8,11 +8,11 @@
     </div>
     <div class="modal-footer">
       <form @submit.prevent="deleteCohort()">
-        <b-btn id="confirm-delete-btn"
+        <b-btn id="cohort-delete-confirm"
                variant="primary"
                v-focus
                @click.prevent="deleteCohort()">Delete</b-btn>
-        <b-btn id="cancel-delete-btn"
+        <b-btn id="cohort-delete-cancel"
                class="pl-2"
                variant="link"
                @click="cancelDeleteModal()">Cancel</b-btn>

@@ -17,14 +17,14 @@
         <div class="has-error" v-if="error">{{ error }}</div>
       </div>
       <div class="modal-footer">
-        <b-btn id="cohort-create-confirm-btn"
+        <b-btn id="cohort-create-confirm"
                variant="primary"
                :disabled="!name.length"
                @click.prevent="createCohort()">
           Save
         </b-btn>
         <b-btn type="button"
-               id="cohort-create-cancel-btn"
+               id="cohort-create-cancel"
                class="btn btn-default"
                @click="cancelModal()">Cancel</b-btn>
       </div>
