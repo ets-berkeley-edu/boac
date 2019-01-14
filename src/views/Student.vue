@@ -94,7 +94,7 @@
                      v-model="curatedGroupMemberships"
                      :value="curatedGroup.id"
                      @change="updateCuratedGroupMembership(curatedGroup)"
-                     :aria-label="(curatedGroup.selected ? 'Remove from' : 'Add to') + ' curated group ' + curatedGroup.name"/>
+                     :aria-label="(curatedGroupMemberships.includes(curatedGroup.id) ? 'Remove from' : 'Add to') + ' curated group ' + curatedGroup.name"/>
               <div class="student-curated-group-checkbox-label">
                 <router-link :to="'/curated_group/' + curatedGroup.id">{{curatedGroup.name}}</router-link>
               </div>
