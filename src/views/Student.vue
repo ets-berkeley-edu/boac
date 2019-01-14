@@ -498,6 +498,7 @@ export default {
   },
   data: () => ({
     curatedGroupMemberships: [],
+    currentEnrolledUnits: undefined,
     showAllTerms: false,
     showCreateCuratedGroupModal: false,
     showTermGpa: false,
