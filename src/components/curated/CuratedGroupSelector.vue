@@ -1,10 +1,12 @@
 <template>
-  <div class="cohort-selector-container">
-    <div class="selector-checkbox-container">
+  <div class="d-flex">
+    <div class="selector-checkbox-container"
+         :class="{'mr-1': showMenu, 'mr-3': !showMenu}">
       <label id="checkbox-add-all-label"
              class="sr-only">Select all students to add to a curated group</label>
-      <b-form-checkbox plain
-                       class="p-1 mr-0"
+      <b-form-checkbox id="curated-cohort-checkbox-add-all"
+                       class="add-all-checkbox"
+                       plain
                        :disabled="isSaving"
                        v-model="isSelectAllChecked"
                        :indeterminate="indeterminate"
@@ -16,8 +18,8 @@
     </div>
     <div>
       <b-dropdown id="curated-group-dropdown-select"
-                  class="curated-group-dropdown-select"
-                  variant="primary"
+                  class="curated-selector mr-3"
+                  :variant="dropdownVariant"
                   toggle-class="b-dd-primary-override"
                   size="sm"
                   no-caret
@@ -28,7 +30,7 @@
                 class="p-3">
             <span v-if="!isSaving">Add to Curated Group <i class="fas fa-caret-down"></i></span>
             <span v-if="isSaving">
-              <i  class="fas fa-check"></i> Added to Curated Group
+              <i class="fas fa-check"></i> Added to Curated Group
               <span role="alert"
                     aria-live="passive"
                     class="sr-only">Selected students added to the chosen curated group</span>
@@ -57,6 +59,7 @@
         <b-dropdown-divider></b-dropdown-divider>
         <b-dropdown-item id="curated-cohort-create-menu-item">
           <b-btn id="curated-cohort-create"
+                 class="text-dark"
                  variant="link"
                  v-b-modal="'modal'"
                  aria-label="Create a new curated group">
@@ -113,6 +116,9 @@ export default {
     });
   },
   computed: {
+    dropdownVariant() {
+      return this.isSaving ? 'success' : 'primary';
+    },
     showMenu() {
       return this.size(this.sids);
     }
@@ -170,8 +176,8 @@ export default {
 </script>
 
 <style scoped>
-.curated-group-dropdown-select {
-  margin: 0 10px;
+.add-all-checkbox {
+  padding: 5px 0 0 1px;
 }
 label {
   font-size: 14px;
@@ -181,7 +187,12 @@ label {
   background-color: #eee;
   border: 1px solid #aaa;
   border-radius: 4px;
+  height: 34px;
+  width: 34px;
   padding: 3px 0 3px 3px;
   text-align: center;
+}
+.curated-selector {
+  height: 35px;
 }
 </style>

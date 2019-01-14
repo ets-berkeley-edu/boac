@@ -71,7 +71,7 @@
 
         <div class="course-view-controls-container" v-if="section.totalStudentCount">
 
-          <div class="course-curated-group-selector-container">
+          <div>
             <CuratedGroupSelector :students="section.students" v-if="!isEmpty(section.students) && (tab === 'list')"/>
           </div>
 
@@ -512,10 +512,6 @@ export default {
 .course-container-summary {
   display: flex;
   flex-direction: row;
-}
-
-.course-curated-group-selector-container {
-  margin-right: 10px;
 }
 
 .course-details-instructors {
