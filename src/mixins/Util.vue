@@ -8,17 +8,19 @@ export default {
     concat: _.concat,
     each: _.each,
     extend: _.extend,
-    find: _.find,
     filterList: _.filter,
+    find: _.find,
     flatten: _.flatten,
     get: _.get,
+    inRange: _.inRange,
     isEmpty: _.isEmpty,
     isNil: _.isNil,
     map: _.map,
     mapValues: _.mapValues,
     orderBy: _.orderBy,
-    trim: _.trim,
-    size: _.size
+    remove: _.remove,
+    size: _.size,
+    trim: _.trim
   }
 };
 </script>

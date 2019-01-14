@@ -35,7 +35,7 @@
             </span>
           </span>
         </template>
-        <b-dropdown-item v-if="!curatedGroups.length">
+        <b-dropdown-item v-if="!size(curatedGroups)">
           <span class="cohort-selector-zero-cohorts faint-text">You have no curated groups.</span>
         </b-dropdown-item>
         <b-dropdown-item :id="`curated-group-${group.id}-menu-item`"
@@ -78,16 +78,15 @@
 </template>
 
 <script>
-import _ from 'lodash';
-
-import store from '@/store';
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal.vue';
+import store from '@/store';
 import UserMetadata from '@/mixins/UserMetadata';
+import Util from '@/mixins/Util';
 import { addStudents, createCuratedGroup } from '@/api/curated';
 
 export default {
   name: 'CuratedGroupSelector',
-  mixins: [UserMetadata],
+  mixins: [UserMetadata, Util],
   components: {
     CreateCuratedGroupModal
   },
@@ -109,32 +108,37 @@ export default {
       this.refresh();
     });
     this.$eventHub.$on('curated-group-checkbox-unchecked', sid => {
-      this.sids = _.remove(this.sids, s => s !== sid);
+      this.sids = this.remove(this.sids, s => s !== sid);
       this.refresh();
     });
   },
   computed: {
     showMenu() {
-      return this.sids.length;
+      return this.size(this.sids);
     }
   },
   methods: {
     toggle(checked) {
-      this.sids = checked ? _.map(this.students, 'sid') : [];
+      this.sids = checked ? this.map(this.students, 'sid') : [];
       let event = checked
         ? 'curated-group-select-all'
         : 'curated-group-deselect-all';
       this.$eventHub.$emit(event);
     },
     refresh() {
-      this.indeterminate = _.inRange(this.sids.length, 1, this.students.length);
-      this.isSelectAllChecked = this.sids.length === this.students.length;
+      this.indeterminate = this.inRange(
+        this.size(this.sids),
+        1,
+        this.size(this.students)
+      );
+      this.isSelectAllChecked =
+        this.size(this.sids) === this.size(this.students);
     },
     curatedGroupCheckboxClick(group) {
       const afterAddStudents = () => {
         this.sids = [];
         this.isSelectAllChecked = this.indeterminate = false;
-        _.each(this.curatedGroups, g => (g.selected = false));
+        this.each(this.curatedGroups, g => (g.selected = false));
         this.$eventHub.$emit('curated-group-deselect-all');
         this.isSaving = false;
       };
