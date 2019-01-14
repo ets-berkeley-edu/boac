@@ -42,8 +42,15 @@ store.dispatch('context/loadConfig').then(response => {
   }
 });
 
-// Filters
+// Filters and directives
 _.each(filters, (filter, name) => Vue.filter(name, filter));
+// `v-focus` puts focus on render and `v-focus-if` puts focus if arg is truthy
+Vue.directive('focus', el => Vue.nextTick(() => el.focus()));
+Vue.directive('focus-if', (el, binding) => {
+  if (binding.value) {
+    Vue.nextTick(() => el.focus());
+  }
+});
 
 // Emit, and listen for, events via hub
 Vue.prototype.$eventHub = new Vue();

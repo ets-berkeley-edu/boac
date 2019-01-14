@@ -71,6 +71,10 @@ export default {
     }
   }),
   created() {
+    store.dispatch('user/setUserPreference', {
+      key: 'sortBy',
+      value: 'last_name'
+    });
     getCuratedGroup(this.id).then(data => {
       if (data) {
         this.curatedGroup = data;

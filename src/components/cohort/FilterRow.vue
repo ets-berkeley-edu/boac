@@ -76,7 +76,7 @@
                 class="sr-only">beginning of range</span>
           <input :id="isExistingFilter ? `filter-${index}-range-start` : 'filter-range-start'"
                  class="filter-range-input"
-                 focus-on="filter.isEditMode"
+                 v-focus
                  :aria-labelledby="isExistingFilter ? `filter-${index}-range-start-label` : 'filter-range-start-label'"
                  v-model="range.start"
                  maxlength="1"/>
@@ -106,6 +106,7 @@
              variant="primary"
              aria-label="Add filter to search criteria"
              @click="addNewFilter()"
+             v-focus
              v-if="showAdd">
         Add
       </b-btn>
@@ -248,17 +249,19 @@ export default {
       }
     },
     setFilterCategory(menuItem) {
+      this.valueLabel = undefined;
       this.filter = this.cloneDeep(menuItem);
       this.showAdd = menuItem.type === 'boolean';
     },
     updateFilterValue(option) {
       if (option) {
-        this.filter.value = this.valueOriginal = option.value;
+        this.filter.value = option.value;
         this.valueLabel = this.getFilterValueLabel();
         this.showAdd = true;
       }
     },
     updateExisting() {
+      this.valueOriginal = this.filter.value;
       this.updateExistingFilter({
         index: this.index,
         updatedFilter: this.filter

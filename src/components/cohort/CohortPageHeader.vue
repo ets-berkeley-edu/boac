@@ -1,42 +1,49 @@
 <template>
-  <div class="cohort-header-container">
+  <div class="d-flex justify-content-between">
     <div v-if="!cohortId && totalStudentCount === undefined">
-      <h1 class="page-section-header mt-0" focus-on="!isLoading" tabindex="0">Create a Filtered Cohort</h1>
+      <h1 class="page-section-header mt-0"
+          tabindex="0">Create a Filtered Cohort</h1>
       <div>
         Find a set of users, then save your search as a filtered cohort. Revisit your filtered cohorts at any time.
       </div>
     </div>
     <div v-if="!renameMode">
-      <h1 class="page-section-header mt-0" v-if="cohortName" focus-on="!isLoading" tabindex="0">
+      <h1 class="page-section-header mt-0"
+          tabindex="0"
+          v-if="cohortName">
         {{ cohortName }}
         <span class="faint-text"
               v-if="editMode !== 'apply' && totalStudentCount !== undefined">{{ 'student' | pluralize(totalStudentCount) }}</span>
       </h1>
-      <h1 v-if="!cohortName && totalStudentCount !== undefined" focus-on="!isLoading" tabindex="0">
+      <h1 tabindex="0"
+          v-if="!cohortName && totalStudentCount !== undefined">
         {{ 'Result' | pluralize(totalStudentCount) }}
       </h1>
     </div>
-    <div>
-      <div v-if="renameMode">
-        <div>
-          <form class="pt-0" name="renameCohortForm" @submit.prevent="submitRename()">
-            <input aria-required="true"
-                   aria-label="Input cohort name, 255 characters or fewer"
-                   :aria-invalid="!!name"
-                   class="form-control"
-                   v-model="name"
-                   id="rename-cohort-input"
-                   maxlength="255"
-                   name="name"
-                   required
-                   type="text"/>
-          </form>
-        </div>
-        <div class="has-error pl-2" v-if="renameError">{{ renameError }}</div>
-        <div class="faint-text pl-2" v-if="!renameError">255 character limit <span v-if="name.length">({{255 - name.length}} left)</span></div>
+    <div class="w-100 mr-3" v-if="renameMode">
+      <div class="">
+        <form class="pt-0" name="renameCohortForm" @submit.prevent="submitRename()">
+          <input aria-required="true"
+                 aria-label="Input cohort name, 255 characters or fewer"
+                 :aria-invalid="!!name"
+                 class="rename-input"
+                 v-model="name"
+                 v-focus
+                 id="rename-cohort-input"
+                 maxlength="255"
+                 name="name"
+                 required
+                 type="text"/>
+        </form>
       </div>
+      <div class="has-error pl-2" v-if="renameError">{{ renameError }}</div>
+      <div class="faint-text pl-2" v-if="!renameError">255 character limit <span v-if="name.length">({{255 - name.length}} left)</span></div>
+      <div class="sr-only" aria-live="polite">{{ renameError }}</div>
+      <div class="sr-only"
+           aria-live="polite"
+           v-if="name.length === 255">Cohort name cannot exceed 255 characters.</div>
     </div>
-    <div class="d-flex justify-content-end ml-2" v-if="renameMode">
+    <div class="d-flex align-self-baseline m-1 mr-4" v-if="renameMode">
       <b-btn id="filtered-cohort-rename"
              class="cohort-manage-btn"
              aria-label="Save changes to cohort name"
@@ -49,16 +56,16 @@
       <b-btn id="filtered-cohort-rename-cancel"
              class="cohort-manage-btn"
              aria-label="Cancel rename cohort"
-             variant="secondary"
+             variant="link"
              size="sm"
              @click="cancelRename()">
         Cancel
       </b-btn>
     </div>
-    <div class="d-flex justify-content-end align-middle mt-0" v-if="!renameMode">
+    <div class="d-flex align-self-baseline m-1 mr-4" v-if="!renameMode">
       <div>
         <b-btn id="show-hide-details-button"
-               class="pr-2 pt-0"
+               class="no-wrap pr-2 pt-0"
                variant="link"
                @click="toggleCompactView()"
                v-if="cohortId">
@@ -86,9 +93,9 @@
         </b-btn>
         <b-modal id="confirmDeleteModal"
                  v-model="showDeleteModal"
+                 body-class="pl-0 pr-0"
                  hide-footer
-                 hide-header-close
-                 title="Delete Saved Cohort">
+                 hide-header>
           <DeleteCohortModal :cohortName="cohortName"
                              :cancelDeleteModal="cancelDeleteModal"
                              :deleteCohort="cohortDelete"/>
@@ -162,5 +169,13 @@ export default {
 <style scoped>
 .disabled-link {
   color: #ccc;
+}
+.rename-input {
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  color: #333;
+  padding: 10px;
+  width: 100%;
 }
 </style>

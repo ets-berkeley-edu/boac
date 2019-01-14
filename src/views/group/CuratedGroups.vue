@@ -45,7 +45,7 @@
                    class="form-control"
                    data-ng-change="group.hideError = true"
                    v-model="group.name"
-                   focus-on="group.editMode"
+                   :v-focus-if="group.editMode"
                    :id="'curated-cohort-label-input-' + index"
                    maxlength="255"
                    name="label"
