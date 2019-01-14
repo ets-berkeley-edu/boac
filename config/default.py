@@ -103,7 +103,7 @@ DATA_LOCH_STUDENT_SCHEMA = 'student'
 
 DISABLE_MATRIX_VIEW_THRESHOLD = 800
 
-LDAP_HOST = 'nds-test.berkeley.edu'
+LDAP_HOST = 'ldap-test.berkeley.edu'
 LDAP_BIND = 'mybind'
 LDAP_PASSWORD = 'secret'
 
