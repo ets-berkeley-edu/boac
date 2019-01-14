@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="cohort-list-view-column-01">
-      <button :id="`student-${student.uid}-curated-cohort-remove`"
+      <button :id="`student-${student.uid}-curated-group-remove`"
               class="btn btn-link"
               @click="removeFromCuratedGroup"
               v-if="listType === 'curatedGroup'">

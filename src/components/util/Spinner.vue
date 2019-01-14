@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="spinner" v-if="loading">
+    <div id="spinner-when-loading" class="spinner" v-if="loading">
       <i class="fas fa-sync fa-spin fa-5x"></i>
       <span role="alert"
             aria-live="passive"

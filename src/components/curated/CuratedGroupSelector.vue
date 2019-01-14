@@ -4,7 +4,7 @@
          :class="{'mr-1': showMenu, 'mr-3': !showMenu}">
       <label id="checkbox-add-all-label"
              class="sr-only">Select all students to add to a curated group</label>
-      <b-form-checkbox id="curated-cohort-checkbox-add-all"
+      <b-form-checkbox id="add-all-to-curated-group"
                        class="add-all-checkbox"
                        plain
                        :disabled="isSaving"
@@ -26,7 +26,7 @@
                   :disabled="isSaving"
                   v-if="showMenu">
         <template slot="button-content">
-          <span :id="isSaving ? 'added-to-curated-cohort-confirmation' : 'add-to-curated-cohort-button'"
+          <span :id="isSaving ? 'add-to-curated-group-confirmation' : 'add-to-curated-group'"
                 class="p-3">
             <span v-if="!isSaving">Add to Curated Group <i class="fas fa-caret-down"></i></span>
             <span v-if="isSaving">
@@ -57,8 +57,8 @@
                  v-if="group">{{ group.name }}</label>
         </b-dropdown-item>
         <b-dropdown-divider></b-dropdown-divider>
-        <b-dropdown-item id="curated-cohort-create-menu-item">
-          <b-btn id="curated-cohort-create"
+        <b-dropdown-item>
+          <b-btn id="create-curated-group"
                  class="text-dark"
                  variant="link"
                  v-b-modal="'modal'"

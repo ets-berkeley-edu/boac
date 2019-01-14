@@ -43,23 +43,24 @@
     <div class="cohort-filter-draft-column-02"
          v-if="isModifyingFilter">
       <div v-if="filter.type === 'array'">
-        <b-dropdown :id="`dropdown-edit-${isExistingFilter ? index : 'new'}`"
-                    variant="link"
+        <b-dropdown variant="link"
                     no-caret>
           <template slot="button-content">
-            <div class="dropdown-width d-flex justify-content-between text-secondary">
+            <div :id="`dropdown-edit-${isExistingFilter ? index : 'new'}`"
+                 class="dropdown-width d-flex justify-content-between text-secondary">
               <div>{{ valueLabel || 'Choose...' }}</div>
               <div>
                 <i :class="{'fas fa-angle-up menu-caret': isMenuOpen, 'fas fa-angle-down menu-caret': !isMenuOpen}"></i>
               </div>
             </div>
           </template>
-          <b-dropdown-item v-for="option in filter.options"
+          <b-dropdown-item :id="`${filter.key}-${option.value}`"
                            class="dropdown-item"
                            :class="{
                              'pointer-default text-muted font-weight-light': option.disabled,
                              'text-dark': !option.disabled
                            }"
+                           v-for="option in filter.options"
                            :key="option.key"
                            @click="updateFilterValue(option)"
                            :aria-disabled="option.disabled"
