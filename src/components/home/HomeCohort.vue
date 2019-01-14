@@ -14,7 +14,7 @@
           <div class="home-cohort-accordion-heading-name">
             <div class="accordion-heading-caret">
               <i :id="`home-filtered-cohort-${index}-caret`"
-                :aria-label="isOpen ? 'Hide cohort details' : 'Show cohort details'"
+                :aria-label="isFetching ? 'Loading cohort details' : ''"
                 :class="{
                   'fas fa-spinner fa-spin': isFetching,
                   'fas fa-caret-right': !isOpen,
@@ -22,8 +22,10 @@
                 }"></i>
             </div>
             <h2 class="page-section-header-sub accordion-header">
+              <span class="sr-only">{{`${isOpen ? 'Hide' : 'Show'} details for cohort `}}</span>
               <span>{{ cohort.name }}</span>
-              (<span>{{ cohort.totalStudentCount }}</span>)
+              (<span>{{ cohort.totalStudentCount }}</span>
+              <span class="sr-only">&nbsp;students</span>)
             </h2>
           </div>
           <div class="home-cohort-accordion-heading-count">
