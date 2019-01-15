@@ -103,7 +103,7 @@
               <span class="faint-text">You have no curated groups.</span>
             </div>
             <div class="student-curated-group-create-new">
-              <button id="curated-group-create-btn"
+              <button id="create-curated-group"
                       class="btn btn-link student-curated-group-create-new-btn"
                       v-b-modal="'create-curated-group-modal'">
                 <i class="fas fa-plus"></i> Create New Curated Group

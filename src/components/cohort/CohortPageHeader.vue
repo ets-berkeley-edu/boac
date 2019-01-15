@@ -75,7 +75,7 @@
       </div>
       <div class="faint-text" v-if="cohortId && isOwnedByCurrentUser">|</div>
       <div v-if="cohortId && isOwnedByCurrentUser">
-        <b-btn id="rename-cohort-button"
+        <b-btn id="rename-button"
                class="pl-2 pr-2 pt-0"
                aria-label="Rename this cohort"
                variant="link"
@@ -85,14 +85,14 @@
       </div>
       <div v-if="cohortId && isOwnedByCurrentUser" class="faint-text">|</div>
       <div v-if="cohortId && isOwnedByCurrentUser">
-        <b-btn id="delete-cohort-button"
+        <b-btn id="delete-button"
                class="pl-2 pr-0 pt-0"
                variant="link"
-               v-b-modal="'confirmDeleteModal'"
+               v-b-modal="'confirm-delete-modal'"
                aria-label="Delete this cohort">
           Delete
         </b-btn>
-        <b-modal id="confirmDeleteModal"
+        <b-modal id="confirm-delete-modal"
                  v-model="showDeleteModal"
                  body-class="pl-0 pr-0"
                  hide-footer
