@@ -1,91 +1,90 @@
 <template>
-  <div class="cohort-header-container">
+  <div class="d-flex justify-content-between mb-2">
     <div v-if="!renameMode.on">
-      <h1 tabindex="0" ref="pageHeader" class="page-section-header">
+      <h1 tabindex="0" ref="pageHeader" class="page-section-header mt-0">
         <span>{{ curatedGroup.name || 'Curated Group' }}</span>
         <span class="faint-text"> (<span>{{ 'student' | pluralize(curatedGroup.studentCount, {1: 'One'})}}</span>)</span>
       </h1>
     </div>
-    <div class="cohort-rename-container" v-if="renameMode.on">
+    <div class="w-100 mr-3" v-if="renameMode.on">
       <div>
-        <form name="renameCohortForm" @submit="rename">
-          <input aria-required="true"
-                aria-label="Input cohort name, 255 characters or fewer"
-                :aria-invalid="!renameMode.input"
-                class="form-control"
-                @input="renameMode.hideError = true"
-                v-model="renameMode.input"
-                ref="input"
-                id="rename-cohort-input"
-                maxlength="255"
-                name="name"
-                required
-                type="text"/>
+        <form @submit="rename">
+          <input id="rename-curated-group-input"
+                 class="form-control"
+                 aria-label="Curated group name, 255 characters or fewer"
+                 aria-required="true"
+                 :aria-invalid="!renameMode.input"
+                 @input="renameMode.hideError = true"
+                 v-model="renameMode.input"
+                 ref="input"
+                 maxlength="255"
+                 name="name"
+                 required
+                 type="text"/>
         </form>
       </div>
-      <div class="has-error"
-          v-if="renameMode.error && !renameMode.hideError">
+      <div class="has-error mb-2"
+           v-if="renameMode.error && !renameMode.hideError">
         {{ renameMode.error }}
       </div>
-      <div class="faint-text">255 character limit <span v-if="renameMode.input.length">({{255 - renameMode.input.length}} left)</span></div>
+      <div class="faint-text mb-3">255 character limit <span v-if="renameMode.input.length">({{255 - renameMode.input.length}} left)</span></div>
     </div>
-    <div class="curated-cohort-header-column-02">
-      <div class="cohort-header-buttons no-wrap" v-if="renameMode.on">
-        <button type="button"
-                id="curated-group-rename"
-                :aria-disabled="!renameMode.input"
-                aria-label="Save changes to cohort name"
-                class="btn btn-sm btn-primary cohort-manage-btn"
-                @click.stop="rename"
-                :disabled="!renameMode.input">
-          Rename
-        </button>
-        <button type="button"
-                aria-label="Cancel rename cohort"
-                id="curated-group-rename-cancel"
-                class="btn btn-sm btn-default cohort-manage-btn"
-                @click="exitRenameMode">
-          Cancel
-        </button>
-      </div>
-      <div class="cohort-header-button-links no-wrap" v-if="!renameMode.on">
-        <button type="button"
-                id="rename-cohort-button"
-                aria-label="Rename this cohort"
-                class="btn-link cohort-manage-btn-link"
-                @click="enterRenameMode">
-          Rename
-        </button>
-        <span>
-          <span class="faint-text">|</span>
-          <b-btn v-b-modal="'myModal'"
-                 id="delete-cohort-button"
-                 aria-label="Delete this cohort"
-                 class="btn-link cohort-manage-btn-link">
-            Delete
-          </b-btn>
-        </span>
-      </div>
+    <div class="d-flex align-self-baseline mr-4" v-if="renameMode.on">
+      <b-btn id="rename-confirm"
+             variant="primary"
+             size="sm"
+             aria-label="Save changes to curated group name"
+             @click.stop="rename"
+             :disabled="!renameMode.input">
+        Rename
+      </b-btn>
+      <b-btn id="rename-cancel"
+           class="cohort-manage-btn"
+           aria-label="Cancel rename curated group"
+           variant="link"
+           size="sm"
+           @click="exitRenameMode">
+        Cancel
+      </b-btn>
     </div>
-    <b-modal id="myModal"
-             v-model="isModalOpen">
-      <div class="modal-header" slot="modal-header">
-        <h3 id="confirm-delete-header">Delete Curated Group</h3>
+    <div class="d-flex align-items-center mr-4" v-if="!renameMode.on">
+      <div>
+        <b-btn id="rename-curated-group-button"
+               variant="link"
+               aria-label="Rename this curated group"
+               @click="enterRenameMode">
+          Rename
+        </b-btn>
       </div>
-      <div class="modal-body curated-cohort-label" id="confirm-delete-body">
-        Are you sure you want to delete "<strong>{{ curatedGroup.name }}</strong>"?
-      </div>
-      <div class="modal-footer" slot="modal-footer">
-        <b-btn variant="primary"
-               @click="deleteGroup">
+      <div class="faint-text">|</div>
+      <div>
+        <b-btn id="delete-curated-group-button"
+               variant="link"
+               aria-label="Delete this curated group"
+               v-b-modal="'myModal'">
           Delete
         </b-btn>
-        <b-btn variant="secondary"
-               @click="isModalOpen=false">
-          Cancel
-        </b-btn>
+        <b-modal id="myModal"
+                 v-model="isModalOpen">
+          <div slot="modal-header">
+            <h3 id="confirm-delete-header">Delete Curated Group</h3>
+          </div>
+          <div class="modal-body curated-cohort-label" id="confirm-delete-body">
+            Are you sure you want to delete "<strong>{{ curatedGroup.name }}</strong>"?
+          </div>
+          <div slot="modal-footer">
+            <b-btn variant="primary"
+                   @click="deleteGroup">
+              Delete
+            </b-btn>
+            <b-btn variant="link"
+                   @click="isModalOpen=false">
+              Cancel
+            </b-btn>
+          </div>
+        </b-modal>
       </div>
-    </b-modal>
+    </div>
   </div>
 </template>
 

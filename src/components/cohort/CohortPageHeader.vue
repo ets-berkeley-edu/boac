@@ -23,7 +23,7 @@
     </div>
     <div class="w-100 mr-3" v-if="renameMode">
       <div class="">
-        <form class="pt-0" name="renameCohortForm" @submit.prevent="submitRename()">
+        <form class="pt-0" @submit.prevent="submitRename()">
           <input id="rename-cohort-input"
                  name="name"
                  class="rename-input"
@@ -45,7 +45,7 @@
            v-if="name.length === 255">Cohort name cannot exceed 255 characters.</div>
     </div>
     <div class="d-flex align-self-baseline m-1 mr-4" v-if="renameMode">
-      <b-btn id="filtered-cohort-rename"
+      <b-btn id="rename-confirm"
              class="cohort-manage-btn"
              aria-label="Save changes to cohort name"
              variant="primary"
@@ -54,7 +54,7 @@
              :disabled="!name">
         <span :class="{'disabled-link': !name}">Rename</span>
       </b-btn>
-      <b-btn id="filtered-cohort-rename-cancel"
+      <b-btn id="rename-cancel"
              class="cohort-manage-btn"
              aria-label="Cancel rename cohort"
              variant="link"
@@ -83,7 +83,7 @@
           Rename
         </b-btn>
       </div>
-      <div class="faint-text">|</div>
+      <div v-if="cohortId && isOwnedByCurrentUser" class="faint-text">|</div>
       <div v-if="cohortId && isOwnedByCurrentUser">
         <b-btn id="delete-cohort-button"
                class="pl-2 pr-0 pt-0"

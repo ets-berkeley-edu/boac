@@ -1,19 +1,19 @@
 <template>
-  <div class="cohort-container">
+  <div class="pl-3 pt-3">
     <Spinner/>
     <CuratedGroupHeader v-if="!loading" :curatedGroup="curatedGroup"/>
     <hr class="filters-section-separator" v-if="!loading && !error && size(curatedGroup.students)"/>
     <div class="cohort-column-results" v-if="!loading">
-      <div class="cohort-list-header">
+      <div class="d-flex m-2" v-if="size(curatedGroup.students) > 1">
         <div class="cohort-list-header-column-01"></div>
         <div class="cohort-list-header-column-02">
-          <SortBy v-if="size(curatedGroup.students)"/>
+          <SortBy/>
         </div>
       </div>
       <div v-if="!size(curatedGroup.students)">
         This curated group has no students. Start adding students from their profile pages to your
         <strong>{{ curatedGroup.name }}</strong> group:
-        <SearchStudents :withButton="true"/>
+        <SearchStudents class="ml-0 mt-3" :withButton="true"/>
       </div>
       <div v-if="size(curatedGroup.students)">
         <div id="curated-cohort-students" class="list-group">

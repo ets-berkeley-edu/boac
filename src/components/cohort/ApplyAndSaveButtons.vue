@@ -20,6 +20,8 @@
           <span v-if="!acknowledgeSave && !cohortId">Save</span>
         </b-btn>
         <b-modal id="createCohortModal"
+                 @shown="focusModalById('cohort-create-input')"
+                 body-class="pl-0 pr-0"
                  v-model="showCreateModal"
                  hide-footer
                  hide-header-close
@@ -34,10 +36,11 @@
 <script>
 import CohortEditSession from '@/mixins/CohortEditSession';
 import CreateCohortModal from '@/components/cohort/CreateCohortModal';
+import Util from '@/mixins/Util';
 
 export default {
   name: 'ApplyAndSaveButtons',
-  mixins: [CohortEditSession],
+  mixins: [CohortEditSession, Util],
   components: { CreateCohortModal },
   data: () => ({
     acknowledgeSave: null,

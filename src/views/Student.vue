@@ -110,6 +110,8 @@
               </button>
             </div>
             <b-modal id="create-curated-group-modal"
+                     @shown="focusModalById('curated-group-create-input')"
+                     body-class="pl-0 pr-0"
                      v-model="showCreateCuratedGroupModal"
                      hide-footer
                      hide-header-close
