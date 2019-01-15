@@ -21,6 +21,8 @@ export default {
     mapValues: _.mapValues,
     orderBy: _.orderBy,
     remove: _.remove,
+    setPageTitle: phrase =>
+      (document.title = `${phrase || 'UC Berkeley'} | BOAC`),
     size: _.size,
     trim: _.trim
   }

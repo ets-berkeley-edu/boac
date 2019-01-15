@@ -78,9 +78,9 @@ export default {
     getCuratedGroup(this.id).then(data => {
       if (data) {
         this.curatedGroup = data;
+        this.setPageTitle(this.curatedGroup.name);
         this.sortStudents();
         this.loaded();
-        document.title = `${this.curatedGroup.name} | BOAC`;
       } else {
         this.$router.push({ path: '/404' });
       }

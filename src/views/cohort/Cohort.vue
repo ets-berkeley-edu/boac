@@ -95,6 +95,9 @@ export default {
       id,
       orderBy: this.preferences.sortBy
     }).then(() => {
+      if (this.cohortName) {
+        this.setPageTitle(this.cohortName);
+      }
       this.showFilters = !this.isCompactView;
       this.currentPage = this.pagination.currentPage;
       this.loaded();

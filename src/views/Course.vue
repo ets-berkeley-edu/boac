@@ -466,7 +466,7 @@ export default {
       });
     },
     updateCourseData(data) {
-      document.title = `${data.displayName} | BOAC`;
+      this.setPageTitle(data.displayName);
       this.section = this.featureSearchedStudent(data);
       if (
         this.exceedsMatrixThreshold(_.get(this.section, 'totalStudentCount'))

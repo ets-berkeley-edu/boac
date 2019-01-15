@@ -512,7 +512,7 @@ export default {
     loadStudent(uid) {
       getStudentDetails(uid).then(data => {
         if (data) {
-          document.title = `${data.name} | BOAC`;
+          this.setPageTitle(data.name);
           _.assign(this.student, data);
           this.isInactive = this.displayAsInactive(this.student);
           this.cumulativeUnits = _.get(

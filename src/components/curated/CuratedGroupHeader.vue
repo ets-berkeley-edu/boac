@@ -73,11 +73,13 @@
             Are you sure you want to delete "<strong>{{ curatedGroup.name }}</strong>"?
           </div>
           <div slot="modal-footer">
-            <b-btn variant="primary"
+            <b-btn id="delete-confirm"
+                   variant="primary"
                    @click="deleteGroup">
               Delete
             </b-btn>
-            <b-btn variant="link"
+            <b-btn id="delete-cancel"
+                   variant="link"
                    @click="isModalOpen=false">
               Cancel
             </b-btn>
