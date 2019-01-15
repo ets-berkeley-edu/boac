@@ -26,6 +26,7 @@
     "vue-lodash": "^2.0.0",
     "vue-property-decorator": "^7.0.0",
     "vue-router": "^3.0.2",
+    "vue-router-back-button": "^1.1.2",
     "vue-scrollto": "^2.13.0",
     "vuex": "^3.0.1"
   },

@@ -12,6 +12,7 @@ import store from './store';
 import Vue from 'vue';
 import VueAnalytics from 'vue-analytics';
 import VueHighcharts from 'vue-highcharts';
+import { routerHistory, writeHistory } from 'vue-router-back-button';
 
 // Allow cookies in Access-Control requests
 axios.defaults.withCredentials = true;
@@ -54,6 +55,9 @@ Vue.directive('focus-if', (el, binding) => {
 
 // Emit, and listen for, events via hub
 Vue.prototype.$eventHub = new Vue();
+
+Vue.use(routerHistory);
+router.afterEach(writeHistory);
 
 new Vue({
   router,

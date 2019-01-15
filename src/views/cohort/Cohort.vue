@@ -90,24 +90,32 @@ export default {
     pageNumber: undefined,
     showFilters: undefined
   }),
-  created() {
-    let id = this.get(this.$route, 'params.id');
-    this.init({
-      id,
-      orderBy: this.preferences.sortBy
-    }).then(() => {
-      if (this.cohortName) {
-        this.setPageTitle(this.cohortName);
-      }
-      this.showFilters = !this.isCompactView;
-      this.currentPage = this.pagination.currentPage;
+  mounted() {
+    const continueExistingSession =
+      this.$routerHistory.hasForward() && this.cohortId;
+    if (continueExistingSession) {
+      this.pageNumber = this.pagination.currentPage;
       this.loaded();
-    });
+    } else {
+      let id = this.get(this.$route, 'params.id');
+      this.init({
+        id,
+        orderBy: this.preferences.sortBy
+      }).then(() => {
+        if (this.cohortName) {
+          this.setPageTitle(this.cohortName);
+        }
+        this.showFilters = !this.isCompactView;
+        this.currentPage = this.pagination.currentPage;
+        this.loaded();
+      });
+    }
   },
   methods: {
     compositeKey: filter => `${filter.key}${filter.value}`,
     nextPage(page) {
-      this.setCurrentPage(page || this.pageNumber);
+      this.pageNumber = page || this.pageNumber;
+      this.setCurrentPage(this.pageNumber);
       this.applyFilters(this.preferences.sortBy).then(() => {
         this.scrollTo('#content');
       });
