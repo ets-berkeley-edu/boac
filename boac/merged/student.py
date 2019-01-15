@@ -85,7 +85,7 @@ def get_full_student_profiles(sids):
     return profiles
 
 
-def get_course_student_profiles(term_id, section_id, offset=None, limit=None):
+def get_course_student_profiles(term_id, section_id, offset=None, limit=None, featured=None):
     enrollment_rows = data_loch.get_sis_section_enrollments(
         term_id,
         section_id,
@@ -99,6 +99,14 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None):
         total_student_count = count_result[0]['count']
     else:
         total_student_count = len(sids)
+
+    # If we have a featured UID not already present in the result set, add the corresponding SID only if the
+    # student is enrolled and falls within view permissions.
+    if featured and not next((r for r in enrollment_rows if str(r['uid']) == featured), None):
+        featured_enrollment_rows = data_loch.get_sis_section_enrollment_for_uid(term_id, section_id, featured, get_student_query_scope())
+        if featured_enrollment_rows:
+            sids = [str(featured_enrollment_rows[0]['sid'])] + sids
+
     # TODO It's probably more efficient to store class profiles in the loch, rather than distilling them
     # on the fly from full profiles.
     students = get_full_student_profiles(sids)

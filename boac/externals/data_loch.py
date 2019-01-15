@@ -157,12 +157,27 @@ def get_sis_section(term_id, sis_section_id):
     return safe_execute_redshift(sql)
 
 
+def get_sis_section_enrollment_for_uid(term_id, sis_section_id, uid, scope):
+    query_tables = _student_query_tables_for_scope(scope)
+    if not query_tables:
+        return []
+    sql = f"""SELECT DISTINCT sas.sid
+              {query_tables}
+              JOIN {intermediate_schema()}.sis_enrollments enr
+                ON sas.uid = enr.ldap_uid
+                AND enr.ldap_uid = :uid
+                AND enr.sis_term_id = :term_id
+                AND enr.sis_section_id = :sis_section_id"""
+    params = {'term_id': term_id, 'sis_section_id': sis_section_id, 'uid': uid}
+    return safe_execute_redshift(sql, **params)
+
+
 @fixture('loch_sis_section_enrollments_{term_id}_{sis_section_id}.csv')
 def get_sis_section_enrollments(term_id, sis_section_id, scope, offset=None, limit=None):
     query_tables = _student_query_tables_for_scope(scope)
     if not query_tables:
         return []
-    sql = f"""SELECT DISTINCT sas.sid, sas.first_name, sas.last_name
+    sql = f"""SELECT DISTINCT sas.sid, sas.uid, sas.first_name, sas.last_name
               {query_tables}
               JOIN {intermediate_schema()}.sis_enrollments enr
                 ON sas.uid = enr.ldap_uid
