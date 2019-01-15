@@ -7,7 +7,7 @@
       <CuratedGroups/>
       <div class="sidebar-row-link">
         <span class="sidebar-row-link-label">
-          <router-link id="sidebar-filtered-cohorts-all"
+          <router-link id="cohorts-all"
                        to="/cohorts/all">Everyone's Cohorts</router-link>
         </span>
       </div>

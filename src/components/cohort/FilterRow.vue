@@ -54,7 +54,7 @@
               </div>
             </div>
           </template>
-          <b-dropdown-item :id="`${filter.key}-${option.value}`"
+          <b-dropdown-item :id="`${filter.name}-${option.value}`"
                            class="dropdown-item"
                            :class="{
                              'pointer-default text-muted font-weight-light': option.disabled,

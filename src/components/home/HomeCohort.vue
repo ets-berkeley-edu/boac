@@ -1,10 +1,10 @@
 <template>
-  <div :id="`home-filtered-cohort-${index}`"
+  <div :id="`home-cohort-${cohort.id}`"
        class="home-cohort-accordion panel"
        :class="{'panel-open': cohort.isOpen}">
     <div class="panel-heading">
-      <a :id="`home-filtered-cohort-${index}-toggle`"
-          v-b-toggle="`home-filtered-cohort-${index}`"
+      <a :id="`home-cohort-${cohort.id}-toggle`"
+          v-b-toggle="`home-cohort-${cohort.id}`"
           class="home-cohort-accordion-heading-link"
           @click.prevent="fetchStudents()"
           tabindex="0"
@@ -13,7 +13,7 @@
         <div class="home-cohort-accordion-heading">
           <div class="home-cohort-accordion-heading-name">
             <div class="accordion-heading-caret">
-              <i :id="`home-filtered-cohort-${index}-caret`"
+              <i :id="`home-cohort-${cohort.id}-caret`"
                 :aria-label="isFetching ? 'Loading cohort details' : ''"
                 :class="{
                   'fas fa-spinner fa-spin': isFetching,
@@ -24,7 +24,7 @@
             <h2 class="page-section-header-sub accordion-header">
               <span class="sr-only">{{`${isOpen ? 'Hide' : 'Show'} details for cohort `}}</span>
               <span>{{ cohort.name }}</span>
-              (<span>{{ cohort.totalStudentCount }}</span>
+              (<span :id="`home-cohort-${cohort.id}-total-student-count`">{{ cohort.totalStudentCount }}</span>
               <span class="sr-only">&nbsp;students</span>)
             </h2>
           </div>
@@ -42,7 +42,7 @@
         </div>
       </a>
     </div>
-    <b-collapse :id="`home-filtered-cohort-${index}`"
+    <b-collapse :id="`home-cohort-${cohort.id}`"
                 :aria-expanded="isOpen"
                 class="panel-body"
                 :class="{'panel-open': isOpen}">
@@ -50,7 +50,7 @@
         <SortableStudents :students="cohort.studentsWithAlerts"/>
       </div>
       <div>
-        <router-link :id="`home-curated-cohort-${index}-view-all`" :to="`/cohort/${cohort.id}`">
+        <router-link :id="`home-cohort-${cohort.id}-view-all`" :to="`/cohort/${cohort.id}`">
           <span v-if="cohort.totalStudentCount">
             View <span>{{'student' | pluralize(cohort.totalStudentCount,
                         {1: 'the one', 'other': `all ${cohort.totalStudentCount}`})}}
@@ -78,8 +78,7 @@ export default {
   },
   mixins: [Util],
   props: {
-    cohort: Object,
-    index: Number
+    cohort: Object
   },
   data: () => ({
     isOpen: false,
