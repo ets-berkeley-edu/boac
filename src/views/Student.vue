@@ -84,19 +84,20 @@
             <div>
               <h3 class="student-bio-header">Curated Groups</h3>
             </div>
-            <div class="student-curated-group-checkbox"
-                 v-for="(curatedGroup, curatedGroupIndex) in myCuratedGroups"
-                 :key="curatedGroupIndex"
-                 v-if="!isEmpty(myCuratedGroups)">
-              <input :id="'curated-group-checkbox-' + curatedGroupIndex"
-                     type="checkbox"
-                     class="student-curated-group-checkbox-input"
-                     v-model="curatedGroupMemberships"
-                     :value="curatedGroup.id"
-                     @change="updateCuratedGroupMembership(curatedGroup)"
-                     :aria-label="(curatedGroupMemberships.includes(curatedGroup.id) ? 'Remove from' : 'Add to') + ' curated group ' + curatedGroup.name"/>
-              <div class="student-curated-group-checkbox-label">
-                <router-link :to="'/curated_group/' + curatedGroup.id">{{curatedGroup.name}}</router-link>
+            <div v-if="!isEmpty(myCuratedGroups)">
+              <div class="student-curated-group-checkbox"
+                   v-for="(curatedGroup, curatedGroupIndex) in myCuratedGroups"
+                   :key="curatedGroupIndex">
+                <input :id="'curated-group-checkbox-' + curatedGroupIndex"
+                       type="checkbox"
+                       class="student-curated-group-checkbox-input"
+                       v-model="curatedGroupMemberships"
+                       :value="curatedGroup.id"
+                       @change="updateCuratedGroupMembership(curatedGroup)"
+                       :aria-label="(curatedGroupMemberships.includes(curatedGroup.id) ? 'Remove from' : 'Add to') + ' curated group ' + curatedGroup.name"/>
+                <div class="student-curated-group-checkbox-label">
+                  <router-link :to="'/curated_group/' + curatedGroup.id">{{curatedGroup.name}}</router-link>
+                </div>
               </div>
             </div>
             <div class="student-curated-group-checkbox" v-if="isEmpty(myCuratedGroups)">
@@ -272,16 +273,17 @@
                     <div>
                       <div class="student-course-sections">
                         <span v-for="(section, sectionIndex) in course.sections"
-                              :key="sectionIndex"
-                              v-if="section.displayName">
-                          <span v-if="sectionIndex === 0">(</span><!--
-                          --><router-link :id="`term-${term.termId}-section-${section.ccn}`"
-                             :to="`/course/${term.termId}/${section.ccn}?u=${student.uid}`"
-                             v-if="section.isViewableOnCoursePage">{{section.displayName}}</router-link><!--
-                          --><span v-if="!section.isViewableOnCoursePage">
-                               {{section.displayName}}</span><!--
-                          --><span v-if="sectionIndex < course.sections.length - 1"> | </span><!--
-                          --><span v-if="sectionIndex === course.sections.length - 1">)</span>
+                              :key="sectionIndex">
+                          <span v-if="section.displayName">
+                            <span v-if="sectionIndex === 0">(</span><!--
+                            --><router-link :id="`term-${term.termId}-section-${section.ccn}`"
+                               :to="`/course/${term.termId}/${section.ccn}?u=${student.uid}`"
+                               v-if="section.isViewableOnCoursePage">{{section.displayName}}</router-link><!--
+                            --><span v-if="!section.isViewableOnCoursePage">
+                                 {{section.displayName}}</span><!--
+                            --><span v-if="sectionIndex < course.sections.length - 1"> | </span><!--
+                            --><span v-if="sectionIndex === course.sections.length - 1">)</span>
+                          </span>
                         </span>
                       </div>
                       <span class="student-waitlisted red-flag-status" v-if="course.waitlisted">WAITLISTED</span>

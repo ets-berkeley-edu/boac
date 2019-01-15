@@ -43,8 +43,7 @@
         <b-dropdown-item :id="`curated-group-${group.id}-menu-item`"
                          class="b-dd-item-override"
                          v-for="group in curatedGroups"
-                         :key="group.id"
-                         v-if="group && !reloading">
+                         :key="group.id">
           <input :id="`curated-group-${group.id}-checkbox`"
                  type="checkbox"
                  v-model="group.selected"
@@ -104,7 +103,6 @@ export default {
     isSelectAllChecked: false,
     indeterminate: false,
     isSaving: false,
-    reloading: false,
     showModal: false
   }),
   created() {
