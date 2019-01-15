@@ -10,6 +10,8 @@ export default {
     extend: _.extend,
     filterList: _.filter,
     find: _.find,
+    focusModalById: id =>
+      document.getElementById(id) && document.getElementById(id).focus(),
     flatten: _.flatten,
     get: _.get,
     inRange: _.inRange,

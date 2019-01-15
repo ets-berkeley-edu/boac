@@ -23,7 +23,7 @@
           <hr class="filters-section-separator mr-2"/>
           <div class="d-flex justify-content-between align-items-center p-2">
             <CuratedGroupSelector :students="students"/>
-            <SortBy v-if="students.length"/>
+            <SortBy v-if="size(students) > 1"/>
           </div>
           <div>
             <div class="cohort-column-results">
