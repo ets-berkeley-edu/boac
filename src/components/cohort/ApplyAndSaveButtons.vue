@@ -10,7 +10,7 @@
         Apply
       </b-btn>
       <div v-if="showSaveButton">
-        <b-btn id="save-cohort"
+        <b-btn id="save-button"
                class="save-button-width mt-3"
                :variant="saveButtonVariant"
                :disabled="!!editMode || acknowledgeSave"
