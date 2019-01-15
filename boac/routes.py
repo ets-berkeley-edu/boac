@@ -23,8 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-import re
-
 from boac.models.authorized_user import AuthorizedUser
 from flask import jsonify, make_response, redirect, request
 from flask_login import LoginManager
@@ -68,10 +66,10 @@ def register_routes(app):
     @app.route('/', defaults={'path': ''})
     @app.route('/<path:path>')
     def front_end_route(**kwargs):
-        vue_redirect = _vue_redirect_path(app)
-        if not vue_redirect:
-            app.logger.info(f'Angular: {request.path} will be served by legacy UI')
-        return _vue_response(app, vue_redirect) if vue_redirect else make_response(open(app.config['INDEX_HTML']).read())
+        if app.config['VUE_ENABLED']:
+            return _vue_response(app, request.full_path)
+        else:
+            return make_response(open(app.config['INDEX_HTML']).read())
 
     @app.after_request
     def after_api_request(response):
@@ -95,34 +93,6 @@ def register_routes(app):
             else:
                 app.logger.debug(log_message)
         return response
-
-
-def _vue_redirect_path(app):
-    vue_redirect = None
-    vue_path_mappings = app.config['VUE_ENABLED'] and app.config['VUE_PATHS']
-    if vue_path_mappings:
-        for angular_path_pattern, vue_path in vue_path_mappings.items():
-            match = re.compile(angular_path_pattern).match(request.full_path)
-            if match:
-                app.logger.info(f'Vue: Request path {request.full_path} matches pattern {angular_path_pattern}')
-                vue_redirect = vue_path
-                for index, token in enumerate(match.groups()):
-                    vue_redirect = vue_redirect.replace(f'\\{index + 1}', token)
-                q = request.query_string
-                vue_redirect = vue_redirect + '?' + q.decode('utf-8') if q else vue_redirect
-                app.logger.info(f'Vue: Prepare redirect to {vue_redirect}')
-                break
-            else:
-                # If incoming path should be served by Vue then pass through and make sure VUE_INDEX_HTML is used.
-                # To determine if incoming path should be served by Vue we get regex that is deduced from target string
-                # in VUE_PATHS config. Those "target strings" may contain '\1' and '\2'  and we assume those
-                # placeholders are numeric (eg, UID). We expect this programmatic deduction to work in all cases.
-                vue_path_regex = vue_path.replace('\\1', '[0-9]+').replace('\\2', '[0-9]+')
-                if re.compile(vue_path_regex).match(request.full_path):
-                    app.logger.info(f'Vue: Request path matches {vue_path_regex} so we will \'vue_redirect\'')
-                    vue_redirect = request.full_path
-                    break
-    return vue_redirect
 
 
 def _vue_response(app, uri_path):

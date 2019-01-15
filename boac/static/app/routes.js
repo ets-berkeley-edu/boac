@@ -166,7 +166,7 @@
         reloadOnSearch: false
       });
 
-  }).run(function($location, $rootScope, $state, $transitions, authFactory, config, status) {
+  }).run(function($rootScope, $state, $transitions, authFactory, status) {
 
     $state.defaultErrorHandler(function(error) {
       var message = _.get(error, 'detail.message');
@@ -213,15 +213,6 @@
     });
 
     $transitions.onSuccess({}, function() {
-      if (config.vueEnabled) {
-        var path = $location.url();
-        for (var pattern in config.vuePaths) {
-          if (new RegExp(pattern).exec(path)) {
-            // Force page refresh. The server-side routing will redirect user to Vue-enabled index.html and proper path.
-            window.location = $location.absUrl();
-          }
-        }
-      }
       document.body.scrollTop = document.documentElement.scrollTop = 0;
     });
   });

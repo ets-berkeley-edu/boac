@@ -35,20 +35,6 @@ INDEX_HTML = 'dist/templates/index.html'
 # Vue.js related
 INDEX_HTML_VUE = 'dist/static/index.html'
 VUE_ENABLED = False
-# TODO: Copy VUE_PATHS below and paste to the desired env config. Next, uncomment the ready-for-prime-time paths.
-VUE_PATHS = {
-    # r'/': r'/home',
-    # r'/404': r'/404',
-    # r'/admin': r'/admin',
-    # r'/cohort/curated/([0-9]+).*': r'/curated_group/\1',
-    # r'/cohort/filtered': r'/create_cohort',
-    # r'/cohort/filtered\?id=([0-9]+).*': r'/cohort/\1',
-    # r'/cohorts/all': r'/cohorts/all',
-    # r'/course/([0-9]+)/([0-9]+).*': r'/course/\1/\2',
-    # r'/home': r'/home',
-    # r'/login': r'/login',
-    # r'/student/([0-9]+).*': r'/student/\1',
-}
 # This base-URL config should only be non-None in the "local" env where the Vue front-end runs on port 8080.
 VUE_LOCALHOST_BASE_URL = None
 
