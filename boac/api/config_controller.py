@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 import json
 
 from boac import __version__ as version
@@ -47,7 +46,6 @@ def app_config():
         'googleAnalyticsId': app.config['GOOGLE_ANALYTICS_ID'],
         'vueEnabled': app.config['VUE_ENABLED'],
         'vueBaseUrl': app.config['VUE_LOCALHOST_BASE_URL'],
-        'vuePaths': app.config['VUE_PATHS'],
     })
 
 

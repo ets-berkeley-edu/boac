@@ -2,8 +2,6 @@ import _ from 'lodash';
 import { getConfig } from '@/api/config';
 
 const state = {
-  legacyRedirectsEnabled:
-    process.env.VUE_APP_ENABLE_LEGACY_REDIRECTS.toLowerCase() === 'true',
   config: undefined,
   loading: undefined,
   errors: []
@@ -19,10 +17,8 @@ const getters = {
     _.get(state.config, 'disableMatrixViewThreshold'),
   errors: (state: any): any => state.errors,
   loading: (state: any): boolean => state.loading,
-  legacyRedirectsEnabled: (state: any): boolean => state.legacyRedirectsEnabled,
   supportEmailAddress: (state: any): string =>
-    _.get(state.config, 'supportEmailAddress'),
-  vuePaths: (state: any): string[] => _.get(state.config, 'vuePaths')
+    _.get(state.config, 'supportEmailAddress')
 };
 
 const mutations = {

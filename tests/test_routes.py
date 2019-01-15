@@ -56,9 +56,3 @@ class TestVueRedirect:
             response = client.get('/student/123?r=1')
             assert response.status_code == 302
             assert response.location == vue_base_url + '/student/123?r=1'
-
-    def test_non_vue_enabled_path(self, client, asc_advisor_session):
-        """Serves legacy (Angular) index page when route is not yet supported on the Vue side."""
-        response = client.get('/home')
-        assert response.status_code == 200
-        assert 'I am the default index page' in str(response.data)

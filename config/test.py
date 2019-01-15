@@ -37,9 +37,3 @@ ALERT_WITHDRAWAL_ENABLED = False
 VUE_ENABLED = True
 INDEX_HTML = 'tests/static/test-index-legacy.html'
 INDEX_HTML_VUE = 'tests/static/test-index-vue.html'
-VUE_PATHS = {
-    '/admin': '/admin',
-    r'/cohort/curated/([0-9]+).*': r'/curated_group/\1',
-    '/cohorts/all': '/cohorts/all',
-    r'/student/([0-9]+).*': r'/student/\1',
-}
