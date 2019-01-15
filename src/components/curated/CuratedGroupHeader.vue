@@ -9,7 +9,7 @@
     <div class="w-100 mr-3" v-if="renameMode.on">
       <div>
         <form @submit="rename">
-          <input id="rename-curated-group-input"
+          <input id="rename-input"
                  class="form-control"
                  aria-label="Curated group name, 255 characters or fewer"
                  aria-required="true"
@@ -39,17 +39,17 @@
         Rename
       </b-btn>
       <b-btn id="rename-cancel"
-           class="cohort-manage-btn"
-           aria-label="Cancel rename curated group"
-           variant="link"
-           size="sm"
-           @click="exitRenameMode">
+             class="cohort-manage-btn"
+             aria-label="Cancel rename curated group"
+             variant="link"
+             size="sm"
+             @click="exitRenameMode">
         Cancel
       </b-btn>
     </div>
     <div class="d-flex align-items-center mr-4" v-if="!renameMode.on">
       <div>
-        <b-btn id="rename-curated-group-button"
+        <b-btn id="rename-button"
                variant="link"
                aria-label="Rename this curated group"
                @click="enterRenameMode">
@@ -58,7 +58,7 @@
       </div>
       <div class="faint-text">|</div>
       <div>
-        <b-btn id="delete-curated-group-button"
+        <b-btn id="delete-button"
                variant="link"
                aria-label="Delete this curated group"
                v-b-modal="'myModal'">
@@ -67,7 +67,7 @@
         <b-modal id="myModal"
                  v-model="isModalOpen">
           <div slot="modal-header">
-            <h3 id="confirm-delete-header">Delete Curated Group</h3>
+            <h3>Delete Curated Group</h3>
           </div>
           <div class="modal-body curated-cohort-label" id="confirm-delete-body">
             Are you sure you want to delete "<strong>{{ curatedGroup.name }}</strong>"?

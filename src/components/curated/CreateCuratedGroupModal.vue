@@ -4,7 +4,7 @@
       <div class="ml-3 mr-3">
         <div class="pb-2">Name:</div>
         <div>
-          <input id="curated-group-create-input"
+          <input id="create-input"
                  class="cohort-create-input-name"
                  v-model="name"
                  type="text"
@@ -12,20 +12,20 @@
                  required>
         </div>
         <div class="faint-text mb-3">255 character limit <span v-if="name.length">({{255 - name.length}} left)</span></div>
-        <div class="has-error" v-if="error">{{ error }}</div>
+        <div id="create-error" class="has-error" v-if="error">{{ error }}</div>
         <div class="sr-only" aria-live="polite">{{ error }}</div>
         <div class="sr-only"
              aria-live="polite"
              v-if="name.length === 255">Curated group name cannot exceed 255 characters.</div>
       </div>
       <div class="modal-footer pl-0 mr-2">
-        <b-btn id="cohort-create-confirm"
+        <b-btn id="create-confirm"
                variant="primary"
                :disabled="!name.length"
                @click.prevent="createCuratedGroup()">
           Save
         </b-btn>
-        <b-btn id="curated-cohort-create-cancel-btn"
+        <b-btn id="create-cancel"
                variant="link"
                @click="cancelModal()">Cancel</b-btn>
       </div>

@@ -13,13 +13,13 @@
         <b-btn id="save-cohort"
                class="save-button-width mt-3"
                :variant="saveButtonVariant"
-               :disabled="editMode || acknowledgeSave"
+               :disabled="!!editMode || acknowledgeSave"
                @click="save()">
           <span v-if="acknowledgeSave">Saved</span>
           <span v-if="!acknowledgeSave && cohortId">Save Cohort</span>
           <span v-if="!acknowledgeSave && !cohortId">Save</span>
         </b-btn>
-        <b-modal id="createCohortModal"
+        <b-modal id="create-cohort"
                  @shown="focusModalById('cohort-create-input')"
                  body-class="pl-0 pr-0"
                  v-model="showCreateModal"
