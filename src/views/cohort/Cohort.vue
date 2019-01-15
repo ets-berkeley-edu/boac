@@ -38,7 +38,9 @@
                             :key="student.sid"/>
               </div>
             </div>
-            <div class="p-3">
+            <div class="p-3" v-if="totalStudentCount > pagination.itemsPerPage">
+              <span class="sr-only"><span id="total-student-count">{{ totalStudentCount / pagination.itemsPerPage | ceil }}</span>
+                pages of search results</span>
               <b-pagination id="pagination-widget"
                             size="md"
                             :total-rows="totalStudentCount"
@@ -46,7 +48,6 @@
                             v-model="pageNumber"
                             :per-page="pagination.itemsPerPage"
                             :hide-goto-end-buttons="true"
-                            v-if="totalStudentCount > pagination.itemsPerPage"
                             @input="nextPage()">
               </b-pagination>
             </div>

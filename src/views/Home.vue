@@ -4,7 +4,7 @@
     <div class="home-content" v-if="!loading">
       <div>
         <div id="filtered-cohorts-header-row" class="home-page-section-header-wrapper">
-          <h1 class="page-section-header" v-if="myCohorts && !size(myCohorts)">
+          <h1 id="no-cohorts-header" class="page-section-header" v-if="myCohorts && !size(myCohorts)">
             You have no saved cohorts.
           </h1>
           <h1 class="page-section-header" v-if="myCohorts && size(myCohorts)">
@@ -16,20 +16,18 @@
           automatically by your filtering preferences, such as GPA or units.
         </div>
         <div role="tablist" class="panel-group">
-          <HomeCohort v-for="(cohort, index) in myCohorts" 
-                      :key="index" 
-                      :cohort="cohort" 
-                      :index="index"/>
+          <HomeCohort v-for="cohort in myCohorts"
+                      :key="cohort.id"
+                      :cohort="cohort"/>
         </div>
       </div>
       <div v-if="size(myCuratedGroups)">
         <div id="curated-cohorts-header-row" class="home-page-section-header-wrapper">
           <h1 class="page-section-header">Curated Groups</h1>
         </div>
-        <HomeCuratedGroup v-for="(curatedGroup, index) in myCuratedGroups" 
-                         :key="index" 
-                         :curatedGroup="curatedGroup" 
-                         :index="index"/>
+        <HomeCuratedGroup v-for="curatedGroup in myCuratedGroups"
+                         :key="curatedGroup.id"
+                         :curatedGroup="curatedGroup"/>
       </div>
     </div>
   </div>

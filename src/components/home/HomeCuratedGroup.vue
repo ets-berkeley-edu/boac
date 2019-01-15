@@ -1,10 +1,10 @@
 <template>
-  <div :id="`home-curated-cohort-${index}`"
+  <div :id="`home-curated-group-${curatedGroup.id}`"
        class="home-cohort-accordion panel"
        :class="{'panel-open': curatedGroup.isOpen}">
     <div class="panel-heading">
-      <a :id="`home-curated-cohort-${index}-toggle`"
-          v-b-toggle="`home-curated-cohort-${index}`"
+      <a :id="`home-curated-group-${curatedGroup.id}-toggle`"
+          v-b-toggle="`home-curated-group-${curatedGroup.id}`"
           class="home-cohort-accordion-heading-link"
           @click.prevent="fetchStudents()"
           tabindex="0"
@@ -13,7 +13,7 @@
         <div class="home-cohort-accordion-heading">
           <div class="home-cohort-accordion-heading-name">
             <div class="accordion-heading-caret">
-              <i :id="`home-curated-cohort-${index}-caret`"
+              <i :id="`home-curated-group-${curatedGroup.id}-caret`"
                 :aria-label="isFetching ? 'Loading curated group details. ' : ''"
                 :class="{
                   'fas fa-spinner fa-spin': isFetching,
@@ -42,7 +42,7 @@
         </div>
       </a>
     </div>
-    <b-collapse :id="`home-curated-cohort-${index}`"
+    <b-collapse :id="`home-curated-group-${curatedGroup.id}`"
                 :aria-expanded="isOpen"
                 class="panel-body"
                 :class="{'panel-open': isOpen}">
@@ -50,7 +50,7 @@
         <SortableStudents :students="curatedGroup.studentsWithAlerts"/>
       </div>
       <div>
-        <router-link :id="`home-curated-cohort-${index}-view-all`" :to="`/curated_group/${curatedGroup.id}`">
+        <router-link :id="`home-curated-group-${curatedGroup.id}-view-all`" :to="`/curated_group/${curatedGroup.id}`">
           <span v-if="curatedGroup.studentCount">
             View <span>{{'student' | pluralize(curatedGroup.studentCount,
                         {1: 'the one', 'other': `all ${curatedGroup.studentCount}`})}}
@@ -78,8 +78,7 @@ export default {
   },
   mixins: [Util],
   props: {
-    curatedGroup: Object,
-    index: Number
+    curatedGroup: Object
   },
   data: () => ({
     isOpen: false,

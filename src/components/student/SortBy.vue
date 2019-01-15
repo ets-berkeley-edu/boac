@@ -1,7 +1,7 @@
 <template>
   <div class="cohort-sort-column pr-3">
     <label class="cohort-sort-label" for="students-sort-by">Sort by</label>
-    <select id="students-sort-by"
+    <select id="sort-students-by"
             class="form-control"
             v-model="selected">
       <option v-for="o in options"

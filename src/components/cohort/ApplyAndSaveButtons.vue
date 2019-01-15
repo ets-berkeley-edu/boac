@@ -13,7 +13,7 @@
         <b-btn id="save-button"
                class="save-button-width mt-3"
                :variant="saveButtonVariant"
-               :disabled="!!editMode || acknowledgeSave"
+               :disabled="!!editMode || showCreateModal || acknowledgeSave"
                @click="save()">
           <span v-if="acknowledgeSave">Saved</span>
           <span v-if="!acknowledgeSave && cohortId">Save Cohort</span>
