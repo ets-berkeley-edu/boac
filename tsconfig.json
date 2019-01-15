@@ -13,8 +13,7 @@
     "removeComments": true,
     "baseUrl": ".",
     "types": [
-      "webpack-env",
-      "jest"
+      "webpack-env"
     ],
     "paths": {
       "@/*": [
