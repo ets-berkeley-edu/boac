@@ -10,7 +10,6 @@
       <form @submit.prevent="deleteCohort()">
         <b-btn id="delete-confirm"
                variant="primary"
-               v-focus
                @click.prevent="deleteCohort()">Delete</b-btn>
         <b-btn id="delete-cancel"
                class="pl-2"

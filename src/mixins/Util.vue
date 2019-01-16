@@ -14,6 +14,7 @@ export default {
       document.getElementById(id) && document.getElementById(id).focus(),
     flatten: _.flatten,
     get: _.get,
+    includes: _.includes,
     inRange: _.inRange,
     isEmpty: _.isEmpty,
     isNil: _.isNil,

@@ -5,7 +5,7 @@
     <div :id="`existing-name-${index}`"
          class="dropdown-width p-2 font-weight-bold"
          v-if="isExistingFilter">
-      {{ filter.name }}
+      <span class="sr-only">Filter name:</span> {{ filter.name }}
     </div>
     <div :id="filterRowPrimaryDropdownId(filterRowIndex)"
          class="cohort-filter-draft-column-01 pr-2"
@@ -14,9 +14,13 @@
       <b-dropdown variant="link" no-caret>
         <template slot="button-content">
           <div class="dropdown-width d-flex justify-content-between font-weight-bold text-dark">
-            <div>{{ filter.name || 'New Filter' }}</div>
+            <div v-if="filter.name"><span class="sr-only">Filter:</span> {{ filter.name || 'New Filter' }}</div>
+            <div v-if="!filter.name"><span class="sr-only">Select a </span>New Filter</div>
             <div>
-              <i :class="{'fas fa-angle-up menu-caret': isMenuOpen, 'fas fa-angle-down menu-caret': !isMenuOpen}"></i>
+              <i :class="{
+                'fas fa-angle-up menu-caret': isMenuOpen,
+                'fas fa-angle-down menu-caret': !isMenuOpen
+              }"></i>
             </div>
           </div>
         </template>
@@ -38,7 +42,7 @@
       </b-dropdown>
     </div>
     <div v-if="!isModifyingFilter">
-      {{ valueLabel }}
+      <span class="sr-only">Selected filter value: </span>{{ valueLabel }}
     </div>
     <div class="cohort-filter-draft-column-02"
          v-if="isModifyingFilter">
@@ -48,9 +52,13 @@
                     no-caret>
           <template slot="button-content">
             <div class="dropdown-width d-flex justify-content-between text-secondary">
-              <div>{{ valueLabel || 'Choose...' }}</div>
+              <div v-if="valueLabel"><span class="sr-only">Selected value is </span>{{ valueLabel }}</div>
+              <div v-if="!valueLabel">Choose...<span class="sr-only"> a filter value option</span></div>
               <div>
-                <i :class="{'fas fa-angle-up menu-caret': isMenuOpen, 'fas fa-angle-down menu-caret': !isMenuOpen}"></i>
+                <i :class="{
+                  'fas fa-angle-up menu-caret': isMenuOpen,
+                  'fas fa-angle-down menu-caret': !isMenuOpen
+                }"></i>
               </div>
             </div>
           </template>
@@ -68,7 +76,6 @@
         </b-dropdown>
       </div>
       <div class="filter-range-container" v-if="filter.type === 'range'">
-        <div class="sr-only" aria-live="polite">{{ range.error }}</div>
         <div class="filter-range-label-start">
           {{ filter.subcategoryHeader[0] }}
         </div>
@@ -93,6 +100,7 @@
                  v-model="range.stop"
                  maxlength="1">
         </div>
+        <div class="sr-only" aria-live="polite">{{ range.error }}</div>
         <b-popover :show="true"
                    :target="isExistingFilter ? `filter-${index}-range-start` : 'filter-range-start'"
                    placement="top"
@@ -105,7 +113,7 @@
       <b-btn id="unsaved-filter-add"
              class="ml-2"
              variant="primary"
-             aria-label="Add filter to search criteria"
+             aria-label="Add this new filter to the search criteria"
              @click="addNewFilter()"
              v-focus
              v-if="showAdd">
@@ -116,7 +124,7 @@
          v-if="isModifyingFilter && filter.type && !isExistingFilter">
       <b-btn id="unsaved-filter-reset"
              class="cohort-manage-btn-link p-0"
-             aria-label="Cancel new filter selection"
+             aria-label="Cancel this filter selection"
              variant="link"
              @click="reset()">
         Cancel
@@ -127,7 +135,7 @@
         <span v-if="filter.type !== 'boolean'">
           <b-btn :id="`edit-added-filter-${index}`"
                  class="btn-cohort-added-filter pr-1"
-                 aria-label="Edit filter"
+                 :aria-label="`Edit this ${filter.name} filter`"
                  variant="link"
                  size="sm"
                  @click="editExistingFilter()">
@@ -136,7 +144,7 @@
         </span>
         <b-btn :id="`remove-added-filter-${index}`"
                class="btn-cohort-added-filter pl-2 pr-0"
-               aria-label="Remove filter"
+               :aria-label="`Remove this ${filter.name} filter`"
                variant="link"
                size="sm"
                @click="removeFilter(index)">
@@ -145,7 +153,7 @@
       </div>
       <div class="d-flex flex-row" v-if="isModifyingFilter">
         <b-btn :id="`update-added-filter-${index}`"
-               aria-label="Update filter"
+               :aria-label="`Update this ${filter.name} filter`"
                variant="primary"
                size="sm"
                @click="updateExisting()">
@@ -153,7 +161,7 @@
         </b-btn>
         <b-btn :id="`cancel-edit-added-filter-${index}`"
                class="btn-cohort-added-filter"
-               aria-label="Cancel"
+               aria-label="Cancel update"
                variant="link"
                size="sm"
                @click="cancelEditExisting()">
@@ -209,23 +217,32 @@ export default {
     addNewFilter() {
       switch (this.filter.type) {
         case 'array':
+          this.filterUpdateStatus = `Added ${
+            this.filter.name
+          } filter with value ${this.valueLabel}`;
           break;
         case 'boolean':
+          this.filterUpdateStatus = `Added ${this.filter.name} filter`;
           this.filter.value = true;
           break;
         case 'range':
+          this.filterUpdateStatus = `Added ${this.filter.name} filter: ${
+            this.range.start
+          } to ${this.range.stop}`;
           this.filter.value = [this.range.start, this.range.stop];
           break;
       }
       this.addFilter(this.filter);
       this.reset();
-      this.putFocusNextTick(this.filterRowPrimaryDropdownId('new'), 'button');
+      this.putFocusNewFilterDropdown();
     },
     cancelEditExisting() {
+      this.filterUpdateStatus = 'Cancelled';
       this.isModifyingFilter = false;
       this.filter.value = this.valueOriginal;
       this.valueLabel = this.getFilterValueLabel();
       this.setEditMode(null);
+      this.putFocusNewFilterDropdown();
     },
     editExistingFilter() {
       let category = this.find(this.flatten(this.menu), [
@@ -240,10 +257,21 @@ export default {
       this.$eventHub.$emit('cohort-filter-row-edit', this.index);
       this.isModifyingFilter = true;
       this.setEditMode('edit');
+      this.putFocusSecondaryDropdown();
+      this.filterUpdateStatus = `Editing existing ${this.filter.name} filter`;
     },
     filterRowPrimaryDropdownId: index => `filter-row-dropdown-primary-${index}`,
     filterRowSecondaryDropdownId: index =>
       `filter-row-dropdown-secondary-${index}`,
+    putFocusNewFilterDropdown() {
+      this.putFocusNextTick(this.filterRowPrimaryDropdownId('new'), 'button');
+    },
+    putFocusSecondaryDropdown() {
+      this.putFocusNextTick(
+        this.filterRowSecondaryDropdownId(this.filterRowIndex),
+        'button'
+      );
+    },
     reset() {
       this.showAdd = false;
       this.range = this.mapValues(this.range, () => undefined);
@@ -263,10 +291,7 @@ export default {
       this.filter = this.cloneDeep(menuItem);
       this.showAdd = menuItem.type === 'boolean';
       if (menuItem.type === 'array') {
-        this.putFocusNextTick(
-          this.filterRowSecondaryDropdownId(this.filterRowIndex),
-          'button'
-        );
+        this.putFocusSecondaryDropdown();
       }
     },
     updateFilterValue(option) {

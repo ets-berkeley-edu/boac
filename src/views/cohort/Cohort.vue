@@ -92,7 +92,8 @@ export default {
   }),
   mounted() {
     const continueExistingSession =
-      this.$routerHistory.hasForward() && this.cohortId;
+      this.$routerHistory.hasForward() &&
+      this.includes(this.$route.path, this.cohortId);
     if (continueExistingSession) {
       this.pageNumber = this.pagination.currentPage;
       this.loaded();
