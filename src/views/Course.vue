@@ -375,10 +375,9 @@ export default {
     featureSearchedStudent(data) {
       var section = _.clone(data);
       var subject = _.remove(section.students, student => {
-        return student.uid === this.$route.query.u;
+        return student.uid === this.featured;
       });
       section.students = _.union(subject, section.students);
-      this.featured = this.$route.query.u;
       return section;
     },
     initViewMode() {
@@ -400,22 +399,30 @@ export default {
           });
         }
       }
+      if (this.$route.query.u) {
+        this.featured = this.$route.query.u;
+      }
     },
     loadListView() {
-      if (
-        this.pagination.currentPage > 1 &&
-        this.section &&
-        this.section.students.length > this.pagination.itemsPerPage
-      ) {
-        var start =
-          (this.pagination.currentPage - 1) * this.pagination.itemsPerPage;
-        this.section.students = _.slice(
-          this.section.students,
-          start,
-          start + this.pagination.itemsPerPage
-        );
-      }
-      this.refreshListView();
+      var limit = this.pagination.itemsPerPage;
+      var offset =
+        this.pagination.currentPage === 0
+          ? 0
+          : (this.pagination.currentPage - 1) * limit;
+      getSection(
+        this.$route.params.termId,
+        this.$route.params.sectionId,
+        offset,
+        limit,
+        this.featured
+      ).then(data => {
+        if (data) {
+          this.updateCourseData(data);
+          this.loaded();
+        } else {
+          this.$router.push({ path: '/404' });
+        }
+      });
     },
     loadMatrixView() {
       getSection(this.$route.params.termId, this.$route.params.sectionId).then(
@@ -428,26 +435,6 @@ export default {
     nextPage() {
       this.$router.push({
         query: { ...this.$route.query, p: this.pagination.currentPage }
-      });
-    },
-    refreshListView() {
-      var limit = this.pagination.itemsPerPage;
-      var offset =
-        this.pagination.currentPage === 0
-          ? 0
-          : (this.pagination.currentPage - 1) * limit;
-      getSection(
-        this.$route.params.termId,
-        this.$route.params.sectionId,
-        offset,
-        limit
-      ).then(data => {
-        if (data) {
-          this.updateCourseData(data);
-          this.loaded();
-        } else {
-          this.$router.push({ path: '/404' });
-        }
       });
     },
     resizePage(selectedItemsPerPage) {
