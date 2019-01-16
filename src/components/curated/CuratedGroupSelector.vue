@@ -67,7 +67,7 @@
         </b-dropdown-item>
       </b-dropdown>
       <b-modal id="modal"
-               @shown="focusModalById('curated-group-create-input')"
+               @shown="focusModalById('create-input')"
                body-class="pl-0 pr-0"
                v-model="showModal"
                hide-footer
@@ -125,11 +125,14 @@ export default {
   },
   methods: {
     toggle(checked) {
-      this.sids = checked ? this.map(this.students, 'sid') : [];
-      let event = checked
-        ? 'curated-group-select-all'
-        : 'curated-group-deselect-all';
-      this.$eventHub.$emit(event);
+      if (checked) {
+        this.sids = this.map(this.students, 'sid');
+        this.$eventHub.$emit('curated-group-select-all');
+        this.putFocusNextTick('curated-group-dropdown-select', 'button');
+      } else {
+        this.sids = [];
+        this.$eventHub.$emit('curated-group-deselect-all');
+      }
     },
     refresh() {
       this.indeterminate = this.inRange(
