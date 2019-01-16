@@ -13,6 +13,7 @@
       <div>
         <input id="dev-auth-uid"
                class="splash-form-input"
+               autofocus
                placeholder="UID"
                v-model="uid"
                type="text"

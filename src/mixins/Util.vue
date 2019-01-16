@@ -20,6 +20,20 @@ export default {
     map: _.map,
     mapValues: _.mapValues,
     orderBy: _.orderBy,
+    putFocusNextTick(id, cssSelector = null) {
+      this.$nextTick(() => {
+        let counter = 0;
+        const putFocus = setInterval(() => {
+          let el = document.getElementById(id);
+          el = el && cssSelector ? el.querySelector(cssSelector) : el;
+          el && el.focus();
+          if (el || ++counter > 3) {
+            // Abort after success or three attempts
+            clearInterval(putFocus);
+          }
+        }, 500);
+      });
+    },
     remove: _.remove,
     setPageTitle: phrase =>
       (document.title = `${phrase || 'UC Berkeley'} | BOAC`),

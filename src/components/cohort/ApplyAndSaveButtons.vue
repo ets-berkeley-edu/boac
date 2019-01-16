@@ -4,7 +4,7 @@
              class="btn-filter-draft-apply"
              aria-label="Search for students"
              variant="primary"
-             @click="applyFilters()"
+             @click="apply()"
              :disabled="!!editMode"
              v-if="showApplyButton">
         Apply
@@ -20,7 +20,7 @@
           <span v-if="!acknowledgeSave && !cohortId">Save</span>
         </b-btn>
         <b-modal id="create-cohort"
-                 @shown="focusModalById('cohort-create-input')"
+                 @shown="focusModalById('create-input')"
                  body-class="pl-0 pr-0"
                  v-model="showCreateModal"
                  hide-footer
@@ -52,6 +52,11 @@ export default {
     }
   },
   methods: {
+    apply() {
+      this.applyFilters().then(() => {
+        this.putFocusNextTick('save-button');
+      });
+    },
     cancelCreateModal() {
       this.showCreateModal = false;
     },

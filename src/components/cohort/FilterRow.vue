@@ -7,11 +7,11 @@
          v-if="isExistingFilter">
       {{ filter.name }}
     </div>
-    <div class="cohort-filter-draft-column-01 pr-2" v-if="isModifyingFilter && !isExistingFilter">
+    <div :id="filterRowPrimaryDropdownId(filterRowIndex)"
+         class="cohort-filter-draft-column-01 pr-2"
+         v-if="isModifyingFilter && !isExistingFilter">
       <div class="sr-only" aria-live="polite">{{ filterUpdateStatus }}</div>
-      <b-dropdown id="draft-filter"
-                  variant="link"
-                  no-caret>
+      <b-dropdown variant="link" no-caret>
         <template slot="button-content">
           <div class="dropdown-width d-flex justify-content-between font-weight-bold text-dark">
             <div>{{ filter.name || 'New Filter' }}</div>
@@ -42,12 +42,12 @@
     </div>
     <div class="cohort-filter-draft-column-02"
          v-if="isModifyingFilter">
-      <div v-if="filter.type === 'array'">
+      <div :id="`filter-row-dropdown-secondary-${filterRowIndex}`"
+           v-if="filter.type === 'array'">
         <b-dropdown variant="link"
                     no-caret>
           <template slot="button-content">
-            <div :id="`dropdown-edit-${isExistingFilter ? index : 'new'}`"
-                 class="dropdown-width d-flex justify-content-between text-secondary">
+            <div class="dropdown-width d-flex justify-content-between text-secondary">
               <div>{{ valueLabel || 'Choose...' }}</div>
               <div>
                 <i :class="{'fas fa-angle-up menu-caret': isMenuOpen, 'fas fa-angle-down menu-caret': !isMenuOpen}"></i>
@@ -200,6 +200,11 @@ export default {
       }
     });
   },
+  computed: {
+    filterRowIndex() {
+      return this.isExistingFilter ? this.index : 'new';
+    }
+  },
   methods: {
     addNewFilter() {
       switch (this.filter.type) {
@@ -214,6 +219,7 @@ export default {
       }
       this.addFilter(this.filter);
       this.reset();
+      this.putFocusNextTick(this.filterRowPrimaryDropdownId('new'), 'button');
     },
     cancelEditExisting() {
       this.isModifyingFilter = false;
@@ -235,6 +241,9 @@ export default {
       this.isModifyingFilter = true;
       this.setEditMode('edit');
     },
+    filterRowPrimaryDropdownId: index => `filter-row-dropdown-primary-${index}`,
+    filterRowSecondaryDropdownId: index =>
+      `filter-row-dropdown-secondary-${index}`,
     reset() {
       this.showAdd = false;
       this.range = this.mapValues(this.range, () => undefined);
@@ -253,6 +262,12 @@ export default {
       this.valueLabel = undefined;
       this.filter = this.cloneDeep(menuItem);
       this.showAdd = menuItem.type === 'boolean';
+      if (menuItem.type === 'array') {
+        this.putFocusNextTick(
+          this.filterRowSecondaryDropdownId(this.filterRowIndex),
+          'button'
+        );
+      }
     },
     updateFilterValue(option) {
       if (option) {
