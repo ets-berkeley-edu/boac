@@ -41,6 +41,11 @@ from flask import current_app as app
 from sqlalchemy import text
 
 
+def _get_current_session_start():
+    session = data_loch.get_regular_undergraduate_session(current_term_id())[0]
+    return session['session_begins']
+
+
 class Alert(Base):
     __tablename__ = 'alerts'
 
@@ -227,8 +232,7 @@ class Alert(Base):
 
     @classmethod
     def no_activity_alerts_enabled(cls):
-        session = data_loch.get_regular_undergraduate_session(current_term_id())[0]
-        days_into_session = (datetime.date(datetime.today()) - session['session_begins']).days
+        days_into_session = (datetime.date(datetime.today()) - _get_current_session_start()).days
         return (
             app.config['ALERT_NO_ACTIVITY_ENABLED']
             and not app.config['CANVAS_CURRENT_ENROLLMENT_TERM'].startswith('Summer')
@@ -292,12 +296,16 @@ class Alert(Base):
                         and activity_percentile <= app.config['ALERT_NO_ACTIVITY_PERCENTILE_CUTOFF']
                 ):
                     cls.update_no_activity_alerts(sid, term_id, enrollment['displayName'])
-                elif infrequent_activity_alerts_enabled:
+                elif (
+                    infrequent_activity_alerts_enabled
+                    and last_activity > 0
+                ):
                     localized_last_activity = unix_timestamp_to_localtime(last_activity).date()
                     localized_today = unix_timestamp_to_localtime(time.time()).date()
                     days_since = (localized_today - localized_last_activity).days
                     if (
                             days_since >= app.config['ALERT_INFREQUENT_ACTIVITY_DAYS']
+                            and localized_last_activity >= _get_current_session_start()
                             and activity_percentile <= app.config['ALERT_INFREQUENT_ACTIVITY_PERCENTILE_CUTOFF']
                     ):
                         cls.update_infrequent_activity_alerts(
