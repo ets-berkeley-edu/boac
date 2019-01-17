@@ -645,31 +645,47 @@ class TestCohortPerFilters:
         ]:
             assert criteria[key] is None
 
+    def _get_defensive_line(self, client, order_by):
+        response = self._post(
+            client,
+            {
+                'filters':
+                    [
+                        {
+                            'key': 'groupCodes',
+                            'type': 'array',
+                            'value': 'MFB-DL',
+                        },
+                    ],
+                'orderBy': order_by,
+            },
+        )
+        assert response.status_code == 200
+        return response.json['students']
+
     def test_students_per_filters_order_by(self, client, asc_advisor_session):
         def _get_first_student(order_by):
-            response = self._post(
-                client,
-                {
-                    'filters':
-                        [
-                            {
-                                'key': 'groupCodes',
-                                'type': 'array',
-                                'value': 'MFB-DL',
-                            },
-                        ],
-                    'orderBy': order_by,
-                },
-            )
-            assert response.status_code == 200
-            students = response.json['students']
-            assert len(students) == 4
+            students = self._get_defensive_line(client, order_by)
+            assert len(students) == 3
             return students[0]
         assert _get_first_student('first_name')['firstName'] == 'Dave'
         assert _get_first_student('last_name')['lastName'] == 'Doolittle'
-        assert _get_first_student('gpa')['cumulativeGPA'] == 0.4
-        assert _get_first_student('level')['level'] == 'Sophomore'
+        assert _get_first_student('gpa')['cumulativeGPA'] == 3.005
+        assert _get_first_student('level')['level'] == 'Junior'
         assert _get_first_student('major')['majors'][0] == 'Chemistry BS'
-        assert _get_first_student('units')['cumulativeUnits'] == 8
+        assert _get_first_student('units')['cumulativeUnits'] == 34
         student = _get_first_student('group_name')
         assert student['athleticsProfile']['athletics'][0]['groupName'] == 'Football, Defensive Backs'
+
+    def test_student_athletes_inactive_asc(self, client, asc_advisor_session):
+        """An ASC advisor query defaults to active athletes only."""
+        students = self._get_defensive_line(client, 'gpa')
+        assert len(students) == 3
+        for student in students:
+            assert student['athleticsProfile']['isActiveAsc'] is True
+
+    def test_student_athletes_inactive_admin(self, client, admin_session):
+        """An admin query defaults to active and inactive athletes."""
+        students = self._get_defensive_line(client, 'gpa')
+        assert len(students) == 4
+        assert students[0]['athleticsProfile']['isActiveAsc'] is False
