@@ -3,7 +3,7 @@
        :class="{'pt-2': !isExistingFilter}"
        v-if="showRow">
     <div :id="`existing-name-${index}`"
-         class="dropdown-width p-2 font-weight-bold"
+         class="dropdown-width p-2"
          v-if="isExistingFilter">
       <span class="sr-only">Filter name:</span> {{ filter.name }}
     </div>
@@ -13,7 +13,7 @@
       <div class="sr-only" aria-live="polite">{{ filterUpdateStatus }}</div>
       <b-dropdown variant="link" no-caret>
         <template slot="button-content">
-          <div class="dropdown-width d-flex justify-content-between font-weight-bold text-dark">
+          <div class="dropdown-width d-flex justify-content-between text-dark">
             <div v-if="filter.name"><span class="sr-only">Filter:</span> {{ filter.name || 'New Filter' }}</div>
             <div v-if="!filter.name"><span class="sr-only">Select a </span>New Filter</div>
             <div>
@@ -385,13 +385,21 @@ export default {
   vertical-align: middle;
   white-space: nowrap;
 }
-.dropdown-width {
-  width: 240px;
-}
 .dropdown-item {
   font-size: 14px;
   padding-top: 3px;
+}
+.cohort-filter-draft-column-01 .dropdown-width {
+  width: 240px;
+}
+.cohort-filter-draft-column-02 .dropdown-width {
+  width: 320px;
+}
+.cohort-filter-draft-column-01 .dropdown-item {
   width: 260px;
+}
+.cohort-filter-draft-column-02 .dropdown-item {
+  width: 340px;
 }
 .menu-caret {
   font-size: 22px;
