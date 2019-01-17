@@ -27,14 +27,12 @@
       <div class="">
         <form class="pt-0" @submit.prevent="submitRename()">
           <input id="rename-cohort-input"
-                 name="name"
                  class="rename-input"
-                 aria-label="Input cohort name, 255 characters or fewer"
-                 aria-required="true"
-                 :aria-invalid="!!name"
                  v-model="name"
                  @keyup.esc="cancelRename()"
-                 v-focus
+                 :aria-invalid="!name"
+                 aria-label="Input cohort name, 255 characters or fewer"
+                 aria-required="true"
                  maxlength="255"
                  required
                  type="text"/>
@@ -142,6 +140,7 @@ export default {
       this.name = this.cohortName;
       this.setEditMode('rename');
       this.cohortUpdateStatus = `Renaming ${this.name} cohort`;
+      this.putFocusNextTick('cohort-name');
     },
     cancelDeleteModal() {
       this.showDeleteModal = false;
