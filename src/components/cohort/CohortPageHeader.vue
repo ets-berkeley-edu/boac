@@ -1,5 +1,6 @@
 <template>
   <div class="d-flex justify-content-between">
+    <div class="sr-only" aria-live="polite">{{ cohortUpdateStatus }}</div>
     <div v-if="!cohortId && totalStudentCount === undefined">
       <h1 id="create-cohort-h1"
           class="page-section-header mt-0"
@@ -32,6 +33,7 @@
                  aria-required="true"
                  :aria-invalid="!!name"
                  v-model="name"
+                 @keyup.esc="cancelRename()"
                  v-focus
                  maxlength="255"
                  required
@@ -67,9 +69,10 @@
     <div class="d-flex align-self-baseline m-1 mr-4" v-if="!renameMode">
       <div>
         <b-btn id="show-hide-details-button"
+               :aria-label="`isCompactView ? 'Show cohort filters' : 'Hide cohort filters'`"
                class="no-wrap pr-2 pt-0"
                variant="link"
-               @click="toggleCompactView()"
+               @click="toggleShowHideDetails()"
                v-if="cohortId">
           {{isCompactView ? 'Show' : 'Hide'}} Filters
         </b-btn>
@@ -94,6 +97,7 @@
           Delete
         </b-btn>
         <b-modal id="confirm-delete-modal"
+                 @shown="focusModalById('delete-confirm')"
                  v-model="showDeleteModal"
                  body-class="pl-0 pr-0"
                  hide-footer
@@ -111,14 +115,16 @@
 import CohortEditSession from '@/mixins/CohortEditSession';
 import DeleteCohortModal from '@/components/cohort/DeleteCohortModal';
 import router from '@/router';
+import Util from '@/mixins/Util';
 import Validator from '@/mixins/Validator';
 import { deleteCohort } from '@/api/cohort';
 
 export default {
   name: 'CohortPageHeader',
   components: { DeleteCohortModal },
-  mixins: [CohortEditSession, Validator],
+  mixins: [CohortEditSession, Util, Validator],
   data: () => ({
+    cohortUpdateStatus: undefined,
     name: undefined,
     renameError: undefined,
     showDeleteModal: false
@@ -135,15 +141,19 @@ export default {
     beginRename() {
       this.name = this.cohortName;
       this.setEditMode('rename');
+      this.cohortUpdateStatus = `Renaming ${this.name} cohort`;
     },
     cancelDeleteModal() {
       this.showDeleteModal = false;
+      this.cohortUpdateStatus = `Cancel deletion of ${this.name} cohort`;
     },
     cancelRename() {
       this.name = this.cohortName;
       this.setEditMode(null);
+      this.cohortUpdateStatus = `Cancel renaming of ${this.name} cohort`;
     },
     cohortDelete() {
+      this.cohortUpdateStatus = `Deleting ${this.name} cohort`;
       deleteCohort(this.cohortId).then(() => {
         this.showDeleteModal = false;
         router.push({ path: '/' });
@@ -155,9 +165,18 @@ export default {
         name: this.name
       });
       if (!this.renameError) {
-        this.renameCohort(this.name);
+        this.renameCohort(this.name).then(() => {
+          this.cohortUpdateStatus = `Saved new cohort name: ${this.name}`;
+          this.putFocusNextTick('cohort-name');
+        });
         this.setEditMode(null);
       }
+    },
+    toggleShowHideDetails() {
+      this.toggleCompactView();
+      this.cohortUpdateStatus = this.isCompactView
+        ? 'Filters are hidden'
+        : 'Filter are visible';
     }
   },
   watch: {

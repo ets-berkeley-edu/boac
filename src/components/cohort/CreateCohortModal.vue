@@ -11,7 +11,7 @@
                  maxlength="255"
                  required>
         </div>
-        <div class="faint-text mb-3">255 character limit <span v-if="name.length">({{255 - name.length}} left)</span></div>
+        <div class="faint-text mb-3"><span class="sr-only">Cohort name has a </span>255 character limit <span v-if="name.length">({{255 - name.length}} left)</span></div>
         <div id="create-error" class="has-error" v-if="error">{{ error }}</div>
         <div class="sr-only" aria-live="polite">{{ error }}</div>
         <div class="sr-only"

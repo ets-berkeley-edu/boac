@@ -87,6 +87,8 @@ const mutations = {
   },
   setCurrentPage: (state: any, currentPage: number) =>
     (state.pagination.currentPage = currentPage),
+  setModifiedSinceLastSearch: (state: any, value: boolean) =>
+    (state.isModifiedSinceLastSearch = value),
   toggleCompactView: (state: any) =>
     (state.isCompactView = !state.isCompactView),
   updateMenu: (state: any, menu: any[]) => (state.menu = menu),
@@ -97,9 +99,7 @@ const mutations = {
   updateExistingFilter: (state: any, { index, updatedFilter }) => {
     state.filters[index] = updatedFilter;
     state.isModifiedSinceLastSearch = true;
-  },
-  setModifiedSinceLastSearch: (state: any, value: boolean) =>
-    (state.isModifiedSinceLastSearch = value)
+  }
 };
 
 const actions = {
@@ -153,6 +153,7 @@ const actions = {
   applyFilters: ({ commit, state }, orderBy) => {
     return new Promise(resolve => {
       commit('setEditMode', 'apply');
+      commit('setModifiedSinceLastSearch', false);
       let offset =
         (state.pagination.currentPage - 1) * state.pagination.itemsPerPage;
       getStudentsPerFilters(
@@ -165,7 +166,6 @@ const actions = {
           students: data.students,
           totalStudentCount: data.totalStudentCount
         });
-        commit('setModifiedSinceLastSearch', false);
         commit('setEditMode', null);
         resolve();
       });
@@ -182,6 +182,7 @@ const actions = {
             students: state.students,
             totalStudentCount: cohort.totalStudentCount
           });
+          commit('setModifiedSinceLastSearch', null);
           resolve();
         }
       );
