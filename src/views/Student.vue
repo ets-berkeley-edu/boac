@@ -398,7 +398,7 @@
                         <div v-if="!canvasSite.analytics.lastActivity.student.raw">
                           <span :class="{'demo-mode-blur': user.inDemoMode}">{{student.name}}</span> has never visited this course site.
                         </div>
-                        <div v="canvasSite.analytics.lastActivity.student.raw">
+                        <div v-if="canvasSite.analytics.lastActivity.student.raw">
                           <span :class="{'demo-mode-blur': user.inDemoMode}">{{student.name}}</span>
                           last visited the course site {{lastActivityDays(canvasSite.analytics).toLowerCase()}}.
                           {{lastActivityInContext(canvasSite.analytics)}}
