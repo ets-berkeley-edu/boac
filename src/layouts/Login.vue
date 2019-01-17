@@ -30,7 +30,7 @@
         </div>
       </div>
       <div class="splash-cell-copyright pt-2">
-        <span class="splash-text-copyright">&copy; 2019. The Regents of the University of California</span>
+        <span class="splash-text-copyright">&copy; 2019 The Regents of the University of California</span>
       </div>
     </div>
   </div>
