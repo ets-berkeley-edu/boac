@@ -35,7 +35,7 @@ from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.authorized_user import cohort_filter_owners
 from boac.models.base import Base
-from flask_login import UserMixin
+from flask_login import current_user, UserMixin
 from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import JSONB
 
@@ -207,7 +207,9 @@ class CohortFilter(Base, UserMixin):
             })
             return cohort_json
 
-        owner = self.owners[0] if len(self.owners) else None
+        # Unsaved cohorts will have no owner defined and should translate department-specific criteria against the current
+        # logged-in user.
+        owner = self.owners[0] if len(self.owners) else current_user
         is_active_asc = convert_inactive_arg(is_inactive_asc, 'UWASC', owner)
         is_active_coe = convert_inactive_arg(is_inactive_coe, 'COENG', owner)
 
