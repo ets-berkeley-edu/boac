@@ -1,6 +1,6 @@
-import { event } from 'vue-analytics';
 import axios from 'axios';
 import store from '@/store';
+import { event } from 'vue-analytics';
 
 export function addStudents(curatedGroup, sids) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
