@@ -9,7 +9,7 @@
           <router-link id="cohort-create"
                        class="sidebar-create-link"
                        aria-label="Create cohort"
-                       to="/create_cohort"><i class="fas fa-plus"></i></router-link>
+                       :to="{path: '/create_cohort', query: { reload: 'true' }}"><i class="fas fa-plus"></i></router-link>
         </span>
       </div>
     </div>

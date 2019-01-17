@@ -16,7 +16,7 @@
       <div class="index-container-content">
         <div id="content" class="body-text">
           <!-- The ':key' attribute forces component reload when same route is requested with diff id in path. -->
-          <router-view :key="$route.path"></router-view>
+          <router-view :key="routeKey"></router-view>
         </div>
         <Footer v-if="!loading"/>
       </div>
@@ -29,14 +29,20 @@ import Footer from '@/components/Footer';
 import HeaderMenu from '@/components/HeaderMenu';
 import Loading from '@/mixins/Loading';
 import Sidebar from '@/components/sidebar/Sidebar';
+import Util from '@/mixins/Util';
 
 export default {
   name: 'StandardLayout',
-  mixins: [Loading],
+  mixins: [Loading, Util],
   components: {
     Footer,
     HeaderMenu,
     Sidebar
+  },
+  computed: {
+    routeKey() {
+      return `${this.$route.path}${this.get(this.$route.query, 'reload')}`;
+    }
   }
 };
 </script>
