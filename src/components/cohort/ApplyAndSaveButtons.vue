@@ -2,9 +2,9 @@
   <div>
       <div class="sr-only" aria-live="polite">{{ cohortUpdateStatus }}</div>
       <b-btn id="unsaved-filter-apply"
-             class="btn-filter-draft-apply"
-             aria-label="Search for students"
+             class="btn-filter-draft-apply btn-primary-color-override"
              variant="primary"
+             aria-label="Search for students"
              @click="apply()"
              :disabled="!!editMode"
              v-if="showApplyButton">
@@ -13,8 +13,11 @@
       <div v-if="showSaveButton && isPerforming !== 'search'">
         <b-btn id="save-button"
                class="save-button-width mt-3"
-               :aria-label="`cohortId ? 'Save cohort' : 'Create cohort'`"
+               :class="{
+                 'btn-primary-color-override': this.isPerforming !== 'acknowledgeSave'
+               }"
                :variant="saveButtonVariant"
+               :aria-label="`cohortId ? 'Save cohort' : 'Create cohort'`"
                :disabled="!!editMode || showCreateModal || !!isPerforming"
                @click="save()">
           <span v-if="isPerforming === 'acknowledgeSave'">Saved</span>
@@ -76,6 +79,7 @@ export default {
       this.createCohort(name).then(() => {
         this.savedCohortCallback(`Cohort ${name} created`);
         this.setPageTitle(this.cohortName);
+        history.pushState({}, null, `/cohort/${this.cohortId}`);
         this.isPerforming = null;
       });
     },

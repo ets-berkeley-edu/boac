@@ -9,7 +9,12 @@
           <router-link id="cohort-create"
                        class="sidebar-create-link"
                        aria-label="Create cohort"
-                       :to="{path: '/create_cohort', query: { reload: 'true' }}"><i class="fas fa-plus"></i></router-link>
+                       :to="{
+                         path: '/create_cohort',
+                         query: {
+                           reloadRouteKey: reloadRouteKey()
+                         }
+                       }"><i class="fas fa-plus"></i></router-link>
         </span>
       </div>
     </div>
@@ -33,10 +38,11 @@
 
 <script>
 import UserMetadata from '@/mixins/UserMetadata';
+import Util from '@/mixins/Util';
 
 export default {
   name: 'Cohorts',
-  mixins: [UserMetadata]
+  mixins: [UserMetadata, Util]
 };
 </script>
 

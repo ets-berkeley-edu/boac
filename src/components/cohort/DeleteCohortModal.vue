@@ -9,6 +9,7 @@
     <div class="modal-footer">
       <form @submit.prevent="deleteCohort()">
         <b-btn id="delete-confirm"
+               class="btn-primary-color-override"
                variant="primary"
                @click.prevent="deleteCohort()">Delete</b-btn>
         <b-btn id="delete-cancel"

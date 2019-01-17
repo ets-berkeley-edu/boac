@@ -9,10 +9,10 @@
       <div class="splash-cell-sign-in">
         <form @submit.prevent="logIn()">
           <b-btn id="splash-sign-in"
-                 class="btn-sign-in"
+                 class="btn-sign-in btn-primary-color-override"
+                 variant="primary"
                  aria-label="Log in to BOAC"
                  @click.stop="logIn()"
-                 variant="primary"
                  tabindex="0"
                  placement="top-left">Sign In</b-btn>
         </form>

@@ -111,7 +111,7 @@
     </div>
     <div class="cohort-filter-draft-column-03 pl-0" v-if="!isExistingFilter">
       <b-btn id="unsaved-filter-add"
-             class="ml-2"
+             class="btn-primary-color-override ml-2"
              variant="primary"
              aria-label="Add this new filter to the search criteria"
              @click="addNewFilter()"
@@ -124,8 +124,8 @@
          v-if="isModifyingFilter && filter.type && !isExistingFilter">
       <b-btn id="unsaved-filter-reset"
              class="cohort-manage-btn-link p-0"
-             aria-label="Cancel this filter selection"
              variant="link"
+             aria-label="Cancel this filter selection"
              @click="reset()">
         Cancel
       </b-btn>
@@ -135,8 +135,8 @@
         <span v-if="filter.type !== 'boolean'">
           <b-btn :id="`edit-added-filter-${index}`"
                  class="btn-cohort-added-filter pr-1"
-                 :aria-label="`Edit this ${filter.name} filter`"
                  variant="link"
+                 :aria-label="`Edit this ${filter.name} filter`"
                  size="sm"
                  @click="editExistingFilter()">
             Edit
@@ -144,8 +144,8 @@
         </span>
         <b-btn :id="`remove-added-filter-${index}`"
                class="btn-cohort-added-filter pl-2 pr-0"
-               :aria-label="`Remove this ${filter.name} filter`"
                variant="link"
+               :aria-label="`Remove this ${filter.name} filter`"
                size="sm"
                @click="removeFilter(index)">
           Remove
@@ -153,16 +153,17 @@
       </div>
       <div class="d-flex flex-row" v-if="isModifyingFilter">
         <b-btn :id="`update-added-filter-${index}`"
-               :aria-label="`Update this ${filter.name} filter`"
+               class="btn-primary-color-override"
                variant="primary"
+               :aria-label="`Update this ${filter.name} filter`"
                size="sm"
                @click="updateExisting()">
           Update
         </b-btn>
         <b-btn :id="`cancel-edit-added-filter-${index}`"
                class="btn-cohort-added-filter"
-               aria-label="Cancel update"
                variant="link"
+               aria-label="Cancel update"
                size="sm"
                @click="cancelEditExisting()">
           Cancel
