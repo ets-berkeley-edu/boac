@@ -1,5 +1,5 @@
 <script>
-import { mapGetters } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'Context',
@@ -8,8 +8,12 @@ export default {
       'apiBaseUrl',
       'currentEnrollmentTermId',
       'devAuthEnabled',
+      'errors',
       'supportEmailAddress'
     ])
+  },
+  methods: {
+    ...mapActions('context', ['clearErrors', 'dismissError'])
   }
 };
 </script>
