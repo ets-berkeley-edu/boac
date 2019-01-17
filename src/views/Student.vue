@@ -765,6 +765,7 @@ export default {
   white-space: nowrap;
 }
 .student-course-sections {
+  display: inline-block;
   font-weight: 400;
   white-space: nowrap;
 }
