@@ -55,16 +55,15 @@ export default {
     DemoModeToggle,
     Spinner
   },
-  created() {
-    this.loadUserGroups();
-  },
   data: () => ({
     active: [],
     userGroups: null
   }),
-  watch: {
-    user: function() {
-      this.updateLoadingStatus();
+  mounted() {
+    if (this.user.isAdmin) {
+      this.loadUserGroups();
+    } else {
+      this.$router.push({ path: '/404' });
     }
   },
   methods: {
@@ -79,8 +78,11 @@ export default {
         this.loaded();
       }
     },
-    become(uid) {
-      becomeUser(uid).then(() => (window.location = '/home'));
+    become: uid => becomeUser(uid).then(() => (window.location = '/home'))
+  },
+  watch: {
+    user() {
+      this.updateLoadingStatus();
     }
   }
 };
