@@ -166,7 +166,7 @@ export default {
         this.toggle(false);
         this.isSaving = false;
       };
-      createCuratedGroup(name, this.sids).then(done);
+      createCuratedGroup(name, this.sids).then(setTimeout(() => done(), 2000));
     },
     modalCancel() {
       this.sids = [];
