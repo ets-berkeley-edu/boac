@@ -49,9 +49,9 @@
     </div>
     <div class="d-flex align-self-baseline m-1 mr-4" v-if="renameMode">
       <b-btn id="rename-confirm"
-             class="cohort-manage-btn"
-             aria-label="Save changes to cohort name"
+             class="cohort-manage-btn btn-primary-color-override"
              variant="primary"
+             aria-label="Save changes to cohort name"
              size="sm"
              @click.prevent="submitRename()"
              :disabled="!name">
@@ -59,8 +59,8 @@
       </b-btn>
       <b-btn id="rename-cancel"
              class="cohort-manage-btn"
-             aria-label="Cancel rename cohort"
              variant="link"
+             aria-label="Cancel rename cohort"
              size="sm"
              @click="cancelRename()">
         Cancel
@@ -69,9 +69,9 @@
     <div class="d-flex align-self-baseline m-1 mr-4" v-if="!renameMode">
       <div>
         <b-btn id="show-hide-details-button"
-               :aria-label="`isCompactView ? 'Show cohort filters' : 'Hide cohort filters'`"
                class="no-wrap pr-2 pt-0"
                variant="link"
+               :aria-label="`isCompactView ? 'Show cohort filters' : 'Hide cohort filters'`"
                @click="toggleShowHideDetails()"
                v-if="cohortId">
           {{isCompactView ? 'Show' : 'Hide'}} Filters
@@ -81,8 +81,8 @@
       <div v-if="cohortId && isOwnedByCurrentUser">
         <b-btn id="rename-button"
                class="pl-2 pr-2 pt-0"
-               aria-label="Rename this cohort"
                variant="link"
+               aria-label="Rename this cohort"
                @click="beginRename()">
           Rename
         </b-btn>

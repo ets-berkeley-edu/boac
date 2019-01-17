@@ -31,6 +31,7 @@
     </div>
     <div class="d-flex align-self-baseline mr-4" v-if="renameMode.on">
       <b-btn id="rename-confirm"
+             class="btn-primary-color-override"
              variant="primary"
              size="sm"
              aria-label="Save changes to curated group name"
@@ -40,8 +41,8 @@
       </b-btn>
       <b-btn id="rename-cancel"
              class="cohort-manage-btn"
-             aria-label="Cancel rename curated group"
              variant="link"
+             aria-label="Cancel rename curated group"
              size="sm"
              @click="exitRenameMode">
         Cancel

@@ -27,6 +27,16 @@ export default {
   background-color: #286090;
   border-color: #204d74;
 }
+.btn-primary-color-override {
+  background-color: #337ab7 !important;
+  border-color: #2e6da4 !important;
+}
+.btn-primary-color-override:hover,
+.btn-primary-color-override:focus,
+.btn-primary-color-override:active {
+  background-color: #286090 !important;
+  border-color: #204d74 !important;
+}
 .btn-link:active,
 .btn-link:focus,
 .btn-link:focus-within,

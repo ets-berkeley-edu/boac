@@ -36,9 +36,9 @@
       </div>
       <div class="ml-1">
         <b-btn id="dev-auth-submit"
-               class="splash-btn-dev-auth"
-               aria-label="Log in to BOAC with dev-auth"
+               class="splash-btn-dev-auth btn-primary-color-override"
                variant="primary"
+               aria-label="Log in to BOAC with dev-auth"
                type="submit">DevAuth!</b-btn>
       </div>
     </div>
