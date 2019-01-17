@@ -175,7 +175,6 @@ const actions = {
     return new Promise(resolve => {
       createCohort(name, state.filters, state.totalStudentCount).then(
         cohort => {
-          store.dispatch('cohort/addCohort', cohort);
           commit('resetSession', {
             cohort,
             filters: state.filters,
@@ -196,10 +195,7 @@ const actions = {
         state.cohortName,
         state.filters,
         state.totalStudentCount
-      ).then(cohort => {
-        store.dispatch('cohort/updateCohort', cohort);
-        resolve();
-      });
+      ).then(resolve);
     });
   },
   removeFilter: ({ commit, state }, index: number) => {
@@ -219,8 +215,7 @@ const actions = {
         state.cohortName,
         state.filters,
         state.totalStudentCount
-      ).then(cohort => {
-        store.dispatch('cohort/updateCohort', cohort);
+      ).then(() => {
         commit('setModifiedSinceLastSearch', null);
         resolve();
       });
