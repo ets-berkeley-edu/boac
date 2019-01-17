@@ -140,7 +140,7 @@ export default {
       this.name = this.cohortName;
       this.setEditMode('rename');
       this.cohortUpdateStatus = `Renaming ${this.name} cohort`;
-      this.putFocusNextTick('cohort-name');
+      this.putFocusNextTick('rename-cohort-input');
     },
     cancelDeleteModal() {
       this.showDeleteModal = false;
@@ -163,9 +163,12 @@ export default {
         id: this.cohortId,
         name: this.name
       });
-      if (!this.renameError) {
+      if (this.renameError) {
+        this.putFocusNextTick('rename-cohort-input');
+      } else {
         this.renameCohort(this.name).then(() => {
           this.cohortUpdateStatus = `Saved new cohort name: ${this.name}`;
+          this.setPageTitle(this.name);
           this.putFocusNextTick('cohort-name');
         });
         this.setEditMode(null);

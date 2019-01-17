@@ -144,6 +144,7 @@ export default {
       } else {
         renameCuratedGroup(this.curatedGroup.id, this.renameInput).then(() => {
           this.curatedGroup.name = this.renameInput;
+          this.setPageTitle(this.curatedGroup.name);
           this.exitRenameMode();
           this.putFocusNextTick('curated-group-name');
         });

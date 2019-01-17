@@ -96,6 +96,7 @@ export default {
       this.includes(this.$route.path, this.cohortId);
     if (continueExistingSession) {
       this.pageNumber = this.pagination.currentPage;
+      this.setPageTitle(this.cohortName);
       this.loaded();
     } else {
       let id = this.get(this.$route, 'params.id');
@@ -105,6 +106,7 @@ export default {
       }).then(() => {
         this.showFilters = !this.isCompactView;
         this.currentPage = this.pagination.currentPage;
+        this.setPageTitle(this.cohortName);
         this.loaded();
         this.putFocusNextTick(
           this.cohortId ? 'cohort-name' : 'create-cohort-h1'
