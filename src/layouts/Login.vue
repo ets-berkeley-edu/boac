@@ -3,8 +3,7 @@
     <div class="splash-container">
       <div class="splash-cell-stripe"></div>
       <div class="avatar-container">
-        <img class="avatar-airplane"
-             :src="`${apiBaseUrl}/static/app/splash/airplane.svg`">
+        <img class="avatar-airplane" src="@/assets/airplane.svg"/>
       </div>
       <div class="splash-cell-sign-in">
         <form @submit.prevent="logIn()">
