@@ -146,7 +146,9 @@ const router = new Router({
 });
 
 router.beforeEach((to: any, from: any, next: any) => {
-  store.dispatch('context/loadConfig').then(() => next());
+  store.dispatch('context/loadConfig').then(() => {
+    store.dispatch('context/clearErrors').then(() => next());
+  });
 });
 
 router.afterEach((to: any) => {

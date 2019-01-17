@@ -15,7 +15,6 @@
       </div>
       <div class="index-container-content">
         <div id="content" class="body-text">
-          <DisplayError/>
           <!-- The ':key' attribute forces component reload when same route is requested with diff id in path. -->
           <router-view :key="$route.path"></router-view>
         </div>
@@ -26,7 +25,6 @@
 </template>
 
 <script>
-import DisplayError from '@/components/util/DisplayError';
 import Footer from '@/components/Footer';
 import HeaderMenu from '@/components/HeaderMenu';
 import Loading from '@/mixins/Loading';
@@ -36,7 +34,6 @@ export default {
   name: 'StandardLayout',
   mixins: [Loading],
   components: {
-    DisplayError,
     Footer,
     HeaderMenu,
     Sidebar

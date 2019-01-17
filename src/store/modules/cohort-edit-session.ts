@@ -112,7 +112,7 @@ const actions = {
         key: 'sortBy',
         value: 'last_name'
       });
-      if (id > 0) {
+      if (id) {
         getCohort(id, true, orderBy).then(cohort => {
           if (cohort) {
             translateToMenu(cohort.filterCriteria).then(filters => {

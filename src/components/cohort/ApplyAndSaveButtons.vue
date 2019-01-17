@@ -75,6 +75,7 @@ export default {
       this.isPerforming = 'save';
       this.createCohort(name).then(() => {
         this.savedCohortCallback(`Cohort ${name} created`);
+        this.setPageTitle(this.cohortName);
         this.isPerforming = null;
       });
     },
