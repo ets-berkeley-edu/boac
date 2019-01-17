@@ -35,6 +35,7 @@ export default {
         }, 500);
       });
     },
+    reloadRouteKey: () => new Date().getTime(),
     remove: _.remove,
     setPageTitle: phrase =>
       (document.title = `${phrase || 'UC Berkeley'} | BOAC`),

@@ -76,6 +76,7 @@ export default {
       this.createCohort(name).then(() => {
         this.savedCohortCallback(`Cohort ${name} created`);
         this.setPageTitle(this.cohortName);
+        history.pushState({}, null, `/cohort/${this.cohortId}`);
         this.isPerforming = null;
       });
     },

@@ -41,7 +41,9 @@ export default {
   },
   computed: {
     routeKey() {
-      return `${this.$route.path}${this.get(this.$route.query, 'reload')}`;
+      const path = this.$route.path;
+      const key = this.get(this.$route.query, 'reloadRouteKey');
+      return key ? `${path}${key}` : path;
     }
   }
 };
