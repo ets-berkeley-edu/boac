@@ -55,17 +55,12 @@ export default {
     DemoModeToggle,
     Spinner
   },
-  created() {
-    this.loadUserGroups();
-  },
   data: () => ({
     active: [],
     userGroups: null
   }),
-  watch: {
-    user: function() {
-      this.updateLoadingStatus();
-    }
+  created() {
+    this.loadUserGroups();
   },
   methods: {
     loadUserGroups() {
@@ -80,7 +75,12 @@ export default {
       }
     },
     become(uid) {
-      becomeUser(uid).then(() => (window.location = '/home'));
+      becomeUser(uid).then(() => (window.location.href = '/home'));
+    }
+  },
+  watch: {
+    user: function() {
+      this.updateLoadingStatus();
     }
   }
 };

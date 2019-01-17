@@ -17,12 +17,17 @@ import { routerHistory, writeHistory } from 'vue-router-back-button';
 // Allow cookies in Access-Control requests
 axios.defaults.withCredentials = true;
 axios.interceptors.response.use(response => response, function(error) {
-  store.dispatch('context/reportError', {
-    message: error.message,
-    text: error.response.text,
-    status: error.response.status,
-    stack: error.stack
-  });
+  let status = error.response.status;
+  if (_.includes([401, 403], status)) {
+    router.push({ path: '/404' });
+  } else {
+    store.dispatch('context/reportError', {
+      message: error.message,
+      text: error.response.text,
+      status: status,
+      stack: error.stack
+    });
+  }
   return Promise.reject(error);
 });
 
