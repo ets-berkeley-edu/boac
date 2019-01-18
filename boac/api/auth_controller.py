@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 from urllib.parse import urlencode
 
 from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
@@ -87,7 +86,9 @@ def become():
 @login_required
 def logout():
     logout_user()
-    cas_logout_url = _cas_client().get_logout_url(redirect_url=request.url_root)
+    vue_base_url = app.config['VUE_LOCALHOST_BASE_URL']
+    redirect_url = vue_base_url if app.config['VUE_ENABLED'] and vue_base_url else request.url_root
+    cas_logout_url = _cas_client().get_logout_url(redirect_url=redirect_url)
     return tolerant_jsonify({'casLogoutUrl': cas_logout_url, **get_current_user_status()})
 
 

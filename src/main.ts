@@ -18,7 +18,7 @@ import { routerHistory, writeHistory } from 'vue-router-back-button';
 axios.defaults.withCredentials = true;
 axios.interceptors.response.use(response => response, function(error) {
   let status = error.response.status;
-  if (_.includes([401, 403], status)) {
+  if (_.includes([401, 403, 404], status)) {
     router.push({ path: '/404' });
   } else {
     store.dispatch('context/reportError', {

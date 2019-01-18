@@ -24,7 +24,6 @@
 <script>
 import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
-import store from '@/store';
 import { getCasLogoutURL } from '@/api/auth';
 
 export default {
@@ -32,11 +31,9 @@ export default {
   mixins: [Context, UserMetadata],
   methods: {
     logOut() {
-      getCasLogoutURL().then(data => {
-        store
-          .dispatch('user/logout')
-          .then(() => (window.location.href = data.casLogoutURL));
-      });
+      getCasLogoutURL().then(
+        data => (window.location.href = data.casLogoutURL)
+      );
     },
     goAdmin() {
       this.$router.push({ path: '/admin' });

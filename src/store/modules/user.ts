@@ -13,11 +13,11 @@ const $_user_canViewDepartment = (state, deptCode) => {
 };
 
 const state = {
-  user: null,
+  isUserAuthenticated: undefined,
   preferences: {
     sortBy: 'last_name'
   },
-  isUserAuthenticated: null
+  user: undefined
 };
 
 const getters = {
@@ -41,9 +41,8 @@ const mutations = {
       state.user = user;
     }
   },
-  setDemoMode: (state: any, demoMode: boolean) => {
-    state.user.demoMode = demoMode;
-  },
+  setDemoMode: (state: any, demoMode: boolean) =>
+    (state.user.demoMode = demoMode),
   setUserPreference: (state: any, { key, value }) => {
     if (_.has(state.preferences, key)) {
       state.preferences[key] = value;
@@ -51,24 +50,10 @@ const mutations = {
       throw new TypeError('Invalid user preference type: ' + key);
     }
   },
-  userAuthenticated: (state: any) => {
-    state.isUserAuthenticated = true;
-  }
+  userAuthenticated: (state: any) => (state.isUserAuthenticated = true)
 };
 
 const actions = {
-  logout: ({ commit }) => {
-    commit('logout');
-  },
-  setDemoMode: ({ commit }, demoMode) => {
-    commit('setDemoMode', demoMode);
-  },
-  setUserPreference: ({ commit }, { key, value }) => {
-    commit('setUserPreference', { key, value });
-  },
-  userAuthenticated: ({ commit }) => {
-    commit('userAuthenticated');
-  },
   loadUserStatus: ({ commit, state }) => {
     return new Promise(resolve => {
       if (_.isNil(state.isUserAuthenticated)) {
@@ -97,7 +82,12 @@ const actions = {
         });
       }
     });
-  }
+  },
+  logout: ({ commit }) => commit('logout'),
+  setDemoMode: ({ commit }, demoMode) => commit('setDemoMode', demoMode),
+  setUserPreference: ({ commit }, { key, value }) =>
+    commit('setUserPreference', { key, value }),
+  userAuthenticated: ({ commit }) => commit('userAuthenticated')
 };
 
 export default {
