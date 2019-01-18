@@ -106,7 +106,7 @@ export default {
       }).then(() => {
         this.showFilters = !this.isCompactView;
         this.currentPage = this.pagination.currentPage;
-        this.setPageTitle(this.cohortName);
+        this.setPageTitle(this.cohortId ? this.cohortName : 'Create Cohort');
         this.loaded();
         this.putFocusNextTick(
           this.cohortId ? 'cohort-name' : 'create-cohort-h1'
