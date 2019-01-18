@@ -37,6 +37,7 @@
   align-items: center;
   display: flex;
   margin: 10px 15px;
+  min-width: 130px;
 }
 
 .home-cohort-accordion-heading-count-label {
