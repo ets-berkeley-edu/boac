@@ -53,12 +53,10 @@ const actions = {
       }
     });
   },
-  async loadMyCohorts({ commit, state }) {
-    if (state.myCohorts === null) {
-      getMyCohorts().then(cohorts => {
-        commit('saveMyCohorts', cohorts);
-      });
-    }
+  async loadMyCohorts({ commit }) {
+    getMyCohorts().then(cohorts => {
+      commit('saveMyCohorts', cohorts);
+    });
   },
   updateCohort: ({ commit }, cohort) => {
     commit('updateCohort', cohort);

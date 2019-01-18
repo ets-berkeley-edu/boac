@@ -57,12 +57,10 @@ const actions = {
       }
     });
   },
-  async loadMyCuratedGroups({ commit, state }) {
-    if (state.myCuratedGroups === null) {
-      getMyCuratedGroups().then(curatedGroups => {
-        commit('saveMyCuratedGroups', curatedGroups);
-      });
-    }
+  async loadMyCuratedGroups({ commit }) {
+    getMyCuratedGroups().then(curatedGroups => {
+      commit('saveMyCuratedGroups', curatedGroups);
+    });
   }
 };
 
