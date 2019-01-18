@@ -10,9 +10,10 @@ export default {
     extend: _.extend,
     filterList: _.filter,
     find: _.find,
+    flatten: _.flatten,
     focusModalById: id =>
       document.getElementById(id) && document.getElementById(id).focus(),
-    flatten: _.flatten,
+    forceUniquePath: routePath => `${routePath}?_=${new Date().getTime()}`,
     get: _.get,
     includes: _.includes,
     inRange: _.inRange,
@@ -35,7 +36,6 @@ export default {
         }, 500);
       });
     },
-    reloadRouteKey: () => new Date().getTime(),
     remove: _.remove,
     setPageTitle: phrase =>
       (document.title = `${phrase || 'UC Berkeley'} | BOAC`),

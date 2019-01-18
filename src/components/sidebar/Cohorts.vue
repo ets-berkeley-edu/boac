@@ -9,12 +9,7 @@
           <router-link id="cohort-create"
                        class="sidebar-create-link"
                        aria-label="Create cohort"
-                       :to="{
-                         path: '/create_cohort',
-                         query: {
-                           reloadRouteKey: reloadRouteKey()
-                         }
-                       }"><i class="fas fa-plus"></i></router-link>
+                       :to="forceUniquePath('/cohort/new?')"><i class="fas fa-plus"></i></router-link>
         </span>
       </div>
     </div>
@@ -25,7 +20,7 @@
         <router-link :id="`sidebar-cohort-${cohort.id}`"
                      :aria-label="`Cohort ${cohort.name} has ${cohort.totalStudentCount} students`"
                      class="sidebar-row-link-label-text"
-                     :to="`/cohort/${cohort.id}`">{{ cohort.name }}</router-link>
+                     :to="forceUniquePath(`/cohort/${cohort.id}`)">{{ cohort.name }}</router-link>
       </div>
       <div>
         <span :id="`sidebar-cohort-${cohort.id}-total-student-count`"

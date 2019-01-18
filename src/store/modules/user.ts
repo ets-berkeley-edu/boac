@@ -31,10 +31,6 @@ const getters = {
 };
 
 const mutations = {
-  logout: (state: any) => {
-    state.isUserAuthenticated = false;
-    state.user = null;
-  },
   registerUser: (state: any, user: any) => {
     state.isUserAuthenticated = user.isAuthenticated;
     if (user.uid) {

@@ -12,7 +12,7 @@
         <router-link :id="'sidebar-curated-cohort-' + index"
                      :aria-label="'Curated group ' + group.name + ' has ' + group.studentCount + ' students'"
                      class="sidebar-row-link-label-text"
-                     :to="'/curated_group/' + group.id">{{ group.name }}</router-link>
+                     :to="forceUniquePath(`/curated_group/${group.id}`)">{{ group.name }}</router-link>
       </div>
       <div>
         <span :id="'sidebar-curated-cohort-' + index + '-count'"
@@ -26,9 +26,10 @@
 
 <script>
 import UserMetadata from '@/mixins/UserMetadata';
+import Util from '@/mixins/Util';
 
 export default {
   name: 'CuratedGroups',
-  mixins: [UserMetadata]
+  mixins: [UserMetadata, Util]
 };
 </script>
