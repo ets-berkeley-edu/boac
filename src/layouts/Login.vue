@@ -37,7 +37,7 @@
 
 <script>
 import Context from '@/mixins/Context';
-import DevAuth from '@/components/admin/DevAuth.vue';
+import DevAuth from '@/components/admin/DevAuth';
 import { getCasLoginURL } from '@/api/auth';
 
 export default {
@@ -48,9 +48,7 @@ export default {
   },
   methods: {
     logIn() {
-      getCasLoginURL().then(data => {
-        window.location.href = data.casLoginUrl;
-      });
+      getCasLoginURL().then(data => (window.location.href = data.casLoginUrl));
     }
   }
 };

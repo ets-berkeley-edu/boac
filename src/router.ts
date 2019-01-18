@@ -52,12 +52,12 @@ const router = new Router({
     {
       path: '/',
       component: StandardLayout,
+      beforeEnter: requiresAuth,
       children: [
         {
           path: '/home',
           name: 'home',
           component: Home,
-          beforeEnter: requiresAuth,
           meta: {
             title: 'Home'
           }
@@ -66,7 +66,6 @@ const router = new Router({
           path: '/admin',
           name: 'admin',
           component: Admin,
-          beforeEnter: requiresAuth,
           meta: {
             title: 'Admin'
           }
@@ -74,7 +73,6 @@ const router = new Router({
         {
           path: '/cohorts/all',
           component: AllCohorts,
-          beforeEnter: requiresAuth,
           meta: {
             title: 'All Cohorts'
           }
@@ -82,7 +80,6 @@ const router = new Router({
         {
           path: '/cohort/:id',
           component: Cohort,
-          beforeEnter: requiresAuth,
           meta: {
             title: 'Cohort'
           }
@@ -90,14 +87,12 @@ const router = new Router({
         {
           path: '/create_cohort',
           component: Cohort,
-          beforeEnter: requiresAuth,
           meta: {
             title: 'Create Cohort'
           }
         },
         {
           path: '/course/:termId/:sectionId',
-          beforeEnter: requiresAuth,
           component: Course,
           meta: {
             title: 'Course'
@@ -105,7 +100,6 @@ const router = new Router({
         },
         {
           path: '/curated_group/:id',
-          beforeEnter: requiresAuth,
           component: CuratedGroup,
           props: true,
           meta: {
@@ -114,7 +108,6 @@ const router = new Router({
         },
         {
           path: '/student/:uid',
-          beforeEnter: requiresAuth,
           component: Student,
           meta: {
             title: 'Student'
@@ -122,7 +115,6 @@ const router = new Router({
         },
         {
           path: '/search',
-          beforeEnter: requiresAuth,
           component: Search,
           meta: {
             title: 'Search'
@@ -137,8 +129,7 @@ const router = new Router({
         },
         {
           path: '*',
-          component: NotFound,
-          beforeEnter: requiresAuth
+          redirect: '/404'
         }
       ]
     }

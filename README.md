@@ -50,8 +50,12 @@ We use [Tox](https://tox.readthedocs.io) for continuous integration. Under the h
 # Run all tests and linters
 tox
 
-# Pytest only
+# Pytest
 tox -e test
+
+# Run specific test(s)
+tox -e test -- tests/test_models/test_authorized_user.py
+tox -e test -- tests/test_externals/
 
 # Linters, à la carte
 tox -e lint-css
@@ -61,10 +65,6 @@ tox -e lint-vue
 
 # Auto-fix linting errors in Vue code
 tox -e lint-vue-fix
-
-# Run specific test(s)
-tox -e test -- tests/test_models/test_authorized_user.py
-tox -e test -- tests/test_externals/
 
 # Lint specific file(s)
 tox -e lint-js -- boac/static/js/controllers/cohortController.js

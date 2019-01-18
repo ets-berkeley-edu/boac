@@ -3,8 +3,8 @@ import { getConfig } from '@/api/config';
 
 const state = {
   config: undefined,
-  loading: undefined,
-  errors: []
+  errors: [],
+  loading: undefined
 };
 
 const getters = {
