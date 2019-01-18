@@ -416,7 +416,17 @@
               <div class="student-course-heading-start"></div>
               <div class="student-course-heading-end">
                 <div class="student-course-heading-units-total">
-                  Total {{term.enrolledUnits}}
+                  <div>
+                    <span>Total Units </span><span>{{term.enrolledUnits}}</span>
+                  </div>
+                  <div class="student-course-heading-units-override"
+                       v-if="currentEnrollmentTermId === parseInt(term.termId) && get(student, 'sisProfile.currentTerm.unitsMinOverride')">
+                    <span>Min Approved </span><span>{{student.sisProfile.currentTerm.unitsMinOverride}}</span>
+                  </div>
+                  <div class="student-course-heading-units-override"
+                       v-if="currentEnrollmentTermId === parseInt(term.termId) && get(student, 'sisProfile.currentTerm.unitsMaxOverride')">
+                    <span>Max Approved </span><span>{{student.sisProfile.currentTerm.unitsMaxOverride}}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -714,6 +724,9 @@ export default {
   margin-top: 15px;
   width: 100%;
 }
+.student-course-heading.student-course .student-course-heading-end {
+  flex: 0 0 290px;
+}
 .student-course-heading-end {
   display: flex;
   flex: 0 0 200px;
@@ -743,11 +756,22 @@ export default {
   flex: 0 0 100px;
   white-space: nowrap;
 }
+.student-course-heading-units-override {
+  font-size: 16px;
+  font-weight: 400;
+}
 .student-course-heading-units-total {
   color: #777;
+  display: flex;
+  flex-direction: column;
   font-size: 16px;
   font-weight: 500;
   margin-top: 15px;
+  flex: 0 0 142px;
+}
+.student-course-heading-units-total > div {
+  display: flex;
+  justify-content: space-between;
 }
 .student-course-name {
   font-size: 16px;
