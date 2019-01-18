@@ -25,7 +25,7 @@ export function becomeUser(uid: string) {
     .then(response => response.data, () => null);
 }
 
-export function getCasLogoutURL() {
+export function getCasLogoutUrl() {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
     .get(`${apiBaseUrl}/api/auth/logout`)

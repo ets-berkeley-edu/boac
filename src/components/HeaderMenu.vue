@@ -24,15 +24,15 @@
 <script>
 import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
-import { getCasLogoutURL } from '@/api/auth';
+import { getCasLogoutUrl } from '@/api/auth';
 
 export default {
   name: 'HeaderMenu',
   mixins: [Context, UserMetadata],
   methods: {
     logOut() {
-      getCasLogoutURL().then(
-        data => (window.location.href = data.casLogoutURL)
+      getCasLogoutUrl().then(
+        data => (window.location.href = data.casLogoutUrl)
       );
     },
     goAdmin() {
