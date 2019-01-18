@@ -291,15 +291,14 @@
            <div v-if="section.totalStudentCount > pagination.itemsPerPage">
              <span class="sr-only"><span id="total-student-count">{{ section.totalStudentCount / pagination.itemsPerPage | ceil }}</span>
                pages of search results</span>
-             <b-pagination
-               id="pagination-widget"
-               size="md"
-               :total-rows="section.totalStudentCount"
-               :limit="20"
-               v-model="pagination.currentPage"
-               :per-page="pagination.itemsPerPage"
-               :hide-goto-end-buttons="true"
-               @input="nextPage()">
+             <b-pagination id="pagination-widget"
+                           size="md"
+                           :total-rows="section.totalStudentCount"
+                           :limit="20"
+                           v-model="pagination.currentPage"
+                           :per-page="pagination.itemsPerPage"
+                           :hide-goto-end-buttons="true"
+                           @input="nextPage()">
              </b-pagination>
            </div>
          </div>

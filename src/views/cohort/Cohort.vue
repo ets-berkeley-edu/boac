@@ -99,9 +99,9 @@ export default {
       this.setPageTitle(this.cohortName);
       this.loaded();
     } else {
-      let id = this.get(this.$route, 'params.id');
+      let id = parseInt(this.get(this.$route, 'params.id'));
       this.init({
-        id,
+        id: Number.isInteger(id) ? id : null,
         orderBy: this.preferences.sortBy
       }).then(() => {
         this.showFilters = !this.isCompactView;

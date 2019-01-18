@@ -85,13 +85,6 @@ const router = new Router({
           }
         },
         {
-          path: '/create_cohort',
-          component: Cohort,
-          meta: {
-            title: 'Create Cohort'
-          }
-        },
-        {
           path: '/course/:termId/:sectionId',
           component: Course,
           meta: {
