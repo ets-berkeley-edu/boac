@@ -107,7 +107,7 @@ export default {
         search(
           this.phrase,
           this.includeCourses,
-          this.isAscUser ? true : null,
+          this.isAscUser ? false : null,
           this.isCoeUser ? false : null
         )
           .then(data => {
