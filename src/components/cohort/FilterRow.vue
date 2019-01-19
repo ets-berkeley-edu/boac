@@ -3,7 +3,7 @@
        :class="{'pt-2': !isExistingFilter}"
        v-if="showRow">
     <div :id="`existing-name-${index}`"
-         class="dropdown-width p-2"
+         class="existing-filter-name p-2"
          v-if="isExistingFilter">
       <span class="sr-only">Filter name:</span> {{ filter.name }}
     </div>
@@ -147,7 +147,7 @@
                variant="link"
                :aria-label="`Remove this ${filter.name} filter`"
                size="sm"
-               @click="removeFilter(index)">
+               @click="remove()">
           Remove
         </b-btn>
       </div>
@@ -203,11 +203,6 @@ export default {
   created() {
     this.reset();
     this.valueOriginal = this.filter && this.filter.value;
-    this.$eventHub.$on('cohort-filter-row-edit', editIndex => {
-      if (this.index && this.index !== editIndex) {
-        this.cancelEditExisting();
-      }
-    });
   },
   computed: {
     filterRowIndex() {
@@ -255,9 +250,8 @@ export default {
           this.filter.options = category.options;
           break;
       }
-      this.$eventHub.$emit('cohort-filter-row-edit', this.index);
       this.isModifyingFilter = true;
-      this.setEditMode('edit');
+      this.setEditMode(`edit-${this.index}`);
       this.putFocusSecondaryDropdown();
       this.filterUpdateStatus = `Editing existing ${this.filter.name} filter`;
     },
@@ -272,6 +266,11 @@ export default {
         this.filterRowSecondaryDropdownId(this.filterRowIndex),
         'button'
       );
+    },
+    remove() {
+      this.removeFilter(this.index);
+      this.setEditMode(null);
+      this.putFocusNewFilterDropdown();
     },
     reset() {
       this.showAdd = false;
@@ -338,24 +337,29 @@ export default {
   watch: {
     editMode(newEditMode) {
       // Reset the current filter-row if an edit session is initiated elsewhere.
-      switch (newEditMode) {
-        case 'add':
-          if (this.isExistingFilter) {
-            this.reset();
-          }
-          break;
-        case 'edit':
-          if (!this.isExistingFilter) {
-            this.reset();
-            this.showRow = false;
-          }
-          break;
-        case 'rename':
+      if (this.isNil(newEditMode)) {
+        // Nothing is being edited. Let's make sure this row is in default state.
+        this.reset();
+        this.showRow = true;
+      } else if (newEditMode === 'add') {
+        if (this.isExistingFilter) {
+          // User is adding a new filter so other rows, per existing filters, are put back in default state.
           this.reset();
-          break;
-        default:
-          this.showRow = true;
-          break;
+        }
+      } else if (newEditMode.match('edit-[0-9]+')) {
+        if (this.isExistingFilter) {
+          if (newEditMode !== `edit-${this.index}`) {
+            // We do not allow two rows to be in edit mode simultaneously. In this case, some other row is entering edit
+            // mode so we effectively click cancel on this row.
+            this.reset();
+          }
+        } else {
+          // Reset and then hide this 'New Filter' row because user has clicked to edit an existing filter.
+          this.reset();
+          this.showRow = false;
+        }
+      } else if (newEditMode === 'rename') {
+        this.reset();
       }
     },
     range: {
@@ -401,6 +405,9 @@ export default {
 }
 .cohort-filter-draft-column-02 .dropdown-item {
   width: 340px;
+}
+.existing-filter-name {
+  width: 260px;
 }
 .menu-caret {
   font-size: 22px;

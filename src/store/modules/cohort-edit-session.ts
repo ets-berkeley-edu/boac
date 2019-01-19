@@ -9,7 +9,7 @@ import { getCohortFilterOptions, translateToMenu } from '@/api/menu';
 import router from '@/router';
 import store from '@/store';
 
-const EDIT_MODE_TYPES = [null, 'add', 'apply', 'edit', 'rename'];
+const EDIT_MODE_TYPES = ['add', 'apply', 'edit-[0-9]+', 'rename'];
 
 const state = {
   cohortId: undefined,
@@ -57,7 +57,10 @@ const mutations = {
   isCompactView: (state: any, compactView: boolean) =>
     (state.isCompactView = compactView),
   setEditMode(state: any, editMode: string) {
-    if (_.includes(EDIT_MODE_TYPES, editMode)) {
+    if (_.isNil(editMode)) {
+      state.editMode = null;
+    } else if (_.find(EDIT_MODE_TYPES, type => editMode.match(type))) {
+      // Valid mode
       state.editMode = editMode;
     } else {
       throw new TypeError('Invalid page mode: ' + editMode);
