@@ -23,12 +23,16 @@
                   toggle-class="b-dd-primary-override"
                   size="sm"
                   no-caret
-                  :disabled="isSaving"
+                  :disabled="disableSelector"
                   v-if="showMenu">
         <template slot="button-content">
           <span :id="isSaving ? 'add-to-curated-group-confirmation' : 'add-to-curated-group'"
                 class="p-3">
-            <span v-if="!isSaving">Add to Curated Group <i class="fas fa-caret-down"></i></span>
+            <span v-if="!isSaving">
+              <span class="pr-2">Add to Curated Group</span>
+              <i class="fas fa-spinner fa-spin" v-if="disableSelector"></i>
+              <i class="fas fa-caret-down" v-if="!disableSelector"></i>
+            </span>
             <span v-if="isSaving">
               <i class="fas fa-check"></i> Added to Curated Group
               <span role="alert"
@@ -37,16 +41,15 @@
             </span>
           </span>
         </template>
-        <b-dropdown-item v-if="!size(curatedGroups)">
+        <b-dropdown-item v-if="!size(myCuratedGroups)">
           <span class="cohort-selector-zero-cohorts faint-text">You have no curated groups.</span>
         </b-dropdown-item>
         <b-dropdown-item :id="`curated-group-${group.id}-menu-item`"
                          class="b-dd-item-override"
-                         v-for="group in curatedGroups"
+                         v-for="group in myCuratedGroups"
                          :key="group.id">
           <input :id="`curated-group-${group.id}-checkbox`"
                  type="checkbox"
-                 v-model="group.selected"
                  @click="curatedGroupCheckboxClick(group)"
                  :aria-labelledby="`curated-cohort-${group.id}-name`"
                  v-if="group"/>
@@ -83,7 +86,6 @@
 
 <script>
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal.vue';
-import store from '@/store';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { addStudents, createCuratedGroup } from '@/api/curated';
@@ -99,7 +101,6 @@ export default {
   },
   data: () => ({
     sids: [],
-    curatedGroups: store.getters['curated/myCuratedGroups'],
     isSelectAllChecked: false,
     indeterminate: false,
     isSaving: false,
@@ -116,6 +117,9 @@ export default {
     });
   },
   computed: {
+    disableSelector() {
+      return this.isSaving || this.isNil(this.myCuratedGroups);
+    },
     dropdownVariant() {
       return this.isSaving ? 'success' : 'primary';
     },
@@ -147,11 +151,10 @@ export default {
       const afterAddStudents = () => {
         this.sids = [];
         this.isSelectAllChecked = this.indeterminate = false;
-        this.each(this.curatedGroups, g => (g.selected = false));
         this.$eventHub.$emit('curated-group-deselect-all');
         this.isSaving = false;
       };
-      const done = () => (group.selected = self.isSaving = false);
+      const done = () => (self.isSaving = false);
       this.isSaving = true;
       addStudents(group, this.sids)
         .then(afterAddStudents)
