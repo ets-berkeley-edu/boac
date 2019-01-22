@@ -71,11 +71,11 @@
                variant="link"
                :aria-label="`isCompactView ? 'Show cohort filters' : 'Hide cohort filters'`"
                @click="toggleShowHideDetails()"
-               v-if="cohortId">
+               v-if="cohortId && size(filters)">
           {{isCompactView ? 'Show' : 'Hide'}} Filters
         </b-btn>
       </div>
-      <div class="faint-text" v-if="cohortId && isOwnedByCurrentUser">|</div>
+      <div class="faint-text" v-if="cohortId && isOwnedByCurrentUser && size(filters)">|</div>
       <div v-if="cohortId && isOwnedByCurrentUser">
         <b-btn id="rename-button"
                class="pl-2 pr-2 pt-0"
