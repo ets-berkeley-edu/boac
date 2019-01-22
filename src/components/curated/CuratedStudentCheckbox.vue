@@ -27,7 +27,7 @@ export default {
     checkboxDescription() {
       return this.checked
         ? `Student ${this.sid} selected, ready to add to curated group`
-        : `Select student ${this.sid} to add to curated cohort`;
+        : `Select student ${this.sid} to add to curated group`;
     }
   },
   methods: {

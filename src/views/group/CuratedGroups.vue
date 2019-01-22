@@ -5,7 +5,7 @@
       <h1 ref="pageHeader" tabindex="0" class="page-section-header">Manage Curated Groups</h1>
       <div v-if="!curatedGroups.length" data-ng-controller="CreateCuratedCohortController">
         You have no curated groups.
-        <a id="curated-cohort-create"
+        <a id="curated-group-create"
            href
            data-ng-click="openCreateCuratedCohortModal()"><i class="fas fa-plus"></i> Create a new curated group</a>
       </div>
@@ -14,22 +14,22 @@
         <v-layout row v-if="!group.editMode">
           <div class="cohort-manage-name">
             <strong>
-              <router-link :id="'curated-cohort-name-' + index"
+              <router-link :id="`curated-group-name-${index}`"
                            :to="'/cohort/curated/' + group.id">{{ group.name }}</router-link>
             </strong>
-            <span class="faint-text">(<span :id="'curated-cohort-student-count-' + index">{{ group.studentCount }}</span>)</span>
+            <span class="faint-text">(<span :id="`curated-group-student-count-${index}`">{{ group.studentCount }}</span>)</span>
           </div>
           <div>
             <span data-ng-controller="DeleteCuratedCohortController">
               <button type="button"
-                      :id="'delete-curated-cohort-btn-' + index"
+                      :id="`delete-curated-group-btn-${index}`"
                       class="btn-link cohort-manage-btn-link"
                       data-ng-click="openDeleteCuratedCohortModal(group)">
                 Delete
               </button> <span class="faint-text">|</span>
             </span>
             <button type="button"
-                    :id="'edit-curated-cohort-btn-' + index"
+                    :id="`edit-curated-group-btn-${index}`"
                     class="btn-link cohort-manage-btn-link"
                     data-ng-click="setEditMode(group, true)">
               Rename
@@ -46,7 +46,7 @@
                    data-ng-change="group.hideError = true"
                    v-model="group.name"
                    :v-focus-if="group.editMode"
-                   :id="'curated-cohort-label-input-' + index"
+                   :id="`curated-group-label-input-${index}`"
                    maxlength="255"
                    name="label"
                    required
@@ -56,14 +56,14 @@
           </div>
           <div class="edit-mode-button-container">
             <button type="button"
-                    :id="'curated-cohort-save-btn-' + index"
+                    :id="`curated-group-save-btn-${index}`"
                     class="btn btn-sm btn-primary cohort-manage-btn"
                     v-disabled="!group.name"
                     v-on:click="rename(group, group.name)">
               Rename
             </button>
             <button type="button"
-                    :id="'curated-cohort-cancel-btn-' + index"
+                    :id="`curated-group-cancel-btn-${index}`"
                     class="btn btn-sm btn-default cohort-manage-btn"
                     v-on:click="cancelEdit(group)">
               Cancel

@@ -9,13 +9,13 @@
          v-for="(group, index) in myCuratedGroups"
          :key="group.id">
       <div class="sidebar-row-link-label">
-        <router-link :id="'sidebar-curated-cohort-' + index"
+        <router-link :id="`sidebar-curated-group-${index}`"
                      :aria-label="'Curated group ' + group.name + ' has ' + group.studentCount + ' students'"
                      class="sidebar-row-link-label-text"
                      :to="forceUniquePath(`/curated_group/${group.id}`)">{{ group.name }}</router-link>
       </div>
       <div>
-        <span :id="'sidebar-curated-cohort-' + index + '-count'"
+        <span :id="`sidebar-curated-group-${index}-count`"
               class="sidebar-pill">{{group.studentCount}}<span class="sr-only">{{ 'student' | pluralize(group.studentCount) }}</span>
         </span>
       </div>

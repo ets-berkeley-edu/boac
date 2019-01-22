@@ -22,12 +22,12 @@
         </div>
       </div>
       <div v-if="size(myCuratedGroups)">
-        <div id="curated-cohorts-header-row" class="home-page-section-header-wrapper">
+        <div id="curated-groups-header-row" class="home-page-section-header-wrapper">
           <h1 class="page-section-header">Curated Groups</h1>
         </div>
         <HomeCuratedGroup v-for="curatedGroup in myCuratedGroups"
-                         :key="curatedGroup.id"
-                         :curatedGroup="curatedGroup"/>
+                          :key="curatedGroup.id"
+                          :curatedGroup="curatedGroup"/>
       </div>
     </div>
   </div>
