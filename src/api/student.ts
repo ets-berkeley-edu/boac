@@ -1,5 +1,6 @@
 import axios from 'axios';
 import store from '@/store';
+import { event } from 'vue-analytics';
 
 export function dismissStudentAlert(alertId: string) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
@@ -41,6 +42,10 @@ export function search(
       orderBy: orderBy || 'first_name',
       offset: offset || 0,
       limit: limit || 50
+    })
+    .then(response => {
+      event('Students', 'search', phrase, store.getters['user/user'].uid);
+      return response;
     })
     .then(response => response.data, () => null);
 }
