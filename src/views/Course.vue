@@ -376,7 +376,15 @@ export default {
       var subject = _.remove(section.students, student => {
         return student.uid === this.featured;
       });
-      section.students = _.union(subject, section.students);
+      var students = _.union(subject, section.students);
+      // Discrepancies in our loch-hosted SIS data dumps may occasionally result in students without enrollment
+      // objects. A placeholder object keeps the front end from breaking.
+      _.each(students, student => {
+        if (!student.enrollment) {
+          student.enrollment = { canvasSites: [] };
+        }
+      });
+      section.students = students;
       return section;
     },
     initViewMode() {
