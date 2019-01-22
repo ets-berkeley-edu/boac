@@ -77,6 +77,7 @@
           </div>
           <div slot="modal-footer">
             <b-btn id="delete-confirm"
+                   class="btn-primary-color-override"
                    variant="primary"
                    @click="deleteGroup">
               Delete

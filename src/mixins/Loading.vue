@@ -1,6 +1,6 @@
 <script>
 import store from '@/store';
-import { mapGetters } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'Loading',
@@ -9,7 +9,7 @@ export default {
     ...mapGetters('context', ['loading'])
   },
   methods: {
-    startLoading: () => store.dispatch('context/loadingStart'),
+    ...mapActions('context', ['loadingStart']),
     loaded() {
       store.dispatch('context/loadingComplete');
       this.$nextTick(() => {

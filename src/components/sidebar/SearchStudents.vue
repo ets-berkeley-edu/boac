@@ -27,10 +27,11 @@
 </template>
 
 <script>
-import _ from 'lodash';
+import Util from '@/mixins/Util';
 
 export default {
   name: 'SearchStudents',
+  mixins: [Util],
   props: {
     withButton: Boolean
   },
@@ -42,11 +43,14 @@ export default {
   },
   methods: {
     search() {
-      this.searchPhrase = _.trim(this.searchPhrase);
+      this.searchPhrase = this.trim(this.searchPhrase);
       if (this.searchPhrase) {
         this.$router.push({
-          path: '/search',
-          query: { q: this.searchPhrase, includeCourses: 'true' }
+          path: this.forceUniquePath('/search'),
+          query: {
+            q: this.searchPhrase,
+            includeCourses: 'true'
+          }
         });
       }
     }
