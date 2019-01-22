@@ -51,9 +51,9 @@
           <input :id="`curated-group-${group.id}-checkbox`"
                  type="checkbox"
                  @click="curatedGroupCheckboxClick(group)"
-                 :aria-labelledby="`curated-cohort-${group.id}-name`"
+                 :aria-labelledby="`curated-group-${group.id}-name`"
                  v-if="group"/>
-          <label :id="`curated-cohort-${group.id}-name`"
+          <label :id="`curated-group-${group.id}-name`"
                  class="cohort-checkbox-name pb-0 pt-0"
                  :aria-label="`Add students to curated group '${group.name}'`"
                  v-if="group">{{ group.name }}</label>
