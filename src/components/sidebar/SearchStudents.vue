@@ -17,9 +17,10 @@
                maxlength="255"/>
       </div>
       <div v-if="withButton">
-        <button id="search-students-button"
-                class="btn btn-primary btn-search-students"
-                type="submit">Search</button>
+        <b-btn id="search-students-button"
+               variant="primary"
+               class="btn-search-students btn-primary-color-override"
+               type="submit">Search</b-btn>
       </div>
     </form>
   </div>
