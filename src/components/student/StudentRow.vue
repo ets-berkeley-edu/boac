@@ -43,40 +43,52 @@
           {{ student.withdrawalCancel.description }} {{ student.withdrawalCancel.date | date }}
         </span>
       </div>
-      <div class="student-text">{{ student.level }}</div>
+      <div :id="`student-${student.sid}-level`"
+           class="student-text">{{ student.level }}</div>
       <div class="student-text"
            v-for="(major, index) in student.majors"
            :key="index">
-        {{ major }}
+        <span :id="`student-${student.sid}-major-${index}`">{{ major }}</span>
       </div>
       <div class="student-teams-container" v-if="student.athleticsProfile">
         <div class="student-teams"
              v-for="(team, index) in student.athleticsProfile.athletics"
              :key="index">
-          {{ team.groupName }}
+          <span :id="`student-${student.sid}-team-${index}`">{{ team.groupName }}</span>
         </div>
       </div>
     </div>
     <div class="student-column student-column-gpa">
       <div>
-        <span class="student-gpa" v-if="!student.cumulativeGPA">--<span class="sr-only">No data</span></span>
-        <span class="student-gpa" v-if="student.cumulativeGPA">{{ student.cumulativeGPA | round(3) }}</span>
+        <span :id="`student-${student.sid}-cumulative-gpa`"
+              class="student-gpa"
+              v-if="!student.cumulativeGPA">--<span class="sr-only">No data</span></span>
+        <span :id="`student-${student.sid}-cumulative-gpa`"
+              class="student-gpa"
+              v-if="student.cumulativeGPA">{{ student.cumulativeGPA | round(3) }}</span>
         <span class="student-text"> GPA (Cumulative)</span>
       </div>
-      <StudentGpaChart v-if="size(student.termGpa) > 1" :student="student" :width="'130'"/>
+      <StudentGpaChart :student="student"
+                       :width="'130'"
+                       v-if="size(student.termGpa) > 1"/>
       <div class="student-bio-status-legend profile-last-term-gpa-outer"
            v-if="size(student.termGpa)">
         <i class="fa fa-exclamation-triangle boac-exclamation"
             v-if="student.termGpa[0].gpa < 2"></i>
-        <span>{{ student.termGpa[0].termName }}</span> GPA:
-        <strong :class="student.termGpa[0].gpa >= 2 ? 'profile-last-term-gpa' : 'profile-gpa-alert'">{{ student.termGpa[0].gpa | round(3) }}</strong>
+        <span :id="`student-${student.sid}-term-gpa-term-name`">{{ student.termGpa[0].termName }}</span> GPA:
+        <strong :id="`student-${student.sid}-term-gpa`"
+                :class="student.termGpa[0].gpa >= 2 ? 'profile-last-term-gpa' : 'profile-gpa-alert'">{{ student.termGpa[0].gpa | round(3) }}</strong>
       </div>
     </div>
     <div class="student-column">
       <div class="student-gpa">{{ get(student.term, 'enrolledUnits', 0) }}</div>
       <div class="student-text">Units in Progress</div>
-      <div class="student-gpa" v-if="student.cumulativeUnits">{{ student.cumulativeUnits }}</div>
-      <div class="student-gpa" v-if="!student.cumulativeUnits">--<span class="sr-only">No data</span></div>
+      <div :id="`student-${student.sid}-cumulative-units`"
+           class="student-gpa"
+           v-if="student.cumulativeUnits">{{ student.cumulativeUnits }}</div>
+      <div :id="`student-${student.sid}-cumulative-units`"
+           class="student-gpa"
+           v-if="!student.cumulativeUnits">--<span class="sr-only">No data</span></div>
       <div class="student-text">Units Completed</div>
     </div>
     <div class="cohort-course-activity-wrapper">
@@ -92,16 +104,18 @@
             <div>{{ enrollment.displayName }}</div>
           </td>
           <td class="cohort-course-activity-data">
-            <div class="cohort-boxplot-container"
-                  v-for="(canvasSite, index) in enrollment.canvasSites"
-                  :key="index">
+            <div :id="`student-${student.sid}-canvas-site-${index}`"
+                 class="cohort-boxplot-container"
+                 v-for="(canvasSite, index) in enrollment.canvasSites"
+                 :key="index">
               <span class="sr-only"
                     v-if="enrollment.canvasSites.length > 1">
                 {{ `Course site ${index + 1} of ${enrollment.canvasSites.length}` }}
               </span>
               <span>{{ lastActivityDays(canvasSite.analytics) }}</span>
             </div>
-            <div v-if="!get(enrollment, 'canvasSites').length"><span class="sr-only">No data</span>&mdash;</div>
+            <div :id="`student-${student.sid}-canvas-sites-no-data`"
+                 v-if="!get(enrollment, 'canvasSites').length"><span class="sr-only">No data</span>&mdash;</div>
           </td>
           <td class="cohort-course-activity-data">
             <span class="cohort-grade" v-if="enrollment.midtermGrade">{{ enrollment.midtermGrade }}</span>
