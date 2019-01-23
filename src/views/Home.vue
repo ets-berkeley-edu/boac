@@ -12,7 +12,7 @@
           </h1>
         </div>
         <div v-if="myCohorts && !size(myCohorts)">
-          <router-link id="create-filtered-cohort" to="/create_cohort">Create a student cohort</router-link>
+          <router-link id="create-filtered-cohort" to="/cohort/new">Create a student cohort</router-link>
           automatically by your filtering preferences, such as GPA or units.
         </div>
         <div role="tablist" class="panel-group">
