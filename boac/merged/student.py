@@ -122,6 +122,7 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None, fe
             student['cumulativeGPA'] = sis_profile.get('cumulativeGPA')
             student['cumulativeUnits'] = sis_profile.get('cumulativeUnits')
             student['level'] = _get_sis_level_description(sis_profile)
+            student['currentTerm'] = sis_profile.get('currentTerm')
             student['majors'] = sorted(plan.get('description') for plan in sis_profile.get('plans', []))
         term = enrollments_by_sid.get(student['sid'])
         student['hasCurrentTermEnrollments'] = False
@@ -177,6 +178,7 @@ def get_summary_student_profiles(sids, term_id=None):
         if sis_profile:
             profile['cumulativeGPA'] = sis_profile.get('cumulativeGPA')
             profile['cumulativeUnits'] = sis_profile.get('cumulativeUnits')
+            profile['currentTerm'] = sis_profile.get('currentTerm')
             profile['expectedGraduationTerm'] = sis_profile.get('expectedGraduationTerm')
             profile['level'] = _get_sis_level_description(sis_profile)
             profile['majors'] = sorted(plan.get('description') for plan in sis_profile.get('plans', []))
