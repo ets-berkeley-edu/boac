@@ -33,6 +33,10 @@ export default {
   name: 'SearchStudents',
   mixins: [Util],
   props: {
+    includeCourses: {
+      default: false,
+      type: Boolean
+    },
     withButton: Boolean
   },
   data() {
@@ -49,7 +53,7 @@ export default {
           path: this.forceUniquePath('/search'),
           query: {
             q: this.searchPhrase,
-            includeCourses: 'true'
+            includeCourses: this.includeCourses
           }
         });
       }

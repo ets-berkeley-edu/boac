@@ -1,6 +1,6 @@
 <template>
   <div>
-    <SearchStudents/>
+    <SearchStudents :includeCourses="true"/>
     <div v-if="myCohorts">
       <Cohorts/>
       <hr class="section-divider"/>
