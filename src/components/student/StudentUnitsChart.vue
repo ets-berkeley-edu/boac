@@ -133,9 +133,8 @@ export default {
           <div class="student-chart-tooltip-row">
             <div class="student-chart-tooltip-swatch swatch-blue-light"></div>
             <div class="student-chart-tooltip-label">Currently Enrolled Units</div>
-            <div class="student-chart-tooltip-value">${
-              this.currentEnrolledUnits
-            }</div>
+            <div class="student-chart-tooltip-value">${this
+              .currentEnrolledUnits || '0'}</div>
           </div>
         </div>`;
     }
