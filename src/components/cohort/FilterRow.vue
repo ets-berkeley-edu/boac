@@ -82,9 +82,8 @@
         <div>
           <span :id="isExistingFilter ? `filter-${index}-range-start-label` : 'filter-range-start-label'"
                 class="sr-only">beginning of range</span>
-          <input :id="isExistingFilter ? `filter-${index}-range-start` : 'filter-range-start'"
+          <input :id="filterRangeStartInputId"
                  class="filter-range-input"
-                 v-focus
                  :aria-labelledby="isExistingFilter ? `filter-${index}-range-start-label` : 'filter-range-start-label'"
                  v-model="range.start"
                  maxlength="1"/>
@@ -115,7 +114,6 @@
              variant="primary"
              aria-label="Add this new filter to the search criteria"
              @click="addNewFilter()"
-             v-focus
              v-if="showAdd">
         Add
       </b-btn>
@@ -205,6 +203,11 @@ export default {
     this.valueOriginal = this.filter && this.filter.value;
   },
   computed: {
+    filterRangeStartInputId() {
+      return this.isExistingFilter
+        ? `filter-${this.index}-range-start`
+        : 'filter-range-start';
+    },
     filterRowIndex() {
       return this.isExistingFilter ? this.index : 'new';
     }
@@ -285,13 +288,22 @@ export default {
         this.isModifyingFilter = false;
         this.valueLabel = this.getFilterValueLabel();
       }
+      this.putFocusNewFilterDropdown();
     },
     setFilterCategory(menuItem) {
       this.valueLabel = undefined;
       this.filter = this.cloneDeep(menuItem);
       this.showAdd = menuItem.type === 'boolean';
-      if (menuItem.type === 'array') {
-        this.putFocusSecondaryDropdown();
+      switch (menuItem.type) {
+        case 'array':
+          this.putFocusSecondaryDropdown();
+          break;
+        case 'boolean':
+          this.putFocusNextTick('unsaved-filter-add');
+          break;
+        case 'range':
+          this.putFocusNextTick(this.filterRangeStartInputId);
+          break;
       }
     },
     updateFilterValue(option) {
@@ -299,6 +311,7 @@ export default {
         this.filter.value = option.value;
         this.valueLabel = this.getFilterValueLabel();
         this.showAdd = true;
+        this.putFocusNextTick('unsaved-filter-add');
       }
     },
     updateExisting() {
@@ -371,6 +384,9 @@ export default {
             ? 'Values must be in ascending order.'
             : undefined;
         this.showAdd = start && stop && !this.range.error;
+        if (this.showAdd) {
+          this.putFocusNextTick('unsaved-filter-add');
+        }
       },
       deep: true
     }

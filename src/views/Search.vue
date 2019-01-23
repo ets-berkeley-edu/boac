@@ -13,10 +13,9 @@
         <li>Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
       </ul>
     </div>
-    <div id="page-header"
-         tabindex="0"
+    <div tabindex="0"
          v-if="!loading && results.totalStudentCount">
-      <h1 ref="pageHeader">{{ 'student' | pluralize(results.totalStudentCount) }} matching '{{ phrase }}'</h1>
+      <h1 id="page-header">{{ 'student' | pluralize(results.totalStudentCount) }} matching '{{ phrase }}'</h1>
       <div v-if="results.totalStudentCount > limit">
         Showing the first {{ limit }} students.
       </div>

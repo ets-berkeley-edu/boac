@@ -1,13 +1,17 @@
 <template>
   <div>
-    <div tabindex="0" :v-focus-if="renderPrimaryHeader">
-      <div v-if="totalCourseCount">
-        <h1 class="page-section-header">
-          {{ 'class' | pluralize(totalCourseCount, {1: 'One'}, 'es') }} matching '{{ searchPhrase }}'
-        </h1>
-        <div v-if="courses.length < totalCourseCount">
-          Showing the first {{courses.length}} classes.
-        </div>
+    <div tabindex="0"
+         v-if="totalCourseCount">
+      <h1 class="page-section-header"
+          v-if="renderPrimaryHeader">
+        {{ 'class' | pluralize(totalCourseCount, {1: 'One'}, 'es') }} matching '{{ searchPhrase }}'
+      </h1>
+      <h2 class="page-section-header-sub pt-5"
+          v-if="!renderPrimaryHeader">
+        {{ 'class' | pluralize(totalCourseCount, {1: 'One'}, 'es') }} matching '{{ searchPhrase }}'
+      </h2>
+      <div v-if="courses.length < totalCourseCount">
+        Showing the first {{courses.length}} classes.
       </div>
     </div>
     <div class="sr-only"
