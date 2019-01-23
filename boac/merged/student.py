@@ -121,7 +121,7 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None, fe
         if sis_profile:
             student['cumulativeGPA'] = sis_profile.get('cumulativeGPA')
             student['cumulativeUnits'] = sis_profile.get('cumulativeUnits')
-            student['level'] = sis_profile.get('level', {}).get('description')
+            student['level'] = _get_sis_level_description(sis_profile)
             student['majors'] = sorted(plan.get('description') for plan in sis_profile.get('plans', []))
         term = enrollments_by_sid.get(student['sid'])
         student['hasCurrentTermEnrollments'] = False
@@ -178,7 +178,7 @@ def get_summary_student_profiles(sids, term_id=None):
             profile['cumulativeGPA'] = sis_profile.get('cumulativeGPA')
             profile['cumulativeUnits'] = sis_profile.get('cumulativeUnits')
             profile['expectedGraduationTerm'] = sis_profile.get('expectedGraduationTerm')
-            profile['level'] = sis_profile.get('level', {}).get('description')
+            profile['level'] = _get_sis_level_description(sis_profile)
             profile['majors'] = sorted(plan.get('description') for plan in sis_profile.get('plans', []))
             if sis_profile.get('withdrawalCancel'):
                 profile['withdrawalCancel'] = sis_profile['withdrawalCancel']
@@ -203,6 +203,9 @@ def get_student_and_terms(uid):
     if not profiles or not profiles[0]:
         return
     profile = profiles[0]
+    sis_profile = profile.get('sisProfile', None)
+    if sis_profile:
+        sis_profile['level']['description'] = _get_sis_level_description(sis_profile)
     enrollments_for_sid = data_loch.get_enrollments_for_sid(student['sid'], latest_term_id=current_term_id())
     profile['enrollmentTerms'] = [json.loads(row['enrollment_term']) for row in enrollments_for_sid]
     profile['hasCurrentTermEnrollments'] = False
@@ -450,3 +453,11 @@ def narrow_scope_by_criteria(scope, **kwargs):
     else:
         # Criteria were found for more than one department; return an intersection of those departments.
         return {'intersection': narrowed_scope}
+
+
+def _get_sis_level_description(profile):
+    level = profile.get('level', {}).get('description')
+    if level == 'Not Set':
+        return None
+    else:
+        return level
