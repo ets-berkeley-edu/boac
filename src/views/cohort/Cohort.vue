@@ -14,8 +14,8 @@
                    v-for="(filter, index) in filters"
                    :key="compositeKey(filter)"
                    :index="index"/>
-        <FilterRow />
-        <ApplyAndSaveButtons />
+        <FilterRow v-if="isOwnedByCurrentUser"/>
+        <ApplyAndSaveButtons v-if="isOwnedByCurrentUser"/>
       </b-collapse>
       <SectionSpinner name="Students" :loading="editMode === 'apply'" />
       <div class="pt-2" v-if="showStudentsSection">
