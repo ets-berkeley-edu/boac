@@ -19,7 +19,7 @@
     "date-fns": "^1.29.0",
     "highcharts": "6.0.7",
     "vue": "^2.5.22",
-    "vue-analytics": "^5.16.1",
+    "vue-analytics": "^5.16.2",
     "vue-class-component": "^6.3.2",
     "vue-filter-number-format": "^1.0.3",
     "vue-highcharts": "0.0.11",
@@ -28,7 +28,7 @@
     "vue-router": "^3.0.2",
     "vue-router-back-button": "^1.1.2",
     "vue-scrollto": "^2.13.0",
-    "vuex": "^3.0.1"
+    "vuex": "^3.1.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.3.0",
@@ -36,11 +36,11 @@
     "@vue/cli-plugin-typescript": "^3.3.0",
     "@vue/cli-service": "^3.3.0",
     "@vue/eslint-config-prettier": "^4.0.1",
-    "@vue/eslint-config-typescript": "^3.2.0",
+    "@vue/eslint-config-typescript": "^3.2.1",
     "@vue/test-utils": "^1.0.0-beta.28",
     "bower": "1.8.4",
     "del": "2.2.2",
-    "eslint": "^5.12.0",
+    "eslint": "^5.12.1",
     "eslint-plugin-angular": "3.3.0",
     "eslint-plugin-import": "2.13.0",
     "eslint-plugin-no-loops": "0.3.0",
@@ -55,12 +55,13 @@
     "gulp-rev": "8.1.1",
     "gulp-rev-replace": "0.4.4",
     "node-sass": "^4.9.0",
+    "regenerator-runtime": "^0.13.1",
     "sass-loader": "^7.0.1",
     "stylelint": "9.4.0",
     "stylelint-config-standard": "18.2.0",
     "stylelint-order": "0.8.1",
     "stylelint-scss": "3.2.0",
-    "typescript": "^3.2.2",
+    "typescript": "^3.2.4",
     "vue-template-compiler": "^2.5.22"
   },
   "license": "SEE LICENSE IN LICENSE"
