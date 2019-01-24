@@ -297,7 +297,6 @@
                            :limit="20"
                            v-model="pagination.currentPage"
                            :per-page="pagination.itemsPerPage"
-                           :hide-goto-end-buttons="true"
                            @input="nextPage()">
              </b-pagination>
            </div>
@@ -658,11 +657,5 @@ export default {
 #content .page-item.active .page-link {
   background-color: #337ab7;
   border-color: #337ab7;
-}
-
-/* Hide default first/last buttons in bootstrap-vue pagination widget. */
-#content ul.pagination li:first-child,
-#content ul.pagination li:last-child {
-  display: none;
 }
 </style>

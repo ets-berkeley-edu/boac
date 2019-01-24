@@ -69,7 +69,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .panel-group {
   margin-bottom: 20px;
 }

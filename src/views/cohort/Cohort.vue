@@ -47,7 +47,6 @@
                             :limit="10"
                             v-model="pageNumber"
                             :per-page="pagination.itemsPerPage"
-                            :hide-goto-end-buttons="true"
                             @input="nextPage()">
               </b-pagination>
             </div>

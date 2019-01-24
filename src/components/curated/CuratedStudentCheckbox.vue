@@ -42,9 +42,3 @@ export default {
   }
 };
 </script>
-
-<style>
-.form-check-inline {
-  margin: 0;
-}
-</style>
