@@ -286,6 +286,7 @@ class TestCohortCreate:
 
         cohort = json.loads(response.data)
         assert 'students' in cohort
+        assert cohort['alertCount'] is not None
         assert 'name' in cohort and cohort['name'] == data['name']
         assert 'teamGroups' in cohort
         assert ['MTE', 'WTE'] == [g['groupCode'] for g in cohort['teamGroups']]
@@ -310,6 +311,7 @@ class TestCohortCreate:
         assert 200 == response.status_code
         cohort = response.json
         assert cohort and 'filterCriteria' in cohort
+        assert cohort['alertCount'] is not None
         return cohort
 
     def test_create_tennis_cohort(self, client, asc_advisor_session):
@@ -465,15 +467,16 @@ class TestCohortUpdate:
         }
         response = self._post_cohort_update(client, data)
         assert 200 == response.status_code
-        filter_criteria = response.json['filterCriteria']
-        assert filter_criteria['majors'] == ['Gender and Women''s Studies']
-        assert filter_criteria['gpaRanges'] == ['numrange(2, 2.5, \'[)\')']
-        assert filter_criteria['groupCodes'] is None
+        updated_cohort = response.json
+        assert updated_cohort['alertCount'] is not None
+        assert updated_cohort['filterCriteria']['majors'] == ['Gender and Women''s Studies']
+        assert updated_cohort['filterCriteria']['gpaRanges'] == ['numrange(2, 2.5, \'[)\')']
+        assert updated_cohort['filterCriteria']['groupCodes'] is None
 
         def remove_empties(criteria):
             return {k: v for k, v in criteria.items() if v is not None}
         expected = remove_empties(cohort.filter_criteria)
-        actual = remove_empties(filter_criteria)
+        actual = remove_empties(updated_cohort['filterCriteria'])
         assert expected == actual
 
     def test_cohort_update_filter_criteria(self, client, asc_advisor_session):
