@@ -163,6 +163,7 @@ class CohortFilter(Base, UserMixin):
             'code': self.id,
             'name': cohort_name,
             'owners': [user.uid for user in self.owners],
+            'alertCount': self.alert_count,
         }
         coe_prep_statuses = c.get('coePrepStatuses')
         coe_probation = util.to_bool_or_none(c.get('coeProbation'))
@@ -254,5 +255,9 @@ class CohortFilter(Base, UserMixin):
                     'alerts': alert_count_per_sid,
                 })
                 if self.alert_count is None:
-                    self.update_alert_count(sum(student['alertCount'] for student in alert_count_per_sid))
+                    alert_count = sum(student['alertCount'] for student in alert_count_per_sid)
+                    self.update_alert_count(alert_count)
+                    cohort_json.update({
+                        'alertCount': alert_count,
+                    })
         return cohort_json
