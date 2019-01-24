@@ -88,6 +88,7 @@ export default {
     this.$eventHub.$on('curated-group-remove-student', sid =>
       this.$_Students_removeStudent(sid)
     );
+    this.$eventHub.$on('sort-by-changed-by-user', () => this.sortStudents());
   },
   mounted() {
     this.$nextTick(function() {
@@ -156,14 +157,6 @@ export default {
         this.curatedGroup.studentCount = this.curatedGroup.students.length;
         store.commit('curated/updateCuratedGroup', this.curatedGroup);
       });
-    }
-  },
-  watch: {
-    preferences: {
-      handler() {
-        this.sortStudents();
-      },
-      deep: true
     }
   }
 };
