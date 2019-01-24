@@ -70,7 +70,7 @@
                            }"
                            v-for="option in filter.options"
                            :key="option.key"
-                           @click="updateFilterValue(option)"
+                           @click="typeArrayUpdateValue(option)"
                            :aria-disabled="option.disabled"
                            :disabled="option.disabled">{{ option.name }}</b-dropdown-item>
         </b-dropdown>
@@ -155,7 +155,7 @@
                variant="primary"
                :aria-label="`Update this ${filter.name} filter`"
                size="sm"
-               @click="updateExisting()">
+               @click="updateButtonClick()">
           Update
         </b-btn>
         <b-btn :id="`cancel-edit-added-filter-${index}`"
@@ -187,6 +187,7 @@ export default {
     isExistingFilter: undefined,
     isMenuOpen: false,
     isModifyingFilter: undefined,
+    // TODO: Can we get rid of 'range' object and bind form input to filter.value[0] and filter.value[1]?
     range: {
       start: undefined,
       stop: undefined,
@@ -252,6 +253,10 @@ export default {
         case 'array':
           this.filter.options = category.options;
           break;
+        case 'range':
+          this.range.start = this.filter.value[0];
+          this.range.stop = this.filter.value[1];
+          break;
       }
       this.isModifyingFilter = true;
       this.setEditMode(`edit-${this.index}`);
@@ -306,7 +311,7 @@ export default {
           break;
       }
     },
-    updateFilterValue(option) {
+    typeArrayUpdateValue(option) {
       if (option) {
         this.filter.value = option.value;
         this.valueLabel = this.getFilterValueLabel();
@@ -314,7 +319,10 @@ export default {
         this.putFocusNextTick('unsaved-filter-add');
       }
     },
-    updateExisting() {
+    updateButtonClick() {
+      if (this.filter.type === 'range') {
+        this.filter.value = [this.range.start, this.range.stop];
+      }
       this.valueOriginal = this.filter.value;
       this.updateExistingFilter({
         index: this.index,
