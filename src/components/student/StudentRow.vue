@@ -81,18 +81,16 @@
       </div>
     </div>
     <div class="student-column">
-      <div class="student-gpa" v-if="!get(student, 'currentTerm.unitsMaxOverride') && !get(student, 'currentTerm.unitsMinOverride')">
-        {{ get(student.term, 'enrolledUnits', 0) }}
-      </div>
+      <div :id="`student-${student.sid}-enrolled-units`" class="student-gpa">{{ get(student.term, 'enrolledUnits', 0) }}</div>
+      <div class="student-text">Units in Progress</div>
       <div v-if="get(student, 'currentTerm.unitsMinOverride')">
-        <span class="student-gpa">{{ student.currentTerm.unitsMinOverride }}</span>
-        <span class="student-text"> (Min Approved)</span>
+        <div :id="`student-${student.sid}-min-units`" class="student-gpa">{{ student.currentTerm.unitsMinOverride }}</div>
+        <div class="student-text">Min&nbsp;Approved</div>
       </div>
       <div v-if="get(student, 'currentTerm.unitsMaxOverride')">
-        <span class="student-gpa">{{ student.currentTerm.unitsMaxOverride }}</span>
-        <span class="student-text"> (Max Approved)</span>
+        <div :id="`student-${student.sid}-max-units`" class="student-gpa">{{ student.currentTerm.unitsMaxOverride }}</div>
+        <div class="student-text">Max&nbsp;Approved</div>
       </div>
-      <div class="student-text">Units in Progress</div>
       <div :id="`student-${student.sid}-cumulative-units`"
            class="student-gpa"
            v-if="student.cumulativeUnits">{{ student.cumulativeUnits }}</div>

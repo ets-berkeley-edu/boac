@@ -417,15 +417,15 @@
               <div class="student-course-heading-end">
                 <div class="student-course-heading-units-total">
                   <div>
-                    <span>Total Units </span><span>{{term.enrolledUnits}}</span>
+                    <span>Total Units </span><span :id="`term-${term.termId}-enrolled-units`">{{term.enrolledUnits}}</span>
                   </div>
                   <div class="student-course-heading-units-override"
                        v-if="currentEnrollmentTermId === parseInt(term.termId) && get(student, 'sisProfile.currentTerm.unitsMinOverride')">
-                    <span>Min Approved </span><span>{{student.sisProfile.currentTerm.unitsMinOverride}}</span>
+                    <span>Min Approved </span><span :id="`term-${term.termId}-min-units`">{{student.sisProfile.currentTerm.unitsMinOverride}}</span>
                   </div>
                   <div class="student-course-heading-units-override"
                        v-if="currentEnrollmentTermId === parseInt(term.termId) && get(student, 'sisProfile.currentTerm.unitsMaxOverride')">
-                    <span>Max Approved </span><span>{{student.sisProfile.currentTerm.unitsMaxOverride}}</span>
+                    <span>Max Approved </span><span :id="`term-${term.termId}-max-units`">{{student.sisProfile.currentTerm.unitsMaxOverride}}</span>
                   </div>
                 </div>
               </div>
