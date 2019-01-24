@@ -1,5 +1,5 @@
 <template>
-  <div class="pb-3" v-if="user.isAdmin && devAuthEnabled && inDemoMode !== null">
+  <div v-if="user.isAdmin && devAuthEnabled && inDemoMode !== null">
     <h2 class="page-section-header-sub">Demo Mode</h2>
     <div class="p-2">
       <span role="alert"
