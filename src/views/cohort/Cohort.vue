@@ -114,6 +114,9 @@ export default {
       });
     }
   },
+  created() {
+    this.$eventHub.$on('sort-by-changed-by-user', () => this.nextPage(1));
+  },
   methods: {
     compositeKey: filter => `${filter.key}${filter.value}`,
     nextPage(page) {
@@ -133,12 +136,6 @@ export default {
   watch: {
     isCompactView() {
       this.showFilters = !this.isCompactView;
-    },
-    preferences: {
-      handler() {
-        this.nextPage(1);
-      },
-      deep: true
     }
   }
 };
