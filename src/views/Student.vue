@@ -84,7 +84,7 @@
             <div>
               <h3 class="student-bio-header">Curated Groups</h3>
             </div>
-            <div v-if="!isEmpty(myCuratedGroups)">
+            <div v-if="myCuratedGroups && myCuratedGroups.length">
               <div class="student-curated-group-checkbox"
                    v-for="(curatedGroup, curatedGroupIndex) in myCuratedGroups"
                    :key="curatedGroupIndex">
@@ -100,7 +100,7 @@
                 </div>
               </div>
             </div>
-            <div class="student-curated-group-checkbox" v-if="isEmpty(myCuratedGroups)">
+            <div class="student-curated-group-checkbox" v-if="myCuratedGroups && !myCuratedGroups.length">
               <span class="faint-text">You have no curated groups.</span>
             </div>
             <div class="student-curated-group-create-new">
