@@ -62,6 +62,7 @@ export default {
     apply() {
       this.cohortUpdateStatus = `Searching for students`;
       this.isPerforming = 'search';
+      this.setCurrentPage(1);
       this.applyFilters().then(() => {
         this.putFocusNextTick('save-button');
         this.cohortUpdateStatus = `Search results loaded`;
