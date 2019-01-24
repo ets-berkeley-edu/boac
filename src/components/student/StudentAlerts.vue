@@ -90,7 +90,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .student-alert {
   margin: 10px 0;
   padding: 5px 15px;

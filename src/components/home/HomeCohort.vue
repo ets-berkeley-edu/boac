@@ -101,10 +101,7 @@ export default {
 };
 </script>
 
-<style>
-.panel-group {
-  margin-bottom: 20px;
-}
+<style scoped>
 .panel-group .panel + .panel {
   margin-top: 5px;
 }

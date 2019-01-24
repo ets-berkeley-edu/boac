@@ -159,10 +159,10 @@ export default {
   transform: rotate(135deg);
   width: 10px;
 }
-.swatch-blue-medium {
+.student-chart-units-container .swatch-blue-medium {
   background-color: #aec9eb;
 }
-.swatch-blue-light {
+.student-chart-units-container .swatch-blue-light {
   background-color: #d6e4f9;
 }
 </style>
