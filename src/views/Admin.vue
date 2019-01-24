@@ -6,7 +6,22 @@
             aria-live="passive"
             class="sr-only">Admin page loaded</span>
       <h1>BOAC Flight Deck</h1>
-      <DemoModeToggle/>
+      <div class="d-flex flex-row mt-3 mb-5">
+        <div class="mr-3">
+          <img id="avatar-verify-blur"
+               class="avatar student-avatar-large"
+               :class="{'img-blur': user.inDemoMode}"
+               :src="blurAvatarUrl"/>
+        </div>
+        <div>
+          <div>
+            <DemoModeToggle/>
+          </div>
+          <div class="faint-text pt-2">
+            In demo mode, student profile pictures and sensitive data will be blurred.
+          </div>
+        </div>
+      </div>
 
       <h2 class="page-section-header-sub">Users</h2>
       <b-card no-body>
@@ -57,6 +72,7 @@ export default {
   },
   data: () => ({
     active: [],
+    blurAvatarUrl: require('@/assets/sampleBlurAvatar.jpg'),
     userGroups: null
   }),
   created() {
