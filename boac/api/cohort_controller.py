@@ -175,7 +175,7 @@ def create_cohort():
         filter_criteria=filter_criteria,
         student_count=student_count,
     )
-    return tolerant_jsonify(decorate_cohort(cohort, order_by=order_by))
+    return tolerant_jsonify(decorate_cohort(cohort, order_by=order_by, include_alerts_for_user_id=current_user.id))
 
 
 @app.route('/api/cohort/update', methods=['POST'])
@@ -200,7 +200,9 @@ def update_cohort():
         filter_criteria=filter_criteria,
         student_count=student_count,
     )
-    return tolerant_jsonify(decorate_cohort(updated, include_students=False))
+    # Alert count will be refreshed
+    updated.update_alert_count(None)
+    return tolerant_jsonify(decorate_cohort(updated, include_students=False, include_alerts_for_user_id=current_user.id))
 
 
 @app.route('/api/cohort/delete/<cohort_id>', methods=['DELETE'])
