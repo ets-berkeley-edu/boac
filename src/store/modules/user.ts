@@ -38,7 +38,7 @@ const mutations = {
     }
   },
   setDemoMode: (state: any, demoMode: boolean) =>
-    (state.user.demoMode = demoMode),
+    (state.user.inDemoMode = demoMode),
   setUserPreference: (state: any, { key, value }) => {
     if (_.has(state.preferences, key)) {
       state.preferences[key] = value;
