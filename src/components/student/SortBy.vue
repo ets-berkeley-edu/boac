@@ -18,12 +18,10 @@ import Util from '@/mixins/Util';
 export default {
   name: 'SortBy',
   mixins: [UserMetadata, Util],
-  data() {
-    return {
-      selected: undefined,
-      options: []
-    };
-  },
+  data: () => ({
+    selected: undefined,
+    options: []
+  }),
   created() {
     this.selected = this.preferences.sortBy;
     let options = [
@@ -43,10 +41,13 @@ export default {
   },
   watch: {
     selected(value) {
-      this.setUserPreference({
-        key: 'sortBy',
-        value
-      });
+      if (value && value !== this.preferences.sortBy) {
+        this.setUserPreference({
+          key: 'sortBy',
+          value
+        });
+        this.$eventHub.$emit('sort-by-changed-by-user');
+      }
     }
   }
 };
