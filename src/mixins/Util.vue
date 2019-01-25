@@ -4,6 +4,7 @@ import _ from 'lodash';
 export default {
   name: 'Util',
   methods: {
+    assign: _.assign,
     cloneDeep: _.cloneDeep,
     concat: _.concat,
     each: _.each,
@@ -21,6 +22,7 @@ export default {
     isNil: _.isNil,
     map: _.map,
     mapValues: _.mapValues,
+    merge: _.merge,
     orderBy: _.orderBy,
     putFocusNextTick(id, cssSelector = null) {
       this.$nextTick(() => {

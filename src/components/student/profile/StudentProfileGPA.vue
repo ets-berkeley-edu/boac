@@ -83,3 +83,25 @@ export default {
   })
 };
 </script>
+
+<style scoped>
+.student-gpa-alert {
+  color: #d0021b;
+}
+.student-gpa-last-term {
+  color: #000;
+  font-weight: 700;
+}
+.student-gpa-term-alert {
+  color: #d0021b;
+  position: relative;
+  right: 20px;
+}
+.student-gpa-term-alert-icon {
+  width: 20px;
+}
+.student-status-number {
+  font-size: 42px;
+  line-height: 1.2em;
+}
+</style>
