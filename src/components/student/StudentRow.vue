@@ -13,7 +13,7 @@
       </div>
     </div>
     <div class="cohort-list-view-column-01">
-      <StudentAvatar :size="'large'"
+      <StudentAvatar size="medium"
                      :student="student"
                      :alertCount="student.alertCount"/>
     </div>
