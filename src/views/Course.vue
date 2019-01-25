@@ -147,7 +147,7 @@
               </td>
 
               <td class="course-list-view-column course-list-view-column-avatar">
-                <StudentAvatar :student="student" size="large"/>
+                <StudentAvatar :student="student" size="medium"/>
               </td>
 
               <td class="course-list-view-column course-list-view-column-profile">
