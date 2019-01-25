@@ -21,7 +21,10 @@ const requiresAuth = (to: any, from: any, next: any) => {
     if (isAuthenticated) {
       next();
     } else {
-      next('/login');
+      next({
+        path: '/login',
+        query: to.name === 'home' ? undefined : { redirect: to.fullPath }
+      });
     }
   });
 };
@@ -39,7 +42,7 @@ const router = new Router({
       beforeEnter: (to: any, from: any, next: any) => {
         store.dispatch('user/loadUserStatus').then(isAuthenticated => {
           if (isAuthenticated) {
-            next('/home');
+            next(to.query.redirect || '/home');
           } else {
             next();
           }
