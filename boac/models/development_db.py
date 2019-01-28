@@ -72,6 +72,13 @@ _users_per_dept = {
             'is_director': False,
         },
     ],
+    'PHYSI': [
+        {
+            'uid': '53791',
+            'is_advisor': False,
+            'is_director': True,
+        },
+    ],
     'UWASC': [
         {
             'uid': '1081940',

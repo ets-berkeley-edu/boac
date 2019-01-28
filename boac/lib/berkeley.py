@@ -181,6 +181,7 @@ COE_ETHNICITIES_PER_CODE = {
 BERKELEY_DEPT_NAME_TO_CODE = {
     'Athletic Study Center': 'UWASC',
     'College of Engineering': 'COENG',
+    'Department of Physics': 'PHYSI',
 }
 
 
