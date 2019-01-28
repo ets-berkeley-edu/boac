@@ -30,11 +30,8 @@ import os
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 # These "INDEX_HTML" defaults are good in boac-dev, boac-qa, etc. See development.py for appropriate local configs.
-INDEX_HTML = 'dist/templates/index.html'
+INDEX_HTML = 'dist/static/index.html'
 
-# Vue.js related
-INDEX_HTML_VUE = 'dist/static/index.html'
-VUE_ENABLED = False
 # This base-URL config should only be non-None in the "local" env where the Vue front-end runs on port 8080.
 VUE_LOCALHOST_BASE_URL = None
 
