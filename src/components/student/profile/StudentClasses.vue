@@ -8,12 +8,9 @@
            v-if="index === 0 && !student.hasCurrentTermEnrollments && (currentEnrollmentTermId > parseInt(term.termId))">
         <h3 class="student-term-header">{{ currentEnrollmentTerm }}</h3>
         <div class="term-no-enrollments-description">No enrollments</div>
-        <StudentAlerts :student="student"/>
       </div>
 
       <h3 class="student-term-header">{{term.termName}}</h3>
-        <StudentAlerts :student="student"
-                       v-if="index === 0 && (student.hasCurrentTermEnrollments || (currentEnrollmentTermId <= parseInt(term.termId)))"/>
         <div v-for="(course, courseIndex) in term.enrollments" :key="courseIndex" class="student-course">
           <div class="student-course-heading">
             <div class="student-course-heading-start">
@@ -217,7 +214,6 @@
 
 <script>
 import Context from '@/mixins/Context';
-import StudentAlerts from '@/components/student/StudentAlerts';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentBoxplot from '@/components/student/StudentBoxplot';
 import UserMetadata from '@/mixins/UserMetadata';
@@ -227,7 +223,6 @@ export default {
   name: 'StudentClasses',
   mixins: [Context, StudentAnalytics, UserMetadata, Util],
   components: {
-    StudentAlerts,
     StudentBoxplot
   },
   props: {
