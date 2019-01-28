@@ -24,6 +24,7 @@ export default {
     mapValues: _.mapValues,
     merge: _.merge,
     orderBy: _.orderBy,
+    partition: _.partition,
     putFocusNextTick(id, cssSelector = null) {
       this.$nextTick(() => {
         let counter = 0;

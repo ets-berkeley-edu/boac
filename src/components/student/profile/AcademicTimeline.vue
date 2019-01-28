@@ -1,53 +1,107 @@
 <template>
-  <div id="student-status-degree-progress">
-    <h3>Degree Progress</h3>
-    <div v-if="!student.sisProfile.degreeProgress">
-      No data
-    </div>
-    <table v-if="student.sisProfile.degreeProgress">
-      <tr>
-        <th>University Requirements</th>
-        <th>Status</th>
-      </tr>
-      <tr v-for="requirement in student.sisProfile.degreeProgress.requirements"
-          :key="requirement.name">
-        <td>{{ requirement.name }}</td>
-        <td>
-          <i :class="{
-                  'fas fa-check': requirement.status === 'Satisfied',
-                  'fas fa-exclamation-triangle': requirement.status === 'Not Satisfied',
-                  'fas fa-clock-o': requirement.status === 'In Progress'
-              }"></i>
-          {{ requirement.status }}
-        </td>
-      </tr>
-    </table>
-    <div v-if="student.sisProfile.degreeProgress">
-      <div>Degree Progress as of {{student.sisProfile.degreeProgress.reportDate}}.</div>
+  <div>
+    <h2>Academic Timeline</h2>
+    <div v-if="!isTimelineLoading">
+      <div class="d-flex">
+        <div>Filter Type:</div>
+        <div>
+          <b-btn :class="{ 'font-weight-bold': !filter }"
+                 variant="link"
+                 @click="filter = null">All</b-btn>
+        </div>
+        <div v-for="(label, type) in filterTypes" :key="type">
+          <b-btn :class="{ 'font-weight-bold': type === filter }"
+                 variant="link"
+                 @click="filter = type">{{ label }}</b-btn>
+        </div>
+      </div>
       <div>
-        Advisors can refresh this data at
-        <a id="calcentral-student-profile-link"
-           :href="student.studentProfileLink"
-           aria-label="Open CalCentral in new window"
-           target="_blank">CalCentral</a>.
+        <table>
+          <tr class="sr-only">
+            <th>Type</th>
+            <th>Summary</th>
+            <th>Date</th>
+          </tr>
+          <tr class="border-top border-bottom" v-for="(message, index) in messagesFiltered" :key="index">
+            <td class="w-25">
+              {{ message.typeLabel }}
+            </td>
+            <td class="w-50">
+              {{ message.text }}
+            </td>
+            <td>
+              {{ message.date || '--' }}
+            </td>
+          </tr>
+        </table>
       </div>
     </div>
-    <StudentAlerts :student="student"/>
   </div>
 </template>
 
 <script>
-import StudentAlerts from '@/components/student/StudentAlerts';
 import Util from '@/mixins/Util';
+import { getStudentAlerts } from '@/api/student';
 
 export default {
   name: 'AcademicTimeline',
   mixins: [Util],
-  components: {
-    StudentAlerts
-  },
   props: {
     student: Object
+  },
+  data: () => ({
+    isTimelineLoading: true,
+    messages: undefined,
+    filter: undefined,
+    filterTypes: {
+      alert: 'Alerts',
+      degreeProgress: 'Reqs',
+      hold: 'Holds'
+    }
+  }),
+  created() {
+    this.messages = [];
+    this.each(
+      this.get(this.student, 'sisProfile.degreeProgress.requirements'),
+      requirement => {
+        this.messages.push(
+          this.newMessage(
+            'degreeProgress',
+            `${requirement.name} ${requirement.status}`
+          )
+        );
+        getStudentAlerts(this.student.sid).then(data => {
+          const alerts = this.get(data, 'shown', []).concat(
+            this.get(data, 'dismissed', [])
+          );
+          const partitions = this.partition(alerts, ['alertType', 'hold']);
+          this.each(partitions[0], alert => {
+            this.messages.push(this.newMessage('alert', alert.message));
+          });
+          this.each(partitions[1], alert => {
+            this.messages.push(this.newMessage('hold', alert.message));
+          });
+          this.isTimelineLoading = false;
+        });
+      }
+    );
+  },
+  computed: {
+    messagesFiltered() {
+      return this.filter
+        ? this.filterList(this.messages, ['type', this.filter])
+        : this.messages;
+    }
+  },
+  methods: {
+    newMessage(type, text, date) {
+      const typeLabel = {
+        alert: 'Alert',
+        degreeProgress: 'Requirements',
+        hold: 'Hold'
+      }[type];
+      return { type, typeLabel, text, date };
+    }
   }
 };
 </script>
