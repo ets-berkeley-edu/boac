@@ -34,6 +34,4 @@ LOGGING_LOCATION = 'STDOUT'
 ALERT_INFREQUENT_ACTIVITY_ENABLED = False
 ALERT_WITHDRAWAL_ENABLED = False
 
-VUE_ENABLED = True
-INDEX_HTML = 'tests/static/test-index-legacy.html'
-INDEX_HTML_VUE = 'tests/static/test-index-vue.html'
+INDEX_HTML = 'tests/static/test-index-vue.html'

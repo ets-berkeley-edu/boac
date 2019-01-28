@@ -66,10 +66,14 @@ def register_routes(app):
     @app.route('/', defaults={'path': ''})
     @app.route('/<path:path>')
     def front_end_route(**kwargs):
-        if app.config['VUE_ENABLED']:
-            return _vue_response(app, request.full_path)
+        vue_base_url = app.config['VUE_LOCALHOST_BASE_URL']
+        if vue_base_url:
+            app.logger.debug(f'Redirecting to {vue_base_url}{request.full_path}')
+            return redirect(vue_base_url + request.full_path)
         else:
-            return make_response(open(app.config['INDEX_HTML']).read())
+            index_html = app.config['INDEX_HTML']
+            app.logger.debug(f'The page at {request.full_path} will be served with INDEX_HTML={index_html}')
+            return make_response(open(index_html).read())
 
     @app.after_request
     def after_api_request(response):
@@ -93,14 +97,3 @@ def register_routes(app):
             else:
                 app.logger.debug(log_message)
         return response
-
-
-def _vue_response(app, uri_path):
-    vue_base_url = app.config['VUE_LOCALHOST_BASE_URL']
-    if vue_base_url:
-        app.logger.info(f'Vue: Redirecting to {vue_base_url}{uri_path}')
-        return redirect(vue_base_url + uri_path)
-    else:
-        index_html = app.config['INDEX_HTML_VUE']
-        app.logger.info(f'Vue: The page at {uri_path} will be served with INDEX_HTML_VUE={index_html}')
-        return make_response(open(index_html).read())
