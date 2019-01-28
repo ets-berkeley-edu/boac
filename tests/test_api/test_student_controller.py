@@ -602,12 +602,12 @@ class TestStudentAnalytics:
         for term in authenticated_response.json['enrollmentTerms']:
             assert len(term['enrollments']) > 0
             for course in term['enrollments']:
-                for canvasSite in course['canvasSites']:
-                    assert canvasSite['canvasCourseId']
-                    assert canvasSite['courseCode']
-                    assert canvasSite['courseTerm']
-                    assert canvasSite['courseCode']
-                    assert canvasSite['analytics']
+                for canvas_site in course['canvasSites']:
+                    assert canvas_site['canvasCourseId']
+                    assert canvas_site['courseCode']
+                    assert canvas_site['courseTerm']
+                    assert canvas_site['courseCode']
+                    assert canvas_site['analytics']
 
     def test_user_analytics_holds(self, asc_advisor, client):
         """Returns holds if any."""
