@@ -85,6 +85,10 @@ def intermediate_schema():
     return app.config['DATA_LOCH_INTERMEDIATE_SCHEMA']
 
 
+def physics_schema():
+    return app.config['DATA_LOCH_PHYSICS_SCHEMA']
+
+
 def sis_schema():
     return app.config['DATA_LOCH_SIS_SCHEMA']
 
@@ -521,6 +525,7 @@ def _student_query_tables_for_scope(scope):
         schemas_for_codes = {
             'UWASC': asc_schema(),
             'COENG': coe_schema(),
+            'PHYSI': physics_schema(),
         }
         tables = []
         # A dictionary with key 'intersection' indicates that multiple scopes should be treated as an intersection
