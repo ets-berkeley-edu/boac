@@ -16,6 +16,7 @@ export default {
       document.getElementById(id) && document.getElementById(id).focus(),
     forceUniquePath: routePath => `${routePath}?_=${new Date().getTime()}`,
     get: _.get,
+    has: _.has,
     includes: _.includes,
     inRange: _.inRange,
     isEmpty: _.isEmpty,
