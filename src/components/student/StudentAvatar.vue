@@ -1,8 +1,9 @@
 <template>
-  <div class="student-avatar-container">
+  <div>
     <img class="avatar"
          :class="avatarStyle"
-         :aria-label="'Photo of ' + student.firstName + ' ' + student.lastName"
+         :aria-label="`Photo of ${student.firstName} ${student.lastName}`"
+         :alt="`Photo of ${student.firstName} ${student.lastName}`"
          tabindex="0"
          :src="avatarUrl"
          @error="avatarError"/>
@@ -71,9 +72,6 @@ export default {
   width: 30px;
   top: 5%;
   right: 5%;
-}
-.student-avatar-container {
-  position: relative;
 }
 .student-avatar-large {
   border-radius: 75px;

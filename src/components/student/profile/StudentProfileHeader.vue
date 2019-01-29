@@ -1,12 +1,11 @@
 <template>
   <div class="d-flex">
-    <div>
-      <StudentAvatar class="pr-3" :student="student" size="large"/>
-      <CuratedGroupSelector :isStudentProfileView="true"
-                            :students="[ student ]"/>
+    <div class="text-center m-3">
+      <StudentAvatar class="mb-2" :student="student" size="large"/>
+      <StudentGroupSelector :sid="student.sid"/>
     </div>
     <div>
-      <div>
+      <div class="mt-3">
         <h1 id="student-name-header"
             class="student-section-header mb-1"
             ref="pageHeader"
@@ -18,28 +17,30 @@
         <div class="sr-only"
              v-if="student.sisProfile.preferredName !== student.name">Preferred name</div>
         <div id="student-preferred-name"
-             class="student-preferred-name"
+             class="student-preferred-name mb-2"
              :class="{'demo-mode-blur': user.inDemoMode}"
              v-if="student.sisProfile.preferredName !== student.name">
           {{ student.sisProfile.preferredName }}</div>
-        <div id="student-bio-sid" class="student-bio-sid font-weight-bold pb-2">
+        <div id="student-bio-sid" class="student-bio-sid font-weight-bold mb-2">
           SID <span :class="{'demo-mode-blur': user.inDemoMode}">{{ student.sid }}</span>
         </div>
-        <div>
+        <div class="mb-1">
           <i class="fas fa-envelope"></i>
           <span class="sr-only">Email</span>
           <a id="student-mailto"
              :href="`mailto:${student.sisProfile.emailAddress}`"
-             :class="{'demo-mode-blur': user.inDemoMode}">
+             :class="{'demo-mode-blur': user.inDemoMode}"
+             target="_blank">
              {{ student.sisProfile.emailAddress }}</a>
         </div>
         <div v-if="student.sisProfile.phoneNumber">
           <i class="fas fa-phone"></i>
           <span class="sr-only">Phone number</span>
-          <span id="student-phone-number"
-                :class="{'demo-mode-blur': user.inDemoMode}"
-                tabindex="0">
-            {{ student.sisProfile.phoneNumber }}</span>
+          <a id="student-phone-number"
+             :href="`tel:${student.sisProfile.phoneNumber}`"
+             :class="{'demo-mode-blur': user.inDemoMode}"
+             tabindex="0">
+            {{ student.sisProfile.phoneNumber }}</a>
         </div>
       </div>
       <div id="student-bio-inactive" v-if="isInactive">
@@ -51,7 +52,7 @@
         </div>
       </div>
     </div>
-    <div class="ml-auto mr-5">
+    <div class="ml-auto m-3 mr-5">
       <div id="student-bio-majors">
         <h3 class="sr-only">Major</h3>
         <div v-for="plan in student.sisProfile.plans" :key="plan.description">
@@ -90,8 +91,8 @@
 
 <script>
 import StudentAvatar from '@/components/student/StudentAvatar';
+import StudentGroupSelector from '@/components/student/profile/StudentGroupSelector';
 import StudentMetadata from '@/mixins/StudentMetadata';
-import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
@@ -99,7 +100,7 @@ export default {
   name: 'StudentProfileHeader',
   mixins: [StudentMetadata, UserMetadata, Util],
   components: {
-    CuratedGroupSelector,
+    StudentGroupSelector,
     StudentAvatar
   },
   props: {
