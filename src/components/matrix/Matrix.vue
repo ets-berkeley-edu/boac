@@ -29,7 +29,7 @@
       </select>
     </div>
     <div id="matrix-container" class="matrix-container">
-      <div class="matrix-zoom-wrapper">
+      <div class="matrix-zoom-wrapper" v-if="plottable">
         Zoom:
         <div class="btn-group">
           <button type="button" class="btn matrix-zoom-button" @click="zoomIn()">
@@ -45,7 +45,7 @@
           </button>
         </div>
       </div>
-      <div id="scatterplot" class="matrix"></div>
+      <div id="scatterplot" class="matrix" v-if="plottable"></div>
       <div id="cohort-missing-student-data" class="cohort-missing-student-data" v-if="!isEmpty(studentsWithoutData)">
         <h2 class="matrix-header">Missing Student Data</h2>
         <div>For the following students, some results may only provide partial data or information is currently unavailable:</div>
@@ -127,6 +127,7 @@ export default {
   },
   data: () => ({
     axisLabels: {},
+    plottable: true,
     selectedAxes: {
       x: 'analytics.currentScore',
       y: 'cumulativeGPA'
@@ -609,24 +610,27 @@ export default {
     refreshMatrix() {
       var partitions = this.partitionPlottableStudents();
       var plottableStudents = partitions[0];
+      this.plottable = plottableStudents.length > 0;
       this.studentsWithoutData = _.orderBy(partitions[1], [
         'last_name',
         'first_name'
       ]);
 
-      if (this.section.meanMetrics) {
-        // The imaginary mean must be drawn first, so as not to block access to real students.
-        plottableStudents.unshift({
-          analytics: this.section.meanMetrics,
-          cumulativeGPA: this.section.meanMetrics.gpa.cumulative,
-          isClassMean: true,
-          lastName: 'Class Average',
-          termGpa: this.section.meanMetrics.gpa
+      if (this.plottable) {
+        if (this.section.meanMetrics) {
+          // The imaginary mean must be drawn first, so as not to block access to real students.
+          plottableStudents.unshift({
+            analytics: this.section.meanMetrics,
+            cumulativeGPA: this.section.meanMetrics.gpa.cumulative,
+            isClassMean: true,
+            lastName: 'Class Average',
+            termGpa: this.section.meanMetrics.gpa
+          });
+        }
+        this.$nextTick(() => {
+          this.drawScatterplot(plottableStudents);
         });
       }
-      this.$nextTick(() => {
-        this.drawScatterplot(plottableStudents);
-      });
     }
   }
 };
