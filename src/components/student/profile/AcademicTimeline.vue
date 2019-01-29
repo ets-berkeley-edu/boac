@@ -16,20 +16,24 @@
         </div>
       </div>
       <div>
-        <table>
+        <table class="w-100">
           <tr class="sr-only">
             <th>Type</th>
             <th>Summary</th>
             <th>Date</th>
           </tr>
-          <tr class="border-top border-bottom" v-for="(message, index) in (showAll ? messagesFiltered : slice(messagesFiltered, 0, 5))" :key="index">
-            <td tabindex="-1" class="w-25">
+          <tr class="border-top border-bottom"
+              v-for="(message, index) in (showAll ? messagesFiltered : slice(messagesFiltered, 0, 5))"
+              :key="index">
+            <td tabindex="-1">
               <div>
                 {{ message.typeLabel }}
               </div>
             </td>
-            <td tabindex="-1" :class="{ 'font-weight-bold': !message.dismissed }">
-              <div>
+            <td tabindex="-1"
+                :class="{ 'font-weight-bold': !message.dismissed }">
+              <div role="link"
+                   @click="dismiss(message)">
                 {{ message.text }}
               </div>
             </td>
@@ -54,7 +58,7 @@
 
 <script>
 import Util from '@/mixins/Util';
-import { getStudentAlerts } from '@/api/student';
+import { dismissStudentAlert, getStudentAlerts } from '@/api/student';
 
 export default {
   name: 'AcademicTimeline',
@@ -80,6 +84,7 @@ export default {
       requirement => {
         this.messages.push(
           this.newMessage(
+            null,
             'degreeProgress',
             `${requirement.name} ${requirement.status}`,
             true
@@ -89,12 +94,12 @@ export default {
           const alertCategories = this.partition(data, ['alertType', 'hold']);
           this.each(alertCategories[0], alert => {
             this.messages.push(
-              this.newMessage('alert', alert.message, alert.dismissed)
+              this.newMessage(alert.id, 'alert', alert.message, alert.dismissed)
             );
           });
           this.each(alertCategories[1], alert => {
             this.messages.push(
-              this.newMessage('hold', alert.message, alert.dismissed)
+              this.newMessage(alert.id, 'hold', alert.message, alert.dismissed)
             );
           });
           this.isTimelineLoading = false;
@@ -110,13 +115,24 @@ export default {
     }
   },
   methods: {
-    newMessage(type, text, dismissed, date) {
+    dismiss(message) {
+      const isAlert = this.includes(['alert', 'hold'], message.type);
+      if (isAlert) {
+        dismissStudentAlert(message.id).then(() => {
+          message.dismissed = true;
+        });
+      } else {
+        // TODO: The Notes feature will do something more advanced here.
+        message.dismissed = true;
+      }
+    },
+    newMessage(id, type, text, dismissed, date) {
       const typeLabel = {
         alert: 'Alert',
         degreeProgress: 'Requirements',
         hold: 'Hold'
       }[type];
-      return { type, typeLabel, text, dismissed, date };
+      return { id, type, typeLabel, text, dismissed, date };
     }
   }
 };
