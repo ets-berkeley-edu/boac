@@ -1,28 +1,28 @@
 <template>
   <div>
-    <b-dropdown id="curated-group-dropdown-select"
-                class="curated-selector"
+    <b-dropdown id="curated-group-dropdown"
                 :variant="dropdownVariant"
-                toggle-class="b-dd-primary-override"
+                toggle-class="b-dd-override b-dd-narrow"
+                menu-class="groups-menu-class"
                 size="sm"
                 no-caret
-                :disabled="disableSelector || groupsLoading">
+                :disabled="disableSelector">
       <template slot="button-content">
         <span :id="isAdding ? 'added-to-curated-group' : (isRemoving ? 'removed-from-curated-group' : 'add-to-curated-group')"
               class="p-3">
           <span v-if="!isAdding && !isRemoving">
-            <span class="pr-2">Add to Group</span>
-            <i class="fas fa-spinner fa-spin" v-if="disableSelector || groupsLoading"></i>
-            <i class="fas fa-caret-down" v-if="!disableSelector"></i>
+            <span class="pr-1">Add to Group</span>
+            <i class="fas fa-spinner fa-spin caret-down-width" v-if="disableSelector || groupsLoading"></i>
+            <i class="fas fa-caret-down caret-down-width" v-if="!disableSelector && !groupsLoading"></i>
           </span>
           <span v-if="isRemoving">
-            <i class="fas fa-check"></i> Removed from Group
+            <i class="fas fa-times"></i> Removed
             <span role="alert"
                   aria-live="passive"
                   class="sr-only">Student removed from the selected group</span>
           </span>
           <span v-if="isAdding">
-            <i class="fas fa-check"></i> Added to Group
+            <i class="fas fa-check"></i> Added
             <span role="alert"
                   aria-live="passive"
                   class="sr-only">Student added to the selected group</span>
@@ -32,9 +32,10 @@
       <b-dropdown-item v-if="!size(myCuratedGroups)">
         <span class="cohort-selector-zero-cohorts faint-text">You have no curated groups.</span>
       </b-dropdown-item>
-      <div v-if="!groupsLoading">
+      <div class="pt-1" v-if="!groupsLoading">
         <b-dropdown-item :id="`curated-group-${group.id}-menu-item`"
                          class="b-dd-item-override"
+                         @keyup.space.prevent.stop="groupCheckboxClick(group)"
                          v-for="group in myCuratedGroups"
                          :key="group.id">
           <input :id="`curated-group-${group.id}-checkbox`"
@@ -75,6 +76,7 @@
 
 <script>
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal.vue';
+import Scrollable from '@/mixins/Scrollable';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import {
@@ -86,7 +88,7 @@ import {
 
 export default {
   name: 'StudentGroupSelector',
-  mixins: [UserMetadata, Util],
+  mixins: [Scrollable, UserMetadata, Util],
   components: {
     CreateCuratedGroupModal
   },
@@ -111,7 +113,7 @@ export default {
   },
   computed: {
     disableSelector() {
-      return this.isAdding || this.isNil(this.myCuratedGroups);
+      return this.isAdding || this.isRemoving;
     },
     dropdownVariant() {
       return this.isAdding
@@ -126,8 +128,9 @@ export default {
       if (this.includes(this.checkedGroups, group.id)) {
         this.isRemoving = true;
         const done = () => {
-          this.checkedGroups = this.remove(this.checkedGroups, group.id);
+          this.checkedGroups = this.without(this.checkedGroups, group.id);
           this.isRemoving = false;
+          this.putFocusNextTick('curated-group-dropdown', 'button');
         };
         removeFromCuratedGroup(group.id, this.sid).finally(() =>
           setTimeout(done, 1000)
@@ -137,6 +140,7 @@ export default {
         const done = () => {
           this.checkedGroups.push(group.id);
           this.isAdding = false;
+          this.putFocusNextTick('curated-group-dropdown', 'button');
         };
         addStudents(group, [this.sid]).finally(() => setTimeout(done, 1000));
       }
@@ -147,7 +151,7 @@ export default {
       let done = () => {
         this.isAdding = false;
       };
-      createCuratedGroup(name, this.sids).then(setTimeout(() => done(), 2000));
+      createCuratedGroup(name, [this.sid]).then(setTimeout(() => done(), 2000));
     },
     modalCancel() {
       this.showModal = false;
@@ -157,10 +161,15 @@ export default {
 </script>
 
 <style scoped>
+.caret-down-width {
+  width: 15px;
+}
 .create-new-button {
   font-size: 16px;
 }
-.curated-selector {
-  height: 35px;
+.groups-menu-class {
+  height: 35px !important;
+  min-width: 160px !important;
+  width: 160px !important;
 }
 </style>

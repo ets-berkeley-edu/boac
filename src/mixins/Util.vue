@@ -45,7 +45,8 @@ export default {
       (document.title = `${phrase || 'UC Berkeley'} | BOAC`),
     size: _.size,
     slice: _.slice,
-    trim: _.trim
+    trim: _.trim,
+    without: _.without
   }
 };
 </script>
