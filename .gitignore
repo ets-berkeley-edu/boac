@@ -9,7 +9,6 @@
 !.elasticbeanstalk/*.global.yml
 
 # Front-end
-boac/static/lib
 node_modules
 
 # Local configs
