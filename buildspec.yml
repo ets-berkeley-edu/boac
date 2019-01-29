@@ -11,8 +11,6 @@ phases:
     commands:
       - npm -v
       - npm install
-      - npm install -g bower
-      - npm install -g gulp
 
   pre_build:
     commands:
@@ -21,8 +19,6 @@ phases:
   build:
     commands:
       - sudo npm install -g @vue/cli
-      - sudo ./node_modules/.bin/bower install --allow-root
-      - sudo ./node_modules/.bin/gulp dist --allow-root
       - sudo npm run build-vue
       - mv ./dist/static/vue/* ./dist/static/
 

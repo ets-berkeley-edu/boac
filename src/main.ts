@@ -1,5 +1,6 @@
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 import 'bootstrap/dist/css/bootstrap.css';
+import './assets/legacy.css';
 import _ from 'lodash';
 import App from './App.vue';
 import axios from 'axios';

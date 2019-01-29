@@ -17,8 +17,6 @@ pip3 install pandas==0.23.3
 
 ```
 npm install
-npm install -g bower
-bower install
 ```
 
 ### Create Postgres user and databases
@@ -45,7 +43,7 @@ export BOAC_LOCAL_CONFIGS=/Volumes/XYZ/boac_config
 
 ## Run tests, lint the code
 
-We use [Tox](https://tox.readthedocs.io) for continuous integration. Under the hood, you'll find [PyTest](https://docs.pytest.org), [Flake8](http://flake8.pycqa.org), [ESLint](https://eslint.org/) and [Stylelint](https://stylelint.io). Please install NPM dependencies (see above) before running tests.
+We use [Tox](https://tox.readthedocs.io) for continuous integration. Under the hood, you'll find [PyTest](https://docs.pytest.org), [Flake8](http://flake8.pycqa.org) and [ESLint](https://eslint.org/). Please install NPM dependencies (see above) before running tests.
 ```
 # Run all tests and linters
 tox
@@ -58,8 +56,6 @@ tox -e test -- tests/test_models/test_authorized_user.py
 tox -e test -- tests/test_externals/
 
 # Linters, à la carte
-tox -e lint-css
-tox -e lint-js
 tox -e lint-py
 tox -e lint-vue
 
@@ -67,6 +63,5 @@ tox -e lint-vue
 tox -e lint-vue-fix
 
 # Lint specific file(s)
-tox -e lint-js -- boac/static/js/controllers/cohortController.js
 tox -e lint-py -- scripts/cohort_fixtures.py
 ```
