@@ -22,18 +22,31 @@
             <th>Summary</th>
             <th>Date</th>
           </tr>
-          <tr class="border-top border-bottom" v-for="(message, index) in messagesFiltered" :key="index">
-            <td class="w-25">
-              {{ message.typeLabel }}
+          <tr class="border-top border-bottom" v-for="(message, index) in (showAll ? messagesFiltered : slice(messagesFiltered, 0, 5))" :key="index">
+            <td tabindex="-1" class="w-25">
+              <div>
+                {{ message.typeLabel }}
+              </div>
             </td>
-            <td class="w-50">
-              {{ message.text }}
+            <td tabindex="-1" :class="{ 'font-weight-bold': !message.dismissed }">
+              <div>
+                {{ message.text }}
+              </div>
             </td>
-            <td>
+            <td tabindex="-1">
               {{ message.date || '--' }}
             </td>
           </tr>
         </table>
+      </div>
+      <div v-if="messagesFiltered.length > 5">
+        <b-btn id="show-hide-details-button"
+               class="no-wrap pr-2 pt-0"
+               variant="link"
+               :aria-label="`showAll ? 'Hide previous messages' : 'Show previous messages'`"
+               @click="showAll = !showAll">
+          {{showAll ? 'Hide' : 'Show'}} Previous Messages
+        </b-btn>
       </div>
     </div>
   </div>
@@ -57,7 +70,8 @@ export default {
       alert: 'Alerts',
       degreeProgress: 'Reqs',
       hold: 'Holds'
-    }
+    },
+    showAll: false
   }),
   created() {
     this.messages = [];
@@ -67,19 +81,21 @@ export default {
         this.messages.push(
           this.newMessage(
             'degreeProgress',
-            `${requirement.name} ${requirement.status}`
+            `${requirement.name} ${requirement.status}`,
+            true
           )
         );
         getStudentAlerts(this.student.sid).then(data => {
-          const alerts = this.get(data, 'shown', []).concat(
-            this.get(data, 'dismissed', [])
-          );
-          const partitions = this.partition(alerts, ['alertType', 'hold']);
-          this.each(partitions[0], alert => {
-            this.messages.push(this.newMessage('alert', alert.message));
+          const alertCategories = this.partition(data, ['alertType', 'hold']);
+          this.each(alertCategories[0], alert => {
+            this.messages.push(
+              this.newMessage('alert', alert.message, alert.dismissed)
+            );
           });
-          this.each(partitions[1], alert => {
-            this.messages.push(this.newMessage('hold', alert.message));
+          this.each(alertCategories[1], alert => {
+            this.messages.push(
+              this.newMessage('hold', alert.message, alert.dismissed)
+            );
           });
           this.isTimelineLoading = false;
         });
@@ -94,13 +110,13 @@ export default {
     }
   },
   methods: {
-    newMessage(type, text, date) {
+    newMessage(type, text, dismissed, date) {
       const typeLabel = {
         alert: 'Alert',
         degreeProgress: 'Requirements',
         hold: 'Hold'
       }[type];
-      return { type, typeLabel, text, date };
+      return { type, typeLabel, text, dismissed, date };
     }
   }
 };

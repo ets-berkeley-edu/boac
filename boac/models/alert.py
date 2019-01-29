@@ -180,18 +180,17 @@ class Alert(Base):
             ORDER BY alerts.created_at
         """)
         results = db.session.execute(query, {'viewer_id': viewer_id, 'key': current_term_id() + '_%', 'sid': sid})
+        feed = []
 
         def result_to_dict(result):
             return {camelize(key): result[key] for key in ['id', 'alert_type', 'key', 'message']}
-        feed = {
-            'dismissed': [],
-            'shown': [],
-        }
         for result in results:
-            if result['dismissed_at']:
-                feed['dismissed'].append(result_to_dict(result))
-            else:
-                feed['shown'].append(result_to_dict(result))
+            dismissed_at = result['dismissed_at']
+            alert = {
+                **result_to_dict(result),
+                **{'dismissed': dismissed_at and dismissed_at.strftime('%Y-%m-%d %H:%M:%S')},
+            }
+            feed.append(alert)
         return feed
 
     def activate(self):
