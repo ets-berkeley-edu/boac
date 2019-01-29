@@ -23,14 +23,14 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 from boac.models.alert import Alert
 import pytest
 from tests.util import override_config
 
 
 def get_current_alerts(sid):
-    return Alert.current_alerts_for_sid(sid=sid, viewer_id='2040')['shown']
+    alerts = Alert.current_alerts_for_sid(sid=sid, viewer_id='2040')
+    return list(filter(lambda a: not a['dismissed'], alerts))
 
 
 alert_props = {

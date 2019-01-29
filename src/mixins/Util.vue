@@ -43,6 +43,7 @@ export default {
     setPageTitle: phrase =>
       (document.title = `${phrase || 'UC Berkeley'} | BOAC`),
     size: _.size,
+    slice: _.slice,
     trim: _.trim
   }
 };

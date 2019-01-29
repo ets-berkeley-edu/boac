@@ -110,9 +110,9 @@ class TestCohortDetail:
         assert dave_doolittle['lastName']
         assert dave_doolittle['alertCount'] == 1
 
-        alert_to_dismiss = client.get('/api/alerts/current/11667051').json['shown'][0]['id']
+        alert_to_dismiss = client.get('/api/alerts/current/11667051').json[0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
-        alert_to_dismiss = client.get('/api/alerts/current/2345678901').json['shown'][0]['id']
+        alert_to_dismiss = client.get('/api/alerts/current/2345678901').json[0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
 
         students_with_alerts = client.get(f'/api/cohort/{cohort_id}/students_with_alerts').json
