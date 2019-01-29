@@ -1,12 +1,11 @@
 <template>
   <div class="d-flex">
     <div class="selector-checkbox-container"
-         :class="{'mr-1': showMenu, 'mr-3': !showMenu}"
-         v-if="!isStudentProfileView">
+         :class="{'mr-1': showMenu, 'mr-3': !showMenu}">
       <label id="checkbox-add-all-label"
              class="sr-only">Select all students to add to a curated group</label>
       <b-form-checkbox id="add-all-to-curated-group"
-                       class="add-all-checkbox"
+                       class="add-all-checkbox mr-0"
                        plain
                        :disabled="isSaving"
                        v-model="isSelectAllChecked"
@@ -98,14 +97,7 @@ export default {
     CreateCuratedGroupModal
   },
   props: {
-    isStudentProfileView: {
-      type: Boolean,
-      default: false
-    },
-    students: {
-      type: Array,
-      required: true
-    }
+    students: Array
   },
   data: () => ({
     sids: [],
@@ -132,7 +124,7 @@ export default {
       return this.isSaving ? 'success' : 'primary';
     },
     showMenu() {
-      return this.isStudentProfileView || this.size(this.sids);
+      return this.size(this.sids);
     }
   },
   methods: {

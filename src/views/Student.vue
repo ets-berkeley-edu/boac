@@ -2,16 +2,16 @@
   <div>
     <Spinner/>
     <div v-if="!loading">
-      <div class="light-blue-background border-bottom p-3">
+      <div class="light-blue-background border-bottom">
         <StudentProfileHeader :student="student"/>
       </div>
       <h2 class="sr-only">Academic Status</h2>
       <div class="flex-row full-width border-bottom">
-        <div class="align-middle w-50 p-3">
+        <div class="align-middle">
           <h3 class="sr-only">Units</h3>
           <StudentProfileUnits :student="student"/>
         </div>
-        <div  class="border-left w-50 p-3">
+        <div  class="border-left p-3">
           <h3 class="sr-only">GPA</h3>
           <StudentProfileGPA :student="student"/>
         </div>
