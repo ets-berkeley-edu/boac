@@ -46,6 +46,7 @@ export default {
     size: _.size,
     slice: _.slice,
     trim: _.trim,
+    uniq: _.uniq,
     without: _.without
   }
 };

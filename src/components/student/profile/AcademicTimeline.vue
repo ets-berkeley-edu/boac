@@ -2,28 +2,28 @@
   <div>
     <h2>Academic Timeline</h2>
     <div v-if="!isTimelineLoading">
-      <div class="d-flex mt-3 mb-3">
+      <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
+      <div class="d-flex mt-3 mb-3" v-if="size(distinctTypes) > 0">
         <div class="align-self-center mr-3">Filter Type:</div>
-        <div>
-          <b-btn id="student-timeline-filter-all"
+        <div v-if="size(distinctTypes) > 1">
+          <b-btn id="timeline-tab-all"
                  class="tab pl-2 pr-2"
                  :class="{ 'tab-active text-white': !filter, 'tab-inactive text-dark': filter }"
                  variant="link"
                  @click="filter = null">All</b-btn>
         </div>
-        <div v-for="(label, type) in filterTypes" :key="type">
-          <b-btn :id="`student-timeline-filter-${filter}`"
+        <div v-for="type in distinctTypes" :key="type">
+          <b-btn :id="`timeline-tab-${filter}`"
                  class="tab ml-2 pl-2 pr-2 text-center"
                  :class="{ 'tab-active text-white': type === filter, 'tab-inactive text-dark': type !== filter }"
                  variant="link"
-                 @click="filter = type">{{ label }}</b-btn>
+                 @click="filter = type">{{ filterTypes[type] }}</b-btn>
         </div>
       </div>
       <div class="pb-4 pl-2" v-if="!size(messagesFiltered)">
-        <span class="messages-none">
+        <span id="zero-messages" class="messages-none">
+          <span v-if="filter">No {{ filterLabel }}</span>
           <span v-if="!filter">None</span>
-          <span v-if="filter === 'degreeProgress'">No requirements</span>
-          <span v-if="filter && filter !== 'degreeProgress'">No {{ filterTypes[filter].toLowerCase() }}</span>
         </span>
       </div>
       <div v-if="size(messagesFiltered)">
@@ -34,30 +34,41 @@
             <th>Date</th>
           </tr>
           <tr class="message-row border-top border-bottom"
-              :class="{'message-dismissed-row': message.dismissed}"
-              v-for="(message, index) in (showAll ? messagesFiltered : slice(messagesFiltered, 0, 5))"
+              :class="{'message-row-dismissed': message.dismissed}"
+              v-for="(message, index) in messagesInView"
               :key="index">
-            <td class="messages-column-label" tabindex="-1">
-              <div class="pill text-center text-uppercase text-white" :class="`pill-${message.type}`">
-                {{ message.typeLabel }}
+            <td :id="`timeline-tab-${filter || 'all'}-column-pill`" class="column-pill align-top p-2">
+              <div class="pill text-center text-uppercase text-white"
+                   :class="`pill-${message.type}`"
+                   tabindex="0">
+                <span class="sr-only">Message of type </span>{{ message.typeLabel }}
               </div>
             </td>
-            <td tabindex="-1"
-                class="message-text"
+            <td :id="`timeline-tab-${filter || 'all'}-column-message`"
+                class="column-message align-top"
                 :class="{ 'font-weight-bold': !message.dismissed }">
-              <div role="link"
-                   @click="dismiss(message)">
+              <div :class="{
+                     'align-top': message.openOnTab === (filter || 'all'),
+                     'message-text-ellipsis': message.openOnTab !== (filter || 'all')
+                   }"
+                   tabindex="0"
+                   role="link"
+                   @keyup.enter="toggle(message)"
+                   @click="toggle(message)">
                 {{ message.text }}
               </div>
             </td>
-            <td tabindex="-1">
-              {{ message.date || '--' }}
+            <td :id="`timeline-tab-${filter || 'all'}-column-date`"
+                class="message-date align-top pt-2" tabindex="0">
+              <div v-if="message.date">
+                <span tabindex="0"><span class="sr-only">Date created: </span>{{ message.date }}</span>
+              </div>
             </td>
           </tr>
         </table>
       </div>
       <div v-if="messagesFiltered.length > 5">
-        <b-btn id="show-hide-details-button"
+        <b-btn :id="`timeline-tab-${filter || 'all'}-previous-messages`"
                class="no-wrap pr-2 pt-0"
                variant="link"
                :aria-label="`showAll ? 'Hide previous messages' : 'Show previous messages'`"
@@ -80,15 +91,17 @@ export default {
     student: Object
   },
   data: () => ({
-    isTimelineLoading: true,
-    messages: undefined,
+    distinctTypes: undefined,
     filter: undefined,
     filterTypes: {
       alert: 'Alerts',
       degreeProgress: 'Reqs',
       hold: 'Holds'
     },
-    showAll: false
+    isTimelineLoading: true,
+    messages: undefined,
+    showAll: false,
+    screenReaderAlert: undefined
   }),
   created() {
     this.messages = [];
@@ -105,38 +118,53 @@ export default {
         );
         getStudentAlerts(this.student.sid).then(data => {
           const alertCategories = this.partition(data, ['alertType', 'hold']);
-          this.each(alertCategories[0], alert => {
-            this.messages.push(
-              this.newMessage(alert.id, 'alert', alert.message, alert.dismissed)
-            );
+          this.each({ hold: 0, alert: 1 }, (arrayIndex, alertType) => {
+            this.each(alertCategories[arrayIndex], alert => {
+              this.messages.push(
+                this.newMessage(
+                  alert.id,
+                  alertType,
+                  alert.message,
+                  alert.dismissed
+                )
+              );
+            });
           });
-          this.each(alertCategories[1], alert => {
-            this.messages.push(
-              this.newMessage(alert.id, 'hold', alert.message, alert.dismissed)
-            );
-          });
+          this.distinctTypes = this.uniq(this.map(this.messages, 'type'));
           this.isTimelineLoading = false;
+          this.screenReaderAlert = 'Academic Timeline has loaded';
         });
       }
     );
   },
   computed: {
+    filterLabel() {
+      return this.filter
+        ? this.filter === 'degreeProgress'
+          ? 'requirements'
+          : this.filterTypes[this.filter].toLowerCase()
+        : null;
+    },
     messagesFiltered() {
       return this.filter
         ? this.filterList(this.messages, ['type', this.filter])
         : this.messages;
+    },
+    messagesInView() {
+      return this.showAll
+        ? this.messagesFiltered
+        : this.slice(this.messagesFiltered, 0, 5);
     }
   },
   methods: {
-    dismiss(message) {
+    toggle(message) {
+      message.openOnTab = message.openOnTab ? null : this.filter || 'all';
       const isAlert = this.includes(['alert', 'hold'], message.type);
-      if (isAlert) {
-        dismissStudentAlert(message.id).then(() => {
-          message.dismissed = true;
-        });
-      } else {
-        // TODO: The Notes feature will do something more advanced here.
+      if (isAlert && !message.dismissed) {
         message.dismissed = true;
+        if (isAlert) {
+          dismissStudentAlert(message.id);
+        }
       }
     },
     newMessage(id, type, text, dismissed, date) {
@@ -145,42 +173,70 @@ export default {
         degreeProgress: 'Requirements',
         hold: 'Hold'
       }[type];
-      return { id, type, typeLabel, text, dismissed, date };
+      return {
+        id,
+        type,
+        typeLabel,
+        text,
+        dismissed,
+        date,
+        openOnTab: undefined
+      };
+    },
+    describeTheActiveTab() {
+      const inViewCount = this.size(this.messagesInView);
+      return `Showing ${this.showAll ? 'all' : 'the first '} ${inViewCount} ${
+        this.filter ? this.filterLabel : 'messages'
+      }.`;
+    }
+  },
+  watch: {
+    filter() {
+      this.screenReaderAlert = this.describeTheActiveTab();
+    },
+    showAll() {
+      this.screenReaderAlert = this.describeTheActiveTab();
     }
   }
 };
 </script>
 
 <style scoped>
-.message-text {
-  padding: 10px 10px 10px 0;
+.message-date {
+  max-width: 80px;
+  width: 80px;
+}
+.column-message {
+  max-width: 1px;
+  padding: 10px;
+  vertical-align: middle;
+}
+.column-pill {
+  white-space: nowrap;
+  width: 146px;
 }
 .messages-none {
   font-size: 18px;
   font-weight: 500;
-}
-.messages-column-label {
-  width: 1%;
-  padding-right: 10px;
-  white-space: nowrap;
-}
-.message-dismissed-row {
-  background-color: #f9f9f9;
 }
 .message-row:active,
 .message-row:focus,
 .message-row:hover {
   background-color: #e3f5ff;
 }
+.message-row-dismissed {
+  background-color: #f9f9f9;
+}
+.message-text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .pill {
   border-radius: 5px;
   font-size: 14px;
-  height: 30px;
-  padding: 4px 10px 0 10px;
-}
-.pill-hold {
-  width: 60px;
-  background-color: #bc74fe;
+  height: 26px;
+  padding: 3px 5px 0 5px;
 }
 .pill-alert {
   width: 60px;
@@ -189,6 +245,16 @@ export default {
 .pill-degreeProgress {
   width: 130px;
   background-color: #93c165;
+}
+.pill-hold {
+  width: 60px;
+  background-color: #bc74fe;
+}
+.tab {
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 800;
+  height: 40px;
 }
 .tab-active {
   background-color: #555;
@@ -205,11 +271,5 @@ export default {
 .tab-inactive:hover,
 .tab-inactive:hover {
   background-color: #ddd;
-}
-.tab {
-  border-radius: 5px;
-  font-size: 16px;
-  font-weight: 800;
-  height: 40px;
 }
 </style>
