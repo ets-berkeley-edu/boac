@@ -1,81 +1,80 @@
 <template>
-  <div>
+  <div v-if="!isTimelineLoading">
     <h2>Academic Timeline</h2>
-    <div v-if="!isTimelineLoading">
-      <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
-      <div class="d-flex mt-3 mb-3" v-if="size(distinctTypes) > 0">
-        <div class="align-self-center mr-3">Filter Type:</div>
-        <div v-if="size(distinctTypes) > 1">
-          <b-btn id="timeline-tab-all"
-                 class="tab pl-2 pr-2"
-                 :class="{ 'tab-active text-white': !filter, 'tab-inactive text-dark': filter }"
-                 variant="link"
-                 @click="filter = null">All</b-btn>
-        </div>
-        <div v-for="type in distinctTypes" :key="type">
-          <b-btn :id="`timeline-tab-${filter}`"
-                 class="tab ml-2 pl-2 pr-2 text-center"
-                 :class="{ 'tab-active text-white': type === filter, 'tab-inactive text-dark': type !== filter }"
-                 variant="link"
-                 @click="filter = type">{{ filterTypes[type] }}</b-btn>
-        </div>
-      </div>
-      <div class="pb-4 pl-2" v-if="!size(messagesFiltered)">
-        <span id="zero-messages" class="messages-none">
-          <span v-if="filter">No {{ filterLabel }}</span>
-          <span v-if="!filter">None</span>
-        </span>
-      </div>
-      <div v-if="size(messagesFiltered)">
-        <table class="w-100">
-          <tr class="sr-only">
-            <th>Type</th>
-            <th>Summary</th>
-            <th>Date</th>
-          </tr>
-          <tr class="message-row border-top border-bottom"
-              :class="{'message-row-dismissed': message.dismissed}"
-              v-for="(message, index) in messagesInView"
-              :key="index">
-            <td :id="`timeline-tab-${filter || 'all'}-column-pill`" class="column-pill align-top p-2">
-              <div class="pill text-center text-uppercase text-white"
-                   :class="`pill-${message.type}`"
-                   tabindex="0">
-                <span class="sr-only">Message of type </span>{{ message.typeLabel }}
-              </div>
-            </td>
-            <td :id="`timeline-tab-${filter || 'all'}-column-message`"
-                class="column-message align-top"
-                :class="{ 'font-weight-bold': !message.dismissed }">
-              <div :class="{
-                     'align-top': message.openOnTab === (filter || 'all'),
-                     'message-text-ellipsis': message.openOnTab !== (filter || 'all')
-                   }"
-                   tabindex="0"
-                   role="link"
-                   @keyup.enter="toggle(message)"
-                   @click="toggle(message)">
-                {{ message.text }}
-              </div>
-            </td>
-            <td :id="`timeline-tab-${filter || 'all'}-column-date`"
-                class="message-date align-top pt-2" tabindex="0">
-              <div v-if="message.date">
-                <span tabindex="0"><span class="sr-only">Date created: </span>{{ message.date }}</span>
-              </div>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div v-if="messagesFiltered.length > 5">
-        <b-btn :id="`timeline-tab-${filter || 'all'}-previous-messages`"
-               class="no-wrap pr-2 pt-0"
+    <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
+    <div class="d-flex mt-3 mb-3" v-if="size(distinctTypes) > 0">
+      <div class="align-self-center mr-3">Filter Type:</div>
+      <div v-if="size(distinctTypes) > 1">
+        <b-btn id="timeline-tab-all"
+               class="tab pl-2 pr-2"
+               :class="{ 'tab-active text-white': !filter, 'tab-inactive text-dark': filter }"
                variant="link"
-               :aria-label="`showAll ? 'Hide previous messages' : 'Show previous messages'`"
-               @click="showAll = !showAll">
-          {{showAll ? 'Hide' : 'Show'}} Previous Messages
-        </b-btn>
+               @click="filter = null">All</b-btn>
       </div>
+      <div v-for="type in distinctTypes" :key="type">
+        <b-btn :id="`timeline-tab-${filter}`"
+               class="tab ml-2 pl-2 pr-2 text-center"
+               :class="{ 'tab-active text-white': type === filter, 'tab-inactive text-dark': type !== filter }"
+               variant="link"
+               @click="filter = type">{{ filterTypes[type] }}</b-btn>
+      </div>
+    </div>
+    <div class="pb-4 pl-2" v-if="!size(messagesFiltered)">
+      <span id="zero-messages" class="messages-none">
+        <span v-if="filter">No {{ filterLabel }}</span>
+        <span v-if="!filter">None</span>
+      </span>
+    </div>
+    <div v-if="size(messagesFiltered)">
+      <table class="w-100">
+        <tr class="sr-only">
+          <th>Type</th>
+          <th>Summary</th>
+          <th>Date</th>
+        </tr>
+        <tr class="message-row border-top border-bottom"
+            :class="{'message-row-dismissed': message.dismissed}"
+            v-for="(message, index) in messagesInView"
+            :key="index">
+          <td class="column-pill align-top p-2">
+            <div :id="`timeline-tab-${filter || 'all'}-pill-${index}`"
+                 class="pill text-center text-uppercase text-white"
+                 :class="`pill-${message.type}`"
+                 tabindex="0">
+              <span class="sr-only">Message of type </span>{{ message.typeLabel }}
+            </div>
+          </td>
+          <td class="column-message align-top"
+              :class="{ 'font-weight-bold': !message.dismissed }">
+            <div :id="`timeline-tab-${filter || 'all'}-message-${index}`"
+                 :class="{
+                   'align-top': message.openOnTab === (filter || 'all'),
+                   'message-text-ellipsis': message.openOnTab !== (filter || 'all')
+                 }"
+                 tabindex="0"
+                 role="link"
+                 @keyup.enter="toggle(message)"
+                 @click="toggle(message)">
+              {{ message.text }}
+            </div>
+          </td>
+          <td class="message-date align-top pt-2">
+            <div :id="`timeline-tab-${filter || 'all'}-date-${index}`"
+                 v-if="message.date">
+              <span tabindex="0"><span class="sr-only">Date created: </span>{{ message.date }}</span>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div v-if="messagesFiltered.length > 5">
+      <b-btn :id="`timeline-tab-${filter || 'all'}-previous-messages`"
+             class="no-wrap pr-2 pt-0"
+             variant="link"
+             :aria-label="`showAll ? 'Hide previous messages' : 'Show previous messages'`"
+             @click="showAll = !showAll">
+        {{showAll ? 'Hide' : 'Show'}} Previous Messages
+      </b-btn>
     </div>
   </div>
 </template>
@@ -100,7 +99,7 @@ export default {
     },
     isTimelineLoading: true,
     messages: undefined,
-    showAll: false,
+    showAll: undefined,
     screenReaderAlert: undefined
   }),
   created() {
@@ -157,15 +156,11 @@ export default {
     }
   },
   methods: {
-    toggle(message) {
-      message.openOnTab = message.openOnTab ? null : this.filter || 'all';
-      const isAlert = this.includes(['alert', 'hold'], message.type);
-      if (isAlert && !message.dismissed) {
-        message.dismissed = true;
-        if (isAlert) {
-          dismissStudentAlert(message.id);
-        }
-      }
+    describeTheActiveTab() {
+      const inViewCount = this.size(this.messagesInView);
+      return `Showing ${this.showAll ? 'all' : 'the first '} ${inViewCount} ${
+        this.filter ? this.filterLabel : 'messages'
+      }.`;
     },
     newMessage(id, type, text, dismissed, date) {
       const typeLabel = {
@@ -183,19 +178,28 @@ export default {
         openOnTab: undefined
       };
     },
-    describeTheActiveTab() {
-      const inViewCount = this.size(this.messagesInView);
-      return `Showing ${this.showAll ? 'all' : 'the first '} ${inViewCount} ${
-        this.filter ? this.filterLabel : 'messages'
-      }.`;
+    toggle(message) {
+      message.openOnTab = message.openOnTab ? null : this.filter || 'all';
+      const isAlert = this.includes(['alert', 'hold'], message.type);
+      if (isAlert && !message.dismissed) {
+        message.dismissed = true;
+        if (isAlert) {
+          dismissStudentAlert(message.id);
+        }
+      }
     }
   },
   watch: {
     filter() {
       this.screenReaderAlert = this.describeTheActiveTab();
+      this.putFocusNextTick(`timeline-tab-${this.filter || 'all'}-pill-0`);
     },
     showAll() {
       this.screenReaderAlert = this.describeTheActiveTab();
+      const rowIndex = this.showAll ? 5 : 0;
+      this.putFocusNextTick(
+        `timeline-tab-${this.filter || 'all'}-pill-${rowIndex}`
+      );
     }
   }
 };
