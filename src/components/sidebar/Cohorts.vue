@@ -42,6 +42,12 @@ export default {
 </script>
 
 <style scoped>
+.sidebar-create-link {
+  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
+  width: 20px;
+}
 .sidebar-icon-plus {
   float: right;
 }

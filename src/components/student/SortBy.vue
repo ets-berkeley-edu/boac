@@ -52,3 +52,13 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.cohort-sort-column {
+  display: flex;
+  white-space: nowrap;
+}
+.cohort-sort-label {
+  padding: 8px 10px 0 0;
+}
+</style>

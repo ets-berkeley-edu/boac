@@ -196,3 +196,104 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.cohort-boxplot-container {
+  align-items: flex-end;
+  display: flex;
+}
+.cohort-course-activity-course-name {
+  width: 180px;
+}
+.cohort-course-activity-data {
+  font-size: 14px;
+  line-height: 1.4em;
+  padding: 0 0 5px 15px;
+  vertical-align: top;
+}
+.cohort-course-activity-header {
+  color: #aaa;
+  font-size: 13px;
+  font-weight: normal;
+  padding: 0 0 5px 15px;
+  vertical-align: top;
+}
+.cohort-course-activity-table {
+  margin: auto;
+  min-width: 340px;
+  width: 85%;
+}
+.cohort-course-activity-wrapper {
+  flex-basis: auto;
+  flex-grow: 0.6;
+  margin-left: 0;
+  min-width: 340px;
+}
+.cohort-list-view-column-00 {
+  align-self: center;
+  flex: 0 0 30px;
+  margin-right: 5px;
+}
+.cohort-list-view-column-01 {
+  align-items: center;
+  display: flex;
+  flex: 0 0 30px;
+  position: relative;
+}
+.cohort-student-name-container {
+  display: flex;
+}
+.cohort-student-name-container div:first-child {
+  flex-basis: 70%;
+}
+.profile-gpa-alert {
+  color: #d0021b;
+}
+.profile-last-term-gpa {
+  color: #000;
+}
+.profile-last-term-gpa-outer {
+  font-size: 12px;
+  padding-left: 5px;
+  text-align: left;
+}
+.student-bio-status-legend {
+  color: #999;
+  font-size: 13px;
+  font-weight: 300;
+  text-transform: uppercase;
+}
+.student-column-gpa {
+  flex: 0.5 0 130px;
+  margin-left: 15px;
+}
+.student-gpa {
+  font-size: 13px;
+  font-weight: bold;
+}
+</style>
+
+<style>
+.add-to-cohort-checkbox {
+  padding: 10px;
+}
+.add-to-cohort-checkbox input {
+  margin: 0;
+}
+.cohort-boxplot-container .highcharts-tooltip {
+  background-color: #000;
+  border-color: #000;
+  border-radius: 6px;
+  padding: 8px;
+  width: 250px;
+}
+.cohort-boxplot-container g.highcharts-tooltip {
+  display: none !important;
+}
+.cohort-boxplot-container .highcharts-tooltip span {
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: auto !important;
+}
+</style>

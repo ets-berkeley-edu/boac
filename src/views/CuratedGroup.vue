@@ -163,6 +163,13 @@ export default {
 </script>
 
 <style scoped>
+.cohort-list-header-column-01 {
+  flex: 0 0 52px;
+}
+.cohort-list-header-column-02 {
+  margin-left: auto;
+  white-space: nowrap;
+}
 .student-list-item {
   border-left: none;
   border-right: none;

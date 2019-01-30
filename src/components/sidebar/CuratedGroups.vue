@@ -33,3 +33,10 @@ export default {
   mixins: [UserMetadata, Util]
 };
 </script>
+
+<style scoped>
+.sidebar-row {
+  line-height: 1.4em;
+  padding: 1px 1px 1px 6px;
+}
+</style>

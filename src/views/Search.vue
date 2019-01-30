@@ -104,3 +104,13 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.search-header-curated-cohort {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 20px 0 10px 0;
+}
+</style>

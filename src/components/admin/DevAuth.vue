@@ -110,4 +110,17 @@ export default {
 button {
   background-color: #3b80bf;
 }
+.splash-btn-dev-auth {
+  height: 26px;
+  padding: 0 !important;
+  width: 80px;
+}
+.splash-dev-auth {
+  justify-content: center;
+  padding-top: 10px;
+  white-space: nowrap;
+}
+.splash-form-input {
+  padding-right: 5px;
+}
 </style>

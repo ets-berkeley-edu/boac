@@ -637,38 +637,53 @@ export default {
 </script>
 
 <style>
+.cohort-list-row-info {
+  background-color: #bee5eb;
+  color: #0c5460;
+}
+.cohort-missing-student-data {
+  margin-top: 30px;
+}
+.cohort-missing-student-data-header {
+  font-weight: bold;
+  border-bottom: 1px solid #ddd;
+}
+.cohort-missing-student-data-header th {
+  padding: 15px 0 5px;
+}
+.cohort-missing-student-data-row {
+  border-bottom: 1px solid #ddd;
+}
+.cohort-missing-student-data-row td {
+  padding: 5px 0;
+  margin-bottom: 5px;
+}
 .matrix {
   border: 1px solid #999;
   height: 500px;
   margin-bottom: 60px;
   width: 910px;
 }
-
 .matrix .dot {
   stroke: #000;
 }
-
 .matrix .dot-mean {
   cursor: auto;
 }
-
 .matrix .dot-student {
   cursor: pointer;
 }
-
 .matrix .overlay {
   fill: none;
   pointer-events: all;
   cursor: ew-resize;
 }
-
 .matrix-axis path,
 .matrix-axis line {
   fill: none;
   stroke: rgba(0, 0, 0, 0.1);
   shape-rendering: crispEdges;
 }
-
 .matrix-axis-title {
   font-size: 16px;
   font-weight: 200;
@@ -677,46 +692,37 @@ export default {
   text-transform: uppercase;
   stroke: #999;
 }
-
 .matrix-axis-label {
   font-size: 10px;
   font-weight: bold;
   letter-spacing: 0.075em;
   text-transform: uppercase;
 }
-
 .matrix-choose-metrics {
   font-size: 14px;
 }
-
 .matrix-choose-metrics-select {
   display: inline-block;
   margin: 0 5px;
 }
-
 .matrix-container {
   margin: 0 10px 100px 40px;
   margin-bottom: 100px;
   position: relative;
   width: 910px;
 }
-
 .matrix-header {
   font-size: 18px;
 }
-
 .matrix-outer {
   margin-left: 20px;
 }
-
 .matrix-student-performance-header {
   margin: 5px 20px 10px 0;
 }
-
 .matrix-svg {
   overflow: visible !important;
 }
-
 .matrix-tooltip {
   background: #fff;
   border: 1px solid #ddd;
@@ -729,58 +735,53 @@ export default {
   text-align: left;
   width: 240px;
 }
-
 .matrix-tooltip-header {
   color: #49b;
   font-size: 14px;
   font-weight: bold;
   margin: 0 0 5px;
 }
-
 .matrix-tooltip-header-outer {
   margin: 5px 20px 10px 0;
 }
-
 .matrix-tooltip-major {
   color: #999;
   font-size: 12px;
   line-height: 1.3em;
   margin: 0;
 }
-
 .matrix-tooltip-table td {
   font-size: 12px;
   line-height: 1.3;
 }
-
 .matrix-tooltip-label {
   padding: 0 10px 2px 0;
 }
-
 .matrix-tooltip-value {
   font-weight: bold;
   padding: 0 0 2px 0;
   vertical-align: top;
   white-space: nowrap;
 }
-
 .matrix-zoom-button {
   border: 1px solid #ccc;
   height: 30px;
   padding: 0;
   width: 30px;
 }
-
 .matrix-zoom-disabled {
   color: #ccc;
 }
-
 .matrix-zoom-wrapper {
   margin-bottom: 5px;
   text-align: right;
 }
-
 .missing-student-data-table {
   width: 100%;
+}
+.student-avatar-container {
+  align-items: center;
+  display: flex;
+  flex: 0 0 60px;
 }
 </style>

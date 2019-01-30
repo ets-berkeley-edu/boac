@@ -55,12 +55,29 @@ export default {
 </script>
 
 <style scoped>
-h1 {
-  color: #0275d8;
-  font-weight: 200;
-  font-size: 81px;
-  letter-spacing: 8px;
-  padding-top: 14px;
+.avatar-airplane {
+  background-color: #fff;
+  border: 10px solid #0275d8;
+  border-radius: 50px;
+  object-fit: scale-down;
+  width: 96px;
+}
+.avatar-container {
+  align-items: center;
+  display: flex;
+  flex: 0 0 100px;
+  position: absolute;
+  top: 205px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.background-blue-sky {
+  background: url('~@/assets/blue-sky-background.jpg') no-repeat center center
+    fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
 }
 .btn-sign-in {
   height: 50px;
@@ -68,7 +85,69 @@ h1 {
   font-size: 20px;
   top: 4.7em;
 }
+.splash-box-container {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.5);
+  flex: 1;
+  height: 360px;
+  min-height: 360px;
+  width: 320px;
+  opacity: 0.8;
+  padding: 0 25px 0 25px;
+  z-index: -1;
+}
+.splash-cell-copyright {
+  background-color: #3b80bf;
+  height: 40px;
+  width: 320px;
+  padding-top: 10px;
+  text-align: center;
+  white-space: nowrap;
+}
+.splash-cell-header {
+  padding-top: 40px;
+  text-align: center;
+}
+.splash-cell-sign-in {
+  position: absolute;
+  top: 460px;
+  left: 50%;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+.splash-cell-stripe {
+  background-color: #0275d8;
+  height: 10px;
+  width: 320px;
+}
+.splash-contact-us {
+  padding: 20px 40px 10px 40px;
+  width: 320px;
+  text-align: left;
+}
+.splash-container {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 24em;
+  padding-top: 200px;
+  position: relative;
+  z-index: 999;
+}
+.splash-text-copyright {
+  color: #fff;
+  font-size: 12px;
+}
+
 button {
   background-color: #3b80bf;
+}
+h1 {
+  color: #0275d8;
+  font-weight: 200;
+  font-size: 81px;
+  letter-spacing: 8px;
+  padding-top: 14px;
 }
 </style>

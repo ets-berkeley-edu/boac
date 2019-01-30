@@ -158,6 +158,11 @@ export default {
 </script>
 
 <style scoped>
+.search-results-cell {
+  padding: 5px 10px 5px 0;
+  vertical-align: top;
+  width: 33%;
+}
 .table-header-text {
   color: #999 !important;
   font-size: 12px;

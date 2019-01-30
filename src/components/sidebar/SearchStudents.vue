@@ -63,6 +63,9 @@ export default {
 </script>
 
 <style scoped>
+.btn-search-students {
+  height: 46px;
+}
 .search-label {
   display: flex;
   align-items: baseline;
@@ -70,5 +73,40 @@ export default {
 }
 .search-label i {
   padding-right: 4px;
+}
+.search-students-form-button {
+  min-width: 200px;
+  width: 60%;
+}
+.search-students-form-label {
+  font-weight: 400;
+  margin: 0;
+}
+.search-students-form-label-outer {
+  color: #fff;
+  margin: 10px 0;
+}
+.search-students-input {
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  color: #333;
+  padding: 10px;
+  width: 100%;
+}
+.search-students-with-button {
+  align-items: center;
+  display: flex;
+  flex-flow: row wrap;
+  margin-top: 10px;
+}
+.search-students-with-button div {
+  align-self: flex-end;
+}
+.search-students-with-button div:first-child {
+  padding-right: 15px;
+}
+.sidebar-section-search {
+  margin: 0 12px 12px 12px;
 }
 </style>
