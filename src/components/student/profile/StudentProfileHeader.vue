@@ -4,7 +4,7 @@
       <StudentAvatar class="mb-2" :student="student" size="large"/>
       <StudentGroupSelector :sid="student.sid"/>
     </div>
-    <div>
+    <div class="ml-3">
       <div class="mt-3">
         <h1 id="student-name-header"
             class="student-section-header mb-1"
@@ -52,7 +52,7 @@
         </div>
       </div>
     </div>
-    <div class="ml-auto m-3 mr-5">
+    <div class="ml-auto m-3 mr-5 pr-5">
       <div id="student-bio-majors">
         <h3 class="sr-only">Major</h3>
         <div v-for="plan in student.sisProfile.plans" :key="plan.description">

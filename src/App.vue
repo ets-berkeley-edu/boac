@@ -14,18 +14,24 @@ export default {
 .b-dd-item-override {
   color: #212529 !important;
 }
-.b-dd-primary-override {
+.b-dd-override {
   background-color: #337ab7;
   border-color: #2e6da4;
   border-top-right-radius: 0.3em !important;
   border-bottom-right-radius: 0.3em !important;
   margin-left: 5px !important;
 }
-.b-dd-primary-override:active,
-.b-dd-primary-override:focus,
-.b-dd-primary-override:hover {
+.b-dd-override:active,
+.b-dd-override:focus,
+.b-dd-override:hover {
   background-color: #286090;
   border-color: #204d74;
+}
+.b-dd-narrow {
+  height: 35px !important;
+  margin-left: 0 !important;
+  min-width: 160px !important;
+  width: 160px !important;
 }
 .btn-primary-color-override {
   background-color: #337ab7 !important;

@@ -1,7 +1,7 @@
 <template>
   <div>
     <form @submit.prevent="createCuratedGroup()">
-      <div class="ml-3 mr-3">
+      <div class="text-left ml-3 mr-3">
         <div class="pb-2">Name:</div>
         <div>
           <input id="create-input"

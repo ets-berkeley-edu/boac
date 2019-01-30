@@ -20,7 +20,7 @@
       <b-dropdown id="curated-group-dropdown-select"
                   class="curated-selector mr-3"
                   :variant="dropdownVariant"
-                  toggle-class="b-dd-primary-override"
+                  toggle-class="b-dd-override"
                   size="sm"
                   no-caret
                   :disabled="disableSelector"
@@ -46,6 +46,7 @@
         </b-dropdown-item>
         <b-dropdown-item :id="`curated-group-${group.id}-menu-item`"
                          class="b-dd-item-override"
+                         @keyup.space.prevent.stop="curatedGroupCheckboxClick(group)"
                          v-for="group in myCuratedGroups"
                          :key="group.id">
           <input :id="`curated-group-${group.id}-checkbox`"
