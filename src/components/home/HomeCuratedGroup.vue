@@ -101,5 +101,18 @@ export default {
 };
 </script>
 
-<style src="./home.css">
+<style scoped>
+.home-cohort-accordion-heading-link:active,
+.home-cohort-accordion-heading-link:focus,
+.home-cohort-accordion-heading-link:hover {
+  text-decoration: none;
+}
+.panel-group .panel + .panel {
+  margin-top: 5px;
+}
+.panel-heading {
+  padding: 10px 15px 10px 0;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
 </style>

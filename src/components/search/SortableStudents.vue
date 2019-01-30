@@ -297,3 +297,77 @@ export default {
   }
 };
 </script>
+
+<style>
+.group-summary-column-header {
+  color: #999;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  vertical-align: top;
+}
+.group-summary-header-sortable {
+  cursor: pointer;
+}
+</style>
+
+<style scoped>
+.group-summary-column {
+  padding: 0 5px 0 8px;
+}
+.group-summary-column-checkbox {
+  padding: 0;
+  text-align: left;
+  width: 40px;
+}
+.group-summary-column-gpa {
+  text-align: right;
+  width: 8%;
+}
+.group-summary-column-grad {
+  text-align: left;
+  white-space: nowrap;
+  width: 8%;
+}
+.group-summary-column-issues {
+  text-align: center;
+  width: 10%;
+}
+.group-summary-column-major {
+  width: 20%;
+}
+.group-summary-column-major div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.group-summary-column-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 20%;
+}
+.group-summary-column-photo {
+  width: 40px;
+}
+.group-summary-column-sid {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 15%;
+}
+.group-summary-column-units-completed {
+  line-height: 1.4em;
+  overflow-wrap: normal;
+  text-align: right;
+  width: 10%;
+}
+.group-summary-column-units-term {
+  line-height: 1.4em;
+  overflow-wrap: normal;
+  text-align: right;
+  width: 5%;
+}
+.group-summary-header-issues {
+  width: 10%;
+}
+</style>

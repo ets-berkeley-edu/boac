@@ -106,6 +106,11 @@ export default {
 </script>
 
 <style scoped>
+.btn-filter-draft-apply {
+  height: 40px;
+  margin: 15px 8px 0 0;
+  width: 80px;
+}
 .save-button-width {
   min-width: 120px;
   width: 120px;

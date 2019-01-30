@@ -46,3 +46,10 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.demo-mode-label {
+  font-weight: 500;
+  padding-bottom: 3px;
+}
+</style>

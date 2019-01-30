@@ -403,6 +403,11 @@ export default {
 </script>
 
 <style scoped>
+.btn-cohort-added-filter {
+  text-transform: uppercase;
+  font-size: 0.8em;
+  padding: 4px 1px 5px 5px;
+}
 .cohort-filter-draft-column-01 .b-dropdown,
 .cohort-filter-draft-column-02 .b-dropdown {
   background-color: #f3f3f3;
@@ -418,20 +423,63 @@ export default {
   font-size: 14px;
   padding-top: 3px;
 }
-.cohort-filter-draft-column-01 .dropdown-width {
-  width: 240px;
-}
-.cohort-filter-draft-column-02 .dropdown-width {
-  width: 320px;
+.cohort-filter-draft-column-01 {
+  border-left: 6px solid #3b7ea5;
+  flex: 0 0 240px;
 }
 .cohort-filter-draft-column-01 .dropdown-item {
   width: 260px;
 }
+.cohort-filter-draft-column-01 .dropdown-width {
+  width: 240px;
+}
+.cohort-filter-draft-column-02 {
+  flex: 0;
+}
 .cohort-filter-draft-column-02 .dropdown-item {
   width: 340px;
 }
+.cohort-filter-draft-column-02 .dropdown-width {
+  width: 320px;
+}
+.cohort-filter-draft-column-03 {
+  flex-basis: auto;
+}
+.cohort-filter-draft-column-03 button {
+  height: 40px;
+  margin-left: 10px;
+  width: 80px;
+}
+.cohort-filter-draft-column-04 {
+  flex: 1;
+  vertical-align: middle;
+}
+.cohort-filter-draft-column-04 button {
+  margin: 8px 0 0 10px;
+}
 .existing-filter-name {
   width: 260px;
+}
+.filter-range-container {
+  display: flex;
+  flex-direction: row;
+  padding-right: 15px;
+}
+.filter-range-label-start {
+  padding: 10px 8px 0 0;
+}
+.filter-range-label-stop {
+  padding: 10px 8px 0 10px;
+}
+.filter-range-input {
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: #333;
+  font-size: 18px;
+  padding: 8px 15px 8px 17px;
+  text-transform: uppercase;
+  width: 50px;
 }
 .menu-caret {
   font-size: 22px;

@@ -135,4 +135,8 @@ export default {
   font-size: 20px;
   font-weight: 400;
 }
+.student-section-header {
+  font-size: 24px;
+  font-weight: bold;
+}
 </style>

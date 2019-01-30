@@ -243,6 +243,44 @@ export default {
 };
 </script>
 
+<style>
+.profile-boxplot-container {
+  align-items: flex-end;
+  display: flex;
+}
+.profile-boxplot-container .highcharts-tooltip {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  line-height: 1.4em;
+  min-width: 200px;
+  padding: 0;
+  z-index: 1;
+}
+.profile-boxplot-container .highcharts-tooltip::after {
+  background: #fff;
+  border: 1px solid #aaa;
+  border-width: 0 1px 1px 0;
+  content: '';
+  display: block;
+  height: 10px;
+  position: absolute;
+  top: 75px;
+  left: -6px;
+  transform: rotate(135deg);
+  width: 10px;
+}
+.profile-boxplot-container g.highcharts-tooltip {
+  display: none !important;
+}
+.profile-boxplot-container .highcharts-tooltip span {
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: auto !important;
+}
+</style>
+
 <style scoped>
 .collapsed > .when-course-open,
 :not(.collapsed) > .when-course-closed {
@@ -390,14 +428,33 @@ export default {
 .student-term {
   margin: 30px 0 10px 0;
 }
+.student-term .panel-group {
+  margin-bottom: 10px;
+}
 .student-term-header {
   font-size: 20px;
   font-weight: 400;
   margin: 20px 0 15px 0;
   color: #999;
 }
+.student-terms {
+  flex: 1;
+  margin-left: 20px;
+}
 .student-terms-container {
   margin: 20px;
+}
+.student-waitlisted {
+  padding-left: 5px;
+}
+.term-no-enrollments {
+  border-bottom: 1px solid #999;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+}
+.term-no-enrollments-description {
+  border-top: 1px solid #999;
+  padding-top: 20px;
 }
 .toggle-previous-semesters-wrapper {
   text-align: center;

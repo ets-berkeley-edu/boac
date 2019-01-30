@@ -40,3 +40,72 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.body-text {
+  font-size: 16px;
+  height: 100%;
+  line-height: 1.4em;
+}
+.header-container {
+  align-items: center;
+  display: flex;
+  height: 56px;
+  justify-content: space-between;
+}
+.header-container div {
+  margin-left: 20px;
+  -webkit-flex: 1 0 0;
+  flex: 1 0 0;
+}
+.header-container div:last-child {
+  flex-grow: 0;
+}
+.header-container div:last-child > span {
+  float: right;
+}
+.header-text {
+  font-size: 16px;
+  color: #fff;
+}
+.header-text a:link,
+.header-text a:visited {
+  color: #fff;
+  text-decoration: none;
+  border: 0;
+  -moz-outline-style: none;
+}
+.header-text a:hover,
+.header-text a:focus,
+.header-text a:active {
+  color: #ddd;
+}
+.index-container {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+.index-container-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+}
+.index-container-body {
+  display: flex;
+  flex-direction: row;
+  min-height: 100%;
+}
+.index-container-footer {
+  margin: 20px 0 70px 0;
+  width: 100%;
+}
+.index-container-header {
+  background-color: #3b7ea5;
+}
+.index-container-sidebar {
+  background-color: #125074;
+  flex: 0 0 230px;
+  min-height: 100%;
+}
+</style>

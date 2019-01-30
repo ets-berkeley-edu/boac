@@ -160,6 +160,12 @@ export default {
 };
 </script>
 
+<style>
+.cohort-checkbox-name {
+  padding: 10px;
+}
+</style>
+
 <style scoped>
 .caret-down-width {
   width: 15px;

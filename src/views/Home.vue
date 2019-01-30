@@ -70,6 +70,17 @@ export default {
 </script>
 
 <style scoped>
+.home-container {
+  padding: 0 0 0 20px;
+  width: 100%;
+}
+.home-content {
+  display: flex;
+  flex-direction: column;
+}
+.home-page-section-header-wrapper {
+  display: flex;
+}
 .panel-group {
   margin-bottom: 20px;
 }

@@ -33,4 +33,7 @@ export default {
 </script>
 
 <style scoped>
+.cohort-label {
+  word-wrap: break-word;
+}
 </style>
