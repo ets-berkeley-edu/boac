@@ -16,7 +16,7 @@
           <StudentProfileGPA :student="student"/>
         </div>
       </div>
-      <div>
+      <div class="m-3">
         <AcademicTimeline :student="student"/>
       </div>
       <div>
