@@ -2,20 +2,31 @@
   <div>
     <h2>Academic Timeline</h2>
     <div v-if="!isTimelineLoading">
-      <div class="d-flex">
-        <div>Filter Type:</div>
+      <div class="d-flex mt-3 mb-3">
+        <div class="align-self-center mr-3">Filter Type:</div>
         <div>
-          <b-btn :class="{ 'font-weight-bold': !filter }"
+          <b-btn id="student-timeline-filter-all"
+                 class="tab pl-2 pr-2"
+                 :class="{ 'tab-active text-white': !filter, 'tab-inactive text-dark': filter }"
                  variant="link"
                  @click="filter = null">All</b-btn>
         </div>
         <div v-for="(label, type) in filterTypes" :key="type">
-          <b-btn :class="{ 'font-weight-bold': type === filter }"
+          <b-btn :id="`student-timeline-filter-${filter}`"
+                 class="tab ml-2 pl-2 pr-2 text-center"
+                 :class="{ 'tab-active text-white': type === filter, 'tab-inactive text-dark': type !== filter }"
                  variant="link"
                  @click="filter = type">{{ label }}</b-btn>
         </div>
       </div>
-      <div>
+      <div class="pb-4 pl-2" v-if="!size(messagesFiltered)">
+        <span class="messages-none">
+          <span v-if="!filter">No requirements</span>
+          <span v-if="filter === 'degreeProgress'">No requirements</span>
+          <span v-if="filter && filter !== 'degreeProgress'">No {{ filterTypes[filter].toLowerCase() }}</span>
+        </span>
+      </div>
+      <div v-if="size(messagesFiltered)">
         <table class="w-100">
           <tr class="sr-only">
             <th>Type</th>
@@ -26,11 +37,12 @@
               v-for="(message, index) in (showAll ? messagesFiltered : slice(messagesFiltered, 0, 5))"
               :key="index">
             <td tabindex="-1">
-              <div>
+              <div class="pill text-center text-uppercase text-white" :class="`pill-${message.type}`">
                 {{ message.typeLabel }}
               </div>
             </td>
             <td tabindex="-1"
+                class="message-text"
                 :class="{ 'font-weight-bold': !message.dismissed }">
               <div role="link"
                    @click="dismiss(message)">
@@ -137,3 +149,53 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.message-text {
+  padding: 10px 10px 10px 20px;
+}
+.messages-none {
+  font-size: 18px;
+  font-weight: 500;
+}
+.pill {
+  border-radius: 5px;
+  font-size: 14px;
+  height: 30px;
+  padding: 4px 10px 0 10px;
+}
+.pill-hold {
+  width: 60px;
+  background-color: #bc74fe;
+}
+.pill-alert {
+  width: 60px;
+  background-color: #eb9d3e;
+}
+.pill-degreeProgress {
+  width: 130px;
+  background-color: #93c165;
+}
+.tab-active {
+  background-color: #555;
+}
+.tab-active:hover,
+.tab-active:hover,
+.tab-active:hover {
+  background-color: #444;
+}
+.tab-inactive {
+  background-color: #eee;
+}
+.tab-inactive:hover,
+.tab-inactive:hover,
+.tab-inactive:hover {
+  background-color: #ddd;
+}
+.tab {
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 800;
+  height: 40px;
+}
+</style>
