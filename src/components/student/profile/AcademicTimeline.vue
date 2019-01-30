@@ -21,7 +21,7 @@
       </div>
       <div class="pb-4 pl-2" v-if="!size(messagesFiltered)">
         <span class="messages-none">
-          <span v-if="!filter">No requirements</span>
+          <span v-if="!filter">None</span>
           <span v-if="filter === 'degreeProgress'">No requirements</span>
           <span v-if="filter && filter !== 'degreeProgress'">No {{ filterTypes[filter].toLowerCase() }}</span>
         </span>
@@ -33,10 +33,11 @@
             <th>Summary</th>
             <th>Date</th>
           </tr>
-          <tr class="border-top border-bottom"
+          <tr class="message-row border-top border-bottom"
+              :class="{'message-dismissed-row': message.dismissed}"
               v-for="(message, index) in (showAll ? messagesFiltered : slice(messagesFiltered, 0, 5))"
               :key="index">
-            <td tabindex="-1">
+            <td class="messages-column-label" tabindex="-1">
               <div class="pill text-center text-uppercase text-white" :class="`pill-${message.type}`">
                 {{ message.typeLabel }}
               </div>
@@ -152,11 +153,24 @@ export default {
 
 <style scoped>
 .message-text {
-  padding: 10px 10px 10px 20px;
+  padding: 10px 10px 10px 0;
 }
 .messages-none {
   font-size: 18px;
   font-weight: 500;
+}
+.messages-column-label {
+  width: 1%;
+  padding-right: 10px;
+  white-space: nowrap;
+}
+.message-dismissed-row {
+  background-color: #f9f9f9;
+}
+.message-row:active,
+.message-row:focus,
+.message-row:hover {
+  background-color: #e3f5ff;
 }
 .pill {
   border-radius: 5px;
@@ -179,8 +193,8 @@ export default {
 .tab-active {
   background-color: #555;
 }
-.tab-active:hover,
-.tab-active:hover,
+.tab-active:active,
+.tab-active:focus,
 .tab-active:hover {
   background-color: #444;
 }
