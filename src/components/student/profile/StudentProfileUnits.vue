@@ -10,7 +10,8 @@
       <div class="ml-3 mt-3">
         <div class="unit-totals-label font-weight-bold">Unit Totals</div>
         <div class="mt-2">
-          <StudentUnitsChart :currentEnrolledUnits="currentEnrolledUnits"
+          <StudentUnitsChart class="student-units-chart"
+                             :currentEnrolledUnits="currentEnrolledUnits"
                              :cumulativeUnits="cumulativeUnits"
                              v-if="cumulativeUnits || currentEnrolledUnits"/>
           <div class="section-label"
@@ -86,5 +87,8 @@ export default {
   color: #555;
   font-size: 16px;
   text-transform: uppercase;
+}
+.student-units-chart {
+  min-width: 200px;
 }
 </style>
