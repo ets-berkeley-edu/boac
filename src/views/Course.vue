@@ -623,3 +623,10 @@ export default {
   border-color: #337ab7;
 }
 </style>
+
+<style>
+/* Hide ellipsis in bootstrap-vue pagination widget. */
+#content ul.pagination li.page-item.disabled {
+  display: none !important;
+}
+</style>
