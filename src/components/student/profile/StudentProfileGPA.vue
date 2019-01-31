@@ -1,67 +1,73 @@
 <template>
-  <div>
-    <div class="flex-row">
-      <div id="student-status-cumulative-gpa">
-        <div class="student-status-legend">Cumulative GPA</div>
-        <div class="student-status-number"
-             v-if="student.sisProfile.cumulativeGPA">
-          {{ student.sisProfile.cumulativeGPA | round(3) }}
-        </div>
-        <div class="student-status-number" v-if="!student.sisProfile.cumulativeGPA">
-          -- <span class="sr-only">No data</span>
-        </div>
+  <div class="h-100 p-2">
+    <div class="d-flex align-items-center">
+      <div class="gpa text-center">
+        <div id="cumulative-gpa"
+             class="data-number">{{cumulativeGPA || '--'}}<span class="sr-only" v-if="!cumulativeGPA">No data</span></div>
+        <div class="gpa-label text-uppercase">Cumulative GPA</div>
       </div>
-      <div id="student-status-gpa-trends" class="student-chart-outer">
-        <div class="student-status-legend student-status-legend-heading">GPA Trends</div>
-        <StudentGpaChart :student="student"
-                         v-if="get(student, 'termGpa.length') > 1"/>
-        <div class="student-status-legend student-status-legend-small"
-             v-if="isEmpty(student.termGpa)">
-          GPA Not Yet Available
+      <div id="gpa-trends" class="h-100 border-left">
+        <div class="ml-3">
+          <div class="gpa-trends-label font-weight-bold">GPA Trends</div>
+          <StudentGpaChart :student="student"
+                           v-if="get(student, 'termGpa.length') > 1"/>
+          <div v-if="isEmpty(student.termGpa)">
+            GPA Not Yet Available
+          </div>
+          <div v-if="!isEmpty(student.termGpa)">
+            <span class="gpa-label text-uppercase">{{ student.termGpa[0].name }} GPA:</span>
+            <span class="font-weight-bold"
+                  :class="{'gpa-last-term': student.termGpa[0].gpa >= 2, 'gpa-alert': student.termGpa[0].gpa < 2}">
+              {{ student.termGpa[0].gpa | round(3) }}
+            </span>
+          </div>
+          <div>
+            <b-btn id="show-hide-term-gpa-button"
+                   class="p-0 mt-1"
+                   variant="link"
+                   @click="showTermGpa = !showTermGpa"
+                   v-if="!isEmpty(student.termGpa)">
+              <i class="show-hide-caret"
+                  :class="{
+                    'fas fa-caret-right': !showTermGpa,
+                    'fas fa-caret-down mb-2': showTermGpa
+                  }"></i>
+              {{ showTermGpa ? 'Show' : 'Hide' }} Term GPA
+            </b-btn>
+          </div>
         </div>
-        <div class="student-status-legend student-status-legend-gpa"
-             v-if="!isEmpty(student.termGpa)">
-          {{ student.termGpa[0].name }} GPA:
-          <strong :class="{
-            'student-gpa-last-term': student.termGpa[0].gpa >= 2,
-            'student-gpa-alert': student.termGpa[0].gpa < 2
-          }">
-            {{ student.termGpa[0].gpa | round(3) }}
-          </strong>
-        </div>
-        <b-btn id="show-hide-term-gpa-button"
-               class="toggle-btn-link"
-               variant="link"
-               @click="showTermGpa = !showTermGpa"
-               v-if="!isEmpty(student.termGpa)">
-          <i :class="{'fas fa-caret-right': !showTermGpa, 'fas fa-caret-down': showTermGpa}"></i>
-          <span v-if="!showTermGpa">Show Term GPA</span>
-          <span v-if="showTermGpa">Hide Term GPA</span>
-        </b-btn>
       </div>
     </div>
-    <table class="student-status-table" v-if="showTermGpa">
-      <tr>
-        <th>Term</th>
-        <th>GPA</th>
-      </tr>
-      <tr v-for="(term, termIndex) in student.termGpa"
-          :key="termIndex"
-          :class="{'student-status-table-zebra': termIndex % 2 === 0}">
-        <td>{{ term.name }}</td>
-        <td v-if="term.gpa < 2">
-          <i class="fa fa-exclamation-triangle student-gpa-term-alert student-gpa-term-alert-icon"></i>
-          <div :id="`student-gpa-term-${term.name}`" class="student-gpa-term-alert">{{ term.gpa | round(3) }}</div>
-        </td>
-        <td :id="`student-gpa-term-${term.name}`"
-            v-if="term.gpa >= 2">{{ term.gpa | round(3) }}</td>
-      </tr>
-      <tr id="student-gpa-no-terms"
-          v-if="isEmpty(student.termGpa)">
-        <td>No previous terms</td>
-        <td>--</td>
-      </tr>
-    </table>
+    <div>
+      <b-collapse id="term-gpa"
+                  class="border-top ml-3 mr-3"
+                  v-model="showTermGpa">
+        <div class="pl-3 pr-4">
+          <table class="term-gpa-table w-100">
+            <tr>
+              <th class="pt-0 pb-3 text-muted">Term</th>
+              <th class="pt-0 pb-3 text-muted text-right">GPA</th>
+            </tr>
+            <tr v-for="(term, index) in student.termGpa"
+                :key="index"
+                :class="{'bg-light': index % 2 === 0}">
+              <td class="text-nowrap">{{ term.name }}</td>
+              <td class="text-nowrap text-right">
+                <i class="fa fa-exclamation-triangle text-danger pr-2"
+                   v-if="term.gpa < 2"></i>
+                <span :id="`student-gpa-term-${term.name}`"
+                      :class="{ 'text-danger': term.gpa < 2 }">{{ term.gpa | round(3) }}</span>
+              </td>
+            </tr>
+            <tr id="student-gpa-no-terms"
+                v-if="isEmpty(student.termGpa)">
+              <td>No previous terms</td>
+              <td>--</td>
+            </tr>
+          </table>
+        </div>
+      </b-collapse>
+    </div>
   </div>
 </template>
 
@@ -79,29 +85,53 @@ export default {
     student: Object
   },
   data: () => ({
-    showTermGpa: false
-  })
+    showTermGpa: false,
+    cumulativeGPA: undefined
+  }),
+  created() {
+    this.cumulativeGPA = this.get(this.student, 'sisProfile.cumulativeGPA');
+  }
 };
 </script>
 
 <style scoped>
-.student-gpa-alert {
+.data-number {
+  font-size: 42px;
+  line-height: 1.2em;
+}
+.gpa {
+  font-weight: 700;
+  margin-left: 20px;
+  white-space: nowrap;
+  width: 40%;
+}
+.gpa-alert {
   color: #d0021b;
 }
-.student-gpa-last-term {
+.gpa-label {
+  color: #999;
+  font-size: 12px;
+}
+.gpa-last-term {
   color: #000;
   font-weight: 700;
 }
-.student-gpa-term-alert {
-  color: #d0021b;
-  position: relative;
-  right: 20px;
+.gpa-trends-label {
+  color: #555;
+  font-size: 14px;
+  text-transform: uppercase;
 }
-.student-gpa-term-alert-icon {
-  width: 20px;
+.show-hide-caret {
+  width: 12px;
 }
-.student-status-number {
-  font-size: 42px;
+.term-gpa-table {
   line-height: 1.2em;
+  margin: 10px 0;
+}
+.term-gpa-table td {
+  padding: 3px 0;
+}
+.term-gpa-table th {
+  padding: 15px 0 3px 0;
 }
 </style>
