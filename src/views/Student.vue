@@ -6,12 +6,12 @@
         <StudentProfileHeader :student="student"/>
       </div>
       <h2 class="sr-only">Academic Status</h2>
-      <div class="flex-row full-width border-bottom">
-        <div class="align-middle">
+      <div class="flex-row border-bottom">
+        <div class="w-50">
           <h3 class="sr-only">Units</h3>
           <StudentProfileUnits :student="student"/>
         </div>
-        <div  class="border-left p-3">
+        <div class="border-left w-50">
           <h3 class="sr-only">GPA</h3>
           <StudentProfileGPA :student="student"/>
         </div>

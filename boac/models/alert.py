@@ -186,9 +186,13 @@ class Alert(Base):
             return {camelize(key): result[key] for key in ['id', 'alert_type', 'key', 'message']}
         for result in results:
             dismissed_at = result['dismissed_at']
+            updated_at = result['updated_at']
             alert = {
                 **result_to_dict(result),
-                **{'dismissed': dismissed_at and dismissed_at.strftime('%Y-%m-%d %H:%M:%S')},
+                **{
+                    'dismissed': dismissed_at and dismissed_at.strftime('%Y-%m-%d %H:%M:%S'),
+                    'updatedAt': updated_at.strftime('%Y-%m-%d %H:%M:%S'),
+                },
             }
             feed.append(alert)
         return feed

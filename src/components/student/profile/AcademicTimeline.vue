@@ -55,13 +55,15 @@
                  role="link"
                  @keyup.enter="toggle(message)"
                  @click="toggle(message)">
+              <i class="fas fa-check text-success" v-if="message.status === 'Satisfied'"></i>
               {{ message.text }}
             </div>
           </td>
           <td class="message-date align-top pt-2">
             <div :id="`timeline-tab-${filter || 'all'}-date-${index}`"
-                 v-if="message.date">
-              <span tabindex="0"><span class="sr-only">Date created: </span>{{ message.date }}</span>
+                 class="text-nowrap"
+                 v-if="message.updatedAt">
+              <span tabindex="0"><span class="sr-only">Last updated on </span>{{ message.updatedAt }}</span>
             </div>
           </td>
         </tr>
@@ -82,6 +84,7 @@
 <script>
 import Util from '@/mixins/Util';
 import { dismissStudentAlert, getStudentAlerts } from '@/api/student';
+import { format as formatDate, parse as parseDate } from 'date-fns';
 
 export default {
   name: 'AcademicTimeline',
@@ -99,6 +102,7 @@ export default {
     },
     isTimelineLoading: true,
     messages: undefined,
+    now: new Date(),
     showAll: undefined,
     screenReaderAlert: undefined
   }),
@@ -112,29 +116,32 @@ export default {
             null,
             'degreeProgress',
             `${requirement.name} ${requirement.status}`,
-            true
+            true,
+            null,
+            requirement.status
           )
         );
-        getStudentAlerts(this.student.sid).then(data => {
-          const alertCategories = this.partition(data, ['alertType', 'hold']);
-          this.each({ hold: 0, alert: 1 }, (arrayIndex, alertType) => {
-            this.each(alertCategories[arrayIndex], alert => {
-              this.messages.push(
-                this.newMessage(
-                  alert.id,
-                  alertType,
-                  alert.message,
-                  alert.dismissed
-                )
-              );
-            });
-          });
-          this.distinctTypes = this.uniq(this.map(this.messages, 'type'));
-          this.isTimelineLoading = false;
-          this.screenReaderAlert = 'Academic Timeline has loaded';
-        });
       }
     );
+    getStudentAlerts(this.student.sid).then(data => {
+      const alertCategories = this.partition(data, ['alertType', 'hold']);
+      this.each({ hold: 0, alert: 1 }, (arrayIndex, alertType) => {
+        this.each(alertCategories[arrayIndex], alert => {
+          this.messages.push(
+            this.newMessage(
+              alert.id,
+              alertType,
+              alert.message,
+              alert.dismissed,
+              alert.updatedAt
+            )
+          );
+        });
+      });
+      this.distinctTypes = this.uniq(this.map(this.messages, 'type'));
+      this.isTimelineLoading = false;
+      this.screenReaderAlert = 'Academic Timeline has loaded';
+    });
   },
   computed: {
     filterLabel() {
@@ -158,24 +165,33 @@ export default {
   methods: {
     describeTheActiveTab() {
       const inViewCount = this.size(this.messagesInView);
-      return `Showing ${this.showAll ? 'all' : 'the first '} ${inViewCount} ${
+      return `Showing ${this.showAll ? 'all' : 'the first'} ${inViewCount} ${
         this.filter ? this.filterLabel : 'messages'
       }.`;
     },
-    newMessage(id, type, text, dismissed, date) {
+    newMessage(id, type, text, dismissed, updatedAt, status) {
       const typeLabel = {
         alert: 'Alert',
         degreeProgress: 'Requirements',
         hold: 'Hold'
       }[type];
+      let date = updatedAt && parseDate(updatedAt);
+      if (date) {
+        const dateFormat =
+          date.getFullYear() === this.now.getFullYear()
+            ? 'MMM DD'
+            : 'MMM DD, YYYY';
+        date = formatDate(date, dateFormat);
+      }
       return {
         id,
         type,
         typeLabel,
         text,
         dismissed,
-        date,
-        openOnTab: undefined
+        updatedAt: date,
+        openOnTab: undefined,
+        status
       };
     },
     toggle(message) {
@@ -183,23 +199,16 @@ export default {
       const isAlert = this.includes(['alert', 'hold'], message.type);
       if (isAlert && !message.dismissed) {
         message.dismissed = true;
-        if (isAlert) {
-          dismissStudentAlert(message.id);
-        }
+        dismissStudentAlert(message.id);
       }
     }
   },
   watch: {
     filter() {
       this.screenReaderAlert = this.describeTheActiveTab();
-      this.putFocusNextTick(`timeline-tab-${this.filter || 'all'}-pill-0`);
     },
     showAll() {
       this.screenReaderAlert = this.describeTheActiveTab();
-      const rowIndex = this.showAll ? 5 : 0;
-      this.putFocusNextTick(
-        `timeline-tab-${this.filter || 'all'}-pill-${rowIndex}`
-      );
     }
   }
 };
