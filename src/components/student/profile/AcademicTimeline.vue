@@ -1,10 +1,10 @@
 <template>
   <div v-if="!isTimelineLoading">
     <h2>Academic Timeline</h2>
-    <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
-    <div class="d-flex mt-3 mb-3" v-if="size(distinctTypes) > 0">
+    <div id="screen-reader-alert" class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
+    <div class="d-flex mt-3 mb-3" v-if="size(distinctTypes) > 1">
       <div class="align-self-center mr-3">Filter Type:</div>
-      <div v-if="size(distinctTypes) > 1">
+      <div>
         <b-btn id="timeline-tab-all"
                class="tab pl-2 pr-2"
                :class="{ 'tab-active text-white': !filter, 'tab-inactive text-dark': filter }"

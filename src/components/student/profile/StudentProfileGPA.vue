@@ -1,5 +1,6 @@
 <template>
   <div class="h-100 p-2">
+    <div id="screen-reader-alert" class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
     <div class="d-flex align-items-center">
       <div class="gpa text-center">
         <div id="cumulative-gpa"
@@ -7,14 +8,14 @@
         <div class="gpa-label text-uppercase">Cumulative GPA</div>
       </div>
       <div id="gpa-trends" class="h-100 border-left">
-        <div class="ml-3">
+        <div id="gpa-chart" class="ml-3">
           <div class="gpa-trends-label font-weight-bold">GPA Trends</div>
           <StudentGpaChart :student="student"
                            v-if="get(student, 'termGpa.length') > 1"/>
           <div v-if="isEmpty(student.termGpa)">
             GPA Not Yet Available
           </div>
-          <div v-if="!isEmpty(student.termGpa)">
+          <div id="current-term-gpa" v-if="!isEmpty(student.termGpa)">
             <span class="gpa-label text-uppercase">{{ student.termGpa[0].name }} GPA:</span>
             <span class="font-weight-bold"
                   :class="{'gpa-last-term': student.termGpa[0].gpa >= 2, 'gpa-alert': student.termGpa[0].gpa < 2}">
@@ -25,13 +26,13 @@
             <b-btn id="show-hide-term-gpa-button"
                    class="p-0 mt-1"
                    variant="link"
-                   @click="showTermGpa = !showTermGpa"
+                   @click="showHideTermGpa()"
                    v-if="!isEmpty(student.termGpa)">
               <i class="show-hide-caret"
-                  :class="{
-                    'fas fa-caret-right': !showTermGpa,
-                    'fas fa-caret-down mb-2': showTermGpa
-                  }"></i>
+                 :class="{
+                   'fas fa-caret-right': !showTermGpa,
+                   'fas fa-caret-down mb-2': showTermGpa
+                 }"></i>
               {{ showTermGpa ? 'Show' : 'Hide' }} Term GPA
             </b-btn>
           </div>
@@ -39,11 +40,11 @@
       </div>
     </div>
     <div>
-      <b-collapse id="term-gpa"
-                  class="border-top ml-3 mr-3"
+      <b-collapse class="border-top ml-3 mr-3"
                   v-model="showTermGpa">
         <div class="pl-3 pr-4">
-          <table class="term-gpa-table w-100">
+          <table id="table-with-gpa-per-term"
+                 class="term-gpa-table w-100">
             <tr>
               <th class="pt-0 pb-3 text-muted">Term</th>
               <th class="pt-0 pb-3 text-muted text-right">GPA</th>
@@ -54,7 +55,10 @@
               <td class="text-nowrap">{{ term.name }}</td>
               <td class="text-nowrap text-right">
                 <i class="fa fa-exclamation-triangle text-danger pr-2"
+                   aria-label="Icon of danger sign"
+                   tabindex="0"
                    v-if="term.gpa < 2"></i>
+                <span class="sr-only" v-if="term.gpa < 2">Low GPA in {{ term.name }}: </span>
                 <span :id="`student-gpa-term-${term.name}`"
                       :class="{ 'text-danger': term.gpa < 2 }">{{ term.gpa | round(3) }}</span>
               </td>
@@ -85,11 +89,20 @@ export default {
     student: Object
   },
   data: () => ({
-    showTermGpa: false,
-    cumulativeGPA: undefined
+    cumulativeGPA: undefined,
+    screenReaderAlert: undefined,
+    showTermGpa: false
   }),
   created() {
     this.cumulativeGPA = this.get(this.student, 'sisProfile.cumulativeGPA');
+  },
+  methods: {
+    showHideTermGpa() {
+      this.showTermGpa = !this.showTermGpa;
+      this.screenReaderAlert = `The table with GPA per term is now ${
+        this.showTermGpa ? 'visible' : 'hidden'
+      }.`;
+    }
   }
 };
 </script>
