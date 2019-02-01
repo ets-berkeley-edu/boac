@@ -414,10 +414,6 @@ export default {
   font-weight: 400;
   white-space: nowrap;
 }
-.student-section-header {
-  font-size: 24px;
-  font-weight: bold;
-}
 .student-status-table td {
   padding: 3px 0;
   white-space: nowrap;

@@ -115,6 +115,10 @@ export default {
   font-size: 16px;
   margin: 0;
 }
+.student-section-header {
+  font-size: 24px;
+  font-weight: bold;
+}
 .student-sid {
   font-size: 11px;
   font-weight: bold;

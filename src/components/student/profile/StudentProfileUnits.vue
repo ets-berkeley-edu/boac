@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex h-100 p-2">
+  <div class="d-flex flex-wrap h-100 p-2">
     <div id="cumulative-units"
          class="cumulative-units text-center mt-4">
       <div class="data-number" v-if="cumulativeUnits">{{cumulativeUnits}}</div>
