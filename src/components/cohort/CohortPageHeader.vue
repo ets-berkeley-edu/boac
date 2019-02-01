@@ -4,7 +4,7 @@
     <div v-if="!cohortId && totalStudentCount === undefined">
       <h1 id="create-cohort-h1"
           class="page-section-header mt-0"
-          tabindex="0">Create a Filtered Cohort</h1>
+          tabindex="0">Create a Cohort</h1>
       <div>
         Find a set of users, then save your search as a filtered cohort. Revisit your filtered cohorts at any time.
       </div>
