@@ -206,7 +206,7 @@ def get_student_and_terms(uid):
         return
     profile = profiles[0]
     sis_profile = profile.get('sisProfile', None)
-    if sis_profile:
+    if sis_profile and 'level' in sis_profile:
         sis_profile['level']['description'] = _get_sis_level_description(sis_profile)
     enrollments_for_sid = data_loch.get_enrollments_for_sid(student['sid'], latest_term_id=current_term_id())
     profile['enrollmentTerms'] = [json.loads(row['enrollment_term']) for row in enrollments_for_sid]
