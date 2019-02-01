@@ -1,6 +1,7 @@
 <template>
   <div class="sidebar-section-search">
     <form id="search-students-form"
+          autocomplete="off"
           v-bind:class="{'search-students-with-button': withButton}"
           v-on:submit.prevent="search()">
       <div class="search-students-form-label-outer search-label" v-if="!withButton">
@@ -10,10 +11,10 @@
       </div>
       <div v-bind:class="{'search-students-form-button': withButton}">
         <input id="search-students-input"
-               type="text"
                class="search-students-input"
                v-model="searchPhrase"
                :readonly="disable"
+               type="text"
                maxlength="255"/>
       </div>
       <div v-if="withButton">

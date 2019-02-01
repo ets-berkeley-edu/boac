@@ -1,7 +1,7 @@
 <template>
   <div class="h-100 p-2">
     <div id="screen-reader-alert" class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
-    <div class="d-flex flex-wrap align-items-center h-100">
+    <div class="d-flex flex-wrap align-items-center">
       <div class="gpa text-center mb-3">
         <div id="cumulative-gpa"
              class="data-number">{{cumulativeGPA || '--'}}<span class="sr-only" v-if="!cumulativeGPA">No data</span></div>
@@ -9,10 +9,10 @@
       </div>
       <div id="gpa-trends" class="h-100 border-left">
         <div id="gpa-chart" class="ml-3">
-          <div class="gpa-trends-label font-weight-bold">GPA Trends</div>
+          <div class="gpa-trends-label text-uppercase font-weight-bold">GPA Trends</div>
           <StudentGpaChart :student="student"
                            v-if="get(student, 'termGpa.length') > 1"/>
-          <div v-if="isEmpty(student.termGpa)">
+          <div class="gpa-trends-label" v-if="isEmpty(student.termGpa)">
             GPA Not Yet Available
           </div>
           <div id="current-term-gpa" v-if="!isEmpty(student.termGpa)">
@@ -33,7 +33,7 @@
                    'fas fa-caret-right': !showTermGpa,
                    'fas fa-caret-down mb-2': showTermGpa
                  }"></i>
-              {{ showTermGpa ? 'Show' : 'Hide' }} Term GPA
+              {{ showTermGpa ? 'Hide' : 'Show' }} Term GPA
             </b-btn>
           </div>
         </div>
@@ -133,7 +133,6 @@ export default {
 .gpa-trends-label {
   color: #555;
   font-size: 14px;
-  text-transform: uppercase;
 }
 .show-hide-caret {
   width: 12px;
