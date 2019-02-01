@@ -299,15 +299,16 @@ def query_students(
             'students': [],
             'totalStudentCount': 0,
         }    # First, get total_count of matching students
-    result = data_loch.safe_execute_rds(f'SELECT DISTINCT(sas.sid) {query_tables} {query_filter}', **query_bindings)
-    if result is None:
+    sids_result = data_loch.safe_execute_rds(f'SELECT DISTINCT(sas.sid) {query_tables} {query_filter}', **query_bindings)
+    if sids_result is None:
         return None
+    # Upstream logic may require the full list of SIDs even if we're only returning full results for a particular
+    # paged slice.
     summary = {
-        'totalStudentCount': len(result),
+        'sids': [row['sid'] for row in sids_result],
+        'totalStudentCount': len(sids_result),
     }
-    if sids_only:
-        summary['sids'] = [row['sid'] for row in result]
-    else:
+    if not sids_only:
         o, o_secondary, o_tertiary, supplemental_query_tables = data_loch.get_students_ordering(
             order_by=order_by,
             group_codes=group_codes,
@@ -331,11 +332,11 @@ def query_students(
         if limit and limit < 100:  # Sanity check large limits
             query_bindings['limit'] = limit
             sql += f' LIMIT :limit'
-        result = data_loch.safe_execute_rds(sql, **query_bindings)
+        students_result = data_loch.safe_execute_rds(sql, **query_bindings)
         if include_profiles:
-            summary['students'] = get_summary_student_profiles([row['sid'] for row in result])
+            summary['students'] = get_summary_student_profiles([row['sid'] for row in students_result])
         else:
-            summary['students'] = get_api_json([row['sid'] for row in result])
+            summary['students'] = get_api_json([row['sid'] for row in students_result])
     return summary
 
 
