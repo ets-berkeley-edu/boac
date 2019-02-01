@@ -2,9 +2,11 @@
   <div class="pl-3 pt-3">
     <Spinner/>
     <div v-if="!loading">
+      <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
       <a href="#pagination-widget"
          id="skip-to-pagination-widget"
          class="sr-only"
+         @click="screenReaderAlert = 'Focus is now on the pagination widget'"
          v-if="totalStudentCount > 50">Skip to pagination widget</a>
       <CohortPageHeader/>
       <b-collapse id="show-hide-filters"
@@ -84,6 +86,7 @@ export default {
   },
   data: () => ({
     pageNumber: undefined,
+    screenReaderAlert: undefined,
     showFilters: undefined
   }),
   mounted() {
