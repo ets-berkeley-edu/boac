@@ -26,7 +26,11 @@
         </template>
         <div role="group"
              v-for="(category, index) in menu"
-             :key="index">
+             :key="index"
+             :aria-labelledby="'filter-option-group-header-' + index">
+          <b-dropdown-header class="sr-only" :id="'filter-option-group-header-' + index">
+            Filter option group {{index + 1}} of {{menu.length}}
+          </b-dropdown-header>
           <b-dropdown-item v-for="subCategory in category"
                            class="dropdown-item"
                            :class="{
