@@ -7,10 +7,6 @@
   background-color: #337ab7;
   border-color: #337ab7;
 }
-/* Hide ellipsis in bootstrap-vue pagination widget. */
-#content ul.pagination li.page-item.disabled {
-  display: none !important;
-}
 .b-dd-item-override {
   color: #212529 !important;
 }
@@ -48,4 +44,7 @@
 .btn-link:focus-within,
 .btn-link:hover {
   text-decoration: none !important;
+}
+.pagination .active a {
+  color: #fff !important;
 }
