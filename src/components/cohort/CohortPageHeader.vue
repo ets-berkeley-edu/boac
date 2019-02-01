@@ -69,7 +69,7 @@
         <b-btn id="show-hide-details-button"
                class="no-wrap pr-2 pt-0"
                variant="link"
-               :aria-label="`isCompactView ? 'Show cohort filters' : 'Hide cohort filters'`"
+               :aria-label="isCompactView ? 'Show cohort filters' : 'Hide cohort filters'"
                @click="toggleShowHideDetails()"
                v-if="cohortId && size(filters)">
           {{isCompactView ? 'Show' : 'Hide'}} Filters
@@ -178,7 +178,7 @@ export default {
       this.toggleCompactView();
       this.cohortUpdateStatus = this.isCompactView
         ? 'Filters are hidden'
-        : 'Filter are visible';
+        : 'Filters are visible';
     }
   },
   watch: {
