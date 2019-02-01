@@ -39,16 +39,11 @@
               </div>
             </div>
             <div class="p-3" v-if="totalStudentCount > pagination.itemsPerPage">
-              <span class="sr-only"><span id="total-student-count">{{ totalStudentCount / pagination.itemsPerPage | ceil }}</span>
-                pages of search results</span>
-              <b-pagination id="pagination-widget"
-                            size="md"
-                            :total-rows="totalStudentCount"
-                            :limit="10"
-                            v-model="pageNumber"
-                            :per-page="pagination.itemsPerPage"
-                            @input="nextPage()">
-              </b-pagination>
+              <Pagination :click-handler="goToPage"
+                          :init-page-number="pageNumber"
+                          :limit="10"
+                          :per-page="pagination.itemsPerPage"
+                          :total-rows="totalStudentCount"/>
             </div>
           </div>
         </div>
@@ -64,6 +59,7 @@ import CohortPageHeader from '@/components/cohort/CohortPageHeader';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
 import FilterRow from '@/components/cohort/FilterRow';
 import Loading from '@/mixins/Loading';
+import Pagination from '@/components/util/Pagination';
 import Scrollable from '@/mixins/Scrollable';
 import SectionSpinner from '@/components/util/SectionSpinner';
 import SortBy from '@/components/student/SortBy';
@@ -80,6 +76,7 @@ export default {
     CohortPageHeader,
     CuratedGroupSelector,
     FilterRow,
+    Pagination,
     SectionSpinner,
     SortBy,
     Spinner,
@@ -104,7 +101,7 @@ export default {
         orderBy: this.preferences.sortBy
       }).then(() => {
         this.showFilters = !this.isCompactView;
-        this.currentPage = this.pagination.currentPage;
+        this.pageNumber = this.pagination.currentPage;
         this.setPageTitle(this.cohortId ? this.cohortName : 'Create Cohort');
         this.loaded();
         this.putFocusNextTick(
@@ -114,12 +111,12 @@ export default {
     }
   },
   created() {
-    this.$eventHub.$on('sort-by-changed-by-user', () => this.nextPage(1));
+    this.$eventHub.$on('sort-by-changed-by-user', () => this.goToPage(1));
   },
   methods: {
     compositeKey: filter => `${filter.key}${filter.value}`,
-    nextPage(page) {
-      this.pageNumber = page || this.pageNumber;
+    goToPage(page) {
+      this.pageNumber = page;
       this.setCurrentPage(this.pageNumber);
       this.applyFilters(this.preferences.sortBy).then(() => {
         this.scrollTo('#content');

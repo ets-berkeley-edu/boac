@@ -289,16 +289,11 @@
 
          <div class="course-pagination">
            <div v-if="section.totalStudentCount > pagination.itemsPerPage">
-             <span class="sr-only"><span id="total-student-count">{{ section.totalStudentCount / pagination.itemsPerPage | ceil }}</span>
-               pages of search results</span>
-             <b-pagination id="pagination-widget"
-                           size="md"
-                           :total-rows="section.totalStudentCount"
-                           :limit="20"
-                           v-model="pagination.currentPage"
-                           :per-page="pagination.itemsPerPage"
-                           @input="nextPage()">
-             </b-pagination>
+             <Pagination :click-handler="goToPage"
+                         :init-page-number="pagination.currentPage"
+                         :limit="20"
+                         :per-page="pagination.itemsPerPage"
+                         :total-rows="section.totalStudentCount"/>
            </div>
          </div>
         </div>
@@ -318,6 +313,7 @@ import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox'
 import Loading from '@/mixins/Loading';
 import Matrix from '@/components/matrix/Matrix';
 import MatrixUtil from '@/components/matrix/MatrixUtil';
+import Pagination from '@/components/util/Pagination';
 import Spinner from '@/components/util/Spinner';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar';
@@ -341,6 +337,7 @@ export default {
     CuratedGroupSelector,
     CuratedStudentCheckbox,
     Matrix,
+    Pagination,
     Spinner,
     StudentAvatar,
     StudentBoxplot
@@ -438,7 +435,8 @@ export default {
         }
       );
     },
-    nextPage() {
+    goToPage(page) {
+      this.pagination.currentPage = page;
       this.$router.push({
         query: { ...this.$route.query, p: this.pagination.currentPage }
       });
