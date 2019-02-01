@@ -105,7 +105,7 @@ export function saveCohort(
     })
     .then(response => {
       const cohort = response.data;
-      event('Filtered Cohort', 'update', cohort.name, cohort.id);
+      event('Cohort', 'update', cohort.name, cohort.id);
       store.dispatch('cohort/updateCohort', cohort);
       return cohort;
     }, () => null);

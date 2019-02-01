@@ -43,6 +43,7 @@ store.dispatch('context/loadConfig').then(response => {
   if (googleAnalyticsId) {
     Vue.use(VueAnalytics, {
       id: googleAnalyticsId,
+      router,
       checkDuplicatedScript: true
     });
   }

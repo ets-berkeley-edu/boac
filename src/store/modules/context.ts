@@ -16,6 +16,7 @@ const getters = {
   disableMatrixViewThreshold: (state: any): string =>
     _.get(state.config, 'disableMatrixViewThreshold'),
   errors: (state: any): any => state.errors,
+  googleAnalyticsId: (state: any): string => state.config.googleAnalyticsId,
   loading: (state: any): boolean => state.loading,
   supportEmailAddress: (state: any): string =>
     _.get(state.config, 'supportEmailAddress')
