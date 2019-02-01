@@ -274,9 +274,6 @@ def query_students(
         'is_active_coe': is_active_coe,
         'underrepresented': underrepresented,
     }
-    if order_by:
-        # 'order_by' value might influence query scope
-        criteria.update({order_by: True})
     scope = narrow_scope_by_criteria(get_student_query_scope(), **criteria)
     query_tables, query_filter, query_bindings = data_loch.get_students_query(
         advisor_ldap_uids=advisor_ldap_uids,
@@ -315,15 +312,18 @@ def query_students(
             order_by=order_by,
             group_codes=group_codes,
             majors=majors,
+            scope=scope,
         )
         if supplemental_query_tables:
             query_tables += supplemental_query_tables
+        # Sorting by team is the one case where null results should go below not-null results.
+        o_null_order = 'NULLS LAST' if 'group_name' in o else 'NULLS FIRST'
         sql = f"""SELECT
             sas.sid, MIN({o}), MIN({o_secondary}), MIN({o_tertiary})
             {query_tables}
             {query_filter}
             GROUP BY sas.sid
-            ORDER BY MIN({o}) NULLS FIRST, MIN({o_secondary}) NULLS FIRST, MIN({o_tertiary}) NULLS FIRST"""
+            ORDER BY MIN({o}) {o_null_order}, MIN({o_secondary}) NULLS FIRST, MIN({o_tertiary}) NULLS FIRST"""
         if o_tertiary != 'sas.sid':
             sql += ', sas.sid'
         sql += ' OFFSET :offset'

@@ -424,7 +424,7 @@ def get_students_query(     # noqa
     return query_tables, query_filter, query_bindings
 
 
-def get_students_ordering(order_by=None, group_codes=None, majors=None):
+def get_students_ordering(order_by=None, group_codes=None, majors=None, scope=None):
     supplemental_query_tables = None
     # Case-insensitive sort of first_name and last_name.
     by_first_name = naturalize_order('sas.first_name')
@@ -437,15 +437,19 @@ def get_students_ordering(order_by=None, group_codes=None, majors=None):
     elif order_by in ['gpa', 'units', 'level']:
         o = f'sas.{order_by}'
     elif order_by == 'group_name':
-        # In the special case where team group name is both a filter criterion and an ordering criterion, we
-        # have to do extra work. The athletics join specified in get_students_query join will include only
-        # those group names that are in filter criteria, but if any students are in multiple team groups,
-        # ordering may depend on group names not present in filter criteria; so we have to join the athletics
-        # rows a second time. Why not do this complex sorting after the query? Because correctly calculating
+        # Sorting by athletic team introduces a couple of onerous special cases where we
+        # have to do an extra join on the athletics table.
+        # 1) If team name is both a filter criterion and a sort criterion, the athletics join specified in the
+        # get_students_query join will include only those group names that are in filter criteria. But if any
+        # students are in multiple team groups, ordering may depend on group names not present in filter criteria,
+        # so we have to join the athletics rows a second time.
+        # 2) If team group name has been specified as an ordering criterion but is not yet present as a join table
+        # (for instance, because the current user is an admin), we have to explicitly bring it in.
+        # Why not do this complex sorting after the query? Because correctly calculating
         # pagination offsets requires filtering and ordering to be done at the SQL level.
-        if group_codes:
-            supplemental_query_tables = f' LEFT JOIN {asc_schema()}.students s2 ON s2.sid = sas.sid'
-            o = naturalize_order('s2.group_name')
+        if group_codes or (scope and asc_schema() not in _student_query_tables_for_scope(scope)):
+            supplemental_query_tables = f' LEFT JOIN {asc_schema()}.students asc_students ON asc_students.sid = sas.sid'
+            o = naturalize_order('asc_students.group_name')
         else:
             o = naturalize_order('s.group_name')
     elif order_by == 'major':
