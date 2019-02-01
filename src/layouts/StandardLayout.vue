@@ -23,7 +23,7 @@
       <div class="index-container-content">
         <div id="content" class="body-text">
           <!-- The ':key' attribute forces component reload when same route is requested with diff id in path. -->
-          <router-view :key="$route.fullPath"></router-view>
+          <router-view :key="stripAnchorRef($route.fullPath)"></router-view>
         </div>
         <Footer v-if="!loading"/>
       </div>
@@ -48,6 +48,11 @@ export default {
   },
   created() {
     this.putFocusNextTick('home-header');
+  },
+  methods: {
+    stripAnchorRef(fullPath) {
+      return this.trimEnd(fullPath, '#');
+    }
   }
 };
 </script>
@@ -111,10 +116,6 @@ export default {
   display: flex;
   flex-direction: row;
   min-height: 100%;
-}
-.index-container-footer {
-  margin: 20px 0 70px 0;
-  width: 100%;
 }
 .index-container-header {
   background-color: #3b7ea5;
