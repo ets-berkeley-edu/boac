@@ -617,16 +617,4 @@ export default {
   justify-content: flex-start;
   padding: 20px 0 15px 0;
 }
-
-#content .page-item.active .page-link {
-  background-color: #337ab7;
-  border-color: #337ab7;
-}
-</style>
-
-<style>
-/* Hide ellipsis in bootstrap-vue pagination widget. */
-#content ul.pagination li.page-item.disabled {
-  display: none !important;
-}
 </style>
