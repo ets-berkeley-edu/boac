@@ -119,7 +119,7 @@ class TestCollegeOfEngineering:
             assert students[index]['sid'] == sid
 
     def test_coe_search_by_admin_with_asc_order_by(self, client, admin_login):
-        """Admin user can order COE results by ASC criteria."""
+        """Admin user can order COE results by ASC criteria, with students lacking such criteria coming last."""
         data = {
             'ethnicities': ['B', 'H'],
             'orderBy': 'group_name',
@@ -127,7 +127,9 @@ class TestCollegeOfEngineering:
         response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 200
         students = response.json['students']
-        assert ['Men\'s Baseball', 'Women\'s Field Hockey'] == [s['athleticsProfile']['athletics'][0]['groupName'] for s in students]
+        assert students[0]['athleticsProfile']['athletics'][0]['groupName'] == 'Men\'s Baseball'
+        assert students[1]['athleticsProfile']['athletics'][0]['groupName'] == 'Women\'s Field Hockey'
+        assert 'athleticsProfile' not in students[2]
 
     def test_admin_search_for_students(self, client, admin_login):
         """Admin user can search with ASC and/or COE criteria."""
@@ -181,7 +183,7 @@ class TestAthleticsStudyCenter:
         all_expected_order = {
             'first_name': ['61889', '123456', '1049291', '242881'],
             'gpa': ['61889', '123456', '242881', '1049291'],
-            'group_name': ['123456', '242881', '1049291', '61889'],
+            'group_name': ['242881', '1049291', '61889', '123456'],
             'last_name': ['123456', '61889', '1049291', '242881'],
             'level': ['61889', '123456', '242881', '1049291'],
             'major': ['123456', '61889', '242881', '1049291'],
