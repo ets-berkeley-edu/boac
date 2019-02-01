@@ -2,10 +2,17 @@
   <div id="app" class="index-container">
     <a href="#content"
        id="skip-to-content-link"
-       class="sr-only sr-only-focusable">Skip to main content</a>
+       class="sr-only sr-only-focusable"
+       tabindex="2">Skip to main content</a>
     <div class="index-container-header">
       <div class="header-container">
-        <div class="header-text"><router-link to="/home">Home</router-link></div>
+        <div class="header-text">
+          <h1>
+            <router-link to="/home"
+                       id="home-header"
+                       tabindex="1">Home</router-link>
+          </h1>
+        </div>
         <div><HeaderMenu/></div>
       </div>
     </div>
@@ -29,14 +36,18 @@ import Footer from '@/components/Footer';
 import HeaderMenu from '@/components/HeaderMenu';
 import Loading from '@/mixins/Loading';
 import Sidebar from '@/components/sidebar/Sidebar';
+import Util from '@/mixins/Util';
 
 export default {
   name: 'StandardLayout',
-  mixins: [Loading],
+  mixins: [Loading, Util],
   components: {
     Footer,
     HeaderMenu,
     Sidebar
+  },
+  created() {
+    this.putFocusNextTick('home-header');
   }
 };
 </script>
@@ -79,6 +90,11 @@ export default {
 .header-text a:focus,
 .header-text a:active {
   color: #ddd;
+}
+.header-text h1 {
+  font-size: inherit;
+  font-weight: inherit;
+  margin: 0;
 }
 .index-container {
   height: 100%;
