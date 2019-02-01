@@ -1,8 +1,8 @@
 <template>
   <div class="h-100 p-2">
     <div id="screen-reader-alert" class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
-    <div class="d-flex align-items-center">
-      <div class="gpa text-center">
+    <div class="d-flex flex-wrap align-items-center h-100">
+      <div class="gpa text-center mb-3">
         <div id="cumulative-gpa"
              class="data-number">{{cumulativeGPA || '--'}}<span class="sr-only" v-if="!cumulativeGPA">No data</span></div>
         <div class="gpa-label text-uppercase">Cumulative GPA</div>
@@ -40,7 +40,8 @@
       </div>
     </div>
     <div>
-      <b-collapse class="border-top ml-3 mr-3"
+      <b-collapse id="term-gpa-collapse"
+                  class="border-top ml-3 mr-3"
                   v-model="showTermGpa">
         <div class="pl-3 pr-4">
           <table id="table-with-gpa-per-term"
