@@ -22,7 +22,8 @@
     </div>
     <div class="cohort-column-results" v-if="!loading && results.totalStudentCount">
       <div class="search-header-curated-cohort">
-        <CuratedGroupSelector :students="results.students"/>
+        <CuratedGroupSelector context-description="Search"
+                              :students="results.students"/>
       </div>
       <div>
         <SortableStudents :students="results.students" :options="studentListOptions"/>
@@ -39,6 +40,7 @@
 
 <script>
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
+import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import Loading from '@/mixins/Loading';
 import SortableCourseList from '@/components/course/SortableCourseList';
 import SortableStudents from '@/components/search/SortableStudents';
@@ -49,7 +51,7 @@ import { search } from '@/api/student';
 
 export default {
   name: 'Search',
-  mixins: [Loading, UserMetadata, Util],
+  mixins: [GoogleAnalytics, Loading, UserMetadata, Util],
   components: {
     SortableCourseList,
     CuratedGroupSelector,
@@ -94,11 +96,17 @@ export default {
         })
         .then(() => {
           this.loaded();
-          const focusId =
-            this.results.totalCourseCount || this.results.totalStudentCount
-              ? 'page-header'
-              : 'page-header-no-results';
+          const totalCount =
+            this.toInt(this.results.totalCourseCount, 0) +
+            this.toInt(this.results.totalStudentCount, 0);
+          const focusId = totalCount ? 'page-header' : 'page-header-no-results';
           this.putFocusNextTick(focusId);
+          this.gaEvent(
+            'Search',
+            'results',
+            includeCourses ? 'classes and students' : 'students',
+            totalCount
+          );
         });
     }
   }

@@ -28,11 +28,12 @@
 </template>
 
 <script>
+import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'SearchStudents',
-  mixins: [Util],
+  mixins: [GoogleAnalytics, Util],
   props: {
     includeCourses: {
       default: false,
@@ -57,6 +58,12 @@ export default {
             includeCourses: this.includeCourses
           }
         });
+        this.gaEvent(
+          'Search',
+          'submit',
+          this.includeCourses ? 'classes and students' : 'students',
+          this.searchPhrase
+        );
       }
     }
   }

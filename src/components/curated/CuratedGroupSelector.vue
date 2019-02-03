@@ -86,18 +86,20 @@
 </template>
 
 <script>
-import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal.vue';
+import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal';
+import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { addStudents, createCuratedGroup } from '@/api/curated';
 
 export default {
   name: 'CuratedGroupSelector',
-  mixins: [UserMetadata, Util],
+  mixins: [GoogleAnalytics, UserMetadata, Util],
   components: {
     CreateCuratedGroupModal
   },
   props: {
+    contextDescription: String,
     students: Array
   },
   data: () => ({
@@ -154,6 +156,11 @@ export default {
         this.isSelectAllChecked = this.indeterminate = false;
         this.$eventHub.$emit('curated-group-deselect-all');
         this.isSaving = false;
+        this.gaCuratedEvent(
+          group.id,
+          group.name,
+          `${this.contextDescription}: add students`
+        );
       };
       const done = () => (self.isSaving = false);
       this.isSaving = true;
@@ -170,7 +177,20 @@ export default {
         this.toggle(false);
         this.isSaving = false;
       };
-      createCuratedGroup(name, this.sids).then(setTimeout(() => done(), 2000));
+      const trackEvent = group => {
+        this.each(
+          [
+            'create',
+            `${this.contextDescription}: add students, after create group`
+          ],
+          action => {
+            this.gaCuratedEvent(group.id, group.name, action);
+          }
+        );
+      };
+      createCuratedGroup(name, this.sids)
+        .then(trackEvent)
+        .finally(() => setTimeout(() => done(), 2000));
     },
     modalCancel() {
       this.sids = [];

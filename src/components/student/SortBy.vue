@@ -46,7 +46,7 @@ export default {
           key: 'sortBy',
           value
         });
-        this.$eventHub.$emit('sort-by-changed-by-user');
+        this.$eventHub.$emit('sort-by-changed-by-user', value);
       }
     }
   }

@@ -13,11 +13,6 @@ export function addStudents(curatedGroup, sids) {
       const group = response.data;
       store.dispatch('curated/updateCuratedGroup', group);
       return group;
-    })
-    .then(group => {
-      event('Curated Cohort', 'add_students', group.name, group.id, {
-        userId: store.getters['user/user'].uid
-      });
     });
 }
 
@@ -32,11 +27,6 @@ export function createCuratedGroup(name: string, sids: object) {
       const group = response.data;
       store.dispatch('curated/createCuratedGroup', group);
       return group;
-    })
-    .then(group => {
-      event('Curated Cohort', 'create', group.name, group.id, {
-        userId: store.getters['user/user'].uid
-      });
     });
 }
 

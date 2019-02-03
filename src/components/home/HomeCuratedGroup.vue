@@ -67,16 +67,17 @@
 </template>
 
 <script>
-import SortableStudents from '@/components/search/SortableStudents.vue';
+import GoogleAnalytics from '@/mixins/GoogleAnalytics';
+import SortableStudents from '@/components/search/SortableStudents';
 import store from '@/store';
-import Util from '@/mixins/Util.vue';
+import Util from '@/mixins/Util';
 
 export default {
   name: 'HomeCuratedGroup',
+  mixins: [GoogleAnalytics, Util],
   components: {
     SortableStudents
   },
-  mixins: [Util],
   props: {
     curatedGroup: Object
   },
@@ -94,6 +95,12 @@ export default {
           .then(curatedGroup => {
             this.curatedGroup = curatedGroup;
             this.isFetching = false;
+            this.gaEvent(
+              'Home',
+              'Fetch students with alerts',
+              `Curated Group: ${this.curatedGroup.name}`,
+              this.curatedGroup.id
+            );
           });
       }
     }
