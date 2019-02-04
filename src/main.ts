@@ -43,6 +43,10 @@ store.dispatch('context/loadConfig').then(response => {
   if (googleAnalyticsId) {
     Vue.use(VueAnalytics, {
       id: googleAnalyticsId,
+      debug: {
+        // If debug.enabled is true then browser console gets GA debug info.
+        enabled: false
+      },
       router,
       checkDuplicatedScript: true
     });

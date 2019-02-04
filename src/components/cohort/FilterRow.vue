@@ -242,7 +242,7 @@ export default {
       this.putFocusNewFilterDropdown();
       this.gaCohortEvent(
         this.cohortId,
-        this.cohortName,
+        this.cohortName || 'unsaved',
         this.screenReaderAlert
       );
     },
@@ -292,7 +292,7 @@ export default {
       this.putFocusNewFilterDropdown();
       this.gaCohortEvent(
         this.cohortId,
-        this.cohortName,
+        this.cohortName || 'unsaved',
         this.screenReaderAlert
       );
     },
