@@ -1,7 +1,5 @@
 import _ from 'lodash';
-import store from '@/store';
 import Vue from 'vue';
-import VueAnalytics from 'vue-analytics';
 import { getUserProfile, getUserStatus } from '@/api/user';
 
 const $_user_isDepartmentMember = (state, deptCode) => {
@@ -76,15 +74,12 @@ const actions = {
         resolve(state.user);
       } else {
         getUserProfile().then(user => {
-          let googleAnalyticsId = store.getters['context/googleAnalyticsId'];
-          if (googleAnalyticsId) {
-            Vue.use(VueAnalytics, {
-              id: googleAnalyticsId,
-              checkDuplicatedScript: true,
-              fields: {
-                userId: user.uid
-              }
-            });
+          Vue.prototype.$ga.set('userId', user.uid);
+          const dept_code = user.isAdmin
+            ? 'ADMIN'
+            : _.keys(user.departments)[0];
+          if (dept_code) {
+            Vue.prototype.$ga.set('dimension1', dept_code);
           }
           commit('registerUser', user);
           resolve(user);
