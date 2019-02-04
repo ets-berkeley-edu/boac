@@ -9,8 +9,8 @@
         <div class="header-text">
           <h1>
             <router-link to="/home"
-                       id="home-header"
-                       tabindex="1">Home</router-link>
+                         id="home-header"
+                         tabindex="1">Home</router-link>
           </h1>
         </div>
         <div><HeaderMenu/></div>
@@ -51,7 +51,7 @@ export default {
   },
   methods: {
     stripAnchorRef(fullPath) {
-      return this.trimEnd(fullPath, '#');
+      return this.split(fullPath, '#', 1)[0];
     }
   }
 };
