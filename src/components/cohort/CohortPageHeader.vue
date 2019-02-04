@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-content-between">
-    <div class="sr-only" aria-live="polite">{{ cohortUpdateStatus }}</div>
+    <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
     <div v-if="!cohortId && totalStudentCount === undefined">
       <h1 id="create-cohort-h1"
           class="page-section-header mt-0"
@@ -112,6 +112,7 @@
 <script>
 import CohortEditSession from '@/mixins/CohortEditSession';
 import DeleteCohortModal from '@/components/cohort/DeleteCohortModal';
+import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import router from '@/router';
 import Util from '@/mixins/Util';
 import Validator from '@/mixins/Validator';
@@ -120,11 +121,11 @@ import { deleteCohort } from '@/api/cohort';
 export default {
   name: 'CohortPageHeader',
   components: { DeleteCohortModal },
-  mixins: [CohortEditSession, Util, Validator],
+  mixins: [CohortEditSession, GoogleAnalytics, Util, Validator],
   data: () => ({
-    cohortUpdateStatus: undefined,
     name: undefined,
     renameError: undefined,
+    screenReaderAlert: undefined,
     showDeleteModal: false
   }),
   created() {
@@ -139,22 +140,23 @@ export default {
     beginRename() {
       this.name = this.cohortName;
       this.setEditMode('rename');
-      this.cohortUpdateStatus = `Renaming ${this.name} cohort`;
+      this.screenReaderAlert = `Renaming ${this.name} cohort`;
       this.putFocusNextTick('rename-cohort-input');
     },
     cancelDeleteModal() {
       this.showDeleteModal = false;
-      this.cohortUpdateStatus = `Cancel deletion of ${this.name} cohort`;
+      this.screenReaderAlert = `Cancel deletion of ${this.name} cohort`;
     },
     cancelRename() {
       this.name = this.cohortName;
       this.setEditMode(null);
-      this.cohortUpdateStatus = `Cancel renaming of ${this.name} cohort`;
+      this.screenReaderAlert = `Cancel renaming of ${this.name} cohort`;
     },
     cohortDelete() {
-      this.cohortUpdateStatus = `Deleting ${this.name} cohort`;
+      this.screenReaderAlert = `Deleting ${this.name} cohort`;
       deleteCohort(this.cohortId).then(() => {
         this.showDeleteModal = false;
+        this.gaCohortEvent(this.cohortId, this.cohortName, 'delete');
         router.push({ path: '/' });
       });
     },
@@ -167,16 +169,17 @@ export default {
         this.putFocusNextTick('rename-cohort-input');
       } else {
         this.renameCohort(this.name).then(() => {
-          this.cohortUpdateStatus = `Saved new cohort name: ${this.name}`;
+          this.screenReaderAlert = `Saved new cohort name: ${this.name}`;
           this.setPageTitle(this.name);
           this.putFocusNextTick('cohort-name');
+          this.gaCohortEvent(this.cohortId, this.name, 'rename');
         });
         this.setEditMode(null);
       }
     },
     toggleShowHideDetails() {
       this.toggleCompactView();
-      this.cohortUpdateStatus = this.isCompactView
+      this.screenReaderAlert = this.isCompactView
         ? 'Filters are hidden'
         : 'Filters are visible';
     }

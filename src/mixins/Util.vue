@@ -45,6 +45,10 @@ export default {
       (document.title = `${phrase || 'UC Berkeley'} | BOAC`),
     size: _.size,
     slice: _.slice,
+    toInt: (value, defaultValue = null) => {
+      const parsed = parseInt(value, 10);
+      return Number.isInteger(parsed) ? parsed : defaultValue;
+    },
     trim: _.trim,
     trimEnd: _.trimEnd,
     uniq: _.uniq,

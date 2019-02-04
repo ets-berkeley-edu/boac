@@ -1,6 +1,5 @@
 import axios from 'axios';
 import store from '@/store';
-import { event } from 'vue-analytics';
 
 export function createCohort(
   name: string,
@@ -17,9 +16,6 @@ export function createCohort(
     .then(response => {
       const cohort = response.data;
       store.dispatch('cohort/addCohort', cohort);
-      event('Filtered Cohort', 'create', cohort.name, cohort.id, {
-        userId: store.getters['user/user'].uid
-      });
       return cohort;
     }, () => null);
 }
@@ -34,7 +30,6 @@ export function deleteCohort(id) {
     })
     .then(() => {
       store.commit('cohort/deleteCohort', id);
-      event('Filtered Cohort', 'delete', null, id);
     }, () => null);
 }
 
@@ -105,7 +100,6 @@ export function saveCohort(
     })
     .then(response => {
       const cohort = response.data;
-      event('Cohort', 'update', cohort.name, cohort.id);
       store.dispatch('cohort/updateCohort', cohort);
       return cohort;
     }, () => null);

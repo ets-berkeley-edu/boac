@@ -75,7 +75,8 @@
 </template>
 
 <script>
-import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal.vue';
+import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal';
+import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import Scrollable from '@/mixins/Scrollable';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
@@ -88,7 +89,7 @@ import {
 
 export default {
   name: 'StudentGroupSelector',
-  mixins: [Scrollable, UserMetadata, Util],
+  mixins: [GoogleAnalytics, Scrollable, UserMetadata, Util],
   components: {
     CreateCuratedGroupModal
   },
@@ -131,6 +132,11 @@ export default {
           this.checkedGroups = this.without(this.checkedGroups, group.id);
           this.isRemoving = false;
           this.putFocusNextTick('curated-group-dropdown', 'button');
+          this.gaCuratedEvent(
+            group.id,
+            group.name,
+            `Student profile: Removed SID ${this.sid}`
+          );
         };
         removeFromCuratedGroup(group.id, this.sid).finally(() =>
           setTimeout(done, 1000)
@@ -141,6 +147,11 @@ export default {
           this.checkedGroups.push(group.id);
           this.isAdding = false;
           this.putFocusNextTick('curated-group-dropdown', 'button');
+          this.gaCuratedEvent(
+            group.id,
+            group.name,
+            `Student profile: Added SID ${this.sid}`
+          );
         };
         addStudents(group, [this.sid]).finally(() => setTimeout(done, 1000));
       }
@@ -151,7 +162,19 @@ export default {
       let done = () => {
         this.isAdding = false;
       };
-      createCuratedGroup(name, [this.sid]).then(setTimeout(() => done(), 2000));
+      createCuratedGroup(name, [this.sid])
+        .then(group => {
+          this.each(
+            [
+              'create',
+              `Student profile: Added SID ${this.sid}, after create group`
+            ],
+            action => {
+              this.gaCuratedEvent(group.id, group.name, action);
+            }
+          );
+        })
+        .then(setTimeout(() => done(), 2000));
     },
     modalCancel() {
       this.showModal = false;

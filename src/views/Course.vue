@@ -63,18 +63,16 @@
       </div>
       <div class="course-terms">
         <h2 class="sr-only">Students</h2>
-
         <div class="course-view-controls-container" v-if="!section.totalStudentCount">
           <span class="has-error"><i class="fas fa-exclamation-triangle"></i></span>
           <span class="container-error">No students advised by your department are enrolled in this section.</span>
         </div>
-
         <div class="course-view-controls-container" v-if="section.totalStudentCount">
-
           <div>
-            <CuratedGroupSelector :students="section.students" v-if="!isEmpty(section.students) && (tab === 'list')"/>
+            <CuratedGroupSelector :context-description="`Course ${this.section.displayName}`"
+                                  :students="section.students"
+                                  v-if="!isEmpty(section.students) && (tab === 'list')"/>
           </div>
-
           <div class="course-tabs-container">
             <div class="btn-group tab-btn-group" role="group" aria-label="Select results view">
               <button type="button"

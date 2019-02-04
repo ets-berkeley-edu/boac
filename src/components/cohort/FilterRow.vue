@@ -10,7 +10,7 @@
     <div :id="filterRowPrimaryDropdownId(filterRowIndex)"
          class="cohort-filter-draft-column-01 pr-2"
          v-if="isModifyingFilter && !isExistingFilter">
-      <div class="sr-only" aria-live="polite">{{ filterUpdateStatus }}</div>
+      <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
       <b-dropdown variant="link" no-caret>
         <template slot="button-content">
           <div class="dropdown-width d-flex justify-content-between text-dark">
@@ -177,17 +177,17 @@
 
 <script>
 import CohortEditSession from '@/mixins/CohortEditSession';
+import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'FilterRow',
-  mixins: [CohortEditSession, Util],
+  mixins: [CohortEditSession, GoogleAnalytics, Util],
   props: {
     index: Number
   },
   data: () => ({
     filter: undefined,
-    filterUpdateStatus: undefined,
     isExistingFilter: undefined,
     isMenuOpen: false,
     isModifyingFilter: undefined,
@@ -197,6 +197,7 @@ export default {
       stop: undefined,
       error: undefined
     },
+    screenReaderAlert: undefined,
     showAdd: false,
     showRow: true,
     subcategoryError: undefined,
@@ -221,16 +222,16 @@ export default {
     addNewFilter() {
       switch (this.filter.type) {
         case 'array':
-          this.filterUpdateStatus = `Added ${
+          this.screenReaderAlert = `Added ${
             this.filter.name
           } filter with value ${this.valueLabel}`;
           break;
         case 'boolean':
-          this.filterUpdateStatus = `Added ${this.filter.name} filter`;
+          this.screenReaderAlert = `Added ${this.filter.name} filter`;
           this.filter.value = true;
           break;
         case 'range':
-          this.filterUpdateStatus = `Added ${this.filter.name} filter: ${
+          this.screenReaderAlert = `Added ${this.filter.name} filter: ${
             this.range.start
           } to ${this.range.stop}`;
           this.filter.value = [this.range.start, this.range.stop];
@@ -239,9 +240,14 @@ export default {
       this.addFilter(this.filter);
       this.reset();
       this.putFocusNewFilterDropdown();
+      this.gaCohortEvent(
+        this.cohortId,
+        this.cohortName,
+        this.screenReaderAlert
+      );
     },
     cancelEditExisting() {
-      this.filterUpdateStatus = 'Cancelled';
+      this.screenReaderAlert = 'Cancelled';
       this.isModifyingFilter = false;
       this.filter.value = this.valueOriginal;
       this.valueLabel = this.getFilterValueLabel();
@@ -265,7 +271,7 @@ export default {
       this.isModifyingFilter = true;
       this.setEditMode(`edit-${this.index}`);
       this.putFocusSecondaryDropdown();
-      this.filterUpdateStatus = `Editing existing ${this.filter.name} filter`;
+      this.screenReaderAlert = `Begin edit of ${this.filter.name} filter`;
     },
     filterRowPrimaryDropdownId: index => `filter-row-dropdown-primary-${index}`,
     filterRowSecondaryDropdownId: index =>
@@ -280,9 +286,15 @@ export default {
       );
     },
     remove() {
+      this.screenReaderAlert = `${this.filter.name} filter removed`;
       this.removeFilter(this.index);
       this.setEditMode(null);
       this.putFocusNewFilterDropdown();
+      this.gaCohortEvent(
+        this.cohortId,
+        this.cohortName,
+        this.screenReaderAlert
+      );
     },
     reset() {
       this.showAdd = false;
@@ -332,6 +344,12 @@ export default {
         index: this.index,
         updatedFilter: this.filter
       });
+      this.screenReaderAlert = `${this.filter.name} filter updated`;
+      this.gaCohortEvent(
+        this.cohortId,
+        this.cohortName,
+        this.screenReaderAlert
+      );
       this.isModifyingFilter = false;
       this.setEditMode(null);
     },

@@ -1,6 +1,6 @@
 <template>
   <div>
-      <div class="sr-only" aria-live="polite">{{ cohortUpdateStatus }}</div>
+      <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
       <b-btn id="unsaved-filter-apply"
              class="btn-filter-draft-apply btn-primary-color-override"
              variant="primary"
@@ -40,17 +40,18 @@
 </template>
 
 <script>
+import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import CohortEditSession from '@/mixins/CohortEditSession';
 import CreateCohortModal from '@/components/cohort/CreateCohortModal';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'ApplyAndSaveButtons',
-  mixins: [CohortEditSession, Util],
+  mixins: [CohortEditSession, GoogleAnalytics, Util],
   components: { CreateCohortModal },
   data: () => ({
-    cohortUpdateStatus: undefined,
     isPerforming: undefined,
+    screenReaderAlert: undefined,
     showCreateModal: false
   }),
   computed: {
@@ -60,44 +61,51 @@ export default {
   },
   methods: {
     apply() {
-      this.cohortUpdateStatus = `Searching for students`;
+      this.screenReaderAlert = `Searching for students`;
       this.isPerforming = 'search';
       this.setCurrentPage(1);
       this.applyFilters().then(() => {
         this.putFocusNextTick('save-button');
-        this.cohortUpdateStatus = `Search results loaded`;
+        this.gaCohortEvent(
+          this.cohortId,
+          this.cohortName || 'unsaved',
+          'search'
+        );
+        this.screenReaderAlert = `Search results loaded`;
         this.isPerforming = null;
       });
     },
     cancelCreateModal() {
-      this.cohortUpdateStatus = `Cancel creation of new cohort`;
+      this.screenReaderAlert = `Cancel creation of new cohort`;
       this.showCreateModal = false;
     },
     create(name) {
-      this.cohortUpdateStatus = `Creating new cohort with name ${name}`;
+      this.screenReaderAlert = `Creating new cohort with name ${name}`;
       this.showCreateModal = false;
       this.isPerforming = 'save';
       this.createCohort(name).then(() => {
         this.savedCohortCallback(`Cohort ${name} created`);
         this.setPageTitle(this.cohortName);
+        this.gaCohortEvent(this.cohortId, name, 'create');
         history.pushState({}, null, `/cohort/${this.cohortId}`);
         this.isPerforming = null;
       });
     },
     save() {
       if (this.cohortId) {
-        this.cohortUpdateStatus = `Saving changes to cohort ${this.cohortName}`;
+        this.screenReaderAlert = `Saving changes to cohort ${this.cohortName}`;
         this.isPerforming = 'save';
         this.saveExistingCohort().then(() => {
+          this.gaCohortEvent(this.cohortId, this.cohortName, 'save');
           this.savedCohortCallback(`Cohort ${this.cohortName} saved`);
         });
       } else {
-        this.cohortUpdateStatus = `Opening popup to create new cohort`;
+        this.screenReaderAlert = `Opening popup to create new cohort`;
         this.showCreateModal = true;
       }
     },
     savedCohortCallback(updateStatus) {
-      this.cohortUpdateStatus = updateStatus;
+      this.screenReaderAlert = updateStatus;
       this.isPerforming = 'acknowledgeSave';
       setTimeout(() => (this.isPerforming = null), 2000);
     }

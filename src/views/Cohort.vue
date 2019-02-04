@@ -24,7 +24,8 @@
         <div class="cohort-column-results">
           <hr class="filters-section-separator mr-2"/>
           <div class="d-flex justify-content-between align-items-center p-2">
-            <CuratedGroupSelector :students="students"/>
+            <CuratedGroupSelector :context-description="`Cohort ${this.cohortName || 'unsaved'}`"
+                                  :students="students"/>
             <SortBy v-if="size(students) > 1"/>
           </div>
           <div>
@@ -60,6 +61,7 @@ import CohortEditSession from '@/mixins/CohortEditSession';
 import CohortPageHeader from '@/components/cohort/CohortPageHeader';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
 import FilterRow from '@/components/cohort/FilterRow';
+import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import Loading from '@/mixins/Loading';
 import Pagination from '@/components/util/Pagination';
 import Scrollable from '@/mixins/Scrollable';
@@ -72,7 +74,14 @@ import Util from '@/mixins/Util';
 
 export default {
   name: 'Cohort',
-  mixins: [CohortEditSession, Loading, Scrollable, UserMetadata, Util],
+  mixins: [
+    CohortEditSession,
+    GoogleAnalytics,
+    Loading,
+    Scrollable,
+    UserMetadata,
+    Util
+  ],
   components: {
     ApplyAndSaveButtons,
     CohortPageHeader,
@@ -91,16 +100,15 @@ export default {
   }),
   mounted() {
     const continueExistingSession =
-      this.$routerHistory.hasForward() &&
-      this.includes(this.$route.path, this.cohortId);
+      this.$routerHistory.hasForward() && this.size(this.filters);
     if (continueExistingSession) {
       this.pageNumber = this.pagination.currentPage;
       this.setPageTitle(this.cohortName);
       this.loaded();
     } else {
-      let id = parseInt(this.get(this.$route, 'params.id'));
+      const id = this.toInt(this.get(this.$route, 'params.id'));
       this.init({
-        id: Number.isInteger(id) ? id : null,
+        id,
         orderBy: this.preferences.sortBy
       }).then(() => {
         this.showFilters = !this.isCompactView;
@@ -110,19 +118,36 @@ export default {
         this.putFocusNextTick(
           this.cohortId ? 'cohort-name' : 'create-cohort-h1'
         );
+        this.gaCohortEvent(this.cohortId, this.cohortName || 'unsaved', 'view');
       });
     }
   },
   created() {
-    this.$eventHub.$on('sort-by-changed-by-user', () => this.goToPage(1));
+    this.$eventHub.$on('sort-by-changed-by-user', sortBy => {
+      this.goToPage(1);
+      this.screenReaderAlert = `Sort students by ${sortBy}`;
+      this.gaCohortEvent(
+        this.cohortId,
+        this.cohortName || 'unsaved',
+        this.screenReaderAlert
+      );
+    });
   },
   methods: {
     compositeKey: filter => `${filter.key}${filter.value}`,
     goToPage(page) {
+      if (page > 1) {
+        this.screenReaderAlert = `Go to page ${page}`;
+        this.gaCohortEvent(
+          this.cohortId,
+          this.cohortName || 'unsaved',
+          this.screenReaderAlert
+        );
+      }
       this.pageNumber = page;
       this.setCurrentPage(this.pageNumber);
       this.applyFilters(this.preferences.sortBy).then(() => {
-        this.scrollTo('#content');
+        this.scrollToTop();
       });
     }
   },
