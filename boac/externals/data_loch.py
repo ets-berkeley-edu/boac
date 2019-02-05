@@ -73,6 +73,10 @@ def asc_schema():
     return app.config['DATA_LOCH_ASC_SCHEMA']
 
 
+def advising_notes_schema():
+    return app.config['DATA_LOCH_ADVISING_NOTES_SCHEMA']
+
+
 def boac_schema():
     return app.config['DATA_LOCH_BOAC_SCHEMA']
 
@@ -304,6 +308,22 @@ def get_enrollments_for_term(term_id, sids=None):
     if sids:
         sql += ' AND sid = ANY(:sids)'
     return safe_execute_redshift(sql, term_id=term_id, sids=sids)
+
+
+def get_advising_note(note_id):
+    sql = f"""SELECT note_id, sid, note_topic, note_body
+        FROM {advising_notes_schema()}.boac_advising_notes
+        WHERE note_id=:note_id
+        ORDER BY created_at, updated_at"""
+    return safe_execute_redshift(sql, note_id=note_id)
+
+
+def get_advising_notes(sid):
+    sql = f"""SELECT note_id, sid, note_topic
+        FROM {advising_notes_schema()}.boac_advising_notes
+        WHERE sid=:sid
+        ORDER BY created_at, updated_at"""
+    return safe_execute_redshift(sql, sid=sid)
 
 
 def get_ethnicity_codes(scope=()):

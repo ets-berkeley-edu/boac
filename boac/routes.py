@@ -45,6 +45,7 @@ def register_routes(app):
     import boac.api.course_controller
     import boac.api.curated_group_controller
     import boac.api.menu_controller
+    import boac.api.notes_controller
     import boac.api.student_controller
     import boac.api.status_controller
     import boac.api.user_controller
