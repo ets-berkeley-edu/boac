@@ -69,13 +69,17 @@
         </tr>
       </table>
     </div>
-    <div v-if="messagesFiltered.length > 5">
+    <div class="text-center pt-2" v-if="messagesFiltered.length > 5">
       <b-btn :id="`timeline-tab-${filter || 'all'}-previous-messages`"
              class="no-wrap pr-2 pt-0"
              variant="link"
-             :aria-label="`showAll ? 'Hide previous messages' : 'Show previous messages'`"
-             @click="showAll = !showAll">
-        {{ showAll ? 'Show' : 'Hide' }} Previous Messages
+             :aria-label="`isShowingAll ? 'Hide previous messages' : 'Show previous messages'`"
+             @click="isShowingAll = !isShowingAll">
+        <i :class="{
+          'fas fa-caret-up': isShowingAll,
+          'fas fa-caret-right': !isShowingAll
+        }"></i>
+        {{ isShowingAll ? 'Hide' : 'Show' }} Previous Messages
       </b-btn>
     </div>
   </div>
@@ -103,7 +107,7 @@ export default {
     isTimelineLoading: true,
     messages: undefined,
     now: new Date(),
-    showAll: undefined,
+    isShowingAll: false,
     screenReaderAlert: undefined
   }),
   created() {
@@ -157,7 +161,7 @@ export default {
         : this.messages;
     },
     messagesInView() {
-      return this.showAll
+      return this.isShowingAll
         ? this.messagesFiltered
         : this.slice(this.messagesFiltered, 0, 5);
     }
@@ -165,9 +169,9 @@ export default {
   methods: {
     describeTheActiveTab() {
       const inViewCount = this.size(this.messagesInView);
-      return `Showing ${this.showAll ? 'all' : 'the first'} ${inViewCount} ${
-        this.filter ? this.filterLabel : 'messages'
-      }.`;
+      return `Showing ${
+        this.isShowingAll ? 'all' : 'the first'
+      } ${inViewCount} ${this.filter ? this.filterLabel : 'messages'}.`;
     },
     newMessage(id, type, text, dismissed, updatedAt, status) {
       const typeLabel = {
@@ -207,7 +211,7 @@ export default {
     filter() {
       this.screenReaderAlert = this.describeTheActiveTab();
     },
-    showAll() {
+    isShowingAll() {
       this.screenReaderAlert = this.describeTheActiveTab();
     }
   }
