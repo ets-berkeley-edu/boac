@@ -393,6 +393,14 @@ def search_for_students(
     }
 
 
+def get_advising_note(note_id):
+    return data_loch.get_advising_note(note_id)
+
+
+def get_advising_notes(sid):
+    return data_loch.get_advising_notes(sid)
+
+
 def get_student_query_scope():
     # Use department membership and admin status to determine what data we can surface about which students.
     # If this code is being called outside an HTTP request context, then assume it is an administrative task.
