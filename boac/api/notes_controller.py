@@ -40,3 +40,12 @@ def notes_per_student(sid):
 @login_required
 def get_note(note_id):
     return tolerant_jsonify(get_advising_note(note_id))
+
+
+@app.route('/api/notes/was_read/<note_id>', methods=['POST'])
+@login_required
+def was_read(note_id):
+    # TODO
+    return tolerant_jsonify({
+        'noteId': note_id,
+    })
