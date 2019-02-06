@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 coe_advisor = '1133399'
 
 
-class TestNotesController:
+class TestGetNotes:
 
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
@@ -43,3 +43,17 @@ class TestNotesController:
         fake_auth.login(coe_advisor)
         response = client.get('/api/notes/123')
         assert response.status_code == 200
+
+
+class TestUpdateNotes:
+
+    def test_not_authenticated(self, client):
+        """Returns 401 if not authenticated."""
+        assert client.post('/api/notes/was_read/123').status_code == 401
+
+    def test_note_was_read(self, fake_auth, client):
+        """Returns advising notes per SID."""
+        fake_auth.login(coe_advisor)
+        response = client.post('/api/notes/was_read/123')
+        assert response.status_code == 200
+        assert int(response.json['noteId']) == 123
