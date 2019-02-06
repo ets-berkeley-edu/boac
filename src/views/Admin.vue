@@ -6,7 +6,7 @@
             aria-live="passive"
             class="sr-only">Admin page loaded</span>
       <h1>BOAC Flight Deck</h1>
-      <div class="d-flex flex-row mt-3 mb-5">
+      <div class="d-flex flex-row mt-3 mb-3">
         <div class="mr-3">
           <img id="avatar-verify-blur"
                class="avatar student-avatar-large"
@@ -23,7 +23,7 @@
         </div>
       </div>
 
-      <h2 class="page-section-header-sub">Users</h2>
+      <h2 class="page-section-header-sub pb-2">Users</h2>
       <b-card no-body>
         <b-tabs pills card>
           <b-tab :title="group.name" v-for="group in userGroups" :key="group.name">
@@ -51,6 +51,9 @@
           </b-tab>
         </b-tabs>
       </b-card>
+
+      <Status/>
+
     </div>
   </div>
 </template>
@@ -60,6 +63,7 @@ import Context from '@/mixins/Context';
 import DemoModeToggle from '@/components/admin/DemoModeToggle';
 import Loading from '@/mixins/Loading';
 import Spinner from '@/components/util/Spinner';
+import Status from '@/components/util/Status';
 import UserMetadata from '@/mixins/UserMetadata';
 import { becomeUser, getAuthorizedUserGroups } from '@/api/user';
 
@@ -68,7 +72,8 @@ export default {
   mixins: [Context, Loading, UserMetadata],
   components: {
     DemoModeToggle,
-    Spinner
+    Spinner,
+    Status
   },
   data: () => ({
     active: [],
