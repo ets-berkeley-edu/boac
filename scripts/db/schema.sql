@@ -142,6 +142,19 @@ ALTER TABLE ONLY cohort_filters
 
 --
 
+CREATE TABLE notes_read (
+    note_id integer NOT NULL,
+    viewer_id integer NOT NULL,
+    created_at timestamp with time zone NOT NULL
+);
+ALTER TABLE notes_read OWNER TO boac;
+ALTER TABLE ONLY notes_read
+    ADD CONSTRAINT notes_read_pkey PRIMARY KEY (viewer_id, note_id);
+CREATE INDEX notes_read_note_id_idx ON notes_read USING btree (note_id);
+CREATE INDEX notes_read_viewer_id_idx ON notes_read USING btree (viewer_id);
+
+--
+
 CREATE TABLE student_groups (
   id INTEGER NOT NULL,
   owner_id INTEGER NOT NULL,
@@ -269,3 +282,8 @@ ALTER TABLE ONLY cohort_filter_owners
     ADD CONSTRAINT cohort_filter_owners_cohort_filter_id_fkey FOREIGN KEY (cohort_filter_id) REFERENCES cohort_filters(id) ON DELETE CASCADE;
 ALTER TABLE ONLY cohort_filter_owners
     ADD CONSTRAINT cohort_filter_owners_user_id_fkey FOREIGN KEY (user_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
+
+--
+
+ALTER TABLE ONLY notes_read
+    ADD CONSTRAINT notes_read_viewer_id_fkey FOREIGN KEY (viewer_id) REFERENCES authorized_users(id) ON DELETE CASCADE;

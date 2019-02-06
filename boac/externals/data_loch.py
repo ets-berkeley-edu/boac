@@ -311,7 +311,7 @@ def get_enrollments_for_term(term_id, sids=None):
 
 
 def get_advising_note(note_id):
-    sql = f"""SELECT note_id, sid, note_topic, note_body
+    sql = f"""SELECT note_id, sid, note_topic, note_body, created_at
         FROM {advising_notes_schema()}.boac_advising_notes
         WHERE note_id=:note_id
         ORDER BY created_at, updated_at"""
@@ -319,7 +319,7 @@ def get_advising_note(note_id):
 
 
 def get_advising_notes(sid):
-    sql = f"""SELECT note_id, sid, note_topic
+    sql = f"""SELECT note_id, sid, note_topic, created_at
         FROM {advising_notes_schema()}.boac_advising_notes
         WHERE sid=:sid
         ORDER BY created_at, updated_at"""

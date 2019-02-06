@@ -23,30 +23,35 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.errors import BadRequestError
-from boac.lib.http import tolerant_jsonify
-from boac.merged.student import get_advising_note, get_advising_notes
-from boac.models.note_read import NoteRead
-from flask import current_app as app
-from flask_login import current_user, login_required
+from datetime import datetime
+
+from boac import db, std_commit
 
 
-@app.route('/api/notes/student/<sid>', methods=['GET'])
-@login_required
-def notes_per_student(sid):
-    return tolerant_jsonify(get_advising_notes(sid))
+class NoteRead(db.Model):
+    __tablename__ = 'notes_read'
 
+    viewer_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False, primary_key=True)
+    note_id = db.Column(db.Integer, nullable=False, primary_key=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
 
-@app.route('/api/notes/<note_id>', methods=['GET'])
-@login_required
-def get_note(note_id):
-    return tolerant_jsonify(get_advising_note(note_id))
+    __table_args__ = (db.UniqueConstraint(
+        'viewer_id',
+        'note_id',
+        name='notes_read_viewer_id_note_id_unique_constraint',
+    ),)
 
+    def __init__(self, viewer_id, note_id):
+        self.viewer_id = viewer_id
+        self.note_id = note_id
 
-@app.route('/api/notes/<note_id>/mark_read', methods=['POST'])
-@login_required
-def mark_read(note_id):
-    if NoteRead.create(current_user.id, note_id):
-        return tolerant_jsonify({'status': 'created'}, status=201)
-    else:
-        raise BadRequestError(f'Failed to mark note {note_id} as read by user {current_user.uid}')
+    @classmethod
+    def create(cls, viewer_id, note_id):
+        note_read = cls(viewer_id, note_id)
+        db.session.add(note_read)
+        std_commit()
+        return note_read
+
+    @classmethod
+    def get_notes_read_by_user(cls, viewer_id, note_ids):
+        return cls.query.filter(NoteRead.viewer_id == viewer_id, NoteRead.note_id.in_(note_ids)).all()
