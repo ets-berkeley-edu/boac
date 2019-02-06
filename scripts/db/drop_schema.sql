@@ -34,11 +34,7 @@ SET row_security = off;
 
 --
 
-ALTER TABLE IF EXISTS ONLY public.student_athletes DROP CONSTRAINT IF EXISTS student_athletes_sid_fkey;
-ALTER TABLE IF EXISTS ONLY public.student_athletes DROP CONSTRAINT IF EXISTS student_athletes_group_code_fkey;
-ALTER TABLE IF EXISTS ONLY public.normalized_cache_students DROP CONSTRAINT IF EXISTS normalized_cache_students_sid_fkey;
-ALTER TABLE IF EXISTS ONLY public.normalized_cache_student_majors DROP CONSTRAINT IF EXISTS normalized_cache_student_majors_sid_fkey;
-ALTER TABLE IF EXISTS ONLY public.normalized_cache_enrollments DROP CONSTRAINT IF EXISTS normalized_cache_enrollments_sid_fkey;
+ALTER TABLE IF EXISTS ONLY public.notes_read DROP CONSTRAINT IF EXISTS notes_read_viewer_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_user_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_cohort_filter_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_sid_fkey;
@@ -53,14 +49,8 @@ ALTER TABLE IF EXISTS ONLY public.university_dept_members DROP CONSTRAINT IF EXI
 
 --
 
-DROP INDEX IF EXISTS public.normalized_cache_students_units_idx;
-DROP INDEX IF EXISTS public.normalized_cache_students_level_idx;
-DROP INDEX IF EXISTS public.normalized_cache_students_gpa_idx;
-DROP INDEX IF EXISTS public.normalized_cache_student_majors_sid_idx;
-DROP INDEX IF EXISTS public.normalized_cache_student_majors_major_idx;
-DROP INDEX IF EXISTS public.normalized_cache_enrollments_term_id_idx;
-DROP INDEX IF EXISTS public.normalized_cache_enrollments_section_id_idx;
-DROP INDEX IF EXISTS public.normalized_cache_enrollments_sid_idx;
+DROP INDEX IF EXISTS public.notes_read_viewer_id_idx;
+DROP INDEX IF EXISTS public.notes_read_note_id_idx;
 DROP INDEX IF EXISTS public.alerts_sid_idx;
 DROP INDEX IF EXISTS public.alert_views_viewer_id_idx;
 DROP INDEX IF EXISTS public.alert_views_alert_id_idx;
@@ -68,17 +58,13 @@ DROP INDEX IF EXISTS public.student_groups_owner_id_idx;
 
 --
 
-ALTER TABLE IF EXISTS ONLY public.students DROP CONSTRAINT IF EXISTS students_pkey;
-ALTER TABLE IF EXISTS ONLY public.student_athletes DROP CONSTRAINT IF EXISTS student_athletes_pkey;
-ALTER TABLE IF EXISTS ONLY public.normalized_cache_students DROP CONSTRAINT IF EXISTS normalized_cache_students_pkey;
-ALTER TABLE IF EXISTS ONLY public.normalized_cache_student_majors DROP CONSTRAINT IF EXISTS normalized_cache_student_majors_pkey;
+ALTER TABLE IF EXISTS ONLY public.notes_read DROP CONSTRAINT IF EXISTS notes_read_pkey;
 ALTER TABLE IF EXISTS ONLY public.json_cache DROP CONSTRAINT IF EXISTS json_cache_pkey;
 ALTER TABLE IF EXISTS ONLY public.json_cache DROP CONSTRAINT IF EXISTS json_cache_key_key;
 ALTER TABLE IF EXISTS ONLY public.cohort_filters DROP CONSTRAINT IF EXISTS cohort_filters_pkey;
 ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_pkey;
 ALTER TABLE IF EXISTS ONLY public.authorized_users DROP CONSTRAINT IF EXISTS authorized_users_uid_key;
 ALTER TABLE IF EXISTS ONLY public.authorized_users DROP CONSTRAINT IF EXISTS authorized_users_pkey;
-ALTER TABLE IF EXISTS ONLY public.athletics DROP CONSTRAINT IF EXISTS athletics_pkey;
 ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_sid_alert_type_key_unique_constraint;
 ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_pkey;
 ALTER TABLE IF EXISTS ONLY public.alert_views DROP CONSTRAINT IF EXISTS alert_views_pkey;
@@ -94,11 +80,7 @@ ALTER TABLE IF EXISTS public.alerts ALTER COLUMN id DROP DEFAULT;
 
 --
 
-DROP TABLE IF EXISTS public.students;
-DROP TABLE IF EXISTS public.student_athletes;
-DROP TABLE IF EXISTS public.normalized_cache_students;
-DROP TABLE IF EXISTS public.normalized_cache_student_majors;
-DROP TABLE IF EXISTS public.normalized_cache_enrollments;
+DROP TABLE IF EXISTS public.notes_read;
 DROP SEQUENCE IF EXISTS public.json_cache_id_seq;
 DROP TABLE IF EXISTS public.json_cache;
 DROP SEQUENCE IF EXISTS public.cohort_filters_id_seq;
@@ -106,7 +88,6 @@ DROP TABLE IF EXISTS public.cohort_filters;
 DROP TABLE IF EXISTS public.cohort_filter_owners;
 DROP SEQUENCE IF EXISTS public.authorized_users_id_seq;
 DROP TABLE IF EXISTS public.authorized_users;
-DROP TABLE IF EXISTS public.athletics;
 DROP SEQUENCE IF EXISTS public.alerts_id_seq;
 DROP TABLE IF EXISTS public.alerts;
 DROP TABLE IF EXISTS public.alert_views;

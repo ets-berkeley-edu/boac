@@ -15,9 +15,9 @@ export function getNote(noteId) {
     .then(response => response.data, () => null);
 }
 
-export function wasRead(noteId) {
+export function markRead(noteId) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .post(`${apiBaseUrl}/api/notes/was_read/${noteId}`)
+    .post(`${apiBaseUrl}/api/notes/${noteId}/mark_read`)
     .then(response => response.data, () => null);
 }
