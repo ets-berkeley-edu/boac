@@ -45,6 +45,11 @@
 .btn-link:hover {
   text-decoration: none !important;
 }
+.dd-override:active,
+.dd-override:focus,
+.dd-override:hover {
+  outline: -webkit-focus-ring-color auto 5px;
+}
 .pagination .active a {
   color: #fff !important;
 }

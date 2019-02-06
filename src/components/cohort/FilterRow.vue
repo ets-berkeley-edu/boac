@@ -11,7 +11,9 @@
          class="cohort-filter-draft-column-01 pr-2"
          v-if="isModifyingFilter && !isExistingFilter">
       <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
-      <b-dropdown variant="link" no-caret>
+      <b-dropdown toggle-class="dd-override"
+                  variant="link"
+                  no-caret>
         <template slot="button-content">
           <div class="dropdown-width d-flex justify-content-between text-dark">
             <div v-if="filter.name"><span class="sr-only">Filter:</span> {{ filter.name || 'New Filter' }}</div>
@@ -39,6 +41,7 @@
                            }"
                            :key="subCategory.key"
                            @click="setFilterCategory(subCategory)"
+                           @mouseover.prevent.stop
                            :aria-disabled="subCategory.disabled"
                            :disabled="subCategory.disabled">{{ subCategory.name }}</b-dropdown-item>
           <b-dropdown-divider v-if="index !== (menu.length - 1)"></b-dropdown-divider>
@@ -52,7 +55,8 @@
          v-if="isModifyingFilter">
       <div :id="`filter-row-dropdown-secondary-${filterRowIndex}`"
            v-if="filter.type === 'array'">
-        <b-dropdown variant="link"
+        <b-dropdown toggle-class="dd-override"
+                    variant="link"
                     no-caret>
           <template slot="button-content">
             <div class="dropdown-width d-flex justify-content-between text-secondary">
@@ -75,6 +79,7 @@
                            v-for="option in filter.options"
                            :key="option.key"
                            @click="typeArrayUpdateValue(option)"
+                           @mouseover.prevent.stop
                            :aria-disabled="option.disabled"
                            :disabled="option.disabled">{{ option.name }}</b-dropdown-item>
         </b-dropdown>
