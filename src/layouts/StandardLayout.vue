@@ -7,11 +7,9 @@
     <div class="index-container-header">
       <div class="header-container">
         <div class="header-text">
-          <h1>
-            <router-link to="/home"
-                         id="home-header"
-                         tabindex="1">Home</router-link>
-          </h1>
+          <router-link to="/home"
+                       id="home-header"
+                       tabindex="1"><span class="sr-only">Return to </span>Home</router-link>
         </div>
         <div><HeaderMenu/></div>
       </div>
