@@ -1,12 +1,13 @@
 <template>
   <div class="home-container">
+    <h1 class="sr-only">Welcome to BOAC</h1>
     <Spinner/>
     <div class="home-content" v-if="!loading">
       <div>
         <div id="filtered-cohorts-header-row" class="home-page-section-header-wrapper">
-          <h1 id="no-cohorts-header" class="page-section-header" v-if="myCohorts && !size(myCohorts)">
+          <h2 id="no-cohorts-header" class="page-section-header" v-if="myCohorts && !size(myCohorts)">
             You have no saved cohorts.
-          </h1>
+          </h2>
           <h1 class="page-section-header" v-if="myCohorts && size(myCohorts)">
             Cohorts
           </h1>
@@ -23,7 +24,7 @@
       </div>
       <div v-if="size(myCuratedGroups)">
         <div id="curated-groups-header-row" class="home-page-section-header-wrapper">
-          <h1 class="page-section-header">Curated Groups</h1>
+          <h2 class="page-section-header">Curated Groups</h2>
         </div>
         <HomeCuratedGroup v-for="curatedGroup in myCuratedGroups"
                           :key="curatedGroup.id"
