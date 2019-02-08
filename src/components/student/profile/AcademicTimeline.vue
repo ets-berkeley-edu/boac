@@ -12,16 +12,17 @@
                @click="filter = null">All</b-btn>
       </div>
       <div v-for="type in distinctTypes" :key="type">
-        <b-btn :id="`timeline-tab-${filter}`"
+        <b-btn :id="`timeline-tab-${type}`"
                class="tab ml-2 pl-2 pr-2 text-center"
                :class="{ 'tab-active text-white': type === filter, 'tab-inactive text-dark': type !== filter }"
+               :aria-label="`${filterTypes[type].name}s tab`"
                variant="link"
-               @click="filter = type">{{ filterTypes[type] }}</b-btn>
+               @click="filter = type">{{ filterTypes[type].tab }}</b-btn>
       </div>
     </div>
     <div class="pb-4 pl-2" v-if="!size(messagesFiltered)">
       <span id="zero-messages" class="messages-none">
-        <span v-if="filter">No {{ filterLabel }}</span>
+        <span v-if="filter">No {{ filterTypes[filter].name.toLowerCase() }}s</span>
         <span v-if="!filter">None</span>
       </span>
     </div>
@@ -33,44 +34,43 @@
           <th>Date</th>
         </tr>
         <tr class="message-row border-top border-bottom"
-            :class="{'message-row-dismissed': message.dismissed}"
+            :class="{ 'message-row-read': message.read }"
             v-for="(message, index) in messagesInView"
             :key="index">
           <td class="column-pill align-top p-2">
-            <div :id="`timeline-tab-${filter || 'all'}-pill-${index}`"
+            <div :id="`timeline-tab-${activeTab}-pill-${index}`"
                  class="pill text-center text-uppercase text-white"
                  :class="`pill-${message.type}`"
                  tabindex="0">
-              <span class="sr-only">Message of type </span>{{ message.typeLabel }}
+              <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
             </div>
           </td>
           <td class="column-message align-top"
-              :class="{ 'font-weight-bold': !message.dismissed }">
-            <div :id="`timeline-tab-${filter || 'all'}-message-${index}`"
+              :class="{ 'font-weight-bold': !message.read }">
+            <div :id="`timeline-tab-${activeTab}-message-${index}`"
                  :class="{
-                   'align-top': message.openOnTab === (filter || 'all'),
-                   'message-text-ellipsis': message.openOnTab !== (filter || 'all')
+                   'align-top': message.openOnTab === activeTab,
+                   'message-ellipsis': message.openOnTab !== activeTab
                  }"
                  tabindex="0"
-                 role="link"
                  @keyup.enter="toggle(message)"
                  @click="toggle(message)">
               <i class="fas fa-check text-success" v-if="message.status === 'Satisfied'"></i>
-              {{ message.text }}
+              {{ message.subject }}
             </div>
           </td>
           <td class="message-date align-top pt-2">
-            <div :id="`timeline-tab-${filter || 'all'}-date-${index}`"
-                 class="text-nowrap"
-                 v-if="message.updatedAt">
-              <span tabindex="0"><span class="sr-only">Last updated on </span>{{ message.updatedAt }}</span>
+            <div :id="`timeline-tab-${activeTab}-date-${index}`"
+                 class="text-nowrap">
+              <span tabindex="0" v-if="message.updatedAt"><span class="sr-only">Last updated on </span>{{ parseDatetime(message.updatedAt) }}</span>
+              <span class="sr-only" v-if="!message.updatedAt">No last-updated date</span>
             </div>
           </td>
         </tr>
       </table>
     </div>
     <div class="text-center pt-2" v-if="messagesFiltered.length > 5">
-      <b-btn :id="`timeline-tab-${filter || 'all'}-previous-messages`"
+      <b-btn :id="`timeline-tab-${activeTab}-previous-messages`"
              class="no-wrap pr-2 pt-0"
              variant="link"
              :aria-label="`isShowingAll ? 'Hide previous messages' : 'Show previous messages'`"
@@ -100,9 +100,18 @@ export default {
     distinctTypes: undefined,
     filter: undefined,
     filterTypes: {
-      alert: 'Alerts',
-      degreeProgress: 'Reqs',
-      hold: 'Holds'
+      alert: {
+        name: 'Alert',
+        tab: 'Alerts'
+      },
+      degreeProgress: {
+        name: 'Requirement',
+        tab: 'Reqs'
+      },
+      hold: {
+        name: 'Hold',
+        tab: 'Holds'
+      }
     },
     isTimelineLoading: true,
     messages: undefined,
@@ -115,45 +124,23 @@ export default {
     this.each(
       this.get(this.student, 'sisProfile.degreeProgress.requirements'),
       requirement => {
-        this.messages.push(
-          this.newMessage(
-            null,
-            'degreeProgress',
-            `${requirement.name} ${requirement.status}`,
-            true,
-            null,
-            requirement.status
-          )
+        const message = this.newMessage(
+          null,
+          'degreeProgress',
+          `${requirement.name} ${requirement.status}`,
+          null,
+          true
         );
+        // Only degree-progress items have 'status'
+        message.status = requirement.status;
+        this.messages.push(message);
       }
     );
-    getStudentAlerts(this.student.sid).then(data => {
-      const alertCategories = this.partition(data, ['alertType', 'hold']);
-      this.each({ hold: 0, alert: 1 }, (arrayIndex, alertType) => {
-        this.each(alertCategories[arrayIndex], alert => {
-          this.messages.push(
-            this.newMessage(
-              alert.id,
-              alertType,
-              alert.message,
-              alert.dismissed,
-              alert.updatedAt
-            )
-          );
-        });
-      });
-      this.distinctTypes = this.uniq(this.map(this.messages, 'type'));
-      this.isTimelineLoading = false;
-      this.screenReaderAlert = 'Academic Timeline has loaded';
-    });
+    this.loadStudentAlerts();
   },
   computed: {
-    filterLabel() {
-      return this.filter
-        ? this.filter === 'degreeProgress'
-          ? 'requirements'
-          : this.filterTypes[this.filter].toLowerCase()
-        : null;
+    activeTab() {
+      return this.filter || 'all';
     },
     messagesFiltered() {
       return this.filter
@@ -169,17 +156,56 @@ export default {
   methods: {
     describeTheActiveTab() {
       const inViewCount = this.size(this.messagesInView);
+      const label = this.filter
+        ? this.filterTypes[this.filter].name.toLowerCase() + 's'
+        : 'messages';
       return `Showing ${
         this.isShowingAll ? 'all' : 'the first'
-      } ${inViewCount} ${this.filter ? this.filterLabel : 'messages'}.`;
+      } ${inViewCount} ${label}.`;
     },
-    newMessage(id, type, text, dismissed, updatedAt, status) {
-      const typeLabel = {
-        alert: 'Alert',
-        degreeProgress: 'Requirements',
-        hold: 'Hold'
-      }[type];
-      let date = updatedAt && parseDate(updatedAt);
+    loadStudentAlerts() {
+      getStudentAlerts(this.student.sid).then(data => {
+        const alertCategories = this.partition(data, ['alertType', 'hold']);
+        this.each({ hold: 0, alert: 1 }, (arrayIndex, alertType) => {
+          this.each(alertCategories[arrayIndex], alert => {
+            this.messages.push(
+              this.newMessage(
+                alert.id,
+                alertType,
+                alert.message,
+                null,
+                alert.dismissed,
+                alert.createdAt,
+                alert.updatedAt
+              )
+            );
+          });
+        });
+        this.distinctTypes = this.uniq(this.map(this.messages, 'type'));
+        this.screenReaderAlert = 'Academic Timeline has loaded';
+        this.messages.sort((m1, m2) => {
+          if (this.isNil(m1.updatedAt) !== this.isNil(m2.updatedAt)) {
+            return m1.updatedAt ? -1 : 1;
+          }
+          return 0;
+        });
+        this.isTimelineLoading = false;
+      });
+    },
+    newMessage(id, type, subject, body, read, createdAt, updatedAt) {
+      return {
+        id,
+        type,
+        subject,
+        body,
+        read,
+        createdAt,
+        updatedAt,
+        openOnTab: undefined
+      };
+    },
+    parseDatetime(datetime) {
+      let date = datetime && parseDate(datetime);
       if (date) {
         const dateFormat =
           date.getFullYear() === this.now.getFullYear()
@@ -187,23 +213,15 @@ export default {
             : 'MMM DD, YYYY';
         date = formatDate(date, dateFormat);
       }
-      return {
-        id,
-        type,
-        typeLabel,
-        text,
-        dismissed,
-        updatedAt: date,
-        openOnTab: undefined,
-        status
-      };
+      return date;
     },
     toggle(message) {
       message.openOnTab = message.openOnTab ? null : this.filter || 'all';
-      const isAlert = this.includes(['alert', 'hold'], message.type);
-      if (isAlert && !message.dismissed) {
-        message.dismissed = true;
-        dismissStudentAlert(message.id);
+      if (!message.read) {
+        message.read = true;
+        if (this.includes(['alert', 'hold'], message.type)) {
+          dismissStudentAlert(message.id);
+        }
       }
     }
   },
@@ -241,10 +259,10 @@ export default {
 .message-row:hover {
   background-color: #e3f5ff;
 }
-.message-row-dismissed {
+.message-row-read {
   background-color: #f9f9f9;
 }
-.message-text-ellipsis {
+.message-ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
