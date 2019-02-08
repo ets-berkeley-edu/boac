@@ -49,7 +49,7 @@ class TestGetNotes:
     def test_get_note_by_id(self, fake_auth, client):
         """Returns advising note by ID."""
         fake_auth.login(coe_advisor)
-        response = client.get('/api/notes/123')
+        response = client.get('/api/notes/11667051-00001')
         assert response.status_code == 200
         note = response.json
         assert note['sid'] == '11667051'
@@ -61,7 +61,7 @@ class TestUpdateNotes:
 
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        assert client.post('/api/notes/123/mark_read').status_code == 401
+        assert client.post('/api/notes/11667051-00001/mark_read').status_code == 401
 
     def test_mark_note_read(self, fake_auth, client):
         """Marks a note as read."""
@@ -71,17 +71,17 @@ class TestUpdateNotes:
         assert len(all_notes_unread) == 2
         for note in all_notes_unread:
             assert note['read'] is False
-        individual_note_unread = client.get('/api/notes/123').json
+        individual_note_unread = client.get('/api/notes/11667051-00001').json
         assert individual_note_unread['read'] is False
 
-        response = client.post('/api/notes/123/mark_read')
+        response = client.post('/api/notes/11667051-00001/mark_read')
         assert response.status_code == 201
 
         all_notes_one_read = client.get('/api/notes/student/11667051').json
         assert len(all_notes_one_read) == 2
         assert all_notes_one_read[0]['read'] is True
         assert all_notes_one_read[1]['read'] is False
-        individual_note_read = client.get('/api/notes/123').json
+        individual_note_read = client.get('/api/notes/11667051-00001').json
         assert individual_note_read['read'] is True
-        unread_note_after = client.get('/api/notes/456').json
+        unread_note_after = client.get('/api/notes/11667051-00002').json
         assert unread_note_after['read'] is False

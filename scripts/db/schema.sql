@@ -143,7 +143,7 @@ ALTER TABLE ONLY cohort_filters
 --
 
 CREATE TABLE notes_read (
-    note_id integer NOT NULL,
+    note_id character varying(255) NOT NULL,
     viewer_id integer NOT NULL,
     created_at timestamp with time zone NOT NULL
 );
