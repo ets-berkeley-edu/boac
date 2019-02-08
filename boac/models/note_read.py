@@ -32,7 +32,7 @@ class NoteRead(db.Model):
     __tablename__ = 'notes_read'
 
     viewer_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False, primary_key=True)
-    note_id = db.Column(db.Integer, nullable=False, primary_key=True)
+    note_id = db.Column(db.String(255), nullable=False, primary_key=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
 
     __table_args__ = (db.UniqueConstraint(

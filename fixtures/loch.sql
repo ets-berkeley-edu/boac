@@ -59,7 +59,7 @@ CREATE TABLE boac_advising_coe.student_profiles
 
 CREATE TABLE boac_advising_notes.boac_advising_notes
 (
-    note_id INT NOT NULL,
+    note_id VARCHAR NOT NULL,
     sid VARCHAR NOT NULL,
     note_topic VARCHAR NOT NULL,
     note_body TEXT NOT NULL,
@@ -196,9 +196,9 @@ VALUES
 INSERT INTO boac_advising_notes.boac_advising_notes
 (note_id, sid, note_topic, note_body, created_at, updated_at)
 VALUES
-('123', '11667051', 'Good show', 'Brigitte is making athletic and moral progress', '2017-10-31T12:00:00Z', '2017-10-31T12:00:00Z'),
-('456', '11667051', 'Bad show', 'Brigitte demonstrates a cavalier attitude toward university requirements', '2017-11-01T12:00:00Z', '2017-11-01T12:00:00Z'),
-('789', '9000000000', 'No show', 'Is this student even on campus?', '2017-11-02T12:00:00Z', '2017-11-02T12:00:00Z');
+('11667051-00001', '11667051', 'Good show', 'Brigitte is making athletic and moral progress', '2017-10-31T12:00:00Z', '2017-10-31T12:00:00Z'),
+('11667051-00002', '11667051', 'Bad show', 'Brigitte demonstrates a cavalier attitude toward university requirements', '2017-11-01T12:00:00Z', '2017-11-01T12:00:00Z'),
+('9000000000-00001', '9000000000', 'No show', 'Is this student even on campus?', '2017-11-02T12:00:00Z', '2017-11-02T12:00:00Z');
 
 INSERT INTO boac_analytics.section_mean_gpas
 (sis_term_id, sis_section_id, gpa_term_id, avg_gpa)
