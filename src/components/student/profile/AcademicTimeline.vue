@@ -55,7 +55,9 @@
                  tabindex="0"
                  @keyup.enter="toggle(message)"
                  @click="toggle(message)">
-              <i class="fas fa-check text-success" v-if="message.status === 'Satisfied'"></i>
+              <i class="requirements-icon fas fa-check text-success" v-if="message.status === 'Satisfied'"></i>
+              <i class="requirements-icon fas fa-exclamation text-icon-exclamation" v-if="message.status === 'Not Satisfied'"></i>
+              <i class="requirements-icon fas fa-clock text-icon-clock" v-if="message.status === 'In Progress'"></i>
               {{ message.subject }}
             </div>
           </td>
@@ -285,6 +287,9 @@ export default {
   width: 60px;
   background-color: #bc74fe;
 }
+.requirements-icon {
+  width: 20px;
+}
 .tab {
   border-radius: 5px;
   font-size: 16px;
@@ -306,5 +311,11 @@ export default {
 .tab-inactive:hover,
 .tab-inactive:hover {
   background-color: #ddd;
+}
+.text-icon-clock {
+  color: #8bbdda;
+}
+.text-icon-exclamation {
+  color: #f0ad4e;
 }
 </style>
