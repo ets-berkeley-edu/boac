@@ -58,7 +58,7 @@
               <i class="requirements-icon fas fa-check text-success" v-if="message.status === 'Satisfied'"></i>
               <i class="requirements-icon fas fa-exclamation text-icon-exclamation" v-if="message.status === 'Not Satisfied'"></i>
               <i class="requirements-icon fas fa-clock text-icon-clock" v-if="message.status === 'In Progress'"></i>
-              {{ message.subject }}
+              {{ message.message }}
             </div>
           </td>
           <td class="message-date align-top pt-2">
@@ -89,7 +89,7 @@
 
 <script>
 import Util from '@/mixins/Util';
-import { dismissStudentAlert, getStudentAlerts } from '@/api/student';
+import { dismissStudentAlert } from '@/api/student';
 import { format as formatDate, parse as parseDate } from 'date-fns';
 
 export default {
@@ -106,7 +106,7 @@ export default {
         name: 'Alert',
         tab: 'Alerts'
       },
-      degreeProgress: {
+      requirement: {
         name: 'Requirement',
         tab: 'Reqs'
       },
@@ -123,22 +123,18 @@ export default {
   }),
   created() {
     this.messages = [];
-    this.each(
-      this.get(this.student, 'sisProfile.degreeProgress.requirements'),
-      requirement => {
-        const message = this.newMessage(
-          null,
-          'degreeProgress',
-          `${requirement.name} ${requirement.status}`,
-          null,
-          true
-        );
-        // Only degree-progress items have 'status'
-        message.status = requirement.status;
-        this.messages.push(message);
+    this.each(this.keys(this.filterTypes), type => {
+      this.messages = this.messages.concat(this.student.notifications[type]);
+    });
+    this.distinctTypes = this.uniq(this.map(this.messages, 'type'));
+    this.screenReaderAlert = 'Academic Timeline has loaded';
+    this.messages.sort((m1, m2) => {
+      if (this.isNil(m1.updatedAt) !== this.isNil(m2.updatedAt)) {
+        return m1.updatedAt ? -1 : 1;
       }
-    );
-    this.loadStudentAlerts();
+      return 0;
+    });
+    this.isTimelineLoading = false;
   },
   computed: {
     activeTab() {
@@ -164,47 +160,6 @@ export default {
       return `Showing ${
         this.isShowingAll ? 'all' : 'the first'
       } ${inViewCount} ${label}.`;
-    },
-    loadStudentAlerts() {
-      getStudentAlerts(this.student.sid).then(data => {
-        const alertCategories = this.partition(data, ['alertType', 'hold']);
-        this.each({ hold: 0, alert: 1 }, (arrayIndex, alertType) => {
-          this.each(alertCategories[arrayIndex], alert => {
-            this.messages.push(
-              this.newMessage(
-                alert.id,
-                alertType,
-                alert.message,
-                null,
-                alert.dismissed,
-                alert.createdAt,
-                alert.updatedAt
-              )
-            );
-          });
-        });
-        this.distinctTypes = this.uniq(this.map(this.messages, 'type'));
-        this.screenReaderAlert = 'Academic Timeline has loaded';
-        this.messages.sort((m1, m2) => {
-          if (this.isNil(m1.updatedAt) !== this.isNil(m2.updatedAt)) {
-            return m1.updatedAt ? -1 : 1;
-          }
-          return 0;
-        });
-        this.isTimelineLoading = false;
-      });
-    },
-    newMessage(id, type, subject, body, read, createdAt, updatedAt) {
-      return {
-        id,
-        type,
-        subject,
-        body,
-        read,
-        createdAt,
-        updatedAt,
-        openOnTab: undefined
-      };
     },
     parseDatetime(datetime) {
       let date = datetime && parseDate(datetime);
@@ -279,7 +234,7 @@ export default {
   width: 60px;
   background-color: #eb9d3e;
 }
-.pill-degreeProgress {
+.pill-requirement {
   width: 130px;
   background-color: #93c165;
 }

@@ -220,15 +220,6 @@ def get_student_and_terms(uid):
         else:
             # Omit dropped sections for past terms.
             term.pop('droppedSections', None)
-    holds_for_sid = data_loch.get_sis_holds(student['sid'])
-    profile['holds'] = []
-    for hold in holds_for_sid:
-        hold_feed = json.loads(hold['feed'])
-        profile['holds'].append({
-            'type': hold_feed.get('type'),
-            'reason': hold_feed.get('reason'),
-            'date': hold_feed.get('fromDate'),
-        })
     return profile
 
 

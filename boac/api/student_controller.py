@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from itertools import islice
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import add_alert_counts, is_asc_authorized, is_unauthorized_search
+from boac.api.util import add_alert_counts, is_asc_authorized, is_unauthorized_search, put_notifications
 from boac.externals.cal1card_photo_api import get_cal1card_photo
 from boac.externals.data_loch import get_enrolled_primary_sections
 from boac.lib import util
@@ -39,15 +39,16 @@ from flask import current_app as app, request, Response
 from flask_login import current_user, login_required
 
 
-@app.route('/api/student/<uid>/analytics')
+@app.route('/api/student/<uid>')
 @login_required
-def user_analytics(uid):
-    feed = get_student_and_terms(uid)
-    if not feed:
+def get_student(uid):
+    student = get_student_and_terms(uid)
+    if not student:
         raise ResourceNotFoundError('Unknown student')
+    put_notifications(student)
     # CalCentral's Student Overview page is advisors' official information source for the student.
-    feed['studentProfileLink'] = f'https://calcentral.berkeley.edu/user/overview/{uid}'
-    return tolerant_jsonify(feed)
+    student['studentProfileLink'] = f'https://calcentral.berkeley.edu/user/overview/{uid}'
+    return tolerant_jsonify(student)
 
 
 @app.route('/api/student/<uid>/photo')

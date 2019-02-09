@@ -18,6 +18,13 @@
       </div>
       <div class="m-3">
         <AcademicTimeline :student="student"/>
+        <div v-if="student.sisProfile.withdrawalCancel">
+          <span class="red-flag-small">
+            {{ student.sisProfile.withdrawalCancel.description }}
+            ({{ student.sisProfile.withdrawalCancel.reason }})
+            {{ student.sisProfile.withdrawalCancel.date | date }}
+          </span>
+        </div>
       </div>
       <div>
         <StudentClasses :student="student"/>
@@ -35,7 +42,7 @@ import StudentProfileGPA from '@/components/student/profile/StudentProfileGPA';
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader';
 import StudentProfileUnits from '@/components/student/profile/StudentProfileUnits';
 import Util from '@/mixins/Util';
-import { getStudentDetails } from '@/api/student';
+import { getStudent } from '@/api/student';
 
 export default {
   name: 'Student',
@@ -56,7 +63,7 @@ export default {
   }),
   created() {
     const uid = this.get(this.$route, 'params.uid');
-    getStudentDetails(uid).then(data => {
+    getStudent(uid).then(data => {
       if (data) {
         this.setPageTitle(data.name);
         this.assign(this.student, data);
