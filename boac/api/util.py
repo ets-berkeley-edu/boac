@@ -129,8 +129,8 @@ def sis_enrollment_section_feed(enrollment):
 def put_notifications(student):
     student['notifications'] = {
         'alert': [],
-        'requirement': [],
         'hold': [],
+        'requirement': [],
     }
     # The front-end requires 'type', 'message' and 'read'. Optional fields: id, status, createdAt, updatedAt.
     for alert in Alert.current_alerts_for_sid(viewer_id=current_user.id, sid=student['sid']):
@@ -142,18 +142,6 @@ def put_notifications(student):
                 'read': alert['dismissed'],
             },
         })
-
-    degree_progress = student.get('sisProfile', {}).get('degreeProgress', {})
-    if degree_progress:
-        for key, requirement in degree_progress.get('requirements', {}).items():
-            student['notifications']['requirement'].append({
-                **requirement,
-                **{
-                    'type': 'requirement',
-                    'message': requirement['name'] + ' ' + requirement['status'],
-                    'read': True,
-                },
-            })
     for row in get_sis_holds(student['sid']):
         hold = json.loads(row['feed'])
         student['notifications']['hold'].append({
@@ -165,6 +153,17 @@ def put_notifications(student):
                 'createdAt': hold.get('fromDate'),
             },
         })
+    degree_progress = student.get('sisProfile', {}).get('degreeProgress', {})
+    if degree_progress:
+        for key, requirement in degree_progress.get('requirements', {}).items():
+            student['notifications']['requirement'].append({
+                **requirement,
+                **{
+                    'type': 'requirement',
+                    'message': requirement['name'] + ' ' + requirement['status'],
+                    'read': True,
+                },
+            })
 
 
 def sort_students_by_name(students):

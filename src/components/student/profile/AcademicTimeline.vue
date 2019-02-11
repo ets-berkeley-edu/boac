@@ -20,13 +20,13 @@
                @click="filter = type">{{ filterTypes[type].tab }}</b-btn>
       </div>
     </div>
-    <div class="pb-4 pl-2" v-if="!size(messagesFiltered)">
+    <div class="pb-4 pl-2" v-if="!countPerActiveTab">
       <span id="zero-messages" class="messages-none">
         <span v-if="filter">No {{ filterTypes[filter].name.toLowerCase() }}s</span>
         <span v-if="!filter">None</span>
       </span>
     </div>
-    <div v-if="size(messagesFiltered)">
+    <div v-if="countPerActiveTab">
       <table class="w-100">
         <tr class="sr-only">
           <th>Type</th>
@@ -48,13 +48,13 @@
           <td class="column-message align-top"
               :class="{ 'font-weight-bold': !message.read }">
             <div :id="`timeline-tab-${activeTab}-message-${index}`"
-                 :class="{
-                   'align-top': message.openOnTab === activeTab,
-                   'message-ellipsis': message.openOnTab !== activeTab
-                 }"
-                 tabindex="0"
-                 @keyup.enter="toggle(message)"
-                 @click="toggle(message)">
+                  :class="{
+                    'align-top': openMessageId === message.transientId,
+                    'message-ellipsis': openMessageId !== message.transientId
+                  }"
+                  tabindex="0"
+                  @keyup.enter="toggle(message)"
+                  @click="toggle(message)">
               <i class="requirements-icon fas fa-check text-success" v-if="message.status === 'Satisfied'"></i>
               <i class="requirements-icon fas fa-exclamation text-icon-exclamation" v-if="message.status === 'Not Satisfied'"></i>
               <i class="requirements-icon fas fa-clock text-icon-clock" v-if="message.status === 'In Progress'"></i>
@@ -64,14 +64,16 @@
           <td class="message-date align-top pt-2">
             <div :id="`timeline-tab-${activeTab}-date-${index}`"
                  class="text-nowrap">
-              <span tabindex="0" v-if="message.updatedAt"><span class="sr-only">Last updated on </span>{{ parseDatetime(message.updatedAt) }}</span>
-              <span class="sr-only" v-if="!message.updatedAt">No last-updated date</span>
+              <span v-if="message.updatedAt || message.createdAt"><span class="sr-only">Last updated on </span>{{ parseDatetime(message.updatedAt || message.createdAt) }}</span>
+              <span class="sr-only"
+                    tabindex="0"
+                    v-if="!message.updatedAt && !message.createdAt">No last-updated date</span>
             </div>
           </td>
         </tr>
       </table>
     </div>
-    <div class="text-center pt-2" v-if="messagesFiltered.length > 5">
+    <div class="text-center pt-2" v-if="countPerActiveTab > defaultShowPerTab">
       <b-btn :id="`timeline-tab-${activeTab}-previous-messages`"
              class="no-wrap pr-2 pt-0"
              variant="link"
@@ -99,6 +101,7 @@ export default {
     student: Object
   },
   data: () => ({
+    defaultShowPerTab: 5,
     distinctTypes: undefined,
     filter: undefined,
     filterTypes: {
@@ -117,49 +120,70 @@ export default {
     },
     isTimelineLoading: true,
     messages: undefined,
+    openMessageId: undefined,
     now: new Date(),
     isShowingAll: false,
     screenReaderAlert: undefined
   }),
   created() {
     this.messages = [];
-    this.each(this.keys(this.filterTypes), type => {
-      this.messages = this.messages.concat(this.student.notifications[type]);
+    this.each(this.keys(this.filterTypes), (type, typeIndex) => {
+      this.each(this.student.notifications[type], (message, index) => {
+        this.messages.push(message);
+        // Unique message ids are not guaranteed. Here we generate a (transient) primary key.
+        message.transientId = typeIndex * 1000 + index;
+      });
+    });
+    this.messages.sort((m1, m2) => {
+      let d1 = m1.updatedAt || m1.createdAt;
+      let d2 = m2.updatedAt || m2.createdAt;
+      if (d1 && d2) {
+        return d2.localeCompare(d1);
+      } else if (!d1 && !d2) {
+        return m2.transientId - m1.transientId;
+      } else {
+        return d1 ? -1 : 1;
+      }
     });
     this.distinctTypes = this.uniq(this.map(this.messages, 'type'));
     this.screenReaderAlert = 'Academic Timeline has loaded';
-    this.messages.sort((m1, m2) => {
-      if (this.isNil(m1.updatedAt) !== this.isNil(m2.updatedAt)) {
-        return m1.updatedAt ? -1 : 1;
-      }
-      return 0;
-    });
     this.isTimelineLoading = false;
   },
   computed: {
     activeTab() {
       return this.filter || 'all';
     },
-    messagesFiltered() {
-      return this.filter
-        ? this.filterList(this.messages, ['type', this.filter])
-        : this.messages;
+    countPerActiveTab() {
+      return this.size(this.messagesPerActiveTab());
     },
     messagesInView() {
+      const filtered = this.messagesPerActiveTab();
       return this.isShowingAll
-        ? this.messagesFiltered
-        : this.slice(this.messagesFiltered, 0, 5);
+        ? filtered
+        : this.slice(filtered, 0, this.defaultShowPerTab);
     }
   },
   methods: {
     describeTheActiveTab() {
-      const inViewCount = this.size(this.messagesInView);
-      const label = this.filter
-        ? this.filterTypes[this.filter].name.toLowerCase() + 's'
-        : 'messages';
-      return `Showing ${
-        this.isShowingAll ? 'all' : 'the first'
-      } ${inViewCount} ${label}.`;
+      const inViewCount =
+        this.isShowAll || this.countPerActiveTab <= this.defaultShowPerTab
+          ? this.countPerActiveTab
+          : this.defaultShowPerTab;
+      let noun = this.filter
+        ? this.filterTypes[this.filter].name.toLowerCase()
+        : 'message';
+      const pluralize = this.$options.filters.pluralize(noun, inViewCount);
+      return this.isShowingAll && inViewCount > this.defaultShowPerTab
+        ? `Showing all ${pluralize}`
+        : `Showing ${pluralize}`;
+    },
+    id(rowIndex) {
+      return `timeline-tab-${this.activeTab}-message-${rowIndex}`;
+    },
+    messagesPerActiveTab() {
+      return this.filter
+        ? this.filterList(this.messages, ['type', this.filter])
+        : this.messages;
     },
     parseDatetime(datetime) {
       let date = datetime && parseDate(datetime);
@@ -173,7 +197,8 @@ export default {
       return date;
     },
     toggle(message) {
-      message.openOnTab = message.openOnTab ? null : this.filter || 'all';
+      this.openMessageId =
+        message.transientId === this.openMessageId ? null : message.transientId;
       if (!message.read) {
         message.read = true;
         if (this.includes(['alert', 'hold'], message.type)) {
@@ -185,6 +210,7 @@ export default {
   watch: {
     filter() {
       this.screenReaderAlert = this.describeTheActiveTab();
+      this.openMessageId = null;
     },
     isShowingAll() {
       this.screenReaderAlert = this.describeTheActiveTab();
