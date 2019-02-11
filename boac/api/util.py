@@ -24,7 +24,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from functools import wraps
+import json
 
+from boac.externals.data_loch import get_sis_holds
 from boac.lib.berkeley import get_dept_codes
 from boac.merged import calnet
 from boac.models.alert import Alert
@@ -122,6 +124,47 @@ def sis_enrollment_section_feed(enrollment):
         'midtermGrade': next((grade.get('mark') for grade in grades if grade.get('type', {}).get('code') == 'MID'), None),
         'primary': False if grading_basis == 'NON' else True,
     }
+
+
+def put_notifications(student):
+    student['notifications'] = {
+        'alert': [],
+        'requirement': [],
+        'hold': [],
+    }
+    # The front-end requires 'type', 'message' and 'read'. Optional fields: id, status, createdAt, updatedAt.
+    for alert in Alert.current_alerts_for_sid(viewer_id=current_user.id, sid=student['sid']):
+        student['notifications']['alert'].append({
+            **alert,
+            **{
+                'id': alert['id'],
+                'type': 'alert',
+                'read': alert['dismissed'],
+            },
+        })
+
+    degree_progress = student.get('sisProfile', {}).get('degreeProgress', {})
+    if degree_progress:
+        for key, requirement in degree_progress.get('requirements', {}).items():
+            student['notifications']['requirement'].append({
+                **requirement,
+                **{
+                    'type': 'requirement',
+                    'message': requirement['name'] + ' ' + requirement['status'],
+                    'read': True,
+                },
+            })
+    for row in get_sis_holds(student['sid']):
+        hold = json.loads(row['feed'])
+        student['notifications']['hold'].append({
+            **hold,
+            **{
+                'type': 'hold',
+                'message': hold.get('reason', {}).get('description') + '. ' + hold.get('reason', {}).get('formalDescription'),
+                'read': True,
+                'createdAt': hold.get('fromDate'),
+            },
+        })
 
 
 def sort_students_by_name(students):

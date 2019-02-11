@@ -168,7 +168,7 @@ def create_alerts(client, db_session):
         message='Week 5 homework in BOSCRSR 27B is late.',
     )
     # Load our usual student of interest into the cache and generate midterm alerts from fixture data.
-    client.get('/api/student/61889/analytics')
+    client.get('/api/student/61889')
     Alert.update_all_for_term(2178)
 
 

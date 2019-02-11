@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 from boac.externals import data_loch
 import pytest
 import simplejson as json
@@ -526,17 +525,14 @@ class TestAthletics:
 
 
 @pytest.mark.usefixtures('db_session')
-class TestStudentAnalytics:
+class TestStudent:
     """Student Analytics API."""
 
-    api_path = '/api/student/{}/analytics'
-    coe_student = api_path.format(1049291)
-    dave = api_path.format(98765)
-    deborah = api_path.format(61889)
-    non_student_uid = '2040'
-    non_student = api_path.format(non_student_uid)
-    unknown_uid = 9999999
-    unknown = api_path.format(unknown_uid)
+    coe_student = '/api/student/1049291'
+    dave = '/api/student/98765'
+    deborah = '/api/student/61889'
+    non_student = '/api/student/2040'
+    unknown = '/api/student/9999999'
 
     @pytest.fixture()
     def coe_advisor(self, fake_auth):
@@ -544,7 +540,7 @@ class TestStudentAnalytics:
 
     @pytest.fixture()
     def authenticated_response(self, coe_advisor, client):
-        response = client.get(TestStudentAnalytics.deborah)
+        response = client.get(self.deborah)
         assert response.status_code == 200
         return response
 
@@ -554,13 +550,13 @@ class TestStudentAnalytics:
 
     @pytest.fixture()
     def asc_authenticated_response(self, asc_advisor, client):
-        response = client.get(TestStudentAnalytics.deborah)
+        response = client.get(self.deborah)
         assert response.status_code == 200
         return response
 
     @pytest.fixture()
     def coe_authenticated_response(self, coe_advisor, client):
-        response = client.get(TestStudentAnalytics.coe_student)
+        response = client.get(self.coe_student)
         assert response.status_code == 200
         return response
 
@@ -570,7 +566,7 @@ class TestStudentAnalytics:
 
     @pytest.fixture()
     def admin_authenticated_response(self, admin_auth, client):
-        response = client.get(TestStudentAnalytics.deborah)
+        response = client.get(self.deborah)
         assert response.status_code == 200
         return response
 
@@ -582,12 +578,12 @@ class TestStudentAnalytics:
 
     def test_user_analytics_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        response = client.get(TestStudentAnalytics.deborah)
+        response = client.get(self.deborah)
         assert response.status_code == 401
 
     def test_user_with_no_enrollments_in_current_term(self, asc_advisor, client):
         """Identifies user with no enrollments in current term."""
-        response = client.get(TestStudentAnalytics.dave)
+        response = client.get(self.dave)
         assert response.status_code == 200
         enrollment_terms = response.json['enrollmentTerms']
         assert len(enrollment_terms) == 1
@@ -613,8 +609,9 @@ class TestStudentAnalytics:
 
     def test_user_analytics_holds(self, asc_advisor, client):
         """Returns holds if any."""
-        response = client.get(TestStudentAnalytics.api_path.format(9933311))
-        holds = response.json['holds']
+        response = client.get('/api/student/9933311')
+        assert response.status_code == 200
+        holds = response.json['notifications']['hold']
         assert len(holds) == 2
         assert holds[0]['reason']['description'] == 'Past due balance'
         assert holds[0]['reason']['formalDescription'].startswith('Your student account has a past due balance')
@@ -643,13 +640,13 @@ class TestStudentAnalytics:
 
     def test_enrollment_without_course_site(self, authenticated_response):
         """Returns enrollments with no associated course sites."""
-        enrollment_without_site = TestStudentAnalytics.get_course_for_code(authenticated_response, '2172', 'MUSIC 41C')
+        enrollment_without_site = self.get_course_for_code(authenticated_response, '2172', 'MUSIC 41C')
         assert enrollment_without_site['title'] == 'Private Carillon Lessons for Advanced Students'
         assert enrollment_without_site['canvasSites'] == []
 
     def test_enrollment_with_multiple_course_sites(self, authenticated_response):
         """Returns multiple course sites associated with an enrollment, sorted by site id."""
-        enrollment_with_multiple_sites = TestStudentAnalytics.get_course_for_code(authenticated_response, '2178', 'NUC ENG 124')
+        enrollment_with_multiple_sites = self.get_course_for_code(authenticated_response, '2178', 'NUC ENG 124')
         canvas_sites = enrollment_with_multiple_sites['canvasSites']
         assert len(canvas_sites) == 2
         assert canvas_sites[0]['courseName'] == 'Radioactive Waste Management'
@@ -657,8 +654,8 @@ class TestStudentAnalytics:
 
     def test_multiple_primary_section_enrollments(self, authenticated_response):
         """Disambiguates multiple primary sections under a single course display name."""
-        classics_first = TestStudentAnalytics.get_course_for_code(authenticated_response, '2172', 'CLASSIC 130 LEC 001')
-        classics_second = TestStudentAnalytics.get_course_for_code(authenticated_response, '2172', 'CLASSIC 130 LEC 002')
+        classics_first = self.get_course_for_code(authenticated_response, '2172', 'CLASSIC 130 LEC 001')
+        classics_second = self.get_course_for_code(authenticated_response, '2172', 'CLASSIC 130 LEC 002')
         assert len(classics_first['sections']) == 1
         assert classics_first['sections'][0]['units'] == 4
         assert classics_first['sections'][0]['gradingBasis'] == 'P/NP'
@@ -693,13 +690,13 @@ class TestStudentAnalytics:
 
     def test_course_site_without_membership(self, authenticated_response):
         """Returns a graceful error if the expected membership is not found in the course site."""
-        course_without_membership = TestStudentAnalytics.get_course_for_code(authenticated_response, '2178', 'BURMESE 1A')
+        course_without_membership = self.get_course_for_code(authenticated_response, '2178', 'BURMESE 1A')
         for metric in ['assignmentsSubmitted', 'currentScore', 'lastActivity']:
             assert course_without_membership['canvasSites'][0]['analytics'][metric]['error']
 
     def test_course_site_with_enrollment(self, authenticated_response):
         """Returns sensible data if the expected enrollment is found in the course site."""
-        course_with_enrollment = TestStudentAnalytics.get_course_for_code(authenticated_response, '2178', 'MED ST 205')
+        course_with_enrollment = self.get_course_for_code(authenticated_response, '2178', 'MED ST 205')
         analytics = course_with_enrollment['canvasSites'][0]['analytics']
 
         assert analytics['assignmentsSubmitted']['student']['raw'] == 8
@@ -717,18 +714,18 @@ class TestStudentAnalytics:
 
     def test_student_not_found(self, coe_advisor, client):
         """Returns 404 if no viewable student."""
-        response = client.get(TestStudentAnalytics.unknown)
+        response = client.get(self.unknown)
         assert response.status_code == 404
         assert response.json['message'] == 'Unknown student'
 
     def test_user_analytics_not_department_authorized(self, coe_advisor, client):
         """Returns 404 if attempting to view a user outside one's own department."""
-        response = client.get(TestStudentAnalytics.dave)
+        response = client.get(self.dave)
         assert response.status_code == 404
 
     def test_sis_enrollment_merge(self, authenticated_response):
         """Merges sorted SIS enrollment data."""
-        burmese = TestStudentAnalytics.get_course_for_code(authenticated_response, '2178', 'BURMESE 1A')
+        burmese = self.get_course_for_code(authenticated_response, '2178', 'BURMESE 1A')
         assert burmese['displayName'] == 'BURMESE 1A'
         assert burmese['title'] == 'Introductory Burmese'
         assert len(burmese['sections']) == 1
@@ -745,7 +742,7 @@ class TestStudentAnalytics:
         assert burmese['midtermGrade'] == 'D+'
         assert not burmese['grade']
 
-        medieval = TestStudentAnalytics.get_course_for_code(authenticated_response, '2178', 'MED ST 205')
+        medieval = self.get_course_for_code(authenticated_response, '2178', 'MED ST 205')
         assert medieval['displayName'] == 'MED ST 205'
         assert medieval['title'] == 'Medieval Manuscripts as Primary Sources'
         assert len(medieval['sections']) == 1
@@ -757,7 +754,7 @@ class TestStudentAnalytics:
         assert medieval['sections'][0]['primary'] is True
         assert not medieval['sections'][0]['grade']
 
-        nuclear = TestStudentAnalytics.get_course_for_code(authenticated_response, '2178', 'NUC ENG 124')
+        nuclear = self.get_course_for_code(authenticated_response, '2178', 'NUC ENG 124')
         assert nuclear['displayName'] == 'NUC ENG 124'
         assert nuclear['title'] == 'Radioactive Waste Management'
         assert len(nuclear['sections']) == 2
@@ -776,7 +773,7 @@ class TestStudentAnalytics:
         assert nuclear['sections'][1]['primary'] is False
         assert not nuclear['sections'][1]['grade']
 
-        music = TestStudentAnalytics.get_course_for_code(authenticated_response, '2172', 'MUSIC 41C')
+        music = self.get_course_for_code(authenticated_response, '2172', 'MUSIC 41C')
         assert music['displayName'] == 'MUSIC 41C'
         assert music['title'] == 'Private Carillon Lessons for Advanced Students'
         assert len(music['sections']) == 1
@@ -886,6 +883,35 @@ class TestStudentAnalytics:
         athletics_profile = admin_authenticated_response.json['athleticsProfile']
         assert athletics_profile['inIntensiveCohort'] is True
         assert len(athletics_profile['athletics']) == 2
+
+
+class TestAlerts:
+
+    admin_uid = '2040'
+
+    @classmethod
+    def _get_alerts(cls, client, uid):
+        response = client.get(f'/api/student/{uid}')
+        assert response.status_code == 200
+        return response.json['notifications']['alert']
+
+    def test_current_alerts_for_sid(self, create_alerts, fake_auth, client):
+        """Returns current_user's current alerts for a given sid."""
+        fake_auth.login(self.admin_uid)
+        alerts = self._get_alerts(client, 61889)
+        assert len(alerts) == 3
+        assert alerts[0]['alertType'] == 'late_assignment'
+        assert alerts[0]['key'] == '2178_800900300'
+        assert alerts[0]['message'] == 'Week 5 homework in RUSSIAN 13 is late.'
+        assert not alerts[0]['dismissed']
+        assert alerts[1]['alertType'] == 'missing_assignment'
+        assert alerts[1]['key'] == '2178_500600700'
+        assert alerts[1]['message'] == 'Week 6 homework in PORTUGUESE 12 is missing.'
+        assert not alerts[1]['dismissed']
+        assert alerts[2]['alertType'] == 'midterm'
+        assert alerts[2]['key'] == '2178_90100'
+        assert alerts[2]['message'] == 'BURMESE 1A midterm grade of D+.'
+        assert not alerts[2]['dismissed']
 
 
 class TestStudentPhoto:

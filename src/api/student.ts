@@ -9,17 +9,10 @@ export function dismissStudentAlert(alertId: string) {
     .then(response => response.data, () => null);
 }
 
-export function getStudentAlerts(sid: string) {
+export function getStudent(uid: string) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${apiBaseUrl}/api/alerts/current/${sid}`)
-    .then(response => response.data, () => null);
-}
-
-export function getStudentDetails(uid: string) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
-  return axios
-    .get(`${apiBaseUrl}/api/student/${uid}/analytics`)
+    .get(`${apiBaseUrl}/api/student/${uid}`)
     .then(response => response.data, () => null);
 }
 

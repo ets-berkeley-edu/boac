@@ -21,6 +21,7 @@ export default {
     inRange: _.inRange,
     isEmpty: _.isEmpty,
     isNil: _.isNil,
+    keys: _.keys,
     map: _.map,
     mapValues: _.mapValues,
     merge: _.merge,

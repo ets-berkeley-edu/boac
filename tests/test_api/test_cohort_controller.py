@@ -79,8 +79,8 @@ class TestCohortDetail:
 
     def test_students_with_alert_counts(self, asc_advisor_session, client, create_alerts, db_session):
         # Pre-load students into cache for consistent alert data.
-        client.get('/api/student/61889/analytics')
-        client.get('/api/student/98765/analytics')
+        client.get('/api/student/61889')
+        client.get('/api/student/98765')
         from boac.models.alert import Alert
         Alert.update_all_for_term(2178)
         cohorts = CohortFilter.all_owned_by(asc_advisor_uid)
@@ -110,9 +110,14 @@ class TestCohortDetail:
         assert dave_doolittle['lastName']
         assert dave_doolittle['alertCount'] == 1
 
-        alert_to_dismiss = client.get('/api/alerts/current/11667051').json[0]['id']
+        def _get_alerts(uid):
+            response = client.get(f'/api/student/{uid}')
+            assert response.status_code == 200
+            return response.json['notifications']['alert']
+
+        alert_to_dismiss = _get_alerts(61889)[0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
-        alert_to_dismiss = client.get('/api/alerts/current/2345678901').json[0]['id']
+        alert_to_dismiss = _get_alerts(98765)[0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
 
         students_with_alerts = client.get(f'/api/cohort/{cohort_id}/students_with_alerts').json

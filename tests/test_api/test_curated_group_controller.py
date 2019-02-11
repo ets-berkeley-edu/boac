@@ -117,7 +117,8 @@ class TestMyCuratedCohorts:
         assert len(students_with_alerts) == 2
         assert students_with_alerts[0]['alertCount'] == 3
 
-        alert_to_dismiss = client.get('/api/alerts/current/11667051').json[0]['id']
+        student = client.get('/api/student/61889').json
+        alert_to_dismiss = student['notifications']['alert'][0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
         students_with_alerts = client.get(f'/api/curated_group/{cohort_id}/students_with_alerts').json
         assert students_with_alerts[0]['alertCount'] == 2
