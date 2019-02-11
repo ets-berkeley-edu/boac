@@ -3,8 +3,11 @@
     <div id="screen-reader-alert" class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
     <div class="d-flex flex-wrap align-items-center">
       <div class="gpa text-center mb-3">
-        <div id="cumulative-gpa"
-             class="data-number">{{cumulativeGPA || '--'}}<span class="sr-only" v-if="!cumulativeGPA">No data</span></div>
+        <div id="cumulative-gpa" class="data-number">
+          <span v-if="cumulativeGPA">{{ cumulativeGPA | round(3) }}</span>
+          <span v-if="!cumulativeGPA">--</span>
+          <span class="sr-only" v-if="!cumulativeGPA">No data</span>
+        </div>
         <div class="gpa-label text-uppercase">Cumulative GPA</div>
       </div>
       <div id="gpa-trends" class="h-100 border-left">
