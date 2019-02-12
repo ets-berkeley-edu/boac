@@ -2,7 +2,7 @@
   <div v-if="!isTimelineLoading">
     <h2 class="student-section-header">Academic Timeline</h2>
     <div id="screen-reader-alert" class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
-    <div class="d-flex mt-3 mb-3" v-if="size(distinctTypes) > 1">
+    <div class="d-flex mt-3 mb-3">
       <div class="align-self-center mr-3">Filter Type:</div>
       <div>
         <b-btn id="timeline-tab-all"
@@ -11,7 +11,7 @@
                variant="link"
                @click="filter = null">All</b-btn>
       </div>
-      <div v-for="type in distinctTypes" :key="type">
+      <div v-for="type in keys(filterTypes)" :key="type">
         <b-btn :id="`timeline-tab-${type}`"
                class="tab ml-2 pl-2 pr-2 text-center"
                :class="{ 'tab-active text-white': type === filter, 'tab-inactive text-dark': type !== filter }"
@@ -50,7 +50,8 @@
             <div :id="`timeline-tab-${activeTab}-message-${index}`"
                   :class="{
                     'align-top': openMessageId === message.transientId,
-                    'message-ellipsis': openMessageId !== message.transientId
+                    'message-ellipsis': openMessageId !== message.transientId,
+                    'img-blur': user.inDemoMode && message.type === 'note'
                   }"
                   tabindex="0"
                   @keyup.enter="toggle(message)"
@@ -90,32 +91,37 @@
 </template>
 
 <script>
+import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { dismissStudentAlert } from '@/api/student';
 import { format as formatDate, parse as parseDate } from 'date-fns';
+import { markRead } from '@/api/notes';
 
 export default {
   name: 'AcademicTimeline',
-  mixins: [Util],
+  mixins: [UserMetadata, Util],
   props: {
     student: Object
   },
   data: () => ({
     defaultShowPerTab: 5,
-    distinctTypes: undefined,
     filter: undefined,
     filterTypes: {
+      note: {
+        name: 'Advising Note',
+        tab: 'Notes'
+      },
       alert: {
         name: 'Alert',
         tab: 'Alerts'
       },
-      requirement: {
-        name: 'Requirement',
-        tab: 'Reqs'
-      },
       hold: {
         name: 'Hold',
         tab: 'Holds'
+      },
+      requirement: {
+        name: 'Requirement',
+        tab: 'Reqs'
       }
     },
     isTimelineLoading: true,
@@ -145,7 +151,6 @@ export default {
         return d1 ? -1 : 1;
       }
     });
-    this.distinctTypes = this.uniq(this.map(this.messages, 'type'));
     this.screenReaderAlert = 'Academic Timeline has loaded';
     this.isTimelineLoading = false;
   },
@@ -203,6 +208,8 @@ export default {
         message.read = true;
         if (this.includes(['alert', 'hold'], message.type)) {
           dismissStudentAlert(message.id);
+        } else if (message.type === 'note') {
+          markRead(message.id);
         }
       }
     }
@@ -260,13 +267,17 @@ export default {
   width: 60px;
   background-color: #eb9d3e;
 }
-.pill-requirement {
-  width: 130px;
-  background-color: #93c165;
-}
 .pill-hold {
   width: 60px;
   background-color: #bc74fe;
+}
+.pill-note {
+  width: 130px;
+  background-color: #999;
+}
+.pill-requirement {
+  width: 130px;
+  background-color: #93c165;
 }
 .requirements-icon {
   width: 20px;
