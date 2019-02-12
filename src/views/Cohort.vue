@@ -26,7 +26,7 @@
           <div class="d-flex justify-content-between align-items-center p-2">
             <CuratedGroupSelector :context-description="`Cohort ${this.cohortName || 'unsaved'}`"
                                   :students="students"/>
-            <SortBy v-if="size(students) > 1"/>
+            <SortBy v-if="showSortBy"/>
           </div>
           <div>
             <div class="cohort-column-results">
