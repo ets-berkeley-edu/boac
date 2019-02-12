@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="position-relative">
     <img class="avatar"
          :class="avatarStyle"
          :aria-label="`Photo of ${student.firstName} ${student.lastName}`"
