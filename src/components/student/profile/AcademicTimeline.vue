@@ -14,9 +14,14 @@
       <div v-for="type in keys(filterTypes)" :key="type">
         <b-btn :id="`timeline-tab-${type}`"
                class="tab ml-2 pl-2 pr-2 text-center"
-               :class="{ 'tab-active text-white': type === filter, 'tab-inactive text-dark': type !== filter }"
+               :class="{
+                 'tab-active text-white': type === filter && countsPerType[type],
+                 'tab-inactive text-dark': type !== filter && countsPerType[type],
+                 'tab-disabled text-muted': !countsPerType[type]
+               }"
                :aria-label="`${filterTypes[type].name}s tab`"
                variant="link"
+               :disabled="!countsPerType[type]"
                @click="filter = type">{{ filterTypes[type].tab }}</b-btn>
       </div>
     </div>
@@ -48,18 +53,18 @@
           <td class="column-message align-top"
               :class="{ 'font-weight-bold': !message.read }">
             <div :id="`timeline-tab-${activeTab}-message-${index}`"
-                  :class="{
-                    'align-top': openMessageId === message.transientId,
-                    'message-ellipsis': openMessageId !== message.transientId,
+                 :class="{
+                    'align-top message-open': includes(openMessages, message.transientId),
+                    'truncate': !includes(openMessages, message.transientId),
                     'img-blur': user.inDemoMode && message.type === 'note'
-                  }"
-                  tabindex="0"
-                  @keyup.enter="toggle(message)"
-                  @click="toggle(message)">
+                 }"
+                 tabindex="0"
+                 @keyup.enter="toggle(message)"
+                 @click="toggle(message)">
               <i class="requirements-icon fas fa-check text-success" v-if="message.status === 'Satisfied'"></i>
               <i class="requirements-icon fas fa-exclamation text-icon-exclamation" v-if="message.status === 'Not Satisfied'"></i>
               <i class="requirements-icon fas fa-clock text-icon-clock" v-if="message.status === 'In Progress'"></i>
-              {{ message.message }}
+              <span v-html="message.message"></span>
             </div>
           </td>
           <td class="message-date align-top pt-2">
@@ -104,6 +109,7 @@ export default {
     student: Object
   },
   data: () => ({
+    countsPerType: undefined,
     defaultShowPerTab: 5,
     filter: undefined,
     filterTypes: {
@@ -126,15 +132,18 @@ export default {
     },
     isTimelineLoading: true,
     messages: undefined,
-    openMessageId: undefined,
+    openMessages: [],
     now: new Date(),
     isShowingAll: false,
     screenReaderAlert: undefined
   }),
   created() {
     this.messages = [];
+    this.countsPerType = {};
     this.each(this.keys(this.filterTypes), (type, typeIndex) => {
-      this.each(this.student.notifications[type], (message, index) => {
+      let notifications = this.student.notifications[type];
+      this.countsPerType[type] = this.size(notifications);
+      this.each(notifications, (message, index) => {
         this.messages.push(message);
         // Unique message ids are not guaranteed. Here we generate a (transient) primary key.
         message.transientId = typeIndex * 1000 + index;
@@ -159,10 +168,12 @@ export default {
       return this.filter || 'all';
     },
     countPerActiveTab() {
-      return this.size(this.messagesPerActiveTab());
+      return this.filter
+        ? this.countsPerType[this.filter]
+        : this.size(this.messages);
     },
     messagesInView() {
-      const filtered = this.messagesPerActiveTab();
+      const filtered = this.messagesPerType(this.filter);
       return this.isShowingAll
         ? filtered
         : this.slice(filtered, 0, this.defaultShowPerTab);
@@ -185,9 +196,9 @@ export default {
     id(rowIndex) {
       return `timeline-tab-${this.activeTab}-message-${rowIndex}`;
     },
-    messagesPerActiveTab() {
-      return this.filter
-        ? this.filterList(this.messages, ['type', this.filter])
+    messagesPerType(type) {
+      return type
+        ? this.filterList(this.messages, ['type', type])
         : this.messages;
     },
     parseDatetime(datetime) {
@@ -202,8 +213,14 @@ export default {
       return date;
     },
     toggle(message) {
-      this.openMessageId =
-        message.transientId === this.openMessageId ? null : message.transientId;
+      if (this.includes(this.openMessages, message.transientId)) {
+        this.openMessages = this.remove(
+          this.openMessages,
+          id => id !== message.transientId
+        );
+      } else {
+        this.openMessages.push(message.transientId);
+      }
       if (!message.read) {
         message.read = true;
         if (this.includes(['alert', 'hold'], message.type)) {
@@ -217,7 +234,7 @@ export default {
   watch: {
     filter() {
       this.screenReaderAlert = this.describeTheActiveTab();
-      this.openMessageId = null;
+      this.openMessages = [];
     },
     isShowingAll() {
       this.screenReaderAlert = this.describeTheActiveTab();
@@ -244,6 +261,9 @@ export default {
   font-size: 18px;
   font-weight: 500;
 }
+.message-open {
+  min-height: 40px;
+}
 .message-row:active,
 .message-row:focus,
 .message-row:hover {
@@ -251,11 +271,6 @@ export default {
 }
 .message-row-read {
   background-color: #f9f9f9;
-}
-.message-ellipsis {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 .pill {
   border-radius: 5px;
@@ -296,6 +311,9 @@ export default {
 .tab-active:hover {
   background-color: #444;
 }
+.tab-disabled {
+  background-color: #ccc;
+}
 .tab-inactive {
   background-color: #eee;
 }
@@ -309,5 +327,11 @@ export default {
 }
 .text-icon-exclamation {
   color: #f0ad4e;
+}
+.truncate {
+  height: 24px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>
