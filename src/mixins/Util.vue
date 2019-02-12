@@ -52,6 +52,7 @@ export default {
       return Number.isInteger(parsed) ? parsed : defaultValue;
     },
     trim: _.trim,
+    truncate: _.truncate,
     uniq: _.uniq,
     without: _.without
   }
