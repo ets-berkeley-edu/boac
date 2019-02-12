@@ -156,8 +156,8 @@
           </td>
           <td class="group-summary-column group-summary-column-gpa">
             <span class="sr-only">{{ srText.cumulativeGPA }}</span>
-            <div v-if="!student.cumulativeGPA">--<span class="sr-only">No data</span></div>
-            <div v-if="student.cumulativeGPA">{{ student.cumulativeGPA | round(3) }}</div>
+            <div v-if="isNil(student.cumulativeGPA)">--<span class="sr-only">No data</span></div>
+            <div v-if="!isNil(student.cumulativeGPA)">{{ student.cumulativeGPA | round(3) }}</div>
           </td>
           <td class="group-summary-column group-summary-column-issues">
             <span class="sr-only">{{ srText.alertCount }}</span>
