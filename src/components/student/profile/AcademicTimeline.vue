@@ -49,8 +49,8 @@
               :class="{ 'font-weight-bold': !message.read }">
             <div :id="`timeline-tab-${activeTab}-message-${index}`"
                   :class="{
-                    'align-top': openMessageId === message.transientId,
-                    'message-ellipsis': openMessageId !== message.transientId
+                    'align-top': includes(openMessages, message.transientId),
+                    'message-ellipsis': !includes(openMessages, message.transientId)
                   }"
                   tabindex="0"
                   @keyup.enter="toggle(message)"
@@ -120,7 +120,7 @@ export default {
     },
     isTimelineLoading: true,
     messages: undefined,
-    openMessageId: undefined,
+    openMessages: [],
     now: new Date(),
     isShowingAll: false,
     screenReaderAlert: undefined
@@ -197,8 +197,14 @@ export default {
       return date;
     },
     toggle(message) {
-      this.openMessageId =
-        message.transientId === this.openMessageId ? null : message.transientId;
+      if (this.includes(this.openMessages, message.transientId)) {
+        this.openMessages = this.remove(
+          this.openMessages,
+          id => id !== message.transientId
+        );
+      } else {
+        this.openMessages.push(message.transientId);
+      }
       if (!message.read) {
         message.read = true;
         if (this.includes(['alert', 'hold'], message.type)) {
@@ -210,7 +216,7 @@ export default {
   watch: {
     filter() {
       this.screenReaderAlert = this.describeTheActiveTab();
-      this.openMessageId = null;
+      this.openMessages = [];
     },
     isShowingAll() {
       this.screenReaderAlert = this.describeTheActiveTab();
