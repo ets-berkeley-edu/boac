@@ -78,7 +78,7 @@
       <b-btn :id="`timeline-tab-${activeTab}-previous-messages`"
              class="no-wrap pr-2 pt-0"
              variant="link"
-             :aria-label="`isShowingAll ? 'Hide previous messages' : 'Show previous messages'`"
+             :aria-label="isShowingAll ? 'Hide previous messages' : 'Show previous messages'"
              @click="isShowingAll = !isShowingAll">
         <i :class="{
           'fas fa-caret-up': isShowingAll,
