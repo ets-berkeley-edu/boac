@@ -3,11 +3,6 @@
     <Spinner/>
     <div v-if="!loading">
       <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
-      <a href="#pagination-widget"
-         id="skip-to-pagination-widget"
-         class="sr-only"
-         @click="screenReaderAlert = 'Focus is now on the pagination widget'"
-         v-if="totalStudentCount > 50">Skip to pagination widget</a>
       <CohortPageHeader/>
       <b-collapse id="show-hide-filters"
                   class="mr-3"
@@ -18,6 +13,11 @@
                    :index="index"/>
         <FilterRow v-if="isOwnedByCurrentUser"/>
         <ApplyAndSaveButtons v-if="isOwnedByCurrentUser"/>
+        <a id="skip-to-pagination-widget"
+           class="sr-only"
+           href="#pagination-widget"
+           @click="screenReaderAlert = 'Focus is now on the pagination widget'"
+           v-if="totalStudentCount > 50">Skip to pagination widget</a>
       </b-collapse>
       <SectionSpinner name="Students" :loading="editMode === 'apply'" />
       <div class="pt-2" v-if="showStudentsSection">
