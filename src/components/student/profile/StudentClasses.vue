@@ -1,6 +1,13 @@
 <template>
   <div class="student-terms-container" id="student-terms-container">
     <h2 class="student-section-header">Classes</h2>
+    <div v-if="student.sisProfile.withdrawalCancel">
+      <span class="red-flag-small">
+        {{ student.sisProfile.withdrawalCancel.description }}
+        ({{ student.sisProfile.withdrawalCancel.reason }})
+        {{ student.sisProfile.withdrawalCancel.date | date }}
+      </span>
+    </div>
     <div class="student-term"
          v-for="(term, index) in (showAllTerms ? student.enrollmentTerms : student.enrollmentTerms.slice(0,1))"
          :key="index">
@@ -194,12 +201,17 @@
       </div>
     </div>
 
-    <div v-if="get(student, 'enrollmentTerms.length') > 1" class="toggle-previous-semesters-wrapper">
-      <button class="btn btn-link toggle-btn-link" @click="showAllTerms = !showAllTerms">
-        <i :class="{'fas fa-caret-right': !showAllTerms, 'fas fa-caret-up': showAllTerms}"></i>
-        <span v-if="!showAllTerms">View Previous Semesters</span>
-        <span v-if="showAllTerms">Hide Previous Semesters</span>
-      </button>
+    <div class="toggle-previous-semesters-wrapper"
+         v-if="get(student, 'enrollmentTerms.length') > 1">
+      <b-btn id="toggle-show-all-terms"
+             variant="link"
+             @click="showAllTerms = !showAllTerms">
+        <i :class="{
+          'fas fa-caret-right': !showAllTerms,
+          'fas fa-caret-up': showAllTerms
+        }"></i>
+        <span class="no-wrap pl-1">{{ showAllTerms ? 'Hide' : 'Show'}} Previous Semesters</span>
+      </b-btn>
     </div>
     <div v-if="isEmpty(student.enrollmentTerms)">
       No courses

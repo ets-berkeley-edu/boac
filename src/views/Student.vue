@@ -18,13 +18,6 @@
       </div>
       <div class="m-3">
         <AcademicTimeline :student="student"/>
-        <div v-if="student.sisProfile.withdrawalCancel">
-          <span class="red-flag-small">
-            {{ student.sisProfile.withdrawalCancel.description }}
-            ({{ student.sisProfile.withdrawalCancel.reason }})
-            {{ student.sisProfile.withdrawalCancel.date | date }}
-          </span>
-        </div>
       </div>
       <div>
         <StudentClasses :student="student"/>
