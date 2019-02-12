@@ -31,6 +31,7 @@ export default {
       'pagination',
       'showApplyButton',
       'showSaveButton',
+      'showSortBy',
       'students',
       'totalStudentCount'
     ])
