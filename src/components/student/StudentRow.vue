@@ -62,10 +62,10 @@
       <div>
         <span :id="`student-${student.sid}-cumulative-gpa`"
               class="student-gpa"
-              v-if="!student.cumulativeGPA">--<span class="sr-only">No data</span></span>
+              v-if="isNil(student.cumulativeGPA)">--<span class="sr-only">No data</span></span>
         <span :id="`student-${student.sid}-cumulative-gpa`"
               class="student-gpa"
-              v-if="student.cumulativeGPA">{{ student.cumulativeGPA | round(3) }}</span>
+              v-if="!isNil(student.cumulativeGPA)">{{ student.cumulativeGPA | round(3) }}</span>
         <span class="student-text"> GPA (Cumulative)</span>
       </div>
       <StudentGpaChart :student="student"
