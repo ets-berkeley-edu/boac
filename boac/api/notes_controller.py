@@ -25,22 +25,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api.errors import BadRequestError
 from boac.lib.http import tolerant_jsonify
-from boac.merged.student import get_advising_note, get_advising_notes
 from boac.models.note_read import NoteRead
 from flask import current_app as app
 from flask_login import current_user, login_required
-
-
-@app.route('/api/notes/student/<sid>', methods=['GET'])
-@login_required
-def notes_per_student(sid):
-    return tolerant_jsonify(get_advising_notes(sid))
-
-
-@app.route('/api/notes/<note_id>', methods=['GET'])
-@login_required
-def get_note(note_id):
-    return tolerant_jsonify(get_advising_note(note_id))
 
 
 @app.route('/api/notes/<note_id>/mark_read', methods=['POST'])

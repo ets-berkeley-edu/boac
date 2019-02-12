@@ -30,7 +30,6 @@ import operator
 from boac.externals import data_loch
 from boac.lib import analytics
 from boac.lib.berkeley import current_term_id, term_name_for_sis_id
-from boac.lib.util import localize_datetime
 from boac.models.note_read import NoteRead
 from flask import current_app as app
 from flask_login import current_user
@@ -387,34 +386,27 @@ def search_for_students(
     }
 
 
-def _note_to_json(note, include_body=False):
-    feed = {
-        'id': note.get('note_id'),
+def _note_to_json(note):
+    return {
+        'id': note.get('id'),
         'sid': note.get('sid'),
-        'topic': note.get('note_topic'),
-        'createdAt': localize_datetime(note.get('created_at')).timestamp(),
+        'body': note.get('note_body'),
+        'category': note.get('note_category'),
+        'subcategory': note.get('note_subcategory'),
+        'appointmentId': note.get('appointment_id'),
+        'createdBy': note.get('created_by'),
+        'createdAt': note.get('created_at').strftime('%Y-%m-%d %H:%M:%S'),
+        'updatedBy': note.get('updated_by'),
+        'updatedAt': note.get('updated_at').strftime('%Y-%m-%d %H:%M:%S'),
         'read': False,
     }
-    if include_body:
-        feed['body'] = note.get('note_body')
-    return feed
-
-
-def get_advising_note(note_id):
-    note_result = data_loch.get_advising_note(note_id)
-    if note_result and note_result[0]:
-        feed = _note_to_json(note_result[0], include_body=True)
-        notes_read = NoteRead.get_notes_read_by_user(current_user.id, [feed['id']])
-        if notes_read and len(notes_read) > 0:
-            feed['read'] = True
-        return feed
 
 
 def get_advising_notes(sid):
     notes_result = data_loch.get_advising_notes(sid)
     if not notes_result:
         return None
-    notes_by_id = {row['note_id']: _note_to_json(row) for row in notes_result}
+    notes_by_id = {row['id']: _note_to_json(row) for row in notes_result}
     notes_read = NoteRead.get_notes_read_by_user(current_user.id, notes_by_id.keys())
     for note_read in notes_read:
         note_feed = notes_by_id.get(note_read.note_id)

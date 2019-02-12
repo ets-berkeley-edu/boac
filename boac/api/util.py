@@ -29,6 +29,7 @@ import json
 from boac.externals.data_loch import get_sis_holds
 from boac.lib.berkeley import get_dept_codes
 from boac.merged import calnet
+from boac.merged.student import get_advising_notes
 from boac.models.alert import Alert
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_cohort import CuratedCohort
@@ -128,29 +129,39 @@ def sis_enrollment_section_feed(enrollment):
 
 def put_notifications(student):
     student['notifications'] = {
+        'note': [],
         'alert': [],
         'hold': [],
         'requirement': [],
     }
     # The front-end requires 'type', 'message' and 'read'. Optional fields: id, status, createdAt, updatedAt.
+    for note in get_advising_notes(student['sid']) or []:
+        student['notifications']['note'].append({
+            **note,
+            **{
+                'message': note['body'],
+                'type': 'note',
+            },
+        })
     for alert in Alert.current_alerts_for_sid(viewer_id=current_user.id, sid=student['sid']):
         student['notifications']['alert'].append({
             **alert,
             **{
                 'id': alert['id'],
-                'type': 'alert',
                 'read': alert['dismissed'],
+                'type': 'alert',
             },
         })
     for row in get_sis_holds(student['sid']):
         hold = json.loads(row['feed'])
+        reason = hold.get('reason', {})
         student['notifications']['hold'].append({
             **hold,
             **{
-                'type': 'hold',
-                'message': hold.get('reason', {}).get('description') + '. ' + hold.get('reason', {}).get('formalDescription'),
-                'read': True,
                 'createdAt': hold.get('fromDate'),
+                'message': reason.get('description') + '. ' + reason.get('formalDescription'),
+                'read': True,
+                'type': 'hold',
             },
         })
     degree_progress = student.get('sisProfile', {}).get('degreeProgress', {})
