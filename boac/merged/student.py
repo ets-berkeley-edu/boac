@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import timezone
 from itertools import groupby
 import json
 import operator
@@ -386,7 +387,7 @@ def search_for_students(
     }
 
 
-def _note_to_json(note):
+def _note_to_json(note, topics, attachments):
     return {
         'id': note.get('id'),
         'sid': note.get('sid'),
@@ -395,18 +396,38 @@ def _note_to_json(note):
         'subcategory': note.get('note_subcategory'),
         'appointmentId': note.get('appointment_id'),
         'createdBy': note.get('created_by'),
-        'createdAt': note.get('created_at').strftime('%Y-%m-%d %H:%M:%S'),
+        'createdAt': note.get('created_at').astimezone(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
         'updatedBy': note.get('updated_by'),
-        'updatedAt': note.get('updated_at').strftime('%Y-%m-%d %H:%M:%S'),
+        'updatedAt': note.get('updated_at').astimezone(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
         'read': False,
+        'topics': topics,
+        'attachments': attachments,
     }
+
+
+def _get_advising_note_topics(sid):
+    topics = data_loch.get_advising_note_topics(sid)
+    topics_by_id = {}
+    for advising_note_id, topics in groupby(topics, key=operator.itemgetter('advising_note_id')):
+        topics_by_id[advising_note_id] = [topic['note_topic'] for topic in topics]
+    return topics_by_id
+
+
+def _get_advising_note_attachments(sid):
+    attachments = data_loch.get_advising_note_attachments(sid)
+    attachments_by_id = {}
+    for advising_note_id, attachments in groupby(attachments, key=operator.itemgetter('advising_note_id')):
+        attachments_by_id[advising_note_id] = [attachments['sis_file_name'] for attachments in attachments]
+    return attachments_by_id
 
 
 def get_advising_notes(sid):
     notes_result = data_loch.get_advising_notes(sid)
     if not notes_result:
         return None
-    notes_by_id = {row['id']: _note_to_json(row) for row in notes_result}
+    topics = _get_advising_note_topics(sid)
+    attachments = _get_advising_note_attachments(sid)
+    notes_by_id = {row['id']: _note_to_json(row, topics[row['id']], attachments[row['id']]) for row in notes_result}
     notes_read = NoteRead.get_notes_read_by_user(current_user.id, notes_by_id.keys())
     for note_read in notes_read:
         note_feed = notes_by_id.get(note_read.note_id)

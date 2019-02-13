@@ -321,6 +321,20 @@ def get_advising_notes(sid):
     return safe_execute_redshift(sql, sid=sid)
 
 
+def get_advising_note_topics(sid):
+    sql = f"""SELECT advising_note_id, note_topic
+        FROM {advising_notes_schema()}.advising_note_topics
+        where sid=:sid"""
+    return safe_execute_redshift(sql, sid=sid)
+
+
+def get_advising_note_attachments(sid):
+    sql = f"""SELECT advising_note_id, sis_file_name
+        FROM {advising_notes_schema()}.advising_note_attachments
+        where sid=:sid"""
+    return safe_execute_redshift(sql, sid=sid)
+
+
 def get_ethnicity_codes(scope=()):
     query_tables = _student_query_tables_for_scope(scope)
     if not query_tables:

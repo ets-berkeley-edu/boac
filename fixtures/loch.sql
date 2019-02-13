@@ -61,15 +61,34 @@ CREATE TABLE boac_advising_notes.advising_notes
 (
     id VARCHAR NOT NULL,
     sid VARCHAR NOT NULL,
+    student_note_nr VARCHAR NOT NULL,
     advisor_sid VARCHAR,
     appointment_id VARCHAR,
-    note_category VARCHAR,
+    note_category VARCHAR NOT NULL,
     note_subcategory VARCHAR,
+    note_body VARCHAR NOT NULL,
     created_by VARCHAR,
     updated_by VARCHAR,
-    note_body TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE TABLE boac_advising_notes.advising_note_topics
+(
+    advising_note_id VARCHAR NOT NULL,
+    sid VARCHAR NOT NULL,
+    note_topic VARCHAR NOT NULL
+);
+
+CREATE TABLE boac_advising_notes.advising_note_attachments
+(
+    advising_note_id VARCHAR NOT NULL,
+    sid VARCHAR NOT NULL,
+    attachment_seq_nr INT,
+    attachment_date DATE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    sis_file_name VARCHAR NOT NULL
 );
 
 CREATE TABLE boac_analytics.section_mean_gpas
@@ -199,11 +218,24 @@ VALUES
 ('9100000000', :coe_profile_9100000000);
 
 INSERT INTO boac_advising_notes.advising_notes
-(id, sid, note_body, created_at, updated_at)
+(id, sid, student_note_nr, note_category, note_subcategory, note_body, created_at, updated_at)
 VALUES
-('11667051-00001', '11667051', 'Brigitte is making athletic and moral progress', '2017-10-31T12:00:00Z', '2017-10-31T12:00:00Z'),
-('11667051-00002', '11667051', 'Brigitte demonstrates a cavalier attitude toward university requirements', '2017-11-01T12:00:00Z', '2017-11-01T12:00:00Z'),
-('9000000000-00001', '9000000000', 'Is this student even on campus?', '2017-11-02T12:00:00Z', '2017-11-02T12:00:00Z');
+('11667051-00001', '11667051', '00001', 'Quick Question', 'Hangouts', 'Brigitte is making athletic and moral progress', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00'),
+('11667051-00002', '11667051', '00002', 'Evaluation', '', 'Brigitte demonstrates a cavalier attitude toward university requirements', '2017-11-01T12:00:00+00', '2017-11-01T12:00:00+00'),
+('9000000000-00001', '9000000000', '00001', 'Appointment', '', 'Is this student even on campus?', '2017-11-02T12:00:00+00', '2017-11-02T12:00:00+00');
+
+INSERT INTO boac_advising_notes.advising_note_topics
+(advising_note_id, sid, note_topic)
+VALUES
+('11667051-00001', '11667051', 'Good show'),
+('11667051-00002', '11667051', 'Bad show'),
+('9000000000-00001', '9000000000', 'No show');
+
+INSERT INTO boac_advising_notes.advising_note_attachments
+(advising_note_id, sid, attachment_seq_nr, attachment_date, created_at, updated_at, sis_file_name)
+VALUES
+('11667051-00001', '11667051', 1, '2017-10-31', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', 'form.pdf'),
+('11667051-00002', '11667051', 2, '2017-10-31', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', 'photo.jpeg');
 
 INSERT INTO boac_analytics.section_mean_gpas
 (sis_term_id, sis_section_id, gpa_term_id, avg_gpa)
