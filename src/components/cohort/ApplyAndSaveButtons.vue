@@ -17,7 +17,7 @@
                  'btn-primary-color-override': this.isPerforming !== 'acknowledgeSave'
                }"
                :variant="saveButtonVariant"
-               :aria-label="`cohortId ? 'Save cohort' : 'Create cohort'`"
+               :aria-label="cohortId ? 'Save cohort' : 'Create cohort'"
                :disabled="!!editMode || showCreateModal || !!isPerforming"
                @click="save()">
           <span v-if="isPerforming === 'acknowledgeSave'">Saved</span>
