@@ -228,9 +228,11 @@ class Alert(Base):
 
     @classmethod
     def infrequent_activity_alerts_enabled(cls):
+        days_into_session = (datetime.date(datetime.today()) - _get_current_session_start()).days
         return (
             app.config['ALERT_INFREQUENT_ACTIVITY_ENABLED']
             and not app.config['CANVAS_CURRENT_ENROLLMENT_TERM'].startswith('Summer')
+            and days_into_session >= app.config['ALERT_INFREQUENT_ACTIVITY_DAYS']
         )
 
     @classmethod
@@ -306,7 +308,6 @@ class Alert(Base):
                     days_since = (localized_today - localized_last_activity).days
                     if (
                             days_since >= app.config['ALERT_INFREQUENT_ACTIVITY_DAYS']
-                            and localized_last_activity >= _get_current_session_start()
                             and activity_percentile <= app.config['ALERT_INFREQUENT_ACTIVITY_PERCENTILE_CUTOFF']
                     ):
                         cls.update_infrequent_activity_alerts(
