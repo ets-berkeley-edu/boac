@@ -422,12 +422,15 @@ def _get_advising_note_attachments(sid):
 
 
 def get_advising_notes(sid):
-    notes_result = data_loch.get_advising_notes(sid)
-    if not notes_result:
+    advising_notes = data_loch.get_advising_notes(sid)
+    if not advising_notes:
         return None
     topics = _get_advising_note_topics(sid)
     attachments = _get_advising_note_attachments(sid)
-    notes_by_id = {row['id']: _note_to_json(row, topics[row['id']], attachments[row['id']]) for row in notes_result}
+    notes_by_id = {}
+    for note in advising_notes:
+        note_id = note['id']
+        notes_by_id[note_id] = _note_to_json(note, topics.get(note_id), attachments.get(note_id))
     notes_read = NoteRead.get_notes_read_by_user(current_user.id, notes_by_id.keys())
     for note_read in notes_read:
         note_feed = notes_by_id.get(note_read.note_id)
