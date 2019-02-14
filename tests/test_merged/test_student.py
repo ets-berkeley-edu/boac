@@ -23,7 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.merged.student import get_course_student_profiles
+from boac.merged.student import get_advising_notes, get_course_student_profiles
+
+
+coe_advisor = '1133399'
 
 
 class TestStudent:
@@ -36,3 +39,35 @@ class TestStudent:
         assert profiles['students'][0]['cumulativeUnits'] == 101.3
         assert profiles['students'][0]['currentTerm']['unitsMaxOverride'] == 25
         assert profiles['students'][0]['currentTerm']['unitsMinOverride'] == 0
+
+    def test_get_advising_notes(self, app, fake_auth):
+        fake_auth.login(coe_advisor)
+        notes = get_advising_notes('11667051')
+
+        assert len(notes) == 2
+        assert notes[0]['id'] == '11667051-00001'
+        assert notes[0]['sid'] == '11667051'
+        assert notes[0]['body'] == 'Brigitte is making athletic and moral progress'
+        assert notes[0]['category'] == 'Quick Question'
+        assert notes[0]['subcategory'] == 'Hangouts'
+        assert notes[0]['appointmentId'] is None
+        assert notes[0]['createdBy'] is None
+        assert notes[0]['createdAt'] == '2017-10-31 12:00:00'
+        assert notes[0]['updatedBy'] is None
+        assert notes[0]['updatedAt'] == '2017-10-31 12:00:00'
+        assert notes[0]['read'] is False
+        assert notes[0]['topics'] == ['Good show']
+        assert notes[0]['attachments'] == ['form.pdf']
+        assert notes[1]['id'] == '11667051-00002'
+        assert notes[1]['sid'] == '11667051'
+        assert notes[1]['body'] == 'Brigitte demonstrates a cavalier attitude toward university requirements'
+        assert notes[1]['category'] == 'Evaluation'
+        assert notes[1]['subcategory'] == ''
+        assert notes[1]['appointmentId'] is None
+        assert notes[1]['createdBy'] is None
+        assert notes[1]['createdAt'] == '2017-11-01 12:00:00'
+        assert notes[1]['updatedBy'] is None
+        assert notes[1]['updatedAt'] == '2017-11-01 12:00:00'
+        assert notes[1]['read'] is False
+        assert notes[1]['topics'] == ['Bad show']
+        assert notes[1]['attachments'] == ['photo.jpeg']
