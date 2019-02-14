@@ -61,9 +61,9 @@
               {{ message.message }}
             </div>
           </td>
-          <td class="message-date align-top pt-2">
+          <td class="message-date align-top">
             <div :id="`timeline-tab-${activeTab}-date-${index}`"
-                 class="text-nowrap">
+                 class="pt-2 pr-2 text-nowrap">
               <span v-if="message.updatedAt || message.createdAt"><span class="sr-only">Last updated on </span>{{ parseDatetime(message.updatedAt || message.createdAt) }}</span>
               <span class="sr-only"
                     tabindex="0"
@@ -227,8 +227,8 @@ export default {
 
 <style scoped>
 .message-date {
-  max-width: 80px;
-  width: 80px;
+  text-align: right;
+  width: 1%;
 }
 .column-message {
   max-width: 1px;
