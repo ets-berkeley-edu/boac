@@ -1,14 +1,14 @@
 <template>
   <div class="home-container">
     <h1 class="sr-only">Welcome to BOAC</h1>
-    <Spinner/>
-    <div class="home-content" v-if="!loading">
+    <Spinner />
+    <div v-if="!loading" class="home-content">
       <div>
         <div id="filtered-cohorts-header-row" class="home-page-section-header-wrapper">
-          <h2 id="no-cohorts-header" class="page-section-header" v-if="myCohorts && !size(myCohorts)">
+          <h2 v-if="myCohorts && !size(myCohorts)" id="no-cohorts-header" class="page-section-header">
             You have no saved cohorts.
           </h2>
-          <h1 class="page-section-header" v-if="myCohorts && size(myCohorts)">
+          <h1 v-if="myCohorts && size(myCohorts)" class="page-section-header">
             Cohorts
           </h1>
         </div>
@@ -17,18 +17,20 @@
           automatically by your filtering preferences, such as GPA or units.
         </div>
         <div role="tablist" class="panel-group">
-          <HomeCohort v-for="cohort in myCohorts"
-                      :key="cohort.id"
-                      :cohort="cohort"/>
+          <HomeCohort
+            v-for="cohort in myCohorts"
+            :key="cohort.id"
+            :cohort="cohort" />
         </div>
       </div>
       <div v-if="size(myCuratedGroups)">
         <div id="curated-groups-header-row" class="home-page-section-header-wrapper">
           <h2 class="page-section-header">Curated Groups</h2>
         </div>
-        <HomeCuratedGroup v-for="curatedGroup in myCuratedGroups"
-                          :key="curatedGroup.id"
-                          :curatedGroup="curatedGroup"/>
+        <HomeCuratedGroup
+          v-for="curatedGroup in myCuratedGroups"
+          :key="curatedGroup.id"
+          :curated-group="curatedGroup" />
       </div>
     </div>
   </div>
@@ -44,17 +46,12 @@ import Util from '@/mixins/Util.vue';
 
 export default {
   name: 'Home',
-  mixins: [Loading, UserMetadata, Util],
   components: {
     HomeCohort,
     HomeCuratedGroup,
     Spinner
   },
-  mounted() {
-    if (this.myCohorts || this.myCuratedGroups) {
-      this.loaded();
-    }
-  },
+  mixins: [Loading, UserMetadata, Util],
   watch: {
     myCohorts: function() {
       if (this.myCohorts) {
@@ -65,6 +62,11 @@ export default {
       if (this.myCuratedGroups) {
         this.loaded();
       }
+    }
+  },
+  mounted() {
+    if (this.myCohorts || this.myCuratedGroups) {
+      this.loaded();
     }
   }
 };

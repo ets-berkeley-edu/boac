@@ -1,10 +1,13 @@
 <template>
   <div class="m-3">
-    <Spinner/>
+    <Spinner />
     <div v-if="!loading && !results.totalStudentCount && !results.totalCourseCount">
-      <h1 id="page-header-no-results"
-          role="alert"
-          aria-live="passive">No results matching '{{ phrase }}'</h1>
+      <h1
+        id="page-header-no-results"
+        role="alert"
+        aria-live="passive">
+        No results matching '{{ phrase }}'
+      </h1>
       <div>Suggestions:</div>
       <ul>
         <li>Keep your search term simple.</li>
@@ -13,27 +16,30 @@
         <li>Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
       </ul>
     </div>
-    <div tabindex="0"
-         v-if="!loading && results.totalStudentCount">
+    <div
+      v-if="!loading && results.totalStudentCount"
+      tabindex="0">
       <h1 id="page-header">{{ 'student' | pluralize(results.totalStudentCount) }} matching '{{ phrase }}'</h1>
       <div v-if="results.totalStudentCount > limit">
         Showing the first {{ limit }} students.
       </div>
     </div>
-    <div class="cohort-column-results" v-if="!loading && results.totalStudentCount">
+    <div v-if="!loading && results.totalStudentCount" class="cohort-column-results">
       <div class="search-header-curated-cohort">
-        <CuratedGroupSelector context-description="Search"
-                              :students="results.students"/>
+        <CuratedGroupSelector
+          context-description="Search"
+          :students="results.students" />
       </div>
       <div>
-        <SortableStudents :students="results.students" :options="studentListOptions"/>
+        <SortableStudents :students="results.students" :options="studentListOptions" />
       </div>
     </div>
     <div v-if="!loading && results.totalCourseCount">
-      <SortableCourseList :searchPhrase="phrase"
-                          :courses="results.courses"
-                          :totalCourseCount="results.totalCourseCount"
-                          :renderPrimaryHeader="!results.totalStudentCount && !!results.totalCourseCount"/>
+      <SortableCourseList
+        :search-phrase="phrase"
+        :courses="results.courses"
+        :total-course-count="results.totalCourseCount"
+        :render-primary-header="!results.totalStudentCount && !!results.totalCourseCount" />
     </div>
   </div>
 </template>
@@ -51,13 +57,13 @@ import { search } from '@/api/student';
 
 export default {
   name: 'Search',
-  mixins: [GoogleAnalytics, Loading, UserMetadata, Util],
   components: {
     SortableCourseList,
     CuratedGroupSelector,
     SortableStudents,
     Spinner
   },
+  mixins: [GoogleAnalytics, Loading, UserMetadata, Util],
   data: () => ({
     limit: 50,
     phrase: null,

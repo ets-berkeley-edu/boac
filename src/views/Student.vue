@@ -1,26 +1,26 @@
 <template>
   <div>
-    <Spinner/>
+    <Spinner />
     <div v-if="!loading">
       <div class="light-blue-background border-bottom">
-        <StudentProfileHeader :student="student"/>
+        <StudentProfileHeader :student="student" />
       </div>
       <h2 class="sr-only">Academic Status</h2>
       <div class="flex-row border-bottom">
         <div class="w-50">
           <h3 class="sr-only">Units</h3>
-          <StudentProfileUnits :student="student"/>
+          <StudentProfileUnits :student="student" />
         </div>
         <div class="border-left w-50">
           <h3 class="sr-only">GPA</h3>
-          <StudentProfileGPA :student="student"/>
+          <StudentProfileGPA :student="student" />
         </div>
       </div>
       <div class="m-3">
-        <AcademicTimeline :student="student"/>
+        <AcademicTimeline :student="student" />
       </div>
       <div>
-        <StudentClasses :student="student"/>
+        <StudentClasses :student="student" />
       </div>
     </div>
   </div>
@@ -39,7 +39,6 @@ import { getStudent } from '@/api/student';
 
 export default {
   name: 'Student',
-  mixins: [Loading, Util],
   components: {
     AcademicTimeline,
     Spinner,
@@ -48,6 +47,7 @@ export default {
     StudentProfileHeader,
     StudentProfileUnits
   },
+  mixins: [Loading, Util],
   data: () => ({
     showAllTerms: false,
     student: {

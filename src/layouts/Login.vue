@@ -3,25 +3,29 @@
     <div class="splash-container">
       <div class="splash-cell-stripe"></div>
       <div class="avatar-container">
-        <img class="avatar-airplane" src="@/assets/airplane.svg"/>
+        <img class="avatar-airplane" src="@/assets/airplane.svg" />
       </div>
       <div class="splash-cell-sign-in">
         <form @submit.prevent="logIn()">
-          <b-btn id="splash-sign-in"
-                 class="btn-sign-in btn-primary-color-override"
-                 variant="primary"
-                 aria-label="Log in to BOAC"
-                 @click.stop="logIn()"
-                 tabindex="0"
-                 placement="top-left">Sign In</b-btn>
+          <b-btn
+            id="splash-sign-in"
+            class="btn-sign-in btn-primary-color-override"
+            variant="primary"
+            aria-label="Log in to BOAC"
+            tabindex="0"
+            placement="top-left"
+            @click.stop="logIn()">
+            Sign In
+          </b-btn>
         </form>
         <div class="splash-contact-us">
           Questions or feedback? Contact us at
-          <a :href="`mailto:${supportEmailAddress}`"
-             aria-label="BOAC support email address"
-             target="_blank">{{ supportEmailAddress }}</a>
+          <a
+            :href="`mailto:${supportEmailAddress}`"
+            aria-label="BOAC support email address"
+            target="_blank">{{ supportEmailAddress }}</a>
         </div>
-        <DevAuth v-if="devAuthEnabled"/>
+        <DevAuth v-if="devAuthEnabled" />
       </div>
       <div class="splash-box-container">
         <div class="splash-cell-header">
@@ -42,10 +46,10 @@ import { getCasLoginURL } from '@/api/auth';
 
 export default {
   name: 'Login',
-  mixins: [Context],
   components: {
     DevAuth
   },
+  mixins: [Context],
   methods: {
     logIn() {
       getCasLoginURL().then(data => (window.location.href = data.casLoginUrl));

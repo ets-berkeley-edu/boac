@@ -1,45 +1,51 @@
 <template>
   <form @submit.prevent="logInDevAuth()">
-    <b-modal v-model="showError"
-             @hidden="error = null"
-             aria-label="Error"
-             hide-header
-             hide-backdrop
-             return-focus="#dev-auth-uid"
-             ok-only>
+    <b-modal
+      v-model="showError"
+      aria-label="Error"
+      hide-header
+      hide-backdrop
+      return-focus="#dev-auth-uid"
+      ok-only
+      @hidden="error = null">
       <span role="alert" aria-live="passive">{{ error }}</span>
     </b-modal>
     <div class="flex-container splash-dev-auth">
       <div>
-        <input id="dev-auth-uid"
-               class="splash-form-input"
-               autofocus
-               placeholder="UID"
-               v-model="uid"
-               type="text"
-               aria-required="true"
-               aria-label="Input UID of an authorized user"
-               :aria-invalid="showError"
-               size="8">
+        <input
+          id="dev-auth-uid"
+          v-model="uid"
+          class="splash-form-input"
+          autofocus
+          placeholder="UID"
+          type="text"
+          aria-required="true"
+          aria-label="Input UID of an authorized user"
+          :aria-invalid="showError"
+          size="8">
       </div>
       <div class="ml-1">
-        <input id="dev-auth-password"
-               class="splash-form-input"
-               placeholder="Password"
-               v-model="password"
-               type="password"
-               aria-required="true"
-               aria-label="Password"
-               :aria-invalid="!!password"
-               autocomplete="off"
-               size="8">
+        <input
+          id="dev-auth-password"
+          v-model="password"
+          class="splash-form-input"
+          placeholder="Password"
+          type="password"
+          aria-required="true"
+          aria-label="Password"
+          :aria-invalid="!!password"
+          autocomplete="off"
+          size="8">
       </div>
       <div class="ml-1">
-        <b-btn id="dev-auth-submit"
-               class="splash-btn-dev-auth btn-primary-color-override"
-               variant="primary"
-               aria-label="Log in to BOAC with dev-auth"
-               type="submit">DevAuth!</b-btn>
+        <b-btn
+          id="dev-auth-submit"
+          class="splash-btn-dev-auth btn-primary-color-override"
+          variant="primary"
+          aria-label="Log in to BOAC with dev-auth"
+          type="submit">
+          DevAuth!
+        </b-btn>
       </div>
     </div>
   </form>
@@ -59,6 +65,14 @@ export default {
     error: null,
     showError: false
   }),
+  watch: {
+    uid: function() {
+      this.error = null;
+    },
+    password: function() {
+      this.error = null;
+    }
+  },
   methods: {
     logInDevAuth() {
       let uid = _.trim(this.uid);
@@ -93,14 +107,6 @@ export default {
     reportError(message) {
       this.error = message;
       this.showError = true;
-    }
-  },
-  watch: {
-    uid: function() {
-      this.error = null;
-    },
-    password: function() {
-      this.error = null;
     }
   }
 };

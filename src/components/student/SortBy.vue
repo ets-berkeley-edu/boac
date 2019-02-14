@@ -1,12 +1,16 @@
 <template>
   <div class="cohort-sort-column pr-3">
     <label class="cohort-sort-label" for="students-sort-by">Sort by</label>
-    <select id="sort-students-by"
-            class="form-control"
-            v-model="selected">
-      <option v-for="o in options"
-              :key="o.value"
-              :value="o.value">{{ o.name }}</option>
+    <select
+      id="sort-students-by"
+      v-model="selected"
+      class="form-control">
+      <option
+        v-for="o in options"
+        :key="o.value"
+        :value="o.value">
+        {{ o.name }}
+      </option>
     </select>
   </div>
 </template>
@@ -22,6 +26,17 @@ export default {
     selected: undefined,
     options: []
   }),
+  watch: {
+    selected(value) {
+      if (value && value !== this.preferences.sortBy) {
+        this.setUserPreference({
+          key: 'sortBy',
+          value
+        });
+        this.$eventHub.$emit('sort-by-changed-by-user', value);
+      }
+    }
+  },
   created() {
     this.selected = this.preferences.sortBy;
     let options = [
@@ -38,17 +53,6 @@ export default {
       { name: 'Units Completed', value: 'units', available: true }
     ];
     this.options = this.filterList(options, 'available');
-  },
-  watch: {
-    selected(value) {
-      if (value && value !== this.preferences.sortBy) {
-        this.setUserPreference({
-          key: 'sortBy',
-          value
-        });
-        this.$eventHub.$emit('sort-by-changed-by-user', value);
-      }
-    }
   }
 };
 </script>

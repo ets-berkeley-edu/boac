@@ -1,14 +1,19 @@
 <template>
-  <highcharts class="student-chart-container student-chart-boxplot-container"
-              :id="'student-chart-boxplot-container-' + numericId"
-              :options="boxplotOptions"
-              aria-hidden="true">
+  <highcharts
+    :id="'student-chart-boxplot-container-' + numericId"
+    class="student-chart-container student-chart-boxplot-container"
+    :options="boxplotOptions"
+    aria-hidden="true">
   </highcharts>
 </template>
 
 <script>
 export default {
   name: 'StudentBoxplot',
+  props: {
+    dataset: Object,
+    numericId: String
+  },
   data: () => ({
     boxplotOptions: {
       chart: {
@@ -83,10 +88,6 @@ export default {
       }
     }
   }),
-  props: {
-    dataset: Object,
-    numericId: String
-  },
   mounted() {
     this.renderBoxplot();
   },

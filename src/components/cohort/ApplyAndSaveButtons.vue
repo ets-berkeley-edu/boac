@@ -1,42 +1,46 @@
 <template>
   <div>
-      <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
-      <b-btn id="unsaved-filter-apply"
-             class="btn-filter-draft-apply btn-primary-color-override"
-             variant="primary"
-             aria-label="Search for students"
-             @click="apply()"
-             :disabled="!!editMode"
-             v-if="showApplyButton">
-        Apply
+    <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
+    <b-btn
+      v-if="showApplyButton"
+      id="unsaved-filter-apply"
+      class="btn-filter-draft-apply btn-primary-color-override"
+      variant="primary"
+      aria-label="Search for students"
+      :disabled="!!editMode"
+      @click="apply()">
+      Apply
+    </b-btn>
+    <div v-if="showSaveButton && isPerforming !== 'search'">
+      <b-btn
+        id="save-button"
+        class="save-button-width mt-3"
+        :class="{
+          'btn-primary-color-override': isPerforming !== 'acknowledgeSave'
+        }"
+        :variant="saveButtonVariant"
+        :aria-label="cohortId ? 'Save cohort' : 'Create cohort'"
+        :disabled="!!editMode || showCreateModal || !!isPerforming"
+        @click="save()">
+        <span v-if="isPerforming === 'acknowledgeSave'">Saved</span>
+        <span v-if="isPerforming === 'save'"><i class="fas fa-spinner fa-spin"></i> Saving</span>
+        <span v-if="!isPerforming && cohortId">Save Cohort</span>
+        <span v-if="!isPerforming && !cohortId">Save</span>
       </b-btn>
-      <div v-if="showSaveButton && isPerforming !== 'search'">
-        <b-btn id="save-button"
-               class="save-button-width mt-3"
-               :class="{
-                 'btn-primary-color-override': this.isPerforming !== 'acknowledgeSave'
-               }"
-               :variant="saveButtonVariant"
-               :aria-label="cohortId ? 'Save cohort' : 'Create cohort'"
-               :disabled="!!editMode || showCreateModal || !!isPerforming"
-               @click="save()">
-          <span v-if="isPerforming === 'acknowledgeSave'">Saved</span>
-          <span v-if="isPerforming === 'save'"><i class="fas fa-spinner fa-spin"></i> Saving</span>
-          <span v-if="!isPerforming && cohortId">Save Cohort</span>
-          <span v-if="!isPerforming && !cohortId">Save</span>
-        </b-btn>
-        <b-modal id="create-cohort"
-                 @shown="focusModalById('create-input')"
-                 body-class="pl-0 pr-0"
-                 v-model="showCreateModal"
-                 hide-footer
-                 hide-header-close
-                 title="Name Your Saved Cohort">
-          <CreateCohortModal :cancel="cancelCreateModal"
-                             :create="create"/>
-        </b-modal>
-      </div>
+      <b-modal
+        id="create-cohort"
+        v-model="showCreateModal"
+        body-class="pl-0 pr-0"
+        hide-footer
+        hide-header-close
+        title="Name Your Saved Cohort"
+        @shown="focusModalById('create-input')">
+        <CreateCohortModal
+          :cancel="cancelCreateModal"
+          :create="create" />
+      </b-modal>
     </div>
+  </div>
 </template>
 
 <script>
@@ -47,8 +51,8 @@ import Util from '@/mixins/Util';
 
 export default {
   name: 'ApplyAndSaveButtons',
-  mixins: [CohortEditSession, GoogleAnalytics, Util],
   components: { CreateCohortModal },
+  mixins: [CohortEditSession, GoogleAnalytics, Util],
   data: () => ({
     isPerforming: undefined,
     screenReaderAlert: undefined,

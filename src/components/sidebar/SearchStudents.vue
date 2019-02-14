@@ -1,27 +1,33 @@
 <template>
   <div class="sidebar-section-search">
-    <form id="search-students-form"
-          autocomplete="off"
-          v-bind:class="{'search-students-with-button': withButton}"
-          v-on:submit.prevent="search()">
-      <div class="search-students-form-label-outer search-label" v-if="!withButton">
+    <form
+      id="search-students-form"
+      autocomplete="off"
+      :class="{'search-students-with-button': withButton}"
+      @submit.prevent="search()">
+      <div v-if="!withButton" class="search-students-form-label-outer search-label">
         <i class="fas fa-search"></i>
-        <label for="search-students-input"
-               class="search-students-form-label">Search Students or Classes</label>
+        <label
+          for="search-students-input"
+          class="search-students-form-label">Search Students or Classes</label>
       </div>
-      <div v-bind:class="{'search-students-form-button': withButton}">
-        <input id="search-students-input"
-               class="search-students-input"
-               v-model="searchPhrase"
-               :readonly="disable"
-               type="text"
-               maxlength="255"/>
+      <div :class="{'search-students-form-button': withButton}">
+        <input
+          id="search-students-input"
+          v-model="searchPhrase"
+          class="search-students-input"
+          :readonly="disable"
+          type="text"
+          maxlength="255" />
       </div>
       <div v-if="withButton">
-        <b-btn id="search-students-button"
-               variant="primary"
-               class="btn-search-students btn-primary-color-override"
-               type="submit">Search</b-btn>
+        <b-btn
+          id="search-students-button"
+          variant="primary"
+          class="btn-search-students btn-primary-color-override"
+          type="submit">
+          Search
+        </b-btn>
       </div>
     </form>
   </div>

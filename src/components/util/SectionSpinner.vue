@@ -1,16 +1,19 @@
 <template>
   <div>
-    <div class="spinner" v-if="loading">
-      <i class="fas fa-sync fa-spin"
-         :class="`fa-${faSize}x`"></i>
-      <span role="alert"
-            aria-live="passive"
-            class="sr-only">Loading...</span>
+    <div v-if="loading" class="spinner">
+      <i
+        class="fas fa-sync fa-spin"
+        :class="`fa-${faSize}x`"></i>
+      <span
+        role="alert"
+        aria-live="passive"
+        class="sr-only">Loading...</span>
     </div>
     <div v-if="!loading">
-      <span role="alert"
-            aria-live="passive"
-            class="sr-only">
+      <span
+        role="alert"
+        aria-live="passive"
+        class="sr-only">
         <span>{{ name }} loaded</span>
       </span>
     </div>

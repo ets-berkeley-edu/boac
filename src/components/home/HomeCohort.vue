@@ -1,19 +1,22 @@
 <template>
-  <div :id="`home-cohort-${cohort.id}`"
-       class="home-cohort-accordion panel"
-       :class="{'panel-open': cohort.isOpen}">
+  <div
+    :id="`home-cohort-${cohort.id}`"
+    class="home-cohort-accordion panel"
+    :class="{'panel-open': cohort.isOpen}">
     <div class="panel-heading">
-      <a :id="`home-cohort-${cohort.id}-toggle`"
-          v-b-toggle="`home-cohort-${cohort.id}`"
-          class="home-cohort-accordion-heading-link"
-          @click.prevent="fetchStudents()"
-          tabindex="0"
-          role="button"
-          href="#">
+      <a
+        :id="`home-cohort-${cohort.id}-toggle`"
+        v-b-toggle="`home-cohort-${cohort.id}`"
+        class="home-cohort-accordion-heading-link"
+        tabindex="0"
+        role="button"
+        href="#"
+        @click.prevent="fetchStudents()">
         <div class="home-cohort-accordion-heading">
           <div class="home-cohort-accordion-heading-name">
             <div class="accordion-heading-caret">
-              <i :id="`home-cohort-${cohort.id}-caret`"
+              <i
+                :id="`home-cohort-${cohort.id}-caret`"
                 :aria-label="isFetching ? 'Loading cohort details' : ''"
                 :class="{
                   'fas fa-spinner fa-spin': isFetching,
@@ -22,7 +25,7 @@
                 }"></i>
             </div>
             <h2 class="page-section-header-sub accordion-header">
-              <span class="sr-only">{{`${isOpen ? 'Hide' : 'Show'} details for cohort `}}</span>
+              <span class="sr-only">{{ `${isOpen ? 'Hide' : 'Show'} details for cohort ` }}</span>
               <span>{{ cohort.name }}</span>
               (<span :id="`home-cohort-${cohort.id}-total-student-count`">{{ cohort.totalStudentCount }}</span>
               <span class="sr-only">&nbsp;students</span>)
@@ -32,29 +35,32 @@
             <div class="group-summary-column-header home-cohort-accordion-heading-count-label">
               Total Issues:
             </div>
-            <div class="home-issues-pill home-issues-pill-zero"
-                  aria-label="`No issues for ${cohort.name}`"
-                  v-if="!cohort.alertCount">0</div>
-            <div class="home-issues-pill home-issues-pill-nonzero"
-                  aria-label="`${cohort.alertCount} alerts for ${cohort.name}`"
-                  v-if="cohort.alertCount">{{ cohort.alertCount }}</div>
+            <div
+              v-if="!cohort.alertCount"
+              class="home-issues-pill home-issues-pill-zero"
+              aria-label="`No issues for ${cohort.name}`">0</div>
+            <div
+              v-if="cohort.alertCount"
+              class="home-issues-pill home-issues-pill-nonzero"
+              aria-label="`${cohort.alertCount} alerts for ${cohort.name}`">{{ cohort.alertCount }}</div>
           </div>
         </div>
       </a>
     </div>
-    <b-collapse :id="`home-cohort-${cohort.id}`"
-                :aria-expanded="isOpen"
-                class="panel-body"
-                :class="{'panel-open': isOpen}">
+    <b-collapse
+      :id="`home-cohort-${cohort.id}`"
+      :aria-expanded="isOpen"
+      class="panel-body"
+      :class="{'panel-open': isOpen}">
       <div v-if="cohort.studentsWithAlerts && size(cohort.studentsWithAlerts)">
-        <SortableStudents :students="cohort.studentsWithAlerts"/>
+        <SortableStudents :students="cohort.studentsWithAlerts" />
       </div>
       <div>
         <router-link :id="`home-cohort-${cohort.id}-view-all`" :to="`/cohort/${cohort.id}`">
           <span v-if="cohort.totalStudentCount">
-            View <span>{{'student' | pluralize(cohort.totalStudentCount,
-                        {1: 'the one', 'other': `all ${cohort.totalStudentCount}`})}}
-                  </span>
+            View <span>{{ 'student' | pluralize(cohort.totalStudentCount,
+                                                {1: 'the one', 'other': `all ${cohort.totalStudentCount}`}) }}
+            </span>
             in "<span>{{ cohort.name }}</span>"
           </span>
           <span v-if="!cohort.totalStudentCount">
@@ -74,10 +80,10 @@ import Util from '@/mixins/Util';
 
 export default {
   name: 'HomeCohort',
-  mixins: [GoogleAnalytics, Util],
   components: {
     SortableStudents
   },
+  mixins: [GoogleAnalytics, Util],
   props: {
     cohort: Object
   },

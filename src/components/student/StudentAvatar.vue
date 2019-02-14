@@ -1,16 +1,19 @@
 <template>
   <div class="position-relative">
-    <img class="avatar"
-         :class="avatarStyle"
-         :aria-label="`Photo of ${student.firstName} ${student.lastName}`"
-         :alt="`Photo of ${student.firstName} ${student.lastName}`"
-         tabindex="0"
-         :src="avatarUrl"
-         @error="avatarError"/>
-    <div class="student-avatar-alert-count home-inactive-info-icon"
-         v-if="alertCount">
-      <span v-b-tooltip.hover.bottom
-            :title="`${alertCount} alert${alertCount === 1 ? '' : 's'}`">
+    <img
+      class="avatar"
+      :class="avatarStyle"
+      :aria-label="`Photo of ${student.firstName} ${student.lastName}`"
+      :alt="`Photo of ${student.firstName} ${student.lastName}`"
+      tabindex="0"
+      :src="avatarUrl"
+      @error="avatarError" />
+    <div
+      v-if="alertCount"
+      class="student-avatar-alert-count home-inactive-info-icon">
+      <span
+        v-b-tooltip.hover.bottom
+        :title="`${alertCount} alert${alertCount === 1 ? '' : 's'}`">
         {{ alertCount }}
       </span>
     </div>

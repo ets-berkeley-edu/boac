@@ -5,48 +5,53 @@
     </div>
     <div id="matrix-choose-metrics" class="matrix-choose-metrics">
       <strong>Compare:</strong>
-      <select id="matrix-choose-metrics-y-axis"
-              class="matrix-choose-metrics-select"
-              v-model="selectedAxes.y"
-              @change="refreshMatrix()">
-        <option v-for="(yAxisName, yAxisValue) in axisLabels"
-                :key="yAxisName"
-                :value="yAxisValue"
-                :disabled="yAxisValue === selectedAxes.x">
+      <select
+        id="matrix-choose-metrics-y-axis"
+        v-model="selectedAxes.y"
+        class="matrix-choose-metrics-select"
+        @change="refreshMatrix()">
+        <option
+          v-for="(yAxisName, yAxisValue) in axisLabels"
+          :key="yAxisName"
+          :value="yAxisValue"
+          :disabled="yAxisValue === selectedAxes.x">
           {{ yAxisName }}
         </option>
       </select>
-      <select id="matrix-choose-metrics-x-axis"
-              class="matrix-choose-metrics-select"
-              v-model="selectedAxes.x"
-              @change="refreshMatrix()">
-        <option v-for="(xAxisName, xAxisValue) in axisLabels"
-                :key="xAxisName"
-                :value="xAxisValue"
-                :disabled="xAxisValue === selectedAxes.y">
+      <select
+        id="matrix-choose-metrics-x-axis"
+        v-model="selectedAxes.x"
+        class="matrix-choose-metrics-select"
+        @change="refreshMatrix()">
+        <option
+          v-for="(xAxisName, xAxisValue) in axisLabels"
+          :key="xAxisName"
+          :value="xAxisValue"
+          :disabled="xAxisValue === selectedAxes.y">
           {{ xAxisName }}
         </option>
       </select>
     </div>
     <div id="matrix-container" class="matrix-container">
-      <div class="matrix-zoom-wrapper" v-if="plottable">
+      <div v-if="plottable" class="matrix-zoom-wrapper">
         Zoom:
         <div class="btn-group">
           <button type="button" class="btn matrix-zoom-button" @click="zoomIn()">
             <i class="fa fa-plus"></i>
             <span class="sr-only">Zoom in</span>
           </button>
-          <button type="button"
-                  class="btn matrix-zoom-button"
-                  @click="zoomOut()"
-                  :disabled="zoom.scale === 1">
+          <button
+            type="button"
+            class="btn matrix-zoom-button"
+            :disabled="zoom.scale === 1"
+            @click="zoomOut()">
             <i class="fa fa-minus" :class="{'matrix-zoom-disabled': zoom.scale === 1}"></i>
             <span class="sr-only">Zoom out</span>
           </button>
         </div>
       </div>
-      <div id="scatterplot" class="matrix" v-if="plottable"></div>
-      <div id="cohort-missing-student-data" class="cohort-missing-student-data" v-if="!isEmpty(studentsWithoutData)">
+      <div v-if="plottable" id="scatterplot" class="matrix"></div>
+      <div v-if="!isEmpty(studentsWithoutData)" id="cohort-missing-student-data" class="cohort-missing-student-data">
         <h2 class="matrix-header">Missing Student Data</h2>
         <div>For the following students, some results may only provide partial data or information is currently unavailable:</div>
         <table class="missing-student-data-table">
@@ -59,25 +64,29 @@
             </tr>
           </thead>
           <tbody>
-            <tr :id="student.uid"
-                class="cohort-missing-student-data-row"
-                :class="{'cohort-list-row-info': featured===student.uid}"
-                v-for="student in studentsWithoutData" :key="student.uid">
+            <tr
+              v-for="student in studentsWithoutData"
+              :id="student.uid"
+              :key="student.uid"
+              class="cohort-missing-student-data-row"
+              :class="{'cohort-list-row-info': featured===student.uid}">
               <td class="student-avatar-container">
-                <StudentAvatar :student="student"/>
+                <StudentAvatar :student="student" />
               </td>
               <td class="cohort-student-bio-container">
                 <div class="flex-container">
                   <a :href="'/student/' + student.uid">
-                    <div class="flex-container student-name"
-                         :class="{'demo-mode-blur': user.inDemoMode}">
+                    <div
+                      class="flex-container student-name"
+                      :class="{'demo-mode-blur': user.inDemoMode}">
                       {{ student.lastName + (student.firstName ? ', ' + student.firstName : '') }}
                     </div>
                   </a>
                 </div>
-                <div class="student-sid"
-                     :class="{'demo-mode-blur': user.inDemoMode}"
-                     v-if="student.sid">
+                <div
+                  v-if="student.sid"
+                  class="student-sid"
+                  :class="{'demo-mode-blur': user.inDemoMode}">
                   SID: {{ student.sid }}
                 </div>
               </td>
@@ -85,7 +94,7 @@
                 <span v-if="hasPlottableProperty(student, selectedAxes.x)">
                   {{ getDisplayProperty(student, selectedAxes.x) }}
                 </span>
-                <span class="sr-only" v-if="!hasPlottableProperty(student, selectedAxes.x)">
+                <span v-if="!hasPlottableProperty(student, selectedAxes.x)" class="sr-only">
                   No data
                 </span>
               </td>
@@ -93,7 +102,7 @@
                 <span v-if="hasPlottableProperty(student, selectedAxes.y)">
                   {{ getDisplayProperty(student, selectedAxes.y) }}
                 </span>
-                <span class="sr-only" v-if="!hasPlottableProperty(student, selectedAxes.y)">
+                <span v-if="!hasPlottableProperty(student, selectedAxes.y)" class="sr-only">
                   No data
                 </span>
               </td>
@@ -117,13 +126,13 @@ import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 export default {
   name: 'Matrix',
-  mixins: [Berkeley, Context, MatrixUtil, UserMetadata, Util],
   components: {
     StudentAvatar
   },
-  mounted() {
-    this.initAxisLabels();
-    this.refreshMatrix();
+  mixins: [Berkeley, Context, MatrixUtil, UserMetadata, Util],
+  props: {
+    featured: String,
+    section: Object
   },
   data: () => ({
     axisLabels: {},
@@ -137,9 +146,9 @@ export default {
     zoomIn: _.noop,
     zoomOut: _.noop
   }),
-  props: {
-    featured: String,
-    section: Object
+  mounted() {
+    this.initAxisLabels();
+    this.refreshMatrix();
   },
   methods: {
     drawScatterplot(students) {

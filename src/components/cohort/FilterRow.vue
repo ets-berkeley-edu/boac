@@ -1,49 +1,58 @@
 <template>
-  <div class="d-flex"
-       :class="{'pt-2': !isExistingFilter}"
-       v-if="showRow">
-    <div :id="`existing-name-${index}`"
-         class="existing-filter-name p-2"
-         v-if="isExistingFilter">
+  <div
+    v-if="showRow"
+    class="d-flex"
+    :class="{'pt-2': !isExistingFilter}">
+    <div
+      v-if="isExistingFilter"
+      :id="`existing-name-${index}`"
+      class="existing-filter-name p-2">
       <span class="sr-only">Filter name:</span> {{ filter.name }}
     </div>
-    <div :id="filterRowPrimaryDropdownId(filterRowIndex)"
-         class="cohort-filter-draft-column-01 pr-2"
-         v-if="isModifyingFilter && !isExistingFilter">
+    <div
+      v-if="isModifyingFilter && !isExistingFilter"
+      :id="filterRowPrimaryDropdownId(filterRowIndex)"
+      class="cohort-filter-draft-column-01 pr-2">
       <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
-      <b-dropdown toggle-class="dd-override"
-                  variant="link"
-                  no-caret>
+      <b-dropdown
+        toggle-class="dd-override"
+        variant="link"
+        no-caret>
         <template slot="button-content">
           <div class="dropdown-width d-flex justify-content-between text-dark">
             <div v-if="filter.name"><span class="sr-only">Filter:</span> {{ filter.name || 'New Filter' }}</div>
             <div v-if="!filter.name"><span class="sr-only">Select a </span>New Filter</div>
             <div>
-              <i :class="{
-                'fas fa-angle-up menu-caret': isMenuOpen,
-                'fas fa-angle-down menu-caret': !isMenuOpen
-              }"></i>
+              <i
+                :class="{
+                  'fas fa-angle-up menu-caret': isMenuOpen,
+                  'fas fa-angle-down menu-caret': !isMenuOpen
+                }"></i>
             </div>
           </div>
         </template>
-        <div role="group"
-             v-for="(category, index) in menu"
-             :key="index"
-             :aria-labelledby="'filter-option-group-header-' + index">
-          <b-dropdown-header class="sr-only" :id="'filter-option-group-header-' + index">
-            Filter option group {{index + 1}} of {{menu.length}}
+        <div
+          v-for="(category, index) in menu"
+          :key="index"
+          role="group"
+          :aria-labelledby="'filter-option-group-header-' + index">
+          <b-dropdown-header :id="'filter-option-group-header-' + index" class="sr-only">
+            Filter option group {{ index + 1 }} of {{ menu.length }}
           </b-dropdown-header>
-          <b-dropdown-item v-for="subCategory in category"
-                           class="dropdown-item"
-                           :class="{
-                             'pointer-default text-muted font-weight-light': subCategory.disabled,
-                             'text-dark': !subCategory.disabled
-                           }"
-                           :key="subCategory.key"
-                           @click="setFilterCategory(subCategory)"
-                           @mouseover.prevent.stop
-                           :aria-disabled="subCategory.disabled"
-                           :disabled="subCategory.disabled">{{ subCategory.name }}</b-dropdown-item>
+          <b-dropdown-item
+            v-for="subCategory in category"
+            :key="subCategory.key"
+            class="dropdown-item"
+            :class="{
+              'pointer-default text-muted font-weight-light': subCategory.disabled,
+              'text-dark': !subCategory.disabled
+            }"
+            :aria-disabled="subCategory.disabled"
+            :disabled="subCategory.disabled"
+            @click="setFilterCategory(subCategory)"
+            @mouseover.prevent.stop>
+            {{ subCategory.name }}
+          </b-dropdown-item>
           <b-dropdown-divider v-if="index !== (menu.length - 1)"></b-dropdown-divider>
         </div>
       </b-dropdown>
@@ -51,128 +60,147 @@
     <div v-if="!isModifyingFilter">
       <span class="sr-only">Selected filter value: </span>{{ valueLabel }}
     </div>
-    <div class="cohort-filter-draft-column-02"
-         v-if="isModifyingFilter">
-      <div :id="`filter-row-dropdown-secondary-${filterRowIndex}`"
-           v-if="filter.type === 'array'">
-        <b-dropdown toggle-class="dd-override"
-                    variant="link"
-                    no-caret>
+    <div
+      v-if="isModifyingFilter"
+      class="cohort-filter-draft-column-02">
+      <div
+        v-if="filter.type === 'array'"
+        :id="`filter-row-dropdown-secondary-${filterRowIndex}`">
+        <b-dropdown
+          toggle-class="dd-override"
+          variant="link"
+          no-caret>
           <template slot="button-content">
             <div class="dropdown-width d-flex justify-content-between text-secondary">
               <div v-if="valueLabel"><span class="sr-only">Selected value is </span>{{ valueLabel }}</div>
               <div v-if="!valueLabel">Choose...<span class="sr-only"> a filter value option</span></div>
               <div>
-                <i :class="{
-                  'fas fa-angle-up menu-caret': isMenuOpen,
-                  'fas fa-angle-down menu-caret': !isMenuOpen
-                }"></i>
+                <i
+                  :class="{
+                    'fas fa-angle-up menu-caret': isMenuOpen,
+                    'fas fa-angle-down menu-caret': !isMenuOpen
+                  }"></i>
               </div>
             </div>
           </template>
-          <b-dropdown-item :id="`${filter.name}-${option.value}`"
-                           class="dropdown-item"
-                           :class="{
-                             'pointer-default text-muted font-weight-light': option.disabled,
-                             'text-dark': !option.disabled
-                           }"
-                           v-for="option in filter.options"
-                           :key="option.key"
-                           @click="typeArrayUpdateValue(option)"
-                           @mouseover.prevent.stop
-                           :aria-disabled="option.disabled"
-                           :disabled="option.disabled">{{ option.name }}</b-dropdown-item>
+          <b-dropdown-item
+            v-for="option in filter.options"
+            :id="`${filter.name}-${option.value}`"
+            :key="option.key"
+            class="dropdown-item"
+            :class="{
+              'pointer-default text-muted font-weight-light': option.disabled,
+              'text-dark': !option.disabled
+            }"
+            :aria-disabled="option.disabled"
+            :disabled="option.disabled"
+            @click="typeArrayUpdateValue(option)"
+            @mouseover.prevent.stop>
+            {{ option.name }}
+          </b-dropdown-item>
         </b-dropdown>
       </div>
-      <div class="filter-range-container" v-if="filter.type === 'range'">
+      <div v-if="filter.type === 'range'" class="filter-range-container">
         <div class="filter-range-label-start">
           {{ filter.subcategoryHeader[0] }}
         </div>
         <div>
-          <span :id="isExistingFilter ? `filter-${index}-range-start-label` : 'filter-range-start-label'"
-                class="sr-only">beginning of range</span>
-          <input :id="filterRangeStartInputId"
-                 class="filter-range-input"
-                 :aria-labelledby="isExistingFilter ? `filter-${index}-range-start-label` : 'filter-range-start-label'"
-                 v-model="range.start"
-                 maxlength="1"/>
+          <span
+            :id="isExistingFilter ? `filter-${index}-range-start-label` : 'filter-range-start-label'"
+            class="sr-only">beginning of range</span>
+          <input
+            :id="filterRangeStartInputId"
+            v-model="range.start"
+            class="filter-range-input"
+            :aria-labelledby="isExistingFilter ? `filter-${index}-range-start-label` : 'filter-range-start-label'"
+            maxlength="1" />
         </div>
         <div class="filter-range-label-stop">
           {{ filter.subcategoryHeader[1] }}
         </div>
         <div>
-          <span :id="isExistingFilter ? `filter-${index}-range-stop-label` : 'filter-range-stop-label'"
-                class="sr-only">end of range</span>
-          <input class="filter-range-input"
-                 :aria-labelledby="isExistingFilter ? `filter-${index}-range-stop-label` : 'filter-range-stop-label'"
-                 v-model="range.stop"
-                 maxlength="1">
+          <span
+            :id="isExistingFilter ? `filter-${index}-range-stop-label` : 'filter-range-stop-label'"
+            class="sr-only">end of range</span>
+          <input
+            v-model="range.stop"
+            class="filter-range-input"
+            :aria-labelledby="isExistingFilter ? `filter-${index}-range-stop-label` : 'filter-range-stop-label'"
+            maxlength="1">
         </div>
         <div class="sr-only" aria-live="polite">{{ range.error }}</div>
-        <b-popover :show="true"
-                   :target="isExistingFilter ? `filter-${index}-range-start` : 'filter-range-start'"
-                   placement="top"
-                   v-if="size(range.error)">
+        <b-popover
+          v-if="size(range.error)"
+          :show="true"
+          :target="isExistingFilter ? `filter-${index}-range-start` : 'filter-range-start'"
+          placement="top">
           <span class="has-error">{{ range.error }}</span>
         </b-popover>
       </div>
     </div>
-    <div class="cohort-filter-draft-column-03 pl-0" v-if="!isExistingFilter">
-      <b-btn id="unsaved-filter-add"
-             class="btn-primary-color-override ml-2"
-             variant="primary"
-             aria-label="Add this new filter to the search criteria"
-             @click="addNewFilter()"
-             v-if="showAdd">
+    <div v-if="!isExistingFilter" class="cohort-filter-draft-column-03 pl-0">
+      <b-btn
+        v-if="showAdd"
+        id="unsaved-filter-add"
+        class="btn-primary-color-override ml-2"
+        variant="primary"
+        aria-label="Add this new filter to the search criteria"
+        @click="addNewFilter()">
         Add
       </b-btn>
     </div>
-    <div class="cohort-filter-draft-column-04"
-         v-if="isModifyingFilter && filter.type && !isExistingFilter">
-      <b-btn id="unsaved-filter-reset"
-             class="cohort-manage-btn-link p-0"
-             variant="link"
-             aria-label="Cancel this filter selection"
-             @click="reset()">
+    <div
+      v-if="isModifyingFilter && filter.type && !isExistingFilter"
+      class="cohort-filter-draft-column-04">
+      <b-btn
+        id="unsaved-filter-reset"
+        class="cohort-manage-btn-link p-0"
+        variant="link"
+        aria-label="Cancel this filter selection"
+        @click="reset()">
         Cancel
       </b-btn>
     </div>
-    <div class="ml-auto p-2" v-if="isOwnedByCurrentUser && isExistingFilter">
-      <div class="d-flex flex-row" v-if="!isModifyingFilter">
+    <div v-if="isOwnedByCurrentUser && isExistingFilter" class="ml-auto p-2">
+      <div v-if="!isModifyingFilter" class="d-flex flex-row">
         <span v-if="filter.type !== 'boolean'">
-          <b-btn :id="`edit-added-filter-${index}`"
-                 class="btn-cohort-added-filter pr-1"
-                 variant="link"
-                 :aria-label="`Edit this ${filter.name} filter`"
-                 size="sm"
-                 @click="editExistingFilter()">
+          <b-btn
+            :id="`edit-added-filter-${index}`"
+            class="btn-cohort-added-filter pr-1"
+            variant="link"
+            :aria-label="`Edit this ${filter.name} filter`"
+            size="sm"
+            @click="editExistingFilter()">
             Edit
           </b-btn> |
         </span>
-        <b-btn :id="`remove-added-filter-${index}`"
-               class="btn-cohort-added-filter pl-2 pr-0"
-               variant="link"
-               :aria-label="`Remove this ${filter.name} filter`"
-               size="sm"
-               @click="remove()">
+        <b-btn
+          :id="`remove-added-filter-${index}`"
+          class="btn-cohort-added-filter pl-2 pr-0"
+          variant="link"
+          :aria-label="`Remove this ${filter.name} filter`"
+          size="sm"
+          @click="remove()">
           Remove
         </b-btn>
       </div>
-      <div class="d-flex flex-row" v-if="isModifyingFilter">
-        <b-btn :id="`update-added-filter-${index}`"
-               class="btn-primary-color-override"
-               variant="primary"
-               :aria-label="`Update this ${filter.name} filter`"
-               size="sm"
-               @click="updateButtonClick()">
+      <div v-if="isModifyingFilter" class="d-flex flex-row">
+        <b-btn
+          :id="`update-added-filter-${index}`"
+          class="btn-primary-color-override"
+          variant="primary"
+          :aria-label="`Update this ${filter.name} filter`"
+          size="sm"
+          @click="updateButtonClick()">
           Update
         </b-btn>
-        <b-btn :id="`cancel-edit-added-filter-${index}`"
-               class="btn-cohort-added-filter"
-               variant="link"
-               aria-label="Cancel update"
-               size="sm"
-               @click="cancelEditExisting()">
+        <b-btn
+          :id="`cancel-edit-added-filter-${index}`"
+          class="btn-cohort-added-filter"
+          variant="link"
+          aria-label="Cancel update"
+          size="sm"
+          @click="cancelEditExisting()">
           Cancel
         </b-btn>
       </div>
@@ -209,10 +237,6 @@ export default {
     valueLabel: undefined,
     valueOriginal: undefined
   }),
-  created() {
-    this.reset();
-    this.valueOriginal = this.filter && this.filter.value;
-  },
   computed: {
     filterRangeStartInputId() {
       return this.isExistingFilter
@@ -222,6 +246,54 @@ export default {
     filterRowIndex() {
       return this.isExistingFilter ? this.index : 'new';
     }
+  },
+  watch: {
+    editMode(newEditMode) {
+      // Reset the current filter-row if an edit session is initiated elsewhere.
+      if (this.isNil(newEditMode)) {
+        // Nothing is being edited. Let's make sure this row is in default state.
+        this.reset();
+        this.showRow = true;
+      } else if (newEditMode === 'add') {
+        if (this.isExistingFilter) {
+          // User is adding a new filter so other rows, per existing filters, are put back in default state.
+          this.reset();
+        }
+      } else if (newEditMode.match('edit-[0-9]+')) {
+        if (this.isExistingFilter) {
+          if (newEditMode !== `edit-${this.index}`) {
+            // We do not allow two rows to be in edit mode simultaneously. In this case, some other row is entering edit
+            // mode so we effectively click cancel on this row.
+            this.reset();
+          }
+        } else {
+          // Reset and then hide this 'New Filter' row because user has clicked to edit an existing filter.
+          this.reset();
+          this.showRow = false;
+        }
+      } else if (newEditMode === 'rename') {
+        this.reset();
+      }
+    },
+    range: {
+      handler(rangeObject) {
+        const start = this.trim(this.get(rangeObject, 'start'));
+        const stop = this.trim(this.get(rangeObject, 'stop'));
+        this.range.error =
+          start && stop && start > stop
+            ? 'Values must be in ascending order.'
+            : undefined;
+        this.showAdd = start && stop && !this.range.error;
+        if (this.showAdd) {
+          this.putFocusNextTick('unsaved-filter-add');
+        }
+      },
+      deep: true
+    }
+  },
+  created() {
+    this.reset();
+    this.valueOriginal = this.filter && this.filter.value;
   },
   methods: {
     addNewFilter() {
@@ -380,50 +452,6 @@ export default {
           break;
       }
       return label;
-    }
-  },
-  watch: {
-    editMode(newEditMode) {
-      // Reset the current filter-row if an edit session is initiated elsewhere.
-      if (this.isNil(newEditMode)) {
-        // Nothing is being edited. Let's make sure this row is in default state.
-        this.reset();
-        this.showRow = true;
-      } else if (newEditMode === 'add') {
-        if (this.isExistingFilter) {
-          // User is adding a new filter so other rows, per existing filters, are put back in default state.
-          this.reset();
-        }
-      } else if (newEditMode.match('edit-[0-9]+')) {
-        if (this.isExistingFilter) {
-          if (newEditMode !== `edit-${this.index}`) {
-            // We do not allow two rows to be in edit mode simultaneously. In this case, some other row is entering edit
-            // mode so we effectively click cancel on this row.
-            this.reset();
-          }
-        } else {
-          // Reset and then hide this 'New Filter' row because user has clicked to edit an existing filter.
-          this.reset();
-          this.showRow = false;
-        }
-      } else if (newEditMode === 'rename') {
-        this.reset();
-      }
-    },
-    range: {
-      handler(rangeObject) {
-        const start = this.trim(this.get(rangeObject, 'start'));
-        const stop = this.trim(this.get(rangeObject, 'stop'));
-        this.range.error =
-          start && stop && start > stop
-            ? 'Values must be in ascending order.'
-            : undefined;
-        this.showAdd = start && stop && !this.range.error;
-        if (this.showAdd) {
-          this.putFocusNextTick('unsaved-filter-add');
-        }
-      },
-      deep: true
     }
   }
 };

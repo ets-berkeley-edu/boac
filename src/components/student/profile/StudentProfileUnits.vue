@@ -1,27 +1,31 @@
 <template>
   <div class="d-flex flex-wrap h-100 p-2">
-    <div id="cumulative-units"
-         class="cumulative-units text-center mt-4">
-      <div class="data-number" v-if="cumulativeUnits">{{cumulativeUnits}}</div>
-      <div class="data-number" v-if="!cumulativeUnits">--<span class="sr-only">No data</span></div>
+    <div
+      id="cumulative-units"
+      class="cumulative-units text-center mt-4">
+      <div v-if="cumulativeUnits" class="data-number">{{ cumulativeUnits }}</div>
+      <div v-if="!cumulativeUnits" class="data-number">--<span class="sr-only">No data</span></div>
       <div class="cumulative-units-label text-uppercase">Units Completed</div>
     </div>
     <div id="units-chart" class="units-chart border-left">
       <div class="ml-3 mt-3">
         <div class="unit-totals-label font-weight-bold">Unit Totals</div>
         <div class="mt-2">
-          <StudentUnitsChart class="student-units-chart"
-                             :currentEnrolledUnits="currentEnrolledUnits"
-                             :cumulativeUnits="cumulativeUnits"
-                             v-if="cumulativeUnits || currentEnrolledUnits"/>
-          <div class="section-label"
-               v-if="!cumulativeUnits && !currentEnrolledUnits">
-              Units Not Yet Available
+          <StudentUnitsChart
+            v-if="cumulativeUnits || currentEnrolledUnits"
+            class="student-units-chart"
+            :current-enrolled-units="currentEnrolledUnits"
+            :cumulative-units="cumulativeUnits" />
+          <div
+            v-if="!cumulativeUnits && !currentEnrolledUnits"
+            class="section-label">
+            Units Not Yet Available
           </div>
         </div>
-        <div id="currently-enrolled-units"
-             class="sr-only"
-             v-if="cumulativeUnits || currentEnrolledUnits">
+        <div
+          v-if="cumulativeUnits || currentEnrolledUnits"
+          id="currently-enrolled-units"
+          class="sr-only">
           Currently enrolled units: {{ currentEnrolledUnits || '0' }}
         </div>
       </div>
@@ -36,10 +40,10 @@ import Util from '@/mixins/Util';
 
 export default {
   name: 'StudentProfileUnits',
-  mixins: [Context, Util],
   components: {
     StudentUnitsChart
   },
+  mixins: [Context, Util],
   props: {
     student: Object
   },

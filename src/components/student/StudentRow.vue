@@ -1,34 +1,39 @@
 <template>
   <div>
     <div class="cohort-list-view-column-01">
-      <button :id="`student-${student.uid}-curated-group-remove`"
-              class="btn btn-link"
-              @click="removeFromCuratedGroup"
-              v-if="listType === 'curatedGroup'">
+      <button
+        v-if="listType === 'curatedGroup'"
+        :id="`student-${student.uid}-curated-group-remove`"
+        class="btn btn-link"
+        @click="removeFromCuratedGroup">
         <i class="fas fa-times-circle"></i>
       </button>
-      <div class="add-to-cohort-checkbox"
-           v-if="listType !== 'curatedGroup'">
-        <CuratedStudentCheckbox :sid="student.sid"/>
+      <div
+        v-if="listType !== 'curatedGroup'"
+        class="add-to-cohort-checkbox">
+        <CuratedStudentCheckbox :sid="student.sid" />
       </div>
     </div>
     <div class="cohort-list-view-column-01">
-      <StudentAvatar size="medium"
-                     :student="student"
-                     :alertCount="student.alertCount"/>
+      <StudentAvatar
+        size="medium"
+        :student="student"
+        :alert-count="student.alertCount" />
     </div>
     <div class="cohort-student-bio-container">
       <div class="cohort-student-name-container">
         <div>
           <router-link :id="student.uid" :to="`/student/${student.uid}`">
-            <h3 class="student-name"
-                :class="{'demo-mode-blur' : user.inDemoMode}"
-                v-if="sortedBy !== 'firstName'">
+            <h3
+              v-if="sortedBy !== 'firstName'"
+              class="student-name"
+              :class="{'demo-mode-blur' : user.inDemoMode}">
               {{ student.lastName }}, {{ student.firstName }}
             </h3>
-            <h3 class="student-name"
-                :class="{'demo-mode-blur' : user.inDemoMode}"
-                v-if="sortedBy === 'firstName'">
+            <h3
+              v-if="sortedBy === 'firstName'"
+              class="student-name"
+              :class="{'demo-mode-blur' : user.inDemoMode}">
               {{ student.firstName }} {{ student.lastName }}
             </h3>
           </router-link>
@@ -36,48 +41,59 @@
       </div>
       <div class="student-sid" :class="{'demo-mode-blur' : user.inDemoMode}">
         {{ student.sid }}
-        <span class="red-flag-status" v-if="displayAsInactive(student)">INACTIVE</span>
+        <span v-if="displayAsInactive(student)" class="red-flag-status">INACTIVE</span>
       </div>
       <div v-if="student.withdrawalCancel">
         <span class="red-flag-small">
           {{ student.withdrawalCancel.description }} {{ student.withdrawalCancel.date | date }}
         </span>
       </div>
-      <div :id="`student-${student.sid}-level`"
-           class="student-text">{{ student.level }}</div>
-      <div class="student-text"
-           v-for="(major, index) in student.majors"
-           :key="index">
+      <div
+        :id="`student-${student.sid}-level`"
+        class="student-text">
+        {{ student.level }}
+      </div>
+      <div
+        v-for="(major, index) in student.majors"
+        :key="index"
+        class="student-text">
         <span :id="`student-${student.sid}-major-${index}`">{{ major }}</span>
       </div>
-      <div class="student-teams-container" v-if="student.athleticsProfile">
-        <div class="student-teams"
-             v-for="(team, index) in student.athleticsProfile.athletics"
-             :key="index">
+      <div v-if="student.athleticsProfile" class="student-teams-container">
+        <div
+          v-for="(team, index) in student.athleticsProfile.athletics"
+          :key="index"
+          class="student-teams">
           <span :id="`student-${student.sid}-team-${index}`">{{ team.groupName }}</span>
         </div>
       </div>
     </div>
     <div class="student-column student-column-gpa">
       <div>
-        <span :id="`student-${student.sid}-cumulative-gpa`"
-              class="student-gpa"
-              v-if="isNil(student.cumulativeGPA)">--<span class="sr-only">No data</span></span>
-        <span :id="`student-${student.sid}-cumulative-gpa`"
-              class="student-gpa"
-              v-if="!isNil(student.cumulativeGPA)">{{ student.cumulativeGPA | round(3) }}</span>
+        <span
+          v-if="isNil(student.cumulativeGPA)"
+          :id="`student-${student.sid}-cumulative-gpa`"
+          class="student-gpa">--<span class="sr-only">No data</span></span>
+        <span
+          v-if="!isNil(student.cumulativeGPA)"
+          :id="`student-${student.sid}-cumulative-gpa`"
+          class="student-gpa">{{ student.cumulativeGPA | round(3) }}</span>
         <span class="student-text"> GPA (Cumulative)</span>
       </div>
-      <StudentGpaChart :student="student"
-                       :width="'130'"
-                       v-if="size(student.termGpa) > 1"/>
-      <div class="student-bio-status-legend profile-last-term-gpa-outer"
-           v-if="size(student.termGpa)">
-        <i class="fa fa-exclamation-triangle boac-exclamation"
-            v-if="student.termGpa[0].gpa < 2"></i>
+      <StudentGpaChart
+        v-if="size(student.termGpa) > 1"
+        :student="student"
+        :width="'130'" />
+      <div
+        v-if="size(student.termGpa)"
+        class="student-bio-status-legend profile-last-term-gpa-outer">
+        <i
+          v-if="student.termGpa[0].gpa < 2"
+          class="fa fa-exclamation-triangle boac-exclamation"></i>
         <span :id="`student-${student.sid}-term-gpa-term-name`">{{ student.termGpa[0].termName }}</span> GPA:
-        <strong :id="`student-${student.sid}-term-gpa`"
-                :class="student.termGpa[0].gpa >= 2 ? 'profile-last-term-gpa' : 'profile-gpa-alert'">{{ student.termGpa[0].gpa | round(3) }}</strong>
+        <strong
+          :id="`student-${student.sid}-term-gpa`"
+          :class="student.termGpa[0].gpa >= 2 ? 'profile-last-term-gpa' : 'profile-gpa-alert'">{{ student.termGpa[0].gpa | round(3) }}</strong>
       </div>
     </div>
     <div class="student-column">
@@ -91,12 +107,18 @@
         <div :id="`student-${student.sid}-max-units`" class="student-gpa">{{ student.currentTerm.unitsMaxOverride }}</div>
         <div class="student-text">Max&nbsp;Approved</div>
       </div>
-      <div :id="`student-${student.sid}-cumulative-units`"
-           class="student-gpa"
-           v-if="student.cumulativeUnits">{{ student.cumulativeUnits }}</div>
-      <div :id="`student-${student.sid}-cumulative-units`"
-           class="student-gpa"
-           v-if="!student.cumulativeUnits">--<span class="sr-only">No data</span></div>
+      <div
+        v-if="student.cumulativeUnits"
+        :id="`student-${student.sid}-cumulative-units`"
+        class="student-gpa">
+        {{ student.cumulativeUnits }}
+      </div>
+      <div
+        v-if="!student.cumulativeUnits"
+        :id="`student-${student.sid}-cumulative-units`"
+        class="student-gpa">
+        --<span class="sr-only">No data</span>
+      </div>
       <div class="student-text">Units Completed</div>
     </div>
     <div class="cohort-course-activity-wrapper">
@@ -112,30 +134,37 @@
             <div>{{ enrollment.displayName }}</div>
           </td>
           <td class="cohort-course-activity-data">
-            <div :id="`student-${student.sid}-canvas-site-${index}`"
-                 class="cohort-boxplot-container"
-                 v-for="(canvasSite, index) in enrollment.canvasSites"
-                 :key="index">
-              <span class="sr-only"
-                    v-if="enrollment.canvasSites.length > 1">
+            <div
+              v-for="(canvasSite, index) in enrollment.canvasSites"
+              :id="`student-${student.sid}-canvas-site-${index}`"
+              :key="index"
+              class="cohort-boxplot-container">
+              <span
+                v-if="enrollment.canvasSites.length > 1"
+                class="sr-only">
                 {{ `Course site ${index + 1} of ${enrollment.canvasSites.length}` }}
               </span>
               <span>{{ lastActivityDays(canvasSite.analytics) }}</span>
             </div>
-            <div :id="`student-${student.sid}-canvas-sites-no-data`"
-                 v-if="!get(enrollment, 'canvasSites').length"><span class="sr-only">No data</span>&mdash;</div>
+            <div
+              v-if="!get(enrollment, 'canvasSites').length"
+              :id="`student-${student.sid}-canvas-sites-no-data`">
+              <span class="sr-only">No data</span>&mdash;
+            </div>
           </td>
           <td class="cohort-course-activity-data">
-            <span class="cohort-grade" v-if="enrollment.midtermGrade">{{ enrollment.midtermGrade }}</span>
-            <i class="fas fa-exclamation-triangle boac-exclamation" v-if="isAlertGrade(enrollment.midtermGrade)"></i>
+            <span v-if="enrollment.midtermGrade" class="cohort-grade">{{ enrollment.midtermGrade }}</span>
+            <i v-if="isAlertGrade(enrollment.midtermGrade)" class="fas fa-exclamation-triangle boac-exclamation"></i>
             <span v-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
           </td>
           <td class="cohort-course-activity-data">
-            <span class="cohort-grade"
-                  v-if="enrollment.grade">{{ enrollment.grade }}</span>
-            <i class="fas fa-exclamation-triangle boac-exclamation" v-if="isAlertGrade(enrollment.grade)"></i>
-            <span class="cohort-grading-basis"
-                  v-if="!enrollment.grade">{{ enrollment.gradingBasis }}</span>
+            <span
+              v-if="enrollment.grade"
+              class="cohort-grade">{{ enrollment.grade }}</span>
+            <i v-if="isAlertGrade(enrollment.grade)" class="fas fa-exclamation-triangle boac-exclamation"></i>
+            <span
+              v-if="!enrollment.grade"
+              class="cohort-grading-basis">{{ enrollment.gradingBasis }}</span>
             <span v-if="!enrollment.grade && !enrollment.gradingBasis"><span class="sr-only">No data</span>&mdash;</span>
           </td>
         </tr>
@@ -171,6 +200,11 @@ import Util from '@/mixins/Util';
 
 export default {
   name: 'StudentRow',
+  components: {
+    CuratedStudentCheckbox,
+    StudentAvatar,
+    StudentGpaChart
+  },
   mixins: [
     Berkeley,
     Context,
@@ -179,11 +213,6 @@ export default {
     UserMetadata,
     Util
   ],
-  components: {
-    CuratedStudentCheckbox,
-    StudentAvatar,
-    StudentGpaChart
-  },
   props: {
     listType: String,
     student: Object,

@@ -1,29 +1,33 @@
 <template>
   <div id="app" class="index-container">
-    <a href="#content"
-       id="skip-to-content-link"
-       class="sr-only sr-only-focusable"
-       tabindex="2">Skip to main content</a>
+    <a
+      id="skip-to-content-link"
+      href="#content"
+      class="sr-only sr-only-focusable"
+      tabindex="2">Skip to main content</a>
     <div class="index-container-header">
       <div class="header-container">
         <div class="header-text">
-          <router-link to="/home"
-                       id="home-header"
-                       tabindex="1"><span class="sr-only">Return to </span>Home</router-link>
+          <router-link
+            id="home-header"
+            to="/home"
+            tabindex="1">
+            <span class="sr-only">Return to </span>Home
+          </router-link>
         </div>
-        <div><HeaderMenu/></div>
+        <div><HeaderMenu /></div>
       </div>
     </div>
     <div class="index-container-body">
       <div class="index-container-sidebar">
-        <Sidebar/>
+        <Sidebar />
       </div>
       <div class="index-container-content">
         <div id="content" class="body-text">
           <!-- The ':key' attribute forces component reload when same route is requested with diff id in path. -->
           <router-view :key="stripAnchorRef($route.fullPath)"></router-view>
         </div>
-        <Footer v-if="!loading"/>
+        <Footer v-if="!loading" />
       </div>
     </div>
   </div>
@@ -38,12 +42,12 @@ import Util from '@/mixins/Util';
 
 export default {
   name: 'StandardLayout',
-  mixins: [Loading, Util],
   components: {
     Footer,
     HeaderMenu,
     Sidebar
   },
+  mixins: [Loading, Util],
   created() {
     this.putFocusNextTick('home-header');
   },

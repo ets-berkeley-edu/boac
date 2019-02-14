@@ -27,9 +27,10 @@
       <div>
         <ul>
           <li>Version: {{ version.version }}</li>
-          <li>Build
+          <li>
+            Build
             <ul>
-              <li>Artifact: {{ version.build.artifact || '--'  }}</li>
+              <li>Artifact: {{ version.build.artifact || '--' }}</li>
               <li v-if="version.build.gitCommit">Git commit: <a :href="`https://github.com/ets-berkeley-edu/boac/commit/${version.build.gitCommit}`">{{ version.build.gitCommit }}</a></li>
             </ul>
           </li>
