@@ -1,53 +1,61 @@
 <template>
   <div>
-    <div tabindex="0"
-         v-if="totalCourseCount">
-      <h1 class="page-section-header"
-          v-if="renderPrimaryHeader">
+    <div
+      v-if="totalCourseCount"
+      tabindex="0">
+      <h1
+        v-if="renderPrimaryHeader"
+        class="page-section-header">
         {{ 'class' | pluralize(totalCourseCount, {1: 'One'}, 'es') }} matching '{{ searchPhrase }}'
       </h1>
-      <h2 class="page-section-header-sub pt-5"
-          v-if="!renderPrimaryHeader">
+      <h2
+        v-if="!renderPrimaryHeader"
+        class="page-section-header-sub pt-5">
         {{ 'class' | pluralize(totalCourseCount, {1: 'One'}, 'es') }} matching '{{ searchPhrase }}'
       </h2>
       <div v-if="courses.length < totalCourseCount">
-        Showing the first {{courses.length}} classes.
+        Showing the first {{ courses.length }} classes.
       </div>
     </div>
-    <div class="sr-only"
-         role="alert"
-         v-if="totalCourseCount && resorted">
+    <div
+      v-if="totalCourseCount && resorted"
+      class="sr-only"
+      role="alert">
       Courses sorted by {{ sort.by === 'section' ? 'section' : 'course name' }} {{ describeReverse(sort.reverse.section) }}
     </div>
-    <table class="table-full-width" v-if="totalCourseCount">
+    <table v-if="totalCourseCount" class="table-full-width">
       <tr role="row">
         <th>
-          <button id="column-sort-button-section"
-                  class="btn btn-link table-header-text group-summary-column-header group-summary-header-sortable search-results-cell"
-                  :aria-label="`Sort by section ${ sort.by === 'section' ? describeReverse(sort.reverse.section) : ''}`"
-                  tabindex="0"
-                  @click="courseSort('section')">
+          <button
+            id="column-sort-button-section"
+            class="btn btn-link table-header-text group-summary-column-header group-summary-header-sortable search-results-cell"
+            :aria-label="`Sort by section ${ sort.by === 'section' ? describeReverse(sort.reverse.section) : ''}`"
+            tabindex="0"
+            @click="courseSort('section')">
             Section
             <span v-if="sort.by === 'section'">
-              <i :class="{
-                'fas fa-caret-down': sort.reverse.section,
-                'fas fa-caret-up': !sort.reverse.section
-              }"></i>
+              <i
+                :class="{
+                  'fas fa-caret-down': sort.reverse.section,
+                  'fas fa-caret-up': !sort.reverse.section
+                }"></i>
             </span>
           </button>
         </th>
         <th>
-          <button id="column-sort-button-title"
-                  class="btn btn-link table-header-text group-summary-column-header group-summary-header-sortable search-results-cell"
-                  :aria-label="`Sort by course name ${ sort.by === 'title' ? describeReverse(sort.reverse.title) : ''}`"
-                  tabindex="0"
-                  @click="courseSort('title')">
+          <button
+            id="column-sort-button-title"
+            class="btn btn-link table-header-text group-summary-column-header group-summary-header-sortable search-results-cell"
+            :aria-label="`Sort by course name ${ sort.by === 'title' ? describeReverse(sort.reverse.title) : ''}`"
+            tabindex="0"
+            @click="courseSort('title')">
             Course Name
             <span v-if="sort.by === 'title'">
-              <i :class="{
-                'fas fa-caret-down': sort.reverse.title,
-                'fas fa-caret-up': !sort.reverse.title
-              }"></i>
+              <i
+                :class="{
+                  'fas fa-caret-down': sort.reverse.title,
+                  'fas fa-caret-up': !sort.reverse.title
+                }"></i>
             </span>
           </button>
         </th>

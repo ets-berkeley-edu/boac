@@ -1,30 +1,31 @@
 <template>
   <div class="pl-3 pt-3">
-    <Spinner/>
-    <CuratedGroupHeader v-if="!loading" :curatedGroup="curatedGroup"/>
-    <hr class="filters-section-separator" v-if="!loading && !error && size(curatedGroup.students)"/>
-    <div class="cohort-column-results" v-if="!loading">
-      <div class="d-flex m-2" v-if="size(curatedGroup.students) > 1">
+    <Spinner />
+    <CuratedGroupHeader v-if="!loading" :curated-group="curatedGroup" />
+    <hr v-if="!loading && !error && size(curatedGroup.students)" class="filters-section-separator" />
+    <div v-if="!loading" class="cohort-column-results">
+      <div v-if="size(curatedGroup.students) > 1" class="d-flex m-2">
         <div class="cohort-list-header-column-01"></div>
         <div class="cohort-list-header-column-02">
-          <SortBy/>
+          <SortBy />
         </div>
       </div>
       <div v-if="!size(curatedGroup.students)">
         This curated group has no students. Start adding students from their profile pages to your
         <strong>{{ curatedGroup.name }}</strong> group:
-        <SearchStudents class="ml-0 mt-3" :withButton="true"/>
+        <SearchStudents class="ml-0 mt-3" :with-button="true" />
       </div>
       <div v-if="size(curatedGroup.students)">
         <div id="curated-cohort-students" class="list-group">
-          <StudentRow :student="student"
-                      listType="curatedGroup"
-                      :sortedBy="preferences.sortBy"
-                      :id="`student-${student.uid}`"
-                      class="list-group-item student-list-item"
-                      :class="{'list-group-item-info' : anchor === `#${student.uid}`}"
-                      v-for="student in curatedGroup.students"
-                      :key="student.sid"/>
+          <StudentRow
+            v-for="student in curatedGroup.students"
+            :id="`student-${student.uid}`"
+            :key="student.sid"
+            :student="student"
+            list-type="curatedGroup"
+            :sorted-by="preferences.sortBy"
+            class="list-group-item student-list-item"
+            :class="{'list-group-item-info' : anchor === `#${student.uid}`}" />
         </div>
       </div>
     </div>
@@ -48,8 +49,6 @@ let SUPPLEMENTAL_SORT_BY = ['lastName', 'firstName', 'sid'];
 
 export default {
   name: 'CuratedGroup',
-  mixins: [Loading, Scrollable, UserMetadata, Util],
-  props: ['id'],
   components: {
     CuratedGroupHeader,
     SearchStudents,
@@ -57,6 +56,8 @@ export default {
     Spinner,
     StudentRow
   },
+  mixins: [Loading, Scrollable, UserMetadata, Util],
+  props: ['id'],
   data: () => ({
     curatedGroup: {},
     error: undefined,
@@ -70,6 +71,9 @@ export default {
       units: 'cumulativeUnits'
     }
   }),
+  computed: {
+    anchor: () => location.hash
+  },
   created() {
     store.dispatch('user/setUserPreference', {
       key: 'sortBy',
@@ -100,9 +104,6 @@ export default {
       });
       this.scrollTo(anchor);
     });
-  },
-  computed: {
-    anchor: () => location.hash
   },
   methods: {
     sortStudents() {

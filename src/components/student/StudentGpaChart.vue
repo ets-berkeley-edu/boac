@@ -1,8 +1,9 @@
 <template>
-  <highcharts :id="'student-chart-gpa-container-' + student.uid"
-              ref="studentGpaChart"
-              :options="gpaChartOptions"
-              aria-hidden="true">
+  <highcharts
+    :id="'student-chart-gpa-container-' + student.uid"
+    ref="studentGpaChart"
+    :options="gpaChartOptions"
+    aria-hidden="true">
   </highcharts>
 </template>
 
@@ -11,6 +12,10 @@ import _ from 'lodash';
 
 export default {
   name: 'StudentGpaChart',
+  props: {
+    student: Object,
+    width: String
+  },
   data: () => ({
     gpaChartOptions: {
       title: {
@@ -88,10 +93,6 @@ export default {
       colors: ['#4a90e2']
     }
   }),
-  props: {
-    student: Object,
-    width: String
-  },
   mounted() {
     this.renderGpaToChart();
   },

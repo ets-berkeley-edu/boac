@@ -1,14 +1,15 @@
 <template>
   <div>
-    <SearchStudents :includeCourses="true"/>
+    <SearchStudents :include-courses="true" />
     <div v-if="myCohorts">
-      <Cohorts/>
-      <hr class="section-divider"/>
-      <CuratedGroups/>
+      <Cohorts />
+      <hr class="section-divider" />
+      <CuratedGroups />
       <div class="sidebar-row-link">
         <span class="sidebar-row-link-label">
-          <router-link id="cohorts-all"
-                       to="/cohorts/all">Everyone's Cohorts</router-link>
+          <router-link
+            id="cohorts-all"
+            to="/cohorts/all">Everyone's Cohorts</router-link>
         </span>
       </div>
     </div>

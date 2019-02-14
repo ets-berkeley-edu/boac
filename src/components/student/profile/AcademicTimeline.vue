@@ -5,27 +5,33 @@
     <div class="d-flex mt-3 mb-3">
       <div class="align-self-center mr-3">Filter Type:</div>
       <div>
-        <b-btn id="timeline-tab-all"
-               class="tab pl-2 pr-2"
-               :class="{ 'tab-active text-white': !filter, 'tab-inactive text-dark': filter }"
-               variant="link"
-               @click="filter = null">All</b-btn>
+        <b-btn
+          id="timeline-tab-all"
+          class="tab pl-2 pr-2"
+          :class="{ 'tab-active text-white': !filter, 'tab-inactive text-dark': filter }"
+          variant="link"
+          @click="filter = null">
+          All
+        </b-btn>
       </div>
       <div v-for="type in keys(filterTypes)" :key="type">
-        <b-btn :id="`timeline-tab-${type}`"
-               class="tab ml-2 pl-2 pr-2 text-center"
-               :class="{
-                 'tab-active text-white': type === filter && countsPerType[type],
-                 'tab-inactive text-dark': type !== filter && countsPerType[type],
-                 'tab-disabled text-muted': !countsPerType[type]
-               }"
-               :aria-label="`${filterTypes[type].name}s tab`"
-               variant="link"
-               :disabled="!countsPerType[type]"
-               @click="filter = type">{{ filterTypes[type].tab }}</b-btn>
+        <b-btn
+          :id="`timeline-tab-${type}`"
+          class="tab ml-2 pl-2 pr-2 text-center"
+          :class="{
+            'tab-active text-white': type === filter && countsPerType[type],
+            'tab-inactive text-dark': type !== filter && countsPerType[type],
+            'tab-disabled text-muted': !countsPerType[type]
+          }"
+          :aria-label="`${filterTypes[type].name}s tab`"
+          variant="link"
+          :disabled="!countsPerType[type]"
+          @click="filter = type">
+          {{ filterTypes[type].tab }}
+        </b-btn>
       </div>
     </div>
-    <div class="pb-4 pl-2" v-if="!countPerActiveTab">
+    <div v-if="!countPerActiveTab" class="pb-4 pl-2">
       <span id="zero-messages" class="messages-none">
         <span v-if="filter">No {{ filterTypes[filter].name.toLowerCase() }}s</span>
         <span v-if="!filter">None</span>
@@ -38,57 +44,65 @@
           <th>Summary</th>
           <th>Date</th>
         </tr>
-        <tr class="message-row border-top border-bottom"
-            :class="{ 'message-row-read': message.read }"
-            v-for="(message, index) in messagesInView"
-            :key="index">
+        <tr
+          v-for="(message, index) in messagesInView"
+          :key="index"
+          class="message-row border-top border-bottom"
+          :class="{ 'message-row-read': message.read }">
           <td class="column-pill align-top p-2">
-            <div :id="`timeline-tab-${activeTab}-pill-${index}`"
-                 class="pill text-center text-uppercase text-white"
-                 :class="`pill-${message.type}`"
-                 tabindex="0">
+            <div
+              :id="`timeline-tab-${activeTab}-pill-${index}`"
+              class="pill text-center text-uppercase text-white"
+              :class="`pill-${message.type}`"
+              tabindex="0">
               <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
             </div>
           </td>
-          <td class="column-message align-top"
-              :class="{ 'font-weight-bold': !message.read }">
-            <div :id="`timeline-tab-${activeTab}-message-${index}`"
-                 :class="{
-                    'align-top message-open': includes(openMessages, message.transientId),
-                    'truncate': !includes(openMessages, message.transientId),
-                    'img-blur': user.inDemoMode && message.type === 'note'
-                 }"
-                 tabindex="0"
-                 @keyup.enter="toggle(message)"
-                 @click="toggle(message)">
-              <i class="requirements-icon fas fa-check text-success" v-if="message.status === 'Satisfied'"></i>
-              <i class="requirements-icon fas fa-exclamation text-icon-exclamation" v-if="message.status === 'Not Satisfied'"></i>
-              <i class="requirements-icon fas fa-clock text-icon-clock" v-if="message.status === 'In Progress'"></i>
+          <td
+            class="column-message align-top"
+            :class="{ 'font-weight-bold': !message.read }">
+            <div
+              :id="`timeline-tab-${activeTab}-message-${index}`"
+              :class="{
+                'align-top message-open': includes(openMessages, message.transientId),
+                'truncate': !includes(openMessages, message.transientId),
+                'img-blur': user.inDemoMode && message.type === 'note'
+              }"
+              tabindex="0"
+              @keyup.enter="toggle(message)"
+              @click="toggle(message)">
+              <i v-if="message.status === 'Satisfied'" class="requirements-icon fas fa-check text-success"></i>
+              <i v-if="message.status === 'Not Satisfied'" class="requirements-icon fas fa-exclamation text-icon-exclamation"></i>
+              <i v-if="message.status === 'In Progress'" class="requirements-icon fas fa-clock text-icon-clock"></i>
               <span v-html="message.message"></span>
             </div>
           </td>
           <td class="message-date align-top">
-            <div :id="`timeline-tab-${activeTab}-date-${index}`"
-                 class="pt-2 pr-2 text-nowrap">
+            <div
+              :id="`timeline-tab-${activeTab}-date-${index}`"
+              class="pt-2 pr-2 text-nowrap">
               <span v-if="message.updatedAt || message.createdAt"><span class="sr-only">Last updated on </span>{{ parseDatetime(message.updatedAt || message.createdAt) }}</span>
-              <span class="sr-only"
-                    tabindex="0"
-                    v-if="!message.updatedAt && !message.createdAt">No last-updated date</span>
+              <span
+                v-if="!message.updatedAt && !message.createdAt"
+                class="sr-only"
+                tabindex="0">No last-updated date</span>
             </div>
           </td>
         </tr>
       </table>
     </div>
-    <div class="text-center pt-2" v-if="countPerActiveTab > defaultShowPerTab">
-      <b-btn :id="`timeline-tab-${activeTab}-previous-messages`"
-             class="no-wrap pr-2 pt-0"
-             variant="link"
-             :aria-label="isShowingAll ? 'Hide previous messages' : 'Show previous messages'"
-             @click="isShowingAll = !isShowingAll">
-        <i :class="{
-          'fas fa-caret-up': isShowingAll,
-          'fas fa-caret-right': !isShowingAll
-        }"></i>
+    <div v-if="countPerActiveTab > defaultShowPerTab" class="text-center pt-2">
+      <b-btn
+        :id="`timeline-tab-${activeTab}-previous-messages`"
+        class="no-wrap pr-2 pt-0"
+        variant="link"
+        :aria-label="isShowingAll ? 'Hide previous messages' : 'Show previous messages'"
+        @click="isShowingAll = !isShowingAll">
+        <i
+          :class="{
+            'fas fa-caret-up': isShowingAll,
+            'fas fa-caret-right': !isShowingAll
+          }"></i>
         {{ isShowingAll ? 'Hide' : 'Show' }} Previous Messages
       </b-btn>
     </div>
@@ -137,6 +151,31 @@ export default {
     isShowingAll: false,
     screenReaderAlert: undefined
   }),
+  computed: {
+    activeTab() {
+      return this.filter || 'all';
+    },
+    countPerActiveTab() {
+      return this.filter
+        ? this.countsPerType[this.filter]
+        : this.size(this.messages);
+    },
+    messagesInView() {
+      const filtered = this.messagesPerType(this.filter);
+      return this.isShowingAll
+        ? filtered
+        : this.slice(filtered, 0, this.defaultShowPerTab);
+    }
+  },
+  watch: {
+    filter() {
+      this.screenReaderAlert = this.describeTheActiveTab();
+      this.openMessages = [];
+    },
+    isShowingAll() {
+      this.screenReaderAlert = this.describeTheActiveTab();
+    }
+  },
   created() {
     this.messages = [];
     this.countsPerType = {};
@@ -162,22 +201,6 @@ export default {
     });
     this.screenReaderAlert = 'Academic Timeline has loaded';
     this.isTimelineLoading = false;
-  },
-  computed: {
-    activeTab() {
-      return this.filter || 'all';
-    },
-    countPerActiveTab() {
-      return this.filter
-        ? this.countsPerType[this.filter]
-        : this.size(this.messages);
-    },
-    messagesInView() {
-      const filtered = this.messagesPerType(this.filter);
-      return this.isShowingAll
-        ? filtered
-        : this.slice(filtered, 0, this.defaultShowPerTab);
-    }
   },
   methods: {
     describeTheActiveTab() {
@@ -229,15 +252,6 @@ export default {
           markRead(message.id);
         }
       }
-    }
-  },
-  watch: {
-    filter() {
-      this.screenReaderAlert = this.describeTheActiveTab();
-      this.openMessages = [];
-    },
-    isShowingAll() {
-      this.screenReaderAlert = this.describeTheActiveTab();
     }
   }
 };

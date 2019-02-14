@@ -1,132 +1,157 @@
 <template>
   <div>
-    <div class="sr-only"
-         role="alert"
-         v-if="students && students.length && resorted">{{ currentSortDescription }}</div>
-    <table class="table-full-width" v-if="students">
+    <div
+      v-if="students && students.length && resorted"
+      class="sr-only"
+      role="alert">
+      {{ currentSortDescription }}
+    </div>
+    <table v-if="students" class="table-full-width">
       <thead>
         <tr>
-          <th class="group-summary-column group-summary-column-checkbox group-summary-column-header"
-              v-if="options.includeCuratedCheckbox"></th>
+          <th
+            v-if="options.includeCuratedCheckbox"
+            class="group-summary-column group-summary-column-checkbox group-summary-column-header"></th>
           <th class="group-summary-column group-summary-column-photo group-summary-column-header"></th>
-          <th class="group-summary-column group-summary-column-name group-summary-column-header group-summary-header-sortable"
-              v-on:click="sort(options, 'lastName')"
-              role="button"
-              :aria-label="sortOptions.lastName">
+          <th
+            class="group-summary-column group-summary-column-name group-summary-column-header group-summary-header-sortable"
+            role="button"
+            :aria-label="sortOptions.lastName"
+            @click="sort(options, 'lastName')">
             Name
             <span v-if="options.sortBy === 'lastName'">
-              <i :class="{
-               'fas fa-caret-down': options.reverse,
-               'fas fa-caret-up': !options.reverse
-              }"></i>
+              <i
+                :class="{
+                  'fas fa-caret-down': options.reverse,
+                  'fas fa-caret-up': !options.reverse
+                }"></i>
             </span>
           </th>
-          <th class="group-summary-column group-summary-column-sid group-summary-column-header group-summary-header-sortable"
-              v-on:click="sort(options, 'sid')"
-              role="button"
-              :aria-label="sortOptions.sid">
+          <th
+            class="group-summary-column group-summary-column-sid group-summary-column-header group-summary-header-sortable"
+            role="button"
+            :aria-label="sortOptions.sid"
+            @click="sort(options, 'sid')">
             SID
             <span v-if="options.sortBy === 'sid'">
-              <i :class="{
-               'fas fa-caret-down': options.reverse,
-               'fas fa-caret-up': !options.reverse
-              }"></i>
+              <i
+                :class="{
+                  'fas fa-caret-down': options.reverse,
+                  'fas fa-caret-up': !options.reverse
+                }"></i>
             </span>
           </th>
-          <th class="group-summary-column group-summary-column-major group-summary-column-header group-summary-header-sortable"
-              v-on:click="sort(options, 'majors[0]')"
-              role="button"
-              :aria-label="sortOptions['majors[0]']">
+          <th
+            class="group-summary-column group-summary-column-major group-summary-column-header group-summary-header-sortable"
+            role="button"
+            :aria-label="sortOptions['majors[0]']"
+            @click="sort(options, 'majors[0]')">
             Major
             <span v-if="options.sortBy === 'majors[0]'">
-              <i :class="{
-               'fas fa-caret-down': options.reverse,
-               'fas fa-caret-up': !options.reverse
-              }"></i>
+              <i
+                :class="{
+                  'fas fa-caret-down': options.reverse,
+                  'fas fa-caret-up': !options.reverse
+                }"></i>
             </span>
           </th>
-          <th class="group-summary-column group-summary-column-grad group-summary-column-header group-summary-header-sortable"
-              v-on:click="sort(options, 'expectedGraduationTerm.id')"
-              role="button"
-              :aria-label="sortOptions['expectedGraduationTerm.id']">
+          <th
+            class="group-summary-column group-summary-column-grad group-summary-column-header group-summary-header-sortable"
+            role="button"
+            :aria-label="sortOptions['expectedGraduationTerm.id']"
+            @click="sort(options, 'expectedGraduationTerm.id')">
             Grad
             <span v-if="options.sortBy === 'expectedGraduationTerm.id'">
-              <i :class="{
-               'fas fa-caret-down': options.reverse,
-               'fas fa-caret-up': !options.reverse
-              }"></i>
+              <i
+                :class="{
+                  'fas fa-caret-down': options.reverse,
+                  'fas fa-caret-up': !options.reverse
+                }"></i>
             </span>
           </th>
-          <th class="group-summary-column group-summary-column-units-term group-summary-column-header group-summary-header-sortable"
-              v-on:click="sort(options, 'term.enrolledUnits')"
-              role="button"
-              :aria-label="sortOptions['term.enrolledUnits']">
+          <th
+            class="group-summary-column group-summary-column-units-term group-summary-column-header group-summary-header-sortable"
+            role="button"
+            :aria-label="sortOptions['term.enrolledUnits']"
+            @click="sort(options, 'term.enrolledUnits')">
             Term Units
             <span v-if="options.sortBy === 'term.enrolledUnits'">
-              <i :class="{
-               'fas fa-caret-down': options.reverse,
-               'fas fa-caret-up': !options.reverse
-              }"></i>
+              <i
+                :class="{
+                  'fas fa-caret-down': options.reverse,
+                  'fas fa-caret-up': !options.reverse
+                }"></i>
             </span>
           </th>
-          <th class="group-summary-column group-summary-column-units-completed group-summary-column-header group-summary-header-sortable"
-              v-on:click="sort(options, 'cumulativeUnits')"
-              role="button"
-              :aria-label="sortOptions.cumulativeUnits">
+          <th
+            class="group-summary-column group-summary-column-units-completed group-summary-column-header group-summary-header-sortable"
+            role="button"
+            :aria-label="sortOptions.cumulativeUnits"
+            @click="sort(options, 'cumulativeUnits')">
             Units Completed
             <span v-if="options.sortBy === 'cumulativeUnits'">
-              <i :class="{
-               'fas fa-caret-down': options.reverse,
-               'fas fa-caret-up': !options.reverse
-              }"></i>
+              <i
+                :class="{
+                  'fas fa-caret-down': options.reverse,
+                  'fas fa-caret-up': !options.reverse
+                }"></i>
             </span>
           </th>
-          <th class="group-summary-column group-summary-column-gpa group-summary-column-header group-summary-header-sortable"
-              v-on:click="sort(options, 'cumulativeGPA')"
-              role="button"
-              :aria-label="sortOptions.cumulativeGPA">
+          <th
+            class="group-summary-column group-summary-column-gpa group-summary-column-header group-summary-header-sortable"
+            role="button"
+            :aria-label="sortOptions.cumulativeGPA"
+            @click="sort(options, 'cumulativeGPA')">
             GPA
-            <span class="caret" v-if="options.sortBy === 'cumulativeGPA'">
-              <i :class="{
-               'fas fa-caret-down': options.reverse,
-               'fas fa-caret-up': !options.reverse
-              }"></i>
+            <span v-if="options.sortBy === 'cumulativeGPA'" class="caret">
+              <i
+                :class="{
+                  'fas fa-caret-down': options.reverse,
+                  'fas fa-caret-up': !options.reverse
+                }"></i>
             </span>
           </th>
-          <th class="group-summary-column group-summary-column-issues group-summary-column-header group-summary-header-sortable"
-              v-on:click="sort(options, 'alertCount')"
-              role="button"
-              :aria-label="sortOptions.alertCount">
+          <th
+            class="group-summary-column group-summary-column-issues group-summary-column-header group-summary-header-sortable"
+            role="button"
+            :aria-label="sortOptions.alertCount"
+            @click="sort(options, 'alertCount')">
             Issues
             <span v-if="options.sortBy === 'alertCount'">
-              <i :class="{
-               'fas fa-caret-down': options.reverse,
-               'fas fa-caret-up': !options.reverse
-              }"></i>
+              <i
+                :class="{
+                  'fas fa-caret-down': options.reverse,
+                  'fas fa-caret-up': !options.reverse
+                }"></i>
             </span>
           </th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="student in sortedStudents" :key="student.sid">
-          <td class="group-summary-column group-summary-column-checkbox"
-              v-if="options.includeCuratedCheckbox">
+          <td
+            v-if="options.includeCuratedCheckbox"
+            class="group-summary-column group-summary-column-checkbox">
             <div class="add-to-cohort-checkbox">
-              <CuratedStudentCheckbox :sid="student.sid"/>
+              <CuratedStudentCheckbox :sid="student.sid" />
             </div>
           </td>
           <td class="group-summary-column group-summary-column-photo">
-            <StudentAvatar :student="student" size="small"/>
+            <StudentAvatar :student="student" size="small" />
           </td>
           <td class="group-summary-column group-summary-column-name">
             <span class="sr-only">{{ srText.lastName }}</span>
-            <router-link :aria-label="'Go to profile page of ' + student.firstName + ' ' + student.lastName"
-                         :class="{'demo-mode-blur': user.inDemoMode}"
-                         :to="'/student/' + student.uid">{{ `${student.lastName}, ${student.firstName}` }}</router-link>
-            <span class="home-inactive-info-icon"
-                  uib-tooltip="Inactive"
-                  tooltip-placement="bottom"
-                  v-if="displayAsInactive(student)">
+            <router-link
+              :aria-label="'Go to profile page of ' + student.firstName + ' ' + student.lastName"
+              :class="{'demo-mode-blur': user.inDemoMode}"
+              :to="'/student/' + student.uid">
+              {{ `${student.lastName}, ${student.firstName}` }}
+            </router-link>
+            <span
+              v-if="displayAsInactive(student)"
+              class="home-inactive-info-icon"
+              uib-tooltip="Inactive"
+              tooltip-placement="bottom">
               <i class="fas fa-info-circle"></i>
             </span>
           </td>
@@ -137,8 +162,11 @@
           <td class="group-summary-column group-summary-column-major">
             <span class="sr-only">{{ srText['majors[0]'] }}</span>
             <div v-if="student.majors.length === 0">--<span class="sr-only">No data</span></div>
-            <div v-for="major in student.majors"
-                 :key="major">{{ major }}</div>
+            <div
+              v-for="major in student.majors"
+              :key="major">
+              {{ major }}
+            </div>
           </td>
           <td class="group-summary-column group-summary-column-grad">
             <span class="sr-only">{{ srText['expectedGraduationTerm.id'] }}</span>
@@ -161,14 +189,20 @@
           </td>
           <td class="group-summary-column group-summary-column-issues">
             <span class="sr-only">{{ srText.alertCount }}</span>
-            <div class="home-issues-pill home-issues-pill-zero"
-                 :aria-label="'No alerts for ' + student.firstName + ' ' + student.lastName"
-                 tabindex="0"
-                 v-if="!student.alertCount">0</div>
-            <div class="home-issues-pill home-issues-pill-nonzero"
-                 :aria-label="student.alertCount + ' alerts for ' + student.firstName + ' ' + student.lastName"
-                 tabindex="0"
-                 v-if="student.alertCount">{{ student.alertCount }}</div>
+            <div
+              v-if="!student.alertCount"
+              class="home-issues-pill home-issues-pill-zero"
+              :aria-label="'No alerts for ' + student.firstName + ' ' + student.lastName"
+              tabindex="0">
+              0
+            </div>
+            <div
+              v-if="student.alertCount"
+              class="home-issues-pill home-issues-pill-nonzero"
+              :aria-label="student.alertCount + ' alerts for ' + student.firstName + ' ' + student.lastName"
+              tabindex="0">
+              {{ student.alertCount }}
+            </div>
           </td>
         </tr>
       </tbody>
@@ -230,9 +264,6 @@ export default {
       lastName: null
     }
   }),
-  created() {
-    this.setSortDescriptions();
-  },
   computed: {
     sortedStudents() {
       return _.orderBy(
@@ -244,6 +275,9 @@ export default {
         )
       );
     }
+  },
+  created() {
+    this.setSortDescriptions();
   },
   methods: {
     abbreviateTermName: termName =>

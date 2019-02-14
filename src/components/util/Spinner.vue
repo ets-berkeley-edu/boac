@@ -1,15 +1,17 @@
 <template>
   <div>
-    <div id="spinner-when-loading" class="spinner" v-if="loading">
+    <div v-if="loading" id="spinner-when-loading" class="spinner">
       <i class="fas fa-sync fa-spin fa-5x"></i>
-      <span role="alert"
-            aria-live="passive"
-            class="sr-only">Loading...</span>
+      <span
+        role="alert"
+        aria-live="passive"
+        class="sr-only">Loading...</span>
     </div>
     <div v-if="!loading">
-      <span role="alert"
-            aria-live="passive"
-            class="sr-only">Page content loaded</span>
+      <span
+        role="alert"
+        aria-live="passive"
+        class="sr-only">Page content loaded</span>
     </div>
   </div>
 </template>

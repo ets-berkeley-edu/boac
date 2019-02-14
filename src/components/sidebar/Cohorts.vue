@@ -6,25 +6,31 @@
       </div>
       <div>
         <span class="sidebar-header sidebar-row-link-label">
-          <router-link id="cohort-create"
-                       class="sidebar-create-link"
-                       aria-label="Create cohort"
-                       :to="forceUniquePath('/cohort/new?')"><i class="fas fa-plus"></i></router-link>
+          <router-link
+            id="cohort-create"
+            class="sidebar-create-link"
+            aria-label="Create cohort"
+            :to="forceUniquePath('/cohort/new?')"><i class="fas fa-plus"></i></router-link>
         </span>
       </div>
     </div>
-    <div class="sidebar-row-link"
-         v-for="cohort in myCohorts"
-         :key="cohort.id">
+    <div
+      v-for="cohort in myCohorts"
+      :key="cohort.id"
+      class="sidebar-row-link">
       <div class="sidebar-row-link-label">
-        <router-link :id="`sidebar-cohort-${cohort.id}`"
-                     :aria-label="`Cohort ${cohort.name} has ${cohort.totalStudentCount} students`"
-                     class="sidebar-row-link-label-text"
-                     :to="forceUniquePath(`/cohort/${cohort.id}`)">{{ cohort.name }}</router-link>
+        <router-link
+          :id="`sidebar-cohort-${cohort.id}`"
+          :aria-label="`Cohort ${cohort.name} has ${cohort.totalStudentCount} students`"
+          class="sidebar-row-link-label-text"
+          :to="forceUniquePath(`/cohort/${cohort.id}`)">
+          {{ cohort.name }}
+        </router-link>
       </div>
       <div>
-        <span :id="`sidebar-cohort-${cohort.id}-total-student-count`"
-              class="sidebar-pill">{{cohort.totalStudentCount}}<span class="sr-only">{{ 'student' | pluralize(cohort.totalStudentCount) }}</span>
+        <span
+          :id="`sidebar-cohort-${cohort.id}-total-student-count`"
+          class="sidebar-pill">{{ cohort.totalStudentCount }}<span class="sr-only">{{ 'student' | pluralize(cohort.totalStudentCount) }}</span>
         </span>
       </div>
     </div>

@@ -1,15 +1,20 @@
 <template>
-  <highcharts class="student-chart-container student-chart-units-container"
-              id="student-chart-units-container"
-              ref="studentUnitsChart"
-              :options="unitsChartOptions"
-              aria-hidden="true">
+  <highcharts
+    id="student-chart-units-container"
+    ref="studentUnitsChart"
+    class="student-chart-container student-chart-units-container"
+    :options="unitsChartOptions"
+    aria-hidden="true">
   </highcharts>
 </template>
 
 <script>
 export default {
   name: 'StudentUnitsChart',
+  props: {
+    cumulativeUnits: Number,
+    currentEnrolledUnits: Number
+  },
   data: () => ({
     unitsChartOptions: {
       chart: {
@@ -98,10 +103,6 @@ export default {
       }
     }
   }),
-  props: {
-    cumulativeUnits: Number,
-    currentEnrolledUnits: Number
-  },
   mounted() {
     this.renderUnitsToChart();
   },

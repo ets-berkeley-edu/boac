@@ -1,16 +1,16 @@
 <template>
   <div class="m-3">
-    <Spinner/>
+    <Spinner />
     <div v-if="!loading">
       <h1 ref="pageHeader" tabindex="0">Everyone's Cohorts</h1>
 
       <div v-if="!usersWithCohorts.length">
         <div>There are no saved cohorts</div>
       </div>
-      <div v-for="owner in usersWithCohorts" v-bind:key="owner.uid">
-        <h2 class="page-section-header-sub">{{owner.firstName}} {{owner.lastName}}</h2>
+      <div v-for="owner in usersWithCohorts" :key="owner.uid">
+        <h2 class="page-section-header-sub">{{ owner.firstName }} {{ owner.lastName }}</h2>
         <ul>
-          <li v-for="cohort in owner.cohorts" v-bind:key="cohort.id">
+          <li v-for="cohort in owner.cohorts" :key="cohort.id">
             <router-link :to="'/cohort/' + cohort.id">{{ cohort.name }}</router-link> ({{ cohort.totalStudentCount }})
           </li>
         </ul>
@@ -26,16 +26,16 @@ import Loading from '@/mixins/Loading';
 
 export default {
   name: 'AllCohorts',
-  mixins: [Loading],
   components: { Spinner },
+  mixins: [Loading],
+  data: () => ({
+    usersWithCohorts: []
+  }),
   created() {
     getUsersWithCohorts().then(data => {
       this.usersWithCohorts = data;
       this.loaded();
     });
-  },
-  data: () => ({
-    usersWithCohorts: []
-  })
+  }
 };
 </script>

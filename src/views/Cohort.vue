@@ -1,52 +1,58 @@
 <template>
   <div class="pl-3 pt-3">
-    <Spinner/>
+    <Spinner />
     <div v-if="!loading">
       <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
-      <CohortPageHeader/>
-      <b-collapse id="show-hide-filters"
-                  class="mr-3"
-                  v-model="showFilters">
-        <FilterRow class="filter-row"
-                   v-for="(filter, index) in filters"
-                   :key="compositeKey(filter)"
-                   :index="index"/>
-        <FilterRow v-if="isOwnedByCurrentUser"/>
-        <ApplyAndSaveButtons v-if="isOwnedByCurrentUser"/>
-        <a id="skip-to-pagination-widget"
-           class="sr-only"
-           href="#pagination-widget"
-           @click="screenReaderAlert = 'Focus is now on the pagination widget'"
-           v-if="totalStudentCount > 50">Skip to pagination widget</a>
+      <CohortPageHeader />
+      <b-collapse
+        id="show-hide-filters"
+        v-model="showFilters"
+        class="mr-3">
+        <FilterRow
+          v-for="(filter, index) in filters"
+          :key="compositeKey(filter)"
+          class="filter-row"
+          :index="index" />
+        <FilterRow v-if="isOwnedByCurrentUser" />
+        <ApplyAndSaveButtons v-if="isOwnedByCurrentUser" />
+        <a
+          v-if="totalStudentCount > 50"
+          id="skip-to-pagination-widget"
+          class="sr-only"
+          href="#pagination-widget"
+          @click="screenReaderAlert = 'Focus is now on the pagination widget'">Skip to pagination widget</a>
       </b-collapse>
       <SectionSpinner name="Students" :loading="editMode === 'apply'" />
-      <div class="pt-2" v-if="showStudentsSection">
+      <div v-if="showStudentsSection" class="pt-2">
         <div class="cohort-column-results">
-          <hr class="filters-section-separator mr-2"/>
+          <hr class="filters-section-separator mr-2" />
           <div class="d-flex justify-content-between align-items-center p-2">
-            <CuratedGroupSelector :context-description="`Cohort ${this.cohortName || 'unsaved'}`"
-                                  :students="students"/>
-            <SortBy v-if="showSortBy"/>
+            <CuratedGroupSelector
+              :context-description="`Cohort ${cohortName || 'unsaved'}`"
+              :students="students" />
+            <SortBy v-if="showSortBy" />
           </div>
           <div>
             <div class="cohort-column-results">
               <div id="cohort-students" class="list-group mr-2">
-                <StudentRow :student="student"
-                            listType="cohort"
-                            :sortedBy="preferences.sortBy"
-                            :id="`student-${student.uid}`"
-                            class="list-group-item student-list-item"
-                            :class="{'list-group-item-info' : anchor === `#${student.uid}`}"
-                            v-for="student in students"
-                            :key="student.sid"/>
+                <StudentRow
+                  v-for="student in students"
+                  :id="`student-${student.uid}`"
+                  :key="student.sid"
+                  :student="student"
+                  list-type="cohort"
+                  :sorted-by="preferences.sortBy"
+                  class="list-group-item student-list-item"
+                  :class="{'list-group-item-info' : anchor === `#${student.uid}`}" />
               </div>
             </div>
-            <div class="p-3" v-if="totalStudentCount > pagination.itemsPerPage">
-              <Pagination :click-handler="goToPage"
-                          :init-page-number="pageNumber"
-                          :limit="10"
-                          :per-page="pagination.itemsPerPage"
-                          :total-rows="totalStudentCount"/>
+            <div v-if="totalStudentCount > pagination.itemsPerPage" class="p-3">
+              <Pagination
+                :click-handler="goToPage"
+                :init-page-number="pageNumber"
+                :limit="10"
+                :per-page="pagination.itemsPerPage"
+                :total-rows="totalStudentCount" />
             </div>
           </div>
         </div>
@@ -74,14 +80,6 @@ import Util from '@/mixins/Util';
 
 export default {
   name: 'Cohort',
-  mixins: [
-    CohortEditSession,
-    GoogleAnalytics,
-    Loading,
-    Scrollable,
-    UserMetadata,
-    Util
-  ],
   components: {
     ApplyAndSaveButtons,
     CohortPageHeader,
@@ -93,11 +91,30 @@ export default {
     Spinner,
     StudentRow
   },
+  mixins: [
+    CohortEditSession,
+    GoogleAnalytics,
+    Loading,
+    Scrollable,
+    UserMetadata,
+    Util
+  ],
   data: () => ({
     pageNumber: undefined,
     screenReaderAlert: undefined,
     showFilters: undefined
   }),
+  computed: {
+    anchor: () => location.hash,
+    showStudentsSection() {
+      return this.size(this.students) && this.editMode !== 'apply';
+    }
+  },
+  watch: {
+    isCompactView() {
+      this.showFilters = !this.isCompactView;
+    }
+  },
   mounted() {
     const continueExistingSession =
       this.$routerHistory.hasForward() && this.size(this.filters);
@@ -149,17 +166,6 @@ export default {
       this.applyFilters(this.preferences.sortBy).then(() => {
         this.scrollToTop();
       });
-    }
-  },
-  computed: {
-    anchor: () => location.hash,
-    showStudentsSection() {
-      return this.size(this.students) && this.editMode !== 'apply';
-    }
-  },
-  watch: {
-    isCompactView() {
-      this.showFilters = !this.isCompactView;
     }
   }
 };

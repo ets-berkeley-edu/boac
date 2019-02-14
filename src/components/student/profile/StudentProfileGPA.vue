@@ -6,36 +6,40 @@
         <div id="cumulative-gpa" class="data-number">
           <span v-if="!isNil(cumulativeGPA)">{{ cumulativeGPA | round(3) }}</span>
           <span v-if="isNil(cumulativeGPA)">--</span>
-          <span class="sr-only" v-if="isNil(cumulativeGPA)">No data</span>
+          <span v-if="isNil(cumulativeGPA)" class="sr-only">No data</span>
         </div>
         <div class="gpa-label text-uppercase">Cumulative GPA</div>
       </div>
       <div id="gpa-trends" class="h-100 border-left">
         <div id="gpa-chart" class="ml-3">
           <div class="gpa-trends-label text-uppercase font-weight-bold">GPA Trends</div>
-          <StudentGpaChart :student="student"
-                           v-if="get(student, 'termGpa.length') > 1"/>
-          <div class="gpa-trends-label" v-if="isEmpty(student.termGpa)">
+          <StudentGpaChart
+            v-if="get(student, 'termGpa.length') > 1"
+            :student="student" />
+          <div v-if="isEmpty(student.termGpa)" class="gpa-trends-label">
             GPA Not Yet Available
           </div>
-          <div id="current-term-gpa" v-if="!isEmpty(student.termGpa)">
+          <div v-if="!isEmpty(student.termGpa)" id="current-term-gpa">
             <span class="gpa-label text-uppercase">{{ student.termGpa[0].name }} GPA:</span>
-            <span class="font-weight-bold"
-                  :class="{'gpa-last-term': student.termGpa[0].gpa >= 2, 'gpa-alert': student.termGpa[0].gpa < 2}">
+            <span
+              class="font-weight-bold"
+              :class="{'gpa-last-term': student.termGpa[0].gpa >= 2, 'gpa-alert': student.termGpa[0].gpa < 2}">
               {{ student.termGpa[0].gpa | round(3) }}
             </span>
           </div>
           <div>
-            <b-btn id="show-hide-term-gpa-button"
-                   class="p-0 mt-1"
-                   variant="link"
-                   @click="showHideTermGpa()"
-                   v-if="!isEmpty(student.termGpa)">
-              <i class="show-hide-caret"
-                 :class="{
-                   'fas fa-caret-right': !showTermGpa,
-                   'fas fa-caret-down mb-2': showTermGpa
-                 }"></i>
+            <b-btn
+              v-if="!isEmpty(student.termGpa)"
+              id="show-hide-term-gpa-button"
+              class="p-0 mt-1"
+              variant="link"
+              @click="showHideTermGpa()">
+              <i
+                class="show-hide-caret"
+                :class="{
+                  'fas fa-caret-right': !showTermGpa,
+                  'fas fa-caret-down mb-2': showTermGpa
+                }"></i>
               {{ showTermGpa ? 'Hide' : 'Show' }} Term GPA
             </b-btn>
           </div>
@@ -43,32 +47,38 @@
       </div>
     </div>
     <div>
-      <b-collapse id="term-gpa-collapse"
-                  class="border-top ml-3 mr-3"
-                  v-model="showTermGpa">
+      <b-collapse
+        id="term-gpa-collapse"
+        v-model="showTermGpa"
+        class="border-top ml-3 mr-3">
         <div class="pl-3 pr-4">
-          <table id="table-with-gpa-per-term"
-                 class="term-gpa-table w-100">
+          <table
+            id="table-with-gpa-per-term"
+            class="term-gpa-table w-100">
             <tr>
               <th class="pt-0 pb-3 text-muted">Term</th>
               <th class="pt-0 pb-3 text-muted text-right">GPA</th>
             </tr>
-            <tr v-for="(term, index) in student.termGpa"
-                :key="index"
-                :class="{'bg-light': index % 2 === 0}">
+            <tr
+              v-for="(term, index) in student.termGpa"
+              :key="index"
+              :class="{'bg-light': index % 2 === 0}">
               <td class="text-nowrap">{{ term.name }}</td>
               <td class="text-nowrap text-right">
-                <i class="fa fa-exclamation-triangle text-danger pr-2"
-                   aria-label="Icon of danger sign"
-                   tabindex="0"
-                   v-if="term.gpa < 2"></i>
-                <span class="sr-only" v-if="term.gpa < 2">Low GPA in {{ term.name }}: </span>
-                <span :id="`student-gpa-term-${term.name}`"
-                      :class="{ 'text-danger': term.gpa < 2 }">{{ term.gpa | round(3) }}</span>
+                <i
+                  v-if="term.gpa < 2"
+                  class="fa fa-exclamation-triangle text-danger pr-2"
+                  aria-label="Icon of danger sign"
+                  tabindex="0"></i>
+                <span v-if="term.gpa < 2" class="sr-only">Low GPA in {{ term.name }}: </span>
+                <span
+                  :id="`student-gpa-term-${term.name}`"
+                  :class="{ 'text-danger': term.gpa < 2 }">{{ term.gpa | round(3) }}</span>
               </td>
             </tr>
-            <tr id="student-gpa-no-terms"
-                v-if="isEmpty(student.termGpa)">
+            <tr
+              v-if="isEmpty(student.termGpa)"
+              id="student-gpa-no-terms">
               <td>No previous terms</td>
               <td>--</td>
             </tr>
@@ -85,10 +95,10 @@ import Util from '@/mixins/Util';
 
 export default {
   name: 'StudentProfileGPA',
-  mixins: [Util],
   components: {
     StudentGpaChart
   },
+  mixins: [Util],
   props: {
     student: Object
   },

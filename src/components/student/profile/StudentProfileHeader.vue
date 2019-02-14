@@ -1,52 +1,60 @@
 <template>
   <div class="d-flex">
     <div class="text-center m-3">
-      <StudentAvatar class="mb-2" :student="student" size="large"/>
-      <StudentGroupSelector :sid="student.sid"/>
+      <StudentAvatar class="mb-2" :student="student" size="large" />
+      <StudentGroupSelector :sid="student.sid" />
     </div>
     <div class="ml-3">
       <div class="mt-3">
-        <h1 id="student-name-header"
-            class="student-section-header mb-1"
-            ref="pageHeader"
-            tabindex="0"
-            :class="{'demo-mode-blur': user.inDemoMode}">
+        <h1
+          id="student-name-header"
+          ref="pageHeader"
+          class="student-section-header mb-1"
+          tabindex="0"
+          :class="{'demo-mode-blur': user.inDemoMode}">
           {{ student.name }}
         </h1>
         <h2 class="sr-only">Profile</h2>
-        <div class="sr-only"
-             v-if="student.sisProfile.preferredName !== student.name">Preferred name</div>
-        <div id="student-preferred-name"
-             class="student-preferred-name mb-2"
-             :class="{'demo-mode-blur': user.inDemoMode}"
-             v-if="student.sisProfile.preferredName !== student.name">
-          {{ student.sisProfile.preferredName }}</div>
+        <div
+          v-if="student.sisProfile.preferredName !== student.name"
+          class="sr-only">
+          Preferred name
+        </div>
+        <div
+          v-if="student.sisProfile.preferredName !== student.name"
+          id="student-preferred-name"
+          class="student-preferred-name mb-2"
+          :class="{'demo-mode-blur': user.inDemoMode}">
+          {{ student.sisProfile.preferredName }}
+        </div>
         <div id="student-bio-sid" class="student-bio-sid font-weight-bold mb-2">
           SID <span :class="{'demo-mode-blur': user.inDemoMode}">{{ student.sid }}</span>
         </div>
         <div class="mb-1">
           <i class="fas fa-envelope"></i>
           <span class="sr-only">Email</span>
-          <a id="student-mailto"
-             :href="`mailto:${student.sisProfile.emailAddress}`"
-             :class="{'demo-mode-blur': user.inDemoMode}"
-             target="_blank">
-             {{ student.sisProfile.emailAddress }}</a>
+          <a
+            id="student-mailto"
+            :href="`mailto:${student.sisProfile.emailAddress}`"
+            :class="{'demo-mode-blur': user.inDemoMode}"
+            target="_blank">
+            {{ student.sisProfile.emailAddress }}</a>
         </div>
         <div v-if="student.sisProfile.phoneNumber">
           <i class="fas fa-phone"></i>
           <span class="sr-only">Phone number</span>
-          <a id="student-phone-number"
-             :href="`tel:${student.sisProfile.phoneNumber}`"
-             :class="{'demo-mode-blur': user.inDemoMode}"
-             tabindex="0">
+          <a
+            id="student-phone-number"
+            :href="`tel:${student.sisProfile.phoneNumber}`"
+            :class="{'demo-mode-blur': user.inDemoMode}"
+            tabindex="0">
             {{ student.sisProfile.phoneNumber }}</a>
         </div>
       </div>
-      <div id="student-bio-inactive" v-if="isInactive">
+      <div v-if="isInactive" id="student-bio-inactive">
         <div class="student-bio-header student-bio-inactive">Inactive</div>
       </div>
-      <div id="student-bio-athletics" v-if="student.athleticsProfile">
+      <div v-if="student.athleticsProfile" id="student-bio-athletics">
         <div v-for="membership in student.athleticsProfile.athletics" :key="membership.groupName">
           <div class="student-bio-header">{{ membership.groupName }}</div>
         </div>
@@ -58,13 +66,14 @@
         <div v-for="plan in student.sisProfile.plans" :key="plan.description">
           <div class="student-bio-header">
             <span v-if="!plan.degreeProgramUrl">{{ plan.description }}</span>
-            <a :href="plan.degreeProgramUrl"
-               target="_blank"
-               :aria-label="`Open ${plan.description} program page in new window`"
-               v-if="plan.degreeProgramUrl">
-               {{ plan.description }}</a>
+            <a
+              v-if="plan.degreeProgramUrl"
+              :href="plan.degreeProgramUrl"
+              target="_blank"
+              :aria-label="`Open ${plan.description} program page in new window`">
+              {{ plan.description }}</a>
           </div>
-          <div class="student-bio-details" v-if="plan.program">
+          <div v-if="plan.program" class="student-bio-details">
             {{ plan.program }}
           </div>
         </div>
@@ -74,14 +83,16 @@
         <div class="student-bio-header">{{ get(student, 'sisProfile.level.description') }}</div>
       </div>
       <div>
-        <div id="student-bio-terms-in-attendance"
-             class="student-bio-details"
-             v-if="student.sisProfile.termsInAttendance">
+        <div
+          v-if="student.sisProfile.termsInAttendance"
+          id="student-bio-terms-in-attendance"
+          class="student-bio-details">
           {{ 'Term' | pluralize(student.sisProfile.termsInAttendance) }} in Attendance
         </div>
-        <div class="student-bio-details"
-             id="student-bio-expected-graduation"
-             v-if="student.sisProfile.expectedGraduationTerm && student.sisProfile.level.code !== 'GR'">
+        <div
+          v-if="student.sisProfile.expectedGraduationTerm && student.sisProfile.level.code !== 'GR'"
+          id="student-bio-expected-graduation"
+          class="student-bio-details">
           Expected graduation {{ student.sisProfile.expectedGraduationTerm.name }}
         </div>
       </div>
@@ -98,11 +109,11 @@ import Util from '@/mixins/Util';
 
 export default {
   name: 'StudentProfileHeader',
-  mixins: [StudentMetadata, UserMetadata, Util],
   components: {
     StudentGroupSelector,
     StudentAvatar
   },
+  mixins: [StudentMetadata, UserMetadata, Util],
   props: {
     student: Object
   },
