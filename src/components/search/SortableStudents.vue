@@ -262,6 +262,8 @@ export default {
           let sortVal = _.get(student, iter);
           if (typeof sortVal === 'string') {
             sortVal = sortVal.toLowerCase();
+          } else if (_.isNil(sortVal)) {
+            sortVal = 0;
           }
           return sortVal;
         };
