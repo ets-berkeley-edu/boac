@@ -255,7 +255,7 @@ export default {
 }
 .column-pill {
   white-space: nowrap;
-  width: 146px;
+  width: 130px;
 }
 .messages-none {
   font-size: 18px;
@@ -287,11 +287,11 @@ export default {
   background-color: #bc74fe;
 }
 .pill-note {
-  width: 130px;
+  width: 120px;
   background-color: #999;
 }
 .pill-requirement {
-  width: 130px;
+  width: 120px;
   background-color: #93c165;
 }
 .requirements-icon {
@@ -299,9 +299,8 @@ export default {
 }
 .tab {
   border-radius: 5px;
-  font-size: 16px;
-  font-weight: 800;
-  height: 40px;
+  font-size: 10px;
+  height: 22px;
 }
 .tab-active {
   background-color: #555;
