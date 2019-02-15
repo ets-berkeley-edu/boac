@@ -46,9 +46,7 @@ const getters = {
   showSaveButton: (state: any): boolean =>
     state.isModifiedSinceLastSearch === false,
   showSortBy(state: any) {
-    return (
-      state.isModifiedSinceLastSearch === false && _.size(state.students) > 1
-    );
+    return !state.isModifiedSinceLastSearch && _.size(state.students) > 1;
   },
   students: (state: any): any[] => state.students,
   totalStudentCount: (state: any): number => state.totalStudentCount
