@@ -93,7 +93,7 @@ v-if="section.isViewableOnCoursePage"
           </div>
         </div>
         <b-collapse :id="`course-canvas-data-${term.termId}-${courseIndex}`" class="panel-body">
-          <div v-for="(canvasSite, index) in course.canvasSites" :key="index" class="student-bcourses-wrapper">
+          <div v-for="(canvasSite, csIndex) in course.canvasSites" :key="csIndex" class="student-bcourses-wrapper">
             <h5 class="student-bcourses-site-code">
               <span class="sr-only">Course Site</span>
               {{ canvasSite.courseCode }}
@@ -207,7 +207,7 @@ v-if="section.isViewableOnCoursePage"
         v-if="!isEmpty(term.droppedSections)"
         class="student-course student-course-dropped"
         is-open="true">
-        <div v-for="(droppedSection, index) in term.droppedSections" :key="index">
+        <div v-for="(droppedSection, dsIndex) in term.droppedSections" :key="dsIndex">
           <div class="student-course-dropped-title">
             {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }}
             <div class="student-course-notation">
@@ -217,7 +217,6 @@ v-if="section.isViewableOnCoursePage"
         </div>
       </div>
     </div>
-
     <div
       v-if="get(student, 'enrollmentTerms.length') > 1"
       class="toggle-previous-semesters-wrapper">

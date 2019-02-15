@@ -57,7 +57,9 @@ export default {
     StudentRow
   },
   mixins: [Loading, Scrollable, UserMetadata, Util],
-  props: ['id'],
+  props: {
+    id: Number
+  },
   data: () => ({
     curatedGroup: {},
     error: undefined,

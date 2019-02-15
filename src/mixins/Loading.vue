@@ -4,10 +4,10 @@ import { mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'Loading',
-  beforeCreate: () => store.dispatch('context/loadingStart'),
   computed: {
     ...mapGetters('context', ['loading'])
   },
+  beforeCreate: () => store.dispatch('context/loadingStart'),
   methods: {
     ...mapActions('context', ['loadingStart']),
     loaded() {

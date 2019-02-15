@@ -11,8 +11,10 @@ module.exports = {
   ],
   plugins: ['vue'],
   rules: {
+    'multiline-html-element-content-newline': 0,
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'vue/no-v-html': 0,
     'vue/html-closing-bracket-newline': 0,
     'vue/html-self-closing': 0,
     'vue/max-attributes-per-line': ["error", {
@@ -22,10 +24,10 @@ module.exports = {
         allowFirstLine: false
       }
     }],
-    'multiline-html-element-content-newline': 0,
+    'vue/require-default-prop': 0,
     'vue/singleline-html-element-content-newline': 0
   },
   parserOptions: {
-    parser: '@typescript-eslint/parser'
+    parser: require.resolve('@typescript-eslint/parser')
   }
 };

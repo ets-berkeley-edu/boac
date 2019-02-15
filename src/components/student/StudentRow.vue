@@ -135,14 +135,14 @@
           </td>
           <td class="cohort-course-activity-data">
             <div
-              v-for="(canvasSite, index) in enrollment.canvasSites"
-              :id="`student-${student.sid}-canvas-site-${index}`"
-              :key="index"
+              v-for="(canvasSite, cIndex) in enrollment.canvasSites"
+              :id="`student-${student.sid}-canvas-site-${cIndex}`"
+              :key="cIndex"
               class="cohort-boxplot-container">
               <span
                 v-if="enrollment.canvasSites.length > 1"
                 class="sr-only">
-                {{ `Course site ${index + 1} of ${enrollment.canvasSites.length}` }}
+                {{ `Course site ${cIndex + 1} of ${enrollment.canvasSites.length}` }}
               </span>
               <span>{{ lastActivityDays(canvasSite.analytics) }}</span>
             </div>

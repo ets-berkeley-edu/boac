@@ -14,13 +14,13 @@
       label-next-page="Go to next page"
       label-last-page="Go to last page"
       label-prev-page="Go to previous page"
-      @input="onClick()"
       label-page="Go to page"
       hide-ellipsis
       size="md"
       :total-rows="totalRows"
       :limit="limit"
-      :per-page="perPage">
+      :per-page="perPage"
+      @input="onClick()">
     </b-pagination>
   </div>
 </template>

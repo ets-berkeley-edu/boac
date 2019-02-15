@@ -3,9 +3,6 @@ import { mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'UserMetadata',
-  methods: {
-    ...mapActions('user', ['setUserPreference'])
-  },
   computed: {
     ...mapGetters('user', [
       'canViewAsc',
@@ -17,6 +14,11 @@ export default {
     ]),
     ...mapGetters('cohort', ['myCohorts']),
     ...mapGetters('curated', ['myCuratedGroups'])
+  },
+  methods: {
+    ...mapActions('user', [
+      'setUserPreference'
+    ])
   }
 };
 </script>

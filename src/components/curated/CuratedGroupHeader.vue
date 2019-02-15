@@ -116,7 +116,9 @@ import { deleteCuratedGroup, renameCuratedGroup } from '@/api/curated';
 export default {
   name: 'CuratedGroupHeader',
   mixins: [Loading, Util, Validator],
-  props: ['curatedGroup'],
+  props: {
+    'curatedGroup': Object
+  },
   data: () => ({
     isModalOpen: false,
     renameError: undefined,

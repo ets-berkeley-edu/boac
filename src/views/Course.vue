@@ -73,7 +73,7 @@
           <div>
             <CuratedGroupSelector
               v-if="!isEmpty(section.students) && (tab === 'list')"
-              :context-description="`Course ${this.section.displayName}`"
+              :context-description="`Course ${section.displayName}`"
               :students="section.students" />
           </div>
           <div class="course-tabs-container">
