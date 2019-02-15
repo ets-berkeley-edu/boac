@@ -264,12 +264,12 @@ export default {
 }
 .column-message {
   max-width: 1px;
-  padding: 10px;
+  padding: 10px 10px 10px 5px;
   vertical-align: middle;
 }
 .column-pill {
   white-space: nowrap;
-  width: 130px;
+  width: 100px;
 }
 .messages-none {
   font-size: 18px;
@@ -288,9 +288,9 @@ export default {
 }
 .pill {
   border-radius: 5px;
-  font-size: 14px;
-  height: 26px;
-  padding: 3px 5px 0 5px;
+  font-size: 12px;
+  height: 24px;
+  padding: 2px 0 2px 0;
 }
 .pill-alert {
   width: 60px;
@@ -301,11 +301,11 @@ export default {
   background-color: #bc74fe;
 }
 .pill-note {
-  width: 120px;
+  width: 100px;
   background-color: #999;
 }
 .pill-requirement {
-  width: 120px;
+  width: 100px;
   background-color: #93c165;
 }
 .requirements-icon {
@@ -313,8 +313,9 @@ export default {
 }
 .tab {
   border-radius: 5px;
-  font-size: 10px;
-  height: 22px;
+  font-size: 16px;
+  font-weight: 800;
+  height: 40px;
 }
 .tab-active {
   background-color: #555;
