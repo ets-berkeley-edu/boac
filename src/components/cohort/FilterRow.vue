@@ -32,12 +32,12 @@
           </div>
         </template>
         <div
-          v-for="(category, index) in menu"
-          :key="index"
+          v-for="(category, mIndex) in menu"
+          :key="mIndex"
           role="group"
-          :aria-labelledby="'filter-option-group-header-' + index">
-          <b-dropdown-header :id="'filter-option-group-header-' + index" class="sr-only">
-            Filter option group {{ index + 1 }} of {{ menu.length }}
+          :aria-labelledby="'filter-option-group-header-' + mIndex">
+          <b-dropdown-header :id="'filter-option-group-header-' + mIndex" class="sr-only">
+            Filter option group {{ mIndex + 1 }} of {{ menu.length }}
           </b-dropdown-header>
           <b-dropdown-item
             v-for="subCategory in category"
@@ -53,7 +53,7 @@
             @mouseover.prevent.stop>
             {{ subCategory.name }}
           </b-dropdown-item>
-          <b-dropdown-divider v-if="index !== (menu.length - 1)"></b-dropdown-divider>
+          <b-dropdown-divider v-if="mIndex !== (menu.length - 1)"></b-dropdown-divider>
         </div>
       </b-dropdown>
     </div>
