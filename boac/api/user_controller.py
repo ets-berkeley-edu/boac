@@ -75,6 +75,12 @@ def user_profile(uid):
     return tolerant_jsonify(calnet.get_calnet_user_for_uid(app, uid))
 
 
+@app.route('/api/profile/calnet_for_csid/<csid>')
+@login_required
+def calnet_profile(csid):
+    return tolerant_jsonify(calnet.get_calnet_user_for_csid(app, csid))
+
+
 @app.route('/api/users/authorized_groups')
 @admin_required
 def authorized_user_groups():

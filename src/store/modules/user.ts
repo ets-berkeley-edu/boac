@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import store from '@/store';
 import Vue from 'vue';
-import { getUserProfile, getUserStatus } from '@/api/user';
+import { getCalnetUserByCsid, getUserGroups, getUserProfile, getUserStatus } from '@/api/user';
 
 const $_user_isDepartmentMember = (state, deptCode) => {
   let membership = _.get(state.user, `departments.${deptCode}`);
@@ -15,11 +15,13 @@ const $_user_canViewDepartment = (state, deptCode) => {
 };
 
 const state = {
+  calnetUsersByCsid: {},
   isUserAuthenticated: undefined,
   preferences: {
     sortBy: 'last_name'
   },
-  user: undefined
+  user: undefined,
+  userGroups: undefined
 };
 
 const getters = {
@@ -39,6 +41,9 @@ const mutations = {
       state.user = user;
     }
   },
+  putCalnetUserByCsid: (state: any, { csid, calnetUser }: any) =>
+    (state.calnetUsersByCsid[csid] = calnetUser),
+  setUserGroups: (state: any, userGroups: any[]) => (state.userGroups = userGroups),
   setDemoMode: (state: any, demoMode: boolean) =>
     (state.user.inDemoMode = demoMode),
   setUserPreference: (state: any, { key, value }) => {
@@ -52,6 +57,32 @@ const mutations = {
 };
 
 const actions = {
+  loadCalnetUserByCsid: ({ commit, state }, csid) => {
+    return new Promise(resolve => {
+      if (state.calnetUsersByCsid[csid]) {
+        resolve(state.calnetUsersByCsid[csid]);
+      } else {
+        getCalnetUserByCsid(csid)
+          .then(calnetUser => {
+            commit('putCalnetUserByCsid', {csid, calnetUser});
+            resolve(state.calnetUsersByCsid[csid]);
+          });
+      }
+    });
+  },
+  loadUserGroups: ({ commit, state }) => {
+    return new Promise(resolve => {
+      if (state.userGroups) {
+        resolve(state.userGroups);
+      } else {
+        getUserGroups('firstName')
+          .then(data => {
+            commit('setUserGroups', data);
+            resolve(state.userGroups);
+          });
+      }
+    });
+  },
   loadUserStatus: ({ commit, state }) => {
     return new Promise(resolve => {
       if (_.isNil(state.isUserAuthenticated)) {

@@ -30,9 +30,27 @@ from boac.models.json_cache import stow
 @stow('calnet_user_for_uid_{uid}')
 def get_calnet_user_for_uid(app, uid):
     persons = calnet.client(app).search_uids([uid])
-    p = persons[0] if len(persons) > 0 else None
     return {
-        'uid': uid,
-        'firstName': p and p['first_name'],
-        'lastName': p and p['last_name'],
+        **_calnet_user_api_feed(persons[0] if len(persons) else None),
+        **{'uid': uid},
+    }
+
+
+@stow('calnet_user_for_csid_{csid}')
+def get_calnet_user_for_csid(app, csid):
+    persons = calnet.client(app).search_csids([csid])
+    return {
+        **_calnet_user_api_feed(persons[0] if len(persons) else None),
+        **{'csid': csid},
+    }
+
+
+def _calnet_user_api_feed(person):
+    def _get(key):
+        return person and person[key]
+    return {
+        'uid': _get('uid'),
+        'csid': _get('csid'),
+        'firstName': _get('first_name'),
+        'lastName': _get('last_name'),
     }

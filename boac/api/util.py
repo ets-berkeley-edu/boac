@@ -136,10 +136,11 @@ def put_notifications(student):
     }
     # The front-end requires 'type', 'message' and 'read'. Optional fields: id, status, createdAt, updatedAt.
     for note in get_advising_notes(student['sid']) or []:
+        message = note['body']
         student['notifications']['note'].append({
             **note,
             **{
-                'message': note['body'],
+                'message': message.strip() if message else None,
                 'type': 'note',
             },
         })
