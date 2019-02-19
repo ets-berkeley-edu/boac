@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.merged.student import get_advising_notes, get_course_student_profiles
+from boac.merged.student import get_advising_notes, get_course_student_profiles, search_advising_notes
 
 
 coe_advisor = '1133399'
@@ -44,7 +44,7 @@ class TestStudent:
         fake_auth.login(coe_advisor)
         notes = get_advising_notes('11667051')
 
-        assert len(notes) == 2
+        assert len(notes) == 3
         assert notes[0]['id'] == '11667051-00001'
         assert notes[0]['sid'] == '11667051'
         assert notes[0]['body'] == 'Brigitte is making athletic and moral progress'
@@ -71,3 +71,18 @@ class TestStudent:
         assert notes[1]['read'] is False
         assert notes[1]['topics'] == ['Bad show']
         assert notes[1]['attachments'] == ['photo.jpeg']
+
+    def test_search_advising_notes(self, app, fake_auth):
+        fake_auth.login(coe_advisor)
+        notes = search_advising_notes(search_phrase='herostratus')
+        assert len(notes) == 1
+        assert '<strong>Herostratus</strong> lives' in notes[0]['noteSnippet']
+        assert notes[0]['noteSnippet'].startswith('...iniquity of oblivion blindely scattereth her poppy')
+        assert notes[0]['noteSnippet'].endswith('confounded that of himself. In vain we...')
+        assert notes[0]['studentSid'] == '11667051'
+        assert notes[0]['studentUid'] == '61889'
+        assert notes[0]['studentName'] == 'Deborah Davies'
+        assert notes[0]['advisorSid'] == '600500400'
+        assert notes[0]['noteId'] == '11667051-00003'
+        assert notes[0]['createdAt'] == '2017-11-05 12:00:00'
+        assert notes[0]['updatedAt'] == '2017-11-05 12:00:00'

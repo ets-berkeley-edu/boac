@@ -27,6 +27,7 @@ from datetime import timezone
 from itertools import groupby
 import json
 import operator
+import re
 
 from boac.externals import data_loch
 from boac.lib import analytics
@@ -334,6 +335,73 @@ def query_students(
     return summary
 
 
+def search_advising_notes(
+    search_phrase=None,
+    is_active_asc=None,
+    is_active_coe=None,
+    limit=None,
+):
+    scope = narrow_scope_by_criteria(
+        get_student_query_scope(),
+        is_active_asc=is_active_asc,
+        is_active_coe=is_active_coe,
+    )
+    # Since we can't join between RDS and Redshift (or any future notes search implementation), we mimic a join
+    # by first querying RDS for all student rows matching user scope, then incorporating SIDs into the notes query
+    # as a very large array filter.
+    query_tables, query_filter, query_bindings = data_loch.get_students_query(
+        is_active_asc=is_active_asc,
+        is_active_coe=is_active_coe,
+        scope=scope,
+    )
+    if not query_tables:
+        return []
+    sids_result = data_loch.safe_execute_rds(
+        f'SELECT sas.sid, sas.uid, sas.first_name, sas.last_name {query_tables} {query_filter}',
+        **query_bindings,
+    )
+    if not sids_result:
+        return []
+    rows_by_sid = {row['sid']: row for row in sids_result}
+    sid_filter = '{' + ','.join(rows_by_sid.keys()) + '}'
+
+    notes_results = data_loch.search_advising_notes(
+        search_phrase=f'%{search_phrase}%',
+        sid_filter=sid_filter,
+        limit=limit,
+    )
+
+    def _notes_result_to_json(row):
+        rds_row = rows_by_sid[row.get('sid')]
+        return {
+            'studentSid': row.get('sid'),
+            'studentUid': rds_row.get('uid'),
+            'studentName': ' '.join([rds_row.get('first_name'), rds_row.get('last_name')]),
+            'advisorSid': row.get('advisor_sid'),
+            'noteId': row.get('id'),
+            'noteSnippet': notes_text_snippet(row.get('note_body'), search_phrase),
+            'createdAt': _stringify_note_timestamp(row.get('created_at')),
+            'updatedAt': _stringify_note_timestamp(row.get('updated_at')),
+        }
+    return [_notes_result_to_json(row) for row in notes_results]
+
+
+def notes_text_snippet(note_body, search_phrase):
+    fragments = re.split(f'({re.escape(search_phrase)})', note_body, flags=re.IGNORECASE)
+    if len(fragments) < 3:
+        return note_body
+    before_words = fragments[0].split(' ')
+    match = fragments[1]
+    after_words = ''.join(fragments[2:]).split(' ')
+    before_text = ' '.join(before_words[-30:])
+    after_text = ' '.join(after_words[:30])
+    if len(before_words) > 30:
+        before_text = '...' + before_text
+    if len(after_words) > 30:
+        after_text += '...'
+    return f'{before_text}<strong>{match}</strong>{after_text}'
+
+
 def search_for_students(
     include_profiles=False,
     search_phrase=None,
@@ -397,13 +465,17 @@ def _note_to_json(note, topics, attachments):
         'subcategory': note.get('note_subcategory'),
         'appointmentId': note.get('appointment_id'),
         'createdBy': note.get('created_by'),
-        'createdAt': note.get('created_at').astimezone(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
+        'createdAt': _stringify_note_timestamp(note.get('created_at')),
         'updatedBy': note.get('updated_by'),
-        'updatedAt': note.get('updated_at').astimezone(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
+        'updatedAt': _stringify_note_timestamp(note.get('updated_at')),
         'read': False,
         'topics': topics,
         'attachments': attachments,
     }
+
+
+def _stringify_note_timestamp(dt):
+    return dt.astimezone(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
 
 
 def _get_advising_note_topics(sid):
