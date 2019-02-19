@@ -72,6 +72,7 @@ class TestUserProfile:
         response = client.get('/api/profile/my')
         assert response.json['isAuthenticated'] is True
         assert response.json['uid'] == test_uid
+        assert 'csid' in response.json
         assert 'firstName' in response.json
         assert 'lastName' in response.json
 
@@ -128,6 +129,22 @@ class TestUserProfile:
         assert response.status_code == 404
 
 
+class TestCalnetProfile:
+    """Calnet Profile API."""
+
+    def test_calnet_for_csid_not_authenticated(self, client):
+        """Returns 401 when not authenticated."""
+        response = client.get(f'/api/profile/calnet_for_csid/{81067873}')
+        assert response.status_code == 401
+
+    def test_calnet_for_csid(self, client, fake_auth):
+        """Delivers CalNet profile."""
+        fake_auth.login('2040')
+        response = client.get(f'/api/profile/calnet_for_csid/{81067873}')
+        assert response.status_code == 200
+        assert response.json['csid'] == '81067873'
+
+
 class TestMyCohorts:
     """User Profile API."""
 
@@ -170,18 +187,8 @@ class TestMyCohorts:
         assert cohorts[0]['name'] == 'Aardvark Admirers'
         assert cohorts[-1]['name'] == 'Zebra Zealots'
 
-    def test_my_curated_groups(self, client, fake_auth):
-        """Returns user's curated groups."""
-        fake_auth.login('6446')
-        response = client.get('/api/curated_groups/my')
-        assert response.status_code == 200
-        cohorts = response.json
-        assert len(cohorts) == 2
-        assert 'name' in cohorts[0]
-        assert 'studentCount' in cohorts[0]
 
-
-class TestAuthorizedUserGroups:
+class TestUserGroups:
     """User API."""
 
     admin_uid = '2040'

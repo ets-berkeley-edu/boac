@@ -42,6 +42,7 @@
         <tr class="sr-only">
           <th>Type</th>
           <th>Summary</th>
+          <th>Has attachment?</th>
           <th>Date</th>
         </tr>
         <tr
@@ -74,14 +75,43 @@
               <i v-if="message.status === 'Satisfied'" class="requirements-icon fas fa-check text-success"></i>
               <i v-if="message.status === 'Not Satisfied'" class="requirements-icon fas fa-exclamation text-icon-exclamation"></i>
               <i v-if="message.status === 'In Progress'" class="requirements-icon fas fa-clock text-icon-clock"></i>
-              <span v-html="message.message"></span>
+              <span v-if="message.type !== 'note'">{{ message.message }}</span>
+              <AdvisingNote
+                v-if="message.type === 'note'"
+                :note="message"
+                :is-open="includes(openMessages, message.transientId)" />
             </div>
           </td>
-          <td class="message-date align-top">
+          <td class="column-right align-top">
+            <i v-if="size(message.attachments)" class="fas fa-paperclip mt-2"></i>
+            <span class="sr-only">{{ size(message.attachments) ? 'Yes' : 'No' }}</span>
+          </td>
+          <td class="column-right align-top">
             <div
               :id="`timeline-tab-${activeTab}-date-${index}`"
               class="pt-2 pr-2 text-nowrap">
-              <span v-if="message.updatedAt || message.createdAt"><span class="sr-only">Last updated on </span>{{ parseDatetime(message.updatedAt || message.createdAt) }}</span>
+              <div v-if="!includes(openMessages, message.transientId) || message.type !== 'note'">
+                <TimelineDate
+                  :date="message.updatedAt || message.createdAt"
+                  :include-time-of-day="false"
+                  sr-prefix="Last updated on" />
+              </div>
+              <div v-if="includes(openMessages, message.transientId) && message.type === 'note'">
+                <div v-if="message.createdAt">
+                  <div class="text-muted">Created:</div>
+                  <TimelineDate
+                    :date="message.createdAt"
+                    :include-time-of-day="true"
+                    sr-prefix="Last updated on" />
+                </div>
+                <div v-if="message.updatedAt && (message.updatedAt !== message.createdAt)">
+                  <div class="text-muted">Updated:</div>
+                  <TimelineDate
+                    :date="message.updatedAt"
+                    :include-time-of-day="true"
+                    sr-prefix="Last updated on" />
+                </div>
+              </div>
               <span
                 v-if="!message.updatedAt && !message.createdAt"
                 class="sr-only"
@@ -110,14 +140,16 @@
 </template>
 
 <script>
+import AdvisingNote from "@/components/note/AdvisingNote";
+import TimelineDate from '@/components/student/profile/TimelineDate'
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { dismissStudentAlert } from '@/api/student';
-import { format as formatDate, parse as parseDate } from 'date-fns';
 import { markRead } from '@/api/notes';
 
 export default {
   name: 'AcademicTimeline',
+  components: {AdvisingNote, TimelineDate},
   mixins: [UserMetadata, Util],
   props: {
     student: Object
@@ -147,7 +179,6 @@ export default {
     isTimelineLoading: true,
     messages: undefined,
     openMessages: [],
-    now: new Date(),
     isShowingAll: false,
     screenReaderAlert: undefined
   }),
@@ -224,17 +255,6 @@ export default {
         ? this.filterList(this.messages, ['type', type])
         : this.messages;
     },
-    parseDatetime(datetime) {
-      let date = datetime && parseDate(datetime);
-      if (date) {
-        const dateFormat =
-          date.getFullYear() === this.now.getFullYear()
-            ? 'MMM DD'
-            : 'MMM DD, YYYY';
-        date = formatDate(date, dateFormat);
-      }
-      return date;
-    },
     toggle(message) {
       if (this.includes(this.openMessages, message.transientId)) {
         this.openMessages = this.remove(
@@ -258,10 +278,6 @@ export default {
 </script>
 
 <style scoped>
-.message-date {
-  text-align: right;
-  width: 1%;
-}
 .column-message {
   max-width: 1px;
   padding: 10px 10px 10px 5px;
@@ -270,6 +286,10 @@ export default {
 .column-pill {
   white-space: nowrap;
   width: 100px;
+}
+.column-right {
+  text-align: right;
+  width: 1%;
 }
 .messages-none {
   font-size: 18px;

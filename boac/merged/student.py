@@ -391,6 +391,7 @@ def _note_to_json(note, topics, attachments):
     return {
         'id': note.get('id'),
         'sid': note.get('sid'),
+        'advisorSid': note.get('advisor_sid'),
         'body': note.get('note_body'),
         'category': note.get('note_category'),
         'subcategory': note.get('note_subcategory'),

@@ -15,7 +15,14 @@ export function getUserProfile() {
     .then(response => response.data, () => null);
 }
 
-export function getAuthorizedUserGroups(sortUsersBy: string) {
+export function getCalnetUserByCsid(csid) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .get(`${apiBaseUrl}/api/profile/calnet_for_csid/${csid}`)
+    .then(response => response.data, () => null);
+}
+
+export function getUserGroups(sortUsersBy: string) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   let query = sortUsersBy ? `sortUsersBy=${sortUsersBy}` : '';
   return axios

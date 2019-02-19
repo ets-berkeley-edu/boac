@@ -71,8 +71,9 @@ import DemoModeToggle from '@/components/admin/DemoModeToggle';
 import Loading from '@/mixins/Loading';
 import Spinner from '@/components/util/Spinner';
 import Status from '@/components/util/Status';
+import store from '@/store';
 import UserMetadata from '@/mixins/UserMetadata';
-import { becomeUser, getAuthorizedUserGroups } from '@/api/user';
+import { becomeUser } from '@/api/user';
 
 export default {
   name: 'Admin',
@@ -93,15 +94,12 @@ export default {
     }
   },
   created() {
-    this.loadUserGroups();
+    store.dispatch('user/loadUserGroups').then(data => {
+      this.userGroups = data;
+      this.updateLoadingStatus();
+    });
   },
   methods: {
-    loadUserGroups() {
-      getAuthorizedUserGroups('firstName').then(data => {
-        this.userGroups = data;
-        this.updateLoadingStatus();
-      });
-    },
     updateLoadingStatus() {
       if (this.loading && this.user && this.userGroups) {
         this.loaded();
