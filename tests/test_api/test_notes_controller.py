@@ -43,7 +43,7 @@ class TestUpdateNotes:
         fake_auth.login(coe_advisor)
 
         all_notes_unread = self._get_notes(client, 61889)
-        assert len(all_notes_unread) == 2
+        assert len(all_notes_unread) == 3
         for note in all_notes_unread:
             assert note['read'] is False
 
@@ -51,7 +51,7 @@ class TestUpdateNotes:
         assert response.status_code == 201
 
         all_notes_one_read = self._get_notes(client, 61889)
-        assert len(all_notes_one_read) == 2
+        assert len(all_notes_one_read) == 3
         assert all_notes_one_read[0]['id'] == '11667051-00001'
         assert all_notes_one_read[0]['read'] is True
         assert all_notes_one_read[1]['id'] == '11667051-00002'
