@@ -29,7 +29,7 @@
       <b-card no-body>
         <b-tabs pills card>
           <b-tab v-for="group in userGroups" :key="group.name" :title="group.name">
-            <b-container fluid>
+            <b-container v-if="size(group.users)" fluid>
               <b-row
                 v-for="groupUser in group.users"
                 :key="groupUser.id">
@@ -56,6 +56,9 @@
                 </b-col>
               </b-row>
             </b-container>
+            <div v-if="!size(group.users)">
+              No {{ group.name }} users are registered in BOAC.
+            </div>
           </b-tab>
         </b-tabs>
       </b-card>
@@ -73,6 +76,7 @@ import Spinner from '@/components/util/Spinner';
 import Status from '@/components/util/Status';
 import store from '@/store';
 import UserMetadata from '@/mixins/UserMetadata';
+import Util from '@/mixins/Util';
 import { becomeUser } from '@/api/user';
 
 export default {
@@ -82,7 +86,7 @@ export default {
     Spinner,
     Status
   },
-  mixins: [Context, Loading, UserMetadata],
+  mixins: [Context, Loading, UserMetadata, Util],
   data: () => ({
     active: [],
     blurAvatarUrl: require('@/assets/sampleBlurAvatar.jpg'),

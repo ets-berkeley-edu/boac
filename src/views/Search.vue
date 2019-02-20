@@ -53,7 +53,7 @@ import SortableStudents from '@/components/search/SortableStudents';
 import Spinner from '@/components/util/Spinner';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
-import { search } from '@/api/student';
+import { search } from '@/api/search';
 
 export default {
   name: 'Search',
@@ -81,11 +81,15 @@ export default {
   }),
   created() {
     this.phrase = this.$route.query.q;
-    const includeCourses = this.$route.query.includeCourses;
+    const includeCourses = this.$route.query.courses;
+    const includeNotes = this.$route.query.notes;
+    const includeStudents = this.$route.query.students;
     if (this.phrase) {
       search(
         this.phrase,
         this.isNil(includeCourses) ? false : includeCourses,
+        this.isNil(includeNotes) ? false : includeNotes,
+        this.isNil(includeStudents) ? false : includeStudents,
         this.isAscUser ? false : null,
         this.isCoeUser ? false : null
       )
