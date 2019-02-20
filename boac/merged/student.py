@@ -405,23 +405,12 @@ def notes_text_snippet(note_body, search_phrase):
 def search_for_students(
     include_profiles=False,
     search_phrase=None,
-    is_active_asc=None,
-    is_active_coe=None,
     order_by=None,
     offset=0,
     limit=None,
 ):
-    scope = narrow_scope_by_criteria(
-        get_student_query_scope(),
-        is_active_asc=is_active_asc,
-        is_active_coe=is_active_coe,
-    )
-    query_tables, query_filter, query_bindings = data_loch.get_students_query(
-        search_phrase=search_phrase,
-        is_active_asc=is_active_asc,
-        is_active_coe=is_active_coe,
-        scope=scope,
-    )
+    scope = narrow_scope_by_criteria(get_student_query_scope())
+    query_tables, query_filter, query_bindings = data_loch.get_students_query(search_phrase=search_phrase, scope=scope)
     if not query_tables:
         return {
             'students': [],

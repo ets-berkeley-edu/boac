@@ -80,63 +80,74 @@ class TestFindStudents:
 class TestCollegeOfEngineering:
     """COE-specific API calls."""
 
-    def test_unauthorized_request_for_coe_data(self, client, asc_advisor):
-        """In order to access PREP, etc. the user must be either COE or Admin."""
-        response = client.post('/api/students', data=json.dumps({'coePrepStatuses': ['did_prep']}), content_type='application/json')
-        assert response.status_code == 403
+    @classmethod
+    def _search(cls, client, json_data=()):
+        return client.post(
+            '/api/students',
+            data=json.dumps(json_data),
+            content_type='application/json',
+        )
 
-    def test_authorized_request_for_coe_data(self, client, coe_advisor):
+    def test_unauthorized_asc_advisor(self, client, asc_advisor):
         """In order to access PREP, etc. the user must be either COE or Admin."""
-        response = client.post('/api/students', data=json.dumps({'coePrepStatuses': ['did_prep']}), content_type='application/json')
+        assert 403 == self._search(client, {'coePrepStatuses': ['did_prep']}).status_code
+
+    def test_authorized_coe_advisor(self, client, coe_advisor):
+        """In order to access PREP, etc. the user must be either COE or Admin."""
+        response = self._search(client, {'coePrepStatuses': ['did_prep']})
         assert response.status_code == 200
         students = response.json['students']
         assert len(students) == 1
         assert students[0]['sid'] == '11667051'
 
-    def test_authorized_request_for_gender(self, client, coe_advisor):
+    def test_coe_request_for_gender(self, client, coe_advisor):
         """For now, only COE users can access gender data."""
-        response = client.post('/api/students', data=json.dumps({'genders': ['f']}), content_type='application/json')
+        response = self._search(client, {'genders': ['f']})
         assert response.status_code == 200
         students = response.json['students']
         assert len(students) == 1
         assert students[0]['sid'] == '7890123456'
 
-    def test_authorized_request_for_coe_inactive_gender(self, client, coe_advisor):
-        response = client.post('/api/students', data=json.dumps({'genders': ['f'], 'isInactiveCoe': True}), content_type='application/json')
+    def test_inactive_coe(self, client, coe_advisor):
+        response = self._search(client, {'genders': ['f'], 'isInactiveCoe': True})
         assert response.status_code == 200
         students = response.json['students']
         assert len(students) == 1
         assert students[0]['sid'] == '9000000000'
 
-    def test_authorized_request_for_ethnicity(self, client, coe_advisor):
+    def test_ethnicity(self, client, coe_advisor):
         """For now, only COE users can access ethnicity data."""
-        response = client.post('/api/students', data=json.dumps({'ethnicities': ['B', 'H']}), content_type='application/json')
+        response = self._search(client, {'ethnicities': ['B', 'H']})
         assert response.status_code == 200
         students = response.json['students']
         assert len(students) == 2
         for index, sid in enumerate(['11667051', '7890123456']):
             assert students[index]['sid'] == sid
 
-    def test_coe_search_by_admin_with_asc_order_by(self, client, admin_login):
+    def test_admin_power_search(self, client, admin_login):
         """Admin user can order COE results by ASC criteria, with students lacking such criteria coming last."""
-        data = {
-            'ethnicities': ['B', 'H'],
-            'orderBy': 'group_name',
-        }
-        response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
+        response = self._search(
+            client,
+            {
+                'ethnicities': ['B', 'H'],
+                'orderBy': 'group_name',
+            },
+        )
         assert response.status_code == 200
         students = response.json['students']
         assert students[0]['athleticsProfile']['athletics'][0]['groupName'] == 'Men\'s Baseball'
         assert students[1]['athleticsProfile']['athletics'][0]['groupName'] == 'Women\'s Field Hockey'
         assert 'athleticsProfile' not in students[2]
 
-    def test_admin_search_for_students(self, client, admin_login):
+    def test_admin_search_by_athletics(self, client, admin_login):
         """Admin user can search with ASC and/or COE criteria."""
-        data = {
-            'underrepresented': True,
-            'groupCodes': ['MFB-DB'],
-        }
-        response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
+        response = self._search(
+            client,
+            {
+                'underrepresented': True,
+                'groupCodes': ['MFB-DB'],
+            },
+        )
         assert response.status_code == 200
         assert response.json.get('students') == []
 
@@ -144,9 +155,17 @@ class TestCollegeOfEngineering:
 class TestAthleticsStudyCenter:
     """ASC-specific API calls."""
 
+    @classmethod
+    def _search(cls, client, json_data=()):
+        return client.post(
+            '/api/students',
+            data=json.dumps(json_data),
+            content_type='application/json',
+        )
+
     def test_multiple_teams(self, asc_advisor, asc_inactive_students, client):
         """Includes multiple team memberships."""
-        response = client.post('/api/students', data=json.dumps({'groupCodes': ['MFB-DB', 'MFB-DL']}), content_type='application/json')
+        response = self._search(client, {'groupCodes': ['MFB-DB', 'MFB-DL']})
         assert response.status_code == 200
         students = response.json['students']
         assert not _get_common_sids(asc_inactive_students, students)
@@ -158,7 +177,7 @@ class TestAthleticsStudyCenter:
 
     def test_get_intensive_cohort(self, asc_advisor, asc_inactive_students, client):
         """Returns the canned 'intensive' cohort, available to all authenticated users."""
-        response = client.post('/api/students', data=json.dumps({'inIntensiveCohort': True}), content_type='application/json')
+        response = self._search(client, {'inIntensiveCohort': True})
         assert response.status_code == 200
         cohort = json.loads(response.data)
         assert 'students' in cohort
@@ -171,11 +190,10 @@ class TestAthleticsStudyCenter:
         for student in students:
             assert student['athleticsProfile']['inIntensiveCohort']
 
-    def test_unauthorized_request_for_athletic_study_center_data(self, client, fake_auth):
+    def test_unauthorized_request_for_asc_data(self, client, fake_auth):
         """In order to access intensive_cohort, inactive status, etc. the user must be either ASC or Admin."""
         fake_auth.login('1022796')
-        response = client.post('/api/students', data=json.dumps({'inIntensiveCohort': True}), content_type='application/json')
-        assert response.status_code == 403
+        assert 403 == self._search(client, {'inIntensiveCohort': True}).status_code
 
     def test_order_by_with_intensive_cohort(self, asc_advisor, client):
         """Returns students marked as 'intensive' by ASC."""
@@ -189,11 +207,13 @@ class TestAthleticsStudyCenter:
             'units': ['61889', '123456', '242881', '1049291'],
         }
         for order_by, expected_uid_list in all_expected_order.items():
-            args = {
-                'inIntensiveCohort': True,
-                'orderBy': order_by,
-            }
-            response = client.post('/api/students', data=json.dumps(args), content_type='application/json')
+            response = self._search(
+                client,
+                {
+                    'inIntensiveCohort': True,
+                    'orderBy': order_by,
+                },
+            )
             assert response.status_code == 200, f'Non-200 response where order_by={order_by}'
             cohort = json.loads(response.data)
             assert cohort['totalStudentCount'] == 4, f'Wrong count where order_by={order_by}'
@@ -202,15 +222,16 @@ class TestAthleticsStudyCenter:
 
     def test_forbidden_order_by(self, client, coe_advisor):
         """COE advisor cannot order results by ASC criteria."""
-        data = {
-            'ethnicities': ['B', 'H'],
-            'orderBy': 'group_name',
-        }
-        response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
-        assert 403 == response.status_code
+        assert 403 == self._search(
+            client,
+            {
+                'ethnicities': ['B', 'H'],
+                'orderBy': 'group_name',
+            },
+        ).status_code
 
     def test_get_inactive_cohort(self, asc_advisor, client):
-        response = client.post('/api/students', data=json.dumps({'isInactiveAsc': True}), content_type='application/json')
+        response = self._search(client, {'isInactiveAsc': True})
         assert response.status_code == 200
         cohort = json.loads(response.data)
         assert 'students' in cohort
@@ -240,181 +261,11 @@ class TestSearch:
         'offset': 1,
         'limit': 50,
     }
-
     asc_search = json.dumps(sample_search)
-
     sample_search['groupCodes'] = []
     sample_search['gpaRanges'] = []
     sample_search['levels'] = []
     coe_search = json.dumps(sample_search)
-
-    def test_search_not_authenticated(self, client):
-        """Search is not available to the world."""
-        response = client.post('/api/students/search')
-        assert response.status_code == 401
-
-    def test_unauthorized_request_for_athletic_study_center_data(self, client, fake_auth):
-        """In order to access intensive_cohort, inactive status, etc. the user must be either ASC or Admin."""
-        fake_auth.login('1022796')
-        args = {'searchPhrase': 'John', 'isInactiveAsc': False}
-        response = client.post('/api/students/search', data=json.dumps(args), content_type='application/json')
-        assert response.status_code == 403
-
-    def test_search_with_missing_input(self, client, fake_auth):
-        """Search is nothing without input."""
-        fake_auth.login('2040')
-        response = client.post('/api/students/search', data=json.dumps({'searchPhrase': ' \t  '}), content_type='application/json')
-        assert response.status_code == 400
-
-    def test_search_by_sid_snippet(self, client, fake_auth, asc_inactive_students):
-        """Search by snippet of SID."""
-        def _search_students_as_user(uid, sid_snippet):
-            fake_auth.login(uid)
-            response = client.post(
-                '/api/students/search',
-                data=json.dumps({'searchPhrase': sid_snippet}),
-                content_type='application/json',
-            )
-            assert response.status_code == 200
-            return response.json['students'], response.json['totalStudentCount']
-
-        sid_snippet = '89012'
-        # Admin user performs search
-        students, total_student_count = _search_students_as_user('2040', sid_snippet)
-        assert len(students) == total_student_count == 2
-        assert _get_common_sids(asc_inactive_students, students)
-        # ASC advisor performs the same search
-        students, total_student_count = _search_students_as_user('1081940', sid_snippet)
-        assert len(students) == total_student_count == 1
-        assert not _get_common_sids(asc_inactive_students, students)
-
-    def test_alerts_in_search_results(self, client, create_alerts, fake_auth):
-        """Search results include alert counts."""
-        fake_auth.login('2040')
-        response = client.post('/api/students/search', data=json.dumps({'searchPhrase': 'davies'}), content_type='application/json')
-        assert response.status_code == 200
-        assert response.json['students'][0]['alertCount'] == 3
-
-    def test_summary_profiles_in_search_results(self, client, fake_auth):
-        fake_auth.login('2040')
-        response = client.post('/api/students/search', data=json.dumps({'searchPhrase': 'davies'}), content_type='application/json')
-        assert response.json['students'][0]['cumulativeGPA'] == 3.8
-        assert response.json['students'][0]['cumulativeUnits'] == 101.3
-        assert response.json['students'][0]['expectedGraduationTerm']['name'] == 'Fall 2019'
-        assert response.json['students'][0]['level'] == 'Junior'
-        assert response.json['students'][0]['termGpa'][0]['gpa'] == 2.9
-
-    def test_search_by_name_snippet(self, client, fake_auth):
-        """Search by snippet of name."""
-        fake_auth.login('2040')
-        response = client.post('/api/students/search', data=json.dumps({'searchPhrase': 'dav'}), content_type='application/json')
-        assert response.status_code == 200
-        students = response.json['students']
-        assert len(students) == response.json['totalStudentCount'] == 3
-        assert ['Crossman', 'Davies', 'Doolittle'] == [s['lastName'] for s in students]
-
-    def test_search_by_full_name_snippet(self, client, fake_auth):
-        """Search by snippet of full name."""
-        fake_auth.login('2040')
-        permutations = ['david c', 'john  david cro', 'john    cross', ' crossman, j ']
-        for phrase in permutations:
-            response = client.post(
-                '/api/students/search',
-                data=json.dumps({'searchPhrase': phrase}),
-                content_type='application/json',
-            )
-            message_if_fail = f'Unexpected result(s) when search phrase={phrase}'
-            assert response.status_code == 200, message_if_fail
-            students = response.json['students']
-            assert len(students) == response.json['totalStudentCount'] == 1, message_if_fail
-            assert students[0]['lastName'] == 'Crossman', message_if_fail
-
-    def test_search_by_name_asc_limited(self, asc_advisor, client):
-        """An ASC name search finds active ASC Pauls."""
-        response = client.post('/api/students/search', data='{"searchPhrase": "paul"}', content_type='application/json')
-        students = response.json['students']
-        assert len(students) == 2
-        assert next(s for s in students if s['name'] == 'Paul Kerschen')
-        assert next(s for s in students if s['name'] == 'Paul Farestveit')
-
-    def test_search_by_name_coe_limited(self, coe_advisor, client):
-        """A COE name search finds active COE Pauls."""
-        response = client.post('/api/students/search', data='{"searchPhrase": "paul"}', content_type='application/json')
-        students = response.json['students']
-        assert len(students) == 1
-        assert next(s for s in students if s['name'] == 'Paul Farestveit')
-
-    def test_search_by_name_admin_unlimited(self, admin_login, client):
-        """An admin name search finds all Pauls."""
-        response = client.post('/api/students/search', data='{"searchPhrase": "paul"}', content_type='application/json')
-        students = response.json['students']
-        assert len(students) == 3
-        assert next(s for s in students if s['name'] == 'Paul Kerschen')
-        assert next(s for s in students if s['name'] == 'Paul Farestveit')
-        assert next(s for s in students if s['name'] == 'Wolfgang Pauli')
-
-    def test_search_by_name_excludes_courses_unless_requested(self, coe_advisor, client):
-        response = client.post('/api/students/search', data='{"searchPhrase": "da"}', content_type='application/json')
-        assert 'courses' not in response.json
-        assert 'totalCourseCount' not in response.json
-
-    def test_search_by_name_includes_courses_if_requested(self, coe_advisor, client):
-        """A name search returns matching courses if any."""
-        response = client.post(
-            '/api/students/search',
-            data=json.dumps({'searchPhrase': 'paul', 'includeCourses': True}),
-            content_type='application/json',
-        )
-        assert response.json['courses'] == []
-        response = client.post(
-            '/api/students/search',
-            data=json.dumps({'searchPhrase': 'da', 'includeCourses': True}),
-            content_type='application/json',
-        )
-        students = response.json['students']
-        assert len(students) == 1
-        assert students[0]['name'] == 'Deborah Davies'
-        courses = response.json['courses']
-        assert len(courses) == 1
-        assert response.json['totalCourseCount'] == 1
-        assert courses[0] == {
-            'termId': '2178',
-            'sectionId': '21057',
-            'courseName': 'DANISH 1A',
-            'courseTitle': 'Beginning Danish',
-            'instructionFormat': 'LEC',
-            'sectionNum': '001',
-            'instructors': 'Karen Blixen',
-        }
-
-    def test_search_by_name_normalizes_queries(self, coe_advisor, client):
-        queries = ['MATH 16A', 'Math 16 A', 'math  16-a']
-        for query in queries:
-            response = client.post(
-                '/api/students/search',
-                data=json.dumps({'searchPhrase': query, 'includeCourses': True}),
-                content_type='application/json',
-            )
-            courses = response.json['courses']
-            assert len(courses) == 2
-            assert response.json['totalCourseCount'] == 2
-            for course in courses:
-                assert course['courseName'] == 'MATH 16A'
-
-    def test_search_order_by_offset_limit(self, client, fake_auth):
-        """Search by snippet of name."""
-        fake_auth.login('2040')
-        args = {
-            'searchPhrase': 'dav',
-            'orderBy': 'major',
-            'offset': 1,
-            'limit': 1,
-        }
-        response = client.post('/api/students/search', data=json.dumps(args), content_type='application/json')
-        assert response.status_code == 200
-        assert response.json['totalStudentCount'] == 3
-        assert len(response.json['students']) == 1
-        assert 'Crossman' == response.json['students'][0]['lastName']
 
     def test_get_students(self, asc_advisor, asc_inactive_students, client):
         response = client.post('/api/students', data=self.asc_search, content_type='application/json')

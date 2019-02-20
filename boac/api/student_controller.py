@@ -23,17 +23,14 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from itertools import islice
-
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import add_alert_counts, is_asc_authorized, is_unauthorized_search, put_notifications
 from boac.externals.cal1card_photo_api import get_cal1card_photo
-from boac.externals.data_loch import get_enrolled_primary_sections
 from boac.lib import util
-from boac.lib.berkeley import convert_inactive_arg, current_term_id
+from boac.lib.berkeley import convert_inactive_arg
 from boac.lib.http import tolerant_jsonify
 from boac.merged import athletics
-from boac.merged.student import get_student_and_terms, query_students, search_for_students
+from boac.merged.student import get_student_and_terms, query_students
 from boac.models.alert import Alert
 from flask import current_app as app, request, Response
 from flask_login import current_user, login_required
@@ -99,57 +96,6 @@ def get_students():
         'students': students,
         'totalStudentCount': results['totalStudentCount'] if results else 0,
     })
-
-
-@app.route('/api/students/search', methods=['POST'])
-@login_required
-def search_students():
-    params = util.remove_none_values(request.get_json())
-    order_by = util.get(params, 'orderBy', None)
-    if is_unauthorized_search(list(params.keys()), order_by):
-        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
-    search_phrase = util.get(params, 'searchPhrase', '').strip()
-    if not len(search_phrase):
-        raise BadRequestError('Invalid or empty search input')
-    student_results = search_for_students(
-        include_profiles=True,
-        search_phrase=search_phrase.replace(',', ' '),
-        is_active_asc=convert_inactive_arg(util.get(params, 'isInactiveAsc'), 'UWASC', current_user),
-        is_active_coe=convert_inactive_arg(util.get(params, 'isInactiveCoe'), 'COENG', current_user),
-        order_by=order_by,
-        offset=util.get(params, 'offset', 0),
-        limit=util.get(params, 'limit', 50),
-    )
-    alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
-    students = student_results['students']
-    add_alert_counts(alert_counts, students)
-
-    feed = {
-        'students': students,
-        'totalStudentCount': student_results['totalStudentCount'],
-    }
-
-    if util.get(params, 'includeCourses'):
-        alphanumeric_search_phrase = ''.join(e for e in search_phrase if e.isalnum()).upper()
-        courses = []
-        if alphanumeric_search_phrase:
-            course_rows = get_enrolled_primary_sections(current_term_id(), alphanumeric_search_phrase)
-            for row in islice(course_rows, 50):
-                courses.append({
-                    'termId': row['term_id'],
-                    'sectionId': row['sis_section_id'],
-                    'courseName': row['sis_course_name'],
-                    'courseTitle': row['sis_course_title'],
-                    'instructionFormat': row['sis_instruction_format'],
-                    'sectionNum': row['sis_section_num'],
-                    'instructors': row['instructors'],
-                })
-        else:
-            course_rows = []
-        feed['courses'] = courses
-        feed['totalCourseCount'] = len(course_rows)
-
-    return tolerant_jsonify(feed)
 
 
 @app.route('/api/team_groups/all')
