@@ -54,6 +54,13 @@
         {{ student.level }}
       </div>
       <div
+        v-if="student.expectedGraduationTerm"
+        :id="`student-${student.sid}-grad-term`"
+        class="student-text"
+        aria-label="Expected graduation term">
+        Grad:&nbsp;{{ student.expectedGraduationTerm.name }}
+      </div>
+      <div
         v-for="(major, index) in student.majors"
         :key="index"
         class="student-text">
