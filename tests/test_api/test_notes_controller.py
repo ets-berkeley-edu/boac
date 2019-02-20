@@ -43,16 +43,22 @@ class TestUpdateNotes:
         fake_auth.login(coe_advisor)
 
         all_notes_unread = self._get_notes(client, 61889)
-        assert len(all_notes_unread) == 3
+        assert len(all_notes_unread) == 4
         for note in all_notes_unread:
             assert note['read'] is False
 
         response = client.post('/api/notes/11667051-00001/mark_read')
         assert response.status_code == 201
 
+        non_legacy_note_id = all_notes_unread[3]['id']
+        response = client.post(f'/api/notes/{non_legacy_note_id}/mark_read')
+        assert response.status_code == 201
+
         all_notes_one_read = self._get_notes(client, 61889)
-        assert len(all_notes_one_read) == 3
+        assert len(all_notes_one_read) == 4
         assert all_notes_one_read[0]['id'] == '11667051-00001'
         assert all_notes_one_read[0]['read'] is True
         assert all_notes_one_read[1]['id'] == '11667051-00002'
         assert all_notes_one_read[1]['read'] is False
+        assert all_notes_one_read[3]['id'] == non_legacy_note_id
+        assert all_notes_one_read[3]['read'] is True
