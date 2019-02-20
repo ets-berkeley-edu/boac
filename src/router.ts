@@ -23,7 +23,10 @@ const requiresAuth = (to: any, from: any, next: any) => {
     } else {
       next({
         path: '/login',
-        query: to.name === 'home' ? undefined : { redirect: to.fullPath }
+        query: {
+          error: to.query.error,
+          redirect: to.name === 'home' ? undefined : to.fullPath
+        }
       });
     }
   });
@@ -134,13 +137,18 @@ const router = new Router({
 
 router.beforeEach((to: any, from: any, next: any) => {
   store.dispatch('context/loadConfig').then(() => {
-    store.dispatch('context/clearErrors').then(() => next());
+    store.dispatch('context/clearErrorsInStore').then(() => next());
   });
 });
 
 router.afterEach((to: any) => {
   let name = _.get(to, 'meta.title') || _.capitalize(to.name) || 'Welcome';
   document.title = `${name} | BOAC`;
+  if (to.query.error) {
+    store.dispatch('context/reportError', {
+      message: to.query.error
+    });
+  }
   store.dispatch('user/loadUserStatus').then(isAuthenticated => {
     if (isAuthenticated) {
       store.dispatch('user/loadUser').then(() => {

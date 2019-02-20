@@ -1,5 +1,5 @@
 <template>
-  <div v-if="user.isAdmin && devAuthEnabled && inDemoMode !== null">
+  <div v-if="inDemoMode !== null">
     <h2 class="page-section-header-sub">Demo Mode</h2>
     <div class="p-2">
       <span
@@ -24,13 +24,12 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
 import { setDemoMode } from '@/api/user';
 
 export default {
   name: 'DemoModeToggle',
-  mixins: [Context, UserMetadata],
+  mixins: [UserMetadata],
   data: () => ({
     inDemoMode: null,
     isToggling: false

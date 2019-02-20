@@ -13,10 +13,23 @@
             variant="primary"
             aria-label="Log in to BOAC"
             tabindex="0"
-            placement="top-left"
+            placement="top"
             @click.stop="logIn()">
             Sign In
           </b-btn>
+          <b-popover
+            placement="top"
+            target="splash-sign-in"
+            title=""
+            triggers="focus"
+            @hidden="onHidden">
+            <span
+              v-for="message in errorMessages"
+              :key="message"
+              class="has-error"
+              aria-live="polite"
+              v-html="message"></span>
+          </b-popover>
         </form>
         <div class="splash-contact-us">
           Questions or feedback? Contact us at
@@ -42,6 +55,7 @@
 <script>
 import Context from '@/mixins/Context';
 import DevAuth from '@/components/admin/DevAuth';
+import Util from '@/mixins/Util';
 import { getCasLoginURL } from '@/api/auth';
 
 export default {
@@ -49,10 +63,27 @@ export default {
   components: {
     DevAuth
   },
-  mixins: [Context],
+  mixins: [Context, Util],
+  data: () => ({
+    errorMessages: undefined
+  }),
+  created() {
+    this.errorCheck();
+    this.$eventHub.$on('error-reported', () => this.errorCheck());
+  },
   methods: {
+    errorCheck() {
+      if (this.size(this.errors)) {
+        this.errorMessages = this.map(this.errors, 'message');
+        this.putFocusNextTick('splash-sign-in');
+        this.clearErrorsInStore();
+      }
+    },
     logIn() {
       getCasLoginURL().then(data => (window.location.href = data.casLoginUrl));
+    },
+    onHidden() {
+      this.errorMessages = null;
     }
   }
 };

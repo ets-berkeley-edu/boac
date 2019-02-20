@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from urllib.parse import urlencode
 
-from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
+from boac.api.errors import ResourceNotFoundError
 from boac.api.util import admin_required, get_current_user_status
 from boac.lib.berkeley import is_authorized_to_use_boac
 from boac.lib.http import add_param_to_url, tolerant_jsonify
@@ -50,13 +50,20 @@ def cas_login():
     uid, attributes, proxy_granting_ticket = _cas_client(target_url).verify_ticket(ticket)
     logger.info(f'Logged into CAS as user {uid}')
     user = app.login_manager.user_callback(uid)
+    support_email = app.config['BOAC_SUPPORT_EMAIL']
     if user is None:
-        logger.error(f'User with UID {uid} was not found.')
-        param = ('casLoginError', f'Sorry, no user found with UID {uid}.')
+        logger.error(f'UID {uid} is not an authorized user.')
+        param = ('error', f"""
+            Sorry, you are not registered to use BOAC.
+            Please <a href="mailto:{support_email}">email us</a> for assistance.
+        """)
         redirect_url = add_param_to_url('/', param)
     elif not is_authorized_to_use_boac(user):
-        logger.error(f'Dev-auth: user with UID {uid} is not authorized.')
-        param = ('casLoginError', f'Sorry, user with UID {uid} is not authorized to use BOAC.')
+        logger.error(f'UID {uid} is in the BOAC db but is not authorized to use the tool.')
+        param = ('error', f"""
+            Sorry, you are not registered to use BOAC.
+            Please <a href="mailto:{support_email}">email us</a> for assistance.
+        """)
         redirect_url = add_param_to_url('/', param)
     else:
         login_user(user)
@@ -105,14 +112,14 @@ def _dev_auth_login(uid, password):
         logger = app.logger
         if password != app.config['DEVELOPER_AUTH_PASSWORD']:
             logger.error('Dev-auth: Wrong password')
-            raise ForbiddenRequestError('Invalid credentials')
+            return tolerant_jsonify({'message': 'Invalid credentials'}, 401)
         user = app.login_manager.user_callback(uid)
         if user is None:
-            logger.error(f'Dev-auth: No user found with UID {uid}.')
-            raise ForbiddenRequestError(f'Sorry, user with UID {uid} is unauthorized or does not exist.')
+            logger.error(f'Dev-auth: User with UID {uid} is not registered in BOAC.')
+            return tolerant_jsonify({'message': f'Sorry, user with UID {uid} is not registered to use BOAC.'}, 403)
         if not is_authorized_to_use_boac(user):
             logger.error(f'Dev-auth: UID {uid} is not authorized to use BOAC.')
-            raise ForbiddenRequestError(f'Sorry, user with UID {uid} is not authorized to use BOAC.')
+            return tolerant_jsonify({'message': f'Sorry, user with UID {uid} is not authorized to use BOAC.'}, 403)
         logger.info(f'Dev-auth used to log in as UID {uid}')
         login_user(user, force=True)
         return tolerant_jsonify(get_current_user_status())

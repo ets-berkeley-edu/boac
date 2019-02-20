@@ -105,10 +105,11 @@
                     sr-prefix="Last updated on" />
                 </div>
                 <div v-if="message.updatedAt && (message.updatedAt !== message.createdAt)">
-                  <div class="text-muted">Updated:</div>
+                  <div class="mt-2 text-muted">Updated:</div>
                   <TimelineDate
                     :date="message.updatedAt"
                     :include-time-of-day="true"
+                    class="mb-2"
                     sr-prefix="Last updated on" />
                 </div>
               </div>
