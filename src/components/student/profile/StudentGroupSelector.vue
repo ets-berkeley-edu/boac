@@ -53,7 +53,7 @@
             :id="`curated-group-${group.id}-name`"
             :for="`curated-group-${group.id}-checkbox`"
             class="cohort-checkbox-name pb-0 pt-0"
-            :aria-label="`${checkedGroups.includes(group.id) ? 'Add student to' : 'Remove student from'} group '${group.name}'`">{{ group.name }}</label>
+            :aria-label="`${checkedGroups.includes(group.id) ? 'Remove student from' : 'Add student to'} group '${group.name}'`">{{ group.name }}</label>
         </b-dropdown-item>
       </div>
       <b-dropdown-divider></b-dropdown-divider>
