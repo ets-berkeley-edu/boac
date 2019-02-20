@@ -7,8 +7,6 @@ export function search(
   includeCourses: boolean,
   includeNotes: boolean,
   includeStudents: boolean,
-  isInactiveAsc: boolean,
-  isInactiveCoe: boolean,
   orderBy: string,
   offset: number,
   limit: number
@@ -20,8 +18,6 @@ export function search(
       students: includeStudents,
       courses: includeCourses,
       notes: includeNotes,
-      isInactiveAsc: isInactiveAsc,
-      isInactiveCoe: isInactiveCoe,
       orderBy: orderBy || 'first_name',
       offset: offset || 0,
       limit: limit || 50

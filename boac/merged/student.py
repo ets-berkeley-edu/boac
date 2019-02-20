@@ -337,23 +337,13 @@ def query_students(
 
 def search_advising_notes(
     search_phrase=None,
-    is_active_asc=None,
-    is_active_coe=None,
     limit=None,
 ):
-    scope = narrow_scope_by_criteria(
-        get_student_query_scope(),
-        is_active_asc=is_active_asc,
-        is_active_coe=is_active_coe,
-    )
+    scope = narrow_scope_by_criteria(get_student_query_scope())
     # Since we can't join between RDS and Redshift (or any future notes search implementation), we mimic a join
     # by first querying RDS for all student rows matching user scope, then incorporating SIDs into the notes query
     # as a very large array filter.
-    query_tables, query_filter, query_bindings = data_loch.get_students_query(
-        is_active_asc=is_active_asc,
-        is_active_coe=is_active_coe,
-        scope=scope,
-    )
+    query_tables, query_filter, query_bindings = data_loch.get_students_query(scope=scope)
     if not query_tables:
         return []
     sids_result = data_loch.safe_execute_rds(
@@ -405,23 +395,12 @@ def notes_text_snippet(note_body, search_phrase):
 def search_for_students(
     include_profiles=False,
     search_phrase=None,
-    is_active_asc=None,
-    is_active_coe=None,
     order_by=None,
     offset=0,
     limit=None,
 ):
-    scope = narrow_scope_by_criteria(
-        get_student_query_scope(),
-        is_active_asc=is_active_asc,
-        is_active_coe=is_active_coe,
-    )
-    query_tables, query_filter, query_bindings = data_loch.get_students_query(
-        search_phrase=search_phrase,
-        is_active_asc=is_active_asc,
-        is_active_coe=is_active_coe,
-        scope=scope,
-    )
+    scope = narrow_scope_by_criteria(get_student_query_scope())
+    query_tables, query_filter, query_bindings = data_loch.get_students_query(search_phrase=search_phrase, scope=scope)
     if not query_tables:
         return {
             'students': [],

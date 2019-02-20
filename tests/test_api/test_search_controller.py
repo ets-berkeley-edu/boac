@@ -86,14 +86,11 @@ class TestStudentSearch:
             return response.json['students'], response.json['totalStudentCount']
 
         sid_snippet = '89012'
-        # Admin user performs search
-        students, total_student_count = _search_students_as_user('2040', sid_snippet)
-        assert len(students) == total_student_count == 2
-        assert _get_common_sids(asc_inactive_students, students)
-        # ASC advisor performs the same search
-        students, total_student_count = _search_students_as_user('1081940', sid_snippet)
-        assert len(students) == total_student_count == 1
-        assert not _get_common_sids(asc_inactive_students, students)
+        # Admin user and ASC advisor get same results
+        for uid in ['2040', '1081940']:
+            students, total_student_count = _search_students_as_user(uid, sid_snippet)
+            assert len(students) == total_student_count == 2
+            assert _get_common_sids(asc_inactive_students, students)
 
     def test_alerts_in_search_results(self, client, create_alerts, fake_auth):
         """Search results include alert counts."""
@@ -137,7 +134,7 @@ class TestStudentSearch:
             assert students[0]['lastName'] == 'Crossman', message_if_fail
 
     def test_search_by_name_asc_limited(self, asc_advisor, client):
-        """An ASC name search finds active ASC Pauls."""
+        """An ASC name search finds ASC Pauls."""
         response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': 'Paul'}), content_type='application/json')
         students = response.json['students']
         assert len(students) == 2
@@ -145,11 +142,13 @@ class TestStudentSearch:
         assert next(s for s in students if s['name'] == 'Paul Farestveit')
 
     def test_search_by_name_coe_limited(self, coe_advisor, client):
-        """A COE name search finds active COE Pauls."""
+        """A COE name search finds COE Pauls, including one who is inactive."""
         response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': 'Paul'}), content_type='application/json')
         students = response.json['students']
-        assert len(students) == 1
-        assert next(s for s in students if s['name'] == 'Paul Farestveit')
+        print(students)
+        assert len(students) == 2
+        assert next(s for s in students if s['name'] == 'Paul Farestveit' and s['coeProfile']['isActiveCoe'] is True)
+        assert next(s for s in students if s['name'] == 'Wolfgang Pauli' and s['coeProfile']['isActiveCoe'] is False)
 
     def test_search_by_name_admin_unlimited(self, admin_login, client):
         """An admin name search finds all Pauls."""

@@ -29,7 +29,7 @@ from boac.api.errors import BadRequestError, ForbiddenRequestError
 from boac.api.util import add_alert_counts, is_unauthorized_search
 from boac.externals.data_loch import get_enrolled_primary_sections
 from boac.lib import util
-from boac.lib.berkeley import convert_inactive_arg, current_term_id
+from boac.lib.berkeley import current_term_id
 from boac.lib.http import tolerant_jsonify
 from boac.merged.student import search_advising_notes, search_for_students
 from boac.models.alert import Alert
@@ -53,8 +53,6 @@ def search():
         student_results = search_for_students(
             include_profiles=True,
             search_phrase=search_phrase.replace(',', ' '),
-            is_active_asc=convert_inactive_arg(util.get(params, 'isInactiveAsc'), 'UWASC', current_user),
-            is_active_coe=convert_inactive_arg(util.get(params, 'isInactiveCoe'), 'COENG', current_user),
             order_by=order_by,
             offset=util.get(params, 'offset', 0),
             limit=util.get(params, 'limit', 50),
@@ -90,8 +88,6 @@ def search():
     if util.get(params, 'notes'):
         notes_results = search_advising_notes(
             search_phrase=search_phrase,
-            is_active_asc=convert_inactive_arg(util.get(params, 'isInactiveAsc'), 'UWASC', current_user),
-            is_active_coe=convert_inactive_arg(util.get(params, 'isInactiveCoe'), 'COENG', current_user),
             limit=20,
         )
         if notes_results:
