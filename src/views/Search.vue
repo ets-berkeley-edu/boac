@@ -1,9 +1,10 @@
 <template>
   <div class="m-3">
     <Spinner />
-    <div v-if="!loading && !results.totalStudentCount && !results.totalCourseCount">
+    <div v-if="!loading && !results.totalStudentCount && !results.totalCourseCount && !size(results.notes)">
       <h1
         id="page-header-no-results"
+        class="page-section-header"
         role="alert"
         aria-live="passive">
         No results matching '{{ phrase }}'
@@ -19,7 +20,9 @@
     <div
       v-if="!loading && results.totalStudentCount"
       tabindex="0">
-      <h1 id="page-header">{{ 'student' | pluralize(results.totalStudentCount) }} matching '{{ phrase }}'</h1>
+      <h1 id="page-header" class="page-section-header">
+        {{ 'student' | pluralize(results.totalStudentCount) }} matching '{{ phrase }}'
+      </h1>
       <div v-if="results.totalStudentCount > limit">
         Showing the first {{ limit }} students.
       </div>
@@ -39,12 +42,26 @@
         :search-phrase="phrase"
         :courses="results.courses"
         :total-course-count="results.totalCourseCount"
-        :render-primary-header="!results.totalStudentCount && !!results.totalCourseCount" />
+        :render-primary-header="!results.totalStudentCount && !!results.totalCourseCount && !size(results.notes)" />
+    </div>
+    <div v-if="!loading && size(results.notes)">
+      <h2
+        id="search-results-category-header-notes"
+        class="page-section-header">
+        {{ size(results.notes) }}{{ size(results.notes) === 20 ? '+' : '' }}
+        {{ size(results.notes) === 1 ? 'advising note' : 'advising notes' }}
+        with '{{ phrase }}'
+      </h2>
+      <AdvisingNoteSnippet
+        v-for="advisingNote in results.notes"
+        :key="advisingNote.noteId"
+        :note="advisingNote" />
     </div>
   </div>
 </template>
 
 <script>
+import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
 import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import Loading from '@/mixins/Loading';
@@ -58,8 +75,9 @@ import { search } from '@/api/search';
 export default {
   name: 'Search',
   components: {
-    SortableCourseList,
+    AdvisingNoteSnippet,
     CuratedGroupSelector,
+    SortableCourseList,
     SortableStudents,
     Spinner
   },
@@ -69,6 +87,7 @@ export default {
     phrase: null,
     results: {
       courses: null,
+      notes: null,
       students: null,
       totalCourseCount: null,
       totalStudentCount: null
@@ -94,15 +113,12 @@ export default {
         this.isCoeUser ? false : null
       )
         .then(data => {
-          this.results.courses = data.courses;
-          this.results.students = data.students;
+          this.assign(this.results, data);
           this.each(this.results.students, student => {
             student.alertCount = student.alertCount || 0;
             student.term = student.term || {};
             student.term.enrolledUnits = student.term.enrolledUnits || 0;
           });
-          this.results.totalCourseCount = data.totalCourseCount;
-          this.results.totalStudentCount = data.totalStudentCount;
         })
         .then(() => {
           this.loaded();

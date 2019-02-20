@@ -1,6 +1,6 @@
 <template>
   <div>
-    <SearchStudents :include-courses="true" />
+    <SearchForm :domain="['students', 'courses', 'notes']" context="sidebar" />
     <div v-if="myCohorts">
       <Cohorts />
       <hr class="section-divider" />
@@ -19,7 +19,7 @@
 <script>
 import Cohorts from '@/components/sidebar/Cohorts.vue';
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue';
-import SearchStudents from '@/components/sidebar/SearchStudents.vue';
+import SearchForm from '@/components/sidebar/SearchForm.vue';
 import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
@@ -27,7 +27,7 @@ export default {
   components: {
     Cohorts,
     CuratedGroups,
-    SearchStudents
+    SearchForm
   },
   mixins: [UserMetadata]
 };

@@ -13,7 +13,7 @@
       <div v-if="!size(curatedGroup.students)">
         This curated group has no students. Start adding students from their profile pages to your
         <strong>{{ curatedGroup.name }}</strong> group:
-        <SearchStudents class="ml-0 mt-3" :with-button="true" />
+        <SearchForm class="ml-0 mt-3" :domain="['students']" context="pageBody" />
       </div>
       <div v-if="size(curatedGroup.students)">
         <div id="curated-cohort-students" class="list-group">
@@ -36,7 +36,7 @@
 import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader';
 import Loading from '@/mixins/Loading';
 import Scrollable from '@/mixins/Scrollable';
-import SearchStudents from '@/components/sidebar/SearchStudents';
+import SearchForm from '@/components/sidebar/SearchForm';
 import SortBy from '@/components/student/SortBy';
 import Spinner from '@/components/util/Spinner';
 import store from '@/store';
@@ -51,7 +51,7 @@ export default {
   name: 'CuratedGroup',
   components: {
     CuratedGroupHeader,
-    SearchStudents,
+    SearchForm,
     SortBy,
     Spinner,
     StudentRow

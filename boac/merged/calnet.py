@@ -45,6 +45,11 @@ def get_calnet_user_for_csid(app, csid):
     }
 
 
+def get_calnet_users_for_csids(app, csids):
+    persons = calnet.client(app).search_csids(csids)
+    return {person['csid']: _calnet_user_api_feed(person) for person in persons}
+
+
 def _calnet_user_api_feed(person):
     def _get(key):
         return person and person[key]

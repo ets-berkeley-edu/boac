@@ -47,9 +47,17 @@ def search():
     search_phrase = util.get(params, 'searchPhrase', '').strip()
     if not len(search_phrase):
         raise BadRequestError('Invalid or empty search input')
+    domain = {
+        'students': util.get(params, 'students'),
+        'courses': util.get(params, 'courses'),
+        'notes': util.get(params, 'notes'),
+    }
+    if not domain['students'] and not domain['courses'] and not domain['notes']:
+        raise BadRequestError('No search domain specified')
+
     feed = {}
 
-    if util.get(params, 'students'):
+    if domain['students']:
         student_results = search_for_students(
             include_profiles=True,
             search_phrase=search_phrase.replace(',', ' '),
@@ -65,7 +73,7 @@ def search():
             'totalStudentCount': student_results['totalStudentCount'],
         })
 
-    if util.get(params, 'courses'):
+    if domain['courses']:
         alphanumeric_search_phrase = ''.join(e for e in search_phrase if e.isalnum()).upper()
         courses = []
         if alphanumeric_search_phrase:
@@ -85,7 +93,7 @@ def search():
         feed['courses'] = courses
         feed['totalCourseCount'] = len(course_rows)
 
-    if util.get(params, 'notes'):
+    if domain['notes']:
         notes_results = search_advising_notes(
             search_phrase=search_phrase,
             limit=20,
