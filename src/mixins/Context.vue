@@ -13,7 +13,11 @@ export default {
     ])
   },
   methods: {
-    ...mapActions('context', ['clearErrors', 'dismissError'])
+    ...mapActions('context', [
+      'clearErrorsInStore',
+      'dismissError',
+      'reportError'
+    ])
   }
 };
 </script>

@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { getConfig } from '@/api/config';
+import Vue from 'vue';
 
 const state = {
   config: undefined,
@@ -24,7 +25,7 @@ const getters = {
 };
 
 const mutations = {
-  clearErrors: (state: any) => (state.errors = []),
+  clearErrorsInStore: (state: any) => (state.errors = []),
   dismissError: (state: any, id: number) => {
     const indexOf = state.errors.findIndex((e: any) => e.id === id);
     if (indexOf > -1) {
@@ -36,12 +37,13 @@ const mutations = {
   reportError: (state: any, error: any) => {
     error.id = new Date().getTime();
     state.errors.push(error);
+    Vue.prototype.$eventHub.$emit('error-reported', error);
   },
   storeConfig: (state: any, config: any) => (state.config = config)
 };
 
 const actions = {
-  clearErrors: ({ commit }) => commit('clearErrors'),
+  clearErrorsInStore: ({ commit }) => commit('clearErrorsInStore'),
   dismissError: ({ commit }, id) => commit('dismissError', id),
   loadingComplete: ({ commit }) => commit('loadingComplete'),
   loadingStart: ({ commit }) => commit('loadingStart'),

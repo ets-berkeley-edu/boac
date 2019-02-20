@@ -7,7 +7,7 @@
         aria-live="passive"
         class="sr-only">Admin page loaded</span>
       <h1>BOAC Flight Deck</h1>
-      <div class="d-flex flex-row mt-3 mb-3">
+      <div v-if="user.isAdmin && devAuthEnabled" class="d-flex flex-row mt-3 mb-3">
         <div class="mr-3">
           <img
             id="avatar-verify-blur"

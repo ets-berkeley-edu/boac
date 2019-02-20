@@ -1,15 +1,5 @@
 <template>
   <form @submit.prevent="logInDevAuth()">
-    <b-modal
-      v-model="showError"
-      aria-label="Error"
-      hide-header
-      hide-backdrop
-      return-focus="#dev-auth-uid"
-      ok-only
-      @hidden="error = null">
-      <span role="alert" aria-live="passive">{{ error }}</span>
-    </b-modal>
     <div class="flex-container splash-dev-auth">
       <div>
         <input
@@ -21,7 +11,6 @@
           type="text"
           aria-required="true"
           aria-label="Input UID of an authorized user"
-          :aria-invalid="showError"
           size="8">
       </div>
       <div class="ml-1">
@@ -52,61 +41,34 @@
 </template>
 
 <script>
-import _ from 'lodash';
+import Context from '@/mixins/Context';
 import router from '@/router';
-import store from '@/store';
+import UserMetadata from "@/mixins/UserMetadata";
+import Util from '@/mixins/Util';
 import { devAuthLogIn } from '@/api/auth';
 
 export default {
   name: 'DevAuth',
+  mixins: [Context, UserMetadata, Util],
   data: () => ({
     uid: null,
-    password: null,
-    error: null,
-    showError: false
+    password: null
   }),
-  watch: {
-    uid: function() {
-      this.error = null;
-    },
-    password: function() {
-      this.error = null;
-    }
-  },
   methods: {
     logInDevAuth() {
-      let uid = _.trim(this.uid);
-      let password = _.trim(this.password);
+      let uid = this.trim(this.uid);
+      let password = this.trim(this.password);
       if (uid && password) {
         devAuthLogIn(uid, password)
           .then(data => {
-            let status = _.get(data, 'response.status');
-            if (status && status !== 200) {
-              this.reportError(
-                status < 404 ? 'Invalid credentials' : 'Uh oh, system error!'
-              );
-            } else if (data.isAuthenticated) {
-              store.dispatch('user/userAuthenticated').then(() => {
-                router.push({ path: '/home' });
-              });
-            } else {
-              this.reportError(
-                'Unauthorized. Please contact us for assistance.'
-              );
+            // Auth errors will be caught by axios.interceptors; see error reporting in the file 'main.ts'.
+            if (data.isAuthenticated) {
+              this.userAuthenticated().then(() => router.push({ path: '/home' }));
             }
-          })
-          .catch(err => {
-            this.reportError(err.message || 'Invalid credentials');
           });
       } else {
-        this.reportError(
-          this.uid ? 'Password required' : 'UID and password required'
-        );
+        this.reportError({ message: this.uid ? 'Password required' : 'UID and password required' });
       }
-    },
-    reportError(message) {
-      this.error = message;
-      this.showError = true;
     }
   }
 };

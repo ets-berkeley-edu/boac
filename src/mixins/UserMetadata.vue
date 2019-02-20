@@ -18,7 +18,8 @@ export default {
   methods: {
     ...mapActions('user', [
       'setUserPreference',
-      'loadCalnetUserByCsid'
+      'loadCalnetUserByCsid',
+      'userAuthenticated'
     ])
   }
 };
