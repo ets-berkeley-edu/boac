@@ -45,6 +45,14 @@ export default {
       default: false,
       type: Boolean
     },
+    includeNotes: {
+      default: false,
+      type: Boolean
+    },
+    includeStudents: {
+      default: true,
+      type: Boolean
+    },
     withButton: Boolean
   },
   data() {
@@ -61,7 +69,9 @@ export default {
           path: this.forceUniquePath('/search'),
           query: {
             q: this.searchPhrase,
-            includeCourses: this.includeCourses
+            courses: this.includeCourses,
+            notes: this.includeNotes,
+            students: this.includeStudents,
           }
         });
         this.gaEvent(
