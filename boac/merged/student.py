@@ -438,12 +438,13 @@ def search_for_students(
 
 def _note_to_compatible_json(note, topics=None, attachments=None):
     # We have legacy notes and notes created via BOA. The following sets a standard for the front-end.
-    # TODO: 'advisorSid' and 'authorId' represent the same info. Must we merge the two fields into one?
     return {
         'id': note.get('id'),
         'sid': note.get('sid'),
-        'advisorSid': note.get('advisorSid'),
-        'authorId': note.get('authorId'),
+        'author': {
+            'id': note.get('authorId'),
+            'sid': note.get('advisorSid'),
+        },
         'subject': note.get('subject'),
         'body': note.get('body') or note.get('noteBody'),
         'category': note.get('noteCategory'),
