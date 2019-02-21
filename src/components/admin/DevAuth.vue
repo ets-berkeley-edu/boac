@@ -63,7 +63,7 @@ export default {
           .then(data => {
             // Auth errors will be caught by axios.interceptors; see error reporting in the file 'main.ts'.
             if (data.isAuthenticated) {
-              this.userAuthenticated().then(() => router.push({ path: '/home' }));
+              this.userAuthenticated().then(() => router.push({ path: router.currentRoute.query.redirect || '/home' }));
             }
           });
       } else {
