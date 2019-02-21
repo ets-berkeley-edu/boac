@@ -29,8 +29,8 @@ from boac.merged.student import get_advising_notes, get_course_student_profiles,
 coe_advisor = '1133399'
 
 
-class TestStudent:
-    """Student."""
+class TestMergedStudent:
+    """Student data, merged."""
 
     def test_get_course_student_profiles(self, app):
         profiles = get_course_student_profiles('2178', '90100')
@@ -73,7 +73,7 @@ class TestStudent:
         assert notes[1]['attachments'] == ['photo.jpeg']
         # Non-legacy note
         assert notes[3]['id']
-        assert notes[3]['authorId']
+        assert notes[3]['author']['id']
         assert notes[3]['sid'] == '11667051'
         assert notes[3]['subject'] == 'In France they kiss on main street'
         assert 'My darling dime store thief' in notes[3]['body']

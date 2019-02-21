@@ -97,14 +97,14 @@
                   sr-prefix="Last updated on" />
               </div>
               <div v-if="includes(openMessages, message.transientId) && message.type === 'note'">
-                <div v-if="message.createdAt">
+                <div v-if="message.createdAt" :class="{'mb-2': !displayUpdatedAt(message)}">
                   <div class="text-muted">Created:</div>
                   <TimelineDate
                     :date="message.createdAt"
                     :include-time-of-day="true"
                     sr-prefix="Last updated on" />
                 </div>
-                <div v-if="message.updatedAt && (message.updatedAt !== message.createdAt)">
+                <div v-if="displayUpdatedAt(message)">
                   <div class="mt-2 text-muted">Updated:</div>
                   <TimelineDate
                     :date="message.updatedAt"
@@ -247,6 +247,9 @@ export default {
       return this.isShowingAll && inViewCount > this.defaultShowPerTab
         ? `Showing all ${pluralize}`
         : `Showing ${pluralize}`;
+    },
+    displayUpdatedAt(message) {
+      return message.updatedAt && (message.updatedAt !== message.createdAt);
     },
     id(rowIndex) {
       return `timeline-tab-${this.activeTab}-message-${rowIndex}`;

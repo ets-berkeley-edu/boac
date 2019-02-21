@@ -1,10 +1,14 @@
 <template>
   <div>
     <div :class="{'truncate': !isOpen}">
-      <span v-if="size(note.message)" v-html="note.message"></span>
-      <span v-if="!size(note.message)">{{ note.category }}, {{ note.subcategory }}</span>
+      <span v-if="note.subject">{{ note.subject }}</span>
+      <span v-if="!note.subject && size(note.message)" v-html="note.message"></span>
+      <span v-if="!note.subject && !size(note.message)">{{ note.category }}, {{ note.subcategory }}</span>
     </div>
-    <div v-if="author" class="mt-3">
+    <div v-if="isOpen && note.subject && note.message" class="mt-2">
+      {{ note.message }}
+    </div>
+    <div v-if="author" class="mt-2">
       <a
         :aria-label="`Go to UC Berkeley Directory page of ${author.firstName} ${author.lastName}`"
         :href="`https://www.berkeley.edu/directory/results?search-term=${author.firstName}%20${author.lastName}`"
@@ -47,10 +51,18 @@ export default {
   }),
   watch: {
     isOpen(open) {
-      if (open && this.isUndefined(this.author) && this.note.advisorSid) {
-        store.dispatch('user/loadCalnetUserByCsid', this.note.advisorSid).then(data => {
-          this.author = data;
-        });
+      if (open && this.isUndefined(this.author)) {
+        if (this.note.author.id) {
+          this.loadUserById(this.note.author.id).then(data => {
+            this.author = data;
+          });
+        } else if (this.note.author.sid) {
+          store.dispatch('user/loadCalnetUserByCsid', this.note.author.sid).then(data => {
+            this.author = data;
+          });
+        } else {
+          this.author = null;
+        }
       }
     }
   }
