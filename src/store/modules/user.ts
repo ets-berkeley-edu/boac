@@ -16,11 +16,11 @@ const $_user_canViewDepartment = (state, deptCode) => {
 
 const state = {
   calnetUsersByCsid: {},
-  isUserAuthenticated: undefined,
   preferences: {
     sortBy: 'last_name'
   },
   user: undefined,
+  userAuthStatus: undefined,
   userGroups: undefined
 };
 
@@ -29,14 +29,13 @@ const getters = {
   canViewCoe: (state: any): boolean => $_user_canViewDepartment(state, 'COENG'),
   isAscUser: (state: any): boolean => $_user_isDepartmentMember(state, 'UWASC'),
   isCoeUser: (state: any): boolean => $_user_isDepartmentMember(state, 'COENG'),
-  isUserAuthenticated: (state: any): boolean => state.isUserAuthenticated,
+  userAuthStatus: (state: any): boolean => state.userAuthStatus,
   preferences: (state: any): any => state.preferences,
   user: (state: any): any => state.user
 };
 
 const mutations = {
   registerUser: (state: any, user: any) => {
-    state.isUserAuthenticated = user.isAuthenticated;
     if (user.uid) {
       state.user = user;
     }
@@ -53,7 +52,7 @@ const mutations = {
       throw new TypeError('Invalid user preference type: ' + key);
     }
   },
-  userAuthenticated: (state: any) => (state.isUserAuthenticated = true)
+  setUserAuthStatus: (state: any, userAuthStatus: any) => (state.userAuthStatus = userAuthStatus)
 };
 
 const actions = {
@@ -83,20 +82,18 @@ const actions = {
       }
     });
   },
-  loadUserStatus: ({ commit, state }) => {
+  loadUserAuthStatus: ({ commit, state }) => {
     return new Promise(resolve => {
-      if (_.isNil(state.isUserAuthenticated)) {
+      if (_.get(state.userAuthStatus, 'isAuthenticated')) {
+        resolve(state.userAuthStatus);
+      } else {
         getUserStatus()
           .then(data => {
-            if (data.isAuthenticated) {
-              commit('userAuthenticated');
-            }
+            commit('setUserAuthStatus', data);
           })
           .then(() => {
-            resolve(state.isUserAuthenticated);
+            resolve(state.userAuthStatus);
           });
-      } else {
-        resolve(state.isUserAuthenticated);
       }
     });
   },
@@ -124,9 +121,7 @@ const actions = {
   },
   logout: ({ commit }) => commit('logout'),
   setDemoMode: ({ commit }, demoMode) => commit('setDemoMode', demoMode),
-  setUserPreference: ({ commit }, { key, value }) =>
-    commit('setUserPreference', { key, value }),
-  userAuthenticated: ({ commit }) => commit('userAuthenticated')
+  setUserPreference: ({ commit }, { key, value }) => commit('setUserPreference', { key, value })
 };
 
 export default {
