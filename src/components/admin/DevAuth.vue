@@ -42,7 +42,7 @@
 
 <script>
 import Context from '@/mixins/Context';
-import router from '@/router';
+import store from '@/store';
 import UserMetadata from "@/mixins/UserMetadata";
 import Util from '@/mixins/Util';
 import { devAuthLogIn } from '@/api/auth';
@@ -63,7 +63,10 @@ export default {
           .then(data => {
             // Auth errors will be caught by axios.interceptors; see error reporting in the file 'main.ts'.
             if (data.isAuthenticated) {
-              this.userAuthenticated().then(() => router.push({ path: router.currentRoute.query.redirect || '/home' }));
+              store.dispatch('user/loadUserAuthStatus').then(() => {
+                const redirect = this.get(this.$router, 'currentRoute.query.redirect');
+                this.$router.push({ path: redirect || '/home' });
+              });
             }
           });
       } else {

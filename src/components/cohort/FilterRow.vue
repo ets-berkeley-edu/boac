@@ -15,6 +15,7 @@
       class="cohort-filter-draft-column-01 pr-2">
       <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
       <b-dropdown
+        id="new-filter-button"
         toggle-class="dd-override"
         variant="link"
         no-caret>
@@ -41,6 +42,7 @@
           </b-dropdown-header>
           <b-dropdown-item
             v-for="subCategory in category"
+            :id="`dropdown-primary-menuitem-${subCategory.key}-${filterRowIndex}`"
             :key="subCategory.key"
             class="dropdown-item"
             :class="{

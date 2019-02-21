@@ -98,10 +98,14 @@ export default {
     }
   },
   created() {
-    store.dispatch('user/loadUserGroups').then(data => {
-      this.userGroups = data;
-      this.updateLoadingStatus();
-    });
+    if (this.userAuthStatus.isAdmin) {
+      store.dispatch('user/loadUserGroups').then(data => {
+        this.userGroups = data;
+        this.updateLoadingStatus();
+      });
+    } else {
+      this.$router.push({ path: '/404' });
+    }
   },
   methods: {
     updateLoadingStatus() {

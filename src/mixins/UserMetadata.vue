@@ -12,7 +12,8 @@ export default {
       'isAscUser',
       'isCoeUser',
       'preferences',
-      'user'
+      'user',
+      'userAuthStatus'
     ]),
     ...mapGetters('cohort', ['myCohorts']),
     ...mapGetters('curated', ['myCuratedGroups'])
@@ -20,8 +21,7 @@ export default {
   methods: {
     ...mapActions('user', [
       'setUserPreference',
-      'loadCalnetUserByCsid',
-      'userAuthenticated'
+      'loadCalnetUserByCsid'
     ]),
     loadUserById(id) {
       return new Promise(resolve => {
