@@ -27,6 +27,7 @@ from boac.api import cache_utils
 from boac.api.util import admin_required
 from boac.lib import berkeley
 from boac.lib.http import tolerant_jsonify
+from boac.merged import reporter
 from boac.models.job_progress import JobProgress
 from flask import current_app as app, request
 
@@ -80,3 +81,9 @@ def start_refresh():
 @admin_required
 def start_import_refresh():
     return tolerant_jsonify(cache_utils.refresh_request_handler(term()))
+
+
+@app.route('/api/admin/report/low_assignment_scores')
+@admin_required
+def report_low_assignment_scores():
+    return tolerant_jsonify(reporter.low_assignment_scores(term()))
