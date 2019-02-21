@@ -63,8 +63,8 @@ class TestFindStudents:
         response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 200
         students = response.json['students']
-        assert len(students) == 4
-        assert not _get_common_sids(asc_inactive_students, students)
+        assert len(students) == 5
+        assert _get_common_sids(asc_inactive_students, students)
 
     def test_last_name_range(self, client, admin_login):
         response = client.post('/api/students', data=json.dumps({'lastNameRange': ['d', 'J']}), content_type='application/json')
@@ -80,14 +80,21 @@ class TestFindStudents:
 class TestCollegeOfEngineering:
     """COE-specific API calls."""
 
+    @classmethod
+    def _api_students(cls, client, json_data=()):
+        return client.post(
+            '/api/students',
+            data=json.dumps(json_data),
+            content_type='application/json',
+        )
+
     def test_unauthorized_request_for_coe_data(self, client, asc_advisor):
         """In order to access PREP, etc. the user must be either COE or Admin."""
-        response = client.post('/api/students', data=json.dumps({'coePrepStatuses': ['did_prep']}), content_type='application/json')
-        assert response.status_code == 403
+        assert 403 == self._api_students(client, {'coePrepStatuses': ['did_prep']}).status_code
 
     def test_authorized_request_for_coe_data(self, client, coe_advisor):
         """In order to access PREP, etc. the user must be either COE or Admin."""
-        response = client.post('/api/students', data=json.dumps({'coePrepStatuses': ['did_prep']}), content_type='application/json')
+        response = self._api_students(client, {'coePrepStatuses': ['did_prep']})
         assert response.status_code == 200
         students = response.json['students']
         assert len(students) == 1
@@ -95,14 +102,25 @@ class TestCollegeOfEngineering:
 
     def test_authorized_request_for_gender(self, client, coe_advisor):
         """For now, only COE users can access gender data."""
-        response = client.post('/api/students', data=json.dumps({'genders': ['f']}), content_type='application/json')
+        response = self._api_students(client, {'genders': ['f']})
         assert response.status_code == 200
         students = response.json['students']
-        assert len(students) == 1
+        assert len(students) == 2
         assert students[0]['sid'] == '7890123456'
+        assert students[0]['coeProfile']['gender'] == 'w'
+        assert students[0]['coeProfile']['isActiveCoe'] is True
+        assert students[1]['sid'] == '9000000000'
+        assert students[1]['coeProfile']['gender'] == 'w'
+        assert students[1]['coeProfile']['isActiveCoe'] is False
 
     def test_authorized_request_for_coe_inactive_gender(self, client, coe_advisor):
-        response = client.post('/api/students', data=json.dumps({'genders': ['f'], 'isInactiveCoe': True}), content_type='application/json')
+        response = self._api_students(
+            client,
+            {
+                'genders': ['f'],
+                'isInactiveCoe': True,
+            },
+        )
         assert response.status_code == 200
         students = response.json['students']
         assert len(students) == 1
@@ -110,20 +128,22 @@ class TestCollegeOfEngineering:
 
     def test_authorized_request_for_ethnicity(self, client, coe_advisor):
         """For now, only COE users can access ethnicity data."""
-        response = client.post('/api/students', data=json.dumps({'ethnicities': ['B', 'H']}), content_type='application/json')
+        response = self._api_students(client, {'ethnicities': ['B', 'H']})
         assert response.status_code == 200
         students = response.json['students']
-        assert len(students) == 2
+        assert len(students) == 3
         for index, sid in enumerate(['11667051', '7890123456']):
             assert students[index]['sid'] == sid
 
     def test_coe_search_by_admin_with_asc_order_by(self, client, admin_login):
         """Admin user can order COE results by ASC criteria, with students lacking such criteria coming last."""
-        data = {
-            'ethnicities': ['B', 'H'],
-            'orderBy': 'group_name',
-        }
-        response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
+        response = self._api_students(
+            client,
+            {
+                'ethnicities': ['B', 'H'],
+                'orderBy': 'group_name',
+            },
+        )
         assert response.status_code == 200
         students = response.json['students']
         assert students[0]['athleticsProfile']['athletics'][0]['groupName'] == 'Men\'s Baseball'
@@ -132,11 +152,13 @@ class TestCollegeOfEngineering:
 
     def test_admin_search_for_students(self, client, admin_login):
         """Admin user can search with ASC and/or COE criteria."""
-        data = {
-            'underrepresented': True,
-            'groupCodes': ['MFB-DB'],
-        }
-        response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
+        response = self._api_students(
+            client,
+            {
+                'underrepresented': True,
+                'groupCodes': ['MFB-DB'],
+            },
+        )
         assert response.status_code == 200
         assert response.json.get('students') == []
 
@@ -144,12 +166,20 @@ class TestCollegeOfEngineering:
 class TestAthleticsStudyCenter:
     """ASC-specific API calls."""
 
+    @classmethod
+    def _api_students(cls, client, json_data=()):
+        return client.post(
+            '/api/students',
+            data=json.dumps(json_data),
+            content_type='application/json',
+        )
+
     def test_multiple_teams(self, asc_advisor, asc_inactive_students, client):
         """Includes multiple team memberships."""
-        response = client.post('/api/students', data=json.dumps({'groupCodes': ['MFB-DB', 'MFB-DL']}), content_type='application/json')
+        response = self._api_students(client, {'groupCodes': ['MFB-DB', 'MFB-DL']})
         assert response.status_code == 200
         students = response.json['students']
-        assert not _get_common_sids(asc_inactive_students, students)
+        assert _get_common_sids(asc_inactive_students, students)
         athletics = next(s['athleticsProfile']['athletics'] for s in students if s['uid'] == '98765')
         assert len(athletics) == 2
         group_codes = [a['groupCode'] for a in athletics]
@@ -158,15 +188,15 @@ class TestAthleticsStudyCenter:
 
     def test_get_intensive_cohort(self, asc_advisor, asc_inactive_students, client):
         """Returns the canned 'intensive' cohort, available to all authenticated users."""
-        response = client.post('/api/students', data=json.dumps({'inIntensiveCohort': True}), content_type='application/json')
+        response = self._api_students(client, {'inIntensiveCohort': True})
         assert response.status_code == 200
         cohort = json.loads(response.data)
         assert 'students' in cohort
         students = cohort['students']
-        inactive_intensive_sid = '890127492'
-        assert inactive_intensive_sid not in [s['sid'] for s in students]
-        assert len(_get_common_sids(asc_inactive_students, students)) == 0
-        assert cohort['totalStudentCount'] == len(students) == 4
+        inactive_sid = '890127492'
+        assert inactive_sid in [s['sid'] for s in students]
+        assert len(_get_common_sids(asc_inactive_students, students)) == 1
+        assert cohort['totalStudentCount'] == len(students) == 5
         assert 'teamGroups' not in cohort
         for student in students:
             assert student['athleticsProfile']['inIntensiveCohort']
@@ -174,43 +204,46 @@ class TestAthleticsStudyCenter:
     def test_unauthorized_request_for_athletic_study_center_data(self, client, fake_auth):
         """In order to access intensive_cohort, inactive status, etc. the user must be either ASC or Admin."""
         fake_auth.login('1022796')
-        response = client.post('/api/students', data=json.dumps({'inIntensiveCohort': True}), content_type='application/json')
+        response = self._api_students(client, {'inIntensiveCohort': True})
         assert response.status_code == 403
 
     def test_order_by_with_intensive_cohort(self, asc_advisor, client):
         """Returns students marked as 'intensive' by ASC."""
         all_expected_order = {
-            'first_name': ['61889', '123456', '1049291', '242881'],
-            'gpa': ['61889', '123456', '242881', '1049291'],
-            'group_name': ['242881', '1049291', '61889', '123456'],
-            'last_name': ['123456', '61889', '1049291', '242881'],
-            'level': ['61889', '123456', '242881', '1049291'],
-            'major': ['123456', '61889', '242881', '1049291'],
-            'units': ['61889', '123456', '242881', '1049291'],
+            'first_name': ['61889', '123456', '1049291', '242881', '211159'],
+            'gpa': ['61889', '211159', '123456', '242881', '1049291'],
+            'group_name': ['211159', '242881', '1049291', '61889', '123456'],
+            'last_name': ['123456', '61889', '1049291', '242881', '211159'],
+            'level': ['61889', '123456', '211159', '242881', '1049291'],
+            'major': ['123456', '61889', '242881', '211159', '1049291'],
+            'units': ['61889', '211159', '123456', '242881', '1049291'],
         }
         for order_by, expected_uid_list in all_expected_order.items():
-            args = {
-                'inIntensiveCohort': True,
-                'orderBy': order_by,
-            }
-            response = client.post('/api/students', data=json.dumps(args), content_type='application/json')
+            response = self._api_students(
+                client,
+                {
+                    'inIntensiveCohort': True,
+                    'orderBy': order_by,
+                },
+            )
             assert response.status_code == 200, f'Non-200 response where order_by={order_by}'
             cohort = json.loads(response.data)
-            assert cohort['totalStudentCount'] == 4, f'Wrong count where order_by={order_by}'
+            assert cohort['totalStudentCount'] == 5, f'Wrong count where order_by={order_by}'
             uid_list = [s['uid'] for s in cohort['students']]
             assert uid_list == expected_uid_list, f'Unmet expectation where order_by={order_by}'
 
     def test_forbidden_order_by(self, client, coe_advisor):
         """COE advisor cannot order results by ASC criteria."""
-        data = {
-            'ethnicities': ['B', 'H'],
-            'orderBy': 'group_name',
-        }
-        response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
-        assert 403 == response.status_code
+        assert 403 == self._api_students(
+            client,
+            {
+                'ethnicities': ['B', 'H'],
+                'orderBy': 'group_name',
+            },
+        ).status_code
 
     def test_get_inactive_cohort(self, asc_advisor, client):
-        response = client.post('/api/students', data=json.dumps({'isInactiveAsc': True}), content_type='application/json')
+        response = self._api_students(client, {'isInactiveAsc': True})
         assert response.status_code == 200
         cohort = json.loads(response.data)
         assert 'students' in cohort
@@ -279,8 +312,8 @@ class TestStudentResultsForFilter:
         response = client.post('/api/students', data=json.dumps(args), content_type='application/json')
         assert response.status_code == 200
         students = response.json['students']
-        assert not _get_common_sids(students, asc_inactive_students)
-        assert not len(students)
+        assert _get_common_sids(students, asc_inactive_students)
+        assert len(students) == 1
 
     def test_get_inactive_asc_students(self, asc_advisor, asc_inactive_students, client):
         """ASC cohort results include ASC sophomores."""
@@ -299,7 +332,7 @@ class TestStudentResultsForFilter:
         """COE cohort results include active COE sophomores."""
         response = client.post('/api/students', data='{"levels": ["Sophomore"]}', content_type='application/json')
         students = response.json['students']
-        assert len(students) == 1
+        assert len(students) == 2
         assert next(s for s in students if s['name'] == 'Nora Stanton Barney')
 
     def test_get_students_admin_unlimited(self, admin_login, client):

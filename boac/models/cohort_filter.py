@@ -28,14 +28,13 @@ import json
 from boac import db, std_commit
 from boac.api.errors import InternalServerError
 from boac.lib import util
-from boac.lib.berkeley import convert_inactive_arg
 from boac.merged import athletics
 from boac.merged.student import query_students
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.authorized_user import cohort_filter_owners
 from boac.models.base import Base
-from flask_login import current_user, UserMixin
+from flask_login import UserMixin
 from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import JSONB
 
@@ -200,19 +199,12 @@ class CohortFilter(Base, UserMixin):
             },
             'teamGroups': team_groups,
         })
-
         if not include_students and not include_alerts_for_user_id and self.student_count is not None:
             # No need for a students query; return the database-stashed student count.
             cohort_json.update({
                 'totalStudentCount': self.student_count,
             })
             return cohort_json
-
-        # Unsaved cohorts will have no owner defined and should translate department-specific criteria against the current
-        # logged-in user.
-        owner = self.owners[0] if len(self.owners) else current_user
-        is_active_asc = convert_inactive_arg(is_inactive_asc, 'UWASC', owner)
-        is_active_coe = convert_inactive_arg(is_inactive_coe, 'COENG', owner)
 
         sids_only = not include_students
         results = query_students(
@@ -225,8 +217,8 @@ class CohortFilter(Base, UserMixin):
             group_codes=group_codes,
             in_intensive_cohort=in_intensive_cohort,
             include_profiles=(include_students and include_profiles),
-            is_active_asc=is_active_asc,
-            is_active_coe=is_active_coe,
+            is_active_asc=None if is_inactive_asc is None else not is_inactive_asc,
+            is_active_coe=None if is_inactive_coe is None else not is_inactive_coe,
             last_name_range=last_name_range,
             levels=levels,
             limit=limit,
