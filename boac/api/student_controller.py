@@ -27,7 +27,6 @@ from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotF
 from boac.api.util import add_alert_counts, is_asc_authorized, is_unauthorized_search, put_notifications
 from boac.externals.cal1card_photo_api import get_cal1card_photo
 from boac.lib import util
-from boac.lib.berkeley import convert_inactive_arg
 from boac.lib.http import tolerant_jsonify
 from boac.merged import athletics
 from boac.merged.student import get_student_and_terms, query_students
@@ -66,6 +65,8 @@ def get_students():
     order_by = util.get(params, 'orderBy', None)
     if is_unauthorized_search(list(params.keys()), order_by):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
+    inactive_asc = util.get(params, 'isInactiveAsc')
+    inactive_coe = util.get(params, 'isInactiveCoe')
     results = query_students(
         advisor_ldap_uids=util.get(params, 'advisorLdapUids'),
         coe_prep_statuses=util.get(params, 'coePrepStatuses'),
@@ -75,8 +76,8 @@ def get_students():
         gpa_ranges=util.get(params, 'gpaRanges'),
         group_codes=util.get(params, 'groupCodes'),
         include_profiles=True,
-        is_active_asc=convert_inactive_arg(util.get(params, 'isInactiveAsc'), 'UWASC', current_user),
-        is_active_coe=convert_inactive_arg(util.get(params, 'isInactiveCoe'), 'COENG', current_user),
+        is_active_asc=None if inactive_asc is None else not inactive_asc,
+        is_active_coe=None if inactive_coe is None else not inactive_coe,
         in_intensive_cohort=util.to_bool_or_none(util.get(params, 'inIntensiveCohort')),
         last_name_range=_get_name_range_boundaries(util.get(params, 'lastNameRange')),
         levels=util.get(params, 'levels'),

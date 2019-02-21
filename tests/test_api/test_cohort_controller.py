@@ -653,7 +653,7 @@ class TestCohortPerFilters:
         ]:
             assert criteria[key] is None
 
-    def _get_defensive_line(self, client, order_by):
+    def _get_defensive_line(self, client, inactive_asc, order_by):
         response = self._post(
             client,
             {
@@ -664,6 +664,11 @@ class TestCohortPerFilters:
                             'type': 'array',
                             'value': 'MFB-DL',
                         },
+                        {
+                            'key': 'isInactiveAsc',
+                            'type': 'boolean',
+                            'value': inactive_asc,
+                        },
                     ],
                 'orderBy': order_by,
             },
@@ -673,7 +678,7 @@ class TestCohortPerFilters:
 
     def test_students_per_filters_order_by(self, client, asc_advisor_session):
         def _get_first_student(order_by):
-            students = self._get_defensive_line(client, order_by)
+            students = self._get_defensive_line(client, False, order_by)
             assert len(students) == 3
             return students[0]
         assert _get_first_student('first_name')['firstName'] == 'Dave'
@@ -687,13 +692,19 @@ class TestCohortPerFilters:
 
     def test_student_athletes_inactive_asc(self, client, asc_advisor_session):
         """An ASC advisor query defaults to active athletes only."""
-        students = self._get_defensive_line(client, 'gpa')
+        students = self._get_defensive_line(client, False, 'gpa')
         assert len(students) == 3
         for student in students:
             assert student['athleticsProfile']['isActiveAsc'] is True
 
     def test_student_athletes_inactive_admin(self, client, admin_session):
         """An admin query defaults to active and inactive athletes."""
-        students = self._get_defensive_line(client, 'gpa')
+        students = self._get_defensive_line(client, None, 'gpa')
         assert len(students) == 4
-        assert students[0]['athleticsProfile']['isActiveAsc'] is False
+
+        def is_active_asc(student):
+            return student['athleticsProfile']['isActiveAsc']
+        assert is_active_asc(students[0]) is False
+        assert is_active_asc(students[1]) is True
+        assert is_active_asc(students[2]) is True
+        assert is_active_asc(students[3]) is True
