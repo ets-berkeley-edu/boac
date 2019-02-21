@@ -32,6 +32,8 @@ import re
 from boac.externals import data_loch
 from boac.lib import analytics
 from boac.lib.berkeley import current_term_id, term_name_for_sis_id
+from boac.lib.util import camelize
+from boac.models.note import Note
 from boac.models.note_read import NoteRead
 from flask import current_app as app
 from flask_login import current_user
@@ -434,19 +436,23 @@ def search_for_students(
     }
 
 
-def _note_to_json(note, topics, attachments):
+def _note_to_compatible_json(note, topics=None, attachments=None):
+    # We have legacy notes and notes created via BOA. The following sets a standard for the front-end.
+    # TODO: 'advisorSid' and 'authorId' represent the same info. Must we merge the two fields into one?
     return {
         'id': note.get('id'),
         'sid': note.get('sid'),
-        'advisorSid': note.get('advisor_sid'),
-        'body': note.get('note_body'),
-        'category': note.get('note_category'),
-        'subcategory': note.get('note_subcategory'),
-        'appointmentId': note.get('appointment_id'),
-        'createdBy': note.get('created_by'),
-        'createdAt': _stringify_note_timestamp(note.get('created_at')),
+        'advisorSid': note.get('advisorSid'),
+        'authorId': note.get('authorId'),
+        'subject': note.get('subject'),
+        'body': note.get('body') or note.get('noteBody'),
+        'category': note.get('noteCategory'),
+        'subcategory': note.get('noteSubcategory'),
+        'appointmentId': note.get('appointmentId'),
+        'createdBy': note.get('createdBy'),
+        'createdAt': _stringify_note_timestamp(note.get('createdAt')),
         'updatedBy': note.get('updated_by'),
-        'updatedAt': _stringify_note_timestamp(note.get('updated_at')),
+        'updatedAt': _stringify_note_timestamp(note.get('updatedAt')),
         'read': False,
         'topics': topics,
         'attachments': attachments,
@@ -474,15 +480,19 @@ def _get_advising_note_attachments(sid):
 
 
 def get_advising_notes(sid):
-    advising_notes = data_loch.get_advising_notes(sid)
-    if not advising_notes:
-        return None
-    topics = _get_advising_note_topics(sid)
-    attachments = _get_advising_note_attachments(sid)
+    legacy_notes = data_loch.get_advising_notes(sid)
+    legacy_topics = _get_advising_note_topics(sid)
+    legacy_attachments = _get_advising_note_attachments(sid)
     notes_by_id = {}
-    for note in advising_notes:
+    for legacy_note in legacy_notes:
+        note_id = legacy_note['id']
+        note = {camelize(key): legacy_note[key] for key in legacy_note.keys()}
+        notes_by_id[note_id] = _note_to_compatible_json(note, legacy_topics.get(note_id), legacy_attachments.get(note_id))
+    for note in [n.to_api_json() for n in Note.get_notes_by_sid(sid)]:
         note_id = note['id']
-        notes_by_id[note_id] = _note_to_json(note, topics.get(note_id), attachments.get(note_id))
+        notes_by_id[str(note_id)] = _note_to_compatible_json(note)
+    if not notes_by_id.values():
+        return None
     notes_read = NoteRead.get_notes_read_by_user(current_user.id, notes_by_id.keys())
     for note_read in notes_read:
         note_feed = notes_by_id.get(note_read.note_id)

@@ -28,6 +28,7 @@ from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_cohort import CuratedCohort
+from boac.models.note import Note
 from boac.models.university_dept import UniversityDept
 # Models below are included so that db.create_all will find them.
 from boac.models.alert import Alert # noqa
@@ -110,8 +111,9 @@ def load(cohort_test_data=False):
     load_schemas()
     load_development_data()
     if cohort_test_data:
-        create_curated_cohorts()
-        create_filtered_cohorts()
+        create_curated_groups()
+        create_cohorts()
+        create_notes()
     return db
 
 
@@ -145,7 +147,7 @@ def load_development_data():
     std_commit(allow_test_environment=True)
 
 
-def create_curated_cohorts():
+def create_curated_groups():
     admin_id = AuthorizedUser.find_by_uid('2040').id
     CuratedCohort.create(admin_id, 'My Students')
 
@@ -164,7 +166,7 @@ def create_curated_cohorts():
     std_commit(allow_test_environment=True)
 
 
-def create_filtered_cohorts():
+def create_cohorts():
     # Oliver's cohorts
     CohortFilter.create(
         uid='2040',
@@ -243,6 +245,30 @@ def create_filtered_cohorts():
         filter_criteria={
             'majors': ['Nuclear Engineering BS'],
         },
+    )
+    std_commit(allow_test_environment=True)
+
+
+def create_notes():
+    coe_author_id = AuthorizedUser.find_by_uid('1133399').id
+    Note.create(
+        author_id=coe_author_id,
+        sid='3456789012',
+        subject='The hissing of summer lawns',
+        body="""
+            She could see the valley barbecues from her window sill.
+            See the blue pools in the squinting sun. Hear the hissing of summer lawns
+        """,
+    )
+    asc_author_id = AuthorizedUser.find_by_uid('6446').id
+    Note.create(
+        author_id=asc_author_id,
+        sid='11667051',
+        subject='In France they kiss on main street',
+        body="""
+            My darling dime store thief, in the War of Independence
+            Rock 'n Roll rang sweet as victory, under neon signs
+        """,
     )
     std_commit(allow_test_environment=True)
 

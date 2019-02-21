@@ -44,7 +44,7 @@ class TestStudent:
         fake_auth.login(coe_advisor)
         notes = get_advising_notes('11667051')
 
-        assert len(notes) == 3
+        assert len(notes) == 4
         assert notes[0]['id'] == '11667051-00001'
         assert notes[0]['sid'] == '11667051'
         assert notes[0]['body'] == 'Brigitte is making athletic and moral progress'
@@ -71,6 +71,22 @@ class TestStudent:
         assert notes[1]['read'] is False
         assert notes[1]['topics'] == ['Bad show']
         assert notes[1]['attachments'] == ['photo.jpeg']
+        # Non-legacy note
+        assert notes[3]['id']
+        assert notes[3]['authorId']
+        assert notes[3]['sid'] == '11667051'
+        assert notes[3]['subject'] == 'In France they kiss on main street'
+        assert 'My darling dime store thief' in notes[3]['body']
+        assert notes[3]['category'] is None
+        assert notes[3]['subcategory'] is None
+        assert notes[3]['appointmentId'] is None
+        assert notes[3]['createdBy'] is None
+        assert notes[3]['createdAt']
+        assert notes[3]['updatedBy'] is None
+        assert notes[3]['updatedAt']
+        assert notes[3]['read'] is False
+        assert notes[3]['topics'] is None
+        assert notes[3]['attachments'] is None
 
     def test_search_advising_notes(self, app, fake_auth):
         fake_auth.login(coe_advisor)

@@ -155,6 +155,31 @@ CREATE INDEX notes_read_viewer_id_idx ON notes_read USING btree (viewer_id);
 
 --
 
+CREATE TABLE notes (
+    id INTEGER NOT NULL,
+    author_id INTEGER NOT NULL,
+    sid VARCHAR(80) NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    body text NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+ALTER TABLE notes OWNER TO boac;
+CREATE SEQUENCE notes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE notes_id_seq OWNER TO boac;
+ALTER SEQUENCE notes_id_seq OWNED BY notes.id;
+ALTER TABLE ONLY notes ALTER COLUMN id SET DEFAULT nextval('notes_id_seq'::regclass);
+ALTER TABLE ONLY notes ADD CONSTRAINT notes_pkey PRIMARY KEY (id);
+CREATE INDEX notes_author_id_idx ON notes USING btree (author_id);
+CREATE INDEX notes_sid_idx ON notes USING btree (sid);
+
+--
+
 CREATE TABLE student_groups (
   id INTEGER NOT NULL,
   owner_id INTEGER NOT NULL,
@@ -282,6 +307,11 @@ ALTER TABLE ONLY cohort_filter_owners
     ADD CONSTRAINT cohort_filter_owners_cohort_filter_id_fkey FOREIGN KEY (cohort_filter_id) REFERENCES cohort_filters(id) ON DELETE CASCADE;
 ALTER TABLE ONLY cohort_filter_owners
     ADD CONSTRAINT cohort_filter_owners_user_id_fkey FOREIGN KEY (user_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
+
+--
+
+ALTER TABLE ONLY notes
+    ADD CONSTRAINT notes_author_id_fkey FOREIGN KEY (author_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
 
 --
 
