@@ -10,7 +10,7 @@
       </h1>
       <h2
         v-if="!renderPrimaryHeader"
-        class="page-section-header-sub pt-5">
+        class="page-section-header">
         {{ 'class' | pluralize(totalCourseCount, {1: 'One'}, 'es') }} matching '{{ searchPhrase }}'
       </h2>
       <div v-if="courses.length < totalCourseCount">

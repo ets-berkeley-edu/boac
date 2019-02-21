@@ -33,6 +33,7 @@ from boac.externals import data_loch
 from boac.lib import analytics
 from boac.lib.berkeley import current_term_id, term_name_for_sis_id
 from boac.lib.util import camelize
+from boac.merged.calnet import get_calnet_users_for_csids
 from boac.models.note import Note
 from boac.models.note_read import NoteRead
 from flask import current_app as app
@@ -362,14 +363,17 @@ def search_advising_notes(
         sid_filter=sid_filter,
         limit=limit,
     )
+    calnet_advisor_feeds = get_calnet_users_for_csids(app, [row.get('advisor_sid') for row in notes_results])
 
     def _notes_result_to_json(row):
         rds_row = rows_by_sid[row.get('sid')]
+        advisor_feed = calnet_advisor_feeds.get(row.get('advisor_sid'))
         return {
             'studentSid': row.get('sid'),
             'studentUid': rds_row.get('uid'),
             'studentName': ' '.join([rds_row.get('first_name'), rds_row.get('last_name')]),
             'advisorSid': row.get('advisor_sid'),
+            'advisorName': ' '.join([advisor_feed.get('firstName'), advisor_feed.get('lastName')]) if advisor_feed else None,
             'noteId': row.get('id'),
             'noteSnippet': notes_text_snippet(row.get('note_body'), search_phrase),
             'createdAt': _stringify_note_timestamp(row.get('created_at')),
@@ -379,7 +383,7 @@ def search_advising_notes(
 
 
 def notes_text_snippet(note_body, search_phrase):
-    fragments = re.split(f'({re.escape(search_phrase)})', note_body, flags=re.IGNORECASE)
+    fragments = re.split(f'({re.escape(search_phrase)})', _strip_note_html(note_body), flags=re.IGNORECASE)
     if len(fragments) < 3:
         return note_body
     before_words = fragments[0].split(' ')
@@ -392,6 +396,10 @@ def notes_text_snippet(note_body, search_phrase):
     if len(after_words) > 30:
         after_text += '...'
     return f'{before_text}<strong>{match}</strong>{after_text}'
+
+
+def _strip_note_html(note_body):
+    return re.sub(r'<[^>]+>', '', note_body)
 
 
 def search_for_students(
