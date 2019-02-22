@@ -36,9 +36,10 @@
             <div class="cohort-column-results">
               <div id="cohort-students" class="list-group mr-2">
                 <StudentRow
-                  v-for="student in students"
+                  v-for="(student, index) in students"
                   :id="`student-${student.uid}`"
                   :key="student.sid"
+                  :row-index="index"
                   :student="student"
                   list-type="cohort"
                   :sorted-by="preferences.sortBy"

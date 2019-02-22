@@ -18,9 +18,10 @@
       <div v-if="size(curatedGroup.students)">
         <div id="curated-cohort-students" class="list-group">
           <StudentRow
-            v-for="student in curatedGroup.students"
+            v-for="(student, index) in curatedGroup.students"
             :id="`student-${student.uid}`"
             :key="student.sid"
+            :row-index="index"
             :student="student"
             list-type="curatedGroup"
             :sorted-by="preferences.sortBy"
