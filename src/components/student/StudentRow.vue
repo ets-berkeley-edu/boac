@@ -142,7 +142,7 @@
         </tr>
         <tr v-for="(enrollment, index) in get(student.term, 'enrollments', [])" :key="index">
           <td class="cohort-course-activity-data cohort-course-activity-course-name">
-            <div :id="`row-${rowIndex}-student-enrollment-name`">{{ enrollment.displayName }}</div>
+            <div :id="`row-${rowIndex}-student-enrollment-name-${index}`">{{ enrollment.displayName }}</div>
           </td>
           <td class="cohort-course-activity-data">
             <div
