@@ -199,7 +199,17 @@ v-if="section.isViewableOnCoursePage"
         <div class="student-course-heading-start"></div>
         <div class="student-course-heading-end">
           <div class="student-course-heading-units-total">
-            Total {{ term.enrolledUnits }}
+            <span>Total {{ term.enrolledUnits }}</span>
+            <span
+              v-if="currentEnrollmentTermId === parseInt(term.termId) && get(student, 'sisProfile.currentTerm.unitsMinOverride')"
+              class="student-course-heading-units-override">
+              <span>Min&nbsp;Approved </span><span :id="`term-${term.termId}-min-units`">{{ student.sisProfile.currentTerm.unitsMinOverride }}</span>
+            </span>
+            <span
+              v-if="currentEnrollmentTermId === parseInt(term.termId) && get(student, 'sisProfile.currentTerm.unitsMaxOverride')"
+              class="student-course-heading-units-override">
+              <span>Max&nbsp;Approved </span><span :id="`term-${term.termId}-max-units`">{{ student.sisProfile.currentTerm.unitsMaxOverride }}</span>
+            </span>
           </div>
         </div>
       </div>
@@ -419,11 +429,19 @@ export default {
   flex: 0 0 100px;
   white-space: nowrap;
 }
+.student-course-heading-units-override {
+  font-weight: 400;
+  margin-top: 5px;
+}
 .student-course-heading-units-total {
   color: #777;
+  display: flex;
+  flex: 0 0 200px;
+  flex-direction: column;
   font-size: 16px;
   font-weight: 500;
   margin-top: 15px;
+  white-space: nowrap;
 }
 .student-course-name {
   font-size: 16px;
