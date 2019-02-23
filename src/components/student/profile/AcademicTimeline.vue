@@ -1,36 +1,44 @@
 <template>
   <div v-if="!isTimelineLoading">
-    <h2 class="student-section-header">Academic Timeline</h2>
-    <div id="screen-reader-alert" class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
-    <div class="d-flex mt-3 mb-3">
-      <div class="align-self-center mr-3">Filter Type:</div>
+    <div class="d-flex justify-content-between">
       <div>
-        <b-btn
-          id="timeline-tab-all"
-          class="tab pl-2 pr-2"
-          :class="{ 'tab-active text-white': !filter, 'tab-inactive text-dark': filter }"
-          variant="link"
-          @click="filter = null">
-          All
-        </b-btn>
+        <h2 class="student-section-header">Academic Timeline</h2>
+        <div id="screen-reader-alert" class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
+        <div class="d-flex mt-3 mb-3">
+          <div class="align-self-center mr-3">Filter Type:</div>
+          <div>
+            <b-btn
+              id="timeline-tab-all"
+              class="tab pl-2 pr-2"
+              :class="{ 'tab-active text-white': !filter, 'tab-inactive text-dark': filter }"
+              variant="link"
+              @click="filter = null">
+              All
+            </b-btn>
+          </div>
+          <div v-for="type in keys(filterTypes)" :key="type">
+            <b-btn
+              :id="`timeline-tab-${type}`"
+              class="tab ml-2 pl-2 pr-2 text-center"
+              :class="{
+                'tab-active text-white': type === filter && countsPerType[type],
+                'tab-inactive text-dark': type !== filter && countsPerType[type],
+                'tab-disabled text-muted': !countsPerType[type]
+              }"
+              :aria-label="`${filterTypes[type].name}s tab`"
+              variant="link"
+              :disabled="!countsPerType[type]"
+              @click="filter = type">
+              {{ filterTypes[type].tab }}
+            </b-btn>
+          </div>
+        </div>
       </div>
-      <div v-for="type in keys(filterTypes)" :key="type">
-        <b-btn
-          :id="`timeline-tab-${type}`"
-          class="tab ml-2 pl-2 pr-2 text-center"
-          :class="{
-            'tab-active text-white': type === filter && countsPerType[type],
-            'tab-inactive text-dark': type !== filter && countsPerType[type],
-            'tab-disabled text-muted': !countsPerType[type]
-          }"
-          :aria-label="`${filterTypes[type].name}s tab`"
-          variant="link"
-          :disabled="!countsPerType[type]"
-          @click="filter = type">
-          {{ filterTypes[type].tab }}
-        </b-btn>
+      <div>
+        <NewNoteModal :student="student" :on-successful-create="onCreateAdvisingNote" />
       </div>
     </div>
+
     <div v-if="!countPerActiveTab" class="pb-4 pl-2">
       <span id="zero-messages" class="messages-none">
         <span v-if="filter">No {{ filterTypes[filter].name.toLowerCase() }}s</span>
@@ -142,6 +150,7 @@
 
 <script>
 import AdvisingNote from "@/components/note/AdvisingNote";
+import NewNoteModal from "@/components/note/NewNoteModal";
 import TimelineDate from '@/components/student/profile/TimelineDate'
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
@@ -150,7 +159,7 @@ import { markRead } from '@/api/notes';
 
 export default {
   name: 'AcademicTimeline',
-  components: {AdvisingNote, TimelineDate},
+  components: {AdvisingNote, NewNoteModal, TimelineDate},
   mixins: [UserMetadata, Util],
   props: {
     student: Object
@@ -177,11 +186,12 @@ export default {
         tab: 'Reqs'
       }
     },
+    isShowingAll: false,
     isTimelineLoading: true,
     messages: undefined,
     openMessages: [],
-    isShowingAll: false,
-    screenReaderAlert: undefined
+    screenReaderAlert: undefined,
+    showNewNoteModal: false
   }),
   computed: {
     activeTab() {
@@ -220,17 +230,7 @@ export default {
         message.transientId = typeIndex * 1000 + index;
       });
     });
-    this.messages.sort((m1, m2) => {
-      let d1 = m1.updatedAt || m1.createdAt;
-      let d2 = m2.updatedAt || m2.createdAt;
-      if (d1 && d2) {
-        return d2.localeCompare(d1);
-      } else if (!d1 && !d2) {
-        return m2.transientId - m1.transientId;
-      } else {
-        return d1 ? -1 : 1;
-      }
-    });
+    this.sortMessages();
     this.screenReaderAlert = 'Academic Timeline has loaded';
     this.isTimelineLoading = false;
   },
@@ -258,6 +258,26 @@ export default {
       return type
         ? this.filterList(this.messages, ['type', type])
         : this.messages;
+    },
+    onCreateAdvisingNote(note) {
+      note.type = 'note';
+      note.message = note.body;
+      note.transientId = new Date().getTime();
+      this.messages.push(note);
+      this.sortMessages();
+    },
+    sortMessages() {
+      this.messages.sort((m1, m2) => {
+        let d1 = m1.updatedAt || m1.createdAt;
+        let d2 = m2.updatedAt || m2.createdAt;
+        if (d1 && d2) {
+          return d2.localeCompare(d1);
+        } else if (!d1 && !d2) {
+          return m2.transientId - m1.transientId;
+        } else {
+          return d1 ? -1 : 1;
+        }
+      });
     },
     toggle(message) {
       if (this.includes(this.openMessages, message.transientId)) {

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import store from '@/store';
 import Vue from 'vue';
-import { getCalnetUserByCsid, getUserGroups, getUserProfile, getUserStatus } from '@/api/user';
+import { getUserByCsid, getUserGroups, getUserProfile, getUserStatus } from '@/api/user';
 
 const $_user_isDepartmentMember = (state, deptCode) => {
   let membership = _.get(state.user, `departments.${deptCode}`);
@@ -61,7 +61,7 @@ const actions = {
       if (state.calnetUsersByCsid[csid]) {
         resolve(state.calnetUsersByCsid[csid]);
       } else {
-        getCalnetUserByCsid(csid)
+        getUserByCsid(csid)
           .then(calnetUser => {
             commit('putCalnetUserByCsid', {csid, calnetUser});
             resolve(state.calnetUsersByCsid[csid]);

@@ -23,16 +23,63 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-coe_advisor = '1133399'
+from boac.models.authorized_user import AuthorizedUser
+import simplejson as json
+
+advisor_uid = '1133399'
+student = {
+    'sid': '11667051',
+    'uid': '61889',
+}
+
+
+class TestCreateNotes:
+
+    @classmethod
+    def _api_note_create(cls, client, author_id, sid, subject, body, expected_status_code=200):
+        data = {
+            'authorId': author_id,
+            'sid': sid,
+            'subject': subject,
+            'body': body,
+        }
+        response = client.post('/api/notes/create', data=json.dumps(data), content_type='application/json')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, client):
+        """Returns 401 if not authenticated."""
+        advisor = AuthorizedUser.find_by_uid(advisor_uid)
+        assert self._api_note_create(
+            client,
+            author_id=advisor.id,
+            sid=student['sid'],
+            subject='Rusholme Ruffians',
+            body='This is the last night of the fair, And the grease in the hair',
+            expected_status_code=401,
+        )
+
+    def test_create_note(self, fake_auth, client):
+        """Marks a note as read."""
+        fake_auth.login(advisor_uid)
+        advisor = AuthorizedUser.find_by_uid(advisor_uid)
+        subject = 'Vicar in a Tutu'
+        new_note = self._api_note_create(
+            client,
+            author_id=advisor.id,
+            sid=student['sid'],
+            subject=subject,
+            body='A scanty bit of a thing with a decorative ring',
+        )
+        note_id = new_note.get('id')
+        assert new_note['read'] is False
+        assert isinstance(note_id, int) and note_id > 0
+        notes = _get_notes(client, student['uid'])
+        match = next((n for n in notes if n['id'] == note_id), None)
+        assert match and match['subject'] == subject
 
 
 class TestUpdateNotes:
-
-    @classmethod
-    def _get_notes(cls, client, uid):
-        response = client.get(f'/api/student/{uid}')
-        assert response.status_code == 200
-        return response.json['notifications']['note']
 
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
@@ -40,13 +87,11 @@ class TestUpdateNotes:
 
     def test_mark_note_read(self, fake_auth, client):
         """Marks a note as read."""
-        fake_auth.login(coe_advisor)
-
-        all_notes_unread = self._get_notes(client, 61889)
+        fake_auth.login(advisor_uid)
+        all_notes_unread = _get_notes(client, 61889)
         assert len(all_notes_unread) == 4
         for note in all_notes_unread:
             assert note['read'] is False
-
         response = client.post('/api/notes/11667051-00001/mark_read')
         assert response.status_code == 201
 
@@ -54,7 +99,7 @@ class TestUpdateNotes:
         response = client.post(f'/api/notes/{non_legacy_note_id}/mark_read')
         assert response.status_code == 201
 
-        all_notes_one_read = self._get_notes(client, 61889)
+        all_notes_one_read = _get_notes(client, 61889)
         assert len(all_notes_one_read) == 4
         assert all_notes_one_read[0]['id'] == '11667051-00001'
         assert all_notes_one_read[0]['read'] is True
@@ -62,3 +107,9 @@ class TestUpdateNotes:
         assert all_notes_one_read[1]['read'] is False
         assert all_notes_one_read[3]['id'] == non_legacy_note_id
         assert all_notes_one_read[3]['read'] is True
+
+
+def _get_notes(client, uid):
+    response = client.get(f'/api/student/{uid}')
+    assert response.status_code == 200
+    return response.json['notifications']['note']

@@ -23,26 +23,18 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
-
 from boac import db, std_commit
+from boac.models.base import Base
 
 
-class Note(db.Model):
+class Note(Base):
     __tablename__ = 'notes'
 
-    id = db.Column(db.String(255), nullable=False, primary_key=True)  # noqa: A003
-    author_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False, primary_key=True)
+    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    author_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
     sid = db.Column('sid', db.String(80), nullable=False)
     subject = db.Column(db.String(255), nullable=False)
     body = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
-
-    __table_args__ = (db.UniqueConstraint(
-        'author_id',
-        name='notes_author_id_unique_constraint',
-    ),)
 
     def __init__(self, author_id, sid, subject, body):
         self.author_id = author_id

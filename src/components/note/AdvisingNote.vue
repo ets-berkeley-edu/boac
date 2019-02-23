@@ -37,6 +37,7 @@
 import store from '@/store'
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
+import { getUser } from '@/api/user';
 
 export default {
   name: 'AdvisingNote',
@@ -52,10 +53,15 @@ export default {
   watch: {
     isOpen(open) {
       if (open && this.isUndefined(this.author)) {
-        if (this.note.author.id) {
-          this.loadUserById(this.note.author.id).then(data => {
-            this.author = data;
-          });
+        const user_id = this.note.author.id;
+        if (user_id) {
+          if (user_id === this.user.id) {
+            this.author = this.user;
+          } else {
+            getUser(user_id).then(data => {
+              this.author = data;
+            });
+          }
         } else if (this.note.author.sid) {
           store.dispatch('user/loadCalnetUserByCsid', this.note.author.sid).then(data => {
             this.author = data;
