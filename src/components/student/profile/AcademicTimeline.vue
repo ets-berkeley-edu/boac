@@ -264,6 +264,7 @@ export default {
       note.message = note.body;
       note.transientId = new Date().getTime();
       this.messages.push(note);
+      this.countsPerType.note++;
       this.sortMessages();
     },
     sortMessages() {
