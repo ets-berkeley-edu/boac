@@ -1,15 +1,13 @@
 <template>
   <div class="d-flex">
-    <div
-      class="selector-checkbox-container"
-      :class="{'mr-1': showMenu, 'mr-3': !showMenu}">
+    <div class="checkbox-container mr-1">
       <label
         id="checkbox-add-all-label"
         class="sr-only">Select all students to add to a curated group</label>
       <b-form-checkbox
         id="add-all-to-curated-group"
         v-model="isSelectAllChecked"
-        class="add-all-checkbox mr-0"
+        class="add-all-checkbox"
         plain
         :disabled="isSaving"
         :indeterminate="indeterminate"
@@ -23,7 +21,7 @@
       <b-dropdown
         v-if="showMenu"
         id="curated-group-dropdown-select"
-        class="curated-selector mr-3"
+        class="curated-selector mr-2"
         :variant="dropdownVariant"
         toggle-class="b-dd-override"
         size="sm"
@@ -215,20 +213,21 @@ export default {
 </script>
 
 <style scoped>
-.add-all-checkbox {
-  padding: 5px 0 0 1px;
-}
 label {
   font-size: 14px;
   margin-bottom: 0;
 }
-.selector-checkbox-container {
+.add-all-checkbox {
+  vertical-align: center;
+  padding-left: 25px;
+  padding-top: 3px;
+}
+.checkbox-container {
   background-color: #eee;
   border: 1px solid #aaa;
   border-radius: 4px;
   height: 34px;
   width: 34px;
-  padding: 3px 0 3px 3px;
   text-align: center;
 }
 .curated-selector {

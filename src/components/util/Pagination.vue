@@ -10,17 +10,12 @@
       first-text="First"
       last-text="Last"
       :hide-goto-end-buttons="totalPages < 3"
-      label-first-page="Go to first page"
-      label-next-page="Go to next page"
-      label-last-page="Go to last page"
-      label-prev-page="Go to previous page"
-      label-page="Go to page"
       hide-ellipsis
       size="md"
       :total-rows="totalRows"
       :limit="limit"
       :per-page="perPage"
-      @input="onClick()">
+      @change="onClick">
     </b-pagination>
   </div>
 </template>
@@ -51,8 +46,8 @@ export default {
     this.currentPage = this.initPageNumber;
   },
   methods: {
-    onClick() {
-      this.clickHandler(this.currentPage);
+    onClick(page) {
+      this.clickHandler(page);
     }
   }
 };

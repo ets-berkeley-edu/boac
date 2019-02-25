@@ -28,7 +28,7 @@
         <th>
           <button
             id="column-sort-button-section"
-            class="btn btn-link table-header-text group-summary-column-header group-summary-header-sortable search-results-cell"
+            class="btn btn-link table-header-text sortable-table-header cursor-pointer table-cell"
             :aria-label="`Sort by section ${ sort.by === 'section' ? describeReverse(sort.reverse.section) : ''}`"
             tabindex="0"
             @click="courseSort('section')">
@@ -45,7 +45,7 @@
         <th>
           <button
             id="column-sort-button-title"
-            class="btn btn-link table-header-text group-summary-column-header group-summary-header-sortable search-results-cell"
+            class="btn btn-link table-header-text sortable-table-header cursor-pointer table-cell"
             :aria-label="`Sort by course name ${ sort.by === 'title' ? describeReverse(sort.reverse.title) : ''}`"
             tabindex="0"
             @click="courseSort('title')">
@@ -59,22 +59,22 @@
             </span>
           </button>
         </th>
-        <th class="group-summary-column-header search-results-cell">
+        <th class="sortable-table-header table-cell">
           <span class="table-header-text">Instructor(s)</span>
         </th>
       </tr>
       <tr v-for="course in sortedCourses" :key="course.id">
-        <td class="search-results-cell">
+        <td class="table-cell">
           <span class="sr-only">Section</span>
           <router-link :to="`/course/${course.termId}/${course.sectionId}`">
             {{ course.courseName }} - {{ course.instructionFormat }} {{ course.sectionNum }}
           </router-link>
         </td>
-        <td class="search-results-cell">
+        <td class="table-cell">
           <span class="sr-only">Course Name</span>
           {{ course.courseTitle }}
         </td>
-        <td :class="{'search-results-cell demo-mode-blur': user.inDemoMode, 'search-results-cell': !user.inDemoMode}">{{ course.instructors }}</td>
+        <td :class="{'table-cell demo-mode-blur': user.inDemoMode, 'table-cell': !user.inDemoMode}">{{ course.instructors }}</td>
       </tr>
     </table>
   </div>
@@ -166,7 +166,7 @@ export default {
 </script>
 
 <style scoped>
-.search-results-cell {
+.table-cell {
   padding: 5px 10px 5px 0;
   vertical-align: top;
   width: 33%;

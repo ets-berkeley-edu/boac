@@ -73,11 +73,12 @@
           <div>
             <CuratedGroupSelector
               v-if="!isEmpty(section.students) && (tab === 'list')"
+              class="mr-2"
               :context-description="`Course ${section.displayName}`"
               :students="section.students" />
           </div>
           <div class="course-tabs-container">
-            <div class="btn-group tab-btn-group" role="group" aria-label="Select results view">
+            <div class="btn-group tab-btn-group pb-0" role="group" aria-label="Select results view">
               <button
                 type="button"
                 class="btn btn-secondary tab-button"
@@ -139,22 +140,17 @@
                 Final<span class="sr-only"> Grade</span>
               </th>
             </tr>
-
             <tr
               v-for="student in section.students"
               :key="student.uid"
               class="course-list-view-row"
               :class="{'list-group-item-info': featured===student.uid}">
               <td class="course-list-view-column course-list-view-column-checkbox">
-                <div class="add-to-cohort-checkbox">
-                  <CuratedStudentCheckbox :sid="student.sid" />
-                </div>
+                <CuratedStudentCheckbox :sid="student.sid" />
               </td>
-
               <td class="course-list-view-column course-list-view-column-avatar">
                 <StudentAvatar :student="student" size="medium" />
               </td>
-
               <td class="course-list-view-column course-list-view-column-profile">
                 <div>
                   <router-link :id="student.uid" :to="`/student/${student.uid}`">

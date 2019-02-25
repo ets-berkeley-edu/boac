@@ -10,9 +10,7 @@
         @click="removeFromCuratedGroup">
         <i class="fas fa-times-circle"></i>
       </button>
-      <div
-        v-if="listType !== 'curatedGroup'"
-        class="add-to-cohort-checkbox">
+      <div v-if="listType !== 'curatedGroup'">
         <CuratedStudentCheckbox :sid="student.sid" />
       </div>
     </div>
@@ -315,12 +313,6 @@ export default {
 </style>
 
 <style>
-.add-to-cohort-checkbox {
-  padding: 10px;
-}
-.add-to-cohort-checkbox input {
-  margin: 0;
-}
 .cohort-boxplot-container .highcharts-tooltip {
   background-color: #000;
   border-color: #000;
