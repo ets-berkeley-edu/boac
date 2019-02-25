@@ -7,7 +7,7 @@
         class="mt-1 mr-2"
         variant="primary"
         :disabled="includes(['minimized', 'open'], mode)"
-        @click="mode = 'open'">
+        @click="openNewNoteModal()">
         <span class="m-1">
           <i class="fas fa-file-alt"></i>
           New Note
@@ -188,12 +188,17 @@ export default {
     maximize() {
       this.mode = 'open';
       this.screenReaderAlert = "The create-note form is visible";
+      this.putFocusNextTick('create-note-subject');
     },
     minimize() {
       this.isMinimizing = true;
       this.mode = 'minimized';
       setTimeout(() => this.isMinimizing = false, 300);
       this.screenReaderAlert = "The create-note form minimized";
+    },
+    openNewNoteModal() {
+       this.mode = 'open';
+       this.putFocusNextTick('create-note-subject');
     },
     reset() {
       this.mode = 'hidden';
