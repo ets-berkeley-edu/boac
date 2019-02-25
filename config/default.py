@@ -124,4 +124,6 @@ CACHE_DEFAULT = False
 # At the beginning of a term, the bar may be lowered.
 MEANINGFUL_STATS_MINIMUM = 4
 
+NOTES_SEARCH_RESULT_SNIPPET_PADDING = 29
+
 BOAC_SUPPORT_EMAIL = 'boac-support@lists.berkeley.edu'

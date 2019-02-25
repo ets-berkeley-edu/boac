@@ -102,3 +102,42 @@ class TestMergedStudent:
         assert notes[0]['noteId'] == '11667051-00003'
         assert notes[0]['createdAt'] == '2017-11-05 12:00:00'
         assert notes[0]['updatedAt'] == '2017-11-05 12:00:00'
+
+    def test_search_advising_notes_stemming(self, app, fake_auth):
+        fake_auth.login(coe_advisor)
+        response = search_advising_notes(search_phrase='spare')
+        assert len(response) == 1
+        assert '<strong>spared</strong>' in response[0]['noteSnippet']
+        response = search_advising_notes(search_phrase='felicity')
+        assert len(response) == 1
+        assert '<strong>felicities</strong>' in response[0]['noteSnippet']
+
+    def test_search_advising_notes_too_short_to_snippet(self, app, fake_auth):
+        fake_auth.login(coe_advisor)
+        response = search_advising_notes(search_phrase='campus')
+        assert len(response) == 1
+        assert response[0]['noteSnippet'] == 'Is this student even on <strong>campus</strong>?'
+
+    def test_search_advising_notes_ordered_by_relevance(self, app, fake_auth):
+        fake_auth.login(coe_advisor)
+        response = search_advising_notes(search_phrase='confound')
+        assert len(response) == 2
+        assert response[0]['noteSnippet'] == 'I am <strong>confounded</strong> by this <strong>confounding</strong> student'
+        assert '<strong>confounded</strong> that of himself' in response[1]['noteSnippet']
+
+    def test_search_advising_notes_multiple_terms(self, app, fake_auth):
+        fake_auth.login(coe_advisor)
+        response = search_advising_notes(search_phrase='burnt diana temple')
+        assert len(response) == 1
+        assert 'Herostratus lives that <strong>burnt</strong> the <strong>Temple</strong> of <strong>Diana</strong>' in response[0]['noteSnippet']
+
+    def test_search_advising_notes_no_match(self, app, fake_auth):
+        fake_auth.login(coe_advisor)
+        response = search_advising_notes(search_phrase='pyramid octopus')
+        assert len(response) == 0
+
+    def test_search_advising_notes_funny_characters(self, app, fake_auth):
+        fake_auth.login(coe_advisor)
+        response = search_advising_notes(search_phrase='horse; <- epitaph? ->')
+        assert len(response) == 1
+        assert 'Time hath spared the <strong>Epitaph</strong> of Adrians <strong>horse</strong>' in response[0]['noteSnippet']

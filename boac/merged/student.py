@@ -38,6 +38,7 @@ from boac.models.note import Note
 from boac.models.note_read import NoteRead
 from flask import current_app as app
 from flask_login import current_user
+from nltk.stem.snowball import SnowballStemmer
 
 
 """Provide merged student data from external sources."""
@@ -343,9 +344,10 @@ def search_advising_notes(
     limit=None,
 ):
     scope = narrow_scope_by_criteria(get_student_query_scope())
-    # Since we can't join between RDS and Redshift (or any future notes search implementation), we mimic a join
-    # by first querying RDS for all student rows matching user scope, then incorporating SIDs into the notes query
-    # as a very large array filter.
+    # In the interest of keeping our search implementation flexible, we mimic a join by first querying RDS
+    # for all student rows matching user scope, then incorporating SIDs into the notes query as a very large
+    # array filter. If it looks like notes search is going to live in RDS for the long haul, this could be
+    # rewritten with a proper join.
     query_tables, query_filter, query_bindings = data_loch.get_students_query(scope=scope)
     if not query_tables:
         return []
@@ -358,8 +360,10 @@ def search_advising_notes(
     rows_by_sid = {row['sid']: row for row in sids_result}
     sid_filter = '{' + ','.join(rows_by_sid.keys()) + '}'
 
+    search_terms = [t for t in re.split(r'\W+', search_phrase) if t]
+
     notes_results = data_loch.search_advising_notes(
-        search_phrase=f'%{search_phrase}%',
+        search_phrase=' & '.join(search_terms),
         sid_filter=sid_filter,
         limit=limit,
     )
@@ -375,31 +379,57 @@ def search_advising_notes(
             'advisorSid': row.get('advisor_sid'),
             'advisorName': ' '.join([advisor_feed.get('firstName'), advisor_feed.get('lastName')]) if advisor_feed else None,
             'noteId': row.get('id'),
-            'noteSnippet': notes_text_snippet(row.get('note_body'), search_phrase),
+            'noteSnippet': notes_text_snippet(row.get('note_body'), search_terms),
             'createdAt': _stringify_note_timestamp(row.get('created_at')),
             'updatedAt': _stringify_note_timestamp(row.get('updated_at')),
         }
     return [_notes_result_to_json(row) for row in notes_results]
 
 
-def notes_text_snippet(note_body, search_phrase):
-    fragments = re.split(f'({re.escape(search_phrase)})', _strip_note_html(note_body), flags=re.IGNORECASE)
-    if len(fragments) < 3:
-        return note_body
-    before_words = fragments[0].split(' ')
-    match = fragments[1]
-    after_words = ''.join(fragments[2:]).split(' ')
-    before_text = ' '.join(before_words[-30:])
-    after_text = ' '.join(after_words[:30])
-    if len(before_words) > 30:
-        before_text = '...' + before_text
-    if len(after_words) > 30:
-        after_text += '...'
-    return f'{before_text}<strong>{match}</strong>{after_text}'
+def notes_text_snippet(note_body, search_terms):
+    stemmer = SnowballStemmer('english')
+    stemmed_search_terms = [stemmer.stem(term) for term in search_terms]
+    tag_stripped_body = re.sub(r'<[^>]+>', '', note_body)
+    snippet_padding = app.config['NOTES_SEARCH_RESULT_SNIPPET_PADDING']
+    note_words = list(re.finditer(r'\w+', tag_stripped_body))
 
+    snippet = None
+    match_index = None
+    start_position = 0
 
-def _strip_note_html(note_body):
-    return re.sub(r'<[^>]+>', '', note_body)
+    for index, word_match in enumerate(note_words):
+        stem = stemmer.stem(word_match.group(0))
+        if match_index is None and stem in stemmed_search_terms:
+            match_index = index
+            if index > snippet_padding:
+                start_position = note_words[index - snippet_padding].start(0)
+            snippet = '...' if start_position > 0 else ''
+        if match_index:
+            snippet += tag_stripped_body[start_position:word_match.start(0)]
+            if stem in stemmed_search_terms:
+                snippet += '<strong>'
+            snippet += word_match.group(0)
+            if stem in stemmed_search_terms:
+                snippet += '</strong>'
+            if index == len(note_words) - 1:
+                snippet += tag_stripped_body[word_match.end(0):len(tag_stripped_body)]
+                break
+            elif index == match_index + snippet_padding:
+                end_position = note_words[index].end(0)
+                snippet += tag_stripped_body[word_match.end(0):end_position]
+                snippet += '...'
+                break
+            else:
+                start_position = word_match.end(0)
+
+    if snippet:
+        return snippet
+    else:
+        if len(note_words) > snippet_padding:
+            end_position = note_words[snippet_padding].end(0)
+            return tag_stripped_body[0:end_position] + '...'
+        else:
+            return tag_stripped_body
 
 
 def search_for_students(
