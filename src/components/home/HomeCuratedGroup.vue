@@ -1,19 +1,19 @@
 <template>
   <div
     :id="`home-curated-group-${curatedGroup.id}`"
-    class="home-cohort-accordion panel"
+    class="accordion panel"
     :class="{'panel-open': curatedGroup.isOpen}">
     <div class="panel-heading">
       <a
         :id="`home-curated-group-${curatedGroup.id}-toggle`"
         v-b-toggle="`home-curated-group-${curatedGroup.id}`"
-        class="home-cohort-accordion-heading-link"
+        class="accordion-heading-link"
         tabindex="0"
         role="button"
         href="#"
         @click.prevent="fetchStudents()">
-        <div class="home-cohort-accordion-heading">
-          <div class="home-cohort-accordion-heading-name">
+        <div class="accordion-heading">
+          <div class="accordion-heading-name">
             <div class="accordion-heading-caret">
               <i
                 :id="`home-curated-group-${curatedGroup.id}-caret`"
@@ -31,8 +31,8 @@
               <span class="sr-only">&nbsp;students</span>)
             </h2>
           </div>
-          <div class="home-cohort-accordion-heading-count">
-            <div class="group-summary-column-header home-cohort-accordion-heading-count-label">
+          <div class="accordion-heading-count">
+            <div class="sortable-table-header accordion-heading-count-label">
               Total Issues:
             </div>
             <div
@@ -115,9 +115,9 @@ export default {
 </script>
 
 <style scoped>
-.home-cohort-accordion-heading-link:active,
-.home-cohort-accordion-heading-link:focus,
-.home-cohort-accordion-heading-link:hover {
+.accordion-heading-link:active,
+.accordion-heading-link:focus,
+.accordion-heading-link:hover {
   text-decoration: none;
 }
 .panel-group .panel + .panel {

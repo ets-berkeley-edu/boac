@@ -59,7 +59,7 @@ export default {
   },
   mixins: [Loading, Scrollable, UserMetadata, Util],
   props: {
-    id: Number
+    id: [String, Number]
   },
   data: () => ({
     curatedGroup: {},

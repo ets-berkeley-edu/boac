@@ -11,10 +11,10 @@
         <tr>
           <th
             v-if="options.includeCuratedCheckbox"
-            class="group-summary-column group-summary-column-checkbox group-summary-column-header"></th>
-          <th class="group-summary-column group-summary-column-photo group-summary-column-header"></th>
+            class="column column-checkbox sortable-table-header"></th>
+          <th class="column column-photo sortable-table-header"></th>
           <th
-            class="group-summary-column group-summary-column-name group-summary-column-header group-summary-header-sortable"
+            class="column column-name sortable-table-header cursor-pointer"
             role="button"
             :aria-label="sortOptions.lastName"
             @click="sort(options, 'lastName')">
@@ -28,7 +28,7 @@
             </span>
           </th>
           <th
-            class="group-summary-column group-summary-column-sid group-summary-column-header group-summary-header-sortable"
+            class="column column-sid sortable-table-header cursor-pointer"
             role="button"
             :aria-label="sortOptions.sid"
             @click="sort(options, 'sid')">
@@ -42,7 +42,7 @@
             </span>
           </th>
           <th
-            class="group-summary-column group-summary-column-major group-summary-column-header group-summary-header-sortable"
+            class="column column-major sortable-table-header cursor-pointer"
             role="button"
             :aria-label="sortOptions['majors[0]']"
             @click="sort(options, 'majors[0]')">
@@ -56,7 +56,7 @@
             </span>
           </th>
           <th
-            class="group-summary-column group-summary-column-grad group-summary-column-header group-summary-header-sortable"
+            class="column column-grad sortable-table-header cursor-pointer"
             role="button"
             :aria-label="sortOptions['expectedGraduationTerm.id']"
             @click="sort(options, 'expectedGraduationTerm.id')">
@@ -70,7 +70,7 @@
             </span>
           </th>
           <th
-            class="group-summary-column group-summary-column-units-term group-summary-column-header group-summary-header-sortable"
+            class="column column-units-term sortable-table-header cursor-pointer"
             role="button"
             :aria-label="sortOptions['term.enrolledUnits']"
             @click="sort(options, 'term.enrolledUnits')">
@@ -84,7 +84,7 @@
             </span>
           </th>
           <th
-            class="group-summary-column group-summary-column-units-completed group-summary-column-header group-summary-header-sortable"
+            class="column column-units-completed sortable-table-header cursor-pointer"
             role="button"
             :aria-label="sortOptions.cumulativeUnits"
             @click="sort(options, 'cumulativeUnits')">
@@ -98,7 +98,7 @@
             </span>
           </th>
           <th
-            class="group-summary-column group-summary-column-gpa group-summary-column-header group-summary-header-sortable"
+            class="column column-gpa sortable-table-header cursor-pointer"
             role="button"
             :aria-label="sortOptions.cumulativeGPA"
             @click="sort(options, 'cumulativeGPA')">
@@ -112,7 +112,7 @@
             </span>
           </th>
           <th
-            class="group-summary-column group-summary-column-issues group-summary-column-header group-summary-header-sortable"
+            class="column column-issues sortable-table-header cursor-pointer"
             role="button"
             :aria-label="sortOptions.alertCount"
             @click="sort(options, 'alertCount')">
@@ -131,15 +131,13 @@
         <tr v-for="student in sortedStudents" :key="student.sid">
           <td
             v-if="options.includeCuratedCheckbox"
-            class="group-summary-column group-summary-column-checkbox">
-            <div class="add-to-cohort-checkbox">
-              <CuratedStudentCheckbox :sid="student.sid" />
-            </div>
+            class="column column-checkbox">
+            <CuratedStudentCheckbox :sid="student.sid" />
           </td>
-          <td class="group-summary-column group-summary-column-photo">
+          <td class="column column-photo">
             <StudentAvatar :student="student" size="small" />
           </td>
-          <td class="group-summary-column group-summary-column-name">
+          <td class="column column-name">
             <span class="sr-only">{{ srText.lastName }}</span>
             <router-link
               :aria-label="'Go to profile page of ' + student.firstName + ' ' + student.lastName"
@@ -155,11 +153,11 @@
               <i class="fas fa-info-circle"></i>
             </span>
           </td>
-          <td class="group-summary-column group-summary-column-sid">
+          <td class="column column-sid">
             <span class="sr-only">{{ srText.sid }}</span>
             <span :class="{'demo-mode-blur': user.inDemoMode}">{{ student.sid }}</span>
           </td>
-          <td class="group-summary-column group-summary-column-major">
+          <td class="column column-major">
             <span class="sr-only">{{ srText['majors[0]'] }}</span>
             <div v-if="student.majors.length === 0">--<span class="sr-only">No data</span></div>
             <div
@@ -168,26 +166,26 @@
               {{ major }}
             </div>
           </td>
-          <td class="group-summary-column group-summary-column-grad">
+          <td class="column column-grad">
             <span class="sr-only">{{ srText['expectedGraduationTerm.id'] }}</span>
             <div v-if="!student.expectedGraduationTerm">--<span class="sr-only">No data</span></div>
             <span>{{ abbreviateTermName(student.expectedGraduationTerm && student.expectedGraduationTerm.name) }}</span>
           </td>
-          <td class="group-summary-column group-summary-column-units-term">
+          <td class="column column-units-term">
             <span class="sr-only">{{ srText['term.enrolledUnits'] }}</span>
             <div>{{ get(student.term, 'enrolledUnits', 0) }}</div>
           </td>
-          <td class="group-summary-column group-summary-column-units-completed">
+          <td class="column column-units-completed">
             <span class="sr-only">{{ srText.cumulativeUnits }}</span>
             <div v-if="!student.cumulativeUnits">--<span class="sr-only">No data</span></div>
             <div v-if="student.cumulativeUnits">{{ student.cumulativeUnits | numFormat('0.00') }}</div>
           </td>
-          <td class="group-summary-column group-summary-column-gpa">
+          <td class="column column-gpa">
             <span class="sr-only">{{ srText.cumulativeGPA }}</span>
             <div v-if="isNil(student.cumulativeGPA)">--<span class="sr-only">No data</span></div>
             <div v-if="!isNil(student.cumulativeGPA)">{{ student.cumulativeGPA | round(3) }}</div>
           </td>
-          <td class="group-summary-column group-summary-column-issues">
+          <td class="column column-issues">
             <span class="sr-only">{{ srText.alertCount }}</span>
             <div
               v-if="!student.alertCount"
@@ -334,76 +332,60 @@ export default {
 };
 </script>
 
-<style>
-.group-summary-column-header {
-  color: #999;
-  font-size: 12px;
-  font-weight: bold;
-  text-transform: uppercase;
-  vertical-align: top;
-}
-.group-summary-header-sortable {
-  cursor: pointer;
-}
-</style>
-
 <style scoped>
-.group-summary-column {
+.column {
   padding: 0 5px 0 8px;
 }
-.group-summary-column-checkbox {
+.column-checkbox {
   padding: 0;
   text-align: left;
-  width: 40px;
+  width: 20px;
 }
-.group-summary-column-gpa {
+.column-gpa {
   text-align: right;
   width: 8%;
 }
-.group-summary-column-grad {
+.column-grad {
   text-align: left;
   white-space: nowrap;
   width: 8%;
 }
-.group-summary-column-issues {
+.column-issues {
   text-align: center;
   width: 10%;
 }
-.group-summary-column-major {
+.column-major {
   width: 20%;
 }
-.group-summary-column-major div {
+.column-major div {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.group-summary-column-name {
+.column-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 20%;
 }
-.group-summary-column-photo {
+.column-photo {
   width: 40px;
 }
-.group-summary-column-sid {
+.column-sid {
   overflow: hidden;
   text-overflow: ellipsis;
   width: 15%;
 }
-.group-summary-column-units-completed {
+.column-units-completed {
   line-height: 1.4em;
   overflow-wrap: normal;
   text-align: right;
   width: 10%;
 }
-.group-summary-column-units-term {
+.column-units-term {
   line-height: 1.4em;
   overflow-wrap: normal;
   text-align: right;
   width: 5%;
-}
-.group-summary-header-issues {
-  width: 10%;
 }
 </style>

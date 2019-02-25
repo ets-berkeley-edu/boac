@@ -1,19 +1,19 @@
 <template>
   <div
     :id="`home-cohort-${cohort.id}`"
-    class="home-cohort-accordion panel"
+    class="accordion panel"
     :class="{'panel-open': cohort.isOpen}">
     <div class="panel-heading">
       <a
         :id="`home-cohort-${cohort.id}-toggle`"
         v-b-toggle="`home-cohort-${cohort.id}`"
-        class="home-cohort-accordion-heading-link"
+        class="accordion-heading-link"
         tabindex="0"
         role="button"
         href="#"
         @click.prevent="fetchStudents()">
-        <div class="home-cohort-accordion-heading">
-          <div class="home-cohort-accordion-heading-name">
+        <div class="accordion-heading">
+          <div class="accordion-heading-name">
             <div class="accordion-heading-caret">
               <i
                 :id="`home-cohort-${cohort.id}-caret`"
@@ -31,8 +31,8 @@
               <span class="sr-only">&nbsp;students</span>)
             </h2>
           </div>
-          <div class="home-cohort-accordion-heading-count">
-            <div class="group-summary-column-header home-cohort-accordion-heading-count-label">
+          <div class="accordion-heading-count">
+            <div class="sortable-table-header accordion-heading-count-label">
               Total Issues:
             </div>
             <div
@@ -123,27 +123,27 @@ export default {
   margin-right: 15px;
   width: 10px;
 }
-.home-cohort-accordion-heading {
+.accordion-heading {
   background: #ecf5fb;
   display: flex;
   justify-content: space-between;
 }
-.home-cohort-accordion-heading-count {
+.accordion-heading-count {
   align-items: center;
   display: flex;
   margin: 10px 15px;
   min-width: 130px;
 }
-.home-cohort-accordion-heading-count-label {
+.accordion-heading-count-label {
   margin: 0 5px;
 }
-.home-cohort-accordion-heading-name {
+.accordion-heading-name {
   align-items: center;
   display: flex;
   margin: 10px 15px;
 }
-.home-cohort-accordion .panel-title a:focus,
-.home-cohort-accordion .panel-title a:hover {
+.accordion .panel-title a:focus,
+.accordion .panel-title a:hover {
   text-decoration: none;
 }
 .home-inactive-info-icon {
