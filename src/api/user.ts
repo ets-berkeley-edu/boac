@@ -15,10 +15,17 @@ export function getUserProfile() {
     .then(response => response.data, () => null);
 }
 
-export function getCalnetUserByCsid(csid) {
+export function getUserByCsid(csid) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${apiBaseUrl}/api/profile/calnet_for_csid/${csid}`)
+    .get(`${apiBaseUrl}/api/user/by_csid/${csid}`)
+    .then(response => response.data, () => null);
+}
+
+export function getUser(id) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .get(`${apiBaseUrl}/api/user/${id}`)
     .then(response => response.data, () => null);
 }
 

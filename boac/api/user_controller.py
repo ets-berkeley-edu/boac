@@ -38,6 +38,7 @@ from flask_login import current_user, login_required
 def my_profile():
     profile = get_current_user_status()
     if current_user.is_authenticated:
+        profile['id'] = current_user.id
         uid = current_user.get_id()
         profile.update(calnet.get_calnet_user_for_uid(app, uid))
         if current_user.is_active:
@@ -75,10 +76,19 @@ def user_profile(uid):
     return tolerant_jsonify(calnet.get_calnet_user_for_uid(app, uid))
 
 
-@app.route('/api/profile/calnet_for_csid/<csid>')
+@app.route('/api/user/by_csid/<csid>')
 @login_required
 def calnet_profile(csid):
     return tolerant_jsonify(calnet.get_calnet_user_for_csid(app, csid))
+
+
+@app.route('/api/user/<user_id>')
+@login_required
+def user_by_id(user_id):
+    user = AuthorizedUser.find_by_id(user_id)
+    if not user:
+        raise errors.ResourceNotFoundError('Unknown path')
+    return tolerant_jsonify(calnet.get_calnet_user_for_uid(app, user.uid))
 
 
 @app.route('/api/users/authorized_groups')

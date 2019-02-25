@@ -129,18 +129,33 @@ class TestUserProfile:
         assert response.status_code == 404
 
 
-class TestCalnetProfile:
-    """Calnet Profile API."""
+class TestUserById:
+    """User Profile API."""
 
-    def test_calnet_for_csid_not_authenticated(self, client):
+    def test_user_by_id_not_authenticated(self, client):
         """Returns 401 when not authenticated."""
-        response = client.get(f'/api/profile/calnet_for_csid/{81067873}')
+        user = AuthorizedUser.find_by_uid('1081940')
+        response = client.get(f'/api/user/{user.id}')
         assert response.status_code == 401
 
-    def test_calnet_for_csid(self, client, fake_auth):
+    def test_user_by_id(self, client, fake_auth):
         """Delivers CalNet profile."""
         fake_auth.login('2040')
-        response = client.get(f'/api/profile/calnet_for_csid/{81067873}')
+        uid = '1081940'
+        user = AuthorizedUser.find_by_uid(uid)
+        response = client.get(f'/api/user/{user.id}')
+        assert response.status_code == 200
+        assert response.json['uid'] == uid
+
+    def test_user_by_csid_not_authenticated(self, client):
+        """Returns 401 when not authenticated."""
+        response = client.get(f'/api/user/by_csid/{81067873}')
+        assert response.status_code == 401
+
+    def test_user_by_csid(self, client, fake_auth):
+        """Delivers CalNet profile."""
+        fake_auth.login('2040')
+        response = client.get(f'/api/user/by_csid/{81067873}')
         assert response.status_code == 200
         assert response.json['csid'] == '81067873'
 

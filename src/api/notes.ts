@@ -7,3 +7,14 @@ export function markRead(noteId) {
     .post(`${apiBaseUrl}/api/notes/${noteId}/mark_read`)
     .then(response => response.data, () => null);
 }
+
+export function createNote(sid: object, subject: string, body: string) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .post(`${apiBaseUrl}/api/notes/create`, {
+      sid: sid,
+      subject: subject,
+      body: body
+    })
+    .then(response => response.data);
+}
