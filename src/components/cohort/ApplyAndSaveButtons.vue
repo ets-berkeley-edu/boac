@@ -47,12 +47,13 @@
 import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import CohortEditSession from '@/mixins/CohortEditSession';
 import CreateCohortModal from '@/components/cohort/CreateCohortModal';
+import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'ApplyAndSaveButtons',
   components: { CreateCohortModal },
-  mixins: [CohortEditSession, GoogleAnalytics, Util],
+  mixins: [CohortEditSession, GoogleAnalytics, UserMetadata, Util],
   data: () => ({
     isPerforming: undefined,
     screenReaderAlert: undefined,
@@ -65,10 +66,10 @@ export default {
   },
   methods: {
     apply() {
+      this.$eventHub.$emit('cohort-apply-filters');
       this.screenReaderAlert = `Searching for students`;
       this.isPerforming = 'search';
-      this.setCurrentPage(1);
-      this.applyFilters().then(() => {
+      this.applyFilters(this.preferences.sortBy).then(() => {
         this.putFocusNextTick('save-button');
         this.gaCohortEvent(
           this.cohortId,

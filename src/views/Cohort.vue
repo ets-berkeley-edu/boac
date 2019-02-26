@@ -141,6 +141,9 @@ export default {
     }
   },
   created() {
+    this.$eventHub.$on('cohort-apply-filters', () => {
+      this.setPagination(1);
+    });
     this.$eventHub.$on('sort-by-changed-by-user', sortBy => {
       this.goToPage(1);
       this.screenReaderAlert = `Sort students by ${sortBy}`;
@@ -162,11 +165,14 @@ export default {
           this.screenReaderAlert
         );
       }
-      this.pageNumber = page;
-      this.setCurrentPage(this.pageNumber);
+      this.setPagination(page);
       this.applyFilters(this.preferences.sortBy).then(() => {
         this.scrollToTop();
       });
+    },
+    setPagination(page) {
+      this.pageNumber = page;
+      this.setCurrentPage(this.pageNumber);
     }
   }
 };
