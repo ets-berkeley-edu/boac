@@ -327,6 +327,7 @@ import Loading from '@/mixins/Loading';
 import Matrix from '@/components/matrix/Matrix';
 import MatrixUtil from '@/components/matrix/MatrixUtil';
 import Pagination from '@/components/util/Pagination';
+import Scrollable from '@/mixins/Scrollable';
 import Spinner from '@/components/util/Spinner';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar';
@@ -350,6 +351,7 @@ export default {
   mixins: [
     Loading,
     MatrixUtil,
+    Scrollable,
     StudentAnalytics,
     StudentMetadata,
     UserMetadata,
@@ -378,6 +380,9 @@ export default {
     } else {
       this.loadListView();
     }
+  },
+  mounted() {
+    this.scrollToTop();
   },
   methods: {
     featureSearchedStudent(data) {

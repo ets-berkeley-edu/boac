@@ -40,6 +40,7 @@
 import HomeCohort from '@/components/home/HomeCohort.vue';
 import HomeCuratedGroup from '@/components/home/HomeCuratedGroup.vue';
 import Loading from '@/mixins/Loading.vue';
+import Scrollable from '@/mixins/Scrollable';
 import Spinner from '@/components/util/Spinner.vue';
 import UserMetadata from '@/mixins/UserMetadata.vue';
 import Util from '@/mixins/Util.vue';
@@ -51,7 +52,7 @@ export default {
     HomeCuratedGroup,
     Spinner
   },
-  mixins: [Loading, UserMetadata, Util],
+  mixins: [Loading, Scrollable, UserMetadata, Util],
   watch: {
     myCohorts: function() {
       if (this.myCohorts) {
@@ -67,6 +68,7 @@ export default {
   mounted() {
     if (this.myCohorts || this.myCuratedGroups) {
       this.loaded();
+      this.scrollToTop();
     }
   }
 };

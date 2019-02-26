@@ -29,6 +29,7 @@
 <script>
 import AcademicTimeline from '@/components/student/profile/AcademicTimeline';
 import Loading from '@/mixins/Loading';
+import Scrollable from '@/mixins/Scrollable';
 import Spinner from '@/components/util/Spinner';
 import StudentClasses from '@/components/student/profile/StudentClasses';
 import StudentProfileGPA from '@/components/student/profile/StudentProfileGPA';
@@ -47,7 +48,7 @@ export default {
     StudentProfileHeader,
     StudentProfileUnits
   },
-  mixins: [Loading, Util],
+  mixins: [Loading, Scrollable, Util],
   data: () => ({
     showAllTerms: false,
     student: {
@@ -66,6 +67,9 @@ export default {
         this.$router.push({ path: '/404' });
       }
     });
+  },
+  mounted() {
+    this.scrollToTop();
   },
   methods: {
     decorateCourse(course) {
