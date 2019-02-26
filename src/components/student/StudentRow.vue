@@ -41,9 +41,9 @@
           </router-link>
         </div>
       </div>
-      <div class="student-sid" :class="{'demo-mode-blur' : user.inDemoMode}">
-        <span :id="`row-${rowIndex}-student-sid`">{{ student.sid }}</span>
-        <span v-if="displayAsInactive(student)" class="red-flag-status">INACTIVE</span>
+      <div class="d-flex student-sid" :class="{'demo-mode-blur' : user.inDemoMode}">
+        <div :id="`row-${rowIndex}-student-sid`">{{ student.sid }}</div>
+        <div v-if="displayAsInactive(student)" class="red-flag-status ml-1">INACTIVE</div>
       </div>
       <div v-if="student.withdrawalCancel">
         <span class="red-flag-small">
