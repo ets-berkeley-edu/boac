@@ -48,6 +48,7 @@
             v-model="checkedGroups"
             type="checkbox"
             :value="group.id"
+            :aria-label="`${checkedGroups.includes(group.id) ? 'Checked' : 'Not checked'}`"
             @click="groupCheckboxClick(group)" />
           <label
             :id="`curated-group-${group.id}-name`"

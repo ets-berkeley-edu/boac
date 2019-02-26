@@ -55,14 +55,13 @@
           class="b-dd-item-override"
           @keyup.space.prevent.stop="curatedGroupCheckboxClick(group)">
           <input
-            v-if="group"
             :id="`curated-group-${group.id}-checkbox`"
             type="checkbox"
             :aria-labelledby="`curated-group-${group.id}-name`"
             @click="curatedGroupCheckboxClick(group)" />
           <label
-            v-if="group"
             :id="`curated-group-${group.id}-name`"
+            :for="`curated-group-${group.id}-checkbox`"
             class="cohort-checkbox-name pb-0 pt-0"
             :aria-label="`Add students to curated group '${group.name}'`">{{ group.name }}</label>
         </b-dropdown-item>
