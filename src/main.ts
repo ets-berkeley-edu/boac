@@ -4,6 +4,7 @@ import _ from 'lodash';
 import App from './App.vue';
 import axios from 'axios';
 import BootstrapVue from 'bootstrap-vue';
+import CKEditor from '@ckeditor/ckeditor5-vue';
 import filters from './filters';
 import Highcharts from 'highcharts';
 import HighchartsMore from 'highcharts/highcharts-more';
@@ -32,6 +33,7 @@ axios.interceptors.response.use(response => response, function(error) {
 Vue.config.productionTip = false;
 Vue.use(BootstrapVue);
 Vue.use(require('vue-lodash'));
+Vue.use(CKEditor);
 
 HighchartsMore(Highcharts);
 Vue.use(VueHighcharts, { Highcharts });

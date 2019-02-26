@@ -22,7 +22,7 @@
         'modal-open modal-saving': mode === 'saving'
       }">
       <form @submit.prevent="create()">
-        <div class="d-flex align-items-end pt-3">
+        <div class="d-flex align-items-end pt-2 mb-1">
           <div class="flex-grow-1 new-note-header font-weight-bolder">
             New Note
           </div>
@@ -51,8 +51,8 @@
             </b-btn>
           </div>
         </div>
-        <hr />
-        <div class="m-3">
+        <hr class="m-0" />
+        <div class="mt-2 mr-3 mb-1 ml-3">
           <div>
             <label for="create-note-subject" class="input-label mb-1"><span class="sr-only">Note </span>Subject</label>
           </div>
@@ -68,12 +68,14 @@
           <div>
             <label for="create-note-body" class="input-label mt-3 mb-1">Note Details</label>
           </div>
-          <div>
-            <textarea id="create-note-body" v-model="body"></textarea>
+          <div id="note-details">
+            <span id="create-note-body">
+              <ckeditor v-model="body" :editor="editor" :config="editorConfig"></ckeditor>
+            </span>
           </div>
         </div>
         <hr />
-        <div class="d-flex justify-content-end m-3">
+        <div class="d-flex justify-content-end mt-1 mr-3 mb-0 ml-3">
           <div>
             <b-btn
               id="create-note"
@@ -126,8 +128,11 @@
 </template>
 
 <script>
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Util from '@/mixins/Util';
 import { createNote } from '@/api/notes';
+
+require('@/assets/styles/ckeditor-custom.css');
 
 export default {
   name: 'NewNoteModal',
@@ -143,7 +148,11 @@ export default {
     mode: undefined,
     showErrorPopover: false,
     screenReaderAlert: undefined,
-    subject: undefined
+    subject: undefined,
+    editor: ClassicEditor,
+    editorConfig: {
+      toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
+    }
   }),
   watch: {
     body(str) {
@@ -209,10 +218,6 @@ export default {
 </script>
 
 <style scoped>
-textarea {
-  height: 120px;
-  width: 100%;
-}
 .fa-icon-size {
   font-size: 28px;
 }
@@ -244,7 +249,7 @@ textarea {
   border: 1px solid #aaa;
   bottom: 0;
   box-shadow: 0 0 10px #ccc;
-  height: 420px;
+  height: 480px;
   position: fixed;
   right: 30px;
   transition: height 0.5s;

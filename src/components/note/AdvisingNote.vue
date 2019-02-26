@@ -6,7 +6,7 @@
       <span v-if="!note.subject && !size(note.message)">{{ note.category }}, {{ note.subcategory }}</span>
     </div>
     <div v-if="isOpen && note.subject && note.message" class="mt-2">
-      {{ note.message }}
+      <span v-html="note.message"></span>
     </div>
     <div v-if="author" class="mt-2">
       <a
