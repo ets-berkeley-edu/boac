@@ -35,3 +35,6 @@ ALERT_INFREQUENT_ACTIVITY_ENABLED = False
 ALERT_WITHDRAWAL_ENABLED = False
 
 INDEX_HTML = 'tests/static/test-index-vue.html'
+
+# TODO: Remove when note creation is in prod
+FEATURE_FLAG_CREATE_NOTES = True

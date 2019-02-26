@@ -28,3 +28,6 @@ DEBUG = True
 
 INDEX_HTML = 'public/index.html'
 VUE_LOCALHOST_BASE_URL = 'http://localhost:8080'
+
+# TODO: Remove when note creation is in prod
+FEATURE_FLAG_CREATE_NOTES = True
