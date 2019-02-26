@@ -59,8 +59,23 @@ class TestCreateNotes:
             expected_status_code=401,
         )
 
-    def test_create_note(self, fake_auth, client):
+    def test_feature_flag_false(self, app, client, fake_auth):
+        """Returns 404 if feature flag is false."""
+        app.config['FEATURE_FLAG_CREATE_NOTES'] = False
+        fake_auth.login(advisor_uid)
+        advisor = AuthorizedUser.find_by_uid(advisor_uid)
+        assert self._api_note_create(
+            client,
+            author_id=advisor.id,
+            sid=student['sid'],
+            subject='Reel Around the Fountain',
+            body='You took a child and you made him old',
+            expected_status_code=404,
+        )
+
+    def test_create_note(self, app, client, fake_auth):
         """Marks a note as read."""
+        app.config['FEATURE_FLAG_CREATE_NOTES'] = True
         fake_auth.login(advisor_uid)
         advisor = AuthorizedUser.find_by_uid(advisor_uid)
         subject = 'Vicar in a Tutu'
@@ -85,8 +100,9 @@ class TestUpdateNotes:
         """Returns 401 if not authenticated."""
         assert client.post('/api/notes/11667051-00001/mark_read').status_code == 401
 
-    def test_mark_note_read(self, fake_auth, client):
-        """Marks a note as read."""
+    def test_mark_note_read(self, app, client, fake_auth):
+        """Marks a note as read, ignoring FEATURE_FLAG_CREATE_NOTES."""
+        app.config['FEATURE_FLAG_CREATE_NOTES'] = False
         fake_auth.login(advisor_uid)
         all_notes_unread = _get_notes(client, 61889)
         assert len(all_notes_unread) == 4

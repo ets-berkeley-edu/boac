@@ -34,7 +34,7 @@
           </div>
         </div>
       </div>
-      <div>
+      <div v-if="featureFlagCreateNotes">
         <NewNoteModal :student="student" :on-successful-create="onCreateAdvisingNote" />
       </div>
     </div>
@@ -150,8 +150,9 @@
 
 <script>
 import AdvisingNote from "@/components/note/AdvisingNote";
+import Context from '@/mixins/Context';
 import NewNoteModal from "@/components/note/NewNoteModal";
-import TimelineDate from '@/components/student/profile/TimelineDate'
+import TimelineDate from '@/components/student/profile/TimelineDate';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { dismissStudentAlert } from '@/api/student';
@@ -160,7 +161,7 @@ import { markRead } from '@/api/notes';
 export default {
   name: 'AcademicTimeline',
   components: {AdvisingNote, NewNoteModal, TimelineDate},
-  mixins: [UserMetadata, Util],
+  mixins: [Context, UserMetadata, Util],
   props: {
     student: Object
   },

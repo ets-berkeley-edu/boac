@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError
+from boac.api.util import feature_flag_create_notes
 from boac.lib.http import tolerant_jsonify
 from boac.merged.student import note_to_compatible_json
 from boac.models.note import Note
@@ -43,6 +44,7 @@ def mark_read(note_id):
 
 @app.route('/api/notes/create', methods=['POST'])
 @login_required
+@feature_flag_create_notes
 def create_note():
     params = request.get_json()
     sid = params.get('sid', None)

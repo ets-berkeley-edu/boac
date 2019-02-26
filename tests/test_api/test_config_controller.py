@@ -37,6 +37,7 @@ class TestConfigController:
         assert data['ebEnvironment'] is None
         assert data['googleAnalyticsId'] is False
         assert '@' in data['supportEmailAddress']
+        assert data['featureFlagCreateNotes'] is True
 
     def test_anonymous_api_version_request(self, client):
         """Returns a well-formed response."""
