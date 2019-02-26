@@ -25,14 +25,14 @@
         <div>
           <router-link :id="`row-${rowIndex}-student-href`" :to="`/student/${student.uid}`">
             <h3
-              v-if="sortedBy !== 'firstName'"
+              v-if="sortedBy !== 'first_name'"
               :id="`row-${rowIndex}-student-name`"
               class="student-name"
               :class="{'demo-mode-blur' : user.inDemoMode}">
               {{ student.lastName }}, {{ student.firstName }}
             </h3>
             <h3
-              v-if="sortedBy === 'firstName'"
+              v-if="sortedBy === 'first_name'"
               :id="`row-${rowIndex}-student-name`"
               class="student-name"
               :class="{'demo-mode-blur' : user.inDemoMode}">
