@@ -29,6 +29,8 @@ export default {
       'init',
       'removeFilter',
       'renameCohort',
+      'resetFiltersToLastApply',
+      'resetFiltersToSaved',
       'saveExistingCohort',
       'setCurrentPage',
       'setEditMode',
