@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.api.errors import BadRequestError
 from boac.api.util import current_user_profile, feature_flag_create_notes, get_dept_codes, get_dept_role
 from boac.lib.http import tolerant_jsonify
-from boac.merged.student import note_to_compatible_json
+from boac.merged.advising_note import note_to_compatible_json
 from boac.models.note import Note
 from boac.models.note_read import NoteRead
 from flask import current_app as app, request
