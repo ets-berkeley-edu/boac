@@ -24,9 +24,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api import errors
-from boac.api.util import admin_required, authorized_users_api_feed, get_current_user_status, get_my_cohorts, get_my_curated_groups
+from boac.api.util import admin_required, authorized_users_api_feed, current_user_profile, get_current_user_status
 from boac.lib import util
-from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE, get_dept_codes
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
 from boac.merged import calnet
 from boac.models.authorized_user import AuthorizedUser
@@ -36,35 +36,8 @@ from flask_login import current_user, login_required
 
 @app.route('/api/profile/my')
 def my_profile():
-    profile = get_current_user_status()
-    if current_user.is_authenticated:
-        profile['id'] = current_user.id
-        uid = current_user.get_id()
-        profile.update(calnet.get_calnet_user_for_uid(app, uid))
-        if current_user.is_active:
-            departments = {}
-            for m in current_user.department_memberships:
-                departments.update({
-                    m.university_dept.dept_code: {
-                        'isAdvisor': m.is_advisor,
-                        'isDirector': m.is_director,
-                    },
-                })
-            dept_codes = get_dept_codes(current_user)
-            profile['isAsc'] = 'UWASC' in dept_codes
-            profile['isCoe'] = 'COENG' in dept_codes
-            exclude_cohorts = util.to_bool_or_none(request.args.get('excludeCohorts'))
-            if not exclude_cohorts:
-                profile.update({
-                    'myFilteredCohorts': get_my_cohorts(),
-                    'myCuratedCohorts': get_my_curated_groups(),
-                })
-            profile.update({
-                'isAdmin': current_user.is_admin,
-                'inDemoMode': current_user.in_demo_mode if hasattr(current_user, 'in_demo_mode') else False,
-                'departments': departments,
-            })
-    return tolerant_jsonify(profile)
+    exclude_cohorts = util.to_bool_or_none(request.args.get('excludeCohorts'))
+    return tolerant_jsonify(current_user_profile(exclude_cohorts))
 
 
 @app.route('/api/profile/<uid>')
@@ -82,10 +55,10 @@ def calnet_profile(csid):
     return tolerant_jsonify(calnet.get_calnet_user_for_csid(app, csid))
 
 
-@app.route('/api/user/<user_id>')
+@app.route('/api/user/by_uid/<uid>')
 @login_required
-def user_by_id(user_id):
-    user = AuthorizedUser.find_by_id(user_id)
+def user_by_uid(uid):
+    user = AuthorizedUser.find_by_uid(uid)
     if not user:
         raise errors.ResourceNotFoundError('Unknown path')
     return tolerant_jsonify(calnet.get_calnet_user_for_uid(app, user.uid))
@@ -96,17 +69,21 @@ def user_by_id(user_id):
 def authorized_user_groups():
     sort_users_by = util.get(request.args, 'sortUsersBy', None)
     depts = {}
-    for dept_name, dept_code in {**{'Admins': 'ADMIN'}, **BERKELEY_DEPT_NAME_TO_CODE}.items():
-        depts[dept_code] = {
-            'code': dept_code,
-            'name': dept_name,
-            'users': [],
-        }
+
+    def _put(_dept_code, _user):
+        if _dept_code not in depts:
+            dept_name = 'Admins' if _dept_code == 'ADMIN' else BERKELEY_DEPT_CODE_TO_NAME.get(_dept_code)
+            depts[_dept_code] = {
+                'code': _dept_code,
+                'name': dept_name,
+                'users': [],
+            }
+        depts[_dept_code]['users'].append(_user)
     for user in AuthorizedUser.query.all():
         if user.is_admin:
-            depts['ADMIN']['users'].append(user)
+            _put('ADMIN', user)
         for m in user.department_memberships:
-            depts[m.university_dept.dept_code]['users'].append(user)
+            _put(m.university_dept.dept_code, user)
     user_groups = []
     for dept_code, dept in depts.items():
         dept['users'] = authorized_users_api_feed(dept['users'], sort_users_by)

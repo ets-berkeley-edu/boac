@@ -132,18 +132,18 @@ class TestUserProfile:
 class TestUserById:
     """User Profile API."""
 
-    def test_user_by_id_not_authenticated(self, client):
+    def test_user_by_uid_not_authenticated(self, client):
         """Returns 401 when not authenticated."""
         user = AuthorizedUser.find_by_uid('1081940')
-        response = client.get(f'/api/user/{user.id}')
+        response = client.get(f'/api/user/by_uid/{user.uid}')
         assert response.status_code == 401
 
-    def test_user_by_id(self, client, fake_auth):
+    def test_user_by_uid(self, client, fake_auth):
         """Delivers CalNet profile."""
         fake_auth.login('2040')
         uid = '1081940'
         user = AuthorizedUser.find_by_uid(uid)
-        response = client.get(f'/api/user/{user.id}')
+        response = client.get(f'/api/user/by_uid/{user.uid}')
         assert response.status_code == 200
         assert response.json['uid'] == uid
 

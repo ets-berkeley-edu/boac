@@ -157,7 +157,10 @@ CREATE INDEX notes_read_viewer_id_idx ON notes_read USING btree (viewer_id);
 
 CREATE TABLE notes (
     id INTEGER NOT NULL,
-    author_id INTEGER NOT NULL,
+    author_uid VARCHAR(255) NOT NULL,
+    author_name VARCHAR(255) NOT NULL,
+    author_role VARCHAR(255) NOT NULL,
+    author_dept_codes VARCHAR[] NOT NULL,
     sid VARCHAR(80) NOT NULL,
     subject VARCHAR(255) NOT NULL,
     body text NOT NULL,
@@ -175,7 +178,7 @@ ALTER TABLE notes_id_seq OWNER TO boac;
 ALTER SEQUENCE notes_id_seq OWNED BY notes.id;
 ALTER TABLE ONLY notes ALTER COLUMN id SET DEFAULT nextval('notes_id_seq'::regclass);
 ALTER TABLE ONLY notes ADD CONSTRAINT notes_pkey PRIMARY KEY (id);
-CREATE INDEX notes_author_id_idx ON notes USING btree (author_id);
+CREATE INDEX notes_author_uid_idx ON notes USING btree (author_uid);
 CREATE INDEX notes_sid_idx ON notes USING btree (sid);
 
 --
@@ -310,10 +313,6 @@ ALTER TABLE ONLY cohort_filter_owners
 
 --
 
-ALTER TABLE ONLY notes
-    ADD CONSTRAINT notes_author_id_fkey FOREIGN KEY (author_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
-
---
 
 ALTER TABLE ONLY notes_read
     ADD CONSTRAINT notes_read_viewer_id_fkey FOREIGN KEY (viewer_id) REFERENCES authorized_users(id) ON DELETE CASCADE;

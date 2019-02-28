@@ -31,7 +31,7 @@ import re
 
 from boac.externals import data_loch
 from boac.lib import analytics
-from boac.lib.berkeley import current_term_id, term_name_for_sis_id
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, current_term_id, term_name_for_sis_id
 from boac.lib.util import camelize
 from boac.merged.calnet import get_calnet_users_for_csids
 from boac.models.note import Note
@@ -476,12 +476,17 @@ def search_for_students(
 
 def note_to_compatible_json(note, topics=None, attachments=None):
     # We have legacy notes and notes created via BOA. The following sets a standard for the front-end.
+    dept_codes = note.get('deptCode') if 'deptCode' in note else note.get('authorDeptCodes') or []
     return {
         'id': note.get('id'),
         'sid': note.get('sid'),
         'author': {
             'id': note.get('authorId'),
+            'uid': note.get('authorUid'),
             'sid': note.get('advisorSid'),
+            'name': note.get('authorName'),
+            'role': note.get('authorRole'),
+            'depts': [BERKELEY_DEPT_CODE_TO_NAME.get(code) for code in dept_codes],
         },
         'subject': note.get('subject'),
         'body': note.get('body') or note.get('noteBody'),
@@ -527,6 +532,7 @@ def get_advising_notes(sid):
         note_id = legacy_note['id']
         note = {camelize(key): legacy_note[key] for key in legacy_note.keys()}
         notes_by_id[note_id] = note_to_compatible_json(note, legacy_topics.get(note_id), legacy_attachments.get(note_id))
+        notes_by_id[note_id]['isLegacy'] = True
     for note in [n.to_api_json() for n in Note.get_notes_by_sid(sid)]:
         note_id = note['id']
         notes_by_id[str(note_id)] = note_to_compatible_json(note)

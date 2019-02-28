@@ -250,9 +250,11 @@ def create_cohorts():
 
 
 def create_notes():
-    coe_author_id = AuthorizedUser.find_by_uid('1133399').id
     Note.create(
-        author_id=coe_author_id,
+        author_uid='1133399',
+        author_name='Roberta Joan Anderson',
+        author_role='Advisor',
+        author_dept_codes=['COENG'],
         sid='3456789012',
         subject='The hissing of summer lawns',
         body="""
@@ -260,9 +262,11 @@ def create_notes():
             See the blue pools in the squinting sun. Hear the hissing of summer lawns
         """,
     )
-    asc_author_id = AuthorizedUser.find_by_uid('6446').id
     Note.create(
-        author_id=asc_author_id,
+        author_uid='6446',
+        author_name='Joni Mitchell',
+        author_role='Director',
+        author_dept_codes=['UWASC'],
         sid='11667051',
         subject='In France they kiss on main street',
         body="""
