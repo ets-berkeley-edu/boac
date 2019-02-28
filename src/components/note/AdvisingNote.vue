@@ -12,7 +12,7 @@
       <div v-if="author.name">
         <a
           :id="`note-${note.id}-author-name`"
-          :aria-label="`Go to UC Berkeley Directory page of ${author.firstName} ${author.lastName}`"
+          :aria-label="`Open UC Berkeley Directory page of ${author.name} in a new window`"
           :href="`https://www.berkeley.edu/directory/results?search-term=${author.name}`"
           target="_blank">{{ author.name }}</a>
         <span v-if="author.role">

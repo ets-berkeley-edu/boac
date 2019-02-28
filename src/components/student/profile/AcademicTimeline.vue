@@ -90,7 +90,7 @@
                 :is-open="includes(openMessages, message.transientId)" />
             </div>
           </td>
-          <td class="column-right align-top">
+          <td class="column-right align-top pt-1 pr-1">
             <i v-if="size(message.attachments)" class="fas fa-paperclip mt-2"></i>
             <span class="sr-only">{{ size(message.attachments) ? 'Yes' : 'No' }}</span>
           </td>
@@ -100,6 +100,7 @@
               class="pt-2 pr-2 text-nowrap">
               <div v-if="!includes(openMessages, message.transientId) || message.type !== 'note'">
                 <TimelineDate
+                  :id="`${message.type}-${message.id}-created-at`"
                   :date="message.updatedAt || message.createdAt"
                   :include-time-of-day="false"
                   sr-prefix="Last updated on" />
@@ -108,6 +109,7 @@
                 <div v-if="message.createdAt" :class="{'mb-2': !displayUpdatedAt(message)}">
                   <div class="text-muted">Created:</div>
                   <TimelineDate
+                    :id="`${message.type}-${message.id}-created-at`"
                     :date="message.createdAt"
                     :include-time-of-day="true"
                     sr-prefix="Last updated on" />
@@ -115,6 +117,7 @@
                 <div v-if="displayUpdatedAt(message)">
                   <div class="mt-2 text-muted">Updated:</div>
                   <TimelineDate
+                    :id="`${message.type}-${message.id}-updated-at`"
                     :date="message.updatedAt"
                     :include-time-of-day="true"
                     class="mb-2"
@@ -151,6 +154,7 @@
 <script>
 import AdvisingNote from "@/components/note/AdvisingNote";
 import Context from '@/mixins/Context';
+import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import NewNoteModal from "@/components/note/NewNoteModal";
 import TimelineDate from '@/components/student/profile/TimelineDate';
 import UserMetadata from '@/mixins/UserMetadata';
@@ -161,7 +165,7 @@ import { markRead } from '@/api/notes';
 export default {
   name: 'AcademicTimeline',
   components: {AdvisingNote, NewNoteModal, TimelineDate},
-  mixins: [Context, UserMetadata, Util],
+  mixins: [Context, GoogleAnalytics, UserMetadata, Util],
   props: {
     student: Object
   },
@@ -267,6 +271,7 @@ export default {
       this.messages.push(note);
       this.countsPerType.note++;
       this.sortMessages();
+      this.gaNoteEvent(note.id, `Advisor ${this.user.uid} created note (SID: ${this.student.sid})`, 'create');
     },
     sortMessages() {
       this.messages.sort((m1, m2) => {
@@ -294,8 +299,10 @@ export default {
         message.read = true;
         if (this.includes(['alert', 'hold'], message.type)) {
           dismissStudentAlert(message.id);
+          this.gaStudentAlert(message.id, `Advisor ${this.user.uid} dismissed alert (SID: ${this.student.sid})`, 'view')
         } else if (message.type === 'note') {
           markRead(message.id);
+          this.gaNoteEvent(message.id, `Advisor ${this.user.uid} read note (SID: ${this.student.sid})`, 'view');
         }
       }
     }

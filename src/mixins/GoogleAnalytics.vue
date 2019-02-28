@@ -16,6 +16,15 @@ export default {
     },
     gaCuratedEvent(id, name, action) {
       this.gaEvent('Curated Group', action, name, id);
+    },
+    gaStudentAlert(id, name, action) {
+      this.gaEvent('Advising Note', action, name, id);
+    },
+    gaNoteEvent(id, name, action) {
+      this.gaEvent('Advising Note', action, name, id);
+    },
+    gaSearchEvent(id, name, action) {
+      this.gaEvent('Search', action, name, id);
     }
   }
 };

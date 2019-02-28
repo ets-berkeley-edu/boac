@@ -5,7 +5,7 @@
       autocomplete="off"
       :class="{'search-students-page-body': context === 'pageBody'}"
       @submit.prevent="search()">
-      <div v-if="context === 'sidebar'" class="search-students-form-label-outer search-label">
+      <div v-if="context === 'sidebar'" class="d-flex justify-content-between text-white mt-2 mb-1 search-label">
         <div>
           <i class="fas fa-search"></i>
           <label
@@ -39,11 +39,8 @@
           Search
         </b-btn>
       </div>
-      <b-collapse
-        v-if="context === 'sidebar'"
-        id="search-options-panel"
-        class="search-students-form-label-outer">
-        <div>
+      <b-collapse v-if="context === 'sidebar'" id="search-options-panel" class="ml-1 mt-1 text-white">
+        <div class="d-flex">
           <b-form-checkbox
             id="search-include-students-checkbox"
             v-model="includeStudents"
@@ -56,7 +53,7 @@
             Students (name or SID)
           </label>
         </div>
-        <div>
+        <div class="d-flex">
           <b-form-checkbox
             id="search-include-courses-checkbox"
             v-model="includeCourses"
@@ -69,7 +66,7 @@
             Classes
           </label>
         </div>
-        <div>
+        <div class="d-flex">
           <b-form-checkbox
             id="search-include-notes-checkbox"
             v-model="includeNotes"
@@ -117,13 +114,13 @@ export default {
             q: this.searchPhrase,
             courses: this.includeCourses,
             notes: this.includeNotes,
-            students: this.includeStudents,
+            students: this.includeStudents
           }
         });
         this.gaEvent(
           'Search',
           'submit',
-          this.includeCourses ? 'classes and students' : 'students',
+          `courses: ${this.includeCourses}; notes: ${this.includeNotes}; students: ${this.includeStudents}`,
           this.searchPhrase
         );
       }
@@ -160,11 +157,6 @@ export default {
 .search-students-form-label {
   font-weight: 400;
   margin: 0;
-}
-.search-students-form-label-outer {
-  color: #fff;
-  justify-content: space-between;
-  margin: 10px 0;
 }
 .search-students-input {
   box-sizing: border-box;
