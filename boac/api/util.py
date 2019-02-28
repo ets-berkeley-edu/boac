@@ -30,7 +30,7 @@ from boac.api.errors import ResourceNotFoundError
 from boac.externals.data_loch import get_sis_holds
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, get_dept_codes
 from boac.merged import calnet
-from boac.merged.student import get_advising_notes
+from boac.merged.advising_note import get_advising_notes
 from boac.models.alert import Alert
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_cohort import CuratedCohort
