@@ -271,7 +271,7 @@ export default {
       this.messages.push(note);
       this.countsPerType.note++;
       this.sortMessages();
-      this.gaNoteEvent(note.id, `Advisor ${this.user.uid} created note (SID: ${this.student.sid})`, 'create');
+      this.gaNoteEvent(note.id, `Advisor ${this.user.uid} created note`, 'create');
     },
     sortMessages() {
       this.messages.sort((m1, m2) => {
@@ -299,10 +299,10 @@ export default {
         message.read = true;
         if (this.includes(['alert', 'hold'], message.type)) {
           dismissStudentAlert(message.id);
-          this.gaStudentAlert(message.id, `Advisor ${this.user.uid} dismissed alert (SID: ${this.student.sid})`, 'view')
+          this.gaStudentAlert(message.id, `Advisor ${this.user.uid} dismissed alert`, 'view')
         } else if (message.type === 'note') {
           markRead(message.id);
-          this.gaNoteEvent(message.id, `Advisor ${this.user.uid} read note (SID: ${this.student.sid})`, 'view');
+          this.gaNoteEvent(message.id, `Advisor ${this.user.uid} read note`, 'view');
         }
       }
     }
