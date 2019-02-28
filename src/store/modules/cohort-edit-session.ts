@@ -21,6 +21,7 @@ const state = {
   isOwnedByCurrentUser: undefined,
   menu: undefined,
   orderBy: undefined,
+  originalFilters: undefined,
   pagination: {
     currentPage: undefined,
     itemsPerPage: 50
@@ -91,10 +92,16 @@ const mutations = {
       state.isModifiedSinceLastSearch = true;
     }
   },
+  restoreOriginalFilters: (state: any) => {
+    state.filters = _.cloneDeep(state.originalFilters);
+  },
   setCurrentPage: (state: any, currentPage: number) =>
     (state.pagination.currentPage = currentPage),
   setModifiedSinceLastSearch: (state: any, value: boolean) =>
     (state.isModifiedSinceLastSearch = value),
+  // Store an unmodified copy of the most recently applied filters in case of cancellation.
+  stashOriginalFilters: (state: any) =>
+    (state.originalFilters = _.cloneDeep(state.filters)),
   toggleCompactView: (state: any) =>
     (state.isCompactView = !state.isCompactView),
   updateMenu: (state: any, menu: any[]) => (state.menu = menu),
@@ -114,33 +121,21 @@ const actions = {
       commit('setEditMode', null);
       commit('isCompactView', !!id);
       commit('setCurrentPage', 0);
+      commit('setModifiedSinceLastSearch', null);
       store.dispatch('user/setUserPreference', {
         key: 'sortBy',
         value: 'last_name'
       });
       if (id) {
-        getCohort(id, true, orderBy).then(cohort => {
-          if (cohort) {
-            translateToMenu(cohort.filterCriteria).then(filters => {
-              commit('resetSession', {
-                cohort,
-                filters: filters,
-                students: cohort.students,
-                totalStudentCount: cohort.totalStudentCount
-              });
-              getCohortFilterOptions(filters).then(menu => {
-                commit('updateMenu', menu);
-                resolve();
-              });
-            });
-          } else {
-            router.push({ path: '/404' });
-          }
-        });
+        store.dispatch('cohortEditSession/loadCohort', {
+          id: id,
+          orderBy: orderBy
+        }).then(resolve);
       } else {
         getCohortFilterOptions([]).then(menu => {
           commit('updateMenu', menu);
           commit('resetSession', {});
+          commit('stashOriginalFilters');
           resolve();
         });
       }
@@ -172,6 +167,7 @@ const actions = {
           students: data.students,
           totalStudentCount: data.totalStudentCount
         });
+        commit('stashOriginalFilters');
         commit('setEditMode', null);
         resolve();
       });
@@ -187,10 +183,34 @@ const actions = {
             students: state.students,
             totalStudentCount: cohort.totalStudentCount
           });
+          commit('stashOriginalFilters');
           commit('setModifiedSinceLastSearch', null);
           resolve();
         }
       );
+    });
+  },
+  loadCohort: ({commit}, {id, orderBy} ) => {
+    return new Promise(resolve => {
+      getCohort(id, true, orderBy).then(cohort => {
+        if (cohort) {
+          translateToMenu(cohort.filterCriteria).then(filters => {
+            commit('resetSession', {
+              cohort,
+              filters: filters,
+              students: cohort.students,
+              totalStudentCount: cohort.totalStudentCount
+            });
+            commit('stashOriginalFilters');
+            getCohortFilterOptions(filters).then(menu => {
+              commit('updateMenu', menu);
+            });
+            resolve();
+          });
+        } else {
+          router.push({ path: '/404' });
+        }
+      });
     });
   },
   renameCohort: ({ commit, state }, name: string) => {
@@ -210,6 +230,31 @@ const actions = {
       commit('setModifiedSinceLastSearch', true);
       getCohortFilterOptions(state.filters).then(menu => {
         commit('updateMenu', menu);
+        resolve();
+      });
+    });
+  },
+  resetFiltersToLastApply: ({ commit, state }) => {
+    return new Promise(resolve => {
+      commit('restoreOriginalFilters');
+      commit('setEditMode', null);
+      commit('setModifiedSinceLastSearch', false);
+      getCohortFilterOptions(state.filters).then(menu => {
+        commit('updateMenu', menu);
+        resolve();
+      });
+    });
+  },
+  resetFiltersToSaved: ({ commit, state }, cohortId) => {
+    commit('setCurrentPage', 0);
+    commit('setModifiedSinceLastSearch', null);
+    commit('setEditMode', 'apply');
+    return new Promise(resolve => {
+      store.dispatch('cohortEditSession/loadCohort', {
+        id: cohortId,
+        orderBy: state.orderBy
+      }).then(() => {
+        commit('setEditMode', null);
         resolve();
       });
     });

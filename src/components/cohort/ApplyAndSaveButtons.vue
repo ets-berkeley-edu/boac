@@ -4,17 +4,26 @@
     <b-btn
       v-if="showApplyButton"
       id="unsaved-filter-apply"
-      class="btn-filter-draft-apply btn-primary-color-override"
+      class="btn-filter-draft btn-primary-color-override"
       variant="primary"
       aria-label="Search for students"
       :disabled="!!editMode"
       @click="apply()">
       Apply
     </b-btn>
+    <b-btn
+      v-if="showApplyButton"
+      id="unsaved-filter-reset"
+      class="btn-filter-draft"
+      aria-label="Reset filters"
+      :disabled="!!editMode"
+      @click="resetToLastApply()">
+      Reset
+    </b-btn>
     <div v-if="showSaveButton && isPerforming !== 'search'">
       <b-btn
         id="save-button"
-        class="save-button-width mt-3"
+        class="btn-filter-draft save-button-width mt-3"
         :class="{
           'btn-primary-color-override': isPerforming !== 'acknowledgeSave'
         }"
@@ -26,6 +35,15 @@
         <span v-if="isPerforming === 'save'"><i class="fas fa-spinner fa-spin"></i> Saving</span>
         <span v-if="!isPerforming && cohortId">Save Cohort</span>
         <span v-if="!isPerforming && !cohortId">Save</span>
+      </b-btn>
+      <b-btn
+        v-if="!isPerforming && cohortId"
+        id="unsaved-filter-reset"
+        class="btn-filter-draft"
+        aria-label="Reset filters"
+        :disabled="!!editMode"
+        @click="resetToSaved()">
+        Reset
       </b-btn>
       <b-modal
         id="create-cohort"
@@ -96,6 +114,18 @@ export default {
         this.isPerforming = null;
       });
     },
+    resetToLastApply() {
+      this.screenReaderAlert = 'Resetting filters';
+      this.resetFiltersToLastApply();
+    },
+    resetToSaved() {
+      this.screenReaderAlert = 'Resetting filters';
+      this.isPerforming = 'search';
+      this.resetFiltersToSaved(this.cohortId).then(() => {
+        this.screenReaderAlert = 'Filters reset';
+        this.isPerforming = null;
+      });
+    },
     save() {
       if (this.cohortId) {
         this.screenReaderAlert = `Saving changes to cohort ${this.cohortName}`;
@@ -119,7 +149,7 @@ export default {
 </script>
 
 <style scoped>
-.btn-filter-draft-apply {
+.btn-filter-draft {
   height: 40px;
   margin: 15px 8px 0 0;
   width: 80px;
