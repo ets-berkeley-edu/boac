@@ -9,12 +9,12 @@
       <span :id="`note-${note.id}-message-open`" v-html="note.message"></span>
     </div>
     <div v-if="author" class="mt-2">
-      <div>
+      <div v-if="author.name">
         <a
           :id="`note-${note.id}-author-name`"
           :aria-label="`Go to UC Berkeley Directory page of ${author.firstName} ${author.lastName}`"
-          :href="`https://www.berkeley.edu/directory/results?search-term=${getName(author)}`"
-          target="_blank">{{ getName(author) }}</a>
+          :href="`https://www.berkeley.edu/directory/results?search-term=${author.name}`"
+          target="_blank">{{ author.name }}</a>
         <span v-if="author.role">
           - <span :id="`note-${note.id}-author-role`" class="text-dark">{{ author.role }}</span>
         </span>
@@ -90,9 +90,6 @@ export default {
         }
       }
     }
-  },
-  methods:{
-    getName: user => user.name || `${user.firstName} ${user.lastName}`
   }
 }
 </script>
