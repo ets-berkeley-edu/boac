@@ -62,6 +62,7 @@ def _calnet_user_api_feed(person):
         'csid': _get('csid'),
         'firstName': _get('first_name'),
         'lastName': _get('last_name'),
+        'name': _get('name'),
         'deptCode': dept_code,
         'depts': [dept_name] if dept_name else None,
     }

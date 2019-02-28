@@ -823,8 +823,9 @@ class TestNotes:
         assert response.status_code == 200
         user = response.json
         assert user['csid'] == advisor_sid
-        assert 'deptCode' in user
-        assert 'depts' in user
+        assert user['name'] == 'Roberta Joan Anderson'
+        assert user['deptCode'] == 'QCADV'
+        assert user['depts'] == ['L&S Undergraduate Advising']
 
 
 class TestStudentPhoto:

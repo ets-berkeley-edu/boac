@@ -154,10 +154,10 @@ def create_curated_groups():
     advisor_id = AuthorizedUser.find_by_uid('6446').id
     CuratedCohort.create(advisor_id, 'My Students')
     curated_cohort = CuratedCohort.create(advisor_id, 'Cool Kids')
-    CuratedCohort.add_student(curated_cohort.id, '3456789012')  # PaulK
-    CuratedCohort.add_student(curated_cohort.id, '5678901234')  # Sandeep
-    CuratedCohort.add_student(curated_cohort.id, '11667051')    # Deborah
-    CuratedCohort.add_student(curated_cohort.id, '7890123456')  # PaulF
+    CuratedCohort.add_student(curated_cohort.id, '3456789012')
+    CuratedCohort.add_student(curated_cohort.id, '5678901234')
+    CuratedCohort.add_student(curated_cohort.id, '11667051')
+    CuratedCohort.add_student(curated_cohort.id, '7890123456')
 
     coe_advisor = AuthorizedUser.find_by_uid('1133399')
     curated_cohort = CuratedCohort.create(coe_advisor.id, 'Cohort of One')
@@ -230,11 +230,10 @@ def create_cohorts():
             'isInactiveAsc': False,
         },
     )
-    # Sandeep's cohorts
     coe_advisor_uid = '1133399'
     CohortFilter.create(
         uid=coe_advisor_uid,
-        name='Sandeep\'s Students',
+        name='Roberta\'s Students',
         filter_criteria={
             'advisorLdapUids': [coe_advisor_uid],
         },
