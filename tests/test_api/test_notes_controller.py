@@ -89,6 +89,11 @@ class TestCreateNotes:
         note_id = new_note.get('id')
         assert new_note['read'] is False
         assert isinstance(note_id, int) and note_id > 0
+        assert new_note['author']['uid'] == advisor_uid
+        assert 'name' in new_note['author']
+        assert new_note['author']['role'] == 'Advisor'
+        assert new_note['author']['depts'] == ['College of Engineering']
+        # Get notes per SID and compare
         notes = _get_notes(client, student['uid'])
         match = next((n for n in notes if n['id'] == note_id), None)
         assert match and match['subject'] == subject
@@ -108,6 +113,8 @@ class TestUpdateNotes:
         assert len(all_notes_unread) == 4
         for note in all_notes_unread:
             assert note['read'] is False
+            if note['id'] == '11667051-00001':
+                isinstance(note['author']['depts'], list)
         response = client.post('/api/notes/11667051-00001/mark_read')
         assert response.status_code == 201
 

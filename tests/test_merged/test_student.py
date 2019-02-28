@@ -73,7 +73,7 @@ class TestMergedStudent:
         assert notes[1]['attachments'] == ['photo.jpeg']
         # Non-legacy note
         assert notes[3]['id']
-        assert notes[3]['author']['id']
+        assert notes[3]['author']['uid'] == '6446'
         assert notes[3]['sid'] == '11667051'
         assert notes[3]['subject'] == 'In France they kiss on main street'
         assert 'My darling dime store thief' in notes[3]['body']

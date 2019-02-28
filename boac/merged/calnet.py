@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.externals import calnet
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.models.json_cache import stow
 
 
@@ -53,9 +54,14 @@ def get_calnet_users_for_csids(app, csids):
 def _calnet_user_api_feed(person):
     def _get(key):
         return person and person[key]
+
+    dept_code = _get('dept_code')
+    dept_name = BERKELEY_DEPT_CODE_TO_NAME.get(dept_code)
     return {
         'uid': _get('uid'),
         'csid': _get('csid'),
         'firstName': _get('first_name'),
         'lastName': _get('last_name'),
+        'deptCode': dept_code,
+        'depts': [dept_name] if dept_name else None,
     }

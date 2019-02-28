@@ -1,23 +1,38 @@
 <template>
   <div>
-    <div :class="{'truncate': !isOpen}">
+    <div :id="`note-${note.id}-message-closed`" :class="{'truncate': !isOpen}">
       <span v-if="note.subject">{{ note.subject }}</span>
       <span v-if="!note.subject && size(note.message)" v-html="note.message"></span>
       <span v-if="!note.subject && !size(note.message)">{{ note.category }}, {{ note.subcategory }}</span>
     </div>
     <div v-if="isOpen && note.subject && note.message" class="mt-2">
-      <span v-html="note.message"></span>
+      <span :id="`note-${note.id}-message-open`" v-html="note.message"></span>
     </div>
     <div v-if="author" class="mt-2">
-      <a
-        :aria-label="`Go to UC Berkeley Directory page of ${author.firstName} ${author.lastName}`"
-        :href="`https://www.berkeley.edu/directory/results?search-term=${author.firstName}%20${author.lastName}`"
-        target="_blank">{{ author.firstName }} {{ author.lastName }}</a>
+      <div>
+        <a
+          :id="`note-${note.id}-author-name`"
+          :aria-label="`Go to UC Berkeley Directory page of ${author.firstName} ${author.lastName}`"
+          :href="`https://www.berkeley.edu/directory/results?search-term=${getName(author)}`"
+          target="_blank">{{ getName(author) }}</a>
+        <span v-if="author.role">
+          - <span :id="`note-${note.id}-author-role`" class="text-dark">{{ author.role }}</span>
+        </span>
+      </div>
+      <div v-if="size(author.depts)" class="text-secondary">
+        <span v-if="note.isLegacy">(currently </span><span v-for="(dept, index) in author.depts" :key="dept">
+          <span :id="`note-${note.id}-author-dept-${index}`">{{ dept }}</span>
+        </span><span v-if="note.isLegacy">)</span>
+      </div>
     </div>
     <div v-if="size(note.topics)">
       <div class="pill-list-header mt-3 mb-1">{{ size(note.topics) === 1 ? 'Topic' : 'Topics' }}</div>
       <ul class="pill-list pl-0">
-        <li v-for="topic in note.topics" :key="topic" class="mt-2">
+        <li
+          v-for="(topic, index) in note.topics"
+          :id="`note-${note.id}-topic-${index}`"
+          :key="topic"
+          class="mt-2">
           <span class="pill text-uppercase text-nowrap">{{ topic }}</span>
         </li>
       </ul>
@@ -25,8 +40,8 @@
     <div v-if="size(note.attachments)">
       <div class="pill-list-header mt-3 mb-1">{{ size(note.attachments) === 1 ? 'Attachment' : 'Attachments' }}</div>
       <ul class="pill-list pl-0">
-        <li v-for="attachment in note.attachments" :key="attachment" class="mt-2">
-          <a href="#" class="pill text-nowrap"><i class="fas fa-paperclip"></i> {{ attachment }}</a>
+        <li v-for="(attachment, index) in note.attachments" :key="attachment" class="mt-2">
+          <a :id="`note-${note.id}-attachment-${index}`" href="#" class="pill text-nowrap"><i class="fas fa-paperclip"></i> {{ attachment }}</a>
         </li>
       </ul>
     </div>
@@ -37,7 +52,7 @@
 import store from '@/store'
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
-import { getUser } from '@/api/user';
+import { getUserByUid } from '@/api/user';
 
 export default {
   name: 'AdvisingNote',
@@ -53,24 +68,31 @@ export default {
   watch: {
     isOpen(open) {
       if (open && this.isUndefined(this.author)) {
-        const user_id = this.note.author.id;
-        if (user_id) {
-          if (user_id === this.user.id) {
-            this.author = this.user;
-          } else {
-            getUser(user_id).then(data => {
+        if (this.note.author.name) {
+          this.author = this.note.author;
+        } else {
+          const author_uid = this.note.author.uid;
+          if (author_uid) {
+            if (author_uid === this.user.uid) {
+              this.author = this.user;
+            } else {
+              getUserByUid(author_uid).then(data => {
+                this.author = data;
+              });
+            }
+          } else if (this.note.author.sid) {
+            store.dispatch('user/loadCalnetUserByCsid', this.note.author.sid).then(data => {
               this.author = data;
             });
+          } else {
+            this.author = null;
           }
-        } else if (this.note.author.sid) {
-          store.dispatch('user/loadCalnetUserByCsid', this.note.author.sid).then(data => {
-            this.author = data;
-          });
-        } else {
-          this.author = null;
         }
       }
     }
+  },
+  methods:{
+    getName: user => user.name || `${user.firstName} ${user.lastName}`
   }
 }
 </script>

@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 import os
 import ssl
 
@@ -34,6 +33,7 @@ SCHEMA_DICT = {
     'berkeleyEduAffiliations': 'affiliations',
     'berkeleyEduCSID': 'csid',
     'berkeleyEduOfficialEmail': 'campus_email',
+    'departmentNumber': 'dept_code',
     'cn': 'sortable_name',
     'displayName': 'name',
     'mail': 'email',

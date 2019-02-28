@@ -28,7 +28,7 @@ import json
 
 from boac.api.errors import ResourceNotFoundError
 from boac.externals.data_loch import get_sis_holds
-from boac.lib.berkeley import get_dept_codes
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, get_dept_codes
 from boac.merged import calnet
 from boac.merged.student import get_advising_notes
 from boac.models.alert import Alert
@@ -111,6 +111,44 @@ def canvas_courses_api_feed(courses):
     if not courses:
         return []
     return [canvas_course_api_feed(course) for course in courses]
+
+
+def current_user_profile(exclude_cohorts=False):
+    profile = get_current_user_status()
+    if current_user.is_authenticated:
+        profile['id'] = current_user.id
+        uid = current_user.get_id()
+        profile.update(calnet.get_calnet_user_for_uid(app, uid))
+        if current_user.is_active:
+            departments = {}
+            for m in current_user.department_memberships:
+                dept_code = m.university_dept.dept_code
+                departments.update({
+                    dept_code: {
+                        'deptName': BERKELEY_DEPT_CODE_TO_NAME[dept_code],
+                        'role': get_dept_role(m),
+                        'isAdvisor': m.is_advisor,
+                        'isDirector': m.is_director,
+                    },
+                })
+            dept_codes = get_dept_codes(current_user)
+            profile['isAsc'] = 'UWASC' in dept_codes
+            profile['isCoe'] = 'COENG' in dept_codes
+            if not exclude_cohorts:
+                profile.update({
+                    'myFilteredCohorts': get_my_cohorts(),
+                    'myCuratedCohorts': get_my_curated_groups(),
+                })
+            profile.update({
+                'isAdmin': current_user.is_admin,
+                'inDemoMode': current_user.in_demo_mode if hasattr(current_user, 'in_demo_mode') else False,
+                'departments': departments,
+            })
+    return profile
+
+
+def get_dept_role(department_membership):
+    return 'Director' if department_membership.is_director else ('Advisor' if department_membership.is_advisor else None)
 
 
 def sis_enrollment_class_feed(enrollment):

@@ -22,10 +22,10 @@ export function getUserByCsid(csid) {
     .then(response => response.data, () => null);
 }
 
-export function getUser(id) {
+export function getUserByUid(uid) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${apiBaseUrl}/api/user/${id}`)
+    .get(`${apiBaseUrl}/api/user/by_uid/${uid}`)
     .then(response => response.data, () => null);
 }
 

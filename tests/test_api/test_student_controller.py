@@ -779,6 +779,54 @@ class TestAlerts:
         assert not alerts[2]['dismissed']
 
 
+class TestNotes:
+    """Advising Notes API."""
+
+    def test_advising_note(self, client, fake_auth):
+        """Returns a BOAC-created note."""
+        coe_advisor_uid = '1133399'
+        fake_auth.login(coe_advisor_uid)
+        response = client.get('/api/student/61889')
+        assert response.status_code == 200
+        notes = response.json.get('notifications', {}).get('note')
+        assert len(notes)
+        note = next((n for n in notes if n.get('subject') == 'In France they kiss on main street'), None)
+        assert len(note)
+        assert 'My darling dime store thief' in note['message']
+        author = note['author']
+        assert author['name'] == 'Joni Mitchell'
+        assert author['role'] == 'Director'
+        assert author['depts'][0] == 'Athletic Study Center'
+        # This note was not authored by coe_advisor_uid
+        assert author['uid'] == '6446'
+
+    def test_legacy_advising_note(self, client, fake_auth):
+        """Returns a legacy note."""
+        coe_advisor_uid = '1133399'
+        fake_auth.login(coe_advisor_uid)
+        response = client.get('/api/student/61889')
+        assert response.status_code == 200
+        notes = response.json.get('notifications', {}).get('note')
+        assert len(notes)
+        note = next((n for n in notes if n.get('id') == '11667051-00001'), None)
+        assert len(note)
+        assert note['isLegacy'] is True
+        assert 'Brigitte is making athletic and moral progress' == note['message']
+        author = note['author']
+        assert not author['name']
+        assert not author['role']
+        assert not len(author['depts'])
+        advisor_sid = '800700600'
+        assert author['sid'] == advisor_sid
+        # Lazy-load author info, as performed on front-end
+        response = client.get(f'/api/user/by_csid/{advisor_sid}')
+        assert response.status_code == 200
+        user = response.json
+        assert user['csid'] == advisor_sid
+        assert 'deptCode' in user
+        assert 'depts' in user
+
+
 class TestStudentPhoto:
     """User Photo API."""
 

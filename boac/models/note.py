@@ -25,26 +25,33 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import db, std_commit
 from boac.models.base import Base
+from sqlalchemy.dialects.postgresql import ARRAY
 
 
 class Note(Base):
     __tablename__ = 'notes'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
-    author_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
-    sid = db.Column('sid', db.String(80), nullable=False)
+    author_uid = db.Column(db.String(255), nullable=False)
+    author_name = db.Column(db.String(255), nullable=False)
+    author_role = db.Column(db.String(255), nullable=False)
+    author_dept_codes = db.Column(ARRAY(db.String), nullable=False)
+    sid = db.Column(db.String(80), nullable=False)
     subject = db.Column(db.String(255), nullable=False)
     body = db.Column(db.Text, nullable=False)
 
-    def __init__(self, author_id, sid, subject, body):
-        self.author_id = author_id
+    def __init__(self, author_uid, author_name, author_role, author_dept_codes, sid, subject, body):
+        self.author_uid = author_uid
+        self.author_name = author_name
+        self.author_role = author_role
+        self.author_dept_codes = author_dept_codes
         self.sid = sid
         self.subject = subject
         self.body = body
 
     @classmethod
-    def create(cls, author_id, sid, subject, body):
-        note = cls(author_id, sid, subject, body)
+    def create(cls, author_uid, author_name, author_role, author_dept_codes, sid, subject, body):
+        note = cls(author_uid, author_name, author_role, author_dept_codes, sid, subject, body)
         db.session.add(note)
         std_commit()
         return note
@@ -56,7 +63,10 @@ class Note(Base):
     def to_api_json(self):
         return {
             'id': self.id,
-            'authorId': self.author_id,
+            'authorUid': self.author_uid,
+            'authorName': self.author_name,
+            'authorRole': self.author_role,
+            'authorDeptCodes': self.author_dept_codes,
             'sid': self.sid,
             'subject': self.subject,
             'body': self.body,

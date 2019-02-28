@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 import re
 
 from flask import current_app as app
@@ -182,7 +181,10 @@ BERKELEY_DEPT_NAME_TO_CODE = {
     'Athletic Study Center': 'UWASC',
     'College of Engineering': 'COENG',
     'Department of Physics': 'PHYSI',
+    'L&S Undergraduate Advising': 'QCADV',
 }
+
+BERKELEY_DEPT_CODE_TO_NAME = {value: key for key, value in BERKELEY_DEPT_NAME_TO_CODE.items()}
 
 
 def current_term_id():
