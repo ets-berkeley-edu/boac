@@ -29,7 +29,7 @@ import operator
 
 from boac.externals import data_loch
 from boac.lib import analytics
-from boac.lib.berkeley import current_term_id, term_name_for_sis_id
+from boac.lib.berkeley import current_term_id, future_term_id, term_name_for_sis_id
 from flask_login import current_user
 
 
@@ -208,7 +208,7 @@ def get_student_and_terms(uid):
     sis_profile = profile.get('sisProfile', None)
     if sis_profile and 'level' in sis_profile:
         sis_profile['level']['description'] = _get_sis_level_description(sis_profile)
-    enrollments_for_sid = data_loch.get_enrollments_for_sid(student['sid'], latest_term_id=current_term_id())
+    enrollments_for_sid = data_loch.get_enrollments_for_sid(student['sid'], latest_term_id=future_term_id())
     profile['enrollmentTerms'] = [json.loads(row['enrollment_term']) for row in enrollments_for_sid]
     profile['hasCurrentTermEnrollments'] = False
     for term in profile['enrollmentTerms']:
