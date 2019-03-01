@@ -485,23 +485,26 @@ class TestStudent:
 
     def test_user_analytics_multiple_terms(self, authenticated_response):
         """Returns all terms with enrollment data in reverse order."""
-        assert len(authenticated_response.json['enrollmentTerms']) == 2
-        assert authenticated_response.json['enrollmentTerms'][0]['termName'] == 'Fall 2017'
-        assert authenticated_response.json['enrollmentTerms'][0]['enrolledUnits'] == 12.5
-        assert len(authenticated_response.json['enrollmentTerms'][0]['enrollments']) == 5
-        assert authenticated_response.json['enrollmentTerms'][1]['termName'] == 'Spring 2017'
-        assert authenticated_response.json['enrollmentTerms'][1]['enrolledUnits'] == 10
-        assert len(authenticated_response.json['enrollmentTerms'][1]['enrollments']) == 3
+        assert len(authenticated_response.json['enrollmentTerms']) == 3
+        assert authenticated_response.json['enrollmentTerms'][0]['termName'] == 'Spring 2018'
+        assert authenticated_response.json['enrollmentTerms'][0]['enrolledUnits'] == 3
+        assert len(authenticated_response.json['enrollmentTerms'][0]['enrollments']) == 1
+        assert authenticated_response.json['enrollmentTerms'][1]['termName'] == 'Fall 2017'
+        assert authenticated_response.json['enrollmentTerms'][1]['enrolledUnits'] == 12.5
+        assert len(authenticated_response.json['enrollmentTerms'][1]['enrollments']) == 5
+        assert authenticated_response.json['enrollmentTerms'][2]['termName'] == 'Spring 2017'
+        assert authenticated_response.json['enrollmentTerms'][2]['enrolledUnits'] == 10
+        assert len(authenticated_response.json['enrollmentTerms'][2]['enrollments']) == 3
 
     def test_user_analytics_earliest_term_cutoff(self, authenticated_response):
         """Ignores terms before the configured earliest term."""
         for term in authenticated_response.json['enrollmentTerms']:
             assert term['termName'] != 'Spring 2016'
 
-    def test_user_analytics_current_term_cutoff(self, authenticated_response):
-        """Ignores terms after the configured current term."""
+    def test_user_analytics_future_term_cutoff(self, authenticated_response):
+        """Ignores terms after the configured future term."""
         for term in authenticated_response.json['enrollmentTerms']:
-            assert term['termName'] != 'Spring 2018'
+            assert term['termName'] != 'Summer 2018'
 
     def test_enrollment_without_course_site(self, authenticated_response):
         """Returns enrollments with no associated course sites."""
@@ -539,7 +542,7 @@ class TestStudent:
 
     def test_enrollments_sorted(self, authenticated_response):
         """Sorts enrollments by course display name."""
-        spring_2017_enrollments = authenticated_response.json['enrollmentTerms'][1]['enrollments']
+        spring_2017_enrollments = authenticated_response.json['enrollmentTerms'][2]['enrollments']
         assert(spring_2017_enrollments[0]['displayName'] == 'CLASSIC 130 LEC 001')
         assert(spring_2017_enrollments[1]['displayName'] == 'CLASSIC 130 LEC 002')
         assert(spring_2017_enrollments[2]['displayName'] == 'MUSIC 41C')
@@ -547,8 +550,9 @@ class TestStudent:
     def test_course_site_without_enrollment(self, authenticated_response):
         """Returns course sites with no associated enrollments."""
         assert len(authenticated_response.json['enrollmentTerms'][0]['unmatchedCanvasSites']) == 0
-        assert len(authenticated_response.json['enrollmentTerms'][1]['unmatchedCanvasSites']) == 1
-        unmatched_site = authenticated_response.json['enrollmentTerms'][1]['unmatchedCanvasSites'][0]
+        assert len(authenticated_response.json['enrollmentTerms'][1]['unmatchedCanvasSites']) == 0
+        assert len(authenticated_response.json['enrollmentTerms'][2]['unmatchedCanvasSites']) == 1
+        unmatched_site = authenticated_response.json['enrollmentTerms'][2]['unmatchedCanvasSites'][0]
         assert unmatched_site['courseCode'] == 'STAT 154'
         assert unmatched_site['courseName'] == 'Modern Statistical Prediction and Machine Learning'
         assert unmatched_site['analytics']
@@ -655,7 +659,7 @@ class TestStudent:
 
     def test_dropped_sections(self, authenticated_response):
         """Collects dropped sections in a separate feed."""
-        dropped_sections = authenticated_response.json['enrollmentTerms'][0]['droppedSections']
+        dropped_sections = authenticated_response.json['enrollmentTerms'][1]['droppedSections']
         assert len(dropped_sections) == 1
         assert dropped_sections[0]['displayName'] == 'MUSIC 41C'
         assert dropped_sections[0]['component'] == 'TUT'

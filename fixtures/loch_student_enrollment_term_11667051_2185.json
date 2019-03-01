@@ -1,0 +1,34 @@
+{
+  "analytics": {
+      "assignmentsSubmitted": null,
+      "currentScore": null,
+      "lastActivity": null
+  },
+  "enrolledUnits": 2,
+  "enrollments": [
+      {
+          "canvasSites": [],
+          "displayName": "MEC ENG 109",
+          "grade": "EPN",
+          "gradingBasis": "LTR",
+          "sections": [
+              {
+                  "canvasCourseIds": [],
+                  "ccn": 14690,
+                  "component": "LEC",
+                  "enrollmentStatus": "E",
+                  "grade": "EPN",
+                  "gradingBasis": "LTR",
+                  "primary": true,
+                  "sectionNumber": "001",
+                  "units": "E"
+              }
+          ],
+          "title": "Heat Transfer",
+          "units": 2
+      }
+  ],
+  "termId": "2185",
+  "termName": "Summer 2018",
+  "unmatchedCanvasSites": []
+}

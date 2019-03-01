@@ -260,6 +260,11 @@ def current_term_id():
     return sis_term_id_for_name(term_name)
 
 
+def future_term_id():
+    term_name = app.config['CANVAS_FUTURE_ENROLLMENT_TERM']
+    return sis_term_id_for_name(term_name)
+
+
 def all_term_ids():
     """Return SIS IDs of each term covered by BOAC, from current to oldest."""
     earliest_term_id = int(sis_term_id_for_name(app.config['CANVAS_EARLIEST_TERM']))
