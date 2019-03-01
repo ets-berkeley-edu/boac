@@ -87,9 +87,9 @@ def search_advising_notes(
     )
     if not sids_result:
         return []
-    rows_by_sid = {row['sid']: row for row in sids_result}
-    sid_filter = '{' + ','.join(rows_by_sid.keys()) + '}'
 
+    student_rows_by_sid = {row['sid']: row for row in sids_result}
+    sid_filter = '{' + ','.join(student_rows_by_sid.keys()) + '}'
     search_terms = [t for t in re.split(r'\W+', search_phrase) if t]
 
     notes_results = data_loch.search_advising_notes(
@@ -100,18 +100,19 @@ def search_advising_notes(
     calnet_advisor_feeds = get_calnet_users_for_csids(app, [row.get('advisor_sid') for row in notes_results])
 
     def _notes_result_to_json(row):
-        rds_row = rows_by_sid[row.get('sid')]
-        advisor_feed = calnet_advisor_feeds.get(row.get('advisor_sid'))
+        note = {camelize(key): row[key] for key in row.keys()}
+        student_row = student_rows_by_sid[note.get('sid')]
+        advisor_feed = calnet_advisor_feeds.get(note.get('advisorSid'))
         return {
-            'studentSid': row.get('sid'),
-            'studentUid': rds_row.get('uid'),
-            'studentName': ' '.join([rds_row.get('first_name'), rds_row.get('last_name')]),
-            'advisorSid': row.get('advisor_sid'),
+            'studentSid': note.get('sid'),
+            'studentUid': student_row.get('uid'),
+            'studentName': ' '.join([student_row.get('first_name'), student_row.get('last_name')]),
+            'advisorSid': note.get('advisorSid'),
             'advisorName': ' '.join([advisor_feed.get('firstName'), advisor_feed.get('lastName')]) if advisor_feed else None,
-            'noteId': row.get('id'),
-            'noteSnippet': notes_text_snippet(row.get('note_body'), search_terms),
-            'createdAt': _stringify_note_timestamp(row.get('created_at')),
-            'updatedAt': _stringify_note_timestamp(row.get('updated_at')),
+            'noteId': note.get('id'),
+            'noteSnippet': notes_text_snippet(note.get('noteBody'), search_terms),
+            'createdAt': _resolve_created_at(note),
+            'updatedAt': _resolve_updated_at(note),
         }
     return [_notes_result_to_json(row) for row in notes_results]
 
@@ -119,6 +120,7 @@ def search_advising_notes(
 def note_to_compatible_json(note, topics=None, attachments=None):
     # We have legacy notes and notes created via BOA. The following sets a standard for the front-end.
     dept_codes = note.get('deptCode') if 'deptCode' in note else note.get('authorDeptCodes') or []
+
     return {
         'id': note.get('id'),
         'sid': note.get('sid'),
@@ -136,17 +138,32 @@ def note_to_compatible_json(note, topics=None, attachments=None):
         'subcategory': note.get('noteSubcategory'),
         'appointmentId': note.get('appointmentId'),
         'createdBy': note.get('createdBy'),
-        'createdAt': _stringify_note_timestamp(note.get('createdAt')),
+        'createdAt': _resolve_created_at(note),
         'updatedBy': note.get('updated_by'),
-        'updatedAt': _stringify_note_timestamp(note.get('updatedAt')),
+        'updatedAt': _resolve_updated_at(note),
         'read': False,
         'topics': topics,
         'attachments': attachments,
     }
 
 
-def _stringify_note_timestamp(dt):
-    return dt.astimezone(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+def _resolve_created_at(note):
+    # Notes converted from pre-CS legacy systems have no time-of-day precision.
+    return _stringify_note_timestamp(note.get('createdAt'), date_only=(note.get('createdBy') == 'UCBCONVERSION'))
+
+
+def _resolve_updated_at(note):
+    # Notes converted from pre-CS legacy systems have an updated_at value indicating (probably)
+    # time of conversion rather than an update by a human.
+    if note.get('createdBy') == 'UCBCONVERSION':
+        return None
+    else:
+        return _stringify_note_timestamp(note.get('updatedAt'))
+
+
+def _stringify_note_timestamp(dt, date_only=False):
+    ts_format = '%Y-%m-%d' if date_only else '%Y-%m-%d %H:%M:%S'
+    return dt.astimezone(timezone.utc).strftime(ts_format)
 
 
 def _get_advising_note_topics(sid):

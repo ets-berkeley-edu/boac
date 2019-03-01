@@ -17,9 +17,10 @@
       v-html="note.noteSnippet">
     </div>
     <div class="advising-note-search-result-footer">
-      <span :id="`advising-note-search-result-advisor-${note.id}`">{{ note.advisorName }}</span>
-      <span v-if="note.advisorName">-</span>
-      <span :id="`advising-note-search-result-advisor-${note.id}`">{{ note.lastModified }}</span>
+      <span v-if="note.advisorName" :id="`advising-note-search-result-advisor-${note.id}`">
+        {{ note.advisorName }} -
+      </span>
+      {{ note.lastModified }}
     </div>
   </div>
 </template>
@@ -35,8 +36,9 @@ export default {
     note: Object,
   },
   created() {
-    if (this.get(this.note, 'updatedAt')) {
-      const d = parseDate(this.note.updatedAt);
+    const timestamp = this.get(this.note, 'updatedAt') || this.get(this.note, 'createdAt')
+    if (timestamp) {
+      const d = parseDate(timestamp);
       this.note.lastModified = formatDate(d, 'MMM DD, YYYY');
     }
   }

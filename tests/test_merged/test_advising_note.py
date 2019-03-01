@@ -80,6 +80,16 @@ class TestMergedAdvisingNote:
         assert notes[3]['topics'] is None
         assert notes[3]['attachments'] is None
 
+    def test_get_advising_notes_timestamp_format(self, app, fake_auth):
+        fake_auth.login(coe_advisor)
+        notes = get_advising_notes('9000000000')
+        ucbconversion_note = notes[0]
+        cs_note = notes[1]
+        assert ucbconversion_note['createdAt'] == '2017-11-02'
+        assert ucbconversion_note['updatedAt'] is None
+        assert cs_note['createdAt'] == '2017-11-02 12:00:00'
+        assert cs_note['updatedAt'] == '2017-11-02 13:00:00'
+
     def test_search_advising_notes(self, app, fake_auth):
         fake_auth.login(coe_advisor)
         notes = search_advising_notes(search_phrase='herostratus')
@@ -93,7 +103,7 @@ class TestMergedAdvisingNote:
         assert notes[0]['advisorSid'] == '600500400'
         assert notes[0]['noteId'] == '11667051-00003'
         assert notes[0]['createdAt'] == '2017-11-05 12:00:00'
-        assert notes[0]['updatedAt'] == '2017-11-05 12:00:00'
+        assert notes[0]['updatedAt'] == '2017-11-06 12:00:00'
 
     def test_search_advising_notes_stemming(self, app, fake_auth):
         fake_auth.login(coe_advisor)
@@ -133,3 +143,13 @@ class TestMergedAdvisingNote:
         response = search_advising_notes(search_phrase='horse; <- epitaph? ->')
         assert len(response) == 1
         assert 'Time hath spared the <strong>Epitaph</strong> of Adrians <strong>horse</strong>' in response[0]['noteSnippet']
+
+    def test_search_advising_notes_timestamp_format(self, app, fake_auth):
+        fake_auth.login(coe_advisor)
+        response = search_advising_notes(search_phrase='confound')
+        ucbconversion_note = response[0]
+        cs_note = response[1]
+        assert ucbconversion_note['createdAt'] == '2017-11-02'
+        assert ucbconversion_note['updatedAt'] is None
+        assert cs_note['createdAt'] == '2017-11-05 12:00:00'
+        assert cs_note['updatedAt'] == '2017-11-06 12:00:00'

@@ -111,7 +111,7 @@
                   <TimelineDate
                     :id="`${message.type}-${message.id}-created-at`"
                     :date="message.createdAt"
-                    :include-time-of-day="true"
+                    :include-time-of-day="message.createdAt.length > 10"
                     sr-prefix="Last updated on" />
                 </div>
                 <div v-if="displayUpdatedAt(message)">
@@ -119,7 +119,7 @@
                   <TimelineDate
                     :id="`${message.type}-${message.id}-updated-at`"
                     :date="message.updatedAt"
-                    :include-time-of-day="true"
+                    :include-time-of-day="message.updatedAt.length > 10"
                     class="mb-2"
                     sr-prefix="Last updated on" />
                 </div>
