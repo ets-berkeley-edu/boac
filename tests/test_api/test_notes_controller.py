@@ -59,6 +59,20 @@ class TestCreateNotes:
             expected_status_code=401,
         )
 
+    def test_admin_user_is_not_authorized(self, client, fake_auth):
+        """Returns 401 if user is an admin."""
+        admin_uid = '2040'
+        fake_auth.login(admin_uid)
+        admin = AuthorizedUser.find_by_uid(admin_uid)
+        assert self._api_note_create(
+            client,
+            author_id=admin.id,
+            sid=student['sid'],
+            subject='Rusholme Ruffians',
+            body='This is the last night of the fair, And the grease in the hair',
+            expected_status_code=403,
+        )
+
     def test_feature_flag_false(self, app, client, fake_auth):
         """Returns 404 if feature flag is false."""
         app.config['FEATURE_FLAG_CREATE_NOTES'] = False
