@@ -34,7 +34,7 @@
           </div>
         </div>
       </div>
-      <div v-if="featureFlagCreateNotes">
+      <div v-if="featureFlagCreateNotes && !user.isAdmin">
         <NewNoteModal :student="student" :on-successful-create="onCreateAdvisingNote" />
       </div>
     </div>
@@ -100,7 +100,7 @@
               class="pt-2 pr-2 text-nowrap">
               <div v-if="!includes(openMessages, message.transientId) || message.type !== 'note'">
                 <TimelineDate
-                  :id="`${message.type}-${message.id}-created-at`"
+                  :id="`collapsed-${message.type}-${message.id}-created-at`"
                   :date="message.updatedAt || message.createdAt"
                   :include-time-of-day="false"
                   sr-prefix="Last updated on" />
@@ -109,7 +109,7 @@
                 <div v-if="message.createdAt" :class="{'mb-2': !displayUpdatedAt(message)}">
                   <div class="text-muted">Created:</div>
                   <TimelineDate
-                    :id="`${message.type}-${message.id}-created-at`"
+                    :id="`expanded-${message.type}-${message.id}-created-at`"
                     :date="message.createdAt"
                     :include-time-of-day="message.createdAt.length > 10"
                     sr-prefix="Last updated on" />
@@ -117,7 +117,7 @@
                 <div v-if="displayUpdatedAt(message)">
                   <div class="mt-2 text-muted">Updated:</div>
                   <TimelineDate
-                    :id="`${message.type}-${message.id}-updated-at`"
+                    :id="`expanded-${message.type}-${message.id}-updated-at`"
                     :date="message.updatedAt"
                     :include-time-of-day="message.updatedAt.length > 10"
                     class="mb-2"

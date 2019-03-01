@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.errors import BadRequestError
+from boac.api.errors import BadRequestError, ForbiddenRequestError
 from boac.api.util import current_user_profile, feature_flag_create_notes, get_dept_codes, get_dept_role
 from boac.lib.http import tolerant_jsonify
 from boac.merged.advising_note import note_to_compatible_json
@@ -52,13 +52,12 @@ def create_note():
     body = params.get('body', None)
     if not sid or not subject or not body:
         raise BadRequestError('Note creation requires \'subject\', \'body\', and \'sid\'')
-    profile = current_user_profile()
     dept_codes = get_dept_codes(current_user)
-    if len(dept_codes):
-        # TODO: We capture one 'role' and yet user could have multiple, one per dept.
-        role = get_dept_role(current_user.department_memberships[0])
-    else:
-        role = 'BOAC Admin User' if current_user.is_admin else None
+    if current_user.is_admin or not len(dept_codes):
+        raise ForbiddenRequestError('Sorry, Admin users cannot create advising notes')
+    profile = current_user_profile()
+    # TODO: We capture one 'role' and yet user could have multiple, one per dept.
+    role = get_dept_role(current_user.department_memberships[0])
     note = Note.create(
         author_uid=current_user.uid,
         author_name=_get_name(profile),
