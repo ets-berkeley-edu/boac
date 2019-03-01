@@ -55,8 +55,12 @@ def _calnet_user_api_feed(person):
     def _get(key):
         return person and person[key]
 
+    dept_names = None
     dept_code = _get('dept_code')
-    dept_name = BERKELEY_DEPT_CODE_TO_NAME.get(dept_code)
+    if isinstance(dept_code, list):
+        dept_names = [BERKELEY_DEPT_CODE_TO_NAME.get(code) for code in dept_code]
+    elif dept_code:
+        dept_names = [BERKELEY_DEPT_CODE_TO_NAME.get(dept_code)]
     return {
         'uid': _get('uid'),
         'csid': _get('csid'),
@@ -64,5 +68,5 @@ def _calnet_user_api_feed(person):
         'lastName': _get('last_name'),
         'name': _get('name'),
         'deptCode': dept_code,
-        'depts': [dept_name] if dept_name else None,
+        'depts': dept_names,
     }
