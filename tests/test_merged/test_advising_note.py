@@ -23,9 +23,11 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.merged.advising_note import get_advising_notes, search_advising_notes
+from boac.merged.advising_note import get_advising_notes, get_attachment_stream, search_advising_notes
+from tests.util import mock_advising_note_attachment
 
 
+asc_advisor = '6446'
 coe_advisor = '1133399'
 
 
@@ -49,7 +51,7 @@ class TestMergedAdvisingNote:
         assert notes[0]['updatedAt'] == '2017-10-31 12:00:00'
         assert notes[0]['read'] is False
         assert notes[0]['topics'] == ['Good show']
-        assert notes[0]['attachments'] == ['form.pdf']
+        assert notes[0]['attachments'] == ['11667051-00001_form.pdf']
         assert notes[1]['id'] == '11667051-00002'
         assert notes[1]['sid'] == '11667051'
         assert notes[1]['body'] == 'Brigitte demonstrates a cavalier attitude toward university requirements'
@@ -62,7 +64,7 @@ class TestMergedAdvisingNote:
         assert notes[1]['updatedAt'] == '2017-11-01 12:00:00'
         assert notes[1]['read'] is False
         assert notes[1]['topics'] == ['Bad show', 'Show off']
-        assert notes[1]['attachments'] == ['photo.jpeg']
+        assert notes[1]['attachments'] == ['11667051-00002_photo.jpeg']
         # Non-legacy note
         assert notes[3]['id']
         assert notes[3]['author']['uid'] == '6446'
@@ -153,3 +155,32 @@ class TestMergedAdvisingNote:
         assert ucbconversion_note['updatedAt'] is None
         assert cs_note['createdAt'] == '2017-11-05 12:00:00'
         assert cs_note['updatedAt'] == '2017-11-06 12:00:00'
+
+    def test_stream_attachment(self, app, fake_auth):
+        with mock_advising_note_attachment(app):
+            fake_auth.login(coe_advisor)
+            stream = get_attachment_stream('9000000000-00002_dog_eaten_homework.pdf')
+            body = b''
+            for chunk in stream:
+                body += chunk
+            assert body == b'When in the course of human events, it becomes necessarf arf woof woof woof'
+
+    def test_stream_attachment_respects_scope_constraints(self, app, fake_auth):
+        with mock_advising_note_attachment(app):
+            fake_auth.login(asc_advisor)
+            assert get_attachment_stream('9000000000-00002_dog_eaten_homework.pdf') is None
+
+    def test_stream_attachment_handles_malformed_filename(self, app):
+        with mock_advising_note_attachment(app):
+            assert get_attachment_stream('h0ax.lol') is None
+
+    def test_stream_attachment_handles_file_not_in_database(self, app, fake_auth, caplog):
+        with mock_advising_note_attachment(app):
+            fake_auth.login(coe_advisor)
+            assert get_attachment_stream('11667051-00002_dog_eaten_homework.pdf') is None
+
+    def test_stream_attachment_handles_file_not_in_s3(self, app, fake_auth, caplog):
+        with mock_advising_note_attachment(app):
+            fake_auth.login(coe_advisor)
+            assert get_attachment_stream('11667051-00001_form.pdf') is None
+            assert "the s3 key 'attachment-path/11667051/11667051-00001_form.pdf' does not exist, or is forbidden" in caplog.text

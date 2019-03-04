@@ -23,27 +23,27 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from contextlib import contextmanager
 
-import boto3
-import moto
-
-
-@contextmanager
-def mock_advising_note_attachment(app):
-    with moto.mock_s3():
-        bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
-        key = f"{app.config['DATA_LOCH_S3_ADVISING_NOTE_ATTACHMENT_PATH']}/9000000000/9000000000-00002_dog_eaten_homework.pdf"
-        s3 = boto3.resource('s3', app.config['DATA_LOCH_S3_REGION'])
-        s3.create_bucket(Bucket=bucket)
-        s3.Object(bucket, key).put(Body='When in the course of human events, it becomes necessarf arf woof woof woof')
-        yield s3
+from flask import current_app as app
+import smart_open
 
 
-@contextmanager
-def override_config(app, key, value):
-    """Temporarily override an app config value."""
-    old_value = app.config[key]
-    app.config[key] = value
-    yield
-    app.config[key] = old_value
+"""Client code to run file operations against S3."""
+
+
+def build_s3_url(bucket, key, credentials=True):
+    if credentials:
+        credentials = ':'.join([app.config['AWS_ACCESS_KEY_ID'], app.config['AWS_SECRET_ACCESS_KEY']])
+        return f's3://{credentials}@{bucket}/{key}'
+    else:
+        return f's3://{bucket}/{key}'
+
+
+def stream_object(bucket, key):
+    s3_url = build_s3_url(bucket, key)
+    try:
+        return smart_open.smart_open(s3_url, 'rb')
+    except Exception as e:
+        app.logger.error(f'S3 stream operation failed (bucket={bucket}, key={key})')
+        app.logger.exception(e)
+        return None

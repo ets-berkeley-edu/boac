@@ -25,8 +25,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.models.authorized_user import AuthorizedUser
 import simplejson as json
+from tests.util import mock_advising_note_attachment
 
-advisor_uid = '1133399'
+asc_advisor_uid = '6446'
+coe_advisor_uid = '1133399'
+
 student = {
     'sid': '11667051',
     'uid': '61889',
@@ -49,7 +52,7 @@ class TestCreateNotes:
 
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        advisor = AuthorizedUser.find_by_uid(advisor_uid)
+        advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
         assert self._api_note_create(
             client,
             author_id=advisor.id,
@@ -76,8 +79,8 @@ class TestCreateNotes:
     def test_feature_flag_false(self, app, client, fake_auth):
         """Returns 404 if feature flag is false."""
         app.config['FEATURE_FLAG_CREATE_NOTES'] = False
-        fake_auth.login(advisor_uid)
-        advisor = AuthorizedUser.find_by_uid(advisor_uid)
+        fake_auth.login(coe_advisor_uid)
+        advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
         assert self._api_note_create(
             client,
             author_id=advisor.id,
@@ -90,8 +93,8 @@ class TestCreateNotes:
     def test_create_note(self, app, client, fake_auth):
         """Marks a note as read."""
         app.config['FEATURE_FLAG_CREATE_NOTES'] = True
-        fake_auth.login(advisor_uid)
-        advisor = AuthorizedUser.find_by_uid(advisor_uid)
+        fake_auth.login(coe_advisor_uid)
+        advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
         subject = 'Vicar in a Tutu'
         new_note = self._api_note_create(
             client,
@@ -103,7 +106,7 @@ class TestCreateNotes:
         note_id = new_note.get('id')
         assert new_note['read'] is False
         assert isinstance(note_id, int) and note_id > 0
-        assert new_note['author']['uid'] == advisor_uid
+        assert new_note['author']['uid'] == coe_advisor_uid
         assert 'name' in new_note['author']
         assert new_note['author']['role'] == 'Advisor'
         assert new_note['author']['depts'] == ['College of Engineering']
@@ -122,7 +125,7 @@ class TestUpdateNotes:
     def test_mark_note_read(self, app, client, fake_auth):
         """Marks a note as read, ignoring FEATURE_FLAG_CREATE_NOTES."""
         app.config['FEATURE_FLAG_CREATE_NOTES'] = False
-        fake_auth.login(advisor_uid)
+        fake_auth.login(coe_advisor_uid)
         all_notes_unread = _get_notes(client, 61889)
         assert len(all_notes_unread) == 4
         for note in all_notes_unread:
@@ -144,6 +147,34 @@ class TestUpdateNotes:
         assert all_notes_one_read[1]['read'] is False
         assert all_notes_one_read[3]['id'] == non_legacy_note_id
         assert all_notes_one_read[3]['read'] is True
+
+
+class TestStreamNoteAttachments:
+
+    def test_not_authenticated(self, client):
+        """Returns 401 if not authenticated."""
+        assert client.get('/api/notes/attachment/9000000000-00002_dog_eaten_homework.pdf').status_code == 401
+
+    def test_stream_attachment(self, app, client, fake_auth):
+        with mock_advising_note_attachment(app):
+            fake_auth.login(coe_advisor_uid)
+            response = client.get('/api/notes/attachment/9000000000-00002_dog_eaten_homework.pdf')
+            assert response.status_code == 200
+            assert response.headers['Content-Type'] == 'application/octet-stream'
+            assert response.headers['Content-Disposition'] == 'attachment; filename=9000000000-00002_dog_eaten_homework.pdf'
+            assert response.data == b'When in the course of human events, it becomes necessarf arf woof woof woof'
+
+    def test_stream_attachment_reports_unauthorized_files_not_found(self, app, client, fake_auth):
+        with mock_advising_note_attachment(app):
+            fake_auth.login(asc_advisor_uid)
+            response = client.get('/api/notes/attachment/9000000000-00002_dog_eaten_homework.pdf')
+            assert response.status_code == 404
+
+    def test_stream_attachment_reports_missing_files_not_found(self, app, client, fake_auth):
+        with mock_advising_note_attachment(app):
+            fake_auth.login(asc_advisor_uid)
+            response = client.get('/api/notes/attachment/h0ax.lol')
+            assert response.status_code == 404
 
 
 def _get_notes(client, uid):

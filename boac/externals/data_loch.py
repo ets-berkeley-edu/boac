@@ -329,6 +329,20 @@ def get_advising_note_topics(sid):
     return safe_execute_redshift(sql, sid=sid)
 
 
+def get_advising_note_attachment(sid, filename, scope):
+    query_tables, query_filter, query_bindings = get_students_query(scope=scope)
+    if not query_tables:
+        return None
+    sql = f"""SELECT advising_note_id, sis_file_name
+        {query_tables}
+        JOIN {advising_notes_schema()}.advising_note_attachments ana
+        ON sas.sid = :sid
+        AND ana.sid = sas.sid
+        AND ana.sis_file_name = :filename
+        {query_filter}"""
+    return safe_execute_redshift(sql, sid=sid, filename=filename, **query_bindings)
+
+
 def get_advising_note_attachments(sid):
     sql = f"""SELECT advising_note_id, sis_file_name
         FROM {advising_notes_schema()}.advising_note_attachments
