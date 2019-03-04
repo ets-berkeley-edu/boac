@@ -324,14 +324,16 @@ def get_advising_notes(sid):
 def get_advising_note_topics(sid):
     sql = f"""SELECT advising_note_id, note_topic
         FROM {advising_notes_schema()}.advising_note_topics
-        where sid=:sid"""
+        WHERE sid=:sid
+        ORDER BY advising_note_id"""
     return safe_execute_redshift(sql, sid=sid)
 
 
 def get_advising_note_attachments(sid):
     sql = f"""SELECT advising_note_id, sis_file_name
         FROM {advising_notes_schema()}.advising_note_attachments
-        where sid=:sid"""
+        WHERE sid=:sid
+        ORDER BY advising_note_id"""
     return safe_execute_redshift(sql, sid=sid)
 
 
