@@ -27,8 +27,8 @@ export default {
       const d = parseDate(this.date);
       const dateFormat =
         d.getFullYear() === this.now.getFullYear()
-          ? 'MMM DD'
-          : 'MMM DD, YYYY';
+          ? 'MMM D'
+          : 'MMM D, YYYY';
       this.formattedDate = formatDate(d, dateFormat);
       if (this.includeTimeOfDay) {
         this.timeOfDay = formatDate(d, 'H:mma')

@@ -3,7 +3,7 @@
     <div :id="`note-${note.id}-message-closed`" :class="{'truncate': !isOpen}">
       <span v-if="note.subject">{{ note.subject }}</span>
       <span v-if="!note.subject && size(note.message)" v-html="note.message"></span>
-      <span v-if="!note.subject && !size(note.message)">{{ note.category }}, {{ note.subcategory }}</span>
+      <span v-if="!note.subject && !size(note.message)">{{ note.category }}<span v-if="note.subcategory">, {{ note.subcategory }}</span></span>
     </div>
     <div v-if="isOpen && note.subject && note.message" class="mt-2">
       <span :id="`note-${note.id}-message-open`" v-html="note.message"></span>
@@ -26,7 +26,7 @@
       </div>
     </div>
     <div v-if="size(note.topics)">
-      <div class="pill-list-header mt-3 mb-1">{{ size(note.topics) === 1 ? 'Topic' : 'Topics' }}</div>
+      <div class="pill-list-header mt-3 mb-1">{{ size(note.topics) === 1 ? 'Topic Category' : 'Topic Categories' }}</div>
       <ul class="pill-list pl-0">
         <li
           v-for="(topic, index) in note.topics"
