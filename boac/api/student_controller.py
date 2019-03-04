@@ -42,8 +42,6 @@ def get_student(uid):
     if not student:
         raise ResourceNotFoundError('Unknown student')
     put_notifications(student)
-    # CalCentral's Student Overview page is advisors' official information source for the student.
-    student['studentProfileLink'] = f'https://calcentral.berkeley.edu/user/overview/{uid}'
     return tolerant_jsonify(student)
 
 

@@ -696,10 +696,6 @@ class TestStudent:
         assert sis_profile['expectedGraduationTerm']['id'] == '2198'
         assert sis_profile['expectedGraduationTerm']['name'] == 'Fall 2019'
 
-    def test_student_overview_link(self, authenticated_response):
-        """Provides a link to official data about the student."""
-        assert authenticated_response.json['studentProfileLink']
-
     def test_athletics_profile_non_asc(self, authenticated_response):
         """Does not include athletics profile for non-ASC users."""
         assert 'athleticsProfile' not in authenticated_response.json
