@@ -15,15 +15,15 @@
           :index="index" />
         <FilterRow v-if="isOwnedByCurrentUser" />
         <ApplyAndSaveButtons v-if="isOwnedByCurrentUser" />
+      </b-collapse>
+      <SectionSpinner name="Students" :loading="editMode === 'apply'" />
+      <div v-if="showStudentsSection" class="pt-2">
         <a
           v-if="totalStudentCount > 50"
           id="skip-to-pagination-widget"
           class="sr-only"
           href="#pagination-widget"
-          @click="screenReaderAlert = 'Focus is now on the pagination widget'">Skip to pagination widget</a>
-      </b-collapse>
-      <SectionSpinner name="Students" :loading="editMode === 'apply'" />
-      <div v-if="showStudentsSection" class="pt-2">
+          @click="screenReaderAlert = 'Go to another page of search results'">Skip to bottom, other pages of search results</a>
         <div class="cohort-column-results">
           <hr class="filters-section-separator mr-2" />
           <div class="d-flex justify-content-between align-items-center p-2">

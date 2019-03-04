@@ -22,16 +22,26 @@ export default {
     now: new Date(),
     timeOfDay: undefined
   }),
+  watch: {
+    date() {
+      this.render();
+    }
+  },
   created() {
-    if (this.date) {
-      const d = parseDate(this.date);
-      const dateFormat =
-        d.getFullYear() === this.now.getFullYear()
-          ? 'MMM D'
-          : 'MMM D, YYYY';
-      this.formattedDate = formatDate(d, dateFormat);
-      if (this.includeTimeOfDay) {
-        this.timeOfDay = formatDate(d, 'H:mma')
+    this.render();
+  },
+  methods: {
+    render() {
+      if (this.date) {
+        const d = parseDate(this.date);
+        const dateFormat =
+          d.getFullYear() === this.now.getFullYear()
+            ? 'MMM D'
+            : 'MMM D, YYYY';
+        this.formattedDate = formatDate(d, dateFormat);
+        if (this.includeTimeOfDay) {
+          this.timeOfDay = formatDate(d, 'H:mma')
+        }
       }
     }
   }
