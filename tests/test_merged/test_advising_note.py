@@ -61,7 +61,7 @@ class TestMergedAdvisingNote:
         assert notes[1]['updatedBy'] is None
         assert notes[1]['updatedAt'] == '2017-11-01 12:00:00'
         assert notes[1]['read'] is False
-        assert notes[1]['topics'] == ['Bad show']
+        assert notes[1]['topics'] == ['Bad show', 'Show off']
         assert notes[1]['attachments'] == ['photo.jpeg']
         # Non-legacy note
         assert notes[3]['id']

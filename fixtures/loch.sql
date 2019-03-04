@@ -236,6 +236,8 @@ INSERT INTO boac_advising_notes.advising_note_topics
 VALUES
 ('11667051-00001', '11667051', 'Good show'),
 ('11667051-00002', '11667051', 'Bad show'),
+('11667051-00003', '11667051', 'Show time'),
+('11667051-00002', '11667051', 'Show off'),
 ('9000000000-00001', '9000000000', 'No show');
 
 INSERT INTO boac_advising_notes.advising_note_attachments
