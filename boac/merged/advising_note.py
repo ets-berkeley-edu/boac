@@ -104,12 +104,12 @@ def search_advising_notes(
         student_row = student_rows_by_sid[note.get('sid')]
         advisor_feed = calnet_advisor_feeds.get(note.get('advisorSid'))
         return {
+            'id': note.get('id'),
             'studentSid': note.get('sid'),
             'studentUid': student_row.get('uid'),
             'studentName': ' '.join([student_row.get('first_name'), student_row.get('last_name')]),
             'advisorSid': note.get('advisorSid'),
             'advisorName': ' '.join([advisor_feed.get('firstName'), advisor_feed.get('lastName')]) if advisor_feed else None,
-            'noteId': note.get('id'),
             'noteSnippet': notes_text_snippet(note.get('noteBody'), search_terms),
             'createdAt': _resolve_created_at(note),
             'updatedAt': _resolve_updated_at(note),
