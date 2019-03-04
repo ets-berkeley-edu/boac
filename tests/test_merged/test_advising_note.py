@@ -101,7 +101,7 @@ class TestMergedAdvisingNote:
         assert notes[0]['studentUid'] == '61889'
         assert notes[0]['studentName'] == 'Deborah Davies'
         assert notes[0]['advisorSid'] == '600500400'
-        assert notes[0]['noteId'] == '11667051-00003'
+        assert notes[0]['id'] == '11667051-00003'
         assert notes[0]['createdAt'] == '2017-11-05 12:00:00'
         assert notes[0]['updatedAt'] == '2017-11-06 12:00:00'
 

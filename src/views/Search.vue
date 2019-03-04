@@ -54,7 +54,7 @@
       </h2>
       <AdvisingNoteSnippet
         v-for="advisingNote in results.notes"
-        :key="advisingNote.noteId"
+        :key="advisingNote.id"
         :note="advisingNote" />
     </div>
   </div>
