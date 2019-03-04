@@ -27,7 +27,7 @@
           :class="{'demo-mode-blur': user.inDemoMode}">
           {{ student.sisProfile.preferredName }}
         </div>
-        <div id="student-bio-sid" class="student-bio-sid font-weight-bold mb-2">
+        <div id="student-bio-sid" class="student-sid font-weight-bold mb-2">
           SID <span :class="{'demo-mode-blur': user.inDemoMode}">{{ student.sid }}</span>
         </div>
         <div class="mb-1">
@@ -51,21 +51,21 @@
             {{ student.sisProfile.phoneNumber }}</a>
         </div>
       </div>
-      <div v-if="isInactive" id="student-bio-inactive">
-        <div class="student-bio-header student-bio-inactive">Inactive</div>
+      <div v-if="isInactive" id="student-bio-inactive" class="bio-header inactive-student mt-1">
+        Inactive
       </div>
       <div v-if="student.athleticsProfile" id="student-bio-athletics">
         <div v-for="membership in student.athleticsProfile.athletics" :key="membership.groupName">
-          <div class="student-bio-header">{{ membership.groupName }}</div>
+          <div class="bio-header">{{ membership.groupName }}</div>
         </div>
       </div>
     </div>
-    <div class="ml-auto m-3 mr-5 pr-5">
+    <div class="ml-auto m-3 mr-5">
       <div id="student-bio-majors">
         <h3 class="sr-only">Major</h3>
         <div v-for="plan in student.sisProfile.plans" :key="plan.description">
-          <div class="student-bio-header">
-            <span v-if="!plan.degreeProgramUrl">{{ plan.description }}</span>
+          <div class="bio-header">
+            <span v-if="!plan.degreeProgramUrl" class="no-wrap">{{ plan.description }}</span>
             <a
               v-if="plan.degreeProgramUrl"
               :href="plan.degreeProgramUrl"
@@ -73,27 +73,30 @@
               :aria-label="`Open ${plan.description} program page in new window`">
               {{ plan.description }}</a>
           </div>
-          <div v-if="plan.program" class="student-bio-details">
+          <div v-if="plan.program" class="bio-details">
             {{ plan.program }}
           </div>
         </div>
       </div>
       <div id="student-bio-level">
         <h3 class="sr-only">Level</h3>
-        <div class="student-bio-header">{{ get(student, 'sisProfile.level.description') }}</div>
+        <div class="bio-header">{{ get(student, 'sisProfile.level.description') }}</div>
       </div>
-      <div>
-        <div
-          v-if="student.sisProfile.termsInAttendance"
-          id="student-bio-terms-in-attendance"
-          class="student-bio-details">
+      <div class="bio-details">
+        <div v-if="student.sisProfile.termsInAttendance" id="student-bio-terms-in-attendance">
           {{ 'Term' | pluralize(student.sisProfile.termsInAttendance) }} in Attendance
         </div>
         <div
           v-if="student.sisProfile.expectedGraduationTerm && student.sisProfile.level.code !== 'GR'"
-          id="student-bio-expected-graduation"
-          class="student-bio-details">
+          id="student-bio-expected-graduation">
           Expected graduation {{ student.sisProfile.expectedGraduationTerm.name }}
+        </div>
+        <div class="no-wrap mt-2">
+          <a
+            id="link-to-calcentral"
+            :href="`https://calcentral.berkeley.edu/user/overview/${student.uid}`"
+            target="_blank"
+            aria-label="Open CalCentral in new window">Student profile in CalCentral <i class="pr-1 fas fa-external-link-alt"></i></a>
         </div>
       </div>
     </div>
@@ -127,19 +130,19 @@ export default {
 </script>
 
 <style scoped>
-.student-bio-details {
+.bio-details {
   color: #999;
   font-size: 14px;
 }
-.student-bio-header {
+.bio-header {
   font-size: 16px;
   font-weight: 600;
 }
-.student-bio-inactive {
+.inactive-student {
   color: #cf1715;
   text-transform: uppercase;
 }
-.student-bio-sid {
+.student-sid {
   font-size: 14px;
 }
 .student-preferred-name {
