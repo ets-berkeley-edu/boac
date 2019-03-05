@@ -23,13 +23,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.errors import BadRequestError, ForbiddenRequestError
+from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import current_user_profile, feature_flag_create_notes, get_dept_codes, get_dept_role
 from boac.lib.http import tolerant_jsonify
-from boac.merged.advising_note import note_to_compatible_json
+from boac.merged.advising_note import get_attachment_stream, note_to_compatible_json
 from boac.models.note import Note
 from boac.models.note_read import NoteRead
-from flask import current_app as app, request
+from flask import current_app as app, request, Response
 from flask_login import current_user, login_required
 
 
@@ -69,6 +69,18 @@ def create_note():
     )
     note_json = note_to_compatible_json(note.to_api_json())
     return tolerant_jsonify(note_json)
+
+
+@app.route('/api/notes/attachment/<attachment_filename>', methods=['GET'])
+@login_required
+def download_attachment(attachment_filename):
+    attachment_stream = get_attachment_stream(attachment_filename)
+    if not attachment_stream:
+        raise ResourceNotFoundError('Attachment not found')
+    r = Response(attachment_stream)
+    r.headers['Content-Type'] = 'application/octet-stream'
+    r.headers.add('Content-Disposition', 'attachment', filename=attachment_filename)
+    return r
 
 
 def _get_name(user):

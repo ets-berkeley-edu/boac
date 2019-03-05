@@ -70,6 +70,10 @@ FEATURE_FLAG_CREATE_NOTES = False
 # Set to a nice long chaotic string to enable scripted access to APIs.
 API_KEY = None
 
+# BOAC-specific AWS credentials.
+AWS_ACCESS_KEY_ID = 'key'
+AWS_SECRET_ACCESS_KEY = 'secret'
+
 CAS_SERVER = 'https://auth-test.berkeley.edu/cas/'
 CAS_LOGOUT_URL = 'https://auth-test.berkeley.edu/cas/logout'
 
@@ -88,6 +92,10 @@ DATA_LOCH_INTERMEDIATE_SCHEMA = 'intermediate'
 DATA_LOCH_PHYSICS_SCHEMA = 'boac_advising_physics'
 DATA_LOCH_SIS_SCHEMA = 'sis_data'
 DATA_LOCH_STUDENT_SCHEMA = 'student'
+
+DATA_LOCH_S3_REGION = 'us-west-2'
+DATA_LOCH_S3_ADVISING_NOTE_BUCKET = 'advising-note-bucket'
+DATA_LOCH_S3_ADVISING_NOTE_ATTACHMENT_PATH = 'attachment-path'
 
 DISABLE_MATRIX_VIEW_THRESHOLD = 800
 

@@ -28,7 +28,7 @@ from itertools import groupby
 from operator import itemgetter
 import re
 
-from boac.externals import data_loch
+from boac.externals import data_loch, s3
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.util import camelize
 from boac.merged.calnet import get_calnet_users_for_csids
@@ -114,6 +114,22 @@ def search_advising_notes(
             'updatedAt': _resolve_updated_at(note),
         }
     return [_notes_result_to_json(row) for row in notes_results]
+
+
+def get_attachment_stream(filename):
+    # Filenames come prefixed with SID by convention.
+    for i, c in enumerate(filename):
+        if not c.isdigit():
+            break
+    sid = filename[:i]
+    if not sid:
+        return None
+    # Ensure that the file exists and the user has permission to see it.
+    attachment_result = data_loch.get_advising_note_attachment(sid, filename, scope=get_student_query_scope())
+    if not attachment_result:
+        return None
+    s3_key = '/'.join([app.config['DATA_LOCH_S3_ADVISING_NOTE_ATTACHMENT_PATH'], sid, filename])
+    return s3.stream_object(app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET'], s3_key)
 
 
 def note_to_compatible_json(note, topics=None, attachments=None):

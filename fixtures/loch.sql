@@ -243,8 +243,9 @@ VALUES
 INSERT INTO boac_advising_notes.advising_note_attachments
 (advising_note_id, sid, attachment_seq_nr, attachment_date, created_at, updated_at, sis_file_name)
 VALUES
-('11667051-00001', '11667051', 1, '2017-10-31', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', 'form.pdf'),
-('11667051-00002', '11667051', 2, '2017-10-31', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', 'photo.jpeg');
+('11667051-00001', '11667051', 1, '2017-10-31', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051-00001_form.pdf'),
+('11667051-00002', '11667051', 2, '2017-10-31', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051-00002_photo.jpeg'),
+('9000000000-00002', '9000000000', 2, '2017-10-31', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '9000000000-00002_dog_eaten_homework.pdf');
 
 INSERT INTO boac_analytics.section_mean_gpas
 (sis_term_id, sis_section_id, gpa_term_id, avg_gpa)
