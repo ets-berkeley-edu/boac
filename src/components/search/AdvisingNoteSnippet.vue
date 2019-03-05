@@ -1,11 +1,13 @@
 <template>
   <div
     :id="`advising-note-search-result-${note.id}`"
-    class="advising-note-search-result">
+    class="advising-note-search-result"
+    :class="{'demo-mode-blur': user.inDemoMode}">
     <h3 class="advising-note-search-result-header">
       <router-link
         :id="`advising-note-search-result-header-link-${note.id}`"
         class="advising-note-search-result-header-link"
+        :class="{'demo-mode-blur': user.inDemoMode}"
         :to="`/student/${note.studentUid}`">
         {{ note.studentName }}
       </router-link>
@@ -16,7 +18,7 @@
       class="advising-note-search-result-snippet"
       v-html="note.noteSnippet">
     </div>
-    <div class="advising-note-search-result-footer">
+    <div class="advising-note-search-result-footer" :class="{'demo-mode-blur': user.inDemoMode}">
       <span v-if="note.advisorName" :id="`advising-note-search-result-advisor-${note.id}`">
         {{ note.advisorName }} -
       </span>
@@ -27,11 +29,12 @@
 
 <script>
 import { format as formatDate, parse as parseDate } from 'date-fns';
+import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'AdvisingNoteSnippet',
-  mixins: [Util],
+  mixins: [UserMetadata, Util],
   props: {
     note: Object,
   },
