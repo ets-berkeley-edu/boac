@@ -40,8 +40,23 @@
     <div v-if="size(note.attachments)">
       <div class="pill-list-header mt-3 mb-1">{{ size(note.attachments) === 1 ? 'Attachment' : 'Attachments' }}</div>
       <ul class="pill-list pl-0">
-        <li v-for="(attachment, index) in note.attachments" :key="attachment" class="mt-2">
-          <a :id="`note-${note.id}-attachment-${index}`" href="#" class="pill text-nowrap"><i class="fas fa-paperclip"></i> {{ attachment }}</a>
+        <li
+          v-for="(attachment, index) in note.attachments"
+          :key="attachment"
+          class="mt-2"
+          @click.stop>
+          <a
+            v-if="!isPreCsNote"
+            :id="`note-${note.id}-attachment-${index}`"
+            :href="downloadUrl(attachment)"
+            class="pill text-nowrap">
+            <i class="fas fa-paperclip"></i> {{ attachment }}
+          </a>
+          <span
+            v-if="isPreCsNote"
+            :id="`note-${note.id}-attachment-${index}`"
+            class="pill text-nowrap"><i class="fas fa-paperclip"></i> {{ attachment }}
+          </span>
         </li>
       </ul>
     </div>
@@ -50,13 +65,14 @@
 
 <script>
 import store from '@/store'
+import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { getUserByUid } from '@/api/user';
 
 export default {
   name: 'AdvisingNote',
-  mixins: [UserMetadata, Util],
+  mixins: [Context, UserMetadata, Util],
   props: {
     isOpen: Boolean,
     note: Object
@@ -65,6 +81,11 @@ export default {
     allUsers: undefined,
     author: undefined
   }),
+  computed: {
+    isPreCsNote() {
+      return this.get(this.note, 'createdBy') === 'UCBCONVERSION';
+    }
+  },
   watch: {
     isOpen(open) {
       if (open && this.isUndefined(this.author)) {
@@ -90,7 +111,12 @@ export default {
         }
       }
     }
-  }
+  },
+  methods: {
+    downloadUrl(attachment) {
+      return this.apiBaseUrl + '/api/notes/attachment/' + attachment;
+    }
+  },
 }
 </script>
 
