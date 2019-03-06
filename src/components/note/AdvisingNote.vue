@@ -42,7 +42,7 @@
     </div>
     <div v-if="size(note.attachments)">
       <div class="pill-list-header mt-3 mb-1">{{ size(note.attachments) === 1 ? 'Attachment' : 'Attachments' }}</div>
-      <div class="faint-text">
+      <div v-if="isPreCsNote" class="faint-text">
         Pre-Fall 2016 attachment<span v-if="size(note.attachments) > 1">s</span> unavailable
       </div>
       <ul class="pill-list pl-0">
