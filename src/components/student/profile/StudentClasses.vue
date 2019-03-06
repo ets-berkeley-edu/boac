@@ -9,7 +9,7 @@
       </span>
     </div>
     <div
-      v-for="(term, index) in (showAllTerms ? student.enrollmentTerms : currentAndFutureTerms)"
+      v-for="(term, index) in (showAllTerms ? student.enrollmentTerms : relevantTerms)"
       :key="index"
       class="student-term">
       <div
@@ -274,11 +274,12 @@ export default {
     showAllTerms: false
   }),
   computed: {
-    currentAndFutureTerms() {
+    relevantTerms() {
       var currentTermIndex = this.findIndex(this.student.enrollmentTerms, term => {
         return term.termId === this.currentEnrollmentTermId.toString()
       });
-      return this.student.enrollmentTerms.slice(0, currentTermIndex + 1);
+      var index = currentTermIndex < 0 ? 0 : currentTermIndex;
+      return this.student.enrollmentTerms.slice(0, index + 1);
     }
   },
   created() {
