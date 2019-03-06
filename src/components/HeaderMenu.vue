@@ -14,7 +14,7 @@
             <div class="b-link-text">{{ user.firstName }}</div><i class="ml-1 fas fa-caret-down b-link-text"></i>
           </div>
         </template>
-        <b-dropdown-item v-if="user.isAdmin" @click="goAdmin">Admin</b-dropdown-item>
+        <b-dropdown-item v-if="user.isAdmin || devAuthEnabled" @click="goAdmin">Admin</b-dropdown-item>
         <b-dropdown-item href="#" @click="logOut">Log Out</b-dropdown-item>
         <b-dropdown-item :href="`mailto:${supportEmailAddress}`" target="_blank">Feedback/Help</b-dropdown-item>
       </b-dropdown>
