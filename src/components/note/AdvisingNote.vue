@@ -8,6 +8,11 @@
     <div v-if="isOpen && note.subject && note.message" class="mt-2">
       <span :id="`note-${note.id}-message-open`" v-html="note.message"></span>
     </div>
+    <div v-if="!isUndefined(author) && !author.name" class="mt-2 advisor-profile-not-found">
+      Advisor profile not found
+      <span v-if="author.uid">(UID: {{ author.uid }})</span>
+      <span v-if="!author.uid && author.csid">(CSID: {{ author.csid }})</span>
+    </div>
     <div v-if="author" class="mt-2">
       <div v-if="author.name">
         <a
@@ -142,5 +147,9 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.advisor-profile-not-found {
+  color: #999;
+  font-size: 14px;
 }
 </style>
