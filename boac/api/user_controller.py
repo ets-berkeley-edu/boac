@@ -92,16 +92,19 @@ def authorized_user_groups():
 
 
 @app.route('/api/user/demo_mode', methods=['POST'])
-@admin_required
+@login_required
 def set_demo_mode():
-    in_demo_mode = request.get_json().get('demoMode', None)
-    if in_demo_mode is None:
-        raise errors.BadRequestError('Parameter \'demoMode\' not found')
-    user = AuthorizedUser.find_by_id(current_user.id)
-    user.in_demo_mode = bool(in_demo_mode)
-    return tolerant_jsonify({
-        'inDemoMode': user.in_demo_mode,
-    })
+    if app.config['DEVELOPER_AUTH_ENABLED']:
+        in_demo_mode = request.get_json().get('demoMode', None)
+        if in_demo_mode is None:
+            raise errors.BadRequestError('Parameter \'demoMode\' not found')
+        user = AuthorizedUser.find_by_id(current_user.id)
+        user.in_demo_mode = bool(in_demo_mode)
+        return tolerant_jsonify({
+            'inDemoMode': user.in_demo_mode,
+        })
+    else:
+        raise errors.ResourceNotFoundError('Unknown path')
 
 
 @app.route('/api/user/status')
