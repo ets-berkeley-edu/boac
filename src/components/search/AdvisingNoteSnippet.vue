@@ -2,12 +2,12 @@
   <div
     :id="`advising-note-search-result-${note.id}`"
     class="advising-note-search-result"
-    :class="{'demo-mode-blur': user.inDemoMode}">
+    :class="{'demo-mode-blur': get(user, 'inDemoMode', true)}">
     <h3 class="advising-note-search-result-header">
       <router-link
         :id="`advising-note-search-result-header-link-${note.id}`"
         class="advising-note-search-result-header-link"
-        :class="{'demo-mode-blur': user.inDemoMode}"
+        :class="{'demo-mode-blur': get(user, 'inDemoMode', true)}"
         :to="`/student/${note.studentUid}`">
         {{ note.studentName }}
       </router-link>
@@ -18,7 +18,7 @@
       class="advising-note-search-result-snippet"
       v-html="note.noteSnippet">
     </div>
-    <div class="advising-note-search-result-footer" :class="{'demo-mode-blur': user.inDemoMode}">
+    <div class="advising-note-search-result-footer" :class="{'demo-mode-blur': get(user, 'inDemoMode', true)}">
       <span v-if="note.advisorName" :id="`advising-note-search-result-advisor-${note.id}`">
         {{ note.advisorName }} -
       </span>

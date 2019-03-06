@@ -78,7 +78,7 @@
                   <a :href="'/student/' + student.uid">
                     <div
                       class="flex-container student-name"
-                      :class="{'demo-mode-blur': user.inDemoMode}">
+                      :class="{'demo-mode-blur': get(user, 'inDemoMode', true)}">
                       {{ student.lastName + (student.firstName ? ', ' + student.firstName : '') }}
                     </div>
                   </a>
@@ -86,7 +86,7 @@
                 <div
                   v-if="student.sid"
                   class="student-sid"
-                  :class="{'demo-mode-blur': user.inDemoMode}">
+                  :class="{'demo-mode-blur': get(user, 'inDemoMode', true)}">
                   SID: {{ student.sid }}
                 </div>
               </td>
@@ -332,7 +332,7 @@ export default {
         if (d.isClassMean) {
           photoUri = require('@/assets/class-mean-avatar.svg');
         } else {
-          photoUri = this.user.inDemoMode
+          photoUri = this.get(this.user, 'inDemoMode', true)
             ? avatarBackgroundPath
             : this.apiBaseUrl + '/api/student/' + d.uid + '/photo';
         }
@@ -489,7 +489,7 @@ export default {
           .append('h4')
           .attr(
             'class',
-            this.user.inDemoMode ? 'demo-mode-blur' : 'matrix-tooltip-header'
+            this.get(this.user, 'inDemoMode', true) ? 'demo-mode-blur' : 'matrix-tooltip-header'
           )
           .text(fullName);
         _.each(d.majors, major =>

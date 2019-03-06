@@ -28,20 +28,20 @@
               v-if="sortedBy !== 'first_name'"
               :id="`row-${rowIndex}-student-name`"
               class="student-name"
-              :class="{'demo-mode-blur' : user.inDemoMode}">
+              :class="{'demo-mode-blur' : get(user, 'inDemoMode', true)}">
               {{ student.lastName }}, {{ student.firstName }}
             </h3>
             <h3
               v-if="sortedBy === 'first_name'"
               :id="`row-${rowIndex}-student-name`"
               class="student-name"
-              :class="{'demo-mode-blur' : user.inDemoMode}">
+              :class="{'demo-mode-blur' : get(user, 'inDemoMode', true)}">
               {{ student.firstName }} {{ student.lastName }}
             </h3>
           </router-link>
         </div>
       </div>
-      <div class="d-flex student-sid" :class="{'demo-mode-blur' : user.inDemoMode}">
+      <div class="d-flex student-sid" :class="{'demo-mode-blur' : get(user, 'inDemoMode', true)}">
         <div :id="`row-${rowIndex}-student-sid`">{{ student.sid }}</div>
         <div v-if="displayAsInactive(student)" class="red-flag-status ml-1">INACTIVE</div>
       </div>

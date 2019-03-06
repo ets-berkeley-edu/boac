@@ -75,7 +75,7 @@
               :class="{
                 'align-top message-open': includes(openMessages, message.transientId),
                 'truncate': !includes(openMessages, message.transientId),
-                'img-blur': user.inDemoMode && message.type === 'note'
+                'img-blur': get(user, 'inDemoMode', true) && message.type === 'note'
               }"
               tabindex="0"
               @keyup.enter="toggle(message)"

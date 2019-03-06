@@ -11,7 +11,7 @@
           ref="pageHeader"
           class="student-section-header mb-1"
           tabindex="0"
-          :class="{'demo-mode-blur': user.inDemoMode}">
+          :class="{'demo-mode-blur': get(user, 'inDemoMode', true)}">
           {{ student.name }}
         </h1>
         <h2 class="sr-only">Profile</h2>
@@ -24,11 +24,11 @@
           v-if="student.sisProfile.preferredName !== student.name"
           id="student-preferred-name"
           class="student-preferred-name mb-2"
-          :class="{'demo-mode-blur': user.inDemoMode}">
+          :class="{'demo-mode-blur': get(user, 'inDemoMode', true)}">
           {{ student.sisProfile.preferredName }}
         </div>
         <div id="student-bio-sid" class="student-sid font-weight-bold mb-2">
-          SID <span :class="{'demo-mode-blur': user.inDemoMode}">{{ student.sid }}</span>
+          SID <span :class="{'demo-mode-blur': get(user, 'inDemoMode', true)}">{{ student.sid }}</span>
         </div>
         <div class="mb-1">
           <i class="fas fa-envelope"></i>
@@ -36,7 +36,7 @@
           <a
             id="student-mailto"
             :href="`mailto:${student.sisProfile.emailAddress}`"
-            :class="{'demo-mode-blur': user.inDemoMode}"
+            :class="{'demo-mode-blur': get(user, 'inDemoMode', true)}"
             target="_blank">
             {{ student.sisProfile.emailAddress }}</a>
         </div>
@@ -46,7 +46,7 @@
           <a
             id="student-phone-number"
             :href="`tel:${student.sisProfile.phoneNumber}`"
-            :class="{'demo-mode-blur': user.inDemoMode}"
+            :class="{'demo-mode-blur': get(user, 'inDemoMode', true)}"
             tabindex="0">
             {{ student.sisProfile.phoneNumber }}</a>
         </div>

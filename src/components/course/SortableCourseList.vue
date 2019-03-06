@@ -74,7 +74,7 @@
           <span class="sr-only">Course Name</span>
           {{ course.courseTitle }}
         </td>
-        <td :class="{'table-cell demo-mode-blur': user.inDemoMode, 'table-cell': !user.inDemoMode}">{{ course.instructors }}</td>
+        <td :class="{'table-cell demo-mode-blur': get(user, 'inDemoMode', true), 'table-cell': !get(user, 'inDemoMode', true)}">{{ course.instructors }}</td>
       </tr>
     </table>
   </div>
@@ -82,10 +82,11 @@
 
 <script>
 import UserMetadata from '@/mixins/UserMetadata';
+import Util from '@/mixins/Util';
 
 export default {
   name: 'SortableCourseList',
-  mixins: [UserMetadata],
+  mixins: [UserMetadata, Util],
   props: {
     searchPhrase: String,
     courses: Array,

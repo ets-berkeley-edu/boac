@@ -50,7 +50,7 @@
                 <span :id="'instructors-' + meetingIndex" class="course-instructors-header">
                   {{ meeting.instructors.length > 1 ? 'Instructors:' : 'Instructor:' }}
                 </span>
-                <span :class="{'demo-mode-blur': user.inDemoMode}">
+                <span :class="{'demo-mode-blur': get(user, 'inDemoMode', true)}">
                   {{ meeting.instructors.join(', ') }}
                 </span>
               </div>
@@ -156,12 +156,12 @@
                   <router-link :id="student.uid" :to="`/student/${student.uid}`">
                     <h3
                       class="course-student-name"
-                      :class="{'demo-mode-blur': user.inDemoMode}">
+                      :class="{'demo-mode-blur': get(user, 'inDemoMode', true)}">
                       {{ student.lastName }}<span v-if="student.firstName">, {{ student.firstName }}</span>
                     </h3>
                   </router-link>
                 </div>
-                <div :id="`row-${index}-student-sid`" class="student-sid" :class="{'demo-mode-blur': user.inDemoMode}">
+                <div :id="`row-${index}-student-sid`" class="student-sid" :class="{'demo-mode-blur': get(user, 'inDemoMode', true)}">
                   {{ student.sid }}
                   <span v-if="student.enrollment.enrollmentStatus === 'W'" class="red-flag-status">WAITLISTED</span>
                   <span v-if="displayAsInactive(student)" class="red-flag-status">INACTIVE</span>

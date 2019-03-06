@@ -12,7 +12,7 @@
           <img
             id="avatar-verify-blur"
             class="avatar student-avatar-large"
-            :class="{'img-blur': user.inDemoMode}"
+            :class="{'img-blur': get(user, 'inDemoMode', true)}"
             :src="blurAvatarUrl" />
         </div>
         <div>

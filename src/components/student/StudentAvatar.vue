@@ -23,10 +23,11 @@
 <script>
 import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
+import Util from '@/mixins/Util';
 
 export default {
   name: 'StudentAvatar',
-  mixins: [Context, UserMetadata],
+  mixins: [Context, UserMetadata, Util],
   props: {
     size: String,
     student: Object,
@@ -39,7 +40,7 @@ export default {
   created() {
     this.avatarUrl = `${this.apiBaseUrl}/api/student/${this.student.uid}/photo`;
     this.avatarStyle = `student-avatar-${this.size} ${
-      this.user.inDemoMode ? 'img-blur' : ''
+      this.get(this.user, 'inDemoMode', true) ? 'img-blur' : ''
     }`;
   },
   methods: {

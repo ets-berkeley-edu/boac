@@ -141,7 +141,7 @@
             <span class="sr-only">{{ srText.lastName }}</span>
             <router-link
               :aria-label="'Go to profile page of ' + student.firstName + ' ' + student.lastName"
-              :class="{'demo-mode-blur': user.inDemoMode}"
+              :class="{'demo-mode-blur': get(user, 'inDemoMode', true)}"
               :to="'/student/' + student.uid">
               {{ `${student.lastName}, ${student.firstName}` }}
             </router-link>
@@ -155,7 +155,7 @@
           </td>
           <td class="column column-sid">
             <span class="sr-only">{{ srText.sid }}</span>
-            <span :class="{'demo-mode-blur': user.inDemoMode}">{{ student.sid }}</span>
+            <span :class="{'demo-mode-blur': get(user, 'inDemoMode', true)}">{{ student.sid }}</span>
           </td>
           <td class="column column-major">
             <span class="sr-only">{{ srText['majors[0]'] }}</span>
