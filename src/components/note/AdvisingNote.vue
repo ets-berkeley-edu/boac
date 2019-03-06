@@ -10,8 +10,6 @@
     </div>
     <div v-if="!isUndefined(author) && !author.name" class="mt-2 advisor-profile-not-found">
       Advisor profile not found
-      <span v-if="author.uid">(UID: {{ author.uid }})</span>
-      <span v-if="!author.uid && author.csid">(CSID: {{ author.csid }})</span>
     </div>
     <div v-if="author" class="mt-2">
       <div v-if="author.name">
@@ -44,6 +42,9 @@
     </div>
     <div v-if="size(note.attachments)">
       <div class="pill-list-header mt-3 mb-1">{{ size(note.attachments) === 1 ? 'Attachment' : 'Attachments' }}</div>
+      <div class="faint-text">
+        Pre-Fall 2016 attachment<span v-if="size(note.attachments) > 1">s</span> unavailable
+      </div>
       <ul class="pill-list pl-0">
         <li
           v-for="(attachment, index) in note.attachments"
