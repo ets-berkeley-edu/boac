@@ -141,7 +141,7 @@
               </th>
             </tr>
             <tr
-              v-for="student in section.students"
+              v-for="(student, index) in section.students"
               :key="student.uid"
               class="course-list-view-row"
               :class="{'list-group-item-info': featured===student.uid}">
@@ -161,7 +161,7 @@
                     </h3>
                   </router-link>
                 </div>
-                <div class="student-sid" :class="{'demo-mode-blur': user.inDemoMode}">
+                <div :id="`row-${index}-student-sid`" class="student-sid" :class="{'demo-mode-blur': user.inDemoMode}">
                   {{ student.sid }}
                   <span v-if="student.enrollment.enrollmentStatus === 'W'" class="red-flag-status">WAITLISTED</span>
                   <span v-if="displayAsInactive(student)" class="red-flag-status">INACTIVE</span>
