@@ -74,12 +74,12 @@ def create_note():
 @app.route('/api/notes/attachment/<attachment_filename>', methods=['GET'])
 @login_required
 def download_attachment(attachment_filename):
-    attachment_stream = get_attachment_stream(attachment_filename)
-    if not attachment_stream:
+    stream_data = get_attachment_stream(attachment_filename)
+    if not stream_data or not stream_data['stream']:
         raise ResourceNotFoundError('Attachment not found')
-    r = Response(attachment_stream)
+    r = Response(stream_data['stream'])
     r.headers['Content-Type'] = 'application/octet-stream'
-    r.headers.add('Content-Disposition', 'attachment', filename=attachment_filename)
+    r.headers.add('Content-Disposition', 'attachment', filename=stream_data['filename'])
     return r
 
 

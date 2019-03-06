@@ -333,7 +333,7 @@ def get_advising_note_attachment(sid, filename, scope):
     query_tables, query_filter, query_bindings = get_students_query(scope=scope)
     if not query_tables:
         return None
-    sql = f"""SELECT advising_note_id, sis_file_name
+    sql = f"""SELECT advising_note_id, created_by, sis_file_name, user_file_name
         {query_tables}
         JOIN {advising_notes_schema()}.advising_note_attachments ana
         ON sas.sid = :sid
@@ -344,7 +344,7 @@ def get_advising_note_attachment(sid, filename, scope):
 
 
 def get_advising_note_attachments(sid):
-    sql = f"""SELECT advising_note_id, sis_file_name
+    sql = f"""SELECT advising_note_id, created_by, sis_file_name, user_file_name
         FROM {advising_notes_schema()}.advising_note_attachments
         WHERE sid=:sid
         ORDER BY advising_note_id"""

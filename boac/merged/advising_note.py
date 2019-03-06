@@ -126,10 +126,17 @@ def get_attachment_stream(filename):
         return None
     # Ensure that the file exists and the user has permission to see it.
     attachment_result = data_loch.get_advising_note_attachment(sid, filename, scope=get_student_query_scope())
-    if not attachment_result:
+    if not attachment_result or not attachment_result[0]:
         return None
+    if attachment_result[0].get('created_by') == 'UCBCONVERSION':
+        display_filename = filename
+    else:
+        display_filename = attachment_result[0].get('user_file_name')
     s3_key = '/'.join([app.config['DATA_LOCH_S3_ADVISING_NOTE_ATTACHMENT_PATH'], sid, filename])
-    return s3.stream_object(app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET'], s3_key)
+    return {
+        'filename': display_filename,
+        'stream': s3.stream_object(app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET'], s3_key),
+    }
 
 
 def note_to_compatible_json(note, topics=None, attachments=None):
@@ -192,8 +199,14 @@ def _get_advising_note_topics(sid):
 def _get_advising_note_attachments(sid):
     attachments = data_loch.get_advising_note_attachments(sid)
     attachments_by_id = {}
+
+    def _attachment_to_json(attachment):
+        feed = {'sisFilename': attachment.get('sis_file_name')}
+        if attachment.get('created_by') != 'UCBCONVERSION':
+            feed['userFilename'] = attachment.get('user_file_name')
+        return feed
     for advising_note_id, attachments in groupby(attachments, key=itemgetter('advising_note_id')):
-        attachments_by_id[advising_note_id] = [attachments['sis_file_name'] for attachments in attachments]
+        attachments_by_id[advising_note_id] = [_attachment_to_json(a) for a in attachments]
     return attachments_by_id
 
 

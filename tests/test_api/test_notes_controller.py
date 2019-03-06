@@ -153,21 +153,21 @@ class TestStreamNoteAttachments:
 
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        assert client.get('/api/notes/attachment/9000000000-00002_dog_eaten_homework.pdf').status_code == 401
+        assert client.get('/api/notes/attachment/9000000000_00002_1.pdf').status_code == 401
 
     def test_stream_attachment(self, app, client, fake_auth):
         with mock_advising_note_attachment(app):
             fake_auth.login(coe_advisor_uid)
-            response = client.get('/api/notes/attachment/9000000000-00002_dog_eaten_homework.pdf')
+            response = client.get('/api/notes/attachment/9000000000_00002_1.pdf')
             assert response.status_code == 200
             assert response.headers['Content-Type'] == 'application/octet-stream'
-            assert response.headers['Content-Disposition'] == 'attachment; filename=9000000000-00002_dog_eaten_homework.pdf'
+            assert response.headers['Content-Disposition'] == 'attachment; filename=dog_eaten_homework.pdf'
             assert response.data == b'When in the course of human events, it becomes necessarf arf woof woof woof'
 
     def test_stream_attachment_reports_unauthorized_files_not_found(self, app, client, fake_auth):
         with mock_advising_note_attachment(app):
             fake_auth.login(asc_advisor_uid)
-            response = client.get('/api/notes/attachment/9000000000-00002_dog_eaten_homework.pdf')
+            response = client.get('/api/notes/attachment/9000000000_00002_1.pdf')
             assert response.status_code == 404
 
     def test_stream_attachment_reports_missing_files_not_found(self, app, client, fake_auth):
