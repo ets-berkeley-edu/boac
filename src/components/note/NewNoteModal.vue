@@ -4,7 +4,7 @@
     <div>
       <b-btn
         id="new-note-button"
-        class="mt-1 mr-2"
+        class="mt-1 mr-2 btn-primary-color-override"
         variant="primary"
         :disabled="includes(['minimized', 'open'], mode)"
         @click="openNewNoteModal()">
