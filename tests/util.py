@@ -34,9 +34,9 @@ def mock_advising_note_attachment(app):
     with moto.mock_s3():
         bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
         key = f"{app.config['DATA_LOCH_S3_ADVISING_NOTE_ATTACHMENT_PATH']}/9000000000/9000000000_00002_1.pdf"
-        s3 = boto3.resource('s3', app.config['DATA_LOCH_S3_REGION'])
+        s3 = boto3.client('s3', region_name=app.config['DATA_LOCH_S3_REGION'])
         s3.create_bucket(Bucket=bucket)
-        s3.Object(bucket, key).put(Body='When in the course of human events, it becomes necessarf arf woof woof woof')
+        s3.put_object(Bucket=bucket, Key=key, Body='When in the course of human events, it becomes necessarf arf woof woof woof')
         yield s3
 
 
