@@ -254,6 +254,7 @@ export default {
   right: 30px;
   transition: height 0.5s;
   width: 30%;
+  z-index: 1;
 }
 .modal-saving {
   height: 1px !important;
