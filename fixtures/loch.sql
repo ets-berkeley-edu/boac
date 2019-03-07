@@ -86,9 +86,11 @@ CREATE TABLE boac_advising_notes.advising_note_attachments
     sid VARCHAR NOT NULL,
     attachment_seq_nr INT,
     attachment_date DATE,
+    created_by VARCHAR NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    sis_file_name VARCHAR NOT NULL
+    sis_file_name VARCHAR NOT NULL,
+    user_file_name VARCHAR NOT NULL
 );
 
 CREATE TABLE boac_analytics.section_mean_gpas
@@ -241,11 +243,11 @@ VALUES
 ('9000000000-00001', '9000000000', 'No show');
 
 INSERT INTO boac_advising_notes.advising_note_attachments
-(advising_note_id, sid, attachment_seq_nr, attachment_date, created_at, updated_at, sis_file_name)
+(advising_note_id, sid, attachment_seq_nr, attachment_date, created_by, created_at, updated_at, sis_file_name, user_file_name)
 VALUES
-('11667051-00001', '11667051', 1, '2017-10-31', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051-00001_form.pdf'),
-('11667051-00002', '11667051', 2, '2017-10-31', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051-00002_photo.jpeg'),
-('9000000000-00002', '9000000000', 2, '2017-10-31', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '9000000000-00002_dog_eaten_homework.pdf');
+('11667051-00001', '11667051', 1, '2017-10-31', 'UCBCONVERSION', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051_00001_1.pdf', 'efac7b10-c3f2-11e4-9bbd-ab6a6597d26f.pdf'),
+('11667051-00002', '11667051', 2, '2017-10-31', '1234', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051_00002_2.jpeg', 'brigitte_photo.jpeg'),
+('9000000000-00002', '9000000000', 1, '2017-10-31', '4567', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '9000000000_00002_1.pdf', 'dog_eaten_homework.pdf');
 
 INSERT INTO boac_analytics.section_mean_gpas
 (sis_term_id, sis_section_id, gpa_term_id, avg_gpa)
