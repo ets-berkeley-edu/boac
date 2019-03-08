@@ -9,7 +9,7 @@ export default {
       'currentEnrollmentTermId',
       'devAuthEnabled',
       'errors',
-      'featureFlagCreateNotes',
+      'featureFlagEditNotes',
       'supportEmailAddress'
     ])
   },

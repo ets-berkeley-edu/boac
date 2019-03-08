@@ -64,8 +64,8 @@ PORT = 5000
 DEVELOPER_AUTH_ENABLED = False
 DEVELOPER_AUTH_PASSWORD = 'another secret'
 
-# TODO: Remove when note creation is in prod
-FEATURE_FLAG_CREATE_NOTES = False
+# TODO: Remove when 'edit note' is in prod
+FEATURE_FLAG_EDIT_NOTES = False
 
 # Set to a nice long chaotic string to enable scripted access to APIs.
 API_KEY = None
