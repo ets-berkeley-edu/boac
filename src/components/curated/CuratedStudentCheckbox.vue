@@ -1,6 +1,6 @@
 <template>
   <b-form-checkbox
-    :id="`student-${sid}-curated-group-checkbox`"
+    :id="`student-${student.sid}-curated-group-checkbox`"
     v-model="status"
     plain
     @change="toggle">
@@ -12,16 +12,17 @@
 export default {
   name: 'CuratedStudentCheckbox',
   props: {
-    sid: String
+    student: Object
   },
   data: () => ({
     status: false
   }),
   computed: {
     checkboxDescription() {
+      const name = `${this.student.firstName} ${this.student.lastName}`;
       return this.checked
-        ? `Student ${this.sid} selected, ready to add to curated group`
-        : `Select student ${this.sid} to add to curated group`;
+        ? `${name} selected, ready to add to curated group`
+        : `Select ${name} to add to curated group`;
     }
   },
   created() {
@@ -37,7 +38,7 @@ export default {
         checked
           ? 'curated-group-checkbox-checked'
           : 'curated-group-checkbox-unchecked',
-        this.sid
+        this.student.sid
       );
     }
   }

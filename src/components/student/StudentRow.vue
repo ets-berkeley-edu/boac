@@ -11,7 +11,7 @@
         <i class="fas fa-times-circle"></i>
       </button>
       <div v-if="listType !== 'curatedGroup'">
-        <CuratedStudentCheckbox :sid="student.sid" />
+        <CuratedStudentCheckbox :student="student" />
       </div>
     </div>
     <div class="cohort-list-view-column-01">

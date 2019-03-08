@@ -132,7 +132,7 @@
           <td
             v-if="options.includeCuratedCheckbox"
             class="column column-checkbox">
-            <CuratedStudentCheckbox :sid="student.sid" />
+            <CuratedStudentCheckbox :student="student" />
           </td>
           <td class="column column-photo">
             <StudentAvatar :student="student" size="small" />
