@@ -63,7 +63,8 @@
               aria-labelledby="create-note-subject-label"
               class="cohort-create-input-name"
               type="text"
-              maxlength="255">
+              maxlength="255"
+              @keydown.esc="cancel">
           </div>
           <div>
             <label for="create-note-body" class="input-label mt-3 mb-1">Note Details</label>
@@ -120,7 +121,7 @@
       v-if="showErrorPopover"
       :show.sync="showErrorPopover"
       placement="top"
-      :target="`${subject ? 'create-note-body' : 'create-note-subject'}`"
+      target="create-note-subject"
       title="">
       <span class="has-error">{{ error }}</span>
     </b-popover>
@@ -181,8 +182,8 @@ export default {
     },
     create() {
       this.subject = this.trim(this.subject);
-      this.body = this.trim(this.body);
-      if (this.subject && this.body) {
+      if (this.subject) {
+        this.body = this.trim(this.body);
         this.mode = 'saving';
         createNote(this.student.sid, this.subject, this.body).then(data => {
           this.reset();
@@ -190,13 +191,10 @@ export default {
           this.screenReaderAlert = "New note saved";
         });
       } else {
-        if (this.subject) {
-          this.error = 'Note details required';
-        } else {
-          this.error = this.body ? 'Subject is required' : 'Both subject and note details are required.';
-        }
+        this.error = 'Subject is required';
         this.showErrorPopover = true;
         this.screenReaderAlert = `Validation failed: ${this.error}`;
+        this.putFocusNextTick('create-note-subject');
       }
     },
     maximize() {

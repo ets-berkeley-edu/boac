@@ -76,7 +76,7 @@
               <b-btn
                 variant="link"
                 class="pl-0"
-                @click="editingMessageId = message.transientId">
+                @click="onEditNoteClick(message)">
                 Edit Note
               </b-btn>
             </div>
@@ -303,6 +303,10 @@ export default {
       this.countsPerType.note++;
       this.sortMessages();
       this.gaNoteEvent(note.id, `Advisor ${this.user.uid} created note`, 'create');
+    },
+    onEditNoteClick(message) {
+      this.editingMessageId = message.transientId;
+      this.putFocusNextTick('edit-note-subject');
     },
     onNewNoteModeChange(mode) {
       this.newNoteMode = mode;
