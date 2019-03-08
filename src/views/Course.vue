@@ -146,7 +146,7 @@
               class="course-list-view-row"
               :class="{'list-group-item-info': featured===student.uid}">
               <td class="course-list-view-column course-list-view-column-checkbox">
-                <CuratedStudentCheckbox :sid="student.sid" />
+                <CuratedStudentCheckbox :student="student" />
               </td>
               <td class="course-list-view-column course-list-view-column-avatar">
                 <StudentAvatar :student="student" size="medium" />

@@ -53,17 +53,17 @@
           :id="`curated-group-${group.id}-menu-item`"
           :key="group.id"
           class="b-dd-item-override"
-          @keyup.space.prevent.stop="curatedGroupCheckboxClick(group)">
+          :aria-label="`Hit return key to add students to curated group '${group.name}'`"
+          @click="curatedGroupCheckboxClick(group)">
           <input
             :id="`curated-group-${group.id}-checkbox`"
             type="checkbox"
-            :aria-labelledby="`curated-group-${group.id}-name`"
+            :aria-label="`Hit space-bar to add students to curated group '${group.name}'`"
             @click="curatedGroupCheckboxClick(group)" />
           <label
             :id="`curated-group-${group.id}-name`"
             :for="`curated-group-${group.id}-checkbox`"
-            class="cohort-checkbox-name pb-0 pt-0"
-            :aria-label="`Add students to curated group '${group.name}'`">{{ group.name }}</label>
+            class="cohort-checkbox-name pb-0 pt-0">{{ group.name }}</label>
         </b-dropdown-item>
         <b-dropdown-divider></b-dropdown-divider>
         <b-dropdown-item>
