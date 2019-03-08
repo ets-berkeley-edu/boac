@@ -50,11 +50,26 @@ class Note(Base):
         self.body = body
 
     @classmethod
+    def find_by_id(cls, note_id):
+        return cls.query.filter_by(id=note_id).first()
+
+    @classmethod
     def create(cls, author_uid, author_name, author_role, author_dept_codes, sid, subject, body):
         note = cls(author_uid, author_name, author_role, author_dept_codes, sid, subject, body)
         db.session.add(note)
         std_commit()
         return note
+
+    @classmethod
+    def update(cls, note_id, subject, body):
+        note = cls.find_by_id(note_id=note_id)
+        if note:
+            note.subject = subject
+            note.body = body
+            std_commit()
+            return note
+        else:
+            return None
 
     @classmethod
     def get_notes_by_sid(cls, sid):

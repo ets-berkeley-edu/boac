@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import current_user_profile, feature_flag_create_notes, get_dept_codes, get_dept_role
+from boac.api.util import current_user_profile, feature_flag_edit_notes, get_dept_codes, get_dept_role
 from boac.lib.http import tolerant_jsonify
 from boac.merged.advising_note import get_attachment_stream, note_to_compatible_json
 from boac.models.note import Note
@@ -44,7 +44,6 @@ def mark_read(note_id):
 
 @app.route('/api/notes/create', methods=['POST'])
 @login_required
-@feature_flag_create_notes
 def create_note():
     params = request.get_json()
     sid = params.get('sid', None)
@@ -66,6 +65,27 @@ def create_note():
         subject=subject,
         body=body,
         sid=sid,
+    )
+    note_json = note_to_compatible_json(note.to_api_json())
+    return tolerant_jsonify(note_json)
+
+
+@app.route('/api/notes/update', methods=['POST'])
+@login_required
+@feature_flag_edit_notes
+def update_note():
+    params = request.get_json()
+    note_id = params.get('id', None)
+    subject = params.get('subject', None)
+    body = params.get('body', None)
+    if not note_id or not subject or not body:
+        raise BadRequestError('Note requires \'id\', \'subject\', and \'body\'')
+    if Note.find_by_id(note_id=note_id).author_uid != current_user.uid:
+        raise ForbiddenRequestError('Sorry, you are not the author of this note.')
+    note = Note.update(
+        note_id=note_id,
+        subject=subject,
+        body=body,
     )
     note_json = note_to_compatible_json(note.to_api_json())
     return tolerant_jsonify(note_json)

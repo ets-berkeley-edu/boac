@@ -18,3 +18,14 @@ export function createNote(sid: object, subject: string, body: string) {
     })
     .then(response => response.data);
 }
+
+export function updateNote(noteId: number, subject: string, body: string) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .post(`${apiBaseUrl}/api/notes/update`, {
+      id: noteId,
+      subject: subject,
+      body: body
+    })
+    .then(response => response.data);
+}

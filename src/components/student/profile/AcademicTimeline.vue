@@ -34,7 +34,7 @@
           </div>
         </div>
       </div>
-      <div v-if="featureFlagCreateNotes && !user.isAdmin">
+      <div v-if="!user.isAdmin">
         <NewNoteModal :student="student" :on-successful-create="onCreateAdvisingNote" />
       </div>
     </div>
@@ -66,6 +66,16 @@
               tabindex="0">
               <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
             </div>
+            <div
+              v-if="featureFlagEditNotes && message.type === 'note' && !message.isLegacy && message.transientId !== editingMessageId && includes(openMessages, message.transientId)"
+              class="mt-3">
+              <b-btn
+                variant="link"
+                class="pl-0"
+                @click="editingMessageId = message.transientId">
+                Edit Note
+              </b-btn>
+            </div>
           </td>
           <td
             class="column-message align-top"
@@ -85,9 +95,14 @@
               <i v-if="message.status === 'In Progress'" class="requirements-icon fas fa-clock text-icon-clock"></i>
               <span v-if="message.type !== 'note'">{{ message.message }}</span>
               <AdvisingNote
-                v-if="message.type === 'note'"
+                v-if="message.type === 'note' && message.transientId !== editingMessageId"
                 :note="message"
                 :is-open="includes(openMessages, message.transientId)" />
+              <EditAdvisingNote
+                v-if="featureFlagEditNotes && message.type === 'note' && message.transientId === editingMessageId"
+                :after-cancelled="afterEditCancel"
+                :note="message"
+                :after-saved="afterNoteUpdated" />
             </div>
           </td>
           <td class="column-right align-top pt-1 pr-1">
@@ -154,6 +169,7 @@
 <script>
 import AdvisingNote from "@/components/note/AdvisingNote";
 import Context from '@/mixins/Context';
+import EditAdvisingNote from '@/components/note/EditAdvisingNote';
 import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import NewNoteModal from "@/components/note/NewNoteModal";
 import TimelineDate from '@/components/student/profile/TimelineDate';
@@ -164,7 +180,7 @@ import { markRead } from '@/api/notes';
 
 export default {
   name: 'AcademicTimeline',
-  components: {AdvisingNote, NewNoteModal, TimelineDate},
+  components: {AdvisingNote, EditAdvisingNote, NewNoteModal, TimelineDate},
   mixins: [Context, GoogleAnalytics, UserMetadata, Util],
   props: {
     student: Object
@@ -172,6 +188,7 @@ export default {
   data: () => ({
     countsPerType: undefined,
     defaultShowPerTab: 5,
+    editingMessageId: undefined,
     filter: undefined,
     filterTypes: {
       note: {
@@ -240,6 +257,16 @@ export default {
     this.isTimelineLoading = false;
   },
   methods: {
+    afterEditCancel() {
+      this.editingMessageId = null;
+    },
+    afterNoteUpdated(noteId, subject, body) {
+      const note = this.find(this.messages, ['id', noteId]);
+      note.subject = subject;
+      note.body = note.message = body;
+      this.editingMessageId = null;
+      this.screenReaderAlert = 'Changes to note have been saved';
+    },
     describeTheActiveTab() {
       const inViewCount =
         this.isShowAll || this.countPerActiveTab <= this.defaultShowPerTab
@@ -287,22 +314,24 @@ export default {
       });
     },
     toggle(message) {
-      if (this.includes(this.openMessages, message.transientId)) {
-        this.openMessages = this.remove(
-          this.openMessages,
-          id => id !== message.transientId
-        );
-      } else {
-        this.openMessages.push(message.transientId);
-      }
-      if (!message.read) {
-        message.read = true;
-        if (this.includes(['alert', 'hold'], message.type)) {
-          dismissStudentAlert(message.id);
-          this.gaStudentAlert(message.id, `Advisor ${this.user.uid} dismissed alert`, 'view')
-        } else if (message.type === 'note') {
-          markRead(message.id);
-          this.gaNoteEvent(message.id, `Advisor ${this.user.uid} read note`, 'view');
+      if (message.transientId !== this.editingMessageId) {
+        if (this.includes(this.openMessages, message.transientId)) {
+          this.openMessages = this.remove(
+            this.openMessages,
+            id => id !== message.transientId
+          );
+        } else {
+          this.openMessages.push(message.transientId);
+        }
+        if (!message.read) {
+          message.read = true;
+          if (this.includes(['alert', 'hold'], message.type)) {
+            dismissStudentAlert(message.id);
+            this.gaStudentAlert(message.id, `Advisor ${this.user.uid} dismissed alert`, 'view')
+          } else if (message.type === 'note') {
+            markRead(message.id);
+            this.gaNoteEvent(message.id, `Advisor ${this.user.uid} read note`, 'view');
+          }
         }
       }
     }

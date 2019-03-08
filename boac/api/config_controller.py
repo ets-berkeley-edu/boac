@@ -42,7 +42,7 @@ def app_config():
         'disableMatrixViewThreshold': app.config['DISABLE_MATRIX_VIEW_THRESHOLD'],
         'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],
         'ebEnvironment': app.config['EB_ENVIRONMENT'] if 'EB_ENVIRONMENT' in app.config else None,
-        'featureFlagCreateNotes': app.config['FEATURE_FLAG_CREATE_NOTES'],
+        'featureFlagEditNotes': app.config['FEATURE_FLAG_EDIT_NOTES'],
         'googleAnalyticsId': app.config['GOOGLE_ANALYTICS_ID'],
         'supportEmailAddress': app.config['BOAC_SUPPORT_EMAIL'],
     })

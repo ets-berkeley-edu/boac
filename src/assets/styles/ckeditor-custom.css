@@ -1,3 +1,7 @@
+#edit-note-details .ck-editor__editable {
+  height: 180px;
+  width: 100%;
+}
 #note-details .ck-editor__editable {
   height: 180px;
   width: 100%;

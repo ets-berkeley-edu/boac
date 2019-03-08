@@ -54,14 +54,14 @@ def admin_required(func):
     return _admin_required
 
 
-def feature_flag_create_notes(func):
+def feature_flag_edit_notes(func):
     @wraps(func)
-    def _feature_flag_create_notes(*args, **kw):
-        if app.config['FEATURE_FLAG_CREATE_NOTES']:
+    def _feature_flag_edit_notes(*args, **kw):
+        if app.config['FEATURE_FLAG_EDIT_NOTES']:
             return func(*args, **kw)
         else:
             raise ResourceNotFoundError('API path not found')
-    return _feature_flag_create_notes
+    return _feature_flag_edit_notes
 
 
 def add_alert_counts(alert_counts, students):
