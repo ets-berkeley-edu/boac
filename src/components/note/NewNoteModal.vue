@@ -6,7 +6,7 @@
         id="new-note-button"
         class="mt-1 mr-2 btn-primary-color-override"
         variant="primary"
-        :disabled="includes(['minimized', 'open'], mode)"
+        :disabled="disable || includes(['minimized', 'open'], mode)"
         @click="openNewNoteModal()">
         <span class="m-1">
           <i class="fas fa-file-alt"></i>
@@ -16,7 +16,7 @@
     </div>
     <div
       :class="{
-        'd-none': mode === 'hidden',
+        'd-none': mode === 'closed',
         'modal-open': mode === 'open',
         'modal-open modal-minimized': mode === 'minimized',
         'modal-open modal-saving': mode === 'saving'
@@ -63,7 +63,8 @@
               aria-labelledby="create-note-subject-label"
               class="cohort-create-input-name"
               type="text"
-              maxlength="255">
+              maxlength="255"
+              @keydown.esc="cancel">
           </div>
           <div>
             <label for="create-note-body" class="input-label mt-3 mb-1">Note Details</label>
@@ -120,7 +121,7 @@
       v-if="showErrorPopover"
       :show.sync="showErrorPopover"
       placement="top"
-      :target="`${subject ? 'create-note-body' : 'create-note-subject'}`"
+      target="create-note-subject"
       title="">
       <span class="has-error">{{ error }}</span>
     </b-popover>
@@ -138,6 +139,8 @@ export default {
   name: 'NewNoteModal',
   mixins: [Util],
   props: {
+    disable: Boolean,
+    onModeChange: Function,
     onSuccessfulCreate: Function,
     student: Object
   },
@@ -155,11 +158,14 @@ export default {
     }
   }),
   watch: {
-    body(str) {
-      if (str) this.clearError();
+    body(b) {
+      if (b) this.clearError();
     },
-    subject(str) {
-      if (str) this.clearError();
+    mode(m) {
+      this.onModeChange(m);
+    },
+    subject(s) {
+      if (s) this.clearError();
     }
   },
   created() {
@@ -176,8 +182,8 @@ export default {
     },
     create() {
       this.subject = this.trim(this.subject);
-      this.body = this.trim(this.body);
-      if (this.subject && this.body) {
+      if (this.subject) {
+        this.body = this.trim(this.body);
         this.mode = 'saving';
         createNote(this.student.sid, this.subject, this.body).then(data => {
           this.reset();
@@ -185,13 +191,10 @@ export default {
           this.screenReaderAlert = "New note saved";
         });
       } else {
-        if (this.subject) {
-          this.error = 'Note details required';
-        } else {
-          this.error = this.body ? 'Subject is required' : 'Both subject and note details are required.';
-        }
+        this.error = 'Subject is required';
         this.showErrorPopover = true;
         this.screenReaderAlert = `Validation failed: ${this.error}`;
+        this.putFocusNextTick('create-note-subject');
       }
     },
     maximize() {
@@ -210,7 +213,7 @@ export default {
        this.putFocusNextTick('create-note-subject');
     },
     reset() {
-      this.mode = 'hidden';
+      this.mode = 'closed';
       this.subject = this.body = undefined;
     }
   }
