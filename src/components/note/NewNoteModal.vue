@@ -6,7 +6,7 @@
         id="new-note-button"
         class="mt-1 mr-2 btn-primary-color-override"
         variant="primary"
-        :disabled="includes(['minimized', 'open'], mode)"
+        :disabled="disable || includes(['minimized', 'open'], mode)"
         @click="openNewNoteModal()">
         <span class="m-1">
           <i class="fas fa-file-alt"></i>
@@ -16,7 +16,7 @@
     </div>
     <div
       :class="{
-        'd-none': mode === 'hidden',
+        'd-none': mode === 'closed',
         'modal-open': mode === 'open',
         'modal-open modal-minimized': mode === 'minimized',
         'modal-open modal-saving': mode === 'saving'
@@ -138,6 +138,8 @@ export default {
   name: 'NewNoteModal',
   mixins: [Util],
   props: {
+    disable: Boolean,
+    onModeChange: Function,
     onSuccessfulCreate: Function,
     student: Object
   },
@@ -155,11 +157,14 @@ export default {
     }
   }),
   watch: {
-    body(str) {
-      if (str) this.clearError();
+    body(b) {
+      if (b) this.clearError();
     },
-    subject(str) {
-      if (str) this.clearError();
+    mode(m) {
+      this.onModeChange(m);
+    },
+    subject(s) {
+      if (s) this.clearError();
     }
   },
   created() {
@@ -210,7 +215,7 @@ export default {
        this.putFocusNextTick('create-note-subject');
     },
     reset() {
-      this.mode = 'hidden';
+      this.mode = 'closed';
       this.subject = this.body = undefined;
     }
   }

@@ -35,7 +35,11 @@
         </div>
       </div>
       <div v-if="!user.isAdmin">
-        <NewNoteModal :student="student" :on-successful-create="onCreateAdvisingNote" />
+        <NewNoteModal
+          :disable="!isNil(editingMessageId)"
+          :student="student"
+          :on-mode-change="onNewNoteModeChange"
+          :on-successful-create="onCreateAdvisingNote" />
       </div>
     </div>
 
@@ -67,7 +71,7 @@
               <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
             </div>
             <div
-              v-if="featureFlagEditNotes && message.type === 'note' && !message.isLegacy && message.transientId !== editingMessageId && includes(openMessages, message.transientId)"
+              v-if="featureFlagEditNotes && isNil(editingMessageId) && newNoteMode === 'closed' && message.type === 'note' && !message.isLegacy && includes(openMessages, message.transientId)"
               class="mt-3">
               <b-btn
                 variant="link"
@@ -211,9 +215,9 @@ export default {
     isShowingAll: false,
     isTimelineLoading: true,
     messages: undefined,
+    newNoteMode: undefined,
     openMessages: [],
-    screenReaderAlert: undefined,
-    showNewNoteModal: false
+    screenReaderAlert: undefined
   }),
   computed: {
     activeTab() {
@@ -299,6 +303,9 @@ export default {
       this.countsPerType.note++;
       this.sortMessages();
       this.gaNoteEvent(note.id, `Advisor ${this.user.uid} created note`, 'create');
+    },
+    onNewNoteModeChange(mode) {
+      this.newNoteMode = mode;
     },
     sortMessages() {
       this.messages.sort((m1, m2) => {
