@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-click-outside="clickOutside">
     <div id="sr-alert-new-note" class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
     <div>
       <b-btn
@@ -64,7 +64,7 @@
               class="cohort-create-input-name"
               type="text"
               maxlength="255"
-              @keydown.esc="cancel">
+              @keydown.esc="cancel()">
           </div>
           <div>
             <label for="create-note-body" class="input-label mt-3 mb-1">Note Details</label>
@@ -100,7 +100,7 @@
           aria-label="Bring create-note form into view"
           variant="link"
           class="pr-2"
-          @click.prevent="maximize()">
+          @click.stop="maximize()">
           <span class="sr-only">Maximize</span>
           <i class="fas fa-window-maximize fa-icon-size text-white"></i>
         </b-btn>
@@ -117,6 +117,12 @@
         </b-btn>
       </div>
     </div>
+    <AreYouSureModal
+      v-if="showAreYouSureModal"
+      :function-cancel="cancelTheCancel"
+      :function-confirm="cancelConfirmed"
+      modal-header="Discard unsaved note?"
+      :show-modal="showAreYouSureModal" />
     <b-popover
       v-if="showErrorPopover"
       :show.sync="showErrorPopover"
@@ -129,6 +135,7 @@
 </template>
 
 <script>
+import AreYouSureModal from '@/components/util/AreYouSureModal';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Util from '@/mixins/Util';
 import { createNote } from '@/api/notes';
@@ -137,6 +144,7 @@ require('@/assets/styles/ckeditor-custom.css');
 
 export default {
   name: 'NewNoteModal',
+  components: { AreYouSureModal },
   mixins: [Util],
   props: {
     disable: Boolean,
@@ -155,7 +163,8 @@ export default {
     editor: ClassicEditor,
     editorConfig: {
       toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
-    }
+    },
+    showAreYouSureModal: false
   }),
   watch: {
     body(b) {
@@ -173,12 +182,29 @@ export default {
   },
   methods: {
     cancel() {
+      if (this.trim(this.subject) || this.stripHtmlAndTrim(this.body)) {
+        this.showAreYouSureModal = true;
+      } else {
+        this.cancelConfirmed();
+      }
+    },
+    cancelConfirmed() {
+      this.showAreYouSureModal = false;
       this.reset();
       this.screenReaderAlert = "Cancelled create new note";
+    },
+    cancelTheCancel() {
+      this.showAreYouSureModal = false;
+      this.putFocusNextTick('create-note-subject');
     },
     clearError() {
       this.error = null;
       this.showErrorPopover = false;
+    },
+    clickOutside() {
+      if (this.mode === 'open') {
+        this.cancel();
+      }
     },
     create() {
       this.subject = this.trim(this.subject);

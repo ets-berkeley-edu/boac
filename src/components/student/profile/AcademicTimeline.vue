@@ -76,7 +76,7 @@
               <b-btn
                 variant="link"
                 class="pl-0"
-                @click="onEditNoteClick(message)">
+                @click.stop="onEditNoteClick(message)">
                 Edit Note
               </b-btn>
             </div>
