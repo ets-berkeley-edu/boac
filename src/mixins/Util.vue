@@ -49,6 +49,11 @@ export default {
     size: _.size,
     slice: _.slice,
     split: _.split,
+    stripHtmlAndTrim: (html) => {
+      let text = html && html.replace(/<([^>]+)>/ig,"");
+      text = text && text.replace(/&nbsp;/g, '');
+      return _.trim(text);
+    },
     toInt: (value, defaultValue = null) => {
       const parsed = parseInt(value, 10);
       return Number.isInteger(parsed) ? parsed : defaultValue;

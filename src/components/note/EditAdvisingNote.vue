@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="save()">
+  <form v-click-outside="cancel" @submit.prevent="save()">
     <div id="sr-alert-edit-note" class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
     <div>
       <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
@@ -12,7 +12,7 @@
         class="cohort-create-input-name"
         type="text"
         maxlength="255"
-        @keydown.esc="cancel">
+        @keydown.esc="cancel()">
     </div>
     <div>
       <label class="font-weight-bold mt-2" for="edit-note-details">
@@ -35,6 +35,12 @@
         <b-btn variant="link" @click="cancel()">Cancel</b-btn>
       </div>
     </div>
+    <AreYouSureModal
+      v-if="showAreYouSureModal"
+      :function-cancel="cancelTheCancel"
+      :function-confirm="cancelConfirmed"
+      modal-header="Discard unsaved note changes?"
+      :show-modal="showAreYouSureModal" />
     <b-popover
       v-if="showErrorPopover"
       :show.sync="showErrorPopover"
@@ -47,6 +53,7 @@
 </template>
 
 <script>
+import AreYouSureModal from '@/components/util/AreYouSureModal';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Util from '@/mixins/Util';
 import { updateNote } from '@/api/notes';
@@ -55,6 +62,7 @@ require('@/assets/styles/ckeditor-custom.css');
 
 export default {
   name: 'EditAdvisingNote',
+  components: { AreYouSureModal },
   mixins: [Util],
   props: {
     afterCancelled: Function,
@@ -63,14 +71,15 @@ export default {
   },
   data: () => ({
     body: undefined,
-    error: undefined,
-    showErrorPopover: false,
-    screenReaderAlert: undefined,
-    subject: undefined,
     editor: ClassicEditor,
     editorConfig: {
       toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
-    }
+    },
+    error: undefined,
+    screenReaderAlert: undefined,
+    showAreYouSureModal: false,
+    showErrorPopover: false,
+    subject: undefined
   }),
   created() {
     this.screenReaderAlert = 'The edit note form has loaded.';
@@ -78,9 +87,20 @@ export default {
   },
   methods: {
     cancel() {
+      if (this.trim(this.subject) === this.note.subject && this.stripHtmlAndTrim(this.body) === this.stripHtmlAndTrim(this.note.body)) {
+        this.cancelConfirmed();
+      } else {
+        this.showAreYouSureModal = true;
+      }
+    },
+    cancelConfirmed() {
       this.screenReaderAlert = 'Edit note form cancelled.';
       this.afterCancelled();
       this.reset();
+    },
+    cancelTheCancel() {
+      this.showAreYouSureModal = false;
+      this.putFocusNextTick('edit-note-subject');
     },
     clearError() {
       this.error = null;
