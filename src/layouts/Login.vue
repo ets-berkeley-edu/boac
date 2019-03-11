@@ -76,7 +76,7 @@ export default {
       if (this.size(this.errors)) {
         this.errorMessages = this.map(this.errors, 'message');
         this.putFocusNextTick('splash-sign-in');
-        this.clearErrorsInStore();
+        this.clearAlertsInStore();
       }
     },
     logIn() {

@@ -1,6 +1,5 @@
 <template>
   <div v-click-outside="clickOutside">
-    <div id="sr-alert-new-note" class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
     <div>
       <b-btn
         id="new-note-button"
@@ -137,6 +136,7 @@
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import Context from '@/mixins/Context';
 import Util from '@/mixins/Util';
 import { createNote } from '@/api/notes';
 
@@ -145,7 +145,7 @@ require('@/assets/styles/ckeditor-custom.css');
 export default {
   name: 'NewNoteModal',
   components: { AreYouSureModal },
-  mixins: [Util],
+  mixins: [Context, Util],
   props: {
     disable: Boolean,
     onModeChange: Function,
@@ -158,7 +158,6 @@ export default {
     isMinimizing: false,
     mode: undefined,
     showErrorPopover: false,
-    screenReaderAlert: undefined,
     subject: undefined,
     editor: ClassicEditor,
     editorConfig: {
@@ -191,7 +190,7 @@ export default {
     cancelConfirmed() {
       this.showAreYouSureModal = false;
       this.reset();
-      this.screenReaderAlert = "Cancelled create new note";
+      this.alertScreenReader("Cancelled create new note");
     },
     cancelTheCancel() {
       this.showAreYouSureModal = false;
@@ -214,25 +213,25 @@ export default {
         createNote(this.student.sid, this.subject, this.body).then(data => {
           this.reset();
           this.onSuccessfulCreate(data);
-          this.screenReaderAlert = "New note saved";
+          this.alertScreenReader("New note saved.");
         });
       } else {
         this.error = 'Subject is required';
         this.showErrorPopover = true;
-        this.screenReaderAlert = `Validation failed: ${this.error}`;
+        this.alertScreenReader(`Validation failed: ${this.error}`);
         this.putFocusNextTick('create-note-subject');
       }
     },
     maximize() {
       this.mode = 'open';
-      this.screenReaderAlert = "The create-note form is visible";
+      this.alertScreenReader("Create note form is visible.");
       this.putFocusNextTick('create-note-subject');
     },
     minimize() {
       this.isMinimizing = true;
       this.mode = 'minimized';
       setTimeout(() => this.isMinimizing = false, 300);
-      this.screenReaderAlert = "The create-note form minimized";
+      this.alertScreenReader("Create note form minimized.");
     },
     openNewNoteModal() {
        this.mode = 'open';
