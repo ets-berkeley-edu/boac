@@ -5,6 +5,13 @@
       <span v-if="!note.subject && size(note.message)" v-html="note.message"></span>
       <span v-if="!note.subject && !size(note.message)">{{ note.category }}<span v-if="note.subcategory">, {{ note.subcategory }}</span></span>
     </div>
+    <div v-if="isOpen">
+      <b-btn
+        class="sr-only"
+        @click.stop="editNote(note)">
+        Edit Note
+      </b-btn>
+    </div>
     <div v-if="isOpen && note.subject && note.message" class="mt-2">
       <span :id="`note-${note.id}-message-open`" v-html="note.message"></span>
     </div>
@@ -80,6 +87,7 @@ export default {
   name: 'AdvisingNote',
   mixins: [Context, UserMetadata, Util],
   props: {
+    editNote: Function,
     isOpen: Boolean,
     note: Object
   },

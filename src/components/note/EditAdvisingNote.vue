@@ -1,6 +1,5 @@
 <template>
   <form v-click-outside="cancel" @submit.prevent="save()">
-    <div id="sr-alert-edit-note" class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
     <div>
       <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
     </div>
@@ -32,14 +31,14 @@
         <b-btn class="btn-primary-color-override" variant="primary" @click="save()">Save</b-btn>
       </div>
       <div>
-        <b-btn variant="link" @click="cancel()">Cancel</b-btn>
+        <b-btn variant="link" @click.stop="cancel()" @keypress.enter.stop="cancel()">Cancel</b-btn>
       </div>
     </div>
     <AreYouSureModal
       v-if="showAreYouSureModal"
       :function-cancel="cancelTheCancel"
       :function-confirm="cancelConfirmed"
-      modal-header="Discard unsaved note changes?"
+      modal-header="Discard unsaved note?"
       :show-modal="showAreYouSureModal" />
     <b-popover
       v-if="showErrorPopover"
@@ -55,6 +54,7 @@
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import Context from '@/mixins/Context';
 import Util from '@/mixins/Util';
 import { updateNote } from '@/api/notes';
 
@@ -63,7 +63,7 @@ require('@/assets/styles/ckeditor-custom.css');
 export default {
   name: 'EditAdvisingNote',
   components: { AreYouSureModal },
-  mixins: [Util],
+  mixins: [Context, Util],
   props: {
     afterCancelled: Function,
     afterSaved: Function,
@@ -76,13 +76,12 @@ export default {
       toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
     },
     error: undefined,
-    screenReaderAlert: undefined,
     showAreYouSureModal: false,
     showErrorPopover: false,
     subject: undefined
   }),
   created() {
-    this.screenReaderAlert = 'The edit note form has loaded.';
+    this.alertScreenReader('The edit note form has loaded.');
     this.reset();
   },
   methods: {
@@ -94,11 +93,12 @@ export default {
       }
     },
     cancelConfirmed() {
-      this.screenReaderAlert = 'Edit note form cancelled.';
+      this.alertScreenReader('Edit note form cancelled.');
       this.afterCancelled();
       this.reset();
     },
     cancelTheCancel() {
+      this.alertScreenReader('Continue editing note.');
       this.showAreYouSureModal = false;
       this.putFocusNextTick('edit-note-subject');
     },
@@ -120,7 +120,7 @@ export default {
       } else {
         this.error = 'Subject is required';
         this.showErrorPopover = true;
-        this.screenReaderAlert = `Validation failed: ${this.error}`;
+        this.alertScreenReader(`Validation failed: ${this.error}`);
         this.putFocusNextTick('edit-note-subject');
       }
     }

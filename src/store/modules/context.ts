@@ -5,7 +5,8 @@ import Vue from 'vue';
 const state = {
   config: undefined,
   errors: [],
-  loading: undefined
+  loading: undefined,
+  screenReaderAlert: undefined
 };
 
 const getters = {
@@ -17,11 +18,15 @@ const getters = {
   featureFlagEditNotes: (state: any): any => _.get(state.config, 'featureFlagEditNotes'),
   googleAnalyticsId: (state: any): string => _.get(state.config, 'googleAnalyticsId'),
   loading: (state: any): boolean => state.loading,
+  srAlert: (state: any): string => state.screenReaderAlert,
   supportEmailAddress: (state: any): string => _.get(state.config, 'supportEmailAddress')
 };
 
 const mutations = {
-  clearErrorsInStore: (state: any) => (state.errors = []),
+  clearAlertsInStore: (state: any) => {
+    state.errors = [];
+    state.screenReaderAlert = undefined;
+  },
   dismissError: (state: any, id: number) => {
     const indexOf = state.errors.findIndex((e: any) => e.id === id);
     if (indexOf > -1) {
@@ -35,11 +40,12 @@ const mutations = {
     state.errors.push(error);
     Vue.prototype.$eventHub.$emit('error-reported', error);
   },
+  screenReaderAlert: (state: any, alert: any) => (state.screenReaderAlert = alert),
   storeConfig: (state: any, config: any) => (state.config = config)
 };
 
 const actions = {
-  clearErrorsInStore: ({ commit }) => commit('clearErrorsInStore'),
+  clearAlertsInStore: ({ commit }) => commit('clearAlertsInStore'),
   dismissError: ({ commit }, id) => commit('dismissError', id),
   loadingComplete: ({ commit }) => commit('loadingComplete'),
   loadingStart: ({ commit }) => commit('loadingStart'),
@@ -55,7 +61,8 @@ const actions = {
       }
     });
   },
-  reportError: ({ commit }, error) => commit('reportError', error)
+  reportError: ({ commit }, error) => commit('reportError', error),
+  alertScreenReader: ({ commit }, alert) => commit('screenReaderAlert', alert)
 };
 
 export default {

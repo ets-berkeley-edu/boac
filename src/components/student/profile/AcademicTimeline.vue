@@ -3,7 +3,6 @@
     <div class="d-flex justify-content-between">
       <div>
         <h2 class="student-section-header">Academic Timeline</h2>
-        <div id="screen-reader-alert" class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
         <div class="d-flex mt-3 mb-3">
           <div class="align-self-center mr-3">Filter Type:</div>
           <div>
@@ -76,7 +75,8 @@
               <b-btn
                 variant="link"
                 class="pl-0"
-                @click.stop="onEditNoteClick(message)">
+                @keypress.enter.stop="editNote(message)"
+                @click.stop="editNote(message)">
                 Edit Note
               </b-btn>
             </div>
@@ -100,6 +100,7 @@
               <span v-if="message.type !== 'note'">{{ message.message }}</span>
               <AdvisingNote
                 v-if="message.type === 'note' && message.transientId !== editingMessageId"
+                :edit-note="editNote"
                 :note="message"
                 :is-open="includes(openMessages, message.transientId)" />
               <EditAdvisingNote
@@ -237,11 +238,11 @@ export default {
   },
   watch: {
     filter() {
-      this.screenReaderAlert = this.describeTheActiveTab();
+      this.alertScreenReader(this.describeTheActiveTab());
       this.openMessages = [];
     },
     isShowingAll() {
-      this.screenReaderAlert = this.describeTheActiveTab();
+      this.alertScreenReader(this.describeTheActiveTab());
     }
   },
   created() {
@@ -257,7 +258,7 @@ export default {
       });
     });
     this.sortMessages();
-    this.screenReaderAlert = 'Academic Timeline has loaded';
+    this.alertScreenReader('Academic Timeline has loaded');
     this.isTimelineLoading = false;
   },
   methods: {
@@ -269,7 +270,7 @@ export default {
       note.subject = subject;
       note.body = note.message = body;
       this.editingMessageId = null;
-      this.screenReaderAlert = 'Changes to note have been saved';
+      this.alertScreenReader('Changes to note have been saved');
     },
     describeTheActiveTab() {
       const inViewCount =
@@ -304,7 +305,7 @@ export default {
       this.sortMessages();
       this.gaNoteEvent(note.id, `Advisor ${this.user.uid} created note`, 'create');
     },
-    onEditNoteClick(message) {
+    editNote(message) {
       this.editingMessageId = message.transientId;
       this.putFocusNextTick('edit-note-subject');
     },

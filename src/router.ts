@@ -137,7 +137,7 @@ const router = new Router({
 
 router.beforeEach((to: any, from: any, next: any) => {
   store.dispatch('context/loadConfig').then(() => {
-    store.dispatch('context/clearErrorsInStore').then(() => next());
+    store.dispatch('context/clearAlertsInStore').then(() => next());
   });
 });
 

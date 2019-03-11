@@ -10,14 +10,16 @@ export default {
       'devAuthEnabled',
       'errors',
       'featureFlagEditNotes',
+      'srAlert',
       'supportEmailAddress'
     ])
   },
   methods: {
     ...mapActions('context', [
-      'clearErrorsInStore',
+      'clearAlertsInStore',
       'dismissError',
-      'reportError'
+      'reportError',
+      'alertScreenReader'
     ])
   }
 };

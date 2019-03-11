@@ -24,6 +24,7 @@
       </div>
       <div class="index-container-content">
         <div id="content" class="body-text">
+          <span v-if="srAlert" class="sr-only" aria-live="polite">{{ srAlert }}</span>
           <!-- The ':key' attribute forces component reload when same route is requested with diff id in path. -->
           <router-view :key="stripAnchorRef($route.fullPath)"></router-view>
         </div>
@@ -34,6 +35,7 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context';
 import Footer from '@/components/Footer';
 import HeaderMenu from '@/components/HeaderMenu';
 import Loading from '@/mixins/Loading';
@@ -47,7 +49,7 @@ export default {
     HeaderMenu,
     Sidebar
   },
-  mixins: [Loading, Util],
+  mixins: [Context, Loading, Util],
   created() {
     this.putFocusNextTick('home-header');
   },
