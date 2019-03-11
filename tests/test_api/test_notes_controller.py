@@ -204,7 +204,21 @@ class TestUpdateNotes:
 
 class TestEditNoteFeatureFlag:
 
-    def test_feature_flag_false(self, app, client, fake_auth):
+    def test_create_note_feature_flag_false(self, app, client, fake_auth):
+        """Returns 404 if feature flag is false."""
+        app.config['FEATURE_FLAG_EDIT_NOTES'] = False
+        fake_auth.login(coe_advisor_uid)
+        assert 404 == client.post(
+            '/api/notes/create',
+            data=json.dumps({
+                'sid': student['sid'],
+                'subject': 'A dreaded sunny day',
+                'body': 'So I meet you at the cemetry gates',
+            }),
+            content_type='application/json',
+        ).status_code
+
+    def test_edit_note_feature_flag_false(self, app, client, fake_auth):
         """Returns 404 if feature flag is false. TODO: Remove when feature is live."""
         app.config['FEATURE_FLAG_EDIT_NOTES'] = False
         note = Note.find_by_id(note_id=1)
