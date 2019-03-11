@@ -44,6 +44,7 @@ def mark_read(note_id):
 
 @app.route('/api/notes/create', methods=['POST'])
 @login_required
+@feature_flag_edit_notes
 def create_note():
     params = request.get_json()
     sid = params.get('sid', None)

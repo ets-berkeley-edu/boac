@@ -33,7 +33,7 @@
           </div>
         </div>
       </div>
-      <div v-if="!user.isAdmin">
+      <div v-if="featureFlagEditNotes && !user.isAdmin">
         <NewNoteModal
           :disable="!isNil(editingMessageId)"
           :student="student"
