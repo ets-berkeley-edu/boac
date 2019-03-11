@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import get_my_cohorts, is_unauthorized_search, strip_analytics
+from boac.api.util import get_my_cohorts, is_unauthorized_search
 from boac.lib.berkeley import can_view_cohort
 from boac.lib.cohort_filter_definition import translate_filters_to_cohort_criteria
 from boac.lib.http import tolerant_jsonify
@@ -76,7 +76,9 @@ def students_with_alerts(cohort_id):
         alert_profiles_by_sid = {p['sid']: p for p in alert_profiles}
         for student in students:
             student.update(alert_profiles_by_sid[student['sid']])
-            strip_analytics(student)
+            # The enrolled units count is the one piece of term data we want to preserve.
+            if student.get('term'):
+                student['term'] = {'enrolledUnits': student['term'].get('enrolledUnits')}
     else:
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
     return tolerant_jsonify(students)

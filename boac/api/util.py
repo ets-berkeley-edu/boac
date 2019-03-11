@@ -232,15 +232,6 @@ def sort_students_by_name(students):
     return sorted(students, key=lambda s: (s['lastName'], s['firstName']))
 
 
-def strip_analytics(student_term_data):
-    if student_term_data.get('analytics'):
-        del student_term_data['analytics']
-    # The enrolled units count is the one piece of term data we want to preserve.
-    if student_term_data.get('term'):
-        student_term_data['term'] = {'enrolledUnits': student_term_data['term'].get('enrolledUnits')}
-    return student_term_data
-
-
 def translate_grading_basis(code):
     bases = {
         'CNC': 'C/NC',

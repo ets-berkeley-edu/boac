@@ -1,18 +1,4 @@
 {
-  "analytics": {
-    "assignmentsSubmitted": {
-      "displayPercentile": "62nd",
-      "percentile": 62
-    },
-    "currentScore": {
-      "displayPercentile": "93rd",
-      "percentile": 93
-    },
-    "lastActivity": {
-      "displayPercentile": "36th",
-      "percentile": 35.666666666666664
-    }
-  },
   "droppedSections": [
     {
       "component": "TUT",

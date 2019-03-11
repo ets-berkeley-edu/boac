@@ -92,7 +92,7 @@ class TestCohortDetail:
         deborah = students_with_alerts[0]
         assert deborah['sid'] == '11667051'
         assert deborah['alertCount'] == 3
-        # Summary student data is included with alert counts, but full term and analytics feeds are not.
+        # Summary student data is included with alert counts, but full term feeds are not.
         assert deborah['cumulativeGPA'] == 3.8
         assert deborah['cumulativeUnits'] == 101.3
         assert deborah['expectedGraduationTerm']['name'] == 'Fall 2019'
@@ -100,7 +100,6 @@ class TestCohortDetail:
         assert len(deborah['majors']) == 2
         assert deborah['term']['enrolledUnits'] == 12.5
         assert deborah['termGpa'][0]['gpa'] == 2.9
-        assert 'analytics' not in deborah
         assert 'enrollments' not in deborah['term']
 
         dave_doolittle = students_with_alerts[1]
@@ -183,7 +182,7 @@ class TestCohortDetail:
         assert athlete['majors'] == ['English BA', 'Nuclear Engineering BS']
 
     def test_includes_cohort_member_current_enrollments(self, asc_advisor_session, asc_owned_cohort, client):
-        """Includes current-term active enrollments and analytics for custom cohort students."""
+        """Includes current-term active enrollments for custom cohort students."""
         response = client.get(f'/api/cohort/{asc_owned_cohort.id}?orderBy=firstName')
         assert response.status_code == 200
         athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
@@ -194,10 +193,6 @@ class TestCohortDetail:
         assert len(term['enrollments']) == 5
         assert term['enrollments'][0]['displayName'] == 'BURMESE 1A'
         assert len(term['enrollments'][0]['canvasSites']) == 1
-        analytics = athlete['analytics']
-        for metric in ['assignmentsSubmitted', 'currentScore', 'lastActivity']:
-            assert analytics[metric]['percentile'] > 0
-            assert analytics[metric]['displayPercentile'].endswith(('nd', 'rd', 'st', 'th'))
 
     def test_includes_cohort_member_term_gpa(self, asc_advisor_session, asc_owned_cohort, client):
         response = client.get(f'/api/cohort/{asc_owned_cohort.id}?orderBy=firstName')
