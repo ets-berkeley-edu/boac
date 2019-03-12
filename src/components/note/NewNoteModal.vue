@@ -85,6 +85,8 @@
               @click.prevent="create()">
               Save
             </b-btn>
+            <!-- For screen reader, tabbing sequence is Save then Cancel. -->
+            <b-btn class="sr-only" @click.prevent="cancel()">Cancel new note form</b-btn>
           </div>
         </div>
       </form>
