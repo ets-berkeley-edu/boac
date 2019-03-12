@@ -29,3 +29,10 @@ export function updateNote(noteId: number, subject: string, body: string) {
     })
     .then(response => response.data);
 }
+
+export function deleteNote(noteId: number) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .delete(`${apiBaseUrl}/api/notes/delete/${noteId}`)
+    .then(response => response.data);
+}
