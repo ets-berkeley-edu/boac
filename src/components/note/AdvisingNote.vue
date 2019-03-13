@@ -1,77 +1,86 @@
 <template>
   <div>
-    <div :id="`note-${note.id}-message-closed`" :class="{'truncate': !isOpen}">
+    <div :id="`note-${note.id}-is-closed`" :class="{'truncate': !isOpen}">
       <span v-if="note.subject">{{ note.subject }}</span>
       <span v-if="!note.subject && size(note.message)" v-html="note.message"></span>
       <span v-if="!note.subject && !size(note.message)">{{ note.category }}<span v-if="note.subcategory">, {{ note.subcategory }}</span></span>
     </div>
-    <div v-if="isOpen">
-      <b-btn
-        class="sr-only"
-        @click.stop="editNote(note)">
-        Edit Note
-      </b-btn>
-    </div>
-    <div v-if="isOpen && note.subject && note.message" class="mt-2">
-      <span :id="`note-${note.id}-message-open`" v-html="note.message"></span>
-    </div>
-    <div v-if="!isUndefined(author) && !author.name" class="mt-2 advisor-profile-not-found">
-      Advisor profile not found
-    </div>
-    <div v-if="author" class="mt-2">
-      <div v-if="author.name">
-        <a
-          :id="`note-${note.id}-author-name`"
-          :aria-label="`Open UC Berkeley Directory page of ${author.name} in a new window`"
-          :href="`https://www.berkeley.edu/directory/results?search-term=${author.name}`"
-          target="_blank">{{ author.name }}</a>
-        <span v-if="author.role">
-          - <span :id="`note-${note.id}-author-role`" class="text-dark">{{ author.role }}</span>
-        </span>
+    <div v-if="isOpen" :id="`note-${note.id}-is-open`">
+      <div v-if="featureFlagEditNotes">
+        <b-btn
+          v-if="user.isAdmin"
+          class="sr-only"
+          @click.stop="deleteNote(note)">
+          Delete Note
+        </b-btn>
+        <b-btn
+          v-if="user.uid === note.author.uid"
+          class="sr-only"
+          @click.stop="editNote(note)">
+          Edit Note
+        </b-btn>
       </div>
-      <div v-if="size(author.depts)" class="text-secondary">
-        <span v-if="note.isLegacy">(currently </span><span v-for="(dept, index) in author.depts" :key="dept">
-          <span :id="`note-${note.id}-author-dept-${index}`">{{ dept }}</span>
-        </span><span v-if="note.isLegacy">)</span>
+      <div v-if="note.subject && note.message" class="mt-2">
+        <span :id="`note-${note.id}-message-open`" v-html="note.message"></span>
       </div>
-    </div>
-    <div v-if="size(note.topics)">
-      <div class="pill-list-header mt-3 mb-1">{{ size(note.topics) === 1 ? 'Topic Category' : 'Topic Categories' }}</div>
-      <ul class="pill-list pl-0">
-        <li
-          v-for="(topic, index) in note.topics"
-          :id="`note-${note.id}-topic-${index}`"
-          :key="topic"
-          class="mt-2">
-          <span class="pill text-uppercase text-nowrap">{{ topic }}</span>
-        </li>
-      </ul>
-    </div>
-    <div v-if="size(note.attachments)">
-      <div class="pill-list-header mt-3 mb-1">{{ size(note.attachments) === 1 ? 'Attachment' : 'Attachments' }}</div>
-      <div v-if="isPreCsNote" class="faint-text">
-        Pre-Fall 2016 attachment<span v-if="size(note.attachments) > 1">s</span> unavailable
+      <div v-if="!isUndefined(author) && !author.name" class="mt-2 advisor-profile-not-found">
+        Advisor profile not found
       </div>
-      <ul class="pill-list pl-0">
-        <li
-          v-for="(attachment, index) in note.attachments"
-          :key="attachment.sisFilename"
-          class="mt-2"
-          @click.stop>
+      <div v-if="author" class="mt-2">
+        <div v-if="author.name">
           <a
-            v-if="!isPreCsNote"
-            :id="`note-${note.id}-attachment-${index}`"
-            :href="downloadUrl(attachment)"
-            class="pill text-nowrap">
-            <i class="fas fa-paperclip"></i> {{ attachment.userFilename || attachment.sisFilename }}
-          </a>
-          <span
-            v-if="isPreCsNote"
-            :id="`note-${note.id}-attachment-${index}`"
-            class="pill text-nowrap"><i class="fas fa-paperclip"></i> {{ attachment.userFilename || attachment.sisFilename }}
+            :id="`note-${note.id}-author-name`"
+            :aria-label="`Open UC Berkeley Directory page of ${author.name} in a new window`"
+            :href="`https://www.berkeley.edu/directory/results?search-term=${author.name}`"
+            target="_blank">{{ author.name }}</a>
+          <span v-if="author.role">
+            - <span :id="`note-${note.id}-author-role`" class="text-dark">{{ author.role }}</span>
           </span>
-        </li>
-      </ul>
+        </div>
+        <div v-if="size(author.depts)" class="text-secondary">
+          <span v-if="note.isLegacy">(currently </span><span v-for="(dept, index) in author.depts" :key="dept">
+            <span :id="`note-${note.id}-author-dept-${index}`">{{ dept }}</span>
+          </span><span v-if="note.isLegacy">)</span>
+        </div>
+      </div>
+      <div v-if="size(note.topics)">
+        <div class="pill-list-header mt-3 mb-1">{{ size(note.topics) === 1 ? 'Topic Category' : 'Topic Categories' }}</div>
+        <ul class="pill-list pl-0">
+          <li
+            v-for="(topic, index) in note.topics"
+            :id="`note-${note.id}-topic-${index}`"
+            :key="topic"
+            class="mt-2">
+            <span class="pill text-uppercase text-nowrap">{{ topic }}</span>
+          </li>
+        </ul>
+      </div>
+      <div v-if="size(note.attachments)">
+        <div class="pill-list-header mt-3 mb-1">{{ size(note.attachments) === 1 ? 'Attachment' : 'Attachments' }}</div>
+        <div v-if="isPreCsNote" class="faint-text">
+          Pre-Fall 2016 attachment<span v-if="size(note.attachments) > 1">s</span> unavailable
+        </div>
+        <ul class="pill-list pl-0">
+          <li
+            v-for="(attachment, index) in note.attachments"
+            :key="attachment.sisFilename"
+            class="mt-2"
+            @click.stop>
+            <a
+              v-if="!isPreCsNote"
+              :id="`note-${note.id}-attachment-${index}`"
+              :href="downloadUrl(attachment)"
+              class="pill text-nowrap">
+              <i class="fas fa-paperclip"></i> {{ attachment.userFilename || attachment.sisFilename }}
+            </a>
+            <span
+              v-if="isPreCsNote"
+              :id="`note-${note.id}-attachment-${index}`"
+              class="pill text-nowrap"><i class="fas fa-paperclip"></i> {{ attachment.userFilename || attachment.sisFilename }}
+            </span>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
@@ -87,6 +96,7 @@ export default {
   name: 'AdvisingNote',
   mixins: [Context, UserMetadata, Util],
   props: {
+    deleteNote: Function,
     editNote: Function,
     isOpen: Boolean,
     note: Object

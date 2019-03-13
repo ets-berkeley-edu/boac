@@ -35,7 +35,7 @@
       </div>
       <div v-if="featureFlagEditNotes && !user.isAdmin">
         <NewNoteModal
-          :disable="!isNil(editingMessageId)"
+          :disable="!!editingMessageId"
           :student="student"
           :on-mode-change="onNewNoteModeChange"
           :on-successful-create="onCreateAdvisingNote" />
@@ -57,7 +57,7 @@
           <th>Date</th>
         </tr>
         <tr
-          v-for="(message, index) in messagesInView"
+          v-for="(message, index) in (isShowingAll ? messagesPerType(filter) : slice(messagesPerType(filter), 0, defaultShowPerTab))"
           :key="index"
           class="message-row border-top border-bottom"
           :class="{ 'message-row-read': message.read }">
@@ -70,15 +70,28 @@
               <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
             </div>
             <div
-              v-if="featureFlagEditNotes && isNil(editingMessageId) && newNoteMode === 'closed' && message.type === 'note' && !message.isLegacy && includes(openMessages, message.transientId)"
-              class="mt-3">
-              <b-btn
-                variant="link"
-                class="pl-0"
-                @keypress.enter.stop="editNote(message)"
-                @click.stop="editNote(message)">
-                Edit Note
-              </b-btn>
+              v-if="featureFlagEditNotes && isEditable(message) && !editingMessageId && newNoteMode === 'closed' && includes(openMessages, message.transientId)"
+              class="mt-2">
+              <div v-if="user.uid === message.author.uid">
+                <b-btn
+                  id="edit-note-button"
+                  variant="link"
+                  class="p-0 edit-note-button"
+                  @keypress.enter.stop="editNote(message)"
+                  @click.stop="editNote(message)">
+                  Edit Note
+                </b-btn>
+              </div>
+              <div v-if="user.isAdmin">
+                <b-btn
+                  id="delete-note-button"
+                  variant="link"
+                  class="p-0 edit-note-button"
+                  @keypress.enter.stop="deleteNote(message)"
+                  @click.stop="deleteNote(message)">
+                  Delete Note
+                </b-btn>
+              </div>
             </div>
           </td>
           <td
@@ -100,6 +113,7 @@
               <span v-if="message.type !== 'note'">{{ message.message }}</span>
               <AdvisingNote
                 v-if="message.type === 'note' && message.transientId !== editingMessageId"
+                :delete-note="deleteNote"
                 :edit-note="editNote"
                 :note="message"
                 :is-open="includes(openMessages, message.transientId)" />
@@ -168,11 +182,20 @@
         {{ isShowingAll ? 'Hide' : 'Show' }} Previous Messages
       </b-btn>
     </div>
+    <AreYouSureModal
+      v-if="showDeleteConfirmModal"
+      button-label-confirm="Delete"
+      :function-cancel="cancelTheDelete"
+      :function-confirm="deleteConfirmed"
+      modal-header="Delete note"
+      :modal-body="deleteConfirmModalBody"
+      :show-modal="showDeleteConfirmModal" />
   </div>
 </template>
 
 <script>
 import AdvisingNote from "@/components/note/AdvisingNote";
+import AreYouSureModal from '@/components/util/AreYouSureModal';
 import Context from '@/mixins/Context';
 import EditAdvisingNote from '@/components/note/EditAdvisingNote';
 import GoogleAnalytics from '@/mixins/GoogleAnalytics';
@@ -181,11 +204,11 @@ import TimelineDate from '@/components/student/profile/TimelineDate';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { dismissStudentAlert } from '@/api/student';
-import { markRead } from '@/api/notes';
+import { deleteNote, markRead } from '@/api/notes';
 
 export default {
   name: 'AcademicTimeline',
-  components: {AdvisingNote, EditAdvisingNote, NewNoteModal, TimelineDate},
+  components: {AdvisingNote, AreYouSureModal, EditAdvisingNote, NewNoteModal, TimelineDate},
   mixins: [Context, GoogleAnalytics, UserMetadata, Util],
   props: {
     student: Object
@@ -215,8 +238,9 @@ export default {
     },
     isShowingAll: false,
     isTimelineLoading: true,
+    messageForDelete: undefined,
     messages: undefined,
-    newNoteMode: undefined,
+    newNoteMode: 'closed',
     openMessages: [],
     screenReaderAlert: undefined
   }),
@@ -229,11 +253,11 @@ export default {
         ? this.countsPerType[this.filter]
         : this.size(this.messages);
     },
-    messagesInView() {
-      const filtered = this.messagesPerType(this.filter);
-      return this.isShowingAll
-        ? filtered
-        : this.slice(filtered, 0, this.defaultShowPerTab);
+    deleteConfirmModalBody() {
+      return this.messageForDelete ? `Are you sure you want to delete the "<b>${this.messageForDelete.subject}</b>" note?` : '';
+    },
+    showDeleteConfirmModal() {
+      return !!this.messageForDelete;
     }
   },
   watch: {
@@ -253,8 +277,8 @@ export default {
       this.countsPerType[type] = this.size(notifications);
       this.each(notifications, (message, index) => {
         this.messages.push(message);
-        // Unique message ids are not guaranteed. Here we generate a (transient) primary key.
-        message.transientId = typeIndex * 1000 + index;
+        // Unique message ids are not guaranteed. Here we generate a transient and non-zero primary key.
+        message.transientId = (typeIndex + 1) * 1000 + index;
       });
     });
     this.sortMessages();
@@ -272,6 +296,25 @@ export default {
       this.editingMessageId = null;
       this.alertScreenReader('Changes to note have been saved');
     },
+    cancelTheDelete() {
+      this.alertScreenReader('Cancelled');
+      this.messageForDelete = undefined;
+    },
+    deleteNote(message) {
+      // The following opens the "Are you sure?" modal
+      this.alertScreenReader('Please confirm delete');
+      this.messageForDelete = message;
+    },
+    deleteConfirmed() {
+      const predicate = ['transientId', this.messageForDelete.transientId];
+      const note = this.find(this.messages, predicate);
+      this.remove(this.messages, predicate);
+      this.openMessages = this.remove(this.openMessages, predicate);
+      this.messageForDelete = undefined;
+      deleteNote(note.id).then(() => {
+        this.alertScreenReader('Note deleted');
+      });
+    },
     describeTheActiveTab() {
       const inViewCount =
         this.isShowAll || this.countPerActiveTab <= this.defaultShowPerTab
@@ -288,8 +331,15 @@ export default {
     displayUpdatedAt(message) {
       return message.updatedAt && (message.updatedAt !== message.createdAt);
     },
+    editNote(message) {
+      this.editingMessageId = message.transientId;
+      this.putFocusNextTick('edit-note-subject');
+    },
     id(rowIndex) {
       return `timeline-tab-${this.activeTab}-message-${rowIndex}`;
+    },
+    isEditable(message) {
+      return message.type === 'note' && !message.isLegacy;
     },
     messagesPerType(type) {
       return type
@@ -304,10 +354,6 @@ export default {
       this.countsPerType.note++;
       this.sortMessages();
       this.gaNoteEvent(note.id, `Advisor ${this.user.uid} created note`, 'create');
-    },
-    editNote(message) {
-      this.editingMessageId = message.transientId;
-      this.putFocusNextTick('edit-note-subject');
     },
     onNewNoteModeChange(mode) {
       this.newNoteMode = mode;
@@ -364,6 +410,9 @@ export default {
 .column-right {
   text-align: right;
   width: 1%;
+}
+.edit-note-button {
+  font-size: 15px;
 }
 .messages-none {
   font-size: 18px;

@@ -28,10 +28,22 @@
     </div>
     <div class="d-flex mt-2">
       <div>
-        <b-btn class="btn-primary-color-override" variant="primary" @click="save()">Save</b-btn>
+        <b-btn
+          id="save-note-button"
+          class="btn-primary-color-override"
+          variant="primary"
+          @click="save()">
+          Save
+        </b-btn>
       </div>
       <div>
-        <b-btn variant="link" @click.stop="cancel()" @keypress.enter.stop="cancel()">Cancel</b-btn>
+        <b-btn
+          id="cancel-edit-note-button"
+          variant="link"
+          @click.stop="cancel()"
+          @keypress.enter.stop="cancel()">
+          Cancel
+        </b-btn>
       </div>
     </div>
     <AreYouSureModal
@@ -46,7 +58,7 @@
       placement="top"
       target="edit-note-subject"
       title="">
-      <span class="has-error">{{ error }}</span>
+      <span id="popover-error-message" class="has-error">{{ error }}</span>
     </b-popover>
   </form>
 </template>

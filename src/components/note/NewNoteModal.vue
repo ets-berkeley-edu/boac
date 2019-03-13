@@ -78,7 +78,7 @@
         <div class="d-flex justify-content-end mt-1 mr-3 mb-0 ml-3">
           <div>
             <b-btn
-              id="create-note"
+              id="create-note-button"
               class="btn-primary-color-override"
               aria-label="Create new note"
               variant="primary"

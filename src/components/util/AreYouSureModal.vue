@@ -14,7 +14,7 @@
         <h3 id="are-you-sure-header">{{ modalHeader }}</h3>
       </div>
       <div v-if="modalBody" id="are-you-sure-body" class="modal-body">
-        ${modalBody}
+        <span v-html="modalBody"></span>
       </div>
       <div class="modal-footer">
         <form @submit.prevent="functionConfirm()">
