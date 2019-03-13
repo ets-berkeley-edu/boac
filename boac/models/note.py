@@ -75,6 +75,11 @@ class Note(Base):
     def get_notes_by_sid(cls, sid):
         return cls.query.filter(cls.sid == sid).all()
 
+    @classmethod
+    def delete(cls, note_id):
+        db.session.delete(cls.find_by_id(note_id))
+        std_commit()
+
     def to_api_json(self):
         return {
             'id': self.id,

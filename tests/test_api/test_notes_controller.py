@@ -202,6 +202,36 @@ class TestUpdateNotes:
         assert updated_note.body == expected_body
 
 
+class TestCohortDelete:
+    """Cohort Delete API."""
+
+    def test_not_authenticated(self, client):
+        """You must log in to delete a note."""
+        response = client.delete('/api/notes/delete/123')
+        assert response.status_code == 401
+
+    def test_unauthorized(self, client, fake_auth, new_coe_note):
+        """Advisor cannot delete the note of another."""
+        fake_auth.login('6446')
+        response = client.delete(f'/api/notes/delete/{new_coe_note.id}')
+        assert response.status_code == 403
+        assert Note.find_by_id(new_coe_note.id)
+
+    def test_advisor_cannot_delete(self, client, fake_auth, new_coe_note):
+        """Advisor cannot delete her own note."""
+        fake_auth.login(new_coe_note.author_uid)
+        response = client.delete(f'/api/notes/delete/{new_coe_note.id}')
+        assert response.status_code == 403
+        assert Note.find_by_id(new_coe_note.id)
+
+    def test_admin_delete(self, client, fake_auth, new_coe_note):
+        """Admin can delete another user's note."""
+        fake_auth.login('2040')
+        response = client.delete(f'/api/notes/delete/{new_coe_note.id}')
+        assert response.status_code == 200
+        assert not Note.find_by_id(new_coe_note.id)
+
+
 class TestEditNoteFeatureFlag:
 
     def test_create_note_feature_flag_false(self, app, client, fake_auth):
@@ -229,6 +259,14 @@ class TestEditNoteFeatureFlag:
             'body': 'You took a child and you made him old',
         }
         response = client.post('/api/notes/update', data=json.dumps(data), content_type='application/json')
+        assert response.status_code == 404
+
+    def test_delete_note_feature_flag_false(self, app, client, fake_auth):
+        """Returns 404 if feature flag is false. TODO: Remove when feature is live."""
+        app.config['FEATURE_FLAG_EDIT_NOTES'] = False
+        note = Note.find_by_id(note_id=1)
+        fake_auth.login(note.author_uid)
+        response = client.delete(f'/api/notes/delete/{note.id}')
         assert response.status_code == 404
 
 

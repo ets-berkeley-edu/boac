@@ -92,6 +92,19 @@ def update_note():
     return tolerant_jsonify(note_json)
 
 
+@app.route('/api/notes/delete/<note_id>', methods=['DELETE'])
+@login_required
+@feature_flag_edit_notes
+def delete_note(note_id):
+    if not current_user.is_admin:
+        raise ForbiddenRequestError('Sorry, you are not authorized to delete notes.')
+    note = Note.find_by_id(note_id=note_id)
+    if not note:
+        raise ResourceNotFoundError('Note not found')
+    Note.delete(note_id=note_id)
+    return tolerant_jsonify({'message': f'Note {note_id} deleted'}), 200
+
+
 @app.route('/api/notes/attachment/<attachment_filename>', methods=['GET'])
 @login_required
 def download_attachment(attachment_filename):
