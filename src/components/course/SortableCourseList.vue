@@ -17,19 +17,13 @@
         Showing the first {{ courses.length }} classes.
       </div>
     </div>
-    <div
-      v-if="totalCourseCount && resorted"
-      class="sr-only"
-      role="alert">
-      Courses sorted by {{ sort.by === 'section' ? 'section' : 'course name' }} {{ describeReverse(sort.reverse.section) }}
-    </div>
     <table v-if="totalCourseCount" class="table-full-width">
       <tr role="row">
         <th>
           <button
             id="column-sort-button-section"
             class="btn btn-link table-header-text sortable-table-header cursor-pointer table-cell"
-            :aria-label="`Sort by section ${ sort.by === 'section' ? describeReverse(sort.reverse.section) : ''}`"
+            :aria-label="`Sort by section ${describeReverse(sort.reverse.section)}`"
             tabindex="0"
             @click="courseSort('section')">
             Section
@@ -46,7 +40,7 @@
           <button
             id="column-sort-button-title"
             class="btn btn-link table-header-text sortable-table-header cursor-pointer table-cell"
-            :aria-label="`Sort by course name ${ sort.by === 'title' ? describeReverse(sort.reverse.title) : ''}`"
+            :aria-label="`Sort by course name ${describeReverse(sort.reverse.title)}`"
             tabindex="0"
             @click="courseSort('title')">
             Course Name
@@ -81,11 +75,12 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
   name: 'SortableCourseList',
-  mixins: [UserMetadata],
+  mixins: [Context, UserMetadata],
   props: {
     searchPhrase: String,
     courses: Array,
@@ -93,7 +88,6 @@ export default {
     renderPrimaryHeader: Boolean
   },
   data: () => ({
-    resorted: undefined,
     sort: {
       by: null,
       reverse: {
@@ -104,10 +98,12 @@ export default {
     sortedCourses: []
   }),
   created() {
-    this.courseSort('section');
+    this.sort.by = 'section';
+    this.sortedCourses = this.courses.sort(this.courseComparator);
   },
   methods: {
     courseSort(sortBy) {
+      this.alertScreenReader();
       if (this.sort.by !== sortBy) {
         this.sort.by = sortBy;
         this.sort.reverse[sortBy] = false;
@@ -116,7 +112,9 @@ export default {
         this.sort.reverse[sortBy] = !this.sort.reverse[sortBy];
         this.sortedCourses = this.sortedCourses.reverse();
       }
-      this.resorted = true;
+      this.$nextTick(function() {
+        this.alertScreenReader(`Courses sorted by ${this.sort.by === 'section' ? 'section' : 'course name'} ${this.describeReverse(this.sort.reverse[this.sort.by])}`);
+      });
     },
     courseComparator(c1, c2) {
       if (this.sort.by === 'title' && c1.courseTitle !== c2.courseTitle) {
@@ -160,7 +158,7 @@ export default {
       let split = course.courseName.split(' ');
       return [split.slice(0, -1).join(' '), split[split.length - 1]];
     },
-    describeReverse: reverse => (reverse ? 'descending' : 'ascending')
+    describeReverse: reverse => (reverse ? 'descending' : '')
   }
 };
 </script>

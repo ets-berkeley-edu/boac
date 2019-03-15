@@ -1,11 +1,5 @@
 <template>
   <div>
-    <div
-      v-if="students && students.length && resorted"
-      class="sr-only"
-      role="alert">
-      {{ currentSortDescription }}
-    </div>
     <table v-if="students" class="table-full-width">
       <thead>
         <tr>
@@ -242,7 +236,6 @@ export default {
     }
   },
   data: () => ({
-    currentSortDescription: null,
     srText: {
       lastName: 'student name',
       sid: 'S I D',
@@ -302,6 +295,7 @@ export default {
       });
     },
     sort(options, sortBy) {
+      this.alertScreenReader();
       if (options.sortBy === sortBy) {
         options.reverse = !options.reverse;
       } else {
@@ -310,16 +304,14 @@ export default {
       }
       this.resorted = true;
       this.setSortDescriptions();
+      this.$nextTick(function() {
+        this.alertScreenReader(`Sorted by ${this.srText[this.options.sortBy]} ${this.options.reverse ? 'descending' : ''}`);
+      });
     },
     setSortDescriptions() {
       this.sortOptions = {};
-      this.currentSortDescription =
-        'Sorted by ' + this.srText[this.options.sortBy];
-      if (this.reverse) {
-        this.currentSortDescription += ' descending';
-      }
       const sortBy = this.sortBy;
-      const reverse = this.reverse;
+      const reverse = this.options.reverse;
       this.sortOptions = _.mapValues(this.srText, function(value, key) {
         let optionText = 'Sort by ' + value;
         if (key === sortBy) {

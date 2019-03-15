@@ -24,7 +24,13 @@
       </div>
       <div class="index-container-content">
         <div id="content" class="body-text">
-          <span v-if="srAlert" class="sr-only" aria-live="polite">{{ srAlert }}</span>
+          <span
+            v-if="srAlert"
+            class="sr-only"
+            aria-live="polite"
+            role="alert">
+            {{ srAlert }}
+          </span>
           <!-- The ':key' attribute forces component reload when same route is requested with diff id in path. -->
           <router-view :key="stripAnchorRef($route.fullPath)"></router-view>
         </div>
