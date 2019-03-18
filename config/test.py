@@ -34,7 +34,7 @@ LOGGING_LOCATION = 'STDOUT'
 ALERT_INFREQUENT_ACTIVITY_ENABLED = False
 ALERT_WITHDRAWAL_ENABLED = False
 
-INDEX_HTML = 'tests/static/test-index-vue.html'
+INDEX_HTML = 'tests/static/test-index.html'
 
 # TODO: Remove when note creation is in prod
 FEATURE_FLAG_EDIT_NOTES = True

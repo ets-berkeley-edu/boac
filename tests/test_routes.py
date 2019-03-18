@@ -32,27 +32,19 @@ def asc_advisor_session(fake_auth):
     fake_auth.login('1081940')
 
 
-class TestVueRedirect:
+class TestFrontEndRoute:
 
-    def test_vue_enabled_path(self, app, client, asc_advisor_session):
-        """Serves Vue page when the route is strictly defined on the Vue side."""
+    def test_front_end_route(self, app, client, asc_advisor_session):
+        """No server-side redirect if Vue code is bundled in deployment (AWS environment)."""
+        with override_config(app, 'VUE_LOCALHOST_BASE_URL', None):
+            response = client.get('/student/123?r=1')
+            assert response.status_code == 200
+
+    def test_front_end_route_redirect(self, app, client, asc_advisor_session):
+        """Server-side redirect to Vue.js (separate port) on developer workstation."""
         vue_path = '/student/12345?r=1'
         vue_base_url = 'http://localhost:8080'
         with override_config(app, 'VUE_LOCALHOST_BASE_URL', vue_base_url):
             response = client.get(vue_path)
             assert response.status_code == 302
             assert response.location == vue_base_url + vue_path
-
-    def test_path_rewrite_to_vue_enabled(self, client, asc_advisor_session):
-        """Serves Vue page when the legacy route is mapped to a Vue route."""
-        response = client.get('/cohorts/all')
-        assert response.status_code == 200
-        assert 'I am a Vue.js page' in str(response.data)
-
-    def test_path_token_replace(self, app, client, asc_advisor_session):
-        """Redirects to Vue page, preserving id in request path."""
-        vue_base_url = 'http://localhost:8080'
-        with override_config(app, 'VUE_LOCALHOST_BASE_URL', vue_base_url):
-            response = client.get('/student/123?r=1')
-            assert response.status_code == 302
-            assert response.location == vue_base_url + '/student/123?r=1'
