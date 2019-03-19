@@ -23,6 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from tests.util import override_config
+
+asc_advisor_uid = '1081940'
+
 
 class TestConfigController:
     """Config API."""
@@ -45,3 +49,13 @@ class TestConfigController:
         assert response.status_code == 200
         assert 'version' in response.json
         assert 'build' in response.json
+
+    def test_demo_mode_on(self, app, client):
+        """Demo-mode/blur is on."""
+        with override_config(app, 'DEMO_MODE_AVAILABLE', True):
+            assert client.get('/api/config').json.get('isDemoModeAvailable')
+
+    def test_demo_mode_off(self, app, client):
+        """Demo-mode/blur is off."""
+        with override_config(app, 'DEMO_MODE_AVAILABLE', False):
+            assert not client.get('/api/config').json.get('isDemoModeAvailable')

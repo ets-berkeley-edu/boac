@@ -23,18 +23,19 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
-SQLALCHEMY_DATABASE_URI = 'postgres://boac:boac@localhost:5432/boac_test'
-DATA_LOCH_URI = 'postgres://boac:boac@localhost:5432/boac_loch_test'
-DATA_LOCH_RDS_URI = 'postgres://boac:boac@localhost:5432/boac_loch_test'
-TESTING = True
-
-LOGGING_LOCATION = 'STDOUT'
-
 ALERT_INFREQUENT_ACTIVITY_ENABLED = False
 ALERT_WITHDRAWAL_ENABLED = False
 
-INDEX_HTML = 'tests/static/test-index.html'
+DATA_LOCH_RDS_URI = 'postgres://boac:boac@localhost:5432/boac_loch_test'
+DATA_LOCH_URI = 'postgres://boac:boac@localhost:5432/boac_loch_test'
 
 # TODO: Remove when note creation is in prod
 FEATURE_FLAG_EDIT_NOTES = True
+
+INDEX_HTML = 'tests/static/test-index.html'
+
+LOGGING_LOCATION = 'STDOUT'
+
+SQLALCHEMY_DATABASE_URI = 'postgres://boac:boac@localhost:5432/boac_test'
+
+TESTING = True

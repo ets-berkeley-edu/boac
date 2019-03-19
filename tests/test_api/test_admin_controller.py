@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import pytest
+from tests.util import override_config
 
 
 @pytest.fixture()
@@ -56,20 +57,20 @@ class TestCachejobAccess:
 
     def test_api_key_match(self, app, client):
         api_key = 'Hey ho, seely sheepe!'
-        app.config['API_KEY'] = api_key
-        headers = {'app_key': api_key}
-        response = client.get('/api/admin/cachejob', headers=headers)
-        assert response.status_code == 200
-        assert response.headers.get('Content-Type') == 'application/json'
+        with override_config(app, 'API_KEY', api_key):
+            headers = {'app_key': api_key}
+            response = client.get('/api/admin/cachejob', headers=headers)
+            assert response.status_code == 200
+            assert response.headers.get('Content-Type') == 'application/json'
 
     def test_api_key_no_match(self, app, client):
-        app.config['API_KEY'] = 'Hey ho, seely sheepe!'
-        headers = {'app_key': 'I saw the bouncing Bellibone'}
-        response = client.get('/api/admin/cachejob', headers=headers)
-        assert response.status_code == 401
+        with override_config(app, 'API_KEY', 'Hey ho, seely sheepe!'):
+            headers = {'app_key': 'I saw the bouncing Bellibone'}
+            response = client.get('/api/admin/cachejob', headers=headers)
+            assert response.status_code == 401
 
     def test_api_key_disabled(self, app, client):
-        app.config['API_KEY'] = None
-        headers = {'app_key': None}
-        response = client.get('/api/admin/cachejob', headers=headers)
-        assert response.status_code == 401
+        with override_config(app, 'API_KEY', None):
+            headers = {'app_key': None}
+            response = client.get('/api/admin/cachejob', headers=headers)
+            assert response.status_code == 401

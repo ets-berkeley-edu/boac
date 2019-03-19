@@ -94,7 +94,7 @@ def authorized_user_groups():
 @app.route('/api/user/demo_mode', methods=['POST'])
 @login_required
 def set_demo_mode():
-    if app.config['DEVELOPER_AUTH_ENABLED']:
+    if app.config['DEMO_MODE_AVAILABLE']:
         in_demo_mode = request.get_json().get('demoMode', None)
         if in_demo_mode is None:
             raise errors.BadRequestError('Parameter \'demoMode\' not found')

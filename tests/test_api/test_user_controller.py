@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 import simplejson as json
+from tests.util import override_config
 
 admin_uid = '2040'
 asc_advisor_uid = '1081940'
@@ -235,28 +236,33 @@ class TestUserGroups:
 
 class TestDemoMode:
 
-    def test_set_demo_mode_not_authenticated(self, client):
+    def test_set_demo_mode_not_authenticated(self, app, client):
         """Require authentication."""
-        assert client.post('/api/user/demo_mode').status_code == 401
+        with override_config(app, 'DEMO_MODE_AVAILABLE', True):
+            assert client.post('/api/user/demo_mode').status_code == 401
 
     def test_demo_mode_unavailable(self, app, client, fake_auth):
         """Return 404 when dev_auth is not enabled."""
-        fake_auth.login(admin_uid)
-        app.config['DEVELOPER_AUTH_ENABLED'] = False
-        response = client.post('/api/user/demo_mode')
-        assert response.status_code == 404
+        with override_config(app, 'DEVELOPER_AUTH_ENABLED', True):
+            # Enable dev_auth to confirm that it is ignored
+            with override_config(app, 'DEMO_MODE_AVAILABLE', False):
+                fake_auth.login(admin_uid)
+                assert client.post('/api/user/demo_mode').status_code == 404
 
-    def test_set_demo_mode(self, client, fake_auth):
+    def test_set_demo_mode(self, app, client, fake_auth):
         """Both admin and advisor can toggle demo mode."""
-        for uid in admin_uid, coe_advisor_uid:
-            fake_auth.login(uid)
-            for in_demo_mode in [True, False]:
-                response = client.post(
-                    '/api/user/demo_mode',
-                    data=json.dumps({'demoMode': in_demo_mode}),
-                    content_type='application/json',
-                )
-                assert response.status_code == 200
-                assert response.json['inDemoMode'] is in_demo_mode
-                user = AuthorizedUser.find_by_uid(uid)
-                assert user.in_demo_mode is in_demo_mode
+        with override_config(app, 'DEVELOPER_AUTH_ENABLED', False):
+            # Disable dev_auth to confirm that it is ignored
+            with override_config(app, 'DEMO_MODE_AVAILABLE', True):
+                for uid in admin_uid, coe_advisor_uid:
+                    fake_auth.login(uid)
+                    for in_demo_mode in [True, False]:
+                        response = client.post(
+                            '/api/user/demo_mode',
+                            data=json.dumps({'demoMode': in_demo_mode}),
+                            content_type='application/json',
+                        )
+                        assert response.status_code == 200
+                        assert response.json['inDemoMode'] is in_demo_mode
+                        user = AuthorizedUser.find_by_uid(uid)
+                        assert user.in_demo_mode is in_demo_mode

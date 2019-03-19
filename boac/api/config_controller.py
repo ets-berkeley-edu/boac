@@ -44,6 +44,7 @@ def app_config():
         'ebEnvironment': app.config['EB_ENVIRONMENT'] if 'EB_ENVIRONMENT' in app.config else None,
         'featureFlagEditNotes': app.config['FEATURE_FLAG_EDIT_NOTES'],
         'googleAnalyticsId': app.config['GOOGLE_ANALYTICS_ID'],
+        'isDemoModeAvailable': app.config['DEMO_MODE_AVAILABLE'],
         'supportEmailAddress': app.config['BOAC_SUPPORT_EMAIL'],
     })
 
