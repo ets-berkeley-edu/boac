@@ -6,12 +6,12 @@
       <h1
         v-if="renderPrimaryHeader"
         class="page-section-header">
-        {{ 'class' | pluralize(totalCourseCount, {1: 'One'}, 'es') }} matching '{{ searchPhrase }}'
+        {{ 'class' | pluralize(totalCourseCount, {1: '1'}, 'es') }} matching '{{ searchPhrase }}'
       </h1>
       <h2
         v-if="!renderPrimaryHeader"
         class="page-section-header">
-        {{ 'class' | pluralize(totalCourseCount, {1: 'One'}, 'es') }} matching '{{ searchPhrase }}'
+        {{ 'class' | pluralize(totalCourseCount, {1: '1'}, 'es') }} matching '{{ searchPhrase }}'
       </h2>
       <div v-if="courses.length < totalCourseCount">
         Showing the first {{ courses.length }} classes.
