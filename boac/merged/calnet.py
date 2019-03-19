@@ -54,19 +54,33 @@ def get_calnet_users_for_csids(app, csids):
 def _calnet_user_api_feed(person):
     def _get(key):
         return person and person[key]
-
-    dept_names = None
-    dept_code = _get('dept_code')
-    if isinstance(dept_code, list):
-        dept_names = [BERKELEY_DEPT_CODE_TO_NAME.get(code) for code in dept_code]
-    elif dept_code:
-        dept_names = [BERKELEY_DEPT_CODE_TO_NAME.get(dept_code)]
+    # Array of departments is compatible with BOAC user schema.
+    departments = []
+    dept_code = _get_dept_code(person)
+    if dept_code:
+        departments.append({
+            'code': dept_code,
+            'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code) if dept_code in BERKELEY_DEPT_CODE_TO_NAME else dept_code,
+        })
     return {
-        'uid': _get('uid'),
-        'csid': _get('csid'),
+        'campusEmail': _get('campus_email'),
+        'departments': departments,
+        'email': _get('email'),
         'firstName': _get('first_name'),
         'lastName': _get('last_name'),
         'name': _get('name'),
-        'deptCode': dept_code,
-        'depts': dept_names,
+        'csid': _get('csid'),
+        'title': _get('title'),
+        'uid': _get('uid'),
     }
+
+
+def _get_dept_code(p):
+    def dept_code_fallback():
+        dept_hierarchy = p['dept_unit_hierarchy']
+        if dept_hierarchy:
+            dept_hierarchy = dept_hierarchy[0] if isinstance(dept_hierarchy, list) else dept_hierarchy
+            return dept_hierarchy.rsplit('-', 1)[-1] if dept_hierarchy else None
+        else:
+            return None
+    return p and (p['primary_dept_code'] or p['dept_code'] or p['calnet_dept_code'] or dept_code_fallback())

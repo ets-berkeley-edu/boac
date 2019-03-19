@@ -5,10 +5,6 @@ export default {
   name: 'UserMetadata',
   computed: {
     ...mapGetters('user', [
-      'canViewAsc',
-      'canViewCoe',
-      'isAscUser',
-      'isCoeUser',
       'preferences',
       'user',
       'userAuthStatus'

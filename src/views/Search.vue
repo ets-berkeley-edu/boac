@@ -98,7 +98,7 @@ export default {
       reverse: false
     }
   }),
-  created() {
+  mounted() {
     this.phrase = this.$route.query.q;
     const includeCourses = this.$route.query.courses;
     const includeNotes = this.$route.query.notes;
@@ -109,8 +109,8 @@ export default {
         this.isNil(includeCourses) ? false : includeCourses,
         this.isNil(includeNotes) ? false : includeNotes,
         this.isNil(includeStudents) ? false : includeStudents,
-        this.isAscUser ? false : null,
-        this.isCoeUser ? false : null
+        this.user.isAsc ? false : null,
+        this.user.isCoe ? false : null
       )
         .then(data => {
           this.assign(this.results, data);

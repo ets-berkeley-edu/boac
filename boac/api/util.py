@@ -120,20 +120,22 @@ def current_user_profile(exclude_cohorts=False):
         uid = current_user.get_id()
         profile.update(calnet.get_calnet_user_for_uid(app, uid))
         if current_user.is_active:
-            departments = {}
+            departments = []
             for m in current_user.department_memberships:
                 dept_code = m.university_dept.dept_code
-                departments.update({
-                    dept_code: {
-                        'deptName': BERKELEY_DEPT_CODE_TO_NAME[dept_code],
+                departments.append(
+                    {
+                        'code': dept_code,
+                        'name': BERKELEY_DEPT_CODE_TO_NAME[dept_code] or dept_code,
                         'role': get_dept_role(m),
                         'isAdvisor': m.is_advisor,
                         'isDirector': m.is_director,
-                    },
-                })
+                    })
             dept_codes = get_dept_codes(current_user)
             profile['isAsc'] = 'UWASC' in dept_codes
+            profile['canViewAsc'] = profile['isAsc'] or current_user.is_admin
             profile['isCoe'] = 'COENG' in dept_codes
+            profile['canViewCoe'] = profile['isCoe'] or current_user.is_admin
             if not exclude_cohorts:
                 profile.update({
                     'myFilteredCohorts': get_my_cohorts(),

@@ -796,7 +796,7 @@ class TestNotes:
         author = note['author']
         assert author['name'] == 'Joni Mitchell'
         assert author['role'] == 'Director'
-        assert author['depts'][0] == 'Athletic Study Center'
+        assert author['departments'][0]['name'] == 'Athletic Study Center'
         # This note was not authored by coe_advisor_uid
         assert author['uid'] == '6446'
 
@@ -815,7 +815,7 @@ class TestNotes:
         author = note['author']
         assert not author['name']
         assert not author['role']
-        assert not len(author['depts'])
+        assert not len(author['departments'])
         advisor_sid = '800700600'
         assert author['sid'] == advisor_sid
         # Lazy-load author info, as performed on front-end
@@ -824,8 +824,8 @@ class TestNotes:
         user = response.json
         assert user['csid'] == advisor_sid
         assert user['name'] == 'Roberta Joan Anderson'
-        assert user['deptCode'] == 'QCADV'
-        assert user['depts'] == ['L&S Undergraduate Advising']
+        assert user['departments'][0]['code'] == 'QCADV'
+        assert user['departments'][0]['name'] == 'L&S Undergraduate Advising'
 
 
 class TestStudentPhoto:
