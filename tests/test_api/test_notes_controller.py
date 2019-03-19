@@ -109,7 +109,7 @@ class TestCreateNotes:
         assert new_note['author']['uid'] == coe_advisor_uid
         assert 'name' in new_note['author']
         assert new_note['author']['role'] == 'Advisor'
-        assert new_note['author']['depts'] == ['College of Engineering']
+        assert new_note['author']['departments'][0]['name'] == 'College of Engineering'
         # Get notes per SID and compare
         notes = _get_notes(client, student['uid'])
         match = next((n for n in notes if n['id'] == note_id), None)
@@ -129,8 +129,6 @@ class TestMarkNoteRead:
         assert len(all_notes_unread) == 4
         for note in all_notes_unread:
             assert note['read'] is False
-            if note['id'] == '11667051-00001':
-                isinstance(note['author']['depts'], list)
         response = client.post('/api/notes/11667051-00001/mark_read')
         assert response.status_code == 201
 

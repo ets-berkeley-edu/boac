@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.lib import berkeley
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, BERKELEY_DEPT_NAME_TO_CODE
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 import pytest
@@ -125,3 +126,11 @@ class TestAlertRules:
         for display_name in ('PSYCH 19A', 'MATH 9A', 'SOCIOL 198, Special Edition', 'Pop Music in 1988'):
             eligible_for_alert = {'displayName': display_name}
             assert berkeley.section_is_eligible_for_alerts(eligible_for_alert, dis_section), f'Failed on {display_name}'
+
+
+class TestBerkeleyDepartmentCodes:
+    """Department codes map to department names."""
+
+    def test_unique_department_names(self):
+        """We must have unique dept codes and unique names."""
+        assert len(BERKELEY_DEPT_CODE_TO_NAME) == len(BERKELEY_DEPT_NAME_TO_CODE)

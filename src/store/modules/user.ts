@@ -3,17 +3,6 @@ import store from '@/store';
 import Vue from 'vue';
 import { getUserByCsid, getUserGroups, getUserProfile, getUserStatus } from '@/api/user';
 
-const $_user_isDepartmentMember = (state, deptCode) => {
-  let membership = _.get(state.user, `departments.${deptCode}`);
-  return membership && (membership.isAdvisor || membership.isDirector);
-};
-
-const $_user_canViewDepartment = (state, deptCode) => {
-  return (
-    $_user_isDepartmentMember(state, deptCode) || _.get(state.user, 'isAdmin')
-  );
-};
-
 const state = {
   calnetUsersByCsid: {},
   preferences: {
@@ -25,10 +14,6 @@ const state = {
 };
 
 const getters = {
-  canViewAsc: (state: any): boolean => $_user_canViewDepartment(state, 'UWASC'),
-  canViewCoe: (state: any): boolean => $_user_canViewDepartment(state, 'COENG'),
-  isAscUser: (state: any): boolean => $_user_isDepartmentMember(state, 'UWASC'),
-  isCoeUser: (state: any): boolean => $_user_isDepartmentMember(state, 'COENG'),
   userAuthStatus: (state: any): boolean => state.userAuthStatus,
   preferences: (state: any): any => state.preferences,
   user: (state: any): any => state.user
@@ -114,6 +99,7 @@ const actions = {
             }
           }
           commit('registerUser', user);
+          Vue.prototype.$eventHub.$emit('user-profile-loaded');
           resolve(user);
         });
       }

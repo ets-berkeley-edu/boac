@@ -140,9 +140,14 @@ def get_attachment_stream(filename):
 
 
 def note_to_compatible_json(note, topics=None, attachments=None):
-    # We have legacy notes and notes created via BOA. The following sets a standard for the front-end.
+    # We have legacy notes and notes created via BOAC. The following sets a standard for the front-end.
+    departments = []
     dept_codes = note.get('deptCode') if 'deptCode' in note else note.get('authorDeptCodes') or []
-
+    for dept_code in dept_codes:
+        departments.append({
+            'code': dept_code,
+            'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code) or dept_code,
+        })
     return {
         'id': note.get('id'),
         'sid': note.get('sid'),
@@ -152,7 +157,7 @@ def note_to_compatible_json(note, topics=None, attachments=None):
             'sid': note.get('advisorSid'),
             'name': note.get('authorName'),
             'role': note.get('authorRole'),
-            'depts': [BERKELEY_DEPT_CODE_TO_NAME.get(code) for code in dept_codes],
+            'departments': departments,
         },
         'subject': note.get('subject'),
         'body': note.get('body') or note.get('noteBody'),

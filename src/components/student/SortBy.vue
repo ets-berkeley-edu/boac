@@ -48,7 +48,7 @@ export default {
       {
         name: 'Team',
         value: 'group_name',
-        available: this.canViewAsc
+        available: this.user.canViewAsc
       },
       { name: 'Units Completed', value: 'units', available: true }
     ];

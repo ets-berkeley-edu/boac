@@ -37,9 +37,9 @@
             - <span :id="`note-${note.id}-author-role`" class="text-dark">{{ author.role }}</span>
           </span>
         </div>
-        <div v-if="size(author.depts)" class="text-secondary">
-          <span v-if="note.isLegacy">(currently </span><span v-for="(dept, index) in author.depts" :key="dept">
-            <span :id="`note-${note.id}-author-dept-${index}`">{{ dept }}</span>
+        <div v-if="size(author.departments)" class="text-secondary">
+          <span v-if="note.isLegacy">(currently </span><span v-if="author.title">{{ author.title }}, </span><span v-for="(dept, index) in author.departments" :key="dept.code">
+            <span :id="`note-${note.id}-author-dept-${index}`">{{ dept.name }}</span>
           </span><span v-if="note.isLegacy">)</span>
         </div>
       </div>

@@ -91,10 +91,12 @@ class TestUserProfile:
         user = response.json
         assert user['isAdmin'] is False
         assert user['isCoe'] is True
-        assert len(user['departments']) == 1
-        assert 'COENG' in user['departments']
-        assert user['departments']['COENG']['isAdvisor'] is False
-        assert user['departments']['COENG']['isDirector'] is True
+        departments = user['departments']
+        assert len(departments) == 1
+        assert departments[0]['code'] == 'COENG'
+        assert departments[0]['name'] == 'College of Engineering'
+        assert departments[0]['isAdvisor'] is False
+        assert departments[0]['isDirector'] is True
 
     def test_asc_advisor_exclude_cohorts(self, client, fake_auth):
         """Returns Athletic Study Center advisor."""
@@ -105,9 +107,12 @@ class TestUserProfile:
         assert 'myFilteredCohorts' not in user
         assert 'myCuratedCohorts' not in user
         assert user['isAsc'] is True
-        assert 'UWASC' in user['departments']
-        assert user['departments']['UWASC']['isAdvisor'] is True
-        assert user['departments']['UWASC']['isDirector'] is False
+        departments = user['departments']
+        assert len(departments) == 1
+        assert departments[0]['code'] == 'UWASC'
+        assert departments[0]['name'] == 'Athletic Study Center'
+        assert departments[0]['isAdvisor'] is True
+        assert departments[0]['isDirector'] is False
 
     def test_other_user_profile(self, client, fake_auth):
         fake_auth.login(admin_uid)
