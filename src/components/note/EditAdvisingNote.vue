@@ -1,5 +1,5 @@
 <template>
-  <form v-click-outside="cancel" @submit.prevent="save()">
+  <form @submit.prevent="save()">
     <div>
       <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
     </div>
