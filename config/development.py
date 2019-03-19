@@ -26,8 +26,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 # Development environment.
 DEBUG = True
 
-INDEX_HTML = 'public/index.html'
-VUE_LOCALHOST_BASE_URL = 'http://localhost:8080'
+DEMO_MODE_AVAILABLE = True
 
 # TODO: Remove when note creation is in prod
 FEATURE_FLAG_EDIT_NOTES = True
+
+INDEX_HTML = 'public/index.html'
+
+VUE_LOCALHOST_BASE_URL = 'http://localhost:8080'

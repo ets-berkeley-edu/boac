@@ -29,6 +29,9 @@ import os
 # Base directory for the application (one level up from this config file).
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
+# In demo mode, student profile pictures and sensitive data will be blurred.
+DEMO_MODE_AVAILABLE = False
+
 # These "INDEX_HTML" defaults are good in boac-dev, boac-qa, etc. See development.py for appropriate local configs.
 INDEX_HTML = 'dist/static/index.html'
 

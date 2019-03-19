@@ -10,6 +10,7 @@ export default {
       'devAuthEnabled',
       'errors',
       'featureFlagEditNotes',
+      'isDemoModeAvailable',
       'srAlert',
       'supportEmailAddress'
     ])

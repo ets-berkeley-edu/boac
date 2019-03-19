@@ -23,13 +23,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 import glob
 import json
 import os
 
 import boac.factory
 import pytest
+from tests.util import override_config
 
 
 os.environ['BOAC_ENV'] = 'test'
@@ -41,16 +41,16 @@ class FakeAuth(object):
         self.client = the_client
 
     def login(self, uid):
-        self.app.config['DEVELOPER_AUTH_ENABLED'] = True
-        params = {
-            'uid': uid,
-            'password': self.app.config['DEVELOPER_AUTH_PASSWORD'],
-        }
-        self.client.post(
-            '/api/auth/dev_auth_login',
-            data=json.dumps(params),
-            content_type='application/json',
-        )
+        with override_config(self.app, 'DEVELOPER_AUTH_ENABLED', True):
+            params = {
+                'uid': uid,
+                'password': self.app.config['DEVELOPER_AUTH_PASSWORD'],
+            }
+            self.client.post(
+                '/api/auth/dev_auth_login',
+                data=json.dumps(params),
+                content_type='application/json',
+            )
 
 
 # Because app and db fixtures are only created once per pytest run, individual tests
