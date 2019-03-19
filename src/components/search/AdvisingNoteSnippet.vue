@@ -42,7 +42,7 @@ export default {
     const timestamp = this.get(this.note, 'updatedAt') || this.get(this.note, 'createdAt')
     if (timestamp) {
       const d = parseDate(timestamp);
-      this.note.lastModified = formatDate(d, 'MMM DD, YYYY');
+      this.note.lastModified = formatDate(d, 'MMM D, YYYY');
     }
   }
 };
