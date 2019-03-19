@@ -10,7 +10,6 @@ import Highcharts from 'highcharts';
 import HighchartsMore from 'highcharts/highcharts-more';
 import router from './router';
 import store from './store';
-import vClickOutside from 'v-click-outside';
 import Vue from 'vue';
 import VueAnalytics from 'vue-analytics';
 import VueHighcharts from 'vue-highcharts';
@@ -35,7 +34,6 @@ Vue.config.productionTip = false;
 Vue.use(BootstrapVue);
 Vue.use(require('vue-lodash'));
 Vue.use(CKEditor);
-Vue.use(vClickOutside);
 
 HighchartsMore(Highcharts);
 Vue.use(VueHighcharts, { Highcharts });

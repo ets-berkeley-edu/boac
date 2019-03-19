@@ -1,5 +1,5 @@
 <template>
-  <div v-click-outside="clickOutside">
+  <div>
     <div>
       <b-btn
         id="new-note-button"
