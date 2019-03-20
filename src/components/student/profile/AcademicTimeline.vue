@@ -74,7 +74,7 @@
               class="mt-2">
               <div v-if="user.uid === message.author.uid">
                 <b-btn
-                  id="edit-note-button"
+                  :id="`edit-note-${message.id}-button`"
                   variant="link"
                   class="p-0 edit-note-button"
                   @keypress.enter.stop="editNote(message)"

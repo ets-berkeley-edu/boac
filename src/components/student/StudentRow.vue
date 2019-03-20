@@ -162,14 +162,15 @@
             </div>
           </td>
           <td class="cohort-course-activity-data">
-            <span v-if="enrollment.midtermGrade" class="cohort-grade">{{ enrollment.midtermGrade }}</span>
+            <span v-if="enrollment.midtermGrade" v-accessible-grade="enrollment.midtermGrade" class="cohort-grade"></span>
             <i v-if="isAlertGrade(enrollment.midtermGrade)" class="fas fa-exclamation-triangle boac-exclamation"></i>
             <span v-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
           </td>
           <td class="cohort-course-activity-data">
             <span
               v-if="enrollment.grade"
-              class="cohort-grade">{{ enrollment.grade }}</span>
+              v-accessible-grade="enrollment.grade"
+              class="cohort-grade"></span>
             <i v-if="isAlertGrade(enrollment.grade)" class="fas fa-exclamation-triangle boac-exclamation"></i>
             <span
               v-if="!enrollment.grade"

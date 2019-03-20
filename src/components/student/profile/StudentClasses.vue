@@ -72,7 +72,8 @@ v-if="section.isViewableOnCoursePage"
                 Final:
                 <span
                   v-if="course.grade"
-                  class="student-course-grade">{{ course.grade }}</span>
+                  v-accessible-grade="course.grade"
+                  class="student-course-grade"></span>
                 <span
                   v-if="!course.grade"
                   class="student-course-grading-basis">{{ course.gradingBasis }}</span>
@@ -84,7 +85,8 @@ v-if="section.isViewableOnCoursePage"
                 Mid:
                 <span
                   v-if="course.midtermGrade"
-                  class="student-course-grade">{{ course.midtermGrade }}</span>
+                  v-accessible-grade="course.midtermGrade"
+                  class="student-course-grade"></span>
                 <span
                   v-if="!course.midtermGrade"
                   class="student-course-grade"><span class="sr-only">No data</span>&mdash;</span>

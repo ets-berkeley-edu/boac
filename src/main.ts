@@ -55,6 +55,12 @@ store.dispatch('context/loadConfig').then(response => {
 
 // Filters and directives
 _.each(filters, (filter, name) => Vue.filter(name, filter));
+Vue.directive('accessibleGrade', {
+  bind: function (el, binding) {
+    const grade = binding.value;
+    el.innerHTML = grade && grade.replace('-', '&minus;').replace('+', '&plus;');
+  }
+});
 
 // Emit, and listen for, events via hub
 Vue.prototype.$eventHub = new Vue();
