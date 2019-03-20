@@ -165,7 +165,8 @@ CREATE TABLE notes (
     subject VARCHAR(255) NOT NULL,
     body text NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    deleted_at TIMESTAMP WITH TIME ZONE
 );
 ALTER TABLE notes OWNER TO boac;
 CREATE SEQUENCE notes_id_seq

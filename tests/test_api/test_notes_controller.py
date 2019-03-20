@@ -200,8 +200,8 @@ class TestUpdateNotes:
         assert updated_note.body == expected_body
 
 
-class TestCohortDelete:
-    """Cohort Delete API."""
+class TestNoteDelete:
+    """Delete note API."""
 
     def test_not_authenticated(self, client):
         """You must log in to delete a note."""
@@ -224,10 +224,14 @@ class TestCohortDelete:
 
     def test_admin_delete(self, client, fake_auth, new_coe_note):
         """Admin can delete another user's note."""
+        original_count_per_sid = len(Note.get_notes_by_sid(new_coe_note.sid))
         fake_auth.login('2040')
-        response = client.delete(f'/api/notes/delete/{new_coe_note.id}')
+        note_id = new_coe_note.id
+        response = client.delete(f'/api/notes/delete/{note_id}')
         assert response.status_code == 200
-        assert not Note.find_by_id(new_coe_note.id)
+        assert not Note.find_by_id(note_id)
+        assert 1 == original_count_per_sid - len(Note.get_notes_by_sid(new_coe_note.sid))
+        assert not Note.update(note_id, 'Deleted note cannot be updated', 'Ditto')
 
 
 class TestEditNoteFeatureFlag:
