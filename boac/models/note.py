@@ -23,8 +23,11 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import datetime
+
 from boac import db, std_commit
 from boac.models.base import Base
+from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
 
 
@@ -39,6 +42,7 @@ class Note(Base):
     sid = db.Column(db.String(80), nullable=False)
     subject = db.Column(db.String(255), nullable=False)
     body = db.Column(db.Text, nullable=False)
+    deleted_at = db.Column(db.DateTime, nullable=True)
 
     def __init__(self, author_uid, author_name, author_role, author_dept_codes, sid, subject, body):
         self.author_uid = author_uid
@@ -51,7 +55,7 @@ class Note(Base):
 
     @classmethod
     def find_by_id(cls, note_id):
-        return cls.query.filter_by(id=note_id).first()
+        return cls.query.filter(and_(cls.id == note_id, cls.deleted_at == None)).first()  # noqa: E711
 
     @classmethod
     def create(cls, author_uid, author_name, author_role, author_dept_codes, sid, subject, body):
@@ -73,12 +77,15 @@ class Note(Base):
 
     @classmethod
     def get_notes_by_sid(cls, sid):
-        return cls.query.filter(cls.sid == sid).all()
+        # SQLAlchemy uses "magic methods" to create SQL; it requires '==' instead of 'is'.
+        return cls.query.filter(and_(cls.sid == sid, cls.deleted_at == None)).all()  # noqa: E711
 
     @classmethod
     def delete(cls, note_id):
-        db.session.delete(cls.find_by_id(note_id))
-        std_commit()
+        note = cls.find_by_id(note_id)
+        if note:
+            note.deleted_at = datetime.now()
+            std_commit()
 
     def to_api_json(self):
         return {
