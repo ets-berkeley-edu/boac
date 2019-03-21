@@ -22,13 +22,12 @@
       <span v-if="note.advisorName" :id="`advising-note-search-result-advisor-${note.id}`">
         {{ note.advisorName }} -
       </span>
-      {{ note.lastModified }}
+      <span v-if="lastModified">{{ lastModified | moment('MMM D, YYYY') }}</span>
     </div>
   </div>
 </template>
 
 <script>
-import { format as formatDate, parse as parseDate } from 'date-fns';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
@@ -38,11 +37,14 @@ export default {
   props: {
     note: Object,
   },
+  data: () => ({
+    lastModified: undefined
+  }),
   created() {
-    const timestamp = this.get(this.note, 'updatedAt') || this.get(this.note, 'createdAt')
+    const timestamp = this.get(this.note, 'updatedAt') || this.get(this.note, 'createdAt');
     if (timestamp) {
-      const d = parseDate(timestamp);
-      this.note.lastModified = formatDate(d, 'MMM D, YYYY');
+      const now = this.$moment();
+      this.lastModified = this.$moment(timestamp).utcOffset(now.utcOffset());
     }
   }
 };

@@ -32,8 +32,9 @@ axios.interceptors.response.use(response => response, function(error) {
 
 Vue.config.productionTip = false;
 Vue.use(BootstrapVue);
-Vue.use(require('vue-lodash'));
 Vue.use(CKEditor);
+Vue.use(require('vue-lodash'));
+Vue.use(require('vue-moment'));
 
 HighchartsMore(Highcharts);
 Vue.use(VueHighcharts, { Highcharts });
@@ -56,10 +57,7 @@ store.dispatch('context/loadConfig').then(response => {
 // Filters and directives
 _.each(filters, (filter, name) => Vue.filter(name, filter));
 Vue.directive('accessibleGrade', {
-  bind: function (el, binding) {
-    const grade = binding.value;
-    el.innerHTML = grade && grade.replace('-', '&minus;').replace('+', '&plus;');
-  }
+  bind: (el, binding) => el.innerHTML = binding.value && binding.value.replace('-', '&minus;').replace('+', '&plus;')
 });
 
 // Emit, and listen for, events via hub

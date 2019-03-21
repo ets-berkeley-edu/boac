@@ -24,7 +24,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.merged.advising_note import get_advising_notes, get_attachment_stream, search_advising_notes
-from tests.util import mock_advising_note_attachment
+from dateutil.parser import parse
+from tests.util import mock_advising_note_attachment, to_utc
 
 
 asc_advisor = '6446'
@@ -46,9 +47,9 @@ class TestMergedAdvisingNote:
         assert notes[0]['subcategory'] == 'Hangouts'
         assert notes[0]['appointmentId'] is None
         assert notes[0]['createdBy'] is None
-        assert notes[0]['createdAt'] == '2017-10-31 12:00:00'
+        assert to_utc(parse(notes[0]['createdAt'])) == parse('2017-10-31T12:00:00+00:00')
         assert notes[0]['updatedBy'] is None
-        assert notes[0]['updatedAt'] == '2017-10-31 12:00:00'
+        assert to_utc(parse(notes[0]['updatedAt'])) == parse('2017-10-31T12:00:00+00:00')
         assert notes[0]['read'] is False
         assert notes[0]['topics'] == ['Good show']
         assert notes[1]['id'] == '11667051-00002'
@@ -58,9 +59,9 @@ class TestMergedAdvisingNote:
         assert notes[1]['subcategory'] == ''
         assert notes[1]['appointmentId'] is None
         assert notes[1]['createdBy'] is None
-        assert notes[1]['createdAt'] == '2017-11-01 12:00:00'
+        assert to_utc(parse(notes[1]['createdAt'])) == parse('2017-11-01T12:00:00+00')
         assert notes[1]['updatedBy'] is None
-        assert notes[1]['updatedAt'] == '2017-11-01 12:00:00'
+        assert to_utc(parse(notes[1]['updatedAt'])) == parse('2017-11-01T12:00:00+00')
         assert notes[1]['read'] is False
         assert notes[1]['topics'] == ['Bad show', 'Show off']
         # Non-legacy note
@@ -104,10 +105,9 @@ class TestMergedAdvisingNote:
         notes = get_advising_notes('9000000000')
         ucbconversion_note = notes[0]
         cs_note = notes[1]
-        assert ucbconversion_note['createdAt'] == '2017-11-02'
+        assert ucbconversion_note['createdAt']
         assert ucbconversion_note['updatedAt'] is None
-        assert cs_note['createdAt'] == '2017-11-02 12:00:00'
-        assert cs_note['updatedAt'] == '2017-11-02 13:00:00'
+        assert cs_note['createdAt'] and cs_note['updatedAt']
 
     def test_search_advising_notes(self, app, fake_auth):
         fake_auth.login(coe_advisor)
@@ -121,8 +121,8 @@ class TestMergedAdvisingNote:
         assert notes[0]['studentName'] == 'Deborah Davies'
         assert notes[0]['advisorSid'] == '600500400'
         assert notes[0]['id'] == '11667051-00003'
-        assert notes[0]['createdAt'] == '2017-11-05 12:00:00'
-        assert notes[0]['updatedAt'] == '2017-11-06 12:00:00'
+        assert to_utc(parse(notes[0]['createdAt'])) == parse('2017-11-05T12:00:00+00')
+        assert to_utc(parse(notes[0]['updatedAt'])) == parse('2017-11-06T12:00:00+00')
 
     def test_search_advising_notes_stemming(self, app, fake_auth):
         fake_auth.login(coe_advisor)
@@ -168,10 +168,9 @@ class TestMergedAdvisingNote:
         response = search_advising_notes(search_phrase='confound')
         ucbconversion_note = response[0]
         cs_note = response[1]
-        assert ucbconversion_note['createdAt'] == '2017-11-02'
+        assert ucbconversion_note['createdAt']
         assert ucbconversion_note['updatedAt'] is None
-        assert cs_note['createdAt'] == '2017-11-05 12:00:00'
-        assert cs_note['updatedAt'] == '2017-11-06 12:00:00'
+        assert cs_note['createdAt'] and cs_note['updatedAt']
 
     def test_stream_attachment(self, app, fake_auth):
         with mock_advising_note_attachment(app):

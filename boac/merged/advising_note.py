@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import timezone
 from itertools import groupby
 from operator import itemgetter
 import re
@@ -109,8 +108,8 @@ def search_advising_notes(
             'studentName': ' '.join([student_row.get('first_name'), student_row.get('last_name')]),
             'advisorSid': note.get('advisorSid'),
             'advisorName': ' '.join([advisor_feed.get('firstName'), advisor_feed.get('lastName')]) if advisor_feed else None,
-            'noteSnippet': notes_text_snippet(note.get('noteBody'), search_terms),
-            'createdAt': _resolve_created_at(note),
+            'noteSnippet': _notes_text_snippet(note.get('noteBody'), search_terms),
+            'createdAt': _isoformat(note, 'createdAt'),
             'updatedAt': _resolve_updated_at(note),
         }
     return [_notes_result_to_json(row) for row in notes_results]
@@ -165,7 +164,7 @@ def note_to_compatible_json(note, topics=None, attachments=None):
         'subcategory': note.get('noteSubcategory'),
         'appointmentId': note.get('appointmentId'),
         'createdBy': note.get('createdBy'),
-        'createdAt': _resolve_created_at(note),
+        'createdAt': _isoformat(note, 'createdAt'),
         'updatedBy': note.get('updated_by'),
         'updatedAt': _resolve_updated_at(note),
         'read': False,
@@ -174,23 +173,10 @@ def note_to_compatible_json(note, topics=None, attachments=None):
     }
 
 
-def _resolve_created_at(note):
-    # Notes converted from pre-CS legacy systems have no time-of-day precision.
-    return _stringify_note_timestamp(note.get('createdAt'), date_only=(note.get('createdBy') == 'UCBCONVERSION'))
-
-
 def _resolve_updated_at(note):
     # Notes converted from pre-CS legacy systems have an updated_at value indicating (probably)
     # time of conversion rather than an update by a human.
-    if note.get('createdBy') == 'UCBCONVERSION':
-        return None
-    else:
-        return _stringify_note_timestamp(note.get('updatedAt'))
-
-
-def _stringify_note_timestamp(dt, date_only=False):
-    ts_format = '%Y-%m-%d' if date_only else '%Y-%m-%d %H:%M:%S'
-    return dt.astimezone(timezone.utc).strftime(ts_format)
+    return None if note.get('createdBy') == 'UCBCONVERSION' else _isoformat(note, 'updatedAt')
 
 
 def _get_advising_note_topics(sid):
@@ -215,7 +201,12 @@ def _get_advising_note_attachments(sid):
     return attachments_by_id
 
 
-def notes_text_snippet(note_body, search_terms):
+def _isoformat(obj, key):
+    value = obj.get(key)
+    return value and value.isoformat()
+
+
+def _notes_text_snippet(note_body, search_terms):
     stemmer = SnowballStemmer('english')
     stemmed_search_terms = [stemmer.stem(term) for term in search_terms]
     tag_stripped_body = re.sub(r'<[^>]+>', '', note_body)

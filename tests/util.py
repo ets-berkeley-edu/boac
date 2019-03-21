@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from contextlib import contextmanager
 
 import boto3
+from dateutil.tz import tzutc
 import moto
 
 
@@ -47,3 +48,7 @@ def override_config(app, key, value):
     app.config[key] = value
     yield
     app.config[key] = old_value
+
+
+def to_utc(date):
+    return date.astimezone(tzutc())
