@@ -5,7 +5,7 @@
       <span class="red-flag-small">
         {{ student.sisProfile.withdrawalCancel.description }}
         ({{ student.sisProfile.withdrawalCancel.reason }})
-        {{ student.sisProfile.withdrawalCancel.date | date }}
+        {{ student.sisProfile.withdrawalCancel.date | moment('MMM DD, YYYY') }}
       </span>
     </div>
     <div
@@ -248,7 +248,7 @@ v-if="section.isViewableOnCoursePage"
       No courses
       <div v-if="student.sisProfile.withdrawalCancel">
         <span class="red-flag-small">
-          {{ student.sisProfile.withdrawalCancel.description }} ({{ student.sisProfile.withdrawalCancel.reason }}) {{ student.sisProfile.withdrawalCancel.date | date }}
+          {{ student.sisProfile.withdrawalCancel.description }} ({{ student.sisProfile.withdrawalCancel.reason }}) {{ student.sisProfile.withdrawalCancel.date | moment('MMM DD, YYYY') }}
         </span>
       </div>
     </div>

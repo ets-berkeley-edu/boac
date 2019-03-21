@@ -47,7 +47,7 @@
       </div>
       <div v-if="student.withdrawalCancel">
         <span class="red-flag-small">
-          {{ student.withdrawalCancel.description }} {{ student.withdrawalCancel.date | date }}
+          {{ student.withdrawalCancel.description }} {{ student.withdrawalCancel.date | moment('MMM DD, YYYY') }}
         </span>
       </div>
       <div
@@ -95,10 +95,10 @@
         :width="'130'" />
       <div
         v-if="size(student.termGpa)"
-        class="student-bio-status-legend profile-last-term-gpa-outer">
+        class="student-bio-status-legend profile-last-term-gpa-outer pl-0">
         <i
           v-if="student.termGpa[0].gpa < 2"
-          class="fa fa-exclamation-triangle boac-exclamation"></i>
+          class="fa fa-exclamation-triangle boac-exclamation mr-1"></i>
         <span :id="`row-${rowIndex}-student-gpa-term-name`">{{ student.termGpa[0].termName }}</span> GPA:
         <strong
           :id="`row-${rowIndex}-student-term-gpa`"
