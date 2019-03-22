@@ -164,6 +164,28 @@ class TestMergedAdvisingNote:
         assert len(response) == 1
         assert 'Time hath spared the <strong>Epitaph</strong> of Adrians <strong>horse</strong>' in response[0]['noteSnippet']
 
+    def test_search_dates(self, app, fake_auth):
+        fake_auth.login(coe_advisor)
+        response = search_advising_notes(search_phrase='2/1/2019 1:30')
+        assert len(response) == 1
+        assert 'next appt. <strong>2/1/2019</strong> @ <strong>1:30</strong>. Student continued' in response[0]['noteSnippet']
+        response = search_advising_notes(search_phrase='1-24-19')
+        assert len(response) == 1
+        assert 'drop Eng. 123 by <strong>1-24-19</strong>' in response[0]['noteSnippet']
+
+    def test_search_decimals(self, app, fake_auth):
+        fake_auth.login(coe_advisor)
+        response = search_advising_notes(search_phrase='2.0')
+        assert len(response) == 1
+        assert "Student continued on <strong>2.0</strong> prob (COP) until Sp '19." in response[0]['noteSnippet']
+
+    def test_search_email_address(self, app, fake_auth):
+        fake_auth.login(coe_advisor)
+        response = search_advising_notes(search_phrase='E-mailed test@berkeley.edu')
+        assert len(response) == 1
+        assert "until Sp '19. <strong>E-mailed</strong> <strong>test@berkeley.edu</strong>: told her she'll need to drop Eng. 123" \
+            in response[0]['noteSnippet']
+
     def test_search_advising_notes_timestamp_format(self, app, fake_auth):
         fake_auth.login(coe_advisor)
         response = search_advising_notes(search_phrase='confound')
