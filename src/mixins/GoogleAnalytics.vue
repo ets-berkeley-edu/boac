@@ -1,15 +1,25 @@
 <script>
-import store from '@/store';
 import { event } from 'vue-analytics';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'GoogleAnalytics',
+  computed: {
+    ...mapGetters('user', ['user'])
+  },
   methods: {
     gaEvent(category, action, label, value) {
-      const user = store.getters['user/user'];
-      event(category, action, label, value, {
-        userId: user.uid
-      });
+      if (this.user) {
+        event(category, action, label, value, {
+          userId: this.user.uid
+        });
+      } else {
+        this.$watch('user', () => {
+          event(category, action, label, value, {
+            userId: this.user.uid
+          });
+        }); 
+      }
     },
     gaCohortEvent(id, name, action) {
       this.gaEvent('Cohort', action, name, id);
