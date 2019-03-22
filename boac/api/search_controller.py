@@ -97,6 +97,7 @@ def search():
     if domain['notes']:
         notes_results = search_advising_notes(
             search_phrase=search_phrase,
+            offset=0,
             limit=20,
         )
         if notes_results:

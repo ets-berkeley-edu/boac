@@ -67,10 +67,7 @@ def get_advising_notes(sid):
     return list(notes_by_id.values())
 
 
-def search_advising_notes(
-    search_phrase=None,
-    limit=None,
-):
+def search_advising_notes(search_phrase, offset=0, limit=20):
     scope = narrow_scope_by_criteria(get_student_query_scope())
     # In the interest of keeping our search implementation flexible, we mimic a join by first querying RDS
     # for all student rows matching user scope, then incorporating SIDs into the notes query as a very large
@@ -89,19 +86,56 @@ def search_advising_notes(
     student_rows_by_sid = {row['sid']: row for row in sids_result}
     sid_filter = '{' + ','.join(student_rows_by_sid.keys()) + '}'
     search_terms = [t for t in re.split(r'\W+', search_phrase) if t]
+    search_phrase = ' & '.join(search_terms)
 
-    notes_results = data_loch.search_advising_notes(
-        search_phrase=' & '.join(search_terms),
+    # Since we don't expect the size of this result set to be large, it's easiest to retrieve the whole thing for the
+    # sake of subsequent offset calculations.
+    local_results = Note.search(search_phrase=search_phrase, sid_filter=sid_filter)
+    local_notes_count = len(local_results)
+    cutoff = min(local_notes_count, offset + limit)
+
+    notes_feed = _get_local_notes_search_results(local_results[offset:cutoff], student_rows_by_sid, search_terms)
+    if len(notes_feed) == limit:
+        return notes_feed
+
+    loch_results = data_loch.search_advising_notes(
+        search_phrase=search_phrase,
         sid_filter=sid_filter,
-        limit=limit,
+        offset=max(0, offset - local_notes_count),
+        limit=(limit - len(notes_feed)),
     )
-    calnet_advisor_feeds = get_calnet_users_for_csids(app, [row.get('advisor_sid') for row in notes_results])
 
-    def _notes_result_to_json(row):
+    notes_feed += _get_loch_notes_search_results(loch_results, student_rows_by_sid, search_terms)
+    return notes_feed
+
+
+def _get_local_notes_search_results(local_results, student_rows_by_sid, search_terms):
+    results = []
+    for row in local_results:
+        note = {camelize(key): row[key] for key in row.keys()}
+        student_row = student_rows_by_sid[note.get('sid')]
+        results.append({
+            'id': note.get('id'),
+            'studentSid': note.get('sid'),
+            'studentUid': student_row.get('uid'),
+            'studentName': ' '.join([student_row.get('first_name'), student_row.get('last_name')]),
+            'advisorUid': note.get('authorUid'),
+            'advisorName': note.get('authorName'),
+            'noteSnippet': _notes_text_snippet(' - '.join([note.get('subject'), note.get('body')]), search_terms),
+            'createdAt': _isoformat(note, 'createdAt'),
+            'updatedAt': _resolve_updated_at(note),
+        })
+    return results
+
+
+def _get_loch_notes_search_results(loch_results, student_rows_by_sid, search_terms):
+    results = []
+    calnet_advisor_feeds = get_calnet_users_for_csids(app, [row.get('advisor_sid') for row in loch_results])
+    for row in loch_results:
         note = {camelize(key): row[key] for key in row.keys()}
         student_row = student_rows_by_sid[note.get('sid')]
         advisor_feed = calnet_advisor_feeds.get(note.get('advisorSid'))
-        return {
+        results.append({
             'id': note.get('id'),
             'studentSid': note.get('sid'),
             'studentUid': student_row.get('uid'),
@@ -111,8 +145,8 @@ def search_advising_notes(
             'noteSnippet': _notes_text_snippet(note.get('noteBody'), search_terms),
             'createdAt': _isoformat(note, 'createdAt'),
             'updatedAt': _resolve_updated_at(note),
-        }
-    return [_notes_result_to_json(row) for row in notes_results]
+        })
+    return results
 
 
 def get_attachment_stream(filename):
@@ -224,7 +258,7 @@ def _notes_text_snippet(note_body, search_terms):
             if index > snippet_padding:
                 start_position = note_words[index - snippet_padding].start(0)
             snippet = '...' if start_position > 0 else ''
-        if match_index:
+        if match_index is not None:
             snippet += tag_stripped_body[start_position:word_match.start(0)]
             if stem in stemmed_search_terms:
                 snippet += '<strong>'

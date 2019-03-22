@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.merged.advising_note import get_advising_notes, get_attachment_stream, search_advising_notes
+from boac.models.note import Note
 from dateutil.parser import parse
 from tests.util import mock_advising_note_attachment, to_utc
 
@@ -171,6 +172,47 @@ class TestMergedAdvisingNote:
         assert ucbconversion_note['createdAt']
         assert ucbconversion_note['updatedAt'] is None
         assert cs_note['createdAt'] and cs_note['updatedAt']
+
+    def test_search_advising_notes_includes_newly_created(self, app, fake_auth):
+        fake_auth.login(coe_advisor)
+        Note.create(
+            author_uid=coe_advisor,
+            author_name='Balloon Man',
+            author_role='Spherical',
+            author_dept_codes='COENG',
+            sid='11667051',
+            subject='Confound this note',
+            body='and its successors and assigns',
+        )
+        response = search_advising_notes(search_phrase='confound')
+        assert len(response) == 3
+        assert response[0]['noteSnippet'] == '<strong>Confound</strong> this note - and its successors and assigns'
+        assert response[1]['noteSnippet'].startswith('I am <strong>confounded</strong>')
+        assert response[2]['noteSnippet'].startswith('...pity the founder')
+
+    def test_search_advising_notes_paginates_new_and_old(self, app, fake_auth):
+        fake_auth.login(coe_advisor)
+        for i in range(0, 5):
+            Note.create(
+                author_uid=coe_advisor,
+                author_name='Balloon Man',
+                author_role='Spherical',
+                author_dept_codes='COENG',
+                sid='11667051',
+                subject='Planned redundancy',
+                body=f'Confounded note {i + 1}',
+            )
+        response = search_advising_notes(search_phrase='confound', offset=0, limit=4)
+        assert len(response) == 4
+        assert response[0]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 1'
+        assert response[1]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 2'
+        assert response[2]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 3'
+        assert response[3]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 4'
+        response = search_advising_notes(search_phrase='confound', offset=4, limit=4)
+        assert len(response) == 3
+        assert response[0]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 5'
+        assert response[1]['noteSnippet'].startswith('I am <strong>confounded</strong>')
+        assert response[2]['noteSnippet'].startswith('...pity the founder')
 
     def test_stream_attachment(self, app, fake_auth):
         with mock_advising_note_attachment(app):
