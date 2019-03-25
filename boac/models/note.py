@@ -29,6 +29,7 @@ from boac import db, std_commit
 from boac.models.base import Base
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.sql import text
 
 
 class Note(Base):
@@ -62,7 +63,30 @@ class Note(Base):
         note = cls(author_uid, author_name, author_role, author_dept_codes, sid, subject, body)
         db.session.add(note)
         std_commit()
+        cls.refresh_search_index()
         return note
+
+    @classmethod
+    def search(cls, search_phrase, sid_filter):
+        query = text("""
+            SELECT notes.* FROM (
+                SELECT id, ts_rank(fts_index, to_tsquery('english', :search_phrase)) AS rank
+                FROM notes_fts_index
+                WHERE fts_index @@ to_tsquery('english', :search_phrase)
+            ) AS fts
+            JOIN notes
+                ON fts.id = notes.id
+                AND notes.sid = ANY(:sid_filter)
+            ORDER BY fts.rank DESC, notes.id
+        """).bindparams(search_phrase=search_phrase, sid_filter=sid_filter)
+        result = db.session.execute(query)
+        keys = result.keys()
+        return [dict(zip(keys, row)) for row in result.fetchall()]
+
+    @classmethod
+    def refresh_search_index(cls):
+        db.session.execute(text('REFRESH MATERIALIZED VIEW notes_fts_index'))
+        std_commit()
 
     @classmethod
     def update(cls, note_id, subject, body):

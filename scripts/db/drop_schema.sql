@@ -58,6 +58,7 @@ DROP INDEX IF EXISTS public.alerts_sid_idx;
 DROP INDEX IF EXISTS public.alert_views_viewer_id_idx;
 DROP INDEX IF EXISTS public.alert_views_alert_id_idx;
 DROP INDEX IF EXISTS public.student_groups_owner_id_idx;
+DROP INDEX IF EXISTS public.idx_notes_fts_index;
 
 --
 
@@ -84,6 +85,7 @@ ALTER TABLE IF EXISTS public.alerts ALTER COLUMN id DROP DEFAULT;
 
 --
 
+DROP MATERIALIZED VIEW IF EXISTS public.notes_fts_index;
 DROP TABLE IF EXISTS public.notes;
 DROP TABLE IF EXISTS public.notes_read;
 DROP SEQUENCE IF EXISTS public.json_cache_id_seq;

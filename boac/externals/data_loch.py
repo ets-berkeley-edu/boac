@@ -351,7 +351,7 @@ def get_advising_note_attachments(sid):
     return safe_execute_redshift(sql, sid=sid)
 
 
-def search_advising_notes(search_phrase, sid_filter, limit=None):
+def search_advising_notes(search_phrase, sid_filter, offset=None, limit=None):
     sql = f"""SELECT
         an.sid, an.id, an.note_body, an.advisor_sid, an.created_by, an.created_at, an.updated_at
         FROM (
@@ -363,10 +363,12 @@ def search_advising_notes(search_phrase, sid_filter, limit=None):
         JOIN {advising_notes_schema()}.advising_notes an
           ON s.id = an.id
           AND an.sid = ANY(:sid_filter)
-        ORDER BY s.rank DESC"""
-    if limit and limit < 100:  # Sanity check large limits
+        ORDER BY s.rank DESC, an.id"""
+    if offset is not None and offset > 0:
+        sql += ' OFFSET :offset'
+    if limit is not None and limit < 150:  # Sanity check large limits
         sql += ' LIMIT :limit'
-    return safe_execute_rds(sql, search_phrase=search_phrase, sid_filter=sid_filter, limit=limit)
+    return safe_execute_rds(sql, search_phrase=search_phrase, sid_filter=sid_filter, offset=offset, limit=limit)
 
 
 def get_ethnicity_codes(scope=()):
