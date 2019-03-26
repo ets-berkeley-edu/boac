@@ -145,7 +145,6 @@ class TestStudentSearch:
         """A COE name search finds COE Pauls, including one who is inactive."""
         response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': 'Paul'}), content_type='application/json')
         students = response.json['students']
-        print(students)
         assert len(students) == 2
         assert next(s for s in students if s['name'] == 'Paul Farestveit' and s['coeProfile']['isActiveCoe'] is True)
         assert next(s for s in students if s['name'] == 'Wolfgang Pauli' and s['coeProfile']['isActiveCoe'] is False)

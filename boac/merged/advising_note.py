@@ -41,6 +41,8 @@ from nltk.stem.snowball import SnowballStemmer
 
 """Provide advising note data from local and external sources."""
 
+NOTE_SEARCH_PATTERN = r'(\w*[.:/-@]\w+([.:/-]\w+)*)|[^\s?!(),;:.`]+'
+
 
 def get_advising_notes(sid):
     legacy_notes = data_loch.get_advising_notes(sid)
@@ -85,7 +87,7 @@ def search_advising_notes(search_phrase, offset=0, limit=20):
 
     student_rows_by_sid = {row['sid']: row for row in sids_result}
     sid_filter = '{' + ','.join(student_rows_by_sid.keys()) + '}'
-    search_terms = [t for t in re.split(r'\W+', search_phrase) if t]
+    search_terms = [t.group(0) for t in list(re.finditer(NOTE_SEARCH_PATTERN, search_phrase)) if t]
     search_phrase = ' & '.join(search_terms)
 
     # Since we don't expect the size of this result set to be large, it's easiest to retrieve the whole thing for the
@@ -245,7 +247,7 @@ def _notes_text_snippet(note_body, search_terms):
     stemmed_search_terms = [stemmer.stem(term) for term in search_terms]
     tag_stripped_body = re.sub(r'<[^>]+>', '', note_body)
     snippet_padding = app.config['NOTES_SEARCH_RESULT_SNIPPET_PADDING']
-    note_words = list(re.finditer(r'\w+', tag_stripped_body))
+    note_words = list(re.finditer(NOTE_SEARCH_PATTERN, tag_stripped_body))
 
     snippet = None
     match_index = None

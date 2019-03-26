@@ -70,9 +70,9 @@ class Note(Base):
     def search(cls, search_phrase, sid_filter):
         query = text("""
             SELECT notes.* FROM (
-                SELECT id, ts_rank(fts_index, to_tsquery('english', :search_phrase)) AS rank
+                SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
                 FROM notes_fts_index
-                WHERE fts_index @@ to_tsquery('english', :search_phrase)
+                WHERE fts_index @@ plainto_tsquery('english', :search_phrase)
             ) AS fts
             JOIN notes
                 ON fts.id = notes.id

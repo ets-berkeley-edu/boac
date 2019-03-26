@@ -355,9 +355,9 @@ def search_advising_notes(search_phrase, sid_filter, offset=None, limit=None):
     sql = f"""SELECT
         an.sid, an.id, an.note_body, an.advisor_sid, an.created_by, an.created_at, an.updated_at
         FROM (
-          SELECT id, ts_rank(fts_index, to_tsquery('english', :search_phrase)) AS rank
+          SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
           FROM {advising_notes_schema()}.advising_notes_search_index
-          WHERE fts_index @@ to_tsquery('english', :search_phrase)
+          WHERE fts_index @@ plainto_tsquery('english', :search_phrase)
         )
         AS s
         JOIN {advising_notes_schema()}.advising_notes an
