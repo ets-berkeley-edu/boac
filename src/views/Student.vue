@@ -18,6 +18,12 @@
       </div>
       <div class="m-3">
         <AcademicTimeline :student="student" />
+        <AreYouSureModal
+          v-if="showAreYouSureModal"
+          :function-cancel="cancelTheCancel"
+          :function-confirm="cancelConfirmed"
+          modal-header="Discard unsaved note?"
+          :show-modal="showAreYouSureModal" />
       </div>
       <div>
         <StudentClasses :student="student" />
@@ -28,7 +34,9 @@
 
 <script>
 import AcademicTimeline from '@/components/student/profile/AcademicTimeline';
+import AreYouSureModal from '@/components/util/AreYouSureModal';
 import Loading from '@/mixins/Loading';
+import NoteEditSession from '@/mixins/NoteEditSession';
 import Scrollable from '@/mixins/Scrollable';
 import Spinner from '@/components/util/Spinner';
 import StudentClasses from '@/components/student/profile/StudentClasses';
@@ -42,19 +50,35 @@ export default {
   name: 'Student',
   components: {
     AcademicTimeline,
+    AreYouSureModal,
     Spinner,
     StudentClasses,
     StudentProfileGPA,
     StudentProfileHeader,
     StudentProfileUnits
   },
-  mixins: [Loading, Scrollable, Util],
+  mixins: [Loading, NoteEditSession, Scrollable, Util],
   data: () => ({
+    cancelTheCancel: undefined,
+    cancelConfirmed: undefined,
     showAllTerms: false,
+    showAreYouSureModal: false,
     student: {
       termGpa: []
     }
   }),
+  beforeRouteLeave(to, from, next) {
+    if (this.newNoteMode || this.editingNoteId) {
+      this.cancelConfirmed = () => next();
+      this.cancelTheCancel = () => {
+        this.showAreYouSureModal = false;
+        next(false);
+      };
+      this.showAreYouSureModal = true;
+    } else {
+      next();
+    }
+  },
   created() {
     const uid = this.get(this.$route, 'params.uid');
     getStudent(uid).then(data => {
