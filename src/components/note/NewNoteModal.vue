@@ -5,7 +5,7 @@
         id="new-note-button"
         class="mt-1 mr-2 btn-primary-color-override"
         variant="primary"
-        :disabled="disable || includes(['minimized', 'open'], mode)"
+        :disabled="disable || includes(['minimized', 'open'], newNoteMode)"
         @click="openNewNoteModal()">
         <span class="m-1">
           <i class="fas fa-file-alt"></i>
@@ -15,10 +15,10 @@
     </div>
     <div
       :class="{
-        'd-none': mode === 'closed',
-        'modal-open': mode === 'open',
-        'modal-open modal-minimized': mode === 'minimized',
-        'modal-open modal-saving': mode === 'saving'
+        'd-none': isNil(newNoteMode),
+        'modal-open': newNoteMode === 'open',
+        'modal-open modal-minimized': newNoteMode === 'minimized',
+        'modal-open modal-saving': newNoteMode === 'saving'
       }">
       <form @submit.prevent="create()">
         <div class="d-flex align-items-end pt-2 mb-1">
@@ -91,7 +91,7 @@
         </div>
       </form>
     </div>
-    <div v-if="!isMinimizing && mode === 'minimized'" class="minimized-placeholder d-flex align-items-end ml-3 mr-3">
+    <div v-if="!isMinimizing && newNoteMode === 'minimized'" class="minimized-placeholder d-flex align-items-end ml-3 mr-3">
       <div class="flex-grow-1 new-note-header">
         New Note
       </div>
@@ -139,6 +139,7 @@
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Context from '@/mixins/Context';
+import NoteEditSession from "@/mixins/NoteEditSession";
 import Util from '@/mixins/Util';
 import { createNote } from '@/api/notes';
 
@@ -147,10 +148,9 @@ require('@/assets/styles/ckeditor-custom.css');
 export default {
   name: 'NewNoteModal',
   components: { AreYouSureModal },
-  mixins: [Context, Util],
+  mixins: [Context, NoteEditSession, Util],
   props: {
     disable: Boolean,
-    onModeChange: Function,
     onSuccessfulCreate: Function,
     student: Object
   },
@@ -158,7 +158,6 @@ export default {
     body: undefined,
     error: undefined,
     isMinimizing: false,
-    mode: undefined,
     showErrorPopover: false,
     subject: undefined,
     editor: ClassicEditor,
@@ -170,9 +169,6 @@ export default {
   watch: {
     body(b) {
       if (b) this.clearError();
-    },
-    mode(m) {
-      this.onModeChange(m);
     },
     subject(s) {
       if (s) this.clearError();
@@ -202,16 +198,11 @@ export default {
       this.error = null;
       this.showErrorPopover = false;
     },
-    clickOutside() {
-      if (this.mode === 'open') {
-        this.cancel();
-      }
-    },
     create() {
       this.subject = this.trim(this.subject);
       if (this.subject) {
         this.body = this.trim(this.body);
-        this.mode = 'saving';
+        this.setNewNoteMode('saving');
         createNote(this.student.sid, this.subject, this.body).then(data => {
           this.reset();
           this.onSuccessfulCreate(data);
@@ -225,22 +216,22 @@ export default {
       }
     },
     maximize() {
-      this.mode = 'open';
+      this.setNewNoteMode('open');
       this.alertScreenReader("Create note form is visible.");
       this.putFocusNextTick('create-note-subject');
     },
     minimize() {
       this.isMinimizing = true;
-      this.mode = 'minimized';
+      this.setNewNoteMode('minimized');
       setTimeout(() => this.isMinimizing = false, 300);
       this.alertScreenReader("Create note form minimized.");
     },
     openNewNoteModal() {
-       this.mode = 'open';
+       this.setNewNoteMode('open');
        this.putFocusNextTick('create-note-subject');
     },
     reset() {
-      this.mode = 'closed';
+      this.setNewNoteMode(null);
       this.subject = this.body = undefined;
     }
   }

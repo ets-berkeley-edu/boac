@@ -35,9 +35,8 @@
       </div>
       <div v-if="featureFlagEditNotes && !user.isAdmin">
         <NewNoteModal
-          :disable="!!editingMessageId"
+          :disable="!!editingNoteId"
           :student="student"
-          :on-mode-change="onNewNoteModeChange"
           :on-successful-create="onCreateAdvisingNote" />
       </div>
     </div>
@@ -70,7 +69,7 @@
               <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
             </div>
             <div
-              v-if="featureFlagEditNotes && isEditable(message) && !editingMessageId && newNoteMode === 'closed' && includes(openMessages, message.transientId)"
+              v-if="featureFlagEditNotes && isEditable(message) && !editingNoteId && isNil(newNoteMode) && includes(openMessages, message.transientId)"
               class="mt-2">
               <div v-if="user.uid === message.author.uid">
                 <b-btn
@@ -112,13 +111,13 @@
               <i v-if="message.status === 'In Progress'" class="requirements-icon fas fa-clock text-icon-clock"></i>
               <span v-if="message.type !== 'note'">{{ message.message }}</span>
               <AdvisingNote
-                v-if="message.type === 'note' && message.transientId !== editingMessageId"
+                v-if="message.type === 'note' && message.transientId !== editingNoteId"
                 :delete-note="deleteNote"
                 :edit-note="editNote"
                 :note="message"
                 :is-open="includes(openMessages, message.transientId)" />
               <EditAdvisingNote
-                v-if="featureFlagEditNotes && message.type === 'note' && message.transientId === editingMessageId"
+                v-if="featureFlagEditNotes && message.type === 'note' && message.transientId === editingNoteId"
                 :after-cancelled="afterEditCancel"
                 :note="message"
                 :after-saved="afterNoteUpdated" />
@@ -200,6 +199,7 @@ import Context from '@/mixins/Context';
 import EditAdvisingNote from '@/components/note/EditAdvisingNote';
 import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import NewNoteModal from "@/components/note/NewNoteModal";
+import NoteEditSession from "@/mixins/NoteEditSession";
 import TimelineDate from '@/components/student/profile/TimelineDate';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
@@ -209,14 +209,13 @@ import { deleteNote, markRead } from '@/api/notes';
 export default {
   name: 'AcademicTimeline',
   components: {AdvisingNote, AreYouSureModal, EditAdvisingNote, NewNoteModal, TimelineDate},
-  mixins: [Context, GoogleAnalytics, UserMetadata, Util],
+  mixins: [Context, GoogleAnalytics, NoteEditSession, UserMetadata, Util],
   props: {
     student: Object
   },
   data: () => ({
     countsPerType: undefined,
     defaultShowPerTab: 5,
-    editingMessageId: undefined,
     filter: undefined,
     filterTypes: {
       note: {
@@ -240,7 +239,6 @@ export default {
     isTimelineLoading: true,
     messageForDelete: undefined,
     messages: undefined,
-    newNoteMode: 'closed',
     openMessages: [],
     screenReaderAlert: undefined
   }),
@@ -287,13 +285,13 @@ export default {
   },
   methods: {
     afterEditCancel() {
-      this.editingMessageId = null;
+      this.editExistingNoteId(null);
     },
     afterNoteUpdated(noteId, subject, body) {
       const note = this.find(this.messages, ['id', noteId]);
       note.subject = subject;
       note.body = note.message = body;
-      this.editingMessageId = null;
+      this.editExistingNoteId(null);
       this.alertScreenReader('Changes to note have been saved');
     },
     cancelTheDelete() {
@@ -332,7 +330,7 @@ export default {
       return message.updatedAt && (message.updatedAt !== message.createdAt);
     },
     editNote(message) {
-      this.editingMessageId = message.transientId;
+      this.editExistingNoteId(message.transientId);
       this.putFocusNextTick('edit-note-subject');
     },
     id(rowIndex) {
@@ -355,9 +353,6 @@ export default {
       this.sortMessages();
       this.gaNoteEvent(note.id, `Advisor ${this.user.uid} created note`, 'create');
     },
-    onNewNoteModeChange(mode) {
-      this.newNoteMode = mode;
-    },
     sortMessages() {
       this.messages.sort((m1, m2) => {
         let d1 = m1.updatedAt || m1.createdAt;
@@ -372,7 +367,7 @@ export default {
       });
     },
     toggle(message) {
-      if (message.transientId !== this.editingMessageId) {
+      if (message.transientId !== this.editingNoteId) {
         if (this.includes(this.openMessages, message.transientId)) {
           this.openMessages = this.remove(
             this.openMessages,
