@@ -35,6 +35,7 @@
 <script>
 import AcademicTimeline from '@/components/student/profile/AcademicTimeline';
 import AreYouSureModal from '@/components/util/AreYouSureModal';
+import Context from '@/mixins/Context';
 import Loading from '@/mixins/Loading';
 import NoteEditSession from '@/mixins/NoteEditSession';
 import Scrollable from '@/mixins/Scrollable';
@@ -57,7 +58,7 @@ export default {
     StudentProfileHeader,
     StudentProfileUnits
   },
-  mixins: [Loading, NoteEditSession, Scrollable, Util],
+  mixins: [Context, Loading, NoteEditSession, Scrollable, Util],
   data: () => ({
     cancelTheCancel: undefined,
     cancelConfirmed: undefined,
@@ -69,8 +70,10 @@ export default {
   }),
   beforeRouteLeave(to, from, next) {
     if (this.newNoteMode || this.editingNoteId) {
+      this.alertScreenReader("Are you sure you want to discard unsaved changes?");
       this.cancelConfirmed = () => next();
       this.cancelTheCancel = () => {
+        this.alertScreenReader("Please save changes before exiting the page.");
         this.showAreYouSureModal = false;
         next(false);
       };
