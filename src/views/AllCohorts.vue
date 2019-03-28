@@ -8,7 +8,10 @@
         <div>There are no saved cohorts</div>
       </div>
       <div v-for="owner in usersWithCohorts" :key="owner.uid">
-        <h2 class="page-section-header-sub">{{ owner.firstName }} {{ owner.lastName }}</h2>
+        <h2 class="page-section-header-sub">
+          <span v-if="owner.name">{{ owner.name }}</span>
+          <span v-if="!owner.name">UID: {{ owner.uid }}</span>
+        </h2>
         <ul>
           <li v-for="cohort in owner.cohorts" :key="cohort.id">
             <router-link :to="'/cohort/' + cohort.id">{{ cohort.name }}</router-link> ({{ cohort.totalStudentCount }})
