@@ -103,9 +103,10 @@
                 'truncate': !includes(openMessages, message.transientId),
                 'img-blur': user.inDemoMode && message.type === 'note'
               }"
-              tabindex="0"
-              @keyup.enter="toggle(message)"
-              @click="toggle(message)">
+              :tabindex="includes(openMessages, message.transientId) ? -1 : 0"
+              @keyup.enter="open(message)"
+              @click="open(message)">
+              <span class="when-message-closed sr-only">Open message</span>
               <i v-if="message.status === 'Satisfied'" class="requirements-icon fas fa-check text-success"></i>
               <i v-if="message.status === 'Not Satisfied'" class="requirements-icon fas fa-exclamation text-icon-exclamation"></i>
               <i v-if="message.status === 'In Progress'" class="requirements-icon fas fa-clock text-icon-clock"></i>
@@ -121,6 +122,17 @@
                 :after-cancelled="afterEditCancel"
                 :note="message"
                 :after-saved="afterNoteUpdated" />
+              <div v-if="includes(openMessages, message.transientId)" class="text-center close-message">
+                <b-btn
+                  :id="`timeline-tab-${activeTab}-close-message`"
+                  class="no-wrap"
+                  variant="link"
+                  @keyup.enter.stop="close(message)"
+                  @click.stop="close(message)">
+                  <i class="fas fa-times-circle"></i>
+                  Close Message
+                </b-btn>
+              </div>
             </div>
           </td>
           <td class="column-right align-top pt-1 pr-1">
@@ -298,6 +310,21 @@ export default {
       this.alertScreenReader('Cancelled');
       this.messageForDelete = undefined;
     },
+    close(message) {
+      if (message.transientId == this.editingNoteId) {
+        return false;
+      }
+      this.alertScreenReader();
+      if (this.includes(this.openMessages, message.transientId)) {
+        this.openMessages = this.remove(
+          this.openMessages,
+          id => id !== message.transientId
+        );
+      }
+      this.$nextTick(function() {
+        this.alertScreenReader('Message closed');
+      });
+    },
     deleteNote(message) {
       // The following opens the "Are you sure?" modal
       this.alertScreenReader('Please confirm delete');
@@ -339,6 +366,18 @@ export default {
     isEditable(message) {
       return message.type === 'note' && !message.isLegacy;
     },
+    markRead(message) {
+      if (!message.read) {
+        message.read = true;
+        if (this.includes(['alert', 'hold'], message.type)) {
+          dismissStudentAlert(message.id);
+          this.gaStudentAlert(message.id, `Advisor ${this.user.uid} dismissed alert`, 'view')
+        } else if (message.type === 'note') {
+          markRead(message.id);
+          this.gaNoteEvent(message.id, `Advisor ${this.user.uid} read note`, 'view');
+        }
+      }
+    },
     messagesPerType(type) {
       return type
         ? this.filterList(this.messages, ['type', type])
@@ -353,6 +392,19 @@ export default {
       this.sortMessages();
       this.gaNoteEvent(note.id, `Advisor ${this.user.uid} created note`, 'create');
     },
+    open(message) {
+      if (message.transientId == this.editingNoteId) {
+        return false;
+      }
+      this.alertScreenReader();
+      if (!this.includes(this.openMessages, message.transientId)) {
+        this.openMessages.push(message.transientId);
+      }
+      this.markRead(message);
+      this.$nextTick(function() {
+        this.alertScreenReader('Message opened');
+      });
+    },
     sortMessages() {
       this.messages.sort((m1, m2) => {
         let d1 = m1.updatedAt || m1.createdAt;
@@ -365,34 +417,16 @@ export default {
           return d1 ? -1 : 1;
         }
       });
-    },
-    toggle(message) {
-      if (message.transientId !== this.editingNoteId) {
-        if (this.includes(this.openMessages, message.transientId)) {
-          this.openMessages = this.remove(
-            this.openMessages,
-            id => id !== message.transientId
-          );
-        } else {
-          this.openMessages.push(message.transientId);
-        }
-        if (!message.read) {
-          message.read = true;
-          if (this.includes(['alert', 'hold'], message.type)) {
-            dismissStudentAlert(message.id);
-            this.gaStudentAlert(message.id, `Advisor ${this.user.uid} dismissed alert`, 'view')
-          } else if (message.type === 'note') {
-            markRead(message.id);
-            this.gaNoteEvent(message.id, `Advisor ${this.user.uid} read note`, 'view');
-          }
-        }
-      }
     }
   }
 };
 </script>
 
 <style scoped>
+.close-message {
+  width: 100%;
+  order: -1;
+}
 .column-message {
   max-width: 1px;
   padding: 10px 10px 10px 5px;
@@ -414,6 +448,8 @@ export default {
   font-weight: 500;
 }
 .message-open {
+  flex-flow: row wrap;
+  display: flex;
   min-height: 40px;
 }
 .message-row:active,
@@ -485,5 +521,8 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.message-open > .when-message-closed {
+  display: none;
 }
 </style>
