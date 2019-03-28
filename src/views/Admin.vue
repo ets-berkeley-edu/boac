@@ -41,7 +41,10 @@
                       :class="{'faint-text pb-2': groupUser.uid === user.uid}"
                       :aria-label="`Go to UC Berkeley Directory page of ${groupUser.name}`"
                       :href="`https://www.berkeley.edu/directory/results?search-term=${groupUser.name}`"
-                      target="_blank">{{ groupUser.name }}</a>
+                      target="_blank">
+                      <span v-if="groupUser.name">{{ groupUser.name }}</span>
+                      <span v-if="!groupUser.name">UID: {{ groupUser.uid }}</span>
+                    </a>
                   </b-col>
                   <b-col v-if="groupUser.uid !== user.uid">
                     <b-btn
