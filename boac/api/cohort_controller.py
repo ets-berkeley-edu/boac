@@ -60,7 +60,7 @@ def all_cohorts():
             'cohorts': sorted(cohorts_per_uid[uid], key=lambda c: c['name']),
         })
         owners.append(owner)
-    owners = sorted(owners, key=lambda o: (o['firstName'], o['lastName']))
+    owners = sorted(owners, key=lambda o: (o.get('name') or ''))
     return tolerant_jsonify(owners)
 
 
