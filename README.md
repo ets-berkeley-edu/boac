@@ -1,6 +1,6 @@
-# boac
+# BOA
 
-bCourses offers analytic choices.
+Berkeley Online Advising
 
 ## Installation
 
