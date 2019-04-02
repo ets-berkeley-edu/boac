@@ -22,7 +22,7 @@
     <div
       v-if="!loading && results.totalStudentCount"
       tabindex="0">
-      <h1 id="page-header" class="page-section-header">
+      <h1 id="student-results-page-header" class="page-section-header">
         {{ 'student' | pluralize(results.totalStudentCount) }} matching '{{ phrase }}'
       </h1>
       <div v-if="results.totalStudentCount > limit">
