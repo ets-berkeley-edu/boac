@@ -29,8 +29,10 @@ from boac.models.json_cache import stow
 
 
 @stow('calnet_user_for_uid_{uid}')
-def get_calnet_user_for_uid(app, uid):
+def get_calnet_user_for_uid(app, uid, force_feed=True):
     persons = calnet.client(app).search_uids([uid])
+    if not persons and not force_feed:
+        return None
     return {
         **_calnet_user_api_feed(persons[0] if len(persons) else None),
         **{'uid': uid},
