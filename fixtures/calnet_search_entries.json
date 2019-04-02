@@ -70,6 +70,358 @@
                 "sn": [ "Anderson" ],
                 "uid": [ "1133399" ]
             }
+        },
+        {
+            "attributes": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "berkeleyEduCSID": "2040",
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "2040" ]
+            },
+            "dn": "uid=2040,ou=people,dc=berkeley,dc=edu",
+            "raw": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "2040" ]
+            }
+        },
+        {
+            "attributes": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "berkeleyEduCSID": "53791",
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "53791" ]
+            },
+            "dn": "uid=53791,ou=people,dc=berkeley,dc=edu",
+            "raw": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "53791" ]
+            }
+        },
+        {
+            "attributes": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "berkeleyEduCSID": "95509",
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "95509" ]
+            },
+            "dn": "uid=95509,ou=people,dc=berkeley,dc=edu",
+            "raw": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "95509" ]
+            }
+        },
+        {
+            "attributes": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "berkeleyEduCSID": "177473",
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "177473" ]
+            },
+            "dn": "uid=177473,ou=people,dc=berkeley,dc=edu",
+            "raw": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "177473" ]
+            }
+        },
+        {
+            "attributes": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "berkeleyEduCSID": "211159",
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "211159" ]
+            },
+            "dn": "uid=211159,ou=people,dc=berkeley,dc=edu",
+            "raw": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "211159" ]
+            }
+        },
+        {
+            "attributes": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "berkeleyEduCSID": "242881",
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "242881" ]
+            },
+            "dn": "uid=242881,ou=people,dc=berkeley,dc=edu",
+            "raw": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "242881" ]
+            }
+        },
+        {
+            "attributes": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "berkeleyEduCSID": "1049291",
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "1049291" ]
+            },
+            "dn": "uid=1049291,ou=people,dc=berkeley,dc=edu",
+            "raw": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "1049291" ]
+            }
+        },
+        {
+            "attributes": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "berkeleyEduCSID": "90412",
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "90412" ]
+            },
+            "dn": "uid=90412,ou=people,dc=berkeley,dc=edu",
+            "raw": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "90412" ]
+            }
+        },
+        {
+            "attributes": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "berkeleyEduCSID": "1022796",
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "1022796" ]
+            },
+            "dn": "uid=1022796,ou=people,dc=berkeley,dc=edu",
+            "raw": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "1022796" ]
+            }
+        },
+        {
+            "attributes": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "berkeleyEduCSID": "1081940",
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "1081940" ]
+            },
+            "dn": "uid=1081940,ou=people,dc=berkeley,dc=edu",
+            "raw": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "1081940" ]
+            }
+        },
+        {
+            "attributes": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "berkeleyEduCSID": "6446",
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "6446" ]
+            },
+            "dn": "uid=6446,ou=people,dc=berkeley,dc=edu",
+            "raw": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "inetorgperson",
+                    "berkeleyEduPerson",
+                    "organizationalperson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "uid": [ "6446" ]
+            }
         }
     ]
 }
