@@ -80,7 +80,9 @@ def authorized_users_api_feed(users, sort_by='lastName'):
         return ()
     profiles = []
     for user in users:
-        profile = calnet.get_calnet_user_for_uid(app, user.uid)
+        profile = calnet.get_calnet_user_for_uid(app, user.uid, force_feed=False)
+        if not profile:
+            continue
         profile['name'] = ((profile.get('firstName') or '') + ' ' + (profile.get('lastName') or '')).strip()
         profile.update({
             'id': user.id,
