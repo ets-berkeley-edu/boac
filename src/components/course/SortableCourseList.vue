@@ -5,11 +5,13 @@
       tabindex="0">
       <h1
         v-if="renderPrimaryHeader"
+        id="course-results-page-header"
         class="page-section-header">
         {{ 'class' | pluralize(totalCourseCount, {1: '1'}, 'es') }} matching '{{ searchPhrase }}'
       </h1>
       <h2
         v-if="!renderPrimaryHeader"
+        id="course-results-page-header"
         class="page-section-header">
         {{ 'class' | pluralize(totalCourseCount, {1: '1'}, 'es') }} matching '{{ searchPhrase }}'
       </h2>
