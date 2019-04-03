@@ -12,13 +12,6 @@ export default {
   methods: {
     ...mapActions('context', ['loadingStart']),
     loaded() {
-      if (this.user) {
-        this.finishLoading();
-      } else {
-        this.$watch('user', this.finishLoading);
-      }
-    },
-    finishLoading() {
       store.dispatch('context/loadingComplete');
       this.$nextTick(() => {
         if (this.$refs.pageHeader) {

@@ -32,6 +32,24 @@ const requiresAuth = (to: any, from: any, next: any) => {
   });
 };
 
+const requiresUser = (to: any, from: any, next: any) => {
+  store.dispatch('user/loadUserAuthStatus').then(data => {
+    if (data.isAuthenticated) {
+      store.dispatch('user/loadUser').then(() => {
+        next();
+      });
+    } else {
+      next({
+        path: '/login',
+        query: {
+          error: to.query.error,
+          redirect: to.name === 'home' ? undefined : to.fullPath
+        }
+      });
+    }
+  });
+};
+
 const router = new Router({
   mode: 'history',
   routes: [
@@ -58,16 +76,8 @@ const router = new Router({
     {
       path: '/',
       component: StandardLayout,
-      beforeEnter: requiresAuth,
+      beforeEnter: requiresUser,
       children: [
-        {
-          path: '/home',
-          name: 'home',
-          component: Home,
-          meta: {
-            title: 'Home'
-          }
-        },
         {
           path: '/admin',
           name: 'admin',
@@ -106,17 +116,32 @@ const router = new Router({
           }
         },
         {
+          path: '/search',
+          component: Search,
+          meta: {
+            title: 'Search'
+          }
+        },
+        {
           path: '/student/:uid',
           component: Student,
           meta: {
             title: 'Student'
           }
-        },
+        }
+      ]
+    },
+    {
+      path: '/',
+      component: StandardLayout,
+      beforeEnter: requiresAuth,
+      children: [
         {
-          path: '/search',
-          component: Search,
+          path: '/home',
+          name: 'home',
+          component: Home,
           meta: {
-            title: 'Search'
+            title: 'Home'
           }
         },
         {
