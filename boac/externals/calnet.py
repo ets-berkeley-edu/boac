@@ -71,37 +71,37 @@ class Client:
         conn = ldap3.Connection(self.server, user=self.bind, password=self.password, auto_bind=ldap3.AUTO_BIND_TLS_BEFORE_BIND)
         return conn
 
-    def search_csids(self, csids):
+    def search_csids(self, csids, search_expired=False):
         all_out = []
         for i in range(0, len(csids), BATCH_QUERY_MAXIMUM):
             csids_batch = csids[i:i + BATCH_QUERY_MAXIMUM]
             with self.connect() as conn:
-                search_filter = self._ldap_search_filter(csids_batch, 'berkeleyeducsid')
+                search_filter = self._ldap_search_filter(csids_batch, 'berkeleyeducsid', search_expired)
                 conn.search('dc=berkeley,dc=edu', search_filter, attributes=ldap3.ALL_ATTRIBUTES)
                 all_out += [_attributes_to_dict(entry) for entry in conn.entries]
         return all_out
 
-    def search_uids(self, uids):
+    def search_uids(self, uids, search_expired=False):
         all_out = []
         for i in range(0, len(uids), BATCH_QUERY_MAXIMUM):
             uids_batch = uids[i:i + BATCH_QUERY_MAXIMUM]
             with self.connect() as conn:
-                search_filter = self._ldap_search_filter(uids_batch, 'uid')
+                search_filter = self._ldap_search_filter(uids_batch, 'uid', search_expired)
                 conn.search('dc=berkeley,dc=edu', search_filter, attributes=ldap3.ALL_ATTRIBUTES)
                 all_out += [_attributes_to_dict(entry) for entry in conn.entries]
         return all_out
 
     @classmethod
-    def _ldap_search_filter(cls, ids, id_type):
+    def _ldap_search_filter(cls, ids, id_type, search_expired=False):
         ids_filter = ''.join(f'({id_type}={_id})' for _id in ids)
+        ou_scope = '(ou=expired people)' if search_expired else '(ou=people) (ou=advcon people)'
         return f"""(&
             (objectclass=person)
             (|
                 {ids_filter}
             )
             (|
-                (ou=people)
-                (ou=advcon people)
+                { ou_scope }
             )
         )"""
 
