@@ -30,7 +30,10 @@ from boac.models.json_cache import stow
 
 @stow('calnet_user_for_uid_{uid}')
 def get_calnet_user_for_uid(app, uid, force_feed=True):
-    persons = calnet.client(app).search_uids([uid])
+    for search_expired in (False, True):
+        persons = calnet.client(app).search_uids([uid], search_expired)
+        if persons:
+            break
     if not persons and not force_feed:
         return None
     return {
@@ -41,7 +44,10 @@ def get_calnet_user_for_uid(app, uid, force_feed=True):
 
 @stow('calnet_user_for_csid_{csid}')
 def get_calnet_user_for_csid(app, csid):
-    persons = calnet.client(app).search_csids([csid])
+    for search_expired in (False, True):
+        persons = calnet.client(app).search_csids([csid], search_expired)
+        if persons:
+            break
     return {
         **_calnet_user_api_feed(persons[0] if len(persons) else None),
         **{'csid': csid},
