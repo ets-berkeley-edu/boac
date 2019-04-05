@@ -34,6 +34,7 @@ from boac.merged.calnet import get_calnet_users_for_csids
 from boac.merged.student import get_student_query_scope, narrow_scope_by_criteria
 from boac.models.note import Note
 from boac.models.note_read import NoteRead
+from dateutil.tz import tzutc
 from flask import current_app as app
 from flask_login import current_user
 from nltk.stem.snowball import SnowballStemmer
@@ -239,7 +240,7 @@ def _get_advising_note_attachments(sid):
 
 def _isoformat(obj, key):
     value = obj.get(key)
-    return value and value.isoformat()
+    return value and value.astimezone(tzutc()).isoformat()
 
 
 def _notes_text_snippet(note_body, search_terms):
