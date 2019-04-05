@@ -126,7 +126,7 @@ def _get_local_notes_search_results(local_results, student_rows_by_sid, search_t
             'advisorName': note.get('authorName'),
             'noteSnippet': _notes_text_snippet(' - '.join([note.get('subject'), note.get('body')]), search_terms),
             'createdAt': _isoformat(note, 'createdAt'),
-            'updatedAt': _resolve_updated_at(note),
+            'updatedAt': _isoformat(note, 'updatedAt'),
         })
     return results
 
@@ -146,7 +146,7 @@ def _get_loch_notes_search_results(loch_results, student_rows_by_sid, search_ter
             'advisorSid': note.get('advisorSid'),
             'advisorName': ' '.join([advisor_feed.get('firstName'), advisor_feed.get('lastName')]) if advisor_feed else None,
             'noteSnippet': _notes_text_snippet(note.get('noteBody'), search_terms),
-            'createdAt': _isoformat(note, 'createdAt'),
+            'createdAt': _resolve_created_at(note),
             'updatedAt': _resolve_updated_at(note),
         })
     return results
@@ -201,13 +201,17 @@ def note_to_compatible_json(note, topics=None, attachments=None):
         'subcategory': note.get('noteSubcategory'),
         'appointmentId': note.get('appointmentId'),
         'createdBy': note.get('createdBy'),
-        'createdAt': _isoformat(note, 'createdAt'),
+        'createdAt': _resolve_created_at(note),
         'updatedBy': note.get('updated_by'),
         'updatedAt': _resolve_updated_at(note),
         'read': False,
         'topics': topics,
         'attachments': attachments,
     }
+
+
+def _resolve_created_at(note):
+    return note.get('createdAt').date().isoformat() if note.get('createdBy') == 'UCBCONVERSION' else _isoformat(note, 'createdAt')
 
 
 def _resolve_updated_at(note):
