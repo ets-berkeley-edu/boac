@@ -41,7 +41,7 @@ def register_routes(app):
             force_feed=False,
             skip_expired_users=True,
         )
-        return user if calnet_profile else None
+        return user if calnet_profile and not calnet_profile.get('isExpiredPerLdap') else None
 
     login_manager = LoginManager()
     login_manager.user_loader(_user_loader)

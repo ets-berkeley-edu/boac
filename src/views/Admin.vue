@@ -31,6 +31,7 @@
             <b-tab v-for="group in userGroups" :key="group.name" :title="group.name">
               <b-container v-if="size(group.users)" fluid>
                 <b-row
+                  class="users-row"
                   v-for="groupUser in group.users"
                   :key="groupUser.id">
                   <b-col
@@ -46,16 +47,22 @@
                       <span v-if="!groupUser.name">UID: {{ groupUser.uid }}</span>
                     </a>
                   </b-col>
-                  <b-col v-if="groupUser.uid !== user.uid">
-                    <b-btn
-                      v-if="devAuthEnabled"
-                      :id="'become-' + groupUser.uid"
-                      class="mb-1 p-0"
-                      :title="`Log in as ${groupUser.name}`"
-                      variant="link"
-                      @click="become(groupUser.uid)">
-                      <i class="fas fa-sign-in-alt"></i>
-                    </b-btn>
+                  <b-col v-if="devAuthEnabled">
+                    <div v-if="groupUser.uid !== user.uid">
+                      <div v-if="groupUser.isExpiredPerLdap">
+                        <i class="fa fa-exclamation-triangle boac-exclamation mr-1"></i>
+                        <span class="text-muted">Expired account (according to CalNet)</span>
+                      </div>
+                      <b-btn
+                        v-if="!groupUser.isExpiredPerLdap"
+                        :id="'become-' + groupUser.uid"
+                        class="mb-1 p-0"
+                        :title="`Log in as ${groupUser.name}`"
+                        variant="link"
+                        @click="become(groupUser.uid)">
+                        <i class="fas fa-sign-in-alt"></i>
+                      </b-btn>
+                    </div>
                   </b-col>
                 </b-row>
               </b-container>
@@ -112,3 +119,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+  .users-row {
+    height: 32px;
+  }
+</style>
