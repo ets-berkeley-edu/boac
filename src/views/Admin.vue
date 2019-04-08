@@ -6,7 +6,7 @@
         role="alert"
         aria-live="passive"
         class="sr-only">Admin page loaded</span>
-      <h1>BOAC Flight Deck</h1>
+      <h1>BOA Flight Deck</h1>
       <div v-if="isDemoModeAvailable" class="d-flex flex-row mt-3 mb-3">
         <div class="mr-3">
           <img
@@ -60,7 +60,7 @@
                 </b-row>
               </b-container>
               <div v-if="!size(group.users)">
-                No {{ group.name }} users are registered in BOAC.
+                No {{ group.name }} users are registered in BOA.
               </div>
             </b-tab>
           </b-tabs>

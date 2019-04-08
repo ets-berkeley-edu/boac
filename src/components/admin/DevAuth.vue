@@ -31,7 +31,7 @@
           id="dev-auth-submit"
           class="splash-btn-dev-auth btn-primary-color-override"
           variant="primary"
-          aria-label="Log in to BOAC with dev-auth"
+          aria-label="Log in to BOA with dev-auth"
           type="submit">
           DevAuth!
         </b-btn>

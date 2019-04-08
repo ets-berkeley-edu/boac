@@ -168,7 +168,7 @@ router.beforeEach((to: any, from: any, next: any) => {
 
 router.afterEach((to: any) => {
   let name = _.get(to, 'meta.title') || _.capitalize(to.name) || 'Welcome';
-  document.title = `${name} | BOAC`;
+  document.title = `${name} | BOA`;
   if (to.query.error) {
     store.dispatch('context/reportError', {
       message: to.query.error

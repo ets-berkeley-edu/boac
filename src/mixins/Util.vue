@@ -45,7 +45,7 @@ export default {
     },
     remove: _.remove,
     setPageTitle: phrase =>
-      (document.title = `${phrase || 'UC Berkeley'} | BOAC`),
+      (document.title = `${phrase || 'UC Berkeley'} | BOA`),
     size: _.size,
     slice: _.slice,
     split: _.split,

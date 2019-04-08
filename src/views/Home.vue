@@ -1,6 +1,6 @@
 <template>
   <div class="home-container">
-    <h1 class="sr-only">Welcome to BOAC</h1>
+    <h1 class="sr-only">Welcome to BOA</h1>
     <Spinner />
     <div v-if="!loading" class="home-content">
       <div>

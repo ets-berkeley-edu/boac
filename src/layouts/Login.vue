@@ -11,7 +11,7 @@
             id="splash-sign-in"
             class="btn-sign-in btn-primary-color-override"
             variant="primary"
-            aria-label="Log in to BOAC"
+            aria-label="Log in to BOA"
             tabindex="0"
             placement="top"
             @click.stop="logIn()">
@@ -35,14 +35,14 @@
           Questions or feedback? Contact us at
           <a
             :href="`mailto:${supportEmailAddress}`"
-            aria-label="BOAC support email address"
+            aria-label="BOA support email address"
             target="_blank">{{ supportEmailAddress }}</a>
         </div>
         <DevAuth v-if="devAuthEnabled" />
       </div>
       <div class="splash-box-container">
         <div class="splash-cell-header">
-          <h1>BOAC</h1>
+          <h1>BOA</h1>
         </div>
       </div>
       <div class="splash-cell-copyright pt-2">

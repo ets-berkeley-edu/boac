@@ -54,14 +54,14 @@ def cas_login():
     if user is None:
         logger.error(f'UID {uid} is not an authorized user.')
         param = ('error', f"""
-            Sorry, you are not registered to use BOAC.
+            Sorry, you are not registered to use BOA.
             Please <a href="mailto:{support_email}">email us</a> for assistance.
         """)
         redirect_url = add_param_to_url('/', param)
     elif not is_authorized_to_use_boac(user):
-        logger.error(f'UID {uid} is in the BOAC db but is not authorized to use the tool.')
+        logger.error(f'UID {uid} is in the BOA db but is not authorized to use the tool.')
         param = ('error', f"""
-            Sorry, you are not registered to use BOAC.
+            Sorry, you are not registered to use BOA.
             Please <a href="mailto:{support_email}">email us</a> for assistance.
         """)
         redirect_url = add_param_to_url('/', param)
@@ -115,11 +115,11 @@ def _dev_auth_login(uid, password):
             return tolerant_jsonify({'message': 'Invalid credentials'}, 401)
         user = app.login_manager.user_callback(uid)
         if user is None:
-            logger.error(f'Dev-auth: User with UID {uid} is not registered in BOAC.')
-            return tolerant_jsonify({'message': f'Sorry, user with UID {uid} is not registered to use BOAC.'}, 403)
+            logger.error(f'Dev-auth: User with UID {uid} is not registered in BOA.')
+            return tolerant_jsonify({'message': f'Sorry, user with UID {uid} is not registered to use BOA.'}, 403)
         if not is_authorized_to_use_boac(user):
-            logger.error(f'Dev-auth: UID {uid} is not authorized to use BOAC.')
-            return tolerant_jsonify({'message': f'Sorry, user with UID {uid} is not authorized to use BOAC.'}, 403)
+            logger.error(f'Dev-auth: UID {uid} is not authorized to use BOA.')
+            return tolerant_jsonify({'message': f'Sorry, user with UID {uid} is not authorized to use BOA.'}, 403)
         logger.info(f'Dev-auth used to log in as UID {uid}')
         login_user(user, force=True)
         return tolerant_jsonify(get_current_user_status())
