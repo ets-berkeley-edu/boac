@@ -299,10 +299,11 @@ export default {
     afterEditCancel() {
       this.editExistingNoteId(null);
     },
-    afterNoteUpdated(noteId, subject, body) {
-      const note = this.find(this.messages, ['id', noteId]);
-      note.subject = subject;
-      note.body = note.message = body;
+    afterNoteUpdated(updatedNote) {
+      const note = this.find(this.messages, ['id', updatedNote.id]);
+      note.subject = updatedNote.subject;
+      note.body = note.message = updatedNote.body;
+      note.updatedAt = updatedNote.updatedAt;
       this.editExistingNoteId(null);
       this.alertScreenReader('Changes to note have been saved');
     },
