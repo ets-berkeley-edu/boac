@@ -78,7 +78,7 @@ class Client:
             with self.connect() as conn:
                 search_filter = self._ldap_search_filter(csids_batch, 'berkeleyeducsid', search_expired)
                 conn.search('dc=berkeley,dc=edu', search_filter, attributes=ldap3.ALL_ATTRIBUTES)
-                all_out += [_attributes_to_dict(entry) for entry in conn.entries]
+                all_out += [_attributes_to_dict(entry, search_expired) for entry in conn.entries]
         return all_out
 
     def search_uids(self, uids, search_expired=False):
@@ -88,7 +88,7 @@ class Client:
             with self.connect() as conn:
                 search_filter = self._ldap_search_filter(uids_batch, 'uid', search_expired)
                 conn.search('dc=berkeley,dc=edu', search_filter, attributes=ldap3.ALL_ATTRIBUTES)
-                all_out += [_attributes_to_dict(entry) for entry in conn.entries]
+                all_out += [_attributes_to_dict(entry, search_expired) for entry in conn.entries]
         return all_out
 
     @classmethod
@@ -121,8 +121,9 @@ class MockClient(Client):
         return conn
 
 
-def _attributes_to_dict(entry):
+def _attributes_to_dict(entry, expired_per_ldap):
     out = dict.fromkeys(SCHEMA_DICT.values(), None)
+    out['expired'] = expired_per_ldap
     # ldap3's entry.entry_attributes_as_dict would work for us, except that it wraps a single value as a list.
     for attr in SCHEMA_DICT:
         if attr in entry.entry_attributes:

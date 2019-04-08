@@ -78,6 +78,7 @@ def _calnet_user_api_feed(person):
         'departments': departments,
         'email': _get('email'),
         'firstName': _get('first_name'),
+        'isExpiredPerLdap': _get('expired'),
         'lastName': _get('last_name'),
         'name': _get('name'),
         'csid': _get('csid'),
