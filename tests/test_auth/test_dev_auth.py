@@ -63,6 +63,13 @@ class TestDevAuth:
             response = client.post('/api/auth/dev_auth_login', data=json.dumps(params), content_type='application/json')
             assert response.status_code == 403
 
+    def test_user_expired_according_to_calnet(self, app, client):
+        """Fails if user has no record in LDAP."""
+        with override_config(app, 'DEVELOPER_AUTH_ENABLED', True):
+            params = {'uid': '13', 'password': app.config['DEVELOPER_AUTH_PASSWORD']}
+            response = client.post('/api/auth/dev_auth_login', data=json.dumps(params), content_type='application/json')
+            assert response.status_code == 403
+
     def test_known_user_with_correct_password_logs_in(self, app, client):
         """There is a happy path."""
         with override_config(app, 'DEVELOPER_AUTH_ENABLED', True):

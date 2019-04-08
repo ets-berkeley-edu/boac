@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac.merged import calnet
 from boac.models.authorized_user import AuthorizedUser
 from flask import jsonify, make_response, redirect, request
 from flask_login import LoginManager
@@ -32,8 +33,18 @@ def register_routes(app):
     """Register app routes."""
     # Register authentication modules. This should be done before
     # any authentication-protected routes are registered.
+    def _user_loader(uid):
+        user = AuthorizedUser.find_by_uid(uid)
+        calnet_profile = None if not user else calnet.get_calnet_user_for_uid(
+            app,
+            uid,
+            force_feed=False,
+            skip_expired_users=True,
+        )
+        return user if calnet_profile else None
+
     login_manager = LoginManager()
-    login_manager.user_loader(AuthorizedUser.find_by_uid)
+    login_manager.user_loader(_user_loader)
     login_manager.init_app(app)
 
     # Register API routes.

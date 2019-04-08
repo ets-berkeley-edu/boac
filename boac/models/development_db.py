@@ -40,6 +40,7 @@ from sqlalchemy.sql import text
 
 
 _test_users = [
+    ['13', True, False],  # This user has no entry in calnet_search_entries
     ['2040', True, True],
     ['53791', True, False],
     ['95509', True, False],
@@ -69,6 +70,11 @@ _users_per_dept = {
         },
         {
             'uid': '1133399',
+            'is_advisor': True,
+            'is_director': False,
+        },
+        {
+            'uid': '13',
             'is_advisor': True,
             'is_director': False,
         },
