@@ -127,7 +127,7 @@ export default {
       if (this.subject) {
         this.body = this.trim(this.body);
         updateNote(this.note.id, this.subject, this.body).then(updatedNote => {
-          this.afterSaved(updatedNote.id, updatedNote.subject, updatedNote.body);
+          this.afterSaved(updatedNote);
         });
       } else {
         this.error = 'Subject is required';
