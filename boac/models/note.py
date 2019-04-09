@@ -108,14 +108,10 @@ class Note(Base):
     @classmethod
     def add_attachment(cls, note_id, path_to_attachment):
         note = cls.find_by_id(note_id=note_id)
-        if note:
-            attachment = NoteAttachment(
-                note_id=note.id,
-                path_to_attachment=path_to_attachment,
-            )
-            db.session.add(attachment)
-            std_commit()
-        return note
+        attachment = NoteAttachment(note_id=note.id, path_to_attachment=path_to_attachment)
+        db.session.add(attachment)
+        std_commit()
+        return attachment
 
     @classmethod
     def get_notes_by_sid(cls, sid):
@@ -132,6 +128,7 @@ class Note(Base):
     def to_api_json(self):
         return {
             'id': self.id,
+            'attachments': [a.to_api_json() for a in self.attachments],
             'authorUid': self.author_uid,
             'authorName': self.author_name,
             'authorRole': self.author_role,

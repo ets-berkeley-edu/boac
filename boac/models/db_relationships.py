@@ -87,8 +87,15 @@ class AlertView(db.Model):
 class NoteAttachment(db.Model):
     __tablename__ = 'note_attachments'
 
-    note_id = db.Column(db.Integer, db.ForeignKey('notes.id'), primary_key=True)
-    path_to_attachment = db.Column('path_to_attachment', db.String(255), primary_key=True)
+    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    note_id = db.Column(db.Integer, db.ForeignKey('notes.id'))
+    path_to_attachment = db.Column('path_to_attachment', db.String(255))
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
     deleted_at = db.Column(db.DateTime)
     note = db.relationship('Note', back_populates='attachments')
+
+    def to_api_json(self):
+        return {
+            'id': self.id,
+            'filename': self.path_to_attachment.rsplit('/', 1)[-1],
+        }
