@@ -27,6 +27,7 @@ from datetime import datetime
 
 from boac import db, std_commit
 from boac.models.base import Base
+from boac.models.db_relationships import NoteAttachment
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql import text
@@ -44,6 +45,11 @@ class Note(Base):
     subject = db.Column(db.String(255), nullable=False)
     body = db.Column(db.Text, nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
+    attachments = db.relationship(
+        'NoteAttachment',
+        back_populates='note',
+        lazy=True,
+    )
 
     def __init__(self, author_uid, author_name, author_role, author_dept_codes, sid, subject, body):
         self.author_uid = author_uid
@@ -98,6 +104,18 @@ class Note(Base):
             return note
         else:
             return None
+
+    @classmethod
+    def add_attachment(cls, note_id, path_to_attachment):
+        note = cls.find_by_id(note_id=note_id)
+        if note:
+            attachment = NoteAttachment(
+                note_id=note.id,
+                path_to_attachment=path_to_attachment,
+            )
+            db.session.add(attachment)
+            std_commit()
+        return note
 
     @classmethod
     def get_notes_by_sid(cls, sid):
