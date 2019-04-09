@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="save()">
+  <form @submit.prevent="save()" class="edit-note-form">
     <div>
       <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
     </div>
@@ -139,3 +139,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.edit-note-form {
+  flex-basis: 100%;
+}
+</style>
