@@ -194,6 +194,19 @@ USING gin(fts_index);
 
 --
 
+CREATE TABLE note_attachments (
+    note_id INTEGER NOT NULL,
+    path_to_attachment character varying(255) NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    deleted_at timestamp with time zone
+);
+ALTER TABLE note_attachments OWNER TO boac;
+ALTER TABLE ONLY note_attachments
+    ADD CONSTRAINT note_attachments_pkey PRIMARY KEY (note_id, path_to_attachment);
+CREATE INDEX note_attachments_note_id_idx ON note_attachments USING btree (note_id);
+
+--
+
 CREATE TABLE student_groups (
   id INTEGER NOT NULL,
   owner_id INTEGER NOT NULL,
@@ -324,6 +337,10 @@ ALTER TABLE ONLY cohort_filter_owners
 
 --
 
-
 ALTER TABLE ONLY notes_read
     ADD CONSTRAINT notes_read_viewer_id_fkey FOREIGN KEY (viewer_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
+
+--
+
+ALTER TABLE ONLY note_attachments
+    ADD CONSTRAINT note_attachments_note_id_fkey FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE;

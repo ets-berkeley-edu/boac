@@ -35,6 +35,7 @@ SET row_security = off;
 --
 
 ALTER TABLE IF EXISTS ONLY public.notes DROP CONSTRAINT IF EXISTS notes_author_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.note_attachments DROP CONSTRAINT IF EXISTS note_attachments_note_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.notes_read DROP CONSTRAINT IF EXISTS notes_read_viewer_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_user_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_cohort_filter_id_fkey;
@@ -52,6 +53,7 @@ ALTER TABLE IF EXISTS ONLY public.university_dept_members DROP CONSTRAINT IF EXI
 
 DROP INDEX IF EXISTS public.notes_author_id_idx;
 DROP INDEX IF EXISTS public.notes_sid_idx;
+DROP INDEX IF EXISTS public.note_attachments_note_id_idx;
 DROP INDEX IF EXISTS public.notes_read_viewer_id_idx;
 DROP INDEX IF EXISTS public.notes_read_note_id_idx;
 DROP INDEX IF EXISTS public.alerts_sid_idx;
@@ -63,6 +65,7 @@ DROP INDEX IF EXISTS public.idx_notes_fts_index;
 --
 
 ALTER TABLE IF EXISTS ONLY public.notes DROP CONSTRAINT IF EXISTS notes_pkey;
+ALTER TABLE IF EXISTS ONLY public.note_attachments DROP CONSTRAINT IF EXISTS note_attachments_pkey;
 ALTER TABLE IF EXISTS ONLY public.notes_read DROP CONSTRAINT IF EXISTS notes_read_pkey;
 ALTER TABLE IF EXISTS ONLY public.json_cache DROP CONSTRAINT IF EXISTS json_cache_pkey;
 ALTER TABLE IF EXISTS ONLY public.json_cache DROP CONSTRAINT IF EXISTS json_cache_key_key;
@@ -87,6 +90,7 @@ ALTER TABLE IF EXISTS public.alerts ALTER COLUMN id DROP DEFAULT;
 
 DROP MATERIALIZED VIEW IF EXISTS public.notes_fts_index;
 DROP TABLE IF EXISTS public.notes;
+DROP TABLE IF EXISTS public.note_attachments;
 DROP TABLE IF EXISTS public.notes_read;
 DROP SEQUENCE IF EXISTS public.json_cache_id_seq;
 DROP TABLE IF EXISTS public.json_cache;

@@ -82,3 +82,13 @@ class AlertView(db.Model):
     dismissed_at = db.Column(db.DateTime)
     viewer = db.relationship('AuthorizedUser', back_populates='alert_views')
     alert = db.relationship('Alert', back_populates='views')
+
+
+class NoteAttachment(db.Model):
+    __tablename__ = 'note_attachments'
+
+    note_id = db.Column(db.Integer, db.ForeignKey('notes.id'), primary_key=True)
+    path_to_attachment = db.Column('path_to_attachment', db.String(255), primary_key=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    deleted_at = db.Column(db.DateTime)
+    note = db.relationship('Note', back_populates='attachments')

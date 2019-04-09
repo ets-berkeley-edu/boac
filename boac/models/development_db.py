@@ -267,7 +267,7 @@ def create_notes():
             See the blue pools in the squinting sun. Hear the hissing of summer lawns
         """,
     )
-    Note.create(
+    note = Note.create(
         author_uid='6446',
         author_name='Joni Mitchell',
         author_role='Director',
@@ -279,6 +279,8 @@ def create_notes():
             Rock 'n Roll rang sweet as victory, under neon signs
         """,
     )
+    base_dir = app.config['BASE_DIR']
+    Note.add_attachment(note.id, f'{base_dir}/fixtures/mock_advising_note_attachment.txt')
     std_commit(allow_test_environment=True)
 
 
