@@ -106,7 +106,7 @@
               :tabindex="includes(openMessages, message.transientId) ? -1 : 0"
               @keyup.enter="open(message)"
               @click="open(message)">
-              <span class="when-message-closed sr-only">Open message</span>
+              <span v-if="message.transientId !== editingNoteId" class="when-message-closed sr-only">Open message</span>
               <i v-if="message.status === 'Satisfied'" class="requirements-icon fas fa-check text-success"></i>
               <i v-if="message.status === 'Not Satisfied'" class="requirements-icon fas fa-exclamation text-icon-exclamation"></i>
               <i v-if="message.status === 'In Progress'" class="requirements-icon fas fa-clock text-icon-clock"></i>
@@ -122,7 +122,7 @@
                 :after-cancelled="afterEditCancel"
                 :note="message"
                 :after-saved="afterNoteUpdated" />
-              <div v-if="includes(openMessages, message.transientId)" class="text-center close-message">
+              <div v-if="includes(openMessages, message.transientId) && message.transientId !== editingNoteId" class="text-center close-message">
                 <b-btn
                   :id="`timeline-tab-${activeTab}-close-message`"
                   class="no-wrap"
@@ -452,6 +452,9 @@ export default {
   display: flex;
   min-height: 40px;
 }
+.message-open > .when-message-closed {
+  display: none;
+}
 .message-row:active,
 .message-row:focus,
 .message-row:hover {
@@ -521,8 +524,5 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.message-open > .when-message-closed {
-  display: none;
 }
 </style>
