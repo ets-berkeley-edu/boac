@@ -104,7 +104,7 @@ class TestMergedAdvisingNote:
         assert notes[-1]['attachments'] == [
             {
                 'id': 1,
-                'filename': 'mock_advising_note_attachment.txt',
+                'filename': 'mock_advising_note_attachment_1.txt',
                 'uploadedBy': '6446',
             },
         ]

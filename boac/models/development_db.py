@@ -280,7 +280,7 @@ def create_notes():
         """,
     )
     base_dir = app.config['BASE_DIR']
-    Note.add_attachment(note.id, f'{base_dir}/fixtures/mock_advising_note_attachment.txt', '6446')
+    Note.add_attachment(note.id, f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt', '6446')
     std_commit(allow_test_environment=True)
 
 

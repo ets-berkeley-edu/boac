@@ -31,9 +31,9 @@
             <b-tab v-for="group in userGroups" :key="group.name" :title="group.name">
               <b-container v-if="size(group.users)" fluid>
                 <b-row
-                  class="users-row"
                   v-for="groupUser in group.users"
-                  :key="groupUser.id">
+                  :key="groupUser.id"
+                  class="users-row">
                   <b-col
                     sm="auto"
                     class="pr-0"

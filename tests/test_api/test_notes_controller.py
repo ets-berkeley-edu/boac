@@ -58,14 +58,20 @@ def new_coe_note():
 class TestCreateNotes:
 
     @classmethod
-    def _api_note_create(cls, client, author_id, sid, subject, body, expected_status_code=200):
+    def _api_note_create(cls, client, author_id, sid, subject, body, attachments=(), expected_status_code=200):
         data = {
             'authorId': author_id,
             'sid': sid,
             'subject': subject,
             'body': body,
+            'file[]': [open(path, 'rb') for path in attachments],
         }
-        response = client.post('/api/notes/create', data=json.dumps(data), content_type='application/json')
+        response = client.post(
+            '/api/notes/create',
+            buffered=True,
+            content_type='multipart/form-data',
+            data=data,
+        )
         assert response.status_code == expected_status_code
         return response.json
 
@@ -95,7 +101,7 @@ class TestCreateNotes:
         )
 
     def test_create_note(self, app, client, fake_auth):
-        """Marks a note as read."""
+        """Create a note."""
         fake_auth.login(coe_advisor_uid)
         advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
         subject = 'Vicar in a Tutu'
@@ -117,6 +123,23 @@ class TestCreateNotes:
         notes = _get_notes(client, student['uid'])
         match = next((n for n in notes if n['id'] == note_id), None)
         assert match and match['subject'] == subject
+
+    def test_create_note_with_attachments(self, app, client, fake_auth):
+        """Create a note, with two attachments."""
+        fake_auth.login(coe_advisor_uid)
+        base_dir = app.config['BASE_DIR']
+        note = self._api_note_create(
+            client,
+            author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
+            sid=student['sid'],
+            subject='I come with attachments',
+            body='I come correct',
+            attachments=[
+                f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt',
+                f'{base_dir}/fixtures/mock_advising_note_attachment_2.txt',
+            ],
+        )
+        assert len(note.get('attachments')) == 2
 
 
 class TestMarkNoteRead:
@@ -203,7 +226,7 @@ class TestUpdateNotes:
         assert updated_note.body == expected_body
 
 
-class TestNoteDelete:
+class TestDeleteNote:
     """Delete note API."""
 
     def test_not_authenticated(self, client):
@@ -245,12 +268,13 @@ class TestEditNoteFeatureFlag:
         fake_auth.login(coe_advisor_uid)
         assert 404 == client.post(
             '/api/notes/create',
-            data=json.dumps({
+            buffered=True,
+            content_type='multipart/form-data',
+            data={
                 'sid': student['sid'],
                 'subject': 'A dreaded sunny day',
                 'body': 'So I meet you at the cemetry gates',
-            }),
-            content_type='application/json',
+            },
         ).status_code
 
     def test_edit_note_feature_flag_false(self, app, client, fake_auth):
@@ -279,12 +303,12 @@ class TestStreamNoteAttachments:
 
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        assert client.get('/api/notes/attachment/9000000000_00002_1.pdf').status_code == 401
+        assert client.get('/api/notes/attachment/legacy/9000000000_00002_1.pdf').status_code == 401
 
     def test_stream_attachment(self, app, client, fake_auth):
         with mock_advising_note_attachment(app):
             fake_auth.login(coe_advisor_uid)
-            response = client.get('/api/notes/attachment/9000000000_00002_1.pdf')
+            response = client.get('/api/notes/attachment/legacy/9000000000_00002_1.pdf')
             assert response.status_code == 200
             assert response.headers['Content-Type'] == 'application/octet-stream'
             assert response.headers['Content-Disposition'] == 'attachment; filename=dog_eaten_homework.pdf'
@@ -293,13 +317,13 @@ class TestStreamNoteAttachments:
     def test_stream_attachment_reports_unauthorized_files_not_found(self, app, client, fake_auth):
         with mock_advising_note_attachment(app):
             fake_auth.login(asc_advisor_uid)
-            response = client.get('/api/notes/attachment/9000000000_00002_1.pdf')
+            response = client.get('/api/notes/attachment/legacy/9000000000_00002_1.pdf')
             assert response.status_code == 404
 
     def test_stream_attachment_reports_missing_files_not_found(self, app, client, fake_auth):
         with mock_advising_note_attachment(app):
             fake_auth.login(asc_advisor_uid)
-            response = client.get('/api/notes/attachment/h0ax.lol')
+            response = client.get('/api/notes/attachment/legacy/h0ax.lol')
             assert response.status_code == 404
 
 
@@ -334,7 +358,8 @@ class TestUploadNoteAttachment:
         file = (io.BytesIO(b'It\'s all good'), filename)
         response = _api_attachment_upload(client, note_id, file)
         assert response.status_code == 200
-        attachment = response.json
+        note = response.json
+        attachment = note.get('attachments')[0]
         attachment_id = attachment['id']
         assert attachment_id > 0
         assert attachment['uploadedBy'] == asc_advisor_uid
