@@ -1,0 +1,5 @@
+BEGIN;
+
+    ALTER TABLE note_attachments ADD COLUMN uploaded_by_uid CHARACTER VARYING(255) NOT NULL;
+
+COMMIT;

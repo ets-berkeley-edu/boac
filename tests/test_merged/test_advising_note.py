@@ -105,6 +105,7 @@ class TestMergedAdvisingNote:
             {
                 'id': 1,
                 'filename': 'mock_advising_note_attachment.txt',
+                'uploadedBy': '6446',
             },
         ]
 

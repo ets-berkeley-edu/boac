@@ -27,6 +27,7 @@ from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotF
 from boac.api.util import current_user_profile, feature_flag_edit_notes, get_dept_codes, get_dept_role
 from boac.lib.http import tolerant_jsonify
 from boac.merged.advising_note import get_attachment_stream, note_to_compatible_json
+from boac.models.db_relationships import NoteAttachment
 from boac.models.note import Note
 from boac.models.note_read import NoteRead
 from flask import current_app as app, request, Response
@@ -133,8 +134,18 @@ def upload_attachment():
     if not filename:
         raise BadRequestError('Invalid file or none selected')
     path_to_attachment = 'TODO: upload attachment to S3'  # upload_note_attachment(note_id, file.filename, file)
-    attachment = Note.add_attachment(note.id, path_to_attachment)
+    attachment = Note.add_attachment(note.id, path_to_attachment, current_user.uid)
     return tolerant_jsonify(attachment.to_api_json())
+
+
+@app.route('/api/notes/attachment/delete/<attachment_id>', methods=['DELETE'])
+@login_required
+def delete_attachment(attachment_id):
+    attachment = NoteAttachment.find_by_id(attachment_id=attachment_id)
+    if not current_user.is_admin and attachment.uploaded_by_uid != current_user.uid:
+        raise ForbiddenRequestError(f'Sorry, you are unauthorized to delete attachment {attachment_id}.')
+    NoteAttachment.delete(attachment_id=attachment_id)
+    return tolerant_jsonify({'message': f'Attachment {attachment_id} deleted'}), 200
 
 
 def _get_name(user):

@@ -106,9 +106,13 @@ class Note(Base):
             return None
 
     @classmethod
-    def add_attachment(cls, note_id, path_to_attachment):
+    def add_attachment(cls, note_id, path_to_attachment, uploaded_by_uid):
         note = cls.find_by_id(note_id=note_id)
-        attachment = NoteAttachment(note_id=note.id, path_to_attachment=path_to_attachment)
+        attachment = NoteAttachment(
+            note_id=note.id,
+            path_to_attachment=path_to_attachment,
+            uploaded_by_uid=uploaded_by_uid,
+        )
         db.session.add(attachment)
         std_commit()
         return attachment
