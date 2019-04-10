@@ -80,7 +80,7 @@ class TestMergedAdvisingNote:
         assert notes[3]['updatedAt']
         assert notes[3]['read'] is False
         assert notes[3]['topics'] is None
-        assert notes[3]['attachments'] is None
+        assert len(notes[3]['attachments']) == 1
 
     def test_get_advising_notes_ucbconversion_attachment(self, app, fake_auth):
         fake_auth.login(coe_advisor)
@@ -94,10 +94,17 @@ class TestMergedAdvisingNote:
     def test_get_advising_notes_cs_attachment(self, app, fake_auth):
         fake_auth.login(coe_advisor)
         notes = get_advising_notes('11667051')
+        assert len(notes) == 4
         assert notes[1]['attachments'] == [
             {
                 'sisFilename': '11667051_00002_2.jpeg',
                 'userFilename': 'brigitte_photo.jpeg',
+            },
+        ]
+        assert notes[-1]['attachments'] == [
+            {
+                'id': 1,
+                'filename': 'mock_advising_note_attachment.txt',
             },
         ]
 

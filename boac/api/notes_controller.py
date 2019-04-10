@@ -117,6 +117,26 @@ def download_attachment(attachment_filename):
     return r
 
 
+@app.route('/api/notes/attachment/upload', methods=['POST'])
+@login_required
+def upload_attachment():
+    note_id = request.form.get('noteId', None)
+    if not note_id:
+        raise BadRequestError('Attachment upload requires \'noteId\'')
+    note = Note.find_by_id(note_id=note_id)
+    if note.author_uid != current_user.uid:
+        raise ForbiddenRequestError('Sorry, you are not the author of this note.')
+    if 'file' not in request.files:
+        raise BadRequestError('No file object in HTTP request')
+    file = request.files['file']
+    filename = file.filename and file.filename.strip()
+    if not filename:
+        raise BadRequestError('Invalid file or none selected')
+    path_to_attachment = 'TODO: upload attachment to S3'  # upload_note_attachment(note_id, file.filename, file)
+    attachment = Note.add_attachment(note.id, path_to_attachment)
+    return tolerant_jsonify(attachment.to_api_json())
+
+
 def _get_name(user):
     first_name = user.get('firstName')
     last_name = user.get('lastName')

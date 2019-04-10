@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import io
+
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
 import pytest
@@ -298,6 +300,57 @@ class TestStreamNoteAttachments:
             fake_auth.login(asc_advisor_uid)
             response = client.get('/api/notes/attachment/h0ax.lol')
             assert response.status_code == 404
+
+
+class TestUploadNoteAttachment:
+
+    @classmethod
+    def _api_attachment_upload(cls, client, note_id, file):
+        return client.post(
+            '/api/notes/attachment/upload',
+            buffered=True,
+            content_type='multipart/form-data',
+            data={
+                'noteId': note_id,
+                'file': file,
+            },
+        )
+
+    @classmethod
+    def _asc_note_with_attachment(cls):
+        for note in Note.get_notes_by_sid('11667051'):
+            if len(note.attachments):
+                return note
+        return None
+
+    def test_not_authenticated(self, app, client):
+        """Returns 401 if not authenticated."""
+        note_id = self._asc_note_with_attachment().id
+        file = (io.BytesIO(b'A bad seed.'), 'hack-S3-with-my-evil-attachment.txt')
+        assert self._api_attachment_upload(client, note_id, file).status_code == 401
+
+    def test_unauthorized(self, app, client, fake_auth):
+        """Returns 403 if user does not own the note."""
+        fake_auth.login(coe_advisor_uid)
+        note_id = self._asc_note_with_attachment().id
+        file = (io.BytesIO(b'Not me.'), 'attach-to-the-note-of-another.txt')
+        assert self._api_attachment_upload(client, note_id, file).status_code == 403
+
+    def test_invalid_file(self, app, client, fake_auth):
+        """Returns XXX if file is incomplete or missing."""
+        fake_auth.login(asc_advisor_uid)
+        note_id = self._asc_note_with_attachment().id
+        file = (io.BytesIO(b'Not me.'), '   ')
+        assert self._api_attachment_upload(client, note_id, file).status_code == 400
+
+    def test_valid_upload(self, app, client, fake_auth):
+        """Successfully put attachment to existing note."""
+        fake_auth.login(asc_advisor_uid)
+        note_id = self._asc_note_with_attachment().id
+        file = (io.BytesIO(b'It\'s all good'), 'expect-successful-upload.txt')
+        assert self._api_attachment_upload(client, note_id, file).status_code == 200
+        note = Note.find_by_id(note_id)
+        assert len(note.attachments)
 
 
 def _get_notes(client, uid):

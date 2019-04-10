@@ -36,6 +36,7 @@ SET row_security = off;
 
 ALTER TABLE IF EXISTS ONLY public.notes DROP CONSTRAINT IF EXISTS notes_author_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.note_attachments DROP CONSTRAINT IF EXISTS note_attachments_note_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.note_attachments DROP CONSTRAINT IF EXISTS note_attachments_note_id_path_to_attachment_unique_constraint;
 ALTER TABLE IF EXISTS ONLY public.notes_read DROP CONSTRAINT IF EXISTS notes_read_viewer_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_user_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_cohort_filter_id_fkey;
@@ -91,6 +92,7 @@ ALTER TABLE IF EXISTS public.alerts ALTER COLUMN id DROP DEFAULT;
 DROP MATERIALIZED VIEW IF EXISTS public.notes_fts_index;
 DROP TABLE IF EXISTS public.notes;
 DROP TABLE IF EXISTS public.note_attachments;
+DROP SEQUENCE IF EXISTS public.note_attachments_id_seq;
 DROP TABLE IF EXISTS public.notes_read;
 DROP SEQUENCE IF EXISTS public.json_cache_id_seq;
 DROP TABLE IF EXISTS public.json_cache;

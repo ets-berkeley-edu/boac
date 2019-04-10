@@ -53,11 +53,15 @@ def get_advising_notes(sid):
     for legacy_note in legacy_notes:
         note_id = legacy_note['id']
         note = {camelize(key): legacy_note[key] for key in legacy_note.keys()}
-        notes_by_id[note_id] = note_to_compatible_json(note, legacy_topics.get(note_id), legacy_attachments.get(note_id))
+        notes_by_id[note_id] = note_to_compatible_json(
+            note=note,
+            topics=legacy_topics.get(note_id),
+            attachments=legacy_attachments.get(note_id),
+        )
         notes_by_id[note_id]['isLegacy'] = True
     for note in [n.to_api_json() for n in Note.get_notes_by_sid(sid)]:
         note_id = note['id']
-        notes_by_id[str(note_id)] = note_to_compatible_json(note)
+        notes_by_id[str(note_id)] = note_to_compatible_json(note=note, attachments=note.get('attachments'))
     if not notes_by_id.values():
         return None
     notes_read = NoteRead.get_notes_read_by_user(current_user.id, notes_by_id.keys())

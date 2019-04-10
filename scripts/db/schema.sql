@@ -195,14 +195,26 @@ USING gin(fts_index);
 --
 
 CREATE TABLE note_attachments (
+    id integer NOT NULL,
     note_id INTEGER NOT NULL,
     path_to_attachment character varying(255) NOT NULL,
     created_at timestamp with time zone NOT NULL,
     deleted_at timestamp with time zone
 );
 ALTER TABLE note_attachments OWNER TO boac;
+CREATE SEQUENCE note_attachments_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE note_attachments_id_seq OWNER TO boac;
+ALTER SEQUENCE note_attachments_id_seq OWNED BY note_attachments.id;
+ALTER TABLE ONLY note_attachments ALTER COLUMN id SET DEFAULT nextval('note_attachments_id_seq'::regclass);
 ALTER TABLE ONLY note_attachments
-    ADD CONSTRAINT note_attachments_pkey PRIMARY KEY (note_id, path_to_attachment);
+    ADD CONSTRAINT note_attachments_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY note_attachments
+    ADD CONSTRAINT note_attachments_note_id_path_to_attachment_unique_constraint UNIQUE (note_id, path_to_attachment);
 CREATE INDEX note_attachments_note_id_idx ON note_attachments USING btree (note_id);
 
 --
