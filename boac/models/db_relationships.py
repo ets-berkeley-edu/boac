@@ -23,12 +23,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 from datetime import datetime
 
 from boac import db, std_commit
 from boac.models.base import Base
 from boac.models.university_dept import UniversityDept
+from sqlalchemy import and_
 
 
 cohort_filter_owners = db.Table(
@@ -88,14 +88,26 @@ class NoteAttachment(db.Model):
     __tablename__ = 'note_attachments'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
-    note_id = db.Column(db.Integer, db.ForeignKey('notes.id'))
-    path_to_attachment = db.Column('path_to_attachment', db.String(255))
+    note_id = db.Column(db.Integer, db.ForeignKey('notes.id'), nullable=False)
+    path_to_attachment = db.Column('path_to_attachment', db.String(255), nullable=False)
+    uploaded_by_uid = db.Column('uploaded_by_uid', db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
     deleted_at = db.Column(db.DateTime)
     note = db.relationship('Note', back_populates='attachments')
+
+    @classmethod
+    def find_by_id(cls, attachment_id):
+        return cls.query.filter(and_(cls.id == attachment_id, cls.deleted_at == None)).first()  # noqa: E711
+
+    @classmethod
+    def delete(cls, attachment_id):
+        attachment = cls.find_by_id(attachment_id)
+        attachment.deleted_at = datetime.now()
+        std_commit()
 
     def to_api_json(self):
         return {
             'id': self.id,
             'filename': self.path_to_attachment.rsplit('/', 1)[-1],
+            'uploadedBy': self.uploaded_by_uid,
         }

@@ -198,6 +198,7 @@ CREATE TABLE note_attachments (
     id integer NOT NULL,
     note_id INTEGER NOT NULL,
     path_to_attachment character varying(255) NOT NULL,
+    uploaded_by_uid character varying(255) NOT NULL,
     created_at timestamp with time zone NOT NULL,
     deleted_at timestamp with time zone
 );
