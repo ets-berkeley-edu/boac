@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="save()" class="edit-note-form">
+  <form class="edit-note-form" @submit.prevent="save()">
     <div>
       <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
     </div>

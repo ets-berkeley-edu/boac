@@ -47,7 +47,7 @@ def mark_read(note_id):
 @login_required
 @feature_flag_edit_notes
 def create_note():
-    params = request.get_json()
+    params = request.form
     sid = params.get('sid', None)
     subject = params.get('subject', None)
     body = params.get('body', None)
@@ -68,8 +68,9 @@ def create_note():
         body=body,
         sid=sid,
     )
-    note_json = note_to_compatible_json(note.to_api_json())
-    return tolerant_jsonify(note_json)
+    _add_attachments_per_request(note_id=note.id, tolerate_none=True)
+    note_json = Note.find_by_id(note.id).to_api_json()
+    return tolerant_jsonify(note_to_compatible_json(note=note_json, attachments=note_json.get('attachments')))
 
 
 @app.route('/api/notes/update', methods=['POST'])
@@ -106,7 +107,7 @@ def delete_note(note_id):
     return tolerant_jsonify({'message': f'Note {note_id} deleted'}), 200
 
 
-@app.route('/api/notes/attachment/<attachment_filename>', methods=['GET'])
+@app.route('/api/notes/attachment/legacy/<attachment_filename>', methods=['GET'])
 @login_required
 def download_attachment(attachment_filename):
     stream_data = get_attachment_stream(attachment_filename)
@@ -127,15 +128,9 @@ def upload_attachment():
     note = Note.find_by_id(note_id=note_id)
     if note.author_uid != current_user.uid:
         raise ForbiddenRequestError('Sorry, you are not the author of this note.')
-    if 'file' not in request.files:
-        raise BadRequestError('No file object in HTTP request')
-    file = request.files['file']
-    filename = file.filename and file.filename.strip()
-    if not filename:
-        raise BadRequestError('Invalid file or none selected')
-    path_to_attachment = 'TODO: upload attachment to S3'  # upload_note_attachment(note_id, file.filename, file)
-    attachment = Note.add_attachment(note.id, path_to_attachment, current_user.uid)
-    return tolerant_jsonify(attachment.to_api_json())
+    _add_attachments_per_request(note_id)
+    note_json = Note.find_by_id(note_id).to_api_json()
+    return tolerant_jsonify(note_to_compatible_json(note=note_json, attachments=note_json.get('attachments')))
 
 
 @app.route('/api/notes/attachment/delete/<attachment_id>', methods=['DELETE'])
@@ -152,3 +147,19 @@ def _get_name(user):
     first_name = user.get('firstName')
     last_name = user.get('lastName')
     return '' if not (first_name or last_name) else (first_name if not last_name else f'{first_name} {last_name}')
+
+
+def _add_attachments_per_request(note_id, tolerate_none=False):
+    f = request.files
+    files = f.getlist('file[]') if 'file[]' in f else []
+    if not files:
+        files = [f['file']] if 'file' in f else []
+    if not tolerate_none and not len(files):
+        raise BadRequestError('request.files is empty')
+    for file in files:
+        filename = file.filename and file.filename.strip()
+        if not filename:
+            raise BadRequestError(f'Invalid attachment: {file}')
+        # TODO: upload file to S3
+        path_to_attachment = file.filename  # upload_note_attachment(note_id, file.filename, file)
+        Note.add_attachment(note_id, path_to_attachment, current_user.uid)

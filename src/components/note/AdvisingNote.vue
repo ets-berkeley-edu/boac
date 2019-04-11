@@ -138,7 +138,7 @@ export default {
   },
   methods: {
     downloadUrl(attachment) {
-      return this.apiBaseUrl + '/api/notes/attachment/' + attachment.sisFilename;
+      return this.apiBaseUrl + '/api/notes/attachment/legacy/' + attachment.sisFilename;
     }
   },
 }

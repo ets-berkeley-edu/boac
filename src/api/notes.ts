@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import axios from 'axios';
 import store from '@/store';
 
@@ -8,14 +9,22 @@ export function markRead(noteId) {
     .then(response => response.data, () => null);
 }
 
-export function createNote(sid: object, subject: string, body: string) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+export function createNote(sid: any, subject: string, body: string, attachments: any[]) {
+  const apiBaseUrl = store.getters['context/apiBaseUrl'];
+  const formData = new FormData();
+  formData.append('sid', sid.toString());
+  formData.append('subject', subject);
+  formData.append('body', body);
+  _.each(attachments || [], (attachment, index) => formData.append(`files[${index}]`, attachment));
   return axios
-    .post(`${apiBaseUrl}/api/notes/create`, {
-      sid: sid,
-      subject: subject,
-      body: body
-    })
+    .post(
+        `${apiBaseUrl}/api/notes/create`, formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+        )
     .then(response => response.data);
 }
 
