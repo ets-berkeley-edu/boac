@@ -37,7 +37,7 @@ from flask_login import current_user, login_required
 @app.route('/api/notes/<note_id>/mark_read', methods=['POST'])
 @login_required
 def mark_read(note_id):
-    if NoteRead.create(current_user.id, note_id):
+    if NoteRead.find_or_create(current_user.id, note_id):
         return tolerant_jsonify({'status': 'created'}, status=201)
     else:
         raise BadRequestError(f'Failed to mark note {note_id} as read by user {current_user.uid}')
@@ -68,9 +68,10 @@ def create_note():
         body=body,
         sid=sid,
     )
+    note_read = NoteRead.find_or_create(current_user.id, note.id)
     _add_attachments_per_request(note_id=note.id, tolerate_none=True)
     note_json = Note.find_by_id(note.id).to_api_json()
-    return tolerant_jsonify(note_to_compatible_json(note=note_json, attachments=note_json.get('attachments')))
+    return tolerant_jsonify(note_to_compatible_json(note=note_json, attachments=note_json.get('attachments'), note_read=note_read))
 
 
 @app.route('/api/notes/update', methods=['POST'])
@@ -90,7 +91,8 @@ def update_note():
         subject=subject,
         body=body,
     )
-    note_json = note_to_compatible_json(note.to_api_json())
+    note_read = NoteRead.find_or_create(current_user.id, note.id)
+    note_json = note_to_compatible_json(note.to_api_json(), note_read=note_read)
     return tolerant_jsonify(note_json)
 
 

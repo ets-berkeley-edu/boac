@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac import db, std_commit
+from sqlalchemy import and_
 
 
 class NoteRead(db.Model):
@@ -46,10 +47,12 @@ class NoteRead(db.Model):
         self.note_id = note_id
 
     @classmethod
-    def create(cls, viewer_id, note_id):
-        note_read = cls(viewer_id, note_id)
-        db.session.add(note_read)
-        std_commit()
+    def find_or_create(cls, viewer_id, note_id):
+        note_read = cls.query.filter(and_(cls.viewer_id == viewer_id, cls.note_id == str(note_id))).one_or_none()
+        if not note_read:
+            note_read = cls(viewer_id, note_id)
+            db.session.add(note_read)
+            std_commit()
         return note_read
 
     @classmethod

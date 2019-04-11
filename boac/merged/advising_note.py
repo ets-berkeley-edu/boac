@@ -179,7 +179,7 @@ def get_attachment_stream(filename):
     }
 
 
-def note_to_compatible_json(note, topics=None, attachments=None):
+def note_to_compatible_json(note, topics=None, attachments=None, note_read=False):
     # We have legacy notes and notes created via BOAC. The following sets a standard for the front-end.
     departments = []
     dept_codes = note.get('deptCode') if 'deptCode' in note else note.get('authorDeptCodes') or []
@@ -208,7 +208,7 @@ def note_to_compatible_json(note, topics=None, attachments=None):
         'createdAt': _resolve_created_at(note),
         'updatedBy': note.get('updated_by'),
         'updatedAt': _resolve_updated_at(note),
-        'read': False,
+        'read': True if note_read else False,
         'topics': topics,
         'attachments': attachments,
     }
