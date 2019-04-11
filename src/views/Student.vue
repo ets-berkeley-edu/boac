@@ -71,7 +71,10 @@ export default {
   beforeRouteLeave(to, from, next) {
     if (this.newNoteMode || this.editingNoteId) {
       this.alertScreenReader("Are you sure you want to discard unsaved changes?");
-      this.cancelConfirmed = () => next();
+      this.cancelConfirmed = () => {
+        this.editExistingNoteId(null);
+        next();
+      };
       this.cancelTheCancel = () => {
         this.alertScreenReader("Please save changes before exiting the page.");
         this.showAreYouSureModal = false;
