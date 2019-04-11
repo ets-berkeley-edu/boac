@@ -113,7 +113,7 @@ class TestCreateNotes:
             body='A scanty bit of a thing with a decorative ring',
         )
         note_id = new_note.get('id')
-        assert new_note['read'] is False
+        assert new_note['read'] is True
         assert isinstance(note_id, int) and note_id > 0
         assert new_note['author']['uid'] == coe_advisor_uid
         assert 'name' in new_note['author']
@@ -215,12 +215,13 @@ class TestUpdateNotes:
         fake_auth.login(new_coe_note.author_uid)
         expected_subject = 'There must have been a plague of them'
         expected_body = 'They were guzzling marshmallows'
-        assert self._api_note_update(
+        updated_note_response = self._api_note_update(
             client,
             note_id=new_coe_note.id,
             subject=expected_subject,
             body=expected_body,
         )
+        assert updated_note_response['read'] is True
         updated_note = Note.find_by_id(note_id=new_coe_note.id)
         assert updated_note.subject == expected_subject
         assert updated_note.body == expected_body
