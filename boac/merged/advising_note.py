@@ -33,6 +33,7 @@ from boac.lib.util import camelize
 from boac.merged.calnet import get_calnet_users_for_csids
 from boac.merged.student import get_student_query_scope, narrow_scope_by_criteria
 from boac.models.note import Note
+from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
 from dateutil.tz import tzutc
 from flask import current_app as app
@@ -154,6 +155,21 @@ def _get_loch_notes_search_results(loch_results, student_rows_by_sid, search_ter
             'updatedAt': _resolve_updated_at(note),
         })
     return results
+
+
+def add_and_remove_attachments(note_id, files, delete_attachment_ids=()):
+    note = Note.find_by_id(note_id=note_id)
+    for file in files:
+        # TODO: Upload file to S3 and then capture bucket + s3_key
+        s3_path_to_attachment = file.filename  # upload_note_attachment(note_id, file.filename, file)
+        NoteAttachment.create(
+            note_id=note.id,
+            path_to_attachment=s3_path_to_attachment,
+            uploaded_by_uid=current_user.uid,
+        )
+    if delete_attachment_ids:
+        for delete_attachment_id in delete_attachment_ids:
+            NoteAttachment.delete(delete_attachment_id)
 
 
 def get_attachment_stream(filename):

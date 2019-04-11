@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import axios from 'axios';
 import store from '@/store';
+import apiUtils from '@/api/api-utils';
 
 export function markRead(noteId) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
@@ -10,33 +11,30 @@ export function markRead(noteId) {
 }
 
 export function createNote(sid: any, subject: string, body: string, attachments: any[]) {
-  const apiBaseUrl = store.getters['context/apiBaseUrl'];
-  const formData = new FormData();
-  formData.append('sid', sid.toString());
-  formData.append('subject', subject);
-  formData.append('body', body);
-  _.each(attachments || [], (attachment, index) => formData.append(`files[${index}]`, attachment));
-  return axios
-    .post(
-        `${apiBaseUrl}/api/notes/create`, formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        }
-        )
-    .then(response => response.data);
+  const data = {
+    sid: sid.toString(),
+    subject: subject,
+    body: body
+  };
+  _.each(attachments || [], (attachment, index) => data[`files[${index}]`] = attachment);
+  return apiUtils.postMultipartFormData('/api/notes/create', data);
 }
 
-export function updateNote(noteId: number, subject: string, body: string) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
-  return axios
-    .post(`${apiBaseUrl}/api/notes/update`, {
-      id: noteId,
-      subject: subject,
-      body: body
-    })
-    .then(response => response.data);
+export function updateNote(
+    noteId: number,
+    subject: string,
+    body: string,
+    attachments: any[],
+    deleteAttachmentIds: number[]
+) {
+  const data = {
+    id: noteId,
+    subject: subject,
+    body: body,
+    deleteAttachmentIds: deleteAttachmentIds || []
+  };
+  _.each(attachments || [], (attachment, index) => data[`files[${index}]`] = attachment);
+  return apiUtils.postMultipartFormData('/api/notes/update', data);
 }
 
 export function deleteNote(noteId: number) {
