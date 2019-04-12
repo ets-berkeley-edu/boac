@@ -75,6 +75,14 @@ def tolerant_remove(_list, item):
         return False
 
 
+def is_int(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+
 def to_bool_or_none(arg):
     """
     With the idea of "no decision is a decision" in mind, this util has three possible outcomes: True, False and None.

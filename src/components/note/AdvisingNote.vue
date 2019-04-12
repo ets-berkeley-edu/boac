@@ -63,7 +63,7 @@
         <ul class="pill-list pl-0">
           <li
             v-for="(attachment, index) in note.attachments"
-            :key="attachment.sisFilename"
+            :key="attachment.id"
             class="mt-2"
             @click.stop>
             <a
@@ -71,12 +71,12 @@
               :id="`note-${note.id}-attachment-${index}`"
               :href="downloadUrl(attachment)"
               class="pill text-nowrap">
-              <i class="fas fa-paperclip"></i> {{ attachment.userFilename || attachment.sisFilename }}
+              <i class="fas fa-paperclip"></i> {{ attachment.displayName }}
             </a>
             <span
               v-if="isPreCsNote"
               :id="`note-${note.id}-attachment-${index}`"
-              class="pill text-nowrap"><i class="fas fa-paperclip"></i> {{ attachment.userFilename || attachment.sisFilename }}
+              class="pill text-nowrap"><i class="fas fa-paperclip"></i> {{ attachment.displayName }}
             </span>
           </li>
         </ul>
@@ -120,7 +120,7 @@ export default {
   },
   methods: {
     downloadUrl(attachment) {
-      return this.apiBaseUrl + '/api/notes/attachment/legacy/' + attachment.sisFilename;
+      return this.apiBaseUrl + '/api/notes/attachment/' + attachment.id;
     },
     setAuthor() {
       if (this.isOpen && this.isUndefined(this.author)) {

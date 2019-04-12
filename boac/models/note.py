@@ -26,7 +26,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac import db, std_commit
+from boac.externals import s3
 from boac.models.base import Base
+from boac.models.note_attachment import NoteAttachment
+from flask import current_app as app
+import pytz
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql import text
@@ -65,8 +69,17 @@ class Note(Base):
         return cls.query.filter(and_(cls.id == note_id, cls.deleted_at == None)).first()  # noqa: E711
 
     @classmethod
-    def create(cls, author_uid, author_name, author_role, author_dept_codes, sid, subject, body):
+    def create(cls, author_uid, author_name, author_role, author_dept_codes, sid, subject, body, attachments=()):
         note = cls(author_uid, author_name, author_role, author_dept_codes, sid, subject, body)
+        for byte_stream_bundle in attachments:
+            note.attachments.append(
+                _create_attachment(
+                    note=note,
+                    name=byte_stream_bundle['name'],
+                    byte_stream=byte_stream_bundle['byte_stream'],
+                    uploaded_by=author_uid,
+                ),
+            )
         db.session.add(note)
         std_commit()
         cls.refresh_search_index()
@@ -95,11 +108,25 @@ class Note(Base):
         std_commit()
 
     @classmethod
-    def update(cls, note_id, subject, body):
+    def update(cls, note_id, subject, body, attachments=(), delete_attachment_ids=()):
         note = cls.find_by_id(note_id=note_id)
         if note:
             note.subject = subject
             note.body = body
+            if delete_attachment_ids:
+                for attachment in note.attachments:
+                    now = datetime.now()
+                    if attachment.id in delete_attachment_ids:
+                        attachment.deleted_at = now
+            for byte_stream_bundle in attachments:
+                note.attachments.append(
+                    _create_attachment(
+                        note=note,
+                        name=byte_stream_bundle['name'],
+                        byte_stream=byte_stream_bundle['byte_stream'],
+                        uploaded_by=note.author_uid,
+                    ),
+                )
             std_commit()
             return note
         else:
@@ -121,9 +148,10 @@ class Note(Base):
             std_commit()
 
     def to_api_json(self):
+        attachments = [a.to_api_json() for a in self.attachments if not a.deleted_at]
         return {
             'id': self.id,
-            'attachments': [a.to_api_json() for a in self.attachments],
+            'attachments': attachments,
             'authorUid': self.author_uid,
             'authorName': self.author_name,
             'authorRole': self.author_role,
@@ -134,3 +162,24 @@ class Note(Base):
             'createdAt': self.created_at,
             'updatedAt': self.updated_at,
         }
+
+
+def _create_attachment(note, name, byte_stream, uploaded_by):
+    bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
+    base_path = app.config['DATA_LOCH_S3_BOA_NOTE_ATTACHMENTS_PATH']
+    key_suffix = _localize_datetime(datetime.now()).strftime(f'%Y/%m/%d/%Y%m%d_%H%M%S_{name}')
+    key = f'{base_path}/{key_suffix}'
+    s3.put_binary_data_to_s3(
+        bucket=bucket,
+        key=key,
+        binary_data=byte_stream,
+    )
+    return NoteAttachment(
+        note_id=note.id,
+        path_to_attachment=key,
+        uploaded_by_uid=uploaded_by,
+    )
+
+
+def _localize_datetime(dt):
+    return dt.astimezone(pytz.timezone(app.config['TIMEZONE']))

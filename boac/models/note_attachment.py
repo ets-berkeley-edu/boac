@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
-from boac import db, std_commit
+from boac import db
 from sqlalchemy import and_
 
 
@@ -50,20 +50,15 @@ class NoteAttachment(db.Model):
         return cls.query.filter(and_(cls.id == attachment_id, cls.deleted_at == None)).first()  # noqa: E711
 
     @classmethod
-    def create(cls, note_id, path_to_attachment, uploaded_by_uid):
-        attachment = cls(note_id=note_id, path_to_attachment=path_to_attachment, uploaded_by_uid=uploaded_by_uid)
-        db.session.add(attachment)
-        std_commit()
-
-    @classmethod
-    def delete(cls, attachment_id):
-        attachment = cls.find_by_id(attachment_id)
-        attachment.deleted_at = datetime.now()
-        std_commit()
+    def find_by_note_id(cls, note_id):
+        return cls.query.filter(and_(cls.note_id == note_id, cls.deleted_at == None)).all()  # noqa: E711
 
     def to_api_json(self):
+        filename = self.path_to_attachment.rsplit('/', 1)[-1]
         return {
             'id': self.id,
-            'filename': self.path_to_attachment.rsplit('/', 1)[-1],
+            'displayName': filename,
+            'filename': filename,
+            'noteId': self.note_id,
             'uploadedBy': self.uploaded_by_uid,
         }

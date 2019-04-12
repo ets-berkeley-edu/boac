@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
+import boto3
 from flask import current_app as app
 import smart_open
 
@@ -47,3 +47,20 @@ def stream_object(bucket, key):
         app.logger.error(f'S3 stream operation failed (bucket={bucket}, key={key})')
         app.logger.exception(e)
         return None
+
+
+def put_file_to_s3(bucket, key, path_to_file):
+    put_binary_data_to_s3(bucket=bucket, key=key, binary_data=open(path_to_file, 'rb'))
+
+
+def put_binary_data_to_s3(bucket, key, binary_data):
+    _get_client().put_object(Body=binary_data, Bucket=bucket, Key=key)
+
+
+def _get_client():
+    return boto3.client(
+        's3',
+        aws_access_key_id=app.config['AWS_ACCESS_KEY_ID'],
+        aws_secret_access_key=app.config['AWS_SECRET_ACCESS_KEY'],
+        region_name=app.config['DATA_LOCH_S3_REGION'],
+    )

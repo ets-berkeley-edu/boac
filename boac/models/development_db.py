@@ -28,8 +28,6 @@ from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_cohort import CuratedCohort
-from boac.models.note import Note
-from boac.models.note_attachment import NoteAttachment
 from boac.models.university_dept import UniversityDept
 # Models below are included so that db.create_all will find them.
 from boac.models.alert import Alert # noqa
@@ -120,7 +118,6 @@ def load(cohort_test_data=False):
     if cohort_test_data:
         create_curated_groups()
         create_cohorts()
-        create_notes()
     return db
 
 
@@ -251,40 +248,6 @@ def create_cohorts():
         filter_criteria={
             'majors': ['Nuclear Engineering BS'],
         },
-    )
-    std_commit(allow_test_environment=True)
-
-
-def create_notes():
-    Note.create(
-        author_uid='1133399',
-        author_name='Roberta Joan Anderson',
-        author_role='Advisor',
-        author_dept_codes=['COENG'],
-        sid='3456789012',
-        subject='The hissing of summer lawns',
-        body="""
-            She could see the valley barbecues from her window sill.
-            See the blue pools in the squinting sun. Hear the hissing of summer lawns
-        """,
-    )
-    note = Note.create(
-        author_uid='6446',
-        author_name='Joni Mitchell',
-        author_role='Director',
-        author_dept_codes=['UWASC'],
-        sid='11667051',
-        subject='In France they kiss on main street',
-        body="""
-            My darling dime store thief, in the War of Independence
-            Rock 'n Roll rang sweet as victory, under neon signs
-        """,
-    )
-    base_dir = app.config['BASE_DIR']
-    NoteAttachment.create(
-        note_id=note.id,
-        path_to_attachment=f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt',
-        uploaded_by_uid='6446',
     )
     std_commit(allow_test_environment=True)
 

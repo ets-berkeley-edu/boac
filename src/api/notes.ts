@@ -16,7 +16,7 @@ export function createNote(sid: any, subject: string, body: string, attachments:
     subject: subject,
     body: body
   };
-  _.each(attachments || [], (attachment, index) => data[`files[${index}]`] = attachment);
+  _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
   return apiUtils.postMultipartFormData('/api/notes/create', data);
 }
 

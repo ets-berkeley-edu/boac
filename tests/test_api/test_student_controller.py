@@ -782,10 +782,11 @@ class TestAlerts:
 class TestNotes:
     """Advising Notes API."""
 
-    def test_advising_note(self, client, fake_auth):
+    def test_advising_note(self, client, coe_advising_note_with_attachment, fake_auth):
         """Returns a BOAC-created note."""
-        coe_advisor_uid = '1133399'
-        fake_auth.login(coe_advisor_uid)
+        # coe_advisor_uid = '1133399'
+        author_uid = coe_advising_note_with_attachment.author_uid
+        fake_auth.login(author_uid)
         response = client.get('/api/student/61889')
         assert response.status_code == 200
         notes = response.json.get('notifications', {}).get('note')
@@ -798,7 +799,7 @@ class TestNotes:
         assert author['role'] == 'Director'
         assert author['departments'][0]['name'] == 'Athletic Study Center'
         # This note was not authored by coe_advisor_uid
-        assert author['uid'] == '6446'
+        assert author['uid'] == author_uid
 
     def test_legacy_advising_note(self, client, fake_auth):
         """Returns a legacy note."""
