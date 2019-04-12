@@ -111,8 +111,19 @@ export default {
     }
   },
   watch: {
-    isOpen(open) {
-      if (open && this.isUndefined(this.author)) {
+    isOpen() {
+      this.setAuthor();
+    }
+  },
+  created() {
+    this.setAuthor();
+  },
+  methods: {
+    downloadUrl(attachment) {
+      return this.apiBaseUrl + '/api/notes/attachment/legacy/' + attachment.sisFilename;
+    },
+    setAuthor() {
+      if (this.isOpen && this.isUndefined(this.author)) {
         if (this.note.author.name) {
           this.author = this.note.author;
         } else {
@@ -134,11 +145,6 @@ export default {
           }
         }
       }
-    }
-  },
-  methods: {
-    downloadUrl(attachment) {
-      return this.apiBaseUrl + '/api/notes/attachment/legacy/' + attachment.sisFilename;
     }
   },
 }
