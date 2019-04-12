@@ -26,9 +26,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import current_user_profile, feature_flag_edit_notes, get_dept_codes, get_dept_role
 from boac.lib.http import tolerant_jsonify
-from boac.merged.advising_note import get_attachment_stream, note_to_compatible_json
-from boac.models.db_relationships import NoteAttachment
+from boac.merged.advising_note import add_and_remove_attachments, get_attachment_stream, note_to_compatible_json
 from boac.models.note import Note
+from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
 from flask import current_app as app, request, Response
 from flask_login import current_user, login_required
@@ -69,19 +69,23 @@ def create_note():
         sid=sid,
     )
     note_read = NoteRead.find_or_create(current_user.id, note.id)
-    _add_attachments_per_request(note_id=note.id, tolerate_none=True)
+    files = _get_files_in_request_form_data(tolerate_none=True)
+    add_and_remove_attachments(note_id=note.id, files=files)
     note_json = Note.find_by_id(note.id).to_api_json()
-    return tolerant_jsonify(note_to_compatible_json(note=note_json, attachments=note_json.get('attachments'), note_read=note_read))
+    return tolerant_jsonify(
+        note_to_compatible_json(note=note_json, note_read=note_read, attachments=note_json.get('attachments')),
+    )
 
 
 @app.route('/api/notes/update', methods=['POST'])
 @login_required
 @feature_flag_edit_notes
 def update_note():
-    params = request.get_json()
+    params = request.form
     note_id = params.get('id', None)
     subject = params.get('subject', None)
     body = params.get('body', None)
+    delete_attachment_ids = set(params.get('deleteAttachmentIds', []))
     if not note_id or not subject:
         raise BadRequestError('Note requires \'id\' and \'subject\'')
     if Note.find_by_id(note_id=note_id).author_uid != current_user.uid:
@@ -92,8 +96,12 @@ def update_note():
         body=body,
     )
     note_read = NoteRead.find_or_create(current_user.id, note.id)
-    note_json = note_to_compatible_json(note.to_api_json(), note_read=note_read)
-    return tolerant_jsonify(note_json)
+    files = _get_files_in_request_form_data(tolerate_none=True)
+    add_and_remove_attachments(note_id=note.id, files=files, delete_attachment_ids=delete_attachment_ids)
+    note_json = Note.find_by_id(note.id).to_api_json()
+    return tolerant_jsonify(
+        note_to_compatible_json(note.to_api_json(), note_read=note_read, attachments=note_json.get('attachments')),
+    )
 
 
 @app.route('/api/notes/delete/<note_id>', methods=['DELETE'])
@@ -130,7 +138,8 @@ def upload_attachment():
     note = Note.find_by_id(note_id=note_id)
     if note.author_uid != current_user.uid:
         raise ForbiddenRequestError('Sorry, you are not the author of this note.')
-    _add_attachments_per_request(note_id)
+    files = _get_files_in_request_form_data(tolerate_none=True)
+    add_and_remove_attachments(note_id=note.id, files=files)
     note_json = Note.find_by_id(note_id).to_api_json()
     return tolerant_jsonify(note_to_compatible_json(note=note_json, attachments=note_json.get('attachments')))
 
@@ -151,7 +160,7 @@ def _get_name(user):
     return '' if not (first_name or last_name) else (first_name if not last_name else f'{first_name} {last_name}')
 
 
-def _add_attachments_per_request(note_id, tolerate_none=False):
+def _get_files_in_request_form_data(tolerate_none=False):
     f = request.files
     files = f.getlist('file[]') if 'file[]' in f else []
     if not files:
@@ -161,7 +170,5 @@ def _add_attachments_per_request(note_id, tolerate_none=False):
     for file in files:
         filename = file.filename and file.filename.strip()
         if not filename:
-            raise BadRequestError(f'Invalid attachment: {file}')
-        # TODO: upload file to S3
-        path_to_attachment = file.filename  # upload_note_attachment(note_id, file.filename, file)
-        Note.add_attachment(note_id, path_to_attachment, current_user.uid)
+            raise BadRequestError(f'Invalid file in request form data: {file}')
+    return files

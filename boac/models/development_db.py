@@ -29,6 +29,7 @@ from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_cohort import CuratedCohort
 from boac.models.note import Note
+from boac.models.note_attachment import NoteAttachment
 from boac.models.university_dept import UniversityDept
 # Models below are included so that db.create_all will find them.
 from boac.models.alert import Alert # noqa
@@ -280,7 +281,11 @@ def create_notes():
         """,
     )
     base_dir = app.config['BASE_DIR']
-    Note.add_attachment(note.id, f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt', '6446')
+    NoteAttachment.create(
+        note_id=note.id,
+        path_to_attachment=f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt',
+        uploaded_by_uid='6446',
+    )
     std_commit(allow_test_environment=True)
 
 

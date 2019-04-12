@@ -27,7 +27,6 @@ from datetime import datetime
 
 from boac import db, std_commit
 from boac.models.base import Base
-from boac.models.db_relationships import NoteAttachment
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql import text
@@ -47,6 +46,7 @@ class Note(Base):
     deleted_at = db.Column(db.DateTime, nullable=True)
     attachments = db.relationship(
         'NoteAttachment',
+        primaryjoin='and_(Note.id==NoteAttachment.note_id, NoteAttachment.deleted_at==None)',
         back_populates='note',
         lazy=True,
     )
@@ -106,18 +106,6 @@ class Note(Base):
             return None
 
     @classmethod
-    def add_attachment(cls, note_id, path_to_attachment, uploaded_by_uid):
-        note = cls.find_by_id(note_id=note_id)
-        attachment = NoteAttachment(
-            note_id=note.id,
-            path_to_attachment=path_to_attachment,
-            uploaded_by_uid=uploaded_by_uid,
-        )
-        db.session.add(attachment)
-        std_commit()
-        return attachment
-
-    @classmethod
     def get_notes_by_sid(cls, sid):
         # SQLAlchemy uses "magic methods" to create SQL; it requires '==' instead of 'is'.
         return cls.query.filter(and_(cls.sid == sid, cls.deleted_at == None)).all()  # noqa: E711
@@ -126,7 +114,10 @@ class Note(Base):
     def delete(cls, note_id):
         note = cls.find_by_id(note_id)
         if note:
-            note.deleted_at = datetime.now()
+            now = datetime.now()
+            note.deleted_at = now
+            for attachment in note.attachments:
+                attachment.deleted_at = now
             std_commit()
 
     def to_api_json(self):

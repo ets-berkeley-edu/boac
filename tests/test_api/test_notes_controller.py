@@ -26,8 +26,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import io
 
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.db_relationships import NoteAttachment
 from boac.models.note import Note
+from boac.models.note_attachment import NoteAttachment
 import pytest
 import simplejson as json
 from tests.util import mock_advising_note_attachment
@@ -57,28 +57,10 @@ def new_coe_note():
 
 class TestCreateNotes:
 
-    @classmethod
-    def _api_note_create(cls, client, author_id, sid, subject, body, attachments=(), expected_status_code=200):
-        data = {
-            'authorId': author_id,
-            'sid': sid,
-            'subject': subject,
-            'body': body,
-            'file[]': [open(path, 'rb') for path in attachments],
-        }
-        response = client.post(
-            '/api/notes/create',
-            buffered=True,
-            content_type='multipart/form-data',
-            data=data,
-        )
-        assert response.status_code == expected_status_code
-        return response.json
-
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
         advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
-        assert self._api_note_create(
+        assert _api_note_create(
             client,
             author_id=advisor.id,
             sid=student['sid'],
@@ -91,7 +73,7 @@ class TestCreateNotes:
         """Returns 401 if user is an admin."""
         fake_auth.login(admin_uid)
         admin = AuthorizedUser.find_by_uid(admin_uid)
-        assert self._api_note_create(
+        assert _api_note_create(
             client,
             author_id=admin.id,
             sid=student['sid'],
@@ -105,7 +87,7 @@ class TestCreateNotes:
         fake_auth.login(coe_advisor_uid)
         advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
         subject = 'Vicar in a Tutu'
-        new_note = self._api_note_create(
+        new_note = _api_note_create(
             client,
             author_id=advisor.id,
             sid=student['sid'],
@@ -128,7 +110,7 @@ class TestCreateNotes:
         """Create a note, with two attachments."""
         fake_auth.login(coe_advisor_uid)
         base_dir = app.config['BASE_DIR']
-        note = self._api_note_create(
+        note = _api_note_create(
             client,
             author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
             sid=student['sid'],
@@ -175,13 +157,28 @@ class TestMarkNoteRead:
 class TestUpdateNotes:
 
     @classmethod
-    def _api_note_update(cls, client, note_id, subject, body, expected_status_code=200):
-        data = {
-            'id': note_id,
-            'subject': subject,
-            'body': body,
-        }
-        response = client.post('/api/notes/update', data=json.dumps(data), content_type='application/json')
+    def _api_note_update(
+            cls,
+            client,
+            note_id,
+            subject,
+            body,
+            attachments=(),
+            delete_attachment_ids=(),
+            expected_status_code=200,
+    ):
+        response = client.post(
+            '/api/notes/update',
+            buffered=True,
+            content_type='multipart/form-data',
+            data={
+                'id': note_id,
+                'subject': subject,
+                'body': body,
+                'deleteAttachmentIds': list(delete_attachment_ids),
+                'file[]': [open(file, 'rb') for file in attachments],
+            },
+        )
         assert response.status_code == expected_status_code
         return response.json
 
@@ -226,6 +223,36 @@ class TestUpdateNotes:
         assert updated_note.subject == expected_subject
         assert updated_note.body == expected_body
 
+    def test_update_note_with_attachments(self, app, client, fake_auth):
+        """Create a note, with two attachments."""
+        fake_auth.login(coe_advisor_uid)
+        coe_advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
+        base_dir = app.config['BASE_DIR']
+        note = _api_note_create(
+            client,
+            author_id=coe_advisor.id,
+            sid='11667051',
+            subject='My favourite buildings stretch upwards for miles',
+            body='Like oak leaves in autumn, cascading on stiles',
+            attachments=(
+                f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt',
+            ),
+        )
+        assert len(note['attachments']) == 1
+        original_attachment_id = note['attachments'][0]['id']
+        # Now remove one attachment
+        updated_note = self._api_note_update(
+            client,
+            note_id=note['id'],
+            subject=note['subject'],
+            body=note['body'],
+            attachments=[f'{base_dir}/fixtures/mock_advising_note_attachment_2.txt'],
+            delete_attachment_ids=[original_attachment_id],
+        )
+        assert len(updated_note['attachments']) == 1
+        assert updated_note['attachments'][0]['id'] != original_attachment_id
+        assert 'mock_advising_note_attachment_2.txt' in updated_note['attachments'][0]['filename']
+
 
 class TestDeleteNote:
     """Delete note API."""
@@ -259,6 +286,33 @@ class TestDeleteNote:
         assert not Note.find_by_id(note_id)
         assert 1 == original_count_per_sid - len(Note.get_notes_by_sid(new_coe_note.sid))
         assert not Note.update(note_id, 'Deleted note cannot be updated', 'Ditto')
+
+    def test_delete_note_with_attachments(self, app, client, fake_auth):
+        """Create a note, with two attachments."""
+        fake_auth.login(coe_advisor_uid)
+        base_dir = app.config['BASE_DIR']
+        note = _api_note_create(
+            client,
+            author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
+            sid=student['sid'],
+            subject='My little dog Lassie packed her bags and went out on to the porch',
+            body='Then my little dog Lassie, she sailed off to the moon',
+            attachments=[
+                f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt',
+                f'{base_dir}/fixtures/mock_advising_note_attachment_2.txt',
+            ],
+        )
+        attachment_ids = [a['id'] for a in note.get('attachments')]
+        assert len(attachment_ids) == 2
+        assert NoteAttachment.find_by_id(attachment_ids[0]) and NoteAttachment.find_by_id(attachment_ids[1])
+
+        # Log in as Admin and delete the note
+        fake_auth.login(admin_uid)
+        note_id = note['id']
+        response = client.delete(f'/api/notes/delete/{note_id}')
+        assert response.status_code == 200
+        assert not NoteAttachment.find_by_id(attachment_ids[0])
+        assert not NoteAttachment.find_by_id(attachment_ids[1])
 
 
 class TestEditNoteFeatureFlag:
@@ -412,6 +466,23 @@ def _asc_note_with_attachment():
         if len(note.attachments):
             return note
     return None
+
+
+def _api_note_create(client, author_id, sid, subject, body, attachments=(), expected_status_code=200):
+    response = client.post(
+        '/api/notes/create',
+        buffered=True,
+        content_type='multipart/form-data',
+        data={
+            'authorId': author_id,
+            'sid': sid,
+            'subject': subject,
+            'body': body,
+            'file[]': [open(path, 'rb') for path in attachments],
+        },
+    )
+    assert response.status_code == expected_status_code
+    return response.json
 
 
 def _api_attachment_upload(client, note_id, file):
