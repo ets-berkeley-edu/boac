@@ -101,6 +101,7 @@ class Note(Base):
             note.subject = subject
             note.body = body
             std_commit()
+            cls.refresh_search_index()
             return note
         else:
             return None
@@ -119,6 +120,7 @@ class Note(Base):
             for attachment in note.attachments:
                 attachment.deleted_at = now
             std_commit()
+            cls.refresh_search_index()
 
     def to_api_json(self):
         return {
