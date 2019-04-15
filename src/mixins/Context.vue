@@ -11,6 +11,7 @@ export default {
       'errors',
       'featureFlagEditNotes',
       'isDemoModeAvailable',
+      'maxAttachmentsPerNote',
       'srAlert',
       'supportEmailAddress'
     ])

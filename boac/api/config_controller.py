@@ -45,6 +45,7 @@ def app_config():
         'featureFlagEditNotes': app.config['FEATURE_FLAG_EDIT_NOTES'],
         'googleAnalyticsId': app.config['GOOGLE_ANALYTICS_ID'],
         'isDemoModeAvailable': app.config['DEMO_MODE_AVAILABLE'],
+        'maxAttachmentsPerNote': app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE'],
         'supportEmailAddress': app.config['BOAC_SUPPORT_EMAIL'],
     })
 
