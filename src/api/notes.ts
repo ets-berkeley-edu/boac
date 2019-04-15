@@ -24,7 +24,7 @@ export function updateNote(
     noteId: number,
     subject: string,
     body: string,
-    attachments: any[],
+    newAttachments: any[],
     deleteAttachmentIds: number[]
 ) {
   const data = {
@@ -33,7 +33,7 @@ export function updateNote(
     body: body,
     deleteAttachmentIds: deleteAttachmentIds || []
   };
-  _.each(attachments || [], (attachment, index) => data[`files[${index}]`] = attachment);
+  _.each(newAttachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
   return apiUtils.postMultipartFormData('/api/notes/update', data);
 }
 
