@@ -40,7 +40,6 @@ from flask import current_app as app
 from flask_login import current_user
 from nltk.stem.snowball import SnowballStemmer
 
-
 """Provide advising note data from local and external sources."""
 
 NOTE_SEARCH_PATTERN = r'(\w*[.:/-@]\w+([.:/-]\w+)*)|[^\s?!(),;:.`]+'
@@ -157,22 +156,19 @@ def _get_loch_notes_search_results(loch_results, student_rows_by_sid, search_ter
     return results
 
 
-def add_and_remove_attachments(note_id, files, delete_attachment_ids=()):
-    note = Note.find_by_id(note_id=note_id)
-    for file in files:
-        # TODO: Upload file to S3 and then capture bucket + s3_key
-        s3_path_to_attachment = file.filename  # upload_note_attachment(note_id, file.filename, file)
-        NoteAttachment.create(
-            note_id=note.id,
-            path_to_attachment=s3_path_to_attachment,
-            uploaded_by_uid=current_user.uid,
-        )
-    if delete_attachment_ids:
-        for delete_attachment_id in delete_attachment_ids:
-            NoteAttachment.delete(delete_attachment_id)
+def get_boa_attachment_stream(attachment_id):
+    attachment = NoteAttachment.find_by_id(attachment_id)
+    if attachment:
+        path = attachment.path_to_attachment
+        return {
+            'filename': path.rsplit('/', 1)[-1],
+            'stream': s3.stream_object(app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET'], path),
+        }
+    else:
+        return None
 
 
-def get_attachment_stream(filename):
+def get_legacy_attachment_stream(filename):
     # Filenames come prefixed with SID by convention.
     for i, c in enumerate(filename):
         if not c.isdigit():
@@ -253,10 +249,12 @@ def _get_advising_note_attachments(sid):
     attachments_by_id = {}
 
     def _attachment_to_json(attachment):
-        feed = {'sisFilename': attachment.get('sis_file_name')}
-        if attachment.get('created_by') != 'UCBCONVERSION':
-            feed['userFilename'] = attachment.get('user_file_name')
-        return feed
+        sis_file_name = attachment.get('sis_file_name')
+        return {
+            'id': sis_file_name,
+            'sisFilename': sis_file_name,
+            'displayName': sis_file_name if attachment.get('created_by') == 'UCBCONVERSION' else attachment.get('user_file_name'),
+        }
     for advising_note_id, attachments in groupby(attachments, key=itemgetter('advising_note_id')):
         attachments_by_id[advising_note_id] = [_attachment_to_json(a) for a in attachments]
     return attachments_by_id

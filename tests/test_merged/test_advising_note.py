@@ -23,10 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.merged.advising_note import get_advising_notes, get_attachment_stream, search_advising_notes
+from boac.merged.advising_note import get_advising_notes, get_legacy_attachment_stream, search_advising_notes
 from boac.models.note import Note
 from dateutil.parser import parse
-from tests.util import mock_advising_note_attachment
+from tests.util import mock_legacy_note_attachment
 
 
 asc_advisor = '6446'
@@ -36,11 +36,10 @@ coe_advisor = '1133399'
 class TestMergedAdvisingNote:
     """Advising note data, merged."""
 
-    def test_get_advising_notes(self, app, fake_auth):
+    def test_get_advising_notes(self, app, coe_advising_note_with_attachment, fake_auth):
         fake_auth.login(coe_advisor)
         notes = get_advising_notes('11667051')
 
-        assert len(notes) == 4
         assert notes[0]['id'] == '11667051-00001'
         assert notes[0]['sid'] == '11667051'
         assert notes[0]['body'] == 'Brigitte is making athletic and moral progress'
@@ -66,48 +65,47 @@ class TestMergedAdvisingNote:
         assert notes[1]['read'] is False
         assert notes[1]['topics'] == ['Bad show', 'Show off']
         # Non-legacy note
-        assert notes[3]['id']
-        assert notes[3]['author']['uid'] == '6446'
-        assert notes[3]['sid'] == '11667051'
-        assert notes[3]['subject'] == 'In France they kiss on main street'
-        assert 'My darling dime store thief' in notes[3]['body']
-        assert notes[3]['category'] is None
-        assert notes[3]['subcategory'] is None
-        assert notes[3]['appointmentId'] is None
-        assert notes[3]['createdBy'] is None
-        assert notes[3]['createdAt']
-        assert notes[3]['updatedBy'] is None
-        assert notes[3]['updatedAt']
-        assert notes[3]['read'] is False
-        assert notes[3]['topics'] is None
-        assert len(notes[3]['attachments']) == 1
+        boa_created_note = next((n for n in notes if n['id'] == coe_advising_note_with_attachment.id), None)
+        assert boa_created_note['id']
+        assert boa_created_note['author']['uid'] == coe_advising_note_with_attachment.author_uid
+        assert boa_created_note['sid'] == '11667051'
+        assert boa_created_note['subject'] == 'In France they kiss on main street'
+        assert 'My darling dime store thief' in boa_created_note['body']
+        assert boa_created_note['category'] is None
+        assert boa_created_note['subcategory'] is None
+        assert boa_created_note['appointmentId'] is None
+        assert boa_created_note['createdBy'] is None
+        assert boa_created_note['createdAt']
+        assert boa_created_note['updatedBy'] is None
+        assert boa_created_note['updatedAt']
+        assert boa_created_note['read'] is False
+        assert boa_created_note['topics'] is None
+        assert len(boa_created_note['attachments']) == 1
 
     def test_get_advising_notes_ucbconversion_attachment(self, app, fake_auth):
         fake_auth.login(coe_advisor)
         notes = get_advising_notes('11667051')
         assert notes[0]['attachments'] == [
             {
+                'displayName': '11667051_00001_1.pdf',
+                'id': '11667051_00001_1.pdf',
                 'sisFilename': '11667051_00001_1.pdf',
             },
         ]
 
-    def test_get_advising_notes_cs_attachment(self, app, fake_auth):
+    def test_get_advising_notes_cs_attachment(self, app, coe_advising_note_with_attachment, fake_auth):
         fake_auth.login(coe_advisor)
         notes = get_advising_notes('11667051')
-        assert len(notes) == 4
         assert notes[1]['attachments'] == [
             {
+                'id': '11667051_00002_2.jpeg',
                 'sisFilename': '11667051_00002_2.jpeg',
-                'userFilename': 'brigitte_photo.jpeg',
+                'displayName': 'brigitte_photo.jpeg',
             },
         ]
-        assert notes[-1]['attachments'] == [
-            {
-                'id': 1,
-                'filename': 'mock_advising_note_attachment_1.txt',
-                'uploadedBy': '6446',
-            },
-        ]
+        boa_created_note = next((n for n in notes if n['id'] == coe_advising_note_with_attachment.id), None)
+        assert boa_created_note
+        assert boa_created_note['attachments'][0]['uploadedBy'] == coe_advising_note_with_attachment.author_uid
 
     def test_get_advising_notes_timestamp_format(self, app, fake_auth):
         fake_auth.login(coe_advisor)
@@ -246,30 +244,30 @@ class TestMergedAdvisingNote:
         assert response[2]['noteSnippet'].startswith('...pity the founder')
 
     def test_stream_attachment(self, app, fake_auth):
-        with mock_advising_note_attachment(app):
+        with mock_legacy_note_attachment(app):
             fake_auth.login(coe_advisor)
-            stream = get_attachment_stream('9000000000_00002_1.pdf')['stream']
+            stream = get_legacy_attachment_stream('9000000000_00002_1.pdf')['stream']
             body = b''
             for chunk in stream:
                 body += chunk
             assert body == b'When in the course of human events, it becomes necessarf arf woof woof woof'
 
     def test_stream_attachment_respects_scope_constraints(self, app, fake_auth):
-        with mock_advising_note_attachment(app):
+        with mock_legacy_note_attachment(app):
             fake_auth.login(asc_advisor)
-            assert get_attachment_stream('9000000000_00002_1.pdf') is None
+            assert get_legacy_attachment_stream('9000000000_00002_1.pdf') is None
 
     def test_stream_attachment_handles_malformed_filename(self, app):
-        with mock_advising_note_attachment(app):
-            assert get_attachment_stream('h0ax.lol') is None
+        with mock_legacy_note_attachment(app):
+            assert get_legacy_attachment_stream('h0ax.lol') is None
 
     def test_stream_attachment_handles_file_not_in_database(self, app, fake_auth, caplog):
-        with mock_advising_note_attachment(app):
+        with mock_legacy_note_attachment(app):
             fake_auth.login(coe_advisor)
-            assert get_attachment_stream('11667051_00002_1.pdf') is None
+            assert get_legacy_attachment_stream('11667051_00002_1.pdf') is None
 
     def test_stream_attachment_handles_file_not_in_s3(self, app, fake_auth, caplog):
-        with mock_advising_note_attachment(app):
+        with mock_legacy_note_attachment(app):
             fake_auth.login(coe_advisor)
-            assert get_attachment_stream('11667051_00001_1.pdf')['stream'] is None
+            assert get_legacy_attachment_stream('11667051_00001_1.pdf')['stream'] is None
             assert "the s3 key 'attachment-path/11667051/11667051_00001_1.pdf' does not exist, or is forbidden" in caplog.text

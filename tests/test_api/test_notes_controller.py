@@ -23,14 +23,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-import io
-
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
 import pytest
 import simplejson as json
-from tests.util import mock_advising_note_attachment
+from tests.util import mock_advising_note_s3_bucket, mock_legacy_note_attachment
 
 asc_advisor_uid = '6446'
 coe_advisor_uid = '1133399'
@@ -57,10 +55,11 @@ def new_coe_note():
 
 class TestCreateNotes:
 
-    def test_not_authenticated(self, client):
+    def test_not_authenticated(self, app, client):
         """Returns 401 if not authenticated."""
         advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
         assert _api_note_create(
+            app,
             client,
             author_id=advisor.id,
             sid=student['sid'],
@@ -69,11 +68,12 @@ class TestCreateNotes:
             expected_status_code=401,
         )
 
-    def test_admin_user_is_not_authorized(self, client, fake_auth):
+    def test_admin_user_is_not_authorized(self, app, client, fake_auth):
         """Returns 401 if user is an admin."""
         fake_auth.login(admin_uid)
         admin = AuthorizedUser.find_by_uid(admin_uid)
         assert _api_note_create(
+            app,
             client,
             author_id=admin.id,
             sid=student['sid'],
@@ -88,6 +88,7 @@ class TestCreateNotes:
         advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
         subject = 'Vicar in a Tutu'
         new_note = _api_note_create(
+            app,
             client,
             author_id=advisor.id,
             sid=student['sid'],
@@ -111,6 +112,7 @@ class TestCreateNotes:
         fake_auth.login(coe_advisor_uid)
         base_dir = app.config['BASE_DIR']
         note = _api_note_create(
+            app,
             client,
             author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
             sid=student['sid'],
@@ -134,24 +136,24 @@ class TestMarkNoteRead:
         """Marks a note as read."""
         fake_auth.login(coe_advisor_uid)
         all_notes_unread = _get_notes(client, 61889)
-        assert len(all_notes_unread) == 4
+        assert len(all_notes_unread) == 3
         for note in all_notes_unread:
             assert note['read'] is False
         response = client.post('/api/notes/11667051-00001/mark_read')
         assert response.status_code == 201
 
-        non_legacy_note_id = all_notes_unread[3]['id']
+        non_legacy_note_id = all_notes_unread[2]['id']
         response = client.post(f'/api/notes/{non_legacy_note_id}/mark_read')
         assert response.status_code == 201
 
         all_notes_one_read = _get_notes(client, 61889)
-        assert len(all_notes_one_read) == 4
+        assert len(all_notes_one_read) == 3
         assert all_notes_one_read[0]['id'] == '11667051-00001'
         assert all_notes_one_read[0]['read'] is True
         assert all_notes_one_read[1]['id'] == '11667051-00002'
         assert all_notes_one_read[1]['read'] is False
-        assert all_notes_one_read[3]['id'] == non_legacy_note_id
-        assert all_notes_one_read[3]['read'] is True
+        assert all_notes_one_read[2]['id'] == non_legacy_note_id
+        assert all_notes_one_read[2]['read'] is True
 
 
 class TestUpdateNotes:
@@ -159,6 +161,7 @@ class TestUpdateNotes:
     @classmethod
     def _api_note_update(
             cls,
+            app,
             client,
             note_id,
             subject,
@@ -167,38 +170,41 @@ class TestUpdateNotes:
             delete_attachment_ids=(),
             expected_status_code=200,
     ):
-        response = client.post(
-            '/api/notes/update',
-            buffered=True,
-            content_type='multipart/form-data',
-            data={
+        with mock_advising_note_s3_bucket(app):
+            data = {
                 'id': note_id,
                 'subject': subject,
                 'body': body,
-                'deleteAttachmentIds': list(delete_attachment_ids),
-                'file[]': [open(file, 'rb') for file in attachments],
-            },
-        )
-        assert response.status_code == expected_status_code
-        return response.json
+                'deleteAttachmentIds': delete_attachment_ids or [],
+            }
+            for index, path in enumerate(attachments):
+                data[f'attachment[{index}]'] = open(path, 'rb')
+            response = client.post(
+                '/api/notes/update',
+                buffered=True,
+                content_type='multipart/form-data',
+                data=data,
+            )
+            assert response.status_code == expected_status_code
+            return response.json
 
-    def test_note_update_not_authenticated(self, client):
+    def test_note_update_not_authenticated(self, app, coe_advising_note_with_attachment, client):
         """Returns 401 if not authenticated."""
-        note = Note.find_by_id(note_id=1)
-        assert note
-        assert self._api_note_update(
+        self._api_note_update(
+            app,
             client,
-            note_id=note.id,
+            note_id=coe_advising_note_with_attachment.id,
             subject='Hack the subject!',
             body='Hack the body!',
             expected_status_code=401,
         )
 
-    def test_unauthorized_update_note(self, client, fake_auth, new_coe_note):
+    def test_unauthorized_update_note(self, app, client, fake_auth, new_coe_note):
         """Forbidden to edit someone else's note."""
         original_subject = new_coe_note.subject
         fake_auth.login(asc_advisor_uid)
         assert self._api_note_update(
+            app,
             client,
             note_id=new_coe_note.id,
             subject='Hack someone else\'s subject!',
@@ -207,12 +213,13 @@ class TestUpdateNotes:
         )
         assert Note.find_by_id(note_id=new_coe_note.id).subject == original_subject
 
-    def test_update_note(self, client, fake_auth, new_coe_note):
+    def test_update_note(self, app, client, fake_auth, new_coe_note):
         """Successfully modifies a note subject and body."""
         fake_auth.login(new_coe_note.author_uid)
         expected_subject = 'There must have been a plague of them'
         expected_body = 'They were guzzling marshmallows'
         updated_note_response = self._api_note_update(
+            app,
             client,
             note_id=new_coe_note.id,
             subject=expected_subject,
@@ -223,35 +230,33 @@ class TestUpdateNotes:
         assert updated_note.subject == expected_subject
         assert updated_note.body == expected_body
 
-    def test_update_note_with_attachments(self, app, client, fake_auth):
-        """Create a note, with two attachments."""
-        fake_auth.login(coe_advisor_uid)
-        coe_advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
+    def test_update_note_with_attachments(self, app, client, coe_advising_note_with_attachment, fake_auth):
+        """Update a note: delete existing attachment and add a new one."""
+        fake_auth.login(coe_advising_note_with_attachment.author_uid)
         base_dir = app.config['BASE_DIR']
-        note = _api_note_create(
-            client,
-            author_id=coe_advisor.id,
-            sid='11667051',
-            subject='My favourite buildings stretch upwards for miles',
-            body='Like oak leaves in autumn, cascading on stiles',
-            attachments=(
-                f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt',
-            ),
-        )
-        assert len(note['attachments']) == 1
-        original_attachment_id = note['attachments'][0]['id']
-        # Now remove one attachment
+        note_id = coe_advising_note_with_attachment.id
+        attachment_id = coe_advising_note_with_attachment.attachments[0].id
+        filename = 'mock_advising_note_attachment_2.txt'
+        path_to_new_attachment = f'{base_dir}/fixtures/{filename}'
         updated_note = self._api_note_update(
+            app,
             client,
-            note_id=note['id'],
-            subject=note['subject'],
-            body=note['body'],
-            attachments=[f'{base_dir}/fixtures/mock_advising_note_attachment_2.txt'],
-            delete_attachment_ids=[original_attachment_id],
+            note_id=note_id,
+            subject=coe_advising_note_with_attachment.subject,
+            body=coe_advising_note_with_attachment.body,
+            attachments=[path_to_new_attachment],
+            delete_attachment_ids=[attachment_id],
         )
+        assert note_id == updated_note['attachments'][0]['noteId']
         assert len(updated_note['attachments']) == 1
-        assert updated_note['attachments'][0]['id'] != original_attachment_id
-        assert 'mock_advising_note_attachment_2.txt' in updated_note['attachments'][0]['filename']
+        assert filename in updated_note['attachments'][0]['displayName']
+        assert filename in updated_note['attachments'][0]['filename']
+        assert updated_note['attachments'][0]['id'] != attachment_id
+        # Verify db
+        attachments = NoteAttachment.find_by_note_id(note_id)
+        assert len(attachments) == 1
+        assert filename in attachments[0].path_to_attachment
+        assert not NoteAttachment.find_by_id(attachment_id)
 
 
 class TestDeleteNote:
@@ -292,6 +297,7 @@ class TestDeleteNote:
         fake_auth.login(coe_advisor_uid)
         base_dir = app.config['BASE_DIR']
         note = _api_note_create(
+            app,
             client,
             author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
             sid=student['sid'],
@@ -332,25 +338,23 @@ class TestEditNoteFeatureFlag:
             },
         ).status_code
 
-    def test_edit_note_feature_flag_false(self, app, client, fake_auth):
+    def test_edit_note_feature_flag_false(self, app, asc_advising_note, client, fake_auth):
         """Returns 404 if feature flag is false. TODO: Remove when feature is live."""
         app.config['FEATURE_FLAG_EDIT_NOTES'] = False
-        note = Note.find_by_id(note_id=1)
-        fake_auth.login(note.author_uid)
+        fake_auth.login(asc_advising_note.author_uid)
         data = {
-            'id': note.id,
+            'id': asc_advising_note.id,
             'subject': 'Reel Around the Fountain',
             'body': 'You took a child and you made him old',
         }
         response = client.post('/api/notes/update', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 404
 
-    def test_delete_note_feature_flag_false(self, app, client, fake_auth):
+    def test_delete_note_feature_flag_false(self, app, asc_advising_note, client, fake_auth):
         """Returns 404 if feature flag is false. TODO: Remove when feature is live."""
         app.config['FEATURE_FLAG_EDIT_NOTES'] = False
-        note = Note.find_by_id(note_id=1)
-        fake_auth.login(note.author_uid)
-        response = client.delete(f'/api/notes/delete/{note.id}')
+        fake_auth.login(asc_advising_note.author_uid)
+        response = client.delete(f'/api/notes/delete/{asc_advising_note.id}')
         assert response.status_code == 404
 
 
@@ -358,101 +362,28 @@ class TestStreamNoteAttachments:
 
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        assert client.get('/api/notes/attachment/legacy/9000000000_00002_1.pdf').status_code == 401
+        assert client.get('/api/notes/attachment/9000000000_00002_1.pdf').status_code == 401
 
     def test_stream_attachment(self, app, client, fake_auth):
-        with mock_advising_note_attachment(app):
+        with mock_legacy_note_attachment(app):
             fake_auth.login(coe_advisor_uid)
-            response = client.get('/api/notes/attachment/legacy/9000000000_00002_1.pdf')
+            response = client.get('/api/notes/attachment/9000000000_00002_1.pdf')
             assert response.status_code == 200
             assert response.headers['Content-Type'] == 'application/octet-stream'
             assert response.headers['Content-Disposition'] == 'attachment; filename=dog_eaten_homework.pdf'
             assert response.data == b'When in the course of human events, it becomes necessarf arf woof woof woof'
 
     def test_stream_attachment_reports_unauthorized_files_not_found(self, app, client, fake_auth):
-        with mock_advising_note_attachment(app):
+        with mock_legacy_note_attachment(app):
             fake_auth.login(asc_advisor_uid)
-            response = client.get('/api/notes/attachment/legacy/9000000000_00002_1.pdf')
+            response = client.get('/api/notes/attachment/9000000000_00002_1.pdf')
             assert response.status_code == 404
 
     def test_stream_attachment_reports_missing_files_not_found(self, app, client, fake_auth):
-        with mock_advising_note_attachment(app):
+        with mock_legacy_note_attachment(app):
             fake_auth.login(asc_advisor_uid)
-            response = client.get('/api/notes/attachment/legacy/h0ax.lol')
+            response = client.get('/api/notes/attachment/h0ax.lol')
             assert response.status_code == 404
-
-
-class TestUploadNoteAttachment:
-    """Note Attachment API."""
-
-    def test_not_authenticated(self, app, client):
-        """Returns 401 if not authenticated."""
-        note_id = _asc_note_with_attachment().id
-        file = (io.BytesIO(b'A bad seed.'), 'hack-S3-with-my-evil-attachment.txt')
-        assert _api_attachment_upload(client, note_id, file).status_code == 401
-
-    def test_unauthorized(self, app, client, fake_auth):
-        """Returns 403 if user does not own the note."""
-        fake_auth.login(coe_advisor_uid)
-        note_id = _asc_note_with_attachment().id
-        file = (io.BytesIO(b'Not me.'), 'attach-to-the-note-of-another.txt')
-        assert _api_attachment_upload(client, note_id, file).status_code == 403
-
-    def test_invalid_file(self, app, client, fake_auth):
-        """Returns XXX if file is incomplete or missing."""
-        fake_auth.login(asc_advisor_uid)
-        note_id = _asc_note_with_attachment().id
-        file = (io.BytesIO(b'Not me.'), '   ')
-        assert _api_attachment_upload(client, note_id, file).status_code == 400
-
-    def test_valid_upload(self, app, client, fake_auth):
-        """Successfully put attachment to existing note."""
-        fake_auth.login(asc_advisor_uid)
-        note_id = _asc_note_with_attachment().id
-        filename = 'expect-successful-upload.txt'
-        file = (io.BytesIO(b'It\'s all good'), filename)
-        response = _api_attachment_upload(client, note_id, file)
-        assert response.status_code == 200
-        note = response.json
-        attachment = note.get('attachments')[0]
-        attachment_id = attachment['id']
-        assert attachment_id > 0
-        assert attachment['uploadedBy'] == asc_advisor_uid
-        # TODO: Uncomment the following when mock S3 upload is in place
-        #     assert attachment['filename'] == filename
-        note = Note.find_by_id(note_id)
-        assert next((a for a in note.attachments if a.id == attachment_id), None)
-
-
-class TestDeleteNoteAttachment:
-    """Note Attachment API."""
-
-    def test_not_authenticated(self, client):
-        """You must log in to delete a note."""
-        note = _asc_note_with_attachment()
-        assert client.delete(f'/api/notes/attachment/delete/{note.attachments[0].id}').status_code == 401
-
-    def test_current_user_did_not_upload_attachment(self, client, fake_auth, new_coe_note):
-        """If the note author did not upload the attachment then s/he cannot delete the attachment."""
-        attachment = _asc_note_with_attachment().attachments[0]
-        assert attachment.uploaded_by_uid != coe_advisor_uid
-        fake_auth.login(coe_advisor_uid)
-        assert client.delete(f'/api/notes/attachment/delete/{attachment.id}').status_code == 403
-
-    def test_delete_by_attachment_uploader(self, client, fake_auth, new_coe_note):
-        """Attachment uploader can delete the attachment."""
-        attachment = _asc_note_with_attachment().attachments[0]
-        fake_auth.login(attachment.uploaded_by_uid)
-        assert client.delete(f'/api/notes/attachment/delete/{attachment.id}').status_code == 200
-        assert not NoteAttachment.find_by_id(attachment.id)
-
-    def test_delete_by_admin(self, client, fake_auth, new_coe_note):
-        """Admin can delete all note attachments."""
-        attachment = _asc_note_with_attachment().attachments[0]
-        assert attachment.uploaded_by_uid != coe_advisor_uid
-        fake_auth.login(admin_uid)
-        assert client.delete(f'/api/notes/attachment/delete/{attachment.id}').status_code == 200
-        assert not NoteAttachment.find_by_id(attachment.id)
 
 
 def _get_notes(client, uid):
@@ -468,30 +399,21 @@ def _asc_note_with_attachment():
     return None
 
 
-def _api_note_create(client, author_id, sid, subject, body, attachments=(), expected_status_code=200):
-    response = client.post(
-        '/api/notes/create',
-        buffered=True,
-        content_type='multipart/form-data',
-        data={
+def _api_note_create(app, client, author_id, sid, subject, body, attachments=(), expected_status_code=200):
+    with mock_advising_note_s3_bucket(app):
+        data = {
             'authorId': author_id,
             'sid': sid,
             'subject': subject,
             'body': body,
-            'file[]': [open(path, 'rb') for path in attachments],
-        },
-    )
-    assert response.status_code == expected_status_code
-    return response.json
-
-
-def _api_attachment_upload(client, note_id, file):
-    return client.post(
-        '/api/notes/attachment/upload',
-        buffered=True,
-        content_type='multipart/form-data',
-        data={
-            'noteId': note_id,
-            'file': file,
-        },
-    )
+        }
+        for index, path in enumerate(attachments):
+            data[f'attachment[{index}]'] = open(path, 'rb')
+        response = client.post(
+            '/api/notes/create',
+            buffered=True,
+            content_type='multipart/form-data',
+            data=data,
+        )
+        assert response.status_code == expected_status_code
+        return response.json

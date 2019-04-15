@@ -26,9 +26,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import current_user_profile, feature_flag_edit_notes, get_dept_codes, get_dept_role
 from boac.lib.http import tolerant_jsonify
-from boac.merged.advising_note import add_and_remove_attachments, get_attachment_stream, note_to_compatible_json
+from boac.lib.util import is_int
+from boac.merged.advising_note import get_boa_attachment_stream, get_legacy_attachment_stream, note_to_compatible_json
 from boac.models.note import Note
-from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
 from flask import current_app as app, request, Response
 from flask_login import current_user, login_required
@@ -67,13 +67,15 @@ def create_note():
         subject=subject,
         body=body,
         sid=sid,
+        attachments=_get_attachments(request.files, tolerate_none=True),
     )
-    note_read = NoteRead.find_or_create(current_user.id, note.id)
-    files = _get_files_in_request_form_data(tolerate_none=True)
-    add_and_remove_attachments(note_id=note.id, files=files)
     note_json = Note.find_by_id(note.id).to_api_json()
     return tolerant_jsonify(
-        note_to_compatible_json(note=note_json, note_read=note_read, attachments=note_json.get('attachments')),
+        note_to_compatible_json(
+            note=note_json,
+            note_read=NoteRead.find_or_create(current_user.id, note.id),
+            attachments=note_json.get('attachments'),
+        ),
     )
 
 
@@ -85,7 +87,7 @@ def update_note():
     note_id = params.get('id', None)
     subject = params.get('subject', None)
     body = params.get('body', None)
-    delete_attachment_ids = set(params.get('deleteAttachmentIds', []))
+    delete_attachment_ids = [int(id_) for id_ in params.get('deleteAttachmentIds') or []]
     if not note_id or not subject:
         raise BadRequestError('Note requires \'id\' and \'subject\'')
     if Note.find_by_id(note_id=note_id).author_uid != current_user.uid:
@@ -94,13 +96,16 @@ def update_note():
         note_id=note_id,
         subject=subject,
         body=body,
+        attachments=_get_attachments(request.files, tolerate_none=True),
+        delete_attachment_ids=delete_attachment_ids,
     )
-    note_read = NoteRead.find_or_create(current_user.id, note.id)
-    files = _get_files_in_request_form_data(tolerate_none=True)
-    add_and_remove_attachments(note_id=note.id, files=files, delete_attachment_ids=delete_attachment_ids)
-    note_json = Note.find_by_id(note.id).to_api_json()
+    note_json = note.to_api_json()
     return tolerant_jsonify(
-        note_to_compatible_json(note.to_api_json(), note_read=note_read, attachments=note_json.get('attachments')),
+        note_to_compatible_json(
+            note=note_json,
+            note_read=NoteRead.find_or_create(current_user.id, note_id),
+            attachments=note_json.get('attachments'),
+        ),
     )
 
 
@@ -117,10 +122,12 @@ def delete_note(note_id):
     return tolerant_jsonify({'message': f'Note {note_id} deleted'}), 200
 
 
-@app.route('/api/notes/attachment/legacy/<attachment_filename>', methods=['GET'])
+@app.route('/api/notes/attachment/<attachment_id>', methods=['GET'])
 @login_required
-def download_attachment(attachment_filename):
-    stream_data = get_attachment_stream(attachment_filename)
+def download_attachment(attachment_id):
+    is_legacy = not is_int(attachment_id)
+    id_ = attachment_id if is_legacy else int(attachment_id)
+    stream_data = get_legacy_attachment_stream(id_) if is_legacy else get_boa_attachment_stream(id_)
     if not stream_data or not stream_data['stream']:
         raise ResourceNotFoundError('Attachment not found')
     r = Response(stream_data['stream'])
@@ -129,46 +136,30 @@ def download_attachment(attachment_filename):
     return r
 
 
-@app.route('/api/notes/attachment/upload', methods=['POST'])
-@login_required
-def upload_attachment():
-    note_id = request.form.get('noteId', None)
-    if not note_id:
-        raise BadRequestError('Attachment upload requires \'noteId\'')
-    note = Note.find_by_id(note_id=note_id)
-    if note.author_uid != current_user.uid:
-        raise ForbiddenRequestError('Sorry, you are not the author of this note.')
-    files = _get_files_in_request_form_data(tolerate_none=True)
-    add_and_remove_attachments(note_id=note.id, files=files)
-    note_json = Note.find_by_id(note_id).to_api_json()
-    return tolerant_jsonify(note_to_compatible_json(note=note_json, attachments=note_json.get('attachments')))
-
-
-@app.route('/api/notes/attachment/delete/<attachment_id>', methods=['DELETE'])
-@login_required
-def delete_attachment(attachment_id):
-    attachment = NoteAttachment.find_by_id(attachment_id=attachment_id)
-    if not current_user.is_admin and attachment.uploaded_by_uid != current_user.uid:
-        raise ForbiddenRequestError(f'Sorry, you are unauthorized to delete attachment {attachment_id}.')
-    NoteAttachment.delete(attachment_id=attachment_id)
-    return tolerant_jsonify({'message': f'Attachment {attachment_id} deleted'}), 200
-
-
 def _get_name(user):
     first_name = user.get('firstName')
     last_name = user.get('lastName')
     return '' if not (first_name or last_name) else (first_name if not last_name else f'{first_name} {last_name}')
 
 
-def _get_files_in_request_form_data(tolerate_none=False):
-    f = request.files
-    files = f.getlist('file[]') if 'file[]' in f else []
-    if not files:
-        files = [f['file']] if 'file' in f else []
-    if not tolerate_none and not len(files):
+def _get_attachments(request_files, tolerate_none=False):
+    attachments = []
+    for index in range(4):
+        attachment = request_files.get(f'attachment[{index}]')
+        if attachment:
+            attachments.append(attachment)
+        else:
+            break
+    if not tolerate_none and not len(attachments):
         raise BadRequestError('request.files is empty')
-    for file in files:
-        filename = file.filename and file.filename.strip()
+    byte_stream_bundle = []
+    for attachment in attachments:
+        filename = attachment.filename and attachment.filename.strip()
         if not filename:
-            raise BadRequestError(f'Invalid file in request form data: {file}')
-    return files
+            raise BadRequestError(f'Invalid file in request form data: {attachment}')
+        else:
+            byte_stream_bundle.append({
+                'name': filename.rsplit('/', 1)[-1],
+                'byte_stream': attachment.read(),
+            })
+    return byte_stream_bundle

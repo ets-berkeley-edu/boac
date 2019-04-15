@@ -13,83 +13,129 @@
         </span>
       </b-btn>
     </div>
-    <div
-      :class="{
-        'd-none': isNil(newNoteMode),
-        'modal-open': newNoteMode === 'open',
-        'modal-open modal-minimized': newNoteMode === 'minimized',
-        'modal-open modal-saving': newNoteMode === 'saving'
-      }">
-      <form @submit.prevent="create()">
-        <div class="d-flex align-items-end pt-2 mb-1">
-          <div class="flex-grow-1 new-note-header font-weight-bolder">
-            New Note
+    <div :class="{'modal-full-screen': newNoteMode === 'fullScreen'}">
+      <div
+        id="new-note-modal-container"
+        :class="{
+          'd-none': isNil(newNoteMode),
+          'modal-open': newNoteMode === 'open',
+          'modal-open modal-minimized': newNoteMode === 'minimized',
+          'modal-open modal-saving': newNoteMode === 'saving',
+          'modal-full-screen-content': newNoteMode === 'fullScreen'
+        }">
+        <form @submit.prevent="create()">
+          <div class="d-flex align-items-end pt-2 mb-1">
+            <div class="flex-grow-1 new-note-header font-weight-bolder">
+              New Note
+            </div>
+            <div class="pr-0">
+              <label id="minimize-button-label" class="sr-only">Minimize the create note dialog box</label>
+              <b-btn
+                id="minimize-new-note-modal"
+                variant="link"
+                aria-labelledby="minimize-button-label"
+                class="pr-2"
+                @click.prevent="minimize()">
+                <span class="sr-only">Minimize</span>
+                <i class="fas fa-window-minimize minimize-icon text-dark"></i>
+              </b-btn>
+            </div>
+            <div class="pr-2">
+              <label id="cancel-button-label" class="sr-only">Cancel the create-note form</label>
+              <b-btn
+                id="cancel-new-note-modal"
+                variant="link"
+                aria-labelledby="cancel-button-label"
+                class="pl-1 pb-1"
+                @click.prevent="cancel()">
+                <span class="sr-only">Cancel</span>
+                <i class="fas fa-times fa-icon-size text-dark"></i>
+              </b-btn>
+            </div>
           </div>
-          <div class="pr-0">
-            <label id="minimize-button-label" class="sr-only">Minimize the create note dialog box</label>
-            <b-btn
-              id="minimize-new-note-modal"
-              variant="link"
-              aria-labelledby="minimize-button-label"
-              class="pr-2"
-              @click.prevent="minimize()">
-              <span class="sr-only">Minimize</span>
-              <i class="fas fa-window-minimize minimize-icon text-dark"></i>
-            </b-btn>
+          <hr class="m-0" />
+          <div class="mt-2 mr-3 mb-1 ml-3">
+            <div>
+              <label for="create-note-subject" class="input-label mb-1"><span class="sr-only">Note </span>Subject</label>
+            </div>
+            <div>
+              <input
+                id="create-note-subject"
+                v-model="subject"
+                aria-labelledby="create-note-subject-label"
+                class="cohort-create-input-name"
+                type="text"
+                maxlength="255"
+                @keydown.esc="cancel()">
+            </div>
+            <div>
+              <label for="create-note-body" class="input-label mt-3 mb-1">Note Details</label>
+            </div>
+            <div id="note-details">
+              <span id="create-note-body">
+                <ckeditor v-model="body" :editor="editor" :config="editorConfig"></ckeditor>
+              </span>
+            </div>
           </div>
-          <div class="pr-2">
-            <label id="cancel-button-label" class="sr-only">Cancel the create-note form</label>
-            <b-btn
-              id="cancel-new-note-modal"
-              variant="link"
-              aria-labelledby="cancel-button-label"
-              class="pl-1 pb-1"
-              @click.prevent="cancel()">
-              <span class="sr-only">Cancel</span>
-              <i class="fas fa-times fa-icon-size text-dark"></i>
-            </b-btn>
+          <div v-if="newNoteMode === 'fullScreen'" class="mt-2 mr-3 mb-1 ml-3">
+            <div>
+              <label for="choose-note-attachment" class="input-label mb-1"><span class="sr-only">File </span>Attachments</label>
+            </div>
+            <div>
+              <b-form-file
+                id="choose-note-attachment"
+                v-model="attachment"
+                :state="Boolean(attachment)"
+                placeholder="Choose file"
+                drop-placeholder="Drop file here..."
+              ></b-form-file>
+            </div>
+            <div>
+              <ul class="pill-list pl-0">
+                <li
+                  v-for="(attachment, index) in attachments"
+                  :id="`new-note-attachment-${index}`"
+                  :key="attachment.name"
+                  class="mt-2">
+                  <span class="pill text-nowrap">
+                    <i class="fas fa-paperclip"></i> {{ attachment.name }}
+                  </span>
+                </li>
+              </ul>
+            </div>
           </div>
-        </div>
-        <hr class="m-0" />
-        <div class="mt-2 mr-3 mb-1 ml-3">
-          <div>
-            <label for="create-note-subject" class="input-label mb-1"><span class="sr-only">Note </span>Subject</label>
+          <hr />
+          <div class="d-flex mt-1 mr-3 mb-0 ml-3">
+            <div class="flex-grow-1">
+              <b-btn
+                v-if="newNoteMode !== 'fullScreen'"
+                variant="link"
+                @click.prevent="setNewNoteMode('fullScreen')">
+                Advanced note options
+              </b-btn>
+            </div>
+            <div>
+              <b-btn
+                id="create-note-button"
+                class="btn-primary-color-override"
+                aria-label="Create new note"
+                variant="primary"
+                @click.prevent="create()">
+                Save
+              </b-btn>
+            </div>
+            <div>
+              <b-btn
+                id="create-note-cancel"
+                variant="link"
+                :class="{'sr-only': newNoteMode !== 'fullScreen'}"
+                @click.prevent="cancel()">
+                Cancel
+              </b-btn>
+            </div>
           </div>
-          <div>
-            <input
-              id="create-note-subject"
-              v-model="subject"
-              aria-labelledby="create-note-subject-label"
-              class="cohort-create-input-name"
-              type="text"
-              maxlength="255"
-              @keydown.esc="cancel()">
-          </div>
-          <div>
-            <label for="create-note-body" class="input-label mt-3 mb-1">Note Details</label>
-          </div>
-          <div id="note-details">
-            <span id="create-note-body">
-              <ckeditor v-model="body" :editor="editor" :config="editorConfig"></ckeditor>
-            </span>
-          </div>
-        </div>
-        <hr />
-        <div class="d-flex justify-content-end mt-1 mr-3 mb-0 ml-3">
-          <div>
-            <b-btn
-              id="create-note-button"
-              class="btn-primary-color-override"
-              aria-label="Create new note"
-              variant="primary"
-              @click.prevent="create()">
-              Save
-            </b-btn>
-            <!-- For screen reader, tabbing sequence is Save then Cancel. -->
-            <b-btn class="sr-only" @click.prevent="cancel()">Cancel new note form</b-btn>
-          </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
     <div v-if="!isMinimizing && newNoteMode === 'minimized'" class="minimized-placeholder d-flex align-items-end ml-3 mr-3">
       <div class="flex-grow-1 new-note-header">
@@ -155,6 +201,8 @@ export default {
     student: Object
   },
   data: () => ({
+    attachment: undefined,
+    attachments: [],
     body: undefined,
     error: undefined,
     isMinimizing: false,
@@ -167,6 +215,12 @@ export default {
     showAreYouSureModal: false
   }),
   watch: {
+    attachment() {
+      if (this.attachment) {
+        this.attachments.push(this.attachment);
+        this.attachment = undefined;
+      }
+    },
     body(b) {
       if (b) this.clearError();
     },
@@ -203,7 +257,7 @@ export default {
       if (this.subject) {
         this.body = this.trim(this.body);
         this.setNewNoteMode('saving');
-        createNote(this.student.sid, this.subject, this.body).then(data => {
+        createNote(this.student.sid, this.subject, this.body, this.attachments).then(data => {
           this.reset();
           this.onSuccessfulCreate(data);
           this.alertScreenReader("New note saved.");
@@ -233,6 +287,7 @@ export default {
     reset() {
       this.setNewNoteMode(null);
       this.subject = this.body = undefined;
+      this.attachments = [];
     }
   }
 }
@@ -260,6 +315,25 @@ export default {
   width: 30%;
   z-index: 2;
 }
+.modal-full-screen {
+  display: block;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.4);
+}
+.modal-full-screen-content {
+  background-color: #fff;
+  margin: auto;
+  padding-bottom: 20px;
+  border: 1px solid #888;
+  width: 60%;
+}
 .modal-minimized {
   height: 1px !important;
   z-index: 1;
@@ -283,5 +357,18 @@ export default {
 .new-note-header {
   font-size: 24px;
   margin: 0 15px 12px 15px;
+}
+.pill {
+  background-color: #fff;
+  border: 1px solid #666;
+  border-radius: 5px;
+  color: #666;
+  font-size: 12px;
+  height: 26px;
+  padding: 6px;
+  width: auto;
+}
+.pill-list {
+  list-style-type: none;
 }
 </style>

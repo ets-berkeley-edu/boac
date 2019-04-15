@@ -27,9 +27,11 @@ import glob
 import json
 import os
 
+from boac import std_commit
 import boac.factory
+from boac.models.note import Note
 import pytest
-from tests.util import override_config
+from tests.util import mock_advising_note_s3_bucket, override_config
 
 
 os.environ['BOAC_ENV'] = 'test'
@@ -170,6 +172,52 @@ def create_alerts(client, db_session):
     # Load our usual student of interest into the cache and generate midterm alerts from fixture data.
     client.get('/api/student/61889')
     Alert.update_all_for_term(2178)
+
+
+@pytest.fixture()
+def coe_advising_note_with_attachment(app, db):
+    """Create BOA advising note with attachment in mock s3."""
+    with mock_advising_note_s3_bucket(app):
+        note_author_uid = '90412'
+        base_dir = app.config['BASE_DIR']
+        path_to_file = f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt'
+        with open(path_to_file, 'r') as file:
+            note = Note.create(
+                author_uid=note_author_uid,
+                author_name='Joni Mitchell',
+                author_role='Director',
+                author_dept_codes=['UWASC'],
+                sid='11667051',
+                subject='In France they kiss on main street',
+                body="""
+                    My darling dime store thief, in the War of Independence
+                    Rock 'n Roll rang sweet as victory, under neon signs
+                """,
+                attachments=[
+                    {
+                        'name': path_to_file.rsplit('/', 1)[-1],
+                        'byte_stream': file.read(),
+                    },
+                ],
+            )
+            std_commit(allow_test_environment=True)
+            return note
+
+
+@pytest.fixture()
+def asc_advising_note(app, db):
+    return Note.create(
+        author_uid='1133399',
+        author_name='Roberta Joan Anderson',
+        author_role='Advisor',
+        author_dept_codes=['COENG'],
+        sid='3456789012',
+        subject='The hissing of summer lawns',
+        body="""
+            She could see the valley barbecues from her window sill.
+            See the blue pools in the squinting sun. Hear the hissing of summer lawns
+        """,
+    )
 
 
 def pytest_itemcollected(item):
