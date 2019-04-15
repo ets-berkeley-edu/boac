@@ -26,7 +26,42 @@
           :config="editorConfig"></ckeditor>
       </span>
     </div>
-    <div class="d-flex mt-2">
+    <div class="mt-2 mr-3 mb-2 w-75">
+      <div>
+        <label for="choose-note-attachment" class="font-weight-bold input-label mb-1"><span class="sr-only">File </span>Attachments</label>
+      </div>
+      <div v-if="size(note.attachments) <= maxAttachmentsPerNote">
+        <b-form-file
+          id="choose-note-attachment"
+          v-model="attachment"
+          :disabled="size(note.attachments) === maxAttachmentsPerNote"
+          :state="Boolean(attachment)"
+          placeholder="Choose file"
+          drop-placeholder="Drop file here..."
+        ></b-form-file>
+      </div>
+      <div v-if="size(note.attachments) === maxAttachmentsPerNote" class="m-2">
+        <i class="fa fa-exclamation-triangle text-danger pr-1"></i>
+        A note can have no more than {{ maxAttachmentsPerNote }} attachments.
+      </div>
+      <div>
+        <ul class="pill-list pl-0">
+          <li
+            v-for="(attachment, index) in note.attachments"
+            :id="`edit-note-attachment-${index}`"
+            :key="attachment.name"
+            class="mt-2">
+            <span class="pill text-nowrap">
+              <i class="fas fa-paperclip pr-1 pl-1"></i> {{ attachment.displayName }}
+              <b-btn variant="link" class="pr-0 pt-1 pl-0" @click.prevent="removeAttachment(index)">
+                <i class="fas fa-times-circle has-error pl-2"></i>
+              </b-btn>
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="d-flex mt-2 mb-2">
       <div>
         <b-btn
           id="save-note-button"
@@ -82,6 +117,7 @@ export default {
     note: Object
   },
   data: () => ({
+    attachment: undefined,
     body: undefined,
     editor: ClassicEditor,
     editorConfig: {
@@ -92,6 +128,14 @@ export default {
     showErrorPopover: false,
     subject: undefined
   }),
+  watch: {
+    attachment() {
+      if (this.attachment) {
+        this.note.attachments.push(this.attachment);
+        this.attachment = '';
+      }
+    }
+  },
   created() {
     this.alertScreenReader('The edit note form has loaded.');
     this.reset();
@@ -117,6 +161,9 @@ export default {
     clearError() {
       this.error = null;
       this.showErrorPopover = false;
+    },
+    removeAttachment(index) {
+      this.note.attachments.splice(index, 1);
     },
     reset() {
       this.subject = this.note.subject;

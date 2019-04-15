@@ -42,6 +42,7 @@ class TestConfigController:
         assert data['googleAnalyticsId'] is False
         assert '@' in data['supportEmailAddress']
         assert data['featureFlagEditNotes'] is True
+        assert data['maxAttachmentsPerNote'] > 0
 
     def test_anonymous_api_version_request(self, client):
         """Returns a well-formed response."""

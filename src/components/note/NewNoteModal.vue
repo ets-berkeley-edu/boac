@@ -13,7 +13,9 @@
         </span>
       </b-btn>
     </div>
-    <div :class="{'modal-full-screen': newNoteMode === 'fullScreen'}">
+    <FocusLock
+      :disabled="newNoteMode !== 'fullScreen' || showAreYouSureModal"
+      :class="{'modal-full-screen': newNoteMode === 'fullScreen'}">
       <div
         id="new-note-modal-container"
         :class="{
@@ -24,11 +26,11 @@
           'modal-full-screen-content': newNoteMode === 'fullScreen'
         }">
         <form @submit.prevent="create()">
-          <div class="d-flex align-items-end pt-2 mb-1">
+          <div class="d-flex align-items-end pt-2 mb-1" :class="{'mt-2': newNoteMode === 'fullScreen'}">
             <div class="flex-grow-1 new-note-header font-weight-bolder">
               New Note
             </div>
-            <div class="pr-0">
+            <div v-if="newNoteMode !== 'fullScreen'" class="pr-0">
               <label id="minimize-button-label" class="sr-only">Minimize the create note dialog box</label>
               <b-btn
                 id="minimize-new-note-modal"
@@ -40,7 +42,7 @@
                 <i class="fas fa-window-minimize minimize-icon text-dark"></i>
               </b-btn>
             </div>
-            <div class="pr-2">
+            <div v-if="newNoteMode !== 'fullScreen'" class="pr-2">
               <label id="cancel-button-label" class="sr-only">Cancel the create-note form</label>
               <b-btn
                 id="cancel-new-note-modal"
@@ -77,18 +79,23 @@
               </span>
             </div>
           </div>
-          <div v-if="newNoteMode === 'fullScreen'" class="mt-2 mr-3 mb-1 ml-3">
+          <div v-if="newNoteMode === 'fullScreen'" class="mt-2 mr-3 mb-1 ml-3 w-75">
             <div>
               <label for="choose-note-attachment" class="input-label mb-1"><span class="sr-only">File </span>Attachments</label>
             </div>
-            <div>
+            <div v-if="size(attachments) <= maxAttachmentsPerNote">
               <b-form-file
                 id="choose-note-attachment"
                 v-model="attachment"
+                :disabled="size(attachments) === maxAttachmentsPerNote"
                 :state="Boolean(attachment)"
                 placeholder="Choose file"
                 drop-placeholder="Drop file here..."
               ></b-form-file>
+            </div>
+            <div v-if="size(attachments) === maxAttachmentsPerNote" class="m-2">
+              <i class="fa fa-exclamation-triangle text-danger pr-1"></i>
+              A note can have no more than {{ maxAttachmentsPerNote }} attachments.
             </div>
             <div>
               <ul class="pill-list pl-0">
@@ -98,7 +105,10 @@
                   :key="attachment.name"
                   class="mt-2">
                   <span class="pill text-nowrap">
-                    <i class="fas fa-paperclip"></i> {{ attachment.name }}
+                    <i class="fas fa-paperclip pr-1 pl-1"></i> {{ attachment.name }}
+                    <b-btn variant="link" class="pr-0 pt-1 pl-0" @click.prevent="removeAttachment(index)">
+                      <i class="fas fa-times-circle has-error pl-2"></i>
+                    </b-btn>
                   </span>
                 </li>
               </ul>
@@ -136,7 +146,7 @@
           </div>
         </form>
       </div>
-    </div>
+    </FocusLock>
     <div v-if="!isMinimizing && newNoteMode === 'minimized'" class="minimized-placeholder d-flex align-items-end ml-3 mr-3">
       <div class="flex-grow-1 new-note-header">
         New Note
@@ -185,6 +195,7 @@
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Context from '@/mixins/Context';
+import FocusLock from 'vue-focus-lock';
 import NoteEditSession from "@/mixins/NoteEditSession";
 import Util from '@/mixins/Util';
 import { createNote } from '@/api/notes';
@@ -193,7 +204,7 @@ require('@/assets/styles/ckeditor-custom.css');
 
 export default {
   name: 'NewNoteModal',
-  components: { AreYouSureModal },
+  components: { AreYouSureModal, FocusLock },
   mixins: [Context, NoteEditSession, Util],
   props: {
     disable: Boolean,
@@ -218,7 +229,7 @@ export default {
     attachment() {
       if (this.attachment) {
         this.attachments.push(this.attachment);
-        this.attachment = undefined;
+        this.attachment = '';
       }
     },
     body(b) {
@@ -233,7 +244,7 @@ export default {
   },
   methods: {
     cancel() {
-      if (this.trim(this.subject) || this.stripHtmlAndTrim(this.body)) {
+      if (this.trim(this.subject) || this.stripHtmlAndTrim(this.body) || this.size(this.attachments)) {
         this.showAreYouSureModal = true;
       } else {
         this.cancelConfirmed();
@@ -284,6 +295,9 @@ export default {
        this.setNewNoteMode('open');
        this.putFocusNextTick('create-note-subject');
     },
+    removeAttachment(index) {
+      this.attachments.splice(index, 1);
+    },
     reset() {
       this.setNewNoteMode(null);
       this.subject = this.body = undefined;
@@ -329,7 +343,7 @@ export default {
 }
 .modal-full-screen-content {
   background-color: #fff;
-  margin: auto;
+  margin: 140px auto auto auto;
   padding-bottom: 20px;
   border: 1px solid #888;
   width: 60%;
@@ -357,18 +371,5 @@ export default {
 .new-note-header {
   font-size: 24px;
   margin: 0 15px 12px 15px;
-}
-.pill {
-  background-color: #fff;
-  border: 1px solid #666;
-  border-radius: 5px;
-  color: #666;
-  font-size: 12px;
-  height: 26px;
-  padding: 6px;
-  width: auto;
-}
-.pill-list {
-  list-style-type: none;
 }
 </style>

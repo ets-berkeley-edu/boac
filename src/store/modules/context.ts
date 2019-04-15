@@ -18,6 +18,7 @@ const getters = {
   featureFlagEditNotes: (state: any): any => _.get(state.config, 'featureFlagEditNotes'),
   googleAnalyticsId: (state: any): string => _.get(state.config, 'googleAnalyticsId'),
   isDemoModeAvailable: (state: any): string => _.get(state.config, 'isDemoModeAvailable'),
+  maxAttachmentsPerNote: (state: any): string => _.get(state.config, 'maxAttachmentsPerNote'),
   loading: (state: any): boolean => state.loading,
   srAlert: (state: any): string => state.screenReaderAlert,
   supportEmailAddress: (state: any): string => _.get(state.config, 'supportEmailAddress')

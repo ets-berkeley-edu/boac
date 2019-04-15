@@ -151,23 +151,6 @@ export default {
 </script>
 
 <style scoped>
-.pill {
-  background-color: #fff;
-  border: 1px solid #666;
-  border-radius: 5px;
-  color: #666;
-  font-size: 12px;
-  height: 26px;
-  padding: 6px;
-  width: auto;
-}
-.pill-list {
-  list-style-type: none;
-}
-.pill-list-header {
-  font-size: 16px;
-  font-weight: 800;
-}
 .truncate {
   overflow: hidden;
   text-overflow: ellipsis;
