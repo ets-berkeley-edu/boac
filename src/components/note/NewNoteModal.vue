@@ -81,11 +81,11 @@
           </div>
           <div v-if="newNoteMode === 'fullScreen'" class="mt-2 mr-3 mb-1 ml-3 w-75">
             <div>
-              <label for="choose-note-attachment" class="input-label mb-1"><span class="sr-only">File </span>Attachments</label>
+              <label for="choose-file-for-note-attachment" class="input-label mb-1"><span class="sr-only">Note </span>Attachments</label>
             </div>
             <div v-if="size(attachments) <= maxAttachmentsPerNote">
               <b-form-file
-                id="choose-note-attachment"
+                id="choose-file-for-note-attachment"
                 v-model="attachment"
                 :disabled="size(attachments) === maxAttachmentsPerNote"
                 :state="Boolean(attachment)"
@@ -95,7 +95,7 @@
             </div>
             <div v-if="size(attachments) === maxAttachmentsPerNote" class="m-2">
               <i class="fa fa-exclamation-triangle text-danger pr-1"></i>
-              A note can have no more than {{ maxAttachmentsPerNote }} attachments.
+              <span aria-live="polite" role="alert">A note can have no more than {{ maxAttachmentsPerNote }} attachments.</span>
             </div>
             <div>
               <ul class="pill-list pl-0">
@@ -106,7 +106,11 @@
                   class="mt-2">
                   <span class="pill text-nowrap">
                     <i class="fas fa-paperclip pr-1 pl-1"></i> {{ attachment.name }}
-                    <b-btn variant="link" class="pr-0 pt-1 pl-0" @click.prevent="removeAttachment(index)">
+                    <b-btn
+                      :id="`remove-note-attachment-${index}`"
+                      variant="link"
+                      class="pr-0 pt-1 pl-0"
+                      @click.prevent="removeAttachment(index)">
                       <i class="fas fa-times-circle has-error pl-2"></i>
                     </b-btn>
                   </span>
@@ -119,6 +123,7 @@
             <div class="flex-grow-1">
               <b-btn
                 v-if="newNoteMode !== 'fullScreen'"
+                id="btn-to-advanced-note-options"
                 variant="link"
                 @click.prevent="setNewNoteMode('fullScreen')">
                 Advanced note options
@@ -229,6 +234,7 @@ export default {
     attachment() {
       if (this.attachment) {
         this.attachments.push(this.attachment);
+        this.alertScreenReader(`Attachment '${this.attachment.name}' added`);
         this.attachment = '';
       }
     },
@@ -296,6 +302,7 @@ export default {
        this.putFocusNextTick('create-note-subject');
     },
     removeAttachment(index) {
+      this.alertScreenReader(`Attachment '${this.attachments[index].name}' removed`);
       this.attachments.splice(index, 1);
     },
     reset() {

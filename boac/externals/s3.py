@@ -54,7 +54,7 @@ def put_file_to_s3(bucket, key, path_to_file):
 
 
 def put_binary_data_to_s3(bucket, key, binary_data):
-    _get_client().put_object(Body=binary_data, Bucket=bucket, Key=key)
+    _get_client().put_object(Body=binary_data, Bucket=bucket, Key=key, ServerSideEncryption='AES256')
 
 
 def _get_client():
