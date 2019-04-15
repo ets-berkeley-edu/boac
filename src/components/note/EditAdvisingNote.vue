@@ -82,6 +82,14 @@
       </div>
     </div>
     <AreYouSureModal
+      v-if="showConfirmDeleteAttachment"
+      button-label-confirm="Delete"
+      :function-cancel="cancelRemoveAttachment"
+      :function-confirm="confirmedRemoveAttachment"
+      :modal-body="`Are you sure you want to delete the <b>'${displayName(note.attachments, deleteAttachmentIndex)}'</b> attachment?`"
+      modal-header="Delete Attachment"
+      :show-modal="showConfirmDeleteAttachment" />
+    <AreYouSureModal
       v-if="showAreYouSureModal"
       :function-cancel="cancelTheCancel"
       :function-confirm="cancelConfirmed"
@@ -119,18 +127,22 @@ export default {
   data: () => ({
     attachment: undefined,
     body: undefined,
+    deleteAttachmentIndex: undefined,
+    deleteAttachmentIds: [],
     editor: ClassicEditor,
     editorConfig: {
       toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
     },
     error: undefined,
     showAreYouSureModal: false,
+    showConfirmDeleteAttachment: false,
     showErrorPopover: false,
     subject: undefined
   }),
   watch: {
     attachment() {
       if (this.attachment) {
+        this.attachment.displayName = this.attachment.name;
         this.note.attachments.push(this.attachment);
         this.attachment = '';
       }
@@ -162,8 +174,28 @@ export default {
       this.error = null;
       this.showErrorPopover = false;
     },
+    displayName(attachments, index) {
+      return this.size(attachments) <= index ? '' : attachments[index].displayName;
+    },
     removeAttachment(index) {
-      this.note.attachments.splice(index, 1);
+      const removeMe = this.note.attachments[index];
+      if (removeMe.id) {
+        this.deleteAttachmentIndex = index;
+        this.showConfirmDeleteAttachment = true;
+      } else {
+        this.note.attachments.splice(index, 1);
+      }
+    },
+    cancelRemoveAttachment() {
+      this.showConfirmDeleteAttachment = false;
+      this.deleteAttachmentIndex = null;
+    },
+    confirmedRemoveAttachment() {
+      this.showConfirmDeleteAttachment = false;
+      const id = this.note.attachments[this.deleteAttachmentIndex].id;
+      this.deleteAttachmentIds.push(id);
+      this.note.attachments.splice(this.deleteAttachmentIndex, 1);
+      this.deleteAttachmentIndex = null;
     },
     reset() {
       this.subject = this.note.subject;
@@ -173,7 +205,9 @@ export default {
       this.subject = this.trim(this.subject);
       if (this.subject) {
         this.body = this.trim(this.body);
-        updateNote(this.note.id, this.subject, this.body).then(updatedNote => {
+        // Add new attachments only
+        const newAttachments = this.filterList(this.note.attachments, a => !a.id);
+        updateNote(this.note.id, this.subject, this.body, newAttachments, this.deleteAttachmentIds).then(updatedNote => {
           this.afterSaved(updatedNote);
         });
       } else {
