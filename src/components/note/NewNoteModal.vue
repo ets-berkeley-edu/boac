@@ -103,7 +103,7 @@
                   v-for="(attachment, index) in attachments"
                   :id="`new-note-attachment-${index}`"
                   :key="attachment.name"
-                  class="mt-2">
+                  :class="{'mt-2': index === 0}">
                   <span class="pill text-nowrap">
                     <i class="fas fa-paperclip pr-1 pl-1"></i> {{ attachment.name }}
                     <b-btn
