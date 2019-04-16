@@ -28,32 +28,36 @@
     </div>
     <div class="mt-2 mr-3 mb-2 w-75">
       <div>
-        <label for="choose-note-attachment" class="font-weight-bold input-label mb-1"><span class="sr-only">File </span>Attachments</label>
+        <label for="choose-file-for-note-attachment" class="font-weight-bold input-label mb-1"><span class="sr-only">Note </span>Attachments</label>
       </div>
-      <div v-if="size(note.attachments) <= maxAttachmentsPerNote">
+      <div v-if="size(attachments) <= maxAttachmentsPerNote">
         <b-form-file
-          id="choose-note-attachment"
+          id="choose-file-for-note-attachment"
           v-model="attachment"
-          :disabled="size(note.attachments) === maxAttachmentsPerNote"
+          :disabled="size(attachments) === maxAttachmentsPerNote"
           :state="Boolean(attachment)"
           placeholder="Choose file"
           drop-placeholder="Drop file here..."
         ></b-form-file>
       </div>
-      <div v-if="size(note.attachments) === maxAttachmentsPerNote" class="m-2">
+      <div v-if="size(attachments) === maxAttachmentsPerNote" class="m-2">
         <i class="fa fa-exclamation-triangle text-danger pr-1"></i>
-        A note can have no more than {{ maxAttachmentsPerNote }} attachments.
+        <span aria-live="polite" role="alert">A note can have no more than {{ maxAttachmentsPerNote }} attachments.</span>
       </div>
       <div>
         <ul class="pill-list pl-0">
           <li
-            v-for="(attachment, index) in note.attachments"
+            v-for="(attachment, index) in attachments"
             :id="`edit-note-attachment-${index}`"
             :key="attachment.name"
-            class="mt-2">
+            :class="{'mt-2': index === 0}">
             <span class="pill text-nowrap">
               <i class="fas fa-paperclip pr-1 pl-1"></i> {{ attachment.displayName }}
-              <b-btn variant="link" class="pr-0 pt-1 pl-0" @click.prevent="removeAttachment(index)">
+              <b-btn
+                :id="`remove-note-attachment-${index}`"
+                variant="link"
+                class="pr-0 pt-1 pl-0"
+                @click.prevent="removeAttachment(index)">
                 <i class="fas fa-times-circle has-error pl-2"></i>
               </b-btn>
             </span>
@@ -86,7 +90,7 @@
       button-label-confirm="Delete"
       :function-cancel="cancelRemoveAttachment"
       :function-confirm="confirmedRemoveAttachment"
-      :modal-body="`Are you sure you want to delete the <b>'${displayName(note.attachments, deleteAttachmentIndex)}'</b> attachment?`"
+      :modal-body="`Are you sure you want to delete the <b>'${displayName(attachments, deleteAttachmentIndex)}'</b> attachment?`"
       modal-header="Delete Attachment"
       :show-modal="showConfirmDeleteAttachment" />
     <AreYouSureModal
@@ -126,6 +130,7 @@ export default {
   },
   data: () => ({
     attachment: undefined,
+    attachments: undefined,
     body: undefined,
     deleteAttachmentIndex: undefined,
     deleteAttachmentIds: [],
@@ -143,8 +148,9 @@ export default {
     attachment() {
       if (this.attachment) {
         this.attachment.displayName = this.attachment.name;
-        this.note.attachments.push(this.attachment);
-        this.attachment = '';
+        this.attachments.push(this.attachment);
+        this.alertScreenReader(`Attachment '${this.attachment.name}' added`);
+        this.attachment = null;
       }
     }
   },
@@ -154,7 +160,11 @@ export default {
   },
   methods: {
     cancel() {
-      if (this.trim(this.subject) === this.note.subject && this.stripHtmlAndTrim(this.body) === this.stripHtmlAndTrim(this.note.body)) {
+      const newAttachments = this.filterList(this.attachments, a => !a.id);
+      const isPristine = this.trim(this.subject) === this.note.subject
+        && this.stripHtmlAndTrim(this.body) === this.stripHtmlAndTrim(this.note.body)
+        && this.size(newAttachments) === 0;
+      if (isPristine) {
         this.cancelConfirmed();
       } else {
         this.showAreYouSureModal = true;
@@ -178,12 +188,12 @@ export default {
       return this.size(attachments) <= index ? '' : attachments[index].displayName;
     },
     removeAttachment(index) {
-      const removeMe = this.note.attachments[index];
+      const removeMe = this.attachments[index];
       if (removeMe.id) {
         this.deleteAttachmentIndex = index;
         this.showConfirmDeleteAttachment = true;
       } else {
-        this.note.attachments.splice(index, 1);
+        this.attachments.splice(index, 1);
       }
     },
     cancelRemoveAttachment() {
@@ -192,21 +202,24 @@ export default {
     },
     confirmedRemoveAttachment() {
       this.showConfirmDeleteAttachment = false;
-      const id = this.note.attachments[this.deleteAttachmentIndex].id;
-      this.deleteAttachmentIds.push(id);
-      this.note.attachments.splice(this.deleteAttachmentIndex, 1);
+      const attachment = this.attachments[this.deleteAttachmentIndex];
+      this.deleteAttachmentIds.push(attachment.id);
+      this.attachments.splice(this.deleteAttachmentIndex, 1);
+      this.alertScreenReader(`Attachment '${attachment.displayName}' removed`);
       this.deleteAttachmentIndex = null;
     },
     reset() {
       this.subject = this.note.subject;
       this.body = this.note.body || '';
+      this.attachments = this.cloneDeep(this.note.attachments);
+      this.attachment = '';
     },
     save() {
       this.subject = this.trim(this.subject);
       if (this.subject) {
         this.body = this.trim(this.body);
         // Add new attachments only
-        const newAttachments = this.filterList(this.note.attachments, a => !a.id);
+        const newAttachments = this.filterList(this.attachments, a => !a.id);
         updateNote(this.note.id, this.subject, this.body, newAttachments, this.deleteAttachmentIds).then(updatedNote => {
           this.afterSaved(updatedNote);
         });
