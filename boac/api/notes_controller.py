@@ -87,7 +87,9 @@ def update_note():
     note_id = params.get('id', None)
     subject = params.get('subject', None)
     body = params.get('body', None)
-    delete_attachment_ids = [int(id_) for id_ in params.get('deleteAttachmentIds') or []]
+    delete_ids_ = params.get('deleteAttachmentIds') or []
+    delete_ids_ = delete_ids_ if isinstance(delete_ids_, list) else str(delete_ids_).split(',')
+    delete_attachment_ids = [int(id_) for id_ in delete_ids_]
     if not note_id or not subject:
         raise BadRequestError('Note requires \'id\' and \'subject\'')
     if Note.find_by_id(note_id=note_id).author_uid != current_user.uid:
