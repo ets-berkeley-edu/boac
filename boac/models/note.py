@@ -169,7 +169,7 @@ class Note(Base):
 def _create_attachment(note, name, byte_stream, uploaded_by):
     bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
     base_path = app.config['DATA_LOCH_S3_BOA_NOTE_ATTACHMENTS_PATH']
-    key_suffix = _localize_datetime(datetime.now()).strftime(f'%Y/%m/%d/%Y%m%d_%H%M%S_{name}')
+    key_suffix = _localize_datetime(datetime.now()).strftime(f'%Y/%m/%d/{name}')
     key = f'{base_path}/{key_suffix}'
     s3.put_binary_data_to_s3(
         bucket=bucket,
