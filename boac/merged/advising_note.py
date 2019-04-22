@@ -161,7 +161,7 @@ def get_boa_attachment_stream(attachment_id):
     if attachment:
         path = attachment.path_to_attachment
         return {
-            'filename': path.rsplit('/', 1)[-1],
+            'filename': attachment.get_user_filename(),
             'stream': s3.stream_object(app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET'], path),
         }
     else:

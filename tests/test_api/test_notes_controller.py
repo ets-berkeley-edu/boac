@@ -249,8 +249,8 @@ class TestUpdateNotes:
         )
         assert note_id == updated_note['attachments'][0]['noteId']
         assert len(updated_note['attachments']) == 1
-        assert filename in updated_note['attachments'][0]['displayName']
-        assert filename in updated_note['attachments'][0]['filename']
+        assert filename == updated_note['attachments'][0]['displayName']
+        assert filename == updated_note['attachments'][0]['filename']
         assert updated_note['attachments'][0]['id'] != attachment_id
         # Verify db
         attachments = NoteAttachment.find_by_note_id(note_id)
