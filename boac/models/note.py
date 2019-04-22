@@ -26,11 +26,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac import db, std_commit
-from boac.externals import s3
 from boac.models.base import Base
 from boac.models.note_attachment import NoteAttachment
-from flask import current_app as app
-import pytz
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql import text
@@ -73,7 +70,7 @@ class Note(Base):
         note = cls(author_uid, author_name, author_role, author_dept_codes, sid, subject, body)
         for byte_stream_bundle in attachments:
             note.attachments.append(
-                _create_attachment(
+                NoteAttachment.create_attachment(
                     note=note,
                     name=byte_stream_bundle['name'],
                     byte_stream=byte_stream_bundle['byte_stream'],
@@ -120,7 +117,7 @@ class Note(Base):
                         attachment.deleted_at = now
             for byte_stream_bundle in attachments:
                 note.attachments.append(
-                    _create_attachment(
+                    NoteAttachment.create_attachment(
                         note=note,
                         name=byte_stream_bundle['name'],
                         byte_stream=byte_stream_bundle['byte_stream'],
@@ -164,24 +161,3 @@ class Note(Base):
             'createdAt': self.created_at,
             'updatedAt': self.updated_at,
         }
-
-
-def _create_attachment(note, name, byte_stream, uploaded_by):
-    bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
-    base_path = app.config['DATA_LOCH_S3_BOA_NOTE_ATTACHMENTS_PATH']
-    key_suffix = _localize_datetime(datetime.now()).strftime(f'%Y/%m/%d/{name}')
-    key = f'{base_path}/{key_suffix}'
-    s3.put_binary_data_to_s3(
-        bucket=bucket,
-        key=key,
-        binary_data=byte_stream,
-    )
-    return NoteAttachment(
-        note_id=note.id,
-        path_to_attachment=key,
-        uploaded_by_uid=uploaded_by,
-    )
-
-
-def _localize_datetime(dt):
-    return dt.astimezone(pytz.timezone(app.config['TIMEZONE']))
