@@ -208,7 +208,8 @@ import AreYouSureModal from '@/components/util/AreYouSureModal';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Context from '@/mixins/Context';
 import FocusLock from 'vue-focus-lock';
-import NoteEditSession from "@/mixins/NoteEditSession";
+import NoteEditSession from '@/mixins/NoteEditSession';
+import NoteUtil from '@/components/note/NoteUtil';
 import Util from '@/mixins/Util';
 import { createNote } from '@/api/notes';
 
@@ -217,7 +218,7 @@ require('@/assets/styles/ckeditor-custom.css');
 export default {
   name: 'NewNoteModal',
   components: { AreYouSureModal, FocusLock },
-  mixins: [Context, NoteEditSession, Util],
+  mixins: [Context, NoteEditSession, NoteUtil, Util],
   props: {
     disable: Boolean,
     onSuccessfulCreate: Function,
@@ -264,6 +265,7 @@ export default {
     }
   },
   created() {
+    this.initFileDropPrevention();
     this.reset();
   },
   methods: {
@@ -374,6 +376,9 @@ export default {
 }
 .fa-icon-size {
   font-size: 28px;
+}
+.form-control-file {
+  height: 100%;
 }
 .input-label {
   font-weight: 600;

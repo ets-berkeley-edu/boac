@@ -121,6 +121,7 @@
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Context from '@/mixins/Context';
+import NoteUtil from '@/components/note/NoteUtil';
 import Util from '@/mixins/Util';
 import { updateNote } from '@/api/notes';
 
@@ -129,7 +130,7 @@ require('@/assets/styles/ckeditor-custom.css');
 export default {
   name: 'EditAdvisingNote',
   components: { AreYouSureModal },
-  mixins: [Context, Util],
+  mixins: [Context, NoteUtil, Util],
   props: {
     afterCancelled: Function,
     afterSaved: Function,
@@ -175,6 +176,7 @@ export default {
   },
   created() {
     this.alertScreenReader('The edit note form has loaded.');
+    this.initFileDropPrevention();
     this.reset();
   },
   methods: {
@@ -294,5 +296,8 @@ export default {
 }
 .edit-note-form {
   flex-basis: 100%;
+}
+.form-control-file {
+  height: 100%;
 }
 </style>
