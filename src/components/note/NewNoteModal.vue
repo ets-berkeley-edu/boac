@@ -84,7 +84,7 @@
               <i class="fa fa-exclamation-triangle text-danger pr-1"></i>
               <span aria-live="polite" role="alert">{{ attachmentError }}</span>
             </div>
-            <div v-if="size(attachments) <= maxAttachmentsPerNote" class="w-100">
+            <div v-if="size(attachments) < maxAttachmentsPerNote" class="w-100">
               <label for="choose-file-for-note-attachment" class="sr-only"><span class="sr-only">Note </span>Attachments</label>
               <div class="choose-attachment-file-wrapper no-wrap pl-3 pr-3 w-100">
                 Drop file to upload attachment or
@@ -103,6 +103,9 @@
                   :plain="true"
                 ></b-form-file>
               </div>
+            </div>
+            <div v-if="size(attachments) === maxAttachmentsPerNote" class="w-100">
+              A note can have no more than {{ maxAttachmentsPerNote }} attachments.
             </div>
             <div>
               <ul class="pill-list pl-0">
@@ -250,11 +253,6 @@ export default {
         this.clearErrors();
         this.attachments.push(this.attachment);
         this.alertScreenReader(`Attachment '${name}' added`);
-        if (this.size(this.attachments) === this.maxAttachmentsPerNote) {
-          this.attachmentError = `A note can have no more than ${this.maxAttachmentsPerNote} attachments.`;
-        } else {
-          this.clearErrors();
-        }
       }
     },
     body(b) {
