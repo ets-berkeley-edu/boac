@@ -107,7 +107,7 @@
       v-if="showAreYouSureModal"
       :function-cancel="cancelTheCancel"
       :function-confirm="cancelConfirmed"
-      modal-header="Discard unsaved note?"
+      modal-header="Discard unsaved changes?"
       :show-modal="showAreYouSureModal" />
     <b-popover
       v-if="showErrorPopover"
