@@ -370,7 +370,7 @@ class TestStreamNoteAttachments:
             response = client.get('/api/notes/attachment/9000000000_00002_1.pdf')
             assert response.status_code == 200
             assert response.headers['Content-Type'] == 'application/octet-stream'
-            assert response.headers['Content-Disposition'] == 'attachment; filename=dog_eaten_homework.pdf'
+            assert response.headers['Content-Disposition'] == "attachment; filename*=UTF-8''dog_eaten_homework.pdf"
             assert response.data == b'When in the course of human events, it becomes necessarf arf woof woof woof'
 
     def test_stream_attachment_reports_unauthorized_files_not_found(self, app, client, fake_auth):

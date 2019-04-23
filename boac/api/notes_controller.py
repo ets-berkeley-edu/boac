@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import urllib.parse
+
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import current_user_profile, feature_flag_edit_notes, get_dept_codes, get_dept_role
 from boac.lib.http import tolerant_jsonify
@@ -134,7 +136,8 @@ def download_attachment(attachment_id):
         raise ResourceNotFoundError('Attachment not found')
     r = Response(stream_data['stream'])
     r.headers['Content-Type'] = 'application/octet-stream'
-    r.headers.add('Content-Disposition', 'attachment', filename=stream_data['filename'])
+    encoding_safe_filename = urllib.parse.quote(stream_data['filename'].encode('utf8'))
+    r.headers['Content-Disposition'] = f"attachment; filename*=UTF-8''{encoding_safe_filename}"
     return r
 
 
