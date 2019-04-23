@@ -392,6 +392,7 @@ export default {
       this.messages.push(note);
       this.countsPerType.note++;
       this.sortMessages();
+      this.openMessages.push(note.transientId);
       this.gaNoteEvent(note.id, `Advisor ${this.user.uid} created note`, 'create');
     },
     open(message) {
