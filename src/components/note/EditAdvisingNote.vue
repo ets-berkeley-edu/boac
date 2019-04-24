@@ -45,6 +45,7 @@
           </b-btn>
           <b-form-file
             v-model="attachment"
+            ref="attachment-file-input"
             :disabled="size(attachments) === maxAttachmentsPerNote"
             :state="Boolean(attachment)"
             :plain="true"
@@ -158,18 +159,8 @@ export default {
   }),
   watch: {
     attachment() {
-      if (this.attachment) {
-        const name = this.attachment.name;
-        const matching = this.filterList(this.attachments, a => name === a.displayName);
-        if (this.size(matching)) {
-          this.attachmentError = `Another attachment has the name '${name}'. Please rename your file.`;
-        } else {
-          this.attachment.displayName = name;
-          this.clearErrors();
-          this.attachments.push(this.attachment);
-          this.alertScreenReader(`Attachment '${name}' added`);
-        }
-      }
+      this.onAttachmentSubmitted();
+      this.$refs['attachment-file-input'].reset();
     }
   },
   created() {
