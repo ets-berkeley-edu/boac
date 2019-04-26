@@ -220,6 +220,19 @@ CREATE INDEX note_attachments_note_id_idx ON note_attachments USING btree (note_
 
 --
 
+CREATE TABLE note_topics (
+  note_id INTEGER NOT NULL,
+  topic VARCHAR(255) NOT NULL,
+  author_uid VARCHAR(255) NOT NULL
+);
+ALTER TABLE note_topics OWNER TO boac;
+ALTER TABLE ONLY note_topics
+    ADD CONSTRAINT note_topics_pkey PRIMARY KEY (note_id, topic);
+CREATE INDEX note_topics_note_id_idx ON note_topics (note_id);
+CREATE INDEX note_topics_topic_idx ON note_topics (topic);
+
+--
+
 CREATE TABLE student_groups (
   id INTEGER NOT NULL,
   owner_id INTEGER NOT NULL,
@@ -254,6 +267,28 @@ ALTER TABLE ONLY student_group_members
     ADD CONSTRAINT student_group_members_pkey PRIMARY KEY (student_group_id, sid);
 CREATE INDEX student_group_members_student_group_id_idx ON student_group_members USING btree (student_group_id);
 CREATE INDEX student_group_members_sid_idx ON student_group_members USING btree (sid);
+
+--
+
+CREATE TABLE topics (
+  id INTEGER NOT NULL,
+  topic VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+ALTER TABLE topics OWNER TO boac;
+CREATE SEQUENCE topics_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE topics_id_seq OWNER TO boac;
+ALTER SEQUENCE topics_id_seq OWNED BY topics.id;
+ALTER TABLE ONLY topics ALTER COLUMN id SET DEFAULT nextval('topics_id_seq'::regclass);
+ALTER TABLE ONLY topics
+    ADD CONSTRAINT topics_id_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY topics
+    ADD CONSTRAINT topics_topic_unique_constraint UNIQUE (topic);
 
 --
 
@@ -357,3 +392,11 @@ ALTER TABLE ONLY notes_read
 
 ALTER TABLE ONLY note_attachments
     ADD CONSTRAINT note_attachments_note_id_fkey FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE;
+
+--
+
+ALTER TABLE ONLY note_topics
+    ADD CONSTRAINT note_topics_note_id_fkey FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY note_topics
+    ADD CONSTRAINT note_topics_author_uid_fkey FOREIGN KEY (author_uid) REFERENCES authorized_users(uid) ON DELETE CASCADE;
