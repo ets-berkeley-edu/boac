@@ -319,7 +319,6 @@ export default {
       note.attachments = updatedNote.attachments;
       note.updatedAt = updatedNote.updatedAt;
       this.editExistingNoteId(null);
-      this.alertScreenReader('Changes to note have been saved');
     },
     cancelTheDelete() {
       this.alertScreenReader('Cancelled');

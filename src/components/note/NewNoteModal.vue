@@ -247,7 +247,10 @@ export default {
   }),
   watch: {
     attachment() {
-      this.onAttachmentSubmitted();
+      if (this.validateAttachment()) {
+        this.attachments.push(this.attachment);
+        this.alertScreenReader(`Attachment '${name}' added`);
+      }
       this.$refs['attachment-file-input'].reset();
     },
     body(b) {

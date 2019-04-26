@@ -148,6 +148,7 @@ export default {
         this.body = this.trim(this.body);
         updateNote(this.note.id, this.subject, this.body, [], []).then(updatedNote => {
           this.afterSaved(updatedNote);
+          this.alertScreenReader('Changes to note have been saved');
         });
       } else {
         this.error = 'Subject is required';
