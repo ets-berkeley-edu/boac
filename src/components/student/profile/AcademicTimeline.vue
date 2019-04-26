@@ -37,6 +37,7 @@
         <NewNoteModal
           :disable="!!editingNoteId"
           :student="student"
+          :on-submit="onSubmitAdvisingNote"
           :on-successful-create="onCreateAdvisingNote" />
       </div>
     </div>
@@ -54,6 +55,16 @@
           <th>Summary</th>
           <th>Has attachment?</th>
           <th>Date</th>
+        </tr>
+        <tr v-if="creatingNewNote">
+          <td class="column-pill align-top p-2">
+            <div class="pill text-center text-uppercase text-white pill-note" tabindex="0">
+              <span class="sr-only">Creating new</span> advising note
+            </div>
+          </td>
+          <td class="column-message">
+            <i class="fas fa-sync fa-spin"></i>
+          </td>
         </tr>
         <tr
           v-for="(message, index) in (isShowingAll ? messagesPerType(filter) : slice(messagesPerType(filter), 0, defaultShowPerTab))"
@@ -227,6 +238,7 @@ export default {
     student: Object
   },
   data: () => ({
+    creatingNewNote: false,
     countsPerType: undefined,
     defaultShowPerTab: 5,
     filter: undefined,
@@ -387,6 +399,7 @@ export default {
         : this.messages;
     },
     onCreateAdvisingNote(note) {
+      this.creatingNewNote = false;
       note.type = 'note';
       note.message = note.body;
       note.transientId = new Date().getTime();
@@ -395,6 +408,9 @@ export default {
       this.sortMessages();
       this.openMessages.push(note.transientId);
       this.gaNoteEvent(note.id, `Advisor ${this.user.uid} created note`, 'create');
+    },
+    onSubmitAdvisingNote() {
+      this.creatingNewNote = true;
     },
     open(message) {
       if (message.transientId == this.editingNoteId) {
