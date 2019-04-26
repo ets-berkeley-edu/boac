@@ -6,8 +6,8 @@
     hide-footer
     hide-header
     :no-close-on-backdrop="true"
-    @cancel.prevent="functionCancel()"
-    @hide.prevent="functionCancel()"
+    @cancel.prevent="functionCancel"
+    @hide.prevent="functionCancel"
     @shown="putFocusNextTick('are-you-sure-confirm')">
     <div>
       <div class="modal-header">
@@ -17,20 +17,20 @@
         <span v-html="modalBody"></span>
       </div>
       <div class="modal-footer">
-        <form @submit.prevent="functionConfirm()">
+        <form @submit.prevent="functionConfirm">
           <b-btn
             id="are-you-sure-confirm"
             class="btn-primary-color-override"
             variant="primary"
             :aria-label="modalHeader"
-            @click.prevent="functionConfirm()">
+            @click.prevent="functionConfirm">
             {{ buttonLabelConfirm }}
           </b-btn>
           <b-btn
             id="are-you-sure-cancel"
             class="pl-2"
             variant="link"
-            @click.stop="functionCancel()">
+            @click.stop="functionCancel">
             {{ buttonLabelCancel }}
           </b-btn>
         </form>
