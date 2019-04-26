@@ -100,7 +100,10 @@
           <i class="fa fa-exclamation-triangle text-danger pr-1"></i>
           <span :id="`note-${note.id}-attachment-error`" aria-live="polite" role="alert">{{ attachmentError }}</span>
         </div>
-        <div v-if="size(attachments) < maxAttachmentsPerNote" class="w-100">
+        <div v-if="uploadingAttachment" class="w-100">
+          <i class="fas fa-spin fa-sync"></i> Uploading attachment...
+        </div>
+        <div v-if="size(attachments) < maxAttachmentsPerNote && !uploadingAttachment" class="w-100">
           <label for="choose-file-for-note-attachment" class="sr-only"><span class="sr-only">Note </span>Attachments</label>
           <div :id="`note-${note.id}-attachment-dropzone`" class="choose-attachment-file-wrapper no-wrap pl-3 pr-3 w-100">
             Drop file to upload attachment or
@@ -159,7 +162,8 @@ export default {
     author: undefined,
     deleteAttachmentIndex: undefined,
     deleteAttachmentIds: [],
-    showConfirmDeleteAttachment: false
+    showConfirmDeleteAttachment: false,
+    uploadingAttachment: false
   }),
   computed: {
     isPreCsNote() {
@@ -168,27 +172,31 @@ export default {
   },
   watch: {
     attachment() {
-      if (this.onAttachmentSubmitted()) {
+      if (this.validateAttachment()) {
+        this.alertScreenReader(`Uploading attachment '${this.attachment.displayName}'`);
+        this.uploadingAttachment = true;
         addAttachment(this.note.id, this.attachment).then(updatedNote => {
-          this.alertScreenReader(`Attachment '$this.attachment.displayName}' added`);
+          this.alertScreenReader(`Attachment '${this.attachment.displayName}' added`);
+          this.uploadingAttachment = false;
           this.afterSaved(updatedNote);
-          this.$refs['attachment-file-input'].reset();
+          this.resetAttachments();
+          this.resetFileInput();
         });
       } else {
-        this.$refs['attachment-file-input'].reset();
+        this.resetFileInput();
       }
     },
     isOpen() {
       this.setAuthor();
     },
     note() {
-      this.reset();
+      this.resetAttachments();
     }
   },
   created() {
     this.setAuthor();
     this.initFileDropPrevention();
-    this.reset();
+    this.resetAttachments();
   },
   methods: {
     setAuthor() {
@@ -247,8 +255,14 @@ export default {
     downloadUrl(attachment) {
       return this.apiBaseUrl + '/api/notes/attachment/' + attachment.id;
     },
-    reset() {
+    resetAttachments() {
       this.attachments = this.cloneDeep(this.note.attachments);
+    },
+    resetFileInput() {
+      const inputElement = this.$refs['attachment-file-input'];
+      if (inputElement) {
+        inputElement.reset();
+      }
     }
   },
 }

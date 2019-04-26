@@ -6,7 +6,22 @@ export default {
     this.maxAttachmentBytes = this.maxAttachmentMegabytes * 1024 * 1024;
   },
   methods: {
-    onAttachmentSubmitted() {
+    initFileDropPrevention() {
+      window.addEventListener('dragenter', this.preventFileDropOutsideFormControl, false);
+      window.addEventListener('dragover', this.preventFileDropOutsideFormControl);
+      window.addEventListener('drop', this.preventFileDropOutsideFormControl);
+    },
+    preventFileDropOutsideFormControl(e) {
+      if (!e.target.classList.contains('form-control-file')) {
+        e.preventDefault();
+        e.dataTransfer.effectAllowed = 'none';
+        e.dataTransfer.dropEffect = 'none';
+      }
+    },
+    triggerFileInput() {
+      this.$refs['attachment-file-input'].$el.click();
+    },
+    validateAttachment() {
       if (!this.attachment) {
         return false;
       }
@@ -22,24 +37,7 @@ export default {
       }
       this.attachment.displayName = name;
       this.clearErrors();
-      this.attachments.push(this.attachment);
-      this.alertScreenReader(`Attachment '${name}' added`);
       return true;
-    },
-    initFileDropPrevention() {
-      window.addEventListener('dragenter', this.preventFileDropOutsideFormControl, false);
-      window.addEventListener('dragover', this.preventFileDropOutsideFormControl);
-      window.addEventListener('drop', this.preventFileDropOutsideFormControl);
-    },
-    preventFileDropOutsideFormControl(e) {
-      if (!e.target.classList.contains('form-control-file')) {
-        e.preventDefault();
-        e.dataTransfer.effectAllowed = 'none';
-        e.dataTransfer.dropEffect = 'none';
-      }
-    },
-    triggerFileInput() {
-      this.$refs['attachment-file-input'].$el.click();
     }
   }
 }
