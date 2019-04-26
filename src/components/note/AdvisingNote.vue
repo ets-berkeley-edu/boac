@@ -109,7 +109,8 @@
               type="file"
               variant="outline-primary"
               class="btn-file-upload mt-2 mb-2"
-              size="sm">
+              size="sm"
+              @keydown.enter.prevent="triggerFileInput">
               Browse<span class="sr-only"> for file to upload</span>
             </b-btn>
             <b-form-file
