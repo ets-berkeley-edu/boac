@@ -97,8 +97,8 @@
                   Browse<span class="sr-only"> for file to upload</span>
                 </b-btn>
                 <b-form-file
-                  v-model="attachment"
                   ref="attachment-file-input"
+                  v-model="attachment"
                   :disabled="size(attachments) === maxAttachmentsPerNote"
                   :state="Boolean(attachment)"
                   :plain="true"

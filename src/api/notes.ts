@@ -43,3 +43,17 @@ export function deleteNote(noteId: number) {
     .delete(`${apiBaseUrl}/api/notes/delete/${noteId}`)
     .then(response => response.data);
 }
+
+export function addAttachment(noteId: number, attachment: any) {
+  const data = {
+    'attachment[0]': attachment,
+  };
+  return apiUtils.postMultipartFormData(`/api/notes/${noteId}/attachment`, data);
+}
+
+export function removeAttachment(noteId: number, attachmentId: number) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .delete(`${apiBaseUrl}/api/notes/${noteId}/attachment/${attachmentId}`)
+    .then(response => response.data);
+}

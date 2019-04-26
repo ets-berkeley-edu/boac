@@ -125,6 +125,61 @@ class TestCreateNotes:
         )
         assert len(note.get('attachments')) == 2
 
+    def test_add_attachment(self, app, client, fake_auth):
+        """Add an attachment to an existing note."""
+        fake_auth.login(coe_advisor_uid)
+        base_dir = app.config['BASE_DIR']
+        note = _api_note_create(
+            app,
+            client,
+            author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
+            sid=student['sid'],
+            subject='No attachments yet',
+            body='I travel light',
+        )
+        note_id = note['id']
+        with mock_advising_note_s3_bucket(app):
+            data = {}
+            data['attachment[0]'] = open(f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt', 'rb')
+            response = client.post(
+                f'/api/notes/{note_id}/attachment',
+                buffered=True,
+                content_type='multipart/form-data',
+                data=data,
+            )
+        assert response.status_code == 200
+        assert len(response.json['attachments']) == 1
+        assert response.json['attachments'][0]['filename'] == 'mock_advising_note_attachment_1.txt'
+
+    def test_remove_attachment(self, app, client, fake_auth):
+        """Remove an attachment from an existing note."""
+        fake_auth.login(coe_advisor_uid)
+        base_dir = app.config['BASE_DIR']
+        note = _api_note_create(
+            app,
+            client,
+            author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
+            sid=student['sid'],
+            subject='I come with attachments',
+            body='I come correct',
+            attachments=[
+                f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt',
+                f'{base_dir}/fixtures/mock_advising_note_attachment_2.txt',
+            ],
+        )
+        note_id = note['id']
+        id_to_delete = note['attachments'][0]['id']
+        id_to_keep = note['attachments'][1]['id']
+        delete_response = client.delete(f'/api/notes/{note_id}/attachment/{id_to_delete}')
+        assert delete_response.status_code == 200
+        assert len(delete_response.json['attachments']) == 1
+        assert delete_response.json['attachments'][0]['filename'] == 'mock_advising_note_attachment_2.txt'
+        notes = _get_notes(client, student['uid'])
+        match = next((n for n in notes if n['id'] == note_id), None)
+        assert len(match.get('attachments')) == 1
+        assert match['attachments'][0]['id'] == id_to_keep
+        assert match['attachments'][0]['filename'] == 'mock_advising_note_attachment_2.txt'
+
 
 class TestMarkNoteRead:
 

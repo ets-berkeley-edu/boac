@@ -111,24 +111,52 @@ class Note(Base):
             note.subject = subject
             note.body = body
             if delete_attachment_ids:
-                for attachment in note.attachments:
-                    now = datetime.now()
-                    if attachment.id in delete_attachment_ids:
-                        attachment.deleted_at = now
+                cls._delete_attachments(note, delete_attachment_ids)
             for byte_stream_bundle in attachments:
-                note.attachments.append(
-                    NoteAttachment.create_attachment(
-                        note=note,
-                        name=byte_stream_bundle['name'],
-                        byte_stream=byte_stream_bundle['byte_stream'],
-                        uploaded_by=note.author_uid,
-                    ),
-                )
+                cls._add_attachment(note, byte_stream_bundle)
             std_commit()
             cls.refresh_search_index()
             return note
         else:
             return None
+
+    @classmethod
+    def add_attachment(cls, note_id, attachment):
+        note = cls.find_by_id(note_id=note_id)
+        if note:
+            cls._add_attachment(note, attachment)
+            std_commit()
+            return note
+        else:
+            return None
+
+    @classmethod
+    def delete_attachment(cls, note_id, attachment_id):
+        note = cls.find_by_id(note_id=note_id)
+        if note:
+            cls._delete_attachments(note, (attachment_id,))
+            std_commit()
+            return note
+        else:
+            return None
+
+    @classmethod
+    def _add_attachment(cls, note, attachment):
+        note.attachments.append(
+            NoteAttachment.create_attachment(
+                note=note,
+                name=attachment['name'],
+                byte_stream=attachment['byte_stream'],
+                uploaded_by=note.author_uid,
+            ),
+        )
+
+    @classmethod
+    def _delete_attachments(cls, note, delete_attachment_ids):
+        for attachment in note.attachments:
+            now = datetime.now()
+            if attachment.id in delete_attachment_ids:
+                attachment.deleted_at = now
 
     @classmethod
     def get_notes_by_sid(cls, sid):

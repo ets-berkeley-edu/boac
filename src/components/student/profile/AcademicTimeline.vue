@@ -116,6 +116,7 @@
                 :delete-note="deleteNote"
                 :edit-note="editNote"
                 :note="message"
+                :after-saved="afterNoteUpdated"
                 :is-open="includes(openMessages, message.transientId)" />
               <EditAdvisingNote
                 v-if="featureFlagEditNotes && message.type === 'note' && message.transientId === editingNoteId"

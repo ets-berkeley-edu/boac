@@ -126,6 +126,52 @@ def delete_note(note_id):
     return tolerant_jsonify({'message': f'Note {note_id} deleted'}), 200
 
 
+@app.route('/api/notes/<note_id>/attachment', methods=['POST'])
+@login_required
+@feature_flag_edit_notes
+def add_attachment(note_id):
+    if Note.find_by_id(note_id=note_id).author_uid != current_user.uid:
+        raise ForbiddenRequestError('Sorry, you are not the author of this note.')
+    attachments = _get_attachments(request.files)
+    if len(attachments) != 1:
+        raise BadRequestError('A single attachment file must be supplied.')
+    note = Note.add_attachment(
+        note_id=note_id,
+        attachment=attachments[0],
+    )
+    note_json = note.to_api_json()
+    return tolerant_jsonify(
+        note_to_compatible_json(
+            note=note_json,
+            note_read=NoteRead.find_or_create(current_user.id, note_id),
+            attachments=note_json.get('attachments'),
+        ),
+    )
+
+
+@app.route('/api/notes/<note_id>/attachment/<attachment_id>', methods=['DELETE'])
+@login_required
+@feature_flag_edit_notes
+def remove_attachment(note_id, attachment_id):
+    existing_note = Note.find_by_id(note_id=note_id)
+    if not existing_note:
+        raise BadRequestError('Note id not found.')
+    if existing_note.author_uid != current_user.uid and not current_user.is_admin:
+        raise ForbiddenRequestError('You are not authorized to remove attachments from this note.')
+    note = Note.delete_attachment(
+        note_id=note_id,
+        attachment_id=int(attachment_id),
+    )
+    note_json = note.to_api_json()
+    return tolerant_jsonify(
+        note_to_compatible_json(
+            note=note_json,
+            note_read=NoteRead.find_or_create(current_user.id, note_id),
+            attachments=note_json.get('attachments'),
+        ),
+    )
+
+
 @app.route('/api/notes/attachment/<attachment_id>', methods=['GET'])
 @login_required
 def download_attachment(attachment_id):

@@ -8,22 +8,23 @@ export default {
   methods: {
     onAttachmentSubmitted() {
       if (!this.attachment) {
-        return;
+        return false;
       }
       const name = this.attachment.name;
       if (this.attachment.size > this.maxAttachmentBytes) {
         this.attachmentError = `The file '${name}' is too large. Attachments are limited to ${this.maxAttachmentMegabytes} MB in size.`;
-        return;
+        return false;
       }
       const matching = this.filterList(this.attachments, a => name === a.displayName);
       if (this.size(matching)) {
         this.attachmentError = `Another attachment has the name '${name}'. Please rename your file.`;
-        return;
+        return false;
       }
       this.attachment.displayName = name;
       this.clearErrors();
       this.attachments.push(this.attachment);
       this.alertScreenReader(`Attachment '${name}' added`);
+      return true;
     },
     initFileDropPrevention() {
       window.addEventListener('dragenter', this.preventFileDropOutsideFormControl, false);
