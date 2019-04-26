@@ -37,6 +37,9 @@ export default {
         e.dataTransfer.effectAllowed = 'none';
         e.dataTransfer.dropEffect = 'none';
       }
+    },
+    triggerFileInput() {
+      this.$refs['attachment-file-input'].$el.click();
     }
   }
 }
