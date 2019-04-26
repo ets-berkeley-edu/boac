@@ -180,6 +180,9 @@ export default {
     },
     isOpen() {
       this.setAuthor();
+    },
+    note() {
+      this.reset();
     }
   },
   created() {

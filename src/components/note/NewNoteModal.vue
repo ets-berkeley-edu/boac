@@ -226,6 +226,7 @@ export default {
   mixins: [Context, NoteEditSession, NoteUtil, Util],
   props: {
     disable: Boolean,
+    onSubmit: Function,
     onSuccessfulCreate: Function,
     student: Object
   },
@@ -288,6 +289,7 @@ export default {
       if (this.subject) {
         this.body = this.trim(this.body);
         this.setNewNoteMode('saving');
+        this.onSubmit();
         createNote(this.student.sid, this.subject, this.body, this.attachments).then(data => {
           this.reset();
           this.onSuccessfulCreate(data);
