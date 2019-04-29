@@ -356,12 +356,12 @@ class Alert(Base):
         cls.create_or_activate(sid=sid, alert_type='withdrawal', key=key, message=message)
 
     @classmethod
-    def include_alert_counts_for_students(cls, viewer_user_id, cohort):
-        sids = cohort.get('sids') if 'sids' in cohort else [s['sid'] for s in cohort.get('students', [])]
+    def include_alert_counts_for_students(cls, viewer_user_id, group):
+        sids = group.get('sids') if 'sids' in group else [s['sid'] for s in group.get('students', [])]
         alert_counts = cls.current_alert_counts_for_sids(viewer_user_id, sids)
-        if 'students' in cohort:
+        if 'students' in group:
             counts_per_sid = {s.get('sid'): s.get('alertCount') for s in alert_counts}
-            for student in cohort.get('students'):
+            for student in group.get('students'):
                 sid = student['sid']
                 student['alertCount'] = counts_per_sid.get(sid) if sid in counts_per_sid else 0
         return alert_counts

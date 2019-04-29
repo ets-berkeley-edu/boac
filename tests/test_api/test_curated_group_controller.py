@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.curated_cohort import CuratedCohort
+from boac.models.curated_group import CuratedGroup
 import pytest
 import simplejson as json
 
@@ -52,13 +52,13 @@ def admin_user_session(fake_auth):
 @pytest.fixture()
 def groups_of_asc_advisor():
     advisor = AuthorizedUser.find_by_uid(asc_advisor_uid)
-    return CuratedCohort.get_curated_cohorts_by_owner_id(advisor.id)
+    return CuratedGroup.get_curated_groups_by_owner_id(advisor.id)
 
 
 @pytest.fixture()
 def groups_of_coe_advisor():
     advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
-    return CuratedCohort.get_curated_cohorts_by_owner_id(advisor.id)
+    return CuratedGroup.get_curated_groups_by_owner_id(advisor.id)
 
 
 class TestGetCuratedGroup:
@@ -83,7 +83,7 @@ class TestGetCuratedGroup:
         assert 'id' in group
         assert 'alertCount' in group
         assert 'studentCount' in group
-        assert group['name'] == 'Cohort of One'
+        assert group['name'] == 'I have one student'
 
     def test_asc_curated_groups(self, client, fake_auth):
         """Returns curated groups of ASC advisor."""
@@ -115,7 +115,7 @@ class TestGetCuratedGroup:
         assert deborah['termGpa'][3] == {'termName': 'Spring 2016', 'gpa': 3.8}
 
 
-class TestMyCuratedCohorts:
+class TestMyCuratedGroups:
     """Curated Group API."""
 
     def test_students_without_alerts(self, asc_advisor, client, create_alerts, groups_of_asc_advisor, db_session):
@@ -186,8 +186,8 @@ class TestMyCuratedCohorts:
         assert ids == [group.id]
 
 
-class TestCuratedCohortCreate:
-    """Curated Cohort Create API."""
+class TestCuratedGroupCreate:
+    """Curated Group API."""
 
     def test_add_multiple_students_to_curated_group(self, asc_advisor, client):
         """Create group and add students."""
@@ -208,7 +208,7 @@ class TestCuratedCohortCreate:
         response = client.post(
             '/api/curated_group/students/add',
             data=json.dumps({
-                'curatedCohortId': group['id'],
+                'curatedGroupId': group['id'],
                 'sids': ['7890123456', 'ABC'],
             }),
             content_type='application/json',

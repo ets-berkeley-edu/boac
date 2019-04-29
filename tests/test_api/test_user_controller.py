@@ -24,7 +24,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.cohort_filter import CohortFilter
 import simplejson as json
 from tests.util import override_config
 
@@ -77,8 +76,6 @@ class TestUserProfile:
         response = client.get('/api/profile/my')
         assert response.status_code == 200
         user = response.json
-        assert 'myFilteredCohorts' in user
-        assert 'myCuratedCohorts' in user
         assert user['isAdmin'] is True
         assert user['isAsc'] is False
         assert user['isCoe'] is False
@@ -102,11 +99,9 @@ class TestUserProfile:
     def test_asc_advisor_exclude_cohorts(self, client, fake_auth):
         """Returns Athletic Study Center advisor."""
         fake_auth.login(asc_advisor_uid)
-        response = client.get('/api/profile/my?excludeCohorts=true')
+        response = client.get('/api/profile/my')
         assert response.status_code == 200
         user = response.json
-        assert 'myFilteredCohorts' not in user
-        assert 'myCuratedCohorts' not in user
         assert user['isAsc'] is True
         departments = user['departments']
         assert len(departments) == 1
@@ -156,51 +151,6 @@ class TestUserById:
         response = client.get(f'/api/user/by_csid/{81067873}')
         assert response.status_code == 200
         assert response.json['csid'] == '81067873'
-
-
-class TestMyCohorts:
-    """User Profile API."""
-
-    def test_my_cohorts(self, client, fake_auth):
-        fake_auth.login(asc_advisor_uid)
-        response = client.get('/api/profile/my')
-        assert response.status_code == 200
-        user = response.json
-        cohorts = user['myFilteredCohorts']
-        assert [cohort['name'] for cohort in cohorts] == [
-            'All sports',
-            'Defense Backs, Active',
-            'Defense Backs, All',
-            'Defense Backs, Inactive',
-            'Undeclared students',
-        ]
-        cohort = cohorts[0]
-        assert cohort['isOwnedByCurrentUser'] is True
-        assert 'alertCount' in cohort
-        assert 'totalStudentCount' in cohort
-
-    def test_cohort_ordering(self, client, fake_auth):
-        """Order alphabetically."""
-        fake_auth.login(asc_advisor_uid)
-        CohortFilter.create(
-            uid=asc_advisor_uid,
-            name='Zebra Zealots',
-            filter_criteria={
-                'groupCodes': ['MTE', 'WWP'],
-            },
-        )
-        CohortFilter.create(
-            uid=asc_advisor_uid,
-            name='Aardvark Admirers',
-            filter_criteria={
-                'groupCodes': ['MWP', 'WTE'],
-            },
-        )
-        response = client.get('/api/profile/my')
-        assert response.status_code == 200
-        cohorts = response.json['myFilteredCohorts']
-        assert cohorts[0]['name'] == 'Aardvark Admirers'
-        assert cohorts[-1]['name'] == 'Zebra Zealots'
 
 
 class TestUserGroups:

@@ -33,7 +33,7 @@ from boac.merged import calnet
 from boac.merged.advising_note import get_advising_notes
 from boac.models.alert import Alert
 from boac.models.cohort_filter import CohortFilter
-from boac.models.curated_cohort import CuratedCohort
+from boac.models.curated_group import CuratedGroup
 from flask import current_app as app, request
 from flask_login import current_user
 
@@ -115,7 +115,7 @@ def canvas_courses_api_feed(courses):
     return [canvas_course_api_feed(course) for course in courses]
 
 
-def current_user_profile(exclude_cohorts=False):
+def current_user_profile():
     profile = get_current_user_status()
     if current_user.is_authenticated:
         profile['id'] = current_user.id
@@ -138,11 +138,6 @@ def current_user_profile(exclude_cohorts=False):
             profile['canViewAsc'] = profile['isAsc'] or current_user.is_admin
             profile['isCoe'] = 'COENG' in dept_codes
             profile['canViewCoe'] = profile['isCoe'] or current_user.is_admin
-            if not exclude_cohorts:
-                profile.update({
-                    'myFilteredCohorts': get_my_cohorts(),
-                    'myCuratedCohorts': get_my_curated_groups(),
-                })
             profile.update({
                 'isAdmin': current_user.is_admin,
                 'inDemoMode': current_user.in_demo_mode if hasattr(current_user, 'in_demo_mode') else False,
@@ -264,13 +259,13 @@ def get_current_user_status():
 def get_my_curated_groups():
     curated_groups = []
     user_id = current_user.id
-    for cohort in CuratedCohort.get_curated_cohorts_by_owner_id(user_id):
-        _curated_cohort_api_json(cohort)
-        students = [{'sid': s.sid} for s in cohort.students]
-        students_with_alerts = Alert.include_alert_counts_for_students(viewer_user_id=user_id, cohort={'students': students})
+    for curated_group in CuratedGroup.get_curated_groups_by_owner_id(user_id):
+        _curated_group_api_json(curated_group)
+        students = [{'sid': s.sid} for s in curated_group.students]
+        students_with_alerts = Alert.include_alert_counts_for_students(viewer_user_id=user_id, group={'students': students})
         curated_groups.append({
-            'id': cohort.id,
-            'name': cohort.name,
+            'id': curated_group.id,
+            'name': curated_group.name,
             'alertCount': sum(s['alertCount'] for s in students_with_alerts),
             'studentCount': len(students),
         })
@@ -307,14 +302,14 @@ def is_unauthorized_search(filter_keys, order_by):
     return False
 
 
-def _curated_cohort_api_json(cohort):
+def _curated_group_api_json(curated_group):
     api_json = {
-        'id': cohort.id,
-        'name': cohort.name,
+        'id': curated_group.id,
+        'name': curated_group.name,
         'sids': [],
         'studentCount': 0,
     }
-    for student in cohort.students:
+    for student in curated_group.students:
         api_json['sids'].append(student.sid)
         api_json['studentCount'] += 1
     return api_json

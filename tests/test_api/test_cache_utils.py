@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac import std_commit
 from boac.models.alert import Alert
 from boac.models.cohort_filter import CohortFilter
-from boac.models.curated_cohort import CuratedCohort
+from boac.models.curated_group import CuratedGroup
 import pytest
 
 
@@ -44,19 +44,18 @@ class TestCacheUtils:
         assert '2178_90100' == alerts[0]['key']
         assert 'BURMESE 1A midterm grade of D+.' == alerts[0]['message']
 
-    def test_update_curated_cohort_lists(self, app):
-        from boac.api.cache_utils import update_curated_cohort_lists
-        cohort = CuratedCohort.query.filter_by(name='Cool Kids').first()
-        cohort_id = cohort.id
-        original_sids = [s.sid for s in cohort.students]
+    def test_update_curated_group_lists(self, app):
+        from boac.api.cache_utils import update_curated_group_lists
+        curated_group = CuratedGroup.query.filter_by(name='Cool Kids').first()
+        original_sids = [s.sid for s in curated_group.students]
         sid_not_in_data_loch = '19040616'
-        CuratedCohort.add_student(cohort_id, sid_not_in_data_loch)
+        CuratedGroup.add_student(curated_group.id, sid_not_in_data_loch)
         std_commit(allow_test_environment=True)
-        revised_sids = [s.sid for s in CuratedCohort.find_by_id(cohort_id).students]
+        revised_sids = [s.sid for s in CuratedGroup.find_by_id(curated_group.id).students]
         assert sid_not_in_data_loch in revised_sids
-        update_curated_cohort_lists()
+        update_curated_group_lists()
         std_commit(allow_test_environment=True)
-        final_sids = [s.sid for s in CuratedCohort.find_by_id(cohort_id).students]
+        final_sids = [s.sid for s in CuratedGroup.find_by_id(curated_group.id).students]
         assert sid_not_in_data_loch not in final_sids
         assert set(final_sids) == set(original_sids)
 
