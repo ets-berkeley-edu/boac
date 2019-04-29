@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import add_alert_counts, is_asc_authorized, is_unauthorized_search, put_notifications
 from boac.externals.cal1card_photo_api import get_cal1card_photo
+from boac.externals.data_loch import extract_valid_sids
 from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged import athletics
@@ -95,6 +96,30 @@ def get_students():
         'students': students,
         'totalStudentCount': results['totalStudentCount'] if results else 0,
     })
+
+
+@app.route('/api/students/validate_sids', methods=['POST'])
+@login_required
+def validate_sids():
+    params = request.get_json()
+    sids = list(params.get('sids'))
+    if sids:
+        if next((sid for sid in sids if not sid.isnumeric()), None):
+            raise BadRequestError(f'Each SID must be numeric')
+        else:
+            summary = []
+            valid_sids = query_students(sids=sids, sids_only=True)['sids']
+            unavailable_sids = list(filter(lambda sid: sid not in valid_sids, sids))
+            # TODO: Remove the following when all advisors have access to all students
+            valid_yet_unavailable_sids = [row['sid'] for row in extract_valid_sids(unavailable_sids)]
+            for sid in sids:
+                summary.append({
+                    'sid': sid,
+                    'status': 200 if sid in valid_sids else (401 if sid in valid_yet_unavailable_sids else 404),
+                })
+            return tolerant_jsonify(summary)
+    else:
+        raise BadRequestError('Requires \'sids\' param')
 
 
 @app.route('/api/team_groups/all')
