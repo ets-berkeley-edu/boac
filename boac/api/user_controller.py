@@ -36,8 +36,7 @@ from flask_login import current_user, login_required
 
 @app.route('/api/profile/my')
 def my_profile():
-    exclude_cohorts = util.to_bool_or_none(request.args.get('excludeCohorts'))
-    return tolerant_jsonify(current_user_profile(exclude_cohorts))
+    return tolerant_jsonify(current_user_profile())
 
 
 @app.route('/api/profile/<uid>')

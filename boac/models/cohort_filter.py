@@ -242,7 +242,10 @@ class CohortFilter(Base, UserMixin):
                     'students': results['students'],
                 })
             if include_alerts_for_user_id:
-                alert_count_per_sid = Alert.include_alert_counts_for_students(viewer_user_id=include_alerts_for_user_id, cohort=results)
+                alert_count_per_sid = Alert.include_alert_counts_for_students(
+                    viewer_user_id=include_alerts_for_user_id,
+                    group=results,
+                )
                 cohort_json.update({
                     'alerts': alert_count_per_sid,
                 })

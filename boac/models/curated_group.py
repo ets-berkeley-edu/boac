@@ -23,22 +23,21 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 from boac import db, std_commit
 from boac.merged.student import get_api_json
 from boac.models.base import Base
-from boac.models.db_relationships import CuratedCohortStudent
+from boac.models.db_relationships import CuratedGroupStudent
 from sqlalchemy import text
 
 
-class CuratedCohort(Base):
+class CuratedGroup(Base):
     __tablename__ = 'student_groups'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     owner_id = db.Column(db.String(80), db.ForeignKey('authorized_users.id'), nullable=False)
     name = db.Column(db.String(255), nullable=False)
 
-    students = db.relationship('CuratedCohortStudent', back_populates='curated_cohort', cascade='all')
+    students = db.relationship('CuratedGroupStudent', back_populates='curated_group', cascade='all')
 
     __table_args__ = (db.UniqueConstraint(
         'owner_id',
@@ -51,15 +50,15 @@ class CuratedCohort(Base):
         self.owner_id = owner_id
 
     @classmethod
-    def find_by_id(cls, curated_cohort_id):
-        return cls.query.filter_by(id=curated_cohort_id).first()
+    def find_by_id(cls, curated_group_id):
+        return cls.query.filter_by(id=curated_group_id).first()
 
     @classmethod
-    def get_curated_cohorts_by_owner_id(cls, owner_id):
+    def get_curated_groups_by_owner_id(cls, owner_id):
         return cls.query.filter_by(owner_id=owner_id).order_by(cls.name).all()
 
     @classmethod
-    def curated_cohort_ids_per_sid(cls, user_id, sid):
+    def curated_group_ids_per_sid(cls, user_id, sid):
         query = text(f"""SELECT
             student_group_id as id
             FROM student_group_members m
@@ -70,46 +69,46 @@ class CuratedCohort(Base):
 
     @classmethod
     def create(cls, owner_id, name):
-        curated_cohort = cls(name, owner_id)
-        db.session.add(curated_cohort)
+        curated_group = cls(name, owner_id)
+        db.session.add(curated_group)
         std_commit()
-        return curated_cohort
+        return curated_group
 
     @classmethod
-    def add_student(cls, curated_cohort_id, sid):
-        curated_cohort = cls.query.filter_by(id=curated_cohort_id).first()
-        if curated_cohort:
-            curated_cohort.students.append(CuratedCohortStudent(sid=sid, curated_cohort_id=curated_cohort_id))
+    def add_student(cls, curated_group_id, sid):
+        curated_group = cls.query.filter_by(id=curated_group_id).first()
+        if curated_group:
+            curated_group.students.append(CuratedGroupStudent(sid=sid, curated_group_id=curated_group_id))
             std_commit()
 
     @classmethod
-    def add_students(cls, curated_cohort_id, sids):
-        curated_cohort = cls.query.filter_by(id=curated_cohort_id).first()
-        if curated_cohort:
-            sids = set(sids).difference([s.sid for s in curated_cohort.students])
+    def add_students(cls, curated_group_id, sids):
+        curated_group = cls.query.filter_by(id=curated_group_id).first()
+        if curated_group:
+            sids = set(sids).difference([s.sid for s in curated_group.students])
             for sid in sids:
-                curated_cohort.students.append(CuratedCohortStudent(sid=sid, curated_cohort_id=curated_cohort_id))
+                curated_group.students.append(CuratedGroupStudent(sid=sid, curated_group_id=curated_group_id))
             std_commit()
 
     @classmethod
-    def remove_student(cls, curated_cohort_id, sid):
-        curated_cohort = cls.find_by_id(curated_cohort_id)
-        membership = CuratedCohortStudent.query.filter_by(sid=sid, curated_cohort_id=curated_cohort_id).first()
-        if curated_cohort and membership:
+    def remove_student(cls, curated_group_id, sid):
+        curated_group = cls.find_by_id(curated_group_id)
+        membership = CuratedGroupStudent.query.filter_by(sid=sid, curated_group_id=curated_group_id).first()
+        if curated_group and membership:
             db.session.delete(membership)
             std_commit()
 
     @classmethod
-    def rename(cls, curated_cohort_id, name):
-        curated_cohort = cls.query.filter_by(id=curated_cohort_id).first()
-        curated_cohort.name = name
+    def rename(cls, curated_group_id, name):
+        curated_group = cls.query.filter_by(id=curated_group_id).first()
+        curated_group.name = name
         std_commit()
 
     @classmethod
-    def delete(cls, curated_cohort_id):
-        curated_cohort = cls.query.filter_by(id=curated_cohort_id).first()
-        if curated_cohort:
-            db.session.delete(curated_cohort)
+    def delete(cls, curated_group_id):
+        curated_group = cls.query.filter_by(id=curated_group_id).first()
+        if curated_group:
+            db.session.delete(curated_group)
             std_commit()
 
     def to_api_json(self, sids_only=False, include_students=True):

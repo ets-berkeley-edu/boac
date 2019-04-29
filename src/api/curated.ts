@@ -6,7 +6,7 @@ export function addStudents(curatedGroup, sids) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
     .post(`${apiBaseUrl}/api/curated_group/students/add`, {
-      curatedCohortId: curatedGroup.id,
+      curatedGroupId: curatedGroup.id,
       sids: sids
     })
     .then(response => {

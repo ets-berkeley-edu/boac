@@ -11,7 +11,7 @@ export function getUserStatus() {
 export function getUserProfile() {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${apiBaseUrl}/api/profile/my?excludeCohorts=true`)
+    .get(`${apiBaseUrl}/api/profile/my`)
     .then(response => response.data, () => null);
 }
 
