@@ -14,3 +14,10 @@ export function getStudent(uid: string) {
     .get(`${apiBaseUrl}/api/student/${uid}`)
     .then(response => response.data, () => null);
 }
+
+export function validateSids(sids: string[]) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .post(`${apiBaseUrl}/api/students/validate_sids`, { sids: sids })
+    .then(response => response.data, () => null);
+}

@@ -56,7 +56,7 @@
         <SortableStudents :students="curatedGroup.studentsWithAlerts" />
       </div>
       <div>
-        <router-link :id="`home-curated-group-${curatedGroup.id}-view-all`" :to="`/curated_group/${curatedGroup.id}`">
+        <router-link :id="`home-curated-group-${curatedGroup.id}-view-all`" :to="`/curate/${curatedGroup.id}`">
           <span v-if="curatedGroup.studentCount">
             View <span>{{ 'student' | pluralize(curatedGroup.studentCount,
                                                 {1: 'the one', 'other': `all ${curatedGroup.studentCount}`}) }}
