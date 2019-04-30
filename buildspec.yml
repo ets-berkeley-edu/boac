@@ -19,6 +19,7 @@ phases:
   build:
     commands:
       - sudo npm install -g @vue/cli
+      - sudo npm list
       - sudo npm run build-vue
       - mv ./dist/static/vue/* ./dist/static/
 
