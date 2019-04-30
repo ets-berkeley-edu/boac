@@ -212,19 +212,37 @@ class TestCourseSearch:
             'instructors': 'Karen Blixen',
         }
 
+    def _assert_finds_math_16a(self, client, query):
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'students': True, 'courses': True, 'searchPhrase': query}),
+            content_type='application/json',
+        )
+        courses = response.json['courses']
+        assert len(courses) == 2
+        assert response.json['totalCourseCount'] == 2
+        for course in courses:
+            assert course['courseName'] == 'MATH 16A'
+
     def test_search_by_name_normalizes_queries(self, coe_advisor, client):
-        queries = ['MATH 16A', 'Math 16 A', 'math  16-a']
+        queries = ['MATH 16A', 'Math 16 A', 'math  16a']
         for query in queries:
-            response = client.post(
-                '/api/search',
-                data=json.dumps({'students': True, 'courses': True, 'searchPhrase': query}),
-                content_type='application/json',
-            )
-            courses = response.json['courses']
-            assert len(courses) == 2
-            assert response.json['totalCourseCount'] == 2
-            for course in courses:
-                assert course['courseName'] == 'MATH 16A'
+            self._assert_finds_math_16a(client, query)
+
+    def test_search_by_abbreviated_subject_area_returns_courses(self, coe_advisor, client):
+        self._assert_finds_math_16a(client, 'Ma 16A')
+
+    def test_search_by_catalog_id_alone_returns_courses(self, coe_advisor, client):
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'students': True, 'courses': True, 'searchPhrase': '1A'}),
+            content_type='application/json',
+        )
+        courses = response.json['courses']
+        assert len(courses) == 3
+        assert response.json['totalCourseCount'] == 3
+        assert len([c for c in courses if c['courseName'] == 'MATH 1A']) == 2
+        assert len([c for c in courses if c['courseName'] == 'DANISH 1A']) == 1
 
 
 def _get_common_sids(student_list_1, student_list_2):

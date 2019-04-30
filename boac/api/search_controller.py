@@ -27,7 +27,7 @@ from itertools import islice
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError
 from boac.api.util import add_alert_counts, is_unauthorized_search
-from boac.externals.data_loch import get_enrolled_primary_sections
+from boac.externals.data_loch import get_enrolled_primary_sections, get_enrolled_primary_sections_for_parsed_code
 from boac.lib import util
 from boac.lib.berkeley import current_term_id
 from boac.lib.http import tolerant_jsonify
@@ -59,40 +59,10 @@ def search():
     feed = {}
 
     if domain['students']:
-        student_results = search_for_students(
-            include_profiles=True,
-            search_phrase=search_phrase.replace(',', ' '),
-            order_by=order_by,
-            offset=util.get(params, 'offset', 0),
-            limit=util.get(params, 'limit', 50),
-        )
-        alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
-        students = student_results['students']
-        add_alert_counts(alert_counts, students)
-        feed.update({
-            'students': students,
-            'totalStudentCount': student_results['totalStudentCount'],
-        })
+        feed.update(_student_search(search_phrase, params, order_by))
 
     if domain['courses']:
-        alphanumeric_search_phrase = ''.join(e for e in search_phrase if e.isalnum()).upper()
-        courses = []
-        if alphanumeric_search_phrase:
-            course_rows = get_enrolled_primary_sections(current_term_id(), alphanumeric_search_phrase)
-            for row in islice(course_rows, 50):
-                courses.append({
-                    'termId': row['term_id'],
-                    'sectionId': row['sis_section_id'],
-                    'courseName': row['sis_course_name'],
-                    'courseTitle': row['sis_course_title'],
-                    'instructionFormat': row['sis_instruction_format'],
-                    'sectionNum': row['sis_section_num'],
-                    'instructors': row['instructors'],
-                })
-        else:
-            course_rows = []
-        feed['courses'] = courses
-        feed['totalCourseCount'] = len(course_rows)
+        feed.update(_course_search(search_phrase, params, order_by))
 
     if domain['notes']:
         notes_results = search_advising_notes(
@@ -104,3 +74,64 @@ def search():
             feed['notes'] = notes_results
 
     return tolerant_jsonify(feed)
+
+
+def _student_search(search_phrase, params, order_by):
+    student_results = search_for_students(
+        include_profiles=True,
+        search_phrase=search_phrase.replace(',', ' '),
+        order_by=order_by,
+        offset=util.get(params, 'offset', 0),
+        limit=util.get(params, 'limit', 50),
+    )
+    alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
+    students = student_results['students']
+    add_alert_counts(alert_counts, students)
+    return {
+        'students': students,
+        'totalStudentCount': student_results['totalStudentCount'],
+    }
+
+
+def _course_search(search_phrase, params, order_by):
+    term_id = current_term_id()
+    course_rows = []
+
+    def _compress_to_alphanumeric(s):
+        return ''.join(e for e in s if e.isalnum())
+
+    words = search_phrase.rsplit(' ', 1)
+    if len(words) == 1:
+        candidate_subject_area = None
+        candidate_catalog_id = words[0]
+    else:
+        candidate_subject_area = words[0]
+        candidate_catalog_id = words[1]
+
+    # If the search phrase appears to contain a catalog id, set up the course search that way.
+    if any(c.isdigit() for c in candidate_catalog_id):
+        subject_area = candidate_subject_area and _compress_to_alphanumeric(candidate_subject_area).upper()
+        catalog_id = candidate_catalog_id.upper()
+        course_rows = get_enrolled_primary_sections_for_parsed_code(term_id, subject_area, catalog_id)
+    # Otherwise just compress the search phrase to alphanumeric characters and look for a simple match.
+    else:
+        compressed_search_phrase = _compress_to_alphanumeric(search_phrase)
+        if compressed_search_phrase:
+            course_rows = get_enrolled_primary_sections(term_id, compressed_search_phrase.upper())
+
+    courses = []
+    if course_rows:
+        for row in islice(course_rows, 50):
+            courses.append({
+                'termId': row['term_id'],
+                'sectionId': row['sis_section_id'],
+                'courseName': row['sis_course_name'],
+                'courseTitle': row['sis_course_title'],
+                'instructionFormat': row['sis_instruction_format'],
+                'sectionNum': row['sis_section_num'],
+                'instructors': row['instructors'],
+            })
+    return {
+        'courses': courses,
+        'totalCourseCount': len(course_rows),
+    }
