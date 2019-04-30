@@ -123,6 +123,17 @@ def get_enrolled_primary_sections(term_id, course_name):
     return safe_execute_rds(sql)
 
 
+def get_enrolled_primary_sections_for_parsed_code(term_id, subject_area, catalog_id):
+    subject_area_clause = f"AND sis_subject_area_compressed LIKE '{subject_area}%'" if subject_area else ''
+    sql = f"""SELECT * FROM {sis_schema()}.enrolled_primary_sections
+              WHERE term_id = '{term_id}'
+              {subject_area_clause}
+              AND sis_catalog_id LIKE '{catalog_id}%'
+              ORDER BY sis_course_name_compressed, sis_instruction_format, sis_section_num
+           """
+    return safe_execute_rds(sql)
+
+
 @fixture('loch_sis_enrollments_{uid}_{term_id}.csv')
 def get_sis_enrollments(uid, term_id):
     sql = f"""SELECT
