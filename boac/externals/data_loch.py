@@ -281,6 +281,11 @@ def get_student_profiles(sids=None):
         return safe_execute_redshift(sql)
 
 
+def extract_valid_sids(sids):
+    sql = f'SELECT sid FROM {student_schema()}.student_profiles WHERE sid = ANY(:sids)'
+    return safe_execute_redshift(sql, sids=sids)
+
+
 def get_term_gpas(sids):
     sql = f"""SELECT sid, term_id, gpa, units_taken_for_gpa
         FROM {student_schema()}.student_term_gpas
@@ -412,6 +417,7 @@ def get_students_query(     # noqa
     majors=None,
     scope=(),
     search_phrase=None,
+    sids=(),
     underrepresented=None,
     unit_ranges=None,
 ):
@@ -436,6 +442,10 @@ def get_students_query(     # noqa
             'phrase': phrase,
             'phrase_padded': f'% {phrase}',
         })
+
+    if sids:
+        query_filter += f' AND sas.sid = ANY(:sids)'
+        query_bindings.update({'sids': sids})
 
     # Generic SIS criteria
     query_filter += _numranges_to_sql('sas.gpa', gpa_ranges) if gpa_ranges else ''

@@ -249,6 +249,7 @@ def query_students(
     majors=None,
     offset=0,
     order_by=None,
+    sids=(),
     sids_only=False,
     underrepresented=None,
     unit_ranges=None,
@@ -281,6 +282,7 @@ def query_students(
         levels=levels,
         majors=majors,
         scope=scope,
+        sids=sids,
         underrepresented=underrepresented,
         unit_ranges=unit_ranges,
     )

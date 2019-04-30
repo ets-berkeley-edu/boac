@@ -391,7 +391,7 @@ class TestAthletics:
 
 @pytest.mark.usefixtures('db_session')
 class TestStudent:
-    """Student Analytics API."""
+    """Student API."""
 
     coe_student = '/api/student/1049291'
     dave = '/api/student/98765'
@@ -731,7 +731,6 @@ class TestStudent:
             'prepEligible': True,
             'didTprep': False,
             'tprepEligible': False,
-            'probation': False,
             'sat1read': 510,
             'sat2read': 520,
             'sat2math': 620,
@@ -784,7 +783,6 @@ class TestNotes:
 
     def test_advising_note(self, client, coe_advising_note_with_attachment, fake_auth):
         """Returns a BOAC-created note."""
-        # coe_advisor_uid = '1133399'
         author_uid = coe_advising_note_with_attachment.author_uid
         fake_auth.login(author_uid)
         response = client.get('/api/student/61889')
@@ -853,6 +851,58 @@ class TestStudentPhoto:
         response = client.get('/api/student/242881/photo')
         assert response.status_code == 204
         assert response.headers.get('Content-Length') == '0'
+
+
+class TestValidateSids:
+    """Student API."""
+
+    @staticmethod
+    def _api_validate_sids(client, sids=(), expected_status_code=200):
+        response = client.post(
+            '/api/students/validate_sids',
+            content_type='application/json',
+            data=json.dumps({
+                'sids': sids,
+            }),
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_validate_sids_not_authenticated(self, client):
+        """Requires authentication."""
+        self._api_validate_sids(client, expected_status_code=401)
+
+    def test_validate_sids_with_invalid_sid(self, client, coe_advisor):
+        """Complains about non-numeric SID."""
+        self._api_validate_sids(client, sids=['7890123456', 'ABC'], expected_status_code=400)
+
+    def test_validate_sids_with_some_invalid(self, client, coe_advisor):
+        """SID status is 401 if advisor is not authorized to view student's profile."""
+        api_json = self._api_validate_sids(
+            client,
+            sids=['7890123456', '9999999999', '2345678901'],
+            expected_status_code=200,
+        )
+        assert len(api_json) == 3
+        assert api_json[0]['sid'] == '7890123456'
+        assert api_json[0]['status'] == 200
+        assert api_json[1]['sid'] == '9999999999'
+        assert api_json[1]['status'] == 404
+        assert api_json[2]['sid'] == '2345678901'
+        assert api_json[2]['status'] == 401
+
+    def test_validate_sids_by_admin(self, client, admin_login):
+        """Admin has access to all students."""
+        api_json = self._api_validate_sids(
+            client,
+            sids=['11667051', '2345678901'],
+            expected_status_code=200,
+        )
+        assert len(api_json) == 2
+        assert api_json[0]['sid'] == '11667051'
+        assert api_json[0]['status'] == 200
+        assert api_json[1]['sid'] == '2345678901'
+        assert api_json[1]['status'] == 200
 
 
 def _get_common_sids(student_list_1, student_list_2):
