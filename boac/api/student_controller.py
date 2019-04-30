@@ -102,20 +102,20 @@ def get_students():
 @login_required
 def validate_sids():
     params = request.get_json()
-    sids = list(params.get('sids'))
+    sids = [sid.strip() for sid in list(params.get('sids'))]
     if sids:
         if next((sid for sid in sids if not sid.isnumeric()), None):
             raise BadRequestError(f'Each SID must be numeric')
         else:
             summary = []
-            valid_sids = query_students(sids=sids, sids_only=True)['sids']
-            unavailable_sids = list(filter(lambda sid: sid not in valid_sids, sids))
+            available_sids = query_students(sids=sids, sids_only=True)['sids']
+            unavailable_sids = list(filter(lambda sid: sid not in available_sids, sids))
             # TODO: Remove the following when all advisors have access to all students
             valid_yet_unavailable_sids = [row['sid'] for row in extract_valid_sids(unavailable_sids)]
             for sid in sids:
                 summary.append({
                     'sid': sid,
-                    'status': 200 if sid in valid_sids else (401 if sid in valid_yet_unavailable_sids else 404),
+                    'status': 200 if sid in available_sids else (401 if sid in valid_yet_unavailable_sids else 404),
                 })
             return tolerant_jsonify(summary)
     else:

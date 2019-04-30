@@ -4,6 +4,7 @@ import AllCohorts from '@/views/AllCohorts.vue';
 import Cohort from '@/views/Cohort.vue';
 import Course from '@/views/Course.vue';
 import CuratedGroup from '@/views/CuratedGroup.vue';
+import CuratedGroupBulkAdd from '@/views/CuratedGroupBulkAdd.vue'
 import Home from '@/views/Home.vue';
 import Login from '@/layouts/Login.vue';
 import NotFound from '@/views/NotFound.vue';
@@ -108,11 +109,19 @@ const router = new Router({
           }
         },
         {
-          path: '/curated_group/:id',
+          path: '/curate/:id',
           component: CuratedGroup,
           props: true,
           meta: {
             title: 'Curated Group'
+          }
+        },
+        {
+          path: '/curate/:id/bulk_add',
+          component: CuratedGroupBulkAdd,
+          props: true,
+          meta: {
+            title: 'Bulk Add Students'
           }
         },
         {
