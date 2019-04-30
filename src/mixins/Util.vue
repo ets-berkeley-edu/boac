@@ -23,6 +23,7 @@ export default {
     isEmpty: _.isEmpty,
     isNil: _.isNil,
     isUndefined: _.isUndefined,
+    join: _.join,
     keys: _.keys,
     map: _.map,
     mapValues: _.mapValues,

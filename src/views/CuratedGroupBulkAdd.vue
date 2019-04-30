@@ -7,19 +7,21 @@
     <div v-if="!curatedGroup">
       Create a curated group of students by adding their Student Identification (SID) numbers below.
     </div>
+    <h2 class="page-section-header-sub mt-3">Add SID numbers</h2>
+    <div>
+      Type or paste a list of SID numbers. Example: 9999999990, 9999999991
+    </div>
     <div class="mt-3 w-75">
-      <div v-if="error" class="error p-3 mt-2 mb-3 w-100">
-        <span aria-live="polite" role="alert"><strong>Uh oh!</strong> {{ error }}</span>
+      <div v-if="error || warning" class="alert-box p-3 mt-2 mb-3 w-100" :class="{'error': error, 'warning': warning}">
+        <span aria-live="polite" role="alert" v-html="error || warning"></span>
       </div>
       <div>
         <b-form-textarea
           id="curated-group-bulk-add-sids"
-          v-model="sids"
-          placeholder="Type or paste a list of SID numbers. Example: 3033223869, 3033112579"
+          v-model="textarea"
           rows="8"
           max-rows="30"
           :disabled="isSaving"
-          @change="clearError"
         ></b-form-textarea>
       </div>
       <div class="d-flex justify-content-end mt-3">
@@ -27,8 +29,8 @@
           id="btn-curated-group-bulk-add-sids"
           class="pl-2"
           variant="primary"
-          :disabled="isSaving"
-          @click.stop="submitSids">
+          :disabled="!trim(textarea) || isSaving"
+          @click="submitSids">
           Next
         </b-btn>
       </div>
@@ -51,6 +53,7 @@
 
 <script>
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal';
+import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import Loading from '@/mixins/Loading';
 import Util from '@/mixins/Util';
 import { addStudents, createCuratedGroup, getCuratedGroup } from '@/api/curated';
@@ -59,14 +62,16 @@ import { validateSids } from '@/api/student';
 export default {
   name: 'CuratedGroupBulkAdd',
   components: { CreateCuratedGroupModal },
-  mixins: [Loading, Util],
+  mixins: [GoogleAnalytics, Loading, Util],
   data: () => ({
     curatedGroup: undefined,
     error: undefined,
     isCreatingCuratedGroup: true,
     isSaving: false,
     showCreateModal: false,
-    sids: undefined
+    sids: undefined,
+    textarea: undefined,
+    warning: undefined
   }),
   mounted() {
     const id = this.toInt(this.get(this.$route, 'params.id'));
@@ -74,7 +79,6 @@ export default {
       getCuratedGroup(id).then(data => {
         if (data) {
           this.curatedGroup = data;
-          this.setPageTitle(this.curatedGroup.name);
           this.loaded();
         } else {
           this.$router.push({ path: '/404' });
@@ -85,40 +89,58 @@ export default {
     }
   },
   methods: {
-    clearError() {
+    cancelCuratedGroupModal() {
+      this.showCreateModal = false;
+      this.isSaving = false;
+    },
+    clearErrors() {
       this.error = null;
+      this.warning = null;
+    },
+    createCuratedGroup(name) {
+      this.isCreatingCuratedGroup = true;
+      this.showCreateModal = false;
+      createCuratedGroup(name, this.sids)
+        .then(group => {
+          this.gaCuratedEvent(group.id, group.name, 'Bulk add SIDs');
+          this.$router.push('/curate/' + group.id);
+          this.clearErrors();
+        });
+    },
+    describeNotFound(sidList) {
+      if (sidList.length === 1) {
+        return `<strong>Uh oh!</strong> Student ${sidList[0]} not found. Please fix.`;
+      } else {
+        return `<strong>Uh oh!</strong> ${sidList.length} students not found: <ul class="mt-1 mb-0"><li>${this.join(sidList, '</li><li>')}</li></ul>`;
+      }
     },
     submitSids() {
-      const trimmed = this.trim(this.sids);
+      this.sids = [];
+      this.clearErrors();
+      const trimmed = this.trim(this.textarea);
       if (trimmed) {
         const split = this.split(trimmed, ',');
-        const notNumeric = this.partition(split, sid => this.toInt(sid))[1];
+        const notNumeric = this.partition(split, sid => /^\d+$/.test(this.trim(sid)))[1];
         if (notNumeric.length) {
-          this.error = `Please fix the invalid entries: ${notNumeric}`;
+          this.error = '<strong>Error!</strong> The list provided has not been properly formatted. Please fix.';
         } else {
+          this.isSaving = true;
           validateSids(split).then(data => {
-            const availableSids = [];
-            const unavailable = [];
             const notFound = [];
             this.each(data, entry => {
               switch(entry.status) {
                 case 200:
-                  availableSids.push(entry.sid);
-                  break;
                 case 401:
-                  unavailable.push(entry.sid);
+                  this.sids.push(entry.sid);
                   break;
                 default:
                   notFound.push(entry.sid);
               }
             });
-            if (notFound || unavailable) {
-              const badSids = notFound.concat(unavailable);
-              const count = this.size(badSids);
-              const pluralize = count === 1 ? '1 student' : `${count} students`;
-              this.error = `${pluralize} not found: ${badSids.join(', ')}`;
+            if (notFound.length) {
+              this.warning = this.describeNotFound(notFound);
+              this.isSaving = false;
             } else if (this.curatedGroup) {
-              this.isSaving = true;
               const done = () => {
                 this.gaCuratedEvent(
                   this.curatedGroup.id,
@@ -127,7 +149,7 @@ export default {
                 );
                 this.isSaving = false;
               };
-              addStudents(this.curatedGroup, availableSids).finally(() => setTimeout(done, 2000));
+              addStudents(this.curatedGroup, this.sids).finally(() => setTimeout(done, 2000));
               this.$router.push('/curate/' + this.curatedGroup.id);
             } else {
               this.showCreateModal = true;
@@ -135,39 +157,25 @@ export default {
           });
         }
       } else {
-        this.error = 'Please provide one or more SIDs.';
+        this.warning = 'Please provide one or more SIDs.';
       }
-    },
-    createCuratedGroup(name) {
-      this.isCreatingCuratedGroup = true;
-      this.showCreateModal = false;
-      createCuratedGroup(name, this.sids)
-        .then(group => {
-          this.each(
-            [
-              'create',
-              `Added SIDs ${this.sid}, after create group`
-            ],
-            action => {
-              this.gaCuratedEvent(group.id, group.name, action);
-            }
-          );
-          this.$router.push('/curate/' + this.curatedGroup.id);
-        });
-    },
-    cancelCuratedGroupModal() {
-      this.showCreateModal = false;
     }
   }
 }
 </script>
 
 <style scoped>
-.error {
-  background-color: #fbf7dc;
+.alert-box {
   border-radius: 5px;
-  color: #795f31;
   font-size: 18px;
   width: auto;
+}
+.error {
+  background-color: #efd6d6;
+  color: #9b393a;
+}
+.warning {
+  background-color: #fbf7dc;
+  color: #795f31;
 }
 </style>
