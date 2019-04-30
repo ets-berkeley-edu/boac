@@ -159,7 +159,6 @@ export default {
         this.sids = [];
         this.isSelectAllChecked = this.indeterminate = false;
         this.$eventHub.$emit('curated-group-deselect-all');
-        this.isSaving = false;
         this.gaCuratedEvent(
           group.id,
           group.name,

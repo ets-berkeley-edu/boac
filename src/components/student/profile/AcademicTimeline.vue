@@ -444,12 +444,12 @@ export default {
 <style>
 .pill {
   background-color: #fff;
-  border: 1px solid #666;
+  border: 1px solid #999;
   border-radius: 5px;
   color: #666;
   font-size: 12px;
-  height: 26px;
-  padding: 6px;
+  height: 24px;
+  padding-top: 1px;
   width: auto;
 }
 .pill-list {
@@ -501,12 +501,6 @@ export default {
 }
 .message-row-read {
   background-color: #f9f9f9;
-}
-.pill {
-  border-radius: 5px;
-  font-size: 12px;
-  height: 24px;
-  padding: 2px 0 2px 0;
 }
 .pill-alert {
   width: 60px;

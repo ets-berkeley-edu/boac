@@ -1,8 +1,17 @@
 <template>
-  <div v-if="myCuratedGroups && myCuratedGroups.length">
-    <div class="sidebar-row sidebar-section-header">
+  <div v-if="myCuratedGroups">
+    <div class="sidebar-row-link sidebar-section-header">
       <div class="sidebar-header sidebar-row-link-label">
         <span class="sidebar-row-link-label-text">Curated Groups</span>
+      </div>
+      <div>
+        <span class="sidebar-header sidebar-row-link-label">
+          <router-link
+            id="create-curated-group"
+            class="sidebar-create-link pr-1"
+            aria-label="Create a new curated group"
+            :to="forceUniquePath('/curate/new/bulk_add')"><i class="fas fa-plus"></i></router-link>
+        </span>
       </div>
     </div>
     <div

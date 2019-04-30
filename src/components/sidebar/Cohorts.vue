@@ -8,7 +8,7 @@
         <span class="sidebar-header sidebar-row-link-label">
           <router-link
             id="cohort-create"
-            class="sidebar-create-link"
+            class="sidebar-create-link pr-1"
             aria-label="Create cohort"
             :to="forceUniquePath('/cohort/new?')"><i class="fas fa-plus"></i></router-link>
         </span>
