@@ -34,14 +34,9 @@
         </div>
       </div>
       <div v-if="mode === 'bulkAdd'">
-        <h2 class="page-section-header-sub">Bulk Add Students</h2>
-        <div>
-          Add to your curated group of students <strong>{{ curatedGroup.name }}</strong> by adding
-          Student Identification (SID) numbers below.
-        </div>
-        <h3 class="page-section-header-sub mt-3">Add SID numbers</h3>
-        <div>
-          Type or paste a list of SID numbers. Example: 9999999990, 9999999991
+        <h2 class="page-section-header-sub">Add Students</h2>
+        <div class="w-75">
+          Type or paste a list of Student Identification (SID) numbers below. Example: 9999999990, 9999999991
         </div>
         <CuratedGroupBulkAdd :bulk-add-sids="bulkAddSids" :curated-group-id="curatedGroup.id" />
       </div>

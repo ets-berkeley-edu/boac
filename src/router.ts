@@ -109,7 +109,7 @@ const router = new Router({
           }
         },
         {
-          path: '/curate/:id',
+          path: '/curated/:id',
           component: CuratedGroup,
           props: true,
           meta: {
