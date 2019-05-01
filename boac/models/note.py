@@ -150,13 +150,18 @@ class Note(Base):
                 uploaded_by=note.author_uid,
             ),
         )
+        note.updated_at = datetime.now()
 
     @classmethod
     def _delete_attachments(cls, note, delete_attachment_ids):
+        modified = False
+        now = datetime.now()
         for attachment in note.attachments:
-            now = datetime.now()
             if attachment.id in delete_attachment_ids:
                 attachment.deleted_at = now
+                modified = True
+        if modified:
+            note.updated_at = now
 
     @classmethod
     def get_notes_by_sid(cls, sid):
