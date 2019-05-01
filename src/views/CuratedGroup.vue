@@ -2,7 +2,7 @@
   <div class="pl-3 pt-3">
     <Spinner />
     <div v-if="!loading">
-      <CuratedGroupHeader :curated-group="curatedGroup" :set-mode="setMode" />
+      <CuratedGroupHeader :curated-group="curatedGroup" :mode="mode" :set-mode="setMode" />
       <div v-if="mode !== 'bulkAdd'">
         <hr v-if="!error && size(curatedGroup.students)" class="filters-section-separator" />
         <div class="cohort-column-results">
@@ -43,13 +43,14 @@
         <div>
           Type or paste a list of SID numbers. Example: 9999999990, 9999999991
         </div>
-        <CuratedGroupBulkAdd :bulk-add-sids="bulkAddSids" />
+        <CuratedGroupBulkAdd :bulk-add-sids="bulkAddSids" :curated-group-id="curatedGroup.id" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import Context from '@/mixins/Context';
 import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
 import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader';
 import GoogleAnalytics from '@/mixins/GoogleAnalytics';
@@ -76,7 +77,7 @@ export default {
     Spinner,
     StudentRow
   },
-  mixins: [GoogleAnalytics, Loading, Scrollable, UserMetadata, Util],
+  mixins: [Context, GoogleAnalytics, Loading, Scrollable, UserMetadata, Util],
   props: {
     id: [String, Number]
   },
@@ -108,6 +109,7 @@ export default {
         this.setPageTitle(this.curatedGroup.name);
         this.sortStudents();
         this.loaded();
+        this.putFocusNextTick('curated-group-name');
       } else {
         this.$router.push({ path: '/404' });
       }
@@ -130,12 +132,15 @@ export default {
   },
   methods: {
     bulkAddSids(sids) {
-      const done = () => {
-        this.gaCuratedEvent(
+      if (this.size(sids)) {
+        const done = () => {
+          this.gaCuratedEvent(
             this.curatedGroup.id,
             this.curatedGroup.name,
             'Update curated group with bulk-add SIDs'
           );
+          this.alertScreenReader(`${sids.length} students added to group '${this.curatedGroup.name}'`);
+          this.putFocusNextTick('curated-group-name');
           this.mode = undefined;
         };
         addStudents(this.curatedGroup, sids)
@@ -143,6 +148,11 @@ export default {
             this.curatedGroup = group
           })
           .finally(() => setTimeout(done, 2000));
+      } else {
+        this.mode = undefined;
+        this.alertScreenReader('Cancelled bulk add of students');
+        this.putFocusNextTick('curated-group-name');
+      }
     },
     sortStudents() {
       this.each(this.curatedGroup.students, student =>
