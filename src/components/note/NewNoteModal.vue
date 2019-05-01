@@ -124,6 +124,7 @@
                       class="p-0"
                       @click.prevent="removeAttachment(index)">
                       <i class="fas fa-times-circle has-error pl-2"></i>
+                      <span class="sr-only">Delete attachment {{ attachment.name }}</span>
                     </b-btn>
                   </span>
                 </li>
