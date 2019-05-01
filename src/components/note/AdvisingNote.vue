@@ -71,7 +71,7 @@
           :id="`note-${note.id}-attachment-${index}`"
           :key="attachment.name"
           :class="index === 0 ? 'mt-2': ''">
-          <span class="pill text-nowrap">
+          <span class="pill pill-attachment text-nowrap">
             <a
               v-if="!isPreCsNote"
               :id="`note-${note.id}-attachment-${index}`"
