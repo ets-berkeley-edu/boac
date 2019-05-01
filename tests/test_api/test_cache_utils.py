@@ -46,7 +46,8 @@ class TestCacheUtils:
 
     def test_update_curated_group_lists(self, app):
         from boac.api.cache_utils import update_curated_group_lists
-        curated_group = CuratedGroup.query.filter_by(name='Cool Kids').first()
+        name = 'Curated group with four ASC students and one student from COE'
+        curated_group = CuratedGroup.query.filter_by(name=name).first()
         original_sids = [s.sid for s in curated_group.students]
         sid_not_in_data_loch = '19040616'
         CuratedGroup.add_student(curated_group.id, sid_not_in_data_loch)
