@@ -51,7 +51,7 @@
             :id="`note-${note.id}-topic-${index}`"
             :key="topic"
             class="mt-2">
-            <span class="pill text-uppercase text-nowrap">{{ topic }}</span>
+            <span class="pill pill-attachment text-uppercase text-nowrap">{{ topic }}</span>
           </li>
         </ul>
       </div>

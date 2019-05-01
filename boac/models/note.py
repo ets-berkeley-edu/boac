@@ -28,6 +28,7 @@ from datetime import datetime
 from boac import db, std_commit
 from boac.models.base import Base
 from boac.models.note_attachment import NoteAttachment
+from boac.models.note_topic import NoteTopic
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql import text
@@ -45,6 +46,13 @@ class Note(Base):
     subject = db.Column(db.String(255), nullable=False)
     body = db.Column(db.Text, nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
+    topics = db.relationship(
+        'NoteTopic',
+        primaryjoin='Note.id==NoteTopic.note_id',
+        back_populates='note',
+        lazy=True,
+        cascade='all, delete, delete-orphan',
+    )
     attachments = db.relationship(
         'NoteAttachment',
         primaryjoin='and_(Note.id==NoteAttachment.note_id, NoteAttachment.deleted_at==None)',
@@ -66,8 +74,12 @@ class Note(Base):
         return cls.query.filter(and_(cls.id == note_id, cls.deleted_at == None)).first()  # noqa: E711
 
     @classmethod
-    def create(cls, author_uid, author_name, author_role, author_dept_codes, sid, subject, body, attachments=()):
+    def create(cls, author_uid, author_name, author_role, author_dept_codes, sid, subject, body, topics=(), attachments=()):
         note = cls(author_uid, author_name, author_role, author_dept_codes, sid, subject, body)
+        for topic in topics:
+            note.topics.append(
+                NoteTopic.create_note_topic(note, topic, author_uid),
+            )
         for byte_stream_bundle in attachments:
             note.attachments.append(
                 NoteAttachment.create_attachment(
@@ -105,11 +117,13 @@ class Note(Base):
         std_commit()
 
     @classmethod
-    def update(cls, note_id, subject, body, attachments=(), delete_attachment_ids=()):
+    def update(cls, note_id, subject, body, topics=(), attachments=(), delete_attachment_ids=()):
         note = cls.find_by_id(note_id=note_id)
         if note:
             note.subject = subject
             note.body = body
+            if topics:
+                cls._update_topics(note, topics)
             if delete_attachment_ids:
                 cls._delete_attachments(note, delete_attachment_ids)
             for byte_stream_bundle in attachments:
@@ -139,6 +153,22 @@ class Note(Base):
             return note
         else:
             return None
+
+    @classmethod
+    def _update_topics(cls, note, topics):
+        topics = set(topics)
+        existing_topics = set(note_topic.topic for note_topic in NoteTopic.find_by_note_id(note.id))
+        topics_to_delete = existing_topics - topics
+        topics_to_add = topics - existing_topics
+        for topic in topics_to_delete:
+            topic_to_delete = next((t for t in note.topics if t.topic == topic), None)
+            if topic:
+                note.topics.remove(topic_to_delete)
+        for topic in topics_to_add:
+            note.topics.append(
+                NoteTopic.create_note_topic(note, topic, note.author_uid),
+            )
+        std_commit()
 
     @classmethod
     def _add_attachment(cls, note, attachment):
@@ -181,6 +211,7 @@ class Note(Base):
 
     def to_api_json(self):
         attachments = [a.to_api_json() for a in self.attachments if not a.deleted_at]
+        topics = [t.to_api_json() for t in self.topics]
         return {
             'id': self.id,
             'attachments': attachments,
@@ -191,6 +222,7 @@ class Note(Base):
             'sid': self.sid,
             'subject': self.subject,
             'body': self.body,
+            'topics': topics,
             'createdAt': self.created_at,
             'updatedAt': self.updated_at,
         }

@@ -53,6 +53,7 @@ def create_note():
     sid = params.get('sid', None)
     subject = params.get('subject', None)
     body = params.get('body', None)
+    topics = _get_topics(params)
     if not sid or not subject:
         raise BadRequestError('Note creation requires \'subject\' and \'sid\'')
     dept_codes = get_dept_codes(current_user)
@@ -68,6 +69,7 @@ def create_note():
         author_dept_codes=dept_codes,
         subject=subject,
         body=body,
+        topics=topics,
         sid=sid,
         attachments=_get_attachments(request.files, tolerate_none=True),
     )
@@ -77,6 +79,7 @@ def create_note():
             note=note_json,
             note_read=NoteRead.find_or_create(current_user.id, note.id),
             attachments=note_json.get('attachments'),
+            topics=note_json.get('topics'),
         ),
     )
 
@@ -89,6 +92,7 @@ def update_note():
     note_id = params.get('id', None)
     subject = params.get('subject', None)
     body = params.get('body', None)
+    topics = _get_topics(params)
     delete_ids_ = params.get('deleteAttachmentIds') or []
     delete_ids_ = delete_ids_ if isinstance(delete_ids_, list) else str(delete_ids_).split(',')
     delete_attachment_ids = [int(id_) for id_ in delete_ids_]
@@ -100,6 +104,7 @@ def update_note():
         note_id=note_id,
         subject=subject,
         body=body,
+        topics=topics,
         attachments=_get_attachments(request.files, tolerate_none=True),
         delete_attachment_ids=delete_attachment_ids,
     )
@@ -109,6 +114,7 @@ def update_note():
             note=note_json,
             note_read=NoteRead.find_or_create(current_user.id, note_id),
             attachments=note_json.get('attachments'),
+            topics=note_json.get('topics'),
         ),
     )
 
@@ -191,6 +197,11 @@ def _get_name(user):
     first_name = user.get('firstName')
     last_name = user.get('lastName')
     return '' if not (first_name or last_name) else (first_name if not last_name else f'{first_name} {last_name}')
+
+
+def _get_topics(params):
+    topics = params.get('topics', ())
+    return topics if isinstance(topics, list) else str(topics).split(',')
 
 
 def _get_attachments(request_files, tolerate_none=False):

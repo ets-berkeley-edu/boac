@@ -217,6 +217,7 @@ def asc_advising_note(app, db):
             She could see the valley barbecues from her window sill.
             See the blue pools in the squinting sun. Hear the hissing of summer lawns
         """,
+        topics=['darkness', 'no color no contrast'],
     )
 
 
