@@ -130,18 +130,15 @@ export default {
   mixins: [Loading, Util, Validator],
   props: {
     'curatedGroup': Object,
-    'onModeChange': Function
+    'mode': String,
+    'setMode': Function
   },
   data: () => ({
     isModalOpen: false,
     renameError: undefined,
-    renameInput: undefined,
-    mode: undefined
+    renameInput: undefined
   }),
   watch: {
-    mode(m) {
-      this.onModeChange(m);
-    },
     renameInput() {
       this.renameError = undefined;
     }
@@ -152,16 +149,16 @@ export default {
   },
   methods: {
     enterBulkAddMode() {
-      this.mode = 'bulkAdd';
+      this.setMode('bulkAdd');
     },
     enterRenameMode() {
       this.renameInput = this.curatedGroup.name;
-      this.mode = 'rename';
+      this.setMode('rename');
       this.putFocusNextTick('rename-input');
     },
     exitRenameMode() {
       this.renameInput = undefined;
-      this.mode = undefined;
+      this.setMode(undefined);
       this.putFocusNextTick('curated-group-name');
     },
     deleteGroup() {

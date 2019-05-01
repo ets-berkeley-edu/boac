@@ -1,4 +1,5 @@
 <script>
+import _ from 'lodash';
 import store from '@/store';
 
 export default {
@@ -10,8 +11,10 @@ export default {
       const user = store.getters['user/user'];
       return (
         user &&
-        ((user.isAsc && !student.athleticsProfile.isActiveAsc) ||
-          (user.isCoe && !student.coeProfile.isActiveCoe))
+        (
+          (user.isAsc && !_.get(student, 'athleticsProfile.isActiveAsc')) ||
+          (user.isCoe && !_.get(student, 'coeProfile.isActiveCoe'))
+        )
       );
     },
     isAlertGrade(grade) {
