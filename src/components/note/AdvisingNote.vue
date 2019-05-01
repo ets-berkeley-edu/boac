@@ -65,12 +65,12 @@
       modal-header="Delete Attachment"
       :show-modal="showConfirmDeleteAttachment" />
     <div>
-      <ul class="pill-list pl-0">
+      <ul class="pill-list pl-0 mt-3">
         <li
           v-for="(attachment, index) in attachments"
           :id="`note-${note.id}-attachment-${index}`"
           :key="attachment.name"
-          :class="index === 0 ? 'mt-2': ''">
+          class="mt-2">
           <span class="pill pill-attachment text-nowrap">
             <a
               v-if="!isPreCsNote"
@@ -83,7 +83,7 @@
               v-if="featureFlagEditNotes && (user.isAdmin || user.uid === note.author.uid)"
               :id="`note-${note.id}-remove-note-attachment-${index}`"
               variant="link"
-              class="pr-0 pl-0"
+              class="p-0"
               @click.prevent="removeAttachment(index)">
               <i class="fas fa-times-circle has-error pl-2"></i>
             </b-btn>

@@ -110,18 +110,18 @@
               A note can have no more than {{ maxAttachmentsPerNote }} attachments.
             </div>
             <div>
-              <ul class="pill-list pl-0">
+              <ul class="pill-list pl-0 mt-3">
                 <li
                   v-for="(attachment, index) in attachments"
                   :id="`new-note-attachment-${index}`"
                   :key="attachment.name"
-                  :class="{'mt-2': index === 0}">
-                  <span class="pill text-nowrap">
+                  class="mt-2">
+                  <span class="pill pill-attachment text-nowrap">
                     <i class="fas fa-paperclip pr-1 pl-1"></i> {{ attachment.name }}
                     <b-btn
                       :id="`remove-note-attachment-${index}`"
                       variant="link"
-                      class="pr-0 pt-1 pl-0"
+                      class="p-0"
                       @click.prevent="removeAttachment(index)">
                       <i class="fas fa-times-circle has-error pl-2"></i>
                     </b-btn>
