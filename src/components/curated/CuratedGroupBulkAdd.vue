@@ -8,6 +8,7 @@
         <b-form-textarea
           id="curated-group-bulk-add-sids"
           v-model="textarea"
+          aria-label="Type or paste student SID numbers here"
           rows="8"
           max-rows="30"
           :disabled="isSaving"
@@ -18,9 +19,18 @@
           id="btn-curated-group-bulk-add-sids"
           class="pl-2"
           variant="primary"
+          :aria-label="curatedGroupId ? 'Add SIDs to current group' : 'Next, create curated group'"
           :disabled="!trim(textarea) || isSaving"
           @click="submitSids">
-          Next
+          {{ curatedGroupId ? 'Add' : 'Next' }}
+        </b-btn>
+        <b-btn
+          v-if="curatedGroupId"
+          id="btn-cancel-bulk-add-sids"
+          variant="link"
+          :aria-label="curatedGroupId ? 'Add SIDs to current group' : 'Next, create curated group'"
+          @click="cancel">
+          Cancel
         </b-btn>
       </div>
     </div>
@@ -35,7 +45,8 @@ export default {
   name: 'CuratedGroupBulkAdd',
   mixins: [Util],
   props: {
-    bulkAddSids: Function
+    bulkAddSids: Function,
+    curatedGroupId: Number
   },
   data: () => ({
     error: undefined,
@@ -44,7 +55,14 @@ export default {
     textarea: undefined,
     warning: undefined
   }),
+  created() {
+    this.putFocusNextTick('curated-group-bulk-add-sids');
+  },
   methods: {
+    cancel() {
+      this.clearErrors();
+      this.bulkAddSids(null);
+    },
     clearErrors() {
       this.error = null;
       this.warning = null;

@@ -26,6 +26,7 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context';
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal';
 import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue';
 import GoogleAnalytics from '@/mixins/GoogleAnalytics';
@@ -35,7 +36,7 @@ import { createCuratedGroup } from '@/api/curated';
 export default {
   name: 'CreateCuratedGroup',
   components: {CreateCuratedGroupModal, CuratedGroupBulkAdd},
-  mixins: [GoogleAnalytics, Util],
+  mixins: [Context, GoogleAnalytics, Util],
   data: () => ({
     isCreatingCuratedGroup: false,
     showCreateModal: false,
@@ -48,6 +49,7 @@ export default {
     },
     cancel() {
       this.showCreateModal = false;
+      this.alertScreenReader(`You have cancelled the operation to create a new curated group.`);
     },
     create(name) {
       this.isCreatingCuratedGroup = true;
@@ -55,6 +57,7 @@ export default {
       createCuratedGroup(name, this.sids)
         .then(group => {
           this.gaCuratedEvent(group.id, group.name, 'Create curated group with bulk SIDs');
+          this.alertScreenReader(`Curated group '${name}' created. It has ${this.sids.length} students.`);
           this.$router.push('/curate/' + group.id);
         });
     }
