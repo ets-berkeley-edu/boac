@@ -195,7 +195,7 @@ def _get_name(user):
 
 def _get_attachments(request_files, tolerate_none=False):
     attachments = []
-    for index in range(4):
+    for index in range(app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE']):
         attachment = request_files.get(f'attachment[{index}]')
         if attachment:
             attachments.append(attachment)
