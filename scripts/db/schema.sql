@@ -221,13 +221,25 @@ CREATE INDEX note_attachments_note_id_idx ON note_attachments USING btree (note_
 --
 
 CREATE TABLE note_topics (
-  note_id INTEGER NOT NULL,
-  topic VARCHAR(255) NOT NULL,
-  author_uid VARCHAR(255) NOT NULL
+    id INTEGER NOT NULL,
+    note_id INTEGER NOT NULL,
+    topic VARCHAR(255) NOT NULL,
+    author_uid VARCHAR(255) NOT NULL
 );
 ALTER TABLE note_topics OWNER TO boac;
+CREATE SEQUENCE note_topics_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE note_topics_id_seq OWNER TO boac;
+ALTER SEQUENCE note_topics_id_seq OWNED BY note_topics.id;
+ALTER TABLE ONLY note_topics ALTER COLUMN id SET DEFAULT nextval('note_topics_id_seq'::regclass);
 ALTER TABLE ONLY note_topics
-    ADD CONSTRAINT note_topics_pkey PRIMARY KEY (note_id, topic);
+    ADD CONSTRAINT note_topics_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY note_topics
+    ADD CONSTRAINT note_topics_note_id_topic_unique_constraint UNIQUE (note_id, topic);
 CREATE INDEX note_topics_note_id_idx ON note_topics (note_id);
 CREATE INDEX note_topics_topic_idx ON note_topics (topic);
 
