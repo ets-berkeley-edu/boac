@@ -2,7 +2,7 @@
   <div class="pl-3 pt-3">
     <Spinner />
     <div v-if="!loading">
-      <CuratedGroupHeader :curated-group="curatedGroup" :on-mode-change="onModeChange" />
+      <CuratedGroupHeader :curated-group="curatedGroup" :set-mode="setMode" />
       <div v-if="mode !== 'bulkAdd'">
         <hr v-if="!error && size(curatedGroup.students)" class="filters-section-separator" />
         <div class="cohort-column-results">
@@ -144,9 +144,6 @@ export default {
           })
           .finally(() => setTimeout(done, 2000));
     },
-    onModeChange(mode) {
-      this.mode = mode;
-    },
     sortStudents() {
       this.each(this.curatedGroup.students, student =>
         this.setSortableLevel(student)
@@ -171,7 +168,10 @@ export default {
         };
       });
     },
-    setSortableLevel: student => {
+    setMode(mode) {
+      this.mode = mode;
+    },
+    setSortableLevel(student) {
       switch (student.level) {
         case 'Freshman':
           student.sortableLevel = 1;

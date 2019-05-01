@@ -59,9 +59,11 @@ export default {
     submitSids() {
       this.sids = [];
       this.clearErrors();
-      const trimmed = this.trim(this.textarea);
+      const trimmed = this.trim(this.textarea, ' ,\n\t');
       if (trimmed) {
-        const split = this.split(trimmed, ',');
+        const split = this.map(this.split(trimmed, ','), entry => {
+          return this.trim(entry, ' ,\n\t');
+        });
         const notNumeric = this.partition(split, sid => /^\d+$/.test(this.trim(sid)))[1];
         if (notNumeric.length) {
           this.error = '<strong>Error!</strong> The list provided has not been properly formatted. Please fix.';
