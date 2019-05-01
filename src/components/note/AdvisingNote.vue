@@ -188,6 +188,7 @@ export default {
       }
     },
     isOpen() {
+      this.clearErrors();
       this.setAuthor();
     },
     note() {
