@@ -452,6 +452,10 @@ export default {
   padding-top: 1px;
   width: auto;
 }
+.pill-attachment {
+  height: 26px;
+  padding: 6px;
+}
 .pill-list {
   list-style-type: none;
 }
