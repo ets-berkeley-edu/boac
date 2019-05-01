@@ -149,7 +149,7 @@ def add_students_to_curated_group():
     if curated_group.owner_id != current_user.id:
         raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own curated group {curated_group.id}')
     CuratedGroup.add_students(curated_group_id=curated_group_id, sids=sids)
-    return tolerant_jsonify(CuratedGroup.find_by_id(curated_group_id).to_api_json(include_students=False))
+    return tolerant_jsonify(CuratedGroup.find_by_id(curated_group_id).to_api_json())
 
 
 @app.route('/api/curated_group/rename', methods=['POST'])

@@ -10,7 +10,7 @@
             id="create-curated-group"
             class="sidebar-create-link pr-1"
             aria-label="Create a new curated group"
-            :to="forceUniquePath('/curate/new/bulk_add')"><i class="fas fa-plus"></i></router-link>
+            :to="forceUniquePath('/curate')"><i class="fas fa-plus"></i></router-link>
         </span>
       </div>
     </div>
