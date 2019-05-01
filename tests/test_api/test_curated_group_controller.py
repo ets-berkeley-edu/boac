@@ -50,15 +50,17 @@ def admin_user_session(fake_auth):
 
 
 @pytest.fixture()
-def groups_of_asc_advisor():
+def asc_curated_group():
     advisor = AuthorizedUser.find_by_uid(asc_advisor_uid)
-    return CuratedGroup.get_curated_groups_by_owner_id(advisor.id)
+    name = 'Curated group with four ASC students and one student from COE'
+    groups = CuratedGroup.get_curated_groups_by_owner_id(advisor.id)
+    return next((g for g in groups if g.name == name), None)
 
 
 @pytest.fixture()
-def groups_of_coe_advisor():
+def coe_advisor_group():
     advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
-    return CuratedGroup.get_curated_groups_by_owner_id(advisor.id)
+    return CuratedGroup.get_curated_groups_by_owner_id(advisor.id)[0]
 
 
 class TestGetCuratedGroup:
@@ -68,10 +70,9 @@ class TestGetCuratedGroup:
         """Anonymous user is rejected."""
         assert client.get('/api/curated_groups/my').status_code == 401
 
-    def test_unauthorized(self, admin_user_session, client, groups_of_asc_advisor):
+    def test_unauthorized(self, asc_curated_group, admin_user_session, client):
         """403 if user does not own the group."""
-        group_id = groups_of_asc_advisor[0].id
-        assert client.get(f'/api/curated_group/{group_id}').status_code == 403
+        assert client.get(f'/api/curated_group/{asc_curated_group.id}').status_code == 403
 
     def test_coe_curated_groups(self, client, coe_advisor):
         """Returns curated groups of COE advisor."""
@@ -95,10 +96,9 @@ class TestGetCuratedGroup:
         assert 'name' in groups[0]
         assert 'studentCount' in groups[0]
 
-    def test_curated_group_includes_alert_count(self, asc_advisor, client, groups_of_asc_advisor, create_alerts):
+    def test_curated_group_includes_alert_count(self, asc_advisor, asc_curated_group, client, create_alerts):
         """Includes alert count per student."""
-        group_id = groups_of_asc_advisor[0].id
-        response = client.get(f'/api/curated_group/{group_id}')
+        response = client.get(f'/api/curated_group/{asc_curated_group.id}')
         students = response.json.get('students')
         assert students
         for student in students:
@@ -107,9 +107,9 @@ class TestGetCuratedGroup:
         assert student_with_alerts
         assert student_with_alerts['alertCount'] == 3
 
-    def test_curated_group_includes_term_gpas(self, asc_advisor, client, groups_of_asc_advisor):
-        group_id = groups_of_asc_advisor[0].id
-        deborah = next(s for s in client.get(f'/api/curated_group/{group_id}').json['students'] if s['firstName'] == 'Deborah')
+    def test_curated_group_includes_term_gpas(self, asc_advisor, asc_curated_group, client):
+        students = client.get(f'/api/curated_group/{asc_curated_group.id}').json['students']
+        deborah = next(s for s in students if s['firstName'] == 'Deborah')
         assert len(deborah['termGpa']) == 4
         assert deborah['termGpa'][0] == {'termName': 'Spring 2018', 'gpa': 2.9}
         assert deborah['termGpa'][3] == {'termName': 'Spring 2016', 'gpa': 3.8}
@@ -118,30 +118,40 @@ class TestGetCuratedGroup:
 class TestMyCuratedGroups:
     """Curated Group API."""
 
-    def test_students_without_alerts(self, asc_advisor, client, create_alerts, groups_of_asc_advisor, db_session):
+    def test_students_without_alerts(self, asc_advisor, asc_curated_group, client, create_alerts, db_session):
         """Students with alerts per group id."""
-        group_id = groups_of_asc_advisor[0].id
-        students_with_alerts = client.get(f'/api/curated_group/{group_id}/students_with_alerts').json
+        students_with_alerts = client.get(f'/api/curated_group/{asc_curated_group.id}/students_with_alerts').json
         assert len(students_with_alerts) == 2
         assert students_with_alerts[0]['alertCount'] == 3
 
         student = client.get('/api/student/61889').json
         alert_to_dismiss = student['notifications']['alert'][0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
-        students_with_alerts = client.get(f'/api/curated_group/{group_id}/students_with_alerts').json
+        students_with_alerts = client.get(f'/api/curated_group/{asc_curated_group.id}/students_with_alerts').json
         assert students_with_alerts[0]['alertCount'] == 2
 
-    def test_curated_group_detail_includes_students_without_alerts(self, asc_advisor, client, groups_of_asc_advisor, create_alerts):
+    def test_curated_group_detail_includes_students_without_alerts(
+            self,
+            asc_advisor,
+            asc_curated_group,
+            client,
+            create_alerts,
+    ):
         """Includes students in response."""
-        group_id = groups_of_asc_advisor[0].id
-        group = client.get(f'/api/curated_group/{group_id}').json
+        group = client.get(f'/api/curated_group/{asc_curated_group.id}').json
         alert_counts = [s.get('alertCount') for s in group['students']]
         assert alert_counts == [3, 0, 0, 1]
 
-    def test_group_includes_student_summary(self, asc_advisor, client, groups_of_asc_advisor, create_alerts):
+    def test_excludes_sids_per_advisor_access_privileges(self, asc_advisor, asc_curated_group, client, create_alerts):
+        """Excludes SIDs in curated-group view based on advisor's access privileges."""
+        actual_student_count = len(asc_curated_group.students)
+        assert actual_student_count == 5
+        group = client.get(f'/api/curated_group/{asc_curated_group.id}').json
+        assert len(group['students']) == 4
+
+    def test_group_includes_student_summary(self, asc_advisor, asc_curated_group, client, create_alerts):
         """Returns summary details but not full term and analytics data."""
-        group_id = groups_of_asc_advisor[0].id
-        students = client.get(f'/api/curated_group/{group_id}/students_with_alerts').json
+        students = client.get(f'/api/curated_group/{asc_curated_group.id}/students_with_alerts').json
         assert students[0]['cumulativeGPA'] == 3.8
         assert students[0]['cumulativeUnits'] == 101.3
         assert students[0]['expectedGraduationTerm']['name'] == 'Fall 2019'
@@ -149,10 +159,9 @@ class TestMyCuratedGroups:
         assert students[0]['termGpa'][0]['gpa'] == 2.9
         assert len(students[0]['majors']) == 2
 
-    def test_curated_group_detail_includes_analytics(self, asc_advisor, client, groups_of_asc_advisor, create_alerts):
+    def test_curated_group_detail_includes_analytics(self, asc_advisor, asc_curated_group, client, create_alerts):
         """Returns all students with full term and analytics data."""
-        group_id = groups_of_asc_advisor[0].id
-        group = client.get(f'/api/curated_group/{group_id}').json
+        group = client.get(f'/api/curated_group/{asc_curated_group.id}').json
         student = group['students'][0]
         assert student['cumulativeGPA'] == 3.8
         assert student['cumulativeUnits'] == 101.3
@@ -160,10 +169,9 @@ class TestMyCuratedGroups:
         assert len(student['majors']) == 2
         assert 'analytics' in student
 
-    def test_curated_group_detail_includes_athletics(self, asc_advisor, client, groups_of_asc_advisor):
+    def test_curated_group_detail_includes_athletics(self, asc_advisor, asc_curated_group, client):
         """Returns student athletes."""
-        group_id = groups_of_asc_advisor[0].id
-        group = client.get(f'/api/curated_group/{group_id}').json
+        group = client.get(f'/api/curated_group/{asc_curated_group.id}').json
         students = group['students']
         teams = students[0]['athleticsProfile']['athletics']
         assert len(teams) == 2
@@ -172,18 +180,15 @@ class TestMyCuratedGroups:
         assert teams[1]['name'] == 'Women\'s Tennis'
         assert teams[1]['groupCode'] == 'WTE'
 
-    def test_curated_group_detail_omits_athletics_non_asc(self, client, coe_advisor, groups_of_coe_advisor):
+    def test_curated_group_detail_omits_athletics_non_asc(self, client, coe_advisor, coe_advisor_group):
         """Omits student athletes from COE group."""
-        group_id = groups_of_coe_advisor[0].id
-        group = client.get(f'/api/curated_group/{group_id}').json
+        group = client.get(f'/api/curated_group/{coe_advisor_group.id}').json
         assert 'athleticsProfile' not in group['students'][0]
 
-    def test_my_curated_groups_by_sid(self, client, coe_advisor, groups_of_coe_advisor):
+    def test_my_curated_groups_by_sid(self, client, coe_advisor, coe_advisor_group):
         """API delivers accurate set of student SIDs."""
-        group = groups_of_coe_advisor[0]
-        sid = group.students[0].sid
-        ids = client.get(f'/api/curated_groups/my/{sid}').json
-        assert ids == [group.id]
+        ids = client.get(f'/api/curated_groups/my/{coe_advisor_group.students[0].sid}').json
+        assert ids == [coe_advisor_group.id]
 
 
 class TestCuratedGroupCreate:

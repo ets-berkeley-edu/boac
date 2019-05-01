@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import db, std_commit
-from boac.merged.student import get_api_json
+from boac.merged.student import get_api_json, query_students
 from boac.models.base import Base
 from boac.models.db_relationships import CuratedGroupStudent
 from sqlalchemy import text
@@ -118,8 +118,12 @@ class CuratedGroup(Base):
             'name': self.name,
             'studentCount': len(self.students),
         }
+        sids = [s.sid for s in self.students]
+        # TODO: When the BOA business rules change and all advisors have access to all students
+        #  then remove this filtering of SIDs based on current user dept_code. See BOAC-2130
+        sids_available_per_user_role = query_students(sids=sids, sids_only=True)['sids']
         if sids_only:
-            api_json['students'] = [{'sid': s.sid} for s in self.students]
+            api_json['students'] = [{'sid': sid} for sid in sids_available_per_user_role]
         elif include_students:
-            api_json['students'] = get_api_json([s.sid for s in self.students])
+            api_json['students'] = get_api_json(sids_available_per_user_role)
         return api_json

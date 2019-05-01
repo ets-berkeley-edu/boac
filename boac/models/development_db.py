@@ -157,11 +157,15 @@ def create_curated_groups():
 
     advisor_id = AuthorizedUser.find_by_uid('6446').id
     CuratedGroup.create(advisor_id, 'My Students')
-    curated_group = CuratedGroup.create(advisor_id, 'Cool Kids')
+    curated_group = CuratedGroup.create(advisor_id, 'Curated group with four ASC students and one student from COE')
     CuratedGroup.add_student(curated_group.id, '3456789012')
     CuratedGroup.add_student(curated_group.id, '5678901234')
     CuratedGroup.add_student(curated_group.id, '11667051')
     CuratedGroup.add_student(curated_group.id, '7890123456')
+    # TODO: When the BOA business rules change and all advisors have access to all students
+    #  then the following SID will be served to the ASC advisor who owns the group. See BOAC-2130
+    coe_student_sid = '9000000000'
+    CuratedGroup.add_student(curated_group.id, coe_student_sid)
 
     coe_advisor = AuthorizedUser.find_by_uid('1133399')
     curated_group = CuratedGroup.create(coe_advisor.id, 'I have one student')
