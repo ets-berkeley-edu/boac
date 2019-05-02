@@ -146,8 +146,21 @@ class TestMyCuratedGroups:
         """Excludes SIDs in curated-group view based on advisor's access privileges."""
         actual_student_count = len(asc_curated_group.students)
         assert actual_student_count == 5
+        expected_student_count = 4
+        coe_student_sid = '9000000000'
+
         group = client.get(f'/api/curated_group/{asc_curated_group.id}').json
-        assert len(group['students']) == 4
+        assert len(group['students']) == expected_student_count
+        # Adjusted student count should be consistent across the curated_group API
+        my_groups = client.get('/api/curated_groups/my').json
+        group = next((g for g in my_groups if g['id'] == asc_curated_group.id), None)
+        assert group['studentCount'] == expected_student_count
+        # Group by id
+        group = client.get(f'/api/curated_group/{asc_curated_group.id}').json
+        assert group['studentCount'] == expected_student_count
+        # Group with alerts
+        students = client.get(f'/api/curated_group/{asc_curated_group.id}/students_with_alerts').json
+        assert not next((s for s in students if s['sid'] == coe_student_sid), None)
 
     def test_group_includes_student_summary(self, asc_advisor, asc_curated_group, client, create_alerts):
         """Returns summary details but not full term and analytics data."""

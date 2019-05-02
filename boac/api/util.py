@@ -260,15 +260,14 @@ def get_my_curated_groups():
     curated_groups = []
     user_id = current_user.id
     for curated_group in CuratedGroup.get_curated_groups_by_owner_id(user_id):
-        _curated_group_api_json(curated_group)
-        students = [{'sid': s.sid} for s in curated_group.students]
-        students_with_alerts = Alert.include_alert_counts_for_students(viewer_user_id=user_id, group={'students': students})
-        curated_groups.append({
-            'id': curated_group.id,
-            'name': curated_group.name,
-            'alertCount': sum(s['alertCount'] for s in students_with_alerts),
-            'studentCount': len(students),
-        })
+        api_json = curated_group.to_api_json(sids_only=True, include_students=False)
+        students = [{'sid': s['sid']} for s in api_json['students']]
+        students_with_alerts = Alert.include_alert_counts_for_students(
+            viewer_user_id=user_id,
+            group={'students': students},
+        )
+        api_json['alertCount'] = sum(s['alertCount'] for s in students_with_alerts)
+        curated_groups.append(api_json)
     return curated_groups
 
 
@@ -300,16 +299,3 @@ def is_unauthorized_search(filter_keys, order_by):
         if not is_coe_authorized():
             return True
     return False
-
-
-def _curated_group_api_json(curated_group):
-    api_json = {
-        'id': curated_group.id,
-        'name': curated_group.name,
-        'sids': [],
-        'studentCount': 0,
-    }
-    for student in curated_group.students:
-        api_json['sids'].append(student.sid)
-        api_json['studentCount'] += 1
-    return api_json

@@ -23,7 +23,7 @@
           :id="`sidebar-curated-group-${index}`"
           :aria-label="'Curated group ' + group.name + ' has ' + group.studentCount + ' students'"
           class="sidebar-row-link-label-text"
-          :to="forceUniquePath(`/curate/${group.id}`)">
+          :to="forceUniquePath(`/curated/${group.id}`)">
           {{ group.name }}
         </router-link>
       </div>
