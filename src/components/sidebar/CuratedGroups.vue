@@ -7,7 +7,7 @@
       <div>
         <span class="sidebar-header sidebar-row-link-label">
           <router-link
-            id="create-curated-group"
+            id="create-curated-group-from-sidebar"
             class="sidebar-create-link pr-1"
             aria-label="Create a new curated group"
             :to="forceUniquePath('/curate')"><i class="fas fa-plus"></i></router-link>
