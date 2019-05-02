@@ -169,7 +169,7 @@ export default {
       this.isSaving = true;
       addStudents(group, this.sids)
         .then(afterAddStudents)
-        .finally(() => setTimeout(done, 1000));
+        .finally(() => setTimeout(done, 2000));
     },
     modalCreateCuratedGroup(name) {
       this.isSaving = true;
