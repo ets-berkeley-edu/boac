@@ -89,6 +89,10 @@ def intermediate_schema():
     return app.config['DATA_LOCH_INTERMEDIATE_SCHEMA']
 
 
+def l_s_schema():
+    return app.config['DATA_LOCH_L_S_SCHEMA']
+
+
 def physics_schema():
     return app.config['DATA_LOCH_PHYSICS_SCHEMA']
 
@@ -616,6 +620,7 @@ def _student_query_tables_for_scope(scope):
             'UWASC': asc_schema(),
             'COENG': coe_schema(),
             'PHYSI': physics_schema(),
+            'QCADV': l_s_schema(),
         }
         tables = []
         # A dictionary with key 'intersection' indicates that multiple scopes should be treated as an intersection
@@ -654,6 +659,12 @@ def _student_query_tables_for_scope(scope):
                     'probation',
                     'status',
                     'tprep_eligible',
+                ],
+                'QCADV': [
+                    'acadplan_code',
+                    'acadplan_descr',
+                    'acadplan_type_code',
+                    'acadplan_ownedby_code',
                 ],
                 'UWASC': [
                     'active',
