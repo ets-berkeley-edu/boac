@@ -150,7 +150,7 @@ export default {
           );
         };
         removeFromCuratedGroup(group.id, this.sid).finally(() =>
-          setTimeout(done, 1000)
+          setTimeout(done, 2000)
         );
       } else {
         this.isAdding = true;
@@ -164,7 +164,7 @@ export default {
             `Student profile: Added SID ${this.sid}`
           );
         };
-        addStudents(group, [this.sid]).finally(() => setTimeout(done, 1000));
+        addStudents(group, [this.sid]).finally(() => setTimeout(done, 2000));
       }
     },
     modalCreateGroup(name) {
