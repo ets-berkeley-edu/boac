@@ -12,6 +12,7 @@
           rows="8"
           max-rows="30"
           :disabled="isSaving"
+          @keydown.esc="cancel"
         ></b-form-textarea>
       </div>
       <div class="d-flex justify-content-end mt-3">
@@ -20,9 +21,13 @@
           class="pl-2"
           variant="primary"
           :aria-label="curatedGroupId ? 'Add SIDs to current group' : 'Next, create curated group'"
-          :disabled="!trim(textarea) || isSaving"
+          :disabled="!trim(textarea) || (curatedGroupId && isSaving)"
           @click="submitSids">
-          {{ curatedGroupId ? 'Add' : 'Next' }}
+          <span v-if="curatedGroupId">
+            <span v-if="isSaving"><i class="fas fa-spinner fa-spin"></i> <span class="pl-1">Adding</span></span>
+            <span v-if="!isSaving">Add</span>
+          </span>
+          <span v-if="!curatedGroupId">Next</span>
         </b-btn>
         <b-btn
           v-if="curatedGroupId"
@@ -60,8 +65,11 @@ export default {
   },
   methods: {
     cancel() {
-      this.clearErrors();
-      this.bulkAddSids(null);
+      if (this.curatedGroupId) {
+        // Cancel is only supported in the add-students-to-existing-group case.
+        this.clearErrors();
+        this.bulkAddSids(null);
+      }
     },
     clearErrors() {
       this.error = null;
@@ -84,7 +92,8 @@ export default {
         });
         const notNumeric = this.partition(split, sid => /^\d+$/.test(this.trim(sid)))[1];
         if (notNumeric.length) {
-          this.error = '<strong>Error!</strong> The list provided has not been properly formatted. Please fix.';
+          this.error = '<strong>Error!</strong> The list provided has not been properly formatted. SIDs must be numeric and comma-separated.';
+          this.putFocusNextTick('curated-group-bulk-add-sids');
         } else {
           this.isSaving = true;
           validateSids(split).then(data => {
@@ -110,6 +119,7 @@ export default {
         }
       } else {
         this.warning = 'Please provide one or more SIDs.';
+        this.putFocusNextTick('curated-group-bulk-add-sids');
       }
     }
   }

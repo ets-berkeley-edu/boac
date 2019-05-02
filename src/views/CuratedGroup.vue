@@ -3,7 +3,7 @@
     <Spinner />
     <div v-if="!loading">
       <CuratedGroupHeader :curated-group="curatedGroup" :mode="mode" :set-mode="setMode" />
-      <div v-if="mode !== 'bulkAdd'">
+      <div v-show="mode !== 'bulkAdd'">
         <hr v-if="!error && size(curatedGroup.students)" class="filters-section-separator" />
         <div class="cohort-column-results">
           <div v-if="size(curatedGroup.students) > 1" class="d-flex m-2">
@@ -128,21 +128,20 @@ export default {
   methods: {
     bulkAddSids(sids) {
       if (this.size(sids)) {
-        const done = () => {
-          this.gaCuratedEvent(
-            this.curatedGroup.id,
-            this.curatedGroup.name,
-            'Update curated group with bulk-add SIDs'
-          );
-          this.alertScreenReader(`${sids.length} students added to group '${this.curatedGroup.name}'`);
-          this.putFocusNextTick('curated-group-name');
-          this.mode = undefined;
-        };
+        this.alertScreenReader(`Adding ${sids.length} students`);
         addStudents(this.curatedGroup, sids)
           .then(group => {
-            this.curatedGroup = group
-          })
-          .finally(() => setTimeout(done, 2000));
+            this.curatedGroup = group;
+            this.sortStudents();
+            this.mode = undefined;
+            this.putFocusNextTick('curated-group-name');
+            this.alertScreenReader(`${sids.length} students added to group '${this.curatedGroup.name}'`);
+            this.gaCuratedEvent(
+              this.curatedGroup.id,
+              this.curatedGroup.name,
+              'Update curated group with bulk-add SIDs'
+            );
+          });
       } else {
         this.mode = undefined;
         this.alertScreenReader('Cancelled bulk add of students');
