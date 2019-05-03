@@ -122,7 +122,7 @@ export default {
     bulkAddSids(sids) {
       if (this.size(sids)) {
         this.alertScreenReader(`Adding ${sids.length} students`);
-        addStudents(this.curatedGroup, sids)
+        addStudents(this.curatedGroup, sids, true)
           .then(group => {
             this.curatedGroup = group;
             this.sortStudents();
