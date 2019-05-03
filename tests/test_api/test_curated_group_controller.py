@@ -204,67 +204,90 @@ class TestMyCuratedGroups:
         assert ids == [coe_advisor_group.id]
 
 
-class TestCuratedGroupCreate:
+class TestAddStudents:
     """Curated Group API."""
 
-    def test_add_multiple_students_to_curated_group(self, asc_advisor, client):
-        """Create group and add students."""
-        name = 'Cheap Tricks'
-        response = client.post(
-            '/api/curated_group/create',
-            data=json.dumps({
-                'name': name,
-                'sids': ['2345678901', '11667051'],
-            }),
-            content_type='application/json',
-        )
-        group = json.loads(response.data)
-        assert group['name'] == name
-        assert group['studentCount'] == 2
+    def test_not_authenticated(self, asc_curated_group, client):
+        """Anonymous user is rejected."""
+        assert _api_add_students(client, asc_curated_group.id, expected_status_code=401, sids=['2345678901'])
 
-        # Add students and include invalid sid and dupe sids. Expect no "duplicate key violates" error.
-        response = client.post(
-            '/api/curated_group/students/add',
-            data=json.dumps({
-                'curatedGroupId': group['id'],
-                'sids': ['7890123456', 'ABC'],
-            }),
-            content_type='application/json',
-        )
-        assert response.status_code == 200
-        updated_group = json.loads(response.data)
-        assert updated_group['id'] == group['id']
-        assert updated_group['studentCount'] == 3
-
-
-class TestCuratedStudents:
-    """Curated Group API."""
+    def test_unauthorized(self, asc_curated_group, admin_user_session, client):
+        """403 if user does not own the group."""
+        assert _api_add_students(client, asc_curated_group.id, expected_status_code=403, sids=['2345678901'])
 
     def test_add_student(self, asc_advisor, client):
         """Create a group and add a student."""
         group_name = 'Trams of Old London'
-        group = _create_group(client, group_name)
-        group_id = group['id']
+        group = _api_create_group(client, name=group_name)
         assert group['studentCount'] == 0
         sid = '2345678901'
-        response = client.get(f'/api/curated_group/{group_id}/add_student/{sid}')
-        assert response.status_code == 200
-        updated_group = response.json
+        updated_group = _api_add_students(client, group['id'], sids=[sid])
         assert updated_group['name'] == group_name
         assert updated_group['studentCount'] == 1
-        student = updated_group['students'][0]
-        assert student['sid'] == sid
+        assert updated_group['students'] == [{'sid': sid}]
+
+    def test_add_students(self, asc_advisor, client):
+        """Create group and add students."""
+        name = 'Cheap Tricks'
+        group = _api_create_group(client, name=name, sids=['2345678901', '11667051'])
+        assert group['name'] == name
+        assert group['studentCount'] == 2
+        # Add students
+        updated_group = _api_add_students(client, group['id'], sids=['7890123456'])
+        students = updated_group['students']
+        students.sort(key=lambda s: s['sid'])
+        assert students == [
+            {'sid': '11667051'},
+            {'sid': '2345678901'},
+            {'sid': '7890123456'},
+        ]
+        assert updated_group['studentCount'] == 3
+        # Add more and ask for FULL student profiles in payload
+        updated_group = _api_add_students(
+            client,
+            group['id'],
+            return_student_profiles=True,
+            sids=['890127492', '8901234567'],
+        )
+        assert updated_group['studentCount'] == 5
+        students = updated_group['students']
+        students.sort(key=lambda s: s['sid'])
+        student = students[0]
+        assert student['sid'] == '11667051'
+        assert student['canvasUserId'] == '9000100'
+        for expected_key in ('cumulativeGPA', 'cumulativeGPA', 'cumulativeUnits', 'majors', 'termGpa'):
+            assert expected_key in student, f'Failed to find {expected_key} in student'
+
+
+class TestRemoveStudent:
+    """Curated Group API."""
+
+    def test_not_authenticated(self, asc_curated_group, client):
+        """Anonymous user is rejected."""
+        response = client.delete(f'/api/curated_group/{asc_curated_group.id}/remove_student/2345678901')
+        assert response.status_code == 401
+
+    def test_unauthorized(self, asc_curated_group, admin_user_session, client):
+        """403 if user does not own the group."""
+        response = client.delete(f'/api/curated_group/{asc_curated_group.id}/remove_student/2345678901')
+        assert response.status_code == 403
 
     def test_remove_student(self, asc_advisor, client):
-        """Remove student from a group."""
-        group = _create_group(client, 'Furry Green Atom Bowl')
+        """Remove student from a curated group."""
+        name = 'Furry Green Atom Bowl'
+        group = _api_create_group(client, name=name)
         group_id = group['id']
         sid = '2345678901'
-        updated_group = client.get(f'/api/curated_group/{group_id}/add_student/{sid}').json
+        updated_group = _api_add_students(client, group_id, sids=[sid])
+        assert updated_group['name'] == name
+        assert updated_group['students'] == [{'sid': sid}]
         assert updated_group['studentCount'] == 1
         response = client.delete(f'/api/curated_group/{group_id}/remove_student/{sid}')
         assert response.status_code == 200
-        assert response.json['studentCount'] == 0
+        empty_group = response.json
+        assert empty_group['name'] == name
+        assert empty_group['students'] == []
+        assert empty_group['studentCount'] == 0
 
 
 class TestUpdateCuratedGroup:
@@ -272,12 +295,15 @@ class TestUpdateCuratedGroup:
 
     def test_rename_group(self, asc_advisor, client):
         """Rename curated group."""
-        group = _create_group(client, 'The Bones In The Ground')
+        group = _api_create_group(client, name='The Bones In The Ground')
         new_name = 'My Favourite Buildings'
         group_id = group['id']
         response = client.post(
             '/api/curated_group/rename',
-            data=json.dumps({'id': group_id, 'name': new_name}),
+            data=json.dumps({
+                'id': group_id,
+                'name': new_name,
+            }),
             content_type='application/json',
         )
         assert response.status_code == 200
@@ -285,16 +311,34 @@ class TestUpdateCuratedGroup:
 
     def test_delete_group(self, asc_advisor, client):
         """Delete curated group."""
-        group = _create_group(client, 'Mellow Together')
+        group = _api_create_group(client, name='Mellow Together')
         group_id = group['id']
         assert client.delete(f'/api/curated_group/delete/{group_id}').status_code == 200
         assert client.get(f'/api/curated_group/{group_id}').status_code == 404
 
 
-def _create_group(client, name):
+def _api_create_group(client, expected_status_code=200, name=None, sids=()):
     response = client.post(
         '/api/curated_group/create',
-        data=json.dumps({'name': name}),
+        data=json.dumps({
+            'name': name,
+            'sids': sids,
+        }),
         content_type='application/json',
     )
-    return json.loads(response.data)
+    assert response.status_code == expected_status_code
+    return response.json
+
+
+def _api_add_students(client, curated_group_id, expected_status_code=200, return_student_profiles=False, sids=()):
+    response = client.post(
+        '/api/curated_group/students/add',
+        data=json.dumps({
+            'curatedGroupId': curated_group_id,
+            'returnStudentProfiles': return_student_profiles,
+            'sids': sids,
+        }),
+        content_type='application/json',
+    )
+    assert response.status_code == expected_status_code
+    return response.json

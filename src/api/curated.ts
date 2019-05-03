@@ -2,12 +2,13 @@ import axios from 'axios';
 import store from '@/store';
 import { event } from 'vue-analytics';
 
-export function addStudents(curatedGroup, sids) {
+export function addStudents(curatedGroup: any, sids: string[], returnStudentProfiles: boolean) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
     .post(`${apiBaseUrl}/api/curated_group/students/add`, {
       curatedGroupId: curatedGroup.id,
-      sids: sids
+      sids: sids,
+      returnStudentProfiles: returnStudentProfiles
     })
     .then(response => {
       const group = response.data;
@@ -16,7 +17,7 @@ export function addStudents(curatedGroup, sids) {
     });
 }
 
-export function createCuratedGroup(name: string, sids: object) {
+export function createCuratedGroup(name: string, sids: string[]) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
     .post(`${apiBaseUrl}/api/curated_group/create`, {
