@@ -8,7 +8,7 @@
         :id="`advising-note-search-result-header-link-${note.id}`"
         class="advising-note-search-result-header-link"
         :class="{'demo-mode-blur': user.inDemoMode}"
-        :to="`/student/${note.studentUid}`">
+        :to="`/student/${note.studentUid}#${note.id}`">
         {{ note.studentName }}
       </router-link>
       ({{ note.studentSid }})

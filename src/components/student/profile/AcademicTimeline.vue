@@ -68,6 +68,7 @@
         </tr>
         <tr
           v-for="(message, index) in (isShowingAll ? messagesPerType(filter) : slice(messagesPerType(filter), 0, defaultShowPerTab))"
+          :id="`message-row-${message.id}`"
           :key="index"
           class="message-row border-top border-bottom"
           :class="{ 'message-row-read': message.read }">
@@ -224,6 +225,7 @@ import EditAdvisingNote from '@/components/note/EditAdvisingNote';
 import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import NewNoteModal from "@/components/note/NewNoteModal";
 import NoteEditSession from "@/mixins/NoteEditSession";
+import Scrollable from '@/mixins/Scrollable';
 import TimelineDate from '@/components/student/profile/TimelineDate';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
@@ -233,7 +235,7 @@ import { deleteNote, markRead } from '@/api/notes';
 export default {
   name: 'AcademicTimeline',
   components: {AdvisingNote, AreYouSureModal, EditAdvisingNote, NewNoteModal, TimelineDate},
-  mixins: [Context, GoogleAnalytics, NoteEditSession, UserMetadata, Util],
+  mixins: [Context, GoogleAnalytics, NoteEditSession, Scrollable, UserMetadata, Util],
   props: {
     student: Object
   },
@@ -271,6 +273,9 @@ export default {
     activeTab() {
       return this.filter || 'all';
     },
+    anchor() {
+      return location.hash;
+    },
     countPerActiveTab() {
       return this.filter
         ? this.countsPerType[this.filter]
@@ -307,6 +312,22 @@ export default {
     this.sortMessages();
     this.alertScreenReader('Academic Timeline has loaded');
     this.isTimelineLoading = false;
+  },
+  mounted() {
+    if (this.anchor) {
+      const match = this.anchor.match(/#([0-9-]+)/);
+      if (match) {
+        const messageId = match[1];
+        const note = this.find(this.messages, ['id', messageId]);
+        if (note) {
+          this.isShowingAll = true;
+          this.$nextTick(function() {
+            this.open(note);
+            this.scrollTo(`#message-row-${messageId}`);
+          });
+        }
+      }
+    }
   },
   methods: {
     afterEditCancel() {

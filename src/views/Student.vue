@@ -68,6 +68,9 @@ export default {
       termGpa: []
     }
   }),
+  computed: {
+    anchor: () => location.hash
+  },
   beforeRouteLeave(to, from, next) {
     if (this.newNoteMode || this.editingNoteId) {
       this.alertScreenReader("Are you sure you want to discard unsaved changes?");
@@ -99,7 +102,9 @@ export default {
     });
   },
   mounted() {
-    this.scrollToTop();
+    if (!this.anchor) {
+      this.scrollToTop();
+    }
   },
   methods: {
     decorateCourse(course) {
