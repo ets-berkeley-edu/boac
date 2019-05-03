@@ -1,5 +1,6 @@
 DROP SCHEMA IF EXISTS boac_advising_asc cascade;
 DROP SCHEMA IF EXISTS boac_advising_coe cascade;
+DROP SCHEMA IF EXISTS boac_advising_l_s cascade;
 DROP SCHEMA IF EXISTS boac_advising_notes cascade;
 DROP SCHEMA IF EXISTS boac_analytics cascade;
 DROP SCHEMA IF EXISTS sis_data cascade;
@@ -7,6 +8,7 @@ DROP SCHEMA IF EXISTS student cascade;
 
 CREATE SCHEMA boac_advising_asc;
 CREATE SCHEMA boac_advising_coe;
+CREATE SCHEMA boac_advising_l_s;
 CREATE SCHEMA boac_advising_notes;
 CREATE SCHEMA boac_analytics;
 CREATE SCHEMA sis_data;
@@ -55,6 +57,20 @@ CREATE TABLE boac_advising_coe.student_profiles
 (
     sid VARCHAR NOT NULL,
     profile TEXT NOT NULL
+);
+
+CREATE TABLE boac_advising_l_s.students
+(
+    sid VARCHAR NOT NULL,
+    acadplan_code VARCHAR,
+    acadplan_descr VARCHAR,
+    acadplan_type_code VARCHAR,
+    acadplan_ownedby_code VARCHAR,
+    ldap_uid VARCHAR,
+    first_name VARCHAR,
+    last_name VARCHAR,
+    email_address VARCHAR,
+    affiliations VARCHAR
 );
 
 CREATE TABLE boac_advising_notes.advising_notes
@@ -220,6 +236,12 @@ VALUES
 ('7890123456', :coe_profile_7890123456),
 ('9000000000', :coe_profile_9000000000),
 ('9100000000', :coe_profile_9100000000);
+
+INSERT INTO boac_advising_l_s.students
+(sid, acadplan_code, acadplan_descr, acadplan_type_code, acadplan_ownedby_code, ldap_uid, first_name, last_name, email_address, affiliations)
+VALUES
+('3456789012', '252B2U', 'Political Economy BA', 'MAJ', 'ISSP', '242881', 'Paul', 'Kerschen', 'atem@example.edu', 'STUDENT-TYPE-REGISTERED'),
+('5678901234', '25000U', 'Letters & Sci Undeclared UG', 'MAJ', 'CLS', '9933311', 'Sandeep', 'Jayaprakash', 'sj@example.edu', 'STUDENT-TYPE-NOT REGISTERED');
 
 INSERT INTO boac_advising_notes.advising_notes
 (id, sid, student_note_nr, advisor_sid, appointment_id, note_category, note_subcategory, note_body, created_by, updated_by, created_at, updated_at)
