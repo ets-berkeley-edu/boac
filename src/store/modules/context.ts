@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { getConfig } from '@/api/config';
+import { getConfig, getToolSettings } from '@/api/config';
 import Vue from 'vue';
 
 const state = {
@@ -18,8 +18,10 @@ const getters = {
   featureFlagEditNotes: (state: any): any => _.get(state.config, 'featureFlagEditNotes'),
   googleAnalyticsId: (state: any): string => _.get(state.config, 'googleAnalyticsId'),
   isDemoModeAvailable: (state: any): string => _.get(state.config, 'isDemoModeAvailable'),
+  isServiceAlertPublished: (state: any): string => _.get(state.config, 'isServiceAlertPublished'),
   maxAttachmentsPerNote: (state: any): string => _.get(state.config, 'maxAttachmentsPerNote'),
   loading: (state: any): boolean => state.loading,
+  serviceAlert: (state: any): string => _.get(state.config, 'serviceAlert'),
   srAlert: (state: any): string => state.screenReaderAlert,
   supportEmailAddress: (state: any): string => _.get(state.config, 'supportEmailAddress')
 };
@@ -47,6 +49,7 @@ const mutations = {
 };
 
 const actions = {
+  alertScreenReader: ({ commit }, alert) => commit('screenReaderAlert', alert),
   clearAlertsInStore: ({ commit }) => commit('clearAlertsInStore'),
   dismissError: ({ commit }, id) => commit('dismissError', id),
   loadingComplete: ({ commit }) => commit('loadingComplete'),
@@ -57,14 +60,19 @@ const actions = {
         resolve(state.config);
       } else {
         getConfig().then(config => {
-          commit('storeConfig', config);
-          resolve(config);
+          const keys = [
+            'SERVICE_ALERT',
+            'IS_SERVICE_ALERT_PUBLISHED'
+          ];
+          getToolSettings(keys).then(toolSettings => {
+            commit('storeConfig', _.assignIn(config, toolSettings));
+            resolve(config);
+          });
         });
       }
     });
   },
-  reportError: ({ commit }, error) => commit('reportError', error),
-  alertScreenReader: ({ commit }, alert) => commit('screenReaderAlert', alert)
+  reportError: ({ commit }, error) => commit('reportError', error)
 };
 
 export default {

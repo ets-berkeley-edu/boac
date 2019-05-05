@@ -21,3 +21,10 @@ export function getVersion() {
     .get(`${apiBaseUrl}/api/version`)
     .then(response => response.data, () => null);
 }
+
+export function getToolSettings(keys: string[]) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .post(`${apiBaseUrl}/api/tool_settings`, { keys: keys })
+    .then(response => response.data, () => null);
+}

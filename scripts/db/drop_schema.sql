@@ -66,6 +66,7 @@ DROP INDEX IF EXISTS public.alerts_sid_idx;
 DROP INDEX IF EXISTS public.alert_views_viewer_id_idx;
 DROP INDEX IF EXISTS public.alert_views_alert_id_idx;
 DROP INDEX IF EXISTS public.student_groups_owner_id_idx;
+DROP INDEX IF EXISTS public.tool_settings_key_idx;
 DROP INDEX IF EXISTS public.idx_notes_fts_index;
 
 --
@@ -90,6 +91,7 @@ ALTER TABLE IF EXISTS ONLY public.topics DROP CONSTRAINT IF EXISTS topics_id_pke
 ALTER TABLE IF EXISTS ONLY public.topics DROP CONSTRAINT IF EXISTS topics_topic_unique_constraint;
 ALTER TABLE IF EXISTS ONLY public.university_dept_members DROP CONSTRAINT IF EXISTS university_dept_members_pkey;
 ALTER TABLE IF EXISTS ONLY public.university_depts DROP CONSTRAINT IF EXISTS university_dept_members_pkey;
+ALTER TABLE IF EXISTS ONLY public.tool_settings DROP CONSTRAINT IF EXISTS tool_settings_key_unique_constraint;
 ALTER TABLE IF EXISTS public.json_cache ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE IF EXISTS public.cohort_filters ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE IF EXISTS public.authorized_users ALTER COLUMN id DROP DEFAULT;
@@ -118,6 +120,8 @@ DROP TABLE IF EXISTS public.alembic_version;
 DROP TABLE IF EXISTS public.student_group_members;
 DROP TABLE IF EXISTS public.student_groups;
 DROP SEQUENCE IF EXISTS public.student_groups_id_seq;
+DROP TABLE IF EXISTS public.tool_settings;
+DROP SEQUENCE IF EXISTS public.tool_settings_id_seq;
 DROP TABLE IF EXISTS public.topics;
 DROP SEQUENCE IF EXISTS public.topics_id_seq;
 DROP TABLE IF EXISTS public.university_dept_members;
