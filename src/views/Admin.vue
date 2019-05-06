@@ -73,10 +73,10 @@
           </b-tabs>
         </b-card>
       </div>
-      <div>
+      <div v-if="user.isAdmin">
         <EditServiceAnnouncement />
       </div>
-      <div>
+      <div v-if="user.isAdmin">
         <Status />
       </div>
     </div>

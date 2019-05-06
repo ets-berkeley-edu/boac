@@ -3,11 +3,11 @@ import { getConfig, getServiceAnnouncement } from '@/api/config';
 import Vue from 'vue';
 
 const state = {
+  announcement: undefined,
   config: undefined,
   errors: [],
   loading: undefined,
-  screenReaderAlert: undefined,
-  serviceAnnouncement: undefined
+  screenReaderAlert: undefined
 };
 
 const getters = {
@@ -21,7 +21,7 @@ const getters = {
   isDemoModeAvailable: (state: any): string => _.get(state.config, 'isDemoModeAvailable'),
   maxAttachmentsPerNote: (state: any): string => _.get(state.config, 'maxAttachmentsPerNote'),
   loading: (state: any): boolean => state.loading,
-  serviceAnnouncement: (state: any): string => state.serviceAnnouncement,
+  announcement: (state: any): string => state.announcement,
   srAlert: (state: any): string => state.screenReaderAlert,
   supportEmailAddress: (state: any): string => _.get(state.config, 'supportEmailAddress')
 };
@@ -46,7 +46,7 @@ const mutations = {
   },
   screenReaderAlert: (state: any, alert: any) => (state.screenReaderAlert = alert),
   storeConfig: (state: any, config: any) => (state.config = config),
-  storeServiceAnnouncement: (state: any, data: any) => (state.serviceAnnouncement = data),
+  storeAnnouncement: (state: any, data: any) => (state.announcement = data),
 };
 
 const actions = {
@@ -61,7 +61,7 @@ const actions = {
         resolve(state.config);
       } else {
         getServiceAnnouncement().then(data => {
-          commit('storeServiceAnnouncement', data);
+          commit('storeAnnouncement', data);
           getConfig().then(config => {
             commit('storeConfig', config);
             resolve(config);

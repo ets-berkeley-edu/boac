@@ -39,7 +39,7 @@ export function updateServiceAnnouncement(text, isLive) {
     .post(`${apiBaseUrl}/api/service_announcement/update`, data)
     .then(response => {
       const data = response.data;
-      store.commit('context/storeServiceAnnouncement', data);
+      store.commit('context/storeAnnouncement', data);
       return data;
     })
     .catch(error => error);

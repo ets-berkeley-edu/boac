@@ -1,7 +1,15 @@
 <template>
-  <div v-if="user.isAdmin && announcement !== undefined">
+  <div v-if="announcement !== undefined" class="mt-3">
     <h2 class="page-section-header-sub">Service Alert</h2>
     <div class="p-2">
+      <b-form-textarea
+        id="service-announcement-textarea"
+        v-model="text"
+        aria-label="Enter service announcement for users to read"
+        rows="3"
+        max-rows="5"
+        :disabled="isSaving"
+      ></b-form-textarea>
       <span
         v-if="isSaving"
         role="alert"
@@ -10,20 +18,15 @@
       <b-form-checkbox
         id="publish-service-announcement"
         v-model="isPublished"
+        class="mt-2 ml-2"
         :disabled="isSaving">
-        <span v-if="isSaving"><i class="fa fa-spinner fa-spin"></i> Saving...</span>
-        <span v-if="!isSaving">{{ isPublished ? 'Published' : 'Unpublished' }}</span>
+        Publish
       </b-form-checkbox>
-      <b-form-textarea
-        id="service-announcement-textarea"
-        v-model="announcement"
-        aria-label="Enter service announcement for users to read"
-        rows="3"
-        max-rows="5"
-        :disabled="isSaving"
-      ></b-form-textarea>
-      <div class="mt-1">
-        <b-btn variant="primary" @click="save">Save</b-btn>
+      <div>
+        <b-btn variant="primary" class="btn-primary-color-override m-2" @click="save">
+          <span v-if="isSaving"><i class="fa fa-spinner fa-spin"></i> Saving...</span>
+          <span v-if="!isSaving">Save</span>
+        </b-btn>
       </div>
     </div>
   </div>
@@ -31,28 +34,27 @@
 
 <script>
 import Context from '@/mixins/Context';
-import UserMetadata from '@/mixins/UserMetadata';
 import { getServiceAnnouncement, updateServiceAnnouncement } from '@/api/config';
 
 export default {
   name: 'EditServiceAnnouncement',
-  mixins: [Context, UserMetadata],
+  mixins: [Context],
   data: () => ({
-    announcement: undefined,
+    text: undefined,
     isPublished: undefined,
     isSaving: false
   }),
   created() {
     getServiceAnnouncement().then(data => {
-      this.announcement = data.text;
+      this.text = data.text;
       this.isPublished = data.isLive;
     })
   },
   methods: {
     save() {
       this.isSaving = true;
-      updateServiceAnnouncement(this.announcement, this.isPublished).then(data => {
-        this.announcement = data.text;
+      updateServiceAnnouncement(this.text, this.isPublished).then(data => {
+        this.text = data.text;
         this.isPublished = data.isLive;
         this.isSaving = false;
       });
