@@ -366,6 +366,31 @@ ALTER TABLE ONLY json_cache
 
 --
 
+CREATE TABLE tool_settings (
+    id integer NOT NULL,
+    key character varying NOT NULL,
+    value character varying NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL
+);
+ALTER TABLE tool_settings OWNER TO boac;
+CREATE SEQUENCE tool_settings_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE tool_settings_id_seq OWNER TO boac;
+ALTER SEQUENCE tool_settings_id_seq OWNED BY tool_settings.id;
+ALTER TABLE ONLY tool_settings ALTER COLUMN id SET DEFAULT nextval('tool_settings_id_seq'::regclass);
+ALTER TABLE ONLY tool_settings
+    ADD CONSTRAINT tool_settings_key_unique_constraint UNIQUE (key);
+ALTER TABLE ONLY tool_settings
+    ADD CONSTRAINT tool_settings_pkey PRIMARY KEY (id);
+CREATE INDEX tool_settings_key_idx ON tool_settings USING btree (key);
+
+--
+
 ALTER TABLE ONLY student_group_members
     ADD CONSTRAINT student_group_members_student_group_id_fkey FOREIGN KEY (student_group_id) REFERENCES student_groups(id) ON DELETE CASCADE;
 

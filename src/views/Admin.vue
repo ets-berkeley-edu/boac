@@ -72,6 +72,11 @@
             </b-tab>
           </b-tabs>
         </b-card>
+      </div>
+      <div>
+        <EditServiceAnnouncement />
+      </div>
+      <div>
         <Status />
       </div>
     </div>
@@ -81,6 +86,7 @@
 <script>
 import Context from '@/mixins/Context';
 import DemoModeToggle from '@/components/admin/DemoModeToggle';
+import EditServiceAnnouncement from '@/components/admin/EditServiceAnnouncement';
 import Loading from '@/mixins/Loading';
 import Spinner from '@/components/util/Spinner';
 import Status from '@/components/util/Status';
@@ -93,6 +99,7 @@ export default {
   name: 'Admin',
   components: {
     DemoModeToggle,
+    EditServiceAnnouncement,
     Spinner,
     Status
   },

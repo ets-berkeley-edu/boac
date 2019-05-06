@@ -21,3 +21,26 @@ export function getVersion() {
     .get(`${apiBaseUrl}/api/version`)
     .then(response => response.data, () => null);
 }
+
+export function getServiceAnnouncement() {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .get(`${apiBaseUrl}/api/service_announcement`)
+    .then(response => response.data, () => null);
+}
+
+export function updateServiceAnnouncement(text, isLive) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  let data = {
+    text: text,
+    isLive: isLive
+  };
+  return axios
+    .post(`${apiBaseUrl}/api/service_announcement/update`, data)
+    .then(response => {
+      const data = response.data;
+      store.commit('context/storeServiceAnnouncement', data);
+      return data;
+    })
+    .catch(error => error);
+}
