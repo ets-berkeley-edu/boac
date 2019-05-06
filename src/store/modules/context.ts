@@ -1,12 +1,13 @@
 import _ from 'lodash';
-import { getConfig } from '@/api/config';
+import { getConfig, getServiceAnnouncement } from '@/api/config';
 import Vue from 'vue';
 
 const state = {
   config: undefined,
   errors: [],
   loading: undefined,
-  screenReaderAlert: undefined
+  screenReaderAlert: undefined,
+  serviceAnnouncement: undefined
 };
 
 const getters = {
@@ -20,6 +21,7 @@ const getters = {
   isDemoModeAvailable: (state: any): string => _.get(state.config, 'isDemoModeAvailable'),
   maxAttachmentsPerNote: (state: any): string => _.get(state.config, 'maxAttachmentsPerNote'),
   loading: (state: any): boolean => state.loading,
+  serviceAnnouncement: (state: any): string => state.serviceAnnouncement,
   srAlert: (state: any): string => state.screenReaderAlert,
   supportEmailAddress: (state: any): string => _.get(state.config, 'supportEmailAddress')
 };
@@ -43,10 +45,12 @@ const mutations = {
     Vue.prototype.$eventHub.$emit('error-reported', error);
   },
   screenReaderAlert: (state: any, alert: any) => (state.screenReaderAlert = alert),
-  storeConfig: (state: any, config: any) => (state.config = config)
+  storeConfig: (state: any, config: any) => (state.config = config),
+  storeServiceAnnouncement: (state: any, data: any) => (state.serviceAnnouncement = data),
 };
 
 const actions = {
+  alertScreenReader: ({ commit }, alert) => commit('screenReaderAlert', alert),
   clearAlertsInStore: ({ commit }) => commit('clearAlertsInStore'),
   dismissError: ({ commit }, id) => commit('dismissError', id),
   loadingComplete: ({ commit }) => commit('loadingComplete'),
@@ -56,15 +60,17 @@ const actions = {
       if (state.config) {
         resolve(state.config);
       } else {
-        getConfig().then(config => {
-          commit('storeConfig', config);
-          resolve(config);
+        getServiceAnnouncement().then(data => {
+          commit('storeServiceAnnouncement', data);
+          getConfig().then(config => {
+            commit('storeConfig', config);
+            resolve(config);
+          });
         });
       }
     });
   },
-  reportError: ({ commit }, error) => commit('reportError', error),
-  alertScreenReader: ({ commit }, alert) => commit('screenReaderAlert', alert)
+  reportError: ({ commit }, error) => commit('reportError', error)
 };
 
 export default {
