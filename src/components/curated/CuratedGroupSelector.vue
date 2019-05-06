@@ -165,7 +165,7 @@ export default {
           `${this.contextDescription}: add students`
         );
       };
-      const done = () => (self.isSaving = false);
+      const done = () => (this.isSaving = false);
       this.isSaving = true;
       addStudents(group, this.sids)
         .then(afterAddStudents)
