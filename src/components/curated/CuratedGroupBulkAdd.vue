@@ -11,7 +11,7 @@
           aria-label="Type or paste student SID numbers here"
           rows="8"
           max-rows="30"
-          :disabled="isSaving"
+          :disabled="isUpdating"
           @keydown.esc="cancel"
         ></b-form-textarea>
       </div>
@@ -21,11 +21,11 @@
           class="pl-2"
           variant="primary"
           :aria-label="curatedGroupId ? 'Add SIDs to current group' : 'Next, create curated group'"
-          :disabled="!trim(textarea) || (curatedGroupId && isSaving)"
+          :disabled="!trim(textarea) || (curatedGroupId && isUpdating)"
           @click="submitSids">
           <span v-if="curatedGroupId">
-            <span v-if="isSaving"><i class="fas fa-spinner fa-spin"></i> <span class="pl-1">Adding</span></span>
-            <span v-if="!isSaving">Add</span>
+            <span v-if="isUpdating"><i class="fas fa-spinner fa-spin"></i> <span class="pl-1">Adding</span></span>
+            <span v-if="!isUpdating">Add</span>
           </span>
           <span v-if="!curatedGroupId">Next</span>
         </b-btn>
@@ -51,15 +51,24 @@ export default {
   mixins: [Util],
   props: {
     bulkAddSids: Function,
-    curatedGroupId: Number
+    curatedGroupId: Number,
+    isSaving: {
+      type: Boolean,
+      default: false
+    }
   },
   data: () => ({
     error: undefined,
-    isSaving: false,
+    isValidating: false,
     sids: undefined,
     textarea: undefined,
     warning: undefined
   }),
+  computed: {
+    isUpdating() {
+      return this.isValidating || this.isSaving;
+    }
+  },
   created() {
     this.putFocusNextTick('curated-group-bulk-add-sids');
   },
@@ -95,7 +104,7 @@ export default {
           this.error = '<strong>Error!</strong> The list provided has not been properly formatted. SIDs must be numeric and comma-separated.';
           this.putFocusNextTick('curated-group-bulk-add-sids');
         } else {
-          this.isSaving = true;
+          this.isValidating = true;
           validateSids(split).then(data => {
             const notFound = [];
             this.each(data, entry => {
@@ -108,9 +117,9 @@ export default {
                   notFound.push(entry.sid);
               }
             });
+            this.isValidating = false;
             if (notFound.length) {
               this.warning = this.describeNotFound(notFound);
-              this.isSaving = false;
             } else {
               this.clearErrors();
               this.bulkAddSids(this.sids);
