@@ -31,7 +31,13 @@
             role="alert">
             {{ srAlert }}
           </span>
-          <div v-if="serviceAnnouncement && serviceAnnouncement.isLive">{{ serviceAnnouncement.text }}</div>
+          <div
+            v-if="announcement && announcement.isLive"
+            class="service-announcement w-100">
+            <div class="p-3">
+              {{ announcement.text }}
+            </div>
+          </div>
           <!-- The ':key' attribute forces component reload when same route is requested with diff id in path. -->
           <router-view :key="stripAnchorRef($route.fullPath)"></router-view>
         </div>
@@ -135,5 +141,9 @@ export default {
   background-color: #125074;
   flex: 0 0 230px;
   min-height: 100%;
+}
+.service-announcement {
+  background-color: #337ab7;
+  color: #fff;
 }
 </style>
