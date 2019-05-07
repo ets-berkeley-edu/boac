@@ -74,18 +74,27 @@ def app_version():
 @login_required
 def get_service_announcement():
     announcement = _get_service_announcement()
-    return tolerant_jsonify(announcement if current_user.is_admin or announcement['isLive'] else None)
+    return tolerant_jsonify(announcement if current_user.is_admin or announcement['isPublished'] else None)
 
 
 @app.route('/api/service_announcement/update', methods=['POST'])
 @admin_required
 def update_service_announcement():
     params = request.get_json()
-    text = params.get('text')
-    is_live = to_bool_or_none(params.get('isLive'))
-    if not text or is_live is None:
-        raise BadRequestError('API requires \'text\' and \'isLive\'')
-    _update_service_announcement(text, is_live)
+    text = params.get('text', '').strip()
+    if not text and _is_service_announcement_published():
+        raise BadRequestError('If the service announcement is published then API requires \'text\'')
+    ToolSetting.upsert('SERVICE_ANNOUNCEMENT_TEXT', text)
+    return tolerant_jsonify(_get_service_announcement())
+
+
+@app.route('/api/service_announcement/publish', methods=['POST'])
+@admin_required
+def publish_service_announcement():
+    publish = to_bool_or_none(request.get_json().get('publish'))
+    if publish is None:
+        raise BadRequestError('API requires \'publish\' arg')
+    ToolSetting.upsert('SERVICE_ANNOUNCEMENT_IS_PUBLISHED', publish)
     return tolerant_jsonify(_get_service_announcement())
 
 
@@ -98,14 +107,12 @@ def load_json(relative_path):
 
 
 def _get_service_announcement():
-    is_live = ToolSetting.get_tool_setting('SERVICE_ANNOUNCEMENT_IS_LIVE')
-    is_live = False if is_live is None else to_bool_or_none(is_live)
     return {
         'text': ToolSetting.get_tool_setting('SERVICE_ANNOUNCEMENT_TEXT'),
-        'isLive': is_live,
+        'isPublished': _is_service_announcement_published(),
     }
 
 
-def _update_service_announcement(text, is_live):
-    ToolSetting.upsert('SERVICE_ANNOUNCEMENT_TEXT', text)
-    ToolSetting.upsert('SERVICE_ANNOUNCEMENT_IS_LIVE', is_live)
+def _is_service_announcement_published():
+    is_published = ToolSetting.get_tool_setting('SERVICE_ANNOUNCEMENT_IS_PUBLISHED')
+    return False if is_published is None else to_bool_or_none(is_published)

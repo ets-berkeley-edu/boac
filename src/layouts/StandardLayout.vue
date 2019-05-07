@@ -32,7 +32,7 @@
             {{ srAlert }}
           </span>
           <div
-            v-if="announcement && announcement.isLive"
+            v-if="announcement && announcement.isPublished"
             class="service-announcement w-100">
             <div class="p-3" aria-live="polite" role="alert">
               {{ announcement.text }}
@@ -143,7 +143,7 @@ export default {
   min-height: 100%;
 }
 .service-announcement {
-  background-color: #337ab7;
-  color: #fff;
+  background-color: #f0ad4e;
+  font-weight: 500;
 }
 </style>

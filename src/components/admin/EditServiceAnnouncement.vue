@@ -1,34 +1,41 @@
 <template>
   <div v-if="announcement !== undefined" class="mt-3">
     <h2 class="page-section-header-sub">Service Alert</h2>
-    <div v-if="error" class="has-error ml-2 p-1 w-100">
-      <span aria-live="polite" role="alert">{{ error }}</span>
-    </div>
     <div class="p-2">
+      <div>
+        <b-form-checkbox
+          v-if="!isTogglingPublish"
+          id="checkbox-publish-service-announcement"
+          v-model="isPublished"
+          :disabled="isSaving || text !== originalText"
+          @change="togglePublish">
+          {{ isPublished ? 'Posted' : 'Post' }}
+        </b-form-checkbox>
+        <div v-if="isTogglingPublish">
+          <span class="fa fa-spinner fa-spin"></span>
+          {{ isPublished ? 'Unposting...' : 'Posting...' }}
+        </div>
+      </div>
+      <div v-if="error" class="mt-2 has-error w-100">
+        <span aria-live="polite" role="alert">{{ error }}</span>
+      </div>
       <b-form-textarea
-        id="service-announcement-textarea"
+        id="textarea-update-service-announcement"
         v-model="text"
-        aria-label="Enter service announcement for users to read"
+        class="mt-3"
+        aria-label="Service announcement that, when published, users will read"
         rows="3"
         max-rows="5"
         :disabled="isSaving"
       ></b-form-textarea>
-      <span
-        v-if="isSaving"
-        role="alert"
-        aria-live="passive"
-        class="sr-only">{{ isPublished ? 'Publishing' : 'Unpublishing' }} the service announcement</span>
-      <b-form-checkbox
-        id="publish-service-announcement"
-        v-model="isPublished"
-        class="mt-2 ml-2"
-        :disabled="isSaving">
-        Publish
-      </b-form-checkbox>
       <div>
-        <b-btn variant="primary" class="btn-primary-color-override m-2" @click="save">
-          <span v-if="isSaving"><i class="fa fa-spinner fa-spin"></i> Saving...</span>
-          <span v-if="!isSaving">Save</span>
+        <b-btn
+          variant="primary"
+          class="btn-primary-color-override mt-2"
+          :disabled="text === originalText"
+          @click="updateText">
+          <span v-if="isSaving"><i class="fa fa-spinner fa-spin"></i> Update...</span>
+          <span v-if="!isSaving">Update</span>
         </b-btn>
       </div>
     </div>
@@ -38,36 +45,53 @@
 <script>
 import Context from '@/mixins/Context';
 import Util from '@/mixins/Util';
-import { getServiceAnnouncement, updateServiceAnnouncement } from '@/api/config';
+import { getServiceAnnouncement, publishAnnouncement, updateAnnouncement } from '@/api/config';
 
 export default {
   name: 'EditServiceAnnouncement',
   mixins: [Context, Util],
   data: () => ({
     error: undefined,
-    text: undefined,
     isPublished: undefined,
-    isSaving: false
+    isTogglingPublish: false,
+    isSaving: false,
+    originalText: undefined,
+    text: undefined
   }),
   created() {
     getServiceAnnouncement().then(data => {
-      this.text = data.text;
-      this.isPublished = data.isLive;
+      this.originalText = this.text = data.text;
+      this.isPublished = data.isPublished;
     })
   },
   methods: {
-    save() {
+    togglePublish() {
+      const publish = !this.isPublished;
+      this.error = null;
+      this.isTogglingPublish = true;
+      if (!this.originalText.length && publish) {
+        this.error = 'You are not allowed to publish empty text.';
+        this.isTogglingPublish = false;
+      } else {
+        publishAnnouncement(publish).then(data => {
+          this.isPublished = data.isPublished;
+          this.isTogglingPublish = false;
+          this.alertScreenReader(`Service announcement has been ${this.isPublished ? 'published' : 'unpublished'}.`);
+        });
+      }
+    },
+    updateText() {
       this.error = null;
       this.isSaving = true;
-      this.text = this.trim(this.text);
-      if (!this.text.length && this.isPublished) {
+      if (!this.trim(this.text).length && this.isPublished) {
         this.error = 'You are not allowed to publish empty text.';
         this.isSaving = false;
       } else {
-        updateServiceAnnouncement(this.text, this.isPublished).then(data => {
-          this.text = data.text;
-          this.isPublished = data.isLive;
+        updateAnnouncement(this.text).then(data => {
+          this.originalText = this.text = data.text;
+          this.isPublished = data.isPublished;
           this.isSaving = false;
+          this.alertScreenReader('The service announcement has been updated.');
         });
       }
     }
