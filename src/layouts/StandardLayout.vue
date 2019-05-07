@@ -34,7 +34,7 @@
           <div
             v-if="announcement && announcement.isLive"
             class="service-announcement w-100">
-            <div class="p-3">
+            <div class="p-3" aria-live="polite" role="alert">
               {{ announcement.text }}
             </div>
           </div>

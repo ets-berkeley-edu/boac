@@ -1,6 +1,9 @@
 <template>
   <div v-if="announcement !== undefined" class="mt-3">
     <h2 class="page-section-header-sub">Service Alert</h2>
+    <div v-if="error" class="has-error ml-2 p-1 w-100">
+      <span aria-live="polite" role="alert">{{ error }}</span>
+    </div>
     <div class="p-2">
       <b-form-textarea
         id="service-announcement-textarea"
@@ -34,12 +37,14 @@
 
 <script>
 import Context from '@/mixins/Context';
+import Util from '@/mixins/Util';
 import { getServiceAnnouncement, updateServiceAnnouncement } from '@/api/config';
 
 export default {
   name: 'EditServiceAnnouncement',
-  mixins: [Context],
+  mixins: [Context, Util],
   data: () => ({
+    error: undefined,
     text: undefined,
     isPublished: undefined,
     isSaving: false
@@ -52,12 +57,19 @@ export default {
   },
   methods: {
     save() {
+      this.error = null;
       this.isSaving = true;
-      updateServiceAnnouncement(this.text, this.isPublished).then(data => {
-        this.text = data.text;
-        this.isPublished = data.isLive;
+      this.text = this.trim(this.text);
+      if (!this.text.length && this.isPublished) {
+        this.error = 'You are not allowed to publish empty text.';
         this.isSaving = false;
-      });
+      } else {
+        updateServiceAnnouncement(this.text, this.isPublished).then(data => {
+          this.text = data.text;
+          this.isPublished = data.isLive;
+          this.isSaving = false;
+        });
+      }
     }
   }
 }
