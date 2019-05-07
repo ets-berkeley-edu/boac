@@ -464,6 +464,16 @@ export default {
 </script>
 
 <style>
+.btn-add-topic:not(:disabled) {
+  cursor: pointer;
+}
+.btn-add-topic:hover,
+.btn-add-topic:focus,
+.btn-add-topic:active
+{
+  color: #333;
+  background-color: #aaa;
+}
 .pill {
   background-color: #fff;
   border: 1px solid #999;

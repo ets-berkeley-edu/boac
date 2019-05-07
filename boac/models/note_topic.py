@@ -44,7 +44,7 @@ class NoteTopic(db.Model):
     def create_note_topic(cls, note, topic, author_uid):
         return NoteTopic(
             note_id=note.id,
-            topic=topic,
+            topic=topic.upper(),
             author_uid=author_uid,
         )
 

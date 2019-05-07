@@ -201,7 +201,7 @@ def _get_name(user):
 
 def _get_topics(params):
     topics = params.get('topics', ())
-    return topics if isinstance(topics, list) else str(topics).split(',')
+    return topics if isinstance(topics, list) else list(filter(None, str(topics).split(',')))
 
 
 def _get_attachments(request_files, tolerate_none=False):

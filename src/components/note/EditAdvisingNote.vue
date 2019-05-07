@@ -218,16 +218,6 @@ export default {
 </script>
 
 <style scoped>
-.btn-add-topic:not(:disabled) {
-  cursor: pointer;
-}
-.btn-add-topic:hover,
-.btn-add-topic:focus,
-.btn-add-topic:active
-{
-  color: #333;
-  background-color: #aaa;
-}
 .edit-note-form {
   flex-basis: 100%;
 }

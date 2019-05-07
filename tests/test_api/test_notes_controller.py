@@ -120,6 +120,9 @@ class TestCreateNotes:
             topics=['collaborative synergies', 'integrated architectures', 'vertical solutions'],
         )
         assert len(note.get('topics')) == 3
+        assert note.get('topics')[0] == 'COLLABORATIVE SYNERGIES'
+        assert note.get('topics')[1] == 'INTEGRATED ARCHITECTURES'
+        assert note.get('topics')[2] == 'VERTICAL SOLUTIONS'
 
     def test_create_note_with_attachments(self, app, client, fake_auth):
         """Create a note, with two attachments."""
@@ -314,7 +317,9 @@ class TestUpdateNotes:
             topics=expected_topics,
         )
         assert updated_note_response['read'] is True
-        assert updated_note_response['topics'] == expected_topics
+        assert len(updated_note_response['topics']) == 2
+        assert updated_note_response['topics'][0] == 'NO COLOR NO CONTRAST'
+        assert updated_note_response['topics'][1] == 'JOYFUL MASK'
         updated_note = Note.find_by_id(note_id=asc_advising_note.id)
         assert len(updated_note.topics) == 2
 
