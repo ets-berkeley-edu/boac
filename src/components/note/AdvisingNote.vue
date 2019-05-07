@@ -6,7 +6,7 @@
       <span v-if="!note.subject && !size(note.message)" :id="`note-${note.id}-category-closed`">{{ note.category }}<span v-if="note.subcategory" :id="`note-${note.id}-subcategory-closed`">, {{ note.subcategory }}</span></span>
     </div>
     <div v-if="isOpen" :id="`note-${note.id}-is-open`">
-      <div v-if="featureFlagEditNotes">
+      <div v-if="isEditable">
         <b-btn
           v-if="user.isAdmin"
           class="sr-only"
@@ -80,7 +80,7 @@
               {{ attachment.displayName }}
             </a>
             <b-btn
-              v-if="featureFlagEditNotes && (user.isAdmin || user.uid === note.author.uid)"
+              v-if="isEditable && (user.isAdmin || user.uid === note.author.uid)"
               :id="`note-${note.id}-remove-note-attachment-${index}`"
               variant="link"
               class="p-0"
@@ -96,7 +96,7 @@
           </span>
         </li>
       </ul>
-      <div v-if="featureFlagEditNotes && user.uid === note.author.uid">
+      <div v-if="isEditable && user.uid === note.author.uid">
         <div v-if="attachmentError" class="mt-3 mb-3 w-100">
           <i class="fa fa-exclamation-triangle text-danger pr-1"></i>
           <span :id="`note-${note.id}-attachment-error`" aria-live="polite" role="alert">{{ attachmentError }}</span>
@@ -167,6 +167,9 @@ export default {
     uploadingAttachment: false
   }),
   computed: {
+    isEditable() {
+      return this.featureFlagEditNotes && !this.note.isLegacy;
+    },
     isPreCsNote() {
       return this.get(this.note, 'createdBy') === 'UCBCONVERSION';
     }
