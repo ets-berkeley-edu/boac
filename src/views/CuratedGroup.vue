@@ -33,7 +33,10 @@
         <div class="w-75">
           Type or paste a list of Student Identification (SID) numbers below. Example: 9999999990, 9999999991
         </div>
-        <CuratedGroupBulkAdd :bulk-add-sids="bulkAddSids" :curated-group-id="curatedGroup.id" />
+        <CuratedGroupBulkAdd
+          :bulk-add-sids="bulkAddSids"
+          :curated-group-id="curatedGroup.id"
+          :is-saving="isAddingStudents" />
       </div>
     </div>
   </div>
@@ -72,6 +75,7 @@ export default {
   data: () => ({
     curatedGroup: {},
     error: undefined,
+    isAddingStudents: false,
     mode: undefined,
     sortByMappings: {
       first_name: 'firstName',
@@ -121,6 +125,7 @@ export default {
   methods: {
     bulkAddSids(sids) {
       if (this.size(sids)) {
+        this.isAddingStudents = true;
         this.alertScreenReader(`Adding ${sids.length} students`);
         addStudents(this.curatedGroup, sids, true)
           .then(group => {
@@ -129,6 +134,7 @@ export default {
             this.mode = undefined;
             this.putFocusNextTick('curated-group-name');
             this.alertScreenReader(`${sids.length} students added to group '${this.curatedGroup.name}'`);
+            this.isAddingStudents = false;
             this.gaCuratedEvent(
               this.curatedGroup.id,
               this.curatedGroup.name,

@@ -4,7 +4,7 @@
     <div>
       Type or paste a list of Student Identification (SID) numbers below. Example: 9999999990, 9999999991
     </div>
-    <CuratedGroupBulkAdd :bulk-add-sids="bulkAddSids" />
+    <CuratedGroupBulkAdd :bulk-add-sids="bulkAddSids" :is-saving="isSaving" />
     <b-modal
       id="modal"
       v-model="showCreateModal"
@@ -34,26 +34,28 @@ export default {
   components: {CreateCuratedGroupModal, CuratedGroupBulkAdd},
   mixins: [Context, GoogleAnalytics, Util],
   data: () => ({
-    isCreatingCuratedGroup: false,
+    isSaving: false,
     showCreateModal: false,
     sids: undefined
   }),
   methods: {
     bulkAddSids(sids) {
+      this.isSaving = true;
       this.sids = sids;
       this.showCreateModal = true;
     },
     cancel() {
       this.showCreateModal = false;
+      this.isSaving = false;
       this.alertScreenReader(`You have cancelled the operation to create a new curated group.`);
     },
     create(name) {
-      this.isCreatingCuratedGroup = true;
       this.showCreateModal = false;
       createCuratedGroup(name, this.sids)
         .then(group => {
           this.gaCuratedEvent(group.id, group.name, 'Create curated group with bulk SIDs');
           this.alertScreenReader(`Curated group '${name}' created. It has ${this.sids.length} students.`);
+          this.isSaving = false;
           this.$router.push(`/curated/${group.id}`);
         });
     }
