@@ -40,13 +40,13 @@ def advisor_session(fake_auth):
 
 
 @pytest.fixture()
-def announcement_is_not_live():
-    return _update_service_announcement(text='Not reddy four prime tyme', is_live=False)
+def announcement_unpublished():
+    return _update_service_announcement(text='Not reddy four prime tyme', is_published=False)
 
 
 @pytest.fixture()
-def announcement_is_live():
-    return _update_service_announcement(text='Papa was a rodeo', is_live=True)
+def announcement_published():
+    return _update_service_announcement(text='Papa was a rodeo', is_published=True)
 
 
 class TestConfigController:
@@ -92,76 +92,80 @@ class TestServiceAnnouncement:
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_not_authenticated(self, client, announcement_is_live):
+    def test_not_authenticated(self, client, announcement_published):
         """Rejects anonymous user."""
         self._api_service_announcement(client, expected_status_code=401)
 
-    def test_announcement_is_not_live_as_advisor(self, client, advisor_session, announcement_is_not_live):
+    def test_advisor_cannot_read_unpublished(self, client, advisor_session, announcement_unpublished):
         """Advisor does not have access to the unpublished announcement."""
         assert self._api_service_announcement(client) is None
 
-    def test_announcement_is_not_live_as_admin(self, client, admin_session, announcement_is_not_live):
+    def test_admin_can_read_unpublished(self, client, admin_session, announcement_unpublished):
         """Admin has access to the unpublished announcement."""
-        unpublished_announcement = announcement_is_not_live['text']
         api_json = self._api_service_announcement(client)
         assert api_json == {
-            'text': unpublished_announcement,
-            'isLive': False,
+            'text': announcement_unpublished['text'],
+            'isPublished': False,
         }
 
-    def test_announcement_is_live(self, client, advisor_session, announcement_is_live):
+    def test_announcement_published(self, client, advisor_session, announcement_published):
         """All users get the service announcement."""
-        assert self._api_service_announcement(client) == announcement_is_live
+        assert self._api_service_announcement(client) == announcement_published
 
 
 class TestUpdateAnnouncement:
     """Tool Settings API."""
 
     @staticmethod
-    def _api_update_announcement(client, text, is_live, expected_status_code=200):
+    def _publish_announcement(client, publish, expected_status_code=200):
         response = client.post(
-            '/api/service_announcement/update',
+            '/api/service_announcement/publish',
             content_type='application/json',
-            data=json.dumps({'text': text, 'isLive': is_live}),
+            data=json.dumps({'publish': publish}),
         )
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_not_authenticated(self, client):
-        """Rejects anonymous user."""
-        self._api_update_announcement(
-            client,
-            text='The sun goes down and the world goes dancing',
-            is_live=True,
-            expected_status_code=401,
+    @staticmethod
+    def _update_announcement(client, text, expected_status_code=200):
+        response = client.post(
+            '/api/service_announcement/update',
+            content_type='application/json',
+            data=json.dumps({'text': text}),
         )
+        assert response.status_code == expected_status_code
+        return response.json
 
-    def test_not_authorized(self, client, advisor_session):
-        """Rejects non-admin user."""
-        self._api_update_announcement(
-            client,
-            text='Abigail, Belle of Kilronan',
-            is_live=True,
-            expected_status_code=401,
-        )
+    def test_not_authenticated_update(self, client):
+        """Rejects anonymous user's attempt to update."""
+        self._update_announcement(client, text='The sun goes down and the world goes dancing', expected_status_code=401)
 
-    def test_update_service_announcement(self, client, admin_session):
-        """Admin can update service announcement."""
+    def test_not_authenticated_publish(self, client):
+        """Rejects anonymous user's attempt to publish."""
+        self._publish_announcement(client, publish=True, expected_status_code=401)
+
+    def test_not_authorized_update(self, client, advisor_session):
+        """Rejects advisor's attempt to update."""
+        self._update_announcement(client, text='Abigail, Belle of Kilronan', expected_status_code=401)
+
+    def test_not_authorized_publish(self, client, advisor_session):
+        """Rejects advisor's attempt to publish."""
+        self._publish_announcement(client, publish=True, expected_status_code=401)
+
+    def test_update_service_announcement(self, client, admin_session, announcement_published):
+        """Admin can update the service announcement text."""
         text = 'Papa was a rodeo'
-        self._api_update_announcement(client, text=text, is_live=True)
+        self._update_announcement(client, text=text)
         # Verify the update
         response = client.get('/api/service_announcement')
         assert response.status_code == 200
-        assert response.json == {
-            'text': text,
-            'isLive': True,
-        }
+        assert response.json == {'text': text, 'isPublished': True}
 
 
-def _update_service_announcement(text, is_live):
+def _update_service_announcement(text, is_published):
     ToolSetting.upsert('SERVICE_ANNOUNCEMENT_TEXT', text)
-    ToolSetting.upsert('SERVICE_ANNOUNCEMENT_IS_LIVE', is_live)
+    ToolSetting.upsert('SERVICE_ANNOUNCEMENT_IS_PUBLISHED', is_published)
     return {
         'text': text,
-        'isLive': is_live,
+        'isPublished': is_published,
     }
