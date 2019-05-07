@@ -185,7 +185,7 @@ def download_attachment(attachment_id):
     id_ = attachment_id if is_legacy else int(attachment_id)
     stream_data = get_legacy_attachment_stream(id_) if is_legacy else get_boa_attachment_stream(id_)
     if not stream_data or not stream_data['stream']:
-        raise ResourceNotFoundError('Attachment not found')
+        return Response('Sorry, attachment not available.', mimetype='text/html', status=404)
     r = Response(stream_data['stream'])
     r.headers['Content-Type'] = 'application/octet-stream'
     encoding_safe_filename = urllib.parse.quote(stream_data['filename'].encode('utf8'))
