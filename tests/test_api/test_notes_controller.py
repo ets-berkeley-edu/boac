@@ -487,12 +487,14 @@ class TestStreamNoteAttachments:
             fake_auth.login(asc_advisor_uid)
             response = client.get('/api/notes/attachment/9000000000_00002_1.pdf')
             assert response.status_code == 404
+            assert response.data == b'Sorry, attachment not available.'
 
     def test_stream_attachment_reports_missing_files_not_found(self, app, client, fake_auth):
         with mock_legacy_note_attachment(app):
             fake_auth.login(asc_advisor_uid)
             response = client.get('/api/notes/attachment/h0ax.lol')
             assert response.status_code == 404
+            assert response.data == b'Sorry, attachment not available.'
 
 
 def _get_notes(client, uid):
