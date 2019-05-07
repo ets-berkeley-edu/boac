@@ -107,6 +107,20 @@ class TestCreateNotes:
         match = next((n for n in notes if n['id'] == note_id), None)
         assert match and match['subject'] == subject
 
+    def test_create_note_with_topics(self, app, client, fake_auth):
+        """Create a note with topics."""
+        fake_auth.login(coe_advisor_uid)
+        note = _api_note_create(
+            app,
+            client,
+            author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
+            sid=student['sid'],
+            subject='Incubate transparent web services',
+            body='Facilitate value-added initiatives',
+            topics=['collaborative synergies', 'integrated architectures', 'vertical solutions'],
+        )
+        assert len(note.get('topics')) == 3
+
     def test_create_note_with_attachments(self, app, client, fake_auth):
         """Create a note, with two attachments."""
         fake_auth.login(coe_advisor_uid)
@@ -221,6 +235,7 @@ class TestUpdateNotes:
             note_id,
             subject,
             body,
+            topics=(),
             attachments=(),
             delete_attachment_ids=(),
             expected_status_code=200,
@@ -230,6 +245,7 @@ class TestUpdateNotes:
                 'id': note_id,
                 'subject': subject,
                 'body': body,
+                'topics': ','.join(topics),
                 'deleteAttachmentIds': delete_attachment_ids or [],
             }
             for index, path in enumerate(attachments):
@@ -284,6 +300,23 @@ class TestUpdateNotes:
         updated_note = Note.find_by_id(note_id=new_coe_note.id)
         assert updated_note.subject == expected_subject
         assert updated_note.body == expected_body
+
+    def test_update_note_with_topics(self, app, client, fake_auth, new_coe_note, asc_advising_note):
+        """Update a note: delete existing topic and add a new one."""
+        fake_auth.login(asc_advising_note.author_uid)
+        expected_topics = ['no color no contrast', 'joyful mask']
+        updated_note_response = self._api_note_update(
+            app,
+            client,
+            note_id=asc_advising_note.id,
+            subject=asc_advising_note.subject,
+            body=asc_advising_note.body,
+            topics=expected_topics,
+        )
+        assert updated_note_response['read'] is True
+        assert updated_note_response['topics'] == expected_topics
+        updated_note = Note.find_by_id(note_id=asc_advising_note.id)
+        assert len(updated_note.topics) == 2
 
     def test_update_note_with_attachments(self, app, client, coe_advising_note_with_attachment, fake_auth):
         """Update a note: delete existing attachment and add a new one."""
@@ -347,8 +380,29 @@ class TestDeleteNote:
         assert 1 == original_count_per_sid - len(Note.get_notes_by_sid(new_coe_note.sid))
         assert not Note.update(note_id, 'Deleted note cannot be updated', 'Ditto')
 
+    def test_delete_note_with_topics(self, app, client, fake_auth):
+        """Delete a note with topics."""
+        fake_auth.login(coe_advisor_uid)
+        note = _api_note_create(
+            app,
+            client,
+            author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
+            sid=student['sid'],
+            subject='Recontextualize open-source supply-chains',
+            body='Conveniently repurpose enterprise-wide action items',
+            topics=['strategic interfaces'],
+        )
+        note_id = note.get('id')
+        # Log in as Admin and delete the note
+        fake_auth.login(admin_uid)
+        note_id = note['id']
+        response = client.delete(f'/api/notes/delete/{note_id}')
+        assert response.status_code == 200
+        # TODO: add deleted_at column to NoteTopic and populate it when parent Note is deleted.
+        # assert not NoteTopic.find_by_note_id(note_id)
+
     def test_delete_note_with_attachments(self, app, client, fake_auth):
-        """Create a note, with two attachments."""
+        """Delete a note with two attachments."""
         fake_auth.login(coe_advisor_uid)
         base_dir = app.config['BASE_DIR']
         note = _api_note_create(
@@ -454,13 +508,14 @@ def _asc_note_with_attachment():
     return None
 
 
-def _api_note_create(app, client, author_id, sid, subject, body, attachments=(), expected_status_code=200):
+def _api_note_create(app, client, author_id, sid, subject, body, topics=(), attachments=(), expected_status_code=200):
     with mock_advising_note_s3_bucket(app):
         data = {
             'authorId': author_id,
             'sid': sid,
             'subject': subject,
             'body': body,
+            'topics': ','.join(topics),
         }
         for index, path in enumerate(attachments):
             data[f'attachment[{index}]'] = open(path, 'rb')

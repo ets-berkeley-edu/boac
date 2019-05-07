@@ -337,6 +337,7 @@ export default {
       const note = this.find(this.messages, ['id', updatedNote.id]);
       note.subject = updatedNote.subject;
       note.body = note.message = updatedNote.body;
+      note.topics = updatedNote.topics;
       note.attachments = updatedNote.attachments;
       note.updatedAt = updatedNote.updatedAt;
       this.editExistingNoteId(null);

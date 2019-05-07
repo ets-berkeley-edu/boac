@@ -79,7 +79,7 @@ class TestMergedAdvisingNote:
         assert boa_created_note['updatedBy'] is None
         assert boa_created_note['updatedAt']
         assert boa_created_note['read'] is False
-        assert boa_created_note['topics'] is None
+        assert boa_created_note['topics'] == []
         assert len(boa_created_note['attachments']) == 1
 
     def test_get_advising_notes_ucbconversion_attachment(self, app, fake_auth):

@@ -24,6 +24,7 @@ export function updateNote(
     noteId: number,
     subject: string,
     body: string,
+    topics: string[],
     newAttachments: any[],
     deleteAttachmentIds: number[]
 ) {
@@ -31,6 +32,7 @@ export function updateNote(
     id: noteId,
     subject: subject,
     body: body,
+    topics: topics,
     deleteAttachmentIds: deleteAttachmentIds || []
   };
   _.each(newAttachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
