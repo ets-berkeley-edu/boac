@@ -53,7 +53,7 @@
           <label
             :id="`curated-group-${group.id}-name`"
             :for="`curated-group-${group.id}-checkbox`"
-            class="cohort-checkbox-name pb-0 pt-0"
+            class="curated-checkbox-label pb-0 pt-0"
             :aria-label="`${checkedGroups.includes(group.id) ? 'Remove student from' : 'Add student to'} group '${group.name}'`">{{ group.name }}</label>
         </b-dropdown-item>
       </div>
@@ -170,11 +170,9 @@ export default {
     modalCreateGroup(name) {
       this.isAdding = true;
       this.showModal = false;
-      let done = () => {
-        this.isAdding = false;
-      };
       createCuratedGroup(name, [this.sid])
         .then(group => {
+          this.checkedGroups.push(group.id);
           this.each(
             [
               'create',
@@ -184,8 +182,8 @@ export default {
               this.gaCuratedEvent(group.id, group.name, action);
             }
           );
-        })
-        .then(setTimeout(() => done(), 2000));
+          setTimeout(() => this.isAdding = false, 2000)
+        });
     },
     modalCancel() {
       this.showModal = false;
@@ -193,12 +191,6 @@ export default {
   }
 };
 </script>
-
-<style>
-.cohort-checkbox-name {
-  padding: 10px;
-}
-</style>
 
 <style scoped>
 .caret-down-width {
