@@ -37,6 +37,7 @@
         <NewNoteModal
           :disable="!!editingNoteId"
           :student="student"
+          :suggested-topics="suggestedTopics"
           :on-submit="onSubmitAdvisingNote"
           :on-successful-create="onCreateAdvisingNote" />
       </div>
@@ -129,12 +130,14 @@
                 :edit-note="editNote"
                 :note="message"
                 :after-saved="afterNoteUpdated"
+                :suggested-topics="suggestedTopics"
                 :is-open="includes(openMessages, message.transientId)" />
               <EditAdvisingNote
                 v-if="featureFlagEditNotes && message.type === 'note' && message.transientId === editingNoteId"
                 :after-cancelled="afterEditCancel"
                 :note="message"
-                :after-saved="afterNoteUpdated" />
+                :after-saved="afterNoteUpdated"
+                :suggested-topics="suggestedTopics" />
               <div v-if="includes(openMessages, message.transientId) && message.transientId !== editingNoteId" class="text-center close-message">
                 <b-btn
                   :id="`timeline-tab-${activeTab}-close-message`"
@@ -238,7 +241,7 @@ import TimelineDate from '@/components/student/profile/TimelineDate';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { dismissStudentAlert } from '@/api/student';
-import { deleteNote, markRead } from '@/api/notes';
+import { deleteNote, getTopics, markRead } from '@/api/notes';
 
 export default {
   name: 'AcademicTimeline',
@@ -275,7 +278,8 @@ export default {
     messageForDelete: undefined,
     messages: undefined,
     openMessages: [],
-    screenReaderAlert: undefined
+    screenReaderAlert: undefined,
+    suggestedTopics: undefined
   }),
   computed: {
     activeTab() {
@@ -320,6 +324,7 @@ export default {
     this.sortMessages();
     this.alertScreenReader('Academic Timeline has loaded');
     this.isTimelineLoading = false;
+    this.getSuggestedTopics();
   },
   mounted() {
     if (this.anchor) {
@@ -403,6 +408,11 @@ export default {
     editNote(message) {
       this.editExistingNoteId(message.transientId);
       this.putFocusNextTick('edit-note-subject');
+    },
+    getSuggestedTopics() {
+      getTopics().then(data => {
+        this.suggestedTopics = data;
+      });
     },
     id(rowIndex) {
       return `timeline-tab-${this.activeTab}-message-${rowIndex}`;

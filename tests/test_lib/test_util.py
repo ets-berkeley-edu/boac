@@ -34,6 +34,15 @@ class TestUtil:
         """Cleans up leading, trailing, and repeated whitespace."""
         assert util.vacuum_whitespace('  Firstname    Lastname   ') == 'Firstname Lastname'
 
+    def test_titleize(self, app):
+        """Converts a sentence to title case, excepting articles and abbreviations."""
+        app.config['ABBREVIATED_WORDS'] = None
+        assert util.titleize('head like a hole, black as your soul') == 'Head Like a Hole, Black as Your Soul'
+        assert util.titleize('I\'D RATHER DIE THAN GIVE YOU CONTROL') == 'I\'d Rather Die Than Give You Control'
+        app.config['ABBREVIATED_WORDS'] = ['BOW', 'YOU']
+        assert util.titleize('bOw dOwn bEfOrE thE OnE yOu sErvE') == 'BOW Down Before the One YOU Serve'
+        assert util.titleize('YOU\'RE GOING To GET WHAT (you) DESERVE') == 'You\'re Going to Get What (YOU) Deserve'
+
     def test_tolerant_remove(self):
         """Ignores error if item not found in list."""
         assert not util.tolerant_remove([], 'foo')

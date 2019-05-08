@@ -32,6 +32,7 @@ from boac.lib.util import is_int
 from boac.merged.advising_note import get_boa_attachment_stream, get_legacy_attachment_stream, note_to_compatible_json
 from boac.models.note import Note
 from boac.models.note_read import NoteRead
+from boac.models.topic import Topic
 from flask import current_app as app, request, Response
 from flask_login import current_user, login_required
 
@@ -130,6 +131,13 @@ def delete_note(note_id):
         raise ResourceNotFoundError('Note not found')
     Note.delete(note_id=note_id)
     return tolerant_jsonify({'message': f'Note {note_id} deleted'}), 200
+
+
+@app.route('/api/notes/topics', methods=['GET'])
+@login_required
+@feature_flag_edit_notes
+def get_topics():
+    return tolerant_jsonify([topic.to_api_json() for topic in Topic.get()])
 
 
 @app.route('/api/notes/<note_id>/attachment', methods=['POST'])

@@ -84,6 +84,7 @@
             class="mt-2 mr-3 mb-1 ml-3"
             :function-add="addTopic"
             :function-remove="removeTopic"
+            :suggested-topics="suggestedTopics"
             :topics="topics" />
           <div v-if="newNoteMode === 'fullScreen'" class="mt-2 mr-3 mb-1 ml-3">
             <div v-if="attachmentError" class="mt-3 mb-3 w-100">
@@ -236,7 +237,8 @@ export default {
     disable: Boolean,
     onSubmit: Function,
     onSuccessfulCreate: Function,
-    student: Object
+    student: Object,
+    suggestedTopics: Array
   },
   data: () => ({
     attachment: undefined,
