@@ -102,22 +102,22 @@ class TestCollegeOfEngineering:
 
     def test_authorized_request_for_gender(self, client, coe_advisor):
         """For now, only COE users can access gender data."""
-        response = self._api_students(client, {'genders': ['f']})
+        response = self._api_students(client, {'genders': ['F']})
         assert response.status_code == 200
         students = response.json['students']
         assert len(students) == 2
         assert students[0]['sid'] == '7890123456'
-        assert students[0]['coeProfile']['gender'] == 'w'
+        assert students[0]['coeProfile']['gender'] == 'F'
         assert students[0]['coeProfile']['isActiveCoe'] is True
         assert students[1]['sid'] == '9000000000'
-        assert students[1]['coeProfile']['gender'] == 'w'
+        assert students[1]['coeProfile']['gender'] == 'F'
         assert students[1]['coeProfile']['isActiveCoe'] is False
 
     def test_authorized_request_for_coe_inactive_gender(self, client, coe_advisor):
         response = self._api_students(
             client,
             {
-                'genders': ['f'],
+                'genders': ['F'],
                 'isInactiveCoe': True,
             },
         )
@@ -724,7 +724,7 @@ class TestStudent:
         coe_profile = response['coeProfile']
         assert coe_profile == {
             'advisorUid': '1133399',
-            'gender': 'w',
+            'gender': 'F',
             'ethnicity': 'B',
             'minority': True,
             'didPrep': False,
