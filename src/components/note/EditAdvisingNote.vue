@@ -29,6 +29,7 @@
     <AdvisingNoteTopics
       :function-add="addTopic"
       :function-remove="removeTopic"
+      :suggested-topics="suggestedTopics"
       :topics="topics" />
     <div class="d-flex mt-2 mb-2">
       <div>
@@ -100,7 +101,8 @@ export default {
   props: {
     afterCancelled: Function,
     afterSaved: Function,
-    note: Object
+    note: Object,
+    suggestedTopics: Array
   },
   data: () => ({
     body: undefined,

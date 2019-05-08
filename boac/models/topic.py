@@ -23,34 +23,28 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import datetime
+
 from boac import db
 
 
-class NoteTopic(db.Model):
-    __tablename__ = 'note_topics'
+class Topic(db.Model):
+    __tablename__ = 'topics'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
-    note_id = db.Column(db.Integer, db.ForeignKey('notes.id'), nullable=False, onupdate='cascade')
     topic = db.Column(db.String(255), nullable=False)
-    author_uid = db.Column(db.String(255), db.ForeignKey('authorized_users.uid'), nullable=False)
-    note = db.relationship('Note', back_populates='topics')
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
 
-    def __init__(self, note_id, topic, author_uid):
-        self.note_id = note_id
+    def __init__(self, topic):
         self.topic = topic
-        self.author_uid = author_uid
 
     @classmethod
-    def create_note_topic(cls, note, topic, author_uid):
-        return NoteTopic(
-            note_id=note.id,
-            topic=topic,
-            author_uid=author_uid,
-        )
+    def get(cls):
+        return cls.query.all()
 
     @classmethod
-    def find_by_note_id(cls, note_id):
-        return cls.query.filter(cls.note_id == note_id).all()
+    def create_topic(cls, topic):
+        return Topic(topic=topic)
 
     def to_api_json(self):
         return self.topic

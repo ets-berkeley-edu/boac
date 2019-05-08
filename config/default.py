@@ -70,6 +70,8 @@ DEVELOPER_AUTH_PASSWORD = 'another secret'
 # TODO: Remove when 'edit note' is in prod
 FEATURE_FLAG_EDIT_NOTES = False
 
+ABBREVIATED_WORDS = ['APR', 'EAP', 'PNP', 'SAP']
+
 # Set to a nice long chaotic string to enable scripted access to APIs.
 API_KEY = None
 

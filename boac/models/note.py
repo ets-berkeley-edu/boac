@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac import db, std_commit
+from boac.lib.util import titleize, vacuum_whitespace
 from boac.models.base import Base
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_topic import NoteTopic
@@ -78,7 +79,7 @@ class Note(Base):
         note = cls(author_uid, author_name, author_role, author_dept_codes, sid, subject, body)
         for topic in topics:
             note.topics.append(
-                NoteTopic.create_note_topic(note, topic, author_uid),
+                NoteTopic.create_note_topic(note, titleize(vacuum_whitespace(topic)), author_uid),
             )
         for byte_stream_bundle in attachments:
             note.attachments.append(
@@ -156,8 +157,8 @@ class Note(Base):
 
     @classmethod
     def _update_topics(cls, note, topics):
-        topics = set([topic.upper() for topic in topics])
-        existing_topics = set(note_topic.topic.upper() for note_topic in NoteTopic.find_by_note_id(note.id))
+        topics = set([titleize(vacuum_whitespace(topic)) for topic in topics])
+        existing_topics = set(note_topic.topic for note_topic in NoteTopic.find_by_note_id(note.id))
         topics_to_delete = existing_topics - topics
         topics_to_add = topics - existing_topics
         for topic in topics_to_delete:

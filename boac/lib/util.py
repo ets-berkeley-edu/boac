@@ -26,9 +26,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 import inspect
+import string
 
 from flask import current_app as app
 import pytz
+from titlecase import titlecase
 
 
 """Generic utilities."""
@@ -64,6 +66,15 @@ def localize_datetime(dt):
 
 def remove_none_values(_dict):
     return {k: v for k, v in _dict.items() if v is not None}
+
+
+def titleize(_str):
+    def handle_abbreviations(word, **kwargs):
+        if app.config['ABBREVIATED_WORDS'] and word.upper().strip(string.punctuation) in app.config['ABBREVIATED_WORDS']:
+            return word.upper()
+    if not isinstance(_str, str):
+        return _str
+    return titlecase(_str.upper(), callback=handle_abbreviations)
 
 
 def tolerant_remove(_list, item):

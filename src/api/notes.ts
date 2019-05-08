@@ -53,6 +53,13 @@ export function deleteNote(noteId: number) {
     .then(response => response.data);
 }
 
+export function getTopics() {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .get(`${apiBaseUrl}/api/notes/topics`)
+    .then(response => response.data);
+}
+
 export function addAttachment(noteId: number, attachment: any) {
   const data = {
     'attachment[0]': attachment,

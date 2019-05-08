@@ -22,7 +22,10 @@
               aria-labelledby="add-note-topic-label"
               type="text"
               maxlength="255"
-              @keydown.enter="addTopic"></b-form-input>
+              list="add-topic-input-list"
+              @keydown.enter="addTopic">
+            </b-form-input>
+            <b-form-datalist id="add-topic-input-list" :options="suggestedTopics"></b-form-datalist>
           </b-input-group>
         </b-col>
       </b-form-row>
@@ -60,6 +63,10 @@ export default {
       type: Function,
       required: true
     },
+    suggestedTopics: {
+      type: Array,
+      required: false
+    },
     topics: {
       type: Array,
       required: true
@@ -70,7 +77,9 @@ export default {
   }),
   methods: {
     addTopic() {
-      this.functionAdd(this.topic);
+      if (this.topic && this.topic.trim()) {
+        this.functionAdd(this.topic);
+      }
       this.topic = undefined;
     }
   }
