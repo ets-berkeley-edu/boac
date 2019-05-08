@@ -58,7 +58,7 @@
           <label
             :id="`curated-group-${group.id}-name`"
             :for="`curated-group-${group.id}-checkbox`"
-            class="cohort-checkbox-name pb-0 pt-0">{{ group.name }}</label>
+            class="curated-checkbox-label pb-0 pt-0">{{ group.name }}</label>
         </b-dropdown-item>
         <b-dropdown-divider></b-dropdown-divider>
         <b-dropdown-item>

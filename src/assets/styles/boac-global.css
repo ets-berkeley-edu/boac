@@ -10,6 +10,9 @@
 .boac-exclamation {
   color: #f0ad4e;
 }
+.curated-checkbox-label {
+  padding: 10px;
+}
 .cursor-pointer {
   cursor: pointer;
 }
