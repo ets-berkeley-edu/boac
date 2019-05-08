@@ -235,6 +235,7 @@ def query_students(
     advisor_ldap_uids=None,
     coe_prep_statuses=None,
     coe_probation=None,
+    cohort_owner=None,
     ethnicities=None,
     genders=None,
     gpa_ranges=None,
@@ -254,6 +255,12 @@ def query_students(
     underrepresented=None,
     unit_ranges=None,
 ):
+
+    # Admin users can see advisor-owned cohorts, but queries should be constrained by the cohort owner's department memberships.
+    scope = get_student_query_scope()
+    if 'ADMIN' in scope and cohort_owner:
+        scope = get_student_query_scope(cohort_owner)
+
     criteria = {
         'advisor_ldap_uids': advisor_ldap_uids,
         'coe_prep_statuses': coe_prep_statuses,
@@ -266,7 +273,7 @@ def query_students(
         'is_active_coe': is_active_coe,
         'underrepresented': underrepresented,
     }
-    scope = narrow_scope_by_criteria(get_student_query_scope(), **criteria)
+    scope = narrow_scope_by_criteria(scope, **criteria)
     query_tables, query_filter, query_bindings = data_loch.get_students_query(
         advisor_ldap_uids=advisor_ldap_uids,
         coe_prep_statuses=coe_prep_statuses,
@@ -375,19 +382,21 @@ def search_for_students(
     }
 
 
-def get_student_query_scope():
+def get_student_query_scope(user=None):
+    if user is None:
+        user = current_user
     # Use department membership and admin status to determine what data we can surface about which students.
     # If this code is being called outside an HTTP request context, then assume it is an administrative task.
     # Not all current_user proxy types define all attributes, and so the ordering of these conditional checks
     # is important.
-    if not current_user:
+    if not user:
         return ['ADMIN']
-    elif not current_user.is_authenticated:
+    elif not user.is_authenticated:
         return []
-    elif current_user.is_admin:
+    elif user.is_admin:
         return ['ADMIN']
     else:
-        return [m.university_dept.dept_code for m in current_user.department_memberships]
+        return [m.university_dept.dept_code for m in user.department_memberships]
 
 
 def narrow_scope_by_criteria(scope, **kwargs):

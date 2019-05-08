@@ -368,6 +368,30 @@ class TestCohortCreate:
         assert response.status_code == 200
         assert len(response.json['students']) == 2
 
+    def test_cohorts_respect_creators(self, client, fake_auth):
+        """Even under an admin view, cohorts constrain their membership by who created them."""
+        sophomore_filter = {
+            'name': 'Sophomores',
+            'filters': [
+                {'key': 'levels', 'type': 'array', 'value': 'Sophomore'},
+            ],
+        }
+
+        def _create_sophomore_cohort(owner_uid):
+            fake_auth.login(owner_uid)
+            response = self._post_cohort_create(client, sophomore_filter)
+            return response.json['id']
+        asc_sophomores_cohort_id = _create_sophomore_cohort(asc_advisor_uid)
+        coe_sophomores_cohort_id = _create_sophomore_cohort(coe_advisor_uid)
+        admin_sophomores_cohort_id = _create_sophomore_cohort(admin_uid)
+
+        def _count_students(cohort_id):
+            response = client.get(f'/api/cohort/{cohort_id}')
+            return len(response.json['students'])
+        assert _count_students(asc_sophomores_cohort_id) == 1
+        assert _count_students(coe_sophomores_cohort_id) == 2
+        assert _count_students(admin_sophomores_cohort_id) == 3
+
     def test_create_complex_cohort(self, client, coe_advisor_session):
         """Creates custom cohort, with many non-empty filter_criteria."""
         data = {
