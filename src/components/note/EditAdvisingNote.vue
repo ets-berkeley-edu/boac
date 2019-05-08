@@ -26,51 +26,10 @@
           :config="editorConfig"></ckeditor>
       </span>
     </div>
-    <div>
-      <label id="add-note-topic-label" class="font-weight-bold mt-2" for="add-note-topic">
-        Topic Categories
-      </label>
-    </div>
-    <b-container class="pl-0 ml-0">
-      <b-form-row class="pb-1">
-        <b-col cols="4">
-          <b-input-group>
-            <b-input-group-text
-              id="add-topic-button"
-              slot="append"
-              class="btn-add-topic"
-              @click="addTopic">
-              <i class="fas fa-plus pr-1"></i>Add
-            </b-input-group-text>
-            <b-form-input
-              id="add-note-topic"
-              v-model="topic"
-              aria-labelledby="add-note-topic-label"
-              type="text"
-              maxlength="255"
-              @keydown.enter="addTopic"></b-form-input>
-          </b-input-group>
-        </b-col>
-      </b-form-row>
-      <div>
-        <ul class="pill-list pl-0">
-          <li
-            v-for="(topic, index) in topics"
-            :key="index">
-            <span class="pill pill-attachment text-uppercase text-nowrap">
-              {{ topic }}
-              <b-btn
-                :id="`remove-topic-${index}`"
-                variant="link"
-                class="px-0 pt-1"
-                @click.prevent="removeTopic(topic)">
-                <i class="fas fa-times-circle has-error pl-2"></i>
-              </b-btn>
-            </span>
-          </li>
-        </ul>
-      </div>
-    </b-container>
+    <AdvisingNoteTopics
+      :function-add="addTopic"
+      :function-remove="removeTopic"
+      :topics="topics" />
     <div class="d-flex mt-2 mb-2">
       <div>
         <b-btn
@@ -125,6 +84,7 @@
 </template>
 
 <script>
+import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics';
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Context from '@/mixins/Context';
@@ -135,7 +95,7 @@ require('@/assets/styles/ckeditor-custom.css');
 
 export default {
   name: 'EditAdvisingNote',
-  components: { AreYouSureModal },
+  components: { AdvisingNoteTopics, AreYouSureModal },
   mixins: [Context, Util],
   props: {
     afterCancelled: Function,
@@ -160,9 +120,8 @@ export default {
     this.reset();
   },
   methods: {
-    addTopic() {
-      this.topics.push(this.topic);
-      this.topic = undefined;
+    addTopic(topic) {
+      this.topics.push(topic);
     },
     cancel() {
       this.clearErrors();
@@ -218,16 +177,6 @@ export default {
 </script>
 
 <style scoped>
-.btn-add-topic:not(:disabled) {
-  cursor: pointer;
-}
-.btn-add-topic:hover,
-.btn-add-topic:focus,
-.btn-add-topic:active
-{
-  color: #333;
-  background-color: #aaa;
-}
 .edit-note-form {
   flex-basis: 100%;
 }

@@ -79,6 +79,12 @@
               </span>
             </div>
           </div>
+          <AdvisingNoteTopics
+            v-if="newNoteMode === 'fullScreen'"
+            class="mt-2 mr-3 mb-1 ml-3"
+            :function-add="addTopic"
+            :function-remove="removeTopic"
+            :topics="topics" />
           <div v-if="newNoteMode === 'fullScreen'" class="mt-2 mr-3 mb-1 ml-3">
             <div v-if="attachmentError" class="mt-3 mb-3 w-100">
               <i class="fa fa-exclamation-triangle text-danger pr-1"></i>
@@ -210,6 +216,7 @@
 </template>
 
 <script>
+import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics';
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Context from '@/mixins/Context';
@@ -223,7 +230,7 @@ require('@/assets/styles/ckeditor-custom.css');
 
 export default {
   name: 'NewNoteModal',
-  components: { AreYouSureModal, FocusLock },
+  components: { AdvisingNoteTopics, AreYouSureModal, FocusLock },
   mixins: [Context, NoteEditSession, NoteUtil, Util],
   props: {
     disable: Boolean,
@@ -240,6 +247,7 @@ export default {
     isMinimizing: false,
     showErrorPopover: false,
     subject: undefined,
+    topics: [],
     editor: ClassicEditor,
     editorConfig: {
       toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
@@ -266,6 +274,9 @@ export default {
     this.reset();
   },
   methods: {
+    addTopic(topic) {
+      this.topics.push(topic);
+    },
     cancel() {
       this.clearErrors();
       if (this.trim(this.subject) || this.stripHtmlAndTrim(this.body) || this.size(this.attachments)) {
@@ -294,7 +305,7 @@ export default {
         this.body = this.trim(this.body);
         this.setNewNoteMode('saving');
         this.onSubmit();
-        createNote(this.student.sid, this.subject, this.body, this.attachments).then(data => {
+        createNote(this.student.sid, this.subject, this.body, this.topics, this.attachments).then(data => {
           this.reset();
           this.onSuccessfulCreate(data);
           this.alertScreenReader("New note saved.");
@@ -326,11 +337,16 @@ export default {
       this.alertScreenReader(`Attachment '${this.attachments[index].name}' removed`);
       this.attachments.splice(index, 1);
     },
+    removeTopic(topic) {
+      let index = this.topics.indexOf(topic);
+      this.topics.splice(index, 1);
+    },
     reset() {
       this.clearErrors();
       this.setNewNoteMode(null);
       this.subject = this.body = undefined;
       this.attachments = [];
+      this.topics = [];
     }
   }
 }
