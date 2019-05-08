@@ -181,6 +181,14 @@
                     class="mb-2"
                     sr-prefix="Last updated on" />
                 </div>
+                <div class="text-muted">
+                  <router-link
+                    :id="`advising-note-permalink-${message.id}`"
+                    :to="`#${message.id}`"
+                    @click.native="scrollTo(`#message-row-${message.id}`)">
+                    Permalink <i class="fas fa-link"></i>
+                  </router-link>
+                </div>
               </div>
               <span
                 v-if="!message.updatedAt && !message.createdAt"
