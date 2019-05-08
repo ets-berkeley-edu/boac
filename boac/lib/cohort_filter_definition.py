@@ -339,8 +339,8 @@ def _coe_prep_statuses():
 
 def _genders():
     return [
-        {'name': 'Female', 'value': 'f'},
-        {'name': 'Male', 'value': 'm'},
+        {'name': 'Female', 'value': 'F'},
+        {'name': 'Male', 'value': 'M'},
     ]
 
 
