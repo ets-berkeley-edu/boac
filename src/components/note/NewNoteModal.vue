@@ -79,53 +79,12 @@
               </span>
             </div>
           </div>
-          <div v-if="newNoteMode === 'fullScreen'" class="mt-2 mr-3 mb-1 ml-3">
-            <div>
-              <label id="add-note-topic-label" class="font-weight-bold mt-2" for="add-note-topic">
-                Topic Categories
-              </label>
-            </div>
-            <b-container class="pl-0 ml-0">
-              <b-form-row class="pb-1">
-                <b-col cols="4">
-                  <b-input-group>
-                    <b-input-group-text
-                      id="add-topic-button"
-                      slot="append"
-                      class="btn-add-topic"
-                      @click="addTopic">
-                      <i class="fas fa-plus pr-1"></i>Add
-                    </b-input-group-text>
-                    <b-form-input
-                      id="add-note-topic"
-                      v-model="topic"
-                      aria-labelledby="add-note-topic-label"
-                      type="text"
-                      maxlength="255"
-                      @keydown.enter="addTopic"></b-form-input>
-                  </b-input-group>
-                </b-col>
-              </b-form-row>
-              <div>
-                <ul class="pill-list pl-0">
-                  <li
-                    v-for="(topic, index) in topics"
-                    :key="index">
-                    <span class="pill pill-attachment text-uppercase text-nowrap">
-                      {{ topic }}
-                      <b-btn
-                        :id="`remove-topic-${index}`"
-                        variant="link"
-                        class="px-0 pt-1"
-                        @click.prevent="removeTopic(topic)">
-                        <i class="fas fa-times-circle has-error pl-2"></i>
-                      </b-btn>
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </b-container>
-          </div>
+          <AdvisingNoteTopics
+            v-if="newNoteMode === 'fullScreen'"
+            class="mt-2 mr-3 mb-1 ml-3"
+            :function-add="addTopic"
+            :function-remove="removeTopic"
+            :topics="topics" />
           <div v-if="newNoteMode === 'fullScreen'" class="mt-2 mr-3 mb-1 ml-3">
             <div v-if="attachmentError" class="mt-3 mb-3 w-100">
               <i class="fa fa-exclamation-triangle text-danger pr-1"></i>
@@ -257,6 +216,7 @@
 </template>
 
 <script>
+import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics';
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Context from '@/mixins/Context';
@@ -270,7 +230,7 @@ require('@/assets/styles/ckeditor-custom.css');
 
 export default {
   name: 'NewNoteModal',
-  components: { AreYouSureModal, FocusLock },
+  components: { AdvisingNoteTopics, AreYouSureModal, FocusLock },
   mixins: [Context, NoteEditSession, NoteUtil, Util],
   props: {
     disable: Boolean,
@@ -287,7 +247,6 @@ export default {
     isMinimizing: false,
     showErrorPopover: false,
     subject: undefined,
-    topic: undefined,
     topics: [],
     editor: ClassicEditor,
     editorConfig: {
@@ -315,9 +274,8 @@ export default {
     this.reset();
   },
   methods: {
-    addTopic() {
-      this.topics.push(this.topic);
-      this.topic = undefined;
+    addTopic(topic) {
+      this.topics.push(topic);
     },
     cancel() {
       this.clearErrors();
