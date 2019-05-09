@@ -1,16 +1,24 @@
 <template>
-  <div class="m-4">
-    <div class="d-flex justify-content-between">
-      <div>
+  <b-container fluid class="mt-2 mb-3">
+    <b-row>
+      <b-col cols="auto" class="mr-auto pb-1">
         <img src="@/assets/uc-berkeley-logo.svg" />
-      </div>
-      <div class="pt-3">
+      </b-col>
+      <b-col cols="auto">
+        <div>
+          Problem? Question? Suggestion? Email <a :href="`mailto:${supportEmailAddress}`" target="_blank">{{ supportEmailAddress }}</a>
+        </div>
         &copy; 2019 The Regents of the University of California
-      </div>
-    </div>
-  </div>
+      </b-col>
+    </b-row>
+  </b-container>
 </template>
 
 <script>
-export default { name: 'Footer' };
+import Context from '@/mixins/Context';
+
+export default {
+  name: 'Footer',
+  mixins: [Context]
+};
 </script>
