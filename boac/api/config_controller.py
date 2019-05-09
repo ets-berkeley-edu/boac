@@ -33,7 +33,7 @@ from boac.lib.http import tolerant_jsonify
 from boac.lib.util import to_bool_or_none
 from boac.models.tool_setting import ToolSetting
 from flask import current_app as app, request
-from flask_login import current_user, login_required
+from flask_login import current_user
 
 
 @app.route('/api/config')
@@ -71,10 +71,12 @@ def app_version():
 
 
 @app.route('/api/service_announcement')
-@login_required
 def get_service_announcement():
-    announcement = _get_service_announcement()
-    return tolerant_jsonify(announcement if current_user.is_admin or announcement['isPublished'] else None)
+    if current_user.is_authenticated:
+        announcement = _get_service_announcement()
+        return tolerant_jsonify(announcement if current_user.is_admin or announcement['isPublished'] else None)
+    else:
+        return tolerant_jsonify(None)
 
 
 @app.route('/api/service_announcement/update', methods=['POST'])
