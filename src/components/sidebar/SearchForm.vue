@@ -89,7 +89,37 @@
           <span class="sr-only">Search for</span>
           Notes
         </label>
+        <b-btn
+          v-if="includeNotes"
+          id="search-options-note-filters-toggle"
+          class="search-options-panel-toggle search-options-panel-toggle-subpanel"
+          variant="link"
+          @click="showNoteFilters = !showNoteFilters">
+          ({{ showNoteFilters ? 'hide' : 'show' }} filters)
+        </b-btn>
       </div>
+      <b-collapse
+        id="search-options-note-filters-subpanel"
+        v-model="showNoteFilters"
+        class="mt-2 text-white">
+        <div>
+          <b-form-group label="Posted By">
+            <b-form-radio
+              v-model="noteFilters.postedBy"
+              name="note-filters-posted-by"
+              value="anyone">
+              Anyone
+            </b-form-radio>
+            <b-form-radio
+              v-model="noteFilters.postedBy"
+              name="note-filters-posted-by"
+              value="you">
+              You
+            </b-form-radio>
+          </b-form-group>
+        </div>
+        <b-button type="submit" variant="primary">Find notes</b-button>
+      </b-collapse>
     </b-collapse>
   </form>
 </template>
@@ -97,11 +127,12 @@
 <script>
 import Context from '@/mixins/Context';
 import GoogleAnalytics from '@/mixins/GoogleAnalytics';
+import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'SearchForm',
-  mixins: [Context, GoogleAnalytics, Util],
+  mixins: [Context, GoogleAnalytics, UserMetadata, Util],
   props: {
     context: String,
     domain: Array,
@@ -111,7 +142,11 @@ export default {
       includeCourses: this.domain.includes('courses'),
       includeNotes: this.domain.includes('notes'),
       includeStudents: this.domain.includes('students'),
+      noteFilters: {
+        postedBy: 'anyone'
+      },
       searchPhrase: null,
+      showNoteFilters: false,
       showSearchOptions: false
     };
   },
@@ -120,18 +155,29 @@ export default {
       return this.showSearchOptions && !this.includeCourses && !this.includeNotes && !this.includeStudents;
     }
   },
+  watch: {
+    includeNotes: function(val) {
+      if (!val) {
+        this.showNoteFilters = false;
+      }
+    }
+  },
   methods: {
     search() {
       this.searchPhrase = this.trim(this.searchPhrase);
       if (this.searchPhrase) {
+        const query = {
+          q: this.searchPhrase,
+          courses: this.includeCourses,
+          notes: this.includeNotes,
+          students: this.includeStudents
+        };
+        if (this.includeNotes && this.noteFilters.postedBy === 'you') {
+          query.authorCsid = this.user.csid;
+        }
         this.$router.push({
           path: this.forceUniquePath('/search'),
-          query: {
-            q: this.searchPhrase,
-            courses: this.includeCourses,
-            notes: this.includeNotes,
-            students: this.includeStudents
-          }
+          query: query
         });
         this.gaEvent(
           'Search',
@@ -162,7 +208,10 @@ export default {
   color: #8bbdda;
   font-size: 12px;
 }
-.search-form-button {
+.search-options-panel-toggle-subpanel {
+  padding-left: 5px;
+}
+.search-students-form-button {
   min-width: 200px;
 }
 .search-form-label {
