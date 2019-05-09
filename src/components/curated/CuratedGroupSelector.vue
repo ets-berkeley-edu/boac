@@ -47,14 +47,12 @@
           v-for="group in myCuratedGroups"
           :id="`curated-group-${group.id}-menu-item`"
           :key="group.id"
-          class="b-dd-item-override"
-          :aria-label="`Hit return key to add students to curated group '${group.name}'`"
-          @click="curatedGroupCheckboxClick(group)">
+          class="b-dd-item-override">
           <input
             :id="`curated-group-${group.id}-checkbox`"
             type="checkbox"
-            :aria-label="`Hit space-bar to add students to curated group '${group.name}'`"
-            @click="curatedGroupCheckboxClick(group)" />
+            :aria-label="`Add students to curated group '${group.name}'`"
+            @click.prevent="curatedGroupCheckboxClick(group)" />
           <label
             :id="`curated-group-${group.id}-name`"
             :for="`curated-group-${group.id}-checkbox`"
