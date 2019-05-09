@@ -50,9 +50,7 @@
                 <span :id="'instructors-' + meetingIndex" class="course-instructors-header">
                   {{ meeting.instructors.length > 1 ? 'Instructors:' : 'Instructor:' }}
                 </span>
-                <span :class="{'demo-mode-blur': user.inDemoMode}">
-                  {{ meeting.instructors.join(', ') }}
-                </span>
+                {{ meeting.instructors.join(', ') }}
               </div>
               <div :id="'meetings-' + meetingIndex" class="course-details-meetings">
                 <div>{{ meeting.days }}</div>
