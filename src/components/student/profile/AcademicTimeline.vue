@@ -331,7 +331,12 @@ export default {
       const match = this.anchor.match(/#([0-9-]+)/);
       if (match) {
         const messageId = match[1];
-        const note = this.find(this.messages, ['id', messageId]);
+        const note = this.find(this.messages, function(m) {
+          // Legacy advising notes have string IDs; BOA-created advising notes have integer IDs.
+          if (m.id.toString() === messageId) {
+            return true;
+          }
+        });
         if (note) {
           this.isShowingAll = true;
           this.$nextTick(function() {
