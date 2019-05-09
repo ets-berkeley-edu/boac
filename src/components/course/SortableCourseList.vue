@@ -70,7 +70,7 @@
           <span class="sr-only">Course Name</span>
           {{ course.courseTitle }}
         </td>
-        <td :class="{'table-cell demo-mode-blur': user.inDemoMode, 'table-cell': !user.inDemoMode}">{{ course.instructors }}</td>
+        <td class="table-cell">{{ course.instructors }}</td>
       </tr>
     </table>
   </div>
