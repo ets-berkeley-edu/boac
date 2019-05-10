@@ -333,7 +333,7 @@ export default {
         const messageId = match[1];
         const note = this.find(this.messages, function(m) {
           // Legacy advising notes have string IDs; BOA-created advising notes have integer IDs.
-          if (m.id.toString() === messageId) {
+          if (m.id && m.id.toString() === messageId) {
             return true;
           }
         });
