@@ -120,22 +120,30 @@ def get_regular_undergraduate_session(term_id):
 
 def get_enrolled_primary_sections(term_id, course_name):
     sql = f"""SELECT * FROM {sis_schema()}.enrolled_primary_sections
-              WHERE term_id = '{term_id}'
-              AND sis_course_name_compressed LIKE '{course_name}%'
+              WHERE term_id = :term_id
+              AND sis_course_name_compressed LIKE :course_name
               ORDER BY sis_course_name_compressed, sis_instruction_format, sis_section_num
            """
-    return safe_execute_rds(sql)
+    return safe_execute_rds(sql, term_id=term_id, course_name=f'{course_name}%')
 
 
 def get_enrolled_primary_sections_for_parsed_code(term_id, subject_area, catalog_id):
-    subject_area_clause = f"AND sis_subject_area_compressed LIKE '{subject_area}%'" if subject_area else ''
+    params = {
+        'term_id': term_id,
+        'catalog_id': f'{catalog_id}%',
+    }
+    if subject_area:
+        subject_area_clause = 'AND sis_subject_area_compressed LIKE :subject_area'
+        params.update({'subject_area': f'{subject_area}%'})
+    else:
+        subject_area_clause = ''
     sql = f"""SELECT * FROM {sis_schema()}.enrolled_primary_sections
-              WHERE term_id = '{term_id}'
+              WHERE term_id = :term_id
               {subject_area_clause}
-              AND sis_catalog_id LIKE '{catalog_id}%'
+              AND sis_catalog_id LIKE :catalog_id
               ORDER BY sis_course_name_compressed, sis_instruction_format, sis_section_num
            """
-    return safe_execute_rds(sql)
+    return safe_execute_rds(sql, **params)
 
 
 @fixture('loch_sis_enrollments_{uid}_{term_id}.csv')
