@@ -295,7 +295,6 @@ export default {
       });
     },
     sort(options, sortBy) {
-      this.alertScreenReader();
       if (options.sortBy === sortBy) {
         options.reverse = !options.reverse;
       } else {
@@ -304,9 +303,7 @@ export default {
       }
       this.resorted = true;
       this.setSortDescriptions();
-      this.$nextTick(function() {
-        this.alertScreenReader(`Sorted by ${this.srText[this.options.sortBy]} ${this.options.reverse ? 'descending' : ''}`);
-      });
+      this.alertScreenReader(`Sorted by ${this.srText[this.options.sortBy]} ${this.options.reverse ? 'descending' : ''}`);
     },
     setSortDescriptions() {
       this.sortOptions = {};
