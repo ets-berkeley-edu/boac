@@ -337,7 +337,7 @@ def get_advising_notes(sid):
             created_by, updated_by, note_body, created_at, updated_at
         FROM {advising_notes_schema()}.advising_notes
         WHERE sid=:sid
-        ORDER BY created_at, updated_at"""
+        ORDER BY created_at, updated_at, id"""
     return safe_execute_redshift(sql, sid=sid)
 
 
