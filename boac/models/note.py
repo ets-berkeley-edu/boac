@@ -197,7 +197,7 @@ class Note(Base):
     @classmethod
     def get_notes_by_sid(cls, sid):
         # SQLAlchemy uses "magic methods" to create SQL; it requires '==' instead of 'is'.
-        return cls.query.filter(and_(cls.sid == sid, cls.deleted_at == None)).all()  # noqa: E711
+        return cls.query.filter(and_(cls.sid == sid, cls.deleted_at == None)).order_by(cls.updated_at, cls.id).all()  # noqa: E711
 
     @classmethod
     def delete(cls, note_id):
