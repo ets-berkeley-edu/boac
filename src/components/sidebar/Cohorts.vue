@@ -17,7 +17,7 @@
       v-for="cohort in myCohorts"
       :key="cohort.id"
       class="d-flex justify-content-between sidebar-row-link">
-      <div class="ml-2">
+      <div class="ml-2 mr-1 truncate-with-ellipsis">
         <router-link
           :id="`sidebar-cohort-${cohort.id}`"
           :aria-label="`Cohort ${cohort.name} has ${cohort.totalStudentCount} students`"

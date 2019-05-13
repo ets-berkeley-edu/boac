@@ -1,5 +1,5 @@
 <template>
-  <div class="pt-3">
+  <div class="m-3">
     <Spinner />
     <div v-if="!loading">
       <CuratedGroupHeader :curated-group="curatedGroup" :mode="mode" :set-mode="setMode" />

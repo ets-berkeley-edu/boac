@@ -111,6 +111,11 @@ select.form-control {
   text-transform: uppercase;
   vertical-align: top;
 }
+.truncate-with-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 #content {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
