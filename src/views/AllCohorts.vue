@@ -1,5 +1,5 @@
 <template>
-  <div class="m-2">
+  <div class="m-3">
     <Spinner />
     <div v-if="!loading">
       <h1 ref="pageHeader" tabindex="0">Everyone's Cohorts</h1>

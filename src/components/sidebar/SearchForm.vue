@@ -32,7 +32,7 @@
       <input
         id="search-students-input"
         v-model="searchPhrase"
-        class="search-input w-100"
+        class="pl-2 pr-2 search-input w-100"
         :class="{ 'input-disabled': allOptionsUnchecked }"
         :readonly="allOptionsUnchecked"
         :aria-readonly="allOptionsUnchecked"

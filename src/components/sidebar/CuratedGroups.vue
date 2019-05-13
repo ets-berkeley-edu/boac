@@ -18,7 +18,7 @@
       v-for="(group, index) in myCuratedGroups"
       :key="group.id"
       class="d-flex justify-content-between sidebar-row-link">
-      <div class="ml-2">
+      <div class="ml-2 mr-1 truncate-with-ellipsis">
         <router-link
           :id="`sidebar-curated-group-${index}`"
           :aria-label="'Curated group ' + group.name + ' has ' + group.studentCount + ' students'"
