@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from html.parser import HTMLParser
 from itertools import groupby
 from operator import itemgetter
 import re
@@ -270,10 +271,29 @@ def _isoformat(obj, key):
     return value and value.astimezone(tzutc()).isoformat()
 
 
+class HTMLTagStripper(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.reset()
+        self.strict = False
+        self.convert_charrefs = True
+        self.fed = []
+
+    def handle_data(self, d):
+        self.fed.append(d)
+
+    def get_data(self):
+        return ''.join(self.fed)
+
+
 def _notes_text_snippet(note_body, search_terms):
     stemmer = SnowballStemmer('english')
     stemmed_search_terms = [stemmer.stem(term) for term in search_terms]
-    tag_stripped_body = re.sub(r'<[^>]+>', '', note_body)
+
+    tag_stripper = HTMLTagStripper()
+    tag_stripper.feed(note_body)
+    tag_stripped_body = tag_stripper.get_data()
+
     snippet_padding = app.config['NOTES_SEARCH_RESULT_SNIPPET_PADDING']
     note_words = list(re.finditer(NOTE_SEARCH_PATTERN, tag_stripped_body))
 
