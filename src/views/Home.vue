@@ -1,5 +1,5 @@
 <template>
-  <div class="home-container">
+  <div>
     <h1 class="sr-only">Welcome to BOA</h1>
     <Spinner />
     <div v-if="!loading" class="home-content">
@@ -75,10 +75,6 @@ export default {
 </script>
 
 <style scoped>
-.home-container {
-  padding: 0 0 0 20px;
-  width: 100%;
-}
 .home-content {
   display: flex;
   flex-direction: column;

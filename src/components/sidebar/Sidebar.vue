@@ -1,17 +1,18 @@
 <template>
   <div>
-    <SearchForm :domain="['students', 'courses', 'notes']" context="sidebar" />
+    <div>
+      <SearchForm :domain="['students', 'courses', 'notes']" context="sidebar" />
+    </div>
     <div v-if="myCohorts">
       <Cohorts />
-      <hr class="section-divider" />
+      <hr class="ml-2 mr-2 section-divider" />
+    </div>
+    <div v-if="myCuratedGroups">
       <CuratedGroups />
-      <div class="sidebar-row-link">
-        <span class="sidebar-row-link-label">
-          <router-link
-            id="cohorts-all"
-            to="/cohorts/all">Everyone's Cohorts</router-link>
-        </span>
-      </div>
+      <hr class="ml-2 mr-2 section-divider" />
+    </div>
+    <div class="mb-2 sidebar-row-link">
+      <router-link id="cohorts-all" class="ml-2 mr-2" to="/cohorts/all">Everyone's Cohorts</router-link>
     </div>
   </div>
 </template>
@@ -39,14 +40,11 @@ export default {
   border: none;
   color: #4a90e2;
   height: 1px;
-  margin: 10px 5px 10px 10px;
 }
 .sidebar-header {
   color: #fff;
   font-size: 16px;
   font-weight: 800;
-  margin: 1px 0 1px 0;
-  white-space: nowrap;
 }
 .sidebar-pill {
   background-color: #8bbdda;
@@ -58,19 +56,13 @@ export default {
   font-weight: 800;
   height: 20px;
   line-height: 20px;
-  margin-right: 5px;
   padding: 0 4px 0 4px;
   text-align: center;
 }
 .sidebar-row-link {
   border-left: 6px solid #125074;
   color: #8bbdda;
-  display: flex;
-  flex-direction: row;
   font-size: 16px;
-  justify-content: space-between;
-  line-height: 1.4em;
-  padding: 1px 1px 1px 0;
 }
 .sidebar-row-link:hover,
 .sidebar-row-link:focus,
@@ -94,20 +86,5 @@ export default {
   border: 0;
   color: inherit;
   -moz-outline-style: none;
-}
-.sidebar-row-link-label {
-  padding-left: 5px;
-}
-.sidebar-row-link-label-text {
-  display: inline-block;
-  overflow: hidden;
-  padding-right: 5px;
-  text-overflow: ellipsis;
-  vertical-align: middle;
-  white-space: nowrap;
-  width: 180px;
-}
-.sidebar-section-header {
-  margin: 10px 0 5px 0;
 }
 </style>
