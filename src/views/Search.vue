@@ -105,12 +105,17 @@ export default {
     const includeCourses = this.$route.query.courses;
     const includeNotes = this.$route.query.notes;
     const includeStudents = this.$route.query.students;
+    const noteOptions = {};
+    if (includeNotes) {
+      noteOptions.authorCsid = this.$route.query.authorCsid;
+    }
     if (this.phrase) {
       search(
         this.phrase,
         this.isNil(includeCourses) ? false : includeCourses,
         this.isNil(includeNotes) ? false : includeNotes,
         this.isNil(includeStudents) ? false : includeStudents,
+        noteOptions,
         this.user.isAsc ? false : null,
         this.user.isCoe ? false : null
       )

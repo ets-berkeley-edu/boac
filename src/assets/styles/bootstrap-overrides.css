@@ -1,3 +1,6 @@
+legend {
+  font-weight: bold;
+}
 #content .nav-pills .nav-link.active,
 #content .nav-pills .show > .nav-link {
   background-color: #337ab7;

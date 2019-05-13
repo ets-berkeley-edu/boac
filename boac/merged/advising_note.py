@@ -78,7 +78,7 @@ def get_advising_notes(sid):
     return list(notes_by_id.values())
 
 
-def search_advising_notes(search_phrase, offset=0, limit=20):
+def search_advising_notes(search_phrase, author_csid=None, offset=0, limit=20):
     scope = narrow_scope_by_criteria(get_student_query_scope())
     # In the interest of keeping our search implementation flexible, we mimic a join by first querying RDS
     # for all student rows matching user scope, then incorporating SIDs into the notes query as a very large
@@ -101,7 +101,7 @@ def search_advising_notes(search_phrase, offset=0, limit=20):
 
     # Since we don't expect the size of this result set to be large, it's easiest to retrieve the whole thing for the
     # sake of subsequent offset calculations.
-    local_results = Note.search(search_phrase=search_phrase, sid_filter=sid_filter)
+    local_results = Note.search(search_phrase=search_phrase, sid_filter=sid_filter, author_csid=author_csid)
     local_notes_count = len(local_results)
     cutoff = min(local_notes_count, offset + limit)
 
@@ -112,6 +112,7 @@ def search_advising_notes(search_phrase, offset=0, limit=20):
     loch_results = data_loch.search_advising_notes(
         search_phrase=search_phrase,
         sid_filter=sid_filter,
+        author_csid=author_csid,
         offset=max(0, offset - local_notes_count),
         limit=(limit - len(notes_feed)),
     )
