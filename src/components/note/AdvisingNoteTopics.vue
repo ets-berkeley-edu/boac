@@ -52,8 +52,11 @@
 </template>
 
 <script>
+import Util from '@/mixins/Util';
+
 export default {
   name: 'AdvisingNoteTopics',
+  mixins: [Util],
   props: {
     functionAdd: {
       type: Function,
@@ -75,12 +78,36 @@ export default {
   data: () => ({
     topic: undefined
   }),
+  watch: {
+    topic: function(newTopic, oldTopic) {
+      if (newTopic.indexOf(oldTopic, 0) !== -1) {
+        this.debouncedSuggest();
+      }
+    }
+  },
+  created: function() {
+    this.debouncedSuggest = this.debounce(this.suggest, 500);
+  },
   methods: {
     addTopic() {
       if (this.topic && this.topic.trim()) {
         this.functionAdd(this.topic);
       }
       this.topic = undefined;
+    },
+    normalizeString(str) {
+      return str.toUpperCase().replace(/[^A-Z]/g, '');
+    },
+    suggest() {
+      if (!this.topic || this.topic.length < 2) {
+        return false;
+      }
+      let match = this.suggestedTopics.find(t => {
+        return this.normalizeString(t).indexOf(this.normalizeString(this.topic)) !== -1;
+      });
+      if (match) {
+        this.topic = match;
+      }
     }
   }
 }
