@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 class="page-section-header-sub pt-3">Status</h2>
+    <h2 id="system-status-header" class="page-section-header-sub pt-3">Status</h2>
     <div v-if="config">
       <h3>Config</h3>
       <div>
