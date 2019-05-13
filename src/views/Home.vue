@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class="m-3">
     <h1 class="sr-only">Welcome to BOA</h1>
     <Spinner />
     <div v-if="!loading" class="home-content">
       <div>
-        <div id="filtered-cohorts-header-row" class="home-page-section-header-wrapper">
+        <div id="filtered-cohorts-header-row">
           <h2 v-if="myCohorts && !size(myCohorts)" id="no-cohorts-header" class="page-section-header">
             You have no saved cohorts.
           </h2>
@@ -24,7 +24,7 @@
         </div>
       </div>
       <div v-if="size(myCuratedGroups)">
-        <div id="curated-groups-header-row" class="home-page-section-header-wrapper">
+        <div id="curated-groups-header-row">
           <h2 class="page-section-header">Curated Groups</h2>
         </div>
         <HomeCuratedGroup
@@ -78,9 +78,6 @@ export default {
 .home-content {
   display: flex;
   flex-direction: column;
-}
-.home-page-section-header-wrapper {
-  display: flex;
 }
 .panel-group {
   margin-bottom: 20px;

@@ -39,14 +39,14 @@
         <SortableStudents :students="results.students" :options="studentListOptions" />
       </div>
     </div>
-    <div v-if="!loading && results.totalCourseCount">
+    <div v-if="!loading && results.totalCourseCount" class="pt-4">
       <SortableCourseList
         :search-phrase="phrase"
         :courses="results.courses"
         :total-course-count="results.totalCourseCount"
         :render-primary-header="!results.totalStudentCount && !!results.totalCourseCount && !size(results.notes)" />
     </div>
-    <div v-if="!loading && size(results.notes)">
+    <div v-if="!loading && size(results.notes)" class="pt-4">
       <h2
         id="search-results-category-header-notes"
         class="page-section-header">
