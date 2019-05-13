@@ -1,50 +1,54 @@
 <template>
-  <div id="app" class="index-container">
-    <a
-      id="skip-to-content-link"
-      href="#content"
-      class="sr-only sr-only-focusable"
-      tabindex="2">Skip to main content</a>
-    <div class="index-container-header">
-      <div class="header-container">
-        <div class="header-text">
-          <router-link
-            id="home-header"
-            to="/home"
-            tabindex="1">
-            <span class="sr-only">Return to </span>Home
-          </router-link>
-        </div>
-        <div><HeaderMenu /></div>
-      </div>
-    </div>
-    <div class="index-container-body">
-      <div class="index-container-sidebar">
+  <b-container id="app" class="h-100" fluid>
+    <b-row class="header">
+      <b-col cols="auto" class="mr-auto p-0 m-3">
+        <a
+          id="skip-to-content-link"
+          href="#content"
+          class="sr-only sr-only-focusable"
+          tabindex="2">Skip to main content</a>
+        <router-link
+          id="home-header"
+          class="header-text"
+          to="/home"
+          tabindex="1">
+          <span class="sr-only">Return to </span>Home
+        </router-link>
+      </b-col>
+      <b-col cols="auto" class="p-0 mt-2">
+        <HeaderMenu />
+      </b-col>
+    </b-row>
+    <b-row class="h-100">
+      <b-col class="p-0 sidebar" sm="3">
         <Sidebar />
-      </div>
-      <div class="index-container-content">
-        <div id="content" class="body-text">
-          <span
-            v-if="srAlert"
-            class="sr-only"
-            aria-live="polite"
-            role="alert">
-            {{ srAlert }}
-          </span>
-          <div
-            v-if="announcement && announcement.isPublished"
-            class="service-announcement w-100">
-            <div class="p-3" aria-live="polite" role="alert">
-              {{ announcement.text }}
+      </b-col>
+      <b-col id="content" class="body-text h-100 p-0" sm="9">
+        <div class="d-flex flex-column h-100">
+          <div>
+            <span
+              v-if="srAlert"
+              class="sr-only"
+              aria-live="polite"
+              role="alert">
+              {{ srAlert }}
+            </span>
+            <div
+              v-if="announcement && announcement.isPublished"
+              class="service-announcement w-100">
+              <div class="p-3" aria-live="polite" role="alert">
+                {{ announcement.text }}
+              </div>
             </div>
+            <router-view :key="stripAnchorRef($route.fullPath)"></router-view>
           </div>
-          <!-- The ':key' attribute forces component reload when same route is requested with diff id in path. -->
-          <router-view :key="stripAnchorRef($route.fullPath)"></router-view>
+          <div class="mt-auto">
+            <Footer v-if="!loading" />
+          </div>
         </div>
-        <Footer v-if="!loading" />
-      </div>
-    </div>
-  </div>
+      </b-col>
+    </b-row>
+  </b-container>
 </template>
 
 <script>
@@ -77,25 +81,6 @@ export default {
 <style scoped>
 .body-text {
   font-size: 16px;
-  height: 100%;
-  line-height: 1.4em;
-}
-.header-container {
-  align-items: center;
-  display: flex;
-  height: 56px;
-  justify-content: space-between;
-}
-.header-container div {
-  margin-left: 20px;
-  -webkit-flex: 1 0 0;
-  flex: 1 0 0;
-}
-.header-container div:last-child {
-  flex-grow: 0;
-}
-.header-container div:last-child > span {
-  float: right;
 }
 .header-text {
   font-size: 16px;
@@ -116,34 +101,15 @@ export default {
 .header-text h1 {
   font-size: inherit;
   font-weight: inherit;
-  margin: 0;
 }
-.index-container {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-.index-container-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 100%;
-}
-.index-container-body {
-  display: flex;
-  flex-direction: row;
-  min-height: 100%;
-}
-.index-container-header {
+.header {
   background-color: #3b7ea5;
-}
-.index-container-sidebar {
-  background-color: #125074;
-  flex: 0 0 230px;
-  min-height: 100%;
 }
 .service-announcement {
   background-color: #f0ad4e;
   font-weight: 500;
+}
+.sidebar {
+  background-color: #125074;
 }
 </style>
