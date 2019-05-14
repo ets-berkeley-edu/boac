@@ -105,12 +105,14 @@
         <div>
           <b-form-group label="Posted By">
             <b-form-radio
+              id="search-options-note-filters-posted-by-anyone"
               v-model="noteFilters.postedBy"
               name="note-filters-posted-by"
               value="anyone">
               Anyone
             </b-form-radio>
             <b-form-radio
+              id="search-options-note-filters-posted-by-you"
               v-model="noteFilters.postedBy"
               name="note-filters-posted-by"
               value="you">
