@@ -25,8 +25,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import std_commit
 from boac.models.alert import Alert
+from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
-from boac.models.curated_group import CuratedGroup
+from boac.models.curated_group import CuratedGroup, CuratedGroupStudent
 import pytest
 
 
@@ -46,17 +47,23 @@ class TestCacheUtils:
 
     def test_update_curated_group_lists(self, app):
         from boac.api.cache_utils import update_curated_group_lists
-        name = 'Curated group with four ASC students and one student from COE'
-        curated_group = CuratedGroup.query.filter_by(name=name).first()
-        original_sids = [s.sid for s in curated_group.students]
+        curated_group = CuratedGroup.create(
+            owner_id=AuthorizedUser.find_by_uid('6446').id,
+            name='This group has one student not in Data Loch',
+        )
+        original_sids = ['3456789012', '5678901234', '7890123456']
+        for sid in original_sids:
+            CuratedGroup.add_student(curated_group.id, sid)
         sid_not_in_data_loch = '19040616'
         CuratedGroup.add_student(curated_group.id, sid_not_in_data_loch)
         std_commit(allow_test_environment=True)
-        revised_sids = [s.sid for s in CuratedGroup.find_by_id(curated_group.id).students]
+
+        revised_sids = CuratedGroupStudent.get_sids(curated_group.id)
         assert sid_not_in_data_loch in revised_sids
         update_curated_group_lists()
         std_commit(allow_test_environment=True)
-        final_sids = [s.sid for s in CuratedGroup.find_by_id(curated_group.id).students]
+
+        final_sids = CuratedGroupStudent.get_sids(curated_group.id)
         assert sid_not_in_data_loch not in final_sids
         assert set(final_sids) == set(original_sids)
 

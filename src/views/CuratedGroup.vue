@@ -9,7 +9,7 @@
           <div v-if="size(curatedGroup.students) > 1" class="d-flex m-2">
             <div class="cohort-list-header-column-01"></div>
             <div class="cohort-list-header-column-02">
-              <SortBy />
+              <SortBy v-if="curatedGroup.students.length > 1" />
             </div>
           </div>
           <div v-if="size(curatedGroup.students)">
@@ -24,6 +24,14 @@
                 :sorted-by="preferences.sortBy"
                 class="list-group-item student-list-item"
                 :class="{'list-group-item-info' : anchor === `#${student.uid}`}" />
+            </div>
+            <div v-if="curatedGroup.studentCount > itemsPerPage" class="p-3">
+              <Pagination
+                :click-handler="goToPage"
+                :init-page-number="pageNumber"
+                :limit="10"
+                :per-page="itemsPerPage"
+                :total-rows="curatedGroup.studentCount" />
             </div>
           </div>
         </div>
@@ -48,6 +56,7 @@ import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
 import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader';
 import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import Loading from '@/mixins/Loading';
+import Pagination from '@/components/util/Pagination';
 import Scrollable from '@/mixins/Scrollable';
 import SortBy from '@/components/student/SortBy';
 import Spinner from '@/components/util/Spinner';
@@ -57,13 +66,12 @@ import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { addStudents, getCuratedGroup, removeFromCuratedGroup } from '@/api/curated';
 
-let SUPPLEMENTAL_SORT_BY = ['lastName', 'firstName', 'sid'];
-
 export default {
   name: 'CuratedGroup',
   components: {
     CuratedGroupBulkAdd,
     CuratedGroupHeader,
+    Pagination,
     SortBy,
     Spinner,
     StudentRow
@@ -76,16 +84,9 @@ export default {
     curatedGroup: {},
     error: undefined,
     isAddingStudents: false,
-    mode: undefined,
-    sortByMappings: {
-      first_name: 'firstName',
-      gpa: 'cumulativeGPA',
-      group_name: 'athleticsProfile.athletics[0].groupName',
-      last_name: 'lastName',
-      level: 'sortableLevel',
-      major: 'majors[0]',
-      units: 'cumulativeUnits'
-    }
+    itemsPerPage: 50,
+    pageNumber: undefined,
+    mode: undefined
   }),
   computed: {
     anchor: () => location.hash
@@ -95,21 +96,15 @@ export default {
       key: 'sortBy',
       value: 'last_name'
     });
-    getCuratedGroup(this.id).then(data => {
-      if (data) {
-        this.curatedGroup = data;
-        this.setPageTitle(this.curatedGroup.name);
-        this.sortStudents();
-        this.loaded();
-        this.putFocusNextTick('curated-group-name');
-      } else {
-        this.$router.push({ path: '/404' });
-      }
-    });
+    this.goToPage(1);
     this.$eventHub.$on('curated-group-remove-student', sid =>
       this.$_Students_removeStudent(sid)
     );
-    this.$eventHub.$on('sort-by-changed-by-user', () => this.sortStudents());
+    this.$eventHub.$on('sort-by-changed-by-user', sortBy => {
+      this.goToPage(1);
+      this.screenReaderAlert = `Sort students by ${sortBy}`;
+      this.gaCuratedEvent(this.curatedGroup.id, this.curatedGroup.name, this.screenReaderAlert);
+    });
   },
   mounted() {
     this.$nextTick(function() {
@@ -130,16 +125,11 @@ export default {
         addStudents(this.curatedGroup, sids, true)
           .then(group => {
             this.curatedGroup = group;
-            this.sortStudents();
             this.mode = undefined;
             this.putFocusNextTick('curated-group-name');
             this.alertScreenReader(`${sids.length} students added to group '${this.curatedGroup.name}'`);
             this.isAddingStudents = false;
-            this.gaCuratedEvent(
-              this.curatedGroup.id,
-              this.curatedGroup.name,
-              'Update curated group with bulk-add SIDs'
-            );
+            this.gaCuratedEvent(this.curatedGroup.id, this.curatedGroup.name, 'Update curated group with bulk-add SIDs');
           });
       } else {
         this.mode = undefined;
@@ -147,51 +137,27 @@ export default {
         this.putFocusNextTick('curated-group-name');
       }
     },
-    sortStudents() {
-      this.each(this.curatedGroup.students, student =>
-        this.setSortableLevel(student)
-      );
-      this.curatedGroup.students = this.orderBy(
-        this.curatedGroup.students,
-        this.iteratees()
-      );
-    },
-    iteratees() {
-      let iteratees = this.concat(
-        this.sortByMappings[this.preferences.sortBy],
-        SUPPLEMENTAL_SORT_BY
-      );
-      return this.map(iteratees, iter => {
-        return student => {
-          let sortVal = this.get(student, iter);
-          if (typeof sortVal === 'string') {
-            sortVal = sortVal.toLowerCase();
-          }
-          return sortVal;
-        };
+    goToPage(page) {
+      this.pageNumber = page;
+      if (page > 1) {
+        this.screenReaderAlert = `Go to page ${page}`;
+        this.gaCuratedEvent(this.curatedGroup.id, this.curatedGroup.name, this.screenReaderAlert);
+      }
+      this.loadingStart();
+      let offset = this.multiply(this.pageNumber - 1, this.itemsPerPage);
+      getCuratedGroup(this.id, this.preferences.sortBy, offset, this.itemsPerPage).then(data => {
+        if (data) {
+          this.curatedGroup = data;
+          this.setPageTitle(this.curatedGroup.name);
+          this.loaded();
+          this.putFocusNextTick('curated-group-name');
+        } else {
+          this.$router.push({ path: '/404' });
+        }
       });
     },
     setMode(mode) {
       this.mode = mode;
-    },
-    setSortableLevel(student) {
-      switch (student.level) {
-        case 'Freshman':
-          student.sortableLevel = 1;
-          break;
-        case 'Sophomore':
-          student.sortableLevel = 2;
-          break;
-        case 'Junior':
-          student.sortableLevel = 3;
-          break;
-        case 'Senior':
-          student.sortableLevel = 4;
-          break;
-        default:
-          student.sortableLevel = 0;
-          break;
-      }
     },
     $_Students_removeStudent(sid) {
       removeFromCuratedGroup(this.curatedGroup.id, sid).then(() => {
