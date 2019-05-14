@@ -324,7 +324,9 @@ export default {
     this.sortMessages();
     this.alertScreenReader('Academic Timeline has loaded');
     this.isTimelineLoading = false;
-    this.getSuggestedTopics();
+    if (this.featureFlagEditNotes) {
+      this.getSuggestedTopics();
+    }
   },
   mounted() {
     if (this.anchor) {
