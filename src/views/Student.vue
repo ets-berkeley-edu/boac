@@ -92,7 +92,7 @@ export default {
     const uid = this.get(this.$route, 'params.uid');
     getStudent(uid).then(data => {
       if (data) {
-        this.setPageTitle(data.name);
+        this.setPageTitle(this.user.inDemoMode ? 'Student' : data.name);
         this.assign(this.student, data);
         this.each(this.student.enrollmentTerms, this.parseEnrollmentTerm);
         this.loaded();
