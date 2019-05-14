@@ -7,6 +7,7 @@ export default {
     assign: _.assign,
     cloneDeep: _.cloneDeep,
     concat: _.concat,
+    debounce: _.debounce,
     each: _.each,
     extend: _.extend,
     filterList: _.filter,
