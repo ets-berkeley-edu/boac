@@ -1,6 +1,6 @@
 <template>
   <div>
-    <form @submit.prevent="createCuratedGroup()">
+    <form @submit.prevent="createCuratedGroup()" @keydown.esc="cancelModal">
       <div class="text-left ml-3 mr-3">
         <div class="pb-2">Name:</div>
         <div>
