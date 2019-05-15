@@ -157,7 +157,7 @@ export default {
       this.clearErrors();
       this.subject = this.note.subject;
       this.body = this.note.body || '';
-      this.topics = this.note.topics || [];
+      this.topics = this.cloneDeep(this.note.topics) || [];
     },
     save() {
       this.subject = this.trim(this.subject);
