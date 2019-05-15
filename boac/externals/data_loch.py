@@ -379,33 +379,44 @@ def get_advising_note_attachments(sid):
     return safe_execute_redshift(sql, sid=sid)
 
 
-def search_advising_notes(search_phrase, sid_filter, author_csid=None, offset=None, limit=None):
+def search_advising_notes(     # noqa
+        search_phrase,
+        student_query_tables,
+        student_query_filter,
+        student_query_bindings,
+        author_csid=None,
+        offset=None,
+        limit=None,
+    ):
     author_filter = 'AND an.advisor_sid = :author_csid' if author_csid else ''
     sql = f"""SELECT
-        an.sid, an.id, an.note_body, an.advisor_sid, an.created_by, an.created_at, an.updated_at
-        FROM (
+        an.sid, an.id, an.note_body, an.advisor_sid, an.created_by, an.created_at, an.updated_at,
+        sas.uid, sas.first_name, sas.last_name
+        {student_query_tables}
+        JOIN {advising_notes_schema()}.advising_notes an
+            ON an.sid = sas.sid
+            {author_filter}
+        JOIN (
           SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
           FROM {advising_notes_schema()}.advising_notes_search_index
           WHERE fts_index @@ plainto_tsquery('english', :search_phrase)
         )
-        AS s
-        JOIN {advising_notes_schema()}.advising_notes an
-          ON s.id = an.id
-          AND an.sid = ANY(:sid_filter)
-          {author_filter}
-        ORDER BY s.rank DESC, an.id"""
+        AS idx
+            ON idx.id = an.id
+        {student_query_filter}
+        ORDER BY idx.rank DESC, an.id"""
     if offset is not None and offset > 0:
         sql += ' OFFSET :offset'
     if limit is not None and limit < 150:  # Sanity check large limits
         sql += ' LIMIT :limit'
-    return safe_execute_rds(
-        sql,
+    params = dict(
+        **student_query_bindings,
         search_phrase=search_phrase,
-        sid_filter=sid_filter,
         author_csid=author_csid,
         offset=offset,
         limit=limit,
     )
+    return safe_execute_rds(sql, **params)
 
 
 def get_ethnicity_codes(scope=()):
