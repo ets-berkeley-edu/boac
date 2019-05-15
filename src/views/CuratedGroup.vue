@@ -36,15 +36,12 @@
           </div>
         </div>
       </div>
-      <div v-if="mode === 'bulkAdd'">
+      <div v-if="!loading && mode === 'bulkAdd'">
         <h2 class="page-section-header-sub">Add Students</h2>
         <div class="w-75">
           Type or paste a list of Student Identification (SID) numbers below. Example: 9999999990, 9999999991
         </div>
-        <CuratedGroupBulkAdd
-          :bulk-add-sids="bulkAddSids"
-          :curated-group-id="curatedGroup.id"
-          :is-saving="isAddingStudents" />
+        <CuratedGroupBulkAdd :bulk-add-sids="bulkAddSids" :curated-group-id="curatedGroup.id" />
       </div>
     </div>
   </div>
@@ -83,7 +80,6 @@ export default {
   data: () => ({
     curatedGroup: {},
     error: undefined,
-    isAddingStudents: false,
     itemsPerPage: 50,
     pageNumber: undefined,
     mode: undefined
@@ -92,15 +88,12 @@ export default {
     anchor: () => location.hash
   },
   created() {
-    store.dispatch('user/setUserPreference', {
-      key: 'sortBy',
-      value: 'last_name'
-    });
+    this.setUserPreference({key: 'sortBy', value: 'last_name'});
     this.goToPage(1);
     this.$eventHub.$on('curated-group-remove-student', sid =>
       this.$_Students_removeStudent(sid)
     );
-    this.$eventHub.$on('sort-by-changed-by-user', sortBy => {
+    this.$eventHub.$on('sortBy-user-preference-change', sortBy => {
       this.goToPage(1);
       this.screenReaderAlert = `Sort students by ${sortBy}`;
       this.gaCuratedEvent(this.curatedGroup.id, this.curatedGroup.name, this.screenReaderAlert);
@@ -119,16 +112,18 @@ export default {
   },
   methods: {
     bulkAddSids(sids) {
+      this.mode = undefined;
       if (this.size(sids)) {
-        this.isAddingStudents = true;
         this.alertScreenReader(`Adding ${sids.length} students`);
+        this.pageNumber = 1;
+        this.setUserPreference({key: 'sortBy', value: 'last_name'});
+        this.loadingStart();
         addStudents(this.curatedGroup, sids, true)
           .then(group => {
             this.curatedGroup = group;
-            this.mode = undefined;
+            this.loaded();
             this.putFocusNextTick('curated-group-name');
             this.alertScreenReader(`${sids.length} students added to group '${this.curatedGroup.name}'`);
-            this.isAddingStudents = false;
             this.gaCuratedEvent(this.curatedGroup.id, this.curatedGroup.name, 'Update curated group with bulk-add SIDs');
           });
       } else {

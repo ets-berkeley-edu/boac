@@ -33,6 +33,7 @@ const mutations = {
   setUserPreference: (state: any, { key, value }) => {
     if (_.has(state.preferences, key)) {
       state.preferences[key] = value;
+      Vue.prototype.$eventHub.$emit(`${key}-user-preference-change`, value);
     } else {
       throw new TypeError('Invalid user preference type: ' + key);
     }

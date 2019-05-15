@@ -28,7 +28,7 @@
           </form>
         </div>
         <div v-if="renameError" class="has-error mb-2">{{ renameError }}</div>
-        <div class="faint-text mb-3">255 character limit <span v-if="size(renameInput)">({{ 255 - size(renameInput) }} left)</span></div>
+        <div class="faint-text m-2">255 character limit <span v-if="size(renameInput)">({{ 255 - size(renameInput) }} left)</span></div>
         <div class="sr-only" aria-live="polite">{{ renameError }}</div>
         <div
           v-if="size(renameInput) === 255"
@@ -58,7 +58,7 @@
           Cancel
         </b-btn>
       </div>
-      <div v-if="!mode" class="d-flex align-items-center mr-4">
+      <div v-if="!mode" class="d-flex align-items-center mr-2">
         <div>
           <b-btn
             id="bulk-add-sids-button"
