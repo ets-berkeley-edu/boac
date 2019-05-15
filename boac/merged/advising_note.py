@@ -81,27 +81,31 @@ def get_advising_notes(sid):
 
 def search_advising_notes(search_phrase, author_csid=None, offset=0, limit=20):
     scope = narrow_scope_by_criteria(get_student_query_scope())
+
     # In the interest of keeping our search implementation flexible, we mimic a join by first querying RDS
     # for all student rows matching user scope, then incorporating SIDs into the notes query as a very large
     # array filter. If it looks like notes search is going to live in RDS for the long haul, this could be
-    # rewritten with a proper join.
-    query_tables, query_filter, query_bindings = data_loch.get_students_query(scope=scope)
-    if not query_tables:
+    # rewritten with a proper join; but this will require student profile data (which lives in Nessie RDS) to
+    # somehow join up with advising note data (which lives in BOA RDS).
+
+    student_query_tables, student_query_filter, student_query_bindings = data_loch.get_students_query(scope=scope)
+    if not student_query_tables:
         return []
+
     sids_result = data_loch.safe_execute_rds(
-        f'SELECT sas.sid, sas.uid, sas.first_name, sas.last_name {query_tables} {query_filter}',
-        **query_bindings,
+        f'SELECT sas.sid, sas.uid, sas.first_name, sas.last_name {student_query_tables} {student_query_filter}',
+        **student_query_bindings,
     )
     if not sids_result:
         return []
-
     student_rows_by_sid = {row['sid']: row for row in sids_result}
     sid_filter = '{' + ','.join(student_rows_by_sid.keys()) + '}'
+
     search_terms = [t.group(0) for t in list(re.finditer(NOTE_SEARCH_PATTERN, search_phrase)) if t]
     search_phrase = ' & '.join(search_terms)
 
-    # Since we don't expect the size of this result set to be large, it's easiest to retrieve the whole thing for the
-    # sake of subsequent offset calculations.
+    # TODO We're currently retrieving all results for the sake of subsequent offset calculations. As the number of notes in
+    # BOA grows (and possibly requires us to use some kind of staging table for search indexing), we'll need to revisit.
     local_results = Note.search(search_phrase=search_phrase, sid_filter=sid_filter, author_csid=author_csid)
     local_notes_count = len(local_results)
     cutoff = min(local_notes_count, offset + limit)
@@ -110,15 +114,20 @@ def search_advising_notes(search_phrase, author_csid=None, offset=0, limit=20):
     if len(notes_feed) == limit:
         return notes_feed
 
+    # When querying the loch for notes, we use an actual join rather than the cumbersome SID list since everything lives in
+    # Nessie RDS.
+
     loch_results = data_loch.search_advising_notes(
         search_phrase=search_phrase,
-        sid_filter=sid_filter,
+        student_query_tables=student_query_tables,
+        student_query_filter=student_query_filter,
+        student_query_bindings=student_query_bindings,
         author_csid=author_csid,
         offset=max(0, offset - local_notes_count),
         limit=(limit - len(notes_feed)),
     )
 
-    notes_feed += _get_loch_notes_search_results(loch_results, student_rows_by_sid, search_terms)
+    notes_feed += _get_loch_notes_search_results(loch_results, search_terms)
     return notes_feed
 
 
@@ -141,18 +150,17 @@ def _get_local_notes_search_results(local_results, student_rows_by_sid, search_t
     return results
 
 
-def _get_loch_notes_search_results(loch_results, student_rows_by_sid, search_terms):
+def _get_loch_notes_search_results(loch_results, search_terms):
     results = []
     calnet_advisor_feeds = get_calnet_users_for_csids(app, [row.get('advisor_sid') for row in loch_results])
     for row in loch_results:
         note = {camelize(key): row[key] for key in row.keys()}
-        student_row = student_rows_by_sid[note.get('sid')]
         advisor_feed = calnet_advisor_feeds.get(note.get('advisorSid'))
         results.append({
             'id': note.get('id'),
             'studentSid': note.get('sid'),
-            'studentUid': student_row.get('uid'),
-            'studentName': ' '.join([student_row.get('first_name'), student_row.get('last_name')]),
+            'studentUid': note.get('uid'),
+            'studentName': ' '.join([note.get('firstName'), note.get('lastName')]),
             'advisorSid': note.get('advisorSid'),
             'advisorName': ' '.join([advisor_feed.get('firstName'), advisor_feed.get('lastName')]) if advisor_feed else None,
             'noteSnippet': _notes_text_snippet(note.get('noteBody'), search_terms),
@@ -277,7 +285,6 @@ class HTMLTagStripper(HTMLParser):
         self.reset()
         self.strict = False
         self.convert_charrefs = True
-        self.fed = []
 
     def handle_data(self, d):
         self.fed.append(d)
@@ -285,17 +292,23 @@ class HTMLTagStripper(HTMLParser):
     def get_data(self):
         return ''.join(self.fed)
 
+    def reset(self):
+        super().reset()
+        self.fed = []
+
+
+tag_stripper = HTMLTagStripper()
+stemmer = SnowballStemmer('english')
+
 
 def _notes_text_snippet(note_body, search_terms):
-    stemmer = SnowballStemmer('english')
-    stemmed_search_terms = [stemmer.stem(term) for term in search_terms]
-
-    tag_stripper = HTMLTagStripper()
     tag_stripper.feed(note_body)
     tag_stripped_body = tag_stripper.get_data()
+    tag_stripper.reset()
 
     snippet_padding = app.config['NOTES_SEARCH_RESULT_SNIPPET_PADDING']
     note_words = list(re.finditer(NOTE_SEARCH_PATTERN, tag_stripped_body))
+    stemmed_search_terms = [stemmer.stem(term) for term in search_terms]
 
     snippet = None
     match_index = None

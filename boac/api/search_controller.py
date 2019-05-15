@@ -87,8 +87,9 @@ def _student_search(search_phrase, params, order_by):
         offset=util.get(params, 'offset', 0),
         limit=util.get(params, 'limit', 50),
     )
-    alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
     students = student_results['students']
+    sids = [s['sid'] for s in students]
+    alert_counts = Alert.current_alert_counts_for_sids(current_user.id, sids)
     add_alert_counts(alert_counts, students)
     return {
         'students': students,
