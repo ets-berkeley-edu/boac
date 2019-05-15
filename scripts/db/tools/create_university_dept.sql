@@ -4,7 +4,9 @@ BEGIN;
 -- Create university_dept with dept_code and dept_name. For example:
 --
 -- USAGE:
---   psql ... -v dept_code='COE' -v dept_name='College of Engineering' -f scripts/db/create_university_dept.sql
+--   psql ... -v dept_code='COE' \
+--            -v dept_name='College of Engineering' \
+--            -f scripts/db/tools/create_university_dept.sql
 --
 
 -- Create department, if not exists

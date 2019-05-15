@@ -4,7 +4,7 @@ BEGIN;
 -- Map UID to the specified department.
 --
 -- USAGE:
---   psql ... -v dept_code='QCADV' -v uid=123456 -f scripts/db/add_advisor_per_dept.sql
+--   psql ... -v dept_code='QCADV' -v uid=123456 -f scripts/db/tools/add_advisor_per_dept.sql
 --
 
 -- Create user if not exists
