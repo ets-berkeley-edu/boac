@@ -82,7 +82,7 @@ export default {
   }),
   watch: {
     topic: function(newTopic, oldTopic) {
-      if (newTopic.indexOf(oldTopic, 0) !== -1) {
+      if (newTopic && newTopic.indexOf(oldTopic, 0) !== -1) {
         this.debouncedSuggest();
       }
     }
