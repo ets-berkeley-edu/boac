@@ -9,13 +9,6 @@
       <b-form-row class="pb-1">
         <b-col cols="4">
           <b-input-group>
-            <b-input-group-text
-              id="add-topic-button"
-              slot="append"
-              class="btn-add-topic"
-              @click="addTopic">
-              <i class="fas fa-plus pr-1"></i>Add
-            </b-input-group-text>
             <b-form-input
               id="add-note-topic"
               v-model="topic"
@@ -26,6 +19,15 @@
               @keydown.enter="addTopic">
             </b-form-input>
             <b-form-datalist id="add-topic-input-list" :options="suggestedTopics"></b-form-datalist>
+            <b-input-group-append>
+              <b-button
+                id="add-topic-button"
+                slot="append"
+                class="btn-add-topic"
+                @click="addTopic">
+                <i class="fas fa-plus pr-1"></i>Add
+              </b-button>
+            </b-input-group-append>
           </b-input-group>
         </b-col>
       </b-form-row>
@@ -114,6 +116,11 @@ export default {
 </script>
 
 <style scoped>
+.btn-add-topic {
+  background-color: #e9ecef;
+  border-color: #ced4da;
+  color: #000;
+}
 .btn-add-topic:not(:disabled) {
   cursor: pointer;
 }
