@@ -50,10 +50,15 @@ export function deleteCuratedGroup(id) {
     .catch(error => error);
 }
 
-export function getCuratedGroup(id) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+export function getCuratedGroup(
+  id: number,
+  orderBy: string,
+  offset: number,
+  limit: number
+) {
+  const apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${apiBaseUrl}/api/curated_group/${id}`)
+    .get(`${apiBaseUrl}/api/curated_group/${id}?orderBy=${orderBy}&offset=${offset}&limit${limit}`)
     .then(response => response.data, () => null);
 }
 

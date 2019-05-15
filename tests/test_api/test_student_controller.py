@@ -255,7 +255,7 @@ class TestAthleticsStudyCenter:
 
 
 class TestStudentResultsForFilter:
-    """Student API results for filtered cohort criteria."""
+    """Student API."""
 
     sample_filter = {
         'gpaRanges': ['numrange(3, 3.5, \'[)\')', 'numrange(3.5, 4, \'[]\')'],

@@ -38,14 +38,6 @@ cohort_filter_owners = db.Table(
 )
 
 
-class CuratedGroupStudent(db.Model):
-    __tablename__ = 'student_group_members'
-
-    curated_group_id = db.Column('student_group_id', db.Integer, db.ForeignKey('student_groups.id'), primary_key=True)
-    sid = db.Column('sid', db.String(80), primary_key=True)
-    curated_group = db.relationship('CuratedGroup', back_populates='students')
-
-
 class UniversityDeptMember(Base):
     __tablename__ = 'university_dept_members'
 

@@ -26,7 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac import db, std_commit
 from boac.merged.student import get_api_json, query_students
 from boac.models.base import Base
-from boac.models.db_relationships import CuratedGroupStudent
 from sqlalchemy import text
 
 
@@ -36,8 +35,6 @@ class CuratedGroup(Base):
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     owner_id = db.Column(db.String(80), db.ForeignKey('authorized_users.id'), nullable=False)
     name = db.Column(db.String(255), nullable=False)
-
-    students = db.relationship('CuratedGroupStudent', back_populates='curated_group', cascade='all')
 
     __table_args__ = (db.UniqueConstraint(
         'owner_id',
@@ -75,28 +72,29 @@ class CuratedGroup(Base):
         return curated_group
 
     @classmethod
+    def get_all_sids(cls, curated_group_id):
+        # TODO: When the BOA business rules change and all advisors have access to all students
+        #  then remove this filtering of SIDs. See BOAC-2130
+        unfiltered_sids = CuratedGroupStudent.get_sids(curated_group_id=curated_group_id)
+        return query_students(sids=unfiltered_sids, sids_only=True)['sids'] if unfiltered_sids else []
+
+    @classmethod
     def add_student(cls, curated_group_id, sid):
         curated_group = cls.query.filter_by(id=curated_group_id).first()
         if curated_group:
-            curated_group.students.append(CuratedGroupStudent(sid=sid, curated_group_id=curated_group_id))
-            std_commit()
+            CuratedGroupStudent.add_student(curated_group_id=curated_group_id, sid=sid)
 
     @classmethod
     def add_students(cls, curated_group_id, sids):
         curated_group = cls.query.filter_by(id=curated_group_id).first()
         if curated_group:
-            sids = set(sids).difference([s.sid for s in curated_group.students])
-            for sid in sids:
-                curated_group.students.append(CuratedGroupStudent(sid=sid, curated_group_id=curated_group_id))
+            CuratedGroupStudent.add_students(curated_group_id=curated_group_id, sids=sids)
             std_commit()
 
     @classmethod
     def remove_student(cls, curated_group_id, sid):
-        curated_group = cls.find_by_id(curated_group_id)
-        membership = CuratedGroupStudent.query.filter_by(sid=sid, curated_group_id=curated_group_id).first()
-        if curated_group and membership:
-            db.session.delete(membership)
-            std_commit()
+        if cls.find_by_id(curated_group_id):
+            CuratedGroupStudent.remove_student(curated_group_id, sid)
 
     @classmethod
     def rename(cls, curated_group_id, name):
@@ -111,20 +109,55 @@ class CuratedGroup(Base):
             db.session.delete(curated_group)
             std_commit()
 
-    def to_api_json(self, sids_only=False, include_students=True):
-        api_json = {
+    def to_api_json(self, order_by='last_name', offset=0, limit=50):
+        # TODO: When the BOA business rules change and all advisors have access to all students
+        #  then remove this filtering of SIDs based on current user dept_code. See BOAC-2130
+        unfiltered_sids = CuratedGroupStudent.get_sids(curated_group_id=self.id)
+        if unfiltered_sids:
+            results = query_students(sids=unfiltered_sids, order_by=order_by, offset=offset, limit=limit)
+            students = get_api_json([student['sid'] for student in results['students']])
+            total_student_count = results['totalStudentCount']
+        else:
+            students = []
+            total_student_count = 0
+        return {
             'id': self.id,
             'ownerId': self.owner_id,
             'name': self.name,
-            'studentCount': len(self.students),
+            'students': students,
+            'studentCount': total_student_count,
         }
-        sids = [s.sid for s in self.students]
-        # TODO: When the BOA business rules change and all advisors have access to all students
-        #  then remove this filtering of SIDs based on current user dept_code. See BOAC-2130
-        sids_available_per_user_role = query_students(sids=sids, sids_only=True)['sids'] if len(sids) else sids
-        if sids_only:
-            api_json['students'] = [{'sid': sid} for sid in sids_available_per_user_role]
-        elif include_students:
-            api_json['students'] = get_api_json(sids_available_per_user_role)
-        api_json['studentCount'] = len(sids_available_per_user_role)
-        return api_json
+
+
+class CuratedGroupStudent(db.Model):
+    __tablename__ = 'student_group_members'
+
+    curated_group_id = db.Column('student_group_id', db.Integer, db.ForeignKey('student_groups.id'), primary_key=True)
+    sid = db.Column('sid', db.String(80), primary_key=True)
+
+    def __init__(self, curated_group_id, sid):
+        self.curated_group_id = curated_group_id
+        self.sid = sid
+
+    @classmethod
+    def get_sids(cls, curated_group_id):
+        return [row.sid for row in cls.query.filter_by(curated_group_id=curated_group_id).all()]
+
+    @classmethod
+    def add_student(cls, curated_group_id, sid):
+        db.session.add(cls(curated_group_id, sid))
+        std_commit()
+
+    @classmethod
+    def add_students(cls, curated_group_id, sids):
+        existing_sids = [row.sid for row in cls.query.filter_by(curated_group_id=curated_group_id).all()]
+        for sid in set(sids).difference(existing_sids):
+            db.session.add(cls(curated_group_id, sid))
+        std_commit()
+
+    @classmethod
+    def remove_student(cls, curated_group_id, sid):
+        row = cls.query.filter_by(sid=sid, curated_group_id=curated_group_id).first()
+        if row:
+            db.session.delete(row)
+            std_commit()

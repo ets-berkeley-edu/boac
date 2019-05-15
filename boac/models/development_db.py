@@ -152,25 +152,21 @@ def load_development_data():
 
 
 def create_curated_groups():
-    admin_id = AuthorizedUser.find_by_uid('2040').id
-    CuratedGroup.create(admin_id, 'My Students')
+    admin_user = AuthorizedUser.find_by_uid('2040')
+    CuratedGroup.create(admin_user.id, 'My Students')
 
-    advisor_id = AuthorizedUser.find_by_uid('6446').id
-    CuratedGroup.create(advisor_id, 'My Students')
-    curated_group = CuratedGroup.create(advisor_id, 'Curated group with four ASC students and one student from COE')
+    asc_advisor = AuthorizedUser.find_by_uid('6446')
+    CuratedGroup.create(asc_advisor.id, 'My Students')
+
+    curated_group = CuratedGroup.create(asc_advisor.id, 'Four students')
     CuratedGroup.add_student(curated_group.id, '3456789012')
     CuratedGroup.add_student(curated_group.id, '5678901234')
     CuratedGroup.add_student(curated_group.id, '11667051')
     CuratedGroup.add_student(curated_group.id, '7890123456')
-    # TODO: When the BOA business rules change and all advisors have access to all students
-    #  then the following SID will be served to the ASC advisor who owns the group. See BOAC-2130
-    coe_student_sid = '9000000000'
-    CuratedGroup.add_student(curated_group.id, coe_student_sid)
 
     coe_advisor = AuthorizedUser.find_by_uid('1133399')
     curated_group = CuratedGroup.create(coe_advisor.id, 'I have one student')
-    CuratedGroup.add_student(curated_group.id, '7890123456')  # PaulF
-
+    CuratedGroup.add_student(curated_group.id, '7890123456')
     std_commit(allow_test_environment=True)
 
 

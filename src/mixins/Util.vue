@@ -29,6 +29,7 @@ export default {
     map: _.map,
     mapValues: _.mapValues,
     merge: _.merge,
+    multiply: _.multiply,
     orderBy: _.orderBy,
     partition: _.partition,
     putFocusNextTick(id, cssSelector = null) {
