@@ -39,7 +39,7 @@ def stream_object(bucket, key):
     s3_url = build_s3_url(bucket, key)
     session = _get_session()
     try:
-        return smart_open.open(s3_url, 'rb')
+        return smart_open.open(s3_url, 'rb', transport_params=dict(session=session))
     except Exception as e:
         app.logger.error(f'S3 stream operation failed (bucket={bucket}, key={key})')
         app.logger.exception(e)
