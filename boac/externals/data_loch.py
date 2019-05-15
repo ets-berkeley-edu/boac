@@ -299,14 +299,14 @@ def get_student_profiles(sids=None):
         """
     if sids:
         sql += 'WHERE sid = ANY(:sids)'
-        return safe_execute_redshift(sql, sids=sids)
+        return safe_execute_rds(sql, sids=sids)
     else:
-        return safe_execute_redshift(sql)
+        return safe_execute_rds(sql)
 
 
 def extract_valid_sids(sids):
     sql = f'SELECT sid FROM {student_schema()}.student_profiles WHERE sid = ANY(:sids)'
-    return safe_execute_redshift(sql, sids=sids)
+    return safe_execute_rds(sql, sids=sids)
 
 
 def get_term_gpas(sids):
@@ -326,7 +326,7 @@ def get_enrollments_for_sid(sid, latest_term_id=None):
     if latest_term_id:
         sql += f""" AND term_id <= '{latest_term_id}'"""
     sql += ' ORDER BY term_id DESC'
-    return safe_execute_redshift(sql, sid=sid)
+    return safe_execute_rds(sql, sid=sid)
 
 
 def get_enrollments_for_term(term_id, sids=None):
@@ -335,7 +335,7 @@ def get_enrollments_for_term(term_id, sids=None):
         WHERE term_id = :term_id"""
     if sids:
         sql += ' AND sid = ANY(:sids)'
-    return safe_execute_redshift(sql, term_id=term_id, sids=sids)
+    return safe_execute_rds(sql, term_id=term_id, sids=sids)
 
 
 def get_advising_notes(sid):
