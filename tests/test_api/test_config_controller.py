@@ -93,8 +93,8 @@ class TestServiceAnnouncement:
         return response.json
 
     def test_not_authenticated(self, client, announcement_published):
-        """Rejects anonymous user."""
-        self._api_service_announcement(client, expected_status_code=401)
+        """Returns None to anonymous user."""
+        assert self._api_service_announcement(client) is None
 
     def test_advisor_cannot_read_unpublished(self, client, advisor_session, announcement_unpublished):
         """Advisor does not have access to the unpublished announcement."""

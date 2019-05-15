@@ -1,5 +1,5 @@
 <template>
-  <div class="pl-3 pt-3">
+  <div class="m-3">
     <Spinner />
     <div v-if="!loading">
       <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>

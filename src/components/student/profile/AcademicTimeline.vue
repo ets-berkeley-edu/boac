@@ -324,7 +324,9 @@ export default {
     this.sortMessages();
     this.alertScreenReader('Academic Timeline has loaded');
     this.isTimelineLoading = false;
-    this.getSuggestedTopics();
+    if (this.featureFlagEditNotes) {
+      this.getSuggestedTopics();
+    }
   },
   mounted() {
     if (this.anchor) {
@@ -333,7 +335,7 @@ export default {
         const messageId = match[1];
         const note = this.find(this.messages, function(m) {
           // Legacy advising notes have string IDs; BOA-created advising notes have integer IDs.
-          if (m.id.toString() === messageId) {
+          if (m.id && m.id.toString() === messageId) {
             return true;
           }
         });
@@ -473,8 +475,10 @@ export default {
       this.messages.sort((m1, m2) => {
         let d1 = m1.updatedAt || m1.createdAt;
         let d2 = m2.updatedAt || m2.createdAt;
-        if (d1 && d2) {
+        if (d1 && d2 && d1 != d2) {
           return d2.localeCompare(d1);
+        } else if (d1 === d2 && m1.id && m2.id) {
+          return m2.id < m1.id ? -1 : 1;
         } else if (!d1 && !d2) {
           return m2.transientId - m1.transientId;
         } else {

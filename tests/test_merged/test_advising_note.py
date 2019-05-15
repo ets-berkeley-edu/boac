@@ -243,6 +243,36 @@ class TestMergedAdvisingNote:
         assert response[1]['noteSnippet'].startswith('I am <strong>confounded</strong>')
         assert response[2]['noteSnippet'].startswith('...pity the founder')
 
+    def test_search_advising_notes_narrowed_by_author(self, app, fake_auth):
+        """Narrows results for both new and legacy advising notes by author SID."""
+        joni = {
+            'name': 'Joni Mitchell',
+            'uid': '1133399',
+            'sid': '800700600',
+        }
+        not_joni = {
+            'name': 'Oliver Heyer',
+            'uid': '2040',
+        }
+        for author in [joni, not_joni]:
+            Note.create(
+                author_uid=author['uid'],
+                author_name=author['name'],
+                author_role='Advisor',
+                author_dept_codes='COENG',
+                sid='11667051',
+                subject='Futher on France',
+                body='Brigitte has been molded to middle class circumstance',
+            )
+        fake_auth.login(coe_advisor)
+        wide_response = search_advising_notes(search_phrase='Brigitte')
+        assert len(wide_response) == 4
+        narrow_response = search_advising_notes(search_phrase='Brigitte', author_csid=joni['sid'])
+        assert len(narrow_response) == 2
+        new_note, legacy_note = narrow_response[0], narrow_response[1]
+        assert new_note['advisorUid'] == joni['uid']
+        assert legacy_note['advisorSid'] == joni['sid']
+
     def test_stream_attachment(self, app, fake_auth):
         with mock_legacy_note_attachment(app):
             fake_auth.login(coe_advisor)

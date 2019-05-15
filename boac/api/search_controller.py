@@ -65,8 +65,11 @@ def search():
         feed.update(_course_search(search_phrase, params, order_by))
 
     if domain['notes']:
+        note_options = util.get(params, 'noteOptions', {})
+        author_csid = note_options.get('authorCsid')
         notes_results = search_advising_notes(
             search_phrase=search_phrase,
+            author_csid=author_csid,
             offset=0,
             limit=20,
         )

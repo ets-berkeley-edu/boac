@@ -25,10 +25,14 @@
         </div>
       </div>
       <div v-if="userGroups">
-        <h2 class="page-section-header-sub pb-2">Users</h2>
+        <h2 id="dept-users-section" class="page-section-header-sub pb-2">Users</h2>
         <b-card no-body>
           <b-tabs pills card>
-            <b-tab v-for="group in userGroups" :key="group.name" :title="group.name">
+            <b-tab
+              v-for="group in userGroups"
+              :id="`user-group-${group.code}`"
+              :key="group.name"
+              :title="group.name">
               <b-container v-if="size(group.users)" fluid>
                 <b-row
                   v-for="groupUser in group.users"
@@ -39,6 +43,7 @@
                     class="pr-0"
                     :class="{'pb-2': groupUser.uid === user.uid}">
                     <a
+                      :id="`dept-${group.code}-${groupUser.uid}`"
                       :class="{'faint-text pb-2': groupUser.uid === user.uid}"
                       :aria-label="`Go to UC Berkeley Directory page of ${groupUser.name}`"
                       :href="`https://www.berkeley.edu/directory/results?search-term=${groupUser.name}`"

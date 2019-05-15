@@ -1,6 +1,6 @@
 <template>
   <div :id="`note-${note.id}-outer`" class="advising-note-outer">
-    <div :id="`note-${note.id}-is-closed`" :class="{'truncate': !isOpen}">
+    <div :id="`note-${note.id}-is-closed`" :class="{'truncate-with-ellipsis': !isOpen}" title="Advising note">
       <span v-if="note.subject" :id="`note-${note.id}-subject-closed`">{{ note.subject }}</span>
       <span v-if="!note.subject && size(note.message)" :id="`note-${note.id}-message-closed`" v-html="note.message"></span>
       <span v-if="!note.subject && !size(note.message)" :id="`note-${note.id}-category-closed`">{{ note.category }}<span v-if="note.subcategory" :id="`note-${note.id}-subcategory-closed`">, {{ note.subcategory }}</span></span>
@@ -314,11 +314,6 @@ export default {
 }
 .form-control-file {
   height: 100%;
-}
-.truncate {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 .advisor-profile-not-found {
   color: #999;

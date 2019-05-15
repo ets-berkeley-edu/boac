@@ -48,6 +48,7 @@ export default {
       this.showCreateModal = false;
       this.isSaving = false;
       this.alertScreenReader(`You have cancelled the operation to create a new curated group.`);
+      this.putFocusNextTick('curated-group-bulk-add-sids');
     },
     create(name) {
       this.showCreateModal = false;

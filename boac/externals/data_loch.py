@@ -120,22 +120,30 @@ def get_regular_undergraduate_session(term_id):
 
 def get_enrolled_primary_sections(term_id, course_name):
     sql = f"""SELECT * FROM {sis_schema()}.enrolled_primary_sections
-              WHERE term_id = '{term_id}'
-              AND sis_course_name_compressed LIKE '{course_name}%'
+              WHERE term_id = :term_id
+              AND sis_course_name_compressed LIKE :course_name
               ORDER BY sis_course_name_compressed, sis_instruction_format, sis_section_num
            """
-    return safe_execute_rds(sql)
+    return safe_execute_rds(sql, term_id=term_id, course_name=f'{course_name}%')
 
 
 def get_enrolled_primary_sections_for_parsed_code(term_id, subject_area, catalog_id):
-    subject_area_clause = f"AND sis_subject_area_compressed LIKE '{subject_area}%'" if subject_area else ''
+    params = {
+        'term_id': term_id,
+        'catalog_id': f'{catalog_id}%',
+    }
+    if subject_area:
+        subject_area_clause = 'AND sis_subject_area_compressed LIKE :subject_area'
+        params.update({'subject_area': f'{subject_area}%'})
+    else:
+        subject_area_clause = ''
     sql = f"""SELECT * FROM {sis_schema()}.enrolled_primary_sections
-              WHERE term_id = '{term_id}'
+              WHERE term_id = :term_id
               {subject_area_clause}
-              AND sis_catalog_id LIKE '{catalog_id}%'
+              AND sis_catalog_id LIKE :catalog_id
               ORDER BY sis_course_name_compressed, sis_instruction_format, sis_section_num
            """
-    return safe_execute_rds(sql)
+    return safe_execute_rds(sql, **params)
 
 
 @fixture('loch_sis_enrollments_{uid}_{term_id}.csv')
@@ -337,7 +345,7 @@ def get_advising_notes(sid):
             created_by, updated_by, note_body, created_at, updated_at
         FROM {advising_notes_schema()}.advising_notes
         WHERE sid=:sid
-        ORDER BY created_at, updated_at"""
+        ORDER BY created_at, updated_at, id"""
     return safe_execute_redshift(sql, sid=sid)
 
 
@@ -371,7 +379,8 @@ def get_advising_note_attachments(sid):
     return safe_execute_redshift(sql, sid=sid)
 
 
-def search_advising_notes(search_phrase, sid_filter, offset=None, limit=None):
+def search_advising_notes(search_phrase, sid_filter, author_csid=None, offset=None, limit=None):
+    author_filter = 'AND an.advisor_sid = :author_csid' if author_csid else ''
     sql = f"""SELECT
         an.sid, an.id, an.note_body, an.advisor_sid, an.created_by, an.created_at, an.updated_at
         FROM (
@@ -383,12 +392,20 @@ def search_advising_notes(search_phrase, sid_filter, offset=None, limit=None):
         JOIN {advising_notes_schema()}.advising_notes an
           ON s.id = an.id
           AND an.sid = ANY(:sid_filter)
+          {author_filter}
         ORDER BY s.rank DESC, an.id"""
     if offset is not None and offset > 0:
         sql += ' OFFSET :offset'
     if limit is not None and limit < 150:  # Sanity check large limits
         sql += ' LIMIT :limit'
-    return safe_execute_rds(sql, search_phrase=search_phrase, sid_filter=sid_filter, offset=offset, limit=limit)
+    return safe_execute_rds(
+        sql,
+        search_phrase=search_phrase,
+        sid_filter=sid_filter,
+        author_csid=author_csid,
+        offset=offset,
+        limit=limit,
+    )
 
 
 def get_ethnicity_codes(scope=()):

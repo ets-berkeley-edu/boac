@@ -1,16 +1,22 @@
 <template>
-  <div class="m-4">
-    <div class="d-flex justify-content-between">
+  <div class="d-flex w-100">
+    <div class="ml-2">
+      <img src="@/assets/uc-berkeley-logo.svg" />
+    </div>
+    <div class="ml-auto">
       <div>
-        <img src="@/assets/uc-berkeley-logo.svg" />
+        Problem? Question? Suggestion? Email <a :href="`mailto:${supportEmailAddress}`" target="_blank">{{ supportEmailAddress }}</a>
       </div>
-      <div class="pt-3">
-        &copy; 2019 The Regents of the University of California
-      </div>
+      &copy; 2019 The Regents of the University of California
     </div>
   </div>
 </template>
 
 <script>
-export default { name: 'Footer' };
+import Context from '@/mixins/Context';
+
+export default {
+  name: 'Footer',
+  mixins: [Context]
+};
 </script>

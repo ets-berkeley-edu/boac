@@ -27,9 +27,11 @@ from datetime import datetime
 
 from boac import db, std_commit
 from boac.lib.util import titleize, vacuum_whitespace
+from boac.merged.calnet import get_uid_for_csid
 from boac.models.base import Base
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_topic import NoteTopic
+from flask import current_app as app
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql import text
@@ -96,8 +98,19 @@ class Note(Base):
         return note
 
     @classmethod
-    def search(cls, search_phrase, sid_filter):
-        query = text("""
+    def search(cls, search_phrase, sid_filter, author_csid):
+        params = {
+            'search_phrase': search_phrase,
+            'sid_filter': sid_filter,
+        }
+        author_uid = get_uid_for_csid(app, author_csid) if author_csid else None
+        if author_uid:
+            author_filter = 'AND notes.author_uid = :author_uid'
+            params.update({'author_uid': author_uid})
+        else:
+            author_filter = ''
+
+        query = text(f"""
             SELECT notes.* FROM (
                 SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
                 FROM notes_fts_index
@@ -106,8 +119,9 @@ class Note(Base):
             JOIN notes
                 ON fts.id = notes.id
                 AND notes.sid = ANY(:sid_filter)
+                {author_filter}
             ORDER BY fts.rank DESC, notes.id
-        """).bindparams(search_phrase=search_phrase, sid_filter=sid_filter)
+        """).bindparams(**params)
         result = db.session.execute(query)
         keys = result.keys()
         return [dict(zip(keys, row)) for row in result.fetchall()]
@@ -197,7 +211,7 @@ class Note(Base):
     @classmethod
     def get_notes_by_sid(cls, sid):
         # SQLAlchemy uses "magic methods" to create SQL; it requires '==' instead of 'is'.
-        return cls.query.filter(and_(cls.sid == sid, cls.deleted_at == None)).all()  # noqa: E711
+        return cls.query.filter(and_(cls.sid == sid, cls.deleted_at == None)).order_by(cls.updated_at, cls.id).all()  # noqa: E711
 
     @classmethod
     def delete(cls, note_id):

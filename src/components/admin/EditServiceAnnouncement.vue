@@ -1,6 +1,6 @@
 <template>
   <div v-if="announcement !== undefined" class="mt-3">
-    <h2 class="page-section-header-sub">Service Alert</h2>
+    <h2 id="edit-service-announcement" class="page-section-header-sub">Service Alert</h2>
     <div class="p-2">
       <div>
         <b-form-checkbox
