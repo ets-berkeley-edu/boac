@@ -227,10 +227,6 @@ def put_notifications(student):
             })
 
 
-def sort_students_by_name(students):
-    return sorted(students, key=lambda s: (s['lastName'], s['firstName']))
-
-
 def translate_grading_basis(code):
     bases = {
         'CNC': 'C/NC',
@@ -260,8 +256,8 @@ def get_my_curated_groups():
     curated_groups = []
     user_id = current_user.id
     for curated_group in CuratedGroup.get_curated_groups_by_owner_id(user_id):
-        api_json = curated_group.to_api_json(sids_only=True, include_students=False)
-        students = [{'sid': s['sid']} for s in api_json['students']]
+        api_json = curated_group.to_api_json()
+        students = [{'sid': sid} for sid in CuratedGroup.get_all_sids(curated_group.id)]
         students_with_alerts = Alert.include_alert_counts_for_students(
             viewer_user_id=user_id,
             group={'students': students},

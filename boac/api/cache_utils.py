@@ -31,6 +31,7 @@ from boac.externals import data_loch
 from boac.lib import berkeley
 from boac.models import json_cache
 from boac.models.alert import Alert
+from boac.models.curated_group import CuratedGroupStudent
 from boac.models.job_progress import JobProgress
 from boac.models.json_cache import JsonCache
 from flask import current_app as app
@@ -236,10 +237,10 @@ def update_curated_group_lists():
     """Remove no-longer-accessible students from curated group lists."""
     from boac.models.curated_group import CuratedGroup
     for curated_group in CuratedGroup.query.all():
-        member_sids = [s.sid for s in curated_group.students]
-        available_students = [s['sid'] for s in data_loch.get_student_profiles(member_sids)]
-        if len(member_sids) > len(available_students):
-            unavailable_sids = set(member_sids) - set(available_students)
+        all_sids = CuratedGroupStudent.get_sids(curated_group.id)
+        available_students = [s['sid'] for s in data_loch.get_student_profiles(all_sids)]
+        if len(all_sids) > len(available_students):
+            unavailable_sids = set(all_sids) - set(available_students)
             app.logger.info(f'Deleting inaccessible SIDs from curated group {curated_group.id}: {unavailable_sids}')
             for sid in unavailable_sids:
                 CuratedGroup.remove_student(curated_group.id, sid)
