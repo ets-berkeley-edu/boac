@@ -30,15 +30,10 @@
 -- Usage:
 --
 --     psql -U DBUSER postgresql://SOMEPLACE.amazonaws.com:SOMEPORT/BOACDB
---     BOACDB=>  \i scripts/db/copy_external_cache_from_file
+--     BOACDB=>  \i scripts/db/tools/copy_external_cache_to_file
 --
--- The input file should be named 'external_json_cache.bin'.
+-- The output file will be named 'external_json_cache.bin'. Expect it to take a lot of disk space.
 
 \timing on
-BEGIN;
-LOCK TABLE json_cache;
-DELETE FROM json_cache WHERE key NOT LIKE 'job_%' AND key NOT LIKE 'asc_athletes_%';
-\COPY json_cache (created_at, updated_at, key, json) from 'external_json_cache.bin' WITH (FORMAT BINARY)
-COMMIT;
-VACUUM ANALYZE json_cache;
+\COPY (SELECT created_at, updated_at, key, json FROM json_cache WHERE key NOT LIKE 'job_%' AND key NOT LIKE 'asc_athletes_%') TO 'external_json_cache.bin' WITH (FORMAT BINARY)
 \timing off
