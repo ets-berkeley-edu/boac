@@ -2,19 +2,18 @@
   <div v-if="announcement !== undefined" class="mt-3">
     <h2 id="edit-service-announcement" class="page-section-header-sub">Service Alert</h2>
     <div class="p-2">
-      <div>
+      <div v-if="isTogglingPublish">
+        <span class="fa fa-spinner fa-spin"></span>
+        {{ isPublished ? 'Unposting...' : 'Posting...' }}
+      </div>
+      <div v-if="!isTogglingPublish">
         <b-form-checkbox
-          v-if="!isTogglingPublish"
           id="checkbox-publish-service-announcement"
           v-model="isPublished"
           :disabled="isSaving || text !== originalText"
           @change="togglePublish">
-          {{ isPublished ? 'Posted' : 'Post' }}
+          <span id="checkbox-service-announcement-label">{{ isPublished ? 'Posted' : 'Post' }}</span>
         </b-form-checkbox>
-        <div v-if="isTogglingPublish">
-          <span class="fa fa-spinner fa-spin"></span>
-          {{ isPublished ? 'Unposting...' : 'Posting...' }}
-        </div>
       </div>
       <div v-if="error" class="mt-2 has-error w-100">
         <span aria-live="polite" role="alert">{{ error }}</span>
@@ -30,6 +29,7 @@
       ></b-form-textarea>
       <div>
         <b-btn
+          id="button-update-service-announcement"
           variant="primary"
           class="btn-primary-color-override mt-2"
           :disabled="text === originalText"

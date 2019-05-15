@@ -35,10 +35,13 @@
             </span>
             <div
               v-if="announcement && announcement.isPublished"
-              class="service-announcement w-100">
-              <div class="p-3" aria-live="polite" role="alert">
+              class="service-announcement p-3 w-100">
+              <span
+                id="service-announcement-banner"
+                aria-live="polite"
+                role="alert">
                 {{ announcement.text }}
-              </div>
+              </span>
             </div>
             <router-view :key="stripAnchorRef($route.fullPath)"></router-view>
           </div>
