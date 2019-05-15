@@ -144,7 +144,7 @@ export default {
     this.$eventHub.$on('cohort-apply-filters', () => {
       this.setPagination(1);
     });
-    this.$eventHub.$on('sort-by-changed-by-user', sortBy => {
+    this.$eventHub.$on('sortBy-user-preference-change', sortBy => {
       this.goToPage(1);
       this.screenReaderAlert = `Sort students by ${sortBy}`;
       this.gaCohortEvent(
