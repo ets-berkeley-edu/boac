@@ -69,12 +69,16 @@ def _safe_execute(string, db, **kwargs):
     return row_array
 
 
-def asc_schema():
-    return app.config['DATA_LOCH_ASC_SCHEMA']
-
-
 def advising_notes_schema():
     return app.config['DATA_LOCH_ADVISING_NOTES_SCHEMA']
+
+
+def asc_advising_notes_schema():
+    return app.config['DATA_LOCH_ASC_ADVISING_NOTES_SCHEMA']
+
+
+def asc_schema():
+    return app.config['DATA_LOCH_ASC_SCHEMA']
 
 
 def boac_schema():
@@ -338,7 +342,26 @@ def get_enrollments_for_term(term_id, sids=None):
     return safe_execute_rds(sql, term_id=term_id, sids=sids)
 
 
-def get_advising_notes(sid):
+def get_asc_advising_notes(sid):
+    sql = f"""
+        SELECT
+            id, sid, advisor_uid AS author_uid,
+            advisor_first_name || ' ' || advisor_last_name AS author_name,
+            created_at, updated_at
+        FROM {asc_advising_notes_schema()}.advising_notes
+        WHERE sid=:sid
+        ORDER BY created_at, updated_at, id"""
+    return safe_execute_redshift(sql, sid=sid)
+
+
+def get_asc_advising_note_topics(sid):
+    sql = f"""SELECT id, topic
+        FROM {asc_advising_notes_schema()}.advising_note_topics
+        WHERE sid=:sid"""
+    return safe_execute_redshift(sql, sid=sid)
+
+
+def get_sis_advising_notes(sid):
     sql = f"""
         SELECT
             id, sid, advisor_sid, appointment_id, note_category, note_subcategory,
@@ -349,7 +372,7 @@ def get_advising_notes(sid):
     return safe_execute_redshift(sql, sid=sid)
 
 
-def get_advising_note_topics(sid):
+def get_sis_advising_note_topics(sid):
     sql = f"""SELECT advising_note_id, note_topic
         FROM {advising_notes_schema()}.advising_note_topics
         WHERE sid=:sid
@@ -357,7 +380,7 @@ def get_advising_note_topics(sid):
     return safe_execute_redshift(sql, sid=sid)
 
 
-def get_advising_note_attachment(sid, filename, scope):
+def get_sis_advising_note_attachment(sid, filename, scope):
     query_tables, query_filter, query_bindings = get_students_query(scope=scope)
     if not query_tables:
         return None
@@ -371,7 +394,7 @@ def get_advising_note_attachment(sid, filename, scope):
     return safe_execute_redshift(sql, sid=sid, filename=filename, **query_bindings)
 
 
-def get_advising_note_attachments(sid):
+def get_sis_advising_note_attachments(sid):
     sql = f"""SELECT advising_note_id, created_by, sis_file_name, user_file_name
         FROM {advising_notes_schema()}.advising_note_attachments
         WHERE sid=:sid

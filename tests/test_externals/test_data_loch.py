@@ -101,6 +101,16 @@ class TestDataLoch:
         assert term_gpas[3]['gpa'] == Decimal('3.800')
         assert term_gpas[3]['units_taken_for_gpa'] == 15
 
+    def test_get_asc_advising_notes(self, app):
+        notes = data_loch.get_asc_advising_notes('11667051')
+        assert len(notes) == 2
+        assert notes[0]['id'] == '11667051-139362'
+        assert notes[0]['sid'] == '11667051'
+        assert notes[0]['author_uid'] == '1133399'
+        assert notes[0]['author_name'] == 'Lemmy Kilmister'
+        assert notes[0]['created_at']
+        assert notes[0]['updated_at']
+
     def test_override_fixture(self, app):
         mr = MockRows(io.StringIO('sid,first_name,last_name\n20000000,Martin,Van Buren'))
         with register_mock(data_loch.get_sis_section_enrollments, mr):

@@ -90,6 +90,7 @@ DATA_LOCH_URI = 'postgres://nessie:secret@secreturl.com:5432/canvas'
 DATA_LOCH_RDS_URI = 'postgres://nessie:secret@secret-rds-url.com:5432/canvas'
 
 DATA_LOCH_ADVISING_NOTES_SCHEMA = 'boac_advising_notes'
+DATA_LOCH_ASC_ADVISING_NOTES_SCHEMA = 'asc_advising_notes'
 DATA_LOCH_ASC_SCHEMA = 'boac_advising_asc'
 DATA_LOCH_BOAC_SCHEMA = 'boac_analytics'
 DATA_LOCH_COE_SCHEMA = 'boac_advising_coe'

@@ -1,3 +1,4 @@
+DROP SCHEMA IF EXISTS asc_advising_notes cascade;
 DROP SCHEMA IF EXISTS boac_advising_asc cascade;
 DROP SCHEMA IF EXISTS boac_advising_coe cascade;
 DROP SCHEMA IF EXISTS boac_advising_l_s cascade;
@@ -6,6 +7,7 @@ DROP SCHEMA IF EXISTS boac_analytics cascade;
 DROP SCHEMA IF EXISTS sis_data cascade;
 DROP SCHEMA IF EXISTS student cascade;
 
+CREATE SCHEMA asc_advising_notes;
 CREATE SCHEMA boac_advising_asc;
 CREATE SCHEMA boac_advising_coe;
 CREATE SCHEMA boac_advising_l_s;
@@ -13,6 +15,28 @@ CREATE SCHEMA boac_advising_notes;
 CREATE SCHEMA boac_analytics;
 CREATE SCHEMA sis_data;
 CREATE SCHEMA student;
+
+CREATE TABLE asc_advising_notes.advising_notes
+(
+    id VARCHAR NOT NULL,
+    asc_id VARCHAR NOT NULL,
+    sid VARCHAR NOT NULL,
+    student_first_name VARCHAR,
+    student_last_name VARCHAR,
+    meeting_date VARCHAR,
+    advisor_uid VARCHAR,
+    advisor_first_name VARCHAR,
+    advisor_last_name VARCHAR,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE TABLE asc_advising_notes.advising_note_topics (
+    id VARCHAR NOT NULL,
+    asc_id VARCHAR NOT NULL,
+    sid VARCHAR NOT NULL,
+    topic VARCHAR
+);
 
 CREATE TABLE boac_advising_asc.students
 (
@@ -187,6 +211,20 @@ CREATE TABLE student.student_term_gpas
     gpa DECIMAL(4,3),
     units_taken_for_gpa DECIMAL(4,1)
 );
+
+INSERT INTO asc_advising_notes.advising_notes
+(id, asc_id, sid, student_first_name, student_last_name, meeting_date, advisor_uid, advisor_first_name, advisor_last_name, created_at, updated_at)
+VALUES
+('11667051-139362', '139362', '11667051', 'Deborah',  'Davies', '2014-01-03', '1133399', 'Lemmy', 'Kilmister', '2014-01-03 20:30:00+00', '2014-01-03 20:30:00+00'),
+('11667051-139379', '139379', '11667051', 'Deborah',  'Davies', '2014-01-16', '90412', 'Ginger', 'Baker', '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00'),
+('9000000000-139379', '139379', '9000000000', 'Wolfgang',  'Pauli', '2014-01-16', '90412', 'Ginger', 'Baker', '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00'),
+('9100000000-139379', '139379', '9100000000', 'Nora Stanton',  'Barney', '2014-01-16', '90412', 'Ginger', 'Baker', '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00');
+
+INSERT INTO asc_advising_notes.advising_note_topics
+(id, asc_id, sid, topic)
+VALUES
+('11667051-139362', '139362', '11667051', 'Academic'),
+('11667051-139362', '139362', '11667051', 'Other');
 
 INSERT INTO boac_advising_asc.students
 (sid, intensive, active, status_asc, group_code, group_name, team_code, team_name)

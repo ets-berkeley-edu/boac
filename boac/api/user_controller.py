@@ -57,10 +57,7 @@ def calnet_profile(csid):
 @app.route('/api/user/by_uid/<uid>')
 @login_required
 def user_by_uid(uid):
-    user = AuthorizedUser.find_by_uid(uid)
-    if not user:
-        raise errors.ResourceNotFoundError('Unknown path')
-    return tolerant_jsonify(calnet.get_calnet_user_for_uid(app, user.uid))
+    return tolerant_jsonify(calnet.get_calnet_user_for_uid(app, uid))
 
 
 @app.route('/api/users/authorized_groups')

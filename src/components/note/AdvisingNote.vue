@@ -4,7 +4,10 @@
       <span v-if="note.subject" :id="`note-${note.id}-subject-closed`">{{ note.subject }}</span>
       <span v-if="!note.subject && size(note.message)" :id="`note-${note.id}-message-closed`" v-html="note.message"></span>
       <span v-if="!note.subject && !size(note.message)" :id="`note-${note.id}-category-closed`">{{ note.category }}<span v-if="note.subcategory" :id="`note-${note.id}-subcategory-closed`">, {{ note.subcategory }}</span></span>
-    </div>
+      <span v-if="!note.subject && !size(note.message) && !note.category" :id="`note-${note.id}-category-closed`">Student met with {{ note.author.departments[0].name}} advisor {{ note.author.name }} 
+        <span v-if="note.topics && size(note.topics)">to discuss: {{ oxfordJoin(note.topics) }}</span>
+      </span>
+   </div>
     <div v-if="isOpen" :id="`note-${note.id}-is-open`">
       <div v-if="isEditable">
         <b-btn
@@ -43,7 +46,7 @@
           </span><span v-if="note.isLegacy">)</span>
         </div>
       </div>
-      <div v-if="size(note.topics)">
+      <div v-if="note.topics && size(note.topics)">
         <div class="pill-list-header mt-3 mb-1">{{ size(note.topics) === 1 ? 'Topic Category' : 'Topic Categories' }}</div>
         <ul class="pill-list pl-0">
           <li
@@ -206,7 +209,7 @@ export default {
   methods: {
     setAuthor() {
       if (this.isOpen && this.isUndefined(this.author)) {
-        if (this.note.author.name) {
+        if (this.note.author.name && this.note.author.role) {
           this.author = this.note.author;
         } else {
           const author_uid = this.note.author.uid;
