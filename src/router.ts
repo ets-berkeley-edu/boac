@@ -188,6 +188,7 @@ router.afterEach((to: any) => {
       store.dispatch('user/loadUser').then(() => {
         store.dispatch('cohort/loadMyCohorts');
         store.dispatch('curated/loadMyCuratedGroups');
+        store.dispatch('context/loadServiceAnnouncement');
         return;
       });
     }
