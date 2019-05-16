@@ -1,15 +1,17 @@
 <template>
-  <div class="d-flex w-100">
-    <div class="ml-2">
-      <img src="@/assets/uc-berkeley-logo.svg" />
-    </div>
-    <div class="ml-auto">
-      <div>
-        Problem? Question? Suggestion? Email <a :href="`mailto:${supportEmailAddress}`" target="_blank">{{ supportEmailAddress }}</a>
-      </div>
-      &copy; 2019 The Regents of the University of California
-    </div>
-  </div>
+  <b-container fluid class="mb-2 mt-2">
+    <b-row>
+      <b-col sm="6" class="mb-2">
+        <img src="@/assets/uc-berkeley-logo.svg" />
+      </b-col>
+      <b-col sm="6">
+        <div>
+          Problem? Question? Suggestion? Email <a :href="`mailto:${supportEmailAddress}`" target="_blank">{{ supportEmailAddress }}</a>
+        </div>
+        &copy; 2019 The Regents of the University of California
+      </b-col>
+    </b-row>
+  </b-container>
 </template>
 
 <script>

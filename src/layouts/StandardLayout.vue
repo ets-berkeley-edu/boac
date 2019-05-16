@@ -19,7 +19,7 @@
         <HeaderMenu />
       </b-col>
     </b-row>
-    <b-row class="h-100">
+    <b-row class="min-height-100 p-0">
       <b-col class="p-0 sidebar" sm="3">
         <Sidebar />
       </b-col>
@@ -84,6 +84,9 @@ export default {
 <style scoped>
 .body-text {
   font-size: 16px;
+}
+.min-height-100 {
+  min-height: 100%;
 }
 .header-text {
   font-size: 16px;

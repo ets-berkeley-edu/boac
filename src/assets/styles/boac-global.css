@@ -114,6 +114,12 @@ select.form-control {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.font-size-14 {
+  font-size: 14px;
+}
+.font-size-20 {
+  font-size: 20px;
+}
 
 #content {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
