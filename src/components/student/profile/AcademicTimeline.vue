@@ -1,10 +1,10 @@
 <template>
   <div v-if="!isTimelineLoading">
-    <div class="d-flex justify-content-between">
+    <div class="d-flex justify-content-between flex-wrap mb-2">
       <div>
         <h2 class="student-section-header">Academic Timeline</h2>
-        <div class="d-flex mt-3 mb-3">
-          <div class="align-self-center mr-3">Filter Type:</div>
+        <div class="d-flex mt-1 mb-1">
+          <div class="align-self-center mr-2">Filter Type:</div>
           <div>
             <b-btn
               id="timeline-tab-all"
@@ -202,7 +202,7 @@
         </tr>
       </table>
     </div>
-    <div v-if="countPerActiveTab > defaultShowPerTab" class="text-center pt-2">
+    <div v-if="countPerActiveTab > defaultShowPerTab" class="text-center">
       <b-btn
         :id="`timeline-tab-${activeTab}-previous-messages`"
         class="no-wrap pr-2 pt-0"
