@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="showRow"
-    class="d-flex"
+    class="d-flex flex-wrap"
     :class="{'pt-2': !isExistingFilter}">
     <div
       v-if="isExistingFilter"
@@ -156,7 +156,7 @@
       class="cohort-filter-draft-column-04">
       <b-btn
         id="unsaved-filter-reset"
-        class="cohort-manage-btn-link p-0"
+        class="p-0"
         variant="link"
         aria-label="Cancel this filter selection"
         @click="reset()">

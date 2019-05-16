@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="d-flex flex-wrap">
     <span :id="`row-index-of-${student.sid}`" hidden aria-hidden="true">{{ rowIndex }}</span>
     <span :id="`student-sid-of-row-${rowIndex}`" hidden aria-hidden="true">{{ student.sid }}</span>
     <div class="cohort-list-view-column-01">
@@ -20,7 +20,7 @@
         :student="student"
         :alert-count="student.alertCount" />
     </div>
-    <div class="cohort-student-bio-container">
+    <div class="cohort-student-bio-container mb-1">
       <div class="cohort-student-name-container">
         <div>
           <router-link :id="`row-${rowIndex}-student-href`" :to="`/student/${student.uid}`">
@@ -162,7 +162,7 @@
             </div>
           </td>
           <td class="cohort-course-activity-data">
-            <span v-if="enrollment.midtermGrade" v-accessible-grade="enrollment.midtermGrade" class="cohort-grade"></span>
+            <span v-if="enrollment.midtermGrade" v-accessible-grade="enrollment.midtermGrade" class="font-weight-bold"></span>
             <i v-if="isAlertGrade(enrollment.midtermGrade)" class="fas fa-exclamation-triangle boac-exclamation"></i>
             <span v-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
           </td>
@@ -170,7 +170,7 @@
             <span
               v-if="enrollment.grade"
               v-accessible-grade="enrollment.grade"
-              class="cohort-grade"></span>
+              class="font-weight-bold"></span>
             <i v-if="isAlertGrade(enrollment.grade)" class="fas fa-exclamation-triangle boac-exclamation"></i>
             <span
               v-if="!enrollment.grade"

@@ -1,10 +1,10 @@
 <template>
-  <b-container fluid class="mb-2 mt-2">
+  <b-container fluid class="p-0">
     <b-row>
-      <b-col sm="6" class="mb-2">
+      <b-col sm="7" class="mb-3 mr-auto">
         <img src="@/assets/uc-berkeley-logo.svg" />
       </b-col>
-      <b-col sm="6">
+      <b-col sm="5" class="pr-0">
         <div>
           Problem? Question? Suggestion? Email <a :href="`mailto:${supportEmailAddress}`" target="_blank">{{ supportEmailAddress }}</a>
         </div>

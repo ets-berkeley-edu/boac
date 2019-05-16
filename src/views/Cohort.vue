@@ -1,5 +1,5 @@
 <template>
-  <div class="m-3">
+  <div class="ml-3 mt-3">
     <Spinner />
     <div v-if="!loading">
       <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
@@ -43,7 +43,7 @@
                   :student="student"
                   list-type="cohort"
                   :sorted-by="preferences.sortBy"
-                  class="list-group-item student-list-item"
+                  class="list-group-item border-left-0 border-right-0"
                   :class="{'list-group-item-info' : anchor === `#${student.uid}`}" />
               </div>
             </div>
@@ -191,9 +191,6 @@ export default {
   padding: 10px 10px 10px 10px;
   width: 100%;
 }
-.cohort-grade {
-  font-weight: bold;
-}
 .cohort-grading-basis {
   color: #666;
   font-size: 14px;
@@ -202,14 +199,6 @@ export default {
 .cohort-manage-btn {
   height: 38px;
   margin: 0 0 0 5px;
-}
-.cohort-manage-btn-link {
-  padding: 1px 0 1px 0;
-}
-.cohort-selector-zero-cohorts {
-  color: #888;
-  padding: 3px 20px 3px 20px;
-  white-space: nowrap;
 }
 .cohort-student-bio-container {
   flex: 0.8;
@@ -227,13 +216,5 @@ export default {
   align-items: center;
   background-color: #f3f3f3;
   border-left: 6px solid #3b7ea5 !important;
-  margin: 5px 0 5px 0;
-  padding: 2px 10px 2px 10px;
-  text-align: left;
-}
-.student-list-item {
-  border-left: none;
-  border-right: none;
-  display: flex;
 }
 </style>

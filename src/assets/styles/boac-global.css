@@ -55,6 +55,9 @@
   -webkit-filter: blur(10px);
   filter: blur(10px);
 }
+.min-width-100 {
+  min-width: 100%;
+}
 .no-wrap {
   white-space: nowrap;
 }

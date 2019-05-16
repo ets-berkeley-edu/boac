@@ -1,7 +1,7 @@
 <template>
-  <b-container id="app" class="h-100" fluid>
-    <b-row class="header">
-      <b-col cols="auto" class="mr-auto p-0 m-3">
+  <b-container id="app" class="h-100 p-0" fluid>
+    <b-row class="header" no-gutters>
+      <b-col cols="auto" class="mr-auto m-3">
         <a
           id="skip-to-content-link"
           href="#content"
@@ -19,36 +19,37 @@
         <HeaderMenu />
       </b-col>
     </b-row>
-    <b-row class="min-height-100 p-0">
-      <b-col class="p-0 sidebar" sm="3">
+    <b-row class="row-content" no-gutters>
+      <b-col class="sidebar" sm="3">
         <Sidebar />
       </b-col>
-      <b-col id="content" class="body-text h-100 p-0" sm="9">
-        <div class="d-flex flex-column h-100">
-          <div>
-            <span
-              v-if="srAlert"
-              class="sr-only"
-              aria-live="polite"
-              role="alert">
-              {{ srAlert }}
-            </span>
-            <div
-              v-if="announcement && announcement.isPublished"
-              class="service-announcement p-3 w-100">
-              <span
-                id="service-announcement-banner"
-                aria-live="polite"
-                role="alert">
-                {{ announcement.text }}
-              </span>
-            </div>
-            <router-view :key="stripAnchorRef($route.fullPath)"></router-view>
-          </div>
-          <div class="mt-auto">
-            <Footer v-if="!loading" />
-          </div>
+      <b-col id="content" class="body-text h-100 pb-2" sm="9">
+        <div
+          v-if="announcement && announcement.isPublished"
+          class="service-announcement p-3 w-100">
+          <span
+            id="service-announcement-banner"
+            aria-live="polite"
+            role="alert">
+            {{ announcement.text }}
+          </span>
         </div>
+        <div>
+          <span
+            v-if="srAlert"
+            class="sr-only"
+            aria-live="polite"
+            role="alert">
+            {{ srAlert }}
+          </span>
+          <router-view :key="stripAnchorRef($route.fullPath)"></router-view>
+        </div>
+      </b-col>
+    </b-row>
+    <b-row class="row-footer" no-gutters>
+      <b-col class="sidebar" sm="3"></b-col>
+      <b-col sm="9">
+        <Footer v-if="!loading" class="mb-3 ml-3 mt-5" />
       </b-col>
     </b-row>
   </b-container>
@@ -85,9 +86,6 @@ export default {
 .body-text {
   font-size: 16px;
 }
-.min-height-100 {
-  min-height: 100%;
-}
 .header-text {
   font-size: 16px;
   color: #fff;
@@ -110,6 +108,12 @@ export default {
 }
 .header {
   background-color: #3b7ea5;
+}
+.row-content {
+  min-height: 82%;
+}
+.row-footer {
+  min-height: 18%;
 }
 .service-announcement {
   background-color: #f0ad4e;
