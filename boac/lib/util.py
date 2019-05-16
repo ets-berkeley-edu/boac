@@ -27,6 +27,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 import inspect
 import string
+import time
 
 from flask import current_app as app
 import pytz
@@ -58,6 +59,14 @@ def get_args_dict(func, *args, **kw):
 
 def get(_dict, key, default_value=None):
     return _dict[key] if key in _dict else default_value
+
+
+def get_benchmarker(label):
+    benchmark_start = time.time()
+
+    def _log_benchmark(msg):
+        app.logger.debug(f'BENCHMARK {label}: {msg} ({round((time.time() - benchmark_start) * 1000)} ms elapsed)')
+    return _log_benchmark
 
 
 def localize_datetime(dt):

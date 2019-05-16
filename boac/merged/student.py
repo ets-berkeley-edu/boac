@@ -30,6 +30,7 @@ import operator
 from boac.externals import data_loch
 from boac.lib import analytics
 from boac.lib.berkeley import current_term_id, future_term_id, term_name_for_sis_id
+from boac.lib.util import get_benchmarker
 from flask_login import current_user
 
 
@@ -347,6 +348,9 @@ def search_for_students(
     offset=0,
     limit=None,
 ):
+    benchmark = get_benchmarker('search_for_students')
+    benchmark('begin')
+
     scope = narrow_scope_by_criteria(get_student_query_scope())
     query_tables, query_filter, query_bindings = data_loch.get_students_query(search_phrase=search_phrase, scope=scope)
     if not query_tables:
@@ -357,7 +361,9 @@ def search_for_students(
     o, o_secondary, o_tertiary, supplemental_query_tables = data_loch.get_students_ordering(order_by=order_by)
     if supplemental_query_tables:
         query_tables += supplemental_query_tables
+    benchmark('begin SID query')
     result = data_loch.safe_execute_rds(f'SELECT DISTINCT(sas.sid) {query_tables} {query_filter}', **query_bindings)
+    benchmark('end SID query')
     total_student_count = len(result)
     sql = f"""SELECT
         sas.sid
@@ -371,11 +377,15 @@ def search_for_students(
     if limit and limit < 100:  # Sanity check large limits
         sql += f' LIMIT :limit'
         query_bindings['limit'] = limit
+    benchmark('begin student query')
     result = data_loch.safe_execute_rds(sql, **query_bindings)
     if include_profiles:
+        benchmark('begin profile collection')
         students = get_summary_student_profiles([row['sid'] for row in result])
+        benchmark('end profile collection')
     else:
         students = get_api_json([row['sid'] for row in result])
+    benchmark('end')
     return {
         'students': students,
         'totalStudentCount': total_student_count,

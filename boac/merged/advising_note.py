@@ -30,7 +30,7 @@ import re
 
 from boac.externals import data_loch, s3
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
-from boac.lib.util import camelize
+from boac.lib.util import camelize, get_benchmarker
 from boac.merged.calnet import get_calnet_users_for_csids
 from boac.merged.student import get_student_query_scope, narrow_scope_by_criteria
 from boac.models.note import Note
@@ -80,6 +80,10 @@ def get_advising_notes(sid):
 
 
 def search_advising_notes(search_phrase, author_csid=None, offset=0, limit=20):
+
+    benchmark = get_benchmarker('search_advising_notes')
+    benchmark('begin')
+
     scope = narrow_scope_by_criteria(get_student_query_scope())
 
     # In the interest of keeping our search implementation flexible, we mimic a join by first querying RDS
@@ -92,10 +96,12 @@ def search_advising_notes(search_phrase, author_csid=None, offset=0, limit=20):
     if not student_query_tables:
         return []
 
+    benchmark('begin sids query')
     sids_result = data_loch.safe_execute_rds(
         f'SELECT sas.sid, sas.uid, sas.first_name, sas.last_name {student_query_tables} {student_query_filter}',
         **student_query_bindings,
     )
+    benchmark('end sids query')
     if not sids_result:
         return []
     student_rows_by_sid = {row['sid']: row for row in sids_result}
@@ -106,17 +112,23 @@ def search_advising_notes(search_phrase, author_csid=None, offset=0, limit=20):
 
     # TODO We're currently retrieving all results for the sake of subsequent offset calculations. As the number of notes in
     # BOA grows (and possibly requires us to use some kind of staging table for search indexing), we'll need to revisit.
+    benchmark('begin local notes query')
     local_results = Note.search(search_phrase=search_phrase, sid_filter=sid_filter, author_csid=author_csid)
+    benchmark('end local notes query')
     local_notes_count = len(local_results)
     cutoff = min(local_notes_count, offset + limit)
 
+    benchmark('begin local notes parsing')
     notes_feed = _get_local_notes_search_results(local_results[offset:cutoff], student_rows_by_sid, search_terms)
+    benchmark('end local notes parsing')
+
     if len(notes_feed) == limit:
         return notes_feed
 
     # When querying the loch for notes, we use an actual join rather than the cumbersome SID list since everything lives in
     # Nessie RDS.
 
+    benchmark('begin loch notes query')
     loch_results = data_loch.search_advising_notes(
         search_phrase=search_phrase,
         student_query_tables=student_query_tables,
@@ -126,8 +138,12 @@ def search_advising_notes(search_phrase, author_csid=None, offset=0, limit=20):
         offset=max(0, offset - local_notes_count),
         limit=(limit - len(notes_feed)),
     )
+    benchmark('end loch notes query')
 
+    benchmark('begin loch notes parsing')
     notes_feed += _get_loch_notes_search_results(loch_results, search_terms)
+    benchmark('end loch notes parsing')
+
     return notes_feed
 
 
