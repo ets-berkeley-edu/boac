@@ -23,11 +23,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 from datetime import datetime
 import inspect
+import re
 import string
+import time
 
+from autolink import linkify
 from flask import current_app as app
 import pytz
 from titlecase import titlecase
@@ -62,6 +64,20 @@ def get(_dict, key, default_value=None):
 
 def localize_datetime(dt):
     return dt.astimezone(pytz.timezone(app.config['TIMEZONE']))
+
+
+def process_input_from_rich_text_editor(rich_text):
+    parsed = rich_text.strip()
+    exclude_from_parse = {}
+    now = time.time()
+    for index, match in enumerate(re.findall('<a [^>]*>.*?</a>', parsed)):
+        placeholder = f'placeholder-{now}-{index}'
+        exclude_from_parse[placeholder] = match
+        parsed = parsed.replace(match, placeholder, 1)
+    parsed = linkify(parsed, {'target': '_blank'})
+    for placeholder, match in exclude_from_parse.items():
+        parsed = parsed.replace(placeholder, match, 1)
+    return parsed
 
 
 def remove_none_values(_dict):
