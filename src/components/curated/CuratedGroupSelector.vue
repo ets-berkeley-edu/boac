@@ -41,7 +41,7 @@
           </span>
         </template>
         <b-dropdown-item v-if="!size(myCuratedGroups)">
-          <span class="cohort-selector-zero-cohorts faint-text">You have no curated groups.</span>
+          <span class="text-nowrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no curated groups.</span>
         </b-dropdown-item>
         <b-dropdown-item
           v-for="group in myCuratedGroups"

@@ -274,7 +274,7 @@
               </td>
 
               <td class="course-list-view-column">
-                <span v-if="student.enrollment.midtermGrade" v-accessible-grade="student.enrollment.midtermGrade" class="cohort-grade"></span>
+                <span v-if="student.enrollment.midtermGrade" v-accessible-grade="student.enrollment.midtermGrade" class="font-weight-bold"></span>
                 <i
                   v-if="isAlertGrade(student.enrollment.midtermGrade)"
                   class="fas fa-exclamation-triangle boac-exclamation"></i>
@@ -282,7 +282,7 @@
               </td>
 
               <td class="course-list-view-column">
-                <span v-if="student.enrollment.grade" v-accessible-grade="student.enrollment.grade" class="cohort-grade"></span>
+                <span v-if="student.enrollment.grade" v-accessible-grade="student.enrollment.grade" class="font-weight-bold"></span>
                 <i
                   v-if="isAlertGrade(student.enrollment.grade)"
                   class="fas fa-exclamation-triangle boac-exclamation"></i>

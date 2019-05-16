@@ -1,5 +1,5 @@
 <template>
-  <div class="m-3">
+  <div class="ml-3 mt-3">
     <h1 class="sr-only">Welcome to BOA</h1>
     <Spinner />
     <div v-if="!loading" class="home-content">

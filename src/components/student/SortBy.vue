@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex align-items-center">
     <div>
-      <label for="students-sort-by">Sort by</label>
+      <label class="text-nowrap" for="students-sort-by">Sort by</label>
     </div>
     <div class="pl-2 pb-1">
       <select
