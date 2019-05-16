@@ -60,12 +60,18 @@ const actions = {
       if (state.config) {
         resolve(state.config);
       } else {
+        getConfig().then(config => {
+          commit('storeConfig', config);
+          resolve(config);
+        });
+      }
+    });
+  },
+  loadServiceAnnouncement: ({ commit, state }) => {
+    return new Promise(() => {
+      if (_.isUndefined(state.announcement)) {
         getServiceAnnouncement().then(data => {
           commit('storeAnnouncement', data);
-          getConfig().then(config => {
-            commit('storeConfig', config);
-            resolve(config);
-          });
         });
       }
     });
