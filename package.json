@@ -20,7 +20,7 @@
     "axios": "^0.18.0",
     "bootstrap-vue": "^2.0.0-rc.20",
     "d3": "5.9.2",
-    "highcharts": "7.1.1",
+    "highcharts": "6.2.0",
     "vue": "^2.6.10",
     "vue-analytics": "^5.16.4",
     "vue-class-component": "^7.1.0",
