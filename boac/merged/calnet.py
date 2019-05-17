@@ -63,10 +63,14 @@ def get_calnet_users_for_csids(app, csids):
     uncached_csids = [c for c in csids if c not in users_by_csid]
     calnet_results = calnet.client(app).search_csids(uncached_csids)
     # Cache rows individually so that an isolated conflict doesn't sink the rest of the update.
-    for r in calnet_results:
-        feed = _calnet_user_api_feed(r)
-        insert_row(f"calnet_user_for_csid_{r['csid']}", feed)
-        users_by_csid[r['csid']] = feed
+    for csid in uncached_csids:
+        calnet_result = next((r for r in calnet_results if r['csid'] == csid), None)
+        feed = {
+            **_calnet_user_api_feed(calnet_result),
+            **{'csid': csid},
+        }
+        insert_row(f'calnet_user_for_csid_{csid}', feed)
+        users_by_csid[csid] = feed
     return users_by_csid
 
 
