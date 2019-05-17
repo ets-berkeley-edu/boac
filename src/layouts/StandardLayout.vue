@@ -30,8 +30,8 @@
           <span
             id="service-announcement-banner"
             aria-live="polite"
-            role="alert">
-            {{ announcement.text }}
+            role="alert"
+            v-html="announcement.text">
           </span>
         </div>
         <div>
