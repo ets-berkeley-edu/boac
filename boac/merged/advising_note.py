@@ -30,7 +30,7 @@ import re
 
 from boac.externals import data_loch, s3
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
-from boac.lib.util import camelize, get_benchmarker
+from boac.lib.util import camelize, get_benchmarker, join_if_present
 from boac.merged.calnet import get_calnet_users_for_csids
 from boac.merged.student import get_student_query_scope, narrow_scope_by_criteria
 from boac.models.note import Note
@@ -184,10 +184,10 @@ def _get_local_notes_search_results(local_results, student_rows_by_sid, search_t
             'id': note.get('id'),
             'studentSid': note.get('sid'),
             'studentUid': student_row.get('uid'),
-            'studentName': ' '.join([student_row.get('first_name'), student_row.get('last_name')]),
+            'studentName': join_if_present(' ', [student_row.get('first_name'), student_row.get('last_name')]),
             'advisorUid': note.get('authorUid'),
             'advisorName': note.get('authorName'),
-            'noteSnippet': _notes_text_snippet(' - '.join([note.get('subject'), note.get('body')]), search_terms),
+            'noteSnippet': _notes_text_snippet(join_if_present(' - ', [note.get('subject'), note.get('body')]), search_terms),
             'createdAt': _isoformat(note, 'createdAt'),
             'updatedAt': _isoformat(note, 'updatedAt'),
         })
@@ -204,9 +204,9 @@ def _get_loch_notes_search_results(loch_results, search_terms):
             'id': note.get('id'),
             'studentSid': note.get('sid'),
             'studentUid': note.get('uid'),
-            'studentName': ' '.join([note.get('firstName'), note.get('lastName')]),
+            'studentName': join_if_present(' ', [note.get('firstName'), note.get('lastName')]),
             'advisorSid': note.get('advisorSid'),
-            'advisorName': ' '.join([advisor_feed.get('firstName'), advisor_feed.get('lastName')]) if advisor_feed else None,
+            'advisorName': join_if_present(' ', [advisor_feed.get('firstName'), advisor_feed.get('lastName')]) if advisor_feed else None,
             'noteSnippet': _notes_text_snippet(note.get('noteBody'), search_terms),
             'createdAt': _resolve_created_at(note),
             'updatedAt': _resolve_updated_at(note),

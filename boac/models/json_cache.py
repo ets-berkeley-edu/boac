@@ -132,6 +132,11 @@ def fetch(key, term_id=None):
         return stowed.json
 
 
+def fetch_bulk(keys):
+    stowed_results = working_cache().query.filter(working_cache().key.in_(keys))
+    return {r.key: r.json for r in stowed_results}
+
+
 def insert_row(key, json):
     """Insert new cache row with conflict checks."""
     row = working_cache()(key=key, json=json)

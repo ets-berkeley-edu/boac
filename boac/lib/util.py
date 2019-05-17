@@ -70,6 +70,10 @@ def get_benchmarker(label):
     return _log_benchmark
 
 
+def join_if_present(delimiter, terms):
+    return delimiter.join([t for t in terms if t])
+
+
 def localize_datetime(dt):
     return dt.astimezone(pytz.timezone(app.config['TIMEZONE']))
 
