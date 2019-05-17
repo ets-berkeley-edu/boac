@@ -40,6 +40,7 @@ class TestMergedAdvisingNote:
         fake_auth.login(coe_advisor)
         notes = get_advising_notes('11667051')
 
+        # Legacy SIS notes
         assert notes[0]['id'] == '11667051-00001'
         assert notes[0]['sid'] == '11667051'
         assert notes[0]['body'] == 'Brigitte is making athletic and moral progress'
@@ -64,6 +65,27 @@ class TestMergedAdvisingNote:
         assert parse(notes[1]['updatedAt']) == parse('2017-11-01T12:00:00+00')
         assert notes[1]['read'] is False
         assert notes[1]['topics'] == ['Bad show', 'Show off']
+
+        # Legacy ASC notes
+        assert notes[3]['id'] == '11667051-139362'
+        assert notes[3]['sid'] == '11667051'
+        assert notes[3]['body'] is None
+        assert notes[3]['author']['uid'] == '1133399'
+        assert notes[3]['author']['name'] == 'Lemmy Kilmister'
+        assert notes[3]['topics'] == ['Academic', 'Other']
+        assert notes[3]['createdAt']
+        assert notes[3]['updatedAt']
+        assert notes[3]['read'] is False
+        assert notes[4]['id'] == '11667051-139379'
+        assert notes[4]['sid'] == '11667051'
+        assert notes[4]['body'] is None
+        assert notes[4]['author']['uid'] == '90412'
+        assert notes[4]['author']['name'] == 'Ginger Baker'
+        assert notes[4]['topics'] is None
+        assert notes[4]['createdAt']
+        assert notes[4]['updatedAt']
+        assert notes[4]['read'] is False
+
         # Non-legacy note
         boa_created_note = next((n for n in notes if n['id'] == coe_advising_note_with_attachment.id), None)
         assert boa_created_note['id']

@@ -47,26 +47,10 @@ NOTE_SEARCH_PATTERN = r'(\w*[.:/-@]\w+([.:/-]\w+)*)|[^\s?!(),;:.`]+'
 
 
 def get_advising_notes(sid):
-    legacy_notes = data_loch.get_advising_notes(sid)
-    legacy_topics = _get_advising_note_topics(sid)
-    legacy_attachments = _get_advising_note_attachments(sid)
     notes_by_id = {}
-    for legacy_note in legacy_notes:
-        note_id = legacy_note['id']
-        note = {camelize(key): legacy_note[key] for key in legacy_note.keys()}
-        notes_by_id[note_id] = note_to_compatible_json(
-            note=note,
-            topics=legacy_topics.get(note_id),
-            attachments=legacy_attachments.get(note_id),
-        )
-        notes_by_id[note_id]['isLegacy'] = True
-    for note in [n.to_api_json() for n in Note.get_notes_by_sid(sid)]:
-        note_id = note['id']
-        notes_by_id[str(note_id)] = note_to_compatible_json(
-            note=note,
-            attachments=note.get('attachments'),
-            topics=note.get('topics'),
-        )
+    notes_by_id.update(get_sis_advising_notes(sid))
+    notes_by_id.update(get_asc_advising_notes(sid))
+    notes_by_id.update(get_non_legacy_advising_notes(sid))
     if not notes_by_id.values():
         return None
     notes_read = NoteRead.get_notes_read_by_user(current_user.id, notes_by_id.keys())
@@ -77,6 +61,50 @@ def get_advising_notes(sid):
         else:
             app.logger.error(f'DB query mismatch for note id {note_read.note_id}')
     return list(notes_by_id.values())
+
+
+def get_sis_advising_notes(sid):
+    notes_by_id = {}
+    legacy_notes = data_loch.get_sis_advising_notes(sid)
+    legacy_topics = _get_sis_advising_note_topics(sid)
+    legacy_attachments = _get_advising_note_attachments(sid)
+    for legacy_note in legacy_notes:
+        note_id = legacy_note['id']
+        note = {camelize(key): legacy_note[key] for key in legacy_note.keys()}
+        notes_by_id[note_id] = note_to_compatible_json(
+            note=note,
+            topics=legacy_topics.get(note_id),
+            attachments=legacy_attachments.get(note_id),
+        )
+        notes_by_id[note_id]['isLegacy'] = True
+    return notes_by_id
+
+
+def get_asc_advising_notes(sid):
+    notes_by_id = {}
+    legacy_topics = _get_asc_advising_note_topics(sid)
+    for legacy_note in data_loch.get_asc_advising_notes(sid):
+        note_id = legacy_note['id']
+        note = {camelize(key): legacy_note[key] for key in legacy_note.keys()}
+        note['deptCode'] = ['UWASC']
+        notes_by_id[note_id] = note_to_compatible_json(
+            note=note,
+            topics=legacy_topics.get(note_id),
+        )
+        notes_by_id[note_id]['isLegacy'] = True
+    return notes_by_id
+
+
+def get_non_legacy_advising_notes(sid):
+    notes_by_id = {}
+    for note in [n.to_api_json() for n in Note.get_notes_by_sid(sid)]:
+        note_id = note['id']
+        notes_by_id[str(note_id)] = note_to_compatible_json(
+            note=note,
+            attachments=note.get('attachments'),
+            topics=note.get('topics'),
+        )
+    return notes_by_id
 
 
 def search_advising_notes(search_phrase, author_csid=None, offset=0, limit=20):
@@ -207,7 +235,7 @@ def get_legacy_attachment_stream(filename):
     if not sid:
         return None
     # Ensure that the file exists and the user has permission to see it.
-    attachment_result = data_loch.get_advising_note_attachment(sid, filename, scope=get_student_query_scope())
+    attachment_result = data_loch.get_sis_advising_note_attachment(sid, filename, scope=get_student_query_scope())
     if not attachment_result or not attachment_result[0]:
         return None
     if attachment_result[0].get('created_by') == 'UCBCONVERSION':
@@ -266,8 +294,8 @@ def _resolve_updated_at(note):
     return None if note.get('createdBy') == 'UCBCONVERSION' else _isoformat(note, 'updatedAt')
 
 
-def _get_advising_note_topics(sid):
-    topics = data_loch.get_advising_note_topics(sid)
+def _get_sis_advising_note_topics(sid):
+    topics = data_loch.get_sis_advising_note_topics(sid)
     topics_by_id = {}
     for advising_note_id, topics in groupby(topics, key=itemgetter('advising_note_id')):
         topics_by_id[advising_note_id] = [topic['note_topic'] for topic in topics]
@@ -275,7 +303,7 @@ def _get_advising_note_topics(sid):
 
 
 def _get_advising_note_attachments(sid):
-    attachments = data_loch.get_advising_note_attachments(sid)
+    attachments = data_loch.get_sis_advising_note_attachments(sid)
     attachments_by_id = {}
 
     def _attachment_to_json(attachment):
@@ -288,6 +316,14 @@ def _get_advising_note_attachments(sid):
     for advising_note_id, attachments in groupby(attachments, key=itemgetter('advising_note_id')):
         attachments_by_id[advising_note_id] = [_attachment_to_json(a) for a in attachments]
     return attachments_by_id
+
+
+def _get_asc_advising_note_topics(sid):
+    topics = data_loch.get_asc_advising_note_topics(sid)
+    topics_by_id = {}
+    for advising_note_id, topics in groupby(topics, key=itemgetter('id')):
+        topics_by_id[advising_note_id] = [topic['topic'] for topic in topics]
+    return topics_by_id
 
 
 def _isoformat(obj, key):
