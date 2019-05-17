@@ -1,6 +1,6 @@
 <template>
-  <b-container fluid class="p-0">
-    <b-row>
+  <b-container fluid class="w-auto p-0">
+    <b-row class="w-100">
       <b-col sm="7" class="mb-3 mr-auto">
         <img src="@/assets/uc-berkeley-logo.svg" />
       </b-col>
