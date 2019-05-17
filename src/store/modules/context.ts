@@ -50,7 +50,12 @@ const mutations = {
 };
 
 const actions = {
-  alertScreenReader: ({ commit }, alert) => commit('screenReaderAlert', alert),
+  alertScreenReader: ({ commit }, alert) => {
+    commit('screenReaderAlert', '');
+    Vue.nextTick(() => {
+      commit('screenReaderAlert', alert);
+    });
+  },
   clearAlertsInStore: ({ commit }) => commit('clearAlertsInStore'),
   dismissError: ({ commit }, id) => commit('dismissError', id),
   loadingComplete: ({ commit }) => commit('loadingComplete'),

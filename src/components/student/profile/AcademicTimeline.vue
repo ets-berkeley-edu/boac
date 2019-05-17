@@ -278,7 +278,6 @@ export default {
     messageForDelete: undefined,
     messages: undefined,
     openMessages: [],
-    screenReaderAlert: undefined,
     suggestedTopics: undefined
   }),
   computed: {
@@ -370,16 +369,13 @@ export default {
       if (message.transientId == this.editingNoteId) {
         return false;
       }
-      this.alertScreenReader();
       if (this.includes(this.openMessages, message.transientId)) {
         this.openMessages = this.remove(
           this.openMessages,
           id => id !== message.transientId
         );
       }
-      this.$nextTick(function() {
-        this.alertScreenReader('Message closed');
-      });
+      this.alertScreenReader('Message closed');
     },
     deleteNote(message) {
       // The following opens the "Are you sure?" modal
@@ -462,14 +458,11 @@ export default {
       if (message.transientId == this.editingNoteId) {
         return false;
       }
-      this.alertScreenReader();
       if (!this.includes(this.openMessages, message.transientId)) {
         this.openMessages.push(message.transientId);
       }
       this.markRead(message);
-      this.$nextTick(function() {
-        this.alertScreenReader('Message opened');
-      });
+      this.alertScreenReader('Message opened');
     },
     sortMessages() {
       this.messages.sort((m1, m2) => {
