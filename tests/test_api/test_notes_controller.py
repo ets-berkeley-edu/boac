@@ -124,6 +124,20 @@ class TestCreateNotes:
         assert note.get('topics')[1] == 'Integrated Architectures'
         assert note.get('topics')[2] == 'Vertical Solutions'
 
+    def test_create_note_with_raw_url_in_body(self, app, client, fake_auth):
+        """Create a note with topics."""
+        fake_auth.login(coe_advisor_uid)
+        note = _api_note_create(
+            app,
+            client,
+            author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
+            sid=student['sid'],
+            subject='Get rich quick',
+            body='Get an online degree at send.money.edu university',
+        )
+        expected_body = 'Get an online degree at <a href="http://send.money.edu" target="_blank">send.money.edu</a> university'
+        assert note.get('body') == expected_body
+
     def test_create_note_with_attachments(self, app, client, fake_auth):
         """Create a note, with two attachments."""
         fake_auth.login(coe_advisor_uid)
@@ -287,17 +301,18 @@ class TestUpdateNotes:
         )
         assert Note.find_by_id(note_id=new_coe_note.id).subject == original_subject
 
-    def test_update_note(self, app, client, fake_auth, new_coe_note):
+    def test_update_note_with_raw_url_in_body(self, app, client, fake_auth, new_coe_note):
         """Successfully modifies a note subject and body."""
         fake_auth.login(new_coe_note.author_uid)
         expected_subject = 'There must have been a plague of them'
-        expected_body = 'They were guzzling marshmallows'
+        body = '<p>They were <a href="http://www.guzzle.com">www.guzzle.com</a> at <b>https://marsh.mallows.com</b> and <a href="http://www.foxnews.com">FOX news</a></p>'  # noqa: E501
+        expected_body = '<p>They were <a href="http://www.guzzle.com">www.guzzle.com</a> at <b><a href="https://marsh.mallows.com" target="_blank">https://marsh.mallows.com</a></b> and <a href="http://www.foxnews.com">FOX news</a></p>'  # noqa: E501
         updated_note_response = self._api_note_update(
             app,
             client,
             note_id=new_coe_note.id,
             subject=expected_subject,
-            body=expected_body,
+            body=body,
         )
         assert updated_note_response['read'] is True
         updated_note = Note.find_by_id(note_id=new_coe_note.id)

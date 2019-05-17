@@ -28,7 +28,7 @@ import urllib.parse
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import current_user_profile, feature_flag_edit_notes, get_dept_codes, get_dept_role
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import is_int
+from boac.lib.util import is_int, process_input_from_rich_text_editor
 from boac.merged.advising_note import get_boa_attachment_stream, get_legacy_attachment_stream, note_to_compatible_json
 from boac.models.note import Note
 from boac.models.note_read import NoteRead
@@ -69,7 +69,7 @@ def create_note():
         author_role=role,
         author_dept_codes=dept_codes,
         subject=subject,
-        body=body,
+        body=process_input_from_rich_text_editor(body),
         topics=topics,
         sid=sid,
         attachments=_get_attachments(request.files, tolerate_none=True),
@@ -104,7 +104,7 @@ def update_note():
     note = Note.update(
         note_id=note_id,
         subject=subject,
-        body=body,
+        body=process_input_from_rich_text_editor(body),
         topics=topics,
         attachments=_get_attachments(request.files, tolerate_none=True),
         delete_attachment_ids=delete_attachment_ids,
