@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.externals import calnet
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
-from boac.models.json_cache import stow
+from boac.models.json_cache import fetch_bulk, insert_row, stow
 
 
 @stow('calnet_user_for_uid_{uid}')
@@ -58,8 +58,16 @@ def get_calnet_user_for_csid(app, csid):
 
 
 def get_calnet_users_for_csids(app, csids):
-    persons = calnet.client(app).search_csids(csids)
-    return {person['csid']: _calnet_user_api_feed(person) for person in persons}
+    cached_users = fetch_bulk([f'calnet_user_for_csid_{csid}' for csid in csids])
+    users_by_csid = {k.replace('calnet_user_for_csid_', ''): v for k, v in cached_users.items()}
+    uncached_csids = [c for c in csids if c not in users_by_csid]
+    calnet_results = calnet.client(app).search_csids(uncached_csids)
+    # Cache rows individually so that an isolated conflict doesn't sink the rest of the update.
+    for r in calnet_results:
+        feed = _calnet_user_api_feed(r)
+        insert_row(f"calnet_user_for_csid_{r['csid']}", feed)
+        users_by_csid[r['csid']] = feed
+    return users_by_csid
 
 
 def get_uid_for_csid(app, csid):
