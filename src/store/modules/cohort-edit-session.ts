@@ -153,8 +153,11 @@ const actions = {
   },
   applyFilters: ({ commit, state }, orderBy) => {
     return new Promise(resolve => {
-      commit('setEditMode', 'apply');
       commit('setModifiedSinceLastSearch', false);
+      if (!_.get(state.filters, 'length')) {
+        return resolve();
+      }
+      commit('setEditMode', 'apply');
       let offset =
         (state.pagination.currentPage - 1) * state.pagination.itemsPerPage;
       getStudentsPerFilters(
