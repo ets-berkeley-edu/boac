@@ -197,6 +197,12 @@ CREATE TABLE student.student_majors
     major VARCHAR NOT NULL
 );
 
+CREATE TABLE student.student_names
+(
+    sid VARCHAR NOT NULL,
+    name VARCHAR NOT NULL
+);
+
 CREATE TABLE student.student_enrollment_terms
 (
     sid VARCHAR NOT NULL,
@@ -444,6 +450,30 @@ VALUES
 ('890127492', 'Mathematics'),
 ('9000000000', 'Engineering Undeclared UG'),
 ('9100000000', 'Engineering Undeclared UG');
+
+INSERT INTO student.student_names
+(sid, name)
+VALUES
+('11667051', 'DAVIES'),
+('11667051', 'DEBORAH'),
+('2345678901', 'DAVE'),
+('2345678901', 'DOOLITTLE'),
+('3456789012', 'KERSCHEN'),
+('3456789012', 'PAUL'),
+('5678901234', 'JAYAPRAKASH'),
+('5678901234', 'SANDEEP'),
+('7890123456', 'FARESTVEIT'),
+('7890123456', 'PAUL'),
+('8901234567', 'CROSSMAN'),
+('8901234567', 'DAVID'),
+('8901234567', 'JOHN'),
+('890127492', 'SCHLEMIEL'),
+('890127492', 'SIEGFRIED'),
+('9000000000', 'PAULI'),
+('9000000000', 'WOLFGANG'),
+('9100000000', 'BARNEY'),
+('9100000000', 'NORA'),
+('9100000000', 'STANTON');
 
 INSERT INTO student.student_enrollment_terms
 (sid, term_id, enrollment_term)
