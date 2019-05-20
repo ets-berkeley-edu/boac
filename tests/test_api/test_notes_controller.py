@@ -345,6 +345,23 @@ class TestUpdateNotes:
         updated_note = Note.find_by_id(note_id=asc_advising_note.id)
         assert len(updated_note.topics) == 2
 
+    def test_remove_all_topics(self, app, client, fake_auth, new_coe_note, asc_advising_note):
+        """Update a note: delete existing topic, leaving none behind."""
+        fake_auth.login(asc_advising_note.author_uid)
+        expected_topics = []
+        updated_note_response = self._api_note_update(
+            app,
+            client,
+            note_id=asc_advising_note.id,
+            subject=asc_advising_note.subject,
+            body=asc_advising_note.body,
+            topics=expected_topics,
+        )
+        assert updated_note_response['read'] is True
+        assert len(updated_note_response['topics']) == 0
+        updated_note = Note.find_by_id(note_id=asc_advising_note.id)
+        assert len(updated_note.topics) == 0
+
     def test_update_note_with_attachments(self, app, client, coe_advising_note_with_attachment, fake_auth):
         """Update a note: delete existing attachment and add a new one."""
         fake_auth.login(coe_advising_note_with_attachment.author_uid)

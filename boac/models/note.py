@@ -137,8 +137,7 @@ class Note(Base):
         if note:
             note.subject = subject
             note.body = body
-            if topics:
-                cls._update_topics(note, topics)
+            cls._update_topics(note, topics)
             if delete_attachment_ids:
                 cls._delete_attachments(note, delete_attachment_ids)
             for byte_stream_bundle in attachments:
