@@ -10,47 +10,54 @@
         <b-form-checkbox
           id="checkbox-publish-service-announcement"
           v-model="isPublished"
-          :disabled="isSaving || text !== originalText"
+          :disabled="isSaving || !originalText || !originalText.length || text !== originalText"
           @change="togglePublish">
           <span id="checkbox-service-announcement-label">{{ isPublished ? 'Posted' : 'Post' }}</span>
         </b-form-checkbox>
       </div>
-      <div v-if="error" class="mt-2 has-error w-100">
-        <span aria-live="polite" role="alert">{{ error }}</span>
-      </div>
-      <b-form-textarea
-        id="textarea-update-service-announcement"
-        v-model="text"
-        class="mt-3"
-        aria-label="Service announcement that, when published, users will read"
-        rows="3"
-        max-rows="5"
-        :disabled="isSaving"
-      ></b-form-textarea>
-      <div>
-        <b-btn
-          id="button-update-service-announcement"
-          variant="primary"
-          class="btn-primary-color-override mt-2"
-          :disabled="text === originalText"
-          @click="updateText">
-          <span v-if="isSaving"><i class="fa fa-spinner fa-spin"></i> Update...</span>
-          <span v-if="!isSaving">Update</span>
-        </b-btn>
+      <div class="mt-3">
+        <div v-if="error" class="mt-2 has-error w-100">
+          <span aria-live="polite" role="alert">{{ error }}</span>
+        </div>
+        <ckeditor
+          id="textarea-update-service-announcement"
+          v-model="text"
+          aria-label="Service announcement input"
+          :config="editorConfig"
+          :disabled="isSaving"
+          :editor="editor"></ckeditor>
+        <div>
+          <b-btn
+            id="button-update-service-announcement"
+            variant="primary"
+            class="btn-primary-color-override mt-2"
+            :disabled="text === originalText"
+            @click="updateText">
+            <span v-if="isSaving"><i class="fa fa-spinner fa-spin"></i> Update...</span>
+            <span v-if="!isSaving">Update</span>
+          </b-btn>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Context from '@/mixins/Context';
 import Util from '@/mixins/Util';
 import { getServiceAnnouncement, publishAnnouncement, updateAnnouncement } from '@/api/config';
+
+require('@/assets/styles/ckeditor-custom.css');
 
 export default {
   name: 'EditServiceAnnouncement',
   mixins: [Context, Util],
   data: () => ({
+    editor: ClassicEditor,
+    editorConfig: {
+      toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link']
+    },
     error: undefined,
     isPublished: undefined,
     isTogglingPublish: false,

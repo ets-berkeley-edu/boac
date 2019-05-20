@@ -26,12 +26,13 @@
       <b-col id="content" class="body-text h-100 pb-2" sm="9">
         <div
           v-if="announcement && announcement.isPublished"
-          class="service-announcement p-3 w-100">
+          style="display: inline-block"
+          class="service-announcement pl-3 pt-3 pr-3 pb-0 w-100">
           <span
             id="service-announcement-banner"
             aria-live="polite"
-            role="alert">
-            {{ announcement.text }}
+            role="alert"
+            v-html="announcement.text">
           </span>
         </div>
         <div>
