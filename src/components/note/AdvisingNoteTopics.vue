@@ -42,26 +42,26 @@
           aria-labelledby="note-topics-label">
           <li
             v-for="(addedTopic, index) in topics"
-            id="`note-topic-${index}`"
+            :id="`${notePrefix}-topic-${index}`"
             :key="index">
             <span class="pill pill-attachment text-uppercase text-nowrap">
               {{ addedTopic }}
               <b-btn
-                :id="`remove-note-topic-${index}`"
+                :id="`remove-${notePrefix}-topic-${index}`"
                 variant="link"
                 class="px-0 pt-1"
-                :aria-labelledby="`remove-note-topic-${index}-label`"
+                :aria-labelledby="`remove-${notePrefix}-topic-${index}-label`"
                 tabindex="0"
                 @click.prevent="removeTopic(addedTopic)">
                 <i class="fas fa-times-circle has-error pl-2"></i>
               </b-btn>
-              <label :id="`remove-note-topic-${index}-label`" class="sr-only" :for="`remove-note-topic-${index}`">
+              <label :id="`remove-${notePrefix}-topic-${index}-label`" class="sr-only" :for="`remove-${notePrefix}-topic-${index}`">
                 remove topic {{ topics[index] }}
               </label>
             </span>
           </li>
         </ul>
-        <label id="note-topics-label" class="sr-only" for="`note-topics-list`">
+        <label id="note-topics-label" class="sr-only" for="note-topics-list">
           topics
         </label>
       </div>
@@ -85,6 +85,10 @@ export default {
       type: Function,
       required: true
     },
+    noteId: {
+      type: String,
+      required: false
+    },
     suggestedTopics: {
       type: Array,
       required: false
@@ -97,6 +101,15 @@ export default {
   data: () => ({
     topic: undefined
   }),
+  computed: {
+    notePrefix() {
+      if (this.noteId) {
+        return 'note-' + this.noteId;
+      } else {
+        return 'note';
+      }
+    }
+  },
   watch: {
     topic: function(newTopic, oldTopic) {
       if (newTopic && newTopic.indexOf(oldTopic, 0) !== -1) {

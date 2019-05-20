@@ -29,6 +29,7 @@
     <AdvisingNoteTopics
       :function-add="addTopic"
       :function-remove="removeTopic"
+      :note-id="String(note.id)"
       :suggested-topics="suggestedTopics"
       :topics="topics" />
     <div class="d-flex mt-2 mb-2">
