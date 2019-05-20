@@ -76,8 +76,7 @@ ABBREVIATED_WORDS = ['APR', 'EAP', 'PNP', 'SAP']
 API_KEY = None
 
 # BOAC-specific AWS credentials.
-AWS_ACCESS_KEY_ID = 'key'
-AWS_SECRET_ACCESS_KEY = 'secret'
+AWS_APP_ROLE_ARN = 'aws:arn::<account>:role/<app_boa_role>'
 
 CAS_SERVER = 'https://auth-test.berkeley.edu/cas/'
 CAS_LOGOUT_URL = 'https://auth-test.berkeley.edu/cas/logout'
@@ -101,6 +100,7 @@ DATA_LOCH_SIS_SCHEMA = 'sis_data'
 DATA_LOCH_STUDENT_SCHEMA = 'student'
 
 DATA_LOCH_S3_REGION = 'us-west-2'
+DATA_LOCH_S3_ENCRYPTION = 'AES256'
 DATA_LOCH_S3_ADVISING_NOTE_BUCKET = 'advising-note-bucket'
 DATA_LOCH_S3_ADVISING_NOTE_ATTACHMENT_PATH = 'attachment-path'
 DATA_LOCH_S3_BOA_NOTE_ATTACHMENTS_PATH = 'boa-attachment-path'
