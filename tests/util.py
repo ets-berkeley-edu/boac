@@ -31,7 +31,7 @@ import moto
 
 @contextmanager
 def mock_legacy_note_attachment(app):
-    with moto.mock_s3():
+    with moto.mock_s3(), moto.mock_sts():
         bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
         s3 = boto3.resource('s3', app.config['DATA_LOCH_S3_REGION'])
         s3.create_bucket(Bucket=bucket)
@@ -42,7 +42,7 @@ def mock_legacy_note_attachment(app):
 
 @contextmanager
 def mock_advising_note_s3_bucket(app):
-    with moto.mock_s3():
+    with moto.mock_s3(), moto.mock_sts():
         bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
         s3 = boto3.resource('s3', app.config['DATA_LOCH_S3_REGION'])
         s3.create_bucket(Bucket=bucket)
