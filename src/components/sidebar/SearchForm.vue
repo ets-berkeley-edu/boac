@@ -90,10 +90,10 @@
           Notes
         </label>
         <b-btn
-          v-if="includeNotes"
           id="search-options-note-filters-toggle"
           class="search-options-panel-toggle search-options-panel-toggle-subpanel"
           variant="link"
+          :class="includeNotes ? 'visible' : 'invisible'"
           @click="showNoteFilters = !showNoteFilters">
           ({{ showNoteFilters ? 'hide' : 'show' }} filters)
         </b-btn>
@@ -211,7 +211,8 @@ export default {
   font-size: 12px;
 }
 .search-options-panel-toggle-subpanel {
-  padding-left: 5px;
+  margin-bottom: .5rem;
+  padding: 0 0 0 5px;
 }
 .search-students-form-button {
   min-width: 200px;
