@@ -159,6 +159,7 @@ def add_attachment(note_id):
             note=note_json,
             note_read=NoteRead.find_or_create(current_user.id, note_id),
             attachments=note_json.get('attachments'),
+            topics=note_json.get('topics'),
         ),
     )
 
@@ -182,6 +183,7 @@ def remove_attachment(note_id, attachment_id):
             note=note_json,
             note_read=NoteRead.find_or_create(current_user.id, note_id),
             attachments=note_json.get('attachments'),
+            topics=note_json.get('topics'),
         ),
     )
 
