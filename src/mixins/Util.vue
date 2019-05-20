@@ -1,6 +1,11 @@
 <script>
 import _ from 'lodash';
 
+const toInt = (value, defaultValue = null) => {
+  const parsed = parseInt(value, 10);
+  return Number.isInteger(parsed) ? parsed : defaultValue;
+};
+
 export default {
   name: 'Util',
   methods: {
@@ -58,16 +63,28 @@ export default {
       (document.title = `${phrase || 'UC Berkeley'} | BOA`),
     size: _.size,
     slice: _.slice,
+    sortComparator: (a, b) => {
+      if (_.isNil(a) || _.isNil(b)) {
+        return _.isNil(a) ? (_.isNil(b) ? 0 : -1) : 1;
+      } else {
+        const aInt = toInt(a);
+        const bInt = toInt(b);
+        if (aInt && bInt) {
+          return aInt < bInt ? -1 : aInt > bInt ? 1 : 0
+        } else {
+          return a.toString().localeCompare(b.toString(), undefined, {
+            numeric: true
+          })
+        }
+      }
+    },
     split: _.split,
-    stripHtmlAndTrim: (html) => {
+    stripHtmlAndTrim: html => {
       let text = html && html.replace(/<([^>]+)>/ig,"");
       text = text && text.replace(/&nbsp;/g, '');
       return _.trim(text);
     },
-    toInt: (value, defaultValue = null) => {
-      const parsed = parseInt(value, 10);
-      return Number.isInteger(parsed) ? parsed : defaultValue;
-    },
+    toInt,
     trim: _.trim,
     truncate: _.truncate,
     uniq: _.uniq,

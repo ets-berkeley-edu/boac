@@ -1,221 +1,108 @@
 <template>
   <div>
-    <table v-if="students" class="table-full-width">
-      <thead>
-        <tr>
-          <th
-            v-if="options.includeCuratedCheckbox"
-            class="column column-checkbox sortable-table-header"></th>
-          <th class="column column-photo sortable-table-header"></th>
-          <th
-            class="column column-name sortable-table-header cursor-pointer"
-            role="button"
-            :aria-label="sortOptions.lastName"
-            @click="sort(options, 'lastName')">
-            Name
-            <span v-if="options.sortBy === 'lastName'">
-              <i
-                :class="{
-                  'fas fa-caret-down': options.reverse,
-                  'fas fa-caret-up': !options.reverse
-                }"></i>
-            </span>
-          </th>
-          <th
-            class="column column-sid sortable-table-header cursor-pointer"
-            role="button"
-            :aria-label="sortOptions.sid"
-            @click="sort(options, 'sid')">
-            SID
-            <span v-if="options.sortBy === 'sid'">
-              <i
-                :class="{
-                  'fas fa-caret-down': options.reverse,
-                  'fas fa-caret-up': !options.reverse
-                }"></i>
-            </span>
-          </th>
-          <th
-            class="column column-major sortable-table-header cursor-pointer"
-            role="button"
-            :aria-label="sortOptions['majors[0]']"
-            @click="sort(options, 'majors[0]')">
-            Major
-            <span v-if="options.sortBy === 'majors[0]'">
-              <i
-                :class="{
-                  'fas fa-caret-down': options.reverse,
-                  'fas fa-caret-up': !options.reverse
-                }"></i>
-            </span>
-          </th>
-          <th
-            class="column column-grad sortable-table-header cursor-pointer"
-            role="button"
-            :aria-label="sortOptions['expectedGraduationTerm.id']"
-            @click="sort(options, 'expectedGraduationTerm.id')">
-            Grad
-            <span v-if="options.sortBy === 'expectedGraduationTerm.id'">
-              <i
-                :class="{
-                  'fas fa-caret-down': options.reverse,
-                  'fas fa-caret-up': !options.reverse
-                }"></i>
-            </span>
-          </th>
-          <th
-            class="column column-units-term sortable-table-header cursor-pointer"
-            role="button"
-            :aria-label="sortOptions['term.enrolledUnits']"
-            @click="sort(options, 'term.enrolledUnits')">
-            Term Units
-            <span v-if="options.sortBy === 'term.enrolledUnits'">
-              <i
-                :class="{
-                  'fas fa-caret-down': options.reverse,
-                  'fas fa-caret-up': !options.reverse
-                }"></i>
-            </span>
-          </th>
-          <th
-            class="column column-units-completed sortable-table-header cursor-pointer"
-            role="button"
-            :aria-label="sortOptions.cumulativeUnits"
-            @click="sort(options, 'cumulativeUnits')">
-            Units Completed
-            <span v-if="options.sortBy === 'cumulativeUnits'">
-              <i
-                :class="{
-                  'fas fa-caret-down': options.reverse,
-                  'fas fa-caret-up': !options.reverse
-                }"></i>
-            </span>
-          </th>
-          <th
-            class="column column-gpa sortable-table-header cursor-pointer"
-            role="button"
-            :aria-label="sortOptions.cumulativeGPA"
-            @click="sort(options, 'cumulativeGPA')">
-            GPA
-            <span v-if="options.sortBy === 'cumulativeGPA'" class="caret">
-              <i
-                :class="{
-                  'fas fa-caret-down': options.reverse,
-                  'fas fa-caret-up': !options.reverse
-                }"></i>
-            </span>
-          </th>
-          <th
-            class="column column-issues sortable-table-header cursor-pointer"
-            role="button"
-            :aria-label="sortOptions.alertCount"
-            @click="sort(options, 'alertCount')">
-            Issues
-            <span v-if="options.sortBy === 'alertCount'">
-              <i
-                :class="{
-                  'fas fa-caret-down': options.reverse,
-                  'fas fa-caret-up': !options.reverse
-                }"></i>
-            </span>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="student in sortedStudents" :key="student.sid">
-          <td
-            v-if="options.includeCuratedCheckbox"
-            class="column column-checkbox">
-            <CuratedStudentCheckbox :student="student" />
-          </td>
-          <td class="column column-photo">
-            <StudentAvatar :student="student" size="small" />
-          </td>
-          <td class="column column-name">
-            <span class="sr-only">{{ srText.lastName }}</span>
-            <router-link
-              :aria-label="'Go to profile page of ' + student.firstName + ' ' + student.lastName"
-              :class="{'demo-mode-blur': user.inDemoMode}"
-              :to="'/student/' + student.uid">
-              {{ `${student.lastName}, ${student.firstName}` }}
-            </router-link>
-            <span
-              v-if="displayAsInactive(student)"
-              class="home-inactive-info-icon"
-              uib-tooltip="Inactive"
-              tooltip-placement="bottom">
-              <i class="fas fa-info-circle"></i>
-            </span>
-          </td>
-          <td class="column column-sid">
-            <span class="sr-only">{{ srText.sid }}</span>
-            <span :class="{'demo-mode-blur': user.inDemoMode}">{{ student.sid }}</span>
-          </td>
-          <td class="column column-major">
-            <span class="sr-only">{{ srText['majors[0]'] }}</span>
-            <div v-if="student.majors.length === 0">--<span class="sr-only">No data</span></div>
-            <div
-              v-for="major in student.majors"
-              :key="major">
-              {{ major }}
-            </div>
-          </td>
-          <td class="column column-grad">
-            <span class="sr-only">{{ srText['expectedGraduationTerm.id'] }}</span>
-            <div v-if="!student.expectedGraduationTerm">--<span class="sr-only">No data</span></div>
-            <span>{{ abbreviateTermName(student.expectedGraduationTerm && student.expectedGraduationTerm.name) }}</span>
-          </td>
-          <td class="column column-units-term">
-            <span class="sr-only">{{ srText['term.enrolledUnits'] }}</span>
-            <div>{{ get(student.term, 'enrolledUnits', 0) }}</div>
-          </td>
-          <td class="column column-units-completed">
-            <span class="sr-only">{{ srText.cumulativeUnits }}</span>
-            <div v-if="!student.cumulativeUnits">--<span class="sr-only">No data</span></div>
-            <div v-if="student.cumulativeUnits">{{ student.cumulativeUnits | numFormat('0.00') }}</div>
-          </td>
-          <td class="column column-gpa">
-            <span class="sr-only">{{ srText.cumulativeGPA }}</span>
-            <div v-if="isNil(student.cumulativeGPA)">--<span class="sr-only">No data</span></div>
-            <div v-if="!isNil(student.cumulativeGPA)">{{ student.cumulativeGPA | round(3) }}</div>
-          </td>
-          <td class="column column-issues">
-            <span class="sr-only">{{ srText.alertCount }}</span>
-            <div
-              v-if="!student.alertCount"
-              class="home-issues-pill home-issues-pill-zero"
-              :aria-label="'No alerts for ' + student.firstName + ' ' + student.lastName"
-              tabindex="0">
-              0
-            </div>
-            <div
-              v-if="student.alertCount"
-              class="home-issues-pill home-issues-pill-nonzero"
-              :aria-label="student.alertCount + ' alerts for ' + student.firstName + ' ' + student.lastName"
-              tabindex="0">
-              {{ student.alertCount }}
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <b-table
+      :borderless="true"
+      :fields="fields"
+      :items="students"
+      :no-sort-reset="true"
+      :small="true"
+      :sort-by.sync="sortBy"
+      :sort-compare="sortCompare"
+      :sort-desc.sync="sortDescending"
+      stacked="md"
+      thead-class="sortable-table-header text-nowrap">
+      <template v-if="options.includeCuratedCheckbox" slot="curated" slot-scope="row">
+        <CuratedStudentCheckbox :student="row.item" />
+      </template>
+
+      <template slot="avatar" slot-scope="row">
+        <StudentAvatar :key="row.item.sid" :student="row.item" size="small" />
+      </template>
+
+      <template slot="lastName" slot-scope="row">
+        <span class="sr-only">Student name</span>
+        <router-link
+          :aria-label="'Go to profile page of ' + row.item.firstName + ' ' + row.item.lastName"
+          class="text-nowrap"
+          :class="{'demo-mode-blur': user.inDemoMode}"
+          :to="'/student/' + row.item.uid">
+          {{ `${row.item.lastName}, ${row.item.firstName}` }}
+        </router-link>
+        <span
+          v-if="displayAsInactive(row.item)"
+          class="home-inactive-info-icon"
+          uib-tooltip="Inactive"
+          tooltip-placement="bottom">
+          <i class="fas fa-info-circle"></i>
+        </span>
+      </template>
+
+      <template slot="sid" slot-scope="row">
+        <span class="sr-only">S I D</span>
+        <span :class="{'demo-mode-blur': user.inDemoMode}">{{ row.item.sid }}</span>
+      </template>
+
+      <template slot="majors[0]" slot-scope="row">
+        <span class="sr-only">Major</span>
+        <div v-if="!row.item.majors || row.item.majors.length === 0">--<span class="sr-only">No data</span></div>
+        <div
+          v-for="major in row.item.majors"
+          :key="major">
+          {{ major }}
+        </div>
+      </template>
+
+      <template slot="expectedGraduationTerm.id" slot-scope="row">
+        <span class="sr-only">Expected graduation term</span>
+        <div v-if="!row.item.expectedGraduationTerm">--<span class="sr-only">No data</span></div>
+        <span class="text-nowrap">{{ abbreviateTermName(row.item.expectedGraduationTerm && row.item.expectedGraduationTerm.name) }}</span>
+      </template>
+
+      <template slot="term.enrolledUnits" slot-scope="row">
+        <span class="sr-only">Term units</span>
+        <div>{{ get(row.item.term, 'enrolledUnits', 0) }}</div>
+      </template>
+
+      <template slot="cumulativeUnits" slot-scope="row">
+        <span class="sr-only">Units completed</span>
+        <div v-if="!row.item.cumulativeUnits">--<span class="sr-only">No data</span></div>
+        <div v-if="row.item.cumulativeUnits">{{ row.item.cumulativeUnits | numFormat('0.00') }}</div>
+      </template>
+
+      <template slot="cumulativeGPA" slot-scope="row">
+        <span class="sr-only">GPA</span>
+        <div v-if="isNil(row.item.cumulativeGPA)">--<span class="sr-only">No data</span></div>
+        <div v-if="!isNil(row.item.cumulativeGPA)">{{ row.item.cumulativeGPA | round(3) }}</div>
+      </template>
+
+      <template slot="alertCount" slot-scope="row">
+        <span class="sr-only">Issue count</span>
+        <div
+          v-if="!row.item.alertCount"
+          class="home-issues-pill home-issues-pill-zero"
+          :aria-label="'No alerts for ' + row.item.firstName + ' ' + row.item.lastName"
+          tabindex="0">
+          0
+        </div>
+        <div
+          v-if="row.item.alertCount"
+          class="home-issues-pill home-issues-pill-nonzero"
+          :aria-label="row.item.alertCount + ' alerts for ' + row.item.firstName + ' ' + row.item.lastName"
+          tabindex="0">
+          {{ row.item.alertCount }}
+        </div>
+      </template>
+    </b-table>
   </div>
 </template>
 
 <script>
-import _ from 'lodash';
 import Context from '@/mixins/Context';
 import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentMetadata from '@/mixins/StudentMetadata';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
-
-let SUPPLEMENTAL_SORT_BY = {
-  lastName: 'asc',
-  firstName: 'asc',
-  sid: 'asc'
-};
 
 export default {
   name: 'SortableStudents',
@@ -236,39 +123,32 @@ export default {
     }
   },
   data: () => ({
-    srText: {
-      lastName: 'student name',
-      sid: 'S I D',
-      'majors[0]': 'major',
-      'expectedGraduationTerm.id': 'expected graduation term',
-      'term.enrolledUnits': 'term units',
-      cumulativeUnits: 'units completed',
-      cumulativeGPA: 'GPA',
-      alertCount: 'issue count'
-    },
-    resorted: false,
-    sortOptions: {
-      alertCount: null,
-      cumulativeGPA: null,
-      cumulativeUnits: null,
-      sid: null,
-      lastName: null
-    }
+    fields: undefined,
+    sortBy: 'name',
+    sortDescending: false
   }),
-  computed: {
-    sortedStudents() {
-      return _.orderBy(
-        this.students,
-        this.iteratees(),
-        _.concat(
-          this.options.reverse ? 'desc' : 'asc',
-          _.values(SUPPLEMENTAL_SORT_BY)
-        )
-      );
+  watch: {
+    sortBy() {
+      this.onChangeSortBy();
+    },
+    sortDescending() {
+      this.onChangeSortBy();
     }
   },
   created() {
-    this.setSortDescriptions();
+    this.fields = this.options.includeCuratedCheckbox ? [{ key: 'curated', label: '' }] : [];
+    this.fields = this.fields.concat([
+      {key: 'curated', label: '' },
+      {key: 'avatar', label: '' },
+      {key: 'lastName', label: 'Name', sortable: true},
+      {key: 'sid', label: 'SID', sortable: true},
+      {key: 'majors[0]', label: 'Major', sortable: true, class: 'truncate-with-ellipsis'},
+      {key: 'expectedGraduationTerm.id', label: 'Grad', sortable: true},
+      {key: 'term.enrolledUnits', label: 'Term units', sortable: true},
+      {key: 'cumulativeUnits', label: 'Units completed', sortable: true},
+      {key: 'cumulativeGPA', label: 'GPA', sortable: true},
+      {key: 'alertCount', label: 'Issues', sortable: true}
+    ]);
   },
   methods: {
     abbreviateTermName: termName =>
@@ -277,104 +157,13 @@ export default {
         .replace('20', " '")
         .replace('Spring', 'Spr')
         .replace('Summer', 'Sum'),
-    iteratees: function() {
-      let iteratees = _.concat(
-        this.options.sortBy,
-        _.keys(SUPPLEMENTAL_SORT_BY)
-      );
-      return _.map(iteratees, iter => {
-        return student => {
-          let sortVal = _.get(student, iter);
-          if (typeof sortVal === 'string') {
-            sortVal = sortVal.toLowerCase();
-          } else if (_.isNil(sortVal)) {
-            sortVal = 0;
-          }
-          return sortVal;
-        };
-      });
+    onChangeSortBy() {
+      const field = this.find(this.fields, ['key', this.sortBy]);
+      this.alertScreenReader(`Sorted by ${field.label}${this.sortDescending ? ', descending' : ''}`);
     },
-    sort(options, sortBy) {
-      if (options.sortBy === sortBy) {
-        options.reverse = !options.reverse;
-      } else {
-        options.sortBy = sortBy;
-        options.reverse = false;
-      }
-      this.resorted = true;
-      this.setSortDescriptions();
-      this.alertScreenReader(`Sorted by ${this.srText[this.options.sortBy]} ${this.options.reverse ? 'descending' : ''}`);
-    },
-    setSortDescriptions() {
-      this.sortOptions = {};
-      const sortBy = this.sortBy;
-      const reverse = this.options.reverse;
-      this.sortOptions = _.mapValues(this.srText, function(value, key) {
-        let optionText = 'Sort by ' + value;
-        if (key === sortBy) {
-          optionText += reverse ? ' ascending' : ' descending';
-        }
-        return optionText;
-      });
+    sortCompare(a, b, key) {
+      return this.sortComparator(this.get(a, key), this.get(b, key));
     }
-  }
+   }
 };
 </script>
-
-<style scoped>
-.column {
-  padding: 0 5px 0 8px;
-}
-.column-checkbox {
-  padding: 0;
-  text-align: left;
-  width: 20px;
-}
-.column-gpa {
-  text-align: right;
-  width: 8%;
-}
-.column-grad {
-  text-align: left;
-  white-space: nowrap;
-  width: 8%;
-}
-.column-issues {
-  text-align: center;
-  width: 10%;
-}
-.column-major {
-  width: 20%;
-}
-.column-major div {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.column-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 20%;
-}
-.column-photo {
-  width: 40px;
-}
-.column-sid {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 15%;
-}
-.column-units-completed {
-  line-height: 1.4em;
-  overflow-wrap: normal;
-  text-align: right;
-  width: 10%;
-}
-.column-units-term {
-  line-height: 1.4em;
-  overflow-wrap: normal;
-  text-align: right;
-  width: 5%;
-}
-</style>
