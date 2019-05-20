@@ -30,7 +30,7 @@ from boac.api.errors import BadRequestError
 from boac.api.util import admin_required
 from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import to_bool_or_none
+from boac.lib.util import process_input_from_rich_text_editor, to_bool_or_none
 from boac.models.tool_setting import ToolSetting
 from flask import current_app as app, request
 from flask_login import current_user
@@ -83,7 +83,7 @@ def get_service_announcement():
 @admin_required
 def update_service_announcement():
     params = request.get_json()
-    text = params.get('text', '').strip()
+    text = process_input_from_rich_text_editor(params.get('text', ''))
     if not text and _is_service_announcement_published():
         raise BadRequestError('If the service announcement is published then API requires \'text\'')
     ToolSetting.upsert('SERVICE_ANNOUNCEMENT_TEXT', text)
