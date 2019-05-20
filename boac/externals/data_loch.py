@@ -496,19 +496,19 @@ def get_students_query(     # noqa
 
     # Name or SID search
     if search_phrase:
-        phrase = ' '.join(f'{word}%' for word in search_phrase.split())
-        query_filter += """
-            AND (sas.sid ILIKE :phrase OR
-                (sas.first_name || ' ' || sas.last_name) ILIKE :phrase OR
-                (sas.first_name || ' ' || sas.last_name) ILIKE :phrase_padded OR
-                (sas.last_name || ' ' || sas.first_name) ILIKE :phrase OR
-                (sas.last_name || ' ' || sas.first_name) ILIKE :phrase_padded)
-        """
-        query_bindings.update({
-            'phrase': phrase,
-            'phrase_padded': f'% {phrase}',
-        })
-
+        words = search_phrase.upper().split()
+        # A numeric string indicates an SID search.
+        if len(words) == 1 and re.match(r'^\d+$', words[0]):
+            query_filter += ' AND (sas.sid LIKE :sid_phrase)'
+            query_bindings.update({'sid_phrase': f'{words[0]}%'})
+        # Other strings indicate a name search.
+        else:
+            for i, word in enumerate(words):
+                query_tables += f"""
+                    JOIN {student_schema()}.student_names n{i}
+                        ON n{i}.name LIKE :name_phrase_{i}
+                        AND n{i}.sid = sas.sid"""
+                query_bindings.update({f'name_phrase_{i}': f'{word}%'})
     if sids:
         query_filter += f' AND sas.sid = ANY(:sids)'
         query_bindings.update({'sids': sids})
