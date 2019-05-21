@@ -72,7 +72,8 @@
           :id="`message-row-${message.id}`"
           :key="index"
           class="message-row border-top border-bottom"
-          :class="{ 'message-row-read': message.read }">
+          :class="{ 'message-row-read': message.read }"
+          :tabindex="includes(openMessages, message.transientId) ? 0 : -1">
           <td class="column-pill align-top p-2">
             <div
               :id="`timeline-tab-${activeTab}-pill-${index}`"
@@ -188,7 +189,7 @@
                   <router-link
                     :id="`advising-note-permalink-${message.id}`"
                     :to="`#${message.id}`"
-                    @click.native="scrollTo(`#message-row-${message.id}`)">
+                    @click.native="scrollToPermalink(message.id)">
                     Permalink <i class="fas fa-link"></i>
                   </router-link>
                 </div>
@@ -342,7 +343,7 @@ export default {
           this.isShowingAll = true;
           this.$nextTick(function() {
             this.open(note);
-            this.scrollTo(`#message-row-${messageId}`);
+            this.scrollToPermalink(messageId);
           });
         }
       }
@@ -463,6 +464,10 @@ export default {
       }
       this.markRead(message);
       this.alertScreenReader('Message opened');
+    },
+    scrollToPermalink(messageId) {
+      this.scrollTo(`#message-row-${messageId}`);
+      this.putFocusNextTick(`message-row-${messageId}`);
     },
     sortMessages() {
       this.messages.sort((m1, m2) => {
