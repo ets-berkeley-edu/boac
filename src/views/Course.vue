@@ -67,7 +67,7 @@
           <span class="has-error"><i class="fas fa-exclamation-triangle"></i></span>
           <span class="container-error">No students advised by your department are enrolled in this section.</span>
         </div>
-        <div v-if="section.totalStudentCount" class="course-view-controls-container">
+        <div v-if="section.totalStudentCount" class="course-view-controls-container ml-3 mr-3">
           <div>
             <CuratedGroupSelector
               v-if="!isEmpty(section.students) && (tab === 'list')"
@@ -114,186 +114,9 @@
             </ul>
           </div>
         </div>
-
         <div v-if="tab === 'list' && section.totalStudentCount">
-          <table id="course-list-view-table" class="course-list-view-table">
-            <tr class="course-list-view-row">
-              <th class="course-list-view-column course-list-view-column-checkbox course-list-view-column-header"></th>
-              <th class="course-list-view-column course-list-view-column-avatar course-list-view-column-header">
-                <span class="sr-only">Student Photo</span>
-              </th>
-              <th class="course-list-view-column course-list-view-column-profile course-list-view-column-header">
-                <span class="sr-only">Student Profile</span>
-              </th>
-              <th class="course-list-view-column course-list-view-column-header">
-                Course Site<span aria-hidden="true">(s)</span>
-              </th>
-              <th class="course-list-view-column course-list-view-column-header">Assignments Submitted</th>
-              <th class="course-list-view-column course-list-view-column-header">Assignment Grades</th>
-              <th class="course-list-view-column course-list-view-column-header">bCourses Activity</th>
-              <th class="course-list-view-column course-list-view-column-header">
-                Mid<span class="sr-only">point Grade</span>
-              </th>
-              <th class="course-list-view-column course-list-view-column-header">
-                Final<span class="sr-only"> Grade</span>
-              </th>
-            </tr>
-            <tr
-              v-for="(student, index) in section.students"
-              :key="student.uid"
-              class="course-list-view-row"
-              :class="{'list-group-item-info': featured===student.uid}">
-              <td class="course-list-view-column course-list-view-column-checkbox">
-                <CuratedStudentCheckbox :student="student" />
-              </td>
-              <td class="course-list-view-column course-list-view-column-avatar">
-                <StudentAvatar :student="student" size="medium" />
-              </td>
-              <td class="course-list-view-column course-list-view-column-profile">
-                <div>
-                  <router-link :id="student.uid" :to="`/student/${student.uid}`">
-                    <h3
-                      class="course-student-name"
-                      :class="{'demo-mode-blur': user.inDemoMode}">
-                      {{ student.lastName }}<span v-if="student.firstName">, {{ student.firstName }}</span>
-                    </h3>
-                  </router-link>
-                </div>
-                <div :id="`row-${index}-student-sid`" class="student-sid" :class="{'demo-mode-blur': user.inDemoMode}">
-                  {{ student.sid }}
-                  <span v-if="student.enrollment.enrollmentStatus === 'W'" class="red-flag-status">WAITLISTED</span>
-                  <span v-if="displayAsInactive(student)" class="red-flag-status">INACTIVE</span>
-                </div>
-                <div>
-                  <span class="student-text">{{ student.level }}</span>
-                </div>
-                <div>
-                  <div v-for="major in student.majors" :key="major" class="student-text">{{ major }}</div>
-                </div>
-                <div>
-                  <div v-if="student.athleticsProfile" class="student-teams-container">
-                    <div v-for="membership in student.athleticsProfile.athletics" :key="membership.groupName" class="student-teams">
-                      {{ membership.groupName }}
-                    </div>
-                  </div>
-                </div>
-              </td>
-
-              <td class="course-list-view-column">
-                <div class="course-list-view-column-canvas-sites">
-                  <div
-                    v-for="canvasSite in student.enrollment.canvasSites"
-                    :key="canvasSite.courseCode"
-                    class="course-list-view-column-canvas-sites-border">
-                    <strong>{{ canvasSite.courseCode }}</strong>
-                  </div>
-                  <div
-                    v-if="!student.enrollment.canvasSites.length"
-                    class="course-list-view-column-canvas-sites-border">
-                    No course site
-                  </div>
-                </div>
-              </td>
-
-              <td class="course-list-view-column">
-                <div
-                  v-if="student.enrollment.canvasSites.length"
-                  class="course-list-view-column-canvas-sites">
-                  <div
-                    v-for="canvasSite in student.enrollment.canvasSites"
-                    :key="canvasSite.canvasCourseId">
-                    <span v-if="student.enrollment.canvasSites.length > 1" class="sr-only">
-                      {{ canvasSite.courseCode }}
-                    </span>
-                    <div v-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
-                      <strong>{{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</strong>
-                      <div class="faint-text">
-                        (Max: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }})
-                      </div>
-                    </div>
-                    <div v-if="!canvasSite.analytics.assignmentsSubmitted.courseDeciles">
-                      No Data
-                    </div>
-                  </div>
-                </div>
-                <span
-                  v-if="!student.enrollment.canvasSites.length"
-                  class="course-list-view-column-canvas-sites"><span class="sr-only">No data</span>&mdash;</span>
-              </td>
-
-              <td class="course-list-view-column">
-                <div class="course-list-view-column-canvas-sites">
-                  <div
-                    v-for="canvasSite in student.enrollment.canvasSites"
-                    :key="canvasSite.canvasCourseId"
-                    class="profile-boxplot-container">
-                    <span v-if="student.enrollment.canvasSites.length > 1" class="sr-only">
-                      {{ canvasSite.courseCode }}
-                    </span>
-                    <StudentBoxplot
-                      v-if="canvasSite.analytics.currentScore.boxPlottable"
-                      :dataset="canvasSite.analytics"
-                      :numeric-id="student.uid + '-' + canvasSite.canvasCourseId.toString()"></StudentBoxplot>
-                    <div v-if="canvasSite.analytics.currentScore.boxPlottable" class="sr-only">
-                      <div>User score: {{ canvasSite.analytics.currentScore.student.raw }}</div>
-                      <div>Maximum:  {{ canvasSite.analytics.currentScore.courseDeciles[10] }}</div>
-                      <div>70th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[7] }}</div>
-                      <div>50th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[5] }}</div>
-                      <div>30th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[3] }}</div>
-                      <div>Minimum: {{ canvasSite.analytics.currentScore.courseDeciles[0] }}</div>
-                    </div>
-                    <div v-if="!canvasSite.analytics.currentScore.boxPlottable">
-                      <div v-if="canvasSite.analytics.currentScore.courseDeciles">
-                        Score: <strong>{{ canvasSite.analytics.currentScore.student.raw }}</strong>
-                        <div class="faint-text">
-                          (Max: {{ canvasSite.analytics.currentScore.courseDeciles[10] }})
-                        </div>
-                      </div>
-                      <div v-if="!canvasSite.analytics.currentScore.courseDeciles">
-                        No Data
-                      </div>
-                    </div>
-                  </div>
-                  <span v-if="!student.enrollment.canvasSites.length"><span class="sr-only">No data</span>&mdash;</span>
-                </div>
-              </td>
-
-              <td class="course-list-view-column">
-                <div class="course-list-view-column-canvas-sites">
-                  <div
-                    v-for="canvasSite in student.enrollment.canvasSites"
-                    :key="canvasSite.canvasCourseId"
-                    class="profile-boxplot-container">
-                    <span v-if="student.enrollment.canvasSites.length > 1" class="sr-only">
-                      {{ canvasSite.courseCode }}
-                    </span>
-                    {{ lastActivityDays(canvasSite.analytics) }}
-                  </div>
-                  <span v-if="!student.enrollment.canvasSites.length"><span class="sr-only">No data</span>&mdash;</span>
-                </div>
-              </td>
-
-              <td class="course-list-view-column">
-                <span v-if="student.enrollment.midtermGrade" v-accessible-grade="student.enrollment.midtermGrade" class="font-weight-bold"></span>
-                <i
-                  v-if="isAlertGrade(student.enrollment.midtermGrade)"
-                  class="fas fa-exclamation-triangle boac-exclamation"></i>
-                <span v-if="!student.enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
-              </td>
-
-              <td class="course-list-view-column">
-                <span v-if="student.enrollment.grade" v-accessible-grade="student.enrollment.grade" class="font-weight-bold"></span>
-                <i
-                  v-if="isAlertGrade(student.enrollment.grade)"
-                  class="fas fa-exclamation-triangle boac-exclamation"></i>
-                <span v-if="!student.enrollment.grade" class="cohort-grading-basis">
-                  {{ student.enrollment.gradingBasis }}
-                </span>
-              </td>
-            </tr>
-          </table>
-
-          <div class="course-pagination">
+          <CourseStudents :featured="featured" :section="section" />
+          <div class="mt-3">
             <div v-if="section.totalStudentCount > pagination.itemsPerPage">
               <Pagination
                 :click-handler="goToPage"
@@ -304,7 +127,6 @@
             </div>
           </div>
         </div>
-
         <div v-if="tab === 'matrix' && !loading && !error" id="matrix-outer" class="matrix-outer">
           <Matrix :featured="featured" :section="section" />
         </div>
@@ -314,19 +136,14 @@
 </template>
 
 <script>
-import _ from 'lodash';
+import CourseStudents from '@/components/course/CourseStudents';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
-import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox';
 import Loading from '@/mixins/Loading';
 import Matrix from '@/components/matrix/Matrix';
 import MatrixUtil from '@/components/matrix/MatrixUtil';
 import Pagination from '@/components/util/Pagination';
 import Scrollable from '@/mixins/Scrollable';
 import Spinner from '@/components/util/Spinner';
-import StudentAnalytics from '@/mixins/StudentAnalytics';
-import StudentAvatar from '@/components/student/StudentAvatar';
-import StudentBoxplot from '@/components/student/StudentBoxplot';
-import StudentMetadata from '@/mixins/StudentMetadata';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { getSection } from '@/api/course';
@@ -334,20 +151,16 @@ import { getSection } from '@/api/course';
 export default {
   name: 'Course',
   components: {
+    CourseStudents,
     CuratedGroupSelector,
-    CuratedStudentCheckbox,
     Matrix,
     Pagination,
     Spinner,
-    StudentAvatar,
-    StudentBoxplot
   },
   mixins: [
     Loading,
     MatrixUtil,
     Scrollable,
-    StudentAnalytics,
-    StudentMetadata,
     UserMetadata,
     Util
   ],
@@ -380,14 +193,14 @@ export default {
   },
   methods: {
     featureSearchedStudent(data) {
-      var section = _.clone(data);
-      var subject = _.remove(section.students, student => {
+      const section = this.clone(data);
+      const subject = this.remove(section.students, student => {
         return student.uid === this.featured;
       });
-      var students = _.union(subject, section.students);
+      const students = this.union(subject, section.students);
       // Discrepancies in our loch-hosted SIS data dumps may occasionally result in students without enrollment
       // objects. A placeholder object keeps the front end from breaking.
-      _.each(students, student => {
+      this.each(students, student => {
         if (!student.enrollment) {
           student.enrollment = { canvasSites: [] };
         }
@@ -396,7 +209,7 @@ export default {
       return section;
     },
     initViewMode() {
-      this.tab = _.includes(['list', 'matrix'], this.$route.query.tab)
+      this.tab = this.includes(['list', 'matrix'], this.$route.query.tab)
         ? this.$route.query.tab
         : this.tab;
     },
@@ -405,8 +218,8 @@ export default {
         this.pagination.currentPage = parseInt(this.$route.query.p, 10);
       }
       if (this.$route.query.s && !isNaN(this.$route.query.s)) {
-        var itemsPerPage = parseInt(this.$route.query.s, 10);
-        if (_.includes(this.pagination.options, itemsPerPage)) {
+        const itemsPerPage = parseInt(this.$route.query.s, 10);
+        if (this.includes(this.pagination.options, itemsPerPage)) {
           this.pagination.itemsPerPage = itemsPerPage;
         } else {
           this.$router.push({
@@ -419,8 +232,8 @@ export default {
       }
     },
     loadListView() {
-      var limit = this.pagination.itemsPerPage;
-      var offset =
+      const limit = this.pagination.itemsPerPage;
+      const offset =
         this.pagination.currentPage === 0
           ? 0
           : (this.pagination.currentPage - 1) * limit;
@@ -454,8 +267,8 @@ export default {
       });
     },
     resizePage(selectedItemsPerPage) {
-      var currentItemsPerPage = this.pagination.itemsPerPage;
-      var newPage = Math.round(
+      const currentItemsPerPage = this.pagination.itemsPerPage;
+      const newPage = Math.round(
         this.pagination.currentPage *
           (currentItemsPerPage / selectedItemsPerPage)
       );
@@ -476,7 +289,7 @@ export default {
       this.setPageTitle(data.displayName);
       this.section = this.featureSearchedStudent(data);
       if (
-        this.exceedsMatrixThreshold(_.get(this.section, 'totalStudentCount'))
+        this.exceedsMatrixThreshold(this.get(this.section, 'totalStudentCount'))
       ) {
         this.matrixDisabledMessage = this.exceedsMatrixThresholdMessage();
       } else {
@@ -537,53 +350,6 @@ export default {
   font-size: 16px;
   font-weight: bold;
 }
-.course-list-view-column {
-  line-height: 1.4em;
-  padding: 5px 10px;
-  vertical-align: top;
-}
-.course-list-view-column-avatar {
-  width: 120px;
-}
-.course-list-view-column-canvas-sites {
-  display: flex;
-  flex-direction: column;
-  font-size: 14px;
-}
-.course-list-view-column-canvas-sites > div {
-  align-items: flex-start;
-  flex: 0 0 50px;
-}
-.course-list-view-column-canvas-sites > div:not(:first-child) {
-  margin-top: 5px;
-}
-.course-list-view-column-canvas-sites-border {
-  align-self: flex-start;
-  border-left: 1px solid #ddd;
-  padding-left: 5px;
-}
-.course-list-view-column-checkbox {
-  vertical-align: middle;
-}
-.course-list-view-column-header {
-  color: #aaa;
-  font-size: 12px;
-  font-weight: normal;
-  text-transform: uppercase;
-  vertical-align: bottom;
-}
-.course-list-view-column-profile {
-  width: 20%;
-}
-.course-list-view-column-profile button {
-  padding: 2px 0 0 5px;
-}
-.course-list-view-row {
-  border-bottom: 1px solid #ddd;
-}
-.course-list-view-table {
-  width: 100%;
-}
 .course-page-size {
   margin-left: auto;
 }
@@ -594,20 +360,10 @@ export default {
   color: #000;
   font-weight: bold;
 }
-.course-pagination {
-  margin-top: 20px;
-}
 .course-section-title {
   font-size: 16px;
   font-weight: bold;
   padding-top: 20px;
-}
-.course-student-name {
-  color: #49b;
-  font-size: 16px;
-  margin: 0;
-  max-width: 150px;
-  padding: 0;
 }
 .course-tabs-container {
   flex: 0 0 200px;
@@ -616,9 +372,6 @@ export default {
 .course-term-name {
   font-size: 16px;
   font-weight: bold;
-}
-.course-terms {
-  margin: 0 20px 0 20px;
 }
 .course-view-controls-container {
   align-items: baseline;
