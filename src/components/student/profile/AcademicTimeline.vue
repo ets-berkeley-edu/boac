@@ -173,8 +173,7 @@
                   <TimelineDate
                     :id="`expanded-${message.type}-${message.id}-created-at`"
                     :date="message.createdAt"
-                    :include-time-of-day="message.createdAt.length > 10"
-                    sr-prefix="Last updated on" />
+                    :include-time-of-day="message.createdAt.length > 10" />
                 </div>
                 <div v-if="displayUpdatedAt(message)">
                   <div class="mt-2 text-muted">Updated:</div>
@@ -182,8 +181,7 @@
                     :id="`expanded-${message.type}-${message.id}-updated-at`"
                     :date="message.updatedAt"
                     :include-time-of-day="message.updatedAt.length > 10"
-                    class="mb-2"
-                    sr-prefix="Last updated on" />
+                    class="mb-2" />
                 </div>
                 <div class="text-muted">
                   <router-link
