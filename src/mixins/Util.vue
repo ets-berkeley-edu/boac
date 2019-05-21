@@ -10,6 +10,7 @@ export default {
   name: 'Util',
   methods: {
     assign: _.assign,
+    clone: _.clone,
     cloneDeep: _.cloneDeep,
     concat: _.concat,
     debounce: _.debounce,
@@ -87,6 +88,7 @@ export default {
     toInt,
     trim: _.trim,
     truncate: _.truncate,
+    union: _.union,
     uniq: _.uniq,
     without: _.without
   }
