@@ -16,7 +16,7 @@
               aria-describedby="add-note-topic-instructions"
               aria-owns="add-topic-input-list"
               type="text"
-              maxlength="255"
+              maxlength="50"
               list="add-topic-input-list"
               @keydown.enter.prevent="addTopic">
             </b-form-input>
