@@ -1,22 +1,49 @@
 <template>
-  <div class="page-not-found-background-image"></div>
+  <div>
+    <span
+      class="cloud-background m-0 p-0 h-100 w-100"
+      aria-live="polite"
+      role="alert"><span class="sr-only">Sorry, page not found. Contact us if the system is misbehaving.</span></span>
+    <div class="ticket-container text-center">
+      <img
+        alt="A silly boarding pass with the text, 'Error 404: Flight not found'"
+        class="ticket-to-nowhere w-75"
+        src="@/assets/boa-boarding-ticket.png" />
+    </div>
+  </div>
 </template>
 
 <script>
+import Loading from '@/mixins/Loading';
+
 export default {
-  name: 'NotFound'
+  name: 'NotFound',
+  mixins: [ Loading ],
+  created() {
+    // All top-level view components must identify themselves as "loaded".
+    this.loaded();
+  }
 };
 </script>
 
 <style scoped>
-.page-not-found-background-image {
-  background: url('~@/assets/404_lost_in_the_clouds.jpg') no-repeat center
-    center;
+.cloud-background {
+  background: url('~@/assets/404-cloud-background.jpg') no-repeat center center;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
-  height: 100%;
-  width: 100%;
+  position: fixed;
+  top:0;
+  left:0;
+  z-index: -1;
+}
+.ticket-container {
+  align-content: center;
+  min-height: 100vh;
+  padding-top: 10%;
+}
+.ticket-to-nowhere {
+  z-index: 999;
 }
 </style>
