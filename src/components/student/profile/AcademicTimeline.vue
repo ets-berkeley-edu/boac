@@ -187,6 +187,7 @@
                 </div>
                 <div class="text-muted">
                   <router-link
+                    v-if="editingNoteId !== message.transientId"
                     :id="`advising-note-permalink-${message.id}`"
                     :to="`#${message.id}`"
                     @click.native="scrollToPermalink(message.id)">
@@ -367,7 +368,7 @@ export default {
       this.messageForDelete = undefined;
     },
     close(message) {
-      if (message.transientId == this.editingNoteId) {
+      if (message.transientId === this.editingNoteId) {
         return false;
       }
       if (this.includes(this.openMessages, message.transientId)) {
@@ -456,7 +457,7 @@ export default {
       this.creatingNewNote = true;
     },
     open(message) {
-      if (message.transientId == this.editingNoteId) {
+      if (message.transientId === this.editingNoteId) {
         return false;
       }
       if (!this.includes(this.openMessages, message.transientId)) {
