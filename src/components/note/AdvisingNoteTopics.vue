@@ -7,7 +7,7 @@
     </div>
     <b-container class="pl-0 ml-0">
       <b-form-row class="pb-1">
-        <b-col cols="4">
+        <b-col cols="9">
           <b-input-group>
             <b-form-input
               id="add-note-topic"
