@@ -60,6 +60,7 @@ export default {
       });
     },
     remove: _.remove,
+    set: _.set,
     setPageTitle: phrase =>
       (document.title = `${phrase || 'UC Berkeley'} | BOA`),
     size: _.size,

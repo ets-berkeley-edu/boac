@@ -18,16 +18,17 @@
               type="text"
               maxlength="255"
               list="add-topic-input-list"
-              @keydown.enter="addTopic">
+              @keydown.enter.prevent="addTopic">
             </b-form-input>
             <span id="add-note-topic-instructions" class="sr-only">When autocomplete results are available, use up and down arrows to review and enter to select.</span>
-            <b-form-datalist id="add-topic-input-list" :options="suggestedTopics" role="listbox"></b-form-datalist>
+            <b-form-datalist id="add-topic-input-list" :options="topicOptions" role="listbox"></b-form-datalist>
             <b-input-group-append>
               <b-button
                 id="add-topic-button"
                 slot="append"
-                class="btn-add-topic"
+                :class="{'btn-add-topic': !isTopicEmpty, 'btn-add-topic-disabled': isTopicEmpty}"
                 aria-controls="note-topics-list"
+                :disabled="isTopicEmpty"
                 @click="addTopic">
                 <i class="fas fa-plus pr-1"></i>Add<span class="sr-only"> Topic</span>
               </b-button>
@@ -99,15 +100,15 @@ export default {
     }
   },
   data: () => ({
-    topic: undefined
+    topic: undefined,
+    topicOptions: undefined
   }),
   computed: {
+    isTopicEmpty() {
+      return !this.trim(this.topic)
+    },
     notePrefix() {
-      if (this.noteId) {
-        return 'note-' + this.noteId;
-      } else {
-        return 'note';
-      }
+      return this.noteId ? 'note-' + this.noteId : 'note';
     }
   },
   watch: {
@@ -118,13 +119,22 @@ export default {
     }
   },
   created: function() {
+    this.topicOptions = [];
+    this.each(this.suggestedTopics, suggestedTopic => {
+      this.topicOptions.push({
+        text: suggestedTopic,
+        value: suggestedTopic,
+        disabled: this.includes(this.topics, suggestedTopic)
+      })
+    });
     this.debouncedSuggest = this.debounce(this.suggest, 500);
   },
   methods: {
     addTopic() {
-      if (this.topic && this.topic.trim()) {
+      if (this.trim(this.topic)) {
         this.functionAdd(this.topic);
         this.alertScreenReader(`Topic ${this.topic} added.`);
+        this.setTopicOptionDisabled(this.topic, true);
         this.topic = undefined;
       }
     },
@@ -134,6 +144,11 @@ export default {
     removeTopic(topic) {
       this.functionRemove(topic);
       this.alertScreenReader(`Topic ${topic} removed.`);
+      this.setTopicOptionDisabled(topic, false);
+    },
+    setTopicOptionDisabled(optionValue, disable) {
+      const option = this.find(this.topicOptions, ['value', optionValue]);
+      this.set(option, 'disabled', disable);
     },
     suggest() {
       if (!this.topic || this.topic.length < 2) {
@@ -145,7 +160,6 @@ export default {
       if (match) {
         this.topic = match;
         this.alertScreenReader(`Topic autocompleted: ${this.topic}`);
-
       }
     }
   }
@@ -167,5 +181,10 @@ export default {
 {
   color: #333;
   background-color: #aaa;
+}
+.btn-add-topic-disabled {
+  background-color: #ccc;
+  border-color: #ced4da;
+  color: #6c757d;
 }
 </style>
