@@ -223,7 +223,7 @@ CREATE INDEX note_attachments_note_id_idx ON note_attachments USING btree (note_
 CREATE TABLE note_topics (
     id INTEGER NOT NULL,
     note_id INTEGER NOT NULL,
-    topic VARCHAR(255) NOT NULL,
+    topic VARCHAR(50) NOT NULL,
     author_uid VARCHAR(255) NOT NULL
 );
 ALTER TABLE note_topics OWNER TO boac;
@@ -284,7 +284,7 @@ CREATE INDEX student_group_members_sid_idx ON student_group_members USING btree 
 
 CREATE TABLE topics (
   id INTEGER NOT NULL,
-  topic VARCHAR(255) NOT NULL,
+  topic VARCHAR(50) NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 ALTER TABLE topics OWNER TO boac;

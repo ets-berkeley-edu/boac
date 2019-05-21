@@ -31,7 +31,7 @@ class NoteTopic(db.Model):
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     note_id = db.Column(db.Integer, db.ForeignKey('notes.id'), nullable=False, onupdate='cascade')
-    topic = db.Column(db.String(255), nullable=False)
+    topic = db.Column(db.String(50), nullable=False)
     author_uid = db.Column(db.String(255), db.ForeignKey('authorized_users.uid'), nullable=False)
     note = db.relationship('Note', back_populates='topics')
 
