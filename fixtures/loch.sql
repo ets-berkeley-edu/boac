@@ -305,11 +305,11 @@ CREATE MATERIALIZED VIEW boac_advising_notes.advising_notes_search_index AS (
 INSERT INTO boac_advising_notes.advising_note_topics
 (advising_note_id, sid, note_topic)
 VALUES
-('11667051-00001', '11667051', 'Good show'),
-('11667051-00002', '11667051', 'Bad show'),
-('11667051-00003', '11667051', 'Show time'),
-('11667051-00002', '11667051', 'Show off'),
-('9000000000-00001', '9000000000', 'No show');
+('11667051-00001', '11667051', 'Good Show'),
+('11667051-00002', '11667051', 'Bad Show'),
+('11667051-00003', '11667051', 'Show Time'),
+('11667051-00002', '11667051', 'Show Off'),
+('9000000000-00001', '9000000000', 'No Show');
 
 INSERT INTO boac_advising_notes.advising_note_attachments
 (advising_note_id, sid, attachment_seq_nr, attachment_date, created_by, created_at, updated_at, sis_file_name, user_file_name)

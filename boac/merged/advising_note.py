@@ -107,7 +107,7 @@ def get_non_legacy_advising_notes(sid):
     return notes_by_id
 
 
-def search_advising_notes(search_phrase, author_csid=None, offset=0, limit=20):
+def search_advising_notes(search_phrase, author_csid=None, topic=None, offset=0, limit=20):
 
     benchmark = get_benchmarker('search_advising_notes')
     benchmark('begin')
@@ -141,7 +141,7 @@ def search_advising_notes(search_phrase, author_csid=None, offset=0, limit=20):
     # TODO We're currently retrieving all results for the sake of subsequent offset calculations. As the number of notes in
     # BOA grows (and possibly requires us to use some kind of staging table for search indexing), we'll need to revisit.
     benchmark('begin local notes query')
-    local_results = Note.search(search_phrase=search_phrase, sid_filter=sid_filter, author_csid=author_csid)
+    local_results = Note.search(search_phrase=search_phrase, sid_filter=sid_filter, author_csid=author_csid, topic=topic)
     benchmark('end local notes query')
     local_notes_count = len(local_results)
     cutoff = min(local_notes_count, offset + limit)
@@ -163,6 +163,7 @@ def search_advising_notes(search_phrase, author_csid=None, offset=0, limit=20):
         student_query_filter=student_query_filter,
         student_query_bindings=student_query_bindings,
         author_csid=author_csid,
+        topic=topic,
         offset=max(0, offset - local_notes_count),
         limit=(limit - len(notes_feed)),
     )

@@ -67,9 +67,11 @@ def search():
     if domain['notes']:
         note_options = util.get(params, 'noteOptions', {})
         author_csid = note_options.get('authorCsid')
+        topic = note_options.get('topic')
         notes_results = search_advising_notes(
             search_phrase=search_phrase,
             author_csid=author_csid,
+            topic=topic,
             offset=0,
             limit=20,
         )

@@ -96,7 +96,7 @@ class Note(Base):
         return note
 
     @classmethod
-    def search(cls, search_phrase, sid_filter, author_csid):
+    def search(cls, search_phrase, sid_filter, author_csid, topic):
         params = {
             'search_phrase': search_phrase,
             'sid_filter': sid_filter,
@@ -108,6 +108,12 @@ class Note(Base):
         else:
             author_filter = ''
 
+        if topic:
+            topic_join = 'JOIN note_topics nt on nt.topic = :topic AND nt.note_id = notes.id'
+            params.update({'topic': topic})
+        else:
+            topic_join = ''
+
         query = text(f"""
             SELECT notes.* FROM (
                 SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
@@ -118,6 +124,7 @@ class Note(Base):
                 ON fts.id = notes.id
                 AND notes.sid = ANY(:sid_filter)
                 {author_filter}
+            {topic_join}
             ORDER BY fts.rank DESC, notes.id
         """).bindparams(**params)
         result = db.session.execute(query)
