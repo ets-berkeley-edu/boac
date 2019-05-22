@@ -17,7 +17,7 @@
         v-b-toggle="'search-options-panel'"
         class="pr-0 search-options-panel-toggle"
         variant="link"
-        @click="showSearchOptions = !showSearchOptions">
+        @click="toggleSearchOptions()">
         {{ showSearchOptions ? 'Hide' : 'Show' }} options
       </b-btn>
     </div>
@@ -94,7 +94,7 @@
           class="search-options-panel-toggle search-options-panel-toggle-subpanel"
           variant="link"
           :class="includeNotes ? 'visible' : 'invisible'"
-          @click="showNoteFilters = !showNoteFilters">
+          @click="toggleNoteFilters()">
           ({{ showNoteFilters ? 'hide' : 'show' }} filters)
         </b-btn>
       </div>
@@ -103,6 +103,13 @@
         v-model="showNoteFilters"
         class="mt-2 text-white">
         <div>
+          <b-form-group label="Topic">
+            <b-form-select
+              id="search-option-note-filters-topic"
+              v-model="noteFilters.topic"
+              :options="topicOptions">
+            </b-form-select>
+          </b-form-group>
           <b-form-group label="Posted By">
             <b-form-radio
               id="search-options-note-filters-posted-by-anyone"
@@ -131,6 +138,7 @@ import Context from '@/mixins/Context';
 import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
+import { getTopics } from '@/api/notes';
 
 export default {
   name: 'SearchForm',
@@ -145,11 +153,15 @@ export default {
       includeNotes: this.domain.includes('notes'),
       includeStudents: this.domain.includes('students'),
       noteFilters: {
-        postedBy: 'anyone'
+        postedBy: 'anyone',
+        topic: null,
       },
       searchPhrase: null,
       showNoteFilters: false,
-      showSearchOptions: false
+      showSearchOptions: false,
+      topicOptions: [
+        {text: 'Any topic', value: null}
+      ]
     };
   },
   computed: {
@@ -164,7 +176,21 @@ export default {
       }
     }
   },
+  created() {
+    getTopics().then(data => {
+      this.each(data, topic => {
+        this.topicOptions.push({
+          text: topic,
+          value: topic
+        })
+      });
+    });
+  },
   methods: {
+    resetNoteFilters() {
+      this.noteFilters.postedBy = 'anyone';
+      this.noteFilters.topic = null;
+    },
     search() {
       this.searchPhrase = this.trim(this.searchPhrase);
       if (this.searchPhrase) {
@@ -176,6 +202,9 @@ export default {
         };
         if (this.includeNotes && this.noteFilters.postedBy === 'you') {
           query.authorCsid = this.user.csid;
+        }
+        if (this.includeNotes && this.noteFilters.topic) {
+          query.noteTopic = this.noteFilters.topic;
         }
         this.$router.push({
           path: this.forceUniquePath('/search'),
@@ -189,6 +218,18 @@ export default {
         );
       } else {
         this.alertScreenReader('Search input is required');
+      }
+    },
+    toggleNoteFilters() {
+      this.showNoteFilters = !this.showNoteFilters;
+      if (!this.showNoteFilters) {
+        this.resetNoteFilters();
+      }
+    },
+    toggleSearchOptions() {
+      this.showSearchOptions = !this.showSearchOptions;
+      if (!this.showSearchOptions) {
+        this.resetNoteFilters();
       }
     }
   }

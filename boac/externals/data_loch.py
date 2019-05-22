@@ -408,10 +408,19 @@ def search_advising_notes(     # noqa
         student_query_filter,
         student_query_bindings,
         author_csid=None,
+        topic=None,
         offset=None,
         limit=None,
     ):
     author_filter = 'AND an.advisor_sid = :author_csid' if author_csid else ''
+
+    if topic:
+        topic_join = f"""JOIN {advising_notes_schema()}.advising_note_topics ant
+            ON ant.note_topic = :topic
+            AND ant.advising_note_id = an.id"""
+    else:
+        topic_join = ''
+
     sql = f"""SELECT
         an.sid, an.id, an.note_body, an.advisor_sid, an.created_by, an.created_at, an.updated_at,
         sas.uid, sas.first_name, sas.last_name
@@ -419,6 +428,7 @@ def search_advising_notes(     # noqa
         JOIN {advising_notes_schema()}.advising_notes an
             ON an.sid = sas.sid
             {author_filter}
+        {topic_join}
         JOIN (
           SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
           FROM {advising_notes_schema()}.advising_notes_search_index
@@ -436,6 +446,7 @@ def search_advising_notes(     # noqa
         **student_query_bindings,
         search_phrase=search_phrase,
         author_csid=author_csid,
+        topic=topic,
         offset=offset,
         limit=limit,
     )

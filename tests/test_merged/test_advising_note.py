@@ -52,7 +52,7 @@ class TestMergedAdvisingNote:
         assert notes[0]['updatedBy'] is None
         assert parse(notes[0]['updatedAt']) == parse('2017-10-31T12:00:00+00:00')
         assert notes[0]['read'] is False
-        assert notes[0]['topics'] == ['Good show']
+        assert notes[0]['topics'] == ['Good Show']
         assert notes[1]['id'] == '11667051-00002'
         assert notes[1]['sid'] == '11667051'
         assert notes[1]['body'] == 'Brigitte demonstrates a cavalier attitude toward university requirements'
@@ -64,7 +64,7 @@ class TestMergedAdvisingNote:
         assert notes[1]['updatedBy'] is None
         assert parse(notes[1]['updatedAt']) == parse('2017-11-01T12:00:00+00')
         assert notes[1]['read'] is False
-        assert notes[1]['topics'] == ['Bad show', 'Show off']
+        assert notes[1]['topics'] == ['Bad Show', 'Show Off']
 
         # Legacy ASC notes
         assert notes[3]['id'] == '11667051-139362'
@@ -294,6 +294,24 @@ class TestMergedAdvisingNote:
         new_note, legacy_note = narrow_response[0], narrow_response[1]
         assert new_note['advisorUid'] == joni['uid']
         assert legacy_note['advisorSid'] == joni['sid']
+
+    def test_search_advising_notes_narrowed_by_topic(self, app, fake_auth):
+        for topic in ['Good Show', 'Bad Show']:
+            Note.create(
+                author_uid='1133399',
+                author_name='Joni Mitchell',
+                author_role='Advisor',
+                author_dept_codes='COENG',
+                sid='11667051',
+                topics=[topic],
+                subject='Brigitte',
+                body='',
+            )
+        fake_auth.login(coe_advisor)
+        wide_response = search_advising_notes(search_phrase='Brigitte')
+        assert len(wide_response) == 4
+        narrow_response = search_advising_notes(search_phrase='Brigitte', topic='Good Show')
+        assert len(narrow_response) == 2
 
     def test_stream_attachment(self, app, fake_auth):
         with mock_legacy_note_attachment(app):

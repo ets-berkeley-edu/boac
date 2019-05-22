@@ -108,6 +108,7 @@ export default {
     const noteOptions = {};
     if (includeNotes) {
       noteOptions.authorCsid = this.$route.query.authorCsid;
+      noteOptions.topic = this.$route.query.noteTopic;
     }
     if (this.phrase) {
       search(
