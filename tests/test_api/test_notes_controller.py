@@ -340,8 +340,8 @@ class TestUpdateNotes:
         )
         assert updated_note_response['read'] is True
         assert len(updated_note_response['topics']) == 2
-        assert updated_note_response['topics'][0] == 'No Color No Contrast'
-        assert updated_note_response['topics'][1] == 'Joyful Mask'
+        assert 'Joyful Mask' in updated_note_response['topics']
+        assert 'No Color No Contrast' in updated_note_response['topics']
         updated_note = Note.find_by_id(note_id=asc_advising_note.id)
         assert len(updated_note.topics) == 2
 

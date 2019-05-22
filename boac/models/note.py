@@ -23,10 +23,9 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
 
 from boac import db, std_commit
-from boac.lib.util import titleize, vacuum_whitespace
+from boac.lib.util import titleize, utc_now, vacuum_whitespace
 from boac.merged.calnet import get_uid_for_csid
 from boac.models.base import Base
 from boac.models.note_attachment import NoteAttachment
@@ -51,10 +50,9 @@ class Note(Base):
     deleted_at = db.Column(db.DateTime, nullable=True)
     topics = db.relationship(
         'NoteTopic',
-        primaryjoin='Note.id==NoteTopic.note_id',
+        primaryjoin='and_(Note.id==NoteTopic.note_id, NoteTopic.deleted_at==None)',
         back_populates='note',
         lazy=True,
-        cascade='all, delete, delete-orphan',
     )
     attachments = db.relationship(
         'NoteAttachment',
@@ -143,6 +141,7 @@ class Note(Base):
             for byte_stream_bundle in attachments:
                 cls._add_attachment(note, byte_stream_bundle)
             std_commit()
+            db.session.refresh(note)
             cls.refresh_search_index()
             return note
         else:
@@ -170,19 +169,24 @@ class Note(Base):
 
     @classmethod
     def _update_topics(cls, note, topics):
+        modified = False
+        now = utc_now()
         topics = set([titleize(vacuum_whitespace(topic)) for topic in topics])
         existing_topics = set(note_topic.topic for note_topic in NoteTopic.find_by_note_id(note.id))
         topics_to_delete = existing_topics - topics
         topics_to_add = topics - existing_topics
         for topic in topics_to_delete:
             topic_to_delete = next((t for t in note.topics if t.topic == topic), None)
-            if topic:
-                note.topics.remove(topic_to_delete)
+            if topic_to_delete:
+                topic_to_delete.deleted_at = now
+                modified = True
         for topic in topics_to_add:
             note.topics.append(
                 NoteTopic.create_note_topic(note, topic, note.author_uid),
             )
-        std_commit()
+            modified = True
+        if modified:
+            note.updated_at = now
 
     @classmethod
     def _add_attachment(cls, note, attachment):
@@ -194,12 +198,12 @@ class Note(Base):
                 uploaded_by=note.author_uid,
             ),
         )
-        note.updated_at = datetime.now()
+        note.updated_at = utc_now()
 
     @classmethod
     def _delete_attachments(cls, note, delete_attachment_ids):
         modified = False
-        now = datetime.now()
+        now = utc_now()
         for attachment in note.attachments:
             if attachment.id in delete_attachment_ids:
                 attachment.deleted_at = now
@@ -216,16 +220,18 @@ class Note(Base):
     def delete(cls, note_id):
         note = cls.find_by_id(note_id)
         if note:
-            now = datetime.now()
+            now = utc_now()
             note.deleted_at = now
             for attachment in note.attachments:
                 attachment.deleted_at = now
+            for topic in note.topics:
+                topic.deleted_at = now
             std_commit()
             cls.refresh_search_index()
 
     def to_api_json(self):
         attachments = [a.to_api_json() for a in self.attachments if not a.deleted_at]
-        topics = [t.to_api_json() for t in self.topics]
+        topics = [t.to_api_json() for t in self.topics if not t.deleted_at]
         return {
             'id': self.id,
             'attachments': attachments,

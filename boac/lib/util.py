@@ -143,6 +143,10 @@ def unix_timestamp_to_localtime(epoch):
     return localize_datetime(utc_from_timestamp)
 
 
+def utc_now():
+    return datetime.utcnow().replace(tzinfo=pytz.utc)
+
+
 def utc_timestamp_to_localtime(_str):
     utc_datetime = pytz.utc.localize(datetime.strptime(_str, '%Y-%m-%dT%H:%M:%SZ'))
     return localize_datetime(utc_datetime)
