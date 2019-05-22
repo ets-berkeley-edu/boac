@@ -24,16 +24,18 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import db
+from sqlalchemy import and_
 
 
 class NoteTopic(db.Model):
     __tablename__ = 'note_topics'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
-    note_id = db.Column(db.Integer, db.ForeignKey('notes.id'), nullable=False, onupdate='cascade')
+    note_id = db.Column(db.Integer, db.ForeignKey('notes.id'), nullable=False)
     topic = db.Column(db.String(50), nullable=False)
     author_uid = db.Column(db.String(255), db.ForeignKey('authorized_users.uid'), nullable=False)
     note = db.relationship('Note', back_populates='topics')
+    deleted_at = db.Column(db.DateTime)
 
     def __init__(self, note_id, topic, author_uid):
         self.note_id = note_id
@@ -50,7 +52,7 @@ class NoteTopic(db.Model):
 
     @classmethod
     def find_by_note_id(cls, note_id):
-        return cls.query.filter(cls.note_id == note_id).all()
+        return cls.query.filter(and_(cls.note_id == note_id, cls.deleted_at == None)).all()  # noqa: E711
 
     def to_api_json(self):
         return self.topic

@@ -224,7 +224,8 @@ CREATE TABLE note_topics (
     id INTEGER NOT NULL,
     note_id INTEGER NOT NULL,
     topic VARCHAR(50) NOT NULL,
-    author_uid VARCHAR(255) NOT NULL
+    author_uid VARCHAR(255) NOT NULL,
+    deleted_at timestamp with time zone
 );
 ALTER TABLE note_topics OWNER TO boac;
 CREATE SEQUENCE note_topics_id_seq
