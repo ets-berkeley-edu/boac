@@ -25,6 +25,7 @@
         </h1>
         <h1
           v-if="!cohortName && totalStudentCount !== undefined"
+          id="cohort-results-header"
           tabindex="0">
           {{ 'Result' | pluralize(totalStudentCount) }}
         </h1>

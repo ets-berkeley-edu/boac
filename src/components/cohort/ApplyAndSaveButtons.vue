@@ -88,13 +88,12 @@ export default {
       this.screenReaderAlert = `Searching for students`;
       this.isPerforming = 'search';
       this.applyFilters(this.preferences.sortBy).then(() => {
-        this.putFocusNextTick('save-button');
+        this.putFocusNextTick('cohort-results-header');
         this.gaCohortEvent(
           this.cohortId,
           this.cohortName || 'unsaved',
           'search'
         );
-        this.screenReaderAlert = `Search results loaded`;
         this.isPerforming = null;
       });
     },

@@ -201,6 +201,7 @@ v-if="section.isViewableOnCoursePage"
         <div class="student-course-heading-end">
           <div class="student-course-heading-units-total">
             <span>Total {{ term.enrolledUnits }}</span>
+            <span class="sr-only">units</span>
             <span
               v-if="currentEnrollmentTermId === parseInt(term.termId) && get(student, 'sisProfile.currentTerm.unitsMinOverride')"
               class="student-course-heading-units-override">
