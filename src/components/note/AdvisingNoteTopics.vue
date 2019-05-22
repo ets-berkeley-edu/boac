@@ -9,19 +9,13 @@
       <b-form-row class="pb-1">
         <b-col cols="9">
           <b-input-group>
-            <b-form-input
-              id="add-note-topic"
+            <span id="add-note-topic-instructions" class="sr-only">Use up and down arrows to review categories and enter to select.</span>
+            <b-form-select
+              id="add-topic-select-list"
               v-model="topic"
-              aria-labelledby="add-note-topic-label"
-              aria-describedby="add-note-topic-instructions"
-              aria-owns="add-topic-input-list"
-              type="text"
-              maxlength="50"
-              list="add-topic-input-list"
-              @keydown.enter.prevent="addTopic">
-            </b-form-input>
-            <span id="add-note-topic-instructions" class="sr-only">When autocomplete results are available, use up and down arrows to review and enter to select.</span>
-            <b-form-datalist id="add-topic-input-list" :options="topicOptions" role="listbox"></b-form-datalist>
+              :options="topicOptions"
+              role="listbox">
+            </b-form-select>
             <b-input-group-append>
               <b-button
                 id="add-topic-button"
@@ -100,8 +94,10 @@ export default {
     }
   },
   data: () => ({
-    topic: undefined,
-    topicOptions: undefined
+    topic: null,
+    topicOptions: [
+      {text: '-- Select a category --', value: null}
+    ]
   }),
   computed: {
     isTopicEmpty() {
@@ -111,15 +107,7 @@ export default {
       return this.noteId ? 'note-' + this.noteId : 'note';
     }
   },
-  watch: {
-    topic: function(newTopic, oldTopic) {
-      if (newTopic && newTopic.indexOf(oldTopic, 0) !== -1) {
-        this.debouncedSuggest();
-      }
-    }
-  },
   created: function() {
-    this.topicOptions = [];
     this.each(this.suggestedTopics, suggestedTopic => {
       this.topicOptions.push({
         text: suggestedTopic,
@@ -127,7 +115,6 @@ export default {
         disabled: this.includes(this.topics, suggestedTopic)
       })
     });
-    this.debouncedSuggest = this.debounce(this.suggest, 500);
   },
   methods: {
     addTopic() {
