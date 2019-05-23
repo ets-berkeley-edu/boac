@@ -52,7 +52,7 @@ class TestMergedAdvisingNote:
         assert notes[0]['updatedBy'] is None
         assert parse(notes[0]['updatedAt']) == parse('2017-10-31T12:00:00+00:00')
         assert notes[0]['read'] is False
-        assert notes[0]['topics'] == ['Good Show']
+        assert notes[0]['topics'] == ['God Scéaw']
         assert notes[1]['id'] == '11667051-00002'
         assert notes[1]['sid'] == '11667051'
         assert notes[1]['body'] == 'Brigitte demonstrates a cavalier attitude toward university requirements'
@@ -64,7 +64,7 @@ class TestMergedAdvisingNote:
         assert notes[1]['updatedBy'] is None
         assert parse(notes[1]['updatedAt']) == parse('2017-11-01T12:00:00+00')
         assert notes[1]['read'] is False
-        assert notes[1]['topics'] == ['Bad Show', 'Show Off']
+        assert notes[1]['topics'] == ['Earg Scéaw', 'Ofscéaw']
 
         # Legacy ASC notes
         assert notes[3]['id'] == '11667051-139362'

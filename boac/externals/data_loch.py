@@ -415,8 +415,10 @@ def search_advising_notes(     # noqa
     author_filter = 'AND an.advisor_sid = :author_csid' if author_csid else ''
 
     if topic:
-        topic_join = f"""JOIN {advising_notes_schema()}.advising_note_topics ant
-            ON ant.note_topic = :topic
+        topic_join = f"""JOIN {advising_notes_schema()}.advising_note_topic_mappings antm
+            ON antm.boa_topic = :topic
+        JOIN {advising_notes_schema()}.advising_note_topics ant
+            ON ant.note_topic = antm.sis_topic
             AND ant.advising_note_id = an.id"""
     else:
         topic_join = ''

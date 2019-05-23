@@ -133,6 +133,11 @@ CREATE TABLE boac_advising_notes.advising_note_attachments
     user_file_name VARCHAR NOT NULL
 );
 
+CREATE TABLE boac_advising_notes.advising_note_topic_mappings (
+  boa_topic VARCHAR NOT NULL,
+  sis_topic VARCHAR NOT NULL
+);
+
 CREATE TABLE boac_analytics.section_mean_gpas
 (
     sis_term_id VARCHAR NOT NULL,
@@ -305,11 +310,20 @@ CREATE MATERIALIZED VIEW boac_advising_notes.advising_notes_search_index AS (
 INSERT INTO boac_advising_notes.advising_note_topics
 (advising_note_id, sid, note_topic)
 VALUES
-('11667051-00001', '11667051', 'Good Show'),
-('11667051-00002', '11667051', 'Bad Show'),
-('11667051-00003', '11667051', 'Show Time'),
-('11667051-00002', '11667051', 'Show Off'),
-('9000000000-00001', '9000000000', 'No Show');
+('11667051-00001', '11667051', 'God Scéaw'),
+('11667051-00002', '11667051', 'Earg Scéaw'),
+('11667051-00003', '11667051', 'Scéaw Tima'),
+('11667051-00002', '11667051', 'Ofscéaw'),
+('9000000000-00001', '9000000000', 'Ne Scéaw');
+
+INSERT INTO boac_advising_notes.advising_note_topic_mappings
+(boa_topic, sis_topic)
+VALUES
+('Good Show', 'God Scéaw'),
+('Bad Show', 'Earg Scéaw'),
+('Show Time', 'Scéaw Tima'),
+('Show Off', 'Ofscéaw'),
+('No Show', 'Ne Scéaw');
 
 INSERT INTO boac_advising_notes.advising_note_attachments
 (advising_note_id, sid, attachment_seq_nr, attachment_date, created_by, created_at, updated_at, sis_file_name, user_file_name)
