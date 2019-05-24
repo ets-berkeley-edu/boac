@@ -90,9 +90,14 @@ export default {
   created() {
     this.setUserPreference({key: 'sortBy', value: 'last_name'});
     this.goToPage(1);
-    this.$eventHub.$on('curated-group-remove-student', sid =>
-      this.$_Students_removeStudent(sid)
-    );
+    this.$eventHub.$on('curated-group-remove-student', sid => {
+      this.curatedGroup.studentCount = this.curatedGroup.studentCount - 1;
+      let deleteIndex = this.curatedGroup.students.findIndex(student => student.sid === sid);
+      this.curatedGroup.students.splice(deleteIndex, 1);
+      removeFromCuratedGroup(this.curatedGroup.id, sid).then(() => {
+        store.commit('curated/updateCuratedGroup', this.curatedGroup);
+      });
+    });
     this.$eventHub.$on('sortBy-user-preference-change', sortBy => {
       this.goToPage(1);
       this.screenReaderAlert = `Sort students by ${sortBy}`;
@@ -153,16 +158,6 @@ export default {
     },
     setMode(mode) {
       this.mode = mode;
-    },
-    $_Students_removeStudent(sid) {
-      removeFromCuratedGroup(this.curatedGroup.id, sid).then(() => {
-        let deleteIndex = this.curatedGroup.students.findIndex(student => {
-          return student.sid === sid;
-        });
-        this.curatedGroup.students.splice(deleteIndex, 1);
-        this.curatedGroup.studentCount = this.curatedGroup.students.length;
-        store.commit('curated/updateCuratedGroup', this.curatedGroup);
-      });
     }
   }
 };

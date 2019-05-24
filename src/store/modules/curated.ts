@@ -24,9 +24,7 @@ const mutations = {
     state.myCuratedGroups = curatedGroups;
   },
   updateCuratedGroup: (state: any, updatedGroup: any) => {
-    let group = state.myCuratedGroups.find(
-      group => group.id === +updatedGroup.id
-    );
+    let group = state.myCuratedGroups.find(group => group.id === +updatedGroup.id);
     Object.assign(group, updatedGroup);
   }
 };
