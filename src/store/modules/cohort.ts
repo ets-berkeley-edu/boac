@@ -1,7 +1,8 @@
+import _ from 'lodash';
 import { getMyCohorts, getStudentsWithAlerts } from '@/api/cohort';
 
 const state = {
-  myCohorts: null
+  myCohorts: undefined
 };
 
 const getters = {
@@ -53,10 +54,10 @@ const actions = {
       }
     });
   },
-  async loadMyCohorts({ commit }) {
-    getMyCohorts().then(cohorts => {
-      commit('saveMyCohorts', cohorts);
-    });
+  async loadMyCohorts({ commit, state }) {
+    if (_.isUndefined(state.myCohorts)) {
+      getMyCohorts().then(cohorts => commit('saveMyCohorts', cohorts));
+    }
   },
   updateCohort: ({ commit }, cohort) => {
     commit('updateCohort', cohort);
