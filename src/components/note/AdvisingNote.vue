@@ -4,7 +4,7 @@
       <span v-if="note.subject" :id="`note-${note.id}-subject-closed`">{{ note.subject }}</span>
       <span v-if="!note.subject && size(note.message)" :id="`note-${note.id}-message-closed`" v-html="note.message"></span>
       <span v-if="!note.subject && !size(note.message)" :id="`note-${note.id}-category-closed`">{{ note.category }}<span v-if="note.subcategory" :id="`note-${note.id}-subcategory-closed`">, {{ note.subcategory }}</span></span>
-      <span v-if="!note.subject && !size(note.message) && !note.category" :id="`note-${note.id}-category-closed`">Student met with {{ note.author.departments[0].name }} advisor {{ note.author.name }} 
+      <span v-if="!note.subject && !size(note.message) && !note.category" :id="`note-${note.id}-category-closed`">Student met with {{ note.author.departments[0].name }} advisor {{ note.author.name }}
         <span v-if="note.topics && size(note.topics)">to discuss: {{ oxfordJoin(note.topics) }}</span>
       </span>
     </div>
@@ -26,22 +26,22 @@
       <div v-if="note.subject && note.message" class="mt-2">
         <span :id="`note-${note.id}-message-open`" v-html="note.message"></span>
       </div>
-      <div v-if="!isUndefined(author) && !author.name" class="mt-2 advisor-profile-not-found">
+      <div v-if="!isUndefined(note.author) && !note.author.name" class="mt-2 advisor-profile-not-found">
         Advisor profile not found
       </div>
-      <div v-if="author" class="mt-2">
-        <div v-if="author.name">
+      <div v-if="note.author" class="mt-2">
+        <div v-if="note.author.name">
           <a
             :id="`note-${note.id}-author-name`"
-            :aria-label="`Open UC Berkeley Directory page of ${author.name} in a new window`"
-            :href="`https://www.berkeley.edu/directory/results?search-term=${author.name}`"
-            target="_blank">{{ author.name }}</a>
-          <span v-if="author.role">
-            - <span :id="`note-${note.id}-author-role`" class="text-dark">{{ author.role }}</span>
+            :aria-label="`Open UC Berkeley Directory page of ${note.author.name} in a new window`"
+            :href="`https://www.berkeley.edu/directory/results?search-term=${note.author.name}`"
+            target="_blank">{{ note.author.name }}</a>
+          <span v-if="note.author.role">
+            - <span :id="`note-${note.id}-author-role`" class="text-dark">{{ note.author.role }}</span>
           </span>
         </div>
-        <div v-if="size(author.departments)" class="text-secondary">
-          <span v-if="note.isLegacy">(currently </span><span v-if="author.title">{{ author.title }}, </span><span v-for="(dept, index) in author.departments" :key="dept.code">
+        <div v-if="size(note.author.departments)" class="text-secondary">
+          <span v-if="note.isLegacy">(currently </span><span v-if="note.author.title">{{ note.author.title }}, </span><span v-for="(dept, index) in note.author.departments" :key="dept.code">
             <span :id="`note-${note.id}-author-dept-${index}`">{{ dept.name }}</span>
           </span><span v-if="note.isLegacy">)</span>
         </div>
@@ -163,7 +163,6 @@ export default {
     attachment: undefined,
     attachmentError: undefined,
     attachments: undefined,
-    author: undefined,
     deleteAttachmentIndex: undefined,
     deleteAttachmentIds: [],
     showConfirmDeleteAttachment: false,
@@ -208,26 +207,20 @@ export default {
   },
   methods: {
     setAuthor() {
-      if (this.isOpen && this.isUndefined(this.author)) {
-        if (this.note.author.name && this.note.author.role) {
-          this.author = this.note.author;
-        } else {
-          const author_uid = this.note.author.uid;
-          if (author_uid) {
-            if (author_uid === this.user.uid) {
-              this.author = this.user;
-            } else {
-              getUserByUid(author_uid).then(data => {
-                this.author = data;
-              });
-            }
-          } else if (this.note.author.sid) {
-            store.dispatch('user/loadCalnetUserByCsid', this.note.author.sid).then(data => {
-              this.author = data;
-            });
+      if (this.isOpen && (!this.note.author.name || !this.note.author.role)) {
+        const author_uid = this.note.author.uid;
+        if (author_uid) {
+          if (author_uid === this.user.uid) {
+            this.note.author = this.user;
           } else {
-            this.author = null;
+            getUserByUid(author_uid).then(data => {
+              this.note.author = data;
+            });
           }
+        } else if (this.note.author.sid) {
+          store.dispatch('user/loadCalnetUserByCsid', this.note.author.sid).then(data => {
+            this.note.author = data;
+          });
         }
       }
     },
