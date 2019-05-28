@@ -228,21 +228,21 @@ class Alert(Base):
 
     @classmethod
     def infrequent_activity_alerts_enabled(cls):
+        if not app.config['ALERT_INFREQUENT_ACTIVITY_ENABLED']:
+            return False
+        if app.config['CANVAS_CURRENT_ENROLLMENT_TERM'].startswith('Summer'):
+            return False
         days_into_session = (datetime.date(datetime.today()) - _get_current_session_start()).days
-        return (
-            app.config['ALERT_INFREQUENT_ACTIVITY_ENABLED']
-            and not app.config['CANVAS_CURRENT_ENROLLMENT_TERM'].startswith('Summer')
-            and days_into_session >= app.config['ALERT_INFREQUENT_ACTIVITY_DAYS']
-        )
+        return days_into_session >= app.config['ALERT_INFREQUENT_ACTIVITY_DAYS']
 
     @classmethod
     def no_activity_alerts_enabled(cls):
+        if not app.config['ALERT_NO_ACTIVITY_ENABLED']:
+            return False
+        if app.config['CANVAS_CURRENT_ENROLLMENT_TERM'].startswith('Summer'):
+            return False
         days_into_session = (datetime.date(datetime.today()) - _get_current_session_start()).days
-        return (
-            app.config['ALERT_NO_ACTIVITY_ENABLED']
-            and not app.config['CANVAS_CURRENT_ENROLLMENT_TERM'].startswith('Summer')
-            and days_into_session >= app.config['ALERT_NO_ACTIVITY_DAYS_INTO_SESSION']
-        )
+        return days_into_session >= app.config['ALERT_NO_ACTIVITY_DAYS_INTO_SESSION']
 
     @classmethod
     def deactivate_all_for_term(cls, term_id):
