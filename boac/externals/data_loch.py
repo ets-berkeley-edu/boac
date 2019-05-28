@@ -301,7 +301,7 @@ def get_student_profiles(sids=None):
     sql = f"""SELECT sid, profile
         FROM {student_schema()}.student_profiles
         """
-    if sids:
+    if sids is not None:
         sql += 'WHERE sid = ANY(:sids)'
         return safe_execute_rds(sql, sids=sids)
     else:
@@ -337,7 +337,7 @@ def get_enrollments_for_term(term_id, sids=None):
     sql = f"""SELECT sid, enrollment_term
         FROM {student_schema()}.student_enrollment_terms
         WHERE term_id = :term_id"""
-    if sids:
+    if sids is not None:
         sql += ' AND sid = ANY(:sids)'
     return safe_execute_rds(sql, term_id=term_id, sids=sids)
 
