@@ -109,6 +109,8 @@ export default {
     if (includeNotes) {
       noteOptions.authorCsid = this.$route.query.authorCsid;
       noteOptions.topic = this.$route.query.noteTopic;
+      noteOptions.dateFrom = this.$route.query.noteDateFrom;
+      noteOptions.dateTo = this.$route.query.noteDateTo;
     }
     if (this.phrase) {
       search(

@@ -402,16 +402,18 @@ def get_sis_advising_note_attachments(sid):
     return safe_execute_redshift(sql, sid=sid)
 
 
-def search_advising_notes(     # noqa
-        search_phrase,
-        student_query_tables,
-        student_query_filter,
-        student_query_bindings,
-        author_csid=None,
-        topic=None,
-        offset=None,
-        limit=None,
-    ):
+def search_advising_notes(
+    search_phrase,
+    student_query_tables,
+    student_query_filter,
+    student_query_bindings,
+    author_csid=None,
+    topic=None,
+    datetime_from=None,
+    datetime_to=None,
+    offset=None,
+    limit=None,
+):
     author_filter = 'AND an.advisor_sid = :author_csid' if author_csid else ''
 
     if topic:
@@ -423,6 +425,14 @@ def search_advising_notes(     # noqa
     else:
         topic_join = ''
 
+    date_filter = ''
+    if datetime_from:
+        # The updated_at value is not meaningful for UCBCONVERSION notes.
+        date_filter += """ AND ((an.created_by = 'UCBCONVERSION' AND an.created_at >= :datetime_from)
+            OR ((an.created_by != 'UCBCONVERSION' OR an.created_by IS NULL) AND an.updated_at >= :datetime_from))"""
+    if datetime_to:
+        date_filter += ' AND an.created_at < :datetime_to'
+
     sql = f"""SELECT
         an.sid, an.id, an.note_body, an.advisor_sid, an.created_by, an.created_at, an.updated_at,
         sas.uid, sas.first_name, sas.last_name
@@ -430,6 +440,7 @@ def search_advising_notes(     # noqa
         JOIN {advising_notes_schema()}.advising_notes an
             ON an.sid = sas.sid
             {author_filter}
+            {date_filter}
         {topic_join}
         JOIN (
           SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
@@ -449,6 +460,8 @@ def search_advising_notes(     # noqa
         search_phrase=search_phrase,
         author_csid=author_csid,
         topic=topic,
+        datetime_from=datetime_from,
+        datetime_to=datetime_to,
         offset=offset,
         limit=limit,
     )

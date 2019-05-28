@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import timedelta
 from itertools import islice
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError
@@ -65,18 +66,7 @@ def search():
         feed.update(_course_search(search_phrase, params, order_by))
 
     if domain['notes']:
-        note_options = util.get(params, 'noteOptions', {})
-        author_csid = note_options.get('authorCsid')
-        topic = note_options.get('topic')
-        notes_results = search_advising_notes(
-            search_phrase=search_phrase,
-            author_csid=author_csid,
-            topic=topic,
-            offset=0,
-            limit=20,
-        )
-        if notes_results:
-            feed['notes'] = notes_results
+        feed.update(_notes_search(search_phrase, params))
 
     return tolerant_jsonify(feed)
 
@@ -140,4 +130,45 @@ def _course_search(search_phrase, params, order_by):
     return {
         'courses': courses,
         'totalCourseCount': len(course_rows),
+    }
+
+
+def _notes_search(search_phrase, params):
+    note_options = util.get(params, 'noteOptions', {})
+    author_csid = note_options.get('authorCsid')
+    topic = note_options.get('topic')
+
+    date_from = note_options.get('dateFrom')
+    if date_from:
+        try:
+            datetime_from = util.localized_timestamp_to_utc(f'{date_from}T00:00:00')
+        except ValueError:
+            raise BadRequestError('Invalid dateFrom value')
+    else:
+        datetime_from = None
+
+    date_to = note_options.get('dateTo')
+    if date_to:
+        try:
+            datetime_to = util.localized_timestamp_to_utc(f'{date_to}T00:00:00') + timedelta(days=1)
+        except ValueError:
+            raise BadRequestError('Invalid dateTo value')
+    else:
+        datetime_to = None
+
+    if datetime_from and datetime_to and datetime_to <= datetime_from:
+        raise BadRequestError('dateFrom must be less than dateTo')
+
+    notes_results = search_advising_notes(
+        search_phrase=search_phrase,
+        author_csid=author_csid,
+        topic=topic,
+        datetime_from=datetime_from,
+        datetime_to=datetime_to,
+        offset=0,
+        limit=20,
+    )
+
+    return {
+        'notes': notes_results,
     }

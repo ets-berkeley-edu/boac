@@ -252,6 +252,58 @@ class TestCourseSearch:
         assert len([c for c in courses if c['courseName'] == 'DANISH 1A']) == 1
 
 
+class TestNoteSearch:
+    """Note search API."""
+
+    def test_note_search_respects_date_filters(self, coe_advisor, client):
+        response = client.post(
+            '/api/search',
+            data=json.dumps({
+                'notes': True,
+                'searchPhrase': 'Brigitte',
+                'noteOptions': {
+                    'dateFrom': '2017-11-01',
+                    'dateTo': '2017-11-02',
+                },
+            }),
+            content_type='application/json',
+        )
+        notes = response.json['notes']
+        assert len(notes) == 1
+
+    def test_note_search_validates_date_formatting(self, coe_advisor, client):
+        response = client.post(
+            '/api/search',
+            data=json.dumps({
+                'notes': True,
+                'searchPhrase': 'Brigitte',
+                'noteOptions': {
+                    'dateFrom': '2017-11-01',
+                    'dateTo': 'rubbish',
+                },
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == 400
+        assert response.json['message'] == 'Invalid dateTo value'
+
+    def test_note_search_validates_date_ranges(self, coe_advisor, client):
+        response = client.post(
+            '/api/search',
+            data=json.dumps({
+                'notes': True,
+                'searchPhrase': 'Brigitte',
+                'noteOptions': {
+                    'dateFrom': '2017-11-02',
+                    'dateTo': '2017-11-01',
+                },
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == 400
+        assert response.json['message'] == 'dateFrom must be less than dateTo'
+
+
 def _get_common_sids(student_list_1, student_list_2):
     sid_list_1 = [s['sid'] for s in student_list_1]
     sid_list_2 = [s['sid'] for s in student_list_2]
