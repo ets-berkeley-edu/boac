@@ -99,9 +99,11 @@ export default {
       });
     });
     this.$eventHub.$on('sortBy-user-preference-change', sortBy => {
-      this.goToPage(1);
-      this.screenReaderAlert = `Sort students by ${sortBy}`;
-      this.gaCuratedEvent(this.curatedGroup.id, this.curatedGroup.name, this.screenReaderAlert);
+      if (this.loaded()) {
+        this.goToPage(1);
+        this.screenReaderAlert = `Sort students by ${sortBy}`;
+        this.gaCuratedEvent(this.curatedGroup.id, this.curatedGroup.name, this.screenReaderAlert);
+      }
     });
   },
   mounted() {
