@@ -132,7 +132,7 @@
         <b-button type="submit" variant="primary">Search</b-button>
       </b-collapse>
     </form>
-    <hr class="ml-2 mr-2 section-divider" v-if="showSearchOptions"/>
+    <hr v-if="showSearchOptions" class="ml-2 mr-2 section-divider" />
   </div>
 </template>
 
