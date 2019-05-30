@@ -23,7 +23,8 @@ const getters = {
   loading: (state: any): boolean => state.loading,
   announcement: (state: any): string => state.announcement,
   srAlert: (state: any): string => state.screenReaderAlert,
-  supportEmailAddress: (state: any): string => _.get(state.config, 'supportEmailAddress')
+  supportEmailAddress: (state: any): string => _.get(state.config, 'supportEmailAddress'),
+  timezone: (state: any): string => _.get(state.config, 'timezone')
 };
 
 const mutations = {

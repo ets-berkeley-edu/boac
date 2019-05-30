@@ -8,11 +8,13 @@ import CKEditor from '@ckeditor/ckeditor5-vue';
 import filters from './filters';
 import Highcharts from 'highcharts';
 import HighchartsMore from 'highcharts/highcharts-more';
+import moment from 'moment-timezone';
 import router from './router';
 import store from './store';
 import Vue from 'vue';
 import VueAnalytics from 'vue-analytics';
 import VueHighcharts from 'vue-highcharts';
+import VueMoment from 'vue-moment';
 import { routerHistory, writeHistory } from 'vue-router-back-button';
 
 // Allow cookies in Access-Control requests
@@ -34,7 +36,7 @@ Vue.config.productionTip = false;
 Vue.use(BootstrapVue);
 Vue.use(CKEditor);
 Vue.use(require('vue-lodash'));
-Vue.use(require('vue-moment'));
+Vue.use(VueMoment, { moment });
 
 HighchartsMore(Highcharts);
 Vue.use(VueHighcharts, { Highcharts });

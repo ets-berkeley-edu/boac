@@ -14,7 +14,8 @@ export default {
       'maxAttachmentsPerNote',
       'announcement',
       'srAlert',
-      'supportEmailAddress'
+      'supportEmailAddress',
+      'timezone'
     ])
   },
   methods: {
