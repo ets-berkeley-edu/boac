@@ -52,6 +52,7 @@ def app_config():
         'isDemoModeAvailable': app.config['DEMO_MODE_AVAILABLE'],
         'maxAttachmentsPerNote': app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE'],
         'supportEmailAddress': app.config['BOAC_SUPPORT_EMAIL'],
+        'timezone': app.config['TIMEZONE'],
     })
 
 

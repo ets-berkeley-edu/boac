@@ -8,8 +8,11 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context';
+
 export default {
   name: 'TimelineDate',
+  mixins: [Context],
   props: {
     date: String,
     includeTimeOfDay: Boolean,
@@ -33,7 +36,7 @@ export default {
     render() {
       if (this.date) {
         const now = this.$moment();
-        this.datePerTimezone = this.$moment(this.date).utcOffset(now.utcOffset());
+        this.datePerTimezone = this.$moment(this.date).tz(this.timezone);
         this.dateFormat = this.datePerTimezone.year() === now.year() ? 'MMM D' : 'MMM D, YYYY';
       }
     }

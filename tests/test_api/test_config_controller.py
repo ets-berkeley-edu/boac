@@ -64,6 +64,7 @@ class TestConfigController:
         assert '@' in data['supportEmailAddress']
         assert data['featureFlagEditNotes'] is True
         assert data['maxAttachmentsPerNote'] > 0
+        assert data['timezone'] == 'America/Los_Angeles'
 
     def test_anonymous_version_request(self, client):
         """Returns a well-formed response."""
