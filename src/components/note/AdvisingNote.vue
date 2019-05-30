@@ -4,8 +4,8 @@
       <span v-if="note.subject" :id="`note-${note.id}-subject-closed`">{{ note.subject }}</span>
       <span v-if="!note.subject && size(note.message)" :id="`note-${note.id}-message-closed`" v-html="note.message"></span>
       <span v-if="!note.subject && !size(note.message)" :id="`note-${note.id}-category-closed`">{{ note.category }}<span v-if="note.subcategory" :id="`note-${note.id}-subcategory-closed`">, {{ note.subcategory }}</span></span>
-      <span v-if="!note.subject && !size(note.message) && !note.category" :id="`note-${note.id}-category-closed`">Student met with {{ note.author.departments[0].name }} advisor {{ note.author.name }}
-        <span v-if="note.topics && size(note.topics)">to discuss: {{ oxfordJoin(note.topics) }}</span>
+      <span v-if="!note.subject && !size(note.message) && !note.category" :id="`note-${note.id}-category-closed`">{{ note.author.departments[0].name }}
+        advisor {{ note.author.name }}<span v-if="note.topics && size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
       </span>
     </div>
     <div v-if="isOpen" :id="`note-${note.id}-is-open`">
