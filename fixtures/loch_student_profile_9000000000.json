@@ -1,9 +1,9 @@
 {
     "canvasUserId": "10000005",
-    "canvasUserName": "Wolfgang Pauli",
+    "canvasUserName": "Wolfgang Pauli-O'Rourke",
     "firstName": "Wolfgang",
-    "lastName": "Pauli",
-    "name": "Wolfgang Pauli",
+    "lastName": "Pauli-O'Rourke",
+    "name": "Wolfgang Pauli-O'Rourke",
     "sid": "9000000000",
     "sisProfile": {
         "academicCareer": "UGRD",
@@ -46,8 +46,8 @@
                 "program": "Engineering"
             }
         ],
-        "preferredName": "Wolfgang Pauli",
-        "primaryName": "Wolfgang Pauli",
+        "preferredName": "Wolfgang Pauli-O'Rourke",
+        "primaryName": "Wolfgang Pauli-O'Rourke",
         "termsInAttendance": 5
     },
     "uid": "300847"

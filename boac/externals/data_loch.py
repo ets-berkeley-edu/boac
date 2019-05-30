@@ -521,6 +521,7 @@ def get_students_query(     # noqa
                     JOIN {student_schema()}.student_names n{i}
                         ON n{i}.name LIKE :name_phrase_{i}
                         AND n{i}.sid = sas.sid"""
+                word = ''.join(re.split('\W', word))
                 query_bindings.update({f'name_phrase_{i}': f'{word}%'})
     if sids:
         query_filter += f' AND sas.sid = ANY(:sids)'

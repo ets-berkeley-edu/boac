@@ -147,7 +147,7 @@ class TestStudentSearch:
         students = response.json['students']
         assert len(students) == 2
         assert next(s for s in students if s['name'] == 'Paul Farestveit' and s['coeProfile']['isActiveCoe'] is True)
-        assert next(s for s in students if s['name'] == 'Wolfgang Pauli' and s['coeProfile']['isActiveCoe'] is False)
+        assert next(s for s in students if s['name'] == 'Wolfgang Pauli-O\'Rourke' and s['coeProfile']['isActiveCoe'] is False)
 
     def test_search_by_name_admin_unlimited(self, admin_login, client):
         """An admin name search finds all Pauls."""
@@ -156,7 +156,14 @@ class TestStudentSearch:
         assert len(students) == 3
         assert next(s for s in students if s['name'] == 'Paul Kerschen')
         assert next(s for s in students if s['name'] == 'Paul Farestveit')
-        assert next(s for s in students if s['name'] == 'Wolfgang Pauli')
+        assert next(s for s in students if s['name'] == 'Wolfgang Pauli-O\'Rourke')
+
+    def test_search_by_name_with_special_characters(self, admin_login, client):
+        """Search by name where name has special characters: hyphen, etc."""
+        response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': 'Pauli-O\'Rourke'}), content_type='application/json')
+        students = response.json['students']
+        assert len(students) == 1
+        assert students[0]['name'] == 'Wolfgang Pauli-O\'Rourke'
 
     def test_search_order_by_offset_limit(self, client, fake_auth):
         """Search by snippet of name."""
