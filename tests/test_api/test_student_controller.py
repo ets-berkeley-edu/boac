@@ -341,7 +341,7 @@ class TestStudentResultsForFilter:
         students = response.json['students']
         assert len(students) == 3
         assert next(s for s in students if s['name'] == 'Siegfried Schlemiel')
-        assert next(s for s in students if s['name'] == 'Wolfgang Pauli')
+        assert next(s for s in students if s['name'] == 'Wolfgang Pauli-O\'Rourke')
         assert next(s for s in students if s['name'] == 'Nora Stanton Barney')
 
 
