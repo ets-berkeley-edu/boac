@@ -135,7 +135,6 @@ def delete_note(note_id):
 
 @app.route('/api/notes/topics', methods=['GET'])
 @login_required
-@feature_flag_edit_notes
 def get_topics():
     return tolerant_jsonify([topic.to_api_json() for topic in Topic.get()])
 
