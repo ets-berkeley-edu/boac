@@ -180,9 +180,7 @@ export default {
     }
   },
   created() {
-    if (this.featureFlagEditNotes) {
-      this.getNoteTopics();
-    }
+    this.getNoteTopics();
   },
   methods: {
     getNoteTopics() {
