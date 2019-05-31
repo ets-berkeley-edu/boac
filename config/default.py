@@ -67,8 +67,8 @@ PORT = 5000
 DEVELOPER_AUTH_ENABLED = False
 DEVELOPER_AUTH_PASSWORD = 'another secret'
 
-# TODO: Remove when 'edit note' is in prod
-FEATURE_FLAG_EDIT_NOTES = False
+# TODO: Remove when notes-related features are stable in prod
+FEATURE_FLAG_EDIT_NOTES = True
 
 ABBREVIATED_WORDS = ['APR', 'EAP', 'PNP', 'SAP']
 
