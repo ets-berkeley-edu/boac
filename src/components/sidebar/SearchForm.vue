@@ -180,16 +180,19 @@ export default {
     }
   },
   created() {
-    getTopics().then(data => {
-      this.each(data, topic => {
-        this.topicOptions.push({
-          text: topic,
-          value: topic
-        })
-      });
-    });
+    this.getNoteTopics();
   },
   methods: {
+    getNoteTopics() {
+      getTopics().then(data => {
+        this.each(data, topic => {
+          this.topicOptions.push({
+            text: topic,
+            value: topic
+          })
+        });
+      });
+    },
     resetNoteFilters() {
       this.noteFilters.postedBy = 'anyone';
       this.noteFilters.topic = null;
