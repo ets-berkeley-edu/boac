@@ -117,8 +117,8 @@ export default {
     }
   },
   mounted() {
-    const continueExistingSession =
-      this.$routerHistory.hasForward() && this.size(this.filters);
+    const forwardPath = this.$routerHistory.hasForward() && this.get(this.$routerHistory.next(), 'path');
+    const continueExistingSession = this.startsWith(forwardPath, '/student') && this.size(this.filters);
     if (continueExistingSession) {
       this.pageNumber = this.pagination.currentPage;
       this.setPageTitle(this.cohortName);
