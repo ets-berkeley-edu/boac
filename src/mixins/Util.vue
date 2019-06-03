@@ -81,6 +81,7 @@ export default {
       }
     },
     split: _.split,
+    startsWith: _.startsWith,
     stripHtmlAndTrim: html => {
       let text = html && html.replace(/<([^>]+)>/ig,"");
       text = text && text.replace(/&nbsp;/g, '');
