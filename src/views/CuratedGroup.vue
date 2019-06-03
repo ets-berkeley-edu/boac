@@ -99,7 +99,7 @@ export default {
       });
     });
     this.$eventHub.$on('sortBy-user-preference-change', sortBy => {
-      if (this.loaded()) {
+      if (!this.loading) {
         this.goToPage(1);
         this.screenReaderAlert = `Sort students by ${sortBy}`;
         this.gaCuratedEvent(this.curatedGroup.id, this.curatedGroup.name, this.screenReaderAlert);

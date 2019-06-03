@@ -145,7 +145,7 @@ export default {
       this.setPagination(1);
     });
     this.$eventHub.$on('sortBy-user-preference-change', sortBy => {
-      if (this.loaded()) {
+      if (!this.loading) {
         this.goToPage(1);
         this.screenReaderAlert = `Sort students by ${sortBy}`;
         this.gaCohortEvent(
