@@ -115,11 +115,6 @@ export default {
 </script>
 
 <style scoped>
-.accordion-heading-link:active,
-.accordion-heading-link:focus,
-.accordion-heading-link:hover {
-  text-decoration: none;
-}
 .panel-group .panel + .panel {
   margin-top: 5px;
 }
