@@ -303,6 +303,78 @@ class TestNoteSearch:
         assert response.status_code == 400
         assert response.json['message'] == 'dateFrom must be less than dateTo'
 
+    def test_search_excludes_notes_unless_requested(self, coe_advisor, client):
+        """Excludes notes from search results if notes param is false."""
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'students': True, 'courses': True, 'searchPhrase': 'Brigitte'}),
+            content_type='application/json',
+        )
+        assert 'notes' not in response.json
+
+    def test_search_includes_notes_if_requested(self, coe_advisor, client):
+        """Includes notes in search results if notes param is true."""
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'notes': True, 'searchPhrase': 'Brigitte'}),
+            content_type='application/json',
+        )
+        assert 'notes' in response.json
+        notes = response.json['notes']
+        assert len(notes) == 2
+        assert notes[0].get('id') == '11667051-00001'
+        assert notes[1].get('id') == '11667051-00002'
+
+    def test_search_by_note_topic(self, coe_advisor, client):
+        """Searches notes by topic if topics option is selected."""
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'notes': True, 'searchPhrase': 'Brigitte', 'noteOptions': {'topic': 'Good Show'}}),
+            content_type='application/json',
+        )
+        assert 'notes' in response.json
+        notes = response.json['notes']
+        assert len(notes) == 1
+        assert notes[0].get('id') == '11667051-00001'
+
+    def test_search_by_note_author(self, coe_advisor, client):
+        """Searches notes by author if posted by option is selected."""
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'notes': True, 'searchPhrase': 'Brigitte', 'noteOptions': {'authorCsid': '800700600'}}),
+            content_type='application/json',
+        )
+        assert 'notes' in response.json
+        notes = response.json['notes']
+        assert len(notes) == 1
+        assert notes[0].get('id') == '11667051-00001'
+
+    def test_note_search_limit(self, coe_advisor, client):
+        """Limits search to the first n results."""
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'notes': True, 'searchPhrase': 'student', 'noteOptions': {'limit': '2'}}),
+            content_type='application/json',
+        )
+        assert 'notes' in response.json
+        notes = response.json['notes']
+        assert len(notes) == 2
+        assert notes[0].get('id') == '9000000000-00001'
+        assert notes[1].get('id') == '9000000000-00002'
+
+    def test_note_search_offset(self, coe_advisor, client):
+        """Limits search to the first n results."""
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'notes': True, 'searchPhrase': 'student', 'noteOptions': {'offset': '1'}}),
+            content_type='application/json',
+        )
+        assert 'notes' in response.json
+        notes = response.json['notes']
+        assert len(notes) == 2
+        assert notes[0].get('id') == '9000000000-00002'
+        assert notes[1].get('id') == '9100000000-00001'
+
 
 def _get_common_sids(student_list_1, student_list_2):
     sid_list_1 = [s['sid'] for s in student_list_1]

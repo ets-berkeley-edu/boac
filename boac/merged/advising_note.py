@@ -214,7 +214,7 @@ def _get_local_notes_search_results(local_results, student_rows_by_sid, search_t
 
 def _get_loch_notes_search_results(loch_results, search_terms):
     results = []
-    calnet_advisor_feeds = get_calnet_users_for_csids(app, [row.get('advisor_sid') for row in loch_results])
+    calnet_advisor_feeds = get_calnet_users_for_csids(app, list(set([row.get('advisor_sid') for row in loch_results])))
     for row in loch_results:
         note = {camelize(key): row[key] for key in row.keys()}
         advisor_feed = calnet_advisor_feeds.get(note.get('advisorSid'))

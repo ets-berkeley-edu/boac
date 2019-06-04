@@ -137,6 +137,8 @@ def _notes_search(search_phrase, params):
     note_options = util.get(params, 'noteOptions', {})
     author_csid = note_options.get('authorCsid')
     topic = note_options.get('topic')
+    limit = util.get(note_options, 'limit', 100)
+    offset = util.get(note_options, 'offset', 0)
 
     date_from = note_options.get('dateFrom')
     if date_from:
@@ -165,8 +167,8 @@ def _notes_search(search_phrase, params):
         topic=topic,
         datetime_from=datetime_from,
         datetime_to=datetime_to,
-        offset=0,
-        limit=20,
+        offset=int(offset),
+        limit=int(limit),
     )
 
     return {
