@@ -48,7 +48,7 @@
     </template>
 
     <template slot="courseSites" slot-scope="row">
-      <div class="course-sites font-size-14 pl-2">
+      <div class="course-sites flex-col font-size-14 pl-2">
         <div
           v-for="canvasSite in row.item.enrollment.canvasSites"
           :key="canvasSite.courseCode">
@@ -61,7 +61,7 @@
     </template>
 
     <template slot="assignmentsSubmitted" slot-scope="row">
-      <div v-if="row.item.enrollment.canvasSites.length">
+      <div v-if="row.item.enrollment.canvasSites.length" class="flex-col">
         <div
           v-for="canvasSite in row.item.enrollment.canvasSites"
           :key="canvasSite.canvasCourseId">
@@ -84,7 +84,7 @@
     </template>
 
     <template slot="assignmentGrades" slot-scope="row">
-      <div>
+      <div class="flex-col">
         <div
           v-for="canvasSite in row.item.enrollment.canvasSites"
           :key="canvasSite.canvasCourseId"
@@ -121,7 +121,7 @@
     </template>
 
     <template slot="bCourses" slot-scope="row">
-      <div class="font-size-14">
+      <div class="flex-col font-size-14">
         <div
           v-for="canvasSite in row.item.enrollment.canvasSites"
           :key="canvasSite.canvasCourseId"
@@ -209,6 +209,10 @@ export default {
 }
 .course-list-view-column-profile button {
   padding: 2px 0 0 5px;
+}
+.flex-col > div {
+  align-items: flex-start;	
+  flex: 0 0 50px;
 }
 .student-name {
   color: #49b;
