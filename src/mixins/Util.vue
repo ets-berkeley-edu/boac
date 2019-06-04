@@ -68,6 +68,8 @@ export default {
     sortComparator: (a, b) => {
       if (_.isNil(a) || _.isNil(b)) {
         return _.isNil(a) ? (_.isNil(b) ? 0 : -1) : 1;
+      } else if (_.isNumber(a) && _.isNumber(b)) {
+        return a < b ? -1 : a > b ? 1 : 0
       } else {
         const aInt = toInt(a);
         const bInt = toInt(b);
