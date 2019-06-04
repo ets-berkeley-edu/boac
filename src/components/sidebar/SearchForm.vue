@@ -6,7 +6,7 @@
       class="search-form"
       :class="{'search-page-body': context === 'pageBody'}"
       @submit.prevent="search()">
-      <div v-if="context === 'sidebar'" class="d-flex justify-content-between search-label text-nowrap text-white">
+      <div v-if="context === 'sidebar'" class="d-flex flex-wrap justify-content-between search-label text-nowrap text-white">
         <div>
           <i class="fas fa-search"></i>
           <label
@@ -16,7 +16,7 @@
         <b-btn
           id="search-options-panel-toggle"
           v-b-toggle="'search-options-panel'"
-          class="pr-0 search-options-panel-toggle"
+          class="pr-0 pt-0 search-options-panel-toggle"
           variant="link"
           @click="toggleSearchOptions()">
           {{ showSearchOptions ? 'Hide' : 'Show' }} options
@@ -78,7 +78,7 @@
             Classes
           </label>
         </div>
-        <div class="d-flex">
+        <div class="d-flex flex-wrap">
           <b-form-checkbox
             id="search-include-notes-checkbox"
             v-model="includeNotes"
@@ -92,7 +92,7 @@
           </label>
           <b-btn
             id="search-options-note-filters-toggle"
-            class="search-options-panel-toggle search-options-panel-toggle-subpanel"
+            class="search-options-panel-toggle search-options-panel-toggle-subpanel text-nowrap"
             variant="link"
             :class="includeNotes ? 'visible' : 'invisible'"
             @click="toggleNoteFilters()">
@@ -318,9 +318,6 @@ export default {
 .search-options-panel-toggle-subpanel {
   margin-bottom: .5rem;
   padding: 0 0 0 5px;
-}
-.search-students-form-button {
-  min-width: 200px;
 }
 .search-form-label {
   font-weight: 400;
