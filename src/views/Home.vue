@@ -83,3 +83,65 @@ export default {
   margin-bottom: 20px;
 }
 </style>
+
+<style>
+.accordion .panel-title a:focus,
+.accordion .panel-title a:hover {
+  text-decoration: none;
+}
+.accordion-header {
+  margin: 0;
+}
+.accordion-heading-caret {
+  color: #337ab7;
+  margin-right: 15px;
+  width: 10px;
+}
+.accordion-heading {
+  background: #ecf5fb;
+  display: flex;
+  justify-content: space-between;
+}
+.accordion-heading-count {
+  align-items: center;
+  display: flex;
+  justify-content: flex-end;
+  margin: 10px 15px;
+  min-width: 130px;
+}
+.accordion-heading-count-label {
+  margin: 0 5px;
+}
+.accordion-heading-name {
+  align-items: center;
+  display: flex;
+  margin: 10px 15px;
+}
+.accordion-heading-link:active,
+.accordion-heading-link:focus,
+.accordion-heading-link:hover {
+  text-decoration: none;
+}
+.home-inactive-info-icon {
+  color: #d0021b;
+  font-size: 16px;
+}
+.home-issues-pill {
+  border-radius: 10px;
+  color: #fff;
+  display: inline-block;
+  float: right;
+  font-size: 16px;
+  font-weight: 800;
+  height: 20px;
+  line-height: 20px;
+  padding: 0 4px 0 4px;
+  text-align: center;
+}
+.home-issues-pill-nonzero {
+  background-color: #f0ad4e;
+}
+.home-issues-pill-zero {
+  background-color: #ccc;
+}
+</style>

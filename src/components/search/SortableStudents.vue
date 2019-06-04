@@ -162,7 +162,13 @@ export default {
       this.alertScreenReader(`Sorted by ${field.label}${this.sortDescending ? ', descending' : ''}`);
     },
     sortCompare(a, b, key) {
-      return this.sortComparator(this.get(a, key), this.get(b, key));
+      let result = 0;
+      this.each([key, 'lastName', 'firstName', 'sid'], key => {
+        result = this.sortComparator(this.get(a, key), this.get(b, key));
+        // Break from loop if comparator result is non-zero
+        return result === 0;
+      });
+      return result;
     }
    }
 };
