@@ -124,7 +124,7 @@ export default {
   },
   data: () => ({
     fields: undefined,
-    sortBy: 'name',
+    sortBy: 'lastName',
     sortDescending: false
   }),
   watch: {
@@ -138,8 +138,8 @@ export default {
   created() {
     this.fields = this.options.includeCuratedCheckbox ? [{ key: 'curated', label: '' }] : [];
     this.fields = this.fields.concat([
-      {key: 'curated', label: '' },
-      {key: 'avatar', label: '' },
+      {key: 'curated', label: ''},
+      {key: 'avatar', label: ''},
       {key: 'lastName', label: 'Name', sortable: true},
       {key: 'sid', label: 'SID', sortable: true},
       {key: 'majors[0]', label: 'Major', sortable: true, class: 'truncate-with-ellipsis'},
@@ -147,7 +147,7 @@ export default {
       {key: 'term.enrolledUnits', label: 'Term units', sortable: true},
       {key: 'cumulativeUnits', label: 'Units completed', sortable: true},
       {key: 'cumulativeGPA', label: 'GPA', sortable: true},
-      {key: 'alertCount', label: 'Issues', sortable: true}
+      {key: 'alertCount', label: 'Issues', sortable: true, class: 'text-center'}
     ]);
   },
   methods: {
@@ -161,13 +161,17 @@ export default {
       const field = this.find(this.fields, ['key', this.sortBy]);
       this.alertScreenReader(`Sorted by ${field.label}${this.sortDescending ? ', descending' : ''}`);
     },
-    sortCompare(a, b, key) {
-      let result = 0;
-      this.each([key, 'lastName', 'firstName', 'sid'], key => {
-        result = this.sortComparator(this.get(a, key), this.get(b, key));
-        // Break from loop if comparator result is non-zero
-        return result === 0;
-      });
+    sortCompare(a, b, sortBy, sortDesc) {
+      let result = this.sortComparator(this.get(a, sortBy), this.get(b, sortBy));
+      if (result === 0) {
+        this.each(['lastName', 'firstName', 'sid'], field => {
+          result = this.sortComparator(this.get(a, field), this.get(b, field));
+          // Secondary sort is always ascending
+          result *= sortDesc ? -1 : 1;
+          // Break from loop if comparator result is non-zero
+          return result === 0;
+        });
+      }
       return result;
     }
    }
