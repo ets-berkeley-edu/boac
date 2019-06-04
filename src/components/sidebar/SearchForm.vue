@@ -116,14 +116,16 @@
                 id="search-options-note-filters-posted-by-anyone"
                 v-model="noteFilters.postedBy"
                 name="note-filters-posted-by"
-                value="anyone">
+                value="anyone"
+                :ischecked="noteFilters.postedBy === 'anyone'">
                 Anyone
               </b-form-radio>
               <b-form-radio
                 id="search-options-note-filters-posted-by-you"
                 v-model="noteFilters.postedBy"
                 name="note-filters-posted-by"
-                value="you">
+                value="you"
+                :ischecked="noteFilters.postedBy === 'you'">
                 You
               </b-form-radio>
             </b-form-group>
