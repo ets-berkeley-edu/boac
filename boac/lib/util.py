@@ -78,6 +78,12 @@ def localize_datetime(dt):
     return dt.astimezone(pytz.timezone(app.config['TIMEZONE']))
 
 
+def localized_timestamp_to_utc(_str):
+    localized_datetime = datetime.strptime(_str, '%Y-%m-%dT%H:%M:%S')
+    localized_datetime.replace(tzinfo=pytz.timezone(app.config['TIMEZONE']))
+    return localized_datetime.astimezone(pytz.utc)
+
+
 def process_input_from_rich_text_editor(rich_text):
     parsed = rich_text.strip()
     exclude_from_parse = {}

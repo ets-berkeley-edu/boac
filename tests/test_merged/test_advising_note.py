@@ -23,9 +23,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import datetime, timedelta
+
 from boac.merged.advising_note import get_advising_notes, get_legacy_attachment_stream, search_advising_notes
 from boac.models.note import Note
 from dateutil.parser import parse
+import pytz
 from tests.util import mock_legacy_note_attachment
 
 
@@ -312,6 +315,59 @@ class TestMergedAdvisingNote:
         assert len(wide_response) == 4
         narrow_response = search_advising_notes(search_phrase='Brigitte', topic='Good Show')
         assert len(narrow_response) == 2
+
+    def test_search_legacy_advising_notes_narrowed_by_date(self, app, fake_auth):
+        halloween_2017 = datetime(2017, 10, 31, tzinfo=pytz.timezone(app.config['TIMEZONE'])).astimezone(pytz.utc)
+        days = [
+            halloween_2017 - timedelta(days=1),
+            halloween_2017,
+            halloween_2017 + timedelta(days=1),
+            halloween_2017 + timedelta(days=2),
+            halloween_2017 + timedelta(days=3),
+        ]
+        fake_auth.login(coe_advisor)
+
+        unbounded = search_advising_notes(search_phrase='Brigitte')
+        assert len(unbounded) == 2
+        lower_bound = search_advising_notes(search_phrase='Brigitte', datetime_from=days[2])
+        assert len(lower_bound) == 1
+        upper_bound = search_advising_notes(search_phrase='Brigitte', datetime_to=days[2])
+        assert len(upper_bound) == 1
+        closed_1 = search_advising_notes(search_phrase='Brigitte', datetime_from=days[0], datetime_to=days[2])
+        assert len(closed_1) == 1
+        closed_2 = search_advising_notes(search_phrase='Brigitte', datetime_from=days[2], datetime_to=days[3])
+        assert len(closed_2) == 1
+        closed_3 = search_advising_notes(search_phrase='Brigitte', datetime_from=days[0], datetime_to=days[3])
+        assert len(closed_3) == 2
+        closed_4 = search_advising_notes(search_phrase='Brigitte', datetime_from=days[3], datetime_to=days[4])
+        assert len(closed_4) == 0
+
+    def test_search_new_advising_notes_narrowed_by_date(self, app, fake_auth):
+        today = datetime.now().replace(hour=0, minute=0, second=0, tzinfo=pytz.timezone(app.config['TIMEZONE'])).astimezone(pytz.utc)
+        yesterday = today - timedelta(days=1)
+        tomorrow = today + timedelta(days=1)
+
+        fake_auth.login(coe_advisor)
+        Note.create(
+            author_uid=coe_advisor,
+            author_name='Balloon Man',
+            author_role='Spherical',
+            author_dept_codes='COENG',
+            sid='11667051',
+            subject='Bryant Park',
+            body='There were loads of them',
+        )
+        assert len(search_advising_notes(search_phrase='Bryant')) == 1
+
+        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=yesterday)) == 1
+        assert len(search_advising_notes(search_phrase='Bryant', datetime_to=yesterday)) == 0
+        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=yesterday, datetime_to=yesterday)) == 0
+
+        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=tomorrow)) == 0
+        assert len(search_advising_notes(search_phrase='Bryant', datetime_to=tomorrow)) == 1
+        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=tomorrow, datetime_to=tomorrow)) == 0
+
+        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=yesterday, datetime_to=tomorrow)) == 1
 
     def test_stream_attachment(self, app, fake_auth):
         with mock_legacy_note_attachment(app):

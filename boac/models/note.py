@@ -96,7 +96,7 @@ class Note(Base):
         return note
 
     @classmethod
-    def search(cls, search_phrase, sid_filter, author_csid, topic):
+    def search(cls, search_phrase, sid_filter, author_csid, topic, datetime_from, datetime_to):
         params = {
             'search_phrase': search_phrase,
             'sid_filter': sid_filter,
@@ -108,6 +108,13 @@ class Note(Base):
         else:
             author_filter = ''
 
+        date_filter = ''
+        if datetime_from:
+            date_filter += ' AND updated_at >= :datetime_from'
+            params.update({'datetime_from': datetime_from})
+        if datetime_to:
+            date_filter += ' AND created_at < :datetime_to'
+            params.update({'datetime_to': datetime_to})
         if topic:
             topic_join = 'JOIN note_topics nt on nt.topic = :topic AND nt.note_id = notes.id'
             params.update({'topic': topic})
@@ -124,6 +131,7 @@ class Note(Base):
                 ON fts.id = notes.id
                 AND notes.sid = ANY(:sid_filter)
                 {author_filter}
+                {date_filter}
             {topic_join}
             ORDER BY fts.rank DESC, notes.id
         """).bindparams(**params)

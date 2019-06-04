@@ -127,9 +127,43 @@
                 You
               </b-form-radio>
             </b-form-group>
+            <b-form-group label="Date Posted">
+              <label
+                for="search-options-note-filters-date-posted-from"
+                class="search-form-label">
+                <span class="sr-only">Date</span>
+                From
+              </label>
+              <b-form-input
+                id="search-options-note-filters-date-posted-from"
+                v-model="noteFilters.dateFrom"
+                :state="validDateRange"
+                class="search-input-date"
+                name="note-filters-date-from"
+                type="date">
+              </b-form-input>
+              <label
+                for="search-options-note-filters-date-posted-to"
+                class="search-form-label">
+                <span class="sr-only">Date</span>
+                To
+              </label>
+              <b-form-input
+                id="search-options-note-filters-date-posted-to"
+                v-model="noteFilters.dateTo"
+                :state="validDateRange"
+                class="search-input-date"
+                name="note-filters-date-to"
+                type="date">
+              </b-form-input>
+              <b-form-invalid-feedback :state="validDateRange" class="search-panel-feedback">
+                <i class="fa fa-exclamation-triangle text-warning pr-1"></i>
+                "To" must be later than or equal to "From."
+              </b-form-invalid-feedback>
+            </b-form-group>
           </div>
         </b-collapse>
-        <b-button type="submit" variant="primary">Search</b-button>
+        <b-button type="submit" variant="primary" :disabled="validDateRange === false">Search</b-button>
       </b-collapse>
     </form>
     <hr v-if="showSearchOptions" class="ml-2 mr-2 section-divider" />
@@ -156,6 +190,8 @@ export default {
       includeNotes: this.domain.includes('notes'),
       includeStudents: this.domain.includes('students'),
       noteFilters: {
+        dateFrom: null,
+        dateTo: null,
         postedBy: 'anyone',
         topic: null,
       },
@@ -170,6 +206,15 @@ export default {
   computed: {
     allOptionsUnchecked() {
       return this.showSearchOptions && !this.includeCourses && !this.includeNotes && !this.includeStudents;
+    },
+    validDateRange() {
+      if (!this.noteFilters.dateFrom || !this.noteFilters.dateTo) {
+        return null;
+      } else if (this.noteFilters.dateTo < this.noteFilters.dateFrom) {
+        return false;
+      } else {
+        return null;
+      }
     }
   },
   watch: {
@@ -206,11 +251,19 @@ export default {
           notes: this.includeNotes,
           students: this.includeStudents
         };
-        if (this.includeNotes && this.noteFilters.postedBy === 'you') {
-          query.authorCsid = this.user.csid;
-        }
-        if (this.includeNotes && this.noteFilters.topic) {
-          query.noteTopic = this.noteFilters.topic;
+        if (this.includeNotes) {
+          if (this.noteFilters.postedBy === 'you') {
+            query.authorCsid = this.user.csid;
+          }
+          if (this.noteFilters.topic) {
+            query.noteTopic = this.noteFilters.topic;
+          }
+          if (this.noteFilters.dateFrom) {
+            query.noteDateFrom = this.noteFilters.dateFrom;
+          }
+          if (this.noteFilters.dateFrom) {
+            query.noteDateTo = this.noteFilters.dateTo;
+          }
         }
         this.$router.push({
           path: this.forceUniquePath('/search'),
@@ -269,6 +322,7 @@ export default {
 }
 .search-form-label {
   font-weight: 400;
+  margin-bottom: 5px;
 }
 .search-input {
   box-sizing: border-box;
@@ -276,6 +330,9 @@ export default {
   border-radius: 4px;
   color: #333;
   height: 45px;
+}
+.search-input-date {
+  margin-bottom: 10px;
 }
 .search-options-note-filters-subpanel {
   margin-left: 20px;
@@ -291,5 +348,8 @@ export default {
 }
 .search-page-body div:first-child {
   padding-right: 15px;
+}
+.search-panel-feedback {
+  color: #fff;
 }
 </style>
