@@ -114,61 +114,6 @@ export default {
 };
 </script>
 
-<style>
-.accordion-header {
-  margin: 0;
-}
-.accordion-heading-caret {
-  color: #337ab7;
-  margin-right: 15px;
-  width: 10px;
-}
-.accordion-heading {
-  background: #ecf5fb;
-  display: flex;
-  justify-content: space-between;
-}
-.accordion-heading-count {
-  align-items: center;
-  display: flex;
-  margin: 10px 15px;
-  min-width: 130px;
-}
-.accordion-heading-count-label {
-  margin: 0 5px;
-}
-.accordion-heading-name {
-  align-items: center;
-  display: flex;
-  margin: 10px 15px;
-}
-.accordion .panel-title a:focus,
-.accordion .panel-title a:hover {
-  text-decoration: none;
-}
-.home-inactive-info-icon {
-  color: #d0021b;
-  font-size: 16px;
-}
-.home-issues-pill {
-  border-radius: 10px;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 800;
-  height: 20px;
-  line-height: 20px;
-  margin: 0 auto;
-  text-align: center;
-  width: 30px;
-}
-.home-issues-pill-nonzero {
-  background-color: #f0ad4e;
-}
-.home-issues-pill-zero {
-  background-color: #ccc;
-}
-</style>
-
 <style scoped>
 .panel-group .panel + .panel {
   margin-top: 5px;
