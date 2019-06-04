@@ -20,10 +20,10 @@
       </b-col>
     </b-row>
     <b-row class="row-content" no-gutters>
-      <b-col class="sidebar" sm="3">
+      <b-col class="sidebar" sm="2">
         <Sidebar />
       </b-col>
-      <b-col id="content" class="body-text h-100 pb-2" sm="9">
+      <b-col id="content" class="body-text h-100 pb-2" sm="10">
         <div
           v-if="announcement && announcement.isPublished"
           style="display: inline-block"
@@ -48,8 +48,8 @@
       </b-col>
     </b-row>
     <b-row class="row-footer" no-gutters>
-      <b-col class="sidebar" sm="3"></b-col>
-      <b-col sm="9">
+      <b-col class="sidebar" sm="2"></b-col>
+      <b-col sm="10">
         <Footer v-if="!loading" class="mb-3 ml-3 mt-5" />
       </b-col>
     </b-row>
