@@ -50,7 +50,7 @@
     <b-collapse
       :id="`home-cohort-${cohort.id}`"
       :aria-expanded="isOpen"
-      class="panel-body"
+      class="panel-body pr-3"
       :class="{'panel-open': isOpen}">
       <div v-if="cohort.studentsWithAlerts && size(cohort.studentsWithAlerts)">
         <SortableStudents :students="cohort.studentsWithAlerts" />

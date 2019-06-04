@@ -50,7 +50,7 @@
     <b-collapse
       :id="`home-curated-group-${curatedGroup.id}`"
       :aria-expanded="isOpen"
-      class="panel-body"
+      class="panel-body pr-3"
       :class="{'panel-open': isOpen}">
       <div v-if="curatedGroup.studentsWithAlerts && size(curatedGroup.studentsWithAlerts)">
         <SortableStudents :students="curatedGroup.studentsWithAlerts" />

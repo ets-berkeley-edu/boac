@@ -130,7 +130,6 @@ export default {
   border-radius: 10px;
   color: #fff;
   display: inline-block;
-  float: right;
   font-size: 16px;
   font-weight: 800;
   height: 20px;
