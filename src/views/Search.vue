@@ -25,8 +25,8 @@
       <h1 id="student-results-page-header" class="page-section-header">
         {{ 'student' | pluralize(results.totalStudentCount) }} matching '{{ phrase }}'
       </h1>
-      <div v-if="results.totalStudentCount > limit">
-        Showing the first {{ limit }} students.
+      <div v-if="results.totalStudentCount > studentLimit">
+        Showing the first {{ studentLimit }} students.
       </div>
     </div>
     <div v-if="!loading && results.totalStudentCount" class="cohort-column-results">
@@ -50,7 +50,7 @@
       <h2
         id="search-results-category-header-notes"
         class="page-section-header">
-        {{ size(results.notes) }}{{ size(results.notes) === 20 ? '+' : '' }}
+        {{ size(results.notes) }}{{ completeNoteResults ? '' : '+' }}
         {{ size(results.notes) === 1 ? 'advising note' : 'advising notes' }}
         with '{{ phrase }}'
       </h2>
@@ -58,6 +58,16 @@
         v-for="advisingNote in results.notes"
         :key="advisingNote.id"
         :note="advisingNote" />
+      <div class="text-center">
+        <b-btn
+          v-if="!completeNoteResults"
+          id="fetch-more-notes"
+          variant="link"
+          @click.prevent="fetchMoreNotes()">
+          Show additional advising notes
+        </b-btn>
+         <SectionSpinner name="Notes" :loading="loadingAdditionalNotes" />
+      </div>
     </div>
   </div>
 </template>
@@ -67,6 +77,7 @@ import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
 import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import Loading from '@/mixins/Loading';
+import SectionSpinner from '@/components/util/SectionSpinner';
 import SortableCourseList from '@/components/course/SortableCourseList';
 import SortableStudents from '@/components/search/SortableStudents';
 import Spinner from '@/components/util/Spinner';
@@ -79,13 +90,23 @@ export default {
   components: {
     AdvisingNoteSnippet,
     CuratedGroupSelector,
+    SectionSpinner,
     SortableCourseList,
     SortableStudents,
     Spinner
   },
   mixins: [GoogleAnalytics, Loading, UserMetadata, Util],
   data: () => ({
-    limit: 50,
+    studentLimit: 50,
+    loadingAdditionalNotes: undefined,
+    noteOptions: {
+      authorCsid: undefined,
+      topic: undefined,
+      dateFrom: undefined,
+      dateTo: undefined,
+      limit: 100,
+      offset: 0
+    },
     phrase: null,
     results: {
       courses: null,
@@ -100,17 +121,21 @@ export default {
       reverse: false
     }
   }),
+  computed: {
+    completeNoteResults() {
+      return this.size(this.results.notes) < this.noteOptions.limit + this.noteOptions.offset;
+    }
+  },
   mounted() {
     this.phrase = this.$route.query.q;
     const includeCourses = this.$route.query.courses;
     const includeNotes = this.$route.query.notes;
     const includeStudents = this.$route.query.students;
-    const noteOptions = {};
     if (includeNotes) {
-      noteOptions.authorCsid = this.$route.query.authorCsid;
-      noteOptions.topic = this.$route.query.noteTopic;
-      noteOptions.dateFrom = this.$route.query.noteDateFrom;
-      noteOptions.dateTo = this.$route.query.noteDateTo;
+      this.noteOptions.authorCsid = this.$route.query.authorCsid;
+      this.noteOptions.topic = this.$route.query.noteTopic;
+      this.noteOptions.dateFrom = this.$route.query.noteDateFrom;
+      this.noteOptions.dateTo = this.$route.query.noteDateTo;
     }
     if (this.phrase) {
       search(
@@ -118,7 +143,7 @@ export default {
         this.isNil(includeCourses) ? false : includeCourses,
         this.isNil(includeNotes) ? false : includeNotes,
         this.isNil(includeStudents) ? false : includeStudents,
-        noteOptions,
+        this.noteOptions,
         this.user.isAsc ? false : null,
         this.user.isCoe ? false : null
       )
@@ -143,6 +168,26 @@ export default {
             includeCourses ? 'classes and students' : 'students',
             totalCount
           );
+        });
+    }
+  },
+  methods: {
+    fetchMoreNotes() {
+      this.noteOptions.offset = this.noteOptions.offset + this.noteOptions.limit;
+      this.noteOptions.limit = 20;
+      this.loadingAdditionalNotes = true;
+      search(
+        this.phrase,
+        false,
+        true,
+        false,
+        this.noteOptions,
+        this.user.isAsc ? false : null,
+        this.user.isCoe ? false : null
+      )
+        .then(data => {
+          this.results.notes = this.concat(this.results.notes, data.notes);
+          this.loadingAdditionalNotes = false;
         });
     }
   }
