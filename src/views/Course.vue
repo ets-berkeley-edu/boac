@@ -114,9 +114,9 @@
             </ul>
           </div>
         </div>
-        <div v-if="tab === 'list' && section.totalStudentCount">
+        <div v-if="tab === 'list' && section.totalStudentCount" class="ml-2 mr-2">
           <CourseStudents :featured="featured" :section="section" />
-          <div class="mt-3">
+          <div class="m-4">
             <div v-if="section.totalStudentCount > pagination.itemsPerPage">
               <Pagination
                 :click-handler="goToPage"

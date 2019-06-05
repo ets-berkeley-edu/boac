@@ -6,7 +6,7 @@
     :small="true"
     stacked="md"
     :tbody-tr-class="rowClass"
-    thead-class="sortable-table-header">
+    thead-class="sortable-table-header border-bottom">
     <template slot="curated" slot-scope="row">
       <div>
         <CuratedStudentCheckbox :student="row.item" class="curated-checkbox" />
@@ -194,7 +194,8 @@ export default {
   }),
   methods: {
     rowClass(item) {
-      return this.featured === item.uid ? 'list-group-item-info row-border pb-2 pt-2' : 'row-border pb-2 pt-2';
+      const clazz = 'border-bottom pb-3 pt-3';
+      return this.featured === item.uid ? `${clazz} list-group-item-info` : clazz;
     }
   }
 }
@@ -211,7 +212,7 @@ export default {
   padding: 2px 0 0 5px;
 }
 .flex-col > div {
-  align-items: flex-start;	
+  align-items: flex-start;
   flex: 0 0 50px;
 }
 .student-name {
