@@ -12,7 +12,9 @@
       <hr class="ml-2 mr-2 section-divider" />
     </div>
     <div class="mb-2 sidebar-row-link">
-      <router-link id="cohorts-all" class="ml-2 mr-2" to="/cohorts/all">Everyone's Cohorts</router-link>
+      <div class="ml-2 mr-2">
+        <router-link id="cohorts-all" to="/cohorts/all">Everyone's Cohorts</router-link>
+      </div>
     </div>
   </div>
 </template>

@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div class="d-flex justify-content-between mb-1 sidebar-row-link">
+    <div class="d-flex flex-wrap justify-content-between mb-1 sidebar-row-link">
       <div class="ml-2 sidebar-header">
         Curated Groups
       </div>
-      <div class="mr-2">
+      <div class="ml-2 mr-2">
         <router-link
           id="create-curated-group-from-sidebar"
           class="sidebar-create-link"
@@ -17,8 +17,8 @@
     <div
       v-for="(group, index) in myCuratedGroups"
       :key="group.id"
-      class="d-flex justify-content-between sidebar-row-link">
-      <div class="ml-2 mr-1 truncate-with-ellipsis">
+      class="d-flex flex-wrap justify-content-between sidebar-row-link">
+      <div class="ml-2 truncate-with-ellipsis">
         <router-link
           :id="`sidebar-curated-group-${index}`"
           :aria-label="'Curated group ' + group.name + ' has ' + group.studentCount + ' students'"
@@ -26,7 +26,7 @@
           {{ group.name }}
         </router-link>
       </div>
-      <div class="mr-2">
+      <div class="ml-2 mr-2">
         <span
           :id="`sidebar-curated-group-${index}-count`"
           class="sidebar-pill">{{ group.studentCount }}<span class="sr-only">{{ 'student' | pluralize(group.studentCount) }}</span>
