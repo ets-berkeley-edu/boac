@@ -162,7 +162,12 @@ export default {
       this.alertScreenReader(`Sorted by ${field.label}${this.sortDescending ? ', descending' : ''}`);
     },
     sortCompare(a, b, sortBy, sortDesc) {
-      let result = this.sortComparator(this.get(a, sortBy), this.get(b, sortBy));
+      let aValue = this.get(a, sortBy);
+      let bValue = this.get(b, sortBy);
+      // If column type is number then nil is treated as zero.
+      aValue = this.isNil(aValue) && this.isNumber(bValue) ? 0 : aValue;
+      bValue = this.isNil(bValue) && this.isNumber(aValue) ? 0 : bValue;
+      let result = this.sortComparator(aValue, bValue);
       if (result === 0) {
         this.each(['lastName', 'firstName', 'sid'], field => {
           result = this.sortComparator(this.get(a, field), this.get(b, field));

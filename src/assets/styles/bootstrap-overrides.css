@@ -32,14 +32,15 @@ legend {
   min-width: 160px !important;
   width: 160px !important;
 }
-.b-table th[aria-sort="none"]::after {
-  content: none !important;
-}
 .b-table th[aria-sort]::after {
   display: inline !important;
   font-family: "Font Awesome 5 Free";
   padding-left: 10px !important;
   position: inherit !important;
+}
+.b-table th[aria-sort="none"]::after {
+  color: transparent;
+  content: '\f0d8' !important;
 }
 .b-table th[aria-sort="ascending"]::after {
   content: "\f0d8" !important;

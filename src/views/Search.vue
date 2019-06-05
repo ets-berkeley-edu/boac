@@ -66,7 +66,7 @@
           @click.prevent="fetchMoreNotes()">
           Show additional advising notes
         </b-btn>
-         <SectionSpinner name="Notes" :loading="loadingAdditionalNotes" />
+        <SectionSpinner name="Notes" :loading="loadingAdditionalNotes" />
       </div>
     </div>
   </div>
