@@ -4,7 +4,7 @@
       <div class="ml-2 sidebar-header">
         Cohorts
       </div>
-      <div class="mr-2">
+      <div class="ml-2 mr-2">
         <router-link
           id="cohort-create"
           aria-label="Create cohort"
@@ -16,8 +16,8 @@
     <div
       v-for="cohort in myCohorts"
       :key="cohort.id"
-      class="d-flex justify-content-between sidebar-row-link">
-      <div class="ml-2 mr-1 truncate-with-ellipsis">
+      class="d-flex flex-wrap justify-content-between sidebar-row-link">
+      <div class="ml-2 truncate-with-ellipsis">
         <router-link
           :id="`sidebar-cohort-${cohort.id}`"
           :aria-label="`Cohort ${cohort.name} has ${cohort.totalStudentCount} students`"
@@ -25,7 +25,7 @@
           {{ cohort.name }}
         </router-link>
       </div>
-      <div class="mr-2">
+      <div class="ml-2 mr-2">
         <span
           :id="`sidebar-cohort-${cohort.id}-total-student-count`"
           class="sidebar-pill">{{ cohort.totalStudentCount }}<span class="sr-only">{{ 'student' | pluralize(cohort.totalStudentCount) }}</span>
