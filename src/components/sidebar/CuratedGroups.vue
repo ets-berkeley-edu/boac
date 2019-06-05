@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="d-flex flex-wrap justify-content-between mb-1 sidebar-row-link">
+    <div class="d-flex justify-content-between mb-1 sidebar-row-link">
       <div class="ml-2 sidebar-header">
         Curated Groups
       </div>
@@ -17,7 +17,7 @@
     <div
       v-for="(group, index) in myCuratedGroups"
       :key="group.id"
-      class="d-flex flex-wrap justify-content-between sidebar-row-link">
+      class="d-flex justify-content-between sidebar-row-link">
       <div class="ml-2 truncate-with-ellipsis">
         <router-link
           :id="`sidebar-curated-group-${index}`"

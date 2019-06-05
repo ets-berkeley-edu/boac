@@ -16,7 +16,7 @@
     <div
       v-for="cohort in myCohorts"
       :key="cohort.id"
-      class="d-flex flex-wrap justify-content-between sidebar-row-link">
+      class="d-flex justify-content-between sidebar-row-link">
       <div class="ml-2 truncate-with-ellipsis">
         <router-link
           :id="`sidebar-cohort-${cohort.id}`"
