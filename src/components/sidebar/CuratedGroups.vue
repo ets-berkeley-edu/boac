@@ -5,13 +5,14 @@
         Curated Groups
       </div>
       <div class="ml-2 mr-2">
-        <router-link
+        <a
           id="create-curated-group-from-sidebar"
           class="sidebar-create-link"
           aria-label="Create a new curated group"
-          :to="forceUniquePath('/curate')">
-          <i class="fas fa-plus sidebar-header"></i>
-        </router-link>
+          href=""
+          @click.prevent="updatePath('curate')"
+        ><i class="fas fa-plus sidebar-header"></i>
+        </a>
       </div>
     </div>
     <div
@@ -19,12 +20,13 @@
       :key="group.id"
       class="d-flex justify-content-between sidebar-row-link">
       <div class="ml-2 truncate-with-ellipsis">
-        <router-link
+        <a
           :id="`sidebar-curated-group-${index}`"
           :aria-label="'Curated group ' + group.name + ' has ' + group.studentCount + ' students'"
-          :to="forceUniquePath(`/curated/${group.id}`)">
+          href=""
+          @click.prevent="updatePath(`/curated/${group.id}`)">
           {{ group.name }}
-        </router-link>
+        </a>
       </div>
       <div class="ml-2 mr-2">
         <span
@@ -39,9 +41,15 @@
 <script>
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
+import router from '@/router';
 
 export default {
   name: 'CuratedGroups',
-  mixins: [UserMetadata, Util]
+  mixins: [UserMetadata, Util],
+  methods: {
+    updatePath(path) {
+      router.push(this.forceUniquePath(path));
+    }
+  }
 };
 </script>

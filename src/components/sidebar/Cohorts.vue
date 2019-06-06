@@ -5,12 +5,14 @@
         Cohorts
       </div>
       <div class="ml-2 mr-2">
-        <router-link
+        <a
           id="cohort-create"
+          class="sidebar-create-link"
           aria-label="Create cohort"
-          :to="forceUniquePath('/cohort/new?')">
-          <i class="fas fa-plus sidebar-header"></i>
-        </router-link>
+          href=""
+          @click.prevent="updatePath('/cohort/new?')"
+        ><i class="fas fa-plus sidebar-header"></i>
+        </a>
       </div>
     </div>
     <div
@@ -18,12 +20,13 @@
       :key="cohort.id"
       class="d-flex justify-content-between sidebar-row-link">
       <div class="ml-2 truncate-with-ellipsis">
-        <router-link
+        <a
           :id="`sidebar-cohort-${cohort.id}`"
           :aria-label="`Cohort ${cohort.name} has ${cohort.totalStudentCount} students`"
-          :to="forceUniquePath(`/cohort/${cohort.id}`)">
+          href=""
+          @click.prevent="updatePath(`/cohort/${cohort.id}`)">
           {{ cohort.name }}
-        </router-link>
+        </a>
       </div>
       <div class="ml-2 mr-2">
         <span
@@ -36,11 +39,17 @@
 </template>
 
 <script>
-import UserMetadata from '@/mixins/UserMetadata';
-import Util from '@/mixins/Util';
+import UserMetadata from "@/mixins/UserMetadata";
+import Util from "@/mixins/Util";
+import router from '@/router';
 
 export default {
-  name: 'Cohorts',
-  mixins: [UserMetadata, Util]
+  name: "Cohorts",
+  mixins: [UserMetadata, Util],
+  methods: {
+    updatePath(path) {
+      router.push(this.forceUniquePath(path));
+    }
+  }
 };
 </script>
