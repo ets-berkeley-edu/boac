@@ -482,7 +482,16 @@ def get_ethnicity_codes(scope=()):
         """)
 
 
-def get_majors(scope=[]):
+def get_expected_graduation_terms(scope=()):
+    query_tables = _student_query_tables_for_scope(scope)
+    if not query_tables:
+        return []
+    sql = f"""SELECT DISTINCT expected_grad_term FROM {student_schema()}.student_academic_status
+        ORDER BY expected_grad_term"""
+    return safe_execute_rds(sql)
+
+
+def get_majors(scope=()):
     query_tables = _student_query_tables_for_scope(scope)
     if not query_tables:
         return []
@@ -498,6 +507,7 @@ def get_students_query(     # noqa
     coe_prep_statuses=None,
     coe_probation=None,
     ethnicities=None,
+    expected_grad_terms=None,
     genders=None,
     gpa_ranges=None,
     group_codes=None,
@@ -510,6 +520,7 @@ def get_students_query(     # noqa
     scope=(),
     search_phrase=None,
     sids=(),
+    transfer=None,
     underrepresented=None,
     unit_ranges=None,
 ):
@@ -544,6 +555,9 @@ def get_students_query(     # noqa
     query_filter += _numranges_to_sql('sas.gpa', gpa_ranges) if gpa_ranges else ''
     query_filter += _numranges_to_sql('sas.units', unit_ranges) if unit_ranges else ''
     query_filter += _query_filter_last_name_range(last_name_range)
+    if expected_grad_terms:
+        query_filter += ' AND sas.expected_grad_term = ANY(:expected_grad_terms)'
+        query_bindings.update({'expected_grad_terms': expected_grad_terms})
     if levels:
         query_filter += ' AND sas.level = ANY(:levels)'
         query_bindings.update({'levels': [level_to_code(l) for l in levels]})
@@ -562,6 +576,8 @@ def get_students_query(     # noqa
         query_filter += ' AND (' + ' OR '.join(major_filters) + ')'
         query_tables += f' LEFT JOIN {student_schema()}.student_majors maj ON maj.sid = sas.sid'
         query_bindings.update({'majors': _majors})
+    if transfer is True:
+        query_filter += ' AND sas.transfer = TRUE'
 
     # ASC criteria
     query_filter += f' AND s.active IS {is_active_asc}' if is_active_asc is not None else ''

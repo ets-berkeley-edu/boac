@@ -676,12 +676,14 @@ class TestCohortPerFilters:
         for key in [
             'advisorLdapUids',
             'ethnicities',
+            'expectedGradTerms',
             'genders',
             'groupCodes',
             'inIntensiveCohort',
             'isInactiveAsc',
             'levels',
             'majors',
+            'transfer',
             'underrepresented',
             'unitRanges',
         ]:
@@ -742,3 +744,39 @@ class TestCohortPerFilters:
         assert is_active_asc(students[1]) is True
         assert is_active_asc(students[2]) is True
         assert is_active_asc(students[3]) is True
+
+    def test_filter_expected_grad_term(self, client, coe_advisor_session):
+        response = self._post(
+            client,
+            {
+                'filters':
+                    [
+                        {
+                            'key': 'expectedGradTerms',
+                            'type': 'array',
+                            'value': '2202',
+                        },
+                    ],
+            },
+        )
+        assert len(response.json['students']) == 2
+        for student in response.json['students']:
+            assert student['expectedGraduationTerm']['name'] == 'Spring 2020'
+
+    def test_filter_transfer(self, client, coe_advisor_session):
+        response = self._post(
+            client,
+            {
+                'filters':
+                    [
+                        {
+                            'key': 'transfer',
+                            'type': 'boolean',
+                            'value': True,
+                        },
+                    ],
+            },
+        )
+        assert len(response.json['students']) == 2
+        for student in response.json['students']:
+            assert student['transfer'] is True

@@ -59,7 +59,8 @@
         ],
         "preferredName": "Osk Bear",
         "primaryName": "Oski Bear",
-        "termsInAttendance": 5
+        "termsInAttendance": 5,
+        "transfer": false
     },
     "uid": "61889"
 }

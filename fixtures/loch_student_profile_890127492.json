@@ -48,7 +48,8 @@
         ],
         "preferredName": "Siegfried Schlemiel",
         "primaryName": "Siegfried Schlemiel",
-        "termsInAttendance": 5
+        "termsInAttendance": 5,
+        "transfer": false
     },
     "uid": "211159"
 }

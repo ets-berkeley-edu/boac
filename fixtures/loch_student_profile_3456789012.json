@@ -52,7 +52,8 @@
         ],
         "preferredName": "Paul Kerschen",
         "primaryName": "Paul Kerschen",
-        "termsInAttendance": 5
+        "termsInAttendance": 5,
+        "transfer": false
     },
     "uid": "242881"
 }

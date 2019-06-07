@@ -48,7 +48,8 @@
         ],
         "preferredName": "Sandeep Jayaprakash",
         "primaryName": "Sandeep Jayaprakash",
-        "termsInAttendance": 5
+        "termsInAttendance": 5,
+        "transfer": false
     },
     "uid": "9933311"
 }

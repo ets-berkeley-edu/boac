@@ -31,8 +31,8 @@
             }
         },
         "expectedGraduationTerm": {
-            "id": "2198",
-            "name": "Fall 2019"
+            "id": "2202",
+            "name": "Spring 2020"
         },
         "level": {
             "code": "40",
@@ -48,7 +48,8 @@
         ],
         "preferredName": "Paul Farestveit",
         "primaryName": "Paul Farestveit",
-        "termsInAttendance": 5
+        "termsInAttendance": 5,
+        "transfer": false
     },
     "uid": "1049291"
 }

@@ -193,7 +193,9 @@ CREATE TABLE student.student_academic_status
     last_name VARCHAR NOT NULL,
     level VARCHAR(2),
     gpa DECIMAL(4,3),
-    units DECIMAL (4,1)
+    units DECIMAL (4,1),
+    transfer BOOLEAN,
+    expected_grad_term VARCHAR(4)
 );
 
 CREATE TABLE student.student_majors
@@ -438,17 +440,17 @@ VALUES
 ('9100000000', :profile_9100000000);
 
 INSERT INTO student.student_academic_status
-(sid, uid, first_name, last_name, level, gpa, units)
+(sid, uid, first_name, last_name, level, gpa, units, transfer, expected_grad_term)
 VALUES
-('11667051', '61889', 'Deborah', 'Davies', NULL, NULL, 0),
-('2345678901', '98765', 'Dave', 'Doolittle', '30', 3.495, 34),
-('3456789012', '242881', 'Paul', 'Kerschen', '30', 3.005, 70),
-('5678901234', '9933311', 'Sandeep', 'Jayaprakash', '40', 3.501, 102),
-('7890123456', '1049291', 'Paul', 'Farestveit', '40', 3.9, 110),
-('8901234567', '123456', 'John David', 'Crossman', '10', 1.85, 12),
-('890127492', '211159', 'Siegfried', 'Schlemiel', '20', 0.4, 8),
-('9000000000', '300847', 'Wolfgang', 'Pauli-O''Rourke', '20', 2.3, 55),
-('9100000000', '300848', 'Nora Stanton', 'Barney', '20', 3.85, 60);
+('11667051', '61889', 'Deborah', 'Davies', NULL, NULL, 0, FALSE, '2198'),
+('2345678901', '98765', 'Dave', 'Doolittle', '30', 3.495, 34, FALSE, '2192'),
+('3456789012', '242881', 'Paul', 'Kerschen', '30', 3.005, 70, FALSE, '2192'),
+('5678901234', '9933311', 'Sandeep', 'Jayaprakash', '40', 3.501, 102, FALSE, '2192'),
+('7890123456', '1049291', 'Paul', 'Farestveit', '40', 3.9, 110, FALSE, '2202'),
+('8901234567', '123456', 'John David', 'Crossman', '10', 1.85, 12, FALSE, '2192'),
+('890127492', '211159', 'Siegfried', 'Schlemiel', '20', 0.4, 8, FALSE, '2192'),
+('9000000000', '300847', 'Wolfgang', 'Pauli-O''Rourke', '20', 2.3, 55, TRUE, '2202'),
+('9100000000', '300848', 'Nora Stanton', 'Barney', '20', 3.85, 60, TRUE, '2192');
 
 INSERT INTO student.student_majors
 (sid, major)

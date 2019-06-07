@@ -48,7 +48,8 @@
         ],
         "preferredName": "Nora Stanton Barney",
         "primaryName": "Nora Stanton Barney",
-        "termsInAttendance": 5
+        "termsInAttendance": 5,
+        "transfer": true
     },
     "uid": "300848"
 }
