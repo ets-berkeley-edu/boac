@@ -114,19 +114,33 @@ v-if="section.isViewableOnCoursePage"
                     No Assignments
                   </span>
                 </td>
-                <td>
-                  <span v-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
-                    Score:
-                    <strong>{{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</strong>
-                    <span class="text-muted">
-                      (Maximum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }})
+                <td class="profile-boxplot-container">
+                  <StudentBoxplot
+                    v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable"
+                    :dataset="canvasSite.analytics.assignmentsSubmitted"
+                    :numeric-id="canvasSite.canvasCourseId.toString()" />
+                  <div v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable" class="sr-only">
+                    <div>User score: {{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</div>
+                    <div>Maximum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }}</div>
+                    <div>70th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[7] }}</div>
+                    <div>50th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[5] }}</div>
+                    <div>30th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[3] }}</div>
+                    <div>Minimum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[0] }}</div>
+                  </div>
+                  <div v-if="!canvasSite.analytics.assignmentsSubmitted.boxPlottable">
+                    <span v-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
+                      Score:
+                      <strong>{{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</strong>
+                      <span class="text-muted">
+                        (Maximum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }})
+                      </span>
                     </span>
-                  </span>
-                  <span
-                    v-if="!canvasSite.analytics.assignmentsSubmitted.courseDeciles"
-                    class="font-italic text-muted">
-                    No Data
-                  </span>
+                    <span
+                      v-if="!canvasSite.analytics.assignmentsSubmitted.courseDeciles"
+                      class="font-italic text-muted">
+                      No Data
+                    </span>
+                  </div>
                 </td>
               </tr>
               <tr>
@@ -146,7 +160,7 @@ v-if="section.isViewableOnCoursePage"
                 <td class="profile-boxplot-container">
                   <StudentBoxplot
                     v-if="canvasSite.analytics.currentScore.boxPlottable"
-                    :dataset="canvasSite.analytics"
+                    :dataset="canvasSite.analytics.currentScore"
                     :numeric-id="canvasSite.canvasCourseId.toString()" />
                   <div v-if="canvasSite.analytics.currentScore.boxPlottable" class="sr-only">
                     <div>User score: {{ canvasSite.analytics.currentScore.student.raw }}</div>

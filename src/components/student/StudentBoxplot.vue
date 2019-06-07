@@ -102,16 +102,16 @@ export default {
         {
           data: [
             [
-              this.dataset.currentScore.courseDeciles[0],
-              this.dataset.currentScore.courseDeciles[3],
-              this.dataset.currentScore.courseDeciles[5],
-              this.dataset.currentScore.courseDeciles[7],
-              this.dataset.currentScore.courseDeciles[10]
+              this.dataset.courseDeciles[0],
+              this.dataset.courseDeciles[3],
+              this.dataset.courseDeciles[5],
+              this.dataset.courseDeciles[7],
+              this.dataset.courseDeciles[10]
             ]
           ]
         },
         {
-          data: [[0, this.dataset.currentScore.student.raw]],
+          data: [[0, this.dataset.student.raw]],
           marker: {
             fillColor: '#4a90e2',
             lineWidth: 0,
@@ -132,31 +132,31 @@ export default {
           <div class="student-chart-tooltip-row">
             <div class="student-chart-tooltip-label">Maximum</div>
             <div class="student-chart-tooltip-value">${
-              this.dataset.currentScore.courseDeciles[10]
+              this.dataset.courseDeciles[10]
             }</div>
           </div>
           <div class="student-chart-tooltip-row">
             <div class="student-chart-tooltip-label">70th Percentile</div>
             <div class="student-chart-tooltip-value">${
-              this.dataset.currentScore.courseDeciles[7]
+              this.dataset.courseDeciles[7]
             }</div>
           </div>
           <div class="student-chart-tooltip-row">
             <div class="student-chart-tooltip-label">50th Percentile</div>
             <div class="student-chart-tooltip-value">${
-              this.dataset.currentScore.courseDeciles[5]
+              this.dataset.courseDeciles[5]
             }</div>
           </div>
           <div class="student-chart-tooltip-row">
             <div class="student-chart-tooltip-label">30th Percentile</div>
             <div class="student-chart-tooltip-value">${
-              this.dataset.currentScore.courseDeciles[3]
+              this.dataset.courseDeciles[3]
             }</div>
           </div>
           <div class="student-chart-tooltip-row">
             <div class="student-chart-tooltip-label">Minimum</div>
             <div class="student-chart-tooltip-value">${
-              this.dataset.currentScore.courseDeciles[0]
+              this.dataset.courseDeciles[0]
             }</div>
           </div>
         </div>`;
@@ -166,7 +166,7 @@ export default {
         <div class="student-chart-tooltip-header">
           <div class="student-chart-tooltip-label">User Score</div>
           <div class="student-chart-tooltip-value">${
-            this.dataset.currentScore.student.raw
+            this.dataset.student.raw
           }</div>
         </div>`;
     }
