@@ -216,6 +216,7 @@ class CohortFilter(Base, UserMixin):
         coe_prep_statuses = c.get('coePrepStatuses')
         coe_probation = util.to_bool_or_none(c.get('coeProbation'))
         ethnicities = c.get('ethnicities')
+        expected_grad_terms = c.get('expectedGradTerms')
         genders = c.get('genders')
         gpa_ranges = c.get('gpaRanges')
         group_codes = c.get('groupCodes')
@@ -226,6 +227,7 @@ class CohortFilter(Base, UserMixin):
         levels = c.get('levels')
         majors = c.get('majors')
         team_groups = athletics.get_team_groups(group_codes) if group_codes else []
+        transfer = util.to_bool_or_none(c.get('transfer'))
         underrepresented = util.to_bool_or_none(c.get('underrepresented'))
         unit_ranges = c.get('unitRanges')
         cohort_json.update({
@@ -234,6 +236,7 @@ class CohortFilter(Base, UserMixin):
                 'coePrepStatuses': coe_prep_statuses,
                 'coeProbation': coe_probation,
                 'ethnicities': ethnicities,
+                'expectedGradTerms': expected_grad_terms,
                 'genders': genders,
                 'gpaRanges': gpa_ranges,
                 'groupCodes': group_codes,
@@ -243,6 +246,7 @@ class CohortFilter(Base, UserMixin):
                 'lastNameRange': last_name_range,
                 'levels': levels,
                 'majors': majors,
+                'transfer': transfer,
                 'unitRanges': unit_ranges,
                 'underrepresented': underrepresented,
             },
@@ -266,6 +270,7 @@ class CohortFilter(Base, UserMixin):
             coe_probation=coe_probation,
             cohort_owner=cohort_owner,
             ethnicities=ethnicities,
+            expected_grad_terms=expected_grad_terms,
             genders=genders,
             gpa_ranges=gpa_ranges,
             group_codes=group_codes,
@@ -280,6 +285,7 @@ class CohortFilter(Base, UserMixin):
             offset=offset,
             order_by=order_by,
             sids_only=sids_only,
+            transfer=transfer,
             underrepresented=underrepresented,
             unit_ranges=unit_ranges,
         )

@@ -71,6 +71,7 @@ def get_students():
         coe_prep_statuses=util.get(params, 'coePrepStatuses'),
         coe_probation=util.get(params, 'coeProbation'),
         ethnicities=util.get(params, 'ethnicities'),
+        expected_grad_terms=util.get(params, 'expectedGradTerms'),
         genders=util.get(params, 'genders'),
         gpa_ranges=util.get(params, 'gpaRanges'),
         group_codes=util.get(params, 'groupCodes'),
@@ -84,6 +85,7 @@ def get_students():
         majors=util.get(params, 'majors'),
         offset=util.get(params, 'offset', 0),
         order_by=order_by,
+        transfer=util.to_bool_or_none(util.get(params, 'transfer')),
         underrepresented=util.get(params, 'underrepresented'),
         unit_ranges=util.get(params, 'unitRanges'),
     )

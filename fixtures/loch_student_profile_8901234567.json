@@ -48,7 +48,8 @@
         ],
         "preferredName": "John David Crossman",
         "primaryName": "John David Crossman",
-        "termsInAttendance": 5
+        "termsInAttendance": 5,
+        "transfer": false
     },
     "uid": "123456"
 }

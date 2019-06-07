@@ -125,6 +125,7 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None, fe
             student['level'] = _get_sis_level_description(sis_profile)
             student['currentTerm'] = sis_profile.get('currentTerm')
             student['majors'] = sorted(plan.get('description') for plan in sis_profile.get('plans', []))
+            student['transfer'] = sis_profile.get('transfer')
         term = enrollments_by_sid.get(student['sid'])
         student['hasCurrentTermEnrollments'] = False
         if term:
@@ -183,6 +184,7 @@ def get_summary_student_profiles(sids, term_id=None):
             profile['expectedGraduationTerm'] = sis_profile.get('expectedGraduationTerm')
             profile['level'] = _get_sis_level_description(sis_profile)
             profile['majors'] = sorted(plan.get('description') for plan in sis_profile.get('plans', []))
+            profile['transfer'] = sis_profile.get('transfer')
             if sis_profile.get('withdrawalCancel'):
                 profile['withdrawalCancel'] = sis_profile['withdrawalCancel']
         # Add the singleton term.
@@ -238,6 +240,7 @@ def query_students(
     coe_probation=None,
     cohort_owner=None,
     ethnicities=None,
+    expected_grad_terms=None,
     genders=None,
     gpa_ranges=None,
     group_codes=None,
@@ -253,6 +256,7 @@ def query_students(
     order_by=None,
     sids=(),
     sids_only=False,
+    transfer=None,
     underrepresented=None,
     unit_ranges=None,
 ):
@@ -280,6 +284,7 @@ def query_students(
         coe_prep_statuses=coe_prep_statuses,
         coe_probation=coe_probation,
         ethnicities=ethnicities,
+        expected_grad_terms=expected_grad_terms,
         genders=genders,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
@@ -291,6 +296,7 @@ def query_students(
         majors=majors,
         scope=scope,
         sids=sids,
+        transfer=transfer,
         underrepresented=underrepresented,
         unit_ranges=unit_ranges,
     )

@@ -49,6 +49,7 @@
         "preferredName": "Dave Doolittle",
         "primaryName": "Dave Doolittle",
         "termsInAttendance": 5,
+        "transfer": false,
         "withdrawalCancel": {
             "date": "2017-08-21",
             "description": "Withdrew",

@@ -27,7 +27,7 @@ from copy import deepcopy
 
 from boac.api.util import authorized_users_api_feed
 from boac.externals import data_loch
-from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE, COE_ETHNICITIES_PER_CODE, get_dept_codes
+from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE, COE_ETHNICITIES_PER_CODE, get_dept_codes, term_name_for_sis_id
 from boac.merged import athletics
 from boac.merged.student import get_student_query_scope
 from boac.models.authorized_user import AuthorizedUser
@@ -76,6 +76,26 @@ def get_cohort_filter_definitions(scope):
                 'name': 'Major',
                 'options': _majors,
                 'param': 'major',
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'transfer',
+                'name': 'Transfer Student',
+                'options': [True, False],
+                'param': 'transfer',
+                'subcategoryHeader': 'Choose...',
+                'type': 'boolean',
+            },
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'expectedGradTerms',
+                'name': 'Expected Graduation Term',
+                'options': _grad_terms,
+                'param': 'expectedGradTerm',
                 'subcategoryHeader': 'Choose...',
                 'type': 'array',
             },
@@ -325,6 +345,11 @@ def _genders():
         {'name': 'Female', 'value': 'F'},
         {'name': 'Male', 'value': 'M'},
     ]
+
+
+def _grad_terms():
+    term_ids = [r['expected_grad_term'] for r in data_loch.get_expected_graduation_terms(get_student_query_scope())]
+    return [{'name': term_name_for_sis_id(term_id), 'value': term_id} for term_id in term_ids]
 
 
 def _gpa_ranges():
