@@ -3,16 +3,11 @@ import store from '@/store';
 
 export function createCohort(
   name: string,
-  filters: any[],
-  studentCount: number
+  filters: any[]
 ) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .post(`${apiBaseUrl}/api/cohort/create`, {
-      name,
-      filters,
-      studentCount
-    })
+    .post(`${apiBaseUrl}/api/cohort/create`, {name, filters})
     .then(response => {
       const cohort = response.data;
       store.dispatch('cohort/addCohort', cohort);
@@ -87,16 +82,14 @@ export function getUsersWithCohorts() {
 export function saveCohort(
   id: number,
   name: string,
-  filters?: any,
-  studentCount?: number
+  filters?: any
 ) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
     .post(`${apiBaseUrl}/api/cohort/update`, {
       id,
       name,
-      filters,
-      studentCount
+      filters
     })
     .then(response => {
       const cohort = response.data;

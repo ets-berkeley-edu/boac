@@ -225,7 +225,7 @@ def load_filtered_cohort_counts():
     from boac.models.cohort_filter import CohortFilter
     for cohort in CohortFilter.query.all():
         # Remove!
-        cohort.update_student_count(None)
+        cohort.update_sids_and_student_count(None, None)
         cohort.update_alert_count(None)
         # The db schema supports multiple cohort owners but in the real world it is one owner per cohort.
         owner_id = cohort.owners[0].id if len(cohort.owners) else None

@@ -73,7 +73,7 @@ class TestCacheUtils:
         cohorts = CohortFilter.all_owned_by(uid)
         assert len(cohorts)
         for cohort in cohorts:
-            assert cohort.alert_count is None
+            assert cohort['alertCount'] is None
         load_filtered_cohort_counts()
         for cohort in CohortFilter.all_owned_by('2040'):
-            assert cohort.alert_count >= 0
+            assert cohort['alertCount'] >= 0

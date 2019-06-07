@@ -25,8 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import get_my_cohorts, is_unauthorized_search
-from boac.lib.berkeley import can_view_cohort
-from boac.lib.cohort_filter_definition import translate_filters_to_cohort_criteria
+from boac.lib.berkeley import get_dept_codes
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, to_bool_or_none as to_bool
 from boac.merged import calnet
@@ -34,6 +33,7 @@ from boac.merged.student import get_summary_student_profiles
 from boac.models.cohort_filter import CohortFilter
 from flask import current_app as app, request
 from flask_login import current_user, login_required
+import numpy as np
 
 
 @app.route('/api/cohorts/my')
@@ -47,12 +47,13 @@ def my_cohorts():
 def all_cohorts():
     cohorts_per_uid = {}
     for cohort in CohortFilter.all_cohorts():
-        if can_view_cohort(current_user, cohort):
-            for authorized_user in cohort.owners:
-                uid = authorized_user.uid
+        if _can_view_cohort(current_user, cohort):
+            _decorate_cohort(cohort)
+            for owner in cohort['owners']:
+                uid = owner['uid']
                 if uid not in cohorts_per_uid:
                     cohorts_per_uid[uid] = []
-                cohorts_per_uid[uid].append(decorate_cohort(cohort, include_students=False))
+                cohorts_per_uid[uid].append(cohort)
     owners = []
     for uid in cohorts_per_uid.keys():
         owner = calnet.get_calnet_user_for_uid(app, uid)
@@ -67,9 +68,9 @@ def all_cohorts():
 @app.route('/api/cohort/<cohort_id>/students_with_alerts')
 @login_required
 def students_with_alerts(cohort_id):
-    cohort = CohortFilter.find_by_id(cohort_id)
-    if cohort and can_view_cohort(current_user, cohort):
-        cohort = decorate_cohort(cohort, include_alerts_for_user_id=current_user.id, include_students=False)
+    cohort = CohortFilter.find_by_id(cohort_id, include_alerts_for_user_id=current_user.id, include_students=False)
+    if cohort and _can_view_cohort(current_user, cohort):
+        _decorate_cohort(cohort)
         students = cohort.get('alerts', [])
         alert_sids = [s['sid'] for s in students]
         alert_profiles = get_summary_student_profiles(alert_sids)
@@ -95,17 +96,17 @@ def get_cohort(cohort_id):
     include_students = True if include_students is None else include_students
     offset = get_param(request.args, 'offset', 0)
     limit = get_param(request.args, 'limit', 50)
-    cohort = CohortFilter.find_by_id(int(cohort_id))
-    if cohort and can_view_cohort(current_user, cohort):
-        cohort = decorate_cohort(
-            cohort,
-            order_by=order_by,
-            offset=int(offset),
-            limit=int(limit),
-            include_alerts_for_user_id=current_user.id,
-            include_profiles=True,
-            include_students=include_students,
-        )
+    cohort = CohortFilter.find_by_id(
+        int(cohort_id),
+        order_by=order_by,
+        offset=int(offset),
+        limit=int(limit),
+        include_alerts_for_user_id=current_user.id,
+        include_profiles=True,
+        include_students=include_students,
+    )
+    if cohort and _can_view_cohort(current_user, cohort):
+        _decorate_cohort(cohort)
         return tolerant_jsonify(cohort)
     else:
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
@@ -126,8 +127,8 @@ def get_cohort_per_filters():
     filter_keys = list(map(lambda f: f['key'], filters))
     if is_unauthorized_search(filter_keys, order_by):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
-    cohort = decorate_cohort(
-        CohortFilter(name='tmp', filter_criteria=translate_filters_to_cohort_criteria(filters)),
+    cohort = CohortFilter.construct_phantom_cohort(
+        filters=filters,
         order_by=order_by,
         offset=int(offset),
         limit=int(limit),
@@ -135,6 +136,7 @@ def get_cohort_per_filters():
         include_profiles=True,
         include_students=include_students,
     )
+    _decorate_cohort(cohort)
     return tolerant_jsonify(cohort)
 
 
@@ -144,7 +146,6 @@ def create_cohort():
     params = request.get_json()
     name = get_param(params, 'name', None)
     filters = get_param(params, 'filters', None)
-    student_count = get_param(params, 'studentCount')
     order_by = params.get('orderBy')
     if not name:
         raise BadRequestError('Cohort creation requires \'name\'')
@@ -175,9 +176,11 @@ def create_cohort():
         uid=current_user.get_id(),
         name=name,
         filter_criteria=filter_criteria,
-        student_count=student_count,
+        order_by=order_by,
+        include_alerts_for_user_id=current_user.id,
     )
-    return tolerant_jsonify(decorate_cohort(cohort, order_by=order_by, include_alerts_for_user_id=current_user.id))
+    _decorate_cohort(cohort)
+    return tolerant_jsonify(cohort)
 
 
 @app.route('/api/cohort/update', methods=['POST'])
@@ -186,25 +189,26 @@ def update_cohort():
     params = request.get_json()
     cohort_id = int(params.get('id'))
     name = params.get('name')
-    filter_criteria = _filters_to_filter_criteria(params.get('filters')) if 'filters' in params else params.get('filterCriteria')
-    student_count = params.get('studentCount')
-    if not name and not filter_criteria and not student_count:
+    # Filter criteria can be submitted as (1) ready-to-save JSON in 'criteria' param or (2) 'filters' param which
+    # is a serialized version of what user sees in /cohort view.
+    filter_criteria = _filters_to_filter_criteria(params.get('filters')) if 'filters' in params else params.get('criteria')
+    if not name and not filter_criteria:
         raise BadRequestError('Invalid request')
     uid = current_user.get_id()
-    cohort = next((c for c in CohortFilter.all_owned_by(uid) if c.id == cohort_id), None)
+    cohort = next((c for c in CohortFilter.all_owned_by(uid) if c['id'] == cohort_id), None)
     if not cohort:
         raise ForbiddenRequestError(f'Invalid or unauthorized request')
-    name = name or cohort.name
+    name = name or cohort['name']
     filter_criteria = filter_criteria or cohort.filter_criteria
     updated = CohortFilter.update(
         cohort_id=cohort_id,
         name=name,
         filter_criteria=filter_criteria,
-        student_count=student_count,
+        include_students=False,
+        include_alerts_for_user_id=current_user.id,
     )
-    # Alert count will be refreshed
-    updated.update_alert_count(None)
-    return tolerant_jsonify(decorate_cohort(updated, include_students=False, include_alerts_for_user_id=current_user.id))
+    _decorate_cohort(updated)
+    return tolerant_jsonify(updated)
 
 
 @app.route('/api/cohort/delete/<cohort_id>', methods=['DELETE'])
@@ -213,7 +217,7 @@ def delete_cohort(cohort_id):
     if cohort_id.isdigit():
         cohort_id = int(cohort_id)
         uid = current_user.get_id()
-        cohort = next((c for c in CohortFilter.all_owned_by(uid) if c.id == cohort_id), None)
+        cohort = next((c for c in CohortFilter.all_owned_by(uid) if c['id'] == cohort_id), None)
         if cohort:
             CohortFilter.delete(cohort_id)
             return tolerant_jsonify({'message': f'Cohort deleted (id={cohort_id})'}), 200
@@ -223,15 +227,22 @@ def delete_cohort(cohort_id):
         raise ForbiddenRequestError(f'Programmatic deletion of canned cohorts is not allowed (id={cohort_id})')
 
 
-def decorate_cohort(cohort, **kwargs):
-    cohort_json = cohort.to_api_json(**kwargs)
-    uid = current_user.get_id()
-    cohort_json.update({'isOwnedByCurrentUser': (uid in [o.uid for o in cohort.owners])})
-    return cohort_json
+def _decorate_cohort(cohort):
+    owner_uids = [o['uid'] for o in cohort['owners']]
+    cohort.update({'isOwnedByCurrentUser': current_user.get_id() in owner_uids})
 
 
 def _filters_to_filter_criteria(filters, order_by=None):
     filter_keys = list(map(lambda f: f['key'], filters))
     if is_unauthorized_search(filter_keys, order_by):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
-    return translate_filters_to_cohort_criteria(filters)
+    return CohortFilter.translate_filters_to_cohort_criteria(filters)
+
+
+def _can_view_cohort(user, cohort):
+    if user.is_admin:
+        return True
+    cohort_dept_codes = []
+    if cohort['owners']:
+        cohort_dept_codes = np.concatenate([o['deptCodes'] for o in cohort['owners']])
+    return np.in1d(get_dept_codes(user), cohort_dept_codes)

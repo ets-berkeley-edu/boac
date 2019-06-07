@@ -27,7 +27,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.lib import berkeley
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, BERKELEY_DEPT_NAME_TO_CODE
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.cohort_filter import CohortFilter
 import pytest
 
 
@@ -106,13 +105,6 @@ class TestBerkeleyAuthorization:
     def test_asc_dept_codes(self, asc_advisor, coe_advisor):
         assert berkeley.get_dept_codes(asc_advisor) == ['UWASC']
         assert berkeley.get_dept_codes(coe_advisor) == ['COENG']
-
-    def test_can_view_cohort(self, admin_user, asc_advisor, coe_advisor):
-        coe_cohorts = CohortFilter.all_owned_by('1133399')
-        assert len(coe_cohorts)
-        assert berkeley.can_view_cohort(admin_user, coe_cohorts[0])
-        assert not berkeley.can_view_cohort(asc_advisor, coe_cohorts[0])
-        assert berkeley.can_view_cohort(coe_advisor, coe_cohorts[0])
 
 
 class TestAlertRules:
