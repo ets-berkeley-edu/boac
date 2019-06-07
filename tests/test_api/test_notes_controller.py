@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import datetime
+
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
@@ -53,7 +55,7 @@ def new_coe_note():
     )
 
 
-class TestCreateNotes:
+class TestNoteCreation:
 
     def test_not_authenticated(self, app, client):
         """Returns 401 if not authenticated."""
@@ -156,6 +158,34 @@ class TestCreateNotes:
         )
         assert len(note.get('attachments')) == 2
 
+
+class TestBatchNoteCreation:
+
+    def test_batch_note_creation_with_sids(self, app, client, fake_auth):
+        """Batch note creation with list SIDs."""
+        fake_auth.login(coe_advisor_uid)
+        advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
+        subject = f'Elevate Me Later {datetime.now().timestamp()}'
+        sids = ['3456789012', '5678901234', '11667051', '7890123456']
+        _api_batch_note_create(
+            app,
+            client,
+            author_id=advisor.id,
+            subject=subject,
+            body='Well you greet the tokens and stamps, beneath the fake oil burnin\' lamps',
+            sids=sids,
+        )
+        notes = Note.query.filter(Note.subject == subject).all()
+        assert len(notes) == 4
+        for sid in sids:
+            note = next((n for n in notes if n.sid == sid), None)
+            assert note
+            assert note.subject == subject
+            assert note.author_uid == advisor.uid
+
+
+class TestNoteAttachments:
+
     def test_add_attachment(self, app, client, fake_auth):
         """Add an attachment to an existing note."""
         fake_auth.login(coe_advisor_uid)
@@ -170,8 +200,7 @@ class TestCreateNotes:
         )
         note_id = note['id']
         with mock_advising_note_s3_bucket(app):
-            data = {}
-            data['attachment[0]'] = open(f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt', 'rb')
+            data = {'attachment[0]': open(f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt', 'rb')}
             response = client.post(
                 f'/api/notes/{note_id}/attachment',
                 buffered=True,
@@ -573,3 +602,37 @@ def _api_note_create(app, client, author_id, sid, subject, body, topics=(), atta
         )
         assert response.status_code == expected_status_code
         return response.json
+
+
+def _api_batch_note_create(
+        app,
+        client,
+        author_id,
+        subject,
+        body,
+        sids=None,
+        cohort_ids=None,
+        curated_group_ids=None,
+        topics=(),
+        attachments=(),
+        expected_status_code=200,
+):
+    with mock_advising_note_s3_bucket(app):
+        data = {
+            'authorId': author_id,
+            'sids': sids or [],
+            'cohortIds': cohort_ids or [],
+            'curatedGroupIds': curated_group_ids or [],
+            'subject': subject,
+            'body': body,
+            'topics': ','.join(topics),
+        }
+        for index, path in enumerate(attachments):
+            data[f'attachment[{index}]'] = open(path, 'rb')
+        response = client.post(
+            '/api/notes/create',
+            buffered=True,
+            content_type='multipart/form-data',
+            data=data,
+        )
+        assert response.status_code == expected_status_code
