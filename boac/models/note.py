@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import json
+import time
 
 from boac import db, std_commit
 from boac.lib.util import titleize, utc_now, vacuum_whitespace
@@ -94,6 +96,34 @@ class Note(Base):
         std_commit()
         cls.refresh_search_index()
         return note
+
+    @classmethod
+    def create_batch(
+            cls,
+            author_uid,
+            author_name,
+            author_role,
+            author_dept_codes,
+            sids,
+            subject,
+            body,
+            topics=(),
+            attachments=(),
+    ):
+        t = time.time()
+        note_ids = _insert_rows_in_notes_table(
+            author_uid=author_uid,
+            author_name=author_name,
+            author_role=author_role,
+            author_dept_codes=author_dept_codes,
+            body=body,
+            sids=sids,
+            subject=subject,
+        )
+        _add_topics_to_notes(author_uid=author_uid, note_ids=note_ids, topics=topics)
+        _add_attachments_to_notes(attachments=attachments, author_uid=author_uid, note_ids=note_ids)
+        cls.refresh_search_index()
+        app.logger.info(f'Batch note creation: {len(sids)} records inserted in {str(time.time() - t)} seconds')
 
     @classmethod
     def search(cls, search_phrase, sid_filter, author_csid, topic, datetime_from, datetime_to):
@@ -261,3 +291,81 @@ class Note(Base):
             'createdAt': self.created_at,
             'updatedAt': self.updated_at,
         }
+
+
+def _insert_rows_in_notes_table(author_uid, author_name, author_role, author_dept_codes, body, sids, subject):
+    note_ids = []
+    now = utc_now().strftime('%Y-%m-%d %H:%M:%S')
+    # The syntax of the following is what Postgres expects in json_populate_recordset(...)
+    joined_author_dept_codes = '{' + ','.join(author_dept_codes) + '}'
+    count_per_chunk = 10000
+    for chunk in range(0, len(sids), count_per_chunk):
+        query = """
+            INSERT INTO notes (author_dept_codes, author_name, author_role, author_uid, body, sid, subject, created_at, updated_at)
+            SELECT author_dept_codes, author_name, author_role, author_uid, body, sid, subject, created_at, updated_at
+            FROM json_populate_recordset(null::notes, :json_dumps)
+            returning id;
+        """
+        sids_subset = sids[chunk:chunk + count_per_chunk]
+        data = [
+            {
+                'author_uid': author_uid,
+                'author_name': author_name,
+                'author_role': author_role,
+                'author_dept_codes': joined_author_dept_codes,
+                'sid': sid,
+                'subject': subject,
+                'body': body,
+                'created_at': now,
+                'updated_at': now,
+            } for sid in sids_subset
+        ]
+        for row in db.session.execute(query, {'json_dumps': json.dumps(data)}):
+            note_ids.append(row['id'])
+    return note_ids
+
+
+def _add_topics_to_notes(author_uid, note_ids, topics):
+    for prepared_topic in [titleize(vacuum_whitespace(topic)) for topic in topics]:
+        count_per_chunk = 10000
+        for chunk in range(0, len(note_ids), count_per_chunk):
+            query = """
+                INSERT INTO note_topics (author_uid, note_id, topic)
+                SELECT author_uid, note_id, topic
+                FROM json_populate_recordset(null::note_topics, :json_dumps);
+            """
+            note_ids_subset = note_ids[chunk:chunk + count_per_chunk]
+            data = [
+                {
+                    'author_uid': author_uid,
+                    'note_id': note_id,
+                    'topic': prepared_topic,
+                } for note_id in note_ids_subset
+            ]
+            db.session.execute(query, {'json_dumps': json.dumps(data)})
+
+
+def _add_attachments_to_notes(attachments, author_uid, note_ids):
+    now = utc_now().strftime('%Y-%m-%d %H:%M:%S')
+    for byte_stream_bundle in attachments:
+        s3_path = NoteAttachment.put_attachment_to_s3(
+            name=byte_stream_bundle['name'],
+            byte_stream=byte_stream_bundle['byte_stream'],
+        )
+        count_per_chunk = 10000
+        for chunk in range(0, len(note_ids), count_per_chunk):
+            query = """
+                INSERT INTO note_attachments (created_at, note_id, path_to_attachment, uploaded_by_uid)
+                SELECT created_at, note_id, path_to_attachment, uploaded_by_uid
+                FROM json_populate_recordset(null::note_attachments, :json_dumps);
+            """
+            note_ids_subset = note_ids[chunk:chunk + count_per_chunk]
+            data = [
+                {
+                    'created_at': now,
+                    'note_id': note_id,
+                    'path_to_attachment': s3_path,
+                    'uploaded_by_uid': author_uid,
+                } for note_id in note_ids_subset
+            ]
+            db.session.execute(query, {'json_dumps': json.dumps(data)})

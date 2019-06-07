@@ -51,6 +51,14 @@ class NoteAttachment(db.Model):
 
     @classmethod
     def create_attachment(cls, note, name, byte_stream, uploaded_by):
+        return NoteAttachment(
+            note_id=note.id,
+            path_to_attachment=cls.put_attachment_to_s3(name=name, byte_stream=byte_stream),
+            uploaded_by_uid=uploaded_by,
+        )
+
+    @classmethod
+    def put_attachment_to_s3(cls, name, byte_stream):
         bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
         base_path = app.config['DATA_LOCH_S3_BOA_NOTE_ATTACHMENTS_PATH']
         key_suffix = _localize_datetime(datetime.now()).strftime(f'%Y/%m/%d/%Y%m%d_%H%M%S_{name}')
@@ -60,11 +68,7 @@ class NoteAttachment(db.Model):
             key=key,
             binary_data=byte_stream,
         )
-        return NoteAttachment(
-            note_id=note.id,
-            path_to_attachment=key,
-            uploaded_by_uid=uploaded_by,
-        )
+        return key
 
     @classmethod
     def find_by_id(cls, attachment_id):
