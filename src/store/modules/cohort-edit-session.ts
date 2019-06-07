@@ -178,7 +178,7 @@ const actions = {
   },
   createCohort: ({ commit, state }, name: string) => {
     return new Promise(resolve => {
-      createCohort(name, state.filters, state.totalStudentCount).then(
+      createCohort(name, state.filters).then(
         cohort => {
           commit('resetSession', {
             cohort,
@@ -197,7 +197,7 @@ const actions = {
     return new Promise(resolve => {
       getCohort(id, true, orderBy).then(cohort => {
         if (cohort) {
-          translateToMenu(cohort.filterCriteria).then(filters => {
+          translateToMenu(cohort.criteria).then(filters => {
             commit('resetSession', {
               cohort,
               filters: filters,
@@ -222,8 +222,7 @@ const actions = {
       saveCohort(
         state.cohortId,
         state.cohortName,
-        state.filters,
-        state.totalStudentCount
+        state.filters
       ).then(resolve);
     });
   },
@@ -267,8 +266,7 @@ const actions = {
       saveCohort(
         state.cohortId,
         state.cohortName,
-        state.filters,
-        state.totalStudentCount
+        state.filters
       ).then(() => {
         commit('setModifiedSinceLastSearch', null);
         resolve();

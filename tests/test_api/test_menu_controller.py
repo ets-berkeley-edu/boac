@@ -208,15 +208,15 @@ class TestCohortFilterTranslate:
         )
 
     def test_translate_criteria_when_empty(self, client, coe_advisor_session):
-        """Empty filterCriteria translates to zero rows."""
-        response = self._post(client, {'filterCriteria': {}})
+        """Empty criteria translates to zero rows."""
+        response = self._post(client, {'criteria': {}})
         assert response.status_code == 200
         assert json.loads(response.data) == []
 
     def test_translate_criteria_with_boolean(self, client, coe_advisor_session):
         """Filter-criteria with boolean is properly translated."""
         key = 'isInactiveCoe'
-        response = self._post(client, {'filterCriteria': {key: False}})
+        response = self._post(client, {'criteria': {key: False}})
         assert response.status_code == 200
         rows = json.loads(response.data)
         assert len(rows) == 1
@@ -229,7 +229,7 @@ class TestCohortFilterTranslate:
         """Filter-criteria with array is properly translated."""
         key = 'levels'
         selected_options = ['Freshman', 'Sophomore']
-        response = self._post(client, {'filterCriteria': {key: selected_options}})
+        response = self._post(client, {'criteria': {key: selected_options}})
         assert response.status_code == 200
         rows = json.loads(response.data)
         assert len(rows) == 2
@@ -242,7 +242,7 @@ class TestCohortFilterTranslate:
         """Filter-criteria with range is properly translated."""
         key = 'lastNameRange'
         selected_options = ['M', 'Z']
-        response = self._post(client, {'filterCriteria': {key: selected_options}})
+        response = self._post(client, {'criteria': {key: selected_options}})
         assert response.status_code == 200
         rows = json.loads(response.data)
         assert len(rows) == 1

@@ -23,8 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-import json
-
 from boac.api.errors import InternalServerError
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
@@ -66,7 +64,8 @@ class TestCohortFilter:
                 'unitRanges': unit_ranges,
             },
         )
-        cohort = CohortFilter.find_by_id(cohort.id)
+        cohort_id = cohort['id']
+        cohort = CohortFilter.find_by_id(cohort_id)
         expected = {
             'gpaRanges': gpa_ranges,
             'groupCodes': group_codes,
@@ -75,10 +74,9 @@ class TestCohortFilter:
             'majors': majors,
             'unitRanges': unit_ranges,
         }
-
-        def sort_and_format(filter_criteria):
-            return json.dumps(filter_criteria, sort_keys=True, indent=2)
-        assert sort_and_format(expected) == sort_and_format(cohort.filter_criteria)
+        for key, value in expected.items():
+            assert cohort['criteria'][key] == expected[key]
+        assert cohort['totalStudentCount'] == len(CohortFilter.get_sids(cohort_id))
 
     def test_undefined_filter_criteria(self):
         with pytest.raises(InternalServerError):
@@ -108,14 +106,17 @@ class TestCohortFilter:
                 'groupCodes': group_codes,
             },
         )
-        cohort = CohortFilter.share(cohort.id, shared_with)
-        assert len(cohort.owners) == 2
-        assert owner, shared_with in [user.uid for user in cohort.owners]
+        cohort_id = cohort['id']
+        CohortFilter.share(cohort_id, shared_with)
+        owners = CohortFilter.find_by_id(cohort_id)['owners']
+        assert len(owners) == 2
+        assert owner, shared_with in [user['uid'] for user in owners]
+        assert cohort['totalStudentCount'] == len(CohortFilter.get_sids(cohort_id))
 
         # Delete cohort and verify
         previous_owner_count = cohort_count(owner)
         previous_shared_count = cohort_count(shared_with)
-        CohortFilter.delete(cohort.id)
+        CohortFilter.delete(cohort_id)
         assert cohort_count(owner) == previous_owner_count - 1
         assert cohort_count(shared_with) == previous_shared_count - 1
 

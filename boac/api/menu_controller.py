@@ -40,5 +40,5 @@ def all_cohort_filter_options():
 @app.route('/api/menu/cohort/translate_filter_criteria_to_menu', methods=['POST'])
 @login_required
 def translate_cohort_filter_to_menu():
-    criteria = get_param(request.get_json(), 'filterCriteria')
+    criteria = get_param(request.get_json(), 'criteria')
     return tolerant_jsonify(translate_cohort_filter(criteria))

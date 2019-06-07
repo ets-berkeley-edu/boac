@@ -122,6 +122,7 @@ CREATE TABLE cohort_filters (
     id integer NOT NULL,
     name character varying(255) NOT NULL,
     filter_criteria jsonb NOT NULL,
+    sids VARCHAR(80)[],
     student_count integer,
     alert_count integer,
     created_at timestamp with time zone NOT NULL,
