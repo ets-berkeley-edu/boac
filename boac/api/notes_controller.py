@@ -30,6 +30,8 @@ from boac.api.util import current_user_profile, feature_flag_edit_notes, get_dep
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import is_int, process_input_from_rich_text_editor
 from boac.merged.advising_note import get_boa_attachment_stream, get_legacy_attachment_stream, note_to_compatible_json
+from boac.models.cohort_filter import CohortFilter
+from boac.models.curated_group import CuratedGroup
 from boac.models.note import Note
 from boac.models.note_read import NoteRead
 from boac.models.topic import Topic
@@ -50,12 +52,20 @@ def mark_read(note_id):
 @login_required
 @feature_flag_edit_notes
 def create_note():
+    is_batch_create = False
     params = request.form
+    sids = set()
     sid = params.get('sid', None)
+    if sid:
+        sids.add(sid)
+    else:
+        # Batch note creation
+        sids = _get_sids_for_batch_note_creation(params)
+        is_batch_create = True
     subject = params.get('subject', None)
     body = params.get('body', None)
     topics = _get_topics(params)
-    if not sid or not subject:
+    if not sids or not subject:
         raise BadRequestError('Note creation requires \'subject\' and \'sid\'')
     dept_codes = get_dept_codes(current_user)
     if current_user.is_admin or not len(dept_codes):
@@ -63,26 +73,42 @@ def create_note():
     profile = current_user_profile()
     # TODO: We capture one 'role' and yet user could have multiple, one per dept.
     role = get_dept_role(current_user.department_memberships[0])
-    note = Note.create(
-        author_uid=current_user.uid,
-        author_name=_get_name(profile),
-        author_role=role,
-        author_dept_codes=dept_codes,
-        subject=subject,
-        body=process_input_from_rich_text_editor(body),
-        topics=topics,
-        sid=sid,
-        attachments=_get_attachments(request.files, tolerate_none=True),
-    )
-    note_json = Note.find_by_id(note.id).to_api_json()
-    return tolerant_jsonify(
-        note_to_compatible_json(
-            note=note_json,
-            note_read=NoteRead.find_or_create(current_user.id, note.id),
-            attachments=note_json.get('attachments'),
-            topics=note_json.get('topics'),
-        ),
-    )
+    attachments = _get_attachments(request.files, tolerate_none=True)
+
+    if is_batch_create:
+        Note.create_batch(
+            author_uid=current_user.uid,
+            author_name=_get_name(profile),
+            author_role=role,
+            author_dept_codes=dept_codes,
+            subject=subject,
+            body=process_input_from_rich_text_editor(body),
+            topics=topics,
+            sids=list(sids),
+            attachments=attachments,
+        )
+        return tolerant_jsonify({'message': f'Note created for {len(sids)} students'}), 200
+    else:
+        note = Note.create(
+            author_uid=current_user.uid,
+            author_name=_get_name(profile),
+            author_role=role,
+            author_dept_codes=dept_codes,
+            subject=subject,
+            body=process_input_from_rich_text_editor(body),
+            topics=topics,
+            sid=sids.pop(),
+            attachments=attachments,
+        )
+        note_json = Note.find_by_id(note.id).to_api_json()
+        return tolerant_jsonify(
+            note_to_compatible_json(
+                note=note_json,
+                note_read=NoteRead.find_or_create(current_user.id, note.id),
+                attachments=note_json.get('attachments'),
+                topics=note_json.get('topics'),
+            ),
+        )
 
 
 @app.route('/api/notes/update', methods=['POST'])
@@ -211,6 +237,32 @@ def _get_name(user):
 def _get_topics(params):
     topics = params.get('topics', ())
     return topics if isinstance(topics, list) else list(filter(None, str(topics).split(',')))
+
+
+def _get_sids_for_batch_note_creation(params):
+    def _get_param_as_set(key):
+        lst = [v for v in request.form.getlist(key) if v.isdigit()]
+        return set(lst) if lst else {}
+
+    sids = _get_param_as_set('sids') if 'sids' in params else set()
+    cohort_ids = _get_param_as_set('cohortIds')
+    sids = sids.union(_get_sids_per_cohorts(cohort_ids))
+    curated_group_ids = _get_param_as_set('curatedGroupIds')
+    return sids.union(_get_sids_per_curated_groups(curated_group_ids))
+
+
+def _get_sids_per_cohorts(cohort_ids=None):
+    sids = []
+    for cohort_id in cohort_ids or ():
+        sids.append(CohortFilter.get_sids(cohort_id))
+    return sids
+
+
+def _get_sids_per_curated_groups(curated_group_ids=None):
+    sids = []
+    for cohort_id in curated_group_ids or ():
+        sids.append(CuratedGroup.get_all_sids(cohort_id))
+    return sids
 
 
 def _get_attachments(request_files, tolerate_none=False):
