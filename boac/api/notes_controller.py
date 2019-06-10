@@ -241,8 +241,8 @@ def _get_topics(params):
 
 def _get_sids_for_batch_note_creation(params):
     def _get_param_as_set(key):
-        lst = [v for v in request.form.getlist(key) if v.isdigit()]
-        return set(lst) if lst else {}
+        lst = [v for v in request.form.getlist(key) if v]
+        return set(lst or [])
 
     sids = _get_param_as_set('sids') if 'sids' in params else set()
     cohort_ids = _get_param_as_set('cohortIds')
@@ -252,16 +252,18 @@ def _get_sids_for_batch_note_creation(params):
 
 
 def _get_sids_per_cohorts(cohort_ids=None):
-    sids = []
+    sids = set()
     for cohort_id in cohort_ids or ():
-        sids.append(CohortFilter.get_sids(cohort_id))
+        if cohort_id:
+            sids = sids.union(CohortFilter.get_sids(cohort_id))
     return sids
 
 
 def _get_sids_per_curated_groups(curated_group_ids=None):
-    sids = []
-    for cohort_id in curated_group_ids or ():
-        sids.append(CuratedGroup.get_all_sids(cohort_id))
+    sids = set()
+    for curated_group_id in curated_group_ids or ():
+        if curated_group_id:
+            sids = sids.union(CuratedGroup.get_all_sids(curated_group_id))
     return sids
 
 

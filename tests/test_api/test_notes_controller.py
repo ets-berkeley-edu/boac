@@ -26,6 +26,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.cohort_filter import CohortFilter
+from boac.models.curated_group import CuratedGroup
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
 import pytest
@@ -171,11 +173,23 @@ class TestBatchNoteCreation:
             '960759268', '856024035', '370048698', '709706581', '518777297', '912902626', '466030628', '695508833',
             '729680066', '534614253', '329221239', '882981218', '734373851', '968319871', '824231751', '904338427',
             '849739234', '310798157', '301806363', '352212185', '3456789012', '5678901234', '11667051', '8901234567',
-            '3456789012', '7890123456', '11667051',
+            '3456789012', '11667051',
         ]
+        # Curated group
+        curated_group_ids, sids_in_curated_groups = _get_curated_groups_ids_and_sids(advisor)
+        # We need at least one curated_group SID that is NOT in the list o' sids above.
+        sid_expected_in_curated_group = '7890123456'
+        assert sid_expected_in_curated_group in sids_in_curated_groups
+        assert sid_expected_in_curated_group not in sids
+        # Cohort
+        cohort_ids, sids_in_cohorts = _get_cohorts_ids_and_sids(advisor)
+        # We need at least one cohort SID that is NOT in the list o' sids above.
+        expected_sid_in_cohort = '9000000000'
+        assert expected_sid_in_cohort not in sids
+        assert expected_sid_in_cohort in sids_in_cohorts
+
         # List above has duplicates - verify that it is de-duped.
-        count_distinct_sids = len(set(sids))
-        assert count_distinct_sids < len(sids)
+        distinct_sids = set(sids + sids_in_curated_groups + sids_in_cohorts)
         topics = ['Slanted', 'Enchanted']
         _api_batch_note_create(
             app,
@@ -184,6 +198,8 @@ class TestBatchNoteCreation:
             subject=subject,
             body='Well you greet the tokens and stamps, beneath the fake oil burnin\' lamps',
             sids=sids,
+            curated_group_ids=curated_group_ids,
+            cohort_ids=cohort_ids,
             topics=topics,
             attachments=[
                 f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt',
@@ -191,8 +207,8 @@ class TestBatchNoteCreation:
             ],
         )
         notes = Note.query.filter(Note.subject == subject).all()
-        assert len(notes) == count_distinct_sids
-        for sid in sids:
+        assert len(notes) == len(distinct_sids)
+        for sid in distinct_sids:
             note = next((n for n in notes if n.sid == sid), None)
             assert note
             assert note.subject == subject
@@ -655,3 +671,23 @@ def _api_batch_note_create(
             data=data,
         )
         assert response.status_code == expected_status_code
+
+
+def _get_curated_groups_ids_and_sids(advisor):
+    sids = []
+    curated_group_ids = []
+    for curated_group in CuratedGroup.get_curated_groups_by_owner_id(advisor.id):
+        curated_group_ids.append(curated_group.id)
+        sids = sids + CuratedGroup.get_all_sids(curated_group.id)
+    return curated_group_ids, sids
+
+
+def _get_cohorts_ids_and_sids(advisor):
+    cohorts = CohortFilter.all_owned_by(advisor.uid)
+    cohort_ids = []
+    sids = []
+    for cohort in cohorts:
+        cohort_ids.append(cohort['id'])
+        for s in cohort['students']:
+            sids.append(s['sid'])
+    return cohort_ids, sids

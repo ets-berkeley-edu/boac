@@ -304,7 +304,7 @@ def _insert_rows_in_notes_table(author_uid, author_name, author_role, author_dep
             INSERT INTO notes (author_dept_codes, author_name, author_role, author_uid, body, sid, subject, created_at, updated_at)
             SELECT author_dept_codes, author_name, author_role, author_uid, body, sid, subject, created_at, updated_at
             FROM json_populate_recordset(null::notes, :json_dumps)
-            returning id;
+            RETURNING id;
         """
         sids_subset = sids[chunk:chunk + count_per_chunk]
         data = [
