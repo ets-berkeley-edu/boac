@@ -37,6 +37,7 @@ export default {
     mapValues: _.mapValues,
     merge: _.merge,
     multiply: _.multiply,
+    noop: _.noop,
     orderBy: _.orderBy,
     oxfordJoin: arr => {
       switch(arr.length) {

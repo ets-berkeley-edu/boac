@@ -35,9 +35,8 @@
       </div>
       <div v-if="featureFlagEditNotes && !user.isAdmin">
         <NewNoteModal
-          :disable="!!editingNoteId"
+          :disable="!!editingNoteId || includes(['batch', 'minimized', 'open'], newNoteMode)"
           :student="student"
-          :suggested-topics="suggestedTopics"
           :on-submit="onSubmitAdvisingNote"
           :on-successful-create="onCreateAdvisingNote" />
       </div>
@@ -131,14 +130,12 @@
                 :edit-note="editNote"
                 :note="message"
                 :after-saved="afterNoteUpdated"
-                :suggested-topics="suggestedTopics"
                 :is-open="includes(openMessages, message.transientId)" />
               <EditAdvisingNote
                 v-if="featureFlagEditNotes && message.type === 'note' && message.transientId === editingNoteId"
                 :after-cancelled="afterEditCancel"
                 :note="message"
-                :after-saved="afterNoteUpdated"
-                :suggested-topics="suggestedTopics" />
+                :after-saved="afterNoteUpdated" />
               <div v-if="includes(openMessages, message.transientId) && message.transientId !== editingNoteId" class="text-center close-message">
                 <b-btn
                   :id="`timeline-tab-${activeTab}-close-message`"
@@ -241,7 +238,7 @@ import TimelineDate from '@/components/student/profile/TimelineDate';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { dismissStudentAlert } from '@/api/student';
-import { deleteNote, getTopics, markRead } from '@/api/notes';
+import { deleteNote, markRead } from '@/api/notes';
 
 export default {
   name: 'AcademicTimeline',
@@ -277,8 +274,7 @@ export default {
     isTimelineLoading: true,
     messageForDelete: undefined,
     messages: undefined,
-    openMessages: [],
-    suggestedTopics: undefined
+    openMessages: []
   }),
   computed: {
     activeTab() {
@@ -323,9 +319,6 @@ export default {
     this.sortMessages();
     this.alertScreenReader('Academic Timeline has loaded');
     this.isTimelineLoading = false;
-    if (this.featureFlagEditNotes) {
-      this.getSuggestedTopics();
-    }
   },
   mounted() {
     if (this.anchor) {
@@ -411,11 +404,6 @@ export default {
     editNote(message) {
       this.editExistingNoteId(message.transientId);
       this.putFocusNextTick('edit-note-subject');
-    },
-    getSuggestedTopics() {
-      getTopics().then(data => {
-        this.suggestedTopics = data;
-      });
     },
     id(rowIndex) {
       return `timeline-tab-${this.activeTab}-message-${rowIndex}`;

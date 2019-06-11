@@ -66,7 +66,7 @@ class TestNoteCreation:
             app,
             client,
             author_id=advisor.id,
-            sid=student['sid'],
+            sids=[student['sid']],
             subject='Rusholme Ruffians',
             body='This is the last night of the fair, And the grease in the hair',
             expected_status_code=401,
@@ -80,7 +80,7 @@ class TestNoteCreation:
             app,
             client,
             author_id=admin.id,
-            sid=student['sid'],
+            sids=[student['sid']],
             subject='Rusholme Ruffians',
             body='This is the last night of the fair, And the grease in the hair',
             expected_status_code=403,
@@ -95,7 +95,7 @@ class TestNoteCreation:
             app,
             client,
             author_id=advisor.id,
-            sid=student['sid'],
+            sids=[student['sid']],
             subject=subject,
             body='A scanty bit of a thing with a decorative ring',
         )
@@ -118,7 +118,7 @@ class TestNoteCreation:
             app,
             client,
             author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
-            sid=student['sid'],
+            sids=[student['sid']],
             subject='Incubate transparent web services',
             body='Facilitate value-added initiatives',
             topics=['collaborative synergies', 'integrated architectures', 'vertical solutions'],
@@ -135,7 +135,7 @@ class TestNoteCreation:
             app,
             client,
             author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
-            sid=student['sid'],
+            sids=[student['sid']],
             subject='Get rich quick',
             body='Get an online degree at send.money.edu university',
         )
@@ -150,7 +150,7 @@ class TestNoteCreation:
             app,
             client,
             author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
-            sid=student['sid'],
+            sids=[student['sid']],
             subject='I come with attachments',
             body='I come correct',
             attachments=[
@@ -230,7 +230,7 @@ class TestNoteAttachments:
             app,
             client,
             author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
-            sid=student['sid'],
+            sids=[student['sid']],
             subject='No attachments yet',
             body='I travel light',
         )
@@ -255,7 +255,7 @@ class TestNoteAttachments:
             app,
             client,
             author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
-            sid=student['sid'],
+            sids=[student['sid']],
             subject='I come with attachments',
             body='I come correct',
             attachments=[
@@ -496,7 +496,7 @@ class TestDeleteNote:
             app,
             client,
             author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
-            sid=student['sid'],
+            sids=[student['sid']],
             subject='Recontextualize open-source supply-chains',
             body='Conveniently repurpose enterprise-wide action items',
             topics=['strategic interfaces'],
@@ -517,7 +517,7 @@ class TestDeleteNote:
             app,
             client,
             author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
-            sid=student['sid'],
+            sids=[student['sid']],
             subject='My little dog Lassie packed her bags and went out on to the porch',
             body='Then my little dog Lassie, she sailed off to the moon',
             attachments=[
@@ -618,11 +618,11 @@ def _asc_note_with_attachment():
     return None
 
 
-def _api_note_create(app, client, author_id, sid, subject, body, topics=(), attachments=(), expected_status_code=200):
+def _api_note_create(app, client, author_id, sids, subject, body, topics=(), attachments=(), expected_status_code=200):
     with mock_advising_note_s3_bucket(app):
         data = {
             'authorId': author_id,
-            'sid': sid,
+            'sids': sids,
             'subject': subject,
             'body': body,
             'topics': ','.join(topics),

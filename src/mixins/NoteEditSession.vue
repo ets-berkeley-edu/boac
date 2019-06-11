@@ -6,7 +6,8 @@ export default {
   computed: {
     ...mapGetters('noteEditSession', [
       'editingNoteId',
-      'newNoteMode'
+      'newNoteMode',
+      'suggestedTopics'
     ])
   },
   methods: {

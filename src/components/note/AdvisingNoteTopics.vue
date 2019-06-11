@@ -66,11 +66,12 @@
 
 <script>
 import Context from '@/mixins/Context';
+import NoteEditSession from "@/mixins/NoteEditSession";
 import Util from '@/mixins/Util';
 
 export default {
   name: 'AdvisingNoteTopics',
-  mixins: [Context, Util],
+  mixins: [Context, NoteEditSession, Util],
   props: {
     functionAdd: {
       type: Function,
@@ -82,10 +83,6 @@ export default {
     },
     noteId: {
       type: String,
-      required: false
-    },
-    suggestedTopics: {
-      type: Array,
       required: false
     },
     topics: {
