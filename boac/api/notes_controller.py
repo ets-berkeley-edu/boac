@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import urllib.parse
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import current_user_profile, feature_flag_edit_notes, get_dept_codes, get_dept_role
+from boac.api.util import current_user_profile, get_dept_codes, get_dept_role
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import is_int, process_input_from_rich_text_editor
 from boac.merged.advising_note import get_boa_attachment_stream, get_legacy_attachment_stream, note_to_compatible_json
@@ -50,7 +50,6 @@ def mark_read(note_id):
 
 @app.route('/api/notes/create', methods=['POST'])
 @login_required
-@feature_flag_edit_notes
 def create_note():
     params = request.form
     sids = _get_sids_for_note_creation(params)
@@ -69,18 +68,21 @@ def create_note():
     attachments = _get_attachments(request.files, tolerate_none=True)
 
     if is_batch_create:
-        Note.create_batch(
-            author_uid=current_user.uid,
-            author_name=_get_name(profile),
-            author_role=role,
-            author_dept_codes=dept_codes,
-            subject=subject,
-            body=process_input_from_rich_text_editor(body),
-            topics=topics,
-            sids=list(sids),
-            attachments=attachments,
-        )
-        return tolerant_jsonify({'message': f'Note created for {len(sids)} students'}), 200
+        if app.config['FEATURE_FLAG_BATCH_NOTES']:
+            Note.create_batch(
+                author_uid=current_user.uid,
+                author_name=_get_name(profile),
+                author_role=role,
+                author_dept_codes=dept_codes,
+                subject=subject,
+                body=process_input_from_rich_text_editor(body),
+                topics=topics,
+                sids=list(sids),
+                attachments=attachments,
+            )
+            return tolerant_jsonify({'message': f'Note created for {len(sids)} students'}), 200
+        else:
+            raise ResourceNotFoundError('API path not found')
     else:
         note = Note.create(
             author_uid=current_user.uid,
@@ -106,7 +108,6 @@ def create_note():
 
 @app.route('/api/notes/update', methods=['POST'])
 @login_required
-@feature_flag_edit_notes
 def update_note():
     params = request.form
     note_id = params.get('id', None)
@@ -141,7 +142,6 @@ def update_note():
 
 @app.route('/api/notes/delete/<note_id>', methods=['DELETE'])
 @login_required
-@feature_flag_edit_notes
 def delete_note(note_id):
     if not current_user.is_admin:
         raise ForbiddenRequestError('Sorry, you are not authorized to delete notes.')
@@ -160,7 +160,6 @@ def get_topics():
 
 @app.route('/api/notes/<note_id>/attachment', methods=['POST'])
 @login_required
-@feature_flag_edit_notes
 def add_attachment(note_id):
     if Note.find_by_id(note_id=note_id).author_uid != current_user.uid:
         raise ForbiddenRequestError('Sorry, you are not the author of this note.')
@@ -184,7 +183,6 @@ def add_attachment(note_id):
 
 @app.route('/api/notes/<note_id>/attachment/<attachment_id>', methods=['DELETE'])
 @login_required
-@feature_flag_edit_notes
 def remove_attachment(note_id, attachment_id):
     existing_note = Note.find_by_id(note_id=note_id)
     if not existing_note:

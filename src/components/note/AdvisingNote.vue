@@ -170,7 +170,7 @@ export default {
   }),
   computed: {
     isEditable() {
-      return this.featureFlagEditNotes && !this.note.isLegacy;
+      return !this.note.isLegacy;
     },
     isPreCsNote() {
       return this.get(this.note, 'createdBy') === 'UCBCONVERSION';

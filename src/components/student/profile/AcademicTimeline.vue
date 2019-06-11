@@ -33,7 +33,7 @@
           </div>
         </div>
       </div>
-      <div v-if="featureFlagEditNotes && !user.isAdmin">
+      <div v-if="!user.isAdmin">
         <NewNoteModal
           :disable="!!editingNoteId || includes(['batch', 'minimized', 'open'], newNoteMode)"
           :student="student"
@@ -82,7 +82,7 @@
               <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
             </div>
             <div
-              v-if="featureFlagEditNotes && isEditable(message) && !editingNoteId && isNil(newNoteMode) && includes(openMessages, message.transientId)"
+              v-if="isEditable(message) && !editingNoteId && isNil(newNoteMode) && includes(openMessages, message.transientId)"
               class="mt-2">
               <div v-if="user.uid === message.author.uid">
                 <b-btn
@@ -132,7 +132,7 @@
                 :after-saved="afterNoteUpdated"
                 :is-open="includes(openMessages, message.transientId)" />
               <EditAdvisingNote
-                v-if="featureFlagEditNotes && message.type === 'note' && message.transientId === editingNoteId"
+                v-if="message.type === 'note' && message.transientId === editingNoteId"
                 :after-cancelled="afterEditCancel"
                 :note="message"
                 :after-saved="afterNoteUpdated" />
