@@ -31,8 +31,7 @@ from boac.models.curated_group import CuratedGroup
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
 import pytest
-import simplejson as json
-from tests.util import mock_advising_note_s3_bucket, mock_legacy_note_attachment
+from tests.util import mock_advising_note_s3_bucket, mock_legacy_note_attachment, override_config
 
 asc_advisor_uid = '6446'
 coe_advisor_uid = '1133399'
@@ -162,6 +161,21 @@ class TestNoteCreation:
 
 
 class TestBatchNoteCreation:
+
+    def test_create_note_feature_flag_false(self, app, client, fake_auth):
+        """Returns 404 if feature flag is false."""
+        with override_config(app, 'FEATURE_FLAG_BATCH_NOTES', False):
+            fake_auth.login(coe_advisor_uid)
+            advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
+            _api_batch_note_create(
+                app,
+                client,
+                author_id=advisor.id,
+                subject='Range Life',
+                body='Over the turnstile, turn out in the traffic',
+                sids=['960759268', '856024035', '370048698', '709706581'],
+                expected_status_code=404,
+            )
 
     def test_batch_note_creation_with_sids(self, app, client, fake_auth):
         """Batch note creation with list SIDs."""
@@ -536,43 +550,6 @@ class TestDeleteNote:
         assert response.status_code == 200
         assert not NoteAttachment.find_by_id(attachment_ids[0])
         assert not NoteAttachment.find_by_id(attachment_ids[1])
-
-
-class TestEditNoteFeatureFlag:
-
-    def test_create_note_feature_flag_false(self, app, client, fake_auth):
-        """Returns 404 if feature flag is false."""
-        app.config['FEATURE_FLAG_EDIT_NOTES'] = False
-        fake_auth.login(coe_advisor_uid)
-        assert 404 == client.post(
-            '/api/notes/create',
-            buffered=True,
-            content_type='multipart/form-data',
-            data={
-                'sid': student['sid'],
-                'subject': 'A dreaded sunny day',
-                'body': 'So I meet you at the cemetry gates',
-            },
-        ).status_code
-
-    def test_edit_note_feature_flag_false(self, app, asc_advising_note, client, fake_auth):
-        """Returns 404 if feature flag is false. TODO: Remove when feature is live."""
-        app.config['FEATURE_FLAG_EDIT_NOTES'] = False
-        fake_auth.login(asc_advising_note.author_uid)
-        data = {
-            'id': asc_advising_note.id,
-            'subject': 'Reel Around the Fountain',
-            'body': 'You took a child and you made him old',
-        }
-        response = client.post('/api/notes/update', data=json.dumps(data), content_type='application/json')
-        assert response.status_code == 404
-
-    def test_delete_note_feature_flag_false(self, app, asc_advising_note, client, fake_auth):
-        """Returns 404 if feature flag is false. TODO: Remove when feature is live."""
-        app.config['FEATURE_FLAG_EDIT_NOTES'] = False
-        fake_auth.login(asc_advising_note.author_uid)
-        response = client.delete(f'/api/notes/delete/{asc_advising_note.id}')
-        assert response.status_code == 404
 
 
 class TestStreamNoteAttachments:

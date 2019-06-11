@@ -47,7 +47,7 @@ def app_config():
         'disableMatrixViewThreshold': app.config['DISABLE_MATRIX_VIEW_THRESHOLD'],
         'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],
         'ebEnvironment': app.config['EB_ENVIRONMENT'] if 'EB_ENVIRONMENT' in app.config else None,
-        'featureFlagEditNotes': app.config['FEATURE_FLAG_EDIT_NOTES'],
+        'featureFlagBatchNotes': app.config['FEATURE_FLAG_BATCH_NOTES'],
         'googleAnalyticsId': app.config['GOOGLE_ANALYTICS_ID'],
         'isDemoModeAvailable': app.config['DEMO_MODE_AVAILABLE'],
         'maxAttachmentsPerNote': app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE'],

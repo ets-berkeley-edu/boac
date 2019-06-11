@@ -9,7 +9,7 @@ export default {
       'currentEnrollmentTermId',
       'devAuthEnabled',
       'errors',
-      'featureFlagEditNotes',
+      'featureFlagBatchNotes',
       'isDemoModeAvailable',
       'maxAttachmentsPerNote',
       'announcement',

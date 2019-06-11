@@ -16,7 +16,7 @@
         <router-link id="cohorts-all" to="/cohorts/all">Everyone's Cohorts</router-link>
       </div>
     </div>
-    <div v-if="user && !user.isAdmin && featureFlagEditNotes">
+    <div v-if="user && !user.isAdmin && featureFlagBatchNotes">
       <NewNoteModal
         :disable="!!editingNoteId || (newNoteMode && newNoteMode !== 'batch')"
         initial-mode="batch"

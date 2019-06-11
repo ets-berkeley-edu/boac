@@ -67,8 +67,8 @@ PORT = 5000
 DEVELOPER_AUTH_ENABLED = False
 DEVELOPER_AUTH_PASSWORD = 'another secret'
 
-# TODO: Remove when notes-related features are stable in prod
-FEATURE_FLAG_EDIT_NOTES = True
+# TODO: Remove when batch-note-creation is stable in prod
+FEATURE_FLAG_BATCH_NOTES = False
 
 ABBREVIATED_WORDS = ['APR', 'EAP', 'PNP', 'SAP']
 

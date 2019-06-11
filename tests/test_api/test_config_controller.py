@@ -62,7 +62,7 @@ class TestConfigController:
         assert data['ebEnvironment'] is None
         assert data['googleAnalyticsId'] is False
         assert '@' in data['supportEmailAddress']
-        assert data['featureFlagEditNotes'] is True
+        assert data['featureFlagBatchNotes'] is True
         assert data['maxAttachmentsPerNote'] > 0
         assert data['timezone'] == 'America/Los_Angeles'
 

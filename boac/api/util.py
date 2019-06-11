@@ -26,7 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from functools import wraps
 import json
 
-from boac.api.errors import ResourceNotFoundError
 from boac.externals.data_loch import get_sis_holds
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, get_dept_codes
 from boac.merged import calnet
@@ -52,16 +51,6 @@ def admin_required(func):
             app.logger.warning(f'Unauthorized request to {request.path}')
             return app.login_manager.unauthorized()
     return _admin_required
-
-
-def feature_flag_edit_notes(func):
-    @wraps(func)
-    def _feature_flag_edit_notes(*args, **kw):
-        if app.config['FEATURE_FLAG_EDIT_NOTES']:
-            return func(*args, **kw)
-        else:
-            raise ResourceNotFoundError('API path not found')
-    return _feature_flag_edit_notes
 
 
 def add_alert_counts(alert_counts, students):
