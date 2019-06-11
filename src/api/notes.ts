@@ -11,18 +11,15 @@ export function markRead(noteId) {
 }
 
 export function createNote(
-    sid: any,
+    sids: any,
     subject: string,
     body: string,
     topics: string[],
-    attachments: any[]
+    attachments: any[],
+    cohortIds: number[],
+    curatedGroupIds: number[]
 ) {
-  const data = {
-    sid: sid.toString(),
-    subject: subject,
-    body: body,
-    topics: topics
-  };
+  const data = {sids, subject, body, topics, cohortIds, curatedGroupIds};
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
   return apiUtils.postMultipartFormData('/api/notes/create', data);
 }

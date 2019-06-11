@@ -1,11 +1,12 @@
 <template>
   <div>
-    <div>
+    <div :class="{'d-flex justify-content-center pl-3 pr-3': initialMode === 'batch'}">
       <b-btn
         id="new-note-button"
         class="mt-1 mr-2 btn-primary-color-override"
+        :class="{'w-100': initialMode === 'batch'}"
         variant="primary"
-        :disabled="disable || includes(['minimized', 'open'], newNoteMode)"
+        :disabled="disable"
         @click="openNewNoteModal()">
         <span class="m-1">
           <i class="fas fa-file-alt"></i>
@@ -14,23 +15,24 @@
       </b-btn>
     </div>
     <FocusLock
-      :disabled="newNoteMode !== 'fullScreen' || showAreYouSureModal"
-      :class="{'modal-full-screen': newNoteMode === 'fullScreen'}">
+      v-if="!disable"
+      :disabled="!undocked || showAreYouSureModal"
+      :class="{'modal-full-screen': undocked}">
       <div
         id="new-note-modal-container"
         :class="{
           'd-none': isNil(newNoteMode),
-          'modal-open': newNoteMode === 'open',
+          'modal-open': newNoteMode === 'docked',
           'modal-open modal-minimized': newNoteMode === 'minimized',
           'modal-open modal-saving': newNoteMode === 'saving',
-          'modal-full-screen-content': newNoteMode === 'fullScreen'
+          'modal-full-screen-content': undocked
         }">
         <form @submit.prevent="create()">
-          <div class="d-flex align-items-end pt-2 mb-1" :class="{'mt-2': newNoteMode === 'fullScreen'}">
+          <div class="d-flex align-items-end pt-2 mb-1" :class="{'mt-2': undocked}">
             <div class="flex-grow-1 new-note-header font-weight-bolder">
               New Note
             </div>
-            <div v-if="newNoteMode !== 'fullScreen'" class="pr-0">
+            <div v-if="!undocked" class="pr-0">
               <label id="minimize-button-label" class="sr-only">Minimize the create note dialog box</label>
               <b-btn
                 id="minimize-new-note-modal"
@@ -42,7 +44,7 @@
                 <i class="fas fa-window-minimize minimize-icon text-dark"></i>
               </b-btn>
             </div>
-            <div v-if="newNoteMode !== 'fullScreen'" class="pr-2">
+            <div v-if="!undocked" class="pr-2">
               <label id="cancel-button-label" class="sr-only">Cancel the create-note form</label>
               <b-btn
                 id="cancel-new-note-modal"
@@ -57,6 +59,26 @@
           </div>
           <hr class="m-0" />
           <div class="mt-2 mr-3 mb-1 ml-3">
+            <div v-if="newNoteMode === 'batch'">
+              <div>
+                <CreateNoteCohortDropdown
+                  v-if="myCohorts && myCohorts.length"
+                  :add-object-id="addCohortToBatch"
+                  :clear-errors="clearErrors"
+                  :objects="myCohorts"
+                  :is-curated-groups-mode="false"
+                  :remove-object-id="removeCohortFromBatch" />
+              </div>
+              <div>
+                <CreateNoteCohortDropdown
+                  v-if="myCuratedGroups && myCuratedGroups.length"
+                  :add-object-id="addCuratedGroupToBatch"
+                  :clear-errors="clearErrors"
+                  :objects="myCuratedGroups"
+                  :is-curated-groups-mode="true"
+                  :remove-object-id="removeCuratedGroupFromBatch" />
+              </div>
+            </div>
             <div>
               <label for="create-note-subject" class="input-label mb-1"><span class="sr-only">Note </span>Subject</label>
             </div>
@@ -80,13 +102,12 @@
             </div>
           </div>
           <AdvisingNoteTopics
-            v-if="newNoteMode === 'fullScreen'"
+            v-if="undocked"
             class="mt-2 mr-3 mb-1 ml-3"
             :function-add="addTopic"
             :function-remove="removeTopic"
-            :suggested-topics="suggestedTopics"
             :topics="topics" />
-          <div v-if="newNoteMode === 'fullScreen'" class="mt-2 mr-3 mb-1 ml-3">
+          <div v-if="undocked" class="mt-2 mr-3 mb-1 ml-3">
             <div v-if="attachmentError" class="mt-3 mb-3 w-100">
               <i class="fa fa-exclamation-triangle text-danger pr-1"></i>
               <span aria-live="polite" role="alert">{{ attachmentError }}</span>
@@ -142,10 +163,10 @@
           <div class="d-flex mt-1 mr-3 mb-0 ml-3">
             <div class="flex-grow-1">
               <b-btn
-                v-if="newNoteMode !== 'fullScreen'"
+                v-if="!undocked"
                 id="btn-to-advanced-note-options"
                 variant="link"
-                @click.prevent="setNewNoteMode('fullScreen')">
+                @click.prevent="setNewNoteMode('advanced')">
                 Advanced note options
               </b-btn>
             </div>
@@ -163,7 +184,7 @@
               <b-btn
                 id="create-note-cancel"
                 variant="link"
-                :class="{'sr-only': newNoteMode !== 'fullScreen'}"
+                :class="{'sr-only': !undocked}"
                 @click.prevent="cancel()">
                 Cancel
               </b-btn>
@@ -221,9 +242,11 @@ import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics';
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Context from '@/mixins/Context';
+import CreateNoteCohortDropdown from '@/components/note/CreateNoteCohortDropdown';
 import FocusLock from 'vue-focus-lock';
 import NoteEditSession from '@/mixins/NoteEditSession';
 import NoteUtil from '@/components/note/NoteUtil';
+import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { createNote } from '@/api/notes';
 
@@ -231,31 +254,52 @@ require('@/assets/styles/ckeditor-custom.css');
 
 export default {
   name: 'NewNoteModal',
-  components: { AdvisingNoteTopics, AreYouSureModal, FocusLock },
-  mixins: [Context, NoteEditSession, NoteUtil, Util],
+  components: {AdvisingNoteTopics, AreYouSureModal, CreateNoteCohortDropdown, FocusLock},
+  mixins: [Context, NoteEditSession, NoteUtil, UserMetadata, Util],
   props: {
     disable: Boolean,
-    onSubmit: Function,
-    onSuccessfulCreate: Function,
-    student: Object,
-    suggestedTopics: Array
+    initialMode: {
+      default: 'docked',
+      required: false,
+      type: String
+    },
+    onSubmit: {
+      required: true,
+      type: Function
+    },
+    onSuccessfulCreate: {
+      required: true,
+      type: Function
+    },
+    student: {
+      required: false,
+      type: Object
+    }
   },
   data: () => ({
+    addedCohortIds: [],
+    addedCuratedGroupIds: [],
     attachment: undefined,
     attachmentError: undefined,
     attachments: [],
     body: undefined,
-    error: undefined,
-    isMinimizing: false,
-    showErrorPopover: false,
-    subject: undefined,
-    topics: [],
     editor: ClassicEditor,
     editorConfig: {
       toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
     },
-    showAreYouSureModal: false
+    error: undefined,
+    isMinimizing: false,
+    showErrorPopover: false,
+    showAreYouSureModal: false,
+    sids: undefined,
+    subject: undefined,
+    topics: []
   }),
+  computed: {
+    undocked() {
+      return this.includes(['advanced', 'batch'], this.newNoteMode);
+    }
+  },
   watch: {
     attachment() {
       if (this.validateAttachment()) {
@@ -273,6 +317,7 @@ export default {
   },
   created() {
     this.initFileDropPrevention();
+    this.sids = this.student ? [ this.student.sid ] : [];
     this.reset();
   },
   methods: {
@@ -307,7 +352,15 @@ export default {
         this.body = this.trim(this.body);
         this.setNewNoteMode('saving');
         this.onSubmit();
-        createNote(this.student.sid, this.subject, this.body, this.topics, this.attachments).then(data => {
+        createNote(
+          this.sids,
+          this.subject,
+          this.body,
+          this.topics,
+          this.attachments,
+          this.addedCohortIds,
+          this.addedCuratedGroupIds
+        ).then(data => {
           this.reset();
           this.onSuccessfulCreate(data);
           this.alertScreenReader("New note saved.");
@@ -320,7 +373,7 @@ export default {
       }
     },
     maximize() {
-      this.setNewNoteMode('open');
+      this.setNewNoteMode('docked');
       this.alertScreenReader("Create note form is visible.");
       this.putFocusNextTick('create-note-subject');
     },
@@ -331,8 +384,20 @@ export default {
       this.alertScreenReader("Create note form minimized.");
     },
     openNewNoteModal() {
-       this.setNewNoteMode('open');
+       this.setNewNoteMode(this.initialMode);
        this.putFocusNextTick('create-note-subject');
+    },
+    addCohortToBatch(cohortId) {
+      this.addedCohortIds.push(cohortId);
+    },
+    removeCohortFromBatch(cohortId) {
+      this.addedCohortIds = this.filterList(this.addedCohortIds, c => c.id !== cohortId);
+    },
+    addCuratedGroupToBatch(cohortId) {
+      this.addedCuratedGroupIds.push(cohortId);
+    },
+    removeCuratedGroupFromBatch(cohortId) {
+      this.addedCuratedGroupIds = this.filterList(this.addedCuratedGroupIds, c => c.id !== cohortId);
     },
     removeAttachment(index) {
       this.clearErrors();
@@ -343,10 +408,12 @@ export default {
       let index = this.topics.indexOf(topic);
       this.topics.splice(index, 1);
     },
-    reset() {
+    reset(mode) {
       this.clearErrors();
-      this.setNewNoteMode(null);
+      this.setNewNoteMode(mode);
       this.subject = this.body = undefined;
+      this.addedCohortIds = [];
+      this.addedCuratedGroupIds = [];
       this.attachments = [];
       this.topics = [];
     }

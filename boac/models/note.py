@@ -295,7 +295,7 @@ class Note(Base):
 
 def _insert_rows_in_notes_table(author_uid, author_name, author_role, author_dept_codes, body, sids, subject):
     note_ids = []
-    now = utc_now().strftime('%Y-%m-%d %H:%M:%S')
+    now = utc_now().strftime('%Y-%m-%dT%H:%M:%S+00')
     # The syntax of the following is what Postgres expects in json_populate_recordset(...)
     joined_author_dept_codes = '{' + ','.join(author_dept_codes) + '}'
     count_per_chunk = 10000

@@ -30,7 +30,6 @@
       :function-add="addTopic"
       :function-remove="removeTopic"
       :note-id="String(note.id)"
-      :suggested-topics="suggestedTopics"
       :topics="topics" />
     <div class="d-flex mt-2 mb-2">
       <div>
@@ -90,6 +89,7 @@ import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics';
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Context from '@/mixins/Context';
+import NoteEditSession from "@/mixins/NoteEditSession";
 import Util from '@/mixins/Util';
 import { updateNote } from '@/api/notes';
 
@@ -98,12 +98,11 @@ require('@/assets/styles/ckeditor-custom.css');
 export default {
   name: 'EditAdvisingNote',
   components: { AdvisingNoteTopics, AreYouSureModal },
-  mixins: [Context, Util],
+  mixins: [Context, NoteEditSession, Util],
   props: {
     afterCancelled: Function,
     afterSaved: Function,
-    note: Object,
-    suggestedTopics: Array
+    note: Object
   },
   data: () => ({
     body: undefined,

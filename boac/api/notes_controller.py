@@ -52,16 +52,9 @@ def mark_read(note_id):
 @login_required
 @feature_flag_edit_notes
 def create_note():
-    is_batch_create = False
     params = request.form
-    sids = set()
-    sid = params.get('sid', None)
-    if sid:
-        sids.add(sid)
-    else:
-        # Batch note creation
-        sids = _get_sids_for_batch_note_creation(params)
-        is_batch_create = True
+    sids = _get_sids_for_note_creation(params)
+    is_batch_create = len(sids) > 1
     subject = params.get('subject', None)
     body = params.get('body', None)
     topics = _get_topics(params)
@@ -239,9 +232,11 @@ def _get_topics(params):
     return topics if isinstance(topics, list) else list(filter(None, str(topics).split(',')))
 
 
-def _get_sids_for_batch_note_creation(params):
+def _get_sids_for_note_creation(params):
     def _get_param_as_set(key):
-        lst = [v for v in request.form.getlist(key) if v]
+        lst = request.form.getlist(key, None)
+        if lst:
+            lst = lst if isinstance(lst, list) else list(filter(None, str(lst).split(',')))
         return set(lst or [])
 
     sids = _get_param_as_set('sids') if 'sids' in params else set()

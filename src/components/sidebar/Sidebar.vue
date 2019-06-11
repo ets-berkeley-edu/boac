@@ -16,23 +16,35 @@
         <router-link id="cohorts-all" to="/cohorts/all">Everyone's Cohorts</router-link>
       </div>
     </div>
+    <div v-if="user && !user.isAdmin && featureFlagEditNotes">
+      <NewNoteModal
+        :disable="!!editingNoteId || (newNoteMode && newNoteMode !== 'batch')"
+        initial-mode="batch"
+        :on-submit="noop"
+        :on-successful-create="noop" />
+    </div>
   </div>
 </template>
 
 <script>
 import Cohorts from '@/components/sidebar/Cohorts.vue';
+import Context from '@/mixins/Context';
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue';
+import NoteEditSession from "@/mixins/NoteEditSession";
+import NewNoteModal from '@/components/note/NewNoteModal.vue';
 import SearchForm from '@/components/sidebar/SearchForm.vue';
 import UserMetadata from '@/mixins/UserMetadata';
+import Util from '@/mixins/Util';
 
 export default {
   name: 'Sidebar',
   components: {
     Cohorts,
     CuratedGroups,
+    NewNoteModal,
     SearchForm
   },
-  mixins: [UserMetadata]
+  mixins: [Context, NoteEditSession, UserMetadata, Util]
 };
 </script>
 
