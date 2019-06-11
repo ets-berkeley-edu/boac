@@ -10,7 +10,7 @@
         <b-form-checkbox
           id="checkbox-publish-service-announcement"
           v-model="isPublished"
-          :disabled="isSaving || !originalText || !originalText.length || text !== originalText"
+          :disabled="isSaving || !originalText || !originalText.length"
           @change="togglePublish">
           <span id="checkbox-service-announcement-label">{{ isPublished ? 'Posted' : 'Post' }}</span>
         </b-form-checkbox>
