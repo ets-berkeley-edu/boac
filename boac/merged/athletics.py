@@ -25,8 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.externals import data_loch
+from boac.models.json_cache import stow
 
 
+@stow('all_team_groups')
 def all_team_groups():
     results = data_loch.get_team_groups()
     if not results:
