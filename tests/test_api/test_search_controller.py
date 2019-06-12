@@ -325,6 +325,32 @@ class TestNoteSearch:
         assert notes[0].get('id') == '11667051-00001'
         assert notes[1].get('id') == '11667051-00002'
 
+    def test_search_notes_by_asc_advisor_name(self, asc_advisor, client):
+        """Includes ASC notes with advisor name match in search results."""
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'notes': True, 'searchPhrase': 'ginger'}),
+            content_type='application/json',
+        )
+        assert 'notes' in response.json
+        notes = response.json['notes']
+        assert len(notes) == 3
+        assert notes[0].get('id') == '11667051-139379'
+        assert notes[1].get('id') == '2345678901-139379'
+        assert notes[2].get('id') == '8901234567-139379'
+
+    def test_search_notes_by_asc_topic(self, asc_advisor, client):
+        """Includes ASC notes with advisor name match in search results."""
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'notes': True, 'searchPhrase': 'academic'}),
+            content_type='application/json',
+        )
+        assert 'notes' in response.json
+        notes = response.json['notes']
+        assert len(notes) == 1
+        assert notes[0].get('id') == '11667051-139362'
+
     def test_search_by_note_topic(self, coe_advisor, client):
         """Searches notes by topic if topics option is selected."""
         response = client.post(

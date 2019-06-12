@@ -157,6 +157,21 @@ class TestMergedAdvisingNote:
         assert parse(notes[0]['createdAt']) == parse('2017-11-05T12:00:00+00')
         assert parse(notes[0]['updatedAt']) == parse('2017-11-06T12:00:00+00')
 
+    def test_search_for_asc_advising_notes(self, app, fake_auth):
+        fake_auth.login(asc_advisor)
+        response = search_advising_notes(search_phrase='kilmister')
+        assert len(response) == 1
+        assert response[0]['noteSnippet'] == ''
+        assert response[0]['advisorName'] == 'Lemmy Kilmister'
+        assert parse(response[0]['createdAt']) == parse('2014-01-03T20:30:00+00')
+        assert parse(response[0]['updatedAt']) == parse('2014-01-03T20:30:00+00')
+        response = search_advising_notes(search_phrase='academic')
+        assert len(response) == 1
+        assert response[0]['noteSnippet'] == ''
+        assert response[0]['advisorName'] == 'Lemmy Kilmister'
+        assert parse(response[0]['createdAt']) == parse('2014-01-03T20:30:00+00')
+        assert parse(response[0]['updatedAt']) == parse('2014-01-03T20:30:00+00')
+
     def test_search_advising_notes_stemming(self, app, fake_auth):
         fake_auth.login(coe_advisor)
         response = search_advising_notes(search_phrase='spare')
