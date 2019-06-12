@@ -31,7 +31,7 @@ import moto
 
 @contextmanager
 def mock_legacy_note_attachment(app):
-    with moto.mock_s3(), moto.mock_sts():
+    with moto.mock_s3():
         bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
         s3 = boto3.resource('s3', app.config['DATA_LOCH_S3_REGION'])
         s3.create_bucket(Bucket=bucket)
@@ -42,7 +42,7 @@ def mock_legacy_note_attachment(app):
 
 @contextmanager
 def mock_advising_note_s3_bucket(app):
-    with moto.mock_s3(), moto.mock_sts():
+    with moto.mock_s3():
         bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
         s3 = boto3.resource('s3', app.config['DATA_LOCH_S3_REGION'])
         s3.create_bucket(Bucket=bucket)
@@ -56,3 +56,11 @@ def override_config(app, key, value):
     app.config[key] = value
     yield
     app.config[key] = old_value
+
+
+@contextmanager
+def pause_mock_sts():
+    """Temporarily pause moto's mock STS, which can get in the way of tests incorporating other external services, such as CAS."""
+    moto.mock_sts().stop()
+    yield
+    moto.mock_sts().start()

@@ -27,10 +27,11 @@ from itertools import groupby
 import json
 import operator
 
-from boac.externals import data_loch
+from boac.externals import data_loch, s3
 from boac.lib import analytics
 from boac.lib.berkeley import current_term_id, future_term_id, term_name_for_sis_id
 from boac.lib.util import get_benchmarker
+from flask import current_app as app
 from flask_login import current_user
 
 
@@ -42,7 +43,7 @@ def get_api_json(sids):
         return []
 
     def distill_profile(profile):
-        distilled = {key: profile[key] for key in ['uid', 'sid', 'firstName', 'lastName', 'name']}
+        distilled = {key: profile[key] for key in ['uid', 'sid', 'firstName', 'lastName', 'name', 'photoUrl']}
         if profile.get('athleticsProfile'):
             distilled['athleticsProfile'] = profile['athleticsProfile']
         if profile.get('coeProfile'):
@@ -63,6 +64,8 @@ def get_full_student_profiles(sids):
         profile = profiles_by_sid.get(sid)
         if profile:
             profiles.append(profile)
+
+    _merge_photo_urls(profiles)
 
     scope = get_student_query_scope()
     if 'UWASC' in scope or 'ADMIN' in scope:
@@ -471,3 +474,15 @@ def _get_sis_level_description(profile):
         return None
     else:
         return level
+
+
+def _merge_photo_urls(profiles):
+    def _photo_key(profile):
+        return f"{app.config['DATA_LOCH_S3_PHOTO_PATH']}/{profile['uid']}.jpg"
+
+    photo_urls = s3.get_signed_urls(
+        bucket=app.config['DATA_LOCH_S3_PHOTO_BUCKET'],
+        keys=[_photo_key(profile) for profile in profiles],
+    )
+    for profile in profiles:
+        profile['photoUrl'] = photo_urls.get(_photo_key(profile))

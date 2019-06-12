@@ -334,7 +334,7 @@ export default {
         } else {
           photoUri = this.user.inDemoMode
             ? avatarBackgroundPath
-            : this.apiBaseUrl + '/api/student/' + d.uid + '/photo';
+            : d.photoUrl;
         }
         var avatarImage = pattern
           .append('svg:image')

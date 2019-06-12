@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import json
 
-from tests.util import override_config
+from tests.util import override_config, pause_mock_sts
 
 
 class TestDevAuth:
@@ -90,9 +90,10 @@ class TestCasAuth:
 
     def test_cas_callback_with_invalid_ticket(self, client):
         """Fails if CAS can not verify the ticket."""
-        response = client.get('/cas/callback?ticket=is_invalid')
-        assert response.status_code == 302
-        assert 'error' in response.location
+        with pause_mock_sts():
+            response = client.get('/cas/callback?ticket=is_invalid')
+            assert response.status_code == 302
+            assert 'error' in response.location
 
 
 class TestBecomeUser:
