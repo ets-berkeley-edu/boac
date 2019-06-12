@@ -65,6 +65,8 @@ def register_routes(app):
     # Register error handlers.
     import boac.api.error_handlers
 
+    index_html = open(app.config['INDEX_HTML']).read()
+
     @app.login_manager.unauthorized_handler
     def unauthorized_handler():
         return jsonify(success=False, data={'login_required': True}, message='Unauthorized'), 401
@@ -80,13 +82,7 @@ def register_routes(app):
     @app.route('/<path:path>')
     def front_end_route(**kwargs):
         vue_base_url = app.config['VUE_LOCALHOST_BASE_URL']
-        if vue_base_url:
-            app.logger.debug(f'Redirecting to {vue_base_url}{request.full_path}')
-            return redirect(vue_base_url + request.full_path)
-        else:
-            index_html = app.config['INDEX_HTML']
-            app.logger.debug(f'The page at {request.full_path} will be served with INDEX_HTML={index_html}')
-            return make_response(open(index_html).read())
+        return redirect(vue_base_url + request.full_path) if vue_base_url else make_response(index_html)
 
     @app.after_request
     def after_api_request(response):
