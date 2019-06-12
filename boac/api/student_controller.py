@@ -24,12 +24,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import add_alert_counts, is_asc_authorized, is_unauthorized_search, put_notifications
+from boac.api.util import add_alert_counts, is_unauthorized_search, put_notifications
 from boac.externals.cal1card_photo_api import get_cal1card_photo
 from boac.externals.data_loch import extract_valid_sids
 from boac.lib import util
 from boac.lib.http import tolerant_jsonify
-from boac.merged import athletics
 from boac.merged.student import get_student_and_terms, query_students
 from boac.models.alert import Alert
 from flask import current_app as app, request, Response
@@ -122,14 +121,6 @@ def validate_sids():
             return tolerant_jsonify(summary)
     else:
         raise BadRequestError('Requires \'sids\' param')
-
-
-@app.route('/api/team_groups/all')
-@login_required
-def get_all_team_groups():
-    if not is_asc_authorized():
-        raise ResourceNotFoundError('Unknown path')
-    return tolerant_jsonify(athletics.all_team_groups())
 
 
 def _get_name_range_boundaries(values):

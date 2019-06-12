@@ -345,50 +345,6 @@ class TestStudentResultsForFilter:
         assert next(s for s in students if s['name'] == 'Nora Stanton Barney')
 
 
-class TestAthletics:
-    """Athletics API."""
-
-    def test_teams_not_authenticated(self, client):
-        """Returns 401 if not authenticated."""
-        response = client.get('/api/team_groups/all')
-        assert response.status_code == 401
-
-    def test_team_groups_not_authorized(self, client, coe_advisor):
-        """Returns 404 if not authorized."""
-        response = client.get('/api/team_groups/all')
-        assert response.status_code == 404
-
-    def test_get_all_team_groups(self, asc_advisor, client):
-        """Returns all team-groups if authenticated."""
-        response = client.get('/api/team_groups/all')
-        assert response.status_code == 200
-        team_groups = response.json
-        group_codes = [team_group['groupCode'] for team_group in team_groups]
-        group_names = [team_group['groupName'] for team_group in team_groups]
-        assert ['MFB-DB', 'MFB-DL', 'MBB', 'MBB-AA', 'MTE', 'WFH', 'WTE'] == group_codes
-        assert [
-            'Football, Defensive Backs',
-            'Football, Defensive Line',
-            'Men\'s Baseball',
-            'Men\'s Baseball (AA)',
-            'Men\'s Tennis',
-            'Women\'s Field Hockey',
-            'Women\'s Tennis',
-        ] == group_names
-        total_student_counts = [team_group['totalStudentCount'] for team_group in team_groups]
-        assert [3, 4, 1, 1, 2, 2, 2] == total_student_counts
-
-    def test_team_with_athletes_in_multiple_groups(self, asc_advisor, client):
-        """Returns a well-formed response on a valid code if authenticated."""
-        response = client.get('/api/team_groups/all?orderBy=last_name')
-        team_groups = list(filter(lambda t: t['teamCode'] == 'FBM', response.json))
-        assert response.status_code == 200
-        group_codes = [team_group['groupCode'] for team_group in team_groups]
-        assert ['MFB-DB', 'MFB-DL'] == group_codes
-        assert team_groups[0]['totalStudentCount'] == 3
-        assert team_groups[1]['totalStudentCount'] == 4
-
-
 @pytest.mark.usefixtures('db_session')
 class TestStudent:
     """Student API."""

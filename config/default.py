@@ -139,8 +139,9 @@ LOGGING_FORMAT = '[%(asctime)s] - %(levelname)s: %(message)s [in %(pathname)s:%(
 LOGGING_LOCATION = 'boac.log'
 LOGGING_LEVEL = logging.DEBUG
 
-# Caching (number of seconds, or false to disable)
-CACHE_DEFAULT = False
+# Flask-caching (number of seconds, or False to disable)
+CACHE_DEFAULT_TIMEOUT = False
+CACHE_TYPE = 'null'
 
 # If the top decile of any analytics measure is below this number, treat it as zero ("no data").
 # At the beginning of a term, the bar may be lowered.

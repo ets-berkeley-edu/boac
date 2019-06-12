@@ -25,12 +25,17 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from flask import current_app as app
+from flask_caching import Cache
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import SQLAlchemyError
 
 __version__ = '2.19'
 
 db = SQLAlchemy()
+
+# TODO: Flask-caching and Amazon ElastiCache for route caching?
+# Use @cache.cached() and @cache.memoize to cache routes and functions, respectively
+cache = Cache()
 
 
 def std_commit(allow_test_environment=False):
