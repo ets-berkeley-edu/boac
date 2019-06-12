@@ -50,5 +50,5 @@ def create_app():
 def initialize_cache(app):
     """Baby's First Cache."""
     default = app.config['CACHE_DEFAULT']
-    # 'app' is auto-configured in init_app() of this Cache instance
-    return Cache(app, config={'CACHE_TYPE': 'simple', 'CACHE_DEFAULT_TIMEOUT': default}) if default else None
+    # TODO: Flask-caching and Amazon ElastiCache for route caching?
+    return Cache(app, config={'CACHE_TYPE': 'null', 'CACHE_DEFAULT_TIMEOUT': default}) if default else None

@@ -850,7 +850,7 @@ class TestStudentPhoto:
         fake_auth.login(test_uid)
         response = client.get('/api/student/242881/photo')
         assert response.status_code == 204
-        assert response.headers.get('Content-Length') == '0'
+        assert response.headers.get('Content-Length') is None
 
 
 class TestValidateSids:
