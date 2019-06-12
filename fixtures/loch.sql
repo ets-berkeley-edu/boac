@@ -228,16 +228,34 @@ CREATE TABLE student.student_term_gpas
 INSERT INTO asc_advising_notes.advising_notes
 (id, asc_id, sid, student_first_name, student_last_name, meeting_date, advisor_uid, advisor_first_name, advisor_last_name, created_at, updated_at)
 VALUES
-('11667051-139362', '139362', '11667051', 'Deborah',  'Davies', '2014-01-03', '1133399', 'Lemmy', 'Kilmister', '2014-01-03 20:30:00+00', '2014-01-03 20:30:00+00'),
-('11667051-139379', '139379', '11667051', 'Deborah',  'Davies', '2014-01-16', '90412', 'Ginger', 'Baker', '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00'),
-('9000000000-139379', '139379', '9000000000', 'Wolfgang',  'Pauli-O''Rourke', '2014-01-16', '90412', 'Ginger', 'Baker', '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00'),
-('9100000000-139379', '139379', '9100000000', 'Nora Stanton',  'Barney', '2014-01-16', '90412', 'Ginger', 'Baker', '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00');
+('11667051-139362', '139362', '11667051', 'Deborah', 'Davies', '2014-01-03', '1133399', 'Lemmy', 'Kilmister', '2014-01-03 20:30:00+00', '2014-01-03 20:30:00+00'),
+('11667051-139379', '139379', '11667051', 'Deborah', 'Davies', '2014-01-16', '90412', 'Ginger', 'Baker', '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00'),
+('8901234567-139379', '139379', '8901234567', 'John David', 'Crossman', '2014-01-16', '90412', 'Ginger', 'Baker', '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00'),
+('2345678901-139379', '139379', '2345678901', 'Dave', 'Doolittle', '2014-01-16', '90412', 'Ginger', 'Baker', '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00');
 
 INSERT INTO asc_advising_notes.advising_note_topics
 (id, asc_id, sid, topic)
 VALUES
 ('11667051-139362', '139362', '11667051', 'Academic'),
 ('11667051-139362', '139362', '11667051', 'Other');
+
+CREATE TABLE boac_advising_asc.advising_notes AS (
+    SELECT id, asc_id, sid, student_first_name, student_last_name, meeting_date,
+        advisor_uid, advisor_first_name, advisor_last_name, created_at, updated_at
+    FROM asc_advising_notes.advising_notes
+);
+
+CREATE TABLE boac_advising_asc.advising_note_topics AS (
+    SELECT id, asc_id, sid, topic
+    FROM asc_advising_notes.advising_note_topics
+);
+
+CREATE MATERIALIZED VIEW boac_advising_asc.advising_notes_search_index AS (
+  SELECT n.id, to_tsvector('english', COALESCE(topic || ' ', '') || advisor_first_name || ' ' || advisor_last_name) AS fts_index
+  FROM asc_advising_notes.advising_notes n
+  LEFT OUTER JOIN asc_advising_notes.advising_note_topics t
+  ON n.id = t.id
+);
 
 INSERT INTO boac_advising_asc.students
 (sid, intensive, active, status_asc, group_code, group_name, team_code, team_name)

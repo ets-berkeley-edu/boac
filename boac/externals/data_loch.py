@@ -433,24 +433,38 @@ def search_advising_notes(
     if datetime_to:
         date_filter += ' AND an.created_at < :datetime_to'
 
-    sql = f"""SELECT
-        an.sid, an.id, an.note_body, an.advisor_sid, an.created_by, an.created_at, an.updated_at,
-        sas.uid, sas.first_name, sas.last_name
+    sql = f"""WITH an AS (
+        (SELECT sis.sid, sis.id, sis.note_body, sis.advisor_sid, NULL AS advisor_uid, NULL AS advisor_first_name, NULL AS advisor_last_name,
+                sis.created_by, sis.created_at, sis.updated_at, idx.rank
+            FROM {advising_notes_schema()}.advising_notes sis
+            JOIN (
+                SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
+                FROM {advising_notes_schema()}.advising_notes_search_index
+                WHERE fts_index @@ plainto_tsquery('english', :search_phrase)
+            ) AS idx
+            ON idx.id = sis.id)
+        UNION
+        (SELECT ascn.sid, ascn.id, NULL AS note_body, NULL AS advisor_sid, ascn.advisor_uid, ascn.advisor_first_name, ascn.advisor_last_name,
+                NULL AS created_by, ascn.created_at, ascn.updated_at, idx.rank
+            FROM {asc_schema()}.advising_notes ascn
+            JOIN (
+                SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
+                FROM {asc_schema()}.advising_notes_search_index
+                WHERE fts_index @@ plainto_tsquery('english', :search_phrase)
+            ) AS idx
+            ON idx.id = ascn.id)
+        )
+        SELECT DISTINCT
+        an.sid, an.id, an.note_body, an.advisor_sid, an.advisor_uid, an.created_by, an.created_at, an.updated_at,
+        sas.uid, sas.first_name, sas.last_name, an.advisor_first_name, an.advisor_last_name, an.rank
         {student_query_tables}
-        JOIN {advising_notes_schema()}.advising_notes an
+        JOIN an
             ON an.sid = sas.sid
             {author_filter}
             {date_filter}
         {topic_join}
-        JOIN (
-          SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
-          FROM {advising_notes_schema()}.advising_notes_search_index
-          WHERE fts_index @@ plainto_tsquery('english', :search_phrase)
-        )
-        AS idx
-            ON idx.id = an.id
         {student_query_filter}
-        ORDER BY idx.rank DESC, an.id"""
+        ORDER BY an.rank DESC, an.id"""
     if offset is not None and offset > 0:
         sql += ' OFFSET :offset'
     if limit is not None and limit < 150:  # Sanity check large limits
