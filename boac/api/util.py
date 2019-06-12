@@ -245,13 +245,15 @@ def get_my_curated_groups():
     curated_groups = []
     user_id = current_user.id
     for curated_group in CuratedGroup.get_curated_groups_by_owner_id(user_id):
-        api_json = curated_group.to_api_json()
+        api_json = curated_group.to_api_json(include_students=False)
         students = [{'sid': sid} for sid in CuratedGroup.get_all_sids(curated_group.id)]
         students_with_alerts = Alert.include_alert_counts_for_students(
             viewer_user_id=user_id,
             group={'students': students},
+            count_only=True,
         )
         api_json['alertCount'] = sum(s['alertCount'] for s in students_with_alerts)
+        api_json['studentCount'] = len(students)
         curated_groups.append(api_json)
     return curated_groups
 

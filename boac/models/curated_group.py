@@ -109,24 +109,30 @@ class CuratedGroup(Base):
             db.session.delete(curated_group)
             std_commit()
 
-    def to_api_json(self, order_by='last_name', offset=0, limit=50):
-        # TODO: When the BOA business rules change and all advisors have access to all students
-        #  then remove this filtering of SIDs based on current user dept_code. See BOAC-2130
-        unfiltered_sids = CuratedGroupStudent.get_sids(curated_group_id=self.id)
-        if unfiltered_sids:
-            results = query_students(sids=unfiltered_sids, order_by=order_by, offset=offset, limit=limit)
-            students = get_api_json([student['sid'] for student in results['students']])
-            total_student_count = results['totalStudentCount']
-        else:
-            students = []
-            total_student_count = 0
-        return {
+    def to_api_json(self, order_by='last_name', offset=0, limit=50, include_students=True):
+        feed = {
             'id': self.id,
             'ownerId': self.owner_id,
             'name': self.name,
-            'students': students,
-            'studentCount': total_student_count,
         }
+        # TODO: When the BOA business rules change and all advisors have access to all students
+        # then remove filtering of SIDs based on current user dept_code. See BOAC-2130
+        if include_students:
+            unfiltered_sids = CuratedGroupStudent.get_sids(curated_group_id=self.id)
+            if unfiltered_sids:
+                results = query_students(
+                    sids=unfiltered_sids,
+                    order_by=order_by,
+                    offset=offset,
+                    limit=limit,
+                    sids_only=not include_students,
+                )
+                feed['studentCount'] = results['totalStudentCount']
+                feed['students'] = get_api_json([student['sid'] for student in results['students']])
+            else:
+                feed['students'] = []
+                feed['studentCount'] = 0
+        return feed
 
 
 class CuratedGroupStudent(db.Model):
