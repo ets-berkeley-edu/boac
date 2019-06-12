@@ -35,6 +35,11 @@ def build_s3_url(bucket, key):
     return f's3://{bucket}/{key}'
 
 
+def get_signed_urls(bucket, keys, expiration=60):
+    client = _get_client()
+    return {key: _get_signed_url(client, bucket, key, expiration) for key in keys}
+
+
 def stream_object(bucket, key):
     s3_url = build_s3_url(bucket, key)
     session = _get_session()
@@ -77,3 +82,14 @@ def _get_session():
 def _get_client():
     session = _get_session()
     return session.client('s3', region_name=app.config['DATA_LOCH_S3_REGION'])
+
+
+def _get_signed_url(client, bucket, key, expiration):
+    return client.generate_presigned_url(
+        ClientMethod='get_object',
+        Params={
+            'Bucket': bucket,
+            'Key': key,
+        },
+        ExpiresIn=expiration,
+    )

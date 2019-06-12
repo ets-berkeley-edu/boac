@@ -30,6 +30,7 @@ import os
 from boac import std_commit
 import boac.factory
 from boac.models.note import Note
+from moto import mock_sts
 import pytest
 from tests.util import mock_advising_note_s3_bucket, override_config
 
@@ -138,6 +139,14 @@ def fake_loch(app):
             params[key] = f.read()
     data_loch_db = create_engine(app.config['DATA_LOCH_URI'])
     data_loch_db.execute(text(ddltext), params)
+
+
+@pytest.fixture(scope='session', autouse=True)
+def fake_sts(app):
+    """Fake the AWS security token service that BOA relies on to deliver S3 content (photos, note attachments)."""
+    mock_sts().start()
+    yield
+    mock_sts().stop()
 
 
 @pytest.fixture()

@@ -37,7 +37,7 @@ export default {
     avatarUrl: undefined
   }),
   created() {
-    this.avatarUrl = `${this.apiBaseUrl}/api/student/${this.student.uid}/photo`;
+    this.avatarUrl = this.student.photoUrl;
     this.avatarStyle = `student-avatar-${this.size} ${
       this.user.inDemoMode ? 'img-blur' : ''
     }`;
