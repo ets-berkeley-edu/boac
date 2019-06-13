@@ -260,7 +260,6 @@ class TestMyCuratedGroups:
         api_json = self._api_my_curated_groups(client)
         group = api_json[0]
         assert group['name'] == 'Four students'
-        assert len(group['students']) == 4
         assert group['studentCount'] == 4
 
     def test_not_authenticated_curated_groups_by_sid(self, client):

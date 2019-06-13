@@ -132,7 +132,7 @@ class Alert(Base):
         return cls.alert_counts_by_query(query, params)
 
     @classmethod
-    def current_alert_counts_for_sids(cls, viewer_id, sids):
+    def current_alert_counts_for_sids(cls, viewer_id, sids, count_only=False):
         query = """
             SELECT alerts.sid, count(*) as alert_count
             FROM alerts LEFT JOIN alert_views
@@ -145,11 +145,16 @@ class Alert(Base):
             GROUP BY alerts.sid
         """
         params = {'viewer_id': viewer_id, 'key': current_term_id() + '_%', 'sids': sids}
-        return cls.alert_counts_by_query(query, params)
+        return cls.alert_counts_by_query(query, params, count_only=count_only)
 
     @classmethod
-    def alert_counts_by_query(cls, query, params):
+    def alert_counts_by_query(cls, query, params, count_only=False):
         results = db.session.execute(text(query), params)
+
+        # If we're only interested in the alert count, skip the profile fetch below.
+        if count_only:
+            return [{'sid': row['sid'], 'alertCount': row['alert_count']} for row in results]
+
         alert_counts_by_sid = {row['sid']: row['alert_count'] for row in results}
         sids = list(alert_counts_by_sid.keys())
 
@@ -356,9 +361,9 @@ class Alert(Base):
         cls.create_or_activate(sid=sid, alert_type='withdrawal', key=key, message=message)
 
     @classmethod
-    def include_alert_counts_for_students(cls, viewer_user_id, group):
+    def include_alert_counts_for_students(cls, viewer_user_id, group, count_only=False):
         sids = group.get('sids') if 'sids' in group else [s['sid'] for s in group.get('students', [])]
-        alert_counts = cls.current_alert_counts_for_sids(viewer_user_id, sids)
+        alert_counts = cls.current_alert_counts_for_sids(viewer_user_id, sids, count_only=count_only)
         if 'students' in group:
             counts_per_sid = {s.get('sid'): s.get('alertCount') for s in alert_counts}
             for student in group.get('students'):
