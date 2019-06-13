@@ -275,7 +275,7 @@ def get_athletics_profiles(sids):
         FROM {asc_schema()}.student_profiles
         WHERE sid = ANY(:sids)
         """
-    return safe_execute_redshift(sql, sids=sids)
+    return safe_execute_rds(sql, sids=sids)
 
 
 def get_coe_profiles(sids):
@@ -283,7 +283,7 @@ def get_coe_profiles(sids):
         FROM {coe_schema()}.student_profiles
         WHERE sid = ANY(:sids)
         """
-    return safe_execute_redshift(sql, sids=sids)
+    return safe_execute_rds(sql, sids=sids)
 
 
 def get_student_for_uid_and_scope(uid, scope):
