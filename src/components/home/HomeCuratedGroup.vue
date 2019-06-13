@@ -53,6 +53,12 @@
       class="panel-body pr-3"
       :class="{'panel-open': isOpen}">
       <div v-if="curatedGroup.studentsWithAlerts && size(curatedGroup.studentsWithAlerts)">
+        <div v-if="size(curatedGroup.studentsWithAlerts) == 50" class="m-3" :id="`home-curated-group-${curatedGroup.id}-alert-limited`">
+          Showing 50 students with the most alerts.
+          <router-link :id="`home-curated-group-${curatedGroup.id}-alert-limited-view-all`" :to="`/curated/${curatedGroup.id}`">
+            View all {{ curatedGroup.studentCount }} students in "{{ curatedGroup.name }}"
+          </router-link>
+        </div>
         <SortableStudents :students="curatedGroup.studentsWithAlerts" />
       </div>
       <div>

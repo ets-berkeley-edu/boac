@@ -53,6 +53,12 @@
       class="panel-body pr-3"
       :class="{'panel-open': isOpen}">
       <div v-if="cohort.studentsWithAlerts && size(cohort.studentsWithAlerts)">
+        <div v-if="size(cohort.studentsWithAlerts) == 50" class="m-3" :id="`home-cohort-${cohort.id}-alert-limited`">
+          Showing 50 students with the most alerts.
+          <router-link :id="`home-cohort-${cohort.id}-alert-limited-view-all`" :to="`/cohort/${cohort.id}`">
+            View all {{ cohort.totalStudentCount }} students in "{{ cohort.name }}"
+          </router-link>
+        </div>
         <SortableStudents :students="cohort.studentsWithAlerts" />
       </div>
       <div>

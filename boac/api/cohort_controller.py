@@ -68,7 +68,15 @@ def all_cohorts():
 @app.route('/api/cohort/<cohort_id>/students_with_alerts')
 @login_required
 def students_with_alerts(cohort_id):
-    cohort = CohortFilter.find_by_id(cohort_id, include_alerts_for_user_id=current_user.id, include_students=False)
+    offset = get_param(request.args, 'offset', 0)
+    limit = get_param(request.args, 'limit', 50)
+    cohort = CohortFilter.find_by_id(
+        cohort_id,
+        include_alerts_for_user_id=current_user.id,
+        include_students=False,
+        alert_offset=offset,
+        alert_limit=limit,
+    )
     if cohort and _can_view_cohort(current_user, cohort):
         _decorate_cohort(cohort)
         students = cohort.get('alerts', [])

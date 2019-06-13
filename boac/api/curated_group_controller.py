@@ -82,6 +82,8 @@ def get_curated_group(curated_group_id):
 @app.route('/api/curated_group/<curated_group_id>/students_with_alerts')
 @login_required
 def get_students_with_alerts(curated_group_id):
+    offset = get_param(request.args, 'offset', 0)
+    limit = get_param(request.args, 'limit', 50)
     curated_group = CuratedGroup.find_by_id(curated_group_id)
     if not curated_group:
         raise ResourceNotFoundError(f'Sorry, no curated group found with id {curated_group_id}.')
@@ -90,6 +92,9 @@ def get_students_with_alerts(curated_group_id):
     students = Alert.include_alert_counts_for_students(
         viewer_user_id=current_user.id,
         group={'sids': CuratedGroup.get_all_sids(curated_group_id)},
+        count_only=True,
+        offset=offset,
+        limit=limit,
     )
     alert_count_per_sid = {}
     for s in list(filter(lambda s: s.get('alertCount') > 0, students)):

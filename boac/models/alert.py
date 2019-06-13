@@ -34,7 +34,6 @@ from boac.api.errors import BadRequestError
 from boac.externals import data_loch
 from boac.lib.berkeley import current_term_id, section_is_eligible_for_alerts, term_name_for_sis_id
 from boac.lib.util import camelize, unix_timestamp_to_localtime, utc_timestamp_to_localtime
-from boac.merged.student import get_full_student_profiles, get_student_query_scope
 from boac.models.base import Base
 from boac.models.db_relationships import AlertView
 from flask import current_app as app
@@ -132,7 +131,7 @@ class Alert(Base):
         return cls.alert_counts_by_query(query, params)
 
     @classmethod
-    def current_alert_counts_for_sids(cls, viewer_id, sids, count_only=False):
+    def current_alert_counts_for_sids(cls, viewer_id, sids, count_only=False, offset=None, limit=None):
         query = """
             SELECT alerts.sid, count(*) as alert_count
             FROM alerts LEFT JOIN alert_views
@@ -143,15 +142,26 @@ class Alert(Base):
                 AND alerts.sid = ANY(:sids)
                 AND alert_views.dismissed_at IS NULL
             GROUP BY alerts.sid
+            ORDER BY alert_count DESC, alerts.sid
         """
-        params = {'viewer_id': viewer_id, 'key': current_term_id() + '_%', 'sids': sids}
+        if offset:
+            query += ' OFFSET :offset'
+        if limit:
+            query += ' LIMIT :limit'
+        params = {
+            'viewer_id': viewer_id,
+            'key': current_term_id() + '_%',
+            'sids': sids,
+            'offset': offset,
+            'limit': limit,
+        }
         return cls.alert_counts_by_query(query, params, count_only=count_only)
 
     @classmethod
     def alert_counts_by_query(cls, query, params, count_only=False):
         results = db.session.execute(text(query), params)
 
-        # If we're only interested in the alert count, skip the profile fetch below.
+        # If we're only interested in the alert count, skip the student data fetch below.
         if count_only:
             return [{'sid': row['sid'], 'alertCount': row['alert_count']} for row in results]
 
@@ -162,15 +172,12 @@ class Alert(Base):
             result_dict = {
                 'sid': result.get('sid'),
                 'uid': result.get('uid'),
-                'firstName': result.get('firstName'),
-                'lastName': result.get('lastName'),
+                'firstName': result.get('first_name'),
+                'lastName': result.get('last_name'),
                 'alertCount': alert_counts_by_sid.get(result.get('sid')),
             }
-            scope = get_student_query_scope()
-            if 'UWASC' in scope or 'ADMIN' in scope:
-                result_dict['isActiveAsc'] = result.get('athleticsProfile', {}).get('isActiveAsc')
             return result_dict
-        return [result_to_dict(result) for result in get_full_student_profiles(sids)]
+        return [result_to_dict(result) for result in data_loch.get_basic_student_data(sids)]
 
     @classmethod
     def current_alerts_for_sid(cls, viewer_id, sid):
@@ -361,9 +368,9 @@ class Alert(Base):
         cls.create_or_activate(sid=sid, alert_type='withdrawal', key=key, message=message)
 
     @classmethod
-    def include_alert_counts_for_students(cls, viewer_user_id, group, count_only=False):
+    def include_alert_counts_for_students(cls, viewer_user_id, group, count_only=False, offset=None, limit=None):
         sids = group.get('sids') if 'sids' in group else [s['sid'] for s in group.get('students', [])]
-        alert_counts = cls.current_alert_counts_for_sids(viewer_user_id, sids, count_only=count_only)
+        alert_counts = cls.current_alert_counts_for_sids(viewer_user_id, sids, count_only=count_only, offset=offset, limit=limit)
         if 'students' in group:
             counts_per_sid = {s.get('sid'): s.get('alertCount') for s in alert_counts}
             for student in group.get('students'):

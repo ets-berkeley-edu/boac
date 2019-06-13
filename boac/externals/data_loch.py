@@ -297,6 +297,14 @@ def get_student_for_uid_and_scope(uid, scope):
     return None if not rows or (len(rows) == 0) else rows[0]
 
 
+def get_basic_student_data(sids):
+    sql = f"""SELECT sid, uid, first_name, last_name
+        FROM {student_schema()}.student_academic_status
+        WHERE sid = ANY(:sids)
+        """
+    return safe_execute_rds(sql, sids=sids)
+
+
 def get_student_profiles(sids=None):
     sql = f"""SELECT sid, profile
         FROM {student_schema()}.student_profiles
