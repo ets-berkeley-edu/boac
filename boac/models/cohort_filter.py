@@ -191,6 +191,8 @@ class CohortFilter(Base, UserMixin):
         order_by=None,
         offset=0,
         limit=50,
+        alert_offset=None,
+        alert_limit=None,
         include_students=True,
         include_profiles=False,
         include_alerts_for_user_id=None,
@@ -305,6 +307,8 @@ class CohortFilter(Base, UserMixin):
                 alert_count_per_sid = Alert.include_alert_counts_for_students(
                     viewer_user_id=include_alerts_for_user_id,
                     group=results,
+                    offset=alert_offset,
+                    limit=alert_limit,
                 )
                 cohort_json.update({
                     'alerts': alert_count_per_sid,

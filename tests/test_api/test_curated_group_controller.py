@@ -166,11 +166,12 @@ class TestGetCuratedGroup:
         api_json = self._api_get_curated_group(client, coe_advisor_groups[0].id)
         assert 'athleticsProfile' not in api_json['students'][0]
 
-    def test_students_without_alerts(self, asc_advisor, asc_curated_groups, client, create_alerts, db_session):
+    def test_students_with_alerts(self, asc_advisor, asc_curated_groups, client, create_alerts, db_session):
         """Students with alerts per group id."""
         api_json = self._api_students_with_alerts(client, asc_curated_groups[0].id)
         assert len(api_json) == 2
         assert api_json[0]['alertCount'] == 3
+        assert api_json[1]['alertCount'] == 1
 
         student = client.get('/api/student/61889').json
         alert_to_dismiss = student['notifications']['alert'][0]['id']
