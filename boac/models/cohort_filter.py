@@ -124,11 +124,22 @@ class CohortFilter(Base, UserMixin):
         return [c.to_api_json(include_students=False) for c in cls.query.all()]
 
     @classmethod
-    def all_owned_by(cls, uid):
-        cohorts = []
-        for cohort in cls.query.filter(cls.owners.any(uid=uid)).order_by(cls.name).all():
-            cohorts.append(cohort.to_api_json())
-        return cohorts
+    def get_cohort_owned_by(cls, user_id, cohort_id):
+        query = text(f"""SELECT * FROM cohort_filters c
+            LEFT JOIN cohort_filter_owners o ON o.cohort_filter_id = c.id
+            WHERE o.user_id = :user_id AND c.id = :cohort_id""")
+        results = db.session.execute(query, {'cohort_id': cohort_id, 'user_id': user_id})
+
+        def transform(row):
+            return {
+                'id': row['id'],
+                'name': row['name'],
+                'criteria': row['filter_criteria'],
+                'alertCount': row['alert_count'],
+                'totalStudentCount': row['student_count'],
+            }
+        cohorts = [transform(row) for row in results]
+        return cohorts[0] if cohorts else None
 
     @classmethod
     def find_by_id(cls, cohort_id, **kwargs):
@@ -142,8 +153,7 @@ class CohortFilter(Base, UserMixin):
         std_commit()
 
     @classmethod
-    def summarize_alert_counts_in_all_owned_by(cls, uid):
-        user_id = AuthorizedUser.find_by_uid(str(uid)).id
+    def summarize_alert_counts_in_all_owned_by(cls, user_id):
         query = text(f"""SELECT * FROM cohort_filters c
             LEFT JOIN cohort_filter_owners o ON o.cohort_filter_id = c.id
             WHERE o.user_id = :user_id

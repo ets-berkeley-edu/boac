@@ -31,6 +31,7 @@ from boac.models.curated_group import CuratedGroup
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
 import pytest
+from tests.test_api.api_test_utils import all_cohorts_owned_by
 from tests.util import mock_advising_note_s3_bucket, mock_legacy_note_attachment, override_config
 
 asc_advisor_uid = '6446'
@@ -660,11 +661,8 @@ def _get_curated_groups_ids_and_sids(advisor):
 
 
 def _get_cohorts_ids_and_sids(advisor):
-    cohorts = CohortFilter.all_owned_by(advisor.uid)
-    cohort_ids = []
+    cohort_ids = [c['id'] for c in all_cohorts_owned_by(advisor.uid)]
     sids = []
-    for cohort in cohorts:
-        cohort_ids.append(cohort['id'])
-        for s in cohort['students']:
-            sids.append(s['sid'])
+    for cohort_id in cohort_ids:
+        sids = sids + CohortFilter.get_sids(cohort_id)
     return cohort_ids, sids

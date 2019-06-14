@@ -26,9 +26,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac import std_commit
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup, CuratedGroupStudent
 import pytest
+from tests.test_api.api_test_utils import all_cohorts_owned_by
 
 
 @pytest.mark.usefixtures('db_session')
@@ -70,10 +70,10 @@ class TestCacheUtils:
     def test_load_filtered_cohort_counts(self, app):
         from boac.api.cache_utils import load_filtered_cohort_counts
         uid = '2040'
-        cohorts = CohortFilter.all_owned_by(uid)
+        cohorts = all_cohorts_owned_by(uid)
         assert len(cohorts)
         for cohort in cohorts:
             assert cohort['alertCount'] is None
         load_filtered_cohort_counts()
-        for cohort in CohortFilter.all_owned_by('2040'):
+        for cohort in all_cohorts_owned_by('2040'):
             assert cohort['alertCount'] >= 0

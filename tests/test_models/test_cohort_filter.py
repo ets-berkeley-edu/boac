@@ -27,6 +27,7 @@ from boac.api.errors import InternalServerError
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 import pytest
+from tests.test_api.api_test_utils import all_cohorts_owned_by
 
 asc_advisor_uid = '2040'
 coe_advisor_uid = '1133399'
@@ -35,10 +36,6 @@ coe_advisor_uid = '1133399'
 @pytest.mark.usefixtures('db_session')
 class TestCohortFilter:
     """Cohort filter."""
-
-    def test_no_cohort(self):
-        assert not CohortFilter.find_by_id(99999999)
-        assert not CohortFilter.all_owned_by('88888888')
 
     def test_filter_criteria(self):
         gpa_ranges = [
@@ -128,4 +125,4 @@ class TestCohortFilter:
 
 
 def cohort_count(user_uid):
-    return len(CohortFilter.all_owned_by(user_uid))
+    return len(all_cohorts_owned_by(user_uid))
