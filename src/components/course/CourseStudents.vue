@@ -137,17 +137,13 @@
 
     <template slot="midtermGrade" slot-scope="row">
       <span v-if="row.item.enrollment.midtermGrade" v-accessible-grade="row.item.enrollment.midtermGrade" class="font-weight-bold font-size-14"></span>
-      <i
-        v-if="isAlertGrade(row.item.enrollment.midtermGrade)"
-        class="fas fa-exclamation-triangle boac-exclamation"></i>
+      <font-awesome v-if="isAlertGrade(row.item.enrollment.midtermGrade)" icon="exclamation-triangle" class="boac-exclamation" />
       <span v-if="!row.item.enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
     </template>
 
     <template slot="finalGrade" slot-scope="row">
       <span v-if="row.item.enrollment.grade" v-accessible-grade="row.item.enrollment.grade" class="font-weight-bold font-size-14"></span>
-      <i
-        v-if="isAlertGrade(row.item.enrollment.grade)"
-        class="fas fa-exclamation-triangle boac-exclamation"></i>
+      <font-awesome v-if="isAlertGrade(row.item.enrollment.grade)" icon="exclamation-triangle" class="boac-exclamation" />
       <span v-if="!row.item.enrollment.grade" class="cohort-grading-basis">
         {{ row.item.enrollment.gradingBasis }}
       </span>

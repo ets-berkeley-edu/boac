@@ -1,9 +1,7 @@
 <template>
   <div>
     <div v-if="loading" class="spinner">
-      <i
-        class="fas fa-sync fa-spin"
-        :class="`fa-${faSize}x`"></i>
+      <font-awesome icon="sync" spin :size="`${faSize}x`" />
       <span
         role="alert"
         aria-live="passive"

@@ -64,7 +64,7 @@
       <div class="course-terms">
         <h2 class="sr-only">Students</h2>
         <div v-if="!section.totalStudentCount" class="course-view-controls-container">
-          <span class="has-error"><i class="fas fa-exclamation-triangle"></i></span>
+          <span class="has-error"><font-awesome icon="exclamation-triangle" /></span>
           <span class="container-error">No students advised by your department are enrolled in this section.</span>
         </div>
         <div v-if="section.totalStudentCount" class="course-view-controls-container ml-3 mr-3">
@@ -83,7 +83,7 @@
                 aria-label="Switch to list view"
                 :class="{'tab-button-selected': tab === 'list'}"
                 @click="toggleView('list')">
-                <i class="fas fa-list"></i> List
+                <font-awesome icon="list" /> List
               </button>
               <button
                 type="button"
@@ -93,7 +93,7 @@
                 :class="{'tab-button-selected': tab === 'matrix'}"
                 :disabled="matrixDisabledMessage"
                 @click="toggleView('matrix')">
-                <i class="fas fa-table"></i> Matrix
+                <font-awesome icon="table" /> Matrix
               </button>
             </div>
           </div>

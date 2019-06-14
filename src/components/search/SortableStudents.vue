@@ -33,7 +33,7 @@
           class="home-inactive-info-icon"
           uib-tooltip="Inactive"
           tooltip-placement="bottom">
-          <i class="fas fa-info-circle"></i>
+          <font-awesome icon="info-circle" />
         </span>
       </template>
 

@@ -11,7 +11,7 @@
           aria-label="Create a new curated group"
           href=""
           @click.prevent="updatePath('curate')"
-        ><i class="fas fa-plus sidebar-header"></i>
+        ><font-awesome icon="plus" class="sidebar-header" />
         </a>
       </div>
     </div>

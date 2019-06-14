@@ -8,7 +8,7 @@
       @submit.prevent="search()">
       <div v-if="context === 'sidebar'" class="d-flex flex-wrap justify-content-between search-label text-nowrap text-white">
         <div>
-          <i class="fas fa-search"></i>
+          <font-awesome icon="search" />
           <label
             for="search-students-input"
             class="search-form-label pl-1">Search</label>
@@ -159,7 +159,7 @@
                 type="date">
               </b-form-input>
               <b-form-invalid-feedback :state="validDateRange" class="search-panel-feedback">
-                <i class="fa fa-exclamation-triangle text-warning pr-1"></i>
+                <font-awesome icon="exclamation-triangle" class="text-warning pr-1" />
                 "To" must be later than or equal to "From."
               </b-form-invalid-feedback>
             </b-form-group>

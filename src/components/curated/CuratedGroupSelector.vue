@@ -28,11 +28,11 @@
             class="p-3">
             <span v-if="!isSaving">
               <span class="pr-2">Add to Curated Group</span>
-              <i v-if="disableSelector" class="fas fa-spinner fa-spin"></i>
-              <i v-if="!disableSelector" class="fas fa-caret-down"></i>
+              <font-awesome v-if="disableSelector" class="spinner" spin />
+              <font-awesome v-if="!disableSelector" class="caret-down" />
             </span>
             <span v-if="isSaving">
-              <i class="fas fa-check"></i> Added to Curated Group
+              <font-awesome icon="check" /> Added to Curated Group
               <span
                 role="alert"
                 aria-live="passive"
@@ -66,7 +66,7 @@
             class="text-dark"
             variant="link"
             aria-label="Create a new curated group">
-            <i class="fas fa-plus"></i> Create New Curated Group
+            <font-awesome icon="plus" /> Create New Curated Group
           </b-btn>
         </b-dropdown-item>
       </b-dropdown>

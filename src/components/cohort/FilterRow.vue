@@ -24,11 +24,7 @@
             <div v-if="filter.name"><span class="sr-only">Filter:</span> {{ filter.name || 'New Filter' }}</div>
             <div v-if="!filter.name"><span class="sr-only">Select a </span>New Filter</div>
             <div>
-              <i
-                :class="{
-                  'fas fa-angle-up menu-caret': isMenuOpen,
-                  'fas fa-angle-down menu-caret': !isMenuOpen
-                }"></i>
+              <font-awesome :icon="isMenuOpen ? 'angle-up' : 'angle-down'" class="menu-caret" />
             </div>
           </div>
         </template>
@@ -77,11 +73,7 @@
               <div v-if="valueLabel"><span class="sr-only">Selected value is </span>{{ valueLabel }}</div>
               <div v-if="!valueLabel">Choose...<span class="sr-only"> a filter value option</span></div>
               <div>
-                <i
-                  :class="{
-                    'fas fa-angle-up menu-caret': isMenuOpen,
-                    'fas fa-angle-down menu-caret': !isMenuOpen
-                  }"></i>
+                <font-awesome :icon="isMenuOpen ? 'angle-up' : 'angle-down'" class="menu-caret" />
               </div>
             </div>
           </template>

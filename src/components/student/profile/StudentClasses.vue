@@ -33,9 +33,9 @@
                   v-b-toggle="`course-canvas-data-${term.termId}-${courseIndex}`"
                   class="student-course-collapse-button"
                   variant="link">
-                  <i class="when-course-closed fas fa-caret-right"></i>
+                  <font-awesome icon="caret-right" class="when-course-closed" />
                   <span class="when-course-closed sr-only">Show course details</span>
-                  <i class="when-course-open fas fa-caret-down"></i>
+                  <font-awesome icon="caret-down" class="when-course-open" />
                   <span class="when-course-open sr-only">Hide course details</span>
                 </b-btn>
               </div>
@@ -237,7 +237,7 @@ v-if="section.isViewableOnCoursePage"
           <div class="font-weight-bold">
             {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }}
             <div class="student-course-notation">
-              <i class="fas fa-exclamation-triangle student-course-dropped-icon"></i> Dropped
+              <font-awesome icon="exclamation-triangle" class="student-course-dropped-icon" /> Dropped
             </div>
           </div>
         </div>
@@ -248,11 +248,7 @@ v-if="section.isViewableOnCoursePage"
         id="toggle-show-all-terms"
         variant="link"
         @click.prevent="toggleShowAllTerms()">
-        <i
-          :class="{
-            'fas fa-caret-right': !showAllTerms,
-            'fas fa-caret-up': showAllTerms
-          }"></i>
+        <font-awesome :icon="showAllTerms ? 'caret-up' : 'caret-right'" />
         <span class="no-wrap pl-1">{{ showAllTerms ? 'Hide' : 'Show' }} Previous Semesters</span>
       </b-btn>
     </div>

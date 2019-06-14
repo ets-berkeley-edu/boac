@@ -65,7 +65,7 @@
                         :title="`Log in as ${groupUser.name}`"
                         variant="link"
                         @click="become(groupUser.uid)">
-                        <i class="fas fa-sign-in-alt"></i>
+                        <font-awesome icon="sign-in-alt" />
                       </b-btn>
                     </div>
                   </b-col>

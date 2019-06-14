@@ -20,7 +20,7 @@
           variant="link"
           class="p-0"
           @click.prevent="removeObject(addedObject)">
-          <i class="fas fa-times-circle has-error pl-2"></i>
+          <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
           <span class="sr-only">Remove {{ type }} {{ addedObject.name }} from note creation</span>
         </b-btn>
       </div>

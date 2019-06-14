@@ -30,11 +30,7 @@
             @click="courseSort('section')">
             Section
             <span v-if="sort.by === 'section'">
-              <i
-                :class="{
-                  'fas fa-caret-down': sort.reverse.section,
-                  'fas fa-caret-up': !sort.reverse.section
-                }"></i>
+              <font-awesome :icon="sort.reverse.section ? 'caret-down' : 'caret-up'" />
             </span>
           </button>
         </th>
@@ -47,11 +43,7 @@
             @click="courseSort('title')">
             Course Name
             <span v-if="sort.by === 'title'">
-              <i
-                :class="{
-                  'fas fa-caret-down': sort.reverse.title,
-                  'fas fa-caret-up': !sort.reverse.title
-                }"></i>
+              <font-awesome :icon="sort.reverse.title ? 'caret-down' : 'caret-up'" />
             </span>
           </button>
         </th>

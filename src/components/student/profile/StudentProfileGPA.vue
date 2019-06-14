@@ -34,12 +34,7 @@
               class="p-0 mt-1"
               variant="link"
               @click="showHideTermGpa()">
-              <i
-                class="show-hide-caret"
-                :class="{
-                  'fas fa-caret-right': !showTermGpa,
-                  'fas fa-caret-down mb-2': showTermGpa
-                }"></i>
+              <font-awesome :icon="showTermGpa ? 'caret-down' : 'caret-right'" class="show-hide-caret" />
               {{ showTermGpa ? 'Hide' : 'Show' }} Term GPA
             </b-btn>
           </div>
