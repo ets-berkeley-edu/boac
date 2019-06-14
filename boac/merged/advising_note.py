@@ -47,9 +47,14 @@ NOTE_SEARCH_PATTERN = r'(\w*[.:/-@]\w+([.:/-]\w+)*)|[^\s?!(),;:.`]+'
 
 
 def get_advising_notes(sid):
+    benchmark = get_benchmarker(f'get_advising_notes {sid}')
+    benchmark('begin')
     notes_by_id = {}
+    benchmark('begin SIS advising notes query')
     notes_by_id.update(get_sis_advising_notes(sid))
+    benchmark('begin ASC advising notes query')
     notes_by_id.update(get_asc_advising_notes(sid))
+    benchmark('begin non legacy advising notes query')
     notes_by_id.update(get_non_legacy_advising_notes(sid))
     if not notes_by_id.values():
         return None
@@ -60,6 +65,7 @@ def get_advising_notes(sid):
             note_feed['read'] = True
         else:
             app.logger.error(f'DB query mismatch for note id {note_read.note_id}')
+    benchmark('end')
     return list(notes_by_id.values())
 
 
