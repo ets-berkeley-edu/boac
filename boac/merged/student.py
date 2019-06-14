@@ -53,9 +53,13 @@ def get_api_json(sids):
 
 
 def get_full_student_profiles(sids):
+    benchmark = get_benchmarker('get_full_student_profiles')
+    benchmark('begin')
     if not sids:
         return []
+    benchmark('begin SIS profile query')
     profile_results = data_loch.get_student_profiles(sids)
+    benchmark('end SIS profile query')
     if not profile_results:
         return []
     profiles_by_sid = {row['sid']: json.loads(row['profile']) for row in profile_results}
@@ -65,16 +69,21 @@ def get_full_student_profiles(sids):
         if profile:
             profiles.append(profile)
 
+    benchmark('begin photo merge')
     _merge_photo_urls(profiles)
+    benchmark('end photo merge')
 
     scope = get_student_query_scope()
     if 'UWASC' in scope or 'ADMIN' in scope:
+        benchmark('begin ASC profile merge')
         athletics_profiles = data_loch.get_athletics_profiles(sids)
         for row in athletics_profiles:
             profile = profiles_by_sid.get(row['sid'])
             if profile:
                 profile['athleticsProfile'] = json.loads(row['profile'])
+        benchmark('end ASC profile merge')
     if 'COENG' in scope or 'ADMIN' in scope:
+        benchmark('begin COE profile merge')
         coe_profiles = data_loch.get_coe_profiles(sids)
         if coe_profiles:
             for row in coe_profiles:
@@ -85,11 +94,13 @@ def get_full_student_profiles(sids):
                         profile['coeProfile']['isActiveCoe'] = False
                     else:
                         profile['coeProfile']['isActiveCoe'] = True
-
+        benchmark('end COE profile merge')
     return profiles
 
 
 def get_course_student_profiles(term_id, section_id, offset=None, limit=None, featured=None):
+    benchmark = get_benchmarker('get_course_student_profiles')
+    benchmark('begin')
     enrollment_rows = data_loch.get_sis_section_enrollments(
         term_id,
         section_id,
@@ -115,10 +126,13 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None, fe
     # on the fly from full profiles.
     students = get_full_student_profiles(sids)
 
+    benchmark('begin enrollments query')
     enrollments_for_term = data_loch.get_enrollments_for_term(term_id, sids)
+    benchmark('end enrollments query')
     enrollments_by_sid = {row['sid']: json.loads(row['enrollment_term']) for row in enrollments_for_term}
     term_gpas = get_term_gpas_by_sid(sids, as_dicts=True)
     all_canvas_sites = {}
+    benchmark('begin profile transformation')
     for student in students:
         # Strip SIS details to lighten the API load.
         sis_profile = student.pop('sisProfile', None)
@@ -152,11 +166,13 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None, fe
                             all_canvas_sites[site['canvasCourseId']] = site
                     continue
         student['termGpa'] = term_gpas.get(student['sid'])
+    benchmark('end profile transformation')
     mean_metrics = analytics.mean_metrics_across_sites(all_canvas_sites.values(), 'courseMean')
     mean_metrics['gpa'] = {}
     mean_gpas = data_loch.get_sis_section_mean_gpas(term_id, section_id)
     for row in mean_gpas:
         mean_metrics['gpa'][str(row['gpa_term_id'])] = row['avg_gpa']
+    benchmark('end')
     return {
         'students': students,
         'totalStudentCount': total_student_count,
@@ -167,6 +183,8 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None, fe
 def get_summary_student_profiles(sids, term_id=None):
     if not sids:
         return []
+    benchmark = get_benchmarker('get_summary_student_profiles')
+    benchmark('begin')
     # TODO It's probably more efficient to store summary profiles in the loch, rather than distilling them
     # on the fly from full profiles.
     profiles = get_full_student_profiles(sids)
@@ -174,9 +192,15 @@ def get_summary_student_profiles(sids, term_id=None):
     # stored in the loch without BOAC having to crunch it.
     if not term_id:
         term_id = current_term_id()
+    benchmark('begin enrollments query')
     enrollments_for_term = data_loch.get_enrollments_for_term(term_id, sids)
+    benchmark('end enrollments query')
     enrollments_by_sid = {row['sid']: json.loads(row['enrollment_term']) for row in enrollments_for_term}
+    benchmark('begin term GPA query')
     term_gpas = get_term_gpas_by_sid(sids)
+    benchmark('end term GPA query')
+
+    benchmark('begin profile transformation')
     for profile in profiles:
         # Strip SIS details to lighten the API load.
         sis_profile = profile.pop('sisProfile', None)
@@ -199,6 +223,7 @@ def get_summary_student_profiles(sids, term_id=None):
             if term['termId'] == current_term_id() and len(term['enrollments']) > 0:
                 profile['hasCurrentTermEnrollments'] = True
         profile['termGpa'] = term_gpas.get(profile['sid'])
+    benchmark('end')
     return profiles
 
 

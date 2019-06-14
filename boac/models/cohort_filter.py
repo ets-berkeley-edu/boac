@@ -29,7 +29,7 @@ import json
 from boac import db, std_commit
 from boac.api.errors import InternalServerError
 from boac.lib import util
-from boac.lib.util import to_bool_or_none as to_bool
+from boac.lib.util import get_benchmarker, to_bool_or_none as to_bool
 from boac.merged import athletics
 from boac.merged.student import query_students
 from boac.models.alert import Alert
@@ -197,6 +197,8 @@ class CohortFilter(Base, UserMixin):
         include_profiles=False,
         include_alerts_for_user_id=None,
     ):
+        benchmark = get_benchmarker(f'CohortFilter {self.id} to_api_json')
+        benchmark('begin')
         c = self.filter_criteria
         c = c if isinstance(c, dict) else json.loads(c)
         advisor_ldap_uids = util.get(c, 'advisorLdapUids')
@@ -259,12 +261,14 @@ class CohortFilter(Base, UserMixin):
             cohort_json.update({
                 'totalStudentCount': self.student_count,
             })
+            benchmark('end')
             return cohort_json
 
         # Until we remove per-department siloing, cohort membership queries are constrained by the cohort owner, which
         # is a single user per present UX.
         cohort_owner = self.owners[0] if len(self.owners) else None
 
+        benchmark('begin students query')
         sids_only = not include_students
         results = query_students(
             advisor_ldap_uids=advisor_ldap_uids,
@@ -291,6 +295,8 @@ class CohortFilter(Base, UserMixin):
             underrepresented=underrepresented,
             unit_ranges=unit_ranges,
         )
+        benchmark('end students query')
+
         if results:
             # We deliberately keep SIDs out of the feed. For now, it is only used server-side in bulk note creation.
             cohort_json.update({
@@ -304,12 +310,14 @@ class CohortFilter(Base, UserMixin):
                     'students': results['students'],
                 })
             if include_alerts_for_user_id:
+                benchmark('begin alerts query')
                 alert_count_per_sid = Alert.include_alert_counts_for_students(
                     viewer_user_id=include_alerts_for_user_id,
                     group=results,
                     offset=alert_offset,
                     limit=alert_limit,
                 )
+                benchmark('end alerts query')
                 cohort_json.update({
                     'alerts': alert_count_per_sid,
                 })
@@ -319,4 +327,5 @@ class CohortFilter(Base, UserMixin):
                     cohort_json.update({
                         'alertCount': alert_count,
                     })
+        benchmark('end')
         return cohort_json

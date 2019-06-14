@@ -27,7 +27,7 @@ from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotF
 from boac.api.util import get_my_cohorts, is_unauthorized_search
 from boac.lib.berkeley import get_dept_codes
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import get as get_param, to_bool_or_none as to_bool
+from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
 from boac.merged import calnet
 from boac.merged.student import get_summary_student_profiles
 from boac.models.cohort_filter import CohortFilter
@@ -68,6 +68,8 @@ def all_cohorts():
 @app.route('/api/cohort/<cohort_id>/students_with_alerts')
 @login_required
 def students_with_alerts(cohort_id):
+    benchmark = get_benchmarker(f'cohort {cohort_id} students_with_alerts')
+    benchmark('begin')
     offset = get_param(request.args, 'offset', 0)
     limit = get_param(request.args, 'limit', 50)
     cohort = CohortFilter.find_by_id(
@@ -77,11 +79,13 @@ def students_with_alerts(cohort_id):
         alert_offset=offset,
         alert_limit=limit,
     )
+    benchmark('fetched cohort')
     if cohort and _can_view_cohort(current_user, cohort):
         _decorate_cohort(cohort)
         students = cohort.get('alerts', [])
         alert_sids = [s['sid'] for s in students]
         alert_profiles = get_summary_student_profiles(alert_sids)
+        benchmark('fetched student profiles')
         alert_profiles_by_sid = {p['sid']: p for p in alert_profiles}
         for student in students:
             student.update(alert_profiles_by_sid[student['sid']])
@@ -90,12 +94,15 @@ def students_with_alerts(cohort_id):
                 student['term'] = {'enrolledUnits': student['term'].get('enrolledUnits')}
     else:
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
+    benchmark('end')
     return tolerant_jsonify(students)
 
 
 @app.route('/api/cohort/<cohort_id>')
 @login_required
 def get_cohort(cohort_id):
+    benchmark = get_benchmarker(f'cohort {cohort_id} get_cohort')
+    benchmark('begin')
     filter_keys = list(request.args.keys())
     order_by = get_param(request.args, 'orderBy', None)
     if is_unauthorized_search(filter_keys, order_by):
@@ -104,6 +111,7 @@ def get_cohort(cohort_id):
     include_students = True if include_students is None else include_students
     offset = get_param(request.args, 'offset', 0)
     limit = get_param(request.args, 'limit', 50)
+    benchmark('begin cohort filter query')
     cohort = CohortFilter.find_by_id(
         int(cohort_id),
         order_by=order_by,
@@ -115,6 +123,7 @@ def get_cohort(cohort_id):
     )
     if cohort and _can_view_cohort(current_user, cohort):
         _decorate_cohort(cohort)
+        benchmark('end')
         return tolerant_jsonify(cohort)
     else:
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
@@ -123,6 +132,8 @@ def get_cohort(cohort_id):
 @app.route('/api/cohort/get_students_per_filters', methods=['POST'])
 @login_required
 def get_cohort_per_filters():
+    benchmark = get_benchmarker(f'cohort get_students_per_filters')
+    benchmark('begin')
     params = request.get_json()
     filters = get_param(params, 'filters', [])
     if not filters:
@@ -135,6 +146,7 @@ def get_cohort_per_filters():
     filter_keys = list(map(lambda f: f['key'], filters))
     if is_unauthorized_search(filter_keys, order_by):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
+    benchmark('begin phantom cohort query')
     cohort = CohortFilter.construct_phantom_cohort(
         filters=filters,
         order_by=order_by,
@@ -145,6 +157,7 @@ def get_cohort_per_filters():
         include_students=include_students,
     )
     _decorate_cohort(cohort)
+    benchmark('end')
     return tolerant_jsonify(cohort)
 
 
