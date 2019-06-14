@@ -11,7 +11,7 @@
           aria-label="Create cohort"
           href=""
           @click.prevent="updatePath('/cohort/new?')"
-        ><i class="fas fa-plus sidebar-header"></i>
+        ><font-awesome icon="plus" class="sidebar-header" />
         </a>
       </div>
     </div>

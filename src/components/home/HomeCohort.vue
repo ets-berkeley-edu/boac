@@ -15,14 +15,8 @@
         <div class="accordion-heading">
           <div class="accordion-heading-name">
             <div class="accordion-heading-caret">
-              <i
-                :id="`home-cohort-${cohort.id}-caret`"
-                :aria-label="isFetching ? 'Loading cohort details' : ''"
-                :class="{
-                  'fas fa-spinner fa-spin': isFetching,
-                  'fas fa-caret-right': !isOpen,
-                  'fas fa-caret-down': isOpen
-                }"></i>
+              <font-awesome v-if="isFetching" icon="spinner" spin />
+              <font-awesome v-if="!isFetching" :icon="isOpen ? 'caret-down' : 'caret-right'" />
             </div>
             <h2 class="page-section-header-sub accordion-header">
               <span class="sr-only">{{ `${isOpen ? 'Hide' : 'Show'} details for cohort ` }}</span>
@@ -53,7 +47,7 @@
       class="panel-body pr-3"
       :class="{'panel-open': isOpen}">
       <div v-if="cohort.studentsWithAlerts && size(cohort.studentsWithAlerts)">
-        <div v-if="size(cohort.studentsWithAlerts) == 50" class="m-3" :id="`home-cohort-${cohort.id}-alert-limited`">
+        <div v-if="size(cohort.studentsWithAlerts) === 50" :id="`home-cohort-${cohort.id}-alert-limited`" class="m-3">
           Showing 50 students with the most alerts.
           <router-link :id="`home-cohort-${cohort.id}-alert-limited-view-all`" :to="`/cohort/${cohort.id}`">
             View all {{ cohort.totalStudentCount }} students in "{{ cohort.name }}"
@@ -79,6 +73,7 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context';
 import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import SortableStudents from '@/components/search/SortableStudents';
 import store from '@/store';
@@ -89,7 +84,7 @@ export default {
   components: {
     SortableStudents
   },
-  mixins: [GoogleAnalytics, Util],
+  mixins: [Context, GoogleAnalytics, Util],
   props: {
     cohort: Object
   },
@@ -107,6 +102,7 @@ export default {
           .then(cohort => {
             this.cohort = cohort;
             this.isFetching = false;
+            this.alertScreenReader(`Loaded students with alerts who are in cohort ${this.cohort.name}`);
             this.gaEvent(
               'Home',
               'Fetch students with alerts',

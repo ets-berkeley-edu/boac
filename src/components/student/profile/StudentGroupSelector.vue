@@ -14,18 +14,22 @@
           class="p-3">
           <span v-if="!isAdding && !isRemoving">
             <span class="pr-1">Add to Group</span>
-            <i v-if="disableSelector || groupsLoading" class="fas fa-spinner fa-spin caret-down-width"></i>
-            <i v-if="!disableSelector && !groupsLoading" class="fas fa-caret-down caret-down-width"></i>
+            <font-awesome
+              v-if="disableSelector || groupsLoading"
+              icon="spinner"
+              spin
+              class="caret-down-width" />
+            <font-awesome v-if="!disableSelector && !groupsLoading" icon="caret-down" class="caret-down-width" />
           </span>
           <span v-if="isRemoving">
-            <i class="fas fa-times"></i> Removed
+            <font-awesome icon="times" /> Removed
             <span
               role="alert"
               aria-live="passive"
               class="sr-only">Student removed from the selected group</span>
           </span>
           <span v-if="isAdding">
-            <i class="fas fa-check"></i> Added
+            <font-awesome icon="check" /> Added
             <span
               role="alert"
               aria-live="passive"
@@ -65,7 +69,7 @@
           class="create-new-button mb-0 pl-0 text-dark"
           variant="link"
           aria-label="Create a new curated group">
-          <i class="fas fa-plus"></i> Create New Curated Group
+          <font-awesome icon="plus" /> Create New Curated Group
         </b-btn>
       </b-dropdown-item>
     </b-dropdown>

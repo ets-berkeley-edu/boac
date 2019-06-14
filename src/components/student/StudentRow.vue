@@ -8,7 +8,7 @@
         :id="`row-${rowIndex}-remove-student-from-curated-group`"
         class="btn btn-link"
         @click="removeFromCuratedGroup">
-        <i class="fas fa-times-circle"></i>
+        <font-awesome icon="times-circle" class="font-size-24" />
       </button>
       <div v-if="listType !== 'curatedGroup'">
         <CuratedStudentCheckbox :student="student" />
@@ -163,7 +163,7 @@
           </td>
           <td class="cohort-course-activity-data">
             <span v-if="enrollment.midtermGrade" v-accessible-grade="enrollment.midtermGrade" class="font-weight-bold"></span>
-            <i v-if="isAlertGrade(enrollment.midtermGrade)" class="fas fa-exclamation-triangle boac-exclamation"></i>
+            <font-awesome v-if="isAlertGrade(enrollment.midtermGrade)" icon="exclamation-triangle" class="boac-exclamation" />
             <span v-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
           </td>
           <td class="cohort-course-activity-data">
@@ -171,7 +171,7 @@
               v-if="enrollment.grade"
               v-accessible-grade="enrollment.grade"
               class="font-weight-bold"></span>
-            <i v-if="isAlertGrade(enrollment.grade)" class="fas fa-exclamation-triangle boac-exclamation"></i>
+            <font-awesome v-if="isAlertGrade(enrollment.grade)" icon="exclamation-triangle" class="boac-exclamation" />
             <span
               v-if="!enrollment.grade"
               class="cohort-grading-basis">{{ enrollment.gradingBasis }}</span>

@@ -63,7 +63,7 @@
             </div>
           </td>
           <td class="column-message">
-            <i class="fas fa-sync fa-spin"></i>
+            <font-awesome icon="sync" spin />
           </td>
         </tr>
         <tr
@@ -120,9 +120,9 @@
               @keyup.enter="open(message)"
               @click="open(message)">
               <span v-if="message.transientId !== editingNoteId" class="when-message-closed sr-only">Open message</span>
-              <i v-if="message.status === 'Satisfied'" class="requirements-icon fas fa-check text-success"></i>
-              <i v-if="message.status === 'Not Satisfied'" class="requirements-icon fas fa-exclamation text-icon-exclamation"></i>
-              <i v-if="message.status === 'In Progress'" class="requirements-icon fas fa-clock text-icon-clock"></i>
+              <font-awesome v-if="message.status === 'Satisfied'" icon="check" class="requirements-icon text-success" />
+              <font-awesome v-if="message.status === 'Not Satisfied'" icon="exclamation" class="requirements-icon text-icon-exclamation" />
+              <font-awesome v-if="message.status === 'In Progress'" icon="clock" class="requirements-icon text-icon-clock" />
               <span v-if="message.type !== 'note'">{{ message.message }}</span>
               <AdvisingNote
                 v-if="message.type === 'note' && message.transientId !== editingNoteId"
@@ -143,14 +143,14 @@
                   variant="link"
                   @keyup.enter.stop="close(message)"
                   @click.stop="close(message)">
-                  <i class="fas fa-times-circle"></i>
+                  <font-awesome icon="times-circle" class="font-size-24" />
                   Close Message
                 </b-btn>
               </div>
             </div>
           </td>
           <td class="column-right align-top pt-1 pr-1">
-            <i v-if="size(message.attachments)" class="fas fa-paperclip mt-2"></i>
+            <font-awesome v-if="size(message.attachments)" icon="paperclip" class="mt-2" />
             <span class="sr-only">{{ size(message.attachments) ? 'Yes' : 'No' }}</span>
           </td>
           <td class="column-right align-top">
@@ -186,7 +186,7 @@
                     :id="`advising-note-permalink-${message.id}`"
                     :to="`#${message.id}`"
                     @click.native="scrollToPermalink(message.id)">
-                    Permalink <i class="fas fa-link"></i>
+                    Permalink <font-awesome icon="link" />
                   </router-link>
                 </div>
               </div>
@@ -206,11 +206,7 @@
         variant="link"
         :aria-label="isShowingAll ? 'Hide previous messages' : 'Show previous messages'"
         @click="isShowingAll = !isShowingAll">
-        <i
-          :class="{
-            'fas fa-caret-up': isShowingAll,
-            'fas fa-caret-right': !isShowingAll
-          }"></i>
+        <font-awesome :icon="isShowingAll ? 'caret-up' : 'caret-right'" />
         {{ isShowingAll ? 'Hide' : 'Show' }} Previous Messages
       </b-btn>
     </div>

@@ -9,7 +9,7 @@
         :disabled="disable"
         @click="openNewNoteModal()">
         <span class="m-1">
-          <i class="fas fa-file-alt"></i>
+          <font-awesome icon="file-alt" />
           New Note
         </span>
       </b-btn>
@@ -41,7 +41,7 @@
                 class="pr-2"
                 @click.prevent="minimize()">
                 <span class="sr-only">Minimize</span>
-                <i class="fas fa-window-minimize minimize-icon text-dark"></i>
+                <font-awesome icon="window-minimize" class="minimize-icon text-dark" />
               </b-btn>
             </div>
             <div v-if="!undocked" class="pr-2">
@@ -53,7 +53,7 @@
                 class="pl-1 pb-1"
                 @click.prevent="cancel()">
                 <span class="sr-only">Cancel</span>
-                <i class="fas fa-times fa-icon-size text-dark"></i>
+                <font-awesome icon="times" class="fa-icon-size text-dark" />
               </b-btn>
             </div>
           </div>
@@ -109,7 +109,7 @@
             :topics="topics" />
           <div v-if="undocked" class="mt-2 mr-3 mb-1 ml-3">
             <div v-if="attachmentError" class="mt-3 mb-3 w-100">
-              <i class="fa fa-exclamation-triangle text-danger pr-1"></i>
+              <font-awesome icon="exclamation-triangle" class="text-danger pr-1" />
               <span aria-live="polite" role="alert">{{ attachmentError }}</span>
             </div>
             <div v-if="size(attachments) < maxAttachmentsPerNote" class="w-100">
@@ -145,13 +145,13 @@
                   :key="attachment.name"
                   class="mt-2">
                   <span class="pill pill-attachment text-nowrap">
-                    <i class="fas fa-paperclip pr-1 pl-1"></i> {{ attachment.name }}
+                    <font-awesome icon="paperclip" class="pr-1 pl-1" /> {{ attachment.name }}
                     <b-btn
                       :id="`remove-note-attachment-${index}`"
                       variant="link"
                       class="p-0"
                       @click.prevent="removeAttachment(index)">
-                      <i class="fas fa-times-circle has-error pl-2"></i>
+                      <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
                       <span class="sr-only">Delete attachment {{ attachment.name }}</span>
                     </b-btn>
                   </span>
@@ -205,7 +205,7 @@
           class="pr-2"
           @click.stop="maximize()">
           <span class="sr-only">Maximize</span>
-          <i class="fas fa-window-maximize fa-icon-size text-white"></i>
+          <font-awesome icon="window-maximize" class="fa-icon-size text-white" />
         </b-btn>
       </div>
       <div class="pr-2 pt-1">
@@ -216,7 +216,7 @@
           class="pl-1"
           @click.prevent="cancel()">
           <span class="sr-only">Cancel</span>
-          <i class="fas fa-times fa-icon-size text-white"></i>
+          <font-awesome icon="times" class="fa-icon-size text-white" />
         </b-btn>
       </div>
     </div>

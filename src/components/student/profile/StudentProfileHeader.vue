@@ -32,8 +32,8 @@
             <div id="student-bio-sid" class="font-size-14 font-weight-bold">
               SID <span :class="{'demo-mode-blur': user.inDemoMode}">{{ student.sid }}</span>
             </div>
-            <div class="">
-              <i class="fas fa-envelope"></i>
+            <div>
+              <font-awesome icon="envelope" />
               <span class="sr-only">Email</span>
               <a
                 id="student-mailto"
@@ -43,7 +43,7 @@
                 {{ student.sisProfile.emailAddress }}</a>
             </div>
             <div v-if="student.sisProfile.phoneNumber">
-              <i class="fas fa-phone"></i>
+              <font-awesome icon="phone" />
               <span class="sr-only">Phone number</span>
               <a
                 id="student-phone-number"
@@ -98,7 +98,7 @@
                 id="link-to-calcentral"
                 :href="`https://calcentral.berkeley.edu/user/overview/${student.uid}`"
                 target="_blank"
-                aria-label="Open CalCentral in new window">Student profile in CalCentral <i class="pr-1 fas fa-external-link-alt"></i></a>
+                aria-label="Open CalCentral in new window">Student profile in CalCentral <font-awesome icon="external-link-alt" class="pr-1" /></a>
             </div>
           </div>
         </div>

@@ -24,7 +24,7 @@
           :disabled="!trim(textarea) || (curatedGroupId && isUpdating)"
           @click="submitSids">
           <span v-if="curatedGroupId">
-            <span v-if="isUpdating"><i class="fas fa-spinner fa-spin"></i> <span class="pl-1">Adding</span></span>
+            <span v-if="isUpdating"><font-awesome icon="spinner" spin /> <span class="pl-1">Adding</span></span>
             <span v-if="!isUpdating">Add</span>
           </span>
           <span v-if="!curatedGroupId">Next</span>

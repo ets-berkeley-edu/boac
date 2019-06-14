@@ -79,7 +79,7 @@
               v-if="!isPreCsNote"
               :id="`note-${note.id}-attachment-${index}`"
               :href="downloadUrl(attachment)">
-              <i class="fas fa-paperclip"></i>
+              <font-awesome icon="paperclip" />
               {{ attachment.displayName }}
             </a>
             <b-btn
@@ -88,24 +88,24 @@
               variant="link"
               class="p-0"
               @click.prevent="removeAttachment(index)">
-              <i class="fas fa-times-circle has-error pl-2"></i>
+              <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
               <span class="sr-only">Delete attachment {{ attachment.displayName }}</span>
             </b-btn>
             <span
               v-if="isPreCsNote"
               :id="`note-${note.id}-attachment-${index}`">
-              <i class="fas fa-paperclip"></i> {{ attachment.displayName }}
+              <font-awesome icon="paperclip" /> {{ attachment.displayName }}
             </span>
           </span>
         </li>
       </ul>
       <div v-if="isEditable && user.uid === note.author.uid">
         <div v-if="attachmentError" class="mt-3 mb-3 w-100">
-          <i class="fa fa-exclamation-triangle text-danger pr-1"></i>
+          <font-awesome icon="exclamation-triangle" class="text-danger pr-1" />
           <span :id="`note-${note.id}-attachment-error`" aria-live="polite" role="alert">{{ attachmentError }}</span>
         </div>
         <div v-if="uploadingAttachment" class="w-100">
-          <i class="fas fa-spin fa-sync"></i> Uploading attachment...
+          <font-awesome icon="sync" spin /> Uploading attachment...
         </div>
         <div v-if="size(attachments) < maxAttachmentsPerNote && !uploadingAttachment" class="w-100">
           <label for="choose-file-for-note-attachment" class="sr-only"><span class="sr-only">Note </span>Attachments</label>

@@ -24,7 +24,7 @@
                 aria-controls="note-topics-list"
                 :disabled="isTopicEmpty"
                 @click="addTopic">
-                <i class="fas fa-plus pr-1"></i>Add<span class="sr-only"> Topic</span>
+                <font-awesome icon="plus" class="pr-1" /> Add<span class="sr-only"> Topic</span>
               </b-button>
             </b-input-group-append>
           </b-input-group>
@@ -48,7 +48,7 @@
                 :aria-labelledby="`remove-${notePrefix}-topic-${index}-label`"
                 tabindex="0"
                 @click.prevent="removeTopic(addedTopic)">
-                <i class="fas fa-times-circle has-error pl-2"></i>
+                <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
               </b-btn>
               <label :id="`remove-${notePrefix}-topic-${index}-label`" class="sr-only" :for="`remove-${notePrefix}-topic-${index}`">
                 remove topic {{ topics[index] }}

@@ -15,14 +15,8 @@
         <div class="accordion-heading">
           <div class="accordion-heading-name">
             <div class="accordion-heading-caret">
-              <i
-                :id="`home-curated-group-${curatedGroup.id}-caret`"
-                :aria-label="isFetching ? 'Loading curated group details. ' : ''"
-                :class="{
-                  'fas fa-spinner fa-spin': isFetching,
-                  'fas fa-caret-right': !isOpen,
-                  'fas fa-caret-down': isOpen
-                }"></i>
+              <font-awesome v-if="isFetching" icon="spinner" spin />
+              <font-awesome v-if="!isFetching" :icon="isOpen ? 'caret-down' : 'caret-right'" />
             </div>
             <h2 class="page-section-header-sub accordion-header">
               <span class="sr-only">{{ `${isOpen ? 'Hide' : 'Show'} details for curated group ` }}</span>
@@ -53,7 +47,7 @@
       class="panel-body pr-3"
       :class="{'panel-open': isOpen}">
       <div v-if="curatedGroup.studentsWithAlerts && size(curatedGroup.studentsWithAlerts)">
-        <div v-if="size(curatedGroup.studentsWithAlerts) == 50" class="m-3" :id="`home-curated-group-${curatedGroup.id}-alert-limited`">
+        <div v-if="size(curatedGroup.studentsWithAlerts) === 50" :id="`home-curated-group-${curatedGroup.id}-alert-limited`" class="m-3">
           Showing 50 students with the most alerts.
           <router-link :id="`home-curated-group-${curatedGroup.id}-alert-limited-view-all`" :to="`/curated/${curatedGroup.id}`">
             View all {{ curatedGroup.studentCount }} students in "{{ curatedGroup.name }}"
@@ -79,6 +73,7 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context';
 import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import SortableStudents from '@/components/search/SortableStudents';
 import store from '@/store';
@@ -89,7 +84,7 @@ export default {
   components: {
     SortableStudents
   },
-  mixins: [GoogleAnalytics, Util],
+  mixins: [Context, GoogleAnalytics, Util],
   props: {
     curatedGroup: Object
   },
@@ -107,6 +102,7 @@ export default {
           .then(curatedGroup => {
             this.curatedGroup = curatedGroup;
             this.isFetching = false;
+            this.alertScreenReader(`Loaded students with alerts who are in curated group ${this.curatedGroup.name}`);
             this.gaEvent(
               'Home',
               'Fetch students with alerts',

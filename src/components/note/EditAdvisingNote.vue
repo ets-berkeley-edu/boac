@@ -67,7 +67,7 @@
           class="mt-2"
           @click.stop>
           <span class="pill pill-attachment text-nowrap">
-            <i class="fas fa-paperclip pr-1 pl-1"></i>
+            <font-awesome icon="paperclip" class="pr-1 pl-1" />
             {{ attachment.displayName }}
           </span>
         </li>

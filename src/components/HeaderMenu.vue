@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="!user"><i class="fas fa-spinner fa-spin b-link-text mr-4"></i></div>
+    <div v-if="!user"><font-awesome icon="spinner" spin class="b-link-text mr-4" /></div>
     <div v-if="user">
       <span v-if="user && !user.firstName">{{ user }}</span>
       <b-dropdown
@@ -11,7 +11,7 @@
         right>
         <template slot="button-content">
           <div class="d-flex align-items-center">
-            <div class="b-link-text">{{ user.firstName }}</div><i class="ml-1 fas fa-caret-down b-link-text"></i>
+            <div class="b-link-text">{{ user.firstName }}</div><font-awesome icon="caret-down" class="ml-1 b-link-text" />
           </div>
         </template>
         <b-dropdown-item v-if="user.isAdmin || isDemoModeAvailable" @click="goAdmin">Admin</b-dropdown-item>
