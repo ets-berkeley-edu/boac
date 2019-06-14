@@ -258,13 +258,11 @@ def get_my_curated_groups():
     return curated_groups
 
 
-def get_my_cohorts():
-    uid = current_user.get_id()
-    cohorts = []
-    for cohort in CohortFilter.summarize_alert_counts_in_all_owned_by(uid):
+def get_cohort_owned_by(user_id, cohort_id):
+    cohort = CohortFilter.get_cohort_owned_by(user_id, cohort_id)
+    if cohort:
         cohort['isOwnedByCurrentUser'] = True
-        cohorts.append(cohort)
-    return cohorts
+    return cohort
 
 
 def is_asc_authorized():

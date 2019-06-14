@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import get_my_cohorts, is_unauthorized_search
+from boac.api.util import get_cohort_owned_by, is_unauthorized_search
 from boac.lib.berkeley import get_dept_codes
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
@@ -39,7 +39,11 @@ import numpy as np
 @app.route('/api/cohorts/my')
 @login_required
 def my_cohorts():
-    return tolerant_jsonify(get_my_cohorts())
+    cohorts = []
+    for cohort in CohortFilter.summarize_alert_counts_in_all_owned_by(current_user.id):
+        cohort['isOwnedByCurrentUser'] = True
+        cohorts.append(cohort)
+    return tolerant_jsonify(cohorts)
 
 
 @app.route('/api/cohorts/all')
@@ -217,8 +221,7 @@ def update_cohort():
     filter_criteria = _filters_to_filter_criteria(params.get('filters')) if 'filters' in params else params.get('criteria')
     if not name and not filter_criteria:
         raise BadRequestError('Invalid request')
-    uid = current_user.get_id()
-    cohort = next((c for c in CohortFilter.all_owned_by(uid) if c['id'] == cohort_id), None)
+    cohort = get_cohort_owned_by(current_user.id, cohort_id)
     if not cohort:
         raise ForbiddenRequestError(f'Invalid or unauthorized request')
     name = name or cohort['name']
@@ -239,13 +242,12 @@ def update_cohort():
 def delete_cohort(cohort_id):
     if cohort_id.isdigit():
         cohort_id = int(cohort_id)
-        uid = current_user.get_id()
-        cohort = next((c for c in CohortFilter.all_owned_by(uid) if c['id'] == cohort_id), None)
+        cohort = get_cohort_owned_by(current_user.id, cohort_id)
         if cohort:
             CohortFilter.delete(cohort_id)
             return tolerant_jsonify({'message': f'Cohort deleted (id={cohort_id})'}), 200
         else:
-            raise BadRequestError(f'User {uid} does not own cohort with id={cohort_id}')
+            raise BadRequestError(f'User {current_user.get_id()} does not own cohort with id={cohort_id}')
     else:
         raise ForbiddenRequestError(f'Programmatic deletion of canned cohorts is not allowed (id={cohort_id})')
 

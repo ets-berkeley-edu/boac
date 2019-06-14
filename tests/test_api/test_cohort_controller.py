@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.models.cohort_filter import CohortFilter
 import pytest
 import simplejson as json
+from tests.test_api.api_test_utils import all_cohorts_owned_by
 
 admin_uid = '2040'
 asc_advisor_uid = '1081940'
@@ -49,14 +50,13 @@ def coe_advisor_session(fake_auth):
 
 @pytest.fixture()
 def asc_owned_cohort():
-    cohorts = CohortFilter.all_owned_by(asc_advisor_uid)
+    cohorts = all_cohorts_owned_by(asc_advisor_uid)
     return next((c for c in cohorts if c['name'] == 'All sports'), None)
 
 
 @pytest.fixture()
 def coe_owned_cohort():
-    cohorts = CohortFilter.all_owned_by(coe_advisor_uid)
-    assert len(cohorts)
+    cohorts = all_cohorts_owned_by(coe_advisor_uid)
     return next((c for c in cohorts if c['name'] == 'Radioactive Women and Men'), None)
 
 
@@ -83,7 +83,7 @@ class TestCohortDetail:
         client.get('/api/student/98765')
         from boac.models.alert import Alert
         Alert.update_all_for_term(2178)
-        cohorts = CohortFilter.all_owned_by(asc_advisor_uid)
+        cohorts = all_cohorts_owned_by(asc_advisor_uid)
         assert len(cohorts)
         cohort_id = cohorts[0]['id']
         students_with_alerts = client.get(f'/api/cohort/{cohort_id}/students_with_alerts').json
@@ -164,7 +164,7 @@ class TestCohortDetail:
 
     def test_undeclared_major(self, asc_advisor_session, client):
         """Returns a well-formed response with custom cohort."""
-        cohort = CohortFilter.all_owned_by(asc_advisor_uid)[-1]
+        cohort = all_cohorts_owned_by(asc_advisor_uid)[-1]
         cohort_id = cohort['id']
         response = client.get(f'/api/cohort/{cohort_id}')
         assert response.status_code == 200
@@ -590,7 +590,7 @@ class TestCohortDelete:
         cohort_id = cohort['id']
         response = client.delete(f'/api/cohort/delete/{cohort_id}')
         assert response.status_code == 200
-        cohorts = CohortFilter.all_owned_by(asc_advisor_uid)
+        cohorts = all_cohorts_owned_by(asc_advisor_uid)
         assert not next((c for c in cohorts if c['id'] == cohort_id), None)
 
 
