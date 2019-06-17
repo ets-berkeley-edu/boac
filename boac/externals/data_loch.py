@@ -434,12 +434,13 @@ def search_advising_notes(
         topic_join = ''
 
     date_filter = ''
+    # We prefer to filter on updated_at, but that value is not meaningful for UCBCONVERSION notes.
     if datetime_from:
-        # The updated_at value is not meaningful for UCBCONVERSION notes.
         date_filter += """ AND ((an.created_by = 'UCBCONVERSION' AND an.created_at >= :datetime_from)
             OR ((an.created_by != 'UCBCONVERSION' OR an.created_by IS NULL) AND an.updated_at >= :datetime_from))"""
     if datetime_to:
-        date_filter += ' AND an.created_at < :datetime_to'
+        date_filter += """ AND ((an.created_by = 'UCBCONVERSION' AND an.created_at < :datetime_to)
+            OR ((an.created_by != 'UCBCONVERSION' OR an.created_by IS NULL) AND an.updated_at < :datetime_to))"""
 
     sql = f"""WITH an AS (
         (SELECT sis.sid, sis.id, sis.note_body, sis.advisor_sid, NULL AS advisor_uid, NULL AS advisor_first_name, NULL AS advisor_last_name,

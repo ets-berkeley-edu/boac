@@ -129,7 +129,7 @@
                 You
               </b-form-radio>
             </b-form-group>
-            <b-form-group label="Date Posted">
+            <b-form-group label="Last Updated">
               <label
                 for="search-options-note-filters-date-posted-from"
                 class="search-form-label">
