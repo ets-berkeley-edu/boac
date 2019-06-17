@@ -31,7 +31,6 @@ from boac.lib.berkeley import get_dept_codes
 from boac.merged import calnet
 from boac.merged.advising_note import get_advising_notes
 from boac.models.alert import Alert
-from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from flask import current_app as app, request
 from flask_login import current_user
@@ -209,13 +208,6 @@ def get_my_curated_groups():
         api_json['studentCount'] = len(students)
         curated_groups.append(api_json)
     return curated_groups
-
-
-def get_cohort_owned_by(user_id, cohort_id):
-    cohort = CohortFilter.get_cohort_owned_by(user_id, cohort_id)
-    if cohort:
-        cohort['isOwnedByCurrentUser'] = True
-    return cohort
 
 
 def is_asc_authorized():

@@ -24,12 +24,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import get_cohort_owned_by, is_unauthorized_search
+from boac.api.util import is_unauthorized_search
 from boac.lib.berkeley import get_dept_codes
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
 from boac.merged import calnet
-from boac.merged.student import get_summary_student_profiles
+from boac.merged.student import get_student_query_scope as get_query_scope, get_summary_student_profiles
+from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from flask import current_app as app, request
 from flask_login import current_user, login_required
@@ -49,24 +50,21 @@ def my_cohorts():
 @app.route('/api/cohorts/all')
 @login_required
 def all_cohorts():
-    cohorts_per_uid = {}
-    for cohort in CohortFilter.all_cohorts():
-        if _can_view_cohort(current_user, cohort):
-            _decorate_cohort(cohort)
-            for owner in cohort['owners']:
-                uid = owner['uid']
-                if uid not in cohorts_per_uid:
-                    cohorts_per_uid[uid] = []
-                cohorts_per_uid[uid].append(cohort)
-    owners = []
-    for uid in cohorts_per_uid.keys():
-        owner = calnet.get_calnet_user_for_uid(app, uid)
-        owner.update({
-            'cohorts': sorted(cohorts_per_uid[uid], key=lambda c: c['name']),
+    scope = get_query_scope(current_user)
+    uids = AuthorizedUser.get_all_uids_in_scope(scope)
+    cohorts_per_uid = dict((uid, []) for uid in uids)
+    for cohort in CohortFilter.all_cohorts_owned_by(uids):
+        for uid in cohort['owners']:
+            cohorts_per_uid[uid].append(cohort)
+    api_json = []
+    for uid, user in calnet.get_calnet_users_for_uids(app, uids).items():
+        cohorts = cohorts_per_uid[uid]
+        api_json.append({
+            'user': user,
+            'cohorts': sorted(cohorts, key=lambda c: c['name']),
         })
-        owners.append(owner)
-    owners = sorted(owners, key=lambda o: (o.get('name') or ''))
-    return tolerant_jsonify(owners)
+    api_json = sorted(api_json, key=lambda v: v['user']['name'])
+    return tolerant_jsonify(api_json)
 
 
 @app.route('/api/cohort/<cohort_id>/students_with_alerts')
@@ -221,11 +219,8 @@ def update_cohort():
     filter_criteria = _filters_to_filter_criteria(params.get('filters')) if 'filters' in params else params.get('criteria')
     if not name and not filter_criteria:
         raise BadRequestError('Invalid request')
-    cohort = get_cohort_owned_by(current_user.get_id(), cohort_id)
-    if not cohort:
+    if not CohortFilter.is_cohort_owned_by(cohort_id, current_user.get_id()):
         raise ForbiddenRequestError(f'Invalid or unauthorized request')
-    name = name or cohort['name']
-    filter_criteria = filter_criteria or cohort.filter_criteria
     updated = CohortFilter.update(
         cohort_id=cohort_id,
         name=name,
@@ -242,8 +237,7 @@ def update_cohort():
 def delete_cohort(cohort_id):
     if cohort_id.isdigit():
         cohort_id = int(cohort_id)
-        cohort = get_cohort_owned_by(current_user.get_id(), cohort_id)
-        if cohort:
+        if CohortFilter.is_cohort_owned_by(cohort_id, current_user.get_id()):
             CohortFilter.delete(cohort_id)
             return tolerant_jsonify({'message': f'Cohort deleted (id={cohort_id})'}), 200
         else:

@@ -132,13 +132,22 @@ class TestCohortDetail:
         """Returns all cohorts per owner."""
         response = client.get('/api/cohorts/all')
         assert response.status_code == 200
-        data = json.loads(response.data)
-        assert len(data) == 1
-        owner = data[0]
-        assert owner['uid'] == '1081940'
-        assert 'firstName' in owner and 'lastName' in owner
-        cohorts = owner['cohorts']
-        assert len(cohorts) == 5
+        api_json = response.json
+        count = len(api_json)
+        assert count == 2
+        for index, entry in enumerate(api_json):
+            user = entry['user']
+            if 0 < index < count:
+                # Verify order
+                assert user['name'] > api_json[index - 1]['user']['name']
+            assert 'uid' in user
+            cohorts = entry['cohorts']
+            cohort_count = len(cohorts)
+            for c_index, cohort in enumerate(cohorts):
+                if 0 < c_index < cohort_count:
+                    # Verify order
+                    assert cohort['name'] > cohorts[c_index - 1]['name']
+                assert 'id' in cohort
 
     def test_get_cohort(self, coe_advisor_session, client, coe_owned_cohort, create_alerts):
         """Returns a well-formed response with filtered cohort and alert count per student."""
