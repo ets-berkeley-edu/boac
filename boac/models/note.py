@@ -143,7 +143,7 @@ class Note(Base):
             date_filter += ' AND updated_at >= :datetime_from'
             params.update({'datetime_from': datetime_from})
         if datetime_to:
-            date_filter += ' AND created_at < :datetime_to'
+            date_filter += ' AND updated_at < :datetime_to'
             params.update({'datetime_to': datetime_to})
         if topic:
             topic_join = 'JOIN note_topics nt on nt.topic = :topic AND nt.note_id = notes.id'
