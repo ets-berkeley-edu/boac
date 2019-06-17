@@ -122,11 +122,13 @@ export default {
       })
     }
   },
-  data: () => ({
-    fields: undefined,
-    sortBy: 'lastName',
-    sortDescending: false
-  }),
+  data() {
+    return {
+      fields: undefined,
+      sortBy: this.options.sortBy,
+      sortDescending: this.options.reverse
+    }
+  },
   watch: {
     sortBy() {
       this.onChangeSortBy();

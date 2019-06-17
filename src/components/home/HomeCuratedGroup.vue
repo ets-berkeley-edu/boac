@@ -48,12 +48,12 @@
       :class="{'panel-open': isOpen}">
       <div v-if="curatedGroup.studentsWithAlerts && size(curatedGroup.studentsWithAlerts)">
         <div v-if="size(curatedGroup.studentsWithAlerts) === 50" :id="`home-curated-group-${curatedGroup.id}-alert-limited`" class="m-3">
-          Showing 50 students with the most alerts.
+          Showing 50 students with a high number of alerts.
           <router-link :id="`home-curated-group-${curatedGroup.id}-alert-limited-view-all`" :to="`/curated/${curatedGroup.id}`">
             View all {{ curatedGroup.studentCount }} students in "{{ curatedGroup.name }}"
           </router-link>
         </div>
-        <SortableStudents :students="curatedGroup.studentsWithAlerts" />
+        <SortableStudents :students="curatedGroup.studentsWithAlerts" :options="getSortOptions(curatedGroup)" />
       </div>
       <div>
         <router-link :id="`home-curated-group-${curatedGroup.id}-view-all`" :to="`/curated/${curatedGroup.id}`">
@@ -75,6 +75,7 @@
 <script>
 import Context from '@/mixins/Context';
 import GoogleAnalytics from '@/mixins/GoogleAnalytics';
+import HomeUtil from '@/components/home/HomeUtil';
 import SortableStudents from '@/components/search/SortableStudents';
 import store from '@/store';
 import Util from '@/mixins/Util';
@@ -84,7 +85,7 @@ export default {
   components: {
     SortableStudents
   },
-  mixins: [Context, GoogleAnalytics, Util],
+  mixins: [Context, GoogleAnalytics, HomeUtil, Util],
   props: {
     curatedGroup: Object
   },
