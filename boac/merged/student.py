@@ -435,7 +435,9 @@ def get_student_query_scope(user=None):
     # is important.
     if not user:
         return ['ADMIN']
-    elif not user.is_authenticated:
+    elif hasattr(user, 'is_authenticated') and not user.is_authenticated:
+        # This function can be invoked with both (1) user session object or (2) user record from the db.
+        # User session object is identified by the presence of 'is_authenticated' method.
         return []
     elif user.is_admin:
         return ['ADMIN']

@@ -78,15 +78,19 @@ class TestCohortDetail:
             assert key in cohorts[0], f'Missing cohort element: {key}'
 
     def test_students_with_alert_counts(self, asc_advisor_session, client, create_alerts, db_session):
-        # Pre-load students into cache for consistent alert data.
-        client.get('/api/student/61889')
-        client.get('/api/student/98765')
+        """Pre-load students into cache for consistent alert data."""
         from boac.models.alert import Alert
+
+        assert client.get('/api/student/61889').status_code == 200
+        assert client.get('/api/student/98765').status_code == 200
+
         Alert.update_all_for_term(2178)
         cohorts = all_cohorts_owned_by(asc_advisor_uid)
         assert len(cohorts)
         cohort_id = cohorts[0]['id']
-        students_with_alerts = client.get(f'/api/cohort/{cohort_id}/students_with_alerts').json
+        response = client.get(f'/api/cohort/{cohort_id}/students_with_alerts')
+        assert response.status_code == 200
+        students_with_alerts = response.json
         assert len(students_with_alerts) == 3
 
         deborah = students_with_alerts[0]
@@ -283,47 +287,46 @@ class TestCohortCreate:
     """Cohort Create API."""
 
     @classmethod
-    def _post_cohort_create(cls, client, json_data=()):
-        return client.post(
+    def _post_cohort_create(cls, client, json_data=(), expected_status_code=200):
+        response = client.post(
             '/api/cohort/create',
             data=json.dumps(json_data),
             content_type='application/json',
         )
+        assert response.status_code == expected_status_code
+        return json.loads(response.data)
+
+    @staticmethod
+    def _api_cohort(client, cohort_id, expected_status_code=200):
+        response = client.get(f'/api/cohort/{cohort_id}')
+        assert response.status_code == expected_status_code
+        return response.json
 
     @classmethod
     def _assert_create_tennis_cohort(cls, client, data):
-        response = cls._post_cohort_create(client, data)
-        assert response.status_code == 200
+        api_json = cls._post_cohort_create(client, data)
+        assert 'students' in api_json
+        assert api_json['alertCount'] is not None
+        assert 'name' in api_json and api_json['name'] == data['name']
+        assert 'teamGroups' in api_json
+        assert ['MTE', 'WTE'] == [g['groupCode'] for g in api_json['teamGroups']]
 
-        cohort = json.loads(response.data)
-        assert 'students' in cohort
-        assert cohort['alertCount'] is not None
-        assert 'name' in cohort and cohort['name'] == data['name']
-        assert 'teamGroups' in cohort
-        assert ['MTE', 'WTE'] == [g['groupCode'] for g in cohort['teamGroups']]
-
-        cohort_id = cohort['id']
-        response = client.get(f'/api/cohort/{cohort_id}')
-        same_cohort = json.loads(response.data)
-
-        assert 'students' in cohort
-        assert same_cohort['name'] == data['name']
-        assert 'teamGroups' in cohort and len(cohort['teamGroups']) == 2
-        assert ['MTE', 'WTE'] == [g['groupCode'] for g in cohort['teamGroups']]
-        f = cohort['criteria']
-        assert 'majors' in f and len(f['majors']) == 2
+        api_json = cls._api_cohort(client, api_json['id'])
+        assert 'students' in api_json
+        assert api_json['name'] == data['name']
+        assert 'teamGroups' in api_json and len(api_json['teamGroups']) == 2
+        assert ['MTE', 'WTE'] == [g['groupCode'] for g in api_json['teamGroups']]
+        criteria = api_json['criteria']
+        assert 'majors' in criteria and len(criteria['majors']) == 2
 
     @classmethod
     def _assert_create_complex_cohort(cls, client, data):
-        response = cls._post_cohort_create(client, data)
-        assert 200 == response.status_code
-        cohort_id = response.json['id']
-        response = client.get(f'/api/cohort/{cohort_id}')
-        assert 200 == response.status_code
-        cohort = response.json
-        assert cohort and 'criteria' in cohort
-        assert cohort['alertCount'] is not None
-        return cohort
+        api_json = cls._post_cohort_create(client, data)
+        cohort_id = api_json['id']
+        api_json = cls._api_cohort(client, cohort_id)
+        assert 'criteria' in api_json
+        assert api_json['alertCount'] is not None
+        return api_json
 
     def test_create_tennis_cohort(self, client, asc_advisor_session):
         """Creates custom cohort, owned by current user."""
@@ -359,7 +362,7 @@ class TestCohortCreate:
             'name': 'ASC advisor wants to see students of COE advisor',
             'advisorLdapUids': '1133399',
         }
-        assert self._post_cohort_create(client, data).status_code == 403
+        assert self._post_cohort_create(client, data, expected_status_code=403)
 
     def test_asc_advisor_is_forbidden(self, asc_advisor_session, client, fake_auth):
         data = {
@@ -368,40 +371,40 @@ class TestCohortCreate:
                 {'key': 'advisorLdapUids', 'type': 'array', 'value': '1133399'},
             ],
         }
-        assert self._post_cohort_create(client, data).status_code == 403
+        assert self._post_cohort_create(client, data, expected_status_code=403)
 
     def test_admin_create_of_coe_uid_cohort(self, admin_session, client, fake_auth):
         data = {
             'name': 'Admin wants to see students of COE advisor',
             'advisorLdapUids': '1133399',
         }
-        response = self._post_cohort_create(client, data)
-        assert response.status_code == 200
-        assert len(response.json['students']) == 2
+        api_json = self._post_cohort_create(client, data)
+        assert len(api_json['students']) == 2
 
     def test_cohorts_respect_creators(self, client, fake_auth):
         """Even under an admin view, cohorts constrain their membership by who created them."""
-        sophomore_filter = {
-            'name': 'Sophomores',
-            'filters': [
-                {'key': 'levels', 'type': 'array', 'value': 'Sophomore'},
-            ],
-        }
-
-        def _create_sophomore_cohort(owner_uid):
-            fake_auth.login(owner_uid)
-            response = self._post_cohort_create(client, sophomore_filter)
-            return response.json['id']
-        asc_sophomores_cohort_id = _create_sophomore_cohort(asc_advisor_uid)
-        coe_sophomores_cohort_id = _create_sophomore_cohort(coe_advisor_uid)
-        admin_sophomores_cohort_id = _create_sophomore_cohort(admin_uid)
+        def _create_cohort(uid):
+            fake_auth.login(uid)
+            return self._post_cohort_create(
+                client,
+                {
+                    'name': 'Sophomores',
+                    'filters': [
+                        {'key': 'levels', 'type': 'array', 'value': 'Sophomore'},
+                    ],
+                },
+            )
+        asc_cohort_id = _create_cohort(asc_advisor_uid)['id']
+        coe_cohort_id = _create_cohort(coe_advisor_uid)['id']
+        admin_cohort_id = _create_cohort(admin_uid)['id']
 
         def _count_students(cohort_id):
-            response = client.get(f'/api/cohort/{cohort_id}')
-            return len(response.json['students'])
-        assert _count_students(asc_sophomores_cohort_id) == 1
-        assert _count_students(coe_sophomores_cohort_id) == 2
-        assert _count_students(admin_sophomores_cohort_id) == 3
+            api_json = self._api_cohort(client, cohort_id)
+            return len(api_json['students'])
+
+        assert _count_students(asc_cohort_id) == 1
+        assert _count_students(coe_cohort_id) == 2
+        assert _count_students(admin_cohort_id) == 3
 
     def test_create_complex_cohort(self, client, coe_advisor_session):
         """Creates custom cohort, with many non-empty filter_criteria."""
@@ -415,9 +418,9 @@ class TestCohortCreate:
                 {'key': 'majors', 'type': 'array', 'value': 'Environmental Economics & Policy'},
             ],
         }
-        cohort = self._assert_create_complex_cohort(client, data)
-        for key in cohort['criteria']:
-            value = cohort['criteria'][key]
+        api_json = self._assert_create_complex_cohort(client, data)
+        for key in api_json['criteria']:
+            value = api_json['criteria'][key]
             if key == 'majors':
                 assert len(value) == 2
                 assert 'Gender and Women''s Studies' in value
@@ -446,13 +449,18 @@ class TestCohortCreate:
 
     def test_admin_creation_of_asc_cohort(self, client, admin_session):
         """COE advisor cannot use ASC criteria."""
-        data = {'name': 'Admin superpowers', 'groupCodes': ['MTE', 'WWP']}
-        assert 200 == self._post_cohort_create(client, data).status_code
+        self._post_cohort_create(
+            client,
+            {
+                'name': 'Admin superpowers',
+                'groupCodes': ['MTE', 'WWP'],
+            },
+        )
 
     def test_forbidden_cohort_creation(self, client, coe_advisor_session):
         """COE advisor cannot use ASC criteria."""
         data = {'name': 'Sorry Charlie', 'groupCodes': ['MTE', 'WWP']}
-        assert 403 == self._post_cohort_create(client, data).status_code
+        self._post_cohort_create(client, data, expected_status_code=403)
 
 
 class TestCohortUpdate:

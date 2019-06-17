@@ -6,8 +6,7 @@ export default {
   computed: {
     ...mapGetters('user', [
       'preferences',
-      'user',
-      'userAuthStatus'
+      'user'
     ]),
     ...mapGetters('cohort', ['myCohorts']),
     ...mapGetters('curated', ['myCuratedGroups'])

@@ -32,64 +32,47 @@ asc_advisor_uid = '1081940'
 coe_advisor_uid = '1133399'
 
 
-class TestUserStatusController:
-    """Status API."""
-
-    def test_anonymous_status(self, client):
-        """Returns a well-formed response."""
-        response = client.get('/api/user/status')
-        assert response.status_code == 200
-        assert response.json['isAuthenticated'] is False
-
-    def test_when_authenticated(self, client, fake_auth):
-        fake_auth.login(coe_advisor_uid)
-        response = client.get('/api/user/status')
-        assert response.status_code == 200
-        assert response.json['isAuthenticated'] is True
-        assert response.json['uid'] == coe_advisor_uid
-        assert isinstance(response.json['inDemoMode'], bool)
-
-
 class TestUserProfile:
     """User Profile API."""
 
+    @staticmethod
+    def _api_my_profile(client, expected_status_code=200):
+        response = client.get('/api/profile/my')
+        assert response.status_code == expected_status_code
+        return response.json
+
     def test_profile_not_authenticated(self, client):
         """Returns a well-formed response."""
-        response = client.get('/api/profile/my')
-        assert response.status_code == 200
-        assert response.json['isAuthenticated'] is False
-        assert not response.json['uid']
+        api_json = self._api_my_profile(client)
+        assert api_json['isAuthenticated'] is False
+        assert not api_json['uid']
 
     def test_includes_canvas_profile_if_available(self, client, fake_auth):
         """Includes user profile info from Canvas."""
         fake_auth.login(admin_uid)
-        response = client.get('/api/profile/my')
-        assert response.json['isAuthenticated'] is True
-        assert response.json['uid'] == admin_uid
-        assert 'csid' in response.json
-        assert 'firstName' in response.json
-        assert 'lastName' in response.json
+        api_json = self._api_my_profile(client)
+        assert api_json['isAuthenticated'] is True
+        assert api_json['uid'] == admin_uid
+        assert 'csid' in api_json
+        assert 'firstName' in api_json
+        assert 'lastName' in api_json
 
     def test_user_with_no_dept_membership(self, client, fake_auth):
         """Returns zero or more departments."""
         fake_auth.login(admin_uid)
-        response = client.get('/api/profile/my')
-        assert response.status_code == 200
-        user = response.json
-        assert user['isAdmin'] is True
-        assert user['isAsc'] is False
-        assert user['isCoe'] is False
-        assert not len(user['departments'])
+        api_json = self._api_my_profile(client)
+        assert api_json['isAdmin'] is True
+        assert api_json['isAsc'] is False
+        assert api_json['isCoe'] is False
+        assert not len(api_json['departments'])
 
     def test_department_beyond_asc(self, client, fake_auth):
         """Returns COENG director."""
         fake_auth.login('1022796')
-        response = client.get('/api/profile/my')
-        assert response.status_code == 200
-        user = response.json
-        assert user['isAdmin'] is False
-        assert user['isCoe'] is True
-        departments = user['departments']
+        api_json = self._api_my_profile(client)
+        assert api_json['isAdmin'] is False
+        assert api_json['isCoe'] is True
+        departments = api_json['departments']
         assert len(departments) == 1
         assert departments[0]['code'] == 'COENG'
         assert departments[0]['name'] == 'College of Engineering'
@@ -99,11 +82,9 @@ class TestUserProfile:
     def test_asc_advisor_exclude_cohorts(self, client, fake_auth):
         """Returns Athletic Study Center advisor."""
         fake_auth.login(asc_advisor_uid)
-        response = client.get('/api/profile/my')
-        assert response.status_code == 200
-        user = response.json
-        assert user['isAsc'] is True
-        departments = user['departments']
+        api_json = self._api_my_profile(client)
+        assert api_json['isAsc'] is True
+        departments = api_json['departments']
         assert len(departments) == 1
         assert departments[0]['code'] == 'UWASC'
         assert departments[0]['name'] == 'Athletic Study Center'

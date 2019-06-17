@@ -23,15 +23,14 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urljoin, urlparse
 
 from boac.api.errors import ResourceNotFoundError
-from boac.api.util import admin_required, get_current_user_status
-from boac.lib.berkeley import is_authorized_to_use_boac
+from boac.api.util import admin_required
 from boac.lib.http import add_param_to_url, tolerant_jsonify
 import cas
-from flask import current_app as app, flash, redirect, request, url_for
-from flask_login import login_required, login_user, logout_user
+from flask import abort, current_app as app, flash, redirect, request, url_for
+from flask_login import current_user, login_required, login_user, logout_user
 
 
 @app.route('/cas/login_url', methods=['GET'])
@@ -58,7 +57,7 @@ def cas_login():
             Please <a href="mailto:{support_email}">email us</a> for assistance.
         """)
         redirect_url = add_param_to_url('/', param)
-    elif not is_authorized_to_use_boac(user):
+    elif not user.is_active:
         logger.error(f'UID {uid} is in the BOA db but is not authorized to use the tool.')
         param = ('error', f"""
             Sorry, you are not registered to use BOA.
@@ -66,8 +65,11 @@ def cas_login():
         """)
         redirect_url = add_param_to_url('/', param)
     else:
-        login_user(user)
+        login_user(user, remember=True)
         flash('Logged in successfully.')
+        # Check if url is safe for redirects per https://flask-login.readthedocs.io/en/latest/
+        if not _is_safe_url(request.args.get('next')):
+            return abort(400)
         if not target_url:
             target_url = '/'
         # Our googleAnalyticsService uses 'casLogin' marker to track CAS login events
@@ -95,7 +97,10 @@ def logout():
     logout_user()
     redirect_url = app.config['VUE_LOCALHOST_BASE_URL'] or request.url_root
     cas_logout_url = _cas_client().get_logout_url(redirect_url=redirect_url)
-    return tolerant_jsonify({'casLogoutUrl': cas_logout_url, **get_current_user_status()})
+    return tolerant_jsonify({
+        'casLogoutUrl': cas_logout_url,
+        **current_user.to_api_json(),
+    })
 
 
 def _cas_client(target_url=None):
@@ -117,11 +122,17 @@ def _dev_auth_login(uid, password):
         if user is None:
             logger.error(f'Dev-auth: User with UID {uid} is not registered in BOA.')
             return tolerant_jsonify({'message': f'Sorry, user with UID {uid} is not registered to use BOA.'}, 403)
-        if not is_authorized_to_use_boac(user):
-            logger.error(f'Dev-auth: UID {uid} is not authorized to use BOA.')
+        if not user.is_active:
+            logger.error(f'Dev-auth: UID {uid} is registered with BOA but not active.')
             return tolerant_jsonify({'message': f'Sorry, user with UID {uid} is not authorized to use BOA.'}, 403)
         logger.info(f'Dev-auth used to log in as UID {uid}')
-        login_user(user, force=True)
-        return tolerant_jsonify(get_current_user_status())
+        login_user(user, force=True, remember=True)
+        return tolerant_jsonify(current_user.to_api_json())
     else:
         raise ResourceNotFoundError('Unknown path')
+
+
+def _is_safe_url(target):
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc

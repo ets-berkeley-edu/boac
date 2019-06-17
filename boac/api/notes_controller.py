@@ -26,7 +26,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import urllib.parse
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import current_user_profile, get_dept_codes, get_dept_role
+from boac.api.util import get_dept_codes
+from boac.lib.berkeley import get_dept_role
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import is_int, process_input_from_rich_text_editor
 from boac.merged.advising_note import get_boa_attachment_stream, get_legacy_attachment_stream, note_to_compatible_json
@@ -42,10 +43,10 @@ from flask_login import current_user, login_required
 @app.route('/api/notes/<note_id>/mark_read', methods=['POST'])
 @login_required
 def mark_read(note_id):
-    if NoteRead.find_or_create(current_user.id, note_id):
+    if NoteRead.find_or_create(current_user.get_id(), note_id):
         return tolerant_jsonify({'status': 'created'}, status=201)
     else:
-        raise BadRequestError(f'Failed to mark note {note_id} as read by user {current_user.uid}')
+        raise BadRequestError(f'Failed to mark note {note_id} as read by user {current_user.get_uid()}')
 
 
 @app.route('/api/notes/create', methods=['POST'])
@@ -62,16 +63,16 @@ def create_note():
     dept_codes = get_dept_codes(current_user)
     if current_user.is_admin or not len(dept_codes):
         raise ForbiddenRequestError('Sorry, Admin users cannot create advising notes')
-    profile = current_user_profile()
     # TODO: We capture one 'role' and yet user could have multiple, one per dept.
     role = get_dept_role(current_user.department_memberships[0])
     attachments = _get_attachments(request.files, tolerate_none=True)
+    user_json = current_user.to_api_json()
 
     if is_batch_create:
         if app.config['FEATURE_FLAG_BATCH_NOTES']:
             Note.create_batch(
-                author_uid=current_user.uid,
-                author_name=_get_name(profile),
+                author_uid=user_json['uid'],
+                author_name=user_json['name'],
                 author_role=role,
                 author_dept_codes=dept_codes,
                 subject=subject,
@@ -85,8 +86,8 @@ def create_note():
             raise ResourceNotFoundError('API path not found')
     else:
         note = Note.create(
-            author_uid=current_user.uid,
-            author_name=_get_name(profile),
+            author_uid=user_json['uid'],
+            author_name=user_json['name'],
             author_role=role,
             author_dept_codes=dept_codes,
             subject=subject,
@@ -99,7 +100,7 @@ def create_note():
         return tolerant_jsonify(
             note_to_compatible_json(
                 note=note_json,
-                note_read=NoteRead.find_or_create(current_user.id, note.id),
+                note_read=NoteRead.find_or_create(current_user.get_id(), note.id),
                 attachments=note_json.get('attachments'),
                 topics=note_json.get('topics'),
             ),
@@ -119,7 +120,7 @@ def update_note():
     delete_attachment_ids = [int(id_) for id_ in delete_ids_]
     if not note_id or not subject:
         raise BadRequestError('Note requires \'id\' and \'subject\'')
-    if Note.find_by_id(note_id=note_id).author_uid != current_user.uid:
+    if Note.find_by_id(note_id=note_id).author_uid != current_user.get_uid():
         raise ForbiddenRequestError('Sorry, you are not the author of this note.')
     note = Note.update(
         note_id=note_id,
@@ -133,7 +134,7 @@ def update_note():
     return tolerant_jsonify(
         note_to_compatible_json(
             note=note_json,
-            note_read=NoteRead.find_or_create(current_user.id, note_id),
+            note_read=NoteRead.find_or_create(current_user.get_id(), note_id),
             attachments=note_json.get('attachments'),
             topics=note_json.get('topics'),
         ),
@@ -161,7 +162,7 @@ def get_topics():
 @app.route('/api/notes/<note_id>/attachment', methods=['POST'])
 @login_required
 def add_attachment(note_id):
-    if Note.find_by_id(note_id=note_id).author_uid != current_user.uid:
+    if Note.find_by_id(note_id=note_id).author_uid != current_user.get_uid():
         raise ForbiddenRequestError('Sorry, you are not the author of this note.')
     attachments = _get_attachments(request.files)
     if len(attachments) != 1:
@@ -174,7 +175,7 @@ def add_attachment(note_id):
     return tolerant_jsonify(
         note_to_compatible_json(
             note=note_json,
-            note_read=NoteRead.find_or_create(current_user.id, note_id),
+            note_read=NoteRead.find_or_create(current_user.get_id(), note_id),
             attachments=note_json.get('attachments'),
             topics=note_json.get('topics'),
         ),
@@ -187,7 +188,7 @@ def remove_attachment(note_id, attachment_id):
     existing_note = Note.find_by_id(note_id=note_id)
     if not existing_note:
         raise BadRequestError('Note id not found.')
-    if existing_note.author_uid != current_user.uid and not current_user.is_admin:
+    if existing_note.author_uid != current_user.get_uid() and not current_user.is_admin:
         raise ForbiddenRequestError('You are not authorized to remove attachments from this note.')
     note = Note.delete_attachment(
         note_id=note_id,
@@ -197,7 +198,7 @@ def remove_attachment(note_id, attachment_id):
     return tolerant_jsonify(
         note_to_compatible_json(
             note=note_json,
-            note_read=NoteRead.find_or_create(current_user.id, note_id),
+            note_read=NoteRead.find_or_create(current_user.get_id(), note_id),
             attachments=note_json.get('attachments'),
             topics=note_json.get('topics'),
         ),
@@ -217,12 +218,6 @@ def download_attachment(attachment_id):
     encoding_safe_filename = urllib.parse.quote(stream_data['filename'].encode('utf8'))
     r.headers['Content-Disposition'] = f"attachment; filename*=UTF-8''{encoding_safe_filename}"
     return r
-
-
-def _get_name(user):
-    first_name = user.get('firstName')
-    last_name = user.get('lastName')
-    return '' if not (first_name or last_name) else (first_name if not last_name else f'{first_name} {last_name}')
 
 
 def _get_topics(params):

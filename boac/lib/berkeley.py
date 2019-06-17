@@ -431,20 +431,12 @@ def degree_program_url_for_major(plan_description):
         return None
 
 
-def is_authorized_to_use_boac(user):
-    authorized = False
-    if user.is_admin:
-        authorized = True
-    elif len(user.department_memberships):
-        for m in user.department_memberships:
-            authorized = m.is_advisor or m.is_director
-            if authorized:
-                break
-    return authorized
-
-
 def get_dept_codes(user):
     return [m.university_dept.dept_code for m in user.department_memberships] if user else None
+
+
+def get_dept_role(department_membership):
+    return 'Director' if department_membership.is_director else ('Advisor' if department_membership.is_advisor else None)
 
 
 def section_is_eligible_for_alerts(enrollment, section):

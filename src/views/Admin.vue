@@ -115,7 +115,7 @@ export default {
     userGroups: null
   }),
   mounted() {
-    if (this.userAuthStatus.isAdmin) {
+    if (this.user.isAdmin) {
       store.dispatch('user/loadUserGroups').then(data => {
         this.userGroups = data;
         this.loaded();

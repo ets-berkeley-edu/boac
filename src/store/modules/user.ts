@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import Vue from 'vue';
-import { getUserByCsid, getUserGroups, getUserProfile, getUserStatus } from '@/api/user';
+import { getUserByCsid, getUserGroups, getUserProfile } from '@/api/user';
 import { gaTrackUserSessionStart } from '@/api/ga';
 
 const state = {
@@ -9,12 +9,10 @@ const state = {
     sortBy: 'last_name'
   },
   user: undefined,
-  userAuthStatus: undefined,
   userGroups: undefined
 };
 
 const getters = {
-  userAuthStatus: (state: any): boolean => state.userAuthStatus,
   preferences: (state: any): any => state.preferences,
   user: (state: any): any => state.user
 };
@@ -37,8 +35,7 @@ const mutations = {
     } else {
       throw new TypeError('Invalid user preference type: ' + key);
     }
-  },
-  setUserAuthStatus: (state: any, userAuthStatus: any) => (state.userAuthStatus = userAuthStatus)
+  }
 };
 
 const actions = {
@@ -64,21 +61,6 @@ const actions = {
           .then(data => {
             commit('setUserGroups', data);
             resolve(state.userGroups);
-          });
-      }
-    });
-  },
-  loadUserAuthStatus: ({ commit, state }) => {
-    return new Promise(resolve => {
-      if (_.get(state.userAuthStatus, 'isAuthenticated')) {
-        resolve(state.userAuthStatus);
-      } else {
-        getUserStatus()
-          .then(data => {
-            commit('setUserAuthStatus', data);
-          })
-          .then(() => {
-            resolve(state.userAuthStatus);
           });
       }
     });

@@ -27,7 +27,7 @@ from functools import wraps
 import json
 
 from boac.externals.data_loch import get_sis_holds
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, get_dept_codes
+from boac.lib.berkeley import get_dept_codes
 from boac.merged import calnet
 from boac.merged.advising_note import get_advising_notes
 from boac.models.alert import Alert
@@ -104,41 +104,6 @@ def canvas_courses_api_feed(courses):
     return [canvas_course_api_feed(course) for course in courses]
 
 
-def current_user_profile():
-    profile = get_current_user_status()
-    if current_user.is_authenticated:
-        profile['id'] = current_user.id
-        uid = current_user.get_id()
-        profile.update(calnet.get_calnet_user_for_uid(app, uid))
-        if current_user.is_active:
-            departments = []
-            for m in current_user.department_memberships:
-                dept_code = m.university_dept.dept_code
-                departments.append(
-                    {
-                        'code': dept_code,
-                        'name': BERKELEY_DEPT_CODE_TO_NAME[dept_code] or dept_code,
-                        'role': get_dept_role(m),
-                        'isAdvisor': m.is_advisor,
-                        'isDirector': m.is_director,
-                    })
-            dept_codes = get_dept_codes(current_user)
-            profile['isAsc'] = 'UWASC' in dept_codes
-            profile['canViewAsc'] = profile['isAsc'] or current_user.is_admin
-            profile['isCoe'] = 'COENG' in dept_codes
-            profile['canViewCoe'] = profile['isCoe'] or current_user.is_admin
-            profile.update({
-                'isAdmin': current_user.is_admin,
-                'inDemoMode': current_user.in_demo_mode if hasattr(current_user, 'in_demo_mode') else False,
-                'departments': departments,
-            })
-    return profile
-
-
-def get_dept_role(department_membership):
-    return 'Director' if department_membership.is_director else ('Advisor' if department_membership.is_advisor else None)
-
-
 def sis_enrollment_class_feed(enrollment):
     return {
         'displayName': enrollment['sis_course_name'],
@@ -182,7 +147,7 @@ def put_notifications(student):
                 'type': 'note',
             },
         })
-    for alert in Alert.current_alerts_for_sid(viewer_id=current_user.id, sid=student['sid']):
+    for alert in Alert.current_alerts_for_sid(viewer_id=current_user.get_id(), sid=student['sid']):
         student['notifications']['alert'].append({
             **alert,
             **{
@@ -229,21 +194,9 @@ def translate_grading_basis(code):
     return bases.get(code) or code
 
 
-def get_current_user_status():
-    return {
-        'isActive': current_user.is_active,
-        'isAdmin': current_user.is_admin if hasattr(current_user, 'is_admin') else False,
-        'isAnonymous': current_user.is_anonymous,
-        'isAuthenticated': current_user.is_authenticated,
-        # TODO: remove the following line; 'inDemoMode' is served by /api/profile/my
-        'inDemoMode': current_user.in_demo_mode if hasattr(current_user, 'in_demo_mode') else False,
-        'uid': current_user.get_id(),
-    }
-
-
 def get_my_curated_groups():
     curated_groups = []
-    user_id = current_user.id
+    user_id = current_user.get_id()
     for curated_group in CuratedGroup.get_curated_groups_by_owner_id(user_id):
         api_json = curated_group.to_api_json(include_students=False)
         students = [{'sid': sid} for sid in CuratedGroup.get_all_sids(curated_group.id)]

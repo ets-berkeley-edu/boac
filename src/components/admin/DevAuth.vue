@@ -63,7 +63,7 @@ export default {
           .then(data => {
             // Auth errors will be caught by axios.interceptors; see error reporting in the file 'main.ts'.
             if (data.isAuthenticated) {
-              store.dispatch('user/loadUserAuthStatus').then(() => {
+              store.dispatch('user/loadUser').then(() => {
                 const redirect = this.get(this.$router, 'currentRoute.query.redirect');
                 this.$router.push({ path: redirect || '/home' });
               });

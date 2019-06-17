@@ -32,5 +32,5 @@ from flask_login import current_user, login_required
 @app.route('/api/alerts/<alert_id>/dismiss')
 @login_required
 def dismiss_alert(alert_id):
-    Alert.dismiss(alert_id, current_user.id)
-    return tolerant_jsonify({'message': f'Alert {alert_id} dismissed by UID {current_user.uid}'}), 200
+    Alert.dismiss(alert_id, current_user.get_id())
+    return tolerant_jsonify({'message': f'Alert {alert_id} dismissed by UID {current_user.get_uid()}'}), 200
