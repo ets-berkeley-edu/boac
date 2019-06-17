@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api import errors
-from boac.api.util import admin_required, authorized_users_api_feed, current_user_profile, get_current_user_status
+from boac.api.util import admin_required, authorized_users_api_feed
 from boac.lib import util
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
@@ -36,14 +36,14 @@ from flask_login import current_user, login_required
 
 @app.route('/api/profile/my')
 def my_profile():
-    return tolerant_jsonify(current_user_profile())
+    api_json = current_user.to_api_json()
+    return tolerant_jsonify(api_json)
 
 
 @app.route('/api/profile/<uid>')
 @login_required
 def user_profile(uid):
-    match = next((u for u in AuthorizedUser.query.all() if u.uid == uid), None)
-    if not match:
+    if not AuthorizedUser.find_by_uid(uid):
         raise errors.ResourceNotFoundError('Unknown path')
     return tolerant_jsonify(calnet.get_calnet_user_for_uid(app, uid))
 
@@ -94,15 +94,9 @@ def set_demo_mode():
         in_demo_mode = request.get_json().get('demoMode', None)
         if in_demo_mode is None:
             raise errors.BadRequestError('Parameter \'demoMode\' not found')
-        user = AuthorizedUser.find_by_id(current_user.id)
+        user = AuthorizedUser.find_by_id(current_user.get_id())
         user.in_demo_mode = bool(in_demo_mode)
-        return tolerant_jsonify({
-            'inDemoMode': user.in_demo_mode,
-        })
+        app.login_manager.reload_user()
+        return tolerant_jsonify(current_user.to_api_json())
     else:
         raise errors.ResourceNotFoundError('Unknown path')
-
-
-@app.route('/api/user/status')
-def user_status():
-    return tolerant_jsonify(get_current_user_status())

@@ -90,7 +90,7 @@ def get_students():
     )
     if results is None:
         raise BadRequestError('Invalid search criteria')
-    alert_counts = Alert.current_alert_counts_for_viewer(current_user.id)
+    alert_counts = Alert.current_alert_counts_for_viewer(current_user.get_id())
     students = results['students'] if results else []
     add_alert_counts(alert_counts, students)
     return tolerant_jsonify({

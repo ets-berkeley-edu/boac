@@ -41,8 +41,7 @@ class TestAuthorizedUser:
         """Returns authorization record to Flask-Login for recognized UID."""
         admin_uid = '2040'
         loaded_user = AuthorizedUser.find_by_uid(admin_uid)
-        assert loaded_user.is_active
-        assert loaded_user.get_id() == admin_uid
+        assert loaded_user.uid == admin_uid
         assert loaded_user.is_admin
         assert len(loaded_user.cohort_filters) > 0
 

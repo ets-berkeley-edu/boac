@@ -40,7 +40,7 @@ import numpy as np
 @login_required
 def my_cohorts():
     cohorts = []
-    for cohort in CohortFilter.summarize_alert_counts_in_all_owned_by(current_user.id):
+    for cohort in CohortFilter.summarize_alert_counts_in_all_owned_by(current_user.get_id()):
         cohort['isOwnedByCurrentUser'] = True
         cohorts.append(cohort)
     return tolerant_jsonify(cohorts)
@@ -78,7 +78,7 @@ def students_with_alerts(cohort_id):
     limit = get_param(request.args, 'limit', 50)
     cohort = CohortFilter.find_by_id(
         cohort_id,
-        include_alerts_for_user_id=current_user.id,
+        include_alerts_for_user_id=current_user.get_id(),
         include_students=False,
         alert_offset=offset,
         alert_limit=limit,
@@ -121,7 +121,7 @@ def get_cohort(cohort_id):
         order_by=order_by,
         offset=int(offset),
         limit=int(limit),
-        include_alerts_for_user_id=current_user.id,
+        include_alerts_for_user_id=current_user.get_id(),
         include_profiles=True,
         include_students=include_students,
     )
@@ -156,7 +156,7 @@ def get_cohort_per_filters():
         order_by=order_by,
         offset=int(offset),
         limit=int(limit),
-        include_alerts_for_user_id=current_user.id,
+        include_alerts_for_user_id=current_user.get_id(),
         include_profiles=True,
         include_students=include_students,
     )
@@ -200,11 +200,11 @@ def create_cohort():
         for key in ['inIntensiveCohort', 'isInactiveAsc', 'isInactiveCoe']:
             filter_criteria[key] = to_bool(params.get(key))
     cohort = CohortFilter.create(
-        uid=current_user.get_id(),
+        uid=current_user.get_uid(),
         name=name,
         filter_criteria=filter_criteria,
         order_by=order_by,
-        include_alerts_for_user_id=current_user.id,
+        include_alerts_for_user_id=current_user.get_id(),
     )
     _decorate_cohort(cohort)
     return tolerant_jsonify(cohort)
@@ -221,7 +221,7 @@ def update_cohort():
     filter_criteria = _filters_to_filter_criteria(params.get('filters')) if 'filters' in params else params.get('criteria')
     if not name and not filter_criteria:
         raise BadRequestError('Invalid request')
-    cohort = get_cohort_owned_by(current_user.id, cohort_id)
+    cohort = get_cohort_owned_by(current_user.get_id(), cohort_id)
     if not cohort:
         raise ForbiddenRequestError(f'Invalid or unauthorized request')
     name = name or cohort['name']
@@ -231,7 +231,7 @@ def update_cohort():
         name=name,
         filter_criteria=filter_criteria,
         include_students=False,
-        include_alerts_for_user_id=current_user.id,
+        include_alerts_for_user_id=current_user.get_id(),
     )
     _decorate_cohort(updated)
     return tolerant_jsonify(updated)
@@ -242,19 +242,19 @@ def update_cohort():
 def delete_cohort(cohort_id):
     if cohort_id.isdigit():
         cohort_id = int(cohort_id)
-        cohort = get_cohort_owned_by(current_user.id, cohort_id)
+        cohort = get_cohort_owned_by(current_user.get_id(), cohort_id)
         if cohort:
             CohortFilter.delete(cohort_id)
             return tolerant_jsonify({'message': f'Cohort deleted (id={cohort_id})'}), 200
         else:
-            raise BadRequestError(f'User {current_user.get_id()} does not own cohort with id={cohort_id}')
+            raise BadRequestError(f'User {current_user.get_uid()} does not own cohort with id={cohort_id}')
     else:
         raise ForbiddenRequestError(f'Programmatic deletion of canned cohorts is not allowed (id={cohort_id})')
 
 
 def _decorate_cohort(cohort):
     owner_uids = [o['uid'] for o in cohort['owners']]
-    cohort.update({'isOwnedByCurrentUser': current_user.get_id() in owner_uids})
+    cohort.update({'isOwnedByCurrentUser': current_user.get_uid() in owner_uids})
 
 
 def _filters_to_filter_criteria(filters, order_by=None):

@@ -27,10 +27,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac import db, std_commit
 from boac.models.base import Base
 from boac.models.db_relationships import cohort_filter_owners
-from flask_login import UserMixin
 
 
-class AuthorizedUser(Base, UserMixin):
+class AuthorizedUser(Base):
     __tablename__ = 'authorized_users'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
@@ -66,10 +65,6 @@ class AuthorizedUser(Base, UserMixin):
                     updated={self.updated_at},
                     created={self.created_at}>
                 """
-
-    def get_id(self):
-        """Override UserMixin, since our DB conventionally reserves 'id' for generated keys."""
-        return self.uid
 
     @classmethod
     def find_by_id(cls, db_id):

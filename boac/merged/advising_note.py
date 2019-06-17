@@ -58,7 +58,7 @@ def get_advising_notes(sid):
     notes_by_id.update(get_non_legacy_advising_notes(sid))
     if not notes_by_id.values():
         return None
-    notes_read = NoteRead.get_notes_read_by_user(current_user.id, notes_by_id.keys())
+    notes_read = NoteRead.get_notes_read_by_user(current_user.get_id(), notes_by_id.keys())
     for note_read in notes_read:
         note_feed = notes_by_id.get(note_read.note_id)
         if note_feed:
