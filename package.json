@@ -25,6 +25,7 @@
     "d3": "5.9.2",
     "highcharts": "6.2.0",
     "moment-timezone": "^0.5.25",
+    "v-calendar": "0.9.6",
     "vue": "^2.6.10",
     "vue-analytics": "^5.16.4",
     "vue-class-component": "^7.1.0",

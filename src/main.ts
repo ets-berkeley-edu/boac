@@ -1,5 +1,6 @@
 import 'bootstrap-vue/dist/bootstrap-vue.min.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'v-calendar/lib/v-calendar.min.css';
 import _ from 'lodash';
 import App from './App.vue';
 import axios from 'axios';
@@ -11,6 +12,7 @@ import HighchartsMore from 'highcharts/highcharts-more';
 import moment from 'moment-timezone';
 import router from './router';
 import store from './store';
+import VDatePicker from 'v-calendar';
 import Vue from 'vue';
 import VueAnalytics from 'vue-analytics';
 import VueHighcharts from 'vue-highcharts';
@@ -42,6 +44,7 @@ axios.interceptors.response.use(response => response, function(error) {
 Vue.config.productionTip = false;
 Vue.use(BootstrapVue);
 Vue.use(CKEditor);
+Vue.use(VDatePicker);
 Vue.use(require('vue-lodash'));
 Vue.use(VueMoment, { moment });
 
