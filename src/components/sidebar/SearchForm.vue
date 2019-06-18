@@ -131,33 +131,75 @@
             </b-form-group>
             <b-form-group label="Last Updated">
               <label
-                for="search-options-note-filters-date-posted-from"
+                for="search-options-note-filters-last-updated-from"
                 class="search-form-label">
                 <span class="sr-only">Date</span>
                 From
               </label>
-              <b-form-input
-                id="search-options-note-filters-date-posted-from"
+              <v-date-picker
                 v-model="noteFilters.dateFrom"
-                :state="validDateRange"
-                class="search-input-date"
-                name="note-filters-date-from"
-                type="date">
-              </b-form-input>
+                popover-visibility="focus"
+                mode="single">
+                <template v-slot="{inputValue, updateValue}">
+                  <b-input-group>
+                    <b-form-input
+                      id="search-options-note-filters-last-updated-from"
+                      type="text"
+                      name="note-filters-date-from"
+                      class="search-input-date"
+                      :value="inputValue"
+                      :formatter="dateFormat"
+                      placeholder="MM/DD/YYYY"
+                      expanded
+                      lazy-formatter
+                      @change.native="updateValue($event.target.value)">
+                    </b-form-input>
+                    <b-btn
+                      id="search-options-note-filters-last-updated-from-clear"
+                      class="search-input-date"
+                      v-if="noteFilters.dateFrom"
+                      @click="noteFilters.dateFrom = null;">
+                      <font-awesome icon="times"></font-awesome>
+                      <span class="sr-only">Clear date from</span>
+                    </b-btn>
+                  </b-input-group>
+                </template>
+              </v-date-picker>
               <label
-                for="search-options-note-filters-date-posted-to"
+                for="search-options-note-filters-last-updated-to"
                 class="search-form-label">
                 <span class="sr-only">Date</span>
                 To
               </label>
-              <b-form-input
-                id="search-options-note-filters-date-posted-to"
+              <v-date-picker
                 v-model="noteFilters.dateTo"
-                :state="validDateRange"
-                class="search-input-date"
-                name="note-filters-date-to"
-                type="date">
-              </b-form-input>
+                popover-visibility="focus"
+                mode="single">
+                <template v-slot="{inputValue, updateValue}">
+                  <b-input-group>
+                    <b-form-input
+                      id="search-options-note-filters-last-updated-to"
+                      type="text"
+                      name="note-filters-date-to"
+                      class="search-input-date"
+                      :value="inputValue"
+                      :formatter="dateFormat"
+                      placeholder="MM/DD/YYYY"
+                      expanded
+                      lazy-formatter
+                      @change.native="updateValue($event.target.value)">
+                    </b-form-input>
+                    <b-btn
+                      id="search-options-note-filters-last-updated-to-clear"
+                      class="search-input-date"
+                      v-if="noteFilters.dateTo"
+                      @click="noteFilters.dateTo = null;">
+                      <font-awesome icon="times"></font-awesome>
+                      <span class="sr-only">Clear date to</span>
+                    </b-btn>
+                  </b-input-group>
+                </template>
+              </v-date-picker>
               <b-form-invalid-feedback :state="validDateRange" class="search-panel-feedback">
                 <font-awesome icon="exclamation-triangle" class="text-warning pr-1" />
                 "To" must be later than or equal to "From."
@@ -165,7 +207,12 @@
             </b-form-group>
           </div>
         </b-collapse>
-        <b-button type="submit" variant="primary" :disabled="validDateRange === false">Search</b-button>
+        <b-button
+          type="submit"
+          variant="primary"
+          :disabled="validDateRange === false">
+          Search
+        </b-button>
       </b-collapse>
     </form>
     <hr v-if="showSearchOptions" class="ml-2 mr-2 section-divider" />
@@ -230,6 +277,17 @@ export default {
     this.getNoteTopics();
   },
   methods: {
+    dateFormat(value) {
+      const parsed = Date.parse(value);
+      if (isNaN(parsed)) {
+        return null;
+      } else {
+        return this.dateString(parsed, 'MM/DD/YYYY');
+      }
+    },
+    dateString(d, format) {
+      return this.$options.filters.moment(d, format);
+    },
     getNoteTopics() {
       getTopics().then(data => {
         this.each(data, topic => {
@@ -261,10 +319,10 @@ export default {
             query.noteTopic = this.noteFilters.topic;
           }
           if (this.noteFilters.dateFrom) {
-            query.noteDateFrom = this.noteFilters.dateFrom;
+            query.noteDateFrom = this.dateString(this.noteFilters.dateFrom, 'YYYY-MM-DD');
           }
-          if (this.noteFilters.dateFrom) {
-            query.noteDateTo = this.noteFilters.dateTo;
+          if (this.noteFilters.dateTo) {
+            query.noteDateTo = this.dateString(this.noteFilters.dateTo, 'YYYY-MM-DD');
           }
         }
         this.$router.push({
