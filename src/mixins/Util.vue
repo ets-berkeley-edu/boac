@@ -22,7 +22,6 @@ export default {
     flatten: _.flatten,
     focusModalById: id =>
       document.getElementById(id) && document.getElementById(id).focus(),
-    forceUniquePath: routePath => `${routePath}?_=${new Date().getTime()}`,
     get: _.get,
     has: _.has,
     includes: _.includes,

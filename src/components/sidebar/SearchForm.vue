@@ -268,7 +268,7 @@ export default {
           }
         }
         this.$router.push({
-          path: this.forceUniquePath('/search'),
+          path: `/search`,
           query: query
         });
         this.gaEvent(

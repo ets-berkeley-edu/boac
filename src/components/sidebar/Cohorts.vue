@@ -5,14 +5,13 @@
         Cohorts
       </div>
       <div class="ml-2 mr-2">
-        <a
+        <NavLink
           id="cohort-create"
           class="sidebar-create-link"
           aria-label="Create cohort"
-          href=""
-          @click.prevent="updatePath('/cohort/new?')"
-        ><font-awesome icon="plus" class="sidebar-header" />
-        </a>
+          path="/cohort/new">
+          <font-awesome icon="plus" class="sidebar-header" />
+        </NavLink>
       </div>
     </div>
     <div
@@ -20,13 +19,12 @@
       :key="cohort.id"
       class="d-flex justify-content-between sidebar-row-link">
       <div class="ml-2 truncate-with-ellipsis">
-        <a
+        <NavLink
           :id="`sidebar-cohort-${cohort.id}`"
           :aria-label="`Cohort ${cohort.name} has ${cohort.totalStudentCount} students`"
-          href=""
-          @click.prevent="updatePath(`/cohort/${cohort.id}`)">
+          :path="`/cohort/${cohort.id}`">
           {{ cohort.name }}
-        </a>
+        </NavLink>
       </div>
       <div class="ml-2 mr-2">
         <span
@@ -39,17 +37,13 @@
 </template>
 
 <script>
+import NavLink from "@/components/util/NavLink";
 import UserMetadata from "@/mixins/UserMetadata";
 import Util from "@/mixins/Util";
-import router from '@/router';
 
 export default {
   name: "Cohorts",
-  mixins: [UserMetadata, Util],
-  methods: {
-    updatePath(path) {
-      router.push(this.forceUniquePath(path));
-    }
-  }
+  components: {NavLink},
+  mixins: [UserMetadata, Util]
 };
 </script>
