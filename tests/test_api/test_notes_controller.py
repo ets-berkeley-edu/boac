@@ -302,31 +302,31 @@ class TestMarkNoteRead:
         """Marks a note as read."""
         fake_auth.login(coe_advisor_uid)
         all_notes_unread = _get_notes(client, 61889)
-        assert len(all_notes_unread) == 5
+        assert len(all_notes_unread) == 6
         for note in all_notes_unread:
             assert note['read'] is False
+
         response = client.post('/api/notes/11667051-00001/mark_read')
         assert response.status_code == 201
-
-        non_legacy_note_id = all_notes_unread[2]['id']
-        response = client.post(f'/api/notes/{non_legacy_note_id}/mark_read')
+        response = client.post(f'/api/notes/11667051-00003/mark_read')
         assert response.status_code == 201
-
         response = client.post('/api/notes/11667051-139379/mark_read')
         assert response.status_code == 201
 
         all_notes_after_read = _get_notes(client, 61889)
-        assert len(all_notes_after_read) == 5
+        assert len(all_notes_after_read) == 6
         assert all_notes_after_read[0]['id'] == '11667051-00001'
         assert all_notes_after_read[0]['read'] is True
         assert all_notes_after_read[1]['id'] == '11667051-00002'
         assert all_notes_after_read[1]['read'] is False
-        assert all_notes_after_read[2]['id'] == non_legacy_note_id
+        assert all_notes_after_read[2]['id'] == '11667051-00003'
         assert all_notes_after_read[2]['read'] is True
-        assert all_notes_after_read[3]['id'] == '11667051-139362'
+        assert all_notes_after_read[3]['id'] == '11667051-00004'
         assert all_notes_after_read[3]['read'] is False
-        assert all_notes_after_read[4]['id'] == '11667051-139379'
-        assert all_notes_after_read[4]['read'] is True
+        assert all_notes_after_read[4]['id'] == '11667051-139362'
+        assert all_notes_after_read[4]['read'] is False
+        assert all_notes_after_read[5]['id'] == '11667051-139379'
+        assert all_notes_after_read[5]['read'] is True
 
 
 class TestUpdateNotes:

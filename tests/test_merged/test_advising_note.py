@@ -70,24 +70,24 @@ class TestMergedAdvisingNote:
         assert notes[1]['topics'] == ['Earg Scéaw', 'Ofscéaw']
 
         # Legacy ASC notes
-        assert notes[3]['id'] == '11667051-139362'
-        assert notes[3]['sid'] == '11667051'
-        assert notes[3]['body'] is None
-        assert notes[3]['author']['uid'] == '1133399'
-        assert notes[3]['author']['name'] == 'Lemmy Kilmister'
-        assert notes[3]['topics'] == ['Academic', 'Other']
-        assert notes[3]['createdAt']
-        assert notes[3]['updatedAt']
-        assert notes[3]['read'] is False
-        assert notes[4]['id'] == '11667051-139379'
+        assert notes[4]['id'] == '11667051-139362'
         assert notes[4]['sid'] == '11667051'
         assert notes[4]['body'] is None
-        assert notes[4]['author']['uid'] == '90412'
-        assert notes[4]['author']['name'] == 'Ginger Baker'
-        assert notes[4]['topics'] is None
+        assert notes[4]['author']['uid'] == '1133399'
+        assert notes[4]['author']['name'] == 'Lemmy Kilmister'
+        assert notes[4]['topics'] == ['Academic', 'Other']
         assert notes[4]['createdAt']
         assert notes[4]['updatedAt']
         assert notes[4]['read'] is False
+        assert notes[5]['id'] == '11667051-139379'
+        assert notes[5]['sid'] == '11667051'
+        assert notes[5]['body'] is None
+        assert notes[5]['author']['uid'] == '90412'
+        assert notes[5]['author']['name'] == 'Ginger Baker'
+        assert notes[5]['topics'] is None
+        assert notes[5]['createdAt']
+        assert notes[5]['updatedAt']
+        assert notes[5]['read'] is False
 
         # Non-legacy note
         boa_created_note = next((n for n in notes if n['id'] == coe_advising_note_with_attachment.id), None)
@@ -156,6 +156,13 @@ class TestMergedAdvisingNote:
         assert notes[0]['id'] == '11667051-00003'
         assert parse(notes[0]['createdAt']) == parse('2017-11-05T12:00:00+00')
         assert parse(notes[0]['updatedAt']) == parse('2017-11-06T12:00:00+00')
+
+    def test_search_advising_notes_by_category(self, app, fake_auth):
+        """Matches legacy category/subcategory for SIS advising notes only if body is blank."""
+        fake_auth.login(coe_advisor)
+        notes = search_advising_notes(search_phrase='Quick Question')
+        assert len(notes) == 1
+        assert notes[0]['noteSnippet'] == '<strong>Quick</strong> <strong>Question</strong>, Unanswered'
 
     def test_search_for_asc_advising_notes(self, app, fake_auth):
         fake_auth.login(asc_advisor)
