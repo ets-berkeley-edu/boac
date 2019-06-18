@@ -5,14 +5,13 @@
         Curated Groups
       </div>
       <div class="ml-2 mr-2">
-        <a
+        <NavLink
           id="create-curated-group-from-sidebar"
-          class="sidebar-create-link"
           aria-label="Create a new curated group"
-          href=""
-          @click.prevent="updatePath('curate')"
-        ><font-awesome icon="plus" class="sidebar-header" />
-        </a>
+          class="sidebar-create-link"
+          path="/curate">
+          <font-awesome icon="plus" class="sidebar-header" />
+        </NavLink>
       </div>
     </div>
     <div
@@ -20,13 +19,12 @@
       :key="group.id"
       class="d-flex justify-content-between sidebar-row-link">
       <div class="ml-2 truncate-with-ellipsis">
-        <a
+        <NavLink
           :id="`sidebar-curated-group-${index}`"
           :aria-label="'Curated group ' + group.name + ' has ' + group.studentCount + ' students'"
-          href=""
-          @click.prevent="updatePath(`/curated/${group.id}`)">
+          :path="`/curated/${group.id}`">
           {{ group.name }}
-        </a>
+        </NavLink>
       </div>
       <div class="ml-2 mr-2">
         <span
@@ -39,17 +37,13 @@
 </template>
 
 <script>
+import NavLink from "@/components/util/NavLink";
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
-import router from '@/router';
 
 export default {
   name: 'CuratedGroups',
-  mixins: [UserMetadata, Util],
-  methods: {
-    updatePath(path) {
-      router.push(this.forceUniquePath(path));
-    }
-  }
+  components: {NavLink},
+  mixins: [UserMetadata, Util]
 };
 </script>
