@@ -85,6 +85,9 @@
             <div class="font-weight-bolder">{{ get(student, 'sisProfile.level.description') }}</div>
           </div>
           <div class="text-muted">
+            <div v-if="student.sisProfile.transfer">
+              Transfer
+            </div>
             <div v-if="student.sisProfile.termsInAttendance" id="student-bio-terms-in-attendance">
               {{ 'Term' | pluralize(student.sisProfile.termsInAttendance) }} in Attendance
             </div>

@@ -28,8 +28,8 @@
             class="p-3">
             <span v-if="!isSaving">
               <span class="pr-2">Add to Curated Group</span>
-              <font-awesome v-if="disableSelector" class="spinner" spin />
-              <font-awesome v-if="!disableSelector" class="caret-down" />
+              <font-awesome v-if="disableSelector" icon="spinner" spin />
+              <font-awesome v-if="!disableSelector" icon="caret-down" />
             </span>
             <span v-if="isSaving">
               <font-awesome icon="check" /> Added to Curated Group
