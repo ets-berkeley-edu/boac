@@ -444,7 +444,7 @@ def search_advising_notes(
 
     sql = f"""WITH an AS (
         (SELECT sis.sid, sis.id, sis.note_body, sis.advisor_sid, NULL AS advisor_uid, NULL AS advisor_first_name, NULL AS advisor_last_name,
-                sis.created_by, sis.created_at, sis.updated_at, idx.rank
+                sis.note_category, sis.note_subcategory, sis.created_by, sis.created_at, sis.updated_at, idx.rank
             FROM {advising_notes_schema()}.advising_notes sis
             JOIN (
                 SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
@@ -454,7 +454,7 @@ def search_advising_notes(
             ON idx.id = sis.id)
         UNION
         (SELECT ascn.sid, ascn.id, NULL AS note_body, NULL AS advisor_sid, ascn.advisor_uid, ascn.advisor_first_name, ascn.advisor_last_name,
-                NULL AS created_by, ascn.created_at, ascn.updated_at, idx.rank
+                NULL AS note_category, NULL AS note_subcategory, NULL AS created_by, ascn.created_at, ascn.updated_at, idx.rank
             FROM {asc_schema()}.advising_notes ascn
             JOIN (
                 SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
@@ -464,8 +464,9 @@ def search_advising_notes(
             ON idx.id = ascn.id)
         )
         SELECT DISTINCT
-        an.sid, an.id, an.note_body, an.advisor_sid, an.advisor_uid, an.created_by, an.created_at, an.updated_at,
-        sas.uid, sas.first_name, sas.last_name, an.advisor_first_name, an.advisor_last_name, an.rank
+            an.sid, an.id, an.note_body, an.advisor_sid, an.advisor_uid,
+            an.created_by, an.created_at, an.updated_at, an.note_category, an.note_subcategory,
+            sas.uid, sas.first_name, sas.last_name, an.advisor_first_name, an.advisor_last_name, an.rank
         {student_query_tables}
         JOIN an
             ON an.sid = sas.sid

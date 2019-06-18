@@ -228,6 +228,7 @@ def _get_loch_notes_search_results(loch_results, search_terms):
         note = {camelize(key): row[key] for key in row.keys()}
         advisor_feed = calnet_advisor_feeds.get(note.get('advisorSid'))
         advisor_name = join_if_present(' ', [advisor_feed.get('firstName'), advisor_feed.get('lastName')]) if advisor_feed else None
+        note_body = (note.get('noteBody') or '').strip() or join_if_present(', ', [note.get('noteCategory'), note.get('noteSubcategory')])
         results.append({
             'id': note.get('id'),
             'studentSid': note.get('sid'),
@@ -235,7 +236,7 @@ def _get_loch_notes_search_results(loch_results, search_terms):
             'studentName': join_if_present(' ', [note.get('firstName'), note.get('lastName')]),
             'advisorSid': note.get('advisorSid'),
             'advisorName': advisor_name or join_if_present(' ', [note.get('advisorFirstName'), note.get('advisorLastName')]),
-            'noteSnippet': _notes_text_snippet(note.get('noteBody') or '', search_terms),
+            'noteSnippet': _notes_text_snippet(note_body, search_terms),
             'createdAt': _resolve_created_at(note),
             'updatedAt': _resolve_updated_at(note),
         })
