@@ -83,8 +83,10 @@ class CohortFilter(Base, UserMixin):
     @classmethod
     def update(cls, cohort_id, name=None, filter_criteria=None, alert_count=None, **kwargs):
         cohort = cls.query.filter_by(id=cohort_id).first()
-        cohort.name = name
-        cohort.filter_criteria = filter_criteria
+        if name:
+            cohort.name = name
+        if filter_criteria:
+            cohort.filter_criteria = filter_criteria
         cohort.sids = None
         cohort.student_count = None
         if alert_count is not None:
@@ -120,26 +122,42 @@ class CohortFilter(Base, UserMixin):
         std_commit()
 
     @classmethod
-    def all_cohorts(cls):
-        return [c.to_api_json(include_students=False) for c in cls.query.all()]
-
-    @classmethod
-    def get_cohort_owned_by(cls, user_id, cohort_id):
-        query = text(f"""SELECT * FROM cohort_filters c
-            LEFT JOIN cohort_filter_owners o ON o.cohort_filter_id = c.id
-            WHERE o.user_id = :user_id AND c.id = :cohort_id""")
-        results = db.session.execute(query, {'cohort_id': cohort_id, 'user_id': user_id})
+    def all_cohorts_owned_by(cls, uids):
+        query = text(f"""
+            SELECT c.id, c.name, c.filter_criteria, c.alert_count, c.student_count, ARRAY_AGG(uid) authorized_users
+            FROM cohort_filters c
+            INNER JOIN cohort_filter_owners o ON c.id = o.cohort_filter_id
+            INNER JOIN authorized_users u ON o.user_id = u.id
+            WHERE u.uid = ANY(:uids)
+            GROUP BY c.id, c.name, c.filter_criteria, c.alert_count, c.student_count
+        """)
+        results = db.session.execute(query, {'uids': uids})
 
         def transform(row):
             return {
                 'id': row['id'],
                 'name': row['name'],
                 'criteria': row['filter_criteria'],
+                'owners': row['authorized_users'],
                 'alertCount': row['alert_count'],
                 'totalStudentCount': row['student_count'],
             }
-        cohorts = [transform(row) for row in results]
-        return cohorts[0] if cohorts else None
+        return [transform(row) for row in results]
+
+    @classmethod
+    def is_cohort_owned_by(cls, cohort_id, user_id):
+        query = text(f"""
+            SELECT count(*) FROM cohort_filters c
+            LEFT JOIN cohort_filter_owners o ON o.cohort_filter_id = c.id
+            WHERE o.user_id = :user_id AND c.id = :cohort_id
+        """)
+        results = db.session.execute(
+            query, {
+                'cohort_id': cohort_id,
+                'user_id': user_id,
+            },
+        )
+        return results.first()['count']
 
     @classmethod
     def find_by_id(cls, cohort_id, **kwargs):

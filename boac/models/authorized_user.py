@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-from boac import db, std_commit
+from boac import db
 from boac.models.base import Base
 from boac.models.db_relationships import cohort_filter_owners
 
@@ -68,13 +68,23 @@ class AuthorizedUser(Base):
 
     @classmethod
     def find_by_id(cls, db_id):
-        user = AuthorizedUser.query.filter_by(id=db_id).first()
-        std_commit()
-        return user
+        return AuthorizedUser.query.filter_by(id=db_id).first()
 
     @classmethod
     def find_by_uid(cls, uid):
-        """Supports Flask-Login via user_loader in routes.py."""
-        user = AuthorizedUser.query.filter_by(uid=uid).first()
-        std_commit()
-        return user
+        return AuthorizedUser.query.filter_by(uid=uid).first()
+
+    @classmethod
+    def get_all_uids_in_scope(cls, scope=()):
+        sql = 'SELECT uid FROM authorized_users u '
+        if not scope:
+            return None
+        elif 'ADMIN' not in scope:
+            sql += """
+                JOIN university_dept_members m ON m.authorized_user_id = u.id
+                JOIN university_depts d ON d.id = m.university_dept_id
+                WHERE
+                d.dept_code = ANY(:scope)
+            """
+        results = db.session.execute(sql, {'scope': scope})
+        return [row['uid'] for row in results]

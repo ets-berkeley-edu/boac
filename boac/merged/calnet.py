@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac.api.errors import InternalServerError
 from boac.externals import calnet
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.models.json_cache import fetch_bulk, insert_row, stow
@@ -57,27 +58,41 @@ def get_calnet_user_for_csid(app, csid):
     }
 
 
+def get_calnet_users_for_uids(app, uids):
+    return _get_calnet_users(app, 'uid', uids)
+
+
 def get_calnet_users_for_csids(app, csids):
-    cached_users = fetch_bulk([f'calnet_user_for_csid_{csid}' for csid in csids])
-    users_by_csid = {k.replace('calnet_user_for_csid_', ''): v for k, v in cached_users.items()}
-    uncached_csids = [c for c in csids if c not in users_by_csid]
-    calnet_results = calnet.client(app).search_csids(uncached_csids)
-    # Cache rows individually so that an isolated conflict doesn't sink the rest of the update.
-    for csid in uncached_csids:
-        calnet_result = next((r for r in calnet_results if r['csid'] == csid), None)
-        feed = {
-            **_calnet_user_api_feed(calnet_result),
-            **{'csid': csid},
-        }
-        insert_row(f'calnet_user_for_csid_{csid}', feed)
-        users_by_csid[csid] = feed
-    return users_by_csid
+    return _get_calnet_users(app, 'csid', csids)
 
 
 def get_uid_for_csid(app, csid):
     user_feed = get_calnet_user_for_csid(app, csid)
     if user_feed:
         return user_feed.get('uid')
+
+
+def _get_calnet_users(app, id_type, ids):
+    cached_users = fetch_bulk([f'calnet_user_for_{id_type}_{_id}' for _id in ids])
+    users_by_id = {k.replace(f'calnet_user_for_{id_type}_', ''): v for k, v in cached_users.items()}
+    uncached_ids = [c for c in ids if c not in users_by_id]
+    calnet_client = calnet.client(app)
+    if id_type == 'uid':
+        calnet_results = calnet_client.search_uids(uncached_ids)
+    elif id_type == 'csid':
+        calnet_results = calnet_client.search_csids(uncached_ids)
+    else:
+        raise InternalServerError(f'get_calnet_users: {id_type} is an invalid id type')
+    # Cache rows individually so that an isolated conflict doesn't sink the rest of the update.
+    for _id in uncached_ids:
+        calnet_result = next((r for r in calnet_results if r[id_type] == _id), None)
+        feed = {
+            **_calnet_user_api_feed(calnet_result),
+            **{id_type: _id},
+        }
+        insert_row(f'calnet_user_for_{id_type}_{_id}', feed)
+        users_by_id[_id] = feed
+    return users_by_id
 
 
 def _calnet_user_api_feed(person):
