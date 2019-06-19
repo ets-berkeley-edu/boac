@@ -51,7 +51,7 @@ def mark_read(note_id):
 @login_required
 def create_note():
     params = request.form
-    sids = _get_sids_for_note_creation(params)
+    sids = _get_sids_for_note_creation()
     is_batch_create = len(sids) > 1
     subject = params.get('subject', None)
     body = params.get('body', None)
@@ -75,7 +75,7 @@ def create_note():
                 subject=subject,
                 body=process_input_from_rich_text_editor(body),
                 topics=topics,
-                sids=list(sids),
+                sids=sids,
                 attachments=attachments,
             )
             return tolerant_jsonify({'message': f'Note created for {len(sids)} students'}), 200
@@ -222,18 +222,21 @@ def _get_topics(params):
     return topics if isinstance(topics, list) else list(filter(None, str(topics).split(',')))
 
 
-def _get_sids_for_note_creation(params):
+def _get_sids_for_note_creation():
     def _get_param_as_set(key):
-        lst = request.form.getlist(key, None)
-        if lst:
-            lst = lst if isinstance(lst, list) else list(filter(None, str(lst).split(',')))
-        return set(lst or [])
+        values = set()
+        for entry in request.form.getlist(key):
+            # The use of 'form.getlist' might give us a list with one entry: comma-separated values
+            split = str(entry).split(',')
+            for value in list(filter(None, split)):
+                values.add(value)
+        return values
 
-    sids = _get_param_as_set('sids') if 'sids' in params else set()
-    cohort_ids = _get_param_as_set('cohortIds')
+    cohort_ids = set(_get_param_as_set('cohortIds'))
+    curated_group_ids = set(_get_param_as_set('curatedGroupIds'))
+    sids = _get_param_as_set('sids')
     sids = sids.union(_get_sids_per_cohorts(cohort_ids))
-    curated_group_ids = _get_param_as_set('curatedGroupIds')
-    return sids.union(_get_sids_per_curated_groups(curated_group_ids))
+    return list(sids.union(_get_sids_per_curated_groups(curated_group_ids)))
 
 
 def _get_sids_per_cohorts(cohort_ids=None):

@@ -25,7 +25,8 @@
           'modal-open': newNoteMode === 'docked',
           'modal-open modal-minimized': newNoteMode === 'minimized',
           'modal-open modal-saving': newNoteMode === 'saving',
-          'modal-full-screen-content': undocked
+          'modal-full-screen-content': undocked,
+          'mt-4': initialMode === 'batch'
         }">
         <form @submit.prevent="create()">
           <div class="d-flex align-items-end pt-2 mb-1" :class="{'mt-2': undocked}">
@@ -78,9 +79,10 @@
                   :is-curated-groups-mode="true"
                   :remove-object-id="removeCuratedGroupFromBatch" />
               </div>
+              <hr />
             </div>
             <div>
-              <label for="create-note-subject" class="input-label mb-1"><span class="sr-only">Note </span>Subject</label>
+              <label for="create-note-subject" class="font-size-14 font-weight-bolder mb-1"><span class="sr-only">Note </span>Subject</label>
             </div>
             <div>
               <input
@@ -93,7 +95,7 @@
                 @keydown.esc="cancel()">
             </div>
             <div>
-              <label for="create-note-body" class="input-label mt-3 mb-1">Note Details</label>
+              <label for="create-note-body" class="font-size-14 font-weight-bolder mt-3 mb-1">Note Details</label>
             </div>
             <div id="note-details">
               <span id="create-note-body">
@@ -462,9 +464,6 @@ export default {
 }
 .form-control-file {
   height: 100%;
-}
-.input-label {
-  font-weight: 600;
 }
 .minimize-icon {
   font-size: 24px;

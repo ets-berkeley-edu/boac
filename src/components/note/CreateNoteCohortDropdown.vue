@@ -1,28 +1,38 @@
 <template>
   <div>
     <div>
-      <label :for="`batch-note-${type}`" class="input-label mb-1">{{ header }}</label>
+      <label
+        :for="`batch-note-${type}`"
+        class="font-size-14 font-weight-bolder input-label text mt-2"><span class="sr-only">Select a </span>{{ header }}</label>
     </div>
-    <b-dropdown :id="`batch-note-${type}`" :text="isCuratedGroupsMode ? 'Add Group' : 'Add Cohort'" class="m-md-2">
+    <b-dropdown
+      :id="`batch-note-${type}`"
+      :text="isCuratedGroupsMode ? 'Add Group' : 'Add Cohort'"
+      :aria-label="`Note will be created for all students in selected ${type}${objects.length === 1 ? '' : 's'}`"
+      variant="outline-dark"
+      class="mb-2 ml-0 transparent">
       <b-dropdown-item
         v-for="object in objects"
         :key="object.id"
+        :aria-label="`Add ${type} ${object.name}`"
         :disabled="includes(addedIds, object.id)"
         @click="addItem(object)">
         {{ truncate(object.name) }}
       </b-dropdown-item>
     </b-dropdown>
     <div>
-      <div v-for="(addedObject, index) in added" :key="addedObject.id">
-        {{ addedObject.name }}
-        <b-btn
-          :id="`remove-${type}-from-batch-${index}`"
-          variant="link"
-          class="p-0"
-          @click.prevent="removeObject(addedObject)">
-          <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
-          <span class="sr-only">Remove {{ type }} {{ addedObject.name }} from note creation</span>
-        </b-btn>
+      <div v-for="(addedObject, index) in added" :key="addedObject.id" class="mb-1">
+        <span class="font-weight-bolder pill pill-attachment text-uppercase text-nowrap">
+          {{ addedObject.name }}
+          <b-btn
+            :id="`remove-${type}-from-batch-${index}`"
+            :aria-label="`Remove ${type} ${addedObject.name}`"
+            variant="link"
+            class="p-0"
+            @click.prevent="removeObject(addedObject)">
+            <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
+          </b-btn>
+        </span>
       </div>
     </div>
   </div>
@@ -74,7 +84,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-</style>
