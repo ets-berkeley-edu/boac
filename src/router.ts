@@ -170,9 +170,7 @@ const router = new Router({
 });
 
 router.beforeEach((to: any, from: any, next: any) => {
-  store.dispatch('context/loadConfig').then(() => {
-    store.dispatch('context/clearAlertsInStore').then(() => next());
-  });
+  store.dispatch('context/clearAlertsInStore').then(() => next());
 });
 
 router.afterEach((to: any) => {
@@ -183,14 +181,6 @@ router.afterEach((to: any) => {
       message: to.query.error
     });
   }
-  store.dispatch('user/loadUser').then(data => {
-    if (data.isAuthenticated) {
-        store.dispatch('cohort/loadMyCohorts');
-        store.dispatch('curated/loadMyCuratedGroups');
-        store.dispatch('context/loadServiceAnnouncement');
-        return;
-    }
-  });
 });
 
 export default router;
