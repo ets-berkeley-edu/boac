@@ -155,9 +155,9 @@
                       @change.native="updateValue($event.target.value)">
                     </b-form-input>
                     <b-btn
+                      v-if="noteFilters.dateFrom"
                       id="search-options-note-filters-last-updated-from-clear"
                       class="search-input-date"
-                      v-if="noteFilters.dateFrom"
                       @click="noteFilters.dateFrom = null;">
                       <font-awesome icon="times"></font-awesome>
                       <span class="sr-only">Clear date from</span>
@@ -190,9 +190,9 @@
                       @change.native="updateValue($event.target.value)">
                     </b-form-input>
                     <b-btn
+                      v-if="noteFilters.dateTo"
                       id="search-options-note-filters-last-updated-to-clear"
                       class="search-input-date"
-                      v-if="noteFilters.dateTo"
                       @click="noteFilters.dateTo = null;">
                       <font-awesome icon="times"></font-awesome>
                       <span class="sr-only">Clear date to</span>

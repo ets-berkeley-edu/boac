@@ -14,7 +14,6 @@ import router from './router';
 import store from './store';
 import VDatePicker from 'v-calendar';
 import Vue from 'vue';
-import VueAnalytics from 'vue-analytics';
 import VueHighcharts from 'vue-highcharts';
 import VueMoment from 'vue-moment';
 import { routerHistory, writeHistory } from 'vue-router-back-button';
@@ -50,21 +49,6 @@ Vue.use(VueMoment, { moment });
 
 HighchartsMore(Highcharts);
 Vue.use(VueHighcharts, { Highcharts });
-
-store.dispatch('context/loadConfig').then(response => {
-  let googleAnalyticsId = _.get(response, 'googleAnalyticsId');
-  if (googleAnalyticsId) {
-    Vue.use(VueAnalytics, {
-      id: googleAnalyticsId,
-      debug: {
-        // If debug.enabled is true then browser console gets GA debug info.
-        enabled: false
-      },
-      router,
-      checkDuplicatedScript: true
-    });
-  }
-});
 
 // Filters and directives
 _.each(filters, (filter, name) => Vue.filter(name, filter));
