@@ -1,6 +1,9 @@
 import _ from 'lodash';
-import { getConfig, getServiceAnnouncement } from '@/api/config';
+import router from '@/router';
+import store from '@/store';
 import Vue from 'vue';
+import VueAnalytics from 'vue-analytics';
+import { getConfig, getServiceAnnouncement } from '@/api/config';
 
 const state = {
   announcement: undefined,
@@ -59,6 +62,31 @@ const actions = {
   },
   clearAlertsInStore: ({ commit }) => commit('clearAlertsInStore'),
   dismissError: ({ commit }, id) => commit('dismissError', id),
+  async initGoogleAnalytics() {
+     store.dispatch('context/loadConfig').then(response => {
+       let googleAnalyticsId = _.get(response, 'googleAnalyticsId');
+       if (googleAnalyticsId) {
+         Vue.use(VueAnalytics, {
+           id: googleAnalyticsId,
+           debug: {
+             // If debug.enabled is true then browser console gets GA debug info.
+             enabled: false
+           },
+           router,
+           checkDuplicatedScript: true
+         });
+       }
+     });
+  },
+  async initUserSession() {
+    store.dispatch('user/loadUser').then(user => {
+     if (user.isAuthenticated) {
+       store.dispatch('cohort/loadMyCohorts');
+       store.dispatch('curated/loadMyCuratedGroups');
+       store.dispatch('context/loadServiceAnnouncement');
+     }
+   });
+  },
   loadingComplete: ({ commit }) => commit('loadingComplete'),
   loadingStart: ({ commit }) => commit('loadingStart'),
   loadConfig: ({ commit, state }) => {
