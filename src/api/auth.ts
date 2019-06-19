@@ -8,7 +8,14 @@ export function devAuthLogIn(uid: string, password: string) {
       uid: uid,
       password: password
     })
-    .then(response => response.data, error => error);
+    .then(response => {
+      const user = response.data;
+      if (user.isAuthenticated) {
+        store.dispatch('user/registerUser', user);
+        store.dispatch('context/initUserSession');
+      }
+      return user;
+    }, error => error);
 }
 
 export function getCasLoginURL() {

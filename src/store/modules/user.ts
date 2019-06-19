@@ -21,6 +21,7 @@ const mutations = {
   registerUser: (state: any, user: any) => {
     if (user.uid) {
       state.user = user;
+      Vue.prototype.$eventHub.$emit('user-profile-loaded');
     }
   },
   putCalnetUserByCsid: (state: any, { csid, calnetUser }: any) =>
@@ -73,13 +74,13 @@ const actions = {
         getUserProfile().then(user => {
           gaTrackUserSessionStart(user);
           commit('registerUser', user);
-          Vue.prototype.$eventHub.$emit('user-profile-loaded');
           resolve(user);
         });
       }
     });
   },
   logout: ({ commit }) => commit('logout'),
+  registerUser: ({ commit }, user) => commit('registerUser', user),
   setDemoMode: ({ commit }, demoMode) => commit('setDemoMode', demoMode),
   setUserPreference: ({ commit }, { key, value }) => commit('setUserPreference', { key, value })
 };

@@ -42,7 +42,6 @@
 
 <script>
 import Context from '@/mixins/Context';
-import store from '@/store';
 import UserMetadata from "@/mixins/UserMetadata";
 import Util from '@/mixins/Util';
 import { devAuthLogIn } from '@/api/auth';
@@ -59,14 +58,12 @@ export default {
       let uid = this.trim(this.uid);
       let password = this.trim(this.password);
       if (uid && password) {
+        // Auth errors will be caught by axios.interceptors; see error reporting in the file 'main.ts'.
         devAuthLogIn(uid, password)
-          .then(data => {
-            // Auth errors will be caught by axios.interceptors; see error reporting in the file 'main.ts'.
-            if (data.isAuthenticated) {
-              store.dispatch('user/loadUser').then(() => {
-                const redirect = this.get(this.$router, 'currentRoute.query.redirect');
-                this.$router.push({ path: redirect || '/home' });
-              });
+          .then(user => {
+            if (user.isAuthenticated) {
+              const redirect = this.get(this.$router, 'currentRoute.query.redirect');
+              this.$router.push({ path: redirect || '/home' });
             }
           });
       } else {
