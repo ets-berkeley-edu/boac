@@ -88,7 +88,7 @@ def dev_auth_login():
 @app.route('/api/auth/become_user', methods=['POST'])
 @admin_required
 def become():
-    logout_user()
+    _logout_user()
     params = request.get_json() or {}
     return _dev_auth_login(params.get('uid'), app.config['DEVELOPER_AUTH_PASSWORD'])
 
@@ -96,7 +96,7 @@ def become():
 @app.route('/api/auth/logout')
 @login_required
 def logout():
-    logout_user()
+    _logout_user()
     redirect_url = app.config['VUE_LOCALHOST_BASE_URL'] or request.url_root
     cas_logout_url = _cas_client().get_logout_url(redirect_url=redirect_url)
     return tolerant_jsonify({
@@ -139,3 +139,9 @@ def _is_safe_url(target):
     ref_url = urlparse(request.host_url)
     test_url = urlparse(urljoin(request.host_url, target))
     return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc
+
+
+def _logout_user():
+    if current_user:
+        current_user.flush_cached()
+    logout_user()
