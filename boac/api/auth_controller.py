@@ -28,6 +28,7 @@ from urllib.parse import urlencode, urljoin, urlparse
 from boac.api.errors import ResourceNotFoundError
 from boac.api.util import admin_required
 from boac.lib.http import add_param_to_url, tolerant_jsonify
+from boac.models.authorized_user import AuthorizedUser
 import cas
 from flask import abort, current_app as app, flash, redirect, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
@@ -48,7 +49,8 @@ def cas_login():
     target_url = request.args.get('url')
     uid, attributes, proxy_granting_ticket = _cas_client(target_url).verify_ticket(ticket)
     logger.info(f'Logged into CAS as user {uid}')
-    user = app.login_manager.user_callback(uid)
+    user_id = AuthorizedUser.get_id_per_uid(uid)
+    user = user_id and app.login_manager.user_callback(user_id=user_id, flush_cached=True)
     support_email = app.config['BOAC_SUPPORT_EMAIL']
     if user is None:
         logger.error(f'UID {uid} is not an authorized user.')
@@ -118,7 +120,8 @@ def _dev_auth_login(uid, password):
         if password != app.config['DEVELOPER_AUTH_PASSWORD']:
             logger.error('Dev-auth: Wrong password')
             return tolerant_jsonify({'message': 'Invalid credentials'}, 401)
-        user = app.login_manager.user_callback(uid)
+        user_id = AuthorizedUser.get_id_per_uid(uid)
+        user = user_id and app.login_manager.user_callback(user_id=user_id, flush_cached=True)
         if user is None:
             logger.error(f'Dev-auth: User with UID {uid} is not registered in BOA.')
             return tolerant_jsonify({'message': f'Sorry, user with UID {uid} is not registered to use BOA.'}, 403)

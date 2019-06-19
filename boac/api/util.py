@@ -27,7 +27,6 @@ from functools import wraps
 import json
 
 from boac.externals.data_loch import get_sis_holds
-from boac.lib.berkeley import get_dept_codes
 from boac.merged import calnet
 from boac.merged.advising_note import get_advising_notes
 from boac.models.alert import Alert
@@ -210,22 +209,14 @@ def get_my_curated_groups():
     return curated_groups
 
 
-def is_asc_authorized():
-    return current_user.is_admin or 'UWASC' in get_dept_codes(current_user)
-
-
-def is_coe_authorized():
-    return current_user.is_admin or 'COENG' in get_dept_codes(current_user)
-
-
 def is_unauthorized_search(filter_keys, order_by):
     filter_key_set = set(filter_keys)
     asc_keys = {'inIntensiveCohort', 'isInactiveAsc', 'groupCodes'}
     if list(filter_key_set & asc_keys) or order_by in ['group_name']:
-        if not is_asc_authorized():
+        if not current_user.is_asc_authorized:
             return True
     coe_keys = {'advisorLdapUids', 'coePrepStatuses', 'coeProbation', 'ethnicities', 'genders', 'isInactiveCoe'}
     if list(filter_key_set & coe_keys):
-        if not is_coe_authorized():
+        if not current_user.is_coe_authorized:
             return True
     return False

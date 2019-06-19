@@ -25,68 +25,90 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, get_dept_codes, get_dept_role
 from boac.merged import calnet
+from boac.models.authorized_user import AuthorizedUser
+from boac.models.json_cache import clear, stow
 from flask import current_app as app
 from flask_login import UserMixin
 
 
 class UserSession(UserMixin):
 
-    def __init__(self, authorized_user=None):
-        self.user = authorized_user
-        self.calnet_profile = None
-        if self.user:
-            self.calnet_profile = calnet.get_calnet_user_for_uid(
-                app,
-                self.user.uid,
-                force_feed=False,
-                skip_expired_users=True,
-            )
+    def __init__(self, user_id=None, flush_cached=False):
+        self.user_id = user_id
+        if self.user_id:
+            if flush_cached:
+                self.flush_cached()
+            self.api_json = self.load_user(self.user_id)
+        else:
+            self.api_json = self._get_api_json()
+
+    def flush_cached(self):
+        clear(f'boa_user_session_{self.user_id}')
 
     def get_id(self):
-        return self.user and self.user.id
+        return self.user_id
 
     def get_uid(self):
-        return self.user and self.user.uid
+        return self.api_json['uid']
 
     @property
     def is_active(self):
-        active = False
-        if self.user:
-            if not self.calnet_profile:
-                active = False
-            elif self.user.is_admin:
-                active = True
-            elif len(self.user.department_memberships):
-                for m in self.user.department_memberships:
-                    active = m.is_advisor or m.is_director
-                    if active:
-                        break
-        return active
+        return self.api_json['isActive']
 
     @property
     def is_authenticated(self):
-        return self.is_active
+        return self.api_json['isAuthenticated']
 
     @property
     def is_anonymous(self):
-        return not self.is_active
+        return not self.api_json['isAnonymous']
 
     @property
-    def department_memberships(self):
-        return self.user and self.user.department_memberships
+    def departments(self):
+        return self.api_json['departments']
+
+    @property
+    def dept_codes(self):
+        return [d['code'] for d in self.api_json['departments']]
 
     @property
     def is_admin(self):
-        return self.user and self.user.is_admin
+        return self.api_json['isAdmin']
 
     @property
     def in_demo_mode(self):
-        return self.user and self.user.in_demo_mode
+        return self.api_json['inDemoMode']
+
+    @property
+    def is_asc_authorized(self):
+        return self.api_json['canViewAsc']
+
+    @property
+    def is_coe_authorized(self):
+        return self.api_json['canViewCoe']
 
     def to_api_json(self):
+        return self.api_json
+
+    @classmethod
+    @stow('boa_user_session_{user_id}')
+    def load_user(cls, user_id):
+        return cls._get_api_json(user=AuthorizedUser.find_by_id(user_id))
+
+    @classmethod
+    def _get_api_json(cls, user=None):
+        calnet_profile = None
         departments = []
-        if self.user:
-            for m in self.user.department_memberships:
+        is_asc = False
+        is_coe = False
+        if user:
+            calnet_profile = calnet.get_calnet_user_for_uid(
+                app,
+                user.uid,
+                force_feed=False,
+                skip_expired_users=True,
+            )
+            for m in user.department_memberships:
                 dept_code = m.university_dept.dept_code
                 departments.append(
                     {
@@ -96,23 +118,35 @@ class UserSession(UserMixin):
                         'isAdvisor': m.is_advisor,
                         'isDirector': m.is_director,
                     })
-        dept_codes = get_dept_codes(self.user) if self.user else []
-        is_asc = 'UWASC' in dept_codes
-        is_coe = 'COENG' in dept_codes
+            dept_codes = get_dept_codes(user) if user else []
+            is_asc = 'UWASC' in dept_codes
+            is_coe = 'COENG' in dept_codes
+        is_active = False
+        if user:
+            if not calnet_profile:
+                is_active = False
+            elif user.is_admin:
+                is_active = True
+            elif len(user.department_memberships):
+                for m in user.department_memberships:
+                    is_active = m.is_advisor or m.is_director
+                    if is_active:
+                        break
+        is_admin = user and user.is_admin
         return {
-            **(self.calnet_profile or {}),
+            **(calnet_profile or {}),
             **{
-                'id': self.get_id(),
-                'canViewAsc': is_asc or self.is_admin,
-                'canViewCoe': is_coe or self.is_admin,
+                'id': user and user.id,
+                'canViewAsc': is_asc or is_admin,
+                'canViewCoe': is_coe or is_admin,
                 'departments': departments,
-                'isActive': self.is_active,
-                'isAdmin': self.is_admin,
-                'isAnonymous': self.is_anonymous,
+                'isActive': is_active,
+                'isAdmin': is_admin,
+                'isAnonymous': not is_active,
                 'isAsc': is_asc,
-                'isAuthenticated': self.is_authenticated,
+                'isAuthenticated': is_active,
                 'isCoe': is_coe,
-                'inDemoMode': self.in_demo_mode,
-                'uid': self.get_uid(),
+                'inDemoMode': user and user.in_demo_mode,
+                'uid': user and user.uid,
             },
         }

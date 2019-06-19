@@ -205,7 +205,6 @@ class TestCohortDetail:
         response = client.get(f'/api/cohort/{cohort_id}?orderBy=firstName')
         assert response.status_code == 200
         athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
-
         term = athlete['term']
         assert term['termName'] == 'Fall 2017'
         assert term['enrolledUnits'] == 12.5
@@ -216,6 +215,7 @@ class TestCohortDetail:
     def test_includes_cohort_member_term_gpa(self, asc_advisor_session, asc_owned_cohort, client):
         cohort_id = asc_owned_cohort['id']
         response = client.get(f'/api/cohort/{cohort_id}?orderBy=firstName')
+        assert response.status_code == 200
         deborah = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
         assert len(deborah['termGpa']) == 4
         assert deborah['termGpa'][0] == {'termName': 'Spring 2018', 'gpa': 2.9}
@@ -225,6 +225,7 @@ class TestCohortDetail:
         """Includes athletic data custom cohort members for ASC advisors."""
         cohort_id = asc_owned_cohort['id']
         response = client.get(f'/api/cohort/{cohort_id}')
+        assert response.status_code == 200
         athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
         assert len(athlete['athleticsProfile']['athletics']) == 2
         assert athlete['athleticsProfile']['inIntensiveCohort'] is not None
@@ -243,6 +244,7 @@ class TestCohortDetail:
         """Omits athletic data for non-ASC advisors."""
         cohort_id = coe_owned_cohort['id']
         response = client.get(f'/api/cohort/{cohort_id}')
+        assert response.status_code == 200
         secretly_an_athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
         assert 'athletics' not in secretly_an_athlete
         assert 'inIntensiveCohort' not in secretly_an_athlete
@@ -253,6 +255,7 @@ class TestCohortDetail:
         """Includes athletic data for admins."""
         cohort_id = coe_owned_cohort['id']
         response = client.get(f'/api/cohort/{cohort_id}')
+        assert response.status_code == 200
         athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
         assert len(athlete['athleticsProfile']['athletics']) == 2
         assert athlete['athleticsProfile']['inIntensiveCohort'] is not None
@@ -271,6 +274,7 @@ class TestCohortDetail:
         api_path = f'/api/cohort/{cohort_id}'
         # First, offset is zero
         response = client.get(f'{api_path}?offset={0}&limit={1}')
+        assert response.status_code == 200
         data_0 = json.loads(response.data)
         assert data_0['totalStudentCount'] == 4
         assert len(data_0['students']) == 1

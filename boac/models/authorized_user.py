@@ -23,10 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 from boac import db
 from boac.models.base import Base
 from boac.models.db_relationships import cohort_filter_owners
+from sqlalchemy import text
 
 
 class AuthorizedUser(Base):
@@ -65,6 +65,12 @@ class AuthorizedUser(Base):
                     updated={self.updated_at},
                     created={self.created_at}>
                 """
+
+    @classmethod
+    def get_id_per_uid(cls, uid):
+        query = text(f'SELECT id FROM authorized_users WHERE uid = :uid')
+        result = db.session.execute(query, {'uid': uid}).first()
+        return result and result['id']
 
     @classmethod
     def find_by_id(cls, db_id):

@@ -25,7 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import is_unauthorized_search
-from boac.lib.berkeley import get_dept_codes
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
 from boac.merged import calnet
@@ -82,7 +81,7 @@ def students_with_alerts(cohort_id):
         alert_limit=limit,
     )
     benchmark('fetched cohort')
-    if cohort and _can_view_cohort(current_user, cohort):
+    if cohort and _can_current_user_view_cohort(cohort):
         _decorate_cohort(cohort)
         students = cohort.get('alerts', [])
         alert_sids = [s['sid'] for s in students]
@@ -123,7 +122,7 @@ def get_cohort(cohort_id):
         include_profiles=True,
         include_students=include_students,
     )
-    if cohort and _can_view_cohort(current_user, cohort):
+    if cohort and _can_current_user_view_cohort(cohort):
         _decorate_cohort(cohort)
         benchmark('end')
         return tolerant_jsonify(cohort)
@@ -258,10 +257,10 @@ def _filters_to_filter_criteria(filters, order_by=None):
     return CohortFilter.translate_filters_to_cohort_criteria(filters)
 
 
-def _can_view_cohort(user, cohort):
-    if user.is_admin:
+def _can_current_user_view_cohort(cohort):
+    if current_user.is_admin:
         return True
     cohort_dept_codes = []
     if cohort['owners']:
         cohort_dept_codes = np.concatenate([o['deptCodes'] for o in cohort['owners']])
-    return np.in1d(get_dept_codes(user), cohort_dept_codes)
+    return np.in1d(current_user.dept_codes, cohort_dept_codes)
