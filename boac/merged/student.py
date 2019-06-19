@@ -441,6 +441,8 @@ def get_student_query_scope(user=None):
         return []
     elif user.is_admin:
         return ['ADMIN']
+    elif hasattr(user, 'dept_codes'):
+        return user.dept_codes
     else:
         return [m.university_dept.dept_code for m in user.department_memberships]
 

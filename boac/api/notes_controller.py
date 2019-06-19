@@ -26,8 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import urllib.parse
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import get_dept_codes
-from boac.lib.berkeley import get_dept_role
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import is_int, process_input_from_rich_text_editor
 from boac.merged.advising_note import get_boa_attachment_stream, get_legacy_attachment_stream, note_to_compatible_json
@@ -60,11 +58,10 @@ def create_note():
     topics = _get_topics(params)
     if not sids or not subject:
         raise BadRequestError('Note creation requires \'subject\' and \'sid\'')
-    dept_codes = get_dept_codes(current_user)
-    if current_user.is_admin or not len(dept_codes):
+    if current_user.is_admin or not len(current_user.dept_codes):
         raise ForbiddenRequestError('Sorry, Admin users cannot create advising notes')
     # TODO: We capture one 'role' and yet user could have multiple, one per dept.
-    role = get_dept_role(current_user.department_memberships[0])
+    role = current_user.departments[0]['role'] if current_user.departments else None
     attachments = _get_attachments(request.files, tolerate_none=True)
     user_json = current_user.to_api_json()
 
@@ -74,7 +71,7 @@ def create_note():
                 author_uid=user_json['uid'],
                 author_name=user_json['name'],
                 author_role=role,
-                author_dept_codes=dept_codes,
+                author_dept_codes=current_user.dept_codes,
                 subject=subject,
                 body=process_input_from_rich_text_editor(body),
                 topics=topics,
@@ -89,7 +86,7 @@ def create_note():
             author_uid=user_json['uid'],
             author_name=user_json['name'],
             author_role=role,
-            author_dept_codes=dept_codes,
+            author_dept_codes=current_user.dept_codes,
             subject=subject,
             body=process_input_from_rich_text_editor(body),
             topics=topics,

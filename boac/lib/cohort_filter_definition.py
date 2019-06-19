@@ -27,7 +27,7 @@ from copy import deepcopy
 
 from boac.api.util import authorized_users_api_feed
 from boac.externals import data_loch
-from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE, COE_ETHNICITIES_PER_CODE, get_dept_codes, term_name_for_sis_id
+from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE, COE_ETHNICITIES_PER_CODE, term_name_for_sis_id
 from boac.merged import athletics
 from boac.merged.student import get_student_query_scope
 from boac.models.authorized_user import AuthorizedUser
@@ -301,7 +301,7 @@ def _selections_of_type(filter_type, existing_filters):
 
 
 def _get_coe_profiles():
-    users = list(filter(lambda user: 'COENG' in get_dept_codes(user), AuthorizedUser.query.all()))
+    users = list(filter(lambda _user: 'COENG' in _get_dept_codes(_user), AuthorizedUser.query.all()))
     profiles = []
     for user in authorized_users_api_feed(users):
         uid = user['uid']
@@ -380,3 +380,7 @@ def _team_groups():
 def _majors():
     relevant_majors = [row['major'] for row in data_loch.get_majors(get_student_query_scope())]
     return [{'name': major, 'value': major} for major in relevant_majors]
+
+
+def _get_dept_codes(user):
+    return [m.university_dept.dept_code for m in user.department_memberships] if user else None

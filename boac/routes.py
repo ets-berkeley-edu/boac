@@ -24,22 +24,19 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.merged.user_session import UserSession
-from boac.models.authorized_user import AuthorizedUser
 from flask import jsonify, make_response, redirect, request
 from flask_login import LoginManager
 
 
 def register_routes(app):
     """Register app routes."""
-    def _user_loader(obj):
-        # User can be loaded by (1) id primary-key, an integer, of AuthorizedUser table or (2) UID
-        user = AuthorizedUser.find_by_id(obj) if isinstance(obj, int) else AuthorizedUser.find_by_uid(obj)
-        return UserSession(user)
+    def _user_loader(user_id=None, flush_cached=False):
+        return UserSession(user_id, flush_cached)
 
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.user_loader(_user_loader)
-    login_manager.anonymous_user = UserSession
+    login_manager.anonymous_user = _user_loader
 
     # Register API routes.
     import boac.api.admin_controller

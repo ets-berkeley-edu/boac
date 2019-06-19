@@ -36,8 +36,7 @@ from flask_login import current_user, login_required
 
 @app.route('/api/profile/my')
 def my_profile():
-    api_json = current_user.to_api_json()
-    return tolerant_jsonify(api_json)
+    return tolerant_jsonify(current_user.to_api_json())
 
 
 @app.route('/api/profile/<uid>')
@@ -96,6 +95,7 @@ def set_demo_mode():
             raise errors.BadRequestError('Parameter \'demoMode\' not found')
         user = AuthorizedUser.find_by_id(current_user.get_id())
         user.in_demo_mode = bool(in_demo_mode)
+        current_user.flush_cached()
         app.login_manager.reload_user()
         return tolerant_jsonify(current_user.to_api_json())
     else:
