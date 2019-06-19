@@ -5,6 +5,7 @@
       autocomplete="off"
       class="search-form"
       :class="{'search-page-body': context === 'pageBody'}"
+      @keypress.enter.stop="search()"
       @submit.prevent="search()">
       <div v-if="context === 'sidebar'" class="d-flex flex-wrap justify-content-between search-label text-nowrap text-white">
         <div>
