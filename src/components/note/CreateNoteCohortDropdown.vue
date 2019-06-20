@@ -23,13 +23,13 @@
     <div>
       <div v-for="(addedObject, index) in added" :key="addedObject.id" class="mb-1">
         <span class="font-weight-bolder pill pill-attachment text-uppercase text-nowrap">
-          {{ addedObject.name }}
+          {{ truncate(addedObject.name) }}
           <b-btn
             :id="`remove-${type}-from-batch-${index}`"
             :aria-label="`Remove ${type} ${addedObject.name}`"
             variant="link"
             class="p-0"
-            @click.prevent="removeObject(addedObject)">
+            @click.prevent="remove(addedObject)">
             <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
           </b-btn>
         </span>
@@ -47,11 +47,11 @@ export default {
   name: 'CreateNoteCohortDropdown',
   mixins: [Context, UserMetadata, Util],
   props: {
-    addObjectId: Function,
+    addObject: Function,
     clearErrors: Function,
     objects: Array,
     isCuratedGroupsMode: Boolean,
-    removeObjectId: Function
+    removeObject: Function
   },
   data: () => ({
     added: [],
@@ -72,13 +72,13 @@ export default {
     addItem(object) {
       this.clearErrors();
       this.added.push(object);
-      this.addObjectId(object.id);
+      this.addObject(object);
       this.alertScreenReader(`${this.type} '${object.name}' added`);
     },
-    removeObject(object) {
+    remove(object) {
       this.clearErrors();
       this.added = this.filterList(this.added, a => a.id !== object.id);
-      this.removeObjectId(object.id);
+      this.removeObject(object);
       this.alertScreenReader(`${this.type} '${object.name}' removed`);
     }
   }

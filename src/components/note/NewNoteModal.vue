@@ -64,20 +64,23 @@
               <div>
                 <CreateNoteCohortDropdown
                   v-if="myCohorts && myCohorts.length"
-                  :add-object-id="addCohortToBatch"
+                  :add-object="addCohortToBatch"
                   :clear-errors="clearErrors"
                   :objects="myCohorts"
                   :is-curated-groups-mode="false"
-                  :remove-object-id="removeCohortFromBatch" />
+                  :remove-object="removeCohortFromBatch" />
               </div>
               <div>
                 <CreateNoteCohortDropdown
                   v-if="myCuratedGroups && myCuratedGroups.length"
-                  :add-object-id="addCuratedGroupToBatch"
+                  :add-object="addCuratedGroupToBatch"
                   :clear-errors="clearErrors"
                   :objects="myCuratedGroups"
                   :is-curated-groups-mode="true"
-                  :remove-object-id="removeCuratedGroupFromBatch" />
+                  :remove-object="removeCuratedGroupFromBatch" />
+              </div>
+              <div>
+                Note wll be created for <span class="font-weight-bolder">{{ 'student' | pluralize(targetStudentCount) }}</span>.
               </div>
               <hr />
             </div>
@@ -176,6 +179,7 @@
               <b-btn
                 id="create-note-button"
                 class="btn-primary-color-override"
+                :disabled="!targetStudentCount || !subject"
                 aria-label="Create new note"
                 variant="primary"
                 @click.prevent="create()">
@@ -279,8 +283,8 @@ export default {
     }
   },
   data: () => ({
-    addedCohortIds: [],
-    addedCuratedGroupIds: [],
+    addedCohorts: [],
+    addedCuratedGroups: [],
     attachment: undefined,
     attachmentError: undefined,
     attachments: [],
@@ -295,6 +299,7 @@ export default {
     showAreYouSureModal: false,
     sids: undefined,
     subject: undefined,
+    targetStudentCount: undefined,
     topics: []
   }),
   computed: {
@@ -350,18 +355,20 @@ export default {
     },
     create() {
       this.subject = this.trim(this.subject);
-      if (this.subject) {
+      if (this.subject && this.targetStudentCount) {
         this.body = this.trim(this.body);
         this.setNewNoteMode('saving');
         this.onSubmit();
+        const addedCohortIds = this.map(this.addedCohorts, 'id');
+        const addedCuratedGroupIds = this.map(this.addedCuratedGroups, 'id');
         createNote(
           this.sids,
           this.subject,
           this.body,
           this.topics,
           this.attachments,
-          this.addedCohortIds,
-          this.addedCuratedGroupIds
+          addedCohortIds,
+          addedCuratedGroupIds
         ).then(data => {
           this.reset();
           this.onSuccessfulCreate(data);
@@ -389,17 +396,21 @@ export default {
        this.setNewNoteMode(this.initialMode);
        this.putFocusNextTick('create-note-subject');
     },
-    addCohortToBatch(cohortId) {
-      this.addedCohortIds.push(cohortId);
+    addCohortToBatch(cohort) {
+      this.targetStudentCount += cohort.totalStudentCount;
+      this.addedCohorts.push(cohort);
     },
-    removeCohortFromBatch(cohortId) {
-      this.addedCohortIds = this.filterList(this.addedCohortIds, c => c.id !== cohortId);
+    removeCohortFromBatch(cohort) {
+      this.targetStudentCount -= cohort.totalStudentCount;
+      this.addedCohorts = this.filterList(this.addedCohorts, c => c.id !== cohort.id);
     },
-    addCuratedGroupToBatch(cohortId) {
-      this.addedCuratedGroupIds.push(cohortId);
+    addCuratedGroupToBatch(curatedGroup) {
+      this.targetStudentCount += curatedGroup.studentCount;
+      this.addedCuratedGroups.push(curatedGroup);
     },
-    removeCuratedGroupFromBatch(cohortId) {
-      this.addedCuratedGroupIds = this.filterList(this.addedCuratedGroupIds, c => c.id !== cohortId);
+    removeCuratedGroupFromBatch(curatedGroup) {
+      this.targetStudentCount -= curatedGroup.studentCount;
+      this.addedCuratedGroups = this.filterList(this.addedCuratedGroups, c => c.id !== curatedGroup.id);
     },
     removeAttachment(index) {
       this.clearErrors();
@@ -414,10 +425,11 @@ export default {
       this.clearErrors();
       this.setNewNoteMode(mode);
       this.subject = this.body = undefined;
-      this.addedCohortIds = [];
-      this.addedCuratedGroupIds = [];
+      this.addedCohorts = [];
+      this.addedCuratedGroups = [];
       this.attachments = [];
       this.topics = [];
+      this.targetStudentCount = this.student ? 1 : 0;
     }
   }
 }
