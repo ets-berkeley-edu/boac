@@ -40,7 +40,7 @@ import numpy as np
 @login_required
 def my_cohorts():
     cohorts = []
-    for cohort in CohortFilter.summarize_alert_counts_in_all_owned_by(current_user.get_id()):
+    for cohort in CohortFilter.get_cohorts_of_user_id(current_user.get_id()):
         cohort['isOwnedByCurrentUser'] = True
         cohorts.append(cohort)
     return tolerant_jsonify(cohorts)
@@ -52,7 +52,7 @@ def all_cohorts():
     scope = get_query_scope(current_user)
     uids = AuthorizedUser.get_all_uids_in_scope(scope)
     cohorts_per_uid = dict((uid, []) for uid in uids)
-    for cohort in CohortFilter.all_cohorts_owned_by(uids):
+    for cohort in CohortFilter.get_cohorts_owned_by_uids(uids):
         for uid in cohort['owners']:
             cohorts_per_uid[uid].append(cohort)
     api_json = []
