@@ -33,10 +33,6 @@
             </span>
             <span v-if="isSaving">
               <font-awesome icon="check" /> Added to Curated Group
-              <span
-                role="alert"
-                aria-live="passive"
-                class="sr-only">Selected students added to the chosen curated group</span>
             </span>
           </span>
         </template>
@@ -88,6 +84,7 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context';
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal';
 import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import UserMetadata from '@/mixins/UserMetadata';
@@ -99,7 +96,7 @@ export default {
   components: {
     CreateCuratedGroupModal
   },
-  mixins: [GoogleAnalytics, UserMetadata, Util],
+  mixins: [Context, GoogleAnalytics, UserMetadata, Util],
   props: {
     contextDescription: String,
     students: Array
@@ -177,6 +174,7 @@ export default {
         this.refresh();
         this.toggle(false);
         this.isSaving = false;
+        this.alertScreenReader('Selected students added to curated group');
       };
       const trackEvent = group => {
         this.each(

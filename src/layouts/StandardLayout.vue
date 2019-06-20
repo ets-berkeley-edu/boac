@@ -6,12 +6,12 @@
           id="skip-to-content-link"
           href="#content"
           class="sr-only sr-only-focusable"
-          tabindex="2">Skip to main content</a>
+          tabindex="0">Skip to main content</a>
         <router-link
           id="home-header"
           class="header-text"
           to="/home"
-          tabindex="1">
+          tabindex="0">
           <span class="sr-only">Return to </span>Home
         </router-link>
       </b-col>

@@ -5,10 +5,10 @@
     :class="{'demo-mode-blur': user.inDemoMode}">
     <h3 class="advising-note-search-result-header">
       <router-link
-        :id="`advising-note-search-result-header-link-${note.id}`"
+        :id="`link-to-student-${note.studentUid}`"
         class="advising-note-search-result-header-link"
         :class="{'demo-mode-blur': user.inDemoMode}"
-        :to="`/student/${note.studentUid}#${note.id}`">
+        :to="`${studentRoutePath(note.studentUid, user.inDemoMode)}#${note.id}`">
         {{ note.studentName }}
       </router-link>
       ({{ note.studentSid }})

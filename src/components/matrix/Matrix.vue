@@ -75,13 +75,15 @@
               </td>
               <td class="cohort-student-bio-container">
                 <div class="flex-container">
-                  <a :href="'/student/' + student.uid">
-                    <div
-                      class="flex-container student-name"
-                      :class="{'demo-mode-blur': user.inDemoMode}">
+                  <div
+                    class="flex-container student-name"
+                    :class="{'demo-mode-blur': user.inDemoMode}">
+                    <router-link
+                      :id="`link-to-student-${student.uid}`"
+                      :to="studentRoutePath(student.uid, user.inDemoMode)">
                       {{ student.lastName + (student.firstName ? ', ' + student.firstName : '') }}
-                    </div>
-                  </a>
+                    </router-link>
+                  </div>
                 </div>
                 <div
                   v-if="student.sid"
@@ -124,6 +126,7 @@ import MatrixUtil from '@/components/matrix/MatrixUtil';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
+
 export default {
   name: 'Matrix',
   components: {
@@ -444,7 +447,7 @@ export default {
       });
       dot.on('click', d => {
         if (!d.isClassMean) {
-          this.$router.push('/student/' + d.uid);
+          this.$router.push(this.studentRoutePath(d.uid, this.user.inDemoMode));
         }
       });
 

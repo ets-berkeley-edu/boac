@@ -23,7 +23,7 @@
     <div class="cohort-student-bio-container mb-1">
       <div class="cohort-student-name-container">
         <div>
-          <router-link :id="`row-${rowIndex}-student-href`" :to="`/student/${student.uid}`">
+          <router-link :id="`link-to-student-${student.uid}`" :to="studentRoutePath(student.uid, user.inDemoMode)">
             <h3
               v-if="sortedBy !== 'first_name'"
               :id="`row-${rowIndex}-student-name`"

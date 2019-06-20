@@ -23,17 +23,9 @@
           </span>
           <span v-if="isRemoving">
             <font-awesome icon="times" /> Removed
-            <span
-              role="alert"
-              aria-live="passive"
-              class="sr-only">Student removed from the selected group</span>
           </span>
           <span v-if="isAdding">
             <font-awesome icon="check" /> Added
-            <span
-              role="alert"
-              aria-live="passive"
-              class="sr-only">Student added to the selected group</span>
           </span>
         </span>
       </template>
@@ -90,6 +82,7 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context';
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal';
 import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import Scrollable from '@/mixins/Scrollable';
@@ -107,7 +100,7 @@ export default {
   components: {
     CreateCuratedGroupModal
   },
-  mixins: [GoogleAnalytics, Scrollable, UserMetadata, Util],
+  mixins: [Context, GoogleAnalytics, Scrollable, UserMetadata, Util],
   props: {
     sid: {
       type: String,
@@ -147,6 +140,7 @@ export default {
           this.checkedGroups = this.without(this.checkedGroups, group.id);
           this.isRemoving = false;
           this.putFocusNextTick('curated-group-dropdown', 'button');
+          this.alertScreenReader('Student removed from curated group');
           this.gaCuratedEvent(
             group.id,
             group.name,
@@ -162,6 +156,7 @@ export default {
           this.checkedGroups.push(group.id);
           this.isAdding = false;
           this.putFocusNextTick('curated-group-dropdown', 'button');
+          this.alertScreenReader('Student added to curated group');
           this.gaCuratedEvent(
             group.id,
             group.name,

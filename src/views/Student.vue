@@ -89,7 +89,11 @@ export default {
     }
   },
   created() {
-    const uid = this.get(this.$route, 'params.uid');
+    let uid = this.get(this.$route, 'params.uid');
+    if (this.user.inDemoMode) {
+      // In demo-mode we do not want to expose UID in browser location bar.
+      uid = window.atob(uid);
+    }
     getStudent(uid).then(data => {
       if (data) {
         this.setPageTitle(this.user.inDemoMode ? 'Student' : data.name);
