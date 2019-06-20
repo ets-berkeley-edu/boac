@@ -2,11 +2,6 @@
   <div v-if="inDemoMode !== null">
     <h2 class="page-section-header-sub">Demo Mode</h2>
     <div class="p-2">
-      <span
-        v-if="isToggling"
-        role="alert"
-        aria-live="passive"
-        class="sr-only">Switching demo mode {{ inDemoMode ? 'off' : 'on' }}</span>
       <b-form-checkbox
         v-if="!isToggling"
         id="toggle-demo-mode"
@@ -24,12 +19,13 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
 import { setDemoMode } from '@/api/user';
 
 export default {
   name: 'DemoModeToggle',
-  mixins: [UserMetadata],
+  mixins: [Context, UserMetadata],
   data: () => ({
     inDemoMode: null,
     isToggling: false
@@ -43,6 +39,7 @@ export default {
       setDemoMode(!this.inDemoMode).then(() => {
         this.inDemoMode = !this.inDemoMode;
         this.isToggling = false;
+        this.alertScreenReader(`Switching demo mode ${this.inDemoMode ? 'off' : 'on' }`);
       });
     }
   }

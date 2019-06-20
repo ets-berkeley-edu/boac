@@ -2,10 +2,6 @@
   <div class="p-3">
     <Spinner />
     <div v-if="!loading">
-      <span
-        role="alert"
-        aria-live="passive"
-        class="sr-only">Admin page loaded</span>
       <h1>BOA Flight Deck</h1>
       <div v-if="isDemoModeAvailable" class="d-flex flex-row mt-3 mb-3">
         <div class="mr-3">

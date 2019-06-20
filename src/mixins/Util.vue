@@ -90,6 +90,7 @@ export default {
       text = text && text.replace(/&nbsp;/g, '');
       return _.trim(text);
     },
+    studentRoutePath: (uid, inDemoMode) => inDemoMode ? `/student/${window.btoa(uid)}` : `/student/${uid}`,
     toInt,
     trim: _.trim,
     truncate: _.truncate,

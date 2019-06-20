@@ -4,13 +4,13 @@
       <font-awesome icon="sync" spin :size="`${faSize}x`" />
       <span
         role="alert"
-        aria-live="passive"
+        aria-live="polite"
         class="sr-only">Loading...</span>
     </div>
     <div v-if="!loading">
       <span
         role="alert"
-        aria-live="passive"
+        aria-live="polite"
         class="sr-only">
         <span>{{ name }} loaded</span>
       </span>

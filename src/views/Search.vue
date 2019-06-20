@@ -5,8 +5,7 @@
       <h1
         id="page-header-no-results"
         class="page-section-header"
-        role="alert"
-        aria-live="passive">
+        aria-live="polite">
         No results matching '{{ phrase }}'
       </h1>
       <div>Suggestions:</div>

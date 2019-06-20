@@ -22,10 +22,11 @@
       <template slot="lastName" slot-scope="row">
         <span class="sr-only">Student name</span>
         <router-link
+          :id="`link-to-student-${row.item.uid}`"
           :aria-label="'Go to profile page of ' + row.item.firstName + ' ' + row.item.lastName"
           class="text-nowrap"
           :class="{'demo-mode-blur': user.inDemoMode}"
-          :to="'/student/' + row.item.uid">
+          :to="studentRoutePath(row.item.uid, user.inDemoMode)">
           {{ `${row.item.lastName}, ${row.item.firstName}` }}
         </router-link>
         <span

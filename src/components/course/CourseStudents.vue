@@ -19,7 +19,7 @@
 
     <template slot="profile" slot-scope="row">
       <div>
-        <router-link :id="row.item.uid" :to="`/student/${row.item.uid}`">
+        <router-link :id="`link-to-student-${row.item.uid}`" :to="studentRoutePath(row.item.uid, user.inDemoMode)">
           <h3
             class="student-name m-0 p-0"
             :class="{'demo-mode-blur': user.inDemoMode}">
@@ -29,8 +29,14 @@
       </div>
       <div :id="`row-${row.index}-student-sid`" class="student-sid" :class="{'demo-mode-blur': user.inDemoMode}">
         {{ row.item.sid }}
-        <span v-if="row.item.enrollment.enrollmentStatus === 'W'" class="red-flag-status">WAITLISTED</span>
-        <span v-if="displayAsInactive(row.item)" class="red-flag-status">INACTIVE</span>
+        <span
+          v-if="row.item.enrollment.enrollmentStatus === 'W'"
+          :id="`student-${row.item.uid}-waitlisted-for-${section.termId}-${section.sectionId}`"
+          class="red-flag-status">WAITLISTED</span>
+        <span
+          v-if="displayAsInactive(row.item)"
+          :id="`student-${row.item.uid}-inactive-for-${section.termId}-${section.sectionId}`"
+          class="red-flag-status">INACTIVE</span>
       </div>
       <div>
         <span class="student-text">{{ row.item.level }}</span>

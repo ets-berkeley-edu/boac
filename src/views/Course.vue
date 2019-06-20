@@ -63,7 +63,7 @@
       </div>
       <div class="course-terms">
         <h2 class="sr-only">Students</h2>
-        <div v-if="!section.totalStudentCount" class="course-view-controls-container">
+        <div v-if="!section.totalStudentCount" class="d-flex ml-3 mt-3">
           <span class="has-error"><font-awesome icon="exclamation-triangle" /></span>
           <span class="container-error">No students advised by your department are enrolled in this section.</span>
         </div>
@@ -375,9 +375,6 @@ export default {
 }
 .course-view-controls-container {
   align-items: baseline;
-  display: flex;
-  flex-direction: row;
   justify-content: flex-start;
-  padding: 20px 0 15px 0;
 }
 </style>
