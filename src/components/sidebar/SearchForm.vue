@@ -7,41 +7,43 @@
       :class="{'search-page-body': context === 'pageBody'}"
       @keypress.enter.stop="search()"
       @submit.prevent="search()">
-      <div v-if="context === 'sidebar'" class="d-flex flex-wrap justify-content-between search-label text-nowrap text-white">
-        <div>
-          <font-awesome icon="search" />
-          <label
-            for="search-students-input"
-            class="search-form-label pl-1">Search</label>
+      <div class="d-flex flex-column-reverse">
+        <div :class="{'search-form-button': context === 'pageBody'}">
+          <span
+            v-if="allOptionsUnchecked"
+            class="sr-only"
+            aria-live="polite"
+            role="alert">
+            At least one search option must be checked.
+          </span>
+          <input
+            id="search-students-input"
+            v-model="searchPhrase"
+            class="pl-2 pr-2 search-input w-100"
+            :class="{ 'input-disabled': allOptionsUnchecked }"
+            :readonly="allOptionsUnchecked"
+            :aria-readonly="allOptionsUnchecked"
+            aria-label="Hit enter to execute search"
+            type="text"
+            required
+            maxlength="255" />
         </div>
-        <b-btn
-          id="search-options-panel-toggle"
-          v-b-toggle="'search-options-panel'"
-          class="pr-0 pt-0 search-options-panel-toggle"
-          variant="link"
-          @click="toggleSearchOptions()">
-          {{ showSearchOptions ? 'Hide' : 'Show' }} options
-        </b-btn>
-      </div>
-      <div :class="{'search-form-button': context === 'pageBody'}">
-        <span
-          v-if="allOptionsUnchecked"
-          class="sr-only"
-          aria-live="polite"
-          role="alert">
-          At least one search option must be checked.
-        </span>
-        <input
-          id="search-students-input"
-          v-model="searchPhrase"
-          class="pl-2 pr-2 search-input w-100"
-          :class="{ 'input-disabled': allOptionsUnchecked }"
-          :readonly="allOptionsUnchecked"
-          :aria-readonly="allOptionsUnchecked"
-          aria-label="Hit enter to execute search"
-          type="text"
-          required
-          maxlength="255" />
+        <div v-if="context === 'sidebar'" class="d-flex flex-wrap justify-content-between search-label text-nowrap text-white">
+          <div>
+            <font-awesome icon="search" />
+            <label
+              for="search-students-input"
+              class="search-form-label pl-1">Search</label>
+          </div>
+          <b-btn
+            id="search-options-panel-toggle"
+            v-b-toggle="'search-options-panel'"
+            class="pr-0 pt-0 search-options-panel-toggle"
+            variant="link"
+            @click="toggleSearchOptions()">
+            {{ showSearchOptions ? 'Hide' : 'Show' }} options
+          </b-btn>
+        </div>
       </div>
       <div v-if="context === 'pageBody'">
         <b-btn
@@ -348,8 +350,11 @@ export default {
     },
     toggleSearchOptions() {
       this.showSearchOptions = !this.showSearchOptions;
-      if (!this.showSearchOptions) {
+      if (this.showSearchOptions) {
+        this.putFocusNextTick('search-include-students-checkbox');
+      } else {
         this.resetNoteFilters();
+        this.putFocusNextTick('search-students-input');
       }
     }
   }
