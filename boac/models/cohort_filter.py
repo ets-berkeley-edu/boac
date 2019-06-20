@@ -122,7 +122,27 @@ class CohortFilter(Base, UserMixin):
         std_commit()
 
     @classmethod
-    def all_cohorts_owned_by(cls, uids):
+    def get_cohorts_of_user_id(cls, user_id):
+        query = text(f"""
+            SELECT id, name, filter_criteria, alert_count, student_count FROM cohort_filters c
+            LEFT JOIN cohort_filter_owners o ON o.cohort_filter_id = c.id
+            WHERE o.user_id = :user_id
+            ORDER BY c.name
+        """)
+        results = db.session.execute(query, {'user_id': user_id})
+
+        def transform(row):
+            return {
+                'id': row['id'],
+                'name': row['name'],
+                'criteria': row['filter_criteria'],
+                'alertCount': row['alert_count'],
+                'totalStudentCount': row['student_count'],
+            }
+        return [transform(row) for row in results]
+
+    @classmethod
+    def get_cohorts_owned_by_uids(cls, uids):
         query = text(f"""
             SELECT c.id, c.name, c.filter_criteria, c.alert_count, c.student_count, ARRAY_AGG(uid) authorized_users
             FROM cohort_filters c
@@ -169,24 +189,6 @@ class CohortFilter(Base, UserMixin):
         cohort_filter = cls.query.filter_by(id=cohort_id).first()
         db.session.delete(cohort_filter)
         std_commit()
-
-    @classmethod
-    def summarize_alert_counts_in_all_owned_by(cls, user_id):
-        query = text(f"""SELECT * FROM cohort_filters c
-            LEFT JOIN cohort_filter_owners o ON o.cohort_filter_id = c.id
-            WHERE o.user_id = :user_id
-            ORDER BY c.name""")
-        results = db.session.execute(query, {'user_id': user_id})
-
-        def transform(row):
-            return {
-                'id': row['id'],
-                'name': row['name'],
-                'criteria': row['filter_criteria'],
-                'alertCount': row['alert_count'],
-                'totalStudentCount': row['student_count'],
-            }
-        return [transform(row) for row in results]
 
     @classmethod
     def construct_phantom_cohort(cls, filters, **kwargs):

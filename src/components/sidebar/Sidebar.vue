@@ -17,11 +17,14 @@
       </div>
     </div>
     <div v-if="user && !user.isAdmin && featureFlagBatchNotes">
-      <NewNoteModal
-        :disable="!!editingNoteId || (newNoteMode && newNoteMode !== 'batch')"
-        initial-mode="batch"
-        :on-submit="noop"
-        :on-successful-create="noop" />
+      <div class="batch-note-button fixed-bottom mb-3">
+        <NewNoteModal
+          id="batch-note-button"
+          :disable="!!editingNoteId || (newNoteMode && newNoteMode !== 'batch')"
+          initial-mode="batch"
+          :on-submit="noop"
+          :on-successful-create="noop" />
+      </div>
     </div>
   </div>
 </template>
@@ -49,6 +52,9 @@ export default {
 </script>
 
 <style>
+.batch-note-button {
+  width: 17%;
+}
 .section-divider {
   background-color: #4a90e2;
   border: none;
