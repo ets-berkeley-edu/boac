@@ -16,7 +16,7 @@
     </div>
     <FocusLock
       v-if="!disable"
-      :disabled="!undocked || showAreYouSureModal"
+      :disabled="!undocked || showDiscardModal"
       :class="{'modal-full-screen': undocked}">
       <div
         id="new-note-modal-container"
@@ -62,6 +62,22 @@
           <div class="mt-2 mr-3 mb-1 ml-3">
             <div v-if="newNoteMode === 'batch'">
               <div>
+                <span
+                  v-if="targetStudentCount"
+                  class="font-italic"
+                  :class="{'has-error': targetStudentCount >= 250, 'font-weight-bolder': targetStudentCount >= 500}">
+                  Note will be added to student {{ 'record' | pluralize(targetStudentCount) }}.
+                  <span v-if="targetStudentCount >= 500">Are you sure?</span>
+                </span>
+                <span v-if="!targetStudentCount && (addedCohorts.length || addedCuratedGroups.length)" class="font-italic">
+                  <span v-if="addedCohorts.length && !addedCuratedGroups.length">There are no students in the {{ 'cohort' | pluralize(addedCohorts.length, {1: ' '}) }}.</span>
+                  <span v-if="addedCuratedGroups.length && !addedCohorts.length">There are no students in the {{ 'group' | pluralize(addedCuratedGroups.length, {1: ' '}) }}.</span>
+                  <span v-if="addedCohorts.length && addedCuratedGroups.length">
+                    Neither the {{ 'cohort' | pluralize(addedCohorts.length, {1: ' '}) }} nor the {{ 'group' | pluralize(addedCuratedGroups.length, {1: ' '}) }} have students.
+                  </span>
+                </span>
+              </div>
+              <div>
                 <CreateNoteCohortDropdown
                   v-if="myCohorts && myCohorts.length"
                   :add-object="addCohortToBatch"
@@ -78,9 +94,6 @@
                   :objects="myCuratedGroups"
                   :is-curated-groups-mode="true"
                   :remove-object="removeCuratedGroupFromBatch" />
-              </div>
-              <div>
-                Note wll be created for <span class="font-weight-bolder">{{ 'student' | pluralize(targetStudentCount) }}</span>.
               </div>
               <hr />
             </div>
@@ -227,11 +240,11 @@
       </div>
     </div>
     <AreYouSureModal
-      v-if="showAreYouSureModal"
-      :function-cancel="cancelTheCancel"
-      :function-confirm="cancelConfirmed"
+      v-if="showDiscardModal"
+      :function-cancel="cancelTheDiscard"
+      :function-confirm="discardConfirmed"
       modal-header="Discard unsaved note?"
-      :show-modal="showAreYouSureModal" />
+      :show-modal="showDiscardModal" />
     <b-popover
       v-if="showErrorPopover"
       :show.sync="showErrorPopover"
@@ -296,7 +309,7 @@ export default {
     error: undefined,
     isMinimizing: false,
     showErrorPopover: false,
-    showAreYouSureModal: false,
+    showDiscardModal: false,
     sids: undefined,
     subject: undefined,
     targetStudentCount: undefined,
@@ -334,18 +347,18 @@ export default {
     cancel() {
       this.clearErrors();
       if (this.trim(this.subject) || this.stripHtmlAndTrim(this.body) || this.size(this.attachments)) {
-        this.showAreYouSureModal = true;
+        this.showDiscardModal = true;
       } else {
-        this.cancelConfirmed();
+        this.discardConfirmed();
       }
     },
-    cancelConfirmed() {
-      this.showAreYouSureModal = false;
+    discardConfirmed() {
+      this.showDiscardModal = false;
       this.reset();
       this.alertScreenReader("Cancelled create new note");
     },
-    cancelTheCancel() {
-      this.showAreYouSureModal = false;
+    cancelTheDiscard() {
+      this.showDiscardModal = false;
       this.putFocusNextTick('create-note-subject');
     },
     clearErrors() {
