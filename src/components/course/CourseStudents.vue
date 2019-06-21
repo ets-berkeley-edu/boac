@@ -164,6 +164,7 @@ import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentBoxplot from '@/components/student/StudentBoxplot';
 import StudentMetadata from '@/mixins/StudentMetadata';
 import UserMetadata from '@/mixins/UserMetadata';
+import Util from '@/mixins/Util';
 
 export default {
   name: "CourseStudents",
@@ -175,7 +176,8 @@ export default {
   mixins: [
     StudentAnalytics,
     StudentMetadata,
-    UserMetadata
+    UserMetadata,
+    Util
   ],
   props: {
     featured: String,
