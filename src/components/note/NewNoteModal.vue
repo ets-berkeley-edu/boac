@@ -346,7 +346,8 @@ export default {
     },
     cancel() {
       this.clearErrors();
-      if (this.trim(this.subject) || this.stripHtmlAndTrim(this.body) || this.size(this.attachments)) {
+      const unsavedChanges = this.trim(this.subject) || this.stripHtmlAndTrim(this.body) || this.size(this.attachments) || this.addedCohorts.length || this.addedCuratedGroups.length;
+      if (unsavedChanges) {
         this.showDiscardModal = true;
       } else {
         this.discardConfirmed();
