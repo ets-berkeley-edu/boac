@@ -61,13 +61,13 @@
           </div>
         </div>
       </div>
-      <div class="course-terms">
+      <div>
         <h2 class="sr-only">Students</h2>
         <div v-if="!section.totalStudentCount" class="d-flex ml-3 mt-3">
           <span class="has-error"><font-awesome icon="exclamation-triangle" /></span>
           <span class="container-error">No students advised by your department are enrolled in this section.</span>
         </div>
-        <div v-if="section.totalStudentCount" class="course-view-controls-container ml-3 mr-3">
+        <div v-if="section.totalStudentCount" class="d-flex justify-content-start align-items-baseline m-3">
           <div>
             <CuratedGroupSelector
               v-if="!isEmpty(section.students) && (tab === 'list')"
@@ -372,9 +372,5 @@ export default {
 .course-term-name {
   font-size: 16px;
   font-weight: bold;
-}
-.course-view-controls-container {
-  align-items: baseline;
-  justify-content: flex-start;
 }
 </style>
