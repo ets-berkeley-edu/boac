@@ -296,7 +296,9 @@ def _selections_of_type(filter_type, existing_filters):
         key = row['key']
         if not selections[key]:
             selections[key] = []
-        selections[key].append(row['value'])
+        value = row.get('value')
+        if value:
+            selections[key].append(value)
     return selections
 
 
