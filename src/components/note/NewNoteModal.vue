@@ -263,8 +263,8 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Context from '@/mixins/Context';
 import CreateNoteCohortDropdown from '@/components/note/CreateNoteCohortDropdown';
 import FocusLock from 'vue-focus-lock';
-import NoteEditSession from '@/mixins/NoteEditSession';
 import NoteUtil from '@/components/note/NoteUtil';
+import StudentEditSession from '@/mixins/StudentEditSession';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { createNote } from '@/api/notes';
@@ -274,7 +274,7 @@ require('@/assets/styles/ckeditor-custom.css');
 export default {
   name: 'NewNoteModal',
   components: {AdvisingNoteTopics, AreYouSureModal, CreateNoteCohortDropdown, FocusLock},
-  mixins: [Context, NoteEditSession, NoteUtil, UserMetadata, Util],
+  mixins: [Context, NoteUtil, StudentEditSession, UserMetadata, Util],
   props: {
     disable: Boolean,
     initialMode: {
@@ -290,7 +290,7 @@ export default {
       required: true,
       type: Function
     },
-    student: {
+    sid: {
       required: false,
       type: Object
     }
@@ -337,7 +337,7 @@ export default {
   },
   created() {
     this.initFileDropPrevention();
-    this.sids = this.student ? [ this.student.sid ] : [];
+    this.sids = this.sid ? [ this.sid ] : [];
     this.reset();
   },
   methods: {
@@ -368,6 +368,7 @@ export default {
       this.showErrorPopover = false;
     },
     create() {
+      const isBatchMode = this.newNoteMode === 'batch';
       this.subject = this.trim(this.subject);
       if (this.subject && this.targetStudentCount) {
         this.body = this.trim(this.body);
@@ -376,6 +377,7 @@ export default {
         const addedCohortIds = this.map(this.addedCohorts, 'id');
         const addedCuratedGroupIds = this.map(this.addedCuratedGroups, 'id');
         createNote(
+          isBatchMode,
           this.sids,
           this.subject,
           this.body,

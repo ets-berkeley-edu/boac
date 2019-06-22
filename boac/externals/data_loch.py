@@ -286,7 +286,18 @@ def get_coe_profiles(sids):
     return safe_execute_rds(sql, sids=sids)
 
 
-def get_student_for_uid_and_scope(uid, scope):
+def get_student_by_sid(sid, scope):
+    query_tables = _student_query_tables_for_scope(scope)
+    if not query_tables:
+        return None
+    sql = f"""SELECT sas.*
+        {query_tables}
+        WHERE sas.sid = :sid"""
+    rows = safe_execute_rds(sql, sid=sid)
+    return None if not rows or (len(rows) == 0) else rows[0]
+
+
+def get_student_by_uid(uid, scope):
     query_tables = _student_query_tables_for_scope(scope)
     if not query_tables:
         return None

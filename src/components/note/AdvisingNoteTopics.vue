@@ -66,12 +66,12 @@
 
 <script>
 import Context from '@/mixins/Context';
-import NoteEditSession from "@/mixins/NoteEditSession";
+import StudentEditSession from "@/mixins/StudentEditSession";
 import Util from '@/mixins/Util';
 
 export default {
   name: 'AdvisingNoteTopics',
-  mixins: [Context, NoteEditSession, Util],
+  mixins: [Context, StudentEditSession, Util],
   props: {
     functionAdd: {
       type: Function,

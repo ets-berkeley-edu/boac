@@ -33,7 +33,7 @@ class TestAlertsController:
 
     @classmethod
     def _get_alerts(cls, client, uid):
-        response = client.get(f'/api/student/{uid}')
+        response = client.get(f'/api/student/by_uid/{uid}')
         assert response.status_code == 200
         return response.json['notifications']['alert']
 

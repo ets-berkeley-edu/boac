@@ -584,7 +584,7 @@ class TestStreamNoteAttachments:
 
 
 def _get_notes(client, uid):
-    response = client.get(f'/api/student/{uid}')
+    response = client.get(f'/api/student/by_uid/{uid}')
     assert response.status_code == 200
     return response.json['notifications']['note']
 
@@ -633,6 +633,7 @@ def _api_batch_note_create(
     with mock_advising_note_s3_bucket(app):
         data = {
             'authorId': author_id,
+            'isBatchMode': sids and len(sids) > 1,
             'sids': sids or [],
             'cohortIds': cohort_ids or [],
             'curatedGroupIds': curated_group_ids or [],

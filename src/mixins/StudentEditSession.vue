@@ -2,18 +2,21 @@
 import { mapActions, mapGetters } from 'vuex';
 
 export default {
-  name: 'NoteEditSession',
+  name: 'StudentEditSession',
   computed: {
-    ...mapGetters('noteEditSession', [
+    ...mapGetters('studentEditSession', [
       'editingNoteId',
       'newNoteMode',
       'suggestedTopics'
     ])
   },
   methods: {
-    ...mapActions('noteEditSession', [
+    ...mapActions('studentEditSession', [
       'editExistingNoteId',
-      'setNewNoteMode'
+      'endSession',
+      'setNewNoteMode',
+      'setReloadStudentBySidFunction',
+      'setSid'
     ])
   }
 };

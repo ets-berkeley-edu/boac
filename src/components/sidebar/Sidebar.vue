@@ -33,9 +33,9 @@
 import Cohorts from '@/components/sidebar/Cohorts.vue';
 import Context from '@/mixins/Context';
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue';
-import NoteEditSession from "@/mixins/NoteEditSession";
 import NewNoteModal from '@/components/note/NewNoteModal.vue';
 import SearchForm from '@/components/sidebar/SearchForm.vue';
+import StudentEditSession from "@/mixins/StudentEditSession";
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
@@ -47,7 +47,7 @@ export default {
     NewNoteModal,
     SearchForm
   },
-  mixins: [Context, NoteEditSession, UserMetadata, Util]
+  mixins: [Context, StudentEditSession, UserMetadata, Util]
 };
 </script>
 

@@ -81,8 +81,8 @@ class TestCohortDetail:
         """Pre-load students into cache for consistent alert data."""
         from boac.models.alert import Alert
 
-        assert client.get('/api/student/61889').status_code == 200
-        assert client.get('/api/student/98765').status_code == 200
+        assert client.get('/api/student/by_uid/61889').status_code == 200
+        assert client.get('/api/student/by_uid/98765').status_code == 200
 
         Alert.update_all_for_term(2178)
         cohorts = all_cohorts_owned_by(asc_advisor_uid)
@@ -114,9 +114,9 @@ class TestCohortDetail:
         assert dave_doolittle['alertCount'] == 1
 
         def _get_alerts(uid):
-            response = client.get(f'/api/student/{uid}')
-            assert response.status_code == 200
-            return response.json['notifications']['alert']
+            _response = client.get(f'/api/student/by_uid/{uid}')
+            assert _response.status_code == 200
+            return _response.json['notifications']['alert']
 
         alert_to_dismiss = _get_alerts(61889)[0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')

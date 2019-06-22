@@ -228,8 +228,8 @@ import Context from '@/mixins/Context';
 import EditAdvisingNote from '@/components/note/EditAdvisingNote';
 import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import NewNoteModal from "@/components/note/NewNoteModal";
-import NoteEditSession from "@/mixins/NoteEditSession";
 import Scrollable from '@/mixins/Scrollable';
+import StudentEditSession from "@/mixins/StudentEditSession";
 import TimelineDate from '@/components/student/profile/TimelineDate';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
@@ -239,7 +239,7 @@ import { deleteNote, markRead } from '@/api/notes';
 export default {
   name: 'AcademicTimeline',
   components: {AdvisingNote, AreYouSureModal, EditAdvisingNote, NewNoteModal, TimelineDate},
-  mixins: [Context, GoogleAnalytics, NoteEditSession, Scrollable, UserMetadata, Util],
+  mixins: [Context, GoogleAnalytics, Scrollable, StudentEditSession, UserMetadata, Util],
   props: {
     student: Object
   },

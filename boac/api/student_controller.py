@@ -29,16 +29,26 @@ from boac.externals.cal1card_photo_api import get_cal1card_photo
 from boac.externals.data_loch import extract_valid_sids
 from boac.lib import util
 from boac.lib.http import tolerant_jsonify
-from boac.merged.student import get_student_and_terms, query_students
+from boac.merged.student import get_student_and_terms_by_sid, get_student_and_terms_by_uid, query_students
 from boac.models.alert import Alert
 from flask import current_app as app, request, Response
 from flask_login import current_user, login_required
 
 
-@app.route('/api/student/<uid>')
+@app.route('/api/student/by_sid/<sid>')
 @login_required
-def get_student(uid):
-    student = get_student_and_terms(uid)
+def get_student_by_sid(sid):
+    student = get_student_and_terms_by_sid(sid)
+    if not student:
+        raise ResourceNotFoundError('Unknown student')
+    put_notifications(student)
+    return tolerant_jsonify(student)
+
+
+@app.route('/api/student/by_uid/<uid>')
+@login_required
+def get_student_by_uid(uid):
+    student = get_student_and_terms_by_uid(uid)
     if not student:
         raise ResourceNotFoundError('Unknown student')
     put_notifications(student)
