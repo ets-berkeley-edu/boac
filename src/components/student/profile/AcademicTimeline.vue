@@ -36,7 +36,7 @@
       <div v-if="!user.isAdmin">
         <NewNoteModal
           :disable="!!editingNoteId || includes(['batch', 'minimized', 'open'], newNoteMode)"
-          :student="student"
+          :sid="student.sid"
           :on-submit="onSubmitAdvisingNote"
           :on-successful-create="onCreateAdvisingNote" />
       </div>
