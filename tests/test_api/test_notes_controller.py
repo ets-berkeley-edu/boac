@@ -30,6 +30,7 @@ from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
+from boac.models.note_read import NoteRead
 import pytest
 from tests.test_api.api_test_utils import all_cohorts_owned_by
 from tests.util import mock_advising_note_s3_bucket, mock_legacy_note_attachment, override_config
@@ -223,6 +224,8 @@ class TestBatchNoteCreation:
         )
         notes = Note.query.filter(Note.subject == subject).all()
         assert len(notes) == len(distinct_sids)
+        matching_notes_read = NoteRead.get_notes_read_by_user(viewer_id=advisor.id, note_ids=[str(n.id) for n in notes])
+        assert len(notes) == len(matching_notes_read)
         for sid in distinct_sids:
             note = next((n for n in notes if n.sid == sid), None)
             assert note

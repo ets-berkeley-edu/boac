@@ -63,13 +63,14 @@ def create_note():
     # TODO: We capture one 'role' and yet user could have multiple, one per dept.
     role = current_user.departments[0]['role'] if current_user.departments else None
     attachments = _get_attachments(request.files, tolerate_none=True)
-    user_json = current_user.to_api_json()
+    author = current_user.to_api_json()
 
     if is_batch_create:
         if app.config['FEATURE_FLAG_BATCH_NOTES']:
             Note.create_batch(
-                author_uid=user_json['uid'],
-                author_name=user_json['name'],
+                author_id=author['id'],
+                author_uid=author['uid'],
+                author_name=author['name'],
                 author_role=role,
                 author_dept_codes=current_user.dept_codes,
                 subject=subject,
@@ -83,8 +84,8 @@ def create_note():
             raise ResourceNotFoundError('API path not found')
     else:
         note = Note.create(
-            author_uid=user_json['uid'],
-            author_name=user_json['name'],
+            author_uid=author['uid'],
+            author_name=author['name'],
             author_role=role,
             author_dept_codes=current_user.dept_codes,
             subject=subject,
