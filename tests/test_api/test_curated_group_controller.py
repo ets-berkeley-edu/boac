@@ -173,7 +173,7 @@ class TestGetCuratedGroup:
         assert api_json[0]['alertCount'] == 3
         assert api_json[1]['alertCount'] == 1
 
-        student = client.get('/api/student/61889').json
+        student = client.get('/api/student/by_uid/61889').json
         alert_to_dismiss = student['notifications']['alert'][0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
         students_with_alerts = client.get(f'/api/curated_group/{asc_curated_groups[0].id}/students_with_alerts').json

@@ -17,7 +17,7 @@
         </div>
       </div>
       <div class="m-3">
-        <AcademicTimeline :student="student" />
+        <AcademicTimeline :key="loadedAt" :student="student" />
         <AreYouSureModal
           v-if="showAreYouSureModal"
           :function-cancel="cancelTheCancel"
@@ -37,15 +37,15 @@ import AcademicTimeline from '@/components/student/profile/AcademicTimeline';
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import Context from '@/mixins/Context';
 import Loading from '@/mixins/Loading';
-import NoteEditSession from '@/mixins/NoteEditSession';
 import Scrollable from '@/mixins/Scrollable';
 import Spinner from '@/components/util/Spinner';
 import StudentClasses from '@/components/student/profile/StudentClasses';
+import StudentEditSession from '@/mixins/StudentEditSession';
 import StudentProfileGPA from '@/components/student/profile/StudentProfileGPA';
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader';
 import StudentProfileUnits from '@/components/student/profile/StudentProfileUnits';
 import Util from '@/mixins/Util';
-import { getStudent } from '@/api/student';
+import { getStudentBySid, getStudentByUid } from '@/api/student';
 
 export default {
   name: 'Student',
@@ -58,10 +58,11 @@ export default {
     StudentProfileHeader,
     StudentProfileUnits
   },
-  mixins: [Context, Loading, NoteEditSession, Scrollable, Util],
+  mixins: [Context, Loading, Scrollable, StudentEditSession, Util],
   data: () => ({
     cancelTheCancel: undefined,
     cancelConfirmed: undefined,
+    loadedAt: undefined,
     showAllTerms: false,
     showAreYouSureModal: false,
     student: {
@@ -72,37 +73,18 @@ export default {
     anchor: () => location.hash
   },
   beforeRouteLeave(to, from, next) {
-    if (this.newNoteMode || this.editingNoteId) {
-      this.alertScreenReader("Are you sure you want to discard unsaved changes?");
-      this.cancelConfirmed = () => {
-        this.editExistingNoteId(null);
-        next();
-      };
-      this.cancelTheCancel = () => {
-        this.alertScreenReader("Please save changes before exiting the page.");
-        this.showAreYouSureModal = false;
-        next(false);
-      };
-      this.showAreYouSureModal = true;
-    } else {
-      next();
-    }
+    this.confirmExitAndEndSession(next);
   },
   created() {
     let uid = this.get(this.$route, 'params.uid');
     if (this.user.inDemoMode) {
-      // In demo-mode we do not want to expose UID in browser location bar.
+      // In demo-mode we do not want to expose SID in browser location bar.
       uid = window.atob(uid);
     }
-    getStudent(uid).then(data => {
-      if (data) {
-        this.setPageTitle(this.user.inDemoMode ? 'Student' : data.name);
-        this.assign(this.student, data);
-        this.each(this.student.enrollmentTerms, this.parseEnrollmentTerm);
-        this.loaded();
-      } else {
-        this.$router.push({ path: '/404' });
-      }
+    this.loadStudentByUid(uid);
+    // Reload by SID function is available in case student data is updated by parallel processes. E.g., batch note creation.
+    this.setReloadStudentBySidFunction(sid => {
+      getStudentBySid(sid).then(this.renderStudent);
     });
   },
   mounted() {
@@ -111,6 +93,24 @@ export default {
     }
   },
   methods: {
+    confirmExitAndEndSession(next) {
+      if (this.newNoteMode || this.editingNoteId) {
+        this.alertScreenReader("Are you sure you want to discard unsaved changes?");
+        this.cancelConfirmed = () => {
+          this.endSession();
+          next();
+        };
+        this.cancelTheCancel = () => {
+          this.alertScreenReader("Please save changes before exiting the page.");
+          this.showAreYouSureModal = false;
+          next(false);
+        };
+        this.showAreYouSureModal = true;
+      } else {
+        this.endSession();
+        next();
+      }
+    },
     decorateCourse(course) {
       // course_code is often valuable (eg, 'ECON 1 - LEC 001'), occasionally not (eg, CCN). Use it per strict criteria:
       const useCourseCode = /^[A-Z].*[A-Za-z]{3} \d/.test(course.courseCode);
@@ -119,6 +119,21 @@ export default {
         title: useCourseCode ? course.courseName : null,
         canvasSites: [course]
       });
+    },
+    loadStudentByUid(uid) {
+      getStudentByUid(uid).then(this.renderStudent);
+    },
+    renderStudent(data) {
+      if (data) {
+        this.setSid(data.sid);
+        this.setPageTitle(this.user.inDemoMode ? 'Student' : data.name);
+        this.assign(this.student, data);
+        this.each(this.student.enrollmentTerms, this.parseEnrollmentTerm);
+        this.loadedAt = new Date().getTime();
+        this.loaded();
+      } else {
+        this.$router.push({ path: '/404' });
+      }
     },
     parseEnrollmentTerm(term) {
       // Merge in unmatched canvas sites

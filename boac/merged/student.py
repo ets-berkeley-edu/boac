@@ -227,28 +227,14 @@ def get_summary_student_profiles(sids, term_id=None):
     return profiles
 
 
-def get_student_and_terms(uid):
-    """Provide external data for student-specific view."""
-    student = data_loch.get_student_for_uid_and_scope(uid, get_student_query_scope())
-    if not student:
-        return
-    profiles = get_full_student_profiles([student['sid']])
-    if not profiles or not profiles[0]:
-        return
-    profile = profiles[0]
-    sis_profile = profile.get('sisProfile', None)
-    if sis_profile and 'level' in sis_profile:
-        sis_profile['level']['description'] = _get_sis_level_description(sis_profile)
-    enrollments_for_sid = data_loch.get_enrollments_for_sid(student['sid'], latest_term_id=future_term_id())
-    profile['enrollmentTerms'] = [json.loads(row['enrollment_term']) for row in enrollments_for_sid]
-    profile['hasCurrentTermEnrollments'] = False
-    for term in profile['enrollmentTerms']:
-        if term['termId'] == current_term_id():
-            profile['hasCurrentTermEnrollments'] = len(term['enrollments']) > 0
-        else:
-            # Omit dropped sections for past terms.
-            term.pop('droppedSections', None)
-    return profile
+def get_student_and_terms_by_sid(sid):
+    student = data_loch.get_student_by_sid(sid, get_student_query_scope())
+    return _construct_student_profile(student)
+
+
+def get_student_and_terms_by_uid(uid):
+    student = data_loch.get_student_by_uid(uid, get_student_query_scope())
+    return _construct_student_profile(student)
 
 
 def get_term_gpas_by_sid(sids, as_dicts=False):
@@ -515,3 +501,25 @@ def _merge_photo_urls(profiles):
     )
     for profile in profiles:
         profile['photoUrl'] = photo_urls.get(_photo_key(profile))
+
+
+def _construct_student_profile(student):
+    if not student:
+        return
+    profiles = get_full_student_profiles([student['sid']])
+    if not profiles or not profiles[0]:
+        return
+    profile = profiles[0]
+    sis_profile = profile.get('sisProfile', None)
+    if sis_profile and 'level' in sis_profile:
+        sis_profile['level']['description'] = _get_sis_level_description(sis_profile)
+    enrollments_for_sid = data_loch.get_enrollments_for_sid(student['sid'], latest_term_id=future_term_id())
+    profile['enrollmentTerms'] = [json.loads(row['enrollment_term']) for row in enrollments_for_sid]
+    profile['hasCurrentTermEnrollments'] = False
+    for term in profile['enrollmentTerms']:
+        if term['termId'] == current_term_id():
+            profile['hasCurrentTermEnrollments'] = len(term['enrollments']) > 0
+        else:
+            # Omit dropped sections for past terms.
+            term.pop('droppedSections', None)
+    return profile

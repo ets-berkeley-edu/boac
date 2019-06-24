@@ -89,7 +89,7 @@ import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics';
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Context from '@/mixins/Context';
-import NoteEditSession from "@/mixins/NoteEditSession";
+import StudentEditSession from "@/mixins/StudentEditSession";
 import Util from '@/mixins/Util';
 import { updateNote } from '@/api/notes';
 
@@ -98,7 +98,7 @@ require('@/assets/styles/ckeditor-custom.css');
 export default {
   name: 'EditAdvisingNote',
   components: { AdvisingNoteTopics, AreYouSureModal },
-  mixins: [Context, NoteEditSession, Util],
+  mixins: [Context, StudentEditSession, Util],
   props: {
     afterCancelled: Function,
     afterSaved: Function,

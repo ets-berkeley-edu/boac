@@ -11,6 +11,7 @@ export function markRead(noteId) {
 }
 
 export function createNote(
+    isBatchMode: boolean,
     sids: any,
     subject: string,
     body: string,
@@ -19,9 +20,18 @@ export function createNote(
     cohortIds: number[],
     curatedGroupIds: number[]
 ) {
-  const data = {sids, subject, body, topics, cohortIds, curatedGroupIds};
+  const data = {isBatchMode, sids, subject, body, topics, cohortIds, curatedGroupIds};
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
-  return apiUtils.postMultipartFormData('/api/notes/create', data);
+  return apiUtils.postMultipartFormData('/api/notes/create', data).then(api_json => {
+    if (isBatchMode) {
+      const sid = store.getters['studentEditSession/sid'];
+      const reloadStudent = store.getters['studentEditSession/reloadStudentBySidFunction'];
+      if (sid && _.includes(api_json['sids'], sid) && reloadStudent) {
+        reloadStudent(sid);
+      }
+    }
+    return data;
+  });
 }
 
 export function updateNote(

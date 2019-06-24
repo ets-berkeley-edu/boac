@@ -27,7 +27,7 @@ import urllib.parse
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import is_int, process_input_from_rich_text_editor
+from boac.lib.util import is_int, process_input_from_rich_text_editor, to_bool_or_none
 from boac.merged.advising_note import get_boa_attachment_stream, get_legacy_attachment_stream, note_to_compatible_json
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
@@ -52,7 +52,7 @@ def mark_read(note_id):
 def create_note():
     params = request.form
     sids = _get_sids_for_note_creation()
-    is_batch_create = len(sids) > 1
+    is_batch_create = to_bool_or_none(params.get('isBatchMode'))
     subject = params.get('subject', None)
     body = params.get('body', None)
     topics = _get_topics(params)
@@ -78,7 +78,7 @@ def create_note():
                 sids=sids,
                 attachments=attachments,
             )
-            return tolerant_jsonify({'message': f'Note created for {len(sids)} students'}), 200
+            return tolerant_jsonify({'sids': sids})
         else:
             raise ResourceNotFoundError('API path not found')
     else:

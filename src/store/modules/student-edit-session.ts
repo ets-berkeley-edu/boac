@@ -6,17 +6,22 @@ const VALID_MODES = ['advanced', 'batch', 'docked', 'minimized', 'saving'];
 const state = {
   editingNoteId: undefined,
   newNoteMode: undefined,
+  reloadStudentBySidFunction: undefined,
+  sid: undefined,
   suggestedTopics: undefined
 };
 
 const getters = {
   editingNoteId: (state: any): number => state.editingNoteId,
   newNoteMode: (state: any): string => state.newNoteMode,
+  reloadStudentBySidFunction: (state: any): Function => state.reloadStudentBySidFunction,
+  sid: (state: any): string => state.sid,
   suggestedTopics: (state: any): any[] => state.suggestedTopics
 };
 
 const mutations = {
   editExistingNoteId: (state: any, id: number) => (state.editingNoteId = id),
+  endSession: (state: any) => _.each(_.keys(state), key => state[key] = undefined),
   setNewNoteMode: (state: any, mode: string) => {
     if (_.isNil(mode)) {
       state.newNoteMode = null;
@@ -26,11 +31,14 @@ const mutations = {
       throw new TypeError('Invalid mode: ' + mode);
     }
   },
-  setSuggestedTopics: (state: any, topics: any[]) => (state.suggestedTopics = topics),
+  setReloadStudentBySidFunction: (state: any, fct: Function) => (state.reloadStudentBySidFunction = fct),
+  setSid: (state: any, sid: string) => (state.sid = sid),
+  setSuggestedTopics: (state: any, topics: any[]) => (state.suggestedTopics = topics)
 };
 
 const actions = {
   editExistingNoteId: ({ commit }, id: number) => commit('editExistingNoteId', id),
+  endSession: ({ commit }) => commit('endSession'),
   setNewNoteMode: ({ commit }, mode: string) => {
     if (_.isUndefined(state.suggestedTopics)) {
       // Lazy-load topics
@@ -41,7 +49,9 @@ const actions = {
     } else {
       commit('setNewNoteMode', mode);
     }
-  }
+  },
+  setReloadStudentBySidFunction: ({ commit }, fct: Function) => commit('setReloadStudentBySidFunction', fct),
+  setSid: ({ commit }, sid: string) => commit('setSid', sid)
 };
 
 export default {
