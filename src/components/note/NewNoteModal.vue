@@ -292,7 +292,7 @@ export default {
     },
     sid: {
       required: false,
-      type: Object
+      type: String
     }
   },
   data: () => ({
@@ -445,7 +445,7 @@ export default {
       this.addedCuratedGroups = [];
       this.attachments = [];
       this.topics = [];
-      this.targetStudentCount = this.student ? 1 : 0;
+      this.targetStudentCount = this.sids.length;
     }
   }
 }
