@@ -100,6 +100,7 @@ class Note(Base):
     @classmethod
     def create_batch(
             cls,
+            author_id,
             author_uid,
             author_name,
             author_role,
@@ -111,7 +112,8 @@ class Note(Base):
             attachments=(),
     ):
         t = time.time()
-        note_ids = _insert_rows_in_notes_table(
+        note_ids = _create_notes(
+            author_id=author_id,
             author_uid=author_uid,
             author_name=author_name,
             author_role=author_role,
@@ -293,20 +295,20 @@ class Note(Base):
         }
 
 
-def _insert_rows_in_notes_table(author_uid, author_name, author_role, author_dept_codes, body, sids, subject):
+def _create_notes(author_id, author_uid, author_name, author_role, author_dept_codes, body, sids, subject):
     note_ids = []
     now = utc_now().strftime('%Y-%m-%dT%H:%M:%S+00')
     # The syntax of the following is what Postgres expects in json_populate_recordset(...)
     joined_author_dept_codes = '{' + ','.join(author_dept_codes) + '}'
     count_per_chunk = 10000
     for chunk in range(0, len(sids), count_per_chunk):
+        sids_subset = sids[chunk:chunk + count_per_chunk]
         query = """
             INSERT INTO notes (author_dept_codes, author_name, author_role, author_uid, body, sid, subject, created_at, updated_at)
             SELECT author_dept_codes, author_name, author_role, author_uid, body, sid, subject, created_at, updated_at
             FROM json_populate_recordset(null::notes, :json_dumps)
             RETURNING id;
         """
-        sids_subset = sids[chunk:chunk + count_per_chunk]
         data = [
             {
                 'author_uid': author_uid,
@@ -320,8 +322,24 @@ def _insert_rows_in_notes_table(author_uid, author_name, author_role, author_dep
                 'updated_at': now,
             } for sid in sids_subset
         ]
+        subset_of_note_ids = []
         for row in db.session.execute(query, {'json_dumps': json.dumps(data)}):
-            note_ids.append(row['id'])
+            subset_of_note_ids.append(row['id'])
+        # Yes, the note author has read the note.
+        notes_read_query = """
+            INSERT INTO notes_read (note_id, viewer_id, created_at)
+            SELECT note_id, viewer_id, created_at
+            FROM json_populate_recordset(null::notes_read, :json_dumps)
+        """
+        notes_read_data = [
+            {
+                'note_id': note_id,
+                'viewer_id': author_id,
+                'created_at': now,
+            } for note_id in subset_of_note_ids
+        ]
+        db.session.execute(notes_read_query, {'json_dumps': json.dumps(notes_read_data)})
+        note_ids = note_ids + subset_of_note_ids
     return note_ids
 
 
