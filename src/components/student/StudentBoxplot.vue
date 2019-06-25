@@ -93,7 +93,7 @@ export default {
     courseDeciles: undefined
   }),
   mounted() {
-    this.courseDeciles = this.get(this.dataset.currentScore, 'courseDeciles');
+    this.courseDeciles = this.get(this.dataset, 'courseDeciles');
     this.renderBoxplot();
   },
   methods: {
