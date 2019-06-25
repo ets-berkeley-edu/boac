@@ -2,7 +2,7 @@
   <div class="d-flex flex-wrap h-100 p-2">
     <div
       id="cumulative-units"
-      class="cumulative-units text-center mt-4">
+      class="cumulative-units text-center mb-3">
       <div v-if="cumulativeUnits" class="data-number">{{ cumulativeUnits }}</div>
       <div v-if="!cumulativeUnits" class="data-number">--<span class="sr-only">No data</span></div>
       <div class="cumulative-units-label text-uppercase">Units Completed</div>
