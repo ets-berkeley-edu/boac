@@ -39,9 +39,9 @@ asc_advisor_uid = '6446'
 coe_advisor_uid = '1133399'
 admin_uid = '2040'
 
-student = {
-    'sid': '11667051',
-    'uid': '61889',
+coe_student = {
+    'sid': '9000000000',
+    'uid': '300847',
 }
 
 
@@ -52,22 +52,52 @@ def new_coe_note():
         author_name='Balloon Man',
         author_role='Spherical',
         author_dept_codes='PHYSI',
-        sid=student['sid'],
+        sid=coe_student['sid'],
         subject='I was walking up Sixth Avenue',
         body='He spattered me with tomatoes, Hummus, chick peas',
     )
+
+
+class TestGetNote:
+
+    @classmethod
+    def _api_note_by_id(cls, client, note_id, expected_status_code=200):
+        response = client.get(f'/api/note/{note_id}')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, app, client, new_coe_note):
+        """Returns 401 if not authenticated."""
+        self._api_note_by_id(client=client, note_id=new_coe_note.id, expected_status_code=401)
+
+    def test_not_authorized(self, app, client, fake_auth, new_coe_note):
+        """Returns 404 if not authorized."""
+        fake_auth.login(asc_advisor_uid)
+        self._api_note_by_id(client=client, note_id=new_coe_note.id, expected_status_code=404)
+
+    def test_get_note_by_id(self, app, client, fake_auth, new_coe_note):
+        """Returns note in JSON compatible with BOA front-end."""
+        fake_auth.login(coe_advisor_uid)
+        note = self._api_note_by_id(client=client, note_id=new_coe_note.id)
+        assert note
+        assert 'id' in note
+        assert note['type'] == 'note'
+        assert note['body'] == note['message']
+        assert note['read'] is False
+        # Mark as read and re-test
+        NoteRead.find_or_create(AuthorizedUser.get_id_per_uid(coe_advisor_uid), note['id'])
+        assert self._api_note_by_id(client=client, note_id=new_coe_note.id)['read'] is True
 
 
 class TestNoteCreation:
 
     def test_not_authenticated(self, app, client):
         """Returns 401 if not authenticated."""
-        advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
         assert _api_note_create(
             app,
             client,
-            author_id=advisor.id,
-            sids=[student['sid']],
+            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+            sids=[coe_student['sid']],
             subject='Rusholme Ruffians',
             body='This is the last night of the fair, And the grease in the hair',
             expected_status_code=401,
@@ -81,7 +111,7 @@ class TestNoteCreation:
             app,
             client,
             author_id=admin.id,
-            sids=[student['sid']],
+            sids=[coe_student['sid']],
             subject='Rusholme Ruffians',
             body='This is the last night of the fair, And the grease in the hair',
             expected_status_code=403,
@@ -90,13 +120,12 @@ class TestNoteCreation:
     def test_create_note(self, app, client, fake_auth):
         """Create a note."""
         fake_auth.login(coe_advisor_uid)
-        advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
         subject = 'Vicar in a Tutu'
         new_note = _api_note_create(
             app,
             client,
-            author_id=advisor.id,
-            sids=[student['sid']],
+            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+            sids=[coe_student['sid']],
             subject=subject,
             body='A scanty bit of a thing with a decorative ring',
         )
@@ -108,7 +137,7 @@ class TestNoteCreation:
         assert new_note['author']['role'] == 'Advisor'
         assert new_note['author']['departments'][0]['name'] == 'College of Engineering'
         # Get notes per SID and compare
-        notes = _get_notes(client, student['uid'])
+        notes = _get_notes(client, coe_student['uid'])
         match = next((n for n in notes if n['id'] == note_id), None)
         assert match and match['subject'] == subject
 
@@ -118,8 +147,8 @@ class TestNoteCreation:
         note = _api_note_create(
             app,
             client,
-            author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
-            sids=[student['sid']],
+            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+            sids=[coe_student['sid']],
             subject='Incubate transparent web services',
             body='Facilitate value-added initiatives',
             topics=['collaborative synergies', 'integrated architectures', 'vertical solutions'],
@@ -135,8 +164,8 @@ class TestNoteCreation:
         note = _api_note_create(
             app,
             client,
-            author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
-            sids=[student['sid']],
+            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+            sids=[coe_student['sid']],
             subject='Get rich quick',
             body='Get an online degree at send.money.edu university',
         )
@@ -150,8 +179,8 @@ class TestNoteCreation:
         note = _api_note_create(
             app,
             client,
-            author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
-            sids=[student['sid']],
+            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+            sids=[coe_student['sid']],
             subject='I come with attachments',
             body='I come correct',
             attachments=[
@@ -180,7 +209,7 @@ class TestBatchNoteCreation:
             )
 
     def test_batch_note_creation_with_sids(self, app, client, fake_auth):
-        """Batch note creation with list SIDs."""
+        """Batch note creation with list of SIDs."""
         fake_auth.login(coe_advisor_uid)
         base_dir = app.config['BASE_DIR']
         advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
@@ -247,8 +276,8 @@ class TestNoteAttachments:
         note = _api_note_create(
             app,
             client,
-            author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
-            sids=[student['sid']],
+            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+            sids=[coe_student['sid']],
             subject='No attachments yet',
             body='I travel light',
         )
@@ -272,8 +301,8 @@ class TestNoteAttachments:
         note = _api_note_create(
             app,
             client,
-            author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
-            sids=[student['sid']],
+            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+            sids=[coe_student['sid']],
             subject='I come with attachments',
             body='I come correct',
             attachments=[
@@ -288,7 +317,7 @@ class TestNoteAttachments:
         assert delete_response.status_code == 200
         assert len(delete_response.json['attachments']) == 1
         assert delete_response.json['attachments'][0]['filename'] == 'mock_advising_note_attachment_2.txt'
-        notes = _get_notes(client, student['uid'])
+        notes = _get_notes(client, coe_student['uid'])
         match = next((n for n in notes if n['id'] == note_id), None)
         assert len(match.get('attachments')) == 1
         assert match['attachments'][0]['id'] == id_to_keep
@@ -513,8 +542,8 @@ class TestDeleteNote:
         note = _api_note_create(
             app,
             client,
-            author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
-            sids=[student['sid']],
+            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+            sids=[coe_student['sid']],
             subject='Recontextualize open-source supply-chains',
             body='Conveniently repurpose enterprise-wide action items',
             topics=['strategic interfaces'],
@@ -534,8 +563,8 @@ class TestDeleteNote:
         note = _api_note_create(
             app,
             client,
-            author_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
-            sids=[student['sid']],
+            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+            sids=[coe_student['sid']],
             subject='My little dog Lassie packed her bags and went out on to the porch',
             body='Then my little dog Lassie, she sailed off to the moon',
             attachments=[

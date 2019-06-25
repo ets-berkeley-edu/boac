@@ -315,6 +315,19 @@ export default {
     this.sortMessages();
     this.alertScreenReader('Academic Timeline has loaded');
     this.isTimelineLoading = false;
+    this.$eventHub.$on('advising-note-created', note => {
+      if (note.sid === this.student.sid) {
+        const currentNoteIds = this.map(this.filterList(this.messages, ['type', 'note']), 'id');
+        const isNotInView = !this.includes(currentNoteIds, note.id);
+        if (isNotInView) {
+          note.transientId = new Date().getTime();
+          this.messages.push(note);
+          this.countsPerType.note++;
+          this.sortMessages();
+          this.alertScreenReader(`New advising note created for student ${this.student.sid}.`);
+        }
+      }
+    });
   },
   mounted() {
     if (this.anchor) {
@@ -424,16 +437,8 @@ export default {
         ? this.filterList(this.messages, ['type', type])
         : this.messages;
     },
-    onCreateAdvisingNote(note) {
+    onCreateAdvisingNote() {
       this.creatingNewNote = false;
-      note.type = 'note';
-      note.message = note.body;
-      note.transientId = new Date().getTime();
-      this.messages.push(note);
-      this.countsPerType.note++;
-      this.sortMessages();
-      this.openMessages.push(note.transientId);
-      this.gaNoteEvent(note.id, `Advisor ${this.user.uid} created note`, 'create');
     },
     onSubmitAdvisingNote() {
       this.creatingNewNote = true;

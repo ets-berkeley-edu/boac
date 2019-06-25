@@ -112,7 +112,7 @@ class Note(Base):
             attachments=(),
     ):
         t = time.time()
-        note_ids = _create_notes(
+        note_ids_per_sid = _create_notes(
             author_id=author_id,
             author_uid=author_uid,
             author_name=author_name,
@@ -122,10 +122,12 @@ class Note(Base):
             sids=sids,
             subject=subject,
         )
+        note_ids = list(note_ids_per_sid.values())
         _add_topics_to_notes(author_uid=author_uid, note_ids=note_ids, topics=topics)
         _add_attachments_to_notes(attachments=attachments, author_uid=author_uid, note_ids=note_ids)
         cls.refresh_search_index()
         app.logger.info(f'Batch note creation: {len(sids)} records inserted in {str(time.time() - t)} seconds')
+        return note_ids_per_sid
 
     @classmethod
     def search(cls, search_phrase, sid_filter, author_csid, topic, datetime_from, datetime_to):
@@ -296,7 +298,7 @@ class Note(Base):
 
 
 def _create_notes(author_id, author_uid, author_name, author_role, author_dept_codes, body, sids, subject):
-    note_ids = []
+    note_ids_per_sid = {}
     now = utc_now().strftime('%Y-%m-%dT%H:%M:%S+00')
     # The syntax of the following is what Postgres expects in json_populate_recordset(...)
     joined_author_dept_codes = '{' + ','.join(author_dept_codes) + '}'
@@ -307,7 +309,7 @@ def _create_notes(author_id, author_uid, author_name, author_role, author_dept_c
             INSERT INTO notes (author_dept_codes, author_name, author_role, author_uid, body, sid, subject, created_at, updated_at)
             SELECT author_dept_codes, author_name, author_role, author_uid, body, sid, subject, created_at, updated_at
             FROM json_populate_recordset(null::notes, :json_dumps)
-            RETURNING id;
+            RETURNING id, sid;
         """
         data = [
             {
@@ -322,9 +324,10 @@ def _create_notes(author_id, author_uid, author_name, author_role, author_dept_c
                 'updated_at': now,
             } for sid in sids_subset
         ]
-        subset_of_note_ids = []
+        results_of_chunk_query = {}
         for row in db.session.execute(query, {'json_dumps': json.dumps(data)}):
-            subset_of_note_ids.append(row['id'])
+            sid = row['sid']
+            results_of_chunk_query[sid] = row['id']
         # Yes, the note author has read the note.
         notes_read_query = """
             INSERT INTO notes_read (note_id, viewer_id, created_at)
@@ -336,11 +339,11 @@ def _create_notes(author_id, author_uid, author_name, author_role, author_dept_c
                 'note_id': note_id,
                 'viewer_id': author_id,
                 'created_at': now,
-            } for note_id in subset_of_note_ids
+            } for note_id in results_of_chunk_query.values()
         ]
         db.session.execute(notes_read_query, {'json_dumps': json.dumps(notes_read_data)})
-        note_ids = note_ids + subset_of_note_ids
-    return note_ids
+        note_ids_per_sid.update(results_of_chunk_query)
+    return note_ids_per_sid
 
 
 def _add_topics_to_notes(author_uid, note_ids, topics):

@@ -17,7 +17,7 @@
         </div>
       </div>
       <div class="m-3">
-        <AcademicTimeline :key="loadedAt" :student="student" />
+        <AcademicTimeline :student="student" />
         <AreYouSureModal
           v-if="showAreYouSureModal"
           :function-cancel="cancelTheCancel"
@@ -45,7 +45,7 @@ import StudentProfileGPA from '@/components/student/profile/StudentProfileGPA';
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader';
 import StudentProfileUnits from '@/components/student/profile/StudentProfileUnits';
 import Util from '@/mixins/Util';
-import { getStudentBySid, getStudentByUid } from '@/api/student';
+import { getStudentByUid } from '@/api/student';
 
 export default {
   name: 'Student',
@@ -62,7 +62,6 @@ export default {
   data: () => ({
     cancelTheCancel: undefined,
     cancelConfirmed: undefined,
-    loadedAt: undefined,
     showAllTerms: false,
     showAreYouSureModal: false,
     student: {
@@ -81,11 +80,18 @@ export default {
       // In demo-mode we do not want to expose SID in browser location bar.
       uid = window.atob(uid);
     }
-    this.loadStudentByUid(uid);
-    // Reload by SID function is available in case student data is updated by parallel processes. E.g., batch note creation.
-    this.setReloadStudentBySidFunction(sid => {
-      getStudentBySid(sid).then(this.renderStudent);
+    getStudentByUid(uid).then(student => {
+      if (student) {
+        this.setSid(student.sid);
+        this.setPageTitle(this.user.inDemoMode ? 'Student' : student.name);
+        this.assign(this.student, student);
+        this.each(this.student.enrollmentTerms, this.parseEnrollmentTerm);
+        this.loaded();
+      } else {
+        this.$router.push({ path: '/404' });
+      }
     });
+
   },
   mounted() {
     if (!this.anchor) {
@@ -119,21 +125,6 @@ export default {
         title: useCourseCode ? course.courseName : null,
         canvasSites: [course]
       });
-    },
-    loadStudentByUid(uid) {
-      getStudentByUid(uid).then(this.renderStudent);
-    },
-    renderStudent(data) {
-      if (data) {
-        this.setSid(data.sid);
-        this.setPageTitle(this.user.inDemoMode ? 'Student' : data.name);
-        this.assign(this.student, data);
-        this.each(this.student.enrollmentTerms, this.parseEnrollmentTerm);
-        this.loadedAt = new Date().getTime();
-        this.loaded();
-      } else {
-        this.$router.push({ path: '/404' });
-      }
     },
     parseEnrollmentTerm(term) {
       // Merge in unmatched canvas sites

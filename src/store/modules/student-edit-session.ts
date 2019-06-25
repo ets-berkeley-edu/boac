@@ -6,7 +6,6 @@ const VALID_MODES = ['advanced', 'batch', 'docked', 'minimized', 'saving'];
 const state = {
   editingNoteId: undefined,
   newNoteMode: undefined,
-  reloadStudentBySidFunction: undefined,
   sid: undefined,
   suggestedTopics: undefined
 };
@@ -14,7 +13,6 @@ const state = {
 const getters = {
   editingNoteId: (state: any): number => state.editingNoteId,
   newNoteMode: (state: any): string => state.newNoteMode,
-  reloadStudentBySidFunction: (state: any): Function => state.reloadStudentBySidFunction,
   sid: (state: any): string => state.sid,
   suggestedTopics: (state: any): any[] => state.suggestedTopics
 };
@@ -31,7 +29,6 @@ const mutations = {
       throw new TypeError('Invalid mode: ' + mode);
     }
   },
-  setReloadStudentBySidFunction: (state: any, fct: Function) => (state.reloadStudentBySidFunction = fct),
   setSid: (state: any, sid: string) => (state.sid = sid),
   setSuggestedTopics: (state: any, topics: any[]) => (state.suggestedTopics = topics)
 };
@@ -50,7 +47,6 @@ const actions = {
       commit('setNewNoteMode', mode);
     }
   },
-  setReloadStudentBySidFunction: ({ commit }, fct: Function) => commit('setReloadStudentBySidFunction', fct),
   setSid: ({ commit }, sid: string) => commit('setSid', sid)
 };
 

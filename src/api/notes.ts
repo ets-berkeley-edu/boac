@@ -1,12 +1,18 @@
 import _ from 'lodash';
 import axios from 'axios';
 import store from '@/store';
-import apiUtils from '@/api/api-utils';
+import utils from '@/api/api-utils';
+import Vue from 'vue';
+
+export function getNote(noteId) {
+  return axios
+    .get(`${utils.apiBaseUrl()}/api/note/${noteId}`)
+    .then(response => response.data, () => null);
+}
 
 export function markRead(noteId) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .post(`${apiBaseUrl}/api/notes/${noteId}/mark_read`)
+    .post(`${utils.apiBaseUrl()}/api/notes/${noteId}/mark_read`)
     .then(response => response.data, () => null);
 }
 
@@ -22,12 +28,23 @@ export function createNote(
 ) {
   const data = {isBatchMode, sids, subject, body, topics, cohortIds, curatedGroupIds};
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
-  return apiUtils.postMultipartFormData('/api/notes/create', data).then(api_json => {
-    if (isBatchMode) {
-      const sid = store.getters['studentEditSession/sid'];
-      const reloadStudent = store.getters['studentEditSession/reloadStudentBySidFunction'];
-      if (sid && _.includes(api_json['sids'], sid) && reloadStudent) {
-        reloadStudent(sid);
+  return utils.postMultipartFormData('/api/notes/create', data).then(data => {
+    const sid = store.getters['studentEditSession/sid'];
+    if (sid) {
+      // Non-nil 'sid' means current_user is viewing /student page.
+      if (isBatchMode) {
+        const noteId = data[sid];
+        if (noteId) {
+          // Student in view was one of sids in batch-note creation.
+          getNote(noteId).then(note => {
+            Vue.prototype.$eventHub.$emit('advising-note-created', note);
+          });
+        }
+      } else if (!isBatchMode) {
+          if (data.sid === sid) {
+            // New note was created for student in view. In this case, the response data is the note.
+            Vue.prototype.$eventHub.$emit('advising-note-created', data);
+          }
       }
     }
     return data;
@@ -50,20 +67,18 @@ export function updateNote(
     deleteAttachmentIds: deleteAttachmentIds || []
   };
   _.each(newAttachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
-  return apiUtils.postMultipartFormData('/api/notes/update', data);
+  return utils.postMultipartFormData('/api/notes/update', data);
 }
 
 export function deleteNote(noteId: number) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .delete(`${apiBaseUrl}/api/notes/delete/${noteId}`)
+    .delete(`${utils.apiBaseUrl()}/api/notes/delete/${noteId}`)
     .then(response => response.data);
 }
 
 export function getTopics() {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${apiBaseUrl}/api/notes/topics`)
+    .get(`${utils.apiBaseUrl()}/api/notes/topics`)
     .then(response => response.data);
 }
 
@@ -71,12 +86,11 @@ export function addAttachment(noteId: number, attachment: any) {
   const data = {
     'attachment[0]': attachment,
   };
-  return apiUtils.postMultipartFormData(`/api/notes/${noteId}/attachment`, data);
+  return utils.postMultipartFormData(`/api/notes/${noteId}/attachment`, data);
 }
 
 export function removeAttachment(noteId: number, attachmentId: number) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .delete(`${apiBaseUrl}/api/notes/${noteId}/attachment/${attachmentId}`)
+    .delete(`${utils.apiBaseUrl()}/api/notes/${noteId}/attachment/${attachmentId}`)
     .then(response => response.data);
 }
