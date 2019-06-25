@@ -58,3 +58,8 @@ class NoteRead(db.Model):
     @classmethod
     def get_notes_read_by_user(cls, viewer_id, note_ids):
         return cls.query.filter(NoteRead.viewer_id == viewer_id, NoteRead.note_id.in_(note_ids)).all()
+
+    @classmethod
+    def when_user_read_note(cls, viewer_id, note_id):
+        note_read = cls.query.filter(NoteRead.viewer_id == viewer_id, NoteRead.note_id == note_id).first()
+        return note_read and note_read.created_at

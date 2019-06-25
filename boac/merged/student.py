@@ -227,6 +227,11 @@ def get_summary_student_profiles(sids, term_id=None):
     return profiles
 
 
+def is_current_user_authorized_to_view_student(sid):
+    # TODO: Remove this when we've de-silo'ed advisor access to students
+    return data_loch.get_student_by_sid(sid, get_student_query_scope()) is not None
+
+
 def get_student_and_terms_by_sid(sid):
     student = data_loch.get_student_by_sid(sid, get_student_query_scope())
     return _construct_student_profile(student)

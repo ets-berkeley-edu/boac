@@ -29,6 +29,7 @@ from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotF
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import is_int, process_input_from_rich_text_editor, to_bool_or_none
 from boac.merged.advising_note import get_boa_attachment_stream, get_legacy_attachment_stream, note_to_compatible_json
+from boac.merged.student import is_current_user_authorized_to_view_student
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.note import Note
@@ -36,6 +37,20 @@ from boac.models.note_read import NoteRead
 from boac.models.topic import Topic
 from flask import current_app as app, request, Response
 from flask_login import current_user, login_required
+
+
+@app.route('/api/note/<note_id>')
+@login_required
+def get_note(note_id):
+    def _current_user_is_authorized(_note):
+        # TODO: Remove this when we've de-silo'ed advisor access to students
+        return current_user.is_admin or is_current_user_authorized_to_view_student(_note.sid)
+
+    note = Note.find_by_id(note_id=note_id)
+    if not note or not _current_user_is_authorized(note):
+        raise ResourceNotFoundError('Note not found')
+    note_read = NoteRead.when_user_read_note(current_user.get_id(), str(note.id))
+    return tolerant_jsonify(_boa_note_to_compatible_json(note=note, note_read=note_read))
 
 
 @app.route('/api/notes/<note_id>/mark_read', methods=['POST'])
@@ -67,7 +82,7 @@ def create_note():
 
     if is_batch_create:
         if app.config['FEATURE_FLAG_BATCH_NOTES']:
-            Note.create_batch(
+            note_ids_per_sid = Note.create_batch(
                 author_id=author['id'],
                 author_uid=author['uid'],
                 author_name=author['name'],
@@ -79,7 +94,7 @@ def create_note():
                 sids=sids,
                 attachments=attachments,
             )
-            return tolerant_jsonify({'sids': sids})
+            return tolerant_jsonify(note_ids_per_sid)
         else:
             raise ResourceNotFoundError('API path not found')
     else:
@@ -94,15 +109,8 @@ def create_note():
             sid=sids.pop(),
             attachments=attachments,
         )
-        note_json = Note.find_by_id(note.id).to_api_json()
-        return tolerant_jsonify(
-            note_to_compatible_json(
-                note=note_json,
-                note_read=NoteRead.find_or_create(current_user.get_id(), note.id),
-                attachments=note_json.get('attachments'),
-                topics=note_json.get('topics'),
-            ),
-        )
+        note_read = NoteRead.find_or_create(current_user.get_id(), note.id)
+        return tolerant_jsonify(_boa_note_to_compatible_json(note=note, note_read=note_read))
 
 
 @app.route('/api/notes/update', methods=['POST'])
@@ -128,15 +136,8 @@ def update_note():
         attachments=_get_attachments(request.files, tolerate_none=True),
         delete_attachment_ids=delete_attachment_ids,
     )
-    note_json = note.to_api_json()
-    return tolerant_jsonify(
-        note_to_compatible_json(
-            note=note_json,
-            note_read=NoteRead.find_or_create(current_user.get_id(), note_id),
-            attachments=note_json.get('attachments'),
-            topics=note_json.get('topics'),
-        ),
-    )
+    note_read = NoteRead.find_or_create(current_user.get_id(), note_id)
+    return tolerant_jsonify(_boa_note_to_compatible_json(note=note, note_read=note_read))
 
 
 @app.route('/api/notes/delete/<note_id>', methods=['DELETE'])
@@ -277,3 +278,19 @@ def _get_attachments(request_files, tolerate_none=False):
                 'byte_stream': attachment.read(),
             })
     return byte_stream_bundle
+
+
+def _boa_note_to_compatible_json(note, note_read):
+    note_json = note.to_api_json()
+    return {
+        **note_to_compatible_json(
+            note=note_json,
+            note_read=note_read,
+            attachments=note_json.get('attachments'),
+            topics=note_json.get('topics'),
+        ),
+        **{
+            'message': note.body,
+            'type': 'note',
+        },
+    }

@@ -3,6 +3,7 @@ import store from "@/store";
 import axios from "axios";
 
 export default {
+  apiBaseUrl: () => store.getters['context/apiBaseUrl'],
   postMultipartFormData: (
     path: string,
     data: object
