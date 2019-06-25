@@ -116,6 +116,7 @@ def get_non_legacy_advising_notes(sid):
 def search_advising_notes(
     search_phrase,
     author_csid=None,
+    student_csid=None,
     topic=None,
     datetime_from=None,
     datetime_to=None,
@@ -147,7 +148,15 @@ def search_advising_notes(
     if not sids_result:
         return []
     student_rows_by_sid = {row['sid']: row for row in sids_result}
-    sid_filter = '{' + ','.join(student_rows_by_sid.keys()) + '}'
+    sids = student_rows_by_sid.keys()
+
+    if student_csid:
+        if student_csid in sids:
+            sids = [student_csid]
+        else:
+            return []
+
+    sid_filter = '{' + ','.join(sids) + '}'
 
     search_terms = [t.group(0) for t in list(re.finditer(NOTE_SEARCH_PATTERN, search_phrase)) if t]
     search_phrase = ' & '.join(search_terms)
@@ -184,6 +193,7 @@ def search_advising_notes(
         student_query_filter=student_query_filter,
         student_query_bindings=student_query_bindings,
         author_csid=author_csid,
+        student_csid=student_csid,
         topic=topic,
         datetime_from=datetime_from,
         datetime_to=datetime_to,

@@ -24,3 +24,9 @@ export function validateSids(sids: string[]) {
     .post(`${utils.apiBaseUrl()}/api/students/validate_sids`, { sids: sids })
     .then(response => response.data, () => null);
 }
+
+export function findStudentsByNameOrSid(query: string, limit: number) {
+  return axios
+    .get(`${utils.apiBaseUrl()}/api/students/find_by_name_or_sid?q=${query}&limit=${limit}`)
+    .then(response => response.data);
+}

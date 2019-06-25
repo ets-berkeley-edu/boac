@@ -136,6 +136,7 @@ def _course_search(search_phrase, params, order_by):
 def _notes_search(search_phrase, params):
     note_options = util.get(params, 'noteOptions', {})
     author_csid = note_options.get('authorCsid')
+    student_csid = note_options.get('studentCsid')
     topic = note_options.get('topic')
     limit = util.get(note_options, 'limit', 100)
     offset = util.get(note_options, 'offset', 0)
@@ -164,6 +165,7 @@ def _notes_search(search_phrase, params):
     notes_results = search_advising_notes(
         search_phrase=search_phrase,
         author_csid=author_csid,
+        student_csid=student_csid,
         topic=topic,
         datetime_from=datetime_from,
         datetime_to=datetime_to,

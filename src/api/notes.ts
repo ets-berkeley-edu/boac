@@ -115,6 +115,13 @@ export function getTopics() {
     .then(response => response.data);
 }
 
+export function findAuthorsByName(query: string, limit: number) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .get(`${apiBaseUrl}/api/notes/authors/find_by_name?q=${query}&limit=${limit}`)
+    .then(response => response.data);
+}
+
 export function addAttachment(noteId: number, attachment: any) {
   const data = {
     'attachment[0]': attachment,

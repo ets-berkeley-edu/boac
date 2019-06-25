@@ -99,6 +99,7 @@ export default {
     loadingAdditionalNotes: undefined,
     noteOptions: {
       authorCsid: undefined,
+      studentCsid: undefined,
       topic: undefined,
       dateFrom: undefined,
       dateTo: undefined,
@@ -131,6 +132,7 @@ export default {
     const includeStudents = this.$route.query.students;
     if (includeNotes) {
       this.noteOptions.authorCsid = this.$route.query.authorCsid;
+      this.noteOptions.studentCsid = this.$route.query.studentCsid;
       this.noteOptions.topic = this.$route.query.noteTopic;
       this.noteOptions.dateFrom = this.$route.query.noteDateFrom;
       this.noteOptions.dateTo = this.$route.query.noteDateTo;
@@ -142,8 +144,6 @@ export default {
         this.isNil(includeNotes) ? false : includeNotes,
         this.isNil(includeStudents) ? false : includeStudents,
         this.noteOptions,
-        this.user.isAsc ? false : null,
-        this.user.isCoe ? false : null
       )
         .then(data => {
           this.assign(this.results, data);
@@ -178,8 +178,6 @@ export default {
         true,
         false,
         this.noteOptions,
-        this.user.isAsc ? false : null,
-        this.user.isCoe ? false : null
       )
         .then(data => {
           this.results.notes = this.concat(this.results.notes, data.notes);

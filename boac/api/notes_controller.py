@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import urllib.parse
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
+from boac.externals import data_loch
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import is_int, process_input_from_rich_text_editor
 from boac.merged.advising_note import get_boa_attachment_stream, get_legacy_attachment_stream, note_to_compatible_json
@@ -166,6 +167,25 @@ def delete_note(note_id):
         raise ResourceNotFoundError('Note not found')
     Note.delete(note_id=note_id)
     return tolerant_jsonify({'message': f'Note {note_id} deleted'}), 200
+
+
+@app.route('/api/notes/authors/find_by_name', methods=['GET'])
+@login_required
+def find_note_authors_by_name():
+    query = request.args.get('q')
+    if not query:
+        raise BadRequestError('Search query must be supplied')
+    limit = request.args.get('limit')
+    query_fragments = filter(None, query.upper().split(' '))
+    authors = data_loch.match_advising_note_authors_by_name(query_fragments, limit=limit)
+
+    def _author_feed(a):
+        return {
+            'label': ' '.join([a.get('first_name', ''), a.get('last_name', '')]),
+            'sid': a.get('sid'),
+            'uid': a.get('uid'),
+        }
+    return tolerant_jsonify([_author_feed(a) for a in authors])
 
 
 @app.route('/api/notes/topics', methods=['GET'])

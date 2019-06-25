@@ -132,6 +132,22 @@
                 You
               </b-form-radio>
             </b-form-group>
+            <b-form-group label="Advisor">
+              <Autocomplete
+                id="search-options-note-filters-student"
+                v-model="noteFilters.author"
+                :source="findAuthorsByName"
+                placeholder="Enter name...">
+              </Autocomplete>
+            </b-form-group>
+            <b-form-group label="Student (name or SID)">
+              <Autocomplete
+                id="search-options-note-filters-author"
+                v-model="noteFilters.student"
+                :source="findStudentsByNameOrSid"
+                placeholder="Enter name or SID...">
+              </Autocomplete>
+            </b-form-group>
             <b-form-group label="Last Updated">
               <label
                 for="search-options-note-filters-last-updated-from"
@@ -223,13 +239,18 @@
 </template>
 
 <script>
+import Autocomplete from '@/components/util/Autocomplete';
 import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
-import { getTopics } from '@/api/notes';
+import { getTopics, findAuthorsByName } from '@/api/notes';
+import { findStudentsByNameOrSid } from '@/api/student';
 
 export default {
   name: 'SearchForm',
+  components: {
+    Autocomplete
+  },
   mixins: [Context, UserMetadata, Util],
   props: {
     context: String,
@@ -237,15 +258,20 @@ export default {
   },
   data() {
     return {
-      includeCourses: this.domain.includes('courses'),
-      includeNotes: this.domain.includes('notes'),
-      includeStudents: this.domain.includes('students'),
-      noteFilters: {
+      defaultNoteFilters: {
+        author: null,
         dateFrom: null,
         dateTo: null,
         postedBy: 'anyone',
+        student: null,
         topic: null,
       },
+      includeCourses: this.domain.includes('courses'),
+      includeNotes: this.domain.includes('notes'),
+      includeStudents: this.domain.includes('students'),
+      findAuthorsByName: findAuthorsByName,
+      findStudentsByNameOrSid: findStudentsByNameOrSid,
+      noteFilters: null,
       searchPhrase: null,
       showNoteFilters: false,
       showSearchOptions: false,
@@ -276,6 +302,7 @@ export default {
     }
   },
   created() {
+    this.resetNoteFilters();
     this.getNoteTopics();
   },
   methods: {
@@ -301,8 +328,7 @@ export default {
       });
     },
     resetNoteFilters() {
-      this.noteFilters.postedBy = 'anyone';
-      this.noteFilters.topic = null;
+      this.noteFilters = this.cloneDeep(this.defaultNoteFilters);
     },
     search() {
       this.searchPhrase = this.trim(this.searchPhrase);
@@ -316,6 +342,11 @@ export default {
         if (this.includeNotes) {
           if (this.noteFilters.postedBy === 'you') {
             query.authorCsid = this.user.csid;
+          } else if (this.noteFilters.author) {
+            query.authorCsid = this.noteFilters.author.sid;
+          }
+          if (this.noteFilters.student) {
+            query.studentCsid = this.noteFilters.student.sid;
           }
           if (this.noteFilters.topic) {
             query.noteTopic = this.noteFilters.topic;
