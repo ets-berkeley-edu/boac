@@ -3,7 +3,7 @@
     <h2 id="edit-service-announcement" class="page-section-header-sub">Service Alert</h2>
     <div class="p-2">
       <div v-if="isTogglingPublish">
-        <span class="fa fa-spinner fa-spin"></span>
+        <font-awesome icon="spinner" spin />
         {{ isPublished ? 'Unposting...' : 'Posting...' }}
       </div>
       <div v-if="!isTogglingPublish">
@@ -33,7 +33,7 @@
             class="btn-primary-color-override mt-2"
             :disabled="text === originalText"
             @click="updateText">
-            <span v-if="isSaving"><i class="fa fa-spinner fa-spin"></i> Update...</span>
+            <span v-if="isSaving"><font-awesome icon="spinner" spin /> Update...</span>
             <span v-if="!isSaving">Update</span>
           </b-btn>
         </div>

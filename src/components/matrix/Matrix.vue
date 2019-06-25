@@ -37,7 +37,7 @@
         Zoom:
         <div class="btn-group">
           <button type="button" class="btn matrix-zoom-button" @click="zoomIn()">
-            <i class="fa fa-plus"></i>
+            <font-awesome icon="plus" />
             <span class="sr-only">Zoom in</span>
           </button>
           <button
@@ -45,7 +45,7 @@
             class="btn matrix-zoom-button"
             :disabled="zoom.scale === 1"
             @click="zoomOut()">
-            <i class="fa fa-minus" :class="{'matrix-zoom-disabled': zoom.scale === 1}"></i>
+            <font-awesome icon="minus" :class="{'matrix-zoom-disabled': zoom.scale === 1}" />
             <span class="sr-only">Zoom out</span>
           </button>
         </div>
