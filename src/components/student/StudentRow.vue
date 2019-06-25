@@ -96,9 +96,10 @@
       <div
         v-if="size(student.termGpa)"
         class="student-bio-status-legend profile-last-term-gpa-outer pl-0">
-        <i
+        <font-awesome
           v-if="student.termGpa[0].gpa < 2"
-          class="fa fa-exclamation-triangle boac-exclamation mr-1"></i>
+          icon="exclamation-triangle"
+          class="boac-exclamation mr-1" />
         <span :id="`row-${rowIndex}-student-gpa-term-name`">{{ student.termGpa[0].termName }}</span> GPA:
         <strong
           :id="`row-${rowIndex}-student-term-gpa`"
