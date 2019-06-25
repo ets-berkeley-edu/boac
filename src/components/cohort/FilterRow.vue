@@ -41,15 +41,16 @@
             :id="`dropdown-primary-menuitem-${subCategory.key}-${filterRowIndex}`"
             :key="subCategory.key"
             class="dropdown-item"
-            :class="{
-              'pointer-default text-muted font-weight-light': subCategory.disabled,
-              'text-dark': !subCategory.disabled
-            }"
             :aria-disabled="subCategory.disabled"
             :disabled="subCategory.disabled"
             @click="setFilterCategory(subCategory)"
             @mouseover.prevent.stop>
-            {{ subCategory.name }}
+            <span
+              class="font-size-16"
+              :class="{
+                'font-weight-light pointer-default text-muted': subCategory.disabled,
+                'font-weight-normal text-dark': !subCategory.disabled
+              }">{{ subCategory.name }}</span>
           </b-dropdown-item>
           <b-dropdown-divider v-if="mIndex !== (menu.length - 1)"></b-dropdown-divider>
         </div>
@@ -82,15 +83,16 @@
             :id="`${filter.name}-${option.value}`"
             :key="option.key"
             class="dropdown-item"
-            :class="{
-              'pointer-default text-muted font-weight-light': option.disabled,
-              'text-dark': !option.disabled
-            }"
             :aria-disabled="option.disabled"
             :disabled="option.disabled"
             @click="typeArrayUpdateValue(option)"
             @mouseover.prevent.stop>
-            {{ option.name }}
+            <span
+              class="font-size-16"
+              :class="{
+                'font-weight-light pointer-default text-muted': option.disabled,
+                'font-weight-normal text-dark': !option.disabled
+              }">{{ option.name }}</span>
           </b-dropdown-item>
         </b-dropdown>
       </div>
