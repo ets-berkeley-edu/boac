@@ -59,7 +59,7 @@ v-if="section.isViewableOnCoursePage"
                 </div>
                 <span
                   v-if="course.waitlisted"
-                  :id="`student-${student.uid}-waitlisted-for-${course.termId}-${course.sections.length ? course.sections[0].ccn : course.displayName}`"
+                  :id="`student-${student.uid}-waitlisted-for-${term.termId}-${course.sections.length ? course.sections[0].ccn : course.displayName}`"
                   class="pl-1 red-flag-status">WAITLISTED</span>
               </div>
             </div>
