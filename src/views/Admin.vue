@@ -51,7 +51,7 @@
                   <b-col v-if="devAuthEnabled">
                     <div v-if="groupUser.uid !== user.uid">
                       <div v-if="groupUser.isExpiredPerLdap">
-                        <i class="fa fa-exclamation-triangle boac-exclamation mr-1"></i>
+                        <font-awesome icon="exclamation-triangle" class="boac-exclamation mr-1"></font-awesome>
                         <span class="text-muted">Expired account (according to CalNet)</span>
                       </div>
                       <b-btn
