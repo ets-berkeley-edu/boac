@@ -11,7 +11,7 @@
         <span class="sr-only">Demo mode is </span>{{ inDemoMode ? 'On' : 'Off' }}
       </b-form-checkbox>
       <div v-if="isToggling" class="demo-mode-label">
-        <span class="fa fa-spinner fa-spin"></span>
+        <font-awesome icon="spinner" spin />
         Toggling demo mode...
       </div>
     </div>
