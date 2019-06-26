@@ -104,12 +104,11 @@ export default {
             this.curatedGroup = curatedGroup;
             this.isFetching = false;
             this.alertScreenReader(`Loaded students with alerts who are in curated group ${this.curatedGroup.name}`);
-            this.gaEvent(
-              'Home',
-              'Fetch students with alerts',
-              `Curated Group: ${this.curatedGroup.name}`,
-              this.curatedGroup.id
-            );
+            this.gaCuratedEvent({
+              id: this.curatedGroup.id,
+              name: this.curatedGroup.name,
+              action: 'Fetch students with alerts'
+            });
           });
       }
     }

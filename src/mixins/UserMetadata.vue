@@ -13,7 +13,6 @@ export default {
   },
   methods: {
     ...mapActions('user', [
-      'gaEvent',
       'gaCohortEvent',
       'gaCuratedEvent',
       'gaStudentAlert',

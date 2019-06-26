@@ -1,13 +1,13 @@
 import axios from 'axios';
 import store from '@/store';
+import utils from '@/api/api-utils';
 
 export function createCohort(
   name: string,
   filters: any[]
 ) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .post(`${apiBaseUrl}/api/cohort/create`, {name, filters})
+    .post(`${utils.apiBaseUrl()}/api/cohort/create`, {name, filters})
     .then(response => {
       const cohort = response.data;
       store.dispatch('cohort/addCohort', cohort);
@@ -16,9 +16,8 @@ export function createCohort(
 }
 
 export function deleteCohort(id) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .delete(`${apiBaseUrl}/api/cohort/delete/${id}`, {
+    .delete(`${utils.apiBaseUrl()}/api/cohort/delete/${id}`, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -33,18 +32,16 @@ export function getCohort(
   includeStudents = true,
   orderBy = 'lastName'
 ) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
     .get(
-      `${apiBaseUrl}/api/cohort/${id}?includeStudents=${includeStudents}&orderBy=${orderBy}`
+      `${utils.apiBaseUrl()}/api/cohort/${id}?includeStudents=${includeStudents}&orderBy=${orderBy}`
     )
     .then(response => response.data, () => null);
 }
 
 export function getMyCohorts() {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${apiBaseUrl}/api/cohorts/my`)
+    .get(`${utils.apiBaseUrl()}/api/cohorts/my`)
     .then(response => response.data, () => null);
 }
 
@@ -54,9 +51,8 @@ export function getStudentsPerFilters(
   offset: number,
   limit: number
 ) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .post(`${apiBaseUrl}/api/cohort/get_students_per_filters`, {
+    .post(`${utils.apiBaseUrl()}/api/cohort/get_students_per_filters`, {
       filters,
       orderBy,
       offset,
@@ -66,16 +62,14 @@ export function getStudentsPerFilters(
 }
 
 export function getStudentsWithAlerts(cohortId) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${apiBaseUrl}/api/cohort/${cohortId}/students_with_alerts`)
+    .get(`${utils.apiBaseUrl()}/api/cohort/${cohortId}/students_with_alerts`)
     .then(response => response.data, () => null);
 }
 
 export function getUsersWithCohorts() {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${apiBaseUrl}/api/cohorts/all`)
+    .get(`${utils.apiBaseUrl()}/api/cohorts/all`)
     .then(response => response.data, () => null);
 }
 
@@ -84,9 +78,8 @@ export function saveCohort(
   name: string,
   filters?: any
 ) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .post(`${apiBaseUrl}/api/cohort/update`, {
+    .post(`${utils.apiBaseUrl()}/api/cohort/update`, {
       id,
       name,
       filters

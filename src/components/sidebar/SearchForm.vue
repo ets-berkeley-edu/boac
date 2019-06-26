@@ -331,12 +331,11 @@ export default {
           path: `/search`,
           query: query
         });
-        this.gaEvent(
-          'Search',
-          'submit',
-          `courses: ${this.includeCourses}; notes: ${this.includeNotes}; students: ${this.includeStudents}`,
-          this.searchPhrase
-        );
+        this.gaSearchEvent({
+          id: 'submit',
+          name: `Search phrase: ${this.searchPhrase}`,
+          action: `courses: ${this.includeCourses}; notes: ${this.includeNotes}; students: ${this.includeStudents}`
+        });
       } else {
         this.alertScreenReader('Search input is required');
       }
