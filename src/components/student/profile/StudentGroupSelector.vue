@@ -84,7 +84,6 @@
 <script>
 import Context from '@/mixins/Context';
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal';
-import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import Scrollable from '@/mixins/Scrollable';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
@@ -100,7 +99,7 @@ export default {
   components: {
     CreateCuratedGroupModal
   },
-  mixins: [Context, GoogleAnalytics, Scrollable, UserMetadata, Util],
+  mixins: [Context, Scrollable, UserMetadata, Util],
   props: {
     sid: {
       type: String,

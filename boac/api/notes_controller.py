@@ -27,7 +27,7 @@ import urllib.parse
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import is_int, process_input_from_rich_text_editor, to_bool_or_none
+from boac.lib.util import is_int, process_input_from_rich_text_editor
 from boac.merged.advising_note import get_boa_attachment_stream, get_legacy_attachment_stream, note_to_compatible_json
 from boac.merged.student import is_current_user_authorized_to_view_student
 from boac.models.cohort_filter import CohortFilter
@@ -66,8 +66,39 @@ def mark_read(note_id):
 @login_required
 def create_note():
     params = request.form
+    sid = params.get('sid', None)
+    subject = params.get('subject', None)
+    body = params.get('body', None)
+    topics = _get_topics(params)
+    if not sid or not subject:
+        raise BadRequestError('Note creation requires \'subject\' and \'sid\'')
+    if current_user.is_admin or not len(current_user.dept_codes):
+        raise ForbiddenRequestError('Sorry, Admin users cannot create advising notes')
+    # TODO: We capture one 'role' and yet user could have multiple, one per dept.
+    role = current_user.departments[0]['role'] if current_user.departments else None
+    attachments = _get_attachments(request.files, tolerate_none=True)
+    author = current_user.to_api_json()
+
+    note = Note.create(
+        author_uid=author['uid'],
+        author_name=author['name'],
+        author_role=role,
+        author_dept_codes=current_user.dept_codes,
+        subject=subject,
+        body=process_input_from_rich_text_editor(body),
+        topics=topics,
+        sid=sid,
+        attachments=attachments,
+    )
+    note_read = NoteRead.find_or_create(current_user.get_id(), note.id)
+    return tolerant_jsonify(_boa_note_to_compatible_json(note=note, note_read=note_read))
+
+
+@app.route('/api/notes/batch_create', methods=['POST'])
+@login_required
+def batch_create_notes():
+    params = request.form
     sids = _get_sids_for_note_creation()
-    is_batch_create = to_bool_or_none(params.get('isBatchMode'))
     subject = params.get('subject', None)
     body = params.get('body', None)
     topics = _get_topics(params)
@@ -80,25 +111,9 @@ def create_note():
     attachments = _get_attachments(request.files, tolerate_none=True)
     author = current_user.to_api_json()
 
-    if is_batch_create:
-        if app.config['FEATURE_FLAG_BATCH_NOTES']:
-            note_ids_per_sid = Note.create_batch(
-                author_id=author['id'],
-                author_uid=author['uid'],
-                author_name=author['name'],
-                author_role=role,
-                author_dept_codes=current_user.dept_codes,
-                subject=subject,
-                body=process_input_from_rich_text_editor(body),
-                topics=topics,
-                sids=sids,
-                attachments=attachments,
-            )
-            return tolerant_jsonify(note_ids_per_sid)
-        else:
-            raise ResourceNotFoundError('API path not found')
-    else:
-        note = Note.create(
+    if app.config['FEATURE_FLAG_BATCH_NOTES']:
+        note_ids_per_sid = Note.create_batch(
+            author_id=author['id'],
             author_uid=author['uid'],
             author_name=author['name'],
             author_role=role,
@@ -106,11 +121,12 @@ def create_note():
             subject=subject,
             body=process_input_from_rich_text_editor(body),
             topics=topics,
-            sid=sids.pop(),
+            sids=sids,
             attachments=attachments,
         )
-        note_read = NoteRead.find_or_create(current_user.get_id(), note.id)
-        return tolerant_jsonify(_boa_note_to_compatible_json(note=note, note_read=note_read))
+        return tolerant_jsonify(note_ids_per_sid)
+    else:
+        raise ResourceNotFoundError('API path not found')
 
 
 @app.route('/api/notes/update', methods=['POST'])

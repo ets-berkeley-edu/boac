@@ -267,7 +267,7 @@ import NoteUtil from '@/components/note/NoteUtil';
 import StudentEditSession from '@/mixins/StudentEditSession';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
-import { createNote } from '@/api/notes';
+import { createNote, createNoteBatch } from '@/api/notes';
 
 require('@/assets/styles/ckeditor-custom.css');
 
@@ -374,22 +374,26 @@ export default {
         this.body = this.trim(this.body);
         this.setNewNoteMode('saving');
         this.onSubmit();
-        const addedCohortIds = this.map(this.addedCohorts, 'id');
-        const addedCuratedGroupIds = this.map(this.addedCuratedGroups, 'id');
-        createNote(
-          isBatchMode,
-          this.sids,
-          this.subject,
-          this.body,
-          this.topics,
-          this.attachments,
-          addedCohortIds,
-          addedCuratedGroupIds
-        ).then(data => {
+        const afterNoteCreation = () => {
           this.reset();
-          this.onSuccessfulCreate(data);
-          this.alertScreenReader("New note saved.");
-        });
+          this.onSuccessfulCreate();
+          this.alertScreenReader(isBatchMode ? `Note created for ${this.sids.length} students.` : "New note saved.");
+        };
+        if (isBatchMode) {
+          const addedCohortIds = this.map(this.addedCohorts, 'id');
+          const addedCuratedGroupIds = this.map(this.addedCuratedGroups, 'id');
+          createNoteBatch(
+            this.sids,
+            this.subject,
+            this.body,
+            this.topics,
+            this.attachments,
+            addedCohortIds,
+            addedCuratedGroupIds
+          ).then(afterNoteCreation);
+        } else {
+          createNote(this.sids[0], this.subject, this.body, this.topics, this.attachments).then(afterNoteCreation);
+        }
       } else {
         this.error = 'Subject is required';
         this.showErrorPopover = true;

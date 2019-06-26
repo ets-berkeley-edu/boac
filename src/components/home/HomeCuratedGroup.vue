@@ -74,10 +74,10 @@
 
 <script>
 import Context from '@/mixins/Context';
-import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import HomeUtil from '@/components/home/HomeUtil';
 import SortableStudents from '@/components/search/SortableStudents';
 import store from '@/store';
+import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
@@ -85,7 +85,7 @@ export default {
   components: {
     SortableStudents
   },
-  mixins: [Context, GoogleAnalytics, HomeUtil, Util],
+  mixins: [Context, HomeUtil, UserMetadata, Util],
   props: {
     curatedGroup: Object
   },

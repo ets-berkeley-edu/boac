@@ -62,7 +62,6 @@
 </template>
 
 <script>
-import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import CohortEditSession from '@/mixins/CohortEditSession';
 import CreateCohortModal from '@/components/cohort/CreateCohortModal';
 import UserMetadata from '@/mixins/UserMetadata';
@@ -71,7 +70,7 @@ import Util from '@/mixins/Util';
 export default {
   name: 'ApplyAndSaveButtons',
   components: { CreateCohortModal },
-  mixins: [CohortEditSession, GoogleAnalytics, UserMetadata, Util],
+  mixins: [CohortEditSession, UserMetadata, Util],
   data: () => ({
     isPerforming: undefined,
     screenReaderAlert: undefined,

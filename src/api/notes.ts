@@ -17,7 +17,31 @@ export function markRead(noteId) {
 }
 
 export function createNote(
-    isBatchMode: boolean,
+    sid: any,
+    subject: string,
+    body: string,
+    topics: string[],
+    attachments: any[]
+) {
+  const data = {sid, subject, body, topics};
+  _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
+  return utils.postMultipartFormData('/api/notes/create', data).then(data => {
+    // Non-nil 'sid' means current_user is viewing /student page.
+    const sid = store.getters['studentEditSession/sid'];
+    if (data.sid === sid) {
+      Vue.prototype.$eventHub.$emit('advising-note-created', data);
+    }
+    const uid = store.getters['user/user'].uid;
+    store.dispatch('user/gaNoteEvent', {
+      id: data.id,
+      name: `Advisor ${uid} created a note`,
+      action: 'create'
+    });
+    return data;
+  });
+}
+
+export function createNoteBatch(
     sids: any,
     subject: string,
     body: string,
@@ -26,28 +50,26 @@ export function createNote(
     cohortIds: number[],
     curatedGroupIds: number[]
 ) {
-  const data = {isBatchMode, sids, subject, body, topics, cohortIds, curatedGroupIds};
+  const data = {sids, subject, body, topics, cohortIds, curatedGroupIds};
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
-  return utils.postMultipartFormData('/api/notes/create', data).then(data => {
+  return utils.postMultipartFormData('/api/notes/batch_create', data).then(data => {
+    // Non-nil 'sid' in store means current_user is viewing /student page.
     const sid = store.getters['studentEditSession/sid'];
     if (sid) {
-      // Non-nil 'sid' means current_user is viewing /student page.
-      if (isBatchMode) {
-        const noteId = data[sid];
-        if (noteId) {
-          // Student in view was one of sids in batch-note creation.
-          getNote(noteId).then(note => {
-            Vue.prototype.$eventHub.$emit('advising-note-created', note);
-          });
-        }
-      } else if (!isBatchMode) {
-          if (data.sid === sid) {
-            // New note was created for student in view. In this case, the response data is the note.
-            Vue.prototype.$eventHub.$emit('advising-note-created', data);
-          }
+      const noteId = data[sid];
+      if (noteId) {
+        // Student in view was one of sids in batch-note creation.
+        getNote(noteId).then(note => {
+          Vue.prototype.$eventHub.$emit('advising-note-created', note);
+        });
       }
     }
-    return data;
+    const uid = store.getters['user/user'].uid;
+    store.dispatch('user/gaNoteEvent', {
+      id: data.id,
+      name: `Advisor ${uid} created a batch of notes`,
+      action: 'batch_create'
+    });
   });
 }
 
