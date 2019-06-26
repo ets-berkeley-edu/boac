@@ -224,14 +224,13 @@
 
 <script>
 import Context from '@/mixins/Context';
-import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { getTopics } from '@/api/notes';
 
 export default {
   name: 'SearchForm',
-  mixins: [Context, GoogleAnalytics, UserMetadata, Util],
+  mixins: [Context, UserMetadata, Util],
   props: {
     context: String,
     domain: Array,

@@ -74,7 +74,6 @@
 <script>
 import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
-import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import Loading from '@/mixins/Loading';
 import SectionSpinner from '@/components/util/SectionSpinner';
 import SortableCourseList from '@/components/course/SortableCourseList';
@@ -94,7 +93,7 @@ export default {
     SortableStudents,
     Spinner
   },
-  mixins: [GoogleAnalytics, Loading, UserMetadata, Util],
+  mixins: [Loading, UserMetadata, Util],
   data: () => ({
     studentLimit: 50,
     loadingAdditionalNotes: undefined,

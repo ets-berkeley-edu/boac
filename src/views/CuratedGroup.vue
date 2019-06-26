@@ -51,7 +51,6 @@
 import Context from '@/mixins/Context';
 import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
 import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader';
-import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import Loading from '@/mixins/Loading';
 import Pagination from '@/components/util/Pagination';
 import Scrollable from '@/mixins/Scrollable';
@@ -73,7 +72,7 @@ export default {
     Spinner,
     StudentRow
   },
-  mixins: [Context, GoogleAnalytics, Loading, Scrollable, UserMetadata, Util],
+  mixins: [Context, Loading, Scrollable, UserMetadata, Util],
   props: {
     id: [String, Number]
   },

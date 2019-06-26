@@ -68,7 +68,6 @@ import CohortEditSession from '@/mixins/CohortEditSession';
 import CohortPageHeader from '@/components/cohort/CohortPageHeader';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
 import FilterRow from '@/components/cohort/FilterRow';
-import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import Loading from '@/mixins/Loading';
 import Pagination from '@/components/util/Pagination';
 import Scrollable from '@/mixins/Scrollable';
@@ -94,7 +93,6 @@ export default {
   },
   mixins: [
     CohortEditSession,
-    GoogleAnalytics,
     Loading,
     Scrollable,
     UserMetadata,

@@ -13,8 +13,14 @@ export default {
   },
   methods: {
     ...mapActions('user', [
-      'setUserPreference',
-      'loadCalnetUserByCsid'
+      'gaEvent',
+      'gaCohortEvent',
+      'gaCuratedEvent',
+      'gaStudentAlert',
+      'gaNoteEvent',
+      'gaSearchEvent',
+      'loadCalnetUserByCsid',
+      'setUserPreference'
     ])
   }
 };

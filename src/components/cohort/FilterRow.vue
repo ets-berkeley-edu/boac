@@ -206,12 +206,12 @@
 
 <script>
 import CohortEditSession from '@/mixins/CohortEditSession';
-import GoogleAnalytics from '@/mixins/GoogleAnalytics';
+import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'FilterRow',
-  mixins: [CohortEditSession, GoogleAnalytics, Util],
+  mixins: [CohortEditSession, UserMetadata, Util],
   props: {
     index: Number
   },

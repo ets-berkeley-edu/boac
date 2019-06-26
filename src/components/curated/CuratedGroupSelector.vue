@@ -86,7 +86,6 @@
 <script>
 import Context from '@/mixins/Context';
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal';
-import GoogleAnalytics from '@/mixins/GoogleAnalytics';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { addStudents, createCuratedGroup } from '@/api/curated';
@@ -96,7 +95,7 @@ export default {
   components: {
     CreateCuratedGroupModal
   },
-  mixins: [Context, GoogleAnalytics, UserMetadata, Util],
+  mixins: [Context, UserMetadata, Util],
   props: {
     contextDescription: String,
     students: Array

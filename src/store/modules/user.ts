@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import Vue from 'vue';
+import { event } from 'vue-analytics';
 import { getUserByCsid, getUserGroups, getUserProfile } from '@/api/user';
 import { gaTrackUserSessionStart } from '@/api/ga';
 
@@ -18,18 +19,27 @@ const getters = {
 };
 
 const mutations = {
+  gaEvent: (state: any, {category, action, label, value}: any) => {
+    if (state.user) {
+      event(category, action, label, value, {
+        userId: state.user.uid
+      });
+    } else {
+      event(category, action, label, value);
+    }
+  },
+  putCalnetUserByCsid: (state: any, {csid, calnetUser}: any) =>
+    (state.calnetUsersByCsid[csid] = calnetUser),
   registerUser: (state: any, user: any) => {
     if (user.uid) {
       state.user = user;
       Vue.prototype.$eventHub.$emit('user-profile-loaded');
     }
   },
-  putCalnetUserByCsid: (state: any, { csid, calnetUser }: any) =>
-    (state.calnetUsersByCsid[csid] = calnetUser),
-  setUserGroups: (state: any, userGroups: any[]) => (state.userGroups = userGroups),
   setDemoMode: (state: any, demoMode: boolean) =>
     (state.user.inDemoMode = demoMode),
-  setUserPreference: (state: any, { key, value }) => {
+  setUserGroups: (state: any, userGroups: any[]) => (state.userGroups = userGroups),
+  setUserPreference: (state: any, {key, value}) => {
     if (_.has(state.preferences, key)) {
       state.preferences[key] = value;
       Vue.prototype.$eventHub.$emit(`${key}-user-preference-change`, value);
@@ -40,7 +50,25 @@ const mutations = {
 };
 
 const actions = {
-  loadCalnetUserByCsid: ({ commit, state }, csid) => {
+  gaEvent: ({ commit }, {category, action, label, value}) => {
+    commit('gaEvent', {category, action, label, value});
+  },
+  gaCohortEvent: ({ commit }, {id, name, action}) => {
+    commit('gaEvent', {category: 'Cohort', action, name, id});
+  },
+  gaCuratedEvent: ({ commit }, {id, name, action}) => {
+    commit('gaEvent', {category: 'Curated Group', action, name, id});
+  },
+  gaStudentAlert: ({ commit }, {id, name, action}) => {
+    commit('gaEvent', {category: 'Student Alert', action, name, id});
+  },
+  gaNoteEvent: ({ commit }, {id, name, action}) => {
+    commit('gaEvent', {category: 'Advising Note', action, name, id});
+  },
+  gaSearchEvent: ({ commit }, {id, name, action}) => {
+    commit('gaEvent', {category: 'Search', action, name, id});
+  },
+  loadCalnetUserByCsid: ({commit, state}, csid) => {
     return new Promise(resolve => {
       if (state.calnetUsersByCsid[csid]) {
         resolve(state.calnetUsersByCsid[csid]);
@@ -53,7 +81,7 @@ const actions = {
       }
     });
   },
-  loadUserGroups: ({ commit, state }) => {
+  loadUserGroups: ({commit, state}) => {
     return new Promise(resolve => {
       if (state.userGroups) {
         resolve(state.userGroups);
@@ -66,7 +94,7 @@ const actions = {
       }
     });
   },
-  loadUser: ({ commit, state }) => {
+  loadUser: ({commit, state}) => {
     return new Promise(resolve => {
       if (state.user) {
         resolve(state.user);
@@ -82,7 +110,7 @@ const actions = {
   logout: ({ commit }) => commit('logout'),
   registerUser: ({ commit }, user) => commit('registerUser', user),
   setDemoMode: ({ commit }, demoMode) => commit('setDemoMode', demoMode),
-  setUserPreference: ({ commit }, { key, value }) => commit('setUserPreference', { key, value })
+  setUserPreference: ({ commit }, {key, value}) => commit('setUserPreference', { key, value })
 };
 
 export default {
