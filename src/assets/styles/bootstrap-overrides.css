@@ -35,18 +35,18 @@ legend {
 .b-table th[aria-sort]::after {
   display: inline !important;
   font-family: "Font Awesome 5 Free";
-  padding-left: 10px !important;
+  padding-left: 8px !important;
   position: inherit !important;
 }
 .b-table th[aria-sort="none"]::after {
   color: transparent;
-  content: '\f0d8' !important;
+  content: '\25b2' !important;
 }
 .b-table th[aria-sort="ascending"]::after {
-  content: "\f0d8" !important;
+  content: "\25b2" !important;
 }
 .b-table th[aria-sort="descending"]::after {
-  content: "\f0d7" !important;
+  content: "\25bc" !important;
 }
 .btn-primary-color-override {
   background-color: #337ab7 !important;
