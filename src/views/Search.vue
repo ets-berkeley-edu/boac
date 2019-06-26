@@ -160,12 +160,10 @@ export default {
             this.toInt(this.results.totalStudentCount, 0);
           const focusId = totalCount ? 'page-header' : 'page-header-no-results';
           this.putFocusNextTick(focusId);
-          this.gaEvent(
-            'Search',
-            'results',
-            includeCourses ? 'classes and students' : 'students',
-            totalCount
-          );
+          this.gaSearchEvent({
+            action: 'results',
+            name: includeCourses ? 'classes and students' : 'students'
+          });
         });
     }
   },

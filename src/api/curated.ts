@@ -1,11 +1,10 @@
 import axios from 'axios';
 import store from '@/store';
-import { event } from 'vue-analytics';
+import utils from '@/api/api-utils';
 
 export function addStudents(curatedGroup: any, sids: string[], returnStudentProfiles: boolean) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .post(`${apiBaseUrl}/api/curated_group/students/add`, {
+    .post(`${utils.apiBaseUrl()}/api/curated_group/students/add`, {
       curatedGroupId: curatedGroup.id,
       sids: sids,
       returnStudentProfiles: returnStudentProfiles
@@ -18,9 +17,8 @@ export function addStudents(curatedGroup: any, sids: string[], returnStudentProf
 }
 
 export function createCuratedGroup(name: string, sids: string[]) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .post(`${apiBaseUrl}/api/curated_group/create`, {
+    .post(`${utils.apiBaseUrl()}/api/curated_group/create`, {
       name: name,
       sids: sids
     })
@@ -32,9 +30,8 @@ export function createCuratedGroup(name: string, sids: string[]) {
 }
 
 export function deleteCuratedGroup(id) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .delete(`${apiBaseUrl}/api/curated_group/delete/${id}`, {
+    .delete(`${utils.apiBaseUrl()}/api/curated_group/delete/${id}`, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -43,8 +40,9 @@ export function deleteCuratedGroup(id) {
       store.commit('curated/deleteCuratedGroup', id);
     })
     .then(() => {
-      event('Curated Cohort', 'delete', null, id, {
-        userId: store.getters['user/user'].uid
+      store.dispatch('user/gaCuratedEvent', {
+        id: id,
+        action: 'delete'
       });
     })
     .catch(error => error);
@@ -56,64 +54,62 @@ export function getCuratedGroup(
   offset: number,
   limit: number
 ) {
-  const apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${apiBaseUrl}/api/curated_group/${id}?orderBy=${orderBy}&offset=${offset}&limit${limit}`)
+    .get(`${utils.apiBaseUrl()}/api/curated_group/${id}?orderBy=${orderBy}&offset=${offset}&limit${limit}`)
     .then(response => response.data, () => null);
 }
 
 export function getMyCuratedGroupIdsPerStudentId(sid: string) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${apiBaseUrl}/api/curated_groups/my/${sid}`)
+    .get(`${utils.apiBaseUrl()}/api/curated_groups/my/${sid}`)
     .then(response => response.data, () => null);
 }
 
 export function getMyCuratedGroups() {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${apiBaseUrl}/api/curated_groups/my`)
+    .get(`${utils.apiBaseUrl()}/api/curated_groups/my`)
     .then(response => response.data, () => null);
 }
 
 export function removeFromCuratedGroup(groupId, sid) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .delete(`${apiBaseUrl}/api/curated_group/${groupId}/remove_student/${sid}`)
+    .delete(`${utils.apiBaseUrl()}/api/curated_group/${groupId}/remove_student/${sid}`)
     .then(response => {
       const group = response.data;
       store.dispatch('curated/updateCuratedGroup', group);
       return group;
     })
     .then(group => {
-      event('Curated Cohort', 'remove_student', group.name, group.id, {
-        userId: store.getters['user/user'].uid
+      store.dispatch('user/gaCuratedEvent', {
+        id: group.id,
+        name: group.name,
+        action: 'remove_student'
       });
     });
 }
 
 export function renameCuratedGroup(id, name) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   let group = {
     id: id,
     name: name
   };
   return axios
-    .post(`${apiBaseUrl}/api/curated_group/rename`, group)
+    .post(`${utils.apiBaseUrl()}/api/curated_group/rename`, group)
     .then(() => {
       store.commit('curated/updateCuratedGroup', group);
     })
     .then(() => {
-      event('Curated Cohort', 'rename', group.name, group.id, {
-        userId: store.getters['user/user'].uid
+      store.dispatch('user/gaCuratedEvent', {
+        id: group.id,
+        name: group.name,
+        action: 'rename'
       });
     })
     .catch(error => error);
 }
 
 export function getStudentsWithAlerts(groupId) {
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${apiBaseUrl}/api/curated_group/${groupId}/students_with_alerts`)
+    .get(`${utils.apiBaseUrl()}/api/curated_group/${groupId}/students_with_alerts`)
     .then(response => response.data, () => null);
 }

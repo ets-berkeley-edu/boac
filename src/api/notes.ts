@@ -13,7 +13,14 @@ export function getNote(noteId) {
 export function markRead(noteId) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/notes/${noteId}/mark_read`)
-    .then(response => response.data, () => null);
+    .then(response => {
+      store.dispatch('user/gaNoteEvent', {
+        id: noteId,
+        name: `Advisor ${store.getters['user/uid']} read a note`,
+        action: 'read'
+      });
+      return response.data
+    }, () => null);
 }
 
 export function createNote(
@@ -31,10 +38,9 @@ export function createNote(
     if (data.sid === sid) {
       Vue.prototype.$eventHub.$emit('advising-note-created', data);
     }
-    const uid = store.getters['user/user'].uid;
     store.dispatch('user/gaNoteEvent', {
       id: data.id,
-      name: `Advisor ${uid} created a note`,
+      name: `Advisor ${store.getters['user/uid']} created a note`,
       action: 'create'
     });
     return data;
@@ -64,10 +70,9 @@ export function createNoteBatch(
         });
       }
     }
-    const uid = store.getters['user/user'].uid;
     store.dispatch('user/gaNoteEvent', {
       id: data.id,
-      name: `Advisor ${uid} created a batch of notes`,
+      name: `Advisor ${store.getters['user/uid']} created a batch of notes`,
       action: 'batch_create'
     });
   });
@@ -89,7 +94,13 @@ export function updateNote(
     deleteAttachmentIds: deleteAttachmentIds || []
   };
   _.each(newAttachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
-  return utils.postMultipartFormData('/api/notes/update', data);
+  const api_json = utils.postMultipartFormData('/api/notes/update', data);
+  store.dispatch('user/gaNoteEvent', {
+    id: noteId,
+    name: `Advisor ${store.getters['user/uid']} updated a note`,
+    action: 'update'
+  });
+  return api_json;
 }
 
 export function deleteNote(noteId: number) {

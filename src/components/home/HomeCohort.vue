@@ -104,12 +104,11 @@ export default {
             this.cohort = cohort;
             this.isFetching = false;
             this.alertScreenReader(`Loaded students with alerts who are in cohort ${this.cohort.name}`);
-            this.gaEvent(
-              'Home',
-              'Fetch students with alerts',
-              `Cohort: ${this.cohort.name}`,
-              this.cohort.id
-            );
+            this.gaCohortEvent({
+              id: this.cohort.id,
+              name: this.cohort.name,
+              action: 'Fetch students with alerts'
+            });
           });
       }
     }

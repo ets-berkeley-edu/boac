@@ -15,6 +15,7 @@ const state = {
 
 const getters = {
   preferences: (state: any): any => state.preferences,
+  uid: (state: any): string => state.user && state.user.uid,
   user: (state: any): any => state.user
 };
 
