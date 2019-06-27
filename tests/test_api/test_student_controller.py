@@ -445,7 +445,7 @@ class TestStudent:
         student_by_sid = self._api_student_by_sid(client=client, sid=sid)
         student_by_uid = self._api_student_by_uid(client=client, uid=uid)
         for student in [student_by_sid, student_by_uid]:
-            assert len(student['enrollmentTerms']) == 3
+            assert len(student['enrollmentTerms']) == 4
             assert student['enrollmentTerms'][0]['termName'] == 'Spring 2018'
             assert student['enrollmentTerms'][0]['enrolledUnits'] == 3
             assert len(student['enrollmentTerms'][0]['enrollments']) == 1
@@ -455,6 +455,9 @@ class TestStudent:
             assert student['enrollmentTerms'][2]['termName'] == 'Spring 2017'
             assert student['enrollmentTerms'][2]['enrolledUnits'] == 10
             assert len(student['enrollmentTerms'][2]['enrollments']) == 3
+            assert student['enrollmentTerms'][3]['termName'] == 'Spring 2016'
+            assert student['enrollmentTerms'][3]['enrolledUnits'] == 0
+            assert len(student['enrollmentTerms'][3]['enrollments']) == 1
 
     def test_user_analytics_earliest_term_cutoff(self, client, coe_advisor_login):
         """Ignores terms before the configured earliest term."""
@@ -464,7 +467,7 @@ class TestStudent:
         student_by_uid = self._api_student_by_uid(client=client, uid=uid)
         for student in [student_by_sid, student_by_uid]:
             for term in student['enrollmentTerms']:
-                assert term['termName'] != 'Spring 2016'
+                assert term['termName'] != 'Spring 2001'
 
     def test_user_analytics_future_term_cutoff(self, client, coe_advisor_login):
         """Ignores terms after the configured future term."""
