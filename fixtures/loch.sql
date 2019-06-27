@@ -520,6 +520,7 @@ VALUES
 INSERT INTO student.student_enrollment_terms
 (sid, term_id, enrollment_term)
 VALUES
+('11667051', '2012', :enrollment_term_11667051_2012),
 ('11667051', '2162', :enrollment_term_11667051_2162),
 ('11667051', '2172', :enrollment_term_11667051_2172),
 ('11667051', '2178', :enrollment_term_11667051_2178),

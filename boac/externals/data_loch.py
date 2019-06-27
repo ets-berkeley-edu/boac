@@ -110,7 +110,7 @@ def student_schema():
 
 
 def earliest_term_id():
-    return sis_term_id_for_name(app.config['CANVAS_EARLIEST_TERM'])
+    return sis_term_id_for_name(app.config['LEGACY_EARLIEST_TERM'])
 
 
 def get_regular_undergraduate_session(term_id):

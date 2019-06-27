@@ -1,0 +1,29 @@
+{
+    "enrolledUnits": 0,
+    "enrollments": [
+        {
+            "canvasSites": [],
+            "displayName": "NESTUD 113",
+            "grade": "EPN",
+            "gradingBasis": 2012,
+            "sections": [
+                {
+                    "canvasCourseIds": [],
+                    "ccn": 54321,
+                    "component": "LEC",
+                    "enrollmentStatus": 61889,
+                    "grade": "EPN",
+                    "gradingBasis": 2012,
+                    "primary": true,
+                    "sectionNumber": "001",
+                    "units": "E"
+                }
+            ],
+            "title": " and God",
+            "units": "E"
+        }
+    ],
+    "termId": "2012",
+    "termName": "Spring 2001",
+    "unmatchedCanvasSites": []
+}
