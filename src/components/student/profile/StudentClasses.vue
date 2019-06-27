@@ -289,7 +289,7 @@ export default {
   computed: {
     relevantTerms() {
       var currentTermIndex = this.findIndex(this.student.enrollmentTerms, term => {
-        return term.termId === this.currentEnrollmentTermId.toString()
+        return term.termId === this.toString(this.currentEnrollmentTermId)
       });
       var index = currentTermIndex < 0 ? 0 : currentTermIndex;
       return this.student.enrollmentTerms.slice(0, index + 1);
@@ -299,7 +299,7 @@ export default {
     this.currentEnrollmentTerm = this.find(
       this.get(this.student, 'enrollmentTerms'),
       {
-        termId: this.currentEnrollmentTermId.toString()
+        termId: this.toString(this.currentEnrollmentTermId)
       }
     );
   },

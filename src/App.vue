@@ -11,7 +11,7 @@ export default {
   name: 'App',
   mixins: [Context],
   mounted() {
-    this.initUserSession().then(this.initGoogleAnalytics);
+    this.initUserSession();
   }
 };
 </script>

@@ -92,6 +92,7 @@ export default {
     },
     studentRoutePath: (uid, inDemoMode) => inDemoMode ? `/student/${window.btoa(uid)}` : `/student/${uid}`,
     toInt,
+    toString: _.toString,
     trim: _.trim,
     truncate: _.truncate,
     union: _.union,

@@ -56,7 +56,7 @@ export default {
     const currentEnrollmentTerm = this.find(
       this.get(this.student, 'enrollmentTerms'),
       {
-        termId: this.currentEnrollmentTermId.toString()
+        termId: this.toString(this.currentEnrollmentTermId)
       }
     );
     if (currentEnrollmentTerm) {

@@ -62,28 +62,32 @@ const actions = {
   },
   clearAlertsInStore: ({ commit }) => commit('clearAlertsInStore'),
   dismissError: ({ commit }, id) => commit('dismissError', id),
-  async initGoogleAnalytics() {
-     store.dispatch('context/loadConfig').then(response => {
-       let googleAnalyticsId = _.get(response, 'googleAnalyticsId');
-       if (googleAnalyticsId) {
-         Vue.use(VueAnalytics, {
-           id: googleAnalyticsId,
-           debug: {
-             // If debug.enabled is true then browser console gets GA debug info.
-             enabled: false
-           },
-           router,
-           checkDuplicatedScript: true
-         });
-       }
-     });
-  },
   async initUserSession() {
     store.dispatch('user/loadUser').then(user => {
      if (user.isAuthenticated) {
        store.dispatch('cohort/loadMyCohorts');
        store.dispatch('curated/loadMyCuratedGroups');
        store.dispatch('context/loadServiceAnnouncement');
+       store.dispatch('context/loadConfig').then(response => {
+         let googleAnalyticsId = _.get(response, 'googleAnalyticsId');
+         if (googleAnalyticsId) {
+           let options = {
+             id: googleAnalyticsId,
+             checkDuplicatedScript: true,
+             debug: {
+               // If debug.enabled is true then browser console gets GA debug info.
+               enabled: false
+             },
+             fields: {},
+             router
+           };
+           const uid = store.getters['user/uid'];
+           if (uid) {
+             options.fields['userId'] = uid;
+           }
+           Vue.use(VueAnalytics, options);
+         }
+       });
      }
    });
   },

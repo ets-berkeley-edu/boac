@@ -22,7 +22,6 @@ export default {
     ...mapActions('context', [
       'clearAlertsInStore',
       'dismissError',
-      'initGoogleAnalytics',
       'initUserSession',
       'reportError',
       'alertScreenReader'

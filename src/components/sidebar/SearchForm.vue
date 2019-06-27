@@ -362,11 +362,7 @@ export default {
           path: `/search`,
           query: query
         });
-        this.gaSearchEvent({
-          id: 'submit',
-          name: `Search phrase: ${this.searchPhrase}`,
-          action: `courses: ${this.includeCourses}; notes: ${this.includeNotes}; students: ${this.includeStudents}`
-        });
+        this.gaSearchEvent(`Search with courses: ${this.includeCourses}; notes: ${this.includeNotes}; students: ${this.includeStudents}`);
       } else {
         this.alertScreenReader('Search input is required');
       }
