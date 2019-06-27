@@ -6,12 +6,13 @@
 
 <script>
 import Context from '@/mixins/Context';
+import Util from '@/mixins/Util';
 
 export default {
   name: 'App',
-  mixins: [Context],
+  mixins: [Context, Util],
   mounted() {
-    this.initUserSession();
+    this.initUserSession().then(this.noop);
   }
 };
 </script>

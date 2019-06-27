@@ -6,17 +6,19 @@
       v-model="query"
       name="autocomplete-name"
       type="text"
+      autocomplete="off"
       :placeholder="placeholder"
       @input="onTextInput"
       @keypress.enter.prevent="onArrowDown"
+      @keyup.esc="onEscFormInput"
       @keyup.down="onArrowDown">
     </b-form-input>
     <div class="dropdown">
       <ul
         :id="`${id}-suggestions`"
         ref="autocompleteSuggestions"
-        class="dropdown-menu autocomplete-dropdown-menu"
-        :class="{'dropdown-menu-open': isOpen}"
+        class="dropdown-menu"
+        :class="{'dropdown-menu-open': isOpen, dropdownClass: true}"
         role="menu"
         aria-expanded="true"
         @keyup.down="onArrowDown"
@@ -58,7 +60,17 @@ export default {
   name: 'Autocomplete',
   mixins: [ Util ],
   props: {
+    dropdownClass: {
+      default: 'autocomplete-dropdown-menu',
+      required: false,
+      type: String
+    },
     id: String,
+    onEscFormInput: {
+      default: () => {},
+      required: false,
+      type: Function
+    },
     placeholder: String,
     source: Function,
     value: Object,
