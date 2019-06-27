@@ -313,11 +313,11 @@ export default {
       this.addFilter(this.filter);
       this.reset();
       this.putFocusNewFilterDropdown();
-      this.gaCohortEvent(
-        this.cohortId,
-        this.cohortName || 'unsaved',
-        this.screenReaderAlert
-      );
+      this.gaCohortEvent({
+        id: this.cohortId,
+        name: this.cohortName || 'unsaved',
+        action: this.screenReaderAlert
+      });
     },
     cancelEditExisting() {
       this.screenReaderAlert = 'Cancelled';
@@ -363,11 +363,11 @@ export default {
       this.removeFilter(this.index);
       this.setEditMode(null);
       this.putFocusNewFilterDropdown();
-      this.gaCohortEvent(
-        this.cohortId,
-        this.cohortName || 'unsaved',
-        this.screenReaderAlert
-      );
+      this.gaCohortEvent({
+        id: this.cohortId,
+        name: this.cohortName || 'unsaved',
+        action: this.screenReaderAlert
+      });
     },
     reset() {
       this.showAdd = false;
@@ -418,11 +418,11 @@ export default {
         updatedFilter: this.filter
       });
       this.screenReaderAlert = `${this.filter.name} filter updated`;
-      this.gaCohortEvent(
-        this.cohortId,
-        this.cohortName,
-        this.screenReaderAlert
-      );
+      this.gaCohortEvent({
+        id: this.cohortId,
+        name: this.cohortName,
+        action: this.screenReaderAlert
+      });
       this.isModifyingFilter = false;
       this.setEditMode(null);
     },

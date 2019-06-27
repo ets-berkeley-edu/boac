@@ -101,7 +101,11 @@ export default {
       if (!this.loading) {
         this.goToPage(1);
         this.screenReaderAlert = `Sort students by ${sortBy}`;
-        this.gaCuratedEvent(this.curatedGroup.id, this.curatedGroup.name, this.screenReaderAlert);
+        this.gaCuratedEvent({
+          id: this.curatedGroup.id,
+          name: this.curatedGroup.name,
+          action: this.screenReaderAlert
+        });
       }
     });
   },
@@ -130,7 +134,11 @@ export default {
             this.loaded();
             this.putFocusNextTick('curated-group-name');
             this.alertScreenReader(`${sids.length} students added to group '${this.curatedGroup.name}'`);
-            this.gaCuratedEvent(this.curatedGroup.id, this.curatedGroup.name, 'Update curated group with bulk-add SIDs');
+            this.gaCuratedEvent({
+              id: this.curatedGroup.id,
+              name: this.curatedGroup.name,
+              action: 'Update curated group with bulk-add SIDs'
+            });
           });
       } else {
         this.mode = undefined;
@@ -142,7 +150,11 @@ export default {
       this.pageNumber = page;
       if (page > 1) {
         this.screenReaderAlert = `Go to page ${page}`;
-        this.gaCuratedEvent(this.curatedGroup.id, this.curatedGroup.name, this.screenReaderAlert);
+        this.gaCuratedEvent({
+          id: this.curatedGroup.id,
+          name: this.curatedGroup.name,
+          action: this.screenReaderAlert
+        });
       }
       this.loadingStart();
       let offset = this.multiply(this.pageNumber - 1, this.itemsPerPage);

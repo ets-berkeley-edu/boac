@@ -4,6 +4,8 @@ import { event } from 'vue-analytics';
 import { getUserByCsid, getUserGroups, getUserProfile } from '@/api/user';
 import { gaTrackUserSessionStart } from '@/api/ga';
 
+const gaEvent = (category, action, label, value) => event(category, action, label, value);
+
 const state = {
   calnetUsersByCsid: {},
   preferences: {
@@ -20,15 +22,6 @@ const getters = {
 };
 
 const mutations = {
-  gaEvent: (state: any, {category, action, label, value}: any) => {
-    if (state.user) {
-      event(category, action, label, value, {
-        userId: state.user.uid
-      });
-    } else {
-      event(category, action, label, value);
-    }
-  },
   putCalnetUserByCsid: (state: any, {csid, calnetUser}: any) =>
     (state.calnetUsersByCsid[csid] = calnetUser),
   registerUser: (state: any, user: any) => {
@@ -51,24 +44,11 @@ const mutations = {
 };
 
 const actions = {
-  gaEvent: ({ commit }, {category, action, label, value}) => {
-    commit('gaEvent', {category, action, label, value});
-  },
-  gaCohortEvent: ({ commit }, {id, name, action}) => {
-    commit('gaEvent', {category: 'Cohort', action, name, id});
-  },
-  gaCuratedEvent: ({ commit }, {id, name, action}) => {
-    commit('gaEvent', {category: 'Curated Group', action, name, id});
-  },
-  gaStudentAlert: ({ commit }, {id, name, action}) => {
-    commit('gaEvent', {category: 'Student Alert', action, name, id});
-  },
-  gaNoteEvent: ({ commit }, {id, name, action}) => {
-    commit('gaEvent', {category: 'Advising Note', action, name, id});
-  },
-  gaSearchEvent: ({ commit }, {id, name, action}) => {
-    commit('gaEvent', {category: 'Search', action, name, id});
-  },
+  gaCohortEvent: (state: any, {id, name, action}) => gaEvent('Cohort', action, name, id),
+  gaCuratedEvent: (state: any, {id, name, action}) => gaEvent('Curated Group', action, name, id),
+  gaNoteEvent: (state: any, {id, action}) => gaEvent('Advising Note', action, null, id),
+  gaSearchEvent: (state: any, action: string) => gaEvent('Search', action, null, null),
+  gaStudentAlert: (state: any, action: string) => gaEvent('Student Alert', action, null, null),
   loadCalnetUserByCsid: ({commit, state}, csid) => {
     return new Promise(resolve => {
       if (state.calnetUsersByCsid[csid]) {

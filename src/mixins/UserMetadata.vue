@@ -1,5 +1,5 @@
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
 
 export default {
   name: 'UserMetadata',
@@ -15,11 +15,13 @@ export default {
     ...mapActions('user', [
       'gaCohortEvent',
       'gaCuratedEvent',
-      'gaStudentAlert',
       'gaNoteEvent',
       'gaSearchEvent',
+      'gaStudentAlert',
       'loadCalnetUserByCsid',
       'setUserPreference'
+    ]),
+    ...mapMutations('user', [
     ])
   }
 };

@@ -135,7 +135,11 @@ export default {
         this.putFocusNextTick(
           this.cohortId ? 'cohort-name' : 'create-cohort-h1'
         );
-        this.gaCohortEvent(this.cohortId, this.cohortName || 'unsaved', 'view');
+        this.gaCohortEvent({
+          id: this.cohortId,
+          name: this.cohortName || 'unsaved',
+          action: 'view'
+        });
       });
     }
   },
@@ -147,11 +151,11 @@ export default {
       if (!this.loading) {
         this.goToPage(1);
         this.screenReaderAlert = `Sort students by ${sortBy}`;
-        this.gaCohortEvent(
-          this.cohortId,
-          this.cohortName || 'unsaved',
-          this.screenReaderAlert
-        );
+        this.gaCohortEvent({
+          id: this.cohortId,
+          name: this.cohortName || 'unsaved',
+          action: this.screenReaderAlert
+        });
       }
     });
   },
@@ -160,11 +164,11 @@ export default {
     goToPage(page) {
       if (page > 1) {
         this.screenReaderAlert = `Go to page ${page}`;
-        this.gaCohortEvent(
-          this.cohortId,
-          this.cohortName || 'unsaved',
-          this.screenReaderAlert
-        );
+        this.gaCohortEvent({
+          id: this.cohortId,
+          name: this.cohortName || 'unsaved',
+          action: this.screenReaderAlert
+        });
       }
       this.setPagination(page);
       this.applyFilters(this.preferences.sortBy).then(() => {

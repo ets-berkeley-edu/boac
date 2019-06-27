@@ -140,11 +140,11 @@ export default {
           this.isRemoving = false;
           this.putFocusNextTick('curated-group-dropdown', 'button');
           this.alertScreenReader('Student removed from curated group');
-          this.gaCuratedEvent(
-            group.id,
-            group.name,
-            `Student profile: Removed SID ${this.sid}`
-          );
+          this.gaCuratedEvent({
+            id: group.id,
+            name: group.name,
+            action: `Student profile: Removed SID ${this.sid}`
+          });
         };
         removeFromCuratedGroup(group.id, this.sid).finally(() =>
           setTimeout(done, 2000)
@@ -156,11 +156,11 @@ export default {
           this.isAdding = false;
           this.putFocusNextTick('curated-group-dropdown', 'button');
           this.alertScreenReader('Student added to curated group');
-          this.gaCuratedEvent(
-            group.id,
-            group.name,
-            `Student profile: Added SID ${this.sid}`
-          );
+          this.gaCuratedEvent({
+            id: group.id,
+            name: group.name,
+            action: `Student profile: Added SID ${this.sid}`
+          });
         };
         addStudents(group, [this.sid]).finally(() => setTimeout(done, 2000));
       }
@@ -177,7 +177,11 @@ export default {
               `Student profile: Added SID ${this.sid}, after create group`
             ],
             action => {
-              this.gaCuratedEvent(group.id, group.name, action);
+              this.gaCuratedEvent({
+                id: group.id,
+                name: group.name,
+                action
+              });
             }
           );
           setTimeout(() => this.isAdding = false, 2000)

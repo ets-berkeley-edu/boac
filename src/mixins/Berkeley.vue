@@ -22,20 +22,23 @@ export default {
       return previousTermId;
     },
     termNameForSisId(termId) {
-      var strTermId = termId.toString();
-      var termName = '20' + strTermId.slice(1, 3);
-      switch (strTermId.slice(3)) {
-        case '2':
-          termName = 'Spring ' + termName;
-          break;
-        case '5':
-          termName = 'Summer ' + termName;
-          break;
-        case '8':
-          termName = 'Fall ' + termName;
-          break;
-        default:
-          break;
+      let termName = '';
+      if (termId) {
+        const strTermId = termId.toString();
+        termName = '20' + strTermId.slice(1, 3);
+        switch (strTermId.slice(3)) {
+          case '2':
+            termName = 'Spring ' + termName;
+            break;
+          case '5':
+            termName = 'Summer ' + termName;
+            break;
+          case '8':
+            termName = 'Fall ' + termName;
+            break;
+          default:
+            break;
+        }
       }
       return termName;
     }

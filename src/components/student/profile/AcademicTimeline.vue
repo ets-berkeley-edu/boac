@@ -424,10 +424,13 @@ export default {
         message.read = true;
         if (this.includes(['alert', 'hold'], message.type)) {
           dismissStudentAlert(message.id);
-          this.gaStudentAlert(message.id, `Advisor ${this.user.uid} dismissed alert`, 'view')
+          this.gaStudentAlert({ action: `Advisor ${this.user.uid} dismissed alert` })
         } else if (message.type === 'note') {
           markRead(message.id);
-          this.gaNoteEvent(message.id, `Advisor ${this.user.uid} read note`, 'view');
+          this.gaNoteEvent({
+            id: message.id,
+            action: `Advisor ${this.user.uid} read note`
+          });
         }
       }
     },
