@@ -75,11 +75,10 @@
               </td>
               <td class="cohort-student-bio-container">
                 <div class="flex-container">
-                  <div
-                    class="flex-container student-name"
-                    :class="{'demo-mode-blur': user.inDemoMode}">
+                  <div class="flex-container student-name">
                     <router-link
                       :id="`link-to-student-${student.uid}`"
+                      :class="{'demo-mode-blur': user.inDemoMode}"
                       :to="studentRoutePath(student.uid, user.inDemoMode)">
                       {{ student.lastName + (student.firstName ? ', ' + student.firstName : '') }}
                     </router-link>
