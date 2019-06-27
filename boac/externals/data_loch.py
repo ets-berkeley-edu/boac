@@ -361,6 +361,44 @@ def get_enrollments_for_term(term_id, sids=None):
     return safe_execute_rds(sql, term_id=term_id, sids=sids)
 
 
+def match_advising_note_authors_by_name(prefixes, limit=None):
+    prefix_conditions = []
+    prefix_kwargs = {}
+    for idx, prefix in enumerate(prefixes):
+        prefix_conditions.append(
+            f"""JOIN {advising_notes_schema()}.advising_note_author_names an{idx}
+            ON an{idx}.name LIKE :prefix_{idx}
+            AND an{idx}.uid = a.uid""",
+        )
+        prefix_kwargs[f'prefix_{idx}'] = f'{prefix}%'
+    sql = f"""SELECT a.first_name, a.last_name, a.sid, a.uid
+        FROM {advising_notes_schema()}.advising_note_authors a
+        {' '.join(prefix_conditions)}
+        ORDER BY a.first_name, a.last_name"""
+    if limit:
+        sql += f' LIMIT {limit}'
+    return safe_execute_rds(sql, **prefix_kwargs)
+
+
+def match_students_by_name_or_sid(prefixes, limit=None):
+    prefix_conditions = []
+    prefix_kwargs = {}
+    for idx, prefix in enumerate(prefixes):
+        prefix_conditions.append(
+            f"""JOIN {student_schema()}.student_names sn{idx}
+            ON (sn{idx}.name LIKE :prefix_{idx} OR sn{idx}.sid LIKE :prefix_{idx})
+            AND sn{idx}.sid = sas.sid""",
+        )
+        prefix_kwargs[f'prefix_{idx}'] = f'{prefix}%'
+    sql = f"""SELECT sas.first_name, sas.last_name, sas.sid, sas.uid
+        FROM {student_schema()}.student_academic_status sas
+        {' '.join(prefix_conditions)}
+        ORDER BY sas.first_name, sas.last_name"""
+    if limit:
+        sql += f' LIMIT {limit}'
+    return safe_execute_rds(sql, **prefix_kwargs)
+
+
 def get_asc_advising_notes(sid):
     sql = f"""
         SELECT
@@ -427,6 +465,7 @@ def search_advising_notes(
     student_query_filter,
     student_query_bindings,
     author_csid=None,
+    student_csid=None,
     topic=None,
     datetime_from=None,
     datetime_to=None,
@@ -434,6 +473,7 @@ def search_advising_notes(
     limit=None,
 ):
     author_filter = 'AND an.advisor_sid = :author_csid' if author_csid else ''
+    sid_filter = 'AND an.sid = :student_csid' if student_csid else ''
 
     if topic:
         topic_join = f"""JOIN {advising_notes_schema()}.advising_note_topic_mappings antm
@@ -483,6 +523,7 @@ def search_advising_notes(
             ON an.sid = sas.sid
             {author_filter}
             {date_filter}
+            {sid_filter}
         {topic_join}
         {student_query_filter}
         ORDER BY an.rank DESC, an.id"""
@@ -494,6 +535,7 @@ def search_advising_notes(
         **student_query_bindings,
         search_phrase=search_phrase,
         author_csid=author_csid,
+        student_csid=student_csid,
         topic=topic,
         datetime_from=datetime_from,
         datetime_to=datetime_to,

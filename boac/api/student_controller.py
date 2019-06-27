@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import add_alert_counts, is_unauthorized_search, put_notifications
 from boac.externals.cal1card_photo_api import get_cal1card_photo
-from boac.externals.data_loch import extract_valid_sids
+from boac.externals.data_loch import extract_valid_sids, match_students_by_name_or_sid
 from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged.student import get_student_and_terms_by_sid, get_student_and_terms_by_uid, query_students
@@ -107,6 +107,25 @@ def get_students():
         'students': students,
         'totalStudentCount': results['totalStudentCount'] if results else 0,
     })
+
+
+@app.route('/api/students/find_by_name_or_sid', methods=['GET'])
+@login_required
+def find_by_name_or_sid():
+    query = request.args.get('q')
+    if not query:
+        raise BadRequestError('Search query must be supplied')
+    limit = request.args.get('limit')
+    query_fragments = filter(None, query.upper().split(' '))
+    students = match_students_by_name_or_sid(query_fragments, limit=limit)
+
+    def _student_feed(s):
+        return {
+            'label': f"{s.get('first_name')} {s.get('last_name')} ({s.get('sid')})",
+            'sid': s.get('sid'),
+            'uid': s.get('uid'),
+        }
+    return tolerant_jsonify([_student_feed(s) for s in students])
 
 
 @app.route('/api/students/validate_sids', methods=['POST'])
