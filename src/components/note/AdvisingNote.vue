@@ -117,7 +117,7 @@
               variant="outline-primary"
               class="btn-file-upload mt-2 mb-2"
               size="sm"
-              @keydown.enter.prevent="triggerFileInput">
+              @keydown.enter.prevent="clickBrowseForAttachment">
               Browse<span class="sr-only"> for file to upload</span>
             </b-btn>
             <b-form-file
@@ -138,10 +138,10 @@
 </template>
 
 <script>
-import store from '@/store';
 import AreYouSureModal from '@/components/util/AreYouSureModal';
+import Attachments from '@/mixins/Attachments';
 import Context from '@/mixins/Context';
-import NoteUtil from '@/components/note/NoteUtil';
+import store from '@/store';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { addAttachment, removeAttachment } from '@/api/notes';
@@ -150,7 +150,7 @@ import { getUserByUid } from '@/api/user';
 export default {
   name: 'AdvisingNote',
   components: { AreYouSureModal },
-  mixins: [Context, NoteUtil, UserMetadata, Util],
+  mixins: [Attachments, Context, UserMetadata, Util],
   props: {
     afterSaved: Function,
     deleteNote: Function,
@@ -177,19 +177,26 @@ export default {
     }
   },
   watch: {
-    attachment() {
-      if (this.validateAttachment()) {
-        this.alertScreenReader(`Uploading attachment '${this.attachment.displayName}'`);
-        this.uploadingAttachment = true;
-        addAttachment(this.note.id, this.attachment).then(updatedNote => {
-          this.alertScreenReader(`Attachment '${this.attachment.displayName}' added`);
-          this.uploadingAttachment = false;
-          this.afterSaved(updatedNote);
-          this.resetAttachments();
+    attachment(file) {
+      if (file) {
+        this.attachmentError = this.validateAttachment(file, this.attachments);
+        if (this.attachmentError) {
+          this.attachment = null;
           this.resetFileInput();
-        });
-      } else {
-        this.resetFileInput();
+        } else {
+          this.clearErrors();
+          this.attachment = file;
+          this.attachment.displayName = file.name;
+          this.alertScreenReader(`Uploading attachment '${this.attachment.displayName}'`);
+          this.uploadingAttachment = true;
+          addAttachment(this.note.id, this.attachment).then(updatedNote => {
+            this.alertScreenReader(`Attachment '${this.attachment.displayName}' added`);
+            this.uploadingAttachment = false;
+            this.afterSaved(updatedNote);
+            this.resetAttachments();
+            this.resetFileInput();
+          });
+        }
       }
     },
     isOpen() {
@@ -202,7 +209,6 @@ export default {
   },
   created() {
     this.setAuthor();
-    this.initFileDropPrevention();
     this.resetAttachments();
   },
   methods: {
