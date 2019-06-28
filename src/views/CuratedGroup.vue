@@ -4,12 +4,12 @@
     <div v-if="!loading">
       <CuratedGroupHeader :curated-group="curatedGroup" :mode="mode" :set-mode="setMode" />
       <div v-show="mode !== 'bulkAdd'">
-        <hr v-if="!error && size(curatedGroup.students)" class="filters-section-separator" />
+        <hr v-if="!error && curatedGroup.studentCount" class="filters-section-separator" />
         <div class="cohort-column-results">
-          <div v-if="size(curatedGroup.students) > 1" class="d-flex m-2">
+          <div v-if="curatedGroup.studentCount > 1" class="d-flex m-2">
             <div class="cohort-list-header-column-01"></div>
             <div class="cohort-list-header-column-02">
-              <SortBy v-if="curatedGroup.students.length > 1" />
+              <SortBy v-if="curatedGroup.studentCount > 1" />
             </div>
           </div>
           <div v-if="size(curatedGroup.students)">
