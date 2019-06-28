@@ -66,15 +66,22 @@
                 <span aria-live="polite" role="alert">
                   <span
                     v-if="targetStudentCount"
+                    id="target-student-count-alert"
                     class="font-italic"
                     :class="{'has-error': targetStudentCount >= 250, 'font-weight-bolder': targetStudentCount >= 500}">
                     Note will be added to student {{ 'record' | pluralize(targetStudentCount) }}.
                     <span v-if="targetStudentCount >= 500">Are you sure?</span>
                   </span>
                   <span v-if="!targetStudentCount && (addedCohorts.length || addedCuratedGroups.length)" class="font-italic">
-                    <span v-if="addedCohorts.length && !addedCuratedGroups.length">There are no students in the {{ 'cohort' | pluralize(addedCohorts.length, {1: ' '}) }}.</span>
-                    <span v-if="addedCuratedGroups.length && !addedCohorts.length">There are no students in the {{ 'group' | pluralize(addedCuratedGroups.length, {1: ' '}) }}.</span>
-                    <span v-if="addedCohorts.length && addedCuratedGroups.length">
+                    <span
+                      v-if="addedCohorts.length && !addedCuratedGroups.length"
+                      id="no-students-per-cohorts-alert">There are no students in the {{ 'cohort' | pluralize(addedCohorts.length, {1: ' '}) }}.</span>
+                    <span
+                      v-if="addedCuratedGroups.length && !addedCohorts.length"
+                      id="no-students-per-curated-groups-alert">There are no students in the {{ 'group' | pluralize(addedCuratedGroups.length, {1: ' '}) }}.</span>
+                    <span
+                      v-if="addedCohorts.length && addedCuratedGroups.length"
+                      id="no-students-alert">
                       Neither the {{ 'cohort' | pluralize(addedCohorts.length, {1: ' '}) }} nor the {{ 'group' | pluralize(addedCuratedGroups.length, {1: ' '}) }} have students.
                     </span>
                   </span>

@@ -315,7 +315,7 @@ export default {
       this.putFocusNewFilterDropdown();
       this.gaCohortEvent({
         id: this.cohortId,
-        name: this.cohortName || 'unsaved',
+        name: this.cohortName || '',
         action: this.screenReaderAlert
       });
     },
@@ -365,7 +365,7 @@ export default {
       this.putFocusNewFilterDropdown();
       this.gaCohortEvent({
         id: this.cohortId,
-        name: this.cohortName || 'unsaved',
+        name: this.cohortName || '',
         action: this.screenReaderAlert
       });
     },
