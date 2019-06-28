@@ -500,6 +500,12 @@ export default {
   font-size: 16px;
   font-weight: 800;
 }
+.truncate {
+  height: 24px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 </style>
 
 <style scoped>
@@ -592,11 +598,5 @@ export default {
 }
 .text-icon-exclamation {
   color: #f0ad4e;
-}
-.truncate {
-  height: 24px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 </style>
