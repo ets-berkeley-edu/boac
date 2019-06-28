@@ -80,7 +80,7 @@ def localize_datetime(dt):
 
 def localized_timestamp_to_utc(_str):
     localized_datetime = datetime.strptime(_str, '%Y-%m-%dT%H:%M:%S')
-    localized_datetime.replace(tzinfo=pytz.timezone(app.config['TIMEZONE']))
+    localized_datetime = localized_datetime.replace(tzinfo=pytz.timezone(app.config['TIMEZONE']))
     return localized_datetime.astimezone(pytz.utc)
 
 

@@ -28,12 +28,13 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'AdvisingNoteSnippet',
-  mixins: [UserMetadata, Util],
+  mixins: [Context, UserMetadata, Util],
   props: {
     note: Object,
   },
@@ -43,8 +44,7 @@ export default {
   created() {
     const timestamp = this.get(this.note, 'updatedAt') || this.get(this.note, 'createdAt');
     if (timestamp) {
-      const now = this.$moment();
-      this.lastModified = this.$moment(timestamp).utcOffset(now.utcOffset());
+      this.lastModified = this.$moment(timestamp).tz(this.timezone);
     }
   }
 };
