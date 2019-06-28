@@ -78,6 +78,15 @@
                 </span>
               </div>
               <div>
+                <CreateNoteAddStudent
+                  :add-sid="addSid"
+                  :clear-errors="clearErrors"
+                  dropdown-class="position-relative"
+                  :on-esc-form-input="cancel"
+                  :remove-sid="removeSid">
+                </CreateNoteAddStudent>
+              </div>
+              <div>
                 <CreateNoteCohortDropdown
                   v-if="myCohorts && myCohorts.length"
                   :add-object="addCohortToBatch"
@@ -261,6 +270,7 @@ import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics';
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Context from '@/mixins/Context';
+import CreateNoteAddStudent from '@/components/note/CreateNoteAddStudent';
 import CreateNoteCohortDropdown from '@/components/note/CreateNoteCohortDropdown';
 import FocusLock from 'vue-focus-lock';
 import NoteUtil from '@/components/note/NoteUtil';
@@ -273,7 +283,13 @@ require('@/assets/styles/ckeditor-custom.css');
 
 export default {
   name: 'NewNoteModal',
-  components: {AdvisingNoteTopics, AreYouSureModal, CreateNoteCohortDropdown, FocusLock},
+  components: {
+    AdvisingNoteTopics,
+    AreYouSureModal,
+    CreateNoteAddStudent,
+    CreateNoteCohortDropdown,
+    FocusLock
+  },
   mixins: [Context, NoteUtil, StudentEditSession, UserMetadata, Util],
   props: {
     disable: Boolean,
@@ -341,6 +357,21 @@ export default {
     this.reset();
   },
   methods: {
+    addCohortToBatch(cohort) {
+      this.targetStudentCount += cohort.totalStudentCount;
+      this.addedCohorts.push(cohort);
+    },
+    addCuratedGroupToBatch(curatedGroup) {
+      this.targetStudentCount += curatedGroup.studentCount;
+      this.addedCuratedGroups.push(curatedGroup);
+    },
+    addSid(sid) {
+      if (!this.includes(this.sids, sid)) {
+        this.sids.push(sid);
+        this.targetStudentCount++;
+        this.putFocusNextTick('create-note-add-student-input');
+      }
+    },
     addTopic(topic) {
       this.topics.push(topic);
     },
@@ -352,11 +383,6 @@ export default {
       } else {
         this.discardConfirmed();
       }
-    },
-    discardConfirmed() {
-      this.showDiscardModal = false;
-      this.reset();
-      this.alertScreenReader("Cancelled create new note");
     },
     cancelTheDiscard() {
       this.showDiscardModal = false;
@@ -401,6 +427,11 @@ export default {
         this.putFocusNextTick('create-note-subject');
       }
     },
+    discardConfirmed() {
+      this.showDiscardModal = false;
+      this.reset();
+      this.alertScreenReader("Cancelled create new note");
+    },
     maximize() {
       this.setNewNoteMode('docked');
       this.alertScreenReader("Create note form is visible.");
@@ -414,28 +445,27 @@ export default {
     },
     openNewNoteModal() {
        this.setNewNoteMode(this.initialMode);
-       this.putFocusNextTick('create-note-subject');
-    },
-    addCohortToBatch(cohort) {
-      this.targetStudentCount += cohort.totalStudentCount;
-      this.addedCohorts.push(cohort);
-    },
-    removeCohortFromBatch(cohort) {
-      this.targetStudentCount -= cohort.totalStudentCount;
-      this.addedCohorts = this.filterList(this.addedCohorts, c => c.id !== cohort.id);
-    },
-    addCuratedGroupToBatch(curatedGroup) {
-      this.targetStudentCount += curatedGroup.studentCount;
-      this.addedCuratedGroups.push(curatedGroup);
-    },
-    removeCuratedGroupFromBatch(curatedGroup) {
-      this.targetStudentCount -= curatedGroup.studentCount;
-      this.addedCuratedGroups = this.filterList(this.addedCuratedGroups, c => c.id !== curatedGroup.id);
+       this.putFocusNextTick(this.newNoteMode === 'batch' ? 'create-note-add-student-input' : 'create-note-subject');
     },
     removeAttachment(index) {
       this.clearErrors();
       this.alertScreenReader(`Attachment '${this.attachments[index].name}' removed`);
       this.attachments.splice(index, 1);
+    },
+    removeCohortFromBatch(cohort) {
+      this.targetStudentCount -= cohort.totalStudentCount;
+      this.addedCohorts = this.filterList(this.addedCohorts, c => c.id !== cohort.id);
+    },
+    removeCuratedGroupFromBatch(curatedGroup) {
+      this.targetStudentCount -= curatedGroup.studentCount;
+      this.addedCuratedGroups = this.filterList(this.addedCuratedGroups, c => c.id !== curatedGroup.id);
+    },
+    removeSid(sid) {
+      if (this.includes(this.sids, sid)) {
+        this.sids = this.filterList(this.sids, existingSid => existingSid !== sid);
+        this.targetStudentCount--;
+        this.putFocusNextTick('create-note-add-student-input');
+      }
     },
     removeTopic(topic) {
       let index = this.topics.indexOf(topic);
@@ -444,10 +474,11 @@ export default {
     reset(mode) {
       this.clearErrors();
       this.setNewNoteMode(mode);
-      this.subject = this.body = undefined;
       this.addedCohorts = [];
       this.addedCuratedGroups = [];
       this.attachments = [];
+      this.sids = [];
+      this.subject = this.body = undefined;
       this.topics = [];
       this.targetStudentCount = this.sids.length;
     }
