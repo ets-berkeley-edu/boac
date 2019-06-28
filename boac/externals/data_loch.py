@@ -371,7 +371,7 @@ def match_advising_note_authors_by_name(prefixes, limit=None):
             AND an{idx}.uid = a.uid""",
         )
         prefix_kwargs[f'prefix_{idx}'] = f'{prefix}%'
-    sql = f"""SELECT a.first_name, a.last_name, a.sid, a.uid
+    sql = f"""SELECT DISTINCT a.first_name, a.last_name, a.sid, a.uid
         FROM {advising_notes_schema()}.advising_note_authors a
         {' '.join(prefix_conditions)}
         ORDER BY a.first_name, a.last_name"""
@@ -390,7 +390,7 @@ def match_students_by_name_or_sid(prefixes, limit=None):
             AND sn{idx}.sid = sas.sid""",
         )
         prefix_kwargs[f'prefix_{idx}'] = f'{prefix}%'
-    sql = f"""SELECT sas.first_name, sas.last_name, sas.sid, sas.uid
+    sql = f"""SELECT DISTINCT sas.first_name, sas.last_name, sas.sid, sas.uid
         FROM {student_schema()}.student_academic_status sas
         {' '.join(prefix_conditions)}
         ORDER BY sas.first_name, sas.last_name"""

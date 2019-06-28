@@ -375,6 +375,18 @@ class TestNoteSearch:
         assert len(notes) == 1
         assert notes[0].get('id') == '11667051-00001'
 
+    def test_search_by_note_student(self, coe_advisor, client):
+        """Searches notes by student if posted by option is selected."""
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'notes': True, 'searchPhrase': 'student', 'noteOptions': {'studentCsid': '9100000000'}}),
+            content_type='application/json',
+        )
+        assert 'notes' in response.json
+        notes = response.json['notes']
+        assert len(notes) == 1
+        assert notes[0].get('id') == '9100000000-00001'
+
     def test_note_search_limit(self, coe_advisor, client):
         """Limits search to the first n results."""
         response = client.post(

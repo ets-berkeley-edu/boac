@@ -615,6 +615,18 @@ class TestStreamNoteAttachments:
             assert response.data == b'Sorry, attachment not available.'
 
 
+class TestAuthorSearch:
+
+    def test_note_author_prefix_search_by_name(self, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
+        response = client.get('/api/notes/authors/find_by_name?q=Jo')
+        assert response.status_code == 200
+        assert len(response.json) == 2
+        labels = [s['label'] for s in response.json]
+        assert 'Robert Johnson' in labels
+        assert 'Joni Mitchell' in labels
+
+
 def _get_notes(client, uid):
     response = client.get(f'/api/student/by_uid/{uid}')
     assert response.status_code == 200
