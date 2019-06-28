@@ -876,32 +876,6 @@ class TestNotes:
         assert user['departments'][0]['name'] == 'L&S Undergraduate Advising'
 
 
-class TestStudentPhoto:
-    """User Photo API."""
-
-    def test_photo_not_authenticated(self, client):
-        """Requires authentication."""
-        response = client.get('/api/student/61889/photo')
-        assert response.status_code == 401
-
-    def test_photo_authenticated(self, client, fake_auth):
-        """Returns a photo when authenticated."""
-        test_uid = '1133399'
-        fake_auth.login(test_uid)
-        response = client.get('/api/student/61889/photo')
-        assert response.status_code == 200
-        assert response.headers.get('Content-Type') == 'image/jpeg'
-        assert response.headers.get('Content-Length') == '3559'
-
-    def test_photo_not_found(self, client, fake_auth):
-        """Returns an empty response when photo not found."""
-        test_uid = '1133399'
-        fake_auth.login(test_uid)
-        response = client.get('/api/student/242881/photo')
-        assert response.status_code == 204
-        assert response.headers.get('Content-Length') is None
-
-
 class TestValidateSids:
     """Student API."""
 

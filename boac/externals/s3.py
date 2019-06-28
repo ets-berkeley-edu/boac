@@ -35,7 +35,7 @@ def build_s3_url(bucket, key):
     return f's3://{bucket}/{key}'
 
 
-def get_signed_urls(bucket, keys, expiration=60):
+def get_signed_urls(bucket, keys, expiration):
     client = _get_client()
     return {key: _get_signed_url(client, bucket, key, expiration) for key in keys}
 
