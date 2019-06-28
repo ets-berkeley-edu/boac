@@ -320,6 +320,27 @@ class TestMergedAdvisingNote:
         assert new_note['advisorUid'] == joni['uid']
         assert legacy_note['advisorSid'] == joni['sid']
 
+    def test_search_advising_notes_narrowed_by_student(self, app, fake_auth):
+        """Narrows results for both new and legacy advising notes by student SID."""
+        for sid in ['9100000000', '9100000001']:
+            Note.create(
+                author_uid='1133399',
+                author_name='Joni Mitchell',
+                author_role='Advisor',
+                author_dept_codes='COENG',
+                sid=sid,
+                subject='Case load',
+                body='Another day, another student',
+            )
+        fake_auth.login(coe_advisor)
+        wide_response = search_advising_notes(search_phrase='student')
+        assert len(wide_response) == 4
+        narrow_response = search_advising_notes(search_phrase='student', student_csid='9100000000')
+        assert len(narrow_response) == 2
+        new_note, legacy_note = narrow_response[0], narrow_response[1]
+        assert new_note['studentSid'] == '9100000000'
+        assert legacy_note['studentSid'] == '9100000000'
+
     def test_search_advising_notes_narrowed_by_topic(self, app, fake_auth):
         for topic in ['Good Show', 'Bad Show']:
             Note.create(

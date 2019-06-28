@@ -113,6 +113,20 @@ CREATE TABLE boac_advising_notes.advising_notes
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
+CREATE TABLE boac_advising_notes.advising_note_authors
+(
+    uid VARCHAR NOT NULL,
+    sid VARCHAR NOT NULL,
+    first_name VARCHAR NOT NULL,
+    last_name VARCHAR NOT NULL
+);
+
+CREATE TABLE boac_advising_notes.advising_note_author_names
+(
+    uid VARCHAR NOT NULL,
+    name VARCHAR NOT NULL
+);
+
 CREATE TABLE boac_advising_notes.advising_note_topics
 (
     advising_note_id VARCHAR NOT NULL,
@@ -322,6 +336,23 @@ VALUES
 ('9000000000-00001', '9000000000', '00001', '600500400', NULL, 'Appointment', '', 'Is this student even on campus?', NULL, NULL, '2017-11-02T12:00:00+00', '2017-11-02T13:00:00+00'),
 ('9000000000-00002', '9000000000', '00002', '700600500', NULL, 'Evaluation', '', 'I am confounded by this confounding student', 'UCBCONVERSION', NULL, '2017-11-02T12:00:00+00', '2017-11-02T12:00:00+00'),
 ('9100000000-00001', '9100000000', '00001', '600500400', NULL, 'Evaluation', '', 'Met w/ stu; scheduled next appt. 2/1/2019 @ 1:30. Student continued on 2.0 prob (COP) until Sp ''19. E-mailed test@berkeley.edu: told her she''ll need to drop Eng. 123 by 1-24-19', 'UCBCONVERSION', NULL, '2017-11-02T12:00:00+00', '2017-11-02T12:00:00+00');
+
+INSERT INTO boac_advising_notes.advising_note_authors
+(uid, sid, first_name, last_name)
+VALUES
+('1133397', '600500400', 'Robert', 'Johnson'),
+('1133398', '700600500', 'Charlie', 'Christian'),
+('1133399', '800700600', 'Joni', 'Mitchell');
+
+INSERT INTO boac_advising_notes.advising_note_author_names
+(uid, name)
+VALUES
+('1133397', 'ROBERT'),
+('1133397', 'JOHNSON'),
+('1133398', 'CHARLIE'),
+('1133398', 'CHRISTIAN'),
+('1133399', 'JONI'),
+('1133399', 'MITCHELL');
 
 CREATE MATERIALIZED VIEW boac_advising_notes.advising_notes_search_index AS (
   SELECT id, to_tsvector(
