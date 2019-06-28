@@ -140,7 +140,7 @@
           <div v-if="undocked" class="mt-2 mr-3 mb-1 ml-3">
             <div v-if="attachmentError" class="mt-3 mb-3 w-100">
               <font-awesome icon="exclamation-triangle" class="text-danger pr-1" />
-              <span aria-live="polite" role="alert">{{ attachmentError }}</span>
+              <span id="attachment-error" aria-live="polite" role="alert">{{ attachmentError }}</span>
             </div>
             <div v-if="size(attachments) < maxAttachmentsPerNote" class="w-100">
               <div class="choose-attachment-file-wrapper no-wrap pl-3 pr-3 w-100">
@@ -152,7 +152,7 @@
                   variant="outline-primary"
                   class="btn-file-upload mt-2 mb-2"
                   size="sm"
-                  @keydown.enter.prevent="triggerFileInput">
+                  @keydown.enter.prevent="clickBrowseForAttachment">
                   Browse<span class="sr-only"> for file to upload</span>
                 </b-btn>
                 <b-form-file
@@ -271,12 +271,12 @@
 <script>
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics';
 import AreYouSureModal from '@/components/util/AreYouSureModal';
+import Attachments from '@/mixins/Attachments';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Context from '@/mixins/Context';
 import CreateNoteAddStudent from '@/components/note/CreateNoteAddStudent';
 import CreateNoteCohortDropdown from '@/components/note/CreateNoteCohortDropdown';
 import FocusLock from 'vue-focus-lock';
-import NoteUtil from '@/components/note/NoteUtil';
 import StudentEditSession from '@/mixins/StudentEditSession';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
@@ -293,7 +293,7 @@ export default {
     CreateNoteCohortDropdown,
     FocusLock
   },
-  mixins: [Context, NoteUtil, StudentEditSession, UserMetadata, Util],
+  mixins: [Attachments, Context, StudentEditSession, UserMetadata, Util],
   props: {
     disable: Boolean,
     initialMode: {
@@ -340,10 +340,18 @@ export default {
     }
   },
   watch: {
-    attachment() {
-      if (this.validateAttachment()) {
-        this.attachments.push(this.attachment);
-        this.alertScreenReader(`Attachment '${name}' added`);
+    attachment(file) {
+      if (file) {
+        this.attachmentError = this.validateAttachment(file, this.attachments);
+        if (this.attachmentError) {
+          this.attachment = null;
+        } else {
+          this.clearErrors();
+          this.attachment = file;
+          this.attachment.displayName = file.name;
+          this.attachments.push(this.attachment);
+          this.alertScreenReader(`Attachment '${name}' added`);
+        }
       }
       this.$refs['attachment-file-input'].reset();
     },
@@ -355,7 +363,6 @@ export default {
     }
   },
   created() {
-    this.initFileDropPrevention();
     this.sids = this.sid ? [ this.sid ] : [];
     this.reset();
   },
@@ -489,7 +496,6 @@ export default {
       this.addedCohorts = [];
       this.addedCuratedGroups = [];
       this.attachments = [];
-      this.sids = [];
       this.subject = this.body = undefined;
       this.topics = [];
       this.targetStudentCount = this.sids.length;
