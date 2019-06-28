@@ -5,6 +5,7 @@
         for="create-note-add-student"
         class="font-size-14 input-label text mt-2">
         <span class="sr-only">Add a </span><span class="font-weight-bolder">Student</span> (name or SID)
+        <span class="sr-only">(expect auto-suggest based on what you enter)</span>
       </label>
     </div>
     <div class="mb-2">
@@ -20,15 +21,15 @@
     </div>
     <div>
       <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="mb-1">
-        <span class="font-weight-bolder pill pill-attachment text-uppercase text-nowrap">
-          {{ truncate(addedStudent.label) }}
+        <span class="font-weight-bolder pill pill-attachment text-uppercase text-nowrap truncate">
+          {{ addedStudent.label }}
           <b-btn
             :id="`remove-student-from-batch-${index}`"
-            :aria-label="`Remove student ${addedStudent.name} (${addedStudent.sid})`"
             variant="link"
             class="p-0"
             @click.prevent="removeStudent(addedStudent)">
             <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
+            <span class="sr-only">Remove student ${addedStudent.name} (${addedStudent.sid})</span>
           </b-btn>
         </span>
       </div>

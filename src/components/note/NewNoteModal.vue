@@ -2,7 +2,7 @@
   <div>
     <div :class="{'d-flex justify-content-center pl-3 pr-3': initialMode === 'batch'}">
       <b-btn
-        id="new-note-button"
+        :id="`initialMode === 'batch' ? 'batch-note-button' : 'new-note-button'`"
         class="mt-1 mr-2 btn-primary-color-override"
         :class="{'w-100': initialMode === 'batch'}"
         variant="primary"
@@ -10,6 +10,7 @@
         @click="openNewNoteModal()">
         <span class="m-1">
           <font-awesome icon="file-alt" />
+          <span class="sr-only">{{ initialMode === 'batch' ? 'Batch create ' : 'Create ' }}</span>
           New Note
         </span>
       </b-btn>
@@ -62,18 +63,20 @@
           <div class="mt-2 mr-3 mb-1 ml-3">
             <div v-if="newNoteMode === 'batch'">
               <div>
-                <span
-                  v-if="targetStudentCount"
-                  class="font-italic"
-                  :class="{'has-error': targetStudentCount >= 250, 'font-weight-bolder': targetStudentCount >= 500}">
-                  Note will be added to student {{ 'record' | pluralize(targetStudentCount) }}.
-                  <span v-if="targetStudentCount >= 500">Are you sure?</span>
-                </span>
-                <span v-if="!targetStudentCount && (addedCohorts.length || addedCuratedGroups.length)" class="font-italic">
-                  <span v-if="addedCohorts.length && !addedCuratedGroups.length">There are no students in the {{ 'cohort' | pluralize(addedCohorts.length, {1: ' '}) }}.</span>
-                  <span v-if="addedCuratedGroups.length && !addedCohorts.length">There are no students in the {{ 'group' | pluralize(addedCuratedGroups.length, {1: ' '}) }}.</span>
-                  <span v-if="addedCohorts.length && addedCuratedGroups.length">
-                    Neither the {{ 'cohort' | pluralize(addedCohorts.length, {1: ' '}) }} nor the {{ 'group' | pluralize(addedCuratedGroups.length, {1: ' '}) }} have students.
+                <span aria-live="polite" role="alert">
+                  <span
+                    v-if="targetStudentCount"
+                    class="font-italic"
+                    :class="{'has-error': targetStudentCount >= 250, 'font-weight-bolder': targetStudentCount >= 500}">
+                    Note will be added to student {{ 'record' | pluralize(targetStudentCount) }}.
+                    <span v-if="targetStudentCount >= 500">Are you sure?</span>
+                  </span>
+                  <span v-if="!targetStudentCount && (addedCohorts.length || addedCuratedGroups.length)" class="font-italic">
+                    <span v-if="addedCohorts.length && !addedCuratedGroups.length">There are no students in the {{ 'cohort' | pluralize(addedCohorts.length, {1: ' '}) }}.</span>
+                    <span v-if="addedCuratedGroups.length && !addedCohorts.length">There are no students in the {{ 'group' | pluralize(addedCuratedGroups.length, {1: ' '}) }}.</span>
+                    <span v-if="addedCohorts.length && addedCuratedGroups.length">
+                      Neither the {{ 'cohort' | pluralize(addedCohorts.length, {1: ' '}) }} nor the {{ 'group' | pluralize(addedCuratedGroups.length, {1: ' '}) }} have students.
+                    </span>
                   </span>
                 </span>
               </div>
@@ -140,8 +143,8 @@
               <span aria-live="polite" role="alert">{{ attachmentError }}</span>
             </div>
             <div v-if="size(attachments) < maxAttachmentsPerNote" class="w-100">
-              <label for="choose-file-for-note-attachment" class="sr-only"><span class="sr-only">Note </span>Attachments</label>
               <div class="choose-attachment-file-wrapper no-wrap pl-3 pr-3 w-100">
+                <span class="sr-only">Add attachment to note: </span>
                 Drop file to upload attachment or
                 <b-btn
                   id="choose-file-for-note-attachment"
@@ -360,10 +363,12 @@ export default {
     addCohortToBatch(cohort) {
       this.targetStudentCount += cohort.totalStudentCount;
       this.addedCohorts.push(cohort);
+      this.alertScreenReader(`Added cohort '${cohort.name}'`);
     },
     addCuratedGroupToBatch(curatedGroup) {
       this.targetStudentCount += curatedGroup.studentCount;
       this.addedCuratedGroups.push(curatedGroup);
+      this.alertScreenReader(`Added curated group '${curatedGroup.name}'`);
     },
     addSid(sid) {
       if (!this.includes(this.sids, sid)) {
@@ -374,6 +379,7 @@ export default {
     },
     addTopic(topic) {
       this.topics.push(topic);
+      this.alertScreenReader(`Added topic '${topic}'`);
     },
     cancel() {
       this.clearErrors();
@@ -387,6 +393,7 @@ export default {
     cancelTheDiscard() {
       this.showDiscardModal = false;
       this.putFocusNextTick('create-note-subject');
+      this.alertScreenReader(`Continue editing note.`);
     },
     clearErrors() {
       this.attachmentError = null;
@@ -401,9 +408,9 @@ export default {
         this.setNewNoteMode('saving');
         this.onSubmit();
         const afterNoteCreation = () => {
-          this.reset();
+          this.alertScreenReader(isBatchMode ? `Note created for ${this.targetStudentCount} students.` : "New note saved.");
           this.onSuccessfulCreate();
-          this.alertScreenReader(isBatchMode ? `Note created for ${this.sids.length} students.` : "New note saved.");
+          this.reset();
         };
         if (isBatchMode) {
           const addedCohortIds = this.map(this.addedCohorts, 'id');
@@ -444,21 +451,25 @@ export default {
       this.alertScreenReader("Create note form minimized.");
     },
     openNewNoteModal() {
-       this.setNewNoteMode(this.initialMode);
-       this.putFocusNextTick(this.newNoteMode === 'batch' ? 'create-note-add-student-input' : 'create-note-subject');
+      this.setNewNoteMode(this.initialMode);
+      const isBatchMode = this.newNoteMode === 'batch';
+      this.putFocusNextTick(isBatchMode ? 'create-note-add-student-input' : 'create-note-subject');
+      this.alertScreenReader(isBatchMode ? 'Create batch note form is open.' : 'Create note form is open');
     },
     removeAttachment(index) {
       this.clearErrors();
-      this.alertScreenReader(`Attachment '${this.attachments[index].name}' removed`);
       this.attachments.splice(index, 1);
+      this.alertScreenReader(`Attachment '${this.attachments[index].name}' removed`);
     },
     removeCohortFromBatch(cohort) {
       this.targetStudentCount -= cohort.totalStudentCount;
       this.addedCohorts = this.filterList(this.addedCohorts, c => c.id !== cohort.id);
+      this.alertScreenReader(`Cohort '${cohort.name}' removed`);
     },
     removeCuratedGroupFromBatch(curatedGroup) {
       this.targetStudentCount -= curatedGroup.studentCount;
       this.addedCuratedGroups = this.filterList(this.addedCuratedGroups, c => c.id !== curatedGroup.id);
+      this.alertScreenReader(`Curated group '${curatedGroup.name}' removed`);
     },
     removeSid(sid) {
       if (this.includes(this.sids, sid)) {
@@ -470,6 +481,7 @@ export default {
     removeTopic(topic) {
       let index = this.topics.indexOf(topic);
       this.topics.splice(index, 1);
+      this.alertScreenReader(`Removed topic '${topic}'`);
     },
     reset(mode) {
       this.clearErrors();
