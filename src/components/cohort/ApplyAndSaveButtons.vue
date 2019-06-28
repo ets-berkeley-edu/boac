@@ -90,7 +90,7 @@ export default {
         this.putFocusNextTick('cohort-results-header');
         this.gaCohortEvent({
           id: this.cohortId,
-          name: this.cohortName || 'unsaved',
+          name: this.cohortName || '',
           action: 'search'
         });
         this.isPerforming = null;

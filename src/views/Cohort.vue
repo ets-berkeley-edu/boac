@@ -28,7 +28,7 @@
           <hr class="filters-section-separator mr-2" />
           <div class="d-flex justify-content-between align-items-center p-2">
             <CuratedGroupSelector
-              :context-description="`Cohort ${cohortName || 'unsaved'}`"
+              :context-description="`Cohort ${cohortName || ''}`"
               :students="students" />
             <SortBy v-if="showSortBy" />
           </div>
@@ -136,8 +136,8 @@ export default {
           this.cohortId ? 'cohort-name' : 'create-cohort-h1'
         );
         this.gaCohortEvent({
-          id: this.cohortId,
-          name: this.cohortName || 'unsaved',
+          id: this.cohortId || '',
+          name: this.cohortName || '',
           action: 'view'
         });
       });
@@ -152,8 +152,8 @@ export default {
         this.goToPage(1);
         this.screenReaderAlert = `Sort students by ${sortBy}`;
         this.gaCohortEvent({
-          id: this.cohortId,
-          name: this.cohortName || 'unsaved',
+          id: this.cohortId || '',
+          name: this.cohortName || '',
           action: this.screenReaderAlert
         });
       }
@@ -165,8 +165,8 @@ export default {
       if (page > 1) {
         this.screenReaderAlert = `Go to page ${page}`;
         this.gaCohortEvent({
-          id: this.cohortId,
-          name: this.cohortName || 'unsaved',
+          id: this.cohortId || '',
+          name: this.cohortName || '',
           action: this.screenReaderAlert
         });
       }
