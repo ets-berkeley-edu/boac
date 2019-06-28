@@ -503,6 +503,7 @@ def _merge_photo_urls(profiles):
     photo_urls = s3.get_signed_urls(
         bucket=app.config['DATA_LOCH_S3_PHOTO_BUCKET'],
         keys=[_photo_key(profile) for profile in profiles],
+        expiration=app.config['PHOTO_SIGNED_URL_EXPIRES_IN_SECONDS'],
     )
     for profile in profiles:
         profile['photoUrl'] = photo_urls.get(_photo_key(profile))
