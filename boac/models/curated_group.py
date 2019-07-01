@@ -33,7 +33,7 @@ class CuratedGroup(Base):
     __tablename__ = 'student_groups'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
-    owner_id = db.Column(db.String(80), db.ForeignKey('authorized_users.id'), nullable=False)
+    owner_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
     name = db.Column(db.String(255), nullable=False)
 
     __table_args__ = (db.UniqueConstraint(
