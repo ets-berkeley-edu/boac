@@ -34,7 +34,11 @@ from flask_login import UserMixin
 class UserSession(UserMixin):
 
     def __init__(self, user_id=None, flush_cached=False):
-        self.user_id = user_id
+        try:
+            # Type 'int' is required for user_id
+            self.user_id = int(user_id) if user_id else None
+        except ValueError:
+            self.user_id = None
         if self.user_id:
             if flush_cached:
                 self.flush_cached()
