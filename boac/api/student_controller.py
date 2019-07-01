@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import add_alert_counts, is_unauthorized_search, put_notifications
-from boac.externals.data_loch import extract_valid_sids, match_students_by_name_or_sid
+from boac.externals.data_loch import match_students_by_name_or_sid
 from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged.student import get_student_and_terms_by_sid, get_student_and_terms_by_uid, query_students
@@ -127,13 +127,10 @@ def validate_sids():
         else:
             summary = []
             available_sids = query_students(sids=sids, sids_only=True)['sids']
-            unavailable_sids = list(filter(lambda sid: sid not in available_sids, sids))
-            # TODO: Remove the following when all advisors have access to all students
-            valid_yet_unavailable_sids = [row['sid'] for row in extract_valid_sids(unavailable_sids)]
             for sid in sids:
                 summary.append({
                     'sid': sid,
-                    'status': 200 if sid in available_sids else (401 if sid in valid_yet_unavailable_sids else 404),
+                    'status': 200 if sid in available_sids else 404,
                 })
             return tolerant_jsonify(summary)
     else:

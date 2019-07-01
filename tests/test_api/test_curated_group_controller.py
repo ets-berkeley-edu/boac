@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.curated_group import CuratedGroup, CuratedGroupStudent
+from boac.models.curated_group import CuratedGroup
 import pytest
 import simplejson as json
 
@@ -208,43 +208,6 @@ class TestMyCuratedGroups:
     def test_not_authenticated(self, client):
         """Anonymous user is rejected."""
         self._api_my_curated_groups(client, expected_status_code=401)
-
-    def test_excludes_sids_per_advisor_access_privileges(self, client, create_alerts, fake_auth):
-        """Excludes SIDs in curated-group view based on advisor's access privileges."""
-        advisor_uid = '1081940'
-        fake_auth.login(advisor_uid)
-        curated_group = CuratedGroup.create(
-            owner_id=AuthorizedUser.find_by_uid(advisor_uid).id,
-            name='Four ASC students, one COE student',
-        )
-        CuratedGroup.add_student(curated_group.id, '3456789012')
-        CuratedGroup.add_student(curated_group.id, '5678901234')
-        CuratedGroup.add_student(curated_group.id, '11667051')
-        CuratedGroup.add_student(curated_group.id, '7890123456')
-        # TODO: When the BOA business rules change and all advisors have access to all students
-        #  then the following SID will be served to the ASC advisor who owns the group. See BOAC-2130
-        coe_student_sid = '9000000000'
-        CuratedGroup.add_student(curated_group.id, coe_student_sid)
-
-        actual_student_count = len(CuratedGroupStudent.get_sids(curated_group_id=curated_group.id))
-        assert actual_student_count == 5
-        expected_student_count = 4
-
-        response = client.get(f'/api/curated_group/{curated_group.id}')
-        assert response.status_code == 200
-        assert len(response.json['students']) == expected_student_count
-        # Adjusted student count should be consistent across the curated_group API
-        api_json = self._api_my_curated_groups(client)
-        group = next((g for g in api_json if g['id'] == curated_group.id), None)
-        assert group['studentCount'] == expected_student_count
-        # Group by id
-        response = client.get(f'/api/curated_group/{curated_group.id}')
-        assert response.status_code == 200
-        assert response.json['studentCount'] == expected_student_count
-        # Group with alerts
-        response = client.get(f'/api/curated_group/{curated_group.id}/students_with_alerts')
-        assert response.status_code == 200
-        assert not next((s for s in response.json if s['sid'] == coe_student_sid), None)
 
     def test_coe_curated_groups(self, client, coe_advisor):
         """Returns curated groups of COE advisor."""

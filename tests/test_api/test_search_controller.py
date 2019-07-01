@@ -133,30 +133,36 @@ class TestStudentSearch:
             assert len(students) == response.json['totalStudentCount'] == 1, message_if_fail
             assert students[0]['lastName'] == 'Crossman', message_if_fail
 
-    def test_search_by_name_asc_limited(self, asc_advisor, client):
-        """An ASC name search finds ASC Pauls."""
-        response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': 'Paul'}), content_type='application/json')
-        students = response.json['students']
-        assert len(students) == 2
-        assert next(s for s in students if s['name'] == 'Paul Kerschen')
-        assert next(s for s in students if s['name'] == 'Paul Farestveit')
-
-    def test_search_by_name_coe_limited(self, coe_advisor, client):
-        """A COE name search finds COE Pauls, including one who is inactive."""
-        response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': 'Paul'}), content_type='application/json')
-        students = response.json['students']
-        assert len(students) == 2
-        assert next(s for s in students if s['name'] == 'Paul Farestveit' and s['coeProfile']['isActiveCoe'] is True)
-        assert next(s for s in students if s['name'] == 'Wolfgang Pauli-O\'Rourke' and s['coeProfile']['isActiveCoe'] is False)
-
-    def test_search_by_name_admin_unlimited(self, admin_login, client):
-        """An admin name search finds all Pauls."""
+    def test_search_by_name_coe(self, coe_advisor, client):
+        """A COE name search finds all Pauls, including COE-specific data for COE Pauls."""
         response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': 'Paul'}), content_type='application/json')
         students = response.json['students']
         assert len(students) == 3
-        assert next(s for s in students if s['name'] == 'Paul Kerschen')
-        assert next(s for s in students if s['name'] == 'Paul Farestveit')
-        assert next(s for s in students if s['name'] == 'Wolfgang Pauli-O\'Rourke')
+        assert next(s for s in students if s['name'] == 'Paul Farestveit' and s['coeProfile']['isActiveCoe'] is True)
+        assert next(s for s in students if s['name'] == 'Wolfgang Pauli-O\'Rourke' and s['coeProfile']['isActiveCoe'] is False)
+        assert next(s for s in students if s['name'] == 'Paul Kerschen' and 'coeProfile' not in s)
+        for s in students:
+            assert 'athleticsProfile' not in s
+
+    def test_search_by_name_asc(self, asc_advisor, client):
+        """An ASC advisor finds all Pauls, including ASC-specific data for ASC Pauls."""
+        response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': 'Paul'}), content_type='application/json')
+        students = response.json['students']
+        assert len(students) == 3
+        assert next(s for s in students if s['name'] == 'Paul Kerschen' and s['athleticsProfile']['inIntensiveCohort'] is True)
+        assert next(s for s in students if s['name'] == 'Paul Farestveit' and s['athleticsProfile']['inIntensiveCohort'] is True)
+        assert next(s for s in students if s['name'] == 'Wolfgang Pauli-O\'Rourke' and 'athleticsProfile' not in s)
+        for s in students:
+            assert 'coeProfile' not in s
+
+    def test_search_by_name_admin(self, admin_login, client):
+        """An admin name search finds all Pauls, including both ASC and COE data."""
+        response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': 'Paul'}), content_type='application/json')
+        students = response.json['students']
+        assert len(students) == 3
+        assert next(s for s in students if s['name'] == 'Paul Kerschen' and s['athleticsProfile']['inIntensiveCohort'] is True)
+        assert next(s for s in students if s['name'] == 'Paul Farestveit' and 'athleticsProfile' in s and 'coeProfile' in s)
+        assert next(s for s in students if s['name'] == 'Wolfgang Pauli-O\'Rourke' and s['coeProfile']['isActiveCoe'] is False)
 
     def test_search_by_name_with_special_characters(self, admin_login, client):
         """Search by name where name has special characters: hyphen, etc."""
@@ -204,8 +210,8 @@ class TestCourseSearch:
             content_type='application/json',
         )
         students = response.json['students']
-        assert len(students) == 1
-        assert students[0]['name'] == 'Deborah Davies'
+        assert len(students) == 3
+        assert next(s for s in students if s['name'] == 'Deborah Davies')
         courses = response.json['courses']
         assert len(courses) == 1
         assert response.json['totalCourseCount'] == 1

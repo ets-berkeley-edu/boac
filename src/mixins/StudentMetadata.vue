@@ -12,8 +12,8 @@ export default {
       return (
         user &&
         (
-          (user.isAsc && !_.get(student, 'athleticsProfile.isActiveAsc')) ||
-          (user.isCoe && !_.get(student, 'coeProfile.isActiveCoe'))
+          (user.isAsc && _.get(student, 'athleticsProfile') && !_.get(student, 'athleticsProfile.isActiveAsc')) ||
+          (user.isCoe && _.get(student, 'coeProfile') && !_.get(student, 'coeProfile.isActiveCoe'))
         )
       );
     },

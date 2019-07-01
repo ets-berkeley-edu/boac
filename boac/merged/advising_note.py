@@ -32,7 +32,6 @@ from boac.externals import data_loch, s3
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.util import camelize, get_benchmarker, join_if_present
 from boac.merged.calnet import get_calnet_users_for_csids
-from boac.merged.student import get_student_query_scope, narrow_scope_by_criteria
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
@@ -127,37 +126,6 @@ def search_advising_notes(
     benchmark = get_benchmarker('search_advising_notes')
     benchmark('begin')
 
-    scope = narrow_scope_by_criteria(get_student_query_scope())
-
-    # In the interest of keeping our search implementation flexible, we mimic a join by first querying RDS
-    # for all student rows matching user scope, then incorporating SIDs into the notes query as a very large
-    # array filter. If it looks like notes search is going to live in RDS for the long haul, this could be
-    # rewritten with a proper join; but this will require student profile data (which lives in Nessie RDS) to
-    # somehow join up with advising note data (which lives in BOA RDS).
-
-    student_query_tables, student_query_filter, student_query_bindings = data_loch.get_students_query(scope=scope)
-    if not student_query_tables:
-        return []
-
-    benchmark('begin sids query')
-    sids_result = data_loch.safe_execute_rds(
-        f'SELECT sas.sid, sas.uid, sas.first_name, sas.last_name {student_query_tables} {student_query_filter}',
-        **student_query_bindings,
-    )
-    benchmark('end sids query')
-    if not sids_result:
-        return []
-    student_rows_by_sid = {row['sid']: row for row in sids_result}
-    sids = student_rows_by_sid.keys()
-
-    if student_csid:
-        if student_csid in sids:
-            sids = [student_csid]
-        else:
-            return []
-
-    sid_filter = '{' + ','.join(sids) + '}'
-
     search_terms = [t.group(0) for t in list(re.finditer(NOTE_SEARCH_PATTERN, search_phrase)) if t]
     search_phrase = ' & '.join(search_terms)
 
@@ -166,8 +134,8 @@ def search_advising_notes(
     benchmark('begin local notes query')
     local_results = Note.search(
         search_phrase=search_phrase,
-        sid_filter=sid_filter,
         author_csid=author_csid,
+        student_csid=student_csid,
         topic=topic,
         datetime_from=datetime_from,
         datetime_to=datetime_to,
@@ -177,21 +145,15 @@ def search_advising_notes(
     cutoff = min(local_notes_count, offset + limit)
 
     benchmark('begin local notes parsing')
-    notes_feed = _get_local_notes_search_results(local_results[offset:cutoff], student_rows_by_sid, search_terms)
+    notes_feed = _get_local_notes_search_results(local_results[offset:cutoff], search_terms)
     benchmark('end local notes parsing')
 
     if len(notes_feed) == limit:
         return notes_feed
 
-    # When querying the loch for notes, we use an actual join rather than the cumbersome SID list since everything lives in
-    # Nessie RDS.
-
     benchmark('begin loch notes query')
     loch_results = data_loch.search_advising_notes(
         search_phrase=search_phrase,
-        student_query_tables=student_query_tables,
-        student_query_filter=student_query_filter,
-        student_query_bindings=student_query_bindings,
         author_csid=author_csid,
         student_csid=student_csid,
         topic=topic,
@@ -209,14 +171,17 @@ def search_advising_notes(
     return notes_feed
 
 
-def _get_local_notes_search_results(local_results, student_rows_by_sid, search_terms):
+def _get_local_notes_search_results(local_results, search_terms):
     results = []
+    student_rows = data_loch.get_basic_student_data([row.get('sid') for row in local_results])
+    students_by_sid = {r.get('sid'): r for r in student_rows}
     for row in local_results:
         note = {camelize(key): row[key] for key in row.keys()}
-        student_row = student_rows_by_sid[note.get('sid')]
+        sid = note.get('sid')
+        student_row = students_by_sid.get(sid, {})
         results.append({
             'id': note.get('id'),
-            'studentSid': note.get('sid'),
+            'studentSid': sid,
             'studentUid': student_row.get('uid'),
             'studentName': join_if_present(' ', [student_row.get('first_name'), student_row.get('last_name')]),
             'advisorUid': note.get('authorUid'),
@@ -273,8 +238,8 @@ def get_legacy_attachment_stream(filename):
     sid = filename[:i]
     if not sid:
         return None
-    # Ensure that the file exists and the user has permission to see it.
-    attachment_result = data_loch.get_sis_advising_note_attachment(sid, filename, scope=get_student_query_scope())
+    # Ensure that the file exists.
+    attachment_result = data_loch.get_sis_advising_note_attachment(sid, filename)
     if not attachment_result or not attachment_result[0]:
         return None
     if attachment_result[0].get('created_by') == 'UCBCONVERSION':

@@ -30,7 +30,6 @@ from boac.externals import data_loch
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import is_int, process_input_from_rich_text_editor
 from boac.merged.advising_note import get_boa_attachment_stream, get_legacy_attachment_stream, note_to_compatible_json
-from boac.merged.student import is_current_user_authorized_to_view_student
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.note import Note
@@ -43,12 +42,8 @@ from flask_login import current_user, login_required
 @app.route('/api/note/<note_id>')
 @login_required
 def get_note(note_id):
-    def _current_user_is_authorized(_note):
-        # TODO: Remove this when we've de-silo'ed advisor access to students
-        return current_user.is_admin or is_current_user_authorized_to_view_student(_note.sid)
-
     note = Note.find_by_id(note_id=note_id)
-    if not note or not _current_user_is_authorized(note):
+    if not note:
         raise ResourceNotFoundError('Note not found')
     note_read = NoteRead.when_user_read_note(current_user.get_id(), str(note.id))
     return tolerant_jsonify(_boa_note_to_compatible_json(note=note, note_read=note_read))

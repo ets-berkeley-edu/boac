@@ -63,7 +63,7 @@ class TestFindStudents:
         response = client.post('/api/students', data=json.dumps(data), content_type='application/json')
         assert response.status_code == 200
         students = response.json['students']
-        assert len(students) == 5
+        assert len(students) == 7
         assert _get_common_sids(asc_inactive_students, students)
 
     def test_last_name_range(self, client, admin_login):
@@ -306,17 +306,35 @@ class TestStudentResultsForFilter:
         response = client.post('/api/students', data=self.coe_filter, content_type='application/json')
         assert 403 == response.status_code
 
-    def test_get_active_asc_students(self, asc_advisor_login, asc_inactive_students, client):
-        """An ASC cohort search finds ASC sophomores."""
-        args = {'levels': ['Sophomore']}
-        response = client.post('/api/students', data=json.dumps(args), content_type='application/json')
-        assert response.status_code == 200
+    def test_get_sophomores_asc(self, asc_advisor_login, client):
+        """An ASC advisor can search for all sophomores."""
+        response = client.post('/api/students', data='{"levels": ["Sophomore"]}', content_type='application/json')
         students = response.json['students']
-        assert _get_common_sids(students, asc_inactive_students)
-        assert len(students) == 1
+        assert len(students) == 3
+        assert next(s for s in students if s['name'] == 'Siegfried Schlemiel')
+        assert next(s for s in students if s['name'] == 'Wolfgang Pauli-O\'Rourke')
+        assert next(s for s in students if s['name'] == 'Nora Stanton Barney')
+
+    def test_get_sophomores_coe(self, coe_advisor_login, client):
+        """A COE advisor can search for all sophomores."""
+        response = client.post('/api/students', data='{"levels": ["Sophomore"]}', content_type='application/json')
+        students = response.json['students']
+        assert len(students) == 3
+        assert next(s for s in students if s['name'] == 'Siegfried Schlemiel')
+        assert next(s for s in students if s['name'] == 'Wolfgang Pauli-O\'Rourke')
+        assert next(s for s in students if s['name'] == 'Nora Stanton Barney')
+
+    def test_get_students_admin_unlimited(self, admin_login, client):
+        """An admin can search for all sophomores."""
+        response = client.post('/api/students', data='{"levels": ["Sophomore"]}', content_type='application/json')
+        students = response.json['students']
+        assert len(students) == 3
+        assert next(s for s in students if s['name'] == 'Siegfried Schlemiel')
+        assert next(s for s in students if s['name'] == 'Wolfgang Pauli-O\'Rourke')
+        assert next(s for s in students if s['name'] == 'Nora Stanton Barney')
 
     def test_get_inactive_asc_students(self, asc_advisor_login, asc_inactive_students, client):
-        """ASC cohort results include ASC sophomores."""
+        """A cohort search with an ASC criterion finds only ASC students."""
         args = {
             'levels': ['Sophomore'],
             'isInactiveAsc': True,
@@ -327,22 +345,6 @@ class TestStudentResultsForFilter:
         assert len(students) == 1
         assert len(_get_common_sids(students, asc_inactive_students)) == 1
         assert next(s for s in students if s['name'] == 'Siegfried Schlemiel')
-
-    def test_get_students_coe_limited(self, coe_advisor_login, client):
-        """COE cohort results include active COE sophomores."""
-        response = client.post('/api/students', data='{"levels": ["Sophomore"]}', content_type='application/json')
-        students = response.json['students']
-        assert len(students) == 2
-        assert next(s for s in students if s['name'] == 'Nora Stanton Barney')
-
-    def test_get_students_admin_unlimited(self, admin_login, client):
-        """Admin cohort results include all sophomores."""
-        response = client.post('/api/students', data='{"levels": ["Sophomore"]}', content_type='application/json')
-        students = response.json['students']
-        assert len(students) == 3
-        assert next(s for s in students if s['name'] == 'Siegfried Schlemiel')
-        assert next(s for s in students if s['name'] == 'Wolfgang Pauli-O\'Rourke')
-        assert next(s for s in students if s['name'] == 'Nora Stanton Barney')
 
 
 @pytest.mark.usefixtures('db_session')
@@ -597,11 +599,6 @@ class TestStudent:
         student_by_uid = self._api_student_by_uid(client=client, uid=uid, expected_status_code=404)
         for response in [student_by_sid, student_by_uid]:
             assert response['message'] == 'Unknown student'
-
-    def test_user_analytics_not_department_authorized(self, coe_advisor_login, client):
-        """Returns 404 if attempting to view a user outside one's own department."""
-        self._api_student_by_sid(client=client, sid=self.asc_student['sid'], expected_status_code=404)
-        self._api_student_by_uid(client=client, uid=self.asc_student['uid'], expected_status_code=404)
 
     def test_sis_enrollment_merge(self, client, coe_advisor_login):
         """Merges sorted SIS enrollment data."""
@@ -920,7 +917,7 @@ class TestValidateSids:
         self._api_validate_sids(client, sids=['7890123456', 'ABC'], expected_status_code=400)
 
     def test_validate_sids_with_some_invalid(self, client, coe_advisor_login):
-        """SID status is 401 if advisor is not authorized to view student's profile."""
+        """SID status is 404 if student is not found."""
         api_json = self._api_validate_sids(
             client,
             sids=['7890123456', '9999999999', '2345678901'],
@@ -932,7 +929,7 @@ class TestValidateSids:
         assert api_json[1]['sid'] == '9999999999'
         assert api_json[1]['status'] == 404
         assert api_json[2]['sid'] == '2345678901'
-        assert api_json[2]['status'] == 401
+        assert api_json[2]['status'] == 200
 
     def test_validate_sids_by_admin(self, client, admin_login):
         """Admin has access to all students."""

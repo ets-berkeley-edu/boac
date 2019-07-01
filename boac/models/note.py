@@ -130,10 +130,9 @@ class Note(Base):
         return note_ids_per_sid
 
     @classmethod
-    def search(cls, search_phrase, sid_filter, author_csid, topic, datetime_from, datetime_to):
+    def search(cls, search_phrase, author_csid, student_csid, topic, datetime_from, datetime_to):
         params = {
             'search_phrase': search_phrase,
-            'sid_filter': sid_filter,
         }
         author_uid = get_uid_for_csid(app, author_csid) if author_csid else None
         if author_uid:
@@ -141,6 +140,12 @@ class Note(Base):
             params.update({'author_uid': author_uid})
         else:
             author_filter = ''
+
+        if student_csid:
+            student_filter = 'AND notes.sid = :student_csid'
+            params.update({'student_csid': student_csid})
+        else:
+            student_filter = ''
 
         date_filter = ''
         if datetime_from:
@@ -163,8 +168,8 @@ class Note(Base):
             ) AS fts
             JOIN notes
                 ON fts.id = notes.id
-                AND notes.sid = ANY(:sid_filter)
                 {author_filter}
+                {student_filter}
                 {date_filter}
             {topic_join}
             ORDER BY fts.rank DESC, notes.id

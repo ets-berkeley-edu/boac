@@ -192,12 +192,9 @@ def get_sis_section(term_id, sis_section_id):
     return safe_execute_redshift(sql)
 
 
-def get_sis_section_enrollment_for_uid(term_id, sis_section_id, uid, scope):
-    query_tables = _student_query_tables_for_scope(scope)
-    if not query_tables:
-        return []
+def get_sis_section_enrollment_for_uid(term_id, sis_section_id, uid):
     sql = f"""SELECT DISTINCT sas.sid
-              {query_tables}
+              FROM {student_schema()}.student_academic_status sas
               JOIN {intermediate_schema()}.sis_enrollments enr
                 ON sas.uid = enr.ldap_uid
                 AND enr.ldap_uid = :uid
@@ -208,12 +205,9 @@ def get_sis_section_enrollment_for_uid(term_id, sis_section_id, uid, scope):
 
 
 @fixture('loch_sis_section_enrollments_{term_id}_{sis_section_id}.csv')
-def get_sis_section_enrollments(term_id, sis_section_id, scope, offset=None, limit=None):
-    query_tables = _student_query_tables_for_scope(scope)
-    if not query_tables:
-        return []
+def get_sis_section_enrollments(term_id, sis_section_id, offset=None, limit=None):
     sql = f"""SELECT DISTINCT sas.sid, sas.uid, sas.first_name, sas.last_name
-              {query_tables}
+              FROM {student_schema()}.student_academic_status sas
               JOIN {intermediate_schema()}.sis_enrollments enr
                 ON sas.uid = enr.ldap_uid
                 AND enr.sis_term_id = :term_id
@@ -229,12 +223,9 @@ def get_sis_section_enrollments(term_id, sis_section_id, scope, offset=None, lim
     return safe_execute_redshift(sql, **params)
 
 
-def get_sis_section_enrollments_count(term_id, sis_section_id, scope):
-    query_tables = _student_query_tables_for_scope(scope)
-    if not query_tables:
-        return []
+def get_sis_section_enrollments_count(term_id, sis_section_id):
     sql = f"""SELECT COUNT(DISTINCT sas.sid) as count
-              {query_tables}
+              FROM {student_schema()}.student_academic_status sas
               JOIN {intermediate_schema()}.sis_enrollments enr
                 ON sas.uid = enr.ldap_uid
                 AND enr.sis_term_id = :term_id
@@ -286,23 +277,17 @@ def get_coe_profiles(sids):
     return safe_execute_rds(sql, sids=sids)
 
 
-def get_student_by_sid(sid, scope):
-    query_tables = _student_query_tables_for_scope(scope)
-    if not query_tables:
-        return None
+def get_student_by_sid(sid):
     sql = f"""SELECT sas.*
-        {query_tables}
+        FROM {student_schema()}.student_academic_status sas
         WHERE sas.sid = :sid"""
     rows = safe_execute_rds(sql, sid=sid)
     return None if not rows or (len(rows) == 0) else rows[0]
 
 
-def get_student_by_uid(uid, scope):
-    query_tables = _student_query_tables_for_scope(scope)
-    if not query_tables:
-        return None
+def get_student_by_uid(uid):
     sql = f"""SELECT sas.*
-        {query_tables}
+        FROM {student_schema()}.student_academic_status sas
         WHERE sas.uid = :uid"""
     rows = safe_execute_rds(sql, uid=uid)
     return None if not rows or (len(rows) == 0) else rows[0]
@@ -437,8 +422,8 @@ def get_sis_advising_note_topics(sid):
     return safe_execute_redshift(sql, sid=sid)
 
 
-def get_sis_advising_note_attachment(sid, filename, scope):
-    query_tables, query_filter, query_bindings = get_students_query(scope=scope)
+def get_sis_advising_note_attachment(sid, filename):
+    query_tables, query_filter, query_bindings = get_students_query()
     if not query_tables:
         return None
     sql = f"""SELECT advising_note_id, created_by, sis_file_name, user_file_name
@@ -461,9 +446,6 @@ def get_sis_advising_note_attachments(sid):
 
 def search_advising_notes(
     search_phrase,
-    student_query_tables,
-    student_query_filter,
-    student_query_bindings,
     author_csid=None,
     student_csid=None,
     topic=None,
@@ -518,21 +500,19 @@ def search_advising_notes(
             an.sid, an.id, an.note_body, an.advisor_sid, an.advisor_uid,
             an.created_by, an.created_at, an.updated_at, an.note_category, an.note_subcategory,
             sas.uid, sas.first_name, sas.last_name, an.advisor_first_name, an.advisor_last_name, an.rank
-        {student_query_tables}
+        FROM {student_schema()}.student_academic_status sas
         JOIN an
             ON an.sid = sas.sid
             {author_filter}
             {date_filter}
             {sid_filter}
         {topic_join}
-        {student_query_filter}
         ORDER BY an.rank DESC, an.id"""
     if offset is not None and offset > 0:
         sql += ' OFFSET :offset'
     if limit is not None and limit < 150:  # Sanity check large limits
         sql += ' LIMIT :limit'
     params = dict(
-        **student_query_bindings,
         search_phrase=search_phrase,
         author_csid=author_csid,
         student_csid=student_csid,
@@ -546,6 +526,7 @@ def search_advising_notes(
 
 
 def get_ethnicity_codes(scope=()):
+    # TODO Scoping remains in place for the moment, as ethnicity is still a COE-specific category.
     query_tables = _student_query_tables_for_scope(scope)
     if not query_tables:
         return []
@@ -559,21 +540,15 @@ def get_ethnicity_codes(scope=()):
         """)
 
 
-def get_expected_graduation_terms(scope=()):
-    query_tables = _student_query_tables_for_scope(scope)
-    if not query_tables:
-        return []
+def get_expected_graduation_terms():
     sql = f"""SELECT DISTINCT expected_grad_term FROM {student_schema()}.student_academic_status
         ORDER BY expected_grad_term"""
     return safe_execute_rds(sql)
 
 
-def get_majors(scope=()):
-    query_tables = _student_query_tables_for_scope(scope)
-    if not query_tables:
-        return []
+def get_majors():
     sql = f"""SELECT DISTINCT maj.major AS major
-        {query_tables}
+        FROM {student_schema()}.student_academic_status sas
         JOIN {student_schema()}.student_majors maj ON maj.sid = sas.sid
         ORDER BY major"""
     return safe_execute_rds(sql)
@@ -601,6 +576,10 @@ def get_students_query(     # noqa
     underrepresented=None,
     unit_ranges=None,
 ):
+
+    # If no specific scope is required by criteria, default to the admin view.
+    if not scope:
+        scope = ['ADMIN']
     query_tables = _student_query_tables_for_scope(scope)
     if not query_tables:
         return None, None, None

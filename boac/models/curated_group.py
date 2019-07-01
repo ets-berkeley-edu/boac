@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import db, std_commit
-from boac.merged.student import get_api_json, query_students
+from boac.merged.student import query_students
 from boac.models.base import Base
 from sqlalchemy import text
 
@@ -73,10 +73,7 @@ class CuratedGroup(Base):
 
     @classmethod
     def get_all_sids(cls, curated_group_id):
-        # TODO: When the BOA business rules change and all advisors have access to all students
-        #  then remove this filtering of SIDs. See BOAC-2130
-        unfiltered_sids = CuratedGroupStudent.get_sids(curated_group_id=curated_group_id)
-        return query_students(sids=unfiltered_sids, sids_only=True)['sids'] if unfiltered_sids else []
+        return CuratedGroupStudent.get_sids(curated_group_id=curated_group_id)
 
     @classmethod
     def add_student(cls, curated_group_id, sid):
@@ -115,20 +112,12 @@ class CuratedGroup(Base):
             'ownerId': self.owner_id,
             'name': self.name,
         }
-        # TODO: When the BOA business rules change and all advisors have access to all students
-        # then remove filtering of SIDs based on current user dept_code. See BOAC-2130
         if include_students:
-            unfiltered_sids = CuratedGroupStudent.get_sids(curated_group_id=self.id)
-            if unfiltered_sids:
-                results = query_students(
-                    sids=unfiltered_sids,
-                    order_by=order_by,
-                    offset=offset,
-                    limit=limit,
-                    sids_only=not include_students,
-                )
-                feed['studentCount'] = results['totalStudentCount']
-                feed['students'] = get_api_json([student['sid'] for student in results['students']])
+            sids = CuratedGroupStudent.get_sids(curated_group_id=self.id)
+            if sids:
+                result = query_students(sids=sids, order_by=order_by, offset=offset, limit=limit, include_profiles=False)
+                feed['students'] = result['students']
+                feed['studentCount'] = result['totalStudentCount']
             else:
                 feed['students'] = []
                 feed['studentCount'] = 0

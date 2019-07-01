@@ -334,7 +334,7 @@ class TestMergedAdvisingNote:
             )
         fake_auth.login(coe_advisor)
         wide_response = search_advising_notes(search_phrase='student')
-        assert len(wide_response) == 4
+        assert len(wide_response) == 5
         narrow_response = search_advising_notes(search_phrase='student', student_csid='9100000000')
         assert len(narrow_response) == 2
         new_note, legacy_note = narrow_response[0], narrow_response[1]
@@ -420,11 +420,6 @@ class TestMergedAdvisingNote:
             for chunk in stream:
                 body += chunk
             assert body == b'When in the course of human events, it becomes necessarf arf woof woof woof'
-
-    def test_stream_attachment_respects_scope_constraints(self, app, fake_auth):
-        with mock_legacy_note_attachment(app):
-            fake_auth.login(asc_advisor)
-            assert get_legacy_attachment_stream('9000000000_00002_1.pdf') is None
 
     def test_stream_attachment_handles_malformed_filename(self, app):
         with mock_legacy_note_attachment(app):
