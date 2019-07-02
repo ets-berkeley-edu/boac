@@ -2,7 +2,7 @@
   <div>
     <div :class="{'d-flex justify-content-center pl-3 pr-3': initialMode === 'batch'}">
       <b-btn
-        :id="`initialMode === 'batch' ? 'batch-note-button' : 'new-note-button'`"
+        :id="initialMode === 'batch' ? 'batch-note-button' : 'new-note-button'"
         class="mt-1 mr-2 btn-primary-color-override"
         :class="{'w-100': initialMode === 'batch'}"
         variant="primary"
