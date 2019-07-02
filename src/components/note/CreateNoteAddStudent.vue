@@ -22,7 +22,7 @@
     <div>
       <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="mb-1">
         <span class="font-weight-bolder pill pill-attachment text-uppercase text-nowrap truncate">
-          {{ addedStudent.label }}
+          <span :id="`batch-note-student-${index}`">{{ addedStudent.label }}</span>
           <b-btn
             :id="`remove-student-from-batch-${index}`"
             variant="link"
