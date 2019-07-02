@@ -13,6 +13,7 @@
       class="mb-2 ml-0 transparent">
       <b-dropdown-item
         v-for="object in objects"
+        :id="`batch-note-${type}-option-${object.id}`"
         :key="object.id"
         :aria-label="`Add ${type} ${object.name}`"
         :disabled="includes(addedIds, object.id)"
@@ -23,7 +24,7 @@
     <div>
       <div v-for="(addedObject, index) in added" :key="addedObject.id" class="mb-1">
         <span class="font-weight-bolder pill pill-attachment text-uppercase text-nowrap">
-          {{ truncate(addedObject.name) }}
+          <span :id="`batch-note-${type}-${index}`">{{ truncate(addedObject.name) }}</span>
           <b-btn
             :id="`remove-${type}-from-batch-${index}`"
             :aria-label="`Remove ${type} ${addedObject.name}`"
