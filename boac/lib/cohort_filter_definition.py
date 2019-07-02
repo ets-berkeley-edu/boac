@@ -350,7 +350,7 @@ def _genders():
 
 
 def _grad_terms():
-    term_ids = [r['expected_grad_term'] for r in data_loch.get_expected_graduation_terms(get_student_query_scope())]
+    term_ids = [r['expected_grad_term'] for r in data_loch.get_expected_graduation_terms()]
     return [{'name': term_name_for_sis_id(term_id), 'value': term_id} for term_id in term_ids]
 
 
@@ -380,8 +380,8 @@ def _team_groups():
 
 
 def _majors():
-    relevant_majors = [row['major'] for row in data_loch.get_majors(get_student_query_scope())]
-    return [{'name': major, 'value': major} for major in relevant_majors]
+    major_results = [row['major'] for row in data_loch.get_majors()]
+    return [{'name': major, 'value': major} for major in major_results]
 
 
 def _get_dept_codes(user):

@@ -70,11 +70,6 @@ class TestGetNote:
         """Returns 401 if not authenticated."""
         self._api_note_by_id(client=client, note_id=new_coe_note.id, expected_status_code=401)
 
-    def test_not_authorized(self, app, client, fake_auth, new_coe_note):
-        """Returns 404 if not authorized."""
-        fake_auth.login(asc_advisor_uid)
-        self._api_note_by_id(client=client, note_id=new_coe_note.id, expected_status_code=404)
-
     def test_get_note_by_id(self, app, client, fake_auth, new_coe_note):
         """Returns note in JSON compatible with BOA front-end."""
         fake_auth.login(coe_advisor_uid)
@@ -599,13 +594,6 @@ class TestStreamNoteAttachments:
             assert response.headers['Content-Type'] == 'application/octet-stream'
             assert response.headers['Content-Disposition'] == "attachment; filename*=UTF-8''dog_eaten_homework.pdf"
             assert response.data == b'When in the course of human events, it becomes necessarf arf woof woof woof'
-
-    def test_stream_attachment_reports_unauthorized_files_not_found(self, app, client, fake_auth):
-        with mock_legacy_note_attachment(app):
-            fake_auth.login(asc_advisor_uid)
-            response = client.get('/api/notes/attachment/9000000000_00002_1.pdf')
-            assert response.status_code == 404
-            assert response.data == b'Sorry, attachment not available.'
 
     def test_stream_attachment_reports_missing_files_not_found(self, app, client, fake_auth):
         with mock_legacy_note_attachment(app):

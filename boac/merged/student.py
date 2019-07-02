@@ -104,21 +104,20 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None, fe
     enrollment_rows = data_loch.get_sis_section_enrollments(
         term_id,
         section_id,
-        scope=get_student_query_scope(),
         offset=offset,
         limit=limit,
     )
     sids = [str(r['sid']) for r in enrollment_rows]
     if offset or len(sids) >= 50:
-        count_result = data_loch.get_sis_section_enrollments_count(term_id, section_id, scope=get_student_query_scope())
+        count_result = data_loch.get_sis_section_enrollments_count(term_id, section_id)
         total_student_count = count_result[0]['count']
     else:
         total_student_count = len(sids)
 
     # If we have a featured UID not already present in the result set, add the corresponding SID only if the
-    # student is enrolled and falls within view permissions.
+    # student is enrolled.
     if featured and not next((r for r in enrollment_rows if str(r['uid']) == featured), None):
-        featured_enrollment_rows = data_loch.get_sis_section_enrollment_for_uid(term_id, section_id, featured, get_student_query_scope())
+        featured_enrollment_rows = data_loch.get_sis_section_enrollment_for_uid(term_id, section_id, featured)
         if featured_enrollment_rows:
             sids = [str(featured_enrollment_rows[0]['sid'])] + sids
 
@@ -227,18 +226,13 @@ def get_summary_student_profiles(sids, term_id=None):
     return profiles
 
 
-def is_current_user_authorized_to_view_student(sid):
-    # TODO: Remove this when we've de-silo'ed advisor access to students
-    return data_loch.get_student_by_sid(sid, get_student_query_scope()) is not None
-
-
 def get_student_and_terms_by_sid(sid):
-    student = data_loch.get_student_by_sid(sid, get_student_query_scope())
+    student = data_loch.get_student_by_sid(sid)
     return _construct_student_profile(student)
 
 
 def get_student_and_terms_by_uid(uid):
-    student = data_loch.get_student_by_uid(uid, get_student_query_scope())
+    student = data_loch.get_student_by_uid(uid)
     return _construct_student_profile(student)
 
 
@@ -280,11 +274,6 @@ def query_students(
     unit_ranges=None,
 ):
 
-    # Admin users can see advisor-owned cohorts, but queries should be constrained by the cohort owner's department memberships.
-    scope = get_student_query_scope()
-    if 'ADMIN' in scope and cohort_owner:
-        scope = get_student_query_scope(cohort_owner)
-
     criteria = {
         'advisor_ldap_uids': advisor_ldap_uids,
         'coe_prep_statuses': coe_prep_statuses,
@@ -297,7 +286,10 @@ def query_students(
         'is_active_coe': is_active_coe,
         'underrepresented': underrepresented,
     }
-    scope = narrow_scope_by_criteria(scope, **criteria)
+
+    # Cohorts pull from all students in BOA unless they include a department-specific criterion.
+    scope = scope_for_criteria(**criteria)
+
     query_tables, query_filter, query_bindings = data_loch.get_students_query(
         advisor_ldap_uids=advisor_ldap_uids,
         coe_prep_statuses=coe_prep_statuses,
@@ -376,8 +368,7 @@ def search_for_students(
     benchmark = get_benchmarker('search_for_students')
     benchmark('begin')
 
-    scope = narrow_scope_by_criteria(get_student_query_scope())
-    query_tables, query_filter, query_bindings = data_loch.get_students_query(search_phrase=search_phrase, scope=scope)
+    query_tables, query_filter, query_bindings = data_loch.get_students_query(search_phrase=search_phrase)
     if not query_tables:
         return {
             'students': [],
@@ -438,8 +429,8 @@ def get_student_query_scope(user=None):
         return [m.university_dept.dept_code for m in user.department_memberships]
 
 
-def narrow_scope_by_criteria(scope, **kwargs):
-    # Searching by ASC-specific criteria will constrain the scope to ASC students; likewise for COE.
+def scope_for_criteria(**kwargs):
+    # Searching by department-specific criteria will constrain scope to the department in question.
     criteria_for_code = {
         'UWASC': [
             'in_intensive_cohort',
@@ -469,17 +460,11 @@ def narrow_scope_by_criteria(scope, **kwargs):
     narrowed_scope = []
     for code, criteria in criteria_for_code.items():
         if any_criterion_present(criteria):
-            if 'ADMIN' in scope or code in scope:
-                # We've found a department-specific criterion; add a scope constraint for that department.
-                narrowed_scope.append(code)
-            else:
-                # We've found a department-specific criterion but that department wasn't in the provided scope.
-                # Return empty.
-                return []
+            narrowed_scope.append(code)
 
     if not narrowed_scope:
-        # No department-specific criteria found; return the original scope unmodified.
-        return scope
+        # No department-specific criteria found; our scope covers everyone.
+        return ['ADMIN']
     elif len(narrowed_scope) == 1:
         # Criteria were found for one department; return a single-item array including that department.
         return narrowed_scope
