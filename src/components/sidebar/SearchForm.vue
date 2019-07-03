@@ -134,7 +134,7 @@
             </b-form-group>
             <b-form-group label="Advisor">
               <Autocomplete
-                id="search-options-note-filters-student"
+                id="search-options-note-filters-author"
                 v-model="noteFilters.author"
                 :source="findAuthorsByName"
                 placeholder="Enter name...">
@@ -142,7 +142,7 @@
             </b-form-group>
             <b-form-group label="Student (name or SID)">
               <Autocomplete
-                id="search-options-note-filters-author"
+                id="search-options-note-filters-student"
                 v-model="noteFilters.student"
                 :source="findStudentsByNameOrSid"
                 placeholder="Enter name or SID...">
