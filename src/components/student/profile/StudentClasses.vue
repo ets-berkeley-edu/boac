@@ -324,7 +324,6 @@ export default {
   line-height: 1.4em;
   min-width: 200px;
   padding: 0;
-  z-index: 1;
 }
 .profile-boxplot-container .highcharts-tooltip::after {
   background: #fff;

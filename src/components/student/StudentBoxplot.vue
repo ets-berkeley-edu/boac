@@ -190,7 +190,9 @@ export default {
   height: 18px;
   width: 75px;
 }
-
+.student-chart-boxplot-container .highcharts-tooltip {
+  z-index: 1;
+}
 .student-chart-boxplot-container .highcharts-tooltip::after {
   background: #fff;
   border: 1px solid #aaa;
