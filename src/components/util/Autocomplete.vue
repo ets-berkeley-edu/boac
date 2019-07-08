@@ -160,7 +160,7 @@ export default {
         this.isOpen = true;
         this.isLoading = true;
         this.suggestions = [];
-        this.source(this.query, this.limit).then(results => {
+        this.source(this.query.replace(/[\W ]+/g, ''), this.limit).then(results => {
           this.populateSuggestions(results);
         });
       } else {
