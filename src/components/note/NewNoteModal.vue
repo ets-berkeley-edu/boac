@@ -370,8 +370,9 @@ export default {
     }
   },
   created() {
-    this.sids = this.sid ? [ this.sid ] : [];
     this.reset();
+    this.sids = this.sid ? [ this.sid ] : [];
+    this.targetStudentCount = this.sids.length;
   },
   methods: {
     addCohortToBatch(cohort) {
@@ -503,9 +504,11 @@ export default {
       this.addedCohorts = [];
       this.addedCuratedGroups = [];
       this.attachments = [];
-      this.subject = this.body = undefined;
+      this.body = undefined;
+      this.sids = [];
+      this.subject = undefined;
+      this.targetStudentCount = 0;
       this.topics = [];
-      this.targetStudentCount = this.sids.length;
     }
   }
 }
