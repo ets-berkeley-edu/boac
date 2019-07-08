@@ -69,7 +69,7 @@
                     id="target-student-count-alert"
                     class="font-italic"
                     :class="{'has-error': targetStudentCount >= 250, 'font-weight-bolder': targetStudentCount >= 500}">
-                    Note will be added to student {{ 'record' | pluralize(targetStudentCount) }}.
+                    Note will be added to {{ 'student record' | pluralize(targetStudentCount) }}.
                     <span v-if="targetStudentCount >= 500">Are you sure?</span>
                   </span>
                   <span v-if="!targetStudentCount && (addedCohorts.length || addedCuratedGroups.length)" class="font-italic">
