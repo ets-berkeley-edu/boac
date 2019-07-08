@@ -7,6 +7,7 @@
       name="autocomplete-name"
       type="text"
       autocomplete="off"
+      :disabled="disabled"
       :placeholder="placeholder"
       @input="onTextInput"
       @keypress.enter.prevent="onArrowDown"
@@ -60,6 +61,11 @@ export default {
   name: 'Autocomplete',
   mixins: [ Util ],
   props: {
+    disabled: {
+      default: false,
+      required: false,
+      type: Boolean
+    },
     dropdownClass: {
       default: 'autocomplete-dropdown-menu',
       required: false,
@@ -86,6 +92,13 @@ export default {
       suggestionElements: [],
       suggestionFocusIndex: null,
     };
+  },
+  watch: {
+    disabled(isDisabled) {
+      if (isDisabled) {
+        this.closeSuggestions();
+      }
+    }
   },
   mounted() {
     document.addEventListener('click', this.onClickOutside)

@@ -135,9 +135,10 @@
             <b-form-group label="Advisor">
               <Autocomplete
                 id="search-options-note-filters-author"
-                v-model="noteFilters.author"
+                v-model="noteAuthor"
                 :source="findAuthorsByName"
-                placeholder="Enter name...">
+                :disabled="noteFilters.postedBy === 'you'"
+                :placeholder="noteFilters.postedBy === 'you' ? user.name : 'Enter name...'">
               </Autocomplete>
             </b-form-group>
             <b-form-group label="Student (name or SID)">
@@ -283,6 +284,19 @@ export default {
   computed: {
     allOptionsUnchecked() {
       return this.showSearchOptions && !this.includeCourses && !this.includeNotes && !this.includeStudents;
+    },
+    noteAuthor: {
+      get: function() {
+        if (this.noteFilters && this.noteFilters.postedBy === 'anyone') {
+          return this.noteFilters.author;
+        } else {
+          return null;
+        }
+      },
+      set: function(newValue) {
+        this.noteFilters.postedBy = 'anyone';
+        this.noteFilters.author = newValue;
+      }
     },
     validDateRange() {
       if (!this.noteFilters.dateFrom || !this.noteFilters.dateTo) {
