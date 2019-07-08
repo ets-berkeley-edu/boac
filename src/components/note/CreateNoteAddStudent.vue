@@ -15,7 +15,7 @@
         class="w-75"
         :on-esc-form-input="onEscFormInput"
         :show-add-button="true"
-        :source="findStudentsByNameOrSid"
+        :source="studentsByNameOrSid"
         @input="addStudent">
       </Autocomplete>
     </div>
@@ -70,8 +70,7 @@ export default {
   },
   data: () => ({
     addedStudents: [],
-    resetAutoCompleteKey: undefined,
-    findStudentsByNameOrSid: findStudentsByNameOrSid
+    resetAutoCompleteKey: undefined
   }),
   methods: {
     addStudent(student) {
@@ -90,6 +89,14 @@ export default {
         this.removeSid(student.sid);
         this.alertScreenReader(`Student '${student.name}' removed`);
       }
+    },
+    studentsByNameOrSid(query, limit) {
+      const sids = this.map(this.addedStudents, 'sid');
+      return new Promise(resolve => {
+        findStudentsByNameOrSid(query, limit).then(students => {
+          resolve(this.filterList(students, s => !this.includes(sids, s.sid)));
+        });
+      });
     }
   }
 }
