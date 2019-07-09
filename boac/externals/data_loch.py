@@ -540,6 +540,10 @@ def get_ethnicity_codes(scope=()):
         """)
 
 
+def get_distinct_genders():
+    return safe_execute_rds(f'SELECT DISTINCT gender FROM {student_schema()}.demographics ORDER BY gender')
+
+
 def get_expected_graduation_terms():
     sql = f"""SELECT DISTINCT expected_grad_term FROM {student_schema()}.student_academic_status
         ORDER BY expected_grad_term"""
@@ -603,6 +607,8 @@ def get_students_query(     # noqa
                         AND n{i}.sid = sas.sid"""
                 word = ''.join(re.split('\W', word))
                 query_bindings.update({f'name_phrase_{i}': f'{word}%'})
+    if genders:
+        query_tables += f""" JOIN {student_schema()}.demographics d ON d.sid = sas.sid"""
     if sids:
         query_filter += f' AND sas.sid = ANY(:sids)'
         query_bindings.update({'sids': sids})
@@ -652,7 +658,7 @@ def get_students_query(     # noqa
         query_filter += ' AND s.ethnicity = ANY(:ethnicities)'
         query_bindings.update({'ethnicities': ethnicities})
     if genders:
-        query_filter += ' AND s.gender = ANY(:genders)'
+        query_filter += ' AND d.gender = ANY(:genders)'
         query_bindings.update({'genders': genders})
     query_filter += f' AND s.probation IS {coe_probation}' if coe_probation is not None else ''
     query_filter += f' AND s.minority IS {underrepresented}' if underrepresented is not None else ''
@@ -803,7 +809,6 @@ def _student_query_tables_for_scope(scope):
                     'did_prep',
                     'did_tprep',
                     'ethnicity',
-                    'gender',
                     'minority',
                     'prep_eligible',
                     'probation',
