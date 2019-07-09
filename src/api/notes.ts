@@ -64,7 +64,7 @@ export function createNoteBatch(
 ) {
   const data = {sids, subject, body, topics, cohortIds, curatedGroupIds};
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
-  return utils.postMultipartFormData('/api/note/batch/create', data).then(data => {
+  return utils.postMultipartFormData('/api/notes/batch/create', data).then(data => {
     // Non-nil 'sid' in store means current_user is viewing /student page.
     const sid = store.getters['studentEditSession/sid'];
     if (sid) {
