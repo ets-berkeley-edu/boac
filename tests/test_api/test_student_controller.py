@@ -102,13 +102,7 @@ class TestCollegeOfEngineering:
 
     def test_authorized_request_for_gender(self, client, coe_advisor_login):
         """For now, only COE users can access gender data."""
-        response = self._api_students(
-            client,
-            {
-                'genders': ['Female'],
-                'orderBy': 'firstName',
-            },
-        )
+        response = self._api_students(client, {'genders': ['F']})
         assert response.status_code == 200
         students = response.json['students']
         assert len(students) == 2
@@ -123,7 +117,7 @@ class TestCollegeOfEngineering:
         response = self._api_students(
             client,
             {
-                'genders': ['Female'],
+                'genders': ['F'],
                 'isInactiveCoe': True,
             },
         )

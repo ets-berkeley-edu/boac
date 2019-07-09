@@ -39,14 +39,6 @@ export function getCohort(
     .then(response => response.data, () => null);
 }
 
-export function getCohortFilterOptions(existingFilters: any[]) {
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/cohort/filter_options`, {
-      existingFilters: existingFilters
-    })
-    .then(response => response.data, () => null);
-}
-
 export function getMyCohorts() {
   return axios
     .get(`${utils.apiBaseUrl()}/api/cohorts/my`)
@@ -97,10 +89,4 @@ export function saveCohort(
       store.dispatch('cohort/updateCohort', cohort);
       return cohort;
     }, () => null);
-}
-
-export function translateToFilterOptions(criteria: any) {
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/cohort/translate_to_filter_options`, { criteria: criteria })
-    .then(response => response.data, () => null);
 }

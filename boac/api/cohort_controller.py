@@ -28,7 +28,6 @@ from boac.api.util import is_unauthorized_search
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
 from boac.merged import calnet
-from boac.merged.cohort_filter_options import get_cohort_filter_options, translate_to_filter_options
 from boac.merged.student import get_student_query_scope as get_query_scope, get_summary_student_profiles
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
@@ -170,9 +169,33 @@ def create_cohort():
     name = get_param(params, 'name', None)
     filters = get_param(params, 'filters', None)
     order_by = params.get('orderBy')
-    filter_criteria = _filters_to_filter_criteria(filters, order_by)
-    if not name or not filter_criteria:
-        raise BadRequestError('Cohort creation requires \'name\' and \'filters\'')
+    if not name:
+        raise BadRequestError('Cohort creation requires \'name\'')
+    if filters:
+        filter_criteria = _filters_to_filter_criteria(filters, order_by)
+    else:
+        if is_unauthorized_search(list(params.keys()), order_by):
+            raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
+        filter_criteria = {}
+        for key in [
+            'advisorLdapUids',
+            'coePrepStatuses',
+            'coeProbation',
+            'ethnicities',
+            'expectedGradTerms',
+            'genders',
+            'gpaRanges',
+            'groupCodes',
+            'lastNameRange',
+            'levels',
+            'majors',
+            'transfer',
+            'underrepresented',
+            'unitRanges',
+        ]:
+            filter_criteria[key] = get_param(params, key)
+        for key in ['inIntensiveCohort', 'isInactiveAsc', 'isInactiveCoe']:
+            filter_criteria[key] = to_bool(params.get(key))
     cohort = CohortFilter.create(
         uid=current_user.get_uid(),
         name=name,
@@ -220,20 +243,6 @@ def delete_cohort(cohort_id):
             raise BadRequestError(f'User {current_user.get_uid()} does not own cohort with id={cohort_id}')
     else:
         raise ForbiddenRequestError(f'Programmatic deletion of canned cohorts is not allowed (id={cohort_id})')
-
-
-@app.route('/api/cohort/filter_options', methods=['POST'])
-@login_required
-def all_cohort_filter_options():
-    existing_filters = get_param(request.get_json(), 'existingFilters', [])
-    return tolerant_jsonify(get_cohort_filter_options(existing_filters))
-
-
-@app.route('/api/cohort/translate_to_filter_options', methods=['POST'])
-@login_required
-def translate_cohort_filter_to_menu():
-    criteria = get_param(request.get_json(), 'criteria')
-    return tolerant_jsonify(translate_to_filter_options(criteria))
 
 
 def _decorate_cohort(cohort):
