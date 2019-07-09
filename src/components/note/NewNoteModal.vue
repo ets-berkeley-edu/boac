@@ -388,8 +388,8 @@ export default {
     addSid(sid) {
       if (!this.includes(this.sids, sid)) {
         this.sids.push(sid);
-        this.targetStudentCount++;
         this.putFocusNextTick('create-note-add-student-input');
+        this.recalculateStudentCount();
       }
     },
     addTopic(topic) {
@@ -500,8 +500,8 @@ export default {
     removeSid(sid) {
       if (this.includes(this.sids, sid)) {
         this.sids = this.filterList(this.sids, existingSid => existingSid !== sid);
-        this.targetStudentCount--;
         this.putFocusNextTick('create-note-add-student-input');
+        this.recalculateStudentCount();
       }
     },
     removeTopic(topic) {
