@@ -2,11 +2,10 @@ import _ from 'lodash';
 import {
   createCohort,
   getCohort,
-  getCohortFilterOptions,
   getStudentsPerFilters,
-  saveCohort,
-  translateToFilterOptions
+  saveCohort
 } from '@/api/cohort';
+import { getCohortFilterOptions, translateToMenu } from '@/api/menu';
 import router from '@/router';
 import store from '@/store';
 
@@ -198,7 +197,7 @@ const actions = {
     return new Promise(resolve => {
       getCohort(id, true, orderBy).then(cohort => {
         if (cohort) {
-          translateToFilterOptions(cohort.criteria).then(filters => {
+          translateToMenu(cohort.criteria).then(filters => {
             commit('resetSession', {
               cohort,
               filters: filters,
