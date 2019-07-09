@@ -3,10 +3,10 @@
     <div :class="{'d-flex justify-content-center pl-3 pr-3': initialMode === 'batch'}">
       <b-btn
         :id="initialMode === 'batch' ? 'batch-note-button' : 'new-note-button'"
-        class="mt-1 mr-2 btn-primary-color-override"
+        class="mt-1 mr-2 btn-primary-color-override btn-primary-color-override-opaque"
         :class="{'w-100': initialMode === 'batch'}"
         variant="primary"
-        :disabled="disable"
+        :disabled="disable || !!newNoteMode"
         @click="openNewNoteModal()">
         <span class="m-1">
           <font-awesome icon="file-alt" />
