@@ -33,7 +33,49 @@ from boac.merged.student import get_student_query_scope
 from boac.models.authorized_user import AuthorizedUser
 
 
-def get_cohort_filter_definitions(scope):
+def translate_to_filter_options(criteria=None):
+    rows = []
+    if criteria:
+        for definitions in _get_filter_options(get_student_query_scope()):
+            for definition in definitions:
+                selected = criteria.get(definition['key'])
+                if selected is not None:
+                    if definition['type'] == 'array':
+                        for selection in selected:
+                            rows.append(_translate_filter_row(definition, selection))
+                    else:
+                        rows.append(_translate_filter_row(definition, selected))
+    return rows
+
+
+def get_cohort_filter_options(existing_filters):
+    # Default menu has all options available.
+    filter_categories = _get_filter_options(get_student_query_scope())
+    menus = [menu for category in filter_categories for menu in category]
+    for key in _keys_of_type_boolean(existing_filters):
+        # Disable sub_menu options if they are already in cohort criteria
+        for menu in menus:
+            if menu['key'] == key:
+                # Disable 'boolean' sub_menu (e.g., 'isInactiveCoe') if it is already in cohort criteria
+                menu['disabled'] = True
+    # Get filters of type 'range' (e.g., 'last name')
+    for key, values in _selections_of_type('range', existing_filters).items():
+        menu = next(s for s in menus if s['key'] == key)
+        menu['disabled'] = True
+    # Get filters of type 'array' (e.g., 'levels')
+    for key, values in _selections_of_type('array', existing_filters).items():
+        menu = next(s for s in menus if s['key'] == key)
+        if len(values) == len(menu['options']):
+            # If count of selected values equals number of options then disable the sub_menu
+            menu['disabled'] = True
+        for option in menu['options']:
+            if option['value'] in values:
+                # Disable sub_menu options that are already in cohort criteria
+                option['disabled'] = True
+    return filter_categories
+
+
+def _get_filter_options(scope):
     all_dept_codes = list(BERKELEY_DEPT_NAME_TO_CODE.values())
     categories = [
         [
@@ -112,7 +154,7 @@ def get_cohort_filter_definitions(scope):
                 'type': 'array',
             },
             {
-                'availableTo': ['COENG'],
+                'availableTo': all_dept_codes,
                 'defaultValue': None,
                 'key': 'genders',
                 'name': 'Gender',
@@ -228,48 +270,6 @@ def get_cohort_filter_definitions(scope):
     return list(filter(lambda g: len(g), available_categories))
 
 
-def translate_cohort_filter(criteria=None):
-    rows = []
-    if criteria:
-        for definitions in get_cohort_filter_definitions(get_student_query_scope()):
-            for definition in definitions:
-                selected = criteria.get(definition['key'])
-                if selected is not None:
-                    if definition['type'] == 'array':
-                        for selection in selected:
-                            rows.append(_translate_filter_row(definition, selection))
-                    else:
-                        rows.append(_translate_filter_row(definition, selected))
-    return rows
-
-
-def get_cohort_filter_options(existing_filters):
-    # Default menu has all options available.
-    filter_categories = get_cohort_filter_definitions(get_student_query_scope())
-    menus = [menu for category in filter_categories for menu in category]
-    for key in _keys_of_type_boolean(existing_filters):
-        # Disable sub_menu options if they are already in cohort criteria
-        for menu in menus:
-            if menu['key'] == key:
-                # Disable 'boolean' sub_menu (e.g., 'isInactiveCoe') if it is already in cohort criteria
-                menu['disabled'] = True
-    # Get filters of type 'range' (e.g., 'last name')
-    for key, values in _selections_of_type('range', existing_filters).items():
-        menu = next(s for s in menus if s['key'] == key)
-        menu['disabled'] = True
-    # Get filters of type 'array' (e.g., 'levels')
-    for key, values in _selections_of_type('array', existing_filters).items():
-        menu = next(s for s in menus if s['key'] == key)
-        if len(values) == len(menu['options']):
-            # If count of selected values equals number of options then disable the sub_menu
-            menu['disabled'] = True
-        for option in menu['options']:
-            if option['value'] in values:
-                # Disable sub_menu options that are already in cohort criteria
-                option['disabled'] = True
-    return filter_categories
-
-
 def _translate_filter_row(definition, selection=None):
     clone = deepcopy(definition)
     row = {k: clone.get(k) for k in ['key', 'name', 'options', 'subcategoryHeader', 'type']}
@@ -343,10 +343,7 @@ def _coe_prep_statuses():
 
 
 def _genders():
-    return [
-        {'name': 'Female', 'value': 'F'},
-        {'name': 'Male', 'value': 'M'},
-    ]
+    return [{'name': row['gender'], 'value': row['gender']} for row in data_loch.get_distinct_genders()]
 
 
 def _grad_terms():

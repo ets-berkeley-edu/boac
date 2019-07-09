@@ -251,7 +251,6 @@ def query_students(
     advisor_ldap_uids=None,
     coe_prep_statuses=None,
     coe_probation=None,
-    cohort_owner=None,
     ethnicities=None,
     expected_grad_terms=None,
     genders=None,
@@ -444,7 +443,6 @@ def scope_for_criteria(**kwargs):
             'coe_prep_statuses',
             'coe_probation',
             'ethnicities',
-            'genders',
             'underrepresented',
         ],
     }

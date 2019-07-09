@@ -294,17 +294,12 @@ class CohortFilter(Base, UserMixin):
             benchmark('end')
             return cohort_json
 
-        # Until we remove per-department siloing, cohort membership queries are constrained by the cohort owner, which
-        # is a single user per present UX.
-        cohort_owner = self.owners[0] if len(self.owners) else None
-
         benchmark('begin students query')
         sids_only = not include_students
         results = query_students(
             advisor_ldap_uids=advisor_ldap_uids,
             coe_prep_statuses=coe_prep_statuses,
             coe_probation=coe_probation,
-            cohort_owner=cohort_owner,
             ethnicities=ethnicities,
             expected_grad_terms=expected_grad_terms,
             genders=genders,
