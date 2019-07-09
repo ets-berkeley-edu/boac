@@ -27,9 +27,10 @@ import urllib.parse
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.externals import data_loch
+from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import is_int, process_input_from_rich_text_editor
-from boac.merged.advising_note import get_boa_attachment_stream, get_legacy_attachment_stream, note_to_compatible_json
+from boac.merged.advising_note import get_batch_distinct_sids, get_boa_attachment_stream, get_legacy_attachment_stream, note_to_compatible_json
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.note import Note
@@ -90,7 +91,7 @@ def create_note():
     return tolerant_jsonify(_boa_note_to_compatible_json(note=note, note_read=note_read))
 
 
-@app.route('/api/notes/batch_create', methods=['POST'])
+@app.route('/api/notes/batch/create', methods=['POST'])
 @login_required
 def batch_create_notes():
     params = request.form
@@ -123,6 +124,22 @@ def batch_create_notes():
         return tolerant_jsonify(note_ids_per_sid)
     else:
         raise ResourceNotFoundError('API path not found')
+
+
+@app.route('/api/notes/batch/distinct_student_count', methods=['POST'])
+@login_required
+def distinct_student_count():
+    params = request.get_json()
+    sids = util.get(params, 'sids', None)
+    cohort_ids = util.get(params, 'cohortIds', None)
+    curated_group_ids = util.get(params, 'curatedGroupIds', None)
+    if cohort_ids or curated_group_ids:
+        count = len(get_batch_distinct_sids(sids, cohort_ids, curated_group_ids))
+    else:
+        count = len(sids)
+    return tolerant_jsonify({
+        'count': count,
+    })
 
 
 @app.route('/api/notes/update', methods=['POST'])

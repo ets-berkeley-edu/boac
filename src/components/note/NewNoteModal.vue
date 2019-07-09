@@ -287,7 +287,7 @@ import FocusLock from 'vue-focus-lock';
 import StudentEditSession from '@/mixins/StudentEditSession';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
-import { createNote, createNoteBatch } from '@/api/notes';
+import { createNote, createNoteBatch, getDistinctStudentCount } from '@/api/notes';
 
 require('@/assets/styles/ckeditor-custom.css');
 
@@ -376,14 +376,14 @@ export default {
   },
   methods: {
     addCohortToBatch(cohort) {
-      this.targetStudentCount += cohort.totalStudentCount;
       this.addedCohorts.push(cohort);
       this.alertScreenReader(`Added cohort '${cohort.name}'`);
+      this.recalculateStudentCount();
     },
     addCuratedGroupToBatch(curatedGroup) {
-      this.targetStudentCount += curatedGroup.studentCount;
       this.addedCuratedGroups.push(curatedGroup);
       this.alertScreenReader(`Added curated group '${curatedGroup.name}'`);
+      this.recalculateStudentCount();
     },
     addSid(sid) {
       if (!this.includes(this.sids, sid)) {
@@ -471,20 +471,31 @@ export default {
       this.putFocusNextTick(isBatchMode ? 'create-note-add-student-input' : 'create-note-subject');
       this.alertScreenReader(isBatchMode ? 'Create batch note form is open.' : 'Create note form is open');
     },
+    recalculateStudentCount() {
+      if (this.addedCohorts || this.addedCuratedGroups) {
+        const cohortIds = this.map(this.addedCohorts, 'id');
+        const curatedGroupIds = this.map(this.addedCuratedGroups, 'id');
+        getDistinctStudentCount(this.sids, cohortIds, curatedGroupIds).then(data => {
+          this.targetStudentCount = data.count;
+        });
+      } else {
+        this.targetStudentCount = this.sids.length;
+      }
+    },
     removeAttachment(index) {
       this.clearErrors();
       this.attachments.splice(index, 1);
       this.alertScreenReader(`Attachment '${this.attachments[index].name}' removed`);
     },
     removeCohortFromBatch(cohort) {
-      this.targetStudentCount -= cohort.totalStudentCount;
       this.addedCohorts = this.filterList(this.addedCohorts, c => c.id !== cohort.id);
       this.alertScreenReader(`Cohort '${cohort.name}' removed`);
+      this.recalculateStudentCount();
     },
     removeCuratedGroupFromBatch(curatedGroup) {
-      this.targetStudentCount -= curatedGroup.studentCount;
       this.addedCuratedGroups = this.filterList(this.addedCuratedGroups, c => c.id !== curatedGroup.id);
       this.alertScreenReader(`Curated group '${curatedGroup.name}' removed`);
+      this.recalculateStudentCount();
     },
     removeSid(sid) {
       if (this.includes(this.sids, sid)) {

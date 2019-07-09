@@ -28,6 +28,7 @@ from itertools import groupby
 from operator import itemgetter
 import re
 
+from boac import db
 from boac.externals import data_loch, s3
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.util import camelize, get_benchmarker, join_if_present
@@ -39,6 +40,7 @@ from dateutil.tz import tzutc
 from flask import current_app as app
 from flask_login import current_user
 from nltk.stem.snowball import SnowballStemmer
+from sqlalchemy import text
 
 """Provide advising note data from local and external sources."""
 
@@ -110,6 +112,34 @@ def get_non_legacy_advising_notes(sid):
             topics=note.get('topics'),
         )
     return notes_by_id
+
+
+def get_batch_distinct_sids(sids=(), cohort_ids=(), curated_group_ids=()):
+    all_sids = sids
+    query = text(f"""
+        SELECT c.sids
+        FROM cohort_filters c
+        JOIN cohort_filter_owners o ON o.cohort_filter_id = c.id
+        WHERE id = ANY(:cohort_ids) AND o.user_id = :current_user_id
+    """)
+    for row in db.session.execute(query, {'cohort_ids': cohort_ids, 'current_user_id': current_user.get_id()}):
+        all_sids.extend(row['sids'])
+    query = text(f"""
+        SELECT distinct(m.sid)
+        FROM student_group_members m
+        JOIN student_groups g ON g.id = m.student_group_id
+        WHERE m.student_group_id = ANY(:curated_group_ids) AND g.owner_id = :current_user_id
+    """)
+    rows = db.session.execute(
+        query,
+        {
+            'curated_group_ids': curated_group_ids,
+            'current_user_id': current_user.get_id(),
+        },
+    )
+    curated_group_sids = [row['sid'] for row in rows]
+    all_sids.extend(curated_group_sids)
+    return set(all_sids)
 
 
 def search_advising_notes(
