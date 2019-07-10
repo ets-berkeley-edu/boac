@@ -28,7 +28,6 @@ import time
 
 from boac import db, std_commit
 from boac.lib.util import titleize, utc_now, vacuum_whitespace
-from boac.merged.calnet import get_uid_for_csid
 from boac.models.base import Base
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_topic import NoteTopic
@@ -130,11 +129,10 @@ class Note(Base):
         return note_ids_per_sid
 
     @classmethod
-    def search(cls, search_phrase, author_csid, student_csid, topic, datetime_from, datetime_to):
+    def search(cls, search_phrase, author_uid, student_csid, topic, datetime_from, datetime_to):
         params = {
             'search_phrase': search_phrase,
         }
-        author_uid = get_uid_for_csid(app, author_csid) if author_csid else None
         if author_uid:
             author_filter = 'AND notes.author_uid = :author_uid'
             params.update({'author_uid': author_uid})

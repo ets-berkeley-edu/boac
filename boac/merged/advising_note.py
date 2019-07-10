@@ -32,7 +32,7 @@ from boac import db
 from boac.externals import data_loch, s3
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.util import camelize, get_benchmarker, join_if_present
-from boac.merged.calnet import get_calnet_users_for_csids
+from boac.merged.calnet import get_calnet_users_for_csids, get_uid_for_csid
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
@@ -162,9 +162,10 @@ def search_advising_notes(
     # TODO We're currently retrieving all results for the sake of subsequent offset calculations. As the number of notes in
     # BOA grows (and possibly requires us to use some kind of staging table for search indexing), we'll need to revisit.
     benchmark('begin local notes query')
+    author_uid = get_uid_for_csid(app, author_csid) if author_csid else None
     local_results = Note.search(
         search_phrase=search_phrase,
-        author_csid=author_csid,
+        author_uid=author_uid,
         student_csid=student_csid,
         topic=topic,
         datetime_from=datetime_from,
@@ -184,6 +185,7 @@ def search_advising_notes(
     benchmark('begin loch notes query')
     loch_results = data_loch.search_advising_notes(
         search_phrase=search_phrase,
+        author_uid=author_uid,
         author_csid=author_csid,
         student_csid=student_csid,
         topic=topic,
