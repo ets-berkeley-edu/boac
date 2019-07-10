@@ -98,6 +98,7 @@ export default {
   mixins: [Context, UserMetadata, Util],
   props: {
     contextDescription: String,
+    gaEventTracker: Function,
     students: Array
   },
   data: () => ({
@@ -153,10 +154,10 @@ export default {
         this.sids = [];
         this.isSelectAllChecked = this.indeterminate = false;
         this.$eventHub.$emit('curated-group-deselect-all');
-        this.gaCuratedEvent({
+        this.gaEventTracker({
           id: group.id,
           name: group.name,
-          action: `${this.contextDescription}: add students`
+          action: `${this.contextDescription}: add students to Curated Group`
       });
       };
       const done = () => (this.isSaving = false);
@@ -179,10 +180,10 @@ export default {
         this.each(
           [
             'create',
-            `${this.contextDescription}: add students, after create group`
+            `${this.contextDescription}: add students to Curated Group`
           ],
           action => {
-            this.gaCuratedEvent({
+            this.gaEventTracker({
               id: group.id,
               name: group.name,
               action

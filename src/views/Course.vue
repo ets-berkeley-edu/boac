@@ -73,6 +73,7 @@
               v-if="!isEmpty(section.students) && (tab === 'list')"
               class="mr-2"
               :context-description="`Course ${section.displayName}`"
+              :ga-event-tracker="gaCourseEvent"
               :students="section.students" />
           </div>
           <div class="course-tabs-container">

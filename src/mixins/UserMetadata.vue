@@ -14,6 +14,7 @@ export default {
   methods: {
     ...mapActions('user', [
       'gaCohortEvent',
+      'gaCourseEvent',
       'gaCuratedEvent',
       'gaNoteEvent',
       'gaSearchEvent',

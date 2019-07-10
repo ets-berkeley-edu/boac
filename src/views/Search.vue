@@ -32,6 +32,7 @@
       <div class="search-header-curated-cohort">
         <CuratedGroupSelector
           context-description="Search"
+          :ga-event-tracker="gaSearchEvent"
           :students="results.students" />
       </div>
       <div>
