@@ -43,7 +43,7 @@ def get_api_json(sids):
         return []
 
     def distill_profile(profile):
-        distilled = {key: profile[key] for key in ['uid', 'sid', 'firstName', 'lastName', 'name', 'photoUrl']}
+        distilled = {key: profile[key] for key in ['uid', 'sid', 'firstName', 'lastName', 'name', 'gender', 'minority', 'photoUrl']}
         if profile.get('athleticsProfile'):
             distilled['athleticsProfile'] = profile['athleticsProfile']
         if profile.get('coeProfile'):
@@ -62,7 +62,7 @@ def get_full_student_profiles(sids):
     benchmark('end SIS profile query')
     if not profile_results:
         return []
-    profiles_by_sid = {row['sid']: json.loads(row['profile']) for row in profile_results}
+    profiles_by_sid = _get_profiles_by_sid(profile_results)
     profiles = []
     for sid in sids:
         profile = profiles_by_sid.get(sid)
@@ -249,9 +249,9 @@ def get_term_gpas_by_sid(sids, as_dicts=False):
 
 def query_students(
     advisor_ldap_uids=None,
+    coe_genders=None,
     coe_prep_statuses=None,
     coe_probation=None,
-    cohort_owner=None,
     ethnicities=None,
     expected_grad_terms=None,
     genders=None,
@@ -276,6 +276,7 @@ def query_students(
 
     criteria = {
         'advisor_ldap_uids': advisor_ldap_uids,
+        'coe_genders': coe_genders,
         'coe_prep_statuses': coe_prep_statuses,
         'coe_probation': coe_probation,
         'ethnicities': ethnicities,
@@ -292,6 +293,7 @@ def query_students(
 
     query_tables, query_filter, query_bindings = data_loch.get_students_query(
         advisor_ldap_uids=advisor_ldap_uids,
+        coe_genders=coe_genders,
         coe_prep_statuses=coe_prep_statuses,
         coe_probation=coe_probation,
         ethnicities=ethnicities,
@@ -441,10 +443,10 @@ def scope_for_criteria(**kwargs):
         'COENG': [
             'advisor_ldap_uids',
             'is_active_coe',
+            'coe_genders',
             'coe_prep_statuses',
             'coe_probation',
             'ethnicities',
-            'genders',
             'underrepresented',
         ],
     }
@@ -514,3 +516,16 @@ def _construct_student_profile(student):
             # Omit dropped sections for past terms.
             term.pop('droppedSections', None)
     return profile
+
+
+def _get_profiles_by_sid(profiles):
+    profiles_by_sid = {}
+    for row in profiles:
+        profiles_by_sid[row['sid']] = {
+            **json.loads(row['profile']),
+            **{
+                'gender': row['gender'],
+                'minority': row['minority'],
+            },
+        }
+    return profiles_by_sid

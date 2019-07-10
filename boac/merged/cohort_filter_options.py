@@ -33,205 +33,10 @@ from boac.merged.student import get_student_query_scope
 from boac.models.authorized_user import AuthorizedUser
 
 
-def get_cohort_filter_definitions(scope):
-    all_dept_codes = list(BERKELEY_DEPT_NAME_TO_CODE.values())
-    categories = [
-        [
-            {
-                'availableTo': all_dept_codes,
-                'defaultValue': None,
-                'key': 'gpaRanges',
-                'name': 'GPA',
-                'options': _gpa_ranges,
-                'param': 'gpa',
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
-            },
-        ],
-        [
-            {
-                'availableTo': all_dept_codes,
-                'defaultValue': None,
-                'key': 'levels',
-                'name': 'Level',
-                'options': _class_levels,
-                'param': 'level',
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
-            },
-            {
-                'availableTo': all_dept_codes,
-                'defaultValue': None,
-                'key': 'unitRanges',
-                'name': 'Units Completed',
-                'options': _unit_ranges,
-                'param': 'units',
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
-            },
-            {
-                'availableTo': all_dept_codes,
-                'defaultValue': None,
-                'key': 'majors',
-                'name': 'Major',
-                'options': _majors,
-                'param': 'major',
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
-            },
-            {
-                'availableTo': all_dept_codes,
-                'defaultValue': None,
-                'key': 'transfer',
-                'name': 'Transfer Student',
-                'options': [True, False],
-                'param': 'transfer',
-                'subcategoryHeader': 'Choose...',
-                'type': 'boolean',
-            },
-            {
-                'availableTo': all_dept_codes,
-                'defaultValue': None,
-                'key': 'expectedGradTerms',
-                'name': 'Expected Graduation Term',
-                'options': _grad_terms,
-                'param': 'expectedGradTerm',
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
-            },
-        ],
-        [
-            {
-                'availableTo': ['COENG'],
-                'defaultValue': None,
-                'key': 'ethnicities',
-                'name': 'Ethnicity',
-                'options': _coe_ethnicities,
-                'param': 'ethnicity',
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
-            },
-            {
-                'availableTo': ['COENG'],
-                'defaultValue': None,
-                'key': 'genders',
-                'name': 'Gender',
-                'options': _genders,
-                'param': 'gender',
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
-            },
-            {
-                'availableTo': ['COENG'],
-                'defaultValue': None,
-                'key': 'underrepresented',
-                'name': 'Underrepresented Minority',
-                'options': [True, False],
-                'param': 'underrepresented',
-                'type': 'boolean',
-            },
-        ],
-        [
-            {
-                'availableTo': ['UWASC'],
-                'defaultValue': False if 'UWASC' in scope else None,
-                'key': 'isInactiveAsc',
-                'name': 'Inactive' if 'UWASC' in scope else 'Inactive (ASC)',
-                'options': [True, False],
-                'param': 'inactive',
-                'type': 'boolean',
-            },
-            {
-                'availableTo': ['UWASC'],
-                'defaultValue': None,
-                'key': 'inIntensiveCohort',
-                'name': 'Intensive',
-                'options': [True, False],
-                'param': 'intensive',
-                'type': 'boolean',
-            },
-            {
-                'availableTo': ['UWASC'],
-                'defaultValue': None,
-                'key': 'groupCodes',
-                'name': 'Team',
-                'options': _team_groups,
-                'param': 'team',
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
-            },
-        ],
-        [
-            {
-                'availableTo': ['COENG'],
-                'defaultValue': False if 'COENG' in scope else None,
-                'key': 'isInactiveCoe',
-                'name': 'Inactive' if 'COENG' in scope else 'Inactive (COE)',
-                'options': [True, False],
-                'param': 'isInactiveCoe',
-                'type': 'boolean',
-            },
-            {
-                'availableTo': ['COENG'],
-                'defaultValue': None,
-                'key': 'coePrepStatuses',
-                'name': 'PREP',
-                'options': _coe_prep_statuses,
-                'param': 'prep',
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
-            },
-            {
-                'availableTo': ['COENG'],
-                'defaultValue': None,
-                'key': 'coeProbation',
-                'name': 'Probation',
-                'options': [True, False],
-                'param': 'coeProbation',
-                'type': 'boolean',
-            },
-            {
-                'availableTo': all_dept_codes,
-                'defaultValue': None,
-                'key': 'lastNameRange',
-                'name': 'Last Name',
-                'options': None,
-                'param': 'lastName',
-                'subcategoryHeader': ['Initials', 'through'],
-                'type': 'range',
-            },
-            {
-                'availableTo': ['COENG'],
-                'defaultValue': None,
-                'key': 'advisorLdapUids',
-                'name': 'Advisor',
-                'options': _get_coe_profiles,
-                'param': 'advisor',
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
-            },
-        ],
-    ]
-    available_categories = []
-
-    def is_available(d):
-        available = 'ADMIN' in scope or next((dept_code for dept_code in d['availableTo'] if dept_code in scope), False)
-        if available:
-            # If it is available then populate menu options
-            options = d.pop('options')
-            d['options'] = options() if callable(options) else options
-        return available
-
-    for category in categories:
-        available_categories.append(list(filter(lambda d: is_available(d), category)))
-    # Remove unavailable (ie, empty) categories
-    return list(filter(lambda g: len(g), available_categories))
-
-
-def translate_cohort_filter(criteria=None):
+def translate_to_filter_options(criteria=None):
     rows = []
     if criteria:
-        for definitions in get_cohort_filter_definitions(get_student_query_scope()):
+        for definitions in _get_filter_options(get_student_query_scope()):
             for definition in definitions:
                 selected = criteria.get(definition['key'])
                 if selected is not None:
@@ -245,7 +50,7 @@ def translate_cohort_filter(criteria=None):
 
 def get_cohort_filter_options(existing_filters):
     # Default menu has all options available.
-    filter_categories = get_cohort_filter_definitions(get_student_query_scope())
+    filter_categories = _get_filter_options(get_student_query_scope())
     menus = [menu for category in filter_categories for menu in category]
     for key in _keys_of_type_boolean(existing_filters):
         # Disable sub_menu options if they are already in cohort criteria
@@ -268,6 +73,193 @@ def get_cohort_filter_options(existing_filters):
                 # Disable sub_menu options that are already in cohort criteria
                 option['disabled'] = True
     return filter_categories
+
+
+def _get_filter_options(scope):
+    all_dept_codes = list(BERKELEY_DEPT_NAME_TO_CODE.values())
+    categories = [
+        [
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'gpaRanges',
+                'name': 'GPA',
+                'options': _gpa_ranges,
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+        ],
+        [
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'levels',
+                'name': 'Level',
+                'options': _class_levels,
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'unitRanges',
+                'name': 'Units Completed',
+                'options': _unit_ranges,
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'majors',
+                'name': 'Major',
+                'options': _majors,
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'transfer',
+                'name': 'Transfer Student',
+                'options': [True, False],
+                'subcategoryHeader': 'Choose...',
+                'type': 'boolean',
+            },
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'expectedGradTerms',
+                'name': 'Expected Graduation Term',
+                'options': _grad_terms,
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+        ],
+        [
+            {
+                'availableTo': ['COENG'],
+                'defaultValue': None,
+                'key': 'ethnicities',
+                'name': 'Ethnicity',
+                'options': _coe_ethnicities,
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+            {
+                'availableTo': ['COENG'],
+                'defaultValue': None,
+                'key': 'coeGenders',
+                'name': 'Gender (COE)',
+                'options': _coe_genders,
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+            {
+                'availableTo': ['COENG'],
+                'defaultValue': None,
+                'key': 'underrepresented',
+                'name': 'Underrepresented Minority',
+                'options': [True, False],
+                'type': 'boolean',
+            },
+        ],
+        [
+            {
+                'availableTo': ['UWASC'],
+                'defaultValue': False if 'UWASC' in scope else None,
+                'key': 'isInactiveAsc',
+                'name': 'Inactive' if 'UWASC' in scope else 'Inactive (ASC)',
+                'options': [True, False],
+                'type': 'boolean',
+            },
+            {
+                'availableTo': ['UWASC'],
+                'defaultValue': None,
+                'key': 'inIntensiveCohort',
+                'name': 'Intensive',
+                'options': [True, False],
+                'type': 'boolean',
+            },
+            {
+                'availableTo': ['UWASC'],
+                'defaultValue': None,
+                'key': 'groupCodes',
+                'name': 'Team',
+                'options': _team_groups,
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+        ],
+        [
+            {
+                'availableTo': ['COENG'],
+                'defaultValue': False if 'COENG' in scope else None,
+                'key': 'isInactiveCoe',
+                'name': 'Inactive' if 'COENG' in scope else 'Inactive (COE)',
+                'options': [True, False],
+                'type': 'boolean',
+            },
+            {
+                'availableTo': ['COENG'],
+                'defaultValue': None,
+                'key': 'coePrepStatuses',
+                'name': 'PREP',
+                'options': _coe_prep_statuses,
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+            {
+                'availableTo': ['COENG'],
+                'defaultValue': None,
+                'key': 'coeProbation',
+                'name': 'Probation',
+                'options': [True, False],
+                'type': 'boolean',
+            },
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'lastNameRange',
+                'name': 'Last Name',
+                'options': None,
+                'subcategoryHeader': ['Initials', 'through'],
+                'type': 'range',
+            },
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'genders',
+                'name': 'Gender',
+                'options': _genders,
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+            {
+                'availableTo': ['COENG'],
+                'defaultValue': None,
+                'key': 'advisorLdapUids',
+                'name': 'Advisor',
+                'options': _get_coe_profiles,
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+        ],
+    ]
+    available_categories = []
+
+    def is_available(d):
+        available = 'ADMIN' in scope or next((dept_code for dept_code in d['availableTo'] if dept_code in scope), False)
+        if available:
+            # If it is available then populate menu options
+            options = d.pop('options')
+            d['options'] = options() if callable(options) else options
+        return available
+
+    for category in categories:
+        available_categories.append(list(filter(lambda d: is_available(d), category)))
+    # Remove unavailable (ie, empty) categories
+    return list(filter(lambda g: len(g), available_categories))
 
 
 def _translate_filter_row(definition, selection=None):
@@ -342,11 +334,15 @@ def _coe_prep_statuses():
     ]
 
 
-def _genders():
+def _coe_genders():
     return [
         {'name': 'Female', 'value': 'F'},
         {'name': 'Male', 'value': 'M'},
     ]
+
+
+def _genders():
+    return [{'name': row['gender'], 'value': row['gender']} for row in data_loch.get_distinct_genders()]
 
 
 def _grad_terms():

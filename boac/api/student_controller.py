@@ -65,6 +65,7 @@ def get_students():
     inactive_coe = util.get(params, 'isInactiveCoe')
     results = query_students(
         advisor_ldap_uids=util.get(params, 'advisorLdapUids'),
+        coe_genders=util.get(params, 'coeGenders'),
         coe_prep_statuses=util.get(params, 'coePrepStatuses'),
         coe_probation=util.get(params, 'coeProbation'),
         ethnicities=util.get(params, 'ethnicities'),

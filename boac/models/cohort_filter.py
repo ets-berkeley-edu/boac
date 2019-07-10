@@ -247,6 +247,7 @@ class CohortFilter(Base, UserMixin):
                 'uid': owner.uid,
                 'deptCodes': [m.university_dept.dept_code for m in owner.department_memberships],
             })
+        coe_genders = c.get('coeGenders')
         coe_prep_statuses = c.get('coePrepStatuses')
         coe_probation = util.to_bool_or_none(c.get('coeProbation'))
         ethnicities = c.get('ethnicities')
@@ -267,6 +268,7 @@ class CohortFilter(Base, UserMixin):
         cohort_json.update({
             'criteria': {
                 'advisorLdapUids': advisor_ldap_uids,
+                'coeGenders': coe_genders,
                 'coePrepStatuses': coe_prep_statuses,
                 'coeProbation': coe_probation,
                 'ethnicities': ethnicities,
@@ -294,17 +296,13 @@ class CohortFilter(Base, UserMixin):
             benchmark('end')
             return cohort_json
 
-        # Until we remove per-department siloing, cohort membership queries are constrained by the cohort owner, which
-        # is a single user per present UX.
-        cohort_owner = self.owners[0] if len(self.owners) else None
-
         benchmark('begin students query')
         sids_only = not include_students
         results = query_students(
             advisor_ldap_uids=advisor_ldap_uids,
+            coe_genders=coe_genders,
             coe_prep_statuses=coe_prep_statuses,
             coe_probation=coe_probation,
-            cohort_owner=cohort_owner,
             ethnicities=ethnicities,
             expected_grad_terms=expected_grad_terms,
             genders=genders,
