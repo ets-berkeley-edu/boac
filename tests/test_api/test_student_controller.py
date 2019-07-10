@@ -81,30 +81,42 @@ class TestCollegeOfEngineering:
     """COE-specific API calls."""
 
     @classmethod
-    def _api_students(cls, client, json_data=()):
-        return client.post(
+    def _api_students(cls, client, json_data=(), expected_status_code=200):
+        response = client.post(
             '/api/students',
             data=json.dumps(json_data),
             content_type='application/json',
         )
+        assert response.status_code == expected_status_code
+        return response.json
 
     def test_unauthorized_request_for_coe_data(self, client, asc_advisor_login):
         """In order to access PREP, etc. the user must be either COE or Admin."""
-        assert 403 == self._api_students(client, {'coePrepStatuses': ['did_prep']}).status_code
+        self._api_students(
+            client,
+            {
+                'coePrepStatuses': ['did_prep'],
+            },
+            expected_status_code=403,
+        )
 
     def test_authorized_request_for_coe_data(self, client, coe_advisor_login):
         """In order to access PREP, etc. the user must be either COE or Admin."""
-        response = self._api_students(client, {'coePrepStatuses': ['did_prep']})
-        assert response.status_code == 200
-        students = response.json['students']
+        api_json = self._api_students(client, {'coePrepStatuses': ['did_prep']})
+        students = api_json['students']
         assert len(students) == 1
         assert students[0]['sid'] == '11667051'
 
     def test_authorized_request_for_gender(self, client, coe_advisor_login):
         """For now, only COE users can access gender data."""
-        response = self._api_students(client, {'genders': ['F']})
-        assert response.status_code == 200
-        students = response.json['students']
+        api_json = self._api_students(
+            client,
+            {
+                'genders': ['Female'],
+                'orderBy': 'firstName',
+            },
+        )
+        students = api_json['students']
         assert len(students) == 2
         assert students[0]['sid'] == '7890123456'
         assert students[0]['coeProfile']['gender'] == 'F'
@@ -114,71 +126,73 @@ class TestCollegeOfEngineering:
         assert students[1]['coeProfile']['isActiveCoe'] is False
 
     def test_authorized_request_for_coe_inactive_gender(self, client, coe_advisor_login):
-        response = self._api_students(
+        api_json = self._api_students(
             client,
             {
-                'genders': ['F'],
+                'genders': ['Female'],
                 'isInactiveCoe': True,
             },
         )
-        assert response.status_code == 200
-        students = response.json['students']
+        students = api_json['students']
         assert len(students) == 1
         assert students[0]['sid'] == '9000000000'
 
     def test_authorized_request_for_ethnicity(self, client, coe_advisor_login):
         """For now, only COE users can access ethnicity data."""
-        response = self._api_students(client, {'ethnicities': ['B', 'H']})
-        assert response.status_code == 200
-        students = response.json['students']
+        api_json = self._api_students(client, {'ethnicities': ['B', 'H']})
+        students = api_json['students']
         assert len(students) == 3
         for index, sid in enumerate(['11667051', '7890123456']):
             assert students[index]['sid'] == sid
 
     def test_coe_search_by_admin_with_asc_order_by(self, client, admin_login):
         """Admin user can order COE results by ASC criteria, with students lacking such criteria coming last."""
-        response = self._api_students(
+        api_json = self._api_students(
             client,
             {
                 'ethnicities': ['B', 'H'],
                 'orderBy': 'group_name',
             },
         )
-        assert response.status_code == 200
-        students = response.json['students']
+        students = api_json['students']
         assert students[0]['athleticsProfile']['athletics'][0]['groupName'] == 'Men\'s Baseball'
         assert students[1]['athleticsProfile']['athletics'][0]['groupName'] == 'Women\'s Field Hockey'
         assert 'athleticsProfile' not in students[2]
 
     def test_admin_search_for_students(self, client, admin_login):
         """Admin user can search with ASC and/or COE criteria."""
-        response = self._api_students(
+        api_json = self._api_students(
             client,
             {
-                'underrepresented': True,
-                'groupCodes': ['MFB-DB'],
+                'levels': ['Freshman', 'Sophomore', 'Junior'],
+                'coeGenders': ['M'],
+                'genders': ['Different Identity'],
             },
         )
-        assert response.status_code == 200
-        assert response.json.get('students') == []
+        students = api_json.get('students')
+        assert len(students)
+        for student in students:
+            assert student['gender'] == 'Different Identity'
+            assert student['coeProfile']['gender'] == 'M'
 
 
 class TestAthleticsStudyCenter:
     """Student API, Athletics Study Center."""
 
     @classmethod
-    def _api_students(cls, client, json_data=()):
-        return client.post(
+    def _api_students(cls, client, json_data=(), expected_status_code=200):
+        response = client.post(
             '/api/students',
             data=json.dumps(json_data),
             content_type='application/json',
         )
+        assert response.status_code == expected_status_code
+        return response.json
 
     def test_multiple_teams(self, asc_advisor_login, asc_inactive_students, client):
         """Includes multiple team memberships."""
-        response = self._api_students(client, {'groupCodes': ['MFB-DB', 'MFB-DL']})
-        assert response.status_code == 200
-        students = response.json['students']
+        api_json = self._api_students(client, {'groupCodes': ['MFB-DB', 'MFB-DL']})
+        students = api_json['students']
         assert _get_common_sids(asc_inactive_students, students)
         athletics = next(s['athleticsProfile']['athletics'] for s in students if s['uid'] == '98765')
         assert len(athletics) == 2
@@ -188,24 +202,21 @@ class TestAthleticsStudyCenter:
 
     def test_get_intensive_cohort(self, asc_advisor_login, asc_inactive_students, client):
         """Returns the canned 'intensive' cohort, available to all authenticated users."""
-        response = self._api_students(client, {'inIntensiveCohort': True})
-        assert response.status_code == 200
-        cohort = json.loads(response.data)
-        assert 'students' in cohort
-        students = cohort['students']
+        api_json = self._api_students(client, {'inIntensiveCohort': True})
+        assert 'students' in api_json
+        students = api_json['students']
         inactive_sid = '890127492'
         assert inactive_sid in [s['sid'] for s in students]
         assert len(_get_common_sids(asc_inactive_students, students)) == 1
-        assert cohort['totalStudentCount'] == len(students) == 5
-        assert 'teamGroups' not in cohort
+        assert api_json['totalStudentCount'] == len(students) == 5
+        assert 'teamGroups' not in api_json
         for student in students:
             assert student['athleticsProfile']['inIntensiveCohort']
 
     def test_unauthorized_request_for_athletic_study_center_data(self, client, fake_auth):
         """In order to access intensive_cohort, inactive status, etc. the user must be either ASC or Admin."""
         fake_auth.login('1022796')
-        response = self._api_students(client, {'inIntensiveCohort': True})
-        assert response.status_code == 403
+        self._api_students(client, {'inIntensiveCohort': True}, expected_status_code=403)
 
     def test_order_by_with_intensive_cohort(self, asc_advisor_login, client):
         """Returns students marked as 'intensive' by ASC."""
@@ -219,37 +230,34 @@ class TestAthleticsStudyCenter:
             'units': ['61889', '211159', '123456', '242881', '1049291'],
         }
         for order_by, expected_uid_list in all_expected_order.items():
-            response = self._api_students(
+            api_json = self._api_students(
                 client,
                 {
                     'inIntensiveCohort': True,
                     'orderBy': order_by,
                 },
             )
-            assert response.status_code == 200, f'Non-200 response where order_by={order_by}'
-            cohort = json.loads(response.data)
-            assert cohort['totalStudentCount'] == 5, f'Wrong count where order_by={order_by}'
-            uid_list = [s['uid'] for s in cohort['students']]
+            assert api_json['totalStudentCount'] == 5, f'Wrong count where order_by={order_by}'
+            uid_list = [s['uid'] for s in api_json['students']]
             assert uid_list == expected_uid_list, f'Unmet expectation where order_by={order_by}'
 
     def test_forbidden_order_by(self, client, coe_advisor_login):
         """COE advisor cannot order results by ASC criteria."""
-        assert 403 == self._api_students(
+        self._api_students(
             client,
             {
                 'ethnicities': ['B', 'H'],
                 'orderBy': 'group_name',
             },
-        ).status_code
+            expected_status_code=403,
+        )
 
     def test_get_inactive_cohort(self, asc_advisor_login, client):
-        response = self._api_students(client, {'isInactiveAsc': True})
-        assert response.status_code == 200
-        cohort = json.loads(response.data)
-        assert 'students' in cohort
-        assert cohort['totalStudentCount'] == len(cohort['students']) == 1
-        assert 'teamGroups' not in cohort
-        inactive_student = response.json['students'][0]
+        api_json = self._api_students(client, {'isInactiveAsc': True})
+        assert 'students' in api_json
+        assert api_json['totalStudentCount'] == len(api_json['students']) == 1
+        assert 'teamGroups' not in api_json
+        inactive_student = api_json['students'][0]
         assert not inactive_student['athleticsProfile']['isActiveAsc']
         assert inactive_student['athleticsProfile']['statusAsc'] == 'Trouble'
 

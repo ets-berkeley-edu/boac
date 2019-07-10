@@ -302,11 +302,12 @@ def get_basic_student_data(sids):
 
 
 def get_student_profiles(sids=None):
-    sql = f"""SELECT sid, profile
-        FROM {student_schema()}.student_profiles
+    sql = f"""SELECT p.sid, p.profile, d.gender, d.minority
+        FROM {student_schema()}.student_profiles p
+        LEFT JOIN {student_schema()}.demographics d ON d.sid = p.sid
         """
     if sids is not None:
-        sql += 'WHERE sid = ANY(:sids)'
+        sql += 'WHERE p.sid = ANY(:sids)'
         return safe_execute_rds(sql, sids=sids)
     else:
         return safe_execute_rds(sql)
@@ -540,6 +541,10 @@ def get_ethnicity_codes(scope=()):
         """)
 
 
+def get_distinct_genders():
+    return safe_execute_rds(f'SELECT DISTINCT gender FROM {student_schema()}.demographics ORDER BY gender')
+
+
 def get_expected_graduation_terms():
     sql = f"""SELECT DISTINCT expected_grad_term FROM {student_schema()}.student_academic_status
         ORDER BY expected_grad_term"""
@@ -556,6 +561,7 @@ def get_majors():
 
 def get_students_query(     # noqa
     advisor_ldap_uids=None,
+    coe_genders=None,
     coe_prep_statuses=None,
     coe_probation=None,
     ethnicities=None,
@@ -603,6 +609,11 @@ def get_students_query(     # noqa
                         AND n{i}.sid = sas.sid"""
                 word = ''.join(re.split('\W', word))
                 query_bindings.update({f'name_phrase_{i}': f'{word}%'})
+    if coe_genders:
+        query_filter += ' AND s.gender = ANY(:coe_genders)'
+        query_bindings.update({'coe_genders': coe_genders})
+    if genders:
+        query_tables += f""" JOIN {student_schema()}.demographics d ON d.sid = sas.sid"""
     if sids:
         query_filter += f' AND sas.sid = ANY(:sids)'
         query_bindings.update({'sids': sids})
@@ -652,7 +663,7 @@ def get_students_query(     # noqa
         query_filter += ' AND s.ethnicity = ANY(:ethnicities)'
         query_bindings.update({'ethnicities': ethnicities})
     if genders:
-        query_filter += ' AND s.gender = ANY(:genders)'
+        query_filter += ' AND d.gender = ANY(:genders)'
         query_bindings.update({'genders': genders})
     query_filter += f' AND s.probation IS {coe_probation}' if coe_probation is not None else ''
     query_filter += f' AND s.minority IS {underrepresented}' if underrepresented is not None else ''
@@ -800,10 +811,10 @@ def _student_query_tables_for_scope(scope):
             columns_for_codes = {
                 'COENG': [
                     'advisor_ldap_uid',
+                    'coe_genders',
                     'did_prep',
                     'did_tprep',
                     'ethnicity',
-                    'gender',
                     'minority',
                     'prep_eligible',
                     'probation',

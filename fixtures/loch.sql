@@ -187,6 +187,13 @@ CREATE TABLE sis_data.sis_terms
     session_ends DATE NOT NULL
 );
 
+CREATE TABLE student.demographics
+(
+    sid VARCHAR NOT NULL,
+    gender VARCHAR NOT NULL,
+    minority BOOLEAN NOT NULL
+);
+
 CREATE TABLE student.student_holds
 (
     sid VARCHAR NOT NULL,
@@ -476,6 +483,19 @@ VALUES
 ('2168', '2016 Fall', 'GRAD', '2016-08-17', '2016-12-16', '1', 'Regular Academic Session', '2016-08-24', '2016-12-09'),
 ('2168', '2016 Fall', 'UCBX', '2016-08-17', '2016-12-16', '1', 'Regular Academic Session', '2016-08-24', '2016-12-09'),
 ('2168', '2016 Fall', 'UGRD', '2016-08-17', '2016-12-16', '1', 'Regular Academic Session', '2016-08-24', '2016-12-09');
+
+INSERT INTO student.demographics
+(sid, gender, minority)
+VALUES
+('11667051', 'Different Identity', FALSE),
+('2345678901', 'Decline to State', FALSE),
+('3456789012', 'Male', FALSE),
+('5678901234', 'Male', FALSE),
+('7890123456', 'Female', TRUE),
+('8901234567', 'Different Identity', FALSE),
+('890127492', 'Genderqueer/Gender Non-Conform', FALSE),
+('9000000000', 'Female', TRUE),
+('9100000000', 'Different Identity', FALSE);
 
 INSERT INTO student.student_holds
 (sid, feed)
