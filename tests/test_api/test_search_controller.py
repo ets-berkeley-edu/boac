@@ -369,8 +369,8 @@ class TestNoteSearch:
         assert len(notes) == 1
         assert notes[0].get('id') == '11667051-00001'
 
-    def test_search_by_note_author(self, coe_advisor, client):
-        """Searches notes by author if posted by option is selected."""
+    def test_search_by_note_author_sis(self, coe_advisor, client):
+        """Searches notes by SIS advisor name if posted by option is selected."""
         response = client.post(
             '/api/search',
             data=json.dumps({'notes': True, 'searchPhrase': 'Brigitte', 'noteOptions': {'authorCsid': '800700600'}}),
@@ -380,6 +380,18 @@ class TestNoteSearch:
         notes = response.json['notes']
         assert len(notes) == 1
         assert notes[0].get('id') == '11667051-00001'
+
+    def test_search_by_note_author_asc(self, coe_advisor, client):
+        """Searches notes by ASC advisor name if posted by option is selected."""
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'notes': True, 'searchPhrase': 'Academic', 'noteOptions': {'authorCsid': '800700600'}}),
+            content_type='application/json',
+        )
+        assert 'notes' in response.json
+        notes = response.json['notes']
+        assert len(notes) == 1
+        assert notes[0].get('id') == '11667051-139362'
 
     def test_search_by_note_student(self, coe_advisor, client):
         """Searches notes by student if posted by option is selected."""

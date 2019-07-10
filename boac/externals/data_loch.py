@@ -446,6 +446,7 @@ def get_sis_advising_note_attachments(sid):
 
 def search_advising_notes(
     search_phrase,
+    author_uid=None,
     author_csid=None,
     student_csid=None,
     topic=None,
@@ -454,7 +455,13 @@ def search_advising_notes(
     offset=None,
     limit=None,
 ):
-    author_filter = 'AND an.advisor_sid = :author_csid' if author_csid else ''
+    if author_csid and author_uid:
+        author_filter = 'AND (an.advisor_sid = :author_csid OR an.advisor_uid = :author_uid)'
+    elif author_csid:
+        author_filter = 'AND an.advisor_sid = :author_csid'
+    else:
+        author_filter = ''
+
     sid_filter = 'AND an.sid = :student_csid' if student_csid else ''
 
     if topic:
@@ -515,6 +522,7 @@ def search_advising_notes(
     params = dict(
         search_phrase=search_phrase,
         author_csid=author_csid,
+        author_uid=author_uid,
         student_csid=student_csid,
         topic=topic,
         datetime_from=datetime_from,
