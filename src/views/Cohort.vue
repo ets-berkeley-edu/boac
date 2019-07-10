@@ -29,6 +29,7 @@
           <div class="d-flex justify-content-between align-items-center p-2">
             <CuratedGroupSelector
               :context-description="`Cohort ${cohortName || ''}`"
+              :ga-event-tracker="gaCohortEvent"
               :students="students" />
             <SortBy v-if="showSortBy" />
           </div>

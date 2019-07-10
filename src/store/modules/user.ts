@@ -45,6 +45,7 @@ const mutations = {
 
 const actions = {
   gaCohortEvent: (state: any, {id, name, action}) => gaEvent('Cohort', action, name, id),
+  gaCourseEvent: (state: any, {id, name, action}) => gaEvent('Course', action, name, id),
   gaCuratedEvent: (state: any, {id, name, action}) => gaEvent('Curated Group', action, name, id),
   gaNoteEvent: (state: any, {id, action}) => gaEvent('Advising Note', action, null, id),
   gaSearchEvent: (state: any, action: string) => gaEvent('Search', action, null, null),
