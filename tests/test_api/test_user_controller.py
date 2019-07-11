@@ -197,3 +197,25 @@ class TestDemoMode:
                         assert response.json['inDemoMode'] is in_demo_mode
                         user = AuthorizedUser.find_by_uid(uid)
                         assert user.in_demo_mode is in_demo_mode
+
+
+class TestDownloadUsers:
+
+    def test_not_authenticated(self, client):
+        """Returns 'unauthorized' response status if user is not authenticated."""
+        response = client.get('/api/users/csv')
+        assert response.status_code == 401
+
+    def test_unauthorized(self, client, fake_auth):
+        """Returns 'unauthorized' response status if user is not admin."""
+        fake_auth.login(coe_advisor_uid)
+        response = client.get('/api/users/csv')
+        assert response.status_code == 401
+
+    def test_authorized(self, client, fake_auth):
+        """Returns a well-formed response."""
+        fake_auth.login(admin_uid)
+        response = client.get('/api/users/csv')
+        assert response.status_code == 200
+        assert 'csv' in response.content_type
+        assert 'College of Engineering' in str(response.data)

@@ -27,7 +27,7 @@ from boac.api import errors
 from boac.api.util import admin_required, authorized_users_api_feed
 from boac.lib import util
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
-from boac.lib.http import tolerant_jsonify
+from boac.lib.http import response_with_csv_download, tolerant_jsonify
 from boac.merged import calnet
 from boac.models.authorized_user import AuthorizedUser
 from flask import current_app as app, request
@@ -63,6 +63,49 @@ def user_by_uid(uid):
 @admin_required
 def authorized_user_groups():
     sort_users_by = util.get(request.args, 'sortUsersBy', None)
+    return tolerant_jsonify(_get_boa_user_groups(sort_users_by))
+
+
+@app.route('/api/user/demo_mode', methods=['POST'])
+@login_required
+def set_demo_mode():
+    if app.config['DEMO_MODE_AVAILABLE']:
+        in_demo_mode = request.get_json().get('demoMode', None)
+        if in_demo_mode is None:
+            raise errors.BadRequestError('Parameter \'demoMode\' not found')
+        user = AuthorizedUser.find_by_id(current_user.get_id())
+        user.in_demo_mode = bool(in_demo_mode)
+        current_user.flush_cached()
+        app.login_manager.reload_user()
+        return tolerant_jsonify(current_user.to_api_json())
+    else:
+        raise errors.ResourceNotFoundError('Unknown path')
+
+
+@app.route('/api/users/csv')
+@admin_required
+def download_boa_users_csv():
+    rows = []
+    for dept in _get_boa_user_groups():
+        for user in dept['users']:
+            rows.append(
+                {
+                    'last_name': user.get('lastName') or '',
+                    'first_name': user.get('firstName') or '',
+                    'uid': user.get('uid'),
+                    'email': user.get('campusEmail') or user.get('email'),
+                    'dept_code': dept.get('code'),
+                    'dept_name': dept.get('name'),
+                },
+            )
+    return response_with_csv_download(
+        rows=sorted(rows, key=lambda row: row['last_name'].upper()),
+        filename_prefix='boa_users',
+        fieldnames=['last_name', 'first_name', 'uid', 'email', 'dept_code', 'dept_name'],
+    )
+
+
+def _get_boa_user_groups(sort_users_by=None):
     depts = {}
 
     def _put(_dept_code, _user):
@@ -83,20 +126,4 @@ def authorized_user_groups():
     for dept_code, dept in depts.items():
         dept['users'] = authorized_users_api_feed(dept['users'], sort_users_by)
         user_groups.append(dept)
-    return tolerant_jsonify(user_groups)
-
-
-@app.route('/api/user/demo_mode', methods=['POST'])
-@login_required
-def set_demo_mode():
-    if app.config['DEMO_MODE_AVAILABLE']:
-        in_demo_mode = request.get_json().get('demoMode', None)
-        if in_demo_mode is None:
-            raise errors.BadRequestError('Parameter \'demoMode\' not found')
-        user = AuthorizedUser.find_by_id(current_user.get_id())
-        user.in_demo_mode = bool(in_demo_mode)
-        current_user.flush_cached()
-        app.login_manager.reload_user()
-        return tolerant_jsonify(current_user.to_api_json())
-    else:
-        raise errors.ResourceNotFoundError('Unknown path')
+    return user_groups
