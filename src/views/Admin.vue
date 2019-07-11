@@ -21,7 +21,10 @@
         </div>
       </div>
       <div v-if="userGroups">
-        <h2 id="dept-users-section" class="page-section-header-sub pb-2">Users</h2>
+        <h2 id="dept-users-section" class="page-section-header-sub pb-2">
+          Users
+          <span class="text-black-50 font-size-14">(<a id="download-boa-users-csv" :href="`${apiBaseUrl}/api/users/csv`">download</a>)</span>
+        </h2>
         <b-card no-body>
           <b-tabs pills card>
             <b-tab
