@@ -28,8 +28,6 @@ DEBUG = True
 
 DEMO_MODE_AVAILABLE = True
 
-FEATURE_FLAG_BATCH_NOTES = True
-
 INDEX_HTML = 'public/index.html'
 
 VUE_LOCALHOST_BASE_URL = 'http://localhost:8080'

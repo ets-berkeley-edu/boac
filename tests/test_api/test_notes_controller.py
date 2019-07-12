@@ -34,7 +34,7 @@ from boac.models.note_read import NoteRead
 import pytest
 import simplejson as json
 from tests.test_api.api_test_utils import all_cohorts_owned_by
-from tests.util import mock_advising_note_s3_bucket, mock_legacy_note_attachment, override_config
+from tests.util import mock_advising_note_s3_bucket, mock_legacy_note_attachment
 
 asc_advisor_uid = '6446'
 coe_advisor_uid = '1133399'
@@ -188,21 +188,6 @@ class TestNoteCreation:
 
 
 class TestBatchNoteCreation:
-
-    def test_create_note_feature_flag_false(self, app, client, fake_auth):
-        """Returns 404 if feature flag is false."""
-        with override_config(app, 'FEATURE_FLAG_BATCH_NOTES', False):
-            fake_auth.login(coe_advisor_uid)
-            advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
-            _api_batch_note_create(
-                app,
-                client,
-                author_id=advisor.id,
-                subject='Range Life',
-                body='Over the turnstile, turn out in the traffic',
-                sids=['960759268', '856024035', '370048698', '709706581'],
-                expected_status_code=404,
-            )
 
     def test_batch_note_creation_with_sids(self, app, client, fake_auth):
         """Batch note creation with list of SIDs."""

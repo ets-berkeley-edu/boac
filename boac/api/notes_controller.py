@@ -108,22 +108,19 @@ def batch_create_notes():
     attachments = _get_attachments(request.files, tolerate_none=True)
     author = current_user.to_api_json()
 
-    if app.config['FEATURE_FLAG_BATCH_NOTES']:
-        note_ids_per_sid = Note.create_batch(
-            author_id=author['id'],
-            author_uid=author['uid'],
-            author_name=author['name'],
-            author_role=role,
-            author_dept_codes=current_user.dept_codes,
-            subject=subject,
-            body=process_input_from_rich_text_editor(body),
-            topics=topics,
-            sids=sids,
-            attachments=attachments,
-        )
-        return tolerant_jsonify(note_ids_per_sid)
-    else:
-        raise ResourceNotFoundError('API path not found')
+    note_ids_per_sid = Note.create_batch(
+        author_id=author['id'],
+        author_uid=author['uid'],
+        author_name=author['name'],
+        author_role=role,
+        author_dept_codes=current_user.dept_codes,
+        subject=subject,
+        body=process_input_from_rich_text_editor(body),
+        topics=topics,
+        sids=sids,
+        attachments=attachments,
+    )
+    return tolerant_jsonify(note_ids_per_sid)
 
 
 @app.route('/api/notes/batch/distinct_student_count', methods=['POST'])
