@@ -16,7 +16,7 @@
         <router-link id="cohorts-all" to="/cohorts/all">Everyone's Cohorts</router-link>
       </div>
     </div>
-    <div v-if="user && !user.isAdmin && featureFlagBatchNotes">
+    <div v-if="user && !user.isAdmin">
       <div class="batch-note-button fixed-bottom mb-3">
         <NewNoteModal
           id="batch-note-button"

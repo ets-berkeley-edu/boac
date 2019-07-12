@@ -67,9 +67,6 @@ PORT = 5000
 DEVELOPER_AUTH_ENABLED = False
 DEVELOPER_AUTH_PASSWORD = 'another secret'
 
-# TODO: Remove when batch-note-creation is stable in prod
-FEATURE_FLAG_BATCH_NOTES = False
-
 ABBREVIATED_WORDS = ['APR', 'EAP', 'PNP', 'SAP']
 
 # Set to a nice long chaotic string to enable scripted access to APIs.
