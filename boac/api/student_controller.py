@@ -23,15 +23,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import add_alert_counts, is_unauthorized_search, put_notifications
+from boac.api.errors import BadRequestError, ResourceNotFoundError
+from boac.api.util import put_notifications
 from boac.externals.data_loch import match_students_by_name_or_sid
-from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged.student import get_student_and_terms_by_sid, get_student_and_terms_by_uid, query_students
-from boac.models.alert import Alert
 from flask import current_app as app, request
-from flask_login import current_user, login_required
+from flask_login import login_required
 
 
 @app.route('/api/student/by_sid/<sid>')
@@ -52,50 +50,6 @@ def get_student_by_uid(uid):
         raise ResourceNotFoundError('Unknown student')
     put_notifications(student)
     return tolerant_jsonify(student)
-
-
-@app.route('/api/students', methods=['POST'])
-@login_required
-def get_students():
-    params = util.remove_none_values(request.get_json())
-    order_by = util.get(params, 'orderBy', None)
-    if is_unauthorized_search(list(params.keys()), order_by):
-        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
-    inactive_asc = util.get(params, 'isInactiveAsc')
-    inactive_coe = util.get(params, 'isInactiveCoe')
-    results = query_students(
-        advisor_ldap_uids=util.get(params, 'advisorLdapUids'),
-        coe_genders=util.get(params, 'coeGenders'),
-        coe_prep_statuses=util.get(params, 'coePrepStatuses'),
-        coe_probation=util.get(params, 'coeProbation'),
-        ethnicities=util.get(params, 'ethnicities'),
-        expected_grad_terms=util.get(params, 'expectedGradTerms'),
-        genders=util.get(params, 'genders'),
-        gpa_ranges=util.get(params, 'gpaRanges'),
-        group_codes=util.get(params, 'groupCodes'),
-        include_profiles=True,
-        is_active_asc=None if inactive_asc is None else not inactive_asc,
-        is_active_coe=None if inactive_coe is None else not inactive_coe,
-        in_intensive_cohort=util.to_bool_or_none(util.get(params, 'inIntensiveCohort')),
-        last_name_range=_get_name_range_boundaries(util.get(params, 'lastNameRange')),
-        levels=util.get(params, 'levels'),
-        limit=util.get(params, 'limit', 50),
-        majors=util.get(params, 'majors'),
-        offset=util.get(params, 'offset', 0),
-        order_by=order_by,
-        transfer=util.to_bool_or_none(util.get(params, 'transfer')),
-        underrepresented=util.get(params, 'underrepresented'),
-        unit_ranges=util.get(params, 'unitRanges'),
-    )
-    if results is None:
-        raise BadRequestError('Invalid search criteria')
-    alert_counts = Alert.current_alert_counts_for_viewer(current_user.get_id())
-    students = results['students'] if results else []
-    add_alert_counts(alert_counts, students)
-    return tolerant_jsonify({
-        'students': students,
-        'totalStudentCount': results['totalStudentCount'] if results else 0,
-    })
 
 
 @app.route('/api/students/find_by_name_or_sid', methods=['GET'])
