@@ -29,14 +29,17 @@ from boac.api.util import authorized_users_api_feed
 from boac.externals import data_loch
 from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE, COE_ETHNICITIES_PER_CODE, term_name_for_sis_id
 from boac.merged import athletics
+from boac.merged.calnet import get_csid_for_uid
 from boac.merged.student import get_student_query_scope
 from boac.models.authorized_user import AuthorizedUser
+from flask import current_app as app
+from flask_login import current_user
 
 
-def translate_to_filter_options(criteria=None):
+def translate_to_filter_options(owner_uid, criteria=None):
     rows = []
     if criteria:
-        for definitions in _get_filter_options(get_student_query_scope()):
+        for definitions in _get_filter_options(get_student_query_scope(), owner_uid):
             for definition in definitions:
                 selected = criteria.get(definition['key'])
                 if selected is not None:
@@ -48,9 +51,10 @@ def translate_to_filter_options(criteria=None):
     return rows
 
 
-def get_cohort_filter_options(existing_filters):
-    # Default menu has all options available.
-    filter_categories = _get_filter_options(get_student_query_scope())
+def get_cohort_filter_options(owner_uid, existing_filters):
+    # Default menu has all options available. Options vary with cohort owner since the "My Students" filter includes
+    # an list of the cohort owner's academic plans.
+    filter_categories = _get_filter_options(get_student_query_scope(), owner_uid)
     menus = [menu for category in filter_categories for menu in category]
     for key in _keys_of_type_boolean(existing_filters):
         # Disable sub_menu options if they are already in cohort criteria
@@ -75,9 +79,20 @@ def get_cohort_filter_options(existing_filters):
     return filter_categories
 
 
-def _get_filter_options(scope):
+def _get_filter_options(scope, cohort_owner_uid):
     all_dept_codes = list(BERKELEY_DEPT_NAME_TO_CODE.values())
     categories = [
+        [
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'cohortOwnerAcademicPlans',
+                'name': 'My Students',
+                'options': _academic_plans_for_cohort_owner(cohort_owner_uid),
+                'subcategoryHeader': 'Choose academic plan...',
+                'type': 'array',
+            },
+        ],
         [
             {
                 'availableTo': all_dept_codes,
@@ -304,6 +319,25 @@ def _get_coe_profiles():
         name = f'{first_name} {last_name}' if first_name or last_name else f'UID: {uid}'
         profiles.append({'name': name, 'value': uid})
     return sorted(profiles, key=lambda p: p['name'])
+
+
+def _academic_plans_for_cohort_owner(owner_uid):
+    if owner_uid:
+        owner_csid = get_csid_for_uid(app, owner_uid)
+    else:
+        owner_csid = current_user.get_csid()
+    plans = [
+        {'name': 'All plans', 'value': '*'},
+    ]
+    plan_results = data_loch.get_academic_plans_for_advisor(owner_csid)
+    for row in plan_results:
+        value = row['academic_plan_code']
+        if value:
+            name = row['academic_plan']
+        else:
+            name = row['[No plan]']
+        plans.append({'name': name, 'value': value})
+    return plans
 
 
 def _unit_ranges():

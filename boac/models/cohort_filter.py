@@ -31,18 +31,20 @@ from boac.api.errors import InternalServerError
 from boac.lib import util
 from boac.lib.util import get_benchmarker, to_bool_or_none as to_bool
 from boac.merged import athletics
+from boac.merged.calnet import get_csid_for_uid
 from boac.merged.student import query_students
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.authorized_user import cohort_filter_owners
 from boac.models.base import Base
-from flask_login import UserMixin
+from flask import current_app as app
+from flask_login import current_user
 from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import deferred, undefer
 
 
-class CohortFilter(Base, UserMixin):
+class CohortFilter(Base):
     __tablename__ = 'cohort_filters'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
@@ -251,6 +253,7 @@ class CohortFilter(Base, UserMixin):
         coe_genders = c.get('coeGenders')
         coe_prep_statuses = c.get('coePrepStatuses')
         coe_probation = util.to_bool_or_none(c.get('coeProbation'))
+        cohort_owner_academic_plans = util.get(c, 'cohortOwnerAcademicPlans')
         ethnicities = c.get('ethnicities')
         expected_grad_terms = c.get('expectedGradTerms')
         genders = c.get('genders')
@@ -272,6 +275,7 @@ class CohortFilter(Base, UserMixin):
                 'coeGenders': coe_genders,
                 'coePrepStatuses': coe_prep_statuses,
                 'coeProbation': coe_probation,
+                'cohortOwnerAcademicPlans': cohort_owner_academic_plans,
                 'ethnicities': ethnicities,
                 'expectedGradTerms': expected_grad_terms,
                 'genders': genders,
@@ -299,8 +303,22 @@ class CohortFilter(Base, UserMixin):
 
         benchmark('begin students query')
         sids_only = not include_students
+
+        # Translate the "My Students" filter, if present, into queryable criteria. Although our database relationships allow
+        # for multiple cohort owners, we assume a single owner here since the "My Students" filter makes no sense
+        # in any other scenario.
+        if cohort_owner_academic_plans:
+            if self.owners:
+                owner_sid = get_csid_for_uid(app, self.owners[0].uid)
+            else:
+                owner_sid = current_user.get_csid()
+            advisor_plan_mappings = [{'advisor_sid': owner_sid, 'academic_plan_code': plan} for plan in cohort_owner_academic_plans]
+        else:
+            advisor_plan_mappings = None
+
         results = query_students(
             advisor_ldap_uids=advisor_ldap_uids,
+            advisor_plan_mappings=advisor_plan_mappings,
             coe_genders=coe_genders,
             coe_prep_statuses=coe_prep_statuses,
             coe_probation=coe_probation,

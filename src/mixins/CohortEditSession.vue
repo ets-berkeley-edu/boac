@@ -7,6 +7,7 @@ export default {
     ...mapGetters('cohortEditSession', [
       'cohortId',
       'cohortName',
+      'cohortOwner',
       'editMode',
       'filters',
       'isCompactView',

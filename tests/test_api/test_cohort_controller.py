@@ -301,6 +301,30 @@ class TestCohortDetail:
         )
         assert response.status_code == 403
 
+    def test_my_students_filter_me(self, client, asc_advisor_login):
+        cohort = CohortFilter.create(
+            uid=asc_advisor_uid,
+            name='All my students',
+            filter_criteria={
+                'cohortOwnerAcademicPlans': ['*'],
+            },
+        )
+        response = client.get(f"/api/cohort/{cohort['id']}").json
+        sids = sorted([s['sid'] for s in response['students']])
+        assert sids == ['11667051', '2345678901', '3456789012', '5678901234', '7890123456', '9100000000']
+
+    def test_my_students_filter_not_me(self, client, admin_login):
+        cohort = CohortFilter.create(
+            uid=asc_advisor_uid,
+            name='All my students',
+            filter_criteria={
+                'cohortOwnerAcademicPlans': ['*'],
+            },
+        )
+        response = client.get(f"/api/cohort/{cohort['id']}").json
+        sids = sorted([s['sid'] for s in response['students']])
+        assert sids == ['11667051', '2345678901', '3456789012', '5678901234', '7890123456', '9100000000']
+
 
 class TestCohortCreate:
     """Cohort Create API."""
@@ -682,6 +706,43 @@ class TestCohortPerFilters:
         ]:
             assert criteria[key] is None
 
+    def test_my_students_filter_all_plans(self, client, coe_advisor_login):
+        api_json = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {
+                        'key': 'cohortOwnerAcademicPlans',
+                        'type': 'array',
+                        'value': '*',
+                    },
+                ],
+            },
+        )
+        sids = sorted([s['sid'] for s in api_json['students']])
+        assert sids == ['11667051', '7890123456', '9000000000', '9100000000']
+
+    def test_my_students_filter_selected_plans(self, client, coe_advisor_login):
+        api_json = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {
+                        'key': 'cohortOwnerAcademicPlans',
+                        'type': 'array',
+                        'value': '162B0U',
+                    },
+                    {
+                        'key': 'cohortOwnerAcademicPlans',
+                        'type': 'array',
+                        'value': '162B3U',
+                    },
+                ],
+            },
+        )
+        sids = sorted([s['sid'] for s in api_json['students']])
+        assert sids == ['7890123456', '9000000000']
+
     def _get_defensive_line(self, client, inactive_asc, order_by):
         api_json = self._api_get_students_per_filters(
             client,
@@ -846,9 +907,9 @@ class TestAllCohortFilterOptions:
     """Cohort Filter Options API."""
 
     @classmethod
-    def _api_cohort_filter_options(cls, client, json_data=(), expected_status_code=200):
+    def _api_cohort_filter_options(cls, client, json_data=(), owner='me', expected_status_code=200):
         response = client.post(
-            '/api/cohort/filter_options',
+            f'/api/cohort/filter_options/{owner}',
             data=json.dumps(json_data),
             content_type='application/json',
         )
@@ -882,6 +943,38 @@ class TestAllCohortFilterOptions:
                     for option in menu['options']:
                         assert 'disabled' not in option
 
+    def test_filter_options_my_students_for_me(self, client, coe_advisor_login):
+        """Returns user's own academic plans under 'My Students'."""
+        api_json = self._api_cohort_filter_options(
+            client,
+            {
+                'existingFilters': [],
+            },
+        )
+        my_students = next(option for group in api_json for option in group if option['name'] == 'My Students')
+        assert len(my_students['options']) == 5
+        assert {'name': 'All plans', 'value': '*'} in my_students['options']
+        assert {'name': 'Bioengineering BS', 'value': '16288U'} in my_students['options']
+        assert {'name': 'Engineering Undeclared UG', 'value': '162B0U'} in my_students['options']
+        assert {'name': 'BioE/MSE Joint Major BS', 'value': '162B3U'} in my_students['options']
+        assert {'name': 'Bioengineering UG', 'value': '16I010U'} in my_students['options']
+
+    def test_filter_options_my_students_for_not_me(self, client, coe_advisor_login):
+        """Returns another user's academic plans under 'My Students'."""
+        api_json = self._api_cohort_filter_options(
+            client,
+            {
+                'existingFilters': [],
+            },
+            asc_advisor_uid,
+        )
+        my_students = next(option for group in api_json for option in group if option['name'] == 'My Students')
+        assert len(my_students['options']) == 4
+        assert {'name': 'All plans', 'value': '*'} in my_students['options']
+        assert {'name': 'English BA', 'value': '25345U'} in my_students['options']
+        assert {'name': 'English UG', 'value': '25I039U'} in my_students['options']
+        assert {'name': 'Medieval Studies UG', 'value': '25I054U'} in my_students['options']
+
     def test_filter_options_with_category_disabled(self, client, coe_advisor_login):
         """The coe_probation option is disabled if it is in existing-filters."""
         api_json = self._api_cohort_filter_options(
@@ -896,7 +989,7 @@ class TestAllCohortFilterOptions:
                     ],
             },
         )
-        assert len(api_json) == 4
+        assert len(api_json) == 5
         for category in api_json:
             for menu in category:
                 if menu['key'] == 'coeProbation':
@@ -922,7 +1015,7 @@ class TestAllCohortFilterOptions:
                     ],
             },
         )
-        assert len(api_json) == 4
+        assert len(api_json) == 5
         assertion_count = 0
         for category in api_json:
             for menu in category:
@@ -991,9 +1084,9 @@ class TestTranslateToFilterOptions:
     """Cohort Filter Options API."""
 
     @classmethod
-    def _api_translate_to_filter_options(cls, client, json_data=(), expected_status_code=200):
+    def _api_translate_to_filter_options(cls, client, json_data=(), owner='me', expected_status_code=200):
         response = client.post(
-            '/api/cohort/translate_to_filter_options',
+            f'/api/cohort/translate_to_filter_options/{owner}',
             data=json.dumps(json_data),
             content_type='application/json',
         )
@@ -1059,3 +1152,38 @@ class TestTranslateToFilterOptions:
         assert api_json[0]['name'] == 'Last Name'
         assert api_json[0]['key'] == 'lastNameRange'
         assert api_json[0]['value'] == ['M', 'Z']
+
+    def test_translate_criteria_my_students_for_me(self, client, coe_advisor_login):
+        """User's own 'My Students' criteria are properly translated."""
+        api_json = self._api_translate_to_filter_options(
+            client,
+            {
+                'criteria': {
+                    'cohortOwnerAcademicPlans': ['*'],
+                },
+            },
+        )
+        assert len(api_json) == 1
+        assert api_json[0]['name'] == 'My Students'
+        assert api_json[0]['subcategoryHeader'] == 'Choose academic plan...'
+        assert api_json[0]['key'] == 'cohortOwnerAcademicPlans'
+        assert api_json[0]['value'] == '*'
+
+    def test_translate_criteria_my_students_for_not_me(self, client, coe_advisor_login):
+        """Another user's 'My Students' criteria are properly translated."""
+        api_json = self._api_translate_to_filter_options(
+            client,
+            {
+                'criteria': {
+                    'cohortOwnerAcademicPlans': ['25I039U', '25I054U'],
+                },
+            },
+            asc_advisor_uid,
+        )
+        assert len(api_json) == 2
+        assert api_json[0]['name'] == 'My Students'
+        assert api_json[0]['key'] == 'cohortOwnerAcademicPlans'
+        assert api_json[0]['value'] == '25I039U'
+        assert api_json[1]['name'] == 'My Students'
+        assert api_json[1]['key'] == 'cohortOwnerAcademicPlans'
+        assert api_json[1]['value'] == '25I054U'

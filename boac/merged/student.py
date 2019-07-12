@@ -249,6 +249,7 @@ def get_term_gpas_by_sid(sids, as_dicts=False):
 
 def query_students(
     advisor_ldap_uids=None,
+    advisor_plan_mappings=None,
     coe_genders=None,
     coe_prep_statuses=None,
     coe_probation=None,
@@ -276,6 +277,7 @@ def query_students(
 
     criteria = {
         'advisor_ldap_uids': advisor_ldap_uids,
+        'advisor_plan_mappings': advisor_plan_mappings,
         'coe_genders': coe_genders,
         'coe_prep_statuses': coe_prep_statuses,
         'coe_probation': coe_probation,
@@ -293,6 +295,7 @@ def query_students(
 
     query_tables, query_filter, query_bindings = data_loch.get_students_query(
         advisor_ldap_uids=advisor_ldap_uids,
+        advisor_plan_mappings=advisor_plan_mappings,
         coe_genders=coe_genders,
         coe_prep_statuses=coe_prep_statuses,
         coe_probation=coe_probation,

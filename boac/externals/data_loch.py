@@ -77,6 +77,10 @@ def asc_advising_notes_schema():
     return app.config['DATA_LOCH_ASC_ADVISING_NOTES_SCHEMA']
 
 
+def advisor_schema():
+    return app.config['DATA_LOCH_ADVISOR_SCHEMA']
+
+
 def asc_schema():
     return app.config['DATA_LOCH_ASC_SCHEMA']
 
@@ -534,6 +538,15 @@ def search_advising_notes(
     return safe_execute_rds(sql, **params)
 
 
+def get_academic_plans_for_advisor(advisor_sid):
+    sql = f"""SELECT DISTINCT advs.academic_plan_code, advs.academic_plan
+        FROM {advisor_schema()}.advisor_students advs
+        JOIN {student_schema()}.student_academic_status sas
+        ON sas.sid = advs.student_sid
+        AND advs.advisor_sid = :advisor_sid"""
+    return safe_execute_rds(sql, advisor_sid=advisor_sid)
+
+
 def get_ethnicity_codes(scope=()):
     # TODO Scoping remains in place for the moment, as ethnicity is still a COE-specific category.
     query_tables = _student_query_tables_for_scope(scope)
@@ -569,6 +582,7 @@ def get_majors():
 
 def get_students_query(     # noqa
     advisor_ldap_uids=None,
+    advisor_plan_mappings=None,
     coe_genders=None,
     coe_prep_statuses=None,
     coe_probation=None,
@@ -653,6 +667,21 @@ def get_students_query(     # noqa
         query_bindings.update({'majors': _majors})
     if transfer is True:
         query_filter += ' AND sas.transfer = TRUE'
+    if advisor_plan_mappings:
+        advisor_plan_filters = []
+        for idx, mapping in enumerate(advisor_plan_mappings):
+            advisor_sid = mapping['advisor_sid']
+            query_bindings.update({f'advisor_sid_{idx}': advisor_sid})
+            if mapping['academic_plan_code'] == '*':
+                advisor_plan_filters.append(f'advs.advisor_sid = :advisor_sid_{idx}')
+            else:
+                academic_plan_code = mapping['academic_plan_code']
+                query_bindings.update({f'academic_plan_code_{idx}': academic_plan_code})
+                advisor_plan_filters.append(
+                    f'(advs.advisor_sid = :advisor_sid_{idx} AND advs.academic_plan_code = :academic_plan_code_{idx})',
+                )
+        query_tables += f""" JOIN {advisor_schema()}.advisor_students advs ON advs.student_sid = sas.sid"""
+        query_tables += ' AND (' + ' OR '.join(advisor_plan_filters) + ')'
 
     # ASC criteria
     query_filter += f' AND s.active IS {is_active_asc}' if is_active_asc is not None else ''

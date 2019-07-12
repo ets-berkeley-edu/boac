@@ -55,6 +55,9 @@ class UserSession(UserMixin):
     def get_uid(self):
         return self.api_json['uid']
 
+    def get_csid(self):
+        return self.api_json.get('csid')
+
     @property
     def is_active(self):
         return self.api_json['isActive']
