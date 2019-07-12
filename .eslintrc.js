@@ -17,7 +17,7 @@ module.exports = {
     'vue/no-v-html': 0,
     'vue/html-closing-bracket-newline': 0,
     'vue/html-self-closing': 0,
-    'vue/max-attributes-per-line': ["error", {
+    'vue/max-attributes-per-line': ['error', {
       singleline: 3,
       multiline: {
         max: 1,
