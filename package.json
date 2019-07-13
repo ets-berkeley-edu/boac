@@ -24,6 +24,7 @@
     "bootstrap-vue": "2.0.0-rc.26",
     "d3": "5.9.7",
     "highcharts": "7.1.2",
+    "js-file-download": "^0.4.7",
     "moment-timezone": "0.5.26",
     "v-calendar": "0.9.7",
     "vue": "2.6.10",

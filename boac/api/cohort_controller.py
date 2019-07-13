@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import is_unauthorized_search
+from boac.api.util import is_unauthorized_search, response_with_students_csv_download
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
 from boac.merged import calnet
@@ -134,7 +134,7 @@ def get_cohort(cohort_id):
 @app.route('/api/cohort/get_students_per_filters', methods=['POST'])
 @login_required
 def get_cohort_per_filters():
-    benchmark = get_benchmarker(f'cohort get_students_per_filters')
+    benchmark = get_benchmarker('cohort get_students_per_filters')
     benchmark('begin')
     params = request.get_json()
     filters = get_param(params, 'filters', [])
@@ -161,6 +161,28 @@ def get_cohort_per_filters():
     _decorate_cohort(cohort)
     benchmark('end')
     return tolerant_jsonify(cohort)
+
+
+@app.route('/api/cohort/download_csv_per_filters', methods=['POST'])
+@login_required
+def download_csv_per_filters():
+    benchmark = get_benchmarker('cohort download_csv_per_filters')
+    benchmark('begin')
+    filters = get_param(request.get_json(), 'filters', [])
+    if not filters:
+        raise BadRequestError('API requires \'filters\'')
+    filter_keys = list(map(lambda f: f['key'], filters))
+    if is_unauthorized_search(filter_keys):
+        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
+    cohort = CohortFilter.construct_phantom_cohort(
+        filters=filters,
+        offset=0,
+        limit=None,
+        include_profiles=False,
+        include_sids=True,
+        include_students=False,
+    )
+    return response_with_students_csv_download(sids=cohort['sids'], benchmark=benchmark)
 
 
 @app.route('/api/cohort/create', methods=['POST'])

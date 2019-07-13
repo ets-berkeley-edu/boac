@@ -26,7 +26,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from functools import wraps
 import json
 
-from boac.externals.data_loch import get_sis_holds
+from boac.externals.data_loch import get_sis_holds, get_student_profiles
+from boac.lib.http import response_with_csv_download
 from boac.merged import calnet
 from boac.merged.advising_note import get_advising_notes
 from boac.models.alert import Alert
@@ -209,7 +210,7 @@ def get_my_curated_groups():
     return curated_groups
 
 
-def is_unauthorized_search(filter_keys, order_by):
+def is_unauthorized_search(filter_keys, order_by=None):
     filter_key_set = set(filter_keys)
     asc_keys = {'inIntensiveCohort', 'isInactiveAsc', 'groupCodes'}
     if list(filter_key_set & asc_keys) or order_by in ['group_name']:
@@ -220,3 +221,27 @@ def is_unauthorized_search(filter_keys, order_by):
         if not current_user.is_coe_authorized:
             return True
     return False
+
+
+def response_with_students_csv_download(sids, benchmark):
+    rows = []
+    for student in get_student_profiles(sids=sids):
+        profile = student.get('profile')
+        profile = profile and json.loads(profile)
+        rows.append({
+            'first_name': profile.get('firstName'),
+            'last_name': profile.get('lastName'),
+            'sid': profile.get('sid'),
+            'email': profile.get('sisProfile', {}).get('emailAddress'),
+            'phone': profile.get('sisProfile', {}).get('phoneNumber'),
+        })
+    benchmark('end')
+
+    def _norm(row, key):
+        value = row.get(key)
+        return value and value.upper()
+    return response_with_csv_download(
+        rows=sorted(rows, key=lambda r: (_norm(r, 'last_name'), _norm(r, 'first_name'), _norm(r, 'sid'))),
+        filename_prefix='cohort',
+        fieldnames=['first_name', 'last_name', 'sid', 'email', 'phone'],
+    )

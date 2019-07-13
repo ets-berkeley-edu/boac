@@ -591,24 +591,26 @@ class TestCohortPerFilters:
     """Cohort API."""
 
     @classmethod
-    def _post(cls, client, json_data=()):
-        return client.post(
+    def _api_get_students_per_filters(cls, client, json_data=(), expected_status_code=200):
+        response = client.post(
             '/api/cohort/get_students_per_filters',
             data=json.dumps(json_data),
             content_type='application/json',
         )
+        assert response.status_code == expected_status_code
+        return response.json
 
     def test_students_per_filters_not_authenticated(self, client):
         """API requires authentication."""
-        assert self._post(client).status_code == 401
+        self._api_get_students_per_filters(client, expected_status_code=401)
 
     def test_students_per_filters_with_empty(self, client, coe_advisor_login):
         """API requires non-empty input."""
-        assert self._post(client, {'filters': []}).status_code == 400
+        self._api_get_students_per_filters(client, {'filters': []}, expected_status_code=400)
 
     def test_students_per_filters_unauthorized(self, client, asc_advisor_login):
         """ASC advisor is not allowed to query with COE attributes."""
-        response = self._post(
+        self._api_get_students_per_filters(
             client,
             {
                 'filters':
@@ -620,14 +622,14 @@ class TestCohortPerFilters:
                         },
                     ],
             },
+            expected_status_code=403,
         )
-        assert response.status_code == 403
 
     def test_students_per_filters_coe_advisor(self, client, coe_advisor_login):
         """API translates 'coeProbation' filter to proper filter_criteria query."""
         gpa_range_1 = 'numrange(0, 2, \'[)\')'
         gpa_range_2 = 'numrange(2, 2.5, \'[)\')'
-        response = self._post(
+        api_json = self._api_get_students_per_filters(
             client,
             {
                 'filters':
@@ -655,11 +657,9 @@ class TestCohortPerFilters:
                     ],
             },
         )
-        assert response.status_code == 200
-        cohort = response.json
-        assert 'totalStudentCount' in cohort
-        assert 'students' in cohort
-        criteria = cohort['criteria']
+        assert 'totalStudentCount' in api_json
+        assert 'students' in api_json
+        criteria = api_json['criteria']
         assert criteria['coeProbation'] is not None
         assert criteria['lastNameRange'] is not None
         gpa_ranges = criteria['gpaRanges']
@@ -683,7 +683,7 @@ class TestCohortPerFilters:
             assert criteria[key] is None
 
     def _get_defensive_line(self, client, inactive_asc, order_by):
-        response = self._post(
+        api_json = self._api_get_students_per_filters(
             client,
             {
                 'filters':
@@ -702,8 +702,7 @@ class TestCohortPerFilters:
                 'orderBy': order_by,
             },
         )
-        assert response.status_code == 200
-        return response.json['students']
+        return api_json['students']
 
     def test_students_per_filters_order_by(self, client, asc_advisor_login):
         def _get_first_student(order_by):
@@ -739,7 +738,7 @@ class TestCohortPerFilters:
         assert is_active_asc(students[3]) is True
 
     def test_filter_expected_grad_term(self, client, coe_advisor_login):
-        response = self._post(
+        api_json = self._api_get_students_per_filters(
             client,
             {
                 'filters':
@@ -752,12 +751,13 @@ class TestCohortPerFilters:
                     ],
             },
         )
-        assert len(response.json['students']) == 2
-        for student in response.json['students']:
+        students = api_json['students']
+        assert len(students) == 2
+        for student in students:
             assert student['expectedGraduationTerm']['name'] == 'Spring 2020'
 
     def test_filter_transfer(self, client, coe_advisor_login):
-        response = self._post(
+        api_json = self._api_get_students_per_filters(
             client,
             {
                 'filters':
@@ -770,9 +770,76 @@ class TestCohortPerFilters:
                     ],
             },
         )
-        assert len(response.json['students']) == 2
-        for student in response.json['students']:
+        students = api_json['students']
+        assert len(students) == 2
+        for student in students:
             assert student['transfer'] is True
+
+
+class TestDownloadCsvPerFilters:
+    """Download Cohort CSV API."""
+
+    @classmethod
+    def _api_download_csv_per_filters(cls, client, json_data=(), expected_status_code=200):
+        response = client.post(
+            '/api/cohort/download_csv_per_filters',
+            data=json.dumps(json_data),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_download_csv_not_authenticated(self, client):
+        """API requires authentication."""
+        self._api_download_csv_per_filters(client, expected_status_code=401)
+
+    def test_download_csv_with_empty(self, client, coe_advisor_login):
+        """API requires non-empty input."""
+        self._api_download_csv_per_filters(client, {'filters': ()}, expected_status_code=400)
+
+    def test_download_csv_unauthorized(self, client, asc_advisor_login):
+        """ASC advisor is not allowed to query with COE attributes."""
+        self._api_download_csv_per_filters(
+            client,
+            {
+                'filters':
+                    [
+                        {
+                            'key': 'coeProbation',
+                            'type': 'boolean',
+                            'value': 'true',
+                        },
+                    ],
+            },
+            expected_status_code=403,
+        )
+
+    def test_download_csv(self, client, coe_advisor_login):
+        """Advisor can download CSV with ALL students of cohort."""
+        data = {
+            'filters':
+                [
+                    {
+                        'key': 'lastNameRange',
+                        'type': 'range',
+                        'value': ['A', 'Z'],
+                    },
+                ],
+        }
+        response = client.post(
+            '/api/cohort/download_csv_per_filters',
+            data=json.dumps(data),
+            content_type='application/json',
+        )
+        assert response.status_code == 200
+        assert 'csv' in response.content_type
+        csv = str(response.data)
+        for snippet in [
+            'first_name,last_name,sid,email,phone',
+            'Nora Stanton,Barney,9100000000,,415/123-4567',
+            'Siegfried,Schlemiel,890127492,,415/123-4567',
+        ]:
+            assert str(snippet) in csv
 
 
 class TestAllCohortFilterOptions:
