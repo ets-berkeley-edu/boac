@@ -1,4 +1,5 @@
 import axios from 'axios';
+import moment from 'moment-timezone';
 import store from '@/store';
 import utils from '@/api/api-utils';
 
@@ -46,6 +47,14 @@ export function deleteCuratedGroup(id) {
       });
     })
     .catch(error => error);
+}
+
+export function downloadCuratedGroupCsv(id: number, name: string) {
+  const fileDownload = require('js-file-download');
+  const now = moment().format('YYYY-MM-DD_HH-mm-ss');
+  return axios
+    .get(`${utils.apiBaseUrl()}/api/curated_group/${id}/download_csv`)
+    .then(response => fileDownload(response.data, `${name}-students-${now}.csv`), () => null);
 }
 
 export function getCuratedGroup(

@@ -58,7 +58,7 @@
           <b-btn
             id="delete-button"
             v-b-modal="'confirm-delete-modal'"
-            class="pl-2 pr-0 pt-0"
+            class="pl-2 pr-2 pt-0"
             variant="link"
             aria-label="Delete this cohort">
             Delete
@@ -75,6 +75,18 @@
               :cancel-delete-modal="cancelDeleteModal"
               :delete-cohort="cohortDelete" />
           </b-modal>
+        </div>
+        <div v-if="cohortId && size(filters) && totalStudentCount && !isModifiedSinceLastSearch" class="faint-text">|</div>
+        <div>
+          <b-btn
+            v-if="totalStudentCount && !isModifiedSinceLastSearch"
+            id="export-student-list-button"
+            class="no-wrap pl-2 pr-0 pt-0"
+            variant="link"
+            aria-label="Download CSV file containing all students"
+            @click.prevent="downloadCsvPerFilters()">
+            Export List
+          </b-btn>
         </div>
       </div>
     </div>

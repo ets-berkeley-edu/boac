@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import {
   createCohort,
+  downloadCsv,
   getCohort,
   getCohortFilterOptions,
   getStudentsPerFilters,
@@ -192,6 +193,11 @@ const actions = {
           resolve();
         }
       );
+    });
+  },
+  downloadCsvPerFilters: ({ state }) => {
+    return new Promise(resolve => {
+      downloadCsv(state.cohortName, state.filters).then(() => resolve);
     });
   },
   loadCohort: ({commit}, {id, orderBy} ) => {

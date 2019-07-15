@@ -113,6 +113,16 @@
             </div>
           </b-modal>
         </div>
+        <div v-if="curatedGroup.studentCount" class="faint-text">|</div>
+        <div v-if="curatedGroup.studentCount">
+          <b-btn
+            id="export-student-list-button"
+            variant="link"
+            aria-label="Download CSV file containing all students"
+            @click="downloadCsv()">
+            Export List
+          </b-btn>
+        </div>
       </div>
     </div>
   </div>
@@ -123,7 +133,7 @@ import Loading from '@/mixins/Loading.vue';
 import router from '@/router';
 import Util from '@/mixins/Util';
 import Validator from '@/mixins/Validator.vue';
-import { deleteCuratedGroup, renameCuratedGroup } from '@/api/curated';
+import { deleteCuratedGroup, downloadCuratedGroupCsv, renameCuratedGroup } from '@/api/curated';
 
 export default {
   name: 'CuratedGroupHeader',
@@ -170,6 +180,9 @@ export default {
         .catch(error => {
           this.error = error;
         });
+    },
+    downloadCsv() {
+      downloadCuratedGroupCsv(this.curatedGroup.id, this.curatedGroup.name);
     },
     rename() {
       this.renameError = this.validateCohortName({

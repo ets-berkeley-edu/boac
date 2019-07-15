@@ -223,6 +223,7 @@ class CohortFilter(Base, UserMixin):
         limit=50,
         alert_offset=None,
         alert_limit=None,
+        include_sids=False,
         include_students=True,
         include_profiles=False,
         include_alerts_for_user_id=None,
@@ -326,7 +327,9 @@ class CohortFilter(Base, UserMixin):
         benchmark('end students query')
 
         if results:
-            # We deliberately keep SIDs out of the feed. For now, it is only used server-side in bulk note creation.
+            # Cohort might have tens of thousands of SIDs.
+            if include_sids:
+                cohort_json['sids'] = results['sids']
             cohort_json.update({
                 'totalStudentCount': results['totalStudentCount'],
             })

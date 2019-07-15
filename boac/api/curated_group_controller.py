@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import get_my_curated_groups
+from boac.api.util import get_my_curated_groups, response_with_students_csv_download
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker
 from boac.merged.student import get_summary_student_profiles
@@ -77,6 +77,19 @@ def get_curated_group(curated_group_id):
     order_by = get_param(request.args, 'orderBy', 'last_name')
     curated_group = _curated_group_with_complete_student_profiles(curated_group_id, order_by, int(offset), int(limit))
     return tolerant_jsonify(curated_group)
+
+
+@app.route('/api/curated_group/<curated_group_id>/download_csv')
+@login_required
+def download_csv(curated_group_id):
+    benchmark = get_benchmarker(f'curated group {curated_group_id} download_csv')
+    benchmark('begin')
+    curated_group = CuratedGroup.find_by_id(curated_group_id)
+    if not curated_group:
+        raise ResourceNotFoundError(f'No curated group found with id: {curated_group_id}')
+    if curated_group.owner_id != current_user.get_id():
+        raise ForbiddenRequestError(f'Current user, {current_user.get_uid()}, does not own curated group {curated_group.id}')
+    return response_with_students_csv_download(sids=CuratedGroup.get_all_sids(curated_group_id), benchmark=benchmark)
 
 
 @app.route('/api/curated_group/<curated_group_id>/students_with_alerts')

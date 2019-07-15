@@ -26,6 +26,7 @@ export default {
       'addFilter',
       'applyFilters',
       'createCohort',
+      'downloadCsvPerFilters',
       'init',
       'removeFilter',
       'renameCohort',

@@ -364,12 +364,48 @@ class TestUpdateCuratedGroup:
 class TestDeleteCuratedGroup:
     """Curated Group API."""
 
+    def test_not_authenticated(self, asc_curated_groups, client):
+        """Anonymous user is rejected."""
+        response = client.delete(f'/api/curated_group/delete/{asc_curated_groups[0].id}')
+        assert response.status_code == 401
+
+    def test_unauthorized(self, asc_curated_groups, admin_user_session, client):
+        """403 if user does not own the group."""
+        response = client.delete(f'/api/curated_group/delete/{asc_curated_groups[0].id}')
+        assert response.status_code == 403
+
     def test_delete_group(self, asc_advisor, client):
         """Delete curated group."""
         group = _api_create_group(client, name='Mellow Together')
         group_id = group['id']
         assert client.delete(f'/api/curated_group/delete/{group_id}').status_code == 200
         assert client.get(f'/api/curated_group/{group_id}').status_code == 404
+
+
+class TestDownloadCuratedGroupCSV:
+    """Download Curated Group CSV API."""
+
+    def test_download_csv_not_authenticated(self, asc_curated_groups, client):
+        """Anonymous user is rejected."""
+        response = client.get(f'/api/curated_group/{asc_curated_groups[0].id}/download_csv')
+        assert response.status_code == 401
+
+    def test_download_csv_unauthorized(self, asc_curated_groups, admin_user_session, client):
+        """403 if user does not own the group."""
+        response = client.get(f'/api/curated_group/{asc_curated_groups[0].id}/download_csv')
+        assert response.status_code == 403
+
+    def test_download_csv(self, asc_advisor, asc_curated_groups, client):
+        """Advisor can download CSV with ALL students of group."""
+        response = client.get(f'/api/curated_group/{asc_curated_groups[0].id}/download_csv')
+        assert response.status_code == 200
+        assert 'csv' in response.content_type
+        csv = str(response.data)
+        for snippet in [
+            'first_name,last_name,sid,email,phone',
+            'Deborah,Davies,11667051,oski@berkeley.edu,415/123-4567',
+        ]:
+            assert str(snippet) in csv
 
 
 def _api_create_group(client, expected_status_code=200, name=None, sids=()):
