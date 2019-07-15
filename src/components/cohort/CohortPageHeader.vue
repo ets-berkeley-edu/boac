@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="!cohortId && totalStudentCount === undefined">
+    <div v-if="!cohortId && totalStudentCount === undefined" class="mb-2">
       <h1
         id="create-cohort-h1"
         class="page-section-header"
@@ -31,9 +31,8 @@
         </h1>
       </div>
       <div class="d-flex align-self-baseline mr-4">
-        <div>
+        <div v-if="cohortId && size(filters)">
           <b-btn
-            v-if="cohortId && size(filters)"
             id="show-hide-details-button"
             class="no-wrap pr-2 p-0"
             variant="link"
@@ -76,13 +75,13 @@
               :delete-cohort="cohortDelete" />
           </b-modal>
         </div>
-        <div v-if="cohortId && size(filters) && totalStudentCount && !isModifiedSinceLastSearch" class="faint-text">|</div>
-        <div>
+        <div v-if="(cohortId && isOwnedByCurrentUser) || (cohortId && size(filters))" class="faint-text">|</div>
+        <div v-if="cohortId || totalStudentCount !== undefined">
           <b-btn
-            v-if="totalStudentCount && !isModifiedSinceLastSearch"
             id="export-student-list-button"
             class="no-wrap pl-2 pr-0 pt-0"
             variant="link"
+            :disabled="!totalStudentCount || isModifiedSinceLastSearch"
             aria-label="Download CSV file containing all students"
             @click.prevent="downloadCsvPerFilters()">
             Export List

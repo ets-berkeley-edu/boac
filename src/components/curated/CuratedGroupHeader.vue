@@ -113,11 +113,12 @@
             </div>
           </b-modal>
         </div>
-        <div v-if="curatedGroup.studentCount" class="faint-text">|</div>
-        <div v-if="curatedGroup.studentCount">
+        <div class="faint-text">|</div>
+        <div>
           <b-btn
             id="export-student-list-button"
             variant="link"
+            :disabled="!curatedGroup.studentCount"
             aria-label="Download CSV file containing all students"
             @click="downloadCsv()">
             Export List
