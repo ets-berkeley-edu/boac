@@ -7,6 +7,7 @@
       name="autocomplete-name"
       type="text"
       autocomplete="off"
+      :class="{'obfuscate-form-input': demoModeBlur && user.inDemoMode}"
       :disabled="disabled"
       :placeholder="placeholder"
       @input="onTextInput"
@@ -43,6 +44,7 @@
             :id="`${id}-suggestion-${i}`"
             role="menuitem"
             class="dropdown-item"
+            :class="{'demo-mode-blur': demoModeBlur && user.inDemoMode}"
             href="#"
             @click="selectSuggestion(suggestion)"
             @keyup.enter="selectSuggestion(suggestion)">
@@ -55,12 +57,18 @@
 </template>
 
 <script>
+import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'Autocomplete',
-  mixins: [ Util ],
+  mixins: [UserMetadata, Util],
   props: {
+    demoModeBlur: {
+      default: false,
+      required: false,
+      type: Boolean
+    },
     disabled: {
       default: false,
       required: false,
