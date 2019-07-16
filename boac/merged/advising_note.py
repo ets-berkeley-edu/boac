@@ -327,7 +327,15 @@ def _resolve_created_at(note):
 def _resolve_updated_at(note):
     # Notes converted from pre-CS legacy systems have an updated_at value indicating (probably)
     # time of conversion rather than an update by a human.
-    return None if note.get('createdBy') == 'UCBCONVERSION' else _isoformat(note, 'updatedAt')
+    if note.get('createdBy') == 'UCBCONVERSION':
+        return None
+    else:
+        updated_at = note.get('updatedAt')
+        created_at = note.get('createdAt')
+        if created_at and updated_at and _tzinfo(updated_at) == _tzinfo(created_at):
+            return _isoformat(note, 'updatedAt') if (updated_at - created_at).seconds else None
+        else:
+            return _isoformat(note, 'updatedAt')
 
 
 def _get_sis_advising_note_topics(sid):
@@ -435,3 +443,7 @@ def _notes_text_snippet(note_body, search_terms):
             return tag_stripped_body[0:end_position] + '...'
         else:
             return tag_stripped_body
+
+
+def _tzinfo(_datetime):
+    return _datetime and _datetime.tzinfo

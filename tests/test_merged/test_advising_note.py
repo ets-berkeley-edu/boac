@@ -53,7 +53,7 @@ class TestMergedAdvisingNote:
         assert notes[0]['createdBy'] is None
         assert parse(notes[0]['createdAt']) == parse('2017-10-31T12:00:00+00:00')
         assert notes[0]['updatedBy'] is None
-        assert parse(notes[0]['updatedAt']) == parse('2017-10-31T12:00:00+00:00')
+        assert notes[0]['updatedAt'] is None
         assert notes[0]['read'] is False
         assert notes[0]['topics'] == ['God Scéaw']
         assert notes[1]['id'] == '11667051-00002'
@@ -65,7 +65,7 @@ class TestMergedAdvisingNote:
         assert notes[1]['createdBy'] is None
         assert parse(notes[1]['createdAt']) == parse('2017-11-01T12:00:00+00')
         assert notes[1]['updatedBy'] is None
-        assert parse(notes[1]['updatedAt']) == parse('2017-11-01T12:00:00+00')
+        assert notes[1]['updatedAt'] is None
         assert notes[1]['read'] is False
         assert notes[1]['topics'] == ['Earg Scéaw', 'Ofscéaw']
 
@@ -77,7 +77,7 @@ class TestMergedAdvisingNote:
         assert notes[4]['author']['name'] == 'Lemmy Kilmister'
         assert notes[4]['topics'] == ['Academic', 'Other']
         assert notes[4]['createdAt']
-        assert notes[4]['updatedAt']
+        assert notes[4]['updatedAt'] is None
         assert notes[4]['read'] is False
         assert notes[5]['id'] == '11667051-139379'
         assert notes[5]['sid'] == '11667051'
@@ -86,7 +86,7 @@ class TestMergedAdvisingNote:
         assert notes[5]['author']['name'] == 'Ginger Baker'
         assert notes[5]['topics'] is None
         assert notes[5]['createdAt']
-        assert notes[5]['updatedAt']
+        assert notes[5]['updatedAt'] is None
         assert notes[5]['read'] is False
 
         # Non-legacy note
@@ -102,7 +102,7 @@ class TestMergedAdvisingNote:
         assert boa_created_note['createdBy'] is None
         assert boa_created_note['createdAt']
         assert boa_created_note['updatedBy'] is None
-        assert boa_created_note['updatedAt']
+        assert boa_created_note['updatedAt'] is None
         assert boa_created_note['read'] is False
         assert boa_created_note['topics'] == []
         assert len(boa_created_note['attachments']) == 1
@@ -155,7 +155,7 @@ class TestMergedAdvisingNote:
         assert notes[0]['advisorSid'] == '600500400'
         assert notes[0]['id'] == '11667051-00003'
         assert parse(notes[0]['createdAt']) == parse('2017-11-05T12:00:00+00')
-        assert parse(notes[0]['updatedAt']) == parse('2017-11-06T12:00:00+00')
+        assert notes[0]['updatedAt'] is None
 
     def test_search_advising_notes_by_category(self, app, fake_auth):
         """Matches legacy category/subcategory for SIS advising notes only if body is blank."""
@@ -171,13 +171,13 @@ class TestMergedAdvisingNote:
         assert response[0]['noteSnippet'] == ''
         assert response[0]['advisorName'] == 'Lemmy Kilmister'
         assert parse(response[0]['createdAt']) == parse('2014-01-03T20:30:00+00')
-        assert parse(response[0]['updatedAt']) == parse('2014-01-03T20:30:00+00')
+        assert response[0]['updatedAt'] is None
         response = search_advising_notes(search_phrase='academic')
         assert len(response) == 1
         assert response[0]['noteSnippet'] == ''
         assert response[0]['advisorName'] == 'Lemmy Kilmister'
         assert parse(response[0]['createdAt']) == parse('2014-01-03T20:30:00+00')
-        assert parse(response[0]['updatedAt']) == parse('2014-01-03T20:30:00+00')
+        assert response[0]['updatedAt'] is None
 
     def test_search_advising_notes_stemming(self, app, fake_auth):
         fake_auth.login(coe_advisor)
@@ -247,7 +247,8 @@ class TestMergedAdvisingNote:
         cs_note = response[1]
         assert ucbconversion_note['createdAt']
         assert ucbconversion_note['updatedAt'] is None
-        assert cs_note['createdAt'] and cs_note['updatedAt']
+        assert cs_note['createdAt']
+        assert cs_note['updatedAt'] is None
 
     def test_search_advising_notes_includes_newly_created(self, app, fake_auth):
         fake_auth.login(coe_advisor)
