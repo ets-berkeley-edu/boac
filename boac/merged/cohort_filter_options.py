@@ -253,8 +253,8 @@ def _get_filter_options(scope, cohort_owner_uid):
             {
                 'availableTo': ['COENG'],
                 'defaultValue': None,
-                'key': 'advisorLdapUids',
-                'name': 'Advisor',
+                'key': 'coeAdvisorLdapUids',
+                'name': 'Advisor (COE)',
                 'options': _get_coe_profiles,
                 'subcategoryHeader': 'Choose...',
                 'type': 'array',

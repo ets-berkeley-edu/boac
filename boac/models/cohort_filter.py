@@ -234,9 +234,9 @@ class CohortFilter(Base):
         benchmark('begin')
         c = self.filter_criteria
         c = c if isinstance(c, dict) else json.loads(c)
-        advisor_ldap_uids = util.get(c, 'advisorLdapUids')
-        if not isinstance(advisor_ldap_uids, list):
-            advisor_ldap_uids = [advisor_ldap_uids] if advisor_ldap_uids else None
+        coe_advisor_ldap_uids = util.get(c, 'coeAdvisorLdapUids')
+        if not isinstance(coe_advisor_ldap_uids, list):
+            coe_advisor_ldap_uids = [coe_advisor_ldap_uids] if coe_advisor_ldap_uids else None
         cohort_name = self.name
         cohort_json = {
             'id': self.id,
@@ -271,7 +271,7 @@ class CohortFilter(Base):
         unit_ranges = c.get('unitRanges')
         cohort_json.update({
             'criteria': {
-                'advisorLdapUids': advisor_ldap_uids,
+                'coeAdvisorLdapUids': coe_advisor_ldap_uids,
                 'coeGenders': coe_genders,
                 'coePrepStatuses': coe_prep_statuses,
                 'coeProbation': coe_probation,
@@ -317,8 +317,8 @@ class CohortFilter(Base):
             advisor_plan_mappings = None
 
         results = query_students(
-            advisor_ldap_uids=advisor_ldap_uids,
             advisor_plan_mappings=advisor_plan_mappings,
+            coe_advisor_ldap_uids=coe_advisor_ldap_uids,
             coe_genders=coe_genders,
             coe_prep_statuses=coe_prep_statuses,
             coe_probation=coe_probation,

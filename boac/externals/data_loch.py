@@ -581,8 +581,8 @@ def get_majors():
 
 
 def get_students_query(     # noqa
-    advisor_ldap_uids=None,
     advisor_plan_mappings=None,
+    coe_advisor_ldap_uids=None,
     coe_genders=None,
     coe_prep_statuses=None,
     coe_probation=None,
@@ -691,9 +691,9 @@ def get_students_query(     # noqa
         query_bindings.update({'group_codes': group_codes})
 
     # COE criteria
-    if advisor_ldap_uids:
-        query_filter += ' AND s.advisor_ldap_uid = ANY(:advisor_ldap_uids)'
-        query_bindings.update({'advisor_ldap_uids': advisor_ldap_uids})
+    if coe_advisor_ldap_uids:
+        query_filter += ' AND s.advisor_ldap_uid = ANY(:coe_advisor_ldap_uids)'
+        query_bindings.update({'coe_advisor_ldap_uids': coe_advisor_ldap_uids})
     if coe_prep_statuses:
         query_filter += ' AND (' + ' OR '.join([f's.{cps} IS TRUE' for cps in coe_prep_statuses]) + ')'
     if ethnicities:
