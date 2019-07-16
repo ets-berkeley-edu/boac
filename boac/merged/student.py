@@ -250,10 +250,10 @@ def get_term_gpas_by_sid(sids, as_dicts=False):
 def query_students(
     advisor_plan_mappings=None,
     coe_advisor_ldap_uids=None,
+    coe_ethnicities=None,
     coe_genders=None,
     coe_prep_statuses=None,
     coe_probation=None,
-    ethnicities=None,
     expected_grad_terms=None,
     genders=None,
     gpa_ranges=None,
@@ -278,10 +278,10 @@ def query_students(
     criteria = {
         'advisor_plan_mappings': advisor_plan_mappings,
         'coe_advisor_ldap_uids': coe_advisor_ldap_uids,
+        'coe_ethnicities': coe_ethnicities,
         'coe_genders': coe_genders,
         'coe_prep_statuses': coe_prep_statuses,
         'coe_probation': coe_probation,
-        'ethnicities': ethnicities,
         'genders': genders,
         'group_codes': group_codes,
         'in_intensive_cohort': in_intensive_cohort,
@@ -296,10 +296,10 @@ def query_students(
     query_tables, query_filter, query_bindings = data_loch.get_students_query(
         advisor_plan_mappings=advisor_plan_mappings,
         coe_advisor_ldap_uids=coe_advisor_ldap_uids,
+        coe_ethnicities=coe_ethnicities,
         coe_genders=coe_genders,
         coe_prep_statuses=coe_prep_statuses,
         coe_probation=coe_probation,
-        ethnicities=ethnicities,
         expected_grad_terms=expected_grad_terms,
         genders=genders,
         gpa_ranges=gpa_ranges,
@@ -446,10 +446,10 @@ def scope_for_criteria(**kwargs):
         'COENG': [
             'is_active_coe',
             'coe_advisor_ldap_uids',
+            'coe_ethnicities',
             'coe_genders',
             'coe_prep_statuses',
             'coe_probation',
-            'ethnicities',
             'underrepresented',
         ],
     }
