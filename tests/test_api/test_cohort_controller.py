@@ -691,7 +691,7 @@ class TestCohortPerFilters:
         assert gpa_range_1 in gpa_ranges
         assert gpa_range_2 in gpa_ranges
         for key in [
-            'advisorLdapUids',
+            'coeAdvisorLdapUids',
             'ethnicities',
             'expectedGradTerms',
             'genders',
@@ -1008,7 +1008,7 @@ class TestAllCohortFilterOptions:
                         self._level_option('Sophomore'),
                         self._level_option('Junior'),
                         {
-                            'key': 'advisorLdapUids',
+                            'key': 'coeAdvisorLdapUids',
                             'type': 'array',
                             'value': '1022796',
                         },

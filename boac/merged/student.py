@@ -248,8 +248,8 @@ def get_term_gpas_by_sid(sids, as_dicts=False):
 
 
 def query_students(
-    advisor_ldap_uids=None,
     advisor_plan_mappings=None,
+    coe_advisor_ldap_uids=None,
     coe_genders=None,
     coe_prep_statuses=None,
     coe_probation=None,
@@ -276,8 +276,8 @@ def query_students(
 ):
 
     criteria = {
-        'advisor_ldap_uids': advisor_ldap_uids,
         'advisor_plan_mappings': advisor_plan_mappings,
+        'coe_advisor_ldap_uids': coe_advisor_ldap_uids,
         'coe_genders': coe_genders,
         'coe_prep_statuses': coe_prep_statuses,
         'coe_probation': coe_probation,
@@ -294,8 +294,8 @@ def query_students(
     scope = scope_for_criteria(**criteria)
 
     query_tables, query_filter, query_bindings = data_loch.get_students_query(
-        advisor_ldap_uids=advisor_ldap_uids,
         advisor_plan_mappings=advisor_plan_mappings,
+        coe_advisor_ldap_uids=coe_advisor_ldap_uids,
         coe_genders=coe_genders,
         coe_prep_statuses=coe_prep_statuses,
         coe_probation=coe_probation,
@@ -444,8 +444,8 @@ def scope_for_criteria(**kwargs):
             'group_name',
         ],
         'COENG': [
-            'advisor_ldap_uids',
             'is_active_coe',
+            'coe_advisor_ldap_uids',
             'coe_genders',
             'coe_prep_statuses',
             'coe_probation',

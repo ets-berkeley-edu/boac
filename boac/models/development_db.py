@@ -262,7 +262,7 @@ def create_cohorts():
         uid=coe_advisor_uid,
         name='Roberta\'s Students',
         filter_criteria={
-            'advisorLdapUids': [coe_advisor_uid],
+            'coeAdvisorLdapUids': [coe_advisor_uid],
         },
     )
     CohortFilter.create(
