@@ -132,10 +132,25 @@ class TestNoteCreation:
         assert 'name' in new_note['author']
         assert new_note['author']['role'] == 'Advisor'
         assert new_note['author']['departments'][0]['name'] == 'College of Engineering'
+        assert new_note['updatedAt'] is None
         # Get notes per SID and compare
         notes = _get_notes(client, coe_student['uid'])
         match = next((n for n in notes if n['id'] == note_id), None)
         assert match and match['subject'] == subject
+
+    def test_updated_date_is_none_when_note_create(self, app, client, fake_auth):
+        """Create a note and expect none updated_at."""
+        fake_auth.login(coe_advisor_uid)
+        note = _api_note_create(
+            app,
+            client,
+            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+            sid=coe_student['sid'],
+            subject='Creating is not updating',
+            body=None,
+        )
+        assert note['createdAt'] is not None
+        assert note['updatedAt'] is None
 
     def test_create_note_with_topics(self, app, client, fake_auth):
         """Create a note with topics."""
@@ -153,6 +168,8 @@ class TestNoteCreation:
         assert note.get('topics')[0] == 'Collaborative Synergies'
         assert note.get('topics')[1] == 'Integrated Architectures'
         assert note.get('topics')[2] == 'Vertical Solutions'
+        assert note['createdAt'] is not None
+        assert note['updatedAt'] is None
 
     def test_create_note_with_raw_url_in_body(self, app, client, fake_auth):
         """Create a note with topics."""
@@ -167,6 +184,8 @@ class TestNoteCreation:
         )
         expected_body = 'Get an online degree at <a href="http://send.money.edu" target="_blank">send.money.edu</a> university'
         assert note.get('body') == expected_body
+        assert note['createdAt'] is not None
+        assert note['updatedAt'] is None
 
     def test_create_note_with_attachments(self, app, client, fake_auth):
         """Create a note, with two attachments."""
@@ -185,6 +204,8 @@ class TestNoteCreation:
             ],
         )
         assert len(note.get('attachments')) == 2
+        assert note['createdAt'] is not None
+        assert note['updatedAt'] is None
 
 
 class TestBatchNoteCreation:
@@ -304,6 +325,7 @@ class TestNoteAttachments:
             body='I travel light',
         )
         note_id = note['id']
+        assert note['updatedAt'] is None
         with mock_advising_note_s3_bucket(app):
             data = {'attachment[0]': open(f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt', 'rb')}
             response = client.post(
@@ -313,8 +335,10 @@ class TestNoteAttachments:
                 data=data,
             )
         assert response.status_code == 200
-        assert len(response.json['attachments']) == 1
-        assert response.json['attachments'][0]['filename'] == 'mock_advising_note_attachment_1.txt'
+        updated_note = response.json
+        assert len(updated_note['attachments']) == 1
+        assert updated_note['attachments'][0]['filename'] == 'mock_advising_note_attachment_1.txt'
+        assert updated_note['updatedAt'] is not None
 
     def test_remove_attachment(self, app, client, fake_auth):
         """Remove an attachment from an existing note."""
@@ -344,6 +368,7 @@ class TestNoteAttachments:
         assert len(match.get('attachments')) == 1
         assert match['attachments'][0]['id'] == id_to_keep
         assert match['attachments'][0]['filename'] == 'mock_advising_note_attachment_2.txt'
+        assert match['updatedAt'] is not None
 
 
 class TestMarkNoteRead:
