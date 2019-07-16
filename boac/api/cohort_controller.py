@@ -244,18 +244,22 @@ def delete_cohort(cohort_id):
         raise ForbiddenRequestError(f'Programmatic deletion of canned cohorts is not allowed (id={cohort_id})')
 
 
-@app.route('/api/cohort/filter_options', methods=['POST'])
+@app.route('/api/cohort/filter_options/<cohort_owner_uid>', methods=['POST'])
 @login_required
-def all_cohort_filter_options():
+def all_cohort_filter_options(cohort_owner_uid):
+    if cohort_owner_uid == 'me':
+        cohort_owner_uid = current_user.get_uid()
     existing_filters = get_param(request.get_json(), 'existingFilters', [])
-    return tolerant_jsonify(get_cohort_filter_options(existing_filters))
+    return tolerant_jsonify(get_cohort_filter_options(cohort_owner_uid, existing_filters))
 
 
-@app.route('/api/cohort/translate_to_filter_options', methods=['POST'])
+@app.route('/api/cohort/translate_to_filter_options/<cohort_owner_uid>', methods=['POST'])
 @login_required
-def translate_cohort_filter_to_menu():
+def translate_cohort_filter_to_menu(cohort_owner_uid):
+    if cohort_owner_uid == 'me':
+        cohort_owner_uid = current_user.get_uid()
     criteria = get_param(request.get_json(), 'criteria')
-    return tolerant_jsonify(translate_to_filter_options(criteria))
+    return tolerant_jsonify(translate_to_filter_options(cohort_owner_uid, criteria))
 
 
 def _decorate_cohort(cohort):

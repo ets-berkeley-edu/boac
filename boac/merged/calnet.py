@@ -66,6 +66,12 @@ def get_calnet_users_for_csids(app, csids):
     return _get_calnet_users(app, 'csid', csids)
 
 
+def get_csid_for_uid(app, uid):
+    user_feed = get_calnet_user_for_uid(app, uid)
+    if user_feed:
+        return user_feed.get('csid')
+
+
 def get_uid_for_csid(app, csid):
     user_feed = get_calnet_user_for_csid(app, csid)
     if user_feed:

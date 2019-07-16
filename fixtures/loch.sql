@@ -3,6 +3,7 @@ DROP SCHEMA IF EXISTS boac_advising_asc cascade;
 DROP SCHEMA IF EXISTS boac_advising_coe cascade;
 DROP SCHEMA IF EXISTS boac_advising_l_s cascade;
 DROP SCHEMA IF EXISTS boac_advising_notes cascade;
+DROP SCHEMA IF EXISTS boac_advisor cascade;
 DROP SCHEMA IF EXISTS boac_analytics cascade;
 DROP SCHEMA IF EXISTS sis_data cascade;
 DROP SCHEMA IF EXISTS student cascade;
@@ -12,6 +13,7 @@ CREATE SCHEMA boac_advising_asc;
 CREATE SCHEMA boac_advising_coe;
 CREATE SCHEMA boac_advising_l_s;
 CREATE SCHEMA boac_advising_notes;
+CREATE SCHEMA boac_advisor;
 CREATE SCHEMA boac_analytics;
 CREATE SCHEMA sis_data;
 CREATE SCHEMA student;
@@ -150,6 +152,19 @@ CREATE TABLE boac_advising_notes.advising_note_attachments
 CREATE TABLE boac_advising_notes.advising_note_topic_mappings (
   boa_topic VARCHAR NOT NULL,
   sis_topic VARCHAR NOT NULL
+);
+
+CREATE TABLE boac_advisor.advisor_students
+(
+   advisor_sid VARCHAR NOT NULL,
+   student_sid VARCHAR NOT NULL,
+   student_uid VARCHAR NOT NULL,
+   advisor_type_code VARCHAR NOT NULL,
+   advisor_type VARCHAR NOT NULL,
+   academic_program_code VARCHAR NOT NULL,
+   academic_program VARCHAR NOT NULL,
+   academic_plan_code VARCHAR NOT NULL,
+   academic_plan VARCHAR NOT NULL
 );
 
 CREATE TABLE boac_analytics.section_mean_gpas
@@ -397,6 +412,22 @@ VALUES
 ('11667051-00001', '11667051', 1, '2017-10-31', 'UCBCONVERSION', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051_00001_1.pdf', 'efac7b10-c3f2-11e4-9bbd-ab6a6597d26f.pdf'),
 ('11667051-00002', '11667051', 2, '2017-10-31', '1234', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051_00002_2.jpeg', 'brigitte_photo.jpeg'),
 ('9000000000-00002', '9000000000', 1, '2017-10-31', '4567', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '9000000000_00002_1.pdf', 'dog_eaten_homework.pdf');
+
+INSERT INTO boac_advisor.advisor_students
+(advisor_sid, student_sid, student_uid, advisor_type_code, advisor_type, academic_program_code, academic_program, academic_plan_code, academic_plan)
+VALUES
+('800700600', '9100000000', '300848', 'COLL', 'College Advisor', 'UCOE', 'Undergrad Engineering', '16288U', 'Bioengineering BS'),
+('800700600', '9000000000', '300847', 'COLL', 'College Advisor', 'UCOE', 'Undergrad Engineering', '162B0U', 'Engineering Undeclared UG'),
+('800700600', '7890123456', '1049291', 'COLL', 'College Advisor', 'UCOE', 'Undergrad Engineering', '162B3U', 'BioE/MSE Joint Major BS'),
+('800700600', '9100000000', '300848', 'MAJ', 'Major Advisor', 'UCOE', 'Undergrad Engineering', '16288U', 'Bioengineering BS'),
+('800700600', '11667051', '61889', 'MIN', 'Minor Advisor', 'UCOE', 'Undergrad Engineering', '16I010U', 'Bioengineering UG'),
+('100200300', '11667051', '61889', 'MAJ', 'Major Advisor', 'UCLS', 'Undergrad Letters & Science', '25345U', 'English BA'),
+('100200300', '2345678901', '98765', 'MAJ', 'Major Advisor', 'UCLS', 'Undergrad Letters & Science', '25345U', 'English BA'),
+('100200300', '3456789012', '242881', 'MAJ', 'Major Advisor', 'UCLS', 'Undergrad Letters & Science', '25345U', 'English BA'),
+('100200300', '7890123456', '1049291', 'MAJ', 'Major Advisor', 'UCLS', 'Undergrad Letters & Science', '25345U', 'English BA'),
+('100200300', '11667051', '61889', 'MIN', 'Minor Advisor', 'UCLS', 'Undergrad Letters & Science', '25I039U', 'English UG'),
+('100200300', '9100000000', '300848', 'MIN', 'Minor Advisor', 'UCOE', 'Undergrad Engineering', '25I039U', 'English UG'),
+('100200300', '5678901234', '9933311', 'MIN', 'Minor Advisor', 'UCLS', 'Undergrad Letters & Science', '25I054U', 'Medieval Studies UG');
 
 INSERT INTO boac_analytics.section_mean_gpas
 (sis_term_id, sis_section_id, gpa_term_id, avg_gpa)

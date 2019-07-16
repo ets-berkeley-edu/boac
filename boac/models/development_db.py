@@ -46,20 +46,20 @@ from sqlalchemy.sql import text
 no_calnet_record_for_uid = '13'
 
 _test_users = [
-    [no_calnet_record_for_uid, True, False],  # This user has no entry in calnet_search_entries
-    ['2040', True, True],
-    ['53791', True, False],
-    ['95509', True, False],
-    ['177473', True, False],
-    ['1133399', False, False],
-    ['211159', True, False],
-    ['242881', True, False],
-    ['1022796', False, False],
-    ['1015674', False, False],
-    ['1049291', True, False],
-    ['1081940', False, False],
-    ['90412', True, False],
-    ['6446', False, False],
+    [no_calnet_record_for_uid, None, True, False],  # This user has no entry in calnet_search_entries
+    ['2040', None, True, True],
+    ['53791', None, True, False],
+    ['95509', None, True, False],
+    ['177473', None, True, False],
+    ['1133399', '800700600', False, False],
+    ['211159', None, True, False],
+    ['242881', None, True, False],
+    ['1022796', None, False, False],
+    ['1015674', None, False, False],
+    ['1049291', None, True, False],
+    ['1081940', '100200300', False, False],
+    ['90412', None, True, False],
+    ['6446', None, False, False],
 ]
 
 _users_per_dept = {
@@ -142,6 +142,7 @@ def load_development_data():
     for test_user in _test_users:
         # This script can be run more than once. Do not create user if s/he exists in BOAC db.
         uid = test_user[0]
+        csid = test_user[1]
         user = AuthorizedUser.find_by_uid(uid=uid)
         if uid != no_calnet_record_for_uid:
             # Put mock CalNet data in our json_cache for all users EXCEPT the test "no_calnet_record" user.
@@ -150,14 +151,15 @@ def load_development_data():
             insert_in_json_cache(
                 f'calnet_user_for_uid_{uid}', {
                     'uid': uid,
-                    'csid': datetime.now().strftime('%H%M%S%f'),
+                    # Mock CSIDs are random unless we need them to match explicit test data elsewhere.
+                    'csid': csid or datetime.now().strftime('%H%M%S%f'),
                     'firstName': first_name,
                     'lastName': last_name,
                     'name': f'{first_name} {last_name}',
                 },
             )
         if not user:
-            user = AuthorizedUser(uid=uid, is_admin=test_user[1], in_demo_mode=test_user[2])
+            user = AuthorizedUser(uid=uid, is_admin=test_user[2], in_demo_mode=test_user[3])
             db.session.add(user)
     for dept_code, users in _users_per_dept.items():
         university_dept = UniversityDept.find_by_dept_code(dept_code)

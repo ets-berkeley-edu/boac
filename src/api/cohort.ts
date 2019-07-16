@@ -49,9 +49,10 @@ export function getCohort(
     .then(response => response.data, () => null);
 }
 
-export function getCohortFilterOptions(existingFilters: any[]) {
+export function getCohortFilterOptions(owner: string, existingFilters: any[]) {
+  owner = owner || 'me';
   return axios
-    .post(`${utils.apiBaseUrl()}/api/cohort/filter_options`, {
+    .post(`${utils.apiBaseUrl()}/api/cohort/filter_options/${owner}`, {
       existingFilters: existingFilters
     })
     .then(response => response.data, () => null);
@@ -109,8 +110,8 @@ export function saveCohort(
     }, () => null);
 }
 
-export function translateToFilterOptions(criteria: any) {
+export function translateToFilterOptions(owner: string, criteria: any) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/cohort/translate_to_filter_options`, { criteria: criteria })
+    .post(`${utils.apiBaseUrl()}/api/cohort/translate_to_filter_options/${owner}`, { criteria: criteria })
     .then(response => response.data, () => null);
 }
