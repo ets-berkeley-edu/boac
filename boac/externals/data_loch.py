@@ -583,10 +583,10 @@ def get_majors():
 def get_students_query(     # noqa
     advisor_plan_mappings=None,
     coe_advisor_ldap_uids=None,
+    coe_ethnicities=None,
     coe_genders=None,
     coe_prep_statuses=None,
     coe_probation=None,
-    ethnicities=None,
     expected_grad_terms=None,
     genders=None,
     gpa_ranges=None,
@@ -694,11 +694,11 @@ def get_students_query(     # noqa
     if coe_advisor_ldap_uids:
         query_filter += ' AND s.advisor_ldap_uid = ANY(:coe_advisor_ldap_uids)'
         query_bindings.update({'coe_advisor_ldap_uids': coe_advisor_ldap_uids})
+    if coe_ethnicities:
+        query_filter += ' AND s.ethnicity = ANY(:coe_ethnicities)'
+        query_bindings.update({'coe_ethnicities': coe_ethnicities})
     if coe_prep_statuses:
         query_filter += ' AND (' + ' OR '.join([f's.{cps} IS TRUE' for cps in coe_prep_statuses]) + ')'
-    if ethnicities:
-        query_filter += ' AND s.ethnicity = ANY(:ethnicities)'
-        query_bindings.update({'ethnicities': ethnicities})
     if genders:
         query_filter += ' AND d.gender = ANY(:genders)'
         query_bindings.update({'genders': genders})

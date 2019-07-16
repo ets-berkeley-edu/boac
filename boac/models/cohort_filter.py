@@ -250,11 +250,11 @@ class CohortFilter(Base):
                 'uid': owner.uid,
                 'deptCodes': [m.university_dept.dept_code for m in owner.department_memberships],
             })
+        coe_ethnicities = c.get('coeEthnicities')
         coe_genders = c.get('coeGenders')
         coe_prep_statuses = c.get('coePrepStatuses')
         coe_probation = util.to_bool_or_none(c.get('coeProbation'))
         cohort_owner_academic_plans = util.get(c, 'cohortOwnerAcademicPlans')
-        ethnicities = c.get('ethnicities')
         expected_grad_terms = c.get('expectedGradTerms')
         genders = c.get('genders')
         gpa_ranges = c.get('gpaRanges')
@@ -272,11 +272,11 @@ class CohortFilter(Base):
         cohort_json.update({
             'criteria': {
                 'coeAdvisorLdapUids': coe_advisor_ldap_uids,
+                'coeEthnicities': coe_ethnicities,
                 'coeGenders': coe_genders,
                 'coePrepStatuses': coe_prep_statuses,
                 'coeProbation': coe_probation,
                 'cohortOwnerAcademicPlans': cohort_owner_academic_plans,
-                'ethnicities': ethnicities,
                 'expectedGradTerms': expected_grad_terms,
                 'genders': genders,
                 'gpaRanges': gpa_ranges,
@@ -319,10 +319,10 @@ class CohortFilter(Base):
         results = query_students(
             advisor_plan_mappings=advisor_plan_mappings,
             coe_advisor_ldap_uids=coe_advisor_ldap_uids,
+            coe_ethnicities=coe_ethnicities,
             coe_genders=coe_genders,
             coe_prep_statuses=coe_prep_statuses,
             coe_probation=coe_probation,
-            ethnicities=ethnicities,
             expected_grad_terms=expected_grad_terms,
             genders=genders,
             gpa_ranges=gpa_ranges,

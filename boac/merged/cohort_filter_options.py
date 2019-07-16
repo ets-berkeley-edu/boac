@@ -155,8 +155,8 @@ def _get_filter_options(scope, cohort_owner_uid):
             {
                 'availableTo': ['COENG'],
                 'defaultValue': None,
-                'key': 'ethnicities',
-                'name': 'Ethnicity',
+                'key': 'coeEthnicities',
+                'name': 'Ethnicity (COE)',
                 'options': _coe_ethnicities,
                 'subcategoryHeader': 'Choose...',
                 'type': 'array',
@@ -400,8 +400,8 @@ def _coe_ethnicities():
 
     def ethnicity(code):
         return COE_ETHNICITIES_PER_CODE.get(code)
-    ethnicities = [{'name': ethnicity(row[key]), 'value': row[key]} for row in rows]
-    return sorted(ethnicities, key=lambda e: e['name'])
+    coe_ethnicities = [{'name': ethnicity(row[key]), 'value': row[key]} for row in rows]
+    return sorted(coe_ethnicities, key=lambda e: e['name'])
 
 
 def _team_groups():

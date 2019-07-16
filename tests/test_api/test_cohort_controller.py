@@ -383,9 +383,9 @@ class TestCohortCreate:
             'name': 'ASC advisor wants to see students of COE advisor',
             'filters': [
                 {
-                    'key': 'coeGenders',
+                    'key': 'coeEthnicities',
                     'type': 'array',
-                    'value': 'Male',
+                    'value': 'Vietnamese',
                 },
             ],
         }
@@ -692,7 +692,7 @@ class TestCohortPerFilters:
         assert gpa_range_2 in gpa_ranges
         for key in [
             'coeAdvisorLdapUids',
-            'ethnicities',
+            'coeEthnicities',
             'expectedGradTerms',
             'genders',
             'groupCodes',
@@ -881,9 +881,9 @@ class TestDownloadCsvPerFilters:
             'filters':
                 [
                     {
-                        'key': 'lastNameRange',
-                        'type': 'range',
-                        'value': ['A', 'Z'],
+                        'key': 'coeEthnicities',
+                        'type': 'array',
+                        'value': ['H', 'B'],
                     },
                 ],
         }
@@ -897,8 +897,9 @@ class TestDownloadCsvPerFilters:
         csv = str(response.data)
         for snippet in [
             'first_name,last_name,sid,email,phone',
-            'Nora Stanton,Barney,9100000000,,415/123-4567',
-            'Siegfried,Schlemiel,890127492,,415/123-4567',
+            'Deborah,Davies,11667051,oski@berkeley.edu,415/123-4567',
+            'Paul,Farestveit,7890123456,,415/123-4567',
+            'Wolfgang,Pauli-O\'Rourke,9000000000,,415/123-4567',
         ]:
             assert str(snippet) in csv
 
