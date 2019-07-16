@@ -13,6 +13,7 @@
         id="create-note-add-student"
         :key="resetAutoCompleteKey"
         class="w-75"
+        :demo-mode-blur="true"
         :on-esc-form-input="onEscFormInput"
         :show-add-button="true"
         :source="studentsByNameOrSid"
@@ -22,7 +23,7 @@
     <div>
       <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="mb-1">
         <span class="font-weight-bolder pill pill-attachment text-uppercase text-nowrap truncate">
-          <span :id="`batch-note-student-${index}`">{{ addedStudent.label }}</span>
+          <span :id="`batch-note-student-${index}`" :class="{'demo-mode-blur': user.inDemoMode}">{{ addedStudent.label }}</span>
           <b-btn
             :id="`remove-student-from-batch-${index}`"
             variant="link"
@@ -40,6 +41,7 @@
 <script>
 import Autocomplete from '@/components/util/Autocomplete';
 import Context from '@/mixins/Context';
+import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { findStudentsByNameOrSid } from '@/api/student';
 
@@ -48,7 +50,7 @@ export default {
   components: {
     Autocomplete
   },
-  mixins: [Context, Util],
+  mixins: [Context, UserMetadata, Util],
   props: {
     addSid: {
       required: true,

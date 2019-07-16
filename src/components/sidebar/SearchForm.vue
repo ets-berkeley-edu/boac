@@ -145,6 +145,7 @@
               <Autocomplete
                 id="search-options-note-filters-student"
                 v-model="noteFilters.student"
+                :demo-mode-blur="true"
                 :source="findStudentsByNameOrSid"
                 placeholder="Enter name or SID...">
               </Autocomplete>
