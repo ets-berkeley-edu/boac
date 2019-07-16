@@ -516,9 +516,9 @@ export default {
       this.addedCuratedGroups = [];
       this.attachments = [];
       this.body = undefined;
-      this.sids = [];
+      this.sids = this.sid ? [ this.sid ] : [];
       this.subject = undefined;
-      this.targetStudentCount = 0;
+      this.targetStudentCount = this.sids.length;
       this.topics = [];
     }
   }
