@@ -255,6 +255,7 @@ class CohortFilter(Base):
         coe_prep_statuses = c.get('coePrepStatuses')
         coe_probation = util.to_bool_or_none(c.get('coeProbation'))
         cohort_owner_academic_plans = util.get(c, 'cohortOwnerAcademicPlans')
+        ethnicities = c.get('ethnicities')
         expected_grad_terms = c.get('expectedGradTerms')
         genders = c.get('genders')
         gpa_ranges = c.get('gpaRanges')
@@ -277,6 +278,7 @@ class CohortFilter(Base):
                 'coePrepStatuses': coe_prep_statuses,
                 'coeProbation': coe_probation,
                 'cohortOwnerAcademicPlans': cohort_owner_academic_plans,
+                'ethnicities': ethnicities,
                 'expectedGradTerms': expected_grad_terms,
                 'genders': genders,
                 'gpaRanges': gpa_ranges,
@@ -323,6 +325,7 @@ class CohortFilter(Base):
             coe_genders=coe_genders,
             coe_prep_statuses=coe_prep_statuses,
             coe_probation=coe_probation,
+            ethnicities=ethnicities,
             expected_grad_terms=expected_grad_terms,
             genders=genders,
             gpa_ranges=gpa_ranges,

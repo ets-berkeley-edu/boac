@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 from decimal import Decimal
 import io
 
@@ -37,12 +36,16 @@ class TestDataLoch:
 
     def test_get_student_profiles(self, app):
         import json
-        student_profiles = data_loch.get_student_profiles(['11667051'])
-
+        sid = '11667051'
+        student_profiles = data_loch.get_student_profiles([sid])
         assert len(student_profiles) == 1
 
-        student_profile = json.loads(student_profiles[0]['profile'])
-        assert student_profile['sisProfile']['academicCareer'] == 'UGRD'
+        student = student_profiles[0]
+        assert student['sid'] == sid
+        assert student['gender'] == 'Different Identity'
+        assert student['minority'] is False
+        sis_profile = json.loads(student_profiles[0]['profile'])['sisProfile']
+        assert sis_profile['academicCareer'] == 'UGRD'
 
     def test_sis_enrollments(self, app):
         enrollments = data_loch.get_sis_enrollments(61889, 2178)

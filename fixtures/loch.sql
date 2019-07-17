@@ -209,6 +209,12 @@ CREATE TABLE student.demographics
     minority BOOLEAN NOT NULL
 );
 
+CREATE TABLE student.ethnicities
+(
+    sid VARCHAR NOT NULL,
+    ethnicity VARCHAR NOT NULL
+);
+
 CREATE TABLE student.student_holds
 (
     sid VARCHAR NOT NULL,
@@ -527,6 +533,22 @@ VALUES
 ('890127492', 'Genderqueer/Gender Non-Conform', FALSE),
 ('9000000000', 'Female', TRUE),
 ('9100000000', 'Different Identity', FALSE);
+
+INSERT INTO student.ethnicities
+(sid, ethnicity)
+VALUES
+('1133399', 'Japanese / Japanese American'),
+('11667051', 'Chinese / Chinese-American'),
+('2345678901', 'African-American / Black'),
+('3456789012', 'African-American / Black'),
+('5678901234', 'Mexican / Mexican-American / Chicano'),
+('7890123456', 'Japanese / Japanese American'),
+('8901234567', 'White'),
+-- Student has two (2) ethnicities mapped to SID
+('890127492', 'African-American / Black'),
+('890127492', 'Thai'),
+('9000000000', 'Japanese / Japanese American'),
+('9100000000', 'Korean / Korean-American');
 
 INSERT INTO student.student_holds
 (sid, feed)
