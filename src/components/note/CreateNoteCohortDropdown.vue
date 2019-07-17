@@ -74,13 +74,13 @@ export default {
       this.clearErrors();
       this.added.push(object);
       this.addObject(object);
-      this.alertScreenReader(`${this.type} '${object.name}' added`);
+      this.alertScreenReader(`${this.header} ${object.name} added to batch note`);
     },
     remove(object) {
       this.clearErrors();
       this.added = this.filterList(this.added, a => a.id !== object.id);
       this.removeObject(object);
-      this.alertScreenReader(`${this.type} '${object.name}' removed`);
+      this.alertScreenReader(`${this.header} ${object.name} removed from batch note`);
     }
   }
 }
