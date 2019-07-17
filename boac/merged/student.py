@@ -43,7 +43,19 @@ def get_api_json(sids):
         return []
 
     def distill_profile(profile):
-        distilled = {key: profile[key] for key in ['uid', 'sid', 'firstName', 'lastName', 'name', 'gender', 'minority', 'photoUrl']}
+        distilled = {
+            key: profile[key] for key in
+            [
+                'firstName',
+                'gender',
+                'lastName',
+                'minority',
+                'name',
+                'photoUrl',
+                'sid',
+                'uid',
+            ]
+        }
         if profile.get('athleticsProfile'):
             distilled['athleticsProfile'] = profile['athleticsProfile']
         if profile.get('coeProfile'):
@@ -254,6 +266,7 @@ def query_students(
     coe_genders=None,
     coe_prep_statuses=None,
     coe_probation=None,
+    ethnicities=None,
     expected_grad_terms=None,
     genders=None,
     gpa_ranges=None,
@@ -282,6 +295,7 @@ def query_students(
         'coe_genders': coe_genders,
         'coe_prep_statuses': coe_prep_statuses,
         'coe_probation': coe_probation,
+        'ethnicities': ethnicities,
         'genders': genders,
         'group_codes': group_codes,
         'in_intensive_cohort': in_intensive_cohort,
@@ -300,6 +314,7 @@ def query_students(
         coe_genders=coe_genders,
         coe_prep_statuses=coe_prep_statuses,
         coe_probation=coe_probation,
+        ethnicities=ethnicities,
         expected_grad_terms=expected_grad_terms,
         genders=genders,
         gpa_ranges=gpa_ranges,

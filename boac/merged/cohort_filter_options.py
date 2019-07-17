@@ -86,14 +86,12 @@ def _get_filter_options(scope, cohort_owner_uid):
             {
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
-                'key': 'cohortOwnerAcademicPlans',
-                'name': 'My Students',
-                'options': _academic_plans_for_cohort_owner(cohort_owner_uid),
-                'subcategoryHeader': 'Choose academic plan...',
+                'key': 'expectedGradTerms',
+                'name': 'Expected Graduation Term',
+                'options': _grad_terms,
+                'subcategoryHeader': 'Choose...',
                 'type': 'array',
             },
-        ],
-        [
             {
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
@@ -103,23 +101,12 @@ def _get_filter_options(scope, cohort_owner_uid):
                 'subcategoryHeader': 'Choose...',
                 'type': 'array',
             },
-        ],
-        [
             {
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
                 'key': 'levels',
                 'name': 'Level',
                 'options': _class_levels,
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
-            },
-            {
-                'availableTo': all_dept_codes,
-                'defaultValue': None,
-                'key': 'unitRanges',
-                'name': 'Units Completed',
-                'options': _unit_ranges,
                 'subcategoryHeader': 'Choose...',
                 'type': 'array',
             },
@@ -144,29 +131,29 @@ def _get_filter_options(scope, cohort_owner_uid):
             {
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
-                'key': 'expectedGradTerms',
-                'name': 'Expected Graduation Term',
-                'options': _grad_terms,
+                'key': 'unitRanges',
+                'name': 'Units Completed',
+                'options': _unit_ranges,
                 'subcategoryHeader': 'Choose...',
                 'type': 'array',
             },
         ],
         [
             {
-                'availableTo': ['COENG'],
+                'availableTo': all_dept_codes,
                 'defaultValue': None,
-                'key': 'coeEthnicities',
-                'name': 'Ethnicity (COE)',
-                'options': _coe_ethnicities,
+                'key': 'ethnicities',
+                'name': 'Ethnicity',
+                'options': _ethnicities,
                 'subcategoryHeader': 'Choose...',
                 'type': 'array',
             },
             {
-                'availableTo': ['COENG'],
+                'availableTo': all_dept_codes,
                 'defaultValue': None,
-                'key': 'coeGenders',
-                'name': 'Gender (COE)',
-                'options': _coe_genders,
+                'key': 'genders',
+                'name': 'Gender',
+                'options': _genders,
                 'subcategoryHeader': 'Choose...',
                 'type': 'array',
             },
@@ -209,11 +196,56 @@ def _get_filter_options(scope, cohort_owner_uid):
         [
             {
                 'availableTo': ['COENG'],
+                'defaultValue': None,
+                'key': 'coeAdvisorLdapUids',
+                'name': 'Advisor (COE)',
+                'options': _get_coe_profiles,
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+            {
+                'availableTo': ['COENG'],
+                'defaultValue': None,
+                'key': 'coeEthnicities',
+                'name': 'Ethnicity (COE)',
+                'options': _coe_ethnicities,
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+            {
+                'availableTo': ['COENG'],
+                'defaultValue': None,
+                'key': 'coeGenders',
+                'name': 'Gender (COE)',
+                'options': _coe_genders,
+                'subcategoryHeader': 'Choose...',
+                'type': 'array',
+            },
+            {
+                'availableTo': ['COENG'],
                 'defaultValue': False if 'COENG' in scope else None,
                 'key': 'isInactiveCoe',
                 'name': 'Inactive' if 'COENG' in scope else 'Inactive (COE)',
                 'options': [True, False],
                 'type': 'boolean',
+            },
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'lastNameRange',
+                'name': 'Last Name',
+                'options': None,
+                'subcategoryHeader': ['Initials', 'through'],
+                'type': 'range',
+            },
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'cohortOwnerAcademicPlans',
+                'name': 'My Students',
+                'options': _academic_plans_for_cohort_owner(cohort_owner_uid),
+                'subcategoryHeader': 'Choose academic plan...',
+                'type': 'array',
             },
             {
                 'availableTo': ['COENG'],
@@ -231,33 +263,6 @@ def _get_filter_options(scope, cohort_owner_uid):
                 'name': 'Probation',
                 'options': [True, False],
                 'type': 'boolean',
-            },
-            {
-                'availableTo': all_dept_codes,
-                'defaultValue': None,
-                'key': 'lastNameRange',
-                'name': 'Last Name',
-                'options': None,
-                'subcategoryHeader': ['Initials', 'through'],
-                'type': 'range',
-            },
-            {
-                'availableTo': all_dept_codes,
-                'defaultValue': None,
-                'key': 'genders',
-                'name': 'Gender',
-                'options': _genders,
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
-            },
-            {
-                'availableTo': ['COENG'],
-                'defaultValue': None,
-                'key': 'coeAdvisorLdapUids',
-                'name': 'Advisor (COE)',
-                'options': _get_coe_profiles,
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
             },
         ],
     ]
@@ -375,6 +380,10 @@ def _coe_genders():
     ]
 
 
+def _ethnicities():
+    return [{'name': row['ethnicity'], 'value': row['ethnicity']} for row in data_loch.get_distinct_ethnicities()]
+
+
 def _genders():
     return [{'name': row['gender'], 'value': row['gender']} for row in data_loch.get_distinct_genders()]
 
@@ -395,7 +404,7 @@ def _gpa_ranges():
 
 
 def _coe_ethnicities():
-    rows = data_loch.get_ethnicity_codes(['COENG'])
+    rows = data_loch.get_coe_ethnicity_codes(['COENG'])
     key = 'ethnicity_code'
 
     def ethnicity(code):

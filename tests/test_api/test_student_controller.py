@@ -435,6 +435,9 @@ class TestStudent:
         student_by_sid = self._api_student_by_sid(client=client, sid=sid)
         student_by_uid = self._api_student_by_uid(client=client, uid=uid)
         for student in [student_by_sid, student_by_uid]:
+            assert student['gender'] == 'Different Identity'
+            assert student['minority'] is False
+
             assert 'coeProfile' not in student
             athletics_profile = student['athleticsProfile']
             assert athletics_profile['inIntensiveCohort'] is True
@@ -455,6 +458,9 @@ class TestStudent:
         student_by_sid = self._api_student_by_sid(client=client, sid=sid)
         student_by_uid = self._api_student_by_uid(client=client, uid=uid)
         for student in [student_by_sid, student_by_uid]:
+            assert student['gender'] == 'Female'
+            assert student['minority'] is True
+
             assert 'athleticsProfile' not in student
             assert 'coeProfile' in student
             coe_profile = student['coeProfile']
@@ -485,6 +491,9 @@ class TestStudent:
         student_by_sid = self._api_student_by_sid(client=client, sid=sid)
         student_by_uid = self._api_student_by_uid(client=client, uid=uid)
         for student in [student_by_sid, student_by_uid]:
+            assert student['gender'] == 'Different Identity'
+            assert student['minority'] is False
+
             athletics_profile = student['athleticsProfile']
             assert athletics_profile['inIntensiveCohort'] is True
             assert len(athletics_profile['athletics']) == 2

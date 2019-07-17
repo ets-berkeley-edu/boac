@@ -693,6 +693,7 @@ class TestCohortPerFilters:
         for key in [
             'coeAdvisorLdapUids',
             'coeEthnicities',
+            'ethnicities',
             'expectedGradTerms',
             'genders',
             'groupCodes',
@@ -707,6 +708,7 @@ class TestCohortPerFilters:
             assert criteria[key] is None
 
     def test_my_students_filter_all_plans(self, client, coe_advisor_login):
+        """Returns students mapped to advisor, across all academic plans."""
         api_json = self._api_get_students_per_filters(
             client,
             {
@@ -723,6 +725,7 @@ class TestCohortPerFilters:
         assert sids == ['11667051', '7890123456', '9000000000', '9100000000']
 
     def test_my_students_filter_selected_plans(self, client, coe_advisor_login):
+        """Returns students mapped to advisor, per specified academic plans."""
         api_json = self._api_get_students_per_filters(
             client,
             {
@@ -766,6 +769,7 @@ class TestCohortPerFilters:
         return api_json['students']
 
     def test_students_per_filters_order_by(self, client, asc_advisor_login):
+        """Returns properly ordered list of students."""
         def _get_first_student(order_by):
             students = self._get_defensive_line(client, False, order_by)
             assert len(students) == 3
@@ -799,6 +803,7 @@ class TestCohortPerFilters:
         assert is_active_asc(students[3]) is True
 
     def test_filter_expected_grad_term(self, client, coe_advisor_login):
+        """Returns students per expected graduation."""
         api_json = self._api_get_students_per_filters(
             client,
             {
@@ -818,6 +823,7 @@ class TestCohortPerFilters:
             assert student['expectedGraduationTerm']['name'] == 'Spring 2020'
 
     def test_filter_transfer(self, client, coe_advisor_login):
+        """Returns list of transfer students."""
         api_json = self._api_get_students_per_filters(
             client,
             {
@@ -835,6 +841,23 @@ class TestCohortPerFilters:
         assert len(students) == 2
         for student in students:
             assert student['transfer'] is True
+
+    def test_ethnicities_filter(self, client, coe_advisor_login):
+        """Returns students of specified ethnicity."""
+        api_json = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {
+                        'key': 'ethnicities',
+                        'type': 'array',
+                        'value': 'African-American / Black',
+                    },
+                ],
+            },
+        )
+        sids = sorted([s['sid'] for s in api_json['students']])
+        assert sids == ['2345678901', '3456789012', '890127492']
 
 
 class TestDownloadCsvPerFilters:
@@ -990,7 +1013,7 @@ class TestAllCohortFilterOptions:
                     ],
             },
         )
-        assert len(api_json) == 5
+        assert len(api_json) == 3
         for category in api_json:
             for menu in category:
                 if menu['key'] == 'coeProbation':
@@ -1016,7 +1039,7 @@ class TestAllCohortFilterOptions:
                     ],
             },
         )
-        assert len(api_json) == 5
+        assert len(api_json) == 3
         assertion_count = 0
         for category in api_json:
             for menu in category:

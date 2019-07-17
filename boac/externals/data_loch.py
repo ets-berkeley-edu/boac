@@ -547,7 +547,7 @@ def get_academic_plans_for_advisor(advisor_sid):
     return safe_execute_rds(sql, advisor_sid=advisor_sid)
 
 
-def get_ethnicity_codes(scope=()):
+def get_coe_ethnicity_codes(scope=()):
     # TODO Scoping remains in place for the moment, as ethnicity is still a COE-specific category.
     query_tables = _student_query_tables_for_scope(scope)
     if not query_tables:
@@ -564,6 +564,10 @@ def get_ethnicity_codes(scope=()):
 
 def get_distinct_genders():
     return safe_execute_rds(f'SELECT DISTINCT gender FROM {student_schema()}.demographics ORDER BY gender')
+
+
+def get_distinct_ethnicities():
+    return safe_execute_rds(f'SELECT DISTINCT ethnicity FROM {student_schema()}.ethnicities ORDER BY ethnicity')
 
 
 def get_expected_graduation_terms():
@@ -587,6 +591,7 @@ def get_students_query(     # noqa
     coe_genders=None,
     coe_prep_statuses=None,
     coe_probation=None,
+    ethnicities=None,
     expected_grad_terms=None,
     genders=None,
     gpa_ranges=None,
@@ -631,9 +636,8 @@ def get_students_query(     # noqa
                         AND n{i}.sid = sas.sid"""
                 word = ''.join(re.split('\W', word))
                 query_bindings.update({f'name_phrase_{i}': f'{word}%'})
-    if coe_genders:
-        query_filter += ' AND s.gender = ANY(:coe_genders)'
-        query_bindings.update({'coe_genders': coe_genders})
+    if ethnicities:
+        query_tables += f""" JOIN {student_schema()}.ethnicities e ON e.sid = sas.sid"""
     if genders:
         query_tables += f""" JOIN {student_schema()}.demographics d ON d.sid = sas.sid"""
     if sids:
@@ -644,9 +648,15 @@ def get_students_query(     # noqa
     query_filter += _numranges_to_sql('sas.gpa', gpa_ranges) if gpa_ranges else ''
     query_filter += _numranges_to_sql('sas.units', unit_ranges) if unit_ranges else ''
     query_filter += _query_filter_last_name_range(last_name_range)
+    if ethnicities:
+        query_filter += ' AND e.ethnicity = ANY(:ethnicities)'
+        query_bindings.update({'ethnicities': ethnicities})
     if expected_grad_terms:
         query_filter += ' AND sas.expected_grad_term = ANY(:expected_grad_terms)'
         query_bindings.update({'expected_grad_terms': expected_grad_terms})
+    if genders:
+        query_filter += ' AND d.gender = ANY(:genders)'
+        query_bindings.update({'genders': genders})
     if levels:
         query_filter += ' AND sas.level = ANY(:levels)'
         query_bindings.update({'levels': [level_to_code(l) for l in levels]})
@@ -697,11 +707,11 @@ def get_students_query(     # noqa
     if coe_ethnicities:
         query_filter += ' AND s.ethnicity = ANY(:coe_ethnicities)'
         query_bindings.update({'coe_ethnicities': coe_ethnicities})
+    if coe_genders:
+        query_filter += ' AND s.gender = ANY(:coe_genders)'
+        query_bindings.update({'coe_genders': coe_genders})
     if coe_prep_statuses:
         query_filter += ' AND (' + ' OR '.join([f's.{cps} IS TRUE' for cps in coe_prep_statuses]) + ')'
-    if genders:
-        query_filter += ' AND d.gender = ANY(:genders)'
-        query_bindings.update({'genders': genders})
     query_filter += f' AND s.probation IS {coe_probation}' if coe_probation is not None else ''
     query_filter += f' AND s.minority IS {underrepresented}' if underrepresented is not None else ''
     if is_active_coe is False:
@@ -849,9 +859,9 @@ def _student_query_tables_for_scope(scope):
                 'COENG': [
                     'advisor_ldap_uid',
                     'coe_genders',
+                    'coe_ethnicity',
                     'did_prep',
                     'did_tprep',
-                    'ethnicity',
                     'minority',
                     'prep_eligible',
                     'probation',
