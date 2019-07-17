@@ -30,7 +30,7 @@
             class="p-0"
             @click.prevent="removeStudent(addedStudent)">
             <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
-            <span class="sr-only">Remove student ${addedStudent.name} (${addedStudent.sid})</span>
+            <span class="sr-only">Remove {{ addedStudent.label }} from batch note</span>
           </b-btn>
         </span>
       </div>
@@ -81,7 +81,7 @@ export default {
         this.addedStudents.push(student);
         this.addSid(student.sid);
         this.resetAutoCompleteKey = new Date().getTime();
-        this.alertScreenReader(`Student '${student.name}' added`);
+        this.alertScreenReader(`${student.label} added to batch note`);
       }
     },
     removeStudent(student) {
@@ -89,7 +89,7 @@ export default {
         this.clearErrors();
         this.addedStudents = this.filterList(this.addedStudents, a => a.sid !== student.sid);
         this.removeSid(student.sid);
-        this.alertScreenReader(`Student '${student.name}' removed`);
+        this.alertScreenReader(`${student.label} removed from batch note`);
       }
     },
     studentsByNameOrSid(query, limit) {
@@ -103,7 +103,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-</style>
