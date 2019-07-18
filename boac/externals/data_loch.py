@@ -487,25 +487,25 @@ def search_advising_notes(
         date_filter += """ AND ((an.created_by = 'UCBCONVERSION' AND an.created_at < :datetime_to)
             OR ((an.created_by != 'UCBCONVERSION' OR an.created_by IS NULL) AND an.updated_at < :datetime_to))"""
 
+    def _fts_selector(schema):
+        if search_phrase:
+            return f"""SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
+                FROM {schema}.advising_notes_search_index
+                WHERE fts_index @@ plainto_tsquery('english', :search_phrase)"""
+        else:
+            return f'SELECT id, 0 AS rank FROM {schema}.advising_notes'
+
     sql = f"""WITH an AS (
         (SELECT sis.sid, sis.id, sis.note_body, sis.advisor_sid, NULL AS advisor_uid, NULL AS advisor_first_name, NULL AS advisor_last_name,
                 sis.note_category, sis.note_subcategory, sis.created_by, sis.created_at, sis.updated_at, idx.rank
             FROM {advising_notes_schema()}.advising_notes sis
-            JOIN (
-                SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
-                FROM {advising_notes_schema()}.advising_notes_search_index
-                WHERE fts_index @@ plainto_tsquery('english', :search_phrase)
-            ) AS idx
+            JOIN ({_fts_selector(advising_notes_schema())}) AS idx
             ON idx.id = sis.id)
         UNION
         (SELECT ascn.sid, ascn.id, NULL AS note_body, NULL AS advisor_sid, ascn.advisor_uid, ascn.advisor_first_name, ascn.advisor_last_name,
                 NULL AS note_category, NULL AS note_subcategory, NULL AS created_by, ascn.created_at, ascn.updated_at, idx.rank
             FROM {asc_schema()}.advising_notes ascn
-            JOIN (
-                SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
-                FROM {asc_schema()}.advising_notes_search_index
-                WHERE fts_index @@ plainto_tsquery('english', :search_phrase)
-            ) AS idx
+            JOIN ({_fts_selector(asc_schema())}) AS idx
             ON idx.id = ascn.id)
         )
         SELECT DISTINCT

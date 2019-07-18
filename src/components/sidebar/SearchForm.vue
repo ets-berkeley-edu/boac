@@ -25,7 +25,7 @@
             :aria-readonly="allOptionsUnchecked"
             aria-label="Hit enter to execute search"
             type="text"
-            required
+            :required="searchInputRequired"
             maxlength="255" />
         </div>
         <div v-if="context === 'sidebar'" class="d-flex flex-wrap justify-content-between search-label text-nowrap text-white">
@@ -299,6 +299,20 @@ export default {
         this.noteFilters.author = newValue;
       }
     },
+    searchInputRequired() {
+      if (this.includeNotes && (
+        this.noteFilters.author ||
+        this.noteFilters.dateFrom ||
+        this.noteFilters.dateTo ||
+        this.noteFilters.postedBy !== 'anyone' ||
+        this.noteFilters.student ||
+        this.noteFilters.topic
+      )) {
+        return false;
+      } else {
+        return true;
+      }
+    },
     validDateRange() {
       if (!this.noteFilters.dateFrom || !this.noteFilters.dateTo) {
         return null;
@@ -347,13 +361,15 @@ export default {
     },
     search() {
       this.searchPhrase = this.trim(this.searchPhrase);
-      if (this.searchPhrase) {
+      if (this.searchPhrase || !this.searchInputRequired) {
         const query = {
-          q: this.searchPhrase,
           courses: this.includeCourses,
           notes: this.includeNotes,
           students: this.includeStudents
         };
+        if (this.searchPhrase) {
+          query.q = this.searchPhrase;
+        }
         if (this.includeNotes) {
           if (this.noteFilters.postedBy === 'you') {
             query.authorCsid = this.user.csid;

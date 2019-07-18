@@ -47,8 +47,6 @@ def search():
     if is_unauthorized_search(list(params.keys()), order_by):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     search_phrase = util.get(params, 'searchPhrase', '').strip()
-    if not len(search_phrase):
-        raise BadRequestError('Invalid or empty search input')
     domain = {
         'students': util.get(params, 'students'),
         'courses': util.get(params, 'courses'),
@@ -56,13 +54,15 @@ def search():
     }
     if not domain['students'] and not domain['courses'] and not domain['notes']:
         raise BadRequestError('No search domain specified')
+    if not len(search_phrase) and not domain['notes']:
+        raise BadRequestError('Invalid or empty search input')
 
     feed = {}
 
-    if domain['students']:
+    if len(search_phrase) and domain['students']:
         feed.update(_student_search(search_phrase, params, order_by))
 
-    if domain['courses']:
+    if len(search_phrase) and domain['courses']:
         feed.update(_course_search(search_phrase, params, order_by))
 
     if domain['notes']:
@@ -142,6 +142,11 @@ def _notes_search(search_phrase, params):
     offset = util.get(note_options, 'offset', 0)
 
     date_from = note_options.get('dateFrom')
+    date_to = note_options.get('dateTo')
+
+    if not len(search_phrase) and not (author_csid or student_csid or topic or date_from or date_to):
+        raise BadRequestError('Invalid or empty search input')
+
     if date_from:
         try:
             datetime_from = util.localized_timestamp_to_utc(f'{date_from}T00:00:00')
@@ -150,7 +155,6 @@ def _notes_search(search_phrase, params):
     else:
         datetime_from = None
 
-    date_to = note_options.get('dateTo')
     if date_to:
         try:
             datetime_to = util.localized_timestamp_to_utc(f'{date_to}T00:00:00') + timedelta(days=1)

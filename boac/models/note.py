@@ -130,9 +130,17 @@ class Note(Base):
 
     @classmethod
     def search(cls, search_phrase, author_uid, student_csid, topic, datetime_from, datetime_to):
-        params = {
-            'search_phrase': search_phrase,
-        }
+        if search_phrase:
+            fts_selector = """SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
+                FROM notes_fts_index
+                WHERE fts_index @@ plainto_tsquery('english', :search_phrase)"""
+            params = {
+                'search_phrase': search_phrase,
+            }
+        else:
+            fts_selector = 'SELECT id, 0 AS rank FROM notes'
+            params = {}
+
         if author_uid:
             author_filter = 'AND notes.author_uid = :author_uid'
             params.update({'author_uid': author_uid})
@@ -159,11 +167,7 @@ class Note(Base):
             topic_join = ''
 
         query = text(f"""
-            SELECT notes.* FROM (
-                SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
-                FROM notes_fts_index
-                WHERE fts_index @@ plainto_tsquery('english', :search_phrase)
-            ) AS fts
+            SELECT notes.* FROM ({fts_selector}) AS fts
             JOIN notes
                 ON fts.id = notes.id
                 {author_filter}

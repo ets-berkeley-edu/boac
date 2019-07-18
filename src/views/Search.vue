@@ -6,7 +6,7 @@
         id="page-header-no-results"
         class="page-section-header"
         aria-live="polite">
-        No results matching '{{ phrase }}'
+        No results<span v-if="phrase"> matching '{{ phrase }}'</span>
       </h1>
       <div>Suggestions:</div>
       <ul>
@@ -22,7 +22,7 @@
       v-if="!loading && results.totalStudentCount"
       tabindex="0">
       <h1 id="student-results-page-header" class="page-section-header">
-        {{ 'student' | pluralize(results.totalStudentCount) }} matching '{{ phrase }}'
+        {{ 'student' | pluralize(results.totalStudentCount) }}<span v-if="phrase">  matching '{{ phrase }}'</span>
       </h1>
       <div v-if="results.totalStudentCount > studentLimit">
         Showing the first {{ studentLimit }} students.
@@ -52,7 +52,7 @@
         class="page-section-header">
         {{ size(results.notes) }}{{ completeNoteResults ? '' : '+' }}
         {{ size(results.notes) === 1 ? 'advising note' : 'advising notes' }}
-        with '{{ phrase }}'
+        <span v-if="phrase"> with '{{ phrase }}'</span>
       </h2>
       <AdvisingNoteSnippet
         v-for="advisingNote in results.notes"
@@ -138,7 +138,7 @@ export default {
       this.noteOptions.dateFrom = this.$route.query.noteDateFrom;
       this.noteOptions.dateTo = this.$route.query.noteDateTo;
     }
-    if (this.phrase) {
+    if (this.phrase || includeNotes) {
       search(
         this.phrase,
         this.isNil(includeCourses) ? false : includeCourses,
