@@ -338,10 +338,7 @@ def _academic_plans_for_cohort_owner(owner_uid):
     for row in plan_results:
         value = row['academic_plan_code']
         if value:
-            name = row['academic_plan']
-        else:
-            name = row['[No plan]']
-        plans.append({'name': name, 'value': value})
+            plans.append({'name': row['academic_plan'], 'value': value})
     return plans
 
 
