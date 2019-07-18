@@ -68,7 +68,7 @@ class TestStudentSearch:
         assert response.status_code == 403
 
     def test_search_with_missing_input(self, client, fake_auth):
-        """Search is nothing without input."""
+        """Student search is nothing without input."""
         fake_auth.login('2040')
         response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': ' \t  '}), content_type='application/json')
         assert response.status_code == 400
@@ -196,6 +196,12 @@ class TestCourseSearch:
         assert 'courses' not in response.json
         assert 'totalCourseCount' not in response.json
 
+    def test_search_with_missing_input(self, client, fake_auth):
+        """Course search is nothing without input."""
+        fake_auth.login('2040')
+        response = client.post('/api/search', data=json.dumps({'courses': True, 'searchPhrase': ' \t  '}), content_type='application/json')
+        assert response.status_code == 400
+
     def test_search_by_name_includes_courses_if_requested(self, coe_advisor, client):
         """A name search returns matching courses if any."""
         response = client.post(
@@ -261,6 +267,11 @@ class TestCourseSearch:
 class TestNoteSearch:
     """Note search API."""
 
+    def test_search_with_missing_input_no_options(self, coe_advisor, client):
+        """Notes search is nothing without input when no additional options are set."""
+        response = client.post('/api/search', data=json.dumps({'notes': True, 'searchPhrase': ' \t  '}), content_type='application/json')
+        assert response.status_code == 400
+
     def test_note_search_respects_date_filters(self, coe_advisor, client):
         response = client.post(
             '/api/search',
@@ -309,6 +320,23 @@ class TestNoteSearch:
         assert response.status_code == 400
         assert response.json['message'] == 'dateFrom must be less than dateTo'
 
+    def test_search_with_no_input_and_date(self, coe_advisor, client):
+        """Notes search needs no input when date options are set."""
+        response = client.post(
+            '/api/search',
+            data=json.dumps({
+                'notes': True,
+                'searchPhrase': '',
+                'noteOptions': {
+                    'dateFrom': '2017-11-01',
+                    'dateTo': '2017-11-02',
+                },
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == 200
+        assert len(response.json['notes']) == 4
+
     def test_search_excludes_notes_unless_requested(self, coe_advisor, client):
         """Excludes notes from search results if notes param is false."""
         response = client.post(
@@ -331,8 +359,8 @@ class TestNoteSearch:
         assert notes[0].get('id') == '11667051-00001'
         assert notes[1].get('id') == '11667051-00002'
 
-    def test_search_notes_by_asc_advisor_name(self, asc_advisor, client):
-        """Includes ASC notes with advisor name match in search results."""
+    def test_search_asc_notes(self, asc_advisor, client):
+        """Includes ASC notes in search results."""
         response = client.post(
             '/api/search',
             data=json.dumps({'notes': True, 'searchPhrase': 'ginger'}),
@@ -369,8 +397,17 @@ class TestNoteSearch:
         assert len(notes) == 1
         assert notes[0].get('id') == '11667051-00001'
 
+    def test_search_with_no_input_and_topic(self, coe_advisor, client):
+        """Notes search needs no input when topic set."""
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'notes': True, 'searchPhrase': '', 'noteOptions': {'topic': 'Good Show'}}),
+            content_type='application/json',
+        )
+        assert len(response.json['notes']) == 1
+
     def test_search_by_note_author_sis(self, coe_advisor, client):
-        """Searches notes by SIS advisor name if posted by option is selected."""
+        """Searches SIS notes by advisor CSID if posted by option is selected."""
         response = client.post(
             '/api/search',
             data=json.dumps({'notes': True, 'searchPhrase': 'Brigitte', 'noteOptions': {'authorCsid': '800700600'}}),
@@ -382,7 +419,7 @@ class TestNoteSearch:
         assert notes[0].get('id') == '11667051-00001'
 
     def test_search_by_note_author_asc(self, coe_advisor, client):
-        """Searches notes by ASC advisor name if posted by option is selected."""
+        """Searches ASC notes by advisor CSID if posted by option is selected."""
         response = client.post(
             '/api/search',
             data=json.dumps({'notes': True, 'searchPhrase': 'Academic', 'noteOptions': {'authorCsid': '800700600'}}),
@@ -392,6 +429,15 @@ class TestNoteSearch:
         notes = response.json['notes']
         assert len(notes) == 1
         assert notes[0].get('id') == '11667051-139362'
+
+    def test_search_with_no_input_and_author(self, coe_advisor, client):
+        """Notes search needs no input when author set."""
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'notes': True, 'searchPhrase': '', 'noteOptions': {'authorCsid': '800700600'}}),
+            content_type='application/json',
+        )
+        assert len(response.json['notes']) == 2
 
     def test_search_by_note_student(self, coe_advisor, client):
         """Searches notes by student if posted by option is selected."""
@@ -404,6 +450,15 @@ class TestNoteSearch:
         notes = response.json['notes']
         assert len(notes) == 1
         assert notes[0].get('id') == '9100000000-00001'
+
+    def test_search_with_no_input_and_student(self, coe_advisor, client):
+        """Notes search needs no input when student set."""
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'notes': True, 'searchPhrase': '', 'noteOptions': {'studentCsid': '9100000000'}}),
+            content_type='application/json',
+        )
+        assert len(response.json['notes']) == 1
 
     def test_note_search_limit(self, coe_advisor, client):
         """Limits search to the first n results."""

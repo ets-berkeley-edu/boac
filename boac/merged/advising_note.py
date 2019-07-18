@@ -156,8 +156,11 @@ def search_advising_notes(
     benchmark = get_benchmarker('search_advising_notes')
     benchmark('begin')
 
-    search_terms = [t.group(0) for t in list(re.finditer(NOTE_SEARCH_PATTERN, search_phrase)) if t]
-    search_phrase = ' & '.join(search_terms)
+    if search_phrase:
+        search_terms = [t.group(0) for t in list(re.finditer(NOTE_SEARCH_PATTERN, search_phrase)) if t]
+        search_phrase = ' & '.join(search_terms)
+    else:
+        search_terms = []
 
     # TODO We're currently retrieving all results for the sake of subsequent offset calculations. As the number of notes in
     # BOA grows (and possibly requires us to use some kind of staging table for search indexing), we'll need to revisit.
