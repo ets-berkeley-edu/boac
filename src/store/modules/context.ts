@@ -19,6 +19,7 @@ const getters = {
   devAuthEnabled: (state: any): boolean => _.get(state.config, 'devAuthEnabled'),
   disableMatrixViewThreshold: (state: any): string => _.get(state.config, 'disableMatrixViewThreshold'),
   errors: (state: any): any => state.errors,
+  featureFlagAdvisorAppointments: (state: any): boolean => _.get(state.config, 'featureFlagAdvisorAppointments'),
   googleAnalyticsId: (state: any): string => _.get(state.config, 'googleAnalyticsId'),
   isDemoModeAvailable: (state: any): string => _.get(state.config, 'isDemoModeAvailable'),
   maxAttachmentsPerNote: (state: any): string => _.get(state.config, 'maxAttachmentsPerNote'),

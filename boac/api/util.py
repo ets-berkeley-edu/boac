@@ -27,6 +27,7 @@ from functools import wraps
 import json
 
 from boac.externals.data_loch import get_sis_holds, get_student_profiles
+from boac.externals.google_calendar_client import get_calendar_events
 from boac.lib.http import response_with_csv_download
 from boac.merged import calnet
 from boac.merged.advising_note import get_advising_notes
@@ -136,6 +137,17 @@ def put_notifications(student):
         'hold': [],
         'requirement': [],
     }
+    if app.config['FEATURE_FLAG_ADVISOR_APPOINTMENTS']:
+        student['notifications']['appointment'] = []
+        for event in get_calendar_events():
+            student['notifications']['appointment'].append({
+                **event,
+                **{
+                    'message': event.get('summary'),
+                    'type': 'appointment',
+                },
+            })
+
     # The front-end requires 'type', 'message' and 'read'. Optional fields: id, status, createdAt, updatedAt.
     for note in get_advising_notes(student['sid']) or []:
         message = note['body']

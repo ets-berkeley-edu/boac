@@ -123,7 +123,7 @@
               <font-awesome v-if="message.status === 'Satisfied'" icon="check" class="requirements-icon text-success" />
               <font-awesome v-if="message.status === 'Not Satisfied'" icon="exclamation" class="requirements-icon text-icon-exclamation" />
               <font-awesome v-if="message.status === 'In Progress'" icon="clock" class="requirements-icon text-icon-clock" />
-              <span v-if="message.type !== 'note'">{{ message.message }}</span>
+              <span v-if="!includes(['appointment', 'note'] , message.type)">{{ message.message }}</span>
               <AdvisingNote
                 v-if="message.type === 'note' && message.transientId !== editingNoteId"
                 :delete-note="deleteNote"
@@ -136,6 +136,10 @@
                 :after-cancelled="afterEditCancel"
                 :note="message"
                 :after-saved="afterNoteUpdated" />
+              <AdvisingAppointment
+                v-if="message.type === 'appointment'"
+                :appointment="message"
+                :is-open="includes(openMessages, message.transientId)" />\
               <div v-if="includes(openMessages, message.transientId) && message.transientId !== editingNoteId" class="text-center close-message">
                 <b-btn
                   :id="`timeline-tab-${activeTab}-close-message`"
@@ -222,6 +226,7 @@
 </template>
 
 <script>
+import AdvisingAppointment from "@/components/appointment/AdvisingAppointment";
 import AdvisingNote from "@/components/note/AdvisingNote";
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import Context from '@/mixins/Context';
@@ -237,7 +242,7 @@ import { deleteNote, markRead } from '@/api/notes';
 
 export default {
   name: 'AcademicTimeline',
-  components: {AdvisingNote, AreYouSureModal, EditAdvisingNote, NewNoteModal, TimelineDate},
+  components: {AdvisingAppointment, AdvisingNote, AreYouSureModal, EditAdvisingNote, NewNoteModal, TimelineDate},
   mixins: [Context, Scrollable, StudentEditSession, UserMetadata, Util],
   props: {
     student: Object
@@ -300,6 +305,9 @@ export default {
     }
   },
   created() {
+    if (this.featureFlagAdvisorAppointments) {
+      this.filterTypes['appointment'] = {name: 'Appointment', tab: 'Appointments'};
+    }
     this.messages = [];
     this.countsPerType = {};
     this.each(this.keys(this.filterTypes), (type, typeIndex) => {
@@ -556,6 +564,10 @@ export default {
 .pill-hold {
   width: 60px;
   background-color: #bc74fe;
+}
+.pill-appointment {
+  width: 100px;
+  background-color: #f6593c;
 }
 .pill-note {
   width: 100px;
