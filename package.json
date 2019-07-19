@@ -25,6 +25,7 @@
     "d3": "5.9.7",
     "highcharts": "6.2.0",
     "js-file-download": "^0.4.7",
+    "lodash": "^4.17.15",
     "moment-timezone": "0.5.26",
     "v-calendar": "0.9.7",
     "vue": "2.6.10",
