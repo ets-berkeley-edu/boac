@@ -45,6 +45,7 @@ FIXTURES_PATH = None
 
 # The following JSON is generated at https://console.developers.google.com/apis/credentials
 GOOGLE_CLIENT_SECRETS_JSON = 'config/google-client-secrets.json'
+GOOGLE_CLIENT_REDIRECT_PORT = 8088
 
 # Save DB changes at the end of a request.
 SQLALCHEMY_COMMIT_ON_TEARDOWN = True

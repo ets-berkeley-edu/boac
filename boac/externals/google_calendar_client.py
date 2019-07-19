@@ -99,7 +99,8 @@ def _get_credentials():
                     client_secrets_file,
                     SCOPES,
                 )
-                credentials = flow.run_local_server()
+                port = app.config['GOOGLE_CLIENT_REDIRECT_PORT']
+                credentials = flow.run_local_server(port=port)
             # TODO: Save the credentials in database?
             with open(token_pickle_path, 'wb') as token:
                 pickle.dump(credentials, token)
