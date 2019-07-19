@@ -591,6 +591,7 @@ def get_students_query(     # noqa
     coe_genders=None,
     coe_prep_statuses=None,
     coe_probation=None,
+    coe_underrepresented=None,
     ethnicities=None,
     expected_grad_terms=None,
     genders=None,
@@ -638,7 +639,7 @@ def get_students_query(     # noqa
                 query_bindings.update({f'name_phrase_{i}': f'{word}%'})
     if ethnicities:
         query_tables += f""" JOIN {student_schema()}.ethnicities e ON e.sid = sas.sid"""
-    if genders:
+    if genders or underrepresented is not None:
         query_tables += f""" JOIN {student_schema()}.demographics d ON d.sid = sas.sid"""
     if sids:
         query_filter += f' AND sas.sid = ANY(:sids)'
@@ -654,6 +655,9 @@ def get_students_query(     # noqa
     if expected_grad_terms:
         query_filter += ' AND sas.expected_grad_term = ANY(:expected_grad_terms)'
         query_bindings.update({'expected_grad_terms': expected_grad_terms})
+    if underrepresented is not None:
+        query_filter += ' AND d.minority IS :underrepresented'
+        query_bindings.update({'underrepresented': underrepresented})
     if genders:
         query_filter += ' AND d.gender = ANY(:genders)'
         query_bindings.update({'genders': genders})
@@ -712,8 +716,10 @@ def get_students_query(     # noqa
         query_bindings.update({'coe_genders': coe_genders})
     if coe_prep_statuses:
         query_filter += ' AND (' + ' OR '.join([f's.{cps} IS TRUE' for cps in coe_prep_statuses]) + ')'
-    query_filter += f' AND s.probation IS {coe_probation}' if coe_probation is not None else ''
-    query_filter += f' AND s.minority IS {underrepresented}' if underrepresented is not None else ''
+    if coe_probation is not None:
+        query_filter += f' AND s.probation IS {coe_probation}'
+    if coe_underrepresented is not None:
+        query_filter += f' AND s.minority IS {coe_underrepresented}'
     if is_active_coe is False:
         query_filter += f" AND s.status IN ('D','P','U','W','X','Z')"
     elif is_active_coe is True:
@@ -860,9 +866,9 @@ def _student_query_tables_for_scope(scope):
                     'advisor_ldap_uid',
                     'coe_genders',
                     'coe_ethnicity',
+                    'coe_underrepresented',
                     'did_prep',
                     'did_tprep',
-                    'minority',
                     'prep_eligible',
                     'probation',
                     'status',

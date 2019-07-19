@@ -158,7 +158,7 @@ def _get_filter_options(scope, cohort_owner_uid):
                 'type': 'array',
             },
             {
-                'availableTo': ['COENG'],
+                'availableTo': all_dept_codes,
                 'defaultValue': None,
                 'key': 'underrepresented',
                 'name': 'Underrepresented Minority',
@@ -261,6 +261,14 @@ def _get_filter_options(scope, cohort_owner_uid):
                 'defaultValue': None,
                 'key': 'coeProbation',
                 'name': 'Probation',
+                'options': [True, False],
+                'type': 'boolean',
+            },
+            {
+                'availableTo': ['COENG'],
+                'defaultValue': None,
+                'key': 'coeUnderrepresented',
+                'name': 'Underrepresented Minority (COE)',
                 'options': [True, False],
                 'type': 'boolean',
             },

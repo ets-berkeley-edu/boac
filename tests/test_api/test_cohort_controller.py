@@ -369,7 +369,7 @@ class TestCohortCreate:
             students = api_json.get('students')
             assert len(students) == 1
             assert students[0]['gender'] == 'Male'
-            assert students[0]['minority'] is False
+            assert students[0]['underrepresented'] is False
 
         data = self._post_cohort_create(client, data)
         _verify(data)

@@ -228,7 +228,15 @@ def is_unauthorized_search(filter_keys, order_by=None):
     if list(filter_key_set & asc_keys) or order_by in ['group_name']:
         if not current_user.is_asc_authorized:
             return True
-    coe_keys = {'coeAdvisorLdapUids', 'coeEthnicities', 'coeGenders', 'coePrepStatuses', 'coeProbation', 'isInactiveCoe'}
+    coe_keys = {
+        'coeAdvisorLdapUids',
+        'coeEthnicities',
+        'coeGenders',
+        'coePrepStatuses',
+        'coeProbation',
+        'coeUnderrepresented',
+        'isInactiveCoe',
+    }
     if list(filter_key_set & coe_keys):
         if not current_user.is_coe_authorized:
             return True
