@@ -38,8 +38,13 @@ INDEX_HTML = 'dist/static/index.html'
 # This base-URL config should only be non-None in the "local" env where the Vue front-end runs on port 8080.
 VUE_LOCALHOST_BASE_URL = None
 
+FEATURE_FLAG_ADVISOR_APPOINTMENTS = False
+
 # Directory to search for mock fixtures, if running in "test" or "demo" mode.
 FIXTURES_PATH = None
+
+# The following JSON is generated at https://console.developers.google.com/apis/credentials
+GOOGLE_CLIENT_SECRETS_JSON = 'config/google-client-secrets.json'
 
 # Save DB changes at the end of a request.
 SQLALCHEMY_COMMIT_ON_TEARDOWN = True

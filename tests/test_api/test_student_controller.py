@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import pytest
 import simplejson as json
+from tests.util import override_config
 
 
 @pytest.fixture()
@@ -557,6 +558,7 @@ class TestNotes:
         fake_auth.login(author_uid)
         response = client.get('/api/student/by_uid/61889')
         assert response.status_code == 200
+        assert 'appointments' not in response.json
         notes = response.json.get('notifications', {}).get('note')
         assert len(notes)
         note = next((n for n in notes if n.get('subject') == 'In France they kiss on main street'), None)
@@ -595,6 +597,16 @@ class TestNotes:
         assert user['name'] == 'Roberta Joan Anderson'
         assert user['departments'][0]['code'] == 'QCADV'
         assert user['departments'][0]['name'] == 'L&S Undergraduate Advising'
+
+
+class TestAdvisingAppointments:
+
+    def test_appointments(self, app, client, coe_advisor_login):
+        """Returns advising appointment(s)."""
+        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', True):
+            response = client.get('/api/student/by_uid/61889')
+            assert response.status_code == 200
+            assert 'appointment' in response.json.get('notifications', {})
 
 
 class TestValidateSids:

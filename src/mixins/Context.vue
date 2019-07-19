@@ -9,6 +9,7 @@ export default {
       'currentEnrollmentTermId',
       'devAuthEnabled',
       'errors',
+      'featureFlagAdvisorAppointments',
       'isDemoModeAvailable',
       'maxAttachmentsPerNote',
       'announcement',
