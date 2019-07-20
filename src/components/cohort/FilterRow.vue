@@ -20,10 +20,10 @@
         variant="link"
         no-caret>
         <template slot="button-content">
-          <div class="dropdown-width d-flex justify-content-between text-dark">
-            <div v-if="filter.name"><span class="sr-only">Filter:</span> {{ filter.name || 'New Filter' }}</div>
+          <div class="d-flex dropdown-width justify-content-between text-dark">
+            <div v-if="filter.name"><span class="sr-only">Filter: </span>{{ filter.name || 'New Filter' }}</div>
             <div v-if="!filter.name"><span class="sr-only">Select a </span>New Filter</div>
-            <div>
+            <div class="ml-2">
               <font-awesome :icon="isMenuOpen ? 'angle-up' : 'angle-down'" class="menu-caret" />
             </div>
           </div>
@@ -70,10 +70,10 @@
           variant="link"
           no-caret>
           <template slot="button-content">
-            <div class="dropdown-width d-flex justify-content-between text-secondary">
+            <div class="d-flex dropdown-width justify-content-between text-secondary">
               <div v-if="valueLabel"><span class="sr-only">Selected value is </span>{{ valueLabel }}</div>
               <div v-if="!valueLabel">Choose...<span class="sr-only"> a filter value option</span></div>
-              <div>
+              <div class="ml-2">
                 <font-awesome :icon="isMenuOpen ? 'angle-up' : 'angle-down'" class="menu-caret" />
               </div>
             </div>
@@ -479,10 +479,10 @@ export default {
   flex: 0 0 240px;
 }
 .cohort-filter-draft-column-01 .dropdown-item {
-  width: 320px;
+  width: 330px;
 }
 .cohort-filter-draft-column-01 .dropdown-width {
-  width: 240px;
+  width: 260px;
 }
 .cohort-filter-draft-column-02 {
   flex: 0;
