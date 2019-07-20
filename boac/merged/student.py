@@ -49,11 +49,11 @@ def get_api_json(sids):
                 'firstName',
                 'gender',
                 'lastName',
-                'minority',
                 'name',
                 'photoUrl',
                 'sid',
                 'uid',
+                'underrepresented',
             ]
         }
         if profile.get('athleticsProfile'):
@@ -98,14 +98,9 @@ def get_full_student_profiles(sids):
         benchmark('begin COE profile merge')
         coe_profiles = data_loch.get_coe_profiles(sids)
         if coe_profiles:
-            for row in coe_profiles:
-                profile = profiles_by_sid.get(row['sid'])
-                if profile:
-                    profile['coeProfile'] = json.loads(row['profile'])
-                    if profile['coeProfile'].get('status') in ['D', 'P', 'U', 'W', 'X', 'Z']:
-                        profile['coeProfile']['isActiveCoe'] = False
-                    else:
-                        profile['coeProfile']['isActiveCoe'] = True
+            for coe_profile in coe_profiles:
+                sid = coe_profile['sid']
+                _merge_coe_student_profile_data(profiles_by_sid.get(sid), coe_profile)
         benchmark('end COE profile merge')
     return profiles
 
@@ -266,6 +261,7 @@ def query_students(
     coe_genders=None,
     coe_prep_statuses=None,
     coe_probation=None,
+    coe_underrepresented=None,
     ethnicities=None,
     expected_grad_terms=None,
     genders=None,
@@ -295,6 +291,7 @@ def query_students(
         'coe_genders': coe_genders,
         'coe_prep_statuses': coe_prep_statuses,
         'coe_probation': coe_probation,
+        'coe_underrepresented': coe_underrepresented,
         'ethnicities': ethnicities,
         'genders': genders,
         'group_codes': group_codes,
@@ -314,6 +311,7 @@ def query_students(
         coe_genders=coe_genders,
         coe_prep_statuses=coe_prep_statuses,
         coe_probation=coe_probation,
+        coe_underrepresented=coe_underrepresented,
         ethnicities=ethnicities,
         expected_grad_terms=expected_grad_terms,
         genders=genders,
@@ -465,7 +463,7 @@ def scope_for_criteria(**kwargs):
             'coe_genders',
             'coe_prep_statuses',
             'coe_probation',
-            'underrepresented',
+            'coe_underrepresented',
         ],
     }
 
@@ -543,7 +541,18 @@ def _get_profiles_by_sid(profiles):
             **json.loads(row['profile']),
             **{
                 'gender': row['gender'],
-                'minority': row['minority'],
+                'underrepresented': row['minority'],
             },
         }
     return profiles_by_sid
+
+
+def _merge_coe_student_profile_data(profile, coe_profile):
+    if profile:
+        profile['coeProfile'] = json.loads(coe_profile['profile'])
+        if 'minority' in profile['coeProfile']:
+            profile['coeProfile']['underrepresented'] = profile['coeProfile']['minority']
+        if profile['coeProfile'].get('status') in ['D', 'P', 'U', 'W', 'X', 'Z']:
+            profile['coeProfile']['isActiveCoe'] = False
+        else:
+            profile['coeProfile']['isActiveCoe'] = True

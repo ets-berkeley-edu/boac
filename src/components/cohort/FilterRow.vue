@@ -479,7 +479,7 @@ export default {
   flex: 0 0 240px;
 }
 .cohort-filter-draft-column-01 .dropdown-item {
-  width: 260px;
+  width: 320px;
 }
 .cohort-filter-draft-column-01 .dropdown-width {
   width: 240px;

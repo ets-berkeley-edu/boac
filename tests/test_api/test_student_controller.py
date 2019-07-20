@@ -437,7 +437,7 @@ class TestStudent:
         student_by_uid = self._api_student_by_uid(client=client, uid=uid)
         for student in [student_by_sid, student_by_uid]:
             assert student['gender'] == 'Different Identity'
-            assert student['minority'] is False
+            assert student['underrepresented'] is False
 
             assert 'coeProfile' not in student
             athletics_profile = student['athleticsProfile']
@@ -460,30 +460,32 @@ class TestStudent:
         student_by_uid = self._api_student_by_uid(client=client, uid=uid)
         for student in [student_by_sid, student_by_uid]:
             assert student['gender'] == 'Female'
-            assert student['minority'] is True
+            assert student['underrepresented'] is True
 
             assert 'athleticsProfile' not in student
             assert 'coeProfile' in student
-            coe_profile = student['coeProfile']
-            assert coe_profile == {
-                'advisorUid': '1133399',
-                'gender': 'F',
-                'ethnicity': 'B',
-                'minority': True,
+
+            expected_coe_profile = {
                 'didPrep': False,
-                'prepEligible': True,
                 'didTprep': False,
-                'tprepEligible': False,
-                'sat1read': 510,
-                'sat2read': 520,
-                'sat2math': 620,
-                'inMet': False,
+                'ethnicity': 'B',
+                'gender': 'F',
                 'gradTerm': 'sp',
                 'gradYear': '2020',
-                'probation': False,
-                'status': 'C',
+                'inMet': False,
                 'isActiveCoe': True,
+                'prepEligible': True,
+                'probation': False,
+                'sat1read': 510,
+                'sat2math': 620,
+                'sat2read': 520,
+                'status': 'C',
+                'tprepEligible': False,
+                'underrepresented': True,
+                'advisorUid': '1133399',
             }
+            for key, value in expected_coe_profile.items():
+                assert student['coeProfile'].get(key) == value
 
     def test_athletics_profile_admin(self, admin_login, client):
         """Includes athletics profile for admins."""
@@ -493,7 +495,7 @@ class TestStudent:
         student_by_uid = self._api_student_by_uid(client=client, uid=uid)
         for student in [student_by_sid, student_by_uid]:
             assert student['gender'] == 'Different Identity'
-            assert student['minority'] is False
+            assert student['underrepresented'] is False
 
             athletics_profile = student['athleticsProfile']
             assert athletics_profile['inIntensiveCohort'] is True
