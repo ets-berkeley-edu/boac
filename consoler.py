@@ -49,7 +49,8 @@ from pprintpp import pprint as pp # noqa
                         is_advisor=False,
                         is_director=False,
                         updated=2018-01-12 11:02:35.536022,
-                        created=2018-01-12 11:02:35.536011>
+                        created=2018-01-12 11:02:35.536011,
+                        deleted_at=None>
                     , ...
 
 """

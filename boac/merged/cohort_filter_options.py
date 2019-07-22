@@ -323,7 +323,7 @@ def _selections_of_type(filter_type, existing_filters):
 
 
 def _get_coe_profiles():
-    users = list(filter(lambda _user: 'COENG' in _get_dept_codes(_user), AuthorizedUser.query.all()))
+    users = list(filter(lambda _user: 'COENG' in _get_dept_codes(_user), AuthorizedUser.get_all_active_users()))
     profiles = []
     for user in authorized_users_api_feed(users):
         uid = user['uid']
