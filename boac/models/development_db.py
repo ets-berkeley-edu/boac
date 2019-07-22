@@ -62,53 +62,62 @@ _test_users = [
     ['6446', None, False, False],
 ]
 
-_users_per_dept = {
-    'COENG': [
-        {
-            'uid': '1022796',
-            'is_advisor': False,
-            'is_director': True,
-        },
-        {
-            'uid': '90412',
-            'is_advisor': True,
-            'is_director': True,
-        },
-        {
-            'uid': '1133399',
-            'is_advisor': True,
-            'is_director': False,
-        },
-        {
-            'uid': '13',
-            'is_advisor': True,
-            'is_director': False,
-        },
-    ],
-    'PHYSI': [
-        {
-            'uid': '53791',
-            'is_advisor': False,
-            'is_director': True,
-        },
-    ],
-    'UWASC': [
-        {
-            'uid': '1081940',
-            'is_advisor': True,
-            'is_director': False,
-        },
-        {
-            'uid': '90412',
-            'is_advisor': False,
-            'is_director': True,
-        },
-        {
-            'uid': '6446',
-            'is_advisor': True,
-            'is_director': True,
-        },
-    ],
+_university_depts = {
+    'COENG': {
+        'automate_memberships': True,
+        'users': [
+            {
+                'uid': '1022796',
+                'is_advisor': False,
+                'is_director': True,
+            },
+            {
+                'uid': '90412',
+                'is_advisor': True,
+                'is_director': True,
+            },
+            {
+                'uid': '1133399',
+                'is_advisor': True,
+                'is_director': False,
+            },
+            {
+                'uid': '13',
+                'is_advisor': True,
+                'is_director': False,
+            },
+        ],
+    },
+    'PHYSI': {
+        'automate_memberships': False,
+        'users': [
+            {
+                'uid': '53791',
+                'is_advisor': False,
+                'is_director': True,
+            },
+        ],
+    },
+    'UWASC': {
+        'automate_memberships': False,
+        'users': [
+            {
+                'uid': '1081940',
+                'is_advisor': True,
+                'is_director': False,
+            },
+            {
+                'uid': '90412',
+                'is_advisor': False,
+                'is_director': True,
+            },
+            {
+                'uid': '6446',
+                'is_advisor': True,
+                'is_director': True,
+            },
+        ],
+    },
 }
 
 
@@ -138,7 +147,7 @@ def load_schemas():
 
 def load_development_data():
     for name, code in BERKELEY_DEPT_NAME_TO_CODE.items():
-        UniversityDept.create(code, name)
+        UniversityDept.create(code, name, False)
     for test_user in _test_users:
         # This script can be run more than once. Do not create user if s/he exists in BOAC db.
         uid = test_user[0]
@@ -161,9 +170,11 @@ def load_development_data():
         if not user:
             user = AuthorizedUser(uid=uid, is_admin=test_user[2], in_demo_mode=test_user[3])
             db.session.add(user)
-    for dept_code, users in _users_per_dept.items():
+    for dept_code, dept_membership in _university_depts.items():
         university_dept = UniversityDept.find_by_dept_code(dept_code)
-        for user in users:
+        university_dept.automate_memberships = dept_membership['automate_memberships']
+        db.session.add(university_dept)
+        for user in dept_membership['users']:
             authorized_user = AuthorizedUser.find_by_uid(user['uid'])
             UniversityDeptMember.create_membership(
                 university_dept,

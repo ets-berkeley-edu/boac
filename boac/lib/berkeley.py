@@ -319,6 +319,7 @@ BERKELEY_DEPT_CODE_TO_NAME = {
     'PSTAT': 'Department of Statistics',
     'QALSD': 'Letters and Science Deans',
     'QCADV': 'L&S Undergraduate Advising',
+    'QCADVMAJ': 'L&S Major Advising',
     'QHUIS': 'Office of Undergraduate and Interdisciplinary Studies',
     'QHUTL': 'UGIS Teaching Programs',
     'QIIAS': 'International and Area Studies Academic Program',
@@ -357,6 +358,7 @@ BERKELEY_DEPT_CODE_TO_NAME = {
     'UXDSP': 'Disabled Students Program',
     'VREAS': 'Student Information Systems',
     'ZCEEE': 'Center for Education, Equity, and Excellence',
+    'ZZZZZ': 'Other',
 }
 
 BERKELEY_DEPT_NAME_TO_CODE = {value: key for key, value in BERKELEY_DEPT_CODE_TO_NAME.items()}

@@ -310,6 +310,7 @@ CREATE TABLE university_depts (
   id INTEGER NOT NULL,
   dept_code VARCHAR(80) NOT NULL,
   dept_name VARCHAR(255) NOT NULL,
+  automate_memberships BOOLEAN DEFAULT false NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
