@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from threading import Thread
 
+from boac import std_commit
 from boac.externals import data_loch
 from boac.lib import berkeley
 from boac.models.alert import Alert
@@ -136,6 +137,8 @@ def load_term(term_id=berkeley.current_term_id()):
     refresh_alerts(term_id)
 
     if term_id == berkeley.current_term_id():
+        JobProgress().update(f'About to refresh department memberships')
+        refresh_department_memberships()
         JobProgress().update(f'About to load filtered cohort counts')
         load_filtered_cohort_counts()
         JobProgress().update(f'About to update curated group memberships')
@@ -145,6 +148,18 @@ def load_term(term_id=berkeley.current_term_id()):
 def refresh_alerts(term_id):
     Alert.deactivate_all_for_term(term_id)
     Alert.update_all_for_term(term_id)
+
+
+def refresh_department_memberships():
+    from boac.models.authorized_user import AuthorizedUser
+    from boac.models.university_dept import UniversityDept
+    from boac.models.db_relationships import UniversityDeptMember
+    for dept in UniversityDept.query.filter_by(automate_memberships=True).all():
+        dept.delete_all_members()
+        for membership in dept.memberships_from_loch():
+            user = AuthorizedUser.create_or_restore(uid=membership['uid'])
+            UniversityDeptMember.create_membership(dept, user, is_advisor=True, is_director=False)
+        std_commit()
 
 
 def load_filtered_cohort_counts():
