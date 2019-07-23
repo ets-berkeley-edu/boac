@@ -69,10 +69,10 @@ class AuthorizedUser(Base):
 
     @classmethod
     def create_or_restore(cls, uid, is_admin=False, in_demo_mode=False):
-        existing_note = cls.query.filter_by(uid=uid).first()
-        if existing_note:
-            existing_note.deleted_at = None
-            return existing_note
+        existing_user = cls.query.filter_by(uid=uid).first()
+        if existing_user:
+            existing_user.deleted_at = None
+            return existing_user
         else:
             return cls(uid=uid, is_admin=is_admin, in_demo_mode=in_demo_mode)
 

@@ -65,7 +65,7 @@ class UniversityDept(Base):
         sql = """
             DELETE FROM university_dept_members WHERE university_dept_id = :id;
             UPDATE authorized_users SET deleted_at = now()
-                WHERE is_admin = false
+                WHERE is_admin IS FALSE
                 AND deleted_at IS NULL
                 AND id NOT IN (SELECT authorized_user_id FROM university_dept_members);"""
         db.session.execute(text(sql), {'id': self.id})
