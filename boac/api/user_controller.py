@@ -117,7 +117,7 @@ def _get_boa_user_groups(sort_users_by=None):
                 'users': [],
             }
         depts[_dept_code]['users'].append(_user)
-    for user in AuthorizedUser.query.all():
+    for user in AuthorizedUser.get_all_active_users():
         if user.is_admin:
             _put('ADMIN', user)
         for m in user.department_memberships:

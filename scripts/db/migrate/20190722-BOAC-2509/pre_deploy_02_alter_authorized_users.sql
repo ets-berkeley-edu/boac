@@ -1,0 +1,5 @@
+BEGIN;
+
+ALTER TABLE authorized_users ADD COLUMN deleted_at TIMESTAMP WITH TIME ZONE;
+
+COMMIT;

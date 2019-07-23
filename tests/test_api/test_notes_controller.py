@@ -312,34 +312,6 @@ class TestBatchNoteCreation:
 
 class TestNoteAttachments:
 
-    def test_add_attachment(self, app, client, fake_auth):
-        """Add an attachment to an existing note."""
-        fake_auth.login(coe_advisor_uid)
-        base_dir = app.config['BASE_DIR']
-        note = _api_note_create(
-            app,
-            client,
-            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            sid=coe_student['sid'],
-            subject='No attachments yet',
-            body='I travel light',
-        )
-        note_id = note['id']
-        assert note['updatedAt'] is None
-        with mock_advising_note_s3_bucket(app):
-            data = {'attachment[0]': open(f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt', 'rb')}
-            response = client.post(
-                f'/api/notes/{note_id}/attachment',
-                buffered=True,
-                content_type='multipart/form-data',
-                data=data,
-            )
-        assert response.status_code == 200
-        updated_note = response.json
-        assert len(updated_note['attachments']) == 1
-        assert updated_note['attachments'][0]['filename'] == 'mock_advising_note_attachment_1.txt'
-        assert updated_note['updatedAt'] is not None
-
     def test_remove_attachment(self, app, client, fake_auth):
         """Remove an attachment from an existing note."""
         fake_auth.login(coe_advisor_uid)
@@ -369,6 +341,34 @@ class TestNoteAttachments:
         assert match['attachments'][0]['id'] == id_to_keep
         assert match['attachments'][0]['filename'] == 'mock_advising_note_attachment_2.txt'
         assert match['updatedAt'] is not None
+
+    def test_add_attachment(self, app, client, fake_auth):
+        """Add an attachment to an existing note."""
+        fake_auth.login(coe_advisor_uid)
+        base_dir = app.config['BASE_DIR']
+        note = _api_note_create(
+            app,
+            client,
+            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+            sid=coe_student['sid'],
+            subject='No attachments yet',
+            body='I travel light',
+        )
+        note_id = note['id']
+        assert note['updatedAt'] is None
+        with mock_advising_note_s3_bucket(app):
+            data = {'attachment[0]': open(f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt', 'rb')}
+            response = client.post(
+                f'/api/notes/{note_id}/attachment',
+                buffered=True,
+                content_type='multipart/form-data',
+                data=data,
+            )
+        assert response.status_code == 200
+        updated_note = response.json
+        assert len(updated_note['attachments']) == 1
+        assert updated_note['attachments'][0]['filename'] == 'mock_advising_note_attachment_1.txt'
+        assert updated_note['updatedAt'] is not None
 
 
 class TestMarkNoteRead:

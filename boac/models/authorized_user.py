@@ -36,6 +36,7 @@ class AuthorizedUser(Base):
     uid = db.Column(db.String(255), nullable=False, unique=True)
     is_admin = db.Column(db.Boolean)
     in_demo_mode = db.Column(db.Boolean, nullable=False)
+    deleted_at = db.Column(db.DateTime, nullable=True)
     department_memberships = db.relationship(
         'UniversityDeptMember',
         back_populates='authorized_user',
@@ -68,29 +69,36 @@ class AuthorizedUser(Base):
 
     @classmethod
     def get_id_per_uid(cls, uid):
-        query = text(f'SELECT id FROM authorized_users WHERE uid = :uid')
+        query = text(f'SELECT id FROM authorized_users WHERE uid = :uid AND deleted_at IS NULL')
         result = db.session.execute(query, {'uid': uid}).first()
         return result and result['id']
 
     @classmethod
     def find_by_id(cls, db_id):
-        return AuthorizedUser.query.filter_by(id=db_id).first()
+        return AuthorizedUser.query.filter_by(id=db_id, deleted_at=None).first()
 
     @classmethod
     def find_by_uid(cls, uid):
-        return AuthorizedUser.query.filter_by(uid=uid).first()
+        return AuthorizedUser.query.filter_by(uid=uid, deleted_at=None).first()
+
+    @classmethod
+    def get_all_active_users(cls):
+        return cls.query.filter_by(deleted_at=None).all()
 
     @classmethod
     def get_all_uids_in_scope(cls, scope=()):
         sql = 'SELECT uid FROM authorized_users u '
         if not scope:
             return None
-        elif 'ADMIN' not in scope:
+        elif 'ADMIN' in scope:
+            sql += 'WHERE u.deleted_at IS NULL'
+        else:
             sql += """
                 JOIN university_dept_members m ON m.authorized_user_id = u.id
                 JOIN university_depts d ON d.id = m.university_dept_id
                 WHERE
                 d.dept_code = ANY(:scope)
+                AND u.deleted_at IS NULL
             """
         results = db.session.execute(sql, {'scope': scope})
         return [row['uid'] for row in results]
