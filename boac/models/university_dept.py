@@ -25,7 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac import db, std_commit
+from boac.externals import data_loch
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS
 from boac.models.base import Base
+from sqlalchemy.sql import text
 
 
 class UniversityDept(Base):
@@ -57,3 +60,22 @@ class UniversityDept(Base):
         db.session.add(dept)
         std_commit()
         return dept
+
+    def delete_all_members(self):
+        sql = """
+            DELETE FROM university_dept_members WHERE university_dept_id = :id;
+            UPDATE authorized_users SET deleted_at = now()
+                WHERE is_admin IS FALSE
+                AND deleted_at IS NULL
+                AND id NOT IN (SELECT authorized_user_id FROM university_dept_members);"""
+        db.session.execute(text(sql), {'id': self.id})
+        std_commit()
+
+    def memberships_from_loch(self):
+        program_affiliations = BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS.get(self.dept_code)
+        if not program_affiliations:
+            return []
+        return data_loch.get_advisors_for_affiliations(
+            program_affiliations.get('program'),
+            program_affiliations.get('affiliations'),
+        )

@@ -364,6 +364,39 @@ BERKELEY_DEPT_CODE_TO_NAME = {
 BERKELEY_DEPT_NAME_TO_CODE = {value: key for key, value in BERKELEY_DEPT_CODE_TO_NAME.items()}
 
 
+BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS = {
+    'BAHSB': {
+        'program': 'UBUS',
+    },
+    'CDCDN': {
+        'program': 'UCCH',
+    },
+    'COENG': {
+        'program': 'UCOE',
+    },
+    'DACED': {
+        'program': 'UCED',
+    },
+    'MANRD': {
+        'program': 'UCNR',
+    },
+    'QCADV': {
+        'program': 'UCLS',
+        # ADVD (Advisor Delegate) and DNDS (College Dean Designate) advisors get filed with college advisors unless
+        # and until we learn more about where to put them.
+        'affiliations': ['ADVD', 'COLL', 'DNDS'],
+    },
+    'QCADVMAJ': {
+        'program': 'UCLS',
+        'affiliations': ['MAJ'],
+    },
+    # Our catchall 'Other' department gets stuck with empty program codes.
+    'ZZZZZ': {
+        'program': '',
+    },
+}
+
+
 def current_term_id():
     term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
     return sis_term_id_for_name(term_name)

@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import glob
 import json
 import os
+os.environ['BOAC_ENV'] = 'test' # noqa
 
 from boac import std_commit
 import boac.factory
@@ -33,9 +34,6 @@ from boac.models.note import Note
 from moto import mock_sts
 import pytest
 from tests.util import mock_advising_note_s3_bucket, override_config
-
-
-os.environ['BOAC_ENV'] = 'test'
 
 
 class FakeAuth(object):

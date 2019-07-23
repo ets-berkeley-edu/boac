@@ -547,6 +547,15 @@ def get_academic_plans_for_advisor(advisor_sid):
     return safe_execute_rds(sql, advisor_sid=advisor_sid)
 
 
+def get_advisors_for_affiliations(program, affiliations):
+    sql = f"""SELECT DISTINCT sid, uid, advisor_type_code
+        FROM {advisor_schema()}.advisor_roles
+        WHERE academic_program_code = :program"""
+    if affiliations:
+        sql += ' AND advisor_type_code = ANY(:affiliations)'
+    return safe_execute_redshift(sql, program=program, affiliations=affiliations)
+
+
 def get_coe_ethnicity_codes(scope=()):
     # TODO Scoping remains in place for the moment, as ethnicity is still a COE-specific category.
     query_tables = _student_query_tables_for_scope(scope)

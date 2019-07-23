@@ -68,6 +68,15 @@ class AuthorizedUser(Base):
                 """
 
     @classmethod
+    def create_or_restore(cls, uid, is_admin=False, in_demo_mode=False):
+        existing_user = cls.query.filter_by(uid=uid).first()
+        if existing_user:
+            existing_user.deleted_at = None
+            return existing_user
+        else:
+            return cls(uid=uid, is_admin=is_admin, in_demo_mode=in_demo_mode)
+
+    @classmethod
     def get_id_per_uid(cls, uid):
         query = text(f'SELECT id FROM authorized_users WHERE uid = :uid AND deleted_at IS NULL')
         result = db.session.execute(query, {'uid': uid}).first()
