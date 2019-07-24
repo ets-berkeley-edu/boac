@@ -75,7 +75,7 @@ class UniversityDept(Base):
         program_affiliations = BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS.get(self.dept_code)
         if not program_affiliations:
             return []
-        return data_loch.get_advisors_for_affiliations(
+        return data_loch.get_advisor_uids_for_affiliations(
             program_affiliations.get('program'),
             program_affiliations.get('affiliations'),
         )

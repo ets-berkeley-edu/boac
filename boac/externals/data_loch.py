@@ -539,8 +539,8 @@ def get_academic_plans_for_advisor(advisor_sid):
     return safe_execute_rds(sql, advisor_sid=advisor_sid)
 
 
-def get_advisors_for_affiliations(program, affiliations):
-    sql = f"""SELECT DISTINCT sid, uid, advisor_type_code
+def get_advisor_uids_for_affiliations(program, affiliations):
+    sql = f"""SELECT DISTINCT uid
         FROM {advisor_schema()}.advisor_roles
         WHERE academic_program_code = :program"""
     if affiliations:

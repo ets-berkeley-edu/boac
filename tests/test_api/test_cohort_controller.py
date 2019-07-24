@@ -134,7 +134,7 @@ class TestCohortDetail:
         assert response.status_code == 200
         api_json = response.json
         count = len(api_json)
-        assert count == 2
+        assert count == 3
         for index, entry in enumerate(api_json):
             user = entry['user']
             if 0 < index < count:
