@@ -51,13 +51,12 @@ class UniversityDeptMember(Base):
 
     @classmethod
     def create_membership(cls, university_dept, authorized_user, is_advisor, is_director):
-        if not len(authorized_user.department_memberships):
-            mapping = cls(is_advisor=is_advisor, is_director=is_director)
-            mapping.authorized_user = authorized_user
-            mapping.university_dept = university_dept
-            authorized_user.department_memberships.append(mapping)
-            university_dept.authorized_users.append(mapping)
-            db.session.add(mapping)
+        mapping = cls(is_advisor=is_advisor, is_director=is_director)
+        mapping.authorized_user = authorized_user
+        mapping.university_dept = university_dept
+        authorized_user.department_memberships.append(mapping)
+        university_dept.authorized_users.append(mapping)
+        db.session.add(mapping)
         std_commit()
 
 

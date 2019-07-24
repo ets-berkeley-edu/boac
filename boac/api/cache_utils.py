@@ -26,7 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from threading import Thread
 
-from boac import std_commit
 from boac.externals import data_loch
 from boac.lib import berkeley
 from boac.models.alert import Alert
@@ -154,12 +153,13 @@ def refresh_department_memberships():
     from boac.models.authorized_user import AuthorizedUser
     from boac.models.university_dept import UniversityDept
     from boac.models.db_relationships import UniversityDeptMember
-    for dept in UniversityDept.query.filter_by(automate_memberships=True).all():
+    depts = UniversityDept.query.filter_by(automate_memberships=True).all()
+    for dept in depts:
         dept.delete_all_members()
+    for dept in depts:
         for membership in dept.memberships_from_loch():
             user = AuthorizedUser.create_or_restore(uid=membership['uid'])
             UniversityDeptMember.create_membership(dept, user, is_advisor=True, is_director=False)
-        std_commit()
 
 
 def load_filtered_cohort_counts():

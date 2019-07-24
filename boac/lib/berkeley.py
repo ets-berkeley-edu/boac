@@ -382,13 +382,13 @@ BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS = {
     },
     'QCADV': {
         'program': 'UCLS',
-        # ADVD (Advisor Delegate) and DNDS (College Dean Designate) advisors get filed with college advisors unless
-        # and until we learn more about where to put them.
-        'affiliations': ['ADVD', 'COLL', 'DNDS'],
+        # DNDS ('Dean Designate') advisors get filed with college advisors.
+        'affiliations': ['COLL', 'DNDS'],
     },
     'QCADVMAJ': {
         'program': 'UCLS',
-        'affiliations': ['MAJ'],
+        # ADVD ('Advisor Delegate') advisors get filed with major advisors.
+        'affiliations': ['ADVD', 'MAJ'],
     },
     # Our catchall 'Other' department gets stuck with empty program codes.
     'ZZZZZ': {
