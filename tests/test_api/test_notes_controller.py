@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from datetime import datetime
+from time import sleep
 
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
@@ -341,6 +342,9 @@ class TestNoteAttachments:
                 f'{base_dir}/fixtures/mock_advising_note_attachment_2.txt',
             ],
         )
+        assert note['updatedAt'] is None
+        # Pause one second to ensure a distinct updatedAt.
+        sleep(1)
         note_id = note['id']
         id_to_delete = note['attachments'][0]['id']
         id_to_keep = note['attachments'][1]['id']
@@ -353,8 +357,7 @@ class TestNoteAttachments:
         assert len(match.get('attachments')) == 1
         assert match['attachments'][0]['id'] == id_to_keep
         assert match['attachments'][0]['filename'] == 'mock_advising_note_attachment_2.txt'
-        # TODO BOAC-2531
-        # assert match['updatedAt'] is not None
+        assert match['updatedAt'] is not None
 
     def test_add_attachment(self, app, client, fake_auth):
         """Add an attachment to an existing note."""
@@ -368,8 +371,10 @@ class TestNoteAttachments:
             subject='No attachments yet',
             body='I travel light',
         )
-        note_id = note['id']
         assert note['updatedAt'] is None
+        # Pause one second to ensure a distinct updatedAt.
+        sleep(1)
+        note_id = note['id']
         with mock_advising_note_s3_bucket(app):
             data = {'attachment[0]': open(f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt', 'rb')}
             response = client.post(
