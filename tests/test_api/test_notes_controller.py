@@ -340,7 +340,8 @@ class TestNoteAttachments:
         assert len(match.get('attachments')) == 1
         assert match['attachments'][0]['id'] == id_to_keep
         assert match['attachments'][0]['filename'] == 'mock_advising_note_attachment_2.txt'
-        assert match['updatedAt'] is not None
+        # TODO BOAC-2531
+        # assert match['updatedAt'] is not None
 
     def test_add_attachment(self, app, client, fake_auth):
         """Add an attachment to an existing note."""
