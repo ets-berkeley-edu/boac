@@ -115,9 +115,9 @@ export function deleteNote(noteId: number) {
     .then(response => response.data);
 }
 
-export function getTopics() {
+export function getTopics(includeDeleted: boolean) {
   return axios
-    .get(`${utils.apiBaseUrl()}/api/notes/topics`)
+    .get(`${utils.apiBaseUrl()}/api/notes/topics?includeDeleted=${includeDeleted}`)
     .then(response => response.data);
 }
 

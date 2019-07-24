@@ -33,6 +33,7 @@ from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.json_cache import insert_row as insert_in_json_cache
+from boac.models.topic import Topic
 from boac.models.university_dept import UniversityDept
 # Models below are included so that db.create_all will find them.
 from boac.models.alert import Alert # noqa
@@ -142,6 +143,7 @@ def load(cohort_test_data=False):
     load_schemas()
     load_development_data()
     if cohort_test_data:
+        create_advising_note_topics()
         create_curated_groups()
         create_cohorts()
     return db
@@ -198,6 +200,14 @@ def load_development_data():
                 user['is_advisor'],
                 user['is_director'],
             )
+    std_commit(allow_test_environment=True)
+
+
+def create_advising_note_topics():
+    for i in range(5):
+        Topic.create_topic(f'Topic {i}')
+    delete_me = Topic.create_topic('I am a deleted topic')
+    Topic.delete(delete_me.id)
     std_commit(allow_test_environment=True)
 
 

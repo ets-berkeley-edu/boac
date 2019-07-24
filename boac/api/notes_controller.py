@@ -27,9 +27,8 @@ import urllib.parse
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.externals import data_loch
-from boac.lib import util
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import is_int, process_input_from_rich_text_editor
+from boac.lib.util import get as get_param, is_int, process_input_from_rich_text_editor, to_bool_or_none
 from boac.merged.advising_note import get_batch_distinct_sids, get_boa_attachment_stream, get_legacy_attachment_stream, note_to_compatible_json
 from boac.merged.calnet import get_calnet_user_for_uid
 from boac.models.cohort_filter import CohortFilter
@@ -120,9 +119,9 @@ def batch_create_notes():
 @login_required
 def distinct_student_count():
     params = request.get_json()
-    sids = util.get(params, 'sids', None)
-    cohort_ids = util.get(params, 'cohortIds', None)
-    curated_group_ids = util.get(params, 'curatedGroupIds', None)
+    sids = get_param(params, 'sids', None)
+    cohort_ids = get_param(params, 'cohortIds', None)
+    curated_group_ids = get_param(params, 'curatedGroupIds', None)
     if cohort_ids or curated_group_ids:
         count = len(get_batch_distinct_sids(sids, cohort_ids, curated_group_ids))
     else:
@@ -193,7 +192,9 @@ def find_note_authors_by_name():
 @app.route('/api/notes/topics', methods=['GET'])
 @login_required
 def get_topics():
-    return tolerant_jsonify([topic.to_api_json() for topic in Topic.get()])
+    include_deleted = to_bool_or_none(request.args.get('includeDeleted'))
+    topics = Topic.get_all(include_deleted=include_deleted)
+    return tolerant_jsonify([topic.to_api_json() for topic in topics])
 
 
 @app.route('/api/notes/<note_id>/attachment', methods=['POST'])

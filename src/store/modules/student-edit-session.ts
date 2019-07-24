@@ -39,7 +39,7 @@ const actions = {
   setNewNoteMode: ({ commit }, mode: string) => {
     if (_.isUndefined(state.suggestedTopics)) {
       // Lazy-load topics
-      getTopics().then(data => {
+      getTopics(false).then(data => {
         commit('setSuggestedTopics', data);
         commit('setNewNoteMode', mode);
       });

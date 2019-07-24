@@ -288,7 +288,8 @@ CREATE INDEX student_group_members_sid_idx ON student_group_members USING btree 
 CREATE TABLE topics (
   id INTEGER NOT NULL,
   topic VARCHAR(50) NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  deleted_at timestamp with time zone
 );
 ALTER TABLE topics OWNER TO boac;
 CREATE SEQUENCE topics_id_seq

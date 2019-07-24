@@ -283,9 +283,11 @@ class TestBatchNoteCreation:
             assert len(note.attachments) == 2
 
     def test_batch_student_count_not_authenticated(self, client):
+        """Deny anonymous access to batch note metadata."""
         _api_batch_distinct_student_count(client, sids=['11667051'], cohort_ids=[1, 2], expected_status_code=401)
 
     def test_batch_student_count_not_owner(self, client, fake_auth):
+        """Deny user access to cohort owned by some other dept."""
         user_id = AuthorizedUser.get_id_per_uid(coe_advisor_uid)
         cohorts = CohortFilter.get_cohorts_of_user_id(user_id)
         # Assert non-zero student count
@@ -296,6 +298,7 @@ class TestBatchNoteCreation:
         assert count == 0
 
     def test_batch_student_count(self, client, fake_auth):
+        """Get distinct number of SIDs in union of cohorts, curated groups, etc."""
         user_id = AuthorizedUser.get_id_per_uid(coe_advisor_uid)
         cohort_ids = []
         sids = set()
@@ -322,6 +325,36 @@ class TestBatchNoteCreation:
             sids=[some_other_sid],
         )
         assert len(sids) + 1 == count
+
+
+class TestNoteTopics:
+
+    @classmethod
+    def _api_all_note_topics(cls, client, include_deleted=None, expected_status_code=200):
+        api_path = '/api/notes/topics'
+        if include_deleted is not None:
+            api_path += f'?includeDeleted={str(include_deleted).lower()}'
+        response = client.get(api_path)
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_get_all_topics_not_authenticated(self, client):
+        """Deny anonymous access to note topics."""
+        self._api_all_note_topics(client, expected_status_code=401)
+
+    def test_get_all_topics_including_deleted(self, client, fake_auth):
+        """Get all note topic options, including deleted."""
+        fake_auth.login(coe_advisor_uid)
+        api_json = self._api_all_note_topics(client, include_deleted=True)
+        assert 'Topic 1' in api_json
+        assert 'I am a deleted topic' in api_json
+
+    def test_get_all_topics(self, client, fake_auth):
+        """Get all note topic options, not including deleted."""
+        fake_auth.login(coe_advisor_uid)
+        api_json = self._api_all_note_topics(client)
+        assert 'Topic 1' in api_json
+        assert 'I am a deleted topic' not in api_json
 
 
 class TestNoteAttachments:

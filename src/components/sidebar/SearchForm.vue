@@ -277,9 +277,7 @@ export default {
       searchPhrase: null,
       showNoteFilters: false,
       showSearchOptions: false,
-      topicOptions: [
-        {text: 'Any topic', value: null}
-      ]
+      topicOptions: undefined
     };
   },
   computed: {
@@ -332,7 +330,6 @@ export default {
   },
   created() {
     this.resetNoteFilters();
-    this.getNoteTopics();
   },
   methods: {
     dateFormat(value) {
@@ -345,16 +342,6 @@ export default {
     },
     dateString(d, format) {
       return this.$options.filters.moment(d, format);
-    },
-    getNoteTopics() {
-      getTopics().then(data => {
-        this.each(data, topic => {
-          this.topicOptions.push({
-            text: topic,
-            value: topic
-          })
-        });
-      });
     },
     resetNoteFilters() {
       this.noteFilters = this.cloneDeep(this.defaultNoteFilters);
@@ -402,6 +389,19 @@ export default {
       this.showNoteFilters = !this.showNoteFilters;
       if (!this.showNoteFilters) {
         this.resetNoteFilters();
+      }
+      if (!this.topicOptions) {
+        this.topicOptions = [
+          {text: 'Any topic', value: null}
+        ];
+        getTopics(true).then(data => {
+          this.each(data, topic => {
+            this.topicOptions.push({
+              text: topic,
+              value: topic
+            })
+          });
+        });
       }
     },
     toggleSearchOptions() {
