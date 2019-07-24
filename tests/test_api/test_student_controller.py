@@ -598,7 +598,7 @@ class TestNotes:
         assert user['csid'] == advisor_sid
         assert user['name'] == 'Roberta Joan Anderson'
         assert user['departments'][0]['code'] == 'QCADV'
-        assert user['departments'][0]['name'] == 'L&S Undergraduate Advising'
+        assert user['departments'][0]['name'] == 'L&S College Advising'
 
 
 class TestAdvisingAppointments:
