@@ -38,6 +38,7 @@ from tests.util import mock_advising_note_s3_bucket, mock_legacy_note_attachment
 
 asc_advisor_uid = '6446'
 coe_advisor_uid = '1133399'
+l_s_major_advisor_uid = '242881'
 admin_uid = '2040'
 
 coe_student = {
@@ -137,6 +138,18 @@ class TestNoteCreation:
         notes = _get_notes(client, coe_student['uid'])
         match = next((n for n in notes if n['id'] == note_id), None)
         assert match and match['subject'] == subject
+
+    def test_create_note_prefers_ldap_dept_affiliation(self, app, client, fake_auth):
+        fake_auth.login(l_s_major_advisor_uid)
+        new_note = _api_note_create(
+            app,
+            client,
+            author_id=AuthorizedUser.get_id_per_uid(l_s_major_advisor_uid),
+            sid=coe_student['sid'],
+            subject='A dreaded sunny day',
+            body='Keats and Yeats are on your side',
+        )
+        assert new_note['author']['departments'][0]['name'] == 'Department of English'
 
     def test_updated_date_is_none_when_note_create(self, app, client, fake_auth):
         """Create a note and expect none updated_at."""

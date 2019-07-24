@@ -235,6 +235,7 @@
             "attributes": {
                 "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
                 "berkeleyEduCSID": "242881",
+                "departmentNumber": "HENGL",
                 "objectClass": [
                     "top",
                     "eduPerson",
