@@ -25,7 +25,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
-from boac import db
+from boac import db, std_commit
+from boac.lib.util import utc_now
 
 
 class Topic(db.Model):
@@ -34,17 +35,29 @@ class Topic(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     topic = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    deleted_at = db.Column(db.DateTime, nullable=True)
 
     def __init__(self, topic):
         self.topic = topic
 
     @classmethod
-    def get(cls):
-        return cls.query.all()
+    def get_all(cls, include_deleted=False):
+        return cls.query.order_by(cls.topic).all() if include_deleted else cls.query.filter_by(deleted_at=None).order_by(cls.topic).all()
+
+    @classmethod
+    def delete(cls, topic_id):
+        topic = cls.query.filter_by(id=topic_id, deleted_at=None).first()
+        if topic:
+            now = utc_now()
+            topic.deleted_at = now
+            std_commit()
 
     @classmethod
     def create_topic(cls, topic):
-        return Topic(topic=topic)
+        topic = cls(topic=topic)
+        db.session.add(topic)
+        std_commit()
+        return topic
 
     def to_api_json(self):
         return self.topic
