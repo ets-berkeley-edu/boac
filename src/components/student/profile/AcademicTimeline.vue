@@ -139,7 +139,7 @@
               <AdvisingAppointment
                 v-if="message.type === 'appointment'"
                 :appointment="message"
-                :is-open="includes(openMessages, message.transientId)" />\
+                :is-open="includes(openMessages, message.transientId)" />
               <div v-if="includes(openMessages, message.transientId) && message.transientId !== editingNoteId" class="text-center close-message">
                 <b-btn
                   :id="`timeline-tab-${activeTab}-close-message`"
