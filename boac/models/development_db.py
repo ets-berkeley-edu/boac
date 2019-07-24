@@ -28,7 +28,7 @@ import random
 import string
 
 from boac import db, std_commit
-from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, BERKELEY_DEPT_NAME_TO_CODE
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
@@ -53,7 +53,7 @@ _test_users = [
     ['177473', None, True, False],
     ['1133399', '800700600', False, False],
     ['211159', None, True, False],
-    ['242881', None, True, False],
+    ['242881', None, False, False, 'HENGL'],
     ['1022796', None, False, False],
     ['1015674', None, False, False],
     ['1049291', None, True, False],
@@ -95,6 +95,16 @@ _university_depts = {
                 'uid': '53791',
                 'is_advisor': False,
                 'is_director': True,
+            },
+        ],
+    },
+    'QCADVMAJ': {
+        'automate_memberships': True,
+        'users': [
+            {
+                'uid': '242881',
+                'is_advisor': True,
+                'is_director': False,
             },
         ],
     },
@@ -157,16 +167,22 @@ def load_development_data():
             # Put mock CalNet data in our json_cache for all users EXCEPT the test "no_calnet_record" user.
             first_name = ''.join(random.choices(string.ascii_uppercase, k=6))
             last_name = ''.join(random.choices(string.ascii_uppercase, k=6))
-            insert_in_json_cache(
-                f'calnet_user_for_uid_{uid}', {
-                    'uid': uid,
-                    # Mock CSIDs are random unless we need them to match explicit test data elsewhere.
-                    'csid': csid or datetime.now().strftime('%H%M%S%f'),
-                    'firstName': first_name,
-                    'lastName': last_name,
-                    'name': f'{first_name} {last_name}',
-                },
-            )
+            calnet_feed = {
+                'uid': uid,
+                # Mock CSIDs are random unless we need them to correspond to test data elsewhere.
+                'csid': csid or datetime.now().strftime('%H%M%S%f'),
+                'firstName': first_name,
+                'lastName': last_name,
+                'name': f'{first_name} {last_name}',
+            }
+            if len(test_user) > 4:
+                calnet_feed['departments'] = [
+                    {
+                        'code': test_user[4],
+                        'name': BERKELEY_DEPT_CODE_TO_NAME.get(test_user[4]),
+                    },
+                ]
+            insert_in_json_cache(f'calnet_user_for_uid_{uid}', calnet_feed)
         if not user:
             user = AuthorizedUser(uid=uid, is_admin=test_user[2], in_demo_mode=test_user[3])
             db.session.add(user)

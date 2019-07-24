@@ -31,6 +31,7 @@ from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import is_int, process_input_from_rich_text_editor
 from boac.merged.advising_note import get_batch_distinct_sids, get_boa_attachment_stream, get_legacy_attachment_stream, note_to_compatible_json
+from boac.merged.calnet import get_calnet_user_for_uid
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.note import Note
@@ -71,16 +72,12 @@ def create_note():
         raise BadRequestError('Note creation requires \'subject\' and \'sid\'')
     if current_user.is_admin or not len(current_user.dept_codes):
         raise ForbiddenRequestError('Sorry, Admin users cannot create advising notes')
-    # TODO: We capture one 'role' and yet user could have multiple, one per dept.
-    role = current_user.departments[0]['role'] if current_user.departments else None
+
+    author_profile = _get_author_profile()
     attachments = _get_attachments(request.files, tolerate_none=True)
-    author = current_user.to_api_json()
 
     note = Note.create(
-        author_uid=author['uid'],
-        author_name=author['name'],
-        author_role=role,
-        author_dept_codes=current_user.dept_codes,
+        **author_profile,
         subject=subject,
         body=process_input_from_rich_text_editor(body),
         topics=topics,
@@ -103,17 +100,13 @@ def batch_create_notes():
         raise BadRequestError('Note creation requires \'subject\' and \'sid\'')
     if current_user.is_admin or not len(current_user.dept_codes):
         raise ForbiddenRequestError('Sorry, Admin users cannot create advising notes')
-    # TODO: We capture one 'role' and yet user could have multiple, one per dept.
-    role = current_user.departments[0]['role'] if current_user.departments else None
+
+    author_profile = _get_author_profile()
     attachments = _get_attachments(request.files, tolerate_none=True)
-    author = current_user.to_api_json()
 
     note_ids_per_sid = Note.create_batch(
-        author_id=author['id'],
-        author_uid=author['uid'],
-        author_name=author['name'],
-        author_role=role,
-        author_dept_codes=current_user.dept_codes,
+        author_id=current_user.to_api_json()['id'],
+        **author_profile,
         subject=subject,
         body=process_input_from_rich_text_editor(body),
         topics=topics,
@@ -323,6 +316,22 @@ def _get_attachments(request_files, tolerate_none=False):
                 'byte_stream': attachment.read(),
             })
     return byte_stream_bundle
+
+
+def _get_author_profile():
+    author = current_user.to_api_json()
+    role = current_user.departments[0]['role'] if current_user.departments else None
+    calnet_profile = get_calnet_user_for_uid(app, author['uid'])
+    if calnet_profile and calnet_profile.get('departments'):
+        dept_codes = [dept.get('code') for dept in calnet_profile.get('departments')]
+    else:
+        dept_codes = current_user.dept_codes
+    return {
+        'author_uid': author['uid'],
+        'author_name': author['name'],
+        'author_role': role,
+        'author_dept_codes': dept_codes,
+    }
 
 
 def _boa_note_to_compatible_json(note, note_read):

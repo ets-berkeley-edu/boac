@@ -154,15 +154,17 @@ class TestUserGroups:
         response = client.get('/api/users/authorized_groups')
         assert response.status_code == 200
         user_groups = sorted(response.json, key=lambda g: g['code'])
-        assert len(user_groups) == 4
+        assert len(user_groups) == 5
         assert user_groups[0]['name'] == 'Admins'
-        assert len(user_groups[0]['users']) == 8
+        assert len(user_groups[0]['users']) == 7
         assert user_groups[1]['name'] == 'College of Engineering'
         assert len(user_groups[1]['users']) == 3
         assert user_groups[2]['name'] == 'Department of Physics'
         assert len(user_groups[2]['users']) == 1
-        assert user_groups[3]['name'] == 'Athletic Study Center'
-        assert len(user_groups[3]['users']) == 2
+        assert user_groups[3]['name'] == 'L&S Major Advising'
+        assert len(user_groups[3]['users']) == 1
+        assert user_groups[4]['name'] == 'Athletic Study Center'
+        assert len(user_groups[4]['users']) == 2
 
 
 class TestDemoMode:
