@@ -67,9 +67,10 @@ def add_alert_counts(alert_counts, students):
 def authorized_users_api_feed(users, sort_by='lastName'):
     if not users:
         return ()
+    calnet_users = calnet.get_calnet_users_for_uids(app, [u.uid for u in users])
     profiles = []
     for user in users:
-        profile = calnet.get_calnet_user_for_uid(app, user.uid, force_feed=False)
+        profile = calnet_users[user.uid]
         if not profile:
             continue
         profile['name'] = ((profile.get('firstName') or '') + ' ' + (profile.get('lastName') or '')).strip()

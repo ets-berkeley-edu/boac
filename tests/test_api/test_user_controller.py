@@ -149,16 +149,16 @@ class TestUserGroups:
         assert response.status_code == 401
 
     def test_authorized(self, client, fake_auth):
-        """Returns a well-formed response."""
+        """Returns a well-formed response including cached and uncached users."""
         fake_auth.login(admin_uid)
         response = client.get('/api/users/authorized_groups')
         assert response.status_code == 200
         user_groups = sorted(response.json, key=lambda g: g['code'])
         assert len(user_groups) == 5
         assert user_groups[0]['name'] == 'Admins'
-        assert len(user_groups[0]['users']) == 7
+        assert len(user_groups[0]['users']) == 8
         assert user_groups[1]['name'] == 'College of Engineering'
-        assert len(user_groups[1]['users']) == 3
+        assert len(user_groups[1]['users']) == 4
         assert user_groups[2]['name'] == 'Department of Physics'
         assert len(user_groups[2]['users']) == 1
         assert user_groups[3]['name'] == 'L&S Major Advising'
