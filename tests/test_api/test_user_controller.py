@@ -67,7 +67,7 @@ class TestUserProfile:
         assert not len(api_json['departments'])
 
     def test_department_beyond_asc(self, client, fake_auth):
-        """Returns COENG director."""
+        """Returns COENG advisor."""
         fake_auth.login('1022796')
         api_json = self._api_my_profile(client)
         assert api_json['isAdmin'] is False
@@ -76,8 +76,8 @@ class TestUserProfile:
         assert len(departments) == 1
         assert departments[0]['code'] == 'COENG'
         assert departments[0]['name'] == 'College of Engineering'
-        assert departments[0]['isAdvisor'] is False
-        assert departments[0]['isDirector'] is True
+        assert departments[0]['isAdvisor'] is True
+        assert departments[0]['isDirector'] is False
 
     def test_asc_advisor_exclude_cohorts(self, client, fake_auth):
         """Returns Athletic Study Center advisor."""

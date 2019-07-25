@@ -64,7 +64,8 @@ class AuthorizedUser(Base):
                     is_admin={self.is_admin},
                     in_demo_mode={self.in_demo_mode},
                     updated={self.updated_at},
-                    created={self.created_at}>
+                    created={self.created_at},
+                    deleted={self.deleted_at}>
                 """
 
     @classmethod

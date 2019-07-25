@@ -154,6 +154,19 @@ CREATE TABLE boac_advising_notes.advising_note_topic_mappings (
   sis_topic VARCHAR NOT NULL
 );
 
+CREATE TABLE boac_advisor.advisor_roles
+(
+   sid VARCHAR NOT NULL,
+   uid VARCHAR NOT NULL,
+   advisor_type_code VARCHAR NOT NULL,
+   advisor_type VARCHAR NOT NULL,
+   instructor_type_code VARCHAR NOT NULL,
+   instructor_type VARCHAR NOT NULL,
+   academic_program_code VARCHAR NOT NULL,
+   academic_program VARCHAR NOT NULL,
+   cs_permissions VARCHAR NOT NULL
+);
+
 CREATE TABLE boac_advisor.advisor_students
 (
    advisor_sid VARCHAR NOT NULL,
@@ -418,6 +431,15 @@ VALUES
 ('11667051-00001', '11667051', 1, '2017-10-31', 'UCBCONVERSION', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051_00001_1.pdf', 'efac7b10-c3f2-11e4-9bbd-ab6a6597d26f.pdf'),
 ('11667051-00002', '11667051', 2, '2017-10-31', '1234', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051_00002_2.jpeg', 'brigitte_photo.jpeg'),
 ('9000000000-00002', '9000000000', 1, '2017-10-31', '4567', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '9000000000_00002_1.pdf', 'dog_eaten_homework.pdf');
+
+INSERT INTO boac_advisor.advisor_roles
+(sid, uid, advisor_type_code, advisor_type, instructor_type_code, instructor_type, academic_program_code, academic_program, cs_permissions)
+VALUES
+('100000000', '13', 'COLL', 'College Advisor', 'ADV', 'Advisor Only', 'UCOE', 'Undergrad Engineering', 'UC_CS_AA_CURRICULAR_ADVISOR'),
+('100100100', '90412', 'COLL', 'College Advisor', 'ADV', 'Advisor Only', 'UCOE', 'Undergrad Engineering', 'UC_CS_AA_CURRICULAR_ADVISOR'),
+('100100300', '1022796', 'COLL', 'College Advisor', 'ADV', 'Advisor Only', 'UCOE', 'Undergrad Engineering', 'UC_CS_AA_CURRICULAR_ADVISOR'),
+('800700600', '1133399', 'COLL', 'College Advisor', 'ADV', 'Advisor Only', 'UCOE', 'Undergrad Engineering', 'UC_CS_AA_CURRICULAR_ADVISOR'),
+('100100600', '242881', 'MAJ', 'Major Advisor', 'ADV', 'Advisor Only', 'UCLS', 'Undergrad Letters & Science', 'UC_CS_AA_CURRICULAR_ADVISOR');
 
 INSERT INTO boac_advisor.advisor_students
 (advisor_sid, student_sid, student_uid, advisor_type_code, advisor_type, academic_program_code, academic_program, academic_plan_code, academic_plan)
