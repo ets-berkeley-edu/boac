@@ -67,7 +67,7 @@ def cas_login():
         """)
         redirect_url = add_param_to_url('/', param)
     else:
-        login_user(user, remember=True)
+        login_user(user)
         flash('Logged in successfully.')
         # Check if url is safe for redirects per https://flask-login.readthedocs.io/en/latest/
         if not _is_safe_url(request.args.get('next')):

@@ -60,6 +60,8 @@ CSRF_ENABLED = True
 CSRF_SESSION_KEY = 'secret'
 # Used to encrypt session cookie.
 SECRET_KEY = 'secret'
+# Minutes of inactivity before session cookie is destroyed
+INACTIVE_SESSION_LIFETIME = 60
 
 TIMEZONE = 'America/Los_Angeles'
 
