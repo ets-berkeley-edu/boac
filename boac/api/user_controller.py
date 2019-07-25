@@ -110,7 +110,12 @@ def _get_boa_user_groups(sort_users_by=None):
 
     def _put(_dept_code, _user):
         if _dept_code not in depts:
-            dept_name = 'Admins' if _dept_code == 'ADMIN' else BERKELEY_DEPT_CODE_TO_NAME.get(_dept_code)
+            if _dept_code == 'ADMIN':
+                dept_name = 'Admins'
+            elif _dept_code == 'GUEST':
+                dept_name = 'Guest Access'
+            else:
+                dept_name = BERKELEY_DEPT_CODE_TO_NAME.get(_dept_code)
             depts[_dept_code] = {
                 'code': _dept_code,
                 'name': dept_name,
