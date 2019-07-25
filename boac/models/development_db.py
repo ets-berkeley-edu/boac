@@ -54,12 +54,12 @@ _test_users = [
     ['177473', None, True, False],
     ['1133399', '800700600', False, False],
     ['211159', None, True, False],
-    ['242881', None, False, False, 'HENGL'],
-    ['1022796', None, False, False],
+    ['242881', '100100600', False, False, 'HENGL'],
+    ['1022796', '100100300', False, False],
     ['1015674', None, False, False],
     ['1049291', None, True, False],
     ['1081940', '100200300', False, False],
-    ['90412', None, True, False],
+    ['90412', '100100100', True, False],
     ['6446', None, False, False],
 ]
 
@@ -69,13 +69,13 @@ _university_depts = {
         'users': [
             {
                 'uid': '1022796',
-                'is_advisor': False,
-                'is_director': True,
+                'is_advisor': True,
+                'is_director': False,
             },
             {
                 'uid': '90412',
                 'is_advisor': True,
-                'is_director': True,
+                'is_director': False,
             },
             {
                 'uid': '1133399',
