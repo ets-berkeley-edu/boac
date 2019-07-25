@@ -23,8 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import datetime
+
 from boac.merged.user_session import UserSession
-from flask import jsonify, make_response, redirect, request
+from flask import jsonify, make_response, redirect, request, session
 from flask_login import LoginManager
 
 
@@ -73,6 +75,12 @@ def register_routes(app):
     def front_end_route(**kwargs):
         vue_base_url = app.config['VUE_LOCALHOST_BASE_URL']
         return redirect(vue_base_url + request.full_path) if vue_base_url else make_response(index_html)
+
+    @app.before_request
+    def before_request():
+        session.permanent = True
+        app.permanent_session_lifetime = datetime.timedelta(minutes=app.config['INACTIVE_SESSION_LIFETIME'])
+        session.modified = True
 
     @app.after_request
     def after_api_request(response):
