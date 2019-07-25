@@ -92,7 +92,7 @@
               {{ 'Term' | pluralize(student.sisProfile.termsInAttendance) }} in Attendance
             </div>
             <div
-              v-if="student.sisProfile.expectedGraduationTerm && student.sisProfile.level.code !== 'GR'"
+              v-if="student.sisProfile.expectedGraduationTerm && get(student.sisProfile, 'level.code') !== 'GR'"
               id="student-bio-expected-graduation">
               Expected graduation {{ student.sisProfile.expectedGraduationTerm.name }}
             </div>
