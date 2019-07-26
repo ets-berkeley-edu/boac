@@ -13,6 +13,7 @@ VALUES
 ('DACED', 'College of Environmental Design', now(), now(), true),
 ('MANRD', 'College of Natural Resources', now(), now(), true),
 ('QCADVMAJ', 'Letters & Science Major Advisors', now(), now(), true),
+('GUEST', 'Guest Access', now(), now(), true),
 ('ZZZZZ', 'Other', now(), now(), true);
 
 COMMIT;
