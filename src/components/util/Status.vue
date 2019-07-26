@@ -12,13 +12,13 @@
         </ul>
       </div>
     </div>
-    <div v-if="ping">
+    <div v-if="status">
       <h3>Ping</h3>
       <div>
         <ul>
-          <li>App: {{ ping.app }}</li>
-          <li>RDS: {{ ping.db }}</li>
-          <li>Redshift: {{ ping.data_loch }}</li>
+          <li>App: {{ status.app }}</li>
+          <li>RDS: {{ status.db }}</li>
+          <li>Redshift: {{ status.data_loch }}</li>
         </ul>
       </div>
     </div>
@@ -47,14 +47,14 @@ import { getVersion, ping } from '@/api/config';
 export default {
   data: () => ({
     config: undefined,
-    ping: undefined,
+    status: undefined,
     version: undefined
   }),
   created() {
     store.dispatch('context/loadConfig').then(config => {
       this.config = config;
-      ping().then(ping => {
-        this.ping = ping;
+      ping().then(status => {
+        this.status = status;
         getVersion().then(version => {
           this.version = version;
         });

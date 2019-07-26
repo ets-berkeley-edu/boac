@@ -61,7 +61,9 @@ CSRF_SESSION_KEY = 'secret'
 # Used to encrypt session cookie.
 SECRET_KEY = 'secret'
 # Minutes of inactivity before session cookie is destroyed
-INACTIVE_SESSION_LIFETIME = 60
+INACTIVE_SESSION_LIFETIME = 20
+# Millisecond interval for request to keep session alive
+PING_FREQUENCY = 900000
 
 TIMEZONE = 'America/Los_Angeles'
 

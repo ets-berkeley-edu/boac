@@ -23,6 +23,7 @@ const getters = {
   googleAnalyticsId: (state: any): string => _.get(state.config, 'googleAnalyticsId'),
   isDemoModeAvailable: (state: any): string => _.get(state.config, 'isDemoModeAvailable'),
   maxAttachmentsPerNote: (state: any): string => _.get(state.config, 'maxAttachmentsPerNote'),
+  pingFrequency: (state: any): string => _.get(state.config, 'pingFrequency'),
   loading: (state: any): boolean => state.loading,
   announcement: (state: any): string => state.announcement,
   srAlert: (state: any): string => state.screenReaderAlert,

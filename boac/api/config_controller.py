@@ -51,6 +51,7 @@ def app_config():
         'googleAnalyticsId': app.config['GOOGLE_ANALYTICS_ID'],
         'isDemoModeAvailable': app.config['DEMO_MODE_AVAILABLE'],
         'maxAttachmentsPerNote': app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE'],
+        'pingFrequency': app.config['PING_FREQUENCY'],
         'supportEmailAddress': app.config['BOAC_SUPPORT_EMAIL'],
         'timezone': app.config['TIMEZONE'],
     })

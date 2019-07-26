@@ -12,6 +12,7 @@ export default {
       'featureFlagAdvisorAppointments',
       'isDemoModeAvailable',
       'maxAttachmentsPerNote',
+      'pingFrequency',
       'announcement',
       'srAlert',
       'supportEmailAddress',
