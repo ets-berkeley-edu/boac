@@ -29,6 +29,7 @@ import json
 from boac.externals.data_loch import get_sis_holds, get_student_profiles
 from boac.externals.google_calendar_client import get_calendar_events
 from boac.lib.http import response_with_csv_download
+from boac.lib.util import join_if_present
 from boac.merged import calnet
 from boac.merged.advising_note import get_advising_notes
 from boac.models.alert import Alert
@@ -175,7 +176,7 @@ def put_notifications(student):
             **hold,
             **{
                 'createdAt': hold.get('fromDate'),
-                'message': reason.get('description') + '. ' + reason.get('formalDescription'),
+                'message': join_if_present('. ', [reason.get('description'), reason.get('formalDescription')]),
                 'read': True,
                 'type': 'hold',
             },
