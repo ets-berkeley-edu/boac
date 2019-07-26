@@ -64,6 +64,7 @@ class TestConfigController:
         assert data['googleAnalyticsId'] is False
         assert '@' in data['supportEmailAddress']
         assert data['maxAttachmentsPerNote'] > 0
+        assert data['pingFrequency'] == 900000
         assert data['timezone'] == 'America/Los_Angeles'
 
     def test_anonymous_version_request(self, client):

@@ -24,8 +24,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-class TestPingController:
-    """Ping API."""
+class TestStatusController:
+    """Status API."""
 
     def test_ping(self, client):
         """Answers the phone when pinged."""
@@ -33,3 +33,4 @@ class TestPingController:
         assert response.status_code == 200
         assert response.json['app'] is True
         assert response.json['db'] is True
+        assert response.json['data_loch'] is True
