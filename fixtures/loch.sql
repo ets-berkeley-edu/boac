@@ -146,7 +146,8 @@ CREATE TABLE boac_advising_notes.advising_note_attachments
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
     sis_file_name VARCHAR NOT NULL,
-    user_file_name VARCHAR NOT NULL
+    user_file_name VARCHAR NOT NULL,
+    is_historical BOOLEAN NOT NULL
 );
 
 CREATE TABLE boac_advising_notes.advising_note_topic_mappings (
@@ -426,11 +427,11 @@ VALUES
 ('No Show', 'Ne Scéaw');
 
 INSERT INTO boac_advising_notes.advising_note_attachments
-(advising_note_id, sid, attachment_seq_nr, attachment_date, created_by, created_at, updated_at, sis_file_name, user_file_name)
+(advising_note_id, sid, attachment_seq_nr, attachment_date, created_by, created_at, updated_at, sis_file_name, user_file_name, is_historical)
 VALUES
-('11667051-00001', '11667051', 1, '2017-10-31', 'UCBCONVERSION', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051_00001_1.pdf', 'efac7b10-c3f2-11e4-9bbd-ab6a6597d26f.pdf'),
-('11667051-00002', '11667051', 2, '2017-10-31', '1234', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051_00002_2.jpeg', 'brigitte_photo.jpeg'),
-('9000000000-00002', '9000000000', 1, '2017-10-31', '4567', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '9000000000_00002_1.pdf', 'dog_eaten_homework.pdf');
+('11667051-00001', '11667051', 1, '2017-10-31', 'UCBCONVERSION', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051_00001_1.pdf', 'efac7b10-c3f2-11e4-9bbd-ab6a6597d26f.pdf', TRUE),
+('11667051-00002', '11667051', 2, '2017-10-31', '1234', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051_00002_2.jpeg', 'brigitte_photo.jpeg', FALSE),
+('9000000000-00002', '9000000000', 1, '2017-10-31', '4567', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '9000000000_00002_1.pdf', 'dog_eaten_homework.pdf', TRUE);
 
 INSERT INTO boac_advisor.advisor_roles
 (sid, uid, advisor_type_code, advisor_type, instructor_type_code, instructor_type, academic_program_code, academic_program, cs_permissions)

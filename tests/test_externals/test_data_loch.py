@@ -114,6 +114,15 @@ class TestDataLoch:
         assert notes[0]['created_at']
         assert notes[0]['updated_at']
 
+    def test_get_sis_advising_note_attachment(self, app):
+        attachment = data_loch.get_sis_advising_note_attachment('11667051', '11667051_00001_1.pdf')
+        assert len(attachment) == 1
+        assert attachment[0]['advising_note_id'] == '11667051-00001'
+        assert attachment[0]['created_by'] == 'UCBCONVERSION'
+        assert attachment[0]['sis_file_name'] == '11667051_00001_1.pdf'
+        assert attachment[0]['user_file_name'] == 'efac7b10-c3f2-11e4-9bbd-ab6a6597d26f.pdf'
+        assert attachment[0]['is_historical'] is True
+
     def test_override_fixture(self, app):
         mr = MockRows(io.StringIO('sid,first_name,last_name\n20000000,Martin,Van Buren'))
         with register_mock(data_loch.get_sis_section_enrollments, mr):

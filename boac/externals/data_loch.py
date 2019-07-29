@@ -423,7 +423,7 @@ def get_sis_advising_note_attachment(sid, filename):
     query_tables, query_filter, query_bindings = get_students_query()
     if not query_tables:
         return None
-    sql = f"""SELECT advising_note_id, created_by, sis_file_name, user_file_name
+    sql = f"""SELECT advising_note_id, created_by, sis_file_name, user_file_name, is_historical
         {query_tables}
         JOIN {advising_notes_schema()}.advising_note_attachments ana
         ON sas.sid = :sid
