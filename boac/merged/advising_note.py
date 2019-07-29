@@ -282,10 +282,9 @@ def get_legacy_attachment_stream(filename):
     else:
         display_filename = attachment_result[0].get('user_file_name')
     if attachment_result[0].get('is_historical'):
-        s3_path = app.config['DATA_LOCH_S3_ADVISING_NOTE_ATTACHMENT_PATH']
+        s3_key = '/'.join([app.config['DATA_LOCH_S3_ADVISING_NOTE_ATTACHMENT_PATH'], sid, filename])
     else:
-        s3_path = app.config['DATA_LOCH_S3_ADVISING_NOTE_ATTACHMENT_INCR_PATH']
-    s3_key = '/'.join([s3_path, sid, filename])
+        s3_key = '/'.join([app.config['DATA_LOCH_S3_ADVISING_NOTE_ATTACHMENT_INCR_PATH'], filename])
     return {
         'filename': display_filename,
         'stream': s3.stream_object(app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET'], s3_key),
