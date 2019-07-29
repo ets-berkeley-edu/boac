@@ -337,6 +337,26 @@ class TestNoteSearch:
         assert response.status_code == 200
         assert len(response.json['notes']) == 4
 
+    def test_search_with_midnight_creation(self, coe_advisor, client):
+        """Notes search correctly returns legacy notes with midnight creation times."""
+        def _single_date_search(date):
+            response = client.post(
+                '/api/search',
+                data=json.dumps({
+                    'notes': True,
+                    'searchPhrase': 'confound',
+                    'noteOptions': {
+                        'dateFrom': date,
+                        'dateTo': date,
+                    },
+                }),
+                content_type='application/json',
+            )
+            return response.json['notes']
+        assert len(_single_date_search('2017-11-01')) == 0
+        assert len(_single_date_search('2017-11-02')) == 1
+        assert len(_single_date_search('2017-11-03')) == 0
+
     def test_search_excludes_notes_unless_requested(self, coe_advisor, client):
         """Excludes notes from search results if notes param is false."""
         response = client.post(
