@@ -448,6 +448,7 @@ def term_name_for_sis_id(sis_id=None):
     if sis_id:
         sis_id = str(sis_id)
         season_codes = {
+            '0': 'Winter',
             '2': 'Spring',
             '5': 'Summer',
             '8': 'Fall',
