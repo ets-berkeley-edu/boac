@@ -128,7 +128,7 @@ export default {
             <div class="student-chart-tooltip-swatch swatch-blue-medium"></div>
             <div class="student-chart-tooltip-label">Units Completed</div>
             <div class="student-chart-tooltip-value">${
-              this.cumulativeUnits
+              this.cumulativeUnits || '0'
             }</div>
           </div>
           <div class="student-chart-tooltip-row">
