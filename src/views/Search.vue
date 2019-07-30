@@ -13,8 +13,8 @@
         <li>Keep your search term simple.</li>
         <li>Check your spelling and try again.</li>
         <li>Search classes by section title, e.g., <strong>AMERSTD 10</strong>.</li>
-        <li>Avoid using generic terms, such as test or enrollment.</li>
-        <li>Longer search terms may refine results; registration fees instead of registration.</li>
+        <li>Avoid using generic terms, such as <strong>test</strong> or <strong>enrollment</strong>.</li>
+        <li>Longer search terms may refine results; <strong>registration fees</strong> instead of <strong>registration</strong>.</li>
         <li>Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
       </ul>
     </div>
