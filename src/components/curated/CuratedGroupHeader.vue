@@ -118,7 +118,7 @@
           <b-btn
             id="export-student-list-button"
             variant="link"
-            :disabled="!curatedGroup.studentCount"
+            :disabled="!exportEnabled || !curatedGroup.studentCount"
             aria-label="Download CSV file containing all students"
             @click="downloadCsv()">
             Export List
@@ -145,6 +145,7 @@ export default {
     'setMode': Function
   },
   data: () => ({
+    exportEnabled: true,
     isModalOpen: false,
     renameError: undefined,
     renameInput: undefined
@@ -183,7 +184,10 @@ export default {
         });
     },
     downloadCsv() {
-      downloadCuratedGroupCsv(this.curatedGroup.id, this.curatedGroup.name);
+      this.exportEnabled = false;
+      downloadCuratedGroupCsv(this.curatedGroup.id, this.curatedGroup.name).then(() => {
+        this.exportEnabled = true;
+      });
     },
     rename() {
       this.renameError = this.validateCohortName({

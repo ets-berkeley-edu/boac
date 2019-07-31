@@ -206,7 +206,7 @@ const actions = {
   },
   downloadCsvPerFilters: ({ state }) => {
     return new Promise(resolve => {
-      downloadCsv(state.cohortName, state.filters).then(() => resolve);
+      downloadCsv(state.cohortName, state.filters).then(resolve);
     });
   },
   loadCohort: ({commit}, {id, orderBy} ) => {
