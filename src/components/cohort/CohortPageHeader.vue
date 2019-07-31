@@ -81,9 +81,9 @@
             id="export-student-list-button"
             class="no-wrap pl-2 pr-0 pt-0"
             variant="link"
-            :disabled="!totalStudentCount || isModifiedSinceLastSearch"
+            :disabled="!exportEnabled || !totalStudentCount || isModifiedSinceLastSearch"
             aria-label="Download CSV file containing all students"
-            @click.prevent="downloadCsvPerFilters()">
+            @click.prevent="exportCohort()">
             Export List
           </b-btn>
         </div>
@@ -158,6 +158,7 @@ export default {
   components: { DeleteCohortModal },
   mixins: [CohortEditSession, Context, UserMetadata, Util, Validator],
   data: () => ({
+    exportEnabled: true,
     name: undefined,
     renameError: undefined,
     showDeleteModal: false
@@ -201,6 +202,12 @@ export default {
           action: 'delete'
         });
         router.push({ path: '/' });
+      });
+    },
+    exportCohort() {
+      this.exportEnabled = false;
+      this.downloadCsvPerFilters().then(() => {
+        this.exportEnabled = true;
       });
     },
     submitRename() {
