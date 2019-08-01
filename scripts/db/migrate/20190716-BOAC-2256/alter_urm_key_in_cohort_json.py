@@ -42,13 +42,11 @@ def main(app):
 
     for cohort in CohortFilter.query.all():
         if coe_key not in cohort.filter_criteria:
-            # Pop legacy key
+            # Replace legacy with COE key
             criteria = cohort.filter_criteria
             if not isinstance(criteria, dict):
                 criteria = json.loads(cohort.filter_criteria)
-            uid = criteria.pop(legacy_key, None)
-            # Use COE key
-            criteria[coe_key] = [uid] if uid else None
+            criteria[coe_key] = criteria.pop(legacy_key, None)
             # Update db
             cohort.filter_criteria = json.dumps(criteria)
             std_commit()
