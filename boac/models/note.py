@@ -138,7 +138,7 @@ class Note(Base):
                 'search_phrase': search_phrase,
             }
         else:
-            fts_selector = 'SELECT id, 0 AS rank FROM notes'
+            fts_selector = 'SELECT id, 0 AS rank FROM notes WHERE deleted_at IS NULL'
             params = {}
 
         if author_uid:
