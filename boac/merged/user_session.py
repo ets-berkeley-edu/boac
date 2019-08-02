@@ -87,6 +87,10 @@ class UserSession(UserMixin):
         return self.api_json['inDemoMode']
 
     @property
+    def can_access_canvas_data(self):
+        return self.api_json['canAccessCanvasData']
+
+    @property
     def is_asc_authorized(self):
         return self.api_json['canViewAsc']
 
@@ -154,6 +158,7 @@ class UserSession(UserMixin):
                 'isAuthenticated': is_active,
                 'isCoe': is_coe,
                 'inDemoMode': user and user.in_demo_mode,
+                'canAccessCanvasData': user and user.can_access_canvas_data,
                 'uid': user and user.uid,
             },
         }

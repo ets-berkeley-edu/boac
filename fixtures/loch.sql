@@ -159,12 +159,12 @@ CREATE TABLE boac_advisor.advisor_roles
 (
    sid VARCHAR NOT NULL,
    uid VARCHAR NOT NULL,
-   advisor_type_code VARCHAR NOT NULL,
-   advisor_type VARCHAR NOT NULL,
-   instructor_type_code VARCHAR NOT NULL,
-   instructor_type VARCHAR NOT NULL,
-   academic_program_code VARCHAR NOT NULL,
-   academic_program VARCHAR NOT NULL,
+   advisor_type_code VARCHAR,
+   advisor_type VARCHAR,
+   instructor_type_code VARCHAR,
+   instructor_type VARCHAR,
+   academic_program_code VARCHAR,
+   academic_program VARCHAR,
    cs_permissions VARCHAR NOT NULL
 );
 
@@ -440,7 +440,8 @@ VALUES
 ('100100100', '90412', 'COLL', 'College Advisor', 'ADV', 'Advisor Only', 'UCOE', 'Undergrad Engineering', 'UC_CS_AA_CURRICULAR_ADVISOR'),
 ('100100300', '1022796', 'COLL', 'College Advisor', 'ADV', 'Advisor Only', 'UCOE', 'Undergrad Engineering', 'UC_CS_AA_CURRICULAR_ADVISOR'),
 ('800700600', '1133399', 'COLL', 'College Advisor', 'ADV', 'Advisor Only', 'UCOE', 'Undergrad Engineering', 'UC_CS_AA_CURRICULAR_ADVISOR'),
-('100100600', '242881', 'MAJ', 'Major Advisor', 'ADV', 'Advisor Only', 'UCLS', 'Undergrad Letters & Science', 'UC_CS_AA_CURRICULAR_ADVISOR');
+('100100600', '242881', 'MAJ', 'Major Advisor', 'ADV', 'Advisor Only', 'UCLS', 'Undergrad Letters & Science', 'UC_CS_AA_CURRICULAR_ADVISOR'),
+('111111111', '1', NULL, NULL, NULL, NULL, NULL, NULL, 'UC_CS_AA_CURRICULAR_ADVISOR');
 
 INSERT INTO boac_advisor.advisor_students
 (advisor_sid, student_sid, student_uid, advisor_type_code, advisor_type, academic_program_code, academic_program, academic_plan_code, academic_plan)

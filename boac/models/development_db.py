@@ -129,6 +129,10 @@ _university_depts = {
             },
         ],
     },
+    'ZZZZZ': {
+        'automate_memberships': True,
+        'users': [],
+    },
 }
 
 

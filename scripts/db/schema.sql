@@ -90,6 +90,7 @@ CREATE TABLE authorized_users (
     uid character varying(255) NOT NULL,
     is_admin boolean,
     in_demo_mode boolean DEFAULT false NOT NULL,
+    can_access_canvas_data boolean DEFAULT true NOT NULL,
     deleted_at timestamp with time zone
 );
 ALTER TABLE authorized_users OWNER TO boac;
