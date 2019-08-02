@@ -54,7 +54,7 @@ def new_coe_note():
         author_uid=coe_advisor_uid,
         author_name='Balloon Man',
         author_role='Spherical',
-        author_dept_codes='PHYSI',
+        author_dept_codes='COENG',
         sid=coe_student['sid'],
         subject='I was walking up Sixth Avenue',
         body='He spattered me with tomatoes, Hummus, chick peas',

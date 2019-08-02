@@ -89,7 +89,7 @@ _university_depts = {
             },
         ],
     },
-    'PHYSI': {
+    'QCADV': {
         'automate_memberships': False,
         'users': [
             {

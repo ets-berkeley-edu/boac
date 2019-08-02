@@ -159,7 +159,7 @@ class TestUserGroups:
         assert len(user_groups[0]['users']) == 8
         assert user_groups[1]['name'] == 'College of Engineering'
         assert len(user_groups[1]['users']) == 4
-        assert user_groups[2]['name'] == 'Department of Physics'
+        assert user_groups[2]['name'] == 'L&S College Advising'
         assert len(user_groups[2]['users']) == 1
         assert user_groups[3]['name'] == 'L&S Major Advising'
         assert len(user_groups[3]['users']) == 1
