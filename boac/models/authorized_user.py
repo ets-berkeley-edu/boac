@@ -36,6 +36,7 @@ class AuthorizedUser(Base):
     uid = db.Column(db.String(255), nullable=False, unique=True)
     is_admin = db.Column(db.Boolean)
     in_demo_mode = db.Column(db.Boolean, nullable=False)
+    can_access_canvas_data = db.Column(db.Boolean, nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
     department_memberships = db.relationship(
         'UniversityDeptMember',
@@ -54,28 +55,35 @@ class AuthorizedUser(Base):
         lazy='joined',
     )
 
-    def __init__(self, uid, is_admin=False, in_demo_mode=False):
+    def __init__(self, uid, is_admin=False, in_demo_mode=False, can_access_canvas_data=True):
         self.uid = uid
         self.is_admin = is_admin
         self.in_demo_mode = in_demo_mode
+        self.can_access_canvas_data = can_access_canvas_data
 
     def __repr__(self):
         return f"""<AuthorizedUser {self.uid},
                     is_admin={self.is_admin},
                     in_demo_mode={self.in_demo_mode},
+                    can_access_canvas_data={self.can_access_canvas_data},
                     updated={self.updated_at},
                     created={self.created_at},
                     deleted={self.deleted_at}>
                 """
 
     @classmethod
-    def create_or_restore(cls, uid, is_admin=False, in_demo_mode=False):
+    def create_or_restore(cls, uid, is_admin=False, in_demo_mode=False, can_access_canvas_data=True):
         existing_user = cls.query.filter_by(uid=uid).first()
         if existing_user:
             existing_user.deleted_at = None
             return existing_user
         else:
-            return cls(uid=uid, is_admin=is_admin, in_demo_mode=in_demo_mode)
+            return cls(
+                uid=uid,
+                is_admin=is_admin,
+                in_demo_mode=in_demo_mode,
+                can_access_canvas_data=can_access_canvas_data,
+            )
 
     @classmethod
     def get_id_per_uid(cls, uid):

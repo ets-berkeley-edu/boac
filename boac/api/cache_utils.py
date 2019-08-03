@@ -160,7 +160,10 @@ def refresh_department_memberships():
     std_commit(allow_test_environment=True)
     for dept in depts:
         for membership in dept.memberships_from_loch():
-            user = AuthorizedUser.create_or_restore(uid=membership['uid'])
+            user = AuthorizedUser.create_or_restore(
+                uid=membership['uid'],
+                can_access_canvas_data=membership['can_access_canvas_data'],
+            )
             UniversityDeptMember.create_membership(dept, user, is_advisor=True, is_director=False)
 
 

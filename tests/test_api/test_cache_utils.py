@@ -146,3 +146,12 @@ class TestRefreshDepartmentMemberships:
         assert len(coe_users) == 4
         assert next((u for u in coe_users if u.uid == '666'), None) is None
         assert AuthorizedUser.query.filter_by(uid='666').first().deleted_at
+
+    def test_adds_non_advisurs_to_other_group(self, app):
+        dept_other = UniversityDept.query.filter_by(dept_code='ZZZZZ').first()
+        from boac.api.cache_utils import refresh_department_memberships
+        refresh_department_memberships()
+        std_commit(allow_test_environment=True)
+        other_users = [au.authorized_user for au in dept_other.authorized_users]
+        assert len(other_users) == 1
+        assert other_users[0].can_access_canvas_data is False

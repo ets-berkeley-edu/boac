@@ -72,6 +72,7 @@ class TestUserProfile:
         api_json = self._api_my_profile(client)
         assert api_json['isAdmin'] is False
         assert api_json['isCoe'] is True
+        assert api_json['canAccessCanvasData'] is True
         departments = api_json['departments']
         assert len(departments) == 1
         assert departments[0]['code'] == 'COENG'
@@ -84,6 +85,7 @@ class TestUserProfile:
         fake_auth.login(asc_advisor_uid)
         api_json = self._api_my_profile(client)
         assert api_json['isAsc'] is True
+        assert api_json['canAccessCanvasData'] is True
         departments = api_json['departments']
         assert len(departments) == 1
         assert departments[0]['code'] == 'UWASC'
@@ -154,7 +156,7 @@ class TestUserGroups:
         response = client.get('/api/users/authorized_groups')
         assert response.status_code == 200
         user_groups = sorted(response.json, key=lambda g: g['code'])
-        assert len(user_groups) == 5
+        assert len(user_groups) == 6
         assert user_groups[0]['name'] == 'Admins'
         assert len(user_groups[0]['users']) == 8
         assert user_groups[1]['name'] == 'College of Engineering'
@@ -165,6 +167,8 @@ class TestUserGroups:
         assert len(user_groups[3]['users']) == 1
         assert user_groups[4]['name'] == 'Athletic Study Center'
         assert len(user_groups[4]['users']) == 3
+        assert user_groups[5]['name'] == 'Other'
+        assert len(user_groups[5]['users']) == 1
 
 
 class TestDemoMode:
