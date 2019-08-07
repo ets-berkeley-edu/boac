@@ -5,6 +5,7 @@ DROP SCHEMA IF EXISTS boac_advising_l_s cascade;
 DROP SCHEMA IF EXISTS boac_advising_notes cascade;
 DROP SCHEMA IF EXISTS boac_advisor cascade;
 DROP SCHEMA IF EXISTS boac_analytics cascade;
+DROP SCHEMA IF EXISTS sis_advising_notes cascade;
 DROP SCHEMA IF EXISTS sis_data cascade;
 DROP SCHEMA IF EXISTS student cascade;
 
@@ -15,6 +16,7 @@ CREATE SCHEMA boac_advising_l_s;
 CREATE SCHEMA boac_advising_notes;
 CREATE SCHEMA boac_advisor;
 CREATE SCHEMA boac_analytics;
+CREATE SCHEMA sis_advising_notes;
 CREATE SCHEMA sis_data;
 CREATE SCHEMA student;
 
@@ -99,60 +101,10 @@ CREATE TABLE boac_advising_l_s.students
     affiliations VARCHAR
 );
 
-CREATE TABLE boac_advising_notes.advising_notes
-(
-    id VARCHAR NOT NULL,
-    sid VARCHAR NOT NULL,
-    student_note_nr VARCHAR NOT NULL,
-    advisor_sid VARCHAR,
-    appointment_id VARCHAR,
-    note_category VARCHAR NOT NULL,
-    note_subcategory VARCHAR,
-    note_body VARCHAR NOT NULL,
-    created_by VARCHAR,
-    updated_by VARCHAR,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
-);
-
-CREATE TABLE boac_advising_notes.advising_note_authors
-(
-    uid VARCHAR NOT NULL,
-    sid VARCHAR NOT NULL,
-    first_name VARCHAR NOT NULL,
-    last_name VARCHAR NOT NULL
-);
-
 CREATE TABLE boac_advising_notes.advising_note_author_names
 (
     uid VARCHAR NOT NULL,
     name VARCHAR NOT NULL
-);
-
-CREATE TABLE boac_advising_notes.advising_note_topics
-(
-    advising_note_id VARCHAR NOT NULL,
-    sid VARCHAR NOT NULL,
-    note_topic VARCHAR NOT NULL
-);
-
-CREATE TABLE boac_advising_notes.advising_note_attachments
-(
-    advising_note_id VARCHAR NOT NULL,
-    sid VARCHAR NOT NULL,
-    attachment_seq_nr INT,
-    attachment_date DATE,
-    created_by VARCHAR NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    sis_file_name VARCHAR NOT NULL,
-    user_file_name VARCHAR NOT NULL,
-    is_historical BOOLEAN NOT NULL
-);
-
-CREATE TABLE boac_advising_notes.advising_note_topic_mappings (
-  boa_topic VARCHAR NOT NULL,
-  sis_topic VARCHAR NOT NULL
 );
 
 CREATE TABLE boac_advisor.advisor_roles
@@ -187,6 +139,56 @@ CREATE TABLE boac_analytics.section_mean_gpas
     sis_section_id VARCHAR NOT NULL,
     gpa_term_id VARCHAR NOT NULL,
     avg_gpa DOUBLE PRECISION NOT NULL
+);
+
+CREATE TABLE sis_advising_notes.advising_notes
+(
+    id VARCHAR NOT NULL,
+    sid VARCHAR NOT NULL,
+    student_note_nr VARCHAR NOT NULL,
+    advisor_sid VARCHAR,
+    appointment_id VARCHAR,
+    note_category VARCHAR NOT NULL,
+    note_subcategory VARCHAR,
+    note_body VARCHAR NOT NULL,
+    created_by VARCHAR,
+    updated_by VARCHAR,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE TABLE sis_advising_notes.advising_note_authors
+(
+    uid VARCHAR NOT NULL,
+    sid VARCHAR NOT NULL,
+    first_name VARCHAR NOT NULL,
+    last_name VARCHAR NOT NULL
+);
+
+CREATE TABLE sis_advising_notes.advising_note_topics
+(
+    advising_note_id VARCHAR NOT NULL,
+    sid VARCHAR NOT NULL,
+    note_topic VARCHAR NOT NULL
+);
+
+CREATE TABLE sis_advising_notes.advising_note_attachments
+(
+    advising_note_id VARCHAR NOT NULL,
+    sid VARCHAR NOT NULL,
+    attachment_seq_nr INT,
+    attachment_date DATE,
+    created_by VARCHAR NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    sis_file_name VARCHAR NOT NULL,
+    user_file_name VARCHAR NOT NULL,
+    is_historical BOOLEAN NOT NULL
+);
+
+CREATE TABLE sis_advising_notes.advising_note_topic_mappings (
+  boa_topic VARCHAR NOT NULL,
+  sis_topic VARCHAR NOT NULL
 );
 
 CREATE TABLE sis_data.enrolled_primary_sections
@@ -368,24 +370,6 @@ VALUES
 ('3456789012', '252B2U', 'Political Economy BA', 'MAJ', 'ISSP', '242881', 'Paul', 'Kerschen', 'atem@example.edu', 'STUDENT-TYPE-REGISTERED'),
 ('5678901234', '25000U', 'Letters & Sci Undeclared UG', 'MAJ', 'CLS', '9933311', 'Sandeep', 'Jayaprakash', 'sj@example.edu', 'STUDENT-TYPE-NOT REGISTERED');
 
-INSERT INTO boac_advising_notes.advising_notes
-(id, sid, student_note_nr, advisor_sid, appointment_id, note_category, note_subcategory, note_body, created_by, updated_by, created_at, updated_at)
-VALUES
-('11667051-00001', '11667051', '00001', '800700600', NULL, 'Quick Question', 'Hangouts', 'Brigitte is making athletic and moral progress', NULL, NULL, '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00'),
-('11667051-00002', '11667051', '00002', '700600500', NULL, 'Evaluation', '', 'Brigitte demonstrates a cavalier attitude toward university requirements', NULL, NULL, '2017-11-01T12:00:00+00', '2017-11-01T12:00:00+00'),
-('11667051-00003', '11667051', '00003', '600500400', NULL, 'Appointment', '', 'But the iniquity of oblivion blindely scattereth her poppy, and deals with the memory of men without distinction to merit of perpetuity. Who can but pity the founder of the Pyramids? Herostratus lives that burnt the Temple of Diana, he is almost lost that built it; Time hath spared the Epitaph of Adrians horse, confounded that of himself. In vain we compute our felicities by the advantage of our good names, since bad have equall durations; and Thersites is like to live as long as Agamenon, without the favour of the everlasting Register: Who knows whether the best of men be known? or whether there be not more remarkable persons forgot, then any that stand remembred in the known account of time? the first man had been as unknown as the last, and Methuselahs long life had been his only Chronicle.', NULL, NULL, '2017-11-05T12:00:00+00', '2017-11-06T12:00:00+00'),
-('11667051-00004', '11667051', '00004', '600500400', NULL, 'Quick Question', 'Unanswered', ' ', NULL, NULL, '2017-11-05T12:00:00+00', '2017-11-06T12:00:00+00'),
-('9000000000-00001', '9000000000', '00001', '600500400', NULL, 'Appointment', '', 'Is this student even on campus?', NULL, NULL, '2017-11-02T12:00:00+00', '2017-11-02T13:00:00+00'),
-('9000000000-00002', '9000000000', '00002', '700600500', NULL, 'Evaluation', '', 'I am confounded by this confounding student', 'UCBCONVERSION', NULL, '2017-11-02T07:00:00+00', '2017-11-02T07:00:00+00'),
-('9100000000-00001', '9100000000', '00001', '600500400', NULL, 'Evaluation', '', 'Met w/ stu; scheduled next appt. 2/1/2019 @ 1:30. Student continued on 2.0 prob (COP) until Sp ''19. E-mailed test@berkeley.edu: told her she''ll need to drop Eng. 123 by 1-24-19', 'UCBCONVERSION', NULL, '2017-11-02T12:00:00+00', '2017-11-02T12:00:00+00');
-
-INSERT INTO boac_advising_notes.advising_note_authors
-(uid, sid, first_name, last_name)
-VALUES
-('1133397', '600500400', 'Robert', 'Johnson'),
-('1133398', '700600500', 'Charlie', 'Christian'),
-('1133399', '800700600', 'Joni', 'Mitchell');
-
 INSERT INTO boac_advising_notes.advising_note_author_names
 (uid, name)
 VALUES
@@ -395,43 +379,6 @@ VALUES
 ('1133398', 'CHRISTIAN'),
 ('1133399', 'JONI'),
 ('1133399', 'MITCHELL');
-
-CREATE MATERIALIZED VIEW boac_advising_notes.advising_notes_search_index AS (
-  SELECT id, to_tsvector(
-    'english',
-    CASE
-      WHEN note_body IS NOT NULL and TRIM(note_body) != '' THEN note_body
-      WHEN note_subcategory IS NOT NULL THEN note_category || ' ' || note_subcategory
-      ELSE note_category
-    END
-  ) AS fts_index
-  FROM boac_advising_notes.advising_notes
-);
-
-INSERT INTO boac_advising_notes.advising_note_topics
-(advising_note_id, sid, note_topic)
-VALUES
-('11667051-00001', '11667051', 'God Scéaw'),
-('11667051-00002', '11667051', 'Earg Scéaw'),
-('11667051-00003', '11667051', 'Scéaw Tima'),
-('11667051-00002', '11667051', 'Ofscéaw'),
-('9000000000-00001', '9000000000', 'Ne Scéaw');
-
-INSERT INTO boac_advising_notes.advising_note_topic_mappings
-(boa_topic, sis_topic)
-VALUES
-('Good Show', 'God Scéaw'),
-('Bad Show', 'Earg Scéaw'),
-('Show Time', 'Scéaw Tima'),
-('Show Off', 'Ofscéaw'),
-('No Show', 'Ne Scéaw');
-
-INSERT INTO boac_advising_notes.advising_note_attachments
-(advising_note_id, sid, attachment_seq_nr, attachment_date, created_by, created_at, updated_at, sis_file_name, user_file_name, is_historical)
-VALUES
-('11667051-00001', '11667051', 1, '2017-10-31', 'UCBCONVERSION', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051_00001_1.pdf', 'efac7b10-c3f2-11e4-9bbd-ab6a6597d26f.pdf', TRUE),
-('11667051-00002', '11667051', 2, '2017-10-31', '1234', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051_00002_2.jpeg', 'brigitte_photo.jpeg', FALSE),
-('9000000000-00002', '9000000000', 1, '2017-10-31', '4567', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '9000000000_00002_1.pdf', 'dog_eaten_homework.pdf', TRUE);
 
 INSERT INTO boac_advisor.advisor_roles
 (sid, uid, advisor_type_code, advisor_type, instructor_type_code, instructor_type, academic_program_code, academic_program, cs_permissions)
@@ -468,6 +415,61 @@ VALUES
 ('2178','90200','cumulative',3.131),
 ('2178','90200','2175',3.055),
 ('2178','90200','2172',3.23);
+
+INSERT INTO sis_advising_notes.advising_notes
+(id, sid, student_note_nr, advisor_sid, appointment_id, note_category, note_subcategory, note_body, created_by, updated_by, created_at, updated_at)
+VALUES
+('11667051-00001', '11667051', '00001', '800700600', NULL, 'Quick Question', 'Hangouts', 'Brigitte is making athletic and moral progress', NULL, NULL, '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00'),
+('11667051-00002', '11667051', '00002', '700600500', NULL, 'Evaluation', '', 'Brigitte demonstrates a cavalier attitude toward university requirements', NULL, NULL, '2017-11-01T12:00:00+00', '2017-11-01T12:00:00+00'),
+('11667051-00003', '11667051', '00003', '600500400', NULL, 'Appointment', '', 'But the iniquity of oblivion blindely scattereth her poppy, and deals with the memory of men without distinction to merit of perpetuity. Who can but pity the founder of the Pyramids? Herostratus lives that burnt the Temple of Diana, he is almost lost that built it; Time hath spared the Epitaph of Adrians horse, confounded that of himself. In vain we compute our felicities by the advantage of our good names, since bad have equall durations; and Thersites is like to live as long as Agamenon, without the favour of the everlasting Register: Who knows whether the best of men be known? or whether there be not more remarkable persons forgot, then any that stand remembred in the known account of time? the first man had been as unknown as the last, and Methuselahs long life had been his only Chronicle.', NULL, NULL, '2017-11-05T12:00:00+00', '2017-11-06T12:00:00+00'),
+('11667051-00004', '11667051', '00004', '600500400', NULL, 'Quick Question', 'Unanswered', ' ', NULL, NULL, '2017-11-05T12:00:00+00', '2017-11-06T12:00:00+00'),
+('9000000000-00001', '9000000000', '00001', '600500400', NULL, 'Appointment', '', 'Is this student even on campus?', NULL, NULL, '2017-11-02T12:00:00+00', '2017-11-02T13:00:00+00'),
+('9000000000-00002', '9000000000', '00002', '700600500', NULL, 'Evaluation', '', 'I am confounded by this confounding student', 'UCBCONVERSION', NULL, '2017-11-02T07:00:00+00', '2017-11-02T07:00:00+00'),
+('9100000000-00001', '9100000000', '00001', '600500400', NULL, 'Evaluation', '', 'Met w/ stu; scheduled next appt. 2/1/2019 @ 1:30. Student continued on 2.0 prob (COP) until Sp ''19. E-mailed test@berkeley.edu: told her she''ll need to drop Eng. 123 by 1-24-19', 'UCBCONVERSION', NULL, '2017-11-02T12:00:00+00', '2017-11-02T12:00:00+00');
+
+INSERT INTO sis_advising_notes.advising_note_authors
+(uid, sid, first_name, last_name)
+VALUES
+('1133397', '600500400', 'Robert', 'Johnson'),
+('1133398', '700600500', 'Charlie', 'Christian'),
+('1133399', '800700600', 'Joni', 'Mitchell');
+
+CREATE MATERIALIZED VIEW sis_advising_notes.advising_notes_search_index AS (
+  SELECT id, to_tsvector(
+    'english',
+    CASE
+      WHEN note_body IS NOT NULL and TRIM(note_body) != '' THEN note_body
+      WHEN note_subcategory IS NOT NULL THEN note_category || ' ' || note_subcategory
+      ELSE note_category
+    END
+  ) AS fts_index
+  FROM sis_advising_notes.advising_notes
+);
+
+INSERT INTO sis_advising_notes.advising_note_topics
+(advising_note_id, sid, note_topic)
+VALUES
+('11667051-00001', '11667051', 'God Scéaw'),
+('11667051-00002', '11667051', 'Earg Scéaw'),
+('11667051-00003', '11667051', 'Scéaw Tima'),
+('11667051-00002', '11667051', 'Ofscéaw'),
+('9000000000-00001', '9000000000', 'Ne Scéaw');
+
+INSERT INTO sis_advising_notes.advising_note_topic_mappings
+(boa_topic, sis_topic)
+VALUES
+('Good Show', 'God Scéaw'),
+('Bad Show', 'Earg Scéaw'),
+('Show Time', 'Scéaw Tima'),
+('Show Off', 'Ofscéaw'),
+('No Show', 'Ne Scéaw');
+
+INSERT INTO sis_advising_notes.advising_note_attachments
+(advising_note_id, sid, attachment_seq_nr, attachment_date, created_by, created_at, updated_at, sis_file_name, user_file_name, is_historical)
+VALUES
+('11667051-00001', '11667051', 1, '2017-10-31', 'UCBCONVERSION', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051_00001_1.pdf', 'efac7b10-c3f2-11e4-9bbd-ab6a6597d26f.pdf', TRUE),
+('11667051-00002', '11667051', 2, '2017-10-31', '1234', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051_00002_2.jpeg', 'brigitte_photo.jpeg', FALSE),
+('9000000000-00002', '9000000000', 1, '2017-10-31', '4567', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '9000000000_00002_1.pdf', 'dog_eaten_homework.pdf', TRUE);
 
 INSERT INTO sis_data.enrolled_primary_sections
 (term_id, sis_section_id, sis_course_name, sis_course_name_compressed, sis_subject_area_compressed, sis_catalog_id, sis_course_title, sis_instruction_format, sis_section_num, instructors)
