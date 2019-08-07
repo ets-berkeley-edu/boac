@@ -97,6 +97,10 @@ def intermediate_schema():
     return app.config['DATA_LOCH_INTERMEDIATE_SCHEMA']
 
 
+def sis_advising_notes_schema():
+    return app.config['DATA_LOCH_SIS_ADVISING_NOTES_SCHEMA']
+
+
 def sis_schema():
     return app.config['DATA_LOCH_SIS_SCHEMA']
 
@@ -354,7 +358,7 @@ def match_advising_note_authors_by_name(prefixes, limit=None):
         )
         prefix_kwargs[f'prefix_{idx}'] = f'{prefix}%'
     sql = f"""SELECT DISTINCT a.first_name, a.last_name, a.sid, a.uid
-        FROM {advising_notes_schema()}.advising_note_authors a
+        FROM {sis_advising_notes_schema()}.advising_note_authors a
         {' '.join(prefix_conditions)}
         ORDER BY a.first_name, a.last_name"""
     if limit:
@@ -405,7 +409,7 @@ def get_sis_advising_notes(sid):
         SELECT
             id, sid, advisor_sid, appointment_id, note_category, note_subcategory,
             created_by, updated_by, note_body, created_at, updated_at
-        FROM {advising_notes_schema()}.advising_notes
+        FROM {sis_advising_notes_schema()}.advising_notes
         WHERE sid=:sid
         ORDER BY created_at, updated_at, id"""
     return safe_execute_redshift(sql, sid=sid)
@@ -413,7 +417,7 @@ def get_sis_advising_notes(sid):
 
 def get_sis_advising_note_topics(sid):
     sql = f"""SELECT advising_note_id, note_topic
-        FROM {advising_notes_schema()}.advising_note_topics
+        FROM {sis_advising_notes_schema()}.advising_note_topics
         WHERE sid=:sid
         AND note_topic IS NOT NULL
         ORDER BY advising_note_id"""
@@ -426,7 +430,7 @@ def get_sis_advising_note_attachment(sid, filename):
         return None
     sql = f"""SELECT advising_note_id, created_by, sis_file_name, user_file_name, is_historical
         {query_tables}
-        JOIN {advising_notes_schema()}.advising_note_attachments ana
+        JOIN {sis_advising_notes_schema()}.advising_note_attachments ana
         ON sas.sid = :sid
         AND ana.sid = sas.sid
         AND ana.sis_file_name = :filename
@@ -436,7 +440,7 @@ def get_sis_advising_note_attachment(sid, filename):
 
 def get_sis_advising_note_attachments(sid):
     sql = f"""SELECT advising_note_id, created_by, sis_file_name, user_file_name
-        FROM {advising_notes_schema()}.advising_note_attachments
+        FROM {sis_advising_notes_schema()}.advising_note_attachments
         WHERE sid=:sid
         ORDER BY advising_note_id"""
     return safe_execute_redshift(sql, sid=sid)
@@ -463,9 +467,9 @@ def search_advising_notes(
     sid_filter = 'AND an.sid = :student_csid' if student_csid else ''
 
     if topic:
-        topic_join = f"""JOIN {advising_notes_schema()}.advising_note_topic_mappings antm
+        topic_join = f"""JOIN {sis_advising_notes_schema()}.advising_note_topic_mappings antm
             ON antm.boa_topic = :topic
-        JOIN {advising_notes_schema()}.advising_note_topics ant
+        JOIN {sis_advising_notes_schema()}.advising_note_topics ant
             ON ant.note_topic = antm.sis_topic
             AND ant.advising_note_id = an.id"""
     else:
@@ -491,8 +495,8 @@ def search_advising_notes(
     sql = f"""WITH an AS (
         (SELECT sis.sid, sis.id, sis.note_body, sis.advisor_sid, NULL AS advisor_uid, NULL AS advisor_first_name, NULL AS advisor_last_name,
                 sis.note_category, sis.note_subcategory, sis.created_by, sis.created_at, sis.updated_at, idx.rank
-            FROM {advising_notes_schema()}.advising_notes sis
-            JOIN ({_fts_selector(advising_notes_schema())}) AS idx
+            FROM {sis_advising_notes_schema()}.advising_notes sis
+            JOIN ({_fts_selector(sis_advising_notes_schema())}) AS idx
             ON idx.id = sis.id)
         UNION
         (SELECT ascn.sid, ascn.id, NULL AS note_body, NULL AS advisor_sid, ascn.advisor_uid, ascn.advisor_first_name, ascn.advisor_last_name,
