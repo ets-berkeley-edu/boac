@@ -527,13 +527,19 @@ def _construct_student_profile(student):
     enrollments_for_sid = data_loch.get_enrollments_for_sid(student['sid'], latest_term_id=future_term_id())
     profile['enrollmentTerms'] = [json.loads(row['enrollment_term']) for row in enrollments_for_sid]
     profile['hasCurrentTermEnrollments'] = False
-    # TODO
+    filtered_enrollment_terms = []
     for term in profile['enrollmentTerms']:
         if term['termId'] == current_term_id():
             profile['hasCurrentTermEnrollments'] = len(term['enrollments']) > 0
         else:
             # Omit dropped sections for past terms.
             term.pop('droppedSections', None)
+            # Filter out the now-empty term if all classes were dropped.
+            if not term.get('enrollments'):
+                continue
+        filtered_enrollment_terms.append(term)
+    profile['enrollmentTerms'] = filtered_enrollment_terms
+
     if sis_profile and sis_profile.get('withdrawalCancel'):
         profile['withdrawalCancel'] = sis_profile['withdrawalCancel']
         if not sis_profile['withdrawalCancel'].get('termId'):
