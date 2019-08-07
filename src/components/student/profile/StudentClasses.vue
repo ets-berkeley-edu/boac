@@ -1,13 +1,6 @@
 <template>
   <div id="student-terms-container" class="m-3">
     <h2 class="student-section-header">Classes</h2>
-    <div v-if="student.sisProfile.withdrawalCancel">
-      <span class="red-flag-small">
-        {{ student.sisProfile.withdrawalCancel.description }}
-        ({{ student.sisProfile.withdrawalCancel.reason }})
-        {{ student.sisProfile.withdrawalCancel.date | moment('MMM DD, YYYY') }}
-      </span>
-    </div>
     <div
       v-for="(term, index) in (showAllTerms ? student.enrollmentTerms : relevantTerms)"
       :key="index"
@@ -17,8 +10,10 @@
         class="term-no-enrollments">
         <h3 class="student-term-header">{{ currentEnrollmentTerm }}</h3>
         <div class="term-no-enrollments-description">No enrollments</div>
+        <StudentWithdrawalCancel :withdr="student.sisProfile.withdrawalCancel" :term-id="String(currentEnrollmentTermId)" />
       </div>
       <h3 :id="`term-header-${index}`" tabindex="0" class="student-term-header">{{ term.termName }}</h3>
+      <StudentWithdrawalCancel :withdr="student.sisProfile.withdrawalCancel" :term-id="term.termId" />
       <div v-for="(course, courseIndex) in term.enrollments" :key="courseIndex" class="student-course">
         <div class="student-course-heading">
           <div class="student-course-heading-start">
@@ -257,11 +252,7 @@ v-if="section.isViewableOnCoursePage"
     </div>
     <div v-if="isEmpty(student.enrollmentTerms)">
       No courses
-      <div v-if="student.sisProfile.withdrawalCancel">
-        <span class="red-flag-small">
-          {{ student.sisProfile.withdrawalCancel.description }} ({{ student.sisProfile.withdrawalCancel.reason }}) {{ student.sisProfile.withdrawalCancel.date | moment('MMM DD, YYYY') }}
-        </span>
-      </div>
+      <StudentWithdrawalCancel :withdr="student.sisProfile.withdrawalCancel" :term-id="false" />
     </div>
   </div>
 </template>
@@ -272,10 +263,12 @@ import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentBoxplot from '@/components/student/StudentBoxplot';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
+import StudentWithdrawalCancel from "@/components/student/profile/StudentWithdrawalCancel";
 
 export default {
   name: 'StudentClasses',
   components: {
+    StudentWithdrawalCancel,
     StudentBoxplot
   },
   mixins: [Context, StudentAnalytics, UserMetadata, Util],
@@ -283,7 +276,6 @@ export default {
     student: Object
   },
   data: () => ({
-    currentEnrollmentTerm: undefined,
     showAllTerms: false
   }),
   computed: {
@@ -296,12 +288,6 @@ export default {
     }
   },
   created() {
-    this.currentEnrollmentTerm = this.find(
-      this.get(this.student, 'enrollmentTerms'),
-      {
-        termId: this.toString(this.currentEnrollmentTermId)
-      }
-    );
   },
   methods: {
     toggleShowAllTerms() {

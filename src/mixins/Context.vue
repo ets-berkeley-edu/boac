@@ -6,6 +6,7 @@ export default {
   computed: {
     ...mapGetters('context', [
       'apiBaseUrl',
+      'currentEnrollmentTerm',
       'currentEnrollmentTermId',
       'devAuthEnabled',
       'errors',
