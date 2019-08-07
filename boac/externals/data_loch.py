@@ -415,6 +415,7 @@ def get_sis_advising_note_topics(sid):
     sql = f"""SELECT advising_note_id, note_topic
         FROM {advising_notes_schema()}.advising_note_topics
         WHERE sid=:sid
+        AND note_topic IS NOT NULL
         ORDER BY advising_note_id"""
     return safe_execute_redshift(sql, sid=sid)
 
