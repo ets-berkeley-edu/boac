@@ -1,7 +1,9 @@
 <template>
   <div>
     <div>
-      <SearchForm :domain="['students', 'courses', 'notes']" context="sidebar" />
+      <SearchForm
+        :domain="user.canAccessCanvasData ? ['students', 'courses', 'notes'] : ['students', 'notes']"
+        context="sidebar" />
     </div>
     <div v-if="myCohorts">
       <Cohorts />

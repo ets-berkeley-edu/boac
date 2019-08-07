@@ -56,6 +56,8 @@ def search():
         raise BadRequestError('No search domain specified')
     if not len(search_phrase) and not domain['notes']:
         raise BadRequestError('Invalid or empty search input')
+    if domain['courses'] and not current_user.can_access_canvas_data:
+        raise ForbiddenRequestError('Unauthorized to search courses')
 
     feed = {}
 

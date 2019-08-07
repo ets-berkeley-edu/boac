@@ -43,12 +43,21 @@ def coe_advisor(fake_auth):
     fake_auth.login(coe_advisor_uid)
 
 
+@pytest.fixture()
+def no_canvas_access_advisor(fake_auth):
+    fake_auth.login('1')
+
+
 class TestCourseController:
     """API for retrieving course info."""
 
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
         assert client.get('/api/section/2182/1').status_code == 401
+
+    def test_not_authorized(self, no_canvas_access_advisor, client):
+        """Returns 403 if user is not authorized."""
+        assert client.get('/api/section/2182/1').status_code == 403
 
     def test_api_route_not_found(self, coe_advisor, client):
         """Returns a 404 for non-existent section_id."""

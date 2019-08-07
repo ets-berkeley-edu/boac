@@ -68,7 +68,7 @@
             Students (name or SID)
           </label>
         </div>
-        <div class="d-flex">
+        <div v-if="domain.includes('courses')" class="d-flex">
           <b-form-checkbox
             id="search-include-courses-checkbox"
             v-model="includeCourses"
@@ -350,10 +350,12 @@ export default {
       this.searchPhrase = this.trim(this.searchPhrase);
       if (this.searchPhrase || !this.searchInputRequired) {
         const query = {
-          courses: this.includeCourses,
           notes: this.includeNotes,
           students: this.includeStudents
         };
+        if (this.domain.includes('courses')) {
+          query.courses = this.includeCourses;
+        }
         if (this.searchPhrase) {
           query.q = this.searchPhrase;
         }

@@ -135,7 +135,7 @@
       <table class="cohort-course-activity-table">
         <tr>
           <th class="cohort-course-activity-header cohort-course-activity-course-name">CLASS</th>
-          <th class="cohort-course-activity-header">BCOURSES ACTIVITY</th>
+          <th v-if="user.canAccessCanvasData" class="cohort-course-activity-header">BCOURSES ACTIVITY</th>
           <th class="cohort-course-activity-header">MID</th>
           <th class="cohort-course-activity-header">FINAL</th>
         </tr>
@@ -143,7 +143,7 @@
           <td class="cohort-course-activity-data cohort-course-activity-course-name">
             <div :id="`row-${rowIndex}-student-enrollment-name-${index}`">{{ enrollment.displayName }}</div>
           </td>
-          <td class="cohort-course-activity-data">
+          <td v-if="user.canAccessCanvasData" class="cohort-course-activity-data">
             <div
               v-for="(canvasSite, cIndex) in enrollment.canvasSites"
               :id="`row-${rowIndex}-student-canvas-site-${cIndex}`"
@@ -183,7 +183,7 @@
           <td class="cohort-course-activity-data cohort-course-activity-course-name faint-text">
             No {{ termNameForSisId(currentEnrollmentTermId) }} enrollments
           </td>
-          <td class="cohort-course-activity-data">
+          <td v-if="user.canAccessCanvasData" class="cohort-course-activity-data">
             <span class="sr-only">No data</span>&mdash;
           </td>
           <td class="cohort-course-activity-data">

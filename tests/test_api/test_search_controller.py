@@ -43,6 +43,11 @@ def coe_advisor(fake_auth):
     fake_auth.login('1133399')
 
 
+@pytest.fixture()
+def no_canvas_access_advisor(fake_auth):
+    fake_auth.login('1')
+
+
 @pytest.fixture(scope='session')
 def asc_inactive_students():
     return data_loch.safe_execute_rds("""
@@ -171,6 +176,12 @@ class TestStudentSearch:
         assert len(students) == 1
         assert students[0]['name'] == 'Wolfgang Pauli-O\'Rourke'
 
+    def test_search_by_name_no_canvas_data_access(self, no_canvas_access_advisor, client):
+        """A user with no access to Canvas data can still search for students."""
+        response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': 'Paul'}), content_type='application/json')
+        assert response.status_code == 200
+        assert len(response.json['students']) == 3
+
     def test_search_order_by_offset_limit(self, client, fake_auth):
         """Search by snippet of name."""
         fake_auth.login('2040')
@@ -262,6 +273,15 @@ class TestCourseSearch:
         assert response.json['totalCourseCount'] == 3
         assert len([c for c in courses if c['courseName'] == 'MATH 1A']) == 2
         assert len([c for c in courses if c['courseName'] == 'DANISH 1A']) == 1
+
+    def test_search_courses_no_canvas_data_access(self, no_canvas_access_advisor, client):
+        """A user with no access to Canvas data cannot search for courses."""
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'students': True, 'courses': True, 'searchPhrase': '1A'}),
+            content_type='application/json',
+        )
+        assert response.status_code == 403
 
 
 class TestNoteSearch:
@@ -505,6 +525,16 @@ class TestNoteSearch:
         assert len(notes) == 2
         assert notes[0].get('id') == '9000000000-00002'
         assert notes[1].get('id') == '9100000000-00001'
+
+    def test_search_notes_no_canvas_data_access(self, no_canvas_access_advisor, client):
+        """A user with no access to Canvas data can still search for notes."""
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'notes': True, 'searchPhrase': '', 'noteOptions': {'studentCsid': '9100000000'}}),
+            content_type='application/json',
+        )
+        assert response.status_code == 200
+        assert len(response.json['notes']) == 1
 
 
 def _get_common_sids(student_list_1, student_list_2):

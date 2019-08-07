@@ -47,20 +47,21 @@ from sqlalchemy.sql import text
 no_calnet_record_for_uid = '13'
 
 _test_users = [
-    [no_calnet_record_for_uid, None, True, False],  # This user has no entry in calnet_search_entries
-    ['2040', None, True, True],
-    ['53791', None, True, False],
-    ['95509', None, True, False],
-    ['177473', None, True, False],
-    ['1133399', '800700600', False, False],
-    ['211159', None, True, False],
-    ['242881', '100100600', False, False, 'HENGL'],
-    ['1022796', '100100300', False, False],
-    ['1015674', None, False, False],
-    ['1049291', None, True, False],
-    ['1081940', '100200300', False, False],
-    ['90412', '100100100', True, False],
-    ['6446', None, False, False],
+    [no_calnet_record_for_uid, None, True, False, True],  # This user has no entry in calnet_search_entries
+    ['1', '111111111', None, True, False, False],
+    ['2040', None, True, True, True],
+    ['53791', None, True, False, True],
+    ['95509', None, True, False, True],
+    ['177473', None, True, False, True],
+    ['1133399', '800700600', False, False, True],
+    ['211159', None, True, False, True],
+    ['242881', '100100600', False, False, True, 'HENGL'],
+    ['1022796', '100100300', False, False, True],
+    ['1015674', None, False, False, True],
+    ['1049291', None, True, False, True],
+    ['1081940', '100200300', False, False, True],
+    ['90412', '100100100', True, False, True],
+    ['6446', None, False, False, True],
 ]
 
 _university_depts = {
@@ -131,7 +132,13 @@ _university_depts = {
     },
     'ZZZZZ': {
         'automate_memberships': True,
-        'users': [],
+        'users': [
+            {
+                'uid': '1',
+                'is_advisor': True,
+                'is_director': False,
+            },
+        ],
     },
 }
 
@@ -181,16 +188,21 @@ def load_development_data():
                 'lastName': last_name,
                 'name': f'{first_name} {last_name}',
             }
-            if len(test_user) > 4:
+            if len(test_user) > 5:
                 calnet_feed['departments'] = [
                     {
-                        'code': test_user[4],
-                        'name': BERKELEY_DEPT_CODE_TO_NAME.get(test_user[4]),
+                        'code': test_user[5],
+                        'name': BERKELEY_DEPT_CODE_TO_NAME.get(test_user[5]),
                     },
                 ]
             insert_in_json_cache(f'calnet_user_for_uid_{uid}', calnet_feed)
         if not user:
-            user = AuthorizedUser(uid=uid, is_admin=test_user[2], in_demo_mode=test_user[3])
+            user = AuthorizedUser(
+                uid=uid,
+                is_admin=test_user[2],
+                in_demo_mode=test_user[3],
+                can_access_canvas_data=test_user[4],
+            )
             db.session.add(user)
     for dept_code, dept_membership in _university_depts.items():
         university_dept = UniversityDept.find_by_dept_code(dept_code)
