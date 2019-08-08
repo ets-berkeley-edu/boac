@@ -93,6 +93,10 @@ def coe_schema():
     return app.config['DATA_LOCH_COE_SCHEMA']
 
 
+def e_i_schema():
+    return app.config['DATA_LOCH_E_I_SCHEMA']
+
+
 def intermediate_schema():
     return app.config['DATA_LOCH_INTERMEDIATE_SCHEMA']
 
@@ -402,6 +406,26 @@ def get_asc_advising_note_topics(sid):
         FROM {asc_advising_notes_schema()}.advising_note_topics
         WHERE sid=:sid"""
     return safe_execute_redshift(sql, sid=sid)
+
+
+def get_e_i_advising_notes(sid):
+    sql = f"""
+        SELECT
+            id, sid, advisor_uid AS author_uid,
+            advisor_first_name || ' ' || advisor_last_name AS author_name,
+            created_at, updated_at
+        FROM {e_i_schema()}.advising_notes
+        WHERE sid=:sid
+        AND advisor_last_name <> 'Front Desk'
+        ORDER BY created_at, updated_at, id"""
+    return safe_execute_rds(sql, sid=sid)
+
+
+def get_e_i_advising_note_topics(sid):
+    sql = f"""SELECT id, topic
+        FROM {e_i_schema()}.advising_note_topics
+        WHERE sid=:sid"""
+    return safe_execute_rds(sql, sid=sid)
 
 
 def get_sis_advising_notes(sid):
