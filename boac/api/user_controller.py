@@ -114,6 +114,8 @@ def _get_boa_user_groups(sort_users_by=None):
                 dept_name = 'Admins'
             elif _dept_code == 'GUEST':
                 dept_name = 'Guest Access'
+            elif _dept_code == 'NOTESONLY':
+                dept_name = 'Notes Only'
             else:
                 dept_name = BERKELEY_DEPT_CODE_TO_NAME.get(_dept_code)
             depts[_dept_code] = {
@@ -125,10 +127,13 @@ def _get_boa_user_groups(sort_users_by=None):
     for user in AuthorizedUser.get_all_active_users():
         if user.is_admin:
             _put('ADMIN', user)
-        for m in user.department_memberships:
-            _put(m.university_dept.dept_code, user)
+        if user.can_access_canvas_data:
+            for m in user.department_memberships:
+                _put(m.university_dept.dept_code, user)
+        else:
+            _put('NOTESONLY', user)
     user_groups = []
     for dept_code, dept in depts.items():
         dept['users'] = authorized_users_api_feed(dept['users'], sort_users_by)
         user_groups.append(dept)
-    return user_groups
+    return sorted(user_groups, key=lambda dept: dept['name'])

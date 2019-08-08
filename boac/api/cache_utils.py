@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
+import re
 from threading import Thread
 
 from boac import std_commit
@@ -160,6 +161,9 @@ def refresh_department_memberships():
     std_commit(allow_test_environment=True)
     for dept in depts:
         for membership in dept.memberships_from_loch():
+            # A non-numeric "uid" indicates a row from SIS advising tables best ignored.
+            if not re.match(r'^\d+$', membership['uid']):
+                continue
             user = AuthorizedUser.create_or_restore(
                 uid=membership['uid'],
                 can_access_canvas_data=membership['can_access_canvas_data'],

@@ -155,19 +155,19 @@ class TestUserGroups:
         fake_auth.login(admin_uid)
         response = client.get('/api/users/authorized_groups')
         assert response.status_code == 200
-        user_groups = sorted(response.json, key=lambda g: g['code'])
+        user_groups = response.json
         assert len(user_groups) == 6
         assert user_groups[0]['name'] == 'Admins'
         assert len(user_groups[0]['users']) == 8
-        assert user_groups[1]['name'] == 'College of Engineering'
-        assert len(user_groups[1]['users']) == 4
-        assert user_groups[2]['name'] == 'L&S College Advising'
-        assert len(user_groups[2]['users']) == 1
-        assert user_groups[3]['name'] == 'L&S Major Advising'
+        assert user_groups[1]['name'] == 'Athletic Study Center'
+        assert len(user_groups[1]['users']) == 3
+        assert user_groups[2]['name'] == 'College of Engineering'
+        assert len(user_groups[2]['users']) == 4
+        assert user_groups[3]['name'] == 'L&S College Advising'
         assert len(user_groups[3]['users']) == 1
-        assert user_groups[4]['name'] == 'Athletic Study Center'
-        assert len(user_groups[4]['users']) == 3
-        assert user_groups[5]['name'] == 'Other'
+        assert user_groups[4]['name'] == 'L&S Major Advising'
+        assert len(user_groups[5]['users']) == 1
+        assert user_groups[5]['name'] == 'Notes Only'
         assert len(user_groups[5]['users']) == 1
 
 
