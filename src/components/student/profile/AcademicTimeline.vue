@@ -32,6 +32,17 @@
             </b-btn>
           </div>
         </div>
+        <div v-if="filter === 'note'" class="mt-1 mb-1">
+          <b-btn
+            id="toggle-expand-all-notes"
+            variant="link"
+            @click.prevent="toggleExpandAllNotes()">
+            <font-awesome
+              class="toggle-expand-all-notes-caret"
+              :icon="allNotesExpanded ? 'caret-down' : 'caret-right'" />
+            <span class="no-wrap pl-1">{{ allNotesExpanded ? 'Collapse' : 'Expand' }} all notes</span>
+          </b-btn>
+        </div>
       </div>
       <div v-if="!user.isAdmin">
         <NewNoteModal
@@ -117,8 +128,8 @@
                 'img-blur': user.inDemoMode && message.type === 'note'
               }"
               :tabindex="includes(openMessages, message.transientId) ? -1 : 0"
-              @keyup.enter="open(message)"
-              @click="open(message)">
+              @keyup.enter="open(message, true)"
+              @click="open(message, true)">
               <span v-if="message.transientId !== editingNoteId" class="when-message-closed sr-only">Open message</span>
               <font-awesome v-if="message.status === 'Satisfied'" icon="check" class="requirements-icon text-success" />
               <font-awesome v-if="message.status === 'Not Satisfied'" icon="exclamation" class="requirements-icon text-icon-exclamation" />
@@ -145,8 +156,8 @@
                   :id="`timeline-tab-${activeTab}-close-message`"
                   class="no-wrap"
                   variant="link"
-                  @keyup.enter.stop="close(message)"
-                  @click.stop="close(message)">
+                  @keyup.enter.stop="close(message, true)"
+                  @click.stop="close(message, true)">
                   <font-awesome icon="times-circle" class="font-size-24" />
                   Close Message
                 </b-btn>
@@ -248,6 +259,7 @@ export default {
     student: Object
   },
   data: () => ({
+    allNotesExpanded: false,
     creatingNewNote: false,
     countsPerType: undefined,
     defaultShowPerTab: 5,
@@ -350,7 +362,7 @@ export default {
         if (note) {
           this.isShowingAll = true;
           this.$nextTick(function() {
-            this.open(note);
+            this.open(note, true);
             this.scrollToPermalink(messageId);
           });
         }
@@ -374,7 +386,7 @@ export default {
       this.alertScreenReader('Cancelled');
       this.messageForDelete = undefined;
     },
-    close(message) {
+    close(message, screenreaderAlert) {
       if (message.transientId === this.editingNoteId) {
         return false;
       }
@@ -384,7 +396,12 @@ export default {
           id => id !== message.transientId
         );
       }
-      this.alertScreenReader('Message closed');
+      if (this.openMessages.length === 0) {
+        this.allNotesExpanded = false;
+      }
+      if (screenreaderAlert) {
+        this.alertScreenReader('Message closed');
+      }
     },
     deleteNote(message) {
       // The following opens the "Are you sure?" modal
@@ -453,7 +470,7 @@ export default {
     onSubmitAdvisingNote() {
       this.creatingNewNote = true;
     },
-    open(message) {
+    open(message, screenreaderAlert) {
       if (message.transientId === this.editingNoteId) {
         return false;
       }
@@ -461,7 +478,12 @@ export default {
         this.openMessages.push(message.transientId);
       }
       this.markRead(message);
-      this.alertScreenReader('Message opened');
+      if (this.openMessages.length === this.messagesPerType('note').length) {
+        this.allNotesExpanded = true;
+      }
+      if (screenreaderAlert) {
+        this.alertScreenReader('Message opened');
+      }
     },
     scrollToPermalink(messageId) {
       this.scrollTo(`#message-row-${messageId}`);
@@ -481,6 +503,17 @@ export default {
           return d1 ? -1 : 1;
         }
       });
+    },
+    toggleExpandAllNotes() {
+      this.isShowingAll = true;
+      this.allNotesExpanded = !this.allNotesExpanded;
+      if (this.allNotesExpanded) {
+        this.each(this.messagesPerType('note'), this.open);
+        this.alertScreenReader('All notes expanded');
+      } else {
+        this.each(this.messagesPerType('note'), this.close);
+        this.alertScreenReader('All notes collapsed');
+      }
     }
   }
 };
@@ -610,5 +643,8 @@ export default {
 }
 .text-icon-exclamation {
   color: #f0ad4e;
+}
+.toggle-expand-all-notes-caret {
+  width: 15px;
 }
 </style>
