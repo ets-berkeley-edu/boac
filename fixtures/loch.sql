@@ -1,6 +1,7 @@
 DROP SCHEMA IF EXISTS asc_advising_notes cascade;
 DROP SCHEMA IF EXISTS boac_advising_asc cascade;
 DROP SCHEMA IF EXISTS boac_advising_coe cascade;
+DROP SCHEMA IF EXISTS boac_advising_e_i cascade;
 DROP SCHEMA IF EXISTS boac_advising_l_s cascade;
 DROP SCHEMA IF EXISTS boac_advising_notes cascade;
 DROP SCHEMA IF EXISTS boac_advisor cascade;
@@ -12,6 +13,7 @@ DROP SCHEMA IF EXISTS student cascade;
 CREATE SCHEMA asc_advising_notes;
 CREATE SCHEMA boac_advising_asc;
 CREATE SCHEMA boac_advising_coe;
+CREATE SCHEMA boac_advising_e_i;
 CREATE SCHEMA boac_advising_l_s;
 CREATE SCHEMA boac_advising_notes;
 CREATE SCHEMA boac_advisor;
@@ -85,6 +87,28 @@ CREATE TABLE boac_advising_coe.student_profiles
 (
     sid VARCHAR NOT NULL,
     profile TEXT NOT NULL
+);
+
+CREATE TABLE boac_advising_e_i.advising_notes
+(
+    id VARCHAR NOT NULL,
+    e_i_id VARCHAR NOT NULL,
+    sid VARCHAR NOT NULL,
+    student_first_name VARCHAR,
+    student_last_name VARCHAR,
+    meeting_date VARCHAR,
+    advisor_uid VARCHAR,
+    advisor_first_name VARCHAR,
+    advisor_last_name VARCHAR,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE TABLE boac_advising_e_i.advising_note_topics (
+    id VARCHAR NOT NULL,
+    e_i_id VARCHAR NOT NULL,
+    sid VARCHAR NOT NULL,
+    topic VARCHAR
 );
 
 CREATE TABLE boac_advising_l_s.students
@@ -363,6 +387,27 @@ VALUES
 ('7890123456', :coe_profile_7890123456),
 ('9000000000', :coe_profile_9000000000),
 ('9100000000', :coe_profile_9100000000);
+
+INSERT INTO boac_advising_e_i.advising_notes
+(id, e_i_id, sid, student_first_name, student_last_name, meeting_date, advisor_uid, advisor_first_name, advisor_last_name, created_at, updated_at)
+VALUES
+('11667051-151620', '151620', '11667051', 'Deborah', 'Davies', '2014-01-03', '1133398', 'Charlie', 'Christian', '2014-01-03 20:30:00+00', '2014-01-03 20:30:00+00'),
+('11667051-151621', '151621', '11667051', 'Deborah', 'Davies', '2014-01-16', NULL, 'Reception', 'Front Desk', '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00'),
+('8901234567-151622', '151622', '8901234567', 'John David', 'Crossman', '2014-01-16', NULL, 'Graduate Intern', '', '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00'),
+('2345678901-151622', '151622', '2345678901', 'Dave', 'Doolittle', '2014-01-16', NULL, 'Graduate Intern', '', '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00');
+
+INSERT INTO boac_advising_e_i.advising_note_topics
+(id, e_i_id, sid, topic)
+VALUES
+('11667051-151620', '151620', '11667051', 'Course Planning'),
+('11667051-151620', '151620', '11667051', 'Personal');
+
+CREATE MATERIALIZED VIEW boac_advising_e_i.advising_notes_search_index AS (
+  SELECT n.id, to_tsvector('english', COALESCE(topic || ' ', '') || advisor_first_name || ' ' || advisor_last_name) AS fts_index
+  FROM boac_advising_e_i.advising_notes n
+  LEFT OUTER JOIN boac_advising_e_i.advising_note_topics t
+  ON n.id = t.id
+);
 
 INSERT INTO boac_advising_l_s.students
 (sid, acadplan_code, acadplan_descr, acadplan_type_code, acadplan_ownedby_code, ldap_uid, first_name, last_name, email_address, affiliations)

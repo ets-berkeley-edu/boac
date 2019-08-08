@@ -55,6 +55,8 @@ def get_advising_notes(sid):
     notes_by_id.update(get_sis_advising_notes(sid))
     benchmark('begin ASC advising notes query')
     notes_by_id.update(get_asc_advising_notes(sid))
+    benchmark('begin E&I advising notes query')
+    notes_by_id.update(get_e_i_advising_notes(sid))
     benchmark('begin non legacy advising notes query')
     notes_by_id.update(get_non_legacy_advising_notes(sid))
     if not notes_by_id.values():
@@ -94,6 +96,21 @@ def get_asc_advising_notes(sid):
         note_id = legacy_note['id']
         note = {camelize(key): legacy_note[key] for key in legacy_note.keys()}
         note['deptCode'] = ['UWASC']
+        notes_by_id[note_id] = note_to_compatible_json(
+            note=note,
+            topics=legacy_topics.get(note_id),
+        )
+        notes_by_id[note_id]['isLegacy'] = True
+    return notes_by_id
+
+
+def get_e_i_advising_notes(sid):
+    notes_by_id = {}
+    legacy_topics = _get_e_i_advising_note_topics(sid)
+    for legacy_note in data_loch.get_e_i_advising_notes(sid):
+        note_id = legacy_note['id']
+        note = {camelize(key): legacy_note[key] for key in legacy_note.keys()}
+        note['deptCode'] = ['ZCEEE']
         notes_by_id[note_id] = note_to_compatible_json(
             note=note,
             topics=legacy_topics.get(note_id),
@@ -370,6 +387,14 @@ def _get_advising_note_attachments(sid):
 
 def _get_asc_advising_note_topics(sid):
     topics = data_loch.get_asc_advising_note_topics(sid)
+    topics_by_id = {}
+    for advising_note_id, topics in groupby(topics, key=itemgetter('id')):
+        topics_by_id[advising_note_id] = [topic['topic'] for topic in topics]
+    return topics_by_id
+
+
+def _get_e_i_advising_note_topics(sid):
+    topics = data_loch.get_e_i_advising_note_topics(sid)
     topics_by_id = {}
     for advising_note_id, topics in groupby(topics, key=itemgetter('id')):
         topics_by_id[advising_note_id] = [topic['topic'] for topic in topics]

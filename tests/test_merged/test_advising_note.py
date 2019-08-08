@@ -89,6 +89,17 @@ class TestMergedAdvisingNote:
         assert notes[5]['updatedAt'] is None
         assert notes[5]['read'] is False
 
+        # Legacy E&I notes
+        assert notes[6]['id'] == '11667051-151620'
+        assert notes[6]['sid'] == '11667051'
+        assert notes[6]['body'] is None
+        assert notes[6]['author']['uid'] == '1133398'
+        assert notes[6]['author']['name'] == 'Charlie Christian'
+        assert notes[6]['topics'] == ['Course Planning', 'Personal']
+        assert notes[6]['createdAt']
+        assert notes[6]['updatedAt'] is None
+        assert notes[6]['read'] is False
+
         # Non-legacy note
         boa_created_note = next((n for n in notes if n['id'] == coe_advising_note_with_attachment.id), None)
         assert boa_created_note['id']

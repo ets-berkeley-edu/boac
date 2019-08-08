@@ -114,6 +114,23 @@ class TestDataLoch:
         assert notes[0]['created_at']
         assert notes[0]['updated_at']
 
+    def test_get_e_i_advising_notes(self, app):
+        """Excludes notes with author name 'Reception Front Desk'."""
+        notes = data_loch.get_e_i_advising_notes('11667051')
+        assert len(notes) == 1
+        assert notes[0]['id'] == '11667051-151620'
+        assert notes[0]['sid'] == '11667051'
+        assert notes[0]['author_uid'] == '1133398'
+        assert notes[0]['author_name'] == 'Charlie Christian'
+        assert notes[0]['created_at']
+        assert notes[0]['updated_at']
+
+    def test_get_e_i_advising_note_topics(self, app):
+        topics = data_loch.get_e_i_advising_note_topics('11667051')
+        assert len(topics) == 2
+        assert topics[0]['id'] == '11667051-151620'
+        assert topics[0]['topic'] == 'Course Planning'
+
     def test_get_sis_advising_note_attachment(self, app):
         attachment = data_loch.get_sis_advising_note_attachment('11667051', '11667051_00001_1.pdf')
         assert len(attachment) == 1
