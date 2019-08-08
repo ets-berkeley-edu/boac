@@ -362,7 +362,7 @@ def match_advising_note_authors_by_name(prefixes, limit=None):
         )
         prefix_kwargs[f'prefix_{idx}'] = f'{prefix}%'
     sql = f"""SELECT DISTINCT a.first_name, a.last_name, a.sid, a.uid
-        FROM {sis_advising_notes_schema()}.advising_note_authors a
+        FROM {advising_notes_schema()}.advising_note_authors a
         {' '.join(prefix_conditions)}
         ORDER BY a.first_name, a.last_name"""
     if limit:
@@ -528,6 +528,12 @@ def search_advising_notes(
             FROM {asc_schema()}.advising_notes ascn
             JOIN ({_fts_selector(asc_schema())}) AS idx
             ON idx.id = ascn.id)
+        UNION
+        (SELECT ein.sid, ein.id, NULL AS note_body, NULL AS advisor_sid, ein.advisor_uid, ein.advisor_first_name, ein.advisor_last_name,
+                NULL AS note_category, NULL AS note_subcategory, NULL AS created_by, ein.created_at, ein.updated_at, idx.rank
+            FROM {e_i_schema()}.advising_notes ein
+            JOIN ({_fts_selector(e_i_schema())}) AS idx
+            ON idx.id = ein.id)
         )
         SELECT DISTINCT
             an.sid, an.id, an.note_body, an.advisor_sid, an.advisor_uid,
