@@ -131,6 +131,14 @@ CREATE TABLE boac_advising_notes.advising_note_author_names
     name VARCHAR NOT NULL
 );
 
+CREATE TABLE boac_advising_notes.advising_note_authors
+(
+    uid VARCHAR NOT NULL,
+    sid VARCHAR NOT NULL,
+    first_name VARCHAR NOT NULL,
+    last_name VARCHAR NOT NULL
+);
+
 CREATE TABLE boac_advisor.advisor_roles
 (
    sid VARCHAR NOT NULL,
@@ -179,14 +187,6 @@ CREATE TABLE sis_advising_notes.advising_notes
     updated_by VARCHAR,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
-);
-
-CREATE TABLE sis_advising_notes.advising_note_authors
-(
-    uid VARCHAR NOT NULL,
-    sid VARCHAR NOT NULL,
-    first_name VARCHAR NOT NULL,
-    last_name VARCHAR NOT NULL
 );
 
 CREATE TABLE sis_advising_notes.advising_note_topics
@@ -425,6 +425,13 @@ VALUES
 ('1133399', 'JONI'),
 ('1133399', 'MITCHELL');
 
+INSERT INTO boac_advising_notes.advising_note_authors
+(uid, sid, first_name, last_name)
+VALUES
+('1133397', '600500400', 'Robert', 'Johnson'),
+('1133398', '700600500', 'Charlie', 'Christian'),
+('1133399', '800700600', 'Joni', 'Mitchell');
+
 INSERT INTO boac_advisor.advisor_roles
 (sid, uid, advisor_type_code, advisor_type, instructor_type_code, instructor_type, academic_program_code, academic_program, cs_permissions)
 VALUES
@@ -471,13 +478,6 @@ VALUES
 ('9000000000-00001', '9000000000', '00001', '600500400', NULL, 'Appointment', '', 'Is this student even on campus?', NULL, NULL, '2017-11-02T12:00:00+00', '2017-11-02T13:00:00+00'),
 ('9000000000-00002', '9000000000', '00002', '700600500', NULL, 'Evaluation', '', 'I am confounded by this confounding student', 'UCBCONVERSION', NULL, '2017-11-02T07:00:00+00', '2017-11-02T07:00:00+00'),
 ('9100000000-00001', '9100000000', '00001', '600500400', NULL, 'Evaluation', '', 'Met w/ stu; scheduled next appt. 2/1/2019 @ 1:30. Student continued on 2.0 prob (COP) until Sp ''19. E-mailed test@berkeley.edu: told her she''ll need to drop Eng. 123 by 1-24-19', 'UCBCONVERSION', NULL, '2017-11-02T12:00:00+00', '2017-11-02T12:00:00+00');
-
-INSERT INTO sis_advising_notes.advising_note_authors
-(uid, sid, first_name, last_name)
-VALUES
-('1133397', '600500400', 'Robert', 'Johnson'),
-('1133398', '700600500', 'Charlie', 'Christian'),
-('1133399', '800700600', 'Joni', 'Mitchell');
 
 CREATE MATERIALIZED VIEW sis_advising_notes.advising_notes_search_index AS (
   SELECT id, to_tsvector(
