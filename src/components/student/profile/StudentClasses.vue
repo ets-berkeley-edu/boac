@@ -24,6 +24,7 @@
                   <h4 class="student-course-title">{{ course.displayName }}</h4>
                 </div>
                 <b-btn
+                  v-if="user.canAccessCanvasData"
                   :id="`term-${term.termId}-course-${courseIndex}-toggle`"
                   v-b-toggle="`course-canvas-data-${term.termId}-${courseIndex}`"
                   class="student-course-collapse-button"
@@ -45,8 +46,7 @@
 v-if="section.isViewableOnCoursePage"
                            :id="`term-${term.termId}-section-${section.ccn}`"
                       :to="`/course/${term.termId}/${section.ccn}?u=${student.uid}`">{{ section.displayName }}</router-link><!--
-                        --><span v-if="!section.isViewableOnCoursePage">
-                      {{ section.displayName }}</span><!--
+                        --><span v-if="!section.isViewableOnCoursePage">{{ section.displayName }}</span><!--
                         --><span v-if="sectionIndex < course.sections.length - 1"> | </span><!--
                         --><span v-if="sectionIndex === course.sections.length - 1">)</span>
                     </span>
@@ -91,7 +91,10 @@ v-if="section.isViewableOnCoursePage"
             </div>
           </div>
         </div>
-        <b-collapse :id="`course-canvas-data-${term.termId}-${courseIndex}`" class="panel-body">
+        <b-collapse
+          v-if="user.canAccessCanvasData"
+          :id="`course-canvas-data-${term.termId}-${courseIndex}`"
+          class="panel-body">
           <div v-for="(canvasSite, csIndex) in course.canvasSites" :key="csIndex" class="student-bcourses-wrapper">
             <h5 class="student-bcourses-site-code">
               <span class="sr-only">Course Site</span>

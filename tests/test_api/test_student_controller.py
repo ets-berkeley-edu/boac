@@ -43,6 +43,11 @@ def coe_advisor_login(fake_auth):
     fake_auth.login('1133399')
 
 
+@pytest.fixture()
+def no_canvas_data_access_advisor_login(fake_auth):
+    fake_auth.login('1')
+
+
 @pytest.mark.usefixtures('db_session')
 class TestStudent:
     """Student API."""
@@ -286,6 +291,15 @@ class TestStudent:
             assert analytics['lastActivity']['student']['raw'] == 1535275620
             assert analytics['lastActivity']['student']['percentile'] == 93
             assert analytics['lastActivity']['displayPercentile'] == '90th'
+
+    def test_suppresses_canvas_data_if_unauthorized(self, client, no_canvas_data_access_advisor_login):
+        sid = self.asc_student_in_coe['sid']
+        uid = self.asc_student_in_coe['uid']
+        student_by_sid = self._api_student_by_sid(client=client, sid=sid)
+        student_by_uid = self._api_student_by_uid(client=client, uid=uid)
+        for student in [student_by_sid, student_by_uid]:
+            course_with_enrollment = self.get_course_for_code(student, '2178', 'MED ST 205')
+            assert course_with_enrollment['canvasSites'] == []
 
     def test_student_not_found(self, coe_advisor_login, client):
         """Returns 404 if no viewable student."""

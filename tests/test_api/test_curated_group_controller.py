@@ -45,6 +45,11 @@ def coe_advisor(fake_auth):
 
 
 @pytest.fixture()
+def no_canvas_data_access_advisor(fake_auth):
+    fake_auth.login('1')
+
+
+@pytest.fixture()
 def admin_user_session(fake_auth):
     fake_auth.login(admin_uid)
 
@@ -140,15 +145,14 @@ class TestGetCuratedGroup:
             'Nuclear Engineering BS (Farestveit)',
         ]
 
-    def test_curated_group_detail_includes_analytics(self, asc_advisor, asc_curated_groups, client, create_alerts):
-        """Returns all students with full term and analytics data."""
+    def test_curated_group_detail_includes_profiles(self, asc_advisor, asc_curated_groups, client, create_alerts):
+        """Returns all students with profile data."""
         api_json = self._api_get_curated_group(client, asc_curated_groups[0].id)
         student = api_json['students'][0]
         assert student['cumulativeGPA'] == 3.8
         assert student['cumulativeUnits'] == 101.3
         assert student['level'] == 'Junior'
         assert len(student['majors']) == 2
-        assert 'analytics' in student
 
     def test_curated_group_detail_includes_athletics(self, asc_advisor, asc_curated_groups, client):
         """Returns student athletes."""
@@ -165,6 +169,16 @@ class TestGetCuratedGroup:
         """Omits student athletes from COE group."""
         api_json = self._api_get_curated_group(client, coe_advisor_groups[0].id)
         assert 'athleticsProfile' not in api_json['students'][0]
+
+    def test_curated_group_detail_includes_canvas_data(self, client, coe_advisor):
+        group = _api_create_group(client, name='The Awkward Age', sids=['5678901234'])
+        student_feed = self._api_get_curated_group(client, group['id'])['students'][0]
+        assert 'analytics' in student_feed['term']['enrollments'][0]['canvasSites'][0]
+
+    def test_curated_group_detail_suppresses_canvas_data_when_unauthorized(self, client, no_canvas_data_access_advisor):
+        group = _api_create_group(client, name='The Awkward Age', sids=['5678901234'])
+        student_feed = self._api_get_curated_group(client, group['id'])['students'][0]
+        assert student_feed['term']['enrollments'][0]['canvasSites'] == []
 
     def test_students_with_alerts(self, asc_advisor, asc_curated_groups, client, create_alerts, db_session):
         """Students with alerts per group id."""

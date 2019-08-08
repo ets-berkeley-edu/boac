@@ -142,12 +142,13 @@ export default {
       }
     },
     parseCourse(course) {
+      const canAccessCanvasData = this.user.canAccessCanvasData;
       this.each(course.sections, function(section) {
         course.waitlisted =
           course.waitlisted || section.enrollmentStatus === 'W';
         course.isOpen = false;
         section.displayName = section.component + ' ' + section.sectionNumber;
-        section.isViewableOnCoursePage = section.primary;
+        section.isViewableOnCoursePage = section.primary && canAccessCanvasData;
       });
     }
   }

@@ -226,7 +226,8 @@ def get_summary_student_profiles(sids, term_id=None):
         term = enrollments_by_sid.get(profile['sid'])
         profile['hasCurrentTermEnrollments'] = False
         if term:
-            profile['analytics'] = term.pop('analytics', None)
+            if not current_user.can_access_canvas_data:
+                _suppress_canvas_sites(term)
             profile['term'] = term
             if term['termId'] == current_term_id() and len(term['enrollments']) > 0:
                 profile['hasCurrentTermEnrollments'] = True
@@ -514,6 +515,11 @@ def _merge_photo_urls(profiles):
         profile['photoUrl'] = photo_urls.get(_photo_key(profile))
 
 
+def _suppress_canvas_sites(enrollment_term):
+    for enrollment in enrollment_term['enrollments']:
+        enrollment['canvasSites'] = []
+
+
 def _construct_student_profile(student):
     if not student:
         return
@@ -537,6 +543,8 @@ def _construct_student_profile(student):
             # Filter out the now-empty term if all classes were dropped.
             if not term.get('enrollments'):
                 continue
+        if not current_user.can_access_canvas_data:
+            _suppress_canvas_sites(term)
         filtered_enrollment_terms.append(term)
     profile['enrollmentTerms'] = filtered_enrollment_terms
 

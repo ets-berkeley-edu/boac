@@ -49,6 +49,11 @@ def coe_advisor_login(fake_auth):
 
 
 @pytest.fixture()
+def no_canvas_access_advisor_login(fake_auth):
+    fake_auth.login('1')
+
+
+@pytest.fixture()
 def asc_owned_cohort():
     cohorts = all_cohorts_owned_by(asc_advisor_uid)
     return next((c for c in cohorts if c['name'] == 'All sports'), None)
@@ -58,6 +63,16 @@ def asc_owned_cohort():
 def coe_owned_cohort():
     cohorts = all_cohorts_owned_by(coe_advisor_uid)
     return next((c for c in cohorts if c['name'] == 'Radioactive Women and Men'), None)
+
+
+@pytest.fixture()
+def new_undeclared_cohort(client):
+    cohort_props = {
+        'name': 'Nothing to Declare',
+        'filters': [{'key': 'majors', 'type': 'array', 'value': 'Letters & Sci Undeclared UG'}],
+    }
+    cohort = client.post('/api/cohort/create', data=json.dumps(cohort_props), content_type='application/json')
+    return client.get(f"/api/cohort/{json.loads(cohort.data).get('id')}").json
 
 
 class TestCohortDetail:
@@ -211,6 +226,14 @@ class TestCohortDetail:
         assert len(term['enrollments']) == 5
         assert term['enrollments'][0]['displayName'] == 'BURMESE 1A'
         assert len(term['enrollments'][0]['canvasSites']) == 1
+
+    def test_includes_canvas_data(self, asc_advisor_login, new_undeclared_cohort):
+        student_feed = new_undeclared_cohort['students'][0]
+        assert 'analytics' in student_feed['term']['enrollments'][0]['canvasSites'][0]
+
+    def test_no_canvas_access_suppresses_canvas_data(self, no_canvas_access_advisor_login, new_undeclared_cohort):
+        student_feed = new_undeclared_cohort['students'][0]
+        assert student_feed['term']['enrollments'][0]['canvasSites'] == []
 
     def test_includes_cohort_member_term_gpa(self, asc_advisor_login, asc_owned_cohort, client):
         cohort_id = asc_owned_cohort['id']
