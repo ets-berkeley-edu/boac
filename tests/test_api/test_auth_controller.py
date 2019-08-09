@@ -25,6 +25,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import json
 
+from boac.models.user_login import UserLogin
+import cas
+import mock
 from tests.util import override_config, pause_mock_sts
 
 admin_uid = '2040'
@@ -164,6 +167,17 @@ class TestCasAuth:
             response = client.get('/cas/callback?ticket=is_invalid')
             assert response.status_code == 302
             assert 'error' in response.location
+
+    @mock.patch.object(cas.CASClientV3, 'verify_ticket', autospec=True)
+    def test_cas_callback_with_valid_ticket(self, mock_verify_ticket, client):
+        """Records a successful user login."""
+        mock_verify_ticket.return_value = (advisor_uid, {}, 'is_valid')
+        response = client.get('/cas/callback?ticket=is_valid')
+        assert response.status_code == 302
+        assert 'casLogin=true' in response.location
+
+        user_login = UserLogin.query.filter_by(uid=advisor_uid).first()
+        assert user_login.uid == advisor_uid
 
 
 class TestBecomeUser:

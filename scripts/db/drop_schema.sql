@@ -52,6 +52,7 @@ ALTER TABLE IF EXISTS ONLY public.student_groups DROP CONSTRAINT IF EXISTS stude
 ALTER TABLE IF EXISTS ONLY public.student_groups DROP CONSTRAINT IF EXISTS student_groups_owner_id_name_unique_constraint;
 ALTER TABLE IF EXISTS ONLY public.university_dept_members DROP CONSTRAINT IF EXISTS university_dept_members_authorized_user_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.university_dept_members DROP CONSTRAINT IF EXISTS university_dept_members_university_dept_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.user_logins DROP CONSTRAINT IF EXISTS user_logins_uid_fkey;
 
 --
 
@@ -68,6 +69,7 @@ DROP INDEX IF EXISTS public.alert_views_alert_id_idx;
 DROP INDEX IF EXISTS public.student_groups_owner_id_idx;
 DROP INDEX IF EXISTS public.tool_settings_key_idx;
 DROP INDEX IF EXISTS public.idx_notes_fts_index;
+DROP INDEX IF EXISTS public.user_logins_uid_idx;
 
 --
 
@@ -92,6 +94,7 @@ ALTER TABLE IF EXISTS ONLY public.topics DROP CONSTRAINT IF EXISTS topics_topic_
 ALTER TABLE IF EXISTS ONLY public.university_dept_members DROP CONSTRAINT IF EXISTS university_dept_members_pkey;
 ALTER TABLE IF EXISTS ONLY public.university_depts DROP CONSTRAINT IF EXISTS university_dept_members_pkey;
 ALTER TABLE IF EXISTS ONLY public.tool_settings DROP CONSTRAINT IF EXISTS tool_settings_key_unique_constraint;
+ALTER TABLE IF EXISTS ONLY public.user_logins DROP CONSTRAINT IF EXISTS user_logins_pkey;
 ALTER TABLE IF EXISTS public.json_cache ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE IF EXISTS public.cohort_filters ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE IF EXISTS public.authorized_users ALTER COLUMN id DROP DEFAULT;
@@ -126,4 +129,6 @@ DROP TABLE IF EXISTS public.topics;
 DROP SEQUENCE IF EXISTS public.topics_id_seq;
 DROP TABLE IF EXISTS public.university_dept_members;
 DROP TABLE IF EXISTS public.university_depts;
-DROP SEQUENCE IF EXISTS public.university_depts_id_seq
+DROP SEQUENCE IF EXISTS public.university_depts_id_seq;
+DROP TABLE IF EXISTS public.user_logins;
+DROP SEQUENCE IF EXISTS public.user_logins_id_seq;

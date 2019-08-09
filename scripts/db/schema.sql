@@ -397,6 +397,26 @@ CREATE INDEX tool_settings_key_idx ON tool_settings USING btree (key);
 
 --
 
+CREATE TABLE user_logins(
+    id integer NOT NULL,
+    uid character varying NOT NULL,
+    created_at timestamp with time zone NOT NULL
+);
+CREATE SEQUENCE user_logins_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE user_logins_id_seq OWNER TO boac;
+ALTER SEQUENCE user_logins_id_seq OWNED BY user_logins.id;
+ALTER TABLE ONLY user_logins ALTER COLUMN id SET DEFAULT nextval('user_logins_id_seq'::regclass);
+ALTER TABLE ONLY user_logins
+    ADD CONSTRAINT user_logins_pkey PRIMARY KEY (id);
+CREATE INDEX user_logins_uid_idx ON user_logins USING btree (uid);
+
+--
+
 ALTER TABLE ONLY student_group_members
     ADD CONSTRAINT student_group_members_student_group_id_fkey FOREIGN KEY (student_group_id) REFERENCES student_groups(id) ON DELETE CASCADE;
 
@@ -404,6 +424,11 @@ ALTER TABLE ONLY student_group_members
 
 ALTER TABLE ONLY student_groups
     ADD CONSTRAINT student_groups_owner_id_fkey FOREIGN KEY (owner_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
+
+--
+
+ALTER TABLE ONLY user_logins
+    ADD CONSTRAINT user_logins_uid_fkey FOREIGN KEY (uid) REFERENCES authorized_users(uid) ON DELETE CASCADE;
 
 --
 
