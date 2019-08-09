@@ -418,6 +418,16 @@ def all_term_ids():
     return ids
 
 
+def term_ids_range(earliest_term_id, latest_term_id):
+    """Return SIS ID of each term in the range, from oldest to newest."""
+    term_id = int(earliest_term_id)
+    ids = []
+    while term_id <= int(latest_term_id):
+        ids.append(str(term_id))
+        term_id += 4 if (term_id % 10 == 8) else 3
+    return ids
+
+
 def reverse_terms_until(stop_term):
     term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
     while True:

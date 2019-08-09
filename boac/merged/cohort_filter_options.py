@@ -27,7 +27,7 @@ from copy import deepcopy
 
 from boac.api.util import authorized_users_api_feed
 from boac.externals import data_loch
-from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE, COE_ETHNICITIES_PER_CODE, term_name_for_sis_id
+from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE, COE_ETHNICITIES_PER_CODE, term_ids_range, term_name_for_sis_id
 from boac.merged import athletics
 from boac.merged.calnet import get_csid_for_uid
 from boac.merged.student import get_student_query_scope
@@ -394,8 +394,10 @@ def _genders():
 
 
 def _grad_terms():
-    term_ids = [r['expected_grad_term'] for r in data_loch.get_expected_graduation_terms()]
-    return [{'name': term_name_for_sis_id(term_id), 'value': term_id} for term_id in term_ids]
+    earliest_term_id = data_loch.get_min_expected_graduation_term()['term']
+    latest_term_id = data_loch.get_max_expected_graduation_term()['term']
+    term_ids = term_ids_range(earliest_term_id, latest_term_id)
+    return [{'name': ' '.join(term_name_for_sis_id(term_id).split()[::-1]), 'value': term_id} for term_id in term_ids]
 
 
 def _gpa_ranges():

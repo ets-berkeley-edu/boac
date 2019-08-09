@@ -48,6 +48,11 @@ class TestBerkeleySisTermIdForName:
     def test_all_term_ids(self, app):
         assert berkeley.all_term_ids() == ['2178', '2175', '2172', '2168']
 
+    def test_term_ids_range(self, app):
+        assert berkeley.term_ids_range('2158', '2208') == [
+            '2158', '2162', '2165', '2168', '2172', '2175', '2178', '2182', '2185', '2188', '2192', '2195', '2198', '2202', '2205', '2208',
+        ]
+
 
 class TestBerkeleyDegreeProgramUrl:
 
