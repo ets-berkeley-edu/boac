@@ -29,6 +29,7 @@ import json
 from boac import db, std_commit
 from boac.api.errors import InternalServerError
 from boac.lib import util
+from boac.lib.berkeley import current_term_id
 from boac.lib.util import get_benchmarker, to_bool_or_none as to_bool
 from boac.merged import athletics
 from boac.merged.calnet import get_csid_for_uid
@@ -180,6 +181,34 @@ class CohortFilter(Base):
             },
         )
         return results.first()['count']
+
+    @classmethod
+    def refresh_alert_counts_for_owner(cls, owner_id):
+        query = text(f"""
+            UPDATE cohort_filters
+            SET alert_count = updated_cohort_counts.alert_count
+            FROM
+            (
+                SELECT cohort_filters.id AS cohort_filter_id, count(*) AS alert_count
+                FROM alerts
+                JOIN cohort_filters
+                    ON alerts.sid = ANY(cohort_filters.sids)
+                    AND alerts.key LIKE :key
+                    AND alerts.active IS TRUE
+                JOIN cohort_filter_owners
+                    ON cohort_filters.id = cohort_filter_owners.cohort_filter_id
+                    AND cohort_filter_owners.user_id = :owner_id
+                LEFT JOIN alert_views
+                    ON alert_views.alert_id = alerts.id
+                    AND alert_views.viewer_id = :owner_id
+                WHERE alert_views.dismissed_at IS NULL
+                GROUP BY cohort_filters.id
+            ) updated_cohort_counts
+            WHERE cohort_filters.id = updated_cohort_counts.cohort_filter_id
+        """)
+        result = db.session.execute(query, {'owner_id': owner_id, 'key': current_term_id() + '_%'})
+        std_commit()
+        return result
 
     @classmethod
     def find_by_id(cls, cohort_id, **kwargs):

@@ -24,8 +24,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.models.alert import Alert
+from tests.test_api.api_test_utils import all_cohorts_owned_by
 
 admin_uid = '2040'
+asc_advisor_uid = '1081940'
 coe_advisor = '1133399'
 
 
@@ -94,3 +96,16 @@ class TestAlertsController:
         assert len(advisor_2_deborah_alerts) == 2
         assert advisor_2_deborah_alerts[0]['key'] == '2178_500600700'
         assert len(self._get_dismissed(advisor_1_deborah_alerts)) == 0
+
+    def test_alert_dismissal_updates_cohort_alert_counts(self, db, create_alerts, fake_auth, client):
+        fake_auth.login(asc_advisor_uid)
+        cohort_id = all_cohorts_owned_by(asc_advisor_uid)[0]['id']
+        response = client.get(f'/api/cohort/{cohort_id}')
+        assert response.json['alertCount'] == 5
+
+        alerts = self._get_alerts(client, 61889)
+        client.get('/api/alerts/' + str(alerts[0]['id']) + '/dismiss')
+        db.session.expire_all()
+
+        response = client.get(f'/api/cohort/{cohort_id}')
+        assert response.json['alertCount'] == 4
