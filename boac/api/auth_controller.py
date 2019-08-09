@@ -29,6 +29,7 @@ from boac.api.errors import ResourceNotFoundError
 from boac.api.util import admin_required
 from boac.lib.http import add_param_to_url, tolerant_jsonify
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.user_login import UserLogin
 import cas
 from flask import abort, current_app as app, flash, redirect, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
@@ -69,6 +70,8 @@ def cas_login():
     else:
         login_user(user)
         flash('Logged in successfully.')
+        UserLogin.record_user_login(uid)
+
         # Check if url is safe for redirects per https://flask-login.readthedocs.io/en/latest/
         if not _is_safe_url(request.args.get('next')):
             return abort(400)
