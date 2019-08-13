@@ -126,6 +126,31 @@ const mutations = {
   }
 };
 
+export function $_cohortEditSession_applyFilters({ commit, state }, orderBy: string) {
+  return new Promise(resolve => {
+    if (!_.get(state.filters, 'length')) {
+      return resolve();
+    }
+    commit('setEditMode', 'apply');
+    let offset =
+      (state.pagination.currentPage - 1) * state.pagination.itemsPerPage;
+    getStudentsPerFilters(
+      state.filters,
+      orderBy,
+      offset,
+      state.pagination.itemsPerPage
+    ).then(data => {
+      commit('updateStudents', {
+        students: data.students,
+        totalStudentCount: data.totalStudentCount
+      });
+      commit('stashOriginalFilters');
+      commit('setEditMode', null);
+      resolve();
+    });
+  });
+}
+
 const actions = {
   init({ commit }, { id, orderBy }) {
     return new Promise(resolve => {
@@ -162,30 +187,13 @@ const actions = {
       });
     });
   },
-  applyFilters: ({ commit, state }, orderBy) => {
-    return new Promise(resolve => {
-      commit('setModifiedSinceLastSearch', false);
-      if (!_.get(state.filters, 'length')) {
-        return resolve();
-      }
-      commit('setEditMode', 'apply');
-      let offset =
-        (state.pagination.currentPage - 1) * state.pagination.itemsPerPage;
-      getStudentsPerFilters(
-        state.filters,
-        orderBy,
-        offset,
-        state.pagination.itemsPerPage
-      ).then(data => {
-        commit('updateStudents', {
-          students: data.students,
-          totalStudentCount: data.totalStudentCount
-        });
-        commit('stashOriginalFilters');
-        commit('setEditMode', null);
-        resolve();
-      });
-    });
+  onPageNumberChange: ({ commit, state }) => {
+    const preferences = store.getters['user/preferences'];
+    return $_cohortEditSession_applyFilters({ commit, state }, preferences.sortBy);
+  },
+  applyFilters: ({ commit, state }, orderBy: string) => {
+    commit('setModifiedSinceLastSearch', false);
+    return $_cohortEditSession_applyFilters({ commit, state }, orderBy);
   },
   createCohort: ({ commit, state }, name: string) => {
     return new Promise(resolve => {

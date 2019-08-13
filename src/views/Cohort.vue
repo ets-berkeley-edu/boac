@@ -172,9 +172,7 @@ export default {
         });
       }
       this.setPagination(page);
-      this.applyFilters(this.preferences.sortBy).then(() => {
-        this.scrollToTop();
-      });
+      this.onPageNumberChange().then(this.scrollToTop);
     },
     setPagination(page) {
       this.pageNumber = page;
