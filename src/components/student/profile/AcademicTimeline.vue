@@ -11,7 +11,7 @@
               class="tab pl-2 pr-2"
               :class="{ 'tab-active text-white': !filter, 'tab-inactive text-dark': filter }"
               variant="link"
-              @click="filter = null">
+              @click="setFilter(null)">
               All
             </b-btn>
           </div>
@@ -27,21 +27,10 @@
               :aria-label="`${filterTypes[type].name}s tab`"
               variant="link"
               :disabled="!countsPerType[type]"
-              @click="filter = type">
+              @click="setFilter(type)">
               {{ filterTypes[type].tab }}
             </b-btn>
           </div>
-        </div>
-        <div v-if="filter === 'note'" class="mt-1 mb-1">
-          <b-btn
-            id="toggle-expand-all-notes"
-            variant="link"
-            @click.prevent="toggleExpandAllNotes()">
-            <font-awesome
-              class="toggle-expand-all-notes-caret"
-              :icon="allNotesExpanded ? 'caret-down' : 'caret-right'" />
-            <span class="no-wrap pl-1">{{ allNotesExpanded ? 'Collapse' : 'Expand' }} all notes</span>
-          </b-btn>
         </div>
       </div>
       <div v-if="!user.isAdmin">
@@ -53,13 +42,47 @@
       </div>
     </div>
 
-    <div v-if="!countPerActiveTab" class="pb-4 pl-2">
+    <div v-if="filter === 'note'" class="mt-1 mb-1 timeline-notes-submenu">
+      <b-btn
+        id="toggle-expand-all-notes"
+        variant="link"
+        @click.prevent="toggleExpandAllNotes()">
+        <font-awesome
+          class="toggle-expand-all-notes-caret"
+          :icon="allNotesExpanded ? 'caret-down' : 'caret-right'" />
+        <span class="no-wrap pl-1">{{ allNotesExpanded ? 'Collapse' : 'Expand' }} all notes</span>
+      </b-btn>
+      |
+      <label
+        for="timeline-notes-query-input"
+        class="mb-0 ml-2 mr-2">
+        Search Notes:
+      </label>
+      <input
+        id="timeline-notes-query-input"
+        v-model="notesQuery"
+        class="pl-2 pr-2 timeline-notes-query-input"
+        @keypress.enter.stop="searchTimelineNotes()" />
+    </div>
+
+    <div v-if="searchResultsLoading" class="mt-4 text-center">
+      <font-awesome icon="sync" size="3x" spin />
+    </div>
+
+    <div v-if="!searchResultsLoading && !countPerActiveTab" class="pb-4 pl-2">
       <span id="zero-messages" class="messages-none">
         <span v-if="filter">No {{ filterTypes[filter].name.toLowerCase() }}s</span>
         <span v-if="!filter">None</span>
       </span>
     </div>
-    <div v-if="countPerActiveTab">
+
+    <div v-if="!searchResultsLoading && searchResults" class="mb-2">
+      <strong>
+        {{ 'advising note' | pluralize(searchResults.length) }} for {{ student.name }} with '{{ notesQuery }}'
+      </strong>
+    </div>
+
+    <div v-if="!searchResultsLoading && countPerActiveTab">
       <table class="w-100">
         <tr class="sr-only">
           <th>Type</th>
@@ -78,7 +101,7 @@
           </td>
         </tr>
         <tr
-          v-for="(message, index) in (isShowingAll ? messagesPerType(filter) : slice(messagesPerType(filter), 0, defaultShowPerTab))"
+          v-for="(message, index) in visibleMessages"
           :id="`message-row-${message.id}`"
           :key="index"
           class="message-row border-top border-bottom"
@@ -214,7 +237,7 @@
         </tr>
       </table>
     </div>
-    <div v-if="countPerActiveTab > defaultShowPerTab" class="text-center">
+    <div v-if="!searchResults && !searchResultsLoading && (countPerActiveTab > defaultShowPerTab)" class="text-center">
       <b-btn
         :id="`timeline-tab-${activeTab}-previous-messages`"
         class="no-wrap pr-2 pt-0"
@@ -250,10 +273,18 @@ import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { dismissStudentAlert } from '@/api/student';
 import { deleteNote, markRead } from '@/api/notes';
+import { search } from '@/api/search';
 
 export default {
   name: 'AcademicTimeline',
-  components: {AdvisingAppointment, AdvisingNote, AreYouSureModal, EditAdvisingNote, NewNoteModal, TimelineDate},
+  components: {
+    AdvisingAppointment,
+    AdvisingNote,
+    AreYouSureModal,
+    EditAdvisingNote,
+    NewNoteModal,
+    TimelineDate
+  },
   mixins: [Context, Scrollable, StudentEditSession, UserMetadata, Util],
   props: {
     student: Object
@@ -286,7 +317,10 @@ export default {
     isTimelineLoading: true,
     messageForDelete: undefined,
     messages: undefined,
-    openMessages: []
+    notesQuery: null,
+    openMessages: [],
+    searchResults: null,
+    searchResultsLoading: false,
   }),
   computed: {
     activeTab() {
@@ -305,6 +339,15 @@ export default {
     },
     showDeleteConfirmModal() {
       return !!this.messageForDelete;
+    },
+    visibleMessages() {
+      if (this.searchResults) {
+        return this.filterList(this.messages, message => this.searchResults.includes(message.id));
+      } else if (this.isShowingAll) {
+        return this.messagesPerType(this.filter);
+      } else {
+        return this.slice(this.messagesPerType(this.filter), 0, this.defaultShowPerTab);
+      }
     }
   },
   watch: {
@@ -489,6 +532,29 @@ export default {
       this.scrollTo(`#message-row-${messageId}`);
       this.putFocusNextTick(`message-row-${messageId}`);
     },
+    searchTimelineNotes() {
+      if (this.notesQuery && this.notesQuery.length) {
+        this.searchResultsLoading = true;
+        search(
+          this.notesQuery,
+          false,
+          true,
+          false,
+          {studentCsid: this.student.sid}
+        ).then(data => {
+          this.searchResults = this.map(data.notes, 'id');
+          this.isShowingAll = true;
+          this.searchResultsLoading = false;
+        });
+      } else {
+        this.searchResults = null;
+      }
+    },
+    setFilter(filter) {
+      this.searchResults = null;
+      this.notesQuery = null;
+      this.filter = filter;
+    },
     sortMessages() {
       this.messages.sort((m1, m2) => {
         let d1 = m1.updatedAt || m1.createdAt;
@@ -613,6 +679,18 @@ export default {
 .requirements-icon {
   width: 20px;
 }
+.search-spinner {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2em;
+  margin: auto;
+  overflow: show;
+  width: 2em;
+  z-index: 999;
+}
 .tab {
   border-radius: 5px;
   font-size: 16px;
@@ -643,6 +721,16 @@ export default {
 }
 .text-icon-exclamation {
   color: #f0ad4e;
+}
+.timeline-notes-query-input {
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  height: 30px;
+}
+.timeline-notes-submenu {
+  align-items: center;
+  display: flex;
 }
 .toggle-expand-all-notes-caret {
   width: 15px;
