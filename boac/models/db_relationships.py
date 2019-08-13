@@ -45,19 +45,21 @@ class UniversityDeptMember(Base):
     authorized_user_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), primary_key=True)
     is_advisor = db.Column(db.Boolean, nullable=False)
     is_director = db.Column(db.Boolean, nullable=False)
+    automate_membership = db.Column(db.Boolean, nullable=False)
     authorized_user = db.relationship('AuthorizedUser', back_populates='department_memberships')
     # Pre-load UniversityDept below to avoid 'failed to locate', as seen during routes.py init phase
     university_dept = db.relationship(UniversityDept.__name__, back_populates='authorized_users')
 
     @classmethod
-    def create_membership(cls, university_dept, authorized_user, is_advisor, is_director):
-        mapping = cls(is_advisor=is_advisor, is_director=is_director)
+    def create_membership(cls, university_dept, authorized_user, is_advisor, is_director, automate_membership=True):
+        mapping = cls(is_advisor=is_advisor, is_director=is_director, automate_membership=automate_membership)
         mapping.authorized_user = authorized_user
         mapping.university_dept = university_dept
         authorized_user.department_memberships.append(mapping)
         university_dept.authorized_users.append(mapping)
         db.session.add(mapping)
         std_commit()
+        return mapping
 
 
 # Alert views are represented as a model class because they contain 'created_at' and 'dismissed_at' metadata in

@@ -157,7 +157,7 @@ def refresh_department_memberships():
     from boac.models.db_relationships import UniversityDeptMember
     depts = UniversityDept.query.filter_by(automate_memberships=True).all()
     for dept in depts:
-        dept.delete_all_members()
+        dept.delete_automated_members()
     std_commit(allow_test_environment=True)
     for dept in depts:
         for membership in dept.memberships_from_loch():
