@@ -358,6 +358,7 @@ BERKELEY_DEPT_CODE_TO_NAME = {
     'UXDSP': 'Disabled Students Program',
     'VREAS': 'Student Information Systems',
     'ZCEEE': 'Center for Education, Equity, and Excellence',
+    'GUEST': 'Guest',
     'ZZZZZ': 'Other',
 }
 
@@ -390,7 +391,10 @@ BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS = {
         # ADVD ('Advisor Delegate') advisors get filed with major advisors.
         'affiliations': ['ADVD', 'MAJ'],
     },
-    # Our catchall 'Other' department gets stuck with empty program codes.
+    # Our 'Guest' and catchall 'Other' departments get stuck with empty program codes.
+    'GUEST': {
+        'program': '',
+    },
     'ZZZZZ': {
         'program': '',
     },
