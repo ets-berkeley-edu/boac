@@ -315,7 +315,7 @@ def note_to_compatible_json(note, topics=(), attachments=None, note_read=False):
     for dept_code in dept_codes:
         departments.append({
             'code': dept_code,
-            'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code) or dept_code,
+            'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
         })
     return {
         'id': note.get('id'),

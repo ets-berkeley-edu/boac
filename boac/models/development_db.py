@@ -28,7 +28,7 @@ import random
 import string
 
 from boac import db, std_commit
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, BERKELEY_DEPT_NAME_TO_CODE
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
@@ -49,6 +49,7 @@ no_calnet_record_for_uid = '13'
 _test_users = [
     [no_calnet_record_for_uid, None, True, False, True],  # This user has no entry in calnet_search_entries
     ['1', '111111111', None, True, False, False],
+    ['2', '222222222', None, True, False, False],
     ['2040', None, True, True, True],
     ['53791', None, True, False, True],
     ['95509', None, True, False, True],
@@ -140,6 +141,16 @@ _university_depts = {
             },
         ],
     },
+    'GUEST': {
+        'automate_memberships': False,
+        'users': [
+            {
+                'uid': '2',
+                'is_advisor': True,
+                'is_director': False,
+            },
+        ],
+    },
 }
 
 
@@ -169,7 +180,7 @@ def load_schemas():
 
 
 def load_development_data():
-    for name, code in BERKELEY_DEPT_NAME_TO_CODE.items():
+    for code, name in BERKELEY_DEPT_CODE_TO_NAME.items():
         UniversityDept.create(code, name, False)
     for test_user in _test_users:
         # This script can be run more than once. Do not create user if s/he exists in BOAC db.

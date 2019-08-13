@@ -27,7 +27,7 @@ from copy import deepcopy
 
 from boac.api.util import authorized_users_api_feed
 from boac.externals import data_loch
-from boac.lib.berkeley import BERKELEY_DEPT_NAME_TO_CODE, COE_ETHNICITIES_PER_CODE, term_ids_range, term_name_for_sis_id
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, COE_ETHNICITIES_PER_CODE, term_ids_range, term_name_for_sis_id
 from boac.merged import athletics
 from boac.merged.calnet import get_csid_for_uid
 from boac.merged.student import get_student_query_scope
@@ -80,7 +80,7 @@ def get_cohort_filter_options(owner_uid, existing_filters):
 
 
 def _get_filter_options(scope, cohort_owner_uid):
-    all_dept_codes = list(BERKELEY_DEPT_NAME_TO_CODE.values())
+    all_dept_codes = list(BERKELEY_DEPT_CODE_TO_NAME.keys())
     categories = [
         [
             {

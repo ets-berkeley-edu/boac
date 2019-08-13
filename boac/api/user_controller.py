@@ -117,7 +117,7 @@ def _get_boa_user_groups(sort_users_by=None):
             elif _dept_code == 'NOTESONLY':
                 dept_name = 'Notes Only'
             else:
-                dept_name = BERKELEY_DEPT_CODE_TO_NAME.get(_dept_code)
+                dept_name = BERKELEY_DEPT_CODE_TO_NAME.get(_dept_code, _dept_code)
             depts[_dept_code] = {
                 'code': _dept_code,
                 'name': dept_name,

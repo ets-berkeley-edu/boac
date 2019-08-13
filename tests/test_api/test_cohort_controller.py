@@ -28,6 +28,8 @@ import pytest
 import simplejson as json
 from tests.test_api.api_test_utils import all_cohorts_owned_by
 
+zzzzz_user_uid = '1'
+guest_user_uid = '2'
 admin_uid = '2040'
 asc_advisor_uid = '1081940'
 coe_advisor_uid = '1133399'
@@ -49,8 +51,18 @@ def coe_advisor_login(fake_auth):
 
 
 @pytest.fixture()
+def guest_user_login(fake_auth):
+    fake_auth.login(guest_user_uid)
+
+
+@pytest.fixture()
 def no_canvas_access_advisor_login(fake_auth):
     fake_auth.login('1')
+
+
+@pytest.fixture()
+def zzzzz_user_login(fake_auth):
+    fake_auth.login(zzzzz_user_uid)
 
 
 @pytest.fixture()
@@ -989,6 +1001,20 @@ class TestAllCohortFilterOptions:
                 if menu['type'] == 'array':
                     for option in menu['options']:
                         assert 'disabled' not in option
+
+    def test_filter_options_for_guest_user(self, client, guest_user_login):
+        """Filter options available to GUEST user."""
+        api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
+        assert len(api_json)
+        assert len(api_json[0])
+        assert 'options' in api_json[0][0]
+
+    def test_filter_options_for_user_of_type_other(self, client, zzzzz_user_login):
+        """Filter options available to ZZZZZ user."""
+        api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
+        assert len(api_json)
+        assert len(api_json[0])
+        assert 'options' in api_json[0][0]
 
     def test_filter_options_my_students_for_me(self, client, coe_advisor_login):
         """Returns user's own academic plans under 'My Students'."""

@@ -166,9 +166,9 @@ class TestUserGroups:
         assert user_groups[3]['name'] == 'L&S College Advising'
         assert len(user_groups[3]['users']) == 1
         assert user_groups[4]['name'] == 'L&S Major Advising'
-        assert len(user_groups[5]['users']) == 1
+        assert len(user_groups[5]['users']) == 2
         assert user_groups[5]['name'] == 'Notes Only'
-        assert len(user_groups[5]['users']) == 1
+        assert len(user_groups[5]['users']) == 2
 
 
 class TestDemoMode:
