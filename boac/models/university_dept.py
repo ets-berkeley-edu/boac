@@ -61,9 +61,11 @@ class UniversityDept(Base):
         std_commit()
         return dept
 
-    def delete_all_members(self):
+    def delete_automated_members(self):
         sql = """
-            DELETE FROM university_dept_members WHERE university_dept_id = :id;
+            DELETE FROM university_dept_members
+                WHERE university_dept_id = :id
+                AND automate_membership IS TRUE;
             UPDATE authorized_users SET deleted_at = now()
                 WHERE is_admin IS FALSE
                 AND deleted_at IS NULL

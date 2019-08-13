@@ -147,6 +147,38 @@ class TestRefreshDepartmentMemberships:
         assert next((u for u in coe_users if u.uid == '666'), None) is None
         assert AuthorizedUser.query.filter_by(uid='666').first().deleted_at
 
+    def test_respects_automate_memberships_flag(self, app, db):
+        dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
+        manually_added_user = AuthorizedUser.create_or_restore(uid='1024')
+        manual_membership = UniversityDeptMember.create_membership(
+            dept_coe,
+            manually_added_user,
+            is_advisor=True,
+            is_director=False,
+            automate_membership=False,
+        )
+
+        from boac.api.cache_utils import refresh_department_memberships
+        refresh_department_memberships()
+        std_commit(allow_test_environment=True)
+
+        coe_users = [au.authorized_user for au in dept_coe.authorized_users]
+        assert len(coe_users) == 5
+        assert next(u for u in coe_users if u.uid == '1024')
+        assert AuthorizedUser.query.filter_by(uid='1024').first().deleted_at is None
+
+        manual_membership.automate_membership = True
+        db.session.add(manual_membership)
+        std_commit(allow_test_environment=True)
+
+        refresh_department_memberships()
+        std_commit(allow_test_environment=True)
+
+        coe_users = [au.authorized_user for au in dept_coe.authorized_users]
+        assert len(coe_users) == 4
+        assert next((u for u in coe_users if u.uid == '1024'), None) is None
+        assert AuthorizedUser.query.filter_by(uid='1024').first().deleted_at
+
     def test_adds_non_advisors_to_other_group(self, app):
         dept_other = UniversityDept.query.filter_by(dept_code='ZZZZZ').first()
         from boac.api.cache_utils import refresh_department_memberships
