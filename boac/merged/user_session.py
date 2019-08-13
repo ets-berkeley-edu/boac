@@ -124,7 +124,7 @@ class UserSession(UserMixin):
                 departments.append(
                     {
                         'code': dept_code,
-                        'name': BERKELEY_DEPT_CODE_TO_NAME[dept_code] or dept_code,
+                        'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
                         'role': get_dept_role(m),
                         'isAdvisor': m.is_advisor,
                         'isDirector': m.is_director,
