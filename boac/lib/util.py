@@ -163,3 +163,25 @@ def vacuum_whitespace(_str):
     if not _str:
         return None
     return ' '.join(_str.split())
+
+
+def get_attachment_filename(attachment_id, path_to_attachment):
+    raw_filename = path_to_attachment.rsplit('/', 1)[-1]
+    match = re.match(r'\A\d{8}_\d{6}_(.+)\Z', raw_filename)
+    if match:
+        return match[1]
+    else:
+        app.logger.warn(
+            f'Note attachment S3 filename did not match expected format: ID = {attachment_id}, filename = {raw_filename}')
+        return raw_filename
+
+
+def note_attachment_to_api_json(attachment):
+    filename = get_attachment_filename(attachment.id, attachment.path_to_attachment)
+    return {
+        'id': attachment.id,
+        'displayName': filename,
+        'filename': filename,
+        'noteId': attachment.note_id,
+        'uploadedBy': attachment.uploaded_by_uid,
+    }

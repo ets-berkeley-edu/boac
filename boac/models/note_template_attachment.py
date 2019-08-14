@@ -26,64 +26,34 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac import db
-from boac.externals import s3
 from boac.lib.util import get_attachment_filename, note_attachment_to_api_json
-from flask import current_app as app
-import pytz
-from sqlalchemy import and_
 
 
-class NoteAttachment(db.Model):
-    __tablename__ = 'note_attachments'
+class NoteTemplateAttachment(db.Model):
+    __tablename__ = 'note_template_attachments'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
-    note_id = db.Column(db.Integer, db.ForeignKey('notes.id'), nullable=False)
+    note_template_id = db.Column(db.Integer, db.ForeignKey('note_templates.id'), nullable=False)
     path_to_attachment = db.Column('path_to_attachment', db.String(255), nullable=False)
     uploaded_by_uid = db.Column('uploaded_by_uid', db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
     deleted_at = db.Column(db.DateTime)
-    note = db.relationship('Note', back_populates='attachments')
+    note_template = db.relationship('NoteTemplate', back_populates='attachments')
 
-    def __init__(self, note_id, path_to_attachment, uploaded_by_uid):
-        self.note_id = note_id
+    __table_args__ = (db.UniqueConstraint(
+        'note_template_id',
+        'path_to_attachment',
+        # Constraint name length is limited to 63 bytes in Postgres so we abbreviate the prefix.
+        name='nta_note_template_id_path_to_attachment_unique_constraint',
+    ),)
+
+    def __init__(self, note_template_id, path_to_attachment, uploaded_by_uid):
+        self.note_template_id = note_template_id
         self.path_to_attachment = path_to_attachment
         self.uploaded_by_uid = uploaded_by_uid
-
-    @classmethod
-    def create_attachment(cls, note, name, byte_stream, uploaded_by):
-        return NoteAttachment(
-            note_id=note.id,
-            path_to_attachment=cls.put_attachment_to_s3(name=name, byte_stream=byte_stream),
-            uploaded_by_uid=uploaded_by,
-        )
-
-    @classmethod
-    def put_attachment_to_s3(cls, name, byte_stream):
-        bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
-        base_path = app.config['DATA_LOCH_S3_BOA_NOTE_ATTACHMENTS_PATH']
-        key_suffix = _localize_datetime(datetime.now()).strftime(f'%Y/%m/%d/%Y%m%d_%H%M%S_{name}')
-        key = f'{base_path}/{key_suffix}'
-        s3.put_binary_data_to_s3(
-            bucket=bucket,
-            key=key,
-            binary_data=byte_stream,
-        )
-        return key
-
-    @classmethod
-    def find_by_id(cls, attachment_id):
-        return cls.query.filter(and_(cls.id == attachment_id, cls.deleted_at == None)).first()  # noqa: E711
-
-    @classmethod
-    def find_by_note_id(cls, note_id):
-        return cls.query.filter(and_(cls.note_id == note_id, cls.deleted_at == None)).all()  # noqa: E711
 
     def get_user_filename(self):
         return get_attachment_filename(self.id, self.path_to_attachment)
 
     def to_api_json(self):
         return note_attachment_to_api_json(self)
-
-
-def _localize_datetime(dt):
-    return dt.astimezone(pytz.timezone(app.config['TIMEZONE']))
