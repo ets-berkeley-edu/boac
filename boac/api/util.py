@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from functools import wraps
 import json
 
+from boac.api.errors import BadRequestError
 from boac.externals.data_loch import get_sis_holds, get_student_profiles
 from boac.externals.google_calendar_client import get_calendar_events
 from boac.lib.http import response_with_csv_download
@@ -192,6 +193,35 @@ def put_notifications(student):
                     'read': True,
                 },
             })
+
+
+def get_note_attachments_from_http_post(tolerate_none=False):
+    request_files = request.files
+    attachments = []
+    for index in range(app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE']):
+        attachment = request_files.get(f'attachment[{index}]')
+        if attachment:
+            attachments.append(attachment)
+        else:
+            break
+    if not tolerate_none and not len(attachments):
+        raise BadRequestError('request.files is empty')
+    byte_stream_bundle = []
+    for attachment in attachments:
+        filename = attachment.filename and attachment.filename.strip()
+        if not filename:
+            raise BadRequestError(f'Invalid file in request form data: {attachment}')
+        else:
+            byte_stream_bundle.append({
+                'name': filename.rsplit('/', 1)[-1],
+                'byte_stream': attachment.read(),
+            })
+    return byte_stream_bundle
+
+
+def get_note_topics_from_http_post():
+    topics = request.form.get('topics', ())
+    return topics if isinstance(topics, list) else list(filter(None, str(topics).split(',')))
 
 
 def translate_grading_basis(code):

@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import db, std_commit
-from boac.lib.util import titleize, vacuum_whitespace
+from boac.lib.util import titleize, utc_now, vacuum_whitespace
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.base import Base
 from boac.models.note_template_attachment import NoteTemplateAttachment
@@ -93,9 +93,25 @@ class NoteTemplate(Base):
     def find_by_id(cls, note_template_id):
         return cls.query.filter(and_(cls.id == note_template_id, cls.deleted_at == None)).first()  # noqa: E711
 
+    @classmethod
+    def get_templates_created_by(cls, creator_id):
+        return cls.query.filter_by(creator_id=creator_id, deleted_at=None).order_by(cls.title).all()
+
+    @classmethod
+    def delete(cls, note_template_id):
+        note_template = cls.find_by_id(note_template_id)
+        if note_template:
+            now = utc_now()
+            note_template.deleted_at = now
+            for attachment in note_template.attachments:
+                attachment.deleted_at = now
+            for topic in note_template.topics:
+                db.session.delete(topic)
+            std_commit()
+
     def to_api_json(self):
         attachments = [a.to_api_json() for a in self.attachments if not a.deleted_at]
-        topics = [t.to_api_json() for t in self.topics if not t.deleted_at]
+        topics = [t.to_api_json() for t in self.topics]
         return {
             'id': self.id,
             'attachments': attachments,

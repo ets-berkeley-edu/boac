@@ -26,10 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac import db
-from boac.externals import s3
-from boac.lib.util import get_attachment_filename, note_attachment_to_api_json
-from flask import current_app as app
-import pytz
+from boac.lib.util import get_attachment_filename, note_attachment_to_api_json, put_attachment_to_s3
 from sqlalchemy import and_
 
 
@@ -53,22 +50,9 @@ class NoteAttachment(db.Model):
     def create_attachment(cls, note, name, byte_stream, uploaded_by):
         return NoteAttachment(
             note_id=note.id,
-            path_to_attachment=cls.put_attachment_to_s3(name=name, byte_stream=byte_stream),
+            path_to_attachment=put_attachment_to_s3(name=name, byte_stream=byte_stream),
             uploaded_by_uid=uploaded_by,
         )
-
-    @classmethod
-    def put_attachment_to_s3(cls, name, byte_stream):
-        bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
-        base_path = app.config['DATA_LOCH_S3_BOA_NOTE_ATTACHMENTS_PATH']
-        key_suffix = _localize_datetime(datetime.now()).strftime(f'%Y/%m/%d/%Y%m%d_%H%M%S_{name}')
-        key = f'{base_path}/{key_suffix}'
-        s3.put_binary_data_to_s3(
-            bucket=bucket,
-            key=key,
-            binary_data=byte_stream,
-        )
-        return key
 
     @classmethod
     def find_by_id(cls, attachment_id):
@@ -83,7 +67,3 @@ class NoteAttachment(db.Model):
 
     def to_api_json(self):
         return note_attachment_to_api_json(self)
-
-
-def _localize_datetime(dt):
-    return dt.astimezone(pytz.timezone(app.config['TIMEZONE']))

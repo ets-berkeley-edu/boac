@@ -27,7 +27,7 @@ import json
 import time
 
 from boac import db, std_commit
-from boac.lib.util import titleize, utc_now, vacuum_whitespace
+from boac.lib.util import put_attachment_to_s3, titleize, utc_now, vacuum_whitespace
 from boac.models.base import Base
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_topic import NoteTopic
@@ -376,7 +376,7 @@ def _add_topics_to_notes(author_uid, note_ids, topics):
 def _add_attachments_to_notes(attachments, author_uid, note_ids):
     now = utc_now().strftime('%Y-%m-%d %H:%M:%S')
     for byte_stream_bundle in attachments:
-        s3_path = NoteAttachment.put_attachment_to_s3(
+        s3_path = put_attachment_to_s3(
             name=byte_stream_bundle['name'],
             byte_stream=byte_stream_bundle['byte_stream'],
         )
