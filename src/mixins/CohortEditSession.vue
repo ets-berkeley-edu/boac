@@ -29,6 +29,7 @@ export default {
       'createCohort',
       'downloadCsvPerFilters',
       'init',
+      'onPageNumberChange',
       'removeFilter',
       'renameCohort',
       'resetFiltersToLastApply',
