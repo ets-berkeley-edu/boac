@@ -34,20 +34,23 @@ SET row_security = off;
 
 --
 
-ALTER TABLE IF EXISTS ONLY public.notes DROP CONSTRAINT IF EXISTS notes_author_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.alert_views DROP CONSTRAINT IF EXISTS alert_views_alert_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.alert_views DROP CONSTRAINT IF EXISTS alert_views_viewer_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_sid_fkey;
+ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_cohort_filter_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_user_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.note_attachments DROP CONSTRAINT IF EXISTS note_attachments_note_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.note_attachments DROP CONSTRAINT IF EXISTS note_attachments_note_id_path_to_attachment_unique_constraint;
-ALTER TABLE IF EXISTS ONLY public.note_topics DROP CONSTRAINT IF EXISTS note_topics_note_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.note_template_attachments DROP CONSTRAINT IF EXISTS note_template_attachments_note_template_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.note_template_topics DROP CONSTRAINT IF EXISTS note_template_topics_note_template_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.note_templates DROP CONSTRAINT IF EXISTS note_templates_creator_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.note_topics DROP CONSTRAINT IF EXISTS note_topics_author_uid_fkey;
+ALTER TABLE IF EXISTS ONLY public.note_topics DROP CONSTRAINT IF EXISTS note_topics_note_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.note_topics DROP CONSTRAINT IF EXISTS note_topics_note_id_topic_unique_constraint;
+ALTER TABLE IF EXISTS ONLY public.notes DROP CONSTRAINT IF EXISTS notes_author_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.notes_read DROP CONSTRAINT IF EXISTS notes_read_viewer_id_fkey;
-ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_user_id_fkey;
-ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_cohort_filter_id_fkey;
-ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_sid_fkey;
-ALTER TABLE IF EXISTS ONLY public.alert_views DROP CONSTRAINT IF EXISTS alert_views_viewer_id_fkey;
-ALTER TABLE IF EXISTS ONLY public.alert_views DROP CONSTRAINT IF EXISTS alert_views_alert_id_fkey;
-ALTER TABLE IF EXISTS ONLY public.student_group_members DROP CONSTRAINT IF EXISTS student_group_members_student_group_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.student_group_members DROP CONSTRAINT IF EXISTS student_group_members_sid_fkey;
+ALTER TABLE IF EXISTS ONLY public.student_group_members DROP CONSTRAINT IF EXISTS student_group_members_student_group_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.student_groups DROP CONSTRAINT IF EXISTS student_groups_owner_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.student_groups DROP CONSTRAINT IF EXISTS student_groups_owner_id_name_unique_constraint;
 ALTER TABLE IF EXISTS ONLY public.university_dept_members DROP CONSTRAINT IF EXISTS university_dept_members_authorized_user_id_fkey;
@@ -56,49 +59,55 @@ ALTER TABLE IF EXISTS ONLY public.user_logins DROP CONSTRAINT IF EXISTS user_log
 
 --
 
-DROP INDEX IF EXISTS public.notes_author_id_idx;
-DROP INDEX IF EXISTS public.notes_sid_idx;
-DROP INDEX IF EXISTS public.note_attachments_note_id_idx;
-DROP INDEX IF EXISTS public.note_topics_topic_idx;
-DROP INDEX IF EXISTS public.note_topics_note_id_idx;
-DROP INDEX IF EXISTS public.notes_read_viewer_id_idx;
-DROP INDEX IF EXISTS public.notes_read_note_id_idx;
-DROP INDEX IF EXISTS public.alerts_sid_idx;
-DROP INDEX IF EXISTS public.alert_views_viewer_id_idx;
 DROP INDEX IF EXISTS public.alert_views_alert_id_idx;
+DROP INDEX IF EXISTS public.alert_views_viewer_id_idx;
+DROP INDEX IF EXISTS public.alerts_sid_idx;
+DROP INDEX IF EXISTS public.idx_notes_fts_index;
+DROP INDEX IF EXISTS public.note_attachments_note_id_idx;
+DROP INDEX IF EXISTS public.note_template_attachments_note_template_id_idx;
+DROP INDEX IF EXISTS public.note_template_topics_note_template_id_idx;
+DROP INDEX IF EXISTS public.note_templates_creator_id_idx;
+DROP INDEX IF EXISTS public.note_topics_note_id_idx;
+DROP INDEX IF EXISTS public.note_topics_topic_idx;
+DROP INDEX IF EXISTS public.notes_author_id_idx;
+DROP INDEX IF EXISTS public.notes_read_note_id_idx;
+DROP INDEX IF EXISTS public.notes_read_viewer_id_idx;
+DROP INDEX IF EXISTS public.notes_sid_idx;
 DROP INDEX IF EXISTS public.student_groups_owner_id_idx;
 DROP INDEX IF EXISTS public.tool_settings_key_idx;
-DROP INDEX IF EXISTS public.idx_notes_fts_index;
 DROP INDEX IF EXISTS public.user_logins_uid_idx;
 
 --
 
-ALTER TABLE IF EXISTS ONLY public.notes DROP CONSTRAINT IF EXISTS notes_pkey;
-ALTER TABLE IF EXISTS ONLY public.note_attachments DROP CONSTRAINT IF EXISTS note_attachments_pkey;
-ALTER TABLE IF EXISTS ONLY public.note_topics DROP CONSTRAINT IF EXISTS note_topics_pkey;
-ALTER TABLE IF EXISTS ONLY public.notes_read DROP CONSTRAINT IF EXISTS notes_read_pkey;
-ALTER TABLE IF EXISTS ONLY public.json_cache DROP CONSTRAINT IF EXISTS json_cache_pkey;
-ALTER TABLE IF EXISTS ONLY public.json_cache DROP CONSTRAINT IF EXISTS json_cache_key_key;
-ALTER TABLE IF EXISTS ONLY public.cohort_filters DROP CONSTRAINT IF EXISTS cohort_filters_pkey;
-ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_pkey;
-ALTER TABLE IF EXISTS ONLY public.authorized_users DROP CONSTRAINT IF EXISTS authorized_users_uid_key;
-ALTER TABLE IF EXISTS ONLY public.authorized_users DROP CONSTRAINT IF EXISTS authorized_users_pkey;
-ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_sid_alert_type_key_unique_constraint;
-ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_pkey;
-ALTER TABLE IF EXISTS ONLY public.alert_views DROP CONSTRAINT IF EXISTS alert_views_pkey;
 ALTER TABLE IF EXISTS ONLY public.alembic_version DROP CONSTRAINT IF EXISTS alembic_version_pkc;
+ALTER TABLE IF EXISTS ONLY public.alert_views DROP CONSTRAINT IF EXISTS alert_views_pkey;
+ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_pkey;
+ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_sid_alert_type_key_unique_constraint;
+ALTER TABLE IF EXISTS ONLY public.authorized_users DROP CONSTRAINT IF EXISTS authorized_users_pkey;
+ALTER TABLE IF EXISTS ONLY public.authorized_users DROP CONSTRAINT IF EXISTS authorized_users_uid_key;
+ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_pkey;
+ALTER TABLE IF EXISTS ONLY public.cohort_filters DROP CONSTRAINT IF EXISTS cohort_filters_pkey;
+ALTER TABLE IF EXISTS ONLY public.json_cache DROP CONSTRAINT IF EXISTS json_cache_key_key;
+ALTER TABLE IF EXISTS ONLY public.json_cache DROP CONSTRAINT IF EXISTS json_cache_pkey;
+ALTER TABLE IF EXISTS ONLY public.note_attachments DROP CONSTRAINT IF EXISTS note_attachments_pkey;
+ALTER TABLE IF EXISTS ONLY public.note_template_attachments DROP CONSTRAINT IF EXISTS note_template_attachments_pkey;
+ALTER TABLE IF EXISTS ONLY public.note_template_topics DROP CONSTRAINT IF EXISTS note_template_topics_pkey;
+ALTER TABLE IF EXISTS ONLY public.note_templates DROP CONSTRAINT IF EXISTS note_templates_pkey;
+ALTER TABLE IF EXISTS ONLY public.note_topics DROP CONSTRAINT IF EXISTS note_topics_pkey;
+ALTER TABLE IF EXISTS ONLY public.notes DROP CONSTRAINT IF EXISTS notes_pkey;
+ALTER TABLE IF EXISTS ONLY public.notes_read DROP CONSTRAINT IF EXISTS notes_read_pkey;
 ALTER TABLE IF EXISTS ONLY public.student_group_members DROP CONSTRAINT IF EXISTS student_group_members_pkey;
 ALTER TABLE IF EXISTS ONLY public.student_groups DROP CONSTRAINT IF EXISTS student_groups_pkey;
+ALTER TABLE IF EXISTS ONLY public.tool_settings DROP CONSTRAINT IF EXISTS tool_settings_key_unique_constraint;
 ALTER TABLE IF EXISTS ONLY public.topics DROP CONSTRAINT IF EXISTS topics_id_pkey;
 ALTER TABLE IF EXISTS ONLY public.topics DROP CONSTRAINT IF EXISTS topics_topic_unique_constraint;
 ALTER TABLE IF EXISTS ONLY public.university_dept_members DROP CONSTRAINT IF EXISTS university_dept_members_pkey;
 ALTER TABLE IF EXISTS ONLY public.university_depts DROP CONSTRAINT IF EXISTS university_dept_members_pkey;
-ALTER TABLE IF EXISTS ONLY public.tool_settings DROP CONSTRAINT IF EXISTS tool_settings_key_unique_constraint;
 ALTER TABLE IF EXISTS ONLY public.user_logins DROP CONSTRAINT IF EXISTS user_logins_pkey;
-ALTER TABLE IF EXISTS public.json_cache ALTER COLUMN id DROP DEFAULT;
-ALTER TABLE IF EXISTS public.cohort_filters ALTER COLUMN id DROP DEFAULT;
-ALTER TABLE IF EXISTS public.authorized_users ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE IF EXISTS public.alerts ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE IF EXISTS public.authorized_users ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE IF EXISTS public.cohort_filters ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE IF EXISTS public.json_cache ALTER COLUMN id DROP DEFAULT;
 
 --
 
@@ -106,6 +115,12 @@ DROP MATERIALIZED VIEW IF EXISTS public.notes_fts_index;
 DROP TABLE IF EXISTS public.notes;
 DROP TABLE IF EXISTS public.note_attachments;
 DROP SEQUENCE IF EXISTS public.note_attachments_id_seq;
+DROP TABLE IF EXISTS public.note_template_attachments;
+DROP SEQUENCE IF EXISTS public.note_template_attachments_id_seq;
+DROP TABLE IF EXISTS public.note_template_topics;
+DROP SEQUENCE IF EXISTS public.note_template_topics_id_seq;
+DROP TABLE IF EXISTS public.note_templates;
+DROP SEQUENCE IF EXISTS public.note_templates_id_seq;
 DROP TABLE IF EXISTS public.note_topics;
 DROP SEQUENCE IF EXISTS public.note_topics_id_seq;
 DROP TABLE IF EXISTS public.notes_read;
