@@ -76,6 +76,37 @@ def get_my_note_templates():
     return tolerant_jsonify([t.to_api_json() for t in note_templates])
 
 
+@app.route('/api/note_template/update', methods=['POST'])
+@login_required
+def update_note_template():
+    params = request.form
+    note_template_id = params.get('id', None)
+    title = params.get('title', None)
+    subject = params.get('subject', None)
+    body = params.get('body', None)
+    topics = get_note_topics_from_http_post()
+    delete_ids_ = params.get('deleteAttachmentIds') or []
+    delete_ids_ = delete_ids_ if isinstance(delete_ids_, list) else str(delete_ids_).split(',')
+    delete_attachment_ids = [int(id_) for id_ in delete_ids_]
+    note_template = NoteTemplate.find_by_id(note_template_id=note_template_id)
+    if not note_template:
+        raise ResourceNotFoundError('Template not found')
+    if not subject or not title:
+        raise BadRequestError('Requires \'title\' and \'subject\'')
+    if note_template.creator_id != current_user.get_id():
+        raise ForbiddenRequestError('Template not available.')
+    note_template = NoteTemplate.update(
+        note_template_id=note_template_id,
+        title=title,
+        subject=subject,
+        body=process_input_from_rich_text_editor(body),
+        topics=topics,
+        attachments=get_note_attachments_from_http_post(tolerate_none=True),
+        delete_attachment_ids=delete_attachment_ids,
+    )
+    return tolerant_jsonify(note_template.to_api_json())
+
+
 @app.route('/api/note_template/delete/<note_template_id>', methods=['DELETE'])
 @login_required
 def delete_note_template(note_template_id):

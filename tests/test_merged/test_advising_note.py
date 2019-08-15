@@ -39,7 +39,7 @@ coe_advisor = '1133399'
 class TestMergedAdvisingNote:
     """Advising note data, merged."""
 
-    def test_get_advising_notes(self, app, coe_advising_note_with_attachment, fake_auth):
+    def test_get_advising_notes(self, app, mock_advising_note, fake_auth):
         fake_auth.login(coe_advisor)
         notes = get_advising_notes('11667051')
 
@@ -101,9 +101,9 @@ class TestMergedAdvisingNote:
         assert notes[6]['read'] is False
 
         # Non-legacy note
-        boa_created_note = next((n for n in notes if n['id'] == coe_advising_note_with_attachment.id), None)
+        boa_created_note = next((n for n in notes if n['id'] == mock_advising_note.id), None)
         assert boa_created_note['id']
-        assert boa_created_note['author']['uid'] == coe_advising_note_with_attachment.author_uid
+        assert boa_created_note['author']['uid'] == mock_advising_note.author_uid
         assert boa_created_note['sid'] == '11667051'
         assert boa_created_note['subject'] == 'In France they kiss on main street'
         assert 'My darling dime store thief' in boa_created_note['body']
@@ -129,7 +129,7 @@ class TestMergedAdvisingNote:
             },
         ]
 
-    def test_get_advising_notes_cs_attachment(self, app, coe_advising_note_with_attachment, fake_auth):
+    def test_get_advising_notes_cs_attachment(self, app, mock_advising_note, fake_auth):
         fake_auth.login(coe_advisor)
         notes = get_advising_notes('11667051')
         assert notes[1]['attachments'] == [
@@ -139,9 +139,9 @@ class TestMergedAdvisingNote:
                 'displayName': 'brigitte_photo.jpeg',
             },
         ]
-        boa_created_note = next((n for n in notes if n['id'] == coe_advising_note_with_attachment.id), None)
+        boa_created_note = next((n for n in notes if n['id'] == mock_advising_note.id), None)
         assert boa_created_note
-        assert boa_created_note['attachments'][0]['uploadedBy'] == coe_advising_note_with_attachment.author_uid
+        assert boa_created_note['attachments'][0]['uploadedBy'] == mock_advising_note.author_uid
 
     def test_get_advising_notes_timestamp_format(self, app, fake_auth):
         fake_auth.login(coe_advisor)

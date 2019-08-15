@@ -80,12 +80,12 @@ class Note(Base):
         note = cls(author_uid, author_name, author_role, author_dept_codes, sid, subject, body)
         for topic in topics:
             note.topics.append(
-                NoteTopic.create_note_topic(note, titleize(vacuum_whitespace(topic)), author_uid),
+                NoteTopic.create(note, titleize(vacuum_whitespace(topic)), author_uid),
             )
         for byte_stream_bundle in attachments:
             note.attachments.append(
-                NoteAttachment.create_attachment(
-                    note=note,
+                NoteAttachment.create(
+                    note_id=note.id,
                     name=byte_stream_bundle['name'],
                     byte_stream=byte_stream_bundle['byte_stream'],
                     uploaded_by=author_uid,
@@ -186,16 +186,12 @@ class Note(Base):
         std_commit()
 
     @classmethod
-    def update(cls, note_id, subject, body, topics=(), attachments=(), delete_attachment_ids=()):
+    def update(cls, note_id, subject, body=None, topics=()):
         note = cls.find_by_id(note_id=note_id)
         if note:
             note.subject = subject
             note.body = body
-            cls._update_topics(note, topics)
-            if delete_attachment_ids:
-                cls._delete_attachments(note, delete_attachment_ids)
-            for byte_stream_bundle in attachments:
-                cls._add_attachment(note, byte_stream_bundle)
+            cls._update_note_topics(note, topics)
             std_commit()
             db.session.refresh(note)
             cls.refresh_search_index()
@@ -224,7 +220,7 @@ class Note(Base):
             return None
 
     @classmethod
-    def _update_topics(cls, note, topics):
+    def _update_note_topics(cls, note, topics):
         modified = False
         now = utc_now()
         topics = set([titleize(vacuum_whitespace(topic)) for topic in topics])
@@ -238,7 +234,7 @@ class Note(Base):
                 modified = True
         for topic in topics_to_add:
             note.topics.append(
-                NoteTopic.create_note_topic(note, topic, note.author_uid),
+                NoteTopic.create(note, topic, note.author_uid),
             )
             modified = True
         if modified:
@@ -247,8 +243,8 @@ class Note(Base):
     @classmethod
     def _add_attachment(cls, note, attachment):
         note.attachments.append(
-            NoteAttachment.create_attachment(
-                note=note,
+            NoteAttachment.create(
+                note_id=note.id,
                 name=attachment['name'],
                 byte_stream=attachment['byte_stream'],
                 uploaded_by=note.author_uid,

@@ -49,7 +49,7 @@ coe_student = {
 
 
 @pytest.fixture()
-def new_coe_note():
+def mock_coe_advising_note():
     return Note.create(
         author_uid=coe_advisor_uid,
         author_name='Balloon Man',
@@ -61,6 +61,23 @@ def new_coe_note():
     )
 
 
+@pytest.fixture()
+def mock_asc_advising_note(app, db):
+    return Note.create(
+        author_uid='1133399',
+        author_name='Roberta Joan Anderson',
+        author_role='Advisor',
+        author_dept_codes=['COENG'],
+        sid='3456789012',
+        subject='The hissing of summer lawns',
+        body="""
+            She could see the valley barbecues from her window sill.
+            See the blue pools in the squinting sun. Hear the hissing of summer lawns
+        """,
+        topics=['darkness', 'no color no contrast'],
+    )
+
+
 class TestGetNote:
 
     @classmethod
@@ -69,14 +86,14 @@ class TestGetNote:
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_not_authenticated(self, app, client, new_coe_note):
+    def test_not_authenticated(self, app, client, mock_coe_advising_note):
         """Returns 401 if not authenticated."""
-        self._api_note_by_id(client=client, note_id=new_coe_note.id, expected_status_code=401)
+        self._api_note_by_id(client=client, note_id=mock_coe_advising_note.id, expected_status_code=401)
 
-    def test_get_note_by_id(self, app, client, fake_auth, new_coe_note):
+    def test_get_note_by_id(self, app, client, fake_auth, mock_coe_advising_note):
         """Returns note in JSON compatible with BOA front-end."""
         fake_auth.login(coe_advisor_uid)
-        note = self._api_note_by_id(client=client, note_id=new_coe_note.id)
+        note = self._api_note_by_id(client=client, note_id=mock_coe_advising_note.id)
         assert note
         assert 'id' in note
         assert note['type'] == 'note'
@@ -84,7 +101,7 @@ class TestGetNote:
         assert note['read'] is False
         # Mark as read and re-test
         NoteRead.find_or_create(AuthorizedUser.get_id_per_uid(coe_advisor_uid), note['id'])
-        assert self._api_note_by_id(client=client, note_id=new_coe_note.id)['read'] is True
+        assert self._api_note_by_id(client=client, note_id=mock_coe_advising_note.id)['read'] is True
 
 
 class TestNoteCreation:
@@ -478,8 +495,6 @@ class TestUpdateNotes:
             subject,
             body,
             topics=(),
-            attachments=(),
-            delete_attachment_ids=(),
             expected_status_code=200,
     ):
         with mock_advising_note_s3_bucket(app):
@@ -488,10 +503,7 @@ class TestUpdateNotes:
                 'subject': subject,
                 'body': body,
                 'topics': ','.join(topics),
-                'deleteAttachmentIds': delete_attachment_ids or [],
             }
-            for index, path in enumerate(attachments):
-                data[f'attachment[{index}]'] = open(path, 'rb')
             response = client.post(
                 '/api/notes/update',
                 buffered=True,
@@ -501,112 +513,80 @@ class TestUpdateNotes:
             assert response.status_code == expected_status_code
             return response.json
 
-    def test_note_update_not_authenticated(self, app, coe_advising_note_with_attachment, client):
+    def test_note_update_not_authenticated(self, app, mock_advising_note, client):
         """Returns 401 if not authenticated."""
         self._api_note_update(
             app,
             client,
-            note_id=coe_advising_note_with_attachment.id,
+            note_id=mock_advising_note.id,
             subject='Hack the subject!',
             body='Hack the body!',
             expected_status_code=401,
         )
 
-    def test_unauthorized_update_note(self, app, client, fake_auth, new_coe_note):
-        """Forbidden to edit someone else's note."""
-        original_subject = new_coe_note.subject
+    def test_unauthorized_update_note(self, app, client, fake_auth, mock_coe_advising_note):
+        """Deny user's attempt to edit someone else's note."""
+        original_subject = mock_coe_advising_note.subject
         fake_auth.login(asc_advisor_uid)
         assert self._api_note_update(
             app,
             client,
-            note_id=new_coe_note.id,
+            note_id=mock_coe_advising_note.id,
             subject='Hack someone else\'s subject!',
             body='Hack someone else\'s body!',
             expected_status_code=403,
         )
-        assert Note.find_by_id(note_id=new_coe_note.id).subject == original_subject
+        assert Note.find_by_id(note_id=mock_coe_advising_note.id).subject == original_subject
 
-    def test_update_note_with_raw_url_in_body(self, app, client, fake_auth, new_coe_note):
-        """Successfully modifies a note subject and body."""
-        fake_auth.login(new_coe_note.author_uid)
+    def test_update_note_with_raw_url_in_body(self, app, client, fake_auth, mock_coe_advising_note):
+        """Updates subject and body of note."""
+        fake_auth.login(mock_coe_advising_note.author_uid)
         expected_subject = 'There must have been a plague of them'
         body = '<p>They were <a href="http://www.guzzle.com">www.guzzle.com</a> at <b>https://marsh.mallows.com</b> and <a href="http://www.foxnews.com">FOX news</a></p>'  # noqa: E501
         expected_body = '<p>They were <a href="http://www.guzzle.com">www.guzzle.com</a> at <b><a href="https://marsh.mallows.com" target="_blank">https://marsh.mallows.com</a></b> and <a href="http://www.foxnews.com">FOX news</a></p>'  # noqa: E501
         updated_note_response = self._api_note_update(
             app,
             client,
-            note_id=new_coe_note.id,
+            note_id=mock_coe_advising_note.id,
             subject=expected_subject,
             body=body,
         )
         assert updated_note_response['read'] is True
-        updated_note = Note.find_by_id(note_id=new_coe_note.id)
+        updated_note = Note.find_by_id(note_id=mock_coe_advising_note.id)
         assert updated_note.subject == expected_subject
         assert updated_note.body == expected_body
 
-    def test_update_note_with_topics(self, app, client, fake_auth, new_coe_note, asc_advising_note):
-        """Update a note: delete existing topic and add a new one."""
-        fake_auth.login(asc_advising_note.author_uid)
+    def test_update_note_topics(self, app, client, fake_auth, mock_asc_advising_note):
+        """Update note topics."""
+        fake_auth.login(mock_asc_advising_note.author_uid)
         expected_topics = ['no color no contrast', 'joyful mask']
-        updated_note_response = self._api_note_update(
+        api_json = self._api_note_update(
             app,
             client,
-            note_id=asc_advising_note.id,
-            subject=asc_advising_note.subject,
-            body=asc_advising_note.body,
+            note_id=mock_asc_advising_note.id,
+            subject=mock_asc_advising_note.subject,
+            body=mock_asc_advising_note.body,
             topics=expected_topics,
         )
-        assert updated_note_response['read'] is True
-        assert len(updated_note_response['topics']) == 2
-        assert 'Joyful Mask' in updated_note_response['topics']
-        assert 'No Color No Contrast' in updated_note_response['topics']
-        updated_note = Note.find_by_id(note_id=asc_advising_note.id)
-        assert len(updated_note.topics) == 2
+        assert api_json['read'] is True
+        assert len(api_json['topics']) == 2
+        assert 'Joyful Mask' in api_json['topics']
+        assert 'No Color No Contrast' in api_json['topics']
 
-    def test_remove_all_topics(self, app, client, fake_auth, new_coe_note, asc_advising_note):
-        """Update a note: delete existing topic, leaving none behind."""
-        fake_auth.login(asc_advising_note.author_uid)
+    def test_remove_note_topics(self, app, client, fake_auth, mock_asc_advising_note):
+        """Delete note topics."""
+        fake_auth.login(mock_asc_advising_note.author_uid)
         expected_topics = []
-        updated_note_response = self._api_note_update(
+        api_json = self._api_note_update(
             app,
             client,
-            note_id=asc_advising_note.id,
-            subject=asc_advising_note.subject,
-            body=asc_advising_note.body,
+            note_id=mock_asc_advising_note.id,
+            subject=mock_asc_advising_note.subject,
+            body=mock_asc_advising_note.body,
             topics=expected_topics,
         )
-        assert updated_note_response['read'] is True
-        assert len(updated_note_response['topics']) == 0
-        updated_note = Note.find_by_id(note_id=asc_advising_note.id)
-        assert len(updated_note.topics) == 0
-
-    def test_update_note_with_attachments(self, app, client, coe_advising_note_with_attachment, fake_auth):
-        """Update a note: delete existing attachment and add a new one."""
-        fake_auth.login(coe_advising_note_with_attachment.author_uid)
-        base_dir = app.config['BASE_DIR']
-        note_id = coe_advising_note_with_attachment.id
-        attachment_id = coe_advising_note_with_attachment.attachments[0].id
-        filename = 'mock_advising_note_attachment_2.txt'
-        path_to_new_attachment = f'{base_dir}/fixtures/{filename}'
-        updated_note = self._api_note_update(
-            app,
-            client,
-            note_id=note_id,
-            subject=coe_advising_note_with_attachment.subject,
-            body=coe_advising_note_with_attachment.body,
-            attachments=[path_to_new_attachment],
-            delete_attachment_ids=[attachment_id],
-        )
-        assert note_id == updated_note['attachments'][0]['noteId']
-        assert len(updated_note['attachments']) == 1
-        assert filename == updated_note['attachments'][0]['displayName']
-        assert filename == updated_note['attachments'][0]['filename']
-        assert updated_note['attachments'][0]['id'] != attachment_id
-        # Verify db
-        attachments = NoteAttachment.find_by_note_id(note_id)
-        assert len(attachments) == 1
-        assert filename in attachments[0].path_to_attachment
-        assert not NoteAttachment.find_by_id(attachment_id)
+        assert api_json['read'] is True
+        assert not api_json['topics']
 
 
 class TestDeleteNote:
@@ -617,30 +597,30 @@ class TestDeleteNote:
         response = client.delete('/api/notes/delete/123')
         assert response.status_code == 401
 
-    def test_unauthorized(self, client, fake_auth, new_coe_note):
+    def test_unauthorized(self, client, fake_auth, mock_coe_advising_note):
         """Advisor cannot delete the note of another."""
         fake_auth.login('6446')
-        response = client.delete(f'/api/notes/delete/{new_coe_note.id}')
+        response = client.delete(f'/api/notes/delete/{mock_coe_advising_note.id}')
         assert response.status_code == 403
-        assert Note.find_by_id(new_coe_note.id)
+        assert Note.find_by_id(mock_coe_advising_note.id)
 
-    def test_advisor_cannot_delete(self, client, fake_auth, new_coe_note):
+    def test_advisor_cannot_delete(self, client, fake_auth, mock_coe_advising_note):
         """Advisor cannot delete her own note."""
-        fake_auth.login(new_coe_note.author_uid)
-        response = client.delete(f'/api/notes/delete/{new_coe_note.id}')
+        fake_auth.login(mock_coe_advising_note.author_uid)
+        response = client.delete(f'/api/notes/delete/{mock_coe_advising_note.id}')
         assert response.status_code == 403
-        assert Note.find_by_id(new_coe_note.id)
+        assert Note.find_by_id(mock_coe_advising_note.id)
 
-    def test_admin_delete(self, client, fake_auth, new_coe_note):
+    def test_admin_delete(self, client, fake_auth, mock_coe_advising_note):
         """Admin can delete another user's note."""
-        original_count_per_sid = len(Note.get_notes_by_sid(new_coe_note.sid))
+        original_count_per_sid = len(Note.get_notes_by_sid(mock_coe_advising_note.sid))
         fake_auth.login(admin_uid)
-        note_id = new_coe_note.id
+        note_id = mock_coe_advising_note.id
         response = client.delete(f'/api/notes/delete/{note_id}')
         assert response.status_code == 200
         assert not Note.find_by_id(note_id)
-        assert 1 == original_count_per_sid - len(Note.get_notes_by_sid(new_coe_note.sid))
-        assert not Note.update(note_id, 'Deleted note cannot be updated', 'Ditto')
+        assert 1 == original_count_per_sid - len(Note.get_notes_by_sid(mock_coe_advising_note.sid))
+        assert not Note.update(note_id=note_id, subject='Deleted note cannot be updated')
 
     def test_delete_note_with_topics(self, app, client, fake_auth):
         """Delete a note with topics."""

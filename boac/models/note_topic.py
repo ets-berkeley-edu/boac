@@ -43,7 +43,7 @@ class NoteTopic(db.Model):
         self.author_uid = author_uid
 
     @classmethod
-    def create_note_topic(cls, note, topic, author_uid):
+    def create(cls, note, topic, author_uid):
         return NoteTopic(
             note_id=note.id,
             topic=topic,

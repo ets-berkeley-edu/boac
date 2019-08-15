@@ -23,7 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac import db
+from boac import db, std_commit
+from sqlalchemy import and_
 
 
 class NoteTemplateTopic(db.Model):
@@ -41,6 +42,16 @@ class NoteTemplateTopic(db.Model):
     @classmethod
     def create(cls, note_template_id, topic):
         return cls(note_template_id=note_template_id, topic=topic)
+
+    @classmethod
+    def find_by_note_template_id(cls, note_template_id):
+        return cls.query.filter(and_(cls.note_template_id == note_template_id)).all()
+
+    @classmethod
+    def delete(cls, topic_id):
+        topic = cls.query.filter_by(id=topic_id).first()
+        db.session.delete(topic)
+        std_commit()
 
     def to_api_json(self):
         return self.topic

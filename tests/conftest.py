@@ -23,14 +23,17 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import datetime
 import glob
 import json
 import os
-os.environ['BOAC_ENV'] = 'test' # noqa
+os.environ['BOAC_ENV'] = 'test'  # noqa
 
 from boac import std_commit
 import boac.factory
+from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
+from boac.models.note_template import NoteTemplate
 from moto import mock_sts
 import pytest
 from tests.util import mock_advising_note_s3_bucket, override_config
@@ -182,8 +185,8 @@ def create_alerts(client, db_session):
 
 
 @pytest.fixture()
-def coe_advising_note_with_attachment(app, db):
-    """Create BOA advising note with attachment in mock s3."""
+def mock_advising_note(app, db):
+    """Create advising note with attachment (mock s3)."""
     with mock_advising_note_s3_bucket(app):
         note_author_uid = '90412'
         base_dir = app.config['BASE_DIR']
@@ -212,20 +215,31 @@ def coe_advising_note_with_attachment(app, db):
 
 
 @pytest.fixture()
-def asc_advising_note(app, db):
-    return Note.create(
-        author_uid='1133399',
-        author_name='Roberta Joan Anderson',
-        author_role='Advisor',
-        author_dept_codes=['COENG'],
-        sid='3456789012',
-        subject='The hissing of summer lawns',
-        body="""
-            She could see the valley barbecues from her window sill.
-            See the blue pools in the squinting sun. Hear the hissing of summer lawns
-        """,
-        topics=['darkness', 'no color no contrast'],
-    )
+def mock_note_template(app, db):
+    """Create advising note template with attachment (mock s3)."""
+    with mock_advising_note_s3_bucket(app):
+        base_dir = app.config['BASE_DIR']
+        path_to_file = f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt'
+        timestamp = datetime.now().timestamp()
+        with open(path_to_file, 'r') as file:
+            note_template = NoteTemplate.create(
+                creator_id=AuthorizedUser.get_id_per_uid('242881'),
+                title=f'Potholes in my lawn ({timestamp})',
+                subject=f'It\'s unwise to leave my garden untended ({timestamp})',
+                body=f"""
+                    See, I've found that everyone's sayin'
+                    What to do when suckers are preyin'
+                """,
+                topics=['Three Feet High', 'Rising'],
+                attachments=[
+                    {
+                        'name': path_to_file.rsplit('/', 1)[-1],
+                        'byte_stream': file.read(),
+                    },
+                ],
+            )
+            std_commit(allow_test_environment=True)
+            return note_template
 
 
 def pytest_itemcollected(item):

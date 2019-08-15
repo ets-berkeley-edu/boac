@@ -568,9 +568,9 @@ class TestPrefixSearch:
 class TestNotes:
     """Advising Notes API."""
 
-    def test_advising_note(self, client, coe_advising_note_with_attachment, fake_auth):
+    def test_advising_note(self, client, mock_advising_note, fake_auth):
         """Returns a BOAC-created note."""
-        author_uid = coe_advising_note_with_attachment.author_uid
+        author_uid = mock_advising_note.author_uid
         fake_auth.login(author_uid)
         response = client.get('/api/student/by_uid/61889')
         assert response.status_code == 200

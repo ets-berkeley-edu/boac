@@ -98,6 +98,25 @@ class NoteTemplate(Base):
         return cls.query.filter_by(creator_id=creator_id, deleted_at=None).order_by(cls.title).all()
 
     @classmethod
+    def update(cls, note_template_id, title, subject, body, topics=(), attachments=(), delete_attachment_ids=()):
+        note_template = cls.find_by_id(note_template_id)
+        if note_template:
+            creator = AuthorizedUser.find_by_id(note_template.creator_id)
+            note_template.title = title
+            note_template.subject = subject
+            note_template.body = body
+            cls._update_note_template_topics(note_template, topics)
+            if delete_attachment_ids:
+                cls._delete_attachments(note_template, delete_attachment_ids)
+            for byte_stream_bundle in attachments:
+                cls._add_attachment(note_template, byte_stream_bundle, creator.uid)
+            std_commit()
+            db.session.refresh(note_template)
+            return note_template
+        else:
+            return None
+
+    @classmethod
     def delete(cls, note_template_id):
         note_template = cls.find_by_id(note_template_id)
         if note_template:
@@ -122,3 +141,47 @@ class NoteTemplate(Base):
             'createdAt': self.created_at.astimezone(tzutc()).isoformat(),
             'updatedAt': self.updated_at.astimezone(tzutc()).isoformat(),
         }
+
+    @classmethod
+    def _update_note_template_topics(cls, note_template, topics):
+        modified = False
+        now = utc_now()
+        topics = set([titleize(vacuum_whitespace(topic)) for topic in topics])
+        existing_topics = set(note_topic.topic for note_topic in NoteTemplateTopic.find_by_note_template_id(note_template.id))
+        topics_to_delete = existing_topics - topics
+        topics_to_add = topics - existing_topics
+        for topic in topics_to_delete:
+            topic_to_delete = next((t for t in note_template.topics if t.topic == topic), None)
+            if topic_to_delete:
+                NoteTemplateTopic.delete(topic_to_delete.id)
+                modified = True
+        for topic in topics_to_add:
+            note_template.topics.append(
+                NoteTemplateTopic.create(note_template, topic),
+            )
+            modified = True
+        if modified:
+            note_template.updated_at = now
+
+    @classmethod
+    def _add_attachment(cls, note_template, attachment, uploaded_by_uid):
+        note_template.attachments.append(
+            NoteTemplateAttachment.create(
+                note_template_id=note_template.id,
+                name=attachment['name'],
+                byte_stream=attachment['byte_stream'],
+                uploaded_by=uploaded_by_uid,
+            ),
+        )
+        note_template.updated_at = utc_now()
+
+    @classmethod
+    def _delete_attachments(cls, note_template, delete_attachment_ids):
+        modified = False
+        now = utc_now()
+        for attachment in note_template.attachments:
+            if attachment.id in delete_attachment_ids:
+                attachment.deleted_at = now
+                modified = True
+        if modified:
+            note_template.updated_at = now
