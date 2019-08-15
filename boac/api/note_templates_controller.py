@@ -23,11 +23,39 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
+from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
+from boac.api.util import get_note_attachments_from_http_post, get_note_topics_from_http_post
 from boac.lib.http import tolerant_jsonify
+from boac.lib.util import process_input_from_rich_text_editor
 from boac.models.note_template import NoteTemplate
-from flask import current_app as app
+from flask import current_app as app, request
 from flask_login import current_user, login_required
+
+
+@app.route('/api/note_template/create', methods=['POST'])
+@login_required
+def create_note_template():
+    params = request.form
+    title = params.get('title', None)
+    subject = params.get('subject', None)
+    body = params.get('body', None)
+    topics = get_note_topics_from_http_post()
+    if not title or not subject:
+        raise BadRequestError('Note creation requires \'subject\' and \'title\'')
+    if current_user.is_admin or not len(current_user.dept_codes):
+        raise ForbiddenRequestError('Sorry, Admin users cannot create advising notes')
+
+    attachments = get_note_attachments_from_http_post(tolerate_none=True)
+
+    note_template = NoteTemplate.create(
+        creator_id=current_user.get_id(),
+        title=title,
+        subject=subject,
+        body=process_input_from_rich_text_editor(body),
+        topics=topics,
+        attachments=attachments,
+    )
+    return tolerant_jsonify(note_template.to_api_json())
 
 
 @app.route('/api/note_template/<note_template_id>')
@@ -39,3 +67,22 @@ def get_note_template(note_template_id):
     if note_template.creator_id != current_user.get_id():
         raise ForbiddenRequestError(f'Template not available')
     return tolerant_jsonify(note_template.to_api_json())
+
+
+@app.route('/api/note_templates/my')
+@login_required
+def get_my_note_templates():
+    note_templates = NoteTemplate.get_templates_created_by(creator_id=current_user.get_id())
+    return tolerant_jsonify([t.to_api_json() for t in note_templates])
+
+
+@app.route('/api/note_template/delete/<note_template_id>', methods=['DELETE'])
+@login_required
+def delete_note_template(note_template_id):
+    note_template = NoteTemplate.find_by_id(note_template_id=note_template_id)
+    if not note_template:
+        raise ResourceNotFoundError('Template not found')
+    if note_template.creator_id != current_user.get_id():
+        raise ForbiddenRequestError(f'Template not available')
+    NoteTemplate.delete(note_template_id=note_template_id)
+    return tolerant_jsonify({'message': f'Note template {note_template_id} deleted'}), 200

@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import urllib.parse
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
+from boac.api.util import get_note_attachments_from_http_post, get_note_topics_from_http_post
 from boac.externals import data_loch
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int, process_input_from_rich_text_editor, to_bool_or_none
@@ -66,14 +67,14 @@ def create_note():
     sid = params.get('sid', None)
     subject = params.get('subject', None)
     body = params.get('body', None)
-    topics = _get_topics(params)
+    topics = get_note_topics_from_http_post()
     if not sid or not subject:
         raise BadRequestError('Note creation requires \'subject\' and \'sid\'')
     if current_user.is_admin or not len(current_user.dept_codes):
         raise ForbiddenRequestError('Sorry, Admin users cannot create advising notes')
 
     author_profile = _get_author_profile()
-    attachments = _get_attachments(request.files, tolerate_none=True)
+    attachments = get_note_attachments_from_http_post(tolerate_none=True)
 
     note = Note.create(
         **author_profile,
@@ -94,14 +95,14 @@ def batch_create_notes():
     sids = _get_sids_for_note_creation()
     subject = params.get('subject', None)
     body = params.get('body', None)
-    topics = _get_topics(params)
+    topics = get_note_topics_from_http_post()
     if not sids or not subject:
         raise BadRequestError('Note creation requires \'subject\' and \'sid\'')
     if current_user.is_admin or not len(current_user.dept_codes):
         raise ForbiddenRequestError('Sorry, Admin users cannot create advising notes')
 
     author_profile = _get_author_profile()
-    attachments = _get_attachments(request.files, tolerate_none=True)
+    attachments = get_note_attachments_from_http_post(tolerate_none=True)
 
     note_ids_per_sid = Note.create_batch(
         author_id=current_user.to_api_json()['id'],
@@ -138,7 +139,7 @@ def update_note():
     note_id = params.get('id', None)
     subject = params.get('subject', None)
     body = params.get('body', None)
-    topics = _get_topics(params)
+    topics = get_note_topics_from_http_post()
     delete_ids_ = params.get('deleteAttachmentIds') or []
     delete_ids_ = delete_ids_ if isinstance(delete_ids_, list) else str(delete_ids_).split(',')
     delete_attachment_ids = [int(id_) for id_ in delete_ids_]
@@ -151,7 +152,7 @@ def update_note():
         subject=subject,
         body=process_input_from_rich_text_editor(body),
         topics=topics,
-        attachments=_get_attachments(request.files, tolerate_none=True),
+        attachments=get_note_attachments_from_http_post(tolerate_none=True),
         delete_attachment_ids=delete_attachment_ids,
     )
     note_read = NoteRead.find_or_create(current_user.get_id(), note_id)
@@ -202,7 +203,7 @@ def get_topics():
 def add_attachment(note_id):
     if Note.find_by_id(note_id=note_id).author_uid != current_user.get_uid():
         raise ForbiddenRequestError('Sorry, you are not the author of this note.')
-    attachments = _get_attachments(request.files)
+    attachments = get_note_attachments_from_http_post()
     if len(attachments) != 1:
         raise BadRequestError('A single attachment file must be supplied.')
     note = Note.add_attachment(
@@ -258,11 +259,6 @@ def download_attachment(attachment_id):
     return r
 
 
-def _get_topics(params):
-    topics = params.get('topics', ())
-    return topics if isinstance(topics, list) else list(filter(None, str(topics).split(',')))
-
-
 def _get_sids_for_note_creation():
     def _get_param_as_set(key):
         values = set()
@@ -294,29 +290,6 @@ def _get_sids_per_curated_groups(curated_group_ids=None):
         if curated_group_id:
             sids = sids.union(CuratedGroup.get_all_sids(curated_group_id))
     return sids
-
-
-def _get_attachments(request_files, tolerate_none=False):
-    attachments = []
-    for index in range(app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE']):
-        attachment = request_files.get(f'attachment[{index}]')
-        if attachment:
-            attachments.append(attachment)
-        else:
-            break
-    if not tolerate_none and not len(attachments):
-        raise BadRequestError('request.files is empty')
-    byte_stream_bundle = []
-    for attachment in attachments:
-        filename = attachment.filename and attachment.filename.strip()
-        if not filename:
-            raise BadRequestError(f'Invalid file in request form data: {attachment}')
-        else:
-            byte_stream_bundle.append({
-                'name': filename.rsplit('/', 1)[-1],
-                'byte_stream': attachment.read(),
-            })
-    return byte_stream_bundle
 
 
 def _get_author_profile():

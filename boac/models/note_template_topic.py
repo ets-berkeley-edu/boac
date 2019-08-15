@@ -39,5 +39,8 @@ class NoteTemplateTopic(db.Model):
         self.topic = topic
 
     @classmethod
-    def create_note_topic(cls, note_template_id, topic):
+    def create(cls, note_template_id, topic):
         return cls(note_template_id=note_template_id, topic=topic)
+
+    def to_api_json(self):
+        return self.topic

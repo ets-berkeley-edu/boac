@@ -30,6 +30,7 @@ import string
 import time
 
 from autolink import linkify
+from boac.externals import s3
 from flask import current_app as app
 import pytz
 from titlecase import titlecase
@@ -165,6 +166,19 @@ def vacuum_whitespace(_str):
     return ' '.join(_str.split())
 
 
+def put_attachment_to_s3(name, byte_stream):
+    bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
+    base_path = app.config['DATA_LOCH_S3_BOA_NOTE_ATTACHMENTS_PATH']
+    key_suffix = _localize_datetime(datetime.now()).strftime(f'%Y/%m/%d/%Y%m%d_%H%M%S_{name}')
+    key = f'{base_path}/{key_suffix}'
+    s3.put_binary_data_to_s3(
+        bucket=bucket,
+        key=key,
+        binary_data=byte_stream,
+    )
+    return key
+
+
 def get_attachment_filename(attachment_id, path_to_attachment):
     raw_filename = path_to_attachment.rsplit('/', 1)[-1]
     match = re.match(r'\A\d{8}_\d{6}_(.+)\Z', raw_filename)
@@ -178,10 +192,18 @@ def get_attachment_filename(attachment_id, path_to_attachment):
 
 def note_attachment_to_api_json(attachment):
     filename = get_attachment_filename(attachment.id, attachment.path_to_attachment)
-    return {
+    api_json = {
         'id': attachment.id,
         'displayName': filename,
         'filename': filename,
-        'noteId': attachment.note_id,
         'uploadedBy': attachment.uploaded_by_uid,
     }
+    if hasattr(attachment, 'note_id'):
+        api_json['noteId'] = attachment.note_id
+    elif hasattr(attachment, 'note_template_id'):
+        api_json['noteTemplateId'] = attachment.note_template_id
+    return api_json
+
+
+def _localize_datetime(dt):
+    return dt.astimezone(pytz.timezone(app.config['TIMEZONE']))

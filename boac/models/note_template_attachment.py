@@ -26,7 +26,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac import db
-from boac.lib.util import get_attachment_filename, note_attachment_to_api_json
+from boac.lib.util import get_attachment_filename, note_attachment_to_api_json, put_attachment_to_s3
+from sqlalchemy import and_
 
 
 class NoteTemplateAttachment(db.Model):
@@ -54,6 +55,18 @@ class NoteTemplateAttachment(db.Model):
 
     def get_user_filename(self):
         return get_attachment_filename(self.id, self.path_to_attachment)
+
+    @classmethod
+    def find_by_id(cls, attachment_id):
+        return cls.query.filter(and_(cls.id == attachment_id, cls.deleted_at == None)).first()  # noqa: E711
+
+    @classmethod
+    def create(cls, note_template_id, name, byte_stream, uploaded_by):
+        return NoteTemplateAttachment(
+            note_template_id=note_template_id,
+            path_to_attachment=put_attachment_to_s3(name=name, byte_stream=byte_stream),
+            uploaded_by_uid=uploaded_by,
+        )
 
     def to_api_json(self):
         return note_attachment_to_api_json(self)
