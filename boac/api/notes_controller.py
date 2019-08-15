@@ -140,9 +140,6 @@ def update_note():
     subject = params.get('subject', None)
     body = params.get('body', None)
     topics = get_note_topics_from_http_post()
-    delete_ids_ = params.get('deleteAttachmentIds') or []
-    delete_ids_ = delete_ids_ if isinstance(delete_ids_, list) else str(delete_ids_).split(',')
-    delete_attachment_ids = [int(id_) for id_ in delete_ids_]
     if not note_id or not subject:
         raise BadRequestError('Note requires \'id\' and \'subject\'')
     if Note.find_by_id(note_id=note_id).author_uid != current_user.get_uid():
@@ -152,8 +149,6 @@ def update_note():
         subject=subject,
         body=process_input_from_rich_text_editor(body),
         topics=topics,
-        attachments=get_note_attachments_from_http_post(tolerate_none=True),
-        delete_attachment_ids=delete_attachment_ids,
     )
     note_read = NoteRead.find_or_create(current_user.get_id(), note_id)
     return tolerant_jsonify(_boa_note_to_compatible_json(note=note, note_read=note_read))

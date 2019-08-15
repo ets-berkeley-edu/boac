@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note_template import NoteTemplate
 from boac.models.note_template_attachment import NoteTemplateAttachment
+from sqlalchemy import and_
 from tests.util import mock_advising_note_s3_bucket
 
 admin_uid = '2040'
@@ -41,30 +42,22 @@ class TestGetNoteTemplate:
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_not_authenticated(self, app, client):
+    def test_not_authenticated(self, app, client, mock_note_template):
         """Returns 401 if not authenticated."""
-        creator_id = AuthorizedUser.get_id_per_uid(l_s_major_advisor_uid)
-        note_template = NoteTemplate.create(creator_id=creator_id, title='Lost cause', subject='Expect 401')
-        self._api_note_template(client=client, note_template_id=note_template.id, expected_status_code=401)
+        self._api_note_template(client=client, note_template_id=mock_note_template.id, expected_status_code=401)
 
-    def test_unauthorized(self, app, client, fake_auth):
+    def test_unauthorized(self, app, client, fake_auth, mock_note_template):
         """Returns 403 if user did not create the requested note template."""
         fake_auth.login(coe_advisor_uid)
-        creator_id = AuthorizedUser.get_id_per_uid(l_s_major_advisor_uid)
-        note_template = NoteTemplate.create(creator_id=creator_id, title='Leggo my eggo', subject='I, me, mine.')
-        self._api_note_template(client=client, note_template_id=note_template.id, expected_status_code=403)
+        self._api_note_template(client=client, note_template_id=mock_note_template.id, expected_status_code=403)
 
-    def test_get_note_template_by_id(self, app, client, fake_auth):
+    def test_get_note_template_by_id(self, app, client, fake_auth, mock_note_template):
         """Returns note template in JSON."""
         fake_auth.login(l_s_major_advisor_uid)
-        title = 'Template for success'
-        subject = 'Winning!'
-        creator_id = AuthorizedUser.get_id_per_uid(l_s_major_advisor_uid)
-        note_template = NoteTemplate.create(creator_id=creator_id, title=title, subject=subject)
-        api_json = self._api_note_template(client=client, note_template_id=note_template.id)
-        assert api_json.get('id') == note_template.id
-        assert api_json.get('title') == title
-        assert api_json.get('subject') == subject
+        api_json = self._api_note_template(client=client, note_template_id=mock_note_template.id)
+        assert api_json.get('id') == mock_note_template.id
+        assert api_json.get('title') == mock_note_template.title
+        assert api_json.get('subject') == mock_note_template.subject
         for key in ('attachments', 'body', 'topics', 'createdAt', 'updatedAt'):
             assert key in api_json
 
@@ -89,8 +82,9 @@ class TestMyNoteTemplates:
         for i in range(0, 4):
             NoteTemplate.create(creator_id=creator_id, title=f'{names[i]}', subject=f'Subject {i}')
         api_json = self._api_my_note_templates(client=client)
-        assert len(api_json) == 4
-        assert ['Dee Dee', 'Joey', 'Johnny', 'Tommy'] == [template['title'] for template in api_json]
+        expected_order = [template['title'] for template in api_json]
+        expected_order.sort()
+        assert expected_order == [template['title'] for template in api_json]
 
 
 class TestNoteTemplateCreation:
@@ -143,24 +137,147 @@ class TestNoteTemplateCreation:
         assert len(note_template.attachments) == 2
 
 
+class TestUpdateNoteTemplate:
+
+    @classmethod
+    def _api_note_template_update(
+            cls,
+            app,
+            client,
+            note_template_id,
+            title,
+            subject,
+            body=None,
+            topics=(),
+            attachments=(),
+            delete_attachment_ids=(),
+            expected_status_code=200,
+    ):
+        with mock_advising_note_s3_bucket(app):
+            data = {
+                'id': note_template_id,
+                'title': title,
+                'subject': subject,
+                'body': body,
+                'topics': ','.join(topics),
+                'deleteAttachmentIds': delete_attachment_ids or [],
+            }
+            for index, path in enumerate(attachments):
+                data[f'attachment[{index}]'] = open(path, 'rb')
+            response = client.post(
+                '/api/note_template/update',
+                buffered=True,
+                content_type='multipart/form-data',
+                data=data,
+            )
+            assert response.status_code == expected_status_code
+            return response.json
+
+    def test_note_template_update_not_authenticated(self, app, mock_note_template, client):
+        """Returns 401 if not authenticated."""
+        self._api_note_template_update(
+            app,
+            client,
+            note_template_id=mock_note_template.id,
+            title='Hack the title!',
+            subject='Hack the subject!',
+            expected_status_code=401,
+        )
+
+    def test_unauthorized_note_template_update(self, app, client, fake_auth, mock_note_template):
+        """Deny user's attempt to edit someone else's note template."""
+        original_subject = mock_note_template.subject
+        fake_auth.login(coe_advisor_uid)
+        assert self._api_note_template_update(
+            app,
+            client,
+            note_template_id=mock_note_template.id,
+            title='Hack the title!',
+            subject='Hack the subject!',
+            expected_status_code=403,
+        )
+        assert NoteTemplate.find_by_id(mock_note_template.id).subject == original_subject
+
+    def test_update_note_template_topics(self, app, client, fake_auth, mock_note_template):
+        """Update note template topics."""
+        user = AuthorizedUser.find_by_id(mock_note_template.creator_id)
+        fake_auth.login(user.uid)
+        expected_topics = ['this', 'that']
+        api_json = self._api_note_template_update(
+            app,
+            client,
+            note_template_id=mock_note_template.id,
+            title=mock_note_template.title,
+            subject=mock_note_template.subject,
+            topics=expected_topics,
+        )
+        assert len(api_json['topics']) == 2
+        assert sorted(api_json['topics']) == ['That', 'This']
+
+    def test_remove_note_template_topics(self, app, client, fake_auth, mock_note_template):
+        """Delete note template topics."""
+        user = AuthorizedUser.find_by_id(mock_note_template.creator_id)
+        fake_auth.login(user.uid)
+        api_json = self._api_note_template_update(
+            app,
+            client,
+            note_template_id=mock_note_template.id,
+            title=mock_note_template.title,
+            subject=mock_note_template.subject,
+            body=mock_note_template.body,
+            topics=(),
+        )
+        assert not api_json['topics']
+
+    def test_update_note_template_attachments(self, app, client, fake_auth, mock_note_template):
+        """Update note attachments."""
+        user = AuthorizedUser.find_by_id(mock_note_template.creator_id)
+        fake_auth.login(user.uid)
+        base_dir = app.config['BASE_DIR']
+        attachment_id = mock_note_template.attachments[0].id
+        filename = 'mock_advising_note_attachment_2.txt'
+        path_to_new_attachment = f'{base_dir}/fixtures/{filename}'
+        updated_note = self._api_note_template_update(
+            app,
+            client,
+            note_template_id=mock_note_template.id,
+            title=mock_note_template.title,
+            subject=mock_note_template.subject,
+            body=mock_note_template.body,
+            attachments=[path_to_new_attachment],
+            delete_attachment_ids=[attachment_id],
+        )
+        assert mock_note_template.id == updated_note['attachments'][0]['noteTemplateId']
+        assert len(updated_note['attachments']) == 1
+        assert filename == updated_note['attachments'][0]['displayName']
+        assert filename == updated_note['attachments'][0]['filename']
+        assert updated_note['attachments'][0]['id'] != attachment_id
+        # Verify db
+        attachments = NoteTemplateAttachment.query.filter(
+            and_(
+                NoteTemplateAttachment.note_template_id == mock_note_template.id,
+                NoteTemplateAttachment.deleted_at == None,  # noqa: E711
+            ),
+        ).all()
+        assert len(attachments) == 1
+        assert filename in attachments[0].path_to_attachment
+        assert not NoteTemplateAttachment.find_by_id(attachment_id)
+
+
 class TestDeleteNoteTemplate:
     """Delete note template API."""
 
-    def test_not_authenticated(self, client):
+    def test_not_authenticated(self, client, mock_note_template):
         """You must log in to delete a note."""
-        creator_id = AuthorizedUser.get_id_per_uid(l_s_major_advisor_uid)
-        note_template = NoteTemplate.create(creator_id=creator_id, title='Title TK', subject='Little Fury')
-        response = client.delete(f'/api/note_template/delete/{note_template.id}')
+        response = client.delete(f'/api/note_template/delete/{mock_note_template.id}')
         assert response.status_code == 401
 
-    def test_unauthorized_note_template_deletion(self, client, fake_auth):
+    def test_unauthorized_note_template_deletion(self, client, fake_auth, mock_note_template):
         """Advisor cannot delete another advisor's note template."""
-        creator_id = AuthorizedUser.get_id_per_uid(l_s_major_advisor_uid)
-        note_template = NoteTemplate.create(creator_id=creator_id, title='Pacer', subject='Tipp City')
         fake_auth.login(coe_advisor_uid)
-        response = client.delete(f'/api/note_template/delete/{note_template.id}')
+        response = client.delete(f'/api/note_template/delete/{mock_note_template.id}')
         assert response.status_code == 403
-        assert NoteTemplate.find_by_id(note_template.id)
+        assert NoteTemplate.find_by_id(mock_note_template.id)
 
     def test_delete_note_template_with_attachments(self, app, client, fake_auth):
         """Delete note template that has an attachment."""

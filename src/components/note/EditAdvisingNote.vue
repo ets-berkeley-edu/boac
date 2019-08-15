@@ -163,7 +163,7 @@ export default {
       this.subject = this.trim(this.subject);
       if (this.subject) {
         this.body = this.trim(this.body);
-        updateNote(this.note.id, this.subject, this.body, this.topics, [], []).then(updatedNote => {
+        updateNote(this.note.id, this.subject, this.body, this.topics).then(updatedNote => {
           this.afterSaved(updatedNote);
           this.alertScreenReader('Changes to note have been saved');
         });

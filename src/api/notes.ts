@@ -88,18 +88,14 @@ export function updateNote(
     noteId: number,
     subject: string,
     body: string,
-    topics: string[],
-    newAttachments: any[],
-    deleteAttachmentIds: number[]
+    topics: string[]
 ) {
   const data = {
     id: noteId,
     subject: subject,
     body: body,
-    topics: topics,
-    deleteAttachmentIds: deleteAttachmentIds || []
+    topics: topics
   };
-  _.each(newAttachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
   const api_json = utils.postMultipartFormData('/api/notes/update', data);
   store.dispatch('user/gaNoteEvent', {
     id: noteId,

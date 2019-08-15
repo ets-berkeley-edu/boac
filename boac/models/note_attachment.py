@@ -47,9 +47,9 @@ class NoteAttachment(db.Model):
         self.uploaded_by_uid = uploaded_by_uid
 
     @classmethod
-    def create_attachment(cls, note, name, byte_stream, uploaded_by):
+    def create(cls, note_id, name, byte_stream, uploaded_by):
         return NoteAttachment(
-            note_id=note.id,
+            note_id=note_id,
             path_to_attachment=put_attachment_to_s3(name=name, byte_stream=byte_stream),
             uploaded_by_uid=uploaded_by,
         )
@@ -57,10 +57,6 @@ class NoteAttachment(db.Model):
     @classmethod
     def find_by_id(cls, attachment_id):
         return cls.query.filter(and_(cls.id == attachment_id, cls.deleted_at == None)).first()  # noqa: E711
-
-    @classmethod
-    def find_by_note_id(cls, note_id):
-        return cls.query.filter(and_(cls.note_id == note_id, cls.deleted_at == None)).all()  # noqa: E711
 
     def get_user_filename(self):
         return get_attachment_filename(self.id, self.path_to_attachment)
