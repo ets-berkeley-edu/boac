@@ -65,7 +65,7 @@
         @keypress.enter.stop="searchTimelineNotes()" />
     </div>
 
-    <div v-if="searchResultsLoading" class="mt-4 text-center">
+    <div v-if="searchResultsLoading" id="timeline-notes-spinner" class="mt-4 text-center">
       <font-awesome icon="sync" size="3x" spin />
     </div>
 
@@ -678,18 +678,6 @@ export default {
 }
 .requirements-icon {
   width: 20px;
-}
-.search-spinner {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: 2em;
-  margin: auto;
-  overflow: show;
-  width: 2em;
-  z-index: 999;
 }
 .tab {
   border-radius: 5px;
