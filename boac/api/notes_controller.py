@@ -289,12 +289,18 @@ def _get_sids_per_curated_groups(curated_group_ids=None):
 
 def _get_author_profile():
     author = current_user.to_api_json()
-    role = current_user.departments[0]['role'] if current_user.departments else None
     calnet_profile = get_calnet_user_for_uid(app, author['uid'])
     if calnet_profile and calnet_profile.get('departments'):
         dept_codes = [dept.get('code') for dept in calnet_profile.get('departments')]
     else:
         dept_codes = current_user.dept_codes
+    if calnet_profile and calnet_profile.get('title'):
+        role = calnet_profile['title']
+    elif current_user.departments:
+        role = current_user.departments[0]['role']
+    else:
+        role = None
+
     return {
         'author_uid': author['uid'],
         'author_name': author['name'],
