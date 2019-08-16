@@ -56,7 +56,7 @@ _test_users = [
     ['177473', None, True, False, True],
     ['1133399', '800700600', False, False, True],
     ['211159', None, True, False, True],
-    ['242881', '100100600', False, False, True, 'HENGL'],
+    ['242881', '100100600', False, False, True, 'HENGL', 'Harmless Drudge'],
     ['1022796', '100100300', False, False, True],
     ['1015674', None, False, False, True],
     ['1049291', None, True, False, True],
@@ -206,6 +206,8 @@ def load_development_data():
                         'name': BERKELEY_DEPT_CODE_TO_NAME.get(test_user[5]),
                     },
                 ]
+            if len(test_user) > 6:
+                calnet_feed['title'] = test_user[6]
             insert_in_json_cache(f'calnet_user_for_uid_{uid}', calnet_feed)
         if not user:
             user = AuthorizedUser(

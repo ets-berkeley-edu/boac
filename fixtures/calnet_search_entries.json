@@ -246,6 +246,7 @@
                     "ucEduPerson"
                 ],
                 "ou": [ "people" ],
+                "title": "Harmless Drudge",
                 "uid": [ "242881" ]
             },
             "dn": "uid=242881,ou=people,dc=berkeley,dc=edu",

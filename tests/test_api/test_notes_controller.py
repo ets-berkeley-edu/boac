@@ -157,7 +157,7 @@ class TestNoteCreation:
         match = next((n for n in notes if n['id'] == note_id), None)
         assert match and match['subject'] == subject
 
-    def test_create_note_prefers_ldap_dept_affiliation(self, app, client, fake_auth):
+    def test_create_note_prefers_ldap_dept_affiliation_and_title(self, app, client, fake_auth):
         fake_auth.login(l_s_major_advisor_uid)
         new_note = _api_note_create(
             app,
@@ -168,6 +168,7 @@ class TestNoteCreation:
             body='Keats and Yeats are on your side',
         )
         assert new_note['author']['departments'][0]['name'] == 'Department of English'
+        assert new_note['author']['role'] == 'Harmless Drudge'
 
     def test_updated_date_is_none_when_note_create(self, app, client, fake_auth):
         """Create a note and expect none updated_at."""
