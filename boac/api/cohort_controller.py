@@ -63,7 +63,7 @@ def all_cohorts():
             'user': user,
             'cohorts': sorted(cohorts, key=lambda c: c['name']),
         })
-    api_json = sorted(api_json, key=lambda v: v['user']['name'])
+    api_json = sorted(api_json, key=lambda v: v['user']['name'] or f"UID: {v['user']['uid']}")
     return tolerant_jsonify(api_json)
 
 
