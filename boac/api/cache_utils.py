@@ -140,6 +140,8 @@ def load_term(term_id=berkeley.current_term_id()):
     if term_id == berkeley.current_term_id():
         JobProgress().update(f'About to refresh department memberships')
         refresh_department_memberships()
+        JobProgress().update(f'About to refresh CalNet attributes for active users')
+        refresh_calnet_attributes()
         JobProgress().update(f'About to load filtered cohort counts')
         load_filtered_cohort_counts()
         JobProgress().update(f'About to update curated group memberships')
@@ -149,6 +151,16 @@ def load_term(term_id=berkeley.current_term_id()):
 def refresh_alerts(term_id):
     Alert.deactivate_all_for_term(term_id)
     Alert.update_all_for_term(term_id)
+
+
+def refresh_calnet_attributes():
+    from boac.merged import calnet
+    from boac.models.authorized_user import AuthorizedUser
+    from boac.models import json_cache
+    active_uids = {u.uid for u in AuthorizedUser.get_all_active_users()}
+    json_cache.clear('calnet_user_for_uid_%')
+    new_attrs = calnet.get_calnet_users_for_uids(app, active_uids)
+    app.logger.info(f'Cached {len(new_attrs)} CalNet records for {len(active_uids)} active users')
 
 
 def refresh_department_memberships():

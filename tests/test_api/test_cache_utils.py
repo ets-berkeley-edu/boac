@@ -83,6 +83,26 @@ class TestCacheUtils:
             assert cohort['alertCount'] >= 0
 
 
+class TestRefreshCalnetAttributes:
+    def test_removes_and_restores(self, app):
+        from boac.api.cache_utils import refresh_calnet_attributes
+        from boac.models import json_cache
+        from boac.models.json_cache import JsonCache
+        removed_advisor = '1022796'
+        removed_ldap_record = '2040'
+        all_active_uids = {u.uid for u in AuthorizedUser.get_all_active_users()}
+        assert {removed_advisor, removed_ldap_record}.issubset(all_active_uids)
+        calnet_filter = JsonCache.key.like('calnet_user_%')
+        all_cached_uids = {r.json['uid'] for r in JsonCache.query.filter(calnet_filter).all()}
+        assert {removed_advisor, removed_ldap_record}.issubset(all_cached_uids)
+        AuthorizedUser.query.filter_by(uid=removed_advisor).delete()
+        JsonCache.query.filter_by(key=f'calnet_user_for_uid_{removed_ldap_record}').delete()
+        std_commit(allow_test_environment=True)
+        refresh_calnet_attributes()
+        assert json_cache.fetch(f'calnet_user_for_uid_{removed_ldap_record}') is not None
+        assert json_cache.fetch(f'calnet_user_for_uid_{removed_advisor}') is None
+
+
 class TestRefreshDepartmentMemberships:
     """Test department membership refresh."""
 
