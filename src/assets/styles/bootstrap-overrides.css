@@ -38,6 +38,9 @@ legend {
   padding-left: 8px !important;
   position: inherit !important;
 }
+.b-table th::before {
+  content: '' !important;
+}
 .b-table th[aria-sort="none"]::after {
   color: transparent;
   content: '\25b2' !important;
