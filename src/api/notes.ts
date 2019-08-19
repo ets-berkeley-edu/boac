@@ -46,7 +46,7 @@ export function createNote(
     }
     store.dispatch('user/gaNoteEvent', {
       id: data.id,
-      name: `Advisor ${store.getters['user/uid']} created a note`,
+      label: `Advisor ${store.getters['user/uid']} created a note`,
       action: 'create'
     });
     return data;
