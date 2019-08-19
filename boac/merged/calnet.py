@@ -103,7 +103,7 @@ def _get_calnet_users(app, id_type, ids):
 
 def _calnet_user_api_feed(person):
     def _get(key):
-        return person and person[key]
+        return _get_attribute(person, key)
     # Array of departments is compatible with BOAC user schema.
     departments = []
     dept_code = _get_dept_code(person)
@@ -128,10 +128,18 @@ def _calnet_user_api_feed(person):
 
 def _get_dept_code(p):
     def dept_code_fallback():
-        dept_hierarchy = p['dept_unit_hierarchy']
+        dept_hierarchy = _get_attribute(p, 'dept_unit_hierarchy')
         if dept_hierarchy:
-            dept_hierarchy = dept_hierarchy[0] if isinstance(dept_hierarchy, list) else dept_hierarchy
-            return dept_hierarchy.rsplit('-', 1)[-1] if dept_hierarchy else None
+            return dept_hierarchy.rsplit('-', 1)[-1]
         else:
             return None
     return p and (p['primary_dept_code'] or p['dept_code'] or p['calnet_dept_code'] or dept_code_fallback())
+
+
+def _get_attribute(person, key):
+    if not person:
+        return None
+    elif isinstance(person[key], list):
+        return person[key][0]
+    else:
+        return person[key]
