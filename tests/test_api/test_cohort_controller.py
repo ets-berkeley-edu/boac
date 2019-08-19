@@ -962,7 +962,7 @@ class TestDownloadCsvPerFilters:
             assert str(snippet) in csv
 
 
-class TestAllCohortFilterOptions:
+class TestCohortFilterOptions:
     """Cohort Filter Options API."""
 
     @classmethod
@@ -1151,6 +1151,15 @@ class TestAllCohortFilterOptions:
                     assert is_disabled is True
                 else:
                     assert is_disabled is None
+
+    def test_range_of_expected_terms(self, client, guest_user_login):
+        """Expected grad term options ."""
+        api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
+        assert len(api_json)
+        assert len(api_json[0])
+        filter_options = api_json[0][0].get('options')
+        assert filter_options[0].get('name') == '1997 Fall'
+        assert filter_options[1].get('name') == '1998 Spring'
 
 
 class TestTranslateToFilterOptions:

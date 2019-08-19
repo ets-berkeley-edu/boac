@@ -448,14 +448,14 @@ def reverse_terms_until(stop_term):
 
 def sis_term_id_for_name(term_name=None):
     if term_name:
-        match = re.match(r'\A(Spring|Summer|Fall) 20(\d{2})\Z', term_name)
+        match = re.match(r'\A(Spring|Summer|Fall) (\d)[09](\d{2})\Z', term_name)
         if match:
             season_codes = {
                 'Spring': '2',
                 'Summer': '5',
                 'Fall': '8',
             }
-            return '2' + match.group(2) + season_codes[match.group(1)]
+            return match.group(2) + match.group(3) + season_codes[match.group(1)]
 
 
 def term_name_for_sis_id(sis_id=None):
@@ -467,7 +467,8 @@ def term_name_for_sis_id(sis_id=None):
             '5': 'Summer',
             '8': 'Fall',
         }
-        return season_codes[sis_id[3:4]] + ' 20' + sis_id[1:3]
+        year = f'19{sis_id[1:3]}' if sis_id.startswith('1') else f'20{sis_id[1:3]}'
+        return f'{season_codes[sis_id[3:4]]} {year}'
 
 
 def degree_program_url_for_major(plan_description):
