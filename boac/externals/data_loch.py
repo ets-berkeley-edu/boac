@@ -622,18 +622,11 @@ def get_distinct_ethnicities():
     return safe_execute_rds(f'SELECT DISTINCT ethnicity FROM {student_schema()}.ethnicities ORDER BY ethnicity')
 
 
-def get_max_expected_graduation_term():
-    sql = f"""SELECT MAX(expected_grad_term) AS term FROM {student_schema()}.student_academic_status
-        WHERE expected_grad_term > '0'"""
-    rows = safe_execute_rds(sql)
-    return None if not rows or (len(rows) == 0) else rows[0]
-
-
-def get_min_expected_graduation_term():
-    sql = f"""SELECT MIN(expected_grad_term) AS term FROM {student_schema()}.student_academic_status
-        WHERE expected_grad_term > '0'"""
-    rows = safe_execute_rds(sql)
-    return None if not rows or (len(rows) == 0) else rows[0]
+def get_expected_graduation_terms():
+    sql = f"""SELECT DISTINCT expected_grad_term FROM {student_schema()}.student_academic_status
+        WHERE expected_grad_term > '0'
+        ORDER BY expected_grad_term DESC"""
+    return safe_execute_rds(sql)
 
 
 def get_majors():
