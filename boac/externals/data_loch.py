@@ -481,32 +481,32 @@ def search_advising_notes(
     offset=None,
     limit=None,
 ):
-    if author_csid and author_uid:
-        author_filter = 'AND (an.advisor_sid = :author_csid OR an.advisor_uid = :author_uid)'
-    elif author_csid:
-        author_filter = 'AND an.advisor_sid = :author_csid'
-    else:
-        author_filter = ''
 
-    sid_filter = 'AND an.sid = :student_csid' if student_csid else ''
+    sis_author_filter = 'AND advisor_sid = :author_csid' if author_csid else ''
+    non_sis_author_filter = 'AND advisor_uid = :author_uid' if author_uid else ''
+
+    sid_filter = 'AND sid = :student_csid' if student_csid else ''
 
     if topic:
         topic_join = f"""JOIN {sis_advising_notes_schema()}.advising_note_topic_mappings antm
             ON antm.boa_topic = :topic
         JOIN {sis_advising_notes_schema()}.advising_note_topics ant
             ON ant.note_topic = antm.sis_topic
-            AND ant.advising_note_id = an.id"""
+            AND ant.advising_note_id = sis.id"""
     else:
         topic_join = ''
 
-    date_filter = ''
+    sis_date_filter = ''
+    non_sis_date_filter = ''
     # We prefer to filter on updated_at, but that value is not meaningful for UCBCONVERSION notes.
     if datetime_from:
-        date_filter += """ AND ((an.created_by = 'UCBCONVERSION' AND an.created_at >= :datetime_from)
-            OR ((an.created_by != 'UCBCONVERSION' OR an.created_by IS NULL) AND an.updated_at >= :datetime_from))"""
+        sis_date_filter += """ AND ((created_by = 'UCBCONVERSION' AND created_at >= :datetime_from)
+            OR ((created_by != 'UCBCONVERSION' OR created_by IS NULL) AND updated_at >= :datetime_from))"""
+        non_sis_date_filter += ' AND updated_at >= :datetime_from'
     if datetime_to:
-        date_filter += """ AND ((an.created_by = 'UCBCONVERSION' AND an.created_at < :datetime_to)
-            OR ((an.created_by != 'UCBCONVERSION' OR an.created_by IS NULL) AND an.updated_at < :datetime_to))"""
+        sis_date_filter += """ AND ((created_by = 'UCBCONVERSION' AND created_at < :datetime_to)
+            OR ((created_by != 'UCBCONVERSION' OR created_by IS NULL) AND updated_at < :datetime_to))"""
+        non_sis_date_filter += ' AND updated_at < :datetime_to'
 
     def _fts_selector(schema):
         if search_phrase:
@@ -517,24 +517,40 @@ def search_advising_notes(
             return f'SELECT id, 0 AS rank FROM {schema}.advising_notes'
 
     sql = f"""WITH an AS (
-        (SELECT sis.sid, sis.id, sis.note_body, sis.advisor_sid, NULL AS advisor_uid, NULL AS advisor_first_name, NULL AS advisor_last_name,
+        (SELECT sis.sid, sis.id, sis.note_body, sis.advisor_sid,
+                NULL::varchar AS advisor_uid, NULL::varchar AS advisor_first_name, NULL::varchar AS advisor_last_name,
                 sis.note_category, sis.note_subcategory, sis.created_by, sis.created_at, sis.updated_at, idx.rank
             FROM {sis_advising_notes_schema()}.advising_notes sis
             JOIN ({_fts_selector(sis_advising_notes_schema())}) AS idx
-            ON idx.id = sis.id)
+            ON idx.id = sis.id
+            {sis_date_filter}
+            {sis_author_filter}
+            {sid_filter}
+            {topic_join}
+        )"""
+    if not topic:
+        sql += f"""
         UNION
         (SELECT ascn.sid, ascn.id, NULL AS note_body, NULL AS advisor_sid, ascn.advisor_uid, ascn.advisor_first_name, ascn.advisor_last_name,
                 NULL AS note_category, NULL AS note_subcategory, NULL AS created_by, ascn.created_at, ascn.updated_at, idx.rank
             FROM {asc_schema()}.advising_notes ascn
             JOIN ({_fts_selector(asc_schema())}) AS idx
-            ON idx.id = ascn.id)
+            ON idx.id = ascn.id
+            {non_sis_date_filter}
+            {non_sis_author_filter}
+            {sid_filter}
+        )
         UNION
         (SELECT ein.sid, ein.id, NULL AS note_body, NULL AS advisor_sid, ein.advisor_uid, ein.advisor_first_name, ein.advisor_last_name,
                 NULL AS note_category, NULL AS note_subcategory, NULL AS created_by, ein.created_at, ein.updated_at, idx.rank
             FROM {e_i_schema()}.advising_notes ein
             JOIN ({_fts_selector(e_i_schema())}) AS idx
-            ON idx.id = ein.id)
-        )
+            ON idx.id = ein.id
+            {non_sis_date_filter}
+            {non_sis_author_filter}
+            {sid_filter}
+        )"""
+    sql += f""")
         SELECT DISTINCT
             an.sid, an.id, an.note_body, an.advisor_sid, an.advisor_uid,
             an.created_by, an.created_at, an.updated_at, an.note_category, an.note_subcategory,
@@ -542,10 +558,6 @@ def search_advising_notes(
         FROM {student_schema()}.student_academic_status sas
         JOIN an
             ON an.sid = sas.sid
-            {author_filter}
-            {date_filter}
-            {sid_filter}
-        {topic_join}
         ORDER BY an.rank DESC, an.id"""
     if offset is not None and offset > 0:
         sql += ' OFFSET :offset'
