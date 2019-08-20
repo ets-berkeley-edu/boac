@@ -263,11 +263,7 @@ class TestMergedAdvisingNote:
 
     def test_search_advising_notes_includes_newly_created(self, app, fake_auth):
         fake_auth.login(coe_advisor)
-        Note.create(
-            author_uid=coe_advisor,
-            author_name='Balloon Man',
-            author_role='Spherical',
-            author_dept_codes='COENG',
+        _create_coe_advisor_note(
             sid='11667051',
             subject='Confound this note',
             body='and its successors and assigns',
@@ -281,11 +277,7 @@ class TestMergedAdvisingNote:
     def test_search_advising_notes_paginates_new_and_old(self, app, fake_auth):
         fake_auth.login(coe_advisor)
         for i in range(0, 5):
-            Note.create(
-                author_uid=coe_advisor,
-                author_name='Balloon Man',
-                author_role='Spherical',
-                author_dept_codes='COENG',
+            _create_coe_advisor_note(
                 sid='11667051',
                 subject='Planned redundancy',
                 body=f'Confounded note {i + 1}',
@@ -314,11 +306,9 @@ class TestMergedAdvisingNote:
             'uid': '2040',
         }
         for author in [joni, not_joni]:
-            Note.create(
+            _create_coe_advisor_note(
                 author_uid=author['uid'],
                 author_name=author['name'],
-                author_role='Advisor',
-                author_dept_codes='COENG',
                 sid='11667051',
                 subject='Futher on France',
                 body='Brigitte has been molded to middle class circumstance',
@@ -334,12 +324,8 @@ class TestMergedAdvisingNote:
 
     def test_search_advising_notes_narrowed_by_student(self, app, fake_auth):
         """Narrows results for both new and legacy advising notes by student SID."""
-        for sid in ['9100000000', '9100000001']:
-            Note.create(
-                author_uid='1133399',
-                author_name='Joni Mitchell',
-                author_role='Advisor',
-                author_dept_codes='COENG',
+        for sid in ['9000000000', '9100000000']:
+            _create_coe_advisor_note(
                 sid=sid,
                 subject='Case load',
                 body='Another day, another student',
@@ -353,17 +339,27 @@ class TestMergedAdvisingNote:
         assert new_note['studentSid'] == '9100000000'
         assert legacy_note['studentSid'] == '9100000000'
 
+    def test_search_advising_notes_restricted_to_students_in_loch(self, app, fake_auth):
+        fake_auth.login(coe_advisor)
+        _create_coe_advisor_note(
+            sid='6767676767',
+            subject='Who is this?',
+            body="Not a student in the loch, that's for sure",
+        )
+        assert len(search_advising_notes(search_phrase='loch')) == 0
+        _create_coe_advisor_note(
+            sid='11667051',
+            subject='A familiar face',
+            body='Whereas this student is a most distinguished denizen of the loch',
+        )
+        assert len(search_advising_notes(search_phrase='loch')) == 1
+
     def test_search_advising_notes_narrowed_by_topic(self, app, fake_auth):
         for topic in ['Good Show', 'Bad Show']:
-            Note.create(
-                author_uid='1133399',
-                author_name='Joni Mitchell',
-                author_role='Advisor',
-                author_dept_codes='COENG',
+            _create_coe_advisor_note(
                 sid='11667051',
                 topics=[topic],
                 subject='Brigitte',
-                body='',
             )
         fake_auth.login(coe_advisor)
         wide_response = search_advising_notes(search_phrase='Brigitte')
@@ -403,11 +399,7 @@ class TestMergedAdvisingNote:
         tomorrow = today + timedelta(days=1)
 
         fake_auth.login(coe_advisor)
-        Note.create(
-            author_uid=coe_advisor,
-            author_name='Balloon Man',
-            author_role='Spherical',
-            author_dept_codes='COENG',
+        _create_coe_advisor_note(
             sid='11667051',
             subject='Bryant Park',
             body='There were loads of them',
@@ -447,3 +439,25 @@ class TestMergedAdvisingNote:
             fake_auth.login(coe_advisor)
             assert get_legacy_attachment_stream('11667051_00001_1.pdf')['stream'] is None
             assert "the s3 key 'attachment-path/11667051/11667051_00001_1.pdf' does not exist, or is forbidden" in caplog.text
+
+
+def _create_coe_advisor_note(
+    sid,
+    subject,
+    body='',
+    topics=(),
+    author_uid=coe_advisor,
+    author_name='Balloon Man',
+    author_role='Spherical',
+    author_dept_codes='COENG',
+):
+    Note.create(
+        author_uid=author_uid,
+        author_name=author_name,
+        author_role=author_role,
+        author_dept_codes=author_dept_codes,
+        topics=topics,
+        sid=sid,
+        subject=subject,
+        body=body,
+    )
