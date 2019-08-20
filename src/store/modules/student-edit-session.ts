@@ -1,11 +1,13 @@
 import _ from 'lodash';
 import { getTopics } from '@/api/notes';
+import { getMyNoteTemplates } from "@/api/note-templates";
 
-const VALID_MODES = ['advanced', 'batch', 'docked', 'minimized', 'saving'];
+const VALID_MODES = ['advanced', 'batch', 'docked', 'editTemplate', 'minimized', 'saving'];
 
 const state = {
   editingNoteId: undefined,
   newNoteMode: undefined,
+  noteTemplates: undefined,
   sid: undefined,
   suggestedTopics: undefined
 };
@@ -13,6 +15,7 @@ const state = {
 const getters = {
   editingNoteId: (state: any): number => state.editingNoteId,
   newNoteMode: (state: any): string => state.newNoteMode,
+  noteTemplates: (state: any): any[] => state.noteTemplates,
   sid: (state: any): string => state.sid,
   suggestedTopics: (state: any): any[] => state.suggestedTopics
 };
@@ -20,6 +23,16 @@ const getters = {
 const mutations = {
   editExistingNoteId: (state: any, id: number) => (state.editingNoteId = id),
   endSession: (state: any) => _.each(_.keys(state), key => state[key] = undefined),
+  onCreateNoteTemplate: (state: any, template) => {
+    state.noteTemplates = _.orderBy(state.noteTemplates.concat([template]), ['title'], ['asc']);
+  },
+  onDeleteNoteTemplate: (state: any, templateId: any) => {
+    let indexOf = state.noteTemplates.findIndex(template => {
+      return template.id === templateId;
+    });
+    state.noteTemplates.splice(indexOf, 1);
+  },
+  setNoteTemplates: (state: any, templates: any[]) => state.noteTemplates = templates,
   setNewNoteMode: (state: any, mode: string) => {
     if (_.isNil(mode)) {
       state.newNoteMode = null;
@@ -36,6 +49,13 @@ const mutations = {
 const actions = {
   editExistingNoteId: ({ commit }, id: number) => commit('editExistingNoteId', id),
   endSession: ({ commit }) => commit('endSession'),
+  async loadNoteTemplates({ commit, state }) {
+    if (_.isUndefined(state.myNoteTemplates)) {
+      getMyNoteTemplates().then(templates => commit('setNoteTemplates', templates));
+    }
+  },
+  onCreateNoteTemplate: ({ commit }, template: any) => commit('onCreateNoteTemplate', template),
+  onDeleteNoteTemplate: ({ commit }, templateId: number) => commit('onDeleteNoteTemplate', templateId),
   setNewNoteMode: ({ commit }, mode: string) => {
     if (_.isUndefined(state.suggestedTopics)) {
       // Lazy-load topics

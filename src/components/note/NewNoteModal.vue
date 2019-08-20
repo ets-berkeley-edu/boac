@@ -17,7 +17,7 @@
     </div>
     <FocusLock
       v-if="!disable"
-      :disabled="!undocked || showDiscardModal"
+      :disabled="!undocked || showDiscardModal || showTemplateCreateModal"
       :class="{'modal-full-screen': undocked}">
       <div
         id="new-note-modal-container"
@@ -29,10 +29,49 @@
           'modal-full-screen-content': undocked,
           'mt-4': initialMode === 'batch'
         }">
-        <form @submit.prevent="create()">
+        <form @submit.prevent="createNote()">
           <div class="d-flex align-items-end pt-2 mb-1" :class="{'mt-2': undocked}">
             <div class="flex-grow-1 new-note-header font-weight-bolder">
-              New Note
+              <span v-if="newNoteMode === 'editTemplate'">Edit Template</span>
+              <span v-if="newNoteMode !== 'editTemplate'">New Note</span>
+            </div>
+            <div v-if="undocked" class="mr-4">
+              <b-dropdown
+                id="my-templates-button"
+                text="Templates"
+                aria-label="Select a note template"
+                variant="primary"
+                class="mb-2 ml-0"
+                right>
+                <b-dropdown-header v-if="!size(noteTemplates)" id="no-templates-header">
+                  <div class="font-weight-bolder">Templates</div>
+                  <div>
+                    <div class="font-weight-bolder">You have no saved templates.</div>
+                    <div>To begin, create a new note and select, "Save note as template," to build your first note template.</div>
+                  </div>
+                </b-dropdown-header>
+                <b-dropdown-item
+                  v-for="template in noteTemplates"
+                  :id="`note-template-${template.id}`"
+                  :key="template.id">
+                  <div class="align-items-center d-flex justify-content-between">
+                    <div>
+                      <b-btn variant="link" class="dropdown-item p-0" @click="loadTemplate(template)">{{ truncate(template.title) }}</b-btn>
+                    </div>
+                    <div class="align-items-center d-flex ml-2 no-wrap">
+                      <div>
+                        <b-btn variant="link" class="p-0" @click="editNoteTemplate(template)">Edit</b-btn>
+                      </div>
+                      <div>
+                        |
+                      </div>
+                      <div>
+                        <b-btn variant="link" class="p-0" @click="deleteNoteTemplate(template.id)">Delete</b-btn>
+                      </div>
+                    </div>
+                  </div>
+                </b-dropdown-item>
+              </b-dropdown>
             </div>
             <div v-if="!undocked" class="pr-0">
               <label id="minimize-button-label" class="sr-only">Minimize the create note dialog box</label>
@@ -61,7 +100,7 @@
           </div>
           <hr class="m-0" />
           <div class="mt-2 mr-3 mb-1 ml-3">
-            <div v-if="newNoteMode === 'batch'">
+            <div v-if="initialMode === 'batch'">
               <div>
                 <span aria-live="polite" role="alert">
                   <span
@@ -90,7 +129,6 @@
               <div>
                 <CreateNoteAddStudent
                   :add-sid="addSid"
-                  :clear-errors="clearErrors"
                   dropdown-class="position-relative"
                   :on-esc-form-input="cancel"
                   :remove-sid="removeSid">
@@ -100,7 +138,6 @@
                 <CreateNoteCohortDropdown
                   v-if="myCohorts && myCohorts.length"
                   :add-object="addCohortToBatch"
-                  :clear-errors="clearErrors"
                   :objects="myCohorts"
                   :is-curated-groups-mode="false"
                   :remove-object="removeCohortFromBatch" />
@@ -109,7 +146,6 @@
                 <CreateNoteCohortDropdown
                   v-if="myCuratedGroups && myCuratedGroups.length"
                   :add-object="addCuratedGroupToBatch"
-                  :clear-errors="clearErrors"
                   :objects="myCuratedGroups"
                   :is-curated-groups-mode="true"
                   :remove-object="removeCuratedGroupFromBatch" />
@@ -144,60 +180,22 @@
             :function-add="addTopic"
             :function-remove="removeTopic"
             :topics="topics" />
-          <div v-if="undocked" class="mt-2 mr-3 mb-1 ml-3">
-            <div v-if="attachmentError" class="mt-3 mb-3 w-100">
-              <font-awesome icon="exclamation-triangle" class="text-danger pr-1" />
-              <span id="attachment-error" aria-live="polite" role="alert">{{ attachmentError }}</span>
-            </div>
-            <div v-if="size(attachments) < maxAttachmentsPerNote" class="w-100">
-              <div class="choose-attachment-file-wrapper no-wrap pl-3 pr-3 w-100">
-                <span class="sr-only">Add attachment to note: </span>
-                Drop file to upload attachment or
-                <b-btn
-                  id="choose-file-for-note-attachment"
-                  type="file"
-                  variant="outline-primary"
-                  class="btn-file-upload mt-2 mb-2"
-                  size="sm"
-                  @keydown.enter.prevent="clickBrowseForAttachment">
-                  Browse<span class="sr-only"> for file to upload</span>
-                </b-btn>
-                <b-form-file
-                  ref="attachment-file-input"
-                  v-model="attachment"
-                  :disabled="size(attachments) === maxAttachmentsPerNote"
-                  :state="Boolean(attachment)"
-                  :plain="true"
-                ></b-form-file>
-              </div>
-            </div>
-            <div v-if="size(attachments) === maxAttachmentsPerNote" class="w-100">
-              A note can have no more than {{ maxAttachmentsPerNote }} attachments.
-            </div>
-            <div>
-              <ul class="pill-list pl-0 mt-3">
-                <li
-                  v-for="(attachment, index) in attachments"
-                  :id="`new-note-attachment-${index}`"
-                  :key="attachment.name"
-                  class="mt-2">
-                  <span class="pill pill-attachment text-nowrap">
-                    <font-awesome icon="paperclip" class="pr-1 pl-1" /> {{ attachment.name }}
-                    <b-btn
-                      :id="`remove-note-attachment-${index}`"
-                      variant="link"
-                      class="p-0"
-                      @click.prevent="removeAttachment(index)">
-                      <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
-                      <span class="sr-only">Delete attachment {{ attachment.name }}</span>
-                    </b-btn>
-                  </span>
-                </li>
-              </ul>
-            </div>
-          </div>
+          <AdvisingNoteAttachments
+            v-if="undocked"
+            class="mt-2 mr-3 mb-1 ml-3"
+            :add-attachment="addAttachment"
+            :existing-attachments="attachments" />
           <hr />
           <div class="d-flex mt-1 mr-3 mb-0 ml-3">
+            <div v-if="undocked && newNoteMode !== 'editTemplate'" class="flex-grow-1">
+              <b-btn
+                id="btn-to-save-note-as-template"
+                variant="link"
+                :disabled="!!loadedTemplate"
+                @click.prevent="createTemplate()">
+                Save note as template
+              </b-btn>
+            </div>
             <div class="flex-grow-1">
               <b-btn
                 v-if="!undocked"
@@ -207,14 +205,25 @@
                 Advanced note options
               </b-btn>
             </div>
-            <div>
+            <div v-if="newNoteMode === 'editTemplate'">
+              <b-btn
+                id="update-template-button"
+                class="btn-primary-color-override"
+                :disabled="!subject"
+                aria-label="Update note template"
+                variant="primary"
+                @click.prevent="updateTemplate()">
+                Update Template
+              </b-btn>
+            </div>
+            <div v-if="newNoteMode !== 'editTemplate'">
               <b-btn
                 id="create-note-button"
                 class="btn-primary-color-override"
-                :disabled="!targetStudentCount || !subject"
+                :disabled="!targetStudentCount || !trim(subject)"
                 aria-label="Create new note"
                 variant="primary"
-                @click.prevent="create()">
+                @click.prevent="createNote()">
                 Save
               </b-btn>
             </div>
@@ -264,43 +273,46 @@
       :function-confirm="discardConfirmed"
       modal-header="Discard unsaved note?"
       :show-modal="showDiscardModal" />
-    <b-popover
-      v-if="showErrorPopover"
-      :show.sync="showErrorPopover"
-      placement="top"
-      target="create-note-subject"
-      title="">
-      <span class="has-error">{{ error }}</span>
-    </b-popover>
+    <CreateTemplateModal
+      v-if="showTemplateCreateModal"
+      button-label-confirm="Save"
+      :cancel="cancelTemplateCreate"
+      :create="createTemplateConfirmed"
+      modal-header="Name Your Template"
+      :show-modal="showTemplateCreateModal" />
   </div>
 </template>
 
 <script>
+import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments';
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics';
 import AreYouSureModal from '@/components/util/AreYouSureModal';
-import Attachments from '@/mixins/Attachments';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Context from '@/mixins/Context';
 import CreateNoteAddStudent from '@/components/note/CreateNoteAddStudent';
 import CreateNoteCohortDropdown from '@/components/note/CreateNoteCohortDropdown';
+import CreateTemplateModal from "@/components/note/CreateTemplateModal";
 import FocusLock from 'vue-focus-lock';
 import StudentEditSession from '@/mixins/StudentEditSession';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { createNote, createNoteBatch, getDistinctStudentCount } from '@/api/notes';
+import { createNoteTemplate, deleteNoteTemplate, updateNoteTemplate } from '@/api/note-templates';
 
 require('@/assets/styles/ckeditor-custom.css');
 
 export default {
   name: 'NewNoteModal',
   components: {
+    AdvisingNoteAttachments,
     AdvisingNoteTopics,
     AreYouSureModal,
     CreateNoteAddStudent,
     CreateNoteCohortDropdown,
+    CreateTemplateModal,
     FocusLock
   },
-  mixins: [Attachments, Context, StudentEditSession, UserMetadata, Util],
+  mixins: [Context, StudentEditSession, UserMetadata, Util],
   props: {
     disable: Boolean,
     initialMode: {
@@ -324,49 +336,39 @@ export default {
   data: () => ({
     addedCohorts: [],
     addedCuratedGroups: [],
-    attachment: undefined,
-    attachmentError: undefined,
     attachments: [],
     body: undefined,
     editor: ClassicEditor,
     editorConfig: {
       toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
     },
-    error: undefined,
     isMinimizing: false,
     showErrorPopover: false,
     showDiscardModal: false,
+    showTemplateCreateModal: false,
     sids: undefined,
     subject: undefined,
     targetStudentCount: undefined,
+    loadedTemplate: undefined,
     topics: []
   }),
   computed: {
     undocked() {
-      return this.includes(['advanced', 'batch'], this.newNoteMode);
+      return this.includes(['advanced', 'batch', 'editTemplate'], this.newNoteMode);
     }
   },
   watch: {
-    attachment(file) {
-      if (file) {
-        this.attachmentError = this.validateAttachment(file, this.attachments);
-        if (this.attachmentError) {
-          this.attachment = null;
-        } else {
-          this.clearErrors();
-          this.attachment = file;
-          this.attachment.displayName = file.name;
-          this.attachments.push(this.attachment);
-          this.alertScreenReader(`Attachment '${name}' added`);
-        }
-      }
-      this.$refs['attachment-file-input'].reset();
+    attachments() {
+      this.checkLoadedTemplate()
     },
-    body(b) {
-      if (b) this.clearErrors();
+    body() {
+      this.checkLoadedTemplate()
     },
-    subject(s) {
-      if (s) this.clearErrors();
+    subject() {
+      this.checkLoadedTemplate()
+    },
+    topics() {
+      this.checkLoadedTemplate()
     }
   },
   created() {
@@ -375,6 +377,9 @@ export default {
     this.targetStudentCount = this.sids.length;
   },
   methods: {
+    addAttachment(attachment) {
+      this.attachments.push(attachment);
+    },
     addCohortToBatch(cohort) {
       this.addedCohorts.push(cohort);
       this.alertScreenReader(`Added cohort '${cohort.name}'`);
@@ -397,25 +402,27 @@ export default {
       this.alertScreenReader(`Added topic '${topic}'`);
     },
     cancel() {
-      this.clearErrors();
       const unsavedChanges = this.trim(this.subject) || this.stripHtmlAndTrim(this.body) || this.size(this.attachments) || this.addedCohorts.length || this.addedCuratedGroups.length;
-      if (unsavedChanges) {
+      if (unsavedChanges || (this.loadedTemplate && !this.templateEquals(this, this.loadedTemplate))) {
         this.showDiscardModal = true;
       } else {
         this.discardConfirmed();
       }
+    },
+    cancelTemplateCreate() {
+      this.showTemplateCreateModal = false;
     },
     cancelTheDiscard() {
       this.showDiscardModal = false;
       this.putFocusNextTick('create-note-subject');
       this.alertScreenReader(`Continue editing note.`);
     },
-    clearErrors() {
-      this.attachmentError = null;
-      this.error = null;
-      this.showErrorPopover = false;
+    checkLoadedTemplate() {
+      if (this.loadedTemplate && !this.templateEquals(this, this.loadedTemplate)) {
+        this.loadedTemplate = null;
+      }
     },
-    create() {
+    createNote() {
       const isBatchMode = this.newNoteMode === 'batch';
       this.subject = this.trim(this.subject);
       if (this.subject && this.targetStudentCount) {
@@ -442,17 +449,41 @@ export default {
         } else {
           createNote(this.sids[0], this.subject, this.body, this.topics, this.attachments).then(afterNoteCreation);
         }
-      } else {
-        this.error = 'Subject is required';
-        this.showErrorPopover = true;
-        this.alertScreenReader(`Validation failed: ${this.error}`);
-        this.putFocusNextTick('create-note-subject');
       }
+    },
+    createTemplate() {
+      this.showTemplateCreateModal = true;
+    },
+    createTemplateConfirmed(title) {
+      this.showTemplateCreateModal = false;
+      createNoteTemplate(title, this.subject, this.body || '', this.topics, this.attachments).then(template => {
+        this.loadedTemplate = template;
+      });
+    },
+    deleteNoteTemplate(templateId) {
+      deleteNoteTemplate(templateId)
+    },
+    updateTemplate() {
+      const t = this.loadedTemplate;
+      updateNoteTemplate(t.id, t.subject, t.body || '', t.topics, t.attachments, []);
     },
     discardConfirmed() {
       this.showDiscardModal = false;
       this.reset();
       this.alertScreenReader("Cancelled create new note");
+    },
+    editNoteTemplate(template) {
+      this.loadedTemplate = template;
+      this.setNewNoteMode('editTemplate');
+      this.loadTemplate(template);
+    },
+    loadTemplate(template) {
+      this.subject = template.subject;
+      this.body = template.body || '';
+      this.topics = this.clone(template.topics || []);
+      this.attachments = this.clone(template.attachments || []);
+      this.loadedTemplate = template;
+      this.alertScreenReader(`Template ${template.title} loaded`);
     },
     maximize() {
       this.setNewNoteMode('docked');
@@ -483,7 +514,6 @@ export default {
       }
     },
     removeAttachment(index) {
-      this.clearErrors();
       this.attachments.splice(index, 1);
       this.alertScreenReader(`Attachment '${this.attachments[index].name}' removed`);
     },
@@ -510,12 +540,12 @@ export default {
       this.alertScreenReader(`Removed topic '${topic}'`);
     },
     reset(mode) {
-      this.clearErrors();
       this.setNewNoteMode(mode);
       this.addedCohorts = [];
       this.addedCuratedGroups = [];
       this.attachments = [];
       this.body = undefined;
+      this.loadedTemplate = undefined;
       this.sids = this.sid ? [ this.sid ] : [];
       this.subject = undefined;
       this.targetStudentCount = this.sids.length;
@@ -526,41 +556,6 @@ export default {
 </script>
 
 <style scoped>
-.btn-file-upload {
-  border-color: grey;
-  color: grey;
-}
-.btn-file-upload:hover,
-.btn-file-upload:focus,
-.btn-file-upload:active
-{
-  color: #333;
-  background-color: #aaa;
-}
-.choose-attachment-file-wrapper {
-  position: relative;
-  align-items: center;
-  overflow: hidden;
-  display: inline-block;
-  background-color: #f7f7f7;
-  border: 1px solid #E0E0E0;
-  border-radius: 4px;
-  text-align: center;
-}
-.choose-attachment-file-wrapper input[type=file] {
-  font-size: 100px;
-  position: absolute;
-  left: 0;
-  top: 0;
-  opacity: 0;
-}
-.choose-attachment-file-wrapper:hover,
-.choose-attachment-file-wrapper:focus,
-.choose-attachment-file-wrapper:active
-{
-  color: #333;
-  background-color: #eee;
-}
 .fa-icon-size {
   font-size: 28px;
 }

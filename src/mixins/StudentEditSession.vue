@@ -7,6 +7,7 @@ export default {
     ...mapGetters('studentEditSession', [
       'editingNoteId',
       'newNoteMode',
+      'noteTemplates',
       'suggestedTopics'
     ])
   },

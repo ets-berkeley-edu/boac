@@ -39,6 +39,27 @@ export default {
         });
       }
       return msg;
+    },
+    validateTemplateTitle: template => {
+      const title = _.trim(template.title);
+      let msg = null;
+      if (_.isEmpty(title)) {
+        msg = 'Required';
+      } else if (_.size(title) > 255) {
+        msg = 'Name must be 255 characters or fewer';
+      } else {
+        const myTemplates = store.getters['studentEditSession/noteTemplates'];
+        _.each(myTemplates, existing => {
+          if (
+            (!template.id || template.id !== existing.id) &&
+            name === existing.name
+          ) {
+            msg = 'You have an existing template with this name. Please choose a different name.';
+            return false;
+          }
+        });
+      }
+      return msg;
     }
   }
 };

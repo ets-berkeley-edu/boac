@@ -56,10 +56,6 @@ export default {
       required: true,
       type: Function
     },
-    clearErrors: {
-      required: true,
-      type: Function
-    },
     onEscFormInput: {
       default: () => {},
       required: false,
@@ -77,7 +73,6 @@ export default {
   methods: {
     addStudent(student) {
       if (student) {
-        this.clearErrors();
         this.addedStudents.push(student);
         this.addSid(student.sid);
         this.resetAutoCompleteKey = new Date().getTime();
@@ -86,7 +81,6 @@ export default {
     },
     removeStudent(student) {
       if (student) {
-        this.clearErrors();
         this.addedStudents = this.filterList(this.addedStudents, a => a.sid !== student.sid);
         this.removeSid(student.sid);
         this.alertScreenReader(`${student.label} removed from batch note`);

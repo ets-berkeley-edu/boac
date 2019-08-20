@@ -1,3 +1,6 @@
+.align-items-center {
+  align-items: center;
+}
 .avatar {
   background-image: url('~@/assets/avatar-50.png');
   background-size: cover;

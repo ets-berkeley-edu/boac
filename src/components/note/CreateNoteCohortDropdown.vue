@@ -49,7 +49,6 @@ export default {
   mixins: [Context, UserMetadata, Util],
   props: {
     addObject: Function,
-    clearErrors: Function,
     objects: Array,
     isCuratedGroupsMode: Boolean,
     removeObject: Function
@@ -71,13 +70,11 @@ export default {
   },
   methods: {
     addItem(object) {
-      this.clearErrors();
       this.added.push(object);
       this.addObject(object);
       this.alertScreenReader(`${this.header} ${object.name} added to batch note`);
     },
     remove(object) {
-      this.clearErrors();
       this.added = this.filterList(this.added, a => a.id !== object.id);
       this.removeObject(object);
       this.alertScreenReader(`${this.header} ${object.name} removed from batch note`);
