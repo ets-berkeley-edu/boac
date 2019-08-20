@@ -152,6 +152,5 @@ class TestDataLoch:
         # TODO Real data_loch queries will return an empty list if the course is not found.
         assert no_db is None
 
-    def test_get_min_expected_graduation_term(self, app):
-        result = data_loch.get_min_expected_graduation_term()
-        assert result['term'] == '2192'
+    def test_get_min_expected_graduation_term(self):
+        assert data_loch.get_min_expected_graduation_term()['term'] == '1978'

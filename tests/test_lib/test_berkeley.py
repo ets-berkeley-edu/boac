@@ -35,6 +35,11 @@ class TestBerkeleySisTermIdForName:
         assert berkeley.sis_term_id_for_name('Spring 2015') == '2152'
         assert berkeley.sis_term_id_for_name('Summer 2016') == '2165'
         assert berkeley.sis_term_id_for_name('Fall 2017') == '2178'
+        assert berkeley.sis_term_id_for_name('Fall 1997') == '1978'
+
+    def test_term_name_for_sis_id(self):
+        assert berkeley.term_name_for_sis_id('2178') == 'Fall 2017'
+        assert berkeley.term_name_for_sis_id('1978') == 'Fall 1997'
 
     def test_unparseable_term_name(self):
         """Returns None for unparseable term names."""
@@ -45,7 +50,7 @@ class TestBerkeleySisTermIdForName:
         """Returns None for missing term names."""
         assert berkeley.sis_term_id_for_name(None) is None
 
-    def test_all_term_ids(self, app):
+    def test_all_term_ids(self):
         assert berkeley.all_term_ids() == ['2178', '2175', '2172', '2168']
 
     def test_term_ids_range(self, app):
