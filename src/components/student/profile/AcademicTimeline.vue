@@ -548,7 +548,10 @@ export default {
     setFilter(filter) {
       this.searchResults = null;
       this.notesQuery = null;
-      this.filter = filter;
+      if (filter !== this.filter) {
+        this.filter = filter;
+        this.allNotesExpanded = false;
+      }
     },
     sortMessages() {
       this.messages.sort((m1, m2) => {
