@@ -101,7 +101,7 @@
           </td>
         </tr>
         <tr
-          v-for="(message, index) in visibleMessages"
+          v-for="(message, index) in (searchResults ? filterSearchResults() : (isShowingAll ? messagesPerType(filter) : slice(messagesPerType(filter), 0, defaultShowPerTab)))"
           :id="`message-row-${message.id}`"
           :key="index"
           class="message-row border-top border-bottom"
@@ -339,15 +339,6 @@ export default {
     },
     showDeleteConfirmModal() {
       return !!this.messageForDelete;
-    },
-    visibleMessages() {
-      if (this.searchResults) {
-        return this.filterList(this.messages, message => this.searchResults.includes(message.id));
-      } else if (this.isShowingAll) {
-        return this.messagesPerType(this.filter);
-      } else {
-        return this.slice(this.messagesPerType(this.filter), 0, this.defaultShowPerTab);
-      }
     }
   },
   watch: {
@@ -452,10 +443,11 @@ export default {
       this.messageForDelete = message;
     },
     deleteConfirmed() {
-      const predicate = ['transientId', this.messageForDelete.transientId];
+      const transientId = this.messageForDelete.transientId;
+      const predicate = ['transientId', transientId];
       const note = this.find(this.messages, predicate);
       this.remove(this.messages, predicate);
-      this.openMessages = this.remove(this.openMessages, predicate);
+      this.remove(this.openMessages, value => transientId === value);
       this.messageForDelete = undefined;
       deleteNote(note.id).then(() => {
         this.alertScreenReader('Note deleted');
@@ -480,6 +472,9 @@ export default {
     editNote(message) {
       this.editExistingNoteId(message.transientId);
       this.putFocusNextTick('edit-note-subject');
+    },
+    filterSearchResults() {
+      return this.filterList(this.messages, message => this.searchResults.includes(message.id));
     },
     id(rowIndex) {
       return `timeline-tab-${this.activeTab}-message-${rowIndex}`;
