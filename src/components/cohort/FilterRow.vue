@@ -78,22 +78,24 @@
               </div>
             </div>
           </template>
-          <b-dropdown-item
-            v-for="option in filter.options"
-            :id="`${filter.name}-${option.value}`"
-            :key="option.key"
-            class="dropdown-item"
-            :aria-disabled="option.disabled"
-            :disabled="option.disabled"
-            @click="typeArrayUpdateValue(option)"
-            @mouseover.prevent.stop>
-            <span
-              class="font-size-16"
-              :class="{
-                'font-weight-light pointer-default text-muted': option.disabled,
-                'font-weight-normal text-dark': !option.disabled
-              }">{{ option.name }}</span>
-          </b-dropdown-item>
+          <div v-for="option in filter.options" :key="option.key">
+            <b-dropdown-item
+              v-if="option.value !== 'divider'"
+              :id="`${filter.name}-${option.value}`"
+              class="dropdown-item"
+              :aria-disabled="option.disabled"
+              :disabled="option.disabled"
+              @click="typeArrayUpdateValue(option)"
+              @mouseover.prevent.stop>
+              <span
+                class="font-size-16"
+                :class="{
+                  'font-weight-light pointer-default text-muted': option.disabled,
+                  'font-weight-normal text-dark': !option.disabled
+                }">{{ option.name }}</span>
+            </b-dropdown-item>
+            <b-dropdown-divider v-if="option.value === 'divider'"></b-dropdown-divider>
+          </div>
         </b-dropdown>
       </div>
       <div v-if="filter.type === 'range'" class="filter-range-container">
