@@ -27,7 +27,7 @@
       <div>
         <ul>
           <li>Version: {{ version.version }}</li>
-          <li>
+          <li v-if="version.build">
             Build
             <ul>
               <li>Artifact: {{ version.build.artifact || '--' }}</li>
