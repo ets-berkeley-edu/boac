@@ -192,11 +192,16 @@ def search_advising_notes(
         datetime_to=datetime_to,
     )
     benchmark('end local notes query')
-    local_notes_count = len(local_results)
-    cutoff = min(local_notes_count, offset + limit)
 
     benchmark('begin local notes parsing')
-    notes_feed = _get_local_notes_search_results(local_results[offset:cutoff], search_terms)
+    # Our offset calculations are unforuntately fussy because note parsing might reveal notes associated with students no
+    # longer in BOA, which we won't include in the feed; so we don't actually know the length of our result set until parsing
+    # is complete.
+    cutoff = min(len(local_results), offset + limit)
+    notes_feed = _get_local_notes_search_results(local_results, cutoff, search_terms)
+    local_notes_count = len(notes_feed)
+    notes_feed = notes_feed[offset:]
+
     benchmark('end local notes parsing')
 
     if len(notes_feed) == limit:
@@ -223,7 +228,7 @@ def search_advising_notes(
     return notes_feed
 
 
-def _get_local_notes_search_results(local_results, search_terms):
+def _get_local_notes_search_results(local_results, cutoff, search_terms):
     results = []
     student_rows = data_loch.get_basic_student_data([row.get('sid') for row in local_results])
     students_by_sid = {r.get('sid'): r for r in student_rows}
@@ -231,17 +236,20 @@ def _get_local_notes_search_results(local_results, search_terms):
         note = {camelize(key): row[key] for key in row.keys()}
         sid = note.get('sid')
         student_row = students_by_sid.get(sid, {})
-        results.append({
-            'id': note.get('id'),
-            'studentSid': sid,
-            'studentUid': student_row.get('uid'),
-            'studentName': join_if_present(' ', [student_row.get('first_name'), student_row.get('last_name')]),
-            'advisorUid': note.get('authorUid'),
-            'advisorName': note.get('authorName'),
-            'noteSnippet': _notes_text_snippet(join_if_present(' - ', [note.get('subject'), note.get('body')]), search_terms),
-            'createdAt': _isoformat(note, 'createdAt'),
-            'updatedAt': _isoformat(note, 'updatedAt'),
-        })
+        if student_row:
+            results.append({
+                'id': note.get('id'),
+                'studentSid': sid,
+                'studentUid': student_row.get('uid'),
+                'studentName': join_if_present(' ', [student_row.get('first_name'), student_row.get('last_name')]),
+                'advisorUid': note.get('authorUid'),
+                'advisorName': note.get('authorName'),
+                'noteSnippet': _notes_text_snippet(join_if_present(' - ', [note.get('subject'), note.get('body')]), search_terms),
+                'createdAt': _isoformat(note, 'createdAt'),
+                'updatedAt': _isoformat(note, 'updatedAt'),
+            })
+        if len(results) == cutoff:
+            break
     return results
 
 
