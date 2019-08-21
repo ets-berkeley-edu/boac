@@ -2,7 +2,7 @@ import cohort from '@/store/modules/cohort';
 import cohortEditSession from '@/store/modules/cohort-edit-session';
 import context from '@/store/modules/context';
 import curated from '@/store/modules/curated';
-import studentEditSession from '@/store/modules/student-edit-session';
+import notes from '@/store/modules/notes';
 import user from '@/store/modules/user';
 import Vue from 'vue';
 import Vuex from 'vuex';
@@ -15,7 +15,7 @@ export default new Vuex.Store({
     cohortEditSession,
     context,
     curated,
-    studentEditSession,
+    notes,
     user
   },
   strict: process.env.NODE_ENV !== 'production'

@@ -6,7 +6,7 @@
         class="mt-1 mr-2 btn-primary-color-override btn-primary-color-override-opaque"
         :class="{'w-100': initialMode === 'batch'}"
         variant="primary"
-        :disabled="disable || !!newNoteMode"
+        :disabled="disable || !!noteMode"
         @click="openNewNoteModal()">
         <span class="m-1">
           <font-awesome icon="file-alt" />
@@ -22,21 +22,22 @@
       <div
         id="new-note-modal-container"
         :class="{
-          'd-none': isNil(newNoteMode),
-          'modal-open': newNoteMode === 'docked',
-          'modal-open modal-minimized': newNoteMode === 'minimized',
-          'modal-open modal-saving': newNoteMode === 'saving',
+          'd-none': isNil(noteMode),
+          'modal-open': noteMode === 'docked',
+          'modal-open modal-minimized': noteMode === 'minimized',
+          'modal-open modal-saving': noteMode === 'saving',
           'modal-full-screen-content': undocked,
           'mt-4': initialMode === 'batch'
         }">
         <form @submit.prevent="createNote()">
           <div class="d-flex align-items-end pt-2 mb-1" :class="{'mt-2': undocked}">
             <div class="flex-grow-1 new-note-header font-weight-bolder">
-              <span v-if="newNoteMode === 'editTemplate'">Edit Template</span>
-              <span v-if="newNoteMode !== 'editTemplate'">New Note</span>
+              <span v-if="noteMode === 'editTemplate'">Edit Template</span>
+              <span v-if="noteMode !== 'editTemplate'">New Note</span>
             </div>
             <div v-if="undocked" class="mr-4">
               <b-dropdown
+                v-if="noteMode !== 'editTemplate'"
                 id="my-templates-button"
                 text="Templates"
                 aria-label="Select a note template"
@@ -187,11 +188,11 @@
             :existing-attachments="attachments" />
           <hr />
           <div class="d-flex mt-1 mr-3 mb-0 ml-3">
-            <div v-if="undocked && newNoteMode !== 'editTemplate'" class="flex-grow-1">
+            <div v-if="undocked && noteMode !== 'editTemplate'" class="flex-grow-1">
               <b-btn
                 id="btn-to-save-note-as-template"
                 variant="link"
-                :disabled="!!loadedTemplate"
+                :disabled="!!loadedTemplate || !trim(subject)"
                 @click.prevent="createTemplate()">
                 Save note as template
               </b-btn>
@@ -201,11 +202,11 @@
                 v-if="!undocked"
                 id="btn-to-advanced-note-options"
                 variant="link"
-                @click.prevent="setNewNoteMode('advanced')">
+                @click.prevent="setNoteMode('advanced')">
                 Advanced note options
               </b-btn>
             </div>
-            <div v-if="newNoteMode === 'editTemplate'">
+            <div v-if="noteMode === 'editTemplate'">
               <b-btn
                 id="update-template-button"
                 class="btn-primary-color-override"
@@ -216,7 +217,7 @@
                 Update Template
               </b-btn>
             </div>
-            <div v-if="newNoteMode !== 'editTemplate'">
+            <div v-if="noteMode !== 'editTemplate'">
               <b-btn
                 id="create-note-button"
                 class="btn-primary-color-override"
@@ -240,7 +241,7 @@
         </form>
       </div>
     </FocusLock>
-    <div v-if="!isMinimizing && newNoteMode === 'minimized'" class="minimized-placeholder d-flex align-items-end ml-3 mr-3">
+    <div v-if="!isMinimizing && noteMode === 'minimized'" class="minimized-placeholder d-flex align-items-end ml-3 mr-3">
       <div class="flex-grow-1 new-note-header">
         New Note
       </div>
@@ -301,7 +302,7 @@ import CreateNoteAddStudent from '@/components/note/CreateNoteAddStudent';
 import CreateNoteCohortDropdown from '@/components/note/CreateNoteCohortDropdown';
 import CreateTemplateModal from "@/components/note/CreateTemplateModal";
 import FocusLock from 'vue-focus-lock';
-import StudentEditSession from '@/mixins/StudentEditSession';
+import Notes from '@/mixins/Notes';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { createNote, createNoteBatch, getDistinctStudentCount } from '@/api/notes';
@@ -320,7 +321,7 @@ export default {
     CreateTemplateModal,
     FocusLock
   },
-  mixins: [Context, StudentEditSession, UserMetadata, Util],
+  mixins: [Context, Notes, UserMetadata, Util],
   props: {
     disable: Boolean,
     initialMode: {
@@ -363,7 +364,7 @@ export default {
   }),
   computed: {
     undocked() {
-      return this.includes(['advanced', 'batch', 'editTemplate'], this.newNoteMode);
+      return this.includes(['advanced', 'batch', 'editTemplate'], this.noteMode);
     }
   },
   watch: {
@@ -432,11 +433,11 @@ export default {
       }
     },
     createNote() {
-      const isBatchMode = this.newNoteMode === 'batch';
+      const isBatchMode = this.noteMode === 'batch';
       this.subject = this.trim(this.subject);
       if (this.subject && this.targetStudentCount) {
         this.body = this.trim(this.body);
-        this.setNewNoteMode('saving');
+        this.setNoteMode('saving');
         this.onSubmit();
         const afterNoteCreation = () => {
           this.alertScreenReader(isBatchMode ? `Note created for ${this.targetStudentCount} students.` : "New note saved.");
@@ -491,7 +492,7 @@ export default {
     },
     editNoteTemplate(template) {
       this.loadedTemplate = template;
-      this.setNewNoteMode('editTemplate');
+      this.setNoteMode('editTemplate');
       this.loadTemplate(template);
     },
     getTemplateTitle(templateId) {
@@ -507,19 +508,19 @@ export default {
       this.alertScreenReader(`Template ${template.title} loaded`);
     },
     maximize() {
-      this.setNewNoteMode('docked');
+      this.setNoteMode('docked');
       this.alertScreenReader("Create note form is visible.");
       this.putFocusNextTick('create-note-subject');
     },
     minimize() {
       this.isMinimizing = true;
-      this.setNewNoteMode('minimized');
+      this.setNoteMode('minimized');
       setTimeout(() => this.isMinimizing = false, 300);
       this.alertScreenReader("Create note form minimized.");
     },
     openNewNoteModal() {
-      this.setNewNoteMode(this.initialMode);
-      const isBatchMode = this.newNoteMode === 'batch';
+      this.setNoteMode(this.initialMode);
+      const isBatchMode = this.noteMode === 'batch';
       this.putFocusNextTick(isBatchMode ? 'create-note-add-student-input' : 'create-note-subject');
       this.alertScreenReader(isBatchMode ? 'Create batch note form is open.' : 'Create note form is open');
     },
@@ -561,7 +562,7 @@ export default {
       this.alertScreenReader(`Removed topic '${topic}'`);
     },
     reset(mode) {
-      this.setNewNoteMode(mode);
+      this.setNoteMode(mode);
       this.addedCohorts = [];
       this.addedCuratedGroups = [];
       this.attachments = [];
@@ -579,9 +580,6 @@ export default {
 <style scoped>
 .fa-icon-size {
   font-size: 28px;
-}
-.form-control-file {
-  height: 100%;
 }
 .minimize-icon {
   font-size: 24px;

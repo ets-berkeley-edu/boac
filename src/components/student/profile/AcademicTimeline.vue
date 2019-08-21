@@ -35,7 +35,7 @@
       </div>
       <div v-if="!user.isAdmin">
         <NewNoteModal
-          :disable="!!editingNoteId || includes(['batch', 'minimized', 'open'], newNoteMode)"
+          :disable="!!editingNoteId || includes(['batch', 'minimized', 'open'], noteMode)"
           :sid="student.sid"
           :on-submit="onSubmitAdvisingNote"
           :on-successful-create="onCreateAdvisingNote" />
@@ -116,7 +116,7 @@
               <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
             </div>
             <div
-              v-if="isEditable(message) && !editingNoteId && isNil(newNoteMode) && includes(openMessages, message.transientId)"
+              v-if="isEditable(message) && !editingNoteId && isNil(noteMode) && includes(openMessages, message.transientId)"
               class="mt-2">
               <div v-if="user.uid === message.author.uid">
                 <b-btn
@@ -267,7 +267,7 @@ import Context from '@/mixins/Context';
 import EditAdvisingNote from '@/components/note/EditAdvisingNote';
 import NewNoteModal from "@/components/note/NewNoteModal";
 import Scrollable from '@/mixins/Scrollable';
-import StudentEditSession from "@/mixins/StudentEditSession";
+import Notes from "@/mixins/Notes";
 import TimelineDate from '@/components/student/profile/TimelineDate';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
@@ -285,7 +285,7 @@ export default {
     NewNoteModal,
     TimelineDate
   },
-  mixins: [Context, Scrollable, StudentEditSession, UserMetadata, Util],
+  mixins: [Context, Scrollable, Notes, UserMetadata, Util],
   props: {
     student: Object
   },

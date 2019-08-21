@@ -40,7 +40,7 @@ export function createNote(
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
   return utils.postMultipartFormData('/api/notes/create', data).then(data => {
     // Non-nil 'sid' means current_user is viewing /student page.
-    const sid = store.getters['studentEditSession/sid'];
+    const sid = store.getters['notes/sid'];
     if (data.sid === sid) {
       Vue.prototype.$eventHub.$emit('advising-note-created', data);
     }
@@ -66,7 +66,7 @@ export function createNoteBatch(
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
   return utils.postMultipartFormData('/api/notes/batch/create', data).then(data => {
     // Non-nil 'sid' in store means current_user is viewing /student page.
-    const sid = store.getters['studentEditSession/sid'];
+    const sid = store.getters['notes/sid'];
     if (sid) {
       const noteId = data[sid];
       if (noteId) {

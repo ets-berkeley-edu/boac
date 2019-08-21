@@ -13,6 +13,41 @@
 .boac-exclamation {
   color: #f0ad4e;
 }
+.btn-file-upload {
+  border-color: grey;
+  color: grey;
+}
+.btn-file-upload:hover,
+.btn-file-upload:focus,
+.btn-file-upload:active
+{
+  color: #333;
+  background-color: #aaa;
+}
+.choose-attachment-file-wrapper {
+  position: relative;
+  align-items: center;
+  overflow: hidden;
+  display: inline-block;
+  background-color: #f7f7f7;
+  border: 1px solid #E0E0E0;
+  border-radius: 4px;
+  text-align: center;
+}
+.choose-attachment-file-wrapper input[type=file] {
+  font-size: 100px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+}
+.choose-attachment-file-wrapper:hover,
+.choose-attachment-file-wrapper:focus,
+.choose-attachment-file-wrapper:active
+{
+  color: #333;
+  background-color: #eee;
+}
 .curated-checkbox-label {
   padding: 10px;
 }
