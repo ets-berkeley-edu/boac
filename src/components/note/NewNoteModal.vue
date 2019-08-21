@@ -17,7 +17,7 @@
     </div>
     <FocusLock
       v-if="!disable"
-      :disabled="!undocked || showDiscardModal || showTemplateCreateModal"
+      :disabled="!undocked || showDiscardModal || showTemplateCreateModal || !!deleteTemplateId"
       :class="{'modal-full-screen': undocked}">
       <div
         id="new-note-modal-container"
@@ -280,6 +280,14 @@
       :create="createTemplateConfirmed"
       modal-header="Name Your Template"
       :show-modal="showTemplateCreateModal" />
+    <AreYouSureModal
+      v-if="!!deleteTemplateId"
+      button-label-confirm="Delete"
+      :function-cancel="deleteNoteTemplateCancel"
+      :function-confirm="deleteNoteTemplateConfirmed"
+      :modal-body="`Are you sure you want to delete the <b>'${getTemplateTitle(deleteTemplateId)}'</b> template?`"
+      modal-header="Delete Template"
+      :show-modal="!!deleteTemplateId" />
   </div>
 </template>
 
@@ -338,18 +346,19 @@ export default {
     addedCuratedGroups: [],
     attachments: [],
     body: undefined,
+    deleteTemplateId: undefined,
     editor: ClassicEditor,
     editorConfig: {
       toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
     },
     isMinimizing: false,
+    loadedTemplate: undefined,
     showErrorPopover: false,
     showDiscardModal: false,
     showTemplateCreateModal: false,
     sids: undefined,
     subject: undefined,
     targetStudentCount: undefined,
-    loadedTemplate: undefined,
     topics: []
   }),
   computed: {
@@ -461,7 +470,15 @@ export default {
       });
     },
     deleteNoteTemplate(templateId) {
-      deleteNoteTemplate(templateId)
+      this.deleteTemplateId = templateId;
+    },
+    deleteNoteTemplateCancel() {
+      this.deleteTemplateId = null;
+    },
+    deleteNoteTemplateConfirmed() {
+      deleteNoteTemplate(this.deleteTemplateId).then(() => {
+        this.deleteTemplateId = null;
+      })
     },
     updateTemplate() {
       const t = this.loadedTemplate;
@@ -476,6 +493,10 @@ export default {
       this.loadedTemplate = template;
       this.setNewNoteMode('editTemplate');
       this.loadTemplate(template);
+    },
+    getTemplateTitle(templateId) {
+      const template = this.find(this.noteTemplates, ['id', templateId]);
+      return this.get(template, 'title');
     },
     loadTemplate(template) {
       this.subject = template.subject;
