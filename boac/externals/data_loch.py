@@ -404,7 +404,8 @@ def get_asc_advising_notes(sid):
 def get_asc_advising_note_topics(sid):
     sql = f"""SELECT id, topic
         FROM {asc_advising_notes_schema()}.advising_note_topics
-        WHERE sid=:sid"""
+        WHERE sid=:sid
+        ORDER BY id"""
     return safe_execute_redshift(sql, sid=sid)
 
 
@@ -424,7 +425,8 @@ def get_e_i_advising_notes(sid):
 def get_e_i_advising_note_topics(sid):
     sql = f"""SELECT id, topic
         FROM {e_i_schema()}.advising_note_topics
-        WHERE sid=:sid"""
+        WHERE sid=:sid
+        ORDER BY id"""
     return safe_execute_rds(sql, sid=sid)
 
 
