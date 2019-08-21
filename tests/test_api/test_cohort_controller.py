@@ -1158,8 +1158,9 @@ class TestCohortFilterOptions:
         assert len(api_json)
         assert len(api_json[0])
         filter_options = api_json[0][0].get('options')
-        assert filter_options[0].get('name') == '1997 Fall'
-        assert filter_options[1].get('name') == '1998 Spring'
+        assert filter_options[-1].get('name') == '1997 Fall'
+        assert filter_options[-2].get('name') == 'divider'
+        assert filter_options[-3].get('name') == '2019 Spring'
 
 
 class TestTranslateToFilterOptions:
