@@ -91,6 +91,11 @@ export default {
       return _.trim(text);
     },
     studentRoutePath: (uid, inDemoMode) => inDemoMode ? `/student/${window.btoa(uid)}` : `/student/${uid}`,
+    templateEquals: (t1, t2) =>
+      _.trim(t1.subject) === _.trim(t2.subject)
+      && t1.body === t2.body
+      && !_.size(_.xor(t1.topics, t2.topics))
+      && !_.size(_.xorBy(t1.attachments, t2.attachments, 'displayName')),
     toInt,
     toString: _.toString,
     trim: _.trim,
