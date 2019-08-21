@@ -1,7 +1,7 @@
 <template>
   <b-modal
     id="create-note-template"
-    v-model="showModal"
+    v-model="showModalAlias"
     body-class="pl-0 pr-0"
     hide-footer
     hide-header-close
@@ -68,12 +68,19 @@ export default {
   },
   data: () => ({
     title: '',
-    error: undefined
+    error: undefined,
+    showModalAlias: undefined
   }),
   watch: {
+    showModal(value) {
+      this.showModalAlias = value;
+    },
     title() {
       this.error = undefined;
     }
+  },
+  created() {
+    this.showModalAlias = this.showModal;
   },
   methods: {
     reset() {

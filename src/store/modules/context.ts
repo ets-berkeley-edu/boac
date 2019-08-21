@@ -70,7 +70,7 @@ const actions = {
         if (user.isAuthenticated) {
           store.dispatch('cohort/loadMyCohorts');
           store.dispatch('curated/loadMyCuratedGroups');
-          store.dispatch('studentEditSession/loadNoteTemplates');
+          store.dispatch('notes/loadNoteTemplates');
           store.dispatch('context/loadServiceAnnouncement');
         }
         let googleAnalyticsId = _.get(config, 'googleAnalyticsId');

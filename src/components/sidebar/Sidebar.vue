@@ -22,7 +22,7 @@
       <div class="batch-note-button fixed-bottom mb-3">
         <NewNoteModal
           id="batch-note-button"
-          :disable="!!editingNoteId || (newNoteMode && newNoteMode !== 'batch')"
+          :disable="!!editingNoteId || (noteMode && noteMode !== 'batch')"
           initial-mode="batch"
           :on-submit="noop"
           :on-successful-create="noop" />
@@ -37,7 +37,7 @@ import Context from '@/mixins/Context';
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue';
 import NewNoteModal from '@/components/note/NewNoteModal.vue';
 import SearchForm from '@/components/sidebar/SearchForm.vue';
-import StudentEditSession from "@/mixins/StudentEditSession";
+import Notes from "@/mixins/Notes";
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
@@ -49,7 +49,7 @@ export default {
     NewNoteModal,
     SearchForm
   },
-  mixins: [Context, StudentEditSession, UserMetadata, Util]
+  mixins: [Context, Notes, UserMetadata, Util]
 };
 </script>
 

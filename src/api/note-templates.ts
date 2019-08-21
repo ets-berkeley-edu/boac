@@ -19,7 +19,7 @@ export function createNoteTemplate(
   const data = {title, subject, body, topics};
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
   return utils.postMultipartFormData('/api/note_template/create', data).then(template => {
-    store.dispatch('studentEditSession/onCreateNoteTemplate', template);
+    store.dispatch('notes/onCreateTemplate', template);
     store.dispatch('user/gaNoteTemplateEvent', {
       id: template.id,
       label: `Advisor ${store.getters['user/uid']} created a note template`,
@@ -32,7 +32,7 @@ export function createNoteTemplate(
 export function deleteNoteTemplate(templateId: number) {
   return axios
     .delete(`${utils.apiBaseUrl()}/api/note_template/delete/${templateId}`)
-    .then(() => store.dispatch('studentEditSession/onDeleteNoteTemplate', templateId));
+    .then(() => store.dispatch('notes/onDeleteTemplate', templateId));
 }
 
 export function updateNoteTemplate(

@@ -5,7 +5,7 @@
       <span id="attachment-error" aria-live="polite" role="alert">{{ attachmentError }}</span>
     </div>
     <div v-if="size(existingAttachments) < maxAttachmentsPerNote" class="w-100">
-      <div class="choose-attachment-file-wrapper form-control-file no-wrap pl-3 pr-3 w-100">
+      <div class="choose-attachment-file-wrapper h-100 no-wrap pl-3 pr-3 w-100">
         <span class="sr-only">Add attachment to note: </span>
         Drop file to upload attachment or
         <b-btn
@@ -96,41 +96,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.btn-file-upload {
-  border-color: grey;
-  color: grey;
-}
-.btn-file-upload:hover,
-.btn-file-upload:focus,
-.btn-file-upload:active
-{
-  color: #333;
-  background-color: #aaa;
-}
-.choose-attachment-file-wrapper {
-  position: relative;
-  align-items: center;
-  overflow: hidden;
-  display: inline-block;
-  background-color: #f7f7f7;
-  border: 1px solid #E0E0E0;
-  border-radius: 4px;
-  text-align: center;
-}
-.choose-attachment-file-wrapper input[type=file] {
-  font-size: 100px;
-  position: absolute;
-  left: 0;
-  top: 0;
-  opacity: 0;
-}
-.choose-attachment-file-wrapper:hover,
-.choose-attachment-file-wrapper:focus,
-.choose-attachment-file-wrapper:active
-{
-  color: #333;
-  background-color: #eee;
-}
-</style>
