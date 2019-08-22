@@ -153,20 +153,20 @@
               :tabindex="includes(openMessages, message.transientId) ? -1 : 0"
               @keyup.enter="open(message, true)"
               @click="open(message, true)">
-              <span v-if="message.transientId !== editModeObject.transientId" class="when-message-closed sr-only">Open message</span>
+              <span v-if="message.transientId !== editingNoteId" class="when-message-closed sr-only">Open message</span>
               <font-awesome v-if="message.status === 'Satisfied'" icon="check" class="requirements-icon text-success" />
               <font-awesome v-if="message.status === 'Not Satisfied'" icon="exclamation" class="requirements-icon text-icon-exclamation" />
               <font-awesome v-if="message.status === 'In Progress'" icon="clock" class="requirements-icon text-icon-clock" />
               <span v-if="!includes(['appointment', 'note'] , message.type)">{{ message.message }}</span>
               <AdvisingNote
-                v-if="message.type === 'note' && message.transientId !== editModeObject.transientId"
+                v-if="message.type === 'note' && message.transientId !== editingNoteId"
                 :delete-note="deleteNote"
                 :edit-note="editNote"
                 :note="message"
                 :after-saved="afterNoteUpdated"
                 :is-open="includes(openMessages, message.transientId)" />
               <EditAdvisingNote
-                v-if="message.type === 'note' && message.transientId === editModeObject.transientId"
+                v-if="message.type === 'note' && message.transientId === editingNoteId"
                 :after-cancelled="afterEditCancel"
                 :note="message"
                 :after-saved="afterNoteUpdated" />
@@ -174,7 +174,7 @@
                 v-if="message.type === 'appointment'"
                 :appointment="message"
                 :is-open="includes(openMessages, message.transientId)" />
-              <div v-if="includes(openMessages, message.transientId) && message.transientId !== editModeObject.transientId" class="text-center close-message">
+              <div v-if="includes(openMessages, message.transientId) && message.transientId !== editingNoteId" class="text-center close-message">
                 <b-btn
                   :id="`timeline-tab-${activeTab}-close-message`"
                   class="no-wrap"
@@ -220,7 +220,7 @@
                 </div>
                 <div class="text-muted">
                   <router-link
-                    v-if="editModeObject.transientId !== message.transientId"
+                    v-if="editingNoteId !== message.transientId"
                     :id="`advising-note-permalink-${message.id}`"
                     :to="`#${message.id}`"
                     @click.native="scrollToPermalink(message.id)">
@@ -337,6 +337,9 @@ export default {
     deleteConfirmModalBody() {
       return this.messageForDelete ? `Are you sure you want to delete the "<b>${this.messageForDelete.subject}</b>" note?` : '';
     },
+    editingNoteId() {
+      return this.get(this.editModeObject, 'transientId');
+    },
     showDeleteConfirmModal() {
       return !!this.messageForDelete;
     }
@@ -421,7 +424,7 @@ export default {
       this.messageForDelete = undefined;
     },
     close(message, screenreaderAlert) {
-      if (message.transientId === this.editModeObject.transientId) {
+      if (message.transientId === this.editingNoteId) {
         return false;
       }
       if (this.includes(this.openMessages, message.transientId)) {
@@ -509,7 +512,7 @@ export default {
       this.creatingNewNote = true;
     },
     open(message, screenreaderAlert) {
-      if (message.transientId === this.editModeObject.transientId) {
+      if (message.transientId === this.editingNoteId) {
         return false;
       }
       if (!this.includes(this.openMessages, message.transientId)) {
