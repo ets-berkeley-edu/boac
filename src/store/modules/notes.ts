@@ -5,7 +5,7 @@ import { getMyNoteTemplates } from "@/api/note-templates";
 const VALID_MODES = ['advanced', 'batch', 'docked', 'editTemplate', 'minimized', 'saving'];
 
 const state = {
-  editingNoteId: undefined,
+  editModeObject: undefined,
   noteMode: undefined,
   noteTemplates: undefined,
   sid: undefined,
@@ -13,7 +13,7 @@ const state = {
 };
 
 const getters = {
-  editingNoteId: (state: any): number => state.editingNoteId,
+  editModeObject: (state: any): number => state.editModeObject,
   noteMode: (state: any): string => state.noteMode,
   noteTemplates: (state: any): any[] => state.noteTemplates,
   sid: (state: any): string => state.sid,
@@ -21,7 +21,7 @@ const getters = {
 };
 
 const mutations = {
-  editExistingNoteId: (state: any, id: number) => (state.editingNoteId = id),
+  setEditModeObject: (state: any, obj: any) => (state.editModeObject = obj),
   endSession: (state: any) => _.each(_.keys(state), key => state[key] = undefined),
   onCreateTemplate: (state: any, template) => {
     state.noteTemplates = _.orderBy(state.noteTemplates.concat([template]), ['title'], ['asc']);
@@ -47,7 +47,7 @@ const mutations = {
 };
 
 const actions = {
-  editExistingNoteId: ({ commit }, id: number) => commit('editExistingNoteId', id),
+  setEditModeObject: ({ commit }, obj: any) => commit('setEditModeObject', _.cloneDeep(obj)),
   endSession: ({ commit }) => commit('endSession'),
   async loadNoteTemplates({ commit, state }) {
     if (_.isUndefined(state.myNoteTemplates)) {
