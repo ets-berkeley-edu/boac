@@ -5,7 +5,7 @@ export default {
   name: 'Notes',
   computed: {
     ...mapGetters('notes', [
-      'editingNoteId',
+      'editModeObject',
       'noteMode',
       'noteTemplates',
       'suggestedTopics'
@@ -13,9 +13,9 @@ export default {
   },
   methods: {
     ...mapActions('notes', [
-      'editExistingNoteId',
       'endSession',
       'setNoteMode',
+      'setEditModeObject',
       'setSid'
     ])
   }

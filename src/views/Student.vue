@@ -100,7 +100,7 @@ export default {
   },
   methods: {
     confirmExitAndEndSession(next) {
-      if (this.noteMode || this.editingNoteId) {
+      if (this.noteMode || this.editModeObject.transientId) {
         this.alertScreenReader("Are you sure you want to discard unsaved changes?");
         this.cancelConfirmed = () => {
           this.endSession();

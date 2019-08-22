@@ -17,7 +17,7 @@
     </div>
     <FocusLock
       v-if="!disable"
-      :disabled="!undocked || showDiscardModal || showTemplateCreateModal || !!deleteTemplateId"
+      :disabled="!undocked || showDiscardNoteModal || showCreateTemplateModal || !!deleteTemplateId || showDiscardTemplateModal"
       :class="{'modal-full-screen': undocked}">
       <div
         id="new-note-modal-container"
@@ -101,7 +101,7 @@
           </div>
           <hr class="m-0" />
           <div class="mt-2 mr-3 mb-1 ml-3">
-            <div v-if="initialMode === 'batch'">
+            <div v-if="initialMode === 'batch'" :class="{'batch-mode-features': noteMode === 'batch'}">
               <div>
                 <span aria-live="polite" role="alert">
                   <span
@@ -192,8 +192,8 @@
               <b-btn
                 id="btn-to-save-note-as-template"
                 variant="link"
-                :disabled="!!loadedTemplate || !trim(subject)"
-                @click.prevent="createTemplate()">
+                :disabled="!trim(subject)"
+                @click.prevent="saveAsTemplate()">
                 Save note as template
               </b-btn>
             </div>
@@ -269,26 +269,32 @@
       </div>
     </div>
     <AreYouSureModal
-      v-if="showDiscardModal"
-      :function-cancel="cancelTheDiscard"
-      :function-confirm="discardConfirmed"
+      v-if="showDiscardNoteModal"
+      :function-cancel="cancelDiscardNote"
+      :function-confirm="discardNote"
       modal-header="Discard unsaved note?"
-      :show-modal="showDiscardModal" />
+      :show-modal="showDiscardNoteModal" />
     <CreateTemplateModal
-      v-if="showTemplateCreateModal"
+      v-if="showCreateTemplateModal"
       button-label-confirm="Save"
-      :cancel="cancelTemplateCreate"
-      :create="createTemplateConfirmed"
+      :cancel="cancelCreateTemplate"
+      :create="createTemplate"
       modal-header="Name Your Template"
-      :show-modal="showTemplateCreateModal" />
+      :show-modal="showCreateTemplateModal" />
     <AreYouSureModal
       v-if="!!deleteTemplateId"
       button-label-confirm="Delete"
-      :function-cancel="deleteNoteTemplateCancel"
-      :function-confirm="deleteNoteTemplateConfirmed"
+      :function-cancel="cancelDeleteTemplate"
+      :function-confirm="deleteTemplate"
       :modal-body="`Are you sure you want to delete the <b>'${getTemplateTitle(deleteTemplateId)}'</b> template?`"
       modal-header="Delete Template"
       :show-modal="!!deleteTemplateId" />
+    <AreYouSureModal
+      v-if="showDiscardTemplateModal"
+      :function-cancel="cancelDiscardTemplate"
+      :function-confirm="discardTemplate"
+      modal-header="Discard unsaved template?"
+      :show-modal="showDiscardTemplateModal" />
   </div>
 </template>
 
@@ -353,10 +359,10 @@ export default {
       toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
     },
     isMinimizing: false,
-    loadedTemplate: undefined,
+    showCreateTemplateModal: false,
+    showDiscardNoteModal: false,
+    showDiscardTemplateModal: false,
     showErrorPopover: false,
-    showDiscardModal: false,
-    showTemplateCreateModal: false,
     sids: undefined,
     subject: undefined,
     targetStudentCount: undefined,
@@ -365,20 +371,6 @@ export default {
   computed: {
     undocked() {
       return this.includes(['advanced', 'batch', 'editTemplate'], this.noteMode);
-    }
-  },
-  watch: {
-    attachments() {
-      this.checkLoadedTemplate()
-    },
-    body() {
-      this.checkLoadedTemplate()
-    },
-    subject() {
-      this.checkLoadedTemplate()
-    },
-    topics() {
-      this.checkLoadedTemplate()
     }
   },
   created() {
@@ -412,25 +404,35 @@ export default {
       this.alertScreenReader(`Added topic '${topic}'`);
     },
     cancel() {
-      const unsavedChanges = this.trim(this.subject) || this.stripHtmlAndTrim(this.body) || this.size(this.attachments) || this.addedCohorts.length || this.addedCuratedGroups.length;
-      if (unsavedChanges || (this.loadedTemplate && !this.templateEquals(this, this.loadedTemplate))) {
-        this.showDiscardModal = true;
+      if (this.noteMode === 'editTemplate') {
+        if (this.templateEquals(this, this.editModeObject)) {
+          this.discardTemplate();
+        } else {
+          this.showDiscardTemplateModal = true;
+        }
       } else {
-        this.discardConfirmed();
+        const unsavedChanges = this.trim(this.subject) || this.stripHtmlAndTrim(this.body) || this.size(this.attachments) || this.addedCohorts.length || this.addedCuratedGroups.length;
+        if (unsavedChanges || !this.templateEquals(this, this.editModeObject)) {
+          this.showDiscardNoteModal = true;
+        } else {
+          this.discardNote();
+        }
       }
     },
-    cancelTemplateCreate() {
-      this.showTemplateCreateModal = false;
+    cancelCreateTemplate() {
+      this.showCreateTemplateModal = false;
     },
-    cancelTheDiscard() {
-      this.showDiscardModal = false;
+    cancelDiscardNote() {
+      this.showDiscardNoteModal = false;
       this.putFocusNextTick('create-note-subject');
       this.alertScreenReader(`Continue editing note.`);
     },
-    checkLoadedTemplate() {
-      if (this.loadedTemplate && !this.templateEquals(this, this.loadedTemplate)) {
-        this.loadedTemplate = null;
-      }
+    cancelDeleteTemplate() {
+      this.deleteTemplateId = null;
+    },
+    cancelDiscardTemplate() {
+      this.setEditModeObject(undefined);
+      this.showDiscardTemplateModal = false;
     },
     createNote() {
       const isBatchMode = this.noteMode === 'batch';
@@ -461,39 +463,33 @@ export default {
         }
       }
     },
-    createTemplate() {
-      this.showTemplateCreateModal = true;
-    },
-    createTemplateConfirmed(title) {
-      this.showTemplateCreateModal = false;
+    createTemplate(title) {
+      this.showCreateTemplateModal = false;
       createNoteTemplate(title, this.subject, this.body || '', this.topics, this.attachments).then(template => {
-        this.loadedTemplate = template;
+        this.alertScreenReader(`Template ${template.label} created`);
       });
     },
     deleteNoteTemplate(templateId) {
       this.deleteTemplateId = templateId;
     },
-    deleteNoteTemplateCancel() {
-      this.deleteTemplateId = null;
-    },
-    deleteNoteTemplateConfirmed() {
+    deleteTemplate() {
       deleteNoteTemplate(this.deleteTemplateId).then(() => {
         this.deleteTemplateId = null;
       })
     },
-    updateTemplate() {
-      const t = this.loadedTemplate;
-      updateNoteTemplate(t.id, t.subject, t.body || '', t.topics, t.attachments, []);
-    },
-    discardConfirmed() {
-      this.showDiscardModal = false;
+    discardNote() {
+      this.showDiscardNoteModal = false;
       this.reset();
       this.alertScreenReader("Cancelled create new note");
     },
+    discardTemplate() {
+      this.showDiscardTemplateModal = false;
+      this.reset(this.initialMode === 'batch' ? 'batch' : 'advanced');
+      this.alertScreenReader("Cancelled create new template");
+    },
     editNoteTemplate(template) {
-      this.loadedTemplate = template;
       this.setNoteMode('editTemplate');
-      this.loadTemplate(template);
+      this.setEditModeObject(template);
     },
     getTemplateTitle(templateId) {
       const template = this.find(this.noteTemplates, ['id', templateId]);
@@ -504,7 +500,6 @@ export default {
       this.body = template.body || '';
       this.topics = this.clone(template.topics || []);
       this.attachments = this.clone(template.attachments || []);
-      this.loadedTemplate = template;
       this.alertScreenReader(`Template ${template.title} loaded`);
     },
     maximize() {
@@ -567,11 +562,17 @@ export default {
       this.addedCuratedGroups = [];
       this.attachments = [];
       this.body = undefined;
-      this.loadedTemplate = undefined;
       this.sids = this.sid ? [ this.sid ] : [];
       this.subject = undefined;
       this.targetStudentCount = this.sids.length;
       this.topics = [];
+    },
+    saveAsTemplate() {
+      this.showCreateTemplateModal = true;
+    },
+    updateTemplate() {
+      const t = this.editModeObject;
+      updateNoteTemplate(t.id, t.subject, t.body || '', t.topics, t.attachments, []);
     }
   }
 }
@@ -618,6 +619,9 @@ export default {
 .modal-minimized {
   height: 1px !important;
   z-index: 1;
+}
+.batch-mode-features {
+  -webkit-transition: height 0.5s;
 }
 .modal-open {
   -webkit-transition: height 0.5s;

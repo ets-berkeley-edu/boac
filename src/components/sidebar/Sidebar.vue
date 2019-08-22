@@ -22,7 +22,7 @@
       <div class="batch-note-button fixed-bottom mb-3">
         <NewNoteModal
           id="batch-note-button"
-          :disable="!!editingNoteId || (noteMode && noteMode !== 'batch')"
+          :disable="(get(editModeObject, 'type') === 'note') || (noteMode && !includes(['batch', 'editTemplate'], noteMode))"
           initial-mode="batch"
           :on-submit="noop"
           :on-successful-create="noop" />
