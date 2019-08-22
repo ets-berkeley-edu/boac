@@ -138,7 +138,7 @@ def fake_loch(app):
         key = fixture.replace(f'{fixture_path}/loch_student_', '').replace('.json', '')
         with open(fixture, 'r') as f:
             params[key] = f.read()
-    data_loch_db = create_engine(app.config['DATA_LOCH_URI'])
+    data_loch_db = create_engine(app.config['DATA_LOCH_RDS_URI'])
     data_loch_db.execute(text(ddltext), params)
 
 

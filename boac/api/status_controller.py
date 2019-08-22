@@ -40,7 +40,7 @@ def app_status():
             return False
 
     def data_loch_status():
-        rows = data_loch.safe_execute_redshift('SELECT 1')
+        rows = data_loch.safe_execute_rds('SELECT 1')
         return rows is not None
 
     resp = {

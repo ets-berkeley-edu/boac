@@ -36,15 +36,7 @@ from sqlalchemy.sql import text
 
 
 # Lazy init to support testing.
-data_loch_db = None
 data_loch_db_rds = None
-
-
-def safe_execute_redshift(string, **kwargs):
-    global data_loch_db
-    if data_loch_db is None:
-        data_loch_db = create_engine(app.config['DATA_LOCH_URI'])
-    return _safe_execute(string, data_loch_db, **kwargs)
 
 
 def safe_execute_rds(string, **kwargs):
@@ -73,10 +65,6 @@ def advising_notes_schema():
     return app.config['DATA_LOCH_ADVISING_NOTES_SCHEMA']
 
 
-def asc_advising_notes_schema():
-    return app.config['DATA_LOCH_ASC_ADVISING_NOTES_SCHEMA']
-
-
 def advisor_schema():
     return app.config['DATA_LOCH_ADVISOR_SCHEMA']
 
@@ -95,10 +83,6 @@ def coe_schema():
 
 def e_i_schema():
     return app.config['DATA_LOCH_E_I_SCHEMA']
-
-
-def intermediate_schema():
-    return app.config['DATA_LOCH_INTERMEDIATE_SCHEMA']
 
 
 def sis_advising_notes_schema():
@@ -154,30 +138,12 @@ def get_enrolled_primary_sections_for_parsed_code(term_id, subject_area, catalog
     return safe_execute_rds(sql, **params)
 
 
-@fixture('loch_sis_enrollments_{uid}_{term_id}.csv')
-def get_sis_enrollments(uid, term_id):
-    sql = f"""SELECT
-                  enr.grade, enr.units, enr.grading_basis, enr.sis_enrollment_status, enr.sis_term_id, enr.ldap_uid,
-                  crs.sis_course_title, crs.sis_course_name,
-                  crs.sis_section_id, crs.sis_primary, crs.sis_instruction_format, crs.sis_section_num
-              FROM {intermediate_schema()}.sis_enrollments enr
-              JOIN {intermediate_schema()}.course_sections crs
-                  ON crs.sis_section_id = enr.sis_section_id
-                  AND crs.sis_term_id = enr.sis_term_id
-              WHERE enr.ldap_uid = {uid}
-                  AND enr.sis_enrollment_status != 'D'
-                  AND enr.sis_term_id = {term_id}
-              ORDER BY crs.sis_course_name, crs.sis_primary DESC, crs.sis_instruction_format, crs.sis_section_num
-        """
-    return safe_execute_redshift(sql)
-
-
 def get_sis_holds(sid):
     sql = f"""SELECT feed
         FROM {student_schema()}.student_holds
         WHERE sid = '{sid}'
         """
-    return safe_execute_redshift(sql)
+    return safe_execute_rds(sql)
 
 
 @fixture('loch_sis_section_{term_id}_{sis_section_id}.csv')
@@ -188,34 +154,39 @@ def get_sis_section(term_id, sis_section_id):
                   sc.instructor_uid, sc.instructor_name, sc.instructor_role_code,
                   sc.meeting_location, sc.meeting_days,
                   sc.meeting_start_time, sc.meeting_end_time, sc.meeting_start_date, sc.meeting_end_date
-              FROM {intermediate_schema()}.sis_sections sc
-              WHERE sc.sis_section_id = {sis_section_id}
-                  AND sc.sis_term_id = {term_id}
+              FROM {sis_schema()}.sis_sections sc
+              WHERE sc.sis_section_id = :sis_section_id
+                  AND sc.sis_term_id = :term_id
               ORDER BY sc.meeting_days, sc.meeting_start_time, sc.meeting_end_time, sc.instructor_name
         """
-    return safe_execute_redshift(sql)
+    params = {
+        'term_id': term_id,
+        'sis_section_id': sis_section_id,
+    }
+    return safe_execute_rds(sql, **params)
 
 
 def get_sis_section_enrollment_for_uid(term_id, sis_section_id, uid):
     sql = f"""SELECT DISTINCT sas.sid
               FROM {student_schema()}.student_academic_status sas
-              JOIN {intermediate_schema()}.sis_enrollments enr
+              JOIN {sis_schema()}.sis_enrollments enr
                 ON sas.uid = enr.ldap_uid
                 AND enr.ldap_uid = :uid
                 AND enr.sis_term_id = :term_id
                 AND enr.sis_section_id = :sis_section_id"""
     params = {'term_id': term_id, 'sis_section_id': sis_section_id, 'uid': uid}
-    return safe_execute_redshift(sql, **params)
+    return safe_execute_rds(sql, **params)
 
 
 @fixture('loch_sis_section_enrollments_{term_id}_{sis_section_id}.csv')
 def get_sis_section_enrollments(term_id, sis_section_id, offset=None, limit=None):
-    sql = f"""SELECT DISTINCT sas.sid, sas.uid, sas.first_name, sas.last_name
+    sql = f"""SELECT sas.sid, sas.uid, sas.first_name, sas.last_name
               FROM {student_schema()}.student_academic_status sas
-              JOIN {intermediate_schema()}.sis_enrollments enr
+              JOIN {sis_schema()}.sis_enrollments enr
                 ON sas.uid = enr.ldap_uid
                 AND enr.sis_term_id = :term_id
                 AND enr.sis_section_id = :sis_section_id
+              GROUP BY sas.sid, sas.uid, sas.first_name, sas.last_name
               ORDER BY {naturalize_order('sas.last_name')}, {naturalize_order('sas.first_name')}, sas.sid"""
     params = {'term_id': term_id, 'sis_section_id': sis_section_id}
     if offset:
@@ -224,19 +195,19 @@ def get_sis_section_enrollments(term_id, sis_section_id, offset=None, limit=None
     if limit:
         sql += ' LIMIT :limit'
         params['limit'] = limit
-    return safe_execute_redshift(sql, **params)
+    return safe_execute_rds(sql, **params)
 
 
 def get_sis_section_enrollments_count(term_id, sis_section_id):
     sql = f"""SELECT COUNT(DISTINCT sas.sid) as count
               FROM {student_schema()}.student_academic_status sas
-              JOIN {intermediate_schema()}.sis_enrollments enr
+              JOIN {sis_schema()}.sis_enrollments enr
                 ON sas.uid = enr.ldap_uid
                 AND enr.sis_term_id = :term_id
                 AND enr.sis_section_id = :sis_section_id
         """
     params = {'term_id': term_id, 'sis_section_id': sis_section_id}
-    return safe_execute_redshift(sql, **params)
+    return safe_execute_rds(sql, **params)
 
 
 def get_sis_section_mean_gpas(term_id, sis_section_id):
@@ -246,7 +217,7 @@ def get_sis_section_mean_gpas(term_id, sis_section_id):
           WHERE sis_term_id = :term_id
           AND sis_section_id = :sis_section_id
     """
-    return safe_execute_redshift(sql, **params)
+    return safe_execute_rds(sql, **params)
 
 
 def get_team_groups(group_codes=None, team_code=None):
@@ -395,18 +366,18 @@ def get_asc_advising_notes(sid):
             id, sid, advisor_uid AS author_uid,
             advisor_first_name || ' ' || advisor_last_name AS author_name,
             created_at, updated_at
-        FROM {asc_advising_notes_schema()}.advising_notes
+        FROM {asc_schema()}.advising_notes
         WHERE sid=:sid
         ORDER BY created_at, updated_at, id"""
-    return safe_execute_redshift(sql, sid=sid)
+    return safe_execute_rds(sql, sid=sid)
 
 
 def get_asc_advising_note_topics(sid):
     sql = f"""SELECT id, topic
-        FROM {asc_advising_notes_schema()}.advising_note_topics
+        FROM {asc_schema()}.advising_note_topics
         WHERE sid=:sid
         ORDER BY id"""
-    return safe_execute_redshift(sql, sid=sid)
+    return safe_execute_rds(sql, sid=sid)
 
 
 def get_e_i_advising_notes(sid):
@@ -438,7 +409,7 @@ def get_sis_advising_notes(sid):
         FROM {sis_advising_notes_schema()}.advising_notes
         WHERE sid=:sid
         ORDER BY created_at, updated_at, id"""
-    return safe_execute_redshift(sql, sid=sid)
+    return safe_execute_rds(sql, sid=sid)
 
 
 def get_sis_advising_note_topics(sid):
@@ -447,7 +418,7 @@ def get_sis_advising_note_topics(sid):
         WHERE sid=:sid
         AND note_topic IS NOT NULL
         ORDER BY advising_note_id"""
-    return safe_execute_redshift(sql, sid=sid)
+    return safe_execute_rds(sql, sid=sid)
 
 
 def get_sis_advising_note_attachment(sid, filename):
@@ -461,7 +432,7 @@ def get_sis_advising_note_attachment(sid, filename):
         AND ana.sid = sas.sid
         AND ana.sis_file_name = :filename
         {query_filter}"""
-    return safe_execute_redshift(sql, sid=sid, filename=filename, **query_bindings)
+    return safe_execute_rds(sql, sid=sid, filename=filename, **query_bindings)
 
 
 def get_sis_advising_note_attachments(sid):
@@ -469,7 +440,7 @@ def get_sis_advising_note_attachments(sid):
         FROM {sis_advising_notes_schema()}.advising_note_attachments
         WHERE sid=:sid
         ORDER BY advising_note_id"""
-    return safe_execute_redshift(sql, sid=sid)
+    return safe_execute_rds(sql, sid=sid)
 
 
 def search_advising_notes(
@@ -598,7 +569,7 @@ def get_advisor_uids_for_affiliations(program, affiliations):
         sql += " WHERE academic_program_code = '' OR academic_program_code IS NULL"
     if affiliations:
         sql += ' AND advisor_type_code = ANY(:affiliations)'
-    return safe_execute_redshift(sql, program=program, affiliations=affiliations)
+    return safe_execute_rds(sql, program=program, affiliations=affiliations)
 
 
 def get_coe_ethnicity_codes(scope=()):

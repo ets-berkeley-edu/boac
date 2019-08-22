@@ -29,7 +29,6 @@ ALERT_WITHDRAWAL_ENABLED = False
 AWS_APP_ROLE_ARN = 'arn:aws:iam::123456789012:role/test-role'
 
 DATA_LOCH_RDS_URI = 'postgres://boac:boac@localhost:5432/boac_loch_test'
-DATA_LOCH_URI = 'postgres://boac:boac@localhost:5432/boac_loch_test'
 
 INDEX_HTML = 'tests/static/test-index.html'
 
