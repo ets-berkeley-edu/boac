@@ -172,6 +172,7 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context';
 import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar';
@@ -188,6 +189,7 @@ export default {
     StudentBoxplot
   },
   mixins: [
+    Context,
     StudentAnalytics,
     StudentMetadata,
     UserMetadata,
@@ -198,18 +200,28 @@ export default {
     section: Object
   },
   data: () => ({
-    fields: [
+    fields: undefined
+  }),
+  created() {
+    let cols = [
       {key: 'curated', label: '', class: 'pl-3'},
       {key: 'avatar', label: ''},
       {key: 'profile', label: ''},
       {key: 'courseSites', label: 'Course Site(s)'},
       {key: 'assignmentsSubmitted', label: 'Assignments Submitted'},
-      {key: 'assignmentGrades', label: 'Assignment Grades'},
-      {key: 'bCourses', label: 'bCourses Activity'},
-      {key: 'midtermGrade', label: 'Mid'},
-      {key: 'finalGrade', label: 'Final', class: 'pr-3'}
-    ]
-  }),
+      {key: 'assignmentGrades', label: 'Assignment Grades'}
+    ];
+    if (this.currentEnrollmentTermId === parseInt(this.section.termId)) {
+      cols.push(
+        {key: 'bCourses', label: 'bCourses Activity'}
+      );
+    }
+    cols = cols.concat([
+          {key: 'midtermGrade', label: 'Mid'},
+          {key: 'finalGrade', label: 'Final', class: 'pr-3'}
+        ]);
+    this.fields = cols;
+  },
   methods: {
     rowClass(item) {
       const clazz = 'border-bottom pb-3 pt-3';
