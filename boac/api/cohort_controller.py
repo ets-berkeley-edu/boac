@@ -34,7 +34,6 @@ from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from flask import current_app as app, request
 from flask_login import current_user, login_required
-import numpy as np
 
 
 @app.route('/api/cohorts/my')
@@ -275,9 +274,7 @@ def _filters_to_filter_criteria(filters, order_by=None):
 
 
 def _can_current_user_view_cohort(cohort):
-    if current_user.is_admin:
+    if current_user.is_admin or not cohort['owners']:
         return True
-    cohort_dept_codes = []
-    if cohort['owners']:
-        cohort_dept_codes = np.concatenate([o['deptCodes'] for o in cohort['owners']])
-    return np.in1d(current_user.dept_codes, cohort_dept_codes)
+    cohort_dept_codes = {dept_code for o in cohort['owners'] for dept_code in o['deptCodes']}
+    return set(current_user.dept_codes).issuperset(cohort_dept_codes)
