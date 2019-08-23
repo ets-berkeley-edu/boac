@@ -384,7 +384,7 @@ export default {
   },
   mounted() {
     if (this.anchor) {
-      const match = this.anchor.match(/#([0-9-]+)/);
+      const match = this.anchor.match(/#(\d[0-9A-Z-]+\d)/);
       if (match) {
         const messageId = match[1];
         const note = this.find(this.messages, function(m) {
