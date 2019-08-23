@@ -40,9 +40,9 @@ from flask import current_app as app
 from sqlalchemy import text
 
 
-def _get_current_session_start():
-    session = data_loch.get_regular_undergraduate_session(current_term_id())[0]
-    return session['session_begins']
+def _get_current_term_start():
+    session = data_loch.get_undergraduate_term(current_term_id())[0]
+    return session['term_begins']
 
 
 class Alert(Base):
@@ -244,7 +244,7 @@ class Alert(Base):
             return False
         if app.config['CANVAS_CURRENT_ENROLLMENT_TERM'].startswith('Summer'):
             return False
-        days_into_session = (datetime.date(datetime.today()) - _get_current_session_start()).days
+        days_into_session = (datetime.date(datetime.today()) - _get_current_term_start()).days
         return days_into_session >= app.config['ALERT_INFREQUENT_ACTIVITY_DAYS']
 
     @classmethod
@@ -253,7 +253,7 @@ class Alert(Base):
             return False
         if app.config['CANVAS_CURRENT_ENROLLMENT_TERM'].startswith('Summer'):
             return False
-        days_into_session = (datetime.date(datetime.today()) - _get_current_session_start()).days
+        days_into_session = (datetime.date(datetime.today()) - _get_current_term_start()).days
         return days_into_session >= app.config['ALERT_NO_ACTIVITY_DAYS_INTO_SESSION']
 
     @classmethod
