@@ -1,4 +1,3 @@
-DROP SCHEMA IF EXISTS asc_advising_notes cascade;
 DROP SCHEMA IF EXISTS boac_advising_asc cascade;
 DROP SCHEMA IF EXISTS boac_advising_coe cascade;
 DROP SCHEMA IF EXISTS boac_advising_e_i cascade;
@@ -10,7 +9,6 @@ DROP SCHEMA IF EXISTS sis_advising_notes cascade;
 DROP SCHEMA IF EXISTS sis_data cascade;
 DROP SCHEMA IF EXISTS student cascade;
 
-CREATE SCHEMA asc_advising_notes;
 CREATE SCHEMA boac_advising_asc;
 CREATE SCHEMA boac_advising_coe;
 CREATE SCHEMA boac_advising_e_i;
@@ -22,7 +20,7 @@ CREATE SCHEMA sis_advising_notes;
 CREATE SCHEMA sis_data;
 CREATE SCHEMA student;
 
-CREATE TABLE asc_advising_notes.advising_notes
+CREATE TABLE boac_advising_asc.advising_notes
 (
     id VARCHAR NOT NULL,
     asc_id VARCHAR NOT NULL,
@@ -37,7 +35,7 @@ CREATE TABLE asc_advising_notes.advising_notes
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
-CREATE TABLE asc_advising_notes.advising_note_topics (
+CREATE TABLE boac_advising_asc.advising_note_topics (
     id VARCHAR NOT NULL,
     asc_id VARCHAR NOT NULL,
     sid VARCHAR NOT NULL,
@@ -307,7 +305,7 @@ CREATE TABLE student.student_term_gpas
     units_taken_for_gpa DECIMAL(4,1)
 );
 
-INSERT INTO asc_advising_notes.advising_notes
+INSERT INTO boac_advising_asc.advising_notes
 (id, asc_id, sid, student_first_name, student_last_name, meeting_date, advisor_uid, advisor_first_name, advisor_last_name, created_at, updated_at)
 VALUES
 ('11667051-139362', '139362', '11667051', 'Deborah', 'Davies', '2014-01-03', '1133399', 'Lemmy', 'Kilmister', '2014-01-03 20:30:00+00', '2014-01-03 20:30:00+00'),
@@ -315,27 +313,16 @@ VALUES
 ('8901234567-139379', '139379', '8901234567', 'John David', 'Crossman', '2014-01-16', '90412', 'Ginger', 'Baker', '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00'),
 ('2345678901-139379', '139379', '2345678901', 'Dave', 'Doolittle', '2014-01-16', '90412', 'Ginger', 'Baker', '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00');
 
-INSERT INTO asc_advising_notes.advising_note_topics
+INSERT INTO boac_advising_asc.advising_note_topics
 (id, asc_id, sid, topic)
 VALUES
 ('11667051-139362', '139362', '11667051', 'Academic'),
 ('11667051-139362', '139362', '11667051', 'Other');
 
-CREATE TABLE boac_advising_asc.advising_notes AS (
-    SELECT id, asc_id, sid, student_first_name, student_last_name, meeting_date,
-        advisor_uid, advisor_first_name, advisor_last_name, created_at, updated_at
-    FROM asc_advising_notes.advising_notes
-);
-
-CREATE TABLE boac_advising_asc.advising_note_topics AS (
-    SELECT id, asc_id, sid, topic
-    FROM asc_advising_notes.advising_note_topics
-);
-
 CREATE MATERIALIZED VIEW boac_advising_asc.advising_notes_search_index AS (
   SELECT n.id, to_tsvector('english', COALESCE(topic || ' ', '') || advisor_first_name || ' ' || advisor_last_name) AS fts_index
-  FROM asc_advising_notes.advising_notes n
-  LEFT OUTER JOIN asc_advising_notes.advising_note_topics t
+  FROM boac_advising_asc.advising_notes n
+  LEFT OUTER JOIN boac_advising_asc.advising_note_topics t
   ON n.id = t.id
 );
 
