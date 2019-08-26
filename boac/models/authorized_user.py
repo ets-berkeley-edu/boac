@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac import db
+from boac import db, std_commit
 from boac.models.base import Base
 from boac.models.db_relationships import cohort_filter_owners
 from sqlalchemy import text
@@ -72,18 +72,31 @@ class AuthorizedUser(Base):
                 """
 
     @classmethod
-    def create_or_restore(cls, uid, is_admin=False, in_demo_mode=False, can_access_canvas_data=True):
+    def create_or_restore(cls, uid, is_admin=False, can_access_canvas_data=True):
         existing_user = cls.query.filter_by(uid=uid).first()
         if existing_user:
-            existing_user.deleted_at = None
-            return existing_user
+            # If restoring a previously deleted user, respect passed-in attributes.
+            if existing_user.deleted_at:
+                existing_user.is_admin = is_admin
+                existing_user.can_access_canvas_data = can_access_canvas_data
+                existing_user.deleted_at = None
+            # If the user currently exists in a non-deleted state, attributes passed in as True
+            # should replace existing attributes set to False, but not vice versa.
+            else:
+                if can_access_canvas_data and not existing_user.can_access_canvas_data:
+                    existing_user.can_access_canvas_data = True
+                if is_admin and not existing_user.is_admin:
+                    existing_user.is_admin = True
+            user = existing_user
         else:
-            return cls(
+            user = cls(
                 uid=uid,
                 is_admin=is_admin,
-                in_demo_mode=in_demo_mode,
+                in_demo_mode=False,
                 can_access_canvas_data=can_access_canvas_data,
             )
+        std_commit()
+        return user
 
     @classmethod
     def get_id_per_uid(cls, uid):
