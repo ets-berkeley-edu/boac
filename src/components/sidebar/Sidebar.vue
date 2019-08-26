@@ -20,12 +20,7 @@
     </div>
     <div v-if="user && !user.isAdmin">
       <div class="batch-note-button fixed-bottom mb-3">
-        <NewNoteModal
-          id="batch-note-button"
-          :disable="(get(editModeObject, 'type') === 'note') || (noteMode && !includes(['batch', 'editTemplate'], noteMode))"
-          initial-mode="batch"
-          :on-submit="noop"
-          :on-successful-create="noop" />
+        <NewNoteModal id="batch-note-button" />
       </div>
     </div>
   </div>
@@ -37,7 +32,6 @@ import Context from '@/mixins/Context';
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue';
 import NewNoteModal from '@/components/note/NewNoteModal.vue';
 import SearchForm from '@/components/sidebar/SearchForm.vue';
-import Notes from "@/mixins/Notes";
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
@@ -49,7 +43,7 @@ export default {
     NewNoteModal,
     SearchForm
   },
-  mixins: [Context, Notes, UserMetadata, Util]
+  mixins: [Context, UserMetadata, Util]
 };
 </script>
 

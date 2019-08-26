@@ -35,10 +35,9 @@
       </div>
       <div v-if="!user.isAdmin">
         <NewNoteModal
-          :disable="!!editModeObject || includes(['batch', 'minimized', 'open'], noteMode)"
-          :sid="student.sid"
           :on-submit="onSubmitAdvisingNote"
-          :on-successful-create="onCreateAdvisingNote" />
+          :on-successful-create="onCreateAdvisingNote"
+          :student="student" />
       </div>
     </div>
 
@@ -116,7 +115,7 @@
               <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
             </div>
             <div
-              v-if="isEditable(message) && !editModeObject && isNil(noteMode) && includes(openMessages, message.transientId)"
+              v-if="isEditable(message) && !editModeNoteId && includes(openMessages, message.transientId)"
               class="mt-2">
               <div v-if="user.uid === message.author.uid">
                 <b-btn
@@ -153,28 +152,28 @@
               :tabindex="includes(openMessages, message.transientId) ? -1 : 0"
               @keyup.enter="open(message, true)"
               @click="open(message, true)">
-              <span v-if="message.transientId !== editingNoteId" class="when-message-closed sr-only">Open message</span>
+              <span v-if="message.type === 'note' && message.id !== editModeNoteId" class="when-message-closed sr-only">Open message</span>
               <font-awesome v-if="message.status === 'Satisfied'" icon="check" class="requirements-icon text-success" />
               <font-awesome v-if="message.status === 'Not Satisfied'" icon="exclamation" class="requirements-icon text-icon-exclamation" />
               <font-awesome v-if="message.status === 'In Progress'" icon="clock" class="requirements-icon text-icon-clock" />
               <span v-if="!includes(['appointment', 'note'] , message.type)">{{ message.message }}</span>
               <AdvisingNote
-                v-if="message.type === 'note' && message.transientId !== editingNoteId"
+                v-if="message.type === 'note' && message.id !== editModeNoteId"
                 :delete-note="deleteNote"
                 :edit-note="editNote"
                 :note="message"
-                :after-saved="afterNoteUpdated"
+                :after-saved="afterNoteEdit"
                 :is-open="includes(openMessages, message.transientId)" />
               <EditAdvisingNote
-                v-if="message.type === 'note' && message.transientId === editingNoteId"
-                :after-cancelled="afterEditCancel"
+                v-if="message.type === 'note' && message.id === editModeNoteId"
                 :note="message"
-                :after-saved="afterNoteUpdated" />
+                :after-cancel="afterNoteEditCancel"
+                :after-saved="afterNoteEdit" />
               <AdvisingAppointment
                 v-if="message.type === 'appointment'"
                 :appointment="message"
                 :is-open="includes(openMessages, message.transientId)" />
-              <div v-if="includes(openMessages, message.transientId) && message.transientId !== editingNoteId" class="text-center close-message">
+              <div v-if="includes(openMessages, message.transientId) && message.id !== editModeNoteId" class="text-center close-message">
                 <b-btn
                   :id="`timeline-tab-${activeTab}-close-message`"
                   class="no-wrap"
@@ -220,7 +219,7 @@
                 </div>
                 <div class="text-muted">
                   <router-link
-                    v-if="editingNoteId !== message.transientId"
+                    v-if="message.type === 'note' && message.id !== editModeNoteId"
                     :id="`advising-note-permalink-${message.id}`"
                     :to="`#${message.id}`"
                     @click.native="scrollToPermalink(message.id)">
@@ -267,12 +266,11 @@ import Context from '@/mixins/Context';
 import EditAdvisingNote from '@/components/note/EditAdvisingNote';
 import NewNoteModal from "@/components/note/NewNoteModal";
 import Scrollable from '@/mixins/Scrollable';
-import Notes from "@/mixins/Notes";
 import TimelineDate from '@/components/student/profile/TimelineDate';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { dismissStudentAlert } from '@/api/student';
-import { deleteNote, markRead } from '@/api/notes';
+import { deleteNote, getNote, markRead } from '@/api/notes';
 import { search } from '@/api/search';
 
 export default {
@@ -285,15 +283,19 @@ export default {
     NewNoteModal,
     TimelineDate
   },
-  mixins: [Context, Scrollable, Notes, UserMetadata, Util],
+  mixins: [Context, Scrollable, UserMetadata, Util],
   props: {
-    student: Object
+    student: {
+      required: true,
+      type: Object
+    }
   },
   data: () => ({
     allNotesExpanded: false,
     creatingNewNote: false,
     countsPerType: undefined,
     defaultShowPerTab: 5,
+    editModeNoteId: undefined,
     filter: undefined,
     filterTypes: {
       note: {
@@ -337,9 +339,6 @@ export default {
     deleteConfirmModalBody() {
       return this.messageForDelete ? `Are you sure you want to delete the "<b>${this.messageForDelete.subject}</b>" note?` : '';
     },
-    editingNoteId() {
-      return this.get(this.editModeObject, 'transientId');
-    },
     showDeleteConfirmModal() {
       return !!this.messageForDelete;
     }
@@ -364,24 +363,31 @@ export default {
       this.countsPerType[type] = this.size(notifications);
       this.each(notifications, (message, index) => {
         this.messages.push(message);
-        // Unique message ids are not guaranteed. Here we generate a transient and non-zero primary key.
+        // If object is not a BOA advising note then generate a transient and non-zero primary key.
         message.transientId = (typeIndex + 1) * 1000 + index;
       });
     });
     this.sortMessages();
     this.alertScreenReader('Academic Timeline has loaded');
     this.isTimelineLoading = false;
-    this.$eventHub.$on('advising-note-created', note => {
+    const onCreateNewNote = note => {
       if (note.sid === this.student.sid) {
         const currentNoteIds = this.map(this.filterList(this.messages, ['type', 'note']), 'id');
         const isNotInView = !this.includes(currentNoteIds, note.id);
         if (isNotInView) {
-          note.transientId = new Date().getTime();
+          note.transientId = note.id;
           this.messages.push(note);
           this.countsPerType.note++;
           this.sortMessages();
           this.alertScreenReader(`New advising note created for student ${this.student.sid}.`);
         }
+      }
+    };
+    this.$eventHub.$on('advising-note-created', onCreateNewNote);
+    this.$eventHub.$on('batch-of-notes-created', note_ids_per_sid => {
+      const noteId = note_ids_per_sid[this.student.sid];
+      if (noteId) {
+        getNote(noteId).then(note => onCreateNewNote(note));
       }
     });
   },
@@ -407,24 +413,24 @@ export default {
     }
   },
   methods: {
-    afterEditCancel() {
-      this.setEditModeObject(null);
-    },
-    afterNoteUpdated(updatedNote) {
+    afterNoteEdit(updatedNote) {
+      this.editModeNoteId = null;
       const note = this.find(this.messages, ['id', updatedNote.id]);
       note.subject = updatedNote.subject;
       note.body = note.message = updatedNote.body;
       note.topics = updatedNote.topics;
       note.attachments = updatedNote.attachments;
       note.updatedAt = updatedNote.updatedAt;
-      this.setEditModeObject(null);
+    },
+    afterNoteEditCancel() {
+      this.editModeNoteId = null;
     },
     cancelTheDelete() {
       this.alertScreenReader('Cancelled');
       this.messageForDelete = undefined;
     },
     close(message, screenreaderAlert) {
-      if (message.transientId === this.editingNoteId) {
+      if (this.editModeNoteId) {
         return false;
       }
       if (this.includes(this.openMessages, message.transientId)) {
@@ -473,7 +479,7 @@ export default {
       return message.updatedAt && (message.updatedAt !== message.createdAt);
     },
     editNote(note) {
-      this.setEditModeObject(note);
+      this.editModeNoteId = note.id;
       this.putFocusNextTick('edit-note-subject');
     },
     filterSearchResults() {
@@ -512,7 +518,7 @@ export default {
       this.creatingNewNote = true;
     },
     open(message, screenreaderAlert) {
-      if (message.transientId === this.editingNoteId) {
+      if (message.type === 'note' && message.id === this.editModeNoteId) {
         return false;
       }
       if (!this.includes(this.openMessages, message.transientId)) {

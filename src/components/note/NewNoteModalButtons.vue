@@ -1,0 +1,77 @@
+<template>
+  <div class="d-flex mt-1 mr-3 mb-0 ml-3">
+    <div v-if="undocked && noteMode !== 'editTemplate'" class="flex-grow-1">
+      <b-btn
+        id="btn-to-save-note-as-template"
+        variant="link"
+        :disabled="!trim(subject)"
+        @click.prevent="saveAsTemplate()">
+        Save note as template
+      </b-btn>
+    </div>
+    <div class="flex-grow-1">
+      <b-btn
+        v-if="!undocked"
+        id="btn-to-advanced-note-options"
+        variant="link"
+        @click.prevent="setNoteMode('advanced')">
+        Advanced note options
+      </b-btn>
+    </div>
+    <div v-if="noteMode === 'editTemplate'">
+      <b-btn
+        id="update-template-button"
+        class="btn-primary-color-override"
+        :disabled="!subject"
+        aria-label="Update note template"
+        variant="primary"
+        @click.prevent="updateTemplate()">
+        Update Template
+      </b-btn>
+    </div>
+    <div v-if="noteMode !== 'editTemplate'">
+      <b-btn
+        id="create-note-button"
+        class="btn-primary-color-override"
+        :disabled="!targetStudentCount || !trim(subject)"
+        aria-label="Create new note"
+        variant="primary"
+        @click.prevent="createNote()">
+        Save
+      </b-btn>
+    </div>
+    <div>
+      <b-btn
+        id="create-note-cancel"
+        variant="link"
+        :class="{'sr-only': !undocked}"
+        @click.prevent="cancel()">
+        Cancel
+      </b-btn>
+    </div>
+  </div>
+</template>
+
+<script>
+import Context from '@/mixins/Context';
+import NoteEditSession from '@/mixins/NoteEditSession';
+import UserMetadata from '@/mixins/UserMetadata';
+import Util from '@/mixins/Util';
+
+export default {
+  name: 'NewNoteModalButtons',
+  mixins: [Context, NoteEditSession, UserMetadata, Util],
+  props: {
+    cancel: Function,
+    createNote: Function,
+    deleteTemplate: Function,
+    minimize: Function,
+    saveAsTemplate: Function,
+    updateTemplate: Function
+  }
+}
+</script>
+
+<style scoped>
+
+</style>

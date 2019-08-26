@@ -39,11 +39,7 @@ export function createNote(
   const data = {sid, subject, body, topics};
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
   return utils.postMultipartFormData('/api/notes/create', data).then(data => {
-    // Non-nil 'sid' means current_user is viewing /student page.
-    const sid = store.getters['notes/sid'];
-    if (data.sid === sid) {
-      Vue.prototype.$eventHub.$emit('advising-note-created', data);
-    }
+    Vue.prototype.$eventHub.$emit('advising-note-created', data);
     store.dispatch('user/gaNoteEvent', {
       id: data.id,
       label: `Advisor ${store.getters['user/uid']} created a note`,
@@ -65,17 +61,7 @@ export function createNoteBatch(
   const data = {sids, subject, body, topics, cohortIds, curatedGroupIds};
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
   return utils.postMultipartFormData('/api/notes/batch/create', data).then(data => {
-    // Non-nil 'sid' in store means current_user is viewing /student page.
-    const sid = store.getters['notes/sid'];
-    if (sid) {
-      const noteId = data[sid];
-      if (noteId) {
-        // Student in view was one of sids in batch-note creation.
-        getNote(noteId).then(note => {
-          Vue.prototype.$eventHub.$emit('advising-note-created', note);
-        });
-      }
-    }
+    Vue.prototype.$eventHub.$emit('batch-of-notes-created', data);
     store.dispatch('user/gaNoteEvent', {
       id: data.id,
       name: `Advisor ${store.getters['user/uid']} created a batch of notes`,
