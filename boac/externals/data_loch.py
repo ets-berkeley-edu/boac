@@ -101,11 +101,9 @@ def earliest_term_id():
     return sis_term_id_for_name(app.config['LEGACY_EARLIEST_TERM'])
 
 
-def get_regular_undergraduate_session(term_id):
-    sql = f"""SELECT * FROM {sis_schema()}.sis_terms
+def get_undergraduate_term(term_id):
+    sql = f"""SELECT * FROM {sis_schema()}.term_definitions
               WHERE term_id = '{term_id}'
-              AND academic_career = 'UGRD'
-              AND session_id = '1'
            """
     return safe_execute_rds(sql)
 
