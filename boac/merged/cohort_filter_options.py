@@ -122,6 +122,14 @@ def _get_filter_options(scope, cohort_owner_uid):
             {
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
+                'key': 'midpointDeficient',
+                'name': 'Midpoint Deficient Grade',
+                'options': [True, False],
+                'type': 'boolean',
+            },
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
                 'key': 'transfer',
                 'name': 'Transfer Student',
                 'options': [True, False],
