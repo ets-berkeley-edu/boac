@@ -296,6 +296,7 @@ class CohortFilter(Base):
         last_name_range = c.get('lastNameRange')
         levels = c.get('levels')
         majors = c.get('majors')
+        midpoint_deficient_grade = util.to_bool_or_none(c.get('midpointDeficient'))
         team_groups = athletics.get_team_groups(group_codes) if group_codes else []
         transfer = util.to_bool_or_none(c.get('transfer'))
         underrepresented = util.to_bool_or_none(c.get('underrepresented'))
@@ -320,6 +321,7 @@ class CohortFilter(Base):
                 'lastNameRange': last_name_range,
                 'levels': levels,
                 'majors': majors,
+                'midpointDeficient': midpoint_deficient_grade,
                 'transfer': transfer,
                 'unitRanges': unit_ranges,
                 'underrepresented': underrepresented,
@@ -370,6 +372,7 @@ class CohortFilter(Base):
             levels=levels,
             limit=limit,
             majors=majors,
+            midpoint_deficient_grade=midpoint_deficient_grade,
             offset=offset,
             order_by=order_by,
             sids_only=sids_only,

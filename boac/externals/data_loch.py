@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 import re
 
-from boac.lib.berkeley import sis_term_id_for_name
+from boac.lib.berkeley import current_term_id, sis_term_id_for_name
 from boac.lib.mockingdata import fixture
 from boac.lib.util import tolerant_remove
 from flask import current_app as app
@@ -627,6 +627,7 @@ def get_students_query(     # noqa
     last_name_range=None,
     levels=None,
     majors=None,
+    midpoint_deficient_grade=None,
     scope=(),
     search_phrase=None,
     sids=(),
@@ -703,6 +704,12 @@ def get_students_query(     # noqa
         query_filter += ' AND (' + ' OR '.join(major_filters) + ')'
         query_tables += f' LEFT JOIN {student_schema()}.student_majors maj ON maj.sid = sas.sid'
         query_bindings.update({'majors': _majors})
+    if midpoint_deficient_grade is True:
+        query_tables += f""" JOIN {student_schema()}.student_enrollment_terms ser
+                             ON ser.sid = sas.sid
+                             AND ser.term_id = :term_id
+                             AND ser.midpoint_deficient_grade = TRUE"""
+        query_bindings.update({'term_id': current_term_id()})
     if transfer is True:
         query_filter += ' AND sas.transfer = TRUE'
     if advisor_plan_mappings:
