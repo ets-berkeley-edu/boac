@@ -1,5 +1,5 @@
 <script>
-import { mapActions, mapGetters, mapMutations } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'UserMetadata',
@@ -9,7 +9,11 @@ export default {
       'user'
     ]),
     ...mapGetters('cohort', ['myCohorts']),
-    ...mapGetters('curated', ['myCuratedGroups'])
+    ...mapGetters('curated', ['myCuratedGroups']),
+    ...mapGetters('note', [
+      'noteTemplates',
+      'suggestedNoteTopics'
+    ])
   },
   methods: {
     ...mapActions('user', [
@@ -21,8 +25,6 @@ export default {
       'gaStudentAlert',
       'loadCalnetUserByCsid',
       'setUserPreference'
-    ]),
-    ...mapMutations('user', [
     ])
   }
 };

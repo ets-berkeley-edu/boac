@@ -35,7 +35,8 @@
             :delete-template="deleteTemplate"
             :edit-template="editTemplate"
             :load-template="loadTemplate"
-            :minimize="minimize" />
+            :minimize="minimize"
+            :undocked="undocked" />
           <hr class="m-0" />
           <div class="mt-2 mr-3 mb-1 ml-3">
             <div v-if="showBatchNoteFeatures" :class="{'batch-mode-features': noteMode === 'batch'}">
@@ -65,14 +66,11 @@
             </div>
           </div>
           <div v-if="undocked">
-            <div v-if="suggestedTopics">
-              <AdvisingNoteTopics
-                class="mt-2 mr-3 mb-1 ml-3"
-                :function-add="addTopic"
-                :function-remove="removeTopic"
-                :suggested-topics="suggestedTopics"
-                :topics="topics" />
-            </div>
+            <AdvisingNoteTopics
+              class="mt-2 mr-3 mb-1 ml-3"
+              :function-add="addTopic"
+              :function-remove="removeTopic"
+              :topics="topics" />
             <AdvisingNoteAttachments
               class="mt-2 mr-3 mb-1 ml-3"
               :add-attachment="addAttachment"
@@ -87,7 +85,8 @@
               :delete-template="deleteTemplate"
               :minimize="minimize"
               :save-as-template="saveAsTemplate"
-              :update-template="updateTemplate" />
+              :update-template="updateTemplate"
+              :undocked="undocked" />
           </div>
         </form>
       </div>
@@ -189,6 +188,11 @@ export default {
     showErrorPopover: false,
     template: undefined
   }),
+  computed: {
+    undocked() {
+      return this.includes(['advanced', 'batch', 'editTemplate'], this.noteMode);
+    }
+  },
   watch: {
     // Vuex-managed 'body' and 'subject' cannot be bound to ckeditor v-model. Thus, we have the following aliases.
     noteBody(value) {
@@ -204,7 +208,11 @@ export default {
   methods: {
     cancel() {
       if (this.noteMode === 'editTemplate') {
-        if (this.templateEquals(this, this.template)) {
+        const noDiff = this.trim(this.noteSubject) === this.trim(this.template.subject)
+          && this.noteBody === this.template.body
+          && !this.size(this.xor(this.topics, this.template.topics))
+          && !this.size(this.xorBy(this.attachments, this.template.attachments, 'displayName'));
+        if (noDiff) {
           this.discardTemplate();
         } else {
           this.showDiscardTemplateModal = true;
@@ -310,7 +318,7 @@ export default {
       this.alertScreenReader(this.showBatchNoteFeatures ? 'Create batch note form is open.' : 'Create note form is open');
     },
     reset() {
-      this.resetSession();
+      this.clearAllFields();
       this.noteSubject = null;
       this.noteBody = null;
     },
@@ -318,7 +326,12 @@ export default {
       this.showCreateTemplateModal = true;
     },
     updateTemplate() {
-      updateNoteTemplate(this.template.id, this.subject, this.body || '', this.topics, this.attachments, []);
+      updateNoteTemplate(this.template.id, this.subject, this.body || '', this.topics, this.attachments, []).then(template => {
+        this.reset();
+        this.setNoteMode(null);
+        this.isModalOpen = false;
+        this.alertScreenReader(`Template ${template.label} updated`);
+      });
     }
   }
 }

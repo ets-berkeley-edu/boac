@@ -1,5 +1,5 @@
 <script>
-import { mapActions, mapGetters, mapMutations } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'NoteEditSession',
@@ -10,14 +10,11 @@ export default {
       'attachments',
       'body',
       'noteMode',
-      'noteTemplates',
       'objectId',
       'sids',
       'subject',
-      'suggestedTopics',
       'targetStudentCount',
-      'topics',
-      'undocked'
+      'topics'
     ])
   },
   methods: {
@@ -27,23 +24,20 @@ export default {
       'addCuratedGroup',
       'addSid',
       'addTopic',
+      'clearAllFields',
       'createAdvisingNote',
+      'endSession',
       'init',
       'recalculateStudentCount',
+      'removeAttachment',
       'removeCohort',
       'removeCuratedGroup',
       'removeStudent',
+      'removeTopic',
       'setBody',
       'setNoteMode',
       'setSubject',
       'updateAdvisingNote'
-    ]),
-    ...mapMutations('noteEditSession', [
-      'endSession',
-      'removeAttachment',
-      'removeTopic',
-      'resetSession',
-      'setObjectId'
     ])
   }
 };

@@ -70,8 +70,9 @@ const actions = {
         if (user.isAuthenticated) {
           store.dispatch('cohort/loadMyCohorts');
           store.dispatch('curated/loadMyCuratedGroups');
-          store.dispatch('noteEditSession/loadNoteTemplates');
           store.dispatch('context/loadServiceAnnouncement');
+          store.dispatch('note/loadNoteTemplates');
+          store.dispatch('note/loadSuggestedNoteTopics')
         }
         let googleAnalyticsId = _.get(config, 'googleAnalyticsId');
         if (googleAnalyticsId) {
