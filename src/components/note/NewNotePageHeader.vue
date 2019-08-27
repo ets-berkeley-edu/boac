@@ -13,11 +13,10 @@
         variant="primary"
         class="mb-2 ml-0"
         right>
-        <b-dropdown-header v-if="!size(noteTemplates)" id="no-templates-header">
+        <b-dropdown-header v-if="!size(noteTemplates)" id="no-templates-header" class="templates-dropdown-header">
           <div class="font-weight-bolder">Templates</div>
-          <div>
-            <div class="font-weight-bolder">You have no saved templates.</div>
-            <div>To begin, create a new note and select, "Save note as template," to build your first note template.</div>
+          <div class="templates-dropdown-instructions">
+            You have no saved templates. To begin, create a new note and select, "Save note as template," to build your first note template.
           </div>
         </b-dropdown-header>
         <b-dropdown-item
@@ -29,10 +28,10 @@
               <b-btn variant="link" class="dropdown-item p-0" @click="loadTemplate(template)">{{ truncate(template.title) }}</b-btn>
             </div>
             <div class="align-items-center d-flex ml-2 no-wrap">
-              <div>
+              <div class="pl-2">
                 <b-btn variant="link" class="p-0" @click="editTemplate(template)">Edit</b-btn>
               </div>
-              <div>
+              <div class="pl-1 pr-1">
                 |
               </div>
               <div>
@@ -118,5 +117,12 @@ export default {
 .new-note-header {
   font-size: 24px;
   margin: 0 15px 6px 15px;
+}
+.templates-dropdown-instructions {
+  max-width: 300px;
+  white-space: normal;
+}
+.templates-dropdown-header {
+  width: 300px;
 }
 </style>

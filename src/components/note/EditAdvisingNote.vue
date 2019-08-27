@@ -22,7 +22,7 @@
     <div>
       <span id="edit-note-details" class="bg-transparent note-details-editor">
         <ckeditor
-          :value="model.body"
+          :value="model.body || ''"
           :editor="editor"
           :config="editorConfig"
           @input="setBodyPerEvent"></ckeditor>

@@ -48,11 +48,11 @@ export default {
       } else if (_.size(title) > 255) {
         msg = 'Name must be 255 characters or fewer';
       } else {
-        const myTemplates = store.getters['notes/noteTemplates'];
+        const myTemplates = store.getters['note/noteTemplates'];
         _.each(myTemplates, existing => {
           if (
             (!template.id || template.id !== existing.id) &&
-            name === existing.name
+            title === existing.title
           ) {
             msg = 'You have an existing template with this name. Please choose a different name.';
             return false;
