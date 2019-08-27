@@ -97,7 +97,9 @@ export default {
     truncate: _.truncate,
     union: _.union,
     uniq: _.uniq,
-    without: _.without
+    without: _.without,
+    xor: _.xor,
+    xorBy: _.xorBy
   }
 };
 </script>

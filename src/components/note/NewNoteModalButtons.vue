@@ -1,10 +1,10 @@
 <template>
   <div class="d-flex mt-1 mr-3 mb-0 ml-3">
-    <div v-if="undocked && noteMode !== 'editTemplate'" class="flex-grow-1">
+    <div v-if="undocked && mode !== 'editTemplate'" class="flex-grow-1">
       <b-btn
         id="btn-to-save-note-as-template"
         variant="link"
-        :disabled="!trim(subject)"
+        :disabled="!trim(model.subject)"
         @click.prevent="saveAsTemplate()">
         Save note as template
       </b-btn>
@@ -14,26 +14,26 @@
         v-if="!undocked"
         id="btn-to-advanced-note-options"
         variant="link"
-        @click.prevent="setNoteMode('advanced')">
+        @click.prevent="setMode('advanced')">
         Advanced note options
       </b-btn>
     </div>
-    <div v-if="noteMode === 'editTemplate'">
+    <div v-if="mode === 'editTemplate'">
       <b-btn
         id="update-template-button"
         class="btn-primary-color-override"
-        :disabled="!subject"
+        :disabled="!model.subject"
         aria-label="Update note template"
         variant="primary"
         @click.prevent="updateTemplate()">
         Update Template
       </b-btn>
     </div>
-    <div v-if="noteMode !== 'editTemplate'">
+    <div v-if="mode !== 'editTemplate'">
       <b-btn
         id="create-note-button"
         class="btn-primary-color-override"
-        :disabled="!targetStudentCount || !trim(subject)"
+        :disabled="!targetStudentCount || !trim(model.subject)"
         aria-label="Create new note"
         variant="primary"
         @click.prevent="createNote()">

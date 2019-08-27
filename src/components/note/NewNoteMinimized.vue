@@ -41,7 +41,7 @@ export default {
   },
   methods: {
     maximize() {
-      this.setNoteMode('docked');
+      this.setMode('docked');
       this.alertScreenReader("Create note form is visible.");
       this.putFocusNextTick('create-note-subject');
     }

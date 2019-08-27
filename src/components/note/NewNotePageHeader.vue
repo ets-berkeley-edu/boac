@@ -1,12 +1,12 @@
 <template>
   <div class="d-flex align-items-end pt-2 mb-1" :class="{'mt-2': undocked}">
     <div class="flex-grow-1 new-note-header font-weight-bolder">
-      <span v-if="noteMode === 'editTemplate'">Edit Template</span>
-      <span v-if="noteMode !== 'editTemplate'">New Note</span>
+      <span v-if="mode === 'editTemplate'">Edit Template</span>
+      <span v-if="mode !== 'editTemplate'">New Note</span>
     </div>
     <div v-if="undocked" class="mr-4">
       <b-dropdown
-        v-if="noteMode !== 'editTemplate'"
+        v-if="mode !== 'editTemplate'"
         id="my-templates-button"
         text="Templates"
         aria-label="Select a note template"

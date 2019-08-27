@@ -82,7 +82,7 @@ export default {
       required: true
     },
     noteId: {
-      type: String,
+      type: Number,
       required: false
     },
     topics: {
@@ -101,7 +101,7 @@ export default {
       return !this.trim(this.topic)
     },
     notePrefix() {
-      return this.noteId ? 'note-' + this.noteId : 'note';
+      return this.noteId ? `note-${this.noteId}` : 'note';
     }
   },
   created: function() {

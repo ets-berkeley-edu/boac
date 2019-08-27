@@ -166,7 +166,7 @@
                 :is-open="includes(openMessages, message.transientId)" />
               <EditAdvisingNote
                 v-if="message.type === 'note' && message.id === editModeNoteId"
-                :note="message"
+                :note-id="message.id"
                 :after-cancel="afterNoteEditCancel"
                 :after-saved="afterNoteEdit" />
               <AdvisingAppointment
