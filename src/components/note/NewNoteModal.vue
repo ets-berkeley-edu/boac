@@ -63,7 +63,7 @@
             <div id="note-details">
               <span id="create-note-body">
                 <ckeditor
-                  :value="model.body"
+                  :value="model.body || ''"
                   :editor="editor"
                   :config="editorConfig"
                   @input="setBodyPerEvent"></ckeditor>
@@ -283,7 +283,11 @@ export default {
     },
     discardTemplate() {
       this.showDiscardTemplateModal = false;
-      this.setMode(this.showBatchNoteFeatures ? 'batch' : 'advanced');
+      this.beginEditSession({
+        mode: this.showBatchNoteFeatures ? 'batch' : 'advanced',
+        model: null,
+        sid: this.get(this.student, 'sid')
+      });
       this.alertScreenReader("Cancelled create new template");
     },
     getTemplateTitle(templateId) {
@@ -316,6 +320,7 @@ export default {
     },
     saveAsTemplate() {
       this.showCreateTemplateModal = true;
+      this.putFocusNextTick('template-title-input');
     },
     updateTemplate() {
       updateNoteTemplate(this.model.id, this.model.subject, this.model.body, this.model.topics, this.model.attachments, []).then(template => {
