@@ -62,16 +62,34 @@ export default {
   name: 'NewNoteModalButtons',
   mixins: [Context, NoteEditSession, UserMetadata, Util],
   props: {
-    cancel: Function,
-    createNote: Function,
-    deleteTemplate: Function,
-    minimize: Function,
-    saveAsTemplate: Function,
-    updateTemplate: Function
+    cancel: {
+      required: true,
+      type: Function
+    },
+    createNote: {
+      required: true,
+      type: Function
+    },
+    deleteTemplate: {
+      required: true,
+      type: Function
+    },
+    minimize: {
+      required: true,
+      type: Function
+    },
+    saveAsTemplate: {
+      required: true,
+      type: Function
+    },
+    updateTemplate: {
+      required: true,
+      type: Function
+    },
+    undocked: {
+      required: true,
+      type: Boolean
+    }
   }
 }
 </script>
-
-<style scoped>
-
-</style>

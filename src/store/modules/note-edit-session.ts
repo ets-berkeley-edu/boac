@@ -1,6 +1,5 @@
 import _ from 'lodash';
-import {createNote, createNoteBatch, getDistinctStudentCount, getTopics} from '@/api/notes';
-import { getMyNoteTemplates } from "@/api/note-templates";
+import {createNote, createNoteBatch, getDistinctStudentCount} from '@/api/notes';
 
 const VALID_MODES = ['advanced', 'batch', 'docked', 'edit', 'editTemplate', 'minimized', 'saving'];
 
@@ -10,11 +9,9 @@ const state = {
   attachments: [],
   body: undefined,
   noteMode: undefined,
-  noteTemplates: undefined,
   objectId: undefined,
   sids: [],
   subject: undefined,
-  suggestedTopics: undefined,
   targetStudentCount: 0,
   topics: []
 };
@@ -26,13 +23,10 @@ const getters = {
   body: (state: any): string => state.body,
   noteMode: (state: any): string => state.noteMode,
   objectId: (state: any): number => state.objectId,
-  noteTemplates: (state: any): any[] => state.noteTemplates,
   sids: (state: any): string[] => state.sids,
   subject: (state: any): string => state.subject,
-  suggestedTopics: (state: any): any[] => state.suggestedTopics,
   targetStudentCount: (state: any): number => state.targetStudentCount,
-  topics: (state: any): any[] => state.topics,
-  undocked: (state: any): boolean => _.includes(['advanced', 'batch', 'editTemplate'], state.noteMode)
+  topics: (state: any): any[] => state.topics
 };
 
 const mutations = {
@@ -64,19 +58,12 @@ const mutations = {
   },
   endSession: (state: any) => _.each(_.keys(state), key => state[key] = undefined),
   setObjectId: (state: any, objectId: string[]) => state.objectId = objectId,
-  onCreateTemplate: (state: any, template) => state.noteTemplates = _.orderBy(state.noteTemplates.concat([template]), ['title'], ['asc']),
-  onDeleteTemplate: (state: any, templateId: any) => {
-    let indexOf = state.noteTemplates.findIndex(template => {
-      return template.id === templateId;
-    });
-    state.noteTemplates.splice(indexOf, 1);
-  },
   removeAttachment: (state: any, index: number) => (state.attachments.splice(index, 1)),
   removeCohort: (state:any, cohort: any) => state.addedCohorts = _.filter(state.addedCohorts, c => c.id !== cohort.id),
   removeCuratedGroup: (state:any, curatedGroup: any) => (state.addedCuratedGroups = _.filter(state.addedCuratedGroups, c => c.id !== curatedGroup.id)),
   removeStudent: (state:any, sid: string) => (state.sids = _.filter(state.sids, existingSid => existingSid !== sid)),
   removeTopic: (state: any, topic: string) => (state.topics.splice(state.topics.indexOf(topic), 1)),
-  resetSession: (state: any) => {
+  clearAllFields: (state: any) => {
     if (state.noteMode === 'batch') {
       state.sids = [];
     }
@@ -89,7 +76,6 @@ const mutations = {
     state.topics = [];
   },
   setBody: (state: any, body: string) => (state.body = body),
-  setNoteTemplates: (state: any, templates: any[]) => state.noteTemplates = templates,
   setNoteMode: (state: any, mode: string) => {
     if (_.isNil(mode)) {
       state.noteMode = null;
@@ -100,7 +86,6 @@ const mutations = {
     }
   },
   setSubject: (state: any, subject: string) => (state.subject = subject),
-  setSuggestedTopics: (state: any, topics: any[]) => (state.suggestedTopics = topics),
   setTargetStudentCount: (state: any, count: number) => (state.targetStudentCount = count)
 };
 
@@ -132,16 +117,14 @@ const actions = {
     $_notes_recalculateStudentCount({ commit, state });
   },
   addTopic: ({ commit }, topic: string) => commit('addTopic', topic),
+  clearAllFields: ({ commit }) => commit('clearAllFields'),
   createAdvisingNote: ({ commit }, isBatchFeature: boolean) => commit('createAdvisingNote', isBatchFeature),
-  async loadNoteTemplates({ commit, state }) {
-    if (_.isUndefined(state.myNoteTemplates)) {
-      getMyNoteTemplates().then(templates => commit('setNoteTemplates', templates));
-    }
-  },
+  endSession: ({ commit }) => commit('endSession'),
   onCreateTemplate: ({ commit }, template: any) => commit('onCreateTemplate', template),
   onDeleteTemplate: ({ commit }, templateId: number) => commit('onDeleteTemplate', templateId),
+  onUpdateTemplate: ({ commit }, template: any) => commit('onUpdateTemplate', template),
   init: ({ commit }, {note, noteMode, student}) => {
-    commit('resetSession');
+    commit('clearAllFields');
     if (student) {
       commit('addSid', student.sid);
       commit('setTargetStudentCount', 1);
@@ -154,14 +137,9 @@ const actions = {
       _.each(note.attachments, attachment => commit('addAttachment', attachment));
     }
     commit('setNoteMode', noteMode);
-    if (_.isUndefined(state.suggestedTopics)) {
-      // Lazy-load topics
-      getTopics(false).then(data => {
-        commit('setSuggestedTopics', data);
-      });
-    }
   },
   recalculateStudentCount: ({commit, state}) => $_notes_recalculateStudentCount({ commit, state }),
+  removeAttachment: ({ commit }, index: number) => commit('removeAttachment', index),
   removeCohort: ({commit, state}, cohort: any) => {
     commit('removeCohort', cohort);
     $_notes_recalculateStudentCount({ commit, state })
@@ -174,6 +152,7 @@ const actions = {
     commit('removeStudent', sid);
     $_notes_recalculateStudentCount({ commit, state })
   },
+  removeTopic: ({ commit }, topic: string) => commit('removeTopic', topic),
   setBody: ({ commit }, body: string) => commit('setBody', body),
   setNoteMode: ({ commit }, noteMode: string) => commit('setNoteMode', noteMode),
   setSubject: ({ commit }, subject: string) => commit('setSubject', subject)

@@ -66,11 +66,12 @@
 
 <script>
 import Context from '@/mixins/Context';
+import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'AdvisingNoteTopics',
-  mixins: [Context, Util],
+  mixins: [Context, UserMetadata, Util],
   props: {
     functionAdd: {
       type: Function,
@@ -83,10 +84,6 @@ export default {
     noteId: {
       type: String,
       required: false
-    },
-    suggestedTopics: {
-      type: Array,
-      required: true
     },
     topics: {
       type: Array,
@@ -108,11 +105,11 @@ export default {
     }
   },
   created: function() {
-    this.each(this.suggestedTopics, suggestedTopic => {
+    this.each(this.suggestedNoteTopics, topic => {
       this.topicOptions.push({
-        text: suggestedTopic,
-        value: suggestedTopic,
-        disabled: this.includes(this.topics, suggestedTopic)
+        text: topic,
+        value: topic,
+        disabled: this.includes(this.topics, topic)
       })
     });
   },
@@ -141,7 +138,7 @@ export default {
       if (!this.topic || this.topic.length < 2) {
         return false;
       }
-      let match = this.suggestedTopics.find(t => {
+      let match = this.suggestedNoteTopics.find(t => {
         return this.normalizeString(t).indexOf(this.normalizeString(this.topic)) !== -1;
       });
       if (match) {

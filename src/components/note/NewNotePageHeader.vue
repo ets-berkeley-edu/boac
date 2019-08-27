@@ -99,6 +99,10 @@ export default {
     minimize: {
       required: true,
       type: Function
+    },
+    undocked: {
+      required: true,
+      type: Boolean
     }
   }
 }

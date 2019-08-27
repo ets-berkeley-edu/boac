@@ -26,12 +26,11 @@
           :config="editorConfig"></ckeditor>
       </span>
     </div>
-    <div v-if="suggestedTopics">
+    <div>
       <AdvisingNoteTopics
         :function-add="addTopic"
         :function-remove="removeTopic"
         :note-id="String(objectId)"
-        :suggested-topics="suggestedTopics"
         :topics="topics" />
     </div>
     <div class="d-flex mt-2 mb-2">
@@ -166,7 +165,7 @@ export default {
       this.showErrorPopover = false;
     },
     reset() {
-      this.resetSession();
+      this.clearAllFields();
       this.clearErrors();
       this.noteBody = null;
       this.noteSubject = null;
