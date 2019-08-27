@@ -6,11 +6,12 @@
     <div>
       <input
         id="edit-note-subject"
-        v-model="noteSubject"
+        :value="model.subject"
         aria-labelledby="edit-note-subject-label"
         class="cohort-create-input-name"
         type="text"
         maxlength="255"
+        @input="setSubjectPerEvent"
         @keydown.esc="cancel()">
     </div>
     <div>
@@ -21,17 +22,18 @@
     <div>
       <span id="edit-note-details" class="bg-transparent note-details-editor">
         <ckeditor
-          v-model="noteBody"
+          :value="model.body"
           :editor="editor"
-          :config="editorConfig"></ckeditor>
+          :config="editorConfig"
+          @input="setBodyPerEvent"></ckeditor>
       </span>
     </div>
     <div>
       <AdvisingNoteTopics
         :function-add="addTopic"
         :function-remove="removeTopic"
-        :note-id="String(objectId)"
-        :topics="topics" />
+        :note-id="model.id"
+        :topics="model.topics" />
     </div>
     <div class="d-flex mt-2 mb-2">
       <div>
@@ -59,12 +61,12 @@
       :function-confirm="cancelConfirmed"
       modal-header="Discard unsaved changes?"
       :show-modal="showAreYouSureModal" />
-    <div v-if="size(attachments)">
-      <div class="pill-list-header mt-3 mb-1">{{ size(attachments) === 1 ? 'Attachment' : 'Attachments' }}</div>
+    <div v-if="size(model.attachments)">
+      <div class="pill-list-header mt-3 mb-1">{{ size(model.attachments) === 1 ? 'Attachment' : 'Attachments' }}</div>
       <ul class="pill-list pl-0">
         <li
-          v-for="(attachment, index) in attachments"
-          :id="`note-${objectId}-attachment-${index}`"
+          v-for="(attachment, index) in model.attachments"
+          :id="`note-${model.id}-attachment-${index}`"
           :key="attachment.id"
           class="mt-2"
           @click.stop>
@@ -93,7 +95,7 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Context from '@/mixins/Context';
 import NoteEditSession from '@/mixins/NoteEditSession';
 import Util from '@/mixins/Util';
-import { updateNote } from '@/api/notes';
+import { getNote, updateNote } from '@/api/notes';
 
 require('@/assets/styles/ckeditor-custom.css');
 
@@ -104,7 +106,7 @@ export default {
   props: {
     afterCancel: Function,
     afterSaved: Function,
-    note: Object
+    noteId: Number
   },
   data: () => ({
     editor: ClassicEditor,
@@ -112,47 +114,38 @@ export default {
       toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
     },
     error: undefined,
-    noteBody: undefined,
-    noteSubject: undefined,
     showAreYouSureModal: false,
     showErrorPopover: false,
     topic: undefined
   }),
-  watch: {
-    // Vuex-managed 'body' and 'subject' cannot be bound to ckeditor v-model. Thus, we have the following aliases.
-    noteBody(value) {
-      this.setBody(value);
-    },
-    noteSubject(value) {
-      this.setSubject(value);
-    }
-  },
   created() {
-    this.reset();
-    this.init({
-      note: this.cloneDeep(this.note),
-      noteMode: 'edit'
+    getNote(this.noteId).then(note => {
+      this.beginEditSession({
+        mode: 'edit',
+        model: note,
+        sid: note.sid
+      });
+      this.putFocusNextTick('edit-note-subject');
+      this.alertScreenReader('Edit note form is open.');
     });
-    this.noteSubject = this.note.subject;
-    this.noteBody = this.note.body;
-    this.addSid(this.note.sid);
-    this.putFocusNextTick('edit-note-subject');
-    this.alertScreenReader('Edit note form is open.');
   },
   methods: {
     cancel() {
       this.clearErrors();
-      const isPristine = this.trim(this.subject) === this.note.subject
-        && this.stripHtmlAndTrim(this.body) === this.stripHtmlAndTrim(this.note.body);
-      if (isPristine) {
-        this.cancelConfirmed();
-      } else {
-        this.showAreYouSureModal = true;
-      }
+      getNote(this.noteId).then(note => {
+        const isPristine = this.trim(this.model.subject) === note.subject
+          && this.stripHtmlAndTrim(this.model.body) === this.stripHtmlAndTrim(note.body);
+        if (isPristine) {
+          this.cancelConfirmed();
+        } else {
+          this.showAreYouSureModal = true;
+        }
+      });
     },
     cancelConfirmed() {
       this.afterCancel();
-      this.reset();
+      this.terminate();
+      this.clearErrors();
       this.alertScreenReader('Edit note form cancelled.');
     },
     cancelTheCancel() {
@@ -164,18 +157,13 @@ export default {
       this.error = null;
       this.showErrorPopover = false;
     },
-    reset() {
-      this.clearAllFields();
-      this.clearErrors();
-      this.noteBody = null;
-      this.noteSubject = null;
-    },
     save() {
-      const trimmedSubject = this.trim(this.subject);
+      const trimmedSubject = this.trim(this.model.subject);
       if (trimmedSubject) {
-        updateNote(this.objectId, trimmedSubject, this.trim(this.noteBody), this.topics).then(updatedNote => {
+        updateNote(this.model.id, trimmedSubject, this.trim(this.model.body), this.model.topics).then(updatedNote => {
           this.afterSaved(updatedNote);
-          this.reset();
+          this.terminate();
+          this.clearErrors();
           this.alertScreenReader('Changes to note have been saved');
         });
       } else {

@@ -22,10 +22,10 @@
       <div
         id="new-note-modal-container"
         :class="{
-          'd-none': isNil(noteMode),
-          'modal-open': noteMode === 'docked',
-          'modal-open modal-minimized': noteMode === 'minimized',
-          'modal-open modal-saving': noteMode === 'saving',
+          'd-none': isNil(mode),
+          'modal-open': mode === 'docked',
+          'modal-open modal-minimized': mode === 'minimized',
+          'modal-open modal-saving': mode === 'saving',
           'modal-full-screen-content': undocked,
           'mt-4': showBatchNoteFeatures
         }">
@@ -39,7 +39,7 @@
             :undocked="undocked" />
           <hr class="m-0" />
           <div class="mt-2 mr-3 mb-1 ml-3">
-            <div v-if="showBatchNoteFeatures" :class="{'batch-mode-features': noteMode === 'batch'}">
+            <div v-if="showBatchNoteFeatures" :class="{'batch-mode-features': mode === 'batch'}">
               <NewBatchNoteFeatures :cancel="cancel" />
               <hr />
             </div>
@@ -49,11 +49,12 @@
             <div>
               <input
                 id="create-note-subject"
-                v-model="noteSubject"
+                :value="model.subject"
                 aria-labelledby="create-note-subject-label"
                 class="cohort-create-input-name"
                 maxlength="255"
                 type="text"
+                @input="setSubjectPerEvent"
                 @keydown.esc="cancel()">
             </div>
             <div>
@@ -61,7 +62,11 @@
             </div>
             <div id="note-details">
               <span id="create-note-body">
-                <ckeditor v-model="noteBody" :editor="editor" :config="editorConfig"></ckeditor>
+                <ckeditor
+                  :value="model.body"
+                  :editor="editor"
+                  :config="editorConfig"
+                  @input="setBodyPerEvent"></ckeditor>
               </span>
             </div>
           </div>
@@ -70,11 +75,11 @@
               class="mt-2 mr-3 mb-1 ml-3"
               :function-add="addTopic"
               :function-remove="removeTopic"
-              :topics="topics" />
+              :topics="model.topics" />
             <AdvisingNoteAttachments
               class="mt-2 mr-3 mb-1 ml-3"
               :add-attachment="addAttachment"
-              :existing-attachments="attachments"
+              :existing-attachments="model.attachments"
               :remove-attachment="removeAttachment" />
           </div>
           <hr />
@@ -91,7 +96,7 @@
         </form>
       </div>
     </FocusLock>
-    <NewNoteMinimized v-if="!isMinimizing && noteMode === 'minimized'" :cancel="cancel" />
+    <NewNoteMinimized v-if="!isMinimizing && mode === 'minimized'" :cancel="cancel" />
     <AreYouSureModal
       v-if="showDiscardNoteModal"
       :function-cancel="cancelDiscardNote"
@@ -179,27 +184,15 @@ export default {
     },
     isMinimizing: false,
     isModalOpen: false,
-    noteBody: undefined,
-    noteSubject: undefined,
     showBatchNoteFeatures: undefined,
     showCreateTemplateModal: false,
     showDiscardNoteModal: false,
     showDiscardTemplateModal: false,
-    showErrorPopover: false,
-    template: undefined
+    showErrorPopover: false
   }),
   computed: {
     undocked() {
-      return this.includes(['advanced', 'batch', 'editTemplate'], this.noteMode);
-    }
-  },
-  watch: {
-    // Vuex-managed 'body' and 'subject' cannot be bound to ckeditor v-model. Thus, we have the following aliases.
-    noteBody(value) {
-      this.setBody(value);
-    },
-    noteSubject(value) {
-      this.setSubject(value);
+      return this.includes(['advanced', 'batch', 'editTemplate'], this.mode);
     }
   },
   mounted() {
@@ -207,18 +200,25 @@ export default {
   },
   methods: {
     cancel() {
-      if (this.noteMode === 'editTemplate') {
-        const noDiff = this.trim(this.noteSubject) === this.trim(this.template.subject)
-          && this.noteBody === this.template.body
-          && !this.size(this.xor(this.topics, this.template.topics))
-          && !this.size(this.xorBy(this.attachments, this.template.attachments, 'displayName'));
+      if (this.mode === 'editTemplate') {
+        const indexOf = this.noteTemplates.findIndex(t => t.id === this.model.id);
+        const template = this.noteTemplates[indexOf];
+        const noDiff = this.trim(this.model.subject) === template.subject
+          && this.model.body === template.body
+          && !this.size(this.xor(this.model.topics, template.topics))
+          && !this.size(this.xorBy(this.model.attachments, template.attachments, 'displayName'));
         if (noDiff) {
           this.discardTemplate();
         } else {
           this.showDiscardTemplateModal = true;
         }
       } else {
-        const unsavedChanges = this.trim(this.subject) || this.stripHtmlAndTrim(this.body) || this.size(this.attachments) || this.addedCohorts.length || this.addedCuratedGroups.length;
+        const unsavedChanges = this.trim(this.model.subject)
+          || this.stripHtmlAndTrim(this.model.body)
+          || this.size(this.model.topics)
+          || this.size(this.model.attachments)
+          || this.addedCohorts.length
+          || this.addedCuratedGroups.length;
         if (unsavedChanges) {
           this.showDiscardNoteModal = true;
         } else {
@@ -227,10 +227,10 @@ export default {
       }
     },
     editTemplate(template) {
-      this.init({
-        note: template,
-        sids: this.sids,
-        noteMode: 'editTemplate'
+      this.beginEditSession({
+        mode: 'editTemplate',
+        model: template,
+        sid: undefined
       });
     },
     cancelCreateTemplate() {
@@ -245,25 +245,25 @@ export default {
       this.deleteTemplateId = null;
     },
     cancelDiscardTemplate() {
-      this.template = undefined;
       this.showDiscardTemplateModal = false;
-      this.isModalOpen = false;
     },
     createNote() {
-      if (this.subject && this.targetStudentCount) {
+      if (this.model.subject && this.targetStudentCount) {
         this.onSubmit();
         this.createAdvisingNote(this.showBatchNoteFeatures).then(() => {
-          this.onSuccessfulCreate();
-          this.reset();
-          this.setNoteMode(null);
           this.isModalOpen = false;
+          this.onSuccessfulCreate();
+          this.terminate();
           this.alertScreenReader(this.showBatchNoteFeatures ? `Note created for ${this.targetStudentCount} students.` : "New note saved.");
         });
       }
     },
     createTemplate(title) {
       this.showCreateTemplateModal = false;
-      createNoteTemplate(title, this.subject, this.body || '', this.topics, this.attachments).then(template => {
+      createNoteTemplate(title, this.model.subject, this.model.body || '', this.model.topics, this.model.attachments).then(template => {
+        this.isModalOpen = false;
+        this.onSuccessfulCreate();
+        this.terminate();
         this.alertScreenReader(`Template ${template.label} created`);
       });
     },
@@ -277,14 +277,13 @@ export default {
     },
     discardNote() {
       this.showDiscardNoteModal = false;
-      this.reset();
-      this.setNoteMode(null);
+      this.terminate();
       this.isModalOpen = false;
       this.alertScreenReader("Cancelled create new note");
     },
     discardTemplate() {
       this.showDiscardTemplateModal = false;
-      this.reset(this.showBatchNoteFeatures ? 'batch' : 'advanced');
+      this.setMode(this.showBatchNoteFeatures ? 'batch' : 'advanced');
       this.alertScreenReader("Cancelled create new template");
     },
     getTemplateTitle(templateId) {
@@ -292,43 +291,35 @@ export default {
       return this.get(template, 'title');
     },
     loadTemplate(template) {
-      this.noteSubject = template.subject;
-      this.noteBody = template.body;
-      this.init({
-        note: template,
-        noteMode: this.noteMode
+      this.beginEditSession({
+        mode: this.mode,
+        model: template,
+        sid: undefined
       });
       this.alertScreenReader(`Template ${template.title} loaded`);
     },
     minimize() {
       this.isMinimizing = true;
-      this.setNoteMode('minimized');
+      this.setMode('minimized');
       setTimeout(() => this.isMinimizing = false, 300);
       this.alertScreenReader("Create note form minimized.");
     },
     openNewNoteModal() {
-      this.init({
-        noteMode: this.showBatchNoteFeatures ? 'batch' : 'docked'
+      this.beginEditSession({
+        mode: this.showBatchNoteFeatures ? 'batch' : 'docked',
+        model: undefined,
+        sid: this.get(this.student, 'sid')
       });
-      if (this.student) {
-        this.addSid(this.student.sid);
-      }
       this.isModalOpen = true;
       this.putFocusNextTick(this.showBatchNoteFeatures ? 'create-note-add-student-input' : 'create-note-subject');
       this.alertScreenReader(this.showBatchNoteFeatures ? 'Create batch note form is open.' : 'Create note form is open');
-    },
-    reset() {
-      this.clearAllFields();
-      this.noteSubject = null;
-      this.noteBody = null;
     },
     saveAsTemplate() {
       this.showCreateTemplateModal = true;
     },
     updateTemplate() {
-      updateNoteTemplate(this.template.id, this.subject, this.body || '', this.topics, this.attachments, []).then(template => {
-        this.reset();
-        this.setNoteMode(null);
+      updateNoteTemplate(this.model.id, this.model.subject, this.model.body, this.model.topics, this.model.attachments, []).then(template => {
+        this.terminate();
         this.isModalOpen = false;
         this.alertScreenReader(`Template ${template.label} updated`);
       });

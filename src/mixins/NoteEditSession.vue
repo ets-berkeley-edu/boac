@@ -1,4 +1,6 @@
 <script>
+import _ from 'lodash';
+import store from '@/store';
 import { mapActions, mapGetters } from 'vuex';
 
 export default {
@@ -7,14 +9,10 @@ export default {
     ...mapGetters('noteEditSession', [
       'addedCohorts',
       'addedCuratedGroups',
-      'attachments',
-      'body',
-      'noteMode',
-      'objectId',
+      'mode',
+      'model',
       'sids',
-      'subject',
-      'targetStudentCount',
-      'topics'
+      'targetStudentCount'
     ])
   },
   methods: {
@@ -24,21 +22,24 @@ export default {
       'addCuratedGroup',
       'addSid',
       'addTopic',
-      'clearAllFields',
+      'beginEditSession',
       'createAdvisingNote',
-      'endSession',
-      'init',
-      'recalculateStudentCount',
       'removeAttachment',
       'removeCohort',
       'removeCuratedGroup',
       'removeStudent',
       'removeTopic',
       'setBody',
-      'setNoteMode',
+      'setMode',
       'setSubject',
-      'updateAdvisingNote'
-    ])
+      'terminate'
+    ]),
+    setSubjectPerEvent(event) {
+      store.dispatch('noteEditSession/setSubject', _.isString(event) ? event : event.target.value);
+    },
+    setBodyPerEvent(event) {
+      store.dispatch('noteEditSession/setBody', _.isString(event) ? event : event.target.value);
+    }
   }
 };
 </script>
