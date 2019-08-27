@@ -40,7 +40,7 @@ import Loading from '@/mixins/Loading';
 import Scrollable from '@/mixins/Scrollable';
 import Spinner from '@/components/util/Spinner';
 import StudentClasses from '@/components/student/profile/StudentClasses';
-import Notes from '@/mixins/Notes';
+import NoteEditSession from '@/mixins/NoteEditSession';
 import StudentProfileGPA from '@/components/student/profile/StudentProfileGPA';
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader';
 import StudentProfileUnits from '@/components/student/profile/StudentProfileUnits';
@@ -58,7 +58,7 @@ export default {
     StudentProfileHeader,
     StudentProfileUnits
   },
-  mixins: [Context, Loading, Scrollable, Notes, Util],
+  mixins: [Context, Loading, Scrollable, NoteEditSession, Util],
   data: () => ({
     cancelTheCancel: undefined,
     cancelConfirmed: undefined,
@@ -82,7 +82,6 @@ export default {
     }
     getStudentByUid(uid).then(student => {
       if (student) {
-        this.setSid(student.sid);
         this.setPageTitle(this.user.inDemoMode ? 'Student' : student.name);
         this.assign(this.student, student);
         this.each(this.student.enrollmentTerms, this.parseEnrollmentTerm);
@@ -100,7 +99,7 @@ export default {
   },
   methods: {
     confirmExitAndEndSession(next) {
-      if (this.noteMode || this.editModeObject.transientId) {
+      if (this.noteMode) {
         this.alertScreenReader("Are you sure you want to discard unsaved changes?");
         this.cancelConfirmed = () => {
           this.endSession();
