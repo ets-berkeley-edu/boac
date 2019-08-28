@@ -500,6 +500,27 @@ VALUES
 ('11667051-00002', '11667051', 2, '2017-10-31', '1234', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051_00002_2.jpeg', 'brigitte_photo.jpeg', FALSE),
 ('9000000000-00002', '9000000000', 1, '2017-10-31', '4567', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '9000000000_00002_1.pdf', 'dog_eaten_homework.pdf', TRUE);
 
+CREATE TABLE boac_advising_notes.advising_notes AS (
+SELECT sis.sid, sis.id, sis.note_body, sis.advisor_sid,
+       NULL::varchar AS advisor_uid, NULL::varchar AS advisor_first_name, NULL::varchar AS advisor_last_name,
+       sis.note_category, sis.note_subcategory, sis.created_by, sis.created_at, sis.updated_at
+FROM sis_advising_notes.advising_notes sis
+UNION
+SELECT ascn.sid, ascn.id, NULL AS note_body, NULL AS advisor_sid, ascn.advisor_uid, ascn.advisor_first_name, ascn.advisor_last_name,
+       NULL AS note_category, NULL AS note_subcategory, NULL AS created_by, ascn.created_at, ascn.updated_at
+FROM boac_advising_asc.advising_notes ascn
+UNION
+SELECT ein.sid, ein.id, NULL AS note_body, NULL AS advisor_sid, ein.advisor_uid, ein.advisor_first_name, ein.advisor_last_name,
+       NULL AS note_category, NULL AS note_subcategory, NULL AS created_by, ein.created_at, ein.updated_at
+FROM boac_advising_e_i.advising_notes ein
+);
+
+CREATE MATERIALIZED VIEW boac_advising_notes.advising_notes_search_index AS (
+  SELECT id, fts_index FROM boac_advising_asc.advising_notes_search_index
+  UNION SELECT id, fts_index FROM boac_advising_e_i.advising_notes_search_index
+  UNION SELECT id, fts_index FROM sis_advising_notes.advising_notes_search_index
+);
+
 INSERT INTO sis_data.enrolled_primary_sections
 (term_id, sis_section_id, sis_course_name, sis_course_name_compressed, sis_subject_area_compressed, sis_catalog_id, sis_course_title, sis_instruction_format, sis_section_num, instructors)
 VALUES
