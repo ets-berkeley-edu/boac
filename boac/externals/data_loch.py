@@ -28,7 +28,7 @@ import re
 
 from boac.lib.berkeley import current_term_id, sis_term_id_for_name
 from boac.lib.mockingdata import fixture
-from boac.lib.util import tolerant_remove
+from boac.lib.util import join_if_present, tolerant_remove
 from flask import current_app as app
 import sqlalchemy
 from sqlalchemy import create_engine
@@ -453,83 +453,58 @@ def search_advising_notes(
     limit=None,
 ):
 
-    sis_author_filter = 'AND advisor_sid = :author_csid' if author_csid else ''
-    non_sis_author_filter = 'AND advisor_uid = :author_uid' if author_uid else ''
+    if author_uid or author_csid:
+        uid_author_filter = 'an.advisor_uid = :author_uid' if author_uid else None
+        sid_author_filter = 'an.advisor_sid = :author_csid' if author_csid else None
+        author_filter = 'AND (' + join_if_present(' OR ', [uid_author_filter, sid_author_filter]) + ')'
+    else:
+        author_filter = ''
 
-    sid_filter = 'AND sid = :student_csid' if student_csid else ''
+    sid_filter = 'AND an.sid = :student_csid' if student_csid else ''
 
+    # Topic search is limited to SIS notes.
     if topic:
         topic_join = f"""JOIN {sis_advising_notes_schema()}.advising_note_topic_mappings antm
             ON antm.boa_topic = :topic
         JOIN {sis_advising_notes_schema()}.advising_note_topics ant
             ON ant.note_topic = antm.sis_topic
-            AND ant.advising_note_id = sis.id"""
+            AND ant.advising_note_id = an.id"""
     else:
         topic_join = ''
 
-    sis_date_filter = ''
-    non_sis_date_filter = ''
+    date_filter = ''
     # We prefer to filter on updated_at, but that value is not meaningful for UCBCONVERSION notes.
     if datetime_from:
-        sis_date_filter += """ AND ((created_by = 'UCBCONVERSION' AND created_at >= :datetime_from)
-            OR ((created_by != 'UCBCONVERSION' OR created_by IS NULL) AND updated_at >= :datetime_from))"""
-        non_sis_date_filter += ' AND updated_at >= :datetime_from'
+        date_filter += """ AND ((an.created_by = 'UCBCONVERSION' AND an.created_at >= :datetime_from)
+            OR ((an.created_by != 'UCBCONVERSION' OR an.created_by IS NULL) AND an.updated_at >= :datetime_from))"""
     if datetime_to:
-        sis_date_filter += """ AND ((created_by = 'UCBCONVERSION' AND created_at < :datetime_to)
-            OR ((created_by != 'UCBCONVERSION' OR created_by IS NULL) AND updated_at < :datetime_to))"""
-        non_sis_date_filter += ' AND updated_at < :datetime_to'
+        date_filter += """ AND ((an.created_by = 'UCBCONVERSION' AND an.created_at < :datetime_to)
+            OR ((an.created_by != 'UCBCONVERSION' OR an.created_by IS NULL) AND an.updated_at < :datetime_to))"""
 
-    def _fts_selector(schema):
-        if search_phrase:
-            return f"""SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
-                FROM {schema}.advising_notes_search_index
-                WHERE fts_index @@ plainto_tsquery('english', :search_phrase)"""
-        else:
-            return f'SELECT id, 0 AS rank FROM {schema}.advising_notes'
-
-    sql = f"""WITH an AS (
-        (SELECT sis.sid, sis.id, sis.note_body, sis.advisor_sid,
-                NULL::varchar AS advisor_uid, NULL::varchar AS advisor_first_name, NULL::varchar AS advisor_last_name,
-                sis.note_category, sis.note_subcategory, sis.created_by, sis.created_at, sis.updated_at, idx.rank
-            FROM {sis_advising_notes_schema()}.advising_notes sis
-            JOIN ({_fts_selector(sis_advising_notes_schema())}) AS idx
-            ON idx.id = sis.id
-            {sis_date_filter}
-            {sis_author_filter}
-            {sid_filter}
-            {topic_join}
-        )"""
-    if not topic:
-        sql += f"""
-        UNION
-        (SELECT ascn.sid, ascn.id, NULL AS note_body, NULL AS advisor_sid, ascn.advisor_uid, ascn.advisor_first_name, ascn.advisor_last_name,
-                NULL AS note_category, NULL AS note_subcategory, NULL AS created_by, ascn.created_at, ascn.updated_at, idx.rank
-            FROM {asc_schema()}.advising_notes ascn
-            JOIN ({_fts_selector(asc_schema())}) AS idx
-            ON idx.id = ascn.id
-            {non_sis_date_filter}
-            {non_sis_author_filter}
-            {sid_filter}
-        )
-        UNION
-        (SELECT ein.sid, ein.id, NULL AS note_body, NULL AS advisor_sid, ein.advisor_uid, ein.advisor_first_name, ein.advisor_last_name,
-                NULL AS note_category, NULL AS note_subcategory, NULL AS created_by, ein.created_at, ein.updated_at, idx.rank
-            FROM {e_i_schema()}.advising_notes ein
-            JOIN ({_fts_selector(e_i_schema())}) AS idx
-            ON idx.id = ein.id
-            {non_sis_date_filter}
-            {non_sis_author_filter}
-            {sid_filter}
-        )"""
-    sql += f""")
-        SELECT DISTINCT
-            an.sid, an.id, an.note_body, an.advisor_sid, an.advisor_uid,
+    query_columns = """an.sid, an.id, an.note_body, an.advisor_sid, an.advisor_uid,
             an.created_by, an.created_at, an.updated_at, an.note_category, an.note_subcategory,
-            sas.uid, sas.first_name, sas.last_name, an.advisor_first_name, an.advisor_last_name, an.rank
-        FROM {student_schema()}.student_academic_status sas
-        JOIN an
-            ON an.sid = sas.sid
-        ORDER BY an.rank DESC, an.id"""
+            sas.uid, sas.first_name, sas.last_name, an.advisor_first_name, an.advisor_last_name"""
+
+    query_tables = f"""{advising_notes_schema()}.advising_notes an
+        JOIN {student_schema()}.student_academic_status sas ON an.sid = sas.sid"""
+
+    if search_phrase:
+        query_columns += ", ts_rank(idx.fts_index, plainto_tsquery('english', :search_phrase)) AS rank"
+        query_tables += f"""
+            JOIN {advising_notes_schema()}.advising_notes_search_index idx
+            ON idx.id = an.id
+            AND idx.fts_index @@ plainto_tsquery('english', :search_phrase)"""
+    else:
+        query_columns += ', 0 AS rank'
+
+    sql = f"""SELECT DISTINCT {query_columns} FROM {query_tables}
+        {topic_join}
+        WHERE TRUE
+        {author_filter}
+        {sid_filter}
+        {date_filter}
+        ORDER BY rank DESC, an.id"""
+
     if offset is not None and offset > 0:
         sql += ' OFFSET :offset'
     if limit is not None and limit < 150:  # Sanity check large limits
