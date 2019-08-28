@@ -34,9 +34,10 @@ export function createNote(
     subject: string,
     body: string,
     topics: string[],
-    attachments: any[]
+    attachments: any[],
+    templateAttachmentIds: []
 ) {
-  const data = {sid, subject, body, topics};
+  const data = {sid, subject, body, topics, templateAttachmentIds};
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
   return utils.postMultipartFormData('/api/notes/create', data).then(data => {
     Vue.prototype.$eventHub.$emit('advising-note-created', data);
@@ -55,10 +56,11 @@ export function createNoteBatch(
     body: string,
     topics: string[],
     attachments: any[],
+    templateAttachmentIds: [],
     cohortIds: number[],
     curatedGroupIds: number[]
 ) {
-  const data = {sids, subject, body, topics, cohortIds, curatedGroupIds};
+  const data = {sids, subject, body, topics, templateAttachmentIds, cohortIds, curatedGroupIds};
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
   return utils.postMultipartFormData('/api/notes/batch/create', data).then(data => {
     Vue.prototype.$eventHub.$emit('batch-of-notes-created', data);

@@ -7,7 +7,8 @@ const $_getDefaultModel = () => {
     subject: undefined,
     body: undefined,
     topics: [],
-    attachments: []
+    attachments: [],
+    deleteAttachmentIds: []
   };
 };
 
@@ -55,6 +56,10 @@ const mutations = {
     return new Promise(resolve => {
       state.body = _.trim(state.model.body);
       state.mode = 'saving';
+      const [templateAttachments, attachments] = state.model.attachments.reduce((result, a) => {
+        result[a.noteTemplateId ? 0 : 1].push(a);
+        return result;
+      }, [[], []]);
       if (isBatchFeature) {
         const cohortIds = _.map(state.addedCohorts, 'id');
         const curatedGroupIds = _.map(state.addedCuratedGroups, 'id');
@@ -63,7 +68,8 @@ const mutations = {
           state.model.subject,
           state.model.body,
           state.model.topics,
-          state.model.attachments,
+          attachments,
+          _.map(templateAttachments, 'id'),
           cohortIds,
           curatedGroupIds
         ).then(resolve);
@@ -73,12 +79,19 @@ const mutations = {
             state.model.subject,
             state.model.body,
             state.model.topics,
-            state.model.attachments
+            attachments,
+            _.map(templateAttachments, 'id'),
         ).then(resolve);
       }
     });
   },
-  removeAttachment: (state: any, index: number) => (state.model.attachments.splice(index, 1)),
+  removeAttachment: (state: any, index: number) => {
+    const attachment = state.model.attachments[index];
+    if (attachment.id) {
+      state.model.deleteAttachmentIds.push(attachment.id);
+    }
+    state.model.attachments.splice(index, 1);
+  },
   removeCohort: (state:any, cohort: any) => state.addedCohorts = _.filter(state.addedCohorts, c => c.id !== cohort.id),
   removeCuratedGroup: (state:any, curatedGroup: any) => (state.addedCuratedGroups = _.filter(state.addedCuratedGroups, c => c.id !== curatedGroup.id)),
   removeStudent: (state:any, sid: string) => (state.sids = _.filter(state.sids, existingSid => existingSid !== sid)),
@@ -108,7 +121,8 @@ const mutations = {
         subject: model.subject,
         body: model.body,
         topics: model.topics || [],
-        attachments: model.attachments || []
+        attachments: model.attachments || [],
+        deleteAttachmentIds: []
       };
     } else {
       state.model = $_getDefaultModel();

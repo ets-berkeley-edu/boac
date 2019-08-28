@@ -219,6 +219,11 @@ def get_note_attachments_from_http_post(tolerate_none=False):
     return byte_stream_bundle
 
 
+def get_template_attachment_ids_from_http_post():
+    ids = request.form.get('templateAttachmentIds', [])
+    return ids if isinstance(ids, list) else list(filter(None, str(ids).split(',')))
+
+
 def get_note_topics_from_http_post():
     topics = request.form.get('topics', ())
     return topics if isinstance(topics, list) else list(filter(None, str(topics).split(',')))

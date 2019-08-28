@@ -99,8 +99,8 @@ export default {
   },
   methods: {
     removeAttachmentByIndex(index) {
+      this.alertScreenReader(`Attachment '${this.existingAttachments[index].name}' removed`);
       this.removeAttachment(index);
-      this.alertScreenReader(`Attachment '${this.attachments[index].name}' removed`);
     }
   }
 }

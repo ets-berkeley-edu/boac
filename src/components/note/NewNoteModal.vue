@@ -291,7 +291,7 @@ export default {
       this.beginEditSession({
         mode: 'editTemplate',
         model: template,
-        sid: undefined
+        sid: this.get(this.student, 'sid')
       });
     },
     getTemplateTitle(templateId) {
@@ -301,8 +301,8 @@ export default {
     loadTemplate(template) {
       this.beginEditSession({
         mode: this.mode,
-        model: template,
-        sid: undefined
+        model: this.cloneDeep(template),
+        sid: this.get(this.student, 'sid')
       });
       this.alertScreenReader(`Template ${template.title} loaded`);
     },
@@ -327,7 +327,15 @@ export default {
       this.putFocusNextTick('template-title-input');
     },
     updateTemplate() {
-      updateNoteTemplate(this.model.id, this.model.subject, this.model.body, this.model.topics, this.model.attachments, []).then(template => {
+      const newAttachments = this.filterList(this.model.attachments, a => !a.id);
+      updateNoteTemplate(
+        this.model.id,
+        this.model.subject,
+        this.model.body,
+        this.model.topics,
+        newAttachments,
+        this.model.deleteAttachmentIds
+      ).then(template => {
         this.terminate();
         this.isModalOpen = false;
         this.alertScreenReader(`Template ${template.label} updated`);

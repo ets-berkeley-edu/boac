@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import urllib.parse
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import get_note_attachments_from_http_post, get_note_topics_from_http_post
+from boac.api.util import get_note_attachments_from_http_post, get_note_topics_from_http_post, get_template_attachment_ids_from_http_post
 from boac.externals import data_loch
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int, process_input_from_rich_text_editor, to_bool_or_none
@@ -83,6 +83,7 @@ def create_note():
         topics=topics,
         sid=sid,
         attachments=attachments,
+        template_attachment_ids=get_template_attachment_ids_from_http_post(),
     )
     note_read = NoteRead.find_or_create(current_user.get_id(), note.id)
     return tolerant_jsonify(_boa_note_to_compatible_json(note=note, note_read=note_read))
@@ -112,6 +113,7 @@ def batch_create_notes():
         topics=topics,
         sids=sids,
         attachments=attachments,
+        template_attachment_ids=get_template_attachment_ids_from_http_post(),
     )
     return tolerant_jsonify(note_ids_per_sid)
 
