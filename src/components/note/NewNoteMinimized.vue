@@ -37,7 +37,10 @@ export default {
   name: 'NewNoteMinimized',
   mixins: [Context, NoteEditSession, Util],
   props: {
-    cancel: Function
+    cancel: {
+      required: true,
+      type: Function
+    }
   },
   methods: {
     maximize() {

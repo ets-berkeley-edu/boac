@@ -10,7 +10,9 @@ export default {
   ) => {
     const formData = new FormData();
     _.each(data, (value, key) => {
-      formData.append(key, value);
+      if (!_.isNil(value)) {
+        formData.append(key, value);
+      }
     });
     const apiBaseUrl = store.getters['context/apiBaseUrl'];
     return axios

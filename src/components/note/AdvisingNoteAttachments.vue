@@ -37,7 +37,8 @@
           :key="attachment.name"
           class="mt-2">
           <span class="pill pill-attachment text-nowrap">
-            <font-awesome icon="paperclip" class="pr-1 pl-1" /> {{ attachment.name }}
+            <font-awesome icon="paperclip" />
+            {{ attachment.displayName }}
             <b-btn
               :id="`remove-note-attachment-${index}`"
               variant="link"
