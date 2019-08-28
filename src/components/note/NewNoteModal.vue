@@ -74,6 +74,7 @@
           </div>
           <div v-if="undocked">
             <AdvisingNoteTopics
+              :key="model.id"
               class="mt-2 mr-3 mb-1 ml-3"
               :function-add="addTopic"
               :function-remove="removeTopic"
@@ -240,9 +241,11 @@ export default {
     },
     cancelDeleteTemplate() {
       this.deleteTemplateId = null;
+      this.putFocusNextTick('create-note-subject');
     },
     cancelDiscardTemplate() {
       this.showDiscardTemplateModal = false;
+      this.putFocusNextTick('create-note-subject');
     },
     createNote() {
       if (this.model.subject && this.targetStudentCount) {
@@ -270,6 +273,7 @@ export default {
     deleteTemplateConfirmed() {
       deleteNoteTemplate(this.deleteTemplateId).then(() => {
         this.deleteTemplateId = null;
+        this.putFocusNextTick('create-note-subject');
       })
     },
     discardNote() {
@@ -285,14 +289,16 @@ export default {
         model: null,
         sid: this.get(this.student, 'sid')
       });
+      this.putFocusNextTick('create-note-subject');
       this.alertScreenReader("Cancelled create new template");
     },
     editTemplate(template) {
       this.beginEditSession({
         mode: 'editTemplate',
-        model: template,
+        model: this.cloneDeep(template),
         sid: this.get(this.student, 'sid')
       });
+      this.putFocusNextTick('create-note-subject');
     },
     getTemplateTitle(templateId) {
       const template = this.find(this.noteTemplates, ['id', templateId]);
@@ -304,6 +310,7 @@ export default {
         model: this.cloneDeep(template),
         sid: this.get(this.student, 'sid')
       });
+      this.putFocusNextTick('create-note-subject');
       this.alertScreenReader(`Template ${template.title} loaded`);
     },
     minimize() {
