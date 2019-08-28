@@ -98,11 +98,10 @@ class NoteTemplate(Base):
         return cls.query.filter_by(creator_id=creator_id, deleted_at=None).order_by(cls.title).all()
 
     @classmethod
-    def update(cls, note_template_id, title, subject, body, topics=(), attachments=(), delete_attachment_ids=()):
+    def update(cls, note_template_id, subject, body, topics=(), attachments=(), delete_attachment_ids=()):
         note_template = cls.find_by_id(note_template_id)
         if note_template:
             creator = AuthorizedUser.find_by_id(note_template.creator_id)
-            note_template.title = title
             note_template.subject = subject
             note_template.body = body
             cls._update_note_template_topics(note_template, topics)
