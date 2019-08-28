@@ -31,7 +31,7 @@
         }">
         <form @submit.prevent="createNote()">
           <NewNotePageHeader
-            :cancel="cancel"
+            :cancel="cancelRequested"
             :delete-template="deleteTemplate"
             :edit-template="editTemplate"
             :load-template="loadTemplate"
@@ -41,7 +41,7 @@
           <div class="mt-2 mr-3 mb-1 ml-3">
             <transition v-if="isBatchFeature" name="batch">
               <div v-if="mode !== 'editTemplate'">
-                <NewBatchNoteFeatures :cancel="cancel" />
+                <NewBatchNoteFeatures :cancel="cancelRequested" />
                 <hr />
               </div>
             </transition>
@@ -57,7 +57,7 @@
                 maxlength="255"
                 type="text"
                 @input="setSubjectPerEvent"
-                @keydown.esc="cancel()">
+                @keydown.esc="cancelRequested()">
             </div>
             <div>
               <label for="create-note-body" class="font-size-14 font-weight-bolder mt-3 mb-1">Note Details</label>
@@ -87,7 +87,7 @@
           <hr />
           <div>
             <NewNoteModalButtons
-              :cancel="cancel"
+              :cancel="cancelRequested"
               :create-note="createNote"
               :delete-template="deleteTemplate"
               :minimize="minimize"
@@ -98,7 +98,9 @@
         </form>
       </div>
     </FocusLock>
-    <NewNoteMinimized v-if="!isMinimizing && mode === 'minimized'" :cancel="cancel" />
+    <div v-if="!isMinimizing && mode === 'minimized'">
+      <NewNoteMinimized :cancel="cancelRequested" />
+    </div>
     <AreYouSureModal
       v-if="showDiscardNoteModal"
       :function-cancel="cancelDiscardNote"
@@ -201,7 +203,7 @@ export default {
     this.isBatchFeature = !this.student;
   },
   methods: {
-    cancel() {
+    cancelRequested() {
       if (this.mode === 'editTemplate') {
         const indexOf = this.noteTemplates.findIndex(t => t.id === this.model.id);
         const template = this.noteTemplates[indexOf];
@@ -227,13 +229,6 @@ export default {
           this.discardNote();
         }
       }
-    },
-    editTemplate(template) {
-      this.beginEditSession({
-        mode: 'editTemplate',
-        model: template,
-        sid: undefined
-      });
     },
     cancelCreateTemplate() {
       this.showCreateTemplateModal = false;
@@ -279,8 +274,8 @@ export default {
     },
     discardNote() {
       this.showDiscardNoteModal = false;
-      this.terminate();
       this.isModalOpen = false;
+      this.terminate();
       this.alertScreenReader("Cancelled create new note");
     },
     discardTemplate() {
@@ -291,6 +286,13 @@ export default {
         sid: this.get(this.student, 'sid')
       });
       this.alertScreenReader("Cancelled create new template");
+    },
+    editTemplate(template) {
+      this.beginEditSession({
+        mode: 'editTemplate',
+        model: template,
+        sid: undefined
+      });
     },
     getTemplateTitle(templateId) {
       const template = this.find(this.noteTemplates, ['id', templateId]);

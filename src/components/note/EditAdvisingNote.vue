@@ -12,7 +12,7 @@
         type="text"
         maxlength="255"
         @input="setSubjectPerEvent"
-        @keydown.esc="cancel()">
+        @keydown.esc="cancelRequested()">
     </div>
     <div>
       <label class="font-weight-bold mt-2" for="edit-note-details">
@@ -49,8 +49,8 @@
         <b-btn
           id="cancel-edit-note-button"
           variant="link"
-          @click.stop="cancel()"
-          @keypress.enter.stop="cancel()">
+          @click.stop="cancelRequested()"
+          @keypress.enter.stop="cancelRequested()">
           Cancel
         </b-btn>
       </div>
@@ -130,7 +130,7 @@ export default {
     });
   },
   methods: {
-    cancel() {
+    cancelRequested() {
       this.clearErrors();
       getNote(this.noteId).then(note => {
         const isPristine = this.trim(this.model.subject) === note.subject
