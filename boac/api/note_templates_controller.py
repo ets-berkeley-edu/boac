@@ -81,8 +81,9 @@ def get_my_note_templates():
 def update_note_template():
     params = request.form
     note_template_id = params.get('id', None)
-    title = params.get('title', None)
     subject = params.get('subject', None)
+    if not subject:
+        raise BadRequestError('Requires \'subject\'')
     body = params.get('body', None)
     topics = get_note_topics_from_http_post()
     delete_ids_ = params.get('deleteAttachmentIds') or []
@@ -91,13 +92,10 @@ def update_note_template():
     note_template = NoteTemplate.find_by_id(note_template_id=note_template_id)
     if not note_template:
         raise ResourceNotFoundError('Template not found')
-    if not subject or not title:
-        raise BadRequestError('Requires \'title\' and \'subject\'')
     if note_template.creator_id != current_user.get_id():
         raise ForbiddenRequestError('Template not available.')
     note_template = NoteTemplate.update(
         note_template_id=note_template_id,
-        title=title,
         subject=subject,
         body=process_input_from_rich_text_editor(body),
         topics=topics,

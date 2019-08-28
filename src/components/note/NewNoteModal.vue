@@ -1,16 +1,16 @@
 <template>
   <div>
-    <div :class="{'d-flex justify-content-center pl-3 pr-3': showBatchNoteFeatures}">
+    <div :class="{'d-flex justify-content-center pl-3 pr-3': isBatchFeature}">
       <b-btn
-        :id="showBatchNoteFeatures ? 'batch-note-button' : 'new-note-button'"
+        :id="isBatchFeature ? 'batch-note-button' : 'new-note-button'"
         class="mt-1 mr-2 btn-primary-color-override btn-primary-color-override-opaque"
-        :class="{'w-100': showBatchNoteFeatures}"
+        :class="{'w-100': isBatchFeature}"
         variant="primary"
         :disabled="isModalOpen"
         @click="openNewNoteModal()">
         <span class="m-1">
           <font-awesome icon="file-alt" />
-          <span class="sr-only">{{ showBatchNoteFeatures ? 'Batch create ' : 'Create ' }}</span>
+          <span class="sr-only">{{ isBatchFeature ? 'Batch create ' : 'Create ' }}</span>
           New Note
         </span>
       </b-btn>
@@ -27,7 +27,7 @@
           'modal-open modal-minimized': mode === 'minimized',
           'modal-open modal-saving': mode === 'saving',
           'modal-full-screen-content': undocked,
-          'mt-4': showBatchNoteFeatures
+          'mt-4': isBatchFeature
         }">
         <form @submit.prevent="createNote()">
           <NewNotePageHeader
@@ -39,10 +39,12 @@
             :undocked="undocked" />
           <hr class="m-0" />
           <div class="mt-2 mr-3 mb-1 ml-3">
-            <div v-if="showBatchNoteFeatures" :class="{'batch-mode-features': mode === 'batch'}">
-              <NewBatchNoteFeatures :cancel="cancel" />
-              <hr />
-            </div>
+            <transition v-if="isBatchFeature" name="batch">
+              <div v-if="mode !== 'editTemplate'">
+                <NewBatchNoteFeatures :cancel="cancel" />
+                <hr />
+              </div>
+            </transition>
             <div>
               <label for="create-note-subject" class="font-size-14 font-weight-bolder mb-1"><span class="sr-only">Note </span>Subject</label>
             </div>
@@ -184,7 +186,7 @@ export default {
     },
     isMinimizing: false,
     isModalOpen: false,
-    showBatchNoteFeatures: undefined,
+    isBatchFeature: undefined,
     showCreateTemplateModal: false,
     showDiscardNoteModal: false,
     showDiscardTemplateModal: false,
@@ -196,7 +198,7 @@ export default {
     }
   },
   mounted() {
-    this.showBatchNoteFeatures = !this.student;
+    this.isBatchFeature = !this.student;
   },
   methods: {
     cancel() {
@@ -250,11 +252,11 @@ export default {
     createNote() {
       if (this.model.subject && this.targetStudentCount) {
         this.onSubmit();
-        this.createAdvisingNote(this.showBatchNoteFeatures).then(() => {
+        this.createAdvisingNote(this.isBatchFeature).then(() => {
           this.isModalOpen = false;
           this.onSuccessfulCreate();
           this.terminate();
-          this.alertScreenReader(this.showBatchNoteFeatures ? `Note created for ${this.targetStudentCount} students.` : "New note saved.");
+          this.alertScreenReader(this.isBatchFeature ? `Note created for ${this.targetStudentCount} students.` : "New note saved.");
         });
       }
     },
@@ -284,7 +286,7 @@ export default {
     discardTemplate() {
       this.showDiscardTemplateModal = false;
       this.beginEditSession({
-        mode: this.showBatchNoteFeatures ? 'batch' : 'advanced',
+        mode: this.isBatchFeature ? 'batch' : 'advanced',
         model: null,
         sid: this.get(this.student, 'sid')
       });
@@ -310,13 +312,13 @@ export default {
     },
     openNewNoteModal() {
       this.beginEditSession({
-        mode: this.showBatchNoteFeatures ? 'batch' : 'docked',
+        mode: this.isBatchFeature ? 'batch' : 'docked',
         model: undefined,
         sid: this.get(this.student, 'sid')
       });
       this.isModalOpen = true;
-      this.putFocusNextTick(this.showBatchNoteFeatures ? 'create-note-add-student-input' : 'create-note-subject');
-      this.alertScreenReader(this.showBatchNoteFeatures ? 'Create batch note form is open.' : 'Create note form is open');
+      this.putFocusNextTick(this.isBatchFeature ? 'create-note-add-student-input' : 'create-note-subject');
+      this.alertScreenReader(this.isBatchFeature ? 'Create batch note form is open.' : 'Create note form is open');
     },
     saveAsTemplate() {
       this.showCreateTemplateModal = true;
@@ -357,9 +359,6 @@ export default {
   height: 1px !important;
   z-index: 1;
 }
-.batch-mode-features {
-  -webkit-transition: height 0.5s;
-}
 .modal-open {
   -webkit-transition: height 0.5s;
   background-color: #fff;
@@ -375,5 +374,25 @@ export default {
 }
 .modal-saving {
   height: 1px !important;
+}
+.batch-enter-active {
+   -webkit-transition-duration: 0.3s;
+   transition-duration: 0.3s;
+   -webkit-transition-timing-function: ease-in;
+   transition-timing-function: ease-in;
+}
+.batch-leave-active {
+   -webkit-transition-duration: 0.3s;
+   transition-duration: 0.5s;
+   -webkit-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+   transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+}
+.batch-enter-to, .batch-leave {
+  max-height: 280px;
+  overflow: hidden;
+}
+.batch-enter, .batch-leave-to {
+  overflow: hidden;
+  max-height: 0;
 }
 </style>

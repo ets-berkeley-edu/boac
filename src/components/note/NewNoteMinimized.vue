@@ -50,6 +50,9 @@ export default {
 </script>
 
 <style scoped>
+.fa-icon-size {
+  font-size: 28px;
+}
 .minimized-placeholder {
   background-color: #125074;
   border: 1px solid #aaa;
@@ -64,6 +67,6 @@ export default {
 }
 .minimized-label {
   font-size: 24px;
-  margin: 0 15px 12px 15px;
+  margin: 0 15px 6px 15px;
 }
 </style>
