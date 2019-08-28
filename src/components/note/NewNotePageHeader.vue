@@ -25,7 +25,7 @@
           :key="template.id">
           <div class="align-items-center d-flex justify-content-between">
             <div>
-              <b-btn variant="link" class="dropdown-item p-0" @click="loadTemplate(template)">{{ truncate(template.title) }}</b-btn>
+              <b-btn variant="link" class="dropdown-item pl-1" @click="loadTemplate(template)">{{ truncate(template.title) }}</b-btn>
             </div>
             <div class="align-items-center d-flex ml-2 no-wrap">
               <div class="pl-2">

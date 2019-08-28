@@ -30,6 +30,7 @@ from boac import db, std_commit
 from boac.lib.util import put_attachment_to_s3, titleize, utc_now, vacuum_whitespace
 from boac.models.base import Base
 from boac.models.note_attachment import NoteAttachment
+from boac.models.note_template_attachment import NoteTemplateAttachment
 from boac.models.note_topic import NoteTopic
 from flask import current_app as app
 from sqlalchemy import and_
@@ -76,7 +77,19 @@ class Note(Base):
         return cls.query.filter(and_(cls.id == note_id, cls.deleted_at == None)).first()  # noqa: E711
 
     @classmethod
-    def create(cls, author_uid, author_name, author_role, author_dept_codes, sid, subject, body, topics=(), attachments=()):
+    def create(
+            cls,
+            author_uid,
+            author_name,
+            author_role,
+            author_dept_codes,
+            sid,
+            subject,
+            body,
+            topics=(),
+            attachments=(),
+            template_attachment_ids=(),
+    ):
         note = cls(author_uid, author_name, author_role, author_dept_codes, sid, subject, body)
         for topic in topics:
             note.topics.append(
@@ -88,6 +101,14 @@ class Note(Base):
                     note_id=note.id,
                     name=byte_stream_bundle['name'],
                     byte_stream=byte_stream_bundle['byte_stream'],
+                    uploaded_by=author_uid,
+                ),
+            )
+        for template_attachment in NoteTemplateAttachment.get_attachments(template_attachment_ids):
+            note.attachments.append(
+                NoteAttachment.create_using_template_attachment(
+                    note_id=note.id,
+                    template_attachment=template_attachment,
                     uploaded_by=author_uid,
                 ),
             )
@@ -109,6 +130,7 @@ class Note(Base):
             body,
             topics=(),
             attachments=(),
+            template_attachment_ids=(),
     ):
         t = time.time()
         note_ids_per_sid = _create_notes(
@@ -123,7 +145,12 @@ class Note(Base):
         )
         note_ids = list(note_ids_per_sid.values())
         _add_topics_to_notes(author_uid=author_uid, note_ids=note_ids, topics=topics)
-        _add_attachments_to_notes(attachments=attachments, author_uid=author_uid, note_ids=note_ids)
+        _add_attachments_to_notes(
+            attachments=attachments,
+            template_attachment_ids=template_attachment_ids,
+            author_uid=author_uid,
+            note_ids=note_ids,
+        )
         cls.refresh_search_index()
         app.logger.info(f'Batch note creation: {len(sids)} records inserted in {str(time.time() - t)} seconds')
         return note_ids_per_sid
@@ -369,13 +396,10 @@ def _add_topics_to_notes(author_uid, note_ids, topics):
             db.session.execute(query, {'json_dumps': json.dumps(data)})
 
 
-def _add_attachments_to_notes(attachments, author_uid, note_ids):
+def _add_attachments_to_notes(attachments, template_attachment_ids, author_uid, note_ids):
     now = utc_now().strftime('%Y-%m-%d %H:%M:%S')
-    for byte_stream_bundle in attachments:
-        s3_path = put_attachment_to_s3(
-            name=byte_stream_bundle['name'],
-            byte_stream=byte_stream_bundle['byte_stream'],
-        )
+
+    def _add_attachment(_s3_path):
         count_per_chunk = 10000
         for chunk in range(0, len(note_ids), count_per_chunk):
             query = """
@@ -388,8 +412,15 @@ def _add_attachments_to_notes(attachments, author_uid, note_ids):
                 {
                     'created_at': now,
                     'note_id': note_id,
-                    'path_to_attachment': s3_path,
+                    'path_to_attachment': _s3_path,
                     'uploaded_by_uid': author_uid,
                 } for note_id in note_ids_subset
             ]
             db.session.execute(query, {'json_dumps': json.dumps(data)})
+
+    for byte_stream_bundle in attachments:
+        s3_path = put_attachment_to_s3(name=byte_stream_bundle['name'], byte_stream=byte_stream_bundle['byte_stream'])
+        _add_attachment(s3_path)
+    if template_attachment_ids:
+        for template_attachment in NoteTemplateAttachment.get_attachments(template_attachment_ids):
+            _add_attachment(template_attachment.path_to_attachment)

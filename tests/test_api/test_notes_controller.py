@@ -219,7 +219,7 @@ class TestNoteCreation:
         assert note['createdAt'] is not None
         assert note['updatedAt'] is None
 
-    def test_create_note_with_attachments(self, app, client, fake_auth):
+    def test_create_note_with_attachments(self, app, client, fake_auth, mock_note_template):
         """Create a note, with two attachments."""
         fake_auth.login(coe_advisor_uid)
         base_dir = app.config['BASE_DIR']
@@ -234,15 +234,20 @@ class TestNoteCreation:
                 f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt',
                 f'{base_dir}/fixtures/mock_advising_note_attachment_2.txt',
             ],
+            template_attachment_ids=list(map(lambda a: a.id, mock_note_template.attachments)),
         )
-        assert len(note.get('attachments')) == 2
+        template_attachment_count = len(mock_note_template.attachments)
+        assert template_attachment_count
+        expected_attachment_count = template_attachment_count + 2
+
+        assert len(note.get('attachments')) == expected_attachment_count
         assert note['createdAt'] is not None
         assert note['updatedAt'] is None
 
 
 class TestBatchNoteCreation:
 
-    def test_batch_note_creation_with_sids(self, app, client, fake_auth):
+    def test_batch_note_creation_with_sids(self, app, client, fake_auth, mock_note_template):
         """Batch note creation with list of SIDs."""
         fake_auth.login(coe_advisor_uid)
         base_dir = app.config['BASE_DIR']
@@ -284,11 +289,17 @@ class TestBatchNoteCreation:
                 f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt',
                 f'{base_dir}/fixtures/mock_advising_note_attachment_2.txt',
             ],
+            template_attachment_ids=list(map(lambda a: a.id, mock_note_template.attachments)),
         )
         notes = Note.query.filter(Note.subject == subject).all()
         assert len(notes) == len(distinct_sids)
         matching_notes_read = NoteRead.get_notes_read_by_user(viewer_id=advisor.id, note_ids=[str(n.id) for n in notes])
         assert len(notes) == len(matching_notes_read)
+
+        template_attachment_count = len(mock_note_template.attachments)
+        assert template_attachment_count
+        expected_attachment_count = template_attachment_count + 2
+
         for sid in distinct_sids:
             note = next((n for n in notes if n.sid == sid), None)
             assert note
@@ -298,7 +309,7 @@ class TestBatchNoteCreation:
             topics = [t.topic for t in note.topics]
             assert 'Slanted' in topics
             assert 'Enchanted' in topics
-            assert len(note.attachments) == 2
+            assert len(note.attachments) == expected_attachment_count
 
     def test_batch_student_count_not_authenticated(self, client):
         """Deny anonymous access to batch note metadata."""
@@ -720,7 +731,18 @@ def _asc_note_with_attachment():
     return None
 
 
-def _api_note_create(app, client, author_id, sid, subject, body, topics=(), attachments=(), expected_status_code=200):
+def _api_note_create(
+        app,
+        client,
+        author_id,
+        sid,
+        subject,
+        body,
+        topics=(),
+        attachments=(),
+        template_attachment_ids=(),
+        expected_status_code=200,
+):
     with mock_advising_note_s3_bucket(app):
         data = {
             'authorId': author_id,
@@ -728,6 +750,7 @@ def _api_note_create(app, client, author_id, sid, subject, body, topics=(), atta
             'subject': subject,
             'body': body,
             'topics': ','.join(topics),
+            'templateAttachmentIds': ','.join(str(_id) for _id in template_attachment_ids),
         }
         for index, path in enumerate(attachments):
             data[f'attachment[{index}]'] = open(path, 'rb')
@@ -752,6 +775,7 @@ def _api_batch_note_create(
         curated_group_ids=None,
         topics=(),
         attachments=(),
+        template_attachment_ids=(),
         expected_status_code=200,
 ):
     with mock_advising_note_s3_bucket(app):
@@ -763,6 +787,7 @@ def _api_batch_note_create(
             'curatedGroupIds': curated_group_ids or [],
             'subject': subject,
             'body': body,
+            'templateAttachmentIds': template_attachment_ids,
             'topics': ','.join(topics),
         }
         for index, path in enumerate(attachments):

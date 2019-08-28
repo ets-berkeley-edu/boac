@@ -9,6 +9,12 @@ export function getMyNoteTemplates() {
     .then(response => response.data, () => null);
 }
 
+export function getNoteTemplate(templateId: number) {
+  return axios
+    .get(`${utils.apiBaseUrl()}/api/note_template/${templateId}`)
+    .then(response => response.data, () => null);
+}
+
 export function createNoteTemplate(
     title: string,
     subject: string,

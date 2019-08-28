@@ -61,6 +61,10 @@ class NoteTemplateAttachment(db.Model):
         return cls.query.filter(and_(cls.id == attachment_id, cls.deleted_at == None)).first()  # noqa: E711
 
     @classmethod
+    def get_attachments(cls, attachment_ids):
+        return cls.query.filter(and_(cls.id.in_(attachment_ids), cls.deleted_at == None)).all()  # noqa: E711
+
+    @classmethod
     def create(cls, note_template_id, name, byte_stream, uploaded_by):
         return NoteTemplateAttachment(
             note_template_id=note_template_id,

@@ -219,7 +219,7 @@ def mock_note_template(app, db):
     """Create advising note template with attachment (mock s3)."""
     with mock_advising_note_s3_bucket(app):
         base_dir = app.config['BASE_DIR']
-        path_to_file = f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt'
+        path_to_file = f'{base_dir}/fixtures/mock_note_template_attachment_1.txt'
         timestamp = datetime.now().timestamp()
         with open(path_to_file, 'r') as file:
             note_template = NoteTemplate.create(
