@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex mt-1 mr-3 mb-0 ml-3">
+  <div class="d-flex flex-wrap-reverse mt-1 mr-3 mb-0 ml-3">
     <div v-if="undocked && mode !== 'editTemplate'" class="flex-grow-1">
       <b-btn
         id="btn-to-save-note-as-template"
