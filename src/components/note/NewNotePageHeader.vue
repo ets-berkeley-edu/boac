@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex align-items-end pt-2 mb-1" :class="{'mt-2': undocked}">
+  <div class="d-flex flex-wrap align-items-end pt-2 mb-1" :class="{'mt-2': undocked}">
     <div class="flex-grow-1 new-note-header font-weight-bolder">
       <span v-if="mode === 'editTemplate'">Edit Template</span>
       <span v-if="mode !== 'editTemplate'">New Note</span>
@@ -42,29 +42,31 @@
         </b-dropdown-item>
       </b-dropdown>
     </div>
-    <div v-if="!undocked" class="pr-0">
-      <label id="minimize-button-label" class="sr-only">Minimize the create note dialog box</label>
-      <b-btn
-        id="minimize-new-note-modal"
-        variant="link"
-        aria-labelledby="minimize-button-label"
-        class="pr-2"
-        @click.prevent="minimize()">
-        <span class="sr-only">Minimize</span>
-        <font-awesome icon="window-minimize" class="minimize-icon text-dark" />
-      </b-btn>
-    </div>
-    <div v-if="!undocked" class="pr-2">
-      <label id="cancel-button-label" class="sr-only">Cancel the create-note form</label>
-      <b-btn
-        id="cancel-new-note-modal"
-        variant="link"
-        aria-labelledby="cancel-button-label"
-        class="pl-1 pb-1"
-        @click.prevent="cancel()">
-        <span class="sr-only">Cancel</span>
-        <font-awesome icon="times" class="fa-icon-size text-dark" />
-      </b-btn>
+    <div v-if="!undocked" class="d-flex">
+      <div class="pr-0">
+        <label id="minimize-button-label" class="sr-only">Minimize the create note dialog box</label>
+        <b-btn
+          id="minimize-new-note-modal"
+          variant="link"
+          aria-labelledby="minimize-button-label"
+          class="pr-2"
+          @click.prevent="minimize()">
+          <span class="sr-only">Minimize</span>
+          <font-awesome icon="window-minimize" class="minimize-icon text-dark" />
+        </b-btn>
+      </div>
+      <div class="pr-2">
+        <label id="cancel-button-label" class="sr-only">Cancel the create-note form</label>
+        <b-btn
+          id="cancel-new-note-modal"
+          variant="link"
+          aria-labelledby="cancel-button-label"
+          class="pl-1 pb-1"
+          @click.prevent="cancel()">
+          <span class="sr-only">Cancel</span>
+          <font-awesome icon="times" class="fa-icon-size text-dark" />
+        </b-btn>
+      </div>
     </div>
   </div>
 </template>

@@ -382,7 +382,7 @@ export default {
   border: 1px solid #aaa;
   bottom: 0;
   box-shadow: 0 0 10px #ccc;
-  height: 480px;
+  min-height: 480px;
   position: fixed;
   right: 30px;
   transition: height 0.5s;

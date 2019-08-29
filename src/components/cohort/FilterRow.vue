@@ -12,7 +12,7 @@
     <div
       v-if="isModifyingFilter && !isExistingFilter"
       :id="filterRowPrimaryDropdownId(filterRowIndex)"
-      class="cohort-filter-draft-column-01 pr-2">
+      class="cohort-filter-draft-column-01 mt-1 pr-2">
       <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
       <b-dropdown
         id="new-filter-button"
@@ -61,7 +61,7 @@
     </div>
     <div
       v-if="isModifyingFilter"
-      class="cohort-filter-draft-column-02">
+      class="cohort-filter-draft-column-02 mt-1">
       <div
         v-if="filter.type === 'array'"
         :id="`filter-row-dropdown-secondary-${filterRowIndex}`">
@@ -136,7 +136,7 @@
         </b-popover>
       </div>
     </div>
-    <div v-if="!isExistingFilter" class="cohort-filter-draft-column-03 pl-0">
+    <div v-if="!isExistingFilter" class="cohort-filter-draft-column-03 mt-1 pl-0">
       <b-btn
         v-if="showAdd"
         id="unsaved-filter-add"
