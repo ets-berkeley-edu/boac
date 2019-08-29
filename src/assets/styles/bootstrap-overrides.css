@@ -10,6 +10,9 @@ legend {
   background-color: #337ab7;
   border-color: #337ab7;
 }
+.alert-dismissible .close {
+  padding: 8px 18px 0 0;
+}
 .b-dd-item-override {
   color: #212529 !important;
 }

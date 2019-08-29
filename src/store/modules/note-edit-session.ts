@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import {createNote, createNoteBatch, getDistinctStudentCount} from '@/api/notes';
 
+const VALID_MODES = ['advanced', 'batch', 'docked', 'createTemplate', 'edit', 'editTemplate', 'minimized', 'saving'];
+
 const $_getDefaultModel = () => {
   return {
     id: undefined,
@@ -24,8 +26,6 @@ const $_recalculateStudentCount = ({ commit, state }) => {
     commit('setTargetStudentCount', sids.length);
   }
 };
-
-const VALID_MODES = ['advanced', 'batch', 'docked', 'edit', 'editTemplate', 'minimized', 'saving'];
 
 const state = {
   addedCohorts: [],

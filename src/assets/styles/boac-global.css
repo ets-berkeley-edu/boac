@@ -83,6 +83,21 @@
   display: flex;
   flex-direction: row;
 }
+.font-size-14 {
+  font-size: 14px;
+}
+.font-size-16 {
+  font-size: 16px;
+}
+.font-size-18 {
+  font-size: 18px;
+}
+.font-size-20 {
+  font-size: 20px;
+}
+.font-size-24 {
+  font-size: 24px;
+}
 .form-control {
   height: 38px;
   padding: 8px 12px;
@@ -162,19 +177,6 @@ select.form-control {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.font-size-14 {
-  font-size: 14px;
-}
-.font-size-16 {
-  font-size: 16px;
-}
-.font-size-20 {
-  font-size: 20px;
-}
-.font-size-24 {
-  font-size: 24px;
-}
-
 #content {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
