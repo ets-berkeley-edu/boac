@@ -1,8 +1,9 @@
 <template>
   <div class="d-flex flex-wrap align-items-end pt-2 mb-1" :class="{'mt-2': undocked}">
     <div class="flex-grow-1 new-note-header font-weight-bolder">
+      <span v-if="mode === 'createTemplate'">Create Template</span>
       <span v-if="mode === 'editTemplate'">Edit Template</span>
-      <span v-if="mode !== 'editTemplate'">New Note</span>
+      <span v-if="!includes(['createTemplate', 'editTemplate'], mode)">New Note</span>
     </div>
     <div v-if="undocked" class="mr-4">
       <b-dropdown
@@ -16,7 +17,9 @@
         <b-dropdown-header v-if="!size(noteTemplates)" id="no-templates-header" class="templates-dropdown-header">
           <div class="font-weight-bolder">Templates</div>
           <div class="templates-dropdown-instructions">
-            You have no saved templates. To begin, create a new note and select, "Save note as template," to build your first note template.
+            You have no saved templates.
+            <b-link v-if="mode !== 'createTemplate'" @click="createTemplate()">Create a template.</b-link>
+            <span v-if="mode === 'createTemplate'">Fill in fields below then click 'Create Template'.</span>
           </div>
         </b-dropdown-header>
         <b-dropdown-item
@@ -25,7 +28,7 @@
           :key="template.id">
           <div class="align-items-center d-flex justify-content-between">
             <div>
-              <b-btn variant="link" class="dropdown-item pl-1" @click="loadTemplate(template)">{{ truncate(template.title) }}</b-btn>
+              <b-link class="font-size-18 text-muted" @click="loadTemplate(template)">{{ truncate(template.title) }}</b-link>
             </div>
             <div class="align-items-center d-flex ml-2 no-wrap">
               <div class="pl-2">
@@ -39,6 +42,10 @@
               </div>
             </div>
           </div>
+        </b-dropdown-item>
+        <b-dropdown-divider></b-dropdown-divider>
+        <b-dropdown-item v-if="size(noteTemplates)">
+          <b-link v-if="mode !== 'createTemplate'" @click="createTemplate()">Create new template</b-link>
         </b-dropdown-item>
       </b-dropdown>
     </div>
@@ -104,6 +111,11 @@ export default {
     undocked: {
       required: true,
       type: Boolean
+    }
+  },
+  methods: {
+    createTemplate() {
+      this.setMode('createTemplate');
     }
   }
 }

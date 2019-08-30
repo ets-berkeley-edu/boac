@@ -37,10 +37,22 @@
             :load-template="loadTemplate"
             :minimize="minimize"
             :undocked="undocked" />
+          <div class="ml-2 mr-3 pl-2 pr-2">
+            <b-alert
+              id="alert"
+              class="font-weight-bolder w-100"
+              :show="dismissAlertSeconds"
+              dismissible
+              fade
+              variant="info"
+              @dismiss-count-down="dismissAlert">
+              {{ alert }}
+            </b-alert>
+          </div>
           <hr class="m-0" />
           <div class="mt-2 mr-3 mb-1 ml-3">
             <transition v-if="isBatchFeature" name="batch">
-              <div v-if="mode !== 'editTemplate'">
+              <div v-if="!includes(['createTemplate', 'editTemplate'], mode)">
                 <NewBatchNoteFeatures :cancel="cancelRequested" />
                 <hr />
               </div>
@@ -90,9 +102,9 @@
             <NewNoteModalButtons
               :cancel="cancelRequested"
               :create-note="createNote"
+              :create-template="saveAsTemplate"
               :delete-template="deleteTemplate"
               :minimize="minimize"
-              :save-as-template="saveAsTemplate"
               :update-template="updateTemplate"
               :undocked="undocked" />
           </div>
@@ -182,7 +194,9 @@ export default {
     }
   },
   data: () => ({
+    alert: undefined,
     deleteTemplateId: undefined,
+    dismissAlertSeconds: 0,
     editor: ClassicEditor,
     editorConfig: {
       toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
@@ -197,7 +211,7 @@ export default {
   }),
   computed: {
     undocked() {
-      return this.includes(['advanced', 'batch', 'editTemplate'], this.mode);
+      return this.includes(['advanced', 'batch', 'createTemplate', 'editTemplate'], this.mode);
     }
   },
   mounted() {
@@ -205,7 +219,17 @@ export default {
   },
   methods: {
     cancelRequested() {
-      if (this.mode === 'editTemplate') {
+      if (this.mode === 'createTemplate') {
+        const unsavedChanges = this.trim(this.model.subject)
+          || this.stripHtmlAndTrim(this.model.body)
+          || this.size(this.model.topics)
+          || this.size(this.model.attachments);
+        if (unsavedChanges) {
+          this.showDiscardTemplateModal = true;
+        } else {
+          this.discardTemplate();
+        }
+      } else if (this.mode === 'editTemplate') {
         const indexOf = this.noteTemplates.findIndex(t => t.id === this.model.id);
         const template = this.noteTemplates[indexOf];
         const noDiff = this.trim(this.model.subject) === template.subject
@@ -260,11 +284,16 @@ export default {
     },
     createTemplate(title) {
       this.showCreateTemplateModal = false;
-      createNoteTemplate(title, this.model.subject, this.model.body || '', this.model.topics, this.model.attachments).then(template => {
-        this.isModalOpen = false;
+      createNoteTemplate(title, this.model.subject, this.model.body || '', this.model.topics, this.model.attachments).then(() => {
         this.onSuccessfulCreate();
-        this.terminate();
-        this.alertScreenReader(`Template ${template.label} created`);
+        this.beginEditSession({
+          mode: this.isBatchFeature ? 'batch' : 'advanced',
+          model: null,
+          sid: this.get(this.student, 'sid')
+        });
+        const alert = `New template '${title}' created.`;
+        this.showAlert(alert);
+        this.alertScreenReader(alert);
       });
     },
     deleteTemplate(templateId) {
@@ -280,7 +309,7 @@ export default {
       this.showDiscardNoteModal = false;
       this.isModalOpen = false;
       this.terminate();
-      this.alertScreenReader("Cancelled create new note");
+      this.alertScreenReader('Cancelled create new note');
     },
     discardTemplate() {
       this.showDiscardTemplateModal = false;
@@ -290,7 +319,15 @@ export default {
         sid: this.get(this.student, 'sid')
       });
       this.putFocusNextTick('create-note-subject');
-      this.alertScreenReader("Cancelled create new template");
+      const alert = 'Cancelled the create template form.';
+      this.showAlert(alert);
+      this.alertScreenReader(alert);
+    },
+    dismissAlert(seconds) {
+      this.dismissAlertSeconds = seconds;
+      if (seconds === 0) {
+        this.alert = undefined;
+      }
     },
     editTemplate(template) {
       this.beginEditSession({
@@ -317,7 +354,7 @@ export default {
       this.isMinimizing = true;
       this.setMode('minimized');
       setTimeout(() => this.isMinimizing = false, 300);
-      this.alertScreenReader("Create note form minimized.");
+      this.alertScreenReader('Create note form minimized.');
     },
     openNewNoteModal() {
       this.beginEditSession({
@@ -332,6 +369,10 @@ export default {
     saveAsTemplate() {
       this.showCreateTemplateModal = true;
       this.putFocusNextTick('template-title-input');
+    },
+    showAlert(alert) {
+      this.alert = alert;
+      this.dismissAlertSeconds = 5;
     },
     updateTemplate() {
       const newAttachments = this.filterList(this.model.attachments, a => !a.id);

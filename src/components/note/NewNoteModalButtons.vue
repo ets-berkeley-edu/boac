@@ -1,14 +1,5 @@
 <template>
   <div class="d-flex flex-wrap-reverse mt-1 mr-3 mb-0 ml-3">
-    <div v-if="undocked && mode !== 'editTemplate'" class="flex-grow-1">
-      <b-btn
-        id="btn-to-save-note-as-template"
-        variant="link"
-        :disabled="!trim(model.subject)"
-        @click.prevent="saveAsTemplate()">
-        Save note as template
-      </b-btn>
-    </div>
     <div class="flex-grow-1">
       <b-btn
         v-if="!undocked"
@@ -16,6 +7,17 @@
         variant="link"
         @click.prevent="setMode('advanced')">
         Advanced note options
+      </b-btn>
+    </div>
+    <div v-if="mode === 'createTemplate'">
+      <b-btn
+        id="create-template-button"
+        class="btn-primary-color-override"
+        :disabled="!model.subject"
+        aria-label="Create note template"
+        variant="primary"
+        @click.prevent="createTemplate()">
+        Create Template
       </b-btn>
     </div>
     <div v-if="mode === 'editTemplate'">
@@ -29,12 +31,12 @@
         Update Template
       </b-btn>
     </div>
-    <div v-if="mode !== 'editTemplate'">
+    <div v-if="!includes(['createTemplate', 'editTemplate'], mode)">
       <b-btn
         id="create-note-button"
         class="btn-primary-color-override"
         :disabled="!targetStudentCount || !trim(model.subject)"
-        aria-label="Create new note"
+        aria-label="Create note"
         variant="primary"
         @click.prevent="createNote()">
         Save
@@ -70,15 +72,15 @@ export default {
       required: true,
       type: Function
     },
+    createTemplate: {
+      required: true,
+      type: Function
+    },
     deleteTemplate: {
       required: true,
       type: Function
     },
     minimize: {
-      required: true,
-      type: Function
-    },
-    saveAsTemplate: {
       required: true,
       type: Function
     },
