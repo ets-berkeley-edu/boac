@@ -144,6 +144,7 @@ ALERT_WITHDRAWAL_ENABLED = True
 LOGGING_FORMAT = '[%(asctime)s] - %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
 LOGGING_LOCATION = 'boac.log'
 LOGGING_LEVEL = logging.DEBUG
+LOGGING_PROPAGATION_LEVEL = logging.INFO
 
 # Flask-caching (number of seconds, or False to disable)
 CACHE_DEFAULT_TIMEOUT = False
