@@ -5,7 +5,7 @@
         v-if="!undocked"
         id="btn-to-advanced-note-options"
         variant="link"
-        @click.prevent="setMode('advanced')">
+        @click.prevent="enterAdvancedMode()">
         Advanced note options
       </b-btn>
     </div>
@@ -91,6 +91,12 @@ export default {
     undocked: {
       required: true,
       type: Boolean
+    }
+  },
+  methods: {
+    enterAdvancedMode() {
+      this.setMode('advanced');
+      this.putFocusNextTick('create-note-subject');
     }
   }
 }

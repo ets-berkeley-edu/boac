@@ -17,9 +17,8 @@
         <b-dropdown-header v-if="!size(noteTemplates)" id="no-templates-header" class="templates-dropdown-header">
           <div class="font-weight-bolder">Templates</div>
           <div class="templates-dropdown-instructions">
-            You have no saved templates.
-            <b-link v-if="mode !== 'createTemplate'" @click="createTemplate()">Create a template.</b-link>
-            <span v-if="mode === 'createTemplate'">Fill in fields below then click 'Create Template'.</span>
+            <span v-if="mode !== 'createTemplate'">You have no saved templates.</span>
+            <span v-if="mode === 'createTemplate'">Fill in fields below and then click 'Create Template'.</span>
           </div>
         </b-dropdown-header>
         <b-dropdown-item
@@ -28,9 +27,9 @@
           :key="template.id">
           <div class="align-items-center d-flex justify-content-between">
             <div>
-              <b-link class="font-size-18 text-muted" @click="loadTemplate(template)">{{ truncate(template.title) }}</b-link>
+              <b-link class="font-size-18 pb-0 text-muted" @click="loadTemplate(template)">{{ truncate(template.title) }}</b-link>
             </div>
-            <div class="align-items-center d-flex ml-2 no-wrap">
+            <div class="align-items-center d-flex ml-3 no-wrap">
               <div class="pl-2">
                 <b-btn variant="link" class="p-0" @click="editTemplate(template)">Edit</b-btn>
               </div>
@@ -43,9 +42,9 @@
             </div>
           </div>
         </b-dropdown-item>
-        <b-dropdown-divider></b-dropdown-divider>
-        <b-dropdown-item v-if="size(noteTemplates)">
-          <b-link v-if="mode !== 'createTemplate'" @click="createTemplate()">Create new template</b-link>
+        <b-dropdown-divider v-if="mode !== 'createTemplate'"></b-dropdown-divider>
+        <b-dropdown-item v-if="mode !== 'createTemplate'" @click="createTemplate()">
+          <span class="text-muted">Create new template</span>
         </b-dropdown-item>
       </b-dropdown>
     </div>
@@ -116,6 +115,7 @@ export default {
   methods: {
     createTemplate() {
       this.setMode('createTemplate');
+      this.putFocusNextTick('create-note-subject');
     }
   }
 }
