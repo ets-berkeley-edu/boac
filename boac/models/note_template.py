@@ -58,6 +58,7 @@ class NoteTemplate(Base):
     __table_args__ = (db.UniqueConstraint(
         'creator_id',
         'title',
+        'deleted_at',
         name='student_groups_owner_id_name_unique_constraint',
     ),)
 
