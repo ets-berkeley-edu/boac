@@ -29,6 +29,7 @@ from boac.lib import berkeley
 from boac.lib.http import tolerant_jsonify
 from boac.merged import reporter
 from boac.models.job_progress import JobProgress
+from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 from flask import current_app as app, request
 
 
@@ -53,6 +54,13 @@ def clear_cachejob():
     return tolerant_jsonify({
         'progressDeleted': progress,
     })
+
+
+@app.route('/api/admin/manually_added_advisees')
+@admin_required
+def get_manually_added_advisees():
+    advisees = ManuallyAddedAdvisee.get_all()
+    return tolerant_jsonify([{'sid': advisee.sid} for advisee in advisees])
 
 
 @app.route('/api/admin/cachejob/continue')

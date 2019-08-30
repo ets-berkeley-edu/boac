@@ -45,3 +45,7 @@ class ManuallyAddedAdvisee(db.Model):
             db.session.add(manually_added_advisee)
             std_commit()
         return manually_added_advisee
+
+    @classmethod
+    def get_all(cls):
+        return cls.query.all()
