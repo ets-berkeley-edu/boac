@@ -254,7 +254,7 @@ ALTER SEQUENCE note_templates_id_seq OWNED BY note_templates.id;
 ALTER TABLE ONLY note_templates ALTER COLUMN id SET DEFAULT nextval('note_templates_id_seq'::regclass);
 ALTER TABLE ONLY note_templates ADD CONSTRAINT note_templates_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY note_templates
-    ADD CONSTRAINT note_templates_creator_id_title_unique_constraint UNIQUE (creator_id, title);
+    ADD CONSTRAINT note_templates_creator_id_title_unique_constraint UNIQUE (creator_id, title, deleted_at);
 CREATE INDEX note_templates_creator_id_idx ON note_templates USING btree (creator_id);
 
 --
