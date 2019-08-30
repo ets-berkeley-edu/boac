@@ -29,7 +29,7 @@
           'modal-full-screen-content': undocked,
           'mt-4': isBatchFeature
         }">
-        <form @submit.prevent="createNote()">
+        <form @submit.prevent="submitForm()">
           <NewNotePageHeader
             :cancel="cancelRequested"
             :delete-template="deleteTemplate"
@@ -37,18 +37,6 @@
             :load-template="loadTemplate"
             :minimize="minimize"
             :undocked="undocked" />
-          <div class="ml-2 mr-3 pl-2 pr-2">
-            <b-alert
-              id="alert"
-              class="font-weight-bolder w-100"
-              :show="dismissAlertSeconds"
-              dismissible
-              fade
-              variant="info"
-              @dismiss-count-down="dismissAlert">
-              {{ alert }}
-            </b-alert>
-          </div>
           <hr class="m-0" />
           <div class="mt-2 mr-3 mb-1 ml-3">
             <transition v-if="isBatchFeature" name="batch">
@@ -57,6 +45,18 @@
                 <hr />
               </div>
             </transition>
+            <div class="ml-2 mr-3 mt-2 pl-2 pr-2">
+              <b-alert
+                id="alert-in-note-modal"
+                class="font-weight-bolder w-100"
+                :show="dismissAlertSeconds"
+                dismissible
+                fade
+                variant="info"
+                @dismiss-count-down="dismissAlert">
+                {{ alert }}
+              </b-alert>
+            </div>
             <div>
               <label for="create-note-subject" class="font-size-14 font-weight-bolder mb-1"><span class="sr-only">Note </span>Subject</label>
             </div>
@@ -69,6 +69,7 @@
                 maxlength="255"
                 type="text"
                 @input="setSubjectPerEvent"
+                @keydown.enter="submitForm()"
                 @keydown.esc="cancelRequested()">
             </div>
             <div>
@@ -294,6 +295,7 @@ export default {
         const alert = `New template '${title}' created.`;
         this.showAlert(alert);
         this.alertScreenReader(alert);
+        this.putFocusNextTick('create-note-subject');
       });
     },
     deleteTemplate(templateId) {
@@ -308,6 +310,7 @@ export default {
     discardNote() {
       this.showDiscardNoteModal = false;
       this.isModalOpen = false;
+      this.dismissAlertSeconds = 0;
       this.terminate();
       this.alertScreenReader('Cancelled create new note');
     },
@@ -372,7 +375,16 @@ export default {
     },
     showAlert(alert) {
       this.alert = alert;
-      this.dismissAlertSeconds = 5;
+      this.dismissAlertSeconds = 3;
+    },
+    submitForm() {
+      if (this.mode === 'createTemplate') {
+        this.saveAsTemplate();
+      } else if (this.mode === 'editTemplate') {
+        this.editTemplate();
+      } else {
+        this.createNote();
+      }
     },
     updateTemplate() {
       const newAttachments = this.filterList(this.model.attachments, a => !a.id);
@@ -386,6 +398,7 @@ export default {
       ).then(template => {
         this.terminate();
         this.isModalOpen = false;
+        this.dismissAlertSeconds = 0;
         this.alertScreenReader(`Template ${template.label} updated`);
       });
     }
