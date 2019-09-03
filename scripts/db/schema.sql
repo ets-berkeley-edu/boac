@@ -237,7 +237,7 @@ CREATE TABLE note_templates (
     creator_id INTEGER NOT NULL,
     title VARCHAR(255) NOT NULL,
     subject VARCHAR(255) NOT NULL,
-    body text NOT NULL,
+    body text,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
     deleted_at TIMESTAMP WITH TIME ZONE

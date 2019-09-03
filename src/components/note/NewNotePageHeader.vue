@@ -27,7 +27,10 @@
           :key="template.id">
           <div class="align-items-center d-flex justify-content-between">
             <div>
-              <b-link class="font-size-18 pb-0 text-muted" @click="loadTemplate(template)">{{ truncate(template.title) }}</b-link>
+              <b-link
+                class="font-size-18 pb-0 text-muted"
+                :title="template.title"
+                @click="loadTemplate(template)">{{ truncate(template.title) }}</b-link>
             </div>
             <div class="align-items-center d-flex ml-3 no-wrap">
               <div class="pl-2">
