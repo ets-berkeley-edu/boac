@@ -30,7 +30,7 @@
           {{ `${row.item.lastName}, ${row.item.firstName}` }}
         </router-link>
         <span
-          v-if="displayAsInactive(row.item)"
+          v-if="displayAsAscInactive(row.item) || displayAsCoeInactive(row.item)"
           class="home-inactive-info-icon"
           uib-tooltip="Inactive"
           tooltip-placement="bottom">

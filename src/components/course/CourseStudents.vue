@@ -34,9 +34,13 @@
           :id="`student-${row.item.uid}-waitlisted-for-${section.termId}-${section.sectionId}`"
           class="red-flag-status">WAITLISTED</span>
         <span
-          v-if="displayAsInactive(row.item)"
+          v-if="displayAsAscInactive(row.item)"
           :id="`student-${row.item.uid}-inactive-for-${section.termId}-${section.sectionId}`"
-          class="red-flag-status">INACTIVE</span>
+          class="red-flag-status">ASC INACTIVE</span>
+        <span
+          v-if="displayAsCoeInactive(row.item)"
+          :id="`student-${row.item.uid}-inactive-for-${section.termId}-${section.sectionId}`"
+          class="red-flag-status">CoE INACTIVE</span>
       </div>
       <div>
         <span class="student-text">{{ row.item.level }}</span>

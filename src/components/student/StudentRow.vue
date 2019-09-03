@@ -43,7 +43,8 @@
       </div>
       <div class="d-flex student-sid" :class="{'demo-mode-blur' : user.inDemoMode}">
         <div :id="`row-${rowIndex}-student-sid`">{{ student.sid }}</div>
-        <div v-if="displayAsInactive(student)" class="red-flag-status ml-1">INACTIVE</div>
+        <div v-if="displayAsAscInactive(student)" class="red-flag-status ml-1">ASC INACTIVE</div>
+        <div v-if="displayAsCoeInactive(student)" class="red-flag-status ml-1">CoE INACTIVE</div>
       </div>
       <div v-if="student.withdrawalCancel">
         <span class="red-flag-small">
