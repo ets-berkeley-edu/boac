@@ -86,17 +86,20 @@ def localized_timestamp_to_utc(_str):
 
 
 def process_input_from_rich_text_editor(rich_text):
-    parsed = rich_text.strip()
-    exclude_from_parse = {}
-    now = time.time()
-    for index, match in enumerate(re.findall('<a [^>]*>.*?</a>', parsed)):
-        placeholder = f'placeholder-{now}-{index}'
-        exclude_from_parse[placeholder] = match
-        parsed = parsed.replace(match, placeholder, 1)
-    parsed = linkify(parsed, {'target': '_blank'})
-    for placeholder, match in exclude_from_parse.items():
-        parsed = parsed.replace(placeholder, match, 1)
-    return parsed
+    parsed = rich_text and rich_text.strip()
+    if parsed:
+        exclude_from_parse = {}
+        now = time.time()
+        for index, match in enumerate(re.findall('<a [^>]*>.*?</a>', parsed)):
+            placeholder = f'placeholder-{now}-{index}'
+            exclude_from_parse[placeholder] = match
+            parsed = parsed.replace(match, placeholder, 1)
+        parsed = linkify(parsed, {'target': '_blank'})
+        for placeholder, match in exclude_from_parse.items():
+            parsed = parsed.replace(placeholder, match, 1)
+        return parsed
+    else:
+        return None
 
 
 def remove_none_values(_dict):
