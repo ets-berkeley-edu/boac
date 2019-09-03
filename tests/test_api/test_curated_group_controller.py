@@ -155,7 +155,7 @@ class TestGetCuratedGroup:
         assert len(student['majors']) == 2
 
     def test_curated_group_detail_includes_athletics(self, asc_advisor, asc_curated_groups, client):
-        """Returns student athletes."""
+        """Returns athletics data, including intensive and inactive, for ASC advisors."""
         api_json = self._api_get_curated_group(client, asc_curated_groups[0].id)
         students = api_json['students']
         teams = students[0]['athleticsProfile']['athletics']
@@ -164,11 +164,18 @@ class TestGetCuratedGroup:
         assert teams[0]['groupCode'] == 'WFH'
         assert teams[1]['name'] == 'Women\'s Tennis'
         assert teams[1]['groupCode'] == 'WTE'
+        assert students[0]['athleticsProfile']['inIntensiveCohort'] is True
+        assert students[0]['athleticsProfile']['isActiveAsc'] is True
+        assert students[0]['athleticsProfile']['statusAsc'] == 'Compete'
 
     def test_curated_group_detail_omits_athletics_non_asc(self, client, coe_advisor, coe_advisor_groups):
-        """Omits student athletes from COE group."""
+        """Returns team memberships only for non-ASC advisors."""
         api_json = self._api_get_curated_group(client, coe_advisor_groups[0].id)
-        assert 'athleticsProfile' not in api_json['students'][0]
+        student = api_json['students'][0]
+        assert len(student['athleticsProfile']['athletics']) == 1
+        assert 'inIntensiveCohort' not in student['athleticsProfile']
+        assert 'isActiveAsc' not in student['athleticsProfile']
+        assert 'statusAsc' not in student['athleticsProfile']
 
     def test_curated_group_detail_includes_canvas_data(self, client, coe_advisor):
         group = _api_create_group(client, name='The Awkward Age', sids=['5678901234'])

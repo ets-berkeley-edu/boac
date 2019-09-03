@@ -86,14 +86,15 @@ def get_full_student_profiles(sids):
     benchmark('end photo merge')
 
     scope = get_student_query_scope()
-    if 'UWASC' in scope or 'ADMIN' in scope:
-        benchmark('begin ASC profile merge')
-        athletics_profiles = data_loch.get_athletics_profiles(sids)
-        for row in athletics_profiles:
-            profile = profiles_by_sid.get(row['sid'])
-            if profile:
-                profile['athleticsProfile'] = json.loads(row['profile'])
-        benchmark('end ASC profile merge')
+
+    benchmark('begin ASC profile merge')
+    athletics_profiles = data_loch.get_athletics_profiles(sids)
+    if athletics_profiles:
+        for athletics_profile in athletics_profiles:
+            sid = athletics_profile['sid']
+            _merge_asc_student_profile_data(profiles_by_sid.get(sid), athletics_profile, scope)
+    benchmark('end ASC profile merge')
+
     if 'COENG' in scope or 'ADMIN' in scope:
         benchmark('begin COE profile merge')
         coe_profiles = data_loch.get_coe_profiles(sids)
@@ -568,6 +569,16 @@ def _get_profiles_by_sid(profiles):
             },
         }
     return profiles_by_sid
+
+
+def _merge_asc_student_profile_data(profile, asc_profile, scope):
+    if profile:
+        asc_profile = json.loads(asc_profile['profile'])
+        if 'UWASC' in scope or 'ADMIN' in scope:
+            profile['athleticsProfile'] = asc_profile
+        else:
+            # Non-ASC advisors have access to team memberships but not other ASC data such as intensive or inactive status.
+            profile['athleticsProfile'] = {'athletics': asc_profile.get('athletics')}
 
 
 def _merge_coe_student_profile_data(profile, coe_profile):
