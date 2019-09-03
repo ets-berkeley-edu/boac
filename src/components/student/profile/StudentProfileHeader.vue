@@ -53,8 +53,11 @@
                 {{ student.sisProfile.phoneNumber }}</a>
             </div>
           </div>
-          <div v-if="isInactive" id="student-bio-inactive" class="font-weight-bolder has-error text-uppercase">
-            Inactive
+          <div v-if="isAscInactive" id="student-bio-inactive" class="font-weight-bolder has-error">
+            ASC INACTIVE
+          </div>
+          <div v-if="isCoeInactive" id="student-bio-inactive" class="font-weight-bolder has-error">
+            CoE INACTIVE
           </div>
           <div v-if="student.athleticsProfile" id="student-bio-athletics">
             <div v-for="membership in student.athleticsProfile.athletics" :key="membership.groupName">
@@ -128,10 +131,12 @@ export default {
     student: Object
   },
   data: () => ({
-    isInactive: undefined
+    isAscInactive: undefined,
+    isCoeInactive: undefined
   }),
   created() {
-    this.isInactive = this.displayAsInactive(this.student);
+    this.isAscInactive = this.displayAsAscInactive(this.student);
+    this.isCoeInactive = this.displayAsCoeInactive(this.student);
   }
 };
 </script>
