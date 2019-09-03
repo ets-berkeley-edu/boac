@@ -435,13 +435,13 @@ class TestStudent:
             assert sis_profile['expectedGraduationTerm']['name'] == 'Fall 2019'
 
     def test_athletics_profile_non_asc(self, client, coe_advisor_login):
-        """Does not include athletics profile for non-ASC users."""
+        """Does not include select athletics profile data for non-ASC users."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
         student_by_sid = self._api_student_by_sid(client=client, sid=sid)
         student_by_uid = self._api_student_by_uid(client=client, uid=uid)
         for student in [student_by_sid, student_by_uid]:
-            assert 'athleticsProfile' not in student
+            assert 'inIntensiveCohort' not in student['athleticsProfile']
 
     def test_athletics_profile_asc(self, asc_advisor_login, client):
         """Includes athletics profile for ASC users."""
@@ -476,7 +476,7 @@ class TestStudent:
             assert student['gender'] == 'Female'
             assert student['underrepresented'] is True
 
-            assert 'athleticsProfile' not in student
+            assert 'inIntensiveCohort' not in student['athleticsProfile']
             assert 'coeProfile' in student
 
             expected_coe_profile = {

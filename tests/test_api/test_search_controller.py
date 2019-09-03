@@ -147,7 +147,7 @@ class TestStudentSearch:
         assert next(s for s in students if s['name'] == 'Wolfgang Pauli-O\'Rourke' and s['coeProfile']['isActiveCoe'] is False)
         assert next(s for s in students if s['name'] == 'Paul Kerschen' and 'coeProfile' not in s)
         for s in students:
-            assert 'athleticsProfile' not in s
+            assert 'inIntensiveCohort' not in s.get('athleticsProfile', {})
 
     def test_search_by_name_asc(self, asc_advisor, client):
         """An ASC advisor finds all Pauls, including ASC-specific data for ASC Pauls."""
