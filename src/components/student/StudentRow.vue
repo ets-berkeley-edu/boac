@@ -73,7 +73,7 @@
         <div
           v-for="(team, index) in student.athleticsProfile.athletics"
           :key="index"
-          class="student-teams">
+          class="student-text">
           <span :id="`row-${rowIndex}-student-team-${index}`">{{ team.groupName }}</span>
         </div>
       </div>

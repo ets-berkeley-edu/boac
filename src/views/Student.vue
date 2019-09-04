@@ -173,10 +173,6 @@ export default {
   font-weight: bold;
   margin: 5px 0;
 }
-.student-teams {
-  color: #000;
-  font-size: 13px;
-}
 .student-teams-container {
   margin-top: 5px;
 }
