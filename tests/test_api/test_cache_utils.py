@@ -199,6 +199,25 @@ class TestRefreshDepartmentMemberships:
         assert next((u for u in coe_users if u.uid == '1024'), None) is None
         assert AuthorizedUser.query.filter_by(uid='1024').first().deleted_at
 
+    def test_adds_l_s_advisors(self, app):
+        """Adds L&S minor advisors who have no other affiliations to the correct dept."""
+        AuthorizedUser.query.filter_by(uid='1133397').delete()
+        std_commit(allow_test_environment=True)
+
+        dept_ucls = UniversityDept.query.filter_by(dept_code='QCADVMAJ').first()
+        ucls_users = [au.authorized_user for au in dept_ucls.authorized_users]
+        assert len(ucls_users) == 1
+        assert next((u for u in ucls_users if u.uid == '1133397'), None) is None
+
+        from boac.api.cache_utils import refresh_department_memberships
+        refresh_department_memberships()
+        std_commit(allow_test_environment=True)
+
+        ucls_users = [au.authorized_user for au in dept_ucls.authorized_users]
+        assert len(ucls_users) == 2
+        assert next(u for u in ucls_users if u.uid == '1133397')
+        assert AuthorizedUser.query.filter_by(uid='1133397').first().deleted_at is None
+
     def test_adds_non_advisors_to_other_group(self, app):
         dept_other = UniversityDept.query.filter_by(dept_code='ZZZZZ').first()
         from boac.api.cache_utils import refresh_department_memberships
