@@ -87,7 +87,7 @@
           </div>
           <div v-if="undocked">
             <AdvisingNoteTopics
-              :key="model.id"
+              :key="mode"
               class="mt-2 mr-3 mb-1 ml-3"
               :function-add="addTopic"
               :function-remove="removeTopic"
@@ -287,11 +287,8 @@ export default {
       this.showCreateTemplateModal = false;
       createNoteTemplate(title, this.model.subject, this.model.body || '', this.model.topics, this.model.attachments).then(() => {
         this.onSuccessfulCreate();
-        this.beginEditSession({
-          mode: this.isBatchFeature ? 'batch' : 'advanced',
-          model: null,
-          sid: this.get(this.student, 'sid')
-        });
+        this.resetModel();
+        this.setMode(this.isBatchFeature ? 'batch' : 'advanced');
         const alert = `New template '${title}' created.`;
         this.showAlert(alert);
         this.alertScreenReader(alert);
@@ -316,11 +313,8 @@ export default {
     },
     discardTemplate() {
       this.showDiscardTemplateModal = false;
-      this.beginEditSession({
-        mode: this.isBatchFeature ? 'batch' : 'advanced',
-        model: null,
-        sid: this.get(this.student, 'sid')
-      });
+      this.resetModel();
+      this.setMode(this.isBatchFeature ? 'batch' : 'advanced');
       this.putFocusNextTick('create-note-subject');
       const alert = 'Cancelled the create template form.';
       this.showAlert(alert);
@@ -333,11 +327,8 @@ export default {
       }
     },
     editTemplate(template) {
-      this.beginEditSession({
-        mode: 'editTemplate',
-        model: this.cloneDeep(template),
-        sid: this.get(this.student, 'sid')
-      });
+      this.setModel(this.cloneDeep(template));
+      this.setMode('editTemplate');
       this.putFocusNextTick('create-note-subject');
     },
     getTemplateTitle(templateId) {
@@ -345,11 +336,7 @@ export default {
       return this.get(template, 'title');
     },
     loadTemplate(template) {
-      this.beginEditSession({
-        mode: this.mode,
-        model: this.cloneDeep(template),
-        sid: this.get(this.student, 'sid')
-      });
+      this.setModel(this.cloneDeep(template));
       this.putFocusNextTick('create-note-subject');
       this.alertScreenReader(`Template ${template.title} loaded`);
     },
@@ -360,11 +347,12 @@ export default {
       this.alertScreenReader('Create note form minimized.');
     },
     openNewNoteModal() {
-      this.beginEditSession({
-        mode: this.isBatchFeature ? 'batch' : 'docked',
-        model: undefined,
-        sid: this.get(this.student, 'sid')
-      });
+      this.resetModel();
+      const sid = this.get(this.student, 'sid');
+      if (sid) {
+        this.addSid(sid);
+      }
+      this.setMode(this.isBatchFeature ? 'batch' : 'docked');
       this.isModalOpen = true;
       this.putFocusNextTick(this.isBatchFeature ? 'create-note-add-student-input' : 'create-note-subject');
       this.alertScreenReader(this.isBatchFeature ? 'Create batch note form is open.' : 'Create note form is open');
@@ -381,7 +369,7 @@ export default {
       if (this.mode === 'createTemplate') {
         this.saveAsTemplate();
       } else if (this.mode === 'editTemplate') {
-        this.editTemplate();
+        this.updateTemplate();
       } else {
         this.createNote();
       }
@@ -396,10 +384,10 @@ export default {
         newAttachments,
         this.model.deleteAttachmentIds
       ).then(template => {
-        this.terminate();
-        this.isModalOpen = false;
-        this.dismissAlertSeconds = 0;
-        this.alertScreenReader(`Template ${template.label} updated`);
+        const alert = `Template '${template.title}' updated`;
+        this.showAlert(alert);
+        this.setMode(this.isBatchFeature ? 'batch' : 'docked');
+        this.alertScreenReader(alert);
       });
     }
   }

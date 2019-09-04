@@ -31,7 +31,7 @@ export function createNoteTemplate(
       label: `Advisor ${store.getters['user/uid']} created a note template`,
       action: 'create'
     });
-    return data;
+    return template;
   });
 }
 
@@ -64,6 +64,6 @@ export function updateNoteTemplate(
       name: `Advisor ${store.getters['user/uid']} updated a note template`,
       action: 'update'
     });
-    return data;
+    return template;
   });
 }

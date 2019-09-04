@@ -147,15 +147,6 @@ const actions = {
     $_recalculateStudentCount({ commit, state });
   },
   addTopic: ({ commit }, topic: string) => commit('addTopic', topic),
-  beginEditSession: ({ commit }, {mode, model, sid}) => {
-    commit('terminate');
-    commit('setModel', model);
-    if (sid) {
-      commit('addSid', sid);
-      commit('setTargetStudentCount', 1);
-    }
-    commit('setMode', mode);
-  },
   createAdvisingNote: ({ commit }, isBatchFeature: boolean) => commit('createAdvisingNote', isBatchFeature),
   onCreateTemplate: ({ commit }, template: any) => commit('onCreateTemplate', template),
   onDeleteTemplate: ({ commit }, templateId: number) => commit('onDeleteTemplate', templateId),
@@ -174,8 +165,10 @@ const actions = {
     $_recalculateStudentCount({ commit, state })
   },
   removeTopic: ({ commit }, topic: string) => commit('removeTopic', topic),
+  resetModel: ({ commit }) => commit('setModel', $_getDefaultModel()),
   setBody: ({ commit }, body: string) => commit('setBody', body),
   setMode: ({ commit }, mode: string) => commit('setMode', mode),
+  setModel: ({ commit }, model?: any) => commit('setModel', model),
   setSubject: ({ commit }, subject: string) => commit('setSubject', subject),
   terminate: ({ commit }) => commit('terminate')
 };

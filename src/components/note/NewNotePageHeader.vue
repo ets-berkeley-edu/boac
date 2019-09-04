@@ -30,7 +30,9 @@
               <b-link
                 class="font-size-18 pb-0 text-muted"
                 :title="template.title"
-                @click="loadTemplate(template)">{{ truncate(template.title) }}</b-link>
+                @click="loadTemplate(template)">
+                {{ truncate(template.title) }}
+              </b-link>
             </div>
             <div class="align-items-center d-flex ml-3 no-wrap">
               <div class="pl-2">
