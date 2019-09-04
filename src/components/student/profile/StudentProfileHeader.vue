@@ -61,7 +61,7 @@
           </div>
           <div v-if="student.athleticsProfile" id="student-bio-athletics">
             <div v-for="membership in student.athleticsProfile.athletics" :key="membership.groupName">
-              <div class="font-weight-bolder">{{ membership.groupName }}</div>
+              {{ membership.groupName }}
             </div>
           </div>
         </div>

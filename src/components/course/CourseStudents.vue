@@ -50,7 +50,7 @@
       </div>
       <div>
         <div v-if="row.item.athleticsProfile" class="student-teams-container">
-          <div v-for="membership in row.item.athleticsProfile.athletics" :key="membership.groupName" class="student-teams">
+          <div v-for="membership in row.item.athleticsProfile.athletics" :key="membership.groupName" class="student-text">
             {{ membership.groupName }}
           </div>
         </div>
