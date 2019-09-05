@@ -1,7 +1,7 @@
 <template>
   <b-modal
     id="create-note-template"
-    v-model="showModalAlias"
+    v-model="showModalProxy"
     body-class="pl-0 pr-0"
     hide-footer
     hide-header-close
@@ -21,8 +21,13 @@
               required>
           </div>
           <div class="faint-text mb-3"><span class="sr-only">Template name has a </span>255 character limit <span v-if="title.length">({{ 255 - title.length }} left)</span></div>
-          <div v-if="error" id="create-error" class="has-error">{{ error }}</div>
-          <div class="sr-only" aria-live="polite">{{ error }}</div>
+          <div
+            v-if="error"
+            id="create-error"
+            aria-live="polite"
+            class="has-error">
+            {{ error }}
+          </div>
           <div
             v-if="title.length === 255"
             class="sr-only"
@@ -59,28 +64,41 @@ export default {
   name: 'CreateTemplateModal',
   mixins: [Util, Validator],
   props: {
-    cancel: Function,
-    create: Function,
+    cancel: {
+      type: Function,
+      required: true
+    },
+    create: {
+      type: Function,
+      required: true
+    },
     showModal: {
       type: Boolean,
+      required: true
+    },
+    toggleShow: {
+      type: Function,
       required: true
     }
   },
   data: () => ({
     title: '',
-    error: undefined,
-    showModalAlias: undefined
+    error: undefined
   }),
+  computed: {
+    showModalProxy: {
+      get() {
+        return this.showModal;
+      },
+      set(value) {
+        this.toggleShow(value);
+      }
+    }
+  },
   watch: {
-    showModal(value) {
-      this.showModalAlias = value;
-    },
     title() {
       this.error = undefined;
     }
-  },
-  created() {
-    this.showModalAlias = this.showModal;
   },
   methods: {
     reset() {

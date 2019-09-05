@@ -1,9 +1,8 @@
 <template>
   <div class="d-flex flex-wrap align-items-end pt-2 mb-1" :class="{'mt-2': undocked}">
     <div class="flex-grow-1 new-note-header font-weight-bolder">
-      <span v-if="mode === 'createTemplate'">Create Template</span>
       <span v-if="mode === 'editTemplate'">Edit Template</span>
-      <span v-if="!includes(['createTemplate', 'editTemplate'], mode)">New Note</span>
+      <span v-if="mode !== 'editTemplate'">New Note</span>
     </div>
     <div v-if="undocked" class="mr-4">
       <b-dropdown
@@ -17,8 +16,7 @@
         <b-dropdown-header v-if="!size(noteTemplates)" id="no-templates-header" class="templates-dropdown-header">
           <div class="font-weight-bolder">Templates</div>
           <div class="templates-dropdown-instructions">
-            <span v-if="mode !== 'createTemplate'">You have no saved templates.</span>
-            <span v-if="mode === 'createTemplate'">Fill in fields below and then click 'Create Template'.</span>
+            You have no saved templates.
           </div>
         </b-dropdown-header>
         <b-dropdown-item
@@ -28,7 +26,7 @@
           <div class="align-items-center d-flex justify-content-between">
             <div>
               <b-link
-                class="font-size-18 pb-0 text-muted"
+                class="pb-0 text-muted"
                 :title="template.title"
                 @click="loadTemplate(template)">
                 {{ truncate(template.title) }}
@@ -46,10 +44,6 @@
               </div>
             </div>
           </div>
-        </b-dropdown-item>
-        <b-dropdown-divider v-if="mode !== 'createTemplate'"></b-dropdown-divider>
-        <b-dropdown-item v-if="mode !== 'createTemplate'" @click="createTemplate()">
-          <span class="text-muted">Create new template</span>
         </b-dropdown-item>
       </b-dropdown>
     </div>
@@ -115,12 +109,6 @@ export default {
     undocked: {
       required: true,
       type: Boolean
-    }
-  },
-  methods: {
-    createTemplate() {
-      this.setMode('createTemplate');
-      this.putFocusNextTick('create-note-subject');
     }
   }
 }

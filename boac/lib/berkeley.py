@@ -357,7 +357,7 @@ BERKELEY_DEPT_CODE_TO_NAME = {
     'UWASC': 'Athletic Study Center',
     'UXDSP': 'Disabled Students Program',
     'VREAS': 'Student Information Systems',
-    'ZCEEE': 'Center for Education, Equity, and Excellence',
+    'ZCEEE': 'Centers for Educational Equity and Excellence',
     'GUEST': 'Guest',
     'ZZZZZ': 'Other',
 }

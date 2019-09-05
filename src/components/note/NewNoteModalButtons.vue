@@ -1,5 +1,14 @@
 <template>
   <div class="d-flex flex-wrap-reverse mt-1 mr-3 mb-0 ml-3">
+    <div>
+      <b-btn
+        v-if="undocked && mode !== 'editTemplate'"
+        variant="link"
+        :disabled="!trim(model.subject)"
+        @click="saveAsTemplate()">
+        Save as template
+      </b-btn>
+    </div>
     <div class="flex-grow-1">
       <b-btn
         v-if="!undocked"
@@ -7,17 +16,6 @@
         variant="link"
         @click.prevent="enterAdvancedMode()">
         Advanced note options
-      </b-btn>
-    </div>
-    <div v-if="mode === 'createTemplate'">
-      <b-btn
-        id="create-template-button"
-        class="btn-primary-color-override"
-        :disabled="!model.subject"
-        aria-label="Create note template"
-        variant="primary"
-        @click.prevent="createTemplate()">
-        Create Template
       </b-btn>
     </div>
     <div v-if="mode === 'editTemplate'">
@@ -31,7 +29,7 @@
         Update Template
       </b-btn>
     </div>
-    <div v-if="!includes(['createTemplate', 'editTemplate'], mode)">
+    <div v-if="mode !== 'editTemplate'">
       <b-btn
         id="create-note-button"
         class="btn-primary-color-override"
@@ -72,7 +70,7 @@ export default {
       required: true,
       type: Function
     },
-    createTemplate: {
+    saveAsTemplate: {
       required: true,
       type: Function
     },
