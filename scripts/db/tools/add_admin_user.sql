@@ -12,6 +12,9 @@ INSERT INTO authorized_users (uid, is_admin, created_at, updated_at)
   SELECT :'uid', true, now(), now()
   WHERE NOT EXISTS (SELECT id FROM authorized_users WHERE uid = :'uid');
 
+-- Let us be sure that deleted status is NULL.
+UPDATE authorized_users SET deleted_at = NULL WHERE uid = :'uid';
+
 -- Done
 
 COMMIT;

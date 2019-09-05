@@ -12,6 +12,9 @@ INSERT INTO authorized_users (uid, is_admin, created_at, updated_at)
   SELECT :'uid', false, now(), now()
   WHERE NOT EXISTS (SELECT id FROM authorized_users WHERE uid = :'uid');
 
+-- If the UID represents an existing user then let us be sure that deleted status is NULL.
+UPDATE authorized_users SET deleted_at = NULL WHERE uid = :'uid';
+
 -- Add advisor access
 INSERT INTO university_dept_members (university_dept_id, authorized_user_id, is_advisor, created_at, updated_at)
   SELECT dep.id, usr.id, true, now(), now()
