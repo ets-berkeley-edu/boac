@@ -264,6 +264,59 @@ class TestUpdateNoteTemplate:
         assert not NoteTemplateAttachment.find_by_id(attachment_id)
 
 
+class TestRenameNoteTemplate:
+
+    @classmethod
+    def _api_note_template_rename(
+            cls,
+            client,
+            note_template_id,
+            title,
+            expected_status_code=200,
+    ):
+        data = {
+            'id': note_template_id,
+            'title': title,
+        }
+        response = client.post('/api/note_template/rename', data=data)
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_rename_note_template_not_authenticated(self, app, mock_note_template, client):
+        """Returns 401 if not authenticated."""
+        self._api_note_template_rename(
+            client,
+            note_template_id=mock_note_template.id,
+            title='Hack the title!',
+            expected_status_code=401,
+        )
+
+    def test_rename_note_template_unauthorized(self, app, client, fake_auth, mock_note_template):
+        """Deny user's attempt to rename someone else's note template."""
+        original_subject = mock_note_template.subject
+        fake_auth.login(coe_advisor_uid)
+        assert self._api_note_template_rename(
+            client,
+            note_template_id=mock_note_template.id,
+            title='Hack the title!',
+            expected_status_code=403,
+        )
+        assert NoteTemplate.find_by_id(mock_note_template.id).subject == original_subject
+
+    def test_update_note_template_topics(self, app, client, fake_auth, mock_note_template):
+        """Update note template title."""
+        user = AuthorizedUser.find_by_id(mock_note_template.creator_id)
+        fake_auth.login(user.uid)
+        expected_title = 'As cool as Kim Deal'
+        api_json = self._api_note_template_rename(
+            client,
+            note_template_id=mock_note_template.id,
+            title=expected_title,
+        )
+        assert api_json['title'] == expected_title
+        assert NoteTemplate.find_by_id(mock_note_template.id).title == expected_title
+
+
 class TestDeleteNoteTemplate:
     """Delete note template API."""
 

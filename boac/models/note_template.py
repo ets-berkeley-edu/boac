@@ -99,6 +99,16 @@ class NoteTemplate(Base):
         return cls.query.filter_by(creator_id=creator_id, deleted_at=None).order_by(cls.title).all()
 
     @classmethod
+    def rename(cls, note_template_id, title):
+        note_template = cls.find_by_id(note_template_id)
+        if note_template:
+            note_template.title = title
+            std_commit()
+            return note_template
+        else:
+            return None
+
+    @classmethod
     def update(cls, note_template_id, subject, body, topics=(), attachments=(), delete_attachment_ids=()):
         note_template = cls.find_by_id(note_template_id)
         if note_template:
