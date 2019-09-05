@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import {createNote, createNoteBatch, getDistinctStudentCount} from '@/api/notes';
 
-const VALID_MODES = ['advanced', 'batch', 'docked', 'createTemplate', 'edit', 'editTemplate', 'minimized', 'saving'];
+const VALID_MODES = ['advanced', 'batch', 'docked', 'edit', 'editTemplate', 'minimized', 'renameTemplate', 'saving'];
 
 const $_getDefaultModel = () => {
   return {
@@ -148,9 +148,6 @@ const actions = {
   },
   addTopic: ({ commit }, topic: string) => commit('addTopic', topic),
   createAdvisingNote: ({ commit }, isBatchFeature: boolean) => commit('createAdvisingNote', isBatchFeature),
-  onCreateTemplate: ({ commit }, template: any) => commit('onCreateTemplate', template),
-  onDeleteTemplate: ({ commit }, templateId: number) => commit('onDeleteTemplate', templateId),
-  onUpdateTemplate: ({ commit }, template: any) => commit('onUpdateTemplate', template),
   removeAttachment: ({ commit }, index: number) => commit('removeAttachment', index),
   removeCohort: ({commit, state}, cohort: any) => {
     commit('removeCohort', cohort);
