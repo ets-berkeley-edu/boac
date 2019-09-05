@@ -76,6 +76,23 @@ def get_my_note_templates():
     return tolerant_jsonify([t.to_api_json() for t in note_templates])
 
 
+@app.route('/api/note_template/rename', methods=['POST'])
+@login_required
+def rename_note_template():
+    params = request.form
+    note_template_id = params.get('id', None)
+    title = params.get('title', None)
+    if not title:
+        raise BadRequestError('Requires \'title\'')
+    note_template = NoteTemplate.find_by_id(note_template_id=note_template_id)
+    if not note_template:
+        raise ResourceNotFoundError('Template not found')
+    if note_template.creator_id != current_user.get_id():
+        raise ForbiddenRequestError('Template not available.')
+    note_template = NoteTemplate.rename(note_template_id=note_template_id, title=title)
+    return tolerant_jsonify(note_template.to_api_json())
+
+
 @app.route('/api/note_template/update', methods=['POST'])
 @login_required
 def update_note_template():
