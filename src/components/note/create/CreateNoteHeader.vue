@@ -34,13 +34,19 @@
             </div>
             <div class="align-items-center d-flex ml-3 no-wrap">
               <div class="pl-2">
+                <b-btn variant="link" class="p-0" @click="openRenameTemplateModal(template)">Rename</b-btn>
+              </div>
+              <div class="pl-1 pr-1">
+                |
+              </div>
+              <div>
                 <b-btn variant="link" class="p-0" @click="editTemplate(template)">Edit</b-btn>
               </div>
               <div class="pl-1 pr-1">
                 |
               </div>
               <div>
-                <b-btn variant="link" class="p-0" @click="deleteTemplate(template.id)">Delete</b-btn>
+                <b-btn variant="link" class="p-0" @click="openDeleteTemplateModal(template)">Delete</b-btn>
               </div>
             </div>
           </div>
@@ -67,38 +73,45 @@
           variant="link"
           aria-labelledby="cancel-button-label"
           class="pl-1 pb-1"
-          @click.prevent="cancel()">
+          @click.prevent="cancelPrimaryModal()">
           <span class="sr-only">Cancel</span>
           <font-awesome icon="times" class="fa-icon-size text-dark" />
         </b-btn>
       </div>
     </div>
+    <RenameTemplateModal
+      v-if="showRenameTemplateModal"
+      :show-modal="showRenameTemplateModal"
+      :cancel="cancel"
+      :rename="renameTemplate"
+      :template="targetTemplate"
+      :toggle-show="toggleShowRenameTemplateModal" />
+    <AreYouSureModal
+      v-if="showDeleteTemplateModal"
+      button-label-confirm="Delete"
+      :function-cancel="cancel"
+      :function-confirm="deleteTemplateConfirmed"
+      :modal-body="`Are you sure you want to delete the <b>'${get(targetTemplate, 'title')}'</b> template?`"
+      modal-header="Delete Template"
+      :show-modal="showDeleteTemplateModal" />
   </div>
 </template>
 
 <script>
+import AreYouSureModal from '@/components/util/AreYouSureModal';
 import Context from '@/mixins/Context';
 import NoteEditSession from '@/mixins/NoteEditSession';
+import RenameTemplateModal from '@/components/note/create/RenameTemplateModal'
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
+import {deleteNoteTemplate, renameNoteTemplate} from '@/api/note-templates';
 
 export default {
-  name: 'NewNotePageHeader',
+  name: 'CreateNoteHeader',
+  components: {AreYouSureModal, RenameTemplateModal},
   mixins: [Context, NoteEditSession, UserMetadata, Util],
   props: {
-    cancel: {
-      required: true,
-      type: Function
-    },
-    deleteTemplate: {
-      required: true,
-      type: Function
-    },
-    editTemplate: {
-      required: true,
-      type: Function
-    },
-    loadTemplate: {
+    cancelPrimaryModal: {
       required: true,
       type: Function
     },
@@ -109,6 +122,59 @@ export default {
     undocked: {
       required: true,
       type: Boolean
+    }
+  },
+  data: () => ({
+    showDeleteTemplateModal: false,
+    showRenameTemplateModal: false,
+    targetTemplate: undefined
+  }),
+  methods: {
+    cancel() {
+      this.showDeleteTemplateModal = false;
+      this.showRenameTemplateModal = false;
+      this.targetTemplate = null;
+      this.putFocusNextTick('create-note-subject');
+      this.setFocusLockDisabled(false);
+    },
+    deleteTemplateConfirmed() {
+      deleteNoteTemplate(this.targetTemplate.id).then(() => {
+        this.showDeleteTemplateModal = false;
+        this.setFocusLockDisabled(false);
+        this.targetTemplate = null;
+        this.putFocusNextTick('create-note-subject');
+      })
+    },
+    editTemplate(template) {
+      this.setModel(this.cloneDeep(template));
+      this.setMode('editTemplate');
+      this.putFocusNextTick('create-note-subject');
+    },
+    loadTemplate(template) {
+      this.setModel(this.cloneDeep(template));
+      this.putFocusNextTick('create-note-subject');
+      this.alertScreenReader(`Template ${template.title} loaded`);
+    },
+    openDeleteTemplateModal(template) {
+      this.targetTemplate = template;
+      this.setFocusLockDisabled(true);
+      this.showDeleteTemplateModal = true;
+    },
+    openRenameTemplateModal(template) {
+      this.targetTemplate = template;
+      this.setFocusLockDisabled(true);
+      this.showRenameTemplateModal = true;
+    },
+    renameTemplate(title) {
+      renameNoteTemplate(this.targetTemplate.id, title).then(() => {
+        this.targetTemplate = null;
+        this.showRenameTemplateModal = false;
+        this.setFocusLockDisabled(false);
+      });
+    },
+    toggleShowRenameTemplateModal(show) {
+      this.showRenameTemplateModal = show;
+      this.setFocusLockDisabled(show);
     }
   }
 }

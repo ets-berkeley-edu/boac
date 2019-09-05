@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note_template import NoteTemplate
 from boac.models.note_template_attachment import NoteTemplateAttachment
+import simplejson as json
 from sqlalchemy import and_
 from tests.util import mock_advising_note_s3_bucket
 
@@ -274,11 +275,14 @@ class TestRenameNoteTemplate:
             title,
             expected_status_code=200,
     ):
-        data = {
-            'id': note_template_id,
-            'title': title,
-        }
-        response = client.post('/api/note_template/rename', data=data)
+        response = client.post(
+            '/api/note_template/rename',
+            data=json.dumps({
+                'id': note_template_id,
+                'title': title,
+            }),
+            content_type='application/json',
+        )
         assert response.status_code == expected_status_code
         return response.json
 

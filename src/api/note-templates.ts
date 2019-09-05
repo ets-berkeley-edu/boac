@@ -41,6 +41,20 @@ export function deleteNoteTemplate(templateId: number) {
     .then(() => store.dispatch('note/onDeleteTemplate', templateId));
 }
 
+export function renameNoteTemplate(noteTemplateId: number, title: string) {
+  const data = {id: noteTemplateId, title: title};
+  return axios.post(`${utils.apiBaseUrl()}/api/note_template/rename`, data).then(response => {
+    const template = response.data;
+    store.dispatch('note/onUpdateTemplate', template);
+    store.dispatch('user/gaNoteTemplateEvent', {
+      id: noteTemplateId,
+      name: `Advisor ${store.getters['user/uid']} renamed a note template`,
+      action: 'update'
+    });
+    return template;
+  });
+}
+
 export function updateNoteTemplate(
     noteTemplateId: number,
     subject: string,

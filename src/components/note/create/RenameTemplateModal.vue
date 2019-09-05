@@ -1,19 +1,19 @@
 <template>
   <b-modal
-    id="create-note-template"
+    id="rename-note-template"
     v-model="showModalProxy"
     body-class="pl-0 pr-0"
     hide-footer
     hide-header-close
-    title="Name Your Template"
-    @shown="focusModalById('create-input')">
+    title="Rename Your Template"
+    @shown="focusModalById('rename-template-input')">
     <div>
-      <form @submit.prevent="createTemplate()">
+      <form @submit.prevent="renameTemplate()">
         <div class="ml-3 mr-3">
           <div class="pb-2">Template name:</div>
           <div>
             <input
-              id="template-title-input"
+              id="rename-template-input"
               v-model="title"
               class="cohort-create-input-name"
               type="text"
@@ -23,7 +23,7 @@
           <div class="faint-text mb-3"><span class="sr-only">Template name has a </span>255 character limit <span v-if="title.length">({{ 255 - title.length }} left)</span></div>
           <div
             v-if="error"
-            id="create-error"
+            id="rename-template-error"
             aria-live="polite"
             class="has-error">
             {{ error }}
@@ -37,15 +37,15 @@
         </div>
         <div class="modal-footer pl-0 mr-2">
           <b-btn
-            id="create-template-confirm"
+            id="rename-template-confirm"
             class="btn-primary-color-override"
             variant="primary"
             :disabled="!title.length"
-            @click.prevent="createTemplate()">
+            @click.prevent="renameTemplate()">
             Save
           </b-btn>
           <b-btn
-            id="cancel-template-create"
+            id="cancel-rename-template"
             variant="link"
             @click="cancelModal()">
             Cancel
@@ -61,19 +61,23 @@ import Util from '@/mixins/Util';
 import Validator from '@/mixins/Validator';
 
 export default {
-  name: 'CreateTemplateModal',
+  name: 'RenameTemplateModal',
   mixins: [Util, Validator],
   props: {
     cancel: {
       type: Function,
       required: true
     },
-    create: {
+    rename: {
       type: Function,
       required: true
     },
     showModal: {
       type: Boolean,
+      required: true
+    },
+    template: {
+      type: Object,
       required: true
     },
     toggleShow: {
@@ -100,20 +104,18 @@ export default {
       this.error = undefined;
     }
   },
+  mounted() {
+    this.title = this.template.title;
+  },
   methods: {
-    reset() {
-      this.title = '';
-      this.error = undefined;
-    },
     cancelModal() {
+      this.error = undefined;
       this.cancel();
-      this.reset();
     },
-    createTemplate: function() {
-      this.error = this.validateTemplateTitle({ title: this.title });
+    renameTemplate: function() {
+      this.error = this.validateTemplateTitle({ id: this.template.id, title: this.title });
       if (!this.error) {
-        this.create(this.title);
-        this.reset();
+        this.rename(this.title);
       }
     }
   }

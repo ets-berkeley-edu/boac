@@ -46,7 +46,7 @@ import Util from '@/mixins/Util';
 import { findStudentsByNameOrSid } from '@/api/student';
 
 export default {
-  name: 'CreateNoteAddStudent',
+  name: 'BatchNoteAddStudent',
   components: {
     Autocomplete
   },
