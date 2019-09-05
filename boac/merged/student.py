@@ -144,8 +144,10 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None, fe
         # Strip SIS details to lighten the API load.
         sis_profile = student.pop('sisProfile', None)
         if sis_profile:
+            student['academicCareerStatus'] = sis_profile.get('academicCareerStatus')
             student['cumulativeGPA'] = sis_profile.get('cumulativeGPA')
             student['cumulativeUnits'] = sis_profile.get('cumulativeUnits')
+            student['degree'] = sis_profile.get('degree')
             student['level'] = _get_sis_level_description(sis_profile)
             student['currentTerm'] = sis_profile.get('currentTerm')
             student['majors'] = _get_active_plan_descriptions(sis_profile)
@@ -212,9 +214,11 @@ def get_summary_student_profiles(sids, term_id=None):
         # Strip SIS details to lighten the API load.
         sis_profile = profile.pop('sisProfile', None)
         if sis_profile:
+            profile['academicCareerStatus'] = sis_profile.get('academicCareerStatus')
             profile['cumulativeGPA'] = sis_profile.get('cumulativeGPA')
             profile['cumulativeUnits'] = sis_profile.get('cumulativeUnits')
             profile['currentTerm'] = sis_profile.get('currentTerm')
+            profile['degree'] = sis_profile.get('degree')
             profile['expectedGraduationTerm'] = sis_profile.get('expectedGraduationTerm')
             profile['level'] = _get_sis_level_description(sis_profile)
             profile['majors'] = _get_active_plan_descriptions(sis_profile)

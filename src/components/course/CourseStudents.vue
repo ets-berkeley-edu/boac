@@ -35,19 +35,37 @@
           :id="`student-${row.item.uid}-waitlisted-for-${section.termId}-${section.sectionId}`"
           class="red-flag-status">WAITLISTED</span>
         <span
-          v-if="displayAsAscInactive(row.item)"
+          v-if="row.item.academicCareerStatus === 'Inactive'"
           :id="`student-${row.item.uid}-inactive-for-${section.termId}-${section.sectionId}`"
-          class="red-flag-status">ASC INACTIVE</span>
-        <span
-          v-if="displayAsCoeInactive(row.item)"
-          :id="`student-${row.item.uid}-inactive-for-${section.termId}-${section.sectionId}`"
-          class="red-flag-status">CoE INACTIVE</span>
+          class="red-flag-status">INACTIVE</span>
       </div>
-      <div>
-        <span class="student-text">{{ row.item.level }}</span>
+      <div
+        v-if="displayAsAscInactive(row.item)"
+        :id="`student-${row.item.uid}-asc-inactive-for-${section.termId}-${section.sectionId}`"
+        class="student-sid red-flag-status">
+        ASC INACTIVE
       </div>
-      <div>
-        <div v-for="major in row.item.majors" :key="major" class="student-text">{{ major }}</div>
+      <div
+        v-if="displayAsCoeInactive(row.item)"
+        :id="`student-${row.item.uid}-coe-inactive-for-${section.termId}-${section.sectionId}`"
+        class="student-sid red-flag-status">
+        CoE INACTIVE
+      </div>
+      <div v-if="row.item.academicCareerStatus !== 'Completed'">
+        <div>
+          <span class="student-text">{{ row.item.level }}</span>
+        </div>
+        <div>
+          <div v-for="major in row.item.majors" :key="major" class="student-text">{{ major }}</div>
+        </div>
+      </div>
+      <div v-if="row.item.academicCareerStatus === 'Completed'">
+        <div v-if="get(row.item, 'degree.dateAwarded')">
+          <span class="student-text">Graduated {{ row.item.degree.dateAwarded | moment('MMM DD, YYYY') }}</span>
+        </div>
+        <div v-for="owner in degreePlanOwners(row.item)" :key="owner" class="student-text">
+          {{ owner }}
+        </div>
       </div>
       <div>
         <div v-if="row.item.athleticsProfile" class="student-teams-container">
@@ -228,6 +246,14 @@ export default {
     this.fields = cols;
   },
   methods: {
+    degreePlanOwners(student) {
+      const plans = this.get(student, 'degree.plans');
+      if (plans) {
+        return this.uniq(this.map(plans, 'group'));
+      } else {
+        return [];
+      }
+    },
     rowClass(item) {
       const clazz = 'border-bottom pb-3 pt-3';
       return this.featured === item.uid ? `${clazz} list-group-item-info` : clazz;

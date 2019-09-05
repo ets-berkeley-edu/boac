@@ -29,11 +29,17 @@
           :to="studentRoutePath(row.item.uid, user.inDemoMode)"
           v-html="`${row.item.lastName}, ${row.item.firstName}`"></router-link>
         <span
-          v-if="displayAsAscInactive(row.item) || displayAsCoeInactive(row.item)"
+          v-if="row.item.academicCareerStatus === 'Inactive' || displayAsAscInactive(row.item) || displayAsCoeInactive(row.item)"
           class="home-inactive-info-icon"
           uib-tooltip="Inactive"
           tooltip-placement="bottom">
           <font-awesome icon="info-circle" />
+        </span>
+        <span
+          v-if="row.item.academicCareerStatus === 'Completed'"
+          uib-tooltip="Graduated"
+          tooltip-placement="bottom">
+          <font-awesome icon="graduation-cap" />
         </span>
       </template>
 

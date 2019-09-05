@@ -42,31 +42,57 @@
       </div>
       <div class="d-flex student-sid" :class="{'demo-mode-blur' : user.inDemoMode}">
         <div :id="`row-${rowIndex}-student-sid`">{{ student.sid }}</div>
-        <div v-if="displayAsAscInactive(student)" class="red-flag-status ml-1">ASC INACTIVE</div>
-        <div v-if="displayAsCoeInactive(student)" class="red-flag-status ml-1">CoE INACTIVE</div>
+        <div
+          v-if="student.academicCareerStatus === 'Inactive'"
+          :id="`row-${rowIndex}-inactive`"
+          class="red-flag-status ml-1">
+          INACTIVE
+        </div>
       </div>
-      <div v-if="student.withdrawalCancel">
+      <div
+        v-if="displayAsAscInactive(student)"
+        :id="`row-${rowIndex}-inactive-asc`"
+        class="d-flex student-sid red-flag-status">
+        ASC INACTIVE
+      </div>
+      <div
+        v-if="displayAsCoeInactive(student)"
+        :id="`row-${rowIndex}-inactive-coe`"
+        class="d-flex student-sid red-flag-status">
+        CoE INACTIVE
+      </div>
+      <div v-if="student.withdrawalCancel" :id="`row-${rowIndex}-withdrawal-cancel`">
         <span class="red-flag-small">
           {{ student.withdrawalCancel.description }} {{ student.withdrawalCancel.date | moment('MMM DD, YYYY') }}
         </span>
       </div>
-      <div
-        :id="`row-${rowIndex}-student-level`"
-        class="student-text">
-        {{ student.level }}
+      <div v-if="student.academicCareerStatus !== 'Completed'">
+        <div
+          :id="`row-${rowIndex}-student-level`"
+          class="student-text">
+          {{ student.level }}
+        </div>
+        <div
+          v-if="student.expectedGraduationTerm"
+          :id="`row-${rowIndex}-student-grad-term`"
+          class="student-text"
+          aria-label="Expected graduation term">
+          Grad:&nbsp;{{ student.expectedGraduationTerm.name }}
+        </div>
+        <div
+          v-for="(major, index) in student.majors"
+          :key="index"
+          class="student-text">
+          <span :id="`row-${rowIndex}-student-major-${index}`">{{ major }}</span>
+        </div>
       </div>
-      <div
-        v-if="student.expectedGraduationTerm"
-        :id="`row-${rowIndex}-student-grad-term`"
-        class="student-text"
-        aria-label="Expected graduation term">
-        Grad:&nbsp;{{ student.expectedGraduationTerm.name }}
-      </div>
-      <div
-        v-for="(major, index) in student.majors"
-        :key="index"
-        class="student-text">
-        <span :id="`row-${rowIndex}-student-major-${index}`">{{ major }}</span>
+      <div v-if="student.academicCareerStatus === 'Completed'">
+        <div v-if="get(student, 'degree.dateAwarded')">
+          <span class="student-text">Graduated {{ student.degree.dateAwarded | moment('MMM DD, YYYY') }}</span>
+        </div>
+        <div v-for="owner in degreePlanOwners" :key="owner" class="student-text">
+          <span class="student-text">{{ owner }}</span>
+        </div>
       </div>
       <div v-if="student.athleticsProfile" class="student-teams-container">
         <div
@@ -229,6 +255,16 @@ export default {
     rowIndex: Number,
     student: Object,
     sortedBy: String
+  },
+  computed: {
+    degreePlanOwners() {
+      const plans = this.get(this.student, 'degree.plans');
+      if (plans) {
+        return this.uniq(this.map(plans, 'group'));
+      } else {
+        return [];
+      }
+    }
   },
   methods: {
     removeFromCuratedGroup: function() {
