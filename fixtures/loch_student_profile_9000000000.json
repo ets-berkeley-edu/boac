@@ -43,7 +43,8 @@
         "plans": [
             {
                 "description": "Engineering Undeclared UG",
-                "program": "Engineering"
+                "program": "Engineering",
+                "status": "Active"
             }
         ],
         "preferredName": "Wolfgang Pauli-O'Rourke",

@@ -43,7 +43,8 @@
         "plans": [
             {
                 "description": "Nuclear Engineering BS",
-                "program": "Engineering"
+                "program": "Engineering",
+                "status": "Active"
             }
         ],
         "preferredName": "Paul Farestveit",
