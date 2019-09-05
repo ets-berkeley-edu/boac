@@ -49,12 +49,14 @@
             {
                 "degreeProgramUrl": "http://guide.berkeley.edu/undergraduate/degree-programs/english/",
                 "description": "English BA",
-                "program": "Undergrad Letters & Science"
+                "program": "Undergrad Letters & Science",
+                "status": "Active"
             },
             {
                 "degreeProgramUrl": "http://guide.berkeley.edu/undergraduate/degree-programs/nuclear-engineering/",
                 "description": "Nuclear Engineering BS",
-                "program": "Engineering"
+                "program": "Engineering",
+                "status": "Active"
             }
         ],
         "preferredName": "Osk Bear",

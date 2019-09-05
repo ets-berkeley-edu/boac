@@ -148,7 +148,7 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None, fe
             student['cumulativeUnits'] = sis_profile.get('cumulativeUnits')
             student['level'] = _get_sis_level_description(sis_profile)
             student['currentTerm'] = sis_profile.get('currentTerm')
-            student['majors'] = sorted(plan.get('description') for plan in sis_profile.get('plans', []))
+            student['majors'] = _get_active_plan_descriptions(sis_profile)
             student['transfer'] = sis_profile.get('transfer')
         term = enrollments_by_sid.get(student['sid'])
         student['hasCurrentTermEnrollments'] = False
@@ -217,7 +217,7 @@ def get_summary_student_profiles(sids, term_id=None):
             profile['currentTerm'] = sis_profile.get('currentTerm')
             profile['expectedGraduationTerm'] = sis_profile.get('expectedGraduationTerm')
             profile['level'] = _get_sis_level_description(sis_profile)
-            profile['majors'] = sorted(plan.get('description') for plan in sis_profile.get('plans', []))
+            profile['majors'] = _get_active_plan_descriptions(sis_profile)
             profile['transfer'] = sis_profile.get('transfer')
             if sis_profile.get('withdrawalCancel'):
                 profile['withdrawalCancel'] = sis_profile['withdrawalCancel']
@@ -503,6 +503,10 @@ def _get_sis_level_description(profile):
         return None
     else:
         return level
+
+
+def _get_active_plan_descriptions(profile):
+    return sorted(plan.get('description') for plan in profile.get('plans', []) if plan.get('status') == 'Active')
 
 
 def _merge_photo_urls(profiles):

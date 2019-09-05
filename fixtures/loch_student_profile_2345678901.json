@@ -43,7 +43,8 @@
         "plans": [
             {
                 "description": "Chemistry BS",
-                "program": "Chemistry"
+                "program": "Chemistry",
+                "status": "Active"
             }
         ],
         "preferredName": "Dave Doolittle",

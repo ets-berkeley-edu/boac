@@ -43,7 +43,8 @@
         "plans": [
             {
                 "description": "Mathematics",
-                "program": "Undergrad Letters & Science"
+                "program": "Undergrad Letters & Science",
+                "status": "Active"
             }
         ],
         "preferredName": "Siegfried Schlemiel",
