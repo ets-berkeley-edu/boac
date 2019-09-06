@@ -26,7 +26,7 @@
           <div class="align-items-center d-flex justify-content-between text-nowrap">
             <b-link
               :id="`load-note-template-${template.id}`"
-              class="pb-0 text-muted text-nowrap template-dropdown-title truncate-with-ellipsis"
+              class="pb-0 text-nowrap template-dropdown-title truncate-with-ellipsis"
               :title="template.title"
               @click="loadTemplate(template)">
               {{ template.title }}

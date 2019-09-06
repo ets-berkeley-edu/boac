@@ -372,7 +372,7 @@ export default {
       const newAttachments = this.filterList(this.model.attachments, a => !a.id);
       if (newAttachments.length) {
         // File upload might take time; alert will be overwritten when API call is done.
-        this.showAlert('Creating template...', 60);
+        this.showAlert('Updating template...', 60);
       }
       updateNoteTemplate(
         this.model.id,
@@ -385,10 +385,10 @@ export default {
         this.setIsSaving(false);
         this.setModel({
           id: undefined,
-          subject: this.model.subject,
-          body: this.model.body,
-          topics: this.model.topics,
-          attachments: newAttachments,
+          subject: template.subject,
+          body: template.body,
+          topics: template.topics,
+          attachments: template.attachments,
           deleteAttachmentIds: []
         });
         this.setMode(this.isBatchFeature ? 'batch' : 'advanced');
