@@ -30,7 +30,7 @@ export default {
           _.each(cohorts, existing => {
             if (
               (!cohort['id'] || cohort.id !== existing.id) &&
-              name === existing.name
+              name.toUpperCase() === existing.name.toUpperCase()
             ) {
               msg = `You have an existing ${cohortType} with this name. Please choose a different name.`;
               return false;
@@ -52,7 +52,7 @@ export default {
         _.each(myTemplates, existing => {
           if (
             (!template.id || template.id !== existing.id) &&
-            title === existing.title
+            title.toUpperCase() === existing.title.toUpperCase()
           ) {
             msg = 'You have an existing template with this name. Please choose a different name.';
             return false;

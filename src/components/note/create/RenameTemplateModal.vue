@@ -10,7 +10,7 @@
     <div>
       <form @submit.prevent="renameTemplate()">
         <div class="ml-3 mr-3">
-          <div class="pb-2">Template name:</div>
+          <label class="pb-2" for="rename-template-input">Template name:</label>
           <div>
             <input
               id="rename-template-input"
@@ -42,7 +42,7 @@
             variant="primary"
             :disabled="!title.length"
             @click.prevent="renameTemplate()">
-            Save
+            Rename
           </b-btn>
           <b-btn
             id="cancel-rename-template"
