@@ -52,7 +52,7 @@
                 'font-weight-normal text-dark': !subCategory.disabled
               }">{{ subCategory.name }}</span>
           </b-dropdown-item>
-          <b-dropdown-divider v-if="mIndex !== (menu.length - 1)"></b-dropdown-divider>
+          <hr v-if="mIndex !== (menu.length - 1)" role="separator" class="dropdown-divider">
         </div>
       </b-dropdown>
     </div>
@@ -94,7 +94,7 @@
                   'font-weight-normal text-dark': !option.disabled
                 }">{{ option.name }}</span>
             </b-dropdown-item>
-            <b-dropdown-divider v-if="option.value === 'divider'"></b-dropdown-divider>
+            <hr v-if="option.value === 'divider'" role="separator" class="dropdown-divider">
           </div>
         </b-dropdown>
       </div>

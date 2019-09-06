@@ -53,7 +53,7 @@
             :aria-label="`${checkedGroups.includes(group.id) ? 'Remove student from' : 'Add student to'} group '${group.name}'`">{{ group.name }}</label>
         </b-dropdown-item>
       </div>
-      <b-dropdown-divider></b-dropdown-divider>
+      <hr role="separator" class="dropdown-divider">
       <b-dropdown-item>
         <b-btn
           id="create-curated-group"
