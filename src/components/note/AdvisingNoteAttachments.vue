@@ -14,13 +14,14 @@
           variant="outline-primary"
           class="btn-file-upload mt-2 mb-2"
           size="sm"
+          :disabled="disabled"
           @keydown.enter.prevent="clickBrowseForAttachment">
           Browse<span class="sr-only"> for file to upload</span>
         </b-btn>
         <b-form-file
           ref="attachmentFileInput"
           v-model="attachment"
-          :disabled="size(existingAttachments) === maxAttachmentsPerNote"
+          :disabled="disabled || size(existingAttachments) === maxAttachmentsPerNote"
           :state="Boolean(attachment)"
           :plain="true"
         ></b-form-file>
@@ -41,6 +42,7 @@
             {{ attachment.displayName }}
             <b-btn
               :id="`remove-note-attachment-${index}`"
+              :disabled="disabled"
               variant="link"
               class="p-0"
               @click.prevent="removeAttachmentByIndex(index)">
@@ -66,6 +68,11 @@ export default {
     addAttachment: {
       required: true,
       type: Function
+    },
+    disabled: {
+      default: false,
+      required: false,
+      type: Boolean
     },
     existingAttachments: {
       required: true,

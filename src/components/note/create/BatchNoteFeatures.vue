@@ -28,6 +28,7 @@
     <div>
       <BatchNoteAddStudent
         :add-sid="addStudentBySid"
+        :disabled="isSaving"
         dropdown-class="position-relative"
         :on-esc-form-input="cancel"
         :remove-sid="removeSid" />
@@ -36,16 +37,18 @@
       <BatchNoteAddCohort
         v-if="myCohorts && myCohorts.length"
         :add-object="addCohortToBatch"
-        :objects="myCohorts"
+        :disabled="isSaving"
         :is-curated-groups-mode="false"
+        :objects="myCohorts"
         :remove-object="removeCohortFromBatch" />
     </div>
     <div>
       <BatchNoteAddCohort
         v-if="myCuratedGroups && myCuratedGroups.length"
         :add-object="addCuratedGroupToBatch"
-        :objects="myCuratedGroups"
+        :disabled="isSaving"
         :is-curated-groups-mode="true"
+        :objects="myCuratedGroups"
         :remove-object="removeCuratedGroupFromBatch" />
     </div>
   </div>

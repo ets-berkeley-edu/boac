@@ -120,11 +120,10 @@ export default {
   }),
   created() {
     getNote(this.noteId).then(note => {
-      this.beginEditSession({
-        mode: 'edit',
-        model: note,
-        sid: note.sid
-      });
+      this.resetModel();
+      this.setModel(this.cloneDeep(note));
+      this.addSid(note.sid);
+      this.setMode('edit');
       this.putFocusNextTick('edit-note-subject');
       this.alertScreenReader('Edit note form is open.');
     });

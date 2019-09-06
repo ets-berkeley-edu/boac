@@ -12,6 +12,7 @@
             v-if="topicOptions.length"
             id="add-topic-select-list"
             :key="topics.length"
+            :disabled="disabled"
             :options="topicOptions"
             role="listbox"
             aria-label="Use up and down arrows to review topics. Hit enter to select a topic."
@@ -32,6 +33,7 @@
               {{ addedTopic }}
               <b-btn
                 :id="`remove-${notePrefix}-topic-${index}`"
+                :disabled="disabled"
                 variant="link"
                 class="px-0 pt-1"
                 :aria-labelledby="`remove-${notePrefix}-topic-${index}-label`"
@@ -62,6 +64,11 @@ export default {
   name: 'AdvisingNoteTopics',
   mixins: [Context, UserMetadata, Util],
   props: {
+    disabled: {
+      default: false,
+      required: false,
+      type: Boolean
+    },
     functionAdd: {
       type: Function,
       required: true

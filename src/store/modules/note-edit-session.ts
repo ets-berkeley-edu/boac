@@ -31,6 +31,7 @@ const state = {
   addedCohorts: [],
   addedCuratedGroups: [],
   isFocusLockDisabled: undefined,
+  isSaving: false,
   mode: undefined,
   model: $_getDefaultModel(),
   sids: [],
@@ -41,6 +42,7 @@ const getters = {
   addedCohorts: (state: any): any[] => state.addedCohorts,
   addedCuratedGroups: (state: any): any[] => state.addedCuratedGroups,
   isFocusLockDisabled: (state: any): boolean => state.isFocusLockDisabled,
+  isSaving: (state: any): boolean => state.isSaving,
   mode: (state: any): string => state.mode,
   model: (state: any): any => state.model,
   sids: (state: any): string[] => state.sids,
@@ -99,15 +101,17 @@ const mutations = {
   removeStudent: (state:any, sid: string) => (state.sids = _.filter(state.sids, existingSid => existingSid !== sid)),
   removeTopic: (state: any, topic: string) => (state.model.topics.splice(state.model.topics.indexOf(topic), 1)),
   terminate: (state: any) => {
+    state.addedCohorts = [];
+    state.addedCuratedGroups = [];
+    state.isSaving = false;
     state.mode = undefined;
     state.model = $_getDefaultModel();
     state.sids = [];
     state.targetStudentCount = 0;
-    state.addedCohorts = [];
-    state.addedCuratedGroups = [];
   },
   setBody: (state: any, body: string) => (state.model.body = body),
   setFocusLockDisabled: (state: any, isDisabled: boolean) => (state.isFocusLockDisabled = isDisabled),
+  setIsSaving: (state: any, isSaving: boolean) => (state.isSaving = isSaving),
   setMode: (state: any, mode: string) => {
     if (_.isNil(mode)) {
       state.mode = undefined;
@@ -168,6 +172,7 @@ const actions = {
   resetModel: ({ commit }) => commit('setModel', $_getDefaultModel()),
   setBody: ({ commit }, body: string) => commit('setBody', body),
   setFocusLockDisabled: ({ commit }, isDisabled: boolean) => commit('setFocusLockDisabled', isDisabled),
+  setIsSaving: ({ commit }, isSaving: boolean) => commit('setIsSaving', isSaving),
   setMode: ({ commit }, mode: string) => commit('setMode', mode),
   setModel: ({ commit }, model?: any) => commit('setModel', model),
   setSubject: ({ commit }, subject: string) => commit('setSubject', subject),

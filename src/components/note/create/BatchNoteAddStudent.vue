@@ -13,6 +13,7 @@
         id="create-note-add-student"
         :key="resetAutoCompleteKey"
         class="w-75"
+        :disabled="disabled"
         :demo-mode-blur="true"
         :on-esc-form-input="onEscFormInput"
         :show-add-button="true"
@@ -55,6 +56,11 @@ export default {
     addSid: {
       required: true,
       type: Function
+    },
+    disabled: {
+      default: false,
+      required: false,
+      type: Boolean
     },
     onEscFormInput: {
       default: () => {},

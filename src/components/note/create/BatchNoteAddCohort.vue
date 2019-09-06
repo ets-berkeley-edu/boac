@@ -7,6 +7,7 @@
     </div>
     <b-dropdown
       :id="`batch-note-${type}`"
+      :disabled="disabled"
       :text="isCuratedGroupsMode ? 'Add Group' : 'Add Cohort'"
       :aria-label="`Note will be created for all students in selected ${type}${objects.length === 1 ? '' : 's'}`"
       variant="outline-dark"
@@ -48,10 +49,27 @@ export default {
   name: 'BatchNoteAddCohort',
   mixins: [Context, UserMetadata, Util],
   props: {
-    addObject: Function,
-    objects: Array,
-    isCuratedGroupsMode: Boolean,
-    removeObject: Function
+    addObject: {
+      required: true,
+      type: Function
+    },
+    disabled: {
+      default: false,
+      required: false,
+      type: Boolean
+    },
+    objects: {
+      required: true,
+      type: Array
+    },
+    isCuratedGroupsMode: {
+      required: true,
+      type: Boolean
+    },
+    removeObject: {
+      required: true,
+      type: Function
+    }
   },
   data: () => ({
     added: [],
