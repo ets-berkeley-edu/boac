@@ -34,19 +34,16 @@ import NoteEditSession from '@/mixins/NoteEditSession';
 import Util from '@/mixins/Util';
 
 export default {
-  name: 'NewNoteMinimized',
+  name: 'CreateNoteMinimized',
   mixins: [Context, NoteEditSession, Util],
   props: {
     cancel: {
       required: true,
       type: Function
-    }
-  },
-  methods: {
-    maximize() {
-      this.setMode('docked');
-      this.alertScreenReader("Create note form is visible.");
-      this.putFocusNextTick('create-note-subject');
+    },
+    maximize: {
+      required: true,
+      type: Function
     }
   }
 }

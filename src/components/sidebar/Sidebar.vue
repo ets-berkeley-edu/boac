@@ -20,7 +20,7 @@
     </div>
     <div v-if="user && !user.isAdmin">
       <div class="batch-note-button fixed-bottom mb-3">
-        <NewNoteModal id="batch-note-button" />
+        <CreateNoteModal id="batch-note-button" />
       </div>
     </div>
   </div>
@@ -29,8 +29,8 @@
 <script>
 import Cohorts from '@/components/sidebar/Cohorts.vue';
 import Context from '@/mixins/Context';
+import CreateNoteModal from '@/components/note/create/CreateNoteModal.vue';
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue';
-import NewNoteModal from '@/components/note/NewNoteModal.vue';
 import SearchForm from '@/components/sidebar/SearchForm.vue';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
@@ -39,8 +39,8 @@ export default {
   name: 'Sidebar',
   components: {
     Cohorts,
+    CreateNoteModal,
     CuratedGroups,
-    NewNoteModal,
     SearchForm
   },
   mixins: [Context, UserMetadata, Util]

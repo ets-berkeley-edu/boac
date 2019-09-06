@@ -59,7 +59,7 @@ import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
-  name: 'NewNoteModalButtons',
+  name: 'CreateNoteFooter',
   mixins: [Context, NoteEditSession, UserMetadata, Util],
   props: {
     cancel: {
@@ -71,10 +71,6 @@ export default {
       type: Function
     },
     saveAsTemplate: {
-      required: true,
-      type: Function
-    },
-    deleteTemplate: {
       required: true,
       type: Function
     },

@@ -9,6 +9,7 @@ export default {
     ...mapGetters('noteEditSession', [
       'addedCohorts',
       'addedCuratedGroups',
+      'isFocusLockDisabled',
       'mode',
       'model',
       'sids',
@@ -30,6 +31,7 @@ export default {
       'removeTopic',
       'resetModel',
       'setBody',
+      'setFocusLockDisabled',
       'setMode',
       'setModel',
       'setSubject',

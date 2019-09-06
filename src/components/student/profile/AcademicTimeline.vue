@@ -34,7 +34,7 @@
         </div>
       </div>
       <div v-if="!user.isAdmin">
-        <NewNoteModal
+        <CreateNoteModal
           :on-submit="onSubmitAdvisingNote"
           :on-successful-create="onCreateAdvisingNote"
           :student="student" />
@@ -263,8 +263,8 @@ import AdvisingAppointment from "@/components/appointment/AdvisingAppointment";
 import AdvisingNote from "@/components/note/AdvisingNote";
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import Context from '@/mixins/Context';
+import CreateNoteModal from "@/components/note/create/CreateNoteModal";
 import EditAdvisingNote from '@/components/note/EditAdvisingNote';
-import NewNoteModal from "@/components/note/NewNoteModal";
 import Scrollable from '@/mixins/Scrollable';
 import TimelineDate from '@/components/student/profile/TimelineDate';
 import UserMetadata from '@/mixins/UserMetadata';
@@ -279,8 +279,8 @@ export default {
     AdvisingAppointment,
     AdvisingNote,
     AreYouSureModal,
+    CreateNoteModal,
     EditAdvisingNote,
-    NewNoteModal,
     TimelineDate
   },
   mixins: [Context, Scrollable, UserMetadata, Util],

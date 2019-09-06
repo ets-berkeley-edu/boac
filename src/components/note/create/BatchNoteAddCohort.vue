@@ -45,7 +45,7 @@ import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
-  name: 'CreateNoteCohortDropdown',
+  name: 'BatchNoteAddCohort',
   mixins: [Context, UserMetadata, Util],
   props: {
     addObject: Function,

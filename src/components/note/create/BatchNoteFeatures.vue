@@ -26,15 +26,14 @@
       </span>
     </div>
     <div>
-      <CreateNoteAddStudent
+      <BatchNoteAddStudent
         :add-sid="addStudentBySid"
         dropdown-class="position-relative"
         :on-esc-form-input="cancel"
-        :remove-sid="removeSid">
-      </CreateNoteAddStudent>
+        :remove-sid="removeSid" />
     </div>
     <div>
-      <CreateNoteCohortDropdown
+      <BatchNoteAddCohort
         v-if="myCohorts && myCohorts.length"
         :add-object="addCohortToBatch"
         :objects="myCohorts"
@@ -42,7 +41,7 @@
         :remove-object="removeCohortFromBatch" />
     </div>
     <div>
-      <CreateNoteCohortDropdown
+      <BatchNoteAddCohort
         v-if="myCuratedGroups && myCuratedGroups.length"
         :add-object="addCuratedGroupToBatch"
         :objects="myCuratedGroups"
@@ -53,18 +52,18 @@
 </template>
 
 <script>
+import BatchNoteAddCohort from '@/components/note/create/BatchNoteAddCohort';
+import BatchNoteAddStudent from '@/components/note/create/BatchNoteAddStudent';
 import Context from '@/mixins/Context';
-import CreateNoteCohortDropdown from '@/components/note/CreateNoteCohortDropdown';
 import NoteEditSession from '@/mixins/NoteEditSession';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
-import CreateNoteAddStudent from '@/components/note/CreateNoteAddStudent';
 
 export default {
-  name: 'NewBatchNoteFeatures',
+  name: 'NoteBatchFeatures',
   components: {
-    CreateNoteAddStudent,
-    CreateNoteCohortDropdown
+    BatchNoteAddCohort,
+    BatchNoteAddStudent
   },
   mixins: [Context, NoteEditSession, UserMetadata, Util],
   props: {

@@ -79,7 +79,7 @@ def get_my_note_templates():
 @app.route('/api/note_template/rename', methods=['POST'])
 @login_required
 def rename_note_template():
-    params = request.form
+    params = request.get_json()
     note_template_id = params.get('id', None)
     title = params.get('title', None)
     if not title:

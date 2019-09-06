@@ -7,7 +7,7 @@
         :class="{'w-100': isBatchFeature}"
         variant="primary"
         :disabled="isModalOpen"
-        @click="openNewNoteModal()">
+        @click="openNoteModal()">
         <span class="m-1">
           <font-awesome icon="file-alt" />
           <span class="sr-only">{{ isBatchFeature ? 'Batch create ' : 'Create ' }}</span>
@@ -17,7 +17,7 @@
     </div>
     <FocusLock
       v-if="isModalOpen"
-      :disabled="!undocked || showDiscardNoteModal || showCreateTemplateModal || !!deleteTemplateId || showDiscardTemplateModal"
+      :disabled="!undocked || isFocusLockDisabled"
       :class="{'modal-full-screen': undocked}">
       <div
         id="new-note-modal-container"
@@ -30,18 +30,15 @@
           'mt-4': isBatchFeature
         }">
         <form @submit.prevent="submitForm()">
-          <NewNotePageHeader
-            :cancel="cancelRequested"
-            :delete-template="deleteTemplate"
-            :edit-template="editTemplate"
-            :load-template="loadTemplate"
+          <CreateNoteHeader
+            :cancel-primary-modal="cancelRequested"
             :minimize="minimize"
             :undocked="undocked" />
           <hr class="m-0" />
           <div class="mt-2 mr-3 mb-1 ml-3">
             <transition v-if="isBatchFeature" name="batch">
               <div v-if="mode !== 'editTemplate'">
-                <NewBatchNoteFeatures :cancel="cancelRequested" />
+                <BatchNoteFeatures :cancel="cancelRequested" />
                 <hr />
               </div>
             </transition>
@@ -102,11 +99,10 @@
           </div>
           <hr />
           <div>
-            <NewNoteModalButtons
+            <CreateNoteFooter
               :cancel="cancelRequested"
               :create-note="createNote"
               :save-as-template="saveAsTemplate"
-              :delete-template="deleteTemplate"
               :minimize="minimize"
               :update-template="updateTemplate"
               :undocked="undocked" />
@@ -115,7 +111,7 @@
       </div>
     </FocusLock>
     <div v-if="!isMinimizing && mode === 'minimized'">
-      <NewNoteMinimized :cancel="cancelRequested" />
+      <CreateNoteMinimized :cancel="cancelRequested" :maximize="maximize" />
     </div>
     <AreYouSureModal
       v-if="showDiscardNoteModal"
@@ -127,15 +123,7 @@
       :show-modal="showCreateTemplateModal"
       :cancel="cancelCreateTemplate"
       :create="createTemplate"
-      :toggle-show="show => showCreateTemplateModal = show" />
-    <AreYouSureModal
-      v-if="!!deleteTemplateId"
-      button-label-confirm="Delete"
-      :function-cancel="cancelDeleteTemplate"
-      :function-confirm="deleteTemplateConfirmed"
-      :modal-body="`Are you sure you want to delete the <b>'${getTemplateTitle(deleteTemplateId)}'</b> template?`"
-      modal-header="Delete Template"
-      :show-modal="!!deleteTemplateId" />
+      :toggle-show="toggleShowCreateTemplateModal" />
     <AreYouSureModal
       v-if="showDiscardTemplateModal"
       :function-cancel="cancelDiscardTemplate"
@@ -151,30 +139,30 @@ import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics';
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Context from '@/mixins/Context';
-import CreateTemplateModal from "@/components/note/CreateTemplateModal";
 import FocusLock from 'vue-focus-lock';
-import NewBatchNoteFeatures from '@/components/note/NewBatchNoteFeatures';
 import NoteEditSession from '@/mixins/NoteEditSession';
-import NewNoteMinimized from '@/components/note/NewNoteMinimized';
-import NewNoteModalButtons from '@/components/note/NewNoteModalButtons';
-import NewNotePageHeader from '@/components/note/NewNotePageHeader';
+import BatchNoteFeatures from '@/components/note/create/BatchNoteFeatures';
+import CreateNoteFooter from '@/components/note/create/CreateNoteFooter';
+import CreateNoteHeader from '@/components/note/create/CreateNoteHeader';
+import CreateNoteMinimized from '@/components/note/create/CreateNoteMinimized';
+import CreateTemplateModal from "@/components/note/create/CreateTemplateModal";
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
-import { createNoteTemplate, deleteNoteTemplate, updateNoteTemplate } from '@/api/note-templates';
+import { createNoteTemplate, updateNoteTemplate } from '@/api/note-templates';
 
 require('@/assets/styles/ckeditor-custom.css');
 
 export default {
-  name: 'NewNoteModal',
+  name: 'CreateNoteModal',
   components: {
     AdvisingNoteAttachments,
     AdvisingNoteTopics,
     AreYouSureModal,
+    BatchNoteFeatures,
+    CreateNoteFooter,
+    CreateNoteHeader,
+    CreateNoteMinimized,
     CreateTemplateModal,
-    NewBatchNoteFeatures,
-    NewNoteMinimized,
-    NewNoteModalButtons,
-    NewNotePageHeader,
     FocusLock
   },
   mixins: [Context, NoteEditSession, UserMetadata, Util],
@@ -196,15 +184,14 @@ export default {
   },
   data: () => ({
     alert: undefined,
-    deleteTemplateId: undefined,
     dismissAlertSeconds: 0,
     editor: ClassicEditor,
     editorConfig: {
       toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
     },
+    isBatchFeature: undefined,
     isMinimizing: false,
     isModalOpen: false,
-    isBatchFeature: undefined,
     showCreateTemplateModal: false,
     showDiscardNoteModal: false,
     showDiscardTemplateModal: false,
@@ -231,6 +218,7 @@ export default {
           this.discardTemplate();
         } else {
           this.showDiscardTemplateModal = true;
+          this.setFocusLockDisabled(true);
         }
       } else {
         const unsavedChanges = this.trim(this.model.subject)
@@ -241,6 +229,7 @@ export default {
           || this.addedCuratedGroups.length;
         if (unsavedChanges) {
           this.showDiscardNoteModal = true;
+          this.setFocusLockDisabled(true);
         } else {
           this.discardNote();
         }
@@ -248,18 +237,17 @@ export default {
     },
     cancelCreateTemplate() {
       this.showCreateTemplateModal = false;
+      this.setFocusLockDisabled(false);
     },
     cancelDiscardNote() {
       this.showDiscardNoteModal = false;
+      this.setFocusLockDisabled(false);
       this.putFocusNextTick('create-note-subject');
       this.alertScreenReader(`Continue editing note.`);
     },
-    cancelDeleteTemplate() {
-      this.deleteTemplateId = null;
-      this.putFocusNextTick('create-note-subject');
-    },
     cancelDiscardTemplate() {
       this.showDiscardTemplateModal = false;
+      this.setFocusLockDisabled(false);
       this.putFocusNextTick('create-note-subject');
     },
     createNote() {
@@ -275,6 +263,7 @@ export default {
     },
     createTemplate(title) {
       this.showCreateTemplateModal = false;
+      this.setFocusLockDisabled(false);
       createNoteTemplate(title, this.model.subject, this.model.body, this.model.topics, this.model.attachments).then(() => {
         this.onSuccessfulCreate();
         this.setModel({
@@ -290,17 +279,9 @@ export default {
         this.putFocusNextTick('create-note-subject');
       });
     },
-    deleteTemplate(templateId) {
-      this.deleteTemplateId = templateId;
-    },
-    deleteTemplateConfirmed() {
-      deleteNoteTemplate(this.deleteTemplateId).then(() => {
-        this.deleteTemplateId = null;
-        this.putFocusNextTick('create-note-subject');
-      })
-    },
     discardNote() {
       this.showDiscardNoteModal = false;
+      this.setFocusLockDisabled(false);
       this.isModalOpen = false;
       this.dismissAlertSeconds = 0;
       this.terminate();
@@ -308,6 +289,7 @@ export default {
     },
     discardTemplate() {
       this.showDiscardTemplateModal = false;
+      this.setFocusLockDisabled(false);
       this.resetModel();
       this.setMode(this.isBatchFeature ? 'batch' : 'advanced');
       this.putFocusNextTick('create-note-subject');
@@ -319,27 +301,20 @@ export default {
         this.alert = undefined;
       }
     },
-    editTemplate(template) {
-      this.setModel(this.cloneDeep(template));
-      this.setMode('editTemplate');
+    maximize() {
+      this.isModalOpen = true;
+      this.setMode('docked');
+      this.alertScreenReader("Create note form is visible.");
       this.putFocusNextTick('create-note-subject');
-    },
-    getTemplateTitle(templateId) {
-      const template = this.find(this.noteTemplates, ['id', templateId]);
-      return this.get(template, 'title');
-    },
-    loadTemplate(template) {
-      this.setModel(this.cloneDeep(template));
-      this.putFocusNextTick('create-note-subject');
-      this.alertScreenReader(`Template ${template.title} loaded`);
     },
     minimize() {
       this.isMinimizing = true;
       this.setMode('minimized');
+      this.isModalOpen = false;
       setTimeout(() => this.isMinimizing = false, 300);
       this.alertScreenReader('Create note form minimized.');
     },
-    openNewNoteModal() {
+    openNoteModal() {
       this.resetModel();
       const sid = this.get(this.student, 'sid');
       if (sid) {
@@ -352,6 +327,7 @@ export default {
     },
     saveAsTemplate() {
       this.showCreateTemplateModal = true;
+      this.setFocusLockDisabled(true);
       this.putFocusNextTick('template-title-input');
     },
     showAlert(alert) {
@@ -364,6 +340,10 @@ export default {
       } else {
         this.createNote();
       }
+    },
+    toggleShowCreateTemplateModal(show) {
+      this.showCreateTemplateModal = show;
+      this.setFocusLockDisabled(show);
     },
     updateTemplate() {
       const newAttachments = this.filterList(this.model.attachments, a => !a.id);

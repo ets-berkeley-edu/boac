@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import {createNote, createNoteBatch, getDistinctStudentCount} from '@/api/notes';
 
-const VALID_MODES = ['advanced', 'batch', 'docked', 'edit', 'editTemplate', 'minimized', 'renameTemplate', 'saving'];
+const VALID_MODES = ['advanced', 'batch', 'docked', 'edit', 'editTemplate', 'minimized', 'saving'];
 
 const $_getDefaultModel = () => {
   return {
@@ -30,6 +30,7 @@ const $_recalculateStudentCount = ({ commit, state }) => {
 const state = {
   addedCohorts: [],
   addedCuratedGroups: [],
+  isFocusLockDisabled: undefined,
   mode: undefined,
   model: $_getDefaultModel(),
   sids: [],
@@ -39,6 +40,7 @@ const state = {
 const getters = {
   addedCohorts: (state: any): any[] => state.addedCohorts,
   addedCuratedGroups: (state: any): any[] => state.addedCuratedGroups,
+  isFocusLockDisabled: (state: any): boolean => state.isFocusLockDisabled,
   mode: (state: any): string => state.mode,
   model: (state: any): any => state.model,
   sids: (state: any): string[] => state.sids,
@@ -105,6 +107,7 @@ const mutations = {
     state.addedCuratedGroups = [];
   },
   setBody: (state: any, body: string) => (state.model.body = body),
+  setFocusLockDisabled: (state: any, isDisabled: boolean) => (state.isFocusLockDisabled = isDisabled),
   setMode: (state: any, mode: string) => {
     if (_.isNil(mode)) {
       state.mode = undefined;
@@ -164,6 +167,7 @@ const actions = {
   removeTopic: ({ commit }, topic: string) => commit('removeTopic', topic),
   resetModel: ({ commit }) => commit('setModel', $_getDefaultModel()),
   setBody: ({ commit }, body: string) => commit('setBody', body),
+  setFocusLockDisabled: ({ commit }, isDisabled: boolean) => commit('setFocusLockDisabled', isDisabled),
   setMode: ({ commit }, mode: string) => commit('setMode', mode),
   setModel: ({ commit }, model?: any) => commit('setModel', model),
   setSubject: ({ commit }, subject: string) => commit('setSubject', subject),
