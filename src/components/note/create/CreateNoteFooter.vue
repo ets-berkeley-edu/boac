@@ -3,6 +3,7 @@
     <div>
       <b-btn
         v-if="undocked && mode !== 'editTemplate'"
+        id="btn-save-as-template"
         variant="link"
         :disabled="!trim(model.subject)"
         @click="saveAsTemplate()">
@@ -20,7 +21,7 @@
     </div>
     <div v-if="mode === 'editTemplate'">
       <b-btn
-        id="update-template-button"
+        id="btn-update-template"
         class="btn-primary-color-override"
         :disabled="!model.subject"
         aria-label="Update note template"

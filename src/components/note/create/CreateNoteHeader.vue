@@ -19,38 +19,54 @@
             You have no saved templates.
           </div>
         </b-dropdown-header>
-        <b-dropdown-item
+        <b-dropdown-text
           v-for="template in noteTemplates"
-          :id="`note-template-${template.id}`"
           :key="template.id">
-          <div class="align-items-center d-flex justify-content-between">
-            <div>
-              <b-link
-                class="pb-0 text-muted"
-                :title="template.title"
-                @click="loadTemplate(template)">
-                {{ truncate(template.title) }}
-              </b-link>
-            </div>
-            <div class="align-items-center d-flex ml-3 no-wrap">
+          <div class="align-items-center d-flex justify-content-between text-nowrap">
+            <b-link
+              :id="`load-note-template-${template.id}`"
+              class="pb-0 text-muted text-nowrap template-dropdown-title truncate-with-ellipsis"
+              :title="template.title"
+              @click="loadTemplate(template)">
+              {{ template.title }}
+            </b-link>
+            <div class="align-items-center d-flex ml-3">
               <div class="pl-2">
-                <b-btn variant="link" class="p-0" @click="openRenameTemplateModal(template)">Rename</b-btn>
+                <b-btn
+                  :id="`btn-rename-note-template-${template.id}`"
+                  variant="link"
+                  class="p-0"
+                  @click="openRenameTemplateModal(template)">
+                  Rename<span class="sr-only"> template {{ template.title }}</span>
+                </b-btn>
               </div>
               <div class="pl-1 pr-1">
                 |
               </div>
               <div>
-                <b-btn variant="link" class="p-0" @click="editTemplate(template)">Edit</b-btn>
+                <b-btn
+                  :id="`btn-edit-note-template-${template.id}`"
+                  variant="link"
+                  class="p-0"
+                  @click="editTemplate(template)">
+                  Edit<span class="sr-only"> template {{ template.title }}</span>
+                </b-btn>
               </div>
               <div class="pl-1 pr-1">
                 |
               </div>
               <div>
-                <b-btn variant="link" class="p-0" @click="openDeleteTemplateModal(template)">Delete</b-btn>
+                <b-btn
+                  :id="`btn-delete-note-template-${template.id}`"
+                  variant="link"
+                  class="p-0"
+                  @click="openDeleteTemplateModal(template)">
+                  Delete<span class="sr-only"> template {{ template.title }}</span>
+                </b-btn>
               </div>
             </div>
           </div>
-        </b-dropdown-item>
+        </b-dropdown-text>
       </b-dropdown>
     </div>
     <div v-if="!undocked" class="d-flex">
@@ -197,5 +213,8 @@ export default {
 }
 .templates-dropdown-header {
   width: 300px;
+}
+.template-dropdown-title {
+  max-width: 200px;
 }
 </style>

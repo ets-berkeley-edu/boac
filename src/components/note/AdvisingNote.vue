@@ -12,12 +12,14 @@
       <div v-if="isEditable">
         <b-btn
           v-if="user.isAdmin"
+          :id="`btn-delete-note-${note.id}`"
           class="sr-only"
           @click.stop="deleteNote(note)">
           Delete Note
         </b-btn>
         <b-btn
           v-if="user.uid === note.author.uid"
+          :id="`btn-edit-note-${note.id}`"
           class="sr-only"
           @click.stop="editNote(note)">
           Edit Note

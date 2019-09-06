@@ -10,7 +10,7 @@
     <div>
       <form @submit.prevent="createTemplate()">
         <div class="ml-3 mr-3">
-          <div class="pb-2">Template name:</div>
+          <label class="pb-2" for="template-title-input">Template name:</label>
           <div>
             <input
               id="template-title-input"
@@ -25,6 +25,7 @@
             v-if="error"
             id="create-error"
             aria-live="polite"
+            role="alert"
             class="has-error">
             {{ error }}
           </div>
