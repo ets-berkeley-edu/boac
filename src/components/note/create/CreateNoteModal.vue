@@ -37,7 +37,7 @@
           <hr class="m-0" />
           <div class="mt-2 mr-3 mb-1 ml-3">
             <transition v-if="isBatchFeature" name="batch">
-              <div v-if="mode !== 'editTemplate'">
+              <div v-show="mode !== 'editTemplate'">
                 <BatchNoteFeatures :cancel="cancelRequested" />
                 <hr />
               </div>
@@ -293,7 +293,7 @@ export default {
       this.resetModel();
       this.setMode(this.isBatchFeature ? 'batch' : 'advanced');
       this.putFocusNextTick('create-note-subject');
-      this.showAlert('Cancelled the create template form.');
+      this.alertScreenReader('Cancelled create template.');
     },
     dismissAlert(seconds) {
       this.dismissAlertSeconds = seconds;
