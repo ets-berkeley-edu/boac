@@ -53,7 +53,12 @@
                 aria-live="polite"
                 role="alert"
                 @dismiss-count-down="dismissAlert">
-                {{ alert }}
+                <div class="d-flex">
+                  <div v-if="isSaving" class="mr-2">
+                    <font-awesome icon="sync" spin />
+                  </div>
+                  <div>{{ alert }}</div>
+                </div>
               </b-alert>
             </div>
             <div>
@@ -63,8 +68,10 @@
               <input
                 id="create-note-subject"
                 :value="model.subject"
+                :disabled="isSaving"
                 aria-labelledby="create-note-subject-label"
                 class="cohort-create-input-name"
+                :class="{ 'bg-light': isSaving }"
                 maxlength="255"
                 type="text"
                 @input="setSubjectPerEvent"
@@ -78,6 +85,7 @@
               <span id="create-note-body">
                 <ckeditor
                   :value="model.body || ''"
+                  :disabled="isSaving"
                   :editor="editor"
                   :config="editorConfig"
                   @input="setBodyPerEvent"></ckeditor>
@@ -88,12 +96,14 @@
             <AdvisingNoteTopics
               :key="mode"
               class="mt-2 mr-3 mb-1 ml-3"
+              :disabled="isSaving"
               :function-add="addTopic"
               :function-remove="removeTopic"
               :topics="model.topics" />
             <AdvisingNoteAttachments
               class="mt-2 mr-3 mb-1 ml-3"
               :add-attachment="addAttachment"
+              :disabled="isSaving"
               :existing-attachments="model.attachments"
               :remove-attachment="removeAttachment" />
           </div>
@@ -252,8 +262,14 @@ export default {
     },
     createNote() {
       if (this.model.subject && this.targetStudentCount) {
+        this.setIsSaving(true);
         this.onSubmit();
+        if (this.model.attachments.length) {
+          // File upload might take time; alert will be overwritten when API call is done.
+          this.showAlert('Creating note...', 60);
+        }
         this.createAdvisingNote(this.isBatchFeature).then(() => {
+          this.setIsSaving(false);
           this.isModalOpen = false;
           this.onSuccessfulCreate();
           this.terminate();
@@ -263,9 +279,16 @@ export default {
     },
     createTemplate(title) {
       this.showCreateTemplateModal = false;
+      this.setIsSaving(true);
       this.setFocusLockDisabled(false);
+      if (this.model.attachments.length) {
+        // File upload might take time; alert will be overwritten when API call is done.
+        this.showAlert('Creating template...', 60);
+      }
       createNoteTemplate(title, this.model.subject, this.model.body, this.model.topics, this.model.attachments).then(() => {
         this.onSuccessfulCreate();
+        this.showAlert(`Template '${title}' created.`);
+        this.setIsSaving(false);
         this.setModel({
           id: undefined,
           subject: this.model.subject,
@@ -275,7 +298,6 @@ export default {
           deleteAttachmentIds: []
         });
         this.setMode(this.isBatchFeature ? 'batch' : 'advanced');
-        this.showAlert(`Template '${title}' created.`);
         this.putFocusNextTick('create-note-subject');
       });
     },
@@ -330,9 +352,9 @@ export default {
       this.setFocusLockDisabled(true);
       this.putFocusNextTick('template-title-input');
     },
-    showAlert(alert) {
+    showAlert(alert, seconds=3) {
       this.alert = alert;
-      this.dismissAlertSeconds = 3;
+      this.dismissAlertSeconds = seconds;
     },
     submitForm() {
       if (this.mode === 'editTemplate') {
@@ -346,7 +368,12 @@ export default {
       this.setFocusLockDisabled(show);
     },
     updateTemplate() {
+      this.setIsSaving(true);
       const newAttachments = this.filterList(this.model.attachments, a => !a.id);
+      if (newAttachments.length) {
+        // File upload might take time; alert will be overwritten when API call is done.
+        this.showAlert('Creating template...', 60);
+      }
       updateNoteTemplate(
         this.model.id,
         this.model.subject,
@@ -355,6 +382,7 @@ export default {
         newAttachments,
         this.model.deleteAttachmentIds
       ).then(template => {
+        this.setIsSaving(false);
         this.setModel({
           id: undefined,
           subject: this.model.subject,

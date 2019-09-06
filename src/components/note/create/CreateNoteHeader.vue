@@ -8,6 +8,7 @@
       <b-dropdown
         v-if="mode !== 'editTemplate'"
         id="my-templates-button"
+        :disabled="isSaving"
         text="Templates"
         aria-label="Select a note template"
         variant="primary"

@@ -5,7 +5,7 @@
         v-if="undocked && mode !== 'editTemplate'"
         id="btn-save-as-template"
         variant="link"
-        :disabled="!trim(model.subject)"
+        :disabled="isSaving || !trim(model.subject)"
         @click="saveAsTemplate()">
         Save as template
       </b-btn>
@@ -23,7 +23,7 @@
       <b-btn
         id="btn-update-template"
         class="btn-primary-color-override"
-        :disabled="!model.subject"
+        :disabled="isSaving || !model.subject"
         aria-label="Update note template"
         variant="primary"
         @click.prevent="updateTemplate()">
@@ -34,7 +34,7 @@
       <b-btn
         id="create-note-button"
         class="btn-primary-color-override"
-        :disabled="!targetStudentCount || !trim(model.subject)"
+        :disabled="isSaving || !targetStudentCount || !trim(model.subject)"
         aria-label="Create note"
         variant="primary"
         @click.prevent="createNote()">
@@ -45,6 +45,7 @@
       <b-btn
         id="create-note-cancel"
         variant="link"
+        :disabled="isSaving"
         :class="{'sr-only': !undocked}"
         @click.prevent="cancel()">
         Cancel
