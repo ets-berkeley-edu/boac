@@ -54,7 +54,7 @@
             :for="`curated-group-${group.id}-checkbox`"
             class="curated-checkbox-label pb-0 pt-0">{{ group.name }}</label>
         </b-dropdown-item>
-        <b-dropdown-divider></b-dropdown-divider>
+        <hr role="separator" class="dropdown-divider">
         <b-dropdown-item>
           <b-btn
             id="create-curated-group"
