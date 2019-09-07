@@ -25,6 +25,7 @@ export default {
       'addSid',
       'addTopic',
       'createAdvisingNote',
+      'exitSession',
       'removeAttachment',
       'removeCohort',
       'removeCuratedGroup',
@@ -36,8 +37,7 @@ export default {
       'setIsSaving',
       'setMode',
       'setModel',
-      'setSubject',
-      'terminate'
+      'setSubject'
     ]),
     setSubjectPerEvent(event) {
       store.dispatch('noteEditSession/setSubject', _.isString(event) ? event : event.target.value);

@@ -25,7 +25,6 @@
           'd-none': isNil(mode),
           'modal-open': mode === 'docked',
           'modal-open modal-minimized': mode === 'minimized',
-          'modal-open modal-saving': mode === 'saving',
           'modal-full-screen-content': undocked,
           'mt-4': isBatchFeature
         }">
@@ -177,12 +176,12 @@ export default {
   },
   mixins: [Context, NoteEditSession, UserMetadata, Util],
   props: {
-    onSubmit: {
+    onCreateNoteStart: {
       required: false,
       default: () => {},
       type: Function
     },
-    onSuccessfulCreate: {
+    onCreateNoteSuccess: {
       required: false,
       default: () => {},
       type: Function
@@ -263,7 +262,7 @@ export default {
     createNote() {
       if (this.model.subject && this.targetStudentCount) {
         this.setIsSaving(true);
-        this.onSubmit();
+        this.onCreateNoteStart(this.model.subject);
         if (this.model.attachments.length) {
           // File upload might take time; alert will be overwritten when API call is done.
           this.showAlert('Creating note...', 60);
@@ -271,9 +270,9 @@ export default {
         this.createAdvisingNote(this.isBatchFeature).then(() => {
           this.setIsSaving(false);
           this.isModalOpen = false;
-          this.onSuccessfulCreate();
-          this.terminate();
+          this.onCreateNoteSuccess();
           this.alertScreenReader(this.isBatchFeature ? `Note created for ${this.targetStudentCount} students.` : "New note saved.");
+          this.exit();
         });
       }
     },
@@ -286,7 +285,6 @@ export default {
         this.showAlert('Creating template...', 60);
       }
       createNoteTemplate(title, this.model.subject, this.model.body, this.model.topics, this.model.attachments).then(() => {
-        this.onSuccessfulCreate();
         this.showAlert(`Template '${title}' created.`);
         this.setIsSaving(false);
         this.setModel({
@@ -306,8 +304,8 @@ export default {
       this.setFocusLockDisabled(false);
       this.isModalOpen = false;
       this.dismissAlertSeconds = 0;
-      this.terminate();
       this.alertScreenReader('Cancelled create new note');
+      this.exit();
     },
     discardTemplate() {
       this.showDiscardTemplateModal = false;
@@ -322,6 +320,11 @@ export default {
       if (seconds === 0) {
         this.alert = undefined;
       }
+    },
+    exit() {
+      this.alert = this.dismissAlertSeconds = undefined;
+      this.isMinimizing = this.isModalOpen = this.showCreateTemplateModal = this.showDiscardNoteModal = this.showDiscardTemplateModal = this.showErrorPopover = false;
+      this.exitSession();
     },
     maximize() {
       this.isModalOpen = true;
@@ -435,9 +438,6 @@ export default {
   transition: height 0.5s;
   width: 30%;
   z-index: 1;
-}
-.modal-saving {
-  height: 1px !important;
 }
 .batch-enter-active {
    -webkit-transition-duration: 0.3s;
