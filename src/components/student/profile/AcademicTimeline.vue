@@ -35,8 +35,8 @@
       </div>
       <div v-if="!user.isAdmin">
         <CreateNoteModal
-          :on-submit="onSubmitAdvisingNote"
-          :on-successful-create="onCreateAdvisingNote"
+          :on-create-note-start="onCreateNoteStart"
+          :on-create-note-success="onCreateNoteSuccess"
           :student="student" />
       </div>
     </div>
@@ -89,14 +89,29 @@
           <th>Has attachment?</th>
           <th>Date</th>
         </tr>
-        <tr v-if="creatingNewNote">
+        <tr v-if="creatingNoteWithSubject" class="message-row-read message-row border-top border-bottom">
           <td class="column-pill align-top p-2">
             <div class="pill text-center text-uppercase text-white pill-note" tabindex="0">
               <span class="sr-only">Creating new</span> advising note
             </div>
           </td>
           <td class="column-message">
-            <font-awesome icon="sync" spin />
+            <div class="d-flex">
+              <div class="mr-2">
+                <font-awesome icon="sync" spin />
+              </div>
+              <div class="text-muted">
+                {{ creatingNoteWithSubject }}
+              </div>
+            </div>
+          </td>
+          <td></td>
+          <td>
+            <div class="column-right align-top pr-2 text-nowrap text-muted">
+              <TimelineDate
+                :date="new Date()"
+                :include-time-of-day="false" />
+            </div>
           </td>
         </tr>
         <tr
@@ -292,8 +307,8 @@ export default {
   },
   data: () => ({
     allNotesExpanded: false,
-    creatingNewNote: false,
     countsPerType: undefined,
+    creatingNoteWithSubject: undefined,
     defaultShowPerTab: 5,
     editModeNoteId: undefined,
     filter: undefined,
@@ -511,11 +526,11 @@ export default {
         ? this.filterList(this.messages, ['type', type])
         : this.messages;
     },
-    onCreateAdvisingNote() {
-      this.creatingNewNote = false;
+    onCreateNoteStart(subject) {
+      this.creatingNoteWithSubject = subject;
     },
-    onSubmitAdvisingNote() {
-      this.creatingNewNote = true;
+    onCreateNoteSuccess() {
+      this.creatingNoteWithSubject = null;
     },
     open(message, screenreaderAlert) {
       if (message.type === 'note' && message.id === this.editModeNoteId) {

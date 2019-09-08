@@ -102,7 +102,7 @@ export default {
       if (this.noteMode) {
         this.alertScreenReader("Are you sure you want to discard unsaved changes?");
         this.cancelConfirmed = () => {
-          this.terminate();
+          this.exitSession();
           next();
         };
         this.cancelTheCancel = () => {
@@ -112,7 +112,7 @@ export default {
         };
         this.showAreYouSureModal = true;
       } else {
-        this.terminate();
+        this.exitSession();
         next();
       }
     },

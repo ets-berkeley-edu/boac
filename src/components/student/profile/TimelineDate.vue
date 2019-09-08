@@ -14,7 +14,7 @@ export default {
   name: 'TimelineDate',
   mixins: [Context],
   props: {
-    date: String,
+    date: [Date, String],
     includeTimeOfDay: Boolean,
     srPrefix: String
   },

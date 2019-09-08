@@ -143,9 +143,8 @@ export default {
     },
     cancelConfirmed() {
       this.afterCancel();
-      this.terminate();
-      this.clearErrors();
       this.alertScreenReader('Edit note form cancelled.');
+      this.exit();
     },
     cancelTheCancel() {
       this.alertScreenReader('Continue editing note.');
@@ -156,14 +155,17 @@ export default {
       this.error = null;
       this.showErrorPopover = false;
     },
+    exit() {
+      this.clearErrors();
+      this.exitSession();
+    },
     save() {
       const trimmedSubject = this.trim(this.model.subject);
       if (trimmedSubject) {
         updateNote(this.model.id, trimmedSubject, this.trim(this.model.body), this.model.topics).then(updatedNote => {
           this.afterSaved(updatedNote);
-          this.terminate();
-          this.clearErrors();
           this.alertScreenReader('Changes to note have been saved');
+          this.exit();
         });
       } else {
         this.error = 'Subject is required';

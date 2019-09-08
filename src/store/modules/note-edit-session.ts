@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import {createNote, createNoteBatch, getDistinctStudentCount} from '@/api/notes';
 
-const VALID_MODES = ['advanced', 'batch', 'docked', 'edit', 'editTemplate', 'minimized', 'saving'];
+const VALID_MODES = ['advanced', 'batch', 'docked', 'edit', 'editTemplate', 'minimized'];
 
 const $_getDefaultModel = () => {
   return {
@@ -56,38 +56,14 @@ const mutations = {
   addCuratedGroup: (state: any, curatedGroup: any) => state.addedCuratedGroups.push(curatedGroup),
   addSid: (state: any, sid: string) => state.sids.push(sid),
   addTopic: (state: any, topic: string) => (state.model.topics.push(topic)),
-  createAdvisingNote: (state: any, isBatchFeature: boolean) => {
-    return new Promise(resolve => {
-      state.body = _.trim(state.model.body);
-      state.mode = 'saving';
-      const [templateAttachments, attachments] = state.model.attachments.reduce((result, a) => {
-        result[a.noteTemplateId ? 0 : 1].push(a);
-        return result;
-      }, [[], []]);
-      if (isBatchFeature) {
-        const cohortIds = _.map(state.addedCohorts, 'id');
-        const curatedGroupIds = _.map(state.addedCuratedGroups, 'id');
-        createNoteBatch(
-          state.sids,
-          state.model.subject,
-          state.model.body,
-          state.model.topics,
-          attachments,
-          _.map(templateAttachments, 'id'),
-          cohortIds,
-          curatedGroupIds
-        ).then(resolve);
-      } else {
-        createNote(
-            state.sids[0],
-            state.model.subject,
-            state.model.body,
-            state.model.topics,
-            attachments,
-            _.map(templateAttachments, 'id'),
-        ).then(resolve);
-      }
-    });
+  exitSession: (state: any) => {
+    state.addedCohorts = [];
+    state.addedCuratedGroups = [];
+    state.isSaving = false;
+    state.mode = undefined;
+    state.model = $_getDefaultModel();
+    state.sids = [];
+    state.targetStudentCount = 0;
   },
   removeAttachment: (state: any, index: number) => {
     const attachment = state.model.attachments[index];
@@ -100,15 +76,6 @@ const mutations = {
   removeCuratedGroup: (state:any, curatedGroup: any) => (state.addedCuratedGroups = _.filter(state.addedCuratedGroups, c => c.id !== curatedGroup.id)),
   removeStudent: (state:any, sid: string) => (state.sids = _.filter(state.sids, existingSid => existingSid !== sid)),
   removeTopic: (state: any, topic: string) => (state.model.topics.splice(state.model.topics.indexOf(topic), 1)),
-  terminate: (state: any) => {
-    state.addedCohorts = [];
-    state.addedCuratedGroups = [];
-    state.isSaving = false;
-    state.mode = undefined;
-    state.model = $_getDefaultModel();
-    state.sids = [];
-    state.targetStudentCount = 0;
-  },
   setBody: (state: any, body: string) => (state.model.body = body),
   setFocusLockDisabled: (state: any, isDisabled: boolean) => (state.isFocusLockDisabled = isDisabled),
   setIsSaving: (state: any, isSaving: boolean) => (state.isSaving = isSaving),
@@ -154,7 +121,39 @@ const actions = {
     $_recalculateStudentCount({ commit, state });
   },
   addTopic: ({ commit }, topic: string) => commit('addTopic', topic),
-  createAdvisingNote: ({ commit }, isBatchFeature: boolean) => commit('createAdvisingNote', isBatchFeature),
+  createAdvisingNote: ({commit, state}, isBatchFeature: boolean) => {
+    return new Promise(resolve => {
+      commit('setBody', _.trim(state.model.body));
+      const [templateAttachments, attachments] = state.model.attachments.reduce((result, a) => {
+        result[a.noteTemplateId ? 0 : 1].push(a);
+        return result;
+      }, [[], []]);
+      if (isBatchFeature) {
+        const cohortIds = _.map(state.addedCohorts, 'id');
+        const curatedGroupIds = _.map(state.addedCuratedGroups, 'id');
+        createNoteBatch(
+          state.sids,
+          state.model.subject,
+          state.model.body,
+          state.model.topics,
+          attachments,
+          _.map(templateAttachments, 'id'),
+          cohortIds,
+          curatedGroupIds
+        ).then(resolve);
+      } else {
+        createNote(
+            state.sids[0],
+            state.model.subject,
+            state.model.body,
+            state.model.topics,
+            attachments,
+            _.map(templateAttachments, 'id'),
+        ).then(resolve);
+      }
+    });
+  },
+  exitSession: ({ commit }) => commit('exitSession'),
   removeAttachment: ({ commit }, index: number) => commit('removeAttachment', index),
   removeCohort: ({commit, state}, cohort: any) => {
     commit('removeCohort', cohort);
@@ -175,8 +174,7 @@ const actions = {
   setIsSaving: ({ commit }, isSaving: boolean) => commit('setIsSaving', isSaving),
   setMode: ({ commit }, mode: string) => commit('setMode', mode),
   setModel: ({ commit }, model?: any) => commit('setModel', model),
-  setSubject: ({ commit }, subject: string) => commit('setSubject', subject),
-  terminate: ({ commit }) => commit('terminate')
+  setSubject: ({ commit }, subject: string) => commit('setSubject', subject)
 };
 
 export default {
