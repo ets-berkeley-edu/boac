@@ -26,9 +26,8 @@
           :aria-label="'Go to profile page of ' + row.item.firstName + ' ' + row.item.lastName"
           class="text-nowrap"
           :class="{'demo-mode-blur': user.inDemoMode}"
-          :to="studentRoutePath(row.item.uid, user.inDemoMode)">
-          {{ `${row.item.lastName}, ${row.item.firstName}` }}
-        </router-link>
+          :to="studentRoutePath(row.item.uid, user.inDemoMode)"
+          v-html="`${row.item.lastName}, ${row.item.firstName}`"></router-link>
         <span
           v-if="displayAsAscInactive(row.item) || displayAsCoeInactive(row.item)"
           class="home-inactive-info-icon"

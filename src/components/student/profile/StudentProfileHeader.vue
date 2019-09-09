@@ -13,9 +13,8 @@
               ref="pageHeader"
               class="student-section-header"
               tabindex="0"
-              :class="{'demo-mode-blur': user.inDemoMode}">
-              {{ student.name }}
-            </h1>
+              :class="{'demo-mode-blur': user.inDemoMode}"
+              v-html="student.name"></h1>
             <h2 class="sr-only">Profile</h2>
             <div
               v-if="student.sisProfile.preferredName !== student.name"
@@ -26,9 +25,8 @@
               v-if="student.sisProfile.preferredName !== student.name"
               id="student-preferred-name"
               class="font-size-20"
-              :class="{'demo-mode-blur': user.inDemoMode}">
-              {{ student.sisProfile.preferredName }}
-            </div>
+              :class="{'demo-mode-blur': user.inDemoMode}"
+              v-html="student.sisProfile.preferredName"></div>
             <div id="student-bio-sid" class="font-size-14 font-weight-bold">
               SID <span :class="{'demo-mode-blur': user.inDemoMode}">{{ student.sid }}</span>
             </div>
