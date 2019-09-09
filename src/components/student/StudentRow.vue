@@ -28,9 +28,8 @@
               v-if="sortedBy !== 'first_name'"
               :id="`row-${rowIndex}-student-name`"
               class="student-name"
-              :class="{'demo-mode-blur' : user.inDemoMode}">
-              {{ student.lastName }}, {{ student.firstName }}
-            </h3>
+              :class="{'demo-mode-blur' : user.inDemoMode}"
+              v-html="`${student.lastName}, ${student.firstName}`"></h3>
             <h3
               v-if="sortedBy === 'first_name'"
               :id="`row-${rowIndex}-student-name`"

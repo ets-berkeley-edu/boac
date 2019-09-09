@@ -23,7 +23,8 @@
           <h3
             class="student-name m-0 p-0"
             :class="{'demo-mode-blur': user.inDemoMode}">
-            {{ row.item.lastName }}<span v-if="row.item.firstName">, {{ row.item.firstName }}</span>
+            <span v-if="row.item.firstName" v-html="`${row.item.lastName}, ${row.item.firstName}`"></span>
+            <span v-if="!row.item.firstName" v-html="row.item.lastName"></span>
           </h3>
         </router-link>
       </div>
