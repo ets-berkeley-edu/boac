@@ -1,6 +1,16 @@
 <script>
 import _ from 'lodash';
 
+const decodeHtml = (snippet) => {
+  if (snippet && snippet.indexOf('&') > 0) {
+    const el = document.createElement("textarea");
+    el.innerHTML = snippet;
+    return el.value;
+  } else {
+    return snippet;
+  }
+};
+
 const toInt = (value, defaultValue = null) => {
   const parsed = parseInt(value, 10);
   return Number.isInteger(parsed) ? parsed : defaultValue;
@@ -62,8 +72,7 @@ export default {
     },
     remove: _.remove,
     set: _.set,
-    setPageTitle: phrase =>
-      (document.title = `${phrase || 'UC Berkeley'} | BOA`),
+    setPageTitle: phrase => (document.title = `${phrase ? decodeHtml(phrase) : 'UC Berkeley'} | BOA`),
     size: _.size,
     slice: _.slice,
     sortComparator: (a, b) => {

@@ -107,7 +107,7 @@
           </td>
           <td></td>
           <td>
-            <div class="column-right align-top pr-2 text-nowrap text-muted">
+            <div class="align-top pr-2 float-right text-nowrap text-muted">
               <TimelineDate
                 :date="new Date()"
                 :include-time-of-day="false" />
