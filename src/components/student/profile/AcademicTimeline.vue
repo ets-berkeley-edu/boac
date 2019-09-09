@@ -581,7 +581,7 @@ export default {
       this.messages.sort((m1, m2) => {
         let d1 = m1.updatedAt || m1.createdAt;
         let d2 = m2.updatedAt || m2.createdAt;
-        if (d1 && d2 && d1 != d2) {
+        if (d1 && d2 && d1 !== d2) {
           return d2.localeCompare(d1);
         } else if (d1 === d2 && m1.id && m2.id) {
           return m2.id < m1.id ? -1 : 1;

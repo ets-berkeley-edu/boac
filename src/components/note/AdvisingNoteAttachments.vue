@@ -47,7 +47,7 @@
               class="p-0"
               @click.prevent="removeAttachmentByIndex(index)">
               <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
-              <span class="sr-only">Delete attachment {{ attachment.name }}</span>
+              <span class="sr-only">Delete attachment '{{ attachment.displayName }}'</span>
             </b-btn>
           </span>
         </li>

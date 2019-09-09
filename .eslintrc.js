@@ -11,10 +11,11 @@ module.exports = {
   ],
   plugins: ['vue'],
   rules: {
+    'eqeqeq': 2,
     'multiline-html-element-content-newline': 0,
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'vue/no-v-html': 0,
+    'vue/eqeqeq': 2,
     'vue/html-closing-bracket-newline': 0,
     'vue/html-self-closing': 0,
     'vue/max-attributes-per-line': ['error', {
@@ -24,6 +25,7 @@ module.exports = {
         allowFirstLine: false
       }
     }],
+    'vue/no-v-html': 0,
     'vue/require-default-prop': 0,
     'vue/singleline-html-element-content-newline': 0
   },
