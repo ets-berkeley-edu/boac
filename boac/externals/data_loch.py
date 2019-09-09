@@ -286,6 +286,44 @@ def get_student_profiles(sids=None):
         return safe_execute_rds(sql)
 
 
+def query_historical_sids(sids):
+    sql = f'SELECT sid FROM {student_schema()}.student_profiles_hist_enr WHERE sid = ANY(:sids) ORDER BY sid'
+    return safe_execute_rds(sql, sids=sids)
+
+
+def get_historical_student_profiles_for_sids(sids):
+    sql = f"""SELECT sid, uid, profile
+        FROM {student_schema()}.student_profiles_hist_enr
+        WHERE sid = ANY(:sids)"""
+    return safe_execute_rds(sql, sids=sids)
+
+
+def get_historical_student_profiles_for_uid(uid):
+    sql = f"""SELECT sid, uid, profile
+        FROM {student_schema()}.student_profiles_hist_enr
+        WHERE uid = :uid"""
+    return safe_execute_rds(sql, uid=uid)
+
+
+def get_historical_enrollments_for_sid(sid, latest_term_id=None):
+    sql = f"""SELECT term_id, enrollment_term
+        FROM {student_schema()}.student_enrollment_terms_hist_enr
+        WHERE sid = :sid
+        AND term_id >= '{earliest_term_id()}'"""
+    if latest_term_id:
+        sql += f" AND term_id <= '{latest_term_id}'"
+    sql += 'ORDER BY term_id DESC'
+    return safe_execute_rds(sql, sid=sid)
+
+
+def get_historical_enrollments_for_term(term_id, sids):
+    sql = f"""SELECT term_id, sid, enrollment_term
+        FROM {student_schema()}.student_enrollment_terms_hist_enr
+        WHERE term_id = :term_id
+        AND sid = ANY(:sids)"""
+    return safe_execute_rds(sql, term_id=term_id, sids=sids)
+
+
 def extract_valid_sids(sids):
     sql = f'SELECT sid FROM {student_schema()}.student_profiles WHERE sid = ANY(:sids)'
     return safe_execute_rds(sql, sids=sids)

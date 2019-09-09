@@ -30,13 +30,14 @@
           v-html="`${row.item.lastName}, ${row.item.firstName}`"></router-link>
         <span
           v-if="row.item.academicCareerStatus === 'Inactive' || displayAsAscInactive(row.item) || displayAsCoeInactive(row.item)"
-          class="home-inactive-info-icon"
+          class="home-inactive-info-icon sortable-students-icon"
           uib-tooltip="Inactive"
           tooltip-placement="bottom">
           <font-awesome icon="info-circle" />
         </span>
         <span
           v-if="row.item.academicCareerStatus === 'Completed'"
+          class="sortable-students-icon"
           uib-tooltip="Graduated"
           tooltip-placement="bottom">
           <font-awesome icon="graduation-cap" />
@@ -190,3 +191,9 @@ export default {
    }
 };
 </script>
+
+<style scoped>
+.sortable-students-icon {
+  margin-left: 5px;
+}
+</style>

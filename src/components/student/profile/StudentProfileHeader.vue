@@ -36,7 +36,7 @@
                 INACTIVE
               </span>
             </div>
-            <div>
+            <div v-if="student.sisProfile.emailAddress">
               <font-awesome icon="envelope" />
               <span class="sr-only">Email</span>
               <a
@@ -164,7 +164,6 @@ export default {
     academicCareerStatus() {
       return this.get(this.student, 'sisProfile.academicCareerStatus');
     },
-
     sortedPlans() {
       return this.orderBy(this.student.sisProfile.plans, 'status');
     }
