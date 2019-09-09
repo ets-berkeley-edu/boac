@@ -260,6 +260,13 @@ CREATE TABLE student.student_profiles
     profile TEXT NOT NULL
 );
 
+CREATE TABLE student.student_profiles_hist_enr
+(
+    sid VARCHAR NOT NULL,
+    uid VARCHAR NOT NULL,
+    profile TEXT NOT NULL
+);
+
 CREATE TABLE student.student_academic_status
 (
     sid VARCHAR NOT NULL,
@@ -291,6 +298,13 @@ CREATE TABLE student.student_enrollment_terms
     term_id VARCHAR(4) NOT NULL,
     enrollment_term TEXT NOT NULL,
     midpoint_deficient_grade BOOLEAN NOT NULL
+);
+
+CREATE TABLE student.student_enrollment_terms_hist_enr
+(
+    sid VARCHAR NOT NULL,
+    term_id VARCHAR(4) NOT NULL,
+    enrollment_term TEXT NOT NULL
 );
 
 CREATE TABLE student.student_term_gpas

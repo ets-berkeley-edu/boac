@@ -194,7 +194,7 @@ def _curated_group_with_complete_student_profiles(curated_group_id, order_by='la
     api_json = curated_group.to_api_json(order_by=order_by, offset=offset, limit=limit)
     sids = [s['sid'] for s in api_json['students']]
     benchmark('begin profile query')
-    api_json['students'] = get_summary_student_profiles(sids)
+    api_json['students'] = get_summary_student_profiles(sids, include_historical=True)
     benchmark('begin alerts query')
     Alert.include_alert_counts_for_students(viewer_user_id=current_user.get_id(), group=api_json)
     benchmark('end')

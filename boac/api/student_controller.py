@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import put_notifications
-from boac.externals.data_loch import match_students_by_name_or_sid
+from boac.externals.data_loch import match_students_by_name_or_sid, query_historical_sids
 from boac.lib.http import tolerant_jsonify
 from boac.merged.student import get_student_and_terms_by_sid, get_student_and_terms_by_uid, query_students
 from flask import current_app as app, request
@@ -82,6 +82,8 @@ def validate_sids():
         else:
             summary = []
             available_sids = query_students(sids=sids, sids_only=True)['sids']
+            remaining_sids = list(set(sids) - set(available_sids))
+            available_sids += [row['sid'] for row in query_historical_sids(remaining_sids)]
             for sid in sids:
                 summary.append({
                     'sid': sid,

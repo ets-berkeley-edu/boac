@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from itertools import groupby
 import json
 import operator
+import re
 
 from boac.externals import data_loch, s3
 from boac.lib import analytics
@@ -189,7 +190,7 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None, fe
     }
 
 
-def get_summary_student_profiles(sids, term_id=None):
+def get_summary_student_profiles(sids, include_historical=False, term_id=None):
     if not sids:
         return []
     benchmark = get_benchmarker('get_summary_student_profiles')
@@ -209,46 +210,72 @@ def get_summary_student_profiles(sids, term_id=None):
     term_gpas = get_term_gpas_by_sid(sids)
     benchmark('end term GPA query')
 
+    if include_historical:
+        benchmark('begin historical profile supplement')
+        historical_profile_rows = data_loch.get_historical_student_profiles_for_sids(sids)
+        historical_profiles = [json.loads(row['profile']) for row in historical_profile_rows]
+        # We don't expect photo information to show for historical profiles, but we still need a placeholder element
+        # in the feed so the front end can show the proper fallback.
+        _merge_photo_urls(historical_profiles)
+        profiles += historical_profiles
+        historical_enrollments_for_term = data_loch.get_historical_enrollments_for_term(term_id, sids)
+        for row in historical_enrollments_for_term:
+            enrollments_by_sid[row['sid']] = json.loads(row['enrollment_term'])
+        benchmark('end historical profile supplement')
+
     benchmark('begin profile transformation')
     for profile in profiles:
-        # Strip SIS details to lighten the API load.
-        sis_profile = profile.pop('sisProfile', None)
-        if sis_profile:
-            profile['academicCareerStatus'] = sis_profile.get('academicCareerStatus')
-            profile['cumulativeGPA'] = sis_profile.get('cumulativeGPA')
-            profile['cumulativeUnits'] = sis_profile.get('cumulativeUnits')
-            profile['currentTerm'] = sis_profile.get('currentTerm')
-            profile['degree'] = sis_profile.get('degree')
-            profile['expectedGraduationTerm'] = sis_profile.get('expectedGraduationTerm')
-            profile['level'] = _get_sis_level_description(sis_profile)
-            profile['majors'] = _get_active_plan_descriptions(sis_profile)
-            profile['transfer'] = sis_profile.get('transfer')
-            if sis_profile.get('withdrawalCancel'):
-                profile['withdrawalCancel'] = sis_profile['withdrawalCancel']
-                if not sis_profile['withdrawalCancel'].get('termId'):
-                    sis_profile['withdrawalCancel']['termId'] = current_term_id()
+        summarize_profile(profile, enrollments=enrollments_by_sid, term_gpas=term_gpas)
+    benchmark('end')
+
+    return profiles
+
+
+def summarize_profile(profile, enrollments=None, term_gpas=None):
+    # Strip SIS details to lighten the API load.
+    sis_profile = profile.pop('sisProfile', None)
+    if sis_profile:
+        profile['academicCareerStatus'] = sis_profile.get('academicCareerStatus')
+        profile['cumulativeGPA'] = sis_profile.get('cumulativeGPA')
+        profile['cumulativeUnits'] = sis_profile.get('cumulativeUnits')
+        profile['currentTerm'] = sis_profile.get('currentTerm')
+        profile['degree'] = sis_profile.get('degree')
+        profile['expectedGraduationTerm'] = sis_profile.get('expectedGraduationTerm')
+        profile['level'] = _get_sis_level_description(sis_profile)
+        profile['majors'] = _get_active_plan_descriptions(sis_profile)
+        profile['transfer'] = sis_profile.get('transfer')
+        if sis_profile.get('withdrawalCancel'):
+            profile['withdrawalCancel'] = sis_profile['withdrawalCancel']
+            if not sis_profile['withdrawalCancel'].get('termId'):
+                sis_profile['withdrawalCancel']['termId'] = current_term_id()
+    profile['hasCurrentTermEnrollments'] = False
+    if enrollments:
         # Add the singleton term.
-        term = enrollments_by_sid.get(profile['sid'])
-        profile['hasCurrentTermEnrollments'] = False
+        term = enrollments.get(profile['sid'])
         if term:
             if not current_user.can_access_canvas_data:
                 _suppress_canvas_sites(term)
             profile['term'] = term
             if term['termId'] == current_term_id() and len(term['enrollments']) > 0:
                 profile['hasCurrentTermEnrollments'] = True
-        profile['termGpa'] = term_gpas.get(profile['sid'])
-    benchmark('end')
-    return profiles
+        if term_gpas:
+            profile['termGpa'] = term_gpas.get(profile['sid'])
 
 
 def get_student_and_terms_by_sid(sid):
     student = data_loch.get_student_by_sid(sid)
-    return _construct_student_profile(student)
+    if student:
+        return _construct_student_profile(student)
+    else:
+        return _construct_historical_student_profile(sid=sid)
 
 
 def get_student_and_terms_by_uid(uid):
     student = data_loch.get_student_by_uid(uid)
-    return _construct_student_profile(student)
+    if student:
+        return _construct_student_profile(student)
+    else:
+        return _construct_historical_student_profile(uid=uid)
 
 
 def get_term_gpas_by_sid(sids, as_dicts=False):
@@ -387,7 +414,6 @@ def query_students(
 
 
 def search_for_students(
-    include_profiles=False,
     search_phrase=None,
     order_by=None,
     offset=0,
@@ -409,6 +435,11 @@ def search_for_students(
     result = data_loch.safe_execute_rds(f'SELECT DISTINCT(sas.sid) {query_tables} {query_filter}', **query_bindings)
     benchmark('end SID query')
     total_student_count = len(result)
+
+    # In the special case of a numeric search phrase that returned no matches, fall back to historical student search.
+    if total_student_count == 0 and search_phrase and re.match(r'^\d+$', search_phrase):
+        return search_for_student_historical(search_phrase)
+
     sql = f"""SELECT
         sas.sid
         {query_tables}
@@ -423,17 +454,28 @@ def search_for_students(
         query_bindings['limit'] = limit
     benchmark('begin student query')
     result = data_loch.safe_execute_rds(sql, **query_bindings)
-    if include_profiles:
-        benchmark('begin profile collection')
-        students = get_summary_student_profiles([row['sid'] for row in result])
-        benchmark('end profile collection')
-    else:
-        students = get_api_json([row['sid'] for row in result])
+    benchmark('begin profile collection')
+    students = get_summary_student_profiles([row['sid'] for row in result])
     benchmark('end')
     return {
         'students': students,
         'totalStudentCount': total_student_count,
     }
+
+
+def search_for_student_historical(sid):
+    profile = _construct_historical_student_profile(sid=sid)
+    if profile:
+        summarize_profile(profile)
+        return {
+            'students': [profile],
+            'totalStudentCount': 1,
+        }
+    else:
+        return {
+            'students': [],
+            'totalStudentCount': 0,
+        }
 
 
 def get_student_query_scope(user=None):
@@ -541,28 +583,30 @@ def _construct_student_profile(student):
     sis_profile = profile.get('sisProfile', None)
     if sis_profile and 'level' in sis_profile:
         sis_profile['level']['description'] = _get_sis_level_description(sis_profile)
-    enrollments_for_sid = data_loch.get_enrollments_for_sid(student['sid'], latest_term_id=future_term_id())
-    profile['enrollmentTerms'] = [json.loads(row['enrollment_term']) for row in enrollments_for_sid]
-    profile['hasCurrentTermEnrollments'] = False
-    filtered_enrollment_terms = []
-    for term in profile['enrollmentTerms']:
-        if term['termId'] == current_term_id():
-            profile['hasCurrentTermEnrollments'] = len(term['enrollments']) > 0
-        else:
-            # Omit dropped sections for past terms.
-            term.pop('droppedSections', None)
-            # Filter out the now-empty term if all classes were dropped.
-            if not term.get('enrollments'):
-                continue
-        if not current_user.can_access_canvas_data:
-            _suppress_canvas_sites(term)
-        filtered_enrollment_terms.append(term)
-    profile['enrollmentTerms'] = filtered_enrollment_terms
+
+    enrollment_results = data_loch.get_enrollments_for_sid(student['sid'], latest_term_id=future_term_id())
+    _merge_enrollment_terms(profile, enrollment_results)
 
     if sis_profile and sis_profile.get('withdrawalCancel'):
         profile['withdrawalCancel'] = sis_profile['withdrawalCancel']
         if not sis_profile['withdrawalCancel'].get('termId'):
             sis_profile['withdrawalCancel']['termId'] = current_term_id()
+    return profile
+
+
+def _construct_historical_student_profile(sid=None, uid=None):
+    if uid:
+        profile_rows = data_loch.get_historical_student_profiles_for_uid(uid)
+    elif sid:
+        profile_rows = data_loch.get_historical_student_profiles_for_sids([sid])
+    if not profile_rows or not profile_rows[0]:
+        return
+
+    profile = json.loads(profile_rows[0]['profile'])
+    # As above, no photo information is expected but we still need a placeholder element in the feed.
+    _merge_photo_urls([profile])
+    enrollment_results = data_loch.get_historical_enrollments_for_sid(profile['sid'], latest_term_id=future_term_id())
+    _merge_enrollment_terms(profile, enrollment_results)
     return profile
 
 
@@ -598,3 +642,22 @@ def _merge_coe_student_profile_data(profile, coe_profile):
             profile['coeProfile']['isActiveCoe'] = False
         else:
             profile['coeProfile']['isActiveCoe'] = True
+
+
+def _merge_enrollment_terms(profile, enrollment_results):
+    profile['hasCurrentTermEnrollments'] = False
+    filtered_enrollment_terms = []
+    for row in enrollment_results:
+        term = json.loads(row['enrollment_term'])
+        if term['termId'] == current_term_id():
+            profile['hasCurrentTermEnrollments'] = len(term['enrollments']) > 0
+        else:
+            # Omit dropped sections for past terms.
+            term.pop('droppedSections', None)
+            # Filter out the now-empty term if all classes were dropped.
+            if not term.get('enrollments'):
+                continue
+        if not current_user.can_access_canvas_data:
+            _suppress_canvas_sites(term)
+        filtered_enrollment_terms.append(term)
+    profile['enrollmentTerms'] = filtered_enrollment_terms

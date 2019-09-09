@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import db, std_commit
+from boac.externals.data_loch import query_historical_sids
 from boac.merged.student import query_students
 from boac.models.base import Base
 from sqlalchemy import text
@@ -118,6 +119,14 @@ class CuratedGroup(Base):
                 result = query_students(sids=sids, order_by=order_by, offset=offset, limit=limit, include_profiles=False)
                 feed['students'] = result['students']
                 feed['studentCount'] = result['totalStudentCount']
+                # Attempt to supplement with historical student rows if we seem to be missing something.
+                if result['totalStudentCount'] < len(sids):
+                    remaining_sids = list(set(sids) - set(result['sids']))
+                    historical_sid_rows = query_historical_sids(remaining_sids)
+                    if len(historical_sid_rows):
+                        feed['studentCount'] += len(historical_sid_rows)
+                        page_shortfall = max(0, limit - len(result['students']))
+                        feed['students'] += historical_sid_rows[:page_shortfall]
             else:
                 feed['students'] = []
                 feed['studentCount'] = 0

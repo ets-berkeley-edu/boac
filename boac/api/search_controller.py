@@ -75,7 +75,6 @@ def search():
 
 def _student_search(search_phrase, params, order_by):
     student_results = search_for_students(
-        include_profiles=True,
         search_phrase=search_phrase.replace(',', ' '),
         order_by=order_by,
         offset=util.get(params, 'offset', 0),
