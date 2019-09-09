@@ -107,7 +107,7 @@
               <li v-for="(option, optionIndex) in pagination.options" :key="optionIndex">
                 <a
                   href="#"
-                  :class="{'selected': option==pagination.itemsPerPage}"
+                  :class="{'selected': option === pagination.itemsPerPage}"
                   :title="`Show ${option} results per page`"
                   @click="resizePage(option)">
                   {{ option }}</a><span v-if="optionIndex + 1 < pagination.options.length">&nbsp;|&nbsp;</span>
