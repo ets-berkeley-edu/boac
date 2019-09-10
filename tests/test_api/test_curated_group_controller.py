@@ -429,10 +429,12 @@ class TestCuratedGroupWithInactives:
         assert len(group_feed['students']) == 3
         assert group_feed['students'][1]['sid'] == self.completed_sid
         assert group_feed['students'][1]['academicCareerStatus'] == 'Completed'
+        assert group_feed['students'][1]['fullProfilePending'] is True
         assert group_feed['students'][1]['degree']['dateAwarded'] == '2010-05-14'
         assert group_feed['students'][1]['degree']['description'] == 'Doctor of Philosophy'
         assert group_feed['students'][2]['sid'] == self.inactive_sid
         assert group_feed['students'][2]['academicCareerStatus'] == 'Inactive'
+        assert group_feed['students'][2]['fullProfilePending'] is True
 
     def test_add_inactive_to_group(self, asc_advisor, client):
         group = _api_create_group(

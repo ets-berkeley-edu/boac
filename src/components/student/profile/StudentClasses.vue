@@ -24,7 +24,7 @@
                   <h4 class="student-course-title">{{ course.displayName }}</h4>
                 </div>
                 <b-btn
-                  v-if="user.canAccessCanvasData"
+                  v-if="user.canAccessCanvasData && !student.fullProfilePending"
                   :id="`term-${term.termId}-course-${courseIndex}-toggle`"
                   v-b-toggle="`course-canvas-data-${term.termId}-${courseIndex}`"
                   class="student-course-collapse-button"
@@ -92,7 +92,7 @@ v-if="section.isViewableOnCoursePage"
           </div>
         </div>
         <b-collapse
-          v-if="user.canAccessCanvasData"
+          v-if="user.canAccessCanvasData && !student.fullProfilePending"
           :id="`course-canvas-data-${term.termId}-${courseIndex}`"
           class="panel-body">
           <div v-for="(canvasSite, csIndex) in course.canvasSites" :key="csIndex" class="student-bcourses-wrapper">

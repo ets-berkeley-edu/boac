@@ -106,6 +106,7 @@ class TestStudentSearch:
         assert len(response.json['students']) == 1
         assert response.json['students'][0]['sid'] == '2718281828'
         assert response.json['students'][0]['academicCareerStatus'] == 'Completed'
+        assert response.json['students'][0]['fullProfilePending'] is True
         assert response.json['students'][0]['firstName'] == 'Ernest'
         assert response.json['students'][0]['lastName'] == 'Pontifex'
 
