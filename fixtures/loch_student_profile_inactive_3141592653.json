@@ -1,0 +1,80 @@
+{
+    "firstName": "Johannes",
+    "lastName": "Climacus",
+    "name": "Johannes Climacus",
+    "sid": "3141592653",
+    "sisProfile": {
+        "academicCareer": "UGRD",
+        "academicCareerStatus": "Inactive",
+        "cumulativeGPA": 2.784,
+        "cumulativeUnits": 149.6,
+        "currentRegistration": null,
+        "degreeProgress": null,
+        "emailAddress": null,
+        "expectedGraduationTerm": {
+            "id": "2118",
+            "name": "Fall 2011"
+        },
+        "holds": [
+            {
+                "amountRequired": 0,
+                "contact": {
+                    "code": " ",
+                    "description": " "
+                },
+                "department": {
+                    "code": "UCBKL",
+                    "description": "Department"
+                },
+                "fromDate": "2016-03-19",
+                "fromTerm": {
+                    "academicYear": "2010",
+                    "beginDate": "2010-01-12",
+                    "category": {
+                        "code": "R",
+                        "description": "Regular Term"
+                    },
+                    "endDate": "2010-05-14",
+                    "id": "2102",
+                    "name": "2010 Spring"
+                },
+                "reason": {
+                    "code": "ULEXC",
+                    "description": "Unit Limit Exceeded",
+                    "formalDescription": "You have exceeded the maximum units allowed by your College, please see your College advisor if you have questions."
+                },
+                "reference": " ",
+                "type": {
+                    "code": "V00",
+                    "description": "AA - Advising Holds"
+                }
+            }
+        ],
+        "phoneNumber": null,
+        "plans": [
+            {
+                "degreeProgramUrl": "http://guide.berkeley.edu/undergraduate/degree-programs/philosophy/",
+                "description": "Philosophy BA",
+                "program": "Undergrad Letters & Science",
+                "status": "Discontinued"
+            },
+            {
+                "degreeProgramUrl": null,
+                "description": "UCBX Undergrad Concurrent Enr",
+                "program": "Undergrad Non-Degree/NonFinAid",
+                "status": "Discontinued"
+            },
+            {
+                "degreeProgramUrl": null,
+                "description": "Non-UC Campus Visitor EVCP UG",
+                "program": "Undergrad Non-Degree/NonFinAid",
+                "status": "Discontinued"
+            }
+        ],
+        "preferredName": "Johannes Climacus",
+        "primaryName": "Johannes Climacus",
+        "termsInAttendance": null,
+        "transfer": false
+    },
+    "uid": "314159"
+}

@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.externals import data_loch
+from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 import pytest
 import simplejson as json
 
@@ -72,21 +73,20 @@ class TestStudentSearch:
         response = client.post('/api/search', data=json.dumps(args), content_type='application/json')
         assert response.status_code == 403
 
+    def _student_search(self, client, phrase):
+        return client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': phrase}), content_type='application/json')
+
     def test_search_with_missing_input(self, client, fake_auth):
         """Student search is nothing without input."""
         fake_auth.login('2040')
-        response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': ' \t  '}), content_type='application/json')
+        response = self._student_search(client, ' \t  ')
         assert response.status_code == 400
 
     def test_search_by_sid_snippet(self, client, fake_auth, asc_inactive_students):
         """Search by snippet of SID."""
         def _search_students_as_user(uid, sid_snippet):
             fake_auth.login(uid)
-            response = client.post(
-                '/api/search',
-                data=json.dumps({'students': True, 'searchPhrase': sid_snippet}),
-                content_type='application/json',
-            )
+            response = self._student_search(client, sid_snippet)
             assert response.status_code == 200
             return response.json['students'], response.json['totalStudentCount']
 
@@ -97,16 +97,52 @@ class TestStudentSearch:
             assert len(students) == total_student_count == 2
             assert _get_common_sids(asc_inactive_students, students)
 
+    def test_search_by_inactive_sid(self, client, fake_auth):
+        """Falls back to inactive students when searching by SID."""
+        fake_auth.login('2040')
+        response = self._student_search(client, '2718281828')
+        assert response.status_code == 200
+        assert response.json['totalStudentCount'] == 1
+        assert len(response.json['students']) == 1
+        assert response.json['students'][0]['sid'] == '2718281828'
+        assert response.json['students'][0]['academicCareerStatus'] == 'Completed'
+        assert response.json['students'][0]['firstName'] == 'Ernest'
+        assert response.json['students'][0]['lastName'] == 'Pontifex'
+
+    def test_search_by_inactive_sid_snippet(self, client, fake_auth):
+        """Does not match on inactive SID snippets."""
+        fake_auth.login('2040')
+        response = self._student_search(client, '271828')
+        assert response.status_code == 200
+        assert response.json['totalStudentCount'] == 0
+        assert len(response.json['students']) == 0
+
+    def test_search_by_inactive_name(self, client, fake_auth):
+        """Does not match on inactive student names."""
+        fake_auth.login('2040')
+        response = self._student_search(client, 'Pontifex')
+        assert response.status_code == 200
+        assert response.json['totalStudentCount'] == 0
+        assert len(response.json['students']) == 0
+
+    def test_inactive_sids_search_creates_manually_added_advisee(self, client, fake_auth):
+        assert len(ManuallyAddedAdvisee.query.all()) == 0
+        fake_auth.login('2040')
+        self._student_search(client, '2718281828')
+        manually_added_advisees = ManuallyAddedAdvisee.query.all()
+        assert len(manually_added_advisees) == 1
+        assert manually_added_advisees[0].sid == '2718281828'
+
     def test_alerts_in_search_results(self, client, create_alerts, fake_auth):
         """Search results include alert counts."""
         fake_auth.login('2040')
-        response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': 'davies'}), content_type='application/json')
+        response = self._student_search(client, 'davies')
         assert response.status_code == 200
         assert response.json['students'][0]['alertCount'] == 3
 
     def test_summary_profiles_in_search_results(self, client, fake_auth):
         fake_auth.login('2040')
-        response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': 'davies'}), content_type='application/json')
+        response = self._student_search(client, 'davies')
         assert response.json['students'][0]['cumulativeGPA'] == 3.8
         assert response.json['students'][0]['cumulativeUnits'] == 101.3
         assert response.json['students'][0]['expectedGraduationTerm']['name'] == 'Fall 2019'
@@ -116,7 +152,7 @@ class TestStudentSearch:
     def test_search_by_name_snippet(self, client, fake_auth):
         """Search by snippet of name."""
         fake_auth.login('2040')
-        response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': 'dav'}), content_type='application/json')
+        response = self._student_search(client, 'dav')
         assert response.status_code == 200
         students = response.json['students']
         assert len(students) == response.json['totalStudentCount'] == 3
@@ -127,11 +163,7 @@ class TestStudentSearch:
         fake_auth.login('2040')
         permutations = ['david c', 'john  david cro', 'john    cross', ' crossman, j ']
         for phrase in permutations:
-            response = client.post(
-                '/api/search',
-                data=json.dumps({'students': True, 'searchPhrase': phrase}),
-                content_type='application/json',
-            )
+            response = self._student_search(client, phrase)
             message_if_fail = f'Unexpected result(s) when search phrase={phrase}'
             assert response.status_code == 200, message_if_fail
             students = response.json['students']
@@ -140,7 +172,7 @@ class TestStudentSearch:
 
     def test_search_by_name_coe(self, coe_advisor, client):
         """A COE name search finds all Pauls, including COE-specific data for COE Pauls."""
-        response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': 'Paul'}), content_type='application/json')
+        response = self._student_search(client, 'Paul')
         students = response.json['students']
         assert len(students) == 3
         assert next(s for s in students if s['name'] == 'Paul Farestveit' and s['coeProfile']['isActiveCoe'] is True)
@@ -151,7 +183,7 @@ class TestStudentSearch:
 
     def test_search_by_name_asc(self, asc_advisor, client):
         """An ASC advisor finds all Pauls, including ASC-specific data for ASC Pauls."""
-        response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': 'Paul'}), content_type='application/json')
+        response = self._student_search(client, 'Paul')
         students = response.json['students']
         assert len(students) == 3
         assert next(s for s in students if s['name'] == 'Paul Kerschen' and s['athleticsProfile']['inIntensiveCohort'] is True)
@@ -162,7 +194,7 @@ class TestStudentSearch:
 
     def test_search_by_name_admin(self, admin_login, client):
         """An admin name search finds all Pauls, including both ASC and COE data."""
-        response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': 'Paul'}), content_type='application/json')
+        response = self._student_search(client, 'Paul')
         students = response.json['students']
         assert len(students) == 3
         assert next(s for s in students if s['name'] == 'Paul Kerschen' and s['athleticsProfile']['inIntensiveCohort'] is True)
@@ -171,14 +203,14 @@ class TestStudentSearch:
 
     def test_search_by_name_with_special_characters(self, admin_login, client):
         """Search by name where name has special characters: hyphen, etc."""
-        response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': 'Pauli-O\'Rourke'}), content_type='application/json')
+        response = self._student_search(client, 'Pauli-O\'Rourke')
         students = response.json['students']
         assert len(students) == 1
         assert students[0]['name'] == 'Wolfgang Pauli-O\'Rourke'
 
     def test_search_by_name_no_canvas_data_access(self, no_canvas_access_advisor, client):
         """A user with no access to Canvas data can still search for students."""
-        response = client.post('/api/search', data=json.dumps({'students': True, 'searchPhrase': 'Paul'}), content_type='application/json')
+        response = self._student_search(client, 'Paul')
         assert response.status_code == 200
         assert len(response.json['students']) == 3
 

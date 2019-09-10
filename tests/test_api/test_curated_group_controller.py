@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.curated_group import CuratedGroup
+from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 import pytest
 import simplejson as json
 
@@ -401,6 +402,69 @@ class TestDeleteCuratedGroup:
         group_id = group['id']
         assert client.delete(f'/api/curated_group/delete/{group_id}').status_code == 200
         assert client.get(f'/api/curated_group/{group_id}').status_code == 404
+
+
+class TestCuratedGroupWithInactives:
+    active_sid = '2345678901'
+    inactive_sid = '3141592653'
+    completed_sid = '2718281828'
+
+    def test_create_group_with_inactives(self, asc_advisor, client):
+        group = _api_create_group(
+            client,
+            200,
+            "Brenda's Iron Sledge",
+            [self.active_sid, self.inactive_sid, self.completed_sid],
+        )
+        group_id = group['id']
+        assert group['studentCount'] == 3
+        assert len(group['students']) == 3
+        sids = [r['sid'] for r in group['students']]
+        assert self.active_sid in sids
+        assert self.inactive_sid in sids
+        assert self.completed_sid in sids
+
+        group_feed = client.get(f'/api/curated_group/{group_id}').json
+        assert group_feed['studentCount'] == 3
+        assert len(group_feed['students']) == 3
+        assert group_feed['students'][1]['sid'] == self.completed_sid
+        assert group_feed['students'][1]['academicCareerStatus'] == 'Completed'
+        assert group_feed['students'][1]['degree']['dateAwarded'] == '2010-05-14'
+        assert group_feed['students'][1]['degree']['description'] == 'Doctor of Philosophy'
+        assert group_feed['students'][2]['sid'] == self.inactive_sid
+        assert group_feed['students'][2]['academicCareerStatus'] == 'Inactive'
+
+    def test_add_inactive_to_group(self, asc_advisor, client):
+        group = _api_create_group(
+            client,
+            200,
+            'Listening to the Higsons',
+            [self.active_sid],
+        )
+        assert group['studentCount'] == 1
+        updated_group = TestAddStudents._api_add_students(
+            client,
+            group['id'],
+            return_student_profiles=True,
+            sids=[self.inactive_sid],
+        )
+        assert updated_group['studentCount'] == 2
+        assert updated_group['students'][0]['sid'] == self.active_sid
+        assert updated_group['students'][1]['sid'] == self.inactive_sid
+
+    def test_inactive_group_creation_creates_manually_added_advisee(self, client, fake_auth):
+        assert len(ManuallyAddedAdvisee.query.all()) == 0
+        fake_auth.login('2040')
+        _api_create_group(
+            client,
+            200,
+            'Madonna of the Wasps',
+            [self.active_sid, self.inactive_sid, self.completed_sid],
+        )
+        manually_added_advisees = ManuallyAddedAdvisee.query.all()
+        assert len(manually_added_advisees) == 2
+        assert manually_added_advisees[0].sid == self.completed_sid
+        assert manually_added_advisees[1].sid == self.inactive_sid
 
 
 class TestDownloadCuratedGroupCSV:
