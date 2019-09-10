@@ -23,7 +23,7 @@
         <b-dropdown-text
           v-for="template in noteTemplates"
           :key="template.id">
-          <div class="align-items-center d-flex justify-content-between text-nowrap">
+          <div class="align-items-center d-flex font-weight-normal justify-content-between text-nowrap">
             <b-link
               :id="`load-note-template-${template.id}`"
               class="pb-0 text-nowrap template-dropdown-title truncate-with-ellipsis"
