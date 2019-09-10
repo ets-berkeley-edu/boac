@@ -214,7 +214,15 @@ def get_summary_student_profiles(sids, include_historical=False, term_id=None):
     if include_historical:
         benchmark('begin historical profile supplement')
         historical_profile_rows = data_loch.get_historical_student_profiles_for_sids(sids)
-        historical_profiles = [json.loads(row['profile']) for row in historical_profile_rows]
+
+        def _historicize_profile(row):
+            return {
+                **json.loads(row['profile']),
+                **{
+                    'fullProfilePending': True,
+                },
+            }
+        historical_profiles = [_historicize_profile(row) for row in historical_profile_rows]
         # We don't expect photo information to show for historical profiles, but we still need a placeholder element
         # in the feed so the front end can show the proper fallback.
         _merge_photo_urls(historical_profiles)
@@ -611,6 +619,7 @@ def _construct_historical_student_profile(sid=None, uid=None):
     _merge_photo_urls([profile])
     enrollment_results = data_loch.get_historical_enrollments_for_sid(profile['sid'], latest_term_id=future_term_id())
     _merge_enrollment_terms(profile, enrollment_results)
+    profile['fullProfilePending'] = True
     return profile
 
 

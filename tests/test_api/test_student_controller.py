@@ -441,6 +441,7 @@ class TestStudent:
             assert student['sid'] == '3141592653'
             assert student['uid'] == '314159'
             assert student['name'] == 'Johannes Climacus'
+            assert student['fullProfilePending'] is True
             assert student['sisProfile']['academicCareer'] == 'UGRD'
             assert student['sisProfile']['academicCareerStatus'] == 'Inactive'
             assert len(student['sisProfile']['plans']) == 3
@@ -463,6 +464,7 @@ class TestStudent:
             assert student['sid'] == '2718281828'
             assert student['uid'] == '27182'
             assert student['name'] == 'Ernest Pontifex'
+            assert student['fullProfilePending'] is True
             assert student['sisProfile']['academicCareer'] == 'GRAD'
             assert student['sisProfile']['academicCareerStatus'] == 'Completed'
             assert student['sisProfile']['degree']['dateAwarded'] == '2010-05-14'
