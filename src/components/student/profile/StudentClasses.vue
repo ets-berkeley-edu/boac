@@ -10,10 +10,16 @@
         class="term-no-enrollments">
         <h3 class="student-term-header">{{ currentEnrollmentTerm }}</h3>
         <div class="term-no-enrollments-description">No enrollments</div>
-        <StudentWithdrawalCancel :withdr="student.sisProfile.withdrawalCancel" :term-id="String(currentEnrollmentTermId)" />
+        <StudentWithdrawalCancel
+          v-if="student.sisProfile.withdrawalCancel"
+          :withdrawal="student.sisProfile.withdrawalCancel"
+          :term-id="currentEnrollmentTermId" />
       </div>
       <h3 :id="`term-header-${index}`" tabindex="0" class="student-term-header">{{ term.termName }}</h3>
-      <StudentWithdrawalCancel :withdr="student.sisProfile.withdrawalCancel" :term-id="term.termId" />
+      <StudentWithdrawalCancel
+        v-if="student.sisProfile.withdrawalCancel"
+        :withdrawal="student.sisProfile.withdrawalCancel"
+        :term-id="term.termId" />
       <div v-for="(course, courseIndex) in term.enrollments" :key="courseIndex" class="student-course">
         <div class="student-course-heading">
           <div class="student-course-heading-start">
@@ -255,7 +261,7 @@ v-if="section.isViewableOnCoursePage"
     </div>
     <div v-if="isEmpty(student.enrollmentTerms)">
       No courses
-      <StudentWithdrawalCancel :withdr="student.sisProfile.withdrawalCancel" :term-id="false" />
+      <StudentWithdrawalCancel v-if="student.sisProfile.withdrawalCancel" :withdrawal="student.sisProfile.withdrawalCancel" />
     </div>
   </div>
 </template>
