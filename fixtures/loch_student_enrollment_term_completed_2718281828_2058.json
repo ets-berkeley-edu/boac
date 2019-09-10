@@ -1,0 +1,52 @@
+{
+    "enrolledUnits": 8.0,
+    "enrollments": [
+        {
+            "canvasSites": [],
+            "displayName": "ENGLISH 211",
+            "grade": "B-",
+            "gradingBasis": "Letter",
+            "midtermGrade": null,
+            "sections": [
+                {
+                    "ccn": 10067,
+                    "component": "LEC",
+                    "enrollmentStatus": "E",
+                    "grade": "B-",
+                    "gradingBasis": "Letter",
+                    "midtermGrade": null,
+                    "primary": true,
+                    "sectionNumber": "X001",
+                    "units": 4.0
+                }
+            ],
+            "title": "Chaucer",
+            "units": 4.0
+        },
+        {
+            "canvasSites": [],
+            "displayName": "ENGLISH 250",
+            "grade": "S",
+            "gradingBasis": "S/U",
+            "midtermGrade": null,
+            "sections": [
+                {
+                    "ccn": 10209,
+                    "component": "SEM",
+                    "enrollmentStatus": "E",
+                    "grade": "S",
+                    "gradingBasis": "S/U",
+                    "midtermGrade": null,
+                    "primary": true,
+                    "sectionNumber": "X001",
+                    "units": 4.0
+                }
+            ],
+            "title": "Research Seminars",
+            "units": 4.0
+        }
+    ],
+    "termId": "2058",
+    "termName": "Fall 2005",
+    "unmatchedCanvasSites": []
+}

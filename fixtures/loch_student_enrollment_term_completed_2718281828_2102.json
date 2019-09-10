@@ -1,0 +1,30 @@
+{
+    "enrolledUnits": 12.0,
+    "enrollments": [
+        {
+            "canvasSites": [],
+            "displayName": "ENGLISH 602",
+            "grade": "S",
+            "gradingBasis": "S/U",
+            "midtermGrade": null,
+            "sections": [
+                {
+                    "ccn": 29297,
+                    "component": "IND",
+                    "enrollmentStatus": "E",
+                    "grade": "S",
+                    "gradingBasis": "S/U",
+                    "midtermGrade": null,
+                    "primary": true,
+                    "sectionNumber": "045",
+                    "units": 12.0
+                }
+            ],
+            "title": "Individual Study for Doctoral Students",
+            "units": 12.0
+        }
+    ],
+    "termId": "2102",
+    "termName": "Spring 2010",
+    "unmatchedCanvasSites": []
+}

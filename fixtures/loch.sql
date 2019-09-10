@@ -608,6 +608,12 @@ VALUES
 ('9000000000', :profile_9000000000),
 ('9100000000', :profile_9100000000);
 
+INSERT INTO student.student_profiles_hist_enr
+(sid, uid, profile)
+VALUES
+('2718281828', '271828', :profile_completed_2718281828),
+('3141592653', '314159', :profile_inactive_3141592653);
+
 INSERT INTO student.student_academic_status
 (sid, uid, first_name, last_name, level, gpa, units, transfer, expected_grad_term)
 VALUES
@@ -671,6 +677,13 @@ VALUES
 ('2345678901', '2172', :enrollment_term_2345678901_2172, FALSE),
 ('3456789012', '2178', :enrollment_term_3456789012_2178, FALSE),
 ('5678901234', '2178', :enrollment_term_5678901234_2178, FALSE);
+
+INSERT INTO student.student_enrollment_terms_hist_enr
+(sid, term_id, enrollment_term)
+VALUES
+('2718281828', '2058', :enrollment_term_completed_2718281828_2058),
+('2718281828', '2102', :enrollment_term_completed_2718281828_2102),
+('3141592653', '2052', :enrollment_term_inactive_3141592653_2052);
 
 INSERT INTO student.student_term_gpas
 (sid, term_id, gpa, units_taken_for_gpa)

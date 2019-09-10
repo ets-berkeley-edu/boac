@@ -27,6 +27,7 @@ from boac import db, std_commit
 from boac.externals.data_loch import query_historical_sids
 from boac.merged.student import query_students
 from boac.models.base import Base
+from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 from sqlalchemy import text
 
 
@@ -124,6 +125,8 @@ class CuratedGroup(Base):
                     remaining_sids = list(set(sids) - set(result['sids']))
                     historical_sid_rows = query_historical_sids(remaining_sids)
                     if len(historical_sid_rows):
+                        for row in historical_sid_rows:
+                            ManuallyAddedAdvisee.find_or_create(row['sid'])
                         feed['studentCount'] += len(historical_sid_rows)
                         page_shortfall = max(0, limit - len(result['students']))
                         feed['students'] += historical_sid_rows[:page_shortfall]

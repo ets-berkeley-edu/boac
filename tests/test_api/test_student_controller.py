@@ -434,6 +434,46 @@ class TestStudent:
             assert sis_profile['expectedGraduationTerm']['id'] == '2198'
             assert sis_profile['expectedGraduationTerm']['name'] == 'Fall 2019'
 
+    def test_student_profile_inactive_status(self, client, coe_advisor_login):
+        inactive_student_by_sid = self._api_student_by_sid(client=client, sid='3141592653')
+        inactive_student_by_uid = self._api_student_by_uid(client=client, uid='314159')
+        for student in [inactive_student_by_sid, inactive_student_by_uid]:
+            assert student['sid'] == '3141592653'
+            assert student['uid'] == '314159'
+            assert student['name'] == 'Johannes Climacus'
+            assert student['sisProfile']['academicCareer'] == 'UGRD'
+            assert student['sisProfile']['academicCareerStatus'] == 'Inactive'
+            assert len(student['sisProfile']['plans']) == 3
+            assert student['sisProfile']['plans'][0]['description'] == 'Philosophy BA'
+            assert student['sisProfile']['plans'][0]['status'] == 'Discontinued'
+            assert len(student['enrollmentTerms']) == 1
+            assert student['enrollmentTerms'][0]['termName'] == 'Spring 2005'
+            assert student['enrollmentTerms'][0]['enrolledUnits'] == 4
+            assert len(student['enrollmentTerms'][0]['enrollments']) == 1
+            assert student['enrollmentTerms'][0]['enrollments'][0]['displayName'] == 'PHILOS 188'
+            assert student['enrollmentTerms'][0]['enrollments'][0]['title'] == 'Phenomenology'
+            assert student['enrollmentTerms'][0]['enrollments'][0]['grade'] == 'I'
+            assert len(student['enrollmentTerms'][0]['enrollments'][0]['sections']) == 1
+            assert student['enrollmentTerms'][0]['enrollments'][0]['sections'][0]['sectionNumber'] == 'X001'
+
+    def test_student_profile_completed_status(self, client, coe_advisor_login):
+        inactive_student_by_sid = self._api_student_by_sid(client=client, sid='2718281828')
+        inactive_student_by_uid = self._api_student_by_uid(client=client, uid='271828')
+        for student in [inactive_student_by_sid, inactive_student_by_uid]:
+            assert student['sid'] == '2718281828'
+            assert student['uid'] == '27182'
+            assert student['name'] == 'Ernest Pontifex'
+            assert student['sisProfile']['academicCareer'] == 'GRAD'
+            assert student['sisProfile']['academicCareerStatus'] == 'Completed'
+            assert student['sisProfile']['degree']['dateAwarded'] == '2010-05-14'
+            assert student['sisProfile']['degree']['description'] == 'Doctor of Philosophy'
+            assert student['sisProfile']['degree']['plans'][0]['group'] == 'Graduate Division'
+            assert student['sisProfile']['degree']['plans'][0]['plan'] == 'English PhD'
+            assert len(student['enrollmentTerms']) == 2
+            assert student['enrollmentTerms'][0]['termName'] == 'Spring 2010'
+            assert student['enrollmentTerms'][1]['termName'] == 'Fall 2005'
+            assert student['enrollmentTerms'][1]['enrollments'][0]['title'] == 'Chaucer'
+
     def test_athletics_profile_non_asc(self, client, coe_advisor_login):
         """Does not include select athletics profile data for non-ASC users."""
         sid = self.asc_student_in_coe['sid']
@@ -662,6 +702,12 @@ class TestValidateSids:
         assert api_json[1]['status'] == 404
         assert api_json[2]['sid'] == '2345678901'
         assert api_json[2]['status'] == 200
+
+    def test_validate_sids_with_some_inactive(self, client, coe_advisor_login):
+        """Accepts inactive SIDs."""
+        api_json = self._api_validate_sids(client, sids=['7890123456', '2718281828', '3141592653'])
+        assert len(api_json) == 3
+        assert [a['status'] for a in api_json] == [200, 200, 200]
 
     def test_validate_sids_by_admin(self, client, admin_login):
         """Admin has access to all students."""

@@ -1,0 +1,39 @@
+{
+    "firstName": "Ernest",
+    "lastName": "Pontifex",
+    "name": "Ernest Pontifex",
+    "sid": "2718281828",
+    "sisProfile": {
+        "academicCareer": "GRAD",
+        "academicCareerStatus": "Completed",
+        "cumulativeGPA": 4,
+        "cumulativeUnits": 139,
+        "currentRegistration": null,
+        "degree": {
+            "dateAwarded": "2010-05-14",
+            "description": "Doctor of Philosophy",
+            "plans": [
+                {
+                    "group": "Graduate Division",
+                    "plan": "English PhD"
+                }
+            ]
+        },
+        "emailAddress": null,
+        "holds": [],
+        "phoneNumber": null,
+        "plans": [
+            {
+                "degreeProgramUrl": null,
+                "description": "English PhD",
+                "program": "Graduate Academic Programs",
+                "status": "Completed Program"
+            }
+        ],
+        "preferredName": "Ernest Pontifex",
+        "primaryName": "Ernest Pontifex",
+        "termsInAttendance": null,
+        "transfer": false
+    },
+    "uid": "27182"
+}
