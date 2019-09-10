@@ -32,6 +32,7 @@ from boac.externals import data_loch, s3
 from boac.lib import analytics
 from boac.lib.berkeley import current_term_id, future_term_id, term_name_for_sis_id
 from boac.lib.util import get_benchmarker
+from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 from flask import current_app as app
 from flask_login import current_user
 
@@ -217,6 +218,8 @@ def get_summary_student_profiles(sids, include_historical=False, term_id=None):
         # We don't expect photo information to show for historical profiles, but we still need a placeholder element
         # in the feed so the front end can show the proper fallback.
         _merge_photo_urls(historical_profiles)
+        for historical_profile in historical_profiles:
+            ManuallyAddedAdvisee.find_or_create(historical_profile['sid'])
         profiles += historical_profiles
         historical_enrollments_for_term = data_loch.get_historical_enrollments_for_term(term_id, sids)
         for row in historical_enrollments_for_term:
@@ -466,6 +469,7 @@ def search_for_students(
 def search_for_student_historical(sid):
     profile = _construct_historical_student_profile(sid=sid)
     if profile:
+        ManuallyAddedAdvisee.find_or_create(sid)
         summarize_profile(profile)
         return {
             'students': [profile],
