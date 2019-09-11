@@ -277,15 +277,15 @@ export default {
         // File upload might take time; alert will be overwritten when API call is done.
         this.showAlert('Creating template...', 60);
       }
-      createNoteTemplate(title, this.model.subject, this.model.body, this.model.topics, this.model.attachments).then(() => {
+      createNoteTemplate(title, this.model.subject, this.model.body, this.model.topics, this.model.attachments).then(template => {
         this.showAlert(`Template '${title}' created.`);
         this.setIsSaving(false);
         this.setModel({
           id: undefined,
-          subject: this.model.subject,
-          body: this.model.body,
-          topics: this.model.topics,
-          attachments: this.model.attachments,
+          subject: template.subject,
+          body: template.body,
+          topics: template.topics,
+          attachments: template.attachments,
           deleteAttachmentIds: []
         });
         this.setMode(this.isBatchFeature ? 'batch' : 'advanced');
