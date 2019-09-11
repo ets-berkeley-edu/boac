@@ -1,5 +1,5 @@
 <template>
-  <div v-if="announcement !== undefined" class="mt-3">
+  <div v-if="announcement !== undefined && originalText !== undefined" class="mt-3">
     <h2 id="edit-service-announcement" class="page-section-header-sub">Service Alert</h2>
     <div class="p-2">
       <div v-if="isTogglingPublish">
@@ -19,13 +19,12 @@
         <div v-if="error" class="mt-2 has-error w-100">
           <span aria-live="polite" role="alert">{{ error }}</span>
         </div>
-        <ckeditor
+        <RichTextEditor
           id="textarea-update-service-announcement"
-          v-model="text"
           aria-label="Service announcement input"
-          :config="editorConfig"
+          :initial-value="originalText"
           :disabled="isSaving"
-          :editor="editor"></ckeditor>
+          :on-value-update="onEditorUpdate" />
         <div>
           <b-btn
             id="button-update-service-announcement"
@@ -43,21 +42,16 @@
 </template>
 
 <script>
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Context from '@/mixins/Context';
+import RichTextEditor from '@/components/util/RichTextEditor';
 import Util from '@/mixins/Util';
 import { getServiceAnnouncement, publishAnnouncement, updateAnnouncement } from '@/api/config';
 
-require('@/assets/styles/ckeditor-custom.css');
-
 export default {
   name: 'EditServiceAnnouncement',
+  components: { RichTextEditor },
   mixins: [Context, Util],
   data: () => ({
-    editor: ClassicEditor,
-    editorConfig: {
-      toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link']
-    },
     error: undefined,
     isPublished: undefined,
     isTogglingPublish: false,
@@ -67,11 +61,14 @@ export default {
   }),
   created() {
     getServiceAnnouncement().then(data => {
-      this.originalText = this.text = data.text;
+      this.originalText = this.text = data.text || '';
       this.isPublished = data.isPublished;
     })
   },
   methods: {
+    onEditorUpdate(value) {
+      this.text = value;
+    },
     togglePublish() {
       const publish = !this.isPublished;
       this.error = null;

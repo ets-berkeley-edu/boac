@@ -41,9 +41,6 @@ export default {
     ]),
     setSubjectPerEvent(event) {
       store.dispatch('noteEditSession/setSubject', _.isString(event) ? event : event.target.value);
-    },
-    setBodyPerEvent(event) {
-      store.dispatch('noteEditSession/setBody', _.isString(event) ? event : event.target.value);
     }
   }
 };

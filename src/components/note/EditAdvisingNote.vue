@@ -21,11 +21,9 @@
     </div>
     <div>
       <span id="edit-note-details" class="bg-transparent note-details-editor">
-        <ckeditor
-          :value="model.body || ''"
-          :editor="editor"
-          :config="editorConfig"
-          @input="setBodyPerEvent"></ckeditor>
+        <RichTextEditor
+          :initial-value="model.body || ''"
+          :on-value-update="setBody" />
       </span>
     </div>
     <div>
@@ -91,17 +89,15 @@
 <script>
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics';
 import AreYouSureModal from '@/components/util/AreYouSureModal';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Context from '@/mixins/Context';
 import NoteEditSession from '@/mixins/NoteEditSession';
+import RichTextEditor from '@/components/util/RichTextEditor';
 import Util from '@/mixins/Util';
 import { getNote, updateNote } from '@/api/notes';
 
-require('@/assets/styles/ckeditor-custom.css');
-
 export default {
   name: 'EditAdvisingNote',
-  components: { AdvisingNoteTopics, AreYouSureModal },
+  components: {AdvisingNoteTopics, AreYouSureModal, RichTextEditor},
   mixins: [Context, NoteEditSession, Util],
   props: {
     afterCancel: Function,
@@ -109,10 +105,6 @@ export default {
     noteId: Number
   },
   data: () => ({
-    editor: ClassicEditor,
-    editorConfig: {
-      toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
-    },
     error: undefined,
     showAreYouSureModal: false,
     showErrorPopover: false,
