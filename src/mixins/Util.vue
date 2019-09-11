@@ -39,6 +39,7 @@ export default {
     isEmpty: _.isEmpty,
     isNil: _.isNil,
     isNumber: _.isNumber,
+    isString: _.isString,
     isUndefined: _.isUndefined,
     join: _.join,
     keys: _.keys,

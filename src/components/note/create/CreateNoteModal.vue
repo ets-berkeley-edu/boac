@@ -81,14 +81,12 @@
               <label for="create-note-body" class="font-size-14 font-weight-bolder mt-3 mb-1">Note Details</label>
             </div>
             <div id="note-details">
-              <span id="create-note-body">
-                <ckeditor
-                  :value="model.body || ''"
-                  :disabled="isSaving"
-                  :editor="editor"
-                  :config="editorConfig"
-                  @input="setBodyPerEvent"></ckeditor>
-              </span>
+              <RichTextEditor
+                id="create-note-body"
+                :initial-value="model.body || ''"
+                :disabled="isSaving"
+                :is-in-modal="undocked"
+                :on-value-update="setBody" />
             </div>
           </div>
           <div v-if="undocked">
@@ -146,20 +144,18 @@
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments';
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics';
 import AreYouSureModal from '@/components/util/AreYouSureModal';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import Context from '@/mixins/Context';
-import FocusLock from 'vue-focus-lock';
-import NoteEditSession from '@/mixins/NoteEditSession';
 import BatchNoteFeatures from '@/components/note/create/BatchNoteFeatures';
+import Context from '@/mixins/Context';
 import CreateNoteFooter from '@/components/note/create/CreateNoteFooter';
 import CreateNoteHeader from '@/components/note/create/CreateNoteHeader';
 import CreateNoteMinimized from '@/components/note/create/CreateNoteMinimized';
 import CreateTemplateModal from "@/components/note/create/CreateTemplateModal";
+import FocusLock from 'vue-focus-lock';
+import NoteEditSession from '@/mixins/NoteEditSession';
+import RichTextEditor from '@/components/util/RichTextEditor';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { createNoteTemplate, updateNoteTemplate } from '@/api/note-templates';
-
-require('@/assets/styles/ckeditor-custom.css');
 
 export default {
   name: 'CreateNoteModal',
@@ -172,7 +168,8 @@ export default {
     CreateNoteHeader,
     CreateNoteMinimized,
     CreateTemplateModal,
-    FocusLock
+    FocusLock,
+    RichTextEditor
   },
   mixins: [Context, NoteEditSession, UserMetadata, Util],
   props: {
@@ -194,10 +191,6 @@ export default {
   data: () => ({
     alert: undefined,
     dismissAlertSeconds: 0,
-    editor: ClassicEditor,
-    editorConfig: {
-      toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
-    },
     isBatchFeature: undefined,
     isMinimizing: false,
     isModalOpen: false,
