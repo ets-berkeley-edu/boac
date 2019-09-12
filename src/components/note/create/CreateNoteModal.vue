@@ -6,7 +6,7 @@
         class="mt-1 mr-2 btn-primary-color-override btn-primary-color-override-opaque"
         :class="{'w-100': isBatchFeature}"
         variant="primary"
-        :disabled="isModalOpen"
+        :disabled="disableNewNoteButton"
         @click="openNoteModal()">
         <span class="m-1">
           <font-awesome icon="file-alt" />

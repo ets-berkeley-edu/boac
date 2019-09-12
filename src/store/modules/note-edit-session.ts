@@ -41,6 +41,7 @@ const state = {
 const getters = {
   addedCohorts: (state: any): any[] => state.addedCohorts,
   addedCuratedGroups: (state: any): any[] => state.addedCuratedGroups,
+  disableNewNoteButton: (state: any): boolean => !!state.mode,
   isFocusLockDisabled: (state: any): boolean => state.isFocusLockDisabled,
   isSaving: (state: any): boolean => state.isSaving,
   mode: (state: any): string => state.mode,
