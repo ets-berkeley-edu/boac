@@ -195,7 +195,11 @@ CREATE INDEX notes_author_uid_idx ON notes USING btree (author_uid);
 CREATE INDEX notes_sid_idx ON notes USING btree (sid);
 
 CREATE MATERIALIZED VIEW notes_fts_index AS (
-  SELECT id, to_tsvector('english', subject || ' ' || body) AS fts_index
+  SELECT
+    id,
+    CASE WHEN (body IS NULL) THEN to_tsvector('english', subject)
+         ELSE to_tsvector('english', subject || ' ' || body)
+         END AS fts_index
   FROM notes
   WHERE deleted_at IS NULL
 );
