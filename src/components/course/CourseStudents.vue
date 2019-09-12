@@ -52,23 +52,25 @@
         CoE INACTIVE
       </div>
       <div v-if="row.item.academicCareerStatus !== 'Completed'">
-        <div>
+        <div :id="`student-${row.item.uid}-level`">
           <span class="student-text">{{ row.item.level }}</span>
         </div>
-        <div>
+        <div :id="`student-${row.item.uid}-majors`">
           <div v-for="major in row.item.majors" :key="major" class="student-text">{{ major }}</div>
         </div>
       </div>
       <div v-if="row.item.academicCareerStatus === 'Completed'">
-        <div v-if="get(row.item, 'degree.dateAwarded')">
+        <div v-if="get(row.item, 'degree.dateAwarded')" :id="`student-${row.item.uid}-graduated-date`">
           <span class="student-text">Graduated {{ row.item.degree.dateAwarded | moment('MMM DD, YYYY') }}</span>
         </div>
-        <div v-for="owner in degreePlanOwners(row.item)" :key="owner" class="student-text">
-          {{ owner }}
+        <div :id="`student-${row.item.uid}-graduated-colleges`">
+          <div v-for="owner in degreePlanOwners(row.item)" :key="owner" class="student-text">
+            {{ owner }}
+          </div>
         </div>
       </div>
       <div>
-        <div v-if="row.item.athleticsProfile" class="student-teams-container">
+        <div v-if="row.item.athleticsProfile" :id="`student-${row.item.uid}-teams`" class="student-teams-container">
           <div v-for="membership in row.item.athleticsProfile.athletics" :key="membership.groupName" class="student-text">
             {{ membership.groupName }}
           </div>
