@@ -24,9 +24,12 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.externals import data_loch
+from boac.models.authorized_user import AuthorizedUser
 from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 import pytest
 import simplejson as json
+
+asc_advisor_uid = '1081940'
 
 
 @pytest.fixture()
@@ -36,7 +39,7 @@ def admin_login(fake_auth):
 
 @pytest.fixture()
 def asc_advisor(fake_auth):
-    fake_auth.login('1081940')
+    fake_auth.login(asc_advisor_uid)
 
 
 @pytest.fixture()
@@ -431,6 +434,29 @@ class TestNoteSearch:
         assert len(notes) == 2
         assert notes[0].get('id') == '11667051-00001'
         assert notes[1].get('id') == '11667051-00002'
+
+    def test_search_note_with_null_body(self, asc_advisor, client):
+        """Finds newly created BOA note when note body is null."""
+        data = {
+            'authorId': AuthorizedUser.get_id_per_uid(asc_advisor_uid),
+            'sid': '9000000000',
+            'subject': 'Patience is a conquering virtue',
+        }
+        response = client.post(
+            '/api/notes/create',
+            data=data,
+        )
+        assert response.status_code == 200
+        note = response.json
+
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'notes': True, 'searchPhrase': 'a conquering virtue'}),
+            content_type='application/json',
+        )
+        notes = response.json['notes']
+        assert len(notes) == 1
+        assert notes[0].get('id') == note['id']
 
     def test_search_asc_notes(self, asc_advisor, client):
         """Includes ASC notes in search results."""
