@@ -137,6 +137,7 @@
                   :id="`edit-note-${message.id}-button`"
                   variant="link"
                   class="p-0 edit-note-button"
+                  :disabled="disableNewNoteButton"
                   @keypress.enter.stop="editNote(message)"
                   @click.stop="editNote(message)">
                   Edit Note
@@ -147,6 +148,7 @@
                   id="delete-note-button"
                   variant="link"
                   class="p-0 edit-note-button"
+                  :disabled="disableNewNoteButton"
                   @keypress.enter.stop="deleteNote(message)"
                   @click.stop="deleteNote(message)">
                   Delete Note

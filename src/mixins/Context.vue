@@ -18,7 +18,8 @@ export default {
       'srAlert',
       'supportEmailAddress',
       'timezone'
-    ])
+    ]),
+    ...mapGetters('noteEditSession', ['disableNewNoteButton'])
   },
   methods: {
     ...mapActions('context', [
