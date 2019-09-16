@@ -458,17 +458,11 @@ def get_sis_advising_note_topics(sid):
 
 
 def get_sis_advising_note_attachment(sid, filename):
-    query_tables, query_filter, query_bindings = get_students_query()
-    if not query_tables:
-        return None
     sql = f"""SELECT advising_note_id, created_by, sis_file_name, user_file_name, is_historical
-        {query_tables}
-        JOIN {sis_advising_notes_schema()}.advising_note_attachments ana
-        ON sas.sid = :sid
-        AND ana.sid = sas.sid
-        AND ana.sis_file_name = :filename
-        {query_filter}"""
-    return safe_execute_rds(sql, sid=sid, filename=filename, **query_bindings)
+        FROM {sis_advising_notes_schema()}.advising_note_attachments
+        WHERE sid = :sid
+        AND sis_file_name = :filename"""
+    return safe_execute_rds(sql, sid=sid, filename=filename)
 
 
 def get_sis_advising_note_attachments(sid):
