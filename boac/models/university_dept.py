@@ -41,22 +41,20 @@ class UniversityDept(Base):
         'UniversityDeptMember',
         back_populates='university_dept',
     )
-    automate_memberships = db.Column(db.Boolean, nullable=False, default=False)
 
     __table_args__ = (db.UniqueConstraint('dept_code', 'dept_name', name='university_depts_code_unique_constraint'),)
 
-    def __init__(self, dept_code, dept_name, automate_memberships):
+    def __init__(self, dept_code, dept_name):
         self.dept_code = dept_code
         self.dept_name = dept_name
-        self.automate_memberships = automate_memberships
 
     @classmethod
     def find_by_dept_code(cls, dept_code):
         return cls.query.filter_by(dept_code=dept_code).first()
 
     @classmethod
-    def create(cls, dept_code, dept_name, automate_memberships):
-        dept = cls(dept_code=dept_code, dept_name=dept_name, automate_memberships=automate_memberships)
+    def create(cls, dept_code, dept_name):
+        dept = cls(dept_code=dept_code, dept_name=dept_name)
         db.session.add(dept)
         std_commit()
         return dept
