@@ -166,7 +166,7 @@ def refresh_calnet_attributes():
 def refresh_department_memberships():
     from boac.models.authorized_user import AuthorizedUser
     from boac.models.university_dept import UniversityDept
-    from boac.models.db_relationships import UniversityDeptMember
+    from boac.models.university_dept_member import UniversityDeptMember
     depts = UniversityDept.query.all()
     for dept in depts:
         dept.delete_automated_members()
