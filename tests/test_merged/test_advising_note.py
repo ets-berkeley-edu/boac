@@ -438,7 +438,7 @@ class TestMergedAdvisingNote:
         with mock_legacy_note_attachment(app):
             fake_auth.login(coe_advisor)
             assert get_legacy_attachment_stream('11667051_00001_1.pdf')['stream'] is None
-            assert "the s3 key 'attachment-path/11667051/11667051_00001_1.pdf' does not exist, or is forbidden" in caplog.text
+            assert "the s3 key 'sis-attachment-path/11667051/11667051_00001_1.pdf' does not exist, or is forbidden" in caplog.text
 
 
 def _create_coe_advisor_note(
