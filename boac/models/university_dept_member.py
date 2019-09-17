@@ -48,14 +48,25 @@ class UniversityDeptMember(Base):
 
     @classmethod
     def create_membership(cls, university_dept, authorized_user, is_advisor, is_director, automate_membership=True):
-        mapping = cls(is_advisor=is_advisor, is_director=is_director, automate_membership=automate_membership)
-        mapping.authorized_user = authorized_user
-        mapping.university_dept = university_dept
-        authorized_user.department_memberships.append(mapping)
-        university_dept.authorized_users.append(mapping)
-        db.session.add(mapping)
+        membership = cls(is_advisor=is_advisor, is_director=is_director, automate_membership=automate_membership)
+        membership.authorized_user = authorized_user
+        membership.university_dept = university_dept
+        authorized_user.department_memberships.append(membership)
+        university_dept.authorized_users.append(membership)
+        db.session.add(membership)
         std_commit()
-        return mapping
+        return membership
+
+    @classmethod
+    def update_membership(cls, university_dept_id, authorized_user_id, is_advisor, is_director, automate_membership):
+        membership = cls.query.filter_by(university_dept_id=university_dept_id, authorized_user_id=authorized_user_id).first()
+        if membership:
+            membership.is_advisor = membership.is_advisor if is_advisor is None else is_advisor
+            membership.is_director = membership.is_director if is_director is None else is_director
+            membership.automate_membership = membership.automate_membership if automate_membership is None else automate_membership
+            std_commit()
+            return membership
+        return None
 
     @classmethod
     def delete_membership(cls, university_dept_id, authorized_user_id):

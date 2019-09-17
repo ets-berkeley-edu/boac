@@ -141,18 +141,33 @@ class TestUniversityDeptMember:
     """University Dept Member API."""
 
     @classmethod
-    def _api_add(cls, client, expected_status_code=200):
-        dept_code = 'ZZZZZ'
-        automate_membership = False
+    def _api_add(cls, client, is_advisor=True, is_director=False, automate_membership=False, expected_status_code=200):
         params = {
-            'deptCode': dept_code,
+            'deptCode': 'ZZZZZ',
             'uid': coe_advisor_uid,
-            'isAdvisor': True,
-            'isDirector': False,
+            'isAdvisor': is_advisor,
+            'isDirector': is_director,
             'automateMembership': automate_membership,
         }
-        response = response = client.post(
+        response = client.post(
             f'/api/user/dept_membership/add',
+            data=json.dumps(params),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    @classmethod
+    def _api_update(cls, client, is_advisor=None, is_director=None, automate_membership=None, expected_status_code=200):
+        params = {
+            'deptCode': 'ZZZZZ',
+            'uid': coe_advisor_uid,
+            'isAdvisor': is_advisor,
+            'isDirector': is_director,
+            'automateMembership': automate_membership,
+        }
+        response = client.post(
+            f'/api/user/dept_membership/update',
             data=json.dumps(params),
             content_type='application/json',
         )
@@ -163,20 +178,20 @@ class TestUniversityDeptMember:
     def _api_delete(cls, client, expected_status_code=200):
         university_dept_id = UniversityDept.find_by_dept_code('ZZZZZ').id
         authorized_user_id = AuthorizedUser.find_by_uid(coe_advisor_uid).id
-        response = response = client.delete(
+        response = client.delete(
             f'/api/user/dept_membership/delete/{university_dept_id}/{authorized_user_id}',
         )
         assert response.status_code == expected_status_code
         return response.json
 
     def test_add_university_dept_membership_not_authenticated(self, client):
-        """Returns 401 when not authenticated."""
-        self._api_add(client, 401)
+        """Returns 401 when unauthenticated user attempts to add."""
+        self._api_add(client, expected_status_code=401)
 
     def test_add_university_dept_membership_not_authorized(self, client, fake_auth):
-        """Returns 401 for non-admin."""
+        """Returns 401 when non-admin attempts to add."""
         fake_auth.login(asc_advisor_uid)
-        self._api_add(client, 401)
+        self._api_add(client, expected_status_code=401)
 
     def test_add_university_dept_membership(self, client, fake_auth):
         """Creates a UniversityDeptMember record."""
@@ -188,12 +203,37 @@ class TestUniversityDeptMember:
         assert membership['isDirector'] is False
         assert membership['automateMembership'] is False
 
+    def test_update_university_dept_membership_not_authenticated(self, client):
+        """Returns 401 when unauthenticated user attempts to update."""
+        self._api_update(client, expected_status_code=401)
+
+    def test_update_university_dept_membership_not_authorized(self, client, fake_auth):
+        """Returns 401 when non-admin attempts to update."""
+        fake_auth.login(asc_advisor_uid)
+        self._api_update(client, expected_status_code=401)
+
+    def test_update_nonexistant_university_dept_membership(self, client, fake_auth):
+        """Returns 404 when attempting to update a nonexistant UniversityDeptMember record."""
+        fake_auth.login(admin_uid)
+        self._api_update(client, expected_status_code=400)
+
+    def test_update_university_dept_membership(self, client, fake_auth):
+        """Updates a UniversityDeptMember record."""
+        fake_auth.login(admin_uid)
+        self._api_add(client)
+        membership = self._api_update(client, is_advisor=False, is_director=True)
+        assert membership['universityDeptId'] == UniversityDept.find_by_dept_code('ZZZZZ').id
+        assert membership['authorizedUserId'] == AuthorizedUser.find_by_uid(coe_advisor_uid).id
+        assert membership['isAdvisor'] is False
+        assert membership['isDirector'] is True
+        assert membership['automateMembership'] is False
+
     def test_delete_university_dept_membership_not_authenticated(self, client):
-        """Returns 401 when not authenticated."""
+        """Returns 401 when unauthenticated user attempts to delete."""
         self._api_delete(client, 401)
 
     def test_delete_university_dept_membership_not_authorized(self, client, fake_auth):
-        """Returns 401 for non-admin."""
+        """Returns 401 when non-admin attempts to delete."""
         fake_auth.login(asc_advisor_uid)
         self._api_delete(client, 401)
 
