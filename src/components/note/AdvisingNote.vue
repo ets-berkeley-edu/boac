@@ -33,11 +33,16 @@
       </div>
       <div v-if="note.author" class="mt-2">
         <div v-if="note.author.name">
+          <span class="sr-only">Note created by </span>
           <a
+            v-if="note.author.uid"
             :id="`note-${note.id}-author-name`"
             :aria-label="`Open UC Berkeley Directory page of ${note.author.name} in a new window`"
             :href="`https://www.berkeley.edu/directory/results?search-term=${note.author.name}`"
             target="_blank">{{ note.author.name }}</a>
+          <span v-if="!note.author.uid" :id="`note-${note.id}-author-name`">
+            {{ note.author.name }}
+          </span>
           <span v-if="note.author.role">
             - <span :id="`note-${note.id}-author-role`" class="text-dark">{{ note.author.role }}</span>
           </span>
