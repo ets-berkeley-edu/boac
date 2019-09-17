@@ -20,7 +20,7 @@
                 :key="student.sid"
                 :row-index="index"
                 :student="student"
-                list-type="curatedGroup"
+                :list-type="curatedGroup.ownerId === user.id ? 'curatedGroupForOwner' : 'curatedGroup'"
                 :sorted-by="preferences.sortBy"
                 class="list-group-item student-list-item"
                 :class="{'list-group-item-info' : anchor === `#${student.uid}`}" />

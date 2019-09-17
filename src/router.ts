@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import Admin from '@/views/Admin.vue';
 import AllCohorts from '@/views/AllCohorts.vue';
+import AllGroups from '@/views/AllGroups.vue';
 import Cohort from '@/views/Cohort.vue';
 import Course from '@/views/Course.vue';
 import CreateCuratedGroup from '@/views/CreateCuratedGroup.vue'
@@ -122,6 +123,13 @@ const router = new Router({
           props: true,
           meta: {
             title: 'Create Curated Group'
+          }
+        },
+        {
+          path: '/groups/all',
+          component: AllGroups,
+          meta: {
+            title: 'All Groups'
           }
         },
         {

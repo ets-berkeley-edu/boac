@@ -59,7 +59,7 @@
         </b-btn>
       </div>
       <div v-if="!mode" class="d-flex align-items-center mr-2">
-        <div>
+        <div v-if="isOwnedByCurrentUser">
           <b-btn
             id="bulk-add-sids-button"
             variant="link"
@@ -68,8 +68,8 @@
             Add Students
           </b-btn>
         </div>
-        <div class="faint-text">|</div>
-        <div>
+        <div v-if="isOwnedByCurrentUser" class="faint-text">|</div>
+        <div v-if="isOwnedByCurrentUser">
           <b-btn
             id="rename-button"
             variant="link"
@@ -78,8 +78,8 @@
             Rename
           </b-btn>
         </div>
-        <div class="faint-text">|</div>
-        <div>
+        <div v-if="isOwnedByCurrentUser" class="faint-text">|</div>
+        <div v-if="isOwnedByCurrentUser">
           <b-btn
             id="delete-button"
             v-b-modal="'myModal'"
@@ -113,7 +113,7 @@
             </div>
           </b-modal>
         </div>
-        <div class="faint-text">|</div>
+        <div v-if="isOwnedByCurrentUser" class="faint-text">|</div>
         <div>
           <b-btn
             id="export-student-list-button"
@@ -132,13 +132,14 @@
 <script>
 import Loading from '@/mixins/Loading.vue';
 import router from '@/router';
+import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import Validator from '@/mixins/Validator.vue';
 import { deleteCuratedGroup, downloadCuratedGroupCsv, renameCuratedGroup } from '@/api/curated';
 
 export default {
   name: 'CuratedGroupHeader',
-  mixins: [Loading, Util, Validator],
+  mixins: [Loading, UserMetadata, Util, Validator],
   props: {
     'curatedGroup': Object,
     'mode': String,
@@ -150,6 +151,11 @@ export default {
     renameError: undefined,
     renameInput: undefined
   }),
+  computed: {
+    isOwnedByCurrentUser() {
+      return this.curatedGroup.ownerId === this.user.id;
+    }
+  },
   watch: {
     renameInput() {
       this.renameError = undefined;

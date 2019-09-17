@@ -18,6 +18,11 @@
         <router-link id="cohorts-all" to="/cohorts/all">Everyone's Cohorts</router-link>
       </div>
     </div>
+    <div class="mb-2 sidebar-row-link">
+      <div class="ml-2 mr-2">
+        <router-link id="groups-all" to="/groups/all">Everyone's Groups</router-link>
+      </div>
+    </div>
     <div v-if="user && !user.isAdmin">
       <div class="batch-note-button fixed-bottom mb-3">
         <CreateNoteModal id="batch-note-button" />

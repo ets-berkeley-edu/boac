@@ -4,13 +4,13 @@
     <span :id="`student-sid-of-row-${rowIndex}`" hidden aria-hidden="true">{{ student.sid }}</span>
     <div class="cohort-list-view-column-01">
       <button
-        v-if="listType === 'curatedGroup'"
+        v-if="listType === 'curatedGroupForOwner'"
         :id="`row-${rowIndex}-remove-student-from-curated-group`"
         class="btn btn-link"
         @click="removeFromCuratedGroup">
         <font-awesome icon="times-circle" class="font-size-24" />
       </button>
-      <div v-if="listType !== 'curatedGroup'">
+      <div v-if="listType === 'cohort'">
         <CuratedStudentCheckbox :student="student" />
       </div>
     </div>
