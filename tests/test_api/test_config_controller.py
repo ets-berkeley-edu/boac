@@ -156,12 +156,20 @@ class TestUpdateAnnouncement:
 
     def test_update_service_announcement(self, client, admin_session, announcement_published):
         """Admin can update the service announcement text."""
-        text = 'Papa was a rodeo'
+        text = """
+        Papa was a rodeo, Mama was a rock'n'roll band
+        I could play guitar and rope a steer before I learned to stand
+        Home was anywhere with diesel gas, Love was a trucker's hand
+        Never stuck around long enough for a one night stand
+        Before you kiss me you should know
+        Papa was a rodeo
+        """
         self._update_announcement(client, text=text)
         # Verify the update
         response = client.get('/api/service_announcement')
         assert response.status_code == 200
-        assert response.json == {'text': text, 'isPublished': True}
+        assert response.json.get('isPublished') is True
+        assert 'Home was anywhere with diesel gas, Love was a trucker\'s hand' in response.json.get('text')
 
 
 def _update_service_announcement(text, is_published):

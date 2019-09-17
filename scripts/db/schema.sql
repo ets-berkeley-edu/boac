@@ -464,7 +464,7 @@ ALTER TABLE ONLY json_cache
 CREATE TABLE tool_settings (
     id integer NOT NULL,
     key character varying NOT NULL,
-    value character varying NOT NULL,
+    value text NOT NULL,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL
 );
