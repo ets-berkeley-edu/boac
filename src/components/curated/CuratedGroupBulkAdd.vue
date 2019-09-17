@@ -99,7 +99,7 @@ export default {
         const split = this.split(trimmed, /[,\r\n\t ]+/);
         const notNumeric = this.partition(split, sid => /^\d+$/.test(this.trim(sid)))[1];
         if (notNumeric.length) {
-          this.error = '<strong>Error!</strong> The list provided has not been properly formatted. SIDs must be numeric and comma-separated.';
+          this.error = '<strong>Error!</strong> SIDs must be separated by commas, line breaks, or tabs.';
           this.putFocusNextTick('curated-group-bulk-add-sids');
         } else {
           this.isValidating = true;
