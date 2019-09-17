@@ -70,10 +70,28 @@ def add_university_dept_membership():
     membership = UniversityDeptMember.create_membership(
         university_dept=dept,
         authorized_user=user,
+        is_advisor=params.get('isAdvisor', False),
+        is_director=params.get('isDirector', False),
+        automate_membership=params.get('automateMembership', True),
+    )
+    return tolerant_jsonify(membership.to_api_json())
+
+
+@app.route('/api/user/dept_membership/update', methods=['POST'])
+@admin_required
+def update_university_dept_membership():
+    params = request.get_json() or {}
+    dept = UniversityDept.find_by_dept_code(params.get('deptCode', None))
+    user = AuthorizedUser.find_by_uid(params.get('uid', None))
+    membership = UniversityDeptMember.update_membership(
+        university_dept_id=dept.id,
+        authorized_user_id=user.id,
         is_advisor=params.get('isAdvisor', None),
         is_director=params.get('isDirector', None),
         automate_membership=params.get('automateMembership', None),
     )
+    if not membership:
+        raise errors.BadRequestError(f'Failed to update university dept membership: university_dept_id={dept.id} authorized_user_id={user.id}')
     return tolerant_jsonify(membership.to_api_json())
 
 
