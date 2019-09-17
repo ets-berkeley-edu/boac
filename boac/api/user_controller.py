@@ -30,6 +30,8 @@ from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
 from boac.merged import calnet
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.university_dept import UniversityDept
+from boac.models.university_dept_member import UniversityDeptMember
 from flask import current_app as app, request
 from flask_login import current_user, login_required
 
@@ -57,6 +59,35 @@ def calnet_profile(csid):
 @login_required
 def user_by_uid(uid):
     return tolerant_jsonify(calnet.get_calnet_user_for_uid(app, uid))
+
+
+@app.route('/api/user/dept_membership/add', methods=['POST'])
+@admin_required
+def add_university_dept_membership():
+    params = request.get_json() or {}
+    dept = UniversityDept.find_by_dept_code(params.get('deptCode', None))
+    user = AuthorizedUser.find_by_uid(params.get('uid', None))
+    membership = UniversityDeptMember.create_membership(
+        university_dept=dept,
+        authorized_user=user,
+        is_advisor=params.get('isAdvisor', None),
+        is_director=params.get('isDirector', None),
+        automate_membership=params.get('automateMembership', None),
+    )
+    return tolerant_jsonify(membership.to_api_json())
+
+
+@app.route('/api/user/dept_membership/delete/<university_dept_id>/<authorized_user_id>', methods=['DELETE'])
+@admin_required
+def delete_university_dept_membership(university_dept_id, authorized_user_id):
+    if not UniversityDeptMember.delete_membership(university_dept_id, authorized_user_id):
+        raise errors.ResourceNotFoundError(
+            f'University dept membership not found: university_dept_id={university_dept_id} authorized_user_id={authorized_user_id}',
+        )
+    return tolerant_jsonify(
+        {'message': f'University dept membership deleted: university_dept_id={university_dept_id} authorized_user_id={authorized_user_id}'},
+        status=200,
+    )
 
 
 @app.route('/api/users/authorized_groups')

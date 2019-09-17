@@ -29,8 +29,8 @@ from boac import std_commit
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.curated_group import CuratedGroup, CuratedGroupStudent
-from boac.models.db_relationships import UniversityDeptMember
 from boac.models.university_dept import UniversityDept
+from boac.models.university_dept_member import UniversityDeptMember
 import pytest
 from tests.test_api.api_test_utils import all_cohorts_owned_by
 
