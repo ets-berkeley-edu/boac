@@ -33,11 +33,17 @@ import simplejson as json
 admin_uid = '2040'
 asc_advisor_uid = '6446'
 coe_advisor_uid = '1133399'
+asc_and_coe_advisor_uid = '90412'
 
 
 @pytest.fixture()
 def asc_advisor(fake_auth):
     fake_auth.login(asc_advisor_uid)
+
+
+@pytest.fixture()
+def asc_and_coe_advisor(fake_auth):
+    fake_auth.login(asc_and_coe_advisor_uid)
 
 
 @pytest.fixture()
@@ -93,8 +99,8 @@ class TestGetCuratedGroup:
         """Anonymous user is rejected."""
         self._api_get_curated_group(client, asc_curated_groups[0].id, expected_status_code=401)
 
-    def test_unauthorized(self, asc_curated_groups, admin_user_session, client):
-        """403 if user does not own the group."""
+    def test_unauthorized(self, asc_curated_groups, coe_advisor, client):
+        """403 if user does not share a department membership with group owner."""
         self._api_get_curated_group(client, asc_curated_groups[0].id, expected_status_code=403)
 
     def test_curated_group_includes_alert_count(self, asc_advisor, asc_curated_groups, client, create_alerts):
@@ -115,6 +121,13 @@ class TestGetCuratedGroup:
         assert len(deborah['termGpa']) == 4
         assert deborah['termGpa'][0] == {'termName': 'Spring 2018', 'gpa': 2.9}
         assert deborah['termGpa'][3] == {'termName': 'Spring 2016', 'gpa': 3.8}
+
+    def test_view_permitted_shared_dept(self, asc_curated_groups, asc_and_coe_advisor, client):
+        """Advisor can view group if they share the group owner's department memberships."""
+        group = self._api_get_curated_group(client, asc_curated_groups[0].id)
+        assert group['students']
+        response = client.get(f'/api/curated_group/{asc_curated_groups[0].id}/students_with_alerts')
+        assert response.status_code == 200
 
     def test_curated_group_includes_students_without_alerts(
             self,
@@ -210,6 +223,23 @@ class TestGetCuratedGroup:
         assert api_json[0]['level'] == 'Junior'
         assert api_json[0]['termGpa'][0]['gpa'] == 2.9
         assert len(api_json[0]['majors']) == 2
+
+    def test_curated_groups_all(self, asc_and_coe_advisor, client):
+        """Returns all groups to which user has viewing access, per owner."""
+        response = client.get('/api/curated_groups/all')
+        assert response.status_code == 200
+        api_json = response.json
+        print(api_json)
+        count = len(api_json)
+        for index, entry in enumerate(api_json):
+            user = entry['user']
+            if 0 < index < count and user['name'] and api_json[index - 1]['user']['name']:
+                # Verify order
+                assert user['name'] > api_json[index - 1]['user']['name']
+            if user['uid'] == asc_advisor_uid or user['uid'] == coe_advisor_uid:
+                assert len(entry['groups'])
+                assert entry['groups'][0]['name']
+                assert entry['groups'][0]['studentCount']
 
 
 class TestMyCuratedGroups:
@@ -477,8 +507,8 @@ class TestDownloadCuratedGroupCSV:
         response = client.get(f'/api/curated_group/{asc_curated_groups[0].id}/download_csv')
         assert response.status_code == 401
 
-    def test_download_csv_unauthorized(self, asc_curated_groups, admin_user_session, client):
-        """403 if user does not own the group."""
+    def test_download_csv_unauthorized(self, asc_curated_groups, coe_advisor, client):
+        """403 if user does not share a department membership with group owner."""
         response = client.get(f'/api/curated_group/{asc_curated_groups[0].id}/download_csv')
         assert response.status_code == 403
 
@@ -493,6 +523,12 @@ class TestDownloadCuratedGroupCSV:
             'Deborah,Davies,11667051,oski@berkeley.edu,415/123-4567',
         ]:
             assert str(snippet) in csv
+
+    def test_download_csv_shared_dept(self, asc_curated_groups, asc_and_coe_advisor, client):
+        """Advisor can download CSV if they share the group owner's department memberships."""
+        response = client.get(f'/api/curated_group/{asc_curated_groups[0].id}/download_csv')
+        assert response.status_code == 200
+        assert 'csv' in response.content_type
 
 
 def _api_create_group(client, expected_status_code=200, name=None, sids=()):

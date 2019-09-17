@@ -57,6 +57,27 @@ class CuratedGroup(Base):
         return cls.query.filter_by(owner_id=owner_id).order_by(cls.name).all()
 
     @classmethod
+    def get_groups_owned_by_uids(cls, uids):
+        query = text(f"""
+            SELECT sg.id, sg.name, count(sgm.sid) AS student_count, au.uid AS owner_uid
+            FROM student_groups sg
+            JOIN student_group_members sgm ON sg.id = sgm.student_group_id
+            JOIN authorized_users au ON sg.owner_id = au.id
+            WHERE au.uid = ANY(:uids)
+            GROUP BY sg.id, sg.name, au.id, au.uid
+        """)
+        results = db.session.execute(query, {'uids': uids})
+
+        def transform(row):
+            return {
+                'id': row['id'],
+                'name': row['name'],
+                'studentCount': row['student_count'],
+                'ownerUid': row['owner_uid'],
+            }
+        return [transform(row) for row in results]
+
+    @classmethod
     def curated_group_ids_per_sid(cls, user_id, sid):
         query = text(f"""SELECT
             student_group_id as id

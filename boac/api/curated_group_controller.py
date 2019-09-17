@@ -27,8 +27,10 @@ from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotF
 from boac.api.util import get_my_curated_groups, response_with_students_csv_download
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker
-from boac.merged.student import get_summary_student_profiles
+from boac.merged import calnet
+from boac.merged.student import get_student_query_scope as get_query_scope, get_summary_student_profiles
 from boac.models.alert import Alert
+from boac.models.authorized_user import AuthorizedUser
 from boac.models.curated_group import CuratedGroup
 from flask import current_app as app, request
 from flask_cors import cross_origin
@@ -39,6 +41,25 @@ from flask_login import current_user, login_required
 @login_required
 def my_curated_groups():
     return tolerant_jsonify(get_my_curated_groups())
+
+
+@app.route('/api/curated_groups/all')
+@login_required
+def all_curated_groups():
+    scope = get_query_scope(current_user)
+    uids = AuthorizedUser.get_all_uids_in_scope(scope)
+    groups_per_uid = dict((uid, []) for uid in uids)
+    for group in CuratedGroup.get_groups_owned_by_uids(uids):
+        groups_per_uid[group['ownerUid']].append(group)
+    api_json = []
+    for uid, user in calnet.get_calnet_users_for_uids(app, uids).items():
+        groups = groups_per_uid[uid]
+        api_json.append({
+            'user': user,
+            'groups': sorted(groups, key=lambda g: g['name']),
+        })
+    api_json = sorted(api_json, key=lambda v: v['user']['name'] or f"UID: {v['user']['uid']}")
+    return tolerant_jsonify(api_json)
 
 
 @app.route('/api/curated_group/create', methods=['POST'])
@@ -87,8 +108,8 @@ def download_csv(curated_group_id):
     curated_group = CuratedGroup.find_by_id(curated_group_id)
     if not curated_group:
         raise ResourceNotFoundError(f'No curated group found with id: {curated_group_id}')
-    if curated_group.owner_id != current_user.get_id():
-        raise ForbiddenRequestError(f'Current user, {current_user.get_uid()}, does not own curated group {curated_group.id}')
+    if not _can_current_user_view_curated_group(curated_group):
+        raise ForbiddenRequestError(f'Current user, {current_user.get_uid()}, cannot view curated group {curated_group.id}')
     return response_with_students_csv_download(sids=CuratedGroup.get_all_sids(curated_group_id), benchmark=benchmark)
 
 
@@ -102,8 +123,8 @@ def get_students_with_alerts(curated_group_id):
     curated_group = CuratedGroup.find_by_id(curated_group_id)
     if not curated_group:
         raise ResourceNotFoundError(f'Sorry, no curated group found with id {curated_group_id}.')
-    if curated_group.owner_id != current_user.get_id():
-        raise ForbiddenRequestError(f'Current user, {current_user.get_uid()}, does not own curated group {curated_group.id}')
+    if not _can_current_user_view_curated_group(curated_group):
+        raise ForbiddenRequestError(f'Current user, {current_user.get_uid()}, cannot view curated group {curated_group.id}')
     benchmark('begin alerts query')
     students = Alert.include_alert_counts_for_students(
         viewer_user_id=current_user.get_id(),
@@ -189,8 +210,8 @@ def _curated_group_with_complete_student_profiles(curated_group_id, order_by='la
     curated_group = CuratedGroup.find_by_id(curated_group_id)
     if not curated_group:
         raise ResourceNotFoundError(f'Sorry, no curated group found with id {curated_group_id}.')
-    if curated_group.owner_id != current_user.get_id():
-        raise ForbiddenRequestError(f'Current user, {current_user.get_uid()}, does not own curated group {curated_group.id}')
+    if not _can_current_user_view_curated_group(curated_group):
+        raise ForbiddenRequestError(f'Current user, {current_user.get_uid()}, cannot view curated group {curated_group.id}')
     api_json = curated_group.to_api_json(order_by=order_by, offset=offset, limit=limit)
     sids = [s['sid'] for s in api_json['students']]
     benchmark('begin profile query')
@@ -199,3 +220,13 @@ def _curated_group_with_complete_student_profiles(curated_group_id, order_by='la
     Alert.include_alert_counts_for_students(viewer_user_id=current_user.get_id(), group=api_json)
     benchmark('end')
     return api_json
+
+
+def _can_current_user_view_curated_group(curated_group):
+    if current_user.is_admin:
+        return True
+    owner = AuthorizedUser.find_by_id(curated_group.owner_id)
+    if not owner:
+        return False
+    curated_group_dept_codes = [m.university_dept.dept_code for m in owner.department_memberships]
+    return set(current_user.dept_codes).issuperset(curated_group_dept_codes)

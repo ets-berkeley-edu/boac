@@ -80,6 +80,12 @@ export function getMyCuratedGroups() {
     .then(response => response.data, () => null);
 }
 
+export function getUsersWithGroups() {
+  return axios
+    .get(`${utils.apiBaseUrl()}/api/curated_groups/all`)
+    .then(response => response.data, () => null);
+}
+
 export function removeFromCuratedGroup(groupId, sid) {
   return axios
     .delete(`${utils.apiBaseUrl()}/api/curated_group/${groupId}/remove_student/${sid}`)
