@@ -37,5 +37,5 @@ class TestMergedStudent:
 
         assert len(profiles['students']) == 1
         assert profiles['students'][0]['cumulativeUnits'] == 101.3
-        assert profiles['students'][0]['currentTerm']['unitsMaxOverride'] == 25
-        assert profiles['students'][0]['currentTerm']['unitsMinOverride'] == 0
+        assert profiles['students'][0]['currentTerm']['unitsMax'] == 25
+        assert profiles['students'][0]['currentTerm']['unitsMin'] == 0
