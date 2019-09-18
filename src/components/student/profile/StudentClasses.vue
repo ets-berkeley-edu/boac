@@ -223,16 +223,19 @@ v-if="section.isViewableOnCoursePage"
           <div class="student-course-heading-units-total">
             <span>Total {{ term.enrolledUnits }}</span>
             <span class="sr-only">units</span>
+            <!--
+            TODO: Until SISRP-48560 is resolved we will suppress unitsMin and unitsMax data in BOA.
             <span
-              v-if="currentEnrollmentTermId === parseInt(term.termId) && get(student, 'sisProfile.currentTerm.unitsMinOverride')"
+              v-if="currentEnrollmentTermId === parseInt(term.termId) && get(student, 'sisProfile.currentTerm.unitsMin')"
               class="student-course-heading-units-override">
-              <span>Min&nbsp;Approved </span><span :id="`term-${term.termId}-min-units`">{{ student.sisProfile.currentTerm.unitsMinOverride }}</span>
+              <span>Min&nbsp;Approved </span><span :id="`term-${term.termId}-min-units`">{{ student.sisProfile.currentTerm.unitsMin }}</span>
             </span>
             <span
-              v-if="currentEnrollmentTermId === parseInt(term.termId) && get(student, 'sisProfile.currentTerm.unitsMaxOverride')"
+              v-if="currentEnrollmentTermId === parseInt(term.termId) && get(student, 'sisProfile.currentTerm.unitsMax')"
               class="student-course-heading-units-override">
-              <span>Max&nbsp;Approved </span><span :id="`term-${term.termId}-max-units`">{{ student.sisProfile.currentTerm.unitsMaxOverride }}</span>
+              <span>Max&nbsp;Approved </span><span :id="`term-${term.termId}-max-units`">{{ student.sisProfile.currentTerm.unitsMax }}</span>
             </span>
+            -->
           </div>
         </div>
       </div>
