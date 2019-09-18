@@ -135,14 +135,17 @@
     <div class="student-column">
       <div :id="`row-${rowIndex}-student-enrolled-units`" class="student-gpa">{{ get(student.term, 'enrolledUnits', 0) }}</div>
       <div class="student-text">Units in Progress</div>
-      <div v-if="get(student, 'currentTerm.unitsMinOverride')">
-        <div :id="`row-${rowIndex}-student-min-units`" class="student-gpa">{{ student.currentTerm.unitsMinOverride }}</div>
+      <!--
+      TODO: Until SISRP-48560 is resolved we will suppress unitsMin and unitsMax data in BOA.
+      <div v-if="get(student, 'currentTerm.unitsMin')">
+        <div :id="`row-${rowIndex}-student-min-units`" class="student-gpa">{{ student.currentTerm.unitsMin }}</div>
         <div class="student-text">Min&nbsp;Approved</div>
       </div>
-      <div v-if="get(student, 'currentTerm.unitsMaxOverride')">
-        <div :id="`row-${rowIndex}-student-max-units`" class="student-gpa">{{ student.currentTerm.unitsMaxOverride }}</div>
+      <div v-if="get(student, 'currentTerm.unitsMax')">
+        <div :id="`row-${rowIndex}-student-max-units`" class="student-gpa">{{ student.currentTerm.unitsMax }}</div>
         <div class="student-text">Max&nbsp;Approved</div>
       </div>
+      -->
       <div
         v-if="student.cumulativeUnits"
         :id="`row-${rowIndex}-student-cumulative-units`"
