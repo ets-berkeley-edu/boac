@@ -211,9 +211,10 @@ def get_summary_student_profiles(sids, include_historical=False, term_id=None):
     term_gpas = get_term_gpas_by_sid(sids)
     benchmark('end term GPA query')
 
-    if include_historical:
+    remaining_sids = list(set(sids) - set([p.get('sid') for p in profiles]))
+    if len(remaining_sids) and include_historical:
         benchmark('begin historical profile supplement')
-        historical_profile_rows = data_loch.get_historical_student_profiles_for_sids(sids)
+        historical_profile_rows = data_loch.get_historical_student_profiles_for_sids(remaining_sids)
 
         def _historicize_profile(row):
             return {
@@ -229,7 +230,7 @@ def get_summary_student_profiles(sids, include_historical=False, term_id=None):
         for historical_profile in historical_profiles:
             ManuallyAddedAdvisee.find_or_create(historical_profile['sid'])
         profiles += historical_profiles
-        historical_enrollments_for_term = data_loch.get_historical_enrollments_for_term(term_id, sids)
+        historical_enrollments_for_term = data_loch.get_historical_enrollments_for_term(term_id, remaining_sids)
         for row in historical_enrollments_for_term:
             enrollments_by_sid[row['sid']] = json.loads(row['enrollment_term'])
         benchmark('end historical profile supplement')
