@@ -23,9 +23,14 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import datetime
 
 from boac.models.authorized_user import AuthorizedUser
 import pytest
+
+unknown_uid = 'Ms. X'
+admin_uid = '2040'
+coe_advisor_uid = '1133399'
 
 
 @pytest.mark.usefixtures('db_session')
@@ -34,12 +39,10 @@ class TestAuthorizedUser:
 
     def test_load_unknown_user(self):
         """Returns None to Flask-Login for unrecognized UID."""
-        unknown_uid = 'Ms. X'
         assert AuthorizedUser.find_by_uid(unknown_uid) is None
 
     def test_load_admin_user(self):
         """Returns authorization record to Flask-Login for recognized UID."""
-        admin_uid = '2040'
         loaded_user = AuthorizedUser.find_by_uid(admin_uid)
         assert loaded_user.uid == admin_uid
         assert loaded_user.is_admin
@@ -48,3 +51,34 @@ class TestAuthorizedUser:
         owners = loaded_user.cohort_filters[0].owners
         assert len(owners) > 0
         assert loaded_user in owners
+
+    def test_create_or_restore_deleted(self):
+        """Restores a deleted user to a non-deleted state, updating with any passed-in attributes."""
+        user = AuthorizedUser.find_by_uid(uid=coe_advisor_uid)
+        user.created_by = '0'
+        user.deleted_at = datetime.now()
+        assert user.can_access_canvas_data is True
+
+        restored_user = AuthorizedUser.create_or_restore(coe_advisor_uid, created_by=admin_uid, can_access_canvas_data=False)
+        assert restored_user.can_access_canvas_data is False
+        assert restored_user.created_by == admin_uid
+        assert restored_user.deleted_at is None
+
+    def test_create_or_restore_existing(self):
+        """Updates an existing user, replacing existing attributes that are False with any attributes passed in as True."""
+        user = AuthorizedUser.find_by_uid(uid=admin_uid)
+        user.can_access_canvas_data = False
+        user.created_by = admin_uid
+
+        updated_user = AuthorizedUser.create_or_restore(admin_uid, created_by='0', is_admin=False, can_access_canvas_data=True)
+        assert updated_user.is_admin is True
+        assert updated_user.can_access_canvas_data is True
+        assert updated_user.created_by == '0'
+
+    def test_create_or_restore_new(self):
+        """Creates a new user if it doesn't already exist."""
+        new_user = AuthorizedUser.create_or_restore(unknown_uid, created_by='0', is_admin=False, can_access_canvas_data=False)
+        assert new_user.is_admin is False
+        assert new_user.can_access_canvas_data is False
+        assert new_user.in_demo_mode is False
+        assert new_user.created_by == '0'

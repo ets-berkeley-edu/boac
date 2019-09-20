@@ -218,6 +218,7 @@ def load_development_data():
         if not user:
             user = AuthorizedUser(
                 uid=uid,
+                created_by='2040',
                 is_admin=test_user[2],
                 in_demo_mode=test_user[3],
                 can_access_canvas_data=test_user[4],

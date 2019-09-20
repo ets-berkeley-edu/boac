@@ -149,7 +149,7 @@ class TestRefreshDepartmentMemberships:
     def test_removes_coe_advisors(self, app):
         """Removes COE advisors not found in the loch."""
         dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
-        bad_user = AuthorizedUser.create_or_restore(uid='666')
+        bad_user = AuthorizedUser.create_or_restore(uid='666', created_by='0')
         UniversityDeptMember.create_membership(dept_coe, bad_user, is_advisor=True, is_director=False)
         std_commit(allow_test_environment=True)
 
@@ -169,7 +169,7 @@ class TestRefreshDepartmentMemberships:
 
     def test_respects_automate_memberships_flag(self, app, db):
         dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
-        manually_added_user = AuthorizedUser.create_or_restore(uid='1024')
+        manually_added_user = AuthorizedUser.create_or_restore(uid='1024', created_by='0')
         manual_membership = UniversityDeptMember.create_membership(
             dept_coe,
             manually_added_user,

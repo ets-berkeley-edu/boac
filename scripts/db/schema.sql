@@ -84,13 +84,14 @@ CREATE INDEX alerts_sid_idx ON alerts USING btree (sid);
 --
 
 CREATE TABLE authorized_users (
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL,
     id integer NOT NULL,
     uid character varying(255) NOT NULL,
     is_admin boolean,
     in_demo_mode boolean DEFAULT false NOT NULL,
     can_access_canvas_data boolean DEFAULT true NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    created_by character varying(255) NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
     deleted_at timestamp with time zone
 );
 ALTER TABLE authorized_users OWNER TO boac;

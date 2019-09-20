@@ -37,6 +37,7 @@ class AuthorizedUser(Base):
     is_admin = db.Column(db.Boolean)
     in_demo_mode = db.Column(db.Boolean, nullable=False)
     can_access_canvas_data = db.Column(db.Boolean, nullable=False)
+    created_by = db.Column(db.String(255), nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
     department_memberships = db.relationship(
         'UniversityDeptMember',
@@ -55,8 +56,9 @@ class AuthorizedUser(Base):
         lazy='joined',
     )
 
-    def __init__(self, uid, is_admin=False, in_demo_mode=False, can_access_canvas_data=True):
+    def __init__(self, uid, created_by, is_admin=False, in_demo_mode=False, can_access_canvas_data=True):
         self.uid = uid
+        self.created_by = created_by
         self.is_admin = is_admin
         self.in_demo_mode = in_demo_mode
         self.can_access_canvas_data = can_access_canvas_data
@@ -66,19 +68,21 @@ class AuthorizedUser(Base):
                     is_admin={self.is_admin},
                     in_demo_mode={self.in_demo_mode},
                     can_access_canvas_data={self.can_access_canvas_data},
-                    updated={self.updated_at},
                     created={self.created_at},
+                    created_by={self.created_by},
+                    updated={self.updated_at},
                     deleted={self.deleted_at}>
                 """
 
     @classmethod
-    def create_or_restore(cls, uid, is_admin=False, can_access_canvas_data=True):
+    def create_or_restore(cls, uid, created_by, is_admin=False, can_access_canvas_data=True):
         existing_user = cls.query.filter_by(uid=uid).first()
         if existing_user:
             # If restoring a previously deleted user, respect passed-in attributes.
             if existing_user.deleted_at:
                 existing_user.is_admin = is_admin
                 existing_user.can_access_canvas_data = can_access_canvas_data
+                existing_user.created_by = created_by
                 existing_user.deleted_at = None
             # If the user currently exists in a non-deleted state, attributes passed in as True
             # should replace existing attributes set to False, but not vice versa.
@@ -87,10 +91,12 @@ class AuthorizedUser(Base):
                     existing_user.can_access_canvas_data = True
                 if is_admin and not existing_user.is_admin:
                     existing_user.is_admin = True
+                existing_user.created_by = created_by
             user = existing_user
         else:
             user = cls(
                 uid=uid,
+                created_by=created_by,
                 is_admin=is_admin,
                 in_demo_mode=False,
                 can_access_canvas_data=can_access_canvas_data,
