@@ -51,15 +51,22 @@ class UniversityDeptMember(Base):
     university_dept = db.relationship(UniversityDept.__name__, back_populates='authorized_users')
 
     @classmethod
-    def create_membership(cls, university_dept, authorized_user, is_advisor, is_director, automate_membership=True):
-        mapping = cls(is_advisor=is_advisor, is_director=is_director, automate_membership=automate_membership)
-        mapping.authorized_user = authorized_user
-        mapping.university_dept = university_dept
-        authorized_user.department_memberships.append(mapping)
-        university_dept.authorized_users.append(mapping)
-        db.session.add(mapping)
+    def create_or_update_membership(cls, university_dept, authorized_user, is_advisor, is_director, automate_membership=True):
+        existing_membership = cls.query.filter_by(university_dept_id=university_dept.id, authorized_user_id=authorized_user.id).first()
+        if existing_membership:
+            membership = existing_membership
+            membership.is_advisor = is_advisor
+            membership.is_director = is_director
+            membership.automate_membership = automate_membership
+        else:
+            membership = cls(is_advisor=is_advisor, is_director=is_director, automate_membership=automate_membership)
+            membership.authorized_user = authorized_user
+            membership.university_dept = university_dept
+            authorized_user.department_memberships.append(membership)
+            university_dept.authorized_users.append(membership)
+        db.session.add(membership)
         std_commit()
-        return mapping
+        return membership
 
 
 # Alert views are represented as a model class because they contain 'created_at' and 'dismissed_at' metadata in

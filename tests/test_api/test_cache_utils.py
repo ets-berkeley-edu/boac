@@ -150,7 +150,7 @@ class TestRefreshDepartmentMemberships:
         """Removes COE advisors not found in the loch."""
         dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
         bad_user = AuthorizedUser.create_or_restore(uid='666')
-        UniversityDeptMember.create_membership(dept_coe, bad_user, is_advisor=True, is_director=False)
+        UniversityDeptMember.create_or_update_membership(dept_coe, bad_user, is_advisor=True, is_director=False)
         std_commit(allow_test_environment=True)
 
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
@@ -170,7 +170,7 @@ class TestRefreshDepartmentMemberships:
     def test_respects_automate_memberships_flag(self, app, db):
         dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
         manually_added_user = AuthorizedUser.create_or_restore(uid='1024')
-        manual_membership = UniversityDeptMember.create_membership(
+        manual_membership = UniversityDeptMember.create_or_update_membership(
             dept_coe,
             manually_added_user,
             is_advisor=True,
@@ -198,6 +198,25 @@ class TestRefreshDepartmentMemberships:
         assert len(coe_users) == 4
         assert next((u for u in coe_users if u.uid == '1024'), None) is None
         assert AuthorizedUser.query.filter_by(uid='1024').first().deleted_at
+
+    def test_replaces_non_automated_user_with_automated_user(self, app, db):
+        from boac.api.cache_utils import refresh_department_memberships
+        refresh_department_memberships()
+        std_commit(allow_test_environment=True)
+        authorized_user_id = AuthorizedUser.query.filter_by(uid='1133397').first().id
+
+        memberships = UniversityDeptMember.query.filter_by(authorized_user_id=authorized_user_id).all()
+        assert len(memberships) == 1
+        memberships[0].automate_membership = False
+        std_commit(allow_test_environment=True)
+
+        from boac.api.cache_utils import refresh_department_memberships
+        refresh_department_memberships()
+        std_commit(allow_test_environment=True)
+
+        memberships = UniversityDeptMember.query.filter_by(authorized_user_id=authorized_user_id).all()
+        assert len(memberships) == 1
+        assert memberships[0].automate_membership is True
 
     def test_adds_l_s_advisors(self, app):
         """Adds L&S minor advisors who have no other affiliations to the correct dept."""
