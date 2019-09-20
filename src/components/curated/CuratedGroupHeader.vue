@@ -198,7 +198,7 @@ export default {
       if (this.renameError) {
         this.putFocusNextTick('rename-input');
       } else {
-        this.renameCuratedGroup(this.curatedGroupId, this.renameInput).then(() => {
+        this.renameCuratedGroup(this.renameInput).then(() => {
           this.setPageTitle(this.renameInput);
           this.exitRenameMode();
           this.putFocusNextTick('curated-group-name');
