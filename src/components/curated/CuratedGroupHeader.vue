@@ -7,8 +7,8 @@
           ref="pageHeader"
           class="page-section-header mt-0"
           tabindex="0">
-          <span>{{ curatedGroup.name || 'Curated Group' }}</span>
-          <span class="faint-text"> (<span>{{ 'student' | pluralize(curatedGroup.studentCount, {1: '1'}) }}</span>)</span>
+          <span>{{ curatedGroupName || 'Curated Group' }}</span>
+          <span v-if="!isNil(totalStudentCount)" class="faint-text"> (<span>{{ 'student' | pluralize(totalStudentCount, {1: '1'}) }}</span>)</span>
         </h1>
       </div>
       <div v-if="mode === 'rename'" class="w-100 mr-3">
@@ -94,7 +94,7 @@
               <h3>Delete Curated Group</h3>
             </div>
             <div id="confirm-delete-body" class="modal-body curated-cohort-label">
-              Are you sure you want to delete "<strong>{{ curatedGroup.name }}</strong>"?
+              Are you sure you want to delete "<strong>{{ curatedGroupName }}</strong>"?
             </div>
             <div slot="modal-footer">
               <b-btn
@@ -118,7 +118,7 @@
           <b-btn
             id="export-student-list-button"
             variant="link"
-            :disabled="!exportEnabled || !curatedGroup.studentCount"
+            :disabled="!exportEnabled || !totalStudentCount"
             aria-label="Download CSV file containing all students"
             @click="downloadCsv()">
             Export List
@@ -130,21 +130,17 @@
 </template>
 
 <script>
+import CuratedEditSession from '@/mixins/CuratedEditSession';
 import Loading from '@/mixins/Loading.vue';
 import router from '@/router';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import Validator from '@/mixins/Validator.vue';
-import { deleteCuratedGroup, downloadCuratedGroupCsv, renameCuratedGroup } from '@/api/curated';
+import { deleteCuratedGroup, downloadCuratedGroupCsv } from '@/api/curated';
 
 export default {
   name: 'CuratedGroupHeader',
-  mixins: [Loading, UserMetadata, Util, Validator],
-  props: {
-    'curatedGroup': Object,
-    'mode': String,
-    'setMode': Function
-  },
+  mixins: [CuratedEditSession, Loading, UserMetadata, Util, Validator],
   data: () => ({
     exportEnabled: true,
     isModalOpen: false,
@@ -153,7 +149,7 @@ export default {
   }),
   computed: {
     isOwnedByCurrentUser() {
-      return this.curatedGroup.ownerId === this.user.id;
+      return this.ownerId === this.user.id;
     }
   },
   watch: {
@@ -170,7 +166,7 @@ export default {
       this.setMode('bulkAdd');
     },
     enterRenameMode() {
-      this.renameInput = this.curatedGroup.name;
+      this.renameInput = this.curatedGroupName;
       this.setMode('rename');
       this.putFocusNextTick('rename-input');
     },
@@ -180,7 +176,7 @@ export default {
       this.putFocusNextTick('curated-group-name');
     },
     deleteGroup() {
-      deleteCuratedGroup(this.curatedGroup.id)
+      deleteCuratedGroup(this.curatedGroupId)
         .then(() => {
           this.isModalOpen = false;
           router.push({ path: '/home' });
@@ -191,7 +187,7 @@ export default {
     },
     downloadCsv() {
       this.exportEnabled = false;
-      downloadCuratedGroupCsv(this.curatedGroup.id, this.curatedGroup.name).then(() => {
+      downloadCuratedGroupCsv(this.curatedGroupId, this.curatedGroupName).then(() => {
         this.exportEnabled = true;
       });
     },
@@ -202,9 +198,8 @@ export default {
       if (this.renameError) {
         this.putFocusNextTick('rename-input');
       } else {
-        renameCuratedGroup(this.curatedGroup.id, this.renameInput).then(() => {
-          this.curatedGroup.name = this.renameInput;
-          this.setPageTitle(this.curatedGroup.name);
+        this.renameCuratedGroup(this.curatedGroupId, this.renameInput).then(() => {
+          this.setPageTitle(this.renameInput);
           this.exitRenameMode();
           this.putFocusNextTick('curated-group-name');
         });

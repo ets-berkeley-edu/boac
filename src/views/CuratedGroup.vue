@@ -2,36 +2,37 @@
   <div class="m-3">
     <Spinner />
     <div v-if="!loading">
-      <CuratedGroupHeader :curated-group="curatedGroup" :mode="mode" :set-mode="setMode" />
+      <CuratedGroupHeader />
       <div v-show="mode !== 'bulkAdd'">
-        <hr v-if="!error && curatedGroup.studentCount" class="filters-section-separator" />
+        <hr v-if="!error && totalStudentCount" class="filters-section-separator" />
         <div class="cohort-column-results">
-          <div v-if="curatedGroup.studentCount > 1" class="d-flex m-2">
+          <div v-if="totalStudentCount > 1" class="d-flex m-2">
             <div class="cohort-list-header-column-01"></div>
             <div class="cohort-list-header-column-02">
-              <SortBy v-if="curatedGroup.studentCount > 1" />
+              <SortBy v-if="totalStudentCount > 1" />
             </div>
           </div>
-          <div v-if="size(curatedGroup.students)">
+          <div v-if="size(students)">
             <div id="curated-cohort-students" class="list-group">
               <StudentRow
-                v-for="(student, index) in curatedGroup.students"
+                v-for="(student, index) in students"
                 :id="`student-${student.uid}`"
                 :key="student.sid"
+                :remove-student="removeStudent"
                 :row-index="index"
                 :student="student"
-                :list-type="curatedGroup.ownerId === user.id ? 'curatedGroupForOwner' : 'curatedGroup'"
+                :list-type="ownerId === user.id ? 'curatedGroupForOwner' : 'curatedGroup'"
                 :sorted-by="preferences.sortBy"
                 class="list-group-item student-list-item"
                 :class="{'list-group-item-info' : anchor === `#${student.uid}`}" />
             </div>
-            <div v-if="curatedGroup.studentCount > itemsPerPage" class="p-3">
+            <div v-if="totalStudentCount > itemsPerPage" class="p-3">
               <Pagination
-                :click-handler="goToPage"
+                :click-handler="onClickPagination"
                 :init-page-number="pageNumber"
                 :limit="10"
                 :per-page="itemsPerPage"
-                :total-rows="curatedGroup.studentCount" />
+                :total-rows="totalStudentCount" />
             </div>
           </div>
         </div>
@@ -41,7 +42,7 @@
         <div class="w-75">
           Type or paste a list of Student Identification (SID) numbers below. Example: 9999999990, 9999999991
         </div>
-        <CuratedGroupBulkAdd :bulk-add-sids="bulkAddSids" :curated-group-id="curatedGroup.id" />
+        <CuratedGroupBulkAdd :bulk-add-sids="bulkAddSids" :curated-group-id="curatedGroupId" />
       </div>
     </div>
   </div>
@@ -49,18 +50,17 @@
 
 <script>
 import Context from '@/mixins/Context';
-import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
+import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue';
+import CuratedEditSession from '@/mixins/CuratedEditSession';
 import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader';
 import Loading from '@/mixins/Loading';
 import Pagination from '@/components/util/Pagination';
 import Scrollable from '@/mixins/Scrollable';
 import SortBy from '@/components/student/SortBy';
 import Spinner from '@/components/util/Spinner';
-import store from '@/store';
 import StudentRow from '@/components/student/StudentRow';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
-import { addStudents, getCuratedGroup, removeFromCuratedGroup } from '@/api/curated';
 
 export default {
   name: 'CuratedGroup',
@@ -72,39 +72,49 @@ export default {
     Spinner,
     StudentRow
   },
-  mixins: [Context, Loading, Scrollable, UserMetadata, Util],
+  mixins: [Context, CuratedEditSession, Loading, Scrollable, UserMetadata, Util],
   props: {
-    id: [String, Number]
+    id: {
+      required: true,
+      type: [String, Number]
+    }
   },
   data: () => ({
-    curatedGroup: {},
-    error: undefined,
-    itemsPerPage: 50,
-    pageNumber: undefined,
-    mode: undefined
+    error: undefined
   }),
   computed: {
     anchor: () => location.hash
   },
   created() {
     this.setUserPreference({key: 'sortBy', value: 'last_name'});
-    this.goToPage(1);
-    this.$eventHub.$on('curated-group-remove-student', sid => {
-      this.curatedGroup.studentCount = this.curatedGroup.studentCount - 1;
-      let deleteIndex = this.curatedGroup.students.findIndex(student => student.sid === sid);
-      this.curatedGroup.students.splice(deleteIndex, 1);
-      removeFromCuratedGroup(this.curatedGroup.id, sid).then(() => {
-        store.commit('curated/updateCuratedGroup', this.curatedGroup);
-      });
+    this.init(parseInt(this.id)).then(group => {
+      if (group) {
+        this.loaded();
+        this.setPageTitle(this.curatedGroupName);
+        this.putFocusNextTick('curated-group-name');
+        if (this.pageNumber > 1) {
+          this.screenReaderAlert = `Go to page ${this.pageNumber}`;
+          this.gaCuratedEvent({
+            id: this.curatedGroupId,
+            name: this.curatedGroupName,
+            action: this.screenReaderAlert
+          });
+        }
+      } else {
+        this.$router.push({ path: '/404' });
+      }
     });
     this.$eventHub.$on('sortBy-user-preference-change', sortBy => {
       if (!this.loading) {
-        this.goToPage(1);
-        this.screenReaderAlert = `Sort students by ${sortBy}`;
-        this.gaCuratedEvent({
-          id: this.curatedGroup.id,
-          name: this.curatedGroup.name,
-          action: this.screenReaderAlert
+        this.loadingStart();
+        this.goToPage(1).then(() => {
+          this.loaded();
+          this.screenReaderAlert = `Students sorted by ${sortBy}`;
+          this.gaCuratedEvent({
+            id: this.curatedGroupId,
+            name: this.curatedGroupName,
+            action: this.screenReaderAlert
+          });
         });
       }
     });
@@ -122,55 +132,37 @@ export default {
   },
   methods: {
     bulkAddSids(sids) {
-      this.mode = undefined;
+      this.setMode(undefined);
       if (this.size(sids)) {
         this.alertScreenReader(`Adding ${sids.length} students`);
-        this.pageNumber = 1;
         this.setUserPreference({key: 'sortBy', value: 'last_name'});
         this.loadingStart();
-        addStudents(this.curatedGroup, sids, true)
-          .then(group => {
-            this.curatedGroup = group;
-            this.loaded();
-            this.putFocusNextTick('curated-group-name');
-            this.alertScreenReader(`${sids.length} students added to group '${this.curatedGroup.name}'`);
-            this.gaCuratedEvent({
-              id: this.curatedGroup.id,
-              name: this.curatedGroup.name,
-              action: 'Update curated group with bulk-add SIDs'
-            });
+        this.addStudents(sids).then(() => {
+          this.loaded();
+          this.putFocusNextTick('curated-group-name');
+          this.alertScreenReader(`${sids.length} students added to group '${this.name}'`);
+          this.gaCuratedEvent({
+            id: this.curatedGroupId,
+            name: this.curatedGroupName,
+            action: 'Update curated group with bulk-add SIDs'
           });
+        });
       } else {
-        this.mode = undefined;
         this.alertScreenReader('Cancelled bulk add of students');
         this.putFocusNextTick('curated-group-name');
       }
     },
-    goToPage(page) {
-      this.pageNumber = page;
-      if (page > 1) {
-        this.screenReaderAlert = `Go to page ${page}`;
+    onClickPagination(pageNumber) {
+      this.loadingStart();
+      this.goToPage(pageNumber).then(() => {
+        this.loaded();
+        this.screenReaderAlert = `Page ${pageNumber} of cohort ${this.curatedGroupName}`;
         this.gaCuratedEvent({
-          id: this.curatedGroup.id,
-          name: this.curatedGroup.name,
+          id: this.curatedGroupId,
+          name: this.curatedGroupName,
           action: this.screenReaderAlert
         });
-      }
-      this.loadingStart();
-      let offset = this.multiply(this.pageNumber - 1, this.itemsPerPage);
-      getCuratedGroup(this.id, this.preferences.sortBy, offset, this.itemsPerPage).then(data => {
-        if (data) {
-          this.curatedGroup = data;
-          this.setPageTitle(this.curatedGroup.name);
-          this.loaded();
-          this.putFocusNextTick('curated-group-name');
-        } else {
-          this.$router.push({ path: '/404' });
-        }
       });
-    },
-    setMode(mode) {
-      this.mode = mode;
     }
   }
 };

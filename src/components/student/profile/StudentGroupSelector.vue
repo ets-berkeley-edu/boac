@@ -162,7 +162,7 @@ export default {
             action: `Student profile: Added SID ${this.sid}`
           });
         };
-        addStudents(group, [this.sid]).finally(() => setTimeout(done, 2000));
+        addStudents(group.id, [this.sid]).finally(() => setTimeout(done, 2000));
       }
     },
     modalCreateGroup(name) {
