@@ -3,10 +3,10 @@ import moment from 'moment-timezone';
 import store from '@/store';
 import utils from '@/api/api-utils';
 
-export function addStudents(curatedGroup: any, sids: string[], returnStudentProfiles: boolean) {
+export function addStudents(curatedGroupId: number, sids: string[], returnStudentProfiles?: boolean) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/curated_group/students/add`, {
-      curatedGroupId: curatedGroup.id,
+      curatedGroupId: curatedGroupId,
       sids: sids,
       returnStudentProfiles: returnStudentProfiles
     })
@@ -100,25 +100,25 @@ export function removeFromCuratedGroup(groupId, sid) {
         name: group.name,
         action: 'remove_student'
       });
+      return group;
     });
 }
 
 export function renameCuratedGroup(id, name) {
-  let group = {
-    id: id,
-    name: name
-  };
   return axios
-    .post(`${utils.apiBaseUrl()}/api/curated_group/rename`, group)
-    .then(() => {
+    .post(`${utils.apiBaseUrl()}/api/curated_group/rename`, {id: id, name: name})
+    .then(response => {
+      const group = response.data;
       store.commit('curated/updateCuratedGroup', group);
+      return group;
     })
-    .then(() => {
+    .then(group => {
       store.dispatch('user/gaCuratedEvent', {
         id: group.id,
         name: group.name,
         action: 'rename'
       });
+      return group;
     })
     .catch(error => error);
 }

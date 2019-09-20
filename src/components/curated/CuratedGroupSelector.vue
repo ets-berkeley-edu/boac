@@ -162,7 +162,7 @@ export default {
       };
       const done = () => (this.isSaving = false);
       this.isSaving = true;
-      addStudents(group, this.sids)
+      addStudents(group.id, this.sids)
         .then(afterAddStudents)
         .finally(() => setTimeout(done, 2000));
     },

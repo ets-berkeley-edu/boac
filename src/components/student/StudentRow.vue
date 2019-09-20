@@ -7,7 +7,7 @@
         v-if="listType === 'curatedGroupForOwner'"
         :id="`row-${rowIndex}-remove-student-from-curated-group`"
         class="btn btn-link"
-        @click="removeFromCuratedGroup">
+        @click="removeStudent(student.sid)">
         <font-awesome icon="times-circle" class="font-size-24" />
       </button>
       <div v-if="listType === 'cohort'">
@@ -254,10 +254,27 @@ export default {
     Util
   ],
   props: {
-    listType: String,
-    rowIndex: Number,
-    student: Object,
-    sortedBy: String
+    listType: {
+      required: true,
+      type: String
+    },
+    removeStudent: {
+      required: false,
+      default: () => {},
+      type: Function
+    },
+    rowIndex: {
+      required: true,
+      type: Number
+    },
+    sortedBy: {
+      required: true,
+      type: String
+    },
+    student: {
+      required: true,
+      type: Object
+    }
   },
   computed: {
     degreePlanOwners() {
@@ -267,11 +284,6 @@ export default {
       } else {
         return [];
       }
-    }
-  },
-  methods: {
-    removeFromCuratedGroup: function() {
-      this.$eventHub.$emit('curated-group-remove-student', this.student.sid);
     }
   }
 };
