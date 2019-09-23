@@ -229,7 +229,7 @@ def load_development_data():
         db.session.add(university_dept)
         for user in dept_membership['users']:
             authorized_user = AuthorizedUser.find_by_uid(user['uid'])
-            UniversityDeptMember.create_membership(
+            UniversityDeptMember.create_or_update_membership(
                 university_dept,
                 authorized_user,
                 user['is_advisor'],
