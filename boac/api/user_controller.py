@@ -67,7 +67,7 @@ def add_university_dept_membership():
     params = request.get_json() or {}
     dept = UniversityDept.find_by_dept_code(params.get('deptCode', None))
     user = AuthorizedUser.find_by_uid(params.get('uid', None))
-    membership = UniversityDeptMember.create_membership(
+    membership = UniversityDeptMember.create_or_update_membership(
         university_dept=dept,
         authorized_user=user,
         is_advisor=params.get('isAdvisor', False),

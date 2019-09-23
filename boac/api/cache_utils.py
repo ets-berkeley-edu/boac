@@ -181,7 +181,7 @@ def refresh_department_memberships():
                 created_by='0',
                 can_access_canvas_data=membership['can_access_canvas_data'],
             )
-            UniversityDeptMember.create_membership(dept, user, is_advisor=True, is_director=False)
+            UniversityDeptMember.create_or_update_membership(dept, user, is_advisor=True, is_director=False)
 
 
 def load_filtered_cohort_counts():
