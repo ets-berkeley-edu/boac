@@ -35,6 +35,7 @@
 <script>
 import AcademicTimeline from '@/components/student/profile/AcademicTimeline';
 import AreYouSureModal from '@/components/util/AreYouSureModal';
+import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
 import Loading from '@/mixins/Loading';
 import Scrollable from '@/mixins/Scrollable';
@@ -58,7 +59,7 @@ export default {
     StudentProfileHeader,
     StudentProfileUnits
   },
-  mixins: [Context, Loading, Scrollable, NoteEditSession, Util],
+  mixins: [Berkeley, Context, Loading, Scrollable, NoteEditSession, Util],
   data: () => ({
     cancelTheCancel: undefined,
     cancelConfirmed: undefined,
@@ -143,9 +144,8 @@ export default {
     parseCourse(course) {
       const canAccessCanvasData = this.user.canAccessCanvasData;
       const fullProfileAvailable = !this.student.fullProfilePending;
+      this.setWaitlistedStatus(course);
       this.each(course.sections, function(section) {
-        course.waitlisted =
-          course.waitlisted || section.enrollmentStatus === 'W';
         course.isOpen = false;
         section.displayName = section.component + ' ' + section.sectionNumber;
         section.isViewableOnCoursePage = section.primary && canAccessCanvasData && fullProfileAvailable;

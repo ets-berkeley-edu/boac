@@ -168,9 +168,13 @@
           <th class="cohort-course-activity-header">MID</th>
           <th class="cohort-course-activity-header">FINAL</th>
         </tr>
-        <tr v-for="(enrollment, index) in get(student.term, 'enrollments', [])" :key="index">
+        <tr v-for="(enrollment, index) in termEnrollments" :key="index">
           <td class="cohort-course-activity-data cohort-course-activity-course-name">
-            <div :id="`row-${rowIndex}-student-enrollment-name-${index}`">{{ enrollment.displayName }}</div>
+            <span :id="`row-${rowIndex}-student-enrollment-name-${index}`">{{ enrollment.displayName }}</span>
+            <span
+              v-if="enrollment.waitlisted"
+              :id="`student-${student.uid}-waitlisted-for-${enrollment.sections.length ? enrollment.sections[0].ccn : enrollment.displayName}`"
+              class="pl-1 red-flag-status">(W)</span>
           </td>
           <td v-if="user.canAccessCanvasData" class="cohort-course-activity-data">
             <div
@@ -208,7 +212,7 @@
             <span v-if="!enrollment.grade && !enrollment.gradingBasis"><span class="sr-only">No data</span>&mdash;</span>
           </td>
         </tr>
-        <tr v-if="!get(student.term, 'enrollments', []).length">
+        <tr v-if="!termEnrollments.length">
           <td class="cohort-course-activity-data cohort-course-activity-course-name faint-text">
             No {{ termNameForSisId(currentEnrollmentTermId) }} enrollments
           </td>
@@ -276,6 +280,9 @@ export default {
       type: Object
     }
   },
+  data: () => ({
+    termEnrollments: []
+  }),
   computed: {
     degreePlanOwners() {
       const plans = this.get(this.student, 'degree.plans');
@@ -285,6 +292,11 @@ export default {
         return [];
       }
     }
+  },
+  created() {
+    const termEnrollments = this.get(this.student.term, 'enrollments', []);
+    this.each(termEnrollments, this.setWaitlistedStatus);
+    this.termEnrollments = termEnrollments;
   }
 };
 </script>
