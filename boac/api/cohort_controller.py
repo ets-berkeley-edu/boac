@@ -277,4 +277,4 @@ def _can_current_user_view_cohort(cohort):
     if current_user.is_admin or not cohort['owners']:
         return True
     cohort_dept_codes = {dept_code for o in cohort['owners'] for dept_code in o['deptCodes']}
-    return set(current_user.dept_codes).issuperset(cohort_dept_codes)
+    return len(cohort_dept_codes) > 0 and set(current_user.dept_codes).issuperset(cohort_dept_codes)

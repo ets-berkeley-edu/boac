@@ -229,4 +229,4 @@ def _can_current_user_view_curated_group(curated_group):
     if not owner:
         return False
     curated_group_dept_codes = [m.university_dept.dept_code for m in owner.department_memberships]
-    return set(current_user.dept_codes).issuperset(curated_group_dept_codes)
+    return len(curated_group_dept_codes) > 0 and set(current_user.dept_codes).issuperset(curated_group_dept_codes)

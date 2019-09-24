@@ -66,6 +66,12 @@ def zzzzz_user_login(fake_auth):
 
 
 @pytest.fixture()
+def admin_owned_cohort():
+    cohorts = all_cohorts_owned_by(admin_uid)
+    return cohorts[0]
+
+
+@pytest.fixture()
 def asc_owned_cohort():
     cohorts = all_cohorts_owned_by(asc_advisor_uid)
     return next((c for c in cohorts if c['name'] == 'All sports'), None)
@@ -198,6 +204,12 @@ class TestCohortDetail:
     def test_unauthorized_get_cohort(self, asc_advisor_login, client, coe_owned_cohort):
         """Returns a well-formed response with custom cohort."""
         cohort_id = coe_owned_cohort['id']
+        response = client.get(f'/api/cohort/{cohort_id}')
+        assert response.status_code == 404
+        assert 'No cohort found' in json.loads(response.data)['message']
+
+    def test_advisor_cannot_see_admin_cohort(self, asc_advisor_login, client, admin_owned_cohort):
+        cohort_id = admin_owned_cohort['id']
         response = client.get(f'/api/cohort/{cohort_id}')
         assert response.status_code == 404
         assert 'No cohort found' in json.loads(response.data)['message']
