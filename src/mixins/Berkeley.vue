@@ -1,4 +1,6 @@
 <script>
+import _ from 'lodash';
+
 export default {
   name: 'Berkeley',
   methods: {
@@ -20,6 +22,12 @@ export default {
           break;
       }
       return previousTermId;
+    },
+    setWaitlistedStatus(course) {
+      _.each(course.sections, function(section) {
+        course.waitlisted =
+          course.waitlisted || section.enrollmentStatus === 'W';
+      });
     },
     termNameForSisId(termId) {
       let termName = '';
