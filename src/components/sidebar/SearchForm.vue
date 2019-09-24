@@ -120,7 +120,8 @@
                 v-model="noteFilters.postedBy"
                 name="note-filters-posted-by"
                 value="anyone"
-                :ischecked="noteFilters.postedBy === 'anyone'">
+                :ischecked="noteFilters.postedBy === 'anyone'"
+                @change.native="clearAuthorFilter">
                 Anyone
               </b-form-radio>
               <b-form-radio
@@ -128,7 +129,8 @@
                 v-model="noteFilters.postedBy"
                 name="note-filters-posted-by"
                 value="you"
-                :ischecked="noteFilters.postedBy === 'you'">
+                :ischecked="noteFilters.postedBy === 'you'"
+                @change.native="clearAuthorFilter">
                 You
               </b-form-radio>
             </b-form-group>
@@ -339,6 +341,9 @@ export default {
       } else {
         return this.dateString(parsed, 'MM/DD/YYYY');
       }
+    },
+    clearAuthorFilter() {
+      this.noteFilters.author = null;
     },
     dateString(d, format) {
       return this.$options.filters.moment(d, format);
