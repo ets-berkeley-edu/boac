@@ -62,6 +62,12 @@ def admin_user_session(fake_auth):
 
 
 @pytest.fixture()
+def admin_curated_groups():
+    user = AuthorizedUser.find_by_uid(admin_uid)
+    return CuratedGroup.get_curated_groups_by_owner_id(user.id)
+
+
+@pytest.fixture()
 def asc_curated_groups():
     advisor = AuthorizedUser.find_by_uid(asc_advisor_uid)
     return CuratedGroup.get_curated_groups_by_owner_id(advisor.id)
@@ -102,6 +108,10 @@ class TestGetCuratedGroup:
     def test_unauthorized(self, asc_curated_groups, coe_advisor, client):
         """403 if user does not share a department membership with group owner."""
         self._api_get_curated_group(client, asc_curated_groups[0].id, expected_status_code=403)
+
+    def test_advisor_cannot_see_admin_curated_group(self, admin_curated_groups, coe_advisor, client):
+        """403 if user does not share a department membership with group owner."""
+        self._api_get_curated_group(client, admin_curated_groups[0].id, expected_status_code=403)
 
     def test_curated_group_includes_alert_count(self, asc_advisor, asc_curated_groups, client, create_alerts):
         """Includes alert count per student."""
