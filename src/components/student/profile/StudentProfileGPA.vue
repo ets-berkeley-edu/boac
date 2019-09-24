@@ -1,8 +1,8 @@
 <template>
-  <div class="h-100 p-2">
+  <div class="pt-2 pb-1">
     <div id="screen-reader-alert" class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
-    <div class="d-flex flex-wrap align-items-center">
-      <div class="gpa text-center mb-3">
+    <div class="d-flex flex-wrap">
+      <div class="gpa text-center">
         <div id="cumulative-gpa" class="data-number">
           <span v-if="!isNil(cumulativeGPA)">{{ cumulativeGPA | round(3) }}</span>
           <span v-if="isNil(cumulativeGPA)">--</span>
@@ -10,33 +10,32 @@
         </div>
         <div class="gpa-label text-uppercase">Cumulative GPA</div>
       </div>
-      <div id="gpa-trends" class="h-100 border-left">
+      <div id="gpa-trends" class="border-left">
         <div id="gpa-chart" class="ml-3">
-          <div class="gpa-trends-label text-uppercase font-weight-bold">GPA Trends</div>
+          <div class="gpa-trends-label-outer">
+            <div class="gpa-trends-label text-uppercase font-weight-bold">GPA Trends</div>
+            <b-btn
+              v-if="!isEmpty(student.termGpa)"
+              id="show-hide-term-gpa-button"
+              class="gpa-trends-more-button col-auto"
+              variant="link"
+              @click="showHideTermGpa()">
+              More
+            </b-btn>
+          </div>
           <StudentGpaChart
             v-if="get(student, 'termGpa.length') > 1"
             :student="student" />
           <div v-if="isEmpty(student.termGpa)" class="gpa-trends-label">
             GPA Not Yet Available
           </div>
-          <div v-if="!isEmpty(student.termGpa)" id="current-term-gpa">
+          <div v-if="!isEmpty(student.termGpa)" id="current-term-gpa" class="current-term-gpa">
             <span class="gpa-label text-uppercase">{{ student.termGpa[0].name }} GPA:</span>
             <span
               class="font-weight-bold"
               :class="{'gpa-last-term': student.termGpa[0].gpa >= 2, 'gpa-alert': student.termGpa[0].gpa < 2}">
               {{ student.termGpa[0].gpa | round(3) }}
             </span>
-          </div>
-          <div>
-            <b-btn
-              v-if="!isEmpty(student.termGpa)"
-              id="show-hide-term-gpa-button"
-              class="p-0 mt-1"
-              variant="link"
-              @click="showHideTermGpa()">
-              <font-awesome :icon="showTermGpa ? 'caret-down' : 'caret-right'" class="show-hide-caret" />
-              {{ showTermGpa ? 'Hide' : 'Show' }} Term GPA
-            </b-btn>
           </div>
         </div>
       </div>
@@ -118,9 +117,12 @@ export default {
 </script>
 
 <style scoped>
+.current-term-gpa {
+  line-height: 1;
+}
 .data-number {
-  font-size: 42px;
-  line-height: 1.2em;
+  font-size: 28px;
+  line-height: 1.4em;
 }
 .gpa {
   font-weight: 700;
@@ -130,18 +132,30 @@ export default {
 }
 .gpa-alert {
   color: #d0021b;
+  font-size: 11px;
 }
 .gpa-label {
   color: #999;
-  font-size: 12px;
+  font-size: 11px;
 }
 .gpa-last-term {
   color: #000;
+  font-size: 11px;
   font-weight: 700;
 }
 .gpa-trends-label {
   color: #555;
-  font-size: 14px;
+  font-size: 11px;
+}
+.gpa-trends-label-outer {
+  display: flex;
+  justify-content: space-between;
+}
+.gpa-trends-more-button {
+  border: 0;
+  font-size: 11px;
+  padding: 0;
+  text-align: right;
 }
 .show-hide-caret {
   width: 12px;

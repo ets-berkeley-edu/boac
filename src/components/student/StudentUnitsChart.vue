@@ -19,9 +19,11 @@ export default {
     unitsChartOptions: {
       chart: {
         backgroundColor: 'transparent',
-        height: 60,
+        height: 40,
         inverted: true,
         spacingLeft: 5,
+        spacingTop: 5,
+        spacingBottom: 5,
         type: 'column'
       },
       colors: ['#d6e4f9', '#aec9eb'],
@@ -84,14 +86,15 @@ export default {
         tickInterval: 30,
         labels: {
           align: 'center',
-          distance: 0,
-          overflow: false,
+          overflow: true,
+          padding: 0,
           style: {
             color: '#999999',
             fontFamily: 'Helvetica, Arial, sans',
-            fontSize: '12px',
+            fontSize: '11px',
             fontWeight: 'bold'
-          }
+          },
+          y: 12
         },
         stackLabels: {
           enabled: false

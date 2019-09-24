@@ -24,7 +24,7 @@ export default {
       credits: false,
       chart: {
         width: null,
-        height: 40,
+        height: 30,
         type: 'area',
         margin: [2, 0, 2, 0],
         style: {
