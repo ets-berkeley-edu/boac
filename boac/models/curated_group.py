@@ -61,7 +61,7 @@ class CuratedGroup(Base):
         query = text(f"""
             SELECT sg.id, sg.name, count(sgm.sid) AS student_count, au.uid AS owner_uid
             FROM student_groups sg
-            JOIN student_group_members sgm ON sg.id = sgm.student_group_id
+            LEFT JOIN student_group_members sgm ON sg.id = sgm.student_group_id
             JOIN authorized_users au ON sg.owner_id = au.id
             WHERE au.uid = ANY(:uids)
             GROUP BY sg.id, sg.name, au.id, au.uid
