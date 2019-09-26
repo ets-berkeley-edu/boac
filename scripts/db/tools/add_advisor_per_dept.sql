@@ -4,12 +4,12 @@ BEGIN;
 -- Map UID to the specified department.
 --
 -- USAGE:
---   psql ... -v dept_code='QCADV' -v uid=123456 -f scripts/db/tools/add_advisor_per_dept.sql
+--   psql ... -v uid=123456 -v created_by=987654 -v dept_code='QCADV' -f scripts/db/tools/add_advisor_per_dept.sql
 --
 
 -- Create user if not exists
-INSERT INTO authorized_users (uid, is_admin, created_at, updated_at)
-  SELECT :'uid', false, now(), now()
+INSERT INTO authorized_users (uid, created_by, is_admin, created_at, updated_at)
+  SELECT :'uid', :'created_by', false, now(), now()
   WHERE NOT EXISTS (SELECT id FROM authorized_users WHERE uid = :'uid');
 
 -- If the UID represents an existing user, ensure deleted_at is null and can_access_canvas_data is true.
