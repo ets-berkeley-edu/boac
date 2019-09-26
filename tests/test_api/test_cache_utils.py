@@ -123,7 +123,10 @@ class TestRefreshDepartmentMemberships:
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
         assert len(coe_users) == 4
         assert next(u for u in coe_users if u.uid == '1022796')
-        assert AuthorizedUser.query.filter_by(uid='1022796').first().deleted_at is None
+        user = AuthorizedUser.query.filter_by(uid='1022796').first()
+        assert user.deleted_at is None
+        assert user.created_by == '0'
+        assert user.department_memberships[0].automate_membership is True
 
     def test_restores_coe_advisors(self, app):
         """Restores previously deleted COE advisors found in the loch."""
@@ -144,12 +147,15 @@ class TestRefreshDepartmentMemberships:
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
         assert len(coe_users) == 4
         assert next(u for u in coe_users if u.uid == '1022796')
-        assert AuthorizedUser.query.filter_by(uid='1022796').first().deleted_at is None
+        user = AuthorizedUser.query.filter_by(uid='1022796').first()
+        assert user.deleted_at is None
+        assert user.created_by == '0'
+        assert user.department_memberships[0].automate_membership is True
 
     def test_removes_coe_advisors(self, app):
         """Removes COE advisors not found in the loch."""
         dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
-        bad_user = AuthorizedUser.create_or_restore(uid='666', created_by='0')
+        bad_user = AuthorizedUser.create_or_restore(uid='666', created_by='2040')
         UniversityDeptMember.create_or_update_membership(dept_coe, bad_user, is_advisor=True, is_director=False)
         std_commit(allow_test_environment=True)
 
@@ -169,7 +175,7 @@ class TestRefreshDepartmentMemberships:
 
     def test_respects_automate_memberships_flag(self, app, db):
         dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
-        manually_added_user = AuthorizedUser.create_or_restore(uid='1024', created_by='0')
+        manually_added_user = AuthorizedUser.create_or_restore(uid='1024', created_by='2040')
         manual_membership = UniversityDeptMember.create_or_update_membership(
             dept_coe,
             manually_added_user,
@@ -208,6 +214,7 @@ class TestRefreshDepartmentMemberships:
         memberships = UniversityDeptMember.query.filter_by(authorized_user_id=authorized_user_id).all()
         assert len(memberships) == 1
         memberships[0].automate_membership = False
+        memberships[0].authorized_user.created_by = '2040'
         std_commit(allow_test_environment=True)
 
         from boac.api.cache_utils import refresh_department_memberships
@@ -217,6 +224,7 @@ class TestRefreshDepartmentMemberships:
         memberships = UniversityDeptMember.query.filter_by(authorized_user_id=authorized_user_id).all()
         assert len(memberships) == 1
         assert memberships[0].automate_membership is True
+        assert memberships[0].authorized_user.created_by == '0'
 
     def test_adds_l_s_advisors(self, app):
         """Adds L&S minor advisors who have no other affiliations to the correct dept."""
@@ -245,3 +253,27 @@ class TestRefreshDepartmentMemberships:
         other_users = [au.authorized_user for au in dept_other.authorized_users]
         assert len(other_users) == 1
         assert other_users[0].can_access_canvas_data is False
+
+    def test_allows_advisor_to_change_departments(self):
+        """Updates membership for a former CoE advisor who switches to L&S."""
+        user = AuthorizedUser.find_by_uid('242881')
+        dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
+        UniversityDeptMember.create_or_update_membership(dept_coe, user, is_advisor=True, is_director=False)
+        dept_ucls = UniversityDept.query.filter_by(dept_code='QCADVMAJ').first()
+        UniversityDeptMember.delete_membership(dept_ucls.id, user.id)
+        std_commit(allow_test_environment=True)
+
+        ucls_users = [au.authorized_user for au in dept_ucls.authorized_users]
+        assert len(ucls_users) == 1
+
+        from boac.api.cache_utils import refresh_department_memberships
+        refresh_department_memberships()
+        std_commit(allow_test_environment=True)
+
+        ucls_users = [au.authorized_user for au in dept_ucls.authorized_users]
+        assert len(ucls_users) == 2
+        assert next(u for u in ucls_users if u.uid == '242881')
+        updated_user = AuthorizedUser.query.filter_by(uid='242881').first()
+        assert updated_user.deleted_at is None
+        assert updated_user.created_by == '0'
+        assert updated_user.department_memberships[0].university_dept_id == dept_ucls.id

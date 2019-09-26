@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import db, std_commit
+from boac.lib.util import utc_now
 from boac.models.base import Base
 from boac.models.db_relationships import cohort_filter_owners
 from sqlalchemy import text
@@ -39,6 +40,7 @@ class AuthorizedUser(Base):
     can_access_canvas_data = db.Column(db.Boolean, nullable=False)
     created_by = db.Column(db.String(255), nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
+    is_blocked = db.Column(db.Boolean, nullable=False, default=False)
     department_memberships = db.relationship(
         'UniversityDeptMember',
         back_populates='authorized_user',
@@ -71,13 +73,25 @@ class AuthorizedUser(Base):
                     created={self.created_at},
                     created_by={self.created_by},
                     updated={self.updated_at},
-                    deleted={self.deleted_at}>
+                    deleted={self.deleted_at},
+                    is_blocked={self.is_blocked}>
                 """
+
+    @classmethod
+    def delete_and_block(cls, uid):
+        now = utc_now()
+        user = cls.query.filter_by(uid=uid).first()
+        user.deleted_at = now
+        user.is_blocked = True
+        std_commit()
+        return user
 
     @classmethod
     def create_or_restore(cls, uid, created_by, is_admin=False, can_access_canvas_data=True):
         existing_user = cls.query.filter_by(uid=uid).first()
         if existing_user:
+            if existing_user.is_blocked:
+                return False
             # If restoring a previously deleted user, respect passed-in attributes.
             if existing_user.deleted_at:
                 existing_user.is_admin = is_admin
