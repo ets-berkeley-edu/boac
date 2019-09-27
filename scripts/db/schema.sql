@@ -92,7 +92,8 @@ CREATE TABLE authorized_users (
     created_at timestamp with time zone NOT NULL,
     created_by character varying(255) NOT NULL,
     updated_at timestamp with time zone NOT NULL,
-    deleted_at timestamp with time zone
+    deleted_at timestamp with time zone,
+    is_blocked boolean DEFAULT false NOT NULL
 );
 ALTER TABLE authorized_users OWNER TO boac;
 CREATE SEQUENCE authorized_users_id_seq

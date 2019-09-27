@@ -1,0 +1,5 @@
+BEGIN;
+
+ALTER TABLE authorized_users ADD COLUMN is_blocked BOOLEAN DEFAULT FALSE NOT NULL;
+
+COMMIT;
