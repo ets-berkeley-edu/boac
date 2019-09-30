@@ -87,10 +87,17 @@ def coe_owned_cohort():
 def new_undeclared_cohort(client):
     cohort_props = {
         'name': 'Nothing to Declare',
-        'filters': [{'key': 'majors', 'type': 'array', 'value': 'Letters & Sci Undeclared UG'}],
+        'filters': [
+            {'key': 'majors', 'value': 'Letters & Sci Undeclared UG'},
+        ],
     }
-    cohort = client.post('/api/cohort/create', data=json.dumps(cohort_props), content_type='application/json')
-    return client.get(f"/api/cohort/{json.loads(cohort.data).get('id')}").json
+    cohort = client.post(
+        '/api/cohort/create',
+        data=json.dumps(cohort_props),
+        content_type='application/json',
+    )
+    cohort_id = json.loads(cohort.data).get('id')
+    return client.get(f'/api/cohort/{cohort_id}').json
 
 
 class TestCohortDetail:
@@ -338,7 +345,7 @@ class TestCohortDetail:
         data = {
             'name': 'My filtered cohort just hacked the system!',
             'filters': [
-                {'key': 'isInactiveAsc', 'type': 'boolean', 'value': True},
+                {'key': 'isInactiveAsc', 'value': True},
             ],
         }
         response = client.post(
@@ -397,10 +404,10 @@ class TestCohortCreate:
         data = {
             'name': 'Tennis',
             'filters': [
-                {'key': 'majors', 'type': 'array', 'value': 'Letters & Sci Undeclared UG'},
-                {'key': 'groupCodes', 'type': 'array', 'value': 'MTE'},
-                {'key': 'majors', 'type': 'array', 'value': 'English BA'},
-                {'key': 'genders', 'type': 'array', 'value': 'Male'},
+                {'key': 'majors', 'value': 'Letters & Sci Undeclared UG'},
+                {'key': 'groupCodes', 'value': 'MTE'},
+                {'key': 'majors', 'value': 'English BA'},
+                {'key': 'genders', 'value': 'Male'},
             ],
         }
 
@@ -429,11 +436,7 @@ class TestCohortCreate:
         data = {
             'name': 'ASC advisor wants to see students of COE advisor',
             'filters': [
-                {
-                    'key': 'coeEthnicities',
-                    'type': 'array',
-                    'value': 'Vietnamese',
-                },
+                {'key': 'coeEthnicities', 'value': 'Vietnamese'},
             ],
         }
         assert self._post_cohort_create(client, data, expected_status_code=403)
@@ -443,16 +446,8 @@ class TestCohortCreate:
         data = {
             'name': 'Admin wants to see students of COE advisor',
             'filters': [
-                {
-                    'key': 'coeGenders',
-                    'type': 'array',
-                    'value': 'M',
-                },
-                {
-                    'key': 'genders',
-                    'type': 'array',
-                    'value': 'Different Identity',
-                },
+                {'key': 'coeGenders', 'value': 'M'},
+                {'key': 'genders', 'value': 'Different Identity'},
             ],
         }
         api_json = self._post_cohort_create(client, data)
@@ -463,16 +458,18 @@ class TestCohortCreate:
 
     def test_create_complex_cohort(self, client, coe_advisor_login):
         """Creates custom cohort, with many non-empty filter_criteria."""
+        gpa_range_1 = {'min': 2, 'max': 2.499}
+        gpa_range_2 = {'min': 0, 'max': 1.999}
         data = {
             'name': 'Complex',
             'filters': [
-                {'key': 'majors', 'type': 'array', 'value': 'Gender and Women''s Studies'},
-                {'key': 'gpaRanges', 'type': 'array', 'value': 'numrange(2, 2.5, \'[)\')'},
-                {'key': 'levels', 'type': 'array', 'value': 'Junior'},
-                {'key': 'coeGenders', 'type': 'array', 'value': 'M'},
-                {'key': 'genders', 'type': 'array', 'value': 'Genderqueer/Gender Non-Conform'},
-                {'key': 'gpaRanges', 'type': 'array', 'value': 'numrange(0, 2, \'[)\')'},
-                {'key': 'majors', 'type': 'array', 'value': 'Environmental Economics & Policy'},
+                {'key': 'majors', 'value': 'Gender and Women''s Studies'},
+                {'key': 'gpaRanges', 'value': gpa_range_1},
+                {'key': 'levels', 'value': 'Junior'},
+                {'key': 'coeGenders', 'value': 'M'},
+                {'key': 'genders', 'value': 'Genderqueer/Gender Non-Conform'},
+                {'key': 'gpaRanges', 'value': gpa_range_2},
+                {'key': 'majors', 'value': 'Environmental Economics & Policy'},
             ],
         }
         api_json = self._post_cohort_create(client, data)
@@ -487,7 +484,8 @@ class TestCohortCreate:
         # GPA
         gpa_ranges = criteria.get('gpaRanges')
         assert len(gpa_ranges) == 2
-        assert 'numrange(0, 2, \'[)\')' in gpa_ranges
+        assert gpa_range_1 in gpa_ranges
+        assert gpa_range_2 in gpa_ranges
         # Levels
         assert criteria.get('levels') == ['Junior']
         # Majors
@@ -502,8 +500,8 @@ class TestCohortCreate:
             {
                 'name': 'Admin superpowers',
                 'filters': [
-                    {'key': 'groupCodes', 'type': 'array', 'value': 'MTE'},
-                    {'key': 'groupCodes', 'type': 'array', 'value': 'WWP'},
+                    {'key': 'groupCodes', 'value': 'MTE'},
+                    {'key': 'groupCodes', 'value': 'WWP'},
                 ],
             },
         )
@@ -513,7 +511,7 @@ class TestCohortCreate:
         data = {
             'name': 'Sorry Charlie',
             'filters': [
-                {'key': 'groupCodes', 'type': 'array', 'value': 'MTE'},
+                {'key': 'groupCodes', 'value': 'MTE'},
             ],
         }
         self._post_cohort_create(client, data, expected_status_code=403)
@@ -558,11 +556,12 @@ class TestCohortUpdate:
         response = self._post_cohort_update(client, {'id': cohort_id})
         assert 400 == response.status_code
         # Now, we POST a valid name
+        gpa_range = {'min': 2, 'max': 2.499}
         data = {
             'id': cohort_id,
             'filters': [
-                {'key': 'majors', 'type': 'array', 'value': 'Gender and Women''s Studies'},
-                {'key': 'gpaRanges', 'type': 'array', 'value': 'numrange(2, 2.5, \'[)\')'},
+                {'key': 'majors', 'value': 'Gender and Women''s Studies'},
+                {'key': 'gpaRanges', 'value': gpa_range},
             ],
         }
         response = self._post_cohort_update(client, data)
@@ -570,7 +569,7 @@ class TestCohortUpdate:
         updated_cohort = response.json
         assert updated_cohort['alertCount'] is not None
         assert updated_cohort['criteria']['majors'] == ['Gender and Women''s Studies']
-        assert updated_cohort['criteria']['gpaRanges'] == ['numrange(2, 2.5, \'[)\')']
+        assert updated_cohort['criteria']['gpaRanges'] == [gpa_range]
         assert updated_cohort['criteria']['groupCodes'] is None
 
         def remove_empties(criteria):
@@ -594,19 +593,24 @@ class TestCohortUpdate:
         cohort = json.loads(response.data)
         assert cohort['totalStudentCount'] == 1
         # Update the db
-        updates = {
-            'id': cohort_id,
-            'criteria': {
-                'groupCodes': ['MBB', 'MBB-AA'],
+        response = self._post_cohort_update(
+            client,
+            {
+                'id': cohort_id,
+                'filters': [
+                    {'key': 'groupCodes', 'value': 'MBB'},
+                    {'key': 'groupCodes', 'value': 'MBB-AA'},
+                ],
             },
-        }
-        response = self._post_cohort_update(client, updates)
+        )
         assert response.status_code == 200
         # Verify the value of 'student_count' in db
         updated_cohort = CohortFilter.find_by_id(cohort_id)
         assert updated_cohort['totalStudentCount'] == 2
         assert 'sids' not in updated_cohort
-        assert updated_cohort['criteria']['groupCodes'] == updates['criteria']['groupCodes']
+        group_codes = updated_cohort['criteria']['groupCodes']
+        assert len(group_codes) == 2
+        assert group_codes == ['MBB', 'MBB-AA']
 
 
 class TestCohortDelete:
@@ -686,11 +690,7 @@ class TestCohortPerFilters:
             {
                 'filters':
                     [
-                        {
-                            'key': 'coeProbation',
-                            'type': 'boolean',
-                            'value': 'true',
-                        },
+                        {'key': 'coeProbation', 'value': 'true'},
                     ],
             },
             expected_status_code=403,
@@ -698,41 +698,25 @@ class TestCohortPerFilters:
 
     def test_students_per_filters_coe_advisor(self, client, coe_advisor_login):
         """API translates 'coeProbation' filter to proper filter_criteria query."""
-        gpa_range_1 = 'numrange(0, 2, \'[)\')'
-        gpa_range_2 = 'numrange(2, 2.5, \'[)\')'
+        gpa_range_1 = {'min': 0, 'max': 1.999}
+        gpa_range_2 = {'min': 2, 'max': 2.499}
         api_json = self._api_get_students_per_filters(
             client,
             {
-                'filters':
-                    [
-                        {
-                            'key': 'coeProbation',
-                            'type': 'boolean',
-                            'value': 'true',
-                        },
-                        {
-                            'key': 'gpaRanges',
-                            'type': 'array',
-                            'value': gpa_range_1,
-                        },
-                        {
-                            'key': 'gpaRanges',
-                            'type': 'array',
-                            'value': gpa_range_2,
-                        },
-                        {
-                            'key': 'lastNameRange',
-                            'type': 'range',
-                            'value': ['A', 'Z'],
-                        },
-                    ],
+                'filters': [
+                    {'key': 'coeProbation', 'value': 'true'},
+                    {'key': 'gpaRanges', 'value': gpa_range_1},
+                    {'key': 'gpaRanges', 'value': gpa_range_2},
+                    {'key': 'lastNameRanges', 'value': {'min': 'B', 'max': 'F'}},
+                    {'key': 'lastNameRanges', 'value': {'min': 'M', 'max': 'P'}},
+                ],
             },
         )
         assert 'totalStudentCount' in api_json
         assert 'students' in api_json
         criteria = api_json['criteria']
         assert criteria['coeProbation'] is not None
-        assert criteria['lastNameRange'] is not None
+        assert len(criteria['lastNameRanges']) == 2
         gpa_ranges = criteria['gpaRanges']
         assert len(gpa_ranges) == 2
         assert gpa_range_1 in gpa_ranges
@@ -760,11 +744,7 @@ class TestCohortPerFilters:
             client,
             {
                 'filters': [
-                    {
-                        'key': 'cohortOwnerAcademicPlans',
-                        'type': 'array',
-                        'value': '*',
-                    },
+                    {'key': 'cohortOwnerAcademicPlans', 'value': '*'},
                 ],
             },
         )
@@ -777,16 +757,8 @@ class TestCohortPerFilters:
             client,
             {
                 'filters': [
-                    {
-                        'key': 'cohortOwnerAcademicPlans',
-                        'type': 'array',
-                        'value': '162B0U',
-                    },
-                    {
-                        'key': 'cohortOwnerAcademicPlans',
-                        'type': 'array',
-                        'value': '162B3U',
-                    },
+                    {'key': 'cohortOwnerAcademicPlans', 'value': '162B0U'},
+                    {'key': 'cohortOwnerAcademicPlans', 'value': '162B3U'},
                 ],
             },
         )
@@ -797,19 +769,10 @@ class TestCohortPerFilters:
         api_json = self._api_get_students_per_filters(
             client,
             {
-                'filters':
-                    [
-                        {
-                            'key': 'groupCodes',
-                            'type': 'array',
-                            'value': 'MFB-DL',
-                        },
-                        {
-                            'key': 'isInactiveAsc',
-                            'type': 'boolean',
-                            'value': inactive_asc,
-                        },
-                    ],
+                'filters': [
+                    {'key': 'groupCodes', 'value': 'MFB-DL'},
+                    {'key': 'isInactiveAsc', 'value': inactive_asc},
+                ],
                 'orderBy': order_by,
             },
         )
@@ -854,14 +817,9 @@ class TestCohortPerFilters:
         api_json = self._api_get_students_per_filters(
             client,
             {
-                'filters':
-                    [
-                        {
-                            'key': 'expectedGradTerms',
-                            'type': 'array',
-                            'value': '2202',
-                        },
-                    ],
+                'filters': [
+                    {'key': 'expectedGradTerms', 'value': '2202'},
+                ],
             },
         )
         students = api_json['students']
@@ -874,14 +832,9 @@ class TestCohortPerFilters:
         api_json = self._api_get_students_per_filters(
             client,
             {
-                'filters':
-                    [
-                        {
-                            'key': 'transfer',
-                            'type': 'boolean',
-                            'value': True,
-                        },
-                    ],
+                'filters': [
+                    {'key': 'transfer', 'value': True},
+                ],
             },
         )
         students = api_json['students']
@@ -895,11 +848,7 @@ class TestCohortPerFilters:
             client,
             {
                 'filters': [
-                    {
-                        'key': 'ethnicities',
-                        'type': 'array',
-                        'value': 'African-American / Black',
-                    },
+                    {'key': 'ethnicities', 'value': 'African-American / Black'},
                 ],
             },
         )
@@ -911,11 +860,7 @@ class TestCohortPerFilters:
             client,
             {
                 'filters': [
-                    {
-                        'key': 'midpointDeficient',
-                        'type': 'boolean',
-                        'value': 'true',
-                    },
+                    {'key': 'midpointDeficient', 'value': 'true'},
                 ],
             },
         )
@@ -949,14 +894,9 @@ class TestDownloadCsvPerFilters:
         self._api_download_csv_per_filters(
             client,
             {
-                'filters':
-                    [
-                        {
-                            'key': 'coeProbation',
-                            'type': 'boolean',
-                            'value': 'true',
-                        },
-                    ],
+                'filters': [
+                    {'key': 'coeProbation', 'value': 'true'},
+                ],
             },
             expected_status_code=403,
         )
@@ -964,14 +904,9 @@ class TestDownloadCsvPerFilters:
     def test_download_csv(self, client, coe_advisor_login):
         """Advisor can download CSV with ALL students of cohort."""
         data = {
-            'filters':
-                [
-                    {
-                        'key': 'coeEthnicities',
-                        'type': 'array',
-                        'value': ['H', 'B'],
-                    },
-                ],
+            'filters': [
+                {'key': 'coeEthnicities', 'value': ['H', 'B']},
+            ],
         }
         response = client.post(
             '/api/cohort/download_csv_per_filters',
@@ -1003,14 +938,6 @@ class TestCohortFilterOptions:
         assert response.status_code == expected_status_code
         return response.json
 
-    @classmethod
-    def _level_option(cls, student_class_level):
-        return {
-            'key': 'levels',
-            'type': 'array',
-            'value': student_class_level,
-        }
-
     def test_filter_options_api_not_authenticated(self, client):
         """Menu API cohort-filter-options requires authentication."""
         self._api_cohort_filter_options(client, expected_status_code=401)
@@ -1026,7 +953,7 @@ class TestCohortFilterOptions:
         for category in api_json:
             for menu in category:
                 assert 'disabled' not in menu
-                if menu['type'] == 'array':
+                if menu['type']['ux'] == 'dropdown':
                     for option in menu['options']:
                         assert 'disabled' not in option
 
@@ -1052,7 +979,7 @@ class TestCohortFilterOptions:
                 'existingFilters': [],
             },
         )
-        my_students = next(option for group in api_json for option in group if option['name'] == 'My Students')
+        my_students = next(opt for group in api_json for opt in group if opt['label']['primary'] == 'My Students')
         assert len(my_students['options']) == 5
         assert {'name': 'All plans', 'value': '*'} in my_students['options']
         assert {'name': 'Bioengineering BS', 'value': '16288U'} in my_students['options']
@@ -1069,7 +996,7 @@ class TestCohortFilterOptions:
             },
             asc_advisor_uid,
         )
-        my_students = next(option for group in api_json for option in group if option['name'] == 'My Students')
+        my_students = next(opt for group in api_json for opt in group if opt['label']['primary'] == 'My Students')
         assert len(my_students['options']) == 4
         assert {'name': 'All plans', 'value': '*'} in my_students['options']
         assert {'name': 'English BA', 'value': '25345U'} in my_students['options']
@@ -1083,10 +1010,7 @@ class TestCohortFilterOptions:
             {
                 'existingFilters':
                     [
-                        {
-                            'key': 'coeProbation',
-                            'type': 'boolean',
-                        },
+                        {'key': 'coeProbation', 'value': True},
                     ],
             },
         )
@@ -1105,14 +1029,10 @@ class TestCohortFilterOptions:
             {
                 'existingFilters':
                     [
-                        self._level_option('Freshman'),
-                        self._level_option('Sophomore'),
-                        self._level_option('Junior'),
-                        {
-                            'key': 'coeAdvisorLdapUids',
-                            'type': 'array',
-                            'value': '1022796',
-                        },
+                        {'key': 'levels', 'value': 'Freshman'},
+                        {'key': 'levels', 'value': 'Sophomore'},
+                        {'key': 'levels', 'value': 'Junior'},
+                        {'key': 'coeAdvisorLdapUids', 'value': '1022796'},
                     ],
             },
         )
@@ -1141,10 +1061,10 @@ class TestCohortFilterOptions:
             {
                 'existingFilters':
                     [
-                        self._level_option('Senior'),
-                        self._level_option('Junior'),
-                        self._level_option('Sophomore'),
-                        self._level_option('Freshman'),
+                        {'key': 'levels', 'value': 'Senior'},
+                        {'key': 'levels', 'value': 'Junior'},
+                        {'key': 'levels', 'value': 'Sophomore'},
+                        {'key': 'levels', 'value': 'Freshman'},
                     ],
             },
         )
@@ -1156,29 +1076,6 @@ class TestCohortFilterOptions:
                         assert option.get('disabled') is True
                 else:
                     assert 'disabled' not in menu
-
-    def test_disable_last_name_range(self, client, coe_advisor_login):
-        """Disable the category if all its options are in existing-filters."""
-        api_json = self._api_cohort_filter_options(
-            client,
-            {
-                'existingFilters':
-                    [
-                        {
-                            'key': 'lastNameRange',
-                            'type': 'range',
-                            'value': ['A', 'B'],
-                        },
-                    ],
-            },
-        )
-        for category in api_json:
-            for menu in category:
-                is_disabled = menu.get('disabled')
-                if menu['key'] == 'lastNameRange':
-                    assert is_disabled is True
-                else:
-                    assert is_disabled is None
 
     def test_range_of_expected_terms(self, client, guest_user_login):
         """Expected grad term options ."""
@@ -1222,7 +1119,7 @@ class TestTranslateToFilterOptions:
         }
         api_json = self._api_translate_to_filter_options(client, json_data)
         assert len(api_json) == 1
-        assert api_json[0]['name'] == 'Inactive'
+        assert api_json[0]['label']['primary'] == 'Inactive'
         assert api_json[0]['key'] == 'isInactiveCoe'
         assert api_json[0]['value'] is False
 
@@ -1239,30 +1136,38 @@ class TestTranslateToFilterOptions:
         )
         assert len(api_json) == 4
         # Levels
-        assert api_json[0]['name'] == api_json[1]['name'] == 'Level'
+        assert api_json[0]['label']['primary'] == api_json[1]['label']['primary'] == 'Level'
         assert api_json[0]['key'] == api_json[1]['key'] == 'levels'
         assert api_json[0]['value'] == 'Freshman'
         assert api_json[1]['value'] == 'Sophomore'
         # Genders
-        assert api_json[2]['name'] == api_json[3]['name'] == 'Gender'
+        assert api_json[2]['label']['primary'] == api_json[3]['label']['primary'] == 'Gender'
         assert api_json[2]['key'] == api_json[3]['key'] == 'genders'
         assert api_json[2]['value'] == 'Female'
         assert api_json[3]['value'] == 'Decline to State'
 
-    def test_translate_criteria_with_range(self, client, coe_advisor_login):
-        """Filter-criteria with range is properly translated."""
+    def test_handle_last_name_ranges(self, client, coe_advisor_login):
+        """Filter-criteria with last_name range is properly translated."""
+        last_name_ranges = [
+            {'min': 'B', 'max': 'D'},
+            {'min': 'M', 'max': 'Z'},
+        ]
         api_json = self._api_translate_to_filter_options(
             client,
             {
                 'criteria': {
-                    'lastNameRange': ['M', 'Z'],
+                    'lastNameRanges': last_name_ranges,
                 },
             },
         )
-        assert len(api_json) == 1
-        assert api_json[0]['name'] == 'Last Name'
-        assert api_json[0]['key'] == 'lastNameRange'
-        assert api_json[0]['value'] == ['M', 'Z']
+        assert len(api_json) == 2
+
+        def _verify(index):
+            assert api_json[index]['label']['primary'] == 'Last Name'
+            assert api_json[index]['key'] == 'lastNameRanges'
+            assert api_json[index]['value'] == last_name_ranges[index]
+        _verify(0)
+        _verify(1)
 
     def test_translate_criteria_my_students_for_me(self, client, coe_advisor_login):
         """User's own 'My Students' criteria are properly translated."""
@@ -1275,8 +1180,7 @@ class TestTranslateToFilterOptions:
             },
         )
         assert len(api_json) == 1
-        assert api_json[0]['name'] == 'My Students'
-        assert api_json[0]['subcategoryHeader'] == 'Choose academic plan...'
+        assert api_json[0]['label']['primary'] == 'My Students'
         assert api_json[0]['key'] == 'cohortOwnerAcademicPlans'
         assert api_json[0]['value'] == '*'
 
@@ -1292,9 +1196,9 @@ class TestTranslateToFilterOptions:
             asc_advisor_uid,
         )
         assert len(api_json) == 2
-        assert api_json[0]['name'] == 'My Students'
+        assert api_json[0]['label']['primary'] == 'My Students'
         assert api_json[0]['key'] == 'cohortOwnerAcademicPlans'
         assert api_json[0]['value'] == '25I039U'
-        assert api_json[1]['name'] == 'My Students'
+        assert api_json[1]['label']['primary'] == 'My Students'
         assert api_json[1]['key'] == 'cohortOwnerAcademicPlans'
         assert api_json[1]['value'] == '25I054U'

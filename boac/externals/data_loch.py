@@ -631,7 +631,7 @@ def get_students_query(     # noqa
     in_intensive_cohort=None,
     is_active_asc=None,
     is_active_coe=None,
-    last_name_range=None,
+    last_name_ranges=None,
     levels=None,
     majors=None,
     midpoint_deficient_grade=None,
@@ -678,9 +678,13 @@ def get_students_query(     # noqa
         query_bindings.update({'sids': sids})
 
     # Generic SIS criteria
-    query_filter += _numranges_to_sql('sas.gpa', gpa_ranges) if gpa_ranges else ''
+    if gpa_ranges:
+        sql_ready_gpa_ranges = [f"numrange({gpa_range['min']}, {gpa_range['max']}, '[]')" for gpa_range in gpa_ranges]
+        query_filter += _numranges_to_sql('sas.gpa', sql_ready_gpa_ranges)
     query_filter += _numranges_to_sql('sas.units', unit_ranges) if unit_ranges else ''
-    query_filter += _query_filter_last_name_range(last_name_range)
+    if last_name_ranges:
+        for last_name_range in last_name_ranges:
+            query_filter += _query_filter_last_name_range(last_name_range['min'], last_name_range['max'])
     if ethnicities:
         query_filter += ' AND e.ethnicity = ANY(:ethnicities)'
         query_bindings.update({'ethnicities': ethnicities})
@@ -928,16 +932,13 @@ def _student_query_tables_for_scope(scope):
     return table_sql
 
 
-def _query_filter_last_name_range(range_):
+def _query_filter_last_name_range(range_min, range_max):
     query_filter = ''
-    if isinstance(range_, list) and len(range_):
-        start = range_[0].upper()
-        stop = range_[-1].upper()
-        if start == stop:
-            query_filter += f' AND sas.last_name ILIKE \'{start}%\''
-        else:
-            query_filter += f' AND UPPER(sas.last_name) >= \'{start}\''
-            if stop < 'Z':
-                # If 'stop' were 'Z' then upper bound would not be necessary
-                query_filter += f' AND UPPER(sas.last_name) < \'{chr(ord(stop) + 1)}\''
+    if range_max == range_min:
+        query_filter += f' AND sas.last_name ILIKE \'{range_min}%\''
+    else:
+        query_filter += f' AND UPPER(sas.last_name) >= \'{range_min}\''
+        if range_max < 'Z':
+            # If 'stop' were 'Z' then upper bound would not be necessary
+            query_filter += f' AND UPPER(sas.last_name) < \'{chr(ord(range_max) + 1)}\''
     return query_filter

@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import datetime
+
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import is_unauthorized_search, response_with_students_csv_download
 from boac.lib.http import tolerant_jsonify
@@ -148,7 +150,7 @@ def get_cohort_per_filters():
     if is_unauthorized_search(filter_keys, order_by):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     benchmark('begin phantom cohort query')
-    cohort = CohortFilter.construct_phantom_cohort(
+    cohort = _construct_phantom_cohort(
         filters=filters,
         order_by=order_by,
         offset=int(offset),
@@ -173,7 +175,7 @@ def download_csv_per_filters():
     filter_keys = list(map(lambda f: f['key'], filters))
     if is_unauthorized_search(filter_keys):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
-    cohort = CohortFilter.construct_phantom_cohort(
+    cohort = _construct_phantom_cohort(
         filters=filters,
         offset=0,
         limit=None,
@@ -191,7 +193,11 @@ def create_cohort():
     name = get_param(params, 'name', None)
     filters = get_param(params, 'filters', None)
     order_by = params.get('orderBy')
-    filter_criteria = _filters_to_filter_criteria(filters, order_by)
+    # Authorization check
+    filter_keys = list(map(lambda f: f['key'], filters))
+    if is_unauthorized_search(filter_keys, order_by):
+        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
+    filter_criteria = _translate_filters_to_cohort_criteria(filters)
     if not name or not filter_criteria:
         raise BadRequestError('Cohort creation requires \'name\' and \'filters\'')
     cohort = CohortFilter.create(
@@ -211,13 +217,16 @@ def update_cohort():
     params = request.get_json()
     cohort_id = int(params.get('id'))
     name = params.get('name')
-    # Filter criteria can be submitted as (1) ready-to-save JSON in 'criteria' param or (2) 'filters' param which
-    # is a serialized version of what user sees in /cohort view.
-    filter_criteria = _filters_to_filter_criteria(params.get('filters')) if 'filters' in params else params.get('criteria')
-    if not name and not filter_criteria:
+    filters = params.get('filters')
+    # Validation
+    if not name and not filters:
         raise BadRequestError('Invalid request')
     if not CohortFilter.is_cohort_owned_by(cohort_id, current_user.get_id()):
         raise ForbiddenRequestError(f'Invalid or unauthorized request')
+    filter_keys = list(map(lambda f: f['key'], filters))
+    if is_unauthorized_search(filter_keys):
+        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
+    filter_criteria = _translate_filters_to_cohort_criteria(filters)
     updated = CohortFilter.update(
         cohort_id=cohort_id,
         name=name,
@@ -266,15 +275,40 @@ def _decorate_cohort(cohort):
     cohort.update({'isOwnedByCurrentUser': current_user.get_uid() in owner_uids})
 
 
-def _filters_to_filter_criteria(filters, order_by=None):
-    filter_keys = list(map(lambda f: f['key'], filters))
-    if is_unauthorized_search(filter_keys, order_by):
-        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
-    return CohortFilter.translate_filters_to_cohort_criteria(filters)
-
-
 def _can_current_user_view_cohort(cohort):
     if current_user.is_admin or not cohort['owners']:
         return True
     cohort_dept_codes = {dept_code for o in cohort['owners'] for dept_code in o['deptCodes']}
     return len(cohort_dept_codes) > 0 and set(current_user.dept_codes).issuperset(cohort_dept_codes)
+
+
+def _construct_phantom_cohort(filters, **kwargs):
+    # A "phantom" cohort is an unsaved search.
+    cohort = CohortFilter(
+        name=f'phantom_cohort_{datetime.now().timestamp()}',
+        filter_criteria=_translate_filters_to_cohort_criteria(filters),
+    )
+    return cohort.to_api_json(**kwargs)
+
+
+def _translate_filters_to_cohort_criteria(filters):
+    db_type_per_key = _get_filter_db_type_per_key()
+    criteria = {}
+    for row in filters:
+        key = row['key']
+        db_type = db_type_per_key[key]
+        if db_type == 'boolean':
+            criteria[key] = row['value']
+        elif db_type in ['string[]', 'json[]']:
+            if not criteria.get(key):
+                criteria[key] = []
+            criteria[key].append(row['value'])
+    return criteria
+
+
+def _get_filter_db_type_per_key():
+    filter_type_per_key = {}
+    for category in get_cohort_filter_options(current_user.get_uid()):
+        for _filter in category:
+            filter_type_per_key[_filter['key']] = _filter['type']['db']
+    return filter_type_per_key
