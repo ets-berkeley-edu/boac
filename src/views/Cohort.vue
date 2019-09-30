@@ -10,7 +10,7 @@
         class="mr-3">
         <FilterRow
           v-for="(filter, index) in filters"
-          :key="compositeKey(filter)"
+          :key="filterRowUniqueKey(filter, index)"
           class="filter-row"
           :index="index" />
         <FilterRow v-if="isOwnedByCurrentUser" />
@@ -161,7 +161,7 @@ export default {
     });
   },
   methods: {
-    compositeKey: filter => `${filter.key}${filter.value}`,
+    filterRowUniqueKey: (filter, index) => `${filter.key}-${index}`,
     goToPage(page) {
       if (page > 1) {
         this.screenReaderAlert = `Go to page ${page}`;

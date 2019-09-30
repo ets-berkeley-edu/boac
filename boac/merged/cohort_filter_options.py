@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from copy import deepcopy
+from copy import copy, deepcopy
 
 from boac.api.util import authorized_users_api_feed
 from boac.externals import data_loch
@@ -37,46 +37,74 @@ from flask_login import current_user
 
 
 def translate_to_filter_options(owner_uid, criteria=None):
+    # Transform cohort filter criteria in the database to a UX-compatible data structure.
     rows = []
     if criteria:
-        for definitions in _get_filter_options(get_student_query_scope(), owner_uid):
-            for definition in definitions:
-                selected = criteria.get(definition['key'])
+        for category in _get_filter_options(get_student_query_scope(), owner_uid):
+            for filter_option in category:
+                selected = criteria.get(filter_option['key'])
                 if selected is not None:
-                    if definition['type'] == 'array':
+                    def _append_row(value):
+                        clone = deepcopy(filter_option)
+                        row = {k: clone.get(k) for k in ['key', 'label', 'options', 'type', 'validation']}
+                        row['value'] = value
+                        rows.append(row)
+                    filter_type = filter_option['type']['db']
+                    if filter_type == 'string[]':
+                        all_options = filter_option.get('options')
                         for selection in selected:
-                            rows.append(_translate_filter_row(definition, selection))
+                            value = next((o.get('value') for o in all_options if o.get('value') == selection), None)
+                            if value:
+                                _append_row(value)
+                    elif filter_type == 'boolean':
+                        _append_row(selected)
+                    elif filter_type == 'json[]':
+                        for obj in selected:
+                            _append_row(copy(obj))
                     else:
-                        rows.append(_translate_filter_row(definition, selected))
+                        raise ValueError(f'Unrecognized filter_type "{filter_type}"')
     return rows
 
 
-def get_cohort_filter_options(owner_uid, existing_filters):
-    # Default menu has all options available. Options vary with cohort owner since the "My Students" filter includes
-    # an list of the cohort owner's academic plans.
-    filter_categories = _get_filter_options(get_student_query_scope(), owner_uid)
-    menus = [menu for category in filter_categories for menu in category]
-    for key in _keys_of_type_boolean(existing_filters):
-        # Disable sub_menu options if they are already in cohort criteria
-        for menu in menus:
-            if menu['key'] == key:
-                # Disable 'boolean' sub_menu (e.g., 'isInactiveCoe') if it is already in cohort criteria
-                menu['disabled'] = True
-    # Get filters of type 'range' (e.g., 'last name')
-    for key, values in _selections_of_type('range', existing_filters).items():
-        menu = next(s for s in menus if s['key'] == key)
-        menu['disabled'] = True
-    # Get filters of type 'array' (e.g., 'levels')
-    for key, values in _selections_of_type('array', existing_filters).items():
-        menu = next(s for s in menus if s['key'] == key)
-        if len(values) == len(menu['options']):
-            # If count of selected values equals number of options then disable the sub_menu
-            menu['disabled'] = True
-        for option in menu['options']:
-            if option['value'] in values:
-                # Disable sub_menu options that are already in cohort criteria
-                option['disabled'] = True
-    return filter_categories
+def get_cohort_filter_options(owner_uid, existing_filters=()):
+    # Disable filter options based on existing cohort criteria.
+    cohort_filter_options = _get_filter_options(get_student_query_scope(), owner_uid)
+    cohort_filter_per_key = {}
+    filter_type_per_key = {}
+    for category in cohort_filter_options:
+        for _filter in category:
+            _key = _filter['key']
+            cohort_filter_per_key[_key] = _filter
+            filter_type_per_key[_key] = _filter['type']['db']
+
+    selected_values_per_key = {}
+    for existing_filter in existing_filters:
+        key = existing_filter['key']
+        if key not in selected_values_per_key:
+            selected_values_per_key[key] = []
+        value = True if filter_type_per_key[key] == 'boolean' else existing_filter['value']
+        selected_values_per_key[key].append(value)
+
+    for key, selected_values in selected_values_per_key.items():
+        # Disable options that are represented in 'existing_filters'
+        cohort_filter = cohort_filter_per_key[key]
+        if cohort_filter['type']['ux'] == 'boolean':
+            cohort_filter['disabled'] = True
+        if cohort_filter['type']['ux'] == 'dropdown':
+            # Populate dropdown
+            selected_values = selected_values_per_key[key]
+            available_options = cohort_filter['options']
+            if len(available_options) - len(selected_values) == 0:
+                # This filter has zero available options.
+                cohort_filter['disabled'] = True
+                for option in available_options:
+                    option['disabled'] = True
+            else:
+                for option in available_options:
+                    if option.get('value') in selected_values:
+                        # Disable option
+                        option['disabled'] = True
+    return cohort_filter_options
 
 
 def _get_filter_options(scope, cohort_owner_uid):
@@ -87,63 +115,104 @@ def _get_filter_options(scope, cohort_owner_uid):
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
                 'key': 'expectedGradTerms',
-                'name': 'Expected Graduation Term',
+                'label': {
+                    'primary': 'Expected Graduation Term',
+                },
                 'options': _grad_terms,
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
+                'type': {
+                    'db': 'string[]',
+                    'ux': 'dropdown',
+                },
             },
             {
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
                 'key': 'gpaRanges',
-                'name': 'GPA',
-                'options': _gpa_ranges,
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
+                'options': None,
+                'label': {
+                    'primary': 'GPA',
+                    'range': ['', 'between'],
+                    'rangeMinEqualsMax': '',
+                },
+                'type': {
+                    'db': 'json[]',
+                    'ux': 'range',
+                },
+                'validation': 'gpa',
             },
             {
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
                 'key': 'levels',
-                'name': 'Level',
-                'options': _class_levels,
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
+                'label': {
+                    'primary': 'Level',
+                },
+                'options': [
+                    {'name': 'Freshman (0-29 Units)', 'value': 'Freshman'},
+                    {'name': 'Sophomore (30-59 Units)', 'value': 'Sophomore'},
+                    {'name': 'Junior (60-89 Units)', 'value': 'Junior'},
+                    {'name': 'Senior (90+ Units)', 'value': 'Senior'},
+                ],
+                'type': {
+                    'db': 'string[]',
+                    'ux': 'dropdown',
+                },
             },
             {
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
                 'key': 'majors',
-                'name': 'Major',
+                'label': {
+                    'primary': 'Major',
+                },
                 'options': _majors,
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
+                'type': {
+                    'db': 'string[]',
+                    'ux': 'dropdown',
+                },
             },
             {
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
                 'key': 'midpointDeficient',
-                'name': 'Midpoint Deficient Grade',
-                'options': [True, False],
-                'type': 'boolean',
+                'label': {
+                    'primary': 'Midpoint Deficient Grade',
+                },
+                'type': {
+                    'db': 'boolean',
+                    'ux': 'boolean',
+                },
             },
             {
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
                 'key': 'transfer',
-                'name': 'Transfer Student',
-                'options': [True, False],
-                'subcategoryHeader': 'Choose...',
-                'type': 'boolean',
+                'label': {
+                    'primary': 'Transfer Student',
+                },
+                'type': {
+                    'db': 'boolean',
+                    'ux': 'boolean',
+                },
             },
             {
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
                 'key': 'unitRanges',
-                'name': 'Units Completed',
-                'options': _unit_ranges,
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
+                'label': {
+                    'primary': 'Units Completed',
+                },
+                'options': [
+                    {'name': '0 - 29', 'value': 'numrange(NULL, 30, \'[)\')'},
+                    {'name': '30 - 59', 'value': 'numrange(30, 60, \'[)\')'},
+                    {'name': '60 - 89', 'value': 'numrange(60, 90, \'[)\')'},
+                    {'name': '90 - 119', 'value': 'numrange(90, 120, \'[)\')'},
+                    {'name': '120 +', 'value': 'numrange(120, NULL, \'[)\')'},
+                ],
+                'type': {
+                    'db': 'string[]',
+                    'ux': 'dropdown',
+                },
             },
         ],
         [
@@ -151,27 +220,39 @@ def _get_filter_options(scope, cohort_owner_uid):
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
                 'key': 'ethnicities',
-                'name': 'Ethnicity',
+                'label': {
+                    'primary': 'Ethnicity',
+                },
                 'options': _ethnicities,
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
+                'type': {
+                    'db': 'string[]',
+                    'ux': 'dropdown',
+                },
             },
             {
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
                 'key': 'genders',
-                'name': 'Gender',
+                'label': {
+                    'primary': 'Gender',
+                },
                 'options': _genders,
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
+                'type': {
+                    'db': 'string[]',
+                    'ux': 'dropdown',
+                },
             },
             {
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
                 'key': 'underrepresented',
-                'name': 'Underrepresented Minority',
-                'options': [True, False],
-                'type': 'boolean',
+                'label': {
+                    'primary': 'Underrepresented Minority',
+                },
+                'type': {
+                    'db': 'boolean',
+                    'ux': 'boolean',
+                },
             },
         ],
         [
@@ -179,26 +260,38 @@ def _get_filter_options(scope, cohort_owner_uid):
                 'availableTo': ['UWASC'],
                 'defaultValue': False if 'UWASC' in scope else None,
                 'key': 'isInactiveAsc',
-                'name': 'Inactive' if 'UWASC' in scope else 'Inactive (ASC)',
-                'options': [True, False],
-                'type': 'boolean',
+                'label': {
+                    'primary': 'Inactive' if 'UWASC' in scope else 'Inactive (ASC)',
+                },
+                'type': {
+                    'db': 'boolean',
+                    'ux': 'boolean',
+                },
             },
             {
                 'availableTo': ['UWASC'],
                 'defaultValue': None,
                 'key': 'inIntensiveCohort',
-                'name': 'Intensive',
-                'options': [True, False],
-                'type': 'boolean',
+                'label': {
+                    'primary': 'Intensive',
+                },
+                'type': {
+                    'db': 'boolean',
+                    'ux': 'boolean',
+                },
             },
             {
                 'availableTo': ['UWASC'],
                 'defaultValue': None,
                 'key': 'groupCodes',
-                'name': 'Team',
+                'label': {
+                    'primary': 'Team',
+                },
                 'options': _team_groups,
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
+                'type': {
+                    'db': 'string[]',
+                    'ux': 'dropdown',
+                },
             },
         ],
         [
@@ -206,79 +299,125 @@ def _get_filter_options(scope, cohort_owner_uid):
                 'availableTo': ['COENG'],
                 'defaultValue': None,
                 'key': 'coeAdvisorLdapUids',
-                'name': 'Advisor (COE)',
+                'label': {
+                    'primary': 'Advisor (COE)',
+                },
                 'options': _get_coe_profiles,
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
+                'type': {
+                    'db': 'string[]',
+                    'ux': 'dropdown',
+                },
             },
             {
                 'availableTo': ['COENG'],
                 'defaultValue': None,
                 'key': 'coeEthnicities',
-                'name': 'Ethnicity (COE)',
+                'label': {
+                    'primary': 'Ethnicity (COE)',
+                },
                 'options': _coe_ethnicities,
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
+                'type': {
+                    'db': 'string[]',
+                    'ux': 'dropdown',
+                },
             },
             {
                 'availableTo': ['COENG'],
                 'defaultValue': None,
                 'key': 'coeGenders',
-                'name': 'Gender (COE)',
-                'options': _coe_genders,
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
+                'label': {
+                    'primary': 'Gender (COE)',
+                },
+                'options': [
+                    {'name': 'Female', 'value': 'F'},
+                    {'name': 'Male', 'value': 'M'},
+                ],
+                'type': {
+                    'db': 'string[]',
+                    'ux': 'dropdown',
+                },
             },
             {
                 'availableTo': ['COENG'],
                 'defaultValue': False if 'COENG' in scope else None,
                 'key': 'isInactiveCoe',
-                'name': 'Inactive' if 'COENG' in scope else 'Inactive (COE)',
-                'options': [True, False],
-                'type': 'boolean',
+                'label': {
+                    'primary': 'Inactive' if 'COENG' in scope else 'Inactive (COE)',
+                },
+                'type': {
+                    'db': 'boolean',
+                    'ux': 'boolean',
+                },
             },
             {
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
-                'key': 'lastNameRange',
-                'name': 'Last Name',
-                'options': None,
-                'subcategoryHeader': ['Initials', 'through'],
-                'type': 'range',
+                'key': 'lastNameRanges',
+                'label': {
+                    'primary': 'Last Name',
+                    'range': ['Initials', 'through'],
+                    'rangeMinEqualsMax': 'Starts with',
+                },
+                'type': {
+                    'db': 'json[]',
+                    'ux': 'range',
+                },
+                'validation': 'char',
             },
             {
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
                 'key': 'cohortOwnerAcademicPlans',
-                'name': 'My Students',
+                'label': {
+                    'primary': 'My Students',
+                },
                 'options': _academic_plans_for_cohort_owner(cohort_owner_uid),
-                'subcategoryHeader': 'Choose academic plan...',
-                'type': 'array',
+                'type': {
+                    'db': 'string[]',
+                    'ux': 'dropdown',
+                },
             },
             {
                 'availableTo': ['COENG'],
                 'defaultValue': None,
                 'key': 'coePrepStatuses',
-                'name': 'PREP',
-                'options': _coe_prep_statuses,
-                'subcategoryHeader': 'Choose...',
-                'type': 'array',
+                'label': {
+                    'primary': 'PREP',
+                },
+                'options': [
+                    {'name': 'PREP', 'value': 'did_prep'},
+                    {'name': 'PREP eligible', 'value': 'prep_eligible'},
+                    {'name': 'T-PREP', 'value': 'did_tprep'},
+                    {'name': 'T-PREP eligible', 'value': 'tprep_eligible'},
+                ],
+                'type': {
+                    'db': 'string[]',
+                    'ux': 'dropdown',
+                },
             },
             {
                 'availableTo': ['COENG'],
                 'defaultValue': None,
                 'key': 'coeProbation',
-                'name': 'Probation',
-                'options': [True, False],
-                'type': 'boolean',
+                'label': {
+                    'primary': 'Probation',
+                },
+                'type': {
+                    'db': 'boolean',
+                    'ux': 'boolean',
+                },
             },
             {
                 'availableTo': ['COENG'],
                 'defaultValue': None,
                 'key': 'coeUnderrepresented',
-                'name': 'Underrepresented Minority (COE)',
-                'options': [True, False],
-                'type': 'boolean',
+                'label': {
+                    'primary': 'Underrepresented Minority (COE)',
+                },
+                'type': {
+                    'db': 'boolean',
+                    'ux': 'boolean',
+                },
             },
         ],
     ]
@@ -286,7 +425,7 @@ def _get_filter_options(scope, cohort_owner_uid):
 
     def is_available(d):
         available = 'ADMIN' in scope or next((dept_code for dept_code in d['availableTo'] if dept_code in scope), False)
-        if available:
+        if available and 'options' in d:
             # If it is available then populate menu options
             options = d.pop('options')
             d['options'] = options() if callable(options) else options
@@ -296,38 +435,6 @@ def _get_filter_options(scope, cohort_owner_uid):
         available_categories.append(list(filter(lambda d: is_available(d), category)))
     # Remove unavailable (ie, empty) categories
     return list(filter(lambda g: len(g), available_categories))
-
-
-def _translate_filter_row(definition, selection=None):
-    clone = deepcopy(definition)
-    row = {k: clone.get(k) for k in ['key', 'name', 'options', 'subcategoryHeader', 'type']}
-    if definition['type'] == 'array':
-        option = next((o for o in row.get('options', []) if o['value'] == selection), None)
-        if option:
-            row['value'] = option['value']
-    else:
-        row['value'] = selection
-    return row
-
-
-def _keys_of_type_boolean(rows):
-    # First, get selected 'boolean' options (e.g., 'coeProbation') from cohort criteria.
-    existing_boolean_rows = list(filter(lambda row: row['type'] in ['boolean'], rows))
-    return list(map(lambda r: r['key'], existing_boolean_rows))
-
-
-def _selections_of_type(filter_type, existing_filters):
-    rows = list(filter(lambda row: row['type'] in [filter_type], existing_filters))
-    unique_keys = set(map(lambda row: row['key'], rows))
-    selections = dict.fromkeys(unique_keys)
-    for row in rows:
-        key = row['key']
-        if not selections[key]:
-            selections[key] = []
-        value = row.get('value')
-        if value:
-            selections[key].append(value)
-    return selections
 
 
 def _get_coe_profiles():
@@ -358,41 +465,6 @@ def _academic_plans_for_cohort_owner(owner_uid):
     return plans
 
 
-def _unit_ranges():
-    return [
-        {'name': '0 - 29', 'value': 'numrange(NULL, 30, \'[)\')'},
-        {'name': '30 - 59', 'value': 'numrange(30, 60, \'[)\')'},
-        {'name': '60 - 89', 'value': 'numrange(60, 90, \'[)\')'},
-        {'name': '90 - 119', 'value': 'numrange(90, 120, \'[)\')'},
-        {'name': '120 +', 'value': 'numrange(120, NULL, \'[)\')'},
-    ]
-
-
-def _class_levels():
-    return [
-        {'name': 'Freshman (0-29 Units)', 'value': 'Freshman'},
-        {'name': 'Sophomore (30-59 Units)', 'value': 'Sophomore'},
-        {'name': 'Junior (60-89 Units)', 'value': 'Junior'},
-        {'name': 'Senior (90+ Units)', 'value': 'Senior'},
-    ]
-
-
-def _coe_prep_statuses():
-    return [
-        {'name': 'PREP', 'value': 'did_prep'},
-        {'name': 'PREP eligible', 'value': 'prep_eligible'},
-        {'name': 'T-PREP', 'value': 'did_tprep'},
-        {'name': 'T-PREP eligible', 'value': 'tprep_eligible'},
-    ]
-
-
-def _coe_genders():
-    return [
-        {'name': 'Female', 'value': 'F'},
-        {'name': 'Male', 'value': 'M'},
-    ]
-
-
 def _ethnicities():
     return [{'name': row['ethnicity'], 'value': row['ethnicity']} for row in data_loch.get_distinct_ethnicities()]
 
@@ -407,16 +479,6 @@ def _grad_terms():
     first_previous_term_index = next((i for i, term in enumerate(terms) if term['value'] < current_term_id()), None)
     terms.insert(first_previous_term_index, {'name': 'divider', 'value': 'divider'})
     return terms
-
-
-def _gpa_ranges():
-    return [
-        {'name': '3.50 - 4.00', 'value': 'numrange(3.5, 4, \'[]\')'},
-        {'name': '3.00 - 3.49', 'value': 'numrange(3, 3.5, \'[)\')'},
-        {'name': '2.50 - 2.99', 'value': 'numrange(2.5, 3, \'[)\')'},
-        {'name': '2.00 - 2.49', 'value': 'numrange(2, 2.5, \'[)\')'},
-        {'name': 'Below 2.0', 'value': 'numrange(0, 2, \'[)\')'},
-    ]
 
 
 def _coe_ethnicities():

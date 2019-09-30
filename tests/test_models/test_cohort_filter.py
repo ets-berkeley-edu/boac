@@ -39,8 +39,8 @@ class TestCohortFilter:
 
     def test_filter_criteria(self):
         gpa_ranges = [
-            'numrange(0, 2, \'[)\')',
-            'numrange(2, 2.5, \'[)\')',
+            {'min': 0, 'max': 1.999},
+            {'min': 2, 'max': 2.499},
         ]
         group_codes = ['MFB-DB', 'MFB-DL']
         levels = ['Junior']

@@ -37,6 +37,7 @@ export default {
     includes: _.includes,
     inRange: _.inRange,
     isEmpty: _.isEmpty,
+    isNaN: _.isNaN,
     isNil: _.isNil,
     isNumber: _.isNumber,
     isString: _.isString,

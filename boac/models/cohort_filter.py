@@ -23,14 +23,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
 import json
 
 from boac import db, std_commit
 from boac.api.errors import InternalServerError
 from boac.lib import util
 from boac.lib.berkeley import current_term_id
-from boac.lib.util import get_benchmarker, to_bool_or_none as to_bool
+from boac.lib.util import get_benchmarker
 from boac.merged import athletics
 from boac.merged.calnet import get_csid_for_uid
 from boac.merged.student import query_students
@@ -221,32 +220,6 @@ class CohortFilter(Base):
         db.session.delete(cohort_filter)
         std_commit()
 
-    @classmethod
-    def construct_phantom_cohort(cls, filters, **kwargs):
-        # A "phantom" cohort is one that we do not save to the db.
-        # On the front-end, a "phantom" cohort is an unsaved search.
-        cohort = cls(
-            name=f'phantom_cohort_{datetime.now().timestamp()}',
-            filter_criteria=cls.translate_filters_to_cohort_criteria(filters),
-        )
-        return cohort.to_api_json(**kwargs)
-
-    @classmethod
-    def translate_filters_to_cohort_criteria(cls, filters):
-        criteria = {}
-        for filter_ in filters:
-            key = filter_['key']
-            type_ = filter_['type']
-            value = filter_['value']
-            if type_ == 'boolean':
-                criteria[key] = to_bool(value)
-            elif type_ == 'array':
-                criteria[key] = criteria.get(key) or []
-                criteria[key].append(value)
-            elif type_ == 'range':
-                criteria[key] = value
-        return criteria
-
     def to_api_json(
         self,
         order_by=None,
@@ -293,7 +266,7 @@ class CohortFilter(Base):
         in_intensive_cohort = util.to_bool_or_none(c.get('inIntensiveCohort'))
         is_inactive_asc = util.to_bool_or_none(c.get('isInactiveAsc'))
         is_inactive_coe = util.to_bool_or_none(c.get('isInactiveCoe'))
-        last_name_range = c.get('lastNameRange')
+        last_name_ranges = c.get('lastNameRanges')
         levels = c.get('levels')
         majors = c.get('majors')
         midpoint_deficient_grade = util.to_bool_or_none(c.get('midpointDeficient'))
@@ -318,7 +291,7 @@ class CohortFilter(Base):
                 'inIntensiveCohort': in_intensive_cohort,
                 'isInactiveAsc': is_inactive_asc,
                 'isInactiveCoe': is_inactive_coe,
-                'lastNameRange': last_name_range,
+                'lastNameRanges': last_name_ranges,
                 'levels': levels,
                 'majors': majors,
                 'midpointDeficient': midpoint_deficient_grade,
@@ -368,7 +341,7 @@ class CohortFilter(Base):
             include_profiles=(include_students and include_profiles),
             is_active_asc=None if is_inactive_asc is None else not is_inactive_asc,
             is_active_coe=None if is_inactive_coe is None else not is_inactive_coe,
-            last_name_range=last_name_range,
+            last_name_ranges=last_name_ranges,
             levels=levels,
             limit=limit,
             majors=majors,
