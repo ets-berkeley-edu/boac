@@ -19,7 +19,7 @@ fi
 
 # Run Python script
 cd /opt/python/current/app
-python3 scripts/db/migrate/20190716-BOAC-2256/alter_ethnicities_key_in_cohort_json.py
+python3 scripts/db/migrate/20190924-BOAC-2620/post_deploy_01_gpa_json_in_cohort_filter.py
 
 echo 'Done.'
 
