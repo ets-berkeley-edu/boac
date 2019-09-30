@@ -196,6 +196,7 @@
           class="btn-primary-color-override"
           variant="primary"
           :aria-label="`Update this ${filter.label.primary} filter`"
+          :disabled="!!errorPerRangeInput"
           size="sm"
           @click="onClickUpdateButton()">
           Update
