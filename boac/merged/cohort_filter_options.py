@@ -131,7 +131,7 @@ def _get_filter_options(scope, cohort_owner_uid):
                 'options': None,
                 'label': {
                     'primary': 'GPA',
-                    'range': ['', 'between'],
+                    'range': ['', '-'],
                     'rangeMinEqualsMax': '',
                 },
                 'type': {
