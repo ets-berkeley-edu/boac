@@ -289,9 +289,11 @@ export default {
           if (!this.errorPerRangeInput) {
             this.validateRangeInputGPA(max);
           }
-        }
-        if (!this.errorPerRangeInput) {
-          this.errorPerRangeInput = min && max && min > max ? 'Values must be in ascending order.' : undefined;
+          if (!this.errorPerRangeInput && min && max && parseFloat(min) > parseFloat(max)) {
+            this.errorPerRangeInput = 'GPA inputs must be in ascending order.';
+          }
+        } else if (min && max && min > max) {
+          this.errorPerRangeInput = 'Values must be in ascending order.';
         }
         this.showAdd = min && max && !this.errorPerRangeInput;
       },
@@ -305,6 +307,11 @@ export default {
   methods: {
     filterRowPrimaryDropdownId: index => `filter-row-dropdown-primary-${index}`,
     filterRowSecondaryDropdownId: index => `filter-row-dropdown-secondary-${index}`,
+    formatGPA(value) {
+      // Prepend zero in case input is, for example, '.2'. No harm done if input has a leading zero.
+      const gpa = '0' + this.trim(value);
+      return parseFloat(gpa).toFixed(3);
+    },
     getDropdownSelectedLabel() {
       return this.get(this.find(this.filter.options, ['value', this.filter.value]), 'name');
     },
@@ -322,8 +329,8 @@ export default {
         case 'range':
           this.screenReaderAlert = `Added ${this.filter.label.primary} filter, ${this.range.min} to ${this.range.max}`;
           this.filter.value = {
-            min: this.filter.validation === 'gpa' ? parseFloat(this.range.min).toFixed(3) : this.range.min.toUpperCase(),
-            max: this.filter.validation === 'gpa' ? parseFloat(this.range.max).toFixed(3) : this.range.max.toUpperCase()
+            min: this.filter.validation === 'gpa' ? this.formatGPA(this.range.min) : this.range.min.toUpperCase(),
+            max: this.filter.validation === 'gpa' ? this.formatGPA(this.range.max) : this.range.max.toUpperCase()
           };
           this.range.min = this.range.max = undefined;
           break;
@@ -359,8 +366,8 @@ export default {
     onClickUpdateButton() {
       if (this.isUX('range') ) {
         this.filter.value = {
-          min: this.range.min,
-          max: this.range.max
+          min: this.formatGPA(this.range.min),
+          max: this.formatGPA(this.range.max)
         };
       }
       this.updateExistingFilter({index: this.index, updatedFilter: this.filter}).then(() => {
