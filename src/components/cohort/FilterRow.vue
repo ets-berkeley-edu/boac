@@ -197,7 +197,7 @@
           class="btn-primary-color-override"
           variant="primary"
           :aria-label="`Update this ${filter.label.primary} filter`"
-          :disabled="!!errorPerRangeInput"
+          :disabled="disableUpdateButton"
           size="sm"
           @click="onClickUpdateButton()">
           Update
@@ -228,6 +228,7 @@ export default {
     index: Number
   },
   data: () => ({
+    disableUpdateButton: false,
     errorPerRangeInput: undefined,
     filter: undefined,
     isExistingFilter: undefined,
@@ -287,21 +288,33 @@ export default {
     },
     range: {
       handler(rangeObject) {
+        this.disableUpdateButton = false;
         this.errorPerRangeInput = undefined;
-        const min = this.trim(this.get(rangeObject, 'min')) || undefined;
-        const max = this.trim(this.get(rangeObject, 'max')) || undefined;
+        let min = this.trim(this.get(rangeObject, 'min')) || undefined;
+        let max = this.trim(this.get(rangeObject, 'max')) || undefined;
+        const isNilOrNan = v => this.isNil(v) || this.isNaN(v);
         if (this.filter.validation === 'gpa') {
-          this.validateRangeInputGPA(min);
-          if (!this.errorPerRangeInput) {
-            this.validateRangeInputGPA(max);
-          }
-          if (!this.errorPerRangeInput && min && max && parseFloat(min) > parseFloat(max)) {
+          min = parseFloat(min);
+          max = parseFloat(max);
+          const isDefinedAndInvalid = v => (this.isNumber(v) && v < 0 || v > 4) || this.isNaN(v);
+          if (isDefinedAndInvalid(min) || isDefinedAndInvalid(max)) {
+            this.errorPerRangeInput = 'GPA must be a number in the range 0 to 4.';
+          } else if (this.isNumber(min) && this.isNumber(max) && min > max) {
             this.errorPerRangeInput = 'GPA inputs must be in ascending order.';
           }
-        } else if (min && max && min > max) {
-          this.errorPerRangeInput = 'Values must be in ascending order.';
+          this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max;
+        } else if (this.filter.validation === 'char') {
+          if (min && max && min > max) {
+            this.disableUpdateButton = true;
+            this.errorPerRangeInput = 'Letters must be in ascending order.';
+          } else {
+            this.disableUpdateButton = isNilOrNan(min) || isNilOrNan(max) || min > max;
+          }
+        } else if (this.filter.validation) {
+          this.disableUpdateButton = true;
+          this.errorPerRangeInput = `Unrecognized range type: ${this.filter.validation}`;
         }
-        this.showAdd = min && max && !this.errorPerRangeInput;
+        this.showAdd = !this.errorPerRangeInput && !isNilOrNan(min) && !isNilOrNan(max);
       },
       deep: true
     }
@@ -358,6 +371,7 @@ export default {
       this.putFocusNewFilterDropdown();
     },
     onClickEditButton() {
+      this.disableUpdateButton = false;
       if (this.isUX('dropdown')) {
         const category = this.find(this.flatten(this.menu), ['key', this.filter.key]);
         this.filter.options = category.options;
@@ -422,27 +436,27 @@ export default {
       return maxLength;
     },
     rangeMaxLabel() {
-      const min = this.get(this.filter, 'value.min');
-      const max = this.get(this.filter, 'value.max');
-      const minEqualsMax = !this.isNil(min) && min === max;
-      const labels = this.get(this.filter.label, 'range');
       let snippet = undefined;
       if (this.isModifyingFilter) {
-        snippet = minEqualsMax ? '' : this.filter.label.range[1];
+        snippet = this.filter.label.range[1];
       } else {
+        const min = this.get(this.filter, 'value.min');
+        const max = this.get(this.filter, 'value.max');
+        const minEqualsMax = !this.isNil(min) && min === max;
+        const labels = this.get(this.filter.label, 'range');
         snippet = minEqualsMax ? '' : `${labels[1]} ${max}`;
       }
       return snippet;
     },
     rangeMinLabel() {
-      const min = this.get(this.filter, 'value.min');
-      const max = this.get(this.filter, 'value.max');
-      const minEqualsMax = !this.isNil(min) && min === max;
-      const labels = this.get(this.filter.label, 'range');
       let snippet = undefined;
       if (this.isModifyingFilter) {
-        snippet = minEqualsMax ? this.filter.label.rangeMinEqualsMax : this.filter.label.range[0];
+        snippet = this.filter.label.range[0];
       } else {
+        const min = this.get(this.filter, 'value.min');
+        const max = this.get(this.filter, 'value.max');
+        const minEqualsMax = !this.isNil(min) && min === max;
+        const labels = this.get(this.filter.label, 'range');
         snippet = minEqualsMax ? this.get(this.filter.label, 'rangeMinEqualsMax') + ' ' + min : `${labels[0]} ${min}`;
       }
       return snippet;
@@ -459,6 +473,7 @@ export default {
       });
     },
     reset() {
+      this.disableUpdateButton = false;
       this.showAdd = false;
       this.range = this.mapValues(this.range, () => undefined);
       if (this.isNil(this.index)) {
@@ -477,14 +492,6 @@ export default {
         this.filter.value = option.value;
         this.showAdd = true;
         this.putFocusNextTick('unsaved-filter-add');
-      }
-    },
-    validateRangeInputGPA(value) {
-      if (value) {
-        const asFloat = parseFloat(value);
-        if (this.isNaN(asFloat) || asFloat < 0 || asFloat > 4 ) {
-          this.errorPerRangeInput = 'GPA must be a number in the range 0 to 4.';
-        }
       }
     }
   }
