@@ -696,31 +696,34 @@ class TestCohortPerFilters:
             expected_status_code=403,
         )
 
-    def test_students_per_filters_coe_advisor(self, client, coe_advisor_login):
+    def test_students_per_ranges(self, client, coe_advisor_login):
         """API translates 'coeProbation' filter to proper filter_criteria query."""
-        gpa_range_1 = {'min': 0, 'max': 1.999}
-        gpa_range_2 = {'min': 2, 'max': 2.499}
+        gpa_range_1 = {'min': 0.000, 'max': 0.500}
+        gpa_range_2 = {'min': 3, 'max': 4}
+        last_name_range_1 = {'min': 'K', 'max': 'K'}
+        last_name_range_2 = {'min': 'A', 'max': 'F'}
+        last_name_range_3 = {'min': 'S', 'max': 'Z'}
         api_json = self._api_get_students_per_filters(
             client,
             {
                 'filters': [
-                    {'key': 'coeProbation', 'value': 'true'},
                     {'key': 'gpaRanges', 'value': gpa_range_1},
                     {'key': 'gpaRanges', 'value': gpa_range_2},
-                    {'key': 'lastNameRanges', 'value': {'min': 'B', 'max': 'F'}},
-                    {'key': 'lastNameRanges', 'value': {'min': 'M', 'max': 'P'}},
+                    {'key': 'lastNameRanges', 'value': last_name_range_1},
+                    {'key': 'lastNameRanges', 'value': last_name_range_2},
+                    {'key': 'lastNameRanges', 'value': last_name_range_3},
                 ],
+                'orderBy': 'last_name',
             },
         )
-        assert 'totalStudentCount' in api_json
-        assert 'students' in api_json
+        students = api_json['students']
+        assert len(students) == 5
+        assert api_json.get('totalStudentCount') == 5
+        assert ['Barney', 'Doolittle', 'Farestveit', 'Kerschen', 'Schlemiel'] == [s['lastName'] for s in students]
+        assert [3.85, 3.495, 3.9, 3.005, 0.4] == [s['cumulativeGPA'] for s in students]
         criteria = api_json['criteria']
-        assert criteria['coeProbation'] is not None
-        assert len(criteria['lastNameRanges']) == 2
-        gpa_ranges = criteria['gpaRanges']
-        assert len(gpa_ranges) == 2
-        assert gpa_range_1 in gpa_ranges
-        assert gpa_range_2 in gpa_ranges
+        assert len(criteria['gpaRanges']) == 2
+        assert len(criteria['lastNameRanges']) == 3
         for key in [
             'coeAdvisorLdapUids',
             'coeEthnicities',
