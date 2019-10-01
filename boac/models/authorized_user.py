@@ -40,6 +40,7 @@ class AuthorizedUser(Base):
     can_access_canvas_data = db.Column(db.Boolean, nullable=False)
     created_by = db.Column(db.String(255), nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
+    # When True, is_blocked prevents a deleted user from being revived by the automated refresh.
     is_blocked = db.Column(db.Boolean, nullable=False, default=False)
     department_memberships = db.relationship(
         'UniversityDeptMember',
@@ -135,6 +136,10 @@ class AuthorizedUser(Base):
     @classmethod
     def get_all_active_users(cls):
         return cls.query.filter_by(deleted_at=None).all()
+
+    @classmethod
+    def get_all_users(cls):
+        return cls.query.all()
 
     @classmethod
     def get_all_uids_in_scope(cls, scope=()):
