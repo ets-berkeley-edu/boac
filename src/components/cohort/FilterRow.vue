@@ -331,6 +331,7 @@ export default {
           break;
         case 'boolean':
           this.screenReaderAlert = `Added ${this.filter.label.primary}`;
+          this.filter.value = true;
           break;
         case 'range':
           this.screenReaderAlert = `Added ${this.filter.label.primary} filter, ${this.range.min} to ${this.range.max}`;
