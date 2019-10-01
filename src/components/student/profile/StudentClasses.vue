@@ -241,9 +241,9 @@ v-if="section.isViewableOnCoursePage"
       </div>
       <div
         v-if="!isEmpty(term.droppedSections)"
-        class="student-course mt-1 pt-1"
+        class="student-course mt-3 pt-1"
         is-open="true">
-        <div v-for="(droppedSection, dsIndex) in term.droppedSections" :key="dsIndex">
+        <div v-for="(droppedSection, dsIndex) in term.droppedSections" :key="dsIndex" class="ml-4">
           <div class="font-weight-bold">
             {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }}
             <div class="student-course-notation">
@@ -480,9 +480,9 @@ export default {
 }
 .student-term-header {
   font-size: 20px;
-  font-weight: 400;
+  font-weight: 600;
   margin: 20px 0 15px 0;
-  color: #999;
+  color: #666;
 }
 .term-no-enrollments {
   border-bottom: 1px solid #999;
