@@ -680,11 +680,10 @@ def get_students_query(     # noqa
     # Generic SIS criteria
     if gpa_ranges:
         sql_ready_gpa_ranges = [f"numrange({gpa_range['min']}, {gpa_range['max']}, '[]')" for gpa_range in gpa_ranges]
-        query_filter += _numranges_to_sql('sas.gpa', sql_ready_gpa_ranges)
-    query_filter += _numranges_to_sql('sas.units', unit_ranges) if unit_ranges else ''
+        query_filter += _number_ranges_to_sql('sas.gpa', sql_ready_gpa_ranges)
+    query_filter += _number_ranges_to_sql('sas.units', unit_ranges) if unit_ranges else ''
     if last_name_ranges:
-        for last_name_range in last_name_ranges:
-            query_filter += _query_filter_last_name_range(last_name_range['min'], last_name_range['max'])
+        query_filter += _last_name_ranges_to_sql(last_name_ranges)
     if ethnicities:
         query_filter += ' AND e.ethnicity = ANY(:ethnicities)'
         query_bindings.update({'ethnicities': ethnicities})
@@ -828,7 +827,7 @@ def naturalize_order(column_name):
     return f"UPPER(regexp_replace({column_name}, '\\\W', ''))"
 
 
-def numrange_to_sql(column, numrange):
+def _number_range_to_sql(column, numrange):
     # TODO BOAC currently expresses range criteria using Postgres-specific numrange syntax, which must be
     # translated into vanilla SQL for use against Redshift. If we end up keeping these criteria in Redshift
     # long-term, we should look into migrating stored ranges.
@@ -857,13 +856,35 @@ def numrange_to_sql(column, numrange):
         return sql_clause
 
 
-def _numranges_to_sql(column, numranges):
-    sql_ranges = [numrange_to_sql(column, numrange) for numrange in numranges]
+def _number_ranges_to_sql(column, number_ranges):
+    sql_ranges = [_number_range_to_sql(column, number_range) for number_range in number_ranges]
     sql_ranges = [r for r in sql_ranges if r]
     if len(sql_ranges):
         return ' AND (' + ' OR '.join(sql_ranges) + ')'
     else:
         return ''
+
+
+def _last_name_ranges_to_sql(last_name_ranges):
+    query_filter = ''
+    count = len(last_name_ranges)
+    if count:
+        query_filter += ' AND ('
+        for idx, last_name_range in enumerate(last_name_ranges):
+            range_min = last_name_range['min']
+            range_max = last_name_range['max']
+            if range_max == range_min:
+                query_filter += f'(sas.last_name ILIKE \'{range_min}%\')'
+            else:
+                query_filter += f'(UPPER(sas.last_name) >= \'{range_min}\''
+                if range_max < 'Z':
+                    # If 'stop' were 'Z' then upper bound would not be necessary
+                    query_filter += f' AND UPPER(sas.last_name) < \'{chr(ord(range_max) + 1)}\''
+                query_filter += ')'
+            if idx < count - 1:
+                query_filter += ' OR '
+        query_filter += ')'
+    return query_filter
 
 
 def _student_query_tables_for_scope(scope):
@@ -930,15 +951,3 @@ def _student_query_tables_for_scope(scope):
             table_sql = f"""FROM ({intersection_sql}) s
                 JOIN {student_schema()}.student_academic_status sas ON sas.sid = s.sid"""
     return table_sql
-
-
-def _query_filter_last_name_range(range_min, range_max):
-    query_filter = ''
-    if range_max == range_min:
-        query_filter += f' AND sas.last_name ILIKE \'{range_min}%\''
-    else:
-        query_filter += f' AND UPPER(sas.last_name) >= \'{range_min}\''
-        if range_max < 'Z':
-            # If 'stop' were 'Z' then upper bound would not be necessary
-            query_filter += f' AND UPPER(sas.last_name) < \'{chr(ord(range_max) + 1)}\''
-    return query_filter
