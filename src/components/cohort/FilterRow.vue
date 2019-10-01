@@ -110,13 +110,13 @@
         </div>
         <div>
           <span
-            :id="isExistingFilter ? `filter-${index}-range-min-label` : 'filter-range-min-label'"
+            :id="isExistingFilter ? `filter-range-min-${index}-label` : 'filter-range-min-label'"
             class="sr-only">beginning of range</span>
           <input
             :id="idRangeMin"
             v-model="range.min"
             class="filter-range-input"
-            :aria-labelledby="isExistingFilter ? `filter-${index}-range-min-label` : 'filter-range-min-label'"
+            :aria-labelledby="isExistingFilter ? `filter-range-min-${index}-label` : 'filter-range-min-label'"
             :maxlength="rangeInputSize()"
             :size="rangeInputSize()" />
         </div>
@@ -125,12 +125,13 @@
         </div>
         <div>
           <span
-            :id="isExistingFilter ? `filter-${index}-range-max-label` : 'filter-range-max-label'"
+            :id="isExistingFilter ? `filter-range-max-${index}-label` : 'filter-range-max-label'"
             class="sr-only">end of range</span>
           <input
+            :id="idRangeMax"
             v-model="range.max"
             class="filter-range-input"
-            :aria-labelledby="isExistingFilter ? `filter-${index}-range-max-label` : 'filter-range-max-label'"
+            :aria-labelledby="isExistingFilter ? `filter-range-max-${index}-label` : 'filter-range-max-label'"
             :maxlength="rangeInputSize()"
             :size="rangeInputSize()" />
         </div>
@@ -138,7 +139,7 @@
         <b-popover
           v-if="size(errorPerRangeInput)"
           :show="true"
-          :target="isExistingFilter ? `filter-${index}-range-min` : 'filter-range-min'"
+          :target="isExistingFilter ? `filter-range-min-${index}` : 'filter-range-min'"
           placement="top">
           <span class="has-error">{{ errorPerRangeInput }}</span>
         </b-popover>
@@ -245,9 +246,14 @@ export default {
     filterRowIndex() {
       return this.isExistingFilter ? this.index : 'new';
     },
+    idRangeMax() {
+      return this.isExistingFilter
+        ? `filter-range-max-${this.index}`
+        : 'filter-range-max';
+    },
     idRangeMin() {
       return this.isExistingFilter
-        ? `filter-${this.index}-range-min`
+        ? `filter-range-min-${this.index}`
         : 'filter-range-min';
     }
   },
