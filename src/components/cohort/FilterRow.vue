@@ -385,10 +385,11 @@ export default {
       this.screenReaderAlert = `Begin edit of ${this.filter.label.primary} filter`;
     },
     onClickUpdateButton() {
-      if (this.isUX('range') ) {
+      if (this.isUX('range')) {
+        const isGPA = this.filter.validation === 'gpa';
         this.filter.value = {
-          min: this.formatGPA(this.range.min),
-          max: this.formatGPA(this.range.max)
+          min: isGPA ? this.formatGPA(this.range.min) : this.range.min,
+          max: isGPA ? this.formatGPA(this.range.max) : this.range.max
         };
       }
       this.updateExistingFilter({index: this.index, updatedFilter: this.filter}).then(() => {
