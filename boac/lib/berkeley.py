@@ -391,10 +391,7 @@ BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS = {
         # ADVD ('Advisor Delegate') and minor advisors get filed with major advisors.
         'affiliations': ['ADVD', 'MAJ', 'MIN'],
     },
-    # Our 'Guest' and catchall 'Other' departments get stuck with empty program codes.
-    'GUEST': {
-        'program': '',
-    },
+    # Our catchall 'Other' department gets stuck with empty program codes.
     'ZZZZZ': {
         'program': '',
     },
