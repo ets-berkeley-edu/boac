@@ -290,12 +290,13 @@ export default {
       handler(rangeObject) {
         this.disableUpdateButton = false;
         this.errorPerRangeInput = undefined;
-        let min = this.trim(this.get(rangeObject, 'min')) || undefined;
-        let max = this.trim(this.get(rangeObject, 'max')) || undefined;
+        const trimToNil = v => this.isUndefined(v) ? v : this.trim(v) || undefined;
+        let min = trimToNil(this.get(rangeObject, 'min'));
+        let max = trimToNil(this.get(rangeObject, 'max'));
         const isNilOrNan = v => this.isNil(v) || this.isNaN(v);
         if (this.filter.validation === 'gpa') {
-          min = parseFloat(min);
-          max = parseFloat(max);
+          min = min && parseFloat(min);
+          max = max && parseFloat(max);
           const isDefinedAndInvalid = v => (this.isNumber(v) && v < 0 || v > 4) || this.isNaN(v);
           if (isDefinedAndInvalid(min) || isDefinedAndInvalid(max)) {
             this.errorPerRangeInput = 'GPA must be a number in the range 0 to 4.';
