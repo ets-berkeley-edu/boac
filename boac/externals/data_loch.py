@@ -925,9 +925,9 @@ def _student_query_tables_for_scope(scope):
             columns_for_codes = {
                 'COENG': [
                     'advisor_ldap_uid',
-                    'coe_genders',
-                    'coe_ethnicity',
-                    'coe_underrepresented',
+                    'gender',
+                    'ethnicity',
+                    'minority',
                     'did_prep',
                     'did_tprep',
                     'prep_eligible',

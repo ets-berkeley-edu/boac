@@ -33,6 +33,7 @@ guest_user_uid = '2'
 admin_uid = '2040'
 asc_advisor_uid = '1081940'
 coe_advisor_uid = '1133399'
+asc_and_coe_advisor_uid = '90412'
 
 
 @pytest.fixture()
@@ -48,6 +49,11 @@ def asc_advisor_login(fake_auth):
 @pytest.fixture()
 def coe_advisor_login(fake_auth):
     fake_auth.login(coe_advisor_uid)
+
+
+@pytest.fixture()
+def asc_and_coe_advisor_login(fake_auth):
+    fake_auth.login(asc_and_coe_advisor_uid)
 
 
 @pytest.fixture()
@@ -494,7 +500,7 @@ class TestCohortCreate:
         assert 'Gender and Women''s Studies' in majors
 
     def test_admin_creation_of_asc_cohort(self, client, admin_login):
-        """COE advisor cannot use ASC criteria."""
+        """Admin can use ASC criteria."""
         self._post_cohort_create(
             client,
             {
@@ -515,6 +521,28 @@ class TestCohortCreate:
             ],
         }
         self._post_cohort_create(client, data, expected_status_code=403)
+
+    _intersecting_filter_criteria = {
+        'name': 'Mixmaster BOA',
+        'filters': [
+            {'key': 'groupCodes', 'value': 'MBB'},
+            {'key': 'coeGenders', 'value': 'F'},
+        ],
+    }
+
+    def test_admin_intersecting_filters(self, client, admin_login):
+        """An admin can create a cohort using both ASC and COE criteria."""
+        api_json = self._post_cohort_create(client, self._intersecting_filter_criteria)
+        assert len(api_json['students']) == 1
+
+    def test_multi_dept_intersecting_filters(self, client, asc_and_coe_advisor_login):
+        """An advisor belonging to multiple departments can create a cohort using intersecting criteria."""
+        api_json = self._post_cohort_create(client, self._intersecting_filter_criteria)
+        assert len(api_json['students']) == 1
+
+    def test_single_dept_intersecting_filters_fails(self, client, coe_advisor_login):
+        """An advisor belonging to a single department cannot create a cohort using intersecting criteria."""
+        self._post_cohort_create(client, self._intersecting_filter_criteria, expected_status_code=403)
 
 
 class TestCohortUpdate:
