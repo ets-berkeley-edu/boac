@@ -6,12 +6,14 @@ import Cohort from '@/views/Cohort.vue';
 import Course from '@/views/Course.vue';
 import CreateCuratedGroup from '@/views/CreateCuratedGroup.vue'
 import CuratedGroup from '@/views/CuratedGroup.vue';
+import DropInDesk from '@/layouts/DropInDesk.vue';
+import DropInWaitlist from '@/views/DropInWaitlist.vue';
 import Home from '@/views/Home.vue';
 import Login from '@/layouts/Login.vue';
 import NotFound from '@/views/NotFound.vue';
 import Router from 'vue-router';
 import Search from '@/views/Search.vue';
-import StandardLayout from './layouts/StandardLayout.vue';
+import StandardLayout from '@/layouts/StandardLayout.vue';
 import store from '@/store';
 import Student from '@/views/Student.vue';
 import Vue from 'vue';
@@ -52,6 +54,29 @@ const requiresUser = (to: any, from: any, next: any) => {
   });
 };
 
+const requiresDropInDeskUser = (to: any, from: any, next: any) => {
+  store.dispatch('user/loadUser').then(data => {
+    if (store.getters['context/featureFlagAppointments']) {
+      if (data.isAuthenticated) {
+        store.dispatch('user/loadUser').then(() => {
+          // TODO: Only users with isDropInDesk === true will have access to /appt/desk.
+          next();
+        });
+      } else {
+        next({
+          path: '/login',
+          query: {
+            error: to.query.error,
+            redirect: to.name === 'home' ? undefined : to.fullPath
+          }
+        });
+      }
+    } else {
+       next({ path: '/404' });
+    }
+  });
+};
+
 const router = new Router({
   mode: 'history',
   routes: [
@@ -74,6 +99,21 @@ const router = new Router({
       meta: {
         title: 'Welcome'
       }
+    },
+    {
+      path: '/',
+      component: DropInDesk,
+      beforeEnter: requiresDropInDeskUser,
+      children: [
+        {
+          path: '/appt/desk',
+          name: 'apptDesk',
+          component: DropInWaitlist,
+          meta: {
+            title: 'Drop-in Appointments Desk'
+          }
+        }
+      ]
     },
     {
       path: '/',

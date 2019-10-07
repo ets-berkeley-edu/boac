@@ -370,7 +370,7 @@ export default {
     }
   },
   created() {
-    if (this.featureFlagAdvisorAppointments) {
+    if (this.featureFlagAppointments) {
       this.filterTypes['appointment'] = {name: 'Appointment', tab: 'Appointments'};
     }
     this.messages = [];

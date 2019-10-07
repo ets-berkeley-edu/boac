@@ -75,11 +75,6 @@ export default {
   mixins: [Context, Loading, Session, Util],
   created() {
     this.putFocusNextTick('home-header');
-  },
-  methods: {
-    stripAnchorRef(fullPath) {
-      return this.split(fullPath, '#', 1)[0];
-    }
   }
 };
 </script>
@@ -116,10 +111,6 @@ export default {
 }
 .row-footer {
   min-height: 18%;
-}
-.service-announcement {
-  background-color: #f0ad4e;
-  font-weight: 500;
 }
 .sidebar {
   background-color: #125074;
