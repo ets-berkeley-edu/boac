@@ -20,63 +20,10 @@
           </div>
         </div>
       </div>
-      <div v-if="userGroups">
-        <h2 id="dept-users-section" class="page-section-header-sub pb-2">
-          Users
-          <span class="text-black-50 font-size-14">(<a id="download-boa-users-csv" :href="`${apiBaseUrl}/api/users/csv`">download</a>)</span>
-        </h2>
-        <b-card no-body>
-          <b-tabs pills card>
-            <b-tab
-              v-for="group in userGroups"
-              :id="`user-group-${group.code}`"
-              :key="group.name"
-              :title="group.name">
-              <b-container v-if="size(group.users)" fluid>
-                <b-row
-                  v-for="groupUser in group.users"
-                  :key="groupUser.id"
-                  class="users-row">
-                  <b-col
-                    sm="auto"
-                    class="pr-0"
-                    :class="{'pb-2': groupUser.uid === user.uid}">
-                    <a
-                      :id="`dept-${group.code}-${groupUser.uid}`"
-                      :class="{'faint-text pb-2': groupUser.uid === user.uid}"
-                      :aria-label="`Go to UC Berkeley Directory page of ${groupUser.name}`"
-                      :href="`https://www.berkeley.edu/directory/results?search-term=${groupUser.name}`"
-                      target="_blank">
-                      <span v-if="groupUser.name">{{ groupUser.name }}</span>
-                      <span v-if="!groupUser.name">UID: {{ groupUser.uid }}</span>
-                    </a>
-                  </b-col>
-                  <b-col v-if="devAuthEnabled">
-                    <div v-if="groupUser.uid !== user.uid">
-                      <div v-if="groupUser.isExpiredPerLdap">
-                        <font-awesome icon="exclamation-triangle" class="boac-exclamation mr-1"></font-awesome>
-                        <span class="text-muted">Expired account (according to CalNet)</span>
-                      </div>
-                      <b-btn
-                        v-if="!groupUser.isExpiredPerLdap"
-                        :id="'become-' + groupUser.uid"
-                        class="mb-1 p-0"
-                        :title="`Log in as ${groupUser.name}`"
-                        variant="link"
-                        @click="become(groupUser.uid)">
-                        <font-awesome icon="sign-in-alt" />
-                      </b-btn>
-                    </div>
-                  </b-col>
-                </b-row>
-              </b-container>
-              <div v-if="!size(group.users)">
-                No {{ group.name }} users are registered in BOA.
-              </div>
-            </b-tab>
-          </b-tabs>
-        </b-card>
-      </div>
+      <Users 
+        v-if="users"
+        :departments="departments"
+        :users="users" />
       <div v-if="user.isAdmin">
         <EditServiceAnnouncement />
       </div>
@@ -96,14 +43,15 @@ import Spinner from '@/components/util/Spinner';
 import Status from '@/components/util/Status';
 import store from '@/store';
 import UserMetadata from '@/mixins/UserMetadata';
+import Users from '@/components/admin/Users';
 import Util from '@/mixins/Util';
-import { becomeUser } from '@/api/user';
 
 export default {
   name: 'Admin',
   components: {
     DemoModeToggle,
     EditServiceAnnouncement,
+    Users,
     Spinner,
     Status
   },
@@ -111,21 +59,20 @@ export default {
   data: () => ({
     active: [],
     blurAvatarUrl: require('@/assets/sampleBlurAvatar.jpg'),
-    userGroups: null
+    departments: null,
+    users: null
   }),
   mounted() {
     if (this.user.isAdmin) {
-      store.dispatch('user/loadUserGroups').then(data => {
-        this.userGroups = data;
-        this.loaded();
+      store.dispatch('user/loadUsers').then(data => {
+        this.users = data;
+        store.dispatch('user/loadDepartments').then(data => {
+          this.departments = data;
+          this.loaded();
+        });
       });
     } else {
       this.loaded();
-    }
-  },
-  methods: {
-    become(uid) {
-      becomeUser(uid).then(() => (window.location.href = '/home'));
     }
   }
 };

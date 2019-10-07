@@ -1,18 +1,19 @@
 import _ from 'lodash';
 import Vue from 'vue';
 import { event } from 'vue-analytics';
-import { getUserByCsid, getUserGroups, getUserProfile } from '@/api/user';
+import { getUserByCsid, getUsers, getDepartments, getUserProfile } from '@/api/user';
 import { gaTrackUserSessionStart } from '@/api/ga';
 
 const gaEvent = (category, action, label, value) => event(category, action, label, value);
 
 const state = {
   calnetUsersByCsid: {},
+  departments: undefined,
   preferences: {
     sortBy: 'last_name'
   },
   user: undefined,
-  userGroups: undefined
+  users: undefined
 };
 
 const getters = {
@@ -32,7 +33,7 @@ const mutations = {
   },
   setDemoMode: (state: any, demoMode: boolean) =>
     (state.user.inDemoMode = demoMode),
-  setUserGroups: (state: any, userGroups: any[]) => (state.userGroups = userGroups),
+  setDepartments: (state: any, departments: any[]) => (state.departments = departments),
   setUserPreference: (state: any, {key, value}) => {
     if (_.has(state.preferences, key)) {
       state.preferences[key] = value;
@@ -40,7 +41,8 @@ const mutations = {
     } else {
       throw new TypeError('Invalid user preference type: ' + key);
     }
-  }
+  },
+  setUsers: (state: any, users: any[]) => (state.users = users)
 };
 
 const actions = {
@@ -64,15 +66,28 @@ const actions = {
       }
     });
   },
-  loadUserGroups: ({commit, state}) => {
+  loadUsers: ({commit, state}) => {
     return new Promise(resolve => {
-      if (state.userGroups) {
-        resolve(state.userGroups);
+      if (state.users) {
+        resolve(state.users);
       } else {
-        getUserGroups('firstName')
+        getUsers('firstName')
           .then(data => {
-            commit('setUserGroups', data);
-            resolve(state.userGroups);
+            commit('setUsers', data);
+            resolve(state.users);
+          });
+      }
+    });
+  },
+  loadDepartments: ({commit, state}) => {
+    return new Promise(resolve => {
+      if (state.departments) {
+        resolve(state.departments);
+      } else {
+        getDepartments()
+          .then(data => {
+            commit('setDepartments', data);
+            resolve(state.departments);
           });
       }
     });

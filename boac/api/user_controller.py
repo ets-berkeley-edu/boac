@@ -108,11 +108,17 @@ def delete_university_dept_membership(university_dept_id, authorized_user_id):
     )
 
 
-@app.route('/api/users/authorized_groups')
+@app.route('/api/users/all')
 @admin_required
-def authorized_user_groups():
+def all_users():
     sort_users_by = util.get(request.args, 'sortUsersBy', None)
-    return tolerant_jsonify(_get_boa_user_groups(sort_users_by))
+    return tolerant_jsonify(_get_boa_users(sort_users_by))
+
+
+@app.route('/api/users/departments')
+@admin_required
+def departments():
+    return tolerant_jsonify(_get_boa_departments())
 
 
 @app.route('/api/user/demo_mode', methods=['POST'])
@@ -152,6 +158,16 @@ def download_boa_users_csv():
         filename_prefix='boa_users',
         fieldnames=['last_name', 'first_name', 'uid', 'email', 'dept_code', 'dept_name'],
     )
+
+
+def _get_boa_users(sort_user_by=None):
+    users = AuthorizedUser.get_all_users()
+    return authorized_users_api_feed(users, sort_user_by)
+
+
+def _get_boa_departments():
+    departments = [{'name': BERKELEY_DEPT_CODE_TO_NAME[dept_code], 'code': dept_code} for dept_code in BERKELEY_DEPT_CODE_TO_NAME.keys()]
+    return sorted(departments, key=lambda dept: dept['name'])
 
 
 def _get_boa_user_groups(sort_users_by=None):

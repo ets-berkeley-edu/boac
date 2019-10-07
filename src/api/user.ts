@@ -26,10 +26,16 @@ export function getUserByUid(uid) {
     .then(response => response.data, () => null);
 }
 
-export function getUserGroups(sortUsersBy: string) {
+export function getUsers(sortUsersBy: string) {
   let query = sortUsersBy ? `sortUsersBy=${sortUsersBy}` : '';
   return axios
-    .get(`${utils.apiBaseUrl()}/api/users/authorized_groups?${query}`)
+    .get(`${utils.apiBaseUrl()}/api/users/all?${query}`)
+    .then(response => response.data, () => null);
+}
+
+export function getDepartments() {
+  return axios
+    .get(`${utils.apiBaseUrl()}/api/users/departments`)
     .then(response => response.data, () => null);
 }
 

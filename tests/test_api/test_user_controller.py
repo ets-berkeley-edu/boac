@@ -254,39 +254,52 @@ class TestUniversityDeptMember:
         )
 
 
-class TestUserGroups:
-    """User API."""
+class TestDepartments:
+    """Departments API."""
 
     def test_not_authenticated(self, client):
         """Returns 'unauthorized' response status if user is not authenticated."""
-        response = client.get('/api/users/authorized_groups')
+        response = client.get('/api/users/departments')
         assert response.status_code == 401
 
     def test_unauthorized(self, client, fake_auth):
         """Returns 'unauthorized' response status if user is not admin."""
         fake_auth.login(coe_advisor_uid)
-        response = client.get('/api/users/authorized_groups')
+        response = client.get('/api/users/departments')
         assert response.status_code == 401
 
     def test_authorized(self, client, fake_auth):
         """Returns a well-formed response including cached and uncached users."""
         fake_auth.login(admin_uid)
-        response = client.get('/api/users/authorized_groups')
+        response = client.get('/api/users/departments')
         assert response.status_code == 200
-        user_groups = response.json
-        assert len(user_groups) == 6
-        assert user_groups[0]['name'] == 'Admins'
-        assert len(user_groups[0]['users']) == 8
-        assert user_groups[1]['name'] == 'Athletic Study Center'
-        assert len(user_groups[1]['users']) == 3
-        assert user_groups[2]['name'] == 'College of Engineering'
-        assert len(user_groups[2]['users']) == 4
-        assert user_groups[3]['name'] == 'L&S College Advising'
-        assert len(user_groups[3]['users']) == 1
-        assert user_groups[4]['name'] == 'L&S Major Advising'
-        assert len(user_groups[5]['users']) == 2
-        assert user_groups[5]['name'] == 'Notes Only'
-        assert len(user_groups[5]['users']) == 2
+        departments = response.json
+        assert len(departments) == 183
+
+
+class TestUsers:
+    """Users API."""
+
+    def test_not_authenticated(self, client):
+        """Returns 'unauthorized' response status if user is not authenticated."""
+        response = client.get('/api/users/all')
+        assert response.status_code == 401
+
+    def test_unauthorized(self, client, fake_auth):
+        """Returns 'unauthorized' response status if user is not admin."""
+        fake_auth.login(coe_advisor_uid)
+        response = client.get('/api/users/all')
+        assert response.status_code == 401
+
+    def test_authorized(self, client, fake_auth):
+        """Returns a well-formed response including cached, uncached, and deleted users."""
+        fake_auth.login(admin_uid)
+        response = client.get('/api/users/all')
+        assert response.status_code == 200
+        users = response.json
+        assert len(users) == 19
+        deleted_users = [user for user in users if user['deletedAt'] is not None]
+        assert len(deleted_users) == 3
 
 
 class TestDemoMode:

@@ -35,6 +35,7 @@ from boac.merged import calnet
 from boac.merged.advising_note import get_advising_notes
 from boac.models.alert import Alert
 from boac.models.curated_group import CuratedGroup
+from dateutil.tz import tzutc
 from flask import current_app as app, request
 from flask_login import current_user
 
@@ -79,13 +80,18 @@ def authorized_users_api_feed(users, sort_by='lastName'):
         profile.update({
             'id': user.id,
             'isAdmin': user.is_admin,
+            'isBlocked': user.is_blocked,
+            'canAccessCanvasData': user.can_access_canvas_data,
+            'deletedAt': _isoformat(user.deleted_at),
             'departments': {},
         })
         for m in user.department_memberships:
             profile['departments'].update({
                 m.university_dept.dept_code: {
+                    'deptName': m.university_dept.dept_name,
                     'isAdvisor': m.is_advisor,
                     'isDirector': m.is_director,
+                    'automateMembership': m.automate_membership,
                 },
             })
         profiles.append(profile)
@@ -302,3 +308,7 @@ def response_with_students_csv_download(sids, benchmark):
         filename_prefix='cohort',
         fieldnames=['first_name', 'last_name', 'sid', 'email', 'phone'],
     )
+
+
+def _isoformat(value):
+    return value and value.astimezone(tzutc()).isoformat()
