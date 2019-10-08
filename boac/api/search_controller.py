@@ -27,7 +27,7 @@ from datetime import timedelta
 from itertools import islice
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError
-from boac.api.util import add_alert_counts, is_unauthorized_search
+from boac.api.util import add_alert_counts, advisor_required, is_unauthorized_search
 from boac.externals.data_loch import get_enrolled_primary_sections, get_enrolled_primary_sections_for_parsed_code
 from boac.lib import util
 from boac.lib.berkeley import current_term_id
@@ -36,11 +36,11 @@ from boac.merged.advising_note import search_advising_notes
 from boac.merged.student import search_for_students
 from boac.models.alert import Alert
 from flask import current_app as app, request
-from flask_login import current_user, login_required
+from flask_login import current_user
 
 
 @app.route('/api/search', methods=['POST'])
-@login_required
+@advisor_required
 def search():
     params = util.remove_none_values(request.get_json())
     order_by = util.get(params, 'orderBy', None)

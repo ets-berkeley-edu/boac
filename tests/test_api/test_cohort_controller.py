@@ -33,6 +33,7 @@ guest_user_uid = '2'
 admin_uid = '2040'
 asc_advisor_uid = '1081940'
 coe_advisor_uid = '1133399'
+coe_scheduler_uid = '6972201'
 asc_and_coe_advisor_uid = '90412'
 
 
@@ -49,6 +50,11 @@ def asc_advisor_login(fake_auth):
 @pytest.fixture()
 def coe_advisor_login(fake_auth):
     fake_auth.login(coe_advisor_uid)
+
+
+@pytest.fixture()
+def coe_scheduler_login(fake_auth):
+    fake_auth.login(coe_scheduler_uid)
 
 
 @pytest.fixture()
@@ -111,6 +117,11 @@ class TestCohortDetail:
 
     def test_my_cohorts_not_authenticated(self, client):
         """Rejects anonymous user."""
+        response = client.get('/api/cohorts/my')
+        assert response.status_code == 401
+
+    def test_scheduler_role_is_unauthorized(self, coe_scheduler_login, client):
+        """Rejects COE scheduler user."""
         response = client.get('/api/cohorts/my')
         assert response.status_code == 401
 
@@ -347,7 +358,7 @@ class TestCohortDetail:
 
     def test_unauthorized_request_for_athletic_study_center_data(self, client, fake_auth):
         """In order to access intensive_cohort, inactive status, etc. the user must be either ASC or Admin."""
-        fake_auth.login('1022796')
+        fake_auth.login('1133399')
         data = {
             'name': 'My filtered cohort just hacked the system!',
             'filters': [
@@ -436,6 +447,16 @@ class TestCohortCreate:
         cohort_id = data.get('id')
         assert cohort_id
         _verify(self._api_cohort(client, cohort_id))
+
+    def test_scheduler_role_is_forbidden(self, coe_scheduler_login, client):
+        """Rejects COE scheduler user."""
+        data = {
+            'name': 'COE scheduler cannot create cohorts',
+            'filters': [
+                {'key': 'coeEthnicities', 'value': 'Vietnamese'},
+            ],
+        }
+        assert self._post_cohort_create(client, data, expected_status_code=401)
 
     def test_asc_advisor_is_forbidden(self, asc_advisor_login, client, fake_auth):
         """Denies ASC advisor access to COE data."""

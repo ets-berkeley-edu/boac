@@ -31,6 +31,7 @@ from tests.util import override_config
 admin_uid = '2040'
 asc_advisor_uid = '1081940'
 coe_advisor_uid = '1133399'
+coe_scheduler_uid = '6972201'
 
 
 class TestUserProfile:
@@ -67,19 +68,20 @@ class TestUserProfile:
         assert api_json['isCoe'] is False
         assert not len(api_json['departments'])
 
-    def test_department_beyond_asc(self, client, fake_auth):
-        """Returns COENG advisor."""
-        fake_auth.login('1022796')
+    def test_user_with_scheduler_role(self, client, fake_auth):
+        """Returns COE scheduler profile."""
+        fake_auth.login(coe_scheduler_uid)
         api_json = self._api_my_profile(client)
         assert api_json['isAdmin'] is False
         assert api_json['isCoe'] is True
-        assert api_json['canAccessCanvasData'] is True
+        assert api_json['canAccessCanvasData'] is False
         departments = api_json['departments']
         assert len(departments) == 1
         assert departments[0]['code'] == 'COENG'
         assert departments[0]['name'] == 'College of Engineering'
-        assert departments[0]['isAdvisor'] is True
+        assert departments[0]['isAdvisor'] is False
         assert departments[0]['isDirector'] is False
+        assert departments[0]['isScheduler'] is True
 
     def test_asc_advisor_exclude_cohorts(self, client, fake_auth):
         """Returns Athletic Study Center advisor."""
@@ -141,12 +143,21 @@ class TestUniversityDeptMember:
     """University Dept Member API."""
 
     @classmethod
-    def _api_add(cls, client, is_advisor=True, is_director=False, automate_membership=False, expected_status_code=200):
+    def _api_add(
+            cls,
+            client,
+            is_advisor=True,
+            is_director=False,
+            is_scheduler=False,
+            automate_membership=False,
+            expected_status_code=200,
+    ):
         params = {
             'deptCode': 'ZZZZZ',
             'uid': coe_advisor_uid,
             'isAdvisor': is_advisor,
             'isDirector': is_director,
+            'isScheduler': is_scheduler,
             'automateMembership': automate_membership,
         }
         response = client.post(
@@ -158,12 +169,21 @@ class TestUniversityDeptMember:
         return response.json
 
     @classmethod
-    def _api_update(cls, client, is_advisor=None, is_director=None, automate_membership=None, expected_status_code=200):
+    def _api_update(
+            cls,
+            client,
+            is_advisor=None,
+            is_director=None,
+            is_scheduler=None,
+            automate_membership=None,
+            expected_status_code=200,
+    ):
         params = {
             'deptCode': 'ZZZZZ',
             'uid': coe_advisor_uid,
             'isAdvisor': is_advisor,
             'isDirector': is_director,
+            'isScheduler': is_scheduler,
             'automateMembership': automate_membership,
         }
         response = client.post(
@@ -291,13 +311,19 @@ class TestUsers:
         response = client.get('/api/users/all')
         assert response.status_code == 401
 
+    def test_unauthorized_scheduler(self, client, fake_auth):
+        """Returns 'unauthorized' response status if user is a scheduler."""
+        fake_auth.login(coe_scheduler_uid)
+        response = client.get('/api/users/all')
+        assert response.status_code == 401
+
     def test_authorized(self, client, fake_auth):
         """Returns a well-formed response including cached, uncached, and deleted users."""
         fake_auth.login(admin_uid)
         response = client.get('/api/users/all')
         assert response.status_code == 200
         users = response.json
-        assert len(users) == 19
+        assert len(users) == 20
         deleted_users = [user for user in users if user['deletedAt'] is not None]
         assert len(deleted_users) == 3
 
@@ -346,6 +372,12 @@ class TestDownloadUsers:
     def test_unauthorized(self, client, fake_auth):
         """Returns 'unauthorized' response status if user is not admin."""
         fake_auth.login(coe_advisor_uid)
+        response = client.get('/api/users/csv')
+        assert response.status_code == 401
+
+    def test_unauthorized_scheduler(self, client, fake_auth):
+        """Returns 'unauthorized' response status if user is a scheduler."""
+        fake_auth.login(coe_scheduler_uid)
         response = client.get('/api/users/csv')
         assert response.status_code == 401
 

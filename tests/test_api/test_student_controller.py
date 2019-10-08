@@ -44,6 +44,11 @@ def coe_advisor_login(fake_auth):
 
 
 @pytest.fixture()
+def coe_scheduler_login(fake_auth):
+    fake_auth.login('6972201')
+
+
+@pytest.fixture()
 def no_canvas_data_access_advisor_login(fake_auth):
     fake_auth.login('1')
 
@@ -95,6 +100,10 @@ class TestStudent:
         """Returns 401 if not authenticated."""
         self._api_student_by_sid(client=client, sid=self.asc_student['sid'], expected_status_code=401)
         self._api_student_by_uid(client=client, uid=self.asc_student['uid'], expected_status_code=401)
+
+    def test_deny_scheduler(self, client, coe_scheduler_login):
+        """Returns 401 if user is scheduler."""
+        self._api_student_by_sid(client=client, sid=self.asc_student['sid'], expected_status_code=401)
 
     def test_user_with_no_enrollments_in_current_term(self, asc_advisor_login, client):
         """Identifies user with no enrollments in current term."""
@@ -589,6 +598,10 @@ class TestAlerts:
 
 class TestPrefixSearch:
 
+    def test_deny_scheduler(self, client, coe_scheduler_login):
+        response = client.get('/api/students/find_by_name_or_sid?q=Paul')
+        assert response.status_code == 401
+
     def test_student_prefix_search_by_name(self, client, coe_advisor_login):
         response = client.get('/api/students/find_by_name_or_sid?q=Paul')
         assert response.status_code == 200
@@ -684,6 +697,10 @@ class TestValidateSids:
 
     def test_validate_sids_not_authenticated(self, client):
         """Requires authentication."""
+        self._api_validate_sids(client, expected_status_code=401)
+
+    def test_scheduler_cannot_validate_sids(self, client, coe_scheduler_login):
+        """Scheduler cannot validate SIDs."""
         self._api_validate_sids(client, expected_status_code=401)
 
     def test_validate_sids_with_invalid_sid(self, client, coe_advisor_login):

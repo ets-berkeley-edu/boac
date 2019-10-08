@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import is_unauthorized_search, response_with_students_csv_download
+from boac.api.util import advisor_required, is_unauthorized_search, response_with_students_csv_download
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
 from boac.merged import calnet
@@ -35,11 +35,11 @@ from boac.merged.student import get_student_query_scope as get_query_scope, get_
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from flask import current_app as app, request
-from flask_login import current_user, login_required
+from flask_login import current_user
 
 
 @app.route('/api/cohorts/my')
-@login_required
+@advisor_required
 def my_cohorts():
     cohorts = []
     for cohort in CohortFilter.get_cohorts_of_user_id(current_user.get_id()):
@@ -49,7 +49,7 @@ def my_cohorts():
 
 
 @app.route('/api/cohorts/all')
-@login_required
+@advisor_required
 def all_cohorts():
     scope = get_query_scope(current_user)
     uids = AuthorizedUser.get_all_uids_in_scope(scope)
@@ -69,7 +69,7 @@ def all_cohorts():
 
 
 @app.route('/api/cohort/<cohort_id>/students_with_alerts')
-@login_required
+@advisor_required
 def students_with_alerts(cohort_id):
     benchmark = get_benchmarker(f'cohort {cohort_id} students_with_alerts')
     benchmark('begin')
@@ -102,7 +102,7 @@ def students_with_alerts(cohort_id):
 
 
 @app.route('/api/cohort/<cohort_id>')
-@login_required
+@advisor_required
 def get_cohort(cohort_id):
     benchmark = get_benchmarker(f'cohort {cohort_id} get_cohort')
     benchmark('begin')
@@ -133,7 +133,7 @@ def get_cohort(cohort_id):
 
 
 @app.route('/api/cohort/get_students_per_filters', methods=['POST'])
-@login_required
+@advisor_required
 def get_cohort_per_filters():
     benchmark = get_benchmarker('cohort get_students_per_filters')
     benchmark('begin')
@@ -165,7 +165,7 @@ def get_cohort_per_filters():
 
 
 @app.route('/api/cohort/download_csv_per_filters', methods=['POST'])
-@login_required
+@advisor_required
 def download_csv_per_filters():
     benchmark = get_benchmarker('cohort download_csv_per_filters')
     benchmark('begin')
@@ -187,7 +187,7 @@ def download_csv_per_filters():
 
 
 @app.route('/api/cohort/create', methods=['POST'])
-@login_required
+@advisor_required
 def create_cohort():
     params = request.get_json()
     name = get_param(params, 'name', None)
@@ -212,7 +212,7 @@ def create_cohort():
 
 
 @app.route('/api/cohort/update', methods=['POST'])
-@login_required
+@advisor_required
 def update_cohort():
     params = request.get_json()
     cohort_id = int(params.get('id'))
@@ -239,7 +239,7 @@ def update_cohort():
 
 
 @app.route('/api/cohort/delete/<cohort_id>', methods=['DELETE'])
-@login_required
+@advisor_required
 def delete_cohort(cohort_id):
     if cohort_id.isdigit():
         cohort_id = int(cohort_id)
@@ -253,7 +253,7 @@ def delete_cohort(cohort_id):
 
 
 @app.route('/api/cohort/filter_options/<cohort_owner_uid>', methods=['POST'])
-@login_required
+@advisor_required
 def all_cohort_filter_options(cohort_owner_uid):
     if cohort_owner_uid == 'me':
         cohort_owner_uid = current_user.get_uid()
@@ -262,7 +262,7 @@ def all_cohort_filter_options(cohort_owner_uid):
 
 
 @app.route('/api/cohort/translate_to_filter_options/<cohort_owner_uid>', methods=['POST'])
-@login_required
+@advisor_required
 def translate_cohort_filter_to_menu(cohort_owner_uid):
     if cohort_owner_uid == 'me':
         cohort_owner_uid = current_user.get_uid()

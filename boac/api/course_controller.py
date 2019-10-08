@@ -24,17 +24,18 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
+from boac.api.util import advisor_required
 from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged.sis_sections import get_sis_section
 from boac.merged.student import get_course_student_profiles
 from boac.models.alert import Alert
 from flask import current_app as app, request
-from flask_login import current_user, login_required
+from flask_login import current_user
 
 
 @app.route('/api/section/<term_id>/<section_id>')
-@login_required
+@advisor_required
 def get_section(term_id, section_id):
     if not current_user.can_access_canvas_data:
         raise ForbiddenRequestError('Unauthorized to view course data')

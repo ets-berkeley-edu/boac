@@ -23,15 +23,16 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac.api.util import advisor_required
 from boac.lib.http import tolerant_jsonify
 from boac.models.alert import Alert
 from boac.models.cohort_filter import CohortFilter
 from flask import current_app as app
-from flask_login import current_user, login_required
+from flask_login import current_user
 
 
 @app.route('/api/alerts/<alert_id>/dismiss')
-@login_required
+@advisor_required
 def dismiss_alert(alert_id):
     user_id = current_user.get_id()
     Alert.dismiss(alert_id, user_id)

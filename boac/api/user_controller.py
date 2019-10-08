@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api import errors
-from boac.api.util import admin_required, authorized_users_api_feed
+from boac.api.util import admin_required, advisor_required, authorized_users_api_feed
 from boac.lib import util
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
@@ -50,13 +50,13 @@ def user_profile(uid):
 
 
 @app.route('/api/user/by_csid/<csid>')
-@login_required
+@advisor_required
 def calnet_profile(csid):
     return tolerant_jsonify(calnet.get_calnet_user_for_csid(app, csid))
 
 
 @app.route('/api/user/by_uid/<uid>')
-@login_required
+@advisor_required
 def user_by_uid(uid):
     return tolerant_jsonify(calnet.get_calnet_user_for_uid(app, uid))
 
@@ -72,6 +72,7 @@ def add_university_dept_membership():
         authorized_user=user,
         is_advisor=params.get('isAdvisor', False),
         is_director=params.get('isDirector', False),
+        is_scheduler=params.get('isScheduler', False),
         automate_membership=params.get('automateMembership', True),
     )
     return tolerant_jsonify(membership.to_api_json())
@@ -88,6 +89,7 @@ def update_university_dept_membership():
         authorized_user_id=user.id,
         is_advisor=params.get('isAdvisor', None),
         is_director=params.get('isDirector', None),
+        is_scheduler=params.get('isScheduler', False),
         automate_membership=params.get('automateMembership', None),
     )
     if not membership:

@@ -27,6 +27,7 @@ import pytest
 
 asc_advisor_uid = '1081940'
 coe_advisor_uid = '1133399'
+coe_scheduler_uid = '6972201'
 term_id = 2178
 student_uid = '61889'
 student_sid = '11667051'
@@ -44,6 +45,11 @@ def coe_advisor(fake_auth):
 
 
 @pytest.fixture()
+def coe_scheduler(fake_auth):
+    fake_auth.login(coe_scheduler_uid)
+
+
+@pytest.fixture()
 def no_canvas_access_advisor(fake_auth):
     fake_auth.login('1')
 
@@ -53,6 +59,10 @@ class TestCourseController:
 
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
+        assert client.get('/api/section/2182/1').status_code == 401
+
+    def test_coe_scheduler_not_authorized(self, coe_scheduler, client):
+        """Returns 403 if user is only a scheduler."""
         assert client.get('/api/section/2182/1').status_code == 401
 
     def test_not_authorized(self, no_canvas_access_advisor, client):

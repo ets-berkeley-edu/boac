@@ -39,6 +39,7 @@ from tests.util import mock_advising_note_s3_bucket, mock_legacy_note_attachment
 
 asc_advisor_uid = '6446'
 coe_advisor_uid = '1133399'
+coe_scheduler_uid = '6972201'
 l_s_major_advisor_uid = '242881'
 admin_uid = '2040'
 
@@ -130,6 +131,20 @@ class TestNoteCreation:
             subject='Rusholme Ruffians',
             body='This is the last night of the fair, And the grease in the hair',
             expected_status_code=403,
+        )
+
+    def test_scheduler_is_not_authorized(self, app, client, fake_auth):
+        """Returns 401 if user is a scheduler."""
+        fake_auth.login(coe_scheduler_uid)
+        admin = AuthorizedUser.find_by_uid(coe_scheduler_uid)
+        assert _api_note_create(
+            app,
+            client,
+            author_id=admin.id,
+            sid=coe_student['sid'],
+            subject='Gobbledygook',
+            body='Language made unintelligible by excessive use of abstruse technical terms.',
+            expected_status_code=401,
         )
 
     def test_create_note(self, app, client, fake_auth):
@@ -313,6 +328,11 @@ class TestBatchNoteCreation:
 
     def test_batch_student_count_not_authenticated(self, client):
         """Deny anonymous access to batch note metadata."""
+        _api_batch_distinct_student_count(client, sids=['11667051'], cohort_ids=[1, 2], expected_status_code=401)
+
+    def test_scheduler_is_not_authorized(self, app, client, fake_auth):
+        """Returns 401 if user is a scheduler."""
+        fake_auth.login(coe_scheduler_uid)
         _api_batch_distinct_student_count(client, sids=['11667051'], cohort_ids=[1, 2], expected_status_code=401)
 
     def test_batch_student_count_not_owner(self, client, fake_auth):

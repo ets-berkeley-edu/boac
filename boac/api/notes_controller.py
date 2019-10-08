@@ -26,11 +26,21 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import urllib.parse
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import get_note_attachments_from_http_post, get_note_topics_from_http_post, get_template_attachment_ids_from_http_post
+from boac.api.util import (
+    advisor_required,
+    get_note_attachments_from_http_post,
+    get_note_topics_from_http_post,
+    get_template_attachment_ids_from_http_post,
+)
 from boac.externals import data_loch
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int, process_input_from_rich_text_editor, to_bool_or_none
-from boac.merged.advising_note import get_batch_distinct_sids, get_boa_attachment_stream, get_legacy_attachment_stream, note_to_compatible_json
+from boac.merged.advising_note import (
+    get_batch_distinct_sids,
+    get_boa_attachment_stream,
+    get_legacy_attachment_stream,
+    note_to_compatible_json,
+)
 from boac.merged.calnet import get_calnet_user_for_uid
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
@@ -38,11 +48,11 @@ from boac.models.note import Note
 from boac.models.note_read import NoteRead
 from boac.models.topic import Topic
 from flask import current_app as app, request, Response
-from flask_login import current_user, login_required
+from flask_login import current_user
 
 
 @app.route('/api/note/<note_id>')
-@login_required
+@advisor_required
 def get_note(note_id):
     note = Note.find_by_id(note_id=note_id)
     if not note:
@@ -52,7 +62,7 @@ def get_note(note_id):
 
 
 @app.route('/api/notes/<note_id>/mark_read', methods=['POST'])
-@login_required
+@advisor_required
 def mark_read(note_id):
     if NoteRead.find_or_create(current_user.get_id(), note_id):
         return tolerant_jsonify({'status': 'created'}, status=201)
@@ -61,7 +71,7 @@ def mark_read(note_id):
 
 
 @app.route('/api/notes/create', methods=['POST'])
-@login_required
+@advisor_required
 def create_note():
     params = request.form
     sid = params.get('sid', None)
@@ -90,7 +100,7 @@ def create_note():
 
 
 @app.route('/api/notes/batch/create', methods=['POST'])
-@login_required
+@advisor_required
 def batch_create_notes():
     params = request.form
     sids = _get_sids_for_note_creation()
@@ -119,7 +129,7 @@ def batch_create_notes():
 
 
 @app.route('/api/notes/batch/distinct_student_count', methods=['POST'])
-@login_required
+@advisor_required
 def distinct_student_count():
     params = request.get_json()
     sids = get_param(params, 'sids', None)
@@ -135,7 +145,7 @@ def distinct_student_count():
 
 
 @app.route('/api/notes/update', methods=['POST'])
-@login_required
+@advisor_required
 def update_note():
     params = request.form
     note_id = params.get('id', None)
@@ -157,7 +167,7 @@ def update_note():
 
 
 @app.route('/api/notes/delete/<note_id>', methods=['DELETE'])
-@login_required
+@advisor_required
 def delete_note(note_id):
     if not current_user.is_admin:
         raise ForbiddenRequestError('Sorry, you are not authorized to delete notes.')
@@ -169,7 +179,7 @@ def delete_note(note_id):
 
 
 @app.route('/api/notes/authors/find_by_name', methods=['GET'])
-@login_required
+@advisor_required
 def find_note_authors_by_name():
     query = request.args.get('q')
     if not query:
@@ -188,7 +198,7 @@ def find_note_authors_by_name():
 
 
 @app.route('/api/notes/topics', methods=['GET'])
-@login_required
+@advisor_required
 def get_topics():
     include_deleted = to_bool_or_none(request.args.get('includeDeleted'))
     topics = Topic.get_all(include_deleted=include_deleted)
@@ -196,7 +206,7 @@ def get_topics():
 
 
 @app.route('/api/notes/<note_id>/attachment', methods=['POST'])
-@login_required
+@advisor_required
 def add_attachment(note_id):
     if Note.find_by_id(note_id=note_id).author_uid != current_user.get_uid():
         raise ForbiddenRequestError('Sorry, you are not the author of this note.')
@@ -219,7 +229,7 @@ def add_attachment(note_id):
 
 
 @app.route('/api/notes/<note_id>/attachment/<attachment_id>', methods=['DELETE'])
-@login_required
+@advisor_required
 def remove_attachment(note_id, attachment_id):
     existing_note = Note.find_by_id(note_id=note_id)
     if not existing_note:
@@ -242,7 +252,7 @@ def remove_attachment(note_id, attachment_id):
 
 
 @app.route('/api/notes/attachment/<attachment_id>', methods=['GET'])
-@login_required
+@advisor_required
 def download_attachment(attachment_id):
     is_legacy = not is_int(attachment_id)
     id_ = attachment_id if is_legacy else int(attachment_id)
