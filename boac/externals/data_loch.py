@@ -660,7 +660,17 @@ def get_students_query(     # noqa
         if len(words) == 1 and re.match(r'^\d+$', words[0]):
             query_filter += ' AND (sas.sid LIKE :sid_phrase)'
             query_bindings.update({'sid_phrase': f'{words[0]}%'})
-        # Other strings indicate a name search.
+        # If a single word, search on both name and email.
+        elif len(words) == 1:
+            name_string = ''.join(re.split('\W', words[0]))
+            email_string = search_phrase.lower()
+            query_tables += f"""
+                LEFT JOIN {student_schema()}.student_names n
+                        ON n.name LIKE :name_string
+                        AND n.sid = sas.sid"""
+            query_filter += ' AND (sas.email_address LIKE :email_string OR n.name IS NOT NULL)'
+            query_bindings.update({'email_string': f'{email_string}%', 'name_string': f'{name_string}%'})
+        # If multiple words, search name only.
         else:
             for i, word in enumerate(words):
                 query_tables += f"""

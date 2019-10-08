@@ -949,9 +949,9 @@ class TestDownloadCsvPerFilters:
         csv = str(response.data)
         for snippet in [
             'first_name,last_name,sid,email,phone',
-            'Deborah,Davies,11667051,oski@berkeley.edu,415/123-4567',
-            'Paul,Farestveit,7890123456,,415/123-4567',
-            'Wolfgang,Pauli-O\'Rourke,9000000000,,415/123-4567',
+            'Deborah,Davies,11667051,barnburner@berkeley.edu,415/123-4567',
+            'Paul,Farestveit,7890123456,qadept@berkeley.edu,415/123-4567',
+            'Wolfgang,Pauli-O\'Rourke,9000000000,wpo@berkeley.edu,415/123-4567',
         ]:
             assert str(snippet) in csv
 

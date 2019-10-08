@@ -65,7 +65,7 @@
             for="search-include-students-checkbox"
             class="search-form-label">
             <span class="sr-only">Search for</span>
-            Students (name or SID)
+            Students
           </label>
         </div>
         <div v-if="domain.includes('courses')" class="d-flex">

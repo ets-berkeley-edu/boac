@@ -85,6 +85,20 @@ class TestStudentSearch:
         response = self._student_search(client, ' \t  ')
         assert response.status_code == 400
 
+    def test_search_by_complete_email_address(self, client, fake_auth):
+        fake_auth.login('2040')
+        response = self._student_search(client, 'debaser@berkeley.edu')
+        assert response.status_code == 200
+        assert len(response.json['students']) == response.json['totalStudentCount'] == 1
+        assert response.json['students'][0]['lastName'] == 'Doolittle'
+
+    def test_search_by_name_or_email_prefix(self, client, fake_auth):
+        fake_auth.login('2040')
+        response = self._student_search(client, 'barn')
+        assert response.status_code == 200
+        assert len(response.json['students']) == response.json['totalStudentCount'] == 2
+        assert ['Barney', 'Davies'] == [s['lastName'] for s in response.json['students']]
+
     def test_search_by_sid_snippet(self, client, fake_auth, asc_inactive_students):
         """Search by snippet of SID."""
         def _search_students_as_user(uid, sid_snippet):
