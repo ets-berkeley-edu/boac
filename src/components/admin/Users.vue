@@ -103,6 +103,7 @@
                 <ul class="flex-container flex-col">
                   <li>{{ row.item.canAccessCanvasData ? 'Canvas data access' : 'No Canvas data' }}</li>
                   <li v-if="row.item.isAdmin">Admin</li>
+                  <li v-if="row.item.isAdmin">Admin</li>
                 </ul>
               </b-col>
               <b-col>
@@ -112,6 +113,19 @@
                   <li v-if="row.item.isBlocked">Blocked</li>
                   <li v-if="row.item.isExpiredPerLdap">Expired account (according to CalNet)</li>
                 </ul>
+              </b-col>
+              <b-col cols="8">
+                <h3 class="user-details-header">Department Membership</h3>
+                <div v-if="isEmpty(row.item.departments)">None</div>
+                <table v-if="!isEmpty(row.item.departments)" class="user-dept-membership-table">
+                  <tr 
+                    v-for="deptCode in keys(row.item.departments)"
+                    :key="deptCode">
+                    <th scope="row">{{ row.item.departments[deptCode]['deptName'] }}</th>
+                    <td>{{ deptRoles(row.item.departments[deptCode]) }}</td>
+                    <td>{{ row.item.departments[deptCode]['automateMembership'] ? 'Automated' : 'Manual' }} Membership</td>
+                  </tr>
+                </table>
               </b-col>
             </b-row>
           </b-container>
@@ -193,6 +207,16 @@ export default {
     clearFilter() {
       this.filter = null;
     },
+    deptRoles(dept) {
+      let roles = []
+      if (this.get(dept, 'isAdvisor')) {
+        roles.push('Advisor');
+      }
+      if (this.get(dept, 'isDirector')) {
+        roles.push('Director');
+      }
+      return this.oxfordJoin(roles);
+    },
     filterUsers(user, filter) {
       return this.includes(this.keys(user.departments), filter);
     },
@@ -217,6 +241,16 @@ export default {
 <style>
 .user-actions {
   width: 96px;
+}
+.user-dept-membership-table td {
+  border: none;
+  padding: 5px 20px 5px 0;
+}
+.user-dept-membership-table th {
+  border: none;
+  color: #aaa;
+  font-weight: normal;
+  padding: 5px 20px 5px 0;
 }
 .user-details-header {
   color: #aaa;
