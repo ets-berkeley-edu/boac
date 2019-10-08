@@ -30,6 +30,7 @@
                 }
             }
         },
+        "emailAddress": "wpo@berkeley.edu",
         "expectedGraduationTerm": {
             "id": "2202",
             "name": "Spring 2020"

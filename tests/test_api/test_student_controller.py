@@ -408,7 +408,7 @@ class TestStudent:
             assert sis_profile['degreeProgress']['requirements']['americanHistory']['status'] == 'Not Satisfied'
             assert sis_profile['degreeProgress']['requirements']['americanInstitutions']['status'] == 'Not Satisfied'
             assert sis_profile['degreeProgress']['requirements']['entryLevelWriting']['status'] == 'Satisfied'
-            assert sis_profile['emailAddress'] == 'oski@berkeley.edu'
+            assert sis_profile['emailAddress'] == 'barnburner@berkeley.edu'
             assert sis_profile['level']['code'] == '30'
             assert sis_profile['level']['description'] == 'Junior'
             assert sis_profile['phoneNumber'] == '415/123-4567'

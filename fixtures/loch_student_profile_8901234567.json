@@ -30,6 +30,7 @@
                 }
             }
         },
+        "emailAddress": "mrwonderful@berkeley.edu",
         "expectedGraduationTerm": {
             "id": "1758",
             "name": "Fall 1975"

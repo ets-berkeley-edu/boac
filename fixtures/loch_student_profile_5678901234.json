@@ -30,6 +30,7 @@
                 }
             }
         },
+        "emailAddress": "ilovela@berkeley.edu",
         "expectedGraduationTerm": {
             "id": "2198",
             "name": "Fall 2019"
