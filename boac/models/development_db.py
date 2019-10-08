@@ -48,22 +48,128 @@ from sqlalchemy.sql import text
 no_calnet_record_for_uid = '13'
 
 _test_users = [
-    [no_calnet_record_for_uid, None, True, False, True],  # This user has no entry in calnet_search_entries
-    ['1', '111111111', None, True, False, False],
-    ['2', '222222222', None, True, False, False],
-    ['2040', None, True, True, True],
-    ['53791', None, True, False, True],
-    ['95509', None, True, False, True],
-    ['177473', None, True, False, True],
-    ['1133399', '800700600', False, False, True],
-    ['211159', None, True, False, True],
-    ['242881', '100100600', False, False, True, 'HENGL', 'Harmless Drudge'],
-    ['1022796', '100100300', False, False, True],
-    ['1015674', None, False, False, True],
-    ['1049291', None, True, False, True],
-    ['1081940', '100200300', False, False, True],
-    ['90412', '100100100', True, False, True],
-    ['6446', None, False, False, True],
+    {
+        # This user has no entry in calnet_search_entries
+        'uid': no_calnet_record_for_uid,
+        'csid': None,
+        'isAdmin': True,
+        'inDemoMode': False,
+        'canAccessCanvasData': True,
+    },
+    {
+        'uid': '1',
+        'csid': '111111111',
+        'isAdmin': False,
+        'inDemoMode': True,
+        'canAccessCanvasData': False,
+    },
+    {
+        'uid': '2',
+        'csid': '222222222',
+        'isAdmin': False,
+        'inDemoMode': True,
+        'canAccessCanvasData': False,
+    },
+    {
+        'uid': '2040',
+        'csid': None,
+        'isAdmin': True,
+        'inDemoMode': True,
+        'canAccessCanvasData': True,
+    },
+    {
+        'uid': '53791',
+        'csid': None,
+        'isAdmin': True,
+        'inDemoMode': False,
+        'canAccessCanvasData': True,
+    },
+    {
+        'uid': '95509',
+        'csid': None,
+        'isAdmin': True,
+        'inDemoMode': False,
+        'canAccessCanvasData': True,
+    },
+    {
+        'uid': '177473',
+        'csid': None,
+        'isAdmin': True,
+        'inDemoMode': False,
+        'canAccessCanvasData': True,
+    },
+    {
+        'uid': '1133399',
+        'csid': '800700600',
+        'isAdmin': False,
+        'inDemoMode': False,
+        'canAccessCanvasData': True,
+    },
+    {
+        'uid': '211159',
+        'csid': None,
+        'isAdmin': True,
+        'inDemoMode': False,
+        'canAccessCanvasData': True,
+    },
+    {
+        'uid': '242881',
+        'csid': '100100600',
+        'isAdmin': False,
+        'inDemoMode': False,
+        'canAccessCanvasData': True,
+        'title': 'Harmless Drudge',
+        'calnetDeptCodes': ['HENGL'],
+    },
+    {
+        'uid': '1022796',
+        'csid': '100100300',
+        'isAdmin': False,
+        'inDemoMode': False,
+        'canAccessCanvasData': True,
+    },
+    {
+        'uid': '6972201',
+        'csid': '100400900',
+        'isAdmin': False,
+        'inDemoMode': False,
+        'canAccessCanvasData': False,
+    },
+    {
+        'uid': '1015674',
+        'csid': None,
+        'isAdmin': False,
+        'inDemoMode': False,
+        'canAccessCanvasData': True,
+    },
+    {
+        'uid': '1049291',
+        'csid': None,
+        'isAdmin': True,
+        'inDemoMode': False,
+        'canAccessCanvasData': True,
+    },
+    {
+        'uid': '1081940',
+        'csid': '100200300',
+        'isAdmin': False,
+        'inDemoMode': False,
+        'canAccessCanvasData': True,
+    },
+    {
+        'uid': '90412',
+        'csid': '100100100',
+        'isAdmin': True,
+        'inDemoMode': False,
+        'canAccessCanvasData': True,
+    },
+    {
+        'uid': '6446',
+        'csid': None,
+        'isAdmin': False,
+        'inDemoMode': False,
+        'canAccessCanvasData': True,
+    },
 ]
 
 _university_depts = {
@@ -71,26 +177,37 @@ _university_depts = {
         'users': [
             {
                 'uid': '1022796',
-                'is_advisor': True,
-                'is_director': False,
+                'isAdvisor': True,
+                'isDirector': False,
+                'isScheduler': False,
                 'automate_membership': True,
             },
             {
+                'uid': '6972201',
+                'isAdvisor': False,
+                'isDirector': False,
+                'isScheduler': True,
+                'automate_membership': False,
+            },
+            {
                 'uid': '90412',
-                'is_advisor': True,
-                'is_director': False,
+                'isAdvisor': True,
+                'isDirector': False,
+                'isScheduler': False,
                 'automate_membership': True,
             },
             {
                 'uid': '1133399',
-                'is_advisor': True,
-                'is_director': False,
+                'isAdvisor': True,
+                'isDirector': False,
+                'isScheduler': False,
                 'automate_membership': True,
             },
             {
                 'uid': '13',
-                'is_advisor': True,
-                'is_director': False,
+                'isAdvisor': True,
+                'isDirector': False,
+                'isScheduler': False,
                 'automate_membership': True,
             },
         ],
@@ -99,8 +216,9 @@ _university_depts = {
         'users': [
             {
                 'uid': '53791',
-                'is_advisor': False,
-                'is_director': True,
+                'isAdvisor': False,
+                'isDirector': True,
+                'isScheduler': False,
                 'automate_membership': False,
             },
         ],
@@ -109,8 +227,9 @@ _university_depts = {
         'users': [
             {
                 'uid': '242881',
-                'is_advisor': True,
-                'is_director': False,
+                'isAdvisor': True,
+                'isDirector': False,
+                'isScheduler': False,
                 'automate_membership': True,
             },
         ],
@@ -119,20 +238,23 @@ _university_depts = {
         'users': [
             {
                 'uid': '1081940',
-                'is_advisor': True,
-                'is_director': False,
+                'isAdvisor': True,
+                'isDirector': False,
+                'isScheduler': False,
                 'automate_membership': False,
             },
             {
                 'uid': '90412',
-                'is_advisor': False,
-                'is_director': True,
+                'isAdvisor': False,
+                'isDirector': True,
+                'isScheduler': False,
                 'automate_membership': False,
             },
             {
                 'uid': '6446',
-                'is_advisor': True,
-                'is_director': True,
+                'isAdvisor': True,
+                'isDirector': True,
+                'isScheduler': False,
                 'automate_membership': False,
             },
         ],
@@ -141,8 +263,9 @@ _university_depts = {
         'users': [
             {
                 'uid': '1',
-                'is_advisor': True,
-                'is_director': False,
+                'isAdvisor': True,
+                'isDirector': False,
+                'isScheduler': False,
                 'automate_membership': True,
             },
         ],
@@ -151,8 +274,9 @@ _university_depts = {
         'users': [
             {
                 'uid': '2',
-                'is_advisor': True,
-                'is_director': False,
+                'isAdvisor': True,
+                'isDirector': False,
+                'isScheduler': False,
                 'automate_membership': False,
             },
         ],
@@ -190,8 +314,8 @@ def load_development_data():
         UniversityDept.create(code, name)
     for test_user in _test_users:
         # This script can be run more than once. Do not create user if s/he exists in BOAC db.
-        uid = test_user[0]
-        csid = test_user[1]
+        uid = test_user['uid']
+        csid = test_user['csid']
         user = AuthorizedUser.find_by_uid(uid=uid)
         if uid != no_calnet_record_for_uid:
             # Put mock CalNet data in our json_cache for all users EXCEPT the test "no_calnet_record" user.
@@ -205,23 +329,23 @@ def load_development_data():
                 'lastName': last_name,
                 'name': f'{first_name} {last_name}',
             }
-            if len(test_user) > 5:
-                calnet_feed['departments'] = [
-                    {
-                        'code': test_user[5],
-                        'name': BERKELEY_DEPT_CODE_TO_NAME.get(test_user[5]),
-                    },
-                ]
-            if len(test_user) > 6:
-                calnet_feed['title'] = test_user[6]
+            if 'calnetDeptCodes' in test_user:
+                calnet_feed['departments'] = []
+                for dept_code in test_user['calnetDeptCodes']:
+                    calnet_feed['departments'].append({
+                        'code': dept_code,
+                        'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code),
+                    })
+            if 'title' in test_user:
+                calnet_feed['title'] = test_user['title']
             insert_in_json_cache(f'calnet_user_for_uid_{uid}', calnet_feed)
         if not user:
             user = AuthorizedUser(
                 uid=uid,
                 created_by='2040',
-                is_admin=test_user[2],
-                in_demo_mode=test_user[3],
-                can_access_canvas_data=test_user[4],
+                is_admin=test_user['isAdmin'],
+                in_demo_mode=test_user['inDemoMode'],
+                can_access_canvas_data=test_user['canAccessCanvasData'],
             )
             db.session.add(user)
     for dept_code, dept_membership in _university_depts.items():
@@ -232,8 +356,9 @@ def load_development_data():
             UniversityDeptMember.create_or_update_membership(
                 university_dept,
                 authorized_user,
-                user['is_advisor'],
-                user['is_director'],
+                user['isAdvisor'],
+                user['isDirector'],
+                user['isScheduler'],
                 user['automate_membership'],
             )
     std_commit(allow_test_environment=True)

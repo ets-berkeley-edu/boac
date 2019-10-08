@@ -45,15 +45,37 @@ from flask_login import current_user
 def admin_required(func):
     @wraps(func)
     def _admin_required(*args, **kw):
-        auth_key = app.config['API_KEY']
-        login_ok = current_user.is_authenticated and current_user.is_admin
-        api_key_ok = auth_key and (request.headers.get('App-Key') == auth_key)
-        if login_ok or api_key_ok:
+        is_authorized = current_user.is_authenticated and current_user.is_admin
+        if is_authorized or _api_key_ok():
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
             return app.login_manager.unauthorized()
     return _admin_required
+
+
+def advisor_required(func):
+    @wraps(func)
+    def _advisor_required(*args, **kw):
+        is_authorized = current_user.is_authenticated and (current_user.is_admin or _is_advisor(current_user))
+        if is_authorized or _api_key_ok():
+            return func(*args, **kw)
+        else:
+            app.logger.warning(f'Unauthorized request to {request.path}')
+            return app.login_manager.unauthorized()
+    return _advisor_required
+
+
+def scheduler_required(func):
+    @wraps(func)
+    def _scheduler_required(*args, **kw):
+        is_authorized = current_user.is_authenticated and (current_user.is_admin or _is_scheduler(current_user))
+        if is_authorized or _api_key_ok():
+            return func(*args, **kw)
+        else:
+            app.logger.warning(f'Unauthorized request to {request.path}')
+            return app.login_manager.unauthorized()
+    return _scheduler_required
 
 
 def add_alert_counts(alert_counts, students):
@@ -91,6 +113,7 @@ def authorized_users_api_feed(users, sort_by='lastName'):
                     'deptName': m.university_dept.dept_name,
                     'isAdvisor': m.is_advisor,
                     'isDirector': m.is_director,
+                    'isScheduler': m.is_scheduler,
                     'automateMembership': m.automate_membership,
                 },
             })
@@ -308,6 +331,19 @@ def response_with_students_csv_download(sids, benchmark):
         filename_prefix='cohort',
         fieldnames=['first_name', 'last_name', 'sid', 'email', 'phone'],
     )
+
+
+def _is_advisor(user):
+    return next((d for d in user.departments if d['isAdvisor']), False)
+
+
+def _is_scheduler(user):
+    return next((d for d in user.departments if d['isScheduler']), False)
+
+
+def _api_key_ok():
+    auth_key = app.config['API_KEY']
+    return auth_key and (request.headers.get('App-Key') == auth_key)
 
 
 def _isoformat(value):

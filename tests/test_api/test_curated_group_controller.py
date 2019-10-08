@@ -33,6 +33,7 @@ import simplejson as json
 admin_uid = '2040'
 asc_advisor_uid = '6446'
 coe_advisor_uid = '1133399'
+coe_scheduler_uid = '6972201'
 asc_and_coe_advisor_uid = '90412'
 
 
@@ -49,6 +50,11 @@ def asc_and_coe_advisor(fake_auth):
 @pytest.fixture()
 def coe_advisor(fake_auth):
     fake_auth.login(coe_advisor_uid)
+
+
+@pytest.fixture()
+def coe_scheduler(fake_auth):
+    fake_auth.login(coe_scheduler_uid)
 
 
 @pytest.fixture()
@@ -269,6 +275,10 @@ class TestMyCuratedGroups:
 
     def test_not_authenticated(self, client):
         """Anonymous user is rejected."""
+        self._api_my_curated_groups(client, expected_status_code=401)
+
+    def test_coe_scheduler_not_allowed(self, client, coe_scheduler):
+        """User who is_scheduler will be denied."""
         self._api_my_curated_groups(client, expected_status_code=401)
 
     def test_coe_curated_groups(self, client, coe_advisor):

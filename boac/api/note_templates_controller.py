@@ -24,16 +24,16 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import get_note_attachments_from_http_post, get_note_topics_from_http_post
+from boac.api.util import advisor_required, get_note_attachments_from_http_post, get_note_topics_from_http_post
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import process_input_from_rich_text_editor
 from boac.models.note_template import NoteTemplate
 from flask import current_app as app, request
-from flask_login import current_user, login_required
+from flask_login import current_user
 
 
 @app.route('/api/note_template/create', methods=['POST'])
-@login_required
+@advisor_required
 def create_note_template():
     params = request.form
     title = params.get('title', None)
@@ -59,7 +59,7 @@ def create_note_template():
 
 
 @app.route('/api/note_template/<note_template_id>')
-@login_required
+@advisor_required
 def get_note_template(note_template_id):
     note_template = NoteTemplate.find_by_id(note_template_id=note_template_id)
     if not note_template:
@@ -70,14 +70,14 @@ def get_note_template(note_template_id):
 
 
 @app.route('/api/note_templates/my')
-@login_required
+@advisor_required
 def get_my_note_templates():
     note_templates = NoteTemplate.get_templates_created_by(creator_id=current_user.get_id())
     return tolerant_jsonify([t.to_api_json() for t in note_templates])
 
 
 @app.route('/api/note_template/rename', methods=['POST'])
-@login_required
+@advisor_required
 def rename_note_template():
     params = request.get_json()
     note_template_id = params.get('id', None)
@@ -94,7 +94,7 @@ def rename_note_template():
 
 
 @app.route('/api/note_template/update', methods=['POST'])
-@login_required
+@advisor_required
 def update_note_template():
     params = request.form
     note_template_id = params.get('id', None)
@@ -123,7 +123,7 @@ def update_note_template():
 
 
 @app.route('/api/note_template/delete/<note_template_id>', methods=['DELETE'])
-@login_required
+@advisor_required
 def delete_note_template(note_template_id):
     note_template = NoteTemplate.find_by_id(note_template_id=note_template_id)
     if not note_template:

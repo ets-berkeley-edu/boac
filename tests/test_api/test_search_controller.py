@@ -48,6 +48,11 @@ def coe_advisor(fake_auth):
 
 
 @pytest.fixture()
+def coe_scheduler(fake_auth):
+    fake_auth.login('6972201')
+
+
+@pytest.fixture()
 def no_canvas_access_advisor(fake_auth):
     fake_auth.login('1')
 
@@ -67,6 +72,11 @@ class TestStudentSearch:
     def test_search_not_authenticated(self, client):
         """Search is not available to the world."""
         response = client.post('/api/search')
+        assert response.status_code == 401
+
+    def test_scheduler_cannot_search(self, client, coe_scheduler):
+        """Search is not available to scheduler."""
+        response = client.post('/api/search', data=json.dumps({'searchPhrase': 'Foo'}), content_type='application/json')
         assert response.status_code == 401
 
     def test_unauthorized_request_for_athletic_study_center_data(self, client, fake_auth):

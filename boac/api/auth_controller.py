@@ -26,13 +26,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from urllib.parse import urlencode, urljoin, urlparse
 
 from boac.api.errors import ResourceNotFoundError
-from boac.api.util import admin_required
+from boac.api.util import admin_required, advisor_required
 from boac.lib.http import add_param_to_url, tolerant_jsonify
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.user_login import UserLogin
 import cas
 from flask import abort, current_app as app, flash, redirect, request, url_for
-from flask_login import current_user, login_required, login_user, logout_user
+from flask_login import current_user, login_user, logout_user
 
 
 @app.route('/cas/login_url', methods=['GET'])
@@ -97,7 +97,7 @@ def become():
 
 
 @app.route('/api/auth/logout')
-@login_required
+@advisor_required
 def logout():
     _logout_user()
     redirect_url = app.config['VUE_LOCALHOST_BASE_URL'] or request.url_root

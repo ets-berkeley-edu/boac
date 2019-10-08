@@ -128,6 +128,7 @@ class UserSession(UserMixin):
                         'role': get_dept_role(m),
                         'isAdvisor': m.is_advisor,
                         'isDirector': m.is_director,
+                        'isScheduler': m.is_scheduler,
                     })
             dept_codes = get_dept_codes(user) if user else []
             is_asc = 'UWASC' in dept_codes
@@ -140,7 +141,7 @@ class UserSession(UserMixin):
                 is_active = True
             elif len(user.department_memberships):
                 for m in user.department_memberships:
-                    is_active = m.is_advisor or m.is_director
+                    is_active = m.is_advisor or m.is_director or m.is_scheduler
                     if is_active:
                         break
         is_admin = user and user.is_admin

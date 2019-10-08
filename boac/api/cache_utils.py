@@ -182,7 +182,13 @@ def refresh_department_memberships():
                 can_access_canvas_data=membership['can_access_canvas_data'],
             )
             if user:
-                UniversityDeptMember.create_or_update_membership(dept, user, is_advisor=True, is_director=False)
+                UniversityDeptMember.create_or_update_membership(
+                    dept,
+                    user,
+                    is_advisor=True,
+                    is_director=False,
+                    is_scheduler=False,
+                )
 
 
 def load_filtered_cohort_counts():

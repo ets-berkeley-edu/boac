@@ -113,7 +113,7 @@ class TestRefreshDepartmentMemberships:
 
         dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
-        assert len(coe_users) == 3
+        assert len(coe_users) == 4
         assert next((u for u in coe_users if u.uid == '1022796'), None) is None
 
         from boac.api.cache_utils import refresh_department_memberships
@@ -121,7 +121,7 @@ class TestRefreshDepartmentMemberships:
         std_commit(allow_test_environment=True)
 
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
-        assert len(coe_users) == 4
+        assert len(coe_users) == 5
         assert next(u for u in coe_users if u.uid == '1022796')
         user = AuthorizedUser.query.filter_by(uid='1022796').first()
         assert user.deleted_at is None
@@ -137,7 +137,7 @@ class TestRefreshDepartmentMemberships:
 
         dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
-        assert len(coe_users) == 3
+        assert len(coe_users) == 4
         assert next((u for u in coe_users if u.uid == '1022796'), None) is None
 
         from boac.api.cache_utils import refresh_department_memberships
@@ -145,7 +145,7 @@ class TestRefreshDepartmentMemberships:
         std_commit(allow_test_environment=True)
 
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
-        assert len(coe_users) == 4
+        assert len(coe_users) == 5
         assert next(u for u in coe_users if u.uid == '1022796')
         user = AuthorizedUser.query.filter_by(uid='1022796').first()
         assert user.deleted_at is None
@@ -156,11 +156,17 @@ class TestRefreshDepartmentMemberships:
         """Removes COE advisors not found in the loch."""
         dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
         bad_user = AuthorizedUser.create_or_restore(uid='666', created_by='2040')
-        UniversityDeptMember.create_or_update_membership(dept_coe, bad_user, is_advisor=True, is_director=False)
+        UniversityDeptMember.create_or_update_membership(
+            dept_coe,
+            bad_user,
+            is_advisor=True,
+            is_director=False,
+            is_scheduler=False,
+        )
         std_commit(allow_test_environment=True)
 
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
-        assert len(coe_users) == 5
+        assert len(coe_users) == 6
         assert next(u for u in coe_users if u.uid == '666')
         assert AuthorizedUser.query.filter_by(uid='666').first().deleted_at is None
 
@@ -169,7 +175,7 @@ class TestRefreshDepartmentMemberships:
         std_commit(allow_test_environment=True)
 
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
-        assert len(coe_users) == 4
+        assert len(coe_users) == 5
         assert next((u for u in coe_users if u.uid == '666'), None) is None
         assert AuthorizedUser.query.filter_by(uid='666').first().deleted_at
 
@@ -181,6 +187,7 @@ class TestRefreshDepartmentMemberships:
             manually_added_user,
             is_advisor=True,
             is_director=False,
+            is_scheduler=False,
             automate_membership=False,
         )
 
@@ -189,7 +196,7 @@ class TestRefreshDepartmentMemberships:
         std_commit(allow_test_environment=True)
 
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
-        assert len(coe_users) == 5
+        assert len(coe_users) == 6
         assert next(u for u in coe_users if u.uid == '1024')
         assert AuthorizedUser.query.filter_by(uid='1024').first().deleted_at is None
 
@@ -201,7 +208,7 @@ class TestRefreshDepartmentMemberships:
         std_commit(allow_test_environment=True)
 
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
-        assert len(coe_users) == 4
+        assert len(coe_users) == 5
         assert next((u for u in coe_users if u.uid == '1024'), None) is None
         assert AuthorizedUser.query.filter_by(uid='1024').first().deleted_at
 
@@ -258,7 +265,13 @@ class TestRefreshDepartmentMemberships:
         """Updates membership for a former CoE advisor who switches to L&S."""
         user = AuthorizedUser.find_by_uid('242881')
         dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
-        UniversityDeptMember.create_or_update_membership(dept_coe, user, is_advisor=True, is_director=False)
+        UniversityDeptMember.create_or_update_membership(
+            dept_coe,
+            user,
+            is_advisor=True,
+            is_director=False,
+            is_scheduler=False,
+        )
         dept_ucls = UniversityDept.query.filter_by(dept_code='QCADVMAJ').first()
         UniversityDeptMember.delete_membership(dept_ucls.id, user.id)
         std_commit(allow_test_environment=True)

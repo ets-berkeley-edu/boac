@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import get_my_curated_groups, response_with_students_csv_download
+from boac.api.util import advisor_required, get_my_curated_groups, response_with_students_csv_download
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker
 from boac.merged import calnet
@@ -34,17 +34,17 @@ from boac.models.authorized_user import AuthorizedUser
 from boac.models.curated_group import CuratedGroup
 from flask import current_app as app, request
 from flask_cors import cross_origin
-from flask_login import current_user, login_required
+from flask_login import current_user
 
 
 @app.route('/api/curated_groups/my')
-@login_required
+@advisor_required
 def my_curated_groups():
     return tolerant_jsonify(get_my_curated_groups())
 
 
 @app.route('/api/curated_groups/all')
-@login_required
+@advisor_required
 def all_curated_groups():
     scope = get_query_scope(current_user)
     uids = AuthorizedUser.get_all_uids_in_scope(scope)
@@ -63,7 +63,7 @@ def all_curated_groups():
 
 
 @app.route('/api/curated_group/create', methods=['POST'])
-@login_required
+@advisor_required
 def create_curated_group():
     params = request.get_json()
     name = params.get('name', None)
@@ -78,7 +78,7 @@ def create_curated_group():
 
 
 @app.route('/api/curated_group/delete/<curated_group_id>', methods=['DELETE'])
-@login_required
+@advisor_required
 @cross_origin(allow_headers=['Content-Type'])
 def delete_curated_group(curated_group_id):
     curated_group = CuratedGroup.find_by_id(curated_group_id)
@@ -91,7 +91,7 @@ def delete_curated_group(curated_group_id):
 
 
 @app.route('/api/curated_group/<curated_group_id>')
-@login_required
+@advisor_required
 def get_curated_group(curated_group_id):
     offset = get_param(request.args, 'offset', 0)
     limit = get_param(request.args, 'limit', 50)
@@ -101,7 +101,7 @@ def get_curated_group(curated_group_id):
 
 
 @app.route('/api/curated_group/<curated_group_id>/download_csv')
-@login_required
+@advisor_required
 def download_csv(curated_group_id):
     benchmark = get_benchmarker(f'curated group {curated_group_id} download_csv')
     benchmark('begin')
@@ -114,7 +114,7 @@ def download_csv(curated_group_id):
 
 
 @app.route('/api/curated_group/<curated_group_id>/students_with_alerts')
-@login_required
+@advisor_required
 def get_students_with_alerts(curated_group_id):
     offset = get_param(request.args, 'offset', 0)
     limit = get_param(request.args, 'limit', 50)
@@ -149,13 +149,13 @@ def get_students_with_alerts(curated_group_id):
 
 
 @app.route('/api/curated_groups/my/<sid>')
-@login_required
+@advisor_required
 def curated_group_ids_per_sid(sid):
     return tolerant_jsonify(CuratedGroup.curated_group_ids_per_sid(user_id=current_user.get_id(), sid=sid))
 
 
 @app.route('/api/curated_group/<curated_group_id>/remove_student/<sid>', methods=['DELETE'])
-@login_required
+@advisor_required
 @cross_origin(allow_headers=['Content-Type'])
 def remove_student_from_curated_group(curated_group_id, sid):
     curated_group = CuratedGroup.find_by_id(curated_group_id)
@@ -168,7 +168,7 @@ def remove_student_from_curated_group(curated_group_id, sid):
 
 
 @app.route('/api/curated_group/students/add', methods=['POST'])
-@login_required
+@advisor_required
 def add_students_to_curated_group():
     params = request.get_json()
     curated_group_id = params.get('curatedGroupId')
@@ -190,7 +190,7 @@ def add_students_to_curated_group():
 
 
 @app.route('/api/curated_group/rename', methods=['POST'])
-@login_required
+@advisor_required
 def rename_curated_group():
     params = request.get_json()
     name = params['name']
