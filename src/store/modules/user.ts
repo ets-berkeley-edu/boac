@@ -71,7 +71,7 @@ const actions = {
       if (state.users) {
         resolve(state.users);
       } else {
-        getUsers('firstName')
+        getUsers('lastName')
           .then(data => {
             commit('setUsers', data);
             resolve(state.users);
