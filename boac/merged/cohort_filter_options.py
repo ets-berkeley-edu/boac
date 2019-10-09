@@ -114,6 +114,19 @@ def _get_filter_options(scope, cohort_owner_uid):
             {
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
+                'key': 'enteringTerms',
+                'label': {
+                    'primary': 'Entering Term',
+                },
+                'options': _entering_terms,
+                'type': {
+                    'db': 'string[]',
+                    'ux': 'dropdown',
+                },
+            },
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
                 'key': 'expectedGradTerms',
                 'label': {
                     'primary': 'Expected Graduation Term',
@@ -463,6 +476,11 @@ def _academic_plans_for_cohort_owner(owner_uid):
         if value:
             plans.append({'name': row['academic_plan'], 'value': value})
     return plans
+
+
+def _entering_terms():
+    term_ids = [r['entering_term'] for r in data_loch.get_entering_terms()]
+    return [{'name': ' '.join(term_name_for_sis_id(term_id).split()[::-1]), 'value': term_id} for term_id in term_ids]
 
 
 def _ethnicities():

@@ -600,6 +600,13 @@ def get_distinct_ethnicities():
     return safe_execute_rds(f'SELECT DISTINCT ethnicity FROM {student_schema()}.ethnicities ORDER BY ethnicity')
 
 
+def get_entering_terms():
+    sql = f"""SELECT DISTINCT entering_term FROM {student_schema()}.student_academic_status
+        WHERE entering_term > '0'
+        ORDER BY entering_term DESC"""
+    return safe_execute_rds(sql)
+
+
 def get_expected_graduation_terms():
     sql = f"""SELECT DISTINCT expected_grad_term FROM {student_schema()}.student_academic_status
         WHERE expected_grad_term > '0'
@@ -624,6 +631,7 @@ def get_students_query(     # noqa
     coe_probation=None,
     coe_underrepresented=None,
     ethnicities=None,
+    entering_terms=None,
     expected_grad_terms=None,
     genders=None,
     gpa_ranges=None,
@@ -694,6 +702,9 @@ def get_students_query(     # noqa
     query_filter += _number_ranges_to_sql('sas.units', unit_ranges) if unit_ranges else ''
     if last_name_ranges:
         query_filter += _last_name_ranges_to_sql(last_name_ranges)
+    if entering_terms:
+        query_filter += ' AND sas.entering_term = ANY(:entering_terms)'
+        query_bindings.update({'entering_terms': entering_terms})
     if ethnicities:
         query_filter += ' AND e.ethnicity = ANY(:ethnicities)'
         query_bindings.update({'ethnicities': ethnicities})
@@ -789,7 +800,7 @@ def get_students_ordering(order_by=None, group_codes=None, majors=None, scope=No
         o = 's.intensive'
     elif order_by in ['first_name', 'last_name']:
         o = naturalize_order(f'sas.{order_by}')
-    elif order_by in ['gpa', 'units', 'level']:
+    elif order_by in ['entering_term', 'gpa', 'units', 'level']:
         o = f'sas.{order_by}'
     elif order_by == 'group_name':
         # Sorting by athletic team introduces a couple of onerous special cases where we

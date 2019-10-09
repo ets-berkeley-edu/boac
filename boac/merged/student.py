@@ -255,6 +255,7 @@ def summarize_profile(profile, enrollments=None, term_gpas=None):
         profile['expectedGraduationTerm'] = sis_profile.get('expectedGraduationTerm')
         profile['level'] = _get_sis_level_description(sis_profile)
         profile['majors'] = _get_active_plan_descriptions(sis_profile)
+        profile['matriculation'] = sis_profile.get('matriculation')
         profile['transfer'] = sis_profile.get('transfer')
         if sis_profile.get('withdrawalCancel'):
             profile['withdrawalCancel'] = sis_profile['withdrawalCancel']
@@ -309,6 +310,7 @@ def query_students(
     coe_prep_statuses=None,
     coe_probation=None,
     coe_underrepresented=None,
+    entering_terms=None,
     ethnicities=None,
     expected_grad_terms=None,
     genders=None,
@@ -360,6 +362,7 @@ def query_students(
         coe_prep_statuses=coe_prep_statuses,
         coe_probation=coe_probation,
         coe_underrepresented=coe_underrepresented,
+        entering_terms=entering_terms,
         ethnicities=ethnicities,
         expected_grad_terms=expected_grad_terms,
         genders=genders,
@@ -402,8 +405,8 @@ def query_students(
         )
         if supplemental_query_tables:
             query_tables += supplemental_query_tables
-        # Sorting by team is the one case where null results should go below not-null results.
-        o_null_order = 'NULLS LAST' if 'group_name' in o else 'NULLS FIRST'
+        # When sorting by team or entering term, order null results last.
+        o_null_order = 'NULLS LAST' if ('group_name' in o or 'entering_term' in o) else 'NULLS FIRST'
         sql = f"""SELECT
             sas.sid, MIN({o}), MIN({o_secondary}), MIN({o_tertiary})
             {query_tables}

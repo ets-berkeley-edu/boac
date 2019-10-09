@@ -842,6 +842,7 @@ class TestCohortPerFilters:
         assert _get_first_student('level')['level'] == 'Junior'
         assert _get_first_student('major')['majors'][0] == 'Chemistry BS'
         assert _get_first_student('units')['cumulativeUnits'] == 34
+        assert _get_first_student('entering_term')['matriculation'] == 'Spring 2015'
         student = _get_first_student('group_name')
         assert student['athleticsProfile']['athletics'][0]['groupName'] == 'Football, Defensive Backs'
 
@@ -863,6 +864,35 @@ class TestCohortPerFilters:
         assert is_active_asc(students[1]) is True
         assert is_active_asc(students[2]) is True
         assert is_active_asc(students[3]) is True
+
+    def test_filter_entering_term(self, client, coe_advisor_login):
+        api_json = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {'key': 'enteringTerms', 'value': '2155'},
+                ],
+            },
+        )
+        students = api_json['students']
+        assert len(students) == 6
+        for student in students:
+            assert student['matriculation'] == 'Summer 2015'
+
+    def test_filter_multiple_entering_terms(self, client, coe_advisor_login):
+        api_json = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {'key': 'enteringTerms', 'value': '1938'},
+                    {'key': 'enteringTerms', 'value': '2158'},
+                ],
+            },
+        )
+        students = api_json['students']
+        assert len(students) == 2
+        for student in students:
+            assert student['matriculation'] in ['Fall 1993', 'Fall 2015']
 
     def test_filter_expected_grad_term(self, client, coe_advisor_login):
         """Returns students per expected graduation."""
@@ -1129,15 +1159,16 @@ class TestCohortFilterOptions:
                 else:
                     assert 'disabled' not in menu
 
-    def test_range_of_expected_terms(self, client, guest_user_login):
-        """Expected grad term options ."""
+    def test_range_of_entering_terms(self, client, guest_user_login):
         api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
-        assert len(api_json)
-        assert len(api_json[0])
         filter_options = api_json[0][0].get('options')
-        assert filter_options[-1].get('name') == '1997 Fall'
-        assert filter_options[-2].get('name') == 'divider'
-        assert filter_options[-3].get('name') == '2019 Spring'
+        assert len(filter_options) == 4
+        assert [o['name'] for o in filter_options] == ['2015 Fall', '2015 Summer', '2015 Spring', '1993 Fall']
+
+    def test_range_of_expected_grad_terms(self, client, guest_user_login):
+        api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
+        filter_options = api_json[0][1].get('options')
+        assert [o['name'] for o in filter_options[-3:]] == ['2019 Spring', 'divider', '1997 Fall']
 
 
 class TestTranslateToFilterOptions:
