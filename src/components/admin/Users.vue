@@ -6,27 +6,62 @@
     </h2>
     <b-container class="pl-0 ml-0">
       <b-form-row class="pb-2">
+        <b-col cols="6" class="mr-5">
+          <b-form-group>
+            <b-form-input
+              id="user-name-uid-search"
+              v-model="filterNameUid"
+              class="mb-3"
+              type="search"
+              placeholder="Name or UID">
+            </b-form-input>
+            <b-form-select
+              v-if="departments.length"
+              id="department-select-list"
+              v-model="filterDept"
+              :options="departments"
+              value-field="code"
+              text-field="name"
+              role="listbox"
+              aria-label="Use up and down arrows to review departments. Hit enter to select a department."
+              @change="isResetDisabled=false">
+              <template v-slot:first>
+                <option :value="null" disabled>-- Select a department --</option>
+              </template>
+            </b-form-select>
+          </b-form-group>
+        </b-col>
         <b-col>
-          <b-form-select
-            v-if="departments.length"
-            id="department-select-list"
-            v-model="filter"
-            :options="departments"
-            value-field="code"
-            text-field="name"
-            role="listbox"
-            aria-label="Use up and down arrows to review departments. Hit enter to select a department.">
-            <template v-slot:first>
-              <option :value="null" disabled>-- Select a department --</option>
-            </template>
-          </b-form-select>
+          <b-form-group>
+            <b-form-checkbox-group
+              id="user-permission-options"
+              v-model="filterPermissions"
+              :options="userPermissionOptions"
+              name="user-permission-options"
+              stacked
+              @change="isResetDisabled=false">
+            </b-form-checkbox-group>
+          </b-form-group>
+        </b-col>
+        <b-col>
+          <b-form-group>
+            <b-form-checkbox-group
+              id="user-status-options"
+              v-model="filterStatuses"
+              :options="userStatusOptions"
+              name="user-status-options"
+              stacked
+              @change="isResetDisabled=false">
+            </b-form-checkbox-group>
+          </b-form-group>
         </b-col>
         <b-col>
           <b-input-group-append>
             <b-button
-              :disabled="!filter"
-              @click="clearFilter">
-              Clear Filter
+              id="user-filter-reset-button"
+              :disabled="isResetDisabled && !filterNameUid"
+              @click="resetFilter">
+              Reset Filter
             </b-button>
           </b-input-group-append>
         </b-col>
@@ -36,8 +71,7 @@
       id="users-table"
       :fields="fields"
       :filter="filter"
-      :filter-function="filterUsers"
-      :filter-included-fields="filterFields"
+      :filter-function="applyFilter"
       :items="items"
       :no-sort-reset="true"
       :small="true"
@@ -68,7 +102,7 @@
       </template>
       <template slot="uid" slot-scope="row">
         <span class="sr-only">U I D</span>
-        <div>{{ row.item.uid }}</div>
+        <div :id="`uid-${row.item.uid}`">{{ row.item.uid }}</div>
       </template>
       <template slot="name" slot-scope="row">
         <span class="sr-only">User name</span>
@@ -82,17 +116,17 @@
         </a>
       </template>
       <template slot="title" slot-scope="row">
-        <div>{{ row.item.title }}</div>
+        <div :id="`title-${row.item.uid}`">{{ row.item.title }}</div>
       </template>
       <template slot="depts" slot-scope="row">
         <div
-          v-for="deptCode in keys(row.item.departments)"
-          :key="deptCode">
-          <span>{{ row.item.departments[deptCode]['deptName'] }}</span>
+          v-for="(deptCode, index) in keys(row.item.departments)"
+          :key="index">
+          <span :id="`dept-${index}-${row.item.uid}`">{{ row.item.departments[deptCode]['deptName'] }}</span>
         </div>
       </template>
       <template slot="campusEmail" slot-scope="row">
-        <div>{{ row.item.campusEmail }}</div>
+        <div :id="`email-${row.item.uid}`">{{ row.item.campusEmail }}</div>
       </template>
       <template slot="row-details" slot-scope="row">
         <b-card>
@@ -101,28 +135,28 @@
               <b-col>
                 <h3 class="user-details-header">Permissions</h3>
                 <ul class="flex-container flex-col">
-                  <li class="text-nowrap">{{ row.item.canAccessCanvasData ? 'Canvas data access' : 'No Canvas data' }}</li>
-                  <li v-if="row.item.isAdmin">Admin</li>
+                  <li :id="`permission-canvas-data-${row.item.uid}`" class="text-nowrap">{{ row.item.canAccessCanvasData ? 'Canvas data access' : 'No Canvas data' }}</li>
+                  <li v-if="row.item.isAdmin" :id="`permission-admin-${row.item.uid}`">Admin</li>
                 </ul>
               </b-col>
               <b-col>
                 <h3 class="user-details-header">Status</h3>
                 <ul class="flex-container flex-col">
-                  <li>{{ row.item.deletedAt ? 'Deleted' : 'Active' }}</li>
-                  <li v-if="row.item.isBlocked">Blocked</li>
-                  <li v-if="row.item.isExpiredPerLdap">Expired account (according to CalNet)</li>
+                  <li :id="`status-deleted-${row.item.uid}`">{{ row.item.deletedAt ? 'Deleted' : 'Active' }}</li>
+                  <li v-if="row.item.isBlocked" :id="`status-blocked-${row.item.uid}`">Blocked</li>
+                  <li v-if="row.item.isExpiredPerLdap" :id="`status-expired-${row.item.uid}`">Expired account (according to CalNet)</li>
                 </ul>
               </b-col>
               <b-col cols="8">
                 <h3 class="user-details-header">Department Membership</h3>
                 <div v-if="isEmpty(row.item.departments)">None</div>
-                <table v-if="!isEmpty(row.item.departments)" class="user-dept-membership-table">
-                  <tr
-                    v-for="deptCode in keys(row.item.departments)"
-                    :key="deptCode">
-                    <th scope="row">{{ row.item.departments[deptCode]['deptName'] }}</th>
-                    <td>{{ deptRoles(row.item.departments[deptCode]) }}</td>
-                    <td>{{ row.item.departments[deptCode]['automateMembership'] ? 'Automated' : 'Manual' }} Membership</td>
+                <table v-if="!isEmpty(row.item.departments)" :id="`user-depts-table-${row.item.uid}`" class="user-dept-membership-table">
+                  <tr 
+                    v-for="(deptCode, index) in keys(row.item.departments)"
+                    :key="index">
+                    <th :id="`dept-detail-${index}-${row.item.uid}`" scope="row">{{ row.item.departments[deptCode]['deptName'] }}</th>
+                    <td :id="`dept-roles-${index}-${row.item.uid}`">{{ deptRoles(row.item.departments[deptCode]) }}</td>
+                    <td :id="`dept-membership-${index}-${row.item.uid}`">{{ row.item.departments[deptCode]['automateMembership'] ? 'Automated' : 'Manual' }} Membership</td>
                   </tr>
                 </table>
               </b-col>
@@ -178,6 +212,7 @@ export default {
   },
   data: () => ({
     currentPage: 1,
+    filterDept: null,
     fields: [
       {key: 'toggleDetails', label: '', class: 'user-details-toggle'},
       {key: 'uid', sortable: true, class: 'user-uid'},
@@ -187,24 +222,38 @@ export default {
       {key: 'campusEmail'},
       {key: 'actions', label: '', class: 'user-actions'}
     ],
-    filter: null,
-    filterFields: ['depts'],
+    filter: undefined,
+    filterPermissions: ['isAdmin', 'isAdvisor', 'isDirector', 'canAccessCanvasData', 'isScheduler'],
+    filterStatuses: ['isActive'],
+    isResetDisabled: true,
     items: [],
+    filterNameUid: undefined,
     perPage: 10,
     rowCount: 0,
     sortBy: 'lastName',
-    sortDesc: false
+    sortDesc: false,
+    userPermissionOptions: [
+      {text: 'Admins', value: 'isAdmin'},
+      {text: 'Advisors', value: 'isAdvisor'},
+      {text: 'Directors', value: 'isDirector'},
+      {text: 'Canvas Access', value: 'canAccessCanvasData'},
+      {text: 'Schedulers', value: 'isScheduler'}
+    ],
+    userStatusOptions: [
+      {text: 'Active', value: 'isActive'},
+      {text: 'Deleted', value: 'deletedAt'},
+      {text: 'Blocked', value: 'isBlocked'},
+      {text: 'Expired', value: 'isExpiredPerLdap'}
+    ]
   }),
   created() {
     this.items = this.cloneDeep(this.users);
+    this.filter = this.concat(this.filterNameUid, this.filterDept, this.filterPermissions, this.filterStatuses);
     this.rowCount = this.users ? this.size(this.users) : 0;
   },
   methods: {
     become(uid) {
       becomeUser(uid).then(() => (window.location.href = '/home'));
-    },
-    clearFilter() {
-      this.filter = null;
     },
     deptRoles(dept) {
       let roles = [];
@@ -215,8 +264,22 @@ export default {
       });
       return this.oxfordJoin(roles);
     },
-    filterUsers(user, filter) {
-      return this.includes(this.keys(user.departments), filter);
+    applyFilter(user) {
+      let nameUidMatch = !this.filterNameUid || this.includes(user.name.toLowerCase(), this.filterNameUid.toLowerCase()) || this.includes(user.uid, this.filterNameUid);
+      let deptMatch = !this.filterDept || this.includes(this.keys(user.departments), this.filterDept);
+      let adminMatch = this.includes(this.filterPermissions, 'isAdmin') && user.isAdmin;
+      let advisorMatch = this.includes(this.filterPermissions, 'isAdvisor') &&  this.find(user.departments, (dept) => dept.isAdvisor);
+      let directorMatch = this.includes(this.filterPermissions, 'isDirector') && this.find(user.departments, (dept) => dept.isDirector);
+      let canvasAccessMatch = this.includes(this.filterPermissions, 'canAccessCanvasData') && user.canAccessCanvasData;
+      let schedulerMatch = this.includes(this.filterPermissions, 'isScheduler') && this.find(user.departments, (dept) => dept.isScheduler);
+      let activeMatch = this.includes(this.filterStatuses, 'isActive') && !user.deletedAt && !user.isBlocked;
+      let deletedMatch = this.includes(this.filterStatuses, 'deletedAt') && user.deletedAt;
+      let blockedMatch = this.includes(this.filterStatuses, 'isBlocked') && user.isBlocked;
+      let expiredMatch = this.includes(this.filterStatuses, 'isExpiredPerLdap') && user.isExpiredPerLdap;
+      let permissionsMatch = adminMatch || advisorMatch || directorMatch || canvasAccessMatch || schedulerMatch;
+      let statusMatch = activeMatch || deletedMatch || blockedMatch || expiredMatch;
+
+      return nameUidMatch && deptMatch && permissionsMatch && statusMatch;
     },
     onFilter(filteredItems) {
       this.rowCount = filteredItems.length
@@ -225,6 +288,13 @@ export default {
     openEdit() {
       //TODO: BOAC-2844
       return false;
+    },
+    resetFilter() {
+      this.filterNameUid = null;
+      this.filterDept = null;
+      this.filterPermissions = ['isAdmin', 'isAdvisor', 'isDirector', 'canAccessCanvasData', 'isScheduler'];
+      this.filterStatuses = ['isActive'];
+      this.isResetDisabled = true;
     },
     sortCompare(a, b, sortBy) {
       const key = sortBy === 'name' ? 'lastName' : sortBy
