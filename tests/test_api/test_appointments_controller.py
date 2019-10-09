@@ -23,13 +23,34 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-# Development environment.
-DEBUG = True
+coe_scheduler_uid = '6972201'
 
-DEMO_MODE_AVAILABLE = True
 
-FEATURE_FLAG_ADVISOR_APPOINTMENTS = True
+class TestGetAppointment:
 
-INDEX_HTML = 'public/index.html'
+    @classmethod
+    def _api_appointment_by_id(cls, client, appointment_id, expected_status_code=200):
+        response = client.get(f'/api/appointments/{appointment_id}')
+        assert response.status_code == expected_status_code
+        return response.json
 
-VUE_LOCALHOST_BASE_URL = 'http://localhost:8080'
+    def test_not_authenticated(self, app, client):
+        """Returns 401 if not authenticated."""
+        self._api_appointment_by_id(client=client, appointment_id=1, expected_status_code=401)
+
+    def test_deny_scheduler(self, app, client, fake_auth):
+        """Returns 401 if user is a scheduler."""
+        fake_auth.login(coe_scheduler_uid)
+        self._api_appointment_by_id(client=client, appointment_id=1, expected_status_code=401)
+
+
+class TestMarkAppointmentRead:
+
+    def test_mark_read_not_authenticated(self, client):
+        """Returns 401 if not authenticated."""
+        assert client.get('/api/appointments/1/mark_read').status_code == 401
+
+    def test_deny_scheduler(self, app, client, fake_auth):
+        """Returns 401 if user is a scheduler."""
+        fake_auth.login(coe_scheduler_uid)
+        assert client.get('/api/appointments/1/mark_read').status_code == 401

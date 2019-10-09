@@ -28,7 +28,6 @@ import json
 
 from boac.api.errors import BadRequestError
 from boac.externals.data_loch import get_sis_holds, get_student_profiles
-from boac.externals.google_calendar_client import get_calendar_events
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import response_with_csv_download
 from boac.lib.util import join_if_present
@@ -172,7 +171,8 @@ def put_notifications(student):
     }
     if app.config['FEATURE_FLAG_ADVISOR_APPOINTMENTS']:
         student['notifications']['appointment'] = []
-        for event in get_calendar_events():
+        # TODO: Get appointments per SID
+        for event in ():
             student['notifications']['appointment'].append({
                 **event,
                 **{

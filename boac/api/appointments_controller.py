@@ -23,13 +23,24 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-# Development environment.
-DEBUG = True
+from boac.api.util import advisor_required
+from boac.lib.http import tolerant_jsonify
+from flask import current_app as app
 
-DEMO_MODE_AVAILABLE = True
 
-FEATURE_FLAG_ADVISOR_APPOINTMENTS = True
+@app.route('/api/appointments/<appointment_id>')
+@advisor_required
+def get_appointment(appointment_id):
+    mock_appointment = {
+        'id': appointment_id,
+        'reason': 'Career Planning',
+        'arrivalTime': '8:58am',
+        'details': 'Looking to develop an action plan',
+    }
+    return tolerant_jsonify(mock_appointment)
 
-INDEX_HTML = 'public/index.html'
 
-VUE_LOCALHOST_BASE_URL = 'http://localhost:8080'
+@app.route('/api/appointments/<appointment_id>/mark_read')
+@advisor_required
+def mark_appointment_read(appointment_id):
+    return tolerant_jsonify({'status': f'Marked as read (id: {appointment_id})'}, status=201)

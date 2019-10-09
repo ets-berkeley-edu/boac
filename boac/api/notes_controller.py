@@ -64,7 +64,7 @@ def get_note(note_id):
 
 @app.route('/api/notes/<note_id>/mark_read', methods=['POST'])
 @advisor_required
-def mark_read(note_id):
+def mark_note_read(note_id):
     if NoteRead.find_or_create(current_user.get_id(), note_id):
         return tolerant_jsonify({'status': 'created'}, status=201)
     else:
