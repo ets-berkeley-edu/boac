@@ -14,7 +14,10 @@
             <div class="b-link-text">{{ user.firstName }}</div><font-awesome icon="caret-down" class="ml-1 b-link-text" />
           </div>
         </template>
-        <b-dropdown-item v-if="user.isAdmin || isDemoModeAvailable" @click="goAdmin">Admin</b-dropdown-item>
+        <b-dropdown-item v-if="user.isAdmin || isDemoModeAvailable" @click="goAdmin">
+          <span v-if="user.isAdmin">Admin</span>
+          <span v-if="!user.isAdmin">Settings</span>
+        </b-dropdown-item>
         <b-dropdown-item href="#" @click="logOut">Log Out</b-dropdown-item>
         <b-dropdown-item :href="`mailto:${supportEmailAddress}`" target="_blank">Feedback/Help</b-dropdown-item>
       </b-dropdown>
@@ -35,7 +38,7 @@ export default {
       getCasLogoutUrl().then(data => window.location.href = data.casLogoutUrl);
     },
     goAdmin() {
-      this.$router.push({ path: '/admin' });
+      this.$router.push({ path: this.isUserSimplyScheduler() ? '/scheduler/settings' : '/admin' });
     }
   }
 };
