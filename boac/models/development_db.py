@@ -29,6 +29,7 @@ import string
 
 from boac import db, std_commit
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
+from boac.lib.util import utc_now
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
@@ -99,6 +100,13 @@ _test_users = [
         'canAccessCanvasData': True,
     },
     {
+        'uid': '1133397',
+        'csid': 'None',
+        'isAdmin': False,
+        'inDemoMode': False,
+        'canAccessCanvasData': True,
+    },
+    {
         'uid': '1133399',
         'csid': '800700600',
         'isAdmin': False,
@@ -141,6 +149,7 @@ _test_users = [
         'isAdmin': False,
         'inDemoMode': False,
         'canAccessCanvasData': True,
+        'deleted': True,
     },
     {
         'uid': '1049291',
@@ -169,6 +178,22 @@ _test_users = [
         'isAdmin': False,
         'inDemoMode': False,
         'canAccessCanvasData': True,
+    },
+    {
+        'uid': '666',
+        'csid': None,
+        'isAdmin': False,
+        'inDemoMode': False,
+        'canAccessCanvasData': True,
+        'deleted': True,
+    },
+    {
+        'uid': '1024',
+        'csid': None,
+        'isAdmin': False,
+        'inDemoMode': False,
+        'canAccessCanvasData': True,
+        'deleted': True,
     },
 ]
 
@@ -227,6 +252,13 @@ _university_depts = {
         'users': [
             {
                 'uid': '242881',
+                'isAdvisor': True,
+                'isDirector': False,
+                'isScheduler': False,
+                'automate_membership': True,
+            },
+            {
+                'uid': '1133397',
                 'isAdvisor': True,
                 'isDirector': False,
                 'isScheduler': False,
@@ -347,6 +379,8 @@ def load_development_data():
                 in_demo_mode=test_user['inDemoMode'],
                 can_access_canvas_data=test_user['canAccessCanvasData'],
             )
+            if test_user.get('deleted'):
+                user.deleted_at = utc_now()
             db.session.add(user)
     for dept_code, dept_membership in _university_depts.items():
         university_dept = UniversityDept.find_by_dept_code(dept_code)

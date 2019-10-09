@@ -213,11 +213,7 @@ class TestRefreshDepartmentMemberships:
         assert AuthorizedUser.query.filter_by(uid='1024').first().deleted_at
 
     def test_replaces_non_automated_user_with_automated_user(self, app, db):
-        from boac.api.cache_utils import refresh_department_memberships
-        refresh_department_memberships()
-        std_commit(allow_test_environment=True)
         authorized_user_id = AuthorizedUser.query.filter_by(uid='1133397').first().id
-
         memberships = UniversityDeptMember.query.filter_by(authorized_user_id=authorized_user_id).all()
         assert len(memberships) == 1
         memberships[0].automate_membership = False
