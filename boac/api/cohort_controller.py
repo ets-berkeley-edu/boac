@@ -27,6 +27,7 @@ from datetime import datetime
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import advisor_required, is_unauthorized_search, response_with_students_csv_download
+from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
 from boac.merged import calnet
@@ -279,7 +280,11 @@ def _can_current_user_view_cohort(cohort):
     if current_user.is_admin or not cohort['owners']:
         return True
     cohort_dept_codes = {dept_code for o in cohort['owners'] for dept_code in o['deptCodes']}
-    return len(cohort_dept_codes) > 0 and set(current_user.dept_codes).issuperset(cohort_dept_codes)
+    if len(cohort_dept_codes):
+        user_dept_codes = dept_codes_where_advising(current_user)
+        return len([c for c in user_dept_codes if c in cohort_dept_codes])
+    else:
+        return False
 
 
 def _construct_phantom_cohort(filters, **kwargs):

@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import advisor_required, get_note_attachments_from_http_post, get_note_topics_from_http_post
+from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import process_input_from_rich_text_editor
 from boac.models.note_template import NoteTemplate
@@ -42,8 +43,9 @@ def create_note_template():
     topics = get_note_topics_from_http_post()
     if not title or not subject:
         raise BadRequestError('Note creation requires \'subject\' and \'title\'')
-    if current_user.is_admin or not len(current_user.dept_codes):
-        raise ForbiddenRequestError('Sorry, Admin users cannot create advising notes')
+    user_dept_codes = dept_codes_where_advising(current_user)
+    if current_user.is_admin or not len(user_dept_codes):
+        raise ForbiddenRequestError('Sorry, only advisors can create advising note templates')
 
     attachments = get_note_attachments_from_http_post(tolerate_none=True)
 

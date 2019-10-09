@@ -64,8 +64,6 @@ class TestUserProfile:
         fake_auth.login(admin_uid)
         api_json = self._api_my_profile(client)
         assert api_json['isAdmin'] is True
-        assert api_json['isAsc'] is False
-        assert api_json['isCoe'] is False
         assert not len(api_json['departments'])
 
     def test_user_with_scheduler_role(self, client, fake_auth):
@@ -73,7 +71,6 @@ class TestUserProfile:
         fake_auth.login(coe_scheduler_uid)
         api_json = self._api_my_profile(client)
         assert api_json['isAdmin'] is False
-        assert api_json['isCoe'] is True
         assert api_json['canAccessCanvasData'] is False
         departments = api_json['departments']
         assert len(departments) == 1
@@ -87,7 +84,6 @@ class TestUserProfile:
         """Returns Athletic Study Center advisor."""
         fake_auth.login(asc_advisor_uid)
         api_json = self._api_my_profile(client)
-        assert api_json['isAsc'] is True
         assert api_json['canAccessCanvasData'] is True
         departments = api_json['departments']
         assert len(departments) == 1

@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, get_dept_codes, get_dept_role
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, get_dept_role
 from boac.merged import calnet
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.json_cache import clear, stow
@@ -75,10 +75,6 @@ class UserSession(UserMixin):
         return self.api_json['departments']
 
     @property
-    def dept_codes(self):
-        return [d['code'] for d in self.api_json['departments']]
-
-    @property
     def is_admin(self):
         return self.api_json['isAdmin']
 
@@ -89,14 +85,6 @@ class UserSession(UserMixin):
     @property
     def can_access_canvas_data(self):
         return self.api_json['canAccessCanvasData']
-
-    @property
-    def is_asc_authorized(self):
-        return self.api_json['canViewAsc']
-
-    @property
-    def is_coe_authorized(self):
-        return self.api_json['canViewCoe']
 
     def to_api_json(self):
         return self.api_json
@@ -110,8 +98,6 @@ class UserSession(UserMixin):
     def _get_api_json(cls, user=None):
         calnet_profile = None
         departments = []
-        is_asc = False
-        is_coe = False
         if user:
             calnet_profile = calnet.get_calnet_user_for_uid(
                 app,
@@ -130,9 +116,6 @@ class UserSession(UserMixin):
                         'isDirector': m.is_director,
                         'isScheduler': m.is_scheduler,
                     })
-            dept_codes = get_dept_codes(user) if user else []
-            is_asc = 'UWASC' in dept_codes
-            is_coe = 'COENG' in dept_codes
         is_active = False
         if user:
             if not calnet_profile:
@@ -149,15 +132,11 @@ class UserSession(UserMixin):
             **(calnet_profile or {}),
             **{
                 'id': user and user.id,
-                'canViewAsc': is_asc or is_admin,
-                'canViewCoe': is_coe or is_admin,
                 'departments': departments,
                 'isActive': is_active,
                 'isAdmin': is_admin,
                 'isAnonymous': not is_active,
-                'isAsc': is_asc,
                 'isAuthenticated': is_active,
-                'isCoe': is_coe,
                 'inDemoMode': user and user.in_demo_mode,
                 'canAccessCanvasData': user and user.can_access_canvas_data,
                 'uid': user and user.uid,

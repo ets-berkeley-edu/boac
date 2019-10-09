@@ -30,7 +30,7 @@ import re
 
 from boac.externals import data_loch, s3
 from boac.lib import analytics
-from boac.lib.berkeley import current_term_id, future_term_id, term_name_for_sis_id
+from boac.lib.berkeley import current_term_id, dept_codes_where_advising, future_term_id, term_name_for_sis_id
 from boac.lib.util import get_benchmarker
 from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 from flask import current_app as app
@@ -506,8 +506,8 @@ def get_student_query_scope(user=None):
         return []
     elif user.is_admin:
         return ['ADMIN']
-    elif hasattr(user, 'dept_codes'):
-        return user.dept_codes
+    elif hasattr(user, 'departments'):
+        return dept_codes_where_advising(user)
     else:
         return [m.university_dept.dept_code for m in user.department_memberships]
 

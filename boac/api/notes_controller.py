@@ -33,6 +33,7 @@ from boac.api.util import (
     get_template_attachment_ids_from_http_post,
 )
 from boac.externals import data_loch
+from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int, process_input_from_rich_text_editor, to_bool_or_none
 from boac.merged.advising_note import (
@@ -80,8 +81,9 @@ def create_note():
     topics = get_note_topics_from_http_post()
     if not sid or not subject:
         raise BadRequestError('Note creation requires \'subject\' and \'sid\'')
-    if current_user.is_admin or not len(current_user.dept_codes):
-        raise ForbiddenRequestError('Sorry, Admin users cannot create advising notes')
+    user_dept_codes = dept_codes_where_advising(current_user)
+    if current_user.is_admin or not len(user_dept_codes):
+        raise ForbiddenRequestError('Sorry, only advisors can create advising notes.')
 
     author_profile = _get_author_profile()
     attachments = get_note_attachments_from_http_post(tolerate_none=True)
@@ -109,8 +111,9 @@ def batch_create_notes():
     topics = get_note_topics_from_http_post()
     if not sids or not subject:
         raise BadRequestError('Note creation requires \'subject\' and \'sid\'')
-    if current_user.is_admin or not len(current_user.dept_codes):
-        raise ForbiddenRequestError('Sorry, Admin users cannot create advising notes')
+    user_dept_codes = dept_codes_where_advising(current_user)
+    if current_user.is_admin or not len(user_dept_codes):
+        raise ForbiddenRequestError('Sorry, only advisors can create advising notes')
 
     author_profile = _get_author_profile()
     attachments = get_note_attachments_from_http_post(tolerate_none=True)
@@ -305,7 +308,7 @@ def _get_author_profile():
     if calnet_profile and calnet_profile.get('departments'):
         dept_codes = [dept.get('code') for dept in calnet_profile.get('departments')]
     else:
-        dept_codes = current_user.dept_codes
+        dept_codes = dept_codes_where_advising(current_user)
     if calnet_profile and calnet_profile.get('title'):
         role = calnet_profile['title']
     elif current_user.departments:

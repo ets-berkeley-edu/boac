@@ -23,8 +23,8 @@
         </b-col>
         <b-col>
           <b-input-group-append>
-            <b-button 
-              :disabled="!filter" 
+            <b-button
+              :disabled="!filter"
               @click="clearFilter">
               Clear Filter
             </b-button>
@@ -101,8 +101,7 @@
               <b-col>
                 <h3 class="user-details-header">Permissions</h3>
                 <ul class="flex-container flex-col">
-                  <li>{{ row.item.canAccessCanvasData ? 'Canvas data access' : 'No Canvas data' }}</li>
-                  <li v-if="row.item.isAdmin">Admin</li>
+                  <li class="text-nowrap">{{ row.item.canAccessCanvasData ? 'Canvas data access' : 'No Canvas data' }}</li>
                   <li v-if="row.item.isAdmin">Admin</li>
                 </ul>
               </b-col>
@@ -118,7 +117,7 @@
                 <h3 class="user-details-header">Department Membership</h3>
                 <div v-if="isEmpty(row.item.departments)">None</div>
                 <table v-if="!isEmpty(row.item.departments)" class="user-dept-membership-table">
-                  <tr 
+                  <tr
                     v-for="deptCode in keys(row.item.departments)"
                     :key="deptCode">
                     <th scope="row">{{ row.item.departments[deptCode]['deptName'] }}</th>
@@ -208,13 +207,12 @@ export default {
       this.filter = null;
     },
     deptRoles(dept) {
-      let roles = []
-      if (this.get(dept, 'isAdvisor')) {
-        roles.push('Advisor');
-      }
-      if (this.get(dept, 'isDirector')) {
-        roles.push('Director');
-      }
+      let roles = [];
+      this.each([{key: 'isAdvisor', label: 'Advisor'}, {key: 'isDirector', label: 'Director'}, {key: 'isScheduler', label: 'Scheduler'}], role => {
+        if (this.get(dept, role.key)) {
+          roles.push(role.label);
+        }
+      });
       return this.oxfordJoin(roles);
     },
     filterUsers(user, filter) {

@@ -20,6 +20,14 @@ import Vue from 'vue';
 
 Vue.use(Router);
 
+const isAdvisor = user => {
+  return !!_.size(_.filter(user.departments, d => d.isAdvisor || d.isDirector));
+};
+
+const isScheduler = user => {
+  return !!_.size(_.filter(user.departments, d => d.isScheduler));
+};
+
 const requiresAuth = (to: any, from: any, next: any) => {
   store.dispatch('user/loadUser').then(data => {
     if (data.isAuthenticated) {
@@ -36,11 +44,15 @@ const requiresAuth = (to: any, from: any, next: any) => {
   });
 };
 
-const requiresUser = (to: any, from: any, next: any) => {
+const requiresAdvisor = (to: any, from: any, next: any) => {
   store.dispatch('user/loadUser').then(data => {
     if (data.isAuthenticated) {
-      store.dispatch('user/loadUser').then(() => {
-        next();
+      store.dispatch('user/loadUser').then(user => {
+        if (isAdvisor(user) || user.isAdmin) {
+          next();
+        } else {
+          next({ path: '/404' });
+        }
       });
     } else {
       next({
@@ -54,13 +66,16 @@ const requiresUser = (to: any, from: any, next: any) => {
   });
 };
 
-const requiresDropInDeskUser = (to: any, from: any, next: any) => {
+const requiresScheduler = (to: any, from: any, next: any) => {
   store.dispatch('user/loadUser').then(data => {
     if (store.getters['context/featureFlagAppointments']) {
       if (data.isAuthenticated) {
-        store.dispatch('user/loadUser').then(() => {
-          // TODO: Only users with isDropInDesk === true will have access to /appt/desk.
-          next();
+        store.dispatch('user/loadUser').then(user => {
+          if (isScheduler(user) || user.isAdmin) {
+            next();
+          } else {
+            next({ path: '/404' });
+          }
         });
       } else {
         next({
@@ -88,9 +103,15 @@ const router = new Router({
       path: '/login',
       component: Login,
       beforeEnter: (to: any, from: any, next: any) => {
-        store.dispatch('user/loadUser').then(data => {
-          if (data.isAuthenticated) {
-            next(to.query.redirect || '/home');
+        store.dispatch('user/loadUser').then(user => {
+          if (user.isAuthenticated) {
+            if (isAdvisor(user) || user.isAdmin) {
+              next(to.query.redirect || '/home');
+            } else if (isScheduler(user)) {
+              next({ path: '/appt/desk' });
+            } else {
+              next({ path: '/404' });
+            }
           } else {
             next();
           }
@@ -103,7 +124,7 @@ const router = new Router({
     {
       path: '/',
       component: DropInDesk,
-      beforeEnter: requiresDropInDeskUser,
+      beforeEnter: requiresScheduler,
       children: [
         {
           path: '/appt/desk',
@@ -118,7 +139,7 @@ const router = new Router({
     {
       path: '/',
       component: StandardLayout,
-      beforeEnter: requiresUser,
+      beforeEnter: requiresAdvisor,
       children: [
         {
           path: '/admin',
