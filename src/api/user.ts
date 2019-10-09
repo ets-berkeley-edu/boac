@@ -33,12 +33,6 @@ export function getUsers(sortUsersBy: string) {
     .then(response => response.data, () => null);
 }
 
-export function getDepartments() {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/users/departments`)
-    .then(response => response.data, () => null);
-}
-
 export function becomeUser(uid: string) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/auth/become_user`, { uid: uid })

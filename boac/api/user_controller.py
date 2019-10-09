@@ -117,12 +117,6 @@ def all_users():
     return tolerant_jsonify(_get_boa_users(sort_users_by))
 
 
-@app.route('/api/users/departments')
-@admin_required
-def departments():
-    return tolerant_jsonify(_get_boa_departments())
-
-
 @app.route('/api/user/demo_mode', methods=['POST'])
 @login_required
 def set_demo_mode():
@@ -165,11 +159,6 @@ def download_boa_users_csv():
 def _get_boa_users(sort_user_by=None):
     users = AuthorizedUser.get_all_users()
     return authorized_users_api_feed(users, sort_user_by)
-
-
-def _get_boa_departments():
-    departments = [{'name': BERKELEY_DEPT_CODE_TO_NAME[dept_code], 'code': dept_code} for dept_code in BERKELEY_DEPT_CODE_TO_NAME.keys()]
-    return sorted(departments, key=lambda dept: dept['name'])
 
 
 def _get_boa_user_groups(sort_users_by=None):
