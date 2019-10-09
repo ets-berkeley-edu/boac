@@ -46,6 +46,7 @@ export default {
       { name: 'GPA', value: 'gpa', available: true },
       { name: 'Level', value: 'level', available: true },
       { name: 'Major', value: 'major', available: true },
+      { name: 'Entering Term', value: 'entering_term', available: true },
       {
         name: 'Team',
         value: 'group_name',

@@ -73,6 +73,13 @@
           {{ student.level }}
         </div>
         <div
+          v-if="student.matriculation"
+          :id="`row-${rowIndex}-student-matriculation`"
+          class="student-text"
+          aria-label="Entering term">
+          Entered {{ student.matriculation }}
+        </div>
+        <div
           v-if="student.expectedGraduationTerm"
           :id="`row-${rowIndex}-student-grad-term`"
           class="student-text"
@@ -87,6 +94,13 @@
         </div>
       </div>
       <div v-if="student.academicCareerStatus === 'Completed'">
+        <div
+          v-if="student.matriculation"
+          :id="`row-${rowIndex}-student-matriculation`"
+          class="student-text"
+          aria-label="Entering term">
+          Entered {{ student.matriculation }}
+        </div>
         <div v-if="get(student, 'degree.dateAwarded')">
           <span class="student-text">Graduated {{ student.degree.dateAwarded | moment('MMM DD, YYYY') }}</span>
         </div>

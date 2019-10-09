@@ -32,14 +32,14 @@
         },
         "emailAddress": "mrwonderful@berkeley.edu",
         "expectedGraduationTerm": {
-            "id": "1758",
-            "name": "Fall 1975"
+            "id": "1978",
+            "name": "Fall 1997"
         },
         "level": {
             "code": "10",
             "description": "Freshman"
         },
-        "matriculation": "Summer 2015",
+        "matriculation": "Fall 1993",
         "phoneNumber": "415/123-4567",
         "plans": [
             {
