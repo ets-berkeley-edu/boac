@@ -270,29 +270,6 @@ class TestUniversityDeptMember:
         )
 
 
-class TestDepartments:
-    """Departments API."""
-
-    def test_not_authenticated(self, client):
-        """Returns 'unauthorized' response status if user is not authenticated."""
-        response = client.get('/api/users/departments')
-        assert response.status_code == 401
-
-    def test_unauthorized(self, client, fake_auth):
-        """Returns 'unauthorized' response status if user is not admin."""
-        fake_auth.login(coe_advisor_uid)
-        response = client.get('/api/users/departments')
-        assert response.status_code == 401
-
-    def test_authorized(self, client, fake_auth):
-        """Returns a well-formed response including cached and uncached users."""
-        fake_auth.login(admin_uid)
-        response = client.get('/api/users/departments')
-        assert response.status_code == 200
-        departments = response.json
-        assert len(departments) == 183
-
-
 class TestUsers:
     """Users API."""
 

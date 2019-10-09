@@ -29,6 +29,7 @@ export default {
     filterList: _.filter,
     find: _.find,
     findIndex: _.findIndex,
+    flatMap: _.flatMap,
     flatten: _.flatten,
     focusModalById: id =>
       document.getElementById(id) && document.getElementById(id).focus(),
@@ -109,6 +110,7 @@ export default {
     truncate: _.truncate,
     union: _.union,
     uniq: _.uniq,
+    uniqBy: _.uniqBy,
     without: _.without,
     xor: _.xor,
     xorBy: _.xorBy

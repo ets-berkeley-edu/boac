@@ -1,14 +1,13 @@
 import _ from 'lodash';
 import Vue from 'vue';
 import { event } from 'vue-analytics';
-import { getUserByCsid, getUsers, getDepartments, getUserProfile } from '@/api/user';
+import { getUserByCsid, getUsers, getUserProfile } from '@/api/user';
 import { gaTrackUserSessionStart } from '@/api/ga';
 
 const gaEvent = (category, action, label, value) => event(category, action, label, value);
 
 const state = {
   calnetUsersByCsid: {},
-  departments: undefined,
   preferences: {
     sortBy: 'last_name'
   },
@@ -33,7 +32,6 @@ const mutations = {
   },
   setDemoMode: (state: any, demoMode: boolean) =>
     (state.user.inDemoMode = demoMode),
-  setDepartments: (state: any, departments: any[]) => (state.departments = departments),
   setUserPreference: (state: any, {key, value}) => {
     if (_.has(state.preferences, key)) {
       state.preferences[key] = value;
@@ -75,19 +73,6 @@ const actions = {
           .then(data => {
             commit('setUsers', data);
             resolve(state.users);
-          });
-      }
-    });
-  },
-  loadDepartments: ({commit, state}) => {
-    return new Promise(resolve => {
-      if (state.departments) {
-        resolve(state.departments);
-      } else {
-        getDepartments()
-          .then(data => {
-            commit('setDepartments', data);
-            resolve(state.departments);
           });
       }
     });

@@ -27,6 +27,7 @@
               @change="isResetDisabled=false">
               <template v-slot:first>
                 <option :value="null" disabled>-- Select a department --</option>
+                <option :value="'ALL'">All Departments</option>
               </template>
             </b-form-select>
           </b-form-group>
@@ -207,11 +208,11 @@ export default {
   name: 'Users',
   mixins: [Context, UserMetadata, Util],
   props: {
-    departments: Array,
     users: Array
   },
   data: () => ({
     currentPage: 1,
+    departments: [],
     filterDept: null,
     fields: [
       {key: 'toggleDetails', label: '', class: 'user-details-toggle'},
@@ -248,25 +249,14 @@ export default {
   }),
   created() {
     this.items = this.cloneDeep(this.users);
+    this.departments = this.orderBy(this.uniqBy(this.flatMap(this.users, this.getDepartments), 'code'), 'name');
     this.filter = this.concat(this.filterNameUid, this.filterDept, this.filterPermissions, this.filterStatuses);
     this.rowCount = this.users ? this.size(this.users) : 0;
   },
   methods: {
-    become(uid) {
-      becomeUser(uid).then(() => (window.location.href = '/'));
-    },
-    deptRoles(dept) {
-      let roles = [];
-      this.each([{key: 'isAdvisor', label: 'Advisor'}, {key: 'isDirector', label: 'Director'}, {key: 'isScheduler', label: 'Scheduler'}], role => {
-        if (this.get(dept, role.key)) {
-          roles.push(role.label);
-        }
-      });
-      return this.oxfordJoin(roles);
-    },
     applyFilter(user) {
       let nameUidMatch = !this.filterNameUid || this.includes(user.name.toLowerCase(), this.filterNameUid.toLowerCase()) || this.includes(user.uid, this.filterNameUid);
-      let deptMatch = !this.filterDept || this.includes(this.keys(user.departments), this.filterDept);
+      let deptMatch = !this.filterDept || this.filterDept === 'ALL' || this.includes(this.keys(user.departments), this.filterDept);
       let adminMatch = this.includes(this.filterPermissions, 'isAdmin') && user.isAdmin;
       let advisorMatch = this.includes(this.filterPermissions, 'isAdvisor') &&  this.find(user.departments, (dept) => dept.isAdvisor);
       let directorMatch = this.includes(this.filterPermissions, 'isDirector') && this.find(user.departments, (dept) => dept.isDirector);
@@ -280,6 +270,23 @@ export default {
       let statusMatch = activeMatch || deletedMatch || blockedMatch || expiredMatch;
 
       return nameUidMatch && deptMatch && permissionsMatch && statusMatch;
+    },
+    become(uid) {
+      becomeUser(uid).then(() => (window.location.href = '/home'));
+    },
+    deptRoles(dept) {
+      let roles = [];
+      this.each([{key: 'isAdvisor', label: 'Advisor'}, {key: 'isDirector', label: 'Director'}, {key: 'isScheduler', label: 'Scheduler'}], role => {
+        if (this.get(dept, role.key)) {
+          roles.push(role.label);
+        }
+      });
+      return this.oxfordJoin(roles);
+    },
+    getDepartments(user) {
+      return this.map(user.departments, function(dept, deptCode) {
+        return {code: deptCode, name: dept.deptName};
+      });
     },
     onFilter(filteredItems) {
       this.rowCount = filteredItems.length

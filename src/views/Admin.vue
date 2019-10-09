@@ -22,7 +22,6 @@
       </div>
       <Users 
         v-if="users"
-        :departments="departments"
         :users="users" />
       <div v-if="user.isAdmin">
         <EditServiceAnnouncement />
@@ -59,17 +58,13 @@ export default {
   data: () => ({
     active: [],
     blurAvatarUrl: require('@/assets/sampleBlurAvatar.jpg'),
-    departments: null,
     users: null
   }),
   mounted() {
     if (this.user.isAdmin) {
       store.dispatch('user/loadUsers').then(data => {
         this.users = data;
-        store.dispatch('user/loadDepartments').then(data => {
-          this.departments = data;
-          this.loaded();
-        });
+        this.loaded();
       });
     } else {
       this.loaded();
