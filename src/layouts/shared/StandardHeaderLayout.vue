@@ -7,10 +7,9 @@
         class="sr-only sr-only-focusable"
         tabindex="0">Skip to main content</a>
       <router-link
-        v-if="showLinkToHome"
         id="home-header"
         class="header-text"
-        to="/home"
+        to="/"
         tabindex="0">
         <span class="sr-only">Return to </span>Home
       </router-link>
@@ -28,13 +27,6 @@ export default {
   name: 'StandardHeaderLayout',
   components: {
     HeaderMenu
-  },
-  props: {
-    showLinkToHome: {
-      required: false,
-      type: Boolean,
-      default: true
-    }
   }
 }
 </script>

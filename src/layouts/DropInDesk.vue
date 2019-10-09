@@ -1,6 +1,6 @@
 <template>
   <b-container id="app" class="h-100 p-0" fluid>
-    <StandardHeaderLayout :show-link-to-home="false" />
+    <StandardHeaderLayout />
     <b-row class="row-content" no-gutters>
       <b-col id="content" class="body-text h-100 min-width-100 pb-2" sm="10">
         <ServiceAnnouncement />

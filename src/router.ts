@@ -128,10 +128,16 @@ const router = new Router({
       children: [
         {
           path: '/appt/desk',
-          name: 'apptDesk',
           component: DropInWaitlist,
           meta: {
             title: 'Drop-in Appointments Desk'
+          }
+        },
+        {
+          path: '/scheduler/settings',
+          component: Admin,
+          meta: {
+            title: 'Settings'
           }
         }
       ]
