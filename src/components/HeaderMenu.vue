@@ -32,9 +32,7 @@ export default {
   mixins: [Context, UserMetadata],
   methods: {
     logOut() {
-      getCasLogoutUrl().then(
-        data => (window.location.href = data.casLogoutUrl)
-      );
+      getCasLogoutUrl().then(data => window.location.href = data.casLogoutUrl);
     },
     goAdmin() {
       this.$router.push({ path: '/admin' });

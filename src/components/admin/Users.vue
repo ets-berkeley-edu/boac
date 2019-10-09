@@ -253,7 +253,7 @@ export default {
   },
   methods: {
     become(uid) {
-      becomeUser(uid).then(() => (window.location.href = '/home'));
+      becomeUser(uid).then(() => (window.location.href = '/'));
     },
     deptRoles(dept) {
       let roles = [];
