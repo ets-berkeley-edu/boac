@@ -215,6 +215,15 @@ const router = new Router({
       beforeEnter: requiresAuth,
       children: [
         {
+          beforeEnter: (to: any, from: any, next: any) => {
+            store.dispatch('user/loadUser').then(user => {
+              if (isScheduler(user) && !isAdvisor(user) && !user.isAdmin) {
+                next({ path: '/appt/desk' });
+              } else {
+                next();
+              }
+            });
+          },
           path: '/home',
           name: 'home',
           component: Home,
