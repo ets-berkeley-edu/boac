@@ -29,6 +29,7 @@ import json
 from boac.api.errors import BadRequestError
 from boac.externals.data_loch import get_sis_holds, get_student_profiles
 from boac.externals.google_calendar_client import get_calendar_events
+from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import response_with_csv_download
 from boac.lib.util import join_if_present
 from boac.merged import calnet
@@ -292,7 +293,7 @@ def is_unauthorized_search(filter_keys, order_by=None):
     filter_key_set = set(filter_keys)
     asc_keys = {'inIntensiveCohort', 'isInactiveAsc', 'groupCodes'}
     if list(filter_key_set & asc_keys) or order_by in ['group_name']:
-        if not current_user.is_asc_authorized:
+        if not current_user.is_admin and 'UWASC' not in dept_codes_where_advising(current_user):
             return True
     coe_keys = {
         'coeAdvisorLdapUids',
@@ -304,7 +305,7 @@ def is_unauthorized_search(filter_keys, order_by=None):
         'isInactiveCoe',
     }
     if list(filter_key_set & coe_keys):
-        if not current_user.is_coe_authorized:
+        if not current_user.is_admin and 'COENG' not in dept_codes_where_advising(current_user):
             return True
     return False
 

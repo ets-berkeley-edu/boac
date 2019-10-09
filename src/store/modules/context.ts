@@ -5,6 +5,10 @@ import Vue from 'vue';
 import VueAnalytics from 'vue-analytics';
 import { getConfig, getServiceAnnouncement } from '@/api/config';
 
+const isAdvisor = user => {
+  return !!_.size(_.filter(user.departments, d => d.isAdvisor || d.isDirector));
+};
+
 const state = {
   announcement: undefined,
   config: undefined,
@@ -68,11 +72,13 @@ const actions = {
     store.dispatch('context/loadConfig').then(config => {
       store.dispatch('user/loadUser').then(user => {
         if (user.isAuthenticated) {
-          store.dispatch('cohort/loadMyCohorts');
-          store.dispatch('curated/loadMyCuratedGroups');
+          if (isAdvisor(user) || user.isAdmin) {
+            store.dispatch('cohort/loadMyCohorts');
+            store.dispatch('curated/loadMyCuratedGroups');
+            store.dispatch('note/loadNoteTemplates');
+            store.dispatch('note/loadSuggestedNoteTopics');
+          }
           store.dispatch('context/loadServiceAnnouncement');
-          store.dispatch('note/loadNoteTemplates');
-          store.dispatch('note/loadSuggestedNoteTopics')
         }
         let googleAnalyticsId = _.get(config, 'googleAnalyticsId');
         if (googleAnalyticsId) {

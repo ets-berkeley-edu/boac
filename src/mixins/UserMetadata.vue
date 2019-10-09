@@ -1,4 +1,6 @@
 <script>
+import _ from 'lodash';
+import store from '@/store';
 import { mapActions, mapGetters } from 'vuex';
 
 export default {
@@ -25,7 +27,11 @@ export default {
       'gaStudentAlert',
       'loadCalnetUserByCsid',
       'setUserPreference'
-    ])
+    ]),
+    myDeptCodesWhereAdvising() {
+      const user = store.getters['user/user'];
+      return _.map(_.filter(user.departments, d => d.isAdvisor || d.isDirector), ['deptCode']);
+    }
   }
 };
 </script>

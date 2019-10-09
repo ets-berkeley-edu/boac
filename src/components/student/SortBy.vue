@@ -49,7 +49,7 @@ export default {
       {
         name: 'Team',
         value: 'group_name',
-        available: this.user.canViewAsc
+        available: this.user.isAdmin || this.includes(this.myDeptCodesWhereAdvising(), 'UWASC')
       },
       { name: 'Units Completed', value: 'units', available: true }
     ];
