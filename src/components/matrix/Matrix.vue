@@ -579,7 +579,9 @@ export default {
         return _.get(obj, prop + '.displayPercentile') + ' percentile';
       }
       if (_.has(obj, prop)) {
-        return _.get(obj, prop);
+        const isGPA = prop.toLowerCase().includes('gpa');
+        const value = _.get(obj, prop);
+        return isGPA ? parseFloat('0' + this.trim(value)).toFixed(3) : value;
       }
       return 'No data';
     },
