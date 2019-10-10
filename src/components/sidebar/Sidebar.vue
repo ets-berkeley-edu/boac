@@ -24,7 +24,7 @@
       </div>
     </div>
     <div v-if="user && !user.isAdmin">
-      <div class="batch-note-button fixed-bottom mb-3">
+      <div class="batch-note-button fixed-bottom" :class="fixedWarningOnAllPages ? 'mb-5 pb-3' : 'mb-3'">
         <CreateNoteModal id="batch-note-button" />
       </div>
     </div>

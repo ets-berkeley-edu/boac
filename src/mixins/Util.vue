@@ -20,6 +20,7 @@ export default {
   name: 'Util',
   methods: {
     assign: _.assign,
+    capitalize: _.capitalize,
     clone: _.clone,
     cloneDeep: _.cloneDeep,
     concat: _.concat,
