@@ -383,10 +383,13 @@ export default {
             query.noteDateTo = this.dateString(this.noteFilters.dateTo, 'YYYY-MM-DD');
           }
         }
-        this.$router.push({
-          path: `/search`,
-          query: query
-        });
+        this.$router.push(
+          {
+            path: `/search`,
+            query: query
+          },
+          this.noop
+        );
         this.gaSearchEvent(`Search with courses: ${this.includeCourses}; notes: ${this.includeNotes}; students: ${this.includeStudents}`);
       } else {
         this.alertScreenReader('Search input is required');
