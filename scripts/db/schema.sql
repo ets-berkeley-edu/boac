@@ -80,6 +80,32 @@ ALTER TABLE ONLY alerts
     ADD CONSTRAINT alerts_sid_alert_type_key_unique_constraint UNIQUE (sid, alert_type, key);
 CREATE INDEX alerts_sid_idx ON alerts USING btree (sid);
 
+--
+
+CREATE TABLE appointment_topics (
+    id INTEGER NOT NULL,
+    appointment_id INTEGER NOT NULL,
+    topic VARCHAR(50) NOT NULL,
+    scheduler_uid VARCHAR(255) NOT NULL,
+    deleted_at timestamp with time zone
+);
+ALTER TABLE appointment_topics OWNER TO boac;
+CREATE SEQUENCE appointment_topics_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE appointment_topics_id_seq OWNER TO boac;
+ALTER SEQUENCE appointment_topics_id_seq OWNED BY appointment_topics.id;
+ALTER TABLE ONLY appointment_topics ALTER COLUMN id SET DEFAULT nextval('appointment_topics_id_seq'::regclass);
+ALTER TABLE ONLY appointment_topics
+    ADD CONSTRAINT appointment_topics_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY appointment_topics
+    ADD CONSTRAINT appointment_topics_appointment_id_topic_unique_constraint UNIQUE (appointment_id, topic);
+CREATE INDEX appointment_topics_appointment_id_idx ON appointment_topics (appointment_id);
+CREATE INDEX appointment_topics_scheduler_uid_idx ON appointment_topics (scheduler_uid);
+CREATE INDEX appointment_topics_topic_idx ON appointment_topics (topic);
 
 --
 
@@ -381,7 +407,9 @@ CREATE TABLE topics (
   id INTEGER NOT NULL,
   topic VARCHAR(50) NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  deleted_at timestamp with time zone
+  deleted_at timestamp with time zone,
+  available_in_notes BOOLEAN NOT NULL,
+  available_in_appointments BOOLEAN NOT NULL
 );
 ALTER TABLE topics OWNER TO boac;
 CREATE SEQUENCE topics_id_seq
@@ -506,6 +534,11 @@ ALTER TABLE ONLY user_logins ALTER COLUMN id SET DEFAULT nextval('user_logins_id
 ALTER TABLE ONLY user_logins
     ADD CONSTRAINT user_logins_pkey PRIMARY KEY (id);
 CREATE INDEX user_logins_uid_idx ON user_logins USING btree (uid);
+
+--
+
+ALTER TABLE ONLY appointment_topics
+    ADD CONSTRAINT appointment_topics_scheduler_uid_fkey FOREIGN KEY (scheduler_uid) REFERENCES authorized_users(uid) ON DELETE CASCADE;
 
 --
 

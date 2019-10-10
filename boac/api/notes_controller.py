@@ -204,7 +204,7 @@ def find_note_authors_by_name():
 @advisor_required
 def get_topics():
     include_deleted = to_bool_or_none(request.args.get('includeDeleted'))
-    topics = Topic.get_all(include_deleted=include_deleted)
+    topics = Topic.get_all(available_in_notes=True, include_deleted=include_deleted)
     return tolerant_jsonify([topic.to_api_json() for topic in topics])
 
 
