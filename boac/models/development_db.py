@@ -400,8 +400,8 @@ def load_development_data():
 
 def create_advising_note_topics():
     for i in range(5):
-        Topic.create_topic(f'Topic {i}')
-    delete_me = Topic.create_topic('I am a deleted topic')
+        Topic.create_topic(f'Topic {i}', available_in_notes=True)
+    delete_me = Topic.create_topic('I am a deleted topic', available_in_notes=True)
     Topic.delete(delete_me.id)
     std_commit(allow_test_environment=True)
 

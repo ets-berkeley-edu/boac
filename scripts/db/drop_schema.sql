@@ -37,6 +37,8 @@ SET row_security = off;
 ALTER TABLE IF EXISTS ONLY public.alert_views DROP CONSTRAINT IF EXISTS alert_views_alert_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.alert_views DROP CONSTRAINT IF EXISTS alert_views_viewer_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_sid_fkey;
+ALTER TABLE IF EXISTS ONLY public.appointment_topics DROP CONSTRAINT IF EXISTS appointment_topics_scheduler_uid_fkey;
+ALTER TABLE IF EXISTS ONLY public.appointment_topics DROP CONSTRAINT IF EXISTS appointment_topics_appointment_id_topic_unique_constraint;
 ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_cohort_filter_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_user_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.note_attachments DROP CONSTRAINT IF EXISTS note_attachments_note_id_fkey;
@@ -59,6 +61,9 @@ ALTER TABLE IF EXISTS ONLY public.user_logins DROP CONSTRAINT IF EXISTS user_log
 
 --
 
+DROP INDEX IF EXISTS public.appointment_topics_appointment_id_idx;
+DROP INDEX IF EXISTS public.appointment_topics_scheduler_uid_idx;
+DROP INDEX IF EXISTS public.appointment_topics_topic_idx;
 DROP INDEX IF EXISTS public.alert_views_alert_id_idx;
 DROP INDEX IF EXISTS public.alert_views_viewer_id_idx;
 DROP INDEX IF EXISTS public.alerts_sid_idx;
@@ -83,6 +88,7 @@ ALTER TABLE IF EXISTS ONLY public.alembic_version DROP CONSTRAINT IF EXISTS alem
 ALTER TABLE IF EXISTS ONLY public.alert_views DROP CONSTRAINT IF EXISTS alert_views_pkey;
 ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_pkey;
 ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_sid_alert_type_key_unique_constraint;
+ALTER TABLE IF EXISTS ONLY public.appointment_topics DROP CONSTRAINT IF EXISTS appointment_topics_pkey;
 ALTER TABLE IF EXISTS ONLY public.authorized_users DROP CONSTRAINT IF EXISTS authorized_users_pkey;
 ALTER TABLE IF EXISTS ONLY public.authorized_users DROP CONSTRAINT IF EXISTS authorized_users_uid_key;
 ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_pkey;
@@ -133,6 +139,8 @@ DROP TABLE IF EXISTS public.cohort_filters;
 DROP TABLE IF EXISTS public.cohort_filter_owners;
 DROP SEQUENCE IF EXISTS public.authorized_users_id_seq;
 DROP TABLE IF EXISTS public.authorized_users;
+DROP TABLE IF EXISTS public.appointment_topics;
+DROP SEQUENCE IF EXISTS public.appointment_topics_id_seq;
 DROP SEQUENCE IF EXISTS public.alerts_id_seq;
 DROP TABLE IF EXISTS public.alerts;
 DROP TABLE IF EXISTS public.alert_views;

@@ -36,13 +36,25 @@ class Topic(db.Model):
     topic = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
     deleted_at = db.Column(db.DateTime, nullable=True)
+    available_in_notes = db.Column(db.Boolean, nullable=False)
+    available_in_appointments = db.Column(db.Boolean, nullable=False)
 
-    def __init__(self, topic):
+    def __init__(self, topic, available_in_notes, available_in_appointments):
         self.topic = topic
+        self.available_in_notes = available_in_notes
+        self.available_in_appointments = available_in_appointments
 
     @classmethod
-    def get_all(cls, include_deleted=False):
-        return cls.query.order_by(cls.topic).all() if include_deleted else cls.query.filter_by(deleted_at=None).order_by(cls.topic).all()
+    def get_all(cls, available_in_notes=False, available_in_appointments=False, include_deleted=False):
+        result = cls.query.filter_by(
+            available_in_notes=available_in_notes,
+            available_in_appointments=available_in_appointments,
+        ) if include_deleted else cls.query.filter_by(
+            available_in_notes=available_in_notes,
+            available_in_appointments=available_in_appointments,
+            deleted_at=None,
+        )
+        return result.order_by(cls.topic).all()
 
     @classmethod
     def delete(cls, topic_id):
@@ -53,8 +65,8 @@ class Topic(db.Model):
             std_commit()
 
     @classmethod
-    def create_topic(cls, topic):
-        topic = cls(topic=topic)
+    def create_topic(cls, topic, available_in_notes=False, available_in_appointments=False):
+        topic = cls(topic=topic, available_in_notes=available_in_notes, available_in_appointments=available_in_appointments)
         db.session.add(topic)
         std_commit()
         return topic
