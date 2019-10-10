@@ -274,7 +274,7 @@ def _get_filter_options(scope, cohort_owner_uid):
                 'defaultValue': False if 'UWASC' in scope else None,
                 'key': 'isInactiveAsc',
                 'label': {
-                    'primary': 'Inactive' if 'UWASC' in scope else 'Inactive (ASC)',
+                    'primary': 'Inactive (ASC)',
                 },
                 'type': {
                     'db': 'boolean',
@@ -355,7 +355,7 @@ def _get_filter_options(scope, cohort_owner_uid):
                 'defaultValue': False if 'COENG' in scope else None,
                 'key': 'isInactiveCoe',
                 'label': {
-                    'primary': 'Inactive' if 'COENG' in scope else 'Inactive (COE)',
+                    'primary': 'Inactive (COE)',
                 },
                 'type': {
                     'db': 'boolean',
