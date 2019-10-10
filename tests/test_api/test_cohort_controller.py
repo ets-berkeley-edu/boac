@@ -1208,7 +1208,7 @@ class TestTranslateToFilterOptions:
         }
         api_json = self._api_translate_to_filter_options(client, json_data)
         assert len(api_json) == 1
-        assert api_json[0]['label']['primary'] == 'Inactive'
+        assert api_json[0]['label']['primary'] == 'Inactive (COE)'
         assert api_json[0]['key'] == 'isInactiveCoe'
         assert api_json[0]['value'] is False
 
