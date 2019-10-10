@@ -843,6 +843,12 @@ class TestCohortPerFilters:
         assert _get_first_student('major')['majors'][0] == 'Chemistry BS'
         assert _get_first_student('units')['cumulativeUnits'] == 34
         assert _get_first_student('entering_term')['matriculation'] == 'Spring 2015'
+
+        defensive_line_by_units = self._get_defensive_line(client, False, 'enrolled_units')
+        assert 'term' not in defensive_line_by_units[0]
+        assert defensive_line_by_units[1]['term']['enrolledUnits'] == 5
+        assert defensive_line_by_units[2]['term']['enrolledUnits'] == 7
+
         student = _get_first_student('group_name')
         assert student['athleticsProfile']['athletics'][0]['groupName'] == 'Football, Defensive Backs'
 

@@ -827,6 +827,11 @@ def get_students_ordering(order_by=None, group_codes=None, majors=None, scope=No
         else:
             supplemental_query_tables = f' LEFT JOIN {student_schema()}.student_majors m ON m.sid = sas.sid'
             o = naturalize_order('m.major')
+    elif order_by == 'enrolled_units':
+        supplemental_query_tables = f"""
+            LEFT JOIN {student_schema()}.student_enrollment_terms set
+            ON set.sid = sas.sid AND set.term_id = '{current_term_id()}'"""
+        o = 'set.enrolled_units'
     o_secondary = by_first_name if order_by == 'last_name' else by_last_name
     diff = {by_first_name, by_last_name} - {o, o_secondary}
     o_tertiary = diff.pop() if diff else 'sas.sid'

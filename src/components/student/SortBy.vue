@@ -52,7 +52,8 @@ export default {
         value: 'group_name',
         available: this.user.isAdmin || this.includes(this.myDeptCodes(['isAdvisor', 'isDirector']), 'UWASC')
       },
-      { name: 'Units Completed', value: 'units', available: true }
+      { name: 'Units (In Progress)', value: 'enrolled_units', available: true },
+      { name: 'Units (Completed)', value: 'units', available: true }
     ];
     this.options = this.filterList(options, 'available');
   }

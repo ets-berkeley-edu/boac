@@ -6,7 +6,7 @@
       "sectionNumber": "002"
     }
   ],
-  "enrolledUnits": 5,
+  "enrolledUnits": 7,
   "enrollments": [
     {
       "canvasSites": [
@@ -207,11 +207,11 @@
           "gradingBasis": "Letter",
           "primary": true,
           "sectionNumber": "001",
-          "units": 5.0
+          "units": 7.0
         }
       ],
       "title": "Medieval Manuscripts as Primary Sources",
-      "units": 5.0
+      "units": 7.0
     }
   ],
   "termId": "2178",
