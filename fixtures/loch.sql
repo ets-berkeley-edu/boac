@@ -299,7 +299,8 @@ CREATE TABLE student.student_enrollment_terms
     sid VARCHAR NOT NULL,
     term_id VARCHAR(4) NOT NULL,
     enrollment_term TEXT NOT NULL,
-    midpoint_deficient_grade BOOLEAN NOT NULL
+    midpoint_deficient_grade BOOLEAN NOT NULL,
+    enrolled_units DECIMAL(3,1)
 );
 
 CREATE TABLE student.student_enrollment_terms_hist_enr
@@ -669,16 +670,16 @@ VALUES
 ('9100000000', 'STANTON');
 
 INSERT INTO student.student_enrollment_terms
-(sid, term_id, enrollment_term, midpoint_deficient_grade)
+(sid, term_id, enrollment_term, midpoint_deficient_grade, enrolled_units)
 VALUES
-('11667051', '2012', :enrollment_term_11667051_2012, FALSE),
-('11667051', '2162', :enrollment_term_11667051_2162, FALSE),
-('11667051', '2172', :enrollment_term_11667051_2172, FALSE),
-('11667051', '2178', :enrollment_term_11667051_2178, TRUE),
-('11667051', '2182', :enrollment_term_11667051_2182, FALSE),
-('2345678901', '2172', :enrollment_term_2345678901_2172, FALSE),
-('3456789012', '2178', :enrollment_term_3456789012_2178, FALSE),
-('5678901234', '2178', :enrollment_term_5678901234_2178, FALSE);
+('11667051', '2012', :enrollment_term_11667051_2012, FALSE, 0.0),
+('11667051', '2162', :enrollment_term_11667051_2162, FALSE, 0.0),
+('11667051', '2172', :enrollment_term_11667051_2172, FALSE, 10.0),
+('11667051', '2178', :enrollment_term_11667051_2178, TRUE, 12.5),
+('11667051', '2182', :enrollment_term_11667051_2182, FALSE, 3.0),
+('2345678901', '2172', :enrollment_term_2345678901_2172, FALSE, 10.0),
+('3456789012', '2178', :enrollment_term_3456789012_2178, FALSE, 5.0),
+('5678901234', '2178', :enrollment_term_5678901234_2178, FALSE, 7.0);
 
 INSERT INTO student.student_enrollment_terms_hist_enr
 (sid, term_id, enrollment_term)
