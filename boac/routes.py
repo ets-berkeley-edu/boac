@@ -41,6 +41,7 @@ def register_routes(app):
     login_manager.anonymous_user = _user_loader
 
     # Register API routes.
+    import boac.api.appointments_controller
     import boac.api.admin_controller
     import boac.api.alerts_controller
     import boac.api.auth_controller
