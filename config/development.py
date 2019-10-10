@@ -33,5 +33,3 @@ FEATURE_FLAG_ADVISOR_APPOINTMENTS = True
 INDEX_HTML = 'public/index.html'
 
 VUE_LOCALHOST_BASE_URL = 'http://localhost:8080'
-
-FIXED_WARNING_ON_ALL_PAGES = 'This BOA instance is for testing only, and will be periodically refreshed.'

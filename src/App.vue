@@ -8,7 +8,7 @@
         aria-expanded="true"
         aria-live="polite"
         role="alert">
-        <b>{{ getFixedWarningLabel() }}</b>
+        <b>BOA {{ getBoaEnvLabel() }} Environment</b>
         <i class="icon-warning"></i>
         <div style="float: right;">
           {{ fixedWarningOnAllPages }}
@@ -29,12 +29,8 @@ export default {
     this.initUserSession().then(this.noop);
   },
   methods: {
-    getFixedWarningLabel() {
-      let envName = undefined;
-      if (this.includes(this.ebEnvironment, '_')) {
-        envName = this.capitalize(this.split(this.ebEnvironment, '_')[1]);
-      }
-      return envName ? `BOA ${envName} Environment` : 'BOA Test Environment';
+    getBoaEnvLabel() {
+      return this.ebEnvironment ? this.ebEnvironment.replace('boac-', '').toUpperCase() : 'Test';
     }
   }
 };
