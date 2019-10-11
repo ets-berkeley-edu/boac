@@ -1,17 +1,27 @@
 <template>
   <div id="app" class="fill-viewport">
     <router-view></router-view>
-    <div v-if="fixedWarningOnAllPages" id="fixed_bottom">
+    <div v-if="fixedWarningOnAllPages && !hasUserDismissedFooterAlert" id="fixed_bottom">
       <div
         id="fixed-warning-on-all-pages"
-        class="fixed-bottom fixed-warning"
+        class="d-flex fixed-bottom fixed-warning"
         aria-expanded="true"
         aria-live="polite"
         role="alert">
-        <b>BOA {{ getBoaEnvLabel() }} Environment</b>
-        <i class="icon-warning"></i>
-        <div style="float: right;">
+        <div class="flex-grow-1">
+          <b>BOA {{ getBoaEnvLabel() }} Environment</b>
+        </div>
+        <div>
           {{ fixedWarningOnAllPages }}
+        </div>
+        <div class="btn-wrapper ml-0 align-top">
+          <b-btn
+            class="btn-dismiss pl-2 pt-0 text-white"
+            variant="link"
+            aria-label="Dismiss warning about BOA environment type"
+            @click="dismissFooterAlert">
+            <font-awesome icon="plane-departure" />
+          </b-btn>
         </div>
       </div>
     </div>
@@ -42,6 +52,14 @@ export default {
 </style>
 
 <style scoped>
+.btn-dismiss {
+  font-size: 14px;
+}
+.btn-wrapper {
+  line-height: inherit;
+  max-height: 16px;
+  vertical-align: top;
+}
 .fixed-warning {
   background-color: #3b7ea5;
   border-color: #000;

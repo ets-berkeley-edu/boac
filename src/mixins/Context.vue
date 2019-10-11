@@ -13,6 +13,7 @@ export default {
       'errors',
       'featureFlagAppointments',
       'fixedWarningOnAllPages',
+      'hasUserDismissedFooterAlert',
       'isDemoModeAvailable',
       'maxAttachmentsPerNote',
       'pingFrequency',
@@ -27,6 +28,7 @@ export default {
     ...mapActions('context', [
       'clearAlertsInStore',
       'dismissError',
+      'dismissFooterAlert',
       'initUserSession',
       'reportError',
       'alertScreenReader'
