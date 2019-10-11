@@ -166,6 +166,9 @@ export default {
         .replace('20', " '")
         .replace('Spring', 'Spr')
         .replace('Summer', 'Sum'),
+    normalizeForSort(value) {
+      return this.isString(value) ? value.toLowerCase() : value;
+    },
     onChangeSortBy() {
       const field = this.find(this.fields, ['key', this.sortBy]);
       this.alertScreenReader(`Sorted by ${field.label}${this.sortDescending ? ', descending' : ''}`);
@@ -174,14 +177,14 @@ export default {
       let aValue = this.get(a, sortBy);
       let bValue = this.get(b, sortBy);
       // If column type is number then nil is treated as zero.
-      aValue = this.isNil(aValue) && this.isNumber(bValue) ? 0 : (aValue || '').toLowerCase();
-      bValue = this.isNil(bValue) && this.isNumber(aValue) ? 0 : (bValue || '').toLowerCase();
+      aValue = this.isNil(aValue) && this.isNumber(bValue) ? 0 : this.normalizeForSort(aValue);
+      bValue = this.isNil(bValue) && this.isNumber(aValue) ? 0 : this.normalizeForSort(bValue);
       let result = this.sortComparator(aValue, bValue);
       if (result === 0) {
         this.each(['lastName', 'firstName', 'sid'], field => {
           result = this.sortComparator(
-            (this.get(a, field) || '').toLowerCase(),
-            (this.get(b, field) || '').toLowerCase()
+            this.normalizeForSort(this.get(a, field)),
+            this.normalizeForSort(this.get(b, field))
           );
           // Secondary sort is always ascending
           result *= sortDesc ? -1 : 1;
