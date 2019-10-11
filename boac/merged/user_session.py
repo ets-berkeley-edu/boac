@@ -114,6 +114,7 @@ class UserSession(UserMixin):
                         'role': get_dept_role(m),
                         'isAdvisor': m.is_advisor,
                         'isDirector': m.is_director,
+                        'isDropInAdvisor': m.is_drop_in_advisor,
                         'isScheduler': m.is_scheduler,
                     })
         is_active = False
