@@ -350,44 +350,6 @@ export default {
         return 'url(#' + avatarId + ')';
       };
 
-      var objects = svg
-        .append('svg')
-        .attr('width', width)
-        .attr('height', height)
-        .attr('fill', 'none')
-        .classed('matrix-svg', true)
-        .classed('objects', true);
-
-      objects
-        .append('svg:defs')
-        .append('svg:clipPath')
-        .attr('id', 'clip')
-        .append('svg:rect')
-        .attr('id', 'clip-rect')
-        .attr('x', -55)
-        .attr('y', -55)
-        .attr('width', width + 110)
-        .attr('height', height + 110);
-
-      var dotGroup = objects.append('g').attr('clip-path', 'url(#clip-inner)');
-
-      var dot = dotGroup
-        .attr('class', 'dots')
-        .selectAll('.dot')
-        .data(students, key)
-        .enter()
-        .append('circle')
-        .attr(
-          'class',
-          d => (d.isClassMean ? 'dot dot-mean' : 'dot dot-student')
-        )
-        .style('fill', d => (d.isClassMean ? avatar(d) : '#8bbdda'))
-        .style('opacity', d => (d.isClassMean ? 1 : 0.66))
-        .style('stroke-width', 0)
-        .attr('cx', d => xScale(x(d)))
-        .attr('cy', d => yScale(y(d)))
-        .attr('r', d => (d.isClassMean ? 22 : 9));
-
       // Add x-axis labels.
       svg
         .append('text')
@@ -444,6 +406,45 @@ export default {
           .attr('dy', 12)
           .text(word);
       });
+
+      var objects = svg
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('fill', 'none')
+        .classed('matrix-svg', true)
+        .classed('objects', true);
+
+      objects
+        .append('svg:defs')
+        .append('svg:clipPath')
+        .attr('id', 'clip')
+        .append('svg:rect')
+        .attr('id', 'clip-rect')
+        .attr('x', -55)
+        .attr('y', -55)
+        .attr('width', width + 110)
+        .attr('height', height + 110);
+
+      var dotGroup = objects.append('g').attr('clip-path', 'url(#clip-inner)');
+
+      var dot = dotGroup
+        .attr('class', 'dots')
+        .selectAll('.dot')
+        .data(students, key)
+        .enter()
+        .append('circle')
+        .attr(
+          'class',
+          d => (d.isClassMean ? 'dot dot-mean' : 'dot dot-student')
+        )
+        .style('fill', d => (d.isClassMean ? avatar(d) : '#8bbdda'))
+        .style('opacity', d => (d.isClassMean ? 1 : 0.66))
+        .style('stroke-width', 0)
+        .attr('cx', d => xScale(x(d)))
+        .attr('cy', d => yScale(y(d)))
+        .attr('r', d => (d.isClassMean ? 22 : 9));
+
       dot.on('click', d => {
         if (!d.isClassMean) {
           this.$router.push(this.studentRoutePath(d.uid, this.user.inDemoMode));
@@ -747,6 +748,7 @@ export default {
   position: absolute;
   text-align: left;
   width: 240px;
+  z-index: 1;
 }
 .matrix-tooltip-header {
   color: #49b;
