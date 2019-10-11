@@ -40,7 +40,7 @@ def get_appointment(appointment_id):
     return tolerant_jsonify(mock_appointment)
 
 
-@app.route('/api/appointments/<appointment_id>/mark_read')
+@app.route('/api/appointments/<appointment_id>/mark_read', methods=['POST'])
 @advisor_required
 def mark_appointment_read(appointment_id):
     return tolerant_jsonify({'status': f'Marked as read (id: {appointment_id})'}, status=201)

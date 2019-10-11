@@ -1,46 +1,115 @@
 <template>
-  <div>
-    <div>{{ appointment.summary }} <span v-if="isOpen && appointment.recurringEventId">(Recurring)</span></div>
-    <div>Created by: {{ appointment.creator.email }}</div>
-    <div>Status: {{ appointment.status }}</div>
-    <div>{{ appointment.start }} to {{ appointment.end }}</div>
-    <div>
-      <a
-        :id="`link-to-appointment-hangout-${appointment.id}`"
-        :href="appointment.hangoutLink"
-        target="_blank"
-        aria-label="Open in new window">Google Hangout <font-awesome icon="external-link-alt" class="pr-1" /></a>
+  <div :id="`appointment-${appointment.id}-outer`" class="advising-appointment-outer">
+    <div
+      v-if="!isOpen"
+      :id="`appointment-${appointment.id}-is-closed`"
+      :class="{'truncate-with-ellipsis': !isOpen}"
+      title="Advising appointment">
+      <span :id="`appointment-${appointment.id}-reason-closed`">{{ appointment.details }}</span>
     </div>
-    <div v-if="appointment.link">
-      See
-      <a
-        :id="`link-to-appointment.link-${appointment.id}`"
-        :href="appointment.link"
-        target="_blank"
-        aria-label="Open in new window">appointment in Google Calendar <font-awesome icon="external-link-alt" class="pr-1" /></a>.
-    </div>
-    <div v-if="size(appointment.attendees) > 1" class="mt-2">
-      Attendees
-      <ul>
-        <li v-for="attendee in appointment.attendees" :key="attendee.email" class="pb-1">
-          <div v-if="attendee.displayName">Name: {{ attendee.displayName }}</div>
-          <div v-if="attendee.email">Email: {{ attendee.email }}</div>
-          <div v-if="attendee.responseStatus">Status: {{ attendee.responseStatus }}</div>
-        </li>
-      </ul>
+    <div v-if="isOpen" :id="`appointment-${appointment.id}-is-open`">
+      <div class="mt-2">
+        <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details"></span>
+      </div>
+      <div class="d-flex align-items-center">
+        <div>
+          <b-dropdown
+            class="bg-white mb-3 mr-3 mt-3"
+            split
+            :disabled="includes(['canceled', 'checkedIn'], appointment.status)"
+            text="Check In"
+            variant="outline-dark"
+            @click="showAppointmentCheckInModal = true">
+            <b-dropdown-item-button @click="showAppointmentCheckInModal = true">Details</b-dropdown-item-button>
+            <b-dropdown-item-button @click="showAppointmentCheckInModal = true">Cancel</b-dropdown-item-button>
+          </b-dropdown>
+          <AppointmentCheckIn
+            v-if="showAppointmentCheckInModal"
+            :appointment="appointment"
+            :function-cancel="cancelCheckIn"
+            :function-confirm="appointmentCheckIn"
+            modal-header="STUDENT NAME HERE"
+            :show-modal="showAppointmentCheckInModal" />
+        </div>
+        <div v-if="appointment.status === 'checkedIn'">
+          <font-awesome icon="calendar-check" class="status-checked-in-icon" /> Check In <span v-if="appointment.arrivalTime">@ {{ appointment.arrivalTime }}</span>
+        </div>
+        <div v-if="appointment.status === 'canceled'">
+          <font-awesome icon="calendar-minus" class="status-canceled-icon" /> Canceled
+        </div>
+      </div>
+      <div v-if="!isUndefined(appointment.author) && !appointment.author.name" class="mt-2 advisor-profile-not-found">
+        Advisor profile not found
+      </div>
+      <div v-if="appointment.author" class="mt-2">
+        <div v-if="appointment.author.name">
+          <span class="sr-only">Appointment created by </span>
+          <a
+            v-if="appointment.author.uid"
+            :id="`appointment-${appointment.id}-author-name`"
+            :aria-label="`Open UC Berkeley Directory page of ${appointment.author.name} in a new window`"
+            :href="`https://www.berkeley.edu/directory/results?search-term=${appointment.author.name}`"
+            target="_blank">{{ appointment.author.name }}</a>
+          <span v-if="!appointment.author.uid" :id="`appointment-${appointment.id}-author-name`">
+            {{ appointment.author.name }}
+          </span>
+          <span v-if="appointment.author.role">
+            - <span :id="`appointment-${appointment.id}-author-role`" class="text-dark">{{ appointment.author.role }}</span>
+          </span>
+        </div>
+        <div v-if="size(appointment.author.departments)" class="text-secondary">
+          <span v-if="appointment.author.title">{{ appointment.author.title }}, </span><span v-if="size(appointment.author.departments)">
+            {{ oxfordJoin(map(appointment.author.departments, 'name')) }}
+          </span>
+        </div>
+      </div>
+      <div>
+        {{ appointment.reason }}
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import AppointmentCheckIn from '@/components/appointment/AppointmentCheckIn';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'AdvisingAppointment',
+  components: { AppointmentCheckIn },
   mixins: [Util],
   props: {
     isOpen: Boolean,
     appointment: Object
+  },
+  data: () => ({
+    showAppointmentCheckInModal: false
+  }),
+  methods: {
+    appointmentCheckIn() {
+      console.log('appointmentCheckIn');
+      this.showAppointmentCheckInModal = false;
+    },
+    cancelCheckIn() {
+      console.log('cancelCheckIn');
+      this.showAppointmentCheckInModal = false;
+    }
   }
 }
 </script>
+
+<style scoped>
+.advising-appointment-outer {
+  flex-basis: 100%;
+}
+.advisor-profile-not-found {
+  color: #999;
+  font-size: 14px;
+}
+.status-canceled-icon {
+  color: #f0ad4e;
+}
+.status-checked-in-icon {
+  color: #00c13a;
+}
+</style>

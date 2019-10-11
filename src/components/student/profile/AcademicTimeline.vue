@@ -164,12 +164,12 @@
               :class="{
                 'align-top message-open': includes(openMessages, message.transientId),
                 'truncate': !includes(openMessages, message.transientId),
-                'img-blur': user.inDemoMode && message.type === 'note'
+                'img-blur': user.inDemoMode && ['appointment', 'note'].includes(message.type)
               }"
               :tabindex="includes(openMessages, message.transientId) ? -1 : 0"
               @keyup.enter="open(message, true)"
               @click="open(message, true)">
-              <span v-if="message.type === 'note' && message.id !== editModeNoteId" class="when-message-closed sr-only">Open message</span>
+              <span v-if="['appointment', 'note'].includes(message.type) && message.id !== editModeNoteId" class="when-message-closed sr-only">Open message</span>
               <font-awesome v-if="message.status === 'Satisfied'" icon="check" class="requirements-icon text-success" />
               <font-awesome v-if="message.status === 'Not Satisfied'" icon="exclamation" class="requirements-icon text-icon-exclamation" />
               <font-awesome v-if="message.status === 'In Progress'" icon="clock" class="requirements-icon text-icon-clock" />
@@ -218,7 +218,7 @@
                   :include-time-of-day="false"
                   sr-prefix="Last updated on" />
               </div>
-              <div v-if="includes(openMessages, message.transientId) && message.type === 'note'">
+              <div v-if="includes(openMessages, message.transientId) && ['appointment', 'note'].includes(message.type)">
                 <div v-if="message.createdAt" :class="{'mb-2': !displayUpdatedAt(message)}">
                   <div class="text-muted">Created:</div>
                   <TimelineDate
@@ -236,7 +236,7 @@
                 </div>
                 <div class="text-muted">
                   <router-link
-                    v-if="message.type === 'note' && message.id !== editModeNoteId"
+                    v-if="['appointment', 'note'].includes(message.type) && message.id !== editModeNoteId"
                     :id="`advising-note-permalink-${message.id}`"
                     :to="`#${message.id}`"
                     @click.native="scrollToPermalink(message.id)">
@@ -287,7 +287,8 @@ import TimelineDate from '@/components/student/profile/TimelineDate';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { dismissStudentAlert } from '@/api/student';
-import { deleteNote, getNote, markRead } from '@/api/notes';
+import { markAppointmentRead } from '@/api/appointments';
+import { deleteNote, getNote, markNoteRead } from '@/api/notes';
 import { search } from '@/api/search';
 
 export default {
@@ -515,10 +516,16 @@ export default {
           dismissStudentAlert(message.id);
           this.gaStudentAlert({ action: `Advisor ${this.user.uid} dismissed alert` })
         } else if (message.type === 'note') {
-          markRead(message.id);
+          markNoteRead(message.id);
           this.gaNoteEvent({
             id: message.id,
             action: `Advisor ${this.user.uid} read note`
+          });
+        } else if (message.type === 'appointment') {
+          markAppointmentRead(message.id);
+          this.gaAppointmentEvent({
+            id: message.id,
+            action: `Advisor ${this.user.uid} read appointment`
           });
         }
       }
@@ -617,7 +624,7 @@ export default {
   color: #666;
   font-size: 12px;
   height: 24px;
-  padding-top: 1px;
+  padding-top: 2px;
   width: auto;
 }
 .pill-attachment {
@@ -681,24 +688,26 @@ export default {
   background-color: #f9f9f9;
 }
 .pill-alert {
-  width: 60px;
   background-color: #eb9d3e;
+  width: 60px;
 }
 .pill-hold {
-  width: 60px;
   background-color: #bc74fe;
+  width: 60px;
 }
 .pill-appointment {
+  background-color: #eee;
+  color: #666 !important;
+  font-weight: bolder;
   width: 100px;
-  background-color: #f6593c;
 }
 .pill-note {
-  width: 100px;
   background-color: #999;
+  width: 100px;
 }
 .pill-requirement {
-  width: 100px;
   background-color: #93c165;
+  width: 100px;
 }
 .requirements-icon {
   width: 20px;

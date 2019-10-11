@@ -48,9 +48,9 @@ class TestMarkAppointmentRead:
 
     def test_mark_read_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        assert client.get('/api/appointments/1/mark_read').status_code == 401
+        assert client.post('/api/appointments/1/mark_read').status_code == 401
 
     def test_deny_scheduler(self, app, client, fake_auth):
         """Returns 401 if user is a scheduler."""
         fake_auth.login(coe_scheduler_uid)
-        assert client.get('/api/appointments/1/mark_read').status_code == 401
+        assert client.post('/api/appointments/1/mark_read').status_code == 401

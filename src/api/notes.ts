@@ -16,7 +16,7 @@ export function getNote(noteId) {
     .then(response => response.data, () => null);
 }
 
-export function markRead(noteId) {
+export function markNoteRead(noteId) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/notes/${noteId}/mark_read`)
     .then(response => {

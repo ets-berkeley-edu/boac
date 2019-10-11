@@ -8,7 +8,7 @@ export function getAppointment(appointmentId) {
     .then(response => response.data, () => null);
 }
 
-export function markRead(appointmentId) {
+export function markAppointmentRead(appointmentId) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/mark_read`)
     .then(response => {
