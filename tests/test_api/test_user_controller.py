@@ -78,6 +78,7 @@ class TestUserProfile:
         assert departments[0]['name'] == 'College of Engineering'
         assert departments[0]['isAdvisor'] is False
         assert departments[0]['isDirector'] is False
+        assert departments[0]['isDropInAdvisor'] is False
         assert departments[0]['isScheduler'] is True
 
     def test_asc_advisor_exclude_cohorts(self, client, fake_auth):
@@ -91,6 +92,8 @@ class TestUserProfile:
         assert departments[0]['name'] == 'Athletic Study Center'
         assert departments[0]['isAdvisor'] is True
         assert departments[0]['isDirector'] is False
+        assert departments[0]['isDropInAdvisor'] is True
+        assert departments[0]['isScheduler'] is False
 
     def test_other_user_profile(self, client, fake_auth):
         fake_auth.login(admin_uid)
@@ -144,6 +147,7 @@ class TestUniversityDeptMember:
             client,
             is_advisor=True,
             is_director=False,
+            is_drop_in_advisor=False,
             is_scheduler=False,
             automate_membership=False,
             expected_status_code=200,
@@ -153,6 +157,7 @@ class TestUniversityDeptMember:
             'uid': coe_advisor_uid,
             'isAdvisor': is_advisor,
             'isDirector': is_director,
+            'isDropInAdvisor': is_drop_in_advisor,
             'isScheduler': is_scheduler,
             'automateMembership': automate_membership,
         }
@@ -170,6 +175,7 @@ class TestUniversityDeptMember:
             client,
             is_advisor=None,
             is_director=None,
+            is_drop_in_advisor=False,
             is_scheduler=None,
             automate_membership=None,
             expected_status_code=200,
@@ -179,6 +185,7 @@ class TestUniversityDeptMember:
             'uid': coe_advisor_uid,
             'isAdvisor': is_advisor,
             'isDirector': is_director,
+            'isDropInAdvisor': is_drop_in_advisor,
             'isScheduler': is_scheduler,
             'automateMembership': automate_membership,
         }

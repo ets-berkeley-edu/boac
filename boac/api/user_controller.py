@@ -72,6 +72,7 @@ def add_university_dept_membership():
         authorized_user=user,
         is_advisor=params.get('isAdvisor', False),
         is_director=params.get('isDirector', False),
+        is_drop_in_advisor=params.get('isDropInAdvisor', False),
         is_scheduler=params.get('isScheduler', False),
         automate_membership=params.get('automateMembership', True),
     )
@@ -89,6 +90,7 @@ def update_university_dept_membership():
         authorized_user_id=user.id,
         is_advisor=params.get('isAdvisor', None),
         is_director=params.get('isDirector', None),
+        is_drop_in_advisor=params.get('isDropInAdvisor', False),
         is_scheduler=params.get('isScheduler', False),
         automate_membership=params.get('automateMembership', None),
     )

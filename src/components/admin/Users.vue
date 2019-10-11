@@ -152,7 +152,7 @@
                 <h3 class="user-details-header">Department Membership</h3>
                 <div v-if="isEmpty(row.item.departments)">None</div>
                 <table v-if="!isEmpty(row.item.departments)" :id="`user-depts-table-${row.item.uid}`" class="user-dept-membership-table">
-                  <tr 
+                  <tr
                     v-for="(deptCode, index) in keys(row.item.departments)"
                     :key="index">
                     <th :id="`dept-detail-${index}-${row.item.uid}`" scope="row">{{ row.item.departments[deptCode]['deptName'] }}</th>
@@ -224,7 +224,14 @@ export default {
       {key: 'actions', label: '', class: 'user-actions'}
     ],
     filter: undefined,
-    filterPermissions: ['isAdmin', 'isAdvisor', 'isDirector', 'canAccessCanvasData', 'isScheduler'],
+    filterPermissions: [
+      'canAccessCanvasData',
+      'isAdmin',
+      'isAdvisor',
+      'isDirector',
+      'isDropInAdvisor',
+      'isScheduler'
+    ],
     filterStatuses: ['isActive'],
     isResetDisabled: true,
     items: [],
@@ -236,8 +243,9 @@ export default {
     userPermissionOptions: [
       {text: 'Admins', value: 'isAdmin'},
       {text: 'Advisors', value: 'isAdvisor'},
-      {text: 'Directors', value: 'isDirector'},
       {text: 'Canvas Access', value: 'canAccessCanvasData'},
+      {text: 'Directors', value: 'isDirector'},
+      {text: 'Drop-In Advisors', value: 'isDropInAdvisor'},
       {text: 'Schedulers', value: 'isScheduler'}
     ],
     userStatusOptions: [
@@ -255,19 +263,21 @@ export default {
   },
   methods: {
     applyFilter(user) {
-      let nameUidMatch = !this.filterNameUid || this.includes(user.name.toLowerCase(), this.filterNameUid.toLowerCase()) || this.includes(user.uid, this.filterNameUid);
-      let deptMatch = !this.filterDept || this.filterDept === 'ALL' || this.includes(this.keys(user.departments), this.filterDept);
-      let adminMatch = this.includes(this.filterPermissions, 'isAdmin') && user.isAdmin;
-      let advisorMatch = this.includes(this.filterPermissions, 'isAdvisor') &&  this.find(user.departments, (dept) => dept.isAdvisor);
-      let directorMatch = this.includes(this.filterPermissions, 'isDirector') && this.find(user.departments, (dept) => dept.isDirector);
-      let canvasAccessMatch = this.includes(this.filterPermissions, 'canAccessCanvasData') && user.canAccessCanvasData;
-      let schedulerMatch = this.includes(this.filterPermissions, 'isScheduler') && this.find(user.departments, (dept) => dept.isScheduler);
-      let activeMatch = this.includes(this.filterStatuses, 'isActive') && !user.deletedAt && !user.isBlocked;
-      let deletedMatch = this.includes(this.filterStatuses, 'deletedAt') && user.deletedAt;
-      let blockedMatch = this.includes(this.filterStatuses, 'isBlocked') && user.isBlocked;
-      let expiredMatch = this.includes(this.filterStatuses, 'isExpiredPerLdap') && user.isExpiredPerLdap;
-      let permissionsMatch = adminMatch || advisorMatch || directorMatch || canvasAccessMatch || schedulerMatch;
-      let statusMatch = activeMatch || deletedMatch || blockedMatch || expiredMatch;
+      const activeMatch = this.includes(this.filterStatuses, 'isActive') && !user.deletedAt && !user.isBlocked;
+      const adminMatch = this.includes(this.filterPermissions, 'isAdmin') && user.isAdmin;
+      const advisorMatch = this.includes(this.filterPermissions, 'isAdvisor') &&  this.find(user.departments, (dept) => dept.isAdvisor);
+      const blockedMatch = this.includes(this.filterStatuses, 'isBlocked') && user.isBlocked;
+      const canvasAccessMatch = this.includes(this.filterPermissions, 'canAccessCanvasData') && user.canAccessCanvasData;
+      const deletedMatch = this.includes(this.filterStatuses, 'deletedAt') && user.deletedAt;
+      const deptMatch = !this.filterDept || this.filterDept === 'ALL' || this.includes(this.keys(user.departments), this.filterDept);
+      const directorMatch = this.includes(this.filterPermissions, 'isDirector') && this.find(user.departments, (dept) => dept.isDirector);
+      const dropInAdvisorMatch = this.includes(this.filterPermissions, 'isDropInAdvisor') && this.find(user.departments, (dept) => dept.isDropInAdvisor);
+      const expiredMatch = this.includes(this.filterStatuses, 'isExpiredPerLdap') && user.isExpiredPerLdap;
+      const nameUidMatch = !this.filterNameUid || this.includes(user.name.toLowerCase(), this.filterNameUid.toLowerCase()) || this.includes(user.uid, this.filterNameUid);
+      const schedulerMatch = this.includes(this.filterPermissions, 'isScheduler') && this.find(user.departments, (dept) => dept.isScheduler);
+
+      const permissionsMatch = adminMatch || advisorMatch || canvasAccessMatch || directorMatch || dropInAdvisorMatch || schedulerMatch;
+      const statusMatch = activeMatch || deletedMatch || blockedMatch || expiredMatch;
 
       return nameUidMatch && deptMatch && permissionsMatch && statusMatch;
     },
@@ -276,7 +286,12 @@ export default {
     },
     deptRoles(dept) {
       let roles = [];
-      this.each([{key: 'isAdvisor', label: 'Advisor'}, {key: 'isDirector', label: 'Director'}, {key: 'isScheduler', label: 'Scheduler'}], role => {
+      this.each([
+        {key: 'isAdvisor', label: 'Advisor'},
+        {key: 'isDirector', label: 'Director'},
+        {key: 'isDropInAdvisor', label: 'Drop-In Advisor'},
+        {key: 'isScheduler', label: 'Scheduler'}
+      ], role => {
         if (this.get(dept, role.key)) {
           roles.push(role.label);
         }
@@ -299,7 +314,7 @@ export default {
     resetFilter() {
       this.filterNameUid = null;
       this.filterDept = null;
-      this.filterPermissions = ['isAdmin', 'isAdvisor', 'isDirector', 'canAccessCanvasData', 'isScheduler'];
+      this.filterPermissions = ['canAccessCanvasData', 'isAdmin', 'isAdvisor', 'isDirector', 'isDropInAdvisor', 'isScheduler'];
       this.filterStatuses = ['isActive'];
       this.isResetDisabled = true;
     },

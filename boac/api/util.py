@@ -113,6 +113,7 @@ def authorized_users_api_feed(users, sort_by='lastName'):
                     'deptName': m.university_dept.dept_name,
                     'isAdvisor': m.is_advisor,
                     'isDirector': m.is_director,
+                    'isDropInAdvisor': m.is_drop_in_advisor,
                     'isScheduler': m.is_scheduler,
                     'automateMembership': m.automate_membership,
                 },
@@ -176,7 +177,7 @@ def put_notifications(student):
             student['notifications']['appointment'].append({
                 **event,
                 **{
-                    'message': event.get('summary'),
+                    'message': event.get('details'),
                     'type': 'appointment',
                 },
             })

@@ -11,7 +11,7 @@
       <div class="mt-2">
         <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details"></span>
       </div>
-      <div class="d-flex align-items-center">
+      <div v-if="isUserDropInAdvisor()" class="d-flex align-items-center">
         <div>
           <b-dropdown
             class="bg-white mb-3 mr-3 mt-3"
@@ -72,12 +72,13 @@
 
 <script>
 import AppointmentCheckIn from '@/components/appointment/AppointmentCheckIn';
+import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'AdvisingAppointment',
   components: { AppointmentCheckIn },
-  mixins: [Util],
+  mixins: [UserMetadata, Util],
   props: {
     isOpen: Boolean,
     appointment: Object

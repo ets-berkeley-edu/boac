@@ -457,6 +457,7 @@ CREATE TABLE university_dept_members (
   authorized_user_id INTEGER,
   is_advisor BOOLEAN DEFAULT false NOT NULL,
   is_director BOOLEAN DEFAULT false NOT NULL,
+  is_drop_in_advisor BOOLEAN DEFAULT false NOT NULL,
   is_scheduler BOOLEAN DEFAULT false NOT NULL,
   automate_membership boolean DEFAULT true NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
