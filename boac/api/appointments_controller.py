@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.util import advisor_required
+from boac.api.util import advisor_required, scheduler_required
 from boac.lib.http import tolerant_jsonify
 from flask import current_app as app
 
@@ -40,7 +40,13 @@ def get_appointment(appointment_id):
     return tolerant_jsonify(mock_appointment)
 
 
+@app.route('/api/appointments/<appointment_id>/check_in', methods=['POST'])
+@scheduler_required
+def appointment_check_in(appointment_id):
+    return tolerant_jsonify({'status': f'Appointment check-in (id: {appointment_id})'}, status=200)
+
+
 @app.route('/api/appointments/<appointment_id>/mark_read', methods=['POST'])
 @advisor_required
 def mark_appointment_read(appointment_id):
-    return tolerant_jsonify({'status': f'Marked as read (id: {appointment_id})'}, status=201)
+    return tolerant_jsonify({'status': f'Marked as read (id: {appointment_id})'}, status=200)

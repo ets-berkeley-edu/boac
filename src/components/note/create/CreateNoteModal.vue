@@ -297,7 +297,7 @@ export default {
       this.setFocusLockDisabled(false);
       this.isModalOpen = false;
       this.dismissAlertSeconds = 0;
-      this.alertScreenReader('Cancelled create new note');
+      this.alertScreenReader('Canceled create new note');
       this.exit();
     },
     discardTemplate() {
@@ -306,7 +306,7 @@ export default {
       this.resetModel();
       this.setMode(this.isBatchFeature ? 'batch' : 'advanced');
       this.putFocusNextTick('create-note-subject');
-      this.alertScreenReader('Cancelled create template.');
+      this.alertScreenReader('Canceled create template.');
     },
     dismissAlert(seconds) {
       this.dismissAlertSeconds = seconds;

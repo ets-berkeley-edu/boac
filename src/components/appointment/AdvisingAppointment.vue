@@ -19,17 +19,9 @@
             :disabled="includes(['canceled', 'checkedIn'], appointment.status)"
             text="Check In"
             variant="outline-dark"
-            @click="showAppointmentCheckInModal = true">
-            <b-dropdown-item-button @click="showAppointmentCheckInModal = true">Details</b-dropdown-item-button>
-            <b-dropdown-item-button @click="showAppointmentCheckInModal = true">Cancel</b-dropdown-item-button>
+            @click="checkIn(appointment.id)">
+            <b-dropdown-item-button @click="cancelAppointment(appointment.id)">Cancel</b-dropdown-item-button>
           </b-dropdown>
-          <AppointmentCheckIn
-            v-if="showAppointmentCheckInModal"
-            :appointment="appointment"
-            :function-cancel="cancelCheckIn"
-            :function-confirm="appointmentCheckIn"
-            modal-header="STUDENT NAME HERE"
-            :show-modal="showAppointmentCheckInModal" />
         </div>
         <div v-if="appointment.status === 'checkedIn'">
           <font-awesome icon="calendar-check" class="status-checked-in-icon" /> Check In <span v-if="appointment.arrivalTime">@ {{ appointment.arrivalTime }}</span>
@@ -71,30 +63,35 @@
 </template>
 
 <script>
-import AppointmentCheckIn from '@/components/appointment/AppointmentCheckIn';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'AdvisingAppointment',
-  components: { AppointmentCheckIn },
   mixins: [UserMetadata, Util],
   props: {
-    isOpen: Boolean,
-    appointment: Object
-  },
-  data: () => ({
-    showAppointmentCheckInModal: false
-  }),
-  methods: {
-    appointmentCheckIn() {
-      console.log('appointmentCheckIn');
-      this.showAppointmentCheckInModal = false;
+    isOpen: {
+      required: true,
+      type: Boolean
     },
-    cancelCheckIn() {
-      console.log('cancelCheckIn');
-      this.showAppointmentCheckInModal = false;
+    appointment: {
+      required: true,
+      type: Object
+    },
+    cancelAppointment: {
+      required: true,
+      type: Function
+    },
+    checkIn: {
+      required: true,
+      type: Function
+    },
+    student: {
+      required: true,
+      type: Object
     }
+  },
+  methods: {
   }
 }
 </script>

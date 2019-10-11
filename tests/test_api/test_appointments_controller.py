@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 coe_scheduler_uid = '6972201'
+l_s_major_advisor_uid = '242881'
 
 
 class TestGetAppointment:
@@ -42,6 +43,18 @@ class TestGetAppointment:
         """Returns 401 if user is a scheduler."""
         fake_auth.login(coe_scheduler_uid)
         self._api_appointment_by_id(client=client, appointment_id=1, expected_status_code=401)
+
+
+class TestAppointmentCheckIn:
+
+    def test_mark_read_not_authenticated(self, client):
+        """Returns 401 if not authenticated."""
+        assert client.post('/api/appointments/1/check_in').status_code == 401
+
+    def test_deny_advisor(self, app, client, fake_auth):
+        """Returns 401 if user is an advisor without drop_in responsibilities."""
+        fake_auth.login(l_s_major_advisor_uid)
+        assert client.post('/api/appointments/1/check_in').status_code == 401
 
 
 class TestMarkAppointmentRead:

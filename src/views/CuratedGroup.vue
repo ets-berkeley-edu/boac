@@ -148,7 +148,7 @@ export default {
           });
         });
       } else {
-        this.alertScreenReader('Cancelled bulk add of students');
+        this.alertScreenReader('Canceled bulk add of students');
         this.putFocusNextTick('curated-group-name');
       }
     },
