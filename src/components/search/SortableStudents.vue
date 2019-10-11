@@ -174,12 +174,15 @@ export default {
       let aValue = this.get(a, sortBy);
       let bValue = this.get(b, sortBy);
       // If column type is number then nil is treated as zero.
-      aValue = this.isNil(aValue) && this.isNumber(bValue) ? 0 : aValue;
-      bValue = this.isNil(bValue) && this.isNumber(aValue) ? 0 : bValue;
+      aValue = this.isNil(aValue) && this.isNumber(bValue) ? 0 : (aValue || '').toLowerCase();
+      bValue = this.isNil(bValue) && this.isNumber(aValue) ? 0 : (bValue || '').toLowerCase();
       let result = this.sortComparator(aValue, bValue);
       if (result === 0) {
         this.each(['lastName', 'firstName', 'sid'], field => {
-          result = this.sortComparator(this.get(a, field), this.get(b, field));
+          result = this.sortComparator(
+            (this.get(a, field) || '').toLowerCase(),
+            (this.get(b, field) || '').toLowerCase()
+          );
           // Secondary sort is always ascending
           result *= sortDesc ? -1 : 1;
           // Break from loop if comparator result is non-zero
