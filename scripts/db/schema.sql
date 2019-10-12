@@ -86,7 +86,6 @@ CREATE TABLE appointment_topics (
     id INTEGER NOT NULL,
     appointment_id INTEGER NOT NULL,
     topic VARCHAR(50) NOT NULL,
-    scheduler_uid VARCHAR(255) NOT NULL,
     deleted_at timestamp with time zone
 );
 ALTER TABLE appointment_topics OWNER TO boac;
@@ -104,8 +103,59 @@ ALTER TABLE ONLY appointment_topics
 ALTER TABLE ONLY appointment_topics
     ADD CONSTRAINT appointment_topics_appointment_id_topic_unique_constraint UNIQUE (appointment_id, topic);
 CREATE INDEX appointment_topics_appointment_id_idx ON appointment_topics (appointment_id);
-CREATE INDEX appointment_topics_scheduler_uid_idx ON appointment_topics (scheduler_uid);
 CREATE INDEX appointment_topics_topic_idx ON appointment_topics (topic);
+
+--
+
+CREATE TABLE appointments (
+    id INTEGER NOT NULL,
+    advisor_uid character varying(255),
+    advisor_name character varying(255),
+    advisor_role character varying(255),
+    advisor_dept_codes character varying[],
+    student_sid character varying(80) NOT NULL,
+    details text,
+    created_at timestamp with time zone NOT NULL,
+    created_by character varying(255) NOT NULL,
+    checked_in_at timestamp with time zone,
+    checked_in_by character varying(255),
+    cancel_reason character varying(255),
+    cancel_reason_explained character varying(255),
+    canceled_at timestamp with time zone,
+    canceled_by character varying(255),
+    updated_at timestamp with time zone NOT NULL,
+    updated_by character varying(255) NOT NULL,
+    deleted_at timestamp with time zone,
+    deleted_by character varying(255)
+);
+ALTER TABLE appointments OWNER TO boac;
+CREATE SEQUENCE appointments_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE appointments_id_seq OWNER TO boac;
+ALTER SEQUENCE appointments_id_seq OWNED BY appointments.id;
+ALTER TABLE ONLY appointments ALTER COLUMN id SET DEFAULT nextval('appointments_id_seq'::regclass);
+ALTER TABLE ONLY appointments
+    ADD CONSTRAINT appointments_pkey PRIMARY KEY (id);
+CREATE INDEX appointments_created_by_idx ON appointments(created_by);
+CREATE INDEX appointments_advisor_uid_idx ON appointments(advisor_uid);
+CREATE INDEX appointments_student_sid_idx ON appointments(student_sid);
+
+--
+
+CREATE TABLE appointments_read (
+    appointment_id INTEGER NOT NULL,
+    viewer_id INTEGER NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+ALTER TABLE appointments_read OWNER TO boac;
+ALTER TABLE ONLY appointments_read
+    ADD CONSTRAINT appointments_read_pkey PRIMARY KEY (viewer_id, appointment_id);
+CREATE INDEX appointments_read_appointment_id_idx ON appointments_read USING btree (appointment_id);
+CREATE INDEX appointments_read_viewer_id_idx ON appointments_read USING btree (viewer_id);
 
 --
 
@@ -539,7 +589,14 @@ CREATE INDEX user_logins_uid_idx ON user_logins USING btree (uid);
 --
 
 ALTER TABLE ONLY appointment_topics
-    ADD CONSTRAINT appointment_topics_scheduler_uid_fkey FOREIGN KEY (scheduler_uid) REFERENCES authorized_users(uid) ON DELETE CASCADE;
+    ADD CONSTRAINT appointment_topics_appointment_id_fkey FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE CASCADE;
+
+--
+
+ALTER TABLE ONLY appointments_read
+    ADD CONSTRAINT appointments_read_appointment_id_fkey FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE CASCADE;
+ALTER TABLE ONLY appointments_read
+    ADD CONSTRAINT appointments_read_viewer_id_fkey FOREIGN KEY (viewer_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
 
 --
 

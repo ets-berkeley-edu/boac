@@ -31,22 +31,20 @@ class AppointmentTopic(db.Model):
     __tablename__ = 'appointment_topics'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
-    appointment_id = db.Column(db.Integer, nullable=False)
+    appointment_id = db.Column(db.Integer, db.ForeignKey('appointment.id'), nullable=False)
     topic = db.Column(db.String(50), nullable=False)
-    scheduler_uid = db.Column(db.String(255), db.ForeignKey('authorized_users.uid'), nullable=False)
     deleted_at = db.Column(db.DateTime)
+    appointment = db.relationship('Appointment', back_populates='topics')
 
-    def __init__(self, appointment_id, topic, scheduler_uid):
+    def __init__(self, appointment_id, topic):
         self.appointment_id = appointment_id
         self.topic = topic
-        self.scheduler_uid = scheduler_uid
 
     @classmethod
-    def create(cls, appointment, topic, scheduler_uid):
+    def create(cls, appointment, topic):
         return AppointmentTopic(
             appointment_id=appointment.id,
             topic=topic,
-            scheduler_uid=scheduler_uid,
         )
 
     @classmethod
