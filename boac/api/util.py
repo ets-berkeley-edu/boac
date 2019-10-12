@@ -57,7 +57,11 @@ def admin_required(func):
 def advisor_required(func):
     @wraps(func)
     def _advisor_required(*args, **kw):
-        is_authorized = current_user.is_authenticated and (current_user.is_admin or _is_advisor(current_user))
+        is_authorized = current_user.is_authenticated \
+            and (
+                current_user.is_admin
+                or _has_role_in_any_department(current_user, 'isAdvisor')
+            )
         if is_authorized or _api_key_ok():
             return func(*args, **kw)
         else:
@@ -69,7 +73,12 @@ def advisor_required(func):
 def scheduler_required(func):
     @wraps(func)
     def _scheduler_required(*args, **kw):
-        is_authorized = current_user.is_authenticated and (current_user.is_admin or _is_scheduler(current_user))
+        is_authorized = current_user.is_authenticated \
+            and (
+                current_user.is_admin
+                or _has_role_in_any_department(current_user, 'isScheduler')
+                or _has_role_in_any_department(current_user, 'isDropInAdvisor')
+            )
         if is_authorized or _api_key_ok():
             return func(*args, **kw)
         else:
@@ -335,12 +344,8 @@ def response_with_students_csv_download(sids, benchmark):
     )
 
 
-def _is_advisor(user):
-    return next((d for d in user.departments if d['isAdvisor']), False)
-
-
-def _is_scheduler(user):
-    return next((d for d in user.departments if d['isScheduler']), False)
+def _has_role_in_any_department(user, role):
+    return next((d for d in user.departments if d[role]), False)
 
 
 def _api_key_ok():

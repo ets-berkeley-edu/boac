@@ -44,18 +44,19 @@
       <div class="modal-footer">
         <form @submit.prevent="functionConfirm">
           <b-btn
+            v-if="!appointment.status"
             id="btn-appointment-check-in"
             class="btn-primary-color-override"
             variant="primary"
             :aria-label="modalHeader"
-            @click.prevent="functionConfirm">
+            @click.prevent="checkIn">
             Check In
           </b-btn>
           <b-btn
             id="btn-appointment-cancel"
             class="pl-2"
             variant="link"
-            @click.stop="functionCancel">
+            @click.stop="close">
             Close
           </b-btn>
         </form>
@@ -68,18 +69,18 @@
 import Util from '@/mixins/Util';
 
 export default {
-  name: 'AppointmentCheckIn',
+  name: 'AppointmentDetailsModal',
   mixins: [Util],
   props: {
     appointment: {
       type: Object,
       required: true
     },
-    functionCancel: {
+    checkIn: {
       type: Function,
-      required: true
+      required: false
     },
-    functionConfirm: {
+    close: {
       type: Function,
       required: true
     },

@@ -189,7 +189,10 @@
               <AdvisingAppointment
                 v-if="message.type === 'appointment'"
                 :appointment="message"
-                :is-open="includes(openMessages, message.transientId)" />
+                :cancel-appointment="cancelAppointment"
+                :check-in="appointmentCheckIn"
+                :is-open="includes(openMessages, message.transientId)"
+                :student="student" />
               <div v-if="includes(openMessages, message.transientId) && message.id !== editModeNoteId" class="text-center close-message">
                 <b-btn
                   :id="`timeline-tab-${activeTab}-close-message`"
@@ -287,7 +290,7 @@ import TimelineDate from '@/components/student/profile/TimelineDate';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { dismissStudentAlert } from '@/api/student';
-import { markAppointmentRead } from '@/api/appointments';
+import { cancel as $_cancelAppointment, checkIn, markAppointmentRead } from '@/api/appointments';
 import { deleteNote, getNote, markNoteRead } from '@/api/notes';
 import { search } from '@/api/search';
 
@@ -443,8 +446,18 @@ export default {
     afterNoteEditCancel() {
       this.editModeNoteId = null;
     },
+    appointmentCheckIn(appointmentId) {
+      checkIn(appointmentId).then(a => {
+        this.refreshTimelineAppointment(appointmentId, a);
+      });
+    },
+    cancelAppointment(appointmentId) {
+      $_cancelAppointment(appointmentId).then(a => {
+        this.refreshTimelineAppointment(appointmentId, a);
+      });
+    },
     cancelTheDelete() {
-      this.alertScreenReader('Cancelled');
+      this.alertScreenReader('Canceled');
       this.messageForDelete = undefined;
     },
     close(message, screenreaderAlert) {
@@ -555,6 +568,10 @@ export default {
       if (screenreaderAlert) {
         this.alertScreenReader('Message opened');
       }
+    },
+    refreshTimelineAppointment(appointmentId, appointment) {
+      let timelineAppointment = this.messagesPerType('appointment').find(a => a.id === +appointment.id);
+      Object.assign(timelineAppointment, appointment);
     },
     scrollToPermalink(messageId) {
       this.scrollTo(`#message-row-${messageId}`);

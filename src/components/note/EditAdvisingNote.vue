@@ -135,7 +135,7 @@ export default {
     },
     cancelConfirmed() {
       this.afterCancel();
-      this.alertScreenReader('Edit note form cancelled.');
+      this.alertScreenReader('Edit note form canceled.');
       this.exit();
     },
     cancelTheCancel() {
