@@ -16,17 +16,17 @@
           <b-dropdown
             class="bg-white mb-3 mr-3 mt-3"
             split
-            :disabled="includes(['canceled', 'checkedIn'], appointment.status)"
+            :disabled="!!appointment.checkedInBy || !!appointment.canceledAt"
             text="Check In"
             variant="outline-dark"
             @click="checkIn(appointment.id)">
             <b-dropdown-item-button @click="cancelAppointment(appointment.id)">Cancel</b-dropdown-item-button>
           </b-dropdown>
         </div>
-        <div v-if="appointment.status === 'checkedIn'">
+        <div v-if="!!appointment.checkedInBy">
           <font-awesome icon="calendar-check" class="status-checked-in-icon" /> Check In <span v-if="appointment.arrivalTime">@ {{ appointment.arrivalTime }}</span>
         </div>
-        <div v-if="appointment.status === 'canceled'">
+        <div v-if="appointment.canceledAt">
           <font-awesome icon="calendar-minus" class="status-canceled-icon" /> Canceled
         </div>
       </div>
@@ -55,8 +55,17 @@
           </span>
         </div>
       </div>
-      <div>
-        {{ appointment.reason }}
+      <div v-if="appointment.topics && size(appointment.topics)">
+        <div class="pill-list-header mt-3 mb-1">{{ size(appointment.topics) === 1 ? 'Topic' : 'Topics' }}</div>
+        <ul class="pill-list pl-0">
+          <li
+            v-for="(topic, index) in appointment.topics"
+            :id="`note-${appointment.id}-topic-${index}`"
+            :key="topic"
+            class="mt-2">
+            <span class="pill pill-attachment text-uppercase text-nowrap">{{ topic }}</span>
+          </li>
+        </ul>
       </div>
     </div>
   </div>

@@ -23,21 +23,19 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac.api.errors import BadRequestError
 from boac.api.util import advisor_required, scheduler_required
 from boac.lib.http import tolerant_jsonify
-from flask import current_app as app
+from boac.models.appointment import Appointment
+from boac.models.topic import Topic
+from flask import current_app as app, request
+from flask_login import current_user
 
 
-@app.route('/api/appointments/<appointment_id>')
-@advisor_required
-def get_appointment(appointment_id):
-    mock_appointment = {
-        'id': appointment_id,
-        'reason': 'Career Planning',
-        'arrivalTime': '8:58am',
-        'details': 'Looking to develop an action plan',
-    }
-    return tolerant_jsonify(mock_appointment)
+@app.route('/api/appointments/waitlist')
+@scheduler_required
+def get_waitlist():
+    return tolerant_jsonify([a.to_api_json() for a in Appointment.get_waitlist()])
 
 
 @app.route('/api/appointments/<appointment_id>/check_in', methods=['POST'])
@@ -46,7 +44,40 @@ def appointment_check_in(appointment_id):
     return tolerant_jsonify({'status': f'Appointment check-in (id: {appointment_id})'}, status=200)
 
 
+@app.route('/api/appointments/create', methods=['POST'])
+@scheduler_required
+def create_appointment():
+    params = request.get_json()
+    advisor_dept_codes = params.get('advisorDeptCodes', None)
+    advisor_name = params.get('advisorName', None)
+    advisor_uid = params.get('advisorUid', None)
+    sid = params.get('sid', None)
+    topics = params.get('topics', None)
+    if not advisor_name or not advisor_uid or not sid or not len(topics):
+        raise BadRequestError('Appointment creation: required parameters were not provided')
+    if not len(advisor_dept_codes) and not current_user.is_admin:
+        raise BadRequestError('One or more departments required per advisor')
+    appointment = Appointment.create(
+        advisor_dept_codes=advisor_dept_codes,
+        advisor_name=advisor_name,
+        advisor_role=params.get('advisorRole', None),
+        advisor_uid=advisor_uid,
+        created_by=current_user.get_uid(),
+        details=params.get('details', None),
+        student_sid=sid,
+        topics=topics,
+    )
+    return tolerant_jsonify(appointment.to_api_json())
+
+
 @app.route('/api/appointments/<appointment_id>/mark_read', methods=['POST'])
 @advisor_required
 def mark_appointment_read(appointment_id):
     return tolerant_jsonify({'status': f'Marked as read (id: {appointment_id})'}, status=200)
+
+
+@app.route('/api/appointments/topics')
+@scheduler_required
+def get_appointment_topics():
+    topics = Topic.get_all(available_in_appointments=True)
+    return tolerant_jsonify([topic.to_api_json() for topic in topics])

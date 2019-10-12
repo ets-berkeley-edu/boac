@@ -44,7 +44,7 @@
       <div class="modal-footer">
         <form @submit.prevent="functionConfirm">
           <b-btn
-            v-if="!appointment.status"
+            v-if="!appointment.checkedInBy && !appointment.canceledAt"
             id="btn-appointment-check-in"
             class="btn-primary-color-override"
             variant="primary"

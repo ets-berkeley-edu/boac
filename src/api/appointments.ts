@@ -28,9 +28,44 @@ export function checkIn(appointmentId) {
     }, () => null);
 }
 
-export function getAppointment(appointmentId) {
+export function create(
+    advisorDeptCodes,
+    advisorName,
+    advisorRole,
+    advisorUid,
+    details,
+    sid,
+    topics
+) {
   return axios
-    .get(`${utils.apiBaseUrl()}/api/appointment/${appointmentId}`)
+    .post(`${utils.apiBaseUrl()}/api/appointments/create`, {
+      advisorDeptCodes,
+      advisorName,
+      advisorRole,
+      advisorUid,
+      details,
+      sid,
+      topics
+    }).then(response => {
+      const appointmentId = response.data.id;
+      store.dispatch('user/gaAppointmentEvent', {
+        id: appointmentId,
+        name: `Advisor ${store.getters['user/uid']} created an appointment`,
+        action: 'check_in'
+      });
+      return response.data
+    }, () => null);
+}
+
+export function getDropInAppointmentWaitlist() {
+  return axios
+    .get(`${utils.apiBaseUrl()}/api/appointments/waitlist`)
+    .then(response => response.data, () => null);
+}
+
+export function getAllTopics() {
+  return axios
+    .get(`${utils.apiBaseUrl()}/api/appointments/topics`)
     .then(response => response.data, () => null);
 }
 
