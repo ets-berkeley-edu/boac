@@ -16,10 +16,11 @@
         </div>
         <div class="btn-wrapper ml-0 align-top">
           <b-btn
+            id="speedbird"
             class="btn-dismiss pl-2 pt-0 text-white"
             variant="link"
             aria-label="Dismiss warning about BOA environment type"
-            @click="dismissFooterAlert">
+            @click="dismissTheWarning">
             <font-awesome icon="plane-departure" />
           </b-btn>
         </div>
@@ -39,6 +40,10 @@ export default {
     this.initUserSession().then(this.noop);
   },
   methods: {
+    dismissTheWarning() {
+      this.dismissFooterAlert();
+      this.alertScreenReader('Warning message dismissed');
+    },
     getBoaEnvLabel() {
       return this.ebEnvironment ? this.ebEnvironment.replace('boac-', '').toUpperCase() : 'Test';
     }
