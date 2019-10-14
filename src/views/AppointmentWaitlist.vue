@@ -35,10 +35,13 @@
           :key="appointment.id"
           class="border-bottom d-flex font-size-16 justify-content-between mb-3 ml-1 mt-3">
           <div>
+            <StudentAvatar size="small" :student="appointment.student" />
+          </div>
+          <div>
             {{ appointment.createdAt }}
           </div>
           <div>
-            {{ appointment.studentSid }}
+            {{ appointment.student.name }}
           </div>
           <div>
             <b-dropdown
@@ -51,23 +54,23 @@
               <b-dropdown-item-button @click="showAppointmentDetails(appointment)">Details</b-dropdown-item-button>
               <b-dropdown-item-button @click="cancelAppointment(appointment)">Cancel</b-dropdown-item-button>
             </b-dropdown>
+            <AppointmentDetailsModal
+              v-if="showAppointmentDetailsModal"
+              :appointment="selectedAppointment"
+              :close="closeAppointmentDetailsModal"
+              :check-in="appointmentCheckIn"
+              :show-modal="showAppointmentDetailsModal"
+              :student="appointment.student" />
+            <AppointmentCancellationModal
+              v-if="showCancelAppointmentModal"
+              :appointment="selectedAppointment"
+              :appointment-cancellation="appointmentCancellation"
+              :close="closeAppointmentCancellationModal"
+              :show-modal="showCancelAppointmentModal"
+              :student="appointment.student" />
           </div>
         </div>
       </div>
-      <AppointmentDetailsModal
-        v-if="showAppointmentDetailsModal"
-        :appointment="selectedAppointment"
-        :close="closeAppointmentDetailsModal"
-        :check-in="appointmentCheckIn"
-        :modal-header="student.name"
-        :show-modal="showAppointmentDetailsModal" />
-      <AppointmentCancellationModal
-        v-if="showCancelAppointmentModal"
-        :appointment="selectedAppointment"
-        :appointment-cancellation="appointmentCancellation"
-        :close="closeAppointmentCancellationModal"
-        :modal-header="student.name"
-        :show-modal="showCancelAppointmentModal" />
     </div>
   </div>
 </template>
@@ -78,13 +81,14 @@ import AppointmentCancellationModal from '@/components/appointment/AppointmentCa
 import CreateAppointmentModal from '@/components/appointment/CreateAppointmentModal';
 import Loading from '@/mixins/Loading';
 import Spinner from '@/components/util/Spinner';
+import StudentAvatar from '@/components/student/StudentAvatar';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { cancel as cancelAppointment, checkIn, create, getDropInAppointmentWaitlist } from '@/api/appointments'
 
 export default {
   name: 'AppointmentWaitlist',
-  components: {AppointmentCancellationModal, AppointmentDetailsModal, CreateAppointmentModal, Spinner},
+  components: {AppointmentCancellationModal, AppointmentDetailsModal, CreateAppointmentModal, Spinner, StudentAvatar},
   mixins: [Loading, UserMetadata, Util],
   data: () => ({
     now: undefined,

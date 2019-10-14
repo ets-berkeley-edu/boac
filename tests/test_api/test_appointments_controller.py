@@ -137,7 +137,8 @@ class TestAppointmentWaitlist:
         assert appointment['createdAt'] is not None
         assert appointment['createdBy'] == coe_scheduler_uid
         assert 'crossroads' in appointment['details']
-        assert appointment['studentSid'] == '3456789012'
+        assert appointment['student']['sid'] == '3456789012'
+        assert appointment['student']['name'] == 'Paul Kerschen'
         assert len(appointment['topics']) == 1
 
     def test_l_and_s_advisor_waitlist(self, app, client, fake_auth):

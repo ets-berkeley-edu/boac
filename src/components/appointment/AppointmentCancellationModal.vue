@@ -11,7 +11,7 @@
     @shown="putFocusNextTick('are-you-sure-confirm')">
     <div>
       <div class="modal-header">
-        <h3>{{ modalHeader }}</h3>
+        <h3>{{ student.name }}</h3>
       </div>
       <div class="modal-body">
         <div>
@@ -47,7 +47,7 @@
             id="btn-appointment-check-in"
             class="btn-primary-color-override"
             variant="primary"
-            :aria-label="modalHeader"
+            :aria-label="`Cancel appointment with ${student.name}`"
             @click.prevent="appointmentCancellation">
             Cancel Appointment
           </b-btn>
@@ -83,12 +83,12 @@ export default {
       type: Function,
       required: true
     },
-    modalHeader: {
-      type: String,
-      required: true
-    },
     showModal: {
       type: Boolean,
+      required: true
+    },
+    student: {
+      type: Object,
       required: true
     }
   },

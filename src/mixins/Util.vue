@@ -74,6 +74,7 @@ export default {
         }, 500);
       });
     },
+    reduce: _.reduce,
     remove: _.remove,
     set: _.set,
     setPageTitle: phrase => (document.title = `${phrase ? decodeHtml(phrase) : 'UC Berkeley'} | BOA`),
