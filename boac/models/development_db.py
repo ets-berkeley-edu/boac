@@ -82,7 +82,21 @@ _test_users = [
     {
         'uid': '53791',
         'csid': None,
-        'isAdmin': True,
+        'isAdmin': False,
+        'inDemoMode': False,
+        'canAccessCanvasData': True,
+    },
+    {
+        'uid': '19735',
+        'csid': None,
+        'isAdmin': False,
+        'inDemoMode': False,
+        'canAccessCanvasData': True,
+    },
+    {
+        'uid': '188242',
+        'csid': None,
+        'isAdmin': False,
         'inDemoMode': False,
         'canAccessCanvasData': True,
     },
@@ -251,6 +265,22 @@ _university_depts = {
                 'isDirector': True,
                 'isDropInAdvisor': True,
                 'isScheduler': False,
+                'automate_membership': False,
+            },
+            {
+                'uid': '188242',
+                'isAdvisor': True,
+                'isDirector': False,
+                'isDropInAdvisor': False,
+                'isScheduler': False,
+                'automate_membership': False,
+            },
+            {
+                'uid': '19735',
+                'isAdvisor': False,
+                'isDirector': False,
+                'isDropInAdvisor': False,
+                'isScheduler': True,
                 'automate_membership': False,
             },
         ],
@@ -432,13 +462,14 @@ def _create_appointment_topics():
 
 
 def _create_appointments():
-    advisor_uid = '90412'
+    # College of Engineering appointments
+    coe_advisor_uid = '90412'
     scheduler_uid = '6972201'
     Appointment.create(
         advisor_dept_codes=['COENG'],
         advisor_name='Johnny C. Lately',
         advisor_role='Advisor',
-        advisor_uid=advisor_uid,
+        advisor_uid=coe_advisor_uid,
         created_by=scheduler_uid,
         details='Meet me at the crossroads.',
         student_sid='3456789012',
@@ -448,11 +479,23 @@ def _create_appointments():
         advisor_dept_codes=['COENG'],
         advisor_name='Johnny C. Lately',
         advisor_role='Advisor',
-        advisor_uid=advisor_uid,
-        created_by=advisor_uid,
+        advisor_uid=coe_advisor_uid,
+        created_by=coe_advisor_uid,
         details='Life is what happens while you\'re making appointments.',
         student_sid='5678901234',
         topics=['Appointment Topic 4'],
+    )
+    # L&S College Advising appointments
+    l_s_advisor_uid = '53791'
+    Appointment.create(
+        advisor_dept_codes=['COENG'],
+        advisor_name='Max Headroom',
+        advisor_role='Advisor',
+        advisor_uid=l_s_advisor_uid,
+        created_by=l_s_advisor_uid,
+        details='C-c-catch the wave!',
+        student_sid='5678901234',
+        topics=['Appointment Topic 1'],
     )
 
 

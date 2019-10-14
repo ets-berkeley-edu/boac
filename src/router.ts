@@ -24,8 +24,8 @@ const isAdvisor = user => {
   return !!_.size(_.filter(user.departments, d => d.isAdvisor || d.isDirector));
 };
 
-const isScheduler = user => {
-  return !!_.size(_.filter(user.departments, d => d.isScheduler));
+const schedulerForDepartments = user => {
+  return _.filter(user.departments, d => d.isScheduler);
 };
 
 const requiresAuth = (to: any, from: any, next: any) => {
@@ -71,7 +71,7 @@ const requiresScheduler = (to: any, from: any, next: any) => {
     if (store.getters['context/featureFlagAppointments']) {
       if (data.isAuthenticated) {
         store.dispatch('user/loadUser').then(user => {
-          if (isScheduler(user) || user.isAdmin) {
+          if (_.size(schedulerForDepartments(user)) || user.isAdmin) {
             next();
           } else {
             next({ path: '/404' });
@@ -107,10 +107,16 @@ const router = new Router({
           if (user.isAuthenticated) {
             if (isAdvisor(user) || user.isAdmin) {
               next(to.query.redirect || '/home');
-            } else if (isScheduler(user)) {
-              next({ path: '/appt/desk' });
             } else {
-              next({ path: '/404' });
+              const schedulerDepartments = schedulerForDepartments(user);
+              if (_.size(schedulerDepartments)) {
+                // The multi-department scheduler is NOT a use case we support, yet. Therefore,
+                // we grab first deptCode from his/her profile.
+                const deptCode = schedulerDepartments[0].code.toLowerCase();
+                next({ path: `/appt/desk/${deptCode}` });
+              } else {
+                next({ path: '/404' });
+              }
             }
           } else {
             next();
@@ -127,7 +133,7 @@ const router = new Router({
       beforeEnter: requiresScheduler,
       children: [
         {
-          path: '/appt/desk',
+          path: '/appt/desk/:deptCode',
           component: AppointmentWaitlist,
           meta: {
             title: 'Drop-in Appointments Desk'
@@ -223,8 +229,10 @@ const router = new Router({
         {
           beforeEnter: (to: any, from: any, next: any) => {
             store.dispatch('user/loadUser').then(user => {
-              if (isScheduler(user) && !isAdvisor(user) && !user.isAdmin) {
-                next({ path: '/appt/desk' });
+              const schedulerDepartments = schedulerForDepartments(user);
+              if (_.size(schedulerDepartments) && !isAdvisor(user) && !user.isAdmin) {
+                const deptCode = schedulerDepartments[0].code.toLowerCase();
+                next({ path: `/appt/desk/${deptCode}` });
               } else {
                 next();
               }

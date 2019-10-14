@@ -57,9 +57,9 @@ export function create(
     }, () => null);
 }
 
-export function getDropInAppointmentWaitlist() {
+export function getDropInAppointmentWaitlist(deptCode) {
   return axios
-    .get(`${utils.apiBaseUrl()}/api/appointments/waitlist`)
+    .get(`${utils.apiBaseUrl()}/api/appointments/waitlist/${deptCode}`)
     .then(response => response.data, () => null);
 }
 
