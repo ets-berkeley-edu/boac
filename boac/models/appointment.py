@@ -50,6 +50,7 @@ class Appointment(Base):
     created_by = db.Column(db.String(255), nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
     deleted_by = db.Column(db.String(255), nullable=True)
+    dept_code = db.Column(db.String(80), nullable=False)
     details = db.Column(db.Text, nullable=True)
     student_sid = db.Column(db.String(80), nullable=False)
     updated_by = db.Column(db.String(255), nullable=False)
@@ -67,6 +68,7 @@ class Appointment(Base):
         advisor_role,
         advisor_uid,
         created_by,
+        dept_code,
         details,
         student_sid,
         updated_by,
@@ -76,6 +78,7 @@ class Appointment(Base):
         self.advisor_role = advisor_role
         self.advisor_uid = advisor_uid
         self.created_by = created_by
+        self.dept_code = dept_code
         self.details = details
         self.student_sid = student_sid
         self.updated_by = updated_by
@@ -103,6 +106,7 @@ class Appointment(Base):
             advisor_role,
             advisor_uid,
             created_by,
+            dept_code,
             details,
             student_sid,
             topics=(),
@@ -113,6 +117,7 @@ class Appointment(Base):
             advisor_role,
             advisor_uid,
             created_by,
+            dept_code,
             details,
             student_sid,
             updated_by=created_by,
@@ -173,6 +178,7 @@ class Appointment(Base):
             'checkedInBy': self.checked_in_by,
             'createdAt': _isoformat(self.created_at),
             'createdBy': self.created_by,
+            'dept_code': self.dept_code,
             'details': self.details,
             'studentSid': self.student_sid,
             'topics': topics,

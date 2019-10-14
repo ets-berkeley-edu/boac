@@ -77,6 +77,7 @@ def create_appointment():
         advisor_role=params.get('advisorRole', None),
         advisor_uid=advisor_uid,
         created_by=current_user.get_uid(),
+        dept_code=params.get('deptCode', None),
         details=params.get('details', None),
         student_sid=sid,
         topics=topics,
