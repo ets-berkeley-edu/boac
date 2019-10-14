@@ -12,6 +12,7 @@ const isAdvisor = user => {
 const state = {
   announcement: undefined,
   config: undefined,
+  hasUserDismissedFooterAlert: false,
   errors: [],
   loading: undefined,
   screenReaderAlert: undefined
@@ -28,6 +29,7 @@ const getters = {
   featureFlagAppointments: (state: any): boolean => _.get(state.config, 'featureFlagAppointments'),
   fixedWarningOnAllPages: (state: any): string => _.get(state.config, 'fixedWarningOnAllPages'),
   googleAnalyticsId: (state: any): string => _.get(state.config, 'googleAnalyticsId'),
+  hasUserDismissedFooterAlert: (state: any): boolean => state.hasUserDismissedFooterAlert,
   isDemoModeAvailable: (state: any): string => _.get(state.config, 'isDemoModeAvailable'),
   maxAttachmentsPerNote: (state: any): string => _.get(state.config, 'maxAttachmentsPerNote'),
   pingFrequency: (state: any): string => _.get(state.config, 'pingFrequency'),
@@ -49,6 +51,7 @@ const mutations = {
       state.errors.splice(indexOf, 1);
     }
   },
+  dismissFooterAlert: (state: any) => state.hasUserDismissedFooterAlert = true,
   loadingComplete: (state: any) => (state.loading = false),
   loadingStart: (state: any) => (state.loading = true),
   reportError: (state: any, error: any) => {
@@ -70,6 +73,7 @@ const actions = {
   },
   clearAlertsInStore: ({ commit }) => commit('clearAlertsInStore'),
   dismissError: ({ commit }, id) => commit('dismissError', id),
+  dismissFooterAlert: ({ commit }) => commit('dismissFooterAlert'),
   async initUserSession() {
     store.dispatch('context/loadConfig').then(config => {
       store.dispatch('user/loadUser').then(user => {
