@@ -490,12 +490,12 @@ def _create_appointments():
     # L&S College Advising appointments
     l_s_advisor_uid = '53791'
     Appointment.create(
-        advisor_dept_codes=['COENG'],
+        advisor_dept_codes=['QCADV'],
         advisor_name='Max Headroom',
         advisor_role='Advisor',
         advisor_uid=l_s_advisor_uid,
         created_by=l_s_advisor_uid,
-        dept_code='COENG',
+        dept_code='QCADV',
         details='C-c-catch the wave!',
         student_sid='5678901234',
         topics=['Appointment Topic 1'],

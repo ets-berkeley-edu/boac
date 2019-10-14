@@ -95,6 +95,7 @@ class Appointment(Base):
                 cls.canceled_at == None,
                 cls.checked_in_at == None,
                 cls.deleted_at == None,
+                cls.dept_code == dept_code,
             ),
         ).all()  # noqa: E711
 
