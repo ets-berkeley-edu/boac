@@ -63,6 +63,7 @@ class TestCreateAppointment:
             'advisorName': 'Mr. Snuffleupagus',
             'advisorRole': 'Advisor',
             'advisorUid': coe_advisor_uid,
+            'deptCode': 'COENG',
             'details': details,
             'sid': '3456789012',
             'topics': ['Appointment Topic 1', 'Appointment Topic 3'],
