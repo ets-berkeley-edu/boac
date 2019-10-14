@@ -255,7 +255,7 @@ export default {
       {text: 'Expired', value: 'isExpiredPerLdap'}
     ]
   }),
-  created() {
+  mounted() {
     this.items = this.cloneDeep(this.users);
     this.departments = this.orderBy(this.uniqBy(this.flatMap(this.users, this.getDepartments), 'code'), 'name');
     this.filter = this.concat(this.filterNameUid, this.filterDept, this.filterPermissions, this.filterStatuses);
@@ -304,8 +304,11 @@ export default {
       });
     },
     onFilter(filteredItems) {
-      this.rowCount = filteredItems.length
-      this.currentPage = 1
+      const newRowCount = this.size(filteredItems);
+      if (newRowCount !== this.rowCount) {
+        this.currentPage = 1;
+      }
+      this.rowCount = newRowCount;
     },
     openEdit() {
       //TODO: BOAC-2844
