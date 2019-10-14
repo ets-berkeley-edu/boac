@@ -451,11 +451,53 @@ export default {
         }
       });
 
-      var onDotSelected = d => {
-        var element = d3.event.currentTarget;
-        // Clear any existing tooltips.
-        container.selectAll('.matrix-tooltip').remove();
+      var onDotDeselected = (d, element, isProgrammatic) => {
+        if (isProgrammatic !== true) {
+          element = d3.event.currentTarget;
+        }
 
+        // Return the dot to the path-clipped dot group.
+        dotGroup.node().appendChild(element);
+
+        d3.select(element)
+          .attr('r', _d => (_d.isClassMean ? 22 : 9))
+          .style('fill', _d => (_d.isClassMean ? avatar(_d) : '#8bbdda'))
+          .style('opacity', _d => (_d.isClassMean ? 1 : 0.66))
+          .style('stroke-width', 0);
+
+        var tooltip = container.select('.matrix-tooltip');
+        tooltip
+          .transition(d3.transition().duration(500))
+          .on('end', () => tooltip.remove())
+          .style('opacity', 0);
+      };
+
+      // The "featured" UID passed in as a URL param, if any, will start out selected.
+      var getFeaturedStudent = () => {
+        var featuredData;
+        var featuredElement;
+        var featuredUid = this.featured;
+        if (featuredUid) {
+          dot.each(function(d) {
+            if (d.uid === featuredUid) {
+              featuredData = d;
+              featuredElement = this;
+            }
+          });
+        }
+        return [featuredData, featuredElement]
+      };
+
+      var onDotSelected = (d, element, isProgrammatic) => {
+        if (isProgrammatic !== true) {
+          element = d3.event.currentTarget;
+          // Clear any existing selections and tooltips.
+          var featuredStudent = getFeaturedStudent();
+          if (featuredStudent[0]) {
+            onDotDeselected(featuredStudent[0], featuredStudent[1], true);
+          }
+          container.selectAll('.matrix-tooltip').remove();
+        }
         /*
          * If the dot represents a real student, lift it outside the path-clipped dotGroup so it can
          * overlap the edge of the matrix if need be.
@@ -535,26 +577,13 @@ export default {
           .style('opacity', 1);
       };
 
-      var onDotDeselected = () => {
-        // Return the dot to the path-clipped dot group.
-        var element = d3.event.currentTarget;
-        dotGroup.node().appendChild(element);
-
-        d3.select(element)
-          .attr('r', _d => (_d.isClassMean ? 22 : 9))
-          .style('fill', _d => (_d.isClassMean ? avatar(_d) : '#8bbdda'))
-          .style('opacity', _d => (_d.isClassMean ? 1 : 0.66))
-          .style('stroke-width', 0);
-
-        var tooltip = container.select('.matrix-tooltip');
-        tooltip
-          .transition(d3.transition().duration(500))
-          .on('end', () => tooltip.remove())
-          .style('opacity', 0);
-      };
-
       dot.on('mouseover', onDotSelected);
       dot.on('mouseout', onDotDeselected);
+
+      var featuredStudent = getFeaturedStudent();
+      if (featuredStudent[0]) {
+        onDotSelected(featuredStudent[0], featuredStudent[1], true);
+      }
     },
     formatForDisplay(prop) {
       if (prop === 'analytics.currentScore') {
