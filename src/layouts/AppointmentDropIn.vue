@@ -34,7 +34,7 @@ import StandardHeaderLayout from '@/layouts/shared/StandardHeaderLayout';
 import Util from '@/mixins/Util';
 
 export default {
-  name: 'DropInDesk',
+  name: 'AppointmentDropIn',
   components: {
     Footer,
     ServiceAnnouncement,

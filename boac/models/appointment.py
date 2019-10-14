@@ -28,6 +28,7 @@ from datetime import datetime
 from boac import db, std_commit
 from boac.models.appointment_topic import AppointmentTopic
 from boac.models.base import Base
+from dateutil.tz import tzutc
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
 
@@ -82,6 +83,10 @@ class Appointment(Base):
     @classmethod
     def find_by_id(cls, appointment_id):
         return cls.query.filter(and_(cls.id == appointment_id, cls.deleted_at == None)).first()  # noqa: E711
+
+    @classmethod
+    def get_waitlist(cls):
+        return cls.query.filter(and_(cls.canceled_at == None, cls.checked_in_at == None, cls.deleted_at == None)).all()  # noqa: E711
 
     @classmethod
     def create(
@@ -155,15 +160,19 @@ class Appointment(Base):
             'advisorDeptCodes': self.advisor_dept_codes,
             'cancelReason': self.cancel_reason,
             'cancelReasonExplained': self.cancel_reason_explained,
-            'canceledAt': self.canceled_at,
+            'canceledAt': _isoformat(self.canceled_at),
             'canceledBy': self.canceled_by,
-            'checkedInAt': self.checked_in_at,
+            'checkedInAt': _isoformat(self.checked_in_at),
             'checkedInBy': self.checked_in_by,
-            'createdAt': self.created_at,
+            'createdAt': _isoformat(self.created_at),
             'createdBy': self.created_by,
             'details': self.details,
             'studentSid': self.student_sid,
             'topics': topics,
-            'updatedAt': self.updated_at,
+            'updatedAt': _isoformat(self.updated_at),
             'updatedBy': self.updated_by,
         }
+
+
+def _isoformat(value):
+    return value and value.astimezone(tzutc()).isoformat()

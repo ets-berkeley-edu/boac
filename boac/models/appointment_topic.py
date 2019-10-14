@@ -31,7 +31,7 @@ class AppointmentTopic(db.Model):
     __tablename__ = 'appointment_topics'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
-    appointment_id = db.Column(db.Integer, db.ForeignKey('appointment.id'), nullable=False)
+    appointment_id = db.Column(db.Integer, db.ForeignKey('appointments.id'), nullable=False)
     topic = db.Column(db.String(50), nullable=False)
     deleted_at = db.Column(db.DateTime)
     appointment = db.relationship('Appointment', back_populates='topics')
