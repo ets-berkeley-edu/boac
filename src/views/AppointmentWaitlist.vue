@@ -95,8 +95,9 @@ export default {
     waitlist: undefined
   }),
   created() {
+    const deptCode = this.get(this.$route, 'params.deptCode');
     this.now = this.$moment();
-    getDropInAppointmentWaitlist().then(waitlist => {
+    getDropInAppointmentWaitlist(deptCode).then(waitlist => {
       this.waitlist = waitlist;
       this.loaded();
     });

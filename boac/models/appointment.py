@@ -85,8 +85,15 @@ class Appointment(Base):
         return cls.query.filter(and_(cls.id == appointment_id, cls.deleted_at == None)).first()  # noqa: E711
 
     @classmethod
-    def get_waitlist(cls):
-        return cls.query.filter(and_(cls.canceled_at == None, cls.checked_in_at == None, cls.deleted_at == None)).all()  # noqa: E711
+    def get_waitlist(cls, dept_code):
+        # TODO: When 'dept_code' column has been added to the appointments table, add 'dept_code' to query below.
+        return cls.query.filter(
+            and_(
+                cls.canceled_at == None,
+                cls.checked_in_at == None,
+                cls.deleted_at == None,
+            ),
+        ).all()  # noqa: E711
 
     @classmethod
     def create(

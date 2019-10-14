@@ -303,7 +303,7 @@ class TestUsers:
         response = client.get('/api/users/all')
         assert response.status_code == 200
         users = response.json
-        assert len(users) == 20
+        assert len(users) == 22
         deleted_users = [user for user in users if user['deletedAt'] is not None]
         assert len(deleted_users) == 3
 

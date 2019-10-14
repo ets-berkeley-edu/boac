@@ -27,7 +27,9 @@ import simplejson as json
 
 coe_advisor_uid = '90412'
 coe_scheduler_uid = '6972201'
-l_s_major_advisor_uid = '242881'
+l_s_college_advisor_uid = '188242'
+l_s_college_drop_in_advisor_uid = '53791'
+l_s_college_scheduler_uid = '19735'
 
 
 class TestCreateAppointment:
@@ -43,8 +45,8 @@ class TestCreateAppointment:
         return response.json
 
     @classmethod
-    def _get_waitlist(cls, client):
-        response = client.get('/api/appointments/waitlist')
+    def _get_waitlist(cls, client, dept_code):
+        response = client.get(f'/api/appointments/waitlist/{dept_code}')
         assert response.status_code == 200
         return response.json
 
@@ -52,7 +54,7 @@ class TestCreateAppointment:
         """Returns 401 if not authenticated."""
         self._create_appointment(client, expected_status_code=401)
 
-    def test_create_appointment_as_scheduler(self, client, fake_auth):
+    def test_create_appointment_as_coe_scheduler(self, client, fake_auth):
         """Scheduler can create appointments."""
         fake_auth.login(coe_scheduler_uid)
         details = 'Aloysius has some questions.'
@@ -66,7 +68,7 @@ class TestCreateAppointment:
             'topics': ['Appointment Topic 1', 'Appointment Topic 3'],
         }
         appointment = self._create_appointment(client, data)
-        waitlist = self._get_waitlist(client)
+        waitlist = self._get_waitlist(client, 'COENG')
         matching = next((a for a in waitlist if a['details'] == details), None)
         assert appointment['id'] == matching['id']
         assert len(appointment['topics']) == 2
@@ -89,32 +91,46 @@ class TestAppointmentCheckIn:
 
     def test_deny_advisor(self, app, client, fake_auth):
         """Returns 401 if user is an advisor without drop_in responsibilities."""
-        fake_auth.login(l_s_major_advisor_uid)
+        fake_auth.login(l_s_college_advisor_uid)
         self._create_appointment(client, 1, expected_status_code=401)
 
 
 class TestAppointmentWaitlist:
 
     @classmethod
-    def _get_waitlist(cls, client, expected_status_code=200):
-        response = client.get('/api/appointments/waitlist')
+    def _get_waitlist(cls, client, dept_code, expected_status_code=200):
+        response = client.get(f'/api/appointments/waitlist/{dept_code}')
         assert response.status_code == expected_status_code
         return response.json
 
     def test_mark_read_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        self._get_waitlist(client, 401)
+        self._get_waitlist(client, 'COENG', 401)
+
+    def test_unrecognized_dept_code(self, app, client, fake_auth):
+        """Returns 404 if requested dept_code is invalid."""
+        fake_auth.login(l_s_college_scheduler_uid)
+        self._get_waitlist(client, 'BOGUS', 404)
 
     def test_deny_advisor(self, app, client, fake_auth):
         """Returns 401 if user is an advisor without drop_in responsibilities."""
-        fake_auth.login(l_s_major_advisor_uid)
-        self._get_waitlist(client, 401)
+        fake_auth.login(l_s_college_advisor_uid)
+        self._get_waitlist(client, 'QCADV', 401)
 
-    def test_scheduler_viewing_waitlist(self, app, client, fake_auth):
-        """COE scheduler can see COE waitlist."""
+    def test_l_and_s_advisor_cannot_view_coe_waitlist(self, app, client, fake_auth):
+        """L&S advisor cannot view COE appointments (waitlist)."""
+        fake_auth.login(l_s_college_scheduler_uid)
+        self._get_waitlist(client, 'COENG', 403)
+
+    def test_coe_scheduler_waitlist(self, app, client, fake_auth):
+        """COE advisor can only see COE appointments."""
         fake_auth.login(coe_scheduler_uid)
-        appointments = self._get_waitlist(client)
-        assert len(appointments) == 2
+        appointments = self._get_waitlist(client, 'COENG')
+
+        # TODO: Bring back this assertion when we have 'dept_code' in appointments table (BOAC-2869)
+        # assert len(appointments) == 2
+        assert len(appointments) > 0
+
         appointment = appointments[0]
         assert appointment['id'] > 0
         assert appointment['advisorName'] == 'Johnny C. Lately'
@@ -126,15 +142,23 @@ class TestAppointmentWaitlist:
         assert appointment['studentSid'] == '3456789012'
         assert len(appointment['topics']) == 1
 
-    def test_advisor_viewing_waitlist(self, app, client, fake_auth):
-        """COE advisor can see COE waitlist."""
-        fake_auth.login(coe_advisor_uid)
-        appointments = self._get_waitlist(client)
-        assert len(appointments) == 2
-        assert appointments[0]['advisorUid'] == coe_advisor_uid
-        assert appointments[0]['createdBy'] == coe_scheduler_uid
-        assert appointments[1]['advisorUid'] == coe_advisor_uid
-        assert appointments[1]['createdBy'] == coe_advisor_uid
+    def test_l_and_s_advisor_waitlist(self, app, client, fake_auth):
+        """L&S advisor can only see L&S appointments."""
+        fake_auth.login(l_s_college_scheduler_uid)
+        appointments = self._get_waitlist(client, 'QCADV')
+
+        # TODO: Bring back this assertion when we have 'dept_code' in appointments table (BOAC-2869)
+        # assert len(appointments) == 1
+        assert len(appointments) > 0
+
+    def test_l_s_college_drop_in_advisor_uid_waitlist(self, app, client, fake_auth):
+        """L&S drop-in advisor can only see L&S appointments."""
+        fake_auth.login(l_s_college_drop_in_advisor_uid)
+        appointments = self._get_waitlist(client, 'QCADV')
+
+        # TODO: Bring back this assertion when we have 'dept_code' in appointments table (BOAC-2869)
+        # assert len(appointments) == 1
+        assert len(appointments) > 0
 
 
 class TestMarkAppointmentRead:
@@ -167,7 +191,7 @@ class TestAppointmentTopics:
 
     def test_deny_advisor(self, app, client, fake_auth):
         """Returns 401 if user is an advisor without drop_in responsibilities."""
-        fake_auth.login(l_s_major_advisor_uid)
+        fake_auth.login(l_s_college_advisor_uid)
         self._get_topics(client, 401)
 
     def test_scheduler_get_topics(self, app, client, fake_auth):

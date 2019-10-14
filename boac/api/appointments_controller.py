@@ -23,8 +23,9 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.errors import BadRequestError
+from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import advisor_required, scheduler_required
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
 from boac.models.appointment import Appointment
 from boac.models.topic import Topic
@@ -32,10 +33,23 @@ from flask import current_app as app, request
 from flask_login import current_user
 
 
-@app.route('/api/appointments/waitlist')
+@app.route('/api/appointments/waitlist/<dept_code>')
 @scheduler_required
-def get_waitlist():
-    return tolerant_jsonify([a.to_api_json() for a in Appointment.get_waitlist()])
+def get_waitlist(dept_code):
+    def _is_current_user_authorized():
+        if current_user.is_admin:
+            return True
+        else:
+            departments = list(filter(lambda d: d.get('isScheduler') or d.get('isDropInAdvisor'), current_user.departments))
+            return dept_code in list(map(lambda d: d['code'], departments))
+
+    dept_code = dept_code.upper()
+    if dept_code not in BERKELEY_DEPT_CODE_TO_NAME:
+        raise ResourceNotFoundError(f'Unrecognized department code: {dept_code}')
+    elif _is_current_user_authorized():
+        return tolerant_jsonify([a.to_api_json() for a in Appointment.get_waitlist(dept_code)])
+    else:
+        raise ForbiddenRequestError(f'You are unauthorized to manage {dept_code} appointments.')
 
 
 @app.route('/api/appointments/<appointment_id>/check_in', methods=['POST'])
