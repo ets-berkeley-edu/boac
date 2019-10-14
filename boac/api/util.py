@@ -34,6 +34,7 @@ from boac.lib.util import join_if_present
 from boac.merged import calnet
 from boac.merged.advising_note import get_advising_notes
 from boac.models.alert import Alert
+from boac.models.appointment import Appointment
 from boac.models.curated_group import CuratedGroup
 from dateutil.tz import tzutc
 from flask import current_app as app, request
@@ -173,6 +174,7 @@ def sis_enrollment_section_feed(enrollment):
 
 
 def put_notifications(student):
+    sid = student['sid']
     student['notifications'] = {
         'note': [],
         'alert': [],
@@ -181,18 +183,17 @@ def put_notifications(student):
     }
     if app.config['FEATURE_FLAG_ADVISOR_APPOINTMENTS']:
         student['notifications']['appointment'] = []
-        # TODO: Get appointments per SID
-        for event in ():
+        for appointment in Appointment.get_appointments_per_sid(sid) or []:
             student['notifications']['appointment'].append({
-                **event,
+                **appointment.to_api_json(current_user.get_id()),
                 **{
-                    'message': event.get('details'),
+                    'message': appointment.details,
                     'type': 'appointment',
                 },
             })
 
     # The front-end requires 'type', 'message' and 'read'. Optional fields: id, status, createdAt, updatedAt.
-    for note in get_advising_notes(student['sid']) or []:
+    for note in get_advising_notes(sid) or []:
         message = note['body']
         student['notifications']['note'].append({
             **note,
@@ -201,7 +202,7 @@ def put_notifications(student):
                 'type': 'note',
             },
         })
-    for alert in Alert.current_alerts_for_sid(viewer_id=current_user.get_id(), sid=student['sid']):
+    for alert in Alert.current_alerts_for_sid(viewer_id=current_user.get_id(), sid=sid):
         student['notifications']['alert'].append({
             **alert,
             **{
@@ -210,7 +211,7 @@ def put_notifications(student):
                 'type': 'alert',
             },
         })
-    for row in get_sis_holds(student['sid']):
+    for row in get_sis_holds(sid):
         hold = json.loads(row['feed'])
         reason = hold.get('reason', {})
         student['notifications']['hold'].append({

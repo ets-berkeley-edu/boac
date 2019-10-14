@@ -130,15 +130,7 @@ export default {
       this.selectedAppointment = undefined;
     },
     createAppointment(details, sid, topics) {
-      create(
-        this.myDeptCodes(),
-        this.user.name,
-        this.title || this.isAdmin ? 'BOA Admin' : null,
-        this.user.uid,
-        details,
-        sid,
-        topics
-      ).then(appointment => {
+      create(details, sid, topics).then(appointment => {
         this.showCreateAppointmentModal = false;
         this.waitlist.push(appointment);
       });

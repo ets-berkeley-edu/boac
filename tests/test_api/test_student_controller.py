@@ -566,6 +566,37 @@ class TestStudent:
             assert athletics_profile['inIntensiveCohort'] is True
             assert len(athletics_profile['athletics']) == 2
 
+    def test_student_with_appointment(self, app, client, asc_advisor_login):
+        """Includes advising appointments."""
+        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', True):
+            student = self._api_student_by_sid(client=client, sid='5678901234')
+            appointments = student['notifications']['appointment']
+            assert len(appointments) == 2
+
+    def test_appointment_marked_read(self, app, client, asc_advisor_login):
+        """Includes advising appointments."""
+        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', True):
+            sid = '3456789012'
+            response = client.post(
+                '/api/appointments/create',
+                data=json.dumps({'deptCode': 'COENG', 'sid': sid, 'topics': ['Appointment Topic 3']}),
+                content_type='application/json',
+            )
+            assert response.status_code == 200
+            appointment_id = response.json['id']
+            # Verify appointment is marked read in student profile
+            student = self._api_student_by_sid(client=client, sid=sid)
+            appointments = student['notifications']['appointment']
+            appointment = next((a for a in appointments if a['id'] == appointment_id), None)
+            assert appointment is not None
+            assert appointment['read'] is True
+
+    def test_appointments_when_feature_flag_false(self, app, client, coe_advisor_login):
+        """Returns advising appointment(s)."""
+        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
+            student = self._api_student_by_sid(client=client, sid='5678901234')
+            assert 'appointment' not in student['notifications']
+
 
 class TestAlerts:
 
@@ -668,16 +699,6 @@ class TestNotes:
         assert user['name'] == 'Roberta Joan Anderson'
         assert user['departments'][0]['code'] == 'QCADV'
         assert user['departments'][0]['name'] == 'L&S College Advising'
-
-
-class TestAdvisingAppointments:
-
-    def test_appointments(self, app, client, coe_advisor_login):
-        """Returns advising appointment(s)."""
-        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', True):
-            response = client.get('/api/student/by_uid/61889')
-            assert response.status_code == 200
-            assert 'appointment' in response.json.get('notifications', {})
 
 
 class TestValidateSids:

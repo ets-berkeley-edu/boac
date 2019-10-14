@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac import db, std_commit
+from dateutil.tz import tzutc
 from sqlalchemy import and_
 
 
@@ -33,7 +34,7 @@ class AppointmentRead(db.Model):
     __tablename__ = 'appointments_read'
 
     viewer_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False, primary_key=True)
-    appointment_id = db.Column(db.String(255), nullable=False, primary_key=True)
+    appointment_id = db.Column(db.Integer, db.ForeignKey('appointments.id'), nullable=False, primary_key=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
 
     __table_args__ = (db.UniqueConstraint(
@@ -56,10 +57,28 @@ class AppointmentRead(db.Model):
         return appointment_read
 
     @classmethod
-    def get_appointments_read_by_user(cls, viewer_id, appointment_ids):
-        return cls.query.filter(AppointmentRead.viewer_id == viewer_id, AppointmentRead.appointment_id.in_(appointment_ids)).all()
+    def was_read_by(cls, viewer_id, appointment_id):
+        appointment_read = cls.query.filter(
+            AppointmentRead.viewer_id == viewer_id,
+            AppointmentRead.appointment_id == appointment_id,
+        ).first()
+        return appointment_read is not None
 
     @classmethod
     def when_user_read_appointment(cls, viewer_id, appointment_id):
-        appointment_read = cls.query.filter(AppointmentRead.viewer_id == viewer_id, AppointmentRead.appointment_id == appointment_id).first()
+        appointment_read = cls.query.filter(
+            AppointmentRead.viewer_id == viewer_id,
+            AppointmentRead.appointment_id == appointment_id,
+        ).first()
         return appointment_read and appointment_read.created_at
+
+    def to_api_json(self):
+        return {
+            'appointmentId': self.appointment_id,
+            'createdAt': _isoformat(self.created_at),
+            'viewerId': self.viewer_id,
+        }
+
+
+def _isoformat(value):
+    return value and value.astimezone(tzutc()).isoformat()

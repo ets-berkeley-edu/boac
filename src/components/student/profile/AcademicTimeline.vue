@@ -447,7 +447,13 @@ export default {
       this.editModeNoteId = null;
     },
     appointmentCheckIn(appointmentId) {
-      checkIn(appointmentId).then(a => {
+      checkIn(
+        this.myDeptCodes(),
+        this.user.name,
+        this.title || this.isAdmin ? 'BOA Admin' : null,
+        this.user.uid,
+        appointmentId
+      ).then(a => {
         this.refreshTimelineAppointment(appointmentId, a);
       });
     },

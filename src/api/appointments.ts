@@ -15,10 +15,20 @@ export function cancel(appointmentId) {
     }, () => null);
 }
 
-export function checkIn(appointmentId) {
+export function checkIn(
+    advisorDeptCodes,
+    advisorName,
+    advisorRole,
+    advisorUid,
+    appointmentId
+) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/check_in`)
-    .then(response => {
+    .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/check_in`, {
+      advisorDeptCodes,
+      advisorName,
+      advisorRole,
+      advisorUid
+    }).then(response => {
       store.dispatch('user/gaAppointmentEvent', {
         id: appointmentId,
         name: `Advisor ${store.getters['user/uid']} checked in a drop-in appointment`,
@@ -28,25 +38,9 @@ export function checkIn(appointmentId) {
     }, () => null);
 }
 
-export function create(
-    advisorDeptCodes,
-    advisorName,
-    advisorRole,
-    advisorUid,
-    details,
-    sid,
-    topics
-) {
+export function create(details, sid, topics) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/appointments/create`, {
-      advisorDeptCodes,
-      advisorName,
-      advisorRole,
-      advisorUid,
-      details,
-      sid,
-      topics
-    }).then(response => {
+    .post(`${utils.apiBaseUrl()}/api/appointments/create`, {details, sid, topics}).then(response => {
       const appointmentId = response.data.id;
       store.dispatch('user/gaAppointmentEvent', {
         id: appointmentId,
