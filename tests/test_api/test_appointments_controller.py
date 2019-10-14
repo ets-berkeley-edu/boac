@@ -127,10 +127,7 @@ class TestAppointmentWaitlist:
         """COE advisor can only see COE appointments."""
         fake_auth.login(coe_scheduler_uid)
         appointments = self._get_waitlist(client, 'COENG')
-
-        # TODO: Bring back this assertion when we have 'dept_code' in appointments table (BOAC-2869)
-        # assert len(appointments) == 2
-        assert len(appointments) > 0
+        assert len(appointments) == 2
 
         appointment = appointments[0]
         assert appointment['id'] > 0
@@ -147,19 +144,13 @@ class TestAppointmentWaitlist:
         """L&S advisor can only see L&S appointments."""
         fake_auth.login(l_s_college_scheduler_uid)
         appointments = self._get_waitlist(client, 'QCADV')
-
-        # TODO: Bring back this assertion when we have 'dept_code' in appointments table (BOAC-2869)
-        # assert len(appointments) == 1
-        assert len(appointments) > 0
+        assert len(appointments) == 1
 
     def test_l_s_college_drop_in_advisor_uid_waitlist(self, app, client, fake_auth):
         """L&S drop-in advisor can only see L&S appointments."""
         fake_auth.login(l_s_college_drop_in_advisor_uid)
         appointments = self._get_waitlist(client, 'QCADV')
-
-        # TODO: Bring back this assertion when we have 'dept_code' in appointments table (BOAC-2869)
-        # assert len(appointments) == 1
-        assert len(appointments) > 0
+        assert len(appointments) == 1
 
 
 class TestMarkAppointmentRead:
