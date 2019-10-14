@@ -28,6 +28,7 @@ from boac.api.util import advisor_required, scheduler_required
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
 from boac.models.appointment import Appointment
+from boac.models.appointment_read import AppointmentRead
 from boac.models.topic import Topic
 from flask import current_app as app, request
 from flask_login import current_user
@@ -40,14 +41,13 @@ def get_waitlist(dept_code):
         if current_user.is_admin:
             return True
         else:
-            departments = list(filter(lambda d: d.get('isScheduler') or d.get('isDropInAdvisor'), current_user.departments))
-            return dept_code in list(map(lambda d: d['code'], departments))
+            return dept_code in _dept_codes_with_scheduler_privilege()
 
     dept_code = dept_code.upper()
     if dept_code not in BERKELEY_DEPT_CODE_TO_NAME:
         raise ResourceNotFoundError(f'Unrecognized department code: {dept_code}')
     elif _is_current_user_authorized():
-        return tolerant_jsonify([a.to_api_json() for a in Appointment.get_waitlist(dept_code)])
+        return tolerant_jsonify([a.to_api_json(current_user.get_id()) for a in Appointment.get_waitlist(dept_code)])
     else:
         raise ForbiddenRequestError(f'You are unauthorized to manage {dept_code} appointments.')
 
@@ -55,40 +55,49 @@ def get_waitlist(dept_code):
 @app.route('/api/appointments/<appointment_id>/check_in', methods=['POST'])
 @scheduler_required
 def appointment_check_in(appointment_id):
-    return tolerant_jsonify({'status': f'Appointment check-in (id: {appointment_id})'}, status=200)
+    appointment = Appointment.find_by_id(appointment_id)
+    if appointment.dept_code in _dept_codes_with_scheduler_privilege():
+        params = request.get_json()
+        advisor_uid = params.get('advisorUid', None)
+        if not advisor_uid:
+            raise BadRequestError('Appointment check-in requires \'advisor_uid\'')
+        appointment = Appointment.check_in(
+            appointment_id=appointment_id,
+            checked_in_by=current_user.get_uid(),
+            advisor_dept_codes=params.get('advisorDeptCodes', None),
+            advisor_name=params.get('advisorName', None),
+            advisor_role=params.get('advisorRole', None),
+            advisor_uid=advisor_uid,
+        )
+        return tolerant_jsonify(appointment.to_api_json(current_user.get_id()))
+    else:
+        raise ForbiddenRequestError(f'You are unauthorized to manage {appointment.dept_code} appointments.')
 
 
 @app.route('/api/appointments/create', methods=['POST'])
 @scheduler_required
 def create_appointment():
     params = request.get_json()
-    advisor_dept_codes = params.get('advisorDeptCodes', None)
-    advisor_name = params.get('advisorName', None)
-    advisor_uid = params.get('advisorUid', None)
+    dept_code = params.get('deptCode', None)
     sid = params.get('sid', None)
     topics = params.get('topics', None)
-    if not advisor_name or not advisor_uid or not sid or not len(topics):
+    if not dept_code or not sid or not len(topics):
         raise BadRequestError('Appointment creation: required parameters were not provided')
-    if not len(advisor_dept_codes) and not current_user.is_admin:
-        raise BadRequestError('One or more departments required per advisor')
     appointment = Appointment.create(
-        advisor_dept_codes=advisor_dept_codes,
-        advisor_name=advisor_name,
-        advisor_role=params.get('advisorRole', None),
-        advisor_uid=advisor_uid,
         created_by=current_user.get_uid(),
-        dept_code=params.get('deptCode', None),
+        dept_code=dept_code,
         details=params.get('details', None),
         student_sid=sid,
         topics=topics,
     )
-    return tolerant_jsonify(appointment.to_api_json())
+    AppointmentRead.find_or_create(current_user.get_id(), appointment.id)
+    return tolerant_jsonify(appointment.to_api_json(current_user.get_id()))
 
 
 @app.route('/api/appointments/<appointment_id>/mark_read', methods=['POST'])
 @advisor_required
 def mark_appointment_read(appointment_id):
-    return tolerant_jsonify({'status': f'Marked as read (id: {appointment_id})'}, status=200)
+    return tolerant_jsonify(AppointmentRead.find_or_create(current_user.get_id(), int(appointment_id)).to_api_json())
 
 
 @app.route('/api/appointments/topics')
@@ -96,3 +105,8 @@ def mark_appointment_read(appointment_id):
 def get_appointment_topics():
     topics = Topic.get_all(available_in_appointments=True)
     return tolerant_jsonify([topic.to_api_json() for topic in topics])
+
+
+def _dept_codes_with_scheduler_privilege():
+    departments = [d for d in current_user.departments if d.get('isScheduler') or d.get('isDropInAdvisor')]
+    return [d['code'] for d in departments]

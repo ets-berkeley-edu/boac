@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac import db, std_commit
+from boac.models.appointment_read import AppointmentRead
 from boac.models.appointment_topic import AppointmentTopic
 from boac.models.base import Base
 from dateutil.tz import tzutc
@@ -88,6 +89,10 @@ class Appointment(Base):
         return cls.query.filter(and_(cls.id == appointment_id, cls.deleted_at == None)).first()  # noqa: E711
 
     @classmethod
+    def get_appointments_per_sid(cls, sid):
+        return cls.query.filter(and_(cls.student_sid == sid, cls.deleted_at == None)).all()  # noqa: E711
+
+    @classmethod
     def get_waitlist(cls, dept_code):
         # TODO: When 'dept_code' column has been added to the appointments table, add 'dept_code' to query below.
         return cls.query.filter(
@@ -102,15 +107,15 @@ class Appointment(Base):
     @classmethod
     def create(
             cls,
-            advisor_dept_codes,
-            advisor_name,
-            advisor_role,
-            advisor_uid,
             created_by,
             dept_code,
             details,
             student_sid,
             topics=(),
+            advisor_dept_codes=None,
+            advisor_name=None,
+            advisor_role=None,
+            advisor_uid=None,
     ):
         appointment = cls(
             advisor_dept_codes,
@@ -163,7 +168,7 @@ class Appointment(Base):
         else:
             return None
 
-    def to_api_json(self):
+    def to_api_json(self, current_user_id):
         topics = [t.to_api_json() for t in self.topics if not t.deleted_at]
         return {
             'id': self.id,
@@ -181,6 +186,7 @@ class Appointment(Base):
             'createdBy': self.created_by,
             'dept_code': self.dept_code,
             'details': self.details,
+            'read': AppointmentRead.was_read_by(current_user_id, self.id),
             'studentSid': self.student_sid,
             'topics': topics,
             'updatedAt': _isoformat(self.updated_at),

@@ -23,6 +23,9 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac.models.appointment import Appointment
+from boac.models.appointment_read import AppointmentRead
+from boac.models.authorized_user import AuthorizedUser
 import simplejson as json
 
 coe_advisor_uid = '90412'
@@ -59,10 +62,6 @@ class TestCreateAppointment:
         fake_auth.login(coe_scheduler_uid)
         details = 'Aloysius has some questions.'
         data = {
-            'advisorDeptCodes': ['COENG'],
-            'advisorName': 'Mr. Snuffleupagus',
-            'advisorRole': 'Advisor',
-            'advisorUid': coe_advisor_uid,
             'deptCode': 'COENG',
             'details': details,
             'sid': '3456789012',
@@ -72,6 +71,7 @@ class TestCreateAppointment:
         waitlist = self._get_waitlist(client, 'COENG')
         matching = next((a for a in waitlist if a['details'] == details), None)
         assert appointment['id'] == matching['id']
+        assert appointment['read'] is True
         assert len(appointment['topics']) == 2
 
 
@@ -158,7 +158,8 @@ class TestMarkAppointmentRead:
     @classmethod
     def _mark_appointment_read(cls, client, appointment_id, expected_status_code=200):
         response = client.post(
-            f'/api/appointments/{appointment_id}/check_in',
+            f'/api/appointments/{appointment_id}/mark_read',
+            data=json.dumps({'appointmentId': appointment_id}),
             content_type='application/json',
         )
         assert response.status_code == expected_status_code
@@ -167,6 +168,25 @@ class TestMarkAppointmentRead:
     def test_mark_read_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
         self._mark_appointment_read(client, 1, expected_status_code=401)
+
+    def test_advisor_read_appointment(self, app, client, fake_auth):
+        """L&S advisor reads an appointment."""
+        # Confirm that appointment is not read
+        appointment = Appointment.create(
+            created_by=coe_scheduler_uid,
+            dept_code='COENG',
+            details='A COE appointment.',
+            student_sid='5678901234',
+            topics=['Appointment Topic 2'],
+        )
+        user_id = AuthorizedUser.get_id_per_uid(l_s_college_advisor_uid)
+        assert AppointmentRead.was_read_by(user_id, appointment.id) is False
+        # Next, log in and verify API
+        fake_auth.login(l_s_college_advisor_uid)
+        api_json = self._mark_appointment_read(client, appointment.id)
+        assert api_json['appointmentId'] == appointment.id
+        assert api_json['viewerId'] == user_id
+        assert AppointmentRead.was_read_by(user_id, appointment.id) is True
 
 
 class TestAppointmentTopics:
