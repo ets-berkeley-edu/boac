@@ -1,13 +1,13 @@
 <template>
   <b-modal
     id="advising-appointment-check-in"
-    v-model="showCheckInModal"
+    v-model="showCancellationModal"
     body-class="pl-0 pr-0"
     hide-footer
     hide-header
     :no-close-on-backdrop="true"
-    @cancel.prevent="functionCancel"
-    @hide.prevent="functionCancel"
+    @cancel.prevent="close"
+    @hide.prevent="close"
     @shown="putFocusNextTick('are-you-sure-confirm')">
     <div>
       <div class="modal-header">
@@ -42,15 +42,14 @@
         </div>
       </div>
       <div class="modal-footer">
-        <form @submit.prevent="functionConfirm">
+        <form @submit.prevent="appointmentCancellation">
           <b-btn
-            v-if="!appointment.checkedInBy && !appointment.canceledAt"
             id="btn-appointment-check-in"
             class="btn-primary-color-override"
             variant="primary"
             :aria-label="modalHeader"
-            @click.prevent="checkIn">
-            Check In
+            @click.prevent="appointmentCancellation">
+            Cancel Appointment
           </b-btn>
           <b-btn
             id="btn-appointment-cancel"
@@ -69,16 +68,16 @@
 import Util from '@/mixins/Util';
 
 export default {
-  name: 'AppointmentDetailsModal',
+  name: 'AppointmentCancellationModal',
   mixins: [Util],
   props: {
     appointment: {
       type: Object,
       required: true
     },
-    checkIn: {
+    appointmentCancellation: {
       type: Function,
-      required: false
+      required: true
     },
     close: {
       type: Function,
@@ -94,15 +93,15 @@ export default {
     }
   },
   data: () => ({
-    showCheckInModal: false
+    showCancellationModal: false
   }),
   watch: {
     showModal(value) {
-      this.showCheckInModal = value;
+      this.showCancellationModal = value;
     }
   },
   created() {
-    this.showCheckInModal = this.showModal;
+    this.showCancellationModal = this.showModal;
   }
 }
 </script>

@@ -2,12 +2,12 @@ import _ from 'lodash';
 import Admin from '@/views/Admin.vue';
 import AllCohorts from '@/views/AllCohorts.vue';
 import AllGroups from '@/views/AllGroups.vue';
+import AppointmentDropIn from '@/layouts/AppointmentDropIn.vue';
+import AppointmentWaitlist from '@/views/AppointmentWaitlist.vue';
 import Cohort from '@/views/Cohort.vue';
 import Course from '@/views/Course.vue';
 import CreateCuratedGroup from '@/views/CreateCuratedGroup.vue'
 import CuratedGroup from '@/views/CuratedGroup.vue';
-import DropInDesk from '@/layouts/DropInDesk.vue';
-import DropInWaitlist from '@/views/DropInWaitlist.vue';
 import Home from '@/views/Home.vue';
 import Login from '@/layouts/Login.vue';
 import NotFound from '@/views/NotFound.vue';
@@ -123,12 +123,12 @@ const router = new Router({
     },
     {
       path: '/',
-      component: DropInDesk,
+      component: AppointmentDropIn,
       beforeEnter: requiresScheduler,
       children: [
         {
           path: '/appt/desk',
-          component: DropInWaitlist,
+          component: AppointmentWaitlist,
           meta: {
             title: 'Drop-in Appointments Desk'
           }

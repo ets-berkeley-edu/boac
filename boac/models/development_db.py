@@ -30,6 +30,7 @@ import string
 from boac import db, std_commit
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.util import utc_now
+from boac.models.appointment import Appointment
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
@@ -337,16 +338,18 @@ def clear():
 
 
 def load(cohort_test_data=False):
-    load_schemas()
-    load_development_data()
+    _load_schemas()
+    _load_users_and_departments()
     if cohort_test_data:
-        create_advising_note_topics()
-        create_curated_groups()
-        create_cohorts()
+        _create_appointment_topics()
+        _create_appointments()
+        _create_advising_note_topics()
+        _create_curated_groups()
+        _create_cohorts()
     return db
 
 
-def load_schemas():
+def _load_schemas():
     """Create DB schema from SQL file."""
     with open(app.config['BASE_DIR'] + '/scripts/db/schema.sql', 'r') as ddlfile:
         ddltext = ddlfile.read()
@@ -354,9 +357,14 @@ def load_schemas():
     std_commit()
 
 
-def load_development_data():
+def _load_users_and_departments():
     for code, name in BERKELEY_DEPT_CODE_TO_NAME.items():
         UniversityDept.create(code, name)
+    _create_users()
+    _create_department_memberships()
+
+
+def _create_users():
     for test_user in _test_users:
         # This script can be run more than once. Do not create user if s/he exists in BOAC db.
         uid = test_user['uid']
@@ -395,6 +403,10 @@ def load_development_data():
             if test_user.get('deleted'):
                 user.deleted_at = utc_now()
             db.session.add(user)
+    std_commit(allow_test_environment=True)
+
+
+def _create_department_memberships():
     for dept_code, dept_membership in _university_depts.items():
         university_dept = UniversityDept.find_by_dept_code(dept_code)
         db.session.add(university_dept)
@@ -409,10 +421,42 @@ def load_development_data():
                 is_scheduler=user['isScheduler'],
                 automate_membership=user['automate_membership'],
             )
+
+
+def _create_appointment_topics():
+    for i in range(5):
+        Topic.create_topic(f'Appointment Topic {i}', available_in_appointments=True)
+    delete_me = Topic.create_topic('I am a deleted appointment topic', available_in_appointments=True)
+    Topic.delete(delete_me.id)
     std_commit(allow_test_environment=True)
 
 
-def create_advising_note_topics():
+def _create_appointments():
+    advisor_uid = '90412'
+    scheduler_uid = '6972201'
+    Appointment.create(
+        advisor_dept_codes=['COENG'],
+        advisor_name='Johnny C. Lately',
+        advisor_role='Advisor',
+        advisor_uid=advisor_uid,
+        created_by=scheduler_uid,
+        details='Meet me at the crossroads.',
+        student_sid='3456789012',
+        topics=['Appointment Topic 2'],
+    )
+    Appointment.create(
+        advisor_dept_codes=['COENG'],
+        advisor_name='Johnny C. Lately',
+        advisor_role='Advisor',
+        advisor_uid=advisor_uid,
+        created_by=advisor_uid,
+        details='Life is what happens while you\'re making appointments.',
+        student_sid='5678901234',
+        topics=['Appointment Topic 4'],
+    )
+
+
+def _create_advising_note_topics():
     for i in range(5):
         Topic.create_topic(f'Topic {i}', available_in_notes=True)
     delete_me = Topic.create_topic('I am a deleted topic', available_in_notes=True)
@@ -420,7 +464,7 @@ def create_advising_note_topics():
     std_commit(allow_test_environment=True)
 
 
-def create_curated_groups():
+def _create_curated_groups():
     admin_user = AuthorizedUser.find_by_uid('2040')
     CuratedGroup.create(admin_user.id, 'My Students')
 
@@ -439,7 +483,7 @@ def create_curated_groups():
     std_commit(allow_test_environment=True)
 
 
-def create_cohorts():
+def _create_cohorts():
     # Oliver's cohorts
     CohortFilter.create(
         uid='2040',
