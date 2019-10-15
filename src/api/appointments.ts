@@ -41,9 +41,9 @@ export function checkIn(
     }, () => null);
 }
 
-export function create(details, sid, topics) {
+export function create(deptCode, details, sid, topics) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/appointments/create`, {details, sid, topics}).then(response => {
+    .post(`${utils.apiBaseUrl()}/api/appointments/create`, {deptCode, details, sid, topics}).then(response => {
       const appointmentId = response.data.id;
       store.dispatch('user/gaAppointmentEvent', {
         id: appointmentId,

@@ -27,25 +27,30 @@ import pytest
 import simplejson as json
 from tests.util import override_config
 
+admin_uid = '2040'
+asc_advisor_id = '1081940'
+coe_advisor_id = '1133399'
+coe_scheduler_id = '6972201'
+
 
 @pytest.fixture()
 def admin_login(fake_auth):
-    fake_auth.login('2040')
+    fake_auth.login(admin_uid)
 
 
 @pytest.fixture()
 def asc_advisor_login(fake_auth):
-    fake_auth.login('1081940')
+    fake_auth.login(asc_advisor_id)
 
 
 @pytest.fixture()
 def coe_advisor_login(fake_auth):
-    fake_auth.login('1133399')
+    fake_auth.login(coe_advisor_id)
 
 
 @pytest.fixture()
 def coe_scheduler_login(fake_auth):
-    fake_auth.login('6972201')
+    fake_auth.login(coe_scheduler_id)
 
 
 @pytest.fixture()
@@ -573,10 +578,12 @@ class TestStudent:
             appointments = student['notifications']['appointment']
             assert len(appointments) == 2
 
-    def test_appointment_marked_read(self, app, client, asc_advisor_login):
+    def test_appointment_marked_read(self, app, client, fake_auth):
         """Includes advising appointments."""
         with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', True):
             sid = '3456789012'
+
+            fake_auth.login(coe_scheduler_id)
             response = client.post(
                 '/api/appointments/create',
                 data=json.dumps({'deptCode': 'COENG', 'sid': sid, 'topics': ['Appointment Topic 3']}),
@@ -584,12 +591,18 @@ class TestStudent:
             )
             assert response.status_code == 200
             appointment_id = response.json['id']
-            # Verify appointment is marked read in student profile
-            student = self._api_student_by_sid(client=client, sid=sid)
-            appointments = student['notifications']['appointment']
-            appointment = next((a for a in appointments if a['id'] == appointment_id), None)
-            assert appointment is not None
-            assert appointment['read'] is True
+
+            def _is_appointment_read():
+                student = self._api_student_by_sid(client=client, sid=sid)
+                appointments = student['notifications']['appointment']
+                appointment = next((a for a in appointments if a['id'] == appointment_id), None)
+                assert appointment is not None
+                return appointment['read']
+
+            fake_auth.login(asc_advisor_id)
+            assert _is_appointment_read() is False
+            client.post(f'/api/appointments/{appointment_id}/mark_read')
+            assert _is_appointment_read() is True
 
     def test_appointments_when_feature_flag_false(self, app, client, coe_advisor_login):
         """Returns advising appointment(s)."""
@@ -629,7 +642,7 @@ class TestAlerts:
 
 class TestPrefixSearch:
 
-    def test_deny_scheduler(self, client, coe_scheduler_login):
+    def test_require_login(self, client):
         response = client.get('/api/students/find_by_name_or_sid?q=Paul')
         assert response.status_code == 401
 
@@ -649,6 +662,11 @@ class TestPrefixSearch:
         labels = [s['label'] for s in response.json]
         assert "Wolfgang Pauli-O'Rourke (9000000000)" in labels
         assert 'Nora Stanton Barney (9100000000)' in labels
+
+    def test_allow_scheduler(self, client, coe_scheduler_login):
+        response = client.get('/api/students/find_by_name_or_sid?q=Paul')
+        assert response.status_code == 200
+        assert len(response.json) == 3
 
 
 class TestNotes:

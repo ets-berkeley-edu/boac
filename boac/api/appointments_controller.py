@@ -105,6 +105,11 @@ def create_appointment():
     topics = params.get('topics', None)
     if not dept_code or not sid or not len(topics):
         raise BadRequestError('Appointment creation: required parameters were not provided')
+    dept_code = dept_code.upper()
+    if dept_code not in BERKELEY_DEPT_CODE_TO_NAME:
+        raise ResourceNotFoundError(f'Unrecognized department code: {dept_code}')
+    if dept_code not in _dept_codes_with_scheduler_privilege():
+        raise ForbiddenRequestError(f'You are unauthorized to manage {dept_code} appointments.')
     appointment = Appointment.create(
         created_by=current_user.get_uid(),
         dept_code=dept_code,
@@ -113,7 +118,9 @@ def create_appointment():
         topics=topics,
     )
     AppointmentRead.find_or_create(current_user.get_id(), appointment.id)
-    return tolerant_jsonify(appointment.to_api_json(current_user.get_id()))
+    appointment_feed = appointment.to_api_json(current_user.get_id())
+    _put_student_profile_per_appointment([appointment_feed])
+    return tolerant_jsonify(appointment_feed)
 
 
 @app.route('/api/appointments/<appointment_id>/mark_read', methods=['POST'])
