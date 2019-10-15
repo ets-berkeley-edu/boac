@@ -77,6 +77,25 @@ def appointment_check_in(appointment_id):
         raise ForbiddenRequestError(f'You are unauthorized to manage {appointment.dept_code} appointments.')
 
 
+@app.route('/api/appointments/<appointment_id>/cancel', methods=['POST'])
+@scheduler_required
+def cancel_appointment(appointment_id):
+    appointment = Appointment.find_by_id(appointment_id)
+    if current_user.is_admin or appointment.dept_code in _dept_codes_with_scheduler_privilege():
+        params = request.get_json()
+        cancel_reason = params.get('cancelReason', None)
+        cancel_reason_explained = params.get('cancelReasonExplained', None)
+        appointment = Appointment.cancel(
+            appointment_id=appointment_id,
+            canceled_by=current_user.get_uid(),
+            cancel_reason=cancel_reason,
+            cancel_reason_explained=cancel_reason_explained,
+        )
+        return tolerant_jsonify(appointment.to_api_json(current_user.get_id()))
+    else:
+        raise ForbiddenRequestError(f'You are unauthorized to manage {appointment.dept_code} appointments.')
+
+
 @app.route('/api/appointments/create', methods=['POST'])
 @scheduler_required
 def create_appointment():

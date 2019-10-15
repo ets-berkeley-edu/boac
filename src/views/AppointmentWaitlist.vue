@@ -31,21 +31,36 @@
       </div>
       <div v-if="!isEmpty(waitlist)">
         <div
-          v-for="appointment in waitlist"
+          v-for="(appointment, index) in waitlist"
           :key="appointment.id"
-          class="border-bottom d-flex font-size-16 justify-content-between mb-3 ml-1 mt-3">
+          class="align-items-start border-bottom d-flex font-size-16 justify-content-between mb-3 ml-1 mt-3">
           <div>
-            <StudentAvatar size="small" :student="appointment.student" />
+            <span class="sr-only">Created at </span>{{ new Date(appointment.createdAt) | moment('LT') }}
           </div>
           <div>
-            {{ appointment.createdAt }}
-          </div>
-          <div>
-            {{ appointment.student.name }}
+            <div class="d-flex">
+              <div class="mr-2">
+                <StudentAvatar size="small" :student="appointment.student" />
+              </div>
+              <div>
+                <router-link
+                  v-if="linkToStudentProfiles"
+                  :id="`link-to-student-${appointment.student.uid}`"
+                  :to="studentRoutePath(appointment.student.uid, user.inDemoMode)">
+                  <span :id="`waitlist-student-name-${index}`">{{ appointment.student.name }}</span>
+                </router-link>
+                <div v-if="!linkToStudentProfiles">
+                  <span :id="`waitlist-student-name-${index}`">{{ appointment.student.name }}</span>
+                </div>
+                <div class="font-size-12">
+                  {{ oxfordJoin(appointment.topics) }}
+                </div>
+              </div>
+            </div>
           </div>
           <div>
             <b-dropdown
-              class="bg-white mb-3 mr-3 mt-3"
+              class="bg-white mb-3"
               split
               :disabled="!!appointment.checkedInBy || !!appointment.canceledAt"
               text="Check In"
@@ -91,6 +106,7 @@ export default {
   components: {AppointmentCancellationModal, AppointmentDetailsModal, CreateAppointmentModal, Spinner, StudentAvatar},
   mixins: [Loading, UserMetadata, Util],
   data: () => ({
+    linkToStudentProfiles: undefined,
     now: undefined,
     selectedAppointment: undefined,
     showAppointmentDetailsModal: false,
@@ -100,6 +116,7 @@ export default {
   }),
   created() {
     const deptCode = this.get(this.$route, 'params.deptCode');
+    this.linkToStudentProfiles = this.user.isAdmin || this.dropInAdvisorDeptCodes().length;
     this.now = this.$moment();
     getDropInAppointmentWaitlist(deptCode).then(waitlist => {
       this.waitlist = waitlist;
@@ -107,9 +124,10 @@ export default {
     });
   },
   methods: {
-    appointmentCancellation(reason, reasonExplained) {
-      cancelAppointment(this.selectedAppointment.id, reason, reasonExplained).then(updated => {
-        console.log(`TODO: remove ${updated.id} from waitlist`);
+    appointmentCancellation(appointmentId, reason, reasonExplained) {
+      cancelAppointment(this.selectedAppointment.id, reason, reasonExplained).then(canceled => {
+        const indexOf = this.waitlist.findIndex(a => a.id === canceled.id);
+        this.waitlist.splice(indexOf, 1);
       });
     },
     appointmentCheckIn(appointment) {
