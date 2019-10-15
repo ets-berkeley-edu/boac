@@ -125,7 +125,7 @@ class UserSession(UserMixin):
                 is_active = True
             elif len(user.department_memberships):
                 for m in user.department_memberships:
-                    is_active = m.is_advisor or m.is_director or m.is_scheduler
+                    is_active = m.is_advisor or m.is_drop_in_advisor or m.is_director or m.is_scheduler
                     if is_active:
                         break
         is_admin = user and user.is_admin

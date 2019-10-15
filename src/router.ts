@@ -4,10 +4,12 @@ import AllCohorts from '@/views/AllCohorts.vue';
 import AllGroups from '@/views/AllGroups.vue';
 import AppointmentDropIn from '@/layouts/AppointmentDropIn.vue';
 import AppointmentWaitlist from '@/views/AppointmentWaitlist.vue';
+import auth from './auth';
 import Cohort from '@/views/Cohort.vue';
 import Course from '@/views/Course.vue';
 import CreateCuratedGroup from '@/views/CreateCuratedGroup.vue'
 import CuratedGroup from '@/views/CuratedGroup.vue';
+import DropInAdvisorHome from '@/views/DropInAdvisorHome.vue';
 import Home from '@/views/Home.vue';
 import Login from '@/layouts/Login.vue';
 import NotFound from '@/views/NotFound.vue';
@@ -19,78 +21,6 @@ import Student from '@/views/Student.vue';
 import Vue from 'vue';
 
 Vue.use(Router);
-
-const isAdvisor = user => {
-  return !!_.size(_.filter(user.departments, d => d.isAdvisor || d.isDirector));
-};
-
-const schedulerForDepartments = user => {
-  return _.filter(user.departments, d => d.isScheduler);
-};
-
-const requiresAuth = (to: any, from: any, next: any) => {
-  store.dispatch('user/loadUser').then(data => {
-    if (data.isAuthenticated) {
-      next();
-    } else {
-      next({
-        path: '/login',
-        query: {
-          error: to.query.error,
-          redirect: to.name === 'home' ? undefined : to.fullPath
-        }
-      });
-    }
-  });
-};
-
-const requiresAdvisor = (to: any, from: any, next: any) => {
-  store.dispatch('user/loadUser').then(data => {
-    if (data.isAuthenticated) {
-      store.dispatch('user/loadUser').then(user => {
-        if (isAdvisor(user) || user.isAdmin) {
-          next();
-        } else {
-          next({ path: '/404' });
-        }
-      });
-    } else {
-      next({
-        path: '/login',
-        query: {
-          error: to.query.error,
-          redirect: to.name === 'home' ? undefined : to.fullPath
-        }
-      });
-    }
-  });
-};
-
-const requiresScheduler = (to: any, from: any, next: any) => {
-  store.dispatch('user/loadUser').then(data => {
-    if (store.getters['context/featureFlagAppointments']) {
-      if (data.isAuthenticated) {
-        store.dispatch('user/loadUser').then(user => {
-          if (_.size(schedulerForDepartments(user)) || user.isAdmin) {
-            next();
-          } else {
-            next({ path: '/404' });
-          }
-        });
-      } else {
-        next({
-          path: '/login',
-          query: {
-            error: to.query.error,
-            redirect: to.name === 'home' ? undefined : to.fullPath
-          }
-        });
-      }
-    } else {
-       next({ path: '/404' });
-    }
-  });
-};
 
 const router = new Router({
   mode: 'history',
@@ -105,17 +35,25 @@ const router = new Router({
       beforeEnter: (to: any, from: any, next: any) => {
         store.dispatch('user/loadUser').then(user => {
           if (user.isAuthenticated) {
-            if (isAdvisor(user) || user.isAdmin) {
-              next(to.query.redirect || '/home');
+            if (_.trim(to.query.redirect)) {
+              next(to.query.redirect);
+            } else if (auth.isAdvisor(user) || user.isAdmin) {
+              next('/home');
             } else {
-              const schedulerDepartments = schedulerForDepartments(user);
+              const schedulerDepartments = auth.schedulerForDepartments(user);
               if (_.size(schedulerDepartments)) {
                 // The multi-department scheduler is NOT a use case we support, yet. Therefore,
                 // we grab first deptCode from his/her profile.
                 const deptCode = schedulerDepartments[0].code.toLowerCase();
                 next({ path: `/appt/desk/${deptCode}` });
               } else {
-                next({ path: '/404' });
+                const dropInForDepartments = auth.dropInAdvisorForDepartments(user);
+                if (_.size(dropInForDepartments)) {
+                  const deptCode = dropInForDepartments[0].code.toLowerCase();
+                  next({ path: `/home/${deptCode}` });
+                } else {
+                  next({ path: '/404' });
+                }
               }
             }
           } else {
@@ -130,7 +68,7 @@ const router = new Router({
     {
       path: '/',
       component: AppointmentDropIn,
-      beforeEnter: requiresScheduler,
+      beforeEnter: auth.requiresScheduler,
       children: [
         {
           path: '/appt/desk/:deptCode',
@@ -151,7 +89,7 @@ const router = new Router({
     {
       path: '/',
       component: StandardLayout,
-      beforeEnter: requiresAdvisor,
+      beforeEnter: auth.requiresAdvisor,
       children: [
         {
           path: '/admin',
@@ -224,17 +162,37 @@ const router = new Router({
     {
       path: '/',
       component: StandardLayout,
-      beforeEnter: requiresAuth,
+      beforeEnter: auth.requiresDropInAdvisor,
+      children: [
+        {
+          path: '/home/:deptCode',
+          component: DropInAdvisorHome,
+          meta: {
+            title: 'Home'
+          }
+        }
+      ]
+    },
+    {
+      path: '/',
+      component: StandardLayout,
+      beforeEnter: auth.requiresAuthenticated,
       children: [
         {
           beforeEnter: (to: any, from: any, next: any) => {
             store.dispatch('user/loadUser').then(user => {
-              const schedulerDepartments = schedulerForDepartments(user);
-              if (_.size(schedulerDepartments) && !isAdvisor(user) && !user.isAdmin) {
+              const schedulerDepartments = auth.schedulerForDepartments(user);
+              if (_.size(schedulerDepartments) && !auth.isAdvisor(user) && !user.isAdmin) {
                 const deptCode = schedulerDepartments[0].code.toLowerCase();
                 next({ path: `/appt/desk/${deptCode}` });
               } else {
-                next();
+                const dropInForDepartments = auth.dropInAdvisorForDepartments(user);
+                if (_.size(dropInForDepartments)) {
+                  const deptCode = dropInForDepartments[0].code.toLowerCase();
+                  next({ path: `/home/${deptCode}` });
+                } else {
+                  next();
+                }
               }
             });
           },
