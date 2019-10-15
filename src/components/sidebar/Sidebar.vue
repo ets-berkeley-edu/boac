@@ -24,7 +24,7 @@
       </div>
     </div>
     <div v-if="user && !user.isAdmin">
-      <div class="batch-note-button fixed-bottom" :class="fixedWarningOnAllPages ? 'mb-5 pb-3' : 'mb-3'">
+      <div class="batch-note-button fixed-bottom mb-3">
         <CreateNoteModal id="batch-note-button" />
       </div>
     </div>
@@ -38,7 +38,6 @@ import CreateNoteModal from '@/components/note/create/CreateNoteModal.vue';
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue';
 import SearchForm from '@/components/sidebar/SearchForm.vue';
 import UserMetadata from '@/mixins/UserMetadata';
-import Util from '@/mixins/Util';
 
 export default {
   name: 'Sidebar',
@@ -48,7 +47,7 @@ export default {
     CuratedGroups,
     SearchForm
   },
-  mixins: [Context, UserMetadata, Util]
+  mixins: [Context, UserMetadata]
 };
 </script>
 
