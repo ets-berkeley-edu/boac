@@ -457,8 +457,8 @@ export default {
         this.refreshTimelineAppointment(appointmentId, a);
       });
     },
-    cancelAppointment(appointmentId) {
-      $_cancelAppointment(appointmentId).then(a => {
+    cancelAppointment(appointmentId, cancelReason, cancelReasonExplained) {
+      $_cancelAppointment(appointmentId, cancelReason, cancelReasonExplained).then(a => {
         this.refreshTimelineAppointment(appointmentId, a);
       });
     },

@@ -2,9 +2,12 @@ import axios from 'axios';
 import store from '@/store';
 import utils from '@/api/api-utils';
 
-export function cancel(appointmentId) {
+export function cancel(appointmentId, cancelReason, cancelReasonExplained) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/cancel`)
+    .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/cancel`, {
+      cancelReason,
+      cancelReasonExplained
+    })
     .then(response => {
       store.dispatch('user/gaAppointmentEvent', {
         id: appointmentId,

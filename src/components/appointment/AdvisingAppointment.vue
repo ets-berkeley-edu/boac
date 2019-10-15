@@ -11,7 +11,7 @@
       <div class="mt-2">
         <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details"></span>
       </div>
-      <div v-if="isUserDropInAdvisor()" class="d-flex align-items-center">
+      <div v-if="includes(dropInAdvisorDeptCodes(), appointment.deptCode)" class="d-flex align-items-center">
         <div>
           <b-dropdown
             class="bg-white mb-3 mr-3 mt-3"
@@ -20,8 +20,15 @@
             text="Check In"
             variant="outline-dark"
             @click="checkIn(appointment.id)">
-            <b-dropdown-item-button @click="cancelAppointment(appointment.id)">Cancel</b-dropdown-item-button>
+            <b-dropdown-item-button @click="showCancelAppointmentModal = true">Cancel</b-dropdown-item-button>
           </b-dropdown>
+          <AppointmentCancellationModal
+            v-if="showCancelAppointmentModal"
+            :appointment="appointment"
+            :appointment-cancellation="appointmentCancellation"
+            :close="closeCancellationModal"
+            :show-modal="showCancelAppointmentModal"
+            :student="student" />
         </div>
         <div v-if="!!appointment.checkedInBy">
           <font-awesome icon="calendar-check" class="status-checked-in-icon" /> Check In <span v-if="appointment.arrivalTime">@ {{ appointment.arrivalTime }}</span>
@@ -72,11 +79,13 @@
 </template>
 
 <script>
+import AppointmentCancellationModal from '@/components/appointment/AppointmentCancellationModal';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'AdvisingAppointment',
+  components: {AppointmentCancellationModal},
   mixins: [UserMetadata, Util],
   props: {
     isOpen: {
@@ -100,7 +109,17 @@ export default {
       type: Object
     }
   },
+  data: () => ({
+    showCancelAppointmentModal: false
+  }),
   methods: {
+    appointmentCancellation(appointmentId, cancelReason, cancelReasonExplained) {
+      this.cancelAppointment(appointmentId, cancelReason, cancelReasonExplained);
+      this.showCancelAppointmentModal = false;
+    },
+    closeCancellationModal() {
+      this.showCancelAppointmentModal = false;
+    }
   }
 }
 </script>

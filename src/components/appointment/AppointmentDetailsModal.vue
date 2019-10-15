@@ -13,53 +13,52 @@
       <div class="modal-header">
         <h3>{{ student.name }}</h3>
       </div>
-      <div class="modal-body">
-        <div>
+      <div class="modal-body w-100">
+        <div class="mr-3">
           <div class="d-flex">
-            <div>
-              Reason
+            <div class="font-weight-bolder w-25">
+              <label for="appointment-topics">
+                Reason
+              </label>
             </div>
             <div>
-              {{ appointment.reason }}
+              <span id="appointment-topics">
+                {{ oxfordJoin(appointment.topics) }}
+              </span>
             </div>
           </div>
           <div class="d-flex">
-            <div>
-              Arrival Time
+            <div class="font-weight-bolder w-25">
+              <label for="appointment-topics">
+                Arrival Time
+              </label>
             </div>
             <div>
-              {{ appointment.arrivalTime }}
+              <span id="appointment-created-at">
+                {{ new Date(appointment.createdAt) | moment('LT') }}
+              </span>
             </div>
           </div>
           <div class="d-flex">
-            <div>
-              Details
+            <div class="appointment-details-label font-weight-bolder w-25">
+              <label for="appointment-details">
+                Details
+              </label>
             </div>
             <div>
-              {{ appointment.details }}
+              <span id="appointment-details" v-html="appointment.details"></span>
             </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <form @submit.prevent="functionConfirm">
-          <b-btn
-            v-if="!appointment.checkedInBy && !appointment.canceledAt"
-            id="btn-appointment-check-in"
-            class="btn-primary-color-override"
-            variant="primary"
-            :aria-label="`Check in student ${student.name}`"
-            @click.prevent="checkIn">
-            Check In
-          </b-btn>
-          <b-btn
-            id="btn-appointment-cancel"
-            class="pl-2"
-            variant="link"
-            @click.stop="close">
-            Close
-          </b-btn>
-        </form>
+        <b-btn
+          id="btn-appointment-cancel"
+          class="pl-2"
+          variant="link"
+          @click.stop="close">
+          Close
+        </b-btn>
       </div>
     </div>
   </b-modal>
@@ -106,3 +105,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.appointment-details-label {
+  min-width: 25%;
+}
+</style>
