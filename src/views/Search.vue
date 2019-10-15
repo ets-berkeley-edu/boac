@@ -141,6 +141,7 @@ export default {
     if (this.phrase || includeNotes) {
       search(
         this.phrase,
+        false, // TODO: includeAppointments
         this.isNil(includeCourses) ? false : includeCourses,
         this.isNil(includeNotes) ? false : includeNotes,
         this.isNil(includeStudents) ? false : includeStudents,
@@ -175,6 +176,7 @@ export default {
       this.loadingAdditionalNotes = true;
       search(
         this.phrase,
+        false,
         false,
         true,
         false,

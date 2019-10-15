@@ -41,27 +41,27 @@
       </div>
     </div>
 
-    <div v-if="filter === 'note'" class="mt-1 mb-1 timeline-notes-submenu">
+    <div v-if="isExpandAllAvailable" class="mt-1 mb-1 timeline-submenu">
       <b-btn
-        id="toggle-expand-all-notes"
+        :id="`toggle-expand-all-${filter}s`"
         variant="link"
-        @click.prevent="toggleExpandAllNotes()">
+        @click.prevent="toggleExpandAll()">
         <font-awesome
-          class="toggle-expand-all-notes-caret"
-          :icon="allNotesExpanded ? 'caret-down' : 'caret-right'" />
-        <span class="no-wrap pl-1">{{ allNotesExpanded ? 'Collapse' : 'Expand' }} all notes</span>
+          class="toggle-expand-all-caret"
+          :icon="allExpanded ? 'caret-down' : 'caret-right'" />
+        <span class="no-wrap pl-1">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ filter }}s</span>
       </b-btn>
       |
       <label
-        for="timeline-notes-query-input"
+        :for="`timeline-${filter}s-query-input`"
         class="mb-0 ml-2 mr-2">
-        Search Notes:
+        Search {{ capitalize(filter) }}s:
       </label>
       <input
-        id="timeline-notes-query-input"
-        v-model="notesQuery"
-        class="pl-2 pr-2 timeline-notes-query-input"
-        @keypress.enter.stop="searchTimelineNotes()" />
+        :id="`timeline-${filter}s-query-input`"
+        v-model="timelineQuery"
+        class="pl-2 pr-2 timeline-query-input"
+        @keypress.enter.stop="searchTimeline()" />
     </div>
 
     <div v-if="searchResultsLoading" id="timeline-notes-spinner" class="mt-4 text-center">
@@ -77,7 +77,7 @@
 
     <div v-if="!searchResultsLoading && searchResults" class="mb-2">
       <strong>
-        {{ 'advising note' | pluralize(searchResults.length) }} for {{ student.name }} with '{{ notesQuery }}'
+        {{ `advising ${filter}` | pluralize(searchResults.length) }} for {{ student.name }} with '{{ timelineQuery }}'
       </strong>
     </div>
 
@@ -312,7 +312,7 @@ export default {
     }
   },
   data: () => ({
-    allNotesExpanded: false,
+    allExpanded: false,
     countsPerType: undefined,
     creatingNoteWithSubject: undefined,
     defaultShowPerTab: 5,
@@ -340,7 +340,7 @@ export default {
     isTimelineLoading: true,
     messageForDelete: undefined,
     messages: undefined,
-    notesQuery: null,
+    timelineQuery: null,
     openMessages: [],
     searchResults: null,
     searchResultsLoading: false,
@@ -359,6 +359,9 @@ export default {
     },
     deleteConfirmModalBody() {
       return this.messageForDelete ? `Are you sure you want to delete the "<b>${this.messageForDelete.subject}</b>" note?` : '';
+    },
+    isExpandAllAvailable() {
+      return this.includes(['appointment', 'note'], this.filter);
     },
     showDeleteConfirmModal() {
       return !!this.messageForDelete;
@@ -477,7 +480,7 @@ export default {
         );
       }
       if (this.openMessages.length === 0) {
-        this.allNotesExpanded = false;
+        this.allExpanded = false;
       }
       if (screenreaderAlert) {
         this.alertScreenReader('Message closed');
@@ -568,8 +571,8 @@ export default {
         this.openMessages.push(message.transientId);
       }
       this.markRead(message);
-      if (this.openMessages.length === this.messagesPerType('note').length) {
-        this.allNotesExpanded = true;
+      if (this.isExpandAllAvailable && this.openMessages.length === this.messagesPerType(this.filter).length) {
+        this.allExpanded = true;
       }
       if (screenreaderAlert) {
         this.alertScreenReader('Message opened');
@@ -583,17 +586,19 @@ export default {
       this.scrollTo(`#message-row-${messageId}`);
       this.putFocusNextTick(`message-row-${messageId}`);
     },
-    searchTimelineNotes() {
-      if (this.notesQuery && this.notesQuery.length) {
+    searchTimeline() {
+      if (this.timelineQuery && this.timelineQuery.length) {
         this.searchResultsLoading = true;
         search(
-          this.notesQuery,
+          this.timelineQuery,
+          this.filter === 'appointment',
           false,
-          true,
+          this.filter === 'note',
           false,
           {studentCsid: this.student.sid}
         ).then(data => {
-          this.searchResults = this.map(data.notes, 'id');
+          const items = this.filter === 'appointment' ? this.get(data, 'appointments') : this.get(data, 'notes');
+          this.searchResults = this.map(items, 'id');
           this.isShowingAll = true;
           this.searchResultsLoading = false;
         });
@@ -603,10 +608,10 @@ export default {
     },
     setFilter(filter) {
       this.searchResults = null;
-      this.notesQuery = null;
+      this.timelineQuery = null;
       if (filter !== this.filter) {
         this.filter = filter;
-        this.allNotesExpanded = false;
+        this.allExpanded = false;
       }
     },
     sortMessages() {
@@ -624,15 +629,15 @@ export default {
         }
       });
     },
-    toggleExpandAllNotes() {
+    toggleExpandAll() {
       this.isShowingAll = true;
-      this.allNotesExpanded = !this.allNotesExpanded;
-      if (this.allNotesExpanded) {
-        this.each(this.messagesPerType('note'), this.open);
-        this.alertScreenReader('All notes expanded');
+      this.allExpanded = !this.allExpanded;
+      if (this.allExpanded) {
+        this.each(this.messagesPerType(this.filter), this.open);
+        this.alertScreenReader(`All ${this.filter}s expanded`);
       } else {
-        this.each(this.messagesPerType('note'), this.close);
-        this.alertScreenReader('All notes collapsed');
+        this.each(this.messagesPerType(this.filter), this.close);
+        this.alertScreenReader(`All ${this.filter}s collapsed`);
       }
     }
   }
@@ -647,6 +652,7 @@ export default {
   color: #666;
   font-size: 12px;
   height: 24px;
+  margin-top: 2px;
   padding-top: 2px;
   width: auto;
 }
@@ -766,17 +772,17 @@ export default {
 .text-icon-exclamation {
   color: #f0ad4e;
 }
-.timeline-notes-query-input {
+.timeline-query-input {
   box-sizing: border-box;
   border: 2px solid #ccc;
   border-radius: 4px;
   height: 30px;
 }
-.timeline-notes-submenu {
+.timeline-submenu {
   align-items: center;
   display: flex;
 }
-.toggle-expand-all-notes-caret {
+.toggle-expand-all-caret {
   width: 15px;
 }
 </style>

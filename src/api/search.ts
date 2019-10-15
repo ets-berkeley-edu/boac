@@ -4,17 +4,19 @@ import utils from '@/api/api-utils';
 
 export function search(
   phrase: string,
+  includeAppointments: boolean,
   includeCourses: boolean,
   includeNotes: boolean,
   includeStudents: boolean,
   noteOptions: object,
-  orderBy: string,
-  offset: number,
-  limit: number
+  orderBy?: string,
+  offset?: number,
+  limit?: number
 ) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/search`, {
       searchPhrase: phrase,
+      appointments: includeAppointments, // TODO: Implement includeAppointments on server-side.
       students: includeStudents,
       courses: includeCourses,
       notes: includeNotes,
