@@ -29,6 +29,7 @@ from boac.externals.data_loch import match_students_by_name_or_sid, query_histor
 from boac.lib.http import tolerant_jsonify
 from boac.merged.student import get_student_and_terms_by_sid, get_student_and_terms_by_uid, query_students
 from flask import current_app as app, request
+from flask_login import login_required
 
 
 @app.route('/api/student/by_sid/<sid>')
@@ -52,7 +53,7 @@ def get_student_by_uid(uid):
 
 
 @app.route('/api/students/find_by_name_or_sid', methods=['GET'])
-@advisor_required
+@login_required
 def find_by_name_or_sid():
     query = request.args.get('q')
     if not query:

@@ -38,10 +38,16 @@ l_s_college_scheduler_uid = '19735'
 class TestCreateAppointment:
 
     @classmethod
-    def _create_appointment(cls, client, json_data=(), expected_status_code=200):
+    def _create_appointment(cls, client, dept_code, details='', expected_status_code=200):
+        data = {
+            'deptCode': dept_code,
+            'details': details,
+            'sid': '3456789012',
+            'topics': ['Appointment Topic 1', 'Appointment Topic 3'],
+        }
         response = client.post(
             '/api/appointments/create',
-            data=json.dumps(json_data),
+            data=json.dumps(data),
             content_type='application/json',
         )
         assert response.status_code == expected_status_code
@@ -55,24 +61,29 @@ class TestCreateAppointment:
 
     def test_create_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        self._create_appointment(client, expected_status_code=401)
+        self._create_appointment(client, 'COENG', expected_status_code=401)
 
     def test_create_appointment_as_coe_scheduler(self, client, fake_auth):
         """Scheduler can create appointments."""
         fake_auth.login(coe_scheduler_uid)
         details = 'Aloysius has some questions.'
-        data = {
-            'deptCode': 'COENG',
-            'details': details,
-            'sid': '3456789012',
-            'topics': ['Appointment Topic 1', 'Appointment Topic 3'],
-        }
-        appointment = self._create_appointment(client, data)
+        appointment = self._create_appointment(client, 'COENG', details)
         waitlist = self._get_waitlist(client, 'COENG')
         matching = next((a for a in waitlist if a['details'] == details), None)
         assert appointment['id'] == matching['id']
         assert appointment['read'] is True
+        assert appointment['student']['sid'] == '3456789012'
+        assert appointment['student']['name'] == 'Paul Kerschen'
+        assert appointment['student']['photoUrl']
         assert len(appointment['topics']) == 2
+
+    def test_other_departments_forbidden(self, client, fake_auth):
+        fake_auth.login(coe_scheduler_uid)
+        self._create_appointment(client, 'UWASC', expected_status_code=403)
+
+    def test_nonsense_department_not_found(self, client, fake_auth):
+        fake_auth.login(coe_scheduler_uid)
+        self._create_appointment(client, 'DINGO', expected_status_code=404)
 
 
 class TestAppointmentCheckIn:

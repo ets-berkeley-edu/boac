@@ -115,10 +115,10 @@ export default {
     waitlist: undefined
   }),
   created() {
-    const deptCode = this.get(this.$route, 'params.deptCode');
+    this.deptCode = this.get(this.$route, 'params.deptCode');
     this.linkToStudentProfiles = this.user.isAdmin || this.dropInAdvisorDeptCodes().length;
     this.now = this.$moment();
-    getDropInAppointmentWaitlist(deptCode).then(waitlist => {
+    getDropInAppointmentWaitlist(this.deptCode).then(waitlist => {
       this.waitlist = waitlist;
       this.loaded();
     });
@@ -152,7 +152,7 @@ export default {
       this.selectedAppointment = undefined;
     },
     createAppointment(details, sid, topics) {
-      create(details, sid, topics).then(appointment => {
+      create(this.deptCode, details, sid, topics).then(appointment => {
         this.showCreateAppointmentModal = false;
         this.waitlist.push(appointment);
       });
