@@ -177,7 +177,7 @@
             <span class="sr-only">Edit user</span>
           </b-btn>
           <b-btn
-            v-if="devAuthEnabled && (row.item.uid !== user.uid) && !row.item.isExpiredPerLdap"
+            v-if="canBecome(row.item)"
             :id="'become-' + row.item.uid"
             :title="`Log in as ${row.item.name}`"
             variant="link"
@@ -274,15 +274,22 @@ export default {
       const dropInAdvisorMatch = this.includes(this.filterPermissions, 'isDropInAdvisor') && this.find(user.departments, (dept) => dept.isDropInAdvisor);
       const expiredMatch = this.includes(this.filterStatuses, 'isExpiredPerLdap') && user.isExpiredPerLdap;
       const nameUidMatch = !this.filterNameUid || this.includes(user.name.toLowerCase(), this.filterNameUid.toLowerCase()) || this.includes(user.uid, this.filterNameUid);
+      const noPermissionsMatch = this.isEmpty(this.filterPermissions) && !user.isAdmin && !this.find(user.departments, (dept) => dept.isAdvisor || dept.isDirector || dept.isDropInAdvisor || dept.isScheduler);
       const schedulerMatch = this.includes(this.filterPermissions, 'isScheduler') && this.find(user.departments, (dept) => dept.isScheduler);
 
-      const permissionsMatch = adminMatch || advisorMatch || canvasAccessMatch || directorMatch || dropInAdvisorMatch || schedulerMatch;
+      const permissionsMatch = adminMatch || advisorMatch || canvasAccessMatch || directorMatch || dropInAdvisorMatch || schedulerMatch || noPermissionsMatch;
       const statusMatch = activeMatch || deletedMatch || blockedMatch || expiredMatch;
 
       return nameUidMatch && deptMatch && permissionsMatch && statusMatch;
     },
     become(uid) {
       becomeUser(uid).then(() => (window.location.href = '/home'));
+    },
+    canBecome(user) {
+      const isNotMe = user.uid !== this.user.uid;
+      const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked;
+      const hasAnyRole = find(user.departments, (dept) => dept.isAdvisor || dept.isDirector || dept.isDropInAdvisor || dept.isScheduler);
+      this.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole;
     },
     deptRoles(dept) {
       let roles = [];
@@ -296,7 +303,7 @@ export default {
           roles.push(role.label);
         }
       });
-      return this.oxfordJoin(roles);
+      return this.size(roles) ? this.oxfordJoin(roles) : '';
     },
     getDepartments(user) {
       return this.map(user.departments, function(dept, deptCode) {
