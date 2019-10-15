@@ -27,6 +27,7 @@ from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotF
 from boac.api.util import advisor_required, scheduler_required
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
+from boac.merged.student import get_distilled_student_profiles
 from boac.models.appointment import Appointment
 from boac.models.appointment_read import AppointmentRead
 from boac.models.topic import Topic
@@ -47,7 +48,9 @@ def get_waitlist(dept_code):
     if dept_code not in BERKELEY_DEPT_CODE_TO_NAME:
         raise ResourceNotFoundError(f'Unrecognized department code: {dept_code}')
     elif _is_current_user_authorized():
-        return tolerant_jsonify([a.to_api_json(current_user.get_id()) for a in Appointment.get_waitlist(dept_code)])
+        waitlist = [a.to_api_json(current_user.get_id()) for a in Appointment.get_waitlist(dept_code)]
+        _put_student_profile_per_appointment(waitlist)
+        return tolerant_jsonify(waitlist)
     else:
         raise ForbiddenRequestError(f'You are unauthorized to manage {dept_code} appointments.')
 
@@ -110,3 +113,18 @@ def get_appointment_topics():
 def _dept_codes_with_scheduler_privilege():
     departments = [d for d in current_user.departments if d.get('isScheduler') or d.get('isDropInAdvisor')]
     return [d['code'] for d in departments]
+
+
+def _put_student_profile_per_appointment(waitlist):
+    if len(waitlist):
+        appointments_by_sid = {}
+        for appointment in waitlist:
+            sid = appointment['student']['sid']
+            if sid not in appointments_by_sid:
+                appointments_by_sid[sid] = []
+            appointments_by_sid[sid].append(appointment)
+        distinct_sids = list(appointments_by_sid.keys())
+        for student in get_distilled_student_profiles(distinct_sids):
+            sid = student['sid']
+            for appointment in appointments_by_sid[sid]:
+                appointment['student'] = student

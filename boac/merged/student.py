@@ -40,7 +40,7 @@ from flask_login import current_user
 """Provide merged student data from external sources."""
 
 
-def get_api_json(sids):
+def get_distilled_student_profiles(sids):
     if not sids:
         return []
 
@@ -424,7 +424,7 @@ def query_students(
         if include_profiles:
             summary['students'] = get_summary_student_profiles([row['sid'] for row in students_result])
         else:
-            summary['students'] = get_api_json([row['sid'] for row in students_result])
+            summary['students'] = get_distilled_student_profiles([row['sid'] for row in students_result])
     return summary
 
 

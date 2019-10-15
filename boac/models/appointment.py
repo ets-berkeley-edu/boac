@@ -94,7 +94,6 @@ class Appointment(Base):
 
     @classmethod
     def get_waitlist(cls, dept_code):
-        # TODO: When 'dept_code' column has been added to the appointments table, add 'dept_code' to query below.
         return cls.query.filter(
             and_(
                 cls.canceled_at == None,
@@ -187,7 +186,9 @@ class Appointment(Base):
             'dept_code': self.dept_code,
             'details': self.details,
             'read': AppointmentRead.was_read_by(current_user_id, self.id),
-            'studentSid': self.student_sid,
+            'student': {
+                'sid': self.student_sid,
+            },
             'topics': topics,
             'updatedAt': _isoformat(self.updated_at),
             'updatedBy': self.updated_by,
