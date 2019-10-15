@@ -119,7 +119,7 @@ export default {
   methods: {
     cancelTheAppointment() {
       this.appointmentCancellation(this.appointment.id, this.reason, this.reasonExplained);
-      this.alertScreenReader(`Appointment with ${this.student.name} cancelled`);
+      this.alertScreenReader(`Appointment with ${this.student.name} canceled`);
       this.showCancellationModal = false;
     }
   }
