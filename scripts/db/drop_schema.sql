@@ -63,6 +63,7 @@ ALTER TABLE IF EXISTS ONLY public.user_logins DROP CONSTRAINT IF EXISTS user_log
 
 --
 
+DROP INDEX IF EXISTS public.idx_appointments_fts_index;
 DROP INDEX IF EXISTS public.appointment_topics_appointment_id_idx;
 DROP INDEX IF EXISTS public.appointment_topics_topic_idx;
 DROP INDEX IF EXISTS public.appointments_created_by_idx;
@@ -147,6 +148,7 @@ DROP TABLE IF EXISTS public.cohort_filters;
 DROP TABLE IF EXISTS public.cohort_filter_owners;
 DROP SEQUENCE IF EXISTS public.authorized_users_id_seq;
 DROP TABLE IF EXISTS public.authorized_users;
+DROP MATERIALIZED VIEW IF EXISTS public.appointments_fts_index;
 DROP TABLE IF EXISTS public.appointment_topics;
 DROP SEQUENCE IF EXISTS public.appointment_topics_id_seq;
 DROP TABLE IF EXISTS public.appointments;

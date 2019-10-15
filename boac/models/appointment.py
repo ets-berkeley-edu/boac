@@ -32,6 +32,7 @@ from boac.models.base import Base
 from dateutil.tz import tzutc
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.sql import text
 
 
 class Appointment(Base):
@@ -133,6 +134,7 @@ class Appointment(Base):
             )
         db.session.add(appointment)
         std_commit()
+        cls.refresh_search_index()
         return appointment
 
     @classmethod
@@ -166,6 +168,11 @@ class Appointment(Base):
             return appointment
         else:
             return None
+
+    @classmethod
+    def refresh_search_index(cls):
+        db.session.execute(text('REFRESH MATERIALIZED VIEW appointments_fts_index'))
+        std_commit()
 
     def to_api_json(self, current_user_id):
         topics = [t.to_api_json() for t in self.topics if not t.deleted_at]
