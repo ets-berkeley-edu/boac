@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api import errors
-from boac.api.util import admin_required, advisor_required, authorized_users_api_feed
+from boac.api.util import admin_required, advisor_required, authorized_users_api_feed, scheduler_required
 from boac.lib import util
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
@@ -117,6 +117,14 @@ def delete_university_dept_membership(university_dept_id, authorized_user_id):
 def all_users():
     sort_users_by = util.get(request.args, 'sortUsersBy', None)
     return tolerant_jsonify(_get_boa_users(sort_users_by))
+
+
+@app.route('/api/users/drop_in_advisors/<dept_code>')
+@scheduler_required
+def drop_in_advisors_for_dept(dept_code):
+    dept_code = dept_code.upper()
+    memberships = UniversityDeptMember.memberships_for_dept_code(dept_code, is_drop_in_advisor=True)
+    return tolerant_jsonify(authorized_users_api_feed([m.authorized_user for m in memberships]))
 
 
 @app.route('/api/user/demo_mode', methods=['POST'])

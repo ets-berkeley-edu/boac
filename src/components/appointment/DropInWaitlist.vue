@@ -57,7 +57,7 @@
         </div>
         <div>
           <div class="d-flex">
-            <div class="mr-2">
+            <div v-if="isHomepage" class="mr-2">
               <StudentAvatar size="small" :student="appointment.student" />
             </div>
             <div>
@@ -84,7 +84,7 @@
               :disabled="!!appointment.checkedInBy || !!appointment.canceledAt"
               text="Check In"
               variant="outline-dark"
-              @click="appointmentCheckIn(appointment)">
+              @click="launchCheckIn(appointment)">
               <b-dropdown-item-button @click="showAppointmentDetails(appointment)">Details</b-dropdown-item-button>
               <b-dropdown-item-button @click="cancelAppointment(appointment)">Cancel</b-dropdown-item-button>
             </b-dropdown>
@@ -92,16 +92,22 @@
               v-if="showAppointmentDetailsModal"
               :appointment="selectedAppointment"
               :close="closeAppointmentDetailsModal"
-              :check-in="appointmentCheckIn"
+              :check-in="launchCheckInFromDetails"
               :show-modal="showAppointmentDetailsModal"
-              :student="appointment.student" />
+              :student="selectedAppointment.student" />
             <AppointmentCancellationModal
               v-if="showCancelAppointmentModal"
               :appointment="selectedAppointment"
               :appointment-cancellation="appointmentCancellation"
               :close="closeAppointmentCancellationModal"
               :show-modal="showCancelAppointmentModal"
-              :student="appointment.student" />
+              :student="selectedAppointment.student" />
+            <CheckInModal
+              v-if="showCheckInModal"
+              :appointment="selectedAppointment"
+              :appointment-checkin="checkInAppointment"
+              :close="closeCheckInModal"
+              :show-modal="showCheckInModal" />
           </div>
         </div>
       </div>
@@ -112,15 +118,16 @@
 <script>
 import AppointmentDetailsModal from '@/components/appointment/AppointmentDetailsModal';
 import AppointmentCancellationModal from '@/components/appointment/AppointmentCancellationModal';
+import CheckInModal from '@/components/appointment/CheckInModal';
 import CreateAppointmentModal from '@/components/appointment/CreateAppointmentModal';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
-import { cancel as cancelAppointment, checkIn, create } from '@/api/appointments'
+import { cancel as cancelAppointment, checkIn, create } from '@/api/appointments';
 
 export default {
   name: 'DropInWaitlist',
-  components: {AppointmentCancellationModal, AppointmentDetailsModal, CreateAppointmentModal, StudentAvatar},
+  components: {AppointmentCancellationModal, AppointmentDetailsModal, CheckInModal, CreateAppointmentModal, StudentAvatar},
   mixins: [UserMetadata, Util],
   props: {
     deptCode: {
@@ -142,6 +149,7 @@ export default {
     selectedAppointment: undefined,
     showAppointmentDetailsModal: false,
     showCancelAppointmentModal: false,
+    showCheckInModal: false,
     showCreateAppointmentModal: false
   }),
   created() {
@@ -155,11 +163,6 @@ export default {
         this.waitlist.splice(indexOf, 1);
       });
     },
-    appointmentCheckIn(appointment) {
-      checkIn(appointment.id).then(updated => {
-        Object.assign(appointment, updated);
-      });
-    },
     cancelAppointment(appointment) {
       this.selectedAppointment = appointment;
       this.showCancelAppointmentModal = true;
@@ -167,6 +170,24 @@ export default {
     cancelCreateAppointment() {
       this.showCreateAppointmentModal = false;
       this.selectedAppointment = undefined;
+    },
+    checkInAppointment(advisor) {
+      if (!advisor) {
+        advisor = this.user;
+      }
+      const appointmentId = this.selectedAppointment.id;
+      checkIn(
+        Object.keys(advisor.departments),
+        advisor.name,
+        advisor.title,
+        advisor.uid,
+        appointmentId
+      ).then(() => {
+        const index = this.findIndex(this.waitlist, {'id': appointmentId});
+        if (index !== -1) {
+          this.waitlist.splice(index, 1);
+        }
+      });
     },
     closeAppointmentCancellationModal() {
       this.showCancelAppointmentModal = false;
@@ -176,11 +197,27 @@ export default {
       this.showAppointmentDetailsModal = false;
       this.selectedAppointment = undefined;
     },
+    closeCheckInModal() {
+      this.showCheckInModal = false;
+      this.showAppointmentDetailsModal = false;
+      this.selectedAppointment = undefined;
+    },
     createAppointment(details, sid, topics) {
       create(this.deptCode, details, sid, topics).then(appointment => {
         this.showCreateAppointmentModal = false;
         this.waitlist.push(appointment);
       });
+    },
+    launchCheckIn(appointment) {
+      this.selectedAppointment = appointment;
+      if (this.isHomepage) {
+        this.checkInAppointment();
+      } else {
+        this.showCheckInModal = true;
+      }
+    },
+    launchCheckInFromDetails() {
+      this.showCheckInModal = true;
     },
     showAppointmentDetails(appointment) {
       this.selectedAppointment = appointment;

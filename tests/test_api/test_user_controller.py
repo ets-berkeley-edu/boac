@@ -32,6 +32,7 @@ admin_uid = '2040'
 asc_advisor_uid = '1081940'
 coe_advisor_uid = '1133399'
 coe_scheduler_uid = '6972201'
+l_s_scheduler_uid = '19735'
 
 
 class TestUserProfile:
@@ -306,6 +307,13 @@ class TestUsers:
         assert len(users) == 22
         deleted_users = [user for user in users if user['deletedAt'] is not None]
         assert len(deleted_users) == 3
+
+    def test_drop_in_advisors_for_dept(self, client, fake_auth):
+        fake_auth.login(l_s_scheduler_uid)
+        response = client.get('/api/users/drop_in_advisors/qcadv')
+        assert response.status_code == 200
+        assert len(response.json) == 1
+        assert response.json[0]['departments']['QCADV']['isDropInAdvisor'] is True
 
 
 class TestDemoMode:

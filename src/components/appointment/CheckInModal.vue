@@ -1,17 +1,16 @@
 <template>
   <b-modal
     id="advising-appointment-check-in"
-    v-model="showDetailsModal"
+    v-model="showCheckInModal"
     body-class="pl-0 pr-0"
     hide-footer
     hide-header
     :no-close-on-backdrop="true"
-    @cancel.prevent="functionCancel"
-    @hide.prevent="functionCancel"
-    @shown="putFocusNextTick('are-you-sure-confirm')">
+    @cancel.prevent="close"
+    @hide.prevent="close">
     <div>
       <div class="modal-header">
-        <h3>{{ student.name }}</h3>
+        <h3>Check In - {{ appointment.student.name }}</h3>
       </div>
       <div class="modal-body w-100">
         <div class="mr-3">
@@ -50,41 +49,56 @@
             </div>
           </div>
         </div>
+        <label for="checkin-modal-advisor-select">
+          Select a drop-in advisor:
+        </label>
+        <b-form-select
+          id="checkin-modal-advisor-select"
+          v-model="selectedAdvisorUid"
+          :options="dropInAdvisors"
+          value-field="uid"
+          text-field="name">
+        </b-form-select>
       </div>
       <div class="modal-footer">
-        <b-btn
-          id="btn-appointment-cancel"
-          class="pl-2"
-          variant="primary"
-          @click.stop="checkIn">
-          Check In
-        </b-btn>
-        <b-btn
-          id="btn-appointment-cancel"
-          class="pl-2"
-          variant="link"
-          @click.stop="close">
-          Close
-        </b-btn>
+        <form @submit.prevent="checkIn">
+          <b-btn
+            id="btn-appointment"
+            class="btn-primary-color-override"
+            variant="primary"
+            :aria-label="`Check in ${appointment.student.name}`"
+            @click.prevent="checkIn">
+            Check In
+          </b-btn>
+          <b-btn
+            id="btn-appointment-close"
+            class="pl-2"
+            variant="link"
+            @click.stop="close">
+            Close
+          </b-btn>
+        </form>
       </div>
     </div>
   </b-modal>
 </template>
 
 <script>
+import Context from '@/mixins/Context';
 import Util from '@/mixins/Util';
+import { getDropInAdvisorsForDept } from '@/api/user';
 
 export default {
-  name: 'AppointmentDetailsModal',
-  mixins: [Util],
+  name: 'CheckInModal',
+  mixins: [Context, Util],
   props: {
     appointment: {
       type: Object,
       required: true
     },
-    checkIn: {
+    appointmentCheckin: {
       type: Function,
-      required: false
+      required: true
     },
     close: {
       type: Function,
@@ -93,22 +107,35 @@ export default {
     showModal: {
       type: Boolean,
       required: true
-    },
-    student: {
-      type: Object,
-      required: true
     }
   },
   data: () => ({
-    showDetailsModal: false
+    dropInAdvisors: [],
+    reason: undefined,
+    reasonExplained: undefined,
+    selectedAdvisorUid: null,
+    showCheckInModal: false
   }),
   watch: {
     showModal(value) {
-      this.showDetailsModal = value;
+      this.showCheckInModal = value;
     }
   },
   created() {
-    this.showDetailsModal = this.showModal;
+    this.showCheckInModal = this.showModal;
+    getDropInAdvisorsForDept(this.appointment.dept_code).then(dropInAdvisors => {
+      this.dropInAdvisors = dropInAdvisors;
+    });
+  },
+  methods: {
+    checkIn() {
+      const advisor = this.find(this.dropInAdvisors, {'uid': this.selectedAdvisorUid});
+      if (advisor) {
+        this.appointmentCheckin(advisor);
+        this.alertScreenReader(`Checked in ${this.appointment.student.name}`);
+        this.showCheckInModal = false;
+      }
+    }
   }
 }
 </script>
