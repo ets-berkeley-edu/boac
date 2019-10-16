@@ -669,11 +669,30 @@ def _merge_enrollment_terms(profile, enrollment_results):
         if term['termId'] == current_term_id():
             profile['hasCurrentTermEnrollments'] = len(term['enrollments']) > 0
         else:
-            # Omit dropped sections for past terms.
+            # Omit dropped sections for non-current terms.
             term.pop('droppedSections', None)
+
             # Filter out the now-empty term if all classes were dropped.
-            if not term.get('enrollments'):
+            enrollments = term.get('enrollments')
+            if not enrollments:
                 continue
+
+            # Omit zombie waitlisted enrollments for past terms.
+            # TODO Even for current terms, it may be a mistake when SIS data sources show both active and waitlisted
+            #  section enrollments for a single class, but that needs confirmation.
+            if enrollments and term['termId'] < current_term_id():
+                for course in enrollments:
+                    sections = course['sections']
+                    if sections:
+                        fixed_sections = []
+                        for enrollment in sections:
+                            if enrollment.get('enrollmentStatus') != 'W':
+                                fixed_sections.append(enrollment)
+                        if not fixed_sections:
+                            app.logger.warn(f'SIS provided only waitlisted enrollments in a past term: {term}')
+                        else:
+                            course['sections'] = fixed_sections
+
         if not current_user.can_access_canvas_data:
             _suppress_canvas_sites(term)
         filtered_enrollment_terms.append(term)

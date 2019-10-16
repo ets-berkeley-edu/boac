@@ -382,6 +382,7 @@ class TestStudent:
             music = self.get_course_for_code(student, '2172', 'MUSIC 41C')
             assert music['displayName'] == 'MUSIC 41C'
             assert music['title'] == 'Private Carillon Lessons for Advanced Students'
+            # Represses an obsolete waitlisted section.
             assert len(music['sections']) == 1
             assert music['sections'][0]['ccn'] == 80100
             assert music['sections'][0]['sectionNumber'] == '001'
