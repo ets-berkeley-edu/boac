@@ -53,7 +53,7 @@
       </div>
       <div class="modal-footer">
         <b-btn
-          id="btn-appointment-cancel"
+          id="btn-appointment-check-in"
           class="pl-2"
           variant="primary"
           @click.stop="checkIn">
