@@ -288,8 +288,8 @@ export default {
     canBecome(user) {
       const isNotMe = user.uid !== this.user.uid;
       const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked;
-      const hasAnyRole = find(user.departments, (dept) => dept.isAdvisor || dept.isDirector || dept.isDropInAdvisor || dept.isScheduler);
-      this.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole;
+      const hasAnyRole = this.find(user.departments, (dept) => dept.isAdvisor || dept.isDirector || dept.isDropInAdvisor || dept.isScheduler);
+      return this.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole;
     },
     deptRoles(dept) {
       let roles = [];
