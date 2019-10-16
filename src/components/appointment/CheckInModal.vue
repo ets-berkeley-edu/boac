@@ -63,7 +63,7 @@
       <div class="modal-footer">
         <form @submit.prevent="checkIn">
           <b-btn
-            id="btn-appointment"
+            id="btn-appointment-check-in"
             class="btn-primary-color-override"
             variant="primary"
             :aria-label="`Check in ${appointment.student.name}`"

@@ -54,7 +54,7 @@
       <div class="modal-footer">
         <form @submit.prevent="cancelTheAppointment">
           <b-btn
-            id="btn-appointment"
+            id="btn-appointment-cancel"
             class="btn-primary-color-override"
             variant="primary"
             :aria-label="`Cancel appointment with ${student.name}`"
