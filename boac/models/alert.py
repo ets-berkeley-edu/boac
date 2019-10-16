@@ -364,7 +364,7 @@ class Alert(Base):
     @classmethod
     def update_withdrawal_cancel_alerts(cls, sid, term_id):
         key = f'{term_id}_withdrawal'
-        message = f'Withdrawal! Student has withdrawn from the {term_name_for_sis_id(term_id)} term.'
+        message = f'Student is no longer enrolled in the {term_name_for_sis_id(term_id)} term.'
         cls.create_or_activate(sid=sid, alert_type='withdrawal', key=key, message=message)
 
     @classmethod
