@@ -39,6 +39,12 @@ export function becomeUser(uid: string) {
     .then(response => response.data, () => null);
 }
 
+export function getDropInAdvisorsForDept(deptCode: string) {
+  return axios
+    .get(`${utils.apiBaseUrl()}/api/users/drop_in_advisors/${deptCode}`)
+    .then(response => response.data, () => null);
+}
+
 export function setDemoMode(demoMode: boolean) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/user/demo_mode`, {

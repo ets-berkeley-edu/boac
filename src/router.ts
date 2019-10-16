@@ -76,13 +76,6 @@ const router = new Router({
           meta: {
             title: 'Drop-in Appointments Desk'
           }
-        },
-        {
-          path: '/scheduler/settings',
-          component: Admin,
-          meta: {
-            title: 'Settings'
-          }
         }
       ]
     },

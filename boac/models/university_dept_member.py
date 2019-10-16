@@ -117,6 +117,10 @@ class UniversityDeptMember(Base):
         std_commit()
         return True
 
+    @classmethod
+    def memberships_for_dept_code(cls, dept_code, **kwargs):
+        return cls.query.filter_by(**kwargs).join(cls.university_dept, aliased=True).filter_by(dept_code=dept_code).all()
+
     def to_api_json(self):
         return {
             'universityDeptId': self.university_dept_id,
