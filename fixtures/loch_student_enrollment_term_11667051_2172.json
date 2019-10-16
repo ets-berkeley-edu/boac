@@ -59,6 +59,17 @@
                     "primary": true,
                     "sectionNumber": "001",
                     "units": 2.0
+                },
+                {
+                    "canvasCourseIds": [],
+                    "ccn": 80101,
+                    "component": "TUT",
+                    "enrollmentStatus": "W",
+                    "grade": null,
+                    "gradingBasis": "Letter",
+                    "primary": true,
+                    "sectionNumber": "002",
+                    "units": 2.0
                 }
             ],
             "title": "Private Carillon Lessons for Advanced Students",
