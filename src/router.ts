@@ -76,6 +76,20 @@ const router = new Router({
           meta: {
             title: 'Drop-in Appointments Desk'
           }
+        },
+        {
+          path: '/scheduler/settings',
+          component: Admin,
+          meta: {
+            title: 'Admin'
+          }
+        },
+        {
+          path: '/scheduler/404',
+          component: NotFound,
+          meta: {
+            title: 'Not Found'
+          }
         }
       ]
     },
@@ -197,6 +211,13 @@ const router = new Router({
           }
         },
         {
+          beforeEnter: (to: any, from: any, next: any) => {
+            store.dispatch('user/loadUser').then(user => {
+              if (_.size(auth.schedulerForDepartments(user)) && !auth.isAdvisor(user) && !user.isAdmin) {
+                next({ path: '/scheduler/404' });
+              }
+            });
+          },
           path: '/404',
           component: NotFound,
           meta: {
