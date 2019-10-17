@@ -295,7 +295,7 @@ def get_my_curated_groups():
             count_only=True,
         )
         api_json['alertCount'] = sum(s['alertCount'] for s in students_with_alerts)
-        api_json['studentCount'] = len(students)
+        api_json['totalStudentCount'] = len(students)
         curated_groups.append(api_json)
     return curated_groups
 

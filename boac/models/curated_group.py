@@ -72,7 +72,7 @@ class CuratedGroup(Base):
             return {
                 'id': row['id'],
                 'name': row['name'],
-                'studentCount': row['student_count'],
+                'totalStudentCount': row['student_count'],
                 'ownerUid': row['owner_uid'],
             }
         return [transform(row) for row in results]
@@ -140,7 +140,7 @@ class CuratedGroup(Base):
             if sids:
                 result = query_students(sids=sids, order_by=order_by, offset=offset, limit=limit, include_profiles=False)
                 feed['students'] = result['students']
-                feed['studentCount'] = result['totalStudentCount']
+                feed['totalStudentCount'] = result['totalStudentCount']
                 # Attempt to supplement with historical student rows if we seem to be missing something.
                 if result['totalStudentCount'] < len(sids):
                     remaining_sids = list(set(sids) - set(result['sids']))
@@ -148,12 +148,12 @@ class CuratedGroup(Base):
                     if len(historical_sid_rows):
                         for row in historical_sid_rows:
                             ManuallyAddedAdvisee.find_or_create(row['sid'])
-                        feed['studentCount'] += len(historical_sid_rows)
+                        feed['totalStudentCount'] += len(historical_sid_rows)
                         page_shortfall = max(0, limit - len(result['students']))
                         feed['students'] += historical_sid_rows[:page_shortfall]
             else:
                 feed['students'] = []
-                feed['studentCount'] = 0
+                feed['totalStudentCount'] = 0
         return feed
 
 

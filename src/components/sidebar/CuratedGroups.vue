@@ -21,7 +21,7 @@
       <div class="ml-2 truncate-with-ellipsis">
         <NavLink
           :id="`sidebar-curated-group-${index}`"
-          :aria-label="'Curated group ' + group.name + ' has ' + group.studentCount + ' students'"
+          :aria-label="'Curated group ' + group.name + ' has ' + group.totalStudentCount + ' students'"
           :path="`/curated/${group.id}`">
           {{ group.name }}
         </NavLink>
@@ -29,7 +29,7 @@
       <div class="ml-2 mr-2">
         <span
           :id="`sidebar-curated-group-${index}-count`"
-          class="sidebar-pill">{{ group.studentCount }}<span class="sr-only">{{ 'student' | pluralize(group.studentCount) }}</span>
+          class="sidebar-pill">{{ group.totalStudentCount }}<span class="sr-only">{{ 'student' | pluralize(group.totalStudentCount) }}</span>
         </span>
       </div>
     </div>

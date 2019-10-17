@@ -12,7 +12,7 @@ const $_goToPage = ({ commit, state }, pageNumber: number) => {
         commit('setCuratedGroupName', group.name);
         commit('setOwnerId', group.ownerId);
         commit('setStudents', group.students);
-        commit('setTotalStudentCount', group.studentCount);
+        commit('setTotalStudentCount', group.totalStudentCount);
         return resolve(group);
       } else {
         return resolve(null);
@@ -86,7 +86,7 @@ const actions = {
     return new Promise(resolve => {
       commit('removeStudent', sid);
       removeFromCuratedGroup(state.curatedGroupId, sid).then(group => {
-        commit('setTotalStudentCount', group.studentCount);
+        commit('setTotalStudentCount', group.totalStudentCount);
         return resolve();
       });
     });

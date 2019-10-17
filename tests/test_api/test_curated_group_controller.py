@@ -255,7 +255,7 @@ class TestGetCuratedGroup:
             if user['uid'] == asc_advisor_uid or user['uid'] == coe_advisor_uid:
                 assert len(entry['groups'])
                 assert entry['groups'][0]['name']
-                assert entry['groups'][0]['studentCount']
+                assert entry['groups'][0]['totalStudentCount']
 
 
 class TestMyCuratedGroups:
@@ -288,7 +288,7 @@ class TestMyCuratedGroups:
         group = api_json[0]
         assert 'id' in group
         assert 'alertCount' in group
-        assert 'studentCount' in group
+        assert 'totalStudentCount' in group
         assert group['name'] == 'I have one student'
 
     def test_asc_curated_groups(self, asc_advisor, client):
@@ -296,7 +296,7 @@ class TestMyCuratedGroups:
         api_json = self._api_my_curated_groups(client)
         group = api_json[0]
         assert group['name'] == 'Four students'
-        assert group['studentCount'] == 4
+        assert group['totalStudentCount'] == 4
 
     def test_not_authenticated_curated_groups_by_sid(self, client):
         """Anonymous user is rejected."""
@@ -338,11 +338,11 @@ class TestAddStudents:
         """Create a group and add a student."""
         group_name = 'Trams of Old London'
         group = _api_create_group(client, name=group_name)
-        assert group['studentCount'] == 0
+        assert group['totalStudentCount'] == 0
         sid = '2345678901'
         updated_group = self._api_add_students(client, group['id'], sids=[sid])
         assert updated_group['name'] == group_name
-        assert updated_group['studentCount'] == 1
+        assert updated_group['totalStudentCount'] == 1
         assert updated_group['students'][0]['sid'] == sid
 
     def test_add_students(self, asc_advisor, client):
@@ -350,7 +350,7 @@ class TestAddStudents:
         name = 'Cheap Tricks'
         group = _api_create_group(client, name=name, sids=['2345678901', '11667051'])
         assert group['name'] == name
-        assert group['studentCount'] == 2
+        assert group['totalStudentCount'] == 2
         # Add students
         updated_group = self._api_add_students(
             client,
@@ -358,7 +358,7 @@ class TestAddStudents:
             return_student_profiles=True,
             sids=['7890123456'],
         )
-        assert updated_group['studentCount'] == 3
+        assert updated_group['totalStudentCount'] == 3
         students = updated_group['students']
         sids = [s['sid'] for s in students]
         assert sids == ['11667051', '2345678901', '7890123456']
@@ -369,7 +369,7 @@ class TestAddStudents:
             return_student_profiles=True,
             sids=['890127492', '8901234567'],
         )
-        assert updated_group['studentCount'] == 5
+        assert updated_group['totalStudentCount'] == 5
         students = updated_group['students']
         students.sort(key=lambda s: s['sid'])
         student = students[0]
@@ -405,12 +405,12 @@ class TestRemoveStudent:
         )
         assert response.status_code == 200
         assert response.json['name'] == name
-        assert response.json['studentCount'] == 1
+        assert response.json['totalStudentCount'] == 1
         response = client.delete(f'/api/curated_group/{group_id}/remove_student/{sid}')
         assert response.status_code == 200
         empty_group = response.json
         assert empty_group['name'] == name
-        assert empty_group['studentCount'] == 0
+        assert empty_group['totalStudentCount'] == 0
 
 
 class TestUpdateCuratedGroup:
@@ -467,7 +467,7 @@ class TestCuratedGroupWithInactives:
             [self.active_sid, self.inactive_sid, self.completed_sid],
         )
         group_id = group['id']
-        assert group['studentCount'] == 3
+        assert group['totalStudentCount'] == 3
         assert len(group['students']) == 3
         sids = [r['sid'] for r in group['students']]
         assert self.active_sid in sids
@@ -475,7 +475,7 @@ class TestCuratedGroupWithInactives:
         assert self.completed_sid in sids
 
         group_feed = client.get(f'/api/curated_group/{group_id}').json
-        assert group_feed['studentCount'] == 3
+        assert group_feed['totalStudentCount'] == 3
         assert len(group_feed['students']) == 3
         assert group_feed['students'][1]['sid'] == self.completed_sid
         assert group_feed['students'][1]['academicCareerStatus'] == 'Completed'
@@ -493,14 +493,14 @@ class TestCuratedGroupWithInactives:
             'Listening to the Higsons',
             [self.active_sid],
         )
-        assert group['studentCount'] == 1
+        assert group['totalStudentCount'] == 1
         updated_group = TestAddStudents._api_add_students(
             client,
             group['id'],
             return_student_profiles=True,
             sids=[self.inactive_sid],
         )
-        assert updated_group['studentCount'] == 2
+        assert updated_group['totalStudentCount'] == 2
         assert updated_group['students'][0]['sid'] == self.active_sid
         assert updated_group['students'][1]['sid'] == self.inactive_sid
 

@@ -17,30 +17,31 @@
           automatically by your filtering preferences, such as GPA or units.
         </div>
         <div role="tablist" class="panel-group">
-          <HomeCohort
+          <SortableGroup
             v-for="cohort in myCohorts"
             :key="cohort.id"
-            :cohort="cohort" />
+            :group="cohort"
+            :is-cohort="true" />
         </div>
       </div>
       <div v-if="size(myCuratedGroups)">
         <div id="curated-groups-header-row">
           <h2 class="page-section-header">Curated Groups</h2>
         </div>
-        <HomeCuratedGroup
+        <SortableGroup
           v-for="curatedGroup in myCuratedGroups"
           :key="curatedGroup.id"
-          :curated-group="curatedGroup" />
+          :group="curatedGroup"
+          :is-cohort="false" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import HomeCohort from '@/components/home/HomeCohort.vue';
-import HomeCuratedGroup from '@/components/home/HomeCuratedGroup.vue';
 import Loading from '@/mixins/Loading.vue';
 import Scrollable from '@/mixins/Scrollable';
+import SortableGroup from '@/components/search/SortableGroup.vue';
 import Spinner from '@/components/util/Spinner.vue';
 import UserMetadata from '@/mixins/UserMetadata.vue';
 import Util from '@/mixins/Util.vue';
@@ -48,8 +49,7 @@ import Util from '@/mixins/Util.vue';
 export default {
   name: 'Home',
   components: {
-    HomeCohort,
-    HomeCuratedGroup,
+    SortableGroup,
     Spinner
   },
   mixins: [Loading, Scrollable, UserMetadata, Util],
@@ -122,8 +122,29 @@ export default {
 .accordion-heading-link:hover {
   text-decoration: none;
 }
+.compact-background {
+  background-color: #f3fbff;
+}
+.compact-border-bottom {
+  border-bottom-color: #ccc;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+}
+.compact-header {
+  border-top-color: #999;
+  border-top-style: solid;
+  border-top-width: 1px;
+}
 .home-inactive-info-icon {
   color: #d0021b;
   font-size: 16px;
+}
+.panel-group .panel + .panel {
+  margin-top: 5px;
+}
+.panel-heading {
+  padding: 10px 15px 10px 0;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
 }
 </style>
