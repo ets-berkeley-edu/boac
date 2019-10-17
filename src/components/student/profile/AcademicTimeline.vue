@@ -214,7 +214,7 @@
             <div
               :id="`timeline-tab-${activeTab}-date-${index}`"
               class="pt-2 pr-2 text-nowrap">
-              <div v-if="!includes(openMessages, message.transientId) || message.type !== 'note'">
+              <div v-if="!includes(openMessages, message.transientId) || !includes(['note', 'appointment'], message.type)">
                 <TimelineDate
                   :id="`collapsed-${message.type}-${message.id}-created-at`"
                   :date="message.updatedAt || message.createdAt"

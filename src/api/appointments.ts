@@ -41,14 +41,20 @@ export function checkIn(
     }, () => null);
 }
 
-export function create(deptCode, details, sid, topics) {
+export function create(deptCode, details, sid, appointmentType, topics) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/appointments/create`, {deptCode, details, sid, topics}).then(response => {
+    .post(`${utils.apiBaseUrl()}/api/appointments/create`, {
+      appointmentType,
+      deptCode,
+      details,
+      sid,
+      topics
+    }).then(response => {
       const appointmentId = response.data.id;
       store.dispatch('user/gaAppointmentEvent', {
         id: appointmentId,
         name: `Advisor ${store.getters['user/uid']} created an appointment`,
-        action: 'check_in'
+        action: 'create'
       });
       return response.data
     }, () => null);

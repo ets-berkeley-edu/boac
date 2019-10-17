@@ -40,6 +40,7 @@ class TestCreateAppointment:
     @classmethod
     def _create_appointment(cls, client, dept_code, details='', expected_status_code=200):
         data = {
+            'appointmentType': 'Drop-in',
             'deptCode': dept_code,
             'details': details,
             'sid': '3456789012',
@@ -75,6 +76,7 @@ class TestCreateAppointment:
         assert appointment['student']['sid'] == '3456789012'
         assert appointment['student']['name'] == 'Paul Kerschen'
         assert appointment['student']['photoUrl']
+        assert appointment['appointmentType'] == 'Drop-in'
         assert len(appointment['topics']) == 2
 
     def test_other_departments_forbidden(self, client, fake_auth):
@@ -144,10 +146,11 @@ class TestAppointmentWaitlist:
         assert appointment['id'] > 0
         assert appointment['advisorName'] == 'Johnny C. Lately'
         assert appointment['advisorUid'] == coe_advisor_uid
-        assert appointment['advisorDeptCodes'] == ['COENG']
+        assert appointment['advisorDepartments'] == [{'code': 'COENG', 'name': 'College of Engineering'}]
         assert appointment['createdAt'] is not None
         assert appointment['createdBy'] == coe_scheduler_uid
         assert 'crossroads' in appointment['details']
+        assert appointment['appointmentType'] == 'Drop-in'
         assert appointment['student']['sid'] == '3456789012'
         assert appointment['student']['name'] == 'Paul Kerschen'
         assert len(appointment['topics']) == 1
@@ -189,6 +192,7 @@ class TestMarkAppointmentRead:
             dept_code='COENG',
             details='A COE appointment.',
             student_sid='5678901234',
+            appointment_type='Drop-in',
             topics=['Appointment Topic 2'],
         )
         user_id = AuthorizedUser.get_id_per_uid(l_s_college_advisor_uid)

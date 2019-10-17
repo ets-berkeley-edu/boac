@@ -115,6 +115,7 @@ CREATE TABLE appointments (
     advisor_dept_codes character varying[],
     student_sid character varying(80) NOT NULL,
     details text,
+    appointment_type character varying(255) NOT NULL,
     dept_code character varying(80) NOT NULL,
     created_at timestamp with time zone NOT NULL,
     created_by character varying(255) NOT NULL,

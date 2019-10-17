@@ -102,8 +102,9 @@ def create_appointment():
     params = request.get_json()
     dept_code = params.get('deptCode', None)
     sid = params.get('sid', None)
+    appointment_type = params.get('appointmentType', None)
     topics = params.get('topics', None)
-    if not dept_code or not sid or not len(topics):
+    if not dept_code or not sid or not appointment_type or not len(topics):
         raise BadRequestError('Appointment creation: required parameters were not provided')
     dept_code = dept_code.upper()
     if dept_code not in BERKELEY_DEPT_CODE_TO_NAME:
@@ -114,6 +115,7 @@ def create_appointment():
         created_by=current_user.get_uid(),
         dept_code=dept_code,
         details=params.get('details', None),
+        appointment_type=appointment_type,
         student_sid=sid,
         topics=topics,
     )

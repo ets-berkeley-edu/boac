@@ -171,13 +171,14 @@ export default {
       this.showCreateAppointmentModal = false;
       this.selectedAppointment = undefined;
     },
-    checkInAppointment(advisor) {
+    checkInAppointment(advisor, deptCodes) {
       if (!advisor) {
         advisor = this.user;
+        deptCodes = this.map(this.user.departments, 'code');
       }
       const appointmentId = this.selectedAppointment.id;
       checkIn(
-        Object.keys(advisor.departments),
+        deptCodes,
         advisor.name,
         advisor.title,
         advisor.uid,
@@ -203,7 +204,7 @@ export default {
       this.selectedAppointment = undefined;
     },
     createAppointment(details, sid, topics) {
-      create(this.deptCode, details, sid, topics).then(appointment => {
+      create(this.deptCode, details, sid, 'Drop-in', topics).then(appointment => {
         this.showCreateAppointmentModal = false;
         this.waitlist.push(appointment);
       });

@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac import db, std_commit
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.models.appointment_read import AppointmentRead
 from boac.models.appointment_topic import AppointmentTopic
 from boac.models.base import Base
@@ -43,6 +44,7 @@ class Appointment(Base):
     advisor_name = db.Column(db.String(255), nullable=True)
     advisor_role = db.Column(db.String(255), nullable=True)
     advisor_uid = db.Column(db.String(255), nullable=True)
+    appointment_type = db.Column(db.String(255), nullable=True)
     cancel_reason = db.Column(db.String(255), nullable=True)
     cancel_reason_explained = db.Column(db.String(255), nullable=True)
     canceled_at = db.Column(db.DateTime, nullable=True)
@@ -69,6 +71,7 @@ class Appointment(Base):
         advisor_name,
         advisor_role,
         advisor_uid,
+        appointment_type,
         created_by,
         dept_code,
         details,
@@ -79,6 +82,7 @@ class Appointment(Base):
         self.advisor_name = advisor_name
         self.advisor_role = advisor_role
         self.advisor_uid = advisor_uid
+        self.appointment_type = appointment_type
         self.created_by = created_by
         self.dept_code = dept_code
         self.details = details
@@ -110,6 +114,7 @@ class Appointment(Base):
             created_by,
             dept_code,
             details,
+            appointment_type,
             student_sid,
             topics=(),
             advisor_dept_codes=None,
@@ -122,6 +127,7 @@ class Appointment(Base):
             advisor_name,
             advisor_role,
             advisor_uid,
+            appointment_type,
             created_by,
             dept_code,
             details,
@@ -176,12 +182,16 @@ class Appointment(Base):
 
     def to_api_json(self, current_user_id):
         topics = [t.to_api_json() for t in self.topics if not t.deleted_at]
+        departments = None
+        if self.advisor_dept_codes:
+            departments = [{'code': c, 'name': BERKELEY_DEPT_CODE_TO_NAME.get(c, c)} for c in self.advisor_dept_codes]
         return {
             'id': self.id,
             'advisorName': self.advisor_name,
             'advisorRole': self.advisor_role,
             'advisorUid': self.advisor_uid,
-            'advisorDeptCodes': self.advisor_dept_codes,
+            'advisorDepartments': departments,
+            'appointmentType': self.appointment_type,
             'cancelReason': self.cancel_reason,
             'cancelReasonExplained': self.cancel_reason_explained,
             'canceledAt': _isoformat(self.canceled_at),
