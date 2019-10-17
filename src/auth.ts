@@ -1,15 +1,38 @@
 import _ from 'lodash';
 import store from "@/store";
 
-const isAdvisor = user => !!_.size(_.filter(user.departments, d => d.isAdvisor || d.isDirector));
-
 const dropInAdvisorForDepartments = user =>  _.filter(user.departments, d => d.isDropInAdvisor);
+
+const goToLogin = (to: any, next: any) => {
+  next({
+    path: '/login',
+    query: {
+      error: to.query.error,
+      redirect: to.name === 'home' ? undefined : to.fullPath
+    }
+  });
+};
+
+const isAdvisor = user => !!_.size(_.filter(user.departments, d => d.isAdvisor || d.isDirector));
 
 const schedulerForDepartments = user =>  _.filter(user.departments, d => d.isScheduler);
 
 export default {
   dropInAdvisorForDepartments,
   isAdvisor,
+  requiresAdmin: (to: any, from: any, next: any) => {
+    store.dispatch('user/loadUser').then(user => {
+      if (user.isAuthenticated) {
+        if (user.isAdmin) {
+          next();
+        } else {
+          next({ path: '/404' });
+        }
+      } else {
+        goToLogin(to, next);
+      }
+    });
+  },
   requiresAdvisor: (to: any, from: any, next: any) => {
     store.dispatch('user/loadUser').then(user => {
       if (user.isAuthenticated) {
@@ -19,13 +42,7 @@ export default {
           next({ path: '/404' });
         }
       } else {
-        next({
-          path: '/login',
-          query: {
-            error: to.query.error,
-            redirect: to.name === 'home' ? undefined : to.fullPath
-          }
-        });
+        goToLogin(to, next);
       }
     });
   },
@@ -34,13 +51,7 @@ export default {
       if (data.isAuthenticated) {
         next();
       } else {
-        next({
-          path: '/login',
-          query: {
-            error: to.query.error,
-            redirect: to.name === 'home' ? undefined : to.fullPath
-          }
-        });
+        goToLogin(to, next);
       }
     });
   },
@@ -54,13 +65,7 @@ export default {
             next({ path: '/404' });
           }
         } else {
-          next({
-            path: '/login',
-            query: {
-              error: to.query.error,
-              redirect: to.name === 'home' ? undefined : to.fullPath
-            }
-          });
+          goToLogin(to, next);
         }
       } else {
          next({ path: '/404' });
@@ -79,13 +84,7 @@ export default {
             }
           });
         } else {
-          next({
-            path: '/login',
-            query: {
-              error: to.query.error,
-              redirect: to.name === 'home' ? undefined : to.fullPath
-            }
-          });
+          goToLogin(to, next);
         }
       } else {
          next({ path: '/404' });

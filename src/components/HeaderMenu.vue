@@ -13,9 +13,12 @@
             <div class="b-link-text">{{ user.firstName || `UID:${user.uid}` }}</div><font-awesome icon="caret-down" class="ml-1 b-link-text" />
           </div>
         </template>
-        <b-dropdown-item v-if="user.isAdmin || isDemoModeAvailable" @click="goAdmin">
-          <span v-if="user.isAdmin">Admin</span>
+        <b-dropdown-item v-if="user.isAdmin || isDemoModeAvailable" @click="goFlightDeck">
+          <span v-if="user.isAdmin">Flight Deck</span>
           <span v-if="!user.isAdmin">Settings</span>
+        </b-dropdown-item>
+        <b-dropdown-item v-if="user.isAdmin" @click="goPassengerManifest">
+          Passenger Manifest
         </b-dropdown-item>
         <b-dropdown-item href="#" @click="logOut">Log Out</b-dropdown-item>
         <b-dropdown-item :href="`mailto:${supportEmailAddress}`" target="_blank">Feedback/Help</b-dropdown-item>
@@ -33,11 +36,14 @@ export default {
   name: 'HeaderMenu',
   mixins: [Context, UserMetadata],
   methods: {
+    goFlightDeck() {
+      this.$router.push({ path: this.isUserSimplyScheduler() ? '/scheduler/settings' : '/admin' });
+    },
     logOut() {
       getCasLogoutUrl().then(data => window.location.href = data.casLogoutUrl);
     },
-    goAdmin() {
-      this.$router.push({ path: this.isUserSimplyScheduler() ? '/scheduler/settings' : '/admin' });
+    goPassengerManifest() {
+      this.$router.push({ path: '/admin/passengers' });
     }
   }
 };

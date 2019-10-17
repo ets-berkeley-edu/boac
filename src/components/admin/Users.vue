@@ -1,9 +1,16 @@
 <template>
   <div class="list-group">
-    <h2 id="dept-users-section" class="page-section-header-sub pb-2">
-      Users
-      <span class="text-black-50 font-size-14">(<a id="download-boa-users-csv" :href="`${apiBaseUrl}/api/users/csv`">download</a>)</span>
-    </h2>
+    <div class="align-items-center d-flex pb-2">
+      <div class="pr-2">
+        <font-awesome icon="clipboard-check" size="2x" />
+      </div>
+      <div class="pt-2">
+        <h1 id="dept-users-section" class="page-section-header">
+          Passengers
+          <span class="font-size-14 text-black-50">(<a id="download-boa-users-csv" :href="`${apiBaseUrl}/api/users/csv`">download</a>)</span>
+        </h1>
+      </div>
+    </div>
     <b-container class="pl-0 ml-0">
       <b-form-row class="pb-2">
         <b-col cols="6" class="mr-5">
