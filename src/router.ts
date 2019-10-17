@@ -13,6 +13,7 @@ import DropInAdvisorHome from '@/views/DropInAdvisorHome.vue';
 import Home from '@/views/Home.vue';
 import Login from '@/layouts/Login.vue';
 import NotFound from '@/views/NotFound.vue';
+import PassengerManifest from '@/views/PassengerManifest.vue';
 import Router from 'vue-router';
 import Search from '@/views/Search.vue';
 import StandardLayout from '@/layouts/StandardLayout.vue';
@@ -162,6 +163,20 @@ const router = new Router({
           component: Student,
           meta: {
             title: 'Student'
+          }
+        }
+      ]
+    },
+    {
+      path: '/',
+      component: StandardLayout,
+      beforeEnter: auth.requiresAdmin,
+      children: [
+        {
+          path: '/admin/passengers',
+          component: PassengerManifest,
+          meta: {
+            title: 'Passenger Manifest'
           }
         }
       ]
