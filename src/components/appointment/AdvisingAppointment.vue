@@ -37,30 +37,27 @@
           <font-awesome icon="calendar-minus" class="status-canceled-icon" /> Canceled
         </div>
       </div>
-      <div v-if="!isUndefined(appointment.author) && !appointment.author.name" class="mt-2 advisor-profile-not-found">
-        Advisor profile not found
+      <div v-if="appointment.advisorName" class="mt-3">
+        <a
+          v-if="appointment.advisorUid"
+          :id="`appointment-${appointment.id}-advisor-name`"
+          :aria-label="`Open UC Berkeley Directory page of ${appointment.advisorName} in a new window`"
+          :href="`https://www.berkeley.edu/directory/results?search-term=${appointment.advisorName}`"
+          target="_blank">{{ appointment.advisorName }}</a>
+        <span v-if="!appointment.advisorUid" :id="`appointment-${appointment.id}-advisor-name`">
+          {{ appointment.advisorName }}
+        </span>
+        <span v-if="appointment.advisorRole" :id="`appointment-${appointment.id}-advisor-role`" class="text-dark">
+          - {{ appointment.advisorRole }}
+        </span>
       </div>
-      <div v-if="appointment.author" class="mt-2">
-        <div v-if="appointment.author.name">
-          <span class="sr-only">Appointment created by </span>
-          <a
-            v-if="appointment.author.uid"
-            :id="`appointment-${appointment.id}-author-name`"
-            :aria-label="`Open UC Berkeley Directory page of ${appointment.author.name} in a new window`"
-            :href="`https://www.berkeley.edu/directory/results?search-term=${appointment.author.name}`"
-            target="_blank">{{ appointment.author.name }}</a>
-          <span v-if="!appointment.author.uid" :id="`appointment-${appointment.id}-author-name`">
-            {{ appointment.author.name }}
-          </span>
-          <span v-if="appointment.author.role">
-            - <span :id="`appointment-${appointment.id}-author-role`" class="text-dark">{{ appointment.author.role }}</span>
-          </span>
-        </div>
-        <div v-if="size(appointment.author.departments)" class="text-secondary">
-          <span v-if="appointment.author.title">{{ appointment.author.title }}, </span><span v-if="size(appointment.author.departments)">
-            {{ oxfordJoin(map(appointment.author.departments, 'name')) }}
-          </span>
-        </div>
+      <div v-if="size(appointment.advisorDepartments)" class="text-secondary">
+        <span v-for="(dept, index) in appointment.advisorDepartments" :key="dept.code">
+          <span :id="`appointment-${appointment.id}-advisor-dept-${index}`">{{ dept.name }}</span>
+        </span>
+      </div>
+      <div v-if="appointment.appointmentType" :id="`appointment-${appointment.id}-type`" class="mt-3">
+        {{ appointment.appointmentType }}
       </div>
       <div v-if="appointment.topics && size(appointment.topics)">
         <div class="pill-list-header mt-3 mb-1">{{ size(appointment.topics) === 1 ? 'Topic' : 'Topics' }}</div>

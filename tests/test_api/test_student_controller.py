@@ -587,7 +587,7 @@ class TestStudent:
             fake_auth.login(coe_scheduler_id)
             response = client.post(
                 '/api/appointments/create',
-                data=json.dumps({'deptCode': 'COENG', 'sid': sid, 'topics': ['Appointment Topic 3']}),
+                data=json.dumps({'deptCode': 'COENG', 'sid': sid, 'appointmentType': 'Drop-in', 'topics': ['Appointment Topic 3']}),
                 content_type='application/json',
             )
             assert response.status_code == 200

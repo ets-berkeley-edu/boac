@@ -131,7 +131,8 @@ export default {
     checkIn() {
       const advisor = this.find(this.dropInAdvisors, {'uid': this.selectedAdvisorUid});
       if (advisor) {
-        this.appointmentCheckin(advisor);
+        const deptCodes = Object.keys(advisor.departments);
+        this.appointmentCheckin(advisor, deptCodes);
         this.alertScreenReader(`Checked in ${this.appointment.student.name}`);
         this.showCheckInModal = false;
       }
