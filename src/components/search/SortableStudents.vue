@@ -30,7 +30,7 @@
           v-html="`${row.item.name}`"></router-link>
         <span
           v-if="row.item.academicCareerStatus === 'Inactive' || displayAsAscInactive(row.item) || displayAsCoeInactive(row.item)"
-          class="home-inactive-info-icon sortable-students-icon"
+          class="inactive-info-icon sortable-students-icon"
           uib-tooltip="Inactive"
           tooltip-placement="bottom">
           <font-awesome icon="info-circle" />

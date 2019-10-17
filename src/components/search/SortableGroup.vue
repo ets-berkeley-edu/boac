@@ -15,21 +15,21 @@
         href="#"
         @click.prevent="fetchStudents()">
         <div
-          class="accordion-heading"
+          class="accordion-heading d-flex justify-content-between"
           :class="{'compact-header compact-border-bottom': compact && openAndLoaded, 'bg-white': isFetching || !isOpen}">
-          <div class="accordion-heading-name">
+          <div class="accordion-heading-name align-items-start d-flex">
             <div class="accordion-heading-caret">
               <font-awesome v-if="isFetching" icon="spinner" spin />
               <font-awesome v-if="!isFetching" :icon="isOpen ? 'caret-down' : 'caret-right'" />
             </div>
-            <h2 class="page-section-header-sub accordion-header">
+            <h2 class="page-section-header-sub m-0 text-wrap">
               <span class="sr-only">{{ `${isOpen ? 'Hide' : 'Show'} details for ${keyword} ` }}</span>
               <span>{{ group.name }}</span>
               (<span :id="`sortable-${keyword}-${group.id}-total-student-count`">{{ group.totalStudentCount }}</span>
               <span class="sr-only">&nbsp;students</span>)
             </h2>
           </div>
-          <div class="accordion-heading-count">
+          <div class="accordion-heading-count align-items-start d-flex justify-content-end">
             <div v-if="!compact" class="sortable-table-header accordion-heading-count-label">
               Total Issues:
             </div>
@@ -50,8 +50,8 @@
       :aria-expanded="openAndLoaded"
       class="panel-body pr-3"
       :class="{'panel-open': openAndLoaded, 'compact-background': compact && !isFetching, 'compact-border-bottom': compact && openAndLoaded}">
-      <div v-if="group.studentsWithAlerts && size(group.studentsWithAlerts)">
-        <div v-if="!compact && size(group.studentsWithAlerts) === 50" :id="`sortable-${keyword}-${group.id}-alert-limited`" class="m-3">
+      <div v-if="studentsWithAlerts && size(studentsWithAlerts)">
+        <div v-if="!compact && size(studentsWithAlerts) === 50" :id="`sortable-${keyword}-${group.id}-alert-limited`" class="m-3">
           Showing 50 students with a high number of alerts.
           <router-link :id="`sortable-${keyword}-${group.id}-alert-limited-view-all`" :to="`/${keyword}/${group.id}`">
             View all {{ group.totalStudentCount }} students in "{{ group.name }}"
@@ -59,7 +59,7 @@
         </div>
         <div class="pt-2">
           <SortableStudents
-            :students="group.studentsWithAlerts"
+            :students="studentsWithAlerts"
             :options="sortableStudentsOptions(group, compact)" />
         </div>
       </div>
@@ -107,7 +107,8 @@ export default {
   data: () => ({
     isFetching: undefined,
     isOpen: undefined,
-    keyword: undefined
+    keyword: undefined,
+    studentsWithAlerts: undefined
   }),
   computed: {
     openAndLoaded() {
@@ -120,13 +121,13 @@ export default {
   methods: {
     fetchStudents() {
       this.isOpen = !this.isOpen;
-      if (!this.isFetching) {
+      if (this.isNil(this.studentsWithAlerts)) {
         this.isFetching = true;
         const ga = this.isCohort ? this.gaCohortEvent : this.gaCuratedEvent;
         store
           .dispatch(`${this.keyword}/loadStudentsWithAlerts`, this.group.id)
           .then(group => {
-            this.group = group;
+            this.studentsWithAlerts = group.studentsWithAlerts;
             this.isFetching = false;
             this.alertScreenReader(`Loaded students with alerts who are in ${this.keyword} ${this.group.name}`);
             ga({
@@ -140,3 +141,54 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.compact-background {
+  background-color: #f3fbff;
+}
+.compact-border-bottom {
+  border-bottom-color: #ccc;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+}
+.compact-header {
+  border-top-color: #999;
+  border-top-style: solid;
+  border-top-width: 1px;
+}
+.panel-heading {
+  padding: 10px 15px 10px 0;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+</style>
+
+<style>
+.accordion .panel-title a:focus,
+.accordion .panel-title a:hover {
+  text-decoration: none;
+}
+.accordion-heading {
+  background: #ecf5fb;
+}
+.accordion-heading-caret {
+  color: #337ab7;
+  margin-right: 15px;
+  width: 10px;
+}
+.accordion-heading-count {
+  margin: 10px 15px;
+  min-width: 130px;
+}
+.accordion-heading-count-label {
+  margin: 0 5px;
+}
+.accordion-heading-name {
+  margin: 10px 15px;
+}
+.accordion-heading-link:active,
+.accordion-heading-link:focus,
+.accordion-heading-link:hover {
+  text-decoration: none;
+}
+</style>
