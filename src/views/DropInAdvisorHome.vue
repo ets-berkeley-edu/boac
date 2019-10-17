@@ -21,11 +21,12 @@
               </div>
             </div>
             <div v-if="myCohorts.length">
-              <HomeCohort
+              <SortableGroup
                 v-for="cohort in myCohorts"
                 :key="cohort.id"
-                :cohort="cohort"
-                :compact="true" />
+                :compact="true"
+                :group="cohort"
+                :is-cohort="true" />
             </div>
             <div v-if="!myCohorts.length">
               <div>
@@ -45,10 +46,11 @@
                   Total
                 </div>
               </div>
-              <HomeCuratedGroup
+              <SortableGroup
                 v-for="curatedGroup in myCuratedGroups"
                 :key="curatedGroup.id"
-                :curated-group="curatedGroup"
+                :group="curatedGroup"
+                :is-cohort="false"
                 :compact="true" />
             </div>
           </div>
@@ -60,9 +62,8 @@
 
 <script>
 import DropInWaitlist from "@/components/appointment/DropInWaitlist";
-import HomeCohort from '@/components/home/HomeCohort';
-import HomeCuratedGroup from '@/components/home/HomeCuratedGroup';
 import Loading from '@/mixins/Loading';
+import SortableGroup from '@/components/search/SortableGroup';
 import Spinner from '@/components/util/Spinner';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
@@ -72,8 +73,7 @@ export default {
   name: 'DropInAdvisorHome',
   components: {
     DropInWaitlist,
-    HomeCohort,
-    HomeCuratedGroup,
+    SortableGroup,
     Spinner
   },
   mixins: [Loading, UserMetadata, Util],

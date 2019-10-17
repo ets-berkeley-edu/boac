@@ -136,7 +136,7 @@
   -webkit-box-shadow: none;
   box-shadow: 0;
 }
-.pill-alerts-home {
+.pill-alerts {
   border-radius: 10px;
   color: #fff;
   display: inline-block;
@@ -147,10 +147,10 @@
   padding: 0 4px 0 4px;
   text-align: center;
 }
-.pill-alerts-home-nonzero {
+.pill-alerts-nonzero {
   background-color: #f0ad4e;
 }
-.pill-alerts-home-zero {
+.pill-alerts-zero {
   background-color: #ccc;
 }
 .pill-alerts-per-student {

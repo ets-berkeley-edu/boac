@@ -84,7 +84,7 @@
 
       <template slot="alertCount" slot-scope="row">
         <span class="sr-only">Issue count</span>
-        <div class="float-right mr-3">
+        <div class="float-right mr-2">
           <div
             v-if="!row.item.alertCount"
             class="bg-white border pl-3 pr-3 rounded-pill text-muted"

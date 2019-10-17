@@ -14,7 +14,7 @@
         </h2>
         <ul v-if="row.groups.length">
           <li v-for="group in row.groups" :key="group.id">
-            <router-link :to="'/curated/' + group.id">{{ group.name }}</router-link> ({{ group.studentCount }})
+            <router-link :to="'/curated/' + group.id">{{ group.name }}</router-link> ({{ group.totalStudentCount }})
           </li>
         </ul>
         <div v-if="!row.groups.length" class="m-3">
