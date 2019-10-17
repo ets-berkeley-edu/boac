@@ -3,7 +3,7 @@
     :id="`home-curated-group-${curatedGroup.id}`"
     class="accordion panel"
     :class="{'panel-open': curatedGroup.isOpen}">
-    <div class="panel-heading">
+    <div class="panel-heading" :class="{'compact-background mt-2 p-0': compact}">
       <a
         :id="`home-curated-group-${curatedGroup.id}-toggle`"
         v-b-toggle="`home-curated-group-${curatedGroup.id}`"
@@ -12,7 +12,7 @@
         role="button"
         href="#"
         @click.prevent="fetchStudents()">
-        <div class="accordion-heading">
+        <div class="accordion-heading" :class="{'compact-header': compact}">
           <div class="accordion-heading-name">
             <div class="accordion-heading-caret">
               <font-awesome v-if="isFetching" icon="spinner" spin />
@@ -26,16 +26,16 @@
             </h2>
           </div>
           <div class="accordion-heading-count">
-            <div class="sortable-table-header accordion-heading-count-label">
+            <div v-if="!compact" class="sortable-table-header accordion-heading-count-label">
               Total Issues:
             </div>
             <div
               v-if="!curatedGroup.alertCount"
-              class="home-issues-pill home-issues-pill-zero"
+              class="pill-alerts-home pill-issues-home-zero"
               aria-label="`No issues for ${cohort.name}`">0</div>
             <div
               v-if="curatedGroup.alertCount"
-              class="home-issues-pill home-issues-pill-nonzero"
+              class="pill-alerts-home pill-alerts-home-nonzero"
               aria-label="`${curatedGroup.alertCount} alerts for ${curatedGroup.name}`">{{ curatedGroup.alertCount }}</div>
           </div>
         </div>
@@ -45,21 +45,22 @@
       :id="`home-curated-group-${curatedGroup.id}`"
       :aria-expanded="isOpen"
       class="panel-body pr-3"
-      :class="{'panel-open': isOpen}">
+      :class="{'panel-open': isOpen, 'compact-background': compact}">
       <div v-if="curatedGroup.studentsWithAlerts && size(curatedGroup.studentsWithAlerts)">
-        <div v-if="size(curatedGroup.studentsWithAlerts) === 50" :id="`home-curated-group-${curatedGroup.id}-alert-limited`" class="m-3">
+        <div v-if="!compact && size(curatedGroup.studentsWithAlerts) === 50" :id="`home-curated-group-${curatedGroup.id}-alert-limited`" class="m-3">
           Showing 50 students with a high number of alerts.
           <router-link :id="`home-curated-group-${curatedGroup.id}-alert-limited-view-all`" :to="`/curated/${curatedGroup.id}`">
             View all {{ curatedGroup.studentCount }} students in "{{ curatedGroup.name }}"
           </router-link>
         </div>
-        <SortableStudents :students="curatedGroup.studentsWithAlerts" :options="getSortOptions(curatedGroup)" />
+        <SortableStudents
+          :students="curatedGroup.studentsWithAlerts"
+          :options="sortableStudentsOptions(curatedGroup, compact)" />
       </div>
-      <div>
+      <div class="pl-3 pb-3">
         <router-link :id="`home-curated-group-${curatedGroup.id}-view-all`" :to="`/curated/${curatedGroup.id}`">
           <span v-if="curatedGroup.studentCount">
-            View <span>{{ 'student' | pluralize(curatedGroup.studentCount,
-                                                {1: 'the one', 'other': `all ${curatedGroup.studentCount}`}) }}
+            View <span>{{ 'student' | pluralize(curatedGroup.studentCount, {1: 'the one', 'other': `all ${curatedGroup.studentCount}`}) }}
             </span>
             in "<span>{{ curatedGroup.name }}</span>"
           </span>
@@ -73,8 +74,8 @@
 </template>
 
 <script>
+import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
-import HomeUtil from '@/components/home/HomeUtil';
 import SortableStudents from '@/components/search/SortableStudents';
 import store from '@/store';
 import UserMetadata from '@/mixins/UserMetadata';
@@ -85,9 +86,16 @@ export default {
   components: {
     SortableStudents
   },
-  mixins: [Context, HomeUtil, UserMetadata, Util],
+  mixins: [Berkeley, Context, UserMetadata, Util],
   props: {
-    curatedGroup: Object
+    curatedGroup: {
+      required: true,
+      type: Object
+    },
+    compact: {
+      default: false,
+      type: Boolean
+    }
   },
   data: () => ({
     isOpen: false,
@@ -117,6 +125,17 @@ export default {
 </script>
 
 <style scoped>
+.compact-background {
+  background-color: #f3fbff;
+}
+.compact-header {
+  border-bottom-color: #ccc;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-top-color: #999;
+  border-top-style: solid;
+  border-top-width: 1px !important;
+}
 .panel-group .panel + .panel {
   margin-top: 5px;
 }

@@ -5,8 +5,8 @@ export default {
   name: 'Berkeley',
   methods: {
     previousSisTermId(termId) {
-      var previousTermId = '';
-      var strTermId = termId.toString();
+      let previousTermId = '';
+      let strTermId = termId.toString();
       switch (strTermId.slice(3)) {
         case '2':
           previousTermId =
@@ -28,6 +28,23 @@ export default {
         course.waitlisted =
           course.waitlisted || section.enrollmentStatus === 'W';
       });
+    },
+    sortableStudentsOptions(studentGroup, compact=false) {
+      if (studentGroup.studentsWithAlerts && _.size(studentGroup.studentsWithAlerts) === 50) {
+        return {
+          compact,
+          includeCuratedCheckbox: false,
+          reverse: true,
+          sortBy: 'alertCount'
+        };
+      } else {
+        return {
+          compact,
+          includeCuratedCheckbox: false,
+          reverse: false,
+          sortBy: 'name'
+        };
+      }
     },
     termNameForSisId(termId) {
       let termName = '';

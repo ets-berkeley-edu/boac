@@ -11,23 +11,23 @@
       :sort-desc.sync="sortDescending"
       stacked="md"
       thead-class="sortable-table-header text-nowrap">
-      <template v-if="options.includeCuratedCheckbox" slot="curated" slot-scope="row">
-        <CuratedStudentCheckbox :student="row.item" />
+      <template slot="curated" slot-scope="row">
+        <CuratedStudentCheckbox v-if="options.includeCuratedCheckbox" :student="row.item" />
       </template>
 
       <template slot="avatar" slot-scope="row">
         <StudentAvatar :key="row.item.sid" :student="row.item" size="small" />
       </template>
 
-      <template slot="lastName" slot-scope="row">
+      <template slot="name" slot-scope="row">
         <span class="sr-only">Student name</span>
         <router-link
           :id="`link-to-student-${row.item.uid}`"
-          :aria-label="'Go to profile page of ' + row.item.firstName + ' ' + row.item.lastName"
+          :aria-label="`Go to profile page of ${row.item.name}`"
           class="text-nowrap"
           :class="{'demo-mode-blur': user.inDemoMode}"
           :to="studentRoutePath(row.item.uid, user.inDemoMode)"
-          v-html="`${row.item.lastName}, ${row.item.firstName}`"></router-link>
+          v-html="`${row.item.name}`"></router-link>
         <span
           v-if="row.item.academicCareerStatus === 'Inactive' || displayAsAscInactive(row.item) || displayAsCoeInactive(row.item)"
           class="home-inactive-info-icon sortable-students-icon"
@@ -49,7 +49,7 @@
         <span :class="{'demo-mode-blur': user.inDemoMode}">{{ row.item.sid }}</span>
       </template>
 
-      <template slot="majors[0]" slot-scope="row">
+      <template v-if="!options.compact" slot="majors[0]" slot-scope="row">
         <span class="sr-only">Major</span>
         <div v-if="!row.item.majors || row.item.majors.length === 0">--<span class="sr-only">No data</span></div>
         <div
@@ -59,24 +59,24 @@
         </div>
       </template>
 
-      <template slot="expectedGraduationTerm.id" slot-scope="row">
+      <template v-if="!options.compact" slot="expectedGraduationTerm.id" slot-scope="row">
         <span class="sr-only">Expected graduation term</span>
         <div v-if="!row.item.expectedGraduationTerm">--<span class="sr-only">No data</span></div>
         <span class="text-nowrap">{{ abbreviateTermName(row.item.expectedGraduationTerm && row.item.expectedGraduationTerm.name) }}</span>
       </template>
 
-      <template slot="term.enrolledUnits" slot-scope="row">
+      <template v-if="!options.compact" slot="term.enrolledUnits" slot-scope="row">
         <span class="sr-only">Term units</span>
         <div>{{ get(row.item.term, 'enrolledUnits', 0) }}</div>
       </template>
 
-      <template slot="cumulativeUnits" slot-scope="row">
+      <template v-if="!options.compact" slot="cumulativeUnits" slot-scope="row">
         <span class="sr-only">Units completed</span>
         <div v-if="!row.item.cumulativeUnits">--<span class="sr-only">No data</span></div>
         <div v-if="row.item.cumulativeUnits">{{ row.item.cumulativeUnits | numFormat('0.00') }}</div>
       </template>
 
-      <template slot="cumulativeGPA" slot-scope="row">
+      <template v-if="!options.compact" slot="cumulativeGPA" slot-scope="row">
         <span class="sr-only">GPA</span>
         <div v-if="isNil(row.item.cumulativeGPA)">--<span class="sr-only">No data</span></div>
         <div v-if="!isNil(row.item.cumulativeGPA)">{{ row.item.cumulativeGPA | round(3) }}</div>
@@ -84,19 +84,21 @@
 
       <template slot="alertCount" slot-scope="row">
         <span class="sr-only">Issue count</span>
-        <div
-          v-if="!row.item.alertCount"
-          class="home-issues-pill home-issues-pill-zero"
-          :aria-label="'No alerts for ' + row.item.firstName + ' ' + row.item.lastName"
-          tabindex="0">
-          0
-        </div>
-        <div
-          v-if="row.item.alertCount"
-          class="home-issues-pill home-issues-pill-nonzero"
-          :aria-label="row.item.alertCount + ' alerts for ' + row.item.firstName + ' ' + row.item.lastName"
-          tabindex="0">
-          {{ row.item.alertCount }}
+        <div class="float-right mr-3">
+          <div
+            v-if="!row.item.alertCount"
+            class="bg-white border pl-3 pr-3 rounded-pill text-muted"
+            :aria-label="`No alerts for ${row.item.name}`"
+            tabindex="0">
+            0
+          </div>
+          <div
+            v-if="row.item.alertCount"
+            class="bg-white border border-warning font-weight-bolder pill-alerts-per-student pl-3 pr-3 rounded-pill"
+            :aria-label="`${row.item.alertCount} alerts for ${row.item.name}`"
+            tabindex="0">
+            {{ row.item.alertCount }}
+          </div>
         </div>
       </template>
     </b-table>
@@ -119,14 +121,18 @@ export default {
   },
   mixins: [Context, StudentMetadata, UserMetadata, Util],
   props: {
-    students: Array,
     options: {
       type: Object,
       default: () => ({
-        sortBy: 'lastName',
+        compact: false,
+        sortBy: 'name',
         includeCuratedCheckbox: false,
         reverse: false
       })
+    },
+    students: {
+      required: true,
+      type: Array
     }
   },
   data() {
@@ -145,19 +151,26 @@ export default {
     }
   },
   created() {
-    this.fields = this.options.includeCuratedCheckbox ? [{ key: 'curated', label: '' }] : [];
-    this.fields = this.fields.concat([
+    this.fields = [
       {key: 'curated', label: ''},
-      {key: 'avatar', label: ''},
-      {key: 'lastName', label: 'Name', sortable: true},
-      {key: 'sid', label: 'SID', sortable: true},
-      {key: 'majors[0]', label: 'Major', sortable: true, class: 'truncate-with-ellipsis'},
-      {key: 'expectedGraduationTerm.id', label: 'Grad', sortable: true},
-      {key: 'term.enrolledUnits', label: 'Term units', sortable: true},
-      {key: 'cumulativeUnits', label: 'Units completed', sortable: true},
-      {key: 'cumulativeGPA', label: 'GPA', sortable: true},
-      {key: 'alertCount', label: 'Issues', sortable: true, class: 'text-center'}
-    ]);
+      {key: 'avatar', label: '', class: 'pr-0'},
+      {key: 'name', label: 'Name', sortable: true},
+    ];
+    if (this.options.compact) {
+      this.fields = this.fields.concat([
+        {key: 'alertCount', label: 'Alerts', sortable: false, class: 'alert-count text-right'}
+      ]);
+    } else {
+      this.fields = this.fields.concat([
+        {key: 'sid', label: 'SID', sortable: true},
+        {key: 'majors[0]', label: 'Major', sortable: true, class: 'truncate-with-ellipsis'},
+        {key: 'expectedGraduationTerm.id', label: 'Grad', sortable: true},
+        {key: 'term.enrolledUnits', label: 'Term units', sortable: true},
+        {key: 'cumulativeUnits', label: 'Units completed', sortable: true},
+        {key: 'cumulativeGPA', label: 'GPA', sortable: true},
+        {key: 'alertCount', label: 'Issues', sortable: true, class: 'alert-count text-right'}
+      ]);
+    }
   },
   methods: {
     abbreviateTermName: termName =>
@@ -181,7 +194,7 @@ export default {
       bValue = this.isNil(bValue) && this.isNumber(aValue) ? 0 : this.normalizeForSort(bValue);
       let result = this.sortComparator(aValue, bValue);
       if (result === 0) {
-        this.each(['lastName', 'firstName', 'sid'], field => {
+        this.each(['name', 'sid'], field => {
           result = this.sortComparator(
             this.normalizeForSort(this.get(a, field)),
             this.normalizeForSort(this.get(b, field))
@@ -198,7 +211,10 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
+th.alert-count {
+  padding-right: 15px;
+}
 .sortable-students-icon {
   margin-left: 5px;
 }
