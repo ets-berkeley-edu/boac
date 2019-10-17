@@ -3,7 +3,7 @@
     :id="`home-cohort-${cohort.id}`"
     class="accordion panel"
     :class="{'panel-open': cohort.isOpen}">
-    <div class="panel-heading">
+    <div class="panel-heading" :class="{'compact-background mt-2 p-0': compact}">
       <a
         :id="`home-cohort-${cohort.id}-toggle`"
         v-b-toggle="`home-cohort-${cohort.id}`"
@@ -12,7 +12,7 @@
         role="button"
         href="#"
         @click.prevent="fetchStudents()">
-        <div class="accordion-heading">
+        <div class="accordion-heading" :class="{'compact-header': compact}">
           <div class="accordion-heading-name">
             <div class="accordion-heading-caret">
               <font-awesome v-if="isFetching" icon="spinner" spin />
@@ -26,16 +26,16 @@
             </h2>
           </div>
           <div class="accordion-heading-count">
-            <div class="sortable-table-header accordion-heading-count-label">
+            <div v-if="!compact" class="sortable-table-header accordion-heading-count-label">
               Total Issues:
             </div>
             <div
               v-if="!cohort.alertCount"
-              class="home-issues-pill home-issues-pill-zero"
+              class="pill-alerts-home pill-alerts-home-zero"
               aria-label="`No issues for ${cohort.name}`">0</div>
             <div
               v-if="cohort.alertCount"
-              class="home-issues-pill home-issues-pill-nonzero"
+              class="font-weight-normal pill-alerts-home pill-alerts-home-nonzero pl-2 pr-2"
               aria-label="`${cohort.alertCount} alerts for ${cohort.name}`">{{ cohort.alertCount }}</div>
           </div>
         </div>
@@ -45,22 +45,22 @@
       :id="`home-cohort-${cohort.id}`"
       :aria-expanded="isOpen"
       class="panel-body pr-3"
-      :class="{'panel-open': isOpen}">
+      :class="{'panel-open': isOpen, 'compact-background': compact}">
       <div v-if="cohort.studentsWithAlerts && size(cohort.studentsWithAlerts)">
-        <div v-if="size(cohort.studentsWithAlerts) === 50" :id="`home-cohort-${cohort.id}-alert-limited`" class="m-3">
+        <div v-if="!compact && size(cohort.studentsWithAlerts) === 50" :id="`home-cohort-${cohort.id}-alert-limited`" class="m-3">
           Showing 50 students with a high number of alerts.
           <router-link :id="`home-cohort-${cohort.id}-alert-limited-view-all`" :to="`/cohort/${cohort.id}`">
             View all {{ cohort.totalStudentCount }} students in "{{ cohort.name }}"
           </router-link>
         </div>
-        <SortableStudents :students="cohort.studentsWithAlerts" :options="getSortOptions(cohort)" />
+        <SortableStudents
+          :students="cohort.studentsWithAlerts"
+          :options="sortableStudentsOptions(cohort, compact)" />
       </div>
-      <div>
+      <div class="pl-3 pb-3">
         <router-link :id="`home-cohort-${cohort.id}-view-all`" :to="`/cohort/${cohort.id}`">
           <span v-if="cohort.totalStudentCount">
-            View <span>{{ 'student' | pluralize(cohort.totalStudentCount,
-                                                {1: 'the one', 'other': `all ${cohort.totalStudentCount}`}) }}
-            </span>
+            View <span>{{ 'student' | pluralize(cohort.totalStudentCount, {1: 'the one', 'other': `all ${cohort.totalStudentCount}`}) }}</span>
             in "<span>{{ cohort.name }}</span>"
           </span>
           <span v-if="!cohort.totalStudentCount">
@@ -73,8 +73,8 @@
 </template>
 
 <script>
+import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
-import HomeUtil from '@/components/home/HomeUtil';
 import SortableStudents from '@/components/search/SortableStudents';
 import store from '@/store';
 import UserMetadata from '@/mixins/UserMetadata';
@@ -85,9 +85,16 @@ export default {
   components: {
     SortableStudents
   },
-  mixins: [Context, HomeUtil, UserMetadata, Util],
+  mixins: [Berkeley, Context, UserMetadata, Util],
   props: {
-    cohort: Object
+    cohort: {
+      required: true,
+      type: Object
+    },
+    compact: {
+      default: false,
+      type: Boolean
+    }
   },
   data: () => ({
     isOpen: false,
@@ -117,6 +124,17 @@ export default {
 </script>
 
 <style scoped>
+.compact-background {
+  background-color: #f3fbff;
+}
+.compact-header {
+  border-bottom-color: #ccc;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-top-color: #999;
+  border-top-style: solid;
+  border-top-width: 1px !important;
+}
 .panel-group .panel + .panel {
   margin-top: 5px;
 }

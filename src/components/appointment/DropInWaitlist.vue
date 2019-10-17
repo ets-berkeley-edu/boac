@@ -8,7 +8,7 @@
     <div v-if="isHomepage">
       <div class="align-items-center d-flex homepage-header-border justify-content-between">
         <div>
-          <h1>Drop-in Waitlist - {{ $moment() | moment('MMM D') }}</h1>
+          <h2 class="page-section-header">Drop-in Waitlist - {{ $moment() | moment('MMM D') }}</h2>
         </div>
         <div>
           <b-btn

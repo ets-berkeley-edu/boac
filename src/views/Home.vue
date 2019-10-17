@@ -126,21 +126,4 @@ export default {
   color: #d0021b;
   font-size: 16px;
 }
-.home-issues-pill {
-  border-radius: 10px;
-  color: #fff;
-  display: inline-block;
-  font-size: 16px;
-  font-weight: 800;
-  height: 20px;
-  line-height: 20px;
-  padding: 0 4px 0 4px;
-  text-align: center;
-}
-.home-issues-pill-nonzero {
-  background-color: #f0ad4e;
-}
-.home-issues-pill-zero {
-  background-color: #ccc;
-}
 </style>

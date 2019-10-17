@@ -136,6 +136,26 @@
   -webkit-box-shadow: none;
   box-shadow: 0;
 }
+.pill-alerts-home {
+  border-radius: 10px;
+  color: #fff;
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 800;
+  height: 20px;
+  line-height: 20px;
+  padding: 0 4px 0 4px;
+  text-align: center;
+}
+.pill-alerts-home-nonzero {
+  background-color: #f0ad4e;
+}
+.pill-alerts-home-zero {
+  background-color: #ccc;
+}
+.pill-alerts-per-student {
+  color: #f0ad4e;
+}
 .red-flag-status {
   color: #d0021b;
   font-weight: bold;
