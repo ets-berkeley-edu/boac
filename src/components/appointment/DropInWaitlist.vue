@@ -84,7 +84,7 @@
               :disabled="!!appointment.checkedInBy || !!appointment.canceledAt"
               text="Check In"
               variant="outline-dark"
-              @click="launchCheckIn(appointment)">
+              @click="launchCheckInForAppointment(appointment)">
               <b-dropdown-item-button @click="showAppointmentDetails(appointment)">Details</b-dropdown-item-button>
               <b-dropdown-item-button @click="cancelAppointment(appointment)">Cancel</b-dropdown-item-button>
             </b-dropdown>
@@ -92,7 +92,7 @@
               v-if="showAppointmentDetailsModal"
               :appointment="selectedAppointment"
               :close="closeAppointmentDetailsModal"
-              :check-in="launchCheckInFromDetails"
+              :check-in="launchCheckIn"
               :show-modal="showAppointmentDetailsModal"
               :student="selectedAppointment.student" />
             <AppointmentCancellationModal
@@ -209,16 +209,16 @@ export default {
         this.waitlist.push(appointment);
       });
     },
-    launchCheckIn(appointment) {
-      this.selectedAppointment = appointment;
+    launchCheckIn() {
       if (this.isHomepage) {
         this.checkInAppointment();
       } else {
         this.showCheckInModal = true;
       }
     },
-    launchCheckInFromDetails() {
-      this.showCheckInModal = true;
+    launchCheckInForAppointment(appointment) {
+      this.selectedAppointment = appointment;
+      this.launchCheckIn();
     },
     showAppointmentDetails(appointment) {
       this.selectedAppointment = appointment;

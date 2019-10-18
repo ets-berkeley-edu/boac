@@ -7,18 +7,20 @@
     hide-header
     :no-close-on-backdrop="true"
     @cancel.prevent="cancel"
-    @hide.prevent="cancel"
-    @shown="putFocusNextTick('are-you-sure-confirm')">
+    @hide.prevent="cancel">
     <div>
+      <div class="modal-header">
+        <h3>Advising Appointment</h3>
+      </div>
       <form @submit.prevent="create()">
         <div class="ml-3 mr-3">
-          <div v-if="student">
+          <div v-if="student" class="mt-3 mb-3 font-weight-bolder" id="appointment-student-selected">
             {{ student.label }}
           </div>
-          <div v-if="!student" class="d-flex">
+          <div v-if="!student">
             <div>
               <label
-                for="appointment-student"
+                for="appointment-student-input"
                 class="font-size-14 input-label text mt-2">
                 <span class="sr-only">Select a </span><span class="font-weight-bolder">Student</span> (name or SID)
                 <span class="sr-only">(expect auto-suggest based on what you enter)</span>
@@ -26,7 +28,7 @@
             </div>
             <div class="mb-2">
               <Autocomplete
-                id="appointment-student"
+                id="appointment-student-input"
                 :key="resetAutoCompleteKey"
                 class="w-75"
                 :demo-mode-blur="true"
@@ -36,44 +38,37 @@
                 @input="addStudent" />
             </div>
           </div>
-          <div class="d-flex">
+          <AppointmentTopics
+            class="mt-2 mb-1"
+            :disabled="isSaving"
+            :function-add="addTopic"
+            :function-remove="removeTopic"
+            :topics="topics" />
+          <div>
+            <label for="appointment-details" class="font-size-14 input-label text mt-2">
+              <span class="font-weight-bolder">Additional Information</span>
+            </label>
             <div>
-              Reason:
-            </div>
-            <div>
-              <AppointmentTopics
-                class="mt-2 mr-3 mb-1 ml-3"
-                :disabled="isSaving"
-                :function-add="addTopic"
-                :function-remove="removeTopic"
-                :topics="topics" />
-            </div>
-          </div>
-          <div class="d-flex">
-            <div>
-              <label for="appointment-details" class="pb-2">Additional Information:</label>
-            </div>
-            <div>
-              <input
+              <b-textarea
                 id="appointment-details"
                 v-model="details"
-                type="text"
-                maxlength="255"
+                rows="4"
                 required>
+              </b-textarea>
             </div>
           </div>
         </div>
         <div class="modal-footer pl-0 mr-2">
           <b-btn
-            id="create-confirm"
+            id="create-appointment-confirm"
             class="btn-primary-color-override"
             variant="primary"
-            :disabled="!trim(details).length"
+            :disabled="!student || !topics.length || !trim(details).length"
             @click.prevent="create()">
-            Save
+            Make Appointment
           </b-btn>
           <b-btn
-            id="create-cancel"
+            id="create-appointment-cancel"
             variant="link"
             @click.prevent="cancelModal()">
             Cancel
@@ -145,7 +140,10 @@ export default {
       this.reset();
     },
     removeTopic(topic) {
-      console.log('Remove ' + topic);
+      const index = this.indexOf(this.topics, topic);
+      if (index !== -1) {
+        this.topics.splice(index, 1);
+      }
     },
     reset() {
       this.details = '';

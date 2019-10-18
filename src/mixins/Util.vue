@@ -37,6 +37,7 @@ export default {
     get: _.get,
     has: _.has,
     includes: _.includes,
+    indexOf: _.indexOf,
     inRange: _.inRange,
     isEmpty: _.isEmpty,
     isNaN: _.isNaN,

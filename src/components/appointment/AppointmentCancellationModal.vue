@@ -7,8 +7,7 @@
     hide-header
     :no-close-on-backdrop="true"
     @cancel.prevent="close"
-    @hide.prevent="close"
-    @shown="putFocusNextTick('are-you-sure-confirm')">
+    @hide.prevent="close">
     <div>
       <div class="modal-header">
         <h3>Cancel Appointment</h3>

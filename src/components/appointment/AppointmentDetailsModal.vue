@@ -7,8 +7,7 @@
     hide-header
     :no-close-on-backdrop="true"
     @cancel.prevent="functionCancel"
-    @hide.prevent="functionCancel"
-    @shown="putFocusNextTick('are-you-sure-confirm')">
+    @hide.prevent="functionCancel">
     <div>
       <div class="modal-header">
         <h3>{{ student.name }}</h3>
@@ -29,7 +28,7 @@
           </div>
           <div class="d-flex">
             <div class="font-weight-bolder w-25">
-              <label for="appointment-topics">
+              <label for="appointment-created-at">
                 Arrival Time
               </label>
             </div>
