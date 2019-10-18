@@ -5,7 +5,7 @@ import { mapActions, mapGetters } from 'vuex';
 
 const $_myDeptCodes = roles => {
   const user = store.getters['user/user'];
-  return _.map(_.filter(user.departments, d => _.findIndex(roles, role => d[role]) > -1), ['deptCode']);
+  return _.map(_.filter(user.departments, d => _.findIndex(roles, role => d[role]) > -1), 'code');
 };
 
 export default {

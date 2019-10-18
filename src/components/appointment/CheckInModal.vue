@@ -123,7 +123,7 @@ export default {
   },
   created() {
     this.showCheckInModal = this.showModal;
-    getDropInAdvisorsForDept(this.appointment.dept_code).then(dropInAdvisors => {
+    getDropInAdvisorsForDept(this.appointment.deptCode).then(dropInAdvisors => {
       this.dropInAdvisors = dropInAdvisors;
     });
   },
