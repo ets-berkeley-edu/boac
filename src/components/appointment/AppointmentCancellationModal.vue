@@ -11,24 +11,24 @@
     @shown="putFocusNextTick('are-you-sure-confirm')">
     <div>
       <div class="modal-header">
-        <h3>{{ student.name }}</h3>
+        <h3>Cancel Appointment</h3>
       </div>
       <div class="modal-body w-100">
         <div class="mr-3">
           <div class="d-flex">
-            <div class="font-weight-bolder w-25">
+            <div class="appointment-details-label font-weight-bolder w-25">
               <label for="appointment-topics">
-                Reason
+                Date
               </label>
             </div>
             <div>
-              <span id="appointment-topics">
-                {{ oxfordJoin(appointment.topics) }}
+              <span id="appointment-created-at">
+                {{ new Date(appointment.createdAt) | moment('ddd, MMMM D') }}
               </span>
             </div>
           </div>
           <div class="d-flex">
-            <div class="font-weight-bolder w-25">
+            <div class="appointment-details-label font-weight-bolder w-25">
               <label for="appointment-topics">
                 Arrival Time
               </label>
@@ -41,14 +41,35 @@
           </div>
           <div class="d-flex">
             <div class="appointment-details-label font-weight-bolder w-25">
-              <label for="appointment-details">
-                Details
+              <label for="appointment-name">
+                Student
               </label>
             </div>
             <div>
-              <span id="appointment-details" v-html="appointment.details"></span>
+              <span id="appointment-name" v-html="appointment.student.name"></span>
             </div>
           </div>
+        </div>
+        <hr>
+        <div class="mb-3">
+          <label for="cancellation-reason">
+            <span class="font-weight-bolder">Cancellation Reason</span> (required)
+          </label>
+          <b-form-select
+            id="cancellation-reason"
+            v-model="reason"
+            :options="reasonOptions">
+          </b-form-select>
+        </div>
+        <div>
+          <label for="cancellation-reason-explained">
+            <span class="font-weight-bolder">Additional Information</span>
+          </label>
+          <b-form-textarea
+            id="cancellation-reason-explained"
+            v-model="reasonExplained"
+            rows="4">
+          </b-form-textarea>
         </div>
       </div>
       <div class="modal-footer">
@@ -57,6 +78,7 @@
             id="btn-appointment-cancel"
             class="btn-primary-color-override"
             variant="primary"
+            :disabled="!reason"
             :aria-label="`Cancel appointment with ${student.name}`"
             @click.prevent="cancelTheAppointment">
             Cancel Appointment
@@ -106,6 +128,11 @@ export default {
   data: () => ({
     reason: undefined,
     reasonExplained: undefined,
+    reasonOptions: [
+      { value: null, text: 'Choose one...' },
+      { value: 'Canceled by student', text: 'Canceled by student' },
+      { value: 'Canceled by department/advisor', text: 'Canceled by department/advisor' },
+    ],
     showCancellationModal: false
   }),
   watch: {

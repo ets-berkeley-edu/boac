@@ -290,7 +290,7 @@ import TimelineDate from '@/components/student/profile/TimelineDate';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { dismissStudentAlert } from '@/api/student';
-import { cancel as $_cancelAppointment, checkIn, markAppointmentRead } from '@/api/appointments';
+import { cancel as apiCancel, checkIn as apiCheckIn, markAppointmentRead } from '@/api/appointments';
 import { deleteNote, getNote, markNoteRead } from '@/api/notes';
 import { search } from '@/api/search';
 
@@ -450,7 +450,7 @@ export default {
       this.editModeNoteId = null;
     },
     appointmentCheckIn(appointmentId) {
-      checkIn(
+      apiCheckIn(
         this.map(this.user.departments, 'code'),
         this.user.name,
         this.user.title || (this.isAdmin ? 'BOA Admin' : null),
@@ -461,7 +461,7 @@ export default {
       });
     },
     cancelAppointment(appointmentId, cancelReason, cancelReasonExplained) {
-      $_cancelAppointment(appointmentId, cancelReason, cancelReasonExplained).then(a => {
+      apiCancel(appointmentId, cancelReason, cancelReasonExplained).then(a => {
         this.refreshTimelineAppointment(appointmentId, a);
       });
     },
