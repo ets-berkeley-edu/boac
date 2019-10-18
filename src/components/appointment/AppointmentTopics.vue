@@ -1,8 +1,8 @@
 <template>
   <div>
     <div>
-      <label id="add-appointment-topic-label" class="font-weight-bold mt-2" for="add-appointment-topic">
-        Topic Categories
+      <label for="add-topic-select-list" class="font-size-14 input-label text mt-2">
+        <span class="font-weight-bolder">Reason</span>
       </label>
     </div>
     <b-container class="pl-0 ml-0">
