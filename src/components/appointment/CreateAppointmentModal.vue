@@ -14,7 +14,7 @@
       </div>
       <form @submit.prevent="create()">
         <div class="ml-3 mr-3">
-          <div v-if="student" class="mt-3 mb-3 font-weight-bolder" id="appointment-student-selected">
+          <div v-if="student" id="appointment-student-selected" class="mt-3 mb-3 font-weight-bolder">
             {{ student.label }}
           </div>
           <div v-if="!student">
