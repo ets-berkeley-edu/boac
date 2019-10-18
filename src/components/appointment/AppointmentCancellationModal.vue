@@ -59,6 +59,9 @@
             id="cancellation-reason"
             v-model="reason"
             :options="reasonOptions">
+            <template v-slot:first>
+              <option :value="undefined" disabled>Select...</option>
+            </template>
           </b-form-select>
         </div>
         <div>
@@ -129,7 +132,6 @@ export default {
     reason: undefined,
     reasonExplained: undefined,
     reasonOptions: [
-      { value: null, text: 'Choose one...' },
       { value: 'Canceled by student', text: 'Canceled by student' },
       { value: 'Canceled by department/advisor', text: 'Canceled by department/advisor' },
     ],
