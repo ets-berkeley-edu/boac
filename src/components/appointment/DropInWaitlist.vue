@@ -123,7 +123,7 @@ import CreateAppointmentModal from '@/components/appointment/CreateAppointmentMo
 import StudentAvatar from '@/components/student/StudentAvatar';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
-import { cancel as cancelAppointment, checkIn, create } from '@/api/appointments';
+import { cancel as apiCancel, checkIn as apiCheckIn, create as apiCreate } from '@/api/appointments';
 
 export default {
   name: 'DropInWaitlist',
@@ -158,7 +158,7 @@ export default {
   },
   methods: {
     appointmentCancellation(appointmentId, reason, reasonExplained) {
-      cancelAppointment(this.selectedAppointment.id, reason, reasonExplained).then(canceled => {
+      apiCancel(this.selectedAppointment.id, reason, reasonExplained).then(canceled => {
         const indexOf = this.waitlist.findIndex(a => a.id === canceled.id);
         this.waitlist.splice(indexOf, 1);
       });
@@ -177,7 +177,7 @@ export default {
         deptCodes = this.map(this.user.departments, 'code');
       }
       const appointmentId = this.selectedAppointment.id;
-      checkIn(
+      apiCheckIn(
         deptCodes,
         advisor.name,
         advisor.title,
@@ -204,7 +204,7 @@ export default {
       this.selectedAppointment = undefined;
     },
     createAppointment(details, sid, topics) {
-      create(this.deptCode, details, sid, 'Drop-in', topics).then(appointment => {
+      apiCreate(this.deptCode, details, sid, 'Drop-in', topics).then(appointment => {
         this.showCreateAppointmentModal = false;
         this.waitlist.push(appointment);
       });

@@ -11,12 +11,11 @@
       <div class="mt-2">
         <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details"></span>
       </div>
-      <div class="d-flex align-items-center">
-        <div v-if="includes(dropInAdvisorDeptCodes(), appointment.deptCode)">
+      <div class="d-flex align-items-center mt-3 mb-3">
+        <div v-if="checkInAvailable">
           <b-dropdown
-            class="bg-white mb-3 mr-3 mt-3"
+            class="bg-white mr-3"
             split
-            :disabled="!!appointment.checkedInBy || !!appointment.canceledAt"
             text="Check In"
             variant="outline-dark"
             @click="checkIn(appointment.id)">
@@ -31,10 +30,24 @@
             :student="student" />
         </div>
         <div v-if="!!appointment.checkedInBy">
-          <font-awesome icon="calendar-check" class="status-checked-in-icon" /> Check In <span v-if="appointment.checkedInAt">@ {{ datePerTimezone(appointment.checkedInAt) | moment('h:mma') }}</span>
+          <font-awesome icon="calendar-check" class="status-checked-in-icon" />
+          <span class="text-secondary ml-1">
+            Check In
+            <span v-if="appointment.checkedInAt">
+              @ {{ datePerTimezone(appointment.checkedInAt) | moment('h:mma') }}
+            </span>
+          </span>
         </div>
         <div v-if="appointment.canceledAt">
-          <font-awesome icon="calendar-minus" class="status-canceled-icon" /> Canceled
+          <div>
+            <font-awesome icon="calendar-minus" class="status-canceled-icon" />
+            <span class="text-secondary ml-1">
+              {{ appointment.cancelReason || 'Canceled' }}
+            </span>
+          </div>
+          <div v-if="appointment.cancelReasonExplained" class="mt-1">
+            {{ appointment.cancelReasonExplained }}
+          </div>
         </div>
       </div>
       <div v-if="appointment.advisorName" class="mt-2">
@@ -110,6 +123,15 @@ export default {
   data: () => ({
     showCancelAppointmentModal: false
   }),
+  computed: {
+    checkInAvailable() {
+      return (
+        this.includes(this.dropInAdvisorDeptCodes(), this.appointment.deptCode) &&
+        !this.appointment.checkedInBy &&
+        !this.appointment.canceledAt
+      );
+    }
+  },
   methods: {
     appointmentCancellation(appointmentId, cancelReason, cancelReasonExplained) {
       this.cancelAppointment(appointmentId, cancelReason, cancelReasonExplained);
