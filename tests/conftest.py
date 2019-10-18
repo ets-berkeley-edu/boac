@@ -210,8 +210,11 @@ def mock_advising_note(app, db):
                     },
                 ],
             )
+            db.session.add(note)
             std_commit(allow_test_environment=True)
-            return note
+    yield note
+    Note.delete(note_id=note.id)
+    std_commit(allow_test_environment=True)
 
 
 @pytest.fixture()

@@ -81,7 +81,7 @@ _test_users = [
     },
     {
         'uid': '53791',
-        'csid': None,
+        'csid': '53791',
         'isAdmin': False,
         'inDemoMode': False,
         'canAccessCanvasData': True,
@@ -487,7 +487,7 @@ def _create_appointments():
         dept_code='COENG',
         details='Life is what happens while you\'re making appointments.',
         student_sid='5678901234',
-        topics=['Appointment Topic 4'],
+        topics=['Good Show'],
     )
     # L&S College Advising appointments
     l_s_advisor_uid = '53791'
@@ -501,6 +501,18 @@ def _create_appointments():
         dept_code='QCADV',
         details='C-c-catch the wave!',
         student_sid='5678901234',
+        topics=['Appointment Topic 1', 'Good Show'],
+    )
+    Appointment.create(
+        advisor_dept_codes=['QCADV'],
+        advisor_name='Max Headroom',
+        advisor_role='Advisor',
+        advisor_uid=l_s_advisor_uid,
+        appointment_type='Drop-in',
+        created_by=l_s_advisor_uid,
+        dept_code='QCADV',
+        details='It is not the length of life, but depth of life.',
+        student_sid='11667051',
         topics=['Appointment Topic 1'],
     )
 

@@ -122,6 +122,7 @@
             "dn": "uid=53791,ou=people,dc=berkeley,dc=edu",
             "raw": {
                 "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "berkeleyEduCSID": [ "53791" ],
                 "objectClass": [
                     "top",
                     "eduPerson",
