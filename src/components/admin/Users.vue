@@ -1,10 +1,10 @@
 <template>
   <div class="list-group">
-    <div class="align-items-center d-flex pb-2">
+    <div class="align-items-center d-flex pb-3">
       <div class="pr-2">
-        <font-awesome icon="clipboard-check" size="2x" />
+        <font-awesome icon="clipboard-check" size="2x" :style="{ color: '#3b7ea5' }" />
       </div>
-      <div class="pt-2">
+      <div class="pt-3">
         <h1 id="dept-users-section" class="page-section-header">
           Passengers
           <span class="font-size-14 text-black-50">(<a id="download-boa-users-csv" :href="`${apiBaseUrl}/api/users/csv`">download</a>)</span>

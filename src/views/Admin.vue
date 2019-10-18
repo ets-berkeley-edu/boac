@@ -2,7 +2,14 @@
   <div class="p-3">
     <Spinner />
     <div v-if="!loading">
-      <h1>BOA Flight Deck</h1>
+      <div class="align-items-center d-flex pb-3">
+        <div class="pr-3">
+          <font-awesome icon="plane-departure" size="2x" :style="{ color: '#3b7ea5' }" />
+        </div>
+        <div class="pt-2">
+          <h1 class="page-section-header">BOA Flight Deck</h1>
+        </div>
+      </div>
       <div class="pt-2">
         <h2 class="page-section-header-sub">My Profile</h2>
         <MyProfile class="mt-2" />

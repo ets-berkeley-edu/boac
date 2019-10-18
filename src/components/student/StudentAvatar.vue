@@ -10,7 +10,7 @@
       @error="avatarError" />
     <div
       v-if="alertCount"
-      class="student-avatar-alert-count home-inactive-info-icon">
+      class="inactive-info-icon student-avatar-alert-count">
       <span
         v-b-tooltip.hover.bottom
         :title="`${alertCount} alert${alertCount === 1 ? '' : 's'}`">
