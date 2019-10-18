@@ -58,6 +58,9 @@
           :options="dropInAdvisors"
           value-field="uid"
           text-field="name">
+          <template v-slot:first>
+            <option :value="null" disabled>Select...</option>
+          </template>
         </b-form-select>
       </div>
       <div class="modal-footer">
