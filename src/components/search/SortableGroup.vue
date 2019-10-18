@@ -4,8 +4,8 @@
     class="accordion panel"
     :class="{'panel-open pb-3': openAndLoaded}">
     <div
-      class="panel-heading"
-      :class="{'compact-background': compact && isOpen, 'bg-white': compact && !isOpen, 'p-0': compact}">
+      class="panel-heading mr-3"
+      :class="{'background-when-open': isOpen, 'bg-white': compact && !isOpen, 'p-0': compact}">
       <a
         :id="`sortable-${keyword}-${group.id}-toggle`"
         v-b-toggle="`sortable-${keyword}-${group.id}`"
@@ -48,10 +48,10 @@
     <b-collapse
       :id="`sortable-${keyword}-${group.id}`"
       :aria-expanded="openAndLoaded"
-      class="panel-body pr-3"
-      :class="{'panel-open': openAndLoaded, 'compact-background': compact && !isFetching, 'compact-border-bottom': compact && openAndLoaded}">
+      class="panel-body mr-3"
+      :class="{'panel-open': openAndLoaded, 'background-when-open': !isFetching, 'compact-border-bottom': openAndLoaded}">
       <div v-if="studentsWithAlerts && size(studentsWithAlerts)">
-        <div v-if="!compact && size(studentsWithAlerts) === 50" :id="`sortable-${keyword}-${group.id}-alert-limited`" class="m-3">
+        <div v-if="!compact && size(studentsWithAlerts) === 50" :id="`sortable-${keyword}-${group.id}-alert-limited`" class="p-3">
           Showing 50 students with a high number of alerts.
           <router-link :id="`sortable-${keyword}-${group.id}-alert-limited-view-all`" :to="`/${keyword}/${group.id}`">
             View all {{ group.totalStudentCount }} students in "{{ group.name }}"
@@ -143,7 +143,7 @@ export default {
 </script>
 
 <style scoped>
-.compact-background {
+.background-when-open {
   background-color: #f3fbff;
 }
 .compact-border-bottom {
@@ -169,7 +169,7 @@ export default {
   text-decoration: none;
 }
 .accordion-heading {
-  background: #ecf5fb;
+  background: #f3fbff;
 }
 .accordion-heading-caret {
   color: #337ab7;

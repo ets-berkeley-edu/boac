@@ -3,11 +3,11 @@
     <h1 class="sr-only">Welcome to BOA</h1>
     <Spinner />
     <div v-if="!loading">
-      <div class="d-flex justify-content-between">
-        <div class="column-01">
+      <div class="d-flex justify-content-between flex-wrap">
+        <div class="flex-fill mr-5">
           <DropInWaitlist :dept-code="deptCode" :is-homepage="true" :waitlist="waitlist" />
         </div>
-        <div class="mr-3 w-50">
+        <div class="flex-fill mr-3 w-50">
           <div class="homepage-header-border">
             <h2 class="alerts-header mb-0 page-section-header">Alerts</h2>
           </div>
@@ -94,11 +94,6 @@ export default {
 <style scoped>
 .color-grey {
   color: #999;
-}
-.column-01 {
-  max-width: 48%;
-  min-width: 48%;
-  margin-right: 30px;
 }
 </style>
 
