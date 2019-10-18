@@ -104,7 +104,7 @@ const router = new Router({
           name: 'admin',
           component: Admin,
           meta: {
-            title: 'Admin'
+            title: 'Flight Deck'
           }
         },
         {
