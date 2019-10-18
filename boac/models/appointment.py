@@ -27,10 +27,12 @@ from datetime import datetime
 
 from boac import db, std_commit
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
+from boac.merged.calnet import get_uid_for_csid
 from boac.models.appointment_read import AppointmentRead
 from boac.models.appointment_topic import AppointmentTopic
 from boac.models.base import Base
 from dateutil.tz import tzutc
+from flask import current_app as app
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql import text
@@ -176,6 +178,70 @@ class Appointment(Base):
             return None
 
     @classmethod
+    def search(
+        cls,
+        search_phrase,
+        advisor_csid=None,
+        student_csid=None,
+        topic=None,
+        datetime_from=None,
+        datetime_to=None,
+        limit=20,
+        offset=0,
+    ):
+        if search_phrase:
+            fts_selector = """SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
+                FROM appointments_fts_index
+                WHERE fts_index @@ plainto_tsquery('english', :search_phrase)"""
+            params = {
+                'search_phrase': search_phrase,
+            }
+        else:
+            fts_selector = 'SELECT id, 0 AS rank FROM appointments WHERE deleted_at IS NULL'
+            params = {}
+        if advisor_csid:
+            advisor_uid = get_uid_for_csid(app, advisor_csid)
+            advisor_filter = 'AND appointments.advisor_uid = :advisor_uid'
+            params.update({'advisor_uid': advisor_uid})
+        else:
+            advisor_filter = ''
+
+        if student_csid:
+            student_filter = 'AND appointments.student_sid = :student_csid'
+            params.update({'student_csid': student_csid})
+        else:
+            student_filter = ''
+
+        date_filter = ''
+        if datetime_from:
+            date_filter += ' AND updated_at >= :datetime_from'
+            params.update({'datetime_from': datetime_from})
+        if datetime_to:
+            date_filter += ' AND updated_at < :datetime_to'
+            params.update({'datetime_to': datetime_to})
+        if topic:
+            topic_join = 'JOIN appointment_topics nt on nt.topic = :topic AND nt.appointment_id = appointments.id'
+            params.update({'topic': topic})
+        else:
+            topic_join = ''
+
+        query = text(f"""
+            SELECT appointments.* FROM ({fts_selector}) AS fts
+            JOIN appointments
+                ON fts.id = appointments.id
+                {advisor_filter}
+                {student_filter}
+                {date_filter}
+            {topic_join}
+            ORDER BY fts.rank DESC, appointments.id
+            LIMIT {limit} OFFSET {offset}
+        """).bindparams(**params)
+        result = db.session.execute(query)
+        keys = result.keys()
+        response = [_to_json(dict(zip(keys, row))) for row in result.fetchall()]
+        return response
+
+    @classmethod
     def refresh_search_index(cls):
         db.session.execute(text('REFRESH MATERIALIZED VIEW appointments_fts_index'))
         std_commit()
@@ -214,3 +280,28 @@ class Appointment(Base):
 
 def _isoformat(value):
     return value and value.astimezone(tzutc()).isoformat()
+
+
+def _to_json(search_result):
+    return {
+        'id': search_result['id'],
+        'advisorName': search_result['advisor_name'],
+        'advisorRole': search_result['advisor_role'],
+        'advisorUid': search_result['advisor_uid'],
+        'advisorDeptCodes': search_result['advisor_dept_codes'],
+        'cancelReason': search_result['cancel_reason'],
+        'cancelReasonExplained': search_result['cancel_reason_explained'],
+        'canceledAt': _isoformat(search_result['canceled_at']),
+        'canceledBy': search_result['canceled_by'],
+        'checkedInAt': _isoformat(search_result['checked_in_at']),
+        'checkedInBy': search_result['checked_in_by'],
+        'createdAt': _isoformat(search_result['created_at']),
+        'createdBy': search_result['created_by'],
+        'dept_code': search_result['dept_code'],
+        'details': search_result['details'],
+        'student': {
+            'sid': search_result['student_sid'],
+        },
+        'updatedAt': _isoformat(search_result['updated_at']),
+        'updatedBy': search_result['updated_by'],
+    }

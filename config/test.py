@@ -30,6 +30,8 @@ AWS_APP_ROLE_ARN = 'arn:aws:iam::123456789012:role/test-role'
 
 DATA_LOCH_RDS_URI = 'postgres://boac:boac@localhost:5432/boac_loch_test'
 
+FEATURE_FLAG_ADVISOR_APPOINTMENTS = True
+
 INDEX_HTML = 'tests/static/test-index.html'
 
 LOGGING_LOCATION = 'STDOUT'

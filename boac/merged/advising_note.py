@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from html.parser import HTMLParser
 from itertools import groupby
 from operator import itemgetter
 import re
@@ -31,7 +30,7 @@ import re
 from boac import db
 from boac.externals import data_loch, s3
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
-from boac.lib.util import camelize, get_benchmarker, join_if_present
+from boac.lib.util import camelize, get_benchmarker, join_if_present, search_result_text_snippet
 from boac.merged.calnet import get_calnet_users_for_csids, get_uid_for_csid
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
@@ -39,7 +38,6 @@ from boac.models.note_read import NoteRead
 from dateutil.tz import tzutc
 from flask import current_app as app
 from flask_login import current_user
-from nltk.stem.snowball import SnowballStemmer
 from sqlalchemy import text
 
 """Provide advising note data from local and external sources."""
@@ -237,6 +235,7 @@ def _get_local_notes_search_results(local_results, cutoff, search_terms):
         sid = note.get('sid')
         student_row = students_by_sid.get(sid, {})
         if student_row:
+            text = join_if_present(' - ', [note.get('subject'), note.get('body')])
             results.append({
                 'id': note.get('id'),
                 'studentSid': sid,
@@ -244,7 +243,7 @@ def _get_local_notes_search_results(local_results, cutoff, search_terms):
                 'studentName': join_if_present(' ', [student_row.get('first_name'), student_row.get('last_name')]),
                 'advisorUid': note.get('authorUid'),
                 'advisorName': note.get('authorName'),
-                'noteSnippet': _notes_text_snippet(join_if_present(' - ', [note.get('subject'), note.get('body')]), search_terms),
+                'noteSnippet': search_result_text_snippet(text, search_terms, NOTE_SEARCH_PATTERN),
                 'createdAt': _isoformat(note, 'createdAt'),
                 'updatedAt': _isoformat(note, 'updatedAt'),
             })
@@ -271,7 +270,7 @@ def _get_loch_notes_search_results(loch_results, search_terms):
             'studentName': join_if_present(' ', [note.get('firstName'), note.get('lastName')]),
             'advisorSid': note.get('advisorSid'),
             'advisorName': advisor_name or join_if_present(' ', [note.get('advisorFirstName'), note.get('advisorLastName')]),
-            'noteSnippet': _notes_text_snippet(note_body, search_terms),
+            'noteSnippet': search_result_text_snippet(note_body, search_terms, NOTE_SEARCH_PATTERN),
             'createdAt': _resolve_created_at(note),
             'updatedAt': _resolve_updated_at(note),
         })
@@ -409,76 +408,6 @@ def _get_e_i_advising_note_topics(sid):
 def _isoformat(obj, key):
     value = obj.get(key)
     return value and value.astimezone(tzutc()).isoformat()
-
-
-class HTMLTagStripper(HTMLParser):
-    def __init__(self):
-        super().__init__()
-        self.reset()
-        self.strict = False
-        self.convert_charrefs = True
-
-    def handle_data(self, d):
-        self.fed.append(d)
-
-    def get_data(self):
-        return ''.join(self.fed)
-
-    def reset(self):
-        super().reset()
-        self.fed = []
-
-
-tag_stripper = HTMLTagStripper()
-stemmer = SnowballStemmer('english')
-
-
-def _notes_text_snippet(note_body, search_terms):
-    tag_stripper.feed(note_body)
-    tag_stripped_body = tag_stripper.get_data()
-    tag_stripper.reset()
-
-    snippet_padding = app.config['NOTES_SEARCH_RESULT_SNIPPET_PADDING']
-    note_words = list(re.finditer(NOTE_SEARCH_PATTERN, tag_stripped_body))
-    stemmed_search_terms = [stemmer.stem(term) for term in search_terms]
-
-    snippet = None
-    match_index = None
-    start_position = 0
-
-    for index, word_match in enumerate(note_words):
-        stem = stemmer.stem(word_match.group(0))
-        if match_index is None and stem in stemmed_search_terms:
-            match_index = index
-            if index > snippet_padding:
-                start_position = note_words[index - snippet_padding].start(0)
-            snippet = '...' if start_position > 0 else ''
-        if match_index is not None:
-            snippet += tag_stripped_body[start_position:word_match.start(0)]
-            if stem in stemmed_search_terms:
-                snippet += '<strong>'
-            snippet += word_match.group(0)
-            if stem in stemmed_search_terms:
-                snippet += '</strong>'
-            if index == len(note_words) - 1:
-                snippet += tag_stripped_body[word_match.end(0):len(tag_stripped_body)]
-                break
-            elif index == match_index + snippet_padding:
-                end_position = note_words[index].end(0)
-                snippet += tag_stripped_body[word_match.end(0):end_position]
-                snippet += '...'
-                break
-            else:
-                start_position = word_match.end(0)
-
-    if snippet:
-        return snippet
-    else:
-        if len(note_words) > snippet_padding:
-            end_position = note_words[snippet_padding].end(0)
-            return tag_stripped_body[0:end_position] + '...'
-        else:
-            return tag_stripped_body
 
 
 def _tzinfo(_datetime):

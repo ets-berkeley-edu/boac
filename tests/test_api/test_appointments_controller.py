@@ -159,13 +159,13 @@ class TestAppointmentWaitlist:
         """L&S advisor can only see L&S appointments."""
         fake_auth.login(l_s_college_scheduler_uid)
         appointments = self._get_waitlist(client, 'QCADV')
-        assert len(appointments) == 1
+        assert len(appointments) == 2
 
     def test_l_s_college_drop_in_advisor_uid_waitlist(self, app, client, fake_auth):
         """L&S drop-in advisor can only see L&S appointments."""
         fake_auth.login(l_s_college_drop_in_advisor_uid)
         appointments = self._get_waitlist(client, 'QCADV')
-        assert len(appointments) == 1
+        assert len(appointments) == 2
 
 
 class TestMarkAppointmentRead:

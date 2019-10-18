@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from datetime import datetime
+from html.parser import HTMLParser
 import inspect
 import re
 import string
@@ -32,6 +33,7 @@ import time
 from autolink import linkify
 from boac.externals import s3
 from flask import current_app as app
+from nltk.stem.snowball import SnowballStemmer
 import pytz
 from titlecase import titlecase
 
@@ -206,6 +208,76 @@ def note_attachment_to_api_json(attachment):
     elif hasattr(attachment, 'note_template_id'):
         api_json['noteTemplateId'] = attachment.note_template_id
     return api_json
+
+
+class HTMLTagStripper(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.reset()
+        self.strict = False
+        self.convert_charrefs = True
+
+    def handle_data(self, d):
+        self.fed.append(d)
+
+    def get_data(self):
+        return ''.join(self.fed)
+
+    def reset(self):
+        super().reset()
+        self.fed = []
+
+
+tag_stripper = HTMLTagStripper()
+stemmer = SnowballStemmer('english')
+
+
+def search_result_text_snippet(text, search_terms, search_pattern):
+    tag_stripper.feed(text)
+    tag_stripped_body = tag_stripper.get_data()
+    tag_stripper.reset()
+
+    snippet_padding = app.config['NOTES_SEARCH_RESULT_SNIPPET_PADDING']
+    words = list(re.finditer(search_pattern, tag_stripped_body))
+    stemmed_search_terms = [stemmer.stem(term) for term in search_terms]
+
+    snippet = None
+    match_index = None
+    start_position = 0
+
+    for index, word_match in enumerate(words):
+        stem = stemmer.stem(word_match.group(0))
+        if match_index is None and stem in stemmed_search_terms:
+            match_index = index
+            if index > snippet_padding:
+                start_position = words[index - snippet_padding].start(0)
+            snippet = '...' if start_position > 0 else ''
+        if match_index is not None:
+            snippet += tag_stripped_body[start_position:word_match.start(0)]
+            if stem in stemmed_search_terms:
+                snippet += '<strong>'
+            snippet += word_match.group(0)
+            if stem in stemmed_search_terms:
+                snippet += '</strong>'
+            if index == len(words) - 1:
+                snippet += tag_stripped_body[word_match.end(0):len(tag_stripped_body)]
+                break
+            elif index == match_index + snippet_padding:
+                end_position = words[index].end(0)
+                snippet += tag_stripped_body[word_match.end(0):end_position]
+                snippet += '...'
+                break
+            else:
+                start_position = word_match.end(0)
+
+    if snippet:
+        return snippet
+    else:
+        if len(words) > snippet_padding:
+            end_position = words[snippet_padding].end(0)
+            return tag_stripped_body[0:end_position] + '...'
+        else:
+            return tag_stripped_body
 
 
 def _localize_datetime(dt):

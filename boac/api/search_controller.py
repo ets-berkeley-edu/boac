@@ -35,6 +35,7 @@ from boac.lib.http import tolerant_jsonify
 from boac.merged.advising_note import search_advising_notes
 from boac.merged.student import search_for_students
 from boac.models.alert import Alert
+from boac.models.appointment import Appointment
 from flask import current_app as app, request
 from flask_login import current_user
 
@@ -139,8 +140,8 @@ def _notes_search(search_phrase, params):
     author_csid = note_options.get('authorCsid')
     student_csid = note_options.get('studentCsid')
     topic = note_options.get('topic')
-    limit = util.get(note_options, 'limit', 100)
-    offset = util.get(note_options, 'offset', 0)
+    limit = int(util.get(note_options, 'limit', 100))
+    offset = int(util.get(note_options, 'offset', 0))
 
     date_from = note_options.get('dateFrom')
     date_to = note_options.get('dateTo')
@@ -174,10 +175,23 @@ def _notes_search(search_phrase, params):
         topic=topic,
         datetime_from=datetime_from,
         datetime_to=datetime_to,
-        offset=int(offset),
-        limit=int(limit),
+        offset=offset,
+        limit=limit,
     )
-
-    return {
+    response = {
         'notes': notes_results,
     }
+    if app.config['FEATURE_FLAG_ADVISOR_APPOINTMENTS']:
+        appointment_results = Appointment.search(
+            search_phrase=search_phrase,
+            advisor_csid=author_csid,
+            student_csid=student_csid,
+            topic=topic,
+            datetime_from=datetime_from,
+            datetime_to=datetime_to,
+            offset=offset,
+            limit=limit,
+        )
+        response['appointments'] = appointment_results
+
+    return response
