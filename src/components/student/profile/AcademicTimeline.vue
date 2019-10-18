@@ -451,9 +451,9 @@ export default {
     },
     appointmentCheckIn(appointmentId) {
       checkIn(
-        this.myDeptCodes(),
+        this.map(this.user.departments, 'code'),
         this.user.name,
-        this.title || this.isAdmin ? 'BOA Admin' : null,
+        this.user.title || (this.isAdmin ? 'BOA Admin' : null),
         this.user.uid,
         appointmentId
       ).then(a => {

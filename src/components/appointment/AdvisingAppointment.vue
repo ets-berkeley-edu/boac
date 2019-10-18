@@ -11,8 +11,8 @@
       <div class="mt-2">
         <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details"></span>
       </div>
-      <div v-if="includes(dropInAdvisorDeptCodes(), appointment.deptCode)" class="d-flex align-items-center">
-        <div>
+      <div class="d-flex align-items-center">
+        <div v-if="includes(dropInAdvisorDeptCodes(), appointment.deptCode)">
           <b-dropdown
             class="bg-white mb-3 mr-3 mt-3"
             split
@@ -31,13 +31,13 @@
             :student="student" />
         </div>
         <div v-if="!!appointment.checkedInBy">
-          <font-awesome icon="calendar-check" class="status-checked-in-icon" /> Check In <span v-if="appointment.arrivalTime">@ {{ appointment.arrivalTime }}</span>
+          <font-awesome icon="calendar-check" class="status-checked-in-icon" /> Check In <span v-if="appointment.checkedInAt">@ {{ datePerTimezone(appointment.checkedInAt) | moment('h:mma') }}</span>
         </div>
         <div v-if="appointment.canceledAt">
           <font-awesome icon="calendar-minus" class="status-canceled-icon" /> Canceled
         </div>
       </div>
-      <div v-if="appointment.advisorName" class="mt-3">
+      <div v-if="appointment.advisorName" class="mt-2">
         <a
           v-if="appointment.advisorUid"
           :id="`appointment-${appointment.id}-advisor-name`"
@@ -77,13 +77,14 @@
 
 <script>
 import AppointmentCancellationModal from '@/components/appointment/AppointmentCancellationModal';
+import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'AdvisingAppointment',
   components: {AppointmentCancellationModal},
-  mixins: [UserMetadata, Util],
+  mixins: [Context, UserMetadata, Util],
   props: {
     isOpen: {
       required: true,
@@ -116,6 +117,9 @@ export default {
     },
     closeCancellationModal() {
       this.showCancelAppointmentModal = false;
+    },
+    datePerTimezone(date) {
+      return this.$moment(date).tz(this.timezone);
     }
   }
 }

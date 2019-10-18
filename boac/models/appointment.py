@@ -200,7 +200,7 @@ class Appointment(Base):
             'checkedInBy': self.checked_in_by,
             'createdAt': _isoformat(self.created_at),
             'createdBy': self.created_by,
-            'dept_code': self.dept_code,
+            'deptCode': self.dept_code,
             'details': self.details,
             'read': AppointmentRead.was_read_by(current_user_id, self.id),
             'student': {
