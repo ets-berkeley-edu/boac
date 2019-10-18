@@ -12,11 +12,21 @@
             v-if="topicOptions.length"
             id="add-topic-select-list"
             :key="topics.length"
+            v-model="selected"
             :disabled="disabled"
-            :options="topicOptions"
             role="listbox"
             aria-label="Use up and down arrows to review topics. Hit enter to select a topic."
-            @change="add">
+            @input="add">
+            <template v-slot:first>
+              <option :value="null" disabled>Select...</option>
+            </template>
+            <option
+              v-for="option in topicOptions"
+              :key="option.value"
+              :disabled="option.disabled"
+              :value="option.value">
+              {{ option.text }}
+            </option>
           </b-form-select>
         </b-col>
       </b-form-row>
@@ -65,6 +75,10 @@ export default {
   name: 'AppointmentTopics',
   mixins: [Context, UserMetadata, Util],
   props: {
+    appointmentId: {
+      type: Number,
+      required: false
+    },
     disabled: {
       default: false,
       required: false,
@@ -78,17 +92,16 @@ export default {
       type: Function,
       required: true
     },
-    appointmentId: {
-      type: Number,
-      required: false
+    topics: {
+      type: Array,
+      required: true
     }
   },
   data: () => ({
-    topicOptions: [],
-    topics: []
+    selected: null,
+    topicOptions: []
   }),
   created() {
-    this.topicOptions.push({text: 'Select...', value: null});
     getAllTopics().then(topics => {
       this.each(topics, topic => {
         this.topicOptions.push({
@@ -101,6 +114,8 @@ export default {
   },
   methods: {
     add(topic) {
+      // Reset the dropdown
+      this.selected = null;
       if (topic) {
         this.setDisabled(topic, true);
         this.functionAdd(topic);
