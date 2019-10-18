@@ -45,7 +45,8 @@
                 class="mt-2 mr-3 mb-1 ml-3"
                 :disabled="isSaving"
                 :function-add="addTopic"
-                :function-remove="removeTopic" />
+                :function-remove="removeTopic"
+                :topics="topics" />
             </div>
           </div>
           <div class="d-flex">
