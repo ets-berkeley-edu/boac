@@ -173,6 +173,7 @@ class Appointment(Base):
             appointment.updated_by = canceled_by
             std_commit()
             db.session.refresh(appointment)
+            cls.refresh_search_index()
             return appointment
         else:
             return None
