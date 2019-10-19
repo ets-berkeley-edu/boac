@@ -382,10 +382,19 @@ class TestNoteAndAppointmentSearch:
         response = client.post('/api/search', data=json.dumps({'notes': True, 'searchPhrase': ' \t  '}), content_type='application/json')
         assert response.status_code == 400
 
-    def test_search_notes_and_appointments(self, coe_advisor, client, app):
+    def test_search_notes_and_appointments(self, coe_advisor, client):
         """Search results include notes and appointments ordered by rank."""
         response = client.post('/api/search', data=json.dumps({'notes': True, 'searchPhrase': 'life'}), content_type='application/json')
         self._assert(response, note_count=1, appointment_count=2, note_ids=['11667051-00003'], appointment_ids=[4, 2])
+
+    def test_search_by_appointment_cancel_reason(self, coe_advisor, client):
+        """Appointments can be searched for by cancel reason and cancel reason explained."""
+        appointment = Appointment.find_by_id(1)
+        Appointment.cancel(appointment.id, '6972201', 'Sick cat', 'Student needed to attend to ailing feline.')
+        response = client.post('/api/search', data=json.dumps({'notes': True, 'searchPhrase': 'cat'}), content_type='application/json')
+        self._assert(response, appointment_count=1, appointment_ids=[1])
+        response = client.post('/api/search', data=json.dumps({'notes': True, 'searchPhrase': 'feline'}), content_type='application/json')
+        self._assert(response, appointment_count=1, appointment_ids=[1])
 
     def test_search_respects_date_filters(self, coe_advisor, client):
         """Search results include notes and appointments updated within provided date range."""

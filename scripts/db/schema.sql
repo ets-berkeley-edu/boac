@@ -152,7 +152,7 @@ CREATE INDEX appointments_student_sid_idx ON appointments(student_sid);
 CREATE MATERIALIZED VIEW appointments_fts_index AS (
   SELECT
     id,
-    to_tsvector('english', details) AS fts_index
+    to_tsvector('english', trim(concat(details, ' ', cancel_reason, ' ', cancel_reason_explained))) AS fts_index
   FROM appointments
   WHERE details IS NOT NULL
     AND deleted_at IS NULL
