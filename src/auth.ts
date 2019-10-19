@@ -73,16 +73,14 @@ export default {
     });
   },
   requiresScheduler: (to: any, from: any, next: any) => {
-    store.dispatch('user/loadUser').then(data => {
+    store.dispatch('user/loadUser').then(user => {
       if (store.getters['context/featureFlagAppointments']) {
-        if (data.isAuthenticated) {
-          store.dispatch('user/loadUser').then(user => {
-            if (_.size(schedulerForDepartments(user)) || user.isAdmin) {
-              next();
-            } else {
-              next({ path: '/404' });
-            }
-          });
+        if (user.isAuthenticated) {
+          if (_.size(schedulerForDepartments(user)) || user.isAdmin) {
+            next();
+          } else {
+            next({ path: '/404' });
+          }
         } else {
           goToLogin(to, next);
         }

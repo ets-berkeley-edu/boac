@@ -230,6 +230,8 @@ const router = new Router({
             store.dispatch('user/loadUser').then(user => {
               if (_.size(auth.schedulerForDepartments(user)) && !auth.isAdvisor(user) && !user.isAdmin) {
                 next({ path: '/scheduler/404' });
+              } else {
+                next();
               }
             });
           },
