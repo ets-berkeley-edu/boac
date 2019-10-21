@@ -16,36 +16,36 @@
         <div class="mr-3">
           <div class="d-flex">
             <div class="appointment-details-label font-weight-bolder w-25">
-              <label for="appointment-topics">
+              <label for="appointment-created-at-date">
                 Date
               </label>
             </div>
             <div>
-              <span id="appointment-created-at">
+              <span id="appointment-created-at-date">
                 {{ new Date(appointment.createdAt) | moment('ddd, MMMM D') }}
               </span>
             </div>
           </div>
           <div class="d-flex">
             <div class="appointment-details-label font-weight-bolder w-25">
-              <label for="appointment-topics">
+              <label for="appointment-created-at-time">
                 Arrival Time
               </label>
             </div>
             <div>
-              <span id="appointment-created-at">
+              <span id="appointment-created-at-time">
                 {{ new Date(appointment.createdAt) | moment('LT') }}
               </span>
             </div>
           </div>
           <div class="d-flex">
             <div class="appointment-details-label font-weight-bolder w-25">
-              <label for="appointment-name">
+              <label for="appointment-student">
                 Student
               </label>
             </div>
             <div>
-              <span id="appointment-name" v-html="appointment.student.name"></span>
+              <span id="appointment-student" v-html="appointment.student.name"></span>
             </div>
           </div>
         </div>
@@ -57,7 +57,8 @@
           <b-form-select
             id="cancellation-reason"
             v-model="reason"
-            :options="reasonOptions">
+            :options="reasonOptions"
+            @input="reasonSelected">
             <template v-slot:first>
               <option :value="undefined" disabled>Select...</option>
             </template>
@@ -143,12 +144,18 @@ export default {
   },
   created() {
     this.showCancellationModal = this.showModal;
+    this.putFocusNextTick('cancellation-reason');
+    this.alertScreenReader(`Cancel appointment modal is open`);
   },
   methods: {
     cancelTheAppointment() {
       this.appointmentCancellation(this.appointment.id, this.reason, this.reasonExplained);
       this.alertScreenReader(`Appointment with ${this.student.name} canceled`);
       this.showCancellationModal = false;
+    },
+    reasonSelected() {
+      this.alertScreenReader(`Reason '${this.reason}' selected`);
+      this.putFocusNextTick('cancellation-reason-explained');
     }
   }
 }

@@ -28,7 +28,7 @@
             </div>
             <div class="mb-2">
               <Autocomplete
-                id="appointment-student-input"
+                id="appointment-student"
                 :key="resetAutoCompleteKey"
                 class="w-75"
                 :demo-mode-blur="true"
@@ -120,6 +120,8 @@ export default {
   created() {
     this.reset();
     this.showCreateAppointmentModal = this.showModal;
+    this.putFocusNextTick('appointment-student-input');
+    this.alertScreenReader(`Create appointment form is open`);
   },
   methods: {
     addStudent(student) {
