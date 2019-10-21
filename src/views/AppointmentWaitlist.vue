@@ -1,7 +1,7 @@
 <template>
-  <div class="ml-3 mt-3">
+  <div class="ml-3 mr-3 mt-3">
     <Spinner />
-    <div v-if="!loading" style="margin: 0 auto; width: 480px;">
+    <div v-if="!loading" class="waitlist-container">
       <DropInWaitlist :dept-code="deptCode" :waitlist="waitlist" />
     </div>
   </div>
@@ -33,5 +33,8 @@ export default {
 </script>
 
 <style scoped>
-
+.waitlist-container {
+  margin: 0 auto;
+  max-width: 480px;
+}
 </style>

@@ -1,5 +1,25 @@
 <template>
   <div>
+    <AppointmentCancellationModal
+      v-if="showCancelAppointmentModal"
+      :appointment="selectedAppointment"
+      :appointment-cancellation="appointmentCancellation"
+      :close="closeAppointmentCancellationModal"
+      :show-modal="showCancelAppointmentModal"
+      :student="selectedAppointment.student" />
+    <AppointmentDetailsModal
+      v-if="showAppointmentDetailsModal"
+      :appointment="selectedAppointment"
+      :close="closeAppointmentDetailsModal"
+      :check-in="launchCheckIn"
+      :show-modal="showAppointmentDetailsModal"
+      :student="selectedAppointment.student" />
+    <CheckInModal
+      v-if="showCheckInModal"
+      :appointment="selectedAppointment"
+      :appointment-checkin="checkInAppointment"
+      :close="closeCheckInModal"
+      :show-modal="showCheckInModal" />
     <CreateAppointmentModal
       v-if="showCreateAppointmentModal"
       :cancel="cancelCreateAppointment"
@@ -15,7 +35,7 @@
             id="create-drop-in-appointment"
             variant="link"
             class="mb-1"
-            aria-label="Create new drop-in appointment"
+            aria-label="Create appointment. Modal window will open."
             @click="showCreateAppointmentModal = true">
             <font-awesome icon="plus" />
           </b-btn>
@@ -28,7 +48,7 @@
           id="new-drop-in-appointment"
           variant="primary"
           class="btn-primary-color-override pl-3 pr-3"
-          aria-label="Create new drop-in appointment"
+          aria-label="Create appointment. Modal window will open."
           @click="showCreateAppointmentModal = true">
           New Drop-in Appointment
         </b-btn>
@@ -42,44 +62,50 @@
         </div>
       </div>
     </div>
-    <div v-if="isEmpty(waitlist)" class="border-bottom">
-      <div class="font-size-16 mb-3 ml-1 mt-3">
+    <div v-if="!waitlist.length" class="border-bottom">
+      <div class="font-size-16 mb-3 ml-1 mt-3" aria-live="polite" role="alert">
         No appointments yet
       </div>
     </div>
-    <div v-if="!isEmpty(waitlist)">
-      <div
-        v-for="appointment in waitlist"
-        :key="appointment.id"
-        class="align-items-start border-bottom d-flex font-size-16 justify-content-between mb-3 ml-1 mt-3">
-        <div class="mr-3 text-nowrap">
-          <span class="sr-only">Created at </span>{{ new Date(appointment.createdAt) | moment('LT') }}
-        </div>
-        <div>
-          <div class="d-flex">
-            <div v-if="isHomepage" class="mr-2">
-              <StudentAvatar size="small" :student="appointment.student" />
-            </div>
-            <div>
-              <router-link
-                v-if="linkToStudentProfiles"
-                :id="`waitlist-student-${appointment.student.sid}`"
-                :to="studentRoutePath(appointment.student.uid, user.inDemoMode)">
-                {{ appointment.student.name }}
-              </router-link>
-              <div v-if="!linkToStudentProfiles">
-                <span :id="`waitlist-student-${appointment.student.sid}`">{{ appointment.student.name }}</span>
+    <div v-if="waitlist.length">
+      <b-container fluid class="pl-0 pr-0">
+        <b-row
+          v-for="appointment in waitlist"
+          :key="appointment.id"
+          no-gutters
+          class="border-bottom font-size-16 mt-3 pb-3">
+          <b-col cols="2" class="pb-2 text-nowrap">
+            <span class="sr-only">Created at </span>{{ new Date(appointment.createdAt) | moment('LT') }}
+          </b-col>
+          <b-col cols="7">
+            <div class="d-flex">
+              <div v-if="isHomepage" class="mr-2">
+                <StudentAvatar size="small" :student="appointment.student" />
               </div>
-              <div class="font-size-12">
-                {{ oxfordJoin(appointment.topics) }}
+              <div>
+                <div class="font-size-16">
+                  <router-link
+                    v-if="linkToStudentProfiles"
+                    :id="`waitlist-student-${appointment.student.sid}`"
+                    :class="{'demo-mode-blur' : user.inDemoMode}"
+                    :to="studentRoutePath(appointment.student.uid, user.inDemoMode)">
+                    {{ appointment.student.name }}
+                  </router-link>
+                  <div v-if="!linkToStudentProfiles">
+                    <span
+                      :id="`waitlist-student-${appointment.student.sid}`"
+                      :class="{'demo-mode-blur' : user.inDemoMode}">{{ appointment.student.name }}</span>
+                  </div>
+                </div>
+                <div v-if="appointment.topics.length" class="appointment-topics font-size-14 pb-2">
+                  {{ oxfordJoin(appointment.topics) }}
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-        <div class="flex-grow-1">
-          <div class="float-right">
+          </b-col>
+          <b-col class="float-right">
             <b-dropdown
-              class="bg-white mb-3"
+              class="bg-white text-nowrap"
               split
               :disabled="!!appointment.checkedInBy || !!appointment.canceledAt"
               text="Check In"
@@ -88,29 +114,9 @@
               <b-dropdown-item-button @click="showAppointmentDetails(appointment)">Details</b-dropdown-item-button>
               <b-dropdown-item-button @click="cancelAppointment(appointment)">Cancel</b-dropdown-item-button>
             </b-dropdown>
-            <AppointmentDetailsModal
-              v-if="showAppointmentDetailsModal"
-              :appointment="selectedAppointment"
-              :close="closeAppointmentDetailsModal"
-              :check-in="launchCheckIn"
-              :show-modal="showAppointmentDetailsModal"
-              :student="selectedAppointment.student" />
-            <AppointmentCancellationModal
-              v-if="showCancelAppointmentModal"
-              :appointment="selectedAppointment"
-              :appointment-cancellation="appointmentCancellation"
-              :close="closeAppointmentCancellationModal"
-              :show-modal="showCancelAppointmentModal"
-              :student="selectedAppointment.student" />
-            <CheckInModal
-              v-if="showCheckInModal"
-              :appointment="selectedAppointment"
-              :appointment-checkin="checkInAppointment"
-              :close="closeCheckInModal"
-              :show-modal="showCheckInModal" />
-          </div>
-        </div>
-      </div>
+          </b-col>
+        </b-row>
+      </b-container>
     </div>
   </div>
 </template>
@@ -119,6 +125,7 @@
 import AppointmentDetailsModal from '@/components/appointment/AppointmentDetailsModal';
 import AppointmentCancellationModal from '@/components/appointment/AppointmentCancellationModal';
 import CheckInModal from '@/components/appointment/CheckInModal';
+import Context from '@/mixins/Context';
 import CreateAppointmentModal from '@/components/appointment/CreateAppointmentModal';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import UserMetadata from '@/mixins/UserMetadata';
@@ -127,8 +134,14 @@ import { cancel as apiCancel, checkIn as apiCheckIn, create as apiCreate } from 
 
 export default {
   name: 'DropInWaitlist',
-  components: {AppointmentCancellationModal, AppointmentDetailsModal, CheckInModal, CreateAppointmentModal, StudentAvatar},
-  mixins: [UserMetadata, Util],
+  components: {
+    AppointmentCancellationModal,
+    AppointmentDetailsModal,
+    CheckInModal,
+    CreateAppointmentModal,
+    StudentAvatar
+  },
+  mixins: [Context, UserMetadata, Util],
   props: {
     deptCode: {
       type: String,
@@ -208,13 +221,14 @@ export default {
     closeCheckInModal() {
       this.showCheckInModal = false;
       this.showAppointmentDetailsModal = false;
-      this.alertScreenReader('Appointment check-in modal closed');
       this.selectedAppointment = undefined;
     },
-    createAppointment(details, sid, topics) {
-      apiCreate(this.deptCode, details, sid, 'Drop-in', topics).then(appointment => {
+    createAppointment(details, student, topics) {
+      apiCreate(this.deptCode, details, student.sid, 'Drop-in', topics).then(appointment => {
+        this.alertScreenReader(`Appointment created for ${student.label}`);
         this.showCreateAppointmentModal = false;
         this.waitlist.push(appointment);
+        this.putFocusNextTick(`waitlist-student-${student.sid}`)
       });
     },
     launchCheckIn() {
@@ -235,3 +249,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.appointment-topics {
+  max-width: 240px;
+}
+</style>
