@@ -1,16 +1,16 @@
 <template>
   <b-modal
-    id="advising-appointment-check-in"
+    id="appointment-check-in"
     v-model="showDetailsModal"
     body-class="pl-0 pr-0"
     hide-footer
     hide-header
     :no-close-on-backdrop="true"
-    @cancel.prevent="functionCancel"
-    @hide.prevent="functionCancel">
+    @cancel.prevent="close"
+    @hide.prevent="close">
     <div>
       <div class="modal-header">
-        <h3>{{ student.name }}</h3>
+        <h3 id="appointment-check-in-student">{{ student.name }}</h3>
       </div>
       <div class="modal-body w-100">
         <div class="mr-3">
@@ -108,6 +108,8 @@ export default {
   },
   created() {
     this.showDetailsModal = this.showModal;
+    this.alertScreenReader(`Appointment details modal is open`);
+    this.putFocusNextTick('appointment-check-in-student');
   }
 }
 </script>

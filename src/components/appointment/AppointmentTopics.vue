@@ -52,7 +52,7 @@
                 <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
               </b-btn>
               <label :id="`remove-appointment-topic-${index}-label`" class="sr-only" :for="`remove-appointment-topic-${index}`">
-                remove topic {{ topics[index] }}
+                Remove topic "{{ topics[index] }}"
               </label>
             </span>
           </li>

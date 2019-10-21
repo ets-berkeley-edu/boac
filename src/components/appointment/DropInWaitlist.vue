@@ -49,7 +49,7 @@
     </div>
     <div v-if="!isEmpty(waitlist)">
       <div
-        v-for="(appointment, index) in waitlist"
+        v-for="appointment in waitlist"
         :key="appointment.id"
         class="align-items-start border-bottom d-flex font-size-16 justify-content-between mb-3 ml-1 mt-3">
         <div class="mr-3 text-nowrap">
@@ -63,12 +63,12 @@
             <div>
               <router-link
                 v-if="linkToStudentProfiles"
-                :id="`link-to-student-${appointment.student.uid}`"
+                :id="`waitlist-student-${appointment.student.sid}`"
                 :to="studentRoutePath(appointment.student.uid, user.inDemoMode)">
-                <span :id="`waitlist-student-name-${index}`">{{ appointment.student.name }}</span>
+                {{ appointment.student.name }}
               </router-link>
               <div v-if="!linkToStudentProfiles">
-                <span :id="`waitlist-student-name-${index}`">{{ appointment.student.name }}</span>
+                <span :id="`waitlist-student-${appointment.student.sid}`">{{ appointment.student.name }}</span>
               </div>
               <div class="font-size-12">
                 {{ oxfordJoin(appointment.topics) }}
@@ -169,6 +169,7 @@ export default {
     },
     cancelCreateAppointment() {
       this.showCreateAppointmentModal = false;
+      this.alertScreenReader('Create appointment modal closed');
       this.selectedAppointment = undefined;
     },
     checkInAppointment(advisor, deptCodes) {
@@ -184,7 +185,9 @@ export default {
         advisor.uid,
         appointmentId
       ).then(() => {
-        const index = this.findIndex(this.waitlist, {'id': appointmentId});
+        const index = this.findIndex(this.waitlist, {id: appointmentId});
+        this.alertScreenReader(`Student ${this.selectedAppointment.student.name} checked in`);
+        this.selectedAppointment = undefined;
         if (index !== -1) {
           this.waitlist.splice(index, 1);
         }
@@ -192,15 +195,20 @@ export default {
     },
     closeAppointmentCancellationModal() {
       this.showCancelAppointmentModal = false;
+      this.putFocusNextTick(`waitlist-student-${this.selectedAppointment.student.sid}`);
+      this.alertScreenReader('Cancel appointment modal closed');
       this.selectedAppointment = undefined;
     },
     closeAppointmentDetailsModal() {
       this.showAppointmentDetailsModal = false;
+      this.putFocusNextTick(`waitlist-student-${this.selectedAppointment.student.sid}`);
+      this.alertScreenReader('Appointment details modal closed');
       this.selectedAppointment = undefined;
     },
     closeCheckInModal() {
       this.showCheckInModal = false;
       this.showAppointmentDetailsModal = false;
+      this.alertScreenReader('Appointment check-in modal closed');
       this.selectedAppointment = undefined;
     },
     createAppointment(details, sid, topics) {
