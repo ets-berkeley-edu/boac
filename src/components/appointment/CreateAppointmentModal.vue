@@ -10,11 +10,15 @@
     @hide.prevent="cancel">
     <div>
       <div class="modal-header">
-        <h3>Advising Appointment</h3>
+        <h3 class="ml-2">Advising Appointment</h3>
       </div>
       <form @submit.prevent="create()">
-        <div class="ml-3 mr-3">
-          <div v-if="student" id="appointment-student-selected" class="mt-3 mb-3 font-weight-bolder">
+        <div class="font-weight-500 ml-4 mt-2">
+          <div
+            v-if="student"
+            id="appointment-student-selected"
+            class="mt-3 mb-2"
+            :class="{'demo-mode-blur' : user.inDemoMode}">
             {{ student.label }}
           </div>
           <div v-if="!student">
@@ -38,14 +42,15 @@
                 @input="addStudent" />
             </div>
           </div>
-          <AppointmentTopics
-            class="mt-2 mb-1"
-            :disabled="isSaving"
-            :function-add="addTopic"
-            :function-remove="removeTopic"
-            :topics="topics" />
-          <div>
-            <label for="appointment-details" class="font-size-14 input-label text mt-2">
+          <div class="mt-2">
+            <AppointmentTopics
+              :disabled="isSaving"
+              :function-add="addTopic"
+              :function-remove="removeTopic"
+              :topics="topics" />
+          </div>
+          <div class="mb-4 mr-3 mt-1">
+            <label for="appointment-details" class="font-size-14 input-label text">
               <span class="font-weight-bolder">Additional Information</span>
             </label>
             <div>
@@ -58,7 +63,7 @@
             </div>
           </div>
         </div>
-        <div class="modal-footer pl-0 mr-2">
+        <div class="modal-footer pl-0 mt-2">
           <b-btn
             id="create-appointment-confirm"
             class="btn-primary-color-override"
@@ -82,6 +87,8 @@
 <script>
 import AppointmentTopics from "@/components/appointment/AppointmentTopics";
 import Autocomplete from '@/components/util/Autocomplete';
+import Context from '@/mixins/Context';
+import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import Validator from '@/mixins/Validator';
 import { findStudentsByNameOrSid } from '@/api/student';
@@ -89,7 +96,7 @@ import { findStudentsByNameOrSid } from '@/api/student';
 export default {
   name: 'CreateAppointmentModal',
   components: {AppointmentTopics, Autocomplete},
-  mixins: [Util, Validator],
+  mixins: [Context, UserMetadata, Util, Validator],
   props: {
     createAppointment: {
       type: Function,
@@ -125,18 +132,23 @@ export default {
   },
   methods: {
     addStudent(student) {
-      this.student = student;
+      if (student) {
+        this.student = student;
+        this.alertScreenReader(`Student ${this.student.label} selected`);
+        this.putFocusNextTick('add-topic-select-list');
+      }
     },
     addTopic(topic) {
       this.topics.push(topic);
+      this.alertScreenReader(`Topic ${topic} added`);
     },
     cancelModal() {
       this.cancel();
       this.reset();
     },
-    create: function() {
+    create() {
       this.saving = true;
-      this.createAppointment(this.details, this.student.sid, this.topics);
+      this.createAppointment(this.details, this.student, this.topics);
       this.showCreateAppointmentModal = false;
       this.saving = false;
       this.reset();

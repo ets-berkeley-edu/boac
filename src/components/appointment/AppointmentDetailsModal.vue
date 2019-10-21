@@ -9,46 +9,42 @@
     @cancel.prevent="close"
     @hide.prevent="close">
     <div>
-      <div class="modal-header">
-        <h3 id="appointment-check-in-student">{{ student.name }}</h3>
+      <div class="ml-3 modal-header">
+        <h3 id="appointment-check-in-student" :class="{'demo-mode-blur' : user.inDemoMode}">{{ student.name }}</h3>
       </div>
       <div class="modal-body w-100">
-        <div class="mr-3">
-          <div class="d-flex">
-            <div class="font-weight-bolder w-25">
+        <b-container fluid>
+          <b-row v-if="appointment.topics.length">
+            <b-col class="font-weight-bolder" cols="3">
               <label for="appointment-topics">
                 Reason
               </label>
-            </div>
-            <div>
-              <span id="appointment-topics">
-                {{ oxfordJoin(appointment.topics) }}
-              </span>
-            </div>
-          </div>
-          <div class="d-flex">
-            <div class="font-weight-bolder w-25">
-              <label for="appointment-created-at">
+            </b-col>
+            <b-col id="appointment-topics">
+              {{ oxfordJoin(appointment.topics) }}
+            </b-col>
+          </b-row>
+          <b-row class="mt-2">
+            <b-col cols="3">
+              <label class="font-weight-bolder text-nowrap" for="appointment-created-at">
                 Arrival Time
               </label>
-            </div>
-            <div>
-              <span id="appointment-created-at">
-                {{ new Date(appointment.createdAt) | moment('LT') }}
-              </span>
-            </div>
-          </div>
-          <div class="d-flex">
-            <div class="appointment-details-label font-weight-bolder w-25">
+            </b-col>
+            <b-col id="appointment-created-at">
+              {{ new Date(appointment.createdAt) | moment('LT') }}
+            </b-col>
+          </b-row>
+          <b-row>
+            <b-col class="font-weight-bolder" cols="3">
               <label for="appointment-details">
                 Details
               </label>
-            </div>
-            <div>
+            </b-col>
+            <b-col>
               <span id="appointment-details" v-html="appointment.details"></span>
-            </div>
-          </div>
-        </div>
+            </b-col>
+          </b-row>
+        </b-container>
       </div>
       <div class="modal-footer">
         <b-btn
@@ -71,11 +67,13 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context';
 import Util from '@/mixins/Util';
+import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
   name: 'AppointmentDetailsModal',
-  mixins: [Util],
+  mixins: [Context, UserMetadata, Util],
   props: {
     appointment: {
       type: Object,

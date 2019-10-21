@@ -13,44 +13,45 @@
         <h3>Cancel Appointment</h3>
       </div>
       <div class="modal-body w-100">
-        <div class="mr-3">
-          <div class="d-flex">
-            <div class="appointment-details-label font-weight-bolder w-25">
-              <label for="appointment-created-at-date">
-                Date
-              </label>
-            </div>
-            <div>
-              <span id="appointment-created-at-date">
-                {{ new Date(appointment.createdAt) | moment('ddd, MMMM D') }}
-              </span>
-            </div>
-          </div>
-          <div class="d-flex">
-            <div class="appointment-details-label font-weight-bolder w-25">
-              <label for="appointment-created-at-time">
-                Arrival Time
-              </label>
-            </div>
-            <div>
-              <span id="appointment-created-at-time">
-                {{ new Date(appointment.createdAt) | moment('LT') }}
-              </span>
-            </div>
-          </div>
-          <div class="d-flex">
-            <div class="appointment-details-label font-weight-bolder w-25">
-              <label for="appointment-student">
-                Student
-              </label>
-            </div>
-            <div>
-              <span id="appointment-student" v-html="appointment.student.name"></span>
-            </div>
-          </div>
+        <div class="mr-3 mt-2">
+          <b-container fluid>
+            <b-row>
+              <b-col cols="3" class="appointment-details-label font-weight-bolder pl-1">
+                <label for="appointment-created-at-date">
+                  Date
+                </label>
+              </b-col>
+              <b-col>
+                <span id="appointment-created-at-date">
+                  {{ new Date(appointment.createdAt) | moment('ddd, MMMM D') }}
+                </span>
+              </b-col>
+            </b-row>
+            <b-row>
+              <b-col cols="3" class="appointment-details-label font-weight-bolder pl-1 text-nowrap">
+                <label for="appointment-created-at-time">
+                  Arrival Time
+                </label>
+              </b-col>
+              <b-col>
+                <span id="appointment-created-at-time">
+                  {{ new Date(appointment.createdAt) | moment('LT') }}
+                </span>
+              </b-col>
+            </b-row>
+            <b-row>
+              <b-col cols="3" class="appointment-details-label font-weight-bolder pl-1">
+                <label for="appointment-student">
+                  Student
+                </label>
+              </b-col>
+              <b-col>
+                <span id="appointment-student" :class="{'demo-mode-blur' : user.inDemoMode}" v-html="appointment.student.name"></span>
+              </b-col>
+            </b-row>
+          </b-container>
         </div>
-        <hr>
-        <div class="mb-3">
+        <div class="ml-2 mr-3 mt-3">
           <label for="cancellation-reason">
             <span class="font-weight-bolder">Cancellation Reason</span> (required)
           </label>
@@ -64,7 +65,7 @@
             </template>
           </b-form-select>
         </div>
-        <div>
+        <div class="ml-2 mr-3 mt-3">
           <label for="cancellation-reason-explained">
             <span class="font-weight-bolder">Additional Information</span>
           </label>
@@ -75,11 +76,11 @@
           </b-form-textarea>
         </div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer mt-3 pt-4">
         <form @submit.prevent="cancelTheAppointment">
           <b-btn
             id="btn-appointment-cancel"
-            class="btn-primary-color-override"
+            class="btn-primary-color-override mr-2"
             variant="primary"
             :disabled="!reason"
             :aria-label="`Cancel appointment with ${student.name}`"
@@ -88,7 +89,6 @@
           </b-btn>
           <b-btn
             id="btn-appointment-close"
-            class="pl-2"
             variant="link"
             @click.stop="close">
             Close
@@ -102,10 +102,11 @@
 <script>
 import Context from '@/mixins/Context';
 import Util from '@/mixins/Util';
+import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
   name: 'AppointmentCancellationModal',
-  mixins: [Context, Util],
+  mixins: [Context, UserMetadata, Util],
   props: {
     appointment: {
       type: Object,

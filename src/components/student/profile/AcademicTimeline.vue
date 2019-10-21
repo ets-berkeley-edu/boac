@@ -196,12 +196,17 @@
               <div v-if="includes(openMessages, message.transientId) && message.id !== editModeNoteId" class="text-center close-message">
                 <b-btn
                   :id="`timeline-tab-${activeTab}-close-message`"
-                  class="no-wrap"
                   variant="link"
                   @keyup.enter.stop="close(message, true)"
                   @click.stop="close(message, true)">
-                  <font-awesome icon="times-circle" class="font-size-24" />
-                  Close Message
+                  <div class="d-flex">
+                    <div class="mr-1">
+                      <font-awesome icon="times-circle" class="font-size-24" />
+                    </div>
+                    <div class="no-wrap">
+                      Close Message
+                    </div>
+                  </div>
                 </b-btn>
               </div>
             </div>
@@ -223,11 +228,11 @@
               </div>
               <div v-if="includes(openMessages, message.transientId) && ['appointment', 'note'].includes(message.type)">
                 <div v-if="message.createdAt" :class="{'mb-2': !displayUpdatedAt(message)}">
-                  <div class="text-muted">Created:</div>
+                  <div class="text-muted">{{ message.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
                   <TimelineDate
                     :id="`expanded-${message.type}-${message.id}-created-at`"
                     :date="message.createdAt"
-                    :include-time-of-day="message.createdAt.length > 10" />
+                    :include-time-of-day="(message.createdAt.length > 10) && (message.type !== 'appointment')" />
                 </div>
                 <div v-if="displayUpdatedAt(message)">
                   <div class="mt-2 text-muted">Updated:</div>
@@ -239,7 +244,7 @@
                 </div>
                 <div class="text-muted">
                   <router-link
-                    v-if="['appointment', 'note'].includes(message.type) && message.id !== editModeNoteId"
+                    v-if="message.type === 'note' && message.id !== editModeNoteId"
                     :id="`advising-note-permalink-${message.id}`"
                     :to="`#${message.id}`"
                     @click.native="scrollToPermalink(message.id)">
@@ -392,7 +397,7 @@ export default {
       });
     });
     this.sortMessages();
-    this.alertScreenReader('Academic Timeline has loaded');
+    this.alertScreenReader(`${this.student.name} profile loaded.`);
     this.isTimelineLoading = false;
     const onCreateNewNote = note => {
       if (note.sid === this.student.sid) {
@@ -403,7 +408,7 @@ export default {
           this.messages.push(note);
           this.countsPerType.note++;
           this.sortMessages();
-          this.alertScreenReader(`New advising note created for student ${this.student.sid}.`);
+          this.alertScreenReader(`New advising note created for student ${this.student.name}.`);
         }
       }
     };
@@ -516,7 +521,7 @@ export default {
         : `Showing ${pluralize}`;
     },
     displayUpdatedAt(message) {
-      return message.updatedAt && (message.updatedAt !== message.createdAt);
+      return message.updatedAt && (message.updatedAt !== message.createdAt) && (message.type !== 'appointment');
     },
     editNote(note) {
       this.editModeNoteId = note.id;
