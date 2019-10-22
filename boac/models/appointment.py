@@ -33,9 +33,10 @@ from boac.models.appointment_topic import AppointmentTopic
 from boac.models.base import Base
 from dateutil.tz import tzutc
 from flask import current_app as app
+import pytz
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.sql import text
+from sqlalchemy.sql import desc, text
 
 
 class Appointment(Base):
@@ -100,15 +101,22 @@ class Appointment(Base):
         return cls.query.filter(and_(cls.student_sid == sid, cls.deleted_at == None)).all()  # noqa: E711
 
     @classmethod
-    def get_waitlist(cls, dept_code):
-        return cls.query.filter(
-            and_(
+    def get_waitlist(cls, dept_code, include_resolved=False):
+        if include_resolved:
+            start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            criterion = and_(
+                cls.created_at >= start_of_today.astimezone(pytz.utc),
+                cls.deleted_at == None,
+                cls.dept_code == dept_code,
+            )  # noqa: E711
+        else:
+            criterion = and_(
                 cls.canceled_at == None,
                 cls.checked_in_at == None,
                 cls.deleted_at == None,
                 cls.dept_code == dept_code,
-            ),
-        ).all()  # noqa: E711
+            )  # noqa: E711
+        return cls.query.filter(criterion).order_by(desc(cls.created_at)).all()
 
     @classmethod
     def create(

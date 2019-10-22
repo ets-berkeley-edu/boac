@@ -60,9 +60,9 @@ export function create(deptCode, details, sid, appointmentType, topics) {
     }, () => null);
 }
 
-export function getDropInAppointmentWaitlist(deptCode) {
+export function getDropInAppointmentWaitlist(deptCode, includeResolved=false) {
   return axios
-    .get(`${utils.apiBaseUrl()}/api/appointments/waitlist/${deptCode}`)
+    .get(`${utils.apiBaseUrl()}/api/appointments/waitlist/${deptCode}?includeResolved=${includeResolved}`)
     .then(response => response.data, () => null);
 }
 
