@@ -10,26 +10,44 @@
     @hide.prevent="cancel">
     <div>
       <div class="modal-header">
-        <h3 class="ml-2">Advising Appointment</h3>
+        <h3 class="ml-2">
+          <span aria-live="polite" role="alert"><span class="sr-only">Create new </span>Advising Appointment</span>
+        </h3>
       </div>
       <form @submit.prevent="create()">
-        <div class="font-weight-500 ml-4 mt-2">
-          <div
-            v-if="student"
-            id="appointment-student-selected"
-            class="mt-3 mb-2"
-            :class="{'demo-mode-blur' : user.inDemoMode}">
-            {{ student.label }}
+        <div class="font-weight-500 ml-4 mr-3 mt-2">
+          <div>
+            <label
+              for="appointment-student-input"
+              class="font-size-14 input-label text mt-2">
+              <span class="sr-only">Select a </span><span class="font-weight-bolder">Student</span>
+              <span v-if="!student"> (name or SID)</span>
+              <span class="sr-only">(expect auto-suggest based on what you enter)</span>
+            </label>
+          </div>
+          <div v-if="student" class="d-inline-block">
+            <div
+              id="appointment-student-input"
+              class="d-flex pill pill-student text-uppercase text-nowrap"
+              :class="{'demo-mode-blur' : user.inDemoMode}">
+              <div class="student-label">
+                <span class="sr-only">Student: </span> {{ student.label }}
+              </div>
+              <div class="mb-1 mr-2">
+                <b-btn
+                  id="appointment-student-remove"
+                  variant="link"
+                  class="p-0"
+                  @click.prevent="student = undefined">
+                  <font-awesome icon="times-circle" class="font-size-24 faint-text pl-2" />
+                </b-btn>
+                <label class="sr-only" for="appointment-student-remove">
+                  Remove student
+                </label>
+              </div>
+            </div>
           </div>
           <div v-if="!student">
-            <div>
-              <label
-                for="appointment-student-input"
-                class="font-size-14 input-label text mt-2">
-                <span class="sr-only">Select a </span><span class="font-weight-bolder">Student</span> (name or SID)
-                <span class="sr-only">(expect auto-suggest based on what you enter)</span>
-              </label>
-            </div>
             <div class="mb-2">
               <Autocomplete
                 id="appointment-student"
@@ -169,3 +187,13 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.pill-student {
+  height: 32px;
+}
+.student-label {
+  font-size: 14px;
+  margin: 2px 4px 0 8px;
+}
+</style>
