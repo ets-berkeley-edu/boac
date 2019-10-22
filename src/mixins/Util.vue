@@ -40,6 +40,7 @@ export default {
     indexOf: _.indexOf,
     inRange: _.inRange,
     isEmpty: _.isEmpty,
+    isEqual: _.isEqual,
     isNaN: _.isNaN,
     isNil: _.isNil,
     isNumber: _.isNumber,

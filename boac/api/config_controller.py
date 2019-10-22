@@ -41,6 +41,7 @@ def app_config():
     current_term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
     current_term_id = sis_term_id_for_name(current_term_name)
     return tolerant_jsonify({
+        'apptDeskRefreshInterval': app.config['APPT_DESK_REFRESH_INTERVAL'],
         'boacEnv': app.config['BOAC_ENV'],
         'currentEnrollmentTerm': current_term_name,
         'currentEnrollmentTermId': int(current_term_id),

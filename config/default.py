@@ -45,6 +45,9 @@ ALERT_WITHDRAWAL_ENABLED = True
 # Set to a nice long chaotic string to enable scripted access to APIs.
 API_KEY = None
 
+# For /appt/desk. 60000 ms = 1 minute.
+APPT_DESK_REFRESH_INTERVAL = 60000
+
 # BOAC-specific AWS credentials.
 AWS_APP_ROLE_ARN = 'aws:arn::<account>:role/<app_boa_role>'
 
