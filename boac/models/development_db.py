@@ -489,6 +489,36 @@ def _create_appointments():
         student_sid='5678901234',
         topics=['Good Show'],
     )
+    cancel_me = Appointment.create(
+        appointment_type='Drop-in',
+        created_by=coe_advisor_uid,
+        dept_code='COENG',
+        details='We will cancel this appointment.',
+        student_sid='7890123456',
+        topics=['Whoops'],
+    )
+    Appointment.cancel(
+        appointment_id=cancel_me.id,
+        canceled_by=scheduler_uid,
+        cancel_reason='Just because',
+        cancel_reason_explained='I felt like it.',
+    )
+    check_me_in = Appointment.create(
+        appointment_type='Drop-in',
+        created_by=scheduler_uid,
+        dept_code='COENG',
+        details='We will check in this student.',
+        student_sid='9012345678',
+        topics=['Please check me in.'],
+    )
+    Appointment.check_in(
+        appointment_id=check_me_in.id,
+        checked_in_by=coe_advisor_uid,
+        advisor_uid=coe_advisor_uid,
+        advisor_name='Johnny C. Lately',
+        advisor_role='Advisor',
+        advisor_dept_codes=['COENG'],
+    )
     # L&S College Advising appointments
     l_s_advisor_uid = '53791'
     Appointment.create(

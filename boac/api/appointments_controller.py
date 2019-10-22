@@ -27,6 +27,7 @@ from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotF
 from boac.api.util import advisor_required, scheduler_required
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
+from boac.lib.util import to_bool_or_none
 from boac.merged.student import get_distilled_student_profiles
 from boac.models.appointment import Appointment
 from boac.models.appointment_read import AppointmentRead
@@ -48,7 +49,8 @@ def get_waitlist(dept_code):
     if dept_code not in BERKELEY_DEPT_CODE_TO_NAME:
         raise ResourceNotFoundError(f'Unrecognized department code: {dept_code}')
     elif _is_current_user_authorized():
-        waitlist = [a.to_api_json(current_user.get_id()) for a in Appointment.get_waitlist(dept_code)]
+        include_resolved = to_bool_or_none(request.args.get('includeResolved'))
+        waitlist = [a.to_api_json(current_user.get_id()) for a in Appointment.get_waitlist(dept_code, include_resolved)]
         _put_student_profile_per_appointment(waitlist)
         return tolerant_jsonify(waitlist)
     else:

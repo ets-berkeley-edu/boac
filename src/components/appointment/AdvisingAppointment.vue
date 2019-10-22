@@ -5,7 +5,7 @@
       :id="`appointment-${appointment.id}-is-closed`"
       :class="{'truncate-with-ellipsis': !isOpen}"
       title="Advising appointment">
-      <span :id="`appointment-${appointment.id}-reason-closed`">{{ appointment.details }}</span>
+      <span :id="`appointment-${appointment.id}-details-closed`">{{ appointment.details }}</span>
     </div>
     <div v-if="isOpen" :id="`appointment-${appointment.id}-is-open`">
       <div class="mt-2">
@@ -14,12 +14,13 @@
       <div class="d-flex align-items-center mt-3 mb-3">
         <div v-if="checkInAvailable">
           <b-dropdown
+            :id="`appointment-${appointment.id}-check-in-dropdown`"
             class="bg-white mr-3"
             split
             text="Check In"
             variant="outline-dark"
             @click="checkIn(appointment.id)">
-            <b-dropdown-item-button @click="showCancelAppointmentModal = true">Cancel</b-dropdown-item-button>
+            <b-dropdown-item-button :id="`appointment-${appointment.id}-cancel`" @click="showCancelAppointmentModal = true">Cancel</b-dropdown-item-button>
           </b-dropdown>
           <AppointmentCancellationModal
             v-if="showCancelAppointmentModal"
@@ -30,23 +31,23 @@
             :student="student" />
         </div>
         <div v-if="!!appointment.checkedInBy">
-          <font-awesome icon="calendar-check" class="status-checked-in-icon" />
+          <font-awesome :id="`appointment-${appointment.id}-checked-in-icon`" icon="calendar-check" class="status-checked-in-icon" />
           <span class="text-secondary ml-1">
             Check In
             <span v-if="appointment.checkedInAt">
-              @ {{ datePerTimezone(appointment.checkedInAt) | moment('h:mma') }}
+              @ <span :id="`appointment-${appointment.id}-checked-in-at`">{{ datePerTimezone(appointment.checkedInAt) | moment('h:mma') }}</span>
             </span>
           </span>
         </div>
         <div v-if="appointment.canceledAt">
           <div>
-            <font-awesome icon="calendar-minus" class="status-canceled-icon" />
+            <font-awesome :id="`appointment-${appointment.id}-canceled-in-icon`" icon="calendar-minus" class="status-canceled-icon" />
             <span class="text-secondary ml-1">
-              {{ appointment.cancelReason || 'Canceled' }}
+              <span :id="`appointment-${appointment.id}-cancel-reason`">{{ appointment.cancelReason || 'Canceled' }}</span>
             </span>
           </div>
           <div v-if="appointment.cancelReasonExplained" class="mt-1">
-            {{ appointment.cancelReasonExplained }}
+            <span :id="`appointment-${appointment.id}-cancel-explained`">{{ appointment.cancelReasonExplained }}</span>
           </div>
         </div>
       </div>

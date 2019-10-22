@@ -3,11 +3,11 @@
     <h1 class="sr-only">Welcome to BOA</h1>
     <Spinner />
     <div v-if="!loading">
-      <div class="d-flex justify-content-between flex-wrap">
-        <div class="flex-fill mr-5">
+      <div class="d-flex flex-wrap">
+        <div class="flex-fill flex-grow-1 mb-4 mr-4">
           <DropInWaitlist :dept-code="deptCode" :is-homepage="true" :waitlist="waitlist" />
         </div>
-        <div class="flex-fill mr-3 w-50">
+        <div class="flex-fill homepage-alerts mr-3">
           <div class="homepage-header-border">
             <h2 class="alerts-header mb-0 page-section-header">Alerts</h2>
           </div>
@@ -83,7 +83,7 @@ export default {
   }),
   mounted() {
     this.deptCode = this.get(this.$route, 'params.deptCode');
-    getDropInAppointmentWaitlist(this.deptCode).then(waitlist => {
+    getDropInAppointmentWaitlist(this.deptCode, true).then(waitlist => {
       this.waitlist = waitlist;
       this.loaded();
     });
@@ -100,6 +100,9 @@ export default {
 <style>
 .alerts-header {
   padding-top: 5px;
+}
+.homepage-alerts {
+  max-width: 600px;
 }
 .homepage-header-border {
   border-bottom-color: lightgrey;

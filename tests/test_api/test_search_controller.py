@@ -351,7 +351,7 @@ class TestNoteAndAppointmentSearch:
     """Notes & Appointments search API."""
 
     @classmethod
-    def _assert(cls, response, note_count=0, appointment_count=0, note_ids=[], appointment_ids=[]):
+    def _assert(cls, response, note_count=0, appointment_count=0, note_ids=()):
         assert response.status_code == 200
 
         assert 'notes' in response.json
@@ -363,8 +363,10 @@ class TestNoteAndAppointmentSearch:
         assert 'appointments' in response.json
         appointments = response.json['appointments']
         assert len(response.json['appointments']) == appointment_count
-        for idx, appointment_id in enumerate(appointment_ids):
-            assert appointments[idx].get('id') == appointment_id
+        previous_id = None
+        for appointment in appointments:
+            if previous_id is not None:
+                assert previous_id > appointment.get('id')
 
     def test_respects_appointments_feature_flag(self, app, coe_advisor, client):
         """Excludes appointments if feature flag is False."""
@@ -385,16 +387,16 @@ class TestNoteAndAppointmentSearch:
     def test_search_notes_and_appointments(self, coe_advisor, client):
         """Search results include notes and appointments ordered by rank."""
         response = client.post('/api/search', data=json.dumps({'notes': True, 'searchPhrase': 'life'}), content_type='application/json')
-        self._assert(response, note_count=1, appointment_count=2, note_ids=['11667051-00003'], appointment_ids=[4, 2])
+        self._assert(response, note_count=1, appointment_count=2, note_ids=['11667051-00003'])
 
     def test_search_by_appointment_cancel_reason(self, coe_advisor, client):
         """Appointments can be searched for by cancel reason and cancel reason explained."""
         appointment = Appointment.find_by_id(1)
         Appointment.cancel(appointment.id, '6972201', 'Sick cat', 'Student needed to attend to ailing feline.')
         response = client.post('/api/search', data=json.dumps({'notes': True, 'searchPhrase': 'cat'}), content_type='application/json')
-        self._assert(response, appointment_count=1, appointment_ids=[1])
+        self._assert(response, appointment_count=1)
         response = client.post('/api/search', data=json.dumps({'notes': True, 'searchPhrase': 'feline'}), content_type='application/json')
-        self._assert(response, appointment_count=1, appointment_ids=[1])
+        self._assert(response, appointment_count=1)
 
     def test_search_respects_date_filters(self, coe_advisor, client):
         """Search results include notes and appointments updated within provided date range."""
@@ -414,7 +416,7 @@ class TestNoteAndAppointmentSearch:
             }),
             content_type='application/json',
         )
-        self._assert(response, note_count=1, appointment_count=1, note_ids=['11667051-00001'], appointment_ids=[2])
+        self._assert(response, note_count=1, appointment_count=1, note_ids=['11667051-00001'])
 
     def test_note_search_validates_date_formatting(self, coe_advisor, client):
         response = client.post(
@@ -554,7 +556,7 @@ class TestNoteAndAppointmentSearch:
             data=json.dumps({'notes': True, 'searchPhrase': 'making', 'noteOptions': {'topic': 'Good Show'}}),
             content_type='application/json',
         )
-        self._assert(response, note_count=1, appointment_count=1, note_ids=['11667051-00001'], appointment_ids=[2])
+        self._assert(response, note_count=1, appointment_count=1, note_ids=['11667051-00001'])
 
     def test_search_with_no_input_and_topic(self, coe_advisor, client):
         """Notes and appointments search needs no input when topic set."""
@@ -563,7 +565,7 @@ class TestNoteAndAppointmentSearch:
             data=json.dumps({'notes': True, 'searchPhrase': '', 'noteOptions': {'topic': 'Good Show'}}),
             content_type='application/json',
         )
-        self._assert(response, note_count=1, appointment_count=2, note_ids=['11667051-00001'], appointment_ids=[2, 3])
+        self._assert(response, note_count=1, appointment_count=2, note_ids=['11667051-00001'])
 
     def test_search_by_note_author_sis(self, coe_advisor, client):
         """Searches SIS notes by advisor CSID if posted by option is selected."""
@@ -590,7 +592,7 @@ class TestNoteAndAppointmentSearch:
             data=json.dumps({'notes': True, 'searchPhrase': 'catch', 'noteOptions': {'authorCsid': '53791'}}),
             content_type='application/json',
         )
-        self._assert(response, note_count=0, appointment_count=1, appointment_ids=[3])
+        self._assert(response, note_count=0, appointment_count=1)
 
     def test_search_with_no_input_and_author(self, coe_advisor, client):
         """Notes and appointments search needs no input when author set."""
@@ -614,7 +616,7 @@ class TestNoteAndAppointmentSearch:
             data=json.dumps({'notes': True, 'searchPhrase': 'life', 'noteOptions': {'studentCsid': '11667051'}}),
             content_type='application/json',
         )
-        self._assert(response, note_count=1, appointment_count=1, note_ids=['11667051-00003'], appointment_ids=[4])
+        self._assert(response, note_count=1, appointment_count=1, note_ids=['11667051-00003'])
 
     def test_search_with_no_input_and_student(self, coe_advisor, client):
         """Notes search needs no input when student set."""
@@ -632,7 +634,7 @@ class TestNoteAndAppointmentSearch:
             data=json.dumps({'notes': True, 'searchPhrase': 'life', 'noteOptions': {'limit': '1'}}),
             content_type='application/json',
         )
-        self._assert(response, note_count=1, appointment_count=1, note_ids=['11667051-00003'], appointment_ids=[4])
+        self._assert(response, note_count=1, appointment_count=1, note_ids=['11667051-00003'])
 
     def test_note_search_offset(self, coe_advisor, client):
         """Returns results beginning from the offset."""
@@ -641,7 +643,7 @@ class TestNoteAndAppointmentSearch:
             data=json.dumps({'notes': True, 'searchPhrase': 'life', 'noteOptions': {'offset': '1'}}),
             content_type='application/json',
         )
-        self._assert(response, appointment_count=1, appointment_ids=[2])
+        self._assert(response, appointment_count=1)
 
     def test_search_notes_no_canvas_data_access(self, no_canvas_access_advisor, client):
         """A user with no access to Canvas data can still search for notes and appointments."""

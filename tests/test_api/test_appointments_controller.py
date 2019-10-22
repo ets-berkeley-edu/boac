@@ -56,7 +56,7 @@ class TestCreateAppointment:
 
     @classmethod
     def _get_waitlist(cls, client, dept_code):
-        response = client.get(f'/api/appointments/waitlist/{dept_code}')
+        response = client.get(f'/api/appointments/waitlist/{dept_code}?includeResolved=false')
         assert response.status_code == 200
         return response.json
 
@@ -112,29 +112,29 @@ class TestAppointmentCheckIn:
 class TestAppointmentWaitlist:
 
     @classmethod
-    def _get_waitlist(cls, client, dept_code, expected_status_code=200):
-        response = client.get(f'/api/appointments/waitlist/{dept_code}')
+    def _get_waitlist(cls, client, dept_code, include_resolved=False, expected_status_code=200):
+        response = client.get(f'/api/appointments/waitlist/{dept_code}?includeResolved={include_resolved}')
         assert response.status_code == expected_status_code
         return response.json
 
     def test_mark_read_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        self._get_waitlist(client, 'COENG', 401)
+        self._get_waitlist(client, 'COENG', expected_status_code=401)
 
     def test_unrecognized_dept_code(self, app, client, fake_auth):
         """Returns 404 if requested dept_code is invalid."""
         fake_auth.login(l_s_college_scheduler_uid)
-        self._get_waitlist(client, 'BOGUS', 404)
+        self._get_waitlist(client, 'BOGUS', expected_status_code=404)
 
     def test_deny_advisor(self, app, client, fake_auth):
         """Returns 401 if user is an advisor without drop_in responsibilities."""
         fake_auth.login(l_s_college_advisor_uid)
-        self._get_waitlist(client, 'QCADV', 401)
+        self._get_waitlist(client, 'QCADV', expected_status_code=401)
 
     def test_l_and_s_advisor_cannot_view_coe_waitlist(self, app, client, fake_auth):
         """L&S advisor cannot view COE appointments (waitlist)."""
         fake_auth.login(l_s_college_scheduler_uid)
-        self._get_waitlist(client, 'COENG', 403)
+        self._get_waitlist(client, 'COENG', expected_status_code=403)
 
     def test_coe_scheduler_waitlist(self, app, client, fake_auth):
         """COE advisor can only see COE appointments."""
@@ -148,12 +148,18 @@ class TestAppointmentWaitlist:
         assert appointment['advisorUid'] == coe_advisor_uid
         assert appointment['advisorDepartments'] == [{'code': 'COENG', 'name': 'College of Engineering'}]
         assert appointment['createdAt'] is not None
-        assert appointment['createdBy'] == coe_scheduler_uid
-        assert 'crossroads' in appointment['details']
+        assert appointment['createdBy'] == coe_advisor_uid
+        assert 'Life is what happens' in appointment['details']
         assert appointment['appointmentType'] == 'Drop-in'
-        assert appointment['student']['sid'] == '3456789012'
-        assert appointment['student']['name'] == 'Paul Kerschen'
+        assert appointment['student']['sid'] == '5678901234'
+        assert appointment['student']['name'] == 'Sandeep Jayaprakash'
         assert len(appointment['topics']) == 1
+
+    def test_waitlist_include_checked_in_and_canceled(self, app, client, fake_auth):
+        """Waitlist includes checked-in and canceled appointments, if you ask for them."""
+        fake_auth.login(coe_scheduler_uid)
+        appointments = self._get_waitlist(client, 'COENG', True)
+        assert len(appointments) == 4
 
     def test_l_and_s_advisor_waitlist(self, app, client, fake_auth):
         """L&S advisor can only see L&S appointments."""

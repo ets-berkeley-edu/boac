@@ -25,21 +25,21 @@
       :cancel="cancelCreateAppointment"
       :create-appointment="createAppointment"
       :show-modal="showCreateAppointmentModal" />
-    <div v-if="isHomepage">
-      <div class="align-items-center d-flex homepage-header-border justify-content-between">
-        <div>
-          <h2 class="page-section-header">Drop-in Waitlist - {{ $moment() | moment('MMM D') }}</h2>
-        </div>
-        <div>
-          <b-btn
-            id="create-drop-in-appointment"
-            variant="link"
-            class="mb-1"
-            aria-label="Create appointment. Modal window will open."
-            @click="showCreateAppointmentModal = true">
-            <font-awesome icon="plus" />
-          </b-btn>
-        </div>
+    <div v-if="isHomepage" class="align-items-center d-flex homepage-header-border justify-content-between mb-4">
+      <div>
+        <h2 class="page-section-header">
+          <span aria-live="polite" role="alert">Drop-in Waitlist - {{ $moment() | moment('MMM D') }}</span>
+        </h2>
+      </div>
+      <div>
+        <b-btn
+          id="create-drop-in-appointment"
+          variant="link"
+          class="mb-1"
+          aria-label="Create appointment. Modal window will open."
+          @click="showCreateAppointmentModal = true">
+          <font-awesome icon="plus" />
+        </b-btn>
       </div>
     </div>
     <div v-if="!isHomepage">
@@ -55,15 +55,21 @@
       </div>
       <div class="border-bottom d-flex justify-content-between">
         <div>
-          <h1 class="font-size-18 font-weight-bold text-nowrap">Today's Drop-In Waitlist ({{ size(waitlist) }})</h1>
+          <h1 class="font-size-18 font-weight-bold text-nowrap">
+            <span aria-live="polite" role="alert">Today's Drop-In Waitlist ({{ size(waitlist) }}<span class="sr-only"> students</span>)</span>
+          </h1>
         </div>
         <div>
-          <h2 class="font-size-18 font-weight-bold text-nowrap">{{ $moment() | moment('ddd, MMM D') }}</h2>
+          <h2 id="waitlist-today-date" class="font-size-18 font-weight-bold text-nowrap">{{ $moment() | moment('ddd, MMM D') }}</h2>
         </div>
       </div>
     </div>
     <div v-if="!waitlist.length" class="border-bottom">
-      <div class="font-size-16 mb-3 ml-1 mt-3" aria-live="polite" role="alert">
+      <div
+        id="waitlist-is-empty"
+        class="font-size-16 mb-3 ml-1 mt-3"
+        aria-live="polite"
+        role="alert">
         No appointments yet
       </div>
     </div>
@@ -75,7 +81,7 @@
           no-gutters
           class="border-bottom font-size-16 mt-3 pb-3">
           <b-col cols="2" class="pb-2 text-nowrap">
-            <span class="sr-only">Created at </span>{{ new Date(appointment.createdAt) | moment('LT') }}
+            <span class="sr-only">Created at </span><span :id="`appointment-${appointment.id}-created-at`">{{ new Date(appointment.createdAt) | moment('LT') }}</span>
           </b-col>
           <b-col cols="7">
             <div class="d-flex">
@@ -86,34 +92,51 @@
                 <div class="font-size-16">
                   <router-link
                     v-if="linkToStudentProfiles"
-                    :id="`waitlist-student-${appointment.student.sid}`"
+                    :id="`appointment-${appointment.id}-student-name`"
                     :class="{'demo-mode-blur' : user.inDemoMode}"
                     :to="studentRoutePath(appointment.student.uid, user.inDemoMode)">
                     {{ appointment.student.name }}
                   </router-link>
                   <div v-if="!linkToStudentProfiles">
                     <span
-                      :id="`waitlist-student-${appointment.student.sid}`"
+                      :id="`appointment-${appointment.id}-student-name`"
                       :class="{'demo-mode-blur' : user.inDemoMode}">{{ appointment.student.name }}</span>
                   </div>
                 </div>
-                <div v-if="appointment.topics.length" class="appointment-topics font-size-14 pb-2">
+                <div
+                  v-if="appointment.topics.length"
+                  :id="`appointment-${appointment.id}-topics`"
+                  class="appointment-topics font-size-14 pb-2">
                   {{ oxfordJoin(appointment.topics) }}
                 </div>
               </div>
             </div>
           </b-col>
-          <b-col class="float-right">
+          <b-col cols="3">
             <b-dropdown
-              class="bg-white text-nowrap"
+              v-if="isNil(appointment.checkedInAt) && isNil(appointment.canceledAt)"
+              :id="`appointment-${appointment.id}-dropdown`"
+              class="bg-white float-right text-nowrap"
               split
               :disabled="!!appointment.checkedInBy || !!appointment.canceledAt"
               text="Check In"
               variant="outline-dark"
               @click="launchCheckInForAppointment(appointment)">
-              <b-dropdown-item-button @click="showAppointmentDetails(appointment)">Details</b-dropdown-item-button>
-              <b-dropdown-item-button @click="cancelAppointment(appointment)">Cancel</b-dropdown-item-button>
+              <b-dropdown-item-button :id="`btn-appointment-${appointment.id}-details`" @click="showAppointmentDetails(appointment)">Details</b-dropdown-item-button>
+              <b-dropdown-item-button :id="`btn-appointment-${appointment.id}-cancel`" @click="cancelAppointment(appointment)">Cancel</b-dropdown-item-button>
             </b-dropdown>
+            <div
+              v-if="!isNil(appointment.checkedInAt) && isNil(appointment.canceledAt)"
+              :id="`appointment-${appointment.id}-canceled`"
+              class="float-right pill-appointment pill-checked-in pill-canceled pl-2 pr-2 text-nowrap text-uppercase">
+              Canceled<span class="sr-only"> appointment</span>
+            </div>
+            <div
+              v-if="isNil(appointment.checkedInAt) && !isNil(appointment.canceledAt)"
+              :id="`appointment-${appointment.id}-checked-in`"
+              class="float-right pill-appointment pill-checked-in pl-2 pr-2 text-muted text-uppercase">
+              <span class="sr-only">Student was </span>Checked In
+            </div>
           </b-col>
         </b-row>
       </b-container>
@@ -254,4 +277,24 @@ export default {
 .appointment-topics {
   max-width: 240px;
 }
+.pill-checked-in {
+  background-color: #98cf59;
+  color: #8a0100;
+}
+.pill-canceled {
+  background-color: #f2b7b6;
+  color: #915251;
+}
+.pill-appointment {
+  border-radius: 5px;
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 800;
+  height: 32px;
+  min-width: 108px;
+  max-width: 108px;
+  padding-top: 6px;
+  text-align: center;
+}
+
 </style>
