@@ -371,7 +371,11 @@ class TestNoteAndAppointmentSearch:
     def test_respects_appointments_feature_flag(self, app, coe_advisor, client):
         """Excludes appointments if feature flag is False."""
         with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
-            response = client.post('/api/search', data=json.dumps({'notes': True, 'searchPhrase': 'life'}), content_type='application/json')
+            response = client.post(
+                '/api/search',
+                data=json.dumps({'appointments': True, 'notes': True, 'searchPhrase': 'life'}),
+                content_type='application/json',
+            )
             assert response.status_code == 200
             assert 'appointments' not in response.json
             assert 'notes' in response.json
@@ -381,21 +385,37 @@ class TestNoteAndAppointmentSearch:
 
     def test_search_with_missing_input_no_options(self, coe_advisor, client):
         """Notes search is nothing without input when no additional options are set."""
-        response = client.post('/api/search', data=json.dumps({'notes': True, 'searchPhrase': ' \t  '}), content_type='application/json')
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'appointments': True, 'notes': True, 'searchPhrase': ' \t  '}),
+            content_type='application/json',
+        )
         assert response.status_code == 400
 
     def test_search_notes_and_appointments(self, coe_advisor, client):
         """Search results include notes and appointments ordered by rank."""
-        response = client.post('/api/search', data=json.dumps({'notes': True, 'searchPhrase': 'life'}), content_type='application/json')
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'appointments': True, 'notes': True, 'searchPhrase': 'life'}),
+            content_type='application/json',
+        )
         self._assert(response, note_count=1, appointment_count=2, note_ids=['11667051-00003'])
 
     def test_search_by_appointment_cancel_reason(self, coe_advisor, client):
         """Appointments can be searched for by cancel reason and cancel reason explained."""
         appointment = Appointment.find_by_id(1)
         Appointment.cancel(appointment.id, '6972201', 'Sick cat', 'Student needed to attend to ailing feline.')
-        response = client.post('/api/search', data=json.dumps({'notes': True, 'searchPhrase': 'cat'}), content_type='application/json')
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'appointments': True, 'notes': True, 'searchPhrase': 'cat'}),
+            content_type='application/json',
+        )
         self._assert(response, appointment_count=1)
-        response = client.post('/api/search', data=json.dumps({'notes': True, 'searchPhrase': 'feline'}), content_type='application/json')
+        response = client.post(
+            '/api/search',
+            data=json.dumps({'appointments': True, 'notes': True, 'searchPhrase': 'feline'}),
+            content_type='application/json',
+        )
         self._assert(response, appointment_count=1)
 
     def test_search_respects_date_filters(self, coe_advisor, client):
@@ -407,6 +427,7 @@ class TestNoteAndAppointmentSearch:
         response = client.post(
             '/api/search',
             data=json.dumps({
+                'appointments': True,
                 'notes': True,
                 'searchPhrase': 'making',
                 'noteOptions': {
@@ -422,6 +443,7 @@ class TestNoteAndAppointmentSearch:
         response = client.post(
             '/api/search',
             data=json.dumps({
+                'appointments': True,
                 'notes': True,
                 'searchPhrase': 'Brigitte',
                 'noteOptions': {
@@ -438,6 +460,7 @@ class TestNoteAndAppointmentSearch:
         response = client.post(
             '/api/search',
             data=json.dumps({
+                'appointments': True,
                 'notes': True,
                 'searchPhrase': 'Brigitte',
                 'noteOptions': {
@@ -460,12 +483,11 @@ class TestNoteAndAppointmentSearch:
         response = client.post(
             '/api/search',
             data=json.dumps({
+                'appointments': True,
                 'notes': True,
                 'searchPhrase': '',
-                'noteOptions': {
-                    'dateFrom': '2017-11-01',
-                    'dateTo': '2017-11-02',
-                },
+                'appointmentOptions': {'dateFrom': '2017-11-01', 'dateTo': '2017-11-02'},
+                'noteOptions': {'dateFrom': '2017-11-01', 'dateTo': '2017-11-02'},
             }),
             content_type='application/json',
         )
@@ -477,12 +499,11 @@ class TestNoteAndAppointmentSearch:
             response = client.post(
                 '/api/search',
                 data=json.dumps({
+                    'appointments': True,
                     'notes': True,
                     'searchPhrase': 'confound',
-                    'noteOptions': {
-                        'dateFrom': date,
-                        'dateTo': date,
-                    },
+                    'appointmentOptions': {'dateFrom': date, 'dateTo': date},
+                    'noteOptions': {'dateFrom': date, 'dateTo': date},
                 }),
                 content_type='application/json',
             )
@@ -505,7 +526,7 @@ class TestNoteAndAppointmentSearch:
         """Includes notes and appointments in search results if notes param is true."""
         response = client.post(
             '/api/search',
-            data=json.dumps({'notes': True, 'searchPhrase': 'Brigitte'}),
+            data=json.dumps({'appointments': True, 'notes': True, 'searchPhrase': 'Brigitte'}),
             content_type='application/json',
         )
         self._assert(response, note_count=2, appointment_count=0, note_ids=['11667051-00001', '11667051-00002'])
@@ -526,7 +547,7 @@ class TestNoteAndAppointmentSearch:
 
         response = client.post(
             '/api/search',
-            data=json.dumps({'notes': True, 'searchPhrase': 'a conquering virtue'}),
+            data=json.dumps({'appointments': True, 'notes': True, 'searchPhrase': 'a conquering virtue'}),
             content_type='application/json',
         )
         self._assert(response, note_count=1, appointment_count=0, note_ids=[note['id']])
@@ -535,7 +556,7 @@ class TestNoteAndAppointmentSearch:
         """Includes ASC notes in search results."""
         response = client.post(
             '/api/search',
-            data=json.dumps({'notes': True, 'searchPhrase': 'ginger'}),
+            data=json.dumps({'appointments': True, 'notes': True, 'searchPhrase': 'ginger'}),
             content_type='application/json',
         )
         self._assert(response, note_count=3, appointment_count=0, note_ids=['11667051-139379', '2345678901-139379', '8901234567-139379'])
@@ -544,7 +565,7 @@ class TestNoteAndAppointmentSearch:
         """Includes ASC notes with advisor name match in search results."""
         response = client.post(
             '/api/search',
-            data=json.dumps({'notes': True, 'searchPhrase': 'academic'}),
+            data=json.dumps({'appointments': True, 'notes': True, 'searchPhrase': 'academic'}),
             content_type='application/json',
         )
         self._assert(response, note_count=1, appointment_count=0, note_ids=['11667051-139362'])
@@ -553,7 +574,13 @@ class TestNoteAndAppointmentSearch:
         """Searches notes and appointments by topic if topics option is selected."""
         response = client.post(
             '/api/search',
-            data=json.dumps({'notes': True, 'searchPhrase': 'making', 'noteOptions': {'topic': 'Good Show'}}),
+            data=json.dumps({
+                'appointments': True,
+                'notes': True, 'searchPhrase':
+                'making',
+                'appointmentOptions': {'topic': 'Good Show'},
+                'noteOptions': {'topic': 'Good Show'},
+            }),
             content_type='application/json',
         )
         self._assert(response, note_count=1, appointment_count=1, note_ids=['11667051-00001'])
@@ -562,7 +589,13 @@ class TestNoteAndAppointmentSearch:
         """Notes and appointments search needs no input when topic set."""
         response = client.post(
             '/api/search',
-            data=json.dumps({'notes': True, 'searchPhrase': '', 'noteOptions': {'topic': 'Good Show'}}),
+            data=json.dumps({
+                'appointments': True,
+                'notes': True,
+                'searchPhrase': '',
+                'appointmentOptions': {'topic': 'Good Show'},
+                'noteOptions': {'topic': 'Good Show'},
+            }),
             content_type='application/json',
         )
         self._assert(response, note_count=1, appointment_count=2, note_ids=['11667051-00001'])
@@ -571,7 +604,13 @@ class TestNoteAndAppointmentSearch:
         """Searches SIS notes by advisor CSID if posted by option is selected."""
         response = client.post(
             '/api/search',
-            data=json.dumps({'notes': True, 'searchPhrase': 'Brigitte', 'noteOptions': {'authorCsid': '800700600'}}),
+            data=json.dumps({
+                'appointments': True,
+                'notes': True,
+                'searchPhrase': 'Brigitte',
+                'appointmentOptions': {'advisorCsid': '800700600'},
+                'noteOptions': {'advisorCsid': '800700600'},
+            }),
             content_type='application/json',
         )
         self._assert(response, note_count=1, appointment_count=0, note_ids=['11667051-00001'])
@@ -580,7 +619,13 @@ class TestNoteAndAppointmentSearch:
         """Searches ASC notes by advisor CSID if posted by option is selected."""
         response = client.post(
             '/api/search',
-            data=json.dumps({'notes': True, 'searchPhrase': 'Academic', 'noteOptions': {'authorCsid': '800700600'}}),
+            data=json.dumps({
+                'appointments': True,
+                'notes': True,
+                'searchPhrase': 'Academic',
+                'appointmentOptions': {'advisorCsid': '800700600'},
+                'noteOptions': {'advisorCsid': '800700600'},
+            }),
             content_type='application/json',
         )
         self._assert(response, note_count=1, appointment_count=0, note_ids=['11667051-139362'])
@@ -589,7 +634,13 @@ class TestNoteAndAppointmentSearch:
         """Searches appointments by advisor CSID if posted by option is selected."""
         response = client.post(
             '/api/search',
-            data=json.dumps({'notes': True, 'searchPhrase': 'catch', 'noteOptions': {'authorCsid': '53791'}}),
+            data=json.dumps({
+                'appointments': True,
+                'notes': True,
+                'searchPhrase': 'catch',
+                'appointmentOptions': {'advisorCsid': '53791'},
+                'noteOptions': {'advisorCsid': '53791'},
+            }),
             content_type='application/json',
         )
         self._assert(response, note_count=0, appointment_count=1)
@@ -598,13 +649,25 @@ class TestNoteAndAppointmentSearch:
         """Notes and appointments search needs no input when author set."""
         response = client.post(
             '/api/search',
-            data=json.dumps({'notes': True, 'searchPhrase': '', 'noteOptions': {'authorCsid': '800700600'}}),
+            data=json.dumps({
+                'notes': True,
+                'appointments': True,
+                'searchPhrase': '',
+                'noteOptions': {'advisorCsid': '800700600'},
+                'appointmentOptions': {'advisorCsid': '800700600'},
+            }),
             content_type='application/json',
         )
         self._assert(response, note_count=2)
         response = client.post(
             '/api/search',
-            data=json.dumps({'notes': True, 'searchPhrase': '', 'noteOptions': {'authorCsid': '53791'}}),
+            data=json.dumps({
+                'notes': True,
+                'appointments': True,
+                'searchPhrase': '',
+                'noteOptions': {'advisorCsid': '53791'},
+                'appointmentOptions': {'advisorCsid': '53791'},
+            }),
             content_type='application/json',
         )
         self._assert(response, appointment_count=2)
@@ -613,7 +676,13 @@ class TestNoteAndAppointmentSearch:
         """Searches notes and appointments by student CSID."""
         response = client.post(
             '/api/search',
-            data=json.dumps({'notes': True, 'searchPhrase': 'life', 'noteOptions': {'studentCsid': '11667051'}}),
+            data=json.dumps({
+                'appointments': True,
+                'notes': True,
+                'searchPhrase': 'life',
+                'appointmentOptions': {'studentCsid': '11667051'},
+                'noteOptions': {'studentCsid': '11667051'},
+            }),
             content_type='application/json',
         )
         self._assert(response, note_count=1, appointment_count=1, note_ids=['11667051-00003'])
@@ -622,7 +691,13 @@ class TestNoteAndAppointmentSearch:
         """Notes search needs no input when student set."""
         response = client.post(
             '/api/search',
-            data=json.dumps({'notes': True, 'searchPhrase': '', 'noteOptions': {'studentCsid': '11667051'}}),
+            data=json.dumps({
+                'appointments': True,
+                'notes': True,
+                'searchPhrase': '',
+                'appointmentOptions': {'studentCsid': '11667051'},
+                'noteOptions': {'studentCsid': '11667051'},
+            }),
             content_type='application/json',
         )
         self._assert(response, note_count=8, appointment_count=1)
@@ -631,7 +706,13 @@ class TestNoteAndAppointmentSearch:
         """Limits search to the first n appointments and the first n notes."""
         response = client.post(
             '/api/search',
-            data=json.dumps({'notes': True, 'searchPhrase': 'life', 'noteOptions': {'limit': '1'}}),
+            data=json.dumps({
+                'appointments': True,
+                'notes': True,
+                'searchPhrase': 'life',
+                'appointmentOptions': {'limit': '1'},
+                'noteOptions': {'limit': '1'},
+            }),
             content_type='application/json',
         )
         self._assert(response, note_count=1, appointment_count=1, note_ids=['11667051-00003'])
@@ -640,7 +721,13 @@ class TestNoteAndAppointmentSearch:
         """Returns results beginning from the offset."""
         response = client.post(
             '/api/search',
-            data=json.dumps({'notes': True, 'searchPhrase': 'life', 'noteOptions': {'offset': '1'}}),
+            data=json.dumps({
+                'appointments': True,
+                'notes': True,
+                'searchPhrase': 'life',
+                'appointmentOptions': {'offset': '1'},
+                'noteOptions': {'offset': '1'},
+            }),
             content_type='application/json',
         )
         self._assert(response, appointment_count=1)
@@ -649,7 +736,13 @@ class TestNoteAndAppointmentSearch:
         """A user with no access to Canvas data can still search for notes and appointments."""
         response = client.post(
             '/api/search',
-            data=json.dumps({'notes': True, 'searchPhrase': '', 'noteOptions': {'studentCsid': '11667051'}}),
+            data=json.dumps({
+                'appointments': True,
+                'notes': True,
+                'searchPhrase': '',
+                'appointmentOptions': {'studentCsid': '11667051'},
+                'noteOptions': {'studentCsid': '11667051'},
+            }),
             content_type='application/json',
         )
         self._assert(response, note_count=8, appointment_count=1)

@@ -8,6 +8,7 @@ export function search(
   includeCourses: boolean,
   includeNotes: boolean,
   includeStudents: boolean,
+  appointmentOptions: object,
   noteOptions: object,
   orderBy?: string,
   offset?: number,
@@ -16,10 +17,11 @@ export function search(
   return axios
     .post(`${utils.apiBaseUrl()}/api/search`, {
       searchPhrase: phrase,
-      appointments: includeAppointments, // TODO: Implement includeAppointments on server-side.
+      appointments: includeAppointments,
       students: includeStudents,
       courses: includeCourses,
       notes: includeNotes,
+      appointmentOptions: appointmentOptions || {},
       noteOptions: noteOptions || {},
       orderBy: orderBy || 'first_name',
       offset: offset || 0,
