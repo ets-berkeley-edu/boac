@@ -1,6 +1,6 @@
 <template>
   <div class="ml-3 mt-3">
-    <Spinner />
+    <Spinner alert-prefix="Cohort" />
     <div v-if="!loading">
       <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
       <CohortPageHeader />

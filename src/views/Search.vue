@@ -1,6 +1,6 @@
 <template>
   <div class="m-3">
-    <Spinner />
+    <Spinner alert-prefix="Search results" :is-plural="true" />
     <div v-if="!loading && !results.totalStudentCount && !results.totalCourseCount && !size(results.notes)">
       <h1
         id="page-header-no-results"

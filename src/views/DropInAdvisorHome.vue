@@ -1,7 +1,9 @@
 <template>
   <div class="ml-3 mt-3">
     <h1 class="sr-only">Welcome to BOA</h1>
-    <Spinner />
+
+    <Spinner alert-prefix="Drop-in Advisor homepage" />
+
     <div v-if="!loading">
       <div class="d-flex flex-wrap">
         <div class="flex-fill flex-grow-1 mb-4 mr-4">

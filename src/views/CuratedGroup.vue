@@ -1,6 +1,6 @@
 <template>
   <div class="m-3">
-    <Spinner />
+    <Spinner alert-prefix="Curated group" />
     <div v-if="!loading">
       <CuratedGroupHeader />
       <div v-show="mode !== 'bulkAdd'">

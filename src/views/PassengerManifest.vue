@@ -1,6 +1,6 @@
 <template>
   <div class="p-3">
-    <Spinner />
+    <Spinner alert-prefix="The Passenger Manifest" />
     <div v-if="!loading">
       <Users
         v-if="users"
