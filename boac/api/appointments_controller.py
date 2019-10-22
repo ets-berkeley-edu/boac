@@ -74,7 +74,9 @@ def appointment_check_in(appointment_id):
             advisor_role=params.get('advisorRole', None),
             advisor_uid=advisor_uid,
         )
-        return tolerant_jsonify(appointment.to_api_json(current_user.get_id()))
+        api_json = appointment.to_api_json(current_user.get_id())
+        _put_student_profile_per_appointment([api_json])
+        return tolerant_jsonify(api_json)
     else:
         raise ForbiddenRequestError(f'You are unauthorized to manage {appointment.dept_code} appointments.')
 
@@ -93,7 +95,9 @@ def cancel_appointment(appointment_id):
             cancel_reason=cancel_reason,
             cancel_reason_explained=cancel_reason_explained,
         )
-        return tolerant_jsonify(appointment.to_api_json(current_user.get_id()))
+        api_json = appointment.to_api_json(current_user.get_id())
+        _put_student_profile_per_appointment([api_json])
+        return tolerant_jsonify(api_json)
     else:
         raise ForbiddenRequestError(f'You are unauthorized to manage {appointment.dept_code} appointments.')
 
