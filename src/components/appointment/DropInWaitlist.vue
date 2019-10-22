@@ -117,13 +117,14 @@
               v-if="isNil(appointment.checkedInAt) && isNil(appointment.canceledAt)"
               :id="`appointment-${appointment.id}-dropdown`"
               class="bg-white float-right text-nowrap"
+              right
               split
               :disabled="!!appointment.checkedInBy || !!appointment.canceledAt"
               text="Check In"
               variant="outline-dark"
               @click="launchCheckInForAppointment(appointment)">
               <b-dropdown-item-button :id="`btn-appointment-${appointment.id}-details`" @click="showAppointmentDetails(appointment)">Details</b-dropdown-item-button>
-              <b-dropdown-item-button :id="`btn-appointment-${appointment.id}-cancel`" @click="cancelAppointment(appointment)">Cancel</b-dropdown-item-button>
+              <b-dropdown-item-button :id="`btn-appointment-${appointment.id}-cancel`" @click="cancelAppointment(appointment)">Cancel Appt</b-dropdown-item-button>
             </b-dropdown>
             <div
               v-if="!isNil(appointment.checkedInAt) && isNil(appointment.canceledAt)"

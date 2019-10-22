@@ -116,7 +116,7 @@
         </tr>
         <tr
           v-for="(message, index) in (searchResults ? filterSearchResults() : (isShowingAll ? messagesPerType(filter) : slice(messagesPerType(filter), 0, defaultShowPerTab)))"
-          :id="`message-row-${message.id}`"
+          :id="`permalink-${message.type}-${message.id}`"
           :key="index"
           class="message-row border-top border-bottom"
           :class="{ 'message-row-read': message.read }"
@@ -247,7 +247,7 @@
                     v-if="message.type === 'note' && message.id !== editModeNoteId"
                     :id="`advising-note-permalink-${message.id}`"
                     :to="`#${message.id}`"
-                    @click.native="scrollToPermalink(message.id)">
+                    @click.native="scrollToPermalink(message.type, message.id)">
                     Permalink <font-awesome icon="link" />
                   </router-link>
                 </div>
@@ -422,20 +422,21 @@ export default {
   },
   mounted() {
     if (this.anchor) {
-      const match = this.anchor.match(/#(\d[0-9A-Z-]+\d)/);
-      if (match) {
-        const messageId = match[1];
-        const note = this.find(this.messages, function(m) {
+      const match = this.anchor.match(/^#(\w+)-([\d\w-]+)/);
+      if (match && match.length > 2) {
+        const messageType = match[1].toLowerCase();
+        const messageId = match[2];
+        const obj = this.find(this.messages, function(m) {
           // Legacy advising notes have string IDs; BOA-created advising notes have integer IDs.
-          if (m.id && m.id.toString() === messageId) {
+          if (m.id && m.id.toString() === messageId && m.type.toLowerCase() === messageType) {
             return true;
           }
         });
-        if (note) {
+        if (obj) {
           this.isShowingAll = true;
           this.$nextTick(function() {
-            this.open(note, true);
-            this.scrollToPermalink(messageId);
+            this.open(obj, true);
+            this.scrollToPermalink(messageType, messageId);
           });
         }
       }
@@ -580,15 +581,15 @@ export default {
         this.allExpanded = true;
       }
       if (screenreaderAlert) {
-        this.alertScreenReader('Message opened');
+        this.alertScreenReader(`${message.type} opened`);
       }
     },
     refreshTimelineAppointment(appointmentId, appointment) {
       let timelineAppointment = this.messagesPerType('appointment').find(a => a.id === +appointment.id);
       Object.assign(timelineAppointment, appointment);
     },
-    scrollToPermalink(messageId) {
-      this.scrollTo(`#message-row-${messageId}`);
+    scrollToPermalink(messageType, messageId) {
+      this.scrollTo(`#permalink-${messageType}-${messageId}`);
       this.putFocusNextTick(`message-row-${messageId}`);
     },
     searchTimeline() {
