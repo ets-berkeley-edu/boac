@@ -8,7 +8,7 @@
         :id="`appointment-link-to-student-${appointment.student.uid}`"
         class="advising-note-search-result-header-link"
         :class="{'demo-mode-blur': user.inDemoMode}"
-        :to="`${studentRoutePath(appointment.student.uid, user.inDemoMode)}#${appointment.id}`"
+        :to="`${studentRoutePath(appointment.student.uid, user.inDemoMode)}#appointment-${appointment.id}`"
         v-html="`${appointment.student.firstName} ${appointment.student.lastName}`"></router-link>
       ({{ appointment.student.sid }})
     </h3>
