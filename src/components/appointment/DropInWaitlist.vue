@@ -127,13 +127,13 @@
               <b-dropdown-item-button :id="`btn-appointment-${appointment.id}-cancel`" @click="cancelAppointment(appointment)">Cancel Appt</b-dropdown-item-button>
             </b-dropdown>
             <div
-              v-if="!isNil(appointment.checkedInAt) && isNil(appointment.canceledAt)"
+              v-if="isNil(appointment.checkedInAt) && !isNil(appointment.canceledAt)"
               :id="`appointment-${appointment.id}-canceled`"
               class="float-right pill-appointment pill-checked-in pill-canceled pl-2 pr-2 text-nowrap text-uppercase">
               Canceled<span class="sr-only"> appointment</span>
             </div>
             <div
-              v-if="isNil(appointment.checkedInAt) && !isNil(appointment.canceledAt)"
+              v-if="!isNil(appointment.checkedInAt) && isNil(appointment.canceledAt)"
               :id="`appointment-${appointment.id}-checked-in`"
               class="float-right pill-appointment pill-checked-in pl-2 pr-2 text-muted text-uppercase">
               <span class="sr-only">Student was </span>Checked In
@@ -196,8 +196,10 @@ export default {
   methods: {
     appointmentCancellation(appointmentId, reason, reasonExplained) {
       apiCancel(this.selectedAppointment.id, reason, reasonExplained).then(canceled => {
-        const indexOf = this.waitlist.findIndex(a => a.id === canceled.id);
-        this.waitlist.splice(indexOf, 1);
+        let match = this.waitlist.find(a => a.id === +canceled.id);
+        Object.assign(match, canceled);
+        this.alertScreenReader(`Appointment with ${canceled.student.name} canceled`);
+        this.selectedAppointment = undefined;
       });
     },
     cancelAppointment(appointment) {
@@ -221,13 +223,11 @@ export default {
         advisor.title,
         advisor.uid,
         appointmentId
-      ).then(() => {
-        const index = this.findIndex(this.waitlist, {id: appointmentId});
-        this.alertScreenReader(`Student ${this.selectedAppointment.student.name} checked in`);
+      ).then(checkedIn => {
+        let match = this.waitlist.find(a => a.id === +checkedIn.id);
+        Object.assign(match, checkedIn);
+        this.alertScreenReader(`Student ${checkedIn.student.name} checked in`);
         this.selectedAppointment = undefined;
-        if (index !== -1) {
-          this.waitlist.splice(index, 1);
-        }
       });
     },
     closeAppointmentCancellationModal() {
@@ -251,7 +251,7 @@ export default {
       apiCreate(this.deptCode, details, student.sid, 'Drop-in', topics).then(appointment => {
         this.alertScreenReader(`Appointment created for ${student.label}`);
         this.showCreateAppointmentModal = false;
-        this.waitlist.push(appointment);
+        this.waitlist.unshift(appointment);
         this.putFocusNextTick(`waitlist-student-${student.sid}`)
       });
     },
