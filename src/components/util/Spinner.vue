@@ -2,17 +2,11 @@
   <div>
     <div v-if="loading" id="spinner-when-loading" class="spinner">
       <font-awesome icon="sync" size="5x" spin />
-      <span
-        role="alert"
-        aria-live="assertive"
-        class="sr-only">Page is loading...</span>
     </div>
-    <div v-if="!loading">
-      <span
-        role="alert"
-        aria-live="assertive"
-        class="sr-only">Page has loaded.</span>
-    </div>
+    <span
+      role="alert"
+      aria-live="assertive"
+      class="sr-only">{{ screenReaderAlert }}</span>
   </div>
 </template>
 
@@ -20,7 +14,22 @@
 import Loading from '@/mixins/Loading.vue';
 
 export default {
-  mixins: [Loading]
+  mixins: [Loading],
+  props: {
+    alertPrefix: {
+      type: String,
+      default: 'The page'
+    },
+    isPlural: {
+      type: Boolean,
+      default: false
+    }
+  },
+  computed: {
+    screenReaderAlert() {
+      return this.loading ? `${this.alertPrefix} ${this.isPlural ? 'are' : 'is'} loading...` : `${this.alertPrefix} ${this.isPlural ? 'have' : 'has'} loaded.`;
+    }
+  }
 };
 </script>
 

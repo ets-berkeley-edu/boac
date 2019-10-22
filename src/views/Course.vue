@@ -1,6 +1,6 @@
 <template>
   <div class="course-container">
-    <Spinner />
+    <Spinner alert-prefix="Course" />
 
     <div v-if="!loading && error">
       <h1 class="page-section-header">Error</h1>

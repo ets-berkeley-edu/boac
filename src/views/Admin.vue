@@ -1,6 +1,6 @@
 <template>
   <div class="p-3">
-    <Spinner />
+    <Spinner alert-prefix="The Admin page" />
     <div v-if="!loading">
       <div class="align-items-center d-flex pb-3">
         <div class="pr-3">

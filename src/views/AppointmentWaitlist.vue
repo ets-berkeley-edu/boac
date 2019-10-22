@@ -1,6 +1,6 @@
 <template>
   <div class="ml-3 mr-3 mt-3">
-    <Spinner />
+    <Spinner alert-prefix="Appointment waitlist" />
     <div v-if="!loading" class="waitlist-container">
       <DropInWaitlist :dept-code="deptCode" :waitlist="waitlist" />
     </div>

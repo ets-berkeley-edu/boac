@@ -1,6 +1,6 @@
 <template>
   <div class="m-3">
-    <Spinner />
+    <Spinner alert-prefix="Curated groups" :is-plural="true" />
     <div v-if="!loading">
       <h1 ref="pageHeader" class="mb-4">Everyone's Groups</h1>
 

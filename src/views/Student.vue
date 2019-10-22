@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Spinner />
+    <Spinner alert-prefix="Student profile" />
     <div v-if="!loading">
       <div class="light-blue-background border-bottom">
         <StudentProfileHeader :student="student" />
