@@ -39,22 +39,28 @@
             v-for="(addedTopic, index) in topics"
             :id="`appointment-topic-${index}`"
             :key="index">
-            <span class="pill pill-attachment text-uppercase text-nowrap">
-              {{ addedTopic }}
-              <b-btn
-                :id="`remove-appointment-topic-${index}`"
-                :disabled="disabled"
-                variant="link"
-                class="px-0 pt-1"
-                :aria-labelledby="`remove-appointment-topic-${index}-label`"
-                tabindex="0"
-                @click.prevent="remove(addedTopic)">
-                <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
-              </b-btn>
-              <label :id="`remove-appointment-topic-${index}-label`" class="sr-only" :for="`remove-appointment-topic-${index}`">
-                Remove topic "{{ topics[index] }}"
-              </label>
-            </span>
+            <div class="d-inline-block">
+              <div class="d-flex pill pill-topic text-uppercase text-nowrap">
+                <div :id="`topic-label-${index}`" class="added-topic">
+                  {{ addedTopic }}
+                </div>
+                <div class="remove-topic-container mr-2">
+                  <b-btn
+                    :id="`remove-appointment-topic-${index}`"
+                    :disabled="disabled"
+                    variant="link"
+                    class="m-0 p-0"
+                    :aria-labelledby="`remove-appointment-topic-${index}-label`"
+                    tabindex="0"
+                    @click.prevent="remove(addedTopic)">
+                    <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
+                  </b-btn>
+                  <label :id="`remove-appointment-topic-${index}-label`" class="sr-only" :for="`remove-appointment-topic-${index}`">
+                    Remove topic "{{ topics[index] }}"
+                  </label>
+                </div>
+              </div>
+            </div>
           </li>
         </ul>
         <label id="appointment-topics-label" class="sr-only" for="appointment-topics-list">
@@ -136,3 +142,12 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.added-topic {
+  padding: 5px 2px 6px 12px;
+}
+.pill-topic {
+  height: 32px;
+}
+</style>

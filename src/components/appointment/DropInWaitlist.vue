@@ -25,7 +25,7 @@
       :cancel="cancelCreateAppointment"
       :create-appointment="createAppointment"
       :show-modal="showCreateAppointmentModal" />
-    <div v-if="isHomepage" class="align-items-center d-flex homepage-header-border justify-content-between mb-4">
+    <div v-if="isHomepage" class="align-items-center d-flex homepage-header-border justify-content-between mb-2">
       <div>
         <h2 class="page-section-header">
           <span aria-live="polite" role="alert">Drop-in Waitlist - {{ $moment() | moment('MMM D') }}</span>
@@ -33,7 +33,7 @@
       </div>
       <div>
         <b-btn
-          id="create-drop-in-appointment"
+          id="btn-homepage-create-appointment"
           variant="link"
           class="mb-1"
           aria-label="Create appointment. Modal window will open."
@@ -45,7 +45,7 @@
     <div v-if="!isHomepage">
       <div class="mb-4 mt-4 text-center">
         <b-btn
-          id="new-drop-in-appointment"
+          id="btn-create-appointment"
           variant="primary"
           class="btn-primary-color-override pl-3 pr-3"
           aria-label="Create appointment. Modal window will open."
@@ -79,7 +79,7 @@
           v-for="appointment in waitlist"
           :key="appointment.id"
           no-gutters
-          class="border-bottom font-size-16 mt-3 pb-3">
+          class="border-bottom font-size-16 mt-3 pb-2 pt-2">
           <b-col cols="2" class="pb-2 text-nowrap">
             <span class="sr-only">Created at </span><span :id="`appointment-${appointment.id}-created-at`">{{ new Date(appointment.createdAt) | moment('LT') }}</span>
           </b-col>
