@@ -69,11 +69,35 @@
         <SectionSpinner name="Notes" :loading="loadingAdditionalNotes" />
       </div>
     </div>
+    <div v-if="!loading && size(results.appointments)" class="pt-4">
+      <h2
+        id="search-results-category-header-appointments"
+        class="page-section-header">
+        {{ size(results.appointments) }}{{ completeAppointmentResults ? '' : '+' }}
+        {{ size(results.appointments) === 1 ? 'advising appointment' : 'advising appointments' }}
+        <span v-if="phrase"> with '{{ phrase }}'</span>
+      </h2>
+      <AppointmentSnippet
+        v-for="appointment in results.appointments"
+        :key="appointment.id"
+        :appointment="appointment" />
+      <div class="text-center">
+        <b-btn
+          v-if="!completeAppointmentResults"
+          id="fetch-more-appointments"
+          variant="link"
+          @click.prevent="fetchMoreAppointments()">
+          Show additional advising appointments
+        </b-btn>
+        <SectionSpinner name="Appointments" :loading="loadingAdditionalAppointments" />
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet';
+import AppointmentSnippet from '@/components/search/AppointmentSnippet';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
 import Loading from '@/mixins/Loading';
 import SectionSpinner from '@/components/util/SectionSpinner';
@@ -88,6 +112,7 @@ export default {
   name: 'Search',
   components: {
     AdvisingNoteSnippet,
+    AppointmentSnippet,
     CuratedGroupSelector,
     SectionSpinner,
     SortableCourseList,
@@ -96,25 +121,33 @@ export default {
   },
   mixins: [Loading, UserMetadata, Util],
   data: () => ({
-    studentLimit: 50,
+    appointmentOptions: {
+      limit: 100,
+      offset: 0
+    },
+    loadingAdditionalAppointments: undefined,
     loadingAdditionalNotes: undefined,
-    noteOptions: {
-      authorCsid: undefined,
+    noteAndAppointmentOptions: {
+      advisorCsid: undefined,
       studentCsid: undefined,
       topic: undefined,
       dateFrom: undefined,
       dateTo: undefined,
+    },
+    noteOptions: {
       limit: 100,
       offset: 0
     },
     phrase: null,
     results: {
+      appointments: null,
       courses: null,
       notes: null,
       students: null,
       totalCourseCount: null,
       totalStudentCount: null
     },
+    studentLimit: 50,
     studentListOptions: {
       includeCuratedCheckbox: true,
       sortBy: 'lastName',
@@ -122,30 +155,35 @@ export default {
     }
   }),
   computed: {
+    completeAppointmentResults() {
+      return this.size(this.results.appointments) < this.appointmentOptions.limit + this.appointmentOptions.offset;
+    },
     completeNoteResults() {
       return this.size(this.results.notes) < this.noteOptions.limit + this.noteOptions.offset;
     }
   },
   mounted() {
     this.phrase = this.$route.query.q;
+    const includeAppointments = this.$route.query.notes;
     const includeCourses = this.$route.query.courses;
     const includeNotes = this.$route.query.notes;
     const includeStudents = this.$route.query.students;
     if (includeNotes) {
-      this.noteOptions.authorCsid = this.$route.query.authorCsid;
-      this.noteOptions.studentCsid = this.$route.query.studentCsid;
-      this.noteOptions.topic = this.$route.query.noteTopic;
-      this.noteOptions.dateFrom = this.$route.query.noteDateFrom;
-      this.noteOptions.dateTo = this.$route.query.noteDateTo;
+      this.noteAndAppointmentOptions.advisorCsid = this.$route.query.advisorCsid;
+      this.noteAndAppointmentOptions.studentCsid = this.$route.query.studentCsid;
+      this.noteAndAppointmentOptions.topic = this.$route.query.noteTopic;
+      this.noteAndAppointmentOptions.dateFrom = this.$route.query.noteDateFrom;
+      this.noteAndAppointmentOptions.dateTo = this.$route.query.noteDateTo;
     }
     if (this.phrase || includeNotes) {
       search(
         this.phrase,
-        false, // TODO: includeAppointments
+        this.isNil(includeAppointments) ? false : includeAppointments,
         this.isNil(includeCourses) ? false : includeCourses,
         this.isNil(includeNotes) ? false : includeNotes,
         this.isNil(includeStudents) ? false : includeStudents,
-        this.noteOptions,
+        this.extend({}, this.noteAndAppointmentOptions, this.appointmentOptions),
+        this.extend({}, this.noteAndAppointmentOptions, this.noteOptions)
       )
         .then(data => {
           this.assign(this.results, data);
@@ -170,6 +208,24 @@ export default {
     }
   },
   methods: {
+    fetchMoreAppointments() {
+      this.appointmentOptions.offset = this.appointmentOptions.offset + this.appointmentOptions.limit;
+      this.appointmentOptions.limit = 20;
+      this.loadingAdditionalAppointments = true;
+      search(
+        this.phrase,
+        true,
+        false,
+        false,
+        false,
+        this.extend({}, this.noteAndAppointmentOptions, this.appointmentOptions),
+        null
+      )
+        .then(data => {
+          this.results.appointments = this.concat(this.results.appointments, data.appointments);
+          this.loadingAdditionalAppointments = false;
+        });
+    },
     fetchMoreNotes() {
       this.noteOptions.offset = this.noteOptions.offset + this.noteOptions.limit;
       this.noteOptions.limit = 20;
@@ -180,7 +236,8 @@ export default {
         false,
         true,
         false,
-        this.noteOptions,
+        null,
+        this.extend({}, this.noteAndAppointmentOptions, this.noteOptions)
       )
         .then(data => {
           this.results.notes = this.concat(this.results.notes, data.notes);
@@ -191,7 +248,27 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
+.advising-note-search-result {
+  margin: 15px 0;
+}
+.advising-note-search-result-header {
+  font-weight: 400;
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+.advising-note-search-result-header-link {
+   font-weight: 600;
+}
+.advising-note-search-result-footer {
+  color: #999;
+  font-size: 14px;
+}
+.advising-note-search-result-snippet {
+  font-size: 16px;
+  line-height: 1.3em;
+  margin: 5px 0;
+}
 .search-header-curated-cohort {
   align-items: center;
   display: flex;

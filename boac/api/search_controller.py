@@ -49,18 +49,22 @@ def search():
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     search_phrase = util.get(params, 'searchPhrase', '').strip()
     domain = {
+        'appointments': util.get(params, 'appointments'),
         'students': util.get(params, 'students'),
         'courses': util.get(params, 'courses'),
         'notes': util.get(params, 'notes'),
     }
-    if not domain['students'] and not domain['courses'] and not domain['notes']:
+    if not domain['students'] and not domain['courses'] and not (domain['notes'] or domain['appointments']):
         raise BadRequestError('No search domain specified')
-    if not len(search_phrase) and not domain['notes']:
+    if not len(search_phrase) and not (domain['notes'] or domain['appointments']):
         raise BadRequestError('Invalid or empty search input')
     if domain['courses'] and not current_user.can_access_canvas_data:
         raise ForbiddenRequestError('Unauthorized to search courses')
 
     feed = {}
+
+    if domain['appointments'] and app.config['FEATURE_FLAG_ADVISOR_APPOINTMENTS']:
+        feed.update(_appointments_search(search_phrase, params))
 
     if len(search_phrase) and domain['students']:
         feed.update(_student_search(search_phrase, params, order_by))
@@ -72,6 +76,54 @@ def search():
         feed.update(_notes_search(search_phrase, params))
 
     return tolerant_jsonify(feed)
+
+
+def _appointments_search(search_phrase, params):
+    appointment_options = util.get(params, 'appointmentOptions', {})
+    advisor_csid = appointment_options.get('advisorCsid')
+    student_csid = appointment_options.get('studentCsid')
+    topic = appointment_options.get('topic')
+    limit = int(util.get(appointment_options, 'limit', 100))
+    offset = int(util.get(appointment_options, 'offset', 0))
+
+    date_from = appointment_options.get('dateFrom')
+    date_to = appointment_options.get('dateTo')
+
+    if not len(search_phrase) and not (advisor_csid or student_csid or topic or date_from or date_to):
+        raise BadRequestError('Invalid or empty search input')
+
+    if date_from:
+        try:
+            datetime_from = util.localized_timestamp_to_utc(f'{date_from}T00:00:00')
+        except ValueError:
+            raise BadRequestError('Invalid dateFrom value')
+    else:
+        datetime_from = None
+
+    if date_to:
+        try:
+            datetime_to = util.localized_timestamp_to_utc(f'{date_to}T00:00:00') + timedelta(days=1)
+        except ValueError:
+            raise BadRequestError('Invalid dateTo value')
+    else:
+        datetime_to = None
+
+    if datetime_from and datetime_to and datetime_to <= datetime_from:
+        raise BadRequestError('dateFrom must be less than dateTo')
+
+    appointment_results = Appointment.search(
+        search_phrase=search_phrase,
+        advisor_csid=advisor_csid,
+        student_csid=student_csid,
+        topic=topic,
+        datetime_from=datetime_from,
+        datetime_to=datetime_to,
+        offset=offset,
+        limit=limit,
+    )
+    return {
+        'appointments': appointment_results,
+    }
 
 
 def _student_search(search_phrase, params, order_by):
@@ -137,7 +189,7 @@ def _course_search(search_phrase, params, order_by):
 
 def _notes_search(search_phrase, params):
     note_options = util.get(params, 'noteOptions', {})
-    author_csid = note_options.get('authorCsid')
+    author_csid = note_options.get('advisorCsid')
     student_csid = note_options.get('studentCsid')
     topic = note_options.get('topic')
     limit = int(util.get(note_options, 'limit', 100))
@@ -178,20 +230,6 @@ def _notes_search(search_phrase, params):
         offset=offset,
         limit=limit,
     )
-    response = {
+    return {
         'notes': notes_results,
     }
-    if app.config['FEATURE_FLAG_ADVISOR_APPOINTMENTS']:
-        appointment_results = Appointment.search(
-            search_phrase=search_phrase,
-            advisor_csid=author_csid,
-            student_csid=student_csid,
-            topic=topic,
-            datetime_from=datetime_from,
-            datetime_to=datetime_to,
-            offset=offset,
-            limit=limit,
-        )
-        response['appointments'] = appointment_results
-
-    return response

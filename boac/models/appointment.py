@@ -24,9 +24,12 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from datetime import datetime
+import re
 
 from boac import db, std_commit
+from boac.externals import data_loch
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
+from boac.lib.util import camelize, search_result_text_snippet
 from boac.merged.calnet import get_uid_for_csid
 from boac.models.appointment_read import AppointmentRead
 from boac.models.appointment_topic import AppointmentTopic
@@ -37,6 +40,9 @@ import pytz
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql import desc, text
+
+
+APPOINTMENT_SEARCH_PATTERN = r'(\w*[.:/-@]\w+([.:/-]\w+)*)|[^\s?!(),;:.`]+'
 
 
 class Appointment(Base):
@@ -199,6 +205,8 @@ class Appointment(Base):
         offset=0,
     ):
         if search_phrase:
+            search_terms = [t.group(0) for t in list(re.finditer(APPOINTMENT_SEARCH_PATTERN, search_phrase)) if t]
+            search_phrase = ' & '.join(search_terms)
             fts_selector = """SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
                 FROM appointments_fts_index
                 WHERE fts_index @@ plainto_tsquery('english', :search_phrase)"""
@@ -206,6 +214,7 @@ class Appointment(Base):
                 'search_phrase': search_phrase,
             }
         else:
+            search_terms = []
             fts_selector = 'SELECT id, 0 AS rank FROM appointments WHERE deleted_at IS NULL'
             params = {}
         if advisor_csid:
@@ -247,7 +256,7 @@ class Appointment(Base):
         """).bindparams(**params)
         result = db.session.execute(query)
         keys = result.keys()
-        response = [_to_json(dict(zip(keys, row))) for row in result.fetchall()]
+        response = [_to_json(search_terms, dict(zip(keys, row))) for row in result.fetchall()]
         return response
 
     @classmethod
@@ -291,7 +300,8 @@ def _isoformat(value):
     return value and value.astimezone(tzutc()).isoformat()
 
 
-def _to_json(search_result):
+def _to_json(search_terms, search_result):
+    student = data_loch.get_student_by_sid(search_result['student_sid'])
     return {
         'id': search_result['id'],
         'advisorName': search_result['advisor_name'],
@@ -306,11 +316,10 @@ def _to_json(search_result):
         'checkedInBy': search_result['checked_in_by'],
         'createdAt': _isoformat(search_result['created_at']),
         'createdBy': search_result['created_by'],
-        'dept_code': search_result['dept_code'],
+        'deptCode': search_result['dept_code'],
         'details': search_result['details'],
-        'student': {
-            'sid': search_result['student_sid'],
-        },
+        'detailsSnippet': search_result_text_snippet(search_result['details'], search_terms, APPOINTMENT_SEARCH_PATTERN),
+        'student': {camelize(key): student[key] for key in student.keys()},
         'updatedAt': _isoformat(search_result['updated_at']),
         'updatedBy': search_result['updated_by'],
     }

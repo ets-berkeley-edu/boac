@@ -366,9 +366,9 @@ export default {
         }
         if (this.includeNotes) {
           if (this.noteFilters.postedBy === 'you') {
-            query.authorCsid = this.user.csid;
+            query.advisorCsid = this.user.csid;
           } else if (this.noteFilters.author) {
-            query.authorCsid = this.noteFilters.author.sid;
+            query.advisorCsid = this.noteFilters.author.sid;
           }
           if (this.noteFilters.student) {
             query.studentCsid = this.noteFilters.student.sid;
