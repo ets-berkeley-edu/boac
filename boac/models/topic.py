@@ -45,16 +45,16 @@ class Topic(db.Model):
         self.available_in_appointments = available_in_appointments
 
     @classmethod
-    def get_all(cls, available_in_notes=False, available_in_appointments=False, include_deleted=False):
-        result = cls.query.filter_by(
-            available_in_notes=available_in_notes,
-            available_in_appointments=available_in_appointments,
-        ) if include_deleted else cls.query.filter_by(
-            available_in_notes=available_in_notes,
-            available_in_appointments=available_in_appointments,
-            deleted_at=None,
-        )
-        return result.order_by(cls.topic).all()
+    def get_all(cls, available_in_notes=None, available_in_appointments=None, include_deleted=False):
+        kwargs = {}
+        if available_in_appointments is not None:
+            kwargs['available_in_appointments'] = available_in_appointments
+        if available_in_notes is not None:
+            kwargs['available_in_notes'] = available_in_notes
+        if not include_deleted:
+            kwargs['deleted_at'] = None
+
+        return cls.query.filter_by(**kwargs).order_by(cls.topic).all()
 
     @classmethod
     def delete(cls, topic_id):

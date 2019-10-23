@@ -44,7 +44,7 @@ class TestCreateAppointment:
             'deptCode': dept_code,
             'details': details,
             'sid': '3456789012',
-            'topics': ['Appointment Topic 1', 'Appointment Topic 3'],
+            'topics': ['Topic for appointments, 1', 'Topic for appointments, 4'],
         }
         response = client.post(
             '/api/appointments/create',
@@ -199,7 +199,7 @@ class TestMarkAppointmentRead:
             details='A COE appointment.',
             student_sid='5678901234',
             appointment_type='Drop-in',
-            topics=['Appointment Topic 2'],
+            topics=['Topic for appointments, 2'],
         )
         user_id = AuthorizedUser.get_id_per_uid(l_s_college_advisor_uid)
         assert AppointmentRead.was_read_by(user_id, appointment.id) is False
@@ -228,14 +228,14 @@ class TestAppointmentTopics:
         fake_auth.login(l_s_college_advisor_uid)
         self._get_topics(client, 401)
 
-    def test_scheduler_get_topics(self, app, client, fake_auth):
+    def test_scheduler_get_appointment_topics(self, app, client, fake_auth):
         """COE scheduler can get topics."""
         fake_auth.login(coe_scheduler_uid)
         topics = self._get_topics(client)
-        assert len(topics) == 5
+        assert len(topics) == 8
 
-    def test_advisor_get_topics(self, app, client, fake_auth):
+    def test_advisor_get_appointment_topics(self, app, client, fake_auth):
         """COE advisor can get topics."""
         fake_auth.login(coe_advisor_uid)
         topics = self._get_topics(client)
-        assert len(topics) == 5
+        assert len(topics) == 8
