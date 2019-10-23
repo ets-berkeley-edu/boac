@@ -134,13 +134,13 @@
             <div
               v-if="isNil(appointment.checkedInAt) && !isNil(appointment.canceledAt)"
               :id="`appointment-${appointment.id}-canceled`"
-              class="float-right pill-appointment pill-checked-in pill-canceled pl-2 pr-2 text-nowrap text-uppercase">
+              class="float-right pill-appointment-status pill-canceled pl-2 pr-2">
               Canceled<span class="sr-only"> appointment</span>
             </div>
             <div
               v-if="!isNil(appointment.checkedInAt) && isNil(appointment.canceledAt)"
               :id="`appointment-${appointment.id}-checked-in`"
-              class="float-right pill-appointment pill-checked-in pl-2 pr-2 text-muted text-uppercase">
+              class="float-right pill-appointment-status pill-checked-in pl-2 pr-2">
               <span class="sr-only">Student was </span>Checked In
             </div>
           </b-col>
@@ -297,15 +297,10 @@ export default {
 .appointment-topics {
   max-width: 240px;
 }
-.pill-checked-in {
-  background-color: #98cf59;
-  color: #8a0100;
-}
-.pill-canceled {
-  background-color: #f2b7b6;
-  color: #915251;
-}
-.pill-appointment {
+</style>
+
+<style>
+.pill-appointment-status {
   border-radius: 5px;
   display: inline-block;
   font-size: 14px;
@@ -315,6 +310,19 @@ export default {
   max-width: 108px;
   padding-top: 6px;
   text-align: center;
+  text-transform: uppercase;
+  whitespace: nowrap;
 }
-
+.pill-checked-in {
+  background-color: #e2ffc0;
+  color: #518019;
+}
+.pill-canceled {
+  background-color: #ffecc0;
+  color: #857103;
+}
+.pill-waiting {
+  background-color: #78b1c9;
+  color: #ffffff;
+}
 </style>
