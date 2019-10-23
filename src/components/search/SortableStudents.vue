@@ -19,7 +19,7 @@
         <StudentAvatar :key="row.item.sid" :student="row.item" size="small" />
       </template>
 
-      <template slot="name" slot-scope="row">
+      <template slot="lastName" slot-scope="row">
         <span class="sr-only">Student name</span>
         <router-link
           :id="`link-to-student-${row.item.uid}`"
@@ -27,7 +27,7 @@
           class="text-nowrap"
           :class="{'demo-mode-blur': user.inDemoMode}"
           :to="studentRoutePath(row.item.uid, user.inDemoMode)"
-          v-html="`${row.item.name}`"></router-link>
+          v-html="`${row.item.lastName}, ${row.item.firstName}`"></router-link>
         <span
           v-if="row.item.academicCareerStatus === 'Inactive' || displayAsAscInactive(row.item) || displayAsCoeInactive(row.item)"
           class="inactive-info-icon sortable-students-icon"
@@ -125,9 +125,9 @@ export default {
       type: Object,
       default: () => ({
         compact: false,
-        sortBy: 'name',
         includeCuratedCheckbox: false,
-        reverse: false
+        reverse: false,
+        sortBy: 'lastName'
       })
     },
     students: {
@@ -154,7 +154,7 @@ export default {
     this.fields = [
       {key: 'curated', label: ''},
       {key: 'avatar', label: '', class: 'pr-0'},
-      {key: 'name', label: 'Name', sortable: true},
+      {key: 'lastName', label: 'Name', sortable: true}
     ];
     if (this.options.compact) {
       this.fields = this.fields.concat([
@@ -194,7 +194,7 @@ export default {
       bValue = this.isNil(bValue) && this.isNumber(aValue) ? 0 : this.normalizeForSort(bValue);
       let result = this.sortComparator(aValue, bValue);
       if (result === 0) {
-        this.each(['name', 'sid'], field => {
+        this.each(['lastName', 'firstName', 'sid'], field => {
           result = this.sortComparator(
             this.normalizeForSort(this.get(a, field)),
             this.normalizeForSort(this.get(b, field))
