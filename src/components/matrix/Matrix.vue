@@ -491,13 +491,13 @@ export default {
       var onDotSelected = (d, element, isProgrammatic) => {
         if (isProgrammatic !== true) {
           element = d3.event.currentTarget;
-          // Clear any existing selections and tooltips.
-          var featuredStudent = getFeaturedStudent();
-          if (featuredStudent[0]) {
-            onDotDeselected(featuredStudent[0], featuredStudent[1], true);
-          }
-          container.selectAll('.matrix-tooltip').remove();
         }
+        // Clear any existing selections and tooltips.
+        var featuredStudent = getFeaturedStudent();
+        if (featuredStudent[0]) {
+          onDotDeselected(featuredStudent[0], featuredStudent[1], true);
+        }
+        container.selectAll('.matrix-tooltip').remove();
         /*
          * If the dot represents a real student, lift it outside the path-clipped dotGroup so it can
          * overlap the edge of the matrix if need be.
