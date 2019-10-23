@@ -42,7 +42,7 @@ export default {
           compact,
           includeCuratedCheckbox: false,
           reverse: false,
-          sortBy: 'name'
+          sortBy: 'lastName'
         };
       }
     },
