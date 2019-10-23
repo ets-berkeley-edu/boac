@@ -1,5 +1,12 @@
 <template>
   <div class="background-blue-sky fill-viewport">
+    <span
+      v-if="screenReaderAlert"
+      class="sr-only"
+      aria-live="polite"
+      role="alert">
+      {{ screenReaderAlert }}
+    </span>
     <div class="splash-container">
       <div class="splash-cell-stripe"></div>
       <div class="avatar-container">
@@ -74,13 +81,14 @@ export default {
   methods: {
     errorCheck() {
       if (this.size(this.errors)) {
+        this.alertScreenReader('Login failed');
         this.errorMessages = this.map(this.errors, 'message');
         this.putFocusNextTick('splash-sign-in');
         this.clearAlertsInStore();
       }
     },
     logIn() {
-      getCasLoginURL().then(data => (window.location.href = data.casLoginUrl));
+      getCasLoginURL().then(data => window.location.href = data.casLoginUrl);
     },
     onHidden() {
       this.errorMessages = null;

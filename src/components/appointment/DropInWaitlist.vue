@@ -43,13 +43,13 @@
       </div>
     </div>
     <div v-if="!isHomepage">
-      <div class="mb-4 mt-4 text-center">
+      <div class="mb-4 pb-3 pt-3 text-center">
         <b-btn
           id="btn-create-appointment"
           variant="primary"
           class="btn-primary-color-override pl-3 pr-3"
           aria-label="Create appointment. Modal window will open."
-          @click="showCreateAppointmentModal = true">
+          @click="openCreateAppointmentModal()">
           New Drop-in Appointment
         </b-btn>
       </div>
@@ -196,8 +196,13 @@ export default {
   methods: {
     appointmentCancellation(appointmentId, reason, reasonExplained) {
       apiCancel(this.selectedAppointment.id, reason, reasonExplained).then(canceled => {
-        let match = this.waitlist.find(a => a.id === +canceled.id);
-        Object.assign(match, canceled);
+        if (this.isHomepage) {
+          let match = this.waitlist.find(a => a.id === +canceled.id);
+          Object.assign(match, canceled);
+        } else {
+          const indexOf = this.waitlist.findIndex(a => a.id === canceled.id);
+          this.waitlist.splice(indexOf, 1);
+        }
         this.alertScreenReader(`Appointment with ${canceled.student.name} canceled`);
         this.selectedAppointment = undefined;
       });
@@ -224,8 +229,13 @@ export default {
         advisor.uid,
         appointmentId
       ).then(checkedIn => {
-        let match = this.waitlist.find(a => a.id === +checkedIn.id);
-        Object.assign(match, checkedIn);
+        if (this.isHomepage) {
+          let match = this.waitlist.find(a => a.id === +checkedIn.id);
+          Object.assign(match, checkedIn);
+        } else {
+          const indexOf = this.waitlist.findIndex(a => a.id === checkedIn.id);
+          this.waitlist.splice(indexOf, 1);
+        }
         this.alertScreenReader(`Student ${checkedIn.student.name} checked in`);
         this.selectedAppointment = undefined;
       });
@@ -265,6 +275,10 @@ export default {
     launchCheckInForAppointment(appointment) {
       this.selectedAppointment = appointment;
       this.launchCheckIn();
+    },
+    openCreateAppointmentModal() {
+      this.showCreateAppointmentModal = true;
+      this.alertScreenReader('The form to create an appointment is open.');
     },
     showAppointmentDetails(appointment) {
       this.selectedAppointment = appointment;

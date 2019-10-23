@@ -19,7 +19,7 @@ export default {
       'maxAttachmentsPerNote',
       'pingFrequency',
       'announcement',
-      'srAlert',
+      'screenReaderAlert',
       'supportEmailAddress',
       'timezone'
     ]),
@@ -27,12 +27,12 @@ export default {
   },
   methods: {
     ...mapActions('context', [
+      'alertScreenReader',
       'clearAlertsInStore',
       'dismissError',
       'dismissFooterAlert',
       'initUserSession',
-      'reportError',
-      'alertScreenReader'
+      'reportError'
     ])
   }
 };

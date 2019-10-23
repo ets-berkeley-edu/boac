@@ -63,6 +63,7 @@
           <div class="mt-2">
             <AppointmentTopics
               :disabled="isSaving"
+              focus-after-topic-add="appointment-details"
               :function-add="addTopic"
               :function-remove="removeTopic"
               :topics="topics" />
