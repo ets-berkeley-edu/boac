@@ -86,7 +86,7 @@
         <tr class="sr-only">
           <th>Type</th>
           <th>Summary</th>
-          <th>Has attachment?</th>
+          <th>Details</th>
           <th>Date</th>
         </tr>
         <tr v-if="creatingNoteWithSubject" class="message-row-read message-row border-top border-bottom">
@@ -212,8 +212,30 @@
             </div>
           </td>
           <td class="column-right align-top pt-1 pr-1">
-            <font-awesome v-if="size(message.attachments)" icon="paperclip" class="mt-2" />
-            <span class="sr-only">{{ size(message.attachments) ? 'Yes' : 'No' }}</span>
+            <div v-if="!includes(openMessages, message.transientId) && message.type === 'appointment'">
+              <div
+                v-if="message.appointmentType === 'Drop-in' && message.canceledAt"
+                :id="`collapsed-${message.type}-${message.id}-status-canceled`"
+                class="pill-appointment-status pill-canceled pl-2 pr-2 mr-2 text-nowrap">
+                Canceled
+              </div>
+              <div
+                v-if="message.appointmentType === 'Drop-in' && !message.canceledAt && message.checkedInAt"
+                :id="`collapsed-${message.type}-${message.id}-status-checked-in`"
+                class="pill-appointment-status pill-checked-in pl-2 pr-2 mr-2 text-nowrap">
+                Checked In
+              </div>
+              <div
+                v-if="message.appointmentType === 'Drop-in' && !message.canceledAt && !message.checkedInAt"
+                :id="`collapsed-${message.type}-${message.id}-status-waiting`"
+                class="pill-appointment-status pill-waiting pl-2 pr-2 mr-2 text-nowrap">
+                Waiting
+              </div>
+            </div>
+            <div v-if="message.type === 'note'">
+              <font-awesome v-if="size(message.attachments)" icon="paperclip" class="mt-2" />
+              <span class="sr-only">{{ size(message.attachments) ? 'Has attachments' : 'No attachments' }}</span>
+            </div>
           </td>
           <td class="column-right align-top">
             <div
