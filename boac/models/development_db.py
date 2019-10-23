@@ -371,9 +371,8 @@ def load(cohort_test_data=False):
     _load_schemas()
     _load_users_and_departments()
     if cohort_test_data:
-        _create_appointment_topics()
+        _create_topics()
         _create_appointments()
-        _create_advising_note_topics()
         _create_curated_groups()
         _create_cohorts()
     return db
@@ -453,14 +452,6 @@ def _create_department_memberships():
             )
 
 
-def _create_appointment_topics():
-    for i in range(5):
-        Topic.create_topic(f'Appointment Topic {i}', available_in_appointments=True)
-    delete_me = Topic.create_topic('I am a deleted appointment topic', available_in_appointments=True)
-    Topic.delete(delete_me.id)
-    std_commit(allow_test_environment=True)
-
-
 def _create_appointments():
     # College of Engineering appointments
     coe_advisor_uid = '90412'
@@ -475,7 +466,7 @@ def _create_appointments():
         dept_code='COENG',
         details='Meet me at the crossroads.',
         student_sid='3456789012',
-        topics=['Appointment Topic 2'],
+        topics=['Topic for appointments, 2'],
     )
     Appointment.create(
         advisor_dept_codes=['COENG'],
@@ -531,7 +522,7 @@ def _create_appointments():
         dept_code='QCADV',
         details='C-c-catch the wave!',
         student_sid='5678901234',
-        topics=['Appointment Topic 1', 'Good Show'],
+        topics=['Topic for appointments, 1', 'Good Show'],
     )
     Appointment.create(
         advisor_dept_codes=['QCADV'],
@@ -543,15 +534,29 @@ def _create_appointments():
         dept_code='QCADV',
         details='It is not the length of life, but depth of life.',
         student_sid='11667051',
-        topics=['Appointment Topic 1'],
+        topics=['Topic for appointments, 1'],
     )
 
 
-def _create_advising_note_topics():
-    for i in range(5):
-        Topic.create_topic(f'Topic {i}', available_in_notes=True)
-    delete_me = Topic.create_topic('I am a deleted topic', available_in_notes=True)
-    Topic.delete(delete_me.id)
+def _create_topics():
+    for index in range(10):
+        true_for_both = index in [1, 5, 7]
+        available_in_appointments = true_for_both or index % 2 == 0
+        available_in_notes = true_for_both or index % 3 == 0
+        if true_for_both:
+            topic = f'Topic for all, {index}'
+        elif available_in_appointments:
+            topic = f'Topic for appointments, {index}'
+        else:
+            topic = f'Topic for notes, {index}'
+        Topic.create_topic(
+            topic=topic,
+            available_in_appointments=available_in_appointments,
+            available_in_notes=available_in_notes,
+        )
+    Topic.delete(Topic.create_topic('Topic for all, deleted', available_in_appointments=True).id)
+    Topic.delete(Topic.create_topic('Topic for appointments, deleted', available_in_appointments=True).id)
+    Topic.delete(Topic.create_topic('Topic for notes, deleted', available_in_notes=True).id)
     std_commit(allow_test_environment=True)
 
 

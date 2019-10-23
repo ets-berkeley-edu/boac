@@ -391,19 +391,21 @@ class TestNoteTopics:
         """Deny anonymous access to note topics."""
         self._api_all_note_topics(client, expected_status_code=401)
 
-    def test_get_all_topics_including_deleted(self, client, fake_auth):
+    def test_get_all_topics_for_notes_including_deleted(self, client, fake_auth):
         """Get all note topic options, including deleted."""
         fake_auth.login(coe_advisor_uid)
         api_json = self._api_all_note_topics(client, include_deleted=True)
-        assert 'Topic 1' in api_json
-        assert 'I am a deleted topic' in api_json
+        assert 'Topic for all, 1' in api_json
+        assert 'Topic for notes, 9' in api_json
+        assert 'Topic for notes, deleted' in api_json
 
-    def test_get_all_topics(self, client, fake_auth):
+    def test_get_all_topics_for_notes(self, client, fake_auth):
         """Get all note topic options, not including deleted."""
         fake_auth.login(coe_advisor_uid)
         api_json = self._api_all_note_topics(client)
-        assert 'Topic 1' in api_json
-        assert 'I am a deleted topic' not in api_json
+        assert 'Topic for all, 1' in api_json
+        assert 'Topic for notes, 9' in api_json
+        assert 'Topic for notes, deleted' not in api_json
 
 
 class TestNoteAttachments:
