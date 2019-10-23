@@ -6,11 +6,11 @@
         <ServiceAnnouncement />
         <div>
           <span
-            v-if="srAlert"
+            v-if="screenReaderAlert"
             class="sr-only"
             aria-live="polite"
             role="alert">
-            {{ srAlert }}
+            {{ screenReaderAlert }}
           </span>
           <router-view :key="stripAnchorRef($route.fullPath)"></router-view>
         </div>

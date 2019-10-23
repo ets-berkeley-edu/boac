@@ -4,61 +4,65 @@
 
     <Spinner alert-prefix="Drop-in Advisor homepage" />
 
-    <div v-if="!loading">
-      <div class="d-flex flex-wrap">
-        <div class="flex-fill flex-grow-1 mb-4 mr-4">
-          <DropInWaitlist :dept-code="deptCode" :is-homepage="true" :waitlist="waitlist" />
-        </div>
-        <div class="flex-fill homepage-alerts mr-3">
-          <div class="homepage-header-border">
-            <h2 class="alerts-header mb-0 page-section-header">Alerts</h2>
+    <b-container v-if="!loading" fluid>
+      <b-row no-gutters>
+        <b-col sm>
+          <div class="mb-4 mr-4">
+            <DropInWaitlist :dept-code="deptCode" :is-homepage="true" :waitlist="waitlist" />
           </div>
-          <div v-if="myCohorts" class="mt-3">
-            <div class="d-flex justify-content-between mr-3">
-              <div>
-                <h3 class="color-grey font-size-14 font-weight-bold text-uppercase">Cohorts</h3>
-              </div>
-              <div v-if="myCohorts.length" class="color-grey font-size-14 font-weight-bold text-uppercase">
-                Total
-              </div>
+        </b-col>
+        <b-col sm>
+          <div class="homepage-alerts mr-3">
+            <div class="homepage-header-border">
+              <h2 class="alerts-header mb-0 page-section-header">Alerts</h2>
             </div>
-            <div v-if="myCohorts.length">
-              <SortableGroup
-                v-for="cohort in myCohorts"
-                :key="cohort.id"
-                :compact="true"
-                :group="cohort"
-                :is-cohort="true" />
-            </div>
-            <div v-if="!myCohorts.length">
-              <div>
-                You have no saved cohorts.
-              </div>
-              <div>
-                <router-link id="create-filtered-cohort" to="/cohort/new">Create a student cohort</router-link>
-                automatically by your filtering preferences, such as GPA or units.
-              </div>
-            </div>
-            <div v-if="size(myCuratedGroups)" class="mt-4">
+            <div v-if="myCohorts" class="mt-3">
               <div class="d-flex justify-content-between mr-3">
                 <div>
-                  <h3 class="color-grey font-size-14 font-weight-bold text-uppercase">Curated Groups</h3>
+                  <h3 class="color-grey font-size-14 font-weight-bold text-uppercase">Cohorts</h3>
                 </div>
                 <div v-if="myCohorts.length" class="color-grey font-size-14 font-weight-bold text-uppercase">
                   Total
                 </div>
               </div>
-              <SortableGroup
-                v-for="curatedGroup in myCuratedGroups"
-                :key="curatedGroup.id"
-                :group="curatedGroup"
-                :is-cohort="false"
-                :compact="true" />
+              <div v-if="myCohorts.length">
+                <SortableGroup
+                  v-for="cohort in myCohorts"
+                  :key="cohort.id"
+                  :compact="true"
+                  :group="cohort"
+                  :is-cohort="true" />
+              </div>
+              <div v-if="!myCohorts.length">
+                <div>
+                  You have no saved cohorts.
+                </div>
+                <div>
+                  <router-link id="create-filtered-cohort" to="/cohort/new">Create a student cohort</router-link>
+                  automatically by your filtering preferences, such as GPA or units.
+                </div>
+              </div>
+              <div v-if="size(myCuratedGroups)" class="mt-4">
+                <div class="d-flex justify-content-between mr-3">
+                  <div>
+                    <h3 class="color-grey font-size-14 font-weight-bold text-uppercase">Curated Groups</h3>
+                  </div>
+                  <div v-if="myCuratedGroups.length" class="color-grey font-size-14 font-weight-bold text-uppercase">
+                    Total
+                  </div>
+                </div>
+                <SortableGroup
+                  v-for="curatedGroup in myCuratedGroups"
+                  :key="curatedGroup.id"
+                  :group="curatedGroup"
+                  :is-cohort="false"
+                  :compact="true" />
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </b-col>
+      </b-row>
+    </b-container>
   </div>
 </template>
 

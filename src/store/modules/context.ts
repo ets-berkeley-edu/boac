@@ -19,6 +19,7 @@ const state = {
 };
 
 const getters = {
+  announcement: (state: any): string => state.announcement,
   apiBaseUrl: (): any => process.env.VUE_APP_API_BASE_URL,
   apptDeskRefreshInterval: (state: any): string => _.get(state.config, 'apptDeskRefreshInterval'),
   currentEnrollmentTerm: (state: any): boolean => _.get(state.config, 'currentEnrollmentTerm'),
@@ -35,8 +36,7 @@ const getters = {
   maxAttachmentsPerNote: (state: any): string => _.get(state.config, 'maxAttachmentsPerNote'),
   pingFrequency: (state: any): string => _.get(state.config, 'pingFrequency'),
   loading: (state: any): boolean => state.loading,
-  announcement: (state: any): string => state.announcement,
-  srAlert: (state: any): string => state.screenReaderAlert,
+  screenReaderAlert: (state: any): string => state.screenReaderAlert,
   supportEmailAddress: (state: any): string => _.get(state.config, 'supportEmailAddress'),
   timezone: (state: any): string => _.get(state.config, 'timezone')
 };
@@ -60,16 +60,15 @@ const mutations = {
     state.errors.push(error);
     Vue.prototype.$eventHub.$emit('error-reported', error);
   },
-  screenReaderAlert: (state: any, alert: any) => (state.screenReaderAlert = alert),
+  setScreenReaderAlert: (state: any, alert: any) => (state.screenReaderAlert = alert),
   storeConfig: (state: any, config: any) => (state.config = config),
   storeAnnouncement: (state: any, data: any) => (state.announcement = data),
 };
 
 const actions = {
   alertScreenReader: ({ commit }, alert) => {
-    commit('screenReaderAlert', '');
     Vue.nextTick(() => {
-      commit('screenReaderAlert', alert);
+      commit('setScreenReaderAlert', alert);
     });
   },
   clearAlertsInStore: ({ commit }) => commit('clearAlertsInStore'),

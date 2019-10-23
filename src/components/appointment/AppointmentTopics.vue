@@ -98,6 +98,11 @@ export default {
       type: Function,
       required: true
     },
+    focusAfterTopicAdd: {
+      default: 'add-topic-select-list',
+      type: String,
+      required: false,
+    },
     topics: {
       type: Array,
       required: true
@@ -125,7 +130,7 @@ export default {
       if (topic) {
         this.setDisabled(topic, true);
         this.functionAdd(topic);
-        this.putFocusNextTick('add-topic-select-list');
+        this.putFocusNextTick(this.focusAfterTopicAdd);
         this.alertScreenReader(`Topic ${topic} added.`);
       }
     },
