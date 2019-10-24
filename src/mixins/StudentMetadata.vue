@@ -1,19 +1,26 @@
 <script>
 import _ from 'lodash';
-import store from '@/store';
+import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
   name: 'StudentMetadata',
+  mixins: [UserMetadata],
   // Grades deserving alerts: D(+/-), F, I, NP.
   alertGrades: /^[DFIN]/,
   methods: {
     displayAsAscInactive(student) {
-      const user = store.getters['user/user'];
-      return user && user.isAsc && _.get(student, 'athleticsProfile') && !_.get(student, 'athleticsProfile.isActiveAsc');
+      return (
+        _.includes(this.myDeptCodes(['isAdvisor', 'isDirector']), 'UWASC') &&
+        _.get(student, 'athleticsProfile') &&
+        !_.get(student, 'athleticsProfile.isActiveAsc')
+      );
     },
     displayAsCoeInactive(student) {
-      const user = store.getters['user/user'];
-      return user && user.isCoe && _.get(student, 'coeProfile') && !_.get(student, 'coeProfile.isActiveCoe');
+      return (
+        _.includes(this.myDeptCodes(['isAdvisor', 'isDirector']), 'COENG') &&
+        _.get(student, 'coeProfile') &&
+        !_.get(student, 'coeProfile.isActiveCoe')
+      );
     },
     isAlertGrade(grade) {
       return grade && this.$options.alertGrades.test(grade);
