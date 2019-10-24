@@ -7,7 +7,7 @@ export default {
   name: 'Validator',
   mixins: [UserMetadata],
   methods: {
-    validateCohortName: cohort => {
+    validateCohortName: function(cohort) {
       const name = _.trim(cohort.name);
       const isReservedName = name =>
         _.includes(this.myDeptCodes(['isAdvisor', 'isDirector']), 'UWASC') &&
