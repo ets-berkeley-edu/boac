@@ -1,15 +1,16 @@
 <script>
 import _ from 'lodash';
 import store from '@/store';
+import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
   name: 'Validator',
+  mixins: [UserMetadata],
   methods: {
     validateCohortName: cohort => {
-      const user = store.getters['user/user'];
       const name = _.trim(cohort.name);
       const isReservedName = name =>
-        user.isAsc &&
+        _.includes(this.myDeptCodes(['isAdvisor', 'isDirector']), 'UWASC') &&
         _.includes(
           ['intensive students', 'inactive students'],
           name.toLowerCase()
