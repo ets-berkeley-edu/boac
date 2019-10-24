@@ -7,7 +7,7 @@
       <select
         id="students-sort-by"
         v-model="selected"
-        class="form-control">
+        class="form-control w-auto">
         <option
           v-for="o in options"
           :key="o.value"
