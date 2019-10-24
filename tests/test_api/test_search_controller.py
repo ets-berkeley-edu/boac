@@ -477,7 +477,7 @@ class TestNoteAndAppointmentSearch:
         """Notes and appointments search needs no input when date options are set."""
         from boac import db, std_commit
         appointment = Appointment.find_by_id(2)
-        appointment.updated_at = util.localized_timestamp_to_utc('2017-11-01T00:00:00')
+        appointment.created_at = util.localized_timestamp_to_utc('2017-11-01T00:00:00')
         std_commit()
         db.session.refresh(appointment)
         response = client.post(

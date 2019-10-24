@@ -30,12 +30,10 @@ from boac import db, std_commit
 from boac.externals import data_loch
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.util import camelize, search_result_text_snippet
-from boac.merged.calnet import get_uid_for_csid
 from boac.models.appointment_read import AppointmentRead
 from boac.models.appointment_topic import AppointmentTopic
 from boac.models.base import Base
 from dateutil.tz import tzutc
-from flask import current_app as app
 import pytz
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -101,6 +99,25 @@ class Appointment(Base):
     @classmethod
     def find_by_id(cls, appointment_id):
         return cls.query.filter(and_(cls.id == appointment_id, cls.deleted_at == None)).first()  # noqa: E711
+
+    @classmethod
+    def find_advisors_by_name(cls, prefixes, limit=None):
+        prefix_conditions = []
+        params = {}
+        for idx, prefix in enumerate(prefixes):
+            prefix_conditions.append(
+                f"""JOIN appointments a{idx}
+                ON UPPER(a{idx}.advisor_name) LIKE :prefix_{idx}
+                AND a{idx}.advisor_uid = a.advisor_uid""",
+            )
+            params[f'prefix_{idx}'] = f'{prefix}%'
+        sql = f"""SELECT DISTINCT a.advisor_name, a.advisor_uid
+            FROM appointments a
+            {' '.join(prefix_conditions)}
+            ORDER BY a.advisor_name"""
+        if limit:
+            sql += f' LIMIT {limit}'
+        return db.session.execute(sql, params)
 
     @classmethod
     def get_appointments_per_sid(cls, sid):
@@ -196,7 +213,7 @@ class Appointment(Base):
     def search(
         cls,
         search_phrase,
-        advisor_csid=None,
+        advisor_uid=None,
         student_csid=None,
         topic=None,
         datetime_from=None,
@@ -217,8 +234,7 @@ class Appointment(Base):
             search_terms = []
             fts_selector = 'SELECT id, 0 AS rank FROM appointments WHERE deleted_at IS NULL'
             params = {}
-        if advisor_csid:
-            advisor_uid = get_uid_for_csid(app, advisor_csid)
+        if advisor_uid:
             advisor_filter = 'AND appointments.advisor_uid = :advisor_uid'
             params.update({'advisor_uid': advisor_uid})
         else:
@@ -232,10 +248,10 @@ class Appointment(Base):
 
         date_filter = ''
         if datetime_from:
-            date_filter += ' AND updated_at >= :datetime_from'
+            date_filter += ' AND created_at >= :datetime_from'
             params.update({'datetime_from': datetime_from})
         if datetime_to:
-            date_filter += ' AND updated_at < :datetime_to'
+            date_filter += ' AND created_at < :datetime_to'
             params.update({'datetime_to': datetime_to})
         if topic:
             topic_join = 'JOIN appointment_topics nt on nt.topic = :topic AND nt.appointment_id = appointments.id'

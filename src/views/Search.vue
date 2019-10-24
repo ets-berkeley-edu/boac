@@ -1,7 +1,7 @@
 <template>
   <div class="m-3">
     <Spinner alert-prefix="Search results" :is-plural="true" />
-    <div v-if="!loading && !results.totalStudentCount && !results.totalCourseCount && !size(results.notes)">
+    <div v-if="!loading && !results.totalStudentCount && !results.totalCourseCount && !size(results.notes) && !size(results.appointments)">
       <h1
         id="page-header-no-results"
         class="page-section-header"
@@ -98,6 +98,7 @@
 <script>
 import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet';
 import AppointmentSnippet from '@/components/search/AppointmentSnippet';
+import Context from '@/mixins/Context';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
 import Loading from '@/mixins/Loading';
 import SectionSpinner from '@/components/util/SectionSpinner';
@@ -119,7 +120,7 @@ export default {
     SortableStudents,
     Spinner
   },
-  mixins: [Loading, UserMetadata, Util],
+  mixins: [Context, Loading, UserMetadata, Util],
   data: () => ({
     appointmentOptions: {
       limit: 100,
@@ -129,6 +130,7 @@ export default {
     loadingAdditionalNotes: undefined,
     noteAndAppointmentOptions: {
       advisorCsid: undefined,
+      advisorUid: undefined,
       studentCsid: undefined,
       topic: undefined,
       dateFrom: undefined,
@@ -164,12 +166,13 @@ export default {
   },
   mounted() {
     this.phrase = this.$route.query.q;
-    const includeAppointments = this.$route.query.notes;
+    const includeAppointments = this.featureFlagAppointments && this.$route.query.notes;
     const includeCourses = this.$route.query.courses;
     const includeNotes = this.$route.query.notes;
     const includeStudents = this.$route.query.students;
     if (includeNotes) {
       this.noteAndAppointmentOptions.advisorCsid = this.$route.query.advisorCsid;
+      this.noteAndAppointmentOptions.advisorUid = this.$route.query.advisorUid;
       this.noteAndAppointmentOptions.studentCsid = this.$route.query.studentCsid;
       this.noteAndAppointmentOptions.topic = this.$route.query.noteTopic;
       this.noteAndAppointmentOptions.dateFrom = this.$route.query.noteDateFrom;

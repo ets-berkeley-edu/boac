@@ -113,6 +113,7 @@ export default {
     trim: _.trim,
     truncate: _.truncate,
     union: _.union,
+    unionBy: _.unionBy,
     uniq: _.uniq,
     uniqBy: _.uniqBy,
     without: _.without,

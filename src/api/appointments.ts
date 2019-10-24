@@ -60,15 +60,22 @@ export function create(deptCode, details, sid, appointmentType, topics) {
     }, () => null);
 }
 
+export function findAdvisorsByName(query: string, limit: number) {
+  let apiBaseUrl = store.getters['context/apiBaseUrl'];
+  return axios
+    .get(`${apiBaseUrl}/api/appointments/advisors/find_by_name?q=${query}&limit=${limit}`)
+    .then(response => response.data);
+}
+
 export function getDropInAppointmentWaitlist(deptCode, includeResolved=false) {
   return axios
     .get(`${utils.apiBaseUrl()}/api/appointments/waitlist/${deptCode}?includeResolved=${includeResolved}`)
     .then(response => response.data, () => null);
 }
 
-export function getAllTopics() {
+export function getAllTopics(includeDeleted: boolean) {
   return axios
-    .get(`${utils.apiBaseUrl()}/api/appointments/topics`)
+    .get(`${utils.apiBaseUrl()}/api/appointments/topics?includeDeleted=${includeDeleted}`)
     .then(response => response.data, () => null);
 }
 
