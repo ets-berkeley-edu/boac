@@ -287,7 +287,7 @@ export default {
       const permissionsMatch = adminMatch || advisorMatch || canvasAccessMatch || directorMatch || dropInAdvisorMatch || schedulerMatch || noPermissionsMatch;
       const statusMatch = activeMatch || deletedMatch || blockedMatch || expiredMatch;
 
-      return nameUidMatch && deptMatch && permissionsMatch && statusMatch;
+      return nameUidMatch && deptMatch && (permissionsMatch || statusMatch);
     },
     become(uid) {
       becomeUser(uid).then(() => (window.location.href = '/home'));
