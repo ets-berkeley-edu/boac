@@ -12,15 +12,17 @@
       </div>
       <div id="gpa-trends" class="border-left">
         <div id="gpa-chart" class="ml-3">
-          <div class="gpa-trends-label-outer">
-            <div class="gpa-trends-label text-uppercase font-weight-bold">GPA Trends</div>
+          <div class="align-items-end d-flex justify-content-between pb-2">
+            <div class="gpa-trends-label text-uppercase font-weight-bold">
+              GPA Trends
+            </div>
             <b-btn
               v-if="!isEmpty(student.termGpa)"
               id="show-hide-term-gpa-button"
               class="gpa-trends-more-button col-auto"
               variant="link"
               @click="showHideTermGpa()">
-              More
+              {{ showTermGpa ? 'Less' : 'More' }}
             </b-btn>
           </div>
           <StudentGpaChart
@@ -147,13 +149,9 @@ export default {
   color: #555;
   font-size: 11px;
 }
-.gpa-trends-label-outer {
-  display: flex;
-  justify-content: space-between;
-}
 .gpa-trends-more-button {
   border: 0;
-  font-size: 11px;
+  font-size: 12px;
   padding: 0;
   text-align: right;
 }
