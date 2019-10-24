@@ -617,13 +617,26 @@ export default {
     searchTimeline() {
       if (this.timelineQuery && this.timelineQuery.length) {
         this.searchResultsLoading = true;
+        var includeAppointments = false;
+        var includeNotes = false;
+        var appointmentOptions = null;
+        var noteOptions = null;
+        if (this.filter === 'appointment') {
+          includeAppointments = true;
+          appointmentOptions = {studentCsid: this.student.sid};
+        }
+        if (this.filter === 'note') {
+          includeNotes = true;
+          noteOptions = {studentCsid: this.student.sid};
+        }
         search(
           this.timelineQuery,
-          this.filter === 'appointment',
+          includeAppointments,
           false,
-          this.filter === 'note',
+          includeNotes,
           false,
-          {studentCsid: this.student.sid}
+          appointmentOptions,
+          noteOptions
         ).then(data => {
           const items = this.filter === 'appointment' ? this.get(data, 'appointments') : this.get(data, 'notes');
           this.searchResults = this.map(items, 'id');
