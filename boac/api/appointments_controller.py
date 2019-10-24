@@ -137,10 +137,33 @@ def mark_appointment_read(appointment_id):
     return tolerant_jsonify(AppointmentRead.find_or_create(current_user.get_id(), int(appointment_id)).to_api_json())
 
 
-@app.route('/api/appointments/topics')
+@app.route('/api/appointments/advisors/find_by_name', methods=['GET'])
+@advisor_required
+def find_appointment_advisors_by_name():
+    if not app.config['FEATURE_FLAG_ADVISOR_APPOINTMENTS']:
+        raise ResourceNotFoundError('Unknown path')
+    query = request.args.get('q')
+    if not query:
+        raise BadRequestError('Search query must be supplied')
+    limit = request.args.get('limit')
+    query_fragments = filter(None, query.upper().split(' '))
+    advisors = Appointment.find_advisors_by_name(query_fragments, limit=limit)
+
+    def _advisor_feed(a):
+        return {
+            'label': a.advisor_name,
+            'uid': a.advisor_uid,
+        }
+    return tolerant_jsonify([_advisor_feed(a) for a in advisors])
+
+
+@app.route('/api/appointments/topics', methods=['GET'])
 @scheduler_required
 def get_appointment_topics():
-    topics = Topic.get_all(available_in_appointments=True)
+    if not app.config['FEATURE_FLAG_ADVISOR_APPOINTMENTS']:
+        raise ResourceNotFoundError('Unknown path')
+    include_deleted = to_bool_or_none(request.args.get('includeDeleted'))
+    topics = Topic.get_all(available_in_appointments=True, include_deleted=include_deleted)
     return tolerant_jsonify([topic.to_api_json() for topic in topics])
 
 

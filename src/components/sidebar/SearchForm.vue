@@ -91,7 +91,7 @@
             for="search-include-notes-checkbox"
             class="search-form-label">
             <span class="sr-only">Search for</span>
-            Notes
+            {{ featureFlagAppointments ? 'Notes &amp; Appointments' : 'Notes' }}
           </label>
           <b-btn
             id="search-options-note-filters-toggle"
@@ -112,6 +112,9 @@
                 id="search-option-note-filters-topic"
                 v-model="noteFilters.topic"
                 :options="topicOptions">
+                <template v-slot:first>
+                  <option :value="null">Any topic</option>
+                </template>
               </b-form-select>
             </b-form-group>
             <b-form-group label="Posted By">
@@ -138,7 +141,7 @@
               <Autocomplete
                 id="search-options-note-filters-author"
                 v-model="noteAuthor"
-                :source="findAuthorsByName"
+                :source="findAdvisorsByName"
                 :disabled="noteFilters.postedBy === 'you'"
                 :placeholder="noteFilters.postedBy === 'you' ? user.name : 'Enter name...'">
               </Autocomplete>
@@ -152,7 +155,7 @@
                 placeholder="Enter name or SID...">
               </Autocomplete>
             </b-form-group>
-            <b-form-group label="Last Updated">
+            <b-form-group label="Date Range">
               <label
                 for="search-options-note-filters-last-updated-from"
                 class="search-form-label">
@@ -247,7 +250,8 @@ import Autocomplete from '@/components/util/Autocomplete';
 import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
-import { getTopics, findAuthorsByName } from '@/api/notes';
+import { getAllTopics as getAppointmentTopics, findAdvisorsByName } from '@/api/appointments';
+import { getTopics as getNoteTopics, findAuthorsByName } from '@/api/notes';
 import { findStudentsByNameOrSid } from '@/api/student';
 
 export default {
@@ -273,7 +277,6 @@ export default {
       includeCourses: this.domain.includes('courses'),
       includeNotes: this.domain.includes('notes'),
       includeStudents: this.domain.includes('students'),
-      findAuthorsByName: findAuthorsByName,
       findStudentsByNameOrSid: findStudentsByNameOrSid,
       noteFilters: null,
       searchPhrase: null,
@@ -348,6 +351,12 @@ export default {
     dateString(d, format) {
       return this.$options.filters.moment(d, format);
     },
+    findAdvisorsByName(q, limit) {
+      const queries = this.featureFlagAppointments ? [findAuthorsByName(q, limit), findAdvisorsByName(q, limit)] : [findAuthorsByName(q, limit)]
+      return Promise.allSettled(queries).then((results) => {
+        return this.orderBy(this.unionBy(this.flatMap(results, 'value'), 'label'), 'label');
+      });
+    },
     resetNoteFilters() {
       this.noteFilters = this.cloneDeep(this.defaultNoteFilters);
     },
@@ -369,6 +378,7 @@ export default {
             query.advisorCsid = this.user.csid;
           } else if (this.noteFilters.author) {
             query.advisorCsid = this.noteFilters.author.sid;
+            query.advisorUid = this.noteFilters.author.uid;
           }
           if (this.noteFilters.student) {
             query.studentCsid = this.noteFilters.student.sid;
@@ -401,10 +411,8 @@ export default {
         this.resetNoteFilters();
       }
       if (!this.topicOptions) {
-        this.topicOptions = [
-          {text: 'Any topic', value: null}
-        ];
-        getTopics(true).then(data => {
+        this.topicOptions = [];
+        getNoteTopics(true).then(data => {
           this.each(data, topic => {
             this.topicOptions.push({
               text: topic,
@@ -412,6 +420,18 @@ export default {
             })
           });
         });
+        if (this.featureFlagAppointments) {
+          getAppointmentTopics(true).then(data => {
+            this.each(data, topic => {
+              this.topicOptions.push({
+                text: topic,
+                value: topic
+              })
+            });
+          }).finally(() => {
+            this.topicOptions = this.uniqBy(this.orderBy(this.topicOptions, 'value'), 'value');
+          });
+        }
       }
     },
     toggleSearchOptions() {

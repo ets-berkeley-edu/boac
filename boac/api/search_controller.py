@@ -33,6 +33,7 @@ from boac.lib import util
 from boac.lib.berkeley import current_term_id
 from boac.lib.http import tolerant_jsonify
 from boac.merged.advising_note import search_advising_notes
+from boac.merged.calnet import get_uid_for_csid
 from boac.merged.student import search_for_students
 from boac.models.alert import Alert
 from boac.models.appointment import Appointment
@@ -80,6 +81,7 @@ def search():
 
 def _appointments_search(search_phrase, params):
     appointment_options = util.get(params, 'appointmentOptions', {})
+    advisor_uid = appointment_options.get('advisorUid')
     advisor_csid = appointment_options.get('advisorCsid')
     student_csid = appointment_options.get('studentCsid')
     topic = appointment_options.get('topic')
@@ -89,8 +91,11 @@ def _appointments_search(search_phrase, params):
     date_from = appointment_options.get('dateFrom')
     date_to = appointment_options.get('dateTo')
 
-    if not len(search_phrase) and not (advisor_csid or student_csid or topic or date_from or date_to):
+    if not len(search_phrase) and not (advisor_uid or advisor_csid or student_csid or topic or date_from or date_to):
         raise BadRequestError('Invalid or empty search input')
+
+    if advisor_csid and not advisor_uid:
+        advisor_uid = get_uid_for_csid(app, advisor_csid)
 
     if date_from:
         try:
@@ -113,7 +118,7 @@ def _appointments_search(search_phrase, params):
 
     appointment_results = Appointment.search(
         search_phrase=search_phrase,
-        advisor_csid=advisor_csid,
+        advisor_uid=advisor_uid,
         student_csid=student_csid,
         topic=topic,
         datetime_from=datetime_from,
@@ -190,6 +195,7 @@ def _course_search(search_phrase, params, order_by):
 def _notes_search(search_phrase, params):
     note_options = util.get(params, 'noteOptions', {})
     author_csid = note_options.get('advisorCsid')
+    author_uid = note_options.get('advisorUid')
     student_csid = note_options.get('studentCsid')
     topic = note_options.get('topic')
     limit = int(util.get(note_options, 'limit', 100))
@@ -198,7 +204,7 @@ def _notes_search(search_phrase, params):
     date_from = note_options.get('dateFrom')
     date_to = note_options.get('dateTo')
 
-    if not len(search_phrase) and not (author_csid or student_csid or topic or date_from or date_to):
+    if not len(search_phrase) and not (author_uid or author_csid or student_csid or topic or date_from or date_to):
         raise BadRequestError('Invalid or empty search input')
 
     if date_from:
@@ -223,6 +229,7 @@ def _notes_search(search_phrase, params):
     notes_results = search_advising_notes(
         search_phrase=search_phrase,
         author_csid=author_csid,
+        author_uid=author_uid,
         student_csid=student_csid,
         topic=topic,
         datetime_from=datetime_from,

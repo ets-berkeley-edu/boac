@@ -160,6 +160,7 @@ def get_batch_distinct_sids(sids=(), cohort_ids=(), curated_group_ids=()):
 def search_advising_notes(
     search_phrase,
     author_csid=None,
+    author_uid=None,
     student_csid=None,
     topic=None,
     datetime_from=None,
@@ -177,10 +178,11 @@ def search_advising_notes(
     else:
         search_terms = []
 
+    author_uid = get_uid_for_csid(app, author_csid) if (not author_uid and author_csid) else author_uid
+
     # TODO We're currently retrieving all results for the sake of subsequent offset calculations. As the number of notes in
     # BOA grows (and possibly requires us to use some kind of staging table for search indexing), we'll need to revisit.
     benchmark('begin local notes query')
-    author_uid = get_uid_for_csid(app, author_csid) if author_csid else None
     local_results = Note.search(
         search_phrase=search_phrase,
         author_uid=author_uid,
