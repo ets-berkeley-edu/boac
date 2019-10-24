@@ -242,7 +242,7 @@ export default {
           this.waitlist.splice(indexOf, 1);
         }
         this.alertScreenReader(`Student ${checkedIn.student.name} checked in`);
-        this.selectedAppointment = undefined;
+        this.closeCheckInModal();
       });
     },
     closeAppointmentCancellationModal() {
