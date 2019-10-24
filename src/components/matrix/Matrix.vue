@@ -224,6 +224,9 @@ export default {
 
       var container = d3.select('#matrix-container');
 
+      // Clear any lingering tooltips.
+      container.selectAll('.matrix-tooltip').remove();
+
       // We clear the '#scatterplot' div with `html()` in case the current search results are replacing previous results.
       svg = d3
         .select('#scatterplot')
