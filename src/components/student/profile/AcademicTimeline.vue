@@ -246,7 +246,7 @@
                   <router-link
                     v-if="message.type === 'note' && message.id !== editModeNoteId"
                     :id="`advising-note-permalink-${message.id}`"
-                    :to="`#${message.id}`"
+                    :to="`#${message.type}-${message.id}`"
                     @click.native="scrollToPermalink(message.type, message.id)">
                     Permalink <font-awesome icon="link" />
                   </router-link>
