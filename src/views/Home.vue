@@ -5,7 +5,7 @@
     <div v-if="!loading" class="home-content">
       <div>
         <div id="filtered-cohorts-header-row">
-          <h2 v-if="myCohorts && !size(myCohorts)" id="no-cohorts-header" class="page-section-header">
+          <h2 id="no-cohorts-header" v-if="myCohorts && !size(myCohorts)" class="page-section-header">
             You have no saved cohorts.
           </h2>
           <h1 v-if="myCohorts && size(myCohorts)" class="page-section-header">
@@ -56,18 +56,18 @@ export default {
   watch: {
     myCohorts: function() {
       if (this.myCohorts) {
-        this.loaded();
+        this.loaded('Home');
       }
     },
     myCuratedGroups: function() {
       if (this.myCuratedGroups) {
-        this.loaded();
+        this.loaded('Home');
       }
     }
   },
   mounted() {
     if (this.myCohorts || this.myCuratedGroups) {
-      this.loaded();
+      this.loaded('Home');
       this.scrollToTop();
     }
   }

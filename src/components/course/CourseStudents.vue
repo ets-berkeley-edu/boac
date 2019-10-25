@@ -4,8 +4,8 @@
     :fields="fields"
     :items="section.students"
     :small="true"
-    stacked="md"
     :tbody-tr-class="rowClass"
+    stacked="md"
     thead-class="sortable-table-header border-bottom">
     <template slot="curated" slot-scope="row">
       <div>
@@ -21,14 +21,14 @@
       <div>
         <router-link :id="`link-to-student-${row.item.uid}`" :to="studentRoutePath(row.item.uid, user.inDemoMode)">
           <h3
-            class="student-name m-0 p-0"
-            :class="{'demo-mode-blur': user.inDemoMode}">
+            :class="{'demo-mode-blur': user.inDemoMode}"
+            class="student-name m-0 p-0">
             <span v-if="row.item.firstName" v-html="`${row.item.lastName}, ${row.item.firstName}`"></span>
             <span v-if="!row.item.firstName" v-html="row.item.lastName"></span>
           </h3>
         </router-link>
       </div>
-      <div :id="`row-${row.index}-student-sid`" class="student-sid" :class="{'demo-mode-blur': user.inDemoMode}">
+      <div :id="`row-${row.index}-student-sid`" :class="{'demo-mode-blur': user.inDemoMode}" class="student-sid">
         {{ row.item.sid }}
         <span
           v-if="row.item.enrollment.enrollmentStatus === 'W'"

@@ -1,31 +1,31 @@
 <template>
   <div :id="id">
     <b-form-input
-      :id="`${id}-input`"
       ref="autocompleteInput"
+      :id="`${id}-input`"
       v-model="query"
-      name="autocomplete-name"
-      type="text"
-      autocomplete="off"
       :class="{'obfuscate-form-input': demoModeBlur && user.inDemoMode}"
       :disabled="disabled"
       :placeholder="placeholder"
       @input="onTextInput"
       @keypress.enter.prevent="onArrowDown"
       @keyup.esc="onEscFormInput"
-      @keyup.down="onArrowDown">
+      @keyup.down="onArrowDown"
+      name="autocomplete-name"
+      type="text"
+      autocomplete="off">
     </b-form-input>
     <div class="dropdown">
       <ul
-        :id="`${id}-suggestions`"
         ref="autocompleteSuggestions"
-        class="dropdown-menu"
+        :id="`${id}-suggestions`"
         :class="{'dropdown-menu-open': isOpen, dropdownClass: true}"
-        role="menu"
-        aria-expanded="true"
         @keyup.down="onArrowDown"
         @keyup.up="onArrowUp"
-        @keyup.esc="onEsc">
+        @keyup.esc="onEsc"
+        class="dropdown-menu"
+        role="menu"
+        aria-expanded="true">
         <li
           v-if="isLoading"
           class="dropdown-item">
@@ -42,12 +42,12 @@
           :key="i">
           <a
             :id="`${id}-suggestion-${i}`"
+            :class="{'demo-mode-blur': demoModeBlur && user.inDemoMode}"
+            @click="selectSuggestion(suggestion)"
+            @keyup.enter="selectSuggestion(suggestion)"
             role="menuitem"
             class="dropdown-item"
-            :class="{'demo-mode-blur': demoModeBlur && user.inDemoMode}"
-            href="#"
-            @click="selectSuggestion(suggestion)"
-            @keyup.enter="selectSuggestion(suggestion)">
+            href="#">
             <span v-html="highlightQuery(suggestion.label)"></span>
           </a>
         </li>

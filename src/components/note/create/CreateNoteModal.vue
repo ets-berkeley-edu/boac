@@ -3,11 +3,11 @@
     <div :class="{'d-flex justify-content-center pl-3 pr-3': isBatchFeature}">
       <b-btn
         :id="isBatchFeature ? 'batch-note-button' : 'new-note-button'"
-        class="mt-1 mr-2 btn-primary-color-override btn-primary-color-override-opaque"
         :class="{'w-100': isBatchFeature}"
-        variant="primary"
         :disabled="disableNewNoteButton"
-        @click="openNoteModal()">
+        @click="openNoteModal()"
+        class="mt-1 mr-2 btn-primary-color-override btn-primary-color-override-opaque"
+        variant="primary">
         <span class="m-1">
           <font-awesome icon="file-alt" />
           <span class="sr-only">{{ isBatchFeature ? 'Batch create ' : 'Create ' }}</span>
@@ -44,14 +44,14 @@
             <div class="ml-2 mr-3 mt-2 pl-2 pr-2">
               <b-alert
                 id="alert-in-note-modal"
-                class="font-weight-bolder w-100"
                 :show="dismissAlertSeconds"
+                @dismiss-count-down="dismissAlert"
+                class="font-weight-bolder w-100"
                 dismissible
                 fade
                 variant="info"
                 aria-live="polite"
-                role="alert"
-                @dismiss-count-down="dismissAlert">
+                role="alert">
                 <div class="d-flex">
                   <div v-if="isSaving" class="mr-2">
                     <font-awesome icon="sync" spin />
@@ -68,14 +68,14 @@
                 id="create-note-subject"
                 :value="model.subject"
                 :disabled="isSaving"
-                aria-labelledby="create-note-subject-label"
-                class="cohort-create-input-name"
                 :class="{ 'bg-light': isSaving }"
-                maxlength="255"
-                type="text"
                 @input="setSubjectPerEvent"
                 @keydown.enter="submitForm()"
-                @keydown.esc="cancelRequested()">
+                @keydown.esc="cancelRequested()"
+                aria-labelledby="create-note-subject-label"
+                class="cohort-create-input-name"
+                maxlength="255"
+                type="text">
             </div>
             <div>
               <label for="create-note-body" class="font-size-14 font-weight-bolder mt-3 mb-1">Note Details</label>
@@ -92,17 +92,17 @@
           <div v-if="undocked">
             <AdvisingNoteTopics
               :key="mode"
-              class="mt-2 mr-3 mb-1 ml-3"
               :disabled="isSaving"
               :function-add="addTopic"
               :function-remove="removeTopic"
-              :topics="model.topics" />
+              :topics="model.topics"
+              class="mt-2 mr-3 mb-1 ml-3" />
             <AdvisingNoteAttachments
-              class="mt-2 mr-3 mb-1 ml-3"
               :add-attachment="addAttachment"
               :disabled="isSaving"
               :existing-attachments="model.attachments"
-              :remove-attachment="removeAttachment" />
+              :remove-attachment="removeAttachment"
+              class="mt-2 mr-3 mb-1 ml-3" />
           </div>
           <hr />
           <div>
@@ -124,8 +124,8 @@
       v-if="showDiscardNoteModal"
       :function-cancel="cancelDiscardNote"
       :function-confirm="discardNote"
-      modal-header="Discard unsaved note?"
-      :show-modal="showDiscardNoteModal" />
+      :show-modal="showDiscardNoteModal"
+      modal-header="Discard unsaved note?" />
     <CreateTemplateModal
       :show-modal="showCreateTemplateModal"
       :cancel="cancelCreateTemplate"
@@ -135,8 +135,8 @@
       v-if="showDiscardTemplateModal"
       :function-cancel="cancelDiscardTemplate"
       :function-confirm="discardTemplate"
-      modal-header="Discard unsaved template?"
-      :show-modal="showDiscardTemplateModal" />
+      :show-modal="showDiscardTemplateModal"
+      modal-header="Discard unsaved template?" />
   </div>
 </template>
 

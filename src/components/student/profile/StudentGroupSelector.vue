@@ -3,11 +3,11 @@
     <b-dropdown
       id="curated-group-dropdown"
       :variant="dropdownVariant"
+      :disabled="disableSelector"
       toggle-class="b-dd-override b-dd-narrow"
       menu-class="groups-menu-class"
       size="sm"
-      no-caret
-      :disabled="disableSelector">
+      no-caret>
       <template slot="button-content">
         <span
           :id="isAdding ? 'added-to-curated-group' : (isRemoving ? 'removed-from-curated-group' : 'add-to-curated-group')"
@@ -37,20 +37,21 @@
           v-for="group in myCuratedGroups"
           :id="`curated-group-${group.id}-menu-item`"
           :key="group.id"
-          class="b-dd-item-override"
-          @keyup.space.prevent.stop="groupCheckboxClick(group)">
+          @keyup.space.prevent.stop="groupCheckboxClick(group)"
+          class="b-dd-item-override">
           <input
             :id="`curated-group-${group.id}-checkbox`"
             v-model="checkedGroups"
-            type="checkbox"
             :value="group.id"
             :aria-label="`${checkedGroups.includes(group.id) ? 'Checked' : 'Not checked'}`"
-            @click="groupCheckboxClick(group)" />
+            @click="groupCheckboxClick(group)"
+            @keyup.enter="groupCheckboxClick(group)"
+            type="checkbox" />
           <label
             :id="`curated-group-${group.id}-name`"
             :for="`curated-group-${group.id}-checkbox`"
-            class="curated-checkbox-label pb-0 pt-0"
-            :aria-label="`${checkedGroups.includes(group.id) ? 'Remove student from' : 'Add student to'} group '${group.name}'`">{{ group.name }}</label>
+            :aria-label="`${checkedGroups.includes(group.id) ? 'Remove student from' : 'Add student to'} group '${group.name}'`"
+            class="curated-checkbox-label pb-0 pt-0">{{ group.name }}</label>
         </b-dropdown-item>
       </div>
       <hr role="separator" class="dropdown-divider">
@@ -68,11 +69,11 @@
     <b-modal
       id="modal"
       v-model="showModal"
+      @shown="focusModalById('create-input')"
       body-class="pl-0 pr-0"
       hide-footer
       hide-header-close
-      title="Name Your Curated Group"
-      @shown="focusModalById('create-input')">
+      aria-label="Name Your Curated Group">
       <CreateCuratedGroupModal
         :sids="[ sid ]"
         :create="modalCreateGroup"
@@ -139,7 +140,7 @@ export default {
           this.checkedGroups = this.without(this.checkedGroups, group.id);
           this.isRemoving = false;
           this.putFocusNextTick('curated-group-dropdown', 'button');
-          this.alertScreenReader('Student removed from curated group');
+          this.alertScreenReader(`Removed student ${this.sid} from group ${group.name}`);
           this.gaCuratedEvent({
             id: group.id,
             name: group.name,
@@ -155,7 +156,7 @@ export default {
           this.checkedGroups.push(group.id);
           this.isAdding = false;
           this.putFocusNextTick('curated-group-dropdown', 'button');
-          this.alertScreenReader('Student added to curated group');
+          this.alertScreenReader(`Added student ${this.sid} to group ${group.name}`);
           this.gaCuratedEvent({
             id: group.id,
             name: group.name,

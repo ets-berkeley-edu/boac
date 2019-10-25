@@ -1,5 +1,5 @@
 <template>
-  <form class="edit-note-form" @submit.prevent="save()">
+  <form @submit.prevent="save()" class="edit-note-form">
     <div>
       <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
     </div>
@@ -7,12 +7,12 @@
       <input
         id="edit-note-subject"
         :value="model.subject"
+        @input="setSubjectPerEvent"
+        @keydown.esc="cancelRequested()"
         aria-labelledby="edit-note-subject-label"
         class="cohort-create-input-name"
         type="text"
-        maxlength="255"
-        @input="setSubjectPerEvent"
-        @keydown.esc="cancelRequested()">
+        maxlength="255">
     </div>
     <div>
       <label class="font-weight-bold mt-2" for="edit-note-details">
@@ -37,18 +37,18 @@
       <div>
         <b-btn
           id="save-note-button"
+          @click="save()"
           class="btn-primary-color-override"
-          variant="primary"
-          @click="save()">
+          variant="primary">
           Save
         </b-btn>
       </div>
       <div>
         <b-btn
           id="cancel-edit-note-button"
-          variant="link"
           @click.stop="cancelRequested()"
-          @keypress.enter.stop="cancelRequested()">
+          @keypress.enter.stop="cancelRequested()"
+          variant="link">
           Cancel
         </b-btn>
       </div>
@@ -57,8 +57,8 @@
       v-if="showAreYouSureModal"
       :function-cancel="cancelTheCancel"
       :function-confirm="cancelConfirmed"
-      modal-header="Discard unsaved changes?"
-      :show-modal="showAreYouSureModal" />
+      :show-modal="showAreYouSureModal"
+      modal-header="Discard unsaved changes?" />
     <div v-if="size(model.attachments)">
       <div class="pill-list-header mt-3 mb-1">{{ size(model.attachments) === 1 ? 'Attachment' : 'Attachments' }}</div>
       <ul class="pill-list pl-0">
@@ -66,8 +66,9 @@
           v-for="(attachment, index) in model.attachments"
           :id="`note-${model.id}-attachment-${index}`"
           :key="attachment.id"
-          class="mt-2"
-          @click.stop>
+          @click.stop
+          @keyup.stop
+          class="mt-2">
           <span class="pill pill-attachment text-nowrap">
             <font-awesome icon="paperclip" class="pr-1 pl-1" />
             {{ attachment.displayName }}
@@ -80,7 +81,8 @@
       :show.sync="showErrorPopover"
       placement="top"
       target="edit-note-subject"
-      title="">
+      aria-live="polite"
+      role="alert">
       <span id="popover-error-message" class="has-error">{{ error }}</span>
     </b-popover>
   </form>

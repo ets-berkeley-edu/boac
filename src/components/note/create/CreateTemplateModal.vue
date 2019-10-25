@@ -2,16 +2,16 @@
   <b-modal
     id="create-note-template"
     v-model="showModalProxy"
+    @shown="focusModalById('template-title-input')"
+    aria-label="Name Your Template"
     body-class="pl-0 pr-0"
     hide-footer
-    hide-header-close
-    title="Name Your Template"
-    @shown="focusModalById('template-title-input')">
+    hide-header-close>
     <div>
       <form @submit.prevent="createTemplate()">
         <div class="ml-3 mr-3">
-          <label class="pb-2" for="template-title-input">Template name:</label>
           <div>
+            <label class="pb-2" for="template-title-input">Template name:</label>
             <input
               id="template-title-input"
               v-model="title"
@@ -22,8 +22,8 @@
           </div>
           <div class="faint-text mb-3"><span class="sr-only">Template name has a </span>255 character limit <span v-if="title.length">({{ 255 - title.length }} left)</span></div>
           <div
-            v-if="error"
             id="create-error"
+            v-if="error"
             aria-live="polite"
             role="alert"
             class="has-error">
@@ -39,16 +39,16 @@
         <div class="modal-footer pl-0 mr-2">
           <b-btn
             id="create-template-confirm"
-            class="btn-primary-color-override"
-            variant="primary"
             :disabled="!title.length"
-            @click.prevent="createTemplate()">
+            @click.prevent="createTemplate()"
+            class="btn-primary-color-override"
+            variant="primary">
             Save
           </b-btn>
           <b-btn
             id="cancel-template-create"
-            variant="link"
-            @click="cancelModal()">
+            @click="cancelModal()"
+            variant="link">
             Cancel
           </b-btn>
         </div>

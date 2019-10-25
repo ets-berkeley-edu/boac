@@ -2,12 +2,12 @@
   <b-modal
     id="advising-appointment-check-in"
     v-model="showCreateAppointmentModal"
-    body-class="pl-0 pr-0"
-    hide-footer
-    hide-header
     :no-close-on-backdrop="true"
     @cancel.prevent="cancel"
-    @hide.prevent="cancel">
+    @hide.prevent="cancel"
+    body-class="pl-0 pr-0"
+    hide-footer
+    hide-header>
     <div>
       <div class="modal-header">
         <h3 class="ml-2">
@@ -28,17 +28,17 @@
           <div v-if="student" class="d-inline-block">
             <div
               id="appointment-student-input"
-              class="d-flex pill pill-student text-uppercase text-nowrap"
-              :class="{'demo-mode-blur' : user.inDemoMode}">
+              :class="{'demo-mode-blur' : user.inDemoMode}"
+              class="d-flex pill pill-student text-uppercase text-nowrap">
               <div class="student-label">
                 <span class="sr-only">Student: </span> {{ student.label }}
               </div>
               <div class="mb-1 mr-2">
                 <b-btn
                   id="appointment-student-remove"
+                  @click.prevent="student = undefined"
                   variant="link"
-                  class="p-0"
-                  @click.prevent="student = undefined">
+                  class="p-0">
                   <font-awesome icon="times-circle" class="font-size-24 faint-text pl-2" />
                 </b-btn>
                 <label class="sr-only" for="appointment-student-remove">
@@ -52,21 +52,21 @@
               <Autocomplete
                 id="appointment-student"
                 :key="resetAutoCompleteKey"
-                class="w-75"
                 :demo-mode-blur="true"
                 :on-esc-form-input="cancelModal"
                 :show-add-button="true"
                 :source="studentsByNameOrSid"
-                @input="addStudent" />
+                @input="addStudent"
+                class="w-75" />
             </div>
           </div>
           <div class="mt-2">
             <AppointmentTopics
               :disabled="isSaving"
-              focus-after-topic-add="appointment-details"
               :function-add="addTopic"
               :function-remove="removeTopic"
-              :topics="topics" />
+              :topics="topics"
+              focus-after-topic-add="appointment-details" />
           </div>
           <div class="mb-4 mr-3 mt-1">
             <label for="appointment-details" class="font-size-14 input-label text">
@@ -85,16 +85,16 @@
         <div class="modal-footer pl-0 mt-2">
           <b-btn
             id="create-appointment-confirm"
-            class="btn-primary-color-override"
-            variant="primary"
             :disabled="!student || !topics.length || !trim(details).length"
-            @click.prevent="create()">
+            @click.prevent="create()"
+            class="btn-primary-color-override"
+            variant="primary">
             Make Appointment
           </b-btn>
           <b-btn
             id="create-appointment-cancel"
-            variant="link"
-            @click.prevent="cancelModal()">
+            @click.prevent="cancelModal()"
+            variant="link">
             Cancel
           </b-btn>
         </div>

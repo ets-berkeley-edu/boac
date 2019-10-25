@@ -2,11 +2,11 @@
   <div>
     <form
       id="search-students-form"
-      autocomplete="off"
-      class="search-form"
       :class="{'search-page-body': context === 'pageBody'}"
       @keypress.enter.stop="search()"
-      @submit.prevent="search()">
+      @submit.prevent="search()"
+      autocomplete="off"
+      class="search-form">
       <div class="d-flex flex-column-reverse">
         <div :class="{'search-form-button': context === 'pageBody'}">
           <span
@@ -19,13 +19,13 @@
           <input
             id="search-students-input"
             v-model="searchPhrase"
-            class="pl-2 pr-2 search-input w-100"
             :class="{ 'input-disabled': allOptionsUnchecked }"
             :readonly="allOptionsUnchecked"
             :aria-readonly="allOptionsUnchecked"
+            :required="searchInputRequired"
+            class="pl-2 pr-2 search-input w-100"
             aria-label="Hit enter to execute search"
             type="text"
-            :required="searchInputRequired"
             maxlength="255" />
         </div>
         <div v-if="context === 'sidebar'" class="d-flex flex-wrap justify-content-between search-label text-nowrap text-white">
@@ -38,9 +38,9 @@
           <b-btn
             id="search-options-panel-toggle"
             v-b-toggle="'search-options-panel'"
+            @click="toggleSearchOptions()"
             class="pr-0 pt-0 search-options-panel-toggle"
-            variant="link"
-            @click="toggleSearchOptions()">
+            variant="link">
             {{ showSearchOptions ? 'Hide' : 'Show' }} options
           </b-btn>
         </div>
@@ -54,7 +54,7 @@
           Search
         </b-btn>
       </div>
-      <b-collapse v-if="context === 'sidebar'" id="search-options-panel" class="mt-2 text-white">
+      <b-collapse id="search-options-panel" v-if="context === 'sidebar'" class="mt-2 text-white">
         <div class="d-flex">
           <b-form-checkbox
             id="search-include-students-checkbox"
@@ -95,10 +95,10 @@
           </label>
           <b-btn
             id="search-options-note-filters-toggle"
-            class="search-options-panel-toggle search-options-panel-toggle-subpanel text-nowrap"
-            variant="link"
             :class="includeNotes ? 'visible' : 'invisible'"
-            @click="toggleNoteFilters()">
+            @click="toggleNoteFilters()"
+            class="search-options-panel-toggle search-options-panel-toggle-subpanel text-nowrap"
+            variant="link">
             ({{ showNoteFilters ? 'hide' : 'show' }} filters)
           </b-btn>
         </div>
@@ -121,19 +121,19 @@
               <b-form-radio
                 id="search-options-note-filters-posted-by-anyone"
                 v-model="noteFilters.postedBy"
-                name="note-filters-posted-by"
-                value="anyone"
                 :ischecked="noteFilters.postedBy === 'anyone'"
-                @change.native="clearAuthorFilter">
+                @change.native="clearAuthorFilter"
+                name="note-filters-posted-by"
+                value="anyone">
                 Anyone
               </b-form-radio>
               <b-form-radio
                 id="search-options-note-filters-posted-by-you"
                 v-model="noteFilters.postedBy"
-                name="note-filters-posted-by"
-                value="you"
                 :ischecked="noteFilters.postedBy === 'you'"
-                @change.native="clearAuthorFilter">
+                @change.native="clearAuthorFilter"
+                name="note-filters-posted-by"
+                value="you">
                 You
               </b-form-radio>
             </b-form-group>
@@ -170,21 +170,21 @@
                   <b-input-group>
                     <b-form-input
                       id="search-options-note-filters-last-updated-from"
+                      :value="inputValue"
+                      :formatter="dateFormat"
+                      @change.native="updateValue($event.target.value)"
                       type="text"
                       name="note-filters-date-from"
                       class="search-input-date"
-                      :value="inputValue"
-                      :formatter="dateFormat"
                       placeholder="MM/DD/YYYY"
                       expanded
-                      lazy-formatter
-                      @change.native="updateValue($event.target.value)">
+                      lazy-formatter>
                     </b-form-input>
                     <b-btn
-                      v-if="noteFilters.dateFrom"
                       id="search-options-note-filters-last-updated-from-clear"
-                      class="search-input-date"
-                      @click="noteFilters.dateFrom = null;">
+                      v-if="noteFilters.dateFrom"
+                      @click="noteFilters.dateFrom = null;"
+                      class="search-input-date">
                       <font-awesome icon="times"></font-awesome>
                       <span class="sr-only">Clear date from</span>
                     </b-btn>
@@ -205,21 +205,21 @@
                   <b-input-group>
                     <b-form-input
                       id="search-options-note-filters-last-updated-to"
+                      :value="inputValue"
+                      :formatter="dateFormat"
+                      @change.native="updateValue($event.target.value)"
                       type="text"
                       name="note-filters-date-to"
                       class="search-input-date"
-                      :value="inputValue"
-                      :formatter="dateFormat"
                       placeholder="MM/DD/YYYY"
                       expanded
-                      lazy-formatter
-                      @change.native="updateValue($event.target.value)">
+                      lazy-formatter>
                     </b-form-input>
                     <b-btn
-                      v-if="noteFilters.dateTo"
                       id="search-options-note-filters-last-updated-to-clear"
-                      class="search-input-date"
-                      @click="noteFilters.dateTo = null;">
+                      v-if="noteFilters.dateTo"
+                      @click="noteFilters.dateTo = null;"
+                      class="search-input-date">
                       <font-awesome icon="times"></font-awesome>
                       <span class="sr-only">Clear date to</span>
                     </b-btn>
@@ -234,9 +234,9 @@
           </div>
         </b-collapse>
         <b-button
+          :disabled="validDateRange === false"
           type="submit"
-          variant="primary"
-          :disabled="validDateRange === false">
+          variant="primary">
           Search
         </b-button>
       </b-collapse>

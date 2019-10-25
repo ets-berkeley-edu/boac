@@ -4,15 +4,16 @@
       <div class="ml-2 mr-2">
         <img
           id="avatar-verify-blur"
-          class="avatar student-avatar-large"
           :class="{'img-blur': user.inDemoMode}"
-          :src="blurAvatarUrl" />
+          :src="blurAvatarUrl"
+          alt="Picture of woman demonstrates blur effect when BOA demo mode is on."
+          class="avatar student-avatar-large" />
       </div>
       <div class="pl-2 pt-2">
         <div v-if="!isNil(user.inDemoMode)">
           <b-form-checkbox
-            v-if="!isToggling"
             id="toggle-demo-mode"
+            v-if="!isToggling"
             v-model="inDemoMode"
             :disabled="isToggling"
             @change="toggle">

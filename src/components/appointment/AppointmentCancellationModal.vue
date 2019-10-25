@@ -2,12 +2,12 @@
   <b-modal
     id="advising-appointment-check-in"
     v-model="showCancellationModal"
-    body-class="pl-0 pr-0"
-    hide-footer
-    hide-header
     :no-close-on-backdrop="true"
     @cancel.prevent="close"
-    @hide.prevent="close">
+    @hide.prevent="close"
+    body-class="pl-0 pr-0"
+    hide-footer
+    hide-header>
     <div>
       <div class="modal-header">
         <h3>Cancel Appointment</h3>
@@ -80,17 +80,17 @@
         <form @submit.prevent="cancelTheAppointment">
           <b-btn
             id="btn-appointment-cancel"
-            class="btn-primary-color-override mr-2"
-            variant="primary"
             :disabled="!reason"
             :aria-label="`Cancel appointment with ${student.name}`"
-            @click.prevent="cancelTheAppointment">
+            @click.prevent="cancelTheAppointment"
+            class="btn-primary-color-override mr-2"
+            variant="primary">
             Cancel Appointment
           </b-btn>
           <b-btn
             id="btn-appointment-close"
-            variant="link"
-            @click.stop="close">
+            @click.stop="close"
+            variant="link">
             Close
           </b-btn>
         </form>

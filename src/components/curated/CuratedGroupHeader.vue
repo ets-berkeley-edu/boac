@@ -17,14 +17,14 @@
             <input
               id="rename-input"
               v-model="renameInput"
-              class="form-control"
               :aria-invalid="!renameInput"
+              @keyup.esc="exitRenameMode()"
+              class="form-control"
               aria-label="Curated group name, 255 characters or fewer"
               aria-required="true"
               maxlength="255"
               required
-              type="text"
-              @keyup.esc="exitRenameMode()" />
+              type="text" />
           </form>
         </div>
         <div v-if="renameError" class="has-error mb-2">{{ renameError }}</div>
@@ -40,21 +40,21 @@
       <div v-if="mode === 'rename'" class="d-flex align-self-baseline mr-4">
         <b-btn
           id="rename-confirm"
+          :disabled="!size(renameInput)"
+          @click.stop="rename"
           class="btn-primary-color-override"
           variant="primary"
           size="sm"
-          aria-label="Save changes to curated group name"
-          :disabled="!size(renameInput)"
-          @click.stop="rename">
+          aria-label="Save changes to curated group name">
           Rename
         </b-btn>
         <b-btn
           id="rename-cancel"
+          @click="exitRenameMode"
           class="cohort-manage-btn"
           variant="link"
           aria-label="Cancel rename curated group"
-          size="sm"
-          @click="exitRenameMode">
+          size="sm">
           Cancel
         </b-btn>
       </div>
@@ -62,9 +62,9 @@
         <div v-if="isOwnedByCurrentUser">
           <b-btn
             id="bulk-add-sids-button"
+            @click="enterBulkAddMode"
             variant="link"
-            aria-label="Add students to this curated group by entering a list of student IDs"
-            @click="enterBulkAddMode">
+            aria-label="Add students to this curated group by entering a list of student IDs">
             Add Students
           </b-btn>
         </div>
@@ -72,9 +72,9 @@
         <div v-if="isOwnedByCurrentUser">
           <b-btn
             id="rename-button"
+            @click="enterRenameMode"
             variant="link"
-            aria-label="Rename this curated group"
-            @click="enterRenameMode">
+            aria-label="Rename this curated group">
             Rename
           </b-btn>
         </div>
@@ -99,15 +99,15 @@
             <div slot="modal-footer">
               <b-btn
                 id="delete-confirm"
+                @click="deleteGroup"
                 class="btn-primary-color-override"
-                variant="primary"
-                @click="deleteGroup">
+                variant="primary">
                 Delete
               </b-btn>
               <b-btn
                 id="delete-cancel"
-                variant="link"
-                @click="isModalOpen=false">
+                @click="isModalOpen=false"
+                variant="link">
                 Cancel
               </b-btn>
             </div>
@@ -117,10 +117,10 @@
         <div>
           <b-btn
             id="export-student-list-button"
-            variant="link"
             :disabled="!exportEnabled || !totalStudentCount"
-            aria-label="Download CSV file containing all students"
-            @click="downloadCsv()">
+            @click="downloadCsv()"
+            variant="link"
+            aria-label="Download CSV file containing all students">
             Export List
           </b-btn>
         </div>

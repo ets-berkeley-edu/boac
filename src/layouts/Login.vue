@@ -10,32 +10,31 @@
     <div class="splash-container">
       <div class="splash-cell-stripe"></div>
       <div class="avatar-container">
-        <img class="avatar-airplane" src="@/assets/airplane.svg" />
+        <img src="@/assets/airplane.svg" alt="Airplane logo" class="avatar-airplane" />
       </div>
-      <div class="splash-cell-sign-in">
+      <div class="splash-cell-sign-in" role="main">
         <form @submit.prevent="logIn()">
           <b-btn
             id="splash-sign-in"
+            @click.stop="logIn()"
             class="btn-sign-in btn-primary-color-override"
             variant="primary"
             aria-label="Log in to BOA"
             tabindex="0"
-            placement="top"
-            @click.stop="logIn()">
+            placement="top">
             Sign In
           </b-btn>
           <b-popover
+            @hidden="onHidden"
             placement="top"
             target="splash-sign-in"
-            title=""
-            triggers="focus"
-            @hidden="onHidden">
+            triggers="focus">
             <span
               v-for="message in errorMessages"
               :key="message"
+              v-html="message"
               class="has-error"
-              aria-live="polite"
-              v-html="message"></span>
+              aria-live="polite"></span>
           </b-popover>
         </form>
         <div class="splash-contact-us">
@@ -47,13 +46,13 @@
         </div>
         <DevAuth v-if="devAuthEnabled" />
       </div>
-      <div class="splash-box-container">
+      <div class="splash-box-container" role="banner">
         <div class="splash-cell-header">
           <h1>BOA</h1>
         </div>
       </div>
-      <div class="splash-cell-copyright pt-2">
-        <span class="splash-text-copyright">&copy; 2019 The Regents of the University of California</span>
+      <div class="splash-cell-copyright pt-2" role="contentinfo">
+        <span class="font-size-12 text-white">&copy; 2019 The Regents of the University of California</span>
       </div>
     </div>
   </div>
@@ -178,11 +177,6 @@ export default {
   position: relative;
   z-index: 999;
 }
-.splash-text-copyright {
-  color: #fff;
-  font-size: 12px;
-}
-
 button {
   background-color: #3b80bf;
 }

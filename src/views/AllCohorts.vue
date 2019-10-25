@@ -1,6 +1,6 @@
 <template>
   <div class="m-3">
-    <Spinner alert-prefix="Cohorts" :is-plural="true" />
+    <Spinner :is-plural="true" alert-prefix="Cohorts" />
     <div v-if="!loading">
       <h1 ref="pageHeader" class="mb-4">Everyone's Cohorts</h1>
 
@@ -40,7 +40,7 @@ export default {
   created() {
     getUsersWithCohorts().then(data => {
       this.rows = data;
-      this.loaded();
+      this.loaded('Everyone\'s Cohorts');
     });
   }
 };

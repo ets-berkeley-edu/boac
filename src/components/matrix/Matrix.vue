@@ -8,8 +8,8 @@
       <select
         id="matrix-choose-metrics-y-axis"
         v-model="selectedAxes.y"
-        class="matrix-choose-metrics-select"
-        @change="refreshMatrix()">
+        @blur="refreshMatrix()"
+        class="matrix-choose-metrics-select">
         <option
           v-for="(yAxisName, yAxisValue) in axisLabels"
           :key="yAxisName"
@@ -21,8 +21,8 @@
       <select
         id="matrix-choose-metrics-x-axis"
         v-model="selectedAxes.x"
-        class="matrix-choose-metrics-select"
-        @change="refreshMatrix()">
+        @blur="refreshMatrix()"
+        class="matrix-choose-metrics-select">
         <option
           v-for="(xAxisName, xAxisValue) in axisLabels"
           :key="xAxisName"
@@ -36,22 +36,29 @@
       <div v-if="plottable" class="matrix-zoom-wrapper">
         Zoom:
         <div class="btn-group">
-          <button type="button" class="btn matrix-zoom-button" @click="zoomIn()">
+          <button
+            id="btn-matrix-zoom-in"
+            @click="zoomIn()"
+            @keyup.enter="zoomIn()"
+            type="button"
+            class="btn matrix-zoom-button">
             <font-awesome icon="plus" />
             <span class="sr-only">Zoom in</span>
           </button>
           <button
-            type="button"
-            class="btn matrix-zoom-button"
+            id="btn-matrix-zoom-out"
             :disabled="zoom.scale === 1"
-            @click="zoomOut()">
-            <font-awesome icon="minus" :class="{'matrix-zoom-disabled': zoom.scale === 1}" />
+            @click="zoomOut()"
+            @keyup.enter="zoomOut()"
+            type="button"
+            class="btn matrix-zoom-button">
+            <font-awesome :class="{'matrix-zoom-disabled': zoom.scale === 1}" icon="minus" />
             <span class="sr-only">Zoom out</span>
           </button>
         </div>
       </div>
-      <div v-if="plottable" id="scatterplot" class="matrix"></div>
-      <div v-if="!isEmpty(studentsWithoutData)" id="cohort-missing-student-data" class="cohort-missing-student-data">
+      <div id="scatterplot" v-if="plottable" class="matrix"></div>
+      <div id="cohort-missing-student-data" v-if="!isEmpty(studentsWithoutData)" class="cohort-missing-student-data">
         <h2 class="matrix-header">Missing Student Data</h2>
         <div>For the following students, some results may only provide partial data or information is currently unavailable:</div>
         <table class="missing-student-data-table">
@@ -68,8 +75,8 @@
               v-for="student in studentsWithoutData"
               :id="student.uid"
               :key="student.uid"
-              class="cohort-missing-student-data-row"
-              :class="{'cohort-list-row-info': featured===student.uid}">
+              :class="{'cohort-list-row-info': featured===student.uid}"
+              class="cohort-missing-student-data-row">
               <td class="student-avatar-container">
                 <StudentAvatar :student="student" />
               </td>
@@ -86,8 +93,8 @@
                 </div>
                 <div
                   v-if="student.sid"
-                  class="student-sid"
-                  :class="{'demo-mode-blur': user.inDemoMode}">
+                  :class="{'demo-mode-blur': user.inDemoMode}"
+                  class="student-sid">
                   SID: {{ student.sid }}
                 </div>
               </td>

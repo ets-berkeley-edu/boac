@@ -26,7 +26,7 @@ export default {
   mounted() {
     store.dispatch('user/loadUsers').then(data => {
       this.users = data;
-      this.loaded();
+      this.loaded('Passenger Manifest');
     });
   }
 }

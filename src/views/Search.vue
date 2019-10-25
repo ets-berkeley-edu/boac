@@ -1,6 +1,6 @@
 <template>
   <div class="m-3">
-    <Spinner alert-prefix="Search results" :is-plural="true" />
+    <Spinner :is-plural="true" alert-prefix="Search results" />
     <div v-if="!loading && !results.totalStudentCount && !results.totalCourseCount && !size(results.notes) && !size(results.appointments)">
       <h1
         id="page-header-no-results"
@@ -31,9 +31,9 @@
     <div v-if="!loading && results.totalStudentCount" class="cohort-column-results">
       <div class="search-header-curated-cohort">
         <CuratedGroupSelector
-          context-description="Search"
           :ga-event-tracker="gaSearchEvent"
-          :students="results.students" />
+          :students="results.students"
+          context-description="Search" />
       </div>
       <div>
         <SortableStudents :students="results.students" :options="studentListOptions" />
@@ -60,13 +60,13 @@
         :note="advisingNote" />
       <div class="text-center">
         <b-btn
-          v-if="!completeNoteResults"
           id="fetch-more-notes"
-          variant="link"
-          @click.prevent="fetchMoreNotes()">
+          v-if="!completeNoteResults"
+          @click.prevent="fetchMoreNotes()"
+          variant="link">
           Show additional advising notes
         </b-btn>
-        <SectionSpinner name="Notes" :loading="loadingAdditionalNotes" />
+        <SectionSpinner :loading="loadingAdditionalNotes" name="Notes" />
       </div>
     </div>
     <div v-if="!loading && size(results.appointments)" class="pt-4">
@@ -83,13 +83,13 @@
         :appointment="appointment" />
       <div class="text-center">
         <b-btn
-          v-if="!completeAppointmentResults"
           id="fetch-more-appointments"
-          variant="link"
-          @click.prevent="fetchMoreAppointments()">
+          v-if="!completeAppointmentResults"
+          @click.prevent="fetchMoreAppointments()"
+          variant="link">
           Show additional advising appointments
         </b-btn>
-        <SectionSpinner name="Appointments" :loading="loadingAdditionalAppointments" />
+        <SectionSpinner :loading="loadingAdditionalAppointments" name="Appointments" />
       </div>
     </div>
   </div>
@@ -197,7 +197,7 @@ export default {
           });
         })
         .then(() => {
-          this.loaded();
+          this.loaded('Search results');
           const totalCount =
             this.toInt(this.results.totalCourseCount, 0) +
             this.toInt(this.results.totalStudentCount, 0);

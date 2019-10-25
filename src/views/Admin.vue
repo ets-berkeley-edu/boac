@@ -4,7 +4,7 @@
     <div v-if="!loading">
       <div class="align-items-center d-flex pb-3">
         <div class="pr-3">
-          <font-awesome icon="plane-departure" size="2x" :style="{ color: '#3b7ea5' }" />
+          <font-awesome :style="{ color: '#3b7ea5' }" icon="plane-departure" size="2x" />
         </div>
         <div class="pt-2">
           <h1 class="page-section-header">BOA Flight Deck</h1>
@@ -52,7 +52,7 @@ export default {
   },
   mixins: [Context, Loading, UserMetadata, Util],
   mounted() {
-    this.loaded();
+    this.loaded('Flight Deck');
   }
 };
 </script>

@@ -8,26 +8,26 @@
           <div>
             <b-btn
               id="timeline-tab-all"
-              class="tab pl-2 pr-2"
               :class="{ 'tab-active text-white': !filter, 'tab-inactive text-dark': filter }"
-              variant="link"
-              @click="setFilter(null)">
+              @click="setFilter(null)"
+              class="tab pl-2 pr-2"
+              variant="link">
               All
             </b-btn>
           </div>
           <div v-for="type in keys(filterTypes)" :key="type">
             <b-btn
               :id="`timeline-tab-${type}`"
-              class="tab ml-2 pl-2 pr-2 text-center"
               :class="{
                 'tab-active text-white': type === filter && countsPerType[type],
                 'tab-inactive text-dark': type !== filter && countsPerType[type],
                 'tab-disabled text-muted': !countsPerType[type]
               }"
               :aria-label="`${filterTypes[type].name}s tab`"
-              variant="link"
               :disabled="!countsPerType[type]"
-              @click="setFilter(type)">
+              @click="setFilter(type)"
+              class="tab ml-2 pl-2 pr-2 text-center"
+              variant="link">
               {{ filterTypes[type].tab }}
             </b-btn>
           </div>
@@ -44,11 +44,11 @@
     <div v-if="isExpandAllAvailable" class="mt-1 mb-1 timeline-submenu">
       <b-btn
         :id="`toggle-expand-all-${filter}s`"
-        variant="link"
-        @click.prevent="toggleExpandAll()">
+        @click.prevent="toggleExpandAll()"
+        variant="link">
         <font-awesome
-          class="toggle-expand-all-caret"
-          :icon="allExpanded ? 'caret-down' : 'caret-right'" />
+          :icon="allExpanded ? 'caret-down' : 'caret-right'"
+          class="toggle-expand-all-caret" />
         <span class="no-wrap pl-1">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ filter }}s</span>
       </b-btn>
       |
@@ -60,11 +60,11 @@
       <input
         :id="`timeline-${filter}s-query-input`"
         v-model="timelineQuery"
-        class="pl-2 pr-2 timeline-query-input"
-        @keypress.enter.stop="searchTimeline()" />
+        @keypress.enter.stop="searchTimeline()"
+        class="pl-2 pr-2 timeline-query-input" />
     </div>
 
-    <div v-if="searchResultsLoading" id="timeline-notes-spinner" class="mt-4 text-center">
+    <div id="timeline-notes-spinner" v-if="searchResultsLoading" class="mt-4 text-center">
       <font-awesome icon="sync" size="3x" spin />
     </div>
 
@@ -118,14 +118,14 @@
           v-for="(message, index) in (searchResults ? filterSearchResults() : (isShowingAll ? messagesPerType(filter) : slice(messagesPerType(filter), 0, defaultShowPerTab)))"
           :id="`permalink-${message.type}-${message.id}`"
           :key="index"
-          class="message-row border-top border-bottom"
           :class="{ 'message-row-read': message.read }"
-          :tabindex="includes(openMessages, message.transientId) ? 0 : -1">
+          :tabindex="includes(openMessages, message.transientId) ? 0 : -1"
+          class="message-row border-top border-bottom">
           <td class="column-pill align-top p-2">
             <div
               :id="`timeline-tab-${activeTab}-pill-${index}`"
-              class="pill text-center text-uppercase text-white"
               :class="`pill-${message.type}`"
+              class="pill text-center text-uppercase text-white"
               tabindex="0">
               <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
             </div>
@@ -135,30 +135,30 @@
               <div v-if="user.uid === message.author.uid">
                 <b-btn
                   :id="`edit-note-${message.id}-button`"
-                  variant="link"
-                  class="p-0 edit-note-button"
                   :disabled="disableNewNoteButton"
                   @keypress.enter.stop="editNote(message)"
-                  @click.stop="editNote(message)">
+                  @click.stop="editNote(message)"
+                  variant="link"
+                  class="p-0 edit-note-button">
                   Edit Note
                 </b-btn>
               </div>
               <div v-if="user.isAdmin">
                 <b-btn
                   id="delete-note-button"
-                  variant="link"
-                  class="p-0 edit-note-button"
                   :disabled="disableNewNoteButton"
                   @keypress.enter.stop="deleteNote(message)"
-                  @click.stop="deleteNote(message)">
+                  @click.stop="deleteNote(message)"
+                  variant="link"
+                  class="p-0 edit-note-button">
                   Delete Note
                 </b-btn>
               </div>
             </div>
           </td>
           <td
-            class="column-message align-top"
-            :class="{ 'font-weight-bold': !message.read }">
+            :class="{ 'font-weight-bold': !message.read }"
+            class="column-message align-top">
             <div
               :id="`timeline-tab-${activeTab}-message-${index}`"
               :class="{
@@ -196,9 +196,9 @@
               <div v-if="includes(openMessages, message.transientId) && message.id !== editModeNoteId" class="text-center close-message">
                 <b-btn
                   :id="`timeline-tab-${activeTab}-close-message`"
-                  variant="link"
                   @keyup.enter.stop="close(message, true)"
-                  @click.stop="close(message, true)">
+                  @click.stop="close(message, true)"
+                  variant="link">
                   <div class="d-flex">
                     <div class="mr-1">
                       <font-awesome icon="times-circle" class="font-size-24" />
@@ -286,22 +286,22 @@
     <div v-if="!searchResults && !searchResultsLoading && (countPerActiveTab > defaultShowPerTab)" class="text-center">
       <b-btn
         :id="`timeline-tab-${activeTab}-previous-messages`"
-        class="no-wrap pr-2 pt-0"
-        variant="link"
         :aria-label="isShowingAll ? 'Hide previous messages' : 'Show previous messages'"
-        @click="isShowingAll = !isShowingAll">
+        @click="isShowingAll = !isShowingAll"
+        class="no-wrap pr-2 pt-0"
+        variant="link">
         <font-awesome :icon="isShowingAll ? 'caret-up' : 'caret-right'" />
         {{ isShowingAll ? 'Hide' : 'Show' }} Previous Messages
       </b-btn>
     </div>
     <AreYouSureModal
       v-if="showDeleteConfirmModal"
-      button-label-confirm="Delete"
       :function-cancel="cancelTheDelete"
       :function-confirm="deleteConfirmed"
-      modal-header="Delete note"
       :modal-body="deleteConfirmModalBody"
-      :show-modal="showDeleteConfirmModal" />
+      :show-modal="showDeleteConfirmModal"
+      button-label-confirm="Delete"
+      modal-header="Delete note" />
   </div>
 </template>
 

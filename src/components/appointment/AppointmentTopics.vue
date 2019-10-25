@@ -9,14 +9,14 @@
       <b-form-row class="pb-1">
         <b-col cols="9">
           <b-form-select
-            v-if="topicOptions.length"
             id="add-topic-select-list"
+            v-if="topicOptions.length"
             :key="topics.length"
             v-model="selected"
             :disabled="disabled"
+            @input="add"
             role="listbox"
-            aria-label="Use up and down arrows to review topics. Hit enter to select a topic."
-            @input="add">
+            aria-label="Use up and down arrows to review topics. Hit enter to select a topic.">
             <template v-slot:first>
               <option :value="null" disabled>Select...</option>
             </template>
@@ -48,14 +48,14 @@
                   <b-btn
                     :id="`remove-appointment-topic-${index}`"
                     :disabled="disabled"
+                    :aria-labelledby="`remove-appointment-topic-${index}-label`"
+                    @click.prevent="remove(addedTopic)"
                     variant="link"
                     class="m-0 p-0"
-                    :aria-labelledby="`remove-appointment-topic-${index}-label`"
-                    tabindex="0"
-                    @click.prevent="remove(addedTopic)">
+                    tabindex="0">
                     <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
                   </b-btn>
-                  <label :id="`remove-appointment-topic-${index}-label`" class="sr-only" :for="`remove-appointment-topic-${index}`">
+                  <label :id="`remove-appointment-topic-${index}-label`" :for="`remove-appointment-topic-${index}`" class="sr-only">
                     Remove topic "{{ topics[index] }}"
                   </label>
                 </div>

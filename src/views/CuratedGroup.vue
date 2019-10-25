@@ -23,8 +23,8 @@
                 :student="student"
                 :list-type="ownerId === user.id ? 'curatedGroupForOwner' : 'curatedGroup'"
                 :sorted-by="preferences.sortBy"
-                class="list-group-item student-list-item"
-                :class="{'list-group-item-info' : anchor === `#${student.uid}`}" />
+                :class="{'list-group-item-info' : anchor === `#${student.uid}`}"
+                class="list-group-item student-list-item" />
             </div>
             <div v-if="totalStudentCount > itemsPerPage" class="p-3">
               <Pagination
@@ -89,7 +89,7 @@ export default {
     this.setUserPreference({key: 'sortBy', value: 'last_name'});
     this.init(parseInt(this.id)).then(group => {
       if (group) {
-        this.loaded();
+        this.loaded(group.name);
         this.setPageTitle(this.curatedGroupName);
         this.putFocusNextTick('curated-group-name');
         if (this.pageNumber > 1) {
@@ -108,7 +108,7 @@ export default {
       if (!this.loading) {
         this.loadingStart();
         this.goToPage(1).then(() => {
-          this.loaded();
+          this.loaded(this.curatedGroupName);
           this.screenReaderAlert = `Students sorted by ${sortBy}`;
           this.gaCuratedEvent({
             id: this.curatedGroupId,
@@ -138,7 +138,7 @@ export default {
         this.setUserPreference({key: 'sortBy', value: 'last_name'});
         this.loadingStart();
         this.addStudents(sids).then(() => {
-          this.loaded();
+          this.loaded(this.name);
           this.putFocusNextTick('curated-group-name');
           this.alertScreenReader(`${sids.length} students added to group '${this.name}'`);
           this.gaCuratedEvent({
@@ -155,7 +155,7 @@ export default {
     onClickPagination(pageNumber) {
       this.loadingStart();
       this.goToPage(pageNumber).then(() => {
-        this.loaded();
+        this.loaded(this.name);
         this.screenReaderAlert = `Page ${pageNumber} of cohort ${this.curatedGroupName}`;
         this.gaCuratedEvent({
           id: this.curatedGroupId,

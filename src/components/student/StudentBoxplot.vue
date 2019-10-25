@@ -1,8 +1,8 @@
 <template>
   <highcharts
     :id="'student-chart-boxplot-container-' + numericId"
-    class="student-chart-container student-chart-boxplot-container"
     :options="boxplotOptions"
+    class="student-chart-container student-chart-boxplot-container"
     aria-hidden="true">
   </highcharts>
 </template>

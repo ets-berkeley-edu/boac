@@ -1,11 +1,15 @@
 <template>
-  <b-container id="app" class="h-100 p-0" fluid>
-    <StandardHeaderLayout />
+  <b-container class="h-100 p-0" fluid>
+    <StandardHeaderLayout role="banner" />
     <b-row class="row-content" no-gutters>
-      <b-col class="sidebar" sm="2">
+      <b-col class="sidebar" role="navigation" sm="2">
         <Sidebar />
       </b-col>
-      <b-col id="content" class="body-text h-100 pb-2" sm="10">
+      <b-col
+        id="content"
+        class="body-text h-100 pb-2"
+        role="main"
+        sm="10">
         <ServiceAnnouncement />
         <div>
           <span
@@ -21,7 +25,7 @@
     </b-row>
     <b-row class="row-footer" no-gutters>
       <b-col class="sidebar" sm="2"></b-col>
-      <b-col sm="10">
+      <b-col sm="10" role="contentinfo">
         <Footer v-if="!loading" class="mb-3 ml-3 mt-5" />
       </b-col>
     </b-row>

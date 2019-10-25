@@ -60,6 +60,7 @@
     "eslint-plugin-no-loops": "^0.3.0",
     "eslint-plugin-unicorn": "^10.0.0",
     "eslint-plugin-vue": "^5.2.3",
+    "eslint-plugin-vue-a11y": "0.0.31",
     "eslint-plugin-xss": "^0.1.9",
     "eslint-utils": "^1.4.2",
     "typescript": "^3.5.3",

@@ -1,20 +1,20 @@
 <template>
-  <div class="d-flex flex-wrap align-items-end pt-2 mb-1" :class="{'mt-2': undocked}">
+  <div :class="{'mt-2': undocked}" class="d-flex flex-wrap align-items-end pt-2 mb-1">
     <div class="flex-grow-1 new-note-header font-weight-bolder">
       <span v-if="mode === 'editTemplate'">Edit Template</span>
       <span v-if="mode !== 'editTemplate'">New Note</span>
     </div>
     <div v-if="undocked" class="mr-4">
       <b-dropdown
-        v-if="mode !== 'editTemplate'"
         id="my-templates-button"
+        v-if="mode !== 'editTemplate'"
         :disabled="isSaving"
         text="Templates"
         aria-label="Select a note template"
         variant="primary"
         class="mb-2 ml-0"
         right>
-        <b-dropdown-header v-if="!size(noteTemplates)" id="no-templates-header" class="templates-dropdown-header">
+        <b-dropdown-header id="no-templates-header" v-if="!size(noteTemplates)" class="templates-dropdown-header">
           <div class="font-weight-bolder">Templates</div>
           <div class="templates-dropdown-instructions">
             You have no saved templates.
@@ -26,18 +26,18 @@
           <div class="align-items-center d-flex font-weight-normal justify-content-between text-nowrap">
             <b-link
               :id="`load-note-template-${template.id}`"
-              class="pb-0 text-nowrap template-dropdown-title truncate-with-ellipsis"
               :title="template.title"
-              @click="loadTemplate(template)">
+              @click="loadTemplate(template)"
+              class="pb-0 text-nowrap template-dropdown-title truncate-with-ellipsis">
               {{ template.title }}
             </b-link>
             <div class="align-items-center d-flex ml-3">
               <div class="pl-2">
                 <b-btn
                   :id="`btn-rename-note-template-${template.id}`"
+                  @click="openRenameTemplateModal(template)"
                   variant="link"
-                  class="p-0"
-                  @click="openRenameTemplateModal(template)">
+                  class="p-0">
                   Rename<span class="sr-only"> template {{ template.title }}</span>
                 </b-btn>
               </div>
@@ -47,9 +47,9 @@
               <div>
                 <b-btn
                   :id="`btn-edit-note-template-${template.id}`"
+                  @click="editTemplate(template)"
                   variant="link"
-                  class="p-0"
-                  @click="editTemplate(template)">
+                  class="p-0">
                   Edit<span class="sr-only"> template {{ template.title }}</span>
                 </b-btn>
               </div>
@@ -59,9 +59,9 @@
               <div>
                 <b-btn
                   :id="`btn-delete-note-template-${template.id}`"
+                  @click="openDeleteTemplateModal(template)"
                   variant="link"
-                  class="p-0"
-                  @click="openDeleteTemplateModal(template)">
+                  class="p-0">
                   Delete<span class="sr-only"> template {{ template.title }}</span>
                 </b-btn>
               </div>
@@ -72,25 +72,23 @@
     </div>
     <div v-if="!undocked" class="d-flex">
       <div class="pr-0">
-        <label id="minimize-button-label" class="sr-only">Minimize the create note dialog box</label>
+        <label for="minimize-new-note-modal" class="sr-only">Minimize the create note dialog box</label>
         <b-btn
           id="minimize-new-note-modal"
+          @click.prevent="minimize()"
           variant="link"
-          aria-labelledby="minimize-button-label"
-          class="pr-2"
-          @click.prevent="minimize()">
+          class="pr-2">
           <span class="sr-only">Minimize</span>
           <font-awesome icon="window-minimize" class="minimize-icon text-dark" />
         </b-btn>
       </div>
       <div class="pr-2">
-        <label id="cancel-button-label" class="sr-only">Cancel the create-note form</label>
+        <label for="cancel-new-note-modal" class="sr-only">Cancel the create-note form</label>
         <b-btn
           id="cancel-new-note-modal"
+          @click.prevent="cancelPrimaryModal()"
           variant="link"
-          aria-labelledby="cancel-button-label"
-          class="pl-1 pb-1"
-          @click.prevent="cancelPrimaryModal()">
+          class="pl-1 pb-1">
           <span class="sr-only">Cancel</span>
           <font-awesome icon="times" class="fa-icon-size text-dark" />
         </b-btn>
@@ -105,12 +103,12 @@
       :toggle-show="toggleShowRenameTemplateModal" />
     <AreYouSureModal
       v-if="showDeleteTemplateModal"
-      button-label-confirm="Delete"
       :function-cancel="cancel"
       :function-confirm="deleteTemplateConfirmed"
       :modal-body="`Are you sure you want to delete the <b>'${get(targetTemplate, 'title')}'</b> template?`"
-      modal-header="Delete Template"
-      :show-modal="showDeleteTemplateModal" />
+      :show-modal="showDeleteTemplateModal"
+      button-label-confirm="Delete"
+      modal-header="Delete Template" />
   </div>
 </template>
 

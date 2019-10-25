@@ -3,8 +3,7 @@
     <div
       v-if="!isOpen"
       :id="`appointment-${appointment.id}-is-closed`"
-      :class="{'truncate-with-ellipsis': !isOpen}"
-      title="Advising appointment">
+      :class="{'truncate-with-ellipsis': !isOpen}">
       <span :id="`appointment-${appointment.id}-details-closed`">{{ appointment.details }}</span>
     </div>
     <div v-if="isOpen" :id="`appointment-${appointment.id}-is-open`">
@@ -15,11 +14,11 @@
         <div v-if="checkInAvailable">
           <b-dropdown
             :id="`appointment-${appointment.id}-check-in-dropdown`"
+            @click="checkIn(appointment.id)"
             class="bg-white mr-3"
             split
             text="Check In"
-            variant="outline-dark"
-            @click="checkIn(appointment.id)">
+            variant="outline-dark">
             <b-dropdown-item-button :id="`appointment-${appointment.id}-cancel`" @click="showCancelAppointmentModal = true">Cancel</b-dropdown-item-button>
           </b-dropdown>
           <AppointmentCancellationModal

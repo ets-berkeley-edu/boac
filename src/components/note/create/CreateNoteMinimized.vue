@@ -6,10 +6,10 @@
     <div class="pr-0">
       <b-btn
         id="maximize-new-note-modal"
+        @click.stop="maximize()"
         aria-label="Bring create-note form into view"
         variant="link"
-        class="pr-2"
-        @click.stop="maximize()">
+        class="pr-2">
         <span class="sr-only">Maximize</span>
         <font-awesome icon="window-maximize" class="fa-icon-size text-white" />
       </b-btn>
@@ -17,10 +17,10 @@
     <div class="pr-2 pt-1">
       <b-btn
         id="cancel-minimized-new-note"
+        @click.prevent="cancel()"
         aria-label="Cancel the create-note form"
         variant="link"
-        class="pl-1"
-        @click.prevent="cancel()">
+        class="pl-1">
         <span class="sr-only">Cancel</span>
         <font-awesome icon="times" class="fa-icon-size text-white" />
       </b-btn>

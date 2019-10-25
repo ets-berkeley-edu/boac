@@ -24,10 +24,10 @@
         <router-link
           :id="`link-to-student-${row.item.uid}`"
           :aria-label="`Go to profile page of ${row.item.name}`"
-          class="text-nowrap"
           :class="{'demo-mode-blur': user.inDemoMode}"
           :to="studentRoutePath(row.item.uid, user.inDemoMode)"
-          v-html="`${row.item.lastName}, ${row.item.firstName}`"></router-link>
+          v-html="`${row.item.lastName}, ${row.item.firstName}`"
+          class="text-nowrap"></router-link>
         <span
           v-if="row.item.academicCareerStatus === 'Inactive' || displayAsAscInactive(row.item) || displayAsCoeInactive(row.item)"
           class="inactive-info-icon sortable-students-icon"
@@ -49,7 +49,7 @@
         <span :class="{'demo-mode-blur': user.inDemoMode}">{{ row.item.sid }}</span>
       </template>
 
-      <template v-if="!options.compact" slot="majors[0]" slot-scope="row">
+      <template slot="majors[0]" v-if="!options.compact" slot-scope="row">
         <span class="sr-only">Major</span>
         <div v-if="!row.item.majors || row.item.majors.length === 0">--<span class="sr-only">No data</span></div>
         <div
@@ -59,24 +59,24 @@
         </div>
       </template>
 
-      <template v-if="!options.compact" slot="expectedGraduationTerm.id" slot-scope="row">
+      <template slot="expectedGraduationTerm.id" v-if="!options.compact" slot-scope="row">
         <span class="sr-only">Expected graduation term</span>
         <div v-if="!row.item.expectedGraduationTerm">--<span class="sr-only">No data</span></div>
         <span class="text-nowrap">{{ abbreviateTermName(row.item.expectedGraduationTerm && row.item.expectedGraduationTerm.name) }}</span>
       </template>
 
-      <template v-if="!options.compact" slot="term.enrolledUnits" slot-scope="row">
+      <template slot="term.enrolledUnits" v-if="!options.compact" slot-scope="row">
         <span class="sr-only">Term units</span>
         <div>{{ get(row.item.term, 'enrolledUnits', 0) }}</div>
       </template>
 
-      <template v-if="!options.compact" slot="cumulativeUnits" slot-scope="row">
+      <template slot="cumulativeUnits" v-if="!options.compact" slot-scope="row">
         <span class="sr-only">Units completed</span>
         <div v-if="!row.item.cumulativeUnits">--<span class="sr-only">No data</span></div>
         <div v-if="row.item.cumulativeUnits">{{ row.item.cumulativeUnits | numFormat('0.00') }}</div>
       </template>
 
-      <template v-if="!options.compact" slot="cumulativeGPA" slot-scope="row">
+      <template slot="cumulativeGPA" v-if="!options.compact" slot-scope="row">
         <span class="sr-only">GPA</span>
         <div v-if="isNil(row.item.cumulativeGPA)">--<span class="sr-only">No data</span></div>
         <div v-if="!isNil(row.item.cumulativeGPA)">{{ row.item.cumulativeGPA | round(3) }}</div>
@@ -87,15 +87,15 @@
         <div class="float-right mr-2">
           <div
             v-if="!row.item.alertCount"
-            class="bg-white border pl-3 pr-3 rounded-pill text-muted"
             :aria-label="`No alerts for ${row.item.name}`"
+            class="bg-white border pl-3 pr-3 rounded-pill text-muted"
             tabindex="0">
             0
           </div>
           <div
             v-if="row.item.alertCount"
-            class="bg-white border border-warning font-weight-bolder pill-alerts-per-student pl-3 pr-3 rounded-pill"
             :aria-label="`${row.item.alertCount} alerts for ${row.item.name}`"
+            class="bg-white border border-warning font-weight-bolder pill-alerts-per-student pl-3 pr-3 rounded-pill"
             tabindex="0">
             {{ row.item.alertCount }}
           </div>

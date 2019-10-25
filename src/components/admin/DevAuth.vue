@@ -6,7 +6,6 @@
           id="dev-auth-uid"
           v-model="uid"
           class="splash-form-input"
-          autofocus
           placeholder="UID"
           type="text"
           aria-required="true"
@@ -17,12 +16,12 @@
         <input
           id="dev-auth-password"
           v-model="password"
+          :aria-invalid="!!password"
           class="splash-form-input"
           placeholder="Password"
           type="password"
           aria-required="true"
           aria-label="Password"
-          :aria-invalid="!!password"
           autocomplete="off"
           size="8">
       </div>
@@ -53,6 +52,9 @@ export default {
     uid: null,
     password: null
   }),
+  created() {
+    this.putFocusNextTick('dev-auth-uid');
+  },
   methods: {
     logInDevAuth() {
       let uid = this.trim(this.uid);
