@@ -7,17 +7,17 @@
     :tbody-tr-class="rowClass"
     stacked="md"
     thead-class="sortable-table-header border-bottom">
-    <template slot="curated" slot-scope="row">
+    <template v-slot:cell(curated)="row">
       <div>
         <CuratedStudentCheckbox :student="row.item" class="curated-checkbox" />
       </div>
     </template>
 
-    <template slot="avatar" slot-scope="row">
+    <template v-slot:cell(avatar)="row">
       <StudentAvatar :key="row.item.sid" :student="row.item" size="medium" />
     </template>
 
-    <template slot="profile" slot-scope="row">
+    <template v-slot:cell(profile)="row">
       <div>
         <router-link :id="`link-to-student-${row.item.uid}`" :to="studentRoutePath(row.item.uid, user.inDemoMode)">
           <h3
@@ -78,7 +78,7 @@
       </div>
     </template>
 
-    <template slot="courseSites" slot-scope="row">
+    <template v-slot:cell(courseSites)="row">
       <div class="course-sites flex-col font-size-14 pl-2">
         <div
           v-for="canvasSite in row.item.enrollment.canvasSites"
@@ -91,7 +91,7 @@
       </div>
     </template>
 
-    <template slot="assignmentsSubmitted" slot-scope="row">
+    <template v-slot:cell(assignmentsSubmitted)="row">
       <div v-if="row.item.enrollment.canvasSites.length" class="flex-col">
         <div
           v-for="canvasSite in row.item.enrollment.canvasSites"
@@ -128,7 +128,7 @@
         v-if="!row.item.enrollment.canvasSites.length"><span class="sr-only">No data</span>&mdash;</span>
     </template>
 
-    <template slot="assignmentGrades" slot-scope="row">
+    <template v-slot:cell(assignmentGrades)="row">
       <div class="flex-col">
         <div
           v-for="canvasSite in row.item.enrollment.canvasSites"
@@ -165,7 +165,7 @@
       </div>
     </template>
 
-    <template slot="bCourses" slot-scope="row">
+    <template v-slot:cell(bCourses)="row">
       <div class="flex-col font-size-14">
         <div
           v-for="canvasSite in row.item.enrollment.canvasSites"
@@ -180,13 +180,13 @@
       </div>
     </template>
 
-    <template slot="midtermGrade" slot-scope="row">
+    <template v-slot:cell(midtermGrade)="row">
       <span v-if="row.item.enrollment.midtermGrade" v-accessible-grade="row.item.enrollment.midtermGrade" class="font-weight-bold font-size-14"></span>
       <font-awesome v-if="isAlertGrade(row.item.enrollment.midtermGrade)" icon="exclamation-triangle" class="boac-exclamation" />
       <span v-if="!row.item.enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
     </template>
 
-    <template slot="finalGrade" slot-scope="row">
+    <template v-slot:cell(finalGrade)="row">
       <span v-if="row.item.enrollment.grade" v-accessible-grade="row.item.enrollment.grade" class="font-weight-bold font-size-14"></span>
       <font-awesome v-if="isAlertGrade(row.item.enrollment.grade)" icon="exclamation-triangle" class="boac-exclamation" />
       <span v-if="!row.item.enrollment.grade" class="cohort-grading-basis">

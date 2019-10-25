@@ -25,6 +25,7 @@
             id="rename-template-error"
             v-if="error"
             aria-live="polite"
+            role="alert"
             class="has-error">
             {{ error }}
           </div>

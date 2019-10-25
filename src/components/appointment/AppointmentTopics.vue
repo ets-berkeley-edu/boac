@@ -131,14 +131,14 @@ export default {
         this.setDisabled(topic, true);
         this.functionAdd(topic);
         this.putFocusNextTick(this.focusAfterTopicAdd);
-        this.alertScreenReader(`Topic ${topic} added.`);
+        this.alertScreenReader(`"${topic}" added.`);
       }
     },
     remove(topic) {
       this.setDisabled(topic, false);
       this.functionRemove(topic);
       this.putFocusNextTick('add-topic-select-list');
-      this.alertScreenReader(`Topic ${topic} removed.`);
+      this.alertScreenReader(`"${topic}" removed.`);
     },
     setDisabled(topic, disable) {
       const option = this.find(this.topicOptions, ['value', topic]);

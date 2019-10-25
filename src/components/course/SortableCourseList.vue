@@ -20,7 +20,7 @@
       </div>
     </div>
     <table v-if="totalCourseCount" class="table-full-width">
-      <tr role="row">
+      <tr>
         <th>
           <button
             id="column-sort-button-section"

@@ -13,7 +13,6 @@
       v-if="isModifyingFilter && !isExistingFilter"
       :id="filterRowPrimaryDropdownId(filterRowIndex)"
       class="filter-row-column-01 mt-1 pr-2">
-      <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
       <b-dropdown
         id="new-filter-button"
         toggle-class="dd-override"
@@ -53,7 +52,7 @@
               }"
               class="font-size-16">{{ subCategory.label.primary }}</span>
           </b-dropdown-item>
-          <hr v-if="mIndex !== (menu.length - 1)" role="separator" class="dropdown-divider">
+          <hr v-if="mIndex !== (menu.length - 1)" class="dropdown-divider">
         </div>
       </b-dropdown>
     </div>
@@ -102,7 +101,7 @@
                 }"
                 class="font-size-16">{{ option.name }}</span>
             </b-dropdown-item>
-            <hr v-if="option.value === 'divider'" role="separator" class="dropdown-divider">
+            <hr v-if="option.value === 'divider'" class="dropdown-divider">
           </div>
         </b-dropdown>
       </div>
@@ -220,12 +219,13 @@
 
 <script>
 import CohortEditSession from '@/mixins/CohortEditSession';
+import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'FilterRow',
-  mixins: [CohortEditSession, UserMetadata, Util],
+  mixins: [CohortEditSession, Context, UserMetadata, Util],
   props: {
     index: Number
   },
@@ -240,7 +240,6 @@ export default {
       min: undefined,
       max: undefined
     },
-    screenReaderAlert: undefined,
     showAdd: false,
     showRow: true,
     valueOriginal: undefined
@@ -343,14 +342,14 @@ export default {
     onClickAddButton() {
       switch (this.get(this.filter, 'type.ux')) {
         case 'dropdown':
-          this.screenReaderAlert = `Added ${this.filter.label.primary} filter with value ${this.getDropdownSelectedLabel()}`;
+          this.alertScreenReader(`Added ${this.filter.label.primary} filter with value ${this.getDropdownSelectedLabel()}`);
           break;
         case 'boolean':
-          this.screenReaderAlert = `Added ${this.filter.label.primary}`;
+          this.alertScreenReader(`Added ${this.filter.label.primary}`);
           this.filter.value = true;
           break;
         case 'range':
-          this.screenReaderAlert = `Added ${this.filter.label.primary} filter, ${this.range.min} to ${this.range.max}`;
+          this.alertScreenReader(`Added ${this.filter.label.primary} filter, ${this.range.min} to ${this.range.max}`);
           this.filter.value = {
             min: this.filter.validation === 'gpa' ? this.formatGPA(this.range.min) : this.range.min.toUpperCase(),
             max: this.filter.validation === 'gpa' ? this.formatGPA(this.range.max) : this.range.max.toUpperCase()
@@ -368,7 +367,7 @@ export default {
       });
     },
     onClickCancelEdit() {
-      this.screenReaderAlert = 'Canceled';
+      this.alertScreenReader('Canceled');
       this.isModifyingFilter = false;
       this.setEditMode(null);
       this.putFocusNewFilterDropdown();
@@ -385,7 +384,7 @@ export default {
       this.isModifyingFilter = true;
       this.setEditMode(`edit-${this.index}`);
       this.putFocusSecondaryDropdown();
-      this.screenReaderAlert = `Begin edit of ${this.filter.label.primary} filter`;
+      this.alertScreenReader(`Begin edit of ${this.filter.label.primary} filter`);
     },
     onClickUpdateButton() {
       if (this.isUX('range')) {
@@ -398,7 +397,7 @@ export default {
       this.updateExistingFilter({index: this.index, updatedFilter: this.filter}).then(() => {
         this.isModifyingFilter = false;
         this.setEditMode(null);
-        this.screenReaderAlert = `${this.filter.label.primary} filter updated`;
+        this.alertScreenReader(`${this.filter.label.primary} filter updated`);
         this.gaCohortEvent({
           id: this.cohortId,
           name: this.cohortName,
@@ -409,6 +408,7 @@ export default {
     onSelectFilter(filter) {
       this.filter = this.cloneDeep(filter);
       this.showAdd = filter.type.ux === 'boolean';
+      this.alertScreenReader(`${filter.label.primary} selected`);
       switch (filter.type.ux) {
         case 'dropdown':
           this.putFocusSecondaryDropdown();
@@ -466,7 +466,7 @@ export default {
       return snippet;
     },
     remove() {
-      this.screenReaderAlert = `${this.filter.label.primary} filter removed`;
+      this.alertScreenReader(`${this.filter.label.primary} filter removed`);
       this.removeFilter(this.index);
       this.setEditMode(null);
       this.putFocusNewFilterDropdown();
@@ -496,6 +496,7 @@ export default {
         this.filter.value = option.value;
         this.showAdd = true;
         this.putFocusNextTick('unsaved-filter-add');
+        this.alertScreenReader(`${option.name} selected`);
       }
     }
   }

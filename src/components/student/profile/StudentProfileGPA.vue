@@ -1,6 +1,5 @@
 <template>
   <div class="pt-2 pb-1">
-    <div id="screen-reader-alert" class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
     <div class="d-flex flex-wrap">
       <div class="gpa text-center">
         <div id="cumulative-gpa" class="data-number">
@@ -101,7 +100,6 @@ export default {
   },
   data: () => ({
     cumulativeGPA: undefined,
-    screenReaderAlert: undefined,
     showTermGpa: false
   }),
   created() {
@@ -110,9 +108,7 @@ export default {
   methods: {
     showHideTermGpa() {
       this.showTermGpa = !this.showTermGpa;
-      this.screenReaderAlert = `The table with GPA per term is now ${
-        this.showTermGpa ? 'visible' : 'hidden'
-      }.`;
+      this.alertScreenReader(`The table with GPA per term is now ${this.showTermGpa ? 'visible' : 'hidden'}.`);
     }
   }
 };

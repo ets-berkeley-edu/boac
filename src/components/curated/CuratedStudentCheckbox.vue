@@ -9,8 +9,11 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context';
+
 export default {
   name: 'CuratedStudentCheckbox',
+  mixins: [Context],
   props: {
     student: Object
   },
@@ -40,6 +43,7 @@ export default {
           : 'curated-group-checkbox-unchecked',
         this.student.sid
       );
+      this.alertScreenReader(`${this.student.name} ${checked ? 'selected' : 'deselected'}`);
     }
   }
 };

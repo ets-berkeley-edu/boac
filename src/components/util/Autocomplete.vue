@@ -23,9 +23,10 @@
         @keyup.down="onArrowDown"
         @keyup.up="onArrowUp"
         @keyup.esc="onEsc"
+        aria-expanded="true"
         class="dropdown-menu"
         role="menu"
-        aria-expanded="true">
+        tabIndex="0">
         <li
           v-if="isLoading"
           class="dropdown-item">

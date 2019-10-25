@@ -131,6 +131,7 @@ export function $_cohortEditSession_applyFilters({ commit, state }, orderBy: str
     if (!_.get(state.filters, 'length')) {
       return resolve();
     }
+    store.commit('context/setScreenReaderAlert', 'Getting the students');
     commit('setEditMode', 'apply');
     let offset =
       (state.pagination.currentPage - 1) * state.pagination.itemsPerPage;
@@ -144,6 +145,7 @@ export function $_cohortEditSession_applyFilters({ commit, state }, orderBy: str
         students: data.students,
         totalStudentCount: data.totalStudentCount
       });
+      store.commit('context/setScreenReaderAlert', 'Students are ready');
       commit('stashOriginalFilters');
       commit('setEditMode', null);
       resolve();

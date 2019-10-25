@@ -303,18 +303,14 @@ export default {
       }
     },
     searchInputRequired() {
-      if (this.includeNotes && (
+      return !(this.includeNotes && (
         this.noteFilters.author ||
         this.noteFilters.dateFrom ||
         this.noteFilters.dateTo ||
         this.noteFilters.postedBy !== 'anyone' ||
         this.noteFilters.student ||
         this.noteFilters.topic
-      )) {
-        return false;
-      } else {
-        return true;
-      }
+      ));
     },
     validDateRange() {
       if (!this.noteFilters.dateFrom || !this.noteFilters.dateTo) {
@@ -327,10 +323,22 @@ export default {
     }
   },
   watch: {
-    includeNotes: function(val) {
-      if (!val) {
+    includeCourses(value) {
+      this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include courses.`);
+    },
+    includeNotes(value) {
+      if (value) {
+        this.alertScreenReader('Search will include notes.');
+      } else {
         this.showNoteFilters = false;
+        this.alertScreenReader('Search will not include notes.');
       }
+    },
+    includeStudents(value) {
+      this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include students.`);
+    },
+    showNoteFilters(value) {
+      this.alertScreenReader(`Note and appointment filters ${value ? 'opened' : 'closed'}.`);
     }
   },
   created() {
@@ -437,9 +445,11 @@ export default {
     toggleSearchOptions() {
       this.showSearchOptions = !this.showSearchOptions;
       if (this.showSearchOptions) {
+        this.alertScreenReader('Search options opened');
         this.putFocusNextTick('search-include-students-checkbox');
       } else {
         this.resetNoteFilters();
+        this.alertScreenReader('Search options closed');
         this.putFocusNextTick('search-students-input');
       }
     }

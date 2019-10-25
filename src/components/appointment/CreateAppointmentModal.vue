@@ -36,7 +36,7 @@
               <div class="mb-1 mr-2">
                 <b-btn
                   id="appointment-student-remove"
-                  @click.prevent="student = undefined"
+                  @click.prevent="removeStudent"
                   variant="link"
                   class="p-0">
                   <font-awesome icon="times-circle" class="font-size-24 faint-text pl-2" />
@@ -159,7 +159,6 @@ export default {
     },
     addTopic(topic) {
       this.topics.push(topic);
-      this.alertScreenReader(`Topic ${topic} added`);
     },
     cancelModal() {
       this.cancel();
@@ -171,6 +170,10 @@ export default {
       this.showCreateAppointmentModal = false;
       this.saving = false;
       this.reset();
+    },
+    removeStudent() {
+      this.alertScreenReader(`${this.student.label} removed`);
+      this.student = undefined;
     },
     removeTopic(topic) {
       const index = this.indexOf(this.topics, topic);

@@ -206,7 +206,7 @@ export default {
           const indexOf = this.waitlist.findIndex(a => a.id === canceled.id);
           this.waitlist.splice(indexOf, 1);
         }
-        this.alertScreenReader(`Canceled appointment with ${canceled.student.name}`);
+        this.alertScreenReader(`${canceled.student.name} appointment canceled`);
         this.selectedAppointment = undefined;
       });
     },
@@ -216,7 +216,7 @@ export default {
     },
     cancelCreateAppointment() {
       this.showCreateAppointmentModal = false;
-      this.alertScreenReader('Closed the appointment-create dialog');
+      this.alertScreenReader('Dialog closed');
       this.selectedAppointment = undefined;
     },
     checkInAppointment(advisor, deptCodes) {
@@ -239,20 +239,20 @@ export default {
           const indexOf = this.waitlist.findIndex(a => a.id === checkedIn.id);
           this.waitlist.splice(indexOf, 1);
         }
-        this.alertScreenReader(`Checked in student ${checkedIn.student.name}`);
+        this.alertScreenReader(`${checkedIn.student.name} checked in`);
         this.closeCheckInModal();
       });
     },
     closeAppointmentCancellationModal() {
       this.showCancelAppointmentModal = false;
       this.putFocusNextTick(`waitlist-student-${this.selectedAppointment.student.sid}`);
-      this.alertScreenReader('Closed the cancel-appointment dialog');
+      this.alertScreenReader('Dialog closed');
       this.selectedAppointment = undefined;
     },
     closeAppointmentDetailsModal() {
       this.showAppointmentDetailsModal = false;
       this.putFocusNextTick(`waitlist-student-${this.selectedAppointment.student.sid}`);
-      this.alertScreenReader(`Closed appointment details of student ${this.selectedAppointment.student.name}`);
+      this.alertScreenReader(`Dialog closed`);
       this.selectedAppointment = undefined;
     },
     closeCheckInModal() {
@@ -262,7 +262,7 @@ export default {
     },
     createAppointment(details, student, topics) {
       apiCreate(this.deptCode, details, student.sid, 'Drop-in', topics).then(appointment => {
-        this.alertScreenReader(`Created appointment for student ${student.label}`);
+        this.alertScreenReader(`${student.label} appointment created`);
         this.showCreateAppointmentModal = false;
         this.waitlist.unshift(appointment);
         this.putFocusNextTick(`waitlist-student-${student.sid}`)
@@ -281,7 +281,7 @@ export default {
     },
     openCreateAppointmentModal() {
       this.showCreateAppointmentModal = true;
-      this.alertScreenReader('Opened dialog to create appointment');
+      this.alertScreenReader('Create appointment form is open');
     },
     showAppointmentDetails(appointment) {
       this.selectedAppointment = appointment;

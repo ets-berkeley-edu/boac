@@ -82,7 +82,6 @@
       :filter-function="applyFilter"
       :items="items"
       :no-sort-reset="true"
-      :small="true"
       :sort-by.sync="sortBy"
       :sort-compare="sortCompare"
       :sort-desc.sync="sortDesc"
@@ -90,13 +89,15 @@
       :current-page="currentPage"
       @filtered="onFilter"
       fixed
+      head-variant="light"
+      hover
       primary-key="uid"
       responsive
       sort-icon-left
-      stacked="lg"
-      tbody-tr-class="font-size-14"
+      stacked="md"
+      striped
       thead-class="sortable-table-header text-nowrap">
-      <template slot="toggleDetails" slot-scope="row">
+      <template v-slot:cell(toggleDetails)="row">
         <b-btn
           :id="`user-${row.item.uid}-details-toggle`"
           @click="row.toggleDetails"
@@ -108,11 +109,11 @@
           <span v-if="row.detailsShowing" class="sr-only">Hide user details</span>
         </b-btn>
       </template>
-      <template slot="uid" slot-scope="row">
+      <template v-slot:cell(uid)="row">
         <span class="sr-only">U I D</span>
         <div :id="`uid-${row.item.uid}`">{{ row.item.uid }}</div>
       </template>
-      <template slot="name" slot-scope="row">
+      <template v-slot:cell(name)="row">
         <span class="sr-only">User name</span>
         <a
           :id="`directory-link-${row.item.uid}`"
@@ -123,20 +124,20 @@
           {{ row.item.name }}
         </a>
       </template>
-      <template slot="title" slot-scope="row">
+      <template v-slot:cell(title)="row">
         <div :id="`title-${row.item.uid}`">{{ row.item.title }}</div>
       </template>
-      <template slot="depts" slot-scope="row">
+      <template v-slot:cell(depts)="row">
         <div
           v-for="(deptCode, index) in keys(row.item.departments)"
           :key="index">
           <span :id="`dept-${index}-${row.item.uid}`">{{ row.item.departments[deptCode]['deptName'] }}</span>
         </div>
       </template>
-      <template slot="campusEmail" slot-scope="row">
+      <template v-slot:cell(campusEmail)="row">
         <div :id="`email-${row.item.uid}`">{{ row.item.campusEmail }}</div>
       </template>
-      <template slot="row-details" slot-scope="row">
+      <template v-slot:row-details="row">
         <b-card>
           <b-container>
             <b-row>
@@ -172,7 +173,7 @@
           </b-container>
         </b-card>
       </template>
-      <template slot="actions" slot-scope="row">
+      <template v-slot:cell(actions)="row">
         <div class="flex-row">
           <b-btn
             :id="`user-${row.item.uid}-edit`"
@@ -227,7 +228,7 @@ export default {
       {key: 'name', sortable: true},
       {key: 'title', sortable: true},
       {key: 'depts', label: 'Department(s)'},
-      {key: 'campusEmail'},
+      {key: 'campusEmail', class: "text-break"},
       {key: 'actions', label: '', class: 'user-actions'}
     ],
     filter: undefined,
@@ -243,7 +244,7 @@ export default {
     isResetDisabled: true,
     items: [],
     filterNameUid: undefined,
-    perPage: 10,
+    perPage: 50,
     rowCount: 0,
     sortBy: 'lastName',
     sortDesc: false,
@@ -336,10 +337,10 @@ export default {
       this.isResetDisabled = true;
     },
     sortCompare(a, b, sortBy) {
-      const key = sortBy === 'name' ? 'lastName' : sortBy
+      const key = sortBy === 'name' ? 'lastName' : sortBy;
       let aValue = this.get(a, key);
       let bValue = this.get(b, key);
-      return this.sortComparator(aValue, bValue);
+      return this.sortComparator(aValue, bValue, false);
     }
   }
 }
@@ -380,6 +381,6 @@ export default {
   margin: 0;
 }
 .user-uid {
-  width: 75px;
+  width: 90px;
 }
 </style>

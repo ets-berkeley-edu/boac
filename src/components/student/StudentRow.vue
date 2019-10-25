@@ -194,7 +194,6 @@
           <td v-if="user.canAccessCanvasData" class="cohort-course-activity-data">
             <div
               v-for="(canvasSite, cIndex) in enrollment.canvasSites"
-              :id="`row-${rowIndex}-student-canvas-site-${cIndex}`"
               :key="cIndex"
               class="cohort-boxplot-container">
               <span
@@ -204,10 +203,8 @@
               </span>
               <span>{{ lastActivityDays(canvasSite.analytics) }}</span>
             </div>
-            <div
-              v-if="!get(enrollment, 'canvasSites').length"
-              :id="`row-${rowIndex}-student-canvas-sites-no-data`">
-              <span class="sr-only">No data</span>&mdash;
+            <div v-if="!get(enrollment, 'canvasSites').length">
+              <span class="sr-only">No data </span>&mdash;
             </div>
           </td>
           <td class="cohort-course-activity-data">

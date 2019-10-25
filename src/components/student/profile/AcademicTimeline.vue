@@ -511,7 +511,7 @@ export default {
         this.allExpanded = false;
       }
       if (screenreaderAlert) {
-        this.alertScreenReader('Message closed');
+        this.alertScreenReader(`${this.capitalize(message.type)} closed`);
       }
     },
     deleteNote(message) {
@@ -603,7 +603,7 @@ export default {
         this.allExpanded = true;
       }
       if (screenreaderAlert) {
-        this.alertScreenReader(`${message.type} opened`);
+        this.alertScreenReader(`${this.capitalize(message.type)} opened`);
       }
     },
     refreshTimelineAppointment(appointmentId, appointment) {
