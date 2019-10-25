@@ -83,7 +83,6 @@
           class="mt-2">
           <span class="pill pill-attachment text-nowrap">
             <a
-              v-if="!isPreCsNote"
               :id="`note-${note.id}-attachment-${index}`"
               :href="downloadUrl(attachment)">
               <font-awesome icon="paperclip" />
@@ -98,11 +97,6 @@
               <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
               <span class="sr-only">Delete attachment '{{ attachment.displayName }}'</span>
             </b-btn>
-            <span
-              v-if="isPreCsNote"
-              :id="`note-${note.id}-attachment-${index}`">
-              <font-awesome icon="paperclip" /> {{ attachment.displayName }}
-            </span>
           </span>
         </li>
       </ul>
@@ -178,9 +172,6 @@ export default {
   computed: {
     isEditable() {
       return !this.note.isLegacy;
-    },
-    isPreCsNote() {
-      return this.get(this.note, 'createdBy') === 'UCBCONVERSION';
     }
   },
   watch: {
