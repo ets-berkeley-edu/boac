@@ -8,11 +8,11 @@
     <b-modal
       id="modal"
       v-model="showCreateModal"
+      @shown="focusModalById('create-input')"
       body-class="pl-0 pr-0"
       hide-footer
       hide-header-close
-      title="Name Your Curated Group"
-      @shown="focusModalById('create-input')">
+      title="Name Your Curated Group">
       <CreateCuratedGroupModal
         :sids="sids"
         :create="create"

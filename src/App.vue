@@ -1,7 +1,7 @@
 <template>
   <div id="app" class="fill-viewport">
     <router-view></router-view>
-    <div v-if="fixedWarningOnAllPages && !hasUserDismissedFooterAlert" id="fixed_bottom">
+    <div id="fixed_bottom" v-if="fixedWarningOnAllPages && !hasUserDismissedFooterAlert">
       <div
         id="fixed-warning-on-all-pages"
         class="d-flex fixed-bottom fixed-warning"

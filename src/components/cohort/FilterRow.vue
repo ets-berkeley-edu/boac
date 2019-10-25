@@ -1,8 +1,8 @@
 <template>
   <div
     v-if="showRow"
-    class="d-flex flex-wrap"
-    :class="{'pt-2': !isExistingFilter}">
+    :class="{'pt-2': !isExistingFilter}"
+    class="d-flex flex-wrap">
     <div
       v-if="isExistingFilter"
       :id="`existing-name-${index}`"
@@ -31,8 +31,8 @@
         <div
           v-for="(category, mIndex) in menu"
           :key="mIndex"
-          role="group"
-          :aria-labelledby="'filter-option-group-header-' + mIndex">
+          :aria-labelledby="'filter-option-group-header-' + mIndex"
+          role="group">
           <b-dropdown-header :id="'filter-option-group-header-' + mIndex" class="sr-only">
             Filter option group {{ mIndex + 1 }} of {{ menu.length }}
           </b-dropdown-header>
@@ -40,17 +40,18 @@
             v-for="subCategory in category"
             :id="`dropdown-primary-menuitem-${subCategory.key}-${filterRowIndex}`"
             :key="subCategory.key"
-            class="dropdown-item"
             :aria-disabled="subCategory.disabled"
             :disabled="subCategory.disabled"
             @click="onSelectFilter(subCategory)"
-            @mouseover.prevent.stop>
+            @focusin.prevent.stop
+            @mouseover.prevent.stop
+            class="dropdown-item">
             <span
-              class="font-size-16"
               :class="{
                 'font-weight-light pointer-default text-muted': subCategory.disabled,
                 'font-weight-normal text-dark': !subCategory.disabled
-              }">{{ subCategory.label.primary }}</span>
+              }"
+              class="font-size-16">{{ subCategory.label.primary }}</span>
           </b-dropdown-item>
           <hr v-if="mIndex !== (menu.length - 1)" role="separator" class="dropdown-divider">
         </div>
@@ -88,17 +89,18 @@
             <b-dropdown-item
               v-if="option.value !== 'divider'"
               :id="`${filter.label.primary}-${option.value}`"
-              class="dropdown-item"
               :aria-disabled="option.disabled"
               :disabled="option.disabled"
               @click="updateDropdownValue(option)"
-              @mouseover.prevent.stop>
+              @focusin.prevent.stop
+              @mouseover.prevent.stop
+              class="dropdown-item">
               <span
-                class="font-size-16"
                 :class="{
                   'font-weight-light pointer-default text-muted': option.disabled,
                   'font-weight-normal text-dark': !option.disabled
-                }">{{ option.name }}</span>
+                }"
+                class="font-size-16">{{ option.name }}</span>
             </b-dropdown-item>
             <hr v-if="option.value === 'divider'" role="separator" class="dropdown-divider">
           </div>
@@ -115,10 +117,10 @@
           <input
             :id="idRangeMin"
             v-model="range.min"
-            class="filter-range-input"
             :aria-labelledby="isExistingFilter ? `filter-range-min-${index}-label` : 'filter-range-min-label'"
             :maxlength="rangeInputSize()"
-            :size="rangeInputSize()" />
+            :size="rangeInputSize()"
+            class="filter-range-input" />
         </div>
         <div class="filter-range-label-max">
           {{ rangeMaxLabel() }}
@@ -130,10 +132,10 @@
           <input
             :id="idRangeMax"
             v-model="range.max"
-            class="filter-range-input"
             :aria-labelledby="isExistingFilter ? `filter-range-max-${index}-label` : 'filter-range-max-label'"
             :maxlength="rangeInputSize()"
-            :size="rangeInputSize()" />
+            :size="rangeInputSize()"
+            class="filter-range-input" />
         </div>
         <div class="sr-only" aria-live="polite">{{ errorPerRangeInput }}</div>
         <b-popover
@@ -147,12 +149,12 @@
     </div>
     <div v-if="!isExistingFilter" class="filter-row-column-03 mt-1 pl-0">
       <b-btn
-        v-if="showAdd"
         id="unsaved-filter-add"
+        v-if="showAdd"
+        @click="onClickAddButton()"
         class="btn-primary-color-override ml-2"
         variant="primary"
-        aria-label="Add this new filter to the search criteria"
-        @click="onClickAddButton()">
+        aria-label="Add this new filter to the search criteria">
         Add
       </b-btn>
     </div>
@@ -161,10 +163,10 @@
       class="filter-row-column-04">
       <b-btn
         id="unsaved-filter-reset"
+        @click="reset()"
         class="p-0"
         variant="link"
-        aria-label="Cancel this filter selection"
-        @click="reset()">
+        aria-label="Cancel this filter selection">
         Cancel
       </b-btn>
     </div>
@@ -173,42 +175,42 @@
         <span v-if="!isUX('boolean')">
           <b-btn
             :id="`edit-added-filter-${index}`"
+            :aria-label="`Edit ${filter.label.primary} filter (row ${index})`"
+            @click="onClickEditButton()"
             class="btn-cohort-added-filter pr-1"
             variant="link"
-            :aria-label="`Edit ${filter.label.primary} filter (row ${index})`"
-            size="sm"
-            @click="onClickEditButton()">
+            size="sm">
             Edit
           </b-btn> |
         </span>
         <b-btn
           :id="`remove-added-filter-${index}`"
+          :aria-label="`Remove this ${filter.label.primary} filter`"
+          @click="remove()"
           class="btn-cohort-added-filter pl-2 pr-0"
           variant="link"
-          :aria-label="`Remove this ${filter.label.primary} filter`"
-          size="sm"
-          @click="remove()">
+          size="sm">
           Remove
         </b-btn>
       </div>
       <div v-if="isModifyingFilter" class="d-flex flex-row">
         <b-btn
           :id="`update-added-filter-${index}`"
-          class="btn-primary-color-override"
-          variant="primary"
           :aria-label="`Update this ${filter.label.primary} filter`"
           :disabled="disableUpdateButton"
-          size="sm"
-          @click="onClickUpdateButton()">
+          @click="onClickUpdateButton()"
+          class="btn-primary-color-override"
+          variant="primary"
+          size="sm">
           Update
         </b-btn>
         <b-btn
           :id="`cancel-edit-added-filter-${index}`"
+          @click="onClickCancelEdit()"
           class="btn-cohort-added-filter"
           variant="link"
           aria-label="Cancel update"
-          size="sm"
-          @click="onClickCancelEdit()">
+          size="sm">
           Cancel
         </b-btn>
       </div>

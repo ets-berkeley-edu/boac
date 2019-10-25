@@ -2,57 +2,55 @@
   <div>
     <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
     <b-btn
-      v-if="showApplyButton"
       id="unsaved-filter-apply"
+      v-if="showApplyButton"
+      :disabled="!!editMode"
+      @click="apply()"
       class="btn-filter-draft btn-primary-color-override"
       variant="primary"
-      aria-label="Search for students"
-      :disabled="!!editMode"
-      @click="apply()">
+      aria-label="Search for students">
       Apply
     </b-btn>
     <b-btn
-      v-if="showApplyButton"
       id="unsaved-filter-reset"
-      class="btn-filter-draft"
-      aria-label="Reset filters"
+      v-if="showApplyButton"
       :disabled="!!editMode"
-      @click="resetToLastApply()">
+      @click="resetToLastApply()"
+      class="btn-filter-draft"
+      aria-label="Reset filters">
       Reset
     </b-btn>
     <div v-if="showSaveButton && isPerforming !== 'search'">
       <b-btn
         id="save-button"
-        class="btn-filter-draft save-button-width mt-3"
         :class="{
           'btn-primary-color-override': isPerforming !== 'acknowledgeSave'
         }"
         :variant="saveButtonVariant"
         :aria-label="cohortId ? 'Save cohort' : 'Create cohort'"
         :disabled="!!editMode || showCreateModal || !!isPerforming"
-        @click="save()">
+        @click="save()"
+        class="btn-filter-draft save-button-width mt-3">
         <span v-if="isPerforming === 'acknowledgeSave'">Saved</span>
         <span v-if="isPerforming === 'save'"><font-awesome icon="spinner" spin /> Saving</span>
         <span v-if="!isPerforming && cohortId">Save Cohort</span>
         <span v-if="!isPerforming && !cohortId">Save</span>
       </b-btn>
       <b-btn
-        v-if="!isPerforming && cohortId"
         id="unsaved-filter-reset"
-        class="btn-filter-draft"
-        aria-label="Reset filters"
+        v-if="!isPerforming && cohortId"
         :disabled="!!editMode"
-        @click="resetToSaved()">
+        @click="resetToSaved()"
+        class="btn-filter-draft"
+        aria-label="Reset filters">
         Reset
       </b-btn>
       <b-modal
-        id="create-cohort"
         v-model="showCreateModal"
+        @shown="focusModalById('create-input')"
         body-class="pl-0 pr-0"
         hide-footer
-        hide-header-close
-        title="Name Your Saved Cohort"
-        @shown="focusModalById('create-input')">
+        hide-header-close>
         <CreateCohortModal
           :cancel="cancelCreateModal"
           :create="create" />

@@ -2,52 +2,52 @@
   <div class="d-flex flex-wrap-reverse mt-1 mr-3 mb-0 ml-3">
     <div>
       <b-btn
-        v-if="undocked && mode !== 'editTemplate'"
         id="btn-save-as-template"
-        variant="link"
+        v-if="undocked && mode !== 'editTemplate'"
         :disabled="isSaving || !trim(model.subject)"
-        @click="saveAsTemplate()">
+        @click="saveAsTemplate()"
+        variant="link">
         Save as template
       </b-btn>
     </div>
     <div class="flex-grow-1">
       <b-btn
-        v-if="!undocked"
         id="btn-to-advanced-note-options"
-        variant="link"
-        @click.prevent="enterAdvancedMode()">
+        v-if="!undocked"
+        @click.prevent="enterAdvancedMode()"
+        variant="link">
         Advanced note options
       </b-btn>
     </div>
     <div v-if="mode === 'editTemplate'">
       <b-btn
         id="btn-update-template"
-        class="btn-primary-color-override"
         :disabled="isSaving || !model.subject"
+        @click.prevent="updateTemplate()"
+        class="btn-primary-color-override"
         aria-label="Update note template"
-        variant="primary"
-        @click.prevent="updateTemplate()">
+        variant="primary">
         Update Template
       </b-btn>
     </div>
     <div v-if="mode !== 'editTemplate'">
       <b-btn
         id="create-note-button"
-        class="btn-primary-color-override"
         :disabled="isSaving || !targetStudentCount || !trim(model.subject)"
+        @click.prevent="createNote()"
+        class="btn-primary-color-override"
         aria-label="Create note"
-        variant="primary"
-        @click.prevent="createNote()">
+        variant="primary">
         Save
       </b-btn>
     </div>
     <div>
       <b-btn
         id="create-note-cancel"
-        variant="link"
         :disabled="isSaving"
         :class="{'sr-only': !undocked}"
-        @click.prevent="cancel()">
+        @click.prevent="cancel()"
+        variant="link">
         Cancel
       </b-btn>
     </div>

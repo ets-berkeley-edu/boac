@@ -1,23 +1,23 @@
 <template>
   <div
     :id="`advising-note-search-result-${note.id}`"
-    class="advising-note-search-result"
-    :class="{'demo-mode-blur': user.inDemoMode}">
+    :class="{'demo-mode-blur': user.inDemoMode}"
+    class="advising-note-search-result">
     <h3 class="advising-note-search-result-header">
       <router-link
         :id="`link-to-student-${note.studentUid}`"
-        class="advising-note-search-result-header-link"
         :class="{'demo-mode-blur': user.inDemoMode}"
         :to="`${studentRoutePath(note.studentUid, user.inDemoMode)}#note-${note.id}`"
-        v-html="note.studentName"></router-link>
+        v-html="note.studentName"
+        class="advising-note-search-result-header-link"></router-link>
       ({{ note.studentSid }})
     </h3>
     <div
       :id="`advising-note-search-result-snippet-${note.id}`"
-      class="advising-note-search-result-snippet"
-      v-html="note.noteSnippet">
+      v-html="note.noteSnippet"
+      class="advising-note-search-result-snippet">
     </div>
-    <div class="advising-note-search-result-footer" :class="{'demo-mode-blur': user.inDemoMode}">
+    <div :class="{'demo-mode-blur': user.inDemoMode}" class="advising-note-search-result-footer">
       <span v-if="note.advisorName" :id="`advising-note-search-result-advisor-${note.id}`">
         {{ note.advisorName }} -
       </span>

@@ -11,13 +11,11 @@ export default {
   beforeCreate: () => store.dispatch('context/loadingStart'),
   methods: {
     ...mapActions('context', ['loadingStart']),
-    loaded() {
+    loaded(pageTitle) {
+      if (!!pageTitle && store.getters['context/loading']) {
+        store.commit('context/setScreenReaderAlert', `${pageTitle} page is ready`)
+      }
       store.dispatch('context/loadingComplete');
-      this.$nextTick(() => {
-        if (this.$refs.pageHeader) {
-          this.$refs.pageHeader.focus();
-        }
-      });
     }
   }
 };

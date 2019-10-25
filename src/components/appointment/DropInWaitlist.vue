@@ -26,18 +26,16 @@
       :create-appointment="createAppointment"
       :show-modal="showCreateAppointmentModal" />
     <div v-if="isHomepage" class="align-items-center d-flex homepage-header-border justify-content-between mb-2">
-      <div>
-        <h2 class="page-section-header">
-          <span aria-live="polite" role="alert">Drop-in Waitlist - {{ $moment() | moment('MMM D') }}</span>
-        </h2>
+      <div aria-live="polite" role="alert">
+        <h2 class="page-section-header">Drop-in Waitlist - {{ $moment() | moment('MMM D') }}</h2>
       </div>
       <div>
         <b-btn
           id="btn-homepage-create-appointment"
+          @click="showCreateAppointmentModal = true"
           variant="link"
           class="mb-1"
-          aria-label="Create appointment. Modal window will open."
-          @click="showCreateAppointmentModal = true">
+          aria-label="Create appointment. Modal window will open.">
           <font-awesome icon="plus" />
         </b-btn>
       </div>
@@ -46,10 +44,10 @@
       <div class="mb-4 pb-3 pt-3 text-center">
         <b-btn
           id="btn-create-appointment"
+          @click="openCreateAppointmentModal()"
           variant="primary"
           class="btn-primary-color-override pl-3 pr-3"
-          aria-label="Create appointment. Modal window will open."
-          @click="openCreateAppointmentModal()">
+          aria-label="Create appointment. Modal window will open.">
           New Drop-in Appointment
         </b-btn>
       </div>
@@ -86,7 +84,7 @@
           <b-col cols="7">
             <div class="d-flex">
               <div v-if="isHomepage" class="mr-2">
-                <StudentAvatar size="small" :student="appointment.student" />
+                <StudentAvatar :student="appointment.student" size="small" />
               </div>
               <div>
                 <div class="font-size-16">
@@ -116,13 +114,13 @@
             <b-dropdown
               v-if="isNil(appointment.checkedInAt) && isNil(appointment.canceledAt)"
               :id="`appointment-${appointment.id}-dropdown`"
+              :disabled="!!appointment.checkedInBy || !!appointment.canceledAt"
+              @click="launchCheckInForAppointment(appointment)"
               class="bg-white float-right text-nowrap"
               right
               split
-              :disabled="!!appointment.checkedInBy || !!appointment.canceledAt"
               text="Check In"
-              variant="outline-dark"
-              @click="launchCheckInForAppointment(appointment)">
+              variant="outline-dark">
               <b-dropdown-item-button :id="`btn-appointment-${appointment.id}-details`" @click="showAppointmentDetails(appointment)">Details</b-dropdown-item-button>
               <b-dropdown-item-button
                 :id="`btn-appointment-${appointment.id}-cancel`"
@@ -208,7 +206,7 @@ export default {
           const indexOf = this.waitlist.findIndex(a => a.id === canceled.id);
           this.waitlist.splice(indexOf, 1);
         }
-        this.alertScreenReader(`Appointment with ${canceled.student.name} canceled`);
+        this.alertScreenReader(`Canceled appointment with ${canceled.student.name}`);
         this.selectedAppointment = undefined;
       });
     },
@@ -218,7 +216,7 @@ export default {
     },
     cancelCreateAppointment() {
       this.showCreateAppointmentModal = false;
-      this.alertScreenReader('Create appointment modal closed');
+      this.alertScreenReader('Closed the appointment-create dialog');
       this.selectedAppointment = undefined;
     },
     checkInAppointment(advisor, deptCodes) {
@@ -241,20 +239,20 @@ export default {
           const indexOf = this.waitlist.findIndex(a => a.id === checkedIn.id);
           this.waitlist.splice(indexOf, 1);
         }
-        this.alertScreenReader(`Student ${checkedIn.student.name} checked in`);
+        this.alertScreenReader(`Checked in student ${checkedIn.student.name}`);
         this.closeCheckInModal();
       });
     },
     closeAppointmentCancellationModal() {
       this.showCancelAppointmentModal = false;
       this.putFocusNextTick(`waitlist-student-${this.selectedAppointment.student.sid}`);
-      this.alertScreenReader('Cancel appointment modal closed');
+      this.alertScreenReader('Closed the cancel-appointment dialog');
       this.selectedAppointment = undefined;
     },
     closeAppointmentDetailsModal() {
       this.showAppointmentDetailsModal = false;
       this.putFocusNextTick(`waitlist-student-${this.selectedAppointment.student.sid}`);
-      this.alertScreenReader('Appointment details modal closed');
+      this.alertScreenReader(`Closed appointment details of student ${this.selectedAppointment.student.name}`);
       this.selectedAppointment = undefined;
     },
     closeCheckInModal() {
@@ -264,7 +262,7 @@ export default {
     },
     createAppointment(details, student, topics) {
       apiCreate(this.deptCode, details, student.sid, 'Drop-in', topics).then(appointment => {
-        this.alertScreenReader(`Appointment created for ${student.label}`);
+        this.alertScreenReader(`Created appointment for student ${student.label}`);
         this.showCreateAppointmentModal = false;
         this.waitlist.unshift(appointment);
         this.putFocusNextTick(`waitlist-student-${student.sid}`)
@@ -283,7 +281,7 @@ export default {
     },
     openCreateAppointmentModal() {
       this.showCreateAppointmentModal = true;
-      this.alertScreenReader('The form to create an appointment is open.');
+      this.alertScreenReader('Opened dialog to create appointment');
     },
     showAppointmentDetails(appointment) {
       this.selectedAppointment = appointment;

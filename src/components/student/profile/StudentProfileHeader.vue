@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex p-3">
     <div class="text-center mb-2 mr-4">
-      <StudentAvatar class="mb-2" :student="student" size="large" />
+      <StudentAvatar :student="student" class="mb-2" size="large" />
       <StudentGroupSelector :sid="student.sid" />
     </div>
     <div class="w-100">
@@ -11,10 +11,10 @@
             <h1
               id="student-name-header"
               ref="pageHeader"
-              class="student-section-header"
-              tabindex="0"
               :class="{'demo-mode-blur': user.inDemoMode}"
-              v-html="student.name"></h1>
+              v-html="student.name"
+              class="student-section-header"
+              tabindex="0"></h1>
             <h2 class="sr-only">Profile</h2>
             <div
               v-if="student.sisProfile.preferredName !== student.name"
@@ -22,16 +22,16 @@
               Preferred name
             </div>
             <div
-              v-if="student.sisProfile.preferredName !== student.name"
               id="student-preferred-name"
-              class="font-size-20"
+              v-if="student.sisProfile.preferredName !== student.name"
               :class="{'demo-mode-blur': user.inDemoMode}"
-              v-html="student.sisProfile.preferredName"></div>
+              v-html="student.sisProfile.preferredName"
+              class="font-size-20"></div>
             <div id="student-bio-sid" class="font-size-14 font-weight-bold mt-1 mb-1">
               SID <span :class="{'demo-mode-blur': user.inDemoMode}">{{ student.sid }}</span>
               <span
-                v-if="academicCareerStatus === 'Inactive'"
                 id="student-bio-inactive"
+                v-if="academicCareerStatus === 'Inactive'"
                 class="red-flag-status ml-1">
                 INACTIVE
               </span>
@@ -57,13 +57,13 @@
                 {{ student.sisProfile.phoneNumber }}</a>
             </div>
           </div>
-          <div v-if="isAscInactive" id="student-bio-inactive-asc" class="font-weight-bolder has-error">
+          <div id="student-bio-inactive-asc" v-if="isAscInactive" class="font-weight-bolder has-error">
             ASC INACTIVE
           </div>
-          <div v-if="isCoeInactive" id="student-bio-inactive-coe" class="font-weight-bolder has-error">
+          <div id="student-bio-inactive-coe" v-if="isCoeInactive" class="font-weight-bolder has-error">
             CoE INACTIVE
           </div>
-          <div v-if="student.athleticsProfile" id="student-bio-athletics">
+          <div id="student-bio-athletics" v-if="student.athleticsProfile">
             <div v-for="membership in student.athleticsProfile.athletics" :key="membership.groupName">
               {{ membership.groupName }}
             </div>
@@ -79,8 +79,8 @@
                   <a
                     v-if="plan.degreeProgramUrl"
                     :href="plan.degreeProgramUrl"
-                    target="_blank"
-                    :aria-label="`Open ${plan.description} program page in new window`">
+                    :aria-label="`Open ${plan.description} program page in new window`"
+                    target="_blank">
                     {{ plan.description }}</a>
                 </div>
                 <div v-if="plan.program" class="text-muted">
@@ -99,17 +99,17 @@
               <div v-if="student.sisProfile.transfer">
                 Transfer
               </div>
-              <div v-if="student.sisProfile.termsInAttendance" id="student-bio-terms-in-attendance">
+              <div id="student-bio-terms-in-attendance" v-if="student.sisProfile.termsInAttendance">
                 {{ 'Term' | pluralize(student.sisProfile.termsInAttendance) }} in Attendance
               </div>
               <div
-                v-if="student.sisProfile.matriculation"
-                id="student-bio-matriculation">
+                id="student-bio-matriculation"
+                v-if="student.sisProfile.matriculation">
                 Entered {{ student.sisProfile.matriculation }}
               </div>
               <div
-                v-if="student.sisProfile.expectedGraduationTerm && get(student.sisProfile, 'level.code') !== 'GR'"
-                id="student-bio-expected-graduation">
+                id="student-bio-expected-graduation"
+                v-if="student.sisProfile.expectedGraduationTerm && get(student.sisProfile, 'level.code') !== 'GR'">
                 Expected graduation {{ student.sisProfile.expectedGraduationTerm.name }}
               </div>
             </div>

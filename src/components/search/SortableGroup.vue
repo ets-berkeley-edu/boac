@@ -1,22 +1,23 @@
 <template>
   <div
     :id="`sortable-${keyword}-${group.id}`"
-    class="accordion panel"
-    :class="{'panel-open pb-3': openAndLoaded}">
+    :class="{'panel-open pb-3': openAndLoaded}"
+    class="accordion panel">
     <div
-      class="panel-heading mr-3"
-      :class="{'background-when-open': isOpen, 'bg-white': compact && !isOpen, 'p-0': compact}">
+      :class="{'background-when-open': isOpen, 'bg-white': compact && !isOpen, 'p-0': compact}"
+      class="panel-heading mr-3">
       <a
         :id="`sortable-${keyword}-${group.id}-toggle`"
         v-b-toggle="`sortable-${keyword}-${group.id}`"
+        @click.prevent="fetchStudents()"
+        @keyup.enter.prevent="fetchStudents()"
         class="accordion-heading-link"
         tabindex="0"
         role="button"
-        href="#"
-        @click.prevent="fetchStudents()">
+        href="#">
         <div
-          class="accordion-heading d-flex justify-content-between"
-          :class="{'compact-header compact-border-bottom': compact && openAndLoaded, 'bg-white': isFetching || !isOpen}">
+          :class="{'compact-header compact-border-bottom': compact && openAndLoaded, 'bg-white': isFetching || !isOpen}"
+          class="accordion-heading d-flex justify-content-between">
           <div class="accordion-heading-name align-items-start d-flex">
             <div class="accordion-heading-caret">
               <font-awesome v-if="isFetching" icon="spinner" spin />
@@ -48,8 +49,8 @@
     <b-collapse
       :id="`sortable-${keyword}-${group.id}`"
       :aria-expanded="openAndLoaded"
-      class="panel-body mr-3"
-      :class="{'panel-open': openAndLoaded, 'background-when-open': !isFetching, 'compact-border-bottom': openAndLoaded}">
+      :class="{'panel-open': openAndLoaded, 'background-when-open': !isFetching, 'compact-border-bottom': openAndLoaded}"
+      class="panel-body mr-3">
       <div v-if="studentsWithAlerts && size(studentsWithAlerts)">
         <div v-if="!compact && size(studentsWithAlerts) === 50" :id="`sortable-${keyword}-${group.id}-alert-limited`" class="p-3">
           Showing 50 students with a high number of alerts.

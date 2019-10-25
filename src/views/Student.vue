@@ -22,8 +22,8 @@
           v-if="showAreYouSureModal"
           :function-cancel="cancelTheCancel"
           :function-confirm="cancelConfirmed"
-          modal-header="Discard unsaved note?"
-          :show-modal="showAreYouSureModal" />
+          :show-modal="showAreYouSureModal"
+          modal-header="Discard unsaved note?" />
       </div>
       <div>
         <StudentClasses :student="student" />
@@ -86,7 +86,7 @@ export default {
         this.setPageTitle(this.user.inDemoMode ? 'Student' : student.name);
         this.assign(this.student, student);
         this.each(this.student.enrollmentTerms, this.parseEnrollmentTerm);
-        this.loaded();
+        this.loaded(this.student);
       } else {
         this.$router.push({ path: '/404' });
       }

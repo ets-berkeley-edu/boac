@@ -12,8 +12,8 @@
 
     <div v-if="!loading && !error" class="course-container-inner">
       <a
-        v-if="section.totalStudentCount > pagination.itemsPerPage"
         id="skip-to-pagination-widget"
+        v-if="section.totalStudentCount > pagination.itemsPerPage"
         href="#pagination-widget"
         class="sr-only">Skip to pagination widget</a>
       <div>
@@ -71,34 +71,37 @@
           <div>
             <CuratedGroupSelector
               v-if="!isEmpty(section.students) && (tab === 'list')"
-              class="mr-2"
               :context-description="`Course ${section.displayName}`"
               :ga-event-tracker="gaCourseEvent"
-              :students="section.students" />
+              :students="section.students"
+              class="mr-2" />
           </div>
           <div class="course-tabs-container">
             <div class="btn-group tab-btn-group pb-0" role="group" aria-label="Select results view">
               <button
+                id="btn-tab-list"
+                :class="{'tab-button-selected': tab === 'list'}"
+                @click="toggleView('list')"
+                @keyup.enter="toggleView('list')"
                 type="button"
                 class="btn btn-secondary tab-button"
-                aria-label="Switch to list view"
-                :class="{'tab-button-selected': tab === 'list'}"
-                @click="toggleView('list')">
+                aria-label="Switch to list view">
                 <font-awesome icon="list" /> List
               </button>
               <button
-                type="button"
-                class="btn btn-secondary tab-button"
-                aria-label="Switch to matrix view"
+                id="btn-tab-matrix"
                 :title="matrixDisabledMessage"
                 :class="{'tab-button-selected': tab === 'matrix'}"
                 :disabled="matrixDisabledMessage"
-                @click="toggleView('matrix')">
+                @click="toggleView('matrix')"
+                @keyup.enter="toggleView('matrix')"
+                type="button"
+                class="btn btn-secondary tab-button"
+                aria-label="Switch to matrix view">
                 <font-awesome icon="table" /> Matrix
               </button>
             </div>
           </div>
-
           <div
             v-if="tab === 'list' && (section.totalStudentCount > pagination.defaultItemsPerPage)"
             class="flex-container course-page-size">
@@ -106,10 +109,11 @@
             <ul class="flex-container">
               <li v-for="(option, optionIndex) in pagination.options" :key="optionIndex">
                 <a
-                  href="#"
                   :class="{'selected': option === pagination.itemsPerPage}"
                   :title="`Show ${option} results per page`"
-                  @click="resizePage(option)">
+                  @click="resizePage(option)"
+                  @keyup.enter="resizePage(option)"
+                  href="#">
                   {{ option }}</a><span v-if="optionIndex + 1 < pagination.options.length">&nbsp;|&nbsp;</span>
               </li>
             </ul>
@@ -128,7 +132,7 @@
             </div>
           </div>
         </div>
-        <div v-if="tab === 'matrix' && !loading && !error" id="matrix-outer" class="matrix-outer">
+        <div id="matrix-outer" v-if="tab === 'matrix' && !loading && !error" class="matrix-outer">
           <Matrix :featured="featured" :section="section" />
         </div>
       </div>

@@ -6,8 +6,9 @@
       <button
         v-if="listType === 'curatedGroupForOwner'"
         :id="`row-${rowIndex}-remove-student-from-curated-group`"
-        class="btn btn-link"
-        @click="removeStudent(student.sid)">
+        @click="removeStudent(student.sid)"
+        @keyup.enter="removeStudent(student.sid)"
+        class="btn btn-link">
         <font-awesome icon="times-circle" class="font-size-24" />
       </button>
       <div v-if="listType === 'cohort'">
@@ -16,9 +17,9 @@
     </div>
     <div class="cohort-list-view-column-01">
       <StudentAvatar
-        size="medium"
         :student="student"
-        :alert-count="student.alertCount" />
+        :alert-count="student.alertCount"
+        size="medium" />
     </div>
     <div class="cohort-student-bio-container mb-1">
       <div class="cohort-student-name-container">
@@ -27,20 +28,20 @@
             <h3
               v-if="sortedBy !== 'first_name'"
               :id="`row-${rowIndex}-student-name`"
-              class="student-name"
               :class="{'demo-mode-blur' : user.inDemoMode}"
-              v-html="`${student.lastName}, ${student.firstName}`"></h3>
+              v-html="`${student.lastName}, ${student.firstName}`"
+              class="student-name"></h3>
             <h3
               v-if="sortedBy === 'first_name'"
               :id="`row-${rowIndex}-student-name`"
-              class="student-name"
-              :class="{'demo-mode-blur' : user.inDemoMode}">
+              :class="{'demo-mode-blur' : user.inDemoMode}"
+              class="student-name">
               {{ student.firstName }} {{ student.lastName }}
             </h3>
           </router-link>
         </div>
       </div>
-      <div class="d-flex student-sid" :class="{'demo-mode-blur' : user.inDemoMode}">
+      <div :class="{'demo-mode-blur' : user.inDemoMode}" class="d-flex student-sid">
         <div :id="`row-${rowIndex}-student-sid`">{{ student.sid }}</div>
         <div
           v-if="student.academicCareerStatus === 'Inactive'"

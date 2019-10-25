@@ -21,7 +21,7 @@ export default {
   mixins: [ Loading ],
   created() {
     // All top-level view components must identify themselves as "loaded".
-    this.loaded();
+    this.loaded('404');
   }
 };
 </script>

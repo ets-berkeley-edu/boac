@@ -38,7 +38,7 @@ export default {
           }
           this.waitlist = waitlist;
         }
-        this.loaded();
+        this.loaded('Appointment waitlist');
         if (announceUpdate) {
           this.alertScreenReader("The drop-in waitlist has been updated");
         }

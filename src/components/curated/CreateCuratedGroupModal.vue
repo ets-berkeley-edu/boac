@@ -2,8 +2,8 @@
   <div>
     <form @submit.prevent="createCuratedGroup()" @keydown.esc="cancelModal">
       <div class="text-left ml-3 mr-3">
-        <div class="pb-2">Name:</div>
         <div>
+          <label class="pb-2" for="create-input">Name:</label>
           <input
             id="create-input"
             v-model="name"
@@ -13,7 +13,7 @@
             required>
         </div>
         <div class="faint-text mb-3">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
-        <div v-if="error" id="create-error" class="has-error">{{ error }}</div>
+        <div id="create-error" v-if="error" class="has-error">{{ error }}</div>
         <div class="sr-only" aria-live="polite">{{ error }}</div>
         <div
           v-if="name.length === 255"
@@ -25,16 +25,16 @@
       <div class="modal-footer pl-0 mr-2">
         <b-btn
           id="create-confirm"
-          class="btn-primary-color-override"
-          variant="primary"
           :disabled="!name.length"
-          @click.prevent="createCuratedGroup()">
+          @click.prevent="createCuratedGroup()"
+          class="btn-primary-color-override"
+          variant="primary">
           Save
         </b-btn>
         <b-btn
           id="create-cancel"
-          variant="link"
-          @click="cancelModal()">
+          @click="cancelModal()"
+          variant="link">
           Cancel
         </b-btn>
       </div>

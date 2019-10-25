@@ -91,7 +91,7 @@ export default {
     this.deptCode = this.get(this.$route, 'params.deptCode');
     getDropInAppointmentWaitlist(this.deptCode, true).then(waitlist => {
       this.waitlist = waitlist;
-      this.loaded();
+      this.loaded('Drop-in Waitlist');
     });
   }
 }

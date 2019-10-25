@@ -13,9 +13,9 @@
         <div>
           <StudentUnitsChart
             v-if="cumulativeUnits || currentEnrolledUnits"
-            class="student-units-chart"
             :current-enrolled-units="currentEnrolledUnits"
-            :cumulative-units="cumulativeUnits" />
+            :cumulative-units="cumulativeUnits"
+            class="student-units-chart" />
           <div
             v-if="!cumulativeUnits && !currentEnrolledUnits"
             class="section-label">
@@ -23,8 +23,8 @@
           </div>
         </div>
         <div
-          v-if="cumulativeUnits || currentEnrolledUnits"
           id="currently-enrolled-units"
+          v-if="cumulativeUnits || currentEnrolledUnits"
           class="sr-only">
           Currently enrolled units: {{ currentEnrolledUnits || '0' }}
         </div>

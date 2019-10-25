@@ -1,13 +1,13 @@
 <template>
   <div class="position-relative">
     <img
-      class="avatar"
       :class="avatarStyle"
       :aria-label="`Photo of ${student.firstName} ${student.lastName}`"
       :alt="`Photo of ${student.firstName} ${student.lastName}`"
-      tabindex="0"
       :src="avatarUrl"
-      @error="avatarError" />
+      @error="avatarError"
+      class="avatar"
+      tabindex="0" />
     <div
       v-if="alertCount"
       class="inactive-info-icon student-avatar-alert-count">

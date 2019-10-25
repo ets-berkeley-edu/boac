@@ -2,7 +2,7 @@
   <div class="list-group">
     <div class="align-items-center d-flex pb-3">
       <div class="pr-2">
-        <font-awesome icon="clipboard-check" size="2x" :style="{ color: '#3b7ea5' }" />
+        <font-awesome :style="{ color: '#3b7ea5' }" icon="clipboard-check" size="2x" />
       </div>
       <div class="pt-3">
         <h1 id="dept-users-section" class="page-section-header">
@@ -23,15 +23,15 @@
               placeholder="Name or UID">
             </b-form-input>
             <b-form-select
-              v-if="departments.length"
               id="department-select-list"
+              v-if="departments.length"
               v-model="filterDept"
               :options="departments"
+              @change="isResetDisabled=false"
               value-field="code"
               text-field="name"
               role="listbox"
-              aria-label="Use up and down arrows to review departments. Hit enter to select a department."
-              @change="isResetDisabled=false">
+              aria-label="Use up and down arrows to review departments. Hit enter to select a department.">
               <template v-slot:first>
                 <option :value="null" disabled>-- Select a department --</option>
                 <option :value="'ALL'">All Departments</option>
@@ -45,9 +45,9 @@
               id="user-permission-options"
               v-model="filterPermissions"
               :options="userPermissionOptions"
+              @change="isResetDisabled=false"
               name="user-permission-options"
-              stacked
-              @change="isResetDisabled=false">
+              stacked>
             </b-form-checkbox-group>
           </b-form-group>
         </b-col>
@@ -57,9 +57,9 @@
               id="user-status-options"
               v-model="filterStatuses"
               :options="userStatusOptions"
+              @change="isResetDisabled=false"
               name="user-status-options"
-              stacked
-              @change="isResetDisabled=false">
+              stacked>
             </b-form-checkbox-group>
           </b-form-group>
         </b-col>
@@ -88,20 +88,20 @@
       :sort-desc.sync="sortDesc"
       :per-page="perPage"
       :current-page="currentPage"
+      @filtered="onFilter"
       fixed
       primary-key="uid"
       responsive
       sort-icon-left
       stacked="lg"
       tbody-tr-class="font-size-14"
-      thead-class="sortable-table-header text-nowrap"
-      @filtered="onFilter">
+      thead-class="sortable-table-header text-nowrap">
       <template slot="toggleDetails" slot-scope="row">
         <b-btn
           :id="`user-${row.item.uid}-details-toggle`"
+          @click="row.toggleDetails"
           class="user-details-toggle-button"
-          variant="link"
-          @click="row.toggleDetails">
+          variant="link">
           <font-awesome v-if="!row.detailsShowing" icon="caret-right" />
           <span v-if="!row.detailsShowing" class="sr-only">Show user details</span>
           <font-awesome v-if="row.detailsShowing" icon="caret-down" />
@@ -116,9 +116,9 @@
         <span class="sr-only">User name</span>
         <a
           :id="`directory-link-${row.item.uid}`"
-          class="user-name"
           :aria-label="`Go to UC Berkeley Directory page of ${row.item.name}`"
           :href="`https://www.berkeley.edu/directory/results?search-term=${row.item.name}`"
+          class="user-name"
           target="_blank">
           {{ row.item.name }}
         </a>
@@ -178,8 +178,8 @@
             :id="`user-${row.item.uid}-edit`"
             :disabled="true"
             :title="`Edit user ${row.item.name}`"
-            variant="link"
-            @click="openEdit">
+            @click="openEdit"
+            variant="link">
             <font-awesome icon="edit" />
             <span class="sr-only">Edit user</span>
           </b-btn>
@@ -187,16 +187,16 @@
             v-if="canBecome(row.item)"
             :id="'become-' + row.item.uid"
             :title="`Log in as ${row.item.name}`"
-            variant="link"
-            @click="become(row.item.uid)">
+            @click="become(row.item.uid)"
+            variant="link">
             <font-awesome icon="sign-in-alt" />
           </b-btn>
         </div>
       </template>
     </b-table>
     <b-pagination
-      v-if="items"
       id="users-paginator"
+      v-if="items"
       v-model="currentPage"
       :total-rows="rowCount"
       :per-page="perPage"

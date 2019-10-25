@@ -2,12 +2,12 @@
   <b-modal
     id="appointment-check-in"
     v-model="showDetailsModal"
-    body-class="pl-0 pr-0"
-    hide-footer
-    hide-header
     :no-close-on-backdrop="true"
     @cancel.prevent="close"
-    @hide.prevent="close">
+    @hide.prevent="close"
+    body-class="pl-0 pr-0"
+    hide-footer
+    hide-header>
     <div>
       <div class="ml-3 modal-header">
         <h3 id="appointment-check-in-student" :class="{'demo-mode-blur' : user.inDemoMode}">{{ student.name }}</h3>
@@ -49,16 +49,16 @@
       <div class="modal-footer">
         <b-btn
           id="btn-appointment-check-in"
+          @click.stop="checkIn"
           class="pl-2"
-          variant="primary"
-          @click.stop="checkIn">
+          variant="primary">
           Check In
         </b-btn>
         <b-btn
           id="btn-appointment-cancel"
+          @click.stop="close"
           class="pl-2"
-          variant="link"
-          @click.stop="close">
+          variant="link">
           Close
         </b-btn>
       </div>
@@ -106,7 +106,7 @@ export default {
   },
   created() {
     this.showDetailsModal = this.showModal;
-    this.alertScreenReader(`Appointment details modal is open`);
+    this.alertScreenReader(`Opened appointment details of student ${this.student.name}`);
     this.putFocusNextTick('appointment-check-in-student');
   }
 }

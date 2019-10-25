@@ -3,25 +3,25 @@
     <b-form-checkbox
       id="add-all-to-curated-group"
       v-model="isSelectAllChecked"
-      class="add-all-checkbox mr-1"
-      plain
       :disabled="isSaving"
       :indeterminate="indeterminate"
+      @change="toggle"
+      class="add-all-checkbox mr-1"
+      plain
       aria-describedby="checkbox-add-all-label"
-      aria-controls="curated-group-dropdown-select"
-      @change="toggle">
+      aria-controls="curated-group-dropdown-select">
       <span id="checkbox-add-all-label" class="sr-only">{{ 'Select all students to add to a curated group' }}</span>
     </b-form-checkbox>
     <div>
       <b-dropdown
-        v-if="showMenu"
         id="curated-group-dropdown-select"
-        class="curated-selector mr-2"
+        v-if="showMenu"
         :variant="dropdownVariant"
+        :disabled="disableSelector"
+        class="curated-selector mr-2"
         toggle-class="b-dd-override"
         size="sm"
-        no-caret
-        :disabled="disableSelector">
+        no-caret>
         <template slot="button-content">
           <span
             :id="isSaving ? 'add-to-curated-group-confirmation' : 'add-to-curated-group'"
@@ -46,9 +46,10 @@
           class="b-dd-item-override">
           <input
             :id="`curated-group-${group.id}-checkbox`"
-            type="checkbox"
             :aria-label="`Add students to curated group '${group.name}'`"
-            @click.prevent="curatedGroupCheckboxClick(group)" />
+            @click.prevent="curatedGroupCheckboxClick(group)"
+            @keyup.enter="curatedGroupCheckboxClick(group)"
+            type="checkbox" />
           <label
             :id="`curated-group-${group.id}-name`"
             :for="`curated-group-${group.id}-checkbox`"
@@ -67,13 +68,11 @@
         </b-dropdown-item>
       </b-dropdown>
       <b-modal
-        id="modal"
         v-model="showModal"
+        @shown="focusModalById('create-input')"
         body-class="pl-0 pr-0"
         hide-footer
-        hide-header-close
-        title="Name Your Curated Group"
-        @shown="focusModalById('create-input')">
+        hide-header-close>
         <CreateCuratedGroupModal
           :sids="sids"
           :create="modalCreateCuratedGroup"

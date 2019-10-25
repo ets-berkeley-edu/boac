@@ -2,8 +2,8 @@
   <highcharts
     id="student-chart-units-container"
     ref="studentUnitsChart"
-    class="student-chart-container student-chart-units-container"
     :options="unitsChartOptions"
+    class="student-chart-container student-chart-units-container"
     aria-hidden="true">
   </highcharts>
 </template>

@@ -11,19 +11,20 @@
         <FilterRow
           v-for="(filter, index) in filters"
           :key="filterRowUniqueKey(filter, index)"
-          class="filter-row"
-          :index="index" />
+          :index="index"
+          class="filter-row" />
         <FilterRow v-if="isOwnedByCurrentUser" />
         <ApplyAndSaveButtons v-if="isOwnedByCurrentUser" />
       </b-collapse>
-      <SectionSpinner name="Students" :loading="editMode === 'apply'" />
+      <SectionSpinner :loading="editMode === 'apply'" name="Students" />
       <div v-if="showStudentsSection" class="pt-2">
         <a
-          v-if="totalStudentCount > 50"
           id="skip-to-pagination-widget"
+          v-if="totalStudentCount > 50"
+          @click="screenReaderAlert = 'Go to another page of search results'"
+          @keyup.enter="screenReaderAlert = 'Go to another page of search results'"
           class="sr-only"
-          href="#pagination-widget"
-          @click="screenReaderAlert = 'Go to another page of search results'">Skip to bottom, other pages of search results</a>
+          href="#pagination-widget">Skip to bottom, other pages of search results</a>
         <div class="cohort-column-results">
           <hr class="filters-section-separator mr-2" />
           <div class="d-flex justify-content-between align-items-center p-2">
@@ -42,10 +43,10 @@
                   :key="student.sid"
                   :row-index="index"
                   :student="student"
-                  list-type="cohort"
                   :sorted-by="preferences.sortBy"
-                  class="list-group-item border-left-0 border-right-0"
-                  :class="{'list-group-item-info' : anchor === `#${student.uid}`}" />
+                  :class="{'list-group-item-info' : anchor === `#${student.uid}`}"
+                  list-type="cohort"
+                  class="list-group-item border-left-0 border-right-0" />
               </div>
             </div>
             <div v-if="totalStudentCount > pagination.itemsPerPage" class="p-3">
@@ -122,7 +123,7 @@ export default {
       this.showFilters = !this.isCompactView;
       this.pageNumber = this.pagination.currentPage;
       this.setPageTitle(this.cohortName);
-      this.loaded();
+      this.loaded(this.cohortName);
     } else {
       const id = this.toInt(this.get(this.$route, 'params.id'));
       this.init({
@@ -131,8 +132,9 @@ export default {
       }).then(() => {
         this.showFilters = !this.isCompactView;
         this.pageNumber = this.pagination.currentPage;
-        this.setPageTitle(this.cohortId ? this.cohortName : 'Create Cohort');
-        this.loaded();
+        const pageTitle = this.cohortId ? this.cohortName : 'Create Cohort';
+        this.setPageTitle(pageTitle);
+        this.loaded(pageTitle);
         this.putFocusNextTick(
           this.cohortId ? 'cohort-name' : 'create-cohort-h1'
         );

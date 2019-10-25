@@ -20,7 +20,7 @@
         <b-dropdown-item v-if="user.isAdmin" @click="goPassengerManifest">
           Passenger Manifest
         </b-dropdown-item>
-        <b-dropdown-item href="#" @click="logOut">Log Out</b-dropdown-item>
+        <b-dropdown-item @click="logOut" href="#">Log Out</b-dropdown-item>
         <b-dropdown-item :href="`mailto:${supportEmailAddress}`" target="_blank">Feedback/Help</b-dropdown-item>
       </b-dropdown>
     </div>
