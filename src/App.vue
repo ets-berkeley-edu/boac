@@ -12,15 +12,15 @@
           <b>BOA {{ getBoaEnvLabel() }} Environment</b>
         </div>
         <div>
-          {{ fixedWarningOnAllPages }}
+          {{ isVueAppDebugMode ? screenReaderAlert : fixedWarningOnAllPages }}
         </div>
         <div class="btn-wrapper ml-0 align-top">
           <b-btn
             id="speedbird"
+            @click="dismissTheWarning"
             class="btn-dismiss pl-2 pt-0 text-white"
             variant="link"
-            aria-label="Dismiss warning about BOA environment type"
-            @click="dismissTheWarning">
+            aria-label="Dismiss warning about BOA environment type">
             <font-awesome icon="plane-departure" />
           </b-btn>
         </div>

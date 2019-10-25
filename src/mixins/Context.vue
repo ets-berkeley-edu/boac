@@ -16,6 +16,7 @@ export default {
       'fixedWarningOnAllPages',
       'hasUserDismissedFooterAlert',
       'isDemoModeAvailable',
+      'isVueAppDebugMode',
       'maxAttachmentsPerNote',
       'pingFrequency',
       'announcement',
