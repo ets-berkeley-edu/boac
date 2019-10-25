@@ -33,7 +33,7 @@ const getters = {
   googleAnalyticsId: (state: any): string => _.get(state.config, 'googleAnalyticsId'),
   hasUserDismissedFooterAlert: (state: any): boolean => state.hasUserDismissedFooterAlert,
   isDemoModeAvailable: (state: any): string => _.get(state.config, 'isDemoModeAvailable'),
-  isVueAppDebugMode: (): any => process.env.VUE_APP_DEBUG,
+  isVueAppDebugMode: (): any => _.trim(process.env.VUE_APP_DEBUG).toLowerCase() === 'true',
   maxAttachmentsPerNote: (state: any): string => _.get(state.config, 'maxAttachmentsPerNote'),
   pingFrequency: (state: any): string => _.get(state.config, 'pingFrequency'),
   loading: (state: any): boolean => state.loading,
