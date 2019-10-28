@@ -54,7 +54,7 @@
             class="curated-checkbox-label pb-0 pt-0">{{ group.name }}</label>
         </b-dropdown-item>
       </div>
-      <hr role="separator" class="dropdown-divider">
+      <hr class="dropdown-divider">
       <b-dropdown-item>
         <b-btn
           id="create-curated-group"
@@ -75,7 +75,6 @@
       hide-header-close
       aria-label="Name Your Curated Group">
       <CreateCuratedGroupModal
-        :sids="[ sid ]"
         :create="modalCreateGroup"
         :cancel="modalCancel" />
     </b-modal>
@@ -102,8 +101,8 @@ export default {
   },
   mixins: [Context, Scrollable, UserMetadata, Util],
   props: {
-    sid: {
-      type: String,
+    student: {
+      type: Object,
       required: true
     }
   },
@@ -127,7 +126,7 @@ export default {
     }
   },
   created() {
-    getMyCuratedGroupIdsPerStudentId(this.sid).then(data => {
+    getMyCuratedGroupIdsPerStudentId(this.student.sid).then(data => {
       this.checkedGroups = data;
       this.groupsLoading = false;
     });
@@ -140,14 +139,14 @@ export default {
           this.checkedGroups = this.without(this.checkedGroups, group.id);
           this.isRemoving = false;
           this.putFocusNextTick('curated-group-dropdown', 'button');
-          this.alertScreenReader(`Removed student ${this.sid} from group ${group.name}`);
+          this.alertScreenReader(`${this.student.name} removed from "${group.name}"`);
           this.gaCuratedEvent({
             id: group.id,
             name: group.name,
-            action: `Student profile: Removed SID ${this.sid}`
+            action: `Student profile: Removed SID ${this.student.sid}`
           });
         };
-        removeFromCuratedGroup(group.id, this.sid).finally(() =>
+        removeFromCuratedGroup(group.id, this.student.sid).finally(() =>
           setTimeout(done, 2000)
         );
       } else {
@@ -156,26 +155,27 @@ export default {
           this.checkedGroups.push(group.id);
           this.isAdding = false;
           this.putFocusNextTick('curated-group-dropdown', 'button');
-          this.alertScreenReader(`Added student ${this.sid} to group ${group.name}`);
+          this.alertScreenReader(`${this.student.name} added to "${group.name}"`);
           this.gaCuratedEvent({
             id: group.id,
             name: group.name,
-            action: `Student profile: Added SID ${this.sid}`
+            action: `Student profile: Added SID ${this.student.sid}`
           });
         };
-        addStudents(group.id, [this.sid]).finally(() => setTimeout(done, 2000));
+        addStudents(group.id, [this.student.sid]).finally(() => setTimeout(done, 2000));
       }
     },
     modalCreateGroup(name) {
       this.isAdding = true;
       this.showModal = false;
-      createCuratedGroup(name, [this.sid])
+      createCuratedGroup(name, [this.student.sid])
         .then(group => {
           this.checkedGroups.push(group.id);
+          this.alertScreenReader(`${this.student.name} added to new curated group, "${name}".`)
           this.each(
             [
               'create',
-              `Student profile: Added SID ${this.sid}, after create group`
+              `Student profile: Added SID ${this.student.sid}, after create group`
             ],
             action => {
               this.gaCuratedEvent({

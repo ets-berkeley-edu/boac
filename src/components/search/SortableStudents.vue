@@ -11,15 +11,15 @@
       :sort-desc.sync="sortDescending"
       stacked="md"
       thead-class="sortable-table-header text-nowrap">
-      <template slot="curated" slot-scope="row">
+      <template v-slot:cell(curated)="row">
         <CuratedStudentCheckbox v-if="options.includeCuratedCheckbox" :student="row.item" />
       </template>
 
-      <template slot="avatar" slot-scope="row">
+      <template v-slot:cell(avatar)="row">
         <StudentAvatar :key="row.item.sid" :student="row.item" size="small" />
       </template>
 
-      <template slot="lastName" slot-scope="row">
+      <template v-slot:cell(lastName)="row">
         <span class="sr-only">Student name</span>
         <router-link
           :id="`link-to-student-${row.item.uid}`"
@@ -44,12 +44,12 @@
         </span>
       </template>
 
-      <template slot="sid" slot-scope="row">
+      <template v-slot:cell(sid)="row">
         <span class="sr-only">S I D</span>
         <span :class="{'demo-mode-blur': user.inDemoMode}">{{ row.item.sid }}</span>
       </template>
 
-      <template slot="majors[0]" v-if="!options.compact" slot-scope="row">
+      <template v-slot:cell(majors[0])="row" v-if="!options.compact">
         <span class="sr-only">Major</span>
         <div v-if="!row.item.majors || row.item.majors.length === 0">--<span class="sr-only">No data</span></div>
         <div
@@ -59,30 +59,30 @@
         </div>
       </template>
 
-      <template slot="expectedGraduationTerm.id" v-if="!options.compact" slot-scope="row">
+      <template v-slot:cell(expectedGraduationTerm.id)="row" v-if="!options.compact">
         <span class="sr-only">Expected graduation term</span>
         <div v-if="!row.item.expectedGraduationTerm">--<span class="sr-only">No data</span></div>
         <span class="text-nowrap">{{ abbreviateTermName(row.item.expectedGraduationTerm && row.item.expectedGraduationTerm.name) }}</span>
       </template>
 
-      <template slot="term.enrolledUnits" v-if="!options.compact" slot-scope="row">
+      <template v-slot:cell(term.enrolledUnits)="row" v-if="!options.compact">
         <span class="sr-only">Term units</span>
         <div>{{ get(row.item.term, 'enrolledUnits', 0) }}</div>
       </template>
 
-      <template slot="cumulativeUnits" v-if="!options.compact" slot-scope="row">
+      <template v-slot:cell(cumulativeUnits)="row" v-if="!options.compact">
         <span class="sr-only">Units completed</span>
         <div v-if="!row.item.cumulativeUnits">--<span class="sr-only">No data</span></div>
         <div v-if="row.item.cumulativeUnits">{{ row.item.cumulativeUnits | numFormat('0.00') }}</div>
       </template>
 
-      <template slot="cumulativeGPA" v-if="!options.compact" slot-scope="row">
+      <template v-slot:cell(cumulativeGPA)="row" v-if="!options.compact">
         <span class="sr-only">GPA</span>
         <div v-if="isNil(row.item.cumulativeGPA)">--<span class="sr-only">No data</span></div>
         <div v-if="!isNil(row.item.cumulativeGPA)">{{ row.item.cumulativeGPA | round(3) }}</div>
       </template>
 
-      <template slot="alertCount" slot-scope="row">
+      <template v-slot:cell(alertCount)="row">
         <span class="sr-only">Issue count</span>
         <div class="float-right mr-2">
           <div

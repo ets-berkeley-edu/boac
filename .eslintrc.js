@@ -8,7 +8,7 @@ module.exports = {
     '@vue/typescript',
     'plugin:vue/recommended',
     'eslint:recommended',
-    'plugin:vue-a11y/base'
+    'plugin:vue-a11y/recommended'
   ],
   plugins: [
     'vue',
@@ -27,7 +27,8 @@ module.exports = {
             'every': [ 'id' ]
         },
         'allowChildren': false
-    }],
+      }
+    ],
     'vue/eqeqeq': 2,
     'vue/html-closing-bracket-newline': 0,
     'vue/html-self-closing': 0,

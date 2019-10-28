@@ -2,7 +2,7 @@
   <div class="d-flex p-3">
     <div class="text-center mb-2 mr-4">
       <StudentAvatar :student="student" class="mb-2" size="large" />
-      <StudentGroupSelector :sid="student.sid" />
+      <StudentGroupSelector :student="student" />
     </div>
     <div class="w-100">
       <div class="d-flex flex-wrap">

@@ -82,9 +82,13 @@ export default {
     setPageTitle: phrase => (document.title = `${phrase ? decodeHtml(phrase) : 'UC Berkeley'} | BOA`),
     size: _.size,
     slice: _.slice,
-    sortComparator: (a, b) => {
+    sortComparator: (a, b, nullFirst=true) => {
       if (_.isNil(a) || _.isNil(b)) {
-        return _.isNil(a) ? (_.isNil(b) ? 0 : -1) : 1;
+        if (nullFirst) {
+          return _.isNil(a) ? (_.isNil(b) ? 0 : -1) : 1;
+        } else {
+          return _.isNil(b) ? (_.isNil(a) ? 0 : -1) : 1;
+        }
       } else if (_.isNumber(a) && _.isNumber(b)) {
         return a < b ? -1 : a > b ? 1 : 0
       } else {

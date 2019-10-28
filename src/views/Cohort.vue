@@ -1,8 +1,7 @@
 <template>
   <div class="ml-3 mt-3">
-    <Spinner alert-prefix="Cohort" />
+    <Spinner :alert-prefix="!cohortId && totalStudentCount === undefined ? 'Create cohort page' : cohortName" />
     <div v-if="!loading">
-      <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
       <CohortPageHeader />
       <b-collapse
         id="show-hide-filters"
@@ -21,8 +20,8 @@
         <a
           id="skip-to-pagination-widget"
           v-if="totalStudentCount > 50"
-          @click="screenReaderAlert = 'Go to another page of search results'"
-          @keyup.enter="screenReaderAlert = 'Go to another page of search results'"
+          @click="alertScreenReader('Go to another page of search results')"
+          @keyup.enter="alertScreenReader('Go to another page of search results')"
           class="sr-only"
           href="#pagination-widget">Skip to bottom, other pages of search results</a>
         <div class="cohort-column-results">
@@ -68,6 +67,7 @@
 import ApplyAndSaveButtons from '@/components/cohort/ApplyAndSaveButtons';
 import CohortEditSession from '@/mixins/CohortEditSession';
 import CohortPageHeader from '@/components/cohort/CohortPageHeader';
+import Context from '@/mixins/Context';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
 import FilterRow from '@/components/cohort/FilterRow';
 import Loading from '@/mixins/Loading';
@@ -95,6 +95,7 @@ export default {
   },
   mixins: [
     CohortEditSession,
+    Context,
     Loading,
     Scrollable,
     UserMetadata,
@@ -102,7 +103,6 @@ export default {
   ],
   data: () => ({
     pageNumber: undefined,
-    screenReaderAlert: undefined,
     showFilters: undefined
   }),
   computed: {
@@ -153,11 +153,12 @@ export default {
     this.$eventHub.$on('sortBy-user-preference-change', sortBy => {
       if (!this.loading) {
         this.goToPage(1);
-        this.screenReaderAlert = `Sort students by ${sortBy}`;
+        const action = `Sort students by ${sortBy}`;
+        this.alertScreenReader(action);
         this.gaCohortEvent({
           id: this.cohortId || '',
           name: this.cohortName || '',
-          action: this.screenReaderAlert
+          action: action
         });
       }
     });
@@ -166,11 +167,12 @@ export default {
     filterRowUniqueKey: (filter, index) => `${filter.key}-${index}`,
     goToPage(page) {
       if (page > 1) {
-        this.screenReaderAlert = `Go to page ${page}`;
+        const action = `Go to page ${page}`;
+        this.alertScreenReader(action);
         this.gaCohortEvent({
           id: this.cohortId || '',
           name: this.cohortName || '',
-          action: this.screenReaderAlert
+          action: action
         });
       }
       this.setPagination(page);

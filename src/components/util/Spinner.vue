@@ -1,20 +1,15 @@
 <template>
-  <div>
-    <div id="spinner-when-loading" v-if="loading" class="spinner">
-      <font-awesome icon="sync" size="5x" spin />
-    </div>
-    <span
-      role="alert"
-      aria-live="assertive"
-      class="sr-only">{{ screenReaderAlert }}</span>
+  <div id="spinner-when-loading" v-if="loading" class="spinner">
+    <font-awesome icon="sync" size="5x" spin />
   </div>
 </template>
 
 <script>
+import Context from '@/mixins/Context.vue';
 import Loading from '@/mixins/Loading.vue';
 
 export default {
-  mixins: [Loading],
+  mixins: [Context, Loading],
   props: {
     alertPrefix: {
       type: String,
@@ -25,9 +20,21 @@ export default {
       default: false
     }
   },
-  computed: {
-    screenReaderAlert() {
-      return this.loading ? `${this.alertPrefix} ${this.isPlural ? 'are' : 'is'} loading...` : `${this.alertPrefix} ${this.isPlural ? 'have' : 'has'} loaded.`;
+  watch: {
+    loading(value) {
+      this.alert(value, true);
+    }
+  },
+  created() {
+    this.alert(this.loading, false);
+  },
+  methods: {
+    alert(isLoading, voiceIfLoaded)  {
+      if (isLoading) {
+        this.alertScreenReader(`${this.alertPrefix} ${this.isPlural ? 'are' : 'is'} loading...`);
+      } else if (voiceIfLoaded) {
+        this.alertScreenReader(`${this.alertPrefix} ${this.isPlural ? 'have' : 'has'} loaded.`);
+      }
     }
   }
 };

@@ -21,7 +21,7 @@
     "@fortawesome/free-solid-svg-icons": "5.9.0",
     "@fortawesome/vue-fontawesome": "0.1.6",
     "axios": "0.19.0",
-    "bootstrap-vue": "2.0.0-rc.26",
+    "bootstrap-vue": "2.0.4",
     "d3": "5.9.7",
     "highcharts": "6.2.0",
     "js-file-download": "^0.4.7",
@@ -64,6 +64,7 @@
     "eslint-plugin-xss": "^0.1.9",
     "eslint-utils": "^1.4.2",
     "typescript": "^3.5.3",
+    "vue-eslint-parser": "^6.0.4",
     "vue-template-compiler": "^2.6.10"
   },
   "license": "SEE LICENSE IN LICENSE"

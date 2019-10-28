@@ -8,9 +8,8 @@
       @change="toggle"
       class="add-all-checkbox mr-1"
       plain
-      aria-describedby="checkbox-add-all-label"
       aria-controls="curated-group-dropdown-select">
-      <span id="checkbox-add-all-label" class="sr-only">{{ 'Select all students to add to a curated group' }}</span>
+      <span class="sr-only">{{ 'Select all students to add to a curated group' }}</span>
     </b-form-checkbox>
     <div>
       <b-dropdown
@@ -41,7 +40,6 @@
         </b-dropdown-item>
         <b-dropdown-item
           v-for="group in myCuratedGroups"
-          :id="`curated-group-${group.id}-menu-item`"
           :key="group.id"
           class="b-dd-item-override">
           <input
@@ -51,11 +49,10 @@
             @keyup.enter="curatedGroupCheckboxClick(group)"
             type="checkbox" />
           <label
-            :id="`curated-group-${group.id}-name`"
             :for="`curated-group-${group.id}-checkbox`"
             class="curated-checkbox-label pb-0 pt-0">{{ group.name }}</label>
         </b-dropdown-item>
-        <hr role="separator" class="dropdown-divider">
+        <hr class="dropdown-divider">
         <b-dropdown-item>
           <b-btn
             id="create-curated-group"
@@ -74,7 +71,6 @@
         hide-footer
         hide-header-close>
         <CreateCuratedGroupModal
-          :sids="sids"
           :create="modalCreateCuratedGroup"
           :cancel="modalCancel" />
       </b-modal>
@@ -134,9 +130,11 @@ export default {
         this.sids = this.map(this.students, 'sid');
         this.$eventHub.$emit('curated-group-select-all');
         this.putFocusNextTick('curated-group-dropdown-select', 'button');
+        this.alertScreenReader('All students on this page selected.');
       } else {
         this.sids = [];
         this.$eventHub.$emit('curated-group-deselect-all');
+        this.alertScreenReader('All students on this page deselected.');
       }
     },
     refresh() {
@@ -150,6 +148,7 @@ export default {
     },
     curatedGroupCheckboxClick(group) {
       const afterAddStudents = () => {
+        this.alertScreenReader(`${this.sids.length} student${this.sids.length === 1 ? '' : 's'} added to "${group.name}".`);
         this.sids = [];
         this.isSelectAllChecked = this.indeterminate = false;
         this.$eventHub.$emit('curated-group-deselect-all');

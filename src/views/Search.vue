@@ -179,6 +179,7 @@ export default {
       this.noteAndAppointmentOptions.dateTo = this.$route.query.noteDateTo;
     }
     if (this.phrase || includeNotes) {
+      this.alertScreenReader(`Searching for '${this.phrase}'`)
       search(
         this.phrase,
         this.isNil(includeAppointments) ? false : includeAppointments,
@@ -197,7 +198,7 @@ export default {
           });
         })
         .then(() => {
-          this.loaded('Search results');
+          this.loaded('Search results', );
           const totalCount =
             this.toInt(this.results.totalCourseCount, 0) +
             this.toInt(this.results.totalStudentCount, 0);

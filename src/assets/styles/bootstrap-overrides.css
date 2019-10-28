@@ -44,6 +44,15 @@ legend {
 .b-table th::before {
   content: '' !important;
 }
+.table.b-table>tfoot>tr>[aria-sort=none],
+.table.b-table>thead>tr>[aria-sort=none],
+.table.b-table>tfoot>tr>[aria-sort=ascending],
+.table.b-table>thead>tr>[aria-sort=ascending],
+.table.b-table>tfoot>tr>[aria-sort=descending],
+.table.b-table>thead>tr>[aria-sort=descending]
+{
+  background-image: none !important;
+}
 .b-table th[aria-sort="none"]::after {
   color: transparent;
   content: '\25b2' !important;
