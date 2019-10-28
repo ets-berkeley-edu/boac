@@ -361,8 +361,8 @@ export default {
     },
     findAdvisorsByName(q, limit) {
       const queries = this.featureFlagAppointments ? [findAuthorsByName(q, limit), findAdvisorsByName(q, limit)] : [findAuthorsByName(q, limit)]
-      return Promise.allSettled(queries).then((results) => {
-        return this.orderBy(this.unionBy(this.flatMap(results, 'value'), 'label'), 'label');
+      return Promise.all(queries).then((results) => {
+        return this.orderBy(this.unionBy(this.flatten(results), 'label'), 'label');
       });
     },
     resetNoteFilters() {
