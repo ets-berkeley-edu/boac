@@ -5,25 +5,27 @@ python: "3.6"
 addons:
   postgresql: "9.6"
 
-before_install:
-  - cd ${TRAVIS_BUILD_DIR}
-
-  # Set up test db
-  - psql -c 'create database boac_test;' -U postgres
-  - psql -c 'create database boac_loch_test;' -U postgres
-
-  - psql boac_test -c 'create extension pg_trgm;' -U postgres
-  - psql boac_test -c 'create role boac superuser login; alter schema public owner to boac;' -U postgres
-
-  - psql boac_loch_test -c 'create extension pg_trgm;' -U postgres
-  - psql boac_loch_test -c 'alter schema public owner to boac;' -U postgres
-
 install:
   - npm install
-  - pip install google-compute-engine # see https://github.com/tendenci/tendenci/issues/539
-  - pip3 install -r requirements.txt
-  - pip3 install pandas==0.23.3
   - pip3 install tox
 
-script:
-  - tox
+jobs:
+  include:
+    - stage: test
+      script:
+        - psql -c 'create database boac_test;' -U postgres
+        - psql -c 'create database boac_loch_test;' -U postgres
+        - psql boac_test -c 'create extension pg_trgm;' -U postgres
+        - psql boac_test -c 'create role boac superuser login; alter schema public owner to boac;' -U postgres
+        - psql boac_loch_test -c 'create extension pg_trgm;' -U postgres
+        - psql boac_loch_test -c 'alter schema public owner to boac;' -U postgres
+        - pip install google-compute-engine
+        - pip3 install -r requirements.txt
+        - pip3 install pandas==0.23.3
+        - tox -e test || travis_terminate 1;
+    - # Python lint
+      script: tox -e lint-py
+    - # Vue.js lint
+      script: tox -e lint-vue
+    - # Vue.js build to verify TypeScript
+      script: tox -e build-vue

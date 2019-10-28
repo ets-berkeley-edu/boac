@@ -32,6 +32,7 @@ module.exports = {
     'vue/eqeqeq': 2,
     'vue/html-closing-bracket-newline': 0,
     'vue/html-self-closing': 0,
+    'vue/attributes-order': 2,
     'vue/max-attributes-per-line': ['error', {
       singleline: 3,
       multiline: {
