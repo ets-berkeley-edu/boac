@@ -3,8 +3,9 @@ BEGIN;
 DROP MATERIALIZED VIEW IF EXISTS appointments_fts_index;
 
 CREATE MATERIALIZED VIEW appointments_fts_index AS (
-  SELECT 
-    id, to_tsvector('english', trim(concat(details, ' ', cancel_reason, ' ', cancel_reason_explained))) AS fts_index
+  SELECT
+    id,
+    to_tsvector('english', details || ' ' || coalesce(cancel_reason, '') || ' ' || coalesce(cancel_reason_explained, '')) AS fts_index
   FROM appointments
   WHERE details IS NOT NULL
     AND deleted_at IS NULL
