@@ -8,7 +8,11 @@
       <b-row no-gutters>
         <b-col sm>
           <div class="mb-4 mr-4">
-            <DropInWaitlist :dept-code="deptCode" :is-homepage="true" :waitlist="waitlist" />
+            <DropInWaitlist
+              :dept-code="deptCode"
+              :is-homepage="true"
+              :on-appointment-cancellation="onAppointmentCancellation"
+              :waitlist="waitlist" />
           </div>
         </b-col>
         <b-col sm>
@@ -90,9 +94,18 @@ export default {
   mounted() {
     this.deptCode = this.get(this.$route, 'params.deptCode');
     getDropInAppointmentWaitlist(this.deptCode, true).then(waitlist => {
-      this.waitlist = waitlist;
+      this.waitlist = this.partitionByCanceledStatus(waitlist);
       this.loaded('Drop-in Waitlist');
     });
+  },
+  methods: {
+    onAppointmentCancellation() {
+      this.waitlist = this.partitionByCanceledStatus(this.waitlist);
+    },
+    partitionByCanceledStatus(waitlist) {
+      const partitioned = this.partition(waitlist, a => !a.canceledAt);
+      return partitioned[0].concat(partitioned[1]);
+    }
   }
 }
 </script>

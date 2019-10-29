@@ -74,8 +74,9 @@
     <div v-if="waitlist.length">
       <b-container fluid class="pl-0 pr-0">
         <b-row
-          v-for="appointment in waitlist"
+          v-for="(appointment, index) in waitlist"
           :key="appointment.id"
+          :class="{'border-thick-grey': index < (waitlist.length - 1) && !appointment.canceledAt && waitlist[index + 1].canceledAt}"
           no-gutters
           class="border-bottom font-size-16 mt-3 pb-2 pt-2">
           <b-col cols="2" class="pb-2 text-nowrap">
@@ -188,6 +189,10 @@ export default {
       type: Boolean,
       default: false
     },
+    onAppointmentCancellation: {
+      type: Function,
+      default: () => {}
+    },
     waitlist: {
       type: Array,
       required: true
@@ -218,6 +223,7 @@ export default {
         }
         this.alertScreenReader(`${canceled.student.name} appointment canceled`);
         this.selectedAppointment = undefined;
+        this.onAppointmentCancellation();
       });
     },
     cancelAppointment(appointment) {
@@ -308,6 +314,10 @@ export default {
 </style>
 
 <style>
+.border-thick-grey {
+  border-color: #aaa !important;
+  border-width: 3px !important;
+}
 .pill-appointment-status {
   border-radius: 5px;
   display: inline-block;

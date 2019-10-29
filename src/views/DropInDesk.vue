@@ -17,7 +17,7 @@ import Util from '@/mixins/Util';
 import { getDropInAppointmentWaitlist } from '@/api/appointments';
 
 export default {
-  name: 'AppointmentWaitlist',
+  name: 'DropInDesk',
   components: {DropInWaitlist, Spinner},
   mixins: [Context, Loading, UserMetadata, Util],
   data: () => ({

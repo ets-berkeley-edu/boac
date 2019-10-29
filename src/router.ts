@@ -3,13 +3,13 @@ import Admin from '@/views/Admin.vue';
 import AllCohorts from '@/views/AllCohorts.vue';
 import AllGroups from '@/views/AllGroups.vue';
 import AppointmentDropIn from '@/layouts/AppointmentDropIn.vue';
-import AppointmentWaitlist from '@/views/AppointmentWaitlist.vue';
 import auth from './auth';
 import Cohort from '@/views/Cohort.vue';
 import Course from '@/views/Course.vue';
 import CreateCuratedGroup from '@/views/CreateCuratedGroup.vue'
 import CuratedGroup from '@/views/CuratedGroup.vue';
 import DropInAdvisorHome from '@/views/DropInAdvisorHome.vue';
+import DropInDesk from '@/views/DropInDesk.vue';
 import Home from '@/views/Home.vue';
 import Login from '@/layouts/Login.vue';
 import NotFound from '@/views/NotFound.vue';
@@ -73,7 +73,7 @@ const router = new Router({
       children: [
         {
           path: '/appt/desk/:deptCode',
-          component: AppointmentWaitlist,
+          component: DropInDesk,
           meta: {
             title: 'Drop-in Appointments Desk'
           }
