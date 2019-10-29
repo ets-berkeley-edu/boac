@@ -87,18 +87,28 @@
                 <StudentAvatar :student="appointment.student" size="small" />
               </div>
               <div>
-                <div class="font-size-16">
-                  <router-link
-                    v-if="linkToStudentProfiles"
-                    :id="`appointment-${appointment.id}-student-name`"
-                    :class="{'demo-mode-blur' : user.inDemoMode}"
-                    :to="studentRoutePath(appointment.student.uid, user.inDemoMode)">
-                    {{ appointment.student.name }}
-                  </router-link>
-                  <div v-if="!linkToStudentProfiles">
-                    <span
+                <div class="d-flex flex-wrap font-size-16 truncate-with-ellipsis">
+                  <div class="pr-1">
+                    <router-link
+                      v-if="linkToStudentProfiles"
                       :id="`appointment-${appointment.id}-student-name`"
-                      :class="{'demo-mode-blur' : user.inDemoMode}">{{ appointment.student.name }}</span>
+                      :class="{'demo-mode-blur' : user.inDemoMode}"
+                      :to="studentRoutePath(appointment.student.uid, user.inDemoMode)">
+                      {{ appointment.student.name }}
+                    </router-link>
+                    <div v-if="!linkToStudentProfiles">
+                      <span
+                        :id="`appointment-${appointment.id}-student-name`"
+                        :class="{'demo-mode-blur' : user.inDemoMode}">{{ appointment.student.name }}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="font-weight-bolder pr-1">
+                      (<span
+                        :id="`appointment-${appointment.id}-student-sid`"
+                        :class="{'demo-mode-blur' : user.inDemoMode}"
+                        aria-label="Student ID">{{ appointment.student.sid }}</span>)
+                    </div>
                   </div>
                 </div>
                 <div

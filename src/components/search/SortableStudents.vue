@@ -26,8 +26,7 @@
           :aria-label="`Go to profile page of ${row.item.name}`"
           :class="{'demo-mode-blur': user.inDemoMode}"
           :to="studentRoutePath(row.item.uid, user.inDemoMode)"
-          v-html="`${row.item.lastName}, ${row.item.firstName}`"
-          class="text-nowrap"></router-link>
+          v-html="`${row.item.lastName}, ${row.item.firstName}`"></router-link>
         <span
           v-if="row.item.academicCareerStatus === 'Inactive' || displayAsAscInactive(row.item) || displayAsCoeInactive(row.item)"
           class="inactive-info-icon sortable-students-icon"
@@ -154,7 +153,8 @@ export default {
     this.fields = [
       {key: 'curated', label: ''},
       {key: 'avatar', label: '', class: 'pr-0'},
-      {key: 'lastName', label: 'Name', sortable: true}
+      {key: 'lastName', label: 'Name', sortable: true},
+      {key: 'sid', label: 'SID', sortable: true}
     ];
     if (this.options.compact) {
       this.fields = this.fields.concat([
@@ -162,7 +162,6 @@ export default {
       ]);
     } else {
       this.fields = this.fields.concat([
-        {key: 'sid', label: 'SID', sortable: true},
         {key: 'majors[0]', label: 'Major', sortable: true, class: 'truncate-with-ellipsis'},
         {key: 'expectedGraduationTerm.id', label: 'Grad', sortable: true},
         {key: 'term.enrolledUnits', label: 'Term units', sortable: true},
