@@ -360,7 +360,7 @@ export default {
       return this.$options.filters.moment(d, format);
     },
     findAdvisorsByName(q, limit) {
-      const queries = this.featureFlagAppointments ? [findAuthorsByName(q, limit), findAdvisorsByName(q, limit)] : [findAuthorsByName(q, limit)]
+      const queries = this.featureFlagAppointments ? [findAuthorsByName(q, limit), findAdvisorsByName(q, limit)] : [findAuthorsByName(q, limit)];
       return Promise.all(queries).then((results) => {
         return this.orderBy(this.unionBy(this.flatten(results), 'label'), 'label');
       });
@@ -420,26 +420,17 @@ export default {
       }
       if (!this.topicOptions) {
         this.topicOptions = [];
-        getNoteTopics(true).then(data => {
-          this.each(data, topic => {
+        const queries = this.featureFlagAppointments ? [getNoteTopics(true), getAppointmentTopics(true)] : [getNoteTopics(true)];
+        Promise.all(queries).then((results) => {
+          this.each(this.uniq(this.flatten(results)), topic => {
             this.topicOptions.push({
               text: topic,
               value: topic
             })
           });
+        }).finally(() => {
+          this.topicOptions = this.orderBy(this.topicOptions, 'value');
         });
-        if (this.featureFlagAppointments) {
-          getAppointmentTopics(true).then(data => {
-            this.each(data, topic => {
-              this.topicOptions.push({
-                text: topic,
-                value: topic
-              })
-            });
-          }).finally(() => {
-            this.topicOptions = this.uniqBy(this.orderBy(this.topicOptions, 'value'), 'value');
-          });
-        }
       }
     },
     toggleSearchOptions() {
