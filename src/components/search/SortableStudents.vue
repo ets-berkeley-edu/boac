@@ -158,7 +158,7 @@ export default {
     ];
     if (this.options.compact) {
       this.fields = this.fields.concat([
-        {key: 'alertCount', label: 'Alerts', sortable: false, class: 'alert-count text-right'}
+        {key: 'alertCount', label: 'Alerts', sortable: true, class: 'alert-count text-right'}
       ]);
     } else {
       this.fields = this.fields.concat([
@@ -167,7 +167,7 @@ export default {
         {key: 'term.enrolledUnits', label: 'Term units', sortable: true},
         {key: 'cumulativeUnits', label: 'Units completed', sortable: true},
         {key: 'cumulativeGPA', label: 'GPA', sortable: true},
-        {key: 'alertCount', label: 'Issues', sortable: true, class: 'alert-count text-right'}
+        {key: 'alertCount', label: 'Alerts', sortable: true, class: 'alert-count text-right'}
       ]);
     }
   },
