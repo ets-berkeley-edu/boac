@@ -135,7 +135,7 @@
               <b-dropdown-item-button
                 :id="`btn-appointment-${appointment.id}-cancel`"
                 @click="cancelAppointment(appointment)">
-                <span aria-hidden="true">Cancel Appt</span>
+                <span aria-hidden="true" class="text-nowrap">Cancel Appt</span>
                 <span class="sr-only">Cancel Appointment</span>
               </b-dropdown-item-button>
             </b-dropdown>
@@ -148,7 +148,7 @@
             <div
               v-if="!isNil(appointment.checkedInAt) && isNil(appointment.canceledAt)"
               :id="`appointment-${appointment.id}-checked-in`"
-              class="float-right pill-appointment-status pill-checked-in pl-2 pr-2">
+              class="float-right pill-appointment-status pill-checked-in pl-2 pr-2 text-nowrap">
               <span class="sr-only">Student was </span>Checked In
             </div>
           </b-col>

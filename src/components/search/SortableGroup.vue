@@ -32,7 +32,7 @@
           </div>
           <div class="accordion-heading-count align-items-start d-flex justify-content-end">
             <div v-if="!compact" class="sortable-table-header accordion-heading-count-label">
-              Total Issues:
+              Total Alerts:
             </div>
             <div
               v-if="!group.alertCount"
