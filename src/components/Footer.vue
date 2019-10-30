@@ -6,7 +6,8 @@
       </b-col>
       <b-col sm="5" class="pr-0">
         <div>
-          Problem? Question? Suggestion? Email <a :href="`mailto:${supportEmailAddress}`" target="_blank">{{ supportEmailAddress }}</a>
+          Problem? Question? Suggestion?
+          Email <a :href="`mailto:${supportEmailAddress}`" target="_blank">{{ supportEmailAddress }}<span class="sr-only"> (new browser tab will open)</span></a>
         </div>
         &copy; 2019 The Regents of the University of California
       </b-col>

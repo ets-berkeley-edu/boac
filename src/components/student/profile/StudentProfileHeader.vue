@@ -44,7 +44,8 @@
                 :href="`mailto:${student.sisProfile.emailAddress}`"
                 :class="{'demo-mode-blur': user.inDemoMode}"
                 target="_blank">
-                {{ student.sisProfile.emailAddress }}</a>
+                {{ student.sisProfile.emailAddress }}<span class="sr-only"> (will open new browser tab)</span>
+              </a>
             </div>
             <div v-if="student.sisProfile.phoneNumber">
               <font-awesome icon="phone" />

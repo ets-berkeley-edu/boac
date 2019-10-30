@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import {createNote, createNoteBatch, getDistinctStudentCount} from '@/api/notes';
 
-const VALID_MODES = ['advanced', 'batch', 'docked', 'edit', 'editTemplate', 'minimized'];
+const VALID_MODES = ['batch', 'create', 'edit', 'editTemplate'];
 
 const $_getDefaultModel = () => {
   return {

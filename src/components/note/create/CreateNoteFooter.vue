@@ -1,22 +1,13 @@
 <template>
   <div class="d-flex flex-wrap-reverse mt-1 mr-3 mb-0 ml-3">
-    <div>
+    <div class="flex-grow-1">
       <b-btn
         id="btn-save-as-template"
-        v-if="undocked && mode !== 'editTemplate'"
+        v-if="mode !== 'editTemplate'"
         :disabled="isSaving || !trim(model.subject)"
         @click="saveAsTemplate()"
         variant="link">
         Save as template
-      </b-btn>
-    </div>
-    <div class="flex-grow-1">
-      <b-btn
-        id="btn-to-advanced-note-options"
-        v-if="!undocked"
-        @click.prevent="enterAdvancedMode()"
-        variant="link">
-        Advanced note options
       </b-btn>
     </div>
     <div v-if="mode === 'editTemplate'">
@@ -45,7 +36,6 @@
       <b-btn
         id="create-note-cancel"
         :disabled="isSaving"
-        :class="{'sr-only': !undocked}"
         @click.prevent="cancel()"
         variant="link">
         Cancel
@@ -76,23 +66,9 @@ export default {
       required: true,
       type: Function
     },
-    minimize: {
-      required: true,
-      type: Function
-    },
     updateTemplate: {
       required: true,
       type: Function
-    },
-    undocked: {
-      required: true,
-      type: Boolean
-    }
-  },
-  methods: {
-    enterAdvancedMode() {
-      this.setMode('advanced');
-      this.putFocusNextTick('create-note-subject');
     }
   }
 }

@@ -17,22 +17,17 @@
     </div>
     <FocusLock
       v-if="isModalOpen"
-      :disabled="!undocked || isFocusLockDisabled"
-      :class="{'modal-full-screen': undocked}">
+      :disabled="isFocusLockDisabled"
+      class="create-note-container">
       <div
         id="new-note-modal-container"
         :class="{
           'd-none': isNil(mode),
-          'modal-open': mode === 'docked',
-          'modal-open modal-minimized': mode === 'minimized',
-          'modal-full-screen-content': undocked,
+          'modal-content': includes(['batch', 'create', 'editTemplate'], mode),
           'mt-4': isBatchFeature
         }">
         <form @submit.prevent="submitForm()">
-          <CreateNoteHeader
-            :cancel-primary-modal="cancelRequested"
-            :minimize="minimize"
-            :undocked="undocked" />
+          <CreateNoteHeader :cancel-primary-modal="cancelRequested" />
           <hr class="m-0" />
           <div class="mt-2 mr-3 mb-1 ml-3">
             <transition v-if="isBatchFeature" name="batch">
@@ -85,11 +80,11 @@
                 id="create-note-body"
                 :initial-value="model.body || ''"
                 :disabled="isSaving"
-                :is-in-modal="undocked"
+                :is-in-modal="true"
                 :on-value-update="setBody" />
             </div>
           </div>
-          <div v-if="undocked">
+          <div>
             <AdvisingNoteTopics
               :key="mode"
               :disabled="isSaving"
@@ -110,16 +105,11 @@
               :cancel="cancelRequested"
               :create-note="createNote"
               :save-as-template="saveAsTemplate"
-              :minimize="minimize"
-              :update-template="updateTemplate"
-              :undocked="undocked" />
+              :update-template="updateTemplate" />
           </div>
         </form>
       </div>
     </FocusLock>
-    <div v-if="!isMinimizing && mode === 'minimized'">
-      <CreateNoteMinimized :cancel="cancelRequested" :maximize="maximize" />
-    </div>
     <AreYouSureModal
       v-if="showDiscardNoteModal"
       :function-cancel="cancelDiscardNote"
@@ -148,7 +138,6 @@ import BatchNoteFeatures from '@/components/note/create/BatchNoteFeatures';
 import Context from '@/mixins/Context';
 import CreateNoteFooter from '@/components/note/create/CreateNoteFooter';
 import CreateNoteHeader from '@/components/note/create/CreateNoteHeader';
-import CreateNoteMinimized from '@/components/note/create/CreateNoteMinimized';
 import CreateTemplateModal from "@/components/note/create/CreateTemplateModal";
 import FocusLock from 'vue-focus-lock';
 import NoteEditSession from '@/mixins/NoteEditSession';
@@ -166,7 +155,6 @@ export default {
     BatchNoteFeatures,
     CreateNoteFooter,
     CreateNoteHeader,
-    CreateNoteMinimized,
     CreateTemplateModal,
     FocusLock,
     RichTextEditor
@@ -192,18 +180,12 @@ export default {
     alert: undefined,
     dismissAlertSeconds: 0,
     isBatchFeature: undefined,
-    isMinimizing: false,
     isModalOpen: false,
     showCreateTemplateModal: false,
     showDiscardNoteModal: false,
     showDiscardTemplateModal: false,
     showErrorPopover: false
   }),
-  computed: {
-    undocked() {
-      return this.includes(['advanced', 'batch', 'editTemplate'], this.mode);
-    }
-  },
   mounted() {
     this.isBatchFeature = !this.student;
   },
@@ -288,7 +270,7 @@ export default {
           attachments: template.attachments,
           deleteAttachmentIds: []
         });
-        this.setMode(this.isBatchFeature ? 'batch' : 'advanced');
+        this.setMode(this.isBatchFeature ? 'batch' : 'create');
         this.putFocusNextTick('create-note-subject');
       });
     },
@@ -304,7 +286,7 @@ export default {
       this.showDiscardTemplateModal = false;
       this.setFocusLockDisabled(false);
       this.resetModel();
-      this.setMode(this.isBatchFeature ? 'batch' : 'advanced');
+      this.setMode(this.isBatchFeature ? 'batch' : 'create');
       this.putFocusNextTick('create-note-subject');
       this.alertScreenReader('Canceled create template.');
     },
@@ -316,21 +298,8 @@ export default {
     },
     exit() {
       this.alert = this.dismissAlertSeconds = undefined;
-      this.isMinimizing = this.isModalOpen = this.showCreateTemplateModal = this.showDiscardNoteModal = this.showDiscardTemplateModal = this.showErrorPopover = false;
+      this.isModalOpen = this.showCreateTemplateModal = this.showDiscardNoteModal = this.showDiscardTemplateModal = this.showErrorPopover = false;
       this.exitSession();
-    },
-    maximize() {
-      this.isModalOpen = true;
-      this.setMode('docked');
-      this.alertScreenReader("Create note form is visible.");
-      this.putFocusNextTick('create-note-subject');
-    },
-    minimize() {
-      this.isMinimizing = true;
-      this.setMode('minimized');
-      this.isModalOpen = false;
-      setTimeout(() => this.isMinimizing = false, 300);
-      this.alertScreenReader('Create note form minimized.');
     },
     openNoteModal() {
       this.resetModel();
@@ -338,7 +307,7 @@ export default {
       if (sid) {
         this.addSid(sid);
       }
-      this.setMode(this.isBatchFeature ? 'batch' : 'docked');
+      this.setMode(this.isBatchFeature ? 'batch' : 'create');
       this.isModalOpen = true;
       this.putFocusNextTick(this.isBatchFeature ? 'create-note-add-student-input' : 'create-note-subject');
       this.alertScreenReader(this.isBatchFeature ? 'Create batch note form is open.' : 'Create note form is open');
@@ -387,7 +356,7 @@ export default {
           attachments: template.attachments,
           deleteAttachmentIds: []
         });
-        this.setMode(this.isBatchFeature ? 'batch' : 'advanced');
+        this.setMode(this.isBatchFeature ? 'batch' : 'create');
         this.showAlert(`Template '${template.title}' updated`);
       });
     }
@@ -396,42 +365,6 @@ export default {
 </script>
 
 <style scoped>
-.modal-full-screen {
-  display: block;
-  position: fixed;
-  z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgb(0,0,0);
-  background-color: rgba(0,0,0,0.4);
-}
-.modal-full-screen-content {
-  background-color: #fff;
-  margin: 140px auto auto auto;
-  padding-bottom: 20px;
-  border: 1px solid #888;
-  width: 60%;
-}
-.modal-minimized {
-  height: 1px !important;
-  z-index: 1;
-}
-.modal-open {
-  -webkit-transition: height 0.5s;
-  background-color: #fff;
-  border: 1px solid #aaa;
-  bottom: 0;
-  box-shadow: 0 0 10px #ccc;
-  min-height: 480px;
-  position: fixed;
-  right: 30px;
-  transition: height 0.5s;
-  width: 30%;
-  z-index: 1;
-}
 .batch-enter-active {
    -webkit-transition-duration: 0.3s;
    transition-duration: 0.3s;
@@ -451,5 +384,24 @@ export default {
 .batch-enter, .batch-leave-to {
   overflow: hidden;
   max-height: 0;
+}
+.create-note-container {
+  display: block;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.4);
+}
+.modal-content {
+  background-color: #fff;
+  margin: 140px auto auto auto;
+  padding-bottom: 20px;
+  border: 1px solid #888;
+  width: 60%;
 }
 </style>
