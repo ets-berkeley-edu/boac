@@ -71,13 +71,14 @@
 </template>
 
 <script>
-import DropInWaitlist from "@/components/appointment/DropInWaitlist";
+import Context from '@/mixins/Context';
+import DropInWaitlist from '@/components/appointment/DropInWaitlist';
+import DropInWaitlistContainer from '@/mixins/DropInWaitlistContainer';
 import Loading from '@/mixins/Loading';
 import SortableGroup from '@/components/search/SortableGroup';
 import Spinner from '@/components/util/Spinner';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
-import { getDropInAppointmentWaitlist } from '@/api/appointments'
 
 export default {
   name: 'DropInAdvisorHome',
@@ -86,17 +87,16 @@ export default {
     SortableGroup,
     Spinner
   },
-  mixins: [Loading, UserMetadata, Util],
+  mixins: [Context, DropInWaitlistContainer, Loading, UserMetadata, Util],
   data: () => ({
     deptCode: undefined,
+    includeResolvedAppointments: true,
     waitlist: undefined
   }),
   mounted() {
     this.deptCode = this.get(this.$route, 'params.deptCode');
-    getDropInAppointmentWaitlist(this.deptCode, true).then(waitlist => {
-      this.waitlist = this.partitionByCanceledStatus(waitlist);
-      this.loaded('Drop-in Waitlist');
-    });
+    this.loadDropInWaitlist();
+    setInterval(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
   },
   methods: {
     onAppointmentCancellation() {
