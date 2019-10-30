@@ -135,7 +135,12 @@
         </div>
       </template>
       <template v-slot:cell(campusEmail)="row">
-        <div :id="`email-${row.item.uid}`">{{ row.item.campusEmail }}</div>
+        <div v-if="row.item.campusEmail" :id="`email-${row.item.uid}`">
+          <a
+            :aria-label="`Send email to ${row.item.name}`"
+            :href="`mailto:${row.item.campusEmail}`"
+            target="_blank">{{ row.item.campusEmail }}<span class="sr-only"> (will open new browser tab)</span></a>
+        </div>
       </template>
       <template v-slot:row-details="row">
         <b-card>

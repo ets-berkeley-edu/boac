@@ -21,7 +21,12 @@
           Passenger Manifest
         </b-dropdown-item>
         <b-dropdown-item @click="logOut" href="#">Log Out</b-dropdown-item>
-        <b-dropdown-item :href="`mailto:${supportEmailAddress}`" target="_blank">Feedback/Help</b-dropdown-item>
+        <b-dropdown-item
+          :href="`mailto:${supportEmailAddress}`"
+          target="_blank"
+          aria-label="Send email to the BOA team">
+          Feedback/Help<span class="sr-only"> (new browser tab will open)</span>
+        </b-dropdown-item>
       </b-dropdown>
     </div>
   </div>

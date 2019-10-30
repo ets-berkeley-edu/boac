@@ -42,7 +42,7 @@
           <a
             :href="`mailto:${supportEmailAddress}`"
             aria-label="BOA support email address"
-            target="_blank">{{ supportEmailAddress }}</a>
+            target="_blank">{{ supportEmailAddress }}<span class="sr-only"> (will open new browser tab)</span></a>
         </div>
         <DevAuth v-if="devAuthEnabled" />
       </div>

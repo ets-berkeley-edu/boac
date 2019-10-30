@@ -1,10 +1,10 @@
 <template>
-  <div :class="{'mt-2': undocked}" class="d-flex flex-wrap align-items-end pt-2 mb-1">
+  <div class="align-items-end d-flex flex-wrap mb-1 mt-2 pt-2">
     <div class="flex-grow-1 new-note-header font-weight-bolder">
       <span v-if="mode === 'editTemplate'">Edit Template</span>
       <span v-if="mode !== 'editTemplate'">New Note</span>
     </div>
-    <div v-if="undocked" class="mr-4">
+    <div class="mr-4">
       <b-dropdown
         id="my-templates-button"
         v-if="mode !== 'editTemplate'"
@@ -70,30 +70,6 @@
         </b-dropdown-text>
       </b-dropdown>
     </div>
-    <div v-if="!undocked" class="d-flex">
-      <div class="pr-0">
-        <label for="minimize-new-note-modal" class="sr-only">Minimize the create note dialog box</label>
-        <b-btn
-          id="minimize-new-note-modal"
-          @click.prevent="minimize()"
-          variant="link"
-          class="pr-2">
-          <span class="sr-only">Minimize</span>
-          <font-awesome icon="window-minimize" class="minimize-icon text-dark" />
-        </b-btn>
-      </div>
-      <div class="pr-2">
-        <label for="cancel-new-note-modal" class="sr-only">Cancel the create-note form</label>
-        <b-btn
-          id="cancel-new-note-modal"
-          @click.prevent="cancelPrimaryModal()"
-          variant="link"
-          class="pl-1 pb-1">
-          <span class="sr-only">Cancel</span>
-          <font-awesome icon="times" class="fa-icon-size text-dark" />
-        </b-btn>
-      </div>
-    </div>
     <RenameTemplateModal
       v-if="showRenameTemplateModal"
       :show-modal="showRenameTemplateModal"
@@ -129,14 +105,6 @@ export default {
     cancelPrimaryModal: {
       required: true,
       type: Function
-    },
-    minimize: {
-      required: true,
-      type: Function
-    },
-    undocked: {
-      required: true,
-      type: Boolean
     }
   },
   data: () => ({
@@ -196,24 +164,18 @@ export default {
 </script>
 
 <style scoped>
-.fa-icon-size {
-  font-size: 28px;
-}
-.minimize-icon {
-  font-size: 24px;
-}
 .new-note-header {
   font-size: 24px;
   margin: 0 15px 6px 15px;
 }
-.templates-dropdown-instructions {
-  max-width: 300px;
-  white-space: normal;
+.template-dropdown-title {
+  max-width: 200px;
 }
 .templates-dropdown-header {
   width: 300px;
 }
-.template-dropdown-title {
-  max-width: 200px;
+.templates-dropdown-instructions {
+  max-width: 300px;
+  white-space: normal;
 }
 </style>
