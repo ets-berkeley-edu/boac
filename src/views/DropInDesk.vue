@@ -9,7 +9,8 @@
 
 <script>
 import Context from '@/mixins/Context';
-import DropInWaitlist from "@/components/appointment/DropInWaitlist";
+import DropInWaitlist from '@/components/appointment/DropInWaitlist';
+import DropInWaitlistContainer from '@/mixins/DropInWaitlistContainer';
 import Loading from '@/mixins/Loading';
 import Spinner from '@/components/util/Spinner';
 import UserMetadata from '@/mixins/UserMetadata';
@@ -19,8 +20,9 @@ import { getDropInAppointmentWaitlist } from '@/api/appointments';
 export default {
   name: 'DropInDesk',
   components: {DropInWaitlist, Spinner},
-  mixins: [Context, Loading, UserMetadata, Util],
+  mixins: [Context, DropInWaitlistContainer, Loading, UserMetadata, Util],
   data: () => ({
+    includeResolvedAppointments: false,
     waitlist: undefined
   }),
   created() {
