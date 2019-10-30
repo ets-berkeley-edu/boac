@@ -68,6 +68,7 @@ const mutations = {
 
 const actions = {
   alertScreenReader: ({ commit }, alert) => {
+    commit('setScreenReaderAlert', '');
     Vue.nextTick(() => {
       commit('setScreenReaderAlert', alert);
     });

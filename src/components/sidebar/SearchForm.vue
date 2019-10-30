@@ -328,17 +328,25 @@ export default {
     },
     includeNotes(value) {
       if (value) {
-        this.alertScreenReader('Search will include notes.');
+        this.alertScreenReader(`Search will include notes${this.featureFlagAppointments ? ' and appointments.' : '.'}`);
       } else {
         this.showNoteFilters = false;
-        this.alertScreenReader('Search will not include notes.');
+        this.alertScreenReader(`Search will not include notes${this.featureFlagAppointments ? ' or appointments.' : '.'}`);
       }
     },
     includeStudents(value) {
       this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include students.`);
     },
     showNoteFilters(value) {
-      this.alertScreenReader(`Note and appointment filters ${value ? 'opened' : 'closed'}.`);
+      if (value) {
+        this.alertScreenReader(`Notes${this.featureFlagAppointments ? ' and Appointments' : ''} search filters opened.`);
+        this.putFocusNextTick('search-option-note-filters-topic');
+      }
+      else {
+        this.resetNoteFilters();
+        this.alertScreenReader(`Notes${this.featureFlagAppointments ? ' and Appointments' : ''} search filters closed.`);
+        this.putFocusNextTick('search-options-note-filters-toggle');
+      }
     }
   },
   created() {
@@ -415,9 +423,6 @@ export default {
     },
     toggleNoteFilters() {
       this.showNoteFilters = !this.showNoteFilters;
-      if (!this.showNoteFilters) {
-        this.resetNoteFilters();
-      }
       if (!this.topicOptions) {
         this.topicOptions = [];
         const queries = this.featureFlagAppointments ? [getNoteTopics(true), getAppointmentTopics(true)] : [getNoteTopics(true)];
