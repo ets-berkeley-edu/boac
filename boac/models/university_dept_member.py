@@ -35,17 +35,15 @@ class UniversityDeptMember(Base):
     authorized_user_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), primary_key=True)
     is_advisor = db.Column(db.Boolean, nullable=False)
     is_director = db.Column(db.Boolean, nullable=False)
-    is_drop_in_advisor = db.Column(db.Boolean, nullable=False)
     is_scheduler = db.Column(db.Boolean, nullable=False)
     automate_membership = db.Column(db.Boolean, nullable=False)
     authorized_user = db.relationship('AuthorizedUser', back_populates='department_memberships')
     # Pre-load UniversityDept below to avoid 'failed to locate', as seen during routes.py init phase
     university_dept = db.relationship(UniversityDept.__name__, back_populates='authorized_users')
 
-    def __init__(self, is_advisor, is_director, is_drop_in_advisor, is_scheduler, automate_membership=True):
+    def __init__(self, is_advisor, is_director, is_scheduler, automate_membership=True):
         self.is_advisor = is_advisor
         self.is_director = is_director
-        self.is_drop_in_advisor = is_drop_in_advisor
         self.is_scheduler = is_scheduler
         self.automate_membership = automate_membership
 
@@ -56,7 +54,6 @@ class UniversityDeptMember(Base):
             authorized_user,
             is_advisor,
             is_director,
-            is_drop_in_advisor,
             is_scheduler,
             automate_membership=True,
     ):
@@ -67,14 +64,12 @@ class UniversityDeptMember(Base):
             membership = existing_membership
             membership.is_advisor = is_advisor
             membership.is_director = is_director
-            membership.is_drop_in_advisor = is_drop_in_advisor
             membership.is_scheduler = is_scheduler
             membership.automate_membership = automate_membership
         else:
             membership = cls(
                 is_advisor=is_advisor,
                 is_director=is_director,
-                is_drop_in_advisor=is_drop_in_advisor,
                 is_scheduler=is_scheduler,
                 automate_membership=automate_membership,
             )
@@ -93,7 +88,6 @@ class UniversityDeptMember(Base):
             authorized_user_id,
             is_advisor,
             is_director,
-            is_drop_in_advisor,
             is_scheduler,
             automate_membership,
     ):
@@ -101,7 +95,6 @@ class UniversityDeptMember(Base):
         if membership:
             membership.is_advisor = membership.is_advisor if is_advisor is None else is_advisor
             membership.is_director = membership.is_director if is_director is None else is_director
-            membership.is_drop_in_advisor = membership.is_drop_in_advisor if is_drop_in_advisor is None else is_drop_in_advisor
             membership.is_scheduler = membership.is_scheduler if is_scheduler is None else is_scheduler
             membership.automate_membership = membership.automate_membership if automate_membership is None else automate_membership
             std_commit()
@@ -117,17 +110,12 @@ class UniversityDeptMember(Base):
         std_commit()
         return True
 
-    @classmethod
-    def memberships_for_dept_code(cls, dept_code, **kwargs):
-        return cls.query.filter_by(**kwargs).join(cls.university_dept, aliased=True).filter_by(dept_code=dept_code).all()
-
     def to_api_json(self):
         return {
             'universityDeptId': self.university_dept_id,
             'authorizedUserId': self.authorized_user_id,
             'isAdvisor': self.is_advisor,
             'isDirector': self.is_director,
-            'isDropInAdvisor': self.is_drop_in_advisor,
             'isScheduler': self.is_scheduler,
             'automateMembership': self.automate_membership,
         }

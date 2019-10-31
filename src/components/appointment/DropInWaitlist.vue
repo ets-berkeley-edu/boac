@@ -208,7 +208,7 @@ export default {
     showCreateAppointmentModal: false
   }),
   created() {
-    this.linkToStudentProfiles = this.user.isAdmin || this.dropInAdvisorDeptCodes().length;
+    this.linkToStudentProfiles = this.user.isAdmin || this.get(this.user, 'dropInAdvisorStatus.length');
     this.now = this.$moment();
   },
   methods: {

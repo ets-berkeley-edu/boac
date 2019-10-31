@@ -1,8 +1,6 @@
 import _ from 'lodash';
 import store from "@/store";
 
-const dropInAdvisorForDepartments = user =>  _.filter(user.departments, d => d.isDropInAdvisor);
-
 const goToLogin = (to: any, next: any) => {
   next({
     path: '/login',
@@ -18,7 +16,6 @@ const isAdvisor = user => !!_.size(_.filter(user.departments, d => d.isAdvisor |
 const schedulerForDepartments = user =>  _.filter(user.departments, d => d.isScheduler);
 
 export default {
-  dropInAdvisorForDepartments,
   isAdvisor,
   requiresAdmin: (to: any, from: any, next: any) => {
     store.dispatch('user/loadUser').then(user => {
@@ -59,7 +56,7 @@ export default {
     store.dispatch('user/loadUser').then(user => {
       if (store.getters['context/featureFlagAppointments']) {
         if (user.isAuthenticated) {
-          if (_.size(dropInAdvisorForDepartments(user)) || user.isAdmin) {
+          if (_.size(user.dropInAdvisorStatus) || user.isAdmin) {
             next();
           } else {
             next({ path: '/404' });

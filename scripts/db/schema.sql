@@ -267,6 +267,20 @@ ALTER TABLE ONLY cohort_filters
 
 --
 
+CREATE TABLE drop_in_advisors (
+    authorized_user_id INTEGER NOT NULL,
+    dept_code character varying(255) NOT NULL,
+    is_available BOOLEAN DEFAULT false NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    deleted_at TIMESTAMP WITH TIME ZONE
+);
+ALTER TABLE drop_in_advisors OWNER TO boac;
+ALTER TABLE drop_in_advisors
+    ADD CONSTRAINT drop_in_advisors_pkey PRIMARY KEY (authorized_user_id, dept_code);
+
+--
+
 CREATE TABLE manually_added_advisees(
     sid character varying NOT NULL,
     created_at timestamp with time zone NOT NULL
@@ -551,7 +565,6 @@ CREATE TABLE university_dept_members (
   authorized_user_id INTEGER,
   is_advisor BOOLEAN DEFAULT false NOT NULL,
   is_director BOOLEAN DEFAULT false NOT NULL,
-  is_drop_in_advisor BOOLEAN DEFAULT false NOT NULL,
   is_scheduler BOOLEAN DEFAULT false NOT NULL,
   automate_membership boolean DEFAULT true NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -657,6 +670,11 @@ ALTER TABLE ONLY appointments_read
     ADD CONSTRAINT appointments_read_appointment_id_fkey FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE CASCADE;
 ALTER TABLE ONLY appointments_read
     ADD CONSTRAINT appointments_read_viewer_id_fkey FOREIGN KEY (viewer_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
+
+--
+
+ALTER TABLE ONLY drop_in_advisors
+    ADD CONSTRAINT drop_in_advisors_authorized_user_id_fkey FOREIGN KEY (authorized_user_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
 
 --
 

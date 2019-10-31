@@ -187,7 +187,6 @@ def refresh_department_memberships():
                     user,
                     is_advisor=True,
                     is_director=False,
-                    is_drop_in_advisor=False,
                     is_scheduler=False,
                 )
 

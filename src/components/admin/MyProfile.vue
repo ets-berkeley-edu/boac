@@ -73,7 +73,6 @@ export default {
       const roles = [];
       this.conditionalAppend(roles, 'Director', department.isDirector);
       this.conditionalAppend(roles, 'Advisor', department.isAdvisor);
-      this.conditionalAppend(roles, 'Drop-in Advisor', department.isDropInAdvisor);
       this.conditionalAppend(roles, 'Scheduler', department.isScheduler);
       return roles;
     }

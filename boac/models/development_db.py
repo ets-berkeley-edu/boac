@@ -34,6 +34,7 @@ from boac.models.appointment import Appointment
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
+from boac.models.drop_in_advisor import DropInAdvisor
 from boac.models.json_cache import insert_row as insert_in_json_cache
 from boac.models.topic import Topic
 from boac.models.university_dept import UniversityDept
@@ -446,10 +447,15 @@ def _create_department_memberships():
                 authorized_user=authorized_user,
                 is_advisor=user['isAdvisor'],
                 is_director=user['isDirector'],
-                is_drop_in_advisor=user['isDropInAdvisor'],
                 is_scheduler=user['isScheduler'],
                 automate_membership=user['automate_membership'],
             )
+            if user['isDropInAdvisor']:
+                DropInAdvisor.create_or_update_status(
+                    university_dept=university_dept,
+                    authorized_user=authorized_user,
+                    is_available=True,
+                )
 
 
 def _create_appointments():

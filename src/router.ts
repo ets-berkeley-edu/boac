@@ -48,13 +48,7 @@ const router = new Router({
                 const deptCode = schedulerDepartments[0].code.toLowerCase();
                 next({ path: `/appt/desk/${deptCode}` });
               } else {
-                const dropInForDepartments = auth.dropInAdvisorForDepartments(user);
-                if (_.size(dropInForDepartments)) {
-                  const deptCode = dropInForDepartments[0].code.toLowerCase();
-                  next({ path: `/home/${deptCode}` });
-                } else {
-                  next({ path: '/404' });
-                }
+                next({ path: '/404' });
               }
             }
           } else {
@@ -208,9 +202,9 @@ const router = new Router({
                 const deptCode = schedulerDepartments[0].code.toLowerCase();
                 next({ path: `/appt/desk/${deptCode}` });
               } else {
-                const dropInForDepartments = auth.dropInAdvisorForDepartments(user);
-                if (_.size(dropInForDepartments)) {
-                  const deptCode = dropInForDepartments[0].code.toLowerCase();
+                if (_.size(user.dropInAdvisorStatus)) {
+                  // We assume drop-in advisor status for one department only.
+                  const deptCode = user.dropInAdvisorStatus[0].deptCode.toLowerCase();
                   next({ path: `/home/${deptCode}` });
                 } else {
                   next();

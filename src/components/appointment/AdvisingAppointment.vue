@@ -126,7 +126,7 @@ export default {
   computed: {
     checkInAvailable() {
       return (
-        this.includes(this.dropInAdvisorDeptCodes(), this.appointment.deptCode) &&
+        this.includes(this.map((this.user.dropInAdvisorStatus || []), 'deptCode'), this.appointment.deptCode) &&
         !this.appointment.checkedInBy &&
         !this.appointment.canceledAt
       );
