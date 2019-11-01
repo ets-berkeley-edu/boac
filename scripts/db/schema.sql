@@ -107,7 +107,7 @@ CREATE INDEX appointment_topics_topic_idx ON appointment_topics (topic);
 
 --
 
-CREATE TYPE appointment_event_types AS ENUM ('canceled', 'checked_in', 'reserved', 'unreserved');
+CREATE TYPE appointment_event_types AS ENUM ('canceled', 'checked_in', 'reserved', 'waiting');
 
 --
 
@@ -121,7 +121,7 @@ CREATE TABLE appointments (
     details text,
     appointment_type character varying(255) NOT NULL,
     dept_code character varying(80) NOT NULL,
-    status appointment_event_types,
+    status appointment_event_types NOT NULL,
     created_at timestamp with time zone NOT NULL,
     created_by INTEGER NOT NULL,
     updated_at timestamp with time zone NOT NULL,
@@ -177,9 +177,9 @@ CREATE INDEX appointment_events_user_id_idx ON appointment_events (user_id);
 CREATE MATERIALIZED VIEW appointments_fts_index AS (
   SELECT
     a.id,
-    to_tsvector('english', trim(concat(a.details, ' ', events.cancel_reason, ' ', events.cancel_reason_explained))) AS fts_index
+    to_tsvector('english', trim(concat(a.details, ' ', e.cancel_reason, ' ', e.cancel_reason_explained))) AS fts_index
   FROM appointments a
-  LEFT JOIN appointment_events events ON events.appointment_id = a.id
+  LEFT JOIN appointment_events e ON e.appointment_id = a.id
   WHERE details IS NOT NULL
     AND deleted_at IS NULL
 );

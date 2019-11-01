@@ -459,12 +459,12 @@ def _create_department_memberships():
 
 
 def _create_appointments():
-    _create_pending_appointments()
+    _create_waiting_appointments()
     _create_checked_in_appointments()
-    _create_canceled_in_appointments()
+    _create_canceled_appointments()
 
 
-def _create_pending_appointments():
+def _create_waiting_appointments():
     coe_advisor_uid = '90412'
     coe_advisor_user_id = AuthorizedUser.get_id_per_uid(coe_advisor_uid)
     scheduler_uid = '6972201'
@@ -580,7 +580,7 @@ def _create_checked_in_appointments():
     )
 
 
-def _create_canceled_in_appointments():
+def _create_canceled_appointments():
     coe_advisor_uid = '90412'
     coe_advisor_user_id = AuthorizedUser.get_id_per_uid(coe_advisor_uid)
     scheduler_uid = '6972201'

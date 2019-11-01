@@ -3,13 +3,16 @@ BEGIN;
 -- Clear ALL data in appointments table
 DELETE FROM appointments;
 
-
 -- Create enum
-CREATE TYPE appointment_event_types AS ENUM ('canceled', 'checked_in', 'reserved', 'unreserved');
+CREATE TYPE appointment_event_types AS ENUM ('canceled', 'checked_in', 'reserved', 'waiting');
 
 -- Dropped columns are effectively moving to the new 'appointment_events' table. The created_by column will be
 -- restored with a foreign key constraint (authorized_users).
 DROP INDEX appointments_created_by_idx;
+
+-- Drop search index, in prep for changes below
+DROP MATERIALIZED VIEW IF EXISTS appointments_fts_index;
+DROP INDEX IF EXISTS idx_appointments_fts_index;
 
 ALTER TABLE appointments
     DROP COLUMN checked_in_at,
@@ -23,7 +26,7 @@ ALTER TABLE appointments
     DROP COLUMN deleted_by;
 
 -- New column!
-ALTER TABLE appointments ADD COLUMN status appointment_event_types;
+ALTER TABLE appointments ADD COLUMN status appointment_event_types NOT NULL;
 
 -- created_by foreign-key constraint
 ALTER TABLE appointments ADD COLUMN created_by INTEGER;
@@ -56,18 +59,15 @@ CREATE TABLE appointment_events (
 );
 
 CREATE INDEX appointment_events_appointment_id_idx ON appointment_events (appointment_id);
-CREATE INDEX appointment_events_authorized_user_id_idx ON appointment_events (authorized_user_id);
+CREATE INDEX appointment_events_user_id_idx ON appointment_events (user_id);
 
--- Drop and recreated search index, based on changes above.
-DROP MATERIALIZED VIEW appointments_fts_index;
-DROP INDEX idx_appointments_fts_index;
-
+-- Recreate search index, based on changes above
 CREATE MATERIALIZED VIEW appointments_fts_index AS (
   SELECT
     a.id,
     to_tsvector('english', trim(concat(a.details, ' ', e.cancel_reason, ' ', e.cancel_reason_explained))) AS fts_index
   FROM appointments a
-    JOIN appointment_events e ON events.appointment_id = a.id
+    JOIN appointment_events e ON e.appointment_id = a.id
   WHERE
     details IS NOT NULL
     AND deleted_at IS NULL

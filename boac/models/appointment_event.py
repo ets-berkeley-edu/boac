@@ -35,7 +35,7 @@ appointment_event_type = ENUM(
     'canceled',
     'checked_in',
     'reserved',
-    'unreserved',
+    'waiting',
     name='appointment_event_types',
     create_type=False,
 )
@@ -88,10 +88,10 @@ class AppointmentEvent(db.Model):
 
     @classmethod
     def get_most_recent_per_type(cls, appointment_id, event_type):
-        cls.query.filter(
+        return cls.query.filter(
             cls.appointment_id == appointment_id,
             cls.event_type == event_type,
-        ).order_by(desc(cls.created_at)).limit(1)
+        ).order_by(desc(cls.created_at)).limit(1).first()
 
     def to_api_json(self):
         return {
