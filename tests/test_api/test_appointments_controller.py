@@ -27,6 +27,7 @@ from boac.models.appointment import Appointment
 from boac.models.appointment_read import AppointmentRead
 from boac.models.authorized_user import AuthorizedUser
 import simplejson as json
+from sqlalchemy import and_
 from tests.util import override_config
 
 coe_advisor_uid = '90412'
@@ -90,6 +91,52 @@ class TestCreateAppointment:
         self._create_appointment(client, 'DINGO', expected_status_code=404)
 
 
+class TestAppointmentCancel:
+
+    @classmethod
+    def _cancel_appointment(
+            cls,
+            client,
+            appointment_id,
+            cancel_reason,
+            cancel_reason_explained=None,
+            expected_status_code=200,
+    ):
+        data = {
+            'cancelReason': cancel_reason,
+            'cancelReasonExplained': cancel_reason_explained,
+        }
+        response = client.post(
+            f'/api/appointments/{appointment_id}/cancel',
+            data=json.dumps(data),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_mark_read_not_authenticated(self, client):
+        """Returns 401 if not authenticated."""
+        self._cancel_appointment(client, 1, 'Canceled by student', expected_status_code=401)
+
+    def test_deny_advisor(self, app, client, fake_auth):
+        """Returns 401 if user is an advisor without drop_in responsibilities."""
+        fake_auth.login(l_s_college_advisor_uid)
+        self._cancel_appointment(client, 1, 'Canceled by advisor', expected_status_code=401)
+
+    def test_appointment_cancel(self, app, client, fake_auth):
+        """Drop-in advisor can cancel appointment."""
+        waiting = Appointment.query.filter(
+            and_(Appointment.status == 'waiting', Appointment.deleted_at == None),
+        ).first()  # noqa: E711
+        advisor = AuthorizedUser.find_by_id(waiting.created_by)
+        fake_auth.login(advisor.uid)
+        appointment = self._cancel_appointment(client, waiting.id, 'Canceled by advisor')
+        assert appointment['id'] == waiting.id
+        assert appointment['status'] == 'canceled'
+        assert appointment['canceledBy'] == advisor.id
+        assert appointment['canceledAt']
+
+
 class TestAppointmentCheckIn:
 
     @classmethod
@@ -141,15 +188,21 @@ class TestAppointmentWaitlist:
     def test_coe_scheduler_waitlist(self, app, client, fake_auth):
         """COE advisor can only see COE appointments."""
         fake_auth.login(coe_scheduler_uid)
-        appointments = self._get_waitlist(client, 'COENG')
-        assert len(appointments) == 2
-
-        appointment = appointments[0]
-        assert appointment['id'] > 0
+        waitlist = self._get_waitlist(client, 'COENG', include_resolved=True)
+        assert len(waitlist) == 6
+        appointment = next((a for a in waitlist if 'Life is what happens' in a['details']), None)
+        assert appointment
         assert appointment['createdAt'] is not None
         assert appointment['createdBy'] == AuthorizedUser.get_id_per_uid(coe_advisor_uid)
         assert 'Life is what happens' in appointment['details']
         assert appointment['appointmentType'] == 'Drop-in'
+        assert appointment['status'] == 'waiting'
+        assert appointment['canceledAt'] is None
+        assert appointment['canceledBy'] is None
+        assert appointment['checkedInAt'] is None
+        assert appointment['checkedInBy'] is None
+        assert appointment['reservedAt'] is None
+        assert appointment['reservedBy'] is None
         assert appointment['student']['sid'] == '5678901234'
         assert appointment['student']['name'] == 'Sandeep Jayaprakash'
         assert len(appointment['topics']) == 1
@@ -159,6 +212,8 @@ class TestAppointmentWaitlist:
         fake_auth.login(coe_scheduler_uid)
         appointments = self._get_waitlist(client, 'COENG', True)
         assert len(appointments) == 6
+        for appointment in appointments:
+            assert appointment['status']
 
     def test_l_and_s_advisor_waitlist(self, app, client, fake_auth):
         """L&S advisor can only see L&S appointments."""
