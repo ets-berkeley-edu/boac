@@ -301,6 +301,8 @@ class Appointment(Base):
             'canceledBy': _by(event, 'canceled'),
             'checkedInAt': _at(event, 'checked_in'),
             'checkedInBy': _by(event, 'checked_in'),
+            'reservedAt': _at(event, 'reserved'),
+            'reservedBy': _by(event, 'reserved'),
             'createdAt': _isoformat(self.created_at),
             'createdBy': self.created_by,
             'deptCode': self.dept_code,
@@ -340,6 +342,8 @@ def _to_json(search_terms, search_result):
         'canceledBy': _by(event, 'canceled'),
         'checkedInAt': _at(event, 'checked_in'),
         'checkedInBy': _by(event, 'checked_in'),
+        'reservedAt': _at(event, 'reserved'),
+        'reservedBy': _by(event, 'reserved'),
         'createdAt': _isoformat(search_result['created_at']),
         'createdBy': search_result['created_by'],
         'deptCode': search_result['dept_code'],
@@ -353,7 +357,8 @@ def _to_json(search_terms, search_result):
 
 
 def _at(event, type_):
-    return event and event.event_type == type_ and _isoformat(event.created_at)
+    created_at = event and event.event_type == type_ and _isoformat(event.created_at)
+    return created_at or None
 
 
 def _by(event, type_):
