@@ -56,8 +56,8 @@ class TestCreateAppointment:
         return response.json
 
     @classmethod
-    def _get_waitlist(cls, client, dept_code):
-        response = client.get(f'/api/appointments/waitlist/{dept_code}?includeResolved=false')
+    def _get_waitlist(cls, client, dept_code, include_resolved=False):
+        response = client.get(f'/api/appointments/waitlist/{dept_code}?includeResolved=${include_resolved}')
         assert response.status_code == 200
         return response.json
 
@@ -72,6 +72,7 @@ class TestCreateAppointment:
         appointment = self._create_appointment(client, 'COENG', details)
         waitlist = self._get_waitlist(client, 'COENG')
         matching = next((a for a in waitlist if a['details'] == details), None)
+        assert matching
         assert appointment['id'] == matching['id']
         assert appointment['read'] is True
         assert appointment['student']['sid'] == '3456789012'
@@ -145,11 +146,8 @@ class TestAppointmentWaitlist:
 
         appointment = appointments[0]
         assert appointment['id'] > 0
-        assert appointment['advisorName'] == 'Johnny C. Lately'
-        assert appointment['advisorUid'] == coe_advisor_uid
-        assert appointment['advisorDepartments'] == [{'code': 'COENG', 'name': 'College of Engineering'}]
         assert appointment['createdAt'] is not None
-        assert appointment['createdBy'] == coe_advisor_uid
+        assert appointment['createdBy'] == AuthorizedUser.get_id_per_uid(coe_advisor_uid)
         assert 'Life is what happens' in appointment['details']
         assert appointment['appointmentType'] == 'Drop-in'
         assert appointment['student']['sid'] == '5678901234'
@@ -160,7 +158,7 @@ class TestAppointmentWaitlist:
         """Waitlist includes checked-in and canceled appointments, if you ask for them."""
         fake_auth.login(coe_scheduler_uid)
         appointments = self._get_waitlist(client, 'COENG', True)
-        assert len(appointments) == 4
+        assert len(appointments) == 6
 
     def test_l_and_s_advisor_waitlist(self, app, client, fake_auth):
         """L&S advisor can only see L&S appointments."""
@@ -195,7 +193,7 @@ class TestMarkAppointmentRead:
         """L&S advisor reads an appointment."""
         # Confirm that appointment is not read
         appointment = Appointment.create(
-            created_by=coe_scheduler_uid,
+            created_by=AuthorizedUser.get_id_per_uid(coe_scheduler_uid),
             dept_code='COENG',
             details='A COE appointment.',
             student_sid='5678901234',

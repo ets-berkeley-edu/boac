@@ -577,7 +577,7 @@ class TestStudent:
         with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', True):
             student = self._api_student_by_sid(client=client, sid='5678901234')
             appointments = student['notifications']['appointment']
-            assert len(appointments) == 2
+            assert len(appointments) == 3
 
     def test_appointment_marked_read(self, app, client, fake_auth):
         """Includes advising appointments."""

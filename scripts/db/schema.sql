@@ -107,6 +107,10 @@ CREATE INDEX appointment_topics_topic_idx ON appointment_topics (topic);
 
 --
 
+CREATE TYPE appointment_event_types AS ENUM ('canceled', 'checked_in', 'reserved', 'unreserved');
+
+--
+
 CREATE TABLE appointments (
     id INTEGER NOT NULL,
     advisor_uid character varying(255),
@@ -117,18 +121,13 @@ CREATE TABLE appointments (
     details text,
     appointment_type character varying(255) NOT NULL,
     dept_code character varying(80) NOT NULL,
+    status appointment_event_types,
     created_at timestamp with time zone NOT NULL,
-    created_by character varying(255) NOT NULL,
-    checked_in_at timestamp with time zone,
-    checked_in_by character varying(255),
-    cancel_reason character varying(255),
-    cancel_reason_explained character varying(255),
-    canceled_at timestamp with time zone,
-    canceled_by character varying(255),
+    created_by INTEGER NOT NULL,
     updated_at timestamp with time zone NOT NULL,
-    updated_by character varying(255) NOT NULL,
+    updated_by INTEGER NOT NULL,
     deleted_at timestamp with time zone,
-    deleted_by character varying(255)
+    deleted_by INTEGER
 );
 ALTER TABLE appointments OWNER TO boac;
 CREATE SEQUENCE appointments_id_seq
@@ -146,14 +145,41 @@ CREATE INDEX appointments_created_by_idx ON appointments(created_by);
 CREATE INDEX appointments_advisor_uid_idx ON appointments(advisor_uid);
 CREATE INDEX appointments_student_sid_idx ON appointments(student_sid);
 
+--
+
+CREATE TABLE appointment_events (
+  id INTEGER NOT NULL,
+  appointment_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  event_type appointment_event_types NOT NULL,
+  cancel_reason VARCHAR(255),
+  cancel_reason_explained VARCHAR(255),
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+ALTER TABLE appointment_events OWNER TO boac;
+CREATE SEQUENCE appointment_events_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE appointment_events_id_seq OWNER TO boac;
+ALTER SEQUENCE appointment_events_id_seq OWNED BY appointment_events.id;
+ALTER TABLE ONLY appointment_events ALTER COLUMN id SET DEFAULT nextval('appointment_events_id_seq'::regclass);
+ALTER TABLE ONLY appointment_events
+    ADD CONSTRAINT appointment_events_pkey PRIMARY KEY (id);
+CREATE INDEX appointment_events_appointment_id_idx ON appointment_events (appointment_id);
+CREATE INDEX appointment_events_user_id_idx ON appointment_events (user_id);
 
 --
 
 CREATE MATERIALIZED VIEW appointments_fts_index AS (
   SELECT
-    id,
-    to_tsvector('english', trim(concat(details, ' ', cancel_reason, ' ', cancel_reason_explained))) AS fts_index
-  FROM appointments
+    a.id,
+    to_tsvector('english', trim(concat(a.details, ' ', events.cancel_reason, ' ', events.cancel_reason_explained))) AS fts_index
+  FROM appointments a
+  LEFT JOIN appointment_events events ON events.appointment_id = a.id
   WHERE details IS NOT NULL
     AND deleted_at IS NULL
 );
@@ -608,6 +634,22 @@ CREATE INDEX user_logins_uid_idx ON user_logins USING btree (uid);
 
 ALTER TABLE ONLY appointment_topics
     ADD CONSTRAINT appointment_topics_appointment_id_fkey FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE CASCADE;
+
+--
+
+ALTER TABLE ONLY appointments
+    ADD CONSTRAINT appointments_created_by_fkey FOREIGN KEY (created_by) REFERENCES authorized_users(id) ON DELETE CASCADE;
+ALTER TABLE ONLY appointments
+    ADD CONSTRAINT appointments_deleted_by_fkey FOREIGN KEY (deleted_by) REFERENCES authorized_users(id) ON DELETE CASCADE;
+ALTER TABLE ONLY appointments
+    ADD CONSTRAINT appointments_updated_by_fkey FOREIGN KEY (updated_by) REFERENCES authorized_users(id) ON DELETE CASCADE;
+
+--
+
+ALTER TABLE ONLY appointment_events
+    ADD CONSTRAINT appointment_events_appointment_id_fkey FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE CASCADE;
+ALTER TABLE ONLY appointment_events
+    ADD CONSTRAINT appointment_events_user_id_updated_by_fkey FOREIGN KEY (user_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
 
 --
 
