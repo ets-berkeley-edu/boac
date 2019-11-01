@@ -29,6 +29,7 @@ from boac.lib import util
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
 from boac.merged import calnet
+from boac.merged.user_session import UserSession
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.drop_in_advisor import DropInAdvisor
 from boac.models.university_dept import UniversityDept
@@ -109,6 +110,18 @@ def delete_university_dept_membership(university_dept_id, authorized_user_id):
         {'message': f'University dept membership deleted: university_dept_id={university_dept_id} authorized_user_id={authorized_user_id}'},
         status=200,
     )
+
+
+@app.route('/api/user/<uid>/drop_in_status/<dept_code>/activate', methods=['POST'])
+@scheduler_required
+def activate_drop_in_status(uid, dept_code):
+    return _update_drop_in_status(uid, dept_code, True)
+
+
+@app.route('/api/user/<uid>/drop_in_status/<dept_code>/deactivate', methods=['POST'])
+@scheduler_required
+def deactivate_drop_in_status(uid, dept_code):
+    return _update_drop_in_status(uid, dept_code, False)
 
 
 @app.route('/api/users/all')
@@ -202,3 +215,22 @@ def _get_boa_user_groups(sort_users_by=None):
         dept['users'] = authorized_users_api_feed(dept['users'], sort_users_by)
         user_groups.append(dept)
     return sorted(user_groups, key=lambda dept: dept['name'])
+
+
+def _update_drop_in_status(uid, dept_code, active):
+    if uid == 'me':
+        uid = current_user.get_uid()
+    else:
+        authorized_to_toggle = current_user.is_admin or dept_code in [d['code'] for d in current_user.departments if d.get('isScheduler')]
+        if not authorized_to_toggle:
+            raise errors.ForbiddenRequestError(f'Unauthorized to toggle drop-in status for department {dept_code}')
+    drop_in_status = None
+    user = AuthorizedUser.find_by_uid(uid)
+    if user:
+        drop_in_status = next((d for d in user.drop_in_departments if d.dept_code == dept_code), None)
+    if drop_in_status:
+        drop_in_status.update_availability(active)
+        UserSession.flush_cache_for_id(user.id)
+        return tolerant_jsonify(drop_in_status.to_api_json())
+    else:
+        raise errors.ResourceNotFoundError(f'No drop-in advisor status found: (uid={uid}, dept_code={dept_code})')

@@ -49,6 +49,10 @@ class UserSession(UserMixin):
     def flush_cached(self):
         clear(f'boa_user_session_{self.user_id}')
 
+    @classmethod
+    def flush_cache_for_id(cls, user_id):
+        clear(f'boa_user_session_{user_id}')
+
     def get_id(self):
         return self.user_id
 
