@@ -36,7 +36,7 @@ from boac.models.appointment_topic import AppointmentTopic
 from boac.models.base import Base
 from dateutil.tz import tzutc
 import pytz
-from sqlalchemy import and_, or_
+from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql import desc, text
 
@@ -58,7 +58,7 @@ class Appointment(Base):
     deleted_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=True)
     dept_code = db.Column(db.String(80), nullable=False)
     details = db.Column(db.Text, nullable=True)
-    status = db.Column(appointment_event_type, nullable=True)
+    status = db.Column(appointment_event_type, nullable=False)
     student_sid = db.Column(db.String(80), nullable=False)
     updated_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=True)
     topics = db.relationship(
@@ -74,6 +74,7 @@ class Appointment(Base):
         created_by,
         dept_code,
         details,
+        status,
         student_sid,
         updated_by,
         advisor_dept_codes=None,
@@ -89,6 +90,7 @@ class Appointment(Base):
         self.created_by = created_by
         self.dept_code = dept_code
         self.details = details
+        self.status = status
         self.student_sid = student_sid
         self.updated_by = updated_by
 
@@ -130,10 +132,7 @@ class Appointment(Base):
             )  # noqa: E711
         else:
             criterion = and_(
-                or_(
-                    cls.status == None,
-                    cls.status.in_(['reserved', 'unreserved']),
-                ),
+                cls.status.in_(['reserved', 'waiting']),
                 cls.deleted_at == None,
                 cls.dept_code == dept_code,
             )  # noqa: E711
@@ -154,6 +153,7 @@ class Appointment(Base):
             created_by=created_by,
             dept_code=dept_code,
             details=details,
+            status='waiting',
             student_sid=student_sid,
             updated_by=created_by,
         )
@@ -171,7 +171,6 @@ class Appointment(Base):
         appointment = cls.find_by_id(appointment_id=appointment_id)
         if appointment:
             appointment.status = 'checked_in'
-            appointment.checked_in_by = checked_in_by
             appointment.advisor_uid = advisor_uid
             appointment.advisor_name = advisor_name
             appointment.advisor_role = advisor_role
@@ -298,10 +297,10 @@ class Appointment(Base):
             'appointmentType': self.appointment_type,
             'cancelReason': event and event.cancel_reason,
             'cancelReasonExplained': event and event.cancel_reason_explained,
-            'canceledAt': event and _isoformat(event.canceled_at),
-            'canceledBy': event and event.canceled_by,
-            'checkedInAt': event and _isoformat(event.checked_in_at),
-            'checkedInBy': event and event.checked_in_by,
+            'canceledAt': _at(event, 'canceled'),
+            'canceledBy': _by(event, 'canceled'),
+            'checkedInAt': _at(event, 'checked_in'),
+            'checkedInBy': _by(event, 'checked_in'),
             'createdAt': _isoformat(self.created_at),
             'createdBy': self.created_by,
             'deptCode': self.dept_code,
@@ -335,13 +334,12 @@ def _to_json(search_terms, search_result):
         'advisorRole': search_result['advisor_role'],
         'advisorUid': search_result['advisor_uid'],
         'advisorDeptCodes': search_result['advisor_dept_codes'],
-
         'cancelReason': event and event.cancel_reason,
         'cancelReasonExplained': event and event.cancel_reason_explained,
-        'canceledAt': event and _isoformat(event.canceled_at),
-        'canceledBy': event and event.canceled_by,
-        'checkedInAt': event and _isoformat(event.checked_in_at),
-        'checkedInBy': event and event.checked_in_by,
+        'canceledAt': _at(event, 'canceled'),
+        'canceledBy': _by(event, 'canceled'),
+        'checkedInAt': _at(event, 'checked_in'),
+        'checkedInBy': _by(event, 'checked_in'),
         'createdAt': _isoformat(search_result['created_at']),
         'createdBy': search_result['created_by'],
         'deptCode': search_result['dept_code'],
@@ -352,3 +350,11 @@ def _to_json(search_terms, search_result):
         'updatedAt': _isoformat(search_result['updated_at']),
         'updatedBy': search_result['updated_by'],
     }
+
+
+def _at(event, type_):
+    return event and event.event_type == type_ and _isoformat(event.created_at)
+
+
+def _by(event, type_):
+    return event and event.event_type == type_ and event.user_id
