@@ -168,8 +168,9 @@ def get_appointment_topics():
 
 
 def _dept_codes_with_scheduler_privilege():
-    departments = [d for d in current_user.departments if d.get('isScheduler') or d.get('isDropInAdvisor')]
-    return [d['code'] for d in departments]
+    scheduler_dept_codes = [d['code'] for d in current_user.departments if d.get('isScheduler')]
+    drop_in_advisor_dept_codes = [d['deptCode'] for d in current_user.drop_in_advisor_departments]
+    return scheduler_dept_codes + drop_in_advisor_dept_codes
 
 
 def _put_student_profile_per_appointment(waitlist):

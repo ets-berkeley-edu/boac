@@ -77,8 +77,8 @@ def scheduler_required(func):
         is_authorized = current_user.is_authenticated \
             and (
                 current_user.is_admin
+                or current_user.is_drop_in_advisor
                 or _has_role_in_any_department(current_user, 'isScheduler')
-                or _has_role_in_any_department(current_user, 'isDropInAdvisor')
             )
         if is_authorized or _api_key_ok():
             return func(*args, **kw)
@@ -123,11 +123,12 @@ def authorized_users_api_feed(users, sort_by='lastName'):
                     'deptName': m.university_dept.dept_name,
                     'isAdvisor': m.is_advisor,
                     'isDirector': m.is_director,
-                    'isDropInAdvisor': m.is_drop_in_advisor,
                     'isScheduler': m.is_scheduler,
                     'automateMembership': m.automate_membership,
                 },
             })
+        if user.drop_in_departments:
+            profile['dropInAdvisorStatus'] = [d.to_api_json() for d in user.drop_in_departments]
         profiles.append(profile)
     return sorted(profiles, key=lambda p: p.get(sort_by) or '')
 

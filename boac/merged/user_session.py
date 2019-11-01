@@ -71,8 +71,19 @@ class UserSession(UserMixin):
         return not self.api_json['isAnonymous']
 
     @property
+    def is_drop_in_advisor(self):
+        if self.api_json['dropInAdvisorStatus']:
+            return True
+        else:
+            return False
+
+    @property
     def departments(self):
         return self.api_json['departments']
+
+    @property
+    def drop_in_advisor_departments(self):
+        return self.api_json['dropInAdvisorStatus']
 
     @property
     def is_admin(self):
@@ -114,7 +125,6 @@ class UserSession(UserMixin):
                         'role': get_dept_role(m),
                         'isAdvisor': m.is_advisor,
                         'isDirector': m.is_director,
-                        'isDropInAdvisor': m.is_drop_in_advisor,
                         'isScheduler': m.is_scheduler,
                     })
         is_active = False
@@ -125,10 +135,13 @@ class UserSession(UserMixin):
                 is_active = True
             elif len(user.department_memberships):
                 for m in user.department_memberships:
-                    is_active = m.is_advisor or m.is_drop_in_advisor or m.is_director or m.is_scheduler
+                    is_active = m.is_advisor or m.is_director or m.is_scheduler
                     if is_active:
                         break
         is_admin = user and user.is_admin
+        drop_in_advisor_status = []
+        if user and len(user.drop_in_departments):
+            drop_in_advisor_status = [d.to_api_json() for d in user.drop_in_departments]
         return {
             **(calnet_profile or {}),
             **{
@@ -141,5 +154,6 @@ class UserSession(UserMixin):
                 'inDemoMode': user and user.in_demo_mode,
                 'canAccessCanvasData': user and user.can_access_canvas_data,
                 'uid': user and user.uid,
+                'dropInAdvisorStatus': drop_in_advisor_status,
             },
         }

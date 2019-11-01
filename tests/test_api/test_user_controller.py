@@ -73,27 +73,27 @@ class TestUserProfile:
         api_json = self._api_my_profile(client)
         assert api_json['isAdmin'] is False
         assert api_json['canAccessCanvasData'] is False
+        assert not api_json['dropInAdvisorStatus']
         departments = api_json['departments']
         assert len(departments) == 1
         assert departments[0]['code'] == 'COENG'
         assert departments[0]['name'] == 'College of Engineering'
         assert departments[0]['isAdvisor'] is False
         assert departments[0]['isDirector'] is False
-        assert departments[0]['isDropInAdvisor'] is False
         assert departments[0]['isScheduler'] is True
 
     def test_asc_advisor_exclude_cohorts(self, client, fake_auth):
-        """Returns Athletic Study Center advisor."""
+        """Returns Athletic Study Center drop-in advisor."""
         fake_auth.login(asc_advisor_uid)
         api_json = self._api_my_profile(client)
         assert api_json['canAccessCanvasData'] is True
+        assert api_json['dropInAdvisorStatus'] == [{'deptCode': 'UWASC', 'available': True}]
         departments = api_json['departments']
         assert len(departments) == 1
         assert departments[0]['code'] == 'UWASC'
         assert departments[0]['name'] == 'Athletic Study Center'
         assert departments[0]['isAdvisor'] is True
         assert departments[0]['isDirector'] is False
-        assert departments[0]['isDropInAdvisor'] is True
         assert departments[0]['isScheduler'] is False
 
     def test_other_user_profile(self, client, fake_auth):
@@ -148,7 +148,6 @@ class TestUniversityDeptMember:
             client,
             is_advisor=True,
             is_director=False,
-            is_drop_in_advisor=False,
             is_scheduler=False,
             automate_membership=False,
             expected_status_code=200,
@@ -158,7 +157,6 @@ class TestUniversityDeptMember:
             'uid': coe_advisor_uid,
             'isAdvisor': is_advisor,
             'isDirector': is_director,
-            'isDropInAdvisor': is_drop_in_advisor,
             'isScheduler': is_scheduler,
             'automateMembership': automate_membership,
         }
@@ -176,7 +174,6 @@ class TestUniversityDeptMember:
             client,
             is_advisor=None,
             is_director=None,
-            is_drop_in_advisor=False,
             is_scheduler=None,
             automate_membership=None,
             expected_status_code=200,
@@ -186,7 +183,6 @@ class TestUniversityDeptMember:
             'uid': coe_advisor_uid,
             'isAdvisor': is_advisor,
             'isDirector': is_director,
-            'isDropInAdvisor': is_drop_in_advisor,
             'isScheduler': is_scheduler,
             'automateMembership': automate_membership,
         }
@@ -313,7 +309,7 @@ class TestUsers:
         response = client.get('/api/users/drop_in_advisors/qcadv')
         assert response.status_code == 200
         assert len(response.json) == 1
-        assert response.json[0]['departments']['QCADV']['isDropInAdvisor'] is True
+        assert response.json[0]['dropInAdvisorStatus'][0] == {'available': True, 'deptCode': 'QCADV'}
 
 
 class TestDemoMode:

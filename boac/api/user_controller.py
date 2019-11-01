@@ -30,6 +30,7 @@ from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
 from boac.merged import calnet
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.drop_in_advisor import DropInAdvisor
 from boac.models.university_dept import UniversityDept
 from boac.models.university_dept_member import UniversityDeptMember
 from flask import current_app as app, request
@@ -72,7 +73,6 @@ def add_university_dept_membership():
         authorized_user=user,
         is_advisor=params.get('isAdvisor', False),
         is_director=params.get('isDirector', False),
-        is_drop_in_advisor=params.get('isDropInAdvisor', False),
         is_scheduler=params.get('isScheduler', False),
         automate_membership=params.get('automateMembership', True),
     )
@@ -90,7 +90,6 @@ def update_university_dept_membership():
         authorized_user_id=user.id,
         is_advisor=params.get('isAdvisor', None),
         is_director=params.get('isDirector', None),
-        is_drop_in_advisor=params.get('isDropInAdvisor', False),
         is_scheduler=params.get('isScheduler', False),
         automate_membership=params.get('automateMembership', None),
     )
@@ -123,8 +122,8 @@ def all_users():
 @scheduler_required
 def drop_in_advisors_for_dept(dept_code):
     dept_code = dept_code.upper()
-    memberships = UniversityDeptMember.memberships_for_dept_code(dept_code, is_drop_in_advisor=True)
-    return tolerant_jsonify(authorized_users_api_feed([m.authorized_user for m in memberships]))
+    advisor_assignments = DropInAdvisor.advisors_for_dept_code(dept_code)
+    return tolerant_jsonify(authorized_users_api_feed([a.authorized_user for a in advisor_assignments]))
 
 
 @app.route('/api/user/demo_mode', methods=['POST'])

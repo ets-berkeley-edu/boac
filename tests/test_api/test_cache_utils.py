@@ -161,7 +161,6 @@ class TestRefreshDepartmentMemberships:
             bad_user,
             is_advisor=True,
             is_director=False,
-            is_drop_in_advisor=False,
             is_scheduler=False,
         )
         std_commit(allow_test_environment=True)
@@ -188,7 +187,6 @@ class TestRefreshDepartmentMemberships:
             manually_added_user,
             is_advisor=True,
             is_director=False,
-            is_drop_in_advisor=False,
             is_scheduler=False,
             automate_membership=False,
         )
@@ -268,7 +266,6 @@ class TestRefreshDepartmentMemberships:
             user,
             is_advisor=True,
             is_director=False,
-            is_drop_in_advisor=False,
             is_scheduler=False,
         )
         dept_ucls = UniversityDept.query.filter_by(dept_code='QCADVMAJ').first()

@@ -48,6 +48,8 @@ ALTER TABLE IF EXISTS ONLY public.appointments_read DROP CONSTRAINT IF EXISTS ap
 ALTER TABLE IF EXISTS ONLY public.appointments_read DROP CONSTRAINT IF EXISTS appointments_read_viewer_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_cohort_filter_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_user_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.drop_in_advisors DROP CONSTRAINT IF EXISTS drop_in_advisors_authorized_user_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.drop_in_advisors DROP CONSTRAINT IF EXISTS drop_in_advisors_dept_code_fkey;
 ALTER TABLE IF EXISTS ONLY public.note_attachments DROP CONSTRAINT IF EXISTS note_attachments_note_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.note_attachments DROP CONSTRAINT IF EXISTS note_attachments_note_id_path_to_attachment_unique_constraint;
 ALTER TABLE IF EXISTS ONLY public.note_template_attachments DROP CONSTRAINT IF EXISTS note_template_attachments_note_template_id_fkey;
@@ -109,6 +111,7 @@ ALTER TABLE IF EXISTS ONLY public.authorized_users DROP CONSTRAINT IF EXISTS aut
 ALTER TABLE IF EXISTS ONLY public.authorized_users DROP CONSTRAINT IF EXISTS authorized_users_uid_key;
 ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_pkey;
 ALTER TABLE IF EXISTS ONLY public.cohort_filters DROP CONSTRAINT IF EXISTS cohort_filters_pkey;
+ALTER TABLE IF EXISTS ONLY public.drop_in_advisors DROP CONSTRAINT IF EXISTS drop_in_advisors;
 ALTER TABLE IF EXISTS ONLY public.json_cache DROP CONSTRAINT IF EXISTS json_cache_key_key;
 ALTER TABLE IF EXISTS ONLY public.json_cache DROP CONSTRAINT IF EXISTS json_cache_pkey;
 ALTER TABLE IF EXISTS ONLY public.manually_added_advisees DROP CONSTRAINT IF EXISTS manually_added_advisees_pkey;
@@ -151,6 +154,7 @@ DROP TABLE IF EXISTS public.manually_added_advisees;
 DROP SEQUENCE IF EXISTS public.json_cache_id_seq;
 DROP TABLE IF EXISTS public.json_cache;
 DROP SEQUENCE IF EXISTS public.cohort_filters_id_seq;
+DROP TABLE IF EXISTS public.drop_in_advisors;
 DROP TABLE IF EXISTS public.cohort_filters;
 DROP TABLE IF EXISTS public.cohort_filter_owners;
 DROP SEQUENCE IF EXISTS public.authorized_users_id_seq;

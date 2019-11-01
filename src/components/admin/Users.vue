@@ -284,10 +284,10 @@ export default {
       const deletedMatch = this.includes(this.filterStatuses, 'deletedAt') && user.deletedAt;
       const deptMatch = !this.filterDept || this.filterDept === 'ALL' || this.includes(this.keys(user.departments), this.filterDept);
       const directorMatch = this.includes(this.filterPermissions, 'isDirector') && this.find(user.departments, (dept) => dept.isDirector);
-      const dropInAdvisorMatch = this.includes(this.filterPermissions, 'isDropInAdvisor') && this.find(user.departments, (dept) => dept.isDropInAdvisor);
+      const dropInAdvisorMatch = this.includes(this.filterPermissions, 'isDropInAdvisor') && this.size(user.dropInAdvisorStatus);
       const expiredMatch = this.includes(this.filterStatuses, 'isExpiredPerLdap') && user.isExpiredPerLdap;
       const nameUidMatch = !this.filterNameUid || this.includes(user.name.toLowerCase(), this.filterNameUid.toLowerCase()) || this.includes(user.uid, this.filterNameUid);
-      const noPermissionsMatch = this.isEmpty(this.filterPermissions) && !user.isAdmin && !this.find(user.departments, (dept) => dept.isAdvisor || dept.isDirector || dept.isDropInAdvisor || dept.isScheduler);
+      const noPermissionsMatch = this.isEmpty(this.filterPermissions) && !user.isAdmin && !this.find(user.departments, (dept) => dept.isAdvisor || dept.isDirector || dept.isScheduler);
       const schedulerMatch = this.includes(this.filterPermissions, 'isScheduler') && this.find(user.departments, (dept) => dept.isScheduler);
 
       const permissionsMatch = adminMatch || advisorMatch || canvasAccessMatch || directorMatch || dropInAdvisorMatch || schedulerMatch || noPermissionsMatch;
@@ -301,7 +301,7 @@ export default {
     canBecome(user) {
       const isNotMe = user.uid !== this.user.uid;
       const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked;
-      const hasAnyRole = user.isAdmin || this.find(user.departments, (dept) => dept.isAdvisor || dept.isDirector || dept.isDropInAdvisor || dept.isScheduler);
+      const hasAnyRole = user.isAdmin || this.find(user.departments, (dept) => dept.isAdvisor || dept.isDirector || dept.isScheduler);
       return this.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole;
     },
     deptRoles(dept) {
@@ -309,7 +309,6 @@ export default {
       this.each([
         {key: 'isAdvisor', label: 'Advisor'},
         {key: 'isDirector', label: 'Director'},
-        {key: 'isDropInAdvisor', label: 'Drop-In Advisor'},
         {key: 'isScheduler', label: 'Scheduler'}
       ], role => {
         if (this.get(dept, role.key)) {
