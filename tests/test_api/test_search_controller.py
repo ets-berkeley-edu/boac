@@ -404,7 +404,12 @@ class TestNoteAndAppointmentSearch:
     def test_search_by_appointment_cancel_reason(self, coe_advisor, client):
         """Appointments can be searched for by cancel reason and cancel reason explained."""
         appointment = Appointment.find_by_id(1)
-        Appointment.cancel(appointment.id, '6972201', 'Sick cat', 'Student needed to attend to ailing feline.')
+        Appointment.cancel(
+            appointment_id=appointment.id,
+            canceled_by=AuthorizedUser.get_id_per_uid('6972201'),
+            cancel_reason='Sick cat',
+            cancel_reason_explained='Student needed to attend to ailing feline.',
+        )
         response = client.post(
             '/api/search',
             data=json.dumps({'appointments': True, 'notes': True, 'searchPhrase': 'cat'}),
@@ -437,7 +442,7 @@ class TestNoteAndAppointmentSearch:
             }),
             content_type='application/json',
         )
-        self._assert(response, note_count=1, appointment_count=1, note_ids=['11667051-00001'])
+        self._assert(response, note_count=1, appointment_count=2, note_ids=['11667051-00001'])
 
     def test_note_search_validates_date_formatting(self, coe_advisor, client):
         response = client.post(
@@ -576,14 +581,14 @@ class TestNoteAndAppointmentSearch:
             '/api/search',
             data=json.dumps({
                 'appointments': True,
-                'notes': True, 'searchPhrase':
-                'making',
+                'notes': True,
+                'searchPhrase': 'making',
                 'appointmentOptions': {'topic': 'Good Show'},
                 'noteOptions': {'topic': 'Good Show'},
             }),
             content_type='application/json',
         )
-        self._assert(response, note_count=1, appointment_count=1, note_ids=['11667051-00001'])
+        self._assert(response, note_count=1, appointment_count=2, note_ids=['11667051-00001'])
 
     def test_search_with_no_input_and_topic(self, coe_advisor, client):
         """Notes and appointments search needs no input when topic set."""
@@ -598,7 +603,7 @@ class TestNoteAndAppointmentSearch:
             }),
             content_type='application/json',
         )
-        self._assert(response, note_count=1, appointment_count=2, note_ids=['11667051-00001'])
+        self._assert(response, note_count=1, appointment_count=3, note_ids=['11667051-00001'])
 
     def test_search_by_note_author_sis(self, coe_advisor, client):
         """Searches SIS notes by advisor CSID if posted by option is selected."""
@@ -638,7 +643,6 @@ class TestNoteAndAppointmentSearch:
                 'appointments': True,
                 'notes': True,
                 'searchPhrase': 'catch',
-                'appointmentOptions': {'advisorCsid': '53791'},
                 'noteOptions': {'advisorCsid': '53791'},
             }),
             content_type='application/json',
@@ -670,7 +674,7 @@ class TestNoteAndAppointmentSearch:
             }),
             content_type='application/json',
         )
-        self._assert(response, appointment_count=2)
+        self._assert(response, appointment_count=1)
 
     def test_search_by_student(self, coe_advisor, client):
         """Searches notes and appointments by student CSID."""
@@ -700,7 +704,7 @@ class TestNoteAndAppointmentSearch:
             }),
             content_type='application/json',
         )
-        self._assert(response, note_count=8, appointment_count=1)
+        self._assert(response, note_count=8, appointment_count=2)
 
     def test_note_search_limit(self, coe_advisor, client):
         """Limits search to the first n appointments and the first n notes."""
@@ -745,7 +749,7 @@ class TestNoteAndAppointmentSearch:
             }),
             content_type='application/json',
         )
-        self._assert(response, note_count=8, appointment_count=1)
+        self._assert(response, note_count=8, appointment_count=2)
 
 
 def _get_common_sids(student_list_1, student_list_2):

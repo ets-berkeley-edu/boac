@@ -37,6 +37,11 @@ SET row_security = off;
 ALTER TABLE IF EXISTS ONLY public.alert_views DROP CONSTRAINT IF EXISTS alert_views_alert_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.alert_views DROP CONSTRAINT IF EXISTS alert_views_viewer_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_sid_fkey;
+ALTER TABLE IF EXISTS ONLY public.appointments DROP CONSTRAINT IF EXISTS appointments_created_by_fkey;
+ALTER TABLE IF EXISTS ONLY public.appointments DROP CONSTRAINT IF EXISTS appointments_deleted_by_fkey;
+ALTER TABLE IF EXISTS ONLY public.appointments DROP CONSTRAINT IF EXISTS appointments_updated_by_fkey;
+ALTER TABLE IF EXISTS ONLY public.appointment_events DROP CONSTRAINT IF EXISTS appointment_events_appointment_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.appointment_events DROP CONSTRAINT IF EXISTS appointment_events_user_id_updated_by_fkey;
 ALTER TABLE IF EXISTS ONLY public.appointment_topics DROP CONSTRAINT IF EXISTS appointment_topics_appointment_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.appointment_topics DROP CONSTRAINT IF EXISTS appointment_topics_appointment_id_topic_unique_constraint;
 ALTER TABLE IF EXISTS ONLY public.appointments_read DROP CONSTRAINT IF EXISTS appointments_read_appointment_id_fkey;
@@ -64,6 +69,8 @@ ALTER TABLE IF EXISTS ONLY public.user_logins DROP CONSTRAINT IF EXISTS user_log
 --
 
 DROP INDEX IF EXISTS public.idx_appointments_fts_index;
+DROP INDEX IF EXISTS public.appointment_events_appointment_id_idx;
+DROP INDEX IF EXISTS public.appointment_events_user_id_idx;
 DROP INDEX IF EXISTS public.appointment_topics_appointment_id_idx;
 DROP INDEX IF EXISTS public.appointment_topics_topic_idx;
 DROP INDEX IF EXISTS public.appointments_created_by_idx;
@@ -149,6 +156,8 @@ DROP TABLE IF EXISTS public.cohort_filter_owners;
 DROP SEQUENCE IF EXISTS public.authorized_users_id_seq;
 DROP TABLE IF EXISTS public.authorized_users;
 DROP MATERIALIZED VIEW IF EXISTS public.appointments_fts_index;
+DROP TABLE IF EXISTS public.appointment_events;
+DROP SEQUENCE IF EXISTS public.appointment_events_id_seq;
 DROP TABLE IF EXISTS public.appointment_topics;
 DROP SEQUENCE IF EXISTS public.appointment_topics_id_seq;
 DROP TABLE IF EXISTS public.appointments;
@@ -170,3 +179,5 @@ DROP TABLE IF EXISTS public.university_depts;
 DROP SEQUENCE IF EXISTS public.university_depts_id_seq;
 DROP TABLE IF EXISTS public.user_logins;
 DROP SEQUENCE IF EXISTS public.user_logins_id_seq;
+
+DROP TYPE IF EXISTS public.appointment_event_types;

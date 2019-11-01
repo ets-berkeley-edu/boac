@@ -68,7 +68,7 @@ def appointment_check_in(appointment_id):
             raise BadRequestError('Appointment check-in requires \'advisor_uid\'')
         appointment = Appointment.check_in(
             appointment_id=appointment_id,
-            checked_in_by=current_user.get_uid(),
+            checked_in_by=current_user.get_id(),
             advisor_dept_codes=params.get('advisorDeptCodes', None),
             advisor_name=params.get('advisorName', None),
             advisor_role=params.get('advisorRole', None),
@@ -91,7 +91,7 @@ def cancel_appointment(appointment_id):
         cancel_reason_explained = params.get('cancelReasonExplained', None)
         appointment = Appointment.cancel(
             appointment_id=appointment_id,
-            canceled_by=current_user.get_uid(),
+            canceled_by=current_user.get_id(),
             cancel_reason=cancel_reason,
             cancel_reason_explained=cancel_reason_explained,
         )
@@ -118,7 +118,7 @@ def create_appointment():
     if dept_code not in _dept_codes_with_scheduler_privilege():
         raise ForbiddenRequestError(f'You are unauthorized to manage {dept_code} appointments.')
     appointment = Appointment.create(
-        created_by=current_user.get_uid(),
+        created_by=current_user.get_id(),
         dept_code=dept_code,
         details=params.get('details', None),
         appointment_type=appointment_type,

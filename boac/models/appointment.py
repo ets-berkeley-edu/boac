@@ -30,12 +30,13 @@ from boac import db, std_commit
 from boac.externals import data_loch
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.util import camelize, search_result_text_snippet
+from boac.models.appointment_event import appointment_event_type, AppointmentEvent
 from boac.models.appointment_read import AppointmentRead
 from boac.models.appointment_topic import AppointmentTopic
 from boac.models.base import Base
 from dateutil.tz import tzutc
 import pytz
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql import desc, text
 
@@ -52,19 +53,14 @@ class Appointment(Base):
     advisor_role = db.Column(db.String(255), nullable=True)
     advisor_uid = db.Column(db.String(255), nullable=True)
     appointment_type = db.Column(db.String(255), nullable=True)
-    cancel_reason = db.Column(db.String(255), nullable=True)
-    cancel_reason_explained = db.Column(db.String(255), nullable=True)
-    canceled_at = db.Column(db.DateTime, nullable=True)
-    canceled_by = db.Column(db.String(255), nullable=True)
-    checked_in_at = db.Column(db.DateTime, nullable=True)
-    checked_in_by = db.Column(db.String(255), nullable=True)
-    created_by = db.Column(db.String(255), nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
-    deleted_by = db.Column(db.String(255), nullable=True)
+    deleted_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=True)
     dept_code = db.Column(db.String(80), nullable=False)
     details = db.Column(db.Text, nullable=True)
+    status = db.Column(appointment_event_type, nullable=True)
     student_sid = db.Column(db.String(80), nullable=False)
-    updated_by = db.Column(db.String(255), nullable=False)
+    updated_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=True)
     topics = db.relationship(
         'AppointmentTopic',
         primaryjoin='and_(Appointment.id==AppointmentTopic.appointment_id, AppointmentTopic.deleted_at==None)',
@@ -74,16 +70,16 @@ class Appointment(Base):
 
     def __init__(
         self,
-        advisor_dept_codes,
-        advisor_name,
-        advisor_role,
-        advisor_uid,
         appointment_type,
         created_by,
         dept_code,
         details,
         student_sid,
         updated_by,
+        advisor_dept_codes=None,
+        advisor_name=None,
+        advisor_role=None,
+        advisor_uid=None,
     ):
         self.advisor_dept_codes = advisor_dept_codes
         self.advisor_name = advisor_name
@@ -134,8 +130,10 @@ class Appointment(Base):
             )  # noqa: E711
         else:
             criterion = and_(
-                cls.canceled_at == None,
-                cls.checked_in_at == None,
+                or_(
+                    cls.status == None,
+                    cls.status.in_(['reserved', 'unreserved']),
+                ),
                 cls.deleted_at == None,
                 cls.dept_code == dept_code,
             )  # noqa: E711
@@ -150,21 +148,13 @@ class Appointment(Base):
             appointment_type,
             student_sid,
             topics=(),
-            advisor_dept_codes=None,
-            advisor_name=None,
-            advisor_role=None,
-            advisor_uid=None,
     ):
         appointment = cls(
-            advisor_dept_codes,
-            advisor_name,
-            advisor_role,
-            advisor_uid,
-            appointment_type,
-            created_by,
-            dept_code,
-            details,
-            student_sid,
+            appointment_type=appointment_type,
+            created_by=created_by,
+            dept_code=dept_code,
+            details=details,
+            student_sid=student_sid,
             updated_by=created_by,
         )
         for topic in topics:
@@ -180,7 +170,7 @@ class Appointment(Base):
     def check_in(cls, appointment_id, checked_in_by, advisor_uid, advisor_name, advisor_role, advisor_dept_codes):
         appointment = cls.find_by_id(appointment_id=appointment_id)
         if appointment:
-            appointment.checked_in_at = datetime.now()
+            appointment.status = 'checked_in'
             appointment.checked_in_by = checked_in_by
             appointment.advisor_uid = advisor_uid
             appointment.advisor_name = advisor_name
@@ -189,6 +179,11 @@ class Appointment(Base):
             appointment.updated_by = checked_in_by
             std_commit()
             db.session.refresh(appointment)
+            AppointmentEvent.create(
+                appointment_id=appointment.id,
+                user_id=checked_in_by,
+                event_type='checked_in',
+            )
             return appointment
         else:
             return None
@@ -197,11 +192,16 @@ class Appointment(Base):
     def cancel(cls, appointment_id, canceled_by, cancel_reason, cancel_reason_explained):
         appointment = cls.find_by_id(appointment_id=appointment_id)
         if appointment:
-            appointment.canceled_at = datetime.now()
-            appointment.canceled_by = canceled_by
-            appointment.cancel_reason = cancel_reason
-            appointment.cancel_reason_explained = cancel_reason_explained
+            event_type = 'canceled'
+            appointment.status = event_type
             appointment.updated_by = canceled_by
+            AppointmentEvent.create(
+                appointment_id=appointment.id,
+                user_id=canceled_by,
+                event_type=event_type,
+                cancel_reason=cancel_reason,
+                cancel_reason_explained=cancel_reason_explained,
+            )
             std_commit()
             db.session.refresh(appointment)
             cls.refresh_search_index()
@@ -285,6 +285,10 @@ class Appointment(Base):
         departments = None
         if self.advisor_dept_codes:
             departments = [{'code': c, 'name': BERKELEY_DEPT_CODE_TO_NAME.get(c, c)} for c in self.advisor_dept_codes]
+        event = AppointmentEvent.get_most_recent_per_type(
+            appointment_id=self.id,
+            event_type=self.status,
+        ) if self.status else None
         return {
             'id': self.id,
             'advisorName': self.advisor_name,
@@ -292,17 +296,18 @@ class Appointment(Base):
             'advisorUid': self.advisor_uid,
             'advisorDepartments': departments,
             'appointmentType': self.appointment_type,
-            'cancelReason': self.cancel_reason,
-            'cancelReasonExplained': self.cancel_reason_explained,
-            'canceledAt': _isoformat(self.canceled_at),
-            'canceledBy': self.canceled_by,
-            'checkedInAt': _isoformat(self.checked_in_at),
-            'checkedInBy': self.checked_in_by,
+            'cancelReason': event and event.cancel_reason,
+            'cancelReasonExplained': event and event.cancel_reason_explained,
+            'canceledAt': event and _isoformat(event.canceled_at),
+            'canceledBy': event and event.canceled_by,
+            'checkedInAt': event and _isoformat(event.checked_in_at),
+            'checkedInBy': event and event.checked_in_by,
             'createdAt': _isoformat(self.created_at),
             'createdBy': self.created_by,
             'deptCode': self.dept_code,
             'details': self.details,
             'read': AppointmentRead.was_read_by(current_user_id, self.id),
+            'status': self.status,
             'student': {
                 'sid': self.student_sid,
             },
@@ -317,24 +322,32 @@ def _isoformat(value):
 
 
 def _to_json(search_terms, search_result):
+    id_ = search_result['id']
+    status_ = search_result['status']
     student = data_loch.get_student_by_sid(search_result['student_sid'])
+    event = AppointmentEvent.get_most_recent_per_type(
+        appointment_id=id_,
+        event_type=status_,
+    ) if status_ else None
     return {
-        'id': search_result['id'],
+        'id': id_,
         'advisorName': search_result['advisor_name'],
         'advisorRole': search_result['advisor_role'],
         'advisorUid': search_result['advisor_uid'],
         'advisorDeptCodes': search_result['advisor_dept_codes'],
-        'cancelReason': search_result['cancel_reason'],
-        'cancelReasonExplained': search_result['cancel_reason_explained'],
-        'canceledAt': _isoformat(search_result['canceled_at']),
-        'canceledBy': search_result['canceled_by'],
-        'checkedInAt': _isoformat(search_result['checked_in_at']),
-        'checkedInBy': search_result['checked_in_by'],
+
+        'cancelReason': event and event.cancel_reason,
+        'cancelReasonExplained': event and event.cancel_reason_explained,
+        'canceledAt': event and _isoformat(event.canceled_at),
+        'canceledBy': event and event.canceled_by,
+        'checkedInAt': event and _isoformat(event.checked_in_at),
+        'checkedInBy': event and event.checked_in_by,
         'createdAt': _isoformat(search_result['created_at']),
         'createdBy': search_result['created_by'],
         'deptCode': search_result['dept_code'],
         'details': search_result['details'],
         'detailsSnippet': search_result_text_snippet(search_result['details'], search_terms, APPOINTMENT_SEARCH_PATTERN),
+        'status': status_,
         'student': {camelize(key): student[key] for key in student.keys()},
         'updatedAt': _isoformat(search_result['updated_at']),
         'updatedBy': search_result['updated_by'],
