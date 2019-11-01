@@ -32,7 +32,9 @@ admin_uid = '2040'
 asc_advisor_uid = '1081940'
 coe_advisor_uid = '1133399'
 coe_scheduler_uid = '6972201'
-l_s_scheduler_uid = '19735'
+l_s_college_scheduler_uid = '19735'
+l_s_college_advisor_uid = '188242'
+l_s_college_drop_in_advisor_uid = '53791'
 
 
 class TestUserProfile:
@@ -305,7 +307,7 @@ class TestUsers:
         assert len(deleted_users) == 3
 
     def test_drop_in_advisors_for_dept(self, client, fake_auth):
-        fake_auth.login(l_s_scheduler_uid)
+        fake_auth.login(l_s_college_scheduler_uid)
         response = client.get('/api/users/drop_in_advisors/qcadv')
         assert response.status_code == 200
         assert len(response.json) == 1
@@ -372,3 +374,61 @@ class TestDownloadUsers:
         assert response.status_code == 200
         assert 'csv' in response.content_type
         assert 'College of Engineering' in str(response.data)
+
+
+class TestToggleDropInAppointmentStatus:
+
+    def test_not_authenticated(self, client):
+        response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/deactivate')
+        assert response.status_code == 401
+
+    def test_denies_non_drop_in_advisor(self, client, fake_auth):
+        fake_auth.login(l_s_college_advisor_uid)
+        response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/deactivate')
+        assert response.status_code == 401
+
+    def test_denies_scheduler_in_other_department(self, client, fake_auth):
+        fake_auth.login(coe_scheduler_uid)
+        response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/deactivate')
+        assert response.status_code == 403
+
+    def test_denies_advisor_toggling_another_advisor(self, client, fake_auth):
+        fake_auth.login(l_s_college_drop_in_advisor_uid)
+        response = client.post(f'/api/user/{asc_advisor_uid}/drop_in_status/UWASC/deactivate')
+        assert response.status_code == 403
+
+    def test_handles_drop_in_status_not_found(self, client, fake_auth):
+        fake_auth.login(l_s_college_drop_in_advisor_uid)
+        response = client.post(f'/api/user/me/drop_in_status/COENG/deactivate')
+        assert response.status_code == 404
+
+    def test_advisor_can_toggle_own_status(self, client, fake_auth):
+        fake_auth.login(l_s_college_drop_in_advisor_uid)
+        response = client.post(f'/api/user/me/drop_in_status/QCADV/deactivate')
+        assert response.status_code == 200
+        response = client.get('/api/users/drop_in_advisors/QCADV')
+        assert len(response.json) == 1
+        assert response.json[0]['dropInAdvisorStatus'] == [{'deptCode': 'QCADV', 'available': False}]
+        response = client.get('/api/profile/my')
+        assert response.json['dropInAdvisorStatus'] == [{'deptCode': 'QCADV', 'available': False}]
+        response = client.post(f'/api/user/me/drop_in_status/QCADV/activate')
+        assert response.status_code == 200
+        response = client.get('/api/profile/my')
+        assert response.json['dropInAdvisorStatus'] == [{'deptCode': 'QCADV', 'available': True}]
+
+    def test_scheduler_can_toggle_advisor_status(self, client, fake_auth):
+        fake_auth.login(l_s_college_scheduler_uid)
+
+        response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/deactivate')
+        assert response.status_code == 200
+
+        response = client.get('/api/users/drop_in_advisors/QCADV')
+        assert len(response.json) == 1
+        assert response.json[0]['dropInAdvisorStatus'] == [{'deptCode': 'QCADV', 'available': False}]
+
+        response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/activate')
+        assert response.status_code == 200
+
+        response = client.get('/api/users/drop_in_advisors/QCADV')
+        assert len(response.json) == 1
+        assert response.json[0]['dropInAdvisorStatus'] == [{'deptCode': 'QCADV', 'available': True}]

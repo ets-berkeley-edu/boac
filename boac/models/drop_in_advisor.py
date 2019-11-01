@@ -42,6 +42,10 @@ class DropInAdvisor(Base):
         self.dept_code = dept_code
         self.is_available = is_available
 
+    def update_availability(self, available):
+        self.is_available = available
+        std_commit()
+
     @classmethod
     def create_or_update_status(cls, university_dept, authorized_user, is_available):
         dept_code = university_dept.dept_code
