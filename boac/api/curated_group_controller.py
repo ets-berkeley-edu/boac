@@ -101,17 +101,19 @@ def get_curated_group(curated_group_id):
     return tolerant_jsonify(curated_group)
 
 
-@app.route('/api/curated_group/<curated_group_id>/download_csv')
+@app.route('/api/curated_group/<curated_group_id>/download_csv', methods=['POST'])
 @advisor_required
 def download_csv(curated_group_id):
     benchmark = get_benchmarker(f'curated group {curated_group_id} download_csv')
     benchmark('begin')
     curated_group = CuratedGroup.find_by_id(curated_group_id)
+    params = request.get_json()
+    fieldnames = get_param(params, 'csvColumnsSelected', [])
     if not curated_group:
         raise ResourceNotFoundError(f'No curated group found with id: {curated_group_id}')
     if not _can_current_user_view_curated_group(curated_group):
         raise ForbiddenRequestError(f'Current user, {current_user.get_uid()}, cannot view curated group {curated_group.id}')
-    return response_with_students_csv_download(sids=CuratedGroup.get_all_sids(curated_group_id), benchmark=benchmark)
+    return response_with_students_csv_download(sids=CuratedGroup.get_all_sids(curated_group_id), fieldnames=fieldnames, benchmark=benchmark)
 
 
 @app.route('/api/curated_group/<curated_group_id>/students_with_alerts')

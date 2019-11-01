@@ -49,11 +49,11 @@ export function deleteCuratedGroup(id) {
     .catch(error => error);
 }
 
-export function downloadCuratedGroupCsv(id: number, name: string) {
+export function downloadCuratedGroupCsv(id: number, name: string, csvColumnsSelected: any[]) {
   const fileDownload = require('js-file-download');
   const now = moment().format('YYYY-MM-DD_HH-mm-ss');
   return axios
-    .get(`${utils.apiBaseUrl()}/api/curated_group/${id}/download_csv`)
+    .post(`${utils.apiBaseUrl()}/api/curated_group/${id}/download_csv`, { csvColumnsSelected })
     .then(response => fileDownload(response.data, `${name}-students-${now}.csv`), () => null);
 }
 

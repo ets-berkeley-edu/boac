@@ -33,6 +33,7 @@ from boac.lib.http import response_with_csv_download
 from boac.lib.util import join_if_present
 from boac.merged import calnet
 from boac.merged.advising_note import get_advising_notes
+from boac.merged.student import get_term_gpas_by_sid
 from boac.models.alert import Alert
 from boac.models.appointment import Appointment
 from boac.models.curated_group import CuratedGroup
@@ -331,18 +332,35 @@ def is_unauthorized_search(filter_keys, order_by=None):
     return False
 
 
-def response_with_students_csv_download(sids, benchmark):
+def response_with_students_csv_download(sids, fieldnames, benchmark):
     rows = []
+    getters = {
+        'first_name': lambda profile: profile.get('firstName'),
+        'last_name': lambda profile: profile.get('lastName'),
+        'sid': lambda profile: profile.get('sid'),
+        'email': lambda profile: profile.get('sisProfile', {}).get('emailAddress'),
+        'phone': lambda profile: profile.get('sisProfile', {}).get('phoneNumber'),
+        'majors': lambda profile: ';'.join(
+            [plan.get('description') for plan in profile.get('sisProfile', {}).get('plans', []) if plan.get('status') == 'Active'],
+        ),
+        'level': lambda profile: profile.get('sisProfile', {}).get('level', {}).get('description'),
+        'terms_in_attendance': lambda profile: profile.get('sisProfile', {}).get('termsInAttendance'),
+        'expected_graduation_date': lambda profile: profile.get('sisProfile', {}).get('expectedGraduationTerm', {}).get('name'),
+        'units_completed': lambda profile: profile.get('sisProfile', {}).get('cumulativeUnits'),
+        'term_gpa': lambda profile: profile.get('termGpa'),
+        'cumulative_gpa': lambda profile: profile.get('sisProfile', {}).get('cumulativeGPA'),
+        'program_status': lambda profile: profile.get('sisProfile', {}).get('academicCareerStatus'),
+    }
+    term_gpas = get_term_gpas_by_sid(sids, as_dicts=True)
     for student in get_student_profiles(sids=sids):
         profile = student.get('profile')
         profile = profile and json.loads(profile)
-        rows.append({
-            'first_name': profile.get('firstName'),
-            'last_name': profile.get('lastName'),
-            'sid': profile.get('sid'),
-            'email': profile.get('sisProfile', {}).get('emailAddress'),
-            'phone': profile.get('sisProfile', {}).get('phoneNumber'),
-        })
+        student_term_gpas = term_gpas.get(profile['sid'])
+        profile['termGpa'] = student_term_gpas[sorted(student_term_gpas)[-1]] if student_term_gpas else None
+        row = {}
+        for fieldname in fieldnames:
+            row[fieldname] = getters[fieldname](profile)
+        rows.append(row)
     benchmark('end')
 
     def _norm(row, key):
@@ -351,7 +369,7 @@ def response_with_students_csv_download(sids, benchmark):
     return response_with_csv_download(
         rows=sorted(rows, key=lambda r: (_norm(r, 'last_name'), _norm(r, 'first_name'), _norm(r, 'sid'))),
         filename_prefix='cohort',
-        fieldnames=['first_name', 'last_name', 'sid', 'email', 'phone'],
+        fieldnames=fieldnames,
     )
 
 

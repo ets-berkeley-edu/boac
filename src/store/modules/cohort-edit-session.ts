@@ -214,9 +214,9 @@ const actions = {
       );
     });
   },
-  downloadCsvPerFilters: ({ state }) => {
+  downloadCsvPerFilters: ({ state }, csvColumnsSelected: any) => {
     return new Promise(resolve => {
-      downloadCsv(state.cohortName, state.filters).then(resolve);
+      downloadCsv(state.cohortName, state.filters, csvColumnsSelected).then(resolve);
     });
   },
   loadCohort: ({commit}, {id, orderBy} ) => {

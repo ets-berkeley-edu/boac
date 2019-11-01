@@ -170,7 +170,9 @@ def get_cohort_per_filters():
 def download_csv_per_filters():
     benchmark = get_benchmarker('cohort download_csv_per_filters')
     benchmark('begin')
-    filters = get_param(request.get_json(), 'filters', [])
+    params = request.get_json()
+    filters = get_param(params, 'filters', [])
+    fieldnames = get_param(params, 'csvColumnsSelected', [])
     if not filters:
         raise BadRequestError('API requires \'filters\'')
     filter_keys = list(map(lambda f: f['key'], filters))
@@ -184,7 +186,7 @@ def download_csv_per_filters():
         include_sids=True,
         include_students=False,
     )
-    return response_with_students_csv_download(sids=cohort['sids'], benchmark=benchmark)
+    return response_with_students_csv_download(sids=cohort['sids'], fieldnames=fieldnames, benchmark=benchmark)
 
 
 @app.route('/api/cohort/create', methods=['POST'])

@@ -80,12 +80,23 @@
           <b-btn
             id="export-student-list-button"
             :disabled="!exportEnabled || !totalStudentCount || isModifiedSinceLastSearch"
-            @click.prevent="exportCohort()"
+            v-b-modal="'export-list-modal'"
             class="no-wrap pl-2 pr-0 pt-0"
             variant="link"
             aria-label="Download CSV file containing all students">
             Export List
           </b-btn>
+          <b-modal
+            id="export-list-modal"
+            v-model="showExportListModal"
+            @shown="focusModalById('export-list-confirm')"
+            body-class="pl-0 pr-0"
+            hide-footer
+            hide-header>
+            <ExportListModal
+              :cancel-export-list-modal="cancelExportCohortModal"
+              :export-list="exportCohort" />
+          </b-modal>
         </div>
       </div>
     </div>
@@ -147,6 +158,7 @@
 import CohortEditSession from '@/mixins/CohortEditSession';
 import Context from '@/mixins/Context';
 import DeleteCohortModal from '@/components/cohort/DeleteCohortModal';
+import ExportListModal from '@/components/util/ExportListModal';
 import router from '@/router';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
@@ -155,13 +167,14 @@ import { deleteCohort } from '@/api/cohort';
 
 export default {
   name: 'CohortPageHeader',
-  components: { DeleteCohortModal },
+  components: { DeleteCohortModal, ExportListModal },
   mixins: [CohortEditSession, Context, UserMetadata, Util, Validator],
   data: () => ({
     exportEnabled: true,
     name: undefined,
     renameError: undefined,
-    showDeleteModal: false
+    showDeleteModal: false,
+    showExportListModal: false
   }),
   computed: {
     renameMode() {
@@ -187,6 +200,10 @@ export default {
       this.showDeleteModal = false;
       this.alertScreenReader(`Cancel deletion of ${this.name} cohort`);
     },
+    cancelExportCohortModal() {
+      this.showExportListModal = false;
+      this.alertScreenReader(`Cancel export of ${this.name} cohort`);
+    },
     cancelRename() {
       this.name = this.cohortName;
       this.setEditMode(null);
@@ -204,9 +221,11 @@ export default {
         router.push({ path: '/' });
       });
     },
-    exportCohort() {
+    exportCohort(csvColumnsSelected) {
+      this.showExportListModal = false
       this.exportEnabled = false;
-      this.downloadCsvPerFilters().then(() => {
+      this.alertScreenReader(`Exporting ${this.name} cohort`);
+      this.downloadCsvPerFilters(csvColumnsSelected).then(() => {
         this.exportEnabled = true;
       });
     },

@@ -985,6 +985,11 @@ class TestDownloadCsvPerFilters:
                 'filters': [
                     {'key': 'coeProbation', 'value': 'true'},
                 ],
+                'csvColumnsSelected': [
+                    'first_name',
+                    'last_name',
+                    'sid',
+                ],
             },
             expected_status_code=403,
         )
@@ -994,6 +999,21 @@ class TestDownloadCsvPerFilters:
         data = {
             'filters': [
                 {'key': 'coeEthnicities', 'value': ['H', 'B']},
+            ],
+            'csvColumnsSelected': [
+                'first_name',
+                'last_name',
+                'sid',
+                'email',
+                'phone',
+                'majors',
+                'level',
+                'terms_in_attendance',
+                'expected_graduation_date',
+                'units_completed',
+                'term_gpa',
+                'cumulative_gpa',
+                'program_status',
             ],
         }
         response = client.post(
@@ -1005,10 +1025,43 @@ class TestDownloadCsvPerFilters:
         assert 'csv' in response.content_type
         csv = str(response.data)
         for snippet in [
-            'first_name,last_name,sid,email,phone',
-            'Deborah,Davies,11667051,barnburner@berkeley.edu,415/123-4567',
-            'Paul,Farestveit,7890123456,qadept@berkeley.edu,415/123-4567',
-            'Wolfgang,Pauli-O\'Rourke,9000000000,wpo@berkeley.edu,415/123-4567',
+            'first_name,last_name,sid,email,phone,majors,level,terms_in_attendance,expected_graduation_date,units_completed,term_gpa,cumulative_gpa,\
+program_status',
+            'Deborah,Davies,11667051,barnburner@berkeley.edu,415/123-4567,English BA;Nuclear Engineering BS,Junior,5,Fall 2019,101.3,2.900,3.8,',
+            'Paul,Farestveit,7890123456,qadept@berkeley.edu,415/123-4567,Nuclear Engineering BS,Senior,5,Spring 2020,110,,3.9,',
+            'Wolfgang,Pauli-O\'Rourke,9000000000,wpo@berkeley.edu,415/123-4567,Engineering Undeclared UG,Sophomore,5,Spring 2020,55,,2.3,',
+        ]:
+            assert str(snippet) in csv
+
+    def test_download_csv_custom_columns(self, client, coe_advisor_login):
+        """Advisor can generate a CSV with the columns they want."""
+        data = {
+            'filters': [
+                {'key': 'levels', 'value': 'Junior'},
+            ],
+            'csvColumnsSelected': [
+                'majors',
+                'level',
+                'terms_in_attendance',
+                'expected_graduation_date',
+                'units_completed',
+                'term_gpa',
+                'cumulative_gpa',
+                'program_status',
+            ],
+        }
+        response = client.post(
+            '/api/cohort/download_csv_per_filters',
+            data=json.dumps(data),
+            content_type='application/json',
+        )
+        assert response.status_code == 200
+        assert 'csv' in response.content_type
+        csv = str(response.data)
+        for snippet in [
+            'majors,level,terms_in_attendance,expected_graduation_date,units_completed,term_gpa,cumulative_gpa,program_status',
+            'Chemistry BS,Junior,5,Fall 2019,34,0.000,3.495,',
+            'English BA;Political Economy BA,Junior,5,Fall 2019,70,3.200,3.005,',
         ]:
             assert str(snippet) in csv
 

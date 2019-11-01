@@ -118,11 +118,22 @@
           <b-btn
             id="export-student-list-button"
             :disabled="!exportEnabled || !totalStudentCount"
-            @click="downloadCsv()"
+            v-b-modal="'export-list-modal'"
             variant="link"
             aria-label="Download CSV file containing all students">
             Export List
           </b-btn>
+          <b-modal
+            id="export-list-modal"
+            v-model="showExportListModal"
+            @shown="focusModalById('export-list-confirm')"
+            body-class="pl-0 pr-0"
+            hide-footer
+            hide-header>
+            <ExportListModal
+              :cancel-export-list-modal="cancelExportGroupModal"
+              :export-list="exportGroup" />
+          </b-modal>
         </div>
       </div>
     </div>
@@ -130,7 +141,9 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context';
 import CuratedEditSession from '@/mixins/CuratedEditSession';
+import ExportListModal from '@/components/util/ExportListModal';
 import Loading from '@/mixins/Loading.vue';
 import router from '@/router';
 import UserMetadata from '@/mixins/UserMetadata';
@@ -140,12 +153,14 @@ import { deleteCuratedGroup, downloadCuratedGroupCsv } from '@/api/curated';
 
 export default {
   name: 'CuratedGroupHeader',
-  mixins: [CuratedEditSession, Loading, UserMetadata, Util, Validator],
+  components: { ExportListModal },
+  mixins: [Context, CuratedEditSession, Loading, UserMetadata, Util, Validator],
   data: () => ({
     exportEnabled: true,
     isModalOpen: false,
     renameError: undefined,
-    renameInput: undefined
+    renameInput: undefined,
+    showExportListModal: false
   }),
   computed: {
     isOwnedByCurrentUser() {
@@ -162,6 +177,10 @@ export default {
     this.putFocusNextTick('curated-group-name');
   },
   methods: {
+    cancelExportGroupModal() {
+      this.showExportListModal = false;
+      this.alertScreenReader(`Cancel export of ${this.name} curated group`);
+    },
     enterBulkAddMode() {
       this.setMode('bulkAdd');
     },
@@ -185,9 +204,11 @@ export default {
           this.error = error;
         });
     },
-    downloadCsv() {
+    exportGroup(csvColumnsSelected) {
+      this.showExportListModal = false
       this.exportEnabled = false;
-      downloadCuratedGroupCsv(this.curatedGroupId, this.curatedGroupName).then(() => {
+      this.alertScreenReader(`Exporting ${this.name} curated group`);
+      downloadCuratedGroupCsv(this.curatedGroupId, this.curatedGroupName, csvColumnsSelected).then(() => {
         this.exportEnabled = true;
       });
     },

@@ -28,12 +28,12 @@ export function deleteCohort(id) {
     }, () => null);
 }
 
-export function downloadCsv(cohortName: string, filters: any[]) {
+export function downloadCsv(cohortName: string, filters: any[], csvColumnsSelected: any[]) {
   const fileDownload = require('js-file-download');
   const now = moment().format('YYYY-MM-DD_HH-mm-ss');
   const filename = cohortName ? `${cohortName}-students-${now}` : `students-${now}`;
   return axios
-    .post(`${utils.apiBaseUrl()}/api/cohort/download_csv_per_filters`, { filters })
+    .post(`${utils.apiBaseUrl()}/api/cohort/download_csv_per_filters`, { filters, csvColumnsSelected })
     .then(response => fileDownload(response.data, `${filename}.csv`), () => null);
 }
 
