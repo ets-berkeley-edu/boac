@@ -57,8 +57,8 @@ class AppointmentEvent(db.Model):
         appointment_id,
         user_id,
         event_type,
-        cancel_reason,
-        cancel_reason_explained,
+        cancel_reason=None,
+        cancel_reason_explained=None,
     ):
         self.appointment_id = appointment_id
         self.event_type = event_type

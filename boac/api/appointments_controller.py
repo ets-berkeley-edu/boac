@@ -24,13 +24,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import advisor_required, scheduler_required
+from boac.api.util import advisor_required, appointments_feature_flag, scheduler_required
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import to_bool_or_none
 from boac.merged.student import get_distilled_student_profiles
 from boac.models.appointment import Appointment
-from boac.models.appointment_event import AppointmentEvent
+from boac.models.appointment_event import appointment_event_type, AppointmentEvent
 from boac.models.appointment_read import AppointmentRead
 from boac.models.topic import Topic
 from flask import current_app as app, request
@@ -38,20 +38,29 @@ from flask_login import current_user
 
 
 @app.route('/api/appointments/waitlist/<dept_code>')
+@appointments_feature_flag
 @scheduler_required
 def get_waitlist(dept_code):
     def _is_current_user_authorized():
-        if current_user.is_admin:
-            return True
-        else:
-            return dept_code in _dept_codes_with_scheduler_privilege()
+        return current_user.is_admin or dept_code in _dept_codes_with_scheduler_privilege()
 
     dept_code = dept_code.upper()
     if dept_code not in BERKELEY_DEPT_CODE_TO_NAME:
         raise ResourceNotFoundError(f'Unrecognized department code: {dept_code}')
     elif _is_current_user_authorized():
-        include_resolved = to_bool_or_none(request.args.get('includeResolved'))
-        waitlist = [a.to_api_json(current_user.get_id()) for a in Appointment.get_waitlist(dept_code, include_resolved)]
+        statuses = appointment_event_type.enums if current_user.is_drop_in_advisor else ['reserved', 'waiting']
+        my_reserved = []
+        others = []
+        canceled = []
+        for appointment in Appointment.get_waitlist(dept_code, statuses):
+            a = appointment.to_api_json(current_user.get_id())
+            if a['status'] == 'canceled':
+                canceled.append(a)
+            elif a['status'] == 'reserved' and a['statusBy']['id'] == current_user.get_id():
+                my_reserved.append(a)
+            else:
+                others.append(a)
+        waitlist = my_reserved + others + canceled
         _put_student_profile_per_appointment(waitlist)
         return tolerant_jsonify(waitlist)
     else:
@@ -59,9 +68,12 @@ def get_waitlist(dept_code):
 
 
 @app.route('/api/appointments/<appointment_id>/check_in', methods=['POST'])
+@appointments_feature_flag
 @scheduler_required
 def appointment_check_in(appointment_id):
     appointment = Appointment.find_by_id(appointment_id)
+    if not appointment:
+        raise ResourceNotFoundError('Unknown path')
     if appointment.dept_code in _dept_codes_with_scheduler_privilege():
         params = request.get_json()
         advisor_uid = params.get('advisorUid', None)
@@ -83,9 +95,12 @@ def appointment_check_in(appointment_id):
 
 
 @app.route('/api/appointments/<appointment_id>/cancel', methods=['POST'])
+@appointments_feature_flag
 @scheduler_required
 def cancel_appointment(appointment_id):
     appointment = Appointment.find_by_id(appointment_id)
+    if not appointment:
+        raise ResourceNotFoundError('Unknown path')
     if current_user.is_admin or appointment.dept_code in _dept_codes_with_scheduler_privilege():
         params = request.get_json()
         cancel_reason = params.get('cancelReason', None)
@@ -104,10 +119,11 @@ def cancel_appointment(appointment_id):
 
 
 @app.route('/api/appointments/<appointment_id>/reserve', methods=['GET'])
+@appointments_feature_flag
 @scheduler_required
 def reserve_appointment(appointment_id):
     appointment = Appointment.find_by_id(appointment_id)
-    if not app.config['FEATURE_FLAG_ADVISOR_APPOINTMENTS'] or not appointment:
+    if not appointment:
         raise ResourceNotFoundError('Unknown path')
 
     has_privilege = current_user.is_admin or appointment.dept_code in _dept_codes_with_scheduler_privilege()
@@ -124,10 +140,11 @@ def reserve_appointment(appointment_id):
 
 
 @app.route('/api/appointments/<appointment_id>/unreserve', methods=['GET'])
+@appointments_feature_flag
 @scheduler_required
 def unreserve_appointment(appointment_id):
     appointment = Appointment.find_by_id(appointment_id)
-    if not app.config['FEATURE_FLAG_ADVISOR_APPOINTMENTS'] or not appointment:
+    if not appointment:
         raise ResourceNotFoundError('Unknown path')
 
     has_privilege = current_user.is_admin or appointment.dept_code in _dept_codes_with_scheduler_privilege()
@@ -148,6 +165,7 @@ def unreserve_appointment(appointment_id):
 
 
 @app.route('/api/appointments/create', methods=['POST'])
+@appointments_feature_flag
 @scheduler_required
 def create_appointment():
     params = request.get_json()
@@ -171,22 +189,22 @@ def create_appointment():
         topics=topics,
     )
     AppointmentRead.find_or_create(current_user.get_id(), appointment.id)
-    appointment_feed = appointment.to_api_json(current_user.get_id())
-    _put_student_profile_per_appointment([appointment_feed])
-    return tolerant_jsonify(appointment_feed)
+    api_json = appointment.to_api_json(current_user.get_id())
+    _put_student_profile_per_appointment([api_json])
+    return tolerant_jsonify(api_json)
 
 
 @app.route('/api/appointments/<appointment_id>/mark_read', methods=['POST'])
+@appointments_feature_flag
 @advisor_required
 def mark_appointment_read(appointment_id):
     return tolerant_jsonify(AppointmentRead.find_or_create(current_user.get_id(), int(appointment_id)).to_api_json())
 
 
 @app.route('/api/appointments/advisors/find_by_name', methods=['GET'])
+@appointments_feature_flag
 @advisor_required
 def find_appointment_advisors_by_name():
-    if not app.config['FEATURE_FLAG_ADVISOR_APPOINTMENTS']:
-        raise ResourceNotFoundError('Unknown path')
     query = request.args.get('q')
     if not query:
         raise BadRequestError('Search query must be supplied')
@@ -203,10 +221,9 @@ def find_appointment_advisors_by_name():
 
 
 @app.route('/api/appointments/topics', methods=['GET'])
+@appointments_feature_flag
 @scheduler_required
 def get_appointment_topics():
-    if not app.config['FEATURE_FLAG_ADVISOR_APPOINTMENTS']:
-        raise ResourceNotFoundError('Unknown path')
     include_deleted = to_bool_or_none(request.args.get('includeDeleted'))
     topics = Topic.get_all(available_in_appointments=True, include_deleted=include_deleted)
     return tolerant_jsonify([topic.to_api_json() for topic in topics])

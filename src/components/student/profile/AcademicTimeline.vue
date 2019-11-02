@@ -214,19 +214,25 @@
           <td class="column-right align-top pt-1 pr-1">
             <div v-if="!includes(openMessages, message.transientId) && message.type === 'appointment'">
               <div
-                v-if="message.appointmentType === 'Drop-in' && message.canceledAt"
+                v-if="message.appointmentType === 'Drop-in' && message.status === 'canceled'"
                 :id="`collapsed-${message.type}-${message.id}-status-canceled`"
                 class="pill-appointment-status pill-canceled pl-2 pr-2 mr-2 text-nowrap">
                 Canceled
               </div>
               <div
-                v-if="message.appointmentType === 'Drop-in' && !message.canceledAt && message.checkedInAt"
+                v-if="message.appointmentType === 'Drop-in' && message.status === 'checked_in'"
                 :id="`collapsed-${message.type}-${message.id}-status-checked-in`"
                 class="pill-appointment-status pill-checked-in pl-2 pr-2 mr-2 text-nowrap">
                 Checked In
               </div>
               <div
-                v-if="message.appointmentType === 'Drop-in' && !message.canceledAt && !message.checkedInAt"
+                v-if="message.appointmentType === 'Drop-in' && message.status === 'reserved'"
+                :id="`collapsed-${message.type}-${message.id}-status-waiting`"
+                class="pill-appointment-status pill-waiting pl-2 pr-2 mr-2 text-nowrap">
+                Reserved
+              </div>
+              <div
+                v-if="message.appointmentType === 'Drop-in' && message.status === 'waiting'"
                 :id="`collapsed-${message.type}-${message.id}-status-waiting`"
                 class="pill-appointment-status pill-waiting pl-2 pr-2 mr-2 text-nowrap">
                 Waiting

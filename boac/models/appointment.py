@@ -29,12 +29,15 @@ import re
 from boac import db, std_commit
 from boac.externals import data_loch
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
-from boac.lib.util import camelize, search_result_text_snippet
+from boac.lib.util import camelize, search_result_text_snippet, utc_now
+from boac.merged import calnet
 from boac.models.appointment_event import appointment_event_type, AppointmentEvent
 from boac.models.appointment_read import AppointmentRead
 from boac.models.appointment_topic import AppointmentTopic
+from boac.models.authorized_user import AuthorizedUser
 from boac.models.base import Base
 from dateutil.tz import tzutc
+from flask import current_app as app
 import pytz
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -122,20 +125,14 @@ class Appointment(Base):
         return cls.query.filter(and_(cls.student_sid == sid, cls.deleted_at == None)).all()  # noqa: E711
 
     @classmethod
-    def get_waitlist(cls, dept_code, include_resolved=False):
-        if include_resolved:
-            start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-            criterion = and_(
-                cls.created_at >= start_of_today.astimezone(pytz.utc),
-                cls.deleted_at == None,
-                cls.dept_code == dept_code,
-            )  # noqa: E711
-        else:
-            criterion = and_(
-                cls.status.in_(['reserved', 'waiting']),
-                cls.deleted_at == None,
-                cls.dept_code == dept_code,
-            )  # noqa: E711
+    def get_waitlist(cls, dept_code, statuses=()):
+        start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        criterion = and_(
+            cls.created_at >= start_of_today.astimezone(pytz.utc),
+            cls.status.in_(statuses),
+            cls.deleted_at == None,
+            cls.dept_code == dept_code,
+        )  # noqa: E711
         return cls.query.filter(criterion).order_by(desc(cls.created_at)).all()
 
     @classmethod
@@ -163,6 +160,11 @@ class Appointment(Base):
             )
         db.session.add(appointment)
         std_commit()
+        AppointmentEvent.create(
+            appointment_id=appointment.id,
+            user_id=created_by,
+            event_type='waiting',
+        )
         cls.refresh_search_index()
         return appointment
 
@@ -222,7 +224,6 @@ class Appointment(Base):
             )
             std_commit()
             db.session.refresh(appointment)
-            cls.refresh_search_index()
             return appointment
         else:
             return None
@@ -241,7 +242,6 @@ class Appointment(Base):
             )
             std_commit()
             db.session.refresh(appointment)
-            cls.refresh_search_index()
             return appointment
         else:
             return None
@@ -317,36 +317,34 @@ class Appointment(Base):
         db.session.execute(text('REFRESH MATERIALIZED VIEW appointments_fts_index'))
         std_commit()
 
+    @classmethod
+    def delete(cls, appointment_id):
+        appointment = cls.find_by_id(appointment_id)
+        if appointment:
+            now = utc_now()
+            appointment.deleted_at = now
+            for topic in appointment.topics:
+                topic.deleted_at = now
+            std_commit()
+            cls.refresh_search_index()
+
     def to_api_json(self, current_user_id):
         topics = [t.to_api_json() for t in self.topics if not t.deleted_at]
         departments = None
         if self.advisor_dept_codes:
             departments = [{'code': c, 'name': BERKELEY_DEPT_CODE_TO_NAME.get(c, c)} for c in self.advisor_dept_codes]
-        event = AppointmentEvent.get_most_recent_per_type(
-            appointment_id=self.id,
-            event_type=self.status,
-        ) if self.status else None
-        return {
+        api_json = {
             'id': self.id,
             'advisorName': self.advisor_name,
             'advisorRole': self.advisor_role,
             'advisorUid': self.advisor_uid,
             'advisorDepartments': departments,
             'appointmentType': self.appointment_type,
-            'cancelReason': event and event.cancel_reason,
-            'cancelReasonExplained': event and event.cancel_reason_explained,
-            'canceledAt': _at(event, 'canceled'),
-            'canceledBy': _by(event, 'canceled'),
-            'checkedInAt': _at(event, 'checked_in'),
-            'checkedInBy': _by(event, 'checked_in'),
-            'reservedAt': _at(event, 'reserved'),
-            'reservedBy': _by(event, 'reserved'),
             'createdAt': _isoformat(self.created_at),
             'createdBy': self.created_by,
             'deptCode': self.dept_code,
             'details': self.details,
             'read': AppointmentRead.was_read_by(current_user_id, self.id),
-            'status': self.status,
             'student': {
                 'sid': self.student_sid,
             },
@@ -354,49 +352,56 @@ class Appointment(Base):
             'updatedAt': _isoformat(self.updated_at),
             'updatedBy': self.updated_by,
         }
-
-
-def _isoformat(value):
-    return value and value.astimezone(tzutc()).isoformat()
+        return {
+            **api_json,
+            **_appointment_event_to_json(self.id, self.status),
+        }
 
 
 def _to_json(search_terms, search_result):
-    id_ = search_result['id']
-    status_ = search_result['status']
+    appointment_id = search_result['id']
     student = data_loch.get_student_by_sid(search_result['student_sid'])
-    event = AppointmentEvent.get_most_recent_per_type(
-        appointment_id=id_,
-        event_type=status_,
-    ) if status_ else None
-    return {
-        'id': id_,
+    api_json = {
+        'id': appointment_id,
         'advisorName': search_result['advisor_name'],
         'advisorRole': search_result['advisor_role'],
         'advisorUid': search_result['advisor_uid'],
         'advisorDeptCodes': search_result['advisor_dept_codes'],
-        'cancelReason': event and event.cancel_reason,
-        'cancelReasonExplained': event and event.cancel_reason_explained,
-        'canceledAt': _at(event, 'canceled'),
-        'canceledBy': _by(event, 'canceled'),
-        'checkedInAt': _at(event, 'checked_in'),
-        'checkedInBy': _by(event, 'checked_in'),
-        'reservedAt': _at(event, 'reserved'),
-        'reservedBy': _by(event, 'reserved'),
         'createdAt': _isoformat(search_result['created_at']),
         'createdBy': search_result['created_by'],
         'deptCode': search_result['dept_code'],
         'details': search_result['details'],
         'detailsSnippet': search_result_text_snippet(search_result['details'], search_terms, APPOINTMENT_SEARCH_PATTERN),
-        'status': status_,
         'student': {camelize(key): student[key] for key in student.keys()},
         'updatedAt': _isoformat(search_result['updated_at']),
         'updatedBy': search_result['updated_by'],
     }
+    return {
+        **api_json,
+        **_appointment_event_to_json(appointment_id, search_result['status']),
+    }
 
 
-def _at(event, type_):
-    return _isoformat(event.created_at) if event and event.event_type == type_ else None
+def _appointment_event_to_json(appointment_id, event_type):
+    event = AppointmentEvent.get_most_recent_per_type(
+        appointment_id=appointment_id,
+        event_type=event_type,
+    ) if event_type else None
+
+    def _status_by_user():
+        uid = AuthorizedUser.get_uid_per_id(event.user_id)
+        return {
+            'id': event.user_id,
+            **calnet.get_calnet_user_for_uid(app, uid),
+        }
+    return {
+        'cancelReason': event and event.cancel_reason,
+        'cancelReasonExplained': event and event.cancel_reason_explained,
+        'status': event_type,
+        'statusBy': event and _status_by_user(),
+        'statusDate': event and _isoformat(event.created_at),
+    }
 
 
-def _by(event, type_):
-    return event.user_id if event and event.event_type == type_ else None
+def _isoformat(value):
+    return value and value.astimezone(tzutc()).isoformat()

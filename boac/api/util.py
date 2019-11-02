@@ -88,6 +88,15 @@ def scheduler_required(func):
     return _scheduler_required
 
 
+def appointments_feature_flag(func):
+    @wraps(func)
+    def _feature_flag_required(*args, **kw):
+        if not app.config['FEATURE_FLAG_ADVISOR_APPOINTMENTS']:
+            return app.login_manager.unauthorized()
+        return func(*args, **kw)
+    return _feature_flag_required
+
+
 def add_alert_counts(alert_counts, students):
     students_by_sid = {student['sid']: student for student in students}
     for alert_count in alert_counts:

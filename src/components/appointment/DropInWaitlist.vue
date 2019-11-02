@@ -76,19 +76,19 @@
         <b-row
           v-for="(appointment, index) in waitlist"
           :key="appointment.id"
-          :class="{'border-thick-grey': index < (waitlist.length - 1) && !appointment.canceledAt && waitlist[index + 1].canceledAt}"
+          :class="{'border-thick-grey': index < (waitlist.length - 1) && appointment.status !== 'canceled' && waitlist[index + 1].status === 'canceled'}"
           no-gutters
           class="border-bottom font-size-16 mt-3 pb-2 pt-2">
-          <b-col cols="2" class="pb-2 text-nowrap">
+          <b-col sm="2" class="pb-2 text-nowrap">
             <span class="sr-only">Created at </span><span :id="`appointment-${appointment.id}-created-at`">{{ new Date(appointment.createdAt) | moment('LT') }}</span>
           </b-col>
-          <b-col cols="7">
+          <b-col sm="7">
             <div class="d-flex">
               <div v-if="isHomepage" class="mr-2">
                 <StudentAvatar :student="appointment.student" size="small" />
               </div>
               <div>
-                <div class="d-flex flex-wrap font-size-16 truncate-with-ellipsis">
+                <div class="d-flex flex-wrap font-size-16">
                   <div class="pr-1">
                     <router-link
                       v-if="linkToStudentProfiles"
@@ -118,17 +118,18 @@
                   class="appointment-topics font-size-14 pb-2">
                   {{ oxfordJoin(appointment.topics) }}
                 </div>
-                <div v-if="appointment.status === 'reserved'">
-                  <span class="has-error">Reserved by {{ appointment.reservedBy }}</span>
+                <div v-if="appointment.status === 'reserved'" class="has-error">
+                  <span v-if="appointment.statusBy">Reserved by {{ appointment.statusBy.id === user.id ? 'you' : appointment.statusBy.name }}</span>
+                  <span v-if="!appointment.statusBy">Reserved</span>
                 </div>
               </div>
             </div>
           </b-col>
-          <b-col cols="3">
+          <b-col sm="3">
             <b-dropdown
-              v-if="isNil(appointment.checkedInAt) && isNil(appointment.canceledAt)"
+              v-if="includes(['reserved', 'waiting'], appointment.status)"
               :id="`appointment-${appointment.id}-dropdown`"
-              :disabled="!!appointment.checkedInBy || !!appointment.canceledAt"
+              :disabled="appointment.status === 'checked_in' || appointment.status === 'canceled'"
               @click="launchCheckInForAppointment(appointment)"
               class="bg-white float-right text-nowrap"
               right
@@ -139,13 +140,13 @@
                 Details
               </b-dropdown-item-button>
               <b-dropdown-item-button
-                v-if="appointment.status !== 'reserved' || appointment.reservedBy !== user.id"
+                v-if="appointment.status !== 'reserved' || appointment.statusBy.id !== user.id"
                 :id="`btn-appointment-${appointment.id}-reserve`"
                 @click="reserveAppointment(appointment)">
                 <span class="text-nowrap">Reserve</span>
               </b-dropdown-item-button>
               <b-dropdown-item-button
-                v-if="appointment.status === 'reserved' && appointment.reservedBy === user.id"
+                v-if="appointment.status === 'reserved' && appointment.statusBy.id === user.id"
                 :id="`btn-appointment-${appointment.id}-unreserve`"
                 @click="unreserveAppointment(appointment)">
                 <span class="text-nowrap">Unreserve</span>
@@ -158,13 +159,13 @@
               </b-dropdown-item-button>
             </b-dropdown>
             <div
-              v-if="isNil(appointment.checkedInAt) && !isNil(appointment.canceledAt)"
+              v-if="appointment.status === 'canceled'"
               :id="`appointment-${appointment.id}-canceled`"
               class="float-right pill-appointment-status pill-canceled pl-2 pr-2">
               Canceled<span class="sr-only"> appointment</span>
             </div>
             <div
-              v-if="!isNil(appointment.checkedInAt) && isNil(appointment.canceledAt)"
+              v-if="appointment.status === 'checked_in'"
               :id="`appointment-${appointment.id}-checked-in`"
               class="float-right pill-appointment-status pill-checked-in pl-2 pr-2 text-nowrap">
               <span class="sr-only">Student was </span>Checked In
@@ -214,7 +215,7 @@ export default {
     },
     onAppointmentStatusChange: {
       type: Function,
-      default: () => {}
+      required: true
     },
     waitlist: {
       type: Array,
@@ -271,13 +272,7 @@ export default {
         advisor.uid,
         appointmentId
       ).then(checkedIn => {
-        if (this.isHomepage) {
-          let match = this.waitlist.find(a => a.id === +checkedIn.id);
-          Object.assign(match, checkedIn);
-        } else {
-          const indexOf = this.waitlist.findIndex(a => a.id === checkedIn.id);
-          this.waitlist.splice(indexOf, 1);
-        }
+        this.onAppointmentStatusChange();
         this.alertScreenReader(`${checkedIn.student.name} checked in`);
         this.closeCheckInModal();
       });
@@ -300,10 +295,10 @@ export default {
       this.selectedAppointment = undefined;
     },
     createAppointment(details, student, topics) {
-      apiCreate(this.deptCode, details, student.sid, 'Drop-in', topics).then(appointment => {
+      apiCreate(this.deptCode, details, student.sid, 'Drop-in', topics).then(() => {
         this.alertScreenReader(`${student.label} appointment created`);
         this.showCreateAppointmentModal = false;
-        this.waitlist.unshift(appointment);
+        this.onAppointmentStatusChange();
         this.putFocusNextTick(`waitlist-student-${student.sid}`)
       });
     },

@@ -5,7 +5,7 @@ export default {
   name: 'DropInWaitlistContainer',
   methods: {
     loadDropInWaitlist() {
-      getDropInAppointmentWaitlist(this.deptCode, this.includeResolvedAppointments).then(waitlist => {
+      getDropInAppointmentWaitlist(this.deptCode).then(waitlist => {
         let announceLoad = false;
         let announceUpdate = false;
         if (!this.isEqual(waitlist, this.waitlist)) {

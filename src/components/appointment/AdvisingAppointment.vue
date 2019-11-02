@@ -29,16 +29,16 @@
             :show-modal="showCancelAppointmentModal"
             :student="student" />
         </div>
-        <div v-if="!!appointment.checkedInBy">
+        <div v-if="appointment.status === 'checked_in'">
           <font-awesome :id="`appointment-${appointment.id}-checked-in-icon`" icon="calendar-check" class="status-checked-in-icon" />
           <span class="text-secondary ml-1">
             Check In
-            <span v-if="appointment.checkedInAt">
-              @ <span :id="`appointment-${appointment.id}-checked-in-at`">{{ datePerTimezone(appointment.checkedInAt) | moment('h:mma') }}</span>
+            <span v-if="appointment.statusDate">
+              @ <span :id="`appointment-${appointment.id}-checked-in-at`">{{ datePerTimezone(appointment.statusDate) | moment('h:mma') }}</span>
             </span>
           </span>
         </div>
-        <div v-if="appointment.canceledAt">
+        <div v-if="appointment.status === 'canceled'">
           <div>
             <font-awesome :id="`appointment-${appointment.id}-canceled-in-icon`" icon="calendar-minus" class="status-canceled-icon" />
             <span class="text-secondary ml-1">
@@ -127,8 +127,7 @@ export default {
     checkInAvailable() {
       return (
         this.includes(this.map((this.user.dropInAdvisorStatus || []), 'deptCode'), this.appointment.deptCode) &&
-        !this.appointment.checkedInBy &&
-        !this.appointment.canceledAt
+        this.includes(['waiting', 'reserved'], this.appointment.status)
       );
     }
   },
