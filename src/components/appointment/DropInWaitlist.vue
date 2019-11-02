@@ -118,6 +118,9 @@
                   class="appointment-topics font-size-14 pb-2">
                   {{ oxfordJoin(appointment.topics) }}
                 </div>
+                <div v-if="appointment.status === 'reserved'">
+                  <span class="has-error">Reserved by {{ appointment.reservedBy }}</span>
+                </div>
               </div>
             </div>
           </b-col>
@@ -132,7 +135,21 @@
               split
               text="Check In"
               variant="outline-dark">
-              <b-dropdown-item-button :id="`btn-appointment-${appointment.id}-details`" @click="showAppointmentDetails(appointment)">Details</b-dropdown-item-button>
+              <b-dropdown-item-button :id="`btn-appointment-${appointment.id}-details`" @click="showAppointmentDetails(appointment)">
+                Details
+              </b-dropdown-item-button>
+              <b-dropdown-item-button
+                v-if="appointment.status !== 'reserved' || appointment.reservedBy !== user.id"
+                :id="`btn-appointment-${appointment.id}-reserve`"
+                @click="reserveAppointment(appointment)">
+                <span class="text-nowrap">Reserve</span>
+              </b-dropdown-item-button>
+              <b-dropdown-item-button
+                v-if="appointment.status === 'reserved' && appointment.reservedBy === user.id"
+                :id="`btn-appointment-${appointment.id}-unreserve`"
+                @click="unreserveAppointment(appointment)">
+                <span class="text-nowrap">Unreserve</span>
+              </b-dropdown-item-button>
               <b-dropdown-item-button
                 :id="`btn-appointment-${appointment.id}-cancel`"
                 @click="cancelAppointment(appointment)">
@@ -168,7 +185,13 @@ import CreateAppointmentModal from '@/components/appointment/CreateAppointmentMo
 import StudentAvatar from '@/components/student/StudentAvatar';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
-import { cancel as apiCancel, checkIn as apiCheckIn, create as apiCreate } from '@/api/appointments';
+import {
+  cancel as apiCancel,
+  checkIn as apiCheckIn,
+  create as apiCreate,
+  reserve as apiReserve,
+  unreserve as apiUnreserve,
+} from '@/api/appointments';
 
 export default {
   name: 'DropInWaitlist',
@@ -189,7 +212,7 @@ export default {
       type: Boolean,
       default: false
     },
-    onAppointmentCancellation: {
+    onAppointmentStatusChange: {
       type: Function,
       default: () => {}
     },
@@ -223,7 +246,7 @@ export default {
         }
         this.alertScreenReader(`${canceled.student.name} appointment canceled`);
         this.selectedAppointment = undefined;
-        this.onAppointmentCancellation();
+        this.onAppointmentStatusChange();
       });
     },
     cancelAppointment(appointment) {
@@ -299,9 +322,25 @@ export default {
       this.showCreateAppointmentModal = true;
       this.alertScreenReader('Create appointment form is open');
     },
+    reserveAppointment(appointment) {
+      apiReserve(appointment.id).then(reserved => {
+        let match = this.waitlist.find(a => a.id === +reserved.id);
+        Object.assign(match, reserved);
+        this.onAppointmentStatusChange();
+        this.alertScreenReader(`${reserved.student.name} appointment reserved`);
+      });
+    },
     showAppointmentDetails(appointment) {
       this.selectedAppointment = appointment;
       this.showAppointmentDetailsModal = true;
+    },
+    unreserveAppointment(appointment) {
+      apiUnreserve(appointment.id).then(unreserved => {
+        let match = this.waitlist.find(a => a.id === +unreserved.id);
+        Object.assign(match, unreserved);
+        this.onAppointmentStatusChange();
+        this.alertScreenReader(`${unreserved.student.name} appointment unreserved`);
+      });
     }
   }
 }

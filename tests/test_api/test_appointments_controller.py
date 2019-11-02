@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.models.appointment import Appointment
 from boac.models.appointment_read import AppointmentRead
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.drop_in_advisor import DropInAdvisor
 import simplejson as json
 from sqlalchemy import and_
 from tests.util import override_config
@@ -37,10 +38,10 @@ l_s_college_drop_in_advisor_uid = '53791'
 l_s_college_scheduler_uid = '19735'
 
 
-class TestCreateAppointment:
+class AppointmentTestUtil:
 
     @classmethod
-    def _create_appointment(cls, client, dept_code, details='', expected_status_code=200):
+    def create_appointment(cls, client, dept_code, details='', expected_status_code=200):
         data = {
             'appointmentType': 'Drop-in',
             'deptCode': dept_code,
@@ -56,6 +57,9 @@ class TestCreateAppointment:
         assert response.status_code == expected_status_code
         return response.json
 
+
+class TestCreateAppointment:
+
     @classmethod
     def _get_waitlist(cls, client, dept_code, include_resolved=False):
         response = client.get(f'/api/appointments/waitlist/{dept_code}?includeResolved=${include_resolved}')
@@ -64,13 +68,13 @@ class TestCreateAppointment:
 
     def test_create_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        self._create_appointment(client, 'COENG', expected_status_code=401)
+        AppointmentTestUtil.create_appointment(client, 'COENG', expected_status_code=401)
 
     def test_create_appointment_as_coe_scheduler(self, client, fake_auth):
         """Scheduler can create appointments."""
         fake_auth.login(coe_scheduler_uid)
         details = 'Aloysius has some questions.'
-        appointment = self._create_appointment(client, 'COENG', details)
+        appointment = AppointmentTestUtil.create_appointment(client, 'COENG', details)
         waitlist = self._get_waitlist(client, 'COENG')
         matching = next((a for a in waitlist if a['details'] == details), None)
         assert matching
@@ -84,11 +88,11 @@ class TestCreateAppointment:
 
     def test_other_departments_forbidden(self, client, fake_auth):
         fake_auth.login(coe_scheduler_uid)
-        self._create_appointment(client, 'UWASC', expected_status_code=403)
+        AppointmentTestUtil.create_appointment(client, 'UWASC', expected_status_code=403)
 
     def test_nonsense_department_not_found(self, client, fake_auth):
         fake_auth.login(coe_scheduler_uid)
-        self._create_appointment(client, 'DINGO', expected_status_code=404)
+        AppointmentTestUtil.create_appointment(client, 'DINGO', expected_status_code=404)
 
 
 class TestAppointmentCancel:
@@ -148,14 +152,79 @@ class TestAppointmentCheckIn:
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_mark_read_not_authenticated(self, client):
+    def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        self._create_appointment(client, 1, expected_status_code=401)
+        AppointmentTestUtil.create_appointment(client, 1, expected_status_code=401)
 
     def test_deny_advisor(self, app, client, fake_auth):
-        """Returns 401 if user is an advisor without drop_in responsibilities."""
+        """Returns 401 if user is not a drop-in advisor."""
         fake_auth.login(l_s_college_advisor_uid)
-        self._create_appointment(client, 1, expected_status_code=401)
+        AppointmentTestUtil.create_appointment(client, 1, expected_status_code=401)
+
+
+class TestAppointmentReserve:
+
+    @classmethod
+    def _reserve_appointment(cls, client, appointment_id, expected_status_code=200):
+        response = client.get(f'/api/appointments/{appointment_id}/reserve')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    @classmethod
+    def _unreserve_appointment(cls, client, appointment_id, expected_status_code=200):
+        response = client.get(f'/api/appointments/{appointment_id}/unreserve')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, client):
+        """Returns 401 if not authenticated."""
+        self._reserve_appointment(client, 1, expected_status_code=401)
+        self._unreserve_appointment(client, 1, expected_status_code=401)
+
+    def test_deny_advisor(self, app, client, fake_auth):
+        """Returns 401 if user is not a drop-in advisor."""
+        fake_auth.login(l_s_college_advisor_uid)
+        self._reserve_appointment(client, 1, expected_status_code=401)
+        self._unreserve_appointment(client, 1, expected_status_code=401)
+
+    def test_unreserve_appointment_reserved_by_other(self, app, client, fake_auth):
+        """Returns 401 if user un-reserves an appointment which is reserved by another."""
+        waiting = Appointment.query.filter(
+            and_(Appointment.status == 'waiting', Appointment.deleted_at == None),
+        ).first()  # noqa: E711
+        advisor = AuthorizedUser.find_by_id(waiting.created_by)
+        fake_auth.login(advisor.uid)
+        self._reserve_appointment(client, waiting.id)
+        fake_auth.login(l_s_college_advisor_uid)
+        self._unreserve_appointment(client, 1, expected_status_code=401)
+
+    def test_reserve_appointment(self, app, client, fake_auth):
+        """Drop-in advisor can reserve an appointment."""
+        dept_code = 'QCADV'
+        advisor = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
+        user = AuthorizedUser.find_by_id(advisor.authorized_user_id)
+        fake_auth.login(user.uid)
+        waiting = AppointmentTestUtil.create_appointment(client, dept_code)
+        appointment = self._reserve_appointment(client, waiting['id'])
+        assert appointment['status'] == 'reserved'
+        assert appointment['reservedAt'] is not None
+        assert appointment['reservedBy'] == user.id
+
+    def test_unreserve_appointment(self, app, client, fake_auth):
+        """Drop-in advisor can un-reserve an appointment."""
+        dept_code = 'QCADV'
+        advisor = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
+        user = AuthorizedUser.find_by_id(advisor.authorized_user_id)
+        fake_auth.login(user.uid)
+        waiting = AppointmentTestUtil.create_appointment(client, dept_code)
+        reserved = self._reserve_appointment(client, waiting['id'])
+        assert reserved['status'] == 'reserved'
+        assert reserved['reservedAt']
+        assert reserved['reservedBy'] == user.id
+        appointment = self._unreserve_appointment(client, waiting['id'])
+        assert appointment['status'] == 'waiting'
+        assert appointment['reservedAt'] is None
+        assert appointment['reservedBy'] is None
 
 
 class TestAppointmentWaitlist:
@@ -176,7 +245,7 @@ class TestAppointmentWaitlist:
         self._get_waitlist(client, 'BOGUS', expected_status_code=404)
 
     def test_deny_advisor(self, app, client, fake_auth):
-        """Returns 401 if user is an advisor without drop_in responsibilities."""
+        """Returns 401 if user is not a drop-in advisor."""
         fake_auth.login(l_s_college_advisor_uid)
         self._get_waitlist(client, 'QCADV', expected_status_code=401)
 
@@ -281,7 +350,7 @@ class TestAppointmentTopics:
         self._get_topics(client, expected_status_code=401)
 
     def test_deny_advisor(self, app, client, fake_auth):
-        """Returns 401 if user is an advisor without drop_in responsibilities."""
+        """Returns 401 if user is not a drop-in advisor."""
         fake_auth.login(l_s_college_advisor_uid)
         self._get_topics(client, expected_status_code=401)
 

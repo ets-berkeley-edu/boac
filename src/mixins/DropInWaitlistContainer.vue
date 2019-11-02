@@ -6,8 +6,8 @@ export default {
   methods: {
     loadDropInWaitlist() {
       getDropInAppointmentWaitlist(this.deptCode, this.includeResolvedAppointments).then(waitlist => {
-        var announceLoad = false;
-        var announceUpdate = false;
+        let announceLoad = false;
+        let announceUpdate = false;
         if (!this.isEqual(waitlist, this.waitlist)) {
           if (this.waitlist) {
             announceUpdate = true;

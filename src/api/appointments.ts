@@ -91,3 +91,29 @@ export function markAppointmentRead(appointmentId) {
       return response.data
     }, () => null);
 }
+
+export function reserve(appointmentId) {
+  return axios
+    .get(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/reserve`)
+    .then(response => {
+      store.dispatch('user/gaAppointmentEvent', {
+        id: appointmentId,
+        name: `Advisor ${store.getters['user/uid']} reserved a drop-in appointment`,
+        action: 'reserve'
+      });
+      return response.data
+    }, () => null);
+}
+
+export function unreserve(appointmentId) {
+  return axios
+    .get(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/unreserve`)
+    .then(response => {
+      store.dispatch('user/gaAppointmentEvent', {
+        id: appointmentId,
+        name: `Advisor ${store.getters['user/uid']} unreserve a drop-in appointment`,
+        action: 'unreserve'
+      });
+      return response.data
+    }, () => null);
+}
