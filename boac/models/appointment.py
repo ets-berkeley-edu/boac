@@ -209,6 +209,44 @@ class Appointment(Base):
             return None
 
     @classmethod
+    def reserve(cls, appointment_id, reserved_by):
+        appointment = cls.find_by_id(appointment_id=appointment_id)
+        if appointment:
+            event_type = 'reserved'
+            appointment.status = event_type
+            appointment.updated_by = reserved_by
+            AppointmentEvent.create(
+                appointment_id=appointment.id,
+                user_id=reserved_by,
+                event_type=event_type,
+            )
+            std_commit()
+            db.session.refresh(appointment)
+            cls.refresh_search_index()
+            return appointment
+        else:
+            return None
+
+    @classmethod
+    def unreserve(cls, appointment_id, unreserved_by):
+        appointment = cls.find_by_id(appointment_id=appointment_id)
+        if appointment:
+            event_type = 'waiting'
+            appointment.status = event_type
+            appointment.updated_by = unreserved_by
+            AppointmentEvent.create(
+                appointment_id=appointment.id,
+                user_id=unreserved_by,
+                event_type=event_type,
+            )
+            std_commit()
+            db.session.refresh(appointment)
+            cls.refresh_search_index()
+            return appointment
+        else:
+            return None
+
+    @classmethod
     def search(
         cls,
         search_phrase,
@@ -357,9 +395,8 @@ def _to_json(search_terms, search_result):
 
 
 def _at(event, type_):
-    created_at = event and event.event_type == type_ and _isoformat(event.created_at)
-    return created_at or None
+    return _isoformat(event.created_at) if event and event.event_type == type_ else None
 
 
 def _by(event, type_):
-    return event and event.event_type == type_ and event.user_id
+    return event.user_id if event and event.event_type == type_ else None

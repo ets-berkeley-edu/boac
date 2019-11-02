@@ -11,7 +11,7 @@
             <DropInWaitlist
               :dept-code="deptCode"
               :is-homepage="true"
-              :on-appointment-cancellation="onAppointmentCancellation"
+              :on-appointment-status-change="onAppointmentStatusChange"
               :waitlist="waitlist" />
           </div>
         </b-col>
@@ -99,7 +99,7 @@ export default {
     setInterval(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
   },
   methods: {
-    onAppointmentCancellation() {
+    onAppointmentStatusChange() {
       this.waitlist = this.partitionByCanceledStatus(this.waitlist);
     },
     partitionByCanceledStatus(waitlist) {
