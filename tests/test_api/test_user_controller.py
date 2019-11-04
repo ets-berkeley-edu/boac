@@ -424,6 +424,7 @@ class TestToggleDropInAppointmentStatus:
 
         response = client.get('/api/users/drop_in_advisors/QCADV')
         assert len(response.json) == 1
+        assert response.json[0]['available'] is False
         assert response.json[0]['dropInAdvisorStatus'] == [{'deptCode': 'QCADV', 'available': False}]
 
         response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/activate')
@@ -431,4 +432,5 @@ class TestToggleDropInAppointmentStatus:
 
         response = client.get('/api/users/drop_in_advisors/QCADV')
         assert len(response.json) == 1
+        assert response.json[0]['available'] is True
         assert response.json[0]['dropInAdvisorStatus'] == [{'deptCode': 'QCADV', 'available': True}]
