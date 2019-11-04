@@ -131,6 +131,12 @@ class AuthorizedUser(Base):
         return result and result['id']
 
     @classmethod
+    def get_uid_per_id(cls, user_id):
+        query = text(f'SELECT uid FROM authorized_users WHERE id = :user_id AND deleted_at IS NULL')
+        result = db.session.execute(query, {'user_id': user_id}).first()
+        return result and result['uid']
+
+    @classmethod
     def find_by_id(cls, db_id):
         return AuthorizedUser.query.filter_by(id=db_id, deleted_at=None).first()
 

@@ -178,10 +178,12 @@ CREATE MATERIALIZED VIEW appointments_fts_index AS (
   SELECT
     a.id,
     to_tsvector('english', trim(concat(a.details, ' ', e.cancel_reason, ' ', e.cancel_reason_explained))) AS fts_index
-  FROM appointments a
-  LEFT JOIN appointment_events e ON e.appointment_id = a.id
-  WHERE details IS NOT NULL
-    AND deleted_at IS NULL
+  FROM (SELECT MAX(id) as id FROM appointment_events GROUP BY appointment_id) as recent_events
+  JOIN appointment_events e ON e.id = recent_events.id
+  JOIN appointments a ON a.id = e.appointment_id
+  WHERE
+    a.details IS NOT NULL
+    AND a.deleted_at IS NULL
 );
 
 CREATE INDEX idx_appointments_fts_index

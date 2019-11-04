@@ -2,7 +2,10 @@
   <div class="ml-3 mr-3 mt-3">
     <Spinner alert-prefix="Appointment waitlist" />
     <div v-if="!loading" class="waitlist-container">
-      <DropInWaitlist :dept-code="deptCode" :waitlist="waitlist" />
+      <DropInWaitlist
+        :dept-code="deptCode"
+        :on-appointment-status-change="loadDropInWaitlist"
+        :waitlist="waitlist" />
     </div>
   </div>
 </template>
@@ -22,7 +25,6 @@ export default {
   components: {DropInWaitlist, Spinner},
   mixins: [Context, DropInWaitlistContainer, Loading, UserMetadata, Util],
   data: () => ({
-    includeResolvedAppointments: false,
     waitlist: undefined
   }),
   created() {

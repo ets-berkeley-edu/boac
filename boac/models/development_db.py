@@ -236,7 +236,7 @@ _university_depts = {
                 'uid': '90412',
                 'isAdvisor': True,
                 'isDirector': False,
-                'isDropInAdvisor': False,
+                'isDropInAdvisor': True,
                 'isScheduler': False,
                 'automate_membership': True,
             },
@@ -459,64 +459,41 @@ def _create_department_memberships():
 
 
 def _create_appointments():
-    _create_waiting_appointments()
-    _create_checked_in_appointments()
     _create_canceled_appointments()
+    _create_checked_in_appointments()
+    _create_reserved_appointments()
+    _create_waiting_appointments()
 
 
-def _create_waiting_appointments():
-    coe_advisor_uid = '90412'
-    coe_advisor_user_id = AuthorizedUser.get_id_per_uid(coe_advisor_uid)
-    scheduler_uid = '6972201'
-    scheduler_user_id = AuthorizedUser.get_id_per_uid(scheduler_uid)
-    Appointment.create(
-        appointment_type='Drop-in',
-        created_by=scheduler_user_id,
-        dept_code='COENG',
-        details='Meet me at the crossroads.',
-        student_sid='3456789012',
-        topics=['Topic for appointments, 2'],
-    )
-    Appointment.create(
+def _create_canceled_appointments():
+    coe_advisor_user_id = AuthorizedUser.get_id_per_uid('90412')
+    scheduler_user_id = AuthorizedUser.get_id_per_uid('6972201')
+    cancel_me = Appointment.create(
         appointment_type='Drop-in',
         created_by=coe_advisor_user_id,
         dept_code='COENG',
-        details='Life is what happens while you\'re making appointments.',
-        student_sid='5678901234',
-        topics=['Good Show'],
+        details='We will cancel this appointment.',
+        student_sid='7890123456',
+        topics=['Whoops'],
     )
-    # L&S College Advising appointments
-    l_s_advisor_uid = '53791'
-    l_s_advisor_user_id = AuthorizedUser.get_id_per_uid(l_s_advisor_uid)
-    Appointment.create(
-        appointment_type='Drop-in',
-        created_by=l_s_advisor_user_id,
-        dept_code='QCADV',
-        details='C-c-catch the wave!',
-        student_sid='5678901234',
-        topics=['Topic for appointments, 1', 'Good Show'],
-    )
-    Appointment.create(
-        appointment_type='Drop-in',
-        created_by=l_s_advisor_user_id,
-        dept_code='QCADV',
-        details='You be you.',
-        student_sid='11667051',
-        topics=['Topic for appointments, 1'],
+    Appointment.cancel(
+        appointment_id=cancel_me.id,
+        canceled_by=scheduler_user_id,
+        cancel_reason='Just because',
+        cancel_reason_explained='I felt like it.',
     )
 
 
 def _create_checked_in_appointments():
+    coe_scheduler_user_id = AuthorizedUser.get_id_per_uid('6972201')
     coe_advisor_uid = '90412'
     coe_advisor_user_id = AuthorizedUser.get_id_per_uid(coe_advisor_uid)
-    scheduler_uid = '6972201'
-    scheduler_user_id = AuthorizedUser.get_id_per_uid(scheduler_uid)
     l_s_advisor_uid = '53791'
     l_s_advisor_user_id = AuthorizedUser.get_id_per_uid(l_s_advisor_uid)
 
     check_me_in = Appointment.create(
         appointment_type='Drop-in',
-        created_by=scheduler_user_id,
+        created_by=coe_scheduler_user_id,
         dept_code='COENG',
         details='Pick me, pick me!',
         student_sid='3456789012',
@@ -548,7 +525,7 @@ def _create_checked_in_appointments():
     )
     check_me_in = Appointment.create(
         appointment_type='Drop-in',
-        created_by=scheduler_user_id,
+        created_by=coe_scheduler_user_id,
         dept_code='COENG',
         details='We will check in this student.',
         student_sid='9012345678',
@@ -562,6 +539,7 @@ def _create_checked_in_appointments():
         advisor_role='Advisor',
         advisor_dept_codes=['COENG'],
     )
+    # L&S College Advising
     check_me_in = Appointment.create(
         appointment_type='Drop-in',
         created_by=l_s_advisor_user_id,
@@ -580,24 +558,55 @@ def _create_checked_in_appointments():
     )
 
 
-def _create_canceled_appointments():
-    coe_advisor_uid = '90412'
-    coe_advisor_user_id = AuthorizedUser.get_id_per_uid(coe_advisor_uid)
-    scheduler_uid = '6972201'
-    scheduler_user_id = AuthorizedUser.get_id_per_uid(scheduler_uid)
-    cancel_me = Appointment.create(
+def _create_reserved_appointments():
+    coe_advisor_user_id = AuthorizedUser.get_id_per_uid('90412')
+    reserve_me = Appointment.create(
         appointment_type='Drop-in',
         created_by=coe_advisor_user_id,
         dept_code='COENG',
-        details='We will cancel this appointment.',
+        details='I will reserve this appointment.',
         student_sid='7890123456',
         topics=['Whoops'],
     )
-    Appointment.cancel(
-        appointment_id=cancel_me.id,
-        canceled_by=scheduler_user_id,
-        cancel_reason='Just because',
-        cancel_reason_explained='I felt like it.',
+    Appointment.reserve(appointment_id=reserve_me.id, reserved_by=coe_advisor_user_id)
+
+
+def _create_waiting_appointments():
+    coe_advisor_user_id = AuthorizedUser.get_id_per_uid('90412')
+    coe_scheduler_user_id = AuthorizedUser.get_id_per_uid('6972201')
+    l_s_advisor_user_id = AuthorizedUser.get_id_per_uid('53791')
+    Appointment.create(
+        appointment_type='Drop-in',
+        created_by=coe_scheduler_user_id,
+        dept_code='COENG',
+        details='Meet me at the crossroads.',
+        student_sid='3456789012',
+        topics=['Topic for appointments, 2'],
+    )
+    Appointment.create(
+        appointment_type='Drop-in',
+        created_by=coe_advisor_user_id,
+        dept_code='COENG',
+        details='Life is what happens while you\'re making appointments.',
+        student_sid='5678901234',
+        topics=['Good Show'],
+    )
+    # L&S College Advising
+    Appointment.create(
+        appointment_type='Drop-in',
+        created_by=l_s_advisor_user_id,
+        dept_code='QCADV',
+        details='C-c-catch the wave!',
+        student_sid='5678901234',
+        topics=['Topic for appointments, 1', 'Good Show'],
+    )
+    Appointment.create(
+        appointment_type='Drop-in',
+        created_by=l_s_advisor_user_id,
+        dept_code='QCADV',
+        details='You be you.',
+        student_sid='11667051',
+        topics=['Topic for appointments, 1'],
     )
 
 

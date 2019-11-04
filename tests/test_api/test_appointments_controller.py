@@ -32,6 +32,7 @@ from sqlalchemy import and_
 from tests.util import override_config
 
 coe_advisor_uid = '90412'
+coe_drop_in_advisor_uid = '90412'
 coe_scheduler_uid = '6972201'
 l_s_college_advisor_uid = '188242'
 l_s_college_drop_in_advisor_uid = '53791'
@@ -61,9 +62,9 @@ class AppointmentTestUtil:
 class TestCreateAppointment:
 
     @classmethod
-    def _get_waitlist(cls, client, dept_code, include_resolved=False):
-        response = client.get(f'/api/appointments/waitlist/{dept_code}?includeResolved=${include_resolved}')
-        assert response.status_code == 200
+    def _get_waitlist(cls, client, dept_code, expected_status_code=200):
+        response = client.get(f'/api/appointments/waitlist/{dept_code}')
+        assert response.status_code == expected_status_code
         return response.json
 
     def test_create_not_authenticated(self, client):
@@ -75,16 +76,21 @@ class TestCreateAppointment:
         fake_auth.login(coe_scheduler_uid)
         details = 'Aloysius has some questions.'
         appointment = AppointmentTestUtil.create_appointment(client, 'COENG', details)
+        appointment_id = appointment['id']
         waitlist = self._get_waitlist(client, 'COENG')
         matching = next((a for a in waitlist if a['details'] == details), None)
         assert matching
-        assert appointment['id'] == matching['id']
+        assert appointment_id == matching['id']
         assert appointment['read'] is True
         assert appointment['student']['sid'] == '3456789012'
         assert appointment['student']['name'] == 'Paul Kerschen'
         assert appointment['student']['photoUrl']
         assert appointment['appointmentType'] == 'Drop-in'
         assert len(appointment['topics']) == 2
+        # Verify that a deleted appointment is off the waitlist
+        Appointment.delete(appointment_id)
+        waitlist = self._get_waitlist(client, 'COENG')
+        assert next((a for a in waitlist if a['details'] == details), None) is None
 
     def test_other_departments_forbidden(self, client, fake_auth):
         fake_auth.login(coe_scheduler_uid)
@@ -93,6 +99,12 @@ class TestCreateAppointment:
     def test_nonsense_department_not_found(self, client, fake_auth):
         fake_auth.login(coe_scheduler_uid)
         AppointmentTestUtil.create_appointment(client, 'DINGO', expected_status_code=404)
+
+    def test_feature_flag(self, client, fake_auth, app):
+        """Returns 404 if the Appointments feature is false."""
+        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
+            fake_auth.login(coe_advisor_uid)
+            self._get_waitlist(client, 'COENG', expected_status_code=401)
 
 
 class TestAppointmentCancel:
@@ -129,22 +141,39 @@ class TestAppointmentCancel:
 
     def test_appointment_cancel(self, app, client, fake_auth):
         """Drop-in advisor can cancel appointment."""
-        waiting = Appointment.query.filter(
-            and_(Appointment.status == 'waiting', Appointment.deleted_at == None),
-        ).first()  # noqa: E711
-        advisor = AuthorizedUser.find_by_id(waiting.created_by)
-        fake_auth.login(advisor.uid)
-        appointment = self._cancel_appointment(client, waiting.id, 'Canceled by advisor')
-        assert appointment['id'] == waiting.id
+        dept_code = 'QCADV'
+        advisor = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
+        user = AuthorizedUser.find_by_id(advisor.authorized_user_id)
+        fake_auth.login(user.uid)
+        waiting = AppointmentTestUtil.create_appointment(client, dept_code)
+        appointment = self._cancel_appointment(client, waiting['id'], 'Canceled by wolves')
+        appointment_id = appointment['id']
+        assert appointment_id == waiting['id']
         assert appointment['status'] == 'canceled'
-        assert appointment['canceledBy'] == advisor.id
-        assert appointment['canceledAt']
+        assert appointment['statusBy']['id'] == user.id
+        assert appointment['statusBy']['uid'] == user.uid
+        assert appointment['statusDate'] is not None
+        Appointment.delete(appointment_id)
+
+    def test_feature_flag(self, client, fake_auth, app):
+        """Appointments feature is false."""
+        dept_code = 'QCADV'
+        advisor = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
+        fake_auth.login(AuthorizedUser.find_by_id(advisor.authorized_user_id).uid)
+        appointment = AppointmentTestUtil.create_appointment(client, dept_code)
+        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
+            self._cancel_appointment(
+                client,
+                appointment_id=appointment['id'],
+                cancel_reason='Canceled by the power of the mind',
+                expected_status_code=401,
+            )
 
 
 class TestAppointmentCheckIn:
 
     @classmethod
-    def _create_appointment(cls, client, appointment_id, expected_status_code=200):
+    def _check_in(cls, client, appointment_id, expected_status_code=200):
         response = client.post(
             f'/api/appointments/{appointment_id}/check_in',
             content_type='application/json',
@@ -154,12 +183,21 @@ class TestAppointmentCheckIn:
 
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        AppointmentTestUtil.create_appointment(client, 1, expected_status_code=401)
+        self._check_in(client, 1, expected_status_code=401)
 
     def test_deny_advisor(self, app, client, fake_auth):
         """Returns 401 if user is not a drop-in advisor."""
         fake_auth.login(l_s_college_advisor_uid)
-        AppointmentTestUtil.create_appointment(client, 1, expected_status_code=401)
+        self._check_in(client, 1, expected_status_code=401)
+
+    def test_feature_flag(self, client, fake_auth, app):
+        """Appointments feature is false."""
+        dept_code = 'QCADV'
+        advisor = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
+        fake_auth.login(AuthorizedUser.find_by_id(advisor.authorized_user_id).uid)
+        appointment = AppointmentTestUtil.create_appointment(client, dept_code)
+        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
+            self._check_in(client, appointment['id'], expected_status_code=401)
 
 
 class TestAppointmentReserve:
@@ -207,8 +245,9 @@ class TestAppointmentReserve:
         waiting = AppointmentTestUtil.create_appointment(client, dept_code)
         appointment = self._reserve_appointment(client, waiting['id'])
         assert appointment['status'] == 'reserved'
-        assert appointment['reservedAt'] is not None
-        assert appointment['reservedBy'] == user.id
+        assert appointment['statusDate'] is not None
+        assert appointment['statusBy']['id'] == user.id
+        Appointment.delete(appointment['id'])
 
     def test_unreserve_appointment(self, app, client, fake_auth):
         """Drop-in advisor can un-reserve an appointment."""
@@ -219,19 +258,31 @@ class TestAppointmentReserve:
         waiting = AppointmentTestUtil.create_appointment(client, dept_code)
         reserved = self._reserve_appointment(client, waiting['id'])
         assert reserved['status'] == 'reserved'
-        assert reserved['reservedAt']
-        assert reserved['reservedBy'] == user.id
+        assert reserved['statusDate']
+        assert reserved['statusBy']['id'] == user.id
+        assert reserved['statusBy']['uid'] == user.uid
+        assert 'name' in reserved['statusBy']
         appointment = self._unreserve_appointment(client, waiting['id'])
         assert appointment['status'] == 'waiting'
-        assert appointment['reservedAt'] is None
-        assert appointment['reservedBy'] is None
+        assert appointment['statusDate'] is not None
+        assert appointment['statusBy']['id'] == user.id
+        Appointment.delete(appointment['id'])
+
+    def test_feature_flag(self, client, fake_auth, app):
+        """Appointments feature is false."""
+        dept_code = 'QCADV'
+        advisor = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
+        fake_auth.login(AuthorizedUser.find_by_id(advisor.authorized_user_id).uid)
+        appointment = AppointmentTestUtil.create_appointment(client, dept_code)
+        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
+            self._reserve_appointment(client, appointment['id'], expected_status_code=401)
 
 
 class TestAppointmentWaitlist:
 
     @classmethod
-    def _get_waitlist(cls, client, dept_code, include_resolved=False, expected_status_code=200):
-        response = client.get(f'/api/appointments/waitlist/{dept_code}?includeResolved={include_resolved}')
+    def _get_waitlist(cls, client, dept_code, expected_status_code=200):
+        response = client.get(f'/api/appointments/waitlist/{dept_code}')
         assert response.status_code == expected_status_code
         return response.json
 
@@ -255,34 +306,30 @@ class TestAppointmentWaitlist:
         self._get_waitlist(client, 'COENG', expected_status_code=403)
 
     def test_coe_scheduler_waitlist(self, app, client, fake_auth):
-        """COE advisor can only see COE appointments."""
-        fake_auth.login(coe_scheduler_uid)
-        waitlist = self._get_waitlist(client, 'COENG', include_resolved=True)
-        assert len(waitlist) == 6
-        appointment = next((a for a in waitlist if 'Life is what happens' in a['details']), None)
-        assert appointment
-        assert appointment['createdAt'] is not None
-        assert appointment['createdBy'] == AuthorizedUser.get_id_per_uid(coe_advisor_uid)
-        assert 'Life is what happens' in appointment['details']
-        assert appointment['appointmentType'] == 'Drop-in'
-        assert appointment['status'] == 'waiting'
-        assert appointment['canceledAt'] is None
-        assert appointment['canceledBy'] is None
-        assert appointment['checkedInAt'] is None
-        assert appointment['checkedInBy'] is None
-        assert appointment['reservedAt'] is None
-        assert appointment['reservedBy'] is None
-        assert appointment['student']['sid'] == '5678901234'
-        assert appointment['student']['name'] == 'Sandeep Jayaprakash'
-        assert len(appointment['topics']) == 1
+        """Waitlist is properly sorted for COE drop-in advisor."""
+        fake_auth.login(coe_drop_in_advisor_uid)
+        waitlist = self._get_waitlist(client, 'COENG')
+        assert len(waitlist) > 6
+        # Appointments reserved by me are always on top
+        assert waitlist[0]['status'] == 'reserved'
+        assert waitlist[0]['statusBy']['uid'] == coe_drop_in_advisor_uid
+        # Canceled appointments are put to the bottom of list
+        assert waitlist[-1]['status'] == 'canceled'
+        for index in range(1, len(waitlist) - 1):
+            # Everything else is in between
+            assert waitlist[index]['status'] in ('waiting', 'checked_in')
 
     def test_waitlist_include_checked_in_and_canceled(self, app, client, fake_auth):
-        """Waitlist includes checked-in and canceled appointments, if you ask for them."""
+        """For scheduler, the waitlist has appointments with event type 'waiting' or 'reserved'."""
         fake_auth.login(coe_scheduler_uid)
-        appointments = self._get_waitlist(client, 'COENG', True)
-        assert len(appointments) == 6
-        for appointment in appointments:
-            assert appointment['status']
+        appointments = self._get_waitlist(client, 'COENG')
+        assert len(appointments) > 2
+        for index, appointment in enumerate(appointments):
+            if index > 0 and appointments[index - 1]['status'] == 'canceled':
+                # Canceled appointments are put to the bottom of list
+                assert appointment['status'] == 'canceled'
+            else:
+                assert appointment['status'] in ('waiting', 'reserved')
 
     def test_l_and_s_advisor_waitlist(self, app, client, fake_auth):
         """L&S advisor can only see L&S appointments."""
@@ -293,8 +340,17 @@ class TestAppointmentWaitlist:
     def test_l_s_college_drop_in_advisor_uid_waitlist(self, app, client, fake_auth):
         """L&S drop-in advisor can only see L&S appointments."""
         fake_auth.login(l_s_college_drop_in_advisor_uid)
-        appointments = self._get_waitlist(client, 'QCADV')
-        assert len(appointments) == 2
+        dept_code = 'QCADV'
+        appointments = self._get_waitlist(client, dept_code)
+        assert len(appointments) > 2
+        for appointment in appointments:
+            assert appointment['deptCode'] == dept_code
+
+    def test_feature_flag(self, client, fake_auth, app):
+        """Appointments feature is false."""
+        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
+            fake_auth.login(l_s_college_scheduler_uid)
+            self._get_waitlist(client, 'COENG', expected_status_code=401)
 
 
 class TestMarkAppointmentRead:
@@ -315,23 +371,22 @@ class TestMarkAppointmentRead:
 
     def test_advisor_read_appointment(self, app, client, fake_auth):
         """L&S advisor reads an appointment."""
-        # Confirm that appointment is not read
-        appointment = Appointment.create(
-            created_by=AuthorizedUser.get_id_per_uid(coe_scheduler_uid),
-            dept_code='COENG',
-            details='A COE appointment.',
-            student_sid='5678901234',
-            appointment_type='Drop-in',
-            topics=['Topic for appointments, 2'],
-        )
-        user_id = AuthorizedUser.get_id_per_uid(l_s_college_advisor_uid)
-        assert AppointmentRead.was_read_by(user_id, appointment.id) is False
-        # Next, log in and verify API
-        fake_auth.login(l_s_college_advisor_uid)
-        api_json = self._mark_appointment_read(client, appointment.id)
-        assert api_json['appointmentId'] == appointment.id
+        fake_auth.login(l_s_college_scheduler_uid)
+        # As scheduler, create appointment
+        appointment = AppointmentTestUtil.create_appointment(client, 'QCADV')
+        appointment_id = appointment['id']
+        client.get('/api/auth/logout')
+        # Verify unread by advisor
+        uid = l_s_college_advisor_uid
+        user_id = AuthorizedUser.get_id_per_uid(uid)
+        assert AppointmentRead.was_read_by(user_id, appointment_id) is False
+        # Next, log in as advisor and read the appointment
+        fake_auth.login(uid)
+        api_json = self._mark_appointment_read(client, appointment_id)
+        assert api_json['appointmentId'] == appointment_id
         assert api_json['viewerId'] == user_id
-        assert AppointmentRead.was_read_by(user_id, appointment.id) is True
+        assert AppointmentRead.was_read_by(user_id, appointment_id) is True
+        Appointment.delete(appointment_id)
 
 
 class TestAppointmentTopics:
@@ -373,11 +428,11 @@ class TestAppointmentTopics:
         assert len(topics) == 10
         assert 'Topic for appointments, deleted' in topics
 
-    def test_respects_feature_flag(self, client, fake_auth, app):
-        """Returns 404 if the appointments feature is disabled."""
+    def test_feature_flag(self, client, fake_auth, app):
+        """Appointments feature is false."""
         with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
             fake_auth.login(coe_advisor_uid)
-            self._get_topics(client, expected_status_code=404)
+            self._get_topics(client, expected_status_code=401)
 
 
 class TestAuthorSearch:
@@ -390,9 +445,9 @@ class TestAuthorSearch:
         labels = [s['label'] for s in response.json]
         assert 'Johnny C. Lately' in labels
 
-    def test_respects_feature_flag(self, client, fake_auth, app):
-        """Returns 404 if the appointments feature is disabled."""
+    def test_feature_flag(self, client, fake_auth, app):
+        """Appointments feature is false."""
         with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
             fake_auth.login(coe_advisor_uid)
             response = client.get('/api/appointments/advisors/find_by_name?q=Jo')
-            assert response.status_code == 404
+            assert response.status_code == 401

@@ -11,7 +11,7 @@
             <DropInWaitlist
               :dept-code="deptCode"
               :is-homepage="true"
-              :on-appointment-status-change="onAppointmentStatusChange"
+              :on-appointment-status-change="loadDropInWaitlist"
               :waitlist="waitlist" />
           </div>
         </b-col>
@@ -90,22 +90,12 @@ export default {
   mixins: [Context, DropInWaitlistContainer, Loading, UserMetadata, Util],
   data: () => ({
     deptCode: undefined,
-    includeResolvedAppointments: true,
     waitlist: undefined
   }),
   mounted() {
     this.deptCode = this.get(this.$route, 'params.deptCode');
     this.loadDropInWaitlist();
     setInterval(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
-  },
-  methods: {
-    onAppointmentStatusChange() {
-      this.waitlist = this.partitionByCanceledStatus(this.waitlist);
-    },
-    partitionByCanceledStatus(waitlist) {
-      const partitioned = this.partition(waitlist, a => !a.canceledAt);
-      return partitioned[0].concat(partitioned[1]);
-    }
   }
 }
 </script>

@@ -67,9 +67,9 @@ export function findAdvisorsByName(query: string, limit: number) {
     .then(response => response.data);
 }
 
-export function getDropInAppointmentWaitlist(deptCode, includeResolved=false) {
+export function getDropInAppointmentWaitlist(deptCode) {
   return axios
-    .get(`${utils.apiBaseUrl()}/api/appointments/waitlist/${deptCode}?includeResolved=${includeResolved}`)
+    .get(`${utils.apiBaseUrl()}/api/appointments/waitlist/${deptCode}`)
     .then(response => response.data, () => null);
 }
 
