@@ -28,7 +28,7 @@ from datetime import datetime
 from boac import db, std_commit
 from dateutil.tz import tzutc
 from sqlalchemy.dialects.postgresql import ENUM
-from sqlalchemy.sql import desc
+from sqlalchemy.sql import asc
 
 
 appointment_event_type = ENUM(
@@ -91,7 +91,7 @@ class AppointmentEvent(db.Model):
         return cls.query.filter(
             cls.appointment_id == appointment_id,
             cls.event_type == event_type,
-        ).order_by(desc(cls.created_at)).limit(1).first()
+        ).order_by(asc(cls.created_at)).limit(1).first()
 
     def to_api_json(self):
         return {

@@ -34,6 +34,10 @@ export default {
       'loadCalnetUserByCsid',
       'setUserPreference'
     ]),
+    isUserDropInAdvisor(deptCode) {
+      const deptCodes = _.map(store.getters['user/user'].dropInAdvisorStatus || [], 'deptCode');
+      return _.includes(deptCodes, _.upperCase(deptCode));
+    },
     isUserSimplyScheduler() {
      const user = store.getters['user/user'];
      const isScheduler = _.size($_myDeptCodes(['isScheduler']));
