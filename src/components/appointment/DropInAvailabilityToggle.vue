@@ -1,0 +1,101 @@
+<template>
+  <div>
+    <div class="d-flex mb-2">
+      <div v-if="!isNil(isAvailable)" class="availability-status-outer flex-row">
+        <div class="mr-2 availability-status">
+          My availability status:
+        </div>
+        <div
+          :class="isAvailable ? 'availability-status-disabled' : 'availability-status-active'"
+          class="aria-hidden availability-status">
+          Off duty
+        </div>
+        <button
+          id="toggle-drop-in-availability"
+          v-if="!isToggling"
+          v-model="isAvailable"
+          @click="toggle"
+          @keyup="toggle"
+          type="button"
+          class="btn btn-link pt-0 pb-0 pl-1 pr-1">
+          <span class="status-toggle-label">
+            <font-awesome v-if="isAvailable" icon="toggle-on" class="toggle toggle-on"></font-awesome>
+            <font-awesome v-if="!isAvailable" icon="toggle-off" class="toggle toggle-off"></font-awesome>
+            <span class="sr-only">{{ isAvailable ? 'On duty' : 'Off duty' }}</span>
+          </span>
+        </button>
+        <div v-if="isToggling">
+          <font-awesome icon="spinner" spin />
+        </div>
+        <div
+          :class="isAvailable ? 'availability-status-active' : 'availability-status-disabled'"
+          class="aria-hidden availability-status">
+          On duty
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import Context from '@/mixins/Context';
+import UserMetadata from '@/mixins/UserMetadata';
+import Util from '@/mixins/Util';
+import { setDropInAvailability } from '@/api/user';
+
+export default {
+  name: 'DropInAvailabilityToggle',
+  mixins: [Context, UserMetadata, Util],
+  props: {
+    deptCode: {
+      type: String,
+      required: true
+    }
+  },
+  data: () => ({
+    isAvailable: undefined,
+    isToggling: undefined
+  }),
+  created() {
+    const dropInAdvisorStatus = this.find(this.user.dropInAdvisorStatus, {'deptCode': this.deptCode.toUpperCase()});
+    if (dropInAdvisorStatus) {
+      this.isAvailable = dropInAdvisorStatus.available;
+    }
+  },
+  methods: {
+    toggle: function() {
+      this.isToggling = true;
+      setDropInAvailability(this.deptCode, 'me', !this.isAvailable).then(() => {
+        this.isAvailable = !this.isAvailable;
+        this.isToggling = false;
+        this.alertScreenReader(`Switching drop-in availability ${this.isAvailable ? 'off' : 'on' }`);
+      });
+    }
+  }
+};
+</script>
+
+<style scoped>
+.availability-status {
+  font-size: 12px;
+  text-transform: uppercase;
+}
+.availability-status-active {
+  font-weight: 600;
+}
+.availability-status-disabled {
+  color: #999999;
+}
+.availability-status-outer {
+  align-items: center;
+}
+.toggle {
+ font-size: 20px;
+}
+.toggle-off {
+   color: #999999;
+}
+.toggle-on {
+   color: #00c13a;
+}
+</style>

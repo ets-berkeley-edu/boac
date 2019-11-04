@@ -32,6 +32,12 @@ const mutations = {
   },
   setDemoMode: (state: any, demoMode: boolean) =>
     (state.user.inDemoMode = demoMode),
+  setDropInStatus: (state: any, {deptCode, available}) => {
+    const dropInAdvisorStatus = _.find(state.user.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()});
+    if (dropInAdvisorStatus) {
+      dropInAdvisorStatus.available = available;
+    }
+  },
   setUserPreference: (state: any, {key, value}) => {
     if (_.has(state.preferences, key)) {
       state.preferences[key] = value;
@@ -94,6 +100,7 @@ const actions = {
   logout: ({ commit }) => commit('logout'),
   registerUser: ({ commit }, user) => commit('registerUser', user),
   setDemoMode: ({ commit }, demoMode) => commit('setDemoMode', demoMode),
+  setDropInStatus: ({ commit }, {deptCode, available}) => commit('setDropInStatus', {deptCode, available}),
   setUserPreference: ({ commit }, {key, value}) => commit('setUserPreference', { key, value })
 };
 

@@ -25,20 +25,23 @@
       :cancel="cancelCreateAppointment"
       :create-appointment="createAppointment"
       :show-modal="showCreateAppointmentModal" />
-    <div v-if="isHomepage" class="align-items-center d-flex homepage-header-border justify-content-between mb-2">
-      <div aria-live="polite" role="alert">
-        <h2 class="page-section-header">Drop-in Waitlist - {{ $moment() | moment('MMM D') }}</h2>
+    <div v-if="isHomepage" class="homepage-header-border">
+      <div class="align-items-center d-flex justify-content-between mb-2">
+        <div aria-live="polite" role="alert">
+          <h2 class="page-section-header">Drop-in Waitlist - {{ $moment() | moment('MMM D') }}</h2>
+        </div>
+        <div>
+          <b-btn
+            id="btn-homepage-create-appointment"
+            @click="showCreateAppointmentModal = true"
+            variant="link"
+            class="mb-1"
+            aria-label="Create appointment. Modal window will open.">
+            <font-awesome icon="plus" />
+          </b-btn>
+        </div>
       </div>
-      <div>
-        <b-btn
-          id="btn-homepage-create-appointment"
-          @click="showCreateAppointmentModal = true"
-          variant="link"
-          class="mb-1"
-          aria-label="Create appointment. Modal window will open.">
-          <font-awesome icon="plus" />
-        </b-btn>
-      </div>
+      <DropInAvailabilityToggle :dept-code="deptCode" />
     </div>
     <div v-if="!isHomepage">
       <div class="mb-4 pb-3 pt-3 text-center">
@@ -183,6 +186,7 @@ import AppointmentCancellationModal from '@/components/appointment/AppointmentCa
 import CheckInModal from '@/components/appointment/CheckInModal';
 import Context from '@/mixins/Context';
 import CreateAppointmentModal from '@/components/appointment/CreateAppointmentModal';
+import DropInAvailabilityToggle from '@/components/appointment/DropInAvailabilityToggle';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
@@ -201,6 +205,7 @@ export default {
     AppointmentDetailsModal,
     CheckInModal,
     CreateAppointmentModal,
+    DropInAvailabilityToggle,
     StudentAvatar
   },
   mixins: [Context, UserMetadata, Util],

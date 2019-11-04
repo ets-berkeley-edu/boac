@@ -45,6 +45,22 @@ export function getDropInAdvisorsForDept(deptCode: string) {
     .then(response => response.data, () => null);
 }
 
+export function setDropInAvailability(deptCode: string, uid: string, available: boolean) {
+  const action = available ? 'activate' : 'deactivate';
+  return axios
+    .post(`${utils.apiBaseUrl()}/api/user/${uid}/drop_in_status/${deptCode}/${action}`)
+    .then(response => {
+      if (uid === 'me') {
+        store.dispatch('user/setDropInStatus', {
+          deptCode: deptCode,
+          available: available
+        });
+      } else {
+        return response.data;
+      }
+    }, () => null);
+}
+
 export function setDemoMode(demoMode: boolean) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/user/demo_mode`, {

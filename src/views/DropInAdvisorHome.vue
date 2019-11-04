@@ -117,7 +117,6 @@ export default {
   border-bottom-color: lightgrey;
   border-bottom-style: solid;
   border-bottom-width: 4px;
-  max-height: 50px;
   min-height: 50px;
 }
 </style>
