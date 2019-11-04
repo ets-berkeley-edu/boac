@@ -143,7 +143,7 @@
                 Details
               </b-dropdown-item-button>
               <b-dropdown-item-button
-                v-if="appointment.status !== 'reserved' || appointment.statusBy.id !== user.id"
+                v-if="isUserDropInAdvisor(deptCode) && (appointment.status !== 'reserved' || appointment.statusBy.id !== user.id)"
                 :id="`btn-appointment-${appointment.id}-reserve`"
                 @click="reserveAppointment(appointment)">
                 <span class="text-nowrap">Reserve</span>
