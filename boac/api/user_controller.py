@@ -218,6 +218,7 @@ def _get_boa_user_groups(sort_users_by=None):
 
 
 def _update_drop_in_status(uid, dept_code, active):
+    dept_code = dept_code.upper()
     if uid == 'me':
         uid = current_user.get_uid()
     else:
