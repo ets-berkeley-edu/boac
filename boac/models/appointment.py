@@ -29,7 +29,7 @@ import re
 from boac import db, std_commit
 from boac.externals import data_loch
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
-from boac.lib.util import camelize, search_result_text_snippet, utc_now
+from boac.lib.util import camelize, get_benchmarker, search_result_text_snippet, utc_now
 from boac.merged import calnet
 from boac.models.appointment_event import appointment_event_type, AppointmentEvent
 from boac.models.appointment_read import AppointmentRead
@@ -102,23 +102,28 @@ class Appointment(Base):
         return cls.query.filter(and_(cls.id == appointment_id, cls.deleted_at == None)).first()  # noqa: E711
 
     @classmethod
-    def find_advisors_by_name(cls, prefixes, limit=None):
-        prefix_conditions = []
+    def find_advisors_by_name(cls, tokens, limit=None):
+        benchmark = get_benchmarker('appointments find_advisors_by_name')
+        benchmark('begin')
+        token_conditions = []
         params = {}
-        for idx, prefix in enumerate(prefixes):
-            prefix_conditions.append(
+        for idx, token in enumerate(tokens):
+            token_conditions.append(
                 f"""JOIN appointments a{idx}
-                ON UPPER(a{idx}.advisor_name) LIKE :prefix_{idx}
+                ON UPPER(a{idx}.advisor_name) LIKE :token_{idx}
                 AND a{idx}.advisor_uid = a.advisor_uid""",
             )
-            params[f'prefix_{idx}'] = f'{prefix}%'
+            params[f'token_{idx}'] = f'%{token}%'
         sql = f"""SELECT DISTINCT a.advisor_name, a.advisor_uid
             FROM appointments a
-            {' '.join(prefix_conditions)}
+            {' '.join(token_conditions)}
             ORDER BY a.advisor_name"""
         if limit:
             sql += f' LIMIT {limit}'
-        return db.session.execute(sql, params)
+        benchmark('execute query')
+        results = db.session.execute(sql, params)
+        benchmark('end')
+        return results
 
     @classmethod
     def get_appointments_per_sid(cls, sid):
