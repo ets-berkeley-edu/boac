@@ -1,25 +1,5 @@
 <template>
   <div>
-    <AppointmentCancellationModal
-      v-if="showCancelAppointmentModal"
-      :appointment="selectedAppointment"
-      :appointment-cancellation="appointmentCancellation"
-      :close="closeAppointmentCancellationModal"
-      :show-modal="showCancelAppointmentModal"
-      :student="selectedAppointment.student" />
-    <AppointmentDetailsModal
-      v-if="showAppointmentDetailsModal"
-      :appointment="selectedAppointment"
-      :close="closeAppointmentDetailsModal"
-      :check-in="launchCheckIn"
-      :show-modal="showAppointmentDetailsModal"
-      :student="selectedAppointment.student" />
-    <CheckInModal
-      v-if="showCheckInModal"
-      :appointment="selectedAppointment"
-      :appointment-checkin="checkInAppointment"
-      :close="closeCheckInModal"
-      :show-modal="showCheckInModal" />
     <CreateAppointmentModal
       v-if="showCreateAppointmentModal"
       :cancel="cancelCreateAppointment"
@@ -129,38 +109,15 @@
             </div>
           </b-col>
           <b-col sm="3">
-            <b-dropdown
-              v-if="includes(['reserved', 'waiting'], appointment.status)"
-              :id="`appointment-${appointment.id}-dropdown`"
-              :disabled="appointment.status === 'checked_in' || appointment.status === 'canceled'"
-              @click="launchCheckInForAppointment(appointment)"
-              class="bg-white float-right text-nowrap"
-              right
-              split
-              text="Check In"
-              variant="outline-dark">
-              <b-dropdown-item-button :id="`btn-appointment-${appointment.id}-details`" @click="showAppointmentDetails(appointment)">
-                Details
-              </b-dropdown-item-button>
-              <b-dropdown-item-button
-                v-if="isUserDropInAdvisor(deptCode) && (appointment.status !== 'reserved' || appointment.statusBy.id !== user.id)"
-                :id="`btn-appointment-${appointment.id}-reserve`"
-                @click="reserveAppointment(appointment)">
-                <span class="text-nowrap">Reserve</span>
-              </b-dropdown-item-button>
-              <b-dropdown-item-button
-                v-if="appointment.status === 'reserved' && appointment.statusBy.id === user.id"
-                :id="`btn-appointment-${appointment.id}-unreserve`"
-                @click="unreserveAppointment(appointment)">
-                <span class="text-nowrap">Unreserve</span>
-              </b-dropdown-item-button>
-              <b-dropdown-item-button
-                :id="`btn-appointment-${appointment.id}-cancel`"
-                @click="cancelAppointment(appointment)">
-                <span aria-hidden="true" class="text-nowrap">Cancel Appt</span>
-                <span class="sr-only">Cancel Appointment</span>
-              </b-dropdown-item-button>
-            </b-dropdown>
+            <div>
+              <DropInAppointmentDropdown
+                :appointment="appointment"
+                :dept-code="deptCode"
+                :is-homepage="isHomepage"
+                :on-appointment-status-change="onAppointmentStatusChange"
+                :set-selected-appointment="setSelectedAppointment"
+                :waitlist="waitlist" />
+            </div>
             <div
               v-if="appointment.status === 'canceled'"
               :id="`appointment-${appointment.id}-canceled`"
@@ -181,30 +138,20 @@
 </template>
 
 <script>
-import AppointmentDetailsModal from '@/components/appointment/AppointmentDetailsModal';
-import AppointmentCancellationModal from '@/components/appointment/AppointmentCancellationModal';
-import CheckInModal from '@/components/appointment/CheckInModal';
 import Context from '@/mixins/Context';
 import CreateAppointmentModal from '@/components/appointment/CreateAppointmentModal';
+import DropInAppointmentDropdown from '@/components/appointment/DropInAppointmentDropdown';
 import DropInAvailabilityToggle from '@/components/appointment/DropInAvailabilityToggle';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
-import {
-  cancel as apiCancel,
-  checkIn as apiCheckIn,
-  create as apiCreate,
-  reserve as apiReserve,
-  unreserve as apiUnreserve,
-} from '@/api/appointments';
+import { create as apiCreate } from '@/api/appointments';
 
 export default {
   name: 'DropInWaitlist',
   components: {
-    AppointmentCancellationModal,
-    AppointmentDetailsModal,
-    CheckInModal,
     CreateAppointmentModal,
+    DropInAppointmentDropdown,
     DropInAvailabilityToggle,
     StudentAvatar
   },
@@ -231,9 +178,6 @@ export default {
     linkToStudentProfiles: undefined,
     now: undefined,
     selectedAppointment: undefined,
-    showAppointmentDetailsModal: false,
-    showCancelAppointmentModal: false,
-    showCheckInModal: false,
     showCreateAppointmentModal: false
   }),
   created() {
@@ -241,62 +185,9 @@ export default {
     this.now = this.$moment();
   },
   methods: {
-    appointmentCancellation(appointmentId, reason, reasonExplained) {
-      apiCancel(this.selectedAppointment.id, reason, reasonExplained).then(canceled => {
-        if (this.isHomepage) {
-          let match = this.waitlist.find(a => a.id === +canceled.id);
-          Object.assign(match, canceled);
-        } else {
-          const indexOf = this.waitlist.findIndex(a => a.id === canceled.id);
-          this.waitlist.splice(indexOf, 1);
-        }
-        this.alertScreenReader(`${canceled.student.name} appointment canceled`);
-        this.selectedAppointment = undefined;
-        this.onAppointmentStatusChange();
-      });
-    },
-    cancelAppointment(appointment) {
-      this.selectedAppointment = appointment;
-      this.showCancelAppointmentModal = true;
-    },
     cancelCreateAppointment() {
       this.showCreateAppointmentModal = false;
       this.alertScreenReader('Dialog closed');
-      this.selectedAppointment = undefined;
-    },
-    checkInAppointment(advisor, deptCodes) {
-      if (!advisor) {
-        advisor = this.user;
-        deptCodes = this.map(this.user.departments, 'code');
-      }
-      const appointmentId = this.selectedAppointment.id;
-      apiCheckIn(
-        deptCodes,
-        advisor.name,
-        advisor.title,
-        advisor.uid,
-        appointmentId
-      ).then(checkedIn => {
-        this.onAppointmentStatusChange();
-        this.alertScreenReader(`${checkedIn.student.name} checked in`);
-        this.closeCheckInModal();
-      });
-    },
-    closeAppointmentCancellationModal() {
-      this.showCancelAppointmentModal = false;
-      this.putFocusNextTick(`waitlist-student-${this.selectedAppointment.student.sid}`);
-      this.alertScreenReader('Dialog closed');
-      this.selectedAppointment = undefined;
-    },
-    closeAppointmentDetailsModal() {
-      this.showAppointmentDetailsModal = false;
-      this.putFocusNextTick(`waitlist-student-${this.selectedAppointment.student.sid}`);
-      this.alertScreenReader(`Dialog closed`);
-      this.selectedAppointment = undefined;
-    },
-    closeCheckInModal() {
-      this.showCheckInModal = false;
-      this.showAppointmentDetailsModal = false;
       this.selectedAppointment = undefined;
     },
     createAppointment(details, student, topics) {
@@ -307,40 +198,12 @@ export default {
         this.putFocusNextTick(`waitlist-student-${student.sid}`)
       });
     },
-    launchCheckIn() {
-      if (this.isHomepage) {
-        this.checkInAppointment();
-      } else {
-        this.showCheckInModal = true;
-      }
-    },
-    launchCheckInForAppointment(appointment) {
-      this.selectedAppointment = appointment;
-      this.launchCheckIn();
-    },
     openCreateAppointmentModal() {
       this.showCreateAppointmentModal = true;
       this.alertScreenReader('Create appointment form is open');
     },
-    reserveAppointment(appointment) {
-      apiReserve(appointment.id).then(reserved => {
-        let match = this.waitlist.find(a => a.id === +reserved.id);
-        Object.assign(match, reserved);
-        this.onAppointmentStatusChange();
-        this.alertScreenReader(`${reserved.student.name} appointment reserved`);
-      });
-    },
-    showAppointmentDetails(appointment) {
+    setSelectedAppointment(appointment) {
       this.selectedAppointment = appointment;
-      this.showAppointmentDetailsModal = true;
-    },
-    unreserveAppointment(appointment) {
-      apiUnreserve(appointment.id).then(unreserved => {
-        let match = this.waitlist.find(a => a.id === +unreserved.id);
-        Object.assign(match, unreserved);
-        this.onAppointmentStatusChange();
-        this.alertScreenReader(`${unreserved.student.name} appointment unreserved`);
-      });
     }
   }
 }
