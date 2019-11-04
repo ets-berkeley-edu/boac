@@ -524,31 +524,120 @@ class TestDownloadCuratedGroupCSV:
 
     def test_download_csv_not_authenticated(self, asc_curated_groups, client):
         """Anonymous user is rejected."""
-        response = client.get(f'/api/curated_group/{asc_curated_groups[0].id}/download_csv')
+        data = {
+            'csvColumnsSelected': [
+                'first_name',
+                'last_name',
+                'sid',
+            ],
+        }
+        response = client.post(
+            f'/api/curated_group/{asc_curated_groups[0].id}/download_csv',
+            data=json.dumps(data),
+            content_type='application/json',
+        )
         assert response.status_code == 401
 
     def test_download_csv_unauthorized(self, asc_curated_groups, coe_advisor, client):
         """403 if user does not share a department membership with group owner."""
-        response = client.get(f'/api/curated_group/{asc_curated_groups[0].id}/download_csv')
+        data = {
+            'csvColumnsSelected': [
+                'first_name',
+                'last_name',
+                'sid',
+            ],
+        }
+        response = client.post(
+            f'/api/curated_group/{asc_curated_groups[0].id}/download_csv',
+            data=json.dumps(data),
+            content_type='application/json',
+        )
         assert response.status_code == 403
 
     def test_download_csv(self, asc_advisor, asc_curated_groups, client):
         """Advisor can download CSV with ALL students of group."""
-        response = client.get(f'/api/curated_group/{asc_curated_groups[0].id}/download_csv')
+        data = {
+            'csvColumnsSelected': [
+                'first_name',
+                'last_name',
+                'sid',
+                'email',
+                'phone',
+                'majors',
+                'level',
+                'terms_in_attendance',
+                'expected_graduation_date',
+                'units_completed',
+                'term_gpa',
+                'cumulative_gpa',
+                'program_status',
+            ],
+        }
+        response = client.post(
+            f'/api/curated_group/{asc_curated_groups[0].id}/download_csv',
+            data=json.dumps(data),
+            content_type='application/json',
+        )
         assert response.status_code == 200
         assert 'csv' in response.content_type
         csv = str(response.data)
         for snippet in [
-            'first_name,last_name,sid,email,phone',
-            'Deborah,Davies,11667051,barnburner@berkeley.edu,415/123-4567',
+            'first_name,last_name,sid,email,phone,majors,level,terms_in_attendance,expected_graduation_date,units_completed,term_gpa,cumulative_gpa,\
+program_status',
+            'Deborah,Davies,11667051,barnburner@berkeley.edu,415/123-4567,English BA;Nuclear Engineering BS,Junior,5,Fall 2019,101.3,2.900,3.8,',
+            'Paul,Kerschen,3456789012,doctork@berkeley.edu,415/123-4567,English BA;Political Economy BA,Junior,5,Fall 2019,70,3.200,3.005,',
+            'Sandeep,Jayaprakash,5678901234,ilovela@berkeley.edu,415/123-4567,Letters & Sci Undeclared UG,Senior,5,Fall 2019,102,2.100,3.501,',
+            'Paul,Farestveit,7890123456,qadept@berkeley.edu,415/123-4567,Nuclear Engineering BS,Senior,5,Spring 2020,110,,3.9,',
         ]:
             assert str(snippet) in csv
 
     def test_download_csv_shared_dept(self, asc_curated_groups, asc_and_coe_advisor, client):
         """Advisor can download CSV if they share the group owner's department memberships."""
-        response = client.get(f'/api/curated_group/{asc_curated_groups[0].id}/download_csv')
+        data = {
+            'csvColumnsSelected': [
+                'first_name',
+                'last_name',
+                'sid',
+            ],
+        }
+        response = client.post(
+            f'/api/curated_group/{asc_curated_groups[0].id}/download_csv',
+            data=json.dumps(data),
+            content_type='application/json',
+        )
         assert response.status_code == 200
         assert 'csv' in response.content_type
+
+    def test_download_csv_custom_columns(self, asc_advisor, asc_curated_groups, client):
+        """Advisor can generate a CSV with the columns they want."""
+        data = {
+            'csvColumnsSelected': [
+                'majors',
+                'level',
+                'terms_in_attendance',
+                'expected_graduation_date',
+                'units_completed',
+                'term_gpa',
+                'cumulative_gpa',
+                'program_status',
+            ],
+        }
+        response = client.post(
+            f'/api/curated_group/{asc_curated_groups[0].id}/download_csv',
+            data=json.dumps(data),
+            content_type='application/json',
+        )
+        assert response.status_code == 200
+        assert 'csv' in response.content_type
+        csv = str(response.data)
+        for snippet in [
+            'majors,level,terms_in_attendance,expected_graduation_date,units_completed,term_gpa,cumulative_gpa,program_status',
+            'English BA;Nuclear Engineering BS,Junior,5,Fall 2019,101.3,2.900,3.8,',
+            'English BA;Political Economy BA,Junior,5,Fall 2019,70,3.200,3.005,',
+            'Letters & Sci Undeclared UG,Senior,5,Fall 2019,102,2.100,3.501,',
+            'Nuclear Engineering BS,Senior,5,Spring 2020,110,,3.9,',
+        ]:
+            assert str(snippet) in csv
 
 
 def _api_create_group(client, expected_status_code=200, name=None, sids=()):
