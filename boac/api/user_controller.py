@@ -136,7 +136,12 @@ def all_users():
 def drop_in_advisors_for_dept(dept_code):
     dept_code = dept_code.upper()
     advisor_assignments = DropInAdvisor.advisors_for_dept_code(dept_code)
-    return tolerant_jsonify(authorized_users_api_feed([a.authorized_user for a in advisor_assignments]))
+    feeds = []
+    for a in advisor_assignments:
+        transformed_user = authorized_users_api_feed([a.authorized_user])[0]
+        transformed_user['available'] = a.is_available
+        feeds.append(transformed_user)
+    return tolerant_jsonify(feeds)
 
 
 @app.route('/api/user/demo_mode', methods=['POST'])
