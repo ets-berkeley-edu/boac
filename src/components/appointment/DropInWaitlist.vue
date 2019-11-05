@@ -2,6 +2,7 @@
   <div>
     <CreateAppointmentModal
       v-if="showCreateAppointmentModal"
+      :advisors="advisors"
       :cancel="cancelCreateAppointment"
       :create-appointment="createAppointment"
       :show-modal="showCreateAppointmentModal" />
@@ -146,6 +147,10 @@ export default {
   },
   mixins: [Context, UserMetadata, Util],
   props: {
+    advisors: {
+      type: Array,
+      required: false
+    },
     deptCode: {
       type: String,
       required: true
@@ -179,8 +184,8 @@ export default {
       this.alertScreenReader('Dialog closed');
       this.selectedAppointment = undefined;
     },
-    createAppointment(details, student, topics) {
-      apiCreate(this.deptCode, details, student.sid, 'Drop-in', topics).then(() => {
+    createAppointment(details, student, topics, advisorUid) {
+      apiCreate(this.deptCode, details, student.sid, 'Drop-in', topics, advisorUid).then(() => {
         this.alertScreenReader(`${student.label} appointment created`);
         this.showCreateAppointmentModal = false;
         this.onAppointmentStatusChange();

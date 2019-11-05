@@ -20,6 +20,7 @@
       <div class="waitlist-container">
         <DropInWaitlist
           ref="dropInWaitlist"
+          :advisors="advisors"
           :dept-code="deptCode"
           :on-appointment-status-change="loadDropInWaitlist"
           :waitlist="waitlist" />

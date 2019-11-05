@@ -60,6 +60,28 @@
                 class="w-75" />
             </div>
           </div>
+          <div v-if="advisors">
+            <label
+              for="create-modal-advisor-select"
+              class="font-size-14 input-label text mt-2">
+              <span class="sr-only">Select an </span><span class="font-weight-bolder">Advisor</span> (optional)
+            </label>
+            <b-col v-if="availableAdvisors.length" cols="9" class="pl-0">
+              <b-form-select
+                id="create-modal-advisor-select"
+                v-model="selectedAdvisorUid"
+                :options="availableAdvisors"
+                value-field="uid"
+                text-field="name">
+                <template v-slot:first>
+                  <option :value="null" disabled>Select...</option>
+                </template>
+              </b-form-select>
+            </b-col>
+            <div v-if="!availableAdvisors.length" class="pb-1 pt-1">
+              Sorry, no advisors are on duty.
+            </div>
+          </div>
           <div class="mt-2">
             <AppointmentTopics
               :disabled="isSaving"
@@ -117,6 +139,10 @@ export default {
   components: {AppointmentTopics, Autocomplete},
   mixins: [Context, UserMetadata, Util, Validator],
   props: {
+    advisors: {
+      type: Array,
+      required: false
+    },
     createAppointment: {
       type: Function,
       required: false
@@ -134,10 +160,16 @@ export default {
     details: '',
     isSaving: false,
     resetAutoCompleteKey: undefined,
+    selectedAdvisorUid: null,
     showCreateAppointmentModal: false,
     student: undefined,
     topics: []
   }),
+  computed: {
+    availableAdvisors() {
+      return this.filterList(this.advisors, 'available');
+    }
+  },
   watch: {
     showModal(value) {
       this.showCreateAppointmentModal = value;
@@ -166,7 +198,7 @@ export default {
     },
     create() {
       this.saving = true;
-      this.createAppointment(this.details, this.student, this.topics);
+      this.createAppointment(this.details, this.student, this.topics, this.selectedAdvisorUid);
       this.showCreateAppointmentModal = false;
       this.saving = false;
       this.reset();

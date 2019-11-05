@@ -42,8 +42,9 @@ l_s_college_scheduler_uid = '19735'
 class AppointmentTestUtil:
 
     @classmethod
-    def create_appointment(cls, client, dept_code, details='', expected_status_code=200):
+    def create_appointment(cls, client, dept_code, details='', advisor_uid=None, expected_status_code=200):
         data = {
+            'advisorUid': advisor_uid,
             'appointmentType': 'Drop-in',
             'deptCode': dept_code,
             'details': details,
@@ -83,6 +84,7 @@ class TestCreateAppointment:
         assert matching
         assert appointment_id == matching['id']
         assert appointment['read'] is True
+        assert appointment['status'] == 'waiting'
         assert appointment['student']['sid'] == '3456789012'
         assert appointment['student']['name'] == 'Paul Kerschen'
         assert appointment['student']['photoUrl']
@@ -92,6 +94,19 @@ class TestCreateAppointment:
         Appointment.delete(appointment_id)
         waitlist = self._get_waitlist(client, 'COENG')
         assert next((a for a in waitlist if a['details'] == details), None) is None
+
+    def test_create_pre_reserved_appointment_for_specific_advisor(self, client, fake_auth):
+        fake_auth.login(coe_scheduler_uid)
+        details = 'Aloysius has some questions.'
+        appointment = AppointmentTestUtil.create_appointment(client, 'COENG', details, advisor_uid=coe_drop_in_advisor_uid)
+        appointment_id = appointment['id']
+        waitlist = self._get_waitlist(client, 'COENG')
+        matching = next((a for a in waitlist if a['details'] == details), None)
+        assert appointment_id == matching['id']
+        assert appointment['read'] is True
+        assert appointment['status'] == 'reserved'
+        assert appointment['advisorUid'] == coe_drop_in_advisor_uid
+        assert appointment['statusBy']['uid'] == coe_drop_in_advisor_uid
 
     def test_other_departments_forbidden(self, client, fake_auth):
         fake_auth.login(coe_scheduler_uid)
