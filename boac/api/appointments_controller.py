@@ -186,6 +186,7 @@ def create_appointment():
     params = request.get_json()
     dept_code = params.get('deptCode', None)
     sid = params.get('sid', None)
+    advisor_uid = params.get('advisorUid', None)
     appointment_type = params.get('appointmentType', None)
     topics = params.get('topics', None)
     if not dept_code or not sid or not appointment_type or not len(topics):
@@ -196,10 +197,11 @@ def create_appointment():
     if dept_code not in _dept_codes_with_scheduler_privilege():
         raise ForbiddenRequestError(f'You are unauthorized to manage {dept_code} appointments.')
     appointment = Appointment.create(
+        advisor_uid=advisor_uid,
+        appointment_type=appointment_type,
         created_by=current_user.get_id(),
         dept_code=dept_code,
         details=params.get('details', None),
-        appointment_type=appointment_type,
         student_sid=sid,
         topics=topics,
     )

@@ -148,14 +148,24 @@ class Appointment(Base):
             details,
             appointment_type,
             student_sid,
+            advisor_uid=None,
             topics=(),
     ):
+
+        if advisor_uid:
+            status = 'reserved'
+            status_by = AuthorizedUser.get_id_per_uid(advisor_uid)
+        else:
+            status = 'waiting'
+            status_by = created_by
+
         appointment = cls(
+            advisor_uid=advisor_uid,
             appointment_type=appointment_type,
             created_by=created_by,
             dept_code=dept_code,
             details=details,
-            status='waiting',
+            status=status,
             student_sid=student_sid,
             updated_by=created_by,
         )
@@ -167,8 +177,8 @@ class Appointment(Base):
         std_commit()
         AppointmentEvent.create(
             appointment_id=appointment.id,
-            user_id=created_by,
-            event_type='waiting',
+            user_id=status_by,
+            event_type=status,
         )
         cls.refresh_search_index()
         return appointment
