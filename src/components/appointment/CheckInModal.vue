@@ -49,25 +49,32 @@
             </div>
           </div>
         </div>
-        <label for="checkin-modal-advisor-select">
-          Select a drop-in advisor:
-        </label>
-        <b-form-select
-          id="checkin-modal-advisor-select"
-          v-model="selectedAdvisorUid"
-          :options="dropInAdvisors"
-          value-field="uid"
-          text-field="name">
-          <template v-slot:first>
-            <option :value="null" disabled>Select...</option>
-          </template>
-        </b-form-select>
+        <div v-if="dropInAdvisors.length" class="pb-3 pt-3">
+          <label for="checkin-modal-advisor-select" class="font-weight-bolder">
+            Select a drop-in advisor:
+          </label>
+          <b-form-select
+            id="checkin-modal-advisor-select"
+            v-model="selectedAdvisorUid"
+            :options="dropInAdvisors"
+            value-field="uid"
+            text-field="name">
+            <template v-slot:first>
+              <option :value="null" disabled>Select...</option>
+            </template>
+          </b-form-select>
+        </div>
+        <div v-if="!dropInAdvisors.length" class="has-error pb-1 pt-3">
+          Sorry, no advisors are on duty.
+        </div>
       </div>
       <div class="modal-footer">
         <form @submit.prevent="checkIn">
           <b-btn
             id="btn-appointment-check-in"
+            v-if="dropInAdvisors.length"
             :aria-label="`Check in ${appointment.student.name}`"
+            :disabled="!selectedAdvisorUid"
             @click.prevent="checkIn"
             class="btn-primary-color-override"
             variant="primary">
@@ -125,9 +132,9 @@ export default {
     }
   },
   created() {
-    this.showCheckInModal = this.showModal;
     getDropInAdvisorsForDept(this.appointment.deptCode).then(dropInAdvisors => {
       this.dropInAdvisors = this.filterList(dropInAdvisors, 'available');
+      this.showCheckInModal = this.showModal;
     });
   },
   methods: {
