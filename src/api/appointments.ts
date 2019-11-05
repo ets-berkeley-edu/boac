@@ -67,6 +67,12 @@ export function findAdvisorsByName(query: string, limit: number) {
     .then(response => response.data);
 }
 
+export function getAppointment(appointmentId) {
+  return axios
+    .get(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}`)
+    .then(response => response.data, () => null);
+}
+
 export function getDropInAppointmentWaitlist(deptCode) {
   return axios
     .get(`${utils.apiBaseUrl()}/api/appointments/waitlist/${deptCode}`)

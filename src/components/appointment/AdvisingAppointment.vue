@@ -11,26 +11,25 @@
         <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details"></span>
       </div>
       <div class="d-flex align-items-center mt-3 mb-3">
-        <div v-if="checkInAvailable">
-          <b-dropdown
-            :id="`appointment-${appointment.id}-check-in-dropdown`"
-            @click="checkIn(appointment.id)"
-            class="bg-white mr-3"
-            split
-            text="Check In"
-            variant="outline-dark">
-            <b-dropdown-item-button :id="`appointment-${appointment.id}-cancel`" @click="showCancelAppointmentModal = true">Cancel</b-dropdown-item-button>
-          </b-dropdown>
-          <AppointmentCancellationModal
-            v-if="showCancelAppointmentModal"
+        <div v-if="isUserDropInAdvisor(appointment.deptCode) && includes(['waiting', 'reserved'], appointment.status)">
+          <DropInAppointmentDropdown
             :appointment="appointment"
-            :appointment-cancellation="appointmentCancellation"
-            :close="closeCancellationModal"
-            :show-modal="showCancelAppointmentModal"
-            :student="student" />
+            :dept-code="appointment.deptCode"
+            :include-details-option="false"
+            :on-appointment-status-change="onAppointmentStatusChange"
+            :self-check-in="true"
+            class="mr-3" />
+        </div>
+        <div v-if="appointment.status === 'reserved' && (user.isAdmin || isUserDropInAdvisor(appointment.deptCode))">
+          <span class="text-secondary">
+            Reserved
+            <span v-if="appointment.statusBy" :id="`appointment-${appointment.id}-reserved-by`">
+              by {{ appointment.statusBy.id === user.id ? 'you' : appointment.statusBy.name }}
+            </span>
+          </span>
         </div>
         <div v-if="appointment.status === 'checked_in'">
-          <font-awesome :id="`appointment-${appointment.id}-checked-in-icon`" icon="calendar-check" class="status-checked-in-icon" />
+          <font-awesome icon="calendar-check" class="status-checked-in-icon" />
           <span class="text-secondary ml-1">
             Check In
             <span v-if="appointment.statusDate">
@@ -40,7 +39,7 @@
         </div>
         <div v-if="appointment.status === 'canceled'">
           <div>
-            <font-awesome :id="`appointment-${appointment.id}-canceled-in-icon`" icon="calendar-minus" class="status-canceled-icon" />
+            <font-awesome icon="calendar-minus" class="status-canceled-icon" />
             <span class="text-secondary ml-1">
               <span :id="`appointment-${appointment.id}-cancel-reason`">{{ appointment.cancelReason || 'Canceled' }}</span>
             </span>
@@ -89,14 +88,14 @@
 </template>
 
 <script>
-import AppointmentCancellationModal from '@/components/appointment/AppointmentCancellationModal';
+import DropInAppointmentDropdown from '@/components/appointment/DropInAppointmentDropdown';
 import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'AdvisingAppointment',
-  components: {AppointmentCancellationModal},
+  components: { DropInAppointmentDropdown },
   mixins: [Context, UserMetadata, Util],
   props: {
     isOpen: {
@@ -107,11 +106,7 @@ export default {
       required: true,
       type: Object
     },
-    cancelAppointment: {
-      required: true,
-      type: Function
-    },
-    checkIn: {
+    onAppointmentStatusChange: {
       required: true,
       type: Function
     },
@@ -120,25 +115,7 @@ export default {
       type: Object
     }
   },
-  data: () => ({
-    showCancelAppointmentModal: false
-  }),
-  computed: {
-    checkInAvailable() {
-      return (
-        this.includes(this.map((this.user.dropInAdvisorStatus || []), 'deptCode'), this.appointment.deptCode) &&
-        this.includes(['waiting', 'reserved'], this.appointment.status)
-      );
-    }
-  },
   methods: {
-    appointmentCancellation(appointmentId, cancelReason, cancelReasonExplained) {
-      this.cancelAppointment(appointmentId, cancelReason, cancelReasonExplained);
-      this.showCancelAppointmentModal = false;
-    },
-    closeCancellationModal() {
-      this.showCancelAppointmentModal = false;
-    },
     datePerTimezone(date) {
       return this.$moment(date).tz(this.timezone);
     }
@@ -149,10 +126,6 @@ export default {
 <style scoped>
 .advising-appointment-outer {
   flex-basis: 100%;
-}
-.advisor-profile-not-found {
-  color: #999;
-  font-size: 14px;
 }
 .status-canceled-icon {
   color: #f0ad4e;

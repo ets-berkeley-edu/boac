@@ -113,10 +113,9 @@
               <DropInAppointmentDropdown
                 :appointment="appointment"
                 :dept-code="deptCode"
-                :is-homepage="isHomepage"
+                :self-check-in="isHomepage"
                 :on-appointment-status-change="onAppointmentStatusChange"
-                :set-selected-appointment="setSelectedAppointment"
-                :waitlist="waitlist" />
+                :set-selected-appointment="setSelectedAppointment" />
             </div>
             <div
               v-if="appointment.status === 'canceled'"

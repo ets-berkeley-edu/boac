@@ -30,7 +30,10 @@
       split
       text="Check In"
       variant="outline-dark">
-      <b-dropdown-item-button :id="`btn-appointment-${appointment.id}-details`" @click="showAppointmentDetails(appointment)">
+      <b-dropdown-item-button
+        v-if="includeDetailsOption"
+        :id="`btn-appointment-${appointment.id}-details`"
+        @click="showAppointmentDetails(appointment)">
         Details
       </b-dropdown-item-button>
       <b-dropdown-item-button
@@ -86,21 +89,23 @@ export default {
       type: String,
       required: true
     },
-    isHomepage: {
-      type: Boolean,
-      required: true
-    },
     onAppointmentStatusChange: {
       type: Function,
       required: true
     },
-    setSelectedAppointment: {
-      type: Function,
+    selfCheckIn: {
+      type: Boolean,
       required: true
     },
-    waitlist: {
-      type: Array,
-      required: true
+    setSelectedAppointment: {
+      default: () => {},
+      type: Function,
+      required: false
+    },
+    includeDetailsOption: {
+      default: true,
+      type: Boolean,
+      required: false
     }
   },
   data: () => ({
@@ -112,16 +117,9 @@ export default {
   methods: {
     appointmentCancellation(appointmentId, reason, reasonExplained) {
       apiCancel(this.appointment.id, reason, reasonExplained).then(canceled => {
-        if (this.isHomepage) {
-          let match = this.waitlist.find(a => a.id === +canceled.id);
-          Object.assign(match, canceled);
-        } else {
-          const indexOf = this.waitlist.findIndex(a => a.id === canceled.id);
-          this.waitlist.splice(indexOf, 1);
-        }
         this.alertScreenReader(`${canceled.student.name} appointment canceled`);
         this.setSelectedAppointment(undefined);
-        this.onAppointmentStatusChange();
+        this.onAppointmentStatusChange(this.appointment.id);
       });
     },
     checkInAppointment(advisor, deptCodes) {
@@ -137,7 +135,7 @@ export default {
         advisor.uid,
         appointmentId
       ).then(checkedIn => {
-        this.onAppointmentStatusChange();
+        this.onAppointmentStatusChange(appointmentId);
         this.alertScreenReader(`${checkedIn.student.name} checked in`);
         this.closeCheckInModal();
       });
@@ -160,7 +158,7 @@ export default {
       this.setSelectedAppointment(undefined);
     },
     launchCheckIn() {
-      if (this.isHomepage) {
+      if (this.selfCheckIn) {
         this.checkInAppointment();
       } else {
         this.showCheckInModal = true;
@@ -176,9 +174,7 @@ export default {
     },
     reserveAppointment(appointment) {
       apiReserve(appointment.id).then(reserved => {
-        let match = this.waitlist.find(a => a.id === +reserved.id);
-        Object.assign(match, reserved);
-        this.onAppointmentStatusChange();
+        this.onAppointmentStatusChange(appointment.id);
         this.alertScreenReader(`${reserved.student.name} appointment reserved`);
       });
     },
@@ -188,9 +184,7 @@ export default {
     },
     unreserveAppointment(appointment) {
       apiUnreserve(appointment.id).then(unreserved => {
-        let match = this.waitlist.find(a => a.id === +unreserved.id);
-        Object.assign(match, unreserved);
-        this.onAppointmentStatusChange();
+        this.onAppointmentStatusChange(appointment.id);
         this.alertScreenReader(`${unreserved.student.name} appointment unreserved`);
       });
     }

@@ -67,6 +67,18 @@ def get_waitlist(dept_code):
         raise ForbiddenRequestError(f'You are unauthorized to manage {dept_code} appointments.')
 
 
+@app.route('/api/appointments/<appointment_id>')
+@appointments_feature_flag
+@advisor_required
+def get_appointment(appointment_id):
+    appointment = Appointment.find_by_id(appointment_id)
+    if not appointment:
+        raise ResourceNotFoundError('Unknown path')
+    api_json = appointment.to_api_json(current_user.get_id())
+    _put_student_profile_per_appointment([api_json])
+    return tolerant_jsonify(api_json)
+
+
 @app.route('/api/appointments/<appointment_id>/check_in', methods=['POST'])
 @appointments_feature_flag
 @scheduler_required
